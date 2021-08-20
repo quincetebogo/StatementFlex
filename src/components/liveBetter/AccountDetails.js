@@ -79,133 +79,21 @@ import 'app/components/common/HorizonLabel';
 		return [
 			super.styles,
 			css`
+			
+				.card {
+					height: 888px;
+				}
 				capitec-title-bar {
-					--theme-type-primary-background: url(../../images/liveBetter/LBB_bg-1092x80.png);
 					height: 80px;
 					width: 1062px;
+					--theme-titlebar-shadow: 0px;
+					--theme-titlebar-padding: 10px 24px 6px 16px;
+					--theme-titlebar-item-gap: 0px;
+					--theme-type-primary-background: url(../../images/liveBetter/LBB_bg-1092x80.png);
 				}
-
-				capitec-modal {
-					height: 581px;
-					--theme-modal-free-max-width: 572px;
-					--theme-modal-body-box-shadow: 0px;
-
-					--theme-modal-header-padding-top: 20px;
-					--theme-modal-header-padding-bottom: 20px;
-					--theme-modal-header-padding-right: 31px;
-					--theme-modal-header-padding-left: 16px;
-					--theme-modal-header-background-color: #009de0;
-
-					--theme-modal-footer-padding: 0px 0px 0px 0px;
-				}
-
-				/* Styles to display background color of header as a gradient*/
-				.header-gradient {
-					width: 572px;
-					border-radius: 4px 4px 0px 0px;
-					position: absolute;
-					left: -551px;
-					top: -44px;					
-					background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
-					--theme-label-title-font-size: 18px;
-					--theme-titlebar-padding: 20px 16px;
-					--theme-label-font-family: 'Hind Vadodara semibold';
-				}
-
-				.header-gradient {
-					line-height: 64px;
-					padding-left: 16px;
-					--theme-label-default-font-size: 18px;
-					--theme-label-font-color: #ffffff;
-					letter-spacing: 0;
-					--theme-label-font-family: 'Hind Vadodara SemiBold';
-				}
-
-				/* Account details Styles */
-				.details-vertical {
-					width: 993px;
-					height: 160px;
-					margin-bottom: 34px;
-					--theme-container-padding-bottom: 0px;
-					--theme-container-padding-top: 0px;
-					--theme-container-padding-left: 0px;
-					--theme-layout-gap-spacing: 0px;
-				}
-
-				.details-horizontal {
-					padding-left: 15px;
-				}
-
-				horizon-label {
-					height: 56px;
-					padding: 12px 8px 12px 16px;
-
-					--horizon-label-text-height: 20px;
-					--horizon-label-text-line-height: 12px;
-					--horizon-label-text-font-size: 14px;
-					--horizon-label-text-color: #3A3A3A;
-					--horizon-label-text-font-weight: 600;
-
-					--horizon-label-value-height: 20px;
-					--horizon-label-value-line-height: 20px;
-					--horizon-label-value-font-size: 16px;
-					--horizon-label-value-color: #3A3A3A;
-					
-					--horizon-label-value-font-weight: 600;
-				}
-
-				capitec-icon {
-					--theme-icon-size-medium: 24px;
-				}
-
-				capitec-label {
-					--theme-label-font-color: #3a3a3a;
-					--theme-label-title-font-size: 18px;
-					--theme-label-font-weight: 600;
-					margin-left: 16px;
-				}
-
-				.main-title {
-					--horizon-label-text-font-size: 24px;
-					--horizon-label-text-line-height: 26px;
-					--horizon-label-text-line-width: 168px;
-					--horizon-label-text-color: #ffffff;
-					--horizon-label-value-line-height: 47px;
-    				--horizon-label-value-color: #ffffff;
-					padding: 6px 33px 6px 7px;
-				}
-
-				.title-style {
-					margin-left: 8px;
-					padding-bottom:8px;
-
-					--theme-label-title-font-size: 18px;
-					--theme-label-title-font-weight: 600;
-					--horizon-label-text-line-height: 32px;
-					--horizon-label-text-line-width: 168px;
-					--horizon-label-value-line-height: 47px;
-				}
-
-				.col-1 {
-					width: 192px;
-					height: 64px;
-					padding-left: 18px;
-
-					--horizon-label-text-font-weight: 0;
-				}
-
-				/* Footer */
-				div[slot="footer"] {
-					width: 572px;
-					border-top: 1px solid #E1E1E1;
-					padding: 7px 16px 8px 0px;
-				}
-
-				capitec-button {
-					height: 48px;
-					width: 87px;
-					--theme-button-font-weight: 600;
-					--theme-button-line-height: 20px;
+				
+				.left-arrow {
+					padding-bottom: 26px
 				}
 
 				.alert-banner {
@@ -225,12 +113,85 @@ import 'app/components/common/HorizonLabel';
 					color: #3A3A3A;
 				}
 
-				capitec-alert-banner-label {
-					color: #3A3A3A;
+				/* Account details Styles */
+				
+				.sub-header {
+					height: 24px;
+					margin-bottom: 8px;
+				}
+
+				.details-vertical {
+					width: auto;
+					height: auto;
+					margin-bottom: 24px;
+					--theme-container-padding-bottom: 0px;
+					--theme-container-padding-top: 0px;
+					--theme-container-padding-left: 0px;
+					--theme-container-padding-right: 0px;
+					--theme-layout-gap-spacing: 0px;
+				}
+
+				.details-horizontal {
+					padding-left: 15px;
+				}
+
+				horizon-label {
+					height: 64px;
+					width: 205px;
+					padding: 12px 8px 12px 16px;
+
+					--horizon-label-text-height: 20px;
+					--horizon-label-text-line-height: 12px;
+					--horizon-label-text-font-size: 14px;
+					--horizon-label-text-color: #3A3A3A;
+					--horizon-label-text-font-weight: 400;
+
+					--horizon-label-value-height: 20px;
+					--horizon-label-value-line-height: 20px;
+					--horizon-label-value-font-size: 16px;
+					--horizon-label-value-color: #3A3A3A;
+					--horizon-label-value-font-weight: 600;
+				}
+
+				capitec-label {
+					--theme-label-font-color: #3A3A3A;
+					--theme-label-title-font-size: 18px;
+					--theme-label-font-weight: 600;
+					margin-left: 16px;
+				}
+
+				.main-title {
+					--horizon-label-text-font-size: 24px;
+					--horizon-label-text-line-height: 26px;
+					--horizon-label-text-line-width: 168px;
+					--horizon-label-text-color: #FFFFFF;
+					--horizon-label-value-line-height: 20px;
+					--horizon-label-value-color: #FFFFFF;
+					--horizon-label-text-height: 32px;
+					--horizon-label-text-font-weight: 600;
+					--horizon-label-value-height: 20px;
+					padding: 6px 33px 6px 16px;
+					height: 64px;
+					width: 218px;
+				}
+
+				.title-style {
+					margin-left: 8px;
+					padding-bottom:8px;
+
+					--theme-label-title-font-size: 18px;
+					--theme-label-title-font-weight: 600;
+					--horizon-label-text-line-height: 32px;
+					--horizon-label-text-line-width: 168px;
+					--horizon-label-value-line-height: 47px;
+				}
+
+				.col-3 {
+					width: 158px;
 				}
 				
 				.toggle-group {
-					width: 192px;
+					width: 205px;
 					height: 60px;
 
                     --theme-label-font-color: #3A3A3A;
@@ -240,21 +201,12 @@ import 'app/components/common/HorizonLabel';
                     --theme-toggle-track-inset: 1px;
 					padding-left: 18px;
                 }
+				.toggle-group > capitec-toggle {
+    				--theme-toggle-label-spacing: 6px;
+				}
 
 				.toggle-label {
 					margin-left: 0px;
-				}
-
-				.left-arrow {
-					padding: 4px 0px 20px 0px;
-				}
-
-				.card {
-					height: 888px;
-				}
-				.sub-header {
-					height: 24px;
-					margin-bottom: 8px;
 				}
 			`
 		];
@@ -322,31 +274,27 @@ import 'app/components/common/HorizonLabel';
 					valign="top">
 						<horizon-label 
 							data-automation-id="live-better-account-details-account-number"
-							class="col-1" 
 							label="Account number" 
 							value="1633824509">
 						</horizon-label>
 						<horizon-label 
-							data-automation-id="live-better-account-details-available-balance"
-							class="col-1" 
+							data-automation-id="live-better-account-details-available-balance" 
 							label="Available balance" 
 							value="R150.00">
 						</horizon-label>
 						<horizon-label 
 							data-automation-id="live-better-account-details-interest-rate"
-							class="col-1" 
+							class="col-3"
 							label="Interest rate" 
 							value="3.25%">
 						</horizon-label>
 						<horizon-label 
 							data-automation-id="live-better-account-details-interest-in-june"
-							class="col-1" 
 							label="Interest earned in June" 
 							value="R12.50">
 						</horizon-label>
 						<horizon-label 
 							data-automation-id="live-better-account-details-interest-in-may"
-							class="col-1" 
 							label="Interest earned in May" 
 							value="R15.50">
 						</horizon-label>
@@ -360,18 +308,16 @@ import 'app/components/common/HorizonLabel';
 					valign="center">
 						<horizon-label 
 							data-automation-id="live-better-account-details-interest-tax-year"
-							class="col-1" 
 							label="Interest tax year" 
 							value="R340.00">
 						</horizon-label>	
 						<horizon-label 
 							data-automation-id="live-better-account-details-date-opened"
-							class="col-1" 
 							label="Date opened" 
 							value="12 May 2021">
 						</horizon-label>
 						<horizon-label 
-						class="col-1"
+							class="col-3"
 							data-automation-id="live-better-account-details-status"
 							label="Status" 
 							value="Active">
@@ -409,13 +355,11 @@ import 'app/components/common/HorizonLabel';
 						</capitec-group>
 						<horizon-label 
 							data-automation-id="live-better-account-details-last-update-round-up"
-							class="col-1" 
 							label="Last update" 
 							value="12 May 2021">
 						</horizon-label>
 						<horizon-label 
 							data-automation-id="live-better-account-details-round-up-accounts"
-							class="col-1" 
 							label="Round-up account(s)" 
 							value="Savings Account">
 						</horizon-label>
@@ -433,7 +377,6 @@ import 'app/components/common/HorizonLabel';
 						</capitec-group>
 						<horizon-label 
 							data-automation-id="live-better-account-details-last-update-interest-sweep"
-							class="col-1" 
 							label="Last update" 
 							value="12 May 2021">
 						</horizon-label>
