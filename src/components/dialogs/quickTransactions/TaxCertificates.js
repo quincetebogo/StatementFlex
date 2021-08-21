@@ -102,6 +102,7 @@ export class TaxCertificate extends Component {
 	 * @property {Object} cards Object contains the list of client's card
 	 * @param {object} callerInformation Identified caller information
 	 * @param {Object} landingPageInfo Favourites landing page info
+	 * @param {Object} clientDetails Tac certificates client info
 	 */
 
 	static get properties() {
@@ -111,7 +112,7 @@ export class TaxCertificate extends Component {
 			renderMode: { attribute: false },
 			callerInformation: { type: Object },
 			landingPageInfo: { type: Object },
-
+			clientDetails: { type: Object },
 			selectedCertType: { type: String },
 			selectedCertificates: { type: Object },
 
@@ -174,12 +175,24 @@ export class TaxCertificate extends Component {
 			this._updateScreenDetails();
 
 			const clientInfo = {
-				"cifNumber": this.callerInformation.cifNumber,
-				"accountNumber": this.landingPageInfo.accountNumber,
-				"accountOpenedDate": this._formatDate(this.landingPageInfo.accountOpenedDate),
+				"cif": this.callerInformation.cifNumber,
 				"emailAddress": this.idEmailAddress,
-				"accountType": ACCOUNT_TYPE
+				"documentIds": [
+							`${this.clientDetails.iT3BTaxCertificates.documentId}`,
+							 `${this.clientDetails.iT3BTaxCertificates.documentId}`
+							],
+  				"messageParameters": {
+   				"title": this.clientDetails.title,
+				"surname": this.clientDetails.surname
+				},
+				"attachments": [
+				{
+					"name": this.clientDetails.name,
+					"data": this.clientDetails.contentData
+				}
+				]
 			};
+			
 			const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
 
 			this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME, {
@@ -362,9 +375,6 @@ export class TaxCertificate extends Component {
 	}
 
 	async _viewPDF() {
-		console.log(`CS call for Viewing the document`);
-		this.renderMode = RENDER_MODE.PDF;
-
 		// Telemetry
 		await this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_VIEW_DOCUMENT, { 
 			"screen": TelemetryScreen.TAX_CERTIFICATE,
@@ -372,23 +382,38 @@ export class TaxCertificate extends Component {
 		});
 		
 		const taxCertificate = {
-			"cifNumber": this.callerInformation.cifNumber,
-			"accountYear": `2020`,
-			"certificateType": `IT3(s)`
+			"cif": this.callerInformation.cifNumber,
+			"iT3BTaxCertificates": [
+			  {
+				"year": this.clientDetails.iT3BTaxCertificates.year,
+				"documentId": this.clientDetails.iT3BTaxCertificates.documentId,
+				"accountNumber": this.clientDetails.iT3BTaxCertificates.accountNumber,
+				"payload": this.clientDetails.iT3BTaxCertificates.payload
+			  }
+			],
+			"iT3STaxCertificates": [
+			  {
+				"year": this.clientDetails.iT3STaxCertificates.year,
+				"documentId": this.clientDetails.iT3STaxCertificates.documentId,
+				"accountNumber": this.clientDetails.iT3STaxCertificates.accountNumber
+			  }
+			]
 		};
 
-		const returnValue = await this.quickTransactionService.viewStatement(taxCertificate, () => this._createIncidentOnError());
+		const returnValue = await this.quickTransactionService.viewTaxCertificate(taxCertificate, () => this._createIncidentOnError());
+
 		if (returnValue.succeeded) {
 			this.renderMode = RENDER_MODE.PDF;
 			// render the PDF
-			this.encodedPDF = base64ToBlobUrl(returnValue.result.statementData);
+			this.encodedPDF = base64ToBlobUrl(returnValue.result.taxCertificateData);
 			// Telemetry
 			this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_VIEW_PDF, { 
 				"screen": TelemetryScreen.TAX_CERTIFICATE_DOCUMENT
 			});
 		} else {
-			this.errorMessage = `System error. Please try again`;
-			this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewPDF`, returnValue.correlationId);
+			this.errorMessage = `Tax ${this.selectedCertType.Count > 1 ? html`certificates are` : html`certificate is`} currently unavailble`;
+			this.alertBannerMessage = `Notify client: Tax ${this.selectedCertType.Count > 1 ? html`certificates are` : html`certificate is`} currently unavailble`;
+			this.horizonRouter.navigateToTaxCertificateUnavailable();
 		}
 	}
 
@@ -925,7 +950,7 @@ export class TaxCertificate extends Component {
 				data-automation-id="tax-certificate-dialog-send"
 				type="primary"
 				label="Send"
-				@click="${() => this._sendTaxCertificate()}"
+				@click="${() => this._sendClick()}"
 				?hidden="${this.currentStep !== 1 || this.renderMode === RENDER_MODE.PDF}">
 			</capitec-button>
 			<capitec-button

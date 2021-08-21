@@ -11,7 +11,8 @@
 		"cds": "https://clientdocsearchdev.int.capinet:51443/",
 		"cnet": "http://c-net.int.capinet:51001/Pages/default.aspx",
 		"strack": "http://strackdevnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
-		"global-one": "https://www.capitecbank.co.za/global-one/"
+		"global-one": "https://www.capitecbank.co.za/global-one/",
+		"branch-locator": "https://www.capitecbank.co.za/branch-locator/"
 	},
 	"VDN": "7250",
 	"LogRequestResponseModels": false,
@@ -57,28 +58,28 @@
 	},
 	"mock": {
 		"enabled": true,
-		"acceptCall": {
-			"enabled": false,
-			"positiveCase": true
-		},
-		"identifyCaller": {
-			"enabled": false,
-			"positiveCase": true
-		},
-		"favouritesLanding": {
-			"enabled": false,
-			"positiveCase": true
-		},
+    "acceptCall": {
+      "enabled": true,
+      "positiveCase": true
+    },
+    "identifyCaller": {
+      "enabled": true,
+      "positiveCase": true
+    },
+    "favouritesLanding": {
+      "enabled": true,
+      "positiveCase": true
+    },
 		"cardLimitsLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"getTemporaryLimits": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"getCardLimitsAgreement": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"xdsQuestions": {

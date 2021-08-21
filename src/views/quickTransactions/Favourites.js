@@ -475,7 +475,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
     async _taxCertificates() {
-		// TODO: Functionality to generate tax certificate comes here
+        // TODO: Functionality to generate tax certificate comes here
 
 		await this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_TAX_CERTIFICATE, {
 			"screen": TelemetryScreen.FAVOURITES,
@@ -484,7 +484,7 @@ export class Favourites extends SavingsAccountBase {
 
 		this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE
-		})
+		});
 
 		this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
 	}
@@ -625,18 +625,18 @@ export class Favourites extends SavingsAccountBase {
 
 			${super._webTemplate()}
 		`;
-	}
+    }
 
-	_renderFavouritesLandingPage() {
-		switch (this.renderMode) {
-			case RENDER_MODE.MAIN_PAGE:
+    _renderFavouritesLandingPage() {
+        switch (this.renderMode) {
+            case RENDER_MODE.MAIN_PAGE:
 			case RENDER_MODE.TAX_CERTIFICATE:
-			case RENDER_MODE.PROOF_OF_ACCOUNT:
-			case RENDER_MODE.STATEMENTS:
-			case RENDER_MODE.VERIFY_NOW:
-			case RENDER_MODE.END_CALL:
-			case RENDER_MODE.ALERT_MODAL:
-				return html`
+            case RENDER_MODE.PROOF_OF_ACCOUNT:
+            case RENDER_MODE.STATEMENTS:
+            case RENDER_MODE.VERIFY_NOW:
+            case RENDER_MODE.END_CALL:
+            case RENDER_MODE.ALERT_MODAL:
+                return html`
 					<horizon-favourite-transactions 
 						class="favourites"
 						.landingPageInfo="${this.landingPageInfo}"
@@ -726,6 +726,7 @@ export class Favourites extends SavingsAccountBase {
 			<horizon-tax-certificate
 				.cards="${this.cards}"
 				.callerInformation="${this.callerInformation}"
+				clientTaxInformation="${this.clientTaxInformation}"
 				@cancel="${() => this._backToLandingPage()}">
 			</horizon-tax-certificate>
 		`

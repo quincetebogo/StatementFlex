@@ -545,6 +545,20 @@ export class HorizonChannelService extends Service {
 		return this._post(url, clientInfo, this._setToken(), `viewProofOfAccount`);
 	}
 
+	async viewTaxCertificate(taxCertificate) {
+
+		if (await this._mockEnabled(`viewStatements`)) {
+			return this._mock.viewStatements();
+		}
+
+		const url = `/clientcare-documents-${this._version}/view-tax-certificate`;
+		return this._post(url, taxCertificate, this._setToken(), `viewTaxCertificate`);
+	}
+
+	sendTaxCertificate(clientInfo) {
+		const url = `​/clientcare-documents-${this._version}​/send-tax-certificate`;
+		return this._post(url, clientInfo, this._setToken(), `sendTaxCertificate`);
+	}
 	// ----------
 	// favourites
 	// ----------
