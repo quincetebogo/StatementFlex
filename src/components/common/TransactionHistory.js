@@ -446,7 +446,7 @@ export class TransactionHistory extends Component {
 					background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
 				}
 				.lbb {
-					background: no-repeat url("../../images/common/lbb_gradient.svg");
+					background: no-repeat url("/images/common/lbb_gradient.svg");
 				}
 				.transaction-history-title > img {
 					width: 26px;

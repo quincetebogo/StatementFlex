@@ -34,7 +34,7 @@ const TYPE = [
 	{ icon: `product/transact`, label: `Savings Account`, type: `transact` },
 	{ icon: `product/save`, label: `Future Savings`, type: `save` },
 	{ icon: `product/save`, label: `Education`, type: `save` },
-	{ customIcon: `../../../images/liveBetter/live-better-icon.png`, label: `Live Better savings account`, type: `lbb` },
+	{ customIcon: `/images/liveBetter/live-better-icon.png`, label: `Live Better savings account`, type: `lbb` },
 	{ icon: `product/credit`, label: `Credit Card`, type: `credit` },
 	{ icon: `product/credit`, label: `Access Facility`, type: `credit` }
 ];
@@ -831,7 +831,7 @@ export class StatementsDialog extends Component {
 					--theme-modal-header-background: linear-gradient(90deg, #003354 0%, #00486D 100%);
 				}
 				.lbb {
-					--theme-modal-header-background: url('../../images/liveBetter/live-better-background.png');
+					--theme-modal-header-background: url('/images/liveBetter/live-better-background.png');
 				}
 				.credit {
 					--theme-modal-header-background: linear-gradient(90deg, #C83C37 0%, #E61414 100%);
