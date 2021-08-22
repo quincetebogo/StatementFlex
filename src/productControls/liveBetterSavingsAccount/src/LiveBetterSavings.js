@@ -8,11 +8,6 @@ import 'app/components/common/HorizonLabel';
 /**
  * Live Better Savings Account Product Control
  *
- * Events Raised
- * -------------
- * 
- * click
- * 
  * @export
  * @class LiveBetterSavings
  * @extends {Component}
@@ -426,3 +421,15 @@ export class LiveBetterSavings extends Component {
 }
 
 customElements.define(`capitec-pc-live-better-savings`, LiveBetterSavings);
+
+/**
+ * When an option tile is clicked
+ *
+ * @example
+ * <capitec-pc-live-better-savings ... @click="${this._handler}"></capitec-pc-live-better-savings>
+ *
+ * @event LiveBetterSavings#click
+ * @type {Object}
+ * @property {Object} detail - Contains information on the clicked item
+ * @property {String} detail.selection - The selected option
+ */
