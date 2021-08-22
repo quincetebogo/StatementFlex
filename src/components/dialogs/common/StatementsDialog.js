@@ -1,12 +1,13 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EventAggregator, Logger, NavigationContext } from 'platform/core';
-import { base64ToBlobUrl, calculateDays, formatCurrency, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { base64ToBlobUrl, calculateDays, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'platform/components/popups/Modal';
 import 'app/components/common/StepperModal';

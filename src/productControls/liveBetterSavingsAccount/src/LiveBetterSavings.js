@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency } from 'app/utils/channelServiceUtilities';
+
+import { formatCurrency } from '../../utilities/Currency';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';

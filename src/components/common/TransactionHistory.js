@@ -1,8 +1,9 @@
 import { Component, css, html } from 'platform/elements';
 import { FILTER_BY, RENDER_CHIPS, RENDER_MODE, TRANSACTION_HISTORY, TRANSACTION_STATUS_LIST } from 'app/constants/TransactionHistory';
-import { formatCurrency, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { DateTime } from 'luxon';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 const today = new Date();
 
