@@ -133,49 +133,33 @@ export class ConfirmCallerDetails extends Component {
     // --------------
 
 	_addCallerDetailsClick() {
-        this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_ADD_CALLER_CLICK, {
-            "screen": TelemetryScreen.CONFIRM_CALLER,
-            "next-screen": TelemetryScreen.ADD_CALLER_DETAILS
-        });
+		this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_ADD_CALLER_CLICK, {
+			"screen": TelemetryScreen.CONFIRM_CALLER,
+			"next-screen": TelemetryScreen.ADD_CALLER_DETAILS
+		});
 
-			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
-    }
+		this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
+	}
 
-    _addCallerDetailsCancelled(event) {
-        this.confirmedCaller.ivrOptionCode = event.detail.ivrOptionValue;
-        this.incomingCallDetails.ivrOption.value = event.detail.ivrOptionValue;
-        this.incomingCallDetails.ivrOptionCode = event.detail.ivrOptionValue;
-        this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-    }
+	_addCallerDetailsCancelled(event) {
+		this.confirmedCaller.ivrOptionCode = event.detail.ivrOptionValue;
+		this.incomingCallDetails.ivrOption.value = event.detail.ivrOptionValue;
+		this.incomingCallDetails.ivrOptionCode = event.detail.ivrOptionValue;
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+	}
 
-    async _addCallerDetailsConfirmed(event) {
-        this.incomingCallDetails = event.detail.incomingCallDetails;
-        this.callerInformation = event.detail.callerInformation;
+	_addCallerDetailsConfirmed(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
 
-        if (this.incidentDetails.incidentRecId && this.incidentDetails.incidentRecId !== ``) {
+		if (this.incidentDetails.incidentRecId && this.incidentDetails.incidentRecId !== ``) {
+			this._confirmClick();
+		} else {
+			this.logger.log(`error`, `There is no incident available against which to record then non-client details`, `_addCallerDetailsConfirmed`);
+		}
+	}
 
-            await this._updateClientDetails();
-			
-            const nonClientDetails = {
-                ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-                incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-                firstName: this.callerInformation.nonClientFirstName,
-                surname: this.callerInformation.nonClientSurName,
-                cellPhone: this.callerInformation.nonClientCellPhone
-            };
-            const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
-
-            if (returnValue.succeeded) {
-                this._navigateToLandingPage();
-            } else {
-                this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_addCallerDetailsConfirmed`, returnValue.correlationId);
-            }
-        } else {
-            this.logger.log(`error`, `There is no incident available against which to record then non-client details`, `_addCallerDetailsConfirmed`);
-        }
-    }
-
-	_confirmClick() {
+	async _confirmClick() {
 		this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_CONFIRM_CLICK, {
 			"screen": TelemetryScreen.CONFIRM_CALLER,
 			"next-screen": this.incomingCallDetails.ivrOption.value === `StopCard` ? TelemetryScreen.STOP_CARD : TelemetryScreen.VERIFY_CALLER,
@@ -194,28 +178,20 @@ export class ConfirmCallerDetails extends Component {
 				ProductEnquiry: productEnquiry,
 				Transact: transact
 			};
+
+			await this._updateClientNonClientDetails();
+
 			clientNeed[this.incomingCallDetails.ivrOptionCode]();
 		} else {
 			this._navigateToLandingPage();
 		}
 	}
 
-    async _verifyCaller() {
-        if (await this._setAvailabilityFlags()) {
-
-            if (this.incidentDetails.incidentRecId && this.incidentDetails.incidentRecId !== ``) {
-                const returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
-
-                if (returnValue.succeeded) {
-                    this.renderMode = RENDER_MODE.VERIFY_CALLER;
-                } else {
-                    this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_verifyCaller`, returnValue.correlationId);
-                }
-            } else {
-                this.logger.log(`error`, `There is no incident available against which to record the client details`, `_verifyCaller`);
-            }
-        }
-    }
+	async _verifyCaller() {
+		if (await this._setAvailabilityFlags()) {
+			this.renderMode = RENDER_MODE.VERIFY_CALLER;
+		}
+	}
 
     _identifiedClient(event) {
         // After a search we need to replace whatever we might have had for the confirmed caller with 
@@ -230,7 +206,6 @@ export class ConfirmCallerDetails extends Component {
         this._initCallerInformation();
         this.renderMode = RENDER_MODE.CONFIRM_CALLER;
     }
-
 
     _branchCaptured(event) {
         this.incomingCallDetails = event.detail.incomingCallDetails;
@@ -492,13 +467,35 @@ export class ConfirmCallerDetails extends Component {
         this.isBusy = !this.isBusy;
     }
 
-    async _updateClientDetails() {
-        const returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
+	async _updateClientNonClientDetails() {
+		// Updating client details to Incident at Strack
+		if (this.incidentDetails.incidentRecId && this.incidentDetails.incidentRecId !== ``) {
 
-        if (!returnValue.succeeded) {
-            this.logger.log(`error`, `Unable to update client details on incident for a 3rd Party flow due to a system error`, `_updateClientDetails`, returnValue.correlationId);
-        }
-    }
+			const returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
+
+			if (!returnValue.succeeded) {
+				this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateClientNonClientDetails`, returnValue.correlationId);
+			}
+		} else {
+			this.logger.log(`error`, `There is no incident available against which to record the client details`, `_updateClientNonClientDetails`);
+		}
+
+		// Updating non-client details to Incident at Strack
+		if (this.callerInformation.is3rdParty) {
+			const nonClientDetails = {
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				firstName: this.callerInformation.nonClientFirstName,
+				surname: this.callerInformation.nonClientSurName,
+				cellPhone: this.callerInformation.nonClientCellPhone
+			};
+			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
+
+			if (!returnValue.succeeded) {
+				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_updateClientNonClientDetails`, returnValue.correlationId);
+			}
+		}
+	}
 
     // ---------
     // RENDERING
@@ -574,11 +571,18 @@ export class ConfirmCallerDetails extends Component {
         ];
     }
 
-    _mobileTemplate() {
-        return this._webTemplate();
-    }
+	_mobileTemplate() {
+		return this._webTemplate();
+	}
 
-    _webTemplate() {
+	_webTemplate() {
+		return html`
+			${this._renderLoadingIndicator()}
+			${this._renderContent()}
+		`;
+	}
+
+	_renderContent() {
         switch (this.renderMode) {
             case RENDER_MODE.CONFIRM_CALLER:
                 return html`
@@ -594,7 +598,6 @@ export class ConfirmCallerDetails extends Component {
 									${this._renderError()}
 									${this._renderAlertBanner()}
 									${this._renderConfirmedCaller()}
-									${this._renderLoadingIndicator()}
 								</capitec-content-box>
 							</div>
 							<div slot="footer">
