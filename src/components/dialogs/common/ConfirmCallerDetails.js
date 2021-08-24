@@ -152,11 +152,7 @@ export class ConfirmCallerDetails extends Component {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
 
-		if (this.incidentDetails.incidentRecId && this.incidentDetails.incidentRecId !== ``) {
-			this._confirmClick();
-		} else {
-			this.logger.log(`error`, `There is no incident available against which to record then non-client details`, `_addCallerDetailsConfirmed`);
-		}
+		this._confirmClick();
 	}
 
 	async _confirmClick() {
@@ -468,16 +464,17 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	async _updateClientNonClientDetails() {
+
+		if (!this.incidentDetails.incidentRecId || this.incidentDetails.incidentRecId === `0`) {
+			this.logger.log(`error`, `There is no incident available against which to record the client/ non-client details`, `_updateClientNonClientDetails`);
+			return;
+		}
+
 		// Updating client details to Incident at Strack
-		if (this.incidentDetails.incidentRecId && this.incidentDetails.incidentRecId !== ``) {
+		const returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
 
-			const returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
-
-			if (!returnValue.succeeded) {
-				this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateClientNonClientDetails`, returnValue.correlationId);
-			}
-		} else {
-			this.logger.log(`error`, `There is no incident available against which to record the client details`, `_updateClientNonClientDetails`);
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateClientNonClientDetails`, returnValue.correlationId);
 		}
 
 		// Updating non-client details to Incident at Strack
