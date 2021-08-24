@@ -104,6 +104,7 @@ export class TaxCertificate extends Component {
 	 * @param {object} callerInformation Identified caller information
 	 * @param {Object} landingPageInfo Favourites landing page info
 	 * @param {Object} clientDetails Tac certificates client info
+	 * @property {getTaxCertificateDocument} getTaxCertificateDocument Callback function to get tax certificate document
 	 */
 
 	static get properties() {
@@ -112,6 +113,7 @@ export class TaxCertificate extends Component {
 			currentStep: { attribute: false },
 			renderMode: { attribute: false },
 			callerInformation: { type: Object },
+			getTaxCertificateDocument: { type: Object, attribute: false },
 			landingPageInfo: { type: Object },
 			clientDetails: { type: Object },
 			selectedCertType: { type: String },
@@ -386,7 +388,7 @@ export class TaxCertificate extends Component {
 			"next-screen": TelemetryScreen.TAX_CERTIFICATE_DOCUMENT
 		});
 		
-		const taxCertificate = {
+		const taxCertificateRequest = {
 			"cif": this.callerInformation.cifNumber,
 			"iT3BTaxCertificates": [
 			  {
@@ -405,12 +407,12 @@ export class TaxCertificate extends Component {
 			]
 		};
 
-		const returnValue = await this.quickTransactionService.viewTaxCertificate(taxCertificate, () => this._createIncidentOnError());
+		const result = await this.getTaxCertificateDocument(taxCertificateRequest);
 
-		if (returnValue.succeeded) {
+		if (result) {
 			this.renderMode = RENDER_MODE.PDF;
 			// render the PDF
-			this.encodedPDF = base64ToBlobUrl(returnValue.result.taxCertificateData);
+			this.encodedPDF = base64ToBlobUrl(result.taxCertificateData);
 			// Telemetry
 			this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_VIEW_PDF, { 
 				"screen": TelemetryScreen.TAX_CERTIFICATE_DOCUMENT

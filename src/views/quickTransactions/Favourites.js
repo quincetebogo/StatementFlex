@@ -486,7 +486,33 @@ export class Favourites extends SavingsAccountBase {
 			"screen": TelemetryScreen.TAX_CERTIFICATE
 		});
 
+		const request = {
+			"cif": this.callerInformation.cifNumber
+		};
+
+		const returnValue = await this.quickTransactionService.getTaxCertificate(request, () => true);
+
+		if (returnValue.succeeded) {
+			return returnValue.result;
+			this.clientDetails =
+		}
+
+
 		this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
+
+	}
+
+	async _getTaxCertificateDocument(request) {
+		const returnValue = await this.quickTransactionService.viewTaxCertificate(request, () => true);
+
+		if (returnValue.succeeded) {
+			return returnValue.result;
+		}
+
+		this.logger.log(`error`, `Unable to get temporary card limits`, `_getTemporaryLimits`, returnValue.correlationId);
+		this.horizonRouter.navigateToSystemError();
+
+		return null;
 	}
 
 	async _proofOfAccount() {
@@ -726,7 +752,7 @@ export class Favourites extends SavingsAccountBase {
 			<horizon-tax-certificate
 				.cards="${this.cards}"
 				.callerInformation="${this.callerInformation}"
-				clientTaxInformation="${this.clientTaxInformation}"
+				.getTaxCertificateDocument="${request => this._getTaxCertificateDocument(request)}"
 				@cancel="${() => this._backToLandingPage()}">
 			</horizon-tax-certificate>
 		`
