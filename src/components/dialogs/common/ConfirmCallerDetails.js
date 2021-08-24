@@ -151,27 +151,32 @@ export class ConfirmCallerDetails extends Component {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
 
-		if (this.incidentDetails.incidentRecId && this.incidentDetails.incidentRecId !== ``) {
-
-			await this._updateClientDetails();
-			
-			const nonClientDetails = {
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				firstName: this.callerInformation.nonClientFirstName,
-				surname: this.callerInformation.nonClientSurName,
-				cellPhone: this.callerInformation.nonClientCellPhone
-			};
-			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
-
-			if (returnValue.succeeded) {
-				this._navigateToLandingPage();
-			} else {
-				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_addCallerDetailsConfirmed`, returnValue.correlationId);
-			}
-		} else {
+		if (!this.incidentDetails.incidentRecId && this.incidentDetails.incidentRecId === ``) {
 			this.logger.log(`error`, `There is no incident available against which to record then non-client details`, `_addCallerDetailsConfirmed`);
 		}
+
+		await this._updateClientDetails(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
+		
+		const nonClientDetails = this._formatnonClientDetailsUpdateRequest(this.incomingCallDetails, this.callerInformation);
+		
+            const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
+
+		if (!returnValue.succeeded) {
+                this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_addCallerDetailsConfirmed`, returnValue.correlationId);
+			return;
+            }
+
+		this._verifyCaller();
+        }
+
+	_formatnonClientDetailsUpdateRequest(incomingCallDetails, callerInformation) {
+		return {
+			ivrOptionCode: incomingCallDetails.ivrOptionCode,
+			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
+			firstName: callerInformation.nonClientFirstName,
+			surname: callerInformation.nonClientSurName,
+			cellPhone: callerInformation.nonClientCellPhone
+		};
 	}
 
 	_confirmClick() {
@@ -494,8 +499,8 @@ export class ConfirmCallerDetails extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
-	async _updateClientDetails() {
-		const returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
+	async _updateClientDetails(cifNumber, incidentRecId) {
+		const returnValue = await this.incidentService.updateIncidentClientDetails(cifNumber, incidentRecId);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unable to update client details on incident for a 3rd Party flow due to a system error`, `_updateClientDetails`, returnValue.correlationId);
