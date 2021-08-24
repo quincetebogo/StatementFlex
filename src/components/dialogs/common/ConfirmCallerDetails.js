@@ -166,7 +166,7 @@ export class ConfirmCallerDetails extends Component {
             const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
 
             if (returnValue.succeeded) {
-                this.renderMode = RENDER_MODE.VERIFY_CALLER;
+                this._verifyCaller();
             } else {
                 this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_addCallerDetailsConfirmed`, returnValue.correlationId);
             }
