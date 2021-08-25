@@ -27,6 +27,7 @@ const HORIZON_ROUTES = Object.freeze({
 	ITA_VERIFICATION_FAILED: `/error/ita-verification`,
 	SYSTEM_ERROR: `/error/system-error`,
 	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`,
+	TAX_CERTIFICATE_SERVICE_ERROR: `error/tax-certificate-service-error`,
 	DEBICHECK_SUCCESS: `/success/debicheck`,
 	STATEMENTS_SUCCESSFUL: `/views/statements/StatementsSuccess`,
 	STATEMENTS_UNSUCCESSFUL: `/views/statements/StatementsUnsuccess`,
@@ -196,6 +197,10 @@ export class HorizonRouter {
 
 	navigateToInitialSystemError() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.INITIAL_SYSTEM_ERROR}`);
+	}
+
+	navigateToTaxCertificateServiceError() {
+		this.navigateByPath(`${HORIZON_ROUTES.TAX_CERTIFICATE_SERVICE_ERROR}`);
 	}
 
 	navigateToDebiCheckSuccess() {
@@ -562,6 +567,14 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.INITIAL_SYSTEM_ERROR,
 		load: () => import(`../views/common/InitialSystemError`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.ERROR_PAGES)
+	},
+	{
+		name: `horizon-tax-certificate-service-error`,
+		title: `TaxCertificateServiceError`,
+		icon: null,
+		path: HORIZON_ROUTES.TAX_CERTIFICATE_SERVICE_ERROR,
+		load: () => import(`../views/TaxCertificate/TaxCertificateServiceError`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.ERROR_PAGES)
 	},
 	{
