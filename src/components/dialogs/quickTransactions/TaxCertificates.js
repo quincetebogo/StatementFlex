@@ -9,6 +9,7 @@ import { QuickTransactionsService } from 'app/services/QuickTransactionsService'
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 
 import 'app/components/common/HorizonExpander';
+import 'app/components/common/HorizonEmailInput';
 
 const RENDER_MODE = Object.freeze({
 	EMAIL: 0,
@@ -25,8 +26,8 @@ const TAX_CERTIFICATE_STEPS = [
 ];
 
 const CERTIFICATE_TYPE = {
-	'taxFree': { type: `IT3(s)`, displayName: `tax-free` },
-	'taxableSavings': { type: `IT3(b)`, displayName: `taxable savings` }
+	'iT3STaxCertificates': { type: `IT3(s)`, displayName: `tax-free` },
+	'iT3BTaxCertificates': { type: `IT3(b)`, displayName: `taxable savings` }
 };
 
 const ERROR_MESSAGE = {
@@ -64,19 +65,24 @@ export class TaxCertificate extends Component {
 		this.encodedPDF = ``;
 		this.logger = Logger.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
-		this.selectedCertType = null;
-		this.selectedCertificates = {
-			taxableSavings: [],
-			taxFree: []
+		this.email = ``;
+		this.confirmEmail = ``;
+		this.mailClientError = {
+			email: ``,
+			confirmEmail: ``
 		};
+		this.emailLabel = `Email address`;
+		this.confirmEmailLabel = `Confirm email address`;
+		this.selectedCertType = null;
+		this.selectedCertificates = {};
 
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-
-		this._telemetry = HorizonTelemetry.instance;
 		
-		this.availableCert = {
+		this._telemetry = HorizonTelemetry.instance;
+
+	/* This.availableCert = {
 			taxableSavings: [
 				{ year: `2014`, status: `Available` },
 				{ year: `2015`, status: `Available` },
@@ -89,7 +95,7 @@ export class TaxCertificate extends Component {
 				{ year: `2020`, status: `Available` },
 				{ year: `2021`, status: `Available` }
 			]
-		};
+		};*/
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
@@ -105,6 +111,7 @@ export class TaxCertificate extends Component {
 	 * @param {Object} landingPageInfo Favourites landing page info
 	 * @param {Object} clientDetails Tac certificates client info
 	 * @property {getTaxCertificateDocument} getTaxCertificateDocument Callback function to get tax certificate document
+	 * @property {taxCertificateDetails} taxCertificateDetails Object contains list of tax certificates
 	 */
 
 	static get properties() {
@@ -115,7 +122,10 @@ export class TaxCertificate extends Component {
 			callerInformation: { type: Object },
 			getTaxCertificateDocument: { type: Object, attribute: false },
 			landingPageInfo: { type: Object },
-			clientDetails: { type: Object },
+			taxCertificateDetails: { type: Object },
+			errorMessage: { attribute: false },
+			emailError: { attribute: false },
+			confirmEmailError: { attribute: false },
 			selectedCertType: { type: String },
 			selectedCertificates: { type: Object },
 
@@ -167,7 +177,7 @@ export class TaxCertificate extends Component {
 	}
 
 	async _sendClick(e) {
-		if (this._validateEmail(e)) {
+		if (isNullorEmpty(this.email) || isNullorEmpty(this.confirmEmail)) {
 
 			this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_SEND, {
 				"screen": TelemetryScreen.PROOF_OF_ACCOUNT,
@@ -223,10 +233,7 @@ export class TaxCertificate extends Component {
 			"screen": TelemetryScreen.TAX_CERTIFICATE
 		});
 		
-		this.selectedCertificates = { 
-			taxableSavings: [],
-			taxFree: []
-		};
+		this.selectedCertificates = {};
 		
 		this.errorMessage = ``;
 		this.currentStep--;
@@ -281,12 +288,14 @@ export class TaxCertificate extends Component {
 		this.currentStep++;
 	}
 
-	_onValueChange(e, checkBoxDetails, certType) {
+	_onValueChange(e, checkBoxDetails, availableCert) {
 		if (e.detail.new) {
 			this.alertBannerMessage = ``;
-			this.selectedCertificates[certType].push(checkBoxDetails);
+			this.selectedCertificates[this.availableCert].push(checkBoxDetails);
+			// this.selectedCertificates[certType].push(checkBoxDetails);
 		} else {
-			this.selectedCertificates[certType].splice(this.selectedCertificates[certType].indexOf(checkBoxDetails), 1);
+			this.selectedCertificates[this.availableCert].splice(this.selectedCertificates[this.availableCert].indexOf(checkBoxDetails), 1);
+			// this.selectedCertificates[certType].splice(this.selectedCertificates[certType].indexOf(checkBoxDetails), 1);
 		}
 		this.requestUpdate();
 	}
@@ -296,51 +305,28 @@ export class TaxCertificate extends Component {
 		e.detail.expanderGroup(this);
 	}
 
+	_onEmailValueChange(e) {
+		this.email = e.detail.email;
+		this.confirmEmail = e.detail.confirmEmail;
+	}
+
+	_validEmailAddressCheck(e) {
+		this.errorMessage = e.detail.errorMessage;
+		this.mailClientError.email = e.detail.emailError;
+		this.mailClientError.confirmEmail = e.detail.confirmEmailError;
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
-    _validateEmail(e) {
+	
+	_validateEmailAddress() {
+		this.mailClientError.email = isNullorEmpty(this.email) ? `Please enter email` : ``;
+		this.mailClientError.confirmEmail = isNullorEmpty(this.confirmEmail) ? `Please enter email` : ``;
 
-        // CORRECT
-        if (!isNullorEmpty(this.idEmailAddress) && this.idEmailAddress === this.idConfirmEmailAddress) {
-            if (EMAIL_REG_EXP.test(this.idEmailAddress)) {
-                this.alertBannerMessage = ``;
-                this.errMessage.idEmailAddress = ``;
-                this.errMessage.idConfirmEmail = ``;
-                return true;
-            } else if (!this.idEmailAddress.includes(`@`)) {
-                this.alertBannerMessage = `Email address is invalid`;
-                this.errMessage.idEmailAddress = `An email must contain a single @`;
-				return false;
-            }
-
-                this.alertBannerMessage = `Incorrect email address format ie. email@gmail.com`;
-			this.errMessage.idEmailAddress = `Invalid email address`;
-            this.errMessage.idConfirmEmail = `Invalid email address`;
-            return false;
-        } else if (isNullorEmpty(this.idEmailAddress)) {
-			// EMAIL EMPTY
-            if (isNullorEmpty(this.idConfirmEmailAddress)) {
-                this.errMessage.idConfirmEmail = `Enter a valid email address i.e. email@gmail.com`;
-				this.emailText = `email@gmail.com`;
-			}
-			this.alertBannerMessage = `Complete all fields to continue`;
-            this.errMessage.idEmailAddress = `Enter a valid email address i.e. email@gmail.com`;
-            this.emailText = `email@gmail.com`;
-            return false;
-        } else if (isNullorEmpty(this.idConfirmEmailAddress)) {
-            this.alertBannerMessage = `Complete all fields to continue`;
-            this.errMessage.idConfirmEmail = `Enter a valid email address i.e. email@gmail.com`;
-            this.emailText = `email@gmail.com`;
-            return false;
-        } else if (this.idEmailAddress !== this.idConfirmEmailAddress) {
-			// EMAILS DON'T MATCH 
-			this.alertBannerMessage = `Email and Confirm email don't match`;
-            this.errMessage.idEmailAddress = `Invalid email`;
-            this.errMessage.idConfirmEmail = `Invalid email`;
-			return false;
-		}
+		const errorMessage = this.mailClientError.email || this.mailClientError.confirmEmail ? `Complete all fields.` : ``;
+		return errorMessage === ``;
 	}
 
 	_onKeyPress(e) {
@@ -376,7 +362,6 @@ export class TaxCertificate extends Component {
 		const screenDetails = this.horizonStore.getScreenDetails();
 
 		screenDetails.emailAddress = this.idEmailAddress;
-		screenDetails.accountNumber = this.landingPageInfo.accountNumber;
 		
 		this.horizonStore.setScreenDetails(screenDetails);
 	}
@@ -747,14 +732,14 @@ export class TaxCertificate extends Component {
 			<capitec-radio-group>
 				<capitec-group layout="horizontal" gap="none" halign="left" valign="center" noPadding>
 					<capitec-radio 
-						id="taxableSavings" 
+						id="iT3BTaxCertificates"
 						data-automation-id="tax-certificate-taxable-savings"
 						label="Taxable Savings IT3(b)"
 						@value-changed="${(e) => this._certChange(e)}"
 						row="1" column="1">
 						</capitec-radio>
 					<capitec-radio 
-						id="taxFree" 
+						id="iT3STaxCertificates" 
 						data-automation-id="tax-certificate-tax-free"
 						label="Tax-free IT3(s)"
 						@value-changed="${(e) => this._certChange(e)}"
@@ -772,14 +757,15 @@ export class TaxCertificate extends Component {
 	}
 	
     _renderCertificateTypes() {
+	
         switch (this.selectedCertType) {
-            case `taxableSavings`:
-                return html`${this._renderChoosePeriod(`taxableSavings`)}`;
-            case `taxFree`:
-                return html`${this._renderChoosePeriod(`taxFree`)}`;
+            case `iT3BTaxCertificates`:
+                return html`${this._renderChoosePeriod(`iT3BTaxCertificates`)}`;
+            case `iT3STaxCertificates`:
+                return html`${this._renderChoosePeriod(`iT3STaxCertificates`)}`;
             case `both`:
-                return html`${this._renderChoosePeriod(`taxableSavings`)}
-							${this._renderChoosePeriod(`taxFree`)}`;
+                return html`${this._renderChoosePeriod(`iT3BTaxCertificates`)}
+							${this._renderChoosePeriod(`iT3STaxCertificates`)}`;
             default:
                 return html``;
         }
@@ -788,13 +774,24 @@ export class TaxCertificate extends Component {
 	_renderEmail() {
 		if (this.currentStep === 1 && this.renderMode === RENDER_MODE.EMAIL) {
 			return html`
+				<horizon-email-input
+					@value-changed="${(e) => this._onEmailValueChange(e)}"
+					@validation-update="${(e) => this._validEmailAddressCheck(e)}"
+					.labelOne="${this.emailLabel}"
+					.labelTwo="${this.confirmEmailLabel}"
+					.emailError="${this.mailClientError.email}"
+					.confirmEmailError="${this.mailClientError.confirmEmail}">
+				</horizon-email-input>
+
 				<hr class="seperator">
+
 				${this._renderViewTaxcertificate()}
 			`;
 		}
 	}
 
 	_renderChoosePeriod(certificateType) {
+		
 		if (this.selectedCertType && this.currentStep === 0) {
 			return html`
 				<capitec-label
@@ -804,37 +801,36 @@ export class TaxCertificate extends Component {
 					type="title">
 				</capitec-label>
 				
-				${this.availableCert[certificateType].map(item => this._renderCertificateYears(item, certificateType))}
+				${this.taxCertificateDetails[certificateType].map(item => this._renderCertificateYears(item, certificateType))}
 			`;
 		}
 	}
 
 	_renderCertificateYears(item, certType) {
-		return html`
-			<horizon-expander
-				id="tax-expander"
-				data-automation-id="tax-certificate-document-period"
-				expandButtonAlignment="right"
-				inputType = "Checkbox"
-				?selected = ${this.selectedCertificates[certType].indexOf(item) >= 0}
-				@value-change="${(e) => this._onValueChange(e, item, certType)}"
-				@expand="${(e) => this._onExpanded(e)}"
-				?disabled = ${item.status !== `Available`}>
-					<capitec-group slot="custom-header" layout="horizontal" gap="none" halign="left" valign="center">
-						<horizon-label
-							class="check-box-label"
-							label="${item.year}"
-							value="${CERTIFICATE_TYPE[certType].type} ${item.status}">
-						</horizon-label>
-					</capitec-group>
-					<capitec-content-box 
-						data-automation-id="tax-certificate-document-details"
-						class="expander-content" 
-						slot="content">
-						${this._renderCertificateDetails()}
-					</capitec-content-box>
-			</horizon-expander>
-		`;
+
+			return html`
+				<horizon-expander
+					id="tax-expander"
+					data-automation-id="tax-certificate-document-period"
+					expandButtonAlignment="right"
+					inputType = "Checkbox"
+					@value-change="${(e) => this._onValueChange(e, item, certType)}"
+					@expand="${(e) => this._onExpanded(e)}"
+					?disabled = ${!item.isTaxYearAvailable}>
+						<capitec-group slot="custom-header" layout="horizontal" gap="none" halign="left" valign="center">
+							<horizon-label
+								class="check-box-label"
+								label="${item.year}"
+								value="${CERTIFICATE_TYPE[certType].type} ${item.isTaxYearAvailable ? `Available` : `Unavailable`}">
+							</horizon-label>
+						</capitec-group>
+						<capitec-content-box 
+							data-automation-id="tax-certificate-document-details"
+							class="expander-content" 
+							slot="content">
+							${this._renderCertificateDetails()}
+						</capitec-content-box>
+				</horizon-expander>`;
 	}
 
 	_renderCertificateDetails() {

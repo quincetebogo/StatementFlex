@@ -118,6 +118,7 @@ export class HorizonEmailInput extends Component {
 				this.errorMessage = `Invalid email format`;
 				this.mailClientError.email = `Invalid email format`;
 				this.mailClientError.confirmEmail = `Invalid email format`;
+			
 			} else {
 				this.errorMessage = ``;
 				this.mailClientError[e.currentTarget.id] = ``;

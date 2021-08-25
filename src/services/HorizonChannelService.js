@@ -545,7 +545,11 @@ export class HorizonChannelService extends Service {
 		return this._post(url, clientInfo, this._setToken(), `viewProofOfAccount`);
 	}
 
-	getTaxCertificate(request) {
+	getTaxCertificate(cifNumber) {
+		const request = {
+			"cif": cifNumber
+		};
+
 		const url = `​/clientcare-documents-${this._version}/select-tax-certificate`;
 		return this._post(url, request, this._setToken(), `getTaxCertificate`);
 	}

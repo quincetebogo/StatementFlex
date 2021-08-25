@@ -61,7 +61,7 @@ export class Favourites extends SavingsAccountBase {
 		this.cards = [];
 		this.selectedFeedback = [];
 		this.feedbackOptions = [];
-
+		this.taxCertificateDetails = {};
 		this.endCallCauseCode = EndCallCauseCode.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
 
@@ -482,24 +482,17 @@ export class Favourites extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.TAX_CERTIFICATE
 		});
 
-		this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
-			"screen": TelemetryScreen.TAX_CERTIFICATE
-		});
-
-		const request = {
-			"cif": this.callerInformation.cifNumber
-		};
-
-		const returnValue = await this.quickTransactionService.getTaxCertificate(request, () => true);
+		const returnValue = await this.quickTransactionService.getTaxCertificate(this.callerInformation.cifNumber, () => true);
 
 		if (returnValue.succeeded) {
-			return returnValue.result;
-			this.clientDetails =
+			this.taxCertificateDetails = returnValue.result;
+			this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
+			
+			this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
+			"screen": TelemetryScreen.TAX_CERTIFICATE
+			});
+
 		}
-
-
-		this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
-
 	}
 
 	async _getTaxCertificateDocument(request) {
@@ -753,6 +746,7 @@ export class Favourites extends SavingsAccountBase {
 				.cards="${this.cards}"
 				.callerInformation="${this.callerInformation}"
 				.getTaxCertificateDocument="${request => this._getTaxCertificateDocument(request)}"
+				.taxCertificateDetails="${this.taxCertificateDetails}"
 				@cancel="${() => this._backToLandingPage()}">
 			</horizon-tax-certificate>
 		`

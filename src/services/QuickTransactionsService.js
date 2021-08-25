@@ -35,8 +35,8 @@ export class QuickTransactionsService extends ServiceBase {
 		return this.wrapCall(this.channelService.viewStatement(statement), `viewStatement`, errorHandler, autoRetries);
 	}
 
-	getTaxCertificate(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.getTaxCertificate(request), `getTaxCertificate`, errorHandler, autoRetries);
+	getTaxCertificate(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.getTaxCertificate(cifNumber), `getTaxCertificate`, errorHandler, autoRetries);
 	}
 
 	viewTaxCertificate(taxCertificate, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
