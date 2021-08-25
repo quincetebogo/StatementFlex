@@ -577,10 +577,6 @@ export class CardLimitsLanding extends Component {
 					height: auto;
 					--theme-layout-gap-spacing: 0px;
 				}
-				.dual{
-					height: auto;
-					--theme-layout-gap-spacing: 0px;
-				}
 				capitec-label[label="Update"] {
 					text-align: end;
 					color: #009DE0;
