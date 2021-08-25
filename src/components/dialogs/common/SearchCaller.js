@@ -105,8 +105,9 @@ const REGEX_PATTERNS = {
 		ALERT_BANNER: `Incorrect ID/Passport number`
 	},
 	1: {
-		PATTERN: /^/,
-		FIELD_ERROR: ``
+        PATTERN: /^\S+$/,
+        FIELD_ERROR: `Incorrect Passport number`,
+		ALERT_BANNER: `Incorrect Passport number`
 	},
 	2: {
 		PATTERN: /^[0-9]{10}$/,
