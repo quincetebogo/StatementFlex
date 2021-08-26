@@ -509,6 +509,20 @@ export class Favourites extends SavingsAccountBase {
 		return returnValue.result;
 	}
 
+	async _sendTaxCertificates(request) {
+
+		const returnValue = await this.quickTransactionService.sendTaxCertificate(request, () => true);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unable to send tax certificates`, `_sendTaxCertificateDocument`, returnValue.correlationId);
+			this.horizonRouter.navigateToTaxCertificateUnsuccessful();
+			return null;
+		}
+		
+		this.horizonRouter.navigateToTaxCertificateSuccessful();
+		return returnValue.result;
+	}
+
 	async _proofOfAccount() {
 		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_PROOF_OF_ACCOUNT, {
 			"screen": TelemetryScreen.FAVOURITES,

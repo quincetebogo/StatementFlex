@@ -74,7 +74,7 @@ export class TaxCertificate extends Component {
 		this.emailLabel = `Email address`;
 		this.confirmEmailLabel = `Confirm email address`;
 		this.selectedCertType = null;
-		this.selectedCertificates = [];
+		this.selectedCertificates = {};
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
@@ -127,8 +127,7 @@ export class TaxCertificate extends Component {
 			confirmEmailError: { attribute: false },
 			selectedCertType: { type: String },
 			selectedCertificates: { attribute: false, 
-										type: Array },
-
+										type: Object },
 			isBusy: { attribut: false },
 			alertBannerMessage: { attribute: false },
 			emailText: { attribute: false }
@@ -165,6 +164,19 @@ export class TaxCertificate extends Component {
 		return true;
 	}
 
+	_back() {
+
+		// Telemetry
+		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_BACK, {
+			"screen": TelemetryScreen.TAX_CERTIFICATE
+		});
+		
+		this.selectedCertificates = {};
+		
+		this.errorMessage = ``;
+		this.currentStep--;
+	}
+
 	_isLeapYear(year) {
 		let day = 1;
 		if (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) {
@@ -186,6 +198,17 @@ export class TaxCertificate extends Component {
 		}
 	}
 
+	_onValueChange(e, checkBoxDetails, certType) {
+		this.selectedCertificates[certType] = [];
+		if (e.detail.new) {
+			this.alertBannerMessage = ``;
+			this.selectedCertificates[certType].push(this.selectedCertificates[checkBoxDetails]);
+		} else {
+			this.selectedCertificates[certType].splice(this.selectedCertificates[certType].indexOf(checkBoxDetails), 1);
+		}
+		this.requestUpdate();
+	}
+
 	async _sendClick(e) {
 		if (isNullorEmpty(this.email) || isNullorEmpty(this.confirmEmail)) {
 
@@ -197,7 +220,7 @@ export class TaxCertificate extends Component {
 			// saving 'emailAddress' and 'accountNumber' in state.
 			this._updateScreenDetails();
 
-			const clientInfo = {
+			const requestInfo = {
 				"cif": this.callerInformation.cifNumber,
 				"emailAddress": this.idEmailAddress,
 				"documentIds": [
@@ -216,7 +239,7 @@ export class TaxCertificate extends Component {
 				]
 			};
 			
-			const returnValue = await this.quickTransactionService.sendTaxCertificate(clientInfo);
+			const resultValue = await this.quickTransactionService.sendTaxCertificate(requestInfo);
 
 			this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_SELECT_SEND, {
 				"screen": TelemetryScreen.TAX_CERTIFICATE,
@@ -224,29 +247,7 @@ export class TaxCertificate extends Component {
 			});
 			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `tax-certificate`);
 
-			if (returnValue.succeeded) {
-				this.horizonRouter.navigateToTaxCertificateSuccessful();
-			} else if (!returnValue.succeeded) {
-				this.horizonRouter.navigateToTaxCertificateUnsuccessful();
-			} else {
-				this.logger.log(`error`, `Failed to load Tax Certificate`, `_taxCertificate`, returnValue.correlationId);
-				this.HorizonRouter.navigateToTaxCertificateUnavailable();
-			}
-
 		}
-	}
-
-	_back() {
-
-		// Telemetry
-		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_BACK, {
-			"screen": TelemetryScreen.TAX_CERTIFICATE
-		});
-		
-		this.selectedCertificates = [];
-		
-		this.errorMessage = ``;
-		this.currentStep--;
 	}
 
 	async _cancelClick(e) {
@@ -273,9 +274,7 @@ export class TaxCertificate extends Component {
 		if (isNullorEmpty(this.selectedCertType)) {
 			this.alertBannerMessage = ERROR_MESSAGE.CERT_TYPE;
 			return false;
-		} 
-
-		if (this.selectedCertificates.taxFree.length === 0 && this.selectedCertificates.taxableSavings.length === 0) {
+		} else if (isNullorEmpty(this.selectedCertificates[this.selectedCertType])) {
 			this.alertBannerMessage = ERROR_MESSAGE.DOCUMENT_TYPE;
 			return false;
 		}
@@ -294,19 +293,10 @@ export class TaxCertificate extends Component {
 				"certificate-period": null }
 			]
 		});
-
 		this.currentStep++;
+		return this.selectedCertificates[this.selectedCertType];
 	}
 
-	_onValueChange(e, checkBoxDetails, certType) {
-		if (e.detail.new) {
-			this.alertBannerMessage = ``;
-			this.selectedCertificates[certType].push(this.selectedCertificates[checkBoxDetails]);
-		} else {
-			this.selectedCertificates[certType].splice(this.selectedCertificates[certType].indexOf(checkBoxDetails), 1);
-		}
-		this.requestUpdate();
-	}
 
 	// Only single expander to be seen as expanded at a time
 	_onExpanded(e) {
@@ -793,7 +783,7 @@ export class TaxCertificate extends Component {
 
 				<hr class="seperator">
 
-				${this._renderViewTaxcertificate()}
+				${this._renderViewTaxcertificate(this.selectedCertType)}
 			`;
 		}
 	}
@@ -885,7 +875,7 @@ export class TaxCertificate extends Component {
 
 	_renderViewTaxcertificate() {
 		
-		return Object.keys(this.selectedCertificates).map(type => (this.selectedCertificates[type].length > 0 
+		return this.selectedCertificates[this.selectedCertType].map(type => (this.selectedCertificates[type].length > 0
 		 ? html`<capitec-label
 						class="tax-certificate-heading"
 						type="subtitle"
