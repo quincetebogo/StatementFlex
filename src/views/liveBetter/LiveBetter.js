@@ -266,11 +266,6 @@ export class LiveBetter extends ViewBase {
 				</horizon-live-better-unverified-page>`
 			: html``;
 	}
-
-			? html`
-			: html``;	
-	}
-
 }
 
 customElements.define(`horizon-live-better`, LiveBetter);
