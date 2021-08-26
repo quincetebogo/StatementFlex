@@ -1,6 +1,7 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { TABLE_ROW_CELL_CSS, TABLE_ROW_CSS, getFontColor } from 'app/css/DebiCheckMandates';
-import { convertCentsToRand, formatCurrency, getDateOrdinal } from 'app/utils/channelServiceUtilities';
+import { convertCentsToRand, getDateOrdinal } from 'app/utils/channelServiceUtilities';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 const FILTER_BY = {
 	ALL: 0,

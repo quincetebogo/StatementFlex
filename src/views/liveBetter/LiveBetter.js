@@ -3,9 +3,10 @@ import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { ViewBase } from 'app/views/common/ViewBase';
 
-import 'app/components/liveBetter/LiveBetterVerifiedPage';
+import 'app/productControls/liveBetterSavingsAccount/src/LiveBetterSavings';
 import 'app/components/liveBetter/LiveBetterUnverifiedPage';
 import 'app/components/liveBetter/AccountDetails';
+import 'app/components/dialogs/liveBetter/ManageAutomaticSavings';
 
 /**
  * Live Better View
@@ -43,25 +44,6 @@ export class LiveBetter extends ViewBase {
 		super.connectedCallback();
 
 		this._initialise();
-
-		this._optionClick = async (option) => {
-
-			const transactionHistory = () => this._transactionHistory();
-			const statements = () => this._getStatements();
-			const automaticSavings = () => this._automaticSavings();
-
-			const actions = {
-				'transaction-history': transactionHistory,
-				'statements': statements,
-				'automatic-savings': automaticSavings
-			};
-
-			if (actions[option]) {
-				await super._inicidentManager_(option, () => this._toggleBusyFlag());
-				this._refreshIncidentDetails();
-				return actions[option]();
-			}
-		};
 	}
 
 	disconnectedCallback() {
@@ -100,12 +82,34 @@ export class LiveBetter extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
+	_backToLBBLandingScreen() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+
+	async _optionClick(option) {
+
+		const transactionHistory = () => this._transactionHistory();
+		const statements = () => this._getStatements();
+
+		const actions = {
+			'transaction-history': transactionHistory,
+			'statements': statements,
+			'automatic-savings': this._automaticSavings,
+			'product-enquiry': this._productEnquiry
+		};
+
+		if (actions[option]) {
+			await super._inicidentManager_(option, () => this._toggleBusyFlag());
+			this._refreshIncidentDetails();
+			return actions[option]();
+		}
+	};
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
 
-	// N/A
-	
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -139,7 +143,7 @@ export class LiveBetter extends ViewBase {
 			// Now we can update the information on the product buttons
 			this._updateLeftBar();
 
-			this.endCallContext=`LandingPage`;
+			this.endCallContext = `LandingPage`;
 			this.renderMode = RENDER_MODE.MAIN_PAGE;
 				
 		}
@@ -181,13 +185,15 @@ export class LiveBetter extends ViewBase {
 		this.horizonStore.saveState(state);
 	}
 
-	async _productEnquiry(event) {
-		if (event.detail.enquiry === `product-enquiry`) {
-			const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.live-better`);
-			window.open(`${globalOneUrl}`);
-		}
+	_automaticSavings() {
+		this.renderMode = RENDER_MODE.AUTOMATIC_SAVINGS;
 	}
 
+	async _productEnquiry() {
+		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.live-better`);
+		window.open(`${globalOneUrl}`);
+	}
+	
 	// ---------
 	// RENDERING
 	// ---------
@@ -220,6 +226,7 @@ export class LiveBetter extends ViewBase {
 			${super._webTemplate()}
 			${this._renderLandingPage()}
 			${this._renderAccountDetails()}
+			${this._renderAutomaticSavings()}
 		`;
 	}
 
@@ -227,6 +234,7 @@ export class LiveBetter extends ViewBase {
 		switch (this.renderMode) {
 			case RENDER_MODE.MAIN_PAGE:
 			case RENDER_MODE.VERIFY_NOW:
+			case RENDER_MODE.AUTOMATIC_SAVINGS:
 				return !this.loading 
 					? html`
 						${this._renderLiveBetterVerifiedLandingPage()}
@@ -241,7 +249,7 @@ export class LiveBetter extends ViewBase {
 
 		return this.verificationStatus === `verified` 
 			? html`
-				<horizon-live-better-verified-page
+				<capitec-pc-live-better-savings
 					class="liveBetter"
 					.landingPageInfo = "${this.landingPageInfo}"
 					@account-details="${() => this._accountDetails()}"
@@ -268,7 +276,15 @@ export class LiveBetter extends ViewBase {
 				<horizon-live-better-account-details
 				@back= "${() => this._backFromAccountDetails()}">
 				</horizon-live-better-account-details>`
-			: html``;	
+			: html``;
+	}
+	_renderAutomaticSavings() {
+		return this.renderMode === RENDER_MODE.AUTOMATIC_SAVINGS 
+		? html`
+			<horizon-manage-automatic-savings
+				@cancel = "${() => this._backToLBBLandingScreen()}">
+			</horizon-manage-automatic-savings>`
+		: html``;
 	}
 
 }

@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency } from 'app/utils/channelServiceUtilities';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 /**
  * A control that displays product info.
@@ -91,6 +91,7 @@ export class HorizonProductTile extends Component {
 		// Prevent the event from bubbling up.
 		event.stopPropagation();
 	}
+	
 	/**
 	 * Handles component key down events.
 	 * 
