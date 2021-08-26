@@ -251,11 +251,11 @@ export class LiveBetter extends ViewBase {
 			? html`
 				<capitec-pc-live-better-savings
 					class="liveBetter"
-					.landingPageInfo = "${this.landingPageInfo}"
+					.liveBetterAccountData = "${this.landingPageInfo}"
 					@account-details="${() => this._accountDetails()}"
 					@option-click="${(event) => this._optionClick(event.detail.option)}"
 					@livebetter-enquiry="${(event) => this._productEnquiry(event)}">
-				</horizon-live-better-verified-page>`
+				</capitec-pc-live-better-savings>`
 			: html``;
 		}
 
