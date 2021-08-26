@@ -4,9 +4,9 @@ import { HorizonTelemetry, OutcomeScreen } from 'app/services/HorizonTelemetrySe
 import { base64ToBlobUrl, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 import 'app/components/common/HorizonExpander';
 import 'app/components/common/HorizonEmailInput';
@@ -74,8 +74,7 @@ export class TaxCertificate extends Component {
 		this.emailLabel = `Email address`;
 		this.confirmEmailLabel = `Confirm email address`;
 		this.selectedCertType = null;
-		this.selectedCertificates = {};
-
+		this.selectedCertificates = [];
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
@@ -127,7 +126,8 @@ export class TaxCertificate extends Component {
 			emailError: { attribute: false },
 			confirmEmailError: { attribute: false },
 			selectedCertType: { type: String },
-			selectedCertificates: { type: Object },
+			selectedCertificates: { attribute: false, 
+										type: Array },
 
 			isBusy: { attribut: false },
 			alertBannerMessage: { attribute: false },
@@ -163,6 +163,16 @@ export class TaxCertificate extends Component {
 
 	_errorHandler(ex) {
 		return true;
+	}
+
+	_isLeapYear(year) {
+		let day = 1;
+		if (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) {
+			day = 29;
+		} else {
+			day = 28;
+		}
+		return day;
 	}
 
 	toggleBusyFlag() {
@@ -233,7 +243,7 @@ export class TaxCertificate extends Component {
 			"screen": TelemetryScreen.TAX_CERTIFICATE
 		});
 		
-		this.selectedCertificates = {};
+		this.selectedCertificates = [];
 		
 		this.errorMessage = ``;
 		this.currentStep--;
@@ -288,14 +298,12 @@ export class TaxCertificate extends Component {
 		this.currentStep++;
 	}
 
-	_onValueChange(e, checkBoxDetails, availableCert) {
+	_onValueChange(e, checkBoxDetails, certType) {
 		if (e.detail.new) {
 			this.alertBannerMessage = ``;
-			this.selectedCertificates[this.availableCert].push(checkBoxDetails);
-			// this.selectedCertificates[certType].push(checkBoxDetails);
+			this.selectedCertificates[certType].push(this.selectedCertificates[checkBoxDetails]);
 		} else {
-			this.selectedCertificates[this.availableCert].splice(this.selectedCertificates[this.availableCert].indexOf(checkBoxDetails), 1);
-			// this.selectedCertificates[certType].splice(this.selectedCertificates[certType].indexOf(checkBoxDetails), 1);
+			this.selectedCertificates[certType].splice(this.selectedCertificates[certType].indexOf(checkBoxDetails), 1);
 		}
 		this.requestUpdate();
 	}
@@ -810,11 +818,13 @@ export class TaxCertificate extends Component {
 
 			return html`
 				<horizon-expander
-					id="tax-expander"
+
+				id="tax-expander"
 					data-automation-id="tax-certificate-document-period"
 					expandButtonAlignment="right"
 					inputType = "Checkbox"
 					@value-change="${(e) => this._onValueChange(e, item, certType)}"
+					?selected = ${this.selectedCertificates === `` ? this.selectedCertificates[certType].indexOf(item) >= 0 : ``}
 					@expand="${(e) => this._onExpanded(e)}"
 					?disabled = ${!item.isTaxYearAvailable}>
 						<capitec-group slot="custom-header" layout="horizontal" gap="none" halign="left" valign="center">
@@ -828,12 +838,12 @@ export class TaxCertificate extends Component {
 							data-automation-id="tax-certificate-document-details"
 							class="expander-content" 
 							slot="content">
-							${this._renderCertificateDetails()}
+							${this._renderCertificateDetails(item, certType)}
 						</capitec-content-box>
 				</horizon-expander>`;
 	}
 
-	_renderCertificateDetails() {
+	_renderCertificateDetails(item, certType) {
 		return html`
 			<capitec-label label="Overview (4 accounts)"></capitec-label>
 			
@@ -842,36 +852,33 @@ export class TaxCertificate extends Component {
 					size="default"
 					icon="status/info-trans">
 				</capitec-icon>
-				<p><b>Notify Client: </b>Interest received on investments from 1 Mar 2019 to 29 Feb 2020. Balance of accounts at 29 Feb 2020</p>
+				<p><b>Notify Client: </b>Interest received on investments from 1 Mar ${item.year - 1} to ${this._isLeapYear(item.year)} Feb ${item.year}. Balance of accounts at ${this._isLeapYear()} Feb ${item.year}</p>
 			</capitec-group>
 
 			<!-- TO DO: Expander content can be made to render dynamically while impelmenting CS call.  -->
 			<capitec-group class="expander-details" layout="grid" gap="none" columns="4" rows="2">
-				${this._renderExpanderRow(1)}
-				${this._renderExpanderRow(2)}
-				${this._renderExpanderRow(3)}
-				${this._renderExpanderRow(4)}
+				${item.taxCertificateAccounts.map((account, index) => this._renderExpanderRow(account, index))}
 			</capitec-group>
 		`;
 	}
 
-	_renderExpanderRow(rowNum) {
+	_renderExpanderRow(item, rowNum) {
 		return html`
 			<horizon-label row="${rowNum}" column="1" colspan="1" rowspan="1"
-				label="Savings account"
-				value="1131992510">
+				label="Savings Account"
+				value="${item.accountNumber}">
 			</horizon-label>
 			<horizon-label row="${rowNum}" column="2" colspan="1" rowspan="1"
 				label="Balance"
-				value="R9 009.14">
+				value="R ${item.balance}">
 			</horizon-label>
 			<horizon-label row="${rowNum}" column="3" colspan="1" rowspan="1"
 				label="Interest received"
-				value="R304.54">
+				value="R ${item.interestReceived}">
 			</horizon-label>
 			<horizon-label row="${rowNum}" column="4" colspan="1" rowspan="1"
 				label="Status"
-				value="Open">
+				value="${item.accountStatus}">
 			</horizon-label>
 		`;
 	}

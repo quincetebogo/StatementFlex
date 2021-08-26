@@ -484,28 +484,29 @@ export class Favourites extends SavingsAccountBase {
 
 		const returnValue = await this.quickTransactionService.getTaxCertificate(this.callerInformation.cifNumber, () => true);
 
-		if (returnValue.succeeded) {
-			this.taxCertificateDetails = returnValue.result;
-			this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
-			
-			this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
-			"screen": TelemetryScreen.TAX_CERTIFICATE
-			});
-
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unable to get load tax certificates information`, `_taxCertificates`, returnValue.correlationId);
+			this.horizonRouter.navigateToTaxCertificateServiceError();
 		}
+
+		this.taxCertificateDetails = returnValue.result;
+		this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
+		
+		this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
+		"screen": TelemetryScreen.TAX_CERTIFICATE
+		});
 	}
 
 	async _getTaxCertificateDocument(request) {
+
 		const returnValue = await this.quickTransactionService.viewTaxCertificate(request, () => true);
 
-		if (returnValue.succeeded) {
-			return returnValue.result;
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unable to get load tax certificates documents`, `_getTaxCertificateDocument`, returnValue.correlationId);
+			this.horizonRouter.navigateToTaxCertificateServiceError();
+			return null;
 		}
-
-		this.logger.log(`error`, `Unable to get temporary card limits`, `_getTemporaryLimits`, returnValue.correlationId);
-		this.horizonRouter.navigateToSystemError();
-
-		return null;
+		return returnValue.result;
 	}
 
 	async _proofOfAccount() {
