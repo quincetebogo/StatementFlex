@@ -5,7 +5,7 @@ import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/productControls/liveBetterSavingsAccount/src/LiveBetterSavings';
 import 'app/components/liveBetter/LiveBetterUnverifiedPage';
-import 'app/components/liveBetter/AccountDetails';
+import 'app/productControls/liveBetterSavingsAccount/src/AccountDetails';
 import 'app/components/dialogs/liveBetter/ManageAutomaticSavings';
 
 /**
@@ -225,8 +225,6 @@ export class LiveBetter extends ViewBase {
 		return html`
 			${super._webTemplate()}
 			${this._renderLandingPage()}
-			${this._renderAccountDetails()}
-			${this._renderAutomaticSavings()}
 		`;
 	}
 
@@ -253,8 +251,6 @@ export class LiveBetter extends ViewBase {
 					class="liveBetter"
 					.liveBetterAccountData = "${this.landingPageInfo}"
 					@account-details="${() => this._accountDetails()}"
-					@option-click="${(event) => this._optionClick(event.detail.option)}"
-					@livebetter-enquiry="${(event) => this._productEnquiry(event)}">
 				</capitec-pc-live-better-savings>`
 			: html``;
 		}
@@ -269,7 +265,6 @@ export class LiveBetter extends ViewBase {
 				</horizon-live-better-unverified-page>`
 			: html``;
 	}
-
 	_renderAccountDetails() {
 		return this.renderMode === RENDER_MODE.LIVE_BETTER_ACCOUNT_DETAILS 
 			? html`
@@ -278,6 +273,7 @@ export class LiveBetter extends ViewBase {
 				</horizon-live-better-account-details>`
 			: html``;
 	}
+  
 	_renderAutomaticSavings() {
 		return this.renderMode === RENDER_MODE.AUTOMATIC_SAVINGS 
 		? html`
@@ -286,7 +282,6 @@ export class LiveBetter extends ViewBase {
 			</horizon-manage-automatic-savings>`
 		: html``;
 	}
-
 }
 
 customElements.define(`horizon-live-better`, LiveBetter);

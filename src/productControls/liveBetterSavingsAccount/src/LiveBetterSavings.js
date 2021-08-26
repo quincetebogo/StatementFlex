@@ -314,7 +314,6 @@ export class LiveBetterSavings extends Component {
 						label="Account number"
 						@click="${() => this._accountDetails()}"
 						value="${this.liveBetterAccountData.accountNumber}">
-						value="${this.liveBetterAccountData.accountNumber}">
 					</horizon-label>
 
 					<div class="vertical-line"></div>

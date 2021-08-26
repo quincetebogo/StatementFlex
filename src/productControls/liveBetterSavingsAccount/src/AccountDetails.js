@@ -53,7 +53,7 @@ import 'app/components/common/HorizonLabel';
 		};
 	}
 
-	//---------------
+	// ---------------
 	// EVENT HANDLERS
 	// --------------
 
@@ -90,7 +90,7 @@ import 'app/components/common/HorizonLabel';
 					--theme-titlebar-shadow: 0px;
 					--theme-titlebar-padding: 10px 24px 6px 16px;
 					--theme-titlebar-item-gap: 0px;
-					--theme-type-primary-background: url(../../images/liveBetter/LBB_bg-1092x80.png);
+					--theme-type-primary-background: url(../images/liveBetter/LBB_bg-1092x80.png);
 				}
 				
 				.left-arrow {
@@ -227,7 +227,7 @@ import 'app/components/common/HorizonLabel';
 					data-automation-id="live-better-account-details-title"
 					type="primary">
 						<img
-						src="/images/insure/left-arrow.svg"
+						src="../images/left-arrow.svg"
 						@click="${() => this._back()}"
 						class="left-arrow"/>
 						<horizon-label
@@ -247,8 +247,8 @@ import 'app/components/common/HorizonLabel';
 		`;
 	}
 
-	_renderAlertBanner(){
-		return html `
+	_renderAlertBanner() {
+		return html`
 			<capitec-alert-banner 
 				type="info" 
 				class="alert-banner"
@@ -260,7 +260,7 @@ import 'app/components/common/HorizonLabel';
 		`;
 	}
 
-	_renderAccountDetails(){
+	_renderAccountDetails() {
 		return html`
 		<capitec-content-box
 			class="details-vertical" 
@@ -269,7 +269,7 @@ import 'app/components/common/HorizonLabel';
 			halign="left" 
 			valign="top">
 				<capitec-group class="sub-header" layout="horizontal" gap="clear" halign="left" valign="center">
-					<capitec-image src="/images/liveBetter/AccountDetails.svg"></capitec-image>
+					<capitec-image src="../images/AccountDetails.svg"></capitec-image>
 					<capitec-label
 						label="Account details"
 						class="title-style"
@@ -337,7 +337,7 @@ import 'app/components/common/HorizonLabel';
 		`;
 	}
 
-	_renderAutomaticSavings(){
+	_renderAutomaticSavings() {
 		return html`
 		<capitec-content-box
 			class="details-vertical" 
@@ -346,7 +346,7 @@ import 'app/components/common/HorizonLabel';
 			halign="left" 
 			valign="top">
 				<capitec-group class="sub-header" layout="horizontal" gap="clear" halign="left" valign="center">
-					<capitec-image src="/images/liveBetterSavings/automatic-savings.svg" class="capitec-image"></capitec-image>
+					<capitec-image src="../images/AutomaticSavings.svg"></capitec-image>
 						<capitec-label 
 							label="Automatic savings"
 							type="title"
@@ -396,4 +396,4 @@ import 'app/components/common/HorizonLabel';
 	}
  }
 
- customElements.define(`horizon-live-better-account-details`, AccountDetails);
+ customElements.define(`capitec-pc-live-better-account-details`, AccountDetails);
