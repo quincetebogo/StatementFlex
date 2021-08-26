@@ -200,7 +200,7 @@ export class HorizonRouter {
 	}
 
 	navigateToTaxCertificateServiceError() {
-		this.navigateByPath(`${HORIZON_ROUTES.TAX_CERTIFICATE_SERVICE_ERROR}`);
+		this.router.navigateByPath(`${HORIZON_ROUTES.TAX_CERTIFICATE_SERVICE_ERROR}`);
 	}
 
 	navigateToDebiCheckSuccess() {

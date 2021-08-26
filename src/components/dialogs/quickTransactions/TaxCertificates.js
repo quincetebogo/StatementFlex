@@ -202,7 +202,7 @@ export class TaxCertificate extends Component {
 		this.selectedCertificates[certType] = [];
 		if (e.detail.new) {
 			this.alertBannerMessage = ``;
-			this.selectedCertificates[certType].push(this.selectedCertificates[checkBoxDetails]);
+			this.selectedCertificates[certType].push(checkBoxDetails);
 		} else {
 			this.selectedCertificates[certType].splice(this.selectedCertificates[certType].indexOf(checkBoxDetails), 1);
 		}
@@ -783,7 +783,7 @@ export class TaxCertificate extends Component {
 
 				<hr class="seperator">
 
-				${this._renderViewTaxcertificate(this.selectedCertType)}
+				${this._renderViewTaxcertificate()}
 			`;
 		}
 	}
@@ -875,11 +875,11 @@ export class TaxCertificate extends Component {
 
 	_renderViewTaxcertificate() {
 		
-		return this.selectedCertificates[this.selectedCertType].map(type => (this.selectedCertificates[type].length > 0
+		return this.selectedCertificates[this.selectedCertType].map(type => (this.selectedCertificates[this.selectedCertType].length > 0
 		 ? html`<capitec-label
 						class="tax-certificate-heading"
 						type="subtitle"
-						label="View ${CERTIFICATE_TYPE[type].displayName} certificate(s)">
+						label="View ${this.selectedCertificates[this.selectedCertType] === `iT3BTaxCertificates` ? `taxable savings` : `taxfree`} certificate(s)">
 					</capitec-label>
 					<capitec-group
 						class="available-cards"
@@ -895,13 +895,13 @@ export class TaxCertificate extends Component {
 
 	_renderViewCertificateTile(type) {
 		
-		return this.selectedCertificates[type].map(item => html`
+		return this.selectedCertificates[this.selectedCertType].map(item => html`
 				<horizon-product-tile
 					data-automation-id="tax-certificate-dialog-view-document"
 					class="view-document-tile"
 					type="default"
 					label="${item.year}"
-					subtitle="${CERTIFICATE_TYPE[type].type} ${item.status}"
+					subtitle="${this.selectedCertType === `iT3BTaxCertificates` ? `IT3(b)` : `IT3(s)`} ${type.isTaxYearAvailable ? `Available` : `Unavaiable`}"
 					@click="${() => this._viewPDF()}">
 					${this._renderViewDocumnetLink()}
 				</horizon-product-tile>`);
