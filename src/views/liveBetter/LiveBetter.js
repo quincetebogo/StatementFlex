@@ -5,7 +5,7 @@ import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/productControls/liveBetterSavingsAccount/src/LiveBetterSavings';
 import 'app/components/liveBetter/LiveBetterUnverifiedPage';
-import 'app/components/liveBetter/AccountDetails';
+import 'app/productControls/liveBetterSavingsAccount/src/AccountDetails';
 import 'app/components/dialogs/liveBetter/ManageAutomaticSavings';
 
 /**
