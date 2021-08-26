@@ -484,32 +484,60 @@ export class HorizonChannelService extends Service {
 		return this._post(url, model, this._setToken(), `identifyCaller`);
 	}
 
-	// ----------
-	// debi-check
-	// ----------
+    // ----------
+    // debi-check
+    // ----------
 
-	async debiCheckMandates(cifNumber) {
-		if (await this._mockEnabled(`debiCheckMandates`)) {
-			return this._mock.debiCheckMandates(cifNumber);
-		}
+    async debiCheckMandates(cifNumber) {
+        if (await this._mockEnabled(`debiCheckMandates`)) {
+            return this._mock.debiCheckMandates(cifNumber);
+        }
 
-		const url = `/clientcare-debicheck-${this._version}/client/${cifNumber}/mandates`;
-		return this._get(url, this._setToken(), `debiCheckMandates`);
-	}
+        const url = `/clientcare-debicheck-${this._version}/client-mandate`;
+        return this._post(url, cifNumber, this._setToken(), `debiCheckMandates`);
+    }
 
-	async debiCheckDetails(cifNumber, mandateId, registerId) {
-		if (await this._mockEnabled(`debiCheckDetails`)) {
-			return this._mock.debiCheckDetails(cifNumber, mandateId, registerId);
-		}
+    async debiCheckDetails(cifNumber, mandateId, registerId) {
+        if (await this._mockEnabled(`debiCheckDetails`)) {
+            return this._mock.debiCheckDetails(cifNumber, mandateId, registerId);
+        }
 
-		const url = `/clientcare-debicheck-${this._version}/client/${cifNumber}/mandate/${mandateId}/register/${registerId}/details`;
-		return this._get(url, this._setToken(), `debiCheckDetails`);
-	}
+        const request = {
+            cifNumber: cifNumber,
+            madateId: mandateId,
+            registerId: registerId
+        };
+        const url = `/clientcare-debicheck-${this._version}/client-mandate-details`;
+        return this._post(url, request, this._setToken(), `debiCheckDetails`);
+    }
 
-	debiCheckDecline (cifNumber, mandateReferenceNumber, debtorAccountNumber) {
-		const url = `/clientcare-debicheck-${this._version}/client/${cifNumber}/mandate/${mandateReferenceNumber}/account/${debtorAccountNumber}/decline`;
-		return this._post(url, model, this._setToken(), `debiCheckDecline`);
-	}
+    async debiCheckConfirmAgreement(mandateInfo) {
+        if (await this._mockEnabled(`debiCheckConfirmAgreement`)) {
+            return this._mock.debiCheckConfirmAgreement(mandateInfo);
+        }
+
+        const url = `/clientcare-debicheck-${this._version}/client-mandate-confirm-agreement`;
+        return this._post(url, mandateInfo, this._setToken(), `debiCheckConfirmAgreement`);
+    }
+
+    async debiCheckAuthenticate(cifNumber, mandateReferenceNumber, debtorAccountNumber, accepted) {
+        if (await this._mockEnabled(`debiCheckAuthenticate`)) {
+            return this._mock.debiCheckAuthenticate(cifNumber, mandateReferenceNumber, debtorAccountNumber, accepted);
+        }
+        const request = {
+            cifNumber: cifNumber,
+            mandateReferenceNumber: mandateReferenceNumber,
+            debtorAccountNumber: debtorAccountNumber,
+            accepted: accepted
+        };
+        const url = `/clientcare-debicheck-${this._version}/client-mandate-authenticate`;
+        return this._post(url, request, this._setToken(), `debiCheckAuthenticate`);
+    }
+
+    async debiCheckAgreement(clientInfo) {
+        const url = `/clientcare-debicheck-${this._version}/client-mandate-agreement-template`;
+        return this._post(url, clientInfo, this._setToken(), `debiCheckAgreement`);
+    }
 
 	// ---------
 	// documents
