@@ -42,6 +42,8 @@ export class SavingsAccountBase extends ViewBase {
         this.debiCheckMandates = [];
         this.incomingCallDetails = {};
         this.incidentRecId = ``;
+        this.landingPageInfo = {};
+        this.callerInformation = {};
 
         this.navigationContext = NavigationContext.getInstance();
         this.horizonStore = HorizonStore.getInstance();
@@ -63,6 +65,9 @@ export class SavingsAccountBase extends ViewBase {
 
 	connectedCallback() {
         super.connectedCallback();
+        const state = this.horizonStore.recoverState();
+        this.callerInformation = this.horizonStore.getCallerInformation();
+        this.landingPageInfo = state.landingPageInfo;
         this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
         this.incidentDetails = this.horizonStore.getIncidentDetails();
         this.incidentRecId = this.incidentDetails.incidentRecId;
@@ -163,9 +168,7 @@ export class SavingsAccountBase extends ViewBase {
 
         this.mandateId = event.detail.mandateId;
 
-		//const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
-        //this._confirmAgreement();
-        this._authenticateMandate(this.mandateId, false);
+        this._authenticateMandate(false);
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
     }
 
@@ -192,9 +195,6 @@ export class SavingsAccountBase extends ViewBase {
 		});
 
         this._confirmAgreement();
-        this._authenticateMandate(event.detail.mandateId, true);
-
-		//const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
 
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
@@ -257,50 +257,92 @@ export class SavingsAccountBase extends ViewBase {
 		return [];
     }
 
-    _confirmAgreement() {
-                //const mandateInfo = {
-        //     cifNumber :  cifNumber ,
-        //     mandateRef :  mandateRef ,
-        //     title :  title ,
-        //     firstName :  firstName ,
-        //     surname :  surname ,
-        //     middleName :  middleName ,
-        //     identificationNumber :  identificationNumber,
-        //     residentialAddress :  residentialAddress ,
-        //     postalAddress :  string ,
-        //     cellphone : 0,
-        //     homeNumber : 0,
-        //     workNumber : 0,
-        //     savingsAccountNumber : 0,
+    async _confirmAgreement() {
+        const name = this.callerInformation.name.split(" ");
+        const agreementInfo = {
+             cifNumber : this.callerInformation.cifNumber,
+             mandateRef :   this.debiCheckDetails.mandateReference,
+             title :  name[0],
+             firstName :  name[1] ,
+             surname :  name[name.length -1] ,
+            middleName: name.length > 3 ? name.filter(function () {
+                //return name.index != 0 && name.index != 1 && name.index != name[name.length - 1];
+                name.splice(-1, 1);
+                name.splice(0, 1);
+                name.splice(1, 1);
+                return name;
+            }) : ``,
+            identificationNumber: this.callerInformation.southAfricanIDNumber,            
+            cellphone: this.incomingCallDetails.incomingTelephoneNumber,
+            savingsAccountNumber: this.landingPageInfo.accountNumber,
         //     branchCode : 0,
         //     cardNumber :  string ,
         //     documentId :  string ,
-        //     contractReference :  string ,
-        //     instalmentAmount : 0,
-        //     frequency :  string ,
-        //     firstCollectionDate :  string ,
-        //     collectionDayFrequencyWording :  string ,
+             contractReference :  this.debiCheckDetails.contractReference,
+             instalmentAmount : this.mandateInfo.amount,
+            frequency: this.mandateInfo.collectionDate.frequency,
+             firstCollectionDate :  this.debiCheckDetails.firstCollectionDate,
+            collectionDayFrequencyWording: this.mandateInfo.collectionDayFrequency,
         //     ultimateDebtorName :  string ,
         //    debitAccountName: string,
-        //    accountConfirmation: true,
-        //    instalmentConfirmation: true,
-        //    permissionToDebit: true,
-        //    termsAndConditionsConfirmation: true,
+            accountConfirmation: true,
+            instalmentConfirmation: true,
+            permissionToDebit: true,
+            termsAndConditionsConfirmation: true,
         //    authenticationId: string
-        //};
+        };
 
-        //const returnValue = await this.savingsAccountService.debiCheckConfirmAgreement(mandateInfo);
+        const returnValue = await this.savingsAccountService.debiCheckConfirmAgreement(agreementInfo);
 
-        //if (returnValue.succeeded) {
-        //    return true;
-        //}
-        //return false;
+        if (returnValue.succeeded) {
+            this._authenticateMandate(true);
+        }
     }
 
-    _authenticateMandate(mandateID, accepted) {
+    async _authenticateMandate(accepted) {
+               
+        //const returnValue = await this.savingsAccountService.debiCheckAuthenticate(this.callerInformation.cifNumber, this.debiCheckDetails.mandateInfo.mandateReference, debtorAccount, accepted);
+        //if (returnValue.succeeded) {
+            //this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
+        //}
+    }
 
-        //const returnValue = await this.savingsAccountService.debiCheckAuthenticate(this.callerInformation.cifNumber, mandateRef, debtorAccount, accepted);
 
+    async _getAgreement(mandateInfo) {
+        console.log(mandateInfo);
+        debugger
+        let name = this.callerInformation.name.split(" ");
+
+        const agreementRequest = {
+            title: name[0],
+            firstName: name[1],
+            surname: name[name.length -1],
+            middleName: name.length > 3 ? name.filter(function () {
+                //return name.index != 0 && name.index != 1 && name.index != name[name.length - 1];
+                name.splice(-1, 1);
+                name.splice(0, 1);
+                name.splice(1, 1);
+                return name;
+            }) : ``,
+            identificationNumber: this.callerInformation.southAfricanIDNumber,
+            savingsAccountNumber: this.landingPageInfo.accountNumber,
+            //cardNumber: string,
+            //registerId: this.debiCheckDetails.registerId,
+            //mandateId: this.debiCheckDetails.mandateId,
+            mandateReferenceNumber: this.debiCheckDetails.mandateReferenceNumber,
+            cifNumber: this.callerInformation.cifNumber
+            //accountShortName: string
+        };
+
+        //const returnValue = await this.savingsAccountService.debiCheckAgreement(agreementRequest);
+
+        //if (returnValue.succeeded) {
+        //    return returnValue.result;
+        //}
+
+        //this.logger.log(`error`, `Unable to load Agreement`, `_debiCheckAgreement`, returnValue.correlationId);
+
+        return null;
     }
 
 
@@ -398,6 +440,7 @@ export class SavingsAccountBase extends ViewBase {
 				<horizon-approve-debicheck-mandate
 					.mandateInfo="${this.mandateInfo}"
 					.debiCheckDetails=${this.debiCheckDetails}
+                    .getAgreement=${mandateInfo => this._getAgreement(mandateInfo)}
 					@cancel="${() => this._cancelApproveMandate()}"
 					@approve="${(event) => this._approveDebiCheckMandate(event)}">
 				</horizon-approve-debicheck-mandate>`

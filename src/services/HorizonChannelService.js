@@ -493,10 +493,6 @@ export class HorizonChannelService extends Service {
 			return this._mock.debiCheckMandates(cifNumber);
 		}
 
-		//const url = `/clientcare-debicheck-${this._version}/client/${cifNumber}/mandates`;
-  //      return this._get(url, this._setToken(), `debiCheckMandates`);
-
-        //TODO: new endpoint for list of mandates to be implemented once in dev
         const url = `/clientcare-debicheck-${this._version}/client-mandate`;
         return this._post(url, cifNumber, this._setToken(), `debiCheckMandates`);
 	}
@@ -505,7 +501,7 @@ export class HorizonChannelService extends Service {
 		if (await this._mockEnabled(`debiCheckDetails`)) {
 			return this._mock.debiCheckDetails(cifNumber, mandateId, registerId);
         }
-        //TOD: debiCheckDetails new endpoint to be implemened once in dev
+
         const request = {
             cifNumber: cifNumber,
             madateId: mandateId,
@@ -513,9 +509,6 @@ export class HorizonChannelService extends Service {
         };
         const url = `/clientcare-debicheck-${this._version}/client-mandate-details`;
 		return this._post(url, request, this._setToken(), `debiCheckDetails`);
-
-		//const url = `/clientcare-debicheck-${this._version}/client/${cifNumber}/mandate/${mandateId}/register/${registerId}/details`;
-		//return this._get(url, this._setToken(), `debiCheckDetails`);
 	}
 
     async debiCheckConfirmAgreement(mandateInfo) {
@@ -537,16 +530,14 @@ export class HorizonChannelService extends Service {
             debtorAccountNumber: debtorAccountNumber,
             accepted: accepted
         };
-
         const url = `/clientcare-debicheck-${this._version}/client-mandate-authenticate`;
         return this._post(url, request, this._setToken(), `debiCheckAuthenticate`);
     }
 
-    //TODO: remove decline call and replace with client-mandate-authenticate 
-	debiCheckDecline (cifNumber, mandateReferenceNumber, debtorAccountNumber) {
-		const url = `/clientcare-debicheck-${this._version}/client/${cifNumber}/mandate/${mandateReferenceNumber}/account/${debtorAccountNumber}/decline`;
-		return this._post(url, model, this._setToken(), `debiCheckDecline`);
-	}
+    async debiCheckAgreement(clientInfo) {
+        const url = `/clientcare-debicheck-${this._version}/client-mandate-agreement-template`;
+        return this._post(url, clientInfo, this._setToken(), `debiCheckAgreement`);
+    }
 
 	// ---------
 	// documents

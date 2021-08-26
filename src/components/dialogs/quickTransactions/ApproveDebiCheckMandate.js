@@ -43,6 +43,7 @@ export class ApproveDebiCheckMandate extends Component {
         this.alertType = `info`;
         this.approve = false;
         this.showDiscardChangesModal = false;
+        this.debiCheckAgreement = ``;
 
         this._telemetry = HorizonTelemetry.instance;
         this.horizonStore = HorizonStore.getInstance();
@@ -64,7 +65,8 @@ export class ApproveDebiCheckMandate extends Component {
         return {
             mandateInfo: { type: Object },
             debiCheckDetails: { type: Object },
-            showDiscardChangesModal: { type: Boolean, attribute: false }
+            showDiscardChangesModal: { type: Boolean, attribute: false },
+            getAgreement: {type: Object, attribute: false}
         };
     }
 
@@ -73,14 +75,9 @@ export class ApproveDebiCheckMandate extends Component {
 
         this._clearAll();
 
-        const state = this.horizonStore.recoverState();
-        const callerInformation = this.horizonStore.getCallerInformation();
-        const landingPageInfo = state.landingPageInfo;
-        const screenDetails = this.horizonStore.getScreenDetails();
-
         this.mandateReference = this.debiCheckDetails.mandateReference;
         this.referenceNumber = this.debiCheckDetails.contractReference;
-        this.fullName = this.titleCase(callerInformation.name);
+        this.fullName = this.titleCase(this.callerInformation.name);
 
         //TODO: Remove hardcoded data once endpoints are activated
         this.accountNumber = `164116973`; //: screenDetails.accountNumber;
@@ -92,6 +89,8 @@ export class ApproveDebiCheckMandate extends Component {
         this.collectionDateFrequency = this.mandateInfo.collectionDate.frequency
         this.today = new Date().toISOString().substr(0, 10);
 
+        this.debiCheckAgreement = getAgreement(mandateInfo);
+       
     }
 
     // -------------------
@@ -378,6 +377,7 @@ export class ApproveDebiCheckMandate extends Component {
 						${this._renderAgreementsAlertBanner()}
 						${this._renderAgreement()}
 						${this._renderDiscardChangesModal()}
+						<!--${this._renderAgreementContent()}-->
 					</capitec-content-box>
 				</div>
 
@@ -400,6 +400,22 @@ export class ApproveDebiCheckMandate extends Component {
 				</capitec-group>
 			</capitec-alert-banner>
         `;
+    }
+    _renderAgreementContent() {
+        return html`
+			<capitec-content-box 
+					data-automation-id="tap-to-pay-agreement-pdf-viewer" 
+					class="expander-cb" 
+					halign="left" 
+					valign="top" 
+					gap="none">
+
+				<object 
+					class="agreement-viewer" 
+					data="data:text/html;base64,${this.debiCheckAgreement}" 
+					type="text/html">
+				</object>
+			</capitec-content-box>`;
     }
 
     _renderAgreement() {

@@ -56,8 +56,8 @@ export class SavingsAccountService extends ServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-    async debiCheckAuthenticate(cifNumber, mandateReferenceNumber, debtorAccountNumber, accepted,  errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-        return this.wrapCall(this.channelService.debiCheckDecline(cifNumber, mandateReferenceNumber, debtorAccountNumber, accepted), `debiCheckAuthenticate`, errorHandler, autoRetries);
+    debiCheckAuthenticate(cifNumber, mandateReferenceNumber, debtorAccountNumber, accepted,  errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+        return this.wrapCall(this.channelService.debiCheckAuthenticate(cifNumber, mandateReferenceNumber, debtorAccountNumber, accepted), `debiCheckAuthenticate`, errorHandler, autoRetries);
     }
 
     /**
@@ -69,7 +69,20 @@ export class SavingsAccountService extends ServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
     debiCheckConfirmAgreement (mandateInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-        return this.wrapCall(this.channelService.debiCheckDecline(mandateInfo), `debiCheckConfirmAgreement`, errorHandler, autoRetries);
+        return this.wrapCall(this.channelService.debiCheckConfirmAgreement(mandateInfo), `debiCheckConfirmAgreement`, errorHandler, autoRetries);
+    }
+
+    /**
+	 * Agreement of approve debi-check mandate
+	 *
+	 * @param {Object} mandateInfo Information about the mandate and account holder
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+
+        debiCheckAgreement (clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+            return this.wrapCall(this.channelService.debiCheckAgreement(clientInfo), `debiCheckAgreement`, errorHandler, autoRetries);
 	}
 	
 	/**
