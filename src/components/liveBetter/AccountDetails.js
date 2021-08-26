@@ -177,7 +177,6 @@ import 'app/components/common/HorizonLabel';
 
 				.title-style {
 					margin-left: 8px;
-					padding-bottom:8px;
 
 					--theme-label-title-font-size: 18px;
 					--theme-label-title-font-weight: 600;
@@ -188,6 +187,11 @@ import 'app/components/common/HorizonLabel';
 
 				.col-3 {
 					width: 158px;
+				}
+
+				.capitec-image {
+					width: 22px;
+					height: 21px;
 				}
 				
 				.toggle-group {
@@ -342,7 +346,7 @@ import 'app/components/common/HorizonLabel';
 			halign="left" 
 			valign="top">
 				<capitec-group class="sub-header" layout="horizontal" gap="clear" halign="left" valign="center">
-					<capitec-image src="/images/liveBetter/AutomaticSavings.svg"></capitec-image>
+					<capitec-image src="/images/liveBetterSavings/automatic-savings.svg" class="capitec-image"></capitec-image>
 						<capitec-label 
 							label="Automatic savings"
 							type="title"
