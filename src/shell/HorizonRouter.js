@@ -677,7 +677,7 @@ export default horizonRoutes = [
 		title: `AutomaticSavingsFailed`,
 		icon: null,
 		path: HORIZON_ROUTES.AUTOMATIC_SAVINGS_FAILED,
-		load: () => import(`../views/liveBetterSavingsAccount/AutomaticSavingsFailure`),
+		load: () => import(`../views/liveBetter/AutomaticSavingsFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
@@ -685,7 +685,7 @@ export default horizonRoutes = [
 		title: `AutomaticSavingsSuccessful`,
 		icon: null,
 		path: HORIZON_ROUTES.AUTOMATIC_SAVINGS_SUCCESS,
-		load: () => import(`../views/liveBetterSavingsAccount/AutomaticSavingsSuccess`),
+		load: () => import(`../views/liveBetter/AutomaticSavingsSuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{

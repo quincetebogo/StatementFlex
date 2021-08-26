@@ -1,23 +1,18 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency } from 'app/utils/channelServiceUtilities';
+
+import { formatCurrency } from '../../utilities/Currency';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 
 /**
- * Live Better landig screen component - verified view
+ * Live Better Savings Account Product Control
  *
- * Events Raised
- * -------------
- * 
- * option-click
- * livebetter-enquiry
- * 
  * @export
- * @class LiveBetterVerifiedPage
+ * @class LiveBetterSavings
  * @extends {Component}
  */
-export class LiveBetterVerifiedPage extends Component {
+export class LiveBetterSavings extends Component {
 	
 	// --------------
 	// INITIALISATION
@@ -26,7 +21,7 @@ export class LiveBetterVerifiedPage extends Component {
 	constructor() {
 		super();
 
-		this.landingPageInfo = null;
+		this.liveBetterAccountData = null;
 		this.expanded = true;
 	}
 
@@ -43,16 +38,26 @@ export class LiveBetterVerifiedPage extends Component {
 	// --------------
 
 	/**
+	 * @typedef {Object} LiveBetterAccountData
+	 * @property {String} accountNumber - The Live Better Savings Account Number
+	 * @property {Number} accountAvailableBalance - The Available Live Better Account Balance
+	 * @property {Number} roundUpAmount
+	 * @property {String} interestSweep
+	 * @property {String} interestRatePercentage
+	 * @property {String} accountStatus
+ 	 */
+
+	/**
+	 * Registry of all properties defined by the component.
 	 *
-	 * @property {Object} landingPageInfo Data for the Live Better verified landing Page display
+	 * @property {LiveBetterAccountData} liveBetterAccountData Data for the Live Better verified landing Page display
 	 *
-	 * @readonly
-	 * @static
-	 * @memberof LiveBetterVerifiedPage
 	 */
 	static get properties() {
 		return {
-			landingPageInfo: { type: Object },
+			liveBetterAccountData: { type: Object },
+
+			// Private Properties
 			expanded: { type: Boolean }
 		};
 	}
@@ -61,16 +66,12 @@ export class LiveBetterVerifiedPage extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_optionSelectedClick(selectedOption) {
-		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selectedOption } }));
-	}
-
-	_liveBetterEnquiry(productEnquiry) {
-		this.dispatchEvent(new CustomEvent(`livebetter-enquiry`, { detail: { enquiry: productEnquiry } }));
+	_click(selection) {
+		this.dispatchEvent(new CustomEvent(`click`, { detail: { selection: selection } }));
 	}
 
 	_toggleExpander() {
-		this.expanded = !this.expanded
+		this.expanded = !this.expanded;
 	}
 
 	_accountDetails() {
@@ -105,7 +106,7 @@ export class LiveBetterVerifiedPage extends Component {
 				/* Title Bar styles */
 				capitec-title-bar {
 					--theme-titlebar-padding: 12px 16px;
-					--theme-type-primary-background: url(../../images/liveBetter/LBB_bg-1092x64.png);
+					--theme-type-primary-background: url(../images/LBB_bg-1092x64.png);
 				}
 				capitec-title-bar > capitec-label {
 					--theme-label-title-font-size: 24px;
@@ -192,7 +193,7 @@ export class LiveBetterVerifiedPage extends Component {
 					width: 1px;
 					background-color: #E1E1E1;
 				}
-				.toggle-group {	
+				.toggle-group {
 					width: 158px;
 					padding: 12px 0px 12px 16px;
 				}
@@ -243,7 +244,7 @@ export class LiveBetterVerifiedPage extends Component {
 					padding: 0px;
 					--horizon-option-btn-icon-height: 26px;
 					--horizon-option-btn-icon-width: 26px;
-				}			
+				}
 				.icon-chevron {
 					height: 48px;
 					width: 48px;
@@ -255,7 +256,7 @@ export class LiveBetterVerifiedPage extends Component {
 					background-color: rgba(0,157,224,0.1);
 				}
 				.icon-chevron > capitec-icon {
-					--theme-icon-size-default: 8px;	
+					--theme-icon-size-default: 8px;
 				}
 			`
 		];
@@ -273,7 +274,7 @@ export class LiveBetterVerifiedPage extends Component {
 					<capitec-title-bar 
 						data-automation-id="live-better-verified-title"
 						type="primary">
-							<img src='/images/liveBetter/liveBetter-white.svg'/>
+							<img src='../images/liveBetter-white.svg'/>
 							</capitec-icon>
 							<capitec-label label="Live Better Savings Account" type="Title"></capitec-label>
 					</capitec-title-bar>
@@ -312,7 +313,7 @@ export class LiveBetterVerifiedPage extends Component {
 						data-automation-id="live-better-verified-account-number"
 						label="Account number"
 						@click="${() => this._accountDetails()}"
-						value="${this.landingPageInfo.accountNumber}">
+						value="${this.liveBetterAccountData.accountNumber}">
 					</horizon-label>
 
 					<div class="vertical-line"></div>
@@ -320,7 +321,7 @@ export class LiveBetterVerifiedPage extends Component {
 					<horizon-label
 						data-automation-id="live-better-verified-available-balance"
 						label="Available balance"
-						value="${formatCurrency(this.landingPageInfo.accountAvailableBalance)}">
+						value="${formatCurrency(this.liveBetterAccountData.accountAvailableBalance)}">
 					</horizon-label>
 
 					<capitec-group 
@@ -331,7 +332,7 @@ export class LiveBetterVerifiedPage extends Component {
 						halign="left" 
 						valign="center">
 							<capitec-label label="Round-up"></capitec-label>
-							<capitec-toggle label="${formatCurrency(this.landingPageInfo.roundUpAmount)}" checked></capitec-toggle>
+							<capitec-toggle label="${formatCurrency(this.liveBetterAccountData.roundUpAmount)}" checked></capitec-toggle>
 					</capitec-group>
 
 					<capitec-group 
@@ -342,23 +343,23 @@ export class LiveBetterVerifiedPage extends Component {
 						halign="left" 
 						valign="center">
 							<capitec-label label="Interest Sweep"></capitec-label>
-							<capitec-toggle label="${this.landingPageInfo.interestSweep}" checked></capitec-toggle>
+							<capitec-toggle label="${this.liveBetterAccountData.interestSweep}" checked></capitec-toggle>
 					</capitec-group>
 
 					<horizon-label
 						data-automation-id="live-better-verified-interest-rate"
 						label="Interest rate"
-						value="${this.landingPageInfo.interestRatePercentage}">
+						value="${this.liveBetterAccountData.interestRatePercentage}">
 					</horizon-label>
 
 					<horizon-label
 						data-automation-id="live-better-verified-status"
 						label="Status"
-						value="${this.landingPageInfo.accountStatus}">
+						value="${this.liveBetterAccountData.accountStatus}">
 					</horizon-label>
 					
 					<capitec-group class="icon-chevron" @click="${() => this._toggleExpander()}" layout="vertical" gap="none" halign="center" valign="center">
-						<capitec-icon class="${this.expanded ? 'transform-icon' : ''}" icon="system/chevron-down-action"></capitec-icon>
+						<capitec-icon class="${this.expanded ? `transform-icon` : ``}" icon="system/chevron-down-action"></capitec-icon>
 					</capitec-group>
 				</capitec-group>
 			</div>
@@ -376,21 +377,21 @@ export class LiveBetterVerifiedPage extends Component {
 						class="button-margin" 
 						label="Transaction History" 
 						icon="system/time-action"
-						@click="${() => this._optionSelectedClick(`transaction-history`)}">
+						@click="${() => this._click(`transaction-history`)}">
 					</horizon-option-button>
 					<horizon-option-button 
 						data-automation-id="live-better-verified-statements"
 						class="button-margin" 
 						label="Statements" 
 						icon="system/documents-action"
-						@click="${() => this._optionSelectedClick(`statements`)}">
+						@click="${() => this._click(`statements`)}">
 					</horizon-option-button>
 					<horizon-option-button 
 						data-automation-id="live-better-verified-automatic-savings"
 						class="button-margin"
 						label="Automatic Savings" 
-						img-src="/images/liveBetter/automatic-savings.svg"
-						@click="${() => this._optionSelectedClick(`automatic-savings`)}">
+						img-src="../images/automatic-savings.svg"
+						@click="${() => this._click(`automatic-savings`)}">
 					</horizon-option-button>
 				</capitec-group>
 			</capitec-group>
@@ -400,7 +401,6 @@ export class LiveBetterVerifiedPage extends Component {
 	_renderFooter() {
 		return html`
 			<capitec-group class= "" layout="vertical" gap="none" halign="left" valign="center">
-
 				<capitec-title-bar
 					type="default"
 					label="Explore Live Better"
@@ -412,14 +412,14 @@ export class LiveBetterVerifiedPage extends Component {
 							class="button-margin"
 							label="Product enquiry"
 							icon="system/info-action"
-							@click="${() => this._liveBetterEnquiry(`product-enquiry`)}">
+							@click="${() => this._click(`product-enquiry`)}">
 					</horizon-option-button>
 					<horizon-option-button 
 							data-automation-id="live-better-verified-partner-benefits"
 							class="button-margin"
 							label="Partner Benefits"
 							icon="system/client-insights-action"
-							@click="">
+							@click="${() => this._click(`partner-benefits`)}">
 					</horizon-option-button>
 				</capitec-group>
 			</capitec-group>
@@ -427,4 +427,16 @@ export class LiveBetterVerifiedPage extends Component {
 	}
 }
 
-customElements.define(`horizon-live-better-verified-page`, LiveBetterVerifiedPage);
+customElements.define(`capitec-pc-live-better-savings`, LiveBetterSavings);
+
+/**
+ * When an option tile is clicked
+ *
+ * @example
+ * <capitec-pc-live-better-savings ... @click="${this._handler}"></capitec-pc-live-better-savings>
+ *
+ * @event LiveBetterSavings#click
+ * @type {Object}
+ * @property {Object} detail - Contains information on the clicked item
+ * @property {String} detail.selection - The selected option
+ */

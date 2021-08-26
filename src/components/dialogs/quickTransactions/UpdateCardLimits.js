@@ -1,8 +1,9 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/CardArt';
 
