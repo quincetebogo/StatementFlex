@@ -1,14 +1,16 @@
+import { HorizonStore } from 'app/store/HorizonStore';
 import { NavigationContext } from 'platform/core';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
-import { ViewBase } from 'app/views/common/ViewBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { ViewBase } from 'app/views/common/ViewBase';
 import { html } from 'platform/elements';
 
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/common/StatementsDialog';
+import 'app/components/dialogs/quickTransactions/ApproveDebiCheckMandate';
 
 /**
  * A sub-base class of viewbase for Favourites & Savings account landing pages 
@@ -33,16 +35,22 @@ export class SavingsAccountBase extends ViewBase {
 	// --------------
 
 	constructor() {
-		super();
+        super();
 
-		this.navigationContext = NavigationContext.getInstance();
+		this.debiCheckDetails = {};
+		this.clientProducts = null;
+        this.debiCheckMandates = [];
+        this.incomingCallDetails = {};
+        this.incidentRecId = ``;
+
+        this.navigationContext = NavigationContext.getInstance();
+        this.horizonStore = HorizonStore.getInstance();
+
 
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 
-		this.debiCheckDetails = {};
-		this.clientProducts = null;
-		this.debiCheckMandates = {};
+
 	}
 
 	// --------------
@@ -54,7 +62,10 @@ export class SavingsAccountBase extends ViewBase {
 	// -------------------
 
 	connectedCallback() {
-		super.connectedCallback();
+        super.connectedCallback();
+        this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+        this.incidentDetails = this.horizonStore.getIncidentDetails();
+        this.incidentRecId = this.incidentDetails.incidentRecId;
 	}
 
 	disconnectedCallback() {
@@ -75,8 +86,6 @@ export class SavingsAccountBase extends ViewBase {
 		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber);
 		
 		if (returnValue.succeeded) {
-			await super.createAndClassifySubsIncident();
-			
 			// eslint-disable-next-line no-extra-parens
 			this.debiCheckMandates = (returnValue.result && returnValue.result.mandateSummaryList) || [];
 			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
@@ -100,55 +109,99 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	async _mandateActionClick (event) {
-		if (event.detail.action === `decline`) {
-			this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_DECLINE_MANDATE, {
-				"screen": TelemetryScreen.DEBICHECK,
-				"next-screen": TelemetryScreen.DECLINE_DEBICHECK
-			});
+		
+		const declineAction = (evt) => this._declineMandate(evt);
+		const approveAction = (evt) => this._approveMandate(evt);
+		const viewAction = (evt) => this._viewMandate(evt);
 
-			this.mandateId = event.detail.mandateId;
-			this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
-		} else if (event.detail.action === `approve`) {
-			this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
-				"screen": TelemetryScreen.DEBICHECK,
-				"next-screen": TelemetryScreen.DEBICHECK
-			});
+		const mandateActions = {
+			'debi-check-approve': approveAction,
+			'debi-check-decline': declineAction,
+			'debi-check-viewInfo': viewAction
+		};
+		const action = `debi-check-${event.detail.action}`;
 
-			const screenDetails = this.horizonStore.getScreenDetails();
-			screenDetails.mandateId = event.detail.mandateId;
-			this.horizonStore.setScreenDetails(screenDetails);
-
-			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `debi-check`);
-
-			this.horizonRouter.navigateToDebiCheckSuccess();
-		} else if (event.detail.action === `viewInfo`) {
-			this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_VIEW_MANDATE, {
-				"screen": TelemetryScreen.DEBICHECK,
-				"next-screen": TelemetryScreen.VIEWINFO
-			});
-
-			const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, event.detail.mandateId, event.detail.registerId);
+		if (mandateActions[action]) {
+			await super._inicidentManager_(action, () => this._toggleBusyFlag());
+			this._refreshIncidentDetails();
 			
-			if (returnValue.succeeded && returnValue.result) {
-				this.debiCheckDetails = returnValue.result;
-				this.renderMode = RENDER_MODE.DEBI_CHECK_VIEW_INFO;
-			} else {
-				this.horizonRouter.navigateToSystemError();
-			}
+			return mandateActions[action](event);
 		}
 	}
 
-	async _declineDebiCheckMandate(event) {
+	_declineMandate(event) {
+		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_DECLINE_MANDATE, {
+			"screen": TelemetryScreen.DEBICHECK,
+			"next-screen": TelemetryScreen.DECLINE_DEBICHECK
+		});
+
+		this.mandateId = event.detail.mandateId;
+		this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
+	}
+
+	async _approveMandate(event) {
+		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
+			"screen": TelemetryScreen.DEBICHECK,
+			"next-screen": TelemetryScreen.APPROVE_DEBICHECK
+		});
+
+		this.mandateInfo = event.detail.mandateInfo;
+
+		const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, event.detail.mandateInfo.mandateId, event.detail.mandateInfo.registerId);
+
+		if (returnValue.succeeded && returnValue.result) {
+			this.debiCheckDetails = returnValue.result;
+			this.renderMode = RENDER_MODE.DEBI_CHECK_APPROVE;
+		} else {
+			this.horizonRouter.navigateToSystemError();
+		}
+	}
+
+	async _viewMandate(event) {
+		
+		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_VIEW_MANDATE, {
+			"screen": TelemetryScreen.DEBICHECK,
+			"next-screen": TelemetryScreen.VIEWINFO
+		});
+
+		const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, event.detail.mandateId, event.detail.registerId);
+		
+		if (returnValue.succeeded && returnValue.result) {
+			this.debiCheckDetails = returnValue.result;
+			this.renderMode = RENDER_MODE.DEBI_CHECK_VIEW_INFO;
+		} else {
+			this.horizonRouter.navigateToSystemError();
+		}
+	}
+
+	async _confirmDeclineMandate(event) {
+
 		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_DECLINE_MANDATE_CONFIRM, {
 			"screen": TelemetryScreen.DECLINE_DEBICHECK,
 			"next-screen": TelemetryScreen.DEBICHECK_OUTCOME
 		});
 
-		this.mandateId = event.detail.mandateId;
+		const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, event.detail.mandateId, null);
 
-		const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
+		if (returnValue.succeeded) {
+			// TODO: Wire up to outcome screen
+			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
+		}
+	}
 
-		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
+	async _confirmApproveMandate(event) {
+	
+		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
+			"screen": TelemetryScreen.APPROVE_DEBICHECK,
+			"next-screen": TelemetryScreen.DEBICHECK_OUTCOME
+		});
+
+		const returnValue = await this.savingsAccountService.debiCheckApprove();
+
+		if (returnValue.succeeded) {
+			// TODO: Wire up to outcome screen
+			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
+		}
 	}
 
 	_closeViewMandateInfo() {
@@ -157,14 +210,18 @@ export class SavingsAccountBase extends ViewBase {
 			"next-screen": TelemetryScreen.DEBICHECK
 		});
 
+		this._setIncidentDone();
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
 
-	_cancelDeclineMandate() {
-		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_DECLINE_MANDATE_CANCEL, {
-			"screen": TelemetryScreen.DECLINE_DEBICHECK,
+	async _cancelMandateAction(eventName, currScreen) {
+		this._telemetry.logEvent(eventName, {
+			"screen": currScreen,
 			"next-screen": TelemetryScreen.DEBICHECK
 		});
+
+		await super._inicidentManager_(`debi-check-viewInfo`, () => this._toggleBusyFlag());
+		this._refreshIncidentDetails();
 
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
@@ -174,7 +231,8 @@ export class SavingsAccountBase extends ViewBase {
 			"screen": TelemetryScreen.DEBICHECK,
 			"next-screen": TelemetryScreen.FAVOURITES
 		});
-		this._setIncidentDone();
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	// ---------------
@@ -185,7 +243,6 @@ export class SavingsAccountBase extends ViewBase {
 		this.horizonRouter.navigateToSystemError();
 		return true;
 	}
-
 
 	async _getClientProducts() {
 		const request = {
@@ -213,8 +270,6 @@ export class SavingsAccountBase extends ViewBase {
 	_setIncidentDone() {
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
-
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	_performReturnToScreen() {
@@ -225,6 +280,18 @@ export class SavingsAccountBase extends ViewBase {
 		}
 
 		this.horizonStore.clearReturnScreen();
+	}
+
+	async _unloadDebiCheck(eventName, screenName) {
+
+		/**
+		 * Debi check mandates are viewed but view/approve/decline is not selected.
+		 * Navigating away will still be considered as viewed and classified.
+		 */
+		await super.classifyIncident(() => this._toggleBusyFlag());
+
+		this._setIncidentDone();
+		this._telemetryEndSpan(eventName, screenName);
 	}
 
 	// ---------
@@ -244,6 +311,7 @@ export class SavingsAccountBase extends ViewBase {
 			${this._renderStatementsModal()}
 			${this._renderDebiCheckMandates()}
 			${this._renderDebiCheckDeclineMandate()}
+			${this._renderDebiCheckApproveMandate()}
 			${this._renderDebiCheckViewMandateInfo()}
 
 			${super._webTemplate()}
@@ -253,6 +321,7 @@ export class SavingsAccountBase extends ViewBase {
 	_renderDebiCheckMandates() {
 		return this.renderMode === RENDER_MODE.DEBI_CHECK_PAGE ||
 				this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE ||
+				this.renderMode === RENDER_MODE.DEBI_CHECK_APPROVE ||
 				this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
 			? html`
 				<debi-check-mandates
@@ -260,7 +329,7 @@ export class SavingsAccountBase extends ViewBase {
 					@action="${(event) => this._mandateActionClick(event)}"
 					@back="${() => this._exitDebiCheck()}"
 					@loading="${() => this._telemetryStartSpan(QuickTransactionEvents.DEBICHECK, TelemetryScreen.DEBICHECK)}"
-					@unloading="${() => this._telemetryEndSpan(QuickTransactionEvents.DEBICHECK, TelemetryScreen.DEBICHECK)}">
+					@unloading="${() => this._unloadDebiCheck(QuickTransactionEvents.DEBICHECK, TelemetryScreen.DEBICHECK)}">
 				</debi-check-mandates>`
 			: html``;
 	}
@@ -270,8 +339,8 @@ export class SavingsAccountBase extends ViewBase {
 			? html`
 				<horizon-viewinfo-debicheck
 					.debiCheckDetails=${this.debiCheckDetails}
-					@viewed="${() => this._closeViewMandateInfo()}"
-				></horizon-viewinfo-debicheck>`
+					@viewed="${() => this._closeViewMandateInfo()}">
+				</horizon-viewinfo-debicheck>`
 			: html``;
 	}
 
@@ -280,9 +349,21 @@ export class SavingsAccountBase extends ViewBase {
 			? html`
 				<horizon-decline-debicheck-mandate
 					mandateId=${this.mandateId}
-					@cancel="${() => this._cancelDeclineMandate()}"
-					@decline="${(event) => this._declineDebiCheckMandate(event)}">
+					@cancel="${() => this._cancelMandateAction(QuickTransactionEvents.DEBICHECK_DECLINE_MANDATE_CANCEL, TelemetryScreen.DECLINE_DEBICHECK)}"
+					@decline="${(event) => this._confirmDeclineMandate(event)}">
 				</horizon-decline-debicheck-mandate>`
+			: html``;
+	}
+
+	_renderDebiCheckApproveMandate() {
+		return this.renderMode === RENDER_MODE.DEBI_CHECK_APPROVE 
+			? html`
+				<horizon-approve-debicheck-mandate
+					.mandateInfo="${this.mandateInfo}"
+					.debiCheckDetails=${this.debiCheckDetails}
+					@cancel="${() => this._cancelMandateAction(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE_CANCECL, TelemetryScreen.APPROVE_DEBICHECK)}"
+					@approve="${(event) => this._confirmApproveMandate(event)}">
+				</horizon-approve-debicheck-mandate>`
 			: html``;
 	}
 

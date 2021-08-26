@@ -539,6 +539,14 @@ export class HorizonChannelService extends Service {
         return this._post(url, clientInfo, this._setToken(), `debiCheckAgreement`);
     }
 
+	async debiCheckApprove () {
+		if (await this._mockEnabled(`approveDebiCheck`)) {
+			return this._mock.approveDebiCheck();
+		}
+
+		return null;
+	}
+
 	// ---------
 	// documents
 	// ---------
