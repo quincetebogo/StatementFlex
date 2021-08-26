@@ -54,7 +54,8 @@
 		"language-transfer": "LANGUAGE_TRANSFER",
 		"call-transfer": "CALL_TRANSFER",
 		"general-product-enquiry": "GENERAL_PRODUCT_ENQUIRY",
-		"failed-verification": "FAILED_VERIFICATION"
+		"failed-verification": "FAILED_VERIFICATION",
+		"live-better-product-info": "PRODUCT_ENQUIRY_LIVE_BETTER"
 	},
 	"mock": {
 		"enabled": true,

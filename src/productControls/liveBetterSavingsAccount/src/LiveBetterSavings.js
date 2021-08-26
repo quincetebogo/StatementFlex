@@ -74,6 +74,10 @@ export class LiveBetterSavings extends Component {
 		this.expanded = !this.expanded;
 	}
 
+	_accountDetails() {
+		this.dispatchEvent(new CustomEvent(`account-details`, {}));
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -158,6 +162,7 @@ export class LiveBetterSavings extends Component {
 				}
 				.actionbar-header > capitec-icon {
 					--theme-icon-size-medium: 24px;
+					cursor: pointer;
 				}
 				.actionbar-header > horizon-label {
 					width: 158px;
@@ -177,6 +182,7 @@ export class LiveBetterSavings extends Component {
 				.actionbar-header > horizon-label[label="Account number"] {
 					width: 150px;
 					--horizon-label-value-color: #009DE0;
+					cursor: pointer;
 				}
 				.actionbar-header > horizon-label[label="Status"] {
 					width: 142px;
@@ -298,14 +304,15 @@ export class LiveBetterSavings extends Component {
 				<capitec-group class= "actionbar-header" layout="horizontal" gap="none" halign="left" valign="center">
 					<capitec-icon 
 						data-automation-id="live-better-verified-account-info"
-						class="account-info-icon" 
 						size="medium" 
-						icon="system/info-action">
+						icon="system/info-action"
+						@click="${() => this._accountDetails()}">
 					</capitec-icon>
 
 					<horizon-label
 						data-automation-id="live-better-verified-account-number"
 						label="Account number"
+						@click="${() => this._accountDetails()}"
 						value="${this.liveBetterAccountData.accountNumber}">
 					</horizon-label>
 
