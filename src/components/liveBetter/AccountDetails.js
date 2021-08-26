@@ -144,13 +144,11 @@ import 'app/components/common/HorizonLabel';
 					--horizon-label-text-line-height: 12px;
 					--horizon-label-text-font-size: 14px;
 					--horizon-label-text-color: #3A3A3A;
-					--horizon-label-text-font-weight: 400;
 
 					--horizon-label-value-height: 20px;
 					--horizon-label-value-line-height: 20px;
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-color: #3A3A3A;
-					--horizon-label-value-font-weight: 600;
 				}
 
 				capitec-label {
@@ -165,11 +163,13 @@ import 'app/components/common/HorizonLabel';
 					--horizon-label-text-line-height: 26px;
 					--horizon-label-text-line-width: 168px;
 					--horizon-label-text-color: #FFFFFF;
-					--horizon-label-value-line-height: 20px;
-					--horizon-label-value-color: #FFFFFF;
 					--horizon-label-text-height: 32px;
 					--horizon-label-text-font-weight: 600;
-					--horizon-label-value-height: 20px;
+					
+					--horizon-label-value-height: 20px;				
+					--horizon-label-value-line-height: 20px;
+					--horizon-label-value-color: #FFFFFF;
+					--horizon-label-value-font-weight: 500;
 					padding: 6px 33px 6px 16px;
 					height: 64px;
 					width: 218px;
