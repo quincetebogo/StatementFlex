@@ -1,5 +1,6 @@
 import { Component, css, html, live } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/dialogs/common/EndCallSession';
 
@@ -9,7 +10,6 @@ import 'app/components/dialogs/common/EndCallSession';
  * Events Raised
  * -------------
  * back
- * done
  * 
  * @export
  * @class SearchOtherNeed
@@ -37,6 +37,8 @@ export class SearchOtherNeed extends Component {
 		this.categories = null;
 		this.needs = null;
 		this.issues = null;
+
+		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	// --------------
@@ -117,6 +119,8 @@ export class SearchOtherNeed extends Component {
 	_issueChanged(e) {
 		this.issue = e.currentTarget.value.issue;
 		this.solution = this.issues.find(item => item.issue === this.issue).solution;
+		
+		this._updateScreenDetails();
 	}
 
 	// ---------------
@@ -128,11 +132,32 @@ export class SearchOtherNeed extends Component {
 	}
 
 	_unloading() {
-		this.dispatchEvent(new CustomEvent(`unloading`));
+		this.dispatchEvent(new CustomEvent(`unloading`, {}));
 	}
 
 	_launchStrack() {
 		this.dispatchEvent(new CustomEvent(`launch-strack`, { detail: { category: this.category, need: this.need, issue: this.issue } }));
+	}
+
+	_updateStrack() {
+		this.dispatchEvent(new CustomEvent(`update-strack`, { detail: { category: this.category, need: this.need, issue: this.issue } }));
+			
+		this.category = ``;
+		this.need = ``;
+		this.issue = ``;
+		this.solution = ``;
+	}
+
+	_updateScreenDetails() {
+		const screenDetails = this.horizonStore.getScreenDetails();
+
+		screenDetails.incidentClassification = {
+			category : this.category,
+			need : this.need,
+			issue : this.issue
+		}
+		
+		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
 	// ---------
@@ -194,6 +219,9 @@ export class SearchOtherNeed extends Component {
 					width: 333px;
 					--theme-input-label-font-color: #969B9D;
 				}
+				.otherneed-action-bar > capitec-select[label="Choose issue type"] {
+					width: 323px;
+				}
 				#id-button-group {
 					justify-content: right;
 					padding: 16px;
@@ -234,8 +262,20 @@ export class SearchOtherNeed extends Component {
 					--theme-label-strong-font-weight: 600;
 					--theme-label-strong-font-color: #3A3A3A;
 				}
-				.strack-button {
+				.button-group {
 					padding-right: 16px;
+					--theme-layout-gap-spacing: 16px;
+				}
+				capitec-button {	
+					--theme-button-padding-left: 16px;
+					--theme-button-padding-right: 16px;
+					--theme-button-font-weight: 600;
+				}
+				.update-strack {
+					width: 151px;
+				}
+				.launch-strack {
+					width: 140px;
 				}
 			`
 		];
@@ -356,10 +396,16 @@ export class SearchOtherNeed extends Component {
 					</capitec-label>
 				</capitec-content-box>
 				
-				<capitec-group layout="vertical" gap="line" halign="right" valign="bottom">
+				<capitec-group class="button-group" layout="horizontal" gap="clear" halign="right" valign="center">
+					<capitec-button
+						data-automation-id="search-other-need-update-strack"
+						class="update-strack"
+						label="Update STrack"
+						@click="${() => this._updateStrack()}">
+					</capitec-button>
 					<capitec-button
 						data-automation-id="search-other-need-launch-strack"
-						class="strack-button"
+						class="launch-strack"
 						type="primary"
 						label="Launch STrack"
 						@click="${() => this._launchStrack()}">
