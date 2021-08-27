@@ -165,6 +165,7 @@ export class TapToPayAgreement extends Component {
 				
 				capitec-expander[expanded] {
 					--theme-expander-background-color: #F7F7F7;
+					box-shadow: 0px 6px 10px 0.25px rgba(0,0,0,0.07);
 				}
 
 				capitec-check {
