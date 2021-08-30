@@ -21,7 +21,7 @@ export class AutomaticSavingsSuccess extends ViewBase {
 		super();
 		this.isRoundupOff = false;
 		this.roundUpAmountChange = true;
-		this.roundUpAccountChange =true;
+		this.roundUpAccountChange = true;
 	}
 
 
@@ -122,21 +122,21 @@ export class AutomaticSavingsSuccess extends ViewBase {
 		`;
 	}
 
-	_renderSubContent(){
-		return this.roundUpAccountChange ? 
-				html`
+	_renderSubContent() {
+		return this.roundUpAccountChange 
+			? html`
 					<section slot="sub-content">
 						Updated on the following accounts:
 						<li class="bullet-label"><b>Main Savings account</b></li>
-                    	<li class="bullet-label"><b>Credit card</b></li>
+						<li class="bullet-label"><b>Credit card</b></li>
 					</section>
 					`
 					: html``;
 	}
 
-	_renderDetails(){
-		return this.isRoundupOff ?
-				 html`
+	_renderDetails() {
+		return this.isRoundupOff 
+			? html`
 					<section slot="detail">
 						Round-up successfully switched off.
 					</section>
@@ -145,8 +145,8 @@ export class AutomaticSavingsSuccess extends ViewBase {
 	}
 	
 	_renderRoundUpOff() {
-		return this.roundUpAmountChange ?
-		html`
+		return this.roundUpAmountChange 
+			? html`
 			<section slot="detail">
 				Round-up successfully updated to <b>R10</b>
 			</section>

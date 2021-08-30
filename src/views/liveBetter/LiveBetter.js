@@ -4,6 +4,8 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/productControls/liveBetterSavingsAccount/src/LiveBetterSavings';
+import 'app/productControls/liveBetterSavingsAccount/src/AccountDetails';
+
 import 'app/components/liveBetter/LiveBetterUnverifiedPage';
 import 'app/components/dialogs/liveBetter/ManageAutomaticSavings';
 
@@ -73,6 +75,14 @@ export class LiveBetter extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
+	_accountDetails() {
+		this.renderMode = RENDER_MODE.LIVE_BETTER_ACCOUNT_DETAILS;
+	}
+
+	_backFromAccountDetails() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
 	_backToLBBLandingScreen() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
@@ -113,12 +123,12 @@ export class LiveBetter extends ViewBase {
 			
 			// Live better landing page service call should come here - Data is mocked as below temporarily
 			this.landingPageInfo = {
-				accountNumber: '1928247288',
+				accountNumber: `1928247288`,
 				accountAvailableBalance: 20567.23, 
 				roundUpAmount: 5, 
-				interestSweep: 'On',
-				interestRatePercentage: '5.5%',
-				accountStatus: 'Active',
+				interestSweep: `On`,
+				interestRatePercentage: `5.5%`,
+				accountStatus: `Active`,
 				savingsAccountProductDescription: ``,
                 savingsPlanProductDescription: ``,
 				liveBetterProductDescription: ``,
@@ -216,7 +226,6 @@ export class LiveBetter extends ViewBase {
 		return html`
 			${super._webTemplate()}
 			${this._renderLandingPage()}
-			${this._renderAutomaticSavings()}
 		`;
 	}
 
@@ -230,6 +239,9 @@ export class LiveBetter extends ViewBase {
 						${this._renderLiveBetterVerifiedLandingPage()}
 						${this._renderLiveBetterUnverifiedLandingPage()}`
 					: html``;
+			case RENDER_MODE.LIVE_BETTER_ACCOUNT_DETAILS:
+				return this._renderAccountDetails();
+				break;
 			default:
 				return html``;
 		}
@@ -242,7 +254,7 @@ export class LiveBetter extends ViewBase {
 				<capitec-pc-live-better-savings
 					class="liveBetter"
 					.liveBetterAccountData = "${this.landingPageInfo}"
-					@click="${(event) => this._optionClick(event.detail.selection)}">
+					@account-details="${() => this._accountDetails()}"></capitec-pc-live-better-savings>
 				</capitec-pc-live-better-savings>`
 			: html``;
 		}
@@ -258,6 +270,15 @@ export class LiveBetter extends ViewBase {
 			: html``;
 	}
 
+	_renderAccountDetails() {
+		return this.renderMode === RENDER_MODE.LIVE_BETTER_ACCOUNT_DETAILS 
+			? html`
+				<capitec-pc-live-better-account-details
+					@back= "${() => this._backFromAccountDetails()}">
+				</capitec-pc-live-better-account-details>`
+			: html``;
+	}
+  
 	_renderAutomaticSavings() {
 		return this.renderMode === RENDER_MODE.AUTOMATIC_SAVINGS 
 		? html`
@@ -266,7 +287,6 @@ export class LiveBetter extends ViewBase {
 			</horizon-manage-automatic-savings>`
 		: html``;
 	}
-
 }
 
 customElements.define(`horizon-live-better`, LiveBetter);

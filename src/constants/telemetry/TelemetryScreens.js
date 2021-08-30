@@ -54,6 +54,9 @@
 
 	VALUE_ADDED_SERVICES: `Value Added Services`,
 	VALUE_ADDED_SERVICES_UNAVAILABLE: `Value Added Services Unavailable`,
-	VALUE_ADDED_SERVICES_NO_CLIENT_DATA : `Value Added Services No Client Data`
+	VALUE_ADDED_SERVICES_NO_CLIENT_DATA : `Value Added Services No Client Data`,
+
+	LIVE_BETTER_BENEFITS: `Live Better Benefits`,
+	LIVE_BETTER_BENEFITS_UNAVAILABLE: `Live Better Benefits Unavailable`
 
 };

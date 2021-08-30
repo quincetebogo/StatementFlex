@@ -64,9 +64,9 @@ export class AutomaticSavingsFailure extends ViewBase {
 				}
 				#id-error-msg {
 					width: auto;
-                    font-weight:500;
-                    color:#3A3A3A;
-                    margin-bottom:35px;
+					font-weight:500;
+					color:#3A3A3A;
+					margin-bottom:35px;
 				}
 			`
 		];
