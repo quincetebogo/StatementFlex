@@ -346,7 +346,7 @@ import 'app/components/common/HorizonLabel';
 			halign="left" 
 			valign="top">
 				<capitec-group class="sub-header" layout="horizontal" gap="clear" halign="left" valign="center">
-					<capitec-image src="src/productControls/liveBetterSavingsAccount/images/AutomaticSavings.svg"></capitec-image>
+					<capitec-image src="src/productControls/liveBetterSavingsAccount/images/automatic-savings.svg"></capitec-image>
 						<capitec-label 
 							label="Automatic savings"
 							type="title"
