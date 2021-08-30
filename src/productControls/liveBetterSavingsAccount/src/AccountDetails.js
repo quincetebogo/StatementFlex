@@ -144,13 +144,11 @@ import 'app/components/common/HorizonLabel';
 					--horizon-label-text-line-height: 12px;
 					--horizon-label-text-font-size: 14px;
 					--horizon-label-text-color: #3A3A3A;
-					--horizon-label-text-font-weight: 400;
 
 					--horizon-label-value-height: 20px;
 					--horizon-label-value-line-height: 20px;
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-color: #3A3A3A;
-					--horizon-label-value-font-weight: 600;
 				}
 
 				capitec-label {
@@ -165,11 +163,13 @@ import 'app/components/common/HorizonLabel';
 					--horizon-label-text-line-height: 26px;
 					--horizon-label-text-line-width: 168px;
 					--horizon-label-text-color: #FFFFFF;
-					--horizon-label-value-line-height: 20px;
-					--horizon-label-value-color: #FFFFFF;
 					--horizon-label-text-height: 32px;
 					--horizon-label-text-font-weight: 600;
+					
 					--horizon-label-value-height: 20px;
+					--horizon-label-value-line-height: 20px;
+					--horizon-label-value-color: #FFFFFF;
+					--horizon-label-value-font-weight: 500;
 					padding: 6px 33px 6px 16px;
 					height: 64px;
 					width: 218px;
@@ -177,7 +177,6 @@ import 'app/components/common/HorizonLabel';
 
 				.title-style {
 					margin-left: 8px;
-					padding-bottom:8px;
 
 					--theme-label-title-font-size: 18px;
 					--theme-label-title-font-weight: 600;
@@ -189,20 +188,25 @@ import 'app/components/common/HorizonLabel';
 				.col-3 {
 					width: 158px;
 				}
+
+				.capitec-image {
+					width: 22px;
+					height: 21px;
+				}
 				
 				.toggle-group {
 					width: 205px;
 					height: 60px;
 
-                    --theme-label-font-color: #3A3A3A;
-                    --theme-label-font-size: 16px;
-                    --theme-label-font-weight: 600;
-                    --theme-toggle-label-spacing: 2px;
-                    --theme-toggle-track-inset: 1px;
+					--theme-label-font-color: #3A3A3A;
+					--theme-label-font-size: 16px;
+					--theme-label-font-weight: 600;
+					--theme-toggle-label-spacing: 2px;
+					--theme-toggle-track-inset: 1px;
 					padding-left: 18px;
-                }
+				}
 				.toggle-group > capitec-toggle {
-    				--theme-toggle-label-spacing: 6px;
+					--theme-toggle-label-spacing: 6px;
 				}
 
 				.toggle-label {
@@ -223,7 +227,7 @@ import 'app/components/common/HorizonLabel';
 					data-automation-id="live-better-account-details-title"
 					type="primary">
 						<img
-						src="../images/left-arrow.svg"
+						src="src/productControls/liveBetterSavingsAccount/images/left-arrow.svg"
 						@click="${() => this._back()}"
 						class="left-arrow"/>
 						<horizon-label
@@ -265,7 +269,7 @@ import 'app/components/common/HorizonLabel';
 			halign="left" 
 			valign="top">
 				<capitec-group class="sub-header" layout="horizontal" gap="clear" halign="left" valign="center">
-					<capitec-image src="../images/AccountDetails.svg"></capitec-image>
+					<capitec-image src="src/productControls/liveBetterSavingsAccount/images/AccountDetails.svg"></capitec-image>
 					<capitec-label
 						label="Account details"
 						class="title-style"
@@ -316,7 +320,7 @@ import 'app/components/common/HorizonLabel';
 							data-automation-id="live-better-account-details-interest-tax-year"
 							label="Interest tax year" 
 							value="R340.00">
-						</horizon-label>	
+						</horizon-label>
 						<horizon-label 
 							data-automation-id="live-better-account-details-date-opened"
 							label="Date opened" 
@@ -342,7 +346,7 @@ import 'app/components/common/HorizonLabel';
 			halign="left" 
 			valign="top">
 				<capitec-group class="sub-header" layout="horizontal" gap="clear" halign="left" valign="center">
-					<capitec-image src="../images/AutomaticSavings.svg"></capitec-image>
+					<capitec-image src="src/productControls/liveBetterSavingsAccount/images/automatic-savings.svg"></capitec-image>
 						<capitec-label 
 							label="Automatic savings"
 							type="title"
