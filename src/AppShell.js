@@ -109,7 +109,7 @@ export class AppShell extends Shell {
 	connectedCallback() {
 		super.connectedCallback();
 		
-		this._casperScript();
+		// this._casperScript(); CASPer widget removed for now until the internally developed CASPer system becomes available
 
 		this.horizonIncidentManager.initialise();
 		// Subscribe to store.
@@ -205,6 +205,10 @@ export class AppShell extends Shell {
 		}
 	};
 
+	/* 
+		CASPer script removed until internally developed CASPer becomes available.
+		If the new CASPer system works the same way, this code can simply be re-instated
+
 	_casperScript() {
 		const body = document.body || document.getElementsByTagName(`body`)[0];
 		const casper = document.getElementById(`CASPerScript`);
@@ -220,6 +224,7 @@ export class AppShell extends Shell {
 			body.appendChild(script);
 		}
 	  }
+	  */
 
 	// ---------
 	// RENDERING
@@ -248,6 +253,7 @@ export class AppShell extends Shell {
 					--horizon-modal-width: 696px;
 					--horizon-end-call-button-margin-right: 16px;
 					--horizon-end-call-button-margin-top: 8px;
+					--horizon-status-bar-icon-group-right-margin: 0px;          
 				}
 
 				.screen-size {
