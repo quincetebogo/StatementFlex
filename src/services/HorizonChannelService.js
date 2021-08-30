@@ -564,9 +564,9 @@ export class HorizonChannelService extends Service {
 		return this._post(url, taxCertificate, this._setToken(), `viewTaxCertificate`);
 	}
 
-	sendTaxCertificate(clientInfo) {
-		const url = `​/clientcare-documents-${this._version}​/send-tax-certificate`;
-		return this._post(url, clientInfo, this._setToken(), `sendTaxCertificate`);
+	sendTaxCertificate(req) {
+		const url = `/clientcare-documents-${this._version}/send-tax-certificate`;
+		return this._post(url, req, this._setToken(), `sendTaxCertificate`);
 	}
 	// ----------
 	// favourites
