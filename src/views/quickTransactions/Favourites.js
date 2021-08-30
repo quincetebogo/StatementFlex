@@ -152,12 +152,13 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _done(event) {
-		this._telemetry.logEvent(QuickTransactionEvents.SEARCH_OTHER_NEED_DONE, {
-			"launch-strack-feedback": event.detail.selectedFeedback
-		});
-
 		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		const selectedOption = FEEDBACK_OPTIONS.find(item => item.key === event.detail);
+		
+		this._telemetry.logEvent(QuickTransactionEvents.SEARCH_OTHER_NEED_DONE, {
+			"launch-strack-feedback": selectedOption
+		});
+
 		const options = {
 			clientNeed: null,
 			endCallReason: selectedOption,
@@ -535,12 +536,14 @@ export class Favourites extends SavingsAccountBase {
 	_unLoadingOtherNeeds() {
 		this._telemetryEndSpan(QuickTransactionEvents.SEARCH_OTHER_NEED, TelemetryScreen.SEARCH_OTHER_NEED);
 
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		const screenDetails = this.horizonStore.getScreenDetails();
 		const incidentClassification = screenDetails.incidentClassification;
-		const isNeedComplete = incidentClassification && !(isNullorEmpty(incidentClassification.category) && isNullorEmpty(incidentClassification.need) && isNullorEmpty(incidentClassification.issue))
+
+		const hasIncidentStarted = incidentClassification && !(isNullorEmpty(incidentClassification.category) || isNullorEmpty(incidentClassification.need) || isNullorEmpty(incidentClassification.issue))
 		
 		// TO DO: Check for "screenDetails.incidentClassification" presence in state to pre populate the Update Incident modal.
-		if(this.incidentDetails.incidentRecId !== '0' && isNeedComplete){
+		if(this.incidentDetails.incidentRecId !== '0' && hasIncidentStarted){
 			this.renderMode = RENDER_MODE.UPDATE_INCIDENT;
 		}
 	}
@@ -565,9 +568,17 @@ export class Favourites extends SavingsAccountBase {
 		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
 		this.renderMode = RENDER_MODE.FEEDBACK;
 	}
+
+	async _onUpdateincidentConfirm() {
+		//should close the incident with captured details on Update incident modal
+		// Temporary switch : to close an incident on Confirm click from Update Incident modal
+		const screenDetails = this.horizonStore.getScreenDetails();
+		const incidentClassification = screenDetails.incidentClassification;
+		const event = { detail: { category: incidentClassification.category, need: incidentClassification.need, incidentClassification: this.issue } }
 	
-	_onUpdateincidentConfirm() {
-		//should close the incident which is captured on Update incident modal
+		await this._classifyIncident(event);
+		await this._done({ detail: 0});
+		
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 

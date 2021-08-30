@@ -153,6 +153,7 @@ export class UpdateIncidentModal extends Component {
 				</div>
 				<div slot="body">
 					<capitec-content-box>
+						<p>To Do ....</p>
 						<p>Are you sure you want to update the changes you have made?</p>
 					</capitec-content-box>
 				</div>
