@@ -12,7 +12,8 @@
 		"cnet": "http://c-net.int.capinet:51001/Pages/default.aspx",
 		"strack": "http://strackdevnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/",
-		"live-better": "https://www.capitecbank.co.za/live-better/live-better-savings-account"
+		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",
+		"live-better": "https://www.capitecbank.co.za/live-better/live-better-savings-account"		
 	},
 	"VDN": "7250",
 	"LogRequestResponseModels": false,
@@ -67,10 +68,10 @@
       "enabled": false,
       "positiveCase": true
     },
-		"favouritesLanding": {
-			"enabled": false,
-			"positiveCase": true
-		},
+    "favouritesLanding": {
+      "enabled": false,
+      "positiveCase": true
+    },
 		"cardLimitsLanding": {
 			"enabled": false,
 			"positiveCase": true
