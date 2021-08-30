@@ -1,5 +1,5 @@
-import { css, html } from 'platform/elements';
 import { Configuration, EventAggregator } from 'platform/core';
+import { css, html } from 'platform/elements';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -52,7 +52,7 @@ import 'app/components/common/RelatedOptions';
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-		//Telemetry to be fully implemented when the CS call & Navigation for LBB is done 
+		// TODO: Telemetry to be fully implemented when the CS call & Navigation for LBB is done 
 		this._telemetry.endSpan(QuickTransactionEvents.LIVE_BETTER_BENEFITS, {
 			"screen": TelemetryScreen.LIVE_BETTER_BENEFITS_UNAVAILABLE
 		}); 
@@ -80,9 +80,9 @@ import 'app/components/common/RelatedOptions';
 				}
 				#id-error-msg {
 					width: auto;
-                    font-weight:500;
-                    color:#3A3A3A;
-                    margin-bottom:35px;
+					font-weight:500;
+					color:#3A3A3A;
+					margin-bottom:35px;
 				}
 				
 			`
