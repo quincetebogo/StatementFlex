@@ -166,7 +166,7 @@ import 'app/components/common/HorizonLabel';
 					--horizon-label-text-height: 32px;
 					--horizon-label-text-font-weight: 600;
 					
-					--horizon-label-value-height: 20px;				
+					--horizon-label-value-height: 20px;
 					--horizon-label-value-line-height: 20px;
 					--horizon-label-value-color: #FFFFFF;
 					--horizon-label-value-font-weight: 500;
@@ -198,15 +198,15 @@ import 'app/components/common/HorizonLabel';
 					width: 205px;
 					height: 60px;
 
-                    --theme-label-font-color: #3A3A3A;
-                    --theme-label-font-size: 16px;
-                    --theme-label-font-weight: 600;
-                    --theme-toggle-label-spacing: 2px;
-                    --theme-toggle-track-inset: 1px;
+					--theme-label-font-color: #3A3A3A;
+					--theme-label-font-size: 16px;
+					--theme-label-font-weight: 600;
+					--theme-toggle-label-spacing: 2px;
+					--theme-toggle-track-inset: 1px;
 					padding-left: 18px;
-                }
+				}
 				.toggle-group > capitec-toggle {
-    				--theme-toggle-label-spacing: 6px;
+					--theme-toggle-label-spacing: 6px;
 				}
 
 				.toggle-label {
@@ -227,7 +227,7 @@ import 'app/components/common/HorizonLabel';
 					data-automation-id="live-better-account-details-title"
 					type="primary">
 						<img
-						src="../images/left-arrow.svg"
+						src="src/productControls/liveBetterSavingsAccount/images/left-arrow.svg"
 						@click="${() => this._back()}"
 						class="left-arrow"/>
 						<horizon-label
@@ -269,7 +269,7 @@ import 'app/components/common/HorizonLabel';
 			halign="left" 
 			valign="top">
 				<capitec-group class="sub-header" layout="horizontal" gap="clear" halign="left" valign="center">
-					<capitec-image src="../images/AccountDetails.svg"></capitec-image>
+					<capitec-image src="src/productControls/liveBetterSavingsAccount/images/AccountDetails.svg"></capitec-image>
 					<capitec-label
 						label="Account details"
 						class="title-style"
@@ -320,7 +320,7 @@ import 'app/components/common/HorizonLabel';
 							data-automation-id="live-better-account-details-interest-tax-year"
 							label="Interest tax year" 
 							value="R340.00">
-						</horizon-label>	
+						</horizon-label>
 						<horizon-label 
 							data-automation-id="live-better-account-details-date-opened"
 							label="Date opened" 
@@ -346,7 +346,7 @@ import 'app/components/common/HorizonLabel';
 			halign="left" 
 			valign="top">
 				<capitec-group class="sub-header" layout="horizontal" gap="clear" halign="left" valign="center">
-					<capitec-image src="../images/AutomaticSavings.svg"></capitec-image>
+					<capitec-image src="src/productControls/liveBetterSavingsAccount/images/AutomaticSavings.svg"></capitec-image>
 						<capitec-label 
 							label="Automatic savings"
 							type="title"

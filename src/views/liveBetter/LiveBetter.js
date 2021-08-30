@@ -4,8 +4,9 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/productControls/liveBetterSavingsAccount/src/LiveBetterSavings';
-import 'app/components/liveBetter/LiveBetterUnverifiedPage';
 import 'app/productControls/liveBetterSavingsAccount/src/AccountDetails';
+
+import 'app/components/liveBetter/LiveBetterUnverifiedPage';
 import 'app/components/dialogs/liveBetter/ManageAutomaticSavings';
 
 /**
@@ -122,12 +123,12 @@ export class LiveBetter extends ViewBase {
 			
 			// Live better landing page service call should come here - Data is mocked as below temporarily
 			this.landingPageInfo = {
-				accountNumber: '1928247288',
+				accountNumber: `1928247288`,
 				accountAvailableBalance: 20567.23, 
 				roundUpAmount: 5, 
-				interestSweep: 'On',
-				interestRatePercentage: '5.5%',
-				accountStatus: 'Active',
+				interestSweep: `On`,
+				interestRatePercentage: `5.5%`,
+				accountStatus: `Active`,
 				savingsAccountProductDescription: ``,
                 savingsPlanProductDescription: ``,
 				liveBetterProductDescription: ``,
@@ -238,6 +239,9 @@ export class LiveBetter extends ViewBase {
 						${this._renderLiveBetterVerifiedLandingPage()}
 						${this._renderLiveBetterUnverifiedLandingPage()}`
 					: html``;
+			case RENDER_MODE.LIVE_BETTER_ACCOUNT_DETAILS:
+				return this._renderAccountDetails();
+				break;
 			default:
 				return html``;
 		}
@@ -250,7 +254,7 @@ export class LiveBetter extends ViewBase {
 				<capitec-pc-live-better-savings
 					class="liveBetter"
 					.liveBetterAccountData = "${this.landingPageInfo}"
-					@account-details="${() => this._accountDetails()}"
+					@account-details="${() => this._accountDetails()}"></capitec-pc-live-better-savings>
 				</capitec-pc-live-better-savings>`
 			: html``;
 		}
@@ -265,12 +269,13 @@ export class LiveBetter extends ViewBase {
 				</horizon-live-better-unverified-page>`
 			: html``;
 	}
+
 	_renderAccountDetails() {
 		return this.renderMode === RENDER_MODE.LIVE_BETTER_ACCOUNT_DETAILS 
 			? html`
-				<horizon-live-better-account-details
-				@back= "${() => this._backFromAccountDetails()}">
-				</horizon-live-better-account-details>`
+				<capitec-pc-live-better-account-details
+					@back= "${() => this._backFromAccountDetails()}">
+				</capitec-pc-live-better-account-details>`
 			: html``;
 	}
   
