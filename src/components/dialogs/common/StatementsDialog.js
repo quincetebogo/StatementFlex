@@ -1,16 +1,18 @@
-import { Component, css, html } from 'platform/elements';
+import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EventAggregator, Logger, NavigationContext } from 'platform/core';
-import { base64ToBlobUrl, calculateDays, formatCurrency, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { base64ToBlobUrl, calculateDays, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'platform/components/popups/Modal';
 import 'app/components/common/StepperModal';
-import 'app/components/common/HorizonEmailInput';
+import 'app/components/Common/HorizonEmailInput';
+import 'app/components/common/HorizonSelectIcon';
 
 const RENDER_MODE = Object.freeze({
 	EMAIL: 0,
@@ -28,6 +30,24 @@ const STATEMENTS_STEPS = [
 		title: `Specify Email and View Documents`
 	}
 ];
+
+const TYPE = [
+	{ icon: `product/transact`, label: `Savings Account`, type: `transact` },
+	{ icon: `product/save`, label: `Future Savings`, type: `save` },
+	{ icon: `product/save`, label: `Education`, type: `save` },
+	{ customIcon: `/images/liveBetter/live-better-icon.png`, label: `Live Better savings account`, type: `lbb` },
+	{ icon: `product/credit`, label: `Credit Card`, type: `credit` },
+	{ icon: `product/credit`, label: `Access Facility`, type: `credit` }
+];
+
+const CLASS_NAMES = {
+	"Savings Account": `savings-account`,
+	"Future Savings": `future-savings`,
+	"Education": `education`,
+	"Live Better savings account": `live-better`,
+	"Credit Card": `credit-card`,
+	"Access Facility": `access-facility`
+};
 
 const ACCOUNT_TYPE = {
 	PRIMARY_SAVINGS: 300,
@@ -96,7 +116,8 @@ const TIME_PERIOD = {
 const NOTIFICATION_MESSAGE = {
 	APP: ` Did you know you can email statements from the app for free?`,
 	FEE: ` A fee will be charged for email statements`,
-	NO_FEE: ` A fee won't be charged for a fixed term savings statement`
+	NO_FEE: ` A fee won't be charged for a fixed term savings statement`,
+	FLEXIBLE_SAVINGS_FEE: `A fee will be charged for flexible saving account statements.`
 };
 
 const EMAIL_REGEX = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
@@ -157,6 +178,7 @@ export class StatementsDialog extends Component {
 		this.encodedPDF = ``;
 		this.today = new Date().toISOString();
 		this.productSelected = {};
+		this.selectedOption = [];
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -174,6 +196,7 @@ export class StatementsDialog extends Component {
 		return {
 			callerInformation: { type: Object },
 			clientProducts: { type: Array },
+			selectedOption: { type: Array },
 
 			isBusy: { attribute: false },
 			currentStep: { attribute: false },
@@ -619,13 +642,13 @@ export class StatementsDialog extends Component {
 		return [
 			super.styles,
 			css`
-				bb-stepper-modal  {              
+				bb-stepper-modal {
 					--theme-modal-header-height: 64px;
 					--theme-modal-header-font-size: 18px;
 					--theme-modal-header-padding-left: 16px;
-					--theme-modal-header-color: #3A3A3A;
-					--theme-modal-header-background-color: #F7F7F7;
-					--theme-stepper-inner-step-container-width: 324px;
+					--theme-modal-header-color: #FFFFFF;
+					--theme-modal-header-background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
+					--theme-stepper-inner-step-container-width: 320px;
 					--theme-stepper-step-title-font-style: Hind Vadodara SemiBold;
 					--theme-stepper-step-title-font-size: 15px;
 					--theme-stepper-step-title-max-width: 328px;
@@ -633,11 +656,14 @@ export class StatementsDialog extends Component {
 					--theme-container-padding-right: 0px;
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 0px;
-					--theme-wizard-modal-max-width: 976px;
+					--theme-wizard-modal-max-width: 960px;
 					--theme-wizard-modal-max-height: 930px;
-					--theme-wizard-modal-lg-max-width:976px;
+					--theme-wizard-modal-lg-max-width:960px;
 					--theme-wizard-modal-header-padding: 18.5px 16px;
 					--theme-modal-footer-padding: 0px;
+					--theme-modal-body-box-shadow: none;
+					border-bottom-left-radius: 0px;
+					border-bottom-right-radius: 0px;
 				}
 				div[slot="step"] {
 					height: 100%;
@@ -647,13 +673,6 @@ export class StatementsDialog extends Component {
 				}
 				.margin-top {
 					margin-top: var(--horizon-statement-generic-margin-top, 24px);
-				}
-				capitec-modal {
-					--theme-modal-header-color: #3A3A3A;
-					--theme-modal-header-background-color: #F7F7F7;
-					--theme-modal-header-padding-top: 20px;
-					--theme-modal-header-padding-bottom: 20px;
-					--theme-modal-footer-padding: 0px;
 				}
 				.main-cb {
 					height: 100%;
@@ -671,12 +690,16 @@ export class StatementsDialog extends Component {
 					--theme-alert-banner-unsuccessful-red-background-color: #F7E2E1;
 					--theme-layout-gap-spacing: 15px;
 				}
+				.main-cb > capitec-alert-banner[type="warning"] {
+					--theme-alert-banner-warning-font-color: #3A3A3A;
+				}
+
 				.main-cb > capitec-label[type="subtitle"] {
 					line-height: 24px;
 
 					--theme-label-subtitle-font-size: 18px;
 					--theme-label-subtitle-font-weight: 600;
-					--theme-layout-gap-spacing: 16px;
+					--theme-layout-gap-spacing: 18px;
 				}
 				horizon-product-tile {
 					--theme-product-tile--height: 64px;
@@ -751,19 +774,12 @@ export class StatementsDialog extends Component {
 					font-weight: normal;
 					color: #3A3A3A;
 				}
-				capitec-icon {
-					width: 26px;
-					height: 26px;
-					margin-bottom: 3px;
-					margin-top: 3px;
 
-					--theme-icon-size-small: 26px;
-				}
 				capitec-group > .calendar:first-child {
 					--theme-layout-gap-spacing: 0px;
 				}
 				.footer {
-					width: var(--horizon-statements-modal-footer-width, 975px);
+					width: var(--horizon-statements-modal-footer-width, 960px);
 					
 					--theme-container-padding-left: 16px;
 					--theme-container-padding-top: 16px;
@@ -808,8 +824,27 @@ export class StatementsDialog extends Component {
 					margin-top:16px;
 					--theme-date-time-picker-host-min-width:696px;
 				}
-				.chooseText{
-					padding-top:8px;
+				/* HEADER STYLES */
+				.transact {
+					--theme-modal-header-background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
+				}
+				.save {
+					--theme-modal-header-background: linear-gradient(90deg, #003354 0%, #00486D 100%);
+				}
+				.lbb {
+					--theme-modal-header-background: url('/images/liveBetter/live-better-background.png');
+				}
+				.credit {
+					--theme-modal-header-background: linear-gradient(90deg, #C83C37 0%, #E61414 100%);
+				}
+				/* HEADER STYLES */
+
+				horizon-select-icon {
+					width: 344px;
+
+					--theme-select-options-max-height: 304px;
+					--theme-input-icon-margin-left: 16px;
+					--theme-icon-size-small: 24px;
 				}
 			`
 		];
@@ -818,6 +853,7 @@ export class StatementsDialog extends Component {
 	_webTemplate() {
 		return html`
 			<bb-stepper-modal
+				class="${this.selectedOption.type}"
 				data-automation-id="statements-dialog"
 				.header="${this._getHeaderTitle()}"
 				.steps="${STATEMENTS_STEPS}"
@@ -847,7 +883,7 @@ export class StatementsDialog extends Component {
 						gap="clear"
 						?noScroll="${false}">
 							${this._renderAlertBanner()}
-							${this._renderAccountSelection()}
+							${this._renderSelectAccount()}
 							${this._renderChoosePeriod()}
 							${this._renderEmailClient()}
 					</capitec-content-box>
@@ -865,6 +901,15 @@ export class StatementsDialog extends Component {
 				</capitec-alert-banner>`;
 		}
 
+		if (this.selectedOption.label === `Access Facility`) {
+			return html`
+				<capitec-alert-banner
+					type="warning">
+						<p><b>Notify client:</b> ${NOTIFICATION_MESSAGE.FLEXIBLE_SAVINGS_FEE}</p>
+				</capitec-alert-banner>
+			`;
+		}
+
 		if (this.notifyClient && isNullorEmpty(this.errorMessage)) {
 			return html`
 				<capitec-alert-banner
@@ -876,8 +921,44 @@ export class StatementsDialog extends Component {
 				</capitec-alert-banner>
 			`;
 		}
+
 		return html``;
 	}
+
+	_renderSelectAccount() {
+		if (this.currentStep === 0) {
+			return html`
+				<capitec-label
+					type="subtitle"
+					label="Choose an Account">
+				</capitec-label>
+
+				<horizon-select-icon
+					label="Choose account"
+					.items="${TYPE}"
+					value="${this.selectedOption}"
+					.displayRenderer="${(e) => this._renderOptions(e)}"
+					@value-changed="${(e) => this.selectedOption = e.detail.new}"> 
+				</horizon-select-icon>
+			`;
+		}
+	}
+
+	_renderOptions(e) {
+		const iconClass = `width: 24px; height: 24px; margin: 0px 8px 0px 0px; --theme-icon-size-small: 24px;`;
+
+		return html`
+			<capitec-group style="padding: 0px" layout="horizontal">
+				${e.icon 
+			? html`<capitec-icon style="${unsafeCSS(iconClass)}" size="medium" icon="${e.icon}"></capitec-icon>`
+			: html`<img style="${unsafeCSS(iconClass)}" src="${e.customIcon}"/>`
+				}
+				<capitec-label label="${e.label}"></capitec-label>
+			</capitec-group>
+		`;
+	}
+
+	// TODO: Navigation to be wired up once channel service has been implemented according to the new designs.
 
 	_renderAccountSelection() {
 		if (this.currentStep === 0) {

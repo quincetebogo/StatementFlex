@@ -82,7 +82,7 @@ export class CnetProductInfo extends Component {
 					--theme-type-primary-background: linear-gradient(315deg, #70838C 0%, #667F8C 47.52%, #41525B 100%);
 				}
 				.liveBetter {
-					--theme-type-primary-background: url(../../images/liveBetter/LBB_bg-1092x64.png);
+					--theme-type-primary-background: url(/images/liveBetter/LBB_bg-1092x64.png);
 				}
 				#id-more-info {
 					margin: 43px auto 8px auto;
