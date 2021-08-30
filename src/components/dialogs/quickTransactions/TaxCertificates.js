@@ -78,7 +78,6 @@ export class TaxCertificate extends Component {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-		
 		this._telemetry = HorizonTelemetry.instance;
 
 	/* This.availableCert = {
@@ -211,12 +210,18 @@ export class TaxCertificate extends Component {
 		this.requestUpdate();
 	}
 
-	async _sendClick(e) {
-		if (isNullorEmpty(this.email) || isNullorEmpty(this.confirmEmail)) {
+	async _sendClick() {
+		
+		// this.clientData = this.taxCertificateDetails.payload.Stringify();
 
-			this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_SEND, {
-				"screen": TelemetryScreen.PROOF_OF_ACCOUNT,
-				"next-screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME
+		// const clientString = JSON.parse(this.selectedCertificates[this.selectedCertType].payload);
+		// console.log(clientData);
+
+		if (!isNullorEmpty(this.email)) {
+
+			this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE, {
+				"screen": TelemetryScreen.TAX_CERTIFICATE,
+				"next-screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME
 			});
 
 			// saving 'emailAddress' and 'accountNumber' in state.
@@ -224,24 +229,20 @@ export class TaxCertificate extends Component {
 
 			const requestInfo = {
 				"cif": this.callerInformation.cifNumber,
-				"emailAddress": this.idEmailAddress,
-				"documentIds": [
-							`${this.clientDetails.iT3BTaxCertificates.documentId}`,
-							 `${this.clientDetails.iT3BTaxCertificates.documentId}`
-							],
+				"emailAddress": this.email,
+				"documentIds": this.selectedCertificates[this.selectedCertType].map(item => item.documentId),
   				"messageParameters": {
-   				"title": this.clientDetails.title,
-				"surname": this.clientDetails.surname
+   				"title": `Ms`,
+				"surname": `Lepadi`
 				},
-				"attachments": [
-				{
-					"name": this.clientDetails.name,
-					"data": this.clientDetails.contentData
-				}
-				]
+				"attachments": []
 			};
 			
 			const requestResult = await this.sendTaxCertificateInformation(requestInfo);
+
+			const screenDetails = this.horizonStore.getScreenDetails();
+			screenDetails.selectedCertificates = this.selectedCertificates;
+			this.horizonStore.setScreenDetails(screenDetails);
 
 			if (requestResult) {
 				this.horizonRouter.navigateToTaxCertificateSuccessful();
@@ -251,7 +252,7 @@ export class TaxCertificate extends Component {
 			}
 			this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_SELECT_SEND, {
 				"screen": TelemetryScreen.TAX_CERTIFICATE,
-				"next-screen": returnValue.succeeded ? OutcomeScreen.SUCCESS : OutcomeScreen.FAIL
+				"next-screen": null
 			});
 			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `tax-certificate`);
 
@@ -373,6 +374,7 @@ export class TaxCertificate extends Component {
 	}
 
 	_frameViewPDFRequest(Obj, type, frameRequest) {
+		this.documentIds = Obj.documentId;
 		return type === frameRequest
 		? Obj.taxCertificateAccounts.map(objArray => {
 			return {

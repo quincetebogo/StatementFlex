@@ -58,11 +58,12 @@ export class TaxCertificateUnsuccess extends ViewBase {
 
 		// TODO: Uncomment the below code when CS is being implemented.
 
-		// this._updateIncidentState();
+		this._updateIncidentState();
 
-		// const screenDetails = this.horizonStore.getScreenDetails();
-		// this.incidentDetails = super.HORIZON_NEED_STATUS.FAILED;
-		// this.horizonStore.setIncidentDetails(this.incidentDetails);
+		const screenDetails = this.horizonStore.getScreenDetails();
+		this.mailId = screenDetails.taxCertificateData.email;
+		this.incidentDetails = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	disconnectedCallback() {
@@ -83,10 +84,10 @@ export class TaxCertificateUnsuccess extends ViewBase {
 		// 	"screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME,
 		// 	"nextScreen": TelemetryScreen.FAVOURITES
 		// });
-		// this.horizonStore.clearReturnScreen();
+		this.horizonStore.clearReturnScreen();
 
 		
-		// this.horizonRouter.navigateToQuickTransactionFavourites();
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 	
 	_handoffClick() {
@@ -101,8 +102,8 @@ export class TaxCertificateUnsuccess extends ViewBase {
 		// this.incidentDetails = super.HORIZON_NEED_STATUS.ASSIGNED;
 		// this.horizonStore.setIncidentDetails(this.incidentDetails.incidentRecId);
 
-		// this.horizonRouter.navigateToStrack(incidentRecId);
-		// this.horizonStore.clearReturnScreen();
+		this.horizonRouter.navigateToStrack(incidentRecId);
+		this.horizonStore.clearReturnScreen();
 	}
 
 	// --------------

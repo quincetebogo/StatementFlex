@@ -504,9 +504,10 @@ export class Favourites extends SavingsAccountBase {
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unable to get load tax certificates documents`, `_getTaxCertificateDocument`, returnValue.correlationId);
 			this.horizonRouter.navigateToTaxCertificateServiceError();
-			return null;
+		} else {
+			return returnValue.result;
 		}
-		return returnValue.result;
+		
 	}
 
 	async _sendTaxCertificates(request) {
@@ -517,10 +518,11 @@ export class Favourites extends SavingsAccountBase {
 			this.logger.log(`error`, `Unable to send tax certificates`, `_sendTaxCertificateDocument`, returnValue.correlationId);
 			this.horizonRouter.navigateToTaxCertificateUnsuccessful();
 			return null;
+		} else if (returnValue.succeeded) {
+			this.horizonRouter.navigateToTaxCertificateSuccessful();
+			return returnValue.result;
 		}
-		
-		this.horizonRouter.navigateToTaxCertificateSuccessful();
-		return returnValue.result;
+	
 	}
 
 	async _proofOfAccount() {
@@ -761,6 +763,7 @@ export class Favourites extends SavingsAccountBase {
 				.cards="${this.cards}"
 				.callerInformation="${this.callerInformation}"
 				.getTaxCertificateDocument="${request => this._getTaxCertificateDocument(request)}"
+				.sendTaxCertificateInformation="${request => this._sendTaxCertificates(request)}"
 				.taxCertificateDetails="${this.taxCertificateDetails}"
 				@cancel="${() => this._backToLandingPage()}">
 			</horizon-tax-certificate>
