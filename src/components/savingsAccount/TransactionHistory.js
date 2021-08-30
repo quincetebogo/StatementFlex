@@ -493,11 +493,11 @@ export class TransactionHistory extends Component {
 				.transaction-action-bar > capitec-text-field {
 					height: 47px;
 					width: 388px;
-					padding-left: 8px;
+					padding-left: 16px;
 				
 					--theme-label-font-color: #3A3A3A;
 					--theme-input-label-font-size: 16px;
-					--theme-layout-gap-spacing: 8px;
+					--theme-layout-gap-spacing: 16px;
 				}
 				.cb-datepicker {
 					height: 48px;
@@ -597,7 +597,7 @@ export class TransactionHistory extends Component {
 					--theme-modal-header-color: #3A3A3A;
 					--theme-modal-header-background-color: #F7F7F7;
 					--theme-date-time-picker-range-calendar-border: 0px;
-                    margin-right: 8px;
+                    margin-right: 16px;
                     width: 280px;
                 }
 			`

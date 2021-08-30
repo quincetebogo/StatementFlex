@@ -219,7 +219,7 @@ export class DebiCheckMandates extends Component {
 				}
 				capitec-title-bar > capitec-icon {
 					cursor: pointer;
-					margin-right: 34px;
+					margin-right: 16px;
 				}
 				.debicheck-action-bar {
 					height: 64px;

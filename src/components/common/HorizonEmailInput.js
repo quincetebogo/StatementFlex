@@ -115,9 +115,9 @@ export class HorizonEmailInput extends Component {
 
 		if (e.detail.new.length > 0) {
 			if (!EMAIL_REGEX.test(e.detail.new)) {
-				this.errorMessage = `Invalid email format`;
-				this.mailClientError.email = `Invalid email format`;
-				this.mailClientError.confirmEmail = `Invalid email format`;
+				this.errorMessage = `Invalid email address`;
+				this.mailClientError.email = `Invalid email address`;
+				this.mailClientError.confirmEmail = `Invalid email address`;
 			} else {
 				this.errorMessage = ``;
 				this.mailClientError[e.currentTarget.id] = ``;

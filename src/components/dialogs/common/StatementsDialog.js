@@ -19,7 +19,7 @@ const RENDER_MODE = Object.freeze({
 
 const STATEMENTS_STEPS = [
 	{
-		title: `Choose Account`
+		title: `Choose an account`
 	},
 	{
 		title: `Choose Period` 
@@ -459,7 +459,7 @@ export class StatementsDialog extends Component {
 	_validateAccountSelection() {
 
 		if (isNullorEmpty(this.accType)) {
-			this.errorMessage = `Choose Account`;
+			this.errorMessage = `Choose an account`;
 			return false;
 		} else if (this.accType === ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type && isNullorEmpty(this.accPlanNumber)) {
 			this.errorMessage = `Choose Savings Plan`;
@@ -634,14 +634,14 @@ export class StatementsDialog extends Component {
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 0px;
 					--theme-wizard-modal-max-width: 976px;
-					--theme-wizard-modal-max-height: 930px;
+					--theme-wizard-modal-max-height: 960px;
 					--theme-wizard-modal-lg-max-width:976px;
 					--theme-wizard-modal-header-padding: 18.5px 16px;
 					--theme-modal-footer-padding: 0px;
 				}
 				div[slot="step"] {
 					height: 100%;
-					max-height: var(--theme-wizard-modal-max-height, 930px);
+					max-height: var(--theme-wizard-modal-max-height, 960px);
 
 					--theme-layout-gap-spacing: 0px;
 				}
