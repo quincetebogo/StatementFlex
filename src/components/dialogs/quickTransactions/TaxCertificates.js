@@ -224,9 +224,6 @@ export class TaxCertificate extends Component {
 				"next-screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME
 			});
 
-			// saving 'emailAddress' and 'accountNumber' in state.
-			this._updateScreenDetails();
-
 			const requestInfo = {
 				"cif": this.callerInformation.cifNumber,
 				"emailAddress": this.email,
@@ -237,24 +234,24 @@ export class TaxCertificate extends Component {
 				},
 				"attachments": []
 			};
-			
-			const requestResult = await this.sendTaxCertificateInformation(requestInfo);
 
 			const screenDetails = this.horizonStore.getScreenDetails();
+			screenDetails.taxCertificate = {
+				email: requestInfo.emailAddress,
+				year: this.selectedCertificates[this.selectedCertType].map(item => item.year),
+				type: this.selectedCertType
+			};
+			// saving 'emailAddress' and 'year' in state.
+			const requestResult = await this.sendTaxCertificateInformation(requestInfo);
+
 			screenDetails.selectedCertificates = this.selectedCertificates;
 			this.horizonStore.setScreenDetails(screenDetails);
 
-			if (requestResult) {
-				this.horizonRouter.navigateToTaxCertificateSuccessful();
-			}
-			else {
-				this.horizonRouter.navigateToTaxCertificateUnsuccessful();
-			}
 			this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_SELECT_SEND, {
 				"screen": TelemetryScreen.TAX_CERTIFICATE,
-				"next-screen": null
+				"next-screen": requestResult ? OutcomeScreen.SUCCESS : OutcomeScreen.FAIL
 			});
-			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `tax-certificate`);
+
 
 		}
 	}

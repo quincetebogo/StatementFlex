@@ -513,12 +513,14 @@ export class Favourites extends SavingsAccountBase {
 	async _sendTaxCertificates(request) {
 
 		const returnValue = await this.quickTransactionService.sendTaxCertificate(request, () => true);
-
+		
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unable to send tax certificates`, `_sendTaxCertificateDocument`, returnValue.correlationId);
 			this.horizonRouter.navigateToTaxCertificateUnsuccessful();
 			return null;
 		} else if (returnValue.succeeded) {
+
+
 			this.horizonRouter.navigateToTaxCertificateSuccessful();
 			return returnValue.result;
 		}
@@ -760,7 +762,6 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE
 		? html`
 			<horizon-tax-certificate
-				.cards="${this.cards}"
 				.callerInformation="${this.callerInformation}"
 				.getTaxCertificateDocument="${request => this._getTaxCertificateDocument(request)}"
 				.sendTaxCertificateInformation="${request => this._sendTaxCertificates(request)}"
