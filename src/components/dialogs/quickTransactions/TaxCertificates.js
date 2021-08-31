@@ -280,7 +280,7 @@ export class TaxCertificate extends Component {
 		if (isNullorEmpty(this.selectedCertType)) {
 			this.alertBannerMessage = ERROR_MESSAGE.CERT_TYPE;
 			return false;
-		} else if (isNullorEmpty(this.selectedCertificates[this.selectedCertType])) {
+		} else if (isNullorEmpty(this.selectedCertificates[this.selectedCertType]) && Object.keys(this.selectedCertificates).length === 0) {
 			this.alertBannerMessage = ERROR_MESSAGE.DOCUMENT_TYPE;
 			return false;
 		}

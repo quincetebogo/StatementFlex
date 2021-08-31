@@ -24,9 +24,11 @@ export class TaxCertificateUnsuccess extends ViewBase {
 		this.isTaxFreeCertificate = false;
 
 		// TODO: To be removed once the navigation is wired up
-		this.mailId = `ivanmakatini@gmail.com`;
+		this.email = {};
+		this.year = {};
+		this.certificateType = {};
 
-		// this.horizonStore = HorizonStore.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	// --------------
@@ -44,8 +46,9 @@ export class TaxCertificateUnsuccess extends ViewBase {
 	 */
 	static get properties() {
 		return {
-			mailId: { attribute: String },
-
+			email: { attribute: false, type: Object },
+			year: { attribute: false, type: Object },
+			type: { attribute: false, type: Object },
 			isTaxFreeCertificate: { attribute: false, type: Boolean }
 		};
 	}
@@ -61,7 +64,9 @@ export class TaxCertificateUnsuccess extends ViewBase {
 		this._updateIncidentState();
 
 		const screenDetails = this.horizonStore.getScreenDetails();
-		this.mailId = screenDetails.taxCertificateData.email;
+		this.taxYear = screenDetails.taxCertificate.year;
+		this.email = screenDetails.taxCertificate.email;
+		this.type = screenDetails.taxCertificate.type;
 		this.incidentDetails = super.HORIZON_NEED_STATUS.FAILED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
@@ -80,10 +85,10 @@ export class TaxCertificateUnsuccess extends ViewBase {
 		// TODO : Uncomment entire function once the Tax Certificate dialog is ready and navigation needs to be wired up.
 
 		// Telemetry
-		// this._telemetry.endSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
-		// 	"screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME,
-		// 	"nextScreen": TelemetryScreen.FAVOURITES
-		// });
+		this._telemetry.endSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
+			"screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME,
+			"nextScreen": TelemetryScreen.FAVOURITES
+		});
 		this.horizonStore.clearReturnScreen();
 
 		
@@ -94,13 +99,13 @@ export class TaxCertificateUnsuccess extends ViewBase {
 
 		// TODO : Uncomment entire function once the Tax Certificate dialog is ready and navigation needs to be wired up.
 
-		// this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_OUTCOME_HANDOFF, {
-		// 	"screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME,
-		// 	"next-screen": null
-		// });
+		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_OUTCOME_HANDOFF, {
+			"screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME,
+			"next-screen": null
+		});
 
-		// this.incidentDetails = super.HORIZON_NEED_STATUS.ASSIGNED;
-		// this.horizonStore.setIncidentDetails(this.incidentDetails.incidentRecId);
+		this.incidentDetails = super.HORIZON_NEED_STATUS.ASSIGNED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails.incidentRecId);
 
 		this.horizonRouter.navigateToStrack(incidentRecId);
 		this.horizonStore.clearReturnScreen();
@@ -116,11 +121,46 @@ export class TaxCertificateUnsuccess extends ViewBase {
 
 	// TODO : Uncomment the below code when CS is being implemented.
 
-	// _updateIncidentState() {
-	// 	const incidentDetails = this.horizonStore.getIncidentDetails();
-	// 	incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-	// 	this.horizonStore.setIncidentDetails(incidentDetails);
-	// }
+	_updateIncidentState() {
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonStore.setIncidentDetails(incidentDetails);
+	}
+
+	_taxableYears() {
+		if (this.type === `iT3BTaxCertificates`) {
+			const taxCertificateLength = this.selectedTaxCertificates[this.type].length;
+			if (taxCertificateLength === 1) {
+				return `${this.taxYear}`;
+			}
+			if (taxCertificateLength === 2) {
+				return `${this.taxYear.join(` and `)}`;
+			}
+			if (taxCertificateLength > 2) {
+				const taxableLastYear = this.Year.pop();
+				return `${this.taxYear.join(`, `)} and ${taxableLastYear}`;
+			}
+		}
+		return this.taxYear;
+	}
+
+	_taxFreeYears() {
+
+		if (this.type === `iTSBTaxCertificates`) {
+			const taxCertificateLength = this.selectedTaxCertificates[this.type].length;
+			if (taxCertificateLength === 1) {
+				return `${this.taxYear}`;
+			}
+			if (taxCertificateLength === 2) {
+				return `${this.taxYear.join(` and `)}`;
+			}
+			if (taxCertificateLength > 2) {
+				const taxaFreeLastYear = this.taxableYear.pop();
+				return `${this.taxYear.join(`, `)} and ${taxaFreeLastYear}`;
+			}
+		}
+		return this.taxYear;
+	}
 
 	// ---------
 	// RENDERING
@@ -177,7 +217,8 @@ export class TaxCertificateUnsuccess extends ViewBase {
 						data-automation-id="tax-certificate-unsuccessful-tax-certificate-message"
 						class="error-msg" 
 						slot="detail">
-							Your taxable savings certificate was not emailed to <strong>${this.mailId}</strong>
+							${this.type === `iT3BTaxCertificates` ? html`Taxable savings certificate for <strong>${this._taxableYears()}</strong> has been emailed to <strong>${this.email}</strong>` : html``}
+							${this.type === `iT3STaxCertificates` ? html`Tax free certificate for <strong>${this._taxFreeYears()}</strong> has been emailed to <strong>${this.email}</strong>` : html``}
 					</section>
 					${this._renderTaxFreeCertificateDetail()}
 			</horizon-error-screen>
@@ -185,12 +226,12 @@ export class TaxCertificateUnsuccess extends ViewBase {
 	}
 
 	_renderTaxFreeCertificateDetail() {
-		return this.isTaxFreeCertificate 
-			? html`
+		return this.type === `iT3STaxCertificate` && this.type === `iT3BTaxCertificate`
+		? html`
 				<section 
-					data-automation-id="tax-certificate-unsuccessful-tax-free-certificate-message"
+					data-automation-id="tax-certificate-success-tax-free-certificate-message"
 					slot="sub-detail">
-						Your tax-free certificate was not emailed to <strong>${this.mailId}</strong>.
+						Tax-free certificate for <strong>${this._taxFreeYears()}</strong> has been emailed to <strong>${this.email}</strong>
 				</section>`
 			: html``;
 	}
