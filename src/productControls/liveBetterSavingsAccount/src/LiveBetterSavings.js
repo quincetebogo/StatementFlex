@@ -7,7 +7,15 @@ import 'app/components/common/HorizonLabel';
 
 /**
  * Live Better Savings Account Product Control
- *
+ * 
+ * Events Raised
+ * -------------
+ * 
+ * option-click
+ * account-details
+ * round-up
+ * interest-sweep
+ * 
  * @export
  * @class LiveBetterSavings
  * @extends {Component}
@@ -67,7 +75,7 @@ export class LiveBetterSavings extends Component {
 	// --------------
 
 	_click(selection) {
-		this.dispatchEvent(new CustomEvent(`click`, { detail: { selection: selection } }));
+		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection } }));
 	}
 
 	_toggleExpander() {
@@ -76,6 +84,14 @@ export class LiveBetterSavings extends Component {
 
 	_accountDetails() {
 		this.dispatchEvent(new CustomEvent(`account-details`, {}));
+	}
+
+	_toggleRoundUp() {
+		this.dispatchEvent(new CustomEvent(`round-up`, {}));
+	}
+
+	_toggleInterestSweep() {
+		this.dispatchEvent(new CustomEvent(`interest-sweep`, {}));
 	}
 
 	// --------------
@@ -332,7 +348,11 @@ export class LiveBetterSavings extends Component {
 						halign="left" 
 						valign="center">
 							<capitec-label label="Round-up"></capitec-label>
-							<capitec-toggle label="${formatCurrency(this.liveBetterAccountData.roundUpAmount)}" checked></capitec-toggle>
+							<capitec-toggle 
+								label="${formatCurrency(this.liveBetterAccountData.roundUpAmount)}" 
+								@value-change="${() => this._toggleRoundUp()}"
+								checked>
+							</capitec-toggle>
 					</capitec-group>
 
 					<capitec-group 
@@ -343,7 +363,11 @@ export class LiveBetterSavings extends Component {
 						halign="left" 
 						valign="center">
 							<capitec-label label="Interest Sweep"></capitec-label>
-							<capitec-toggle label="${this.liveBetterAccountData.interestSweep}" checked></capitec-toggle>
+							<capitec-toggle 
+								label="${this.liveBetterAccountData.interestSweep}" 
+								@value-change="${() => this._toggleInterestSweep()}"
+								checked>
+							</capitec-toggle>
 					</capitec-group>
 
 					<horizon-label

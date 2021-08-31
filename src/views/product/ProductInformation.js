@@ -2,6 +2,8 @@ import { Configuration, NavigationContext } from 'platform/core';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { html } from 'platform/elements';
 
+import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
+
 import 'app/components/product/CnetProductInfo';
 
 const CONFIG = {
@@ -93,6 +95,9 @@ export class ProductInformation extends ViewBase {
 		let productUrl = '';
 
 		if(this._config.type === `liveBetter`){
+			
+			this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_VIEW_BENEFITS, {});
+
 			productUrl = await this.configuration.getSetting(`otherSystemsURL.live-better`);
 		} else {
 			const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);

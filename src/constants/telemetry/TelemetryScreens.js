@@ -56,7 +56,12 @@
 	VALUE_ADDED_SERVICES_UNAVAILABLE: `Value Added Services Unavailable`,
 	VALUE_ADDED_SERVICES_NO_CLIENT_DATA : `Value Added Services No Client Data`,
 
+	LIVE_BETTER: `Live Better verified landing page`,
+	LIVE_BETTER_ACCOUNT_DETAILS: `Live Better Account details`,
+	LIVE_BETTER_TRANSACTION_HISTORY: `Live Better Transaction History`,
+	LIVE_BETTER_SATEMENTS: `Live Better Statements`,
+	LIVE_BETTER_AUTOMATIC_SAVINGS: `Live Better Automatic savings`,
+
 	LIVE_BETTER_BENEFITS: `Live Better Benefits`,
 	LIVE_BETTER_BENEFITS_UNAVAILABLE: `Live Better Benefits Unavailable`
-
 };
