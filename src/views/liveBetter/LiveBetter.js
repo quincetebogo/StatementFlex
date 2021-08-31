@@ -3,6 +3,9 @@ import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { ViewBase } from 'app/views/common/ViewBase';
 
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
+
 import 'app/productControls/liveBetterSavingsAccount/src/LiveBetterSavings';
 import 'app/productControls/liveBetterSavingsAccount/src/AccountDetails';
 
@@ -42,8 +45,7 @@ export class LiveBetter extends ViewBase {
 	// -------------------
 	
 	connectedCallback() {
-		super.connectedCallback();
-
+		super.connectedCallback();		
 		this._initialise();
 	}
 
@@ -76,28 +78,44 @@ export class LiveBetter extends ViewBase {
 	}
 
 	_accountDetails() {
+		this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_ACCOUNT_NUMBER, {
+			"screen": TelemetryScreen.LIVE_BETTER_LANDING_PAGE,
+			"next-screen": TelemetryScreen.LIVE_BETTER_ACCOUNT_DETAILS
+		});
+
 		this.renderMode = RENDER_MODE.LIVE_BETTER_ACCOUNT_DETAILS;
 	}
 
-	_backFromAccountDetails() {
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	_toggleRoundUp() {
+		this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_ROUND_UP_TOGGLE, {
+			"screen": TelemetryScreen.LIVE_BETTER_LANDING_PAGE,
+			"next-screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS
+		});
+	}
+
+	_toggleInterestSweep() {
+		this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_INTEREST_SWEEP_TOGGLE, {
+			"screen": TelemetryScreen.LIVE_BETTER_LANDING_PAGE,
+			"next-screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS
+		});
 	}
 
 	_backToLBBLandingScreen() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-
 	async _optionClick(option) {
 
 		const transactionHistory = () => this._transactionHistory();
 		const statements = () => this._getStatements();
+		const automaticSavings = () => this._automaticSavings();
+		const productEnquiry = () => this._productEnquiry();
 
 		const actions = {
 			'transaction-history': transactionHistory,
 			'statements': statements,
-			'automatic-savings': this._automaticSavings,
-			'product-enquiry': this._productEnquiry
+			'automatic-savings': automaticSavings,
+			'product-enquiry': productEnquiry
 		};
 
 		if (actions[option]) {
@@ -120,6 +138,13 @@ export class LiveBetter extends ViewBase {
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		
 		if (this.callerInformation.verificationStatus !== `non-client`) {
+			
+			// TO DO: Telemetry event should start if only client has LBB account. 
+			// TO DO: If not, navigate to View benefits(non-client) screen without starting this span
+			this._telemetry.startSpan(LiveBetterEvents.LIVE_BETTER, {
+				"screen": TelemetryScreen.LIVE_BETTER,
+				"liveBetter": true
+			});
 			
 			// Live better landing page service call should come here - Data is mocked as below temporarily
 			this.landingPageInfo = {
@@ -186,7 +211,26 @@ export class LiveBetter extends ViewBase {
 		this.horizonStore.saveState(state);
 	}
 
+	_transactionHistory() {
+		this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_TRANSACTION_HISTORY, {
+			"screen": TelemetryScreen.LIVE_BETTER_LANDING_PAGE,
+			"next-screen": TelemetryScreen.LIVE_BETTER_TRANSACTION_HISTORY
+		});
+	}
+
+	_getStatements() {
+		this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_STATEMENTS, {
+			"screen": TelemetryScreen.LIVE_BETTER_LANDING_PAGE,
+			"next-screen": TelemetryScreen.LIVE_BETTER_SATEMENTS
+		});
+	}
+
 	_automaticSavings() {
+		this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_AUTOMATIC_SAVINGS, {
+			"screen": TelemetryScreen.LIVE_BETTER_LANDING_PAGE,
+			"next-screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS
+		});
+
 		this.renderMode = RENDER_MODE.AUTOMATIC_SAVINGS;
 	}
 
@@ -226,6 +270,7 @@ export class LiveBetter extends ViewBase {
 		return html`
 			${super._webTemplate()}
 			${this._renderLandingPage()}
+			${this._renderAutomaticSavings()}
 		`;
 	}
 
@@ -254,7 +299,10 @@ export class LiveBetter extends ViewBase {
 				<capitec-pc-live-better-savings
 					class="liveBetter"
 					.liveBetterAccountData = "${this.landingPageInfo}"
-					@account-details="${() => this._accountDetails()}"></capitec-pc-live-better-savings>
+					@option-click = "${(e) => this._optionClick(e.detail.option)}"
+					@account-details="${() => this._accountDetails()}"
+					@round-up="${() => this._toggleRoundUp()}"
+					@interest-sweep="${() => this._toggleInterestSweep()}">
 				</capitec-pc-live-better-savings>`
 			: html``;
 		}
@@ -265,7 +313,7 @@ export class LiveBetter extends ViewBase {
 				<horizon-live-better-unverified-page
 					class="liveBetter"
 					@verify-now= "${() => this._verifyClick()}"
-					@livebetter-enquiry="${(event) => this._productEnquiry(event)}">
+					@product-enquiry="${() => this._productEnquiry()}">
 				</horizon-live-better-unverified-page>`
 			: html``;
 	}
@@ -274,7 +322,7 @@ export class LiveBetter extends ViewBase {
 		return this.renderMode === RENDER_MODE.LIVE_BETTER_ACCOUNT_DETAILS 
 			? html`
 				<capitec-pc-live-better-account-details
-					@back= "${() => this._backFromAccountDetails()}">
+					@back= "${() => this._backToLBBLandingScreen()}">
 				</capitec-pc-live-better-account-details>`
 			: html``;
 	}
