@@ -498,33 +498,27 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _getTaxCertificateDocument(request) {
-
 		const returnValue = await this.quickTransactionService.viewTaxCertificate(request, () => true);
 
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Unable to get load tax certificates documents`, `_getTaxCertificateDocument`, returnValue.correlationId);
-			this.horizonRouter.navigateToTaxCertificateServiceError();
-		} else {
+		if (returnValue.succeeded) {
 			return returnValue.result;
-		}
-		
+		} 
+
+		this.logger.log(`error`, `Unable to get load tax certificates documents`, `_getTaxCertificateDocument`, returnValue.correlationId);
+		this.horizonRouter.navigateToTaxCertificateServiceError();
 	}
 
 	async _sendTaxCertificates(request) {
-
 		const returnValue = await this.quickTransactionService.sendTaxCertificate(request, () => true);
 		
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Unable to send tax certificates`, `_sendTaxCertificateDocument`, returnValue.correlationId);
-			this.horizonRouter.navigateToTaxCertificateUnsuccessful();
-			return null;
-		} else if (returnValue.succeeded) {
-
-
+		if (returnValue.succeeded) {
 			this.horizonRouter.navigateToTaxCertificateSuccessful();
 			return returnValue.result;
 		}
-	
+
+		this.logger.log(`error`, `Unable to send tax certificates`, `_sendTaxCertificateDocument`, returnValue.correlationId);
+		this.horizonRouter.navigateToTaxCertificateUnsuccessful();
+		return null;
 	}
 
 	async _proofOfAccount() {
