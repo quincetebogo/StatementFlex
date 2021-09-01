@@ -105,8 +105,9 @@ const REGEX_PATTERNS = {
 		ALERT_BANNER: `Incorrect ID/Passport number`
 	},
 	1: {
-		PATTERN: /^/,
-		FIELD_ERROR: ``
+        PATTERN: /^\S+$/,
+        FIELD_ERROR: `Incorrect Passport number`,
+		ALERT_BANNER: `Incorrect Passport number`
 	},
 	2: {
 		PATTERN: /^[0-9]{10}$/,
@@ -853,6 +854,7 @@ export class SearchCaller extends Component {
 						column="2">
 					</capitec-radio>
 					<capitec-radio 
+						style="visibility:hidden;"
 						id="branch" 
 						data-automation-id="search-caller-branch"
 						label="Branch" 

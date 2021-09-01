@@ -564,7 +564,10 @@ export class CardLimitsLanding extends Component {
 					animation-timing-function: linear;
 				}
 				capitec-card > capitec-content-box{
-					padding: 0px;
+					--theme-container-padding-left: 0px;
+					--theme-container-padding-right: 0px;
+					--theme-container-padding-top: 0px;
+					--theme-container-padding-bottom: 16px;
 				}
 				.col1{
 					width:222px;
@@ -583,7 +586,7 @@ export class CardLimitsLanding extends Component {
 					width:155px;
 				}
 				.limits-group{
-					height: 162px;
+					height: auto;
 					--theme-layout-gap-spacing: 0px;
 				}
 				.dual{
@@ -651,7 +654,7 @@ export class CardLimitsLanding extends Component {
 	}
 
 	_renderPrimaryCards() {
-		this.expanderHeaders = this.primaryCards.map(card => [card.cardDisplayName, `Cardholder`, `Card expiry date`]);
+		this.expanderHeaders = this.primaryCards.map(card => [`${CARD_TYPE_MAPPING[card.cardType]} card`, `Cardholder`, `Card expiry date`]);
 		this.expanderSubtitle = this.primaryCards.map(card => [card.maskedCardNumber, card.cardHolderName, `30 ${getMonthName(card.cardExpiryMonth - 1)} 20${card.cardExpiryYear} at midnight`, card]);
 		
 		return this.expanderSubtitle.map((sub, index) => html`
@@ -680,7 +683,7 @@ export class CardLimitsLanding extends Component {
 	}
 
 	_renderSupplementaryCards() {
-		this.expanderHeaders = this.supplementaryCards.map(card => [card.cardDisplayName, `Cardholder`, `Card expiry date`]);
+		this.expanderHeaders = this.supplementaryCards.map(card => [`${CARD_TYPE_MAPPING[card.cardType]} card`, `Cardholder`, `Card expiry date`]);
 		this.expanderSubtitle = this.supplementaryCards.map(card => [card.maskedCardNumber, card.cardHolderName, `30 ${getMonthName(card.cardExpiryMonth - 1)} 20${card.cardExpiryYear} at midnight`, card]);
 		
 		return this.expanderSubtitle.map((sub, index) => html`
@@ -709,7 +712,7 @@ export class CardLimitsLanding extends Component {
 	}
 
 	_renderVirtualCards() {
-		this.expanderHeaders = this.virtualCards.map(card => [card.cardDisplayName, `Cardholder`, `Card expiry date`]);
+		this.expanderHeaders = this.virtualCards.map(card => [`Virtual card`, `Cardholder`, `Card expiry date`]);
 		this.expanderSubtitle = this.virtualCards.map(card => [card.maskedCardNumber, card.cardHolderName, `30 ${getMonthName(card.cardExpiryMonth - 1)} 20${card.cardExpiryYear} at midnight`, card]);
 		
 		return this.expanderSubtitle.map((sub, index) => html`

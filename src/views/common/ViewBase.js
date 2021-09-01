@@ -234,7 +234,7 @@ export class ViewBase extends View {
 			"screen": screenName
 		});
 	}
-
+	
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -305,7 +305,7 @@ export class ViewBase extends View {
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.isReassigned="${this.isReassigned}"
-					endCallContext=${this.endCallContext}
+					endCallContext="${this.endCallContext}"
 					@cancel="${() => this._cancelEndCallClick()}">
 				</horizon-end-call-session>`
 			: html``;
