@@ -67,6 +67,7 @@ export class TaxCertificateUnsuccess extends ViewBase {
 		this.taxYear = screenDetails.taxCertificate.year;
 		this.email = screenDetails.taxCertificate.email;
 		this.type = screenDetails.taxCertificate.type;
+		this.selectedTaxCertificates = screenDetails.selectedCertificates;
 		this.incidentDetails = super.HORIZON_NEED_STATUS.FAILED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
@@ -85,10 +86,10 @@ export class TaxCertificateUnsuccess extends ViewBase {
 		// TODO : Uncomment entire function once the Tax Certificate dialog is ready and navigation needs to be wired up.
 
 		// Telemetry
-		this._telemetry.endSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
-			"screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME,
-			"nextScreen": TelemetryScreen.FAVOURITES
-		});
+		// this._telemetry.endSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
+		// "screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME,
+		// "nextScreen": TelemetryScreen.FAVOURITES
+		// });
 		this.horizonStore.clearReturnScreen();
 
 		
@@ -99,15 +100,15 @@ export class TaxCertificateUnsuccess extends ViewBase {
 
 		// TODO : Uncomment entire function once the Tax Certificate dialog is ready and navigation needs to be wired up.
 
-		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_OUTCOME_HANDOFF, {
-			"screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME,
-			"next-screen": null
-		});
+		// this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_OUTCOME_HANDOFF, {
+		// "screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME,
+		// "next-screen": null
+		// });
 
 		this.incidentDetails = super.HORIZON_NEED_STATUS.ASSIGNED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails.incidentRecId);
 
-		this.horizonRouter.navigateToStrack(incidentRecId);
+		// this.horizonRouter.navigateToStrack(incidentRecId);
 		this.horizonStore.clearReturnScreen();
 	}
 
@@ -122,9 +123,9 @@ export class TaxCertificateUnsuccess extends ViewBase {
 	// TODO : Uncomment the below code when CS is being implemented.
 
 	_updateIncidentState() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-		this.horizonStore.setIncidentDetails(incidentDetails);
+		// const incidentDetails = this.horizonStore.getIncidentDetails();
+		// incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		// this.horizonStore.setIncidentDetails(incidentDetails);
 	}
 
 	_taxableYears() {
@@ -217,8 +218,8 @@ export class TaxCertificateUnsuccess extends ViewBase {
 						data-automation-id="tax-certificate-unsuccessful-tax-certificate-message"
 						class="error-msg" 
 						slot="detail">
-							${this.type === `iT3BTaxCertificates` ? html`Taxable savings certificate for <strong>${this._taxableYears()}</strong> has been emailed to <strong>${this.email}</strong>` : html``}
-							${this.type === `iT3STaxCertificates` ? html`Tax free certificate for <strong>${this._taxFreeYears()}</strong> has been emailed to <strong>${this.email}</strong>` : html``}
+							${this.type === `iT3BTaxCertificates` ? html`Taxable savings certificate for <strong>${this._taxableYears()}</strong> has not been emailed to <strong>${this.email}</strong>` : html``}
+							${this.type === `iT3STaxCertificates` ? html`Tax free certificate for <strong>${this._taxFreeYears()}</strong> has not been emailed to <strong>${this.email}</strong>` : html``}
 					</section>
 					${this._renderTaxFreeCertificateDetail()}
 			</horizon-error-screen>

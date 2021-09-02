@@ -228,11 +228,10 @@ export class TaxCertificate extends Component {
 				"cif": this.callerInformation.cifNumber,
 				"emailAddress": this.email,
 				"documentIds": this.selectedCertificates[this.selectedCertType].map(item => item.documentId),
-  				"messageParameters": {
-   				"title": `Ms`,
-				"surname": `Lepadi`
-				},
-				"attachments": []
+				"messageParameters": {
+					"title": this.taxCertificateDetails.title,
+					"surname": this.taxCertificateDetails.lastName
+				}
 			};
 
 			const screenDetails = this.horizonStore.getScreenDetails();
