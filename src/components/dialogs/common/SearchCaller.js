@@ -854,6 +854,7 @@ export class SearchCaller extends Component {
 						column="2">
 					</capitec-radio>
 					<capitec-radio 
+						style="visibility:hidden;"
 						id="branch" 
 						data-automation-id="search-caller-branch"
 						label="Branch" 
