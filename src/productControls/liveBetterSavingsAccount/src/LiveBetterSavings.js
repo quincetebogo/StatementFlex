@@ -457,10 +457,40 @@ customElements.define(`capitec-pc-live-better-savings`, LiveBetterSavings);
  * When an option tile is clicked
  *
  * @example
- * <capitec-pc-live-better-savings ... @click="${this._handler}"></capitec-pc-live-better-savings>
+ * <capitec-pc-live-better-savings ... @option-click="${this._handler}"></capitec-pc-live-better-savings>
  *
  * @event LiveBetterSavings#click
  * @type {Object}
  * @property {Object} detail - Contains information on the clicked item
- * @property {String} detail.selection - The selected option
+ * @property {String} detail.option - The selected option
+ */
+
+/**
+ * When an Account number & info icon is clicked 
+ *
+ * @example
+ * <capitec-pc-live-better-savings ... @account-details="${this._handler}"></capitec-pc-live-better-savings>
+ *
+ * @event LiveBetterSavings#account-details
+ * @type {Object} - N/A
+ */
+
+/**
+ * When Round-Up is toggled
+ *
+ * @example
+ * <capitec-pc-live-better-savings ... @round-up="${this._handler}"></capitec-pc-live-better-savings>
+ *
+ * @event LiveBetterSavings#round-up
+ * @type {Object} - N/A
+ */
+
+/**
+ * When an Interest sweep is toggled
+ *
+ * @example
+ * <capitec-pc-live-better-savings ... @interest-sweep="${this._handler}"></capitec-pc-live-better-savings>
+ *
+ * @event LiveBetterSavings#interest-sweep
+ * @type {Object} - N/A
  */
