@@ -201,7 +201,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		if (returnValue.succeeded && returnValue.result) {
 			await super.createAndClassifySubsIncident();
 			
-			this.transactionHistory = returnValue.result.transactions;
+			this.transactionHistory = returnValue.result;
 			this.accountDetails = {
 				"Account number": this.landingPageInfo.accountNumber,
 				"Balance": formatCurrency(this.landingPageInfo.accountBalance),

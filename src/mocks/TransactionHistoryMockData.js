@@ -25,6 +25,7 @@ export const transactionHistoryMockData = {
 			"transactionDate": "2021-02-18T14:02:52.437Z",
 			"description": "Purchase SPAR Die Boord Stell Card No 3445",
 			"transactionStatus": "Financial",
+			"fromAccount": "Main Savings Account",
 			"transactionType": "Card purchase",
 			"amount": 1200,
 			"balance": 1962.00
@@ -46,6 +47,7 @@ export const transactionHistoryMockData = {
 			"transactionDate": "2021-01-18T14:02:52.437Z",
 			"description": "ATM Purchase SPAR Die Boord Stell Card No 3445",
 			"transactionStatus": "Financial",
+			"fromAccount": "Main Savings Account",
 			"transactionType": "Card purchase",
 			"amount": 500.00,
 			"balance": 209.62
@@ -67,6 +69,7 @@ export const transactionHistoryMockData = {
 			"transactionDate": "2021-01-16T00:00:00.000Z",
 			"description": "Purchase SPAR Die Boord Stell Card No 3445",
 			"transactionStatus": "Fee",
+			"fromAccount": "Main Savings Account",
 			"transactionType": "Card purchase",
 			"amount": 340.00,
 			"balance": 66962.00
@@ -88,6 +91,7 @@ export const transactionHistoryMockData = {
 			"transactionDate": "2021-01-10T00:00:00.000Z",
 			"description": "Purchase SPAR Die Boord Stell Card No 3445",
 			"transactionStatus": "Non Financial",
+			"fromAccount": "Main Savings Account",
 			"transactionType": "Card purchase",
 			"amount": 340.00,
 			"balance": 66962.00
@@ -109,6 +113,7 @@ export const transactionHistoryMockData = {
 			"transactionDate": "2021-01-06T00:00:00.000Z",
 			"description": "POS Boord Stell Card No 3445",
 			"transactionStatus": "Processed",
+			"fromAccount": "Main Savings Account",
 			"transactionType": "Card purchase",
 			"amount": 5.00,
 			"balance": 200.00
@@ -130,6 +135,7 @@ export const transactionHistoryMockData = {
 			"transactionDate": "2021-02-01T00:00:00.000Z",
 			"description": "Boord Stell Card No 3445",
 			"transactionStatus": "Non Financial",
+			"fromAccount": "Main Savings Account",
 			"transactionType": "Card purchase",
 			"amount": 50.00,
 			"balance": 962.00
@@ -151,6 +157,7 @@ export const transactionHistoryMockData = {
 			"transactionDate": "2020-12-26T00:00:00.000Z",
 			"description": "ATM Purchase SPAR Die Boord Stell Card No 3445",
 			"transactionStatus": "Non Financial",
+			"fromAccount": "Main Savings Account",
 			"transactionType": "Card purchase",
 			"amount": 50.00,
 			"balance": 20962.00
@@ -172,6 +179,7 @@ export const transactionHistoryMockData = {
 			"transactionDate": "2020-12-24T00:00:00.000Z",
 			"description": "SPAR Die Boord Stell Card No 3445",
 			"transactionStatus": "Processing",
+			"fromAccount": "Main Savings Account",
 			"transactionType": "Card purchase",
 			"amount": 600.00,
 			"balance": 962.00
@@ -193,6 +201,7 @@ export const transactionHistoryMockData = {
 			"transactionDate": "2020-12-20T00:00:00.000Z",
 			"description": "ATM Boord Stell Card No 3445",
 			"transactionStatus": "Reversed",
+			"fromAccount": "Main Savings Account",
 			"transactionType": "Card purchase",
 			"amount": 45600.00,
 			"balance": 10962.00

@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { FILTER_BY, RENDER_CHIPS, RENDER_MODE, TRANSACTION_HISTORY, TRANSACTION_STATUS_LIST } from 'app/constants/TransactionHistory';
+import { FILTER_BY, MONEY_TYPES, RENDER_CHIPS, RENDER_MODE, TRANSACTION_HISTORY, TRANSACTION_STATUS_LIST } from 'app/constants/TransactionHistory';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { DateTime } from 'luxon';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
@@ -105,7 +105,8 @@ export class TransactionHistory extends Component {
 			startDate: { type: String, attribute: false },
 			endDate: { type: String, attribute: false },
 			searchTextLabel: { attribute: false },
-			statuslabel: { attribute: false }
+			statuslabel: { attribute: false },
+			selectedMoneyType: { attribute: false}
 		};
 	}
 
@@ -279,6 +280,10 @@ export class TransactionHistory extends Component {
 		const element = this.shadowRoot.getElementById(`transactions-table`);
 		element.scrollTop = 0;
 	}
+	
+	_selectedMoneyType(e){
+		this.selectedMoneyType = MONEY_TYPES[e.target.label];
+	}
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
@@ -447,7 +452,7 @@ export class TransactionHistory extends Component {
 					background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
 				}
 				.lbb {
-					background: no-repeat url("/images/common/lbb_gradient.svg");
+					background: no-repeat url(../images/liveBetter/Gradient1.png);
 				}
 				.transaction-history-title > img {
 					width: 26px;
@@ -461,7 +466,6 @@ export class TransactionHistory extends Component {
 					width: var(--horizon-center-panel-width, 1064px);
 					border-bottom: 0px;
 					padding: 11px 24px 11px 43px;
-					background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
 				}
 				.actionbar-header > horizon-label {
 					width: 156px;
@@ -595,6 +599,21 @@ export class TransactionHistory extends Component {
 					--theme-date-time-picker-range-calendar-border: 0px;
 					margin-right: 8px;
 					width: 280px;
+				}	
+				.transaction-action-bar > capitec-chip{
+					margin: 0px 8px;
+					--theme-chip-label-padding-left: 11px;
+					--theme-chip-label-padding-right: 11px;
+					--theme-chip-label-line-height: 19px;
+				}
+				.type-normal{
+					--theme-chip-label-color: #3A3A3A;
+					--theme-chip-background-color: #FFFFFF;
+				}
+				.type-selected{
+					--theme-chip-label-color: #FFFFFF;
+					--theme-chip-background-color: #009DE0;
+					--theme-chip-font-weight: 600;
 				}
 			`
 		];
@@ -730,8 +749,29 @@ export class TransactionHistory extends Component {
 					@value-change = "${(e) => this._filterByStatus(e)}"
 					value = ${RENDER_CHIPS[FILTER_BY.STATUS]}
 					hint=""
+					?hidden="${this.type !== 'transact'}"
 					data-automation-id="transaction-status-filter">
 				</capitec-select>
+				
+				<capitec-chip 
+					label="All" 
+					class="${this.selectedMoneyType === MONEY_TYPES['All'] ? 'type-selected' : 'type-normal'}" 
+					@click="${(e) => this._selectedMoneyType(e)}" 
+					?hidden="${this.type !== 'lbb'}">
+				</capitec-chip>
+				<capitec-chip 
+					label="Money In"
+					class="${this.selectedMoneyType === MONEY_TYPES['Money In'] ? 'type-selected' : 'type-normal'}" 
+					@click="${(e) => this._selectedMoneyType(e)}" 
+					?hidden="${this.type !== 'lbb'}">
+				</capitec-chip>
+				<capitec-chip 
+					label="Money Out" 
+					class="${this.selectedMoneyType === MONEY_TYPES['Money Out'] ? 'type-selected' : 'type-normal'}" 
+					@click="${(e) => this._selectedMoneyType(e)}" 
+					?hidden="${this.type !== 'lbb'}">
+				</capitec-chip>
+
 			</capitec-group>
 		`;
 	}

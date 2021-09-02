@@ -76,3 +76,15 @@ export const ACCOUNT_TYPES = Object.freeze({
 	LBB: `lbb`,
 	CREDIT: `credit`
 });
+
+/**
+ * Money types used to filter the transaction {@link TransactionHistory}
+ * 
+ * @readonly
+ * @enum {Object} MONEY_TYPES
+ */
+ export const MONEY_TYPES = Object.freeze({
+	'All': `all`,
+	'Money In': `money-in`,
+	'Money Out': `money-out`
+});
