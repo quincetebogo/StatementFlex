@@ -117,6 +117,8 @@ export class SearchOtherNeed extends Component {
 	_issueChanged(e) {
 		this.issue = e.currentTarget.value.issue;
 		this.solution = this.issues.find(item => item.issue === this.issue).solution;
+
+		this.dispatchEvent(new CustomEvent(`issue-changed`, { detail: { category: this.category, need: this.need, issue: this.issue } }));
 	}
 
 	// ---------------
