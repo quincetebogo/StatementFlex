@@ -59,12 +59,16 @@ export class TaxCertificate extends Component {
 		super();
 		
 		this.navigationContext = NavigationContext.getInstance();
+		this.logger = Logger.getInstance();
+		this.navigationContext = NavigationContext.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
 
 		this.currentStep = 0;
 		this.renderMode = RENDER_MODE.EMAIL;
 		this.encodedPDF = ``;
-		this.logger = Logger.getInstance();
-		this.navigationContext = NavigationContext.getInstance();
 		this.email = ``;
 		this.confirmEmail = ``;
 		this.mailClientError = {
@@ -75,28 +79,8 @@ export class TaxCertificate extends Component {
 		this.confirmEmailLabel = `Confirm email address`;
 		this.selectedCertType = null;
 		this.selectedCertificates = {};
-		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
-		this.eventAggregator = EventAggregator.getInstance();
-		this._telemetry = HorizonTelemetry.instance;
 
-	/* This.availableCert = {
-			taxableSavings: [
-				{ year: `2014`, status: `Available` },
-				{ year: `2015`, status: `Available` },
-				{ year: `2016`, status: `Available` },
-				{ year: `2017`, status: `Unavailable` }
-				],
-			taxFree: [
-				{ year: `2018`, status: `Available` },
-				{ year: `2019`, status: `Available` },
-				{ year: `2020`, status: `Available` },
-				{ year: `2021`, status: `Available` }
-			]
-		};*/
-
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => true);
 	}
 
 	// --------------
@@ -160,14 +144,7 @@ export class TaxCertificate extends Component {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-
-	_errorHandler(ex) {
-		return true;
-	}
-
 	_back() {
-
-		// Telemetry
 		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_BACK, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE
 		});
@@ -176,20 +153,6 @@ export class TaxCertificate extends Component {
 		
 		this.errorMessage = ``;
 		this.currentStep--;
-	}
-
-	_isLeapYear(year) {
-		let day = 1;
-		if (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) {
-			day = 29;
-		} else {
-			day = 28;
-		}
-		return day;
-	}
-
-	toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
 	}
 
 	_certChange(e) {
@@ -211,15 +174,9 @@ export class TaxCertificate extends Component {
 	}
 
 	async _sendClick() {
-		
-		// this.clientData = this.taxCertificateDetails.payload.Stringify();
-
-		// const clientString = JSON.parse(this.selectedCertificates[this.selectedCertType].payload);
-		// console.log(clientData);
-
 		if (!isNullorEmpty(this.email)) {
-
-			this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE, {
+		
+			await this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE, {
 				"screen": TelemetryScreen.TAX_CERTIFICATE,
 				"next-screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME
 			});
@@ -233,30 +190,24 @@ export class TaxCertificate extends Component {
 					"surname": this.taxCertificateDetails.lastName
 				}
 			};
-
+		
 			const screenDetails = this.horizonStore.getScreenDetails();
 			screenDetails.taxCertificate = {
 				email: requestInfo.emailAddress,
 				year: this.selectedCertificates[this.selectedCertType].map(item => item.year),
 				type: this.selectedCertType
 			};
-			// saving 'emailAddress' and 'year' in state.
-			const requestResult = await this.sendTaxCertificateInformation(requestInfo);
-
 			screenDetails.selectedCertificates = this.selectedCertificates;
 			this.horizonStore.setScreenDetails(screenDetails);
-
+			const requestResult = await this.sendTaxCertificateInformation(requestInfo);
 			this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_SELECT_SEND, {
 				"screen": TelemetryScreen.TAX_CERTIFICATE,
 				"next-screen": requestResult ? OutcomeScreen.SUCCESS : OutcomeScreen.FAIL
 			});
-
-
 		}
-	}
+}
 
 	async _cancelClick(e) {
-		
 		await this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_CANCEL, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE,
 			"next-screen": TelemetryScreen.FAVOURITES
@@ -279,7 +230,9 @@ export class TaxCertificate extends Component {
 		if (isNullorEmpty(this.selectedCertType)) {
 			this.alertBannerMessage = ERROR_MESSAGE.CERT_TYPE;
 			return false;
-		} else if (isNullorEmpty(this.selectedCertificates[this.selectedCertType]) && Object.keys(this.selectedCertificates).length === 0) {
+		} 
+		
+		if (isNullorEmpty(this.selectedCertificates[this.selectedCertType]) && Object.keys(this.selectedCertificates).length === 0) {
 			this.alertBannerMessage = ERROR_MESSAGE.DOCUMENT_TYPE;
 			return false;
 		}
@@ -298,6 +251,7 @@ export class TaxCertificate extends Component {
 				"certificate-period": null }
 			]
 		});
+
 		this.currentStep++;
 		return this.selectedCertificates[this.selectedCertType];
 	}
@@ -323,7 +277,16 @@ export class TaxCertificate extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	
+	_isLeapYear(year) {
+		let day = 1;
+		if (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) {
+			day = 29;
+		} else {
+			day = 28;
+		}
+		return day;
+	}
+
 	_validateEmailAddress() {
 		this.mailClientError.email = isNullorEmpty(this.email) ? `Please enter email` : ``;
 		this.mailClientError.confirmEmail = isNullorEmpty(this.confirmEmail) ? `Please enter email` : ``;
@@ -359,14 +322,6 @@ export class TaxCertificate extends Component {
 		this[e.currentTarget.id] = e.detail.new;
 		this._clearErrors(e);
 		this.emailText = `Email address`;
-	}
-
-	_updateScreenDetails() {
-		const screenDetails = this.horizonStore.getScreenDetails();
-
-		screenDetails.emailAddress = this.idEmailAddress;
-		
-		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
 	_frameViewPDFRequest(Obj, type, frameRequest) {
