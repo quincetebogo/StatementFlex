@@ -575,7 +575,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.TAX_CERTIFICATE_SERVICE_ERROR,
 		load: () => import(`../views/TaxCertificate/TaxCertificateServiceError`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.ERROR_PAGES)
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
 		name: `horizon-debi-check-success`,
