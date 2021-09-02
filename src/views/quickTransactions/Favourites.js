@@ -487,6 +487,7 @@ export class Favourites extends SavingsAccountBase {
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unable to get load tax certificates information`, `_taxCertificates`, returnValue.correlationId);
 			this.horizonRouter.navigateToTaxCertificateServiceError();
+			return;
 		}
 
 		this.taxCertificateDetails = returnValue.result;

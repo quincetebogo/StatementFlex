@@ -27,7 +27,7 @@ const HORIZON_ROUTES = Object.freeze({
 	ITA_VERIFICATION_FAILED: `/error/ita-verification`,
 	SYSTEM_ERROR: `/error/system-error`,
 	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`,
-	TAX_CERTIFICATE_SERVICE_ERROR: `error/tax-certificate-service-error`,
+	TAX_CERTIFICATE_SERVICE_ERROR: `/error/tax-certificate-service-error`,
 	DEBICHECK_SUCCESS: `/success/debicheck`,
 	STATEMENTS_SUCCESSFUL: `/views/statements/StatementsSuccess`,
 	STATEMENTS_UNSUCCESSFUL: `/views/statements/StatementsUnsuccess`,
