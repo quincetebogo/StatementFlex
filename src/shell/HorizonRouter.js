@@ -354,9 +354,6 @@ export class HorizonRouter {
 		const viewManager = HorizonViewManager.getInstance();
 		const horizonRouter = HorizonRouter.getInstance();
 
-		// TEMPORARY SWITCH VERIFIED VIEWS TO UNVERIFIED LAYOUT
-		layout = layout === HORIZON_VIEW_SET.VERIFIED_PAGES ? HORIZON_VIEW_SET.UNVERIFIED_PAGES : layout;
-
 		let shellLayout = layout;
 
 		const setShellLayout = () => {
