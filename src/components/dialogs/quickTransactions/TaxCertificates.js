@@ -4,9 +4,9 @@ import { HorizonTelemetry, OutcomeScreen } from 'app/services/HorizonTelemetrySe
 import { base64ToBlobUrl, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 import 'app/components/common/HorizonExpander';
 

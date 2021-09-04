@@ -1,5 +1,4 @@
 import { SecurityContext, Telemetry } from 'platform/core';
-// import { TelemetryMock } from 'app/mocks/Telemetry';
 import { TelemetryStore } from 'app/store/TelemetryStore';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { v4 } from 'uuid';
