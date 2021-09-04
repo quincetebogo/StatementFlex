@@ -1,5 +1,4 @@
 import { css, html } from 'platform/elements';
-import { isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
@@ -7,6 +6,7 @@ import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTran
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
 import 'app/components/dialogs/common/ClientNotVerified';
@@ -19,7 +19,8 @@ import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
 import 'app/components/dialogs/common/Feedback';
-import 'app/components/dialogs/quickTransactions/TaxCertificates';
+
+import 'app/dialogs/taxCertificates/taxCertificates';
 
 
 const SAVINGS_ACCOUNT_TYPE = 300;
@@ -61,7 +62,6 @@ export class Favourites extends SavingsAccountBase {
 		this.cards = [];
 		this.selectedFeedback = [];
 		this.feedbackOptions = [];
-		this.taxCertificateDetails = {};
 		this.endCallCauseCode = EndCallCauseCode.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
 
@@ -474,52 +474,13 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-    async _taxCertificates() {
-        // TODO: Functionality to generate tax certificate comes here
-
-		await this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_TAX_CERTIFICATE, {
+	_taxCertificates() {
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_TAX_CERTIFICATE, {
 			"screen": TelemetryScreen.FAVOURITES,
 			"next-screen": TelemetryScreen.TAX_CERTIFICATE
 		});
 
-		const returnValue = await this.quickTransactionService.getTaxCertificate(this.callerInformation.cifNumber, () => true);
-
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Unable to get load tax certificates information`, `_taxCertificates`, returnValue.correlationId);
-			this.horizonRouter.navigateToTaxCertificateServiceError();
-			return;
-		}
-
-		this.taxCertificateDetails = returnValue.result;
 		this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
-		
-		this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
-		"screen": TelemetryScreen.TAX_CERTIFICATE
-		});
-	}
-
-	async _getTaxCertificateDocument(request) {
-		const returnValue = await this.quickTransactionService.viewTaxCertificate(request, () => true);
-
-		if (returnValue.succeeded) {
-			return returnValue.result;
-		} 
-
-		this.logger.log(`error`, `Unable to get load tax certificates documents`, `_getTaxCertificateDocument`, returnValue.correlationId);
-		this.horizonRouter.navigateToTaxCertificateServiceError();
-	}
-
-	async _sendTaxCertificates(request) {
-		const returnValue = await this.quickTransactionService.sendTaxCertificate(request, () => true);
-		
-		if (returnValue.succeeded) {
-			this.horizonRouter.navigateToTaxCertificateSuccessful();
-			return returnValue.result;
-		}
-
-		this.logger.log(`error`, `Unable to send tax certificates`, `_sendTaxCertificateDocument`, returnValue.correlationId);
-		this.horizonRouter.navigateToTaxCertificateUnsuccessful();
-		return null;
 	}
 
 	async _proofOfAccount() {
@@ -658,18 +619,18 @@ export class Favourites extends SavingsAccountBase {
 
 			${super._webTemplate()}
 		`;
-    }
+	}
 
-    _renderFavouritesLandingPage() {
-        switch (this.renderMode) {
-            case RENDER_MODE.MAIN_PAGE:
+	_renderFavouritesLandingPage() {
+		switch (this.renderMode) {
+			case RENDER_MODE.MAIN_PAGE:
 			case RENDER_MODE.TAX_CERTIFICATE:
-            case RENDER_MODE.PROOF_OF_ACCOUNT:
-            case RENDER_MODE.STATEMENTS:
-            case RENDER_MODE.VERIFY_NOW:
-            case RENDER_MODE.END_CALL:
-            case RENDER_MODE.ALERT_MODAL:
-                return html`
+			case RENDER_MODE.PROOF_OF_ACCOUNT:
+			case RENDER_MODE.STATEMENTS:
+			case RENDER_MODE.VERIFY_NOW:
+			case RENDER_MODE.END_CALL:
+			case RENDER_MODE.ALERT_MODAL:
+				return html`
 					<horizon-favourite-transactions 
 						class="favourites"
 						.landingPageInfo="${this.landingPageInfo}"
@@ -757,10 +718,7 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE
 		? html`
 			<horizon-tax-certificate
-				.callerInformation="${this.callerInformation}"
-				.getTaxCertificateDocument="${request => this._getTaxCertificateDocument(request)}"
-				.sendTaxCertificateInformation="${request => this._sendTaxCertificates(request)}"
-				.taxCertificateDetails="${this.taxCertificateDetails}"
+				cifNumber="${this.callerInformation.cifNumber}"
 				@cancel="${() => this._backToLandingPage()}">
 			</horizon-tax-certificate>
 		`
