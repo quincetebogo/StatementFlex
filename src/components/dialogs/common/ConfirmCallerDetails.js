@@ -138,7 +138,7 @@ export class ConfirmCallerDetails extends Component {
 			"next-screen": TelemetryScreen.ADD_CALLER_DETAILS
 		});
 
-			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
+		this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
 	}
 
 	_addCallerDetailsCancelled(event) {
@@ -148,39 +148,14 @@ export class ConfirmCallerDetails extends Component {
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
-	async _addCallerDetailsConfirmed(event) {
+	_addCallerDetailsConfirmed(event) {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
 
-		if (!this.incidentDetails.incidentRecId && this.incidentDetails.incidentRecId === ``) {
-			this.logger.log(`error`, `There is no incident available against which to record then non-client details`, `_addCallerDetailsConfirmed`);
-		}
-
-		await this._updateClientDetails(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
-		
-		const nonClientDetails = this._formatnonClientDetailsUpdateRequest(this.incomingCallDetails, this.callerInformation);
-		
-		const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
-
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_addCallerDetailsConfirmed`, returnValue.correlationId);
-			return;
-		}
-
-		this._verifyCaller();
+		this._confirmClick();
 	}
 
-	_formatnonClientDetailsUpdateRequest(incomingCallDetails, callerInformation) {
-		return {
-			ivrOptionCode: incomingCallDetails.ivrOptionCode,
-			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
-			firstName: callerInformation.nonClientFirstName,
-			surname: callerInformation.nonClientSurName,
-			cellPhone: callerInformation.nonClientCellPhone
-		};
-	}
-
-	_confirmClick() {
+	async _confirmClick() {
 		this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_CONFIRM_CLICK, {
 			"screen": TelemetryScreen.CONFIRM_CALLER,
 			"next-screen": this.incomingCallDetails.ivrOption.value === `StopCard` ? TelemetryScreen.STOP_CARD : TelemetryScreen.VERIFY_CALLER,
@@ -199,6 +174,9 @@ export class ConfirmCallerDetails extends Component {
 				ProductEnquiry: productEnquiry,
 				Transact: transact
 			};
+
+			await this._updateClientNonClientDetails();
+
 			clientNeed[this.incomingCallDetails.ivrOptionCode]();
 		} else {
 			this._navigateToLandingPage();
@@ -207,18 +185,7 @@ export class ConfirmCallerDetails extends Component {
 
 	async _verifyCaller() {
 		if (await this._setAvailabilityFlags()) {
-
-			if (this.incidentDetails.incidentRecId && this.incidentDetails.incidentRecId !== ``) {
-				const returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
-
-				if (returnValue.succeeded) {
-					this.renderMode = RENDER_MODE.VERIFY_CALLER;
-				} else {
-					this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_verifyCaller`, returnValue.correlationId);
-				}
-			} else {
-				this.logger.log(`error`, `There is no incident available against which to record the client details`, `_verifyCaller`);
-			}
+			this.renderMode = RENDER_MODE.VERIFY_CALLER;
 		}
 	}
 
@@ -236,15 +203,14 @@ export class ConfirmCallerDetails extends Component {
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
-
-	_branchCaptured(event) {
-		this.incomingCallDetails = event.detail.incomingCallDetails;
-		this.confirmedCaller = event.detail.confirmedCaller;
-		this.incidentDetails = event.detail.incidentDetails;
-		this.callerInformation.isBranchConsultant = true;
-		this._initCallerInformation();
-		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-	}
+    _branchCaptured(event) {
+        this.incomingCallDetails = event.detail.incomingCallDetails;
+        this.confirmedCaller = event.detail.confirmedCaller;
+        this.incidentDetails = event.detail.incidentDetails;
+        this.callerInformation.isBranchConsultant = true;
+        this._initCallerInformation();
+        this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+    }
 
 	/**
 	 * Non-client information has been captured on the general need search dialog
@@ -497,11 +463,34 @@ export class ConfirmCallerDetails extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
-	async _updateClientDetails(cifNumber, incidentRecId) {
-		const returnValue = await this.incidentService.updateIncidentClientDetails(cifNumber, incidentRecId);
+	async _updateClientNonClientDetails() {
+
+		if (!this.incidentDetails.incidentRecId || this.incidentDetails.incidentRecId === `0`) {
+			this.logger.log(`error`, `There is no incident available against which to record the client/ non-client details`, `_updateClientNonClientDetails`);
+			return;
+		}
+
+		// Updating client details to Incident at Strack
+		const returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
 
 		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Unable to update client details on incident for a 3rd Party flow due to a system error`, `_updateClientDetails`, returnValue.correlationId);
+			this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateClientNonClientDetails`, returnValue.correlationId);
+		}
+
+		// Updating non-client details to Incident at Strack
+		if (this.callerInformation.is3rdParty) {
+			const nonClientDetails = {
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				firstName: this.callerInformation.nonClientFirstName,
+				surname: this.callerInformation.nonClientSurName,
+				cellPhone: this.callerInformation.nonClientCellPhone
+			};
+			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
+
+			if (!returnValue.succeeded) {
+				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_updateClientNonClientDetails`, returnValue.correlationId);
+			}
 		}
 	}
 
@@ -584,9 +573,16 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_webTemplate() {
-		switch (this.renderMode) {
-			case RENDER_MODE.CONFIRM_CALLER:
-				return html`
+		return html`
+			${this._renderLoadingIndicator()}
+			${this._renderContent()}
+		`;
+	}
+
+	_renderContent() {
+        switch (this.renderMode) {
+            case RENDER_MODE.CONFIRM_CALLER:
+                return html`
 					<horizon-caller-dialog 
 						.incomingCallDetails="${this.incomingCallDetails}"
 						.incidentDetails="${this.incidentDetails}"
@@ -599,7 +595,6 @@ export class ConfirmCallerDetails extends Component {
 									${this._renderError()}
 									${this._renderAlertBanner()}
 									${this._renderConfirmedCaller()}
-									${this._renderLoadingIndicator()}
 								</capitec-content-box>
 							</div>
 							<div slot="footer">
