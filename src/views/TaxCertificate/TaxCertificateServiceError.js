@@ -1,4 +1,5 @@
 import { css, html } from 'platform/elements';
+import { Configuration } from 'platform/Configuration';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { ViewBase } from 'app/views/common/ViewBase';
 
@@ -21,7 +22,7 @@ export class TaxCertificateServiceError extends ViewBase {
 	constructor() {
 		super();
 
-		// this.horizonStore = HorizonStore.getInstance();
+		this._configuration = Configuration.getInstance();
 	}
 
 	// --------------

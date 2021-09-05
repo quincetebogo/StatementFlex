@@ -118,7 +118,7 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {string} eventName Event name to start a span
 	 * @param {object} baggage Options, this generally holds details of event
 	 * @param {boolean} systemTriggered Flag to determin telemetry event type
-	 * @returns {void}
+	 * @returns {Promise<void>} A Promise for starting a telemetry span
 	 */
 	async startSpan(eventName, baggage = null, systemTriggered = true) {
 
@@ -199,7 +199,7 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {string} eventName Event name to start a span
 	 * @param {object} baggage Options, this generally holds details of event
 	 * @param {boolean} systemTriggered Flag to determin telemetry event type
-	 * @returns {void}
+	 * @returns {Promise<void>} A promise for logging the event
 	 */
 	async logEvent(eventName, baggage = null, systemTriggered = false) {
 

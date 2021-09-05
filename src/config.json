@@ -71,15 +71,15 @@
       "positiveCase": true
     },
 		"cardLimitsLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"getTemporaryLimits": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"getCardLimitsAgreement": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"xdsQuestions": {
@@ -132,7 +132,7 @@
 			"positiveCase": true
 		},
 		"viewStatements": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		}
 	}

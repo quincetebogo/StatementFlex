@@ -24,10 +24,10 @@ export class TaxCertificateSuccess extends ViewBase {
 
 		this.isTaxFreeCertificate = true;
 
-		//TODO: To be removed once the navigation is wired up
-		this.mailId = `ivanmakatini@gmail.com`;
-		this.taxableYear = [`2018`, `2019`, `2020`];
-		this.taxFreeYear = [`2019`, `2020`];
+		// TODO: To be removed once the navigation is wired up
+		this.email = {};
+		this.year = {};
+		this.certificateType = {};
 
 		this._telemetry = HorizonTelemetry.instance;
 	}
@@ -47,7 +47,11 @@ export class TaxCertificateSuccess extends ViewBase {
 	 */
 	static get properties() {
 		return {
-			isTaxFreeCertificate: { attribute: false, type: Boolean }
+			isTaxFreeCertificate: { attribute: false, type: Boolean },
+			email: { attribute: false, type: Object },
+			year: { attribute: false, type: Object },
+			type: { attribute: false, type: Object },
+			selectedTaxCertificates: { type: Object }
 		};
 	}
 
@@ -57,6 +61,11 @@ export class TaxCertificateSuccess extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
+		const screenDetails = this.horizonStore.getScreenDetails();
+		this.taxYear = screenDetails.taxCertificate.year;
+		this.email = screenDetails.taxCertificate.email;
+		this.type = screenDetails.taxCertificate.type;
+		this.selectedTaxCertificates = screenDetails.selectedCertificates;
 	}
 
 	disconnectedCallback() {
@@ -79,12 +88,12 @@ export class TaxCertificateSuccess extends ViewBase {
 		// this.horizonStore.clearReturnScreen();
 
 		
-		//this.horizonRouter.navigateToQuickTransactionFavourites();
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_sendAnotherClick() {
 
-		//TODO : Uncomment entire function once the Tax Certificate dialog is ready and navigation needs to be wired up.
+		// TODO : Uncomment entire function once the Tax Certificate dialog is ready and navigation needs to be wired up.
 
 		// Telemetry
 		// this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE, {
@@ -92,7 +101,7 @@ export class TaxCertificateSuccess extends ViewBase {
 		// 	"nextScreen": TelemetryScreen.TAX_CERTIFICATE
 		// });
 
-		//this.horizonRouter.navigateToReturnPage();
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	// --------------
@@ -104,31 +113,38 @@ export class TaxCertificateSuccess extends ViewBase {
 	// ---------------
 
 	_taxableYears() {
-		const taxableLength = this.taxableYear.length;
-		if (taxableLength === 1) {
-			return `${this.taxableYear}`;
+		if (this.type === `iT3BTaxCertificates`) {
+			const taxCertificateLength = this.selectedTaxCertificates[this.type].length;
+			if (taxCertificateLength === 1) {
+				return `${this.taxYear}`;
+			}
+			if (taxCertificateLength === 2) {
+				return `${this.taxYear.join(` and `)}`;
+			}
+			if (taxCertificateLength > 2) {
+				const taxableLastYear = this.Year.pop();
+				return `${this.taxYear.join(`, `)} and ${taxableLastYear}`;
+			}
 		}
-		if (taxableLength === 2) {
-			return `${this.taxableYear.join(` and `)}`;
-		}
-		if (taxableLength > 2) {
-			const taxableLastYear = this.taxableYear.pop();
-			return `${this.taxableYear.join(`, `)} and ${taxableLastYear}`;
-		}
+		return this.taxYear;
 	}
 
 	_taxFreeYears() {
-		const taxFreeLength = this.taxFreeYear.length;
-		if (taxFreeLength === 1) {
-			return `${this.taxFreeYear}`;
+
+		if (this.type === `iTSBTaxCertificates`) {
+			const taxCertificateLength = this.selectedTaxCertificates[this.type].length;
+			if (taxCertificateLength === 1) {
+				return `${this.taxYear}`;
+			}
+			if (taxCertificateLength === 2) {
+				return `${this.taxYear.join(` and `)}`;
+			}
+			if (taxCertificateLength > 2) {
+				const taxaFreeLastYear = this.taxableYear.pop();
+				return `${this.taxYear.join(`, `)} and ${taxaFreeLastYear}`;
+			}
 		}
-		if (taxFreeLength === 2) {
-			return `${this.taxFreeYear.join(` and `)}`;
-		}
-		if (taxFreeLength > 2) {
-			const taxFreeLastYear = this.taxFreeYear.pop();
-			return `${this.taxFreeYear.join(`, `)} and ${taxFreeLastYear}`;
-		}
+		return this.taxYear;
 	}
 
 	// ---------
@@ -168,31 +184,30 @@ export class TaxCertificateSuccess extends ViewBase {
 				right="Done"
 				toast="Tax certificate sent"
 				secondaryToast="${this.isTaxFreeCertificate ? `Tax-free certificate sent` : ``}"
-				subDetail="${this.isTaxFreeCertificate ? true : `` }"
 				@left-click=${() => this._sendAnotherClick}
 				@right-click=${() => this._doneClick()}>
 					<section 
 						data-automation-id="tax-certificate-success-tax-certificate-message"
 						class="success-msg" 
 						slot="detail">
-							Taxable savings certificate for <strong>${this._taxableYears()}</strong> has been emailed to <strong>${this.mailId}</strong>
-					</section>
-					${this._renderTaxFreeCertificateDetail()}
+							${this.type === `iT3BTaxCertificates` ? html`Taxable savings certificate for <strong>${this._taxableYears()}</strong> has been emailed to <strong>${this.email}</strong>` : html``}  
+							${this.type === `iT3STaxCertificates` ? html`Tax free certificate for <strong>${this._taxFreeYears()}</strong> has been emailed to <strong>${this.email}</strong>` : html``} 
+							${this._renderTaxFreeCertificateDetail()}
+						</section>
 			</horizon-success-screen>
 		`;
 	}
 
 	_renderTaxFreeCertificateDetail() {
-		return this.isTaxFreeCertificate 
-			? html`
+		return this.type === `iT3STaxCertificate` && this.type === `iT3BTaxCertificate`
+		? html`
 				<section 
 					data-automation-id="tax-certificate-success-tax-free-certificate-message"
 					slot="sub-detail">
-						Tax-free certificate for <strong>${this._taxFreeYears()}</strong> has been emailed to <strong>${this.mailId}</strong>
+						Tax-free certificate for <strong>${this._taxFreeYears()}</strong> has been emailed to <strong>${this.email}</strong>
 				</section>`
 			: html``;
-	}
-
+		}
 }
 
 customElements.define(`horizon-tax-certificate-success`, TaxCertificateSuccess);

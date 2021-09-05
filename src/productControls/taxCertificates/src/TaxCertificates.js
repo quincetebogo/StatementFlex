@@ -1,14 +1,8 @@
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator, NavigationContext } from 'platform/core';
-import { HorizonTelemetry, OutcomeScreen } from 'app/services/HorizonTelemetryService';
-import { base64ToBlobUrl, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
-import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
-import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
-import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonExpander';
+import 'app/components/common/HorizonEmailInput';
 
 const RENDER_MODE = Object.freeze({
 	EMAIL: 0,
@@ -16,17 +10,17 @@ const RENDER_MODE = Object.freeze({
 });
 
 const TAX_CERTIFICATE_STEPS = [
-    {
-        title: `Choose Certificate Type and Period`
-    },
-    {
-        title: `Specify Email and View Certificates`
-    }
+	{
+		title: `Choose Certificate Type and Period`
+	},
+	{
+		title: `Specify Email and View Certificates`
+	}
 ];
 
 const CERTIFICATE_TYPE = {
-	'taxFree': { type: `IT3(s)`, displayName: `tax-free` },
-	'taxableSavings': { type: `IT3(b)`, displayName: `taxable savings` }
+	'iT3STaxCertificates': { type: `IT3(s)`, displayName: `tax-free` },
+	'iT3BTaxCertificates': { type: `IT3(b)`, displayName: `taxable savings` }
 };
 
 const ERROR_MESSAGE = {
@@ -48,7 +42,7 @@ const ERROR_MESSAGE = {
  * @extends {Component}
  */
 
-export class TaxCertificate extends Component {
+export class TaxCertificates extends Component {
 
 	// -----------------
 	// INITIALISATION
@@ -57,41 +51,19 @@ export class TaxCertificate extends Component {
 	constructor() {
 		super();
 		
-		this.navigationContext = NavigationContext.getInstance();
-
 		this.currentStep = 0;
 		this.renderMode = RENDER_MODE.EMAIL;
 		this.encodedPDF = ``;
-		this.navigationContext = NavigationContext.getInstance();
+		this.email = ``;
+		this.confirmEmail = ``;
+		this.mailClientError = {
+			email: ``,
+			confirmEmail: ``
+		};
+		this.emailLabel = `Email address`;
+		this.confirmEmailLabel = `Confirm email address`;
 		this.selectedCertType = null;
-		this.selectedCertificates = {
-			taxableSavings: [],
-			taxFree: []
-		};
-
-		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
-		this.eventAggregator = EventAggregator.getInstance();
-
-		this._telemetry = HorizonTelemetry.instance;
-		
-		this.availableCert = {
-			taxableSavings: [
-				{ year: `2014`, status: `Available` },
-				{ year: `2015`, status: `Available` },
-				{ year: `2016`, status: `Available` },
-				{ year: `2017`, status: `Unavailable` }
-				],
-			taxFree: [
-				{ year: `2018`, status: `Available` },
-				{ year: `2019`, status: `Available` },
-				{ year: `2020`, status: `Available` },
-				{ year: `2021`, status: `Available` }
-			]
-		};
-
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-
+		this.selectedCertificates = {};
 	}
 
 	// --------------
@@ -99,24 +71,22 @@ export class TaxCertificate extends Component {
 	// --------------
 
 	/**
-	 * @property {Object} cards Object contains the list of client's card
-	 * @param {object} callerInformation Identified caller information
-	 * @param {Object} landingPageInfo Favourites landing page info
-	 * @param {Object} clientDetails Tac certificates client info
+	 * @property {taxCertificateDetails} taxCertificateDetails Object contains list of tax certificates
 	 */
 
 	static get properties() {
 		return {
-			cards: { type: Object },
+			taxCertificateDetails: { type: Object },
+			getTaxCertificatePDFCallback: { type: Function },
+
+			// Private Properties
 			currentStep: { attribute: false },
 			renderMode: { attribute: false },
-			callerInformation: { type: Object },
-			landingPageInfo: { type: Object },
-			clientDetails: { type: Object },
-			selectedCertType: { type: String },
-			selectedCertificates: { type: Object },
-
-			isBusy: { attribut: false },
+			errorMessage: { attribute: false },
+			emailError: { attribute: false },
+			confirmEmailError: { attribute: false },
+			selectedCertType: { attribute: false },
+			selectedCertificates: { attribute: false },
 			alertBannerMessage: { attribute: false },
 			emailText: { attribute: false }
 		};
@@ -128,32 +98,21 @@ export class TaxCertificate extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		
-		this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP, {
-			"screen": TelemetryScreen.TAX_CERTIFICATE
-		});
 	}
 
 	disconnectedCallback() {
-		
 		super.disconnectedCallback();
-
-		this._telemetry.endSpan(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP, {
-			"screen": TelemetryScreen.TAX_CERTIFICATE,
-			"next-screen": TelemetryScreen.FAVOURITES
-		});
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+	_back() {
+		this.selectedCertificates = {};
+		this.errorMessage = ``;
+		this.currentStep--;
 
-	_errorHandler(ex) {
-		return true;
-	}
-
-	toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
+		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
 	_certChange(e) {
@@ -163,118 +122,8 @@ export class TaxCertificate extends Component {
 		}
 	}
 
-	async _sendClick(e) {
-		if (this._validateEmail(e)) {
-
-			this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_SEND, {
-				"screen": TelemetryScreen.PROOF_OF_ACCOUNT,
-				"next-screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME
-			});
-
-			// saving 'emailAddress' and 'accountNumber' in state.
-			this._updateScreenDetails();
-
-			const clientInfo = {
-				"cif": this.callerInformation.cifNumber,
-				"emailAddress": this.idEmailAddress,
-				"documentIds": [
-							`${this.clientDetails.iT3BTaxCertificates.documentId}`,
-							 `${this.clientDetails.iT3BTaxCertificates.documentId}`
-							],
-  				"messageParameters": {
-   				"title": this.clientDetails.title,
-				"surname": this.clientDetails.surname
-				},
-				"attachments": [
-				{
-					"name": this.clientDetails.name,
-					"data": this.clientDetails.contentData
-				}
-				]
-			};
-			
-			const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
-
-			this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME, {
-				"screen": TelemetryScreen.PROOF_OF_ACCOUNT,
-				"next-screen": returnValue.succeeded ? OutcomeScreen.SUCCESS : OutcomeScreen.FAIL
-			});
-			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `proof-of-account`);
-
-			if (returnValue.succeeded) {
-				this.horizonRouter.navigateToProofOfAccountSuccess();
-			} else {
-				this.horizonRouter.navigateToProofOfAccountFailed();
-			}
-		}
-	}
-
-	_back() {
-
-		// Telemetry
-		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_BACK, {
-			"screen": TelemetryScreen.TAX_CERTIFICATE
-		});
-		
-		this.selectedCertificates = { 
-			taxableSavings: [],
-			taxFree: []
-		};
-		
-		this.errorMessage = ``;
-		this.currentStep--;
-	}
-
-	async _cancelClick(e) {
-		
-		await this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_CANCEL, {
-			"screen": TelemetryScreen.TAX_CERTIFICATE,
-			"next-screen": TelemetryScreen.FAVOURITES
-		});
-
-		this.dispatchEvent(new CustomEvent(`cancel`, {}));
-	}
-
-	_close() {
-		this.renderMode = RENDER_MODE.EMAIL;
-		// Telemetry
-		this._telemetry.endSpan(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_CLOSE_PDF, {
-			"screen": TelemetryScreen.TAX_CERTIFICATE_DOCUMENT,
-			"next-screen": TelemetryScreen.TAX_CERTIFICATE
-		});
-
-	}
-
-	_nextClick() {
-		if (isNullorEmpty(this.selectedCertType)) {
-			this.alertBannerMessage = ERROR_MESSAGE.CERT_TYPE;
-			return false;
-		} 
-
-		if (this.selectedCertificates.taxFree.length === 0 && this.selectedCertificates.taxableSavings.length === 0) {
-			this.alertBannerMessage = ERROR_MESSAGE.DOCUMENT_TYPE;
-			return false;
-		}
-		
-		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_NEXT, {
-		
-			"screen": TelemetryScreen.TAX_CERTIFICATE,
-			"next-screen": null,
-
-			"certificate-type": this.selectedCertType,
-			// TODO: Add selected certificate types when CS is implemented
-			"selected-documents": [
-				{ "document-type": null,
-				"certificate-period": null },
-				{ "document-type": null,
-				"certificate-period": null }
-			]
-		});
-
-		this.currentStep++;
-	}
-
 	_onValueChange(e, checkBoxDetails, certType) {
+		this.selectedCertificates[certType] = this.selectedCertificates[certType] || [];
 		if (e.detail.new) {
 			this.alertBannerMessage = ``;
 			this.selectedCertificates[certType].push(checkBoxDetails);
@@ -284,64 +133,86 @@ export class TaxCertificate extends Component {
 		this.requestUpdate();
 	}
 
+	_sendClick() {
+		this.dispatchEvent(new CustomEvent(`send`, {
+			detail: {
+				email: this.email,
+				selectedCertificates: this.selectedCertificates,
+				selectedCertType: this.selectedCertType
+			}
+		}));
+	}
+
+	_cancelClick(e) {
+		this.dispatchEvent(new CustomEvent(`cancel`, {}));
+	}
+
+	_close() {
+		this.renderMode = RENDER_MODE.EMAIL;
+		this.dispatchEvent(new CustomEvent(`close`, {}));
+	}
+
+	_nextClick() {
+		if (isNullorEmpty(this.selectedCertType)) {
+			this.alertBannerMessage = ERROR_MESSAGE.CERT_TYPE;
+			return;
+		} 
+		
+		if (isNullorEmpty(this.selectedCertificates[this.selectedCertType]) && Object.keys(this.selectedCertificates).length === 0) {
+			this.alertBannerMessage = ERROR_MESSAGE.DOCUMENT_TYPE;
+			return;
+		}
+
+		this.currentStep++;
+
+		this.dispatchEvent(new CustomEvent(`next`, { 
+			detail: {
+				selectedCertType: this.selectedCertType
+				}
+			}));
+	}
+
+
 	// Only single expander to be seen as expanded at a time
 	_onExpanded(e) {
 		e.detail.expanderGroup(this);
+	}
+
+	_onEmailValueChange(e) {
+		this.email = e.detail.email;
+		this.confirmEmail = e.detail.confirmEmail;
+	}
+
+	_validEmailAddressCheck(e) {
+		this.errorMessage = e.detail.errorMessage;
+		this.mailClientError.email = e.detail.emailError;
+		this.mailClientError.confirmEmail = e.detail.confirmEmailError;
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
-    _validateEmail(e) {
-
-        // CORRECT
-        if (!isNullorEmpty(this.idEmailAddress) && this.idEmailAddress === this.idConfirmEmailAddress) {
-            if (EMAIL_REG_EXP.test(this.idEmailAddress)) {
-                this.alertBannerMessage = ``;
-                this.errMessage.idEmailAddress = ``;
-                this.errMessage.idConfirmEmail = ``;
-                return true;
-            } else if (!this.idEmailAddress.includes(`@`)) {
-                this.alertBannerMessage = `Email address is invalid`;
-                this.errMessage.idEmailAddress = `An email must contain a single @`;
-				return false;
-            }
-
-                this.alertBannerMessage = `Incorrect email address format ie. email@gmail.com`;
-			this.errMessage.idEmailAddress = `Invalid email address`;
-            this.errMessage.idConfirmEmail = `Invalid email address`;
-            return false;
-        } else if (isNullorEmpty(this.idEmailAddress)) {
-			// EMAIL EMPTY
-            if (isNullorEmpty(this.idConfirmEmailAddress)) {
-                this.errMessage.idConfirmEmail = `Enter a valid email address i.e. email@gmail.com`;
-				this.emailText = `email@gmail.com`;
-			}
-			this.alertBannerMessage = `Complete all fields to continue`;
-            this.errMessage.idEmailAddress = `Enter a valid email address i.e. email@gmail.com`;
-            this.emailText = `email@gmail.com`;
-            return false;
-        } else if (isNullorEmpty(this.idConfirmEmailAddress)) {
-            this.alertBannerMessage = `Complete all fields to continue`;
-            this.errMessage.idConfirmEmail = `Enter a valid email address i.e. email@gmail.com`;
-            this.emailText = `email@gmail.com`;
-            return false;
-        } else if (this.idEmailAddress !== this.idConfirmEmailAddress) {
-			// EMAILS DON'T MATCH 
-			this.alertBannerMessage = `Email and Confirm email don't match`;
-            this.errMessage.idEmailAddress = `Invalid email`;
-            this.errMessage.idConfirmEmail = `Invalid email`;
-			return false;
+	_isLeapYear(year) {
+		let day = 1;
+		if (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) {
+			day = 29;
+		} else {
+			day = 28;
 		}
+		return day;
+	}
+
+	_validateEmailAddress() {
+		this.mailClientError.email = isNullorEmpty(this.email) ? `Please enter email` : ``;
+		this.mailClientError.confirmEmail = isNullorEmpty(this.confirmEmail) ? `Please enter email` : ``;
+
+		const errorMessage = this.mailClientError.email || this.mailClientError.confirmEmail ? `Complete all fields.` : ``;
+		return errorMessage === ``;
 	}
 
 	_onKeyPress(e) {
 		this._clearErrors(e);
-	}
-
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
 	}
 
 	_getHeaderTitle() {
@@ -353,8 +224,8 @@ export class TaxCertificate extends Component {
 	}
 
 	_clearErrors(e) {
-        this.errMessage.idEmailAddress = ``;
-        this.errMessage.idConfirmEmail = ``;
+		this.errMessage.idEmailAddress = ``;
+		this.errMessage.idConfirmEmail = ``;
 		this.alertBannerMessage = ``;
 		this.emailText = `Email address`;
 	}
@@ -365,55 +236,14 @@ export class TaxCertificate extends Component {
 		this.emailText = `Email address`;
 	}
 
-	_updateScreenDetails() {
-		const screenDetails = this.horizonStore.getScreenDetails();
+	async _viewPDF(item, type) {
+		this.encodedPDF = await getTaxCertificatePDFCallback(item, type);
 
-		screenDetails.emailAddress = this.idEmailAddress;
-		screenDetails.accountNumber = this.landingPageInfo.accountNumber;
-		
-		this.horizonStore.setScreenDetails(screenDetails);
-	}
-
-	async _viewPDF() {
-		// Telemetry
-		await this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_VIEW_DOCUMENT, { 
-			"screen": TelemetryScreen.TAX_CERTIFICATE,
-			"next-screen": TelemetryScreen.TAX_CERTIFICATE_DOCUMENT
-		});
-		
-		const taxCertificate = {
-			"cif": this.callerInformation.cifNumber,
-			"iT3BTaxCertificates": [
-			  {
-				"year": this.clientDetails.iT3BTaxCertificates.year,
-				"documentId": this.clientDetails.iT3BTaxCertificates.documentId,
-				"accountNumber": this.clientDetails.iT3BTaxCertificates.accountNumber,
-				"payload": this.clientDetails.iT3BTaxCertificates.payload
-			  }
-			],
-			"iT3STaxCertificates": [
-			  {
-				"year": this.clientDetails.iT3STaxCertificates.year,
-				"documentId": this.clientDetails.iT3STaxCertificates.documentId,
-				"accountNumber": this.clientDetails.iT3STaxCertificates.accountNumber
-			  }
-			]
-		};
-
-		const returnValue = await this.quickTransactionService.viewTaxCertificate(taxCertificate, () => this._createIncidentOnError());
-
-		if (returnValue.succeeded) {
+		if (this.encodedPDF) {
 			this.renderMode = RENDER_MODE.PDF;
-			// render the PDF
-			this.encodedPDF = base64ToBlobUrl(returnValue.result.taxCertificateData);
-			// Telemetry
-			this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_VIEW_PDF, { 
-				"screen": TelemetryScreen.TAX_CERTIFICATE_DOCUMENT
-			});
 		} else {
-			this.errorMessage = `Tax ${this.selectedCertType.Count > 1 ? html`certificates are` : html`certificate is`} currently unavailble`;
-			this.alertBannerMessage = `Notify client: Tax ${this.selectedCertType.Count > 1 ? html`certificates are` : html`certificate is`} currently unavailble`;
-			this.horizonRouter.navigateToTaxCertificateUnavailable();
+			this.errorMessage = `Tax certificates are currently unavailable`;
+			this.alertBannerMessage = `Notify client: Tax certificates are currently unavaialble`;
 		}
 	}
 
@@ -457,7 +287,7 @@ export class TaxCertificate extends Component {
 			.main-cb > capitec-alert-banner {
 				--theme-alert-banner-height: 48px;
 				--theme-alert-banner-icon-margin-left: 16px;
-    			--theme-alert-banner-icon-margin-right: 12px;
+				--theme-alert-banner-icon-margin-right: 12px;
 				--theme-layout-gap-spacing: 20px;
 			}
 			div[slot="step"]{
@@ -483,7 +313,7 @@ export class TaxCertificate extends Component {
 			}
 			capitec-radio {
 				--theme-label-font-weight: 500;
-    			--theme-label-font-size: 16px;
+				--theme-label-font-size: 16px;
 				--theme-label-font-family: "Hind Vadodara";
 				--theme-label-font-color: #3a3a3a;
 				margin-right: 32px;
@@ -666,6 +496,13 @@ export class TaxCertificate extends Component {
 			horizon-expander[checked] {
 				--theme-expander-background-color: rgba(0,157,224,0.1);
 			}
+
+			.seperator {
+				width: 100%;
+				border: 1px solid #E1E1E1;
+				margin-bottom: 30px;
+				margin-top: 30px;
+			}
 			`
 		];
 	}
@@ -690,8 +527,6 @@ export class TaxCertificate extends Component {
 					${this._renderFooter()}
 				</div>
 		</bb-stepper-modal>
-
-		${this._renderLoadingIndicator()}
 		`;
 	}
 
@@ -721,7 +556,7 @@ export class TaxCertificate extends Component {
 						class="main-cb"
 						layout="vertical"
 						gap="clear"
-						?noScroll="${false}">
+						?noScroll="${true}">
 							${this._renderAlertBanner()}
 							${this._renderChooseCertificate()}
 							${this._renderCertificateTypes()}
@@ -740,14 +575,14 @@ export class TaxCertificate extends Component {
 			<capitec-radio-group>
 				<capitec-group layout="horizontal" gap="none" halign="left" valign="center" noPadding>
 					<capitec-radio 
-						id="taxableSavings" 
+						id="iT3BTaxCertificates"
 						data-automation-id="tax-certificate-taxable-savings"
 						label="Taxable Savings IT3(b)"
 						@value-changed="${(e) => this._certChange(e)}"
 						row="1" column="1">
 						</capitec-radio>
 					<capitec-radio 
-						id="taxFree" 
+						id="iT3STaxCertificates" 
 						data-automation-id="tax-certificate-tax-free"
 						label="Tax-free IT3(s)"
 						@value-changed="${(e) => this._certChange(e)}"
@@ -764,30 +599,42 @@ export class TaxCertificate extends Component {
 		` : html``;
 	}
 	
-    _renderCertificateTypes() {
-        switch (this.selectedCertType) {
-            case `taxableSavings`:
-                return html`${this._renderChoosePeriod(`taxableSavings`)}`;
-            case `taxFree`:
-                return html`${this._renderChoosePeriod(`taxFree`)}`;
-            case `both`:
-                return html`${this._renderChoosePeriod(`taxableSavings`)}
-							${this._renderChoosePeriod(`taxFree`)}`;
-            default:
-                return html``;
-        }
-    }
+	_renderCertificateTypes() {
+	
+		switch (this.selectedCertType) {
+			case `iT3BTaxCertificates`:
+				return html`${this._renderChoosePeriod(`iT3BTaxCertificates`)}`;
+			case `iT3STaxCertificates`:
+				return html`${this._renderChoosePeriod(`iT3STaxCertificates`)}`;
+			case `both`:
+				return html`${this._renderChoosePeriod(`iT3BTaxCertificates`)}
+							${this._renderChoosePeriod(`iT3STaxCertificates`)}`;
+			default:
+				return html``;
+		}
+	}
 	
 	_renderEmail() {
 		if (this.currentStep === 1 && this.renderMode === RENDER_MODE.EMAIL) {
 			return html`
+				<horizon-email-input
+					@value-changed="${(e) => this._onEmailValueChange(e)}"
+					@validation-update="${(e) => this._validEmailAddressCheck(e)}"
+					.labelOne="${this.emailLabel}"
+					.labelTwo="${this.confirmEmailLabel}"
+					.emailError="${this.mailClientError.email}"
+					.confirmEmailError="${this.mailClientError.confirmEmail}">
+				</horizon-email-input>
+
 				<hr class="seperator">
+
 				${this._renderViewTaxcertificate()}
 			`;
 		}
 	}
 
 	_renderChoosePeriod(certificateType) {
+		
 		if (this.selectedCertType && this.currentStep === 0) {
 			return html`
 				<capitec-label
@@ -797,40 +644,40 @@ export class TaxCertificate extends Component {
 					type="title">
 				</capitec-label>
 				
-				${this.availableCert[certificateType].map(item => this._renderCertificateYears(item, certificateType))}
+				${this.taxCertificateDetails[certificateType].map(item => this._renderCertificateYears(item, certificateType))}
 			`;
 		}
 	}
 
 	_renderCertificateYears(item, certType) {
-		return html`
-			<horizon-expander
+			return html`
+				<horizon-expander
+
 				id="tax-expander"
-				data-automation-id="tax-certificate-document-period"
-				expandButtonAlignment="right"
-				inputType = "Checkbox"
-				?selected = ${this.selectedCertificates[certType].indexOf(item) >= 0}
-				@value-change="${(e) => this._onValueChange(e, item, certType)}"
-				@expand="${(e) => this._onExpanded(e)}"
-				?disabled = ${item.status !== `Available`}>
-					<capitec-group slot="custom-header" layout="horizontal" gap="none" halign="left" valign="center">
-						<horizon-label
-							class="check-box-label"
-							label="${item.year}"
-							value="${CERTIFICATE_TYPE[certType].type} ${item.status}">
-						</horizon-label>
-					</capitec-group>
-					<capitec-content-box 
-						data-automation-id="tax-certificate-document-details"
-						class="expander-content" 
-						slot="content">
-						${this._renderCertificateDetails()}
-					</capitec-content-box>
-			</horizon-expander>
-		`;
+					data-automation-id="tax-certificate-document-period"
+					expandButtonAlignment="right"
+					inputType = "Checkbox"
+					@value-change="${(e) => this._onValueChange(e, item, certType)}"
+					?selected = ${this.selectedCertificates === `` ? this.selectedCertificates[certType].indexOf(item) >= 0 : ``}
+					@expand="${(e) => this._onExpanded(e)}"
+					?disabled = ${!item.isTaxYearAvailable}>
+						<capitec-group slot="custom-header" layout="horizontal" gap="none" halign="left" valign="center">
+							<horizon-label
+								class="check-box-label"
+								label="${item.year}"
+								value="${CERTIFICATE_TYPE[certType].type} ${item.isTaxYearAvailable ? `Available` : `Unavailable`}">
+							</horizon-label>
+						</capitec-group>
+						<capitec-content-box 
+							data-automation-id="tax-certificate-document-details"
+							class="expander-content" 
+							slot="content">
+							${this._renderCertificateDetails(item, certType)}
+						</capitec-content-box>
+				</horizon-expander>`;
 	}
 
-	_renderCertificateDetails() {
+	_renderCertificateDetails(item, certType) {
 		return html`
 			<capitec-label label="Overview (4 accounts)"></capitec-label>
 			
@@ -839,59 +686,53 @@ export class TaxCertificate extends Component {
 					size="default"
 					icon="status/info-trans">
 				</capitec-icon>
-				<p><b>Notify Client: </b>Interest received on investments from 1 Mar 2019 to 29 Feb 2020. Balance of accounts at 29 Feb 2020</p>
+				<p><b>Notify Client: </b>Interest received on investments from 1 Mar ${item.year - 1} to ${this._isLeapYear(item.year)} Feb ${item.year}. Balance of accounts at ${this._isLeapYear()} Feb ${item.year}</p>
 			</capitec-group>
 
 			<!-- TO DO: Expander content can be made to render dynamically while impelmenting CS call.  -->
 			<capitec-group class="expander-details" layout="grid" gap="none" columns="4" rows="2">
-				${this._renderExpanderRow(1)}
-				${this._renderExpanderRow(2)}
-				${this._renderExpanderRow(3)}
-				${this._renderExpanderRow(4)}
+				${item.taxCertificateAccounts.map((account, index) => this._renderExpanderRow(account, index))}
 			</capitec-group>
 		`;
 	}
 
-	_renderExpanderRow(rowNum) {
+	_renderExpanderRow(item, rowNum) {
 		return html`
 			<horizon-label row="${rowNum}" column="1" colspan="1" rowspan="1"
-				label="Savings account"
-				value="1131992510">
+				label="Savings Account"
+				value="${item.accountNumber}">
 			</horizon-label>
 			<horizon-label row="${rowNum}" column="2" colspan="1" rowspan="1"
 				label="Balance"
-				value="R9 009.14">
+				value="R ${item.balance}">
 			</horizon-label>
 			<horizon-label row="${rowNum}" column="3" colspan="1" rowspan="1"
 				label="Interest received"
-				value="R304.54">
+				value="R ${item.interestReceived}">
 			</horizon-label>
 			<horizon-label row="${rowNum}" column="4" colspan="1" rowspan="1"
 				label="Status"
-				value="Open">
+				value="${item.accountStatus}">
 			</horizon-label>
 		`;
 	}
 
 	_renderViewTaxcertificate() {
-		
-		return Object.keys(this.selectedCertificates).map(type => (this.selectedCertificates[type].length > 0 
-		 ? html`<capitec-label
-						class="tax-certificate-heading"
+		return Object.keys(this.selectedCertificates).map(value => html`
+				<capitec-label
+					class="tax-certificate-heading"
 						type="subtitle"
-						label="View ${CERTIFICATE_TYPE[type].displayName} certificate(s)">
-					</capitec-label>
-					<capitec-group
-						class="available-cards"
-						valign="top"
-						halign="left"
-						gap="clear"
-						layout="vertical">
-						${this._renderViewCertificateTile(type)}
-				</capitec-group>` 
-		: html``));
-				
-	}
+						label="View ${value === `iT3BTaxCertificates` ? `taxable savings` : `tax-free`} certificate(s)">
+				</capitec-label>
+				<capitec-group
+					class="available-cards"
+					valign="top"
+					halign="left"
+					gap="clear"
+					layout="vertical">
+					${this._renderViewCertificateTile(value)}
+			</capitec-group>`);
+		}
 
 	_renderViewCertificateTile(type) {
 		
@@ -901,8 +742,8 @@ export class TaxCertificate extends Component {
 					class="view-document-tile"
 					type="default"
 					label="${item.year}"
-					subtitle="${CERTIFICATE_TYPE[type].type} ${item.status}"
-					@click="${() => this._viewPDF()}">
+					subtitle="${this.selectedCertType === `iT3BTaxCertificates` ? `IT3(b)` : `IT3(s)`} ${!type.isTaxYearAvailable ? `Available` : `Unavaiable`}"
+					@click="${() => this._viewPDF(item, type)}">
 					${this._renderViewDocumnetLink()}
 				</horizon-product-tile>`);
 		
@@ -980,12 +821,6 @@ export class TaxCertificate extends Component {
 			</capitec-content-box>
 		`;
 	}
-
-	_renderLoadingIndicator() {
-		return this.isBusy
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
-			: html``;
-    }
-
 }
-customElements.define(`horizon-tax-certificate`, TaxCertificate);
+
+customElements.define(`capitec-pc-tax-certificate`, TaxCertificates);

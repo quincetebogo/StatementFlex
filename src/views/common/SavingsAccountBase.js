@@ -3,8 +3,8 @@ import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTran
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
-import { ViewBase } from 'app/views/common/ViewBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { ViewBase } from 'app/views/common/ViewBase';
 import { html } from 'platform/elements';
 
 import 'app/components/savingsAccount/DebiCheckMandates';
@@ -206,12 +206,6 @@ export class SavingsAccountBase extends ViewBase {
 			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
 			this.horizonStore.setIncidentDetails(this.incidentDetails);
 		}
-
-		this._telemetry.endSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
-			"screen": TelemetryScreen.TAX_CERTIFICATE,
-			"next-screen": TelemetryScreen.FAVOURITES
-		});
-
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 

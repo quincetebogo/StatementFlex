@@ -27,7 +27,7 @@ const HORIZON_ROUTES = Object.freeze({
 	ITA_VERIFICATION_FAILED: `/error/ita-verification`,
 	SYSTEM_ERROR: `/error/system-error`,
 	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`,
-	TAX_CERTIFICATE_SERVICE_ERROR: `error/tax-certificate-service-error`,
+	TAX_CERTIFICATE_SERVICE_ERROR: `/error/tax-certificate-service-error`,
 	DEBICHECK_SUCCESS: `/success/debicheck`,
 	STATEMENTS_SUCCESSFUL: `/views/statements/StatementsSuccess`,
 	STATEMENTS_UNSUCCESSFUL: `/views/statements/StatementsUnsuccess`,
@@ -200,7 +200,7 @@ export class HorizonRouter {
 	}
 
 	navigateToTaxCertificateServiceError() {
-		this.navigateByPath(`${HORIZON_ROUTES.TAX_CERTIFICATE_SERVICE_ERROR}`);
+		this.router.navigateByPath(`${HORIZON_ROUTES.TAX_CERTIFICATE_SERVICE_ERROR}`);
 	}
 
 	navigateToDebiCheckSuccess() {
@@ -353,9 +353,6 @@ export class HorizonRouter {
 	static _preNavigate(prenavFunc, layout) {
 		const viewManager = HorizonViewManager.getInstance();
 		const horizonRouter = HorizonRouter.getInstance();
-
-		// TEMPORARY SWITCH VERIFIED VIEWS TO UNVERIFIED LAYOUT
-		layout = layout === HORIZON_VIEW_SET.VERIFIED_PAGES ? HORIZON_VIEW_SET.UNVERIFIED_PAGES : layout;
 
 		let shellLayout = layout;
 
@@ -575,7 +572,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.TAX_CERTIFICATE_SERVICE_ERROR,
 		load: () => import(`../views/TaxCertificate/TaxCertificateServiceError`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.ERROR_PAGES)
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
 		name: `horizon-debi-check-success`,
