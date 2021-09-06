@@ -237,7 +237,7 @@ export class TaxCertificates extends Component {
 	}
 
 	async _viewPDF(item, type) {
-		this.encodedPDF = await getTaxCertificatePDFCallback(item, type);
+		this.encodedPDF = await this.getTaxCertificatePDFCallback(item, type);
 
 		if (this.encodedPDF) {
 			this.renderMode = RENDER_MODE.PDF;
@@ -326,7 +326,7 @@ export class TaxCertificates extends Component {
 			}
 			.expander-header > horizon-label {
 				width: 156px;
-				height: 100%;
+				height: auto%;
 				font-weight: 300;
 				justify-content: left;
 				padding: 0px 0px 0px 0px;
@@ -471,6 +471,7 @@ export class TaxCertificates extends Component {
 			.expander-content {
 				padding: 14px 14px 8px 16px;
 				background-color: #F7F7F7;
+				height: auto;
 			}
 			.expander-content > capitec-label {
 				margin-bottom: 16px;
@@ -499,13 +500,12 @@ export class TaxCertificates extends Component {
 
 			.seperator {
 				width: 100%;
-				border: 1px solid #E1E1E1;
+				border: 0.01em solid #E1E1E1;
 				margin-bottom: 30px;
 				margin-top: 30px;
 			}
-
-			.expander-details {
-				width: 100%;
+			capitec-content-box > .contnent[slot="content"] {
+				height: auto;
 			}
 			`
 		];

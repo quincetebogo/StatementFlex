@@ -39,7 +39,7 @@ export class TaxCertificatesDialog extends Component {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
-
+		this.certificateState = {};
 		this.taxCertificateDetails = null;
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), () => true);
@@ -69,6 +69,8 @@ export class TaxCertificatesDialog extends Component {
 		super.connectedCallback();
 
 		this._loadTaxCertificates();
+		const state = this.horizonStore.recoverState();
+		this.certificateState = state.certificateState;
 	}
 
 	disconnectedCallback() {
