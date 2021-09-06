@@ -1,6 +1,5 @@
 import { Component, css, html, live } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/dialogs/common/EndCallSession';
 
@@ -37,8 +36,6 @@ export class SearchOtherNeed extends Component {
 		this.categories = null;
 		this.needs = null;
 		this.issues = null;
-
-		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	// --------------
