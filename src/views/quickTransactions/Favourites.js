@@ -7,6 +7,7 @@ import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTran
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
 import 'app/components/dialogs/common/ClientNotVerified';
@@ -22,7 +23,6 @@ import 'app/components/dialogs/common/Feedback';
 
 
 const SAVINGS_ACCOUNT_TYPE = 300;
-const orgUnit = `Client Care`;
 
 const ERROR_LIST = {
 	SYSTEM_ERROR: `System error. Please try again`
@@ -67,6 +67,7 @@ export class Favourites extends SavingsAccountBase {
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
 
 		Object.assign(Favourites.prototype, tapToPayMixin);
+		Object.assign(Favourites.prototype, searchOtherNeedMixin);
 	}
 
 	// --------------
@@ -318,6 +319,16 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
+	async _getSubCategories(event) {
+		this._updateNeedToState(`category`, event.detail.category);
+		await this.getSubCategories(event);
+	}
+
+	async _getIssues(event) {
+		this._updateNeedToState(`subCategory`, event.detail.need);
+		await this.getIssues(event);
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -506,15 +517,16 @@ export class Favourites extends SavingsAccountBase {
 		this.renderMode = RENDER_MODE.ALERT_MODAL;
 	}
 
-	_searchOtherNeed() {
+	async _searchOtherNeed() {
 		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_SEARCH_OTHER_NEED, {
 			"screen": TelemetryScreen.FAVOURITES,
 			"next-screen": TelemetryScreen.SEARCH_OTHER_NEED
 		});
 
-		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
-		this._getCategories();
+		await super.createAndClassifySubsIncident();
 		
+		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
+		await this.getCategories();
 	}
 
 	async _onLaunchStrackClick(event) {
@@ -538,42 +550,16 @@ export class Favourites extends SavingsAccountBase {
 		this.renderMode = RENDER_MODE.FEEDBACK;
 	}
 
-	async _getCategories() {
-		const returnValue = await this.incidentManagementService.otherNeedCategories(orgUnit);
-
-		if (returnValue.succeeded && returnValue.result) {
-			this.categories = returnValue.result.categories.map(item => item.category);
-		} else {
-			this._logger.log(`error`, `Failed to retrieve Other Needs Categories`, `_getCategories`, returnValue.result);
-		}
-		this.requestUpdate();
-	}
-
-	async _getSubCategories(event) {
-		const returnValue = await this.incidentManagementService.otherNeedSpecificNeed(orgUnit, event.detail.category);
-
-		if (returnValue.succeeded && returnValue.result) {
-			this.needs = returnValue.result.needs.map(item => item.need);
-		} else {
-			this._logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
-		}
-		this.requestUpdate();
-	}
-
-	async _getIssues(event) {
-		const returnValue = await this.incidentManagementService.otherNeedIssueType(orgUnit, event.detail.category, event.detail.need);
-
-		if (returnValue.succeeded && returnValue.result) {
-			this.issues = returnValue.result.issues;
-		} else {
-			this._logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
-		}
-		this.requestUpdate();
-	}
-
 	async _createIncidentOnError() {
 		await super.createAndClassifySubsIncident();
 		return true;
+	}
+
+	_updateNeedToState(key, value) {
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails[key] = value;
+
+		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
 	// ---------
@@ -696,6 +682,7 @@ export class Favourites extends SavingsAccountBase {
 					@launch-strack="${(event) => this._onLaunchStrackClick(event)}"
 					@get-sub-categories="${(event) => this._getSubCategories(event)}"
 					@get-issues="${(event) => this._getIssues(event)}"
+					@issue-changed="${(event) => this._updateNeedToState(`issue`, event.detail.issue)}"
 					@back="${() => this._backToLandingPage()}"
 					@done="${() => this._searchOtherNeedDone()}">
 				</horizon-search-other-need>`
