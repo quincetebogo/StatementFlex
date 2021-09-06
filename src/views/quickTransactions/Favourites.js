@@ -687,7 +687,6 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderSearchOtherNeed()}
 			${this._renderProofOfAccount()}
 			${this._renderFeedback()}
-			${this._renderUpdateIncident()}
 
 			${super._webTemplate()}
 		`;
@@ -784,17 +783,6 @@ export class Favourites extends SavingsAccountBase {
 				<horizon-feedback 
 					@done="${(event) => this._done(event)}">
 				</horizon-feedback>`
-			: html``;
-	}
-
-	_renderUpdateIncident() {
-		// TODO: get "screenDetails.incidentClassification" from state and pre fill them on this modal
-		return this.renderMode === RENDER_MODE.UPDATE_INCIDENT ?
-			html`
-			<horizon-update-incident
-				@on-cancel = "${() => this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED}"
-				@on-confirm = "${() => this._onUpdateincidentConfirm()}">
-			</horizon-update-incident>`
 			: html``;
 	}
 	
