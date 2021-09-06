@@ -293,7 +293,7 @@ export class HorizonIncidentManager {
 			incidentReferenceNumber: `0`,
 			incidentRecId: `0`,
 			primaryIncidentRef: incidentDetails.primaryIncidentRef,
-			primaryIncidentRecID: this.primaryNeedIncidentRecId,
+			primaryIncidentRecID: incidentDetails.primaryIncidentRecID || incidentDetails.incidentRecId,
 			previousNeed: incidentDetails.currentNeed,
 			currentNeed: clientNeed,
 			needStatus: `InProgress`

@@ -119,8 +119,8 @@ export class SearchOtherNeed extends Component {
 	_issueChanged(e) {
 		this.issue = e.currentTarget.value.issue;
 		this.solution = this.issues.find(item => item.issue === this.issue).solution;
-		
-		this._updateScreenDetails();
+
+		this.dispatchEvent(new CustomEvent(`issue-changed`, { detail: { category: this.category, need: this.need, issue: this.issue } }));
 	}
 
 	// ---------------
@@ -140,24 +140,15 @@ export class SearchOtherNeed extends Component {
 	}
 
 	_updateStrack() {
-		this.dispatchEvent(new CustomEvent(`update-strack`, { detail: { category: this.category, need: this.need, issue: this.issue } }));
-			
+		this.dispatchEvent(new CustomEvent(`update-strack`, { detail: { category: this.category, need: this.need, issue: this.issue, postAction : this } }));
+	}
+
+	// Refresh screen once incident details are updated
+	_refreshScreen() {
 		this.category = ``;
 		this.need = ``;
 		this.issue = ``;
 		this.solution = ``;
-	}
-
-	_updateScreenDetails() {
-		const screenDetails = this.horizonStore.getScreenDetails();
-
-		screenDetails.incidentClassification = {
-			category : this.category,
-			need : this.need,
-			issue : this.issue
-		}
-		
-		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
 	// ---------

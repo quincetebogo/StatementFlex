@@ -7,6 +7,7 @@ import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTran
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
 import 'app/components/dialogs/common/ClientNotVerified';
@@ -23,7 +24,6 @@ import 'app/components/dialogs/quickTransactions/UpdateIncidentModal';
 
 
 const SAVINGS_ACCOUNT_TYPE = 300;
-const orgUnit = `Client Care`;
 
 const ERROR_LIST = {
 	SYSTEM_ERROR: `System error. Please try again`
@@ -70,6 +70,7 @@ export class Favourites extends SavingsAccountBase {
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
 
 		Object.assign(Favourites.prototype, tapToPayMixin);
+		Object.assign(Favourites.prototype, searchOtherNeedMixin);
 	}
 
 	// --------------
@@ -174,8 +175,8 @@ export class Favourites extends SavingsAccountBase {
 		
 			incidentDetails.needStatus = super.HORIZON_NEED_STATUS.CLOSED;
 			incidentDetails.feedback = selectedOption.key;
-
 			this.horizonStore.setIncidentDetails(incidentDetails);
+			this._updateNeedToState();
 			this._searchOtherNeedDone();
 		} else {
 			this.alertBannerMessage = ERROR_LIST.SYSTEM_ERROR;
@@ -225,9 +226,10 @@ export class Favourites extends SavingsAccountBase {
 		this._refreshIncidentDetails();
 	
 		if(this.updateStrackClick) {
+			this.postAction._refreshScreen();
 			this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
 			this.updateStrackClick = false;
-			return;
+			return true;
 		}
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
@@ -328,6 +330,24 @@ export class Favourites extends SavingsAccountBase {
 			this.logger.log(`error`, eventData.detail.failureReason);
 			this.horizonRouter.navigateToCardLimitUpdateFailed();
 		}
+	}
+
+	async _getSubCategories(event) {
+		
+		if (this.incidentDetails.incidentRecId === `0`) {
+			await super.createAndClassifySubsIncident();
+		}
+
+		this._updateNeedToState(event.detail.category);
+		
+		await this.getSubCategories(event);
+	}
+
+	async _getIssues(event) {
+		
+		this._updateNeedToState(event.detail.category, event.detail.need);
+		
+		await this.getIssues(event);
 	}
 
 	// ---------------
@@ -518,41 +538,63 @@ export class Favourites extends SavingsAccountBase {
 		this.renderMode = RENDER_MODE.ALERT_MODAL;
 	}
 
-	_searchOtherNeed() {
+	async _searchOtherNeed() {
 		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_SEARCH_OTHER_NEED, {
 			"screen": TelemetryScreen.FAVOURITES,
 			"next-screen": TelemetryScreen.SEARCH_OTHER_NEED
 		});
 
-		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
-		this._getCategories();
+		await super.createAndClassifySubsIncident();
 		
+		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
+		await this.getCategories();
 	}
 
-	async _loadingOtherNeeds() {
+	_loadingOtherNeeds() {
 		this._telemetryStartSpan(QuickTransactionEvents.SEARCH_OTHER_NEED, TelemetryScreen.SEARCH_OTHER_NEED);
 	}
 
-	_unLoadingOtherNeeds() {
+	async _unLoadingOtherNeeds() {
 		this._telemetryEndSpan(QuickTransactionEvents.SEARCH_OTHER_NEED, TelemetryScreen.SEARCH_OTHER_NEED);
 
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		const screenDetails = this.horizonStore.getScreenDetails();
-		const incidentClassification = screenDetails.incidentClassification;
 
-		const hasIncidentStarted = incidentClassification && !(isNullorEmpty(incidentClassification.category) || isNullorEmpty(incidentClassification.need) || isNullorEmpty(incidentClassification.issue))
-		
-		// TO DO: Check for "screenDetails.incidentClassification" presence in state to pre populate the Update Incident modal.
-		if(this.incidentDetails.incidentRecId !== '0' && hasIncidentStarted){
-			this.renderMode = RENDER_MODE.UPDATE_INCIDENT;
+		if(this.incidentDetails.incidentRecId === `0`) {
+			this.renderMode = RENDER_MODE.MAIN_PAGE;
+			return true;
 		}
+
+		const screenDetails = this.horizonStore.getScreenDetails();
+		const incidentInfo = await this.incidentStatus(this.incidentDetails.incidentRecId) || {};
+
+		// Determining if its already classified
+		const isClassified = !isNullorEmpty(incidentInfo.category) && !isNullorEmpty(incidentInfo.subCategory) && !isNullorEmpty(incidentInfo.issue);
+		const isClosed = incidentInfo.status === `Closed`;
+		
+		// Determining at least we know categorization to classify
+		const classificationEmpty = isNullorEmpty(screenDetails.category) && isNullorEmpty(screenDetails.subCategory) && isNullorEmpty(screenDetails.issue);
+
+		if (isClassified && !isClosed && !classificationEmpty) {
+			this.renderMode = RENDER_MODE.FEEDBACK;
+			return true;
+		}
+
+		if (!isClassified && !isClosed && !classificationEmpty) {
+			this.renderMode = RENDER_MODE.UPDATE_INCIDENT;
+			return true;
+		}
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	async _onUpdateStrackClick(event) {
 
 		this.updateStrackClick = true;
-		this._classifyIncident(event);
+		await this._classifyIncident(event);
+		
+		this.postAction = event.detail.postAction;
 		this.renderMode = RENDER_MODE.FEEDBACK;
+
 	}
 
 	async _onLaunchStrackClick(event) {
@@ -563,18 +605,17 @@ export class Favourites extends SavingsAccountBase {
 			"specific-need": event.detail.need,
 			"issue-type": event.detail.issue
 		});
-		this._classifyIncident(event);
+		await this._classifyIncident(event);
 	
 		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
 		this.renderMode = RENDER_MODE.FEEDBACK;
 	}
 
 	async _onUpdateincidentConfirm() {
-		//should close the incident with captured details on Update incident modal
+		// should close the incident with captured details on Update incident modal
 		// Temporary switch : to close an incident on Confirm click from Update Incident modal
 		const screenDetails = this.horizonStore.getScreenDetails();
-		const incidentClassification = screenDetails.incidentClassification;
-		const event = { detail: { category: incidentClassification.category, need: incidentClassification.need, incidentClassification: this.issue } }
+		const event = { detail: { category: screenDetails.category, need: screenDetails.subCategory, issue: screenDetails.issue } }
 	
 		await this._classifyIncident(event);
 		await this._done({ detail: 0});
@@ -593,45 +634,19 @@ export class Favourites extends SavingsAccountBase {
 		await super.classifyIncident(() => this._toggleBusyFlag(), incidentCategorization);
 	}
 
-	async _getCategories() {
-		const returnValue = await this.incidentManagementService.otherNeedCategories(orgUnit);
-
-		if (returnValue.succeeded && returnValue.result) {
-			this.categories = returnValue.result.categories.map(item => item.category);
-		} else {
-			this._logger.log(`error`, `Failed to retrieve Other Needs Categories`, `_getCategories`, returnValue.result);
-		}
-		this.requestUpdate();
-	}
-
-	async _getSubCategories(event) {
-		const returnValue = await this.incidentManagementService.otherNeedSpecificNeed(orgUnit, event.detail.category);
-
-		if (returnValue.succeeded && returnValue.result) {
-			this.needs = returnValue.result.needs.map(item => item.need);
-			
-			// Create a new incident one category is selected
-			await super.createAndClassifySubsIncident();
-		} else {
-			this._logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
-		}
-		this.requestUpdate();
-	}
-
-	async _getIssues(event) {
-		const returnValue = await this.incidentManagementService.otherNeedIssueType(orgUnit, event.detail.category, event.detail.need);
-
-		if (returnValue.succeeded && returnValue.result) {
-			this.issues = returnValue.result.issues;
-		} else {
-			this._logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
-		}
-		this.requestUpdate();
-	}
-
 	async _createIncidentOnError() {
 		await super.createAndClassifySubsIncident();
 		return true;
+	}
+
+	_updateNeedToState(category,need,issue) {
+		// Updating state with the latest values
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.category = category;
+		screenDetails.subCategory = need;
+		screenDetails.issue = issue;
+
+		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
 	// ---------
@@ -756,6 +771,7 @@ export class Favourites extends SavingsAccountBase {
 					@update-strack="${(event) => this._onUpdateStrackClick(event)}"
 					@get-sub-categories="${(event) => this._getSubCategories(event)}"
 					@get-issues="${(event) => this._getIssues(event)}"
+					@issue-changed="${(event) => this._updateNeedToState(event.detail.category, event.detail.need, event.detail.issue)}"
 					@back="${() => this._backToLandingPage()}"
 					@done="${() => this._searchOtherNeedDone()}">
 				</horizon-search-other-need>`
