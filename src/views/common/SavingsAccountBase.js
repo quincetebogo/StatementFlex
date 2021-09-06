@@ -144,6 +144,7 @@ export class SavingsAccountBase extends ViewBase {
             });
 
             this.mandateInfo = event.detail.mandateInfo;
+            //int is down....
             //await this._getAgreement();
             this.renderMode = RENDER_MODE.DEBI_CHECK_APPROVE;
 
@@ -185,8 +186,9 @@ export class SavingsAccountBase extends ViewBase {
             "next-screen": TelemetryScreen.DEBICHECK_OUTCOME
         });
 
-        this._confirmAgreement(true);
-        //this._authenticateMandate(true);
+        //int is down...
+        //this._confirmAgreement(true);
+        this._authenticateMandate(true);
 
 
         this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
