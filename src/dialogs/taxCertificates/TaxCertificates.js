@@ -227,6 +227,7 @@ export class TaxCertificatesDialog extends Component {
 		}
 	
 		this.taxCertificateDetails = returnValue.result;
+		this.requestUpdate();
 	}
 
 	_saveToState(email, selectedCertificates, selectedCertType) {

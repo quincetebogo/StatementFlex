@@ -503,6 +503,10 @@ export class TaxCertificates extends Component {
 				margin-bottom: 30px;
 				margin-top: 30px;
 			}
+
+			.expander-details {
+				width: 100%;
+			}
 			`
 		];
 	}
@@ -652,8 +656,7 @@ export class TaxCertificates extends Component {
 	_renderCertificateYears(item, certType) {
 			return html`
 				<horizon-expander
-
-				id="tax-expander"
+					id="tax-expander"
 					data-automation-id="tax-certificate-document-period"
 					expandButtonAlignment="right"
 					inputType = "Checkbox"

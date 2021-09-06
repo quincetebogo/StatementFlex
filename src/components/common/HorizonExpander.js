@@ -314,7 +314,7 @@ export class Expander extends Component {
 
 				:host([expanded]) {
 					max-height: unset;
-					height: var(--theme-expander-height, 200px);
+					height: var(--theme-expander-height, 100%);
 				}
 
 				:host([expanded].styled) {
