@@ -150,9 +150,9 @@ export class DebiCheckMandates extends Component {
 		this.dispatchEvent(new CustomEvent(`action`, { detail: { "action": `viewInfo`, "mandateId": mandateId, "registerId": registerId } }));
 	}
 
-	_decline(mandateId, registerId) {
+	_decline(mandateInfo) {
 		// TODO: Add mandate data to the event
-		this.dispatchEvent(new CustomEvent(`action`, { detail: { action: `decline`, mandateId: mandateId, "registerId": registerId } }));
+		this.dispatchEvent(new CustomEvent(`action`, { detail: { action: `decline`, mandateInfo: mandateInfo } }));
 	}
 
 	_approve(mandateInfo) {
@@ -542,7 +542,7 @@ export class DebiCheckMandates extends Component {
             ? html`<capitec-label type="subtitle"
 									label="Decline"
 									style="${TABLE_ROW_CELL_CSS.cellButton}"
-									@click="${() => this._decline(rowData.mandateId, rowData.registerId)}">
+									@click="${() => this._decline(rowData)}">
 					 </capitec-label>
 					 <capitec-label type="subtitle"
 					 				label="Approve"

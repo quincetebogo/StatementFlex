@@ -43,8 +43,6 @@ export class ApproveDebiCheckMandate extends Component {
         this.alertType = `info`;
         this.approve = false;
         this.showDiscardChangesModal = false;
-        this.debiCheckAgreement = ``;
-
         this._telemetry = HorizonTelemetry.instance;
         this.horizonStore = HorizonStore.getInstance();
 
@@ -66,7 +64,8 @@ export class ApproveDebiCheckMandate extends Component {
             mandateInfo: { type: Object },
             debiCheckDetails: { type: Object },
             showDiscardChangesModal: { type: Boolean, attribute: false },
-            getAgreement: {type: Object, attribute: false}
+            accountNumber: { type: Number },
+            clientDetails: { type: Object }
         };
     }
 
@@ -77,20 +76,21 @@ export class ApproveDebiCheckMandate extends Component {
 
         this.mandateReference = this.debiCheckDetails.mandateReference;
         this.referenceNumber = this.debiCheckDetails.contractReference;
-        this.fullName = this.titleCase(this.callerInformation.name);
+        const callerInformation = this.horizonStore.getCallerInformation();
+
+        this.fullName = this.titleCase(callerInformation.name);
 
         //TODO: Remove hardcoded data once endpoints are activated
-        this.accountNumber = `164116973`; //: screenDetails.accountNumber;
-        this.shortName = `Savings account`// placeholder is account name ?
-        this.emailAddress = `ivanmakatini@email.com`;// : screenDetails.emailAddress; 
 
+
+        this.shortName =   this.clientDetails.accountShortName;
+        this.emailAddress =  this.clientDetails.emailAddress;
         this.installmentAmount = formatCurrency(convertCentsToRand(this.mandateInfo.amount));
         this.firstCollectionDate = isNullorEmpty(this.debiCheckDetails) ? new Date() : new Date(this.debiCheckDetails.firstCollectionDate).toISOString().substr(0, 10);
-        this.collectionDateFrequency = this.mandateInfo.collectionDate.frequency
+        this.collectionDateFrequency = this.mandateInfo.collectionDayFrequency;
         this.today = new Date().toISOString().substr(0, 10);
 
-        this.debiCheckAgreement = getAgreement(mandateInfo);
-       
+
     }
 
     // -------------------
@@ -204,16 +204,15 @@ export class ApproveDebiCheckMandate extends Component {
         });
     }
 
-    _getFullDate(shortDate) {
+    _getFullDate(shortDate) {        
         if (shortDate) {
-            const day = shortDate.substr(8, 3);
-            const monthNum = parseInt(shortDate.substr(5, 2));
+            const day = shortDate.toString().substr(8, 3);
+            const monthNum = parseInt(shortDate.toString().substr(5, 2));
             const month = getMonthName(monthNum - 1);
-            const year = shortDate.substr(0, 4);
+            const year = shortDate.toString().substr(0, 4);
 
             return `${day} of ${month} ${year}`;
         }
-
     }
 
     titleCase(str) {
@@ -390,7 +389,10 @@ export class ApproveDebiCheckMandate extends Component {
 
     _renderAgreementsAlertBanner() {
         return html`
-            <capitec-alert-banner type="${this._checkWarning() ? `warning` : this.alertType}" closable>
+            <capitec-alert-banner
+            type="${this._checkWarning() ? `warning` : this.alertType}" 
+            data-automation-id="debi-check-agreement-alert-banner"
+            closable>
 				<capitec-group layout="horizontal"  valign="top" gap="none" class="alert-banner">
 					<capitec-label
                     label="Notify client: "
@@ -401,22 +403,24 @@ export class ApproveDebiCheckMandate extends Component {
 			</capitec-alert-banner>
         `;
     }
-    _renderAgreementContent() {
-        return html`
-			<capitec-content-box 
-					data-automation-id="tap-to-pay-agreement-pdf-viewer" 
-					class="expander-cb" 
-					halign="left" 
-					valign="top" 
-					gap="none">
 
-				<object 
-					class="agreement-viewer" 
-					data="data:text/html;base64,${this.debiCheckAgreement}" 
-					type="text/html">
-				</object>
-			</capitec-content-box>`;
-    }
+
+   // _renderAgreementContent() {
+   //     return html`
+			//<capitec-content-box 
+   //                 data-automation-id="debi-check-agreement-viewer"
+			//		class="expander-cb" 
+			//		halign="left" 
+			//		valign="top" 
+			//		gap="none">
+
+			//	<object 
+			//		class="agreement-viewer" 
+			//		data="data:text/html;base64,${this.debiCheckAgreement.data.data}" 
+			//		type="text/html">
+			//	</object>
+			//</capitec-content-box>`;
+   // }
 
     _renderAgreement() {
         return html`
@@ -444,11 +448,13 @@ export class ApproveDebiCheckMandate extends Component {
 
     _renderAgreementContent() {
         return html`
-			<capitec-content-box class="agreement-content">
+			<capitec-content-box 
+            data-automation-id="debi-check-agreement-terms-and-conditions"
+            class="agreement-content">
                     <strong>Thank you, ${this.fullName}. We confirm that you agree to the following:</strong>
 					<ol>
 						<li>This call is to confirm your DebiCheck mandate and the payments you must make under the credit agreement, contract reference number <strong>${this.referenceNumber}</strong> </li>
-						<li style="color:${QUESTIONS[0].color};">Please take note that your instalment of <strong>${this.installmentAmount}</strong> will be deducted from your nominated bank account every <strong>${this.collectionDateFrequency.toLowerCase()}</strong>, starting on <strong>${this._getFullDate(this.firstCollectionDate)}</strong> and a last amount of <strong>${this.installmentAmount}</strong>. We could also collect on an earlier date, depending on when your salary or wages is paid. </br>
+						<li style="color:${QUESTIONS[0].color};">Please take note that your instalment of <strong>${this.installmentAmount}</strong> will be deducted from your nominated bank account every <strong>${this.collectionDateFrequency.toString().toLowerCase()}</strong>, starting on <strong>${this._getFullDate(this.firstCollectionDate)}</strong> and a last amount of <strong>${this.installmentAmount}</strong>. We could also collect on an earlier date, depending on when your salary or wages is paid. </br>
                             Do you understand and accept this? </br>
                             ${this._renderYesNo(0)}</li>
 						<li style="color:${QUESTIONS[1].color};">The payments will be made by early debit order against your nominated account number <strong>${this.accountNumber}</strong> with Capitec Bank Limited, <strong>${this.shortName}</strong>. Do you agree with this?
@@ -462,7 +468,9 @@ export class ApproveDebiCheckMandate extends Component {
 
     _renderDeclarationContent() {
         return html`
-			<capitec-content-box  class="declaration-content">
+			<capitec-content-box  
+            data-automation-id="debi-check-agreement-declaration"
+            class="declaration-content">
                    <strong> Thank you, ${this.fullName}. We confirm and acknowledge that:</strong>
 					<ol>
 						<li style="color:${QUESTIONS[3].color};">Do you hereby authorise the bank to debit your account? </br>
@@ -491,12 +499,14 @@ export class ApproveDebiCheckMandate extends Component {
             	<capitec-radio-group>
 					<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
 						<capitec-radio
+                            data-automation-id="debi-check-agreement-check-yes"
 							class="radio-btn-yes"
 							label="Yes"
 							@value-change="${(e) => this._agree(e, row, YES)}">
 						</capitec-radio>
 						<capitec-radio
-							class="radio-btn-no"
+                            data-automation-id="debi-check-agreement-check-no"							
+                            class="radio-btn-no"
 							label="No"
 							@value-change="${(e) => this._agree(e, row, NO)}">
 						</capitec-radio>
@@ -511,10 +521,12 @@ export class ApproveDebiCheckMandate extends Component {
         return html`
             <capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
 				<capitec-button
+                    data-automation-id="debi-check-agreement-cancel"
 					@click="${(e) => this._cancelClick(e)}"
 					label="Cancel">
 				</capitec-button>
 				<capitec-button
+                    data-automation-id="debi-check-agreement-approve"
 					type="primary"
 					@click="${(e) => this._approveClick(e)}"
 					label="Approve"

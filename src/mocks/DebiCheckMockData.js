@@ -8,8 +8,8 @@
 export const mockMandates = {
     "mandateSummaryList": [
         {
-            "mandateId": 0,
-            "registerId": 0,
+            "mandateId": 8,
+            "registerId": 2,
             "amount": 65600,
             "collectionDate": {
                 "day": "1",
@@ -103,14 +103,14 @@ export const mockMandates = {
 
 export const mandateInfo = [
     {
-        mandateId: 0,
-        registerId: 0,
+        mandateId: 8,
+        registerId: 2,
         mandateInfo: {
             "firstCollectionDate": "2021-02-09T17:05:32.909Z",
             "tracking": "Yes",
             "contractReference": "12345678010",
             "collectorContact": "021 101 0810",
-            "mandateReference": "XYZ4367",
+            "mandateReference": "2201709170000000000",
             "collectorEmail": "mandate1@collector.bank",
             "mrti": "4573",
             "debtorAccountNumber": "123456789"
