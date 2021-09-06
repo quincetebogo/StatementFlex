@@ -1,6 +1,5 @@
-import { HorizonSignalRClient } from 'app/shell/HorizonSignalRClient';
 import { CallHandleService } from 'app/services/CallHandleService';
-
+import { HorizonSignalRClient } from 'app/shell/HorizonSignalRClient';
 
 export class ItaCallerVerification {
 
@@ -9,9 +8,6 @@ export class ItaCallerVerification {
 	// --------------
 
 	constructor(cifNumber, verificationStatusCallback, timeout = ITA_TIMEOUT_SECS) {
-		super();
-
-		// Property initialization
 		this.seconds = timeout;
 		this.isBusy = false;
 		this.cifNumber = cifNumber;
@@ -27,15 +23,6 @@ export class ItaCallerVerification {
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag());
 	}
-	// --------------
-	// EVENT HANDLERS
-	// --------------
-	// --------------
-	// PUBLIC METHODS
-	// --------------
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
 
 	async _initiateItaVerification() {
 		const signalRUrl = await this.configuration.getSetting(`signalRUrl`);
@@ -155,9 +142,9 @@ export class ItaCallerVerification {
 
 		this._stopTimer();
 
-		if (this._isVerified(verificationStatus)) {			
+		if (this._isVerified(verificationStatus)) {
 			this.verificationStatusCallback(`verified`);
-			return 
+			return;
 		}
 		
 		this.verificationStatusCallback(`unverified`);
@@ -191,7 +178,4 @@ export class ItaCallerVerification {
 		}
 		return typeof verificationStatus === `string` && verificationStatus === `true`;
 	}
-	// ---------
-	// RENDERING
-	// ---------
 }
