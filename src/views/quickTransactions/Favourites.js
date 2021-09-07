@@ -20,7 +20,6 @@ import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
 import 'app/components/dialogs/common/Feedback';
-import 'app/components/dialogs/quickTransactions/UpdateIncidentModal';
 
 
 const SAVINGS_ACCOUNT_TYPE = 300;
@@ -170,7 +169,6 @@ export class Favourites extends SavingsAccountBase {
 		
 		if (isSuccess) {
 			// Navigate to favourites landing page
-
 			const incidentDetails = this.horizonStore.getIncidentDetails();
 		
 			incidentDetails.needStatus = super.HORIZON_NEED_STATUS.CLOSED;
@@ -337,7 +335,7 @@ export class Favourites extends SavingsAccountBase {
 		if (this.incidentDetails.incidentRecId === `0`) {
 			await super.createAndClassifySubsIncident();
 		}
-
+		
 		this._updateNeedToState(event.detail.category);
 		
 		await this.getSubCategories(event);
