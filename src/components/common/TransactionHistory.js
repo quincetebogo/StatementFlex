@@ -1,11 +1,27 @@
 import { Component, css, html } from 'platform/elements';
-import { FILTER_BY, MONEY_TYPES, RENDER_CHIPS, RENDER_MODE, TRANSACTION_HISTORY, TRANSACTION_STATUS_LIST } from 'app/constants/TransactionHistory';
+import { MONEY_TYPES, RENDER_MODE, TRANSACTION_HISTORY, TRANSACTION_STATUS_LIST } from 'app/constants/TransactionHistory';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { DateTime } from 'luxon';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 const today = new Date();
+
+const FILTER_BY = {
+    ALL: `ALL`,
+    TEXT: `TEXT`,
+    DATE: `DATE`,
+    STATUS: `STATUS`,
+	MONEY_TYPE: `MONEY_TYPE` 
+};
+
+const RENDER_CHIPS = {
+    TEXT: ``,
+    DATE: ``,
+    STATUS: ``,
+	MONEY_TYPE: ``
+};
+
 
 /**
  * Transaction History, common component to display list of transactions happened in client's'
@@ -147,7 +163,6 @@ export class TransactionHistory extends Component {
 		}
 	}
 
-
 	getPredefinedDateRanges() {
 		const last7day = new Date(today);
 		const last30day = new Date(today);
@@ -235,7 +250,7 @@ export class TransactionHistory extends Component {
 
 		const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
 		if (returnValue.succeeded && returnValue.result) {
-			return returnValue.result.transactions;
+			return returnValue.result;
 		}
 	}
 
@@ -282,7 +297,9 @@ export class TransactionHistory extends Component {
 	}
 	
 	_selectedMoneyType(e){
-		this.selectedMoneyType = MONEY_TYPES[e.target.label];
+		//this.selectedMoneyType = MONEY_TYPES[];
+		RENDER_CHIPS[FILTER_BY.MONEY_TYPE] = e.target.label;
+		this._refineSearch();
 	}
 
 	_toggleBusyFlag() {
@@ -399,6 +416,17 @@ export class TransactionHistory extends Component {
 
 			this.filteredData = this.filteredData.filter(item => item.transactionStatus === status);
 		}
+
+		if (RENDER_CHIPS[FILTER_BY.MONEY_TYPE]) {
+			const moneyType = RENDER_CHIPS[FILTER_BY.MONEY_TYPE];
+
+			if(moneyType === `Money In`) {
+				this.filteredData = this.filteredData.filter(item => item.amount > 0);
+			} else if(moneyType === `Money Out`) {
+				this.filteredData = this.filteredData.filter(item => item.amount < 0);
+			}
+		}
+
 		this.requestUpdate();
 	}
 
@@ -615,6 +643,11 @@ export class TransactionHistory extends Component {
 					--theme-chip-background-color: #009DE0;
 					--theme-chip-font-weight: 600;
 				}
+				.no-results {
+					--theme-label-strong-font-size: 24px;
+					--theme-label-strong-font-weight: 600;
+					--theme-label-font-color: #3A3A3A;
+				}
 			`
 		];
 	}
@@ -634,40 +667,24 @@ export class TransactionHistory extends Component {
 				<capitec-content-box class="main-view" id="transactions-table">
 					${this._renderTransactionHistory()}
 				</capitec-content-box>
-				<capitec-action-bar class="load-more-bar ${this.showLoadMore ? `show-load-more` : `hide-load-more`}">
-					<capitec-spacer></capitec-spacer>
-					<capitec-button
-						type="clear"
-						label="Load More"
-						@click = ${() => this._loadMoreTransactions()}
-						data-automation-id="transaction-history-load-more">
-					</capitec-button>
-					<capitec-spacer></capitec-spacer>
-					<capitec-icon
-						class='scroll-top'
-						size="medium"
-						icon="system/arrow-up-action"
-						@click = ${(e) => this._scrollToTop(e)}
-						data-automation-id="transaction-history-scroll-top">
-					</capitec-icon>
-				</capitec-action-bar>
+				${this._renderLoadMoreBar()}
 				</capitec-group>
 			</capitec-card>
 			${this._renderLoadingIndicator()}
 		`;
 	}
 
-	_renderAlertBanner() {
-		if (this.errorMessage) {
-			return html`
-				<capitec-alert-banner
-					type="unsuccessful-red"
-					data-automation-id="transaction-history-alert-banner">
-						<p><b>Notify:</b> ${this.errorMessage}</p>
-				</capitec-alert-banner>`;
-		}
-		return html``;
-	}
+	// _renderAlertBanner() {
+	// 	if (this.errorMessage) {
+	// 		return html`
+	// 			<capitec-alert-banner
+	// 				type="unsuccessful-red"
+	// 				data-automation-id="transaction-history-alert-banner">
+	// 					<p><b>Notify:</b> ${this.errorMessage}</p>
+	// 			</capitec-alert-banner>`;
+	// 	}
+	// 	return html``;
+	// }
 
 	_renderLoadingIndicator() {
 		return this.isBusy
@@ -727,6 +744,7 @@ export class TransactionHistory extends Component {
 					value="${RENDER_CHIPS[FILTER_BY.TEXT]}"
 					data-automation-id="transaction-history-text-filter">
 				</capitec-text-field>
+
 				<capitec-date-time-picker
 					id="calendarRange"
 					label = "Choose a date (up to 90 days)"
@@ -741,6 +759,7 @@ export class TransactionHistory extends Component {
 					@apply-clicked="${(e) => this._dateChanged(e)}"
 					data-automation-id="transaction-history-date-filter">
 				</capitec-date-time-picker>
+
 				<capitec-select
 					label="${RENDER_CHIPS[FILTER_BY.STATUS] !== `` ? `` : this.statuslabel}" 
 					class="transaction-status-select"
@@ -755,19 +774,19 @@ export class TransactionHistory extends Component {
 				
 				<capitec-chip 
 					label="All" 
-					class="${this.selectedMoneyType === MONEY_TYPES['All'] ? 'type-selected' : 'type-normal'}" 
+					class="${RENDER_CHIPS[FILTER_BY.MONEY_TYPE] === 'All' ? 'type-selected' : 'type-normal'}" 
 					@click="${(e) => this._selectedMoneyType(e)}" 
 					?hidden="${this.type !== 'lbb'}">
 				</capitec-chip>
 				<capitec-chip 
 					label="Money In"
-					class="${this.selectedMoneyType === MONEY_TYPES['Money In'] ? 'type-selected' : 'type-normal'}" 
+					class="${RENDER_CHIPS[FILTER_BY.MONEY_TYPE] === 'Money In' ? 'type-selected' : 'type-normal'}" 
 					@click="${(e) => this._selectedMoneyType(e)}" 
 					?hidden="${this.type !== 'lbb'}">
 				</capitec-chip>
 				<capitec-chip 
 					label="Money Out" 
-					class="${this.selectedMoneyType === MONEY_TYPES['Money Out'] ? 'type-selected' : 'type-normal'}" 
+					class="${RENDER_CHIPS[FILTER_BY.MONEY_TYPE] === 'Money Out' ? 'type-selected' : 'type-normal'}" 
 					@click="${(e) => this._selectedMoneyType(e)}" 
 					?hidden="${this.type !== 'lbb'}">
 				</capitec-chip>
@@ -834,7 +853,8 @@ export class TransactionHistory extends Component {
 	}
 
 	_renderTransactionHistory() {
-		return html`
+		return this.filteredData.length > 0 
+		? html`
 			<capitec-table
 				.items = "${this.filteredData}"
 				groupField="groupByItem"
@@ -843,7 +863,54 @@ export class TransactionHistory extends Component {
 				.expandRenderer="${(item) => this.renderTransactionDetails(item)}"
 				data-automation-id="transaction-history-table">
 					${this.renderTableColumns()}
-			</capitec-table>
+			</capitec-table>`
+		: html`
+			${this._renderNoResults()}
+		`;
+	}
+
+	_renderNoResults() {
+		return html`
+			<capitec-group
+				layout="vertical"
+				halign="center"
+				valign="center"
+				gap="none">
+					<img
+						src="platform/illustrations/history.svg"
+						class="document-icon"/>
+					<capitec-label
+						class="no-results"
+						label="No results found"
+						type="strong">
+					</capitec-label>
+					<capitec-label
+						label="No transactions made in the last 6 months"
+						type="strong">
+					</capitec-label>
+			</capitec-group>
+		`;
+	}
+
+	_renderLoadMoreBar() {
+		return html`
+			<capitec-action-bar class="load-more-bar ${this.showLoadMore ? `show-load-more` : `hide-load-more`}">
+				<capitec-spacer></capitec-spacer>
+				<capitec-button
+					type="clear"
+					label="Load More"
+					@click = ${() => this._loadMoreTransactions()}
+					data-automation-id="transaction-history-load-more">
+				</capitec-button>
+				<capitec-spacer></capitec-spacer>
+				<capitec-icon
+					class='scroll-top'
+					size="medium"
+					icon="system/arrow-up-action"
+					@click = ${(e) => this._scrollToTop(e)}
+					data-automation-id="transaction-history-scroll-top">
+				</capitec-icon>
+			</capitec-action-bar>
 		`;
 	}
 }

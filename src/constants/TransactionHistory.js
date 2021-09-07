@@ -15,12 +15,12 @@ export const RENDER_MODE = Object.freeze({
  * @readonly
  * @enum {Object} FILTER_BY
  */
-export const FILTER_BY = Object.freeze({
+export const FILTER_BY = {
 	ALL: `ALL`,
 	TEXT: `TEXT`,
 	DATE: `DATE`,
 	STATUS: `STATUS`
-});
+};
 
 /**
  * Constant to handle/ display filtered options as chips {@link TransactionHistory}
@@ -28,11 +28,11 @@ export const FILTER_BY = Object.freeze({
  * @readonly
  * @enum {Object} RENDER_CHIPS
  */
-export const RENDER_CHIPS = Object.freeze({
+export const RENDER_CHIPS = {
 	TEXT: ``,
 	DATE: ``,
 	STATUS: ``
-});
+};
 
 /**
  * Available transaction status types {@link TransactionHistory}

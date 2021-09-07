@@ -6,7 +6,7 @@ import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_TYPES } from 'app/constants/TransactionHistory';
-import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
+import { EXPANDER_LABEL, TABLE_EXPANDER_CELL, LINKED_TRANSACTION } from 'app/css/Lbb-TransactionHistory';
 
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
@@ -433,10 +433,10 @@ export class LiveBetter extends ViewBase {
 
 	_renderTransactionDetails(item) {
 		return html`
-		<capitec-content-box>
+		<capitec-content-box style="height: auto;">
 			<capitec-label
 				style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
-				label="Statement description: ${item.description}"
+				label="Transaction details"
 				data-automation-id="transaction-history-item-description">
 			</capitec-label>
 	
@@ -449,20 +449,20 @@ export class LiveBetter extends ViewBase {
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Transfer account"
-					value = "${item.transferAccount ? item.transferAccount : `-`}"
+					label="Amount"
+					value = "${item.formatedAmount}"
 					data-automation-id="transaction-history-item-transfer-account">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Posting date" 
-					value = "${this._formatDate(item.postingDate)}"
+					label="To account" 
+					value = "Live Better Savings"
 					data-automation-id="transaction-history-item-posting-date">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Processed date"
-					value = "${this._formatDate(item.processDate)}"
+					label="Posting date"
+					value = "${this._formatDate(item.postingDate)}"
 					data-automation-id="transaction-history-item-processed-date">
 				</horizon-label>
 			</capitec-group>
@@ -470,67 +470,59 @@ export class LiveBetter extends ViewBase {
 			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Transaction code"
-					value = "${item.transactionCode ? item.transactionCode : `-`}"
+					label="Description"
+					value = "${item.description}"
 					data-automation-id="transaction-history-item-code">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Card number"
-					value = "${item.cardNumber ? item.cardNumber : `-`}"
+					label="Long Description"
+					value = "${item.description}"
 					data-automation-id="transaction-history-item-card-number">
 				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Card authentication type"
-					value = "${item.cardAuthType ? item.cardAuthType : `-`}"
-					data-automation-id="transaction-history-item-card-auth-type">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Journal number"
-					value = "${item.journalNumber ? item.journalNumber : `-`}"
-					data-automation-id="transaction-history-item-journal-number">
-				</horizon-label>
 			</capitec-group>
+			
+			<capitec-label
+				style = "${unsafeCSS(EXPANDER_LABEL).toString()} ${unsafeCSS(LINKED_TRANSACTION.heading).toString()}"
+				label="3 linked transactions (Round-up: R5)"
+				data-automation-id="transaction-history-item-description">
+			</capitec-label>
 
-			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Includes Vat"
-					value = "${item.includesVat ? `Yes` : `No`}"
-					data-automation-id="transaction-history-item-includes-vat">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="External terminal ID"
-					value = "${item.externalTerminalId ? item.externalTerminalId : `-`}"
-					data-automation-id="transaction-history-item-terminalID">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Cash back"
-					value = "${item.cashback ? item.cashback : `-`}"
-					data-automation-id="transaction-history-item-cashback">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Branch" 
-					value = "${item.branch ? item.branch : `-`}"
-					data-automation-id="transaction-history-item-branch">
-				</horizon-label>
-			</capitec-group>
+			${this._renderLinkedTransaction(item)}
+			
+			${this._renderLinkedTransaction(item)}
+			
+			${this._renderLinkedTransaction(item)}
 
-			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Teller"
-					value = "${item.teller ? item.teller : `-`}"
-					data-automation-id="transaction-history-item-teller">
-				</horizon-label>
-			</capitec-group>
 		</capitec-content-box>
 		`;
+	}
+
+	_renderLinkedTransaction(item) {
+		return html`
+			<capitec-card style="${unsafeCSS(LINKED_TRANSACTION.card).toString()} ${unsafeCSS(LINKED_TRANSACTION.cardHover).toString()}">
+				<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+					<horizon-label
+						style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+						label="Description"
+						value = "${item.description}"
+						data-automation-id="transaction-history-item-type">
+					</horizon-label>
+					<div style="${unsafeCSS(LINKED_TRANSACTION.verticalLine).toString()}"></div>
+					<horizon-label
+						style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+						label="Transaction Date"
+						value = "${this._formatDate(item.transactionDate)}"
+						data-automation-id="transaction-history-item-transfer-account">
+					</horizon-label>
+					<horizon-label
+						style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+						label="Round-up amount" 
+						value = "R2.50"
+						data-automation-id="transaction-history-item-posting-date">
+					</horizon-label>
+				</capitec-group>
+			</capitec-card>`;
 	}
 
 	_formatDate(date) {
