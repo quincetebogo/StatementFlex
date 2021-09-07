@@ -107,7 +107,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	// PUBLIC METHODS
 	// --------------
 
-	// N/A
+	_exitTransactionHistory() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_unloadTransactionHistory() {
+		this._setIncidentDone();
+	}
 	
 	// ---------------
 	// PRIVATE METHODS
@@ -280,7 +286,8 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 					.accountDetails = "${this.accountDetails}"
 					.callerInformation = "${this.callerInformation}"
 					@error-handler = "${() => this._errorHandler()}"
-					@back="${() => this._exitTransactionHistory()}">
+					@back="${() => this._exitTransactionHistory()}"
+					@unloading="${() => this._unloadTransactionHistory()}">
 				</horizon-transaction-history>`
 			: html``;
 	}
