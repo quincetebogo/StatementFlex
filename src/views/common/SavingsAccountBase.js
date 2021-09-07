@@ -120,6 +120,9 @@ export class SavingsAccountBase extends ViewBase {
     }
 
     async _mandateActionClick(event) {
+        const screenDetails = this.horizonStore.getScreenDetails();
+        screenDetails.mandateId = event.detail.mandateInfo.mandateId;
+
         const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, event.detail.mandateInfo.mandateId, event.detail.mandateInfo.registerId);
         if (returnValue.succeeded && returnValue.result) {
             this.debiCheckDetails = returnValue.result;
@@ -134,6 +137,9 @@ export class SavingsAccountBase extends ViewBase {
             });
 
             this.mandateInfo = event.detail.mandateInfo;
+            screendetails.isApproved = false;
+            this.horizonStore.setScreenDetails(screenDetails);
+
             await this._getAgreement();
             this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
 
@@ -144,6 +150,9 @@ export class SavingsAccountBase extends ViewBase {
             });
 
             this.mandateInfo = event.detail.mandateInfo;
+            screendetails.isApproved = true;
+            this.horizonStore.setScreenDetails(screenDetails);
+
             await this._getAgreement();
             this.renderMode = RENDER_MODE.DEBI_CHECK_APPROVE;
 
@@ -281,6 +290,8 @@ export class SavingsAccountBase extends ViewBase {
 
         if (returnValue.succeeded) {
             this._authenticateMandate(accepted);
+        } else {
+            this.horizonRouter.navigateToDebiCheckFailed();
         }
     }
 
@@ -288,7 +299,10 @@ export class SavingsAccountBase extends ViewBase {
 
         const returnValue = await this.savingsAccountService.debiCheckAuthenticate(this.callerInformation.cifNumber, this.debiCheckDetails.mandateReference, this.debiCheckDetails.debtorAccountNumber, accepted);
         if (returnValue.succeeded) {
-            this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
+            this.horizonRouter.navigateToDebiCheckSuccess();
+            //this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
+        } else {
+            this.horizonRouter.navigateToDebiCheckFailed();
         }
     }
 

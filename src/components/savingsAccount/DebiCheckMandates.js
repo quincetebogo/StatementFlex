@@ -59,8 +59,7 @@ export class DebiCheckMandates extends Component {
 	 */
 	static get properties() {
 		return {
-			debiCheckMandates: { type: Array },
-			
+			debiCheckMandates: { type: Array },			
 			filterBy: { attribute: false }
 		};
 	}
