@@ -331,6 +331,16 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _getSubCategories(event) {
+		this._updateNeedToState(`category`, event.detail.category);
+		await this.getSubCategories(event);
+	}
+
+	async _getIssues(event) {
+		this._updateNeedToState(`subCategory`, event.detail.need);
+		await this.getIssues(event);
+	}
+
+	async _getSubCategories(event) {
 		
 		if (this.incidentDetails.incidentRecId === `0`) {
 			await super.createAndClassifySubsIncident();

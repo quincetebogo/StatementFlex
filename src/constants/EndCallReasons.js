@@ -260,3 +260,27 @@ export const END_CALL_REASON = Object.freeze({
 		}
 	]
 });
+
+/**
+ * Classification for call transferred end call reason
+ * 
+ * @readonly
+ * @enum {Object} CALL_TRANSFERED_CLASSIFICATION
+ */
+export const CALL_TRANSFERED_CLASSIFICATION = Object.freeze({
+	category: `Telephony`
+});
+
+/**
+ * Enum - For the below reasons, we need to recognize need when incident not classified
+ * 
+ * @readonly
+ * @enum {Object} RECOGNIZE_NEED_REASONS
+ */
+export const RECOGNIZE_NEED_REASONS = Object.freeze([
+	END_CALL_REASON.NEED_FULFILLED,
+	END_CALL_REASON.NEED_ASSIGNED,
+	END_CALL_REASON.NEED_HANDED_OFF,
+	END_CALL_REASON.PRODUCT_ENQUIRY,
+	END_CALL_REASON.CALL_TRANSFERED
+]);
