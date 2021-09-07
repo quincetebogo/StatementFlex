@@ -157,14 +157,8 @@ export class SavingsAccountBase extends ViewBase {
                 "next-screen": TelemetryScreen.VIEWINFO
             });
 
-            const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, event.detail.mandateId, event.detail.registerId);
-
-            if (returnValue.succeeded && returnValue.result) {
-                this.debiCheckDetails = returnValue.result;
                 this.renderMode = RENDER_MODE.DEBI_CHECK_VIEW_INFO;
-            } else {
-                this.horizonRouter.navigateToSystemError();
-            }
+
         }
     }
 

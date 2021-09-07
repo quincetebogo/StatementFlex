@@ -146,8 +146,8 @@ export class DebiCheckMandates extends Component {
 											   parseFloat(item.maxCollectionAmount).toFixed(2).startsWith(searchText)));
 	}
 
-	_viewInfo(mandateId, registerId) {
-		this.dispatchEvent(new CustomEvent(`action`, { detail: { "action": `viewInfo`, "mandateId": mandateId, "registerId": registerId } }));
+	_viewInfo(mandateInfo) {
+        this.dispatchEvent(new CustomEvent(`action`, { detail: { "action": `viewInfo`, mandateInfo: mandateInfo } }));
 	}
 
 	_decline(mandateInfo) {
@@ -552,7 +552,7 @@ export class DebiCheckMandates extends Component {
             : html`<capitec-label type="subtitle"
 	    				label="View Info"
 						style="${TABLE_ROW_CELL_CSS.cellButton}"
-						@click="${() => this._viewInfo(rowData.mandateId, rowData.registerId)}">
+						@click="${() => this._viewInfo(rowData)}">
 					 </capitec-label>`;
 	}
 
