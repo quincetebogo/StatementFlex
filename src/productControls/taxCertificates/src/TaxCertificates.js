@@ -134,6 +134,12 @@ export class TaxCertificates extends Component {
 	}
 
 	_sendClick() {
+		const isValid = this._validateEmailAddress();
+
+		if (!isValid) {
+			return false;
+		}
+		
 		this.dispatchEvent(new CustomEvent(`send`, {
 			detail: {
 				email: this.email,
@@ -184,6 +190,7 @@ export class TaxCertificates extends Component {
 	}
 
 	_validEmailAddressCheck(e) {
+		this.alertBannerMessage = ``;
 		this.errorMessage = e.detail.errorMessage;
 		this.mailClientError.email = e.detail.emailError;
 		this.mailClientError.confirmEmail = e.detail.confirmEmailError;
@@ -207,8 +214,8 @@ export class TaxCertificates extends Component {
 		this.mailClientError.email = isNullorEmpty(this.email) ? `Please enter email` : ``;
 		this.mailClientError.confirmEmail = isNullorEmpty(this.confirmEmail) ? `Please enter email` : ``;
 
-		const errorMessage = this.mailClientError.email || this.mailClientError.confirmEmail ? `Complete all fields.` : ``;
-		return errorMessage === ``;
+		this.alertBannerMessage = this.mailClientError.email || this.mailClientError.confirmEmail ? `Complete all fields.` : ``;
+		return isNullorEmpty(this.alertBannerMessage);
 	}
 
 	_onKeyPress(e) {
@@ -237,7 +244,7 @@ export class TaxCertificates extends Component {
 	}
 
 	async _viewPDF(item, type) {
-		this.encodedPDF = await getTaxCertificatePDFCallback(item, type);
+		this.encodedPDF = await this.getTaxCertificatePDFCallback(item, type);
 
 		if (this.encodedPDF) {
 			this.renderMode = RENDER_MODE.PDF;
