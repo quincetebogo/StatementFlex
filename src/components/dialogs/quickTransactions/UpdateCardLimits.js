@@ -651,7 +651,7 @@ export class UpdateCardLimits extends Component {
 				--theme-expander-header-height: 48px;
 			}
 			capitec-expander-group > capitec-expander {
-				border: 1px solid #E1E1E1;
+				box-shadow: 0px 6px 10px 0.25px rgba(0,0,0,0.07);
 				border-radius: 4px;
 
 				--theme-expander-indicator-width: 12px;

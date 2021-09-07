@@ -1,9 +1,9 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency, isNullorEmpty, getMonthName, convertCentsToRand } from 'app/utils/channelServiceUtilities';
-import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { convertCentsToRand, formatCurrency, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 import 'app/components/dialogs/common/DiscardChanges';
 import { mandateInfo } from '../../../mocks/DebiCheckMockData';

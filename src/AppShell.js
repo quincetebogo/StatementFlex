@@ -109,7 +109,7 @@ export class AppShell extends Shell {
 	connectedCallback() {
 		super.connectedCallback();
 		
-		this._casperScript();
+		this._casperScript(); 
 
 		this.horizonIncidentManager.initialise();
 		// Subscribe to store.
@@ -245,6 +245,7 @@ export class AppShell extends Shell {
 					--horizon-right-panel-width: 320px;
 					--horizon-panel-height: 888px;
 					--horizon-toast-top: 68px;
+					--horizon-status-bar-icon-group-right-margin: 80px;
 				}
 
 				.screen-size {
