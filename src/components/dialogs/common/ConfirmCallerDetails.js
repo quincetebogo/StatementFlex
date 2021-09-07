@@ -6,10 +6,10 @@ import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { IDCallerEvents } from 'app/constants/Telemetry/Events/IdentifyCaller';
+import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { InsureService } from 'app/services/InsureService';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 import 'platform/components/popups/Modal';
 import 'platform/components/data/Table';
