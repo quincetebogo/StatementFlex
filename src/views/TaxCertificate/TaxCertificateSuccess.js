@@ -78,7 +78,7 @@ export class TaxCertificateSuccess extends ViewBase {
 
 	_doneClick() {
 
-		//TODO : Uncomment entire function once the Tax Certificate dialog is ready and navigation needs to be wired up.
+		// TODO : Uncomment entire function once the Tax Certificate dialog is ready and navigation needs to be wired up.
 
 		// Telemetry
 		this._telemetry.endSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
@@ -95,7 +95,7 @@ export class TaxCertificateSuccess extends ViewBase {
 
 		// TODO : Uncomment entire function once the Tax Certificate dialog is ready and navigation needs to be wired up.
 
-		Telemetry
+		// Telemetry
 		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME,
 			"nextScreen": TelemetryScreen.TAX_CERTIFICATE

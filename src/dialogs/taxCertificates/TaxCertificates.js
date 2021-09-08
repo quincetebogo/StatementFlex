@@ -120,7 +120,8 @@ export class TaxCertificatesDialog extends Component {
 			"messageParameters": {
 				"title": this.taxCertificateDetails.title,
 				"surname": this.taxCertificateDetails.lastName
-			}
+			},
+			"attachments": []
 		};
 		
 		const returnValue = await this.quickTransactionService.sendTaxCertificate(request, () => true);
@@ -155,18 +156,16 @@ export class TaxCertificatesDialog extends Component {
 	}
 
 	_next(e) {
-		this.selectedCertType = e.detail.selectedCertType || `Both`;
-		const certData = e.detail.selectedCertificates[this.selectedCertType].map(item => item);
+		const certData = e.detail.selectedCertificates[e.detail.selectedCertType].map(item => item);
 
 		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_NEXT, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE,
 			"next-screen": null,
-
-			"certificate-type": this.selectedCertType,
+			"certificate-type": e.detail.selectedCertType || `both`,
 			// TODO: Add selected certificate types when CS is implemented
 			"selected-documents": [
 				{ 
-					"document-type": this.selectedCertType === `iT3BTaxCertificates` ? `IT3B` : `IT3S` || `Both`,
+					"document-type": e.detail.selectedCertType === `iT3BTaxCertificates` ? `IT3B` : `IT3S` || `Both`,
 				"certificate-period": certData.map(element => element.year)
 			} 
 		]
@@ -182,15 +181,16 @@ export class TaxCertificatesDialog extends Component {
 		const iT3BRequest = this._frameViewPDFRequest(item, type, `iT3BTaxCertificates`);
 		const iT3SRequest = this._frameViewPDFRequest(item, type, `iT3STaxCertificates`);
 		const request = {
-				"cif": this.cifNumber,
-					"iT3BTaxCertificates": iT3BRequest,
-					"iT3STaxCertificates": iT3SRequest
+			"cif": this.cifNumber,
+			"iT3BTaxCertificates": iT3BRequest,
+			"iT3STaxCertificates": iT3SRequest
 		};
 
 		const returnValue = await this.quickTransactionService.viewTaxCertificate(request, () => true);
 	
 		if (returnValue.succeeded && !isNullorEmpty(returnValue.result)) {
-			const pdfData = returnValue.result[type.replace(`TaxCertificates`, `Documents`)].find(certificate => certificate.year === item.year);
+			const result = returnValue.result;
+			const pdfData = result[type.replace(`TaxCertificates`, `Documents`)].find(certificate => certificate.year === item.year);
 			const encodedPDF = base64ToBlobUrl(pdfData.contentData);
 	
 			this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_VIEW_PDF, { 
@@ -245,15 +245,19 @@ export class TaxCertificatesDialog extends Component {
 	}
 
 	_frameViewPDFRequest(Obj, type, frameRequest) {
-		this.documentIds = Obj.documentId;
+		const state = this.horizonStore.recoverState();
+		const landingPageInfo = state && state.landingPageInfo;
+		const accNum = frameRequest === `iT3STaxCertificates` ? Obj.taxCertificateAccounts[0].accountNumber : landingPageInfo && landingPageInfo.accountNumber;
 
 		return type === frameRequest
-			? Obj.taxCertificateAccounts.map(objArray => ({
+			? [
+				{
 					"year": Obj.year,
 					"documentId": Obj.documentId,
-					"accountNumber": objArray.accountNumber,
+					"accountNumber": accNum,
 					"payload": frameRequest !== `iT3STaxCertificates` ? Obj.payload : undefined
-				}))
+				}
+			]
 			: [];
 	}
 
