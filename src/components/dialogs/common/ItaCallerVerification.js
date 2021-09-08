@@ -1,17 +1,23 @@
 import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonSignalRClient } from 'app/shell/HorizonSignalRClient';
+import { Configuration, Logger } from 'platform/core';
 
+
+/**
+* The Horizon ItaCallerVerification class is used to allow ITA verification logic to be reusable when the client is verified via ITA.
+*/
 export class ItaCallerVerification {
 
 	// --------------
 	// INITIALISATION
 	// --------------
 
-	constructor(cifNumber, verificationStatusCallback, timeout = ITA_TIMEOUT_SECS) {
+	constructor(cifNumber, verificationStatusCallback, timeout = ITA_TIMEOUT_SECS, verificationMethod = `unverified`) {
 		this.seconds = timeout;
 		this.isBusy = false;
 		this.cifNumber = cifNumber;
 		this.verificationStatusCallback = verificationStatusCallback;
+		this.verificationMethod = verificationMethod;
 
 		this.itaInProgress = false;
 		this.itaTimer = null;
@@ -144,6 +150,7 @@ export class ItaCallerVerification {
 
 		if (this._isVerified(verificationStatus)) {
 			this.verificationStatusCallback(`verified`);
+			this.verificationMethod = `ITA`;
 			return;
 		}
 		
