@@ -84,7 +84,7 @@ export class StopCard extends Component {
 		this.logger = Logger.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
 
-		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
+		//this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 
@@ -93,7 +93,7 @@ export class StopCard extends Component {
 		this.selectedCardCount = 0;
 		this.cardsToStop = [];
 		this.isBusy = false;
-
+		
 		// Recover state information
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
@@ -148,7 +148,7 @@ export class StopCard extends Component {
 	}
 
 	disconnectedCallback() {
-		this.verifySub.dispose();
+		//this.verifySub.dispose();
 		this.assignSub.dispose();
 
 		super.disconnectedCallback();
@@ -351,7 +351,7 @@ export class StopCard extends Component {
 			}
 		);
 	}
-
+	
 	// ---------
 	// RENDERING
 	// ---------
@@ -684,7 +684,7 @@ export class StopCard extends Component {
 			? html`<capitec-loading-indicator></capitec-loading-indicator>`
 			: html``;
 	}
-
+	
 }
 
 customElements.define(`horizon-stop-card`, StopCard);
