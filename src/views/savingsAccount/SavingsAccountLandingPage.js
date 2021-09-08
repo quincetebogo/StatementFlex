@@ -201,7 +201,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		if (returnValue.succeeded && returnValue.result) {
 			await super.createAndClassifySubsIncident();
 			
-			this.transactionHistory = returnValue.result;
+			this.transactionHistory = returnValue.result.transactions;
 			this.accountDetails = {
 				"Account number": this.landingPageInfo.accountNumber,
 				"Balance": formatCurrency(this.landingPageInfo.accountBalance),
@@ -213,6 +213,12 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			this.endCallContext = `TransactionHistory`;
 			this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 		}
+	}
+
+	async _getMoreTransactions(request) {
+
+		const result = await this.savingsAccountService.transactionHistory(request);
+		return result;
 	}
 
 	_more() {
@@ -284,6 +290,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 					.renderTableColumns="${() => this._renderTransHistoryColumns()}"
 					.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
+					.getMoreTransactions="${request => this._getMoreTransactions(request)}"
 
 					@error-handler = "${() => this._errorHandler()}"
 					@back="${() => this._setIncidentDone()}">

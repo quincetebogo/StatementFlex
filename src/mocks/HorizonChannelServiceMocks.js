@@ -157,8 +157,8 @@ export class HorizonChannelServiceMocks {
 
 	transactionHistory(transactionHistoryRequest) {
 		if (this._mocking.transactionHistory.positiveCase) {
-			const transactions = this.transactionHistoryMocks.transactionHistoryMockData.transactionHistoryList.slice(transactionHistoryRequest.startAtIndex, transactionHistoryRequest.startAtIndex + transactionHistoryRequest.maxResults);
-			return transactions;
+			const result = {transactions : this.transactionHistoryMocks.transactionHistoryMockData.transactionHistoryList.slice(transactionHistoryRequest.startAtIndex, transactionHistoryRequest.startAtIndex + transactionHistoryRequest.maxResults)}
+			return result;
 		}
 
 		// Code for a negative case could come here

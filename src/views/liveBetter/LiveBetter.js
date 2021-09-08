@@ -148,6 +148,14 @@ export class LiveBetter extends ViewBase {
 		}
 	};
 
+	async _getMoreTransactions(request) {
+
+		// To Do: Temporarily using savings account's Transaction History service call to get the list of transaction.
+		// should be replaced with Transaction History channel service call made for Live Better
+		const result = await this.savingsAccountService.transactionHistory(request, () => true);
+		return result;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -251,11 +259,13 @@ export class LiveBetter extends ViewBase {
 			moneyType: TRANSACTION_HISTORY.MONEY_TYPE
 		};
 
+		// To Do: Temporarily using savings account's Transaction History service call to get the list of transaction.
+		// should be replaced with Transaction History channel service call made for Live Better
 		const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
 
 		if (returnValue.succeeded && returnValue.result) {
 			
-			this.transactionHistory = returnValue.result;
+			this.transactionHistory = returnValue.result.transactions;
 			this.accountDetails = {
 				"Account number": this.landingPageInfo.accountNumber,
 				"Available balance": formatCurrency(this.landingPageInfo.accountAvailableBalance),
@@ -390,6 +400,7 @@ export class LiveBetter extends ViewBase {
 
 					.renderTableColumns="${() => this._renderTransHistoryColumns()}"
 					.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
+					.getMoreTransactions="${request => this._getMoreTransactions(request)}"
 
 					@error-handler = "${() => this._errorHandler()}"
 					@back="${() => this._setIncidentDone()}">
@@ -432,6 +443,7 @@ export class LiveBetter extends ViewBase {
 	}
 
 	_renderTransactionDetails(item) {
+	
 		return html`
 		<capitec-content-box style="height: auto;">
 			<capitec-label
@@ -488,6 +500,7 @@ export class LiveBetter extends ViewBase {
 				data-automation-id="transaction-history-item-description">
 			</capitec-label>
 
+			<!-- TO DO: Should dynamically render the linked transactions tile based on number of linked transactions available -->
 			${this._renderLinkedTransaction(item)}
 			
 			${this._renderLinkedTransaction(item)}
@@ -500,28 +513,31 @@ export class LiveBetter extends ViewBase {
 
 	_renderLinkedTransaction(item) {
 		return html`
-			<capitec-card style="${unsafeCSS(LINKED_TRANSACTION.card).toString()} ${unsafeCSS(LINKED_TRANSACTION.cardHover).toString()}">
-				<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-					<horizon-label
-						style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-						label="Description"
-						value = "${item.description}"
-						data-automation-id="transaction-history-item-type">
-					</horizon-label>
-					<div style="${unsafeCSS(LINKED_TRANSACTION.verticalLine).toString()}"></div>
-					<horizon-label
-						style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-						label="Transaction Date"
-						value = "${this._formatDate(item.transactionDate)}"
-						data-automation-id="transaction-history-item-transfer-account">
-					</horizon-label>
-					<horizon-label
-						style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-						label="Round-up amount" 
-						value = "R2.50"
-						data-automation-id="transaction-history-item-posting-date">
-					</horizon-label>
-				</capitec-group>
+			<capitec-card 
+				?elevated="${true}" 
+				class="row-selector" 
+				style="${unsafeCSS(LINKED_TRANSACTION.card).toString()}">
+					<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+						<horizon-label
+							style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)} ${unsafeCSS(LINKED_TRANSACTION.description).toString()}" 
+							label="Description"
+							value = "${item.description}"
+							data-automation-id="transaction-history-item-type">
+						</horizon-label>
+						<div style="${unsafeCSS(LINKED_TRANSACTION.verticalLine).toString()}"></div>
+						<horizon-label
+							style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+							label="Transaction Date"
+							value = "${this._formatDate(item.transactionDate)}"
+							data-automation-id="transaction-history-item-transfer-account">
+						</horizon-label>
+						<horizon-label
+							style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+							label="Round-up amount" 
+							value = "R2.50"
+							data-automation-id="transaction-history-item-posting-date">
+						</horizon-label>
+					</capitec-group>
 			</capitec-card>`;
 	}
 
