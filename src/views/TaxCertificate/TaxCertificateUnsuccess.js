@@ -86,10 +86,10 @@ export class TaxCertificateUnsuccess extends ViewBase {
 		// TODO : Uncomment entire function once the Tax Certificate dialog is ready and navigation needs to be wired up.
 
 		// Telemetry
-		// this._telemetry.endSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
-		// "screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME,
-		// "nextScreen": TelemetryScreen.FAVOURITES
-		// });
+		this._telemetry.endSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
+		"screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME,
+		"nextScreen": TelemetryScreen.FAVOURITES
+		});
 		this.horizonStore.clearReturnScreen();
 
 		
@@ -100,10 +100,10 @@ export class TaxCertificateUnsuccess extends ViewBase {
 
 		// TODO : Uncomment entire function once the Tax Certificate dialog is ready and navigation needs to be wired up.
 
-		// this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_OUTCOME_HANDOFF, {
-		// "screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME,
-		// "next-screen": null
-		// });
+		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_OUTCOME_HANDOFF, {
+		"screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME,
+		"next-screen": null
+		});
 
 		this.incidentDetails = super.HORIZON_NEED_STATUS.ASSIGNED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails.incidentRecId);

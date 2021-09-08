@@ -155,20 +155,21 @@ export class TaxCertificatesDialog extends Component {
 	}
 
 	_next(e) {
-		selectedCertType = e.detail.selectedCertType;
-		
+		this.selectedCertType = e.detail.selectedCertType || `Both`;
+		const certData = e.detail.selectedCertificates[this.selectedCertType].map(item => item);
+
 		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_NEXT, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE,
 			"next-screen": null,
 
-			"certificate-type": selectedCertType,
+			"certificate-type": this.selectedCertType,
 			// TODO: Add selected certificate types when CS is implemented
 			"selected-documents": [
-				{ "document-type": null,
-				"certificate-period": null },
-				{ "document-type": null,
-				"certificate-period": null }
-			]
+				{ 
+					"document-type": this.selectedCertType === `iT3BTaxCertificates` ? `IT3B` : `IT3S` || `Both`,
+				"certificate-period": certData.map(element => element.year)
+			} 
+		]
 		});
 	}
 
@@ -189,7 +190,7 @@ export class TaxCertificatesDialog extends Component {
 		const returnValue = await this.quickTransactionService.viewTaxCertificate(request, () => true);
 	
 		if (returnValue.succeeded && !isNullorEmpty(returnValue.result)) {
-			const pdfData = result[type.replace(`TaxCertificates`, `Documents`)].find(certificate => certificate.year === item.year);
+			const pdfData = returnValue.result[type.replace(`TaxCertificates`, `Documents`)].find(certificate => certificate.year === item.year);
 			const encodedPDF = base64ToBlobUrl(pdfData.contentData);
 	
 			this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_VIEW_PDF, { 

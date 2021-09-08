@@ -268,7 +268,8 @@ export class Expander extends Component {
 		this.dispatchEvent(new CustomEvent(`value-change`, {
 			detail: {
 				old: e.detail.old,
-				new: e.detail.new
+				new: e.detail.new,
+				currentTarget: e.target.checked
 			}
 		}));
 	}

@@ -167,7 +167,8 @@ export class TaxCertificates extends Component {
 
 		this.dispatchEvent(new CustomEvent(`next`, { 
 			detail: {
-				selectedCertType: this.selectedCertType
+				selectedCertType: this.selectedCertType,
+				selectedCertificates: this.selectedCertificates
 				}
 			}));
 	}
