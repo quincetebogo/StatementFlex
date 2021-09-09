@@ -230,11 +230,22 @@ export class TaxCertificatesDialog extends Component {
 
 	_saveToState(email, selectedCertificates, selectedCertType) {
 		const screenDetails = this.horizonStore.getScreenDetails();
+
 		screenDetails.taxCertificate = {
 			email: email,
 			type: selectedCertType
 		};
-		screenDetails.selectedCertificates = selectedCertificates;
+
+		if (selectedCertificates.iT3BTaxCertificates) {
+			screenDetails.taxCertificate.iT3BTaxCertificates = {};
+			screenDetails.taxCertificate.iT3BTaxCertificates.taxYears = selectedCertificates.iT3BTaxCertificates.map(certificate => certificate.year);
+		}
+
+		if (selectedCertificates.iT3STaxCertificates) {
+			screenDetails.taxCertificate.iT3STaxCertificates = {};
+			screenDetails.taxCertificate.iT3STaxCertificates.taxYears = selectedCertificates.iT3STaxCertificates.map(certificate => certificate.year);
+		}
+
 		this.horizonStore.setScreenDetails(screenDetails);
 	}
 

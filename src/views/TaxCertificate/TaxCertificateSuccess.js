@@ -24,10 +24,7 @@ export class TaxCertificateSuccess extends ViewBase {
 
 		this.isTaxFreeCertificate = true;
 
-		// TODO: To be removed once the navigation is wired up
 		this.email = {};
-		this.taxYear = [];
-		this.certificateType = {};
 
 		this._telemetry = HorizonTelemetry.instance;
 	}
@@ -39,19 +36,19 @@ export class TaxCertificateSuccess extends ViewBase {
 	/**
 	 * Registry of all properties defined by the component.
 	 * 
-	 * @property {Boolean} [isTaxFreeCertificate=true] - Specifies if a Tax Free Certificate is being sent.
-	 * 
 	 * @readonly
 	 * @static
 	 * @memberof TaxCertificateSuccess
 	 */
 	static get properties() {
 		return {
-			isTaxFreeCertificate: { attribute: false, type: Boolean },
-			email: { attribute: false, type: Object },
-			taxYear: { attribute: false, type: Array },
-			type: { attribute: false, type: Object },
-			selectedCertificates: { type: Object }
+
+			// Private Properties
+			isTaxFreeCertificate: { attribute: false },
+			email: { attribute: false },
+			taxYear: { attribute: false },
+			type: { attribute: false },
+			selectedCertificates: { }
 		};
 	}
 
@@ -61,15 +58,31 @@ export class TaxCertificateSuccess extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
+
 		const screenDetails = this.horizonStore.getScreenDetails();
+
 		this.email = screenDetails.taxCertificate.email;
 		this.type = screenDetails.taxCertificate.type;
-		this.selectedCertificates = screenDetails.selectedCertificates;
+
+		this.iT3BTaxCertificates = screenDetails.taxCertificate.iT3BTaxCertificates;
+		this.iT3STaxCertificates = screenDetails.taxCertificate.iT3STaxCertificates;
+
+		// If the type is both but only once set of certificates are provided
+		// then change the type
+		if (this.iT3BTaxCertificates && !this.iT3STaxCertificates) {
+			this.type = `iT3BTaxCertificates`;
+		}
+
+		if (this.iT3STaxCertificates && !this.iT3BTaxCertificates) {
+			this.type = `iT3STaxCertificates`;
+		}
 
 		this._updateIncidentState();
 	}
 
 	disconnectedCallback() {
+		this.horizonStore.setScreenDetails({ taxCertificate: null });
+
 		super.disconnectedCallback();
 	}
 
@@ -78,23 +91,16 @@ export class TaxCertificateSuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
-
-		// TODO : Uncomment entire function once the Tax Certificate dialog is ready and navigation needs to be wired up.
-
-		// Telemetry
 		this._telemetry.endSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME,
 			"nextScreen": TelemetryScreen.FAVOURITES
 		});
+
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_sendAnotherClick() {
-
-		// TODO : Uncomment entire function once the Tax Certificate dialog is ready and navigation needs to be wired up.
-
-		// Telemetry
 		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME,
 			"nextScreen": TelemetryScreen.TAX_CERTIFICATE
@@ -118,38 +124,57 @@ export class TaxCertificateSuccess extends ViewBase {
 	}
 
 	_taxableYears() {
-		this.taxYear = [];
-		if (this.type === `iT3BTaxCertificates` || this.type === `both`) {
-			
-			this.taxYear.push(...this.selectedCertificates.iT3BTaxCertificates.map(item => item.year));
-			if (this.taxYear.length === 1) {
-				return `${this.taxYear}`;
-			}
-			if (this.taxYear.length === 2) {
-				return `${this.taxYear.join(` and `)}`;
-			}
-			if (this.taxYear.length > 2) {
-				const taxableLastYear = this.taxYear.pop();
-				return `${this.taxYear.join(`, `)} and ${taxableLastYear}`;
-			}
+		if (!this.iT3BTaxCertificates) {
+			return ``;
 		}
+
+		if (this.type !== `iT3BTaxCertificates` && this.type !== `both`) {
+			return ``;
+		}
+		
+		const taxYear = this.iT3BTaxCertificates.taxYears;
+
+		if (taxYear.length === 1) {
+			return `${taxYear}`;
+		}
+
+		if (taxYear.length === 2) {
+			return `${taxYear.join(` and `)}`;
+		}
+
+		if (taxYear.length > 2) {
+			const taxableLastYear = taxYear.pop();
+			return `${taxYear.join(`, `)} and ${taxableLastYear}`;
+		}
+
+		return ``;
 	}
 
 	_taxFreeYears() {
-		this.taxYear = [];
-		if (this.type === `iT3STaxCertificates` || this.type === `both`) {
-			this.taxYear.push(...this.selectedCertificates.iT3STaxCertificates.map(item => item.year));
-			if (this.taxYear.length === 1) {
-				return `${this.taxYear}`;
-			}
-			if (this.taxYear.length === 2) {
-				return `${this.taxYear.join(` and `)}`;
-			}
-			if (this.taxYear.length > 2) {
-				const taxFreeLastYear = this.taxYear.pop();
-				return `${this.taxYear.join(`, `)} and ${taxFreeLastYear}`;
-			}
+		if (!this.iT3STaxCertificates) {
+			return ``;
 		}
+
+		if (this.type !== `iT3STaxCertificates` && this.type !== `both`) {
+			return ``;
+		}
+
+		const taxYear = this.iT3STaxCertificates.taxYears;
+
+		if (taxYear.length === 1) {
+			return `${taxYear}`;
+		}
+
+		if (taxYear.length === 2) {
+			return `${taxYear.join(` and `)}`;
+		}
+
+		if (taxYear.length > 2) {
+			const taxFreeLastYear = taxYear.pop();
+			return `${taxYear.join(`, `)} and ${taxFreeLastYear}`;
+		}
+
+		return ``;
 	}
 
 	// ---------
@@ -174,7 +199,6 @@ export class TaxCertificateSuccess extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._renderSuccessScreen()}
-
 			${super._webTemplate()}
 		`;
 	}
@@ -189,9 +213,9 @@ export class TaxCertificateSuccess extends ViewBase {
 				right="Done"
 				toast="Tax certificate sent"
 				secondaryToast="${this.isTaxFreeCertificate ? `Tax-free certificate sent` : ``}"
-				@left-click=${() => this._sendAnotherClick}
+				@left-click=${() => this._sendAnotherClick()}
 				@right-click=${() => this._doneClick()}>
-					<section 
+					<section
 						data-automation-id="tax-certificate-success-tax-certificate-message"
 						class="success-msg" 
 						slot="detail">
@@ -199,21 +223,21 @@ export class TaxCertificateSuccess extends ViewBase {
 							<br> 
 							${this.type === `iT3STaxCertificates` || this.type === `both` ? html`Tax free certificate for <strong>${this._taxFreeYears()}</strong> has been emailed to <strong>${this.email}</strong>` : html``} 
 							${this._renderTaxFreeCertificateDetail()}
-						</section>
+					</section>
 			</horizon-success-screen>
 		`;
 	}
 
 	_renderTaxFreeCertificateDetail() {
 		return this.type === `iT3STaxCertificate` && this.type === `iT3BTaxCertificate`
-		? html`
+			? html`
 				<section 
 					data-automation-id="tax-certificate-success-tax-free-certificate-message"
 					slot="sub-detail">
 						Tax-free certificate for <strong>${this._taxFreeYears()}</strong> has been emailed to <strong>${this.email}</strong>
 				</section>`
 			: html``;
-		}
+	}
 }
 
 customElements.define(`horizon-tax-certificate-success`, TaxCertificateSuccess);
