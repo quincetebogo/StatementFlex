@@ -22,11 +22,13 @@ export class TaxCertificateSuccess extends ViewBase {
 	constructor() {
 		super();
 
-		this.isTaxFreeCertificate = true;
+		this._telemetry = HorizonTelemetry.instance;
 
 		this.email = {};
+		this.primaryToast = `Tax certificate sent`;
+		this.secondaryToast = `Tax-free certificate sent`;
 
-		this._telemetry = HorizonTelemetry.instance;
+		this.doneClicked = false;
 	}
 
 	// --------------
@@ -44,11 +46,9 @@ export class TaxCertificateSuccess extends ViewBase {
 		return {
 
 			// Private Properties
-			isTaxFreeCertificate: { attribute: false },
 			email: { attribute: false },
 			taxYear: { attribute: false },
-			type: { attribute: false },
-			selectedCertificates: { }
+			type: { attribute: false }
 		};
 	}
 
@@ -67,14 +67,16 @@ export class TaxCertificateSuccess extends ViewBase {
 		this.iT3BTaxCertificates = screenDetails.taxCertificate.iT3BTaxCertificates;
 		this.iT3STaxCertificates = screenDetails.taxCertificate.iT3STaxCertificates;
 
-		// If the type is both but only once set of certificates are provided
-		// then change the type
+		// Make adjustments depending on what type of certificates are available
 		if (this.iT3BTaxCertificates && !this.iT3STaxCertificates) {
 			this.type = `iT3BTaxCertificates`;
+			this.secondaryToast = ``;
 		}
 
 		if (this.iT3STaxCertificates && !this.iT3BTaxCertificates) {
 			this.type = `iT3STaxCertificates`;
+			this.primaryToast = this.secondaryToast;
+			this.secondaryToast = ``;
 		}
 
 		this._updateIncidentState();
@@ -82,6 +84,10 @@ export class TaxCertificateSuccess extends ViewBase {
 
 	disconnectedCallback() {
 		this.horizonStore.setScreenDetails({ taxCertificate: null });
+
+		if (!this.doneClicked) {
+			this.horizonStore.clearReturnScreen();
+		}
 
 		super.disconnectedCallback();
 	}
@@ -96,6 +102,7 @@ export class TaxCertificateSuccess extends ViewBase {
 			"nextScreen": TelemetryScreen.FAVOURITES
 		});
 
+		this.doneClicked = true;
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
@@ -211,32 +218,25 @@ export class TaxCertificateSuccess extends ViewBase {
 				image="/images/tax-certificate/send-tax-certificate.svg"
 				left="Send Another"
 				right="Done"
-				toast="Tax certificate sent"
-				secondaryToast="${this.isTaxFreeCertificate ? `Tax-free certificate sent` : ``}"
+				toast="${this.primaryToast}"
+				secondaryToast="${this.secondaryToast}"
 				@left-click=${() => this._sendAnotherClick()}
 				@right-click=${() => this._doneClick()}>
 					<section
 						data-automation-id="tax-certificate-success-tax-certificate-message"
 						class="success-msg" 
 						slot="detail">
-							${this.type === `iT3BTaxCertificates` || this.type === `both` ? html`Taxable savings certificate for <strong>${this._taxableYears()}</strong> has been emailed to <strong>${this.email}</strong>` : html``}
-							<br> 
-							${this.type === `iT3STaxCertificates` || this.type === `both` ? html`Tax free certificate for <strong>${this._taxFreeYears()}</strong> has been emailed to <strong>${this.email}</strong>` : html``} 
-							${this._renderTaxFreeCertificateDetail()}
+							${this.type === `iT3BTaxCertificates` || this.type === `both` 
+								? html`Taxable savings certificate for <strong>${this._taxableYears()}</strong> has been emailed to <strong>${this.email}</strong><br>` 
+								: html``
+							}
+							${this.type === `iT3STaxCertificates` || this.type === `both` 
+								? html`Tax free certificate for <strong>${this._taxFreeYears()}</strong> has been emailed to <strong>${this.email}</strong>` 
+								: html``
+							} 
 					</section>
 			</horizon-success-screen>
 		`;
-	}
-
-	_renderTaxFreeCertificateDetail() {
-		return this.type === `iT3STaxCertificate` && this.type === `iT3BTaxCertificate`
-			? html`
-				<section 
-					data-automation-id="tax-certificate-success-tax-free-certificate-message"
-					slot="sub-detail">
-						Tax-free certificate for <strong>${this._taxFreeYears()}</strong> has been emailed to <strong>${this.email}</strong>
-				</section>`
-			: html``;
 	}
 }
 
