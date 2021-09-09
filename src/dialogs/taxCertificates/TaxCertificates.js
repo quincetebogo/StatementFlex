@@ -156,19 +156,30 @@ export class TaxCertificatesDialog extends Component {
 	}
 
 	_next(e) {
-		const certData = e.detail.selectedCertificates[e.detail.selectedCertType].map(item => item);
+		let selectedDocuments = [];
+		const selectedCertType = e.detail.selectedCertType;
+		const selectedCertificates = e.detail.selectedCertificates;
+		
+		if (selectedCertType === `iT3BTaxCertificates` || selectedCertType === `both`) {
+			selectedDocuments = selectedDocuments.concat(selectedCertificates.iT3BTaxCertificates.map(certificate => ({
+				"document-type": `iT3B`,
+				"certificate-period": certificate.year
+			})));
+		}
+
+		if (selectedCertType === `iT3STaxCertificates` || selectedCertType === `both`) {
+			selectedDocuments = selectedDocuments.concat(selectedCertificates.iT3BTaxCertificates.map(certificate => ({
+				"document-type": `iT3S`,
+				"certificate-period": certificate.year
+			})));
+		}
 
 		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_NEXT, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE,
 			"next-screen": null,
-			"certificate-type": e.detail.selectedCertType || `both`,
+			"certificate-type": e.detail.selectedCertType,
 			// TODO: Add selected certificate types when CS is implemented
-			"selected-documents": [
-				{ 
-					"document-type": e.detail.selectedCertType === `iT3BTaxCertificates` ? `IT3B` : `IT3S` || `Both`,
-				"certificate-period": certData.map(element => element.year)
-			} 
-		]
+			"selected-documents": selectedDocuments
 		});
 	}
 
