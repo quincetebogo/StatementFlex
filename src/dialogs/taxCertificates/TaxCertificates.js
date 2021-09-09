@@ -178,13 +178,8 @@ export class TaxCertificatesDialog extends Component {
 			"next-screen": TelemetryScreen.TAX_CERTIFICATE_DOCUMENT
 		});
 
-		const iT3BRequest = this._frameViewPDFRequest(item, type, `iT3BTaxCertificates`);
-		const iT3SRequest = this._frameViewPDFRequest(item, type, `iT3STaxCertificates`);
-		const request = {
-			"cif": this.cifNumber,
-			"iT3BTaxCertificates": iT3BRequest,
-			"iT3STaxCertificates": iT3SRequest
-		};
+
+		const request = this._formatRequest(item, type);
 
 		const returnValue = await this.quickTransactionService.viewTaxCertificate(request, () => true);
 	
@@ -244,21 +239,30 @@ export class TaxCertificatesDialog extends Component {
 		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
-	_frameViewPDFRequest(Obj, type, frameRequest) {
-		const state = this.horizonStore.recoverState();
-		const landingPageInfo = state && state.landingPageInfo;
-		const accNum = frameRequest === `iT3STaxCertificates` ? Obj.taxCertificateAccounts[0].accountNumber : landingPageInfo && landingPageInfo.accountNumber;
+	_formatRequest(item, type) {
+		const request = {
+			"cif": this.cifNumber
+		};
 
-		return type === frameRequest
-			? [
-				{
-					"year": Obj.year,
-					"documentId": Obj.documentId,
-					"accountNumber": accNum,
-					"payload": frameRequest !== `iT3STaxCertificates` ? Obj.payload : undefined
-				}
-			]
-			: [];
+		if (type === `iT3BTaxCertificates`) {
+			request.iT3BTaxCertificates = item.taxCertificateAccounts.map(account => ({
+				year: item.year,
+				documentId: item.documentId,
+				accountNumber: account.accountNumber,
+				payload: item.payload
+			}));
+		}
+
+		if (type === `iT3STaxCertificates`) {
+			request.iT3STaxCertificates = item.taxCertificateAccounts.map(account => ({
+				year: item.year,
+				documentId: item.documentId,
+				accountNumber: account.accountNumber,
+				payload: item.payload
+			}));
+		};
+
+		return request;
 	}
 
 	// ---------------
