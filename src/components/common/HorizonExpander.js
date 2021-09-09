@@ -32,37 +32,37 @@ const INPUT_TYPES = {
  *
  */
 export class Expander extends Component {
-    // --------------
-    // INITIALISATION
-    // --------------
+	// --------------
+	// INITIALISATION
+	// --------------
 
 	/**
 	 * @hideconstructor
 	 */
-    constructor() {
-        super();
+	constructor() {
+		super();
 
-        // Set the default property values.
-        this.label = ``;
+		// Set the default property values.
+		this.label = ``;
 		this.icon = ``;
 		this.inputType = ``;
 
-        this.expanded = false;
-        this.disabled = false;
-        this.selected = false;
+		this.expanded = false;
+		this.disabled = false;
+		this.selected = false;
 
-        this.layout = `vertical`;
-        this.halign = `stretch`;
-        this.valign = `top`;
-        this.expandButtonAlignment = `right`;
-        this.gap = `clear`;
-        this.noPadding = false;
-        this.wrap = false;
-    }
+		this.layout = `vertical`;
+		this.halign = `stretch`;
+		this.valign = `top`;
+		this.expandButtonAlignment = `right`;
+		this.gap = `clear`;
+		this.noPadding = false;
+		this.wrap = false;
+	}
 
-    // ----------
-    // PROPERTIES
-    // ----------
+	// ----------
+	// PROPERTIES
+	// ----------
 
 	/**
 	 * Registry of all properties defined by the component.
@@ -86,29 +86,29 @@ export class Expander extends Component {
 	 *    - 'left' - Meaning that the expander button is placed to the left of the title
 	 *    -  Only either of the label or slot='custom-header' can be used for an instance
 	 */
-    static get properties() {
-        return {
-            label: { type: String },
+	static get properties() {
+		return {
+			label: { type: String },
 			icon: { type: String },
 			inputType: { type: String },
 			
-            expanded: { type: Boolean },
-            disabled: { type: Boolean },
+			expanded: { type: Boolean },
+			disabled: { type: Boolean },
 			selected: { type: Boolean },
 
-            layout: { type: String },
-            halign: { type: String },
-            valign: { type: String },
-            expandButtonAlignment: { type: String },
-            gap: { type: String },
-            noPadding: { type: Boolean },
-            wrap: { type: Boolean }
-        };
-    }
+			layout: { type: String },
+			halign: { type: String },
+			valign: { type: String },
+			expandButtonAlignment: { type: String },
+			gap: { type: String },
+			noPadding: { type: Boolean },
+			wrap: { type: Boolean }
+		};
+	}
 
-    // -------------------
-    // LIFECYCLE OVERRIDES
-    // -------------------
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
 
 	/**
 	 * Setup the component once added to the DOM.
@@ -117,13 +117,13 @@ export class Expander extends Component {
 	 *
 	 * @returns {void}
 	 */
-    connectedCallback() {
-        // Ensure the component is setup correctly.
-        super.connectedCallback();
+	connectedCallback() {
+		// Ensure the component is setup correctly.
+		super.connectedCallback();
 
-        // Listen for child label change events.
-        this.addEventListener(`animationend`, this._animationCompleted);
-    }
+		// Listen for child label change events.
+		this.addEventListener(`animationend`, this._animationCompleted);
+	}
 
 	/**
 	 * Clean-up the component once removed from the DOM.
@@ -132,17 +132,17 @@ export class Expander extends Component {
 	 *
 	 * @returns {void}
 	 */
-    disconnectedCallback() {
-        // Stop listening for child label change events.
-        this.removeEventListener(`animationend`, this._animationCompleted);
+	disconnectedCallback() {
+		// Stop listening for child label change events.
+		this.removeEventListener(`animationend`, this._animationCompleted);
 
-        // Ensure the component is cleaned up correctly.
-        super.disconnectedCallback();
-    }
+		// Ensure the component is cleaned up correctly.
+		super.disconnectedCallback();
+	}
 
-    // --------------
-    // EVENT HANDLERS
-    // --------------
+	// --------------
+	// EVENT HANDLERS
+	// --------------
 
 	/**
 	 * Handles component click events.
@@ -153,22 +153,22 @@ export class Expander extends Component {
 	 *
 	 * @returns {void}
 	 */
-    _click(event) {
-        // Prevent the event from bubbling up.
-        event.stopPropagation();
+	_click(event) {
+		// Prevent the event from bubbling up.
+		event.stopPropagation();
 
-        // Ignore the click event if the item is disabled.
-        if (this.disabled) {
-            return;
-        }
+		// Ignore the click event if the item is disabled.
+		if (this.disabled) {
+			return;
+		}
 
-        // Toggle the expanded state of the item.
-        if (this.expanded) {
-            this.collapse();
-        } else {
-            this.expand();
-        }
-    }
+		// Toggle the expanded state of the item.
+		if (this.expanded) {
+			this.collapse();
+		} else {
+			this.expand();
+		}
+	}
 
 	/**
 	 * Cleans up component animations upon completion.
@@ -179,23 +179,23 @@ export class Expander extends Component {
 	 *
 	 * @returns {void}
 	 */
-    _animationCompleted(event) {
-        // Remove the expanding animation, if set.
-        if (this.hasAttribute(`expanding`)) {
-            this.removeAttribute(`expanding`);
-            this.expanded = true;
-        }
+	_animationCompleted(event) {
+		// Remove the expanding animation, if set.
+		if (this.hasAttribute(`expanding`)) {
+			this.removeAttribute(`expanding`);
+			this.expanded = true;
+		}
 
-        // Remove the collapsing animation, if set.
-        if (this.hasAttribute(`collapsing`)) {
-            this.removeAttribute(`collapsing`);
-            this.expanded = false;
-        }
-    }
+		// Remove the collapsing animation, if set.
+		if (this.hasAttribute(`collapsing`)) {
+			this.removeAttribute(`collapsing`);
+			this.expanded = false;
+		}
+	}
 
-    // --------------
-    // PUBLIC METHODS
-    // --------------
+	// --------------
+	// PUBLIC METHODS
+	// --------------
 
 	/**
 	 * Expand the item to show it's content.
@@ -203,24 +203,24 @@ export class Expander extends Component {
 	 * @fires expand When the item is expanded.
 	 * @returns {void}
 	 */
-    expand() {
-        // Ignore the request to expand if the component is already expanded.
-        if (this.expanded === true || this.hasAttribute(`expanding`)) {
-            return;
-        }
+	expand() {
+		// Ignore the request to expand if the component is already expanded.
+		if (this.expanded === true || this.hasAttribute(`expanding`)) {
+			return;
+		}
 
-        // Trigger the expanding animation.
-        this.removeAttribute(`collapsing`);
-        this.setAttribute(`expanding`, ``);
+		// Trigger the expanding animation.
+		this.removeAttribute(`collapsing`);
+		this.setAttribute(`expanding`, ``);
 
-        // Notify any direct subscribers that the component was expanded.
-        this.dispatchEvent(new CustomEvent(`expand`, {
-            detail: {
-                label: this.label,
+		// Notify any direct subscribers that the component was expanded.
+		this.dispatchEvent(new CustomEvent(`expand`, {
+			detail: {
+				label: this.label,
 				expanderGroup: (component) => this.expanderGroupMode(component)
-            }
-        }));
-    }
+			}
+		}));
+	}
 
 	/**
 	 * Collapse the item to hide it's content.
@@ -228,23 +228,23 @@ export class Expander extends Component {
 	 * @fires expand When the item is expanded.
 	 * @returns {void}
 	 */
-    collapse() {
-        // Ignore the request to collapse if the component is already collapsed.
-        if (this.expanded === false || this.hasAttribute(`collapsing`)) {
-            return;
-        }
+	collapse() {
+		// Ignore the request to collapse if the component is already collapsed.
+		if (this.expanded === false || this.hasAttribute(`collapsing`)) {
+			return;
+		}
 
-        // Trigger the collapsing animation.
-        this.removeAttribute(`expanding`);
-        this.setAttribute(`collapsing`, ``);
+		// Trigger the collapsing animation.
+		this.removeAttribute(`expanding`);
+		this.setAttribute(`collapsing`, ``);
 
-        // Notify any direct subscribers that the component was collapsed.
-        this.dispatchEvent(new CustomEvent(`collapse`, {
-            detail: {
-                label: this.label
-            }
-        }));
-    }
+		// Notify any direct subscribers that the component was collapsed.
+		this.dispatchEvent(new CustomEvent(`collapse`, {
+			detail: {
+				label: this.label
+			}
+		}));
+	}
 
 	/**
 	 * Collapse all the other expanders except the current target expander in the component when given expand as an event.
@@ -268,20 +268,21 @@ export class Expander extends Component {
 		this.dispatchEvent(new CustomEvent(`value-change`, {
 			detail: {
 				old: e.detail.old,
-				new: e.detail.new
+				new: e.detail.new,
+				currentTarget: e.target.checked
 			}
 		}));
 	}
 
-    // ---------------
-    // PRIVATE METHODS
-    // ---------------
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
 
-    // n/a
+	// n/a
 
-    // ---------
-    // RENDERING
-    // ---------
+	// ---------
+	// RENDERING
+	// ---------
 
 	/**
 	 * Generates the component stylesheet.
@@ -289,20 +290,20 @@ export class Expander extends Component {
 	 * @ignore
 	 * @returns {css} The css content of the component.
 	 */
-    static get styles() {
-        return [
-            super.styles,
+	static get styles() {
+		return [
+			super.styles,
 
-            /* ---------- LAYOUT POLICY ---------- */
-            css`
+			/* ---------- LAYOUT POLICY ---------- */
+			css`
 				:host {
 					min-height: var(--theme-expander-header-height, 50px);
 					max-height: var(--theme-expander-header-height, 50px);
 				}
 			`,
 
-            /* ---------- COMPONENT STYLING ---------- */
-            css`
+			/* ---------- COMPONENT STYLING ---------- */
+			css`
 				:host {
 					display: flex;
 					flex-direction: column;
@@ -314,7 +315,7 @@ export class Expander extends Component {
 
 				:host([expanded]) {
 					max-height: unset;
-					height: var(--theme-expander-height, 200px);
+					height: var(--theme-expander-height, 100%);
 				}
 
 				:host([expanded].styled) {
@@ -329,11 +330,11 @@ export class Expander extends Component {
 
 				:host > .header {
 					width: var(--theme-expander-header-width, 100%);
-                    border: 1px solid #E1E1E1;
+					border: 1px solid #E1E1E1;
 					border-left: var(--theme-expander-border-left, 1px solid #E1E1E1);
 					cursor: pointer;
-                    padding: 0px;
-                    border-radius:4px;
+					padding: 0px;
+					border-radius:4px;
 					height: 64px;
 				}
 
@@ -440,10 +441,10 @@ export class Expander extends Component {
 				}
 
 				:host([expanding],[noPadding]) > .content {
-                    transition: padding linear 0.2s;
-                    padding-top: var(--theme-container-no-padding-top, 0px);
-                    padding-bottom: var(--theme-container-no-padding-bottom, 0px);
-                }
+					transition: padding linear 0.2s;
+					padding-top: var(--theme-container-no-padding-top, 0px);
+					padding-bottom: var(--theme-container-no-padding-bottom, 0px);
+				}
 
 				:host([collapsing]) > .content {
 					overflow: hidden;
@@ -465,11 +466,11 @@ export class Expander extends Component {
 					animation-fill-mode: forwards;
 				}
 
-                .indicator.right{
-                    height: 24px;
-                    width: 24px;
-                    margin: 20px;
-                }
+				.indicator.right{
+					height: 24px;
+					width: 24px;
+					margin: 20px;
+				}
 
 				.input {
 					margin-left: var(--theme-expander-check-box-margin-left, 16px);
@@ -559,26 +560,26 @@ export class Expander extends Component {
 	 *
 	 * @returns {html} The html content of the component.
 	 */
-    _mobileTemplate() {
-        return this._webTemplate();
-    }
+	_mobileTemplate() {
+		return this._webTemplate();
+	}
 
 	/**
 	 * Generates the component template for kiosk mode.
 	 *
 	 * @returns {html} The html content of the component.
 	 */
-    _kioskTemplate() {
-        return this._webTemplate();
-    }
+	_kioskTemplate() {
+		return this._webTemplate();
+	}
 
 	/**
 	 * Generates the component template for web mode.
 	 *
 	 * @returns {html} The html content of the component.
 	 */
-    _webTemplate() {
-        return html`
+	_webTemplate() {
+		return html`
 			<capitec-group class="header" layout="horizontal" halign="left" valign="center" @click="${(e) => this._click(e)}">
 				${this._renderExpanderTile()}
 			</capitec-group>
@@ -593,7 +594,7 @@ export class Expander extends Component {
 					<slot name="content"></slot>
 			</capitec-content-box>
 		`;
-    }
+	}
 }
 
 window.customElements.define(`horizon-expander`, Expander);

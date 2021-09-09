@@ -1,9 +1,9 @@
 import { Component, html } from 'platform/elements';
 import { HorizonTelemetry, OutcomeScreen } from 'app/services/HorizonTelemetryService';
+import { Logger, NavigationContext } from 'platform/core';
 import { base64ToBlobUrl, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { Logger } from 'platform/core';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -38,8 +38,8 @@ export class TaxCertificatesDialog extends Component {
 		this.logger = Logger.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+		this.navigationContext = NavigationContext.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
-
 		this.taxCertificateDetails = null;
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), () => true);
@@ -111,15 +111,7 @@ export class TaxCertificatesDialog extends Component {
 
 		this._saveToState(email, selectedCertificates, selectedCertType);
 
-		const request = {
-			"cif": this.cifNumber,
-			"emailAddress": email,
-			"documentIds": selectedCertificates[selectedCertType].map(item => item.documentId),
-			"messageParameters": {
-				"title": this.taxCertificateDetails.title,
-				"surname": this.taxCertificateDetails.lastName
-			}
-		};
+		const request = this._formatSendRequest(selectedCertType, selectedCertificates, email);
 		
 		const returnValue = await this.quickTransactionService.sendTaxCertificate(request, () => true);
 		
@@ -127,13 +119,15 @@ export class TaxCertificatesDialog extends Component {
 			"screen": TelemetryScreen.TAX_CERTIFICATE,
 			"next-screen": returnValue.succeeded ? OutcomeScreen.SUCCESS : OutcomeScreen.FAIL
 		});
-
+		
 		if (returnValue.succeeded) {
+			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `tax-certificate`);
 			this.horizonRouter.navigateToTaxCertificateSuccessful();
+			return;
 		}
 
 		this.logger.log(`error`, `Unable to send tax certificates`, `_sendTaxCertificateDocument`, returnValue.correlationId);
-		this.horizonRouter.navigateToTaxCertificateUnsuccessful();
+		this.horizonRouter.navigateToTaxCertificateFailure();
 	}
 
 	async _cancel() {
@@ -153,20 +147,29 @@ export class TaxCertificatesDialog extends Component {
 	}
 
 	_next(e) {
-		selectedCertType = e.detail.selectedCertType;
+		const selectedDocuments = [];
+		const selectedCertType = e.detail.selectedCertType;
+		const selectedCertificates = e.detail.selectedCertificates;
 		
+		if (selectedCertificates.iT3BTaxCertificates && (selectedCertType === `iT3BTaxCertificates` || selectedCertType === `both`)) {
+			selectedDocuments.push(...selectedCertificates.iT3BTaxCertificates.map(certificate => ({
+				"document-type": `iT3B`,
+				"certificate-period": certificate.year
+			})));
+		}
+
+		if (selectedCertificates.iT3STaxCertificates && (selectedCertType === `iT3STaxCertificates` || selectedCertType === `both`)) {
+			selectedDocuments.push(...selectedCertificates.iT3STaxCertificates.map(certificate => ({
+				"document-type": `iT3S`,
+				"certificate-period": certificate.year
+			})));
+		}
+
 		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_NEXT, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE,
 			"next-screen": null,
-
-			"certificate-type": selectedCertType,
-			// TODO: Add selected certificate types when CS is implemented
-			"selected-documents": [
-				{ "document-type": null,
-				"certificate-period": null },
-				{ "document-type": null,
-				"certificate-period": null }
-			]
+			"certificate-type": e.detail.selectedCertType.replace(`TaxCertificates`, ``),
+			"selected-documents": selectedDocuments
 		});
 	}
 
@@ -176,17 +179,12 @@ export class TaxCertificatesDialog extends Component {
 			"next-screen": TelemetryScreen.TAX_CERTIFICATE_DOCUMENT
 		});
 
-		const iT3BRequest = this._frameViewPDFRequest(item, type, `iT3BTaxCertificates`);
-		const iT3SRequest = this._frameViewPDFRequest(item, type, `iT3STaxCertificates`);
-		const request = {
-				"cif": this.cifNumber,
-					"iT3BTaxCertificates": iT3BRequest,
-					"iT3STaxCertificates": iT3SRequest
-		};
+		const request = this._formatViewCertificateRequest(item, type);
 
 		const returnValue = await this.quickTransactionService.viewTaxCertificate(request, () => true);
 	
 		if (returnValue.succeeded && !isNullorEmpty(returnValue.result)) {
+			const result = returnValue.result;
 			const pdfData = result[type.replace(`TaxCertificates`, `Documents`)].find(certificate => certificate.year === item.year);
 			const encodedPDF = base64ToBlobUrl(pdfData.contentData);
 	
@@ -227,30 +225,79 @@ export class TaxCertificatesDialog extends Component {
 		}
 	
 		this.taxCertificateDetails = returnValue.result;
+		this.requestUpdate();
 	}
 
 	_saveToState(email, selectedCertificates, selectedCertType) {
 		const screenDetails = this.horizonStore.getScreenDetails();
+
 		screenDetails.taxCertificate = {
 			email: email,
-			year: selectedCertificates[selectedCertType].map(item => item.year),
 			type: selectedCertType
 		};
-		screenDetails.selectedCertificates = selectedCertificates;
+
+		if (selectedCertificates.iT3BTaxCertificates) {
+			screenDetails.taxCertificate.iT3BTaxCertificates = {};
+			screenDetails.taxCertificate.iT3BTaxCertificates.taxYears = selectedCertificates.iT3BTaxCertificates.map(certificate => certificate.year);
+		}
+
+		if (selectedCertificates.iT3STaxCertificates) {
+			screenDetails.taxCertificate.iT3STaxCertificates = {};
+			screenDetails.taxCertificate.iT3STaxCertificates.taxYears = selectedCertificates.iT3STaxCertificates.map(certificate => certificate.year);
+		}
+
 		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
-	_frameViewPDFRequest(Obj, type, frameRequest) {
-		this.documentIds = Obj.documentId;
+	_formatSendRequest(selectedCertType, selectedCertificates, email) {
+		const documentIds = [];
 
-		return type === frameRequest
-			? Obj.taxCertificateAccounts.map(objArray => ({
-					"year": Obj.year,
-					"documentId": Obj.documentId,
-					"accountNumber": objArray.accountNumber,
-					"payload": frameRequest !== `iT3STaxCertificates` ? Obj.payload : undefined
-				}))
-			: [];
+		if (selectedCertificates.iT3BTaxCertificates && (selectedCertType === `iT3BTaxCertificates` || selectedCertType === `both`)) {
+			documentIds.push(...selectedCertificates.iT3BTaxCertificates.map(item => item.documentId));
+		}
+
+		if (selectedCertificates.iT3STaxCertificates && (selectedCertType === `iT3STaxCertificates` || selectedCertType === `both`)) {
+			documentIds.push(...selectedCertificates.iT3STaxCertificates.map(item => item.documentId));
+		}
+
+		const request = {
+			"cif": this.cifNumber,
+			"emailAddress": email,
+			"documentIds": documentIds,
+			"messageParameters": {
+				"title": this.taxCertificateDetails.title,
+				"surname": this.taxCertificateDetails.lastName
+			},
+			"attachments": []
+		};
+		
+		return request;
+	}
+
+	_formatViewCertificateRequest(item, type) {
+		const request = {
+			"cif": this.cifNumber
+		};
+
+		if (type === `iT3BTaxCertificates`) {
+			request.iT3BTaxCertificates = item.taxCertificateAccounts.map(account => ({
+				year: item.year,
+				documentId: item.documentId,
+				accountNumber: account.accountNumber,
+				payload: item.payload
+			}));
+		}
+
+		if (type === `iT3STaxCertificates`) {
+			request.iT3STaxCertificates = item.taxCertificateAccounts.map(account => ({
+				year: item.year,
+				documentId: item.documentId,
+				accountNumber: account.accountNumber,
+				payload: item.payload
+			}));
+		};
+
+		return request;
 	}
 
 	// ---------------

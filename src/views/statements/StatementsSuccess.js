@@ -49,21 +49,21 @@ export class StatementsSuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		// Telemetry
 		this._telemetry.endSpan(QuickTransactionEvents.STATEMENTS, {
-            "screen": TelemetryScreen.STATEMENTS_OUTCOME,
+			"screen": TelemetryScreen.STATEMENTS_OUTCOME,
 			"nextScreen": TelemetryScreen.FAVOURITES
-        });
+		});
+
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_sendAnotherClick() {
-	// Telemetry
-	this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS, {
-		"screen": TelemetryScreen.STATEMENTS_OUTCOME,
-		"nextScreen": TelemetryScreen.STATEMENTS
-	});
+		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS, {
+			"screen": TelemetryScreen.STATEMENTS_OUTCOME,
+			"nextScreen": TelemetryScreen.STATEMENTS
+		});
+		
 		this.horizonRouter.navigateToReturnPage();
 	}
 

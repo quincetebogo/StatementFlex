@@ -107,33 +107,41 @@ export class TaxCertificates extends Component {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-	_back() {
-		this.selectedCertificates = {};
-		this.errorMessage = ``;
-		this.currentStep--;
-
-		this.dispatchEvent(new CustomEvent(`back`, {}));
-	}
-
-	_certChange(e) {
+	_selectedCertificateTypeChanged(e) {
 		if (e.detail.new) {
 			this.alertBannerMessage = ``;
 			this.selectedCertType = e.target.id;
+			this.selectedCertificates = {};
 		}
 	}
 
-	_onValueChange(e, checkBoxDetails, certType) {
+	_selectedTaxPeriodChanged(e, checkBoxDetails, certType) {
 		this.selectedCertificates[certType] = this.selectedCertificates[certType] || [];
+
 		if (e.detail.new) {
-			this.alertBannerMessage = ``;
-			this.selectedCertificates[certType].push(checkBoxDetails);
-		} else {
-			this.selectedCertificates[certType].splice(this.selectedCertificates[certType].indexOf(checkBoxDetails), 1);
+			this._selectCertificate(checkBoxDetails, certType);
+			this.requestUpdate();
+			return;
 		}
+		
+		this.selectedCertificates[certType].splice(this.selectedCertificates[certType].indexOf(checkBoxDetails), 1);
 		this.requestUpdate();
 	}
 
+	_backClick() {
+		this.errorMessage = ``;
+		this.currentStep--;
+		
+		this.dispatchEvent(new CustomEvent(`back`, {}));
+	}
+
 	_sendClick() {
+		const isValid = this._validateEmailAddress();
+
+		if (!isValid) {
+			return false;
+		}
+		
 		this.dispatchEvent(new CustomEvent(`send`, {
 			detail: {
 				email: this.email,
@@ -167,23 +175,24 @@ export class TaxCertificates extends Component {
 
 		this.dispatchEvent(new CustomEvent(`next`, { 
 			detail: {
-				selectedCertType: this.selectedCertType
+				selectedCertType: this.selectedCertType,
+				selectedCertificates: this.selectedCertificates
 				}
 			}));
 	}
-
 
 	// Only single expander to be seen as expanded at a time
 	_onExpanded(e) {
 		e.detail.expanderGroup(this);
 	}
 
-	_onEmailValueChange(e) {
+	_emailValueChanged(e) {
 		this.email = e.detail.email;
 		this.confirmEmail = e.detail.confirmEmail;
 	}
 
 	_validEmailAddressCheck(e) {
+		this.alertBannerMessage = ``;
 		this.errorMessage = e.detail.errorMessage;
 		this.mailClientError.email = e.detail.emailError;
 		this.mailClientError.confirmEmail = e.detail.confirmEmailError;
@@ -192,6 +201,19 @@ export class TaxCertificates extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_selectCertificate(checkBoxDetails, certType) {
+		if (this._isInSelectedCertificates(this.selectedCertificates[certType], checkBoxDetails)) {
+			return;
+		}
+
+		this.alertBannerMessage = ``;
+		this.selectedCertificates[certType].push(checkBoxDetails);
+	}
+
+	_isInSelectedCertificates(selectedCertificate, checkBoxDetails) {
+		return selectedCertificate.indexOf(checkBoxDetails) !== -1;
+	}
 
 	_isLeapYear(year) {
 		let day = 1;
@@ -207,12 +229,8 @@ export class TaxCertificates extends Component {
 		this.mailClientError.email = isNullorEmpty(this.email) ? `Please enter email` : ``;
 		this.mailClientError.confirmEmail = isNullorEmpty(this.confirmEmail) ? `Please enter email` : ``;
 
-		const errorMessage = this.mailClientError.email || this.mailClientError.confirmEmail ? `Complete all fields.` : ``;
-		return errorMessage === ``;
-	}
-
-	_onKeyPress(e) {
-		this._clearErrors(e);
+		this.alertBannerMessage = this.mailClientError.email || this.mailClientError.confirmEmail ? `Complete all fields.` : ``;
+		return isNullorEmpty(this.alertBannerMessage);
 	}
 
 	_getHeaderTitle() {
@@ -223,21 +241,8 @@ export class TaxCertificates extends Component {
 		return this.renderMode === RENDER_MODE.PDF;
 	}
 
-	_clearErrors(e) {
-		this.errMessage.idEmailAddress = ``;
-		this.errMessage.idConfirmEmail = ``;
-		this.alertBannerMessage = ``;
-		this.emailText = `Email address`;
-	}
-
-	_valueChanged(e) {
-		this[e.currentTarget.id] = e.detail.new;
-		this._clearErrors(e);
-		this.emailText = `Email address`;
-	}
-
 	async _viewPDF(item, type) {
-		this.encodedPDF = await getTaxCertificatePDFCallback(item, type);
+		this.encodedPDF = await this.getTaxCertificatePDFCallback(item, type);
 
 		if (this.encodedPDF) {
 			this.renderMode = RENDER_MODE.PDF;
@@ -326,7 +331,7 @@ export class TaxCertificates extends Component {
 			}
 			.expander-header > horizon-label {
 				width: 156px;
-				height: 100%;
+				height: auto%;
 				font-weight: 300;
 				justify-content: left;
 				padding: 0px 0px 0px 0px;
@@ -471,6 +476,7 @@ export class TaxCertificates extends Component {
 			.expander-content {
 				padding: 14px 14px 8px 16px;
 				background-color: #F7F7F7;
+				height: auto;
 			}
 			.expander-content > capitec-label {
 				margin-bottom: 16px;
@@ -499,9 +505,12 @@ export class TaxCertificates extends Component {
 
 			.seperator {
 				width: 100%;
-				border: 1px solid #E1E1E1;
+				border: 0.01em solid #E1E1E1;
 				margin-bottom: 30px;
 				margin-top: 30px;
+			}
+			capitec-content-box > .contnent[slot="content"] {
+				height: auto;
 			}
 			`
 		];
@@ -576,23 +585,26 @@ export class TaxCertificates extends Component {
 				<capitec-group layout="horizontal" gap="none" halign="left" valign="center" noPadding>
 					<capitec-radio 
 						id="iT3BTaxCertificates"
+						?checked=${this.selectedCertType === `iT3BTaxCertificates`}
 						data-automation-id="tax-certificate-taxable-savings"
 						label="Taxable Savings IT3(b)"
-						@value-changed="${(e) => this._certChange(e)}"
+						@value-changed="${(e) => this._selectedCertificateTypeChanged(e)}"
 						row="1" column="1">
 						</capitec-radio>
 					<capitec-radio 
 						id="iT3STaxCertificates" 
+						?checked=${this.selectedCertType === `iT3STaxCertificates`}
 						data-automation-id="tax-certificate-tax-free"
 						label="Tax-free IT3(s)"
-						@value-changed="${(e) => this._certChange(e)}"
+						@value-changed="${(e) => this._selectedCertificateTypeChanged(e)}"
 						column="2">
 						</capitec-radio>
 					<capitec-radio 
 						id="both" 
+						?checked=${this.selectedCertType === `both`}
 						data-automation-id="tax-certificate-both"
 						label="Both"
-						@value-changed="${(e) => this._certChange(e)}"
+						@value-changed="${(e) => this._selectedCertificateTypeChanged(e)}"
 						column="3"></capitec-radio>
 				</capitec-group>
 			</capitec-radio-group>
@@ -618,7 +630,7 @@ export class TaxCertificates extends Component {
 		if (this.currentStep === 1 && this.renderMode === RENDER_MODE.EMAIL) {
 			return html`
 				<horizon-email-input
-					@value-changed="${(e) => this._onEmailValueChange(e)}"
+					@value-changed="${(e) => this._emailValueChanged(e)}"
 					@validation-update="${(e) => this._validEmailAddressCheck(e)}"
 					.labelOne="${this.emailLabel}"
 					.labelTwo="${this.confirmEmailLabel}"
@@ -652,13 +664,12 @@ export class TaxCertificates extends Component {
 	_renderCertificateYears(item, certType) {
 			return html`
 				<horizon-expander
-
-				id="tax-expander"
+					id="tax-expander"
 					data-automation-id="tax-certificate-document-period"
 					expandButtonAlignment="right"
 					inputType = "Checkbox"
-					@value-change="${(e) => this._onValueChange(e, item, certType)}"
-					?selected = ${this.selectedCertificates === `` ? this.selectedCertificates[certType].indexOf(item) >= 0 : ``}
+					@value-change="${(e) => this._selectedTaxPeriodChanged(e, item, certType)}"
+					?selected = ${this.selectedCertificates[certType] && this.selectedCertificates[certType].indexOf(item) !== -1}
 					@expand="${(e) => this._onExpanded(e)}"
 					?disabled = ${!item.isTaxYearAvailable}>
 						<capitec-group slot="custom-header" layout="horizontal" gap="none" halign="left" valign="center">
@@ -768,7 +779,7 @@ export class TaxCertificates extends Component {
 			<capitec-button
 				type="clear"
 				label="Back"
-				@click="${() => this._back()}"
+				@click="${() => this._backClick()}"
 				?hidden="${this.currentStep === 0 || this.renderMode === RENDER_MODE.PDF}">
 			</capitec-button>
 			<capitec-spacer></capitec-spacer>
