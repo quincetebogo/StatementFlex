@@ -28,7 +28,7 @@ export class TaxCertificateUnsuccess extends ViewBase {
 
 		// TODO: To be removed once the navigation is wired up
 		this.email = {};
-		this.year = {};
+		this.taxYear = [];
 		this.certificateType = {};
 
 		this._telemetry = HorizonTelemetry.instance;
@@ -52,9 +52,10 @@ export class TaxCertificateUnsuccess extends ViewBase {
 		return {
 			context: { type: String },
 			email: { attribute: false, type: Object },
-			year: { attribute: false, type: Object },
+			taxYear: { attribute: false, type: Array },
 			type: { attribute: false, type: Object },
-			isTaxFreeCertificate: { attribute: false, type: Boolean }
+			isTaxFreeCertificate: { attribute: false, type: Boolean },
+			selectedCertificates: { type: Object }
 		};
 	}
 	// -------------------
@@ -66,15 +67,15 @@ export class TaxCertificateUnsuccess extends ViewBase {
 
 		// TODO: Uncomment the below code when CS is being implemented.
 
-		this._updateIncidentState();
+
 
 		const screenDetails = this.horizonStore.getScreenDetails();
-		this.taxYear = screenDetails.taxCertificate.year;
 		this.email = screenDetails.taxCertificate.email;
 		this.type = screenDetails.taxCertificate.type;
 		this.selectedTaxCertificates = screenDetails.selectedCertificates;
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
+
 	}
 
 	disconnectedCallback() {
@@ -97,7 +98,6 @@ export class TaxCertificateUnsuccess extends ViewBase {
 		});
 		this.horizonStore.clearReturnScreen();
 
-		
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 	
@@ -126,47 +126,39 @@ export class TaxCertificateUnsuccess extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
-	// TODO : Uncomment the below code when CS is being implemented.
-
-	_updateIncidentState() {
-		// const incidentDetails = this.horizonStore.getIncidentDetails();
-		// incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-		// this.horizonStore.setIncidentDetails(incidentDetails);
-	}
-
 	_taxableYears() {
-		if (this.type === `iT3BTaxCertificates`) {
-			const taxCertificateLength = this.selectedTaxCertificates[this.type].length;
-			if (taxCertificateLength === 1) {
+		this.taxYear = [];
+		if (this.type === `iT3BTaxCertificates` || this.type === `both`) {
+			
+			this.taxYear.push(...this.selectedCertificates.iT3BTaxCertificates.map(item => item.year));
+			if (this.taxYear.length === 1) {
 				return `${this.taxYear}`;
 			}
-			if (taxCertificateLength === 2) {
+			if (this.taxYear.length === 2) {
 				return `${this.taxYear.join(` and `)}`;
 			}
-			if (taxCertificateLength > 2) {
-				const taxableLastYear = this.Year.pop();
+			if (this.taxYear.length > 2) {
+				const taxableLastYear = this.taxYear.pop();
 				return `${this.taxYear.join(`, `)} and ${taxableLastYear}`;
 			}
 		}
-		return this.taxYear;
 	}
 
 	_taxFreeYears() {
-
-		if (this.type === `iTSBTaxCertificates`) {
-			const taxCertificateLength = this.selectedTaxCertificates[this.type].length;
-			if (taxCertificateLength === 1) {
+		this.taxYear = [];
+		if (this.type === `iT3STaxCertificates` || this.type === `both`) {
+			this.taxYear.push(...this.selectedCertificates.iT3STaxCertificates.map(item => item.year));
+			if (this.taxYear.length === 1) {
 				return `${this.taxYear}`;
 			}
-			if (taxCertificateLength === 2) {
+			if (this.taxYear.length === 2) {
 				return `${this.taxYear.join(` and `)}`;
 			}
-			if (taxCertificateLength > 2) {
-				const taxaFreeLastYear = this.taxableYear.pop();
-				return `${this.taxYear.join(`, `)} and ${taxaFreeLastYear}`;
+			if (this.taxYear.length > 2) {
+				const taxFreeLastYear = this.taxYear.pop();
+				return `${this.taxYear.join(`, `)} and ${taxFreeLastYear}`;
 			}
 		}
-		return this.taxYear;
 	}
 
 	// ---------
@@ -224,8 +216,9 @@ export class TaxCertificateUnsuccess extends ViewBase {
 						data-automation-id="tax-certificate-unsuccessful-tax-certificate-message"
 						class="error-msg" 
 						slot="detail">
-							${this.type === `iT3BTaxCertificates` ? html`Taxable savings certificate for <strong>${this._taxableYears()}</strong> has not been emailed to <strong>${this.email}</strong>` : html``}
-							${this.type === `iT3STaxCertificates` ? html`Tax free certificate for <strong>${this._taxFreeYears()}</strong> has not been emailed to <strong>${this.email}</strong>` : html``}
+							${this.type === `iT3BTaxCertificates` || this.type === `both` ? html`Taxable savings certificate for <strong>${this._taxableYears()}</strong> has not been emailed to <strong>${this.email}</strong>` : html``}
+							<br>
+							${this.type === `iT3STaxCertificates` || this.type === `both` ? html`Tax free certificate for <strong>${this._taxFreeYears()}</strong> has not been emailed to <strong>${this.email}</strong>` : html``}
 					</section>
 					${this._renderTaxFreeCertificateDetail()}
 			</horizon-error-screen>
