@@ -101,6 +101,7 @@ export class TaxCertificatesDialog extends Component {
 		const email = e.detail.email;
 		const selectedCertificates = e.detail.selectedCertificates;
 		const selectedCertType = e.detail.selectedCertType;
+		const documentIds = [];
 
 		if (isNullorEmpty(email)) {
 			return;
@@ -113,10 +114,18 @@ export class TaxCertificatesDialog extends Component {
 
 		this._saveToState(email, selectedCertificates, selectedCertType);
 
+		if (selectedCertType === `iT3BTaxCertificates` || selectedCertType === `both`) {
+			documentIds.push(...selectedCertificates.iT3BTaxCertificates.map(item => item.documentId));
+		}
+
+		if (selectedCertType === `iT3STaxCertificates` || selectedCertType === `both`) {
+			documentIds.push(...selectedCertificates.iT3STaxCertificates.map(item => item.documentId));
+		}
+
 		const request = {
 			"cif": this.cifNumber,
 			"emailAddress": email,
-			"documentIds": selectedCertificates[selectedCertType].map(item => item.documentId),
+			"documentIds": documentIds,
 			"messageParameters": {
 				"title": this.taxCertificateDetails.title,
 				"surname": this.taxCertificateDetails.lastName
@@ -133,6 +142,7 @@ export class TaxCertificatesDialog extends Component {
 
 		if (returnValue.succeeded) {
 			this.horizonRouter.navigateToTaxCertificateSuccessful();
+			return;
 		}
 
 		this.logger.log(`error`, `Unable to send tax certificates`, `_sendTaxCertificateDocument`, returnValue.correlationId);
@@ -156,19 +166,19 @@ export class TaxCertificatesDialog extends Component {
 	}
 
 	_next(e) {
-		let selectedDocuments = [];
+		const selectedDocuments = [];
 		const selectedCertType = e.detail.selectedCertType;
 		const selectedCertificates = e.detail.selectedCertificates;
 		
 		if (selectedCertType === `iT3BTaxCertificates` || selectedCertType === `both`) {
-			selectedDocuments = selectedDocuments.concat(selectedCertificates.iT3BTaxCertificates.map(certificate => ({
+			selectedDocuments.push(...selectedCertificates.iT3BTaxCertificates.map(certificate => ({
 				"document-type": `iT3B`,
 				"certificate-period": certificate.year
 			})));
 		}
 
 		if (selectedCertType === `iT3STaxCertificates` || selectedCertType === `both`) {
-			selectedDocuments = selectedDocuments.concat(selectedCertificates.iT3BTaxCertificates.map(certificate => ({
+			selectedDocuments.push(...selectedCertificates.iT3STaxCertificates.map(certificate => ({
 				"document-type": `iT3S`,
 				"certificate-period": certificate.year
 			})));
@@ -177,7 +187,7 @@ export class TaxCertificatesDialog extends Component {
 		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_NEXT, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE,
 			"next-screen": null,
-			"certificate-type": e.detail.selectedCertType,
+			"certificate-type": e.detail.selectedCertType.replace(`TaxCertificates`, ``),
 			// TODO: Add selected certificate types when CS is implemented
 			"selected-documents": selectedDocuments
 		});
@@ -240,14 +250,14 @@ export class TaxCertificatesDialog extends Component {
 	}
 
 	_saveToState(email, selectedCertificates, selectedCertType) {
-		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.taxCertificate = {
-			email: email,
-			year: selectedCertificates[selectedCertType].map(item => item.year),
-			type: selectedCertType
-		};
-		screenDetails.selectedCertificates = selectedCertificates;
-		this.horizonStore.setScreenDetails(screenDetails);
+		// const screenDetails = this.horizonStore.getScreenDetails();
+		// screenDetails.taxCertificate = {
+		// 	email: email,
+		// 	year: selectedCertificates[selectedCertType].map(item => item.year),
+		// 	type: selectedCertType
+		// };
+		// screenDetails.selectedCertificates = selectedCertificates;
+		// this.horizonStore.setScreenDetails(screenDetails);
 	}
 
 	_formatRequest(item, type) {
