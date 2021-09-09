@@ -119,7 +119,7 @@ export class TaxCertificatesDialog extends Component {
 			"screen": TelemetryScreen.TAX_CERTIFICATE,
 			"next-screen": returnValue.succeeded ? OutcomeScreen.SUCCESS : OutcomeScreen.FAIL
 		});
-
+		
 		if (returnValue.succeeded) {
 			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `tax-certificate`);
 			this.horizonRouter.navigateToTaxCertificateSuccessful();
@@ -127,7 +127,7 @@ export class TaxCertificatesDialog extends Component {
 		}
 
 		this.logger.log(`error`, `Unable to send tax certificates`, `_sendTaxCertificateDocument`, returnValue.correlationId);
-		this.horizonRouter.navigateToTaxCertificateUnsuccessful();
+		this.horizonRouter.navigateToTaxCertificateFailure();
 	}
 
 	async _cancel() {

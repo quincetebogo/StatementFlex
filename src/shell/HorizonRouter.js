@@ -27,7 +27,6 @@ const HORIZON_ROUTES = Object.freeze({
 	ITA_VERIFICATION_FAILED: `/error/ita-verification`,
 	SYSTEM_ERROR: `/error/system-error`,
 	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`,
-	TAX_CERTIFICATE_SERVICE_ERROR: `/error/tax-certificate-service-error`,
 	DEBICHECK_SUCCESS: `/success/debicheck`,
 	STATEMENTS_SUCCESSFUL: `/views/statements/StatementsSuccess`,
 	STATEMENTS_UNSUCCESSFUL: `/views/statements/StatementsUnsuccess`,
@@ -38,7 +37,8 @@ const HORIZON_ROUTES = Object.freeze({
 	TAP_TO_PAY_SUCCESSFUL: `/success/tap-to-pay`,
 	TAP_TO_PAY_UNSUCCESSFUL: `/error/tap-to-pay`,
 	TAX_CERTIFICATE_SUCCESSFUL: `/success/tax-certificate`,
-	TAX_CERTIFICATE_UNSUCCESSFUL: `/error/tax-certificate`
+	TAX_CERTIFICATE_FAILURE: `/error/tax-certificate`,
+	TAX_CERTIFICATE_SERVICE_ERROR: `/error/tax-certificate-service-error`
 });
  
 
@@ -227,8 +227,8 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.TAX_CERTIFICATE_SUCCESSFUL}`);
 	}
 
-	navigateToTaxCertificateUnsuccessful() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.TAX_CERTIFICATE_UNSUCCESSFUL}`);
+	navigateToTaxCertificateFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.TAX_CERTIFICATE_FAILURE}`);
 	}
 
 	navigateToLandingPage(ivrOption, hasInsuranceProducts) {
@@ -663,11 +663,11 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
-		name: `horizon-tax-certificate-unsuccessful`,
-		title: `TaxCertificateUnsuccessful`,
+		name: `horizon-tax-certificate-failure`,
+		title: `TaxCertificateFailure`,
 		icon: null,
-		path: HORIZON_ROUTES.TAX_CERTIFICATE_UNSUCCESSFUL,
-		load: () => import(`../views/TaxCertificate/TaxCertificateUnsuccess`),
+		path: HORIZON_ROUTES.TAX_CERTIFICATE_FAILURE,
+		load: () => import(`../views/TaxCertificate/TaxCertificateFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
