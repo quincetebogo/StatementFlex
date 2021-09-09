@@ -111,6 +111,7 @@ export class TaxCertificates extends Component {
 		if (e.detail.new) {
 			this.alertBannerMessage = ``;
 			this.selectedCertType = e.target.id;
+			this.selectedCertificates = {};
 		}
 	}
 
