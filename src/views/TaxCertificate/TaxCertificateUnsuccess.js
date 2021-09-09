@@ -1,6 +1,9 @@
 import { css, html } from 'platform/elements';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 import 'app/components/common/ErrorScreen';
 import 'app/components/common/RelatedOptions';
@@ -28,6 +31,7 @@ export class TaxCertificateUnsuccess extends ViewBase {
 		this.year = {};
 		this.certificateType = {};
 
+		this._telemetry = HorizonTelemetry.instance;
 		this.horizonStore = HorizonStore.getInstance();
 	}
 
@@ -46,6 +50,7 @@ export class TaxCertificateUnsuccess extends ViewBase {
 	 */
 	static get properties() {
 		return {
+			context: { type: String },
 			email: { attribute: false, type: Object },
 			year: { attribute: false, type: Object },
 			type: { attribute: false, type: Object },
@@ -68,7 +73,7 @@ export class TaxCertificateUnsuccess extends ViewBase {
 		this.email = screenDetails.taxCertificate.email;
 		this.type = screenDetails.taxCertificate.type;
 		this.selectedTaxCertificates = screenDetails.selectedCertificates;
-		this.incidentDetails = super.HORIZON_NEED_STATUS.FAILED;
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
@@ -96,19 +101,20 @@ export class TaxCertificateUnsuccess extends ViewBase {
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 	
-	_handoffClick() {
+	_assignClick() {
 
 		// TODO : Uncomment entire function once the Tax Certificate dialog is ready and navigation needs to be wired up.
 
-		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_OUTCOME_HANDOFF, {
+		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_OUTCOME_ASSIGN, {
 		"screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME,
 		"next-screen": null
 		});
 
-		this.incidentDetails = super.HORIZON_NEED_STATUS.ASSIGNED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails.incidentRecId);
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
 
-		// this.horizonRouter.navigateToStrack(incidentRecId);
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+
+		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
 		this.horizonStore.clearReturnScreen();
 	}
 
@@ -213,7 +219,7 @@ export class TaxCertificateUnsuccess extends ViewBase {
 				secondaryToast="${this.isTaxFreeCertificate ? `Tax-free certificate not sent` : ``}"
 				subDetail="${this.isTaxFreeCertificate ? true : ``}"
 				@left-click=${() => this._doneClick()}
-				@right-click=${() => this._handoffClick()}>
+				@right-click=${() => this._assignClick()}>
 					<section
 						data-automation-id="tax-certificate-unsuccessful-tax-certificate-message"
 						class="error-msg" 
@@ -240,7 +246,8 @@ export class TaxCertificateUnsuccess extends ViewBase {
 	_renderRelatedOptions() {
 		return html`
 			<horizon-related-options
-				context="Failure">
+			data-automation-id="tax-certificate-unsuccessful-related-options"
+				context = "Failure">
 			</horizon-related-options>
 		`;
 	}

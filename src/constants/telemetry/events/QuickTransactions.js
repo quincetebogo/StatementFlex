@@ -121,6 +121,8 @@ export const QuickTransactionEvents = {
 	TAX_CERTIFICATE_POP_UP_VIEW_DOCUMENT: `call.fulfill-need.tax-certificate.pop-up.certificate-clicked`,
 	TAX_CERTIFICATE_POP_UP_VIEW_PDF: `call.fulfill-need.tax-certificate.view-certificate`,
 	TAX_CERTIFICATE_POP_UP_CLOSE_PDF: `call.fulfill-need.tax-certificate.view-certificate.close`,
-	TAX_CERTIFICATE_SELECT_SEND: `call.fulfill-need.tax-certificate.pop-up.send`
-	
+	TAX_CERTIFICATE_SELECT_SEND: `call.fulfill-need.tax-certificate.pop-up.send`,
+	TAX_CERTIFICATE_OUTCOME: `call.fulfill-need.tax-certificate.outcome`,
+	TAX_CERTIFICATE_OUTCOME_DONE: `call.fulfill-need.tax-certificate.outcome.done`,
+	TAX_CERTIFICATE_OUTCOME_ASSIGN: `call.fulfill-need.tax-certificate.outcome.hand-off`
  };
