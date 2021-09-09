@@ -107,7 +107,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	// PUBLIC METHODS
 	// --------------
 
-	// N/A
+	_exitTransactionHistory() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_unloadTransactionHistory() {
+		this._setIncidentDone();
+	}
 	
 	// ---------------
 	// PRIVATE METHODS
@@ -131,7 +137,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 				// Now we can update the information on the product buttons
 				this._updateLeftBar();
-				this.endCallContext=`LandingPage`;
+				this.endCallContext = `LandingPage`;
 				this.renderMode = RENDER_MODE.MAIN_PAGE;
 			}
 		} else {
@@ -204,7 +210,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				"interest": this.landingPageInfo.interestRatePercentage,
 				"status": this.landingPageInfo.accountStatus
 			};
-			this.endCallContext=`TransactionHistory`;
+			this.endCallContext = `TransactionHistory`;
 			this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 		}
 	}
@@ -275,7 +281,8 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 					.accountDetails = "${this.accountDetails}"
 					.callerInformation = "${this.callerInformation}"
 					@error-handler = "${() => this._errorHandler()}"
-					@back="${() => this._setIncidentDone()}">
+					@back="${() => this._exitTransactionHistory()}"
+					@unloading="${() => this._unloadTransactionHistory()}">
 				</horizon-transaction-history>`
 			: html``;
 	}
