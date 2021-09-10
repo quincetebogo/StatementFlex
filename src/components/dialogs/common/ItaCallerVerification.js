@@ -1,6 +1,6 @@
+import { Configuration, Logger } from 'platform/core';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonSignalRClient } from 'app/shell/HorizonSignalRClient';
-import { Configuration, Logger } from 'platform/core';
 
 
 /**
@@ -12,42 +12,45 @@ export class ItaCallerVerification {
 	// INITIALISATION
 	// --------------
 
-	constructor(cifNumber, verificationStatusCallback, timeout = ITA_TIMEOUT_SECS, verificationMethod = `unverified`) {
+	constructor(verificationStatusCallback, toggleBusyCallback, timeout = 70, maxItaAttempts = 3) {
 		this.seconds = timeout;
-		this.isBusy = false;
-		this.cifNumber = cifNumber;
 		this.verificationStatusCallback = verificationStatusCallback;
-		this.verificationMethod = verificationMethod;
 
-		this.itaInProgress = false;
+		this.cifNumber = null;
 		this.itaTimer = null;
-		this.itaTimeout = false;
-		this.itaRejected = false;
+		this.maxItaAttempts = maxItaAttempts;
+		this.attempt = 0;
 
 		this.configuration = Configuration.getInstance();
 		this.logger = Logger.getInstance();
 
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag());
+		this.callHandleService = new CallHandleService(() => toggleBusyCallback());
 	}
 
-	async _initiateItaVerification() {
+	async initiateItaVerification(cifNumber) {
+		// Resetting the attempt count if using a new cifNumber
+		if (cifNumber !== this.cifNumber) {
+			this.attempt = 0;
+		}
+
+		this.cifNumber = cifNumber;
+
 		const signalRUrl = await this.configuration.getSetting(`signalRUrl`);
+
 		if (signalRUrl === ``) {
 			this.logger.log(`warn`, `ITA is not configured`, `_initiateItaVerification`);
-			this.itaInProgress = false;
 			return false;
 		}
-		if (this._itaAttemptsExceeded()) {
+
+		if (this.attempt > this.maxItaAttempts) {
 			this.logger.log(`error`, `Cannot initiate ITA - maximum number of attempts exceeded`, `_initiateItaVerification`);
-			this.itaInProgress = false;
 			return false;
 		}
+
 		if (this.horizonSignalRClient) {
 			this.logger.log(`warn`, `ITA connection is already started, a new connection will not be started`, `_initiateItaVerification`);
 			return false;
 		}
-
-		this.itaInProgress = true;
 
 		this.logger.log(`info`, `Initiating ITA verification`, `_initiateItaVerification`);
 		this.horizonSignalRClient = HorizonSignalRClient.getInstance();
@@ -67,6 +70,10 @@ export class ItaCallerVerification {
 		return true;
 	}
 
+	async close() {
+		await this._stopTimer();
+	}
+
 	async _initialiseSignalR() {
 		try {
 			await this.horizonSignalRClient.startConnection();
@@ -74,6 +81,7 @@ export class ItaCallerVerification {
 			this.logger.log(`error`, `Failed to establish ITA Hub Connection`, `_initialiseSignalR`);
 			return null;
 		}
+
 		try {
 			return await this.horizonSignalRClient.getConnectionId();
 		} catch (error) {
@@ -98,11 +106,9 @@ export class ItaCallerVerification {
 		const returnValue = await this.callHandleService.itaVerification(request, (ex) => this._itaErrorHandler(ex));
 
 		if (returnValue.succeeded) {
-			
-			this.itaTimeout = false;
-			this.itaRejected = false;
-
 			this.logger.log(`info`, `ITA verification request successfully initiated`, `_itaServiceCall`);
+
+			this.attempt++;
 
 			this._startTimer();
 
@@ -119,22 +125,20 @@ export class ItaCallerVerification {
 			return this.itaTimer;
 		}
 
-		this.itaTimer = setInterval(() => {
+		this.itaTimer = setInterval(async () => {
 			this.seconds--;
 
 			if (this.seconds <= 0) {
 				
-				this._stopTimer();
+				await this._stopTimer();
 				
-				this.itaTimeout = true;
-
-				this.verificationStatusCallback(`timeout`);
+				this.verificationStatusCallback(`timeout`, this.attempt);
 			}
 		}, 1000);
 	}
 
-	_stopTimer() {
-		this._cleanupSignalRConnection();
+	async _stopTimer() {
+		await this._cleanupSignalRConnection();
 
 		if (this.itaTimer) {
 			clearInterval(this.itaTimer);
@@ -143,22 +147,20 @@ export class ItaCallerVerification {
 		}
 	};
 	
-	_signalRPostEventAction(verificationStatus) {
+	async _signalRPostEventAction(verificationStatus) {
 		this.logger.log(`info`, `ITA verification event received. Status=${verificationStatus}`, `_signalRPostEventAction`);
 
-		this._stopTimer();
+		await this._stopTimer();
 
 		if (this._isVerified(verificationStatus)) {
-			this.verificationStatusCallback(`verified`);
-			this.verificationMethod = `ITA`;
+			this.verificationStatusCallback(`verified`, this.attempt);
 			return;
 		}
 		
-		this.verificationStatusCallback(`unverified`);
+		this.verificationStatusCallback(`unverified`, this.attempt);
 	}
 
 	async _cleanupSignalRConnection() {
-		this.itaInProgress = false;
 		if (this.horizonSignalRClient) {
 			this.logger.log(`info`, `Stopping SignalR Connection for ITA Verification`, `_stopSignalRConnection`);
 
