@@ -215,6 +215,12 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		}
 	}
 
+	async _getMoreTransactions(request) {
+
+		const result = await this.savingsAccountService.transactionHistory(request);
+		return result;
+	}
+
 	_more() {
 		// TODO: Functionality to option 'more' comes here
 	}
@@ -284,6 +290,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 					.renderTableColumns="${() => this._renderTransHistoryColumns()}"
 					.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
+					.getMoreTransactions="${request => this._getMoreTransactions(request)}"
 
 					@error-handler = "${() => this._errorHandler()}"
 					@back="${() => this._setIncidentDone()}">

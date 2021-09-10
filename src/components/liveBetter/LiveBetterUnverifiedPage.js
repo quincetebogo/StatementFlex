@@ -7,7 +7,7 @@ import { Component, css, html } from 'platform/elements';
  * -------------
  * 
  * verify-now
- * livebetter-enquiry
+ * product-enquiry
  * 
  * @export
  * @class LiveBetterUnverifiedPage
@@ -55,7 +55,7 @@ export class LiveBetterUnverifiedPage extends Component {
 	}
 
 	_liveBetterEnquiry(productEnquiry) {
-		this.dispatchEvent(new CustomEvent(`livebetter-enquiry`, { detail: { enquiry: productEnquiry } }));
+		this.dispatchEvent(new CustomEvent(`product-enquiry`, {}));
 	}
 
 	// --------------
