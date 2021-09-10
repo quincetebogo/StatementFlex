@@ -203,14 +203,14 @@ export class ConfirmCallerDetails extends Component {
         this.renderMode = RENDER_MODE.CONFIRM_CALLER;
     }
 
-    _branchCaptured(event) {
-        this.incomingCallDetails = event.detail.incomingCallDetails;
-        this.confirmedCaller = event.detail.confirmedCaller;
-        this.incidentDetails = event.detail.incidentDetails;
-        this.callerInformation.isBranchConsultant = true;
-        this._initCallerInformation();
-        this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-    }
+	_branchCaptured(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.confirmedCaller = event.detail.confirmedCaller;
+		this.incidentDetails = event.detail.incidentDetails;
+		this.callerInformation.isBranchConsultant = true;
+		this._initCallerInformation();
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+	}
 
 	/**
 	 * Non-client information has been captured on the general need search dialog
@@ -328,7 +328,10 @@ export class ConfirmCallerDetails extends Component {
 			false, // isNonClient
 			false, // hasInsuranceProducts
 			false, // hasDigitalChannels
-			0, // verificationAttempts
+			{
+				itaAttempts: 0,
+				xdsAttempts: 0
+			}, 
 			this.confirmedCaller.isBranchConsultant, // isBranchConsultant
 			this.confirmedCaller.isClientPresent // isClientPresent
 		);
@@ -580,9 +583,9 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_renderContent() {
-        switch (this.renderMode) {
-            case RENDER_MODE.CONFIRM_CALLER:
-                return html`
+		switch (this.renderMode) {
+			case RENDER_MODE.CONFIRM_CALLER:
+				return html`
 					<horizon-caller-dialog 
 						.incomingCallDetails="${this.incomingCallDetails}"
 						.incidentDetails="${this.incidentDetails}"

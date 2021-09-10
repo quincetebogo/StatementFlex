@@ -205,14 +205,14 @@ export class AppShell extends Shell {
 		}
 	};
 
-	_casperScript() {
+	async _casperScript() {
 		const body = document.body || document.getElementsByTagName(`body`)[0];
 		const casper = document.getElementById(`CASPerScript`);
 
 		if (!casper) {
 			const script = document.createElement(`script`);
 			
-			script.src = `https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js`;
+			script.src = await this._configuration.getSetting(`otherSystemsURL.CASPer`);
 			script.setAttribute(`type`, `text/javascript`);
 			script.setAttribute(`id`, `CASPerScript`);
 			script.setAttribute(`title`, `CASPer Widget`);
