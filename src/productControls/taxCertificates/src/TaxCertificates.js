@@ -225,6 +225,18 @@ export class TaxCertificates extends Component {
 		return day;
 	}
 
+	_getAllSelectedCertificates(item, type) {
+		
+		if (!isNullorEmpty(this.selectedCertificates.iT3BTaxCertificates) && (type === `iT3BTaxCertificates`)) {
+			this.requestUpdate();
+			return `IT3(b)`;
+		}
+		if (!isNullorEmpty(this.selectedCertificates.iT3STaxCertificates.length) && (type === `iT3STaxCertificates`)) {
+			this.requestUpdate();
+			return `IT3(s)`;
+		}
+	}
+
 	_validateEmailAddress() {
 		this.mailClientError.email = isNullorEmpty(this.email) ? `Please enter email` : ``;
 		this.mailClientError.confirmEmail = isNullorEmpty(this.confirmEmail) ? `Please enter email` : ``;
@@ -748,14 +760,13 @@ export class TaxCertificates extends Component {
 		}
 
 	_renderViewCertificateTile(type) {
-		
 		return this.selectedCertificates[type].map(item => html`
 				<horizon-product-tile
 					data-automation-id="tax-certificate-dialog-view-document"
 					class="view-document-tile"
 					type="default"
 					label="${item.year}"
-					subtitle="${this.selectedCertType === `iT3BTaxCertificates` ? `IT3(b)` : `IT3(s)`} ${!type.isTaxYearAvailable ? `Available` : `Unavaiable`}"
+					subtitle="${this._getAllSelectedCertificates(item, type)} ${!type.isTaxYearAvailable ? `Available` : `Unavaiable`}"
 					@click="${() => this._viewPDF(item, type)}">
 					${this._renderViewDocumnetLink()}
 				</horizon-product-tile>`);
