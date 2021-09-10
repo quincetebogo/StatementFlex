@@ -29,20 +29,6 @@ export class TaxCertificateServiceError extends ViewBase {
 	// PROPERTIES
 	// --------------
 
-		/**
-	 * Registry of all properties defined by the component.
-	 * 
-	 * @property {Boolean} [isTaxFreeCertificate=true] - Specifies if a Tax Free Certificate is being sent.
-	 * 
-	 * @readonly
-	 * @static
-	 * @memberof TaxCertificateServiceError
-	 */
-	static get properties() {
-		return {
-			isTaxFreeCertificate: { attribute: false, type: Boolean }
-		};
-	}
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -54,6 +40,8 @@ export class TaxCertificateServiceError extends ViewBase {
 	disconnectedCallback() {
 		super.disconnectedCallback();
 
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	// --------------
@@ -72,14 +60,6 @@ export class TaxCertificateServiceError extends ViewBase {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	// TODO : Uncomment the below code when CS is being implemented.
-
-	// _updateIncidentState() {
-	// 	const incidentDetails = this.horizonStore.getIncidentDetails();
-	// 	incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-	// 	this.horizonStore.setIncidentDetails(incidentDetails);
-	// }
 
 	// ---------
 	// RENDERING
