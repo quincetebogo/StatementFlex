@@ -2,6 +2,7 @@ import { Component, css, html, live } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/EndCallSession';
+import 'app/components/Common/UpdateIncidentDialog';
 
 /**
  * Search Other Need component
@@ -16,6 +17,13 @@ import 'app/components/dialogs/common/EndCallSession';
  * @extends {Component}
  */
 
+const RENDER_MODE = {
+	SEARCH_OTHER_NEED: 0,
+	UPDATE_INCIDENT_MODAL: 1
+}
+
+const HEADER_LABEL = `Update Incident`;
+
 export class SearchOtherNeed extends Component {
 
 	// --------------
@@ -27,7 +35,7 @@ export class SearchOtherNeed extends Component {
 
 		// Private properties
 		this.isBusy = false;
-		this.renderMode = -1;
+		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
 
 		// Private Variables
 		this.category = ``;
@@ -37,6 +45,8 @@ export class SearchOtherNeed extends Component {
 		this.categories = null;
 		this.needs = null;
 		this.issues = null;
+
+		this.showUpdateIncidentModal = false;
 	}
 
 	// --------------
@@ -61,7 +71,8 @@ export class SearchOtherNeed extends Component {
 			solution: { attribute: false },
 			categories: { type: Array },
 			needs: { type: Array },
-			issues: { type: Array }
+			issues: { type: Array },
+			showUpdateIncidentModal: { type: Boolean }
 		};
 	}
 
@@ -89,7 +100,17 @@ export class SearchOtherNeed extends Component {
 
 	_back() {
 		// initate back to favourite transactions page (on back arrow)
-		this.dispatchEvent(new CustomEvent(`back`, {}));
+		if (isNullorEmpty(this.category)){
+			this.dispatchEvent(new CustomEvent(`back`, {}));
+		} 
+		
+		if (isNullorEmpty(this.need) || isNullorEmpty(this.issue)) {
+			console.log("show modal");
+			this.renderMode = RENDER_MODE.UPDATE_INCIDENT_MODAL;
+			this.showUpdateIncidentModal = true; 
+		} 
+
+	
 	}
 	
 
@@ -237,6 +258,13 @@ export class SearchOtherNeed extends Component {
 				.strack-button {
 					padding-right: 16px;
 				}
+				horizon-update-incident {
+					height: auto;
+					--theme-container-padding-top: 0px;
+					--theme-container-padding-bottom: 0px;
+					--theme-container-padding-left: 0px;
+					--theme-container-padding-right: 0px;
+				}
 			`
 		];
 	}
@@ -246,10 +274,17 @@ export class SearchOtherNeed extends Component {
 	}
 
 	_webTemplate() {
-		return html`
+		switch (this.renderMode) {
+			case RENDER_MODE.SEARCH_OTHER_NEED: 
+			return html`
 			${this._renderOtherNeeds()}
 			${this._renderLoadingIndicator()}
-		`;
+			`;
+			case RENDER_MODE.UPDATE_INCIDENT_MODAL:
+			return html`
+			${this._renderUpdateIncidentModal()}
+			`
+		}
 	}
 
 	_renderLoadingIndicator() {
@@ -392,6 +427,22 @@ export class SearchOtherNeed extends Component {
 						</capitec-label>
 				</capitec-group>`
 			: html``;
+	}
+
+	_renderUpdateIncidentModal() {
+		if (this.showUpdateIncidentModal) {
+			return html`
+				<horizon-update-incident
+				.headerLabel="${HEADER_LABEL}"
+				.categories="${this.categories}"
+				.specificNeeds="${this.needs}"
+				.issueTypes="${this.issues}"
+				.category="${this.category}"
+				.need="${this.need}"
+				.issue="${this.issue}">
+				</horizon-update-incident>
+		`
+		}
 	}
 }
 
