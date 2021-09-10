@@ -22,7 +22,6 @@ export class ErrorScreen extends Component {
 		this.toast = ``;
 		this.displayToast = true;
 		this.image = null;
-		this.secondaryImage = ``;
 		this.subDetail = ``;
 		this.secondaryToast = ``;
 	}
@@ -60,7 +59,6 @@ export class ErrorScreen extends Component {
 			toast: { type: String },
 			displayToast: { type: Boolean },
 			image: { type: String },
-			secondaryImage: { type: String }, 
 			subDetail: { type: String },
 			secondaryToast: { type: String }
 		};
@@ -222,9 +220,6 @@ export class ErrorScreen extends Component {
 					halign="center"
 					valign="center">
 					<img id="id-unsuccessful-img" src="${this.image}" />
-					<img
-						id="id-secondary-img"
-						src="${this.secondaryImage}"/>
 					<capitec-label id="id-verify-unsuccessful" label="${this.header}"></capitec-label>
 					<capitec-group id = "id-msg-group" layout="horizontal">
 						<capitec-icon size="default" icon="status/error-trans"></capitec-icon>

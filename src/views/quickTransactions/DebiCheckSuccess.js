@@ -13,54 +13,57 @@ import 'app/components/common/SuccessScreen';
  */
 export class DebiCheckSuccess extends ViewBase {
 
-	// --------------
-	// INITIALISATION
-	// --------------
+    // --------------
+    // INITIALISATION
+    // --------------
 
-	constructor() {
-		super();
-		this.isApproved = ``;
-		this.mandateId = ``;
-	}
+    constructor() {
+        super();
+        this.isApproved = ``;
+        this.mandateId = ``;
+    }
 
 
-	// ----------
-	// PROPERTIES
-	// ----------
-	
-	// -------------------
-	// LIFECYCLE OVERRIDES
-	// -------------------
+    // ----------
+    // PROPERTIES
+    // ----------
 
-	connectedCallback() {
-		super.connectedCallback();
-	}
+    // -------------------
+    // LIFECYCLE OVERRIDES
+    // -------------------
 
-	disconnectedCallback() {
-		super.disconnectedCallback();
-	}
+    connectedCallback() {
+        super.connectedCallback();
+        const screenDetails = this.horizonStore.getScreenDetails();
+        this.isApproved = screenDetails.isApproved;
+        this.mandateId = screenDetails.mandateId;
+    }
 
-	// --------------
-	// EVENT HANDLERS
-	// --------------
+    disconnectedCallback() {
+        super.disconnectedCallback();
+    }
 
-	_doneClick() {
-		this.horizonStore.clearReturnScreen();
-		this.horizonRouter.navigateToQuickTransactionFavourites();
-	}
+    // --------------
+    // EVENT HANDLERS
+    // --------------
 
-	_debiCheckMandatesClick() {
-		this.horizonRouter.navigateToReturnPage();
-	}
+    _doneClick() {
+        this.horizonStore.clearReturnScreen();
+        this.horizonRouter.navigateToQuickTransactionFavourites();
+    }
 
-	// ---------
-	// RENDERING
-	// ---------
+    _debiCheckMandatesClick() {
+        this.horizonRouter.navigateToReturnPage();
+    }
 
-	static get styles() {
-		return [
-			super.styles,
-			css`
+    // ---------
+    // RENDERING
+    // ---------
+
+    static get styles() {
+        return [
+            super.styles,
+            css`
 				#id-error-msg {
 					width: auto;
 				}
@@ -72,24 +75,24 @@ export class DebiCheckSuccess extends ViewBase {
 					--horizon-option-btn-icon-width: 26px;
 				}
 			`
-		];
-	}
+        ];
+    }
 
-	_mobileTemplate() {
-		return this._webTemplate();
-	}
+    _mobileTemplate() {
+        return this._webTemplate();
+    }
 
-	_webTemplate() {
-		return html`
+    _webTemplate() {
+        return html`
 			${this._renderSuccessScreen()}
 
 			${super._webTemplate()}
 		`;
-	}
+    }
 
-	_renderSuccessScreen() {
-		if(this.isApproved) {
-		return html`
+    _renderSuccessScreen() {
+        if (this.isApproved) {
+            return html`
 			<horizon-success-screen 
 				header="DebiCheck mandate approved"
 				image="/images/transactions/debiCheckMandate.svg"
@@ -105,9 +108,9 @@ export class DebiCheckSuccess extends ViewBase {
 					</section>
 			</horizon-success-screen>
 		`;
-		}
-		else {
-			return html`
+        }
+        else {
+            return html`
 				<horizon-success-screen 
 					header="DebiCheck mandate declined"
 					image="/images/transactions/debiCheckMandate.svg"
@@ -123,8 +126,8 @@ export class DebiCheckSuccess extends ViewBase {
 						</section>
 				</horizon-success-screen>
 			`;
-			}
-	}
+        }
+    }
 
 }
 

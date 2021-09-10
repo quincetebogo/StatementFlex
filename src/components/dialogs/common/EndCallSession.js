@@ -98,9 +98,9 @@ export class EndCallSession extends Component {
 			"screen": TelemetryScreen.END_CALL
 		});
 
-		// Making end call reasons context sensitive 
-		const callerInformation = this.horizonStore.getCallerInformation() || {};
-		this.endCallReasons = END_CALL_REASON[this.endCallContext][callerInformation.verificationStatus] || END_CALL_REASON[this.endCallContext];
+		//Making end call reasons context sensitive 
+
+		this.endCallReasons = END_CALL_REASON[this.endCallContext];
 		
 		// TODO: Evaluate why isRessagined is added to incomingCallDetails
 		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned; 

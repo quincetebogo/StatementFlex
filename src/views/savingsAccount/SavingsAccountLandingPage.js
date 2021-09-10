@@ -69,7 +69,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 			const actions = {
 				'transaction-history': transactionHistory,
-				'debi-check-viewInfo': debiCheck,
+				'debi-check': debiCheck,
 				'statements': statements,
 				'more': more
 			};
@@ -137,7 +137,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 				// Now we can update the information on the product buttons
 				this._updateLeftBar();
-				this.endCallContext = `LandingPage`;
+				this.endCallContext=`LandingPage`;
 				this.renderMode = RENDER_MODE.MAIN_PAGE;
 			}
 		} else {
@@ -210,7 +210,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				"interest": this.landingPageInfo.interestRatePercentage,
 				"status": this.landingPageInfo.accountStatus
 			};
-			this.endCallContext = `TransactionHistory`;
+			this.endCallContext=`TransactionHistory`;
 			this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 		}
 	}
@@ -224,11 +224,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
 			window.open(`${globalOneUrl}${type}`);
 		}
-	}
-
-	_exitTransactionHistory() {
-		this._setIncidentDone();
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	// ---------
@@ -286,7 +281,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 					.accountDetails = "${this.accountDetails}"
 					.callerInformation = "${this.callerInformation}"
 					@error-handler = "${() => this._errorHandler()}"
-					@back="${() => this._exitTransactionHistory()}"
+					@back="${() => this._exitTransactionHistory()}">
 					@unloading="${() => this._unloadTransactionHistory()}">
 				</horizon-transaction-history>`
 			: html``;

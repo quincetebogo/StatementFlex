@@ -1,5 +1,4 @@
 import { DEFAULT_AUTO_RETRIES, ServiceBase } from 'app/services/ServiceBase';
-import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 
 /**
  * Channel Service Methods for Savings Account
@@ -20,18 +19,18 @@ export class SavingsAccountService extends ServiceBase {
 	// PUBLIC METHODS
 	// --------------
 
-    /**
-         * Retrieves the list of debi-check mandates for the main debi-checks display
-         *
-         * @param {string} cifNumber The Client's CIF Number
-         * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-         * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-         * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-         */
-    debiCheckMandates(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-        return this.wrapCall(this.channelService.debiCheckMandates(cifNumber), `debiCheckMandates`, errorHandler, autoRetries);
-    }
-
+	/**
+	 * Retrieves the list of debi-check mandates for the main debi-checks display
+	 *
+	 * @param {string} cifNumber The Client's CIF Number
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	debiCheckMandates(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.debiCheckMandates(cifNumber), `debiCheckMandates`, errorHandler, autoRetries);
+	}
+	
 	/**
 	 * Retrieves the data for the debi-check View Info dialog
 	 *
@@ -42,9 +41,9 @@ export class SavingsAccountService extends ServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-    debiCheckDetails(cifNumber, mandateId, registerId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-        return this.wrapCall(this.channelService.debiCheckDetails(cifNumber, mandateId, registerId), `debiCheckDetails`, errorHandler, autoRetries);
-    }
+	debiCheckDetails(cifNumber, mandateId, registerId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.debiCheckDetails(cifNumber, mandateId, registerId), `debiCheckDetails`, errorHandler, autoRetries);
+	}
 
 	/**
 	 * Decline and Approve a debi-check mandate
@@ -57,7 +56,7 @@ export class SavingsAccountService extends ServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-    debiCheckAuthenticate(cifNumber, mandateReferenceNumber, debtorAccountNumber, accepted, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+    debiCheckAuthenticate(cifNumber, mandateReferenceNumber, debtorAccountNumber, accepted,  errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
         return this.wrapCall(this.channelService.debiCheckAuthenticate(cifNumber, mandateReferenceNumber, debtorAccountNumber, accepted), `debiCheckAuthenticate`, errorHandler, autoRetries);
     }
 
@@ -69,7 +68,7 @@ export class SavingsAccountService extends ServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-    debiCheckConfirmAgreement(mandateInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+    debiCheckConfirmAgreement (mandateInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
         return this.wrapCall(this.channelService.debiCheckConfirmAgreement(mandateInfo), `debiCheckConfirmAgreement`, errorHandler, autoRetries);
     }
 
@@ -82,9 +81,9 @@ export class SavingsAccountService extends ServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
 
-    debiCheckAgreement(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-        return this.wrapCall(this.channelService.debiCheckAgreement(clientInfo), `debiCheckAgreement`, errorHandler, autoRetries);
-    }
+        debiCheckAgreement (clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+            return this.wrapCall(this.channelService.debiCheckAgreement(clientInfo), `debiCheckAgreement`, errorHandler, autoRetries);
+	}
 	
 	/**
 	 * Transaction History - list of Transactions
@@ -110,18 +109,5 @@ export class SavingsAccountService extends ServiceBase {
 	 */
  	savingsAccountLanding (cifNumber, nationalIDNumber, getGenericData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.wrapCall(this.channelService.savingsAccountLanding(cifNumber, nationalIDNumber, getGenericData), `savingsAccountLanding`, errorHandler, autoRetries);
-	}
-
-	/**
-	 * Approves debi-check mandate
-	 *
-	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 */
-	 async debiCheckApprove (errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
-
-		return this.wrapCall(this.channelService.debiCheckApprove(), `debiCheckApprove`, errorHandler, autoRetries);
 	}
 }

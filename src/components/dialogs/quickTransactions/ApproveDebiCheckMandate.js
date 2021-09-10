@@ -6,49 +6,51 @@ import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTran
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 import 'app/components/dialogs/common/DiscardChanges';
+import { mandateInfo } from '../../../mocks/DebiCheckMockData';
 
 const MESSAGE = `Confirm the following information to approve the DebiCheck mandate.`;
 const WARNING_MESSAGE = ` DebiCheck will not be approved and will result in expired mandates.`;
 
-const ORANGE = `#D4781C`;
-
+const ORANGE = "#D4781C";
+const NO = 0;
+const YES = 1;
+const UNANSWERED = 2;
 const QUESTIONS = [
-	{ color: `black`, accepted: 2 },
-	{ color: `black`, accepted: 2 },
-	{ color: `black`, accepted: 2 },
-	{ color: `black`, accepted: 2 }
+    { color: "black", accepted: UNANSWERED },
+    { color: "black", accepted: UNANSWERED },
+    { color: "black", accepted: UNANSWERED },
+    { color: "black", accepted: UNANSWERED }
 ];
 
 export class ApproveDebiCheckMandate extends Component {
 
-	// --------------
-	// INITIALISATION
-	// --------------
+    // --------------
+    // INITIALISATION
+    // --------------
 
-	constructor() {
-		super();
-		this.mandateId = ``; // mandateInfo.mandateReference
-		this.referenceNumber = ``; // mandateInfo.contractReference
-		this.fullName = ``;
-		this.installmentAmount = 0; // mandateSummaryList.amount
-		this.firstCollectionDate = new Date();// mandateInfo.firstCollectionDate  .substring(0, 10);
-		this.collectionDateFrequency = ``;// mandateSummaryList.collectionDate.frequency
-		this.accountNumber = ``;
-		this.shortName = ``;
-		this.today = new Date().toISOString().substr(0, 10);
-		this.emailAddress = ``;
-		this.alertType = `info`;
-		this.approve = false;
-		this.showDiscardChangesModal = false;
+    constructor() {
+        super();
+        this.mandateId = ``; //mandateInfo.mandateReference
+        this.referenceNumber = ``; //mandateInfo.contractReference
+        this.fullName = ``;
+        this.installmentAmount = 0; //mandateSummaryList.amount
+        this.firstCollectionDate = new Date();//mandateInfo.firstCollectionDate  .substring(0, 10);
+        this.collectionDateFrequency = ``;//mandateSummaryList.collectionDate.frequency
+        this.accountNumber = ``;
+        this.shortName = ``;
+        this.today = new Date().toISOString().substr(0, 10);
+        this.emailAddress = ``;
+        this.alertType = `info`;
+        this.approve = false;
+        this.showDiscardChangesModal = false;
+        this._telemetry = HorizonTelemetry.instance;
+        this.horizonStore = HorizonStore.getInstance();
 
-		this._telemetry = HorizonTelemetry.instance;
-		this.horizonStore = HorizonStore.getInstance();
+    }
 
-	}
-
-	// ----------
-	// PROPERTIES
-	// ----------
+    // ----------
+    // PROPERTIES
+    // ----------
 
 	/**
 	 * @property {String} mandateInfo - Info to be used when referencing the mandate.
@@ -57,176 +59,173 @@ export class ApproveDebiCheckMandate extends Component {
 	 * @static
 	 * @memberof AcceptDebiCheckMandate
 	 */
-	static get properties() {
-		return {
-			mandateInfo: { type: Object },
-			debiCheckDetails: { type: Object },
-			showDiscardChangesModal: { type: Boolean, attribute: false }
-		};
-	}
+    static get properties() {
+        return {
+            mandateInfo: { type: Object },
+            debiCheckDetails: { type: Object },
+            showDiscardChangesModal: { type: Boolean, attribute: false },
+            accountNumber: { type: Number },
+            clientDetails: { type: Object }
+        };
+    }
 
 
-	_initialise() {
+    async _initialise() {
 
-		this._clearAll();
+        this._clearAll();
 
-		const state = this.horizonStore.recoverState();
-		const callerInformation = this.horizonStore.getCallerInformation();
-		const landingPageInfo = state.landingPageInfo;
-		const screenDetails = this.horizonStore.getScreenDetails();
+        this.mandateReference = this.debiCheckDetails.mandateReference;
+        this.referenceNumber = this.debiCheckDetails.contractReference;
+        const callerInformation = this.horizonStore.getCallerInformation();
 
-		this.mandateReference = this.debiCheckDetails.mandateReference;
-		this.referenceNumber = this.debiCheckDetails.contractReference;
-		this.fullName = this.titleCase(callerInformation.name);
+        this.fullName = this.titleCase(callerInformation.name);
 
-		// TODO: Remove hardcoded data once endpoints are activated
-		this.accountNumber = `164116973`; // : screenDetails.accountNumber;
-		this.shortName = `Savings account`; // placeholder is account name ?
-		this.emailAddress = `ivanmakatini@email.com`; // : screenDetails.emailAddress; 
+        //TODO: Remove hardcoded data once endpoints are activated
 
-		this.installmentAmount = formatCurrency(convertCentsToRand(this.mandateInfo.amount));
-		this.firstCollectionDate = isNullorEmpty(this.debiCheckDetails) ? new Date() : new Date(this.debiCheckDetails.firstCollectionDate).toISOString().substr(0, 10);
-		this.collectionDateFrequency = this.mandateInfo.collectionDate.frequency;
-		this.today = new Date().toISOString().substr(0, 10);
-	}
 
-	// -------------------
-	// LIFECYCLE OVERRIDES
-	// -------------------
+        this.shortName =   this.clientDetails.accountShortName;
+        this.emailAddress =  this.clientDetails.emailAddress;
+        this.installmentAmount = formatCurrency(convertCentsToRand(this.mandateInfo.amount));
+        this.firstCollectionDate = isNullorEmpty(this.debiCheckDetails) ? new Date() : new Date(this.debiCheckDetails.firstCollectionDate).toISOString().substr(0, 10);
+        this.collectionDateFrequency = this.mandateInfo.collectionDayFrequency;
+        this.today = new Date().toISOString().substr(0, 10);
 
-	connectedCallback() {
-		super.connectedCallback();
 
-		this._telemetry.startSpan(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
-			"screen": TelemetryScreen.APPROVE_DEBICHECK
-		});
+    }
 
-		this._initialise();
-	}
+    // -------------------
+    // LIFECYCLE OVERRIDES
+    // -------------------
 
-	disconnectedCallback() {
-		super.disconnectedCallback();
+    connectedCallback() {
+        super.connectedCallback();
 
-		this._telemetry.endSpan(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
-			"screen": TelemetryScreen.APPROVE_DEBICHECK
-		});
-	}
+        this._telemetry.startSpan(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
+            "screen": TelemetryScreen.APPROVE_DEBICHECK
+        });
 
-	// --------------
-	// EVENT HANDLERS
-	// --------------
+        this._initialise();
+    }
 
-	_cancelClick() {
-		QUESTIONS.forEach(key => {
-			if (QUESTIONS[key].accepted !== 2) {
-				this.showDiscardChangesModal = true;
-				return false;
-			}
-		});
+    disconnectedCallback() {
+        super.disconnectedCallback();
 
-		this._clearAll();
-		this.dispatchEvent(new CustomEvent(`cancel`));
-	}
+        this._telemetry.endSpan(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
+            "screen": TelemetryScreen.APPROVE_DEBICHECK
+        });
+    }
 
-	_cancelDiscardModal() {
-		this.showDiscardChangesModal = false;
-		this._telemetry.logEvent(QuickTransactionEvents.DISCARD_CHANGES_CANCEL, {
-			"screen": TelemetryScreen.DISCARD_CHANGES,
-			"next-screen": TelemetryScreen.DEBICHECK
-		});
-	}
+    // --------------
+    // EVENT HANDLERS
+    // --------------
 
-	_approveClick() {
-		this.dispatchEvent(new CustomEvent(`approve`, {
-			detail: { mandateId: this.mandateId }
-		}));
-	}
+    _cancelClick() {
 
-	_checkAccepted() {
-		QUESTIONS.forEach(key => {
-			if (QUESTIONS[key].accepted === 2) {
-				return true;
-			}
-			if (QUESTIONS[key].accepted === 0) {
-				this.alertType = `warning`;
-				return true;
-			}
-			if (!this.approve) {
-				return true;
-			}
-		});
-		return false;
-	}
+        this.showDiscardChangesModal = QUESTIONS.some(question => { return question.accepted !== UNANSWERED });
 
-	_checkWarning() {
-		let returnVal = false;
-		QUESTIONS.forEach(key => {
-			if (QUESTIONS[key].accepted === 0) {
-				returnVal = true;
-			}
-		});
-		return returnVal;
-	}
+        if (!this.showDiscardChangesModal) {
+            this._clearAll();
+            this.dispatchEvent(new CustomEvent(`cancel`));
+        }       
+    }
 
-	_collapseExpander() {
-		for (let i = 0; i < 3; i++) {
-			if (QUESTIONS[i].accepted !== 1) {
-				return true;
-			}
-		}
-		return false;
-	}
+    _cancelDiscardModal() {
+        this.showDiscardChangesModal = false;
+        this._telemetry.logEvent(QuickTransactionEvents.DISCARD_CHANGES_CANCEL, {
+            "screen": TelemetryScreen.DISCARD_CHANGES,
+            "next-screen": TelemetryScreen.DEBICHECK
+        });
+    }
 
-	_agree(e, row, val) {
-		if (!e.detail.new) {
-			return;
-		}
-		this.alertType = `info`;
-		if (val === 1) {
-			QUESTIONS[row].color = `black`;
-			QUESTIONS[row].accepted = 1;
-		} else if (val === 0) {
-			QUESTIONS[row].color = ORANGE;
-			QUESTIONS[row].accepted = 0;
-		}
-		this.requestUpdate();
-	}
+    _approveClick() {
+        this.mandateId = this.mandateInfo.mandateId;
+        this.dispatchEvent(new CustomEvent(`approve`, {
+            detail: { mandateId: this.mandateId }
+        }));
+    }
 
-	_toggleAgreementsAccept(e) {
-		this.approve = !this.approve;
-		this.requestUpdate();
-	}
+    _checkAccepted() {
+        for (let i = 0; i < QUESTIONS.length; i++) {
+            if (QUESTIONS[i].accepted == UNANSWERED) {
+                return true;
+            } else if (QUESTIONS[i].accepted == NO) {
+                return true;
+            }
+        }
+        if (!this.approve) {
+            return true;
+        }
+        return false;
+    }
 
-	_clearAll() {
-		QUESTIONS.forEach(key => {
-			QUESTIONS[key].color = `black`;
-			QUESTIONS[key].accepted = 2;
-		});
-	}
+    _checkWarning() {
+        let returnVal = false;
+        QUESTIONS.forEach(key => {
+            if (key.accepted == NO) {
+                returnVal = true;
+            }
+        });
+        return returnVal;
+    }
 
-	_getFullDate(shortDate) {
-		if (shortDate) {
-			const day = shortDate.substr(8, 3);
-			const monthNum = parseInt(shortDate.substr(5, 2), 10);
-			const month = getMonthName(monthNum - 1);
-			const year = shortDate.substr(0, 4);
+    _collapseExpander() {
+        for (var i = 0; i < 3; i++) {
+            if (QUESTIONS[i].accepted !== YES) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-			return `${day} of ${month} ${year}`;
-		}
+    _agree(e, row, val) {
+        if (!e.detail.new) {
+            return;
+        }
+        this.alertType = 'info';
+        if (val == YES) {
+            QUESTIONS[row].color = "black";
+            QUESTIONS[row].accepted = YES;
+        } else if (val == NO) {
+            QUESTIONS[row].color = ORANGE;
+            QUESTIONS[row].accepted = NO;
+        }
+        this.requestUpdate();
+    }
 
-	}
+    _toggleAgreementsAccept(e) {
+        this.approve = !this.approve;
+        this.requestUpdate();
+    }
 
-	titleCase(str) {
-		return str.split(` `)
-			.map(w => w[0].toUpperCase() + w.substr(1).toLowerCase())
-			.join(` `);
-	}
+    _clearAll() {
+        QUESTIONS.forEach(question => {
+            question.color = 'black';
+            question.accepted = UNANSWERED;
+        });
+    }
 
-	static get styles() {
-		return [
-			super.styles,
-			css`
-				capitec-modal {
+    _getFullDate(shortDate) {        
+        if (shortDate) {
+            const day = shortDate.toString().substr(8, 3);
+            const monthNum = parseInt(shortDate.toString().substr(5, 2));
+            const month = getMonthName(monthNum - 1);
+            const year = shortDate.toString().substr(0, 4);
+
+            return `${day} of ${month} ${year}`;
+        }
+    }
+
+    titleCase(str) {
+        return str.split(' ')
+            .map(w => w[0].toUpperCase() + w.substr(1).toLowerCase())
+            .join(' ');
+    }
+
+    static get styles() {
+        return [
+            super.styles,
+            css`
+                capitec-modal {
 					width: 808px;
 					height: 882px;
 
@@ -237,17 +236,17 @@ export class ApproveDebiCheckMandate extends Component {
 					--theme-modal-header-padding-top: 20px;
 					--theme-modal-header-padding-bottom: 20px;
 					--theme-modal-footer-padding: 8px 16px 8px 0px;                    
-				}
+                }
 
-				.main-cb {
-					height: 754px;
-					border-bottom: 1px solid rgb(225, 225, 225);
+                .main-cb {
+                    height: 754px;
+                    border-bottom: 1px solid rgb(225, 225, 225);
 
-					--theme-container-padding-left: 16px;
-					--theme-container-padding-top: 16px;
-					--theme-container-padding-right: 16px;
-					--theme-container-padding-bottom: 0px;    
-				}
+                	--theme-container-padding-left: 16px;
+                	--theme-container-padding-top: 16px;
+                	--theme-container-padding-right: 16px;
+                	--theme-container-padding-bottom: 0px;    
+                }
 
 				capitec-expander-group {
 					width: 776px;
@@ -259,9 +258,9 @@ export class ApproveDebiCheckMandate extends Component {
 				capitec-expander-group > capitec-expander {
 					border: 1px solid #E1E1E1;
 					border-radius: 4px;
-					margin-bottom: 8px;
+                    margin-bottom: 8px;
 
-					--theme-expander-indicator-width: 13px;
+					--theme-expander-indicator-width: 13px;			
 					--theme-expander-header-font-size: 16px;
 					--theme-expander-header-font-weight: 600;
 					--theme-expander-header-font-color: #3A3A3A;
@@ -270,41 +269,41 @@ export class ApproveDebiCheckMandate extends Component {
 					--theme-container-padding-left: 0px;
 					--theme-expander-height: auto;
 				}
-				capitec-expander-group > capitec-expander[expanded] {
-					box-shadow: 0px 6px 10px 0.25px rgba(0,0,0,0.07);
+                capitec-expander-group > capitec-expander[expanded] {
+                    box-shadow: 0px 6px 10px 0.25px rgba(0,0,0,0.07);
 
-					--theme-expander-border-radius: 5px;
-					--theme-expander-background-color: #F7F7F7;
-				}
+                    --theme-expander-border-radius: 5px;
+                    --theme-expander-background-color: #F7F7F7;
+                }
 
 				capitec-expander-group > capitec-expander > capitec-content-box {
-					--theme-container-padding-right: 16px;
-					--theme-container-padding-top: 16px;
-					background-color: #FFFFFF;  
-					border-radius: 4px;
-				}
+                    --theme-container-padding-right: 16px;
+                    --theme-container-padding-top: 16px;
+                    background-color: #FFFFFF;  
+                    border-radius: 4px;
+                }
 
-				capitec-label{
-					height: 20px;
-					width: 81px;
-					color: #3A3A3A;
-					font-family: "Hind Vadodara";
-					font-size: 14px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 20px;
-				}
-				capitec-alert-banner{
-					font-family: "Hind Vadodara";
-					letter-spacing: 0;
-					line-height: 20px;
-				
-					--theme-alert-banner-height: 48px;
-					--theme-alert-banner-font-size: 14px;
-					--theme-alert-banner-info-font-color: #3A3A3A;
-					--theme-alert-banner-warning-font-color: #3A3A3A;
-					--theme-alert-banner-unsuccessful-red-font-color: #3A3A3A;
-				}
+                capitec-label{
+                    height: 20px;
+                    width: 81px;
+                    color: #3A3A3A;
+                    font-family: "Hind Vadodara";
+                    font-size: 14px;
+                    font-weight: 600;
+                    letter-spacing: 0;
+                    line-height: 20px;
+                }
+                capitec-alert-banner{
+                    font-family: "Hind Vadodara";
+                    letter-spacing: 0;
+                    line-height: 20px;
+                
+                    --theme-alert-banner-height: 48px;
+                    --theme-alert-banner-font-size: 14px;
+	                --theme-alert-banner-info-font-color: #3A3A3A;
+	                --theme-alert-banner-warning-font-color: #3A3A3A;
+	                --theme-alert-banner-unsuccessful-red-font-color: #3A3A3A;
+                }
 
 				capitec-check {
 					padding-left: 16px;
@@ -319,64 +318,65 @@ export class ApproveDebiCheckMandate extends Component {
 
 					--theme-card-min-height: 48px;
 				}
-				.agreement-content {
-					--theme-container-padding-left: 16px;
-					color: #3A3A3A;
-					font-family: "Hind Vadodara";
-					font-size: 16px;
-					border-top: 1px solid #E1E1E1;            
-				}
-				.agreement-content > ol {
-					margin: 0px;
-					padding-left: 20px;
-					margin-bottom: 40px;
-				}
-				.agreement-content > ol > li {
-					padding-left: 15px;
-					margin-bottom: 14px; 
-				}
-				.declaration-content{
-					border-top: 1px solid #E1E1E1;
-					padding-bottom: 0px;
-					color: #3A3A3A;
-					font-family: "Hind Vadodara";
-					font-size: 16px;
-					--theme-container-padding-left: 16px;
-				}
-				.declaration-content > ol {
-					margin: 0px;
-					padding-left: 20px;
-					margin-bottom: 40px;
-				}
-				.declaration-content > ol > li {
-					padding-left: 10px;
-					margin-bottom: 14px; 
-					margin-top: 8px;
-				}
-				.cb-yesno{
-					margin-top:14px;
-				}    
-				div[slot="footer"]{
-					padding-right: 8px;
-					width: 808px;
-					margin-right: -12px;
-				}
-				`
-		];
-	}
+			    .agreement-content {
+                    --theme-container-padding-left: 16px;
+			    	color: #3A3A3A;
+			    	font-family: "Hind Vadodara";
+			    	font-size: 16px;
+                    border-top: 1px solid #E1E1E1;            
+			    }
+			    .agreement-content > ol {
+			    	margin: 0px;
+			    	padding-left: 20px;
+                    margin-bottom: 40px;
+			    }
+			    .agreement-content > ol > li {
+			    	padding-left: 15px;
+                    margin-bottom: 14px; 
+			    }
+                .declaration-content{
+                    border-top: 1px solid #E1E1E1;
+			    	padding-bottom: 0px;
+			    	color: #3A3A3A;
+			    	font-family: "Hind Vadodara";
+			    	font-size: 16px;
+                    --theme-container-padding-left: 16px;
+			    }
+			    .declaration-content > ol {
+			    	margin: 0px;
+			    	padding-left: 20px;
+                    margin-bottom: 40px;
+			    }
+                .declaration-content > ol > li {
+			    	padding-left: 10px;
+                    margin-bottom: 14px; 
+                    margin-top: 8px;
+			    }
+                .cb-yesno{
+                    margin-top:14px;
+                }    
+                div[slot="footer"]{
+                    padding-right: 8px;
+                    width: 808px;
+                    margin-right: -12px;
+                }
+                `
+        ];
+    }
 
-	_mobileTemplate() {
-		_webTemplate();
-	}
+    _mobileTemplate() {
+        _webTemplate();
+    }
 
-	_webTemplate() {
-		return html`
-			<capitec-modal type="free" header-align="left" header="Approve DebiCheck Mandate">
-				<div slot="body">
+    _webTemplate() {
+        return html`
+            <capitec-modal type="free" header-align="left" header="Approve DebiCheck Mandate">
+				<div slot="body">				
 					<capitec-content-box class="main-cb">
 						${this._renderAgreementsAlertBanner()}
 						${this._renderAgreement()}
 						${this._renderDiscardChangesModal()}
+						<!--${this._renderAgreementContent()}-->
 					</capitec-content-box>
 				</div>
 
@@ -384,72 +384,97 @@ export class ApproveDebiCheckMandate extends Component {
 					${this._renderFooter()}
 				</div>
 			</capitec-modal>
-		`;
-	}
+        `;
+    }
 
-	_renderAgreementsAlertBanner() {
-		return html`
-			<capitec-alert-banner type="${this._checkWarning() ? `warning` : this.alertType}" closable>
+    _renderAgreementsAlertBanner() {
+        return html`
+            <capitec-alert-banner
+            type="${this._checkWarning() ? `warning` : this.alertType}" 
+            data-automation-id="debi-check-agreement-alert-banner"
+            closable>
 				<capitec-group layout="horizontal"  valign="top" gap="none" class="alert-banner">
 					<capitec-label
-					label="Notify client: "
+                    label="Notify client: "
 					type="default">                    
 					</capitec-label>
 					${this._checkWarning() ? WARNING_MESSAGE : MESSAGE}
 				</capitec-group>
 			</capitec-alert-banner>
-		`;
-	}
+        `;
+    }
 
-	_renderAgreement() {
-		return html`
-			<capitec-expander-group modeset="single">
+
+   // _renderAgreementContent() {
+   //     return html`
+			//<capitec-content-box 
+   //                 data-automation-id="debi-check-agreement-viewer"
+			//		class="expander-cb" 
+			//		halign="left" 
+			//		valign="top" 
+			//		gap="none">
+
+			//	<object 
+			//		class="agreement-viewer" 
+			//		data="data:text/html;base64,${this.debiCheckAgreement.data.data}" 
+			//		type="text/html">
+			//	</object>
+			//</capitec-content-box>`;
+   // }
+
+    _renderAgreement() {
+        return html`
+            <capitec-expander-group modeset="single">
 				<capitec-expander
 				expandbuttonalignment="left"
 				label="Agreement"
-				.expanded=${this._collapseExpander()}>
+                .expanded=${this._collapseExpander()}>
 					<!--INSERT AGREEMENT TEXT CS CALL-->
-					${this._renderAgreementContent()}
+                    ${this._renderAgreementContent()}
 				</capitec-expander>
 
 				<capitec-expander
 				expandbuttonalignment="left"
 				label="Declaration"
-				.expanded=${!this._collapseExpander()}>
-					<!--INSERT DECLARATION TEXT CS CALL-->
-					${this._renderDeclarationContent()}
+                .expanded=${!this._collapseExpander()}>
+					<!--INSERT DECLARATION TEXT CS CALL-->	
+                    ${this._renderDeclarationContent()}
 				</capitec-expander>
 
 
 			</capitec-expander-group>
-		`;
-	}
+        `;
+    }
 
-	_renderAgreementContent() {
-		return html`
-			<capitec-content-box class="agreement-content">
-					<strong>Thank you, ${this.fullName}. We confirm that you agree to the following:</strong>
+    _renderAgreementContent() {
+        return html`
+			<capitec-content-box 
+            data-automation-id="debi-check-agreement-terms-and-conditions"
+            class="agreement-content">
+                    <strong>Thank you, ${this.fullName}. We confirm that you agree to the following:</strong>
 					<ol>
 						<li>This call is to confirm your DebiCheck mandate and the payments you must make under the credit agreement, contract reference number <strong>${this.referenceNumber}</strong> </li>
-						<li style="color:${QUESTIONS[0].color};">Please take note that your instalment of <strong>${this.installmentAmount}</strong> will be deducted from your nominated bank account every <strong>${this.collectionDateFrequency.toLowerCase()}</strong>, starting on <strong>${this._getFullDate(this.firstCollectionDate)}</strong> and a last amount of <strong>${this.installmentAmount}</strong>. We could also collect on an earlier date, depending on when your salary or wages is paid. </br>
-							Do you understand and accept this? </br>
-							${this._renderYesNo(0)}</li>
+						<li style="color:${QUESTIONS[0].color};">Please take note that your instalment of <strong>${this.installmentAmount}</strong> will be deducted from your nominated bank account on the <strong>${this.collectionDateFrequency.toString().toLowerCase()}</strong>, starting on <strong>${this._getFullDate(this.firstCollectionDate)}</strong> and a last amount of <strong>${this.installmentAmount}</strong>. We could also collect on an earlier date, depending on when your salary or wages is paid. </br>
+                            Do you understand and accept this? </br>
+                            ${this._renderYesNo(0)}</li>
 						<li style="color:${QUESTIONS[1].color};">The payments will be made by early debit order against your nominated account number <strong>${this.accountNumber}</strong> with Capitec Bank Limited, <strong>${this.shortName}</strong>. Do you agree with this?
-							${this._renderYesNo(1)}</li>
+                            ${this._renderYesNo(1)}</li>
 						<li style="color:${QUESTIONS[2].color};">The permission for the bank to collect instalments in the credit agreement will also apply to the agreement we now make. Do you understand and accept what I have read to you?
-							${this._renderYesNo(2)}</li>
+                            ${this._renderYesNo(2)}</li>
 					</ol>
 			</capitec-content-box>            
-		`;
-	}
+        `;
+    }
 
-	_renderDeclarationContent() {
-		return html`
-			<capitec-content-box  class="declaration-content">
-				   <strong> Thank you, ${this.fullName}. We confirm and acknowledge that:</strong>
+    _renderDeclarationContent() {
+        return html`
+			<capitec-content-box  
+            data-automation-id="debi-check-agreement-declaration"
+            class="declaration-content">
+                   <strong> Thank you, ${this.fullName}. We confirm and acknowledge that:</strong>
 					<ol>
 						<li style="color:${QUESTIONS[3].color};">Do you hereby authorise the bank to debit your account? </br>
-							${this._renderYesNo(3)}</li>
+                            ${this._renderYesNo(3)}</li>
 						<li>Please note that if we're unable to collect any instalment(s) from your account in accordance with what we have agreed to on this call, then such payment(s) may be subject to a tracking process, whereby we will attempt to collect the instalment(s) from your account over a tracking period. </li>
 						<li>If you have an issue with any debit order made against your account, you may dispute it in line with the rules of the Payments Association of South Africa. </li>
 						<li>You confirm that all the details you have provided on this call are correct. </li>
@@ -465,59 +490,63 @@ export class ApproveDebiCheckMandate extends Component {
 					</capitec-check>
 				</capitec-card>
 			</capitec-content-box>            
-		`;
-	}
+        `;
+    }
 
-	_renderYesNo(row) {
-		return html`
+    _renderYesNo(row) {
+        return html`
 			<div class="cb-yesno">            
-				<capitec-radio-group>
+            	<capitec-radio-group>
 					<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
 						<capitec-radio
+                            data-automation-id="debi-check-agreement-check-yes"
 							class="radio-btn-yes"
 							label="Yes"
-							@value-change="${(e) => this._agree(e, row, 1)}">
+							@value-change="${(e) => this._agree(e, row, YES)}">
 						</capitec-radio>
 						<capitec-radio
-							class="radio-btn-no"
+                            data-automation-id="debi-check-agreement-check-no"							
+                            class="radio-btn-no"
 							label="No"
-							@value-change="${(e) => this._agree(e, row, 0)}">
+							@value-change="${(e) => this._agree(e, row, NO)}">
 						</capitec-radio>
 					</capitec-group>
 				</capitec-radio-group>
 			</div>            
-		`;
-	}
+        `;
+    }
 
 
-	_renderFooter() {
-		return html`
-			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
+    _renderFooter() {
+        return html`
+            <capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
 				<capitec-button
+                    data-automation-id="debi-check-agreement-cancel"
 					@click="${(e) => this._cancelClick(e)}"
 					label="Cancel">
 				</capitec-button>
 				<capitec-button
+                    data-automation-id="debi-check-agreement-approve"
 					type="primary"
 					@click="${(e) => this._approveClick(e)}"
 					label="Approve"
-					.disabled="${this._checkAccepted()}">
+                    .disabled="${this._checkAccepted()}">
 				</capitec-button>
 			</capitec-group>
-		`;
-	}
+        `;
+    }
 
-	_renderDiscardChangesModal() {
-		if (this.showDiscardChangesModal) {
-			return html`
+    _renderDiscardChangesModal() {
+        if (this.showDiscardChangesModal) {
+            return html`
 				<horizon-discard-changes
 					@on-cancel="${() => this._cancelDiscardModal()}"
 					@on-confirm="${() => this.dispatchEvent(new CustomEvent(`cancel`))}">
-				</horizon-discard-changes>`;
-		}
+				</horizon-discard-changes>`
+        }
 
-		return html``;
-	}
+        return html``;
+    }
 }
 
 window.customElements.define(`horizon-approve-debicheck-mandate`, ApproveDebiCheckMandate);

@@ -45,8 +45,8 @@ export class HorizonChannelServiceMocks {
 		this.cardLimitsMocks = await this._loadMockModule(this.cardLimitsMocks, `cardLimitsLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
 		this.cardLimitsMocks = await this._loadMockModule(this.cardLimitsMocks, `getTemporaryLimits`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
 		this.cardLimitsMocks = await this._loadMockModule(this.cardLimitsMocks, `getCardLimitsAgreement`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
-        this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckMandates`, () => import(`../mocks/DebiCheckMockData`).catch(err => logError(err)));
-        this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckDetails`, () => import(`../mocks/DebiCheckMockData`).catch(err => logError(err)));
+		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckMandates`, () => import(`../mocks/DebiCheckMockData`).catch(err => logError(err)));
+		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckDetails`, () => import(`../mocks/DebiCheckMockData`).catch(err => logError(err)));
         this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckConfirmAgreement`, () => import(`../mocks/DebiCheckMockData`).catch(err => logError(err)));
 		this.securityQuestionMocks = await this._loadMockModule(this.securityQuestionMocks, `xdsQuestions`, () => import(`../mocks/SecurityQuestions`).catch(err => logError(err)));
 		this.stopCardLandingMocks = await this._loadMockModule(this.stopCardLandingMocks, `stopCardLanding`, () => import(`../mocks/StopCardMockData`).catch(err => logError(err)));
@@ -127,33 +127,33 @@ export class HorizonChannelServiceMocks {
 		return null;
 	}
 
-    debiCheckMandates(cifNumber) {
-        if (this._mocking.debiCheckMandates.positiveCase) {
-            return this.mandatesMocks.mockMandates;
-        }
+	debiCheckMandates(cifNumber) {
+		if (this._mocking.debiCheckMandates.positiveCase) {
+			return this.mandatesMocks.mockMandates;
+		}
 
-        // Code for a negative case could come here
-        return null;
-    }
+		// Code for a negative case could come here
+		return null;
+	}
 
-    debiCheckDetails(cifNumber, mandateId, registerId) {
-        if (this._mocking.debiCheckDetails.positiveCase) {
-            const mandateDetails = this.mandatesMocks.mandateInfo.find((entry, index, mandateInfo) => entry.mandateId === mandateId && entry.registerId === registerId);
-            if (mandateDetails) {
-                return mandateDetails.mandateInfo;
-            }
-        }
+	debiCheckDetails(cifNumber, mandateId, registerId) {
+		if (this._mocking.debiCheckDetails.positiveCase) {
+			const mandateDetails = this.mandatesMocks.mandateInfo.find((entry, index, mandateInfo) => entry.mandateId === mandateId && entry.registerId === registerId);
+			if (mandateDetails) {
+				return mandateDetails.mandateInfo;
+			}
+		}
 
-        return null;
+		return null;
     }
 
     debiCheckConfirmAgreement(mandateInfo) {
         if (this._mocking.debiCheckConfirmAgreement.positiveCase) {
             return this.mandatesMocks.agreement;
-        }
+		}
 
-        // Code for a negative case could come here
-        return null;
+		// Code for a negative case could come here
+		return null;
     }
 
 	savingsAccountLanding(cifNumber, mandateId, registerId) {
@@ -232,20 +232,6 @@ export class HorizonChannelServiceMocks {
 	viewStatements() {
 		if (this._mocking.viewStatements.positiveCase) {
 			return this.viewStatementsMock.PDF;
-		}
-		return null;
-	}
-
-	declineDebiCheck() {
-		if (this._mocking.declineDebiCheck.positiveCase) {
-			return true;
-		}
-		return null;
-	}
-
-	approveDebiCheck() {
-		if (this._mocking.approveDebiCheck.positiveCase) {
-			return true;
 		}
 		return null;
 	}

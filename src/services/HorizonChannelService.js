@@ -8,31 +8,31 @@ import { v4 } from 'uuid';
  */
 export class HorizonChannelService extends Service {
 
-	// --------------
-	// INITIALISATION
-	// --------------
+    // --------------
+    // INITIALISATION
+    // --------------
 
-	static getInstance() {
-		return this.instance || (this.instance = new HorizonChannelService());
-	}
+    static getInstance() {
+        return this.instance || (this.instance = new HorizonChannelService());
+    }
 
-	constructor() {
-		super({
-			baseUrlKey: `serviceURIs.channelServiceUrl`,
-			name: `HorizonChannelService`
-		});
+    constructor() {
+        super({
+            baseUrlKey: `serviceURIs.channelServiceUrl`,
+            name: `HorizonChannelService`
+        });
 
-		this._version = `v1`;
-		this._mocking = null;
-		this._mock = null;
+        this._version = `v1`;
+        this._mocking = null;
+        this._mock = null;
 
-		this._configuration = Configuration.getInstance();
-		this._logger = Logger.getInstance();
-	}
+        this._configuration = Configuration.getInstance();
+        this._logger = Logger.getInstance();
+    }
 
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
+    // ---------------
+    // PRIVATE METHODS
+    // ---------------
 
 	/**
 	 * Determine if mocking is enabled for the specified method
@@ -41,42 +41,42 @@ export class HorizonChannelService extends Service {
 	 * @returns {Promise<boolean>} A promise for a boolean that is true if the mock is enabled
 	 * @memberof HorizonChannelService
 	 */
-	async _mockEnabled (mockName) {
-		if (this._mocking === null) {
-			try {
-				this._mocking = await this._configuration.getSetting(`mock`);
+    async _mockEnabled(mockName) {
+        if (this._mocking === null) {
+            try {
+                this._mocking = await this._configuration.getSetting(`mock`);
 
-				// Disable mocking in the SLDC environments. Only for local development
-				if (this._configuration.config.runtime.environment !== `LOCAL`) {
-					this._mocking = { enabled: false }; 
-					this._logger.log(`info`, `Channel Service Mocking has been automatically disabled as the application is not running locally.`, `_mockEnabled`);
-				}
-			} catch {
-				// disable mocking if the setting is not present
-				this._mocking = { enabled: false }; 
-				this._logger.log(`info`, `Channel Service Mocking has been automatically disabled as no configuration is present.`, `_mockEnabled`);
-			}
+                // Disable mocking in the SLDC environments. Only for local development
+                if (this._configuration.config.runtime.environment !== `LOCAL`) {
+                    this._mocking = { enabled: false };
+                    this._logger.log(`info`, `Channel Service Mocking has been automatically disabled as the application is not running locally.`, `_mockEnabled`);
+                }
+            } catch {
+                // disable mocking if the setting is not present
+                this._mocking = { enabled: false };
+                this._logger.log(`info`, `Channel Service Mocking has been automatically disabled as no configuration is present.`, `_mockEnabled`);
+            }
 
-			if (this._mocking.enabled) {
-				// Dynamically load the configured mocks
-				this._logger.log(`info`, `Channel Service Mocking is enabled.`, `_mockEnabled`);
-				this._mock = new (await import(`../mocks/HorizonChannelServiceMocks`)).HorizonChannelServiceMocks();
-				await this._mock.initialise(this._mocking);
-			}
-		}
+            if (this._mocking.enabled) {
+                // Dynamically load the configured mocks
+                this._logger.log(`info`, `Channel Service Mocking is enabled.`, `_mockEnabled`);
+                this._mock = new (await import(`../mocks/HorizonChannelServiceMocks`)).HorizonChannelServiceMocks();
+                await this._mock.initialise(this._mocking);
+            }
+        }
 
-		// Check if mocking is switched off globally
-		if (!this._mocking.enabled) {
-			return false;
-		}
+        // Check if mocking is switched off globally
+        if (!this._mocking.enabled) {
+            return false;
+        }
 
-		// Check if specified mock is configured and enabled
-		if (Object.prototype.hasOwnProperty.call(this._mocking, mockName)) {
-			return this._mocking[mockName].enabled;
-		}
+        // Check if specified mock is configured and enabled
+        if (Object.prototype.hasOwnProperty.call(this._mocking, mockName)) {
+            return this._mocking[mockName].enabled;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
 	/**
 	 * Wraps the platform's post method
@@ -96,35 +96,35 @@ export class HorizonChannelService extends Service {
 	 * @returns {Promise<*>} The response of the Channel Service Request
 	 * @memberof HorizonChannelService
 	 */
-	async _post(url, model, customHeaders, caller, isBinary, controller, sla, timeout) {
-		const correlationId = v4();
-		
-		this._logger.log(`debug`, `url: ${url}, body: ${JSON.stringify(model).substring(0, 19000)}`, caller, correlationId);
+    async _post(url, model, customHeaders, caller, isBinary, controller, sla, timeout) {
+        const correlationId = v4();
 
-		try {
-			const response = await super.httpClient.request({
-				method: `POST`,
-				url: url,
-				model: model,
-				customHeaders: customHeaders,
-				correlationId: correlationId,
-				isBinary: isBinary,
-				controller: controller,
-				sla: sla,
-				timeout: timeout,
-				caller: caller
-			});
-	
-			this._logger.log(`debug`, `result: ${JSON.stringify(response).substring(0, 19000)}`, caller, correlationId);
-	
-			return response;
-		} catch (exception) {
-			exception.requestUrl = url;
-			exception.requestModel = model;
-			exception.requestCaller = caller;
-			throw exception;
-		}
-	}
+        this._logger.log(`debug`, `url: ${url}, body: ${JSON.stringify(model).substring(0, 19000)}`, caller, correlationId);
+
+        try {
+            const response = await super.httpClient.request({
+                method: `POST`,
+                url: url,
+                model: model,
+                customHeaders: customHeaders,
+                correlationId: correlationId,
+                isBinary: isBinary,
+                controller: controller,
+                sla: sla,
+                timeout: timeout,
+                caller: caller
+            });
+
+            this._logger.log(`debug`, `result: ${JSON.stringify(response).substring(0, 19000)}`, caller, correlationId);
+
+            return response;
+        } catch (exception) {
+            exception.requestUrl = url;
+            exception.requestModel = model;
+            exception.requestCaller = caller;
+            throw exception;
+        }
+    }
 
 	/**
 	 * Wrap's the platform's get method
@@ -138,24 +138,24 @@ export class HorizonChannelService extends Service {
 	 * @returns {Promise<*>} The response of the Channel Service REquest
 	 * @memberof HorizonChannelService
 	 */
-	async _get(url, customHeaders, caller) {
-		const correlationId = v4();
-			
-		this._logger.log(`debug`, `url: ${url}`, caller, correlationId);
+    async _get(url, customHeaders, caller) {
+        const correlationId = v4();
 
-		try {
-			const response = await super.httpClient.get(url, customHeaders, correlationId);
+        this._logger.log(`debug`, `url: ${url}`, caller, correlationId);
 
-			this._logger.log(`debug`, `result: ${JSON.stringify(response)}`, caller, correlationId);
+        try {
+            const response = await super.httpClient.get(url, customHeaders, correlationId);
 
-			return response;
-		} catch (exception) {
-			exception.requestUrl = url;
-			exception.requestModel = null;
-			exception.requestCaller = caller;
-			throw exception;
-		}
-	}
+            this._logger.log(`debug`, `result: ${JSON.stringify(response)}`, caller, correlationId);
+
+            return response;
+        } catch (exception) {
+            exception.requestUrl = url;
+            exception.requestModel = null;
+            exception.requestCaller = caller;
+            throw exception;
+        }
+    }
 
 	/**
 	 * Wraps the platform's put method
@@ -175,35 +175,35 @@ export class HorizonChannelService extends Service {
 	 * @returns {Promise<*>} The response of the Channel Service Request
 	 * @memberof HorizonChannelService
 	 */
-	async _put(url, model, customHeaders, caller, isBinary, controller, sla, timeout) {
-		const correlationId = v4();
-		
-		this._logger.log(`debug`, `url: ${url}, body: ${JSON.stringify(model).substring(0, 19000)}`, caller, correlationId);
+    async _put(url, model, customHeaders, caller, isBinary, controller, sla, timeout) {
+        const correlationId = v4();
 
-		try {
-			const response = await super.httpClient.request({
-				method: `PUT`,
-				url: url,
-				model: model,
-				customHeaders: customHeaders,
-				correlationId: correlationId,
-				isBinary: isBinary,
-				controller: controller,
-				sla: sla,
-				timeout: timeout,
-				caller: caller
-			});
+        this._logger.log(`debug`, `url: ${url}, body: ${JSON.stringify(model).substring(0, 19000)}`, caller, correlationId);
 
-			this._logger.log(`debug`, `result: ${JSON.stringify(response).substring(0, 19000)}`, caller, correlationId);
+        try {
+            const response = await super.httpClient.request({
+                method: `PUT`,
+                url: url,
+                model: model,
+                customHeaders: customHeaders,
+                correlationId: correlationId,
+                isBinary: isBinary,
+                controller: controller,
+                sla: sla,
+                timeout: timeout,
+                caller: caller
+            });
 
-			return response;
-		} catch (exception) {
-			exception.requestUrl = url;
-			exception.requestModel = model;
-			exception.requestCaller = caller;
-			throw exception;
-		}
-	}
+            this._logger.log(`debug`, `result: ${JSON.stringify(response).substring(0, 19000)}`, caller, correlationId);
+
+            return response;
+        } catch (exception) {
+            exception.requestUrl = url;
+            exception.requestModel = model;
+            exception.requestCaller = caller;
+            throw exception;
+        }
+    }
 
 	/**
 	 * The X-User-Token is required by some calls where the Product Services/Capabilities services 
@@ -212,80 +212,80 @@ export class HorizonChannelService extends Service {
 	 * @returns {object} The X-User-Token custom header object
 	 * @memberof HorizonChannelService
 	 */
-	_setToken() {
-		return {
-			"X-User-Token": Security.getInstance().token
-		};
-	}
+    _setToken() {
+        return {
+            "X-User-Token": Security.getInstance().token
+        };
+    }
 
-	// --------------
-	// PUBLIC METHODS
-	// --------------
+    // --------------
+    // PUBLIC METHODS
+    // --------------
 
-	// ----------------
-	// Access Channels 
-	// ----------------
+    // ----------------
+    // Access Channels 
+    // ----------------
 
-	accessChannel(cifNumber) {
-		const url = `/clientcare-accesschannels-${this._version}/access-channels?cif=${cifNumber}`;
-		return this._get(url, this._setToken(), `accessChannels`);
-	}
+    accessChannel(cifNumber) {
+        const url = `/clientcare-accesschannels-${this._version}/access-channels?cif=${cifNumber}`;
+        return this._get(url, this._setToken(), `accessChannels`);
+    }
 
-	// --------------------
-	// Value Added Services
-	// --------------------
+    // --------------------
+    // Value Added Services
+    // --------------------
 
-	getValueAddedService(cifNumber) {
-		const url = `/clientcare-client-${this._version}/value-added-services?cif=${cifNumber}`;
-		return this._get(url, this._setToken(), `getValueAddedService`);
-	}
+    getValueAddedService(cifNumber) {
+        const url = `/clientcare-client-${this._version}/value-added-services?cif=${cifNumber}`;
+        return this._get(url, this._setToken(), `getValueAddedService`);
+    }
 
-	putValueAddedService(request) {
-		const url = `/clientcare-client-${this._version}/value-added-services?` +
-						`capitecEntityId=${request.capitecEntityId}&` +
-						`optOutInsights=${request.optOutInsights}&` +
-						`optOutBehaviouralMarketing=${request.optOutBehaviouralMarketing}&` +
-						`optOutPreAssessments=${request.optOutPreAssessments}&` +
-						`optOutAnalysis=${request.optOutAnalysis}&` +
-						`optOutThirdParties=${request.optOutThirdParties}&`;
+    putValueAddedService(request) {
+        const url = `/clientcare-client-${this._version}/value-added-services?` +
+            `capitecEntityId=${request.capitecEntityId}&` +
+            `optOutInsights=${request.optOutInsights}&` +
+            `optOutBehaviouralMarketing=${request.optOutBehaviouralMarketing}&` +
+            `optOutPreAssessments=${request.optOutPreAssessments}&` +
+            `optOutAnalysis=${request.optOutAnalysis}&` +
+            `optOutThirdParties=${request.optOutThirdParties}&`;
 
-		return this._put(url, request, this._setToken(), `putValueAddedService`);
-	}
+        return this._put(url, request, this._setToken(), `putValueAddedService`);
+    }
 
-	// -----------
-	// Call Methods
-	// -----------
+    // -----------
+    // Call Methods
+    // -----------
 
-	async digitalVerificationChannelsAvailable(cifNumber) {
-		if (await this._mockEnabled(`digitalVerificationChannelsAvailable`)) {
-			if (this._mocking.digitalVerificationChannelsAvailable.positiveCase) {
-				return this._mocking.digitalVerificationChannelsAvailable.positiveCase;
-			}
-			return false;
-		}
+    async digitalVerificationChannelsAvailable(cifNumber) {
+        if (await this._mockEnabled(`digitalVerificationChannelsAvailable`)) {
+            if (this._mocking.digitalVerificationChannelsAvailable.positiveCase) {
+                return this._mocking.digitalVerificationChannelsAvailable.positiveCase;
+            }
+            return false;
+        }
 
-		return this._get(`/clientcare-call-${this._version}/has-digital-verification-capability?Cif=${cifNumber}`, this._setToken(), `digitalVerificationChannelsAvailable`);
-	}
+        return this._get(`/clientcare-call-${this._version}/has-digital-verification-capability?Cif=${cifNumber}`, this._setToken(), `digitalVerificationChannelsAvailable`);
+    }
 
-	async xdsQuestions(clientID) {
-		if (await this._mockEnabled(`xdsQuestions`)) {
-			if (this._mocking.xdsQuestions.substituteIdOnly && this._mocking.xdsQuestions.substituteIdOnly !== ``) {
-				clientID = this._mocking.xdsQuestions.substituteIdOnly;
-			} else {
-				return this._mock.xdsQuestions(clientID);
-			}
-		}
+    async xdsQuestions(clientID) {
+        if (await this._mockEnabled(`xdsQuestions`)) {
+            if (this._mocking.xdsQuestions.substituteIdOnly && this._mocking.xdsQuestions.substituteIdOnly !== ``) {
+                clientID = this._mocking.xdsQuestions.substituteIdOnly;
+            } else {
+                return this._mock.xdsQuestions(clientID);
+            }
+        }
 
-		return this._get(`/clientcare-call-${this._version}/xds-questions?clientID=${clientID}`, this._setToken(), `xdsQuestions`);
-	}
+        return this._get(`/clientcare-call-${this._version}/xds-questions?clientID=${clientID}`, this._setToken(), `xdsQuestions`);
+    }
 
-	async verifySecurityQuestions(answers) {
-		if (await this._mockEnabled(`verifySecurityQuestions`)) {
-			return this._mock.verifySecurityQuestions(answers);
-		}
+    async verifySecurityQuestions(answers) {
+        if (await this._mockEnabled(`verifySecurityQuestions`)) {
+            return this._mock.verifySecurityQuestions(answers);
+        }
 
-		return this._post(`/clientcare-call-${this._version}/xds-questions`, answers, this._setToken(), `verifySecurityQuestions`);
-	}
+        return this._post(`/clientcare-call-${this._version}/xds-questions`, answers, this._setToken(), `verifySecurityQuestions`);
+    }
 
 	/**
 	 * Records the information on an incoming call
@@ -294,195 +294,195 @@ export class HorizonChannelService extends Service {
 	 * @returns {Promise<*>} Caller information if the call is originating from a verified number
 	 * @memberof HorizonChannelService
 	 */
-	async acceptCall(incomingCallData) {
-		if (await this._mockEnabled(`acceptCall`)) {
-			return this._mock.acceptCall(incomingCallData);
-		}
+    async acceptCall(incomingCallData) {
+        if (await this._mockEnabled(`acceptCall`)) {
+            return this._mock.acceptCall(incomingCallData);
+        }
 
-		const url = `/clientcare-call-${this._version}/accept-call?` +
-			`incomingTelephoneNumber=${incomingCallData.incomingTelephoneNumber}&` +
-			`voiceReferenceNumber=${incomingCallData.voiceReferenceNumber}&` +
-			`ivrOptionCode=${incomingCallData.ivrOptionCode}&` +
-			`incidentReferenceNumber=${incomingCallData.incidentReferenceNumber}&` +
-			`agentTelephoneNumber=${incomingCallData.agentTelephoneNumber}`;
+        const url = `/clientcare-call-${this._version}/accept-call?` +
+            `incomingTelephoneNumber=${incomingCallData.incomingTelephoneNumber}&` +
+            `voiceReferenceNumber=${incomingCallData.voiceReferenceNumber}&` +
+            `ivrOptionCode=${incomingCallData.ivrOptionCode}&` +
+            `incidentReferenceNumber=${incomingCallData.incidentReferenceNumber}&` +
+            `agentTelephoneNumber=${incomingCallData.agentTelephoneNumber}`;
 
-		return this._get(url, this._setToken(), `acceptCall`);
-	}
+        return this._get(url, this._setToken(), `acceptCall`);
+    }
 
-	searchCaller(clientInfo) {
-		return this._get(
-			`/clientcare-call-${this._version}/search-caller?` +
-				`incomingTelephoneNumber=${clientInfo.incomingTelephoneNumber}&` +
-				`voiceReferenceNumber=${clientInfo.voiceReferenceNumber}&` +
-				`ivrOptionCode=${clientInfo.ivrOption}&` +
-				`incidentReferenceNumber=${clientInfo.incidentNo}&` +
-				`agentTelephoneNumber=${clientInfo.agentTelephoneNumber}&` +
-				`identificationMethod=${parseInt(clientInfo.identificationMethod, 10)}&` +
-				`value=${clientInfo.searchValue}`,
-				this._setToken(),
-			`searchCaller`
-		);
-	}
+    searchCaller(clientInfo) {
+        return this._get(
+            `/clientcare-call-${this._version}/search-caller?` +
+            `incomingTelephoneNumber=${clientInfo.incomingTelephoneNumber}&` +
+            `voiceReferenceNumber=${clientInfo.voiceReferenceNumber}&` +
+            `ivrOptionCode=${clientInfo.ivrOption}&` +
+            `incidentReferenceNumber=${clientInfo.incidentNo}&` +
+            `agentTelephoneNumber=${clientInfo.agentTelephoneNumber}&` +
+            `identificationMethod=${parseInt(clientInfo.identificationMethod, 10)}&` +
+            `value=${clientInfo.searchValue}`,
+            this._setToken(),
+            `searchCaller`
+        );
+    }
 
-	// ----
-	// card
-	// ----
+    // ----
+    // card
+    // ----
 
-	async cardLimitsLanding(cifNumber, incidentRecId) {
-		if (await this._mockEnabled(`cardLimitsLanding`)) {
-			return this._mock.cardLimitsLanding(cifNumber);
-		}
+    async cardLimitsLanding(cifNumber, incidentRecId) {
+        if (await this._mockEnabled(`cardLimitsLanding`)) {
+            return this._mock.cardLimitsLanding(cifNumber);
+        }
 
-		const url = `/clientcare-card-${this._version}/limits-landing?` +
-					`cifNumber=${cifNumber}&` +
-					`incidentRecId=${incidentRecId}`;
-		return this._get(url, this._setToken(), `cardLimitsLanding`);
-	}
+        const url = `/clientcare-card-${this._version}/limits-landing?` +
+            `cifNumber=${cifNumber}&` +
+            `incidentRecId=${incidentRecId}`;
+        return this._get(url, this._setToken(), `cardLimitsLanding`);
+    }
 
-	async getCardLimits(cardDetails) {
-		if (await this._mockEnabled(`cardLimits`)) {
-			return this._mock.getCardLimits();
-		}
-		const url = `/clientcare-card-${this._version}/temporary-limits`;
-		return this._get(url, this._setToken(), `getCardLimits`);
-	}
+    async getCardLimits(cardDetails) {
+        if (await this._mockEnabled(`cardLimits`)) {
+            return this._mock.getCardLimits();
+        }
+        const url = `/clientcare-card-${this._version}/temporary-limits`;
+        return this._get(url, this._setToken(), `getCardLimits`);
+    }
 
-	async getCardLimitsAgreement(cardDetails) {
-		if (await this._mockEnabled(`getCardLimitsAgreement`)) {
-			return this._mock.getCardLimitsAgreement(cardDetails);
-		}
+    async getCardLimitsAgreement(cardDetails) {
+        if (await this._mockEnabled(`getCardLimitsAgreement`)) {
+            return this._mock.getCardLimitsAgreement(cardDetails);
+        }
 
-		return this._post(`/clientcare-card-${this._version}/limits-agreement`, cardDetails, this._setToken(), `getCardLimitsAgreement`);
-	}
+        return this._post(`/clientcare-card-${this._version}/limits-agreement`, cardDetails, this._setToken(), `getCardLimitsAgreement`);
+    }
 
-	updatePermanentLimits(request) {
-		const url = `/clientcare-card-${this._version}/permanent-limits`;
+    updatePermanentLimits(request) {
+        const url = `/clientcare-card-${this._version}/permanent-limits`;
 
-		return this._put(url, request, this._setToken(), `updatePermanentLimits`);
-	}
+        return this._put(url, request, this._setToken(), `updatePermanentLimits`);
+    }
 
-	updateTemporaryLimits(request) {
-		const url = `/clientcare-card-${this._version}/temporary-limits`;
+    updateTemporaryLimits(request) {
+        const url = `/clientcare-card-${this._version}/temporary-limits`;
 
-		return this._put(url, request, this._setToken(), `updateTemporaryLimits`);
-	}
+        return this._put(url, request, this._setToken(), `updateTemporaryLimits`);
+    }
 
-	getPermanentLimits(request) {
-		const url = `/clientcare-card-${this._version}/permanent-limits`;
+    getPermanentLimits(request) {
+        const url = `/clientcare-card-${this._version}/permanent-limits`;
 
-		return this._post(url, request, this._setToken(), `getPermanentLimits`);
-	}
+        return this._post(url, request, this._setToken(), `getPermanentLimits`);
+    }
 
-	async getTemporaryLimits(request) {
+    async getTemporaryLimits(request) {
 
-		if (await this._mockEnabled(`getTemporaryLimits`)) {
-			return this._mock.getTemporaryLimits(request);
-		}
+        if (await this._mockEnabled(`getTemporaryLimits`)) {
+            return this._mock.getTemporaryLimits(request);
+        }
 
-		const url = `/clientcare-card-${this._version}/temporary-limits`;
+        const url = `/clientcare-card-${this._version}/temporary-limits`;
 
-		return this._post(url, request, this._setToken(), `getTemporaryLimits`);
-	}
+        return this._post(url, request, this._setToken(), `getTemporaryLimits`);
+    }
 
-	async tapToPayLanding(cifNumber, incidentRecId) {
-		if (await this._mockEnabled(`tapToPayLanding`)) {
-			return this._mock.tapToPay(cifNumber);
-		}
+    async tapToPayLanding(cifNumber, incidentRecId) {
+        if (await this._mockEnabled(`tapToPayLanding`)) {
+            return this._mock.tapToPay(cifNumber);
+        }
 
-		const url = `/clientcare-card-${this._version}/tap-to-pay-landing?cifNumber=${cifNumber}&incidentRecId=${incidentRecId}`;
-		return this._get(url, this._setToken(), `tapToPayLanding`);
-	}
+        const url = `/clientcare-card-${this._version}/tap-to-pay-landing?cifNumber=${cifNumber}&incidentRecId=${incidentRecId}`;
+        return this._get(url, this._setToken(), `tapToPayLanding`);
+    }
 
-	tapToPayAgreement(agreementInfo) {
-		const url = `/clientcare-card-${this._version}/tap-to-pay-agreement`;
+    tapToPayAgreement(agreementInfo) {
+        const url = `/clientcare-card-${this._version}/tap-to-pay-agreement`;
 
-		return this._post(url, agreementInfo, this._setToken(), `tapToPayAgreement`);
-	}
+        return this._post(url, agreementInfo, this._setToken(), `tapToPayAgreement`);
+    }
 
-	updateTapToPay(acceptTapToPay) {
-		const url = `/clientcare-card-${this._version}/tap-to-pay`;
+    updateTapToPay(acceptTapToPay) {
+        const url = `/clientcare-card-${this._version}/tap-to-pay`;
 
-		return this._post(url, acceptTapToPay, this._setToken(), `updateTapToPay`);
-	}
-	
-	async stopCard(stopCardRequest) {
-		if (await this._mockEnabled(`stopCard`)) {
-			return this._mock.stopCard(stopCardRequest);
-		}
-	
-		const url = `/clientcare-card-${this._version}/StopCard`;
-		const model = {
-			"cards": stopCardRequest.cards,
-			"incomingTelephoneNumber": stopCardRequest.incomingTelephoneNumber,
-			"voiceReferenceNumber": stopCardRequest.voiceReferenceNumber,
-			"ivrOptionCode": stopCardRequest.ivrOptionCode,
-			"incidentReferenceNumber": stopCardRequest.incidentReferenceNumber,
-			"agentTelephoneNumber": stopCardRequest.agentTelephoneNumber,
-			"incidentRecId": stopCardRequest.incidentRecId
-		};
+        return this._post(url, acceptTapToPay, this._setToken(), `updateTapToPay`);
+    }
 
-		return this._post(url, model, this._setToken(), `stopCard`);
-	}
+    async stopCard(stopCardRequest) {
+        if (await this._mockEnabled(`stopCard`)) {
+            return this._mock.stopCard(stopCardRequest);
+        }
 
-	assignTeams(incidentData) {
-		return this._post(
-			`/clientcare-card-${this._version}/Assign/Teams`, {
-				"cardIds": incidentData.cardIds,
-				"incidentRecId": incidentData.incidentRecId
-			},
-			this._setToken(),
-			`assignTeams`
-		);
-	}
+        const url = `/clientcare-card-${this._version}/StopCard`;
+        const model = {
+            "cards": stopCardRequest.cards,
+            "incomingTelephoneNumber": stopCardRequest.incomingTelephoneNumber,
+            "voiceReferenceNumber": stopCardRequest.voiceReferenceNumber,
+            "ivrOptionCode": stopCardRequest.ivrOptionCode,
+            "incidentReferenceNumber": stopCardRequest.incidentReferenceNumber,
+            "agentTelephoneNumber": stopCardRequest.agentTelephoneNumber,
+            "incidentRecId": stopCardRequest.incidentRecId
+        };
 
-	assign(assignData) {
-		return this._post(
-			`/clientcare-card-${this._version}/Assign`, {
-				"cardIds": assignData.cardIds,
-				"incidentRecId": assignData.incidentRecId,
-				"team": assignData.team
-			},
-			this._setToken(),
-			`assign`
-		);
-	}
+        return this._post(url, model, this._setToken(), `stopCard`);
+    }
 
-	searchOptions(incomingCallData) {
-		return this._post(
-			`/clientcare-card-${this._version}/search/options`, {
-				"incomingTelephoneNumber": incomingCallData.incomingTelephoneNumber,
-				"voiceReferenceNumber": incomingCallData.voiceReferenceNumber,
-				"ivrOptionCode": incomingCallData.ivrOptionCode,
-				"incidentReferenceNumber": incomingCallData.incidentReferenceNumber,
-				"agentTelephoneNumber": incomingCallData.agentTelephoneNumber
-			},
-			this._setToken(),
-			`searchOptions`
-		);
-	}
+    assignTeams(incidentData) {
+        return this._post(
+            `/clientcare-card-${this._version}/Assign/Teams`, {
+            "cardIds": incidentData.cardIds,
+            "incidentRecId": incidentData.incidentRecId
+        },
+            this._setToken(),
+            `assignTeams`
+        );
+    }
 
-	async identifyCaller(callerData) {
-		if (await this._mockEnabled(`stopCardLanding`)) {
-			return this._mock.stopCardLanding();
-		}
+    assign(assignData) {
+        return this._post(
+            `/clientcare-card-${this._version}/Assign`, {
+            "cardIds": assignData.cardIds,
+            "incidentRecId": assignData.incidentRecId,
+            "team": assignData.team
+        },
+            this._setToken(),
+            `assign`
+        );
+    }
 
-		const url = `/clientcare-card-${this._version}/LoadConfirmedClientProfile`;
-		const model = {
-			'incidentRecId': callerData.incidentRecId,
-			'idNumber': callerData.idNumber,
-			'incomingTelephoneNumber': callerData.incomingTelephoneNumber,
-			'voiceReferenceNumber': callerData.voiceReferenceNumber,
-			'ivrOptionCode': callerData.ivrOptionCode,
-			'incidentReferenceNumber': callerData.incidentReferenceNumber,
-			'agentTelephoneNumber': callerData.agentTelephoneNumber,
-			'nonClientFullName': callerData.nonClientFullName,
-			'nonClientCellPhone': callerData.nonClientCellPhone,
-			'nonClientIDNumber': callerData.nonClientIDNumber,
-			'nonClientRelationship': callerData.nonClientRelationship
-		};
+    searchOptions(incomingCallData) {
+        return this._post(
+            `/clientcare-card-${this._version}/search/options`, {
+            "incomingTelephoneNumber": incomingCallData.incomingTelephoneNumber,
+            "voiceReferenceNumber": incomingCallData.voiceReferenceNumber,
+            "ivrOptionCode": incomingCallData.ivrOptionCode,
+            "incidentReferenceNumber": incomingCallData.incidentReferenceNumber,
+            "agentTelephoneNumber": incomingCallData.agentTelephoneNumber
+        },
+            this._setToken(),
+            `searchOptions`
+        );
+    }
 
-		return this._post(url, model, this._setToken(), `identifyCaller`);
-	}
+    async identifyCaller(callerData) {
+        if (await this._mockEnabled(`stopCardLanding`)) {
+            return this._mock.stopCardLanding();
+        }
+
+        const url = `/clientcare-card-${this._version}/LoadConfirmedClientProfile`;
+        const model = {
+            'incidentRecId': callerData.incidentRecId,
+            'idNumber': callerData.idNumber,
+            'incomingTelephoneNumber': callerData.incomingTelephoneNumber,
+            'voiceReferenceNumber': callerData.voiceReferenceNumber,
+            'ivrOptionCode': callerData.ivrOptionCode,
+            'incidentReferenceNumber': callerData.incidentReferenceNumber,
+            'agentTelephoneNumber': callerData.agentTelephoneNumber,
+            'nonClientFullName': callerData.nonClientFullName,
+            'nonClientCellPhone': callerData.nonClientCellPhone,
+            'nonClientIDNumber': callerData.nonClientIDNumber,
+            'nonClientRelationship': callerData.nonClientRelationship
+        };
+
+        return this._post(url, model, this._setToken(), `identifyCaller`);
+    }
 
     // ----------
     // debi-check
@@ -493,8 +493,11 @@ export class HorizonChannelService extends Service {
             return this._mock.debiCheckMandates(cifNumber);
         }
 
+        const request = {
+            cifNumber: cifNumber
+        }
         const url = `/clientcare-debicheck-${this._version}/client-mandate`;
-        return this._post(url, cifNumber, this._setToken(), `debiCheckMandates`);
+        return this._post(url, request, this._setToken(), `debiCheckMandates`);
     }
 
     async debiCheckDetails(cifNumber, mandateId, registerId) {
@@ -504,7 +507,7 @@ export class HorizonChannelService extends Service {
 
         const request = {
             cifNumber: cifNumber,
-            madateId: mandateId,
+            mandateId: mandateId,
             registerId: registerId
         };
         const url = `/clientcare-debicheck-${this._version}/client-mandate-details`;
@@ -516,14 +519,38 @@ export class HorizonChannelService extends Service {
             return this._mock.debiCheckConfirmAgreement(mandateInfo);
         }
 
+        const request = {
+            cifNumber: mandateInfo.cifNumber,
+            mandateRef: mandateInfo.mandateRef,
+            title: mandateInfo.title,
+            firstName: mandateInfo.firstName,
+            surname: mandateInfo.surname,
+            middleName: mandateInfo.middleName,
+            identificationNumber: mandateInfo.identificationNumber,
+            residentialAddress: mandateInfo.residentialAddress,
+            postalAddress: mandateInfo.postalAddress,
+            cellphone: mandateInfo.cellphone,
+            homeNumber: mandateInfo.homeNumber,
+            workNumber: mandateInfo.workNumber,
+            savingsAccountNumber: mandateInfo.savingsAccountNumber,
+            cardNumber: mandateInfo.cardNumber,
+            contractReference: mandateInfo.contractReference,
+            instalmentAmount: mandateInfo.instalmentAmount,
+            frequency: mandateInfo.frequency,
+            firstCollectionDate: mandateInfo.firstCollectionDate,
+            collectionDayFrequencyWording: mandateInfo.collectionDayFrequencyWording,
+            ultimateDebtorName: mandateInfo.debitAccountName,            
+            debitAccountName: mandateInfo.debitAccountName,
+            accountConfirmation: mandateInfo.accountConfirmation,
+            instalmentConfirmation: mandateInfo.instalmentConfirmation,
+            permissionToDebit: mandateInfo.permissionToDebit,
+            termsAndConditionsConfirmation: mandateInfo.termsAndConditionsConfirmation
+        }
         const url = `/clientcare-debicheck-${this._version}/client-mandate-confirm-agreement`;
-        return this._post(url, mandateInfo, this._setToken(), `debiCheckConfirmAgreement`);
+        return this._post(url, request, this._setToken(), `debiCheckConfirmAgreement`);
     }
 
     async debiCheckAuthenticate(cifNumber, mandateReferenceNumber, debtorAccountNumber, accepted) {
-        if (await this._mockEnabled(`debiCheckAuthenticate`)) {
-            return this._mock.debiCheckAuthenticate(cifNumber, mandateReferenceNumber, debtorAccountNumber, accepted);
-        }
         const request = {
             cifNumber: cifNumber,
             mandateReferenceNumber: mandateReferenceNumber,
@@ -535,248 +562,252 @@ export class HorizonChannelService extends Service {
     }
 
     async debiCheckAgreement(clientInfo) {
+
+        const request = {
+             title :  clientInfo.title ,
+             firstName :  clientInfo.firstName ,
+            surname: clientInfo.surname ,
+            identificationNumber: clientInfo.identificationNumber ,
+            savingsAccountNumber: clientInfo.savingsAccountNumber,
+            registerId: clientInfo.registerId,
+            mandateId: clientInfo.mandateId,
+            mandateReferenceNumber: clientInfo.mandateReferenceNumber ,
+            cifNumber: clientInfo.cifNumber 
+        };
         const url = `/clientcare-debicheck-${this._version}/client-mandate-agreement-template`;
-        return this._post(url, clientInfo, this._setToken(), `debiCheckAgreement`);
+        return this._post(url, request, this._setToken(), `debiCheckAgreement`);
     }
 
-	async debiCheckApprove () {
-		if (await this._mockEnabled(`approveDebiCheck`)) {
-			return this._mock.approveDebiCheck();
-		}
+    // ---------
+    // documents
+    // ---------
+    getClientProducts(request) {
+        const url = `/clientcare-documents-${this._version}/statements/client/${request.cifNumber}?` +
+            `ProductStatus=${request.status}`;
+        return this._get(url, this._setToken(), `getClientProducts`);
+    }
 
-		return null;
-	}
+    async viewStatement(statement) {
 
-	// ---------
-	// documents
-	// ---------
-	getClientProducts(request) {
-		const url = `/clientcare-documents-${this._version}/statements/client/${request.cifNumber}?` +
-					`ProductStatus=${request.status}`;
-		return this._get(url, this._setToken(), `getClientProducts`);
-	}
+        if (await this._mockEnabled(`viewStatements`)) {
+            return this._mock.viewStatements();
+        }
 
-	async viewStatement(statement) {
+        const url = `/clientcare-documents-${this._version}/statements/view-statement`;
+        return this._post(url, statement, this._setToken(), `viewStatement`);
+    }
 
-		if (await this._mockEnabled(`viewStatements`)) {
-			return this._mock.viewStatements();
-		}
+    sendStatement(statement) {
+        const url = `/clientcare-documents-${this._version}/statements/send-statement`;
+        return this._post(url, statement, this._setToken(), `sendStatement`);
+    }
 
-		const url = `/clientcare-documents-${this._version}/statements/view-statement`;
-		return this._post(url, statement, this._setToken(), `viewStatement`);
-	}
+    sendProofOfAccount(clientInfo) {
+        const url = `/clientcare-documents-${this._version}/statements/send-proof-of-account`;
+        return this._post(url, clientInfo, this._setToken(), `sendProofOfAccount`);
+    }
 
-	sendStatement(statement) {
-		const url = `/clientcare-documents-${this._version}/statements/send-statement`;
-		return this._post(url, statement, this._setToken(), `sendStatement`);
-	}
+    viewProofOfAccount(clientInfo) {
+        const url = `/clientcare-documents-${this._version}/statements/view-proof-of-account`;
+        return this._post(url, clientInfo, this._setToken(), `viewProofOfAccount`);
+    }
 
-	sendProofOfAccount(clientInfo) {
-		const url = `/clientcare-documents-${this._version}/statements/send-proof-of-account`;
-		return this._post(url, clientInfo, this._setToken(), `sendProofOfAccount`);
-	}
+    // ----------
+    // favourites
+    // ----------
 
-	viewProofOfAccount(clientInfo) {
-		const url = `/clientcare-documents-${this._version}/statements/view-proof-of-account`;
-		return this._post(url, clientInfo, this._setToken(), `viewProofOfAccount`);
-	}
+    async favouritesLanding(clientInfo) {
+        if (await this._mockEnabled(`favouritesLanding`)) {
+            return this._mock.favouritesLanding(clientInfo);
+        }
 
-	// ----------
-	// favourites
-	// ----------
+        const url = `/clientcare-favourites-${this._version}/landing?` +
+            `CifNumber=${clientInfo.cifNumber}&` +
+            `NationalIDNumber=${clientInfo.nationalIDNumber}&` +
+            `IsCallerVerified=${clientInfo.isCallerVerified}`;
 
-	async favouritesLanding(clientInfo) {
-		if (await this._mockEnabled(`favouritesLanding`)) {
-			return this._mock.favouritesLanding(clientInfo);
-		}
+        return this._get(url, this._setToken(), `favouritesLanding`);
+    }
 
-		const url = `/clientcare-favourites-${this._version}/landing?` +
-			`CifNumber=${clientInfo.cifNumber}&` +
-			`NationalIDNumber=${clientInfo.nationalIDNumber}&` +
-			`IsCallerVerified=${clientInfo.isCallerVerified}`;
+    // --------
+    // incident
+    // --------
 
-		return this._get(url, this._setToken(), `favouritesLanding`);
-	}
+    createIncident(createIncidentRequest) {
+        const url = `/clientcare-incident-${this._version}/create-incident`;
+        const model = createIncidentRequest;
 
-	// --------
-	// incident
-	// --------
+        return this._post(url, model, this._setToken(), `createIncident`);
+    }
 
-	createIncident(createIncidentRequest) {
-		const url = `/clientcare-incident-${this._version}/create-incident`;
-		const model = createIncidentRequest;
+    updateIncidentClientDetails(cifNumber, incidentRecId) {
+        const request = {
+            incidentRecId: incidentRecId,
+            cif: cifNumber
+        };
 
-		return this._post(url, model, this._setToken(), `createIncident`);
-	}
+        return this._post(`/clientcare-incident-${this._version}/UpdateIncidentClientDetails`, request, this._setToken(), `updateIncidentClientDetails`);
+    }
 
-	updateIncidentClientDetails(cifNumber, incidentRecId) {
-		const request = {
-			incidentRecId: incidentRecId,
-			cif: cifNumber
-		};
+    otherNeedCategories(orgUnit) {
+        const url = `/clientcare-incident-${this._version}/categories?` +
+            `OrgUnit=${encodeURIComponent(orgUnit)}`;
+        return this._get(url, this._setToken(), `otherNeedCategories`);
+    }
 
-		return this._post(`/clientcare-incident-${this._version}/UpdateIncidentClientDetails`, request, this._setToken(), `updateIncidentClientDetails`);
-	}
+    otherNeedSpecificNeed(orgUnit, categoryName) {
+        const url = `/clientcare-incident-${this._version}/need?` +
+            `OrgUnit=${encodeURIComponent(orgUnit)}&` +
+            `CategoryName=${encodeURIComponent(categoryName)}`;
+        return this._get(url, this._setToken(), `otherNeedSpecificNeed`);
+    }
 
-	otherNeedCategories(orgUnit) {
-		const url = `/clientcare-incident-${this._version}/categories?` +
-		`OrgUnit=${encodeURIComponent(orgUnit)}`;
-		return this._get(url, this._setToken(), `otherNeedCategories`);
-	}
+    otherNeedIssueType(orgUnit, categoryName, need) {
+        const url = `/clientcare-incident-${this._version}/issue?` +
+            `OrgUnit=${encodeURIComponent(orgUnit)}&` +
+            `CategoryName=${encodeURIComponent(categoryName)}&` +
+            `Need=${encodeURIComponent(need)}`;
+        return this._get(url, this._setToken(), `otherNeedIssueType`);
+    }
 
-	otherNeedSpecificNeed(orgUnit, categoryName) {
-		const url = `/clientcare-incident-${this._version}/need?` +
-		`OrgUnit=${encodeURIComponent(orgUnit)}&` +
-		`CategoryName=${encodeURIComponent(categoryName)}`;
-		return this._get(url, this._setToken(), `otherNeedSpecificNeed`);
-	}
+    closeIncident(closeIncidentRequest) {
+        const url = `/clientcare-incident-${this._version}/close-incident?` +
+            `IncidentRecId=${closeIncidentRequest.incidentRecId}&` +
+            `Reason=${closeIncidentRequest.reason}&` +
+            `Resolution=${closeIncidentRequest.resolution}&` +
+            `CauseCode=${closeIncidentRequest.causeCode}`;
 
-	otherNeedIssueType(orgUnit, categoryName, need) {
-		const url = `/clientcare-incident-${this._version}/issue?` +
-		`OrgUnit=${encodeURIComponent(orgUnit)}&` +
-		`CategoryName=${encodeURIComponent(categoryName)}&` +
-		`Need=${encodeURIComponent(need)}`;
-		return this._get(url, this._setToken(), `otherNeedIssueType`);
-	}
+        return this._put(url, null, this._setToken(), `closeIncident`);
+    }
 
-	closeIncident(closeIncidentRequest) {
-		const url = `/clientcare-incident-${this._version}/close-incident?` +
-						`IncidentRecId=${closeIncidentRequest.incidentRecId}&` +
-						`Reason=${closeIncidentRequest.reason}&` +
-						`Resolution=${closeIncidentRequest.resolution}&` +
-						`CauseCode=${closeIncidentRequest.causeCode}`;
+    updateIncidentNonClientDetails(incidentRecId, nonClientDetails) {
+        nonClientDetails.incidentRecId = incidentRecId;
 
-		return this._put(url, null, this._setToken(), `closeIncident`);
-	}
+        return this._post(`/clientcare-incident-${this._version}/addcaller/nonclient`, nonClientDetails, this._setToken(), `updateIncidentNonClientDetails`);
+    }
 
-	updateIncidentNonClientDetails(incidentRecId, nonClientDetails) {
-		nonClientDetails.incidentRecId = incidentRecId;
+    classifyIncident(classifyIncidentRequest) {
+        const url = `/clientcare-incident-${this._version}/classification`;
 
-		return this._post(`/clientcare-incident-${this._version}/addcaller/nonclient`, nonClientDetails, this._setToken(), `updateIncidentNonClientDetails`);
-	}
+        return this._post(url, classifyIncidentRequest, this._setToken(), `classifyIncident`);
+    }
 
-	classifyIncident(classifyIncidentRequest) {
-		const url = `/clientcare-incident-${this._version}/classification`;
-	
-		return this._post(url, classifyIncidentRequest, this._setToken(), `classifyIncident`);
-	}
+    incidentStatus(incidentRecId) {
+        const url = `/clientcare-incident-${this._version}/incident/${incidentRecId}`;
 
-	incidentStatus(incidentRecId) {
-		const url = `/clientcare-incident-${this._version}/incident/${incidentRecId}`;
-	
-		return this._get(url, this._setToken(), `incidentStatus`);
-	}
+        return this._get(url, this._setToken(), `incidentStatus`);
+    }
 
-	UpdateIncidentBranchDetailsRequest(incidentRecID, branchCode) {
-		// IncidentRecId String
-		// BranchCode String
-		const branchDetails = {
-			incidentRecId: incidentRecID,
-			branchCode: branchCode
-		};
-		const url = `/clientcare-incident-${this._version}/UpdateIncidentBranchDetails`;
-		return this._post(url, branchDetails, this._setToken(), `UpdateIncidentBranchDetailsRequest`);
-	}
+    UpdateIncidentBranchDetailsRequest(incidentRecID, branchCode) {
+        // IncidentRecId String
+        // BranchCode String
+        const branchDetails = {
+            incidentRecId: incidentRecID,
+            branchCode: branchCode
+        };
+        const url = `/clientcare-incident-${this._version}/UpdateIncidentBranchDetails`;
+        return this._post(url, branchDetails, this._setToken(), `UpdateIncidentBranchDetailsRequest`);
+    }
 
-	GetConsultantInformation(cpNumber) {
-		// cpNumber = userID
-		// CpNumber String
-		const url = `/clientcare-incident-${this._version}/user-details?` +
-			`UserID=${cpNumber}`;
-		return this._get(url, cpNumber, this._setToken(), `GetConsultantInformation`);
-	}
+    GetConsultantInformation(cpNumber) {
+        // cpNumber = userID
+        // CpNumber String
+        const url = `/clientcare-incident-${this._version}/user-details?` +
+            `UserID=${cpNumber}`;
+        return this._get(url, cpNumber, this._setToken(), `GetConsultantInformation`);
+    }
 
-	// ----------
-	// initialise
-	// ----------
-	initialise() {
-		const url = `/clientcare-initialise-${this._version}`;
+    // ----------
+    // initialise
+    // ----------
+    initialise() {
+        const url = `/clientcare-initialise-${this._version}`;
 
-		return this._get(url, this._setToken(), `initialise`);
-	}
+        return this._get(url, this._setToken(), `initialise`);
+    }
 
-	// ------
-	// insure
-	// ------
+    // ------
+    // insure
+    // ------
 
-	calculatePremiumDone(feedbackDetails) {
-		return this._post(
-			`/clientcare-insure-${this._version}/CalculatePremium/done`, {
-				'incidentRecId': feedbackDetails.incidentRecId,
-				'feedback': feedbackDetails.feedback,
-				'updateIncident': feedbackDetails.updateIncident
-			},
-			this._setToken(),
-			`calculatePremiumDone`
-		);
-	}
+    calculatePremiumDone(feedbackDetails) {
+        return this._post(
+            `/clientcare-insure-${this._version}/CalculatePremium/done`, {
+            'incidentRecId': feedbackDetails.incidentRecId,
+            'feedback': feedbackDetails.feedback,
+            'updateIncident': feedbackDetails.updateIncident
+        },
+            this._setToken(),
+            `calculatePremiumDone`
+        );
+    }
 
-	addNonClientDetails(callerData) {
-		return this._post(
-			`/clientcare-insure-${this._version}/addCaller/nonclient`, {
-				'incidentRecId': callerData.incidentRecId,
-				'ivrOptionCode': callerData.ivrOptionCode,
-				'incomingTelephoneNumber': callerData.incomingTelephoneNumber,
-				'firstName': callerData.firstName,
-				'surname': callerData.surname,
-				'cellPhone': callerData.cellPhone
-			},
-			this._setToken(), 
-			`addNonClientDetails`
-		);
-	}
+    addNonClientDetails(callerData) {
+        return this._post(
+            `/clientcare-insure-${this._version}/addCaller/nonclient`, {
+            'incidentRecId': callerData.incidentRecId,
+            'ivrOptionCode': callerData.ivrOptionCode,
+            'incomingTelephoneNumber': callerData.incomingTelephoneNumber,
+            'firstName': callerData.firstName,
+            'surname': callerData.surname,
+            'cellPhone': callerData.cellPhone
+        },
+            this._setToken(),
+            `addNonClientDetails`
+        );
+    }
 
-	async hasInsuranceProducts(insuranceClientInfo) {
-		if (await this._mockEnabled(`hasInsuranceProducts`)) {
-			return this._mock.hasInsuranceProducts();
-		}
+    async hasInsuranceProducts(insuranceClientInfo) {
+        if (await this._mockEnabled(`hasInsuranceProducts`)) {
+            return this._mock.hasInsuranceProducts();
+        }
 
-		const url = `/clientcare-insure-${this._version}/landing?` +
-			`IdNumber=${insuranceClientInfo.IdNumber}&` +
-			`Cif=${insuranceClientInfo.CifNumber}&` +
-			`IsCallerVerified=${insuranceClientInfo.isCallerVarified}`;
+        const url = `/clientcare-insure-${this._version}/landing?` +
+            `IdNumber=${insuranceClientInfo.IdNumber}&` +
+            `Cif=${insuranceClientInfo.CifNumber}&` +
+            `IsCallerVerified=${insuranceClientInfo.isCallerVarified}`;
 
-		return this._get(url, this._setToken(), `hasInsuranceProducts`);
-	}
+        return this._get(url, this._setToken(), `hasInsuranceProducts`);
+    }
 
-	// --------------
-	// SavingsAccount
-	// --------------
+    // --------------
+    // SavingsAccount
+    // --------------
 
-	async savingsAccountLanding (cifNumber, nationalIDNumber, getGenericData) {
-		if (await this._mockEnabled(`savingsAccountLanding`)) {
-			return this._mock.savingsAccountLanding(cifNumber, nationalIDNumber, getGenericData);
-		}
+    async savingsAccountLanding(cifNumber, nationalIDNumber, getGenericData) {
+        if (await this._mockEnabled(`savingsAccountLanding`)) {
+            return this._mock.savingsAccountLanding(cifNumber, nationalIDNumber, getGenericData);
+        }
 
-		const url = `/clientcare-savingsaccount-${this._version}/landing?` +
-		`CifNumber=${cifNumber}&` +
-		`NationalIDNumber=${nationalIDNumber}&` +
-		`GetGenericData=${getGenericData}`;
-		
-		return this._get(url, this._setToken(), `savingsAccountLanding`);
-	}  
+        const url = `/clientcare-savingsaccount-${this._version}/landing?` +
+            `CifNumber=${cifNumber}&` +
+            `NationalIDNumber=${nationalIDNumber}&` +
+            `GetGenericData=${getGenericData}`;
 
-	async transactionHistory (transactionHistoryRequest) {
-		if (await this._mockEnabled(`transactionHistory`)) {
-			return this._mock.transactionHistory(transactionHistoryRequest);
-		}
+        return this._get(url, this._setToken(), `savingsAccountLanding`);
+    }
 
-		const url = `/clientcare-savingsaccount-${this._version}/client/transactions?` +
-		`CIFNumber=${transactionHistoryRequest.cifNumber}&` +
-		`AccountNumber=${transactionHistoryRequest.accountNumber}&` +
-		`AccountType=${transactionHistoryRequest.accountType}&` +
-		`StartDate=${transactionHistoryRequest.startDate}&` +
-		`EndDate=${transactionHistoryRequest.endDate}&` +
-		`StartAtIndex=${transactionHistoryRequest.startAtIndex}&` +
-		`MaxResults=${transactionHistoryRequest.maxResults}&` +
-		`MoneyType=${transactionHistoryRequest.moneyType}`;
+    async transactionHistory(transactionHistoryRequest) {
+        if (await this._mockEnabled(`transactionHistory`)) {
+            return this._mock.transactionHistory(transactionHistoryRequest);
+        }
 
-		return this._get(url, this._setToken(), `transactionHistory`);
-	}
+        const url = `/clientcare-savingsaccount-${this._version}/client/transactions?` +
+            `CIFNumber=${transactionHistoryRequest.cifNumber}&` +
+            `AccountNumber=${transactionHistoryRequest.accountNumber}&` +
+            `AccountType=${transactionHistoryRequest.accountType}&` +
+            `StartDate=${transactionHistoryRequest.startDate}&` +
+            `EndDate=${transactionHistoryRequest.endDate}&` +
+            `StartAtIndex=${transactionHistoryRequest.startAtIndex}&` +
+            `MaxResults=${transactionHistoryRequest.maxResults}&` +
+            `MoneyType=${transactionHistoryRequest.moneyType}`;
 
-	// ----------------
-	// call - ITA & XDS
-	// ----------------
+        return this._get(url, this._setToken(), `transactionHistory`);
+    }
+
+    // ----------------
+    // call - ITA & XDS
+    // ----------------
 
 	/*
 	itaVerification(request) {

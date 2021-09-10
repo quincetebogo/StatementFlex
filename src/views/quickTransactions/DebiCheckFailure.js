@@ -7,6 +7,7 @@ import { ViewBase } from 'app/views/common/ViewBase';
 import 'app/components/common/OptionButton';
 import 'app/components/common/ErrorScreen';
 import 'app/components/common/RelatedOptions';
+import { ScreenDetails } from '../../models/ScreenDetails';
 
 /**
  * Display a failure screen indicating the selected debicheck mandate have been unsuccessful when trying to decline/approve.
@@ -16,68 +17,73 @@ import 'app/components/common/RelatedOptions';
  * @extends {ViewBase}
  */
 export class DebiCheckFailure extends ViewBase {
-	
-	// --------------
-	// INITIALISATION
-	// --------------
-	constructor() {
-		super();
-		this.mandateId = ``;
 
-		this._telemetry = HorizonTelemetry.instance;
-	}
-	
-	// ----------
-	// PROPERTIES
-	// ----------
-	
-	// -------------------
-	// LIFECYCLE OVERRIDES
-	// -------------------
+    // --------------
+    // INITIALISATION
+    // --------------
+    constructor() {
+        super();
+        this.isApproved = ``;
+        this.mandateId = ``;
 
-	connectedCallback() {
-		super.connectedCallback();
-	}
+        this._telemetry = HorizonTelemetry.instance;
+    }
 
-	disconnectedCallback() {
-		super.disconnectedCallback();
-	}
+    // ----------
+    // PROPERTIES
+    // ----------
 
-	// --------------
-	// EVENT HANDLERS
-	// --------------
+    // -------------------
+    // LIFECYCLE OVERRIDES
+    // -------------------
 
-	_doneClick() {
-		this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME_DONE, {
-			"screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
-			"next-screen": TelemetryScreen.FAVOURITES
-		});
+    connectedCallback() {
+        super.connectedCallback();
 
-		this.horizonStore.clearReturnScreen();
-		this.horizonRouter.navigateToQuickTransactionFavourites();
-	}
+        const screenDetails = this.horizonStore.getScreenDetails();
+        this.isApproved = screenDetails.isApproved;
+        this.mandateId = screenDetails.mandateId;
+    }
 
-	_assignClick() {
-		this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME_HANDOFF, {
-			"screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
-			"next-screen": TelemetryScreen.FAVOURITES
-		});
+    disconnectedCallback() {
+        super.disconnectedCallback();
+    }
 
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+    // --------------
+    // EVENT HANDLERS
+    // --------------
 
-		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
-		this.horizonStore.clearReturnScreen();
-	}
+    _doneClick() {
+        //this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME_DONE, {
+        //    "screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
+        //    "next-screen": TelemetryScreen.FAVOURITES
+        //});
 
-	// ---------
-	// RENDERING
-	// ---------
+        this.horizonStore.clearReturnScreen();
+        this.horizonRouter.navigateToQuickTransactionFavourites();
+    }
 
-	static get styles() {
-		return [
-			super.styles,
-			css`
+    _assignClick() {
+        //this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME_HANDOFF, {
+        //    "screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
+        //    "next-screen": TelemetryScreen.FAVOURITES
+        //});
+
+        this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
+        this.horizonStore.setIncidentDetails(this.incidentDetails);
+
+        this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
+        this.horizonStore.clearReturnScreen();
+    }
+
+    // ---------
+    // RENDERING
+    // ---------
+
+    static get styles() {
+        return [
+            super.styles,
+            css`
 			horizon-error-screen {
 				--horizon-error-screen-height:750px;
 			}
@@ -92,24 +98,25 @@ export class DebiCheckFailure extends ViewBase {
 					--horizon-option-btn-icon-width: 26px;
 				}
 			`
-		];
-	}
+        ];
+    }
 
-	_mobileTemplate() {
-		return this._webTemplate();
-	}
+    _mobileTemplate() {
+        return this._webTemplate();
+    }
 
-	_webTemplate() {
-		return html`
+    _webTemplate() {
+        return html`
 			${this._renderFailureScreen()}
 			
 			${this._renderRelatedOptions()}
 			${super._webTemplate()}
 		`;
-	}
+    }
 
-	_renderFailureScreen() {
-		return html`
+    _renderFailureScreen() {
+        if (this.isApproved) {
+            return html`
 			<horizon-error-screen
 				data-automation-id="debi-check-failure-screen"
 				image="/images/insure/assign-pay-arrears.svg"
@@ -125,16 +132,34 @@ export class DebiCheckFailure extends ViewBase {
 				</section>
 			</horizon-error-screen>
 		`;
-	}
+        } else {
+            return html`
+			<horizon-error-screen
+				data-automation-id="debi-check-failure-screen"
+				image="/images/insure/assign-pay-arrears.svg"
+				secondaryImage="/images/transactions/debiCheckLogo.svg"
+				header="DebiCheck mandate not declined" 
+				left="Done"
+				right="Assign"
+				toast="DebiCheck mandate not declined"
+				@left-click=${() => this._doneClick()}
+				@right-click=${() => this._assignClick()}>
+				<section id="id-error-msg" slot="detail">
+					DebiCheck mandate for <b>${this.mandateId}</b> was not declined.
+				</section>
+			</horizon-error-screen>
+		`;
+        }
+    }
 
-	_renderRelatedOptions() {
-		return html`
+    _renderRelatedOptions() {
+        return html`
 			<horizon-related-options
 			data-automation-id="debi-check-failure-related-options"
 				context = "Failure">
 			</horizon-related-options>
 		`;
-	}
+    }
 }
 
 customElements.define(`horizon-debi-check-failure`, DebiCheckFailure);
