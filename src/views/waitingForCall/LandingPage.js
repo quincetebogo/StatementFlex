@@ -70,7 +70,7 @@ export class LandingPage extends ViewBase {
 			}
 		});
 
-        this.employeeId = ``;
+		this.employeeId = ``;
 	}
 
 	// ----------
@@ -239,18 +239,18 @@ export class LandingPage extends ViewBase {
 		// Once the search dialogs identify a client we can go to the Confirm Caller Details Dialog
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.confirmedCaller = event.detail.confirmedCaller;
-        this.incidentDetails = event.detail.incidentDetails;
-        this.confirmedCaller.isBranchConsultant = event.detail.isBranchConsultant;
+		this.incidentDetails = event.detail.incidentDetails;
+		this.confirmedCaller.isBranchConsultant = event.detail.isBranchConsultant;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-    }
+	}
 
-    _branchCaptured(event) {
-        this.incomingCallDetails = event.detail.incomingCallDetails;
-        this.confirmedCaller = event.detail.confirmedCaller;
-        this.incidentDetails = event.detail.incidentDetails;
-        this.confirmedCaller.isBranchConsultant = event.detail.isBranchConsultant;
-        this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-    }
+	_branchCaptured(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.confirmedCaller = event.detail.confirmedCaller;
+		this.incidentDetails = event.detail.incidentDetails;
+		this.confirmedCaller.isBranchConsultant = event.detail.isBranchConsultant;
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+	}
 
 	_nonClientCaptured(event) {
 		// If a non-client is calling in (determined on the general search dialog), 
@@ -275,8 +275,12 @@ export class LandingPage extends ViewBase {
 			false,
 			true,
 			false,
-            false,
-            event.detail.isBranchConsultant
+			false,
+			{
+				itaAttempts: 0,
+				xdsAttempts: 0
+			}, 
+			event.detail.isBranchConsultant
 		);
 		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);
 		this.horizonStore.setCallerInformation(callerInformation);
@@ -371,8 +375,8 @@ export class LandingPage extends ViewBase {
 					.confirmedCaller="${this.confirmedCaller}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.incidentDetails="${this.incidentDetails}"
-                    @branch-captured="${(event) => this._branchCaptured(event)}"
-                    @non-client-captured=${event => this._nonClientCaptured(event)}>
+					@branch-captured="${(event) => this._branchCaptured(event)}"
+					@non-client-captured=${event => this._nonClientCaptured(event)}>
 				</horizon-confirm-caller-details>`;
 		}
 	}
@@ -393,7 +397,7 @@ export class LandingPage extends ViewBase {
 					.incidentDetails="${this.incidentDetails}"
 					@client-identified="${(event) => this._clientIdentified(event)}"
 					@non-client-captured="${event => this._nonClientCaptured(event)}"
-                    @branch-captured="${(event) => this._branchCaptured(event)}"
+					@branch-captured="${(event) => this._branchCaptured(event)}"
 					@stop-card-need-selected="${(event) => this._stopCardNeedSelected(event)}">
 				</horizon-search-caller>`;
 		}
