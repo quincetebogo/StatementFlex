@@ -689,15 +689,17 @@ export class TaxCertificates extends Component {
 	}
 
 	_renderCertificateDetails(item, certType) {
+		const count = item.taxCertificateAccounts.length;
+
 		return html`
-			<capitec-label label="Overview (4 accounts)"></capitec-label>
+			<capitec-label label="Overview (${count} account/s)"></capitec-label>
 			
 			<capitec-group class="notify-banner" layout="horizontal">
 				<capitec-icon
 					size="default"
 					icon="status/info-trans">
 				</capitec-icon>
-				<p><b>Notify Client: </b>Interest received on investments from 1 Mar ${item.year - 1} to ${this._isLeapYear(item.year)} Feb ${item.year}. Balance of accounts at ${this._isLeapYear()} Feb ${item.year}</p>
+				<p><b>Notify Client: </b>Interest received on investments from 1 Mar ${item.year - 1} to ${this._isLeapYear(item.year)} Feb ${item.year}. Balance of accounts at ${this._isLeapYear(item.year)} Feb ${item.year}</p>
 			</capitec-group>
 
 			<!-- TO DO: Expander content can be made to render dynamically while impelmenting CS call.  -->
