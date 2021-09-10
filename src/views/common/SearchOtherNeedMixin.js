@@ -41,5 +41,15 @@ export const searchOtherNeedMixin = {
 			this._logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
 		}
 		this.requestUpdate();
+	},
+
+	async incidentStatus(incidentRecId) {
+		const returnValue = await this.incidentManagementService.incidentStatus(incidentRecId);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to get incident status.`, `_incidentStatus`, returnValue.correlationId);
+			return null;
+		}
+		return returnValue.result;
 	}
 };

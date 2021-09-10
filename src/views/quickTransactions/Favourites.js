@@ -61,6 +61,8 @@ export class Favourites extends SavingsAccountBase {
 		this.selectedFeedback = [];
 		this.feedbackOptions = [];
 
+		this.updateStrackClick = false;
+
 		this.endCallCauseCode = EndCallCauseCode.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
 
@@ -150,13 +152,13 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _done(event) {
-		this._telemetry.logEvent(QuickTransactionEvents.SEARCH_OTHER_NEED_DONE, {
-			"launch-strack-feedback": event.detail.selectedFeedback
-		});
-
-		const incidentDetails = this.horizonStore.getIncidentDetails();
 		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		const selectedOption = FEEDBACK_OPTIONS.find(item => item.key === event.detail);
+		
+		this._telemetry.logEvent(QuickTransactionEvents.SEARCH_OTHER_NEED_DONE, {
+			"launch-strack-feedback": selectedOption
+		});
+
 		const options = {
 			clientNeed: null,
 			endCallReason: selectedOption,
@@ -167,10 +169,12 @@ export class Favourites extends SavingsAccountBase {
 		
 		if (isSuccess) {
 			// Navigate to favourites landing page
+			const incidentDetails = this.horizonStore.getIncidentDetails();
+		
 			incidentDetails.needStatus = super.HORIZON_NEED_STATUS.CLOSED;
 			incidentDetails.feedback = selectedOption.key;
-
 			this.horizonStore.setIncidentDetails(incidentDetails);
+			this._updateNeedToState();
 			this._searchOtherNeedDone();
 		} else {
 			this.alertBannerMessage = ERROR_LIST.SYSTEM_ERROR;
@@ -218,6 +222,13 @@ export class Favourites extends SavingsAccountBase {
 
 	_searchOtherNeedDone() {
 		this._refreshIncidentDetails();
+	
+		if(this.updateStrackClick) {
+			this.postAction._refreshScreen();
+			this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
+			this.updateStrackClick = false;
+			return true;
+		}
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -326,6 +337,24 @@ export class Favourites extends SavingsAccountBase {
 
 	async _getIssues(event) {
 		this._updateNeedToState(`subCategory`, event.detail.need);
+		await this.getIssues(event);
+	}
+
+	async _getSubCategories(event) {
+		
+		if (this.incidentDetails.incidentRecId === `0`) {
+			await super.createAndClassifySubsIncident();
+		}
+		
+		this._updateNeedToState(event.detail.category);
+		
+		await this.getSubCategories(event);
+	}
+
+	async _getIssues(event) {
+		
+		this._updateNeedToState(event.detail.category, event.detail.need);
+		
 		await this.getIssues(event);
 	}
 
@@ -529,6 +558,53 @@ export class Favourites extends SavingsAccountBase {
 		await this.getCategories();
 	}
 
+	_loadingOtherNeeds() {
+		this._telemetryStartSpan(QuickTransactionEvents.SEARCH_OTHER_NEED, TelemetryScreen.SEARCH_OTHER_NEED);
+	}
+
+	async _unLoadingOtherNeeds() {
+		this._telemetryEndSpan(QuickTransactionEvents.SEARCH_OTHER_NEED, TelemetryScreen.SEARCH_OTHER_NEED);
+
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+
+		if(this.incidentDetails.incidentRecId === `0`) {
+			this.renderMode = RENDER_MODE.MAIN_PAGE;
+			return true;
+		}
+
+		const screenDetails = this.horizonStore.getScreenDetails();
+		const incidentInfo = await this.incidentStatus(this.incidentDetails.incidentRecId) || {};
+
+		// Determining if its already classified
+		const isClassified = !isNullorEmpty(incidentInfo.category) && !isNullorEmpty(incidentInfo.subCategory) && !isNullorEmpty(incidentInfo.issue);
+		const isClosed = incidentInfo.status === `Closed`;
+		
+		// Determining at least we know categorization to classify
+		const classificationEmpty = isNullorEmpty(screenDetails.category) && isNullorEmpty(screenDetails.subCategory) && isNullorEmpty(screenDetails.issue);
+
+		if (isClassified && !isClosed && !classificationEmpty) {
+			this.renderMode = RENDER_MODE.FEEDBACK;
+			return true;
+		}
+
+		if (!isClassified && !isClosed && !classificationEmpty) {
+			this.renderMode = RENDER_MODE.UPDATE_INCIDENT;
+			return true;
+		}
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	async _onUpdateStrackClick(event) {
+
+		this.updateStrackClick = true;
+		await this._classifyIncident(event);
+		
+		this.postAction = event.detail.postAction;
+		this.renderMode = RENDER_MODE.FEEDBACK;
+
+	}
+
 	async _onLaunchStrackClick(event) {
 		this._telemetry.logEvent(QuickTransactionEvents.SEARCH_OTHER_NEED_LAUNCH_STRACK, {
 			"screen": TelemetryScreen.SEARCH_OTHER_NEED,
@@ -537,17 +613,33 @@ export class Favourites extends SavingsAccountBase {
 			"specific-need": event.detail.need,
 			"issue-type": event.detail.issue
 		});
+		await this._classifyIncident(event);
+	
+		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
+		this.renderMode = RENDER_MODE.FEEDBACK;
+	}
 
+	async _onUpdateincidentConfirm() {
+		// should close the incident with captured details on Update incident modal
+		// Temporary switch : to close an incident on Confirm click from Update Incident modal
+		const screenDetails = this.horizonStore.getScreenDetails();
+		const event = { detail: { category: screenDetails.category, need: screenDetails.subCategory, issue: screenDetails.issue } }
+	
+		await this._classifyIncident(event);
+		await this._done({ detail: 0});
+		
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	async _classifyIncident(event) {
+		
 		const incidentCategorization = {
 			category: `${event.detail.category}`,
 			need: `${event.detail.need}`,
 			issue: `${event.detail.issue}`
 		};
 
-		await super.createAndClassifySubsIncident(incidentCategorization);
-
-		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
-		this.renderMode = RENDER_MODE.FEEDBACK;
+		await super.classifyIncident(() => this._toggleBusyFlag(), incidentCategorization);
 	}
 
 	async _createIncidentOnError() {
@@ -555,9 +647,12 @@ export class Favourites extends SavingsAccountBase {
 		return true;
 	}
 
-	_updateNeedToState(key, value) {
+	_updateNeedToState(category,need,issue) {
+		// Updating state with the latest values
 		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails[key] = value;
+		screenDetails.category = category;
+		screenDetails.subCategory = need;
+		screenDetails.issue = issue;
 
 		this.horizonStore.setScreenDetails(screenDetails);
 	}
@@ -671,18 +766,19 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderSearchOtherNeed() {
-		return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED || this.renderMode === RENDER_MODE.FEEDBACK
+		return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED || this.renderMode === RENDER_MODE.FEEDBACK || this.renderMode === RENDER_MODE.UPDATE_INCIDENT
 			? html`
 				<horizon-search-other-need
 					.categories="${this.categories || []}"
 					.needs="${this.needs || []}"
 					.issues="${this.issues || []}"
-					@loading="${() => this._telemetryStartSpan(QuickTransactionEvents.SEARCH_OTHER_NEED, TelemetryScreen.SEARCH_OTHER_NEED)}"
-					@unloading="${() => this._telemetryEndSpan(QuickTransactionEvents.SEARCH_OTHER_NEED, TelemetryScreen.SEARCH_OTHER_NEED)}"
+					@loading="${() => this._loadingOtherNeeds()}"
+					@unloading="${() => this._unLoadingOtherNeeds()}"
 					@launch-strack="${(event) => this._onLaunchStrackClick(event)}"
+					@update-strack="${(event) => this._onUpdateStrackClick(event)}"
 					@get-sub-categories="${(event) => this._getSubCategories(event)}"
 					@get-issues="${(event) => this._getIssues(event)}"
-					@issue-changed="${(event) => this._updateNeedToState(`issue`, event.detail.issue)}"
+					@issue-changed="${(event) => this._updateNeedToState(event.detail.category, event.detail.need, event.detail.issue)}"
 					@back="${() => this._backToLandingPage()}"
 					@done="${() => this._searchOtherNeedDone()}">
 				</horizon-search-other-need>`
@@ -697,6 +793,7 @@ export class Favourites extends SavingsAccountBase {
 				</horizon-feedback>`
 			: html``;
 	}
+	
 }
 
 customElements.define(`horizon-favourites`, Favourites);
