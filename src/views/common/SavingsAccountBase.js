@@ -97,11 +97,13 @@ export class SavingsAccountBase extends ViewBase {
 
         if (returnValue.succeeded) {
             await super.createAndClassifySubsIncident();
+
+            //landingPageInfo returns null sometimes - go get account number from ClientProducts
             await this._getClientProducts();
+
             // eslint-disable-next-line no-extra-parens
             this.debiCheckMandates = (returnValue.result && returnValue.result.mandateSummaryList) || [];
 
-            this.horizonStore.setReturnScreen(this.navigationContext.current.route, `debi-check`);
             this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
         } else {
             // Todo: Handle error scenario
@@ -127,11 +129,12 @@ export class SavingsAccountBase extends ViewBase {
         screenDetails.mandateId = event.detail.mandateInfo.mandateName;
 
         const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, event.detail.mandateInfo.mandateId, event.detail.mandateInfo.registerId);
-        if (returnValue.succeeded && returnValue.result) {
-            this.debiCheckDetails = returnValue.result;
-        } else {
+        if (!returnValue.succeeded || !returnValue.result) {
             this.horizonRouter.navigateToSystemError();
+            return;          
         }
+        
+        this.debiCheckDetails = returnValue.result;        
 
         if (event.detail.action === `decline`) {
             this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_DECLINE_MANDATE, {
@@ -145,8 +148,11 @@ export class SavingsAccountBase extends ViewBase {
 
             await this._getAgreement();
             this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
+            return;
 
-        } else if (event.detail.action === `approve`) {
+        }
+
+        if (event.detail.action === `approve`) {
             this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
                 "screen": TelemetryScreen.DEBICHECK,
                 "next-screen": TelemetryScreen.APPROVE_DEBICHECK
@@ -159,18 +165,19 @@ export class SavingsAccountBase extends ViewBase {
             await this._getAgreement();
             this.renderMode = RENDER_MODE.DEBI_CHECK_APPROVE;
 
+            return;
+        }
 
-
-
-        } else if (event.detail.action === `viewInfo`) {
+        if (event.detail.action === `viewInfo`) {
             this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_VIEW_MANDATE, {
                 "screen": TelemetryScreen.DEBICHECK,
                 "next-screen": TelemetryScreen.VIEWINFO
             });
 
             this.isPending = event.detail.isPending;
-                this.renderMode = RENDER_MODE.DEBI_CHECK_VIEW_INFO;
+            this.renderMode = RENDER_MODE.DEBI_CHECK_VIEW_INFO;
 
+            return;
         }
     }
 
@@ -279,7 +286,7 @@ export class SavingsAccountBase extends ViewBase {
             mandateRef: this.debiCheckDetails.mandateReference,
             title: name[0],
             firstName: name[1],
-            surname: name[name.length - 1],
+            surname: name.slice(2),
             middleName: this.clientDetails.middleName,
             identificationNumber: this.callerInformation.southAfricanIDNumber,
             residentialAddress: this.clientDetails.residentialAddress,
@@ -330,7 +337,7 @@ export class SavingsAccountBase extends ViewBase {
         const agreementRequest = {
             title: name[0],
             firstName: name[1],
-            surname: name[name.length - 1],
+            surname: name.slice(2),
             identificationNumber: this.callerInformation.southAfricanIDNumber,
             savingsAccountNumber: this.accountNumber,
             registerId: this.mandateInfo.registerId,
@@ -343,12 +350,12 @@ export class SavingsAccountBase extends ViewBase {
 
         if (returnValue.succeeded && returnValue.result) {
             this.clientDetails = returnValue.result;
-            return returnValue.result;
+            return;
         } else {
             this.horizonRouter.navigateToDebiCheckFailed();
         }
 
-        return null;
+        return;
     }
 
 
