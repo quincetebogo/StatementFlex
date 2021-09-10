@@ -454,7 +454,7 @@ export class ApproveDebiCheckMandate extends Component {
                     <strong>Thank you, ${this.fullName}. We confirm that you agree to the following:</strong>
 					<ol>
 						<li>This call is to confirm your DebiCheck mandate and the payments you must make under the credit agreement, contract reference number <strong>${this.referenceNumber}</strong> </li>
-						<li style="color:${QUESTIONS[0].color};">Please take note that your instalment of <strong>${this.installmentAmount}</strong> will be deducted from your nominated bank account every <strong>${this.collectionDateFrequency.toString().toLowerCase()}</strong>, starting on <strong>${this._getFullDate(this.firstCollectionDate)}</strong> and a last amount of <strong>${this.installmentAmount}</strong>. We could also collect on an earlier date, depending on when your salary or wages is paid. </br>
+						<li style="color:${QUESTIONS[0].color};">Please take note that your instalment of <strong>${this.installmentAmount}</strong> will be deducted from your nominated bank account on the <strong>${this.collectionDateFrequency.toString().toLowerCase()}</strong>, starting on <strong>${this._getFullDate(this.firstCollectionDate)}</strong> and a last amount of <strong>${this.installmentAmount}</strong>. We could also collect on an earlier date, depending on when your salary or wages is paid. </br>
                             Do you understand and accept this? </br>
                             ${this._renderYesNo(0)}</li>
 						<li style="color:${QUESTIONS[1].color};">The payments will be made by early debit order against your nominated account number <strong>${this.accountNumber}</strong> with Capitec Bank Limited, <strong>${this.shortName}</strong>. Do you agree with this?

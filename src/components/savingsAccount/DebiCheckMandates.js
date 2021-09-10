@@ -129,7 +129,8 @@ export class DebiCheckMandates extends Component {
 	}
 
 	_initialise() {
-		this.pendingMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.PENDING);
+        this.pendingMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.PENDING);
+        this.pendingMandates.sort(function (a, b) { return b.canBeAuthenticated - a.canBeAuthenticated });
 		this.activeMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.ACTIVE);
 		this.inActiveMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.INACTIVE);
 	}
@@ -145,8 +146,8 @@ export class DebiCheckMandates extends Component {
 											   parseFloat(item.maxCollectionAmount).toFixed(2).startsWith(searchText)));
 	}
 
-	_viewInfo(mandateInfo) {
-        this.dispatchEvent(new CustomEvent(`action`, { detail: { "action": `viewInfo`, mandateInfo: mandateInfo } }));
+	_viewInfo(mandateInfo, isPending) {
+        this.dispatchEvent(new CustomEvent(`action`, { detail: { "action": `viewInfo`, mandateInfo: mandateInfo, isPending: isPending } }));
 	}
 
 	_decline(mandateInfo) {
@@ -496,19 +497,19 @@ export class DebiCheckMandates extends Component {
 						   gap="none"
 						   halign="left"
 						   valign="center">
-				<div style="${unsafeCSS(TABLE_ROW_CSS.width280)} ${unsafeCSS(TABLE_ROW_CSS.borderRight).toString()}">
+				<div style="${unsafeCSS(TABLE_ROW_CSS.width223)} ${unsafeCSS(TABLE_ROW_CSS.borderRight).toString()}">
 					${this._renderCell(rowData.mandateName, formatCurrency(convertCentsToRand(rowData.amount)))}
 				</div>
-				<div style="${unsafeCSS(TABLE_ROW_CSS.width165).toString()}">
+				<div style="${unsafeCSS(TABLE_ROW_CSS.width185).toString()}">
 					${this._renderCell(`Max collection amount`, formatCurrency(convertCentsToRand(rowData.maxCollectionAmount)))}
 				</div>
-				<div style="${unsafeCSS(TABLE_ROW_CSS.width240).toString()}">
-					${this._renderCell(`Collection day`, rowData.collectionDate.frequency)}
+                <div style="${unsafeCSS(TABLE_ROW_CSS.width185).toString()}">
+					${this._renderCell(`Collection day`, rowData.collectionDayFrequency)}
 				</div>
-				<div style="${unsafeCSS(TABLE_ROW_CSS.width98).toString()}">
+				<div style="${unsafeCSS(TABLE_ROW_CSS.width128).toString()}">
 					${this._renderCell(`Status`, MANDATE_STATUS[rowData.mandateStatus])}
 				</div>
-				<capitec-group layout="horizontal" gap="clear" halign="right" valign="center" style="width: 250px;">
+                <capitec-group layout="horizontal" gap="clear" halign="right" valign="center" style="width: 250px;">
 					${this._renderButtons(rowData.mandateStatus, rowData)}
 				</capitec-group>
 				<div></div>
@@ -536,9 +537,10 @@ export class DebiCheckMandates extends Component {
 		`;
 	}
 
-	_renderButtons(status, rowData) {
-        return status == 'PENDING'
-            ? html`<capitec-label type="subtitle"
+    _renderButtons(status, rowData) {
+        if (status === 'PENDING') {
+            return rowData.canBeAuthenticated
+                ? html`<capitec-label type="subtitle"
 									label="Decline"
 									style="${TABLE_ROW_CELL_CSS.cellButton}"
 									@click="${() => this._decline(rowData)}">
@@ -547,11 +549,22 @@ export class DebiCheckMandates extends Component {
 					 				label="Approve"
 									style="${TABLE_ROW_CELL_CSS.cellButton}"
 									@click="${() => this._approve(rowData)}">
-					 </capitec-label>`
-            : html`<capitec-label type="subtitle"
-	    				label="View Info"
+					 </capitec-label>
+                     <capitec-label type="subtitle"
+	    				label="View"
 						style="${TABLE_ROW_CELL_CSS.cellButton}"
-						@click="${() => this._viewInfo(rowData)}">
+						@click="${() => this._viewInfo(rowData, false)}">
+					 </capitec-label>`
+                : html`<capitec-label type="subtitle"
+	    				label="View"
+						style="${TABLE_ROW_CELL_CSS.cellButton}"
+						@click="${() => this._viewInfo(rowData, true)}">
+					 </capitec-label>`;
+        }
+        return html`<capitec-label type="subtitle"
+	    				label="View"
+						style="${TABLE_ROW_CELL_CSS.cellButton}"
+						@click="${() => this._viewInfo(rowData, false)}">
 					 </capitec-label>`;
 	}
 
