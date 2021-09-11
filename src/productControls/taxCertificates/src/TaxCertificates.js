@@ -729,11 +729,11 @@ export class TaxCertificates extends Component {
 	}
 
 	_renderViewTaxcertificate() {
-		return Object.keys(this.selectedCertificates).map(value => html`
+		return Object.keys(this.selectedCertificates).map(certType => html`
 				<capitec-label
 					class="tax-certificate-heading"
-						type="subtitle"
-						label="View ${value === `iT3BTaxCertificates` ? `taxable savings` : `tax-free`} certificate(s)">
+					type="subtitle"
+					label="View ${certType === `iT3BTaxCertificates` ? `taxable savings` : `tax-free`} certificate(s)">
 				</capitec-label>
 				<capitec-group
 					class="available-cards"
@@ -741,26 +741,25 @@ export class TaxCertificates extends Component {
 					halign="left"
 					gap="clear"
 					layout="vertical">
-					${this._renderViewCertificateTile(value)}
+					${this._renderViewCertificateTile(certType)}
 			</capitec-group>`);
 		}
 
-	_renderViewCertificateTile(type) {
-		
-		return this.selectedCertificates[type].map(item => html`
+	_renderViewCertificateTile(certType) {
+		return this.selectedCertificates[certType].map(certInfo => html`
 				<horizon-product-tile
 					data-automation-id="tax-certificate-dialog-view-document"
 					class="view-document-tile"
 					type="default"
-					label="${item.year}"
-					subtitle="${this.selectedCertType === `iT3BTaxCertificates` ? `IT3(b)` : `IT3(s)`} ${!type.isTaxYearAvailable ? `Available` : `Unavaiable`}"
-					@click="${() => this._viewPDF(item, type)}">
-					${this._renderViewDocumnetLink()}
+					label="${certInfo.year}"
+					subtitle="${certType === `iT3BTaxCertificates` ? `IT3(b)` : `IT3(s)`} ${!certInfo.isTaxYearAvailable ? `Available` : `Unavailable`}"
+					@click="${() => this._viewPDF(certInfo, certType)}">
+					${this._renderViewDocumentLink()}
 				</horizon-product-tile>`);
 		
 	}
 
-	_renderViewDocumnetLink() {
+	_renderViewDocumentLink() {
 		return html`
 			<capitec-label
 				slot="detail"
