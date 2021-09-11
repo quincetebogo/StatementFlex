@@ -10,17 +10,6 @@ import 'app/components/stopCard/StopCard';
 import 'app/components/common/AccessMenuBar';
 import 'app/components/common/ProfileAndProductSummaryBar';
 
-const RENDER_MODE = {
-	MAIN_PAGE: 0,
-	CARD_STOP_MODAL: 1,
-	CARD_STOP_SUCCESS: 2,
-	END_CALLSESSION: 3,
-	ASSIGN: 4,
-	ASSIGN_REASON_SELECTED: 5,
-	VERIFY_NOW: 6,
-	ADD_CALLER_DETAILS: 7
-};
-
 /**
  * The Stop Card Landing Page. This view is currently based on the v1 Stop Card designs and will be completely redone
  * with the newer designs at some point.
@@ -74,10 +63,10 @@ export class StopCardLandingPage extends ViewBase {
 	_clientVerified(event) {
 		super._clientVerified(event);
 
-		this.horizonStore.setCallerInformation(this.callerInformation);
+		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);
+		this.horizonStore.setCallerInformation(event.detail.callerInformation);
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
-
 
 	_stoppedCards(event) {
 		const stoppedCardsFailed = event.detail.stoppedCards.some(cards => !cards.cardStopped);
@@ -103,41 +92,12 @@ export class StopCardLandingPage extends ViewBase {
 		}
 	}
 
-	_clientVerified(event) {
-		this.incomingCallDetails = event.detail.incomingCallDetails;
-		this.callerInformation = event.detail.callerInformation;
-		this._updateLeftBar();
-		this.renderMode = RENDER_MODE.MAIN_PAGE;		
-	}
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
-	}
-
-	_updateLeftBar() {
-		this.horizonStore.setCallerInformation(this.callerInformation);
-		
-		this.eventAggregator.publish(
-			`horizon-update-left-hand-bar`,
-			{
-				hasFavourites: true,
-				subtitle: {
-					savingsAccount: ``,
-					savingsPlan: ``,
-					insure: ``,
-					credit: ``
-				},
-				detail: {
-					savingsAccount: ``,
-					savingsPlan: ``,
-					insure: ``,
-					credit: ``
-				}
-			}
-		);
 	}
 
 	// ---------
