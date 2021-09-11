@@ -137,7 +137,7 @@ export class ViewBase extends View {
 	}
 
 	_assignIncidentClick() {
-        this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
+		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
 	}
 
 	_endCallClick() {

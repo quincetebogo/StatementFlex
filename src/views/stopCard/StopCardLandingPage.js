@@ -1,5 +1,6 @@
 import { HorizonTelemetry, OutcomeScreen } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { html } from 'platform/elements';
@@ -69,6 +70,14 @@ export class StopCardLandingPage extends ViewBase {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+
+	_clientVerified(event) {
+		super._clientVerified(event);
+
+		this.horizonStore.setCallerInformation(this.callerInformation);
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
 
 	_stoppedCards(event) {
 		const stoppedCardsFailed = event.detail.stoppedCards.some(cards => !cards.cardStopped);

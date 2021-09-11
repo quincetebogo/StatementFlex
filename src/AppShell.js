@@ -109,7 +109,7 @@ export class AppShell extends Shell {
 	connectedCallback() {
 		super.connectedCallback();
 		
-		this._casperScript();
+		this._casperScript(); 
 
 		this.horizonIncidentManager.initialise();
 		// Subscribe to store.
@@ -205,14 +205,14 @@ export class AppShell extends Shell {
 		}
 	};
 
-	_casperScript() {
+	async _casperScript() {
 		const body = document.body || document.getElementsByTagName(`body`)[0];
 		const casper = document.getElementById(`CASPerScript`);
 
 		if (!casper) {
 			const script = document.createElement(`script`);
 			
-			script.src = `https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js`;
+			script.src = await this._configuration.getSetting(`otherSystemsURL.CASPer`);
 			script.setAttribute(`type`, `text/javascript`);
 			script.setAttribute(`id`, `CASPerScript`);
 			script.setAttribute(`title`, `CASPer Widget`);
@@ -245,6 +245,7 @@ export class AppShell extends Shell {
 					--horizon-right-panel-width: 320px;
 					--horizon-panel-height: 888px;
 					--horizon-toast-top: 68px;
+					--horizon-status-bar-icon-group-right-margin: 80px;
 				}
 
 				.screen-size {
