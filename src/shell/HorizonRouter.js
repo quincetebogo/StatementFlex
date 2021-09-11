@@ -571,7 +571,7 @@ export default horizonRoutes = [
 		title: `TaxCertificateServiceError`,
 		icon: null,
 		path: HORIZON_ROUTES.TAX_CERTIFICATE_SERVICE_ERROR,
-		load: () => import(`../views/TaxCertificate/TaxCertificateServiceError`),
+		load: () => import(`../views/taxCertificate/TaxCertificateServiceError`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
@@ -667,7 +667,7 @@ export default horizonRoutes = [
 		title: `TaxCertificateFailure`,
 		icon: null,
 		path: HORIZON_ROUTES.TAX_CERTIFICATE_FAILURE,
-		load: () => import(`../views/TaxCertificate/TaxCertificateFailure`),
+		load: () => import(`../views/taxCertificate/TaxCertificateFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
@@ -675,7 +675,7 @@ export default horizonRoutes = [
 		title: `TaxCertificateSuccess`,
 		icon: null,
 		path: HORIZON_ROUTES.TAX_CERTIFICATE_SUCCESSFUL,
-		load: () => import(`../views/TaxCertificate/TaxCertificateSuccess`),
+		load: () => import(`../views/taxCertificate/TaxCertificateSuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	}
 ];
