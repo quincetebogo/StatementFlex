@@ -287,6 +287,7 @@ export class VerifyBySecurityQuestions extends Component {
 
 		this.callerInformation.verificationStatus = `verified`;
 		this.callerInformation.verificationMethod = `XDS`;
+
 		this.dispatchEvent(new CustomEvent(`verified`, {
 			detail: {
 				incomingCallDetails: this.incomingCallDetails,
@@ -457,7 +458,7 @@ export class VerifyBySecurityQuestions extends Component {
 		return html`
 			${this._renderLoadingIndicator()}
 			${this._renderContent()}
-		`
+		`;
 	}
 
 	_renderContent() {
