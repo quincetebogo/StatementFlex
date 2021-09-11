@@ -202,7 +202,6 @@ export class LandingPage extends ViewBase {
 	 */
 	_dispatchCall(acceptedCall, newCallInfo, forceSearchDialog) {
 		// Set up state for the incoming call
-		this.callStatus = `CALL-IN-PROGRESS`;
 		this.incomingCallDetails = new IncomingCallDetails(
 			newCallInfo.VDN,
 			newCallInfo.incomingTelephoneNumber,
@@ -217,7 +216,7 @@ export class LandingPage extends ViewBase {
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 
 		const state = {
-			callStatus: this.callStatus,
+			callStatus: `CALL-IN-PROGRESS`,
 			canCloseIncident: true
 		};
 

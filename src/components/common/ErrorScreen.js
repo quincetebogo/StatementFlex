@@ -149,12 +149,16 @@ export class ErrorScreen extends Component {
 					--theme-button-padding-right: 22px;
 				}
 				#id-error-toast {
+					--theme-toast-error-color: #3A3A3A;
+					width: 432px;
 					position: absolute;
 					top : var(--toast-top, 56px);
 					margin-left: var(--toast-margin-left, 382px);
 				}
 
 				.secondary-toast {
+					--theme-toast-error-color: #3A3A3A;
+					width: 432px;
 					position: absolute;
 					top : var(--toast-top, 130px);
 					margin-left: var(--toast-margin-left, 382px);

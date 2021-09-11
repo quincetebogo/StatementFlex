@@ -12,7 +12,8 @@
 		"cnet": "http://c-net.int.capinet:51001/Pages/default.aspx",
 		"strack": "http://strackdevnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/",
-		"CASPer": "https://casper-widget.platform-dev.int.capinet/images/js/CASPerWidget.js"
+		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",
+		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js"
 	},
 	"VDN": "7253",
 	"LogRequestResponseModels": false,
@@ -44,7 +45,7 @@
 		"tax-certificate": "TAX_CERTIFICATE",
 		"transaction-history": "TRANSACTION_HISTORY",
 		"savings-product-info": "PRODUCT_ENQUIRY_SAVINGS",
-		"savings-plan-info": "PRODUCT_ENQUIRY_SAVINGS",
+		"savings-plan-info": "PRODUCT_ENQUIRY_SAVINGS_PLAN",
 		"insure-product-info": "PRODUCT_ENQUIRY_INSURE",
 		"credit-product-info": "PRODUCT_ENQUIRY_CREDIT",
 		"credit-card-statements": "STATEMENTS_CC",
@@ -66,18 +67,18 @@
 	},
 	"mock": {
 		"enabled": true,
-		"acceptCall": {
-			"enabled": false,
-			"positiveCase": true
-		},
-		"identifyCaller": {
-			"enabled": false,
-			"positiveCase": true
-		},
-		"favouritesLanding": {
-			"enabled": false,
-			"positiveCase": true
-		},
+    "acceptCall": {
+      "enabled": true,
+      "positiveCase": true
+    },
+    "identifyCaller": {
+      "enabled": true,
+      "positiveCase": true
+    },
+    "favouritesLanding": {
+      "enabled": true,
+      "positiveCase": true
+    },
 		"cardLimitsLanding": {
 			"enabled": false,
 			"positiveCase": true
@@ -140,7 +141,7 @@
 			"positiveCase": true
 		},
 		"viewStatements": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		}
 	}
