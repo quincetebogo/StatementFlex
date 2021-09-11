@@ -28,7 +28,7 @@ export class TaxCertificateSuccess extends ViewBase {
 		this.primaryToast = `Tax certificate sent`;
 		this.secondaryToast = `Tax-free certificate sent`;
 
-		this.doneClicked = false;
+		this.sendAnotherClicked = false;
 	}
 
 	// --------------
@@ -85,7 +85,7 @@ export class TaxCertificateSuccess extends ViewBase {
 	disconnectedCallback() {
 		this.horizonStore.setScreenDetails({ taxCertificate: null });
 
-		if (!this.doneClicked) {
+		if (!this.sendAnotherClicked) {
 			this.horizonStore.clearReturnScreen();
 		}
 
@@ -102,12 +102,12 @@ export class TaxCertificateSuccess extends ViewBase {
 			"nextScreen": TelemetryScreen.FAVOURITES
 		});
 
-		this.doneClicked = true;
-		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_sendAnotherClick() {
+		this.sendAnotherClicked = true;
+
 		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME,
 			"nextScreen": TelemetryScreen.TAX_CERTIFICATE
