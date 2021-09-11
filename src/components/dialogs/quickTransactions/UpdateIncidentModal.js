@@ -186,4 +186,4 @@ export class UpdateIncidentModal extends Component {
 			`;
 	}
 }
-window.customElements.define(`horizon-update-incident`, UpdateIncidentModal);
+window.customElements.define(`horizon-update-incident-modal`, UpdateIncidentModal);

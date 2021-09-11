@@ -19,7 +19,7 @@ import 'app/components/Common/UpdateIncidentDialog';
 
 const RENDER_MODE = {
 	SEARCH_OTHER_NEED: 0,
-	UPDATE_INCIDENT_MODAL: 1
+	UPDATE_INCIDENT: 1
 }
 
 const HEADER_LABEL = `Update Incident`;
@@ -73,8 +73,7 @@ export class SearchOtherNeed extends Component {
 			solution: { attribute: false },
 			categories: { type: Array },
 			needs: { type: Array },
-			issues: { type: Array },
-			showUpdateIncidentModal: { type: Boolean }
+			issues: { type: Array }
 		};
 	}
 
@@ -108,13 +107,19 @@ export class SearchOtherNeed extends Component {
 		
 		if (isNullorEmpty(this.need) || isNullorEmpty(this.issue)) {
 			console.log("show modal");
-			this.renderMode = RENDER_MODE.UPDATE_INCIDENT_MODAL;
-			this.showUpdateIncidentModal = true; 
-		} 
-
-	
+			this.renderMode = RENDER_MODE.UPDATE_INCIDENT;
+		} else {
+			this.dispatchEvent(new CustomEvent(`back`, {}));
+		}
 	}
-	
+
+	_cancel() {
+		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
+		this.category = ``;
+		this.need = ``;
+		this.issue = ``;
+		this.solution = ``;
+	}
 
 	_categoryChanged(e) {
 		if (e.detail.new !== null) {
@@ -167,6 +172,10 @@ export class SearchOtherNeed extends Component {
 		this.need = ``;
 		this.issue = ``;
 		this.solution = ``;
+	}
+
+	_updateIncident(e) {
+		console.log("update click", e)
 	}
 
 	_updateScreenDetails() {
@@ -314,18 +323,12 @@ export class SearchOtherNeed extends Component {
 	}
 
 	_webTemplate() {
-		switch (this.renderMode) {
-			case RENDER_MODE.SEARCH_OTHER_NEED: 
 			return html`
 			${this._renderOtherNeeds()}
 			${this._renderLoadingIndicator()}
-			`;
-			case RENDER_MODE.UPDATE_INCIDENT_MODAL:
-			return html`
 			${this._renderUpdateIncidentModal()}
 			`
 		}
-	}
 
 	_renderLoadingIndicator() {
 		if (!this.isBusy) {
@@ -476,19 +479,20 @@ export class SearchOtherNeed extends Component {
 	}
 
 	_renderUpdateIncidentModal() {
-		if (this.showUpdateIncidentModal) {
-			return html`
-				<horizon-update-incident
+			return this.renderMode === RENDER_MODE.UPDATE_INCIDENT ? html`
+				<horizon-update-incident-dialog
 				.headerLabel="${HEADER_LABEL}"
 				.categories="${this.categories}"
 				.specificNeeds="${this.needs}"
 				.issueTypes="${this.issues}"
 				.category="${this.category}"
 				.need="${this.need}"
-				.issue="${this.issue}">
-				</horizon-update-incident>
-		`
-		}
+				.issue="${this.issue}"
+				@get-issue-types="${(e) => this._subCategoryChanged(e)}"
+				@on-cancel = "${() => this._cancel()}"
+				@on-update="${(e) => this._updateIncident(e)}">
+				</horizon-update-incident-dialog>
+		`: html ``;
 	}
 }
 
