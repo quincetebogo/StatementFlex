@@ -238,12 +238,12 @@ export class TaxCertificatesDialog extends Component {
 
 		if (selectedCertificates.iT3BTaxCertificates) {
 			screenDetails.taxCertificate.iT3BTaxCertificates = {};
-			screenDetails.taxCertificate.iT3BTaxCertificates.taxYears = selectedCertificates.iT3BTaxCertificates.map(certificate => certificate.year);
+			screenDetails.taxCertificate.iT3BTaxCertificates.taxYears = selectedCertificates.iT3BTaxCertificates.map(certificate => certificate.year).reverse();
 		}
 
 		if (selectedCertificates.iT3STaxCertificates) {
 			screenDetails.taxCertificate.iT3STaxCertificates = {};
-			screenDetails.taxCertificate.iT3STaxCertificates.taxYears = selectedCertificates.iT3STaxCertificates.map(certificate => certificate.year);
+			screenDetails.taxCertificate.iT3STaxCertificates.taxYears = selectedCertificates.iT3STaxCertificates.map(certificate => certificate.year).reverse();
 		}
 
 		this.horizonStore.setScreenDetails(screenDetails);
