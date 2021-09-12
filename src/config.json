@@ -13,7 +13,8 @@
 		"strack": "http://strackdevnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/",
 		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",
-		"live-better": "https://www.capitecbank.co.za/live-better/live-better-savings-account"		
+		"live-better": "https://www.capitecbank.co.za/live-better/live-better-savings-account",	
+		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js"			
 	},
 	"VDN": "7250",
 	"LogRequestResponseModels": false,
@@ -61,15 +62,15 @@
 	"mock": {
 		"enabled": true,
     "acceptCall": {
-      "enabled": false,
+      "enabled": true,
       "positiveCase": true
     },
     "identifyCaller": {
-      "enabled": false,
+      "enabled": true,
       "positiveCase": true
     },
     "favouritesLanding": {
-      "enabled": false,
+      "enabled": true,
       "positiveCase": true
     },
 		"cardLimitsLanding": {
@@ -134,7 +135,7 @@
 			"positiveCase": true
 		},
 		"viewStatements": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		}
 	}

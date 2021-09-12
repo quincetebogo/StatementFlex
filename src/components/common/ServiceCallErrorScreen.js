@@ -50,8 +50,8 @@ export class ServiceCallErrorScreen extends Component {
 			left: { type: String },
 			right: { type: String },
 			image: { type: String },
-			bannerDetail: { type : String },
-			displayBanner: { type: Boolean}
+			bannerDetail: { type: String },
+			displayBanner: { type: Boolean }
 		};
 	}
 
@@ -171,7 +171,7 @@ export class ServiceCallErrorScreen extends Component {
 		return this.bannerDetail 
 		? html`
 			<capitec-alert-banner ?hidden="${!this.displayBanner}" class = "banner-top" type="unsuccessful-red"><b>Notify Client: </b>${this.bannerDetail}</capitec-alert-banner>
-		` : html ``;
+		` : html``;
 	}
 }
 
