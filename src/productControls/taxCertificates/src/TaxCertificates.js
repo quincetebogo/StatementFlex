@@ -88,7 +88,9 @@ export class TaxCertificates extends Component {
 			selectedCertType: { attribute: false },
 			selectedCertificates: { attribute: false },
 			alertBannerMessage: { attribute: false },
-			emailText: { attribute: false }
+			emailText: { attribute: false },
+			email: { attribute: false },
+			confirmEmail: { attribute: false }
 		};
 	}
 
@@ -226,8 +228,8 @@ export class TaxCertificates extends Component {
 	}
 
 	_validateEmailAddress() {
-		this.mailClientError.email = isNullorEmpty(this.email) ? `Please enter email` : ``;
-		this.mailClientError.confirmEmail = isNullorEmpty(this.confirmEmail) ? `Please enter email` : ``;
+		this.mailClientError.email = isNullorEmpty(this.email) ? `Enter email address` : ``;
+		this.mailClientError.confirmEmail = isNullorEmpty(this.confirmEmail) ? `Enter email address` : ``;
 
 		this.alertBannerMessage = this.mailClientError.email || this.mailClientError.confirmEmail ? `Complete all fields.` : ``;
 		return isNullorEmpty(this.alertBannerMessage);
@@ -630,6 +632,8 @@ export class TaxCertificates extends Component {
 		if (this.currentStep === 1 && this.renderMode === RENDER_MODE.EMAIL) {
 			return html`
 				<horizon-email-input
+					email="${this.email}";
+					confirmEmail="${this.confirmEmail}";
 					@value-changed="${(e) => this._emailValueChanged(e)}"
 					@validation-update="${(e) => this._validEmailAddressCheck(e)}"
 					.labelOne="${this.emailLabel}"

@@ -48,10 +48,9 @@ export class TaxCertificateFailure extends ViewBase {
 	 */
 	static get properties() {
 		return {
-			context: { type: String },
-
 			// Private Properties
 			email: { attribute: false },
+			context: { attribute: false },
 			taxYear: { attribute: false },
 			type: { attribute: false }
 		};
