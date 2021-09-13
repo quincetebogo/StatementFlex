@@ -696,6 +696,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderSearchOtherNeed()}
 			${this._renderProofOfAccount()}
 			${this._renderFeedback()}
+			${this._renderUpdateIncidentModal()}
 
 			${super._webTemplate()}
 		`;
@@ -767,14 +768,14 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderSearchOtherNeed() {
-		return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED || this.renderMode === RENDER_MODE.FEEDBACK
+		return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED || this.renderMode === RENDER_MODE.FEEDBACK || this.renderMode === RENDER_MODE.UPDATE_INCIDENT
 			? html`
 				<horizon-search-other-need
 					.categories="${this.categories || []}"
 					.needs="${this.needs || []}"
 					.issues="${this.issues || []}"
 					@loading="${() => this._telemetryStartSpan(QuickTransactionEvents.SEARCH_OTHER_NEED, TelemetryScreen.SEARCH_OTHER_NEED)}"
-					@unloading="${() => this._telemetryEndSpan(QuickTransactionEvents.SEARCH_OTHER_NEED, TelemetryScreen.SEARCH_OTHER_NEED)}"
+					@unloading="${() => this._unLoadingOtherNeeds()}"
 					@launch-strack="${(event) => this._onLaunchStrackClick(event)}"
 					@get-sub-categories="${(event) => this._getSubCategories(event)}"
 					@get-issues="${(event) => this._getIssues(event)}"
@@ -792,6 +793,24 @@ export class Favourites extends SavingsAccountBase {
 					@done="${(event) => this._done(event)}">
 				</horizon-feedback>`
 			: html``;
+	}
+
+	_renderUpdateIncidentModal() {
+		return this.renderMode === RENDER_MODE.UPDATE_INCIDENT
+		? html`
+			<horizon-update-incident-dialog
+				.headerLabel="Update Incident"
+				.categories="${this.categories}"
+				.specificNeeds="${this.needs}"
+				.issueTypes="${this.issues}"
+				.category="${this.category}"
+				.need="${this.need}"
+				.issue="${this.issue}"
+				@get-issue-types="${(e) => this._subCategoryChanged(e)}"
+				@on-cancel = "${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
+				@on-update="${(e) => this._updateIncident(e)}">
+			</horizon-update-incident-dialog>`
+		: html``;
 	}
 }
 

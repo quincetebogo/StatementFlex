@@ -27,7 +27,7 @@ import 'app/components/Common/UpdateIncidentDialog';
 const RENDER_MODE = {
 	SEARCH_OTHER_NEED: 0,
 	UPDATE_INCIDENT: 1
-}
+};
 
 const HEADER_LABEL = `Update Incident`;
 
@@ -52,10 +52,6 @@ export class SearchOtherNeed extends Component {
 		this.categories = null;
 		this.needs = null;
 		this.issues = null;
-
-		this.horizonStore = HorizonStore.getInstance();
-
-		this.showUpdateIncidentModal = false;
 	}
 
 	// --------------
@@ -108,15 +104,7 @@ export class SearchOtherNeed extends Component {
 
 	_back() {
 		// initate back to favourite transactions page (on back arrow)
-		if (isNullorEmpty(this.category)){
-			this.dispatchEvent(new CustomEvent(`back`, {}));
-		} 
-		
-		if (isNullorEmpty(this.need) || isNullorEmpty(this.issue)) {
-			this.renderMode = RENDER_MODE.UPDATE_INCIDENT;
-		} else {
-			this.dispatchEvent(new CustomEvent(`back`, {}));
-		}
+		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
 	_cancel() {
@@ -172,7 +160,7 @@ export class SearchOtherNeed extends Component {
 	}
 
 	_updateStrack() {
-		this.dispatchEvent(new CustomEvent(`update-strack`, { detail: { category: this.category, need: this.need, issue: this.issue, postAction : this } }));
+		this.dispatchEvent(new CustomEvent(`update-strack`, { detail: { category: this.category, need: this.need, issue: this.issue, postAction: this } }));
 	}
 
 	// Refresh screen once incident details are updated to Strack
@@ -181,22 +169,6 @@ export class SearchOtherNeed extends Component {
 		this.need = ``;
 		this.issue = ``;
 		this.solution = ``;
-	}
-
-	_updateIncident(e) {
-		console.log("update click", e)
-	}
-
-	_updateScreenDetails() {
-		const screenDetails = this.horizonStore.getScreenDetails();
-
-		screenDetails.incidentClassification = {
-			category : this.category,
-			need : this.need,
-			issue : this.issue
-		}
-		
-		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
 	// ---------
@@ -305,7 +277,7 @@ export class SearchOtherNeed extends Component {
 					padding-right: 16px;
 					--theme-layout-gap-spacing: 16px;
 				}
-				capitec-button {	
+				capitec-button {
 					--theme-button-padding-left: 16px;
 					--theme-button-padding-right: 16px;
 					--theme-button-font-weight: 600;
@@ -332,12 +304,11 @@ export class SearchOtherNeed extends Component {
 	}
 
 	_webTemplate() {
-			return html`
+		return html`
 			${this._renderOtherNeeds()}
 			${this._renderLoadingIndicator()}
-			${this._renderUpdateIncidentModal()}
-			`
-		}
+		`;
+	}
 
 	_renderLoadingIndicator() {
 		if (!this.isBusy) {
@@ -486,23 +457,6 @@ export class SearchOtherNeed extends Component {
 				</capitec-group>`
 			: html``;
 	}
-
-	_renderUpdateIncidentModal() {
-			return this.renderMode === RENDER_MODE.UPDATE_INCIDENT ? html`
-				<horizon-update-incident-dialog
-				.headerLabel="${HEADER_LABEL}"
-				.categories="${this.categories}"
-				.specificNeeds="${this.needs}"
-				.issueTypes="${this.issues}"
-				.category="${this.category}"
-				.need="${this.need}"
-				.issue="${this.issue}"
-				@get-issue-types="${(e) => this._subCategoryChanged(e)}"
-				@on-cancel = "${() => this._cancel()}"
-				@on-update="${(e) => this._updateIncident(e)}">
-				</horizon-update-incident-dialog>
-		`: html ``;
-	}
 }
 
 customElements.define(`horizon-search-other-need`, SearchOtherNeed);
@@ -514,7 +468,7 @@ customElements.define(`horizon-search-other-need`, SearchOtherNeed);
  * @example
  * <horizon-search-other-need ... @back="${this._handler}"></horizon-search-other-need>
  *
- * @event SearchOtherNeed#back 	
+ * @event SearchOtherNeed#back
  * @type {Object} - N/A
  */
 
@@ -524,7 +478,7 @@ customElements.define(`horizon-search-other-need`, SearchOtherNeed);
  * @example
  * <horizon-search-other-need ... @get-sub-categories="${this._handler}"></horizon-search-other-need>
  *
- * @event SearchOtherNeed#get-sub-categories 	
+ * @event SearchOtherNeed#get-sub-categories
  * @property {Object} detail - Contains information on the clicked item
  * @property {String} detail.category - The selected Category
  */
@@ -593,7 +547,7 @@ customElements.define(`horizon-search-other-need`, SearchOtherNeed);
  * @example
  * <horizon-search-other-need ... @update-strack="${this._handler}"></horizon-search-other-need>
  *
- * @event SearchOtherNeed#update-strack	
+ * @event SearchOtherNeed#update-strack
  * @property {Object} detail - Contains information on the clicked item
  * @property {String} detail.category - The selected Category
  * @property {String} detail.need - The selected Need
