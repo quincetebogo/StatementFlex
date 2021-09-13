@@ -152,14 +152,14 @@ export class TaxCertificatesDialog extends Component {
 		const selectedCertificates = e.detail.selectedCertificates;
 		
 		if (selectedCertificates.iT3BTaxCertificates && (selectedCertType === `iT3BTaxCertificates` || selectedCertType === `both`)) {
-			selectedDocuments.push(...selectedCertificates.iT3BTaxCertificates.reverse().map(certificate => ({
+			selectedDocuments.push(...selectedCertificates.iT3BTaxCertificates.map(certificate => ({
 				"document-type": `iT3B`,
 				"certificate-period": certificate.year
 			})));
 		}
 
 		if (selectedCertificates.iT3STaxCertificates && (selectedCertType === `iT3STaxCertificates` || selectedCertType === `both`)) {
-			selectedDocuments.push(...selectedCertificates.iT3STaxCertificates.reverse().map(certificate => ({
+			selectedDocuments.push(...selectedCertificates.iT3STaxCertificates.map(certificate => ({
 				"document-type": `iT3S`,
 				"certificate-period": certificate.year
 			})));
