@@ -156,6 +156,8 @@ export class UpdateIncidentDialog extends Component {
 			if (isNullorEmpty(issue)) {
 				this.issueError = `Required field`;
 			}
+		} else {
+			this._keyPress();
 		}
 
 		// this.renderMode = RENDER_MODE.FEEDBACK;

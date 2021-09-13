@@ -106,7 +106,6 @@ export class SearchOtherNeed extends Component {
 		} 
 		
 		if (isNullorEmpty(this.need) || isNullorEmpty(this.issue)) {
-			console.log("show modal");
 			this.renderMode = RENDER_MODE.UPDATE_INCIDENT;
 		} else {
 			this.dispatchEvent(new CustomEvent(`back`, {}));
