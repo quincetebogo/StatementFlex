@@ -41,6 +41,8 @@ export class UpdateIncidentDialog extends Component {
 		this.category = ``;
 		this.need = ``;
 		this.issue = ``;
+		this.errorColor = ``;
+		this.iconSource = `/images/statusIcons/horizon-warning-trans.svg`;
 
 		this.isBusy = false;
 		this.showAlert = false;
@@ -81,6 +83,7 @@ export class UpdateIncidentDialog extends Component {
 			need: { type: String },
 			issue: { type: String },
 			alertBannerMessage: { type: String },
+			errorColor: { type: String },
 
 			isBusy: { attribute: false },
 			renderMode: { attribute: false },
@@ -115,6 +118,8 @@ export class UpdateIncidentDialog extends Component {
 		this.alertBannerMessage = ``;
 		this.needError = ``;
 		this.issueError = ``;
+		this.errorColor = ``;
+		this.iconSource = `/images/statusIcons/horizon-warning-trans.svg`
 	}
 
 	async _incidentStatus(e) {
@@ -142,6 +147,8 @@ export class UpdateIncidentDialog extends Component {
 		if (isNullorEmpty(need) || isNullorEmpty(issue)) {
 			this.showAlert = true;
 			this.alertBannerMessage = `You must complete all fields to update`;
+			this.errorColor = `headerError`;
+			this.iconSource = `/images/error-stroke.svg`;
 
 			if (isNullorEmpty(need)) {
 				this.needError = `Required field`;
@@ -271,7 +278,7 @@ export class UpdateIncidentDialog extends Component {
 
 			}
 			.headerError {
-				--theme-modal-header-background-color: rgba(165, 19, 42, 0.15);
+				--theme-modal-header-background-color: #F7E2E1;
 			}
 			div[slot="header"] {
 				width: 520px;
@@ -366,11 +373,10 @@ export class UpdateIncidentDialog extends Component {
 
 	_renderUpdateModal() {
 		return html`
-			<capitec-modal class="updateIncident" type="free" header-align="left">
+			<capitec-modal class="updateIncident ${this.errorColor}" type="free" header-align="left">
 			<div slot="header">
 						<capitec-group layout="horizontal"style="margin-top: -10px;">
-							<img class="status-icon" src="/images/statusIcons/horizon-warning-trans.svg"/>
-							<!-- <img class="status-icon-error" src="/images/error.svg"/> -->
+							<img class="status-icon" src="${this.iconSource}"/>
 							<capitec-label class="headerLabel" label="Update Incident"></capitec-label>
 						</capitec-group>
 				</div>
