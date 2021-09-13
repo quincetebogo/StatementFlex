@@ -1,9 +1,9 @@
 import { HorizonTelemetry, OutcomeScreen } from 'app/services/HorizonTelemetryService';
+import { css, html } from 'platform/elements';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
-import { html } from 'platform/elements';
 
 import 'platform/components/buttons/Button';
 import 'app/components/stopCard/StopCard';
@@ -33,11 +33,17 @@ export class StopCardLandingPage extends ViewBase {
 		this.cards = this.screenDetails && this.screenDetails.cards;
 		
 		this._telemetry = HorizonTelemetry.instance;
+		this.displayToast = false;
 	}
 
 	// --------------
 	// PROPERTIES
 	// --------------
+	static get properties() {
+		return {
+			displayToast: { attribute: false }
+		};
+	}
 	
 	// ------------------
 	// LIFCYCLE OVERRIDES
@@ -63,8 +69,18 @@ export class StopCardLandingPage extends ViewBase {
 	_clientVerified(event) {
 		super._clientVerified(event);
 
+		// Toggle the toast message 
+		this.displayToast = true;
+		window.setTimeout(() => this._toggleToastDisplay(), 3000);
+
+		// Prevent the toast from being displayed when we go to the Favourites landing page
+		// because we are now verified
+		this.callerInformation = event.detail.callerInformation;
+		this.callerInformation.verificationToastDisplayed = true;
+
+		// Update state with information from verification dialog
+		this.horizonStore.setCallerInformation(this.callerInformation);
 		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);
-		this.horizonStore.setCallerInformation(event.detail.callerInformation);
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -100,9 +116,33 @@ export class StopCardLandingPage extends ViewBase {
 		this.isBusy = !this.isBusy;
 	}
 
+	_toggleToastDisplay() {
+		this.displayToast = false;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
+
+	static get styles() {
+		return [
+			super.styles,
+			css`
+				#verifyToast {
+					position: absolute;
+					top : 70px;
+					left: 790px;
+					height: 64px;
+					width: 428px;
+					border-radius: 4px;
+					color: #70AF00;
+					z-index: 201;
+					left: calc(50.8% - 200px);
+					justify-content: center;
+					align-items: center;
+				}`
+		];
+	}
 
 	_mobileTemplate() {
 		return this._webTemplate();
@@ -111,7 +151,7 @@ export class StopCardLandingPage extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._renderStopCardComponent()}
-
+			${this._renderVerifiedToast()}
 			${super._webTemplate()}
 		`;
 	}
@@ -132,6 +172,21 @@ export class StopCardLandingPage extends ViewBase {
 		return this.isBusy 
 			? html`<capitec-loading-indicator></capitec-loading-indicator>`
 			: html``;
+	}
+
+	_renderVerifiedToast() {
+		if (this.displayToast) {
+			return html`
+				<capitec-toast
+					data-automation-id="stop-card-verified-toast"
+					id="verifyToast"
+					type="success"
+					header="Successful"
+					detail="Thank you, you have been verified."
+					closable>
+				</capitec-toast>`;
+		}
+		return html``;
 	}
 }
 
