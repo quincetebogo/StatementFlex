@@ -10,7 +10,6 @@ import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 import 'platform/components/popups/Modal';
 import 'app/components/common/StepperModal';
-import 'app/components/common/HorizonEmailInput';
 
 const RENDER_MODE = Object.freeze({
 	EMAIL: 0,
@@ -152,8 +151,6 @@ export class StatementsDialog extends Component {
 			email: ``,
 			confirmEmail: ``
 		};
-		this.emailLabel = `Email address`;
-		this.confirmEmailLabel = `Confirm email address`;
 		this.encodedPDF = ``;
 		this.today = new Date().toISOString();
 		this.productSelected = {};
@@ -186,9 +183,7 @@ export class StatementsDialog extends Component {
 			fromDate: { attribute: false },
 			toDate: { attribute: false },
 			_customDateRange: { attribute: false },
-			errorMessage: { attribute: false },
-			emailError: { attribute: false },
-			confirmEmailError: { attribute: false }
+			errorMessage: { attribute: false }
 		};
 	}
 
@@ -210,17 +205,6 @@ export class StatementsDialog extends Component {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-
-	_onEmailValueChange(e) {
-		this.email = e.detail.email;
-		this.confirmEmail = e.detail.confirmEmail;
-	}
-
-	_validEmailAddressCheck(e) {
-		this.errorMessage = e.detail.errorMessage;
-		this.mailClientError.email = e.detail.emailError;
-		this.mailClientError.confirmEmail = e.detail.confirmEmailError;
-	}
 
 	async _cancel() {
 
@@ -352,6 +336,43 @@ export class StatementsDialog extends Component {
 		}
 	}
 
+	_emailFormatCheck(e) {
+		
+		this[e.currentTarget.id] = e.detail.new;
+
+		if (e.detail.new.length > 0) {
+			if (!EMAIL_REGEX.test(e.detail.new)) {
+				this.errorMessage = `Invalid email format`;
+				this.mailClientError.email = `Invalid email format`;
+				this.mailClientError.confirmEmail = `Invalid email format`;
+			} else {
+				this.errorMessage = ``;
+				this.mailClientError[e.currentTarget.id] = ``;
+			}
+		}
+		if (!this._confirmEmailMatch()) {
+			this.errorMessage = `Emails don't match`;
+			this.mailClientError.email = `Emails don't match`;
+				this.mailClientError.confirmEmail = `Emails don't match`;
+		}
+		this.requestUpdate();
+	}
+
+	_confirmEmailMatch() {
+
+		if (!isNullorEmpty(this.email) && !isNullorEmpty(this.confirmEmail)) {
+			return this.email === this.confirmEmail;
+		}
+		return true;
+	}
+
+	_inputEmail(e) {
+		this.mailClientError[e.currentTarget.id] = ``;
+		this.mailClientError.email = ``;
+		this.mailClientError.confirmEmail = ``;
+		this.errorMessage = ``;
+	}
+
 	async _viewPDF() {
 
 		// Telemetry
@@ -387,7 +408,7 @@ export class StatementsDialog extends Component {
 
 	async _sendStatement() {
 
-		if (!this.validEmailAddress) {
+		if (!this._validateEmailAddress()) {
 			this.mailClientError.email = `Please enter email`;
 			this.mailClientError.confirmEmai = `Please enter email`;
 			this.errorMessage = `Complete all fields.`;
@@ -1077,15 +1098,44 @@ export class StatementsDialog extends Component {
 	_renderEmailClient() {
 		if (this.currentStep === 2 && this.renderMode === RENDER_MODE.EMAIL) {
 			return html`
-				<horizon-email-input
-					@value-changed="${(e) => this._onEmailValueChange(e)}"
-					@validation-update="${(e) => this._validEmailAddressCheck(e)}"
-					.labelOne="${this.emailLabel}"
-					.labelTwo="${this.confirmEmailLabel}"
-					.emailError="${this.mailClientError.email}"
-					.confirmEmailError="${this.mailClientError.confirmEmail}">
-				</horizon-email-input>
+				<capitec-label
+					type="subtitle"
+					label="Enter email address">
+				</capitec-label>
+
+				<capitec-text-field
+					id="email"
+					data-automation-id="statements-dialog-email-address"
+					label="Email address"
+					oncopy="return false"
+					onpaste="return false"
+					oncut="return false"
+					value="${this.email}"
+					error="${this.mailClientError.email}"
+					@value-changed="${(e) => this._emailFormatCheck(e)}"
+					@input="${(e) => this._inputEmail(e)}">
+				</capitec-text-field>
+
+				<capitec-label
+					class="chooseText"
+					type="subtitle"
+					label="Confirm email address">
+				</capitec-label>
+				<capitec-text-field
+					id="confirmEmail"
+					data-automation-id="statements-dialog-confirm-email-address"
+					label="Email address"
+					oncopy="return false" 
+					onpaste="return false"
+					oncut="return false"
+					value="${this.confirmEmail}"
+					error="${this.mailClientError.confirmEmail}"
+					@value-changed="${(e) => this._emailFormatCheck(e)}"
+					@input="${(e) => this._inputEmail(e)}">
+				</capitec-text-field>
 			
+				<hr class="seperator">
+
 			<capitec-label
 					type="subtitle"
 					label="View document">

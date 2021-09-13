@@ -1,6 +1,5 @@
 import { Component, css, html, live } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/Common/UpdateIncidentDialog';
@@ -11,6 +10,14 @@ import 'app/components/Common/UpdateIncidentDialog';
  * Events Raised
  * -------------
  * back
+ * get-sub-categories
+ * get-issues
+ * issue-changed
+ * 
+ * loading
+ * unloading
+ * launch-strack
+ * update-strack
  * 
  * @export
  * @class SearchOtherNeed
@@ -144,8 +151,8 @@ export class SearchOtherNeed extends Component {
 	_issueChanged(e) {
 		this.issue = e.currentTarget.value.issue;
 		this.solution = this.issues.find(item => item.issue === this.issue).solution;
-		
-		this._updateScreenDetails();
+
+		this.dispatchEvent(new CustomEvent(`issue-changed`, { detail: { category: this.category, need: this.need, issue: this.issue } }));
 	}
 
 	// ---------------
@@ -165,8 +172,11 @@ export class SearchOtherNeed extends Component {
 	}
 
 	_updateStrack() {
-		this.dispatchEvent(new CustomEvent(`update-strack`, { detail: { category: this.category, need: this.need, issue: this.issue } }));
-			
+		this.dispatchEvent(new CustomEvent(`update-strack`, { detail: { category: this.category, need: this.need, issue: this.issue, postAction : this } }));
+	}
+
+	// Refresh screen once incident details are updated to Strack
+	_refreshScreen() {
 		this.category = ``;
 		this.need = ``;
 		this.issue = ``;
@@ -496,3 +506,97 @@ export class SearchOtherNeed extends Component {
 }
 
 customElements.define(`horizon-search-other-need`, SearchOtherNeed);
+
+
+/**
+ * When back button on the title bar is clicked
+ *
+ * @example
+ * <horizon-search-other-need ... @back="${this._handler}"></horizon-search-other-need>
+ *
+ * @event SearchOtherNeed#back 	
+ * @type {Object} - N/A
+ */
+
+/**
+ * When category is selected/changed from a dropdown
+ *
+ * @example
+ * <horizon-search-other-need ... @get-sub-categories="${this._handler}"></horizon-search-other-need>
+ *
+ * @event SearchOtherNeed#get-sub-categories 	
+ * @property {Object} detail - Contains information on the clicked item
+ * @property {String} detail.category - The selected Category
+ */
+
+/**
+ * When Sub-category is selected/changed from a dropdown
+ *
+ * @example
+ * <horizon-search-other-need ... @get-issues="${this._handler}"></horizon-search-other-need>
+ *
+ * @event SearchOtherNeed#get-issues 
+ * @property {Object} detail - Contains information on the clicked item
+ * @property {String} detail.category - The selected Category
+ * @property {String} detail.need - The selected Need
+ */
+
+/**
+ * When issue is selected/changed from a dropdown
+ *
+ * @example
+ * <horizon-search-other-need ... @issue-changed="${this._handler}"></horizon-search-other-need>
+ *
+ * @event SearchOtherNeed#issue-changed 
+ * @property {Object} detail - Contains information on the clicked item
+ * @property {String} detail.category - The selected Category
+ * @property {String} detail.need - The selected Need
+ * @property {String} detail.issue - The selected Issue
+ */
+
+/**
+ * When screen starts loading 
+ *
+ * @example
+ * <horizon-search-other-need ... @loading="${this._handler}"></horizon-search-other-need>
+ *
+ * @event SearchOtherNeed#loading 
+ * @type {Object} - N/A
+ */
+
+/**
+ * When screen starts unloading ( disconnected callback)
+ *
+ * @example
+ * <horizon-search-other-need ... @unloading="${this._handler}"></horizon-search-other-need>
+ *
+ * @event SearchOtherNeed#unloading 
+ * @type {Object} - N/A
+ */
+
+/**
+ * When Launch-Strack button is clicked
+ *
+ * @example
+ * <horizon-search-other-need ... @launch-strack="${this._handler}"></horizon-search-other-need>
+ *
+ * @event SearchOtherNeed#launch-strack 
+ * @property {Object} detail - Contains information on the clicked item
+ * @property {String} detail.category - The selected Category
+ * @property {String} detail.need - The selected Need
+ * @property {String} detail.issue - The selected Issue
+ */
+
+/**
+ * When Update-Strack button is clicked
+ *
+ * @example
+ * <horizon-search-other-need ... @update-strack="${this._handler}"></horizon-search-other-need>
+ *
+ * @event SearchOtherNeed#update-strack	
+ * @property {Object} detail - Contains information on the clicked item
+ * @property {String} detail.category - The selected Category
+ * @property {String} detail.need - The selected Need
+ * @property {String} detail.issue - The selected Issue
+ * @property {String} detail.postAction - postAction to refresh the screen
+ */
