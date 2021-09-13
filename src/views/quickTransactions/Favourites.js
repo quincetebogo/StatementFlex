@@ -655,6 +655,7 @@ export class Favourites extends SavingsAccountBase {
 		screenDetails.subCategory = need;
 		screenDetails.issue = issue;
 
+		this.category = screenDetails.category;
 		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
@@ -799,16 +800,11 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.UPDATE_INCIDENT
 		? html`
 			<horizon-update-incident-dialog
-				.headerLabel="Update Incident"
-				.categories="${this.categories}"
-				.specificNeeds="${this.needs}"
-				.issueTypes="${this.issues}"
+				headerLabel="Update Incident"
 				.category="${this.category}"
-				.need="${this.need}"
-				.issue="${this.issue}"
 				@get-issue-types="${(e) => this._subCategoryChanged(e)}"
 				@on-cancel = "${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
-				@on-update="${(e) => this._updateIncident(e)}">
+				@on-update="${(e) => this._classifyIncident(e)}">
 			</horizon-update-incident-dialog>`
 		: html``;
 	}

@@ -4,7 +4,8 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { Logger, Configuration } from 'platform/core';
-import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
+import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
+
 
 import 'app/components/dialogs/common/Feedback';
 
@@ -30,8 +31,6 @@ export class UpdateIncidentDialog extends Component {
 	constructor() {
 		super();
 
-		this.incomingCallDetails = {};
-
 		this.alertBannerMessage = ``;
 		this.headerLabel = ``;
 		this.categories = null;
@@ -53,6 +52,7 @@ export class UpdateIncidentDialog extends Component {
 		this.logger = Logger.getInstance();
 		this._configuration = Configuration.getInstance();
 
+		Object.assign(UpdateIncidentDialog.prototype, searchOtherNeedMixin);
 
 	}
 
@@ -71,7 +71,6 @@ export class UpdateIncidentDialog extends Component {
 
 	static get properties() {
 		return {
-			incomingCallDetails: { type: Object },
 			incidentDetails: { type: Object },
 			headerLabel: { type: String },
 			categories: { type: Array },
@@ -98,9 +97,6 @@ export class UpdateIncidentDialog extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		const callerInformation = this.horizonStore.getCallerInformation() || {};
-		this.feedbackOptions = FEEDBACK_OPTIONS;
-		this.issues = this.issues.map(item => item.issue);
 
 	}
 
@@ -122,96 +118,99 @@ export class UpdateIncidentDialog extends Component {
 		this.iconSource = `/images/statusIcons/horizon-warning-trans.svg`
 	}
 
-	async _incidentStatus(e) {
-		const returnValue = await this.incidentManagementService.incidentStatus(e);
-
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Failed to get incident status.`, `_incidentStatus`, returnValue.correlationId);
-			return null;
-		}
-		return returnValue.result;
-	}
-
-	async _getNeedActions() {
-		const ivrActionMapping = await this._configuration.getSetting(`ivrActionMapping`);
-		return ivrActionMapping;
-	}
-
-	_updateClick(category, need, issue) {
-		this.dispatchEvent(new CustomEvent(`on-update`, { detail: {
-			category: category,
-			need: need,
-			issue: issue
-		} }));
-
-		if (isNullorEmpty(need) || isNullorEmpty(issue)) {
-			this.showAlert = true;
-			this.alertBannerMessage = `You must complete all fields to update`;
-			this.errorColor = `headerError`;
-			this.iconSource = `/images/error-stroke.svg`;
-
-			if (isNullorEmpty(need)) {
-				this.needError = `Required field`;
-			}
-			if (isNullorEmpty(issue)) {
-				this.issueError = `Required field`;
-			}
-		} else {
-			this._keyPress();
-		}
-
-		// this.renderMode = RENDER_MODE.FEEDBACK;
-
-	}
-
-	async _done(event) {
-		this._telemetry.logEvent(QuickTransactionEvents.SEARCH_OTHER_NEED_DONE, {
-			"launch-strack-feedback": event.detail.selectedFeedback
-		});
-
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		const selectedOption = FEEDBACK_OPTIONS.find(item => item.key === event.detail);
-		const options = {
-			clientNeed: null,
-			endCallReason: selectedOption,
-			causeCodeByContext: this.endCallCauseCode.getCauseCode(`LandingPage`, incomingCallDetails.ivrOptionCode, selectedOption.value)
-		};
-
-		const isSuccess = await super.closeIncident(options, () => this._toggleBusyFlag());
-		console.log(isSuccess)
-		
-		if (isSuccess) {
-			// Navigate to favourites landing page
-			incidentDetails.needStatus = super.HORIZON_NEED_STATUS.CLOSED;
-			incidentDetails.feedback = selectedOption.key;
-
-			this.horizonStore.setIncidentDetails(incidentDetails);
-			this._searchOtherNeedDone();
-		} else {
-			// this.alertBannerMessage = ERROR_LIST.SYSTEM_ERROR;
-
-			console.log("error")
+	async _categoryChanged(e) {
+		if (e.detail.new !== null) {
+			this.category = e.detail.new;
+			this.need = ``;
+			this.issue = ``;
+			this.alertBannerMessage = ``;
+			
+			this.specificNeeds = await this.getSubCategories({ detail: { category: this.category } });
 		}
 	}
-	_searchOtherNeedDone() {
-		this._refreshIncidentDetails();
+
+	async _subCategoryChanged(e) {
+		if (e.detail.new !== null) {
+			this.need = e.detail.new;
+			this.issue = ``;
+			this.alertBannerMessage = ``;
+
+			this.issueTypes = await this.getIssues({ detail: { category: this.category, need: this.need } });
+		}
 	}
 
-	// async _classifyIncident(e) {
-		
-	// 	const incidentCategorization = {
-	// 		category: `${e.detail.category}`,
-	// 		need: `${e.detail.need}`,
-	// 		issue: `${e.detail.issue}`
-	// 	};
+	_issueChanged(e) {
+		this.issue = e.currentTarget.value.issue;
+		this.alertBannerMessage = ``;
+	}
 
-	// 	const returnValue = await super.classifyIncident(() => this._toggleBusyFlag(), incidentCategorization);
+	async _prepopulateNeed() {
+		const screenDetails = this.horizonStore.getScreenDetails() || {};
+		const incidentDetails = this.horizonStore.getIncidentDetails() || {};
 
-	// 	console.log(returnValue)
+		// Determining if its already classified
+		const isClassified = !isNullorEmpty(this.incidentInfo.category) && !isNullorEmpty(this.incidentInfo.subCategory) && !isNullorEmpty(this.incidentInfo.issue);
+		// Determining at least we know categorization to classify
+		const hasValues = !isNullorEmpty(screenDetails.category) && !isNullorEmpty(screenDetails.subCategory) && !isNullorEmpty(screenDetails.issue);
+
+		// If classification is not empty, no need to populate need
+		this.understandNeed = this.understandNeed && !hasValues && !isClassified;
+		this._setClassification(screenDetails);
+
+		if (!this.understandNeed || this.categories.length !== 0 && this.endCallReason.key !== END_CALL_REASON.CALL_TRANSFERED) {
+			return;
+		}
+
+		// If end call reason is call transferred, prepopulate category
+		if (this.endCallReason.key === END_CALL_REASON.CALL_TRANSFERED) {
+			this.category = CALL_TRANSFERED_CLASSIFICATION.category;
+			this.need = ``;
+			this.issue = ``;
+		}
+
+		await this.getCategories();
+
+		if (!isNullorEmpty(this.category)) {
+			await this.getSubCategories({ detail: { category: this.category } });
+		}
+
+		if (!isNullorEmpty(this.need)) {
+			await this.getIssues({ detail: { category: this.category, need: this.need } });
+		}
+	}
+
+	_setClassification(screenDetails) {
+		this.category = screenDetails.category || ``;
+		this.need = screenDetails.subCategory || ``;
+		this.issue = screenDetails.issue || ``;
+	}
+
+	// _updateClick(category, need, issue) {
+	// 	this.dispatchEvent(new CustomEvent(`on-update`, { detail: {
+	// 		category: category,
+	// 		need: need,
+	// 		issue: issue
+	// 	} }));
+
+	// 	if (isNullorEmpty(need) || isNullorEmpty(issue)) {
+	// 		this.showAlert = true;
+	// 		this.alertBannerMessage = `You must complete all fields to update`;
+	// 		this.errorColor = `headerError`;
+	// 		this.iconSource = `/images/error-stroke.svg`;
+
+	// 		if (isNullorEmpty(need)) {
+	// 			this.needError = `Required field`;
+	// 		}
+	// 		if (isNullorEmpty(issue)) {
+	// 			this.issueError = `Required field`;
+	// 		}
+	// 	} else {
+	// 		this._keyPress();
+	// 	}
+
+	// 	// this.renderMode = RENDER_MODE.FEEDBACK;
+
 	// }
-
-
 
 	_cancelClick() {
 		this.dispatchEvent(new CustomEvent(`on-cancel`, {}));
@@ -229,16 +228,16 @@ export class UpdateIncidentDialog extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
-	_catagoryChanged(e) {
-		this.category = e.detail.new;
+	// _catagoryChanged(e) {
+	// 	this.category = e.detail.new;
 
-	}
+	// }
 
-	_subCatagoryChanged(e) {
-		this.need = e.detail.new;
-		this._getIssues(e);
+	// _subCatagoryChanged(e) {
+	// 	this.need = e.detail.new;
+	// 	this._getIssues(e);
 
-	}
+	// }
 	_issueChanged(e) {
 		this.issue = e.currentTarget.value.issue;
 	}
@@ -369,7 +368,6 @@ export class UpdateIncidentDialog extends Component {
 	_webTemplate() {
 		return html`
 			${this._renderUpdateModal()}
-			${this._renderFeedback()}
 		`;
 	}
 
@@ -415,26 +413,20 @@ export class UpdateIncidentDialog extends Component {
 				label="Complete all fields">
 			</capitec-label>
 			${this._renderAlert()}
-			<capitec-text-field
-				display-field="category"
-				.value="${this.category}"
-				data="${this.categories}"
-				type="search"
-				@value-changed="${(e) => this._catagoryChanged(e)}">
-			</capitec-text-field>
-			<!-- <capitec-select
+
+			<capitec-select
 				label="Search client need"
 				display-field="category"
 				.value="${this.category}"
 				.items="${this.categories}"
-				@value-changed="${(e) => this._catagoryChanged(e)}">
-			</capitec-select> -->
+				@value-changed="${(e) => this._categoryChanged(e)}">
+			</capitec-select>
 			<capitec-select
 				label="Choose specific need"
 				display-field="value"
 				.value="${this.need}"
 				.items="${this.specificNeeds}"
-				@value-changed="${(e) => this._subCatagoryChanged(e)}"
+				@value-changed="${() => this._subCategoryChanged(this.category)}"
 				.error="${this.needError}"
 				searchable>
 			</capitec-select>
@@ -471,14 +463,6 @@ export class UpdateIncidentDialog extends Component {
 		`;
 	 }
 
-	 _renderFeedback() {
-		return this.renderMode === RENDER_MODE.FEEDBACK
-			? html`
-				<horizon-feedback 
-					@done="${(event) => this._done(event)}">
-				</horizon-feedback>`
-			: html``;
-	}
 }
 
 window.customElements.define(`horizon-update-incident-dialog`, UpdateIncidentDialog);
