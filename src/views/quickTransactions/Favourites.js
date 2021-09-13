@@ -637,10 +637,7 @@ export class Favourites extends SavingsAccountBase {
 			issue: `${event.detail.issue}`
 		};
 
-		await super.createAndClassifySubsIncident(incidentCategorization);
-
-		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
-		this.renderMode = RENDER_MODE.FEEDBACK;
+		await super.classifyIncident(() => this._toggleBusyFlag(), incidentCategorization);
 	}
 
 	async _createIncidentOnError() {
@@ -710,6 +707,7 @@ export class Favourites extends SavingsAccountBase {
 			case RENDER_MODE.VERIFY_NOW:
 			case RENDER_MODE.END_CALL:
 			case RENDER_MODE.ALERT_MODAL:
+			case RENDER_MODE.UPDATE_INCIDENT:
 				return html`
 					<horizon-favourite-transactions 
 						class="favourites"
@@ -768,7 +766,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderSearchOtherNeed() {
-		return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED || this.renderMode === RENDER_MODE.FEEDBACK || this.renderMode === RENDER_MODE.UPDATE_INCIDENT
+		return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED || this.renderMode === RENDER_MODE.FEEDBACK
 			? html`
 				<horizon-search-other-need
 					.categories="${this.categories || []}"
@@ -777,6 +775,7 @@ export class Favourites extends SavingsAccountBase {
 					@loading="${() => this._telemetryStartSpan(QuickTransactionEvents.SEARCH_OTHER_NEED, TelemetryScreen.SEARCH_OTHER_NEED)}"
 					@unloading="${() => this._unLoadingOtherNeeds()}"
 					@launch-strack="${(event) => this._onLaunchStrackClick(event)}"
+					@update-strack="${(event) => this._onUpdateStrackClick(event)}"
 					@get-sub-categories="${(event) => this._getSubCategories(event)}"
 					@get-issues="${(event) => this._getIssues(event)}"
 					@issue-changed="${(event) => this._updateNeedToState(event.detail.category, event.detail.need, event.detail.issue)}"
