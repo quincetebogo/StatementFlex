@@ -7,7 +7,7 @@ import 'app/components/common/ServiceCallErrorScreen';
 
 
 /**
- * Display an failure screen indicating service unavailable.
+ * Display an failure screen indicating that the tax certificates service is unavailable.
  *
  * @export
  * @class TaxCertificateServiceError
@@ -23,37 +23,31 @@ export class TaxCertificateServiceError extends ViewBase {
 		super();
 
 		this._configuration = Configuration.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	// --------------
 	// PROPERTIES
 	// --------------
 
-		/**
-	 * Registry of all properties defined by the component.
-	 * 
-	 * @property {Boolean} [isTaxFreeCertificate=true] - Specifies if a Tax Free Certificate is being sent.
-	 * 
-	 * @readonly
-	 * @static
-	 * @memberof TaxCertificateServiceError
-	 */
-	static get properties() {
-		return {
-			isTaxFreeCertificate: { attribute: false, type: Boolean }
-		};
-	}
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		// TODO: Is a telemetry event needed here?
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
 
+		this.horizonStore.setScreenDetails({ taxCertificate: null });
+		this.horizonStore.clearReturnScreen();
+
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	// --------------
@@ -72,14 +66,6 @@ export class TaxCertificateServiceError extends ViewBase {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	// TODO : Uncomment the below code when CS is being implemented.
-
-	// _updateIncidentState() {
-	// 	const incidentDetails = this.horizonStore.getIncidentDetails();
-	// 	incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-	// 	this.horizonStore.setIncidentDetails(incidentDetails);
-	// }
 
 	// ---------
 	// RENDERING

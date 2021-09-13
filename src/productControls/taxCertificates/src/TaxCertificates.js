@@ -88,7 +88,9 @@ export class TaxCertificates extends Component {
 			selectedCertType: { attribute: false },
 			selectedCertificates: { attribute: false },
 			alertBannerMessage: { attribute: false },
-			emailText: { attribute: false }
+			emailText: { attribute: false },
+			email: { attribute: false },
+			confirmEmail: { attribute: false }
 		};
 	}
 
@@ -225,21 +227,9 @@ export class TaxCertificates extends Component {
 		return day;
 	}
 
-	_getAllSelectedCertificates(item, type) {
-		
-		if (!isNullorEmpty(this.selectedCertificates.iT3BTaxCertificates) && (type === `iT3BTaxCertificates`)) {
-			this.requestUpdate();
-			return `IT3(b)`;
-		}
-		if (!isNullorEmpty(this.selectedCertificates.iT3STaxCertificates.length) && (type === `iT3STaxCertificates`)) {
-			this.requestUpdate();
-			return `IT3(s)`;
-		}
-	}
-
 	_validateEmailAddress() {
-		this.mailClientError.email = isNullorEmpty(this.email) ? `Please enter email` : ``;
-		this.mailClientError.confirmEmail = isNullorEmpty(this.confirmEmail) ? `Please enter email` : ``;
+		this.mailClientError.email = isNullorEmpty(this.email) ? `Enter email address` : ``;
+		this.mailClientError.confirmEmail = isNullorEmpty(this.confirmEmail) ? `Enter email address` : ``;
 
 		this.alertBannerMessage = this.mailClientError.email || this.mailClientError.confirmEmail ? `Complete all fields.` : ``;
 		return isNullorEmpty(this.alertBannerMessage);
@@ -642,6 +632,8 @@ export class TaxCertificates extends Component {
 		if (this.currentStep === 1 && this.renderMode === RENDER_MODE.EMAIL) {
 			return html`
 				<horizon-email-input
+					email="${this.email}";
+					confirmEmail="${this.confirmEmail}";
 					@value-changed="${(e) => this._emailValueChanged(e)}"
 					@validation-update="${(e) => this._validEmailAddressCheck(e)}"
 					.labelOne="${this.emailLabel}"
@@ -704,7 +696,7 @@ export class TaxCertificates extends Component {
 		const count = item.taxCertificateAccounts.length;
 
 		return html`
-			<capitec-label label="Overview (${count} account/s)"></capitec-label>
+			<capitec-label label="Overview (${count} ${count > 1 ? `accounts` : `account`})"></capitec-label>
 			
 			<capitec-group class="notify-banner" layout="horizontal">
 				<capitec-icon
@@ -743,11 +735,11 @@ export class TaxCertificates extends Component {
 	}
 
 	_renderViewTaxcertificate() {
-		return Object.keys(this.selectedCertificates).map(value => html`
+		return Object.keys(this.selectedCertificates).map(certType => html`
 				<capitec-label
 					class="tax-certificate-heading"
-						type="subtitle"
-						label="View ${value === `iT3BTaxCertificates` ? `taxable savings` : `tax-free`} certificate(s)">
+					type="subtitle"
+					label="View ${certType === `iT3BTaxCertificates` ? `taxable savings` : `tax-free`} certificate(s)">
 				</capitec-label>
 				<capitec-group
 					class="available-cards"
@@ -755,25 +747,25 @@ export class TaxCertificates extends Component {
 					halign="left"
 					gap="clear"
 					layout="vertical">
-					${this._renderViewCertificateTile(value)}
+					${this._renderViewCertificateTile(certType)}
 			</capitec-group>`);
 		}
 
-	_renderViewCertificateTile(type) {
-		return this.selectedCertificates[type].map(item => html`
+	_renderViewCertificateTile(certType) {
+		return this.selectedCertificates[certType].map(certInfo => html`
 				<horizon-product-tile
 					data-automation-id="tax-certificate-dialog-view-document"
 					class="view-document-tile"
 					type="default"
-					label="${item.year}"
-					subtitle="${this._getAllSelectedCertificates(item, type)} ${!type.isTaxYearAvailable ? `Available` : `Unavaiable`}"
-					@click="${() => this._viewPDF(item, type)}">
-					${this._renderViewDocumnetLink()}
+					label="${certInfo.year}"
+					subtitle="${certType === `iT3BTaxCertificates` ? `IT3(b)` : `IT3(s)`} ${certInfo.isTaxYearAvailable ? `Available` : `Unavailable`}"
+					@click="${() => this._viewPDF(certInfo, certType)}">
+					${this._renderViewDocumentLink()}
 				</horizon-product-tile>`);
 		
 	}
 
-	_renderViewDocumnetLink() {
+	_renderViewDocumentLink() {
 		return html`
 			<capitec-label
 				slot="detail"
