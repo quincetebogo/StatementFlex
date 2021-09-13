@@ -33,13 +33,14 @@ export class UpdateIncidentDialog extends Component {
 
 		this.alertBannerMessage = ``;
 		this.headerLabel = ``;
-		this.categories = null;
-		this.specificNeeds = null;
-		this.issueTypes = null;
+		this.categories = [];
+		this.specificNeeds = [];
+		this.issueTypes = [];
 
 		this.category = ``;
 		this.need = ``;
 		this.issue = ``;
+
 		this.errorColor = ``;
 		this.iconSource = `/images/statusIcons/horizon-warning-trans.svg`;
 
@@ -73,6 +74,7 @@ export class UpdateIncidentDialog extends Component {
 		return {
 			incidentDetails: { type: Object },
 			headerLabel: { type: String },
+
 			categories: { type: Array },
 			specificNeeds: { type: Array },
 			issueTypes: { type: Array },
@@ -96,8 +98,6 @@ export class UpdateIncidentDialog extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-
 	}
 
 	disconnectedCallback() {
@@ -125,7 +125,7 @@ export class UpdateIncidentDialog extends Component {
 			this.issue = ``;
 			this.alertBannerMessage = ``;
 			
-			this.specificNeeds = await this.getSubCategories({ detail: { category: this.category } });
+			await this.getSubCategories({ detail: { category: this.category } });
 		}
 	}
 
@@ -135,7 +135,8 @@ export class UpdateIncidentDialog extends Component {
 			this.issue = ``;
 			this.alertBannerMessage = ``;
 
-			this.issueTypes = await this.getIssues({ detail: { category: this.category, need: this.need } });
+			await this.getIssues({ detail: { category: this.category, need: this.need } });
+		console.log(this.issues)
 		}
 	}
 
@@ -144,73 +145,11 @@ export class UpdateIncidentDialog extends Component {
 		this.alertBannerMessage = ``;
 	}
 
-	async _prepopulateNeed() {
-		const screenDetails = this.horizonStore.getScreenDetails() || {};
-		const incidentDetails = this.horizonStore.getIncidentDetails() || {};
 
-		// Determining if its already classified
-		const isClassified = !isNullorEmpty(this.incidentInfo.category) && !isNullorEmpty(this.incidentInfo.subCategory) && !isNullorEmpty(this.incidentInfo.issue);
-		// Determining at least we know categorization to classify
-		const hasValues = !isNullorEmpty(screenDetails.category) && !isNullorEmpty(screenDetails.subCategory) && !isNullorEmpty(screenDetails.issue);
 
-		// If classification is not empty, no need to populate need
-		this.understandNeed = this.understandNeed && !hasValues && !isClassified;
-		this._setClassification(screenDetails);
-
-		if (!this.understandNeed || this.categories.length !== 0 && this.endCallReason.key !== END_CALL_REASON.CALL_TRANSFERED) {
-			return;
-		}
-
-		// If end call reason is call transferred, prepopulate category
-		if (this.endCallReason.key === END_CALL_REASON.CALL_TRANSFERED) {
-			this.category = CALL_TRANSFERED_CLASSIFICATION.category;
-			this.need = ``;
-			this.issue = ``;
-		}
-
-		await this.getCategories();
-
-		if (!isNullorEmpty(this.category)) {
-			await this.getSubCategories({ detail: { category: this.category } });
-		}
-
-		if (!isNullorEmpty(this.need)) {
-			await this.getIssues({ detail: { category: this.category, need: this.need } });
-		}
+	_updateClick(e) {
+		this.dispatchEvent(new CustomEvent(`on-update`, { detail: { category: this.category, need: this.need, issue: this.issue } }));
 	}
-
-	_setClassification(screenDetails) {
-		this.category = screenDetails.category || ``;
-		this.need = screenDetails.subCategory || ``;
-		this.issue = screenDetails.issue || ``;
-	}
-
-	// _updateClick(category, need, issue) {
-	// 	this.dispatchEvent(new CustomEvent(`on-update`, { detail: {
-	// 		category: category,
-	// 		need: need,
-	// 		issue: issue
-	// 	} }));
-
-	// 	if (isNullorEmpty(need) || isNullorEmpty(issue)) {
-	// 		this.showAlert = true;
-	// 		this.alertBannerMessage = `You must complete all fields to update`;
-	// 		this.errorColor = `headerError`;
-	// 		this.iconSource = `/images/error-stroke.svg`;
-
-	// 		if (isNullorEmpty(need)) {
-	// 			this.needError = `Required field`;
-	// 		}
-	// 		if (isNullorEmpty(issue)) {
-	// 			this.issueError = `Required field`;
-	// 		}
-	// 	} else {
-	// 		this._keyPress();
-	// 	}
-
-	// 	// this.renderMode = RENDER_MODE.FEEDBACK;
-
-	// }
 
 	_cancelClick() {
 		this.dispatchEvent(new CustomEvent(`on-cancel`, {}));
@@ -228,16 +167,6 @@ export class UpdateIncidentDialog extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
-	// _catagoryChanged(e) {
-	// 	this.category = e.detail.new;
-
-	// }
-
-	// _subCatagoryChanged(e) {
-	// 	this.need = e.detail.new;
-	// 	this._getIssues(e);
-
-	// }
 	_issueChanged(e) {
 		this.issue = e.currentTarget.value.issue;
 	}
@@ -417,27 +346,32 @@ export class UpdateIncidentDialog extends Component {
 			<capitec-select
 				label="Search client need"
 				display-field="category"
+				id-field="category"
 				.value="${this.category}"
 				.items="${this.categories}"
-				@value-changed="${(e) => this._categoryChanged(e)}">
+				@value-changed="${(e) => this._categoryChanged(e)}"
+				searchable>
 			</capitec-select>
 			<capitec-select
 				label="Choose specific need"
-				display-field="value"
+				display-field="need"
+				id-field="need"
 				.value="${this.need}"
 				.items="${this.specificNeeds}"
-				@value-changed="${() => this._subCategoryChanged(this.category)}"
+				@value-changed="${(e) => this._subCategoryChanged(e)}"
 				.error="${this.needError}"
+				labelAsPlaceholder
 				searchable>
 			</capitec-select>
 			<capitec-select
 				label="Choose issue type"
-				display-field="value"
+				display-field="issue"
+				id-field="issue"
 				.value="${this.issue}"
-				.items="${this.issueTypes}"
+				.items="${this.issues}"
 				@value-changed="${(e) => this._issueChanged(e)}"
 				.error="${this.issueError}"
-				searchable>
+				labelAsPlaceholder>
 			</capitec-select>
 		`;
 	}
@@ -457,7 +391,7 @@ export class UpdateIncidentDialog extends Component {
 					id="id-update-button"
 					type="primary"
 					label="Update"
-					@click="${() => this._updateClick(this.category, this.need, this.issue)}">
+					@click="${(e) => this._updateClick(e)}">
 				</capitec-button>
 			</capitec-group>
 		`;

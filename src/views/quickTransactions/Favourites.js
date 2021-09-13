@@ -617,14 +617,11 @@ export class Favourites extends SavingsAccountBase {
 		this.renderMode = RENDER_MODE.FEEDBACK;
 	}
 
-	async _onUpdateincidentConfirm() {
+	async _onUpdateincidentConfirm(e) {
 		// should close the incident with captured details on Update incident modal
 		// Temporary switch : to close an incident on Confirm click from Update Incident modal
-		const screenDetails = this.horizonStore.getScreenDetails();
-		const event = { detail: { category: screenDetails.category, need: screenDetails.subCategory, issue: screenDetails.issue } }
 	
-		await this._classifyIncident(event);
-		await this._done({ detail: 0});
+		await this._classifyIncident(e);
 		
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
@@ -644,6 +641,7 @@ export class Favourites extends SavingsAccountBase {
 		await super.createAndClassifySubsIncident();
 		return true;
 	}
+
 
 	_updateNeedToState(category,need,issue) {
 		// Updating state with the latest values
@@ -801,9 +799,11 @@ export class Favourites extends SavingsAccountBase {
 			<horizon-update-incident-dialog
 				headerLabel="Update Incident"
 				.category="${this.category}"
-				@get-issue-types="${(e) => this._subCategoryChanged(e)}"
+				.categories="${this.categories || []}"
+				.specificNeeds="${this.needs || []}"
+				.issueTypes="${this.issues || []}"
 				@on-cancel = "${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
-				@on-update="${(e) => this._classifyIncident(e)}">
+				@on-update="${(e) => this._onUpdateincidentConfirm(e)}">
 			</horizon-update-incident-dialog>`
 		: html``;
 	}
