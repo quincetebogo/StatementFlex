@@ -474,6 +474,9 @@ export class TaxCertificates extends Component {
 				padding: 12px 0px;
 				--horizon-label-value-height: 20px;
 				--horizon-label-text-height: 20px;
+				--horizon-label-value-color: #3A3A3A;
+				--horizon-label-value-font-size: 15px;
+				--horizon-label-value-font-weight: 600;
 			}
 			.expander-content {
 				padding: 14px 14px 8px 16px;
