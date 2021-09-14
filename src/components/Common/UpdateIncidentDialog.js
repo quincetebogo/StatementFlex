@@ -123,6 +123,7 @@ export class UpdateIncidentDialog extends Component {
 	}
 
 	_issueChanged(e) {
+		this._keyPress();
 		this.issue = e.currentTarget.value.issue;
 		this.alertBannerMessage = ``;
 	}
