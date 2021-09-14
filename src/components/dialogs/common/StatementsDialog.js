@@ -424,9 +424,16 @@ export class StatementsDialog extends Component {
 			this.renderMode = RENDER_MODE.PDF;
 			// render the PDF
 			this.encodedPDF = base64ToBlobUrl(returnValue.result.statementData);
-		} else {
-			this.errorMessage = `System error. Please try again`;
-			this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewPDF`, returnValue.correlationId);
+		}
+		else {
+			if(accountType===this.selectedOption){
+				this.horizonRouter.navigateToliveBetterSystemError();
+			}
+			else{
+				this.errorMessage = `System error. Please try again`;
+				this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewPDF`, returnValue.correlationId);
+			}
+			
 		}
 	}
 

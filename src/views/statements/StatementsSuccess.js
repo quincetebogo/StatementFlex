@@ -18,6 +18,7 @@ export class StatementsSuccess extends ViewBase {
 
 		this.mailId = ``;
 		this.acNumber = ``;
+		this.accType=``;
 		this._telemetry = HorizonTelemetry.instance;
 	}
 
@@ -36,6 +37,7 @@ export class StatementsSuccess extends ViewBase {
 
 		this.mailId = screenDetails && screenDetails.emailAddress;
 		this.acNumber = screenDetails && screenDetails.accountNumber;
+		this.accType= screenDetails && screenDetails.accountType;
 
 		this._updateIncidentState();
 	}
@@ -118,7 +120,7 @@ export class StatementsSuccess extends ViewBase {
 					<section 
 						id="id-error-msg" 
 						slot="detail">
-							The statement for savings account <b>${this.acNumber}</b> was emailed to <b>${this.mailId}</b>
+							The statement for ${this.accType} <b>${this.acNumber}</b> was emailed to <b>${this.mailId}</b>
 					</section>
 			</horizon-success-screen>
 		`;

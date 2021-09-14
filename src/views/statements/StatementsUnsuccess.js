@@ -25,6 +25,7 @@ export class StatementsUnsuccess extends ViewBase {
 
 		this.mailId = ``;
 		this.acNumber = ``;
+		this.accType=``;
 		this._telemetry = HorizonTelemetry.instance;
 	}
 
@@ -44,6 +45,7 @@ export class StatementsUnsuccess extends ViewBase {
 		
 		this.mailId = this.screenDetails && this.screenDetails.emailAddress;
 		this.acNumber = this.screenDetails && this.screenDetails.accountNumber;
+		this.accType = this.screenDetails && this.screenDetails.accountType;
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
@@ -127,7 +129,7 @@ export class StatementsUnsuccess extends ViewBase {
 					<section 
 						id="id-error-msg" 
 						slot="detail">
-							The statement for savings account <b>${this.acNumber}</b> was not emailed to <b>${this.mailId}</b>
+							The statement for ${this.accType} <b>${this.acNumber}</b> was not emailed to <b>${this.mailId}</b>
 					</section>
 			</horizon-error-screen>
 		`;
