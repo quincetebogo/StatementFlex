@@ -19,75 +19,44 @@ const RENDER_MODE = Object.freeze({
 	PDF: 1
 });
 
-const STATEMENTS_STEPS = [
-	{
-		title: `Choose Account`
-	},
-	{
-		title: `Choose Period` 
-	},
-	{
-		title: `Specify Email and View Documents`
-	}
-];
-
-const TYPE = [
-	{ icon: `product/transact`, label: `Savings Account`, type: `transact` },
-	{ icon: `product/save`, label: `Future Savings`, type: `save` },
-	{ icon: `product/save`, label: `Education`, type: `save` },
-	{ customIcon: `/images/liveBetter/live-better-icon.png`, label: `Live Better savings account`, type: `lbb` },
-	{ icon: `product/credit`, label: `Credit Card`, type: `credit` },
-	{ icon: `product/credit`, label: `Access Facility`, type: `credit` }
-];
-
-const CLASS_NAMES = {
-	"Savings Account": `savings-account`,
-	"Future Savings": `future-savings`,
-	"Education": `education`,
-	"Live Better savings account": `live-better`,
-	"Credit Card": `credit-card`,
-	"Access Facility": `access-facility`
-};
-
-const ACCOUNT_TYPE = {
-	PRIMARY_SAVINGS: 300,
-	FLEXIBLE_SAVINGS: 200,
-	FIXED_TERM_SAVINGS_ACCOUNT: 201
-};
-
-const ACCOUNTS_ENUM = {
-	PRIMARY_SAVINGS: {
-		type: `PRIMARY_SAVINGS`,
-		showPlans: false
-	},
-	FLEXIBLE_SAVINGS: {
-		type: `FLEXIBLE_SAVINGS`,
-		showPlans: true
-	},
-	CREDIT: {
-		// Configure when ready
-	}
-};
-
-const ACCOUNT_INTCAT_ENUM = {
-	300: {
-		type: `PRIMARY_SAVINGS`,
-		category: `PRIMARY_SAVINGS`
-	},
-	200: {
-		type: `FLEXIBLE_SAVINGS`,
-		category: `FLEXIBLE_SAVINGS`
-	},
-	201: {
-		1: {
-			type: `FIXED_TERM_MULTIPLE_DEPOSITS`,
-			category: `FLEXIBLE_SAVINGS`
+const STATEMENTS_STEPS = {
+	SINGLE_ACCOUNT:
+	[
+		{
+			title: `Choose Period` 
 		},
-		2: {
-			type: `FIXED_TERM_SINGLE_DEPOSIT`,
-			category: `FLEXIBLE_SAVINGS`
+		{
+			title: `Specify Email and View Documents`
 		}
-	}
+	],
+	MULTIPLE_ACCOUNT:
+	[
+		{
+			title: `Choose Account`
+		},
+		{
+			title: `Choose Period` 
+		},
+		{
+			title: `Specify Email and View Documents`
+		}
+	]
+
+};
+
+const TYPE = {
+	'300': { icon: `product/transact`, label: `Savings Account`, type: `transact`, serviceLabel: `SAVINGS ACCOUNT` },
+	'201': { icon: `product/save`, label: `Future Savings`, type: `save`, serviceLabel: `FUTURE SAVINGS` },
+	'200': { icon: `product/save`, label: `Future Savings`, type: `save`, serviceLabel: `FUTURE SAVINGS` },
+	'210': { customIcon: `/images/liveBetter/live-better-icon.png`, label: `Live Better savings account`, type: `lbb`, serviceLabel: `LIVE BETTER SAVINGS ACCOUNT` },
+	'100': { icon: `product/credit`, label: `Credit Card`, type: `credit`, serviceLabel: `CREDIT` },
+};
+
+const SELECTED_ACCOUNT_TYPES = {
+	transact: 300,
+	save: 200, //Flexible Savings
+	save: 201, //Fixed Savings
+	lbb: 210
 };
 
 const TIME_PERIOD = {
@@ -153,9 +122,6 @@ export class StatementsDialog extends Component {
 		this.currentStep = 0;
 		this.notifyClient = true;
 		this.notifyMessage = NOTIFICATION_MESSAGE.APP;
-		this.accType = ``;
-		this.accPlanNumber = ``;
-		this.savingsPlans = [];
 		this.periodSelected = ``;
 		this.showCalendar = false;
 		this._customDateRange = false;
@@ -177,12 +143,16 @@ export class StatementsDialog extends Component {
 		this.today = new Date().toISOString();
 		this.productSelected = {};
 		this.selectedOption = [];
+		this.clientProducts = [];
+		this.clientAccountsType = [];
+		this.STEPPER_STEPS = [];
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
+
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 	}
 
@@ -195,13 +165,12 @@ export class StatementsDialog extends Component {
 			callerInformation: { type: Object },
 			clientProducts: { type: Array },
 			selectedOption: { type: Array },
+			type : { type: String },
 
 			isBusy: { attribute: false },
 			currentStep: { attribute: false },
 			renderMode: { attribute: false },
 			notifyClient: { attribute: false },
-			accType: { attribute: false },
-			accPlanNumber: { attribute: false },
 			periodSelected: { attribute: false },
 			showCalendar: { attribute: false },
 			fromDate: { attribute: false },
@@ -217,6 +186,7 @@ export class StatementsDialog extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
 		this._initialise();
 
 		// Telemetry
@@ -246,7 +216,6 @@ export class StatementsDialog extends Component {
 	}
 
 	_next() {
-
 		const selectAccount = () => this._validateAccountSelection();
 		const selectPeriod = () => this._validatePeriodSelection();
 		const emailClient = () => this._validateEmailAddress();
@@ -256,65 +225,31 @@ export class StatementsDialog extends Component {
 			1: selectPeriod,
 			2: emailClient
 		};
-		const result = validations[this.currentStep]();
+		const result = validations[this.type ? this.currentStep+1 : this.currentStep]();
 		if (result && this.errorMessage === ``) {
-			this.currentStep++;
+			this.type ? this.currentStep+=2 : this.currentStep++;
 		}
-
 	}
-	
+
 	_close() {
 		this.renderMode = RENDER_MODE.EMAIL;
 		
 		this._telemetry.logEvent(QuickTransactionEvents.SELECT_STATEMENTS_CLOSE_PDF, {
 			"screen": TelemetryScreen.STATEMENTS
 		});
-
-
 	}
 
 	_back() {
-
 		// Telemetry
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_BACK, {
 			"screen": TelemetryScreen.STATEMENTS
 		});
 
 		this.errorMessage = ``;
-		this.currentStep--;
-	}
-
-	_selectAccount(type) {
-
-		// Telemetry 
-
-		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SELECT_ACCOUNT, {
-			"screen": TelemetryScreen.STATEMENTS,
-			"accountType": type
-		});
-
-		this.accType = type;
-		this.accPlanNumber = ``;
-		this.errorMessage = ``;
-		this.notifyMessage = NOTIFICATION_MESSAGE.FEE;
-	};
-
-	_selectPlan(plan) {
-
-		// Telemetry
-		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SELECT_PLAN, {
-			"screen": TelemetryScreen.STATEMENTS,
-			"account-id": plan.accountNumber
-		});
-
-		this.accPlanType = plan.accountName;
-		this.accPlanNumber = plan.accountNumber;
-		this.notifyMessage = plan.accountType === ACCOUNT_TYPE.FIXED_TERM_SAVINGS_ACCOUNT ? NOTIFICATION_MESSAGE.NO_FEE : NOTIFICATION_MESSAGE.FEE; 
-		this.errorMessage = ``;
+		this.type ? this.currentStep-= 2 : this.currentStep--;
 	}
 
 	_choosePeriod(range) {
-
 		this.periodSelected = TIME_PERIOD[range].value;
 		this._summary.dateRangeLabel = `${TIME_PERIOD[range].label}`;
 		this._summary.detail = `Last ${TIME_PERIOD[range].range} days`;
@@ -330,14 +265,12 @@ export class StatementsDialog extends Component {
 	}
 
 	_customDateRangeSelected() {
-	
 		this.showCalendar = true;
 		this.periodSelected = ``;
 		this.calendarErrorMessage = ``;
 		this.fromDate = `dd mm yyyy`;
 		this.toDate = `dd mm yyyy`;
 		this._customDateRange = !this._customDateRange;
-	
 	}
 
 	_showCalendar() {
@@ -361,7 +294,6 @@ export class StatementsDialog extends Component {
 	}
 
 	_emailFormatCheck(e) {
-		
 		this[e.currentTarget.id] = e.detail.new;
 
 		if (e.detail.new.length > 0) {
@@ -383,7 +315,6 @@ export class StatementsDialog extends Component {
 	}
 
 	_confirmEmailMatch() {
-
 		if (!isNullorEmpty(this.email) && !isNullorEmpty(this.confirmEmail)) {
 			return this.email === this.confirmEmail;
 		}
@@ -398,7 +329,6 @@ export class StatementsDialog extends Component {
 	}
 
 	async _viewPDF() {
-
 		// Telemetry
 		this._telemetry.logEvent(QuickTransactionEvents.SELECT_STATEMENTS_VIEW_PDF, {});
 		const statement = {
@@ -410,7 +340,6 @@ export class StatementsDialog extends Component {
 				"presetInterval": `${this.periodSelected}`
 			}
 		};
-
 
 		if (this._customDateRange) {
 			statement.statementDateRange.dateRange = {
@@ -431,7 +360,6 @@ export class StatementsDialog extends Component {
 	}
 
 	async _sendStatement() {
-
 		if (!this._validateEmailAddress()) {
 			this.mailClientError.email = `Please enter email`;
 			this.mailClientError.confirmEmai = `Please enter email`;
@@ -478,22 +406,34 @@ export class StatementsDialog extends Component {
 		}
 	}
 
+	_valueChanged(e) {
+		// Telemetry 
+		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SELECT_ACCOUNT, {
+			"screen": TelemetryScreen.STATEMENTS,
+			"accountType": this.selectedOption.label
+		});
+
+		if (e.detail.new) {
+			this.errorMessage = ``;
+			this.selectedOption = e.detail.new
+		}
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
 	_initialise() {
-		this.clientProducts = this.clientProducts.map(item => {
-			const account = ACCOUNT_INTCAT_ENUM[item.accountType];
+		if (this.type) {
+			this.productSelected = this._getSelectedProductDetails();
+			this.STEPPER_STEPS = STATEMENTS_STEPS.SINGLE_ACCOUNT;
+			return;
+		}
+		this.STEPPER_STEPS = STATEMENTS_STEPS.MULTIPLE_ACCOUNT;
 
-			if (account && account[item.interestCategory]) {
-				item.type = account[item.interestCategory].type;
-				item.category = account[item.interestCategory].category;
-			} else {
-				item.type = account && account.type;
-				item.category = account && account.category;
-			}
-			return item;
+		this.clientProducts.forEach(item => {
+			const accName = TYPE[item.accountType];
+			this.clientAccountsType.push(accName);
 		});
 	}
 
@@ -502,28 +442,23 @@ export class StatementsDialog extends Component {
 	}
 
 	_validateAccountSelection() {
-
-		if (isNullorEmpty(this.accType)) {
+		if (this.selectedOption.length === 0) {
 			this.errorMessage = `Choose Account`;
 			return false;
-		} else if (this.accType === ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type && isNullorEmpty(this.accPlanNumber)) {
-			this.errorMessage = `Choose Savings Plan`;
-			return false;
 		}
+
 		this.productSelected = this._getSelectedProductDetails();
-		
+
 		// Telemetry 
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_ACCOUNT_NEXT, {
 			"screen": TelemetryScreen.STATEMENTS,
-			"account-type": this.accType,
-			"account-plan-name": this.accPlanType ? this.accPlanType : null
+			"account-type": this.selectedOption.label
 		});
-		
+
 		return true;
 	}
 
 	async _validatePeriodSelection() {
-	
 		if (this.periodSelected === `` && !this._customDateRange) {
 			this.errorMessage = `Choose Period`;
 			this.calendarErrorMessage = `Required`;
@@ -536,13 +471,12 @@ export class StatementsDialog extends Component {
 
 		this._getSummary();
 
-		
 		await this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SELECT_DATE_RANGE, {
 			"screen": TelemetryScreen.STATEMENTS,
 			"startDate": this.fromDate,
 			"endDate": this.toDate
 		});
-		
+
 		// Telemetry 
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_PERIOD_NEXT, {
 			"screen": TelemetryScreen.STATEMENTS,
@@ -550,7 +484,7 @@ export class StatementsDialog extends Component {
 			"start-date": this.fromDate ? this.fromDate : null,
 			"end-date": this.toDate ? this.toDate : null
 		});
-	
+
 		return true;
 	}
 
@@ -605,7 +539,7 @@ export class StatementsDialog extends Component {
 	_getHeaderTitle() {
 		return this.renderMode === RENDER_MODE.PDF ? `View Document` : `Statements`;
 	}
-	
+
 	_getStepperVisibility() {
 		return this.renderMode === RENDER_MODE.PDF;
 	}
@@ -613,15 +547,17 @@ export class StatementsDialog extends Component {
 	_getSelectedProductDetails() {
 		let product = {};
 
-		if (!isNullorEmpty(this.accPlanNumber)) {
-			product = this.clientProducts.find(item => item.accountNumber === this.accPlanNumber && item.category === this.accType);
-		} else {
-			product = this.clientProducts.find(item => item.category === this.accType);
-		}
+		product = this.clientProducts.find(item => 
+			this.type 
+				? item.accountType === SELECTED_ACCOUNT_TYPES[this.type] 
+				: item.accountName === this.selectedOption.serviceLabel
+		);
+
 		return {
 			accountNumber: product.accountNumber,
-			accountType: product.type
-		};
+			accountType: product.accountType,
+			accountOpenDate: product.accountOpenDate
+		}
 	}
 
 	_getAvailableBal(type) {
@@ -878,7 +814,7 @@ export class StatementsDialog extends Component {
 				class="${this.selectedOption.type}"
 				data-automation-id="statements-dialog"
 				.header="${this._getHeaderTitle()}"
-				.steps="${STATEMENTS_STEPS}"
+				.steps="${this.STEPPER_STEPS}"
 				current-active-step="${this.currentStep}"
 				.hideStepper="${this._getStepperVisibility()}">
 					<div slot="step">
@@ -948,7 +884,7 @@ export class StatementsDialog extends Component {
 	}
 
 	_renderSelectAccount() {
-		if (this.currentStep === 0) {
+		if (this.currentStep === 0 && !this.type) {
 			return html`
 				<capitec-label
 					type="subtitle"
@@ -957,10 +893,10 @@ export class StatementsDialog extends Component {
 
 				<horizon-select-icon
 					label="Choose account"
-					.items="${TYPE}"
-					value="${this.selectedOption}"
+					.items="${this.clientAccountsType}"
+					.value="${this.selectedOption}"
 					.displayRenderer="${(e) => this._renderOptions(e)}"
-					@value-changed="${(e) => this.selectedOption = e.detail.new}"> 
+					@value-changed="${(e) => this._valueChanged(e)}"> 
 				</horizon-select-icon>
 			`;
 		}
@@ -980,93 +916,8 @@ export class StatementsDialog extends Component {
 		`;
 	}
 
-	// TODO: Navigation to be wired up once channel service has been implemented according to the new designs.
-
-	_renderAccountSelection() {
-		if (this.currentStep === 0) {
-			return html`
-				<capitec-label
-					type="subtitle"
-					label="Choose an Account">
-				</capitec-label>
-				${this._renderSavingsAccountProduct()}
-				${this._renderSavingsPlanProduct()}
-				${this._renderPlans()}
-			`;
-		}
-	}
-
-	_renderSavingsAccountProduct() {
-		const savingsAccountProduct = this.clientProducts.some(item => item.category === ACCOUNTS_ENUM.PRIMARY_SAVINGS.type);
-
-		return savingsAccountProduct
-			? html`
-				<horizon-product-tile
-					data-automation-id="statements-dialog-primary-savings-account"
-					class="product-transact"
-					type="default"
-					label="Savings Account"
-					subtitle="Available balance ${this._getAvailableBal(ACCOUNTS_ENUM.PRIMARY_SAVINGS.type)}"
-					detail=""
-					icon="product/transact"
-					@click="${(e) => this._selectAccount(ACCOUNTS_ENUM.PRIMARY_SAVINGS.type)}"
-					?selected="${this.accType === ACCOUNTS_ENUM.PRIMARY_SAVINGS.type}">
-				</horizon-product-tile>`
-			: html``;
-	}
-
-	_renderSavingsPlanProduct() {
-		const savingsPlanProducts = this.clientProducts.some(item => item.category === ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type);
-
-		return savingsPlanProducts
-			? html`
-				<horizon-product-tile
-					data-automation-id="statements-dialog-flexible-savings-plan"
-					class="product-save"
-					type="default"
-					label="Savings Plans"
-					subtitle="Total saved ${this._getAvailableBal(ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type)}"
-					detail=""
-					icon="product/save"
-					@click="${(e) => this._selectAccount(ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type)}"
-					?selected="${this.accType === ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type}">
-				</horizon-product-tile>`
-			: html``;
-	}
-
-	_renderPlans() {
-		const plans = this.clientProducts.filter(item => item.category === this.accType);
-		const showPlans = ACCOUNTS_ENUM[this.accType] && ACCOUNTS_ENUM[this.accType].showPlans;
-
-		return showPlans && plans.length > 0
-			? html`
-				<capitec-label
-					class="margin-top"
-					type="subtitle"
-					label="Choose a Savings Plan">
-				</capitec-label>
-
-				<capitec-radio-group>
-					${plans.map(item => html`
-						<horizon-product-tile 
-							data-automation-id="statements-dialog-savings-plan"
-							type="radio-button"
-							label="${item.accountName}"
-							subtitle= "${item.accountType === ACCOUNT_TYPE.FIXED_TERM_SAVINGS_ACCOUNT 
-										? `Balance ${formatCurrency(item.currentBalance)}` 
-										: `Available balance ${formatCurrency(item.availableBalance)}`}"
-							detail=""
-							icon="product/transact"
-							@click="${(e) => this._selectPlan(item)}"
-							?selected="${this.accPlanNumber === item.accountNumber}">
-						</horizon-product-tile>
-					`)}
-				</capitec-radio-group>`
-			: html``;
-	}
-
 	_renderChoosePeriod() {
-		if (this.currentStep === 1) {
+		if (this.currentStep === 1 || (this.currentStep === 0 && this.type)) {
 			return html`
 				<capitec-label
 					type="subtitle"
@@ -1178,7 +1029,7 @@ export class StatementsDialog extends Component {
 	}
 
 	_renderEmailClient() {
-		if (this.currentStep === 2 && this.renderMode === RENDER_MODE.EMAIL) {
+		if ((this.currentStep === 2 && this.renderMode === RENDER_MODE.EMAIL) || (this.currentStep === 1 && this.type)) {
 			return html`
 				<capitec-label
 					type="subtitle"
