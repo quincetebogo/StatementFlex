@@ -61,6 +61,8 @@ export class Favourites extends SavingsAccountBase {
 		this.selectedFeedback = [];
 		this.feedbackOptions = [];
 
+		this.updateStrackClick = false;
+
 		this.endCallCauseCode = EndCallCauseCode.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
 
@@ -150,13 +152,13 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _done(event) {
-		this._telemetry.logEvent(QuickTransactionEvents.SEARCH_OTHER_NEED_DONE, {
-			"launch-strack-feedback": event.detail.selectedFeedback
-		});
-
-		const incidentDetails = this.horizonStore.getIncidentDetails();
 		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		const selectedOption = FEEDBACK_OPTIONS.find(item => item.key === event.detail);
+
+		this._telemetry.logEvent(QuickTransactionEvents.SEARCH_OTHER_NEED_DONE, {
+			"launch-strack-feedback": selectedOption
+		});
+
 		const options = {
 			clientNeed: null,
 			endCallReason: selectedOption,
@@ -642,7 +644,6 @@ export class Favourites extends SavingsAccountBase {
 		return true;
 	}
 
-
 	_updateNeedToState(category,need,issue) {
 		// Updating state with the latest values
 		const screenDetails = this.horizonStore.getScreenDetails();
@@ -650,7 +651,6 @@ export class Favourites extends SavingsAccountBase {
 		screenDetails.subCategory = need;
 		screenDetails.issue = issue;
 
-		this.category = screenDetails.category;
 		this.horizonStore.setScreenDetails(screenDetails);
 	}
 

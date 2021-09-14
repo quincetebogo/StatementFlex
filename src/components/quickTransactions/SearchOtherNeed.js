@@ -24,13 +24,6 @@ import 'app/components/Common/UpdateIncidentDialog';
  * @extends {Component}
  */
 
-const RENDER_MODE = {
-	SEARCH_OTHER_NEED: 0,
-	UPDATE_INCIDENT: 1
-};
-
-const HEADER_LABEL = `Update Incident`;
-
 export class SearchOtherNeed extends Component {
 
 	// --------------
@@ -42,7 +35,6 @@ export class SearchOtherNeed extends Component {
 
 		// Private properties
 		this.isBusy = false;
-		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
 
 		// Private Variables
 		this.category = ``;
@@ -105,14 +97,6 @@ export class SearchOtherNeed extends Component {
 	_back() {
 		// initate back to favourite transactions page (on back arrow)
 		this.dispatchEvent(new CustomEvent(`back`, {detail : {category: this.category, need: this.need, issue: this.issue, postAction: this}}));
-	}
-
-	_cancel() {
-		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
-		this.category = ``;
-		this.need = ``;
-		this.issue = ``;
-		this.solution = ``;
 	}
 
 	_categoryChanged(e) {
@@ -287,13 +271,6 @@ export class SearchOtherNeed extends Component {
 				}
 				.launch-strack {
 					width: 140px;
-				}
-				horizon-update-incident {
-					height: auto;
-					--theme-container-padding-top: 0px;
-					--theme-container-padding-bottom: 0px;
-					--theme-container-padding-left: 0px;
-					--theme-container-padding-right: 0px;
 				}
 			`
 		];

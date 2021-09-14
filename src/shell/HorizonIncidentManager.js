@@ -62,7 +62,7 @@ export class HorizonIncidentManager {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 
 		/**
-		 * Checkpoint !:
+		 * Checkpoint 1:
 		 * When we reload the same need. i.e., example: assume opening proof of account modal,
 		 * cancelling it and re-opening the modal
 		 * 
