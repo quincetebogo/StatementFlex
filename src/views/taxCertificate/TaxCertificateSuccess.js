@@ -220,7 +220,7 @@ export class TaxCertificateSuccess extends ViewBase {
 				toast="${this.primaryToast}"
 				secondaryToast="${this.secondaryToast}"
 				detail=${this.type === `iT3BTaxCertificates` || this.type === `both` ? this._renderFirstTaxCertificate() : html``}
-				subDetail=${this.type === `iT3STaxCertificates` || this.type === `both` ? this._renderSecondTaxCertificates() : ``}
+				subDetail=${this.type === `iT3STaxCertificates` || this.type === `both` ? this._renderSecondTaxCertificates() : html``}
 				@left-click=${() => this._sendAnotherClick()}
 				@right-click=${() => this._doneClick()}>
 					${this._renderFirstTaxCertificate()}

@@ -230,7 +230,7 @@ export class TaxCertificateFailure extends ViewBase {
 				right="Assign"
 				toast="${this.primaryToast}"
 				secondaryToast="${this.secondaryToast}"
-				subDetail=${this.type === `iT3STaxCertificates` || this.type === `both` ? this._renderSecondTaxCertificates() : ``}
+				subDetail=${this.type === `iT3STaxCertificates` || this.type === `both` ? this._renderSecondTaxCertificates() : html``}
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._assignClick()}>
 					${this._renderFirstTaxCertificate()}
