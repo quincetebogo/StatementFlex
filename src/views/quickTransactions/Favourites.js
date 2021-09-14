@@ -581,7 +581,7 @@ export class Favourites extends SavingsAccountBase {
 		const classificationEmpty = isNullorEmpty(screenDetails.category) && isNullorEmpty(screenDetails.subCategory) && isNullorEmpty(screenDetails.issue);
 
 		if (isClassified && !isClosed && !classificationEmpty) {
-			this.renderMode = RENDER_MODE.FEEDBACK;
+			this.renderMode = RENDER_MODE.UPDATE_INCIDENT_FEEDBACK;
 			return true;
 		}
 
@@ -623,8 +623,7 @@ export class Favourites extends SavingsAccountBase {
 	
 		await this._classifyIncident(e);
 		
-		this._setIncidentDone();
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this.renderMode = RENDER_MODE.UPDATE_INCIDENT_FEEDBACK;
 	}
 
 	async _classifyIncident(event) {
@@ -659,11 +658,10 @@ export class Favourites extends SavingsAccountBase {
 		const screenDetails = this.horizonStore.getScreenDetails();
 
 		if (!isNullorEmpty(screenDetails.category) && !isNullorEmpty(screenDetails.subCategory) && !isNullorEmpty(screenDetails.issue)) {
-			const { detail } = screenDetails;
-			await this.classifyIncident(e.detail);
-		} else {
-			this._backToLandingPage();
+			await this._classifyIncident(e);
 		}
+
+		this._backToLandingPage();
 	}
 
 	// ---------
@@ -719,6 +717,7 @@ export class Favourites extends SavingsAccountBase {
 			case RENDER_MODE.END_CALL:
 			case RENDER_MODE.ALERT_MODAL:
 			case RENDER_MODE.UPDATE_INCIDENT:
+			case RENDER_MODE.UPDATE_INCIDENT_FEEDBACK:
 				return html`
 					<horizon-favourite-transactions 
 						class="favourites"
@@ -797,7 +796,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderFeedback() {
-		return this.renderMode === RENDER_MODE.FEEDBACK
+		return this.renderMode === RENDER_MODE.FEEDBACK || this.renderMode === RENDER_MODE.UPDATE_INCIDENT_FEEDBACK
 			? html`
 				<horizon-feedback 
 					@done="${(event) => this._done(event)}">

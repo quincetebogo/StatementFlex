@@ -61,6 +61,12 @@ export class EndCallSession extends Component {
 		this.needs = [];
 		this.issues = [];
 		this.incidentInfo = {};
+		this.errors = {
+			endCallReason: ``,
+			category: ``,
+			subCategory: ``,
+			issue: ``
+		};
 
 		this._configuration = Configuration.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
@@ -190,6 +196,8 @@ export class EndCallSession extends Component {
 	_valueChanged(e) {
 		if (e.detail.new) {
 			this.alertBannerMessage = ``;
+			this.errors[e.currentTarget.id] = ``;
+
 			this.endCallReason = this.endCallReasons.find(reason => reason.key === e.detail.new.key);
 			this.understandNeed = RECOGNIZE_NEED_REASONS.includes(this.endCallReason.key);
 
@@ -203,6 +211,7 @@ export class EndCallSession extends Component {
 			this.need = ``;
 			this.issue = ``;
 			this.alertBannerMessage = ``;
+			this.errors[e.currentTarget.id] = ``;
 			
 			await this.getSubCategories({ detail: { category: this.category } });
 		}
@@ -213,6 +222,7 @@ export class EndCallSession extends Component {
 			this.need = e.detail.new;
 			this.issue = ``;
 			this.alertBannerMessage = ``;
+			this.errors[e.currentTarget.id] = ``;
 
 			await this.getIssues({ detail: { category: this.category, need: this.need } });
 		}
@@ -221,6 +231,7 @@ export class EndCallSession extends Component {
 	_issueChanged(e) {
 		this.issue = e.currentTarget.value.issue;
 		this.alertBannerMessage = ``;
+		this.errors[e.currentTarget.id] = ``;
 	}
 
 	async _prepopulateNeed() {
@@ -334,12 +345,15 @@ export class EndCallSession extends Component {
 	_validateMandatoryFields() {
 		const endCallContent = this.shadowRoot.getElementById(`end-call-content-box`);
 		const fields = endCallContent.children;
-		const inputFields = Array.from(fields).filter(field => field.localName === `capitec-select`);
+		const inputFields = Array.from(fields).filter(field => field.localName === `capitec-select` && !field.hidden);
 
-		const isValid = inputFields.every(field => !isNullorEmpty(field.value) && field.value !== {});
+		const emptyFields = inputFields.filter(field => isNullorEmpty(field.value) || field.value === {});
 
-		if (!isValid) {
+		if (emptyFields.length > 0) {
 			this.alertBannerMessage = ERROR_MESSAGE;
+			emptyFields.forEach(field => {
+				this.errors[field.id] = `Required field`;
+			});
 			return false;
 		}
 
@@ -643,6 +657,7 @@ export class EndCallSession extends Component {
 			</capitec-label>
 			
 			<capitec-select
+				id="endCallReason"
 				data-automation-id="end-call-session-select-reason"
 				label="Choose reason"
 				id-field="key"
@@ -651,7 +666,8 @@ export class EndCallSession extends Component {
 				@value-changed="${(e) => this._valueChanged(e)}"
 				tabindex=3
 				value="${this.endCallReason.value || ``}"
-				select-mode="single">
+				select-mode="single"
+				error="${this.errors.endCallReason}">
 			</capitec-select>
 		`;
 	}
@@ -665,6 +681,7 @@ export class EndCallSession extends Component {
 				</capitec-label>
 
 				<capitec-select
+					id="category"
 					data-automation-id="end-call-session-category"
 					label="Search client need"
 					.items="${this.categories}"
@@ -674,10 +691,12 @@ export class EndCallSession extends Component {
 					?hidden="${false}"
 					@value-changed="${(e) => this._categoryChanged(e)}"
 					labelAsPlaceholder
-					searchable>
+					searchable
+					error="${this.errors.category}">
 				</capitec-select>
 
 				<capitec-select
+					id="subCategory"
 					data-automation-id="end-call-session-need"
 					label="Choose specific need"
 					.items="${this.needs}"
@@ -686,10 +705,12 @@ export class EndCallSession extends Component {
 					value="${live(this.need)}"
 					?hidden="${isNullorEmpty(this.category)}"
 					@value-changed="${(e) => this._subCategoryChanged(e)}"
-					labelAsPlaceholder>
+					labelAsPlaceholder
+					error="${this.errors.subCategory}">
 				</capitec-select>
 				
 				<capitec-select
+					id="issue"
 					data-automation-id="end-call-session-issue"
 					label="Choose issue type"
 					.items="${this.issues}"
@@ -698,7 +719,8 @@ export class EndCallSession extends Component {
 					value="${live(this.issue)}"
 					?hidden="${isNullorEmpty(this.need)}"
 					@value-changed="${(e) => this._issueChanged(e)}"
-					labelAsPlaceholder>
+					labelAsPlaceholder
+					error="${this.errors.issue}">
 				</capitec-select>`
 			: html``;
 	}
