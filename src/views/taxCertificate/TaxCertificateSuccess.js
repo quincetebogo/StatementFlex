@@ -27,7 +27,6 @@ export class TaxCertificateSuccess extends ViewBase {
 		this.email = {};
 		this.primaryToast = `Tax certificate sent`;
 		this.secondaryToast = `Tax-free certificate sent`;
-
 		this.sendAnotherClicked = false;
 	}
 
@@ -220,23 +219,38 @@ export class TaxCertificateSuccess extends ViewBase {
 				right="Done"
 				toast="${this.primaryToast}"
 				secondaryToast="${this.secondaryToast}"
+				detail=${this.type === `iT3BTaxCertificates` || this.type === `both` ? this._renderFirstTaxCertificate() : html``}
+				subDetail=${this.type === `iT3STaxCertificates` || this.type === `both` ? this._renderSecondTaxCertificates() : ``}
 				@left-click=${() => this._sendAnotherClick()}
 				@right-click=${() => this._doneClick()}>
-					<section
-						data-automation-id="tax-certificate-success-tax-certificate-message"
-						class="success-msg" 
-						slot="detail">
-							${this.type === `iT3BTaxCertificates` || this.type === `both` 
-								? html`Taxable savings certificate for <strong>${this._taxableYears()}</strong> has been emailed to <strong>${this.email}</strong><br>` 
-								: html``
-							}
-							${this.type === `iT3STaxCertificates` || this.type === `both` 
-								? html`Tax free certificate for <strong>${this._taxFreeYears()}</strong> has been emailed to <strong>${this.email}</strong>` 
-								: html``
-							} 
-					</section>
+					${this._renderFirstTaxCertificate()}
+					${this._renderSecondTaxCertificates()}
 			</horizon-success-screen>
 		`;
+	}
+
+	_renderFirstTaxCertificate() {
+		return this.type === `iT3BTaxCertificates` || this.type === `both` ? html`
+			<section
+				data-automation-id="tax-certificate-success-tax-certificate-message"
+				class="success-msg"
+				slot="detail">
+					Taxable savings certificate for <strong>${this._taxableYears()}</strong> has been emailed to <strong>${this.email}</strong><br>
+			</section>`
+		: html``;
+	
+	}
+
+	_renderSecondTaxCertificates() {
+		return this.type === `iT3STaxCertificates` || this.type === `both`
+		? html`
+			<section 
+				data-automation-id="tax-certificate-success-tax-certificate-message" 
+				class="success-msg" 
+				slot="sub-detail">
+					Tax free certificate for <strong>${this._taxFreeYears()}</strong> has been emailed to <strong>${this.email}</strong>
+			</section>`
+		: html``;
 	}
 }
 

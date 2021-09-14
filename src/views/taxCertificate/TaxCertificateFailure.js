@@ -230,25 +230,38 @@ export class TaxCertificateFailure extends ViewBase {
 				right="Assign"
 				toast="${this.primaryToast}"
 				secondaryToast="${this.secondaryToast}"
-				subDetail="${this.isTaxFreeCertificate ? true : ``}"
+				subDetail=${this.type === `iT3STaxCertificates` || this.type === `both` ? this._renderSecondTaxCertificates() : ``}
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._assignClick()}>
-					<section
-						data-automation-id="tax-certificate-failure-tax-certificate-message"
-						class="error-msg" 
-						slot="detail">
-							${this.type === `iT3BTaxCertificates` || this.type === `both` 
-								? html`Taxable savings certificate for <strong>${this._taxableYears()}</strong> has not been emailed to <strong>${this.email}</strong><br>`
-								: html``
-							}
-							
-							${this.type === `iT3STaxCertificates` || this.type === `both` 
-								? html`Tax free certificate for <strong>${this._taxFreeYears()}</strong> has not been emailed to <strong>${this.email}</strong>` 
-								: html``
-							}
-					</section>
+					${this._renderFirstTaxCertificate()}
+					${this._renderSecondTaxCertificates()}
 			</horizon-error-screen>
 		`;
+	}
+
+	_renderFirstTaxCertificate() {
+		return this.type === `iT3BTaxCertificates` || this.type === `both` 
+		? html`
+			<section
+				data-automation-id="tax-certificate-failure-tax-certificate-message"
+				class="error-msg"
+				slot="detail">
+					Taxable savings certificate for <strong>${this._taxableYears()}</strong> has not been emailed to <strong>${this.email}</strong><br>
+			</section>`
+		: html``;
+	
+	}
+
+	_renderSecondTaxCertificates() {
+		return this.type === `iT3STaxCertificates` || this.type === `both`
+		? html`
+			<section 
+				data-automation-id="tax-certificate-success-tax-certificate-message" 
+				class="error-msg" 
+				slot="sub-detail">
+				Tax free certificate for <strong>${this._taxFreeYears()}</strong> has not been emailed to <strong>${this.email}</strong>
+			</section>`
+		: html``;
 	}
 
 	_renderRelatedOptions() {
