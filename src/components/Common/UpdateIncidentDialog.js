@@ -136,7 +136,7 @@ export class UpdateIncidentDialog extends Component {
 
 			if (isNullorEmpty(this.need)) {
 				this.needError = `Required field`;
-			}
+			} 
 			if (isNullorEmpty(this.issue)) {
 				this.issueError = `Required field`;
 			}

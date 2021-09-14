@@ -104,7 +104,7 @@ export class SearchOtherNeed extends Component {
 
 	_back() {
 		// initate back to favourite transactions page (on back arrow)
-		this.dispatchEvent(new CustomEvent(`back`, {}));
+		this.dispatchEvent(new CustomEvent(`back`, {detail : {category: this.category, need: this.need, issue: this.issue}}));
 	}
 
 	_cancel() {

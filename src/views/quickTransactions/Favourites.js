@@ -655,6 +655,17 @@ export class Favourites extends SavingsAccountBase {
 		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
+	async _exitSearchOtherNeed(e) {
+		const screenDetails = this.horizonStore.getScreenDetails();
+
+		if (!isNullorEmpty(screenDetails.category) && !isNullorEmpty(screenDetails.subCategory) && !isNullorEmpty(screenDetails.issue)) {
+			const { detail } = screenDetails;
+			await this.classifyIncident(e.detail);
+		} else {
+			this._backToLandingPage();
+		}
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -779,7 +790,7 @@ export class Favourites extends SavingsAccountBase {
 					@get-sub-categories="${(event) => this._getSubCategories(event)}"
 					@get-issues="${(event) => this._getIssues(event)}"
 					@issue-changed="${(event) => this._updateNeedToState(event.detail.category, event.detail.need, event.detail.issue)}"
-					@back="${() => this._backToLandingPage()}"
+					@back="${(e) => this._exitSearchOtherNeed(e)}"
 					@done="${() => this._searchOtherNeedDone()}">
 				</horizon-search-other-need>`
 			: html``;
