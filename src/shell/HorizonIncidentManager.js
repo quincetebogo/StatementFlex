@@ -63,6 +63,30 @@ export class HorizonIncidentManager {
 
 		/**
 		 * Checkpoint 1:
+		 * 
+		 * When need is fullfilled and switching to other need should close current incident and create new subsequent incident
+		 * Example: Landing on favourites screen, choosing proof of account and emailed client.
+		 * Then selecting transaction hisotry to enquire a transaction, which is subsequent need
+		 * 
+		 * Checkpoint 2:
+		 * 
+		 * When current is assigned or handed off, such particular incident will not be closed
+		 * And if the client has a subsequent need, should continue by creating new incident
+		 * 
+		 */
+		 if ((clientNeed !== incidentDetails.currentNeed || clientNeed === `search-other-need`) &&
+			(incidentDetails.needStatus === HORIZON_NEED_STATUS.COMPLETED ||
+			incidentDetails.needStatus === HORIZON_NEED_STATUS.ASSIGNED ||
+			incidentDetails.needStatus === HORIZON_NEED_STATUS.FAILED)) {
+
+				this.primaryNeedIncidentRecId = incidentDetails.primaryIncidentRecID || incidentDetails.incidentRecId;
+
+				await this.closeIncident({ clientNeed: clientNeed }, toggleBusyFlag);
+				return true;
+		}
+
+		/**
+		 * Checkpoint 3:
 		 * When we reload the same need. i.e., example: assume opening proof of account modal,
 		 * cancelling it and re-opening the modal
 		 * 
@@ -74,7 +98,7 @@ export class HorizonIncidentManager {
 		}
 
 		/**
-		 * Checkpoint 2:
+		 * Checkpoint 4:
 		 * When need is In-Progress and toggling between needs should not create new incident
 		 * Example: Landing on favourites screen, choosing proof of account instead of statments
 		 * In such case, we update the state with correct need
@@ -86,30 +110,6 @@ export class HorizonIncidentManager {
 				incidentDetails.currentNeed = clientNeed;
 				incidentDetails.needStatus = HORIZON_NEED_STATUS.INPROGRESS;
 				this.horizonStore.setIncidentDetails(incidentDetails);
-				return true;
-		}
-
-		/**
-		 * Checkpoint 3:
-		 * 
-		 * When need is fullfilled and switching to other need should close current incident and create new subsequent incident
-		 * Example: Landing on favourites screen, choosing proof of account and emailed client.
-		 * Then selecting transaction hisotry to enquire a transaction, which is subsequent need
-		 * 
-		 * Checkpoint 4:
-		 * 
-		 * When current is assigned or handed off, such particular incident will not be closed
-		 * And if the client has a subsequent need, should continue by creating new incident
-		 * 
-		 */
-		if (clientNeed !== incidentDetails.currentNeed &&
-			(incidentDetails.needStatus === HORIZON_NEED_STATUS.COMPLETED ||
-			 incidentDetails.needStatus === HORIZON_NEED_STATUS.ASSIGNED ||
-			 incidentDetails.needStatus === HORIZON_NEED_STATUS.FAILED)) {
-
-				this.primaryNeedIncidentRecId = incidentDetails.primaryIncidentRecID || incidentDetails.incidentRecId;
-
-				await this.closeIncident({ clientNeed: clientNeed }, toggleBusyFlag);
 				return true;
 		}
 

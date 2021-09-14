@@ -563,9 +563,9 @@ export class Favourites extends SavingsAccountBase {
 	async _unLoadingOtherNeeds() {
 		this._telemetryEndSpan(QuickTransactionEvents.SEARCH_OTHER_NEED, TelemetryScreen.SEARCH_OTHER_NEED);
 
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		const incidentDetails = this.horizonStore.getIncidentDetails() || {};
 
-		if(this.incidentDetails.incidentRecId === `0`) {
+		if(isNullorEmpty(incidentDetails.incidentRecId) || incidentDetails.incidentRecId === `0`) {
 			this.renderMode = RENDER_MODE.MAIN_PAGE;
 			return true;
 		}
@@ -623,6 +623,7 @@ export class Favourites extends SavingsAccountBase {
 	
 		await this._classifyIncident(e);
 		
+		this._setIncidentDone();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -797,11 +798,6 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.UPDATE_INCIDENT
 		? html`
 			<horizon-update-incident-dialog
-				headerLabel="Update Incident"
-				.category="${this.category}"
-				.categories="${this.categories || []}"
-				.specificNeeds="${this.needs || []}"
-				.issueTypes="${this.issues || []}"
 				@on-cancel = "${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
 				@on-update="${(e) => this._onUpdateincidentConfirm(e)}">
 			</horizon-update-incident-dialog>`

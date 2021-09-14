@@ -1,9 +1,8 @@
 import { Component, css, html } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
-import { Logger, Configuration } from 'platform/core';
+import { Logger } from 'platform/core';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 
 
@@ -19,8 +18,8 @@ import 'app/components/dialogs/common/Feedback';
 
 const RENDER_MODE = {
 	UPDATE_INCIDENT: 0,
-	FEEDBACK: 1 
-}
+	FEEDBACK: 1
+};
 
 export class UpdateIncidentDialog extends Component {
 
@@ -32,7 +31,6 @@ export class UpdateIncidentDialog extends Component {
 		super();
 
 		this.alertBannerMessage = ``;
-		this.headerLabel = ``;
 		this.categories = [];
 		this.specificNeeds = [];
 		this.issueTypes = [];
@@ -48,10 +46,9 @@ export class UpdateIncidentDialog extends Component {
 		this.showAlert = false;
 
 		this.horizonStore = HorizonStore.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
+		this._logger = Logger.getInstance();
+
 		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
-		this.logger = Logger.getInstance();
-		this._configuration = Configuration.getInstance();
 
 		Object.assign(UpdateIncidentDialog.prototype, searchOtherNeedMixin);
 
@@ -61,43 +58,27 @@ export class UpdateIncidentDialog extends Component {
 	// PROPERTIES
 	// ----------
 
-	/**
-	 * @property {String} headerLabel - The label string for the dialog heading
-	 * @property {Array} categories - An array of categories
-	 * @property {Array} specificNeeds - An array of specific needs
-	 * @property {Array} issueTypes - An array of issue types
-	 * 
-	 */
-
-
 	static get properties() {
 		return {
-			incidentDetails: { type: Object },
-			headerLabel: { type: String },
-
-			categories: { type: Array },
-			specificNeeds: { type: Array },
-			issueTypes: { type: Array },
-			showAlert: { type: Boolean },
-
-			category: { type: String },
-			need: { type: String },
-			issue: { type: String },
-			alertBannerMessage: { type: String },
-			errorColor: { type: String },
-
+			showAlert: { type: Boolean, attribute: false },
+			category: { type: String, attribute: false },
+			need: { type: String, attribute: false },
+			issue: { type: String, attribute: false },
+			alertBannerMessage: { type: String, attribute: false },
+			errorColor: { type: String, attribute: false },
 			isBusy: { attribute: false },
-			renderMode: { attribute: false },
-
-		}
+			renderMode: { attribute: false }
+		};
 	};
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
+
+		await this._prePopulateNeed();
 	}
 
 	disconnectedCallback() {
@@ -115,7 +96,7 @@ export class UpdateIncidentDialog extends Component {
 		this.needError = ``;
 		this.issueError = ``;
 		this.errorColor = ``;
-		this.iconSource = `/images/statusIcons/horizon-warning-trans.svg`
+		this.iconSource = `/images/statusIcons/horizon-warning-trans.svg`;
 	}
 
 	async _categoryChanged(e) {
@@ -136,7 +117,6 @@ export class UpdateIncidentDialog extends Component {
 			this.alertBannerMessage = ``;
 
 			await this.getIssues({ detail: { category: this.category, need: this.need } });
-		console.log(this.issues)
 		}
 	}
 
@@ -144,8 +124,6 @@ export class UpdateIncidentDialog extends Component {
 		this.issue = e.currentTarget.value.issue;
 		this.alertBannerMessage = ``;
 	}
-
-
 
 	_updateClick(e) {
 		this.dispatchEvent(new CustomEvent(`on-update`, { detail: { category: this.category, need: this.need, issue: this.issue } }));
@@ -156,36 +134,40 @@ export class UpdateIncidentDialog extends Component {
 	}
 
 	_handleChannelServiceError() {
-		// this.horizonRouter.navigateToSystemError();
 		return true;
 	}
+
 	// ---------------
 	// PUBLIC METHODS
+	// ---------------
+
+	// N/A
+
+	// ---------------
+	// PRIVATE METHODS
 	// ---------------
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
 
-	_issueChanged(e) {
-		this.issue = e.currentTarget.value.issue;
-	}
+	async _prePopulateNeed() {
+		const screenDetails = this.horizonStore.getScreenDetails() || {};
+		
+		this.category = screenDetails.category || ``;
+		this.need = screenDetails.subCategory || ``;
+		this.issue = screenDetails.issue || ``;
 
-	async _getIssues(e) {
-		const returnValue = await this.incidentManagementService.otherNeedIssueType(`Client Care`, e.detail.category, e.detail.need);
+		await this.getCategories();
 
-		if (returnValue.succeeded && returnValue.result) {
-			console.log(returnValue.result)
-			this.issues = returnValue.result.issues;
-		} else {
-			this._logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
+		if (!isNullorEmpty(this.category)) {
+			await this.getSubCategories({ detail: { category: this.category } });
 		}
-		// this.requestUpdate();
-	}
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
 
+		if (!isNullorEmpty(this.need)) {
+			await this.getIssues({ detail: { category: this.category, need: this.need } });
+		}
+	}
 
 	// ---------
 	// RENDERING
@@ -287,7 +269,7 @@ export class UpdateIncidentDialog extends Component {
 				width: 557px;
 			}
 			`
-		]
+		];
 	}
 
 	_mobileTemplate() {
@@ -304,10 +286,10 @@ export class UpdateIncidentDialog extends Component {
 		return html`
 			<capitec-modal class="updateIncident ${this.errorColor}" type="free" header-align="left">
 			<div slot="header">
-						<capitec-group layout="horizontal"style="margin-top: -10px;">
-							<img class="status-icon" src="${this.iconSource}"/>
-							<capitec-label class="headerLabel" label="Update Incident"></capitec-label>
-						</capitec-group>
+				<capitec-group layout="horizontal"style="margin-top: -10px;">
+					<img class="status-icon" src="${this.iconSource}"/>
+					<capitec-label class="headerLabel" label="Update Incident"></capitec-label>
+				</capitec-group>
 				</div>
 			<div slot="body">
 				${this._inputFields()}
@@ -319,13 +301,19 @@ export class UpdateIncidentDialog extends Component {
 	}
 
 	_renderAlert() {
-		return this.showAlert ? html`
-		<capitec-alert-banner type="unsuccessful-red" label="${this.alertBannerMessage}" closable @click="${() => this._keyPress()}"></capitec-alert-banner>
-		`: html``;
+		return this.showAlert
+			? html`
+				<capitec-alert-banner
+					type="unsuccessful-red"
+					label="${this.alertBannerMessage}"
+					@click="${() => this._keyPress()}"
+					closable>
+				</capitec-alert-banner>`
+			: html``;
 	}
 
 	_inputFields() {
-		return html `
+		return html`
 			<capitec-label
 				type="title"
 				class="label"
@@ -357,7 +345,7 @@ export class UpdateIncidentDialog extends Component {
 				display-field="need"
 				id-field="need"
 				.value="${this.need}"
-				.items="${this.specificNeeds}"
+				.items="${this.needs}"
 				@value-changed="${(e) => this._subCategoryChanged(e)}"
 				.error="${this.needError}"
 				labelAsPlaceholder
@@ -377,7 +365,7 @@ export class UpdateIncidentDialog extends Component {
 	}
 
 	_footer() {
-		return html `
+		return html`
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center" class="buttonBroup">
 				<capitec-button
 					data-automation-id="update-dialog-cancel"
@@ -396,7 +384,6 @@ export class UpdateIncidentDialog extends Component {
 			</capitec-group>
 		`;
 	 }
-
 }
 
 window.customElements.define(`horizon-update-incident-dialog`, UpdateIncidentDialog);

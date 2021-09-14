@@ -395,6 +395,12 @@ export class EndCallSession extends Component {
 	}
 
 	async _incidentStatus() {
+		
+		if (isNullorEmpty(this.incidentRecId) || this.incidentRecId === `0`) {
+			this.logger.log(`info`, `No active incident to get status`, `_incidentStatus`, null);
+			return null;
+		}
+
 		const returnValue = await this.incidentManagementService.incidentStatus(this.incidentRecId);
 
 		if (!returnValue.succeeded) {
