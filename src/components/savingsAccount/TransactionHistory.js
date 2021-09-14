@@ -132,6 +132,12 @@ export class TransactionHistory extends Component {
 
     }
 
+	disconnectedCallback() {
+		super.disconnectedCallback();
+
+		this._unloading();
+	}
+
     // --------------
     // EVENT HANDLERS
     // --------------
@@ -418,6 +424,10 @@ export class TransactionHistory extends Component {
         const toDate = !this.endDate ? `dd mm yyyy` : this._formatDate(this.endDate);
         return `${fromDate} - ${toDate}`;
     }
+
+	_unloading() {
+		this.dispatchEvent(new CustomEvent(`unloading`));
+	}
 
     // ---------
     // RENDERING
