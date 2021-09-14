@@ -100,6 +100,7 @@ export class UpdateIncidentDialog extends Component {
 	}
 
 	async _categoryChanged(e) {
+		this._keyPress();
 		if (e.detail.new !== null) {
 			this.category = e.detail.new;
 			this.need = ``;
@@ -111,6 +112,7 @@ export class UpdateIncidentDialog extends Component {
 	}
 
 	async _subCategoryChanged(e) {
+		this._keyPress();
 		if (e.detail.new !== null) {
 			this.need = e.detail.new;
 			this.issue = ``;
@@ -126,7 +128,22 @@ export class UpdateIncidentDialog extends Component {
 	}
 
 	_updateClick(e) {
-		this.dispatchEvent(new CustomEvent(`on-update`, { detail: { category: this.category, need: this.need, issue: this.issue } }));
+		if (isNullorEmpty(this.need) || isNullorEmpty(this.issue)) {
+			this.showAlert = true;
+			this.alertBannerMessage = `You must complete all fields to update`;
+			this.errorColor = `headerError`;
+			this.iconSource = `/images/error-stroke.svg`;
+
+			if (isNullorEmpty(this.need)) {
+				this.needError = `Required field`;
+			}
+			if (isNullorEmpty(this.issue)) {
+				this.issueError = `Required field`;
+			}
+		} else {
+			this._keyPress();
+			this.dispatchEvent(new CustomEvent(`on-update`, { detail: { category: this.category, need: this.need, issue: this.issue } }));
+		}
 	}
 
 	_cancelClick() {
