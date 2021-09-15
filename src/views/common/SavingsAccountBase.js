@@ -285,8 +285,8 @@ export class SavingsAccountBase extends ViewBase {
             cifNumber: this.callerInformation.cifNumber,
             mandateRef: this.debiCheckDetails.mandateReference,
             title: name[0],
-            firstName: name[1],
-            surname: name.slice(2),
+            firstName: this.callerInformation.firstName,
+            surname: this.callerInformation.lastName,
             middleName: this.clientDetails.middleName,
             identificationNumber: this.callerInformation.southAfricanIDNumber,
             residentialAddress: this.clientDetails.residentialAddress,
@@ -336,8 +336,8 @@ export class SavingsAccountBase extends ViewBase {
 
         const agreementRequest = {
             title: name[0],
-            firstName: name[1],
-            surname: name.slice(2),
+            firstName: this.callerInformation.firstName,
+            surname: this.callerInformation.lastName,
             identificationNumber: this.callerInformation.southAfricanIDNumber,
             savingsAccountNumber: this.accountNumber,
             registerId: this.mandateInfo.registerId,

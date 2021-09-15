@@ -19,6 +19,9 @@ export class CallerInformation {
 	 * @param {string} languagePreference The client's language preference
 	 * @param {string} livesIn An indication of where the client lives
 	 * @param {string} name The client's full name
+     * @param {string} firstName the client's first name
+     * @param {string} lastName the client's surname/last name
+     * @param {string} initials Client's initials
 	 * @param {string} southAfricanIDNumber The client's South African ID number
 	 * @param {string} verifiedTelephoneNumber The client's verified number (not necessarily the incoming number)
 	 * @param {string} nonClientFirstName A third-party/non-client's first name
@@ -39,56 +42,63 @@ export class CallerInformation {
 	 * @param {boolean} isClientPresent if the client is present in branch when a consultant is phoning on their behalf
 	 * @param {"unverified"|"XDS"|"ITA"} verificationMethod Indicates the method used to verify the client
 	 */
-	constructor(
-		cifNumber,
-		birthdate, 
-		languagePreference, 
-		livesIn, 
-		name, 
-		southAfricanIDNumber, 
-		verifiedTelephoneNumber,
-		nonClientFirstName,
-		nonClientSurName,
-		nonClientFullName,
-		nonClientCellPhone,
-		nonClientIDNumber,
-		nonClientRelationship,
-		isConfirmed,
-		verificationStatus,
-		verificationToastDisplayed,
-		is3rdParty,
-		isNonClient,
-		hasInsuranceProducts = false,
-		hasDigitalChannels = false,
-		verificationAttempts = { itaAttempts: 0, xdsAttempts: 0 },
-		isBranchConsultant = false,
-		isClientPresent = false,
-		verificationMethod = `unverified`
-	) {
-		this.cifNumber = cifNumber;
-		this.birthdate = birthdate;
-		this.languagePreference = languagePreference;
-		this.livesIn = livesIn;
-		this.name = name;
-		this.southAfricanIDNumber = southAfricanIDNumber;
-		this.verifiedTelephoneNumber = verifiedTelephoneNumber;
-		this.nonClientFirstName = nonClientFirstName;
-		this.nonClientSurName = nonClientSurName;
-		this.nonClientFullName = nonClientFullName;
-		this.nonClientCellPhone = nonClientCellPhone;
-		this.nonClientIDNumber = nonClientIDNumber;
-		this.nonClientRelationship = nonClientRelationship;
-		this.isConfirmed = isConfirmed;
-		this.verificationStatus = verificationStatus;
-		this.verificationToastDisplayed = verificationToastDisplayed;
-		this.is3rdParty = is3rdParty;
-		this.isNonClient = isNonClient;
-		this.hasInsuranceProducts = hasInsuranceProducts;
-		this.hasDigitalChannels = hasDigitalChannels;
-		this.verificationAttempts = verificationAttempts;
-		this.isBranchConsultant = isBranchConsultant;
-		this.isClientPresent = isClientPresent;
-		this.verificationMethod = `unverified`;
-		Object.seal();
-	}
+    constructor(
+        cifNumber,
+        birthdate,
+        languagePreference,
+        livesIn,
+        name,
+        southAfricanIDNumber,
+        verifiedTelephoneNumber,
+        nonClientFirstName,
+        nonClientSurName,
+        nonClientFullName,
+        nonClientCellPhone,
+        nonClientIDNumber,
+        nonClientRelationship,
+        isConfirmed,
+        verificationStatus,
+        verificationToastDisplayed,
+        is3rdParty,
+        isNonClient,
+        hasInsuranceProducts = false,
+        hasDigitalChannels = false,
+        verificationAttempts = { itaAttempts: 0, xdsAttempts: 0 },
+        isBranchConsultant = false,
+        isClientPresent = false,
+        verificationMethod = `unverified`,
+        firstName,
+        lastName,
+        initials
+
+    ) {
+        this.cifNumber = cifNumber;
+        this.birthdate = birthdate;
+        this.languagePreference = languagePreference;
+        this.livesIn = livesIn;
+        this.name = name;
+        this.southAfricanIDNumber = southAfricanIDNumber;
+        this.verifiedTelephoneNumber = verifiedTelephoneNumber;
+        this.nonClientFirstName = nonClientFirstName;
+        this.nonClientSurName = nonClientSurName;
+        this.nonClientFullName = nonClientFullName;
+        this.nonClientCellPhone = nonClientCellPhone;
+        this.nonClientIDNumber = nonClientIDNumber;
+        this.nonClientRelationship = nonClientRelationship;
+        this.isConfirmed = isConfirmed;
+        this.verificationStatus = verificationStatus;
+        this.verificationToastDisplayed = verificationToastDisplayed;
+        this.is3rdParty = is3rdParty;
+        this.isNonClient = isNonClient;
+        this.hasInsuranceProducts = hasInsuranceProducts;
+        this.hasDigitalChannels = hasDigitalChannels;
+        this.verificationAttempts = verificationAttempts;
+        this.isBranchConsultant = isBranchConsultant;
+        this.isClientPresent = isClientPresent;
+        this.verificationMethod = `unverified`;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.initials = initials;
+        Object.seal();
+    }
 }

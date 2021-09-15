@@ -162,7 +162,7 @@ export class ConfirmCallerDetails extends Component {
 			"confirmed-primary-need": null,
 			"confirmed-specific-need": this.incomingCallDetails.ivrOptionCode,
 			"confirmed-client-cif": this.callerInformation.cifNumber
-		});
+        });
 
 		if (this.confirmedCaller.isClientPresent || !this.callerInformation.isBranchConsultant) {
 			const stopCard = () => this._navigateToLandingPage();
@@ -191,7 +191,6 @@ export class ConfirmCallerDetails extends Component {
 
     _identifiedClient(event) {
         // After a search we need to replace whatever we might have had for the confirmed caller with 
-        // the results of the search
         // the results of the search
         this.incomingCallDetails = event.detail.incomingCallDetails;
         this.confirmedCaller = event.detail.confirmedCaller;
@@ -333,7 +332,11 @@ export class ConfirmCallerDetails extends Component {
 				xdsAttempts: 0
 			}, 
 			this.confirmedCaller.isBranchConsultant, // isBranchConsultant
-			this.confirmedCaller.isClientPresent // isClientPresent
+            this.confirmedCaller.isClientPresent, // isClientPresent
+            ``,
+            this.confirmedCaller.firstName,
+            this.confirmedCaller.lastName,
+            this.confirmedCaller.initials
 		);
 	}
 

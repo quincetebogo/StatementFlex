@@ -644,7 +644,10 @@ export class SearchCaller extends Component {
 			name: identifiedClient.callerInformation.name.value,
 			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber.value,
 			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber.value,
-			isBranchConsultant: false
+            isBranchConsultant: false,
+            firstName: identifiedClient.callerInformation.firstName,
+            lastName: identifiedClient.callerInformation.lastName,
+            initials: identifiedClient.callerInformation.initials
 		};
 
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
