@@ -218,7 +218,7 @@ export class TaxCertificates extends Component {
 	}
 
 	_isLeapYear(year) {
-		return !(year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0));
+		return year % 100 === 0 ? year % 400 === 0 : year % 4 === 0;
 	}
 
 	_validateEmailAddress() {
@@ -700,7 +700,7 @@ export class TaxCertificates extends Component {
 					size="default"
 					icon="status/info-trans">
 				</capitec-icon>
-				<p><b>Notify Client: </b>Interest received on investments from 1 Mar ${item.year - 1} to ${!this._isLeapYear(item.year) ? 29 : 28} Feb ${item.year}. Balance of accounts at ${!this._isLeapYear(item.year) ? 29 : 28} Feb ${item.year}</p>
+				<p><b>Notify Client: </b>Interest received on investments from 1 Mar ${item.year - 1} to ${this._isLeapYear(item.year) ? 29 : 28} Feb ${item.year}. Balance of accounts at ${this._isLeapYear(item.year) ? 29 : 28} Feb ${item.year}</p>
 			</capitec-group>
 
 			<!-- TO DO: Expander content can be made to render dynamically while impelmenting CS call.  -->

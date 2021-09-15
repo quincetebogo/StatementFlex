@@ -25,8 +25,8 @@ export class SuccessScreen extends Component {
 		this.displayToast = true;
 		this.image = null;
 		this.secondaryImage = ``;
-		this.subDetail = ``;
 		this.secondaryToast = ``;
+		this.hasSubDetails = false;
 	}
 
 	// ----------
@@ -41,6 +41,7 @@ export class SuccessScreen extends Component {
 	* @property {String} [displayToast=true] Enables/Disables the toast message
 	* @property {String} image The image to be displayed on center of the page
 	* @property {String} secondaryToast Secondary toast details
+	* @property {String} [hasSubDetails=false] Set to true if the screen should renter sub-details
 	* @readonly
 	* @static
 	* @memberof ErrorScreen
@@ -54,8 +55,8 @@ export class SuccessScreen extends Component {
 			displayToast: { type: Boolean },
 			image: { type: String },
 			secondaryImage: { type: String }, 
-			subDetail: { type: String },
-			secondaryToast: { type: String }
+			secondaryToast: { type: String },
+			hasSubDetails: { type: Boolean }
 		};
 	}
 
@@ -305,15 +306,17 @@ export class SuccessScreen extends Component {
 	}
 
 	_renderSubDetail() {
-		return this.subDetail
-			? html`<capitec-group id="id-sub-detail" layout="horizontal">
-						<capitec-icon
-							size="default"
-							icon="status/success-trans">
-						</capitec-icon>
-						<slot name="sub-detail"></slot>
-					</capitec-group>`
-			: html``;
+		return this.hasSubDetails 
+		 ? html`<capitec-group 
+		 			id="id-sub-detail" 
+					layout="horizontal">
+		 				<capitec-icon
+			 				size="default"
+			 				icon="status/success-trans">
+		 				</capitec-icon>
+		 					<slot name="sub-detail"></slot>
+	 			</capitec-group>`
+		: html``;
 	}
 
 	_renderLeftButton() {

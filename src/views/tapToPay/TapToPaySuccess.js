@@ -126,7 +126,6 @@ export class TapToPaySuccess extends ViewBase {
 				left="Tap to Pay"
 				right="Done"
 				toast="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}"
-				sub_detail="true"
 				@left-click=${() => this._tapToPayClick()}
 				@right-click=${() => this._doneClick()}>
 					<section 

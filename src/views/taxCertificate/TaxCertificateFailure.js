@@ -230,7 +230,7 @@ export class TaxCertificateFailure extends ViewBase {
 				right="Assign"
 				toast="${this.primaryToast}"
 				secondaryToast="${this.secondaryToast}"
-				subDetail=${this.type === `iT3STaxCertificates` || this.type === `both` ? this._renderSecondTaxCertificates() : html``}
+				?hasSubDetails=${this.type === `both`}
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._assignClick()}>
 					${this._renderFirstTaxCertificate()}
@@ -240,28 +240,39 @@ export class TaxCertificateFailure extends ViewBase {
 	}
 
 	_renderFirstTaxCertificate() {
-		return this.type === `iT3BTaxCertificates` || this.type === `both` 
-		? html`
+		if (this.type === `both` || this.type === `iT3BTaxCertificates`) {
+			return this._renderTaxSavingsLine();
+		}
+
+		return this._renderTaxFreeLine(`detail`);
+	}
+
+	_renderSecondTaxCertificates() {
+		if (this.type === `both` || this.type === `iT3STaxCertificates`) {
+			return this._renderTaxFreeLine(`sub-detail`);
+		}
+
+		return html``;
+	}
+	
+	_renderTaxSavingsLine() {
+		return html`
 			<section
 				data-automation-id="tax-certificate-failure-tax-certificate-message"
 				class="error-msg"
 				slot="detail">
 					Taxable savings certificate for <strong>${this._taxableYears()}</strong> has not been emailed to <strong>${this.email}</strong><br>
-			</section>`
-		: html``;
-	
+			</section>`;
 	}
 
-	_renderSecondTaxCertificates() {
-		return this.type === `iT3STaxCertificates` || this.type === `both`
-		? html`
+	_renderTaxFreeLine() {
+		return html`
 			<section 
 				data-automation-id="tax-certificate-success-tax-certificate-message" 
 				class="error-msg" 
 				slot="sub-detail">
 				Tax free certificate for <strong>${this._taxFreeYears()}</strong> has not been emailed to <strong>${this.email}</strong>
-			</section>`
-		: html``;
+			</section>`;
 	}
 
 	_renderRelatedOptions() {
