@@ -3,6 +3,7 @@ import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_TYPES } from 'app/constants/TransactionHistory';
@@ -17,6 +18,7 @@ import 'app/productControls/liveBetterSavingsAccount/src/AccountDetails';
 import 'app/components/common/TransactionHistory';
 import 'app/components/liveBetter/LiveBetterUnverifiedPage';
 import 'app/components/dialogs/liveBetter/ManageAutomaticSavings';
+import 'app/components/dialogs/common/StatementsDialog';
 
 const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
@@ -57,6 +59,7 @@ export class LiveBetter extends ViewBase {
 		
 		// temporary use to load transaction history screen
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// -------------------
@@ -279,11 +282,18 @@ export class LiveBetter extends ViewBase {
 
 	}
 
-	_getStatements() {
+	async _getStatements() {
 		this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_STATEMENTS, {
 			"screen": TelemetryScreen.LIVE_BETTER_LANDING_PAGE,
 			"next-screen": TelemetryScreen.LIVE_BETTER_SATEMENTS
 		});
+
+		const clientProductDetails = await this._getClientProducts();
+		
+		if (clientProductDetails) {
+			this.clientProducts = clientProductDetails;
+			this.renderMode = RENDER_MODE.STATEMENTS;
+		}
 	}
 
 	_automaticSavings() {
@@ -298,6 +308,19 @@ export class LiveBetter extends ViewBase {
 	async _productEnquiry() {
 		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.live-better`);
 		window.open(`${globalOneUrl}`);
+	}
+
+	async _getClientProducts() {
+		const request = {
+			cifNumber: this.callerInformation.cifNumber,
+			status: `OPEN`
+		};
+		const returnValue = await this.quickTransactionService.getClientProducts(request);
+
+		if (returnValue.succeeded) {
+			return returnValue.result.savingsProducts;
+		}
+		return [];
 	}
 	
 	// ---------
@@ -333,6 +356,7 @@ export class LiveBetter extends ViewBase {
 			${this._renderLandingPage()}
 			${this._renderTransactionHistory()}
 			${this._renderAutomaticSavings()}
+			${this._renderStatementsModal()}
 		`;
 	}
 
@@ -341,6 +365,7 @@ export class LiveBetter extends ViewBase {
 			case RENDER_MODE.MAIN_PAGE:
 			case RENDER_MODE.VERIFY_NOW:
 			case RENDER_MODE.AUTOMATIC_SAVINGS:
+			case RENDER_MODE.STATEMENTS:
 				return !this.loading 
 					? html`
 						${this._renderLiveBetterVerifiedLandingPage()}
@@ -553,6 +578,18 @@ export class LiveBetter extends ViewBase {
 				@cancel = "${() => this._backToLBBLandingScreen()}">
 			</horizon-manage-automatic-savings>`
 		: html``;
+	}
+
+	_renderStatementsModal() {
+		return this.renderMode === RENDER_MODE.STATEMENTS 
+			? html`
+				<horizon-statements-dialog
+					.callerInformation="${this.callerInformation}"
+					.clientProducts="${this.clientProducts}"
+					type="${ACCOUNT_TYPES.LBB}"
+					@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+				</horizon-statements-dialog>`
+			: html``;
 	}
 }
 
