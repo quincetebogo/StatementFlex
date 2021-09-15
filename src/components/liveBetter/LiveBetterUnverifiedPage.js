@@ -7,7 +7,7 @@ import { Component, css, html } from 'platform/elements';
  * -------------
  * 
  * verify-now
- * livebetter-enquiry
+ * product-enquiry
  * 
  * @export
  * @class LiveBetterUnverifiedPage
@@ -55,7 +55,7 @@ export class LiveBetterUnverifiedPage extends Component {
 	}
 
 	_liveBetterEnquiry(productEnquiry) {
-		this.dispatchEvent(new CustomEvent(`livebetter-enquiry`, { detail: { enquiry: productEnquiry } }));
+		this.dispatchEvent(new CustomEvent(`product-enquiry`, {}));
 	}
 
 	// --------------
@@ -226,3 +226,23 @@ export class LiveBetterUnverifiedPage extends Component {
 	}
 }
 window.customElements.define(`horizon-live-better-unverified-page`, LiveBetterUnverifiedPage);
+
+/**
+ * When Verify Now button is clicked
+ *
+ * @example
+ * <horizon-live-better-unverified-page ... @verify-now="${this._handler}"></horizon-live-better-unverified-page>
+ *
+ * @event LiveBetterUnverifiedPage#verify-now 	
+ * @type {Object} - N/A
+ */
+
+/**
+ * When a Product Enquiry button on Related options is clicked
+ *
+ * @example
+ * <horizon-live-better-unverified-page ... @product-enquiry="${this._handler}"></horizon-live-better-unverified-page>
+ *
+ * @event LiveBetterUnverifiedPage#product-enquiry
+ * @type {Object} - N/A
+ */

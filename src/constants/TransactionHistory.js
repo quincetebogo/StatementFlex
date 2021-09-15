@@ -9,30 +9,6 @@ export const RENDER_MODE = Object.freeze({
 	CALENDAR: 1
 });
 
-/**
- * Filter transaction data by one of these options {@link TransactionHistory}
- * 
- * @readonly
- * @enum {Object} FILTER_BY
- */
-export const FILTER_BY = Object.freeze({
-	ALL: `ALL`,
-	TEXT: `TEXT`,
-	DATE: `DATE`,
-	STATUS: `STATUS`
-});
-
-/**
- * Constant to handle/ display filtered options as chips {@link TransactionHistory}
- * 
- * @readonly
- * @enum {Object} RENDER_CHIPS
- */
-export const RENDER_CHIPS = Object.freeze({
-	TEXT: ``,
-	DATE: ``,
-	STATUS: ``
-});
 
 /**
  * Available transaction status types {@link TransactionHistory}
@@ -74,5 +50,6 @@ export const TRANSACTION_HISTORY = Object.freeze({
 export const ACCOUNT_TYPES = Object.freeze({
 	SAVINGS_ACCOUNT: `transact`,
 	LBB: `lbb`,
-	CREDIT: `credit`
+	CREDIT: `credit`,
+	SAVINGS_PLAN: `save`
 });

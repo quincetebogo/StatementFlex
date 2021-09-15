@@ -51,21 +51,21 @@ export class StatementsSuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		// Telemetry
 		this._telemetry.endSpan(QuickTransactionEvents.STATEMENTS, {
-            "screen": TelemetryScreen.STATEMENTS_OUTCOME,
+			"screen": TelemetryScreen.STATEMENTS_OUTCOME,
 			"nextScreen": TelemetryScreen.FAVOURITES
-        });
+		});
+
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_sendAnotherClick() {
-	// Telemetry
-	this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS, {
-		"screen": TelemetryScreen.STATEMENTS_OUTCOME,
-		"nextScreen": TelemetryScreen.STATEMENTS
-	});
+		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS, {
+			"screen": TelemetryScreen.STATEMENTS_OUTCOME,
+			"nextScreen": TelemetryScreen.STATEMENTS
+		});
+		
 		this.horizonRouter.navigateToReturnPage();
 	}
 
@@ -112,11 +112,11 @@ export class StatementsSuccess extends ViewBase {
 				data-automation-id="statements-success"
 				header="Statement sent" 
 				image="/images/statements/senddocuments.svg"
-				left="Done"
-				right="Send Another"
+				left="Send Another"
+				right="Done"
 				toast="Statement sent"
-				@left-click=${() => this._doneClick()}
-				@right-click=${() => this._sendAnotherClick()}>
+				@left-click=${() => this._sendAnotherClick()}
+				@right-click=${() => this._doneClick()}>
 					<section 
 						id="id-error-msg" 
 						slot="detail">

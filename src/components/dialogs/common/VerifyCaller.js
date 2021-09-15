@@ -213,7 +213,7 @@ export class VerifyCaller extends Component {
 			if (!this.securityQuestions.authenticationPermitted) {
 				this.logger.log(`warn`, `Maximum attempts at XDS verification exceeded`, `_securityQuestionsClick`);
 				this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS; // There have already been too many attempts.
-				this._updateApplicationState(`failed`);
+				this._updateApplicationState(`failed`, `unverified`);
 				this.horizonRouter.navigateToXdsVerificationFailed();
 			} else if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
 				this.logger.log(`info`, `XDS Questions retrieved, transitioning to Security Questions Dialog`, `_securityQuestionsClick`);
@@ -321,8 +321,9 @@ export class VerifyCaller extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	_updateApplicationState(verificationStatus) {
+	_updateApplicationState(verificationStatus, verificationMethod) {
 		this.callerInformation.verificationStatus = verificationStatus;
+		this.callerInformation.verificationMethod = verificationMethod;
 		this.callerInformation.verificationAttempts.itaAttempts = this.itaFailedCount;
 
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
@@ -371,7 +372,7 @@ export class VerifyCaller extends Component {
 				if (this.itaFailedCount >= MAX_ITA_ATTEMPTS) {
 					this._navigateToItaVerificationFailed();
 				} else {
-					this._updateApplicationState(`unverified`);
+					this._updateApplicationState(`unverified`, `unverified`);
 				}
 			}
 
@@ -382,7 +383,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_navigateToItaVerificationFailed() {
-		this._updateApplicationState(`failed`);
+		this._updateApplicationState(`failed`, `unverified`);
 		this.horizonRouter.navigateToItaVerificationFailed();
 	}
 
@@ -477,7 +478,7 @@ export class VerifyCaller extends Component {
 				"next-screen": null // Determine by need / path its opened from
 			}, true);
 
-			this._updateApplicationState(`verified`);
+			this._updateApplicationState(`verified`, `ITA`);
 
 			this.dispatchEvent(new CustomEvent(`verified`, {
 				detail: {
@@ -498,7 +499,7 @@ export class VerifyCaller extends Component {
 			if (this.itaFailedCount >= MAX_ITA_ATTEMPTS) {
 				this._navigateToItaVerificationFailed();
 			}
-			this._updateApplicationState(`failed`);
+			this._updateApplicationState(`failed`, `unverified`);
 		}
 	}
 

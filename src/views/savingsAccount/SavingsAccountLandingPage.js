@@ -111,7 +111,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	// PUBLIC METHODS
 	// --------------
 
-	// N/A
+	_exitTransactionHistory() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_unloadTransactionHistory() {
+		this._setIncidentDone();
+	}
 	
 	// ---------------
 	// PRIVATE METHODS
@@ -215,6 +221,12 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		}
 	}
 
+	async _getMoreTransactions(request) {
+
+		const result = await this.savingsAccountService.transactionHistory(request);
+		return result;
+	}
+
 	_more() {
 		// TODO: Functionality to option 'more' comes here
 	}
@@ -284,9 +296,11 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 					.renderTableColumns="${() => this._renderTransHistoryColumns()}"
 					.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
+					.getMoreTransactions="${request => this._getMoreTransactions(request)}"
 
 					@error-handler = "${() => this._errorHandler()}"
-					@back="${() => this._setIncidentDone()}">
+					@back="${() => this._exitTransactionHistory()}"
+					@unloading="${() => this._unloadTransactionHistory()}">
 				</horizon-transaction-history>`
 			: html``;
 	}

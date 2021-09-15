@@ -48,8 +48,8 @@ export const relatedOptions = {
 			`statements`
 		],
 		Failure: [
-			`tax-certificate`,
-			`proof-of-account`
+			`proof-of-account`,
+			`statements`
 		]
 	},
 	'automatic-savings' : {

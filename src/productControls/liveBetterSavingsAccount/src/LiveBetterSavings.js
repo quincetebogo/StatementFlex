@@ -7,7 +7,15 @@ import 'app/components/common/HorizonLabel';
 
 /**
  * Live Better Savings Account Product Control
- *
+ * 
+ * Events Raised
+ * -------------
+ * 
+ * option-click
+ * account-details
+ * round-up
+ * interest-sweep
+ * 
  * @export
  * @class LiveBetterSavings
  * @extends {Component}
@@ -67,7 +75,7 @@ export class LiveBetterSavings extends Component {
 	// --------------
 
 	_click(selection) {
-		this.dispatchEvent(new CustomEvent(`click`, { detail: { selection: selection } }));
+		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection } }));
 	}
 
 	_toggleExpander() {
@@ -76,6 +84,14 @@ export class LiveBetterSavings extends Component {
 
 	_accountDetails() {
 		this.dispatchEvent(new CustomEvent(`account-details`, {}));
+	}
+
+	_toggleRoundUp() {
+		this.dispatchEvent(new CustomEvent(`round-up`, {}));
+	}
+
+	_toggleInterestSweep() {
+		this.dispatchEvent(new CustomEvent(`interest-sweep`, {}));
 	}
 
 	// --------------
@@ -332,7 +348,11 @@ export class LiveBetterSavings extends Component {
 						halign="left" 
 						valign="center">
 							<capitec-label label="Round-up"></capitec-label>
-							<capitec-toggle label="${formatCurrency(this.liveBetterAccountData.roundUpAmount)}" checked></capitec-toggle>
+							<capitec-toggle 
+								label="${formatCurrency(this.liveBetterAccountData.roundUpAmount)}" 
+								@value-change="${() => this._toggleRoundUp()}"
+								checked>
+							</capitec-toggle>
 					</capitec-group>
 
 					<capitec-group 
@@ -343,7 +363,11 @@ export class LiveBetterSavings extends Component {
 						halign="left" 
 						valign="center">
 							<capitec-label label="Interest Sweep"></capitec-label>
-							<capitec-toggle label="${this.liveBetterAccountData.interestSweep}" checked></capitec-toggle>
+							<capitec-toggle 
+								label="${this.liveBetterAccountData.interestSweep}" 
+								@value-change="${() => this._toggleInterestSweep()}"
+								checked>
+							</capitec-toggle>
 					</capitec-group>
 
 					<horizon-label
@@ -433,10 +457,40 @@ customElements.define(`capitec-pc-live-better-savings`, LiveBetterSavings);
  * When an option tile is clicked
  *
  * @example
- * <capitec-pc-live-better-savings ... @click="${this._handler}"></capitec-pc-live-better-savings>
+ * <capitec-pc-live-better-savings ... @option-click="${this._handler}"></capitec-pc-live-better-savings>
  *
  * @event LiveBetterSavings#click
  * @type {Object}
  * @property {Object} detail - Contains information on the clicked item
- * @property {String} detail.selection - The selected option
+ * @property {String} detail.option - The selected option
+ */
+
+/**
+ * When an Account number & info icon is clicked 
+ *
+ * @example
+ * <capitec-pc-live-better-savings ... @account-details="${this._handler}"></capitec-pc-live-better-savings>
+ *
+ * @event LiveBetterSavings#account-details
+ * @type {Object} - N/A
+ */
+
+/**
+ * When Round-Up is toggled
+ *
+ * @example
+ * <capitec-pc-live-better-savings ... @round-up="${this._handler}"></capitec-pc-live-better-savings>
+ *
+ * @event LiveBetterSavings#round-up
+ * @type {Object} - N/A
+ */
+
+/**
+ * When an Interest sweep is toggled
+ *
+ * @example
+ * <capitec-pc-live-better-savings ... @interest-sweep="${this._handler}"></capitec-pc-live-better-savings>
+ *
+ * @event LiveBetterSavings#interest-sweep
+ * @type {Object} - N/A
  */
