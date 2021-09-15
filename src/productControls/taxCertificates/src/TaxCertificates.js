@@ -143,7 +143,7 @@ export class TaxCertificates extends Component {
 		if (!isValid) {
 			return false;
 		}
-		
+
 		this.dispatchEvent(new CustomEvent(`send`, {
 			detail: {
 				email: this.email,
@@ -167,14 +167,25 @@ export class TaxCertificates extends Component {
 			this.alertBannerMessage = ERROR_MESSAGE.CERT_TYPE;
 			return;
 		} 
+
+		const iTBsSelected = this.selectedCertificates.iT3BTaxCertificates && this.selectedCertificates.iT3BTaxCertificates.length;
+		const iTSsSelected = this.selectedCertificates.iT3STaxCertificates && this.selectedCertificates.iT3STaxCertificates.length;
 		
-		if (isNullorEmpty(this.selectedCertificates[this.selectedCertType]) && Object.keys(this.selectedCertificates).length === 0) {
+		if (!iTBsSelected && !iTSsSelected) {
 			this.alertBannerMessage = ERROR_MESSAGE.DOCUMENT_TYPE;
 			return;
 		}
 
 		this.currentStep++;
 
+		if (this.selectedCertificates.iT3BTaxCertificates !== undefined) {
+			this.selectedCertificates.iT3BTaxCertificates.sort((l, r) => r.year - l.year);
+		}
+
+		if (this.selectedCertificates.iT3STaxCertificates !== undefined) {
+			this.selectedCertificates.iT3STaxCertificates.sort((l, r) => r.year - l.year);
+		}
+		
 		this.dispatchEvent(new CustomEvent(`next`, { 
 			detail: {
 				selectedCertType: this.selectedCertType,
@@ -732,20 +743,22 @@ export class TaxCertificates extends Component {
 	}
 
 	_renderViewTaxcertificate() {
-		return Object.keys(this.selectedCertificates).map(certType => html`
-				<capitec-label
-					class="tax-certificate-heading"
-					type="subtitle"
-					label="View ${certType === `iT3BTaxCertificates` ? `taxable savings` : `tax-free`} certificate(s)">
-				</capitec-label>
-				<capitec-group
-					class="available-cards"
-					valign="top"
-					halign="left"
-					gap="clear"
-					layout="vertical">
-					${this._renderViewCertificateTile(certType)}
-			</capitec-group>`);
+		return Object.keys(this.selectedCertificates).map(certType => (this.selectedCertificates[certType].length > 0
+				? html`
+					<capitec-label
+						class="tax-certificate-heading"
+						type="subtitle"
+						label="View ${certType === `iT3BTaxCertificates` ? `taxable savings` : `tax-free`} certificate(s)">
+					</capitec-label>
+					<capitec-group
+						class="available-cards"
+						valign="top"
+						halign="left"
+						gap="clear"
+						layout="vertical">
+						${this._renderViewCertificateTile(certType)}
+					</capitec-group>`
+				: html``));
 		}
 
 	_renderViewCertificateTile(certType) {
