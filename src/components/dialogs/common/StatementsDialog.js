@@ -537,6 +537,9 @@ export class StatementsDialog extends Component {
 	}
 
 	_getHeaderTitle() {
+		if (this.type) {
+			return `Live Better savings account`;
+		}
 		return this.renderMode === RENDER_MODE.PDF ? `View Document` : `Statements`;
 	}
 
@@ -811,7 +814,7 @@ export class StatementsDialog extends Component {
 	_webTemplate() {
 		return html`
 			<bb-stepper-modal
-				class="${this.selectedOption.type}"
+				class="${this.selectedOption.type} ${this.type}"
 				data-automation-id="statements-dialog"
 				.header="${this._getHeaderTitle()}"
 				.steps="${this.STEPPER_STEPS}"
