@@ -218,13 +218,7 @@ export class TaxCertificates extends Component {
 	}
 
 	_isLeapYear(year) {
-		let day = 1;
-		if (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) {
-			day = 29;
-		} else {
-			day = 28;
-		}
-		return day;
+		return year % 100 === 0 ? year % 400 === 0 : year % 4 === 0;
 	}
 
 	_validateEmailAddress() {
@@ -474,6 +468,9 @@ export class TaxCertificates extends Component {
 				padding: 12px 0px;
 				--horizon-label-value-height: 20px;
 				--horizon-label-text-height: 20px;
+				--horizon-label-value-color: #3A3A3A;
+				--horizon-label-value-font-size: 15px;
+				--horizon-label-value-font-weight: 600;
 			}
 			.expander-content {
 				padding: 14px 14px 8px 16px;
@@ -693,15 +690,17 @@ export class TaxCertificates extends Component {
 	}
 
 	_renderCertificateDetails(item, certType) {
+		const count = item.taxCertificateAccounts.length;
+
 		return html`
-			<capitec-label label="Overview (4 accounts)"></capitec-label>
+			<capitec-label label="Overview (${count} ${count > 1 ? `accounts` : `account`})"></capitec-label>
 			
 			<capitec-group class="notify-banner" layout="horizontal">
 				<capitec-icon
 					size="default"
 					icon="status/info-trans">
 				</capitec-icon>
-				<p><b>Notify Client: </b>Interest received on investments from 1 Mar ${item.year - 1} to ${this._isLeapYear(item.year)} Feb ${item.year}. Balance of accounts at ${this._isLeapYear()} Feb ${item.year}</p>
+				<p><b>Notify Client: </b>Interest received on investments from 1 Mar ${item.year - 1} to ${this._isLeapYear(item.year) ? 29 : 28} Feb ${item.year}. Balance of accounts at ${this._isLeapYear(item.year) ? 29 : 28} Feb ${item.year}</p>
 			</capitec-group>
 
 			<!-- TO DO: Expander content can be made to render dynamically while impelmenting CS call.  -->
@@ -756,7 +755,7 @@ export class TaxCertificates extends Component {
 					class="view-document-tile"
 					type="default"
 					label="${certInfo.year}"
-					subtitle="${certType === `iT3BTaxCertificates` ? `IT3(b)` : `IT3(s)`} ${!certInfo.isTaxYearAvailable ? `Available` : `Unavailable`}"
+					subtitle="${certType === `iT3BTaxCertificates` ? `IT3(b)` : `IT3(s)`} ${certInfo.isTaxYearAvailable ? `Available` : `Unavailable`}"
 					@click="${() => this._viewPDF(certInfo, certType)}">
 					${this._renderViewDocumentLink()}
 				</horizon-product-tile>`);

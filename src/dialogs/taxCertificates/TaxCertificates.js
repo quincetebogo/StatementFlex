@@ -15,7 +15,7 @@ import 'app/productControls/taxCertificates/src/TaxCertificates';
 
 /**
  * Tax Certificates dialog is used to send tax certificates from the primary savings account.
- * This component is envoked from the Favourites landing screen.
+ * This component is invoked from the Favourites landing screen.
  * 
  * Event Raised
  * -------------
