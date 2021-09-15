@@ -67,9 +67,9 @@ export class CallerInformation {
         isBranchConsultant = false,
         isClientPresent = false,
         verificationMethod = `unverified`,
-        firstName,
-        lastName,
-        initials
+        firstName = ``,
+        lastName = ``,
+        initials = ``
 
     ) {
         this.cifNumber = cifNumber;
