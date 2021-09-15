@@ -51,10 +51,12 @@ export class TaxCertificatesDialog extends Component {
 
 	/**
 	 * @property {String} cifNumber The client's CIF Number
+	 * @property {String} accountNumber Primary savings account number
 	 */
 	static get properties() {
 		return {
 			cifNumber: { type: String },
+			accountNumber: { type: String },
 
 			// Private Properties
 			isBusy: { attribute: false }
@@ -281,10 +283,6 @@ export class TaxCertificatesDialog extends Component {
 		 *  - To view a iT3B doc for any year its decided we can always pass primary savings account number
 		 *  - And for iT3S, since it will have only one account in a year, we can use the specific account number
 		 */
-
-		const state = this.horizonStore.recoverState() || {};
-		const landingPageInfo = state.landingPageInfo || {};
-		const primaryAccNum = landingPageInfo.accountNumber;
 		const [first] = item.taxCertificateAccounts; // Extracting first element from taxcertificate accounts array
 		const request = {
 			"cif": this.cifNumber,
@@ -295,7 +293,7 @@ export class TaxCertificatesDialog extends Component {
 		request[type].push({
 			year: item.year,
 			documentId: item.documentId,
-			accountNumber: type === `iT3STaxCertificates` ? first.accountNumber : primaryAccNum,
+			accountNumber: type === `iT3STaxCertificates` ? first.accountNumber : this.accountNumber,
 			payload: type === `iT3STaxCertificates` ? undefined : item.payload
 		});
 
