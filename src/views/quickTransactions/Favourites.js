@@ -350,7 +350,9 @@ export class Favourites extends SavingsAccountBase {
                 savingsPlanProductAmount: ``,
                 insureProductAmount: ``,
                 creditProductAmount: ``,
-                pendingMandateCount: 0
+				pendingMandateCount: 0,
+				accountNumber: ``,
+				accountOpenedDate: ``
             };
         }
 
@@ -720,6 +722,7 @@ export class Favourites extends SavingsAccountBase {
 		? html`
 			<horizon-tax-certificate
 				cifNumber="${this.callerInformation.cifNumber}"
+				accountNumber="${this.landingPageInfo.accountNumber}"
 				@cancel="${() => this._backToLandingPage()}">
 			</horizon-tax-certificate>
 		`

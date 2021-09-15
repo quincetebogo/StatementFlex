@@ -125,7 +125,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 				toast="${this.limitType} card limit updated."
 				secondaryToast="${this.istapToPayUnChanged ? `` : `Tap to pay not updated`}"
 				image="/images/cards-unsuccesful-limit-update.svg"
-				subDetail="${this.istapToPayUnChanged ? `` : true }"
+				?hasSubDetails="${!this.istapToPayUnChanged}"
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._onHandoff()}>
 					<section
@@ -139,12 +139,10 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 	}
 
 	_getSubTitle() {
-		return !this.istapToPayUnChanged
-			? html`
-				<section slot="sub-detail">
-					The tap to pay functionality on your ${this.cardCategory.toLowerCase()} card <b>${this.maskedCardNumber}</b> was not ${this.tapToPayStatus === `TapToPayActivated` ? `activated` : `deactivated`}.
-				</section>`
-			: html``;
+		return html`
+			<section slot="sub-detail">
+				The tap to pay functionality on your ${this.cardCategory.toLowerCase()} card <b>${this.maskedCardNumber}</b> was not ${this.tapToPayStatus === `TapToPayActivated` ? `activated` : `deactivated`}.
+			</section>`;
 	}
 
 	_renderRelatedOptions() {
