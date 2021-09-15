@@ -97,10 +97,8 @@ const EMAIL_REGEX = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/
  * 
  * Events Raised 
  * -------------
- * date range selction
  * cancel
- * send
- *  
+ *
  * @export
  * @class StatementsDialog
  * @extends {Component}
@@ -166,6 +164,7 @@ export class StatementsDialog extends Component {
 			clientProducts: { type: Array },
 			selectedOption: { type: Array },
 			type : { type: String },
+			currentStep: { attribute: false},
 
 			isBusy: { attribute: false },
 			renderMode: { attribute: false },
@@ -463,7 +462,7 @@ export class StatementsDialog extends Component {
 			this.calendarErrorMessage = `Required`;
 			return false;
 		} else if (this._customDateRange && (this.fromDate === `dd mm yyyy` || this.toDate === `dd mm yyyy`)) {
-			this.errorMessage = `Choose Period`;
+			this.errorMessage = `You must choose an option in order to continue`;
 			this.calendarErrorMessage = `Required`;
 			return false;
 		} 
@@ -545,12 +544,7 @@ export class StatementsDialog extends Component {
 
 	_getSelectedProductDetails() {
 
-		// if (!isNullorEmpty(this.accPlanNumber)) {
-		// 	product = this.clientProducts.find(item => item.accountNumber === this.accPlanNumber && item.category === this.accType);
-		//} 
-
 		let product = {};
-		//product = this.clientProducts.find(item => item.accountType === SELECTED_ACCOUNT_TYPES[this.type]);
 
 		product = this.clientProducts.find(item => 
 			this.type 
@@ -1200,3 +1194,13 @@ export class StatementsDialog extends Component {
 }
 
 window.customElements.define(`horizon-statements-dialog`, StatementsDialog);
+
+/**
+ * When Cancel button is clicked
+ *
+ * @example
+ * <horizon-statements-dialog ... @cancel="${this._handler}"></horizon-statements-dialog>
+ *
+ * @event StatementsDialog#cancel
+ * @type {Object} - N/A
+ */
