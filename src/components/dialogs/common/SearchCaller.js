@@ -646,6 +646,9 @@ export class SearchCaller extends Component {
 			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber.value,
             isBranchConsultant: false,
             firstName: identifiedClient.callerInformation.firstName,
+            middleName1: identifiedClient.callerInformation.middleName1,
+            middleName2: identifiedClient.callerInformation.middleName2,
+            middleName3: identifiedClient.callerInformation.middleName3,
             lastName: identifiedClient.callerInformation.lastName,
             initials: identifiedClient.callerInformation.initials
 		};

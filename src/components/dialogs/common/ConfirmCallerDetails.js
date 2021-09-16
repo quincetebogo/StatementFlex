@@ -335,6 +335,9 @@ export class ConfirmCallerDetails extends Component {
             this.confirmedCaller.isClientPresent, // isClientPresent
             ``,
             this.confirmedCaller.firstName,
+            this.confirmedCaller.middleName1,
+            this.confirmedCaller.middleName2,
+            this.confirmedCaller.middleName3,
             this.confirmedCaller.lastName,
             this.confirmedCaller.initials
 		);

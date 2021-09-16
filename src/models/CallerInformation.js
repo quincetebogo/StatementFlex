@@ -68,6 +68,9 @@ export class CallerInformation {
         isClientPresent = false,
         verificationMethod = `unverified`,
         firstName = ``,
+        middleName1 = ``,
+        middleName2 = ``,
+        middleName3 = ``,
         lastName = ``,
         initials = ``
 
@@ -97,6 +100,9 @@ export class CallerInformation {
         this.isClientPresent = isClientPresent;
         this.verificationMethod = `unverified`;
         this.firstName = firstName;
+        this.middleName1 = middleName1;
+        this.middleName2 = middleName2;
+        this.middleName3 = middleName3;
         this.lastName = lastName;
         this.initials = initials;
         Object.seal();
