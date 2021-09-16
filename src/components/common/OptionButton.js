@@ -135,6 +135,12 @@ export class OptionButton extends Component {
 				cursor: pointer;
 			}
 
+			.button[disabled]{
+				cursor: default;
+				pointer-events: none;
+				filter: grayscale(100%);
+			}
+
 			.button:hover {
 				outline:none;
 				box-sizing: border-box;

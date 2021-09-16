@@ -2,6 +2,11 @@ import { Component, css, html } from 'platform/elements';
 
 import 'app/components/common/OptionButton';
 
+const HIGH_RISK_TRANSACTIONS = [
+	`debi-check`,
+	`update-card-limits`
+];
+
 /**
  * This component implements the Favourites Landing Page for Quick Transactions
  *
@@ -34,10 +39,9 @@ export class FavouriteTransactions extends Component {
 
 	/**
 	 *
-	 * @property {Object} callerInformation Information on the current caller (mini-profile)
-	 * @property {Object} incomingCallDetails Information on the incoming/current call
 	 * @property {Object} landingPageInfo Data for the Favourites Landing Page display
 	 * @property {string} verificationStatus Indicates if the client is verified, unverified, non-client etc.
+	 * @property {String} verificationMethod Indicated the type of verification (xds/ita)
 	 * @property {Boolean} displayVerificationStatusToast If true, display a toast for the verification status
 	 *
 	 * @readonly
@@ -46,10 +50,9 @@ export class FavouriteTransactions extends Component {
 	 */
 	static get properties() {
 		return {
-			callerInformation: { type: Object },
-			incomingCallDetails: { type: Object },
 			landingPageInfo: { type: Object },
 			verificationStatus: { type: String },
+			verificationMethod: { type: String },
 			displayVerificationStatusToast: { type: Boolean },
 
 			isBusy: { attribute: false },
@@ -218,45 +221,38 @@ export class FavouriteTransactions extends Component {
 	_webTemplate() {
 		return html`
 			${this._renderVerifiedToast()}
-			${this._renderFavourites()}
+			${this._renderContent()}
 		`;
 	}
 
-	_renderFavourites() {
-		if(this.verificationStatus === `non-client`) {
-			return html`
+	_renderContent() {
+		return html`
 			<capitec-card 
-				data-automation-id="favourite-transactions-non-client"
+				data-automation-id="favourite-transactions"
 				class="card">
 					<capitec-title-bar type="clear">
 						<img src="/images/transactions/fav_icon.svg">
 						<capitec-label class="favourites" label="Favourites" type="title"></capitec-label>
 					</capitec-title-bar>
 					<capitec-group layout="vertical" halign="left" valign="top" gap="none">
-						${this._renderSearchOtherNeed()}
+						${this._renderSections()}
 					</capitec-group>
-			</capitec-card>
-		`;
-		}
-		else{
-		return html`
-				<capitec-card 
-					data-automation-id="favourite-transactions"
-					class="card">
-						<capitec-title-bar type="clear">
-							<img src="/images/transactions/fav_icon.svg">
-							<capitec-label class="favourites" label="Favourites" type="title"></capitec-label>
-						</capitec-title-bar>
-						<capitec-group layout="vertical" halign="left" valign="top" gap="none">
-							${this._renderUnverifiedAlertBanner()}
-							${this._renderFailedVerificationAlertBanner()}
-							${this._renderTransactSection()}
-							${this._renderCardsSection()}
-							${this._renderDocumentsSections()}
-							${this._renderSearchOtherNeed()}
-						</capitec-group>
-				</capitec-card>
-			`;
+			</capitec-card>`;
+	}
+
+	_renderSections() {
+		switch(this.verificationStatus) {
+			case `non-client`:
+				return html`${this._renderSearchOtherNeed()}`;
+			default:
+				return html`
+					${this._renderUnverifiedAlertBanner()}
+					${this._renderFailedVerificationAlertBanner()}
+					${this._renderTransactSection()}
+					${this._renderCardsSection()}
+					${this._renderDocumentsSections()}
+					${this._renderSearchOtherNeed()}
+				`;
 		}
 	}
 
@@ -317,15 +313,19 @@ export class FavouriteTransactions extends Component {
 	_renderTransactSection() {
 		const pendingMandates = (this.landingPageInfo && this.landingPageInfo.pendingMandateCount) || ``;
 		return html`
-				<capitec-title-bar class="transact-title" type="default" label="Transact" style="visibility: visible;" ?hidden="${false}"></capitec-title-bar>
-				<capitec-button-bar  style="visibility: visible;" ?hidden="${false}">
+				<capitec-title-bar
+					class="transact-title"
+					type="default"
+					label="Transact">
+				</capitec-title-bar>
+				<capitec-button-bar>
 					<horizon-option-button 
 						data-automation-id="favourite-transactions-debi-check"
 						badgeText="${pendingMandates}"
 						icon="system/debi-check-action" iconSize="default"
 						label="DebiCheck"
 						@click="${() => this._optionSelectedClick(`debi-check`)}"
-						?disabled="${this.verificationStatus === `non-client`}">
+						?disabled="${this.verificationMethod === `xds`}">
 					</horizon-option-button>
 				</capitec-button-bar>
 		`;
@@ -333,84 +333,76 @@ export class FavouriteTransactions extends Component {
 
 	_renderCardsSection() {
 		return html`
-				<capitec-title-bar type="default" label="Cards"></capitec-title-bar>
-				<capitec-button-bar>
-					<horizon-option-button
-						data-automation-id="favourite-transactions-stop-card"
-						label="Stop Card" 
-						icon="system/stop-card-action"
-						iconSize="default"
-						@click="${() => this._optionSelectedClick(`stop-card`)}"
-						?disabled="${this.verificationStatus === `non-client`}">
-					</horizon-option-button>
-					<horizon-option-button 
-						data-automation-id="favourite-transactions-update-card-limits"
-						label="Update Card Limits" 
-						icon="system/cards-action" 
-						iconSize="default"
-						@click="${() => this._optionSelectedClick(`update-card-limits`)}"
-						?disabled="${this.verificationStatus === `non-client`}"
-	                    style="visibility: visible;">
-					</horizon-option-button>
-					<horizon-option-button 
-						data-automation-id="favourite-transactions-tap-to-pay"
-						label="Tap to Pay" 
-						icon="system/contactless-action" 
-						iconSize="default"
-						@click="${() => this._optionSelectedClick(`tap-to-pay`)}"
-						?disabled="${this.verificationStatus === `non-client`}"
-	                    style="visibility: visible;"
-						>
-					</horizon-option-button>
-				</capitec-button-bar>
+			<capitec-title-bar type="default" label="Cards"></capitec-title-bar>
+			<capitec-button-bar>
+				<horizon-option-button
+					data-automation-id="favourite-transactions-stop-card"
+					label="Stop Card" 
+					icon="system/stop-card-action"
+					iconSize="default"
+					@click="${() => this._optionSelectedClick(`stop-card`)}">
+				</horizon-option-button>
+				<horizon-option-button 
+					data-automation-id="favourite-transactions-update-card-limits"
+					label="Update Card Limits" 
+					icon="system/cards-action" 
+					iconSize="default"
+					@click="${() => this._optionSelectedClick(`update-card-limits`)}"
+					?disabled="${this.verificationMethod === `xds`}">
+				</horizon-option-button>
+				<horizon-option-button 
+					data-automation-id="favourite-transactions-tap-to-pay"
+					label="Tap to Pay"
+					icon="system/contactless-action" 
+					iconSize="default"
+					@click="${() => this._optionSelectedClick(`tap-to-pay`)}">
+				</horizon-option-button>
+			</capitec-button-bar>
 		`;
 	}
 
 	_renderDocumentsSections() {
 		return html`
-				<capitec-title-bar type="default" label="Document" style="visibility: visible;"></capitec-title-bar>
-				<capitec-button-bar  style="visibility: visible;">
-					<horizon-option-button 
-						data-automation-id="favourite-transactions-statements"
-						label="Statements" 
-						icon="system/documents-action" 
-						iconSize="default"
-						@click="${() => this._optionSelectedClick(`statements`)}"
-						?disabled="${this.verificationStatus === `non-client`}">
-					</horizon-option-button>
-					<horizon-option-button 
-						data-automation-id="favourite-transactions-tax-certificate"
-						label="Tax Certificate" 
-						icon="system/sars-action" 
-						iconSize="default"
-						@click="${() => this._optionSelectedClick(`tax-certificate`)}"
-						?disabled="${this.verificationStatus === `non-client`}"
-						style="display: none;">
-					</horizon-option-button>
-					<horizon-option-button
-						data-automation-id="favourite-transactions-proof-of-account"
-						label="Proof of Account" 
-						icon="system/documents-action" 
-						iconSize="default"
-						@click="${() => this._optionSelectedClick(`proof-of-account`)}"
-						?disabled="${this.verificationStatus === `non-client`}">
-					</horizon-option-button>
-				</capitec-button-bar>
+			<capitec-title-bar type="default" label="Document" style="visibility: visible;"></capitec-title-bar>
+			<capitec-button-bar  style="visibility: visible;">
+				<horizon-option-button 
+					data-automation-id="favourite-transactions-statements"
+					label="Statements" 
+					icon="system/documents-action" 
+					iconSize="default"
+					@click="${() => this._optionSelectedClick(`statements`)}">
+				</horizon-option-button>
+				<horizon-option-button 
+					data-automation-id="favourite-transactions-tax-certificate"
+					label="Tax Certificate" 
+					icon="system/sars-action" 
+					iconSize="default"
+					@click="${() => this._optionSelectedClick(`tax-certificate`)}"
+					style="display: none;">
+				</horizon-option-button>
+				<horizon-option-button
+					data-automation-id="favourite-transactions-proof-of-account"
+					label="Proof of Account" 
+					icon="system/documents-action" 
+					iconSize="default"
+					@click="${() => this._optionSelectedClick(`proof-of-account`)}">
+				</horizon-option-button>
+			</capitec-button-bar>
 		`;
 	}
 
 	_renderSearchOtherNeed() {
 		return html`
-				<capitec-title-bar type="default" label="Search other need (not on Horizon)"></capitec-title-bar>
-				<capitec-button-bar>
-					<horizon-option-button 
-						data-automation-id="favourite-transactions-search-other-need"
-						label="Search Other Need" 
-						icon="system/search-action" 
-						iconSize="default"
-						@click="${() => this._optionSelectedClick(`search-other-need`)}">
-					</horizon-option-button>
-				</capitec-button-bar>
+			<capitec-title-bar type="default" label="Search other need (not on Horizon)"></capitec-title-bar>
+			<capitec-button-bar>
+				<horizon-option-button 
+					data-automation-id="favourite-transactions-search-other-need"
+					label="Search Other Need" 
+					icon="system/search-action" 
+					iconSize="default"
+					@click="${() => this._optionSelectedClick(`search-other-need`)}">
+				</horizon-option-button>
+			</capitec-button-bar>
 		`;
 	}
 }
