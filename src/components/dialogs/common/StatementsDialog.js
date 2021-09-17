@@ -59,6 +59,13 @@ const SELECTED_ACCOUNT_TYPES = {
 	lbb: 210
 };
 
+const ACCOUNT_TYPE = {
+	300: `Savings Account`,
+	201: `Fixed Term Savings Plan`,
+	200: `Savings Plan`,
+	210: `Live Better Savings Account`,
+};
+
 const TIME_PERIOD = {
 	ONE_MONTH: {
 		value: `ONE_MONTH`,
@@ -355,7 +362,7 @@ export class StatementsDialog extends Component {
 			this.encodedPDF = base64ToBlobUrl(returnValue.result.statementData);
 		}
 		else {
-			if(accountType===this.selectedOption){
+			if(this.productSelected.accountType === SELECTED_ACCOUNT_TYPES[`lbb`]){
 				this.horizonRouter.navigateToliveBetterSystemError();
 			}
 			else{
@@ -595,6 +602,7 @@ export class StatementsDialog extends Component {
 
 		screenDetails.emailAddress = this.email;
 		screenDetails.accountNumber = this.productSelected.accountNumber;
+		screenDetails.accountType=ACCOUNT_TYPE[this.productSelected.accountType];
 		
 		this.horizonStore.setScreenDetails(screenDetails);
 	}
