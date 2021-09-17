@@ -275,10 +275,10 @@ export class LandingPage extends ViewBase {
 			false, // is 3rd party
 			true, // is non-client
 			false, // has insurance products
-			false, // has digital channels
+            false,
 			{
-				xdsAttempts: 0,
-				itaAttempts: 0
+				itaAttempts: 0,
+				xdsAttempts: 0
 			},
 			event.detail.isBranchConsultant
 		);

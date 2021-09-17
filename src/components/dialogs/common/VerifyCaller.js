@@ -191,7 +191,7 @@ export class VerifyCaller extends Component {
 
 		if (!securityQuestions.authenticationPermitted) {
 			this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS; 
-			this.xdsMessage = `Authentication Not Permitted`;
+				this._updateApplicationState(`failed`, `unverified`);
 			this.logger.log(`warn`, `XDS returns authentication not permitted`, `_securityQuestionsClick`);
 			return;
 		} ;
@@ -337,13 +337,14 @@ export class VerifyCaller extends Component {
 		this.isBusy = !this.isBusy;
 	}
   
+					this._updateApplicationState(`unverified`, `unverified`);
 	_navigateToItaVerificationFailed() {
-		this._updateApplicationState(`failed`);
+		this._updateApplicationState(`failed`, `unverified`);
 		this.horizonRouter.navigateToItaVerificationFailed();
 	}
 
 	_navigateToXdsVerificationFailed() {
-		this._updateApplicationState(`failed`);
+		this._updateApplicationState(`failed`, `unverified`);
 		return this.horizonRouter.navigateToXdsVerificationFailed();
 	};
 	
@@ -462,7 +463,7 @@ export class VerifyCaller extends Component {
 				if (this._itaAttemptsExceeded()) {
 					this._navigateToItaVerificationFailed();
 				} else {
-					this._updateApplicationState(`unverified`);
+					this._updateApplicationState(`unverified`, `unverified`);
 				}
 			}
 		}, 1000);
@@ -488,7 +489,7 @@ export class VerifyCaller extends Component {
 				"screen": TelemetryScreen.VERIFY_CALLER,
 				"next-screen": null // Determine by need / path its opened from
 			}, true);
-			this._updateApplicationState(`verified`);
+			this._updateApplicationState(`verified`, `ITA`);
 
 			this.dispatchEvent(new CustomEvent(`verified`, {
 				detail: {

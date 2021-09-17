@@ -1,75 +1,51 @@
-import { Component } from 'platform/elements';
-import { HorizonSignalRClient } from 'app/shell/HorizonSignalRClient';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-import { VerifyCallerEvents } from 'app/constants/telemetry/events/VerifyCaller';
+import { Configuration, Logger } from 'platform/core';
 import { CallHandleService } from 'app/services/CallHandleService';
+import { HorizonSignalRClient } from 'app/shell/HorizonSignalRClient';
 
 
-const MAX_ITA_ATTEMPTS = 3;
+/**
+* The Horizon ItaCallerVerification class is used to allow ITA verification logic to be reusable when the client is verified via ITA.
 
-export class ItaCallerVerification extends Component {
+export class ItaCallerVerification {
 
 	// --------------
 	// INITIALISATION
 	// --------------
 
-	constructor() {
-		super();
+	constructor(verificationStatusCallback, toggleBusyCallback, timeout = 70, maxItaAttempts = 3) {
 
 		// Property initialization
-		this.renderMode = RENDER_MODE.VERIFY_CALLER;
-		this.seconds = ITA_TIMEOUT_SECS;
-		this.isBusy = false;
+		this.seconds = timeout;
+		this.verificationStatusCallback = verificationStatusCallback;
 
-		this.itaInProgress = false;
+		this.cifNumber = null;
 		this.itaTimer = null;
-		this.itaTimeout = false;
-		this.itaRejected = false;
-		this.itaSystemError = false;
+		this.maxItaAttempts = maxItaAttempts;
+		this.attempt = 0;
 
-		this.hasSouthAfricanID = false;
 
-		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
 		this.configuration = Configuration.getInstance();
 		this.logger = Logger.getInstance();
-		this.telemetry = HorizonTelemetry.getInstance();
 
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag());
+		this.callHandleService = new CallHandleService(() => toggleBusyCallback());
 	}
 
-	// --------------
+	async initiateItaVerification(cifNumber) {
 	// PROPERTIES
 	// --------------
 	/**
 	 * @property {Object} incomingCallDetails Information on the incoming call
 	 * @property {Object} callerInformation Information (mini-profile) on the incoming caller
 	 * @property {object} incidentDetails Incident details
-	 * 
-	 */
-	 static get properties() {
-		return {
-			incomingCallDetails: { type: Object },
-			callerInformation: { type: Object },
-			incidentDetails: { type: Object },
+		if (cifNumber !== this.cifNumber) {
+			this.attempt = 0;
 
-			renderMode: { attribute: false },
 			
-			hasSouthAfricanID: { attribute: false },
 
-			itaInProgress: { attribute: false },
-			itaTimeout: { attribute: false },
-			seconds: { attribute: false },
-			itaRejected: { attribute: false },
-			itaSystemError: { attribute: false }, 
 
-			isBusy: { attribute: false }
-		};
 	}
 	// -------------------
-	// LIFECYCLE OVERRIDES
+		this.cifNumber = cifNumber;
 	// -------------------
 	// --------------
 	// EVENT HANDLERS
@@ -81,31 +57,27 @@ export class ItaCallerVerification extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	async _initiateItaVerification() {
 		const signalRUrl = await this.configuration.getSetting(`signalRUrl`);
+
 		if (signalRUrl === ``) {
 			this.logger.log(`warn`, `ITA is not configured`, `_initiateItaVerification`);
-			this.itaInProgress = false;
-			return;
-		}
-		if (this._itaAttemptsExceeded()) {
-			this.logger.log(`error`, `Cannot initiate ITA - maximum number of attempts exceeded`, `_initiateItaVerification`);
-			this.itaInProgress = false;
-			return;
-		}
-		if (this.horizonSignalRClient) {
-			this.logger.log(`warn`, `ITA connection is already started, a new connection will not be started`, `_initiateItaVerification`);
-			return;
+			return false;
 		}
 
-		this.itaInProgress = true;
+		if (this.attempt > this.maxItaAttempts) {
+			this.logger.log(`error`, `Cannot initiate ITA - maximum number of attempts exceeded`, `_initiateItaVerification`);
+			return false;
+		}
+
+		if (this.horizonSignalRClient) {
+			this.logger.log(`warn`, `ITA connection is already started, a new connection will not be started`, `_initiateItaVerification`);
+			return false;
+		}
+
 
 		this.logger.log(`info`, `Initiating ITA verification`, `_initiateItaVerification`);
 		this.horizonSignalRClient = HorizonSignalRClient.getInstance();
 
-		this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
-			"screen": TelemetryScreen.VERIFY_CALLER
-		}, false);
 
 		const connectionID = await this._initialiseSignalR();
 		
@@ -115,9 +87,13 @@ export class ItaCallerVerification extends Component {
 		};
 		
 		if (!itaNotificationSent) {
-			this.itaSystemError = true;
 			this._cleanupSignalRConnection();
+			return false;
 		}
+
+		return true;
+	}
+
 	}
 
 	async _initialiseSignalR() {
@@ -127,6 +103,7 @@ export class ItaCallerVerification extends Component {
 			this.logger.log(`error`, `Failed to establish ITA Hub Connection`, `_initialiseSignalR`);
 			return null;
 		}
+
 		try {
 			return await this.horizonSignalRClient.getConnectionId();
 		} catch (error) {
@@ -151,17 +128,12 @@ export class ItaCallerVerification extends Component {
 		const returnValue = await this.callHandleService.itaVerification(request, (ex) => this._itaErrorHandler(ex));
 
 		if (returnValue.succeeded) {
-			this.telemetry.logEvent(VerifyCallerEvents.ITA_REQUEST_SENT, {
-				"screen": TelemetryScreen.VERIFY_CALLER
-			}, true);
 			
-			this.callerInformation.verificationAttempts.itaAttempts++;
 
-			this.itaTimeout = false;
-			this.itaRejected = false;
-			this.itaSystemError = false;
 
 			this.logger.log(`info`, `ITA verification request successfully initiated`, `_itaServiceCall`);
+
+			this.attempt++;
 
 			this._startTimer();
 
@@ -178,31 +150,22 @@ export class ItaCallerVerification extends Component {
 			return this.itaTimer;
 		}
 
-		this.itaTimer = setInterval(() => {
+		this.itaTimer = setInterval(async () => {
 			this.seconds--;
 
 			if (this.seconds <= 0) {
-				this.telemetry.logEvent(VerifyCallerEvents.ITA_TIMEDOUT, {
-					"screen": TelemetryScreen.VERIFY_CALLER,
-					"next-screen": this.itaFailedCount >= MAX_ITA_ATTEMPTS ? TelemetryScreen.ITA_FAILED : TelemetryScreen.VERIFY_CALLER
-				}, true);
-
-				this._stopTimer();
 				
-				this.itaTimeout = true;
+				await this._stopTimer();
+				
 
 				// What happens when both ITA & XDS attempts are exaaused
-				if (this._itaAttemptsExceeded()) {
-					this._navigateToItaVerificationFailed();
-				} else {
-					this._updateApplicationState(`unverified`);
-				}
+				this.verificationStatusCallback(`timeout`, this.attempt);
 			}
 		}, 1000);
 	}
 
-	_stopTimer() {
-		this._cleanupSignalRConnection();
+	async _stopTimer() {
+		await this._cleanupSignalRConnection();
 
 		if (this.itaTimer) {
 			clearInterval(this.itaTimer);
@@ -211,42 +174,22 @@ export class ItaCallerVerification extends Component {
 		}
 	};
 	
-	_signalRPostEventAction(verificationStatus) {
+	async _signalRPostEventAction(verificationStatus) {
 		this.logger.log(`info`, `ITA verification event received. Status=${verificationStatus}`, `_signalRPostEventAction`);
 
-		this._stopTimer();
+		await this._stopTimer();
 
 		if (this._isVerified(verificationStatus)) {
-			this.telemetry.logEvent(VerifyCallerEvents.ITA_SUCCESS, {
-				"screen": TelemetryScreen.VERIFY_CALLER,
-				"next-screen": null // Determine by need / path its opened from
-			}, true);
 			this._updateApplicationState(`verified`);
 
-			this.dispatchEvent(new CustomEvent(`verified`, {
-				detail: {
-					incomingCallDetails: this.incomingCallDetails,
-					callerInformation: this.callerInformation
 				}
-			}));
-		} else {
-			this.logger.log(`info`, `ITA SignalR event indicated that verification was rejected`, `_signalRPostEventAction`);
-			this.telemetry.logEvent(VerifyCallerEvents.ITA_FAILED, {
-				"screen": TelemetryScreen.VERIFY_CALLER,
-				"next-screen": this.itaFailedCount >= MAX_ITA_ATTEMPTS ? TelemetryScreen.ITA_FAILED : TelemetryScreen.VERIFY_CALLER
-			}, true);
 
-			this.itaRejected = true;
 
 			// TODO: What happens when both ITA and XDS attemtps are exausted
-			if (this._itaAttemptsExceeded()) {
-				this._navigateToItaVerificationFailed();
-			}
-		}
+		this.verificationStatusCallback(`unverified`, this.attempt);
 	}
 
 	async _cleanupSignalRConnection() {
-		this.itaInProgress = false;
 		if (this.horizonSignalRClient) {
 			this.logger.log(`info`, `Stopping SignalR Connection for ITA Verification`, `_stopSignalRConnection`);
 
