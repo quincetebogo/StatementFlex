@@ -629,9 +629,9 @@ export class StatementsDialog extends Component {
 					--theme-container-padding-right: 0px;
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 0px;
-					--theme-wizard-modal-max-width: 960px;
-					--theme-wizard-modal-max-height: 930px;
-					--theme-wizard-modal-lg-max-width:960px;
+					--theme-wizard-modal-max-width: 976px;
+					--theme-wizard-modal-max-height: 960px;
+					--theme-wizard-modal-lg-max-width:976px;
 					--theme-wizard-modal-header-padding: 18.5px 16px;
 					--theme-modal-footer-padding: 0px;
 					--theme-modal-body-box-shadow: none;
@@ -640,7 +640,7 @@ export class StatementsDialog extends Component {
 				}
 				div[slot="step"] {
 					height: 100%;
-					max-height: var(--theme-wizard-modal-max-height, 930px);
+					max-height: var(--theme-wizard-modal-max-height, 960px);
 
 					--theme-layout-gap-spacing: 0px;
 				}
