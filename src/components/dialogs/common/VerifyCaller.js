@@ -210,18 +210,17 @@ export class VerifyCaller extends Component {
 	_updateXdsAuthenticationAttempts(securityQuestions) {
 		const authHistory = securityQuestions.authenticationHistory;
 
-		if (authHistory) {
-			// Retreive the number of previous attemnpts (including this current attempt)
-			this.callerInformation.verificationAttempts.xdsAttempts = this._calculateXDSAttempts(authHistory);
-			if (this.callerInformation.verificationAttempts.xdsAttempts > 1) {
-				this.logger.log(`warn`, `The caller made ${this.callerInformation.verificationAttempts.xdsAttempts} to verify via XDS!`);
-			}
-
+		if (!authHistory) {
+			// Just sending off a request counts as an attempt already
+			this.callerInformation.verificationAttempts.xdsAttempts++;
 			return;
-		} 
-		
-		// Just sending off a request counts as an attempt already
-		this.callerInformation.verificationAttempts.xdsAttempts++;
+		}
+
+		// Retreive the number of previous attemnpts (including this current attempt)
+		this.callerInformation.verificationAttempts.xdsAttempts = this._calculateXDSAttempts(authHistory);
+		if (this.callerInformation.verificationAttempts.xdsAttempts > 1) {
+			this.logger.log(`warn`, `The caller made ${this.callerInformation.verificationAttempts.xdsAttempts} to verify via XDS!`);
+		}
 	}
 
 	_calculateXDSAttempts(authHistory) {
@@ -336,8 +335,7 @@ export class VerifyCaller extends Component {
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
-  
-					this._updateApplicationState(`unverified`, `unverified`);
+
 	_navigateToItaVerificationFailed() {
 		this._updateApplicationState(`failed`, `unverified`);
 		this.horizonRouter.navigateToItaVerificationFailed();
@@ -348,7 +346,6 @@ export class VerifyCaller extends Component {
 		return this.horizonRouter.navigateToXdsVerificationFailed();
 	};
 	
-
 	async _initiateItaVerification() {
 		const signalRUrl = await this.configuration.getSetting(`signalRUrl`);
 		if (signalRUrl === ``) {
@@ -418,26 +415,26 @@ export class VerifyCaller extends Component {
 
 		const returnValue = await this.callHandleService.itaVerification(request, (ex) => this._itaErrorHandler(ex));
 
-		if (returnValue.succeeded) {
-			this.telemetry.logEvent(VerifyCallerEvents.ITA_REQUEST_SENT, {
-				"screen": TelemetryScreen.VERIFY_CALLER
-			}, true);
-			
-			this.callerInformation.verificationAttempts.itaAttempts++;
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `itaVerification channel service call failed`, `_itaServiceCall`, returnValue.correlationId);
+			return false;
+		}
 
-			this.itaTimeout = false;
-			this.itaRejected = false;
-			this.itaSystemError = false;
+		this.telemetry.logEvent(VerifyCallerEvents.ITA_REQUEST_SENT, {
+			"screen": TelemetryScreen.VERIFY_CALLER
+		}, true);
+		
+		this.callerInformation.verificationAttempts.itaAttempts++;
 
-			this.logger.log(`info`, `ITA verification request successfully initiated`, `_itaServiceCall`);
+		this.itaTimeout = false;
+		this.itaRejected = false;
+		this.itaSystemError = false;
 
-			this._startTimer();
+		this.logger.log(`info`, `ITA verification request successfully initiated`, `_itaServiceCall`);
 
-			return true;
-		} 
+		this._startTimer();
 
-		this.logger.log(`error`, `itaVerification channel service call failed`, `_itaServiceCall`, returnValue.correlationId);
-		return false;
+		return true;
 	}
 	
 	_startTimer() {
