@@ -112,13 +112,13 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 				data-automation-id="card-limit-update-success-screen"
 				header="${this.limitType} card limits updated" 
 				image="/images/cards-successful-limit-update.svg"
-				left="Done"
-				right="Update Card Limits"
+				left="Update Card Limits"
+				right="Done"
 				toast="${this.limitType} card limit updated."
 				secondaryToast="${this.istapToPayUnChanged ? `` : `Tap to pay updated`}"
-				subDetail="${this.istapToPayUnChanged ? `` : true }"
-				@left-click=${() => this._doneClick()}
-				@right-click=${() => this._updateCardLimitsClick()}>
+				?hasSubDetails="${!this.istapToPayUnChanged}"
+				@left-click=${() => this._updateCardLimitsClick()}
+				@right-click=${() => this._doneClick()}>
 					<section 
 						class="id-update-msg" 
 						slot="detail">
@@ -131,16 +131,15 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 	}
 
 	_renderTapToPayInfo() {
-		return !this.istapToPayUnChanged
-			? html`
-				<section 
-					class="id-update-msg" 
-					slot="sub-detail">
-						The tap to pay functionality on your ${this.cardCategory.toLowerCase()} card <b>${this.maskedCardNumber}</b> ${this.tapToPayStatus === `TapToPayActivated`
-							? html`is pending tap to pay activation. <br /> To complete activation, insert card into card machine or ATM`
-							: `is deactivated`}.
-				</section>`
-			: html``;
+		// displayed only if hasSubDetails attribute is true on horizon-success-screen
+		return html`
+			<section 
+				class="id-update-msg" 
+				slot="sub-detail">
+					The tap to pay functionality on your ${this.cardCategory.toLowerCase()} card <b>${this.maskedCardNumber}</b> ${this.tapToPayStatus === `TapToPayActivated`
+						? html`is pending tap to pay activation. <br /> To complete activation, insert card into card machine or ATM`
+						: `is deactivated`}.
+			</section>`;
 	}
 }
 
