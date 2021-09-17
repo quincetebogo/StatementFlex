@@ -2,6 +2,7 @@ import { Component, css, html, live } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/EndCallSession';
+import 'app/components/Common/UpdateIncidentDialog';
 
 /**
  * Search Other Need component
@@ -34,7 +35,6 @@ export class SearchOtherNeed extends Component {
 
 		// Private properties
 		this.isBusy = false;
-		this.renderMode = -1;
 
 		// Private Variables
 		this.category = ``;
@@ -96,9 +96,8 @@ export class SearchOtherNeed extends Component {
 
 	_back() {
 		// initate back to favourite transactions page (on back arrow)
-		this.dispatchEvent(new CustomEvent(`back`, {}));
+		this.dispatchEvent(new CustomEvent(`back`, {detail : {category: this.category, need: this.need, issue: this.issue, postAction: this}}));
 	}
-	
 
 	_categoryChanged(e) {
 		if (e.detail.new !== null) {
@@ -145,7 +144,7 @@ export class SearchOtherNeed extends Component {
 	}
 
 	_updateStrack() {
-		this.dispatchEvent(new CustomEvent(`update-strack`, { detail: { category: this.category, need: this.need, issue: this.issue, postAction : this } }));
+		this.dispatchEvent(new CustomEvent(`update-strack`, { detail: { category: this.category, need: this.need, issue: this.issue, postAction: this } }));
 	}
 
 	// Refresh screen once incident details are updated to Strack
@@ -262,7 +261,7 @@ export class SearchOtherNeed extends Component {
 					padding-right: 16px;
 					--theme-layout-gap-spacing: 16px;
 				}
-				capitec-button {	
+				capitec-button {
 					--theme-button-padding-left: 16px;
 					--theme-button-padding-right: 16px;
 					--theme-button-font-weight: 600;
@@ -446,7 +445,7 @@ customElements.define(`horizon-search-other-need`, SearchOtherNeed);
  * @example
  * <horizon-search-other-need ... @back="${this._handler}"></horizon-search-other-need>
  *
- * @event SearchOtherNeed#back 	
+ * @event SearchOtherNeed#back
  * @type {Object} - N/A
  */
 
@@ -456,7 +455,7 @@ customElements.define(`horizon-search-other-need`, SearchOtherNeed);
  * @example
  * <horizon-search-other-need ... @get-sub-categories="${this._handler}"></horizon-search-other-need>
  *
- * @event SearchOtherNeed#get-sub-categories 	
+ * @event SearchOtherNeed#get-sub-categories
  * @property {Object} detail - Contains information on the clicked item
  * @property {String} detail.category - The selected Category
  */
@@ -525,7 +524,7 @@ customElements.define(`horizon-search-other-need`, SearchOtherNeed);
  * @example
  * <horizon-search-other-need ... @update-strack="${this._handler}"></horizon-search-other-need>
  *
- * @event SearchOtherNeed#update-strack	
+ * @event SearchOtherNeed#update-strack
  * @property {Object} detail - Contains information on the clicked item
  * @property {String} detail.category - The selected Category
  * @property {String} detail.need - The selected Need

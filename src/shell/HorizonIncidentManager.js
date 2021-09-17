@@ -102,10 +102,10 @@ export class HorizonIncidentManager {
 		 * And if the client has a subsequent need, should continue by creating new incident
 		 * 
 		 */
-		if (clientNeed !== incidentDetails.currentNeed &&
+		 if (clientNeed !== incidentDetails.currentNeed &&
 			(incidentDetails.needStatus === HORIZON_NEED_STATUS.COMPLETED ||
-			 incidentDetails.needStatus === HORIZON_NEED_STATUS.ASSIGNED ||
-			 incidentDetails.needStatus === HORIZON_NEED_STATUS.FAILED)) {
+			incidentDetails.needStatus === HORIZON_NEED_STATUS.ASSIGNED ||
+			incidentDetails.needStatus === HORIZON_NEED_STATUS.FAILED)) {
 
 				this.primaryNeedIncidentRecId = incidentDetails.primaryIncidentRecID || incidentDetails.incidentRecId;
 

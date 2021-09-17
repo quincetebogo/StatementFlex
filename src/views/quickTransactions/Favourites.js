@@ -154,7 +154,7 @@ export class Favourites extends SavingsAccountBase {
 	async _done(event) {
 		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		const selectedOption = FEEDBACK_OPTIONS.find(item => item.key === event.detail);
-		
+
 		this._telemetry.logEvent(QuickTransactionEvents.SEARCH_OTHER_NEED_DONE, {
 			"launch-strack-feedback": selectedOption
 		});
@@ -565,9 +565,9 @@ export class Favourites extends SavingsAccountBase {
 	async _unLoadingOtherNeeds() {
 		this._telemetryEndSpan(QuickTransactionEvents.SEARCH_OTHER_NEED, TelemetryScreen.SEARCH_OTHER_NEED);
 
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		const incidentDetails = this.horizonStore.getIncidentDetails() || {};
 
-		if(this.incidentDetails.incidentRecId === `0`) {
+		if(isNullorEmpty(incidentDetails.incidentRecId) || incidentDetails.incidentRecId === `0`) {
 			this.renderMode = RENDER_MODE.MAIN_PAGE;
 			return true;
 		}
@@ -583,7 +583,7 @@ export class Favourites extends SavingsAccountBase {
 		const classificationEmpty = isNullorEmpty(screenDetails.category) && isNullorEmpty(screenDetails.subCategory) && isNullorEmpty(screenDetails.issue);
 
 		if (isClassified && !isClosed && !classificationEmpty) {
-			this.renderMode = RENDER_MODE.FEEDBACK;
+			this.renderMode = RENDER_MODE.UPDATE_INCIDENT_FEEDBACK;
 			return true;
 		}
 
@@ -619,16 +619,13 @@ export class Favourites extends SavingsAccountBase {
 		this.renderMode = RENDER_MODE.FEEDBACK;
 	}
 
-	async _onUpdateincidentConfirm() {
+	async _onUpdateincidentConfirm(e) {
 		// should close the incident with captured details on Update incident modal
 		// Temporary switch : to close an incident on Confirm click from Update Incident modal
-		const screenDetails = this.horizonStore.getScreenDetails();
-		const event = { detail: { category: screenDetails.category, need: screenDetails.subCategory, issue: screenDetails.issue } }
 	
-		await this._classifyIncident(event);
-		await this._done({ detail: 0});
+		await this._classifyIncident(e);
 		
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this.renderMode = RENDER_MODE.UPDATE_INCIDENT_FEEDBACK;
 	}
 
 	async _classifyIncident(event) {
@@ -655,6 +652,16 @@ export class Favourites extends SavingsAccountBase {
 		screenDetails.issue = issue;
 
 		this.horizonStore.setScreenDetails(screenDetails);
+	}
+
+	async _exitSearchOtherNeed(e) {
+		const screenDetails = this.horizonStore.getScreenDetails();
+
+		if (!isNullorEmpty(screenDetails.category) && !isNullorEmpty(screenDetails.subCategory) && !isNullorEmpty(screenDetails.issue)) {
+			await this._classifyIncident(e);
+		}
+
+		this._backToLandingPage();
 	}
 
 	// ---------
@@ -695,6 +702,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderSearchOtherNeed()}
 			${this._renderProofOfAccount()}
 			${this._renderFeedback()}
+			${this._renderUpdateIncidentModal()}
 
 			${super._webTemplate()}
 		`;
@@ -708,6 +716,8 @@ export class Favourites extends SavingsAccountBase {
 			case RENDER_MODE.VERIFY_NOW:
 			case RENDER_MODE.END_CALL:
 			case RENDER_MODE.ALERT_MODAL:
+			case RENDER_MODE.UPDATE_INCIDENT:
+			case RENDER_MODE.UPDATE_INCIDENT_FEEDBACK:
 				return html`
 					<horizon-favourite-transactions 
 						class="favourites"
@@ -766,34 +776,43 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderSearchOtherNeed() {
-		return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED || this.renderMode === RENDER_MODE.FEEDBACK || this.renderMode === RENDER_MODE.UPDATE_INCIDENT
+		return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED || this.renderMode === RENDER_MODE.FEEDBACK
 			? html`
 				<horizon-search-other-need
 					.categories="${this.categories || []}"
 					.needs="${this.needs || []}"
 					.issues="${this.issues || []}"
-					@loading="${() => this._loadingOtherNeeds()}"
+					@loading="${() => this._telemetryStartSpan(QuickTransactionEvents.SEARCH_OTHER_NEED, TelemetryScreen.SEARCH_OTHER_NEED)}"
 					@unloading="${() => this._unLoadingOtherNeeds()}"
 					@launch-strack="${(event) => this._onLaunchStrackClick(event)}"
 					@update-strack="${(event) => this._onUpdateStrackClick(event)}"
 					@get-sub-categories="${(event) => this._getSubCategories(event)}"
 					@get-issues="${(event) => this._getIssues(event)}"
 					@issue-changed="${(event) => this._updateNeedToState(event.detail.category, event.detail.need, event.detail.issue)}"
-					@back="${() => this._backToLandingPage()}"
+					@back="${(e) => this._exitSearchOtherNeed(e)}"
 					@done="${() => this._searchOtherNeedDone()}">
 				</horizon-search-other-need>`
 			: html``;
 	}
 
 	_renderFeedback() {
-		return this.renderMode === RENDER_MODE.FEEDBACK
+		return this.renderMode === RENDER_MODE.FEEDBACK || this.renderMode === RENDER_MODE.UPDATE_INCIDENT_FEEDBACK
 			? html`
 				<horizon-feedback 
 					@done="${(event) => this._done(event)}">
 				</horizon-feedback>`
 			: html``;
 	}
-	
+
+	_renderUpdateIncidentModal() {
+		return this.renderMode === RENDER_MODE.UPDATE_INCIDENT
+		? html`
+			<horizon-update-incident-dialog
+				@on-cancel = "${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
+				@on-update="${(e) => this._onUpdateincidentConfirm(e)}">
+			</horizon-update-incident-dialog>`
+		: html``;
+	}
 }
 
 customElements.define(`horizon-favourites`, Favourites);
