@@ -1,5 +1,4 @@
 import { css, html } from 'platform/elements';
-import { isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
@@ -7,6 +6,7 @@ import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTran
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
@@ -20,6 +20,8 @@ import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
 import 'app/components/dialogs/common/Feedback';
+
+import 'app/dialogs/taxCertificates/taxCertificates';
 
 
 const SAVINGS_ACCOUNT_TYPE = 300;
@@ -60,7 +62,6 @@ export class Favourites extends SavingsAccountBase {
 		this.cards = [];
 		this.selectedFeedback = [];
 		this.feedbackOptions = [];
-
 		this.updateStrackClick = false;
 
 		this.endCallCauseCode = EndCallCauseCode.getInstance();
@@ -389,7 +390,9 @@ export class Favourites extends SavingsAccountBase {
 				savingsPlanProductAmount: ``,
 				insureProductAmount: ``,
 				creditProductAmount: ``,
-				pendingMandateCount: 0
+				pendingMandateCount: 0,
+				accountNumber: ``,
+				accountOpenedDate: ``
 			};
 		}
 
@@ -514,12 +517,12 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_taxCertificates() {
-		// TODO: Functionality to generate tax certificate comes here
-
 		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_TAX_CERTIFICATE, {
 			"screen": TelemetryScreen.FAVOURITES,
 			"next-screen": TelemetryScreen.TAX_CERTIFICATE
 		});
+
+		this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
 	}
 
 	async _proofOfAccount() {
@@ -703,6 +706,8 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderProofOfAccount()}
 			${this._renderFeedback()}
 			${this._renderUpdateIncidentModal()}
+   		${this._renderTaxCertificate()}
+
 
 			${super._webTemplate()}
 		`;
@@ -711,6 +716,7 @@ export class Favourites extends SavingsAccountBase {
 	_renderFavouritesLandingPage() {
 		switch (this.renderMode) {
 			case RENDER_MODE.MAIN_PAGE:
+			case RENDER_MODE.TAX_CERTIFICATE:
 			case RENDER_MODE.PROOF_OF_ACCOUNT:
 			case RENDER_MODE.STATEMENTS:
 			case RENDER_MODE.VERIFY_NOW:
@@ -813,6 +819,18 @@ export class Favourites extends SavingsAccountBase {
 			</horizon-update-incident-dialog>`
 		: html``;
 	}
+  
+	_renderTaxCertificate() {
+		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE
+		? html`
+			<horizon-tax-certificate
+				cifNumber="${this.callerInformation.cifNumber}"
+				accountNumber="${this.landingPageInfo.accountNumber}"
+				@cancel="${() => this._backToLandingPage()}">
+			</horizon-tax-certificate>
+		`
+		: html``;
+	}  
 }
 
 customElements.define(`horizon-favourites`, Favourites);

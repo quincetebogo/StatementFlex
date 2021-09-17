@@ -123,12 +123,11 @@ export class TapToPaySuccess extends ViewBase {
 				data-automation-id="tap-to-pay-success"
 				header="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}"
 				image="/images/cards-successful-tap-to-pay.svg"
-				left="Done"
-				right="Tap to Pay"
+				left="Tap to Pay"
+				right="Done"
 				toast="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}"
-				sub_detail="true"
-				@left-click=${() => this._doneClick()}
-				@right-click=${() => this._tapToPayClick()}>
+				@left-click=${() => this._tapToPayClick()}
+				@right-click=${() => this._doneClick()}>
 					<section 
 						id="id-update-msg" 
 						slot="detail">

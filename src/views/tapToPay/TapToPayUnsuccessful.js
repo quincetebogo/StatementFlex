@@ -109,9 +109,6 @@ export class TapToPayUnsuccessful extends ViewBase {
 				#id-update-msg{
 					width: auto;
 				}
-				horizon-success-screen {
-					--horizon-button-group-margin-top: 28px;
-				}
 			`
 		];
 	}
@@ -138,7 +135,6 @@ export class TapToPayUnsuccessful extends ViewBase {
 				left="Done"
 				right="Assign"
 				toast="Tap to pay not activated."
-				sub_detail="true"
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._handoffClick()}>
 					<section
