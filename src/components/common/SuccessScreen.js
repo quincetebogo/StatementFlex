@@ -56,8 +56,8 @@ export class SuccessScreen extends Component {
 			image: { type: String },
 			secondaryImage: { type: String }, 
 			secondaryToast: { type: String },
-			hasSubDetails: { type: Boolean }
-			subContent: { type:String }
+			hasSubDetails: { type: Boolean },
+			subContent: { type: String }
 		};
 	}
 
@@ -328,11 +328,14 @@ export class SuccessScreen extends Component {
 			: html``;
 	}
 
-	_renderSubContent(){
+	_renderSubContent() {
 		return this.subContent
-		? html`<capitec-group id="id-sub-content" layout="horizontal">
-						<slot name="sub-content"></slot>
-	 			</capitec-group>`
+		? html`
+			<capitec-group 
+					id="id-sub-content" 
+					layout="horizontal">
+				<slot name="sub-content"></slot>
+	 		</capitec-group>`
 		: html``;
 	}
 
