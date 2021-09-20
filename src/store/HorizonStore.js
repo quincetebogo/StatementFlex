@@ -125,6 +125,7 @@ export class HorizonStore extends Store {
 	* Retrieve screen details from state
 	*
 	* @returns {Object} Screen details
+	* @deprecated - Use a method specific to your screen (getTaxCertificateDetails etc.)  This makes it easier to track what is going on in state and code
 	*/
 	getScreenDetails() {
 		if (this.state && this.state.screenDetails) {
@@ -139,6 +140,7 @@ export class HorizonStore extends Store {
 	*
 	* @param {Object} screenDetails Screen details
 	* @returns {Object} The state after setting the screen details
+	* @deprecated - Use a method specific to your screen (setTaxCertificateDetails etc.) This makes it easier to track what is going on in state and code
 	*/
 	setScreenDetails(screenDetails) {
 		return this.setState({ screenDetails: screenDetails });
@@ -149,6 +151,7 @@ export class HorizonStore extends Store {
 	*
 	* @param {Object} screenDetails Screen details
 	* @returns {Object} The state after clearing the screen details object
+	* @deprecated - Use a method specific to your screen (setTaxCertificateDetails etc.) This makes it easier to track what is going on in state and code
 	*/
 	clearScreenDetails() {
 		return this.setState({ screenDetails: {} });

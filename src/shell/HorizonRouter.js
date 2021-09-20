@@ -31,12 +31,16 @@ const HORIZON_ROUTES = Object.freeze({
 	STATEMENTS_SUCCESSFUL: `/views/statements/StatementsSuccess`,
 	STATEMENTS_UNSUCCESSFUL: `/views/statements/StatementsUnsuccess`,
 	CARDS_LIMIT_UPDATE_SUCCESS: `/success/card-limit-update`,
-    CARDS_LIMIT_UPDATE_FAILED: `/error/card-limit-update`,
-    PROOF_OF_ACCOUNT_SUCCESS: `/success/proof-of-account`,
+	CARDS_LIMIT_UPDATE_FAILED: `/error/card-limit-update`,
+	PROOF_OF_ACCOUNT_SUCCESS: `/success/proof-of-account`,
 	PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`,
 	TAP_TO_PAY_SUCCESSFUL: `/success/tap-to-pay`,
-	TAP_TO_PAY_UNSUCCESSFUL: `/error/tap-to-pay`
+	TAP_TO_PAY_UNSUCCESSFUL: `/error/tap-to-pay`,
+	TAX_CERTIFICATE_SUCCESSFUL: `/success/tax-certificate`,
+	TAX_CERTIFICATE_FAILURE: `/error/tax-certificate`,
+	TAX_CERTIFICATE_SERVICE_ERROR: `/error/tax-certificate-service-error`
 });
+ 
 
 /**
  * The HorizonRouter class provides a series of functions for navigating to pages.
@@ -62,9 +66,9 @@ export class HorizonRouter {
 	}
 
 
-    async _initialiseSTrackConfig() {
-        this.strackURL = await this._configuration.getSetting(`otherSystemsURL.strack`);
-    }
+	async _initialiseSTrackConfig() {
+		this.strackURL = await this._configuration.getSetting(`otherSystemsURL.strack`);
+	}
 
 	static getInstance() {
 		return this.instance || (this.instance = new HorizonRouter());
@@ -195,6 +199,10 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.INITIAL_SYSTEM_ERROR}`);
 	}
 
+	navigateToTaxCertificateServiceError() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.TAX_CERTIFICATE_SERVICE_ERROR}`);
+	}
+
 	navigateToDebiCheckSuccess() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.DEBICHECK_SUCCESS}`);
 	}
@@ -213,6 +221,14 @@ export class HorizonRouter {
 
 	navigateToStatementUnsuccessful() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.STATEMENTS_UNSUCCESSFUL}`);
+	}
+
+	navigateToTaxCertificateSuccessful() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.TAX_CERTIFICATE_SUCCESSFUL}`);
+	}
+
+	navigateToTaxCertificateFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.TAX_CERTIFICATE_FAILURE}`);
 	}
 
 	navigateToLandingPage(ivrOption, hasInsuranceProducts) {
@@ -246,14 +262,14 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_ACCOUNT}`);
 	}
 
-    navigateToStrack(incidentRecId) {
-        // Clone the strackURL and update that. Don't modify the original this.strackURL as 
+	navigateToStrack(incidentRecId) {
+		// Clone the strackURL and update that. Don't modify the original this.strackURL as 
 		// this will break the incidentRecId replacement logic and cause the same incident
 		// to be opened every time.
-        let newUrl = this.strackURL.slice();
-        newUrl = newUrl.replace(`$incidentRecId`, incidentRecId);
-        window.open(newUrl);
-    }
+		let newUrl = this.strackURL.slice();
+		newUrl = newUrl.replace(`$incidentRecId`, incidentRecId);
+		window.open(newUrl);
+	}
 
 	navigateToProofOfAccountSuccess() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_ACCOUNT_SUCCESS}`);
@@ -337,9 +353,6 @@ export class HorizonRouter {
 	static _preNavigate(prenavFunc, layout) {
 		const viewManager = HorizonViewManager.getInstance();
 		const horizonRouter = HorizonRouter.getInstance();
-
-		// TEMPORARY SWITCH VERIFIED VIEWS TO UNVERIFIED LAYOUT
-		layout = layout === HORIZON_VIEW_SET.VERIFIED_PAGES ? HORIZON_VIEW_SET.UNVERIFIED_PAGES : layout;
 
 		let shellLayout = layout;
 
@@ -494,14 +507,14 @@ export default horizonRoutes = [
 		guard: () => true,
 		
 		/*
-		 const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
-		 switch (routingInfo.verificationStatus) {
-			  case `verified`:
-			  case `unverified`:
-			  case `3rdparty`:
+		const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
+		switch (routingInfo.verificationStatus) {
+			case `verified`:
+			case `unverified`:
+			case `3rdparty`:
 					return true;
-			  default:
-				 return false;
+			default:
+				return false;
 		*/
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
@@ -519,7 +532,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.TRANSACT_FAVOURITES,
 		load: () => import(`../views/quickTransactions/Favourites`),
-        onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
 		name: `horizon-xds-verification-failed`,
@@ -554,6 +567,14 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.ERROR_PAGES)
 	},
 	{
+		name: `horizon-tax-certificate-service-error`,
+		title: `TaxCertificateServiceError`,
+		icon: null,
+		path: HORIZON_ROUTES.TAX_CERTIFICATE_SERVICE_ERROR,
+		load: () => import(`../views/taxCertificate/TaxCertificateServiceError`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
 		name: `horizon-debi-check-success`,
 		title: `DebiCheck`,
 		icon: null,
@@ -567,7 +588,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_ACCOUNT,
 		load: () => import(`../views/savingsAccount/SavingsAccountLandingPage`),
-        onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
 		name: `card-limit-update-success`,
@@ -639,6 +660,22 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.TAP_TO_PAY_UNSUCCESSFUL,
 		load: () => import(`../views/tapToPay/TapToPayUnsuccessful`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-tax-certificate-failure`,
+		title: `TaxCertificateFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.TAX_CERTIFICATE_FAILURE,
+		load: () => import(`../views/taxCertificate/TaxCertificateFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-tax-certificate-success`,
+		title: `TaxCertificateSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.TAX_CERTIFICATE_SUCCESSFUL,
+		load: () => import(`../views/taxCertificate/TaxCertificateSuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	}
 ];
