@@ -632,7 +632,7 @@ export class Favourites extends SavingsAccountBase {
 						class="favourites"
 						.landingPageInfo="${this.landingPageInfo}"
 						.verificationStatus="${this.callerInformation.verificationStatus}"
-						.verificationMethods="${this.callerInformation.verificationMethod}"
+						.verificationMethod="${this.callerInformation.verificationMethod}"
 						?displayVerificationStatusToast="${this._shouldToastDisplay()}"
 						@verify-click="${() => super._verifyClick()}"
 						@option-click="${(e) => this._onFavouritesOptionClick(e)}">
