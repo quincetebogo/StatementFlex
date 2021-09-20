@@ -135,6 +135,12 @@ export class OptionButton extends Component {
 				cursor: pointer;
 			}
 
+			.button[disabled]{
+				cursor:default;
+				pointer-events:none;
+				filter: grayscale(100%);
+			}
+
 			.button:hover {
 				outline:none;
 				box-sizing: border-box;
@@ -212,8 +218,8 @@ export class OptionButton extends Component {
 	renderIcon() {
 		if (this.icon) {
 			return html`<img 
-					class="icon-size" 
-					src="./platform/icons/${this.icon}.svg" 
+					class="icon-size"
+					src="./platform/icons/${this.icon}.svg"
 					@click="${(e) => this._buttonClicked(e)}"
 					@keydown="${(e) => this._keyDown(e)}">`;
 		} 
