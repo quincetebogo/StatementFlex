@@ -298,14 +298,15 @@ export class SearchCaller extends Component {
 
 	async _onSearchClient() {
 
-		this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
-			"screen": TelemetryScreen.SEARCH_CLIENT,
-			"next-screen": TelemetryScreen.CONFIRM_CALLER,
-			"id-method": this.searchType.value,
-			"id-data": this.searchValue
-		});
-
 		if (this._validateFields()) {
+
+			this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
+				"screen": TelemetryScreen.SEARCH_CLIENT,
+				"next-screen": TelemetryScreen.CONFIRM_CALLER,
+				"id-method": this.searchType.value,
+				"id-data": this.searchValue
+			});
+
 			const searchClient = {
 				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
