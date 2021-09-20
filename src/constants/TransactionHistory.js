@@ -50,5 +50,6 @@ export const TRANSACTION_HISTORY = Object.freeze({
 export const ACCOUNT_TYPES = Object.freeze({
 	SAVINGS_ACCOUNT: `transact`,
 	LBB: `lbb`,
-	CREDIT: `credit`
+	CREDIT: `credit`,
+	SAVINGS_PLAN: `save`
 });
