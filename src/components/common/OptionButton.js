@@ -121,8 +121,16 @@ export class OptionButton extends Button {
 
 	_webTemplate() {
 		return html`
-			${super._webTemplate()}
-			${this.renderBadge()}
+			<button
+				class="button icon-${this.iconPlacement} ${this.type ? this.type : `secondary`} ${this.disabled ? `disabled` : ``}" 
+				@click="${this._buttonClicked}}" 
+				@keydown="${e => this._keyDown(e)}"
+				tabindex="${this.disabled ? `` : 0}">
+					${this.renderBadge()}
+					${this.icon ? html`<capitec-icon icon="${this.icon}" size="${this.iconSize}" class="${this.label ? `spacing` : `no-spacing`}"></capitec-icon>` : ``}
+					${this.label ? html`<div class="label">${this.label}</div>` : ``}
+					<slot></slot>
+			</button>
 		`;
 	}
 
