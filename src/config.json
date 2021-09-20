@@ -70,7 +70,7 @@
       "positiveCase": true
     },
     "favouritesLanding": {
-      "enabled": true,
+      "enabled": false,
       "positiveCase": true
     },
 		"cardLimitsLanding": {
@@ -136,6 +136,10 @@
 		},
 		"viewStatements": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"liveBetterLanding": {
+			"enabled": true,
 			"positiveCase": true
 		}
 	}

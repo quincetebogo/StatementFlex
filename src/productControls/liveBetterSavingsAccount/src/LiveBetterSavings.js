@@ -198,7 +198,7 @@ export class LiveBetterSavings extends Component {
 				.actionbar-header > horizon-label[label="Account number"] {
 					width: 150px;
 					--horizon-label-value-color: #009DE0;
-					cursor: pointer;
+					--theme-label-cursor: pointer;
 				}
 				.actionbar-header > horizon-label[label="Status"] {
 					width: 142px;
@@ -349,9 +349,9 @@ export class LiveBetterSavings extends Component {
 						valign="center">
 							<capitec-label label="Round-up"></capitec-label>
 							<capitec-toggle 
-								label="${formatCurrency(this.liveBetterAccountData.roundUpAmount)}" 
+								label="${formatCurrency(this.liveBetterAccountData.roundupValue)}" 
 								@value-change="${() => this._toggleRoundUp()}"
-								checked>
+								?checked="${this.liveBetterAccountData.accountRoundUpActive}">
 							</capitec-toggle>
 					</capitec-group>
 
@@ -364,16 +364,16 @@ export class LiveBetterSavings extends Component {
 						valign="center">
 							<capitec-label label="Interest Sweep"></capitec-label>
 							<capitec-toggle 
-								label="${this.liveBetterAccountData.interestSweep}" 
+								label="${this.liveBetterAccountData.accountInterestSweepActive ? `On` : `Off`}" 
 								@value-change="${() => this._toggleInterestSweep()}"
-								checked>
+								?checked="${this.liveBetterAccountData.accountInterestSweepActive}">
 							</capitec-toggle>
 					</capitec-group>
 
 					<horizon-label
 						data-automation-id="live-better-verified-interest-rate"
 						label="Interest rate"
-						value="${this.liveBetterAccountData.interestRatePercentage}">
+						value="${this.liveBetterAccountData.interestRatePercentage}%">
 					</horizon-label>
 
 					<horizon-label

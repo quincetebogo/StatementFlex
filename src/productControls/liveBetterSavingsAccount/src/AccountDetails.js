@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import 'app/components/common/HorizonLabel';
+import { formatCurrency } from '../../utilities/Currency';
 
 /**
  * Account details screen for Live better flow
@@ -65,8 +66,15 @@ import 'app/components/common/HorizonLabel';
 	// PUBLIC METHODS
 	// --------------
 
-	// N/A
+	_formatDate(date) {
+        const newdate = new Date(Date.parse(date));
+        return `${newdate.getDate()} ${this.getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+    }
 
+	getMonthName(month) {
+		const monthNames = [`Jan`, `Feb`, `Mar`, `Apr`, `May`, `Jun`, `Jul`, `Aug`, `Sep`, `Oct`, `Nov`, `Dec`];
+		return monthNames.slice(month)[0];
+	}
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -233,7 +241,7 @@ import 'app/components/common/HorizonLabel';
 						<horizon-label
 							class="main-title"
 							label="Account Details"
-							value="1633824509">
+							value="${this.accountDetails.accountNumber}">
 						</horizon-label>
 				</capitec-title-bar>
 
@@ -285,28 +293,28 @@ import 'app/components/common/HorizonLabel';
 						<horizon-label 
 							data-automation-id="live-better-account-details-account-number"
 							label="Account number" 
-							value="1633824509">
+							value="${this.accountDetails.accountNumber}">
 						</horizon-label>
 						<horizon-label 
 							data-automation-id="live-better-account-details-available-balance" 
 							label="Available balance" 
-							value="R150.00">
+							value="${formatCurrency(this.accountDetails.accountAvailableBalance)}">
 						</horizon-label>
 						<horizon-label 
 							data-automation-id="live-better-account-details-interest-rate"
 							class="col-3"
 							label="Interest rate" 
-							value="3.25%">
+							value="${this.accountDetails.interestRatePercentage}%">
 						</horizon-label>
 						<horizon-label 
 							data-automation-id="live-better-account-details-interest-in-june"
-							label="Interest earned in June" 
-							value="R12.50">
+							label="Interest earned in ${this.getMonthName(new Date().getMonth())}" 
+							value="${formatCurrency(this.accountDetails.interestCurrentMonth)}">
 						</horizon-label>
 						<horizon-label 
 							data-automation-id="live-better-account-details-interest-in-may"
-							label="Interest earned in May" 
-							value="R15.50">
+							label="Interest earned in ${this.getMonthName(new Date().getMonth() - 1)}" 
+							value="${formatCurrency(this.accountDetails.interestReceivedLastMonth)}">
 						</horizon-label>
 				</capitec-group>
 
@@ -319,18 +327,18 @@ import 'app/components/common/HorizonLabel';
 						<horizon-label 
 							data-automation-id="live-better-account-details-interest-tax-year"
 							label="Interest tax year" 
-							value="R340.00">
+							value="${formatCurrency(this.accountDetails.interestForTheTaxYear)}">
 						</horizon-label>
 						<horizon-label 
 							data-automation-id="live-better-account-details-date-opened"
 							label="Date opened" 
-							value="12 May 2021">
+							value="${this._formatDate(this.accountDetails.dateOpened)}">
 						</horizon-label>
 						<horizon-label 
 							class="col-3"
 							data-automation-id="live-better-account-details-status"
 							label="Status" 
-							value="Active">
+							value="${this.accountDetails.accountStatus}">
 						</horizon-label>
 				</capitec-group>
 		</capitec-content-box>
@@ -359,19 +367,30 @@ import 'app/components/common/HorizonLabel';
 					gap="none" 
 					halign="left" 
 					valign="top">
-						<capitec-group class="toggle-group" layout="vertical" gap="none" halign="left" valign="center">
-							<capitec-label label="Round-up" class="toggle-label"></capitec-label>
-							<capitec-toggle label="R5.00" checked></capitec-toggle>
+						<capitec-group 
+							class="toggle-group" 
+							layout="vertical" 
+							gap="none" 
+							halign="left" 
+							valign="center">
+								<capitec-label 
+									label="Round-up" 
+									class="toggle-label">
+								</capitec-label>
+								<capitec-toggle 
+									label="${formatCurrency(this.accountDetails.roundupValue)}" 
+									?checked="${this.accountDetails.accountRoundUpActive}">
+								</capitec-toggle>
 						</capitec-group>
 						<horizon-label 
 							data-automation-id="live-better-account-details-last-update-round-up"
 							label="Last update" 
-							value="12 May 2021">
+							value="${this._formatDate(this.accountDetails.roundupActivationDate)}">
 						</horizon-label>
 						<horizon-label 
 							data-automation-id="live-better-account-details-round-up-accounts"
 							label="Round-up account(s)" 
-							value="Savings Account">
+							value="${this.accountDetails.activatedRoundUpAccounts[0]}">
 						</horizon-label>
 				</capitec-group>
 
@@ -381,14 +400,25 @@ import 'app/components/common/HorizonLabel';
 					gap="none" 
 					halign="left" 
 					valign="center">
-						<capitec-group class="toggle-group" layout="vertical" gap="none" halign="left" valign="center">
-							<capitec-label label="Interest Sweep" class="toggle-label"></capitec-label>
-							<capitec-toggle label="On" checked></capitec-toggle>
+						<capitec-group 
+							class="toggle-group" 
+							layout="vertical" 
+							gap="none" 
+							halign="left" 
+							valign="center">
+								<capitec-label 
+									label="Interest Sweep" 
+									class="toggle-label">
+								</capitec-label>
+								<capitec-toggle 
+									label="${this.accountDetails.accountInterestSweepActive ? `On` : `Off`}"
+									?checked="${this.accountDetails.accountInterestSweepActive}">
+								</capitec-toggle>
 						</capitec-group>
 						<horizon-label 
 							data-automation-id="live-better-account-details-last-update-interest-sweep"
 							label="Last update" 
-							value="12 May 2021">
+							value="${this._formatDate(this.accountDetails.interestSweepActivationDate)}">
 						</horizon-label>
 				</capitec-group>
 		</capitec-content-box>

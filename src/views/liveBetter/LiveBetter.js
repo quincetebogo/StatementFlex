@@ -2,7 +2,9 @@ import { css, html, unsafeCSS } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
+import { LivBetterService } from 'app/services/LiveBetterService';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_TYPES } from 'app/constants/TransactionHistory';
@@ -49,11 +51,14 @@ export class LiveBetter extends ViewBase {
 		super();
 
 		this.configuration = Configuration.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	
 		// private properites
 		this.loading = true;
+		
+		this.livBetterService = new LivBetterService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		
 		// temporary use to load transaction history screen
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -155,6 +160,11 @@ export class LiveBetter extends ViewBase {
 		const result = await this.savingsAccountService.transactionHistory(request, () => true);
 		return result;
 	}
+	
+	_errorHandler(exception) {
+		this.horizonRouter.navigateToSystemError();
+		return true;
+	}
 
 	// --------------
 	// PUBLIC METHODS
@@ -169,44 +179,33 @@ export class LiveBetter extends ViewBase {
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		
 		if (this.callerInformation.verificationStatus !== `non-client`) {
-			
-			// TO DO: Telemetry event should start if only client has LBB account. 
-			// TO DO: If not, navigate to View benefits(non-client) screen without starting this span
-			this._telemetry.startSpan(LiveBetterEvents.LIVE_BETTER, {
-				"screen": TelemetryScreen.LIVE_BETTER,
-				"liveBetter": true
-			});
-			
-			// Live better landing page service call should come here - Data is mocked as below temporarily
-			this.landingPageInfo = {
-				accountNumber: `1928247288`,
-				accountAvailableBalance: 20567.23, 
-				roundUpAmount: 5, 
-				interestSweep: `On`,
-				interestRatePercentage: `5.5%`,
-				accountStatus: `Active`,
-				savingsAccountProductDescription: ``,
-                savingsPlanProductDescription: ``,
-				liveBetterProductDescription: ``,
-                insureProductDescription: ``,
-                creditProductDescription: ``,
-                savingsAccountProductAmount: ``,
-                savingsPlanProductAmount: ``,
-				liveBetterProductAmount: ``,
-                insureProductAmount: ``,
-                creditProductAmount: ``
-			};
-			
-			// Now we can update the information on the product buttons
-			this._updateLeftBar();
 
-			this.endCallContext = `LandingPage`;
-			this.renderMode = RENDER_MODE.MAIN_PAGE;
-				
+			const returnValue = await this.livBetterService.liveBetterLanding(this.callerInformation.cifNumber);
+
+			if(returnValue.succeeded && returnValue.result) {
+			
+				// Navigate to Live better verified landing page if a client has Live better account 
+				this._telemetry.startSpan(LiveBetterEvents.LIVE_BETTER, {
+					"screen": TelemetryScreen.LIVE_BETTER,
+					"liveBetter": true
+				});
+
+				this.landingPageInfo = returnValue.result;
+				this._updateLeftBar()
+				this.endCallContext = `LandingPage`;
+				this.renderMode = RENDER_MODE.MAIN_PAGE;
+
+			} else if(returnValue.succeeded) {
+
+				// Navigate to Live better non-client page if a client doesn't have Live better account
+				this.horizonRouter.navigateToProductInfo('LiveBetter');
+			}
+			
 		}
 		this.loading = false;
 	}
 
+	
 	_updateLeftBar() {
 		let subtitle = null;
 		let detail = null;
@@ -299,6 +298,11 @@ export class LiveBetter extends ViewBase {
 		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.live-better`);
 		window.open(`${globalOneUrl}`);
 	}
+
+	_formatDate(date) {
+        const newdate = new Date(Date.parse(date));
+        return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+    }
 	
 	// ---------
 	// RENDERING
@@ -356,7 +360,7 @@ export class LiveBetter extends ViewBase {
 
 	_renderLiveBetterVerifiedLandingPage() { 
 
-		return this.verificationStatus === `verified` 
+		return this.verificationStatus === `verified` && this.landingPageInfo
 			? html`
 				<capitec-pc-live-better-savings
 					class="liveBetter"
@@ -384,6 +388,7 @@ export class LiveBetter extends ViewBase {
 		return this.renderMode === RENDER_MODE.LIVE_BETTER_ACCOUNT_DETAILS 
 			? html`
 				<capitec-pc-live-better-account-details
+					.accountDetails = "${this.landingPageInfo}"
 					@back= "${() => this._backToLBBLandingScreen()}">
 				</capitec-pc-live-better-account-details>`
 			: html``;
@@ -540,11 +545,6 @@ export class LiveBetter extends ViewBase {
 					</capitec-group>
 			</capitec-card>`;
 	}
-
-	_formatDate(date) {
-        const newdate = new Date(Date.parse(date));
-        return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
-    }
 	
 	_renderAutomaticSavings() {
 		return this.renderMode === RENDER_MODE.AUTOMATIC_SAVINGS 
