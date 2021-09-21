@@ -565,6 +565,10 @@ export class VerifyCaller extends Component {
 		return this.callerInformation.verificationAttempts.itaAttempts >= MAX_ITA_ATTEMPTS;
 	}
 
+	_onlyVerifyByXds() {
+		// cannot verify via ita but can verify via xds
+		return this.hasSouthAfricanID && !this.callerInformation.hasDigitalChannels && this.callerInformation.verificationAttempts.xdsAttempts === 0;
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -739,11 +743,17 @@ export class VerifyCaller extends Component {
 	_renderBody() {
 		if (!this._canVerify()) {
 			return this._renderClientCannotBeVerified();
-		} else if (this.hasSouthAfricanID && this.xdsFailed && this.callerInformation.verificationAttempts.xdsAttempts === MAX_XDS_ATTEMPTS - 1) {
+		}
+		if (this._onlyVerifyByXds()) {
+			return this._renderClientBlockedByXds();
+		}
+		if (this.hasSouthAfricanID && this.xdsFailed && this.callerInformation.verificationAttempts.xdsAttempts === MAX_XDS_ATTEMPTS - 1) {
 			this._renderXdsOneAttemptLeft();
-		} else if (this.hasSouthAfricanID && !this._xdsAttemptsExceeded() && this.xdsMessage !== ``) {
+		}
+		if (this.hasSouthAfricanID && !this._xdsAttemptsExceeded() && this.xdsMessage !== ``) {
 			return this._renderXdsError();
-		} else if (this._itaInProgress()) {
+		}
+		if (this._itaInProgress()) {
 			return this._renderPushNotificationStatus();
 		};
 		
@@ -892,17 +902,41 @@ export class VerifyCaller extends Component {
 		return html`
 			<capitec-content-box id="notification-status-box">
 				<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
-					<capitec-alert-banner type="error">
-						<b>Notify: </b>Client cannot be verified. Continue unverified or transfer call to team lead.
+					<capitec-alert-banner type="warning">
+						<b>Notify: </b>This client isn't registered for Remote Banking.
 					</capitec-alert-banner>
 					<capitec-group layout="vertical" 
 						halign="center"
 						valign="top" 
 						gap="clear"
 						id="notification-status-error-group">
-						<img src="/images/warning.svg" class="warning-svg connection-error-svg"/>
+						<img src="/images/connection-error.svg" class="warning-svg connection-error-svg"/>
 						<div class="foreign-client notification-info">
-							Unable to verify client. You may stop cards and help with product enquiries.
+						<b>Notify client</b><br>
+						We need to ask you 5 security questions before accessing your account.<br>
+						Your answers will be checked by a third-party or credit bureau. Are you comfortable to continue?
+						</div>
+					</capitec-group>
+				</capitec-group>
+			</capitec-content-box>`;
+	}
+
+	_renderClientBlockedByXds() {
+		return html`
+			<capitec-content-box id="notification-status-box">
+				<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
+					<capitec-alert-banner type="error">
+						<b>Notify: </b>Access to your Remote / Mobile Banking services have been restricted. 
+					</capitec-alert-banner>
+					<capitec-group layout="vertical" 
+						halign="center"
+						valign="top" 
+						gap="clear"
+						id="notification-status-error-group">
+						<img src="/images/client-blocked.svg" class="warning-svg connection-error-svg"/>
+						<div class="foreign-client notification-info">
+						You can visit any branch to unblock your access,<br>
+						or skip verification to continue with limited transactions. 
 						</div>
 					</capitec-group>
 				</capitec-group>
