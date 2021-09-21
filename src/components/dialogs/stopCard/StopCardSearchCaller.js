@@ -211,16 +211,14 @@ export class StopCardSearchCaller extends Component {
 
 	async _onSearchClick(e) {
 
-		this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
-			"screen": TelemetryScreen.SEARCH_CLIENT,
-			"next-screen": TelemetryScreen.CONFIRM_CALLER,
-			"id-method": this.identificationMethods.value,
-			"id-data": this.searchFieldText
-		});
-
 		if (this.validateFields()) {
 			console.log(`service call`);
-
+			this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
+				"screen": TelemetryScreen.SEARCH_CLIENT,
+				"next-screen": TelemetryScreen.CONFIRM_CALLER,
+				"id-method": this.identificationMethods.value,
+				"id-data": this.searchFieldText
+			});
 			const searchClient = {
 				incomingTelephoneNumber: this.incomingTelephoneNumber,
 				voiceReferenceNumber: this.voiceReferenceNumber,
