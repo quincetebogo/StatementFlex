@@ -89,11 +89,9 @@ export class ItaVerificationFailed extends ViewBase {
 			<horizon-error-screen 
 				header="Verification was unsuccessful"
 				left="Continue Unverified"
-				right="Verify Via Security Questions" 
 				toast="Your Verification has failed." 
 				image="/images/insure/assign-pay-arrears.svg"
-				@left-click=${() => this._leftClick()}
-				@right-click=${() => super._verifyClick()}>
+				@left-click=${() => this._leftClick()}>
 				<section id="id-error-msg" slot="detail">If it's an urgent matter, please visit a branch or you can call again after 24hours.</section>
 			</horizon-error-screen>
 		`;

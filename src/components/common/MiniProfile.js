@@ -212,6 +212,12 @@ export class MiniProfile extends Component {
 					font-size: 14px;
 					letter-spacing: 0;
 				}
+				#id-verify-via-app-failed-msg {
+					font-family: "Hind Vadodara";
+					font-size: 14px;
+					font-weight: 600;
+					letter-spacing: 0;
+				}
 				#verify-via-app-link{
 					--theme-font-family: "Hind Vadodara Medium";
 				}
@@ -376,6 +382,21 @@ export class MiniProfile extends Component {
 						@click="${() => this._onVerifyNowClick()}"
 						label="Verify now">
 					</capitec-hyperlink>
+				</capitec-group>
+			</capitec-alert-banner>
+			`;
+		} else if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels && this.miniProfile.verificationAttempts.itaAttempts > 2) {
+			return html`
+			<capitec-alert-banner 
+					class="banner" 
+					type="unsuccessful-red">
+				<capitec-group 
+						id="id-notify-banner-group" 
+						layout="horizontal">
+					<capitec-label 
+						id="id-verify-via-app-failed-msg" 
+						label="Blocked on Remote / Mobile Banking Channels">
+					</capitec-label>
 				</capitec-group>
 			</capitec-alert-banner>
 			`;
