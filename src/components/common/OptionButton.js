@@ -90,13 +90,6 @@ export class OptionButton extends Button {
 		return [
 			super.styles,
 			css`
-				.button.disabled {
-					cursor: default;
-					filter: grayscale(100%);
-				}
-				.button.clear:hover {
-					background-color: #FFFFFF;
-				}
 				.badge {
 					position: absolute;
 					justify-content: flex-end;
@@ -110,6 +103,22 @@ export class OptionButton extends Button {
 					letter-spacing: 0;
 					line-height: 18px;
 					text-align: center;
+				}
+
+				/* Overriding Button component necessary styles */
+				.button.disabled {
+					cursor: default;
+					filter: grayscale(100%);
+				}
+				.button.clear {
+					--theme-button-clear-background-color: #FFFFFF;
+					--theme-button-clear-border-color: #E1E1E1;
+					--theme-button-clear-border-width: 1px;
+					--theme-button-clear-font-color: #3A3A3A;
+					--theme-check-disabled-background-color: #FFFFFF;
+				}
+				.button.clear:hover {
+					background-color: #FFFFFF;
 				}
 			`
 		];
@@ -134,8 +143,8 @@ export class OptionButton extends Button {
 		`;
 	}
 
-	_kisokTemplate() {
-		return html`${super._kisokTemplate()}`;
+	_kioskTemplate() {
+		return html`${super._kioskTemplate()}`;
 	}
 
 	renderBadge() {

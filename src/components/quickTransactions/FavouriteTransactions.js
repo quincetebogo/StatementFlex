@@ -2,11 +2,6 @@ import { Component, css, html } from 'platform/elements';
 
 import 'app/components/common/OptionButton';
 
-const HIGH_RISK_TRANSACTIONS = [
-	`debi-check`,
-	`update-card-limits`
-];
-
 /**
  * This component implements the Favourites Landing Page for Quick Transactions
  *
@@ -43,6 +38,7 @@ export class FavouriteTransactions extends Component {
 	 * @property {string} verificationStatus Indicates if the client is verified, unverified, non-client etc.
 	 * @property {String} verificationMethod Indicated the type of verification (xds/ita)
 	 * @property {Boolean} displayVerificationStatusToast If true, display a toast for the verification status
+	 * @property {Object} shouldDisable Callback function, returns true or false to disable need button
 	 *
 	 * @readonly
 	 * @static
@@ -54,6 +50,7 @@ export class FavouriteTransactions extends Component {
 			verificationStatus: { type: String },
 			verificationMethod: { type: String },
 			displayVerificationStatusToast: { type: Boolean },
+			shouldDisable: { type: Object },
 
 			isBusy: { attribute: false },
 			displayToast: { attribute: false }
@@ -85,10 +82,6 @@ export class FavouriteTransactions extends Component {
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
-	}
-
-	_shouldDisable(need) {
-		return this.verificationMethod === `XDS` && HIGH_RISK_TRANSACTIONS.includes(need);
 	}
 
 	// --------------
@@ -160,11 +153,6 @@ export class FavouriteTransactions extends Component {
 				height: 80px;
 				width: 188px;
 				margin-right: 16px;
-
-				--theme-button-clear-border-color: #E1E1E1;
-				--theme-button-clear-border-width: 1px;
-				--theme-button-clear-font-color: #3A3A3A;
-				--theme-check-disabled-background-color: #FFFFFF;
 			}
 
 			.toast {
@@ -367,7 +355,7 @@ export class FavouriteTransactions extends Component {
 						icon="system/debi-check-action" iconSize="default"
 						label="DebiCheck"
 						@click="${() => this._optionSelectedClick(`debi-check`)}"
-						?disabled="${this._shouldDisable(`debi-check`)}">
+						?disabled="${this.shouldDisable(`debi-check`)}">
 					</horizon-option-button>
 				</capitec-button-bar>
 		`;
@@ -382,7 +370,8 @@ export class FavouriteTransactions extends Component {
 					label="Stop Card" 
 					icon="system/stop-card-action"
 					iconSize="default"
-					@click="${() => this._optionSelectedClick(`stop-card`)}">
+					@click="${() => this._optionSelectedClick(`stop-card`)}"
+					?disabled="${this.shouldDisable(`stop-card`)}">
 				</horizon-option-button>
 				<horizon-option-button
 					data-automation-id="favourite-transactions-update-card-limits"
@@ -390,14 +379,15 @@ export class FavouriteTransactions extends Component {
 					icon="system/cards-action" 
 					iconSize="default"
 					@click="${() => this._optionSelectedClick(`update-card-limits`)}"
-					?disabled="${this._shouldDisable(`update-card-limits`)}">
+					?disabled="${this.shouldDisable(`update-card-limits`)}">
 				</horizon-option-button>
 				<horizon-option-button
 					data-automation-id="favourite-transactions-tap-to-pay"
 					label="Tap to Pay"
 					icon="system/contactless-action" 
 					iconSize="default"
-					@click="${() => this._optionSelectedClick(`tap-to-pay`)}">
+					@click="${() => this._optionSelectedClick(`tap-to-pay`)}"
+					?disabled="${this.shouldDisable(`tap-to-pay`)}">
 				</horizon-option-button>
 			</capitec-button-bar>
 		`;
@@ -412,21 +402,25 @@ export class FavouriteTransactions extends Component {
 					label="Statements" 
 					icon="system/documents-action" 
 					iconSize="default"
-					@click="${() => this._optionSelectedClick(`statements`)}">
+					@click="${() => this._optionSelectedClick(`statements`)}"
+					?disabled="${this.shouldDisable(`statements`)}">
 				</horizon-option-button>
 				<horizon-option-button
+					id="tax-certificate"
 					data-automation-id="favourite-transactions-tax-certificate"
 					label="Tax Certificate" 
 					icon="system/sars-action" 
 					iconSize="default"
-					@click="${() => this._optionSelectedClick(`tax-certificate`)}">
+					@click="${() => this._optionSelectedClick(`tax-certificate`)}"
+					?disabled="${this.shouldDisable(`tax-certificate`)}">
 				</horizon-option-button>
 				<horizon-option-button
 					data-automation-id="favourite-transactions-proof-of-account"
 					label="Proof of Account" 
 					icon="system/documents-action" 
 					iconSize="default"
-					@click="${() => this._optionSelectedClick(`proof-of-account`)}">
+					@click="${() => this._optionSelectedClick(`proof-of-account`)}"
+					?disabled="${this.shouldDisable(`proof-of-account`)}">
 				</horizon-option-button>
 			</capitec-button-bar>
 		`;
@@ -441,7 +435,8 @@ export class FavouriteTransactions extends Component {
 					label="Search Other Need" 
 					icon="system/search-action" 
 					iconSize="default"
-					@click="${() => this._optionSelectedClick(`search-other-need`)}">
+					@click="${() => this._optionSelectedClick(`search-other-need`)}"
+					?disabled="${this.shouldDisable(`search-other-need`)}">
 				</horizon-option-button>
 			</capitec-button-bar>
 		`;

@@ -639,6 +639,7 @@ export class Favourites extends SavingsAccountBase {
 						.verificationStatus="${this.callerInformation.verificationStatus}"
 						.verificationMethod="${this.callerInformation.verificationMethod}"
 						?displayVerificationStatusToast="${this._shouldToastDisplay()}"
+						.shouldDisable="${need => this._shouldDisable(need)}"
 						@verify-click="${() => super._verifyClick()}"
 						@option-click="${(e) => this._onFavouritesOptionClick(e)}">
 					</horizon-favourite-transactions>`;
