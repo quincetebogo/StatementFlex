@@ -52,16 +52,15 @@ const ERROR_MESSAGES = {
 	}
 };
 
-// ToDO: Below const need to be removed, once channelService fix the issue on contract.
 const REGEX_PATTERNS = {
 	0: {
-        PATTERN: /^(^[MDAT]([0-9]{8})|[0-9]{13})$/,
+		PATTERN: /^(^[MDAT]([0-9]{8})|[0-9]{13})$/,
 		ERR_MESSAGE: `An ID Number must be 13 digits long, a passport number must be 9 characters`,
 		ALERT_BANNER: `Incorrect ID/Passport number`
 	},
 	1: {
 		PATTERN: /^\S+$/,
-        FIELD_ERROR: `Incorrect Passport number`,
+		FIELD_ERROR: `Incorrect Passport number`,
 		ALERT_BANNER: `Incorrect Passport number`
 	},
 	2: {
