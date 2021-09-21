@@ -159,6 +159,11 @@ export class LiveBetter extends ViewBase {
 		return result;
 	}
 
+	_errorHandler(exception) {
+		this.horizonRouter.navigateToSystemError();
+		return true;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -180,7 +185,7 @@ export class LiveBetter extends ViewBase {
 				"liveBetter": true
 			});
 			
-			// Live better landing page service call should come here - Data is mocked as below temporarily
+			// TO DO: Live better landing page service call should come here - Data is mocked as below temporarily
 			this.landingPageInfo = {
 				accountNumber: `1928247288`,
 				accountAvailableBalance: 20567.23, 
@@ -320,6 +325,7 @@ export class LiveBetter extends ViewBase {
 		if (returnValue.succeeded) {
 			return returnValue.result.savingsProducts;
 		}
+		this.logger.log(`error`, `Unable to retrieve client's products`, `_getClientProducts`, returnValue.correlationId);
 		return [];
 	}
 	
@@ -584,7 +590,7 @@ export class LiveBetter extends ViewBase {
 		return this.renderMode === RENDER_MODE.STATEMENTS 
 			? html`
 				<horizon-statements-dialog
-					.callerInformation="${this.callerInformation}"
+					.cifNumber="${this.callerInformation.cifNumber}"
 					.clientProducts="${this.clientProducts}"
 					type="${ACCOUNT_TYPES.LBB}"
 					@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
