@@ -11,22 +11,23 @@
   "redundancySize": "small",
   "port": 6001,
   "client": {
-    "clientName": "Platform",
-    "clientDescription": null,
-    "isUserInterface": false,
-    "flow": "password",
-    "extraScopes": "",
-    "roles": null
+	"clientName": "Platform",
+	"clientDescription": null,
+	"isUserInterface": false,
+	"flow": "password",
+	"extraScopes": "",
+	"roles": null
   },
   "secrets": [
-    "telemetrydatabussecret"
+	"telemetrydatabussecret"
   ],
   "environmentVariables": [
-    "LogLevel",
-    "DatabusSourceSystem",
-    "DatabusResponsibleTeam",
-    "TelemetryApiKeySecretName",
-    "TelemetryApiId",
-    "TelemetryApiUrl"
+	"LogLevel",
+	"MetricsLogLevel",
+	"DatabusSourceSystem",
+	"DatabusResponsibleTeam",
+	"TelemetryApiKeySecretName",
+	"TelemetryApiId",
+	"TelemetryApiUrl"
   ]
 }
