@@ -25,9 +25,8 @@ export class SuccessScreen extends Component {
 		this.displayToast = true;
 		this.image = null;
 		this.secondaryImage = ``;
-		this.subDetail = ``;
 		this.secondaryToast = ``;
-		this.subContent = ``;
+		this.hasSubDetails = false;
 	}
 
 	// ----------
@@ -42,6 +41,7 @@ export class SuccessScreen extends Component {
 	* @property {String} [displayToast=true] Enables/Disables the toast message
 	* @property {String} image The image to be displayed on center of the page
 	* @property {String} secondaryToast Secondary toast details
+	* @property {String} [hasSubDetails=false] Set to true if the screen should renter sub-details
 	* @readonly
 	* @static
 	* @memberof ErrorScreen
@@ -55,9 +55,9 @@ export class SuccessScreen extends Component {
 			displayToast: { type: Boolean },
 			image: { type: String },
 			secondaryImage: { type: String }, 
-			subDetail: { type: String },
 			secondaryToast: { type: String },
-			subContent: { type:String }
+			hasSubDetails: { type: Boolean },
+			subContent: { type: String }
 		};
 	}
 
@@ -315,23 +315,28 @@ export class SuccessScreen extends Component {
 	}
 
 	_renderSubDetail() {
-		return this.subDetail
-			? html`<capitec-group id="id-sub-detail" layout="horizontal">
-						<capitec-icon
-							size="default"
-							icon="status/success-trans">
-						</capitec-icon>
-						<slot name="sub-detail"></slot>
+		return this.hasSubDetails 
+		 ? html`<capitec-group 
+		 			id="id-sub-detail" 
+					layout="horizontal">
+		 				<capitec-icon
+			 				size="default"
+			 				icon="status/success-trans">
+		 				</capitec-icon>
+		 					<slot name="sub-detail"></slot>
 					</capitec-group>`
 			: html``;
 	}
 
-	_renderSubContent(){
+	_renderSubContent() {
 		return this.subContent
-		? html`<capitec-group id="id-sub-content" layout="horizontal">
-						<slot name="sub-content"></slot>
-					</capitec-group>`
-			: html``;
+		? html`
+			<capitec-group 
+					id="id-sub-content" 
+					layout="horizontal">
+				<slot name="sub-content"></slot>
+	 		</capitec-group>`
+		: html``;
 	}
 
 	_renderLeftButton() {
