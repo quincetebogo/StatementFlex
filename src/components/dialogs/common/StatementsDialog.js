@@ -59,6 +59,33 @@ const SELECTED_ACCOUNT_TYPES = {
 	lbb: 210
 };
 
+
+const ACCOUNT_INTCAT_ENUM = {
+	300: {
+		type: `PRIMARY_SAVINGS`,
+		category: `PRIMARY_SAVINGS`
+	},
+	200: {
+		type: `FLEXIBLE_SAVINGS`,
+		category: `FLEXIBLE_SAVINGS`
+	},
+	201: {
+		1: {
+			type: `FIXED_TERM_MULTIPLE_DEPOSITS`,
+			category: `FLEXIBLE_SAVINGS`
+		},
+		2: {
+			type: `FIXED_TERM_SINGLE_DEPOSIT`,
+			category: `FLEXIBLE_SAVINGS`
+		}
+	},
+	210:{
+		type : `LBB`,
+		category : `LIVE_BETTER_BENEFITS`
+	}
+	
+};
+
 const ACCOUNT_TYPE = {
 	300: `Savings Account`,
 	201: `Fixed Term Savings Plan`,
@@ -341,7 +368,7 @@ export class StatementsDialog extends Component {
 		const statement = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"accountNumber": `${this.productSelected.accountNumber}`,
-			"accountType": this.productSelected.accountType,
+			"accountType": ACCOUNT_INTCAT_ENUM[this.productSelected.accountType].type,
 			"statementDateRange": {
 				"dateRange": {},
 				"presetInterval": `${this.periodSelected}`
@@ -389,7 +416,7 @@ export class StatementsDialog extends Component {
 			"emailAddress": this.email,
 			"cifNumber": this.callerInformation.cifNumber,
 			"accountNumber": `${this.productSelected.accountNumber}`,
-			"accountType": this.productSelected.accountType,
+			"accountType": ACCOUNT_INTCAT_ENUM[this.productSelected.accountType].type,
 			"statementDateRange": {
 				"dateRange": {},
 				"presetInterval": `${this.periodSelected}`
@@ -572,7 +599,7 @@ export class StatementsDialog extends Component {
 
 		return {
 			accountNumber: product.accountNumber,
-			accountType: product.accountType,
+			accountType: product.accountType, 
 			accountOpenDate: product.accountOpenDate
 		}
 	}
