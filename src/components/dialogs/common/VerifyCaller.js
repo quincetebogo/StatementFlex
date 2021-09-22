@@ -676,7 +676,8 @@ export class VerifyCaller extends Component {
 					margin-top: 18px;
 				}
 				.foreign-client {
-					margin-bottom: 42px;
+					margin-bottom: 29px;
+					text-align: center;
 				}
 			`
 		];
@@ -952,7 +953,7 @@ export class VerifyCaller extends Component {
 						label="Security Questions" 
 						icon="system/apply-now-action"
 						iconSize="default"
-						?hidden=${!this.hasSouthAfricanID || this._xdsAttemptsExceeded()}
+						?hidden=${!this.hasSouthAfricanID || this._xdsAttemptsExceeded() || !this._canVerify}
 						@click="${() => this._securityQuestionsClick()}">
 					</horizon-option-button>
 					<horizon-option-button 
