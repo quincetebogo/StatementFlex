@@ -73,6 +73,12 @@ const ACCOUNT_TYPE = {
 	// PUBLIC METHODS
 	// --------------
 
+	// N/A
+	
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
 	// Formating date in the form 'DD MMM YYYY'
 	_formatDate(date) {
 		const newdate = new Date(Date.parse(date));
@@ -93,12 +99,6 @@ const ACCOUNT_TYPE = {
 		});
 		return accountsList.join(`, `);
 	}
-
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
-
-	// N/A
 
 	// ---------
 	// RENDERING
