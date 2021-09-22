@@ -178,9 +178,15 @@ export class LiveBetter extends ViewBase {
 
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		
-		if (this.callerInformation.verificationStatus !== `non-client`) {
+		if (this.verificationStatus === `verified`) {
 
-			const returnValue = await this.livBetterService.liveBetterLanding(this.callerInformation.cifNumber);
+			const clientDetails = {
+				"cifNumber": this.callerInformation.cifNumber,
+				"GetGenericData": true,
+				"NationalIDNumber": this.callerInformation.southAfricanIDNumber
+			  };
+
+			const returnValue = await this.livBetterService.liveBetterLanding(clientDetails);
 
 			if(returnValue.succeeded && returnValue.result) {
 			
@@ -192,16 +198,17 @@ export class LiveBetter extends ViewBase {
 
 				this.landingPageInfo = returnValue.result;
 				this._updateLeftBar()
-				this.endCallContext = `LandingPage`;
-				this.renderMode = RENDER_MODE.MAIN_PAGE;
 
 			} else if(returnValue.succeeded) {
 
-				// Navigate to Live better non-client page if a client doesn't have Live better account
+				// Navigate to Live better non-client page if a client is not registered with Live better account
 				this.horizonRouter.navigateToProductInfo('LiveBetter');
 			}
 			
 		}
+		
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this.endCallContext = `LandingPage`;
 		this.loading = false;
 	}
 
@@ -213,7 +220,7 @@ export class LiveBetter extends ViewBase {
 		if (this.landingPageInfo) {
 			subtitle = {
 				savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
-				liveBetterSavings: this.landingPageInfo.liveBetterProductDescription,
+				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductDescription,
 				savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
 				insure: this.landingPageInfo.insureProductDescription,
 				credit: this.landingPageInfo.creditProductDescription
@@ -221,7 +228,7 @@ export class LiveBetter extends ViewBase {
 
 			detail = {
 				savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
-				liveBetterSavings: this.landingPageInfo.liveBetterProductAmount,
+				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductAmount,
 				savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
 				insure: this.landingPageInfo.insureProductAmount,
 				credit: this.landingPageInfo.creditProductAmount
@@ -299,6 +306,7 @@ export class LiveBetter extends ViewBase {
 		window.open(`${globalOneUrl}`);
 	}
 
+	// Formating date in the form 'DD MMM YYYY'
 	_formatDate(date) {
         const newdate = new Date(Date.parse(date));
         return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
@@ -352,7 +360,6 @@ export class LiveBetter extends ViewBase {
 					: html``;
 			case RENDER_MODE.LIVE_BETTER_ACCOUNT_DETAILS:
 				return this._renderAccountDetails();
-				break;
 			default:
 				return html``;
 		}

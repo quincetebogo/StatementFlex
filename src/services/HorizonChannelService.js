@@ -766,16 +766,14 @@ export class HorizonChannelService extends Service {
 	// Live Better Savings Acount
 	//----------------------------
 
-	async liveBetterLanding(cifNumber) {
+	async liveBetterLanding(clientDetails) {
 
 		if (await this._mockEnabled(`liveBetterLanding`)) {
 			return this._mock.liveBetterLanding();
 		}
 
 		return this._post(
-			`/clientcare-lbb-${this._version_2}/landing`, {
-				'cifNumber': cifNumber
-			},
+			`/clientcare-lbb-${this._version_2}/landing`, clientDetails,
 			this._setToken(), 
 			`liveBetterLanding`
 		);

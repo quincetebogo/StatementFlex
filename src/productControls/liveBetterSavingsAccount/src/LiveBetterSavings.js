@@ -329,7 +329,7 @@ export class LiveBetterSavings extends Component {
 						data-automation-id="live-better-verified-account-number"
 						label="Account number"
 						@click="${() => this._accountDetails()}"
-						value="${this.liveBetterAccountData.accountNumber}">
+						value="${this.liveBetterAccountData.liveBetterSavingsAccountNumber}">
 					</horizon-label>
 
 					<div class="vertical-line"></div>

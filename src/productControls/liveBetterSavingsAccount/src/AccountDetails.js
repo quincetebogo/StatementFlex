@@ -2,6 +2,14 @@ import { Component, css, html } from 'platform/elements';
 import 'app/components/common/HorizonLabel';
 import { formatCurrency } from '../../utilities/Currency';
 
+const ACCOUNT_TYPE = {
+	300: `Savings Account`,
+	200: `Savings Plan`,
+	201: `FixedTerm Plan`,
+	100: `Credit Card`,
+	210: `Live Better Savings Account`
+};
+
 /**
  * Account details screen for Live better flow
  *
@@ -24,7 +32,6 @@ import { formatCurrency } from '../../utilities/Currency';
 	constructor() {
 		super();
 
-		// TO DO: Account details to be passed from landing screen once CS call is implemented.
 		this.accountDetails = null;
 	}
 
@@ -66,15 +73,27 @@ import { formatCurrency } from '../../utilities/Currency';
 	// PUBLIC METHODS
 	// --------------
 
+	// Formating date in the form 'DD MMM YYYY'
 	_formatDate(date) {
-        const newdate = new Date(Date.parse(date));
-        return `${newdate.getDate()} ${this.getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
-    }
+		const newdate = new Date(Date.parse(date));
+		return `${newdate.getDate()} ${this.getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+	}
 
+	// Get month name using month as a number (0 = Jan, 1 = Feb,... )
 	getMonthName(month) {
 		const monthNames = [`Jan`, `Feb`, `Mar`, `Apr`, `May`, `Jun`, `Jul`, `Aug`, `Sep`, `Oct`, `Nov`, `Dec`];
 		return monthNames.slice(month)[0];
 	}
+
+	// Get all the account names for which round-up is active
+	_getActivatedRoundUpAccounts(activatedRoundUpAccounts) {
+		let accountsList = [];
+		activatedRoundUpAccounts.forEach(account => {
+			accountsList.push(ACCOUNT_TYPE[account.accountType]);
+		});
+		return accountsList.join(`, `);
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -220,6 +239,9 @@ import { formatCurrency } from '../../utilities/Currency';
 				.toggle-label {
 					margin-left: 0px;
 				}
+				.accounts-list {
+					width: auto;
+				}
 			`
 		];
 	}
@@ -241,7 +263,7 @@ import { formatCurrency } from '../../utilities/Currency';
 						<horizon-label
 							class="main-title"
 							label="Account Details"
-							value="${this.accountDetails.accountNumber}">
+							value="${this.accountDetails.liveBetterSavingsAccountNumber}">
 						</horizon-label>
 				</capitec-title-bar>
 
@@ -293,7 +315,7 @@ import { formatCurrency } from '../../utilities/Currency';
 						<horizon-label 
 							data-automation-id="live-better-account-details-account-number"
 							label="Account number" 
-							value="${this.accountDetails.accountNumber}">
+							value="${this.accountDetails.liveBetterSavingsAccountNumber}">
 						</horizon-label>
 						<horizon-label 
 							data-automation-id="live-better-account-details-available-balance" 
@@ -388,9 +410,10 @@ import { formatCurrency } from '../../utilities/Currency';
 							value="${this._formatDate(this.accountDetails.roundupActivationDate)}">
 						</horizon-label>
 						<horizon-label 
+							class="accounts-list"
 							data-automation-id="live-better-account-details-round-up-accounts"
 							label="Round-up account(s)" 
-							value="${this.accountDetails.activatedRoundUpAccounts[0]}">
+							value="${this._getActivatedRoundUpAccounts(this.accountDetails.activatedRoundUpAccounts)}">
 						</horizon-label>
 				</capitec-group>
 
@@ -427,3 +450,13 @@ import { formatCurrency } from '../../utilities/Currency';
  }
 
  customElements.define(`capitec-pc-live-better-account-details`, AccountDetails);
+
+ /**
+ * When left arrow on the title bar is clicked to go back
+ *
+ * @example
+ * <capitec-pc-live-better-account-details ... @back="${this._handler}"></capitec-pc-live-better-account-details>
+ *
+ * @event AccountDetails#back
+ * @type {Object} - N/A
+ */

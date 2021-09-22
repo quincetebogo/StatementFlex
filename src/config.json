@@ -139,7 +139,7 @@
 			"positiveCase": true
 		},
 		"liveBetterLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		}
 	}
