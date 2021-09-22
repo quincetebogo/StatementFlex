@@ -7,7 +7,7 @@ import 'app/components/common/ServiceCallErrorScreen';
 
 
 /**
- * Display an failure screen indicating service unavailable.
+ * Display an failure screen indicating that the tax certificates service is unavailable.
  *
  * @export
  * @class TaxCertificateServiceError
@@ -23,6 +23,7 @@ export class TaxCertificateServiceError extends ViewBase {
 		super();
 
 		this._configuration = Configuration.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	// --------------
@@ -35,10 +36,15 @@ export class TaxCertificateServiceError extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		// TODO: Is a telemetry event needed here?
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+
+		this.horizonStore.setScreenDetails({ taxCertificate: null });
+		this.horizonStore.clearReturnScreen();
 
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);

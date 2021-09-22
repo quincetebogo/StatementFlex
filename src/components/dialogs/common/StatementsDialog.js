@@ -131,10 +131,8 @@ const EMAIL_REGEX = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/
  * 
  * Events Raised 
  * -------------
- * date range selction
  * cancel
- * send
- *  
+ *
  * @export
  * @class StatementsDialog
  * @extends {Component}
@@ -208,10 +206,10 @@ export class StatementsDialog extends Component {
 			clientProducts: { type: Array },
 			selectedOption: { type: Array },
 			type : { type: String },
+			currentStep: { attribute: false},
 
 			cifNumber: { attribute: false },
 			isBusy: { attribute: false },
-			currentStep: { attribute: false },
 			renderMode: { attribute: false },
 			notifyClient: { attribute: false },
 			periodSelected: { attribute: false },
@@ -506,11 +504,11 @@ export class StatementsDialog extends Component {
 
 	async _validatePeriodSelection() {
 		if (this.periodSelected === `` && !this._customDateRange) {
-			this.errorMessage = `Choose Period`;
+			this.errorMessage = `You must choose an option in order to continue`;
 			this.calendarErrorMessage = `Required`;
 			return false;
 		} else if (this._customDateRange && (this.fromDate === `dd mm yyyy` || this.toDate === `dd mm yyyy`)) {
-			this.errorMessage = `Choose Period`;
+			this.errorMessage = `You must choose an option in order to continue`;
 			this.calendarErrorMessage = `Required`;
 			return false;
 		} 
@@ -593,6 +591,7 @@ export class StatementsDialog extends Component {
 	}
 
 	_getSelectedProductDetails() {
+
 		let product = {};
 
 		product = this.clientProducts.find(item => 
@@ -639,6 +638,20 @@ export class StatementsDialog extends Component {
 		screenDetails.accountType=ACCOUNT_TYPE[this.productSelected.accountType];
 		
 		this.horizonStore.setScreenDetails(screenDetails);
+	}
+
+	_getDateRange(numberOfDays){
+		const dateToday = new Date();
+		const accountOpenDate = new Date(this.productSelected.accountOpenDate);
+
+		const daysDifference = (dateToday.getTime() - accountOpenDate.getTime()) / (1000 * 3600 * 24);
+		return daysDifference < numberOfDays;
+	}
+	
+	_getMinDate(accountOpenDate) {
+		const minDate = new Date(accountOpenDate);
+		minDate.setDate(minDate.getDate() - 1);
+		return minDate;
 	}
 
 	// ---------
@@ -718,6 +731,12 @@ export class StatementsDialog extends Component {
 					--theme-product-tile-heading-margin-left: 6px;
 					--theme-layout-gap-spacing: 8px;
 					--theme-product-tile-title-font-weight: 600;
+					--theme-radio-disabled-border-color: #E1E1E1;
+					--theme-radio-disabled-background-color: #F7F7F7;
+				}
+				horizon-product-tile[disabled] {
+					--theme-product-tile-subtitle-color: #7C7C7C;
+					--theme-product-tile-default-colour: #7C7C7C;
 				}
 				.main-cb > .product-transact {
 					--theme-product-tile-hover-default-border: 1px solid #009DE0;
@@ -982,6 +1001,7 @@ export class StatementsDialog extends Component {
 							label="1 month"
 							subtitle="Last 30 days"
 							detail=""
+							?disabled="${this._getDateRange(30)}"
 							@click="${(e) => this._choosePeriod(`ONE_MONTH`)}"
 							?selected="${this.periodSelected === TIME_PERIOD.ONE_MONTH.value}">
 						</horizon-product-tile>
@@ -991,6 +1011,7 @@ export class StatementsDialog extends Component {
 							label="3 months"
 							subtitle="Last 90 days"
 							detail=""
+							?disabled="${this._getDateRange(90)}"
 							@click="${(e) => this._choosePeriod(`THREE_MONHTS`)}"
 							?selected="${this.periodSelected === TIME_PERIOD.THREE_MONHTS.value}">
 						</horizon-product-tile>
@@ -1000,6 +1021,7 @@ export class StatementsDialog extends Component {
 							label="6 months"
 							subtitle="Last 180 days"
 							detail=""
+							?disabled="${this._getDateRange(180)}"
 							@click="${(e) => this._choosePeriod(`SIX_MONTHS`)}"
 							?selected="${this.periodSelected === TIME_PERIOD.SIX_MONTHS.value}">
 						</horizon-product-tile>
@@ -1009,6 +1031,7 @@ export class StatementsDialog extends Component {
 							label="9 months"
 							subtitle="Last 270 days"
 							detail=""
+							?disabled="${this._getDateRange(270)}"
 							@click="${(e) => this._choosePeriod(`NINE_MONTHS`)}"
 							?selected="${this.periodSelected === TIME_PERIOD.NINE_MONTHS.value}">
 						</horizon-product-tile>
@@ -1066,6 +1089,7 @@ export class StatementsDialog extends Component {
 					label="Choose from and to date"
 					startDate = "${this.fromDate === `dd mm yyyy` ? `` : this.fromDate}"
 					endDate = "${this.toDate === `dd mm yyyy` ? `` : this.toDate}"
+					minDate = "${this._getMinDate(this.productSelected.accountOpenDate)}"
 					maxDate = "${this.today}"
 					error = "${this.calendarErrorMessage}"
 					inputType="calendar"
@@ -1219,3 +1243,13 @@ export class StatementsDialog extends Component {
 }
 
 window.customElements.define(`horizon-statements-dialog`, StatementsDialog);
+
+/**
+ * When Cancel button is clicked
+ *
+ * @example
+ * <horizon-statements-dialog ... @cancel="${this._handler}"></horizon-statements-dialog>
+ *
+ * @event StatementsDialog#cancel
+ * @type {Object} - N/A
+ */
