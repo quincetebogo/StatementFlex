@@ -1,17 +1,16 @@
 import { Component, css, html } from 'platform/elements';
 
 /**
- * Description for your Component here.
- *
+ * The Horizon Component Countdown is the circular progress time indicator.
+ * 
  * ```html
  * <horizon-countdown>
  * </horizon-countdown>
  * ```
- * @prop {String} width - Width of the countdown timer.
- * @prop {String} height - Height of the countdown timer.
- * @attr {Number} time-limit - Time limit in seconds.
- * @attr {Number} warning-threshold - Time when warning colors is shown in seconds.
- * @attr {Number} alert-threshold - Time when alert colors is shown in seconds
+ * 
+ * @export
+ * @class ComponentCountdown
+ * @extends {Component}
  */
 export class ComponentCountdown extends Component {
 
@@ -19,17 +18,12 @@ export class ComponentCountdown extends Component {
 	// INITIALISATION
 	// --------------
 
-	/**
-	 * Initialises the component.
-	 *
-	 * @hideconstructor
-	 */
 	constructor() {
 
 		super();
 
 		this.FULL_DASH_ARRAY = 283;
-		this.timeLimit = 60;
+		this.timeLimit = 70;
 		this.warningThreshold = 25;
 		this.alertThreshold = 10;
 
@@ -47,8 +41,8 @@ export class ComponentCountdown extends Component {
 			}
 		};
 
-		this.width = 200;
-		this.height = 200;
+		this.width = 150;
+		this.height = 150;
 		this.circleDasharray = `283`;
 		this.timePassed = 0;
 		this.timeLeft = this.timeLimit;
@@ -60,9 +54,19 @@ export class ComponentCountdown extends Component {
 	// ----------
 	// PROPERTIES
 	// ----------
-
+	
 	/**
 	 * Registry of all properties defined by the component.
+	 
+	 * @property {String} width - Width of the countdown timer.
+	 * @property {String} height - Height of the countdown timer.
+	 * @property {Number} time-limit - Time limit in seconds.
+	 * @property {Number} warning-threshold - Time when warning colors is shown in seconds.
+	 * @property {Number} alert-threshold - Time when alert colors is shown in seconds
+	 * 
+	 * @readonly
+	 * @static
+	 * @memberof ComponentCountdown
 	 */
 	static get properties() {
 
@@ -71,10 +75,10 @@ export class ComponentCountdown extends Component {
 			height: { type: String },
 			circleDasharray: { type: String, attribute: false },
 			remainingPathColor: { type: String, attribute: false },
-			timeLeft: { type: String, attribute: false },
-			timeLimit: { type: String, attribute: `time-limit` },
-			warningThreshold: { type: String, attribute: `warning-threshold` },
-			alertThreshold: { type: String, attribute: `alert-threshold` }
+			timeLeft: { type: Number, attribute: false },
+			timeLimit: { type: Number, attribute: `time-limit` },
+			warningThreshold: { type: Number, attribute: `warning-threshold` },
+			alertThreshold: { type: Number, attribute: `alert-threshold` }
 		};
 	}
 
@@ -124,8 +128,26 @@ export class ComponentCountdown extends Component {
 		}, 1000);
 	}
 
+	//TODO: TEST the Reset function to put timer back to 60/70
+	//TEST: "Try Again" button will implement this functionality 
+	resetTimer() {
+		clearInterval(this.timerInterval);
+		
+		this.timerInterval = setInterval(() => {
+			this.timePassed += 1;
+			this.timeLeft = this.timeLimit - this.timePassed;
+			this.setCircleDasharray();
+			this.setRemainingPathColor(this.timeLeft);
+
+			if (this.timeLeft === 0) {
+				this.onTimesUp();
+			}
+			this.requestUpdate();
+		}, 1000);
+	}
+
 	formatTime(time) {
-		const minutes = Math.floor(time / 60);
+		const minutes = "0" + Math.floor(time / 60);
 		let seconds = time % 60;
 
 		if (seconds < 10) {
@@ -163,7 +185,6 @@ export class ComponentCountdown extends Component {
 	/**
 	 * Generates the component stylesheet.
 	 *
-	 * @ignore
 	 * @returns {css} The css content of the component.
 	 */
 	static get styles() {
