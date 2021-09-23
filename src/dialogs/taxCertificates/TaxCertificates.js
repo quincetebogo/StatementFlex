@@ -294,11 +294,40 @@ export class TaxCertificatesDialog extends Component {
 			year: item.year,
 			documentId: item.documentId,
 			accountNumber: type === `iT3STaxCertificates` ? first.accountNumber : this.accountNumber,
-			payload: type === `iT3STaxCertificates` ? undefined : item.payload
+			payload: type === `iT3BTaxCertificates` ? item.payload : null
 		});
 
 		return request;
 	}
+
+
+/*
+	_formatViewCertificateRequest(item, type) {
+		const request = {
+			"cif": this.cifNumber
+		};
+
+		if (type === `iT3BTaxCertificates`) {
+			request.iT3BTaxCertificates = item.taxCertificateAccounts.map(account => ({
+				year: item.year,
+				documentId: item.documentId,
+				accountNumber: account.accountNumber,
+				payload: item.payload
+			}));
+		}
+
+		if (type === `iT3STaxCertificates`) {
+			request.iT3STaxCertificates = item.taxCertificateAccounts.map(account => ({
+				year: item.year,
+				documentId: item.documentId,
+				accountNumber: account.accountNumber,
+				payload: null
+			}));
+		};
+
+		return request;
+	}
+*/
 
 	// ---------------
 	// PUBLIC METHODS
