@@ -276,14 +276,13 @@ export class TaxCertificatesDialog extends Component {
 		return request;
 	}
 
-	/*
 	_formatViewCertificateRequest(item, type) {
 
-		/ **
+		/**
 		 * Rule for picking account num to view iT3S/ iT3B
 		 *  - To view a iT3B doc for any year its decided we can always pass primary savings account number
 		 *  - And for iT3S, since it will have only one account in a year, we can use the specific account number
-		 * /
+		 */
 		const [first] = item.taxCertificateAccounts; // Extracting first element from taxcertificate accounts array
 		const request = {
 			"cif": this.cifNumber,
@@ -295,13 +294,14 @@ export class TaxCertificatesDialog extends Component {
 			year: item.year,
 			documentId: item.documentId,
 			accountNumber: type === `iT3STaxCertificates` ? first.accountNumber : this.accountNumber,
-			payload: item.payload
+			payload: type === `iT3BTaxCertificates` ? item.payload : null
 		});
 
 		return request;
 	}
-*/
-	
+
+
+/*
 	_formatViewCertificateRequest(item, type) {
 		const request = {
 			"cif": this.cifNumber
@@ -327,7 +327,7 @@ export class TaxCertificatesDialog extends Component {
 
 		return request;
 	}
-
+*/
 
 	// ---------------
 	// PUBLIC METHODS

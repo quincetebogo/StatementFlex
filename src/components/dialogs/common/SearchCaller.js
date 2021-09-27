@@ -105,8 +105,8 @@ const REGEX_PATTERNS = {
 		ALERT_BANNER: `Incorrect ID/Passport number`
 	},
 	1: {
-        PATTERN: /^\S+$/,
-        FIELD_ERROR: `Incorrect Passport number`,
+		PATTERN: /^\S+$/,
+		FIELD_ERROR: `Incorrect Passport number`,
 		ALERT_BANNER: `Incorrect Passport number`
 	},
 	2: {
@@ -298,14 +298,15 @@ export class SearchCaller extends Component {
 
 	async _onSearchClient() {
 
-		this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
-			"screen": TelemetryScreen.SEARCH_CLIENT,
-			"next-screen": TelemetryScreen.CONFIRM_CALLER,
-			"id-method": this.searchType.value,
-			"id-data": this.searchValue
-		});
-
 		if (this._validateFields()) {
+
+			this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
+				"screen": TelemetryScreen.SEARCH_CLIENT,
+				"next-screen": TelemetryScreen.CONFIRM_CALLER,
+				"id-method": this.searchType.value,
+				"id-data": this.searchValue
+			});
+
 			const searchClient = {
 				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,

@@ -1,3 +1,4 @@
+import { HIGH_RISK_TRANSACTIONS, LOW_RISK_TRANSACTIONS } from 'app/constants/Common';
 import { NavigationContext } from 'platform/core';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
@@ -385,9 +386,23 @@ export class SavingsAccountBase extends ViewBase {
         this.horizonStore.clearReturnScreen();
     }
 
-    // ---------
-    // RENDERING
-    // ---------
+	_unloadDebiCheck(eventName, screenName) {
+		this._setIncidentDone();
+		this._telemetryEndSpan(eventName, screenName);
+	}
+
+	_shouldDisable(need) {
+		const verificationMethod = this.callerInformation.verificationMethod;
+		
+		// TODO: Enable the logic once ITA accept/reject code is done
+		// return verificationMethod === (`unverified` && !LOW_RISK_TRANSACTIONS.includes(need)) || (verificationMethod === `XDS` && HIGH_RISK_TRANSACTIONS.includes(need));
+
+		return false;
+	}
+
+	// ---------
+	// RENDERING
+	// ---------
 
     _mobileTemplate() {
         return this._webTemplate();
