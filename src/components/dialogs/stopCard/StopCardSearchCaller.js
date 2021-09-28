@@ -52,16 +52,16 @@ const ERROR_MESSAGES = {
 	}
 };
 
-// ToDO: Below const need to be removed, once channelService fix the issue on contract.
 const REGEX_PATTERNS = {
 	0: {
-        PATTERN: /^(^[MDAT]([0-9]{8})|[0-9]{13})$/,
+		PATTERN: /^(^[MDAT]([0-9]{8})|[0-9]{13})$/,
 		ERR_MESSAGE: `An ID Number must be 13 digits long, a passport number must be 9 characters`,
 		ALERT_BANNER: `Incorrect ID/Passport number`
 	},
 	1: {
-		PATTERN: /^/,
-		ERR_MESSAGE: ``
+		PATTERN: /^\S+$/,
+		FIELD_ERROR: `Incorrect Passport number`,
+		ALERT_BANNER: `Incorrect Passport number`
 	},
 	2: {
 		PATTERN: /^[0-9]{10}$/,
@@ -211,16 +211,14 @@ export class StopCardSearchCaller extends Component {
 
 	async _onSearchClick(e) {
 
-		this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
-			"screen": TelemetryScreen.SEARCH_CLIENT,
-			"next-screen": TelemetryScreen.CONFIRM_CALLER,
-			"id-method": this.identificationMethods.value,
-			"id-data": this.searchFieldText
-		});
-
 		if (this.validateFields()) {
 			console.log(`service call`);
-
+			this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
+				"screen": TelemetryScreen.SEARCH_CLIENT,
+				"next-screen": TelemetryScreen.CONFIRM_CALLER,
+				"id-method": this.identificationMethods.value,
+				"id-data": this.searchFieldText
+			});
 			const searchClient = {
 				incomingTelephoneNumber: this.incomingTelephoneNumber,
 				voiceReferenceNumber: this.voiceReferenceNumber,
@@ -286,7 +284,13 @@ export class StopCardSearchCaller extends Component {
 			livesIn: identifiedClient.callerInformation.livesIn.value,
 			name: identifiedClient.callerInformation.name.value,
 			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber.value,
-			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber.value
+            verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber.value,
+            firstName: identifiedClient.callerInformation.firstName,
+            middleName1: identifiedClient.callerInformation.middleName1,
+            middleName2: identifiedClient.callerInformation.middleName2,
+            middleName3: identifiedClient.callerInformation.middleName3,
+            lastName: identifiedClient.callerInformation.lastName,
+            initials: identifiedClient.callerInformation.initials
 		};
 
 		this.dispatchEvent(new CustomEvent(`client-identified`, {

@@ -15,7 +15,7 @@ import 'app/productControls/taxCertificates/src/TaxCertificates';
 
 /**
  * Tax Certificates dialog is used to send tax certificates from the primary savings account.
- * This component is envoked from the Favourites landing screen.
+ * This component is invoked from the Favourites landing screen.
  * 
  * Event Raised
  * -------------
@@ -51,10 +51,12 @@ export class TaxCertificatesDialog extends Component {
 
 	/**
 	 * @property {String} cifNumber The client's CIF Number
+	 * @property {String} accountNumber Primary savings account number
 	 */
 	static get properties() {
 		return {
 			cifNumber: { type: String },
+			accountNumber: { type: String },
 
 			// Private Properties
 			isBusy: { attribute: false }
@@ -275,6 +277,32 @@ export class TaxCertificatesDialog extends Component {
 	}
 
 	_formatViewCertificateRequest(item, type) {
+
+		/**
+		 * Rule for picking account num to view iT3S/ iT3B
+		 *  - To view a iT3B doc for any year its decided we can always pass primary savings account number
+		 *  - And for iT3S, since it will have only one account in a year, we can use the specific account number
+		 */
+		const [first] = item.taxCertificateAccounts; // Extracting first element from taxcertificate accounts array
+		const request = {
+			"cif": this.cifNumber,
+			"iT3BTaxCertificates": [],
+			"iT3STaxCertificates": []
+		};
+
+		request[type].push({
+			year: item.year,
+			documentId: item.documentId,
+			accountNumber: type === `iT3STaxCertificates` ? first.accountNumber : this.accountNumber,
+			payload: type === `iT3BTaxCertificates` ? item.payload : null
+		});
+
+		return request;
+	}
+
+
+/*
+	_formatViewCertificateRequest(item, type) {
 		const request = {
 			"cif": this.cifNumber
 		};
@@ -293,12 +321,13 @@ export class TaxCertificatesDialog extends Component {
 				year: item.year,
 				documentId: item.documentId,
 				accountNumber: account.accountNumber,
-				payload: item.payload
+				payload: null
 			}));
 		};
 
 		return request;
 	}
+*/
 
 	// ---------------
 	// PUBLIC METHODS

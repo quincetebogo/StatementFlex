@@ -1,3 +1,4 @@
+import { HIGH_RISK_TRANSACTIONS, LOW_RISK_TRANSACTIONS } from 'app/constants/Common';
 import { NavigationContext } from 'platform/core';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
@@ -284,8 +285,8 @@ export class SavingsAccountBase extends ViewBase {
             cifNumber: this.callerInformation.cifNumber,
             mandateRef: this.debiCheckDetails.mandateReference,
             title: name[0],
-            firstName: name[1],
-            surname: name.slice(2),
+            firstName: this.callerInformation.firstName,
+            surname: this.callerInformation.lastName,
             middleName: this.clientDetails.middleName,
             identificationNumber: this.callerInformation.southAfricanIDNumber,
             residentialAddress: this.clientDetails.residentialAddress,
@@ -335,8 +336,8 @@ export class SavingsAccountBase extends ViewBase {
 
         const agreementRequest = {
             title: name[0],
-            firstName: name[1],
-            surname: name.slice(2),
+            firstName: this.callerInformation.firstName,
+            surname: this.callerInformation.lastName,
             identificationNumber: this.callerInformation.southAfricanIDNumber,
             savingsAccountNumber: this.accountNumber,
             registerId: this.mandateInfo.registerId,
@@ -384,9 +385,23 @@ export class SavingsAccountBase extends ViewBase {
         this.horizonStore.clearReturnScreen();
     }
 
-    // ---------
-    // RENDERING
-    // ---------
+	_unloadDebiCheck(eventName, screenName) {
+		this._setIncidentDone();
+		this._telemetryEndSpan(eventName, screenName);
+	}
+
+	_shouldDisable(need) {
+		const verificationMethod = this.callerInformation.verificationMethod;
+		
+		// TODO: Enable the logic once ITA accept/reject code is done
+		// return verificationMethod === (`unverified` && !LOW_RISK_TRANSACTIONS.includes(need)) || (verificationMethod === `XDS` && HIGH_RISK_TRANSACTIONS.includes(need));
+
+		return false;
+	}
+
+	// ---------
+	// RENDERING
+	// ---------
 
     _mobileTemplate() {
         return this._webTemplate();
