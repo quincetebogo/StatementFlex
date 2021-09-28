@@ -85,8 +85,8 @@ export class TaxCertificatesDialog extends Component {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-	_back() {
-		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_BACK, {
+	async _back() {
+		await this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_BACK, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE
 		});
 
@@ -215,7 +215,7 @@ export class TaxCertificatesDialog extends Component {
 			"screen": TelemetryScreen.TAX_CERTIFICATE
 		});
 			
-		await this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP, {
+		this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP, {
 				"screen": TelemetryScreen.TAX_CERTIFICATE
 		});
 	
