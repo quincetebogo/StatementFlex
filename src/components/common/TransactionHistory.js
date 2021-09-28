@@ -2,7 +2,6 @@ import { Component, css, html } from 'platform/elements';
 import { ACCOUNT_TYPES, RENDER_MODE, TRANSACTION_HISTORY, TRANSACTION_STATUS_LIST } from 'app/constants/TransactionHistory';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { DateTime } from 'luxon';
-import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 const today = new Date();
@@ -68,8 +67,6 @@ export class TransactionHistory extends Component {
 
 		this.startTransactionDate = null; /* new Date("January 01, 2000"); */
 		this.endTransactionDate = null; /* new Date(); */
-
-		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// --------------
