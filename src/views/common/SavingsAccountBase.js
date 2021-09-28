@@ -146,7 +146,6 @@ export class SavingsAccountBase extends ViewBase {
             screenDetails.isApproved = false;
             this.horizonStore.setScreenDetails(screenDetails);
 
-            await this._getAgreement();
             this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
             return;
 
