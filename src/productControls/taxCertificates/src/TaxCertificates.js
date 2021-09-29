@@ -151,6 +151,11 @@ export class TaxCertificates extends Component {
 				selectedCertType: this.selectedCertType
 			}
 		}));
+		if (isNullorEmpty(this.selectedCertificates[this.selectedCertType].contentData)) {
+			const getAttachmentData = this._viewPDF();
+			return getAttachmentData;
+		}
+
 	}
 
 	_cancelClick(e) {
@@ -238,10 +243,11 @@ export class TaxCertificates extends Component {
 	}
 
 	async _viewPDF(item, type) {
-		this.encodedPDF = await this.getTaxCertificatePDFCallback(item, type);
-
+		const result = await this.getTaxCertificatePDFCallback(item, type);
+		this.encodedPDF = result.encodedPDF;
 		if (this.encodedPDF) {
 			this.renderMode = RENDER_MODE.PDF;
+			item.contentData = this.selectedCertificates[this.selectedCertType] === `iT3STaxCertificates` || this.selectedCertificates[this.selectedCertType] === `both` ? result.contentData : null ;
 		} else {
 			this.errorMessage = `Tax certificates are currently unavailable`;
 			this.alertBannerMessage = `Notify client: Tax certificates are currently unavaialble`;

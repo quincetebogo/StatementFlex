@@ -194,7 +194,8 @@ export class TaxCertificatesDialog extends Component {
 				"screen": TelemetryScreen.TAX_CERTIFICATE_DOCUMENT
 			});
 	
-			return encodedPDF;
+			return { encodedPDF: encodedPDF,
+				contentData: pdfData.contentData };
 		} 
 	
 		this.logger.log(`error`, `Unable to get load tax certificates documents`, `_viewPDF`, returnValue.correlationId);
