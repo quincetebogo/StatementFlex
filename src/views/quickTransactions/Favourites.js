@@ -109,7 +109,7 @@ export class Favourites extends SavingsAccountBase {
             
             const actions = {
                 'stop-card': stopCard,
-                'debi-check': debiCheck,
+                'debi-check-viewInfo': debiCheck,
                 'update-card-limits': updateCardLimits,
                 'tap-to-pay': tapToPay,
                 'statements': statements,

@@ -239,8 +239,8 @@ export class ViewBase extends View {
 	// PUBLIC METHODS
 	// --------------
 
-	async createAndClassifySubsIncident(incidentCategorization) {
-		await super.createAndClassifySubsIncident(() => this._toggleBusyFlag(), incidentCategorization);
+	async createAndClassifySubsIncident(incidentCategorization, classify) {
+		await super.createAndClassifySubsIncident(() => this._toggleBusyFlag(), incidentCategorization, classify);
 	}
 
 	// ---------
