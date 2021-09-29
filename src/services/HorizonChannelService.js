@@ -311,15 +311,15 @@ export class HorizonChannelService extends Service {
 	}
 
 	searchCaller(clientInfo) {
-		return this._get(
-			`/clientcare-call-${this._version}/search-caller?` +
-				`incomingTelephoneNumber=${clientInfo.incomingTelephoneNumber}&` +
-				`voiceReferenceNumber=${clientInfo.voiceReferenceNumber}&` +
-				`ivrOptionCode=${clientInfo.ivrOption}&` +
-				`incidentReferenceNumber=${clientInfo.incidentNo}&` +
-				`agentTelephoneNumber=${clientInfo.agentTelephoneNumber}&` +
-				`identificationMethod=${parseInt(clientInfo.identificationMethod, 10)}&` +
-				`value=${clientInfo.searchValue}`,
+		return this._post(
+			`/clientcare-call-${this._version}/search-caller`, {
+				'incomingTelephoneNumber':clientInfo.incomingTelephoneNumber, 
+				'voiceReferenceNumber':clientInfo.voiceReferenceNumber,
+				'ivrOptionCode':clientInfo.ivrOption,
+				'incidentReferenceNumber':clientInfo.incidentNo,
+				'agentTelephoneNumber':clientInfo.agentTelephoneNumber,
+				'identificationMethod':parseInt(clientInfo.identificationMethod, 10),
+				'value':clientInfo.searchValue},
 				this._setToken(),
 			`searchCaller`
 		);
@@ -778,6 +778,15 @@ export class HorizonChannelService extends Service {
 			`liveBetterLanding`
 		);
 	}
+
+	async liveBetterTransactionHistory (transactionHistoryRequest) {
+		// if (await this._mockEnabled(`transactionHistory`)) {
+		// 	return this._mock.transactionHistory(transactionHistoryRequest);
+		// }
+
+		return this._post( `/clientcare-lbb-${this._version_2}/transactions`, transactionHistoryRequest, this._setToken(), `liveBetterTransactionHistory`);
+	}
+
 	// ----------------
 	// call - ITA & XDS
 	// ----------------

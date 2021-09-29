@@ -3,8 +3,8 @@ import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { LivBetterService } from 'app/services/LiveBetterService';
+import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
@@ -23,12 +23,12 @@ import 'app/components/dialogs/liveBetter/ManageAutomaticSavings';
 import 'app/components/dialogs/common/StatementsDialog';
 
 const TRANSACTION_HISTORY = {
-	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
-	END_DATE: new Date().toISOString().substr(0, 10),
+	ACCOUNT_TYPE: '200',
+	END_DATE: "2021-09-29", //new Date().toISOString().substr(0, 10),
 	// 7776000000 is 90 days in milliseconds
-	START_DATE: new Date(Date.now() - 7776000000).toISOString().substr(0, 10),
+	START_DATE: "2019-04-20", //new Date(Date.now() - 7776000000).toISOString().substr(0, 10),
 	START_AT_INDEX: 0,
-	MAX_RESULTS: 50,
+	MAX_RESULTS: 20,
 	MONEY_TYPE: `BOTH`
 };
 
@@ -158,9 +158,7 @@ export class LiveBetter extends ViewBase {
 
 	async _getMoreTransactions(request) {
 
-		// To Do: Temporarily using savings account's Transaction History service call to get the list of transaction.
-		// should be replaced with Transaction History channel service call made for Live Better
-		const result = await this.savingsAccountService.transactionHistory(request, () => true);
+		const result = await this.livBetterService.liveBetterTransactionHistory(request, () => true);
 		return result;
 	}
 	
@@ -215,7 +213,6 @@ export class LiveBetter extends ViewBase {
 		this.loading = false;
 	}
 
-	
 	_updateLeftBar() {
 		let subtitle = null;
 		let detail = null;
@@ -259,7 +256,7 @@ export class LiveBetter extends ViewBase {
 
 		const transactionHistoryRequest = {
 			cifNumber: this.callerInformation.cifNumber,
-			accountNumber: this.landingPageInfo.accountNumber,
+			accountNumber: this.landingPageInfo.liveBetterSavingsAccountNumber,
 			accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
 			startDate: TRANSACTION_HISTORY.START_DATE,
 			endDate: TRANSACTION_HISTORY.END_DATE,
@@ -268,15 +265,13 @@ export class LiveBetter extends ViewBase {
 			moneyType: TRANSACTION_HISTORY.MONEY_TYPE
 		};
 
-		// To Do: Temporarily using savings account's Transaction History service call to get the list of transaction.
-		// should be replaced with Transaction History channel service call made for Live Better
-		const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
+		const returnValue = await this.livBetterService.liveBetterTransactionHistory(transactionHistoryRequest);
 
 		if (returnValue.succeeded && returnValue.result) {
 			
 			this.transactionHistory = returnValue.result.transactions;
 			this.accountDetails = {
-				"Account number": this.landingPageInfo.accountNumber,
+				"Account number": this.landingPageInfo.liveBetterSavingsAccountNumber,
 				"Available balance": formatCurrency(this.landingPageInfo.accountAvailableBalance),
 				"Interest": `${this.landingPageInfo.interestRatePercentage}%`,
 				"Status": this.landingPageInfo.accountStatus
@@ -456,7 +451,7 @@ export class LiveBetter extends ViewBase {
 			</capitec-table-column>
 			<capitec-table-column
 				label="Description"
-				field="description"
+				field="statementDescription"
 				size="354px;">
 			</capitec-table-column>
 			<capitec-table-column

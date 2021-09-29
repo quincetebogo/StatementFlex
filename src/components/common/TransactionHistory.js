@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { ACCOUNT_TYPES, RENDER_MODE, TRANSACTION_HISTORY, TRANSACTION_STATUS_LIST } from 'app/constants/TransactionHistory';
+import { ACCOUNT_TYPES, ACCOUNT_TYPES_IN_NUM, RENDER_MODE, TRANSACTION_HISTORY, TRANSACTION_STATUS_LIST } from 'app/constants/TransactionHistory';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { DateTime } from 'luxon';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -374,7 +374,7 @@ export class TransactionHistory extends Component {
 		const transactionHistoryRequest = {
 			cifNumber: this.cifNumber,
 			accountNumber: this.accountNumber,
-			accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
+			accountType: ACCOUNT_TYPES_IN_NUM[this.type],
 			startDate: startDate || TRANSACTION_HISTORY.START_DATE,
 			endDate: endDate || TRANSACTION_HISTORY.END_DATE,
 			startAtIndex: this.rawTableData.length,
