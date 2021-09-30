@@ -1,10 +1,11 @@
+import { HIGH_RISK_TRANSACTIONS, LOW_RISK_TRANSACTIONS } from 'app/constants/Common';
 import { NavigationContext } from 'platform/core';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
-import { ViewBase } from 'app/views/common/ViewBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { ViewBase } from 'app/views/common/ViewBase';
 import { html } from 'platform/elements';
 
 import 'app/components/savingsAccount/DebiCheckMandates';
@@ -207,7 +208,6 @@ export class SavingsAccountBase extends ViewBase {
 			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
 			this.horizonStore.setIncidentDetails(this.incidentDetails);
 		}
-
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -229,6 +229,12 @@ export class SavingsAccountBase extends ViewBase {
 	_unloadDebiCheck(eventName, screenName) {
 		this._setIncidentDone();
 		this._telemetryEndSpan(eventName, screenName);
+	}
+
+	_shouldDisable(need) {
+		const verificationMethod = this.callerInformation.verificationMethod;
+		
+		return verificationMethod === (`unverified` && !LOW_RISK_TRANSACTIONS.includes(need)) || (verificationMethod === `XDS` && HIGH_RISK_TRANSACTIONS.includes(need));
 	}
 
 	// ---------
