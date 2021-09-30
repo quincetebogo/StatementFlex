@@ -20,7 +20,7 @@ import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
 import 'app/components/dialogs/common/Feedback';
 
-import 'app/dialogs/taxCertificates/taxCertificates';
+import 'app/productControls/taxCertificates/src/TaxCertificates';
 
 
 const SAVINGS_ACCOUNT_TYPE = 300;

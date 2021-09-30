@@ -327,7 +327,8 @@ export class TransactionHistory extends Component {
 			item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
 			item.formatedAmount = formatCurrency(item.amount);
 			item.formatedBalance = formatCurrency(item.balance);
-
+			this.type === 'lbb' ? item.description = item.statementDescription : '';
+			
 			return item;
 		});
 		return tableData.filter(item => item.transactionStatus !== ``);

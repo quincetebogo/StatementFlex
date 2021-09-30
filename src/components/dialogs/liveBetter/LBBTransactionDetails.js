@@ -1,10 +1,15 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { getMonthName } from 'app/utils/channelServiceUtilities';
 import 'platform/components/popups/Modal';
 
 /**
  * A dialog to show linked transaction details 
- *
+ * 
+ * Events raised
+ * -------------
+ * on-close
+ * 
  * @export
  * @class LinkedTransactionDetails
  * @extends {Component}
@@ -18,16 +23,8 @@ export class LinkedTransactionDetails extends Component {
 
 	constructor() {
 		super();
-		this.transactionDetails = {
-			category: "Restaurant",
-			transactionType: "Card purchase",
-			amount: "R245.91",
-			fromAccount: "Savings account",
-			transactionDate: "16 Jun 2021",
-			postingDate: "16 Jun 2021",
-			description: "Card purchase Jon Dori's",
-			longDescription: "Card purchase Jon Dori's Somerset West"
-		}
+
+		this.transactionDetails = null;
 
 		this._telemetry = HorizonTelemetry.instance;
 	}
@@ -43,15 +40,42 @@ export class LinkedTransactionDetails extends Component {
 	}
 
 	// --------------
+	// PROPERTIES
+	// --------------
+
+	/**
+	 *
+	 * @property {Object} transactionDetails Object contains the details of each linked transaction
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof LinkedTransactionDetails
+	 */
+	static get properties() {
+		return {
+			transactionDetails: { type: Object }
+		};
+	}
+	
+	// --------------
 	// EVENT HANDLERS
 	// --------------
 	
 	_onCloseClick() {
-		this.dispatchEvent(new CustomEvent(`close`, {
+		this.dispatchEvent(new CustomEvent(`on-close`, {
 			detail: {}
 		}));
 	}
 
+	// ---------
+	// PRIVATE METHODS
+	// ---------
+
+	// Formating date in the form 'DD MMM YYYY'
+	_formatDate(date) {
+		const newdate = new Date(Date.parse(date));
+		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -229,13 +253,13 @@ export class LinkedTransactionDetails extends Component {
 							data-automation-id="linked-transaction-details-transaction-date"
 							class="col-1" 
 							label="Transaction date" 
-							value="${this.transactionDetails.transactionDate}">
+							value="${this._formatDate(this.transactionDetails.transactionDate)}">
 						</horizon-label>
 						<horizon-label 
 							data-automation-id="linked-transaction-details-posting-date"
 							class="col-2" 
 							label="Posting date" 
-							value="${this.transactionDetails.postingDate}">
+							value="${this._formatDate(this.transactionDetails.postingDate)}">
 						</horizon-label>
 				</capitec-group>
 
@@ -247,7 +271,7 @@ export class LinkedTransactionDetails extends Component {
 						<horizon-label 
 							data-automation-id="linked-transaction-details-description"
 							label="Description" 
-							value="${this.transactionDetails.description}">
+							value="${this.transactionDetails.originalDescription}">
 						</horizon-label>
 				</capitec-group>
 

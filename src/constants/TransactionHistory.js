@@ -37,7 +37,7 @@ export const TRANSACTION_HISTORY = Object.freeze({
 	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
 	END_DATE: new Date().toISOString().substr(0, 10),
 	START_DATE: new Date(`January 01, 2000`).toISOString().substr(0, 10),
-	MAX_RESULTS: 20,
+	MAX_RESULTS: 50,
 	MONEY_TYPE: `BOTH`
 });
 
@@ -56,8 +56,8 @@ export const ACCOUNT_TYPES = Object.freeze({
 
 
 export const ACCOUNT_TYPES_IN_NUM = Object.freeze({
-	'transact': '300',
-	'lbb': '210',
+	'transact': `PRIMARY_SAVINGS`,
+	'lbb': `LBB`,
 	'credit' : '',
 	'save': ''
 });

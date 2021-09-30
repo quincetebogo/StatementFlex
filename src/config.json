@@ -127,7 +127,7 @@
 			"positiveCase": true
 		},
 		"savingsAccountLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"tapToPayLanding": {
@@ -139,6 +139,14 @@
 			"positiveCase": true
 		},
 		"liveBetterLanding": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"liveBetterTransactionHistory": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"lbbLinkedTransactionDetails": {
 			"enabled": true,
 			"positiveCase": true
 		}
