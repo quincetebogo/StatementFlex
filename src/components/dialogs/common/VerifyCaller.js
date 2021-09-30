@@ -268,7 +268,7 @@ export class VerifyCaller extends Component {
 
 	_failedSecurityQuestions(event) {
 		this.callerInformation = event.detail.callerInformation;
-		this.xdsMessage = `Unfortunately you didn't pass the security questions.`;
+		this.xdsMessage = `You didn't pass the security questions.`;
 		this.renderMode = RENDER_MODE.VERIFY_CALLER;
 	}
 
@@ -626,6 +626,7 @@ export class VerifyCaller extends Component {
 				.notification-info {
 					color: #545D60;
 					font-family: "Hind Vadodara";
+					text-align: center;
 					font-size: 15px;
 					font-weight: 500;
 					letter-spacing: 0;
@@ -739,11 +740,17 @@ export class VerifyCaller extends Component {
 	_renderBody() {
 		if (!this._canVerify()) {
 			return this._renderClientCannotBeVerified();
-		} else if (this.hasSouthAfricanID && this.xdsFailed && this.callerInformation.verificationAttempts.xdsAttempts === MAX_XDS_ATTEMPTS - 1) {
+		}
+		if (this.hasSouthAfricanID && this.callerInformation.verificationAttempts.xdsAttempts !== 0 && this.callerInformation.verificationAttempts.xdsAttempts < MAX_XDS_ATTEMPTS ) {
+			return this._renderFailedFirstAttempt();
+		}
+		if (this.hasSouthAfricanID && this.xdsFailed && this.callerInformation.verificationAttempts.xdsAttempts === MAX_XDS_ATTEMPTS - 1) {
 			this._renderXdsOneAttemptLeft();
-		} else if (this.hasSouthAfricanID && !this._xdsAttemptsExceeded() && this.xdsMessage !== ``) {
+		}
+		if (this.hasSouthAfricanID && !this._xdsAttemptsExceeded() && this.xdsMessage !== ``) {
 			return this._renderXdsError();
-		} else if (this._itaInProgress()) {
+		}
+		if (this._itaInProgress()) {
 			return this._renderPushNotificationStatus();
 		};
 		
@@ -903,6 +910,28 @@ export class VerifyCaller extends Component {
 						<img src="/images/warning.svg" class="warning-svg connection-error-svg"/>
 						<div class="foreign-client notification-info">
 							Unable to verify client. You may stop cards and help with product enquiries.
+						</div>
+					</capitec-group>
+				</capitec-group>
+			</capitec-content-box>`;
+	}
+
+	_renderFailedFirstAttempt() {
+		return html`
+			<capitec-content-box id="notification-status-box">
+				<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
+					<capitec-alert-banner type="warning">
+						<b>Notify: </b>You didn't pass the security questions.
+					</capitec-alert-banner>
+					<capitec-group layout="vertical" 
+						halign="center"
+						valign="top" 
+						gap="clear"
+						id="notification-status-error-group">
+						<img src="/images/warning.svg" class="warning-svg connection-error-svg"/>
+						<div class="notification-info" style="margin-bottom: 18px">
+							Your first attempt was unsuccessful. <br>
+							You can try again or verify by accepting the push notification.
 						</div>
 					</capitec-group>
 				</capitec-group>
