@@ -229,7 +229,7 @@ export class HorizonChannelService extends Service {
 	accessChannel(cifNumber) {
 		const url = `/clientcare-accesschannels-${this._version}/access-channels`;
 		
-		return this._post(url, {'cif': cifNumber}, this._setToken(), `accessChannels`);
+		return this._post(url, { 'cif': cifNumber }, this._setToken(), `accessChannels`);
 	}
 
 	// --------------------
@@ -238,7 +238,7 @@ export class HorizonChannelService extends Service {
 
 	getValueAddedService(cifNumber) {
 		const url = `/clientcare-client-${this._version}/value-added-services`;
-		return this._post(url, {'cif': cifNumber}, this._setToken(), `getValueAddedService`);
+		return this._post(url, { 'cif': cifNumber }, this._setToken(), `getValueAddedService`);
 	}
 
 	putValueAddedService(request) {
@@ -265,7 +265,7 @@ export class HorizonChannelService extends Service {
 			return false;
 		}
 
-		return this._post(`/clientcare-call-${this._version}/has-digital-verification-capability`, {'cif': cifNumber}, this._setToken(), `digitalVerificationChannelsAvailable`);
+		return this._post(`/clientcare-call-${this._version}/has-digital-verification-capability`, { 'cif': cifNumber }, this._setToken(), `digitalVerificationChannelsAvailable`);
 	}
 
 	async xdsQuestions(clientID) {
@@ -277,7 +277,7 @@ export class HorizonChannelService extends Service {
 			}
 		}
 
-		return this._post(`/clientcare-call-${this._version}/load-xds-questions`, {'clientID': clientID}, this._setToken(), `xdsQuestions`);
+		return this._post(`/clientcare-call-${this._version}/load-xds-questions`, { 'clientID': clientID }, this._setToken(), `xdsQuestions`);
 	}
 
 	async verifySecurityQuestions(answers) {
@@ -302,7 +302,9 @@ export class HorizonChannelService extends Service {
 
 		const url = `/clientcare-call-${this._version}/accept-call`;
 
-		return this._post(url, {
+		return this._post(
+			url,
+			{
 				'incomingTelephoneNumber': incomingCallData.incomingTelephoneNumber,
 				'voiceReferenceNumber': incomingCallData.voiceReferenceNumber,
 				'ivrOptionCode': incomingCallData.ivrOptionCode,
@@ -317,7 +319,9 @@ export class HorizonChannelService extends Service {
 	searchCaller(clientInfo) {
 		const url = `/clientcare-call-${this._version}/search-caller`;
 
-		return this._post(url, {
+		return this._post(
+			url,
+			{
 				'incomingTelephoneNumber': clientInfo.incomingTelephoneNumber,
 				'voiceReferenceNumber': clientInfo.voiceReferenceNumber,
 				'ivrOptionCode': clientInfo.ivrOption,
@@ -342,7 +346,9 @@ export class HorizonChannelService extends Service {
 
 		const url = `/clientcare-card-${this._version}/limits-landing`;
 
-		return this._post(url, {
+		return this._post(
+			url,
+			{
 				'cifNumber': cifNumber,
 				'incidentRecId': incidentRecId
 			},
@@ -403,7 +409,9 @@ export class HorizonChannelService extends Service {
 
 		const url = `/clientcare-card-${this._version}/tap-to-pay-landing`;
 
-		return this._post(url, {
+		return this._post(
+			url,
+			{
 				'cifNumber': cifNumber,
 				'incidentRecId': incidentRecId
 			},
@@ -537,7 +545,9 @@ export class HorizonChannelService extends Service {
 	getClientProducts(request) {
 		const url = `/clientcare-documents-${this._version}/statements/client`;
 
-		return this._post(url, {
+		return this._post(
+			url,
+			{
 				'cifNumber': request.cifNumber,
 				'productStatus': request.status
 			},
@@ -605,7 +615,9 @@ export class HorizonChannelService extends Service {
 
 		const url = `/clientcare-favourites-${this._version}/landing`;
 
-		return this._post(url, {
+		return this._post(
+			url,
+			{
 				'cifNumber': clientInfo.cifNumber,
 				'nationalIDNumber': clientInfo.nationalIDNumber,
 				'isCallerVerified': clientInfo.isCallerVerified
@@ -638,13 +650,15 @@ export class HorizonChannelService extends Service {
 	otherNeedCategories(orgUnit) {
 		const url = `/clientcare-incident-${this._version}/categories`;
 
-		return this._post(url, {'orgUnit': encodeURIComponent(orgUnit)}, this._setToken(), `otherNeedCategories`);
+		return this._post(url, { 'orgUnit': encodeURIComponent(orgUnit) }, this._setToken(), `otherNeedCategories`);
 	}
 
 	otherNeedSpecificNeed(orgUnit, categoryName) {
 		const url = `/clientcare-incident-${this._version}/need`;
 
-		return this._post(url, {
+		return this._post(
+			url,
+			{
 				'orgUnit': encodeURIComponent(orgUnit),
 				'categoryName': encodeURIComponent(categoryName)
 			},
@@ -656,7 +670,9 @@ export class HorizonChannelService extends Service {
 	otherNeedIssueType(orgUnit, categoryName, need) {
 		const url = `/clientcare-incident-${this._version}/issue`;
 
-		return this._post(url, {
+		return this._post(
+			url,
+			{
 				'orgUnit': encodeURIComponent(orgUnit),
 				'categoryName': encodeURIComponent(categoryName),
 				'need': encodeURIComponent(need)
@@ -710,7 +726,7 @@ export class HorizonChannelService extends Service {
 		// CpNumber String
 		const url = `/clientcare-incident-${this._version}/user-details`;
 
-		return this._post(url, {'userID': cpNumber}, this._setToken(), `GetConsultantInformation`);
+		return this._post(url, { 'userID': cpNumber }, this._setToken(), `GetConsultantInformation`);
 	}
 
 	// ----------
@@ -777,7 +793,9 @@ export class HorizonChannelService extends Service {
 
 		const url = `/clientcare-savingsaccount-${this._version}/landing`;
 
-		return this._post(url, {
+		return this._post(
+			url,
+			{
 				'cifNumber': cifNumber,
 				'nationalIDNumber': nationalIDNumber,
 				'getGenericData': getGenericData
@@ -794,7 +812,9 @@ export class HorizonChannelService extends Service {
 
 		const url = `/clientcare-savingsaccount-${this._version}/client/transactions`;
 
-		return this._post(url, {
+		return this._post(
+			url,
+			{
 				'cifNumber': transactionHistoryRequest.cifNumber,
 				'accountNumber': transactionHistoryRequest.accountNumber,
 				'accountType': transactionHistoryRequest.accountType,
