@@ -69,7 +69,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 			const actions = {
 				'transaction-history': transactionHistory,
-				'debi-check': debiCheck,
+				'debi-check-viewInfo': debiCheck,
 				'statements': statements,
 				'more': more
 			};
@@ -226,6 +226,11 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		}
 	}
 
+	_exitTransactionHistory() {
+		this._setIncidentDone();
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -282,7 +287,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 					.accountDetails = "${this.accountDetails}"
 					.callerInformation = "${this.callerInformation}"
 					@error-handler = "${() => this._errorHandler()}"
-					@back="${() => this._exitTransactionHistory()}">
+					@back="${() => this._exitTransactionHistory()}"
 					@unloading="${() => this._unloadTransactionHistory()}">
 				</horizon-transaction-history>`
 			: html``;
