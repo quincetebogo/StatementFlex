@@ -627,6 +627,10 @@ export class VerifyCaller extends Component {
 					width: 210px;
 					margin: 18px 0px 13px 0px;
 				}
+				.remote-connection-warning-svg {
+					height: 152px;
+					width: 210px;
+				}
 				.notification-info {
 					color: #545D60;
 					font-family: "Hind Vadodara";
@@ -672,11 +676,12 @@ export class VerifyCaller extends Component {
 				horizon-caller-dialog {
 					--horizon-modal-footer-padding: 0px;
 				}
-				.warning-svg {
-					margin-top: 18px;
-				}
 				.foreign-client {
 					margin-bottom: 29px;
+					text-align: center;
+				}
+				.no-remote-access-client {
+					margin-bottom: 18px;
 					text-align: center;
 				}
 			`
@@ -911,11 +916,11 @@ export class VerifyCaller extends Component {
 						valign="top" 
 						gap="clear"
 						id="notification-status-error-group">
-						<img src="/images/connection-error.svg" class="warning-svg connection-error-svg"/>
-						<div class="foreign-client notification-info">
-						<b>Notify client</b><br>
-						We need to ask you 5 security questions before accessing your account.<br>
-						Your answers will be checked by a third-party or credit bureau. Are you comfortable to continue?
+						<img src="/images/connection-error.svg" class="remote-connection-warning-svg"/>
+						<div class="no-remote-access-client notification-info">
+							<b>Notify client</b><br>
+							We need to ask you 5 security questions before accessing your account.<br>
+							Your answers will be checked by a third-party or credit bureau. Are you comfortable to continue?
 						</div>
 					</capitec-group>
 				</capitec-group>
@@ -934,10 +939,10 @@ export class VerifyCaller extends Component {
 						valign="top" 
 						gap="clear"
 						id="notification-status-error-group">
-						<img src="/images/client-blocked.svg" class="warning-svg connection-error-svg"/>
+						<img src="/images/client-blocked.svg" class="connection-error-svg"/>
 						<div class="foreign-client notification-info">
-						You can visit any branch to unblock your access,<br>
-						or skip verification to continue with limited transactions. 
+							You can visit any branch to unblock your access,<br>
+							or skip verification to continue with limited transactions. 
 						</div>
 					</capitec-group>
 				</capitec-group>
