@@ -1,4 +1,5 @@
 import { HIGH_RISK_TRANSACTIONS, LOW_RISK_TRANSACTIONS } from 'app/constants/Common';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { NavigationContext } from 'platform/core';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
@@ -7,7 +8,6 @@ import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { html } from 'platform/elements';
-import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/common/StatementsDialog';
@@ -148,7 +148,7 @@ export class SavingsAccountBase extends ViewBase {
 		}
 	}
 
-	async _declineMandate(event, screenDetails) {
+	_declineMandate(event, screenDetails) {
 		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_DECLINE_MANDATE, {
 			"screen": TelemetryScreen.DEBICHECK,
 			"next-screen": TelemetryScreen.DECLINE_DEBICHECK
@@ -158,9 +158,8 @@ export class SavingsAccountBase extends ViewBase {
 		screenDetails.isApproved = false;
 		this.horizonStore.setScreenDetails(screenDetails);
 
-		await this._getAgreement();
-		this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
-	}
+        this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
+    }
 
 	async _approveMandate(event, screenDetails) {
 		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
@@ -258,7 +257,7 @@ export class SavingsAccountBase extends ViewBase {
 
 		if (returnValue.succeeded) {
 
-			let primarySavings = returnValue.result.savingsProducts.filter(item => item.accountType === 300);
+			const primarySavings = returnValue.result.savingsProducts.filter(item => item.accountType === 300);
 			this.accountNumber = primarySavings[0].accountNumber;
 		
 
@@ -268,7 +267,7 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	async _confirmAgreement(accepted) {
-		const name = this.callerInformation.name.split(" ");
+		const name = this.callerInformation.name.split(` `);
 		const agreementInfo = {
 			cifNumber: this.callerInformation.cifNumber,
 			mandateRef: this.debiCheckDetails.mandateReference,
@@ -294,7 +293,7 @@ export class SavingsAccountBase extends ViewBase {
 			accountConfirmation: accepted,
 			instalmentConfirmation: accepted,
 			permissionToDebit: accepted,
-			termsAndConditionsConfirmation: accepted,
+			termsAndConditionsConfirmation: accepted
 		};
 
 		const returnValue = await this.savingsAccountService.debiCheckConfirmAgreement(agreementInfo);
@@ -319,7 +318,7 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	async _getAgreement() {
-		let name = this.callerInformation.name.split(" ");
+		const name = this.callerInformation.name.split(` `);
 
 		const agreementRequest = {
 			title: name[0],
@@ -337,12 +336,9 @@ export class SavingsAccountBase extends ViewBase {
 
 		if (returnValue.succeeded && returnValue.result) {
 			this.clientDetails = returnValue.result;
-			return;
 		} else {
 			this.horizonRouter.navigateToDebiCheckFailed();
 		}
-
-		return;
 	}
 
 	_backToLandingPage() {
@@ -372,6 +368,7 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	async _unloadDebiCheck(eventName, screenName) {
+
 		/**
 		 * Debi check mandates are viewed but view/approve/decline is not selected.
 		 * Navigating away will still be considered as viewed and classified.
