@@ -181,6 +181,10 @@ export class TaxCertificatesDialog extends Component {
 			"next-screen": TelemetryScreen.TAX_CERTIFICATE_DOCUMENT
 		});
 
+		if (type === `iT3STaxCertificates`) {
+			return base64ToBlobUrl(item.contentData);
+		}
+
 		const request = this._formatViewCertificateRequest(item, type);
 
 		const returnValue = await this.quickTransactionService.viewTaxCertificate(request, () => true);
@@ -198,6 +202,40 @@ export class TaxCertificatesDialog extends Component {
 		} 
 	
 		this.logger.log(`error`, `Unable to get load tax certificates documents`, `_viewPDF`, returnValue.correlationId);
+		this.horizonRouter.navigateToTaxCertificateServiceError();
+		return null;
+	}
+
+	async _getIT3SContentData(selectedCertificates) {
+		if (!selectedCertificates.iT3STaxCertificates || selectedCertificates.iT3STaxCertificates.length === 0) {
+			return [];
+		}
+
+		const request = {
+			cif: this.cifNumber,
+			iT3BTaxCertificates: [],
+			iT3STaxCertificates: selectedCertificates.iT3STaxCertificates.map(item => {
+				const [first] = item.taxCertificateAccounts; // Extracting first element from taxcertificate accounts array
+				return {
+					year: item.year,
+					documentId: item.documentId,
+					accountNumber: first.accountNumber
+				};
+			})
+		};
+		const returnValue = await this.quickTransactionService.viewTaxCertificate(request, () => true);
+	
+		if (returnValue.succeeded && !isNullorEmpty(returnValue.result)) {
+			const result = returnValue.result;
+			
+			selectedCertificates.iT3STaxCertificates.forEach(item => {
+				const docData = result.iT3SDocuments.find(doc => doc.year === item.year && doc.documentId === item.documentId);
+				item.contentData = docData.contentData;
+			});
+			return true;
+		}
+	
+		this.logger.log(`error`, `Unable to get iT3S content data`, `_getIT3SContentData`, returnValue.correlationId);
 		this.horizonRouter.navigateToTaxCertificateServiceError();
 		return null;
 	}
@@ -253,13 +291,19 @@ export class TaxCertificatesDialog extends Component {
 
 	_formatSendRequest(selectedCertType, selectedCertificates, email) {
 		const documentIds = [];
+		const attachments = [];
 
 		if (selectedCertificates.iT3BTaxCertificates && (selectedCertType === `iT3BTaxCertificates` || selectedCertType === `both`)) {
 			documentIds.push(...selectedCertificates.iT3BTaxCertificates.map(item => item.documentId));
 		}
 
 		if (selectedCertificates.iT3STaxCertificates && (selectedCertType === `iT3STaxCertificates` || selectedCertType === `both`)) {
-			documentIds.push(...selectedCertificates.iT3STaxCertificates.map(item => item.documentId));
+			attachments.push(...selectedCertificates.iT3STaxCertificates.map(item => {
+				return {
+					name: `it3b document for year ${item.year}`,
+					data: item.contentData
+				};
+			}));
 		}
 
 		const request = {
@@ -270,7 +314,7 @@ export class TaxCertificatesDialog extends Component {
 				"title": this.taxCertificateDetails.title,
 				"surname": this.taxCertificateDetails.lastName
 			},
-			"attachments": []
+			"attachments": attachments
 		};
 		
 		return request;
@@ -299,7 +343,6 @@ export class TaxCertificatesDialog extends Component {
 
 		return request;
 	}
-
 
 /*
 	_formatViewCertificateRequest(item, type) {
@@ -356,6 +399,7 @@ export class TaxCertificatesDialog extends Component {
 			<capitec-pc-tax-certificate
 				.taxCertificateDetails="${this.taxCertificateDetails}"
 				.getTaxCertificatePDFCallback="${(item, type) => this._viewPDF(item, type)}"
+				.getIT3SContentData="${(selectedCertificates) => this._getIT3SContentData(selectedCertificates)}"
 				@send="${e => this._send(e)}"
 				@next="${e => this._next(e)}"
 				@close="${e => this._close()}"
