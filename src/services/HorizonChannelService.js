@@ -352,25 +352,25 @@ export class HorizonChannelService extends Service {
 			return this._mock.getCardLimitsAgreement(cardDetails);
 		}
 
-		return this._post(`/clientcare-card-${this._version}/limits-agreement`, cardDetails, this._setToken(), `getCardLimitsAgreement`);
+		return this._post(`/clientcare-card-${this._version}/limits-agreement`, cardDetails, this._setToken(), `getCardLimitsAgreement`, null, null, 1000);
 	}
 
 	updatePermanentLimits(request) {
 		const url = `/clientcare-card-${this._version}/permanent-limits`;
 
-		return this._put(url, request, this._setToken(), `updatePermanentLimits`);
+		return this._put(url, request, this._setToken(), `updatePermanentLimits`, null, null, 1000);
 	}
 
 	updateTemporaryLimits(request) {
 		const url = `/clientcare-card-${this._version}/temporary-limits`;
 
-		return this._put(url, request, this._setToken(), `updateTemporaryLimits`);
+		return this._put(url, request, this._setToken(), `updateTemporaryLimits`, null, null, 1000);
 	}
 
 	getPermanentLimits(request) {
 		const url = `/clientcare-card-${this._version}/permanent-limits`;
 
-		return this._post(url, request, this._setToken(), `getPermanentLimits`);
+		return this._post(url, request, this._setToken(), `getPermanentLimits`, null, null, 1000);
 	}
 
 	async getTemporaryLimits(request) {
@@ -381,7 +381,7 @@ export class HorizonChannelService extends Service {
 
 		const url = `/clientcare-card-${this._version}/temporary-limits`;
 
-		return this._post(url, request, this._setToken(), `getTemporaryLimits`);
+		return this._post(url, request, this._setToken(), `getTemporaryLimits`, null, null, 1000);
 	}
 
 	async tapToPayLanding(cifNumber, incidentRecId) {
@@ -396,13 +396,13 @@ export class HorizonChannelService extends Service {
 	tapToPayAgreement(agreementInfo) {
 		const url = `/clientcare-card-${this._version}/tap-to-pay-agreement`;
 
-		return this._post(url, agreementInfo, this._setToken(), `tapToPayAgreement`);
+		return this._post(url, agreementInfo, this._setToken(), `tapToPayAgreement`, null, null, 1000);
 	}
 
 	updateTapToPay(acceptTapToPay) {
 		const url = `/clientcare-card-${this._version}/tap-to-pay`;
 
-		return this._post(url, acceptTapToPay, this._setToken(), `updateTapToPay`);
+		return this._post(url, acceptTapToPay, this._setToken(), `updateTapToPay`, null, null, 1000);
 	}
 	
 	async stopCard(stopCardRequest) {
@@ -421,7 +421,7 @@ export class HorizonChannelService extends Service {
 			"incidentRecId": stopCardRequest.incidentRecId
 		};
 
-		return this._post(url, model, this._setToken(), `stopCard`);
+		return this._post(url, model, this._setToken(), `stopCard`, null, null, 1000);
 	}
 
 	assignTeams(incidentData) {
@@ -527,22 +527,22 @@ export class HorizonChannelService extends Service {
 		}
 
 		const url = `/clientcare-documents-${this._version}/statements/view-statement`;
-		return this._post(url, statement, this._setToken(), `viewStatement`);
+		return this._post(url, statement, this._setToken(), `viewStatement`, null, null, 2000);
 	}
 
 	sendStatement(statement) {
 		const url = `/clientcare-documents-${this._version}/statements/send-statement`;
-		return this._post(url, statement, this._setToken(), `sendStatement`);
+		return this._post(url, statement, this._setToken(), `sendStatement`, null, null, 2000);
 	}
 
 	sendProofOfAccount(clientInfo) {
 		const url = `/clientcare-documents-${this._version}/statements/send-proof-of-account`;
-		return this._post(url, clientInfo, this._setToken(), `sendProofOfAccount`);
+		return this._post(url, clientInfo, this._setToken(), `sendProofOfAccount`, null, null, 2000);
 	}
 
 	viewProofOfAccount(clientInfo) {
 		const url = `/clientcare-documents-${this._version}/statements/view-proof-of-account`;
-		return this._post(url, clientInfo, this._setToken(), `viewProofOfAccount`);
+		return this._post(url, clientInfo, this._setToken(), `viewProofOfAccount`, null, null, 2000);
 	}
 
 	getTaxCertificate(cifNumber) {
@@ -593,7 +593,7 @@ export class HorizonChannelService extends Service {
 		const url = `/clientcare-incident-${this._version}/create-incident`;
 		const model = createIncidentRequest;
 
-		return this._post(url, model, this._setToken(), `createIncident`);
+		return this._post(url, model, this._setToken(), `createIncident`, null, null, 900);
 	}
 
 	updateIncidentClientDetails(cifNumber, incidentRecId) {
@@ -633,19 +633,19 @@ export class HorizonChannelService extends Service {
 						`Resolution=${closeIncidentRequest.resolution}&` +
 						`CauseCode=${closeIncidentRequest.causeCode}`;
 
-		return this._put(url, null, this._setToken(), `closeIncident`);
+		return this._put(url, null, this._setToken(), `closeIncident`, null, null, 1000);
 	}
 
 	updateIncidentNonClientDetails(incidentRecId, nonClientDetails) {
 		nonClientDetails.incidentRecId = incidentRecId;
 
-		return this._post(`/clientcare-incident-${this._version}/addcaller/nonclient`, nonClientDetails, this._setToken(), `updateIncidentNonClientDetails`);
+		return this._post(`/clientcare-incident-${this._version}/addcaller/nonclient`, nonClientDetails, this._setToken(), `updateIncidentNonClientDetails`, null, null, 900);
 	}
 
 	classifyIncident(classifyIncidentRequest) {
 		const url = `/clientcare-incident-${this._version}/classification`;
 	
-		return this._post(url, classifyIncidentRequest, this._setToken(), `classifyIncident`);
+		return this._post(url, classifyIncidentRequest, this._setToken(), `classifyIncident`, null, null, 900);
 	}
 
 	incidentStatus(incidentRecId) {
