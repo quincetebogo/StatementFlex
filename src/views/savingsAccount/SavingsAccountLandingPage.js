@@ -201,7 +201,19 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		if (returnValue.succeeded && returnValue.result) {
 			await super.createAndClassifySubsIncident();
 			
-			this.transactionHistory.push(...returnValue.result.transactions);
+			const formattedTrans = returnValue.result.transactions
+									.filter(item => item.transactionStatus !== ``)
+									.map((item) => {
+										const date = new Date(Date.parse(item.transactionDate));
+							
+										item.tranDate = date;
+										item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
+										item.formatedAmount = formatCurrency(item.amount);
+										item.formatedBalance = formatCurrency(item.balance);
+							
+										return item;
+									});
+			this.transactionHistory.push(...formattedTrans);
 			this.accountDetails = {
 				"accountNumber": this.landingPageInfo.accountNumber,
 				"balance": this.landingPageInfo.accountBalance,

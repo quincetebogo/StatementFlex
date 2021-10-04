@@ -130,9 +130,9 @@ export class TransactionHistory extends Component {
         super.connectedCallback();
 
         this.rawTableData = this.transactionHistory;
-        this.transactionHistory = this._initialize(this.transactionHistory);
         this.filteredData = this.transactionHistory;
 
+		this.showLoadMore = !(this.TransactionHistory.length % TRANSACTION_HISTORY.MAX_RESULTS < TRANSACTION_HISTORY.MAX_RESULTS);
     }
 
 	disconnectedCallback() {
@@ -165,7 +165,6 @@ export class TransactionHistory extends Component {
         }
     }
 
-
     getPredefinedDateRanges() {
         const last7day = new Date(today);
         const last30day = new Date(today);
@@ -184,7 +183,6 @@ export class TransactionHistory extends Component {
             { text: `Last 90 days`, value: { startDate: last90day.toISOString(), endDate: today.toISOString() } }
         ];
     }
-
 
     // To hide or show the label for the select field according to the design requirement.
     _statusFocussed(e) {
@@ -312,22 +310,6 @@ export class TransactionHistory extends Component {
     // PRIVATE METHODS
     // ---------------
 
-    _initialize(tableData) {
-        this.showLoadMore = !(tableData.length < TRANSACTION_HISTORY.MAX_RESULTS);
-
-        tableData.map((item) => {
-            const date = new Date(Date.parse(item.transactionDate));
-
-            item.tranDate = date;
-            item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
-            item.formatedAmount = formatCurrency(item.amount);
-            item.formatedBalance = formatCurrency(item.balance);
-
-            return item;
-        });
-        return tableData.filter(item => item.transactionStatus !== ``);
-    }
-
     // To set the values to default on closing the chip or clearing all the filters
     _reset() {
         this.showLoadMore = true;
@@ -350,17 +332,9 @@ export class TransactionHistory extends Component {
 
 	async _loadMoreTransactions() {
 
-		const moreData = 
+		const moreData = this.loadMoreTransactions(this.startDate, this.endDate, this.transactionHistory.length + 1);
 
-		const loadMoreData = this.transactionHistory.length > 0 ? await this.getMoreTransactions() : [];
-		if (loadMoreData.length > 0) {
-			this.rawTableData = [...this.rawTableData, ...loadMoreData];
-			const tableData = this._initialize(loadMoreData);
-			this.transactionHistory = [...this.transactionHistory, ...tableData];
-		}
-		if (!loadMoreData.length > 0 && this.transactionHistory.length > 0) {
-			this.showLoadMore = false;
-		}
+		this.rawTableData = this.transactionHistory;
 		this.filteredData = this.transactionHistory;
 		this._refineSearch();
 	}
@@ -379,7 +353,7 @@ export class TransactionHistory extends Component {
 					return this.filteredData.filter(item => item.description.toLowerCase().indexOf(key.toLowerCase()) !== -1 ||
 															parseFloat(item.amount).toFixed(2).startsWith(key) ||
 															(parseFloat(item.amount) * -1).toFixed(2).startsWith(key));
-			}
+				}
 				return [];
 			});
 			this.filteredData = Array.from(new Set([...searchTextResult.flat()]));           
