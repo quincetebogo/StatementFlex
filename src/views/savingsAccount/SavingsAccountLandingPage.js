@@ -41,7 +41,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		this.configuration = Configuration.getInstance();
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
-		this.transactionHistory = null;
+		this.transactionHistory = [];
 		this.accountDetails = null;
 		this.clientProducts = null;
 	
@@ -184,14 +184,14 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		this.horizonRouter.navigateToSystemError();
 	}
 
-	async _transactionHistory() {
+	async _transactionHistory(startDate = TRANSACTION_HISTORY.START_DATE, endDate = TRANSACTION_HISTORY.END_DATE, startAtIndex = TRANSACTION_HISTORY.START_AT_INDEX) {
 		const transactionHistoryRequest = {
 			cifNumber: this.callerInformation.cifNumber,
 			accountNumber: this.landingPageInfo.accountNumber,
 			accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
-			startDate: TRANSACTION_HISTORY.START_DATE,
-			endDate: TRANSACTION_HISTORY.END_DATE,
-			startAtIndex: TRANSACTION_HISTORY.START_AT_INDEX,
+			startDate: startDate,
+			endDate: endDate,
+			startAtIndex: startAtIndex,
 			maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
 			moneyType: TRANSACTION_HISTORY.MONEY_TYPE
 		};
@@ -201,7 +201,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		if (returnValue.succeeded && returnValue.result) {
 			await super.createAndClassifySubsIncident();
 			
-			this.transactionHistory = returnValue.result.transactions;
+			this.transactionHistory.push(...returnValue.result.transactions);
 			this.accountDetails = {
 				"accountNumber": this.landingPageInfo.accountNumber,
 				"balance": this.landingPageInfo.accountBalance,
@@ -213,6 +213,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			this.endCallContext = `TransactionHistory`;
 			this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 		}
+		return this.transactionHistory;
 	}
 
 	_more() {
@@ -280,7 +281,8 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				<horizon-transaction-history
 					.transactionHistory = "${this.transactionHistory}"
 					.accountDetails = "${this.accountDetails}"
-					.callerInformation = "${this.callerInformation}"
+					.cifNumber = "${this.callerInformation.cifNumber}"
+					.loadMoreTransactions="${(startDate, endDate, startAtIndex) => this._transactionHistory(startDate, endDate, startAtIndex)}"
 					@error-handler = "${() => this._errorHandler()}"
 					@back="${() => this._exitTransactionHistory()}"
 					@unloading="${() => this._unloadTransactionHistory()}">
