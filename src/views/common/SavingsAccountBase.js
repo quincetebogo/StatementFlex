@@ -175,6 +175,7 @@ export class SavingsAccountBase extends ViewBase {
 
 		await this._getAgreement();
 		this.renderMode = RENDER_MODE.DEBI_CHECK_APPROVE;
+        return;
 	}
 
 	_viewMandate(event) {
