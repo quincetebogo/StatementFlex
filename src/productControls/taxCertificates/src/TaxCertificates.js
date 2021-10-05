@@ -78,6 +78,7 @@ export class TaxCertificates extends Component {
 		return {
 			taxCertificateDetails: { type: Object },
 			getTaxCertificatePDFCallback: { type: Function },
+			getIT3SContentData: { type: Function },
 
 			// Private Properties
 			currentStep: { attribute: false },
@@ -151,6 +152,7 @@ export class TaxCertificates extends Component {
 				selectedCertType: this.selectedCertType
 			}
 		}));
+
 	}
 
 	_cancelClick(e) {
@@ -162,7 +164,7 @@ export class TaxCertificates extends Component {
 		this.dispatchEvent(new CustomEvent(`close`, {}));
 	}
 
-	_nextClick() {
+	async _nextClick() {
 		if (isNullorEmpty(this.selectedCertType)) {
 			this.alertBannerMessage = ERROR_MESSAGE.CERT_TYPE;
 			return;
@@ -177,6 +179,7 @@ export class TaxCertificates extends Component {
 		}
 
 		this.currentStep++;
+		await this.getIT3SContentData(this.selectedCertificates);
 
 		if (this.selectedCertificates.iT3BTaxCertificates !== undefined) {
 			this.selectedCertificates.iT3BTaxCertificates.sort((l, r) => r.year - l.year);

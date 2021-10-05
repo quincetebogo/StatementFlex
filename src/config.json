@@ -63,22 +63,25 @@
 		"language-transfer": "LANGUAGE_TRANSFER",
 		"call-transfer": "CALL_TRANSFER",
 		"general-product-enquiry": "GENERAL_PRODUCT_ENQUIRY",
-		"failed-verification": "FAILED_VERIFICATION"
+		"failed-verification": "FAILED_VERIFICATION",
+		"debi-check-approve": "DEBI_CHECK_APPROVE",
+		"debi-check-decline": "DEBI_CHECK_DECLINE",
+		"debi-check-viewInfo": "DEBI_CHECK"
 	},
 	"mock": {
 		"enabled": true,
-    "acceptCall": {
-      "enabled": true,
-      "positiveCase": true
-    },
-    "identifyCaller": {
-      "enabled": true,
-      "positiveCase": true
-    },
-    "favouritesLanding": {
-      "enabled": true,
-      "positiveCase": true
-    },
+		"acceptCall": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"identifyCaller": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"favouritesLanding": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"cardLimitsLanding": {
 			"enabled": false,
 			"positiveCase": true
