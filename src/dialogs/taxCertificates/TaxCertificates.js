@@ -181,7 +181,7 @@ export class TaxCertificatesDialog extends Component {
 			"next-screen": TelemetryScreen.TAX_CERTIFICATE_DOCUMENT
 		});
 
-		if (type === `iT3STaxCertificates`) {
+		if (type === `iT3BTaxCertificates`) {
 			return base64ToBlobUrl(item.contentData);
 		}
 
@@ -206,20 +206,20 @@ export class TaxCertificatesDialog extends Component {
 		return null;
 	}
 
-	async _getIT3SContentData(selectedCertificates) {
-		if (!selectedCertificates.iT3STaxCertificates || selectedCertificates.iT3STaxCertificates.length === 0) {
+	async _getIT3BContentData(selectedCertificates) {
+		if (!selectedCertificates.iT3BTaxCertificates || selectedCertificates.iT3BTaxCertificates.length === 0) {
 			return [];
 		}
 
 		const request = {
 			cif: this.cifNumber,
-			iT3BTaxCertificates: [],
-			iT3STaxCertificates: selectedCertificates.iT3STaxCertificates.map(item => {
-				const [first] = item.taxCertificateAccounts; // Extracting first element from taxcertificate accounts array
+			iT3STaxCertificates: [],
+			iT3BTaxCertificates: selectedCertificates.iT3BTaxCertificates.map(item => {
 				return {
 					year: item.year,
 					documentId: item.documentId,
-					accountNumber: first.accountNumber
+					accountNumber: this.accountNumber,
+					payload: item.payload
 				};
 			})
 		};
@@ -228,8 +228,8 @@ export class TaxCertificatesDialog extends Component {
 		if (returnValue.succeeded && !isNullorEmpty(returnValue.result)) {
 			const result = returnValue.result;
 			
-			selectedCertificates.iT3STaxCertificates.forEach(item => {
-				const docData = result.iT3SDocuments.find(doc => doc.year === item.year && doc.documentId === item.documentId);
+			selectedCertificates.iT3BTaxCertificates.forEach(item => {
+				const docData = result.iT3BDocuments.find(doc => doc.year === item.year && doc.documentId === item.documentId);
 				item.contentData = docData.contentData;
 			});
 			return true;
@@ -294,16 +294,16 @@ export class TaxCertificatesDialog extends Component {
 		const attachments = [];
 
 		if (selectedCertificates.iT3BTaxCertificates && (selectedCertType === `iT3BTaxCertificates` || selectedCertType === `both`)) {
-			documentIds.push(...selectedCertificates.iT3BTaxCertificates.map(item => item.documentId));
-		}
-
-		if (selectedCertificates.iT3STaxCertificates && (selectedCertType === `iT3STaxCertificates` || selectedCertType === `both`)) {
-			attachments.push(...selectedCertificates.iT3STaxCertificates.map(item => {
+			attachments.push(...selectedCertificates.iT3BTaxCertificates.map(item => {
 				return {
-					name: `it3b document for year ${item.year}`,
+					name: `${item.year} it3b document for year`,
 					data: item.contentData
 				};
 			}));
+		}
+
+		if (selectedCertificates.iT3STaxCertificates && (selectedCertType === `iT3STaxCertificates` || selectedCertType === `both`)) {
+			documentIds.push(...selectedCertificates.iT3STaxCertificates.map(item => item.documentId));
 		}
 
 		const request = {
@@ -399,7 +399,7 @@ export class TaxCertificatesDialog extends Component {
 			<capitec-pc-tax-certificate
 				.taxCertificateDetails="${this.taxCertificateDetails}"
 				.getTaxCertificatePDFCallback="${(item, type) => this._viewPDF(item, type)}"
-				.getIT3SContentData="${(selectedCertificates) => this._getIT3SContentData(selectedCertificates)}"
+				.getIT3BContentData="${(selectedCertificates) => this._getIT3BContentData(selectedCertificates)}"
 				@send="${e => this._send(e)}"
 				@next="${e => this._next(e)}"
 				@close="${e => this._close()}"
