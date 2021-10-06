@@ -41,7 +41,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		this.configuration = Configuration.getInstance();
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
-		this.transactionHistory = [];
+		this.transactionHistory = null;
 		this.accountDetails = null;
 		this.clientProducts = null;
 	
@@ -184,14 +184,14 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		this.horizonRouter.navigateToSystemError();
 	}
 
-	async _transactionHistory(startDate = TRANSACTION_HISTORY.START_DATE, endDate = TRANSACTION_HISTORY.END_DATE, startAtIndex = TRANSACTION_HISTORY.START_AT_INDEX) {
+	async _transactionHistory() {
 		const transactionHistoryRequest = {
 			cifNumber: this.callerInformation.cifNumber,
 			accountNumber: this.landingPageInfo.accountNumber,
 			accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
-			startDate: startDate,
-			endDate: endDate,
-			startAtIndex: startAtIndex,
+			startDate: TRANSACTION_HISTORY.START_DATE,
+			endDate: TRANSACTION_HISTORY.END_DATE,
+			startAtIndex: TRANSACTION_HISTORY.START_AT_INDEX,
 			maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
 			moneyType: TRANSACTION_HISTORY.MONEY_TYPE
 		};
@@ -201,19 +201,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		if (returnValue.succeeded && returnValue.result) {
 			await super.createAndClassifySubsIncident();
 			
-			const formattedTrans = returnValue.result.transactions
-									.filter(item => item.transactionStatus !== ``)
-									.map((item) => {
-										const date = new Date(Date.parse(item.transactionDate));
-							
-										item.tranDate = date;
-										item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
-										item.formatedAmount = formatCurrency(item.amount);
-										item.formatedBalance = formatCurrency(item.balance);
-							
-										return item;
-									});
-			this.transactionHistory.push(...formattedTrans);
+			this.transactionHistory = returnValue.result.transactions;
 			this.accountDetails = {
 				"accountNumber": this.landingPageInfo.accountNumber,
 				"balance": this.landingPageInfo.accountBalance,
@@ -225,7 +213,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			this.endCallContext = `TransactionHistory`;
 			this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 		}
-		return this.transactionHistory;
 	}
 
 	_more() {
@@ -293,8 +280,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				<horizon-transaction-history
 					.transactionHistory = "${this.transactionHistory}"
 					.accountDetails = "${this.accountDetails}"
-					.cifNumber = "${this.callerInformation.cifNumber}"
-					.loadMoreTransactions="${(startDate, endDate, startAtIndex) => this._transactionHistory(startDate, endDate, startAtIndex)}"
+					.callerInformation = "${this.callerInformation}"
 					@error-handler = "${() => this._errorHandler()}"
 					@back="${() => this._exitTransactionHistory()}"
 					@unloading="${() => this._unloadTransactionHistory()}">

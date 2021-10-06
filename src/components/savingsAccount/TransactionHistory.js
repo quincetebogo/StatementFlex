@@ -67,6 +67,7 @@ export class TransactionHistory extends Component {
 
         this.transactionHistory = null;
         this.accountDetails = null;
+		this.callerInformation = null;
 
         this.isBusy = false;
 
@@ -96,9 +97,6 @@ export class TransactionHistory extends Component {
 
 	/**
 	 * @property {Object} transactionHistory Has list of client's transactions
-	 * @property {Object} accountDetails client's savings account info
-	 * @property {String} cifNumber client's cif number
-	 * @property {Function} loadMoreTransactions Callback function to fetch more data
 	 * 
 	 * @readonly
 	 * @static
@@ -109,8 +107,7 @@ export class TransactionHistory extends Component {
 		return {
 			transactionHistory: { type: Object },
 			accountDetails: { type: Object },
-			cifNumber: { type: String },
-			loadMoreTransactions: { type: Function },
+			callerInformation: { type: Object },
 
 			filteredData: { attribute: false },
 			renderMode: { attribute: false },
@@ -126,14 +123,14 @@ export class TransactionHistory extends Component {
     // LIFECYCLE OVERRIDES
     // -------------------
 
-    connectedCallback() {
-        super.connectedCallback();
+	connectedCallback() {
+		super.connectedCallback();
 
-        this.rawTableData = this.transactionHistory;
-        this.filteredData = this.transactionHistory;
+		this.rawTableData = this.transactionHistory;
+		this.transactionHistory = this._initialize(this.transactionHistory);
+		this.filteredData = this.transactionHistory;
 
-		this.showLoadMore = !(this.TransactionHistory.length % TRANSACTION_HISTORY.MAX_RESULTS < TRANSACTION_HISTORY.MAX_RESULTS);
-    }
+	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
@@ -240,7 +237,7 @@ export class TransactionHistory extends Component {
 
     async _populateTransactions() {
         const transactionHistoryRequest = {
-            cifNumber: this.cifNumber,
+            cifNumber: this.callerInformation.cifNumber,
             accountNumber: this.accountDetails.accountNumber,
             accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
             startDate: this.startTransactionDate.toLocaleString().slice(0, 10),
@@ -310,6 +307,19 @@ export class TransactionHistory extends Component {
     // PRIVATE METHODS
     // ---------------
 
+	_initialize(tableData) {
+        this.showLoadMore = !(tableData.length < TRANSACTION_HISTORY.MAX_RESULTS);
+        tableData.map((item) => {
+            const date = new Date(Date.parse(item.transactionDate));
+            item.tranDate = date;
+            item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
+            item.formatedAmount = formatCurrency(item.amount);
+            item.formatedBalance = formatCurrency(item.balance);
+            return item;
+        });
+        return tableData.filter(item => item.transactionStatus !== ``);
+    }
+
     // To set the values to default on closing the chip or clearing all the filters
     _reset() {
         this.showLoadMore = true;
@@ -331,13 +341,36 @@ export class TransactionHistory extends Component {
     }
 
 	async _loadMoreTransactions() {
-
-		const moreData = this.loadMoreTransactions(this.startDate, this.endDate, this.transactionHistory.length + 1);
-
-		this.rawTableData = this.transactionHistory;
-		this.filteredData = this.transactionHistory;
-		this._refineSearch();
-	}
+        const loadMoreData = this.transactionHistory.length > 0 ? await this.getMoreTransactions() : [];
+        if (loadMoreData.length > 0) {
+            this.rawTableData = [...this.rawTableData, ...loadMoreData];
+            const tableData = this._initialize(loadMoreData);
+            this.transactionHistory = [...this.transactionHistory, ...tableData];
+        }
+        if (!loadMoreData.length > 0 && this.transactionHistory.length > 0) {
+            this.showLoadMore = false;
+        }
+        this.filteredData = this.transactionHistory;
+        this._refineSearch();
+    }
+    async getMoreTransactions() {
+		const startDate = this.startTransactionDate && this.startTransactionDate.toLocaleString().slice(0, 10);
+		const endDate = this.endTransactionDate && this.endTransactionDate.toLocaleString().slice(0, 10);
+        const transactionHistoryRequest = {
+            cifNumber: this.callerInformation.cifNumber,
+            accountNumber: this.accountDetails.accountNumber,
+            accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
+            startDate: startDate || TRANSACTION_HISTORY.START_DATE,
+            endDate: endDate || TRANSACTION_HISTORY.END_DATE,
+            startAtIndex: this.rawTableData.length,
+            maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
+            moneyType: TRANSACTION_HISTORY.MONEY_TYPE
+        };
+        const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
+        if (returnValue.succeeded && returnValue.result) {
+            return returnValue.result.transactions;
+        }
+    }
 
 	_refineSearch() {
 		this.filteredData = this.transactionHistory;
