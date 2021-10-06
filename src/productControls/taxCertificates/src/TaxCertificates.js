@@ -78,7 +78,7 @@ export class TaxCertificates extends Component {
 		return {
 			taxCertificateDetails: { type: Object },
 			getTaxCertificatePDFCallback: { type: Function },
-			getIT3SContentData: { type: Function },
+			getIT3BContentData: { type: Function },
 
 			// Private Properties
 			currentStep: { attribute: false },
@@ -176,7 +176,7 @@ export class TaxCertificates extends Component {
 		}
 
 		this.currentStep++;
-		await this.getIT3SContentData(this.selectedCertificates);
+		await this.getIT3BContentData(this.selectedCertificates);
 
 		this.dispatchEvent(new CustomEvent(`next`, { 
 			detail: {

@@ -331,7 +331,7 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns {string} baggage item
 	 */
 	_trimBaggage(item) {				
-		if(!!item){
+		if(!!item && !Array.isArray(item)) {
 			return item.trim();
 		}
 		return item;
