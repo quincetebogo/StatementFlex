@@ -5,9 +5,9 @@ import { CallerDetails } from 'app/models/CallerDetails';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { IDCallerEvents } from 'app/constants/Telemetry/Events/IdentifyCaller';
+import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelect';
@@ -105,8 +105,9 @@ const REGEX_PATTERNS = {
 		ALERT_BANNER: `Incorrect ID/Passport number`
 	},
 	1: {
-		PATTERN: /^/,
-		FIELD_ERROR: ``
+        PATTERN: /^\S+$/,
+        FIELD_ERROR: `Incorrect Passport number`,
+		ALERT_BANNER: `Incorrect Passport number`
 	},
 	2: {
 		PATTERN: /^[0-9]{10}$/,
@@ -853,7 +854,7 @@ export class SearchCaller extends Component {
 						column="2">
 					</capitec-radio>
 					<capitec-radio 
-					    style="display:none;"
+						style="visibility:hidden;"
 						id="branch" 
 						data-automation-id="search-caller-branch"
 						label="Branch" 

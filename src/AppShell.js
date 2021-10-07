@@ -108,6 +108,8 @@ export class AppShell extends Shell {
 
 	connectedCallback() {
 		super.connectedCallback();
+		
+		this._casperScript(); 
 
 		this.horizonIncidentManager.initialise();
 		// Subscribe to store.
@@ -203,6 +205,22 @@ export class AppShell extends Shell {
 		}
 	};
 
+	async _casperScript() {
+		const body = document.body || document.getElementsByTagName(`body`)[0];
+		const casper = document.getElementById(`CASPerScript`);
+
+		if (!casper) {
+			const script = document.createElement(`script`);
+			
+			script.src = await this._configuration.getSetting(`otherSystemsURL.CASPer`);
+			script.setAttribute(`type`, `text/javascript`);
+			script.setAttribute(`id`, `CASPerScript`);
+			script.setAttribute(`title`, `CASPer Widget`);
+
+			body.appendChild(script);
+		}
+	  }
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -227,6 +245,7 @@ export class AppShell extends Shell {
 					--horizon-right-panel-width: 320px;
 					--horizon-panel-height: 888px;
 					--horizon-toast-top: 68px;
+					--horizon-status-bar-icon-group-right-margin: 80px;
 				}
 
 				.screen-size {
@@ -301,14 +320,14 @@ export class AppShell extends Shell {
 			${this._renderLoadingIndicator()}
 			${this._renderLoginFailed()}
 			${this._renderAuthenticating()}
-       		${this._renderContent()}
-        `;
+	   		${this._renderContent()}
+		`;
 	}
 
 	_mobileTemplate() {
 	}
 
-    _renderLoginFailed() {
+	_renderLoginFailed() {
 		if (!this.isAuthenticating && !this._security.isAuthenticated) {
 			return html`Login Failed`;
 		}
@@ -337,14 +356,14 @@ export class AppShell extends Shell {
 			return ``;
 		}
 
-		return html`         
+		return html`
 				<div class="screen-size">
 					${this.horizonViewManager.renderTopBar(this.currentView)}
 
-                	<capitec-content-box class="screen-content" nopadding>
+					<capitec-content-box class="screen-content" nopadding>
 						<div class="grid-container">
 							<div class="left">
-							    ${this.horizonViewManager.renderLeftBar(this.currentView)}
+								${this.horizonViewManager.renderLeftBar(this.currentView)}
 							</div>
 							<div class="middle">
 								<capitec-app-router></capitec-app-router>

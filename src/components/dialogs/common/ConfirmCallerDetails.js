@@ -6,10 +6,10 @@ import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { IDCallerEvents } from 'app/constants/Telemetry/Events/IdentifyCaller';
+import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { InsureService } from 'app/services/InsureService';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 import 'platform/components/popups/Modal';
 import 'platform/components/data/Table';
@@ -29,12 +29,12 @@ import 'app/components/common/CallerDialog';
 
 
 const RENDER_MODE = {
-    CONFIRM_CALLER: 0,
-    ADD_CALLER_DETAILS: 1,
-    END_CALL: 2,
-    STOP_CARD_SEARCH_CALLER: 3,
-    SEARCH_CALLER: 4,
-    VERIFY_CALLER: 5
+	CONFIRM_CALLER: 0,
+	ADD_CALLER_DETAILS: 1,
+	END_CALL: 2,
+	STOP_CARD_SEARCH_CALLER: 3,
+	SEARCH_CALLER: 4,
+	VERIFY_CALLER: 5
 };
 
 const HEADER_LABEL = `Confirm Caller Details`;
@@ -54,37 +54,37 @@ const branchBannerMessage = ` Branch calling in on behalf of the client`;
  */
 export class ConfirmCallerDetails extends Component {
 
-    // --------------
-    // INITIALISATION
-    // --------------
+	// --------------
+	// INITIALISATION
+	// --------------
 
-    constructor() {
-        super();
+	constructor() {
+		super();
 
-        this.eventAggregator = EventAggregator.getInstance();
-        this.logger = Logger.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
+		this.logger = Logger.getInstance();
 
-        this.horizonStore = HorizonStore.getInstance();
-        this.horizonRouter = HorizonRouter.getInstance();
-        this._telemetry = HorizonTelemetry.instance;
+		this.horizonStore = HorizonStore.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
 
-        this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
-        this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
-        this.callService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
-        this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+		this.callService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 
-        // Property initialization
-        this.confirmedCaller = null;
-        this.incomingCallDetails = null;
-        this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-        this.isBusy = false;
-        this.errorMessage = ``;
-        this.errorCount = 0;
-    }
+		// Property initialization
+		this.confirmedCaller = null;
+		this.incomingCallDetails = null;
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+		this.isBusy = false;
+		this.errorMessage = ``;
+		this.errorCount = 0;
+	}
 
-    // ----------
-    // PROPERTIES
-    // ----------
+	// ----------
+	// PROPERTIES
+	// ----------
 
 	/**
 	 * @property {Object} confirmedCaller Information on confirmed client.
@@ -95,87 +95,67 @@ export class ConfirmCallerDetails extends Component {
 	 * @static
 	 * @memberof ConfirmCallerDetails
 	 */
-    static get properties() {
-        return {
-            confirmedCaller: { type: Object },
-            incomingCallDetails: { type: Object },
-            incidentDetails: { type: Object },
+	static get properties() {
+		return {
+			confirmedCaller: { type: Object },
+			incomingCallDetails: { type: Object },
+			incidentDetails: { type: Object },
 
-            isBusy: { attribute: false },
-            renderMode: { attribute: false },
-            errorMessage: { attribute: false }
-        };
-    }
+			isBusy: { attribute: false },
+			renderMode: { attribute: false },
+			errorMessage: { attribute: false }
+		};
+	}
 
-    // -------------------
-    // LIFECYCLE OVERRIDES
-    // -------------------
-    connectedCallback() {
-        super.connectedCallback();
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+	connectedCallback() {
+		super.connectedCallback();
 
-        this._telemetry.startSpan(IDCallerEvents.CONFIRM_CALLER, {
-            "screen": TelemetryScreen.CONFIRM_CALLER,
-            "initial-primary-need": null,
-            "initial-specific-need": this.incomingCallDetails.ivrOption.value,
-            "initial-client-cif": this.confirmedCaller.cifNumber
-        });
-        this._initCallerInformation();
-    }
+		this._telemetry.startSpan(IDCallerEvents.CONFIRM_CALLER, {
+			"screen": TelemetryScreen.CONFIRM_CALLER,
+			"initial-primary-need": null,
+			"initial-specific-need": this.incomingCallDetails.ivrOption.value,
+			"initial-client-cif": this.confirmedCaller.cifNumber
+		});
+		this._initCallerInformation();
+	}
 
-    disconnectedCallback() {
-        this._telemetry.endSpan(IDCallerEvents.CONFIRM_CALLER, {
-            "screen": TelemetryScreen.CONFIRM_CALLER
-        });
-    }
+	disconnectedCallback() {
+		this._telemetry.endSpan(IDCallerEvents.CONFIRM_CALLER, {
+			"screen": TelemetryScreen.CONFIRM_CALLER
+		});
+	}
 
-    // --------------
-    // EVENT HANDLERS
-    // --------------
+	// --------------
+	// EVENT HANDLERS
+	// --------------
 
 	_addCallerDetailsClick() {
-        this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_ADD_CALLER_CLICK, {
-            "screen": TelemetryScreen.CONFIRM_CALLER,
-            "next-screen": TelemetryScreen.ADD_CALLER_DETAILS
-        });
+		this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_ADD_CALLER_CLICK, {
+			"screen": TelemetryScreen.CONFIRM_CALLER,
+			"next-screen": TelemetryScreen.ADD_CALLER_DETAILS
+		});
 
-			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
-    }
+		this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
+	}
 
-    _addCallerDetailsCancelled(event) {
-        this.confirmedCaller.ivrOptionCode = event.detail.ivrOptionValue;
-        this.incomingCallDetails.ivrOption.value = event.detail.ivrOptionValue;
-        this.incomingCallDetails.ivrOptionCode = event.detail.ivrOptionValue;
-        this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-    }
+	_addCallerDetailsCancelled(event) {
+		this.confirmedCaller.ivrOptionCode = event.detail.ivrOptionValue;
+		this.incomingCallDetails.ivrOption.value = event.detail.ivrOptionValue;
+		this.incomingCallDetails.ivrOptionCode = event.detail.ivrOptionValue;
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+	}
 
-    async _addCallerDetailsConfirmed(event) {
-        this.incomingCallDetails = event.detail.incomingCallDetails;
-        this.callerInformation = event.detail.callerInformation;
+	_addCallerDetailsConfirmed(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
 
-        if (this.incidentDetails.incidentRecId && this.incidentDetails.incidentRecId !== ``) {
+		this._confirmClick();
+	}
 
-            await this._updateClientDetails();
-			
-            const nonClientDetails = {
-                ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-                incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-                firstName: this.callerInformation.nonClientFirstName,
-                surname: this.callerInformation.nonClientSurName,
-                cellPhone: this.callerInformation.nonClientCellPhone
-            };
-            const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
-
-            if (returnValue.succeeded) {
-                this._navigateToLandingPage();
-            } else {
-                this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_addCallerDetailsConfirmed`, returnValue.correlationId);
-            }
-        } else {
-            this.logger.log(`error`, `There is no incident available against which to record then non-client details`, `_addCallerDetailsConfirmed`);
-        }
-    }
-
-	_confirmClick() {
+	async _confirmClick() {
 		this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_CONFIRM_CLICK, {
 			"screen": TelemetryScreen.CONFIRM_CALLER,
 			"next-screen": this.incomingCallDetails.ivrOption.value === `StopCard` ? TelemetryScreen.STOP_CARD : TelemetryScreen.VERIFY_CALLER,
@@ -194,43 +174,34 @@ export class ConfirmCallerDetails extends Component {
 				ProductEnquiry: productEnquiry,
 				Transact: transact
 			};
+
+			await this._updateClientNonClientDetails();
+
 			clientNeed[this.incomingCallDetails.ivrOptionCode]();
 		} else {
 			this._navigateToLandingPage();
 		}
 	}
 
-    async _verifyCaller() {
-        if (await this._setAvailabilityFlags()) {
+	async _verifyCaller() {
+		if (await this._setAvailabilityFlags()) {
+			this.renderMode = RENDER_MODE.VERIFY_CALLER;
+		}
+	}
 
-            if (this.incidentDetails.incidentRecId && this.incidentDetails.incidentRecId !== ``) {
-                const returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
+	_identifiedClient(event) {
+		// After a search we need to replace whatever we might have had for the confirmed caller with 
+		// the results of the search
+		// the results of the search
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.confirmedCaller = event.detail.confirmedCaller;
+		this.incidentDetails = event.detail.incidentDetails;
+		this.confirmedCaller.isBranchConsultant = false;
 
-                if (returnValue.succeeded) {
-                    this.renderMode = RENDER_MODE.VERIFY_CALLER;
-                } else {
-                    this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_verifyCaller`, returnValue.correlationId);
-                }
-            } else {
-                this.logger.log(`error`, `There is no incident available against which to record the client details`, `_verifyCaller`);
-            }
-        }
-    }
-
-    _identifiedClient(event) {
-        // After a search we need to replace whatever we might have had for the confirmed caller with 
-        // the results of the search
-        // the results of the search
-        this.incomingCallDetails = event.detail.incomingCallDetails;
-        this.confirmedCaller = event.detail.confirmedCaller;
-        this.incidentDetails = event.detail.incidentDetails;
-        this.confirmedCaller.isBranchConsultant = false;
-
-        // TODO: Do we lose the added caller details if we go there first before doing a search???
-        this._initCallerInformation();
-        this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-    }
-
+		// TODO: Do we lose the added caller details if we go there first before doing a search???
+		this._initCallerInformation();
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+	}
 
     _branchCaptured(event) {
         this.incomingCallDetails = event.detail.incomingCallDetails;
@@ -248,63 +219,63 @@ export class ConfirmCallerDetails extends Component {
 	 * @returns {undefined}
 	 * @memberof ConfirmCallerDetails
 	 */
-    _nonClientCaptured(event) {
-        this.confirmedCaller.isBranchConsultant = false;
-        this.dispatchEvent(new CustomEvent(`non-client-captured`, { detail: event.detail }));
-    }
+	_nonClientCaptured(event) {
+		this.confirmedCaller.isBranchConsultant = false;
+		this.dispatchEvent(new CustomEvent(`non-client-captured`, { detail: event.detail }));
+	}
 
-    _otherNeedSelected(event) {
-        this.incomingCallDetails = event.detail.incomingCallDetails;
-        this.incidentDetails = event.detail.incidentDetails;
-        this.renderMode = RENDER_MODE.SEARCH_CALLER;
-    }
+	_otherNeedSelected(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.incidentDetails = event.detail.incidentDetails;
+		this.renderMode = RENDER_MODE.SEARCH_CALLER;
+	}
 
-    _stopCardNeedSelected(event) {
-        this.incomingCallDetails = event.detail.incomingCallDetails;
-        this.incidentDetails = event.detail.incidentDetails;
-        this.renderMode = RENDER_MODE.STOP_CARD_SEARCH_CALLER;
-    }
+	_stopCardNeedSelected(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.incidentDetails = event.detail.incidentDetails;
+		this.renderMode = RENDER_MODE.STOP_CARD_SEARCH_CALLER;
+	}
 
-    _needChanged(event) {
-        this.confirmedCaller.ivrOptionCode = event.detail.new;
-        this.incomingCallDetails.ivrOption.value = event.detail.new;
-        this.incomingCallDetails.ivrOptionCode = event.detail.new;
+	_needChanged(event) {
+		this.confirmedCaller.ivrOptionCode = event.detail.new;
+		this.incomingCallDetails.ivrOption.value = event.detail.new;
+		this.incomingCallDetails.ivrOptionCode = event.detail.new;
 
-        this.incidentDetails.currentNeed = this.incomingCallDetails.ivrOptionCode;
-        this.horizonStore.setIncidentDetails(this.incidentDetails);
-    }
+		this.incidentDetails.currentNeed = this.incomingCallDetails.ivrOptionCode;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+	}
 
-    _searchClick() {
-        this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_SEARCH_CLICK, {
-            "screen": TelemetryScreen.CONFIRM_CALLER,
-            "next-screen": TelemetryScreen.SEARCH_CLIENT
-        });
+	_searchClick() {
+		this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_SEARCH_CLICK, {
+			"screen": TelemetryScreen.CONFIRM_CALLER,
+			"next-screen": TelemetryScreen.SEARCH_CLIENT
+		});
 
-        if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
-            this.renderMode = RENDER_MODE.STOP_CARD_SEARCH_CALLER;
-        } else {
-            this.renderMode = RENDER_MODE.SEARCH_CALLER;
-        }
-    }
+		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
+			this.renderMode = RENDER_MODE.STOP_CARD_SEARCH_CALLER;
+		} else {
+			this.renderMode = RENDER_MODE.SEARCH_CALLER;
+		}
+	}
 
-    _verificationCancelled(event) {
-        this.incomingCallDetails = event.detail.incomingCallDetails;
-        this.callerInformation = event.detail.callerInformation;
-        this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-    }
+	_verificationCancelled(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+	}
 
-    _verificationSkipped(event) {
-        this.incomingCallDetails = event.detail.incomingCallDetails;
-        this.callerInformation = event.detail.callerInformation;
-        this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-        this._navigateToLandingPage();
-    }
+	_verificationSkipped(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+		this._navigateToLandingPage();
+	}
 
-    _clientVerified(event) {
-        this.incomingCallDetails = event.detail.incomingCallDetails;
-        this.callerInformation = event.detail.callerInformation;
-        this._navigateToLandingPage();
-    }
+	_clientVerified(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		this._navigateToLandingPage();
+	}
 
 	_onEndCall() {
 		this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_END_CALL_CLICK, {
@@ -399,8 +370,8 @@ export class ConfirmCallerDetails extends Component {
 		return returnValue.result.hasInsurance;
 	}
 
-    async _setAvailabilityFlags() {
-        let flagsSet = false;
+	async _setAvailabilityFlags() {
+		let flagsSet = false;
 
 		/* This will be put back. Insure is not part of the first release
 
@@ -415,99 +386,122 @@ export class ConfirmCallerDetails extends Component {
 			);
 		*/
 
-        // Check if the client has digital channels
-        // Disabled error handler because if this call fails we will still attempt to help the client.
-        // It will just be with XDS Security Questions
-        const returnValue = await this.callService.digitalVerificationChannelsAvailable(this.callerInformation.cifNumber, () => true);
+		// Check if the client has digital channels
+		// Disabled error handler because if this call fails we will still attempt to help the client.
+		// It will just be with XDS Security Questions
+		const returnValue = await this.callService.digitalVerificationChannelsAvailable(this.callerInformation.cifNumber, () => true);
 
-        if (returnValue.succeeded) {
-            this.callerInformation.hasDigitalChannels = returnValue.result;
-            flagsSet = true;
-        } else {
-            // Function will indicate success (i.e. and digital channels is defaulted to on)
-            // When we do other calls to set other flags (hasInsuranceProducts we may prefer to show a system error and return false)
-            flagsSet = true;
-            this.callerInformation.hasDigitalChannels = true;
-            this.logger.log(`error`, `Could not determine if digital channels are available. Defaulting to available.`, `_setAvailabilityFlags`, returnValue.correlationId);
-        }
+		if (returnValue.succeeded) {
+			this.callerInformation.hasDigitalChannels = returnValue.result;
+			flagsSet = true;
+		} else {
+			// Function will indicate success (i.e. and digital channels is defaulted to on)
+			// When we do other calls to set other flags (hasInsuranceProducts we may prefer to show a system error and return false)
+			flagsSet = true;
+			this.callerInformation.hasDigitalChannels = true;
+			this.logger.log(`error`, `Could not determine if digital channels are available. Defaulting to available.`, `_setAvailabilityFlags`, returnValue.correlationId);
+		}
 
-        this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-        this.horizonStore.setIncidentDetails(this.incidentDetails);
-        this.horizonStore.setCallerInformation(this.callerInformation);
+		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonStore.setCallerInformation(this.callerInformation);
 
-        return flagsSet;
-    }
+		return flagsSet;
+	}
 
-    _handleChannelServiceError(ex) {
-        this.errorMessage = `System error. Please try again.`;
-        this.errorCount++;
+	_handleChannelServiceError(ex) {
+		this.errorMessage = `System error. Please try again.`;
+		this.errorCount++;
 
-        if (this.errorCount > 2) {
-            this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-            this.horizonStore.setCallerInformation(this.callerInformation);
-            this.horizonRouter.navigateToSystemError();
-        }
-        return true;
-    }
+		if (this.errorCount > 2) {
+			this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+			this.horizonStore.setCallerInformation(this.callerInformation);
+			this.horizonRouter.navigateToSystemError();
+		}
+		return true;
+	}
 
-    _getLanguagePreference() {
-        let languagePreference = this.confirmedCaller.languagePreference;
+	_getLanguagePreference() {
+		let languagePreference = this.confirmedCaller.languagePreference;
 
-        if (!languagePreference || languagePreference === `NOT_DEFINED`) {
-            languagePreference = `-`;
-        }
-        return languagePreference;
-    }
+		if (!languagePreference || languagePreference === `NOT_DEFINED`) {
+			languagePreference = `-`;
+		}
+		return languagePreference;
+	}
 
-    _getVerifiedTelephoneNumber() {
-        let verifiedTelephoneNumber = this.confirmedCaller.verifiedTelephoneNumber;
+	_getVerifiedTelephoneNumber() {
+		let verifiedTelephoneNumber = this.confirmedCaller.verifiedTelephoneNumber;
 
-        if (verifiedTelephoneNumber === null) {
-            verifiedTelephoneNumber = `-`;
-        }
-        return verifiedTelephoneNumber;
-    }
+		if (verifiedTelephoneNumber === null) {
+			verifiedTelephoneNumber = `-`;
+		}
+		return verifiedTelephoneNumber;
+	}
 
-    _getBirthdate() {
-        const birthdate = this.confirmedCaller.birthdate;
-        let dob = null;
+	_getBirthdate() {
+		const birthdate = this.confirmedCaller.birthdate;
+		let dob = null;
 
-        if (birthdate instanceof Date) {
-            dob = birthdate;
-        } else if (birthdate) {
-            dob = new Date(birthdate) || Date.parse(birthdate);
-        } else {
-            dob = null;
-        }
+		if (birthdate instanceof Date) {
+			dob = birthdate;
+		} else if (birthdate) {
+			dob = new Date(birthdate) || Date.parse(birthdate);
+		} else {
+			dob = null;
+		}
 
-        const months = [
-            `January`, `February`, `March`, `April`, `May`, `June`,
-            `July`, `August`, `September`, `October`, `November`, `December`
-        ];
+		const months = [
+			`January`, `February`, `March`, `April`, `May`, `June`,
+			`July`, `August`, `September`, `October`, `November`, `December`
+		];
 
-        return `${dob.getDate()} ${months[dob.getMonth()]}`;
-    }
+		return `${dob.getDate()} ${months[dob.getMonth()]}`;
+	}
 
-    _toggleBusyFlag() {
-        this.isBusy = !this.isBusy;
-    }
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
 
-    async _updateClientDetails() {
-        const returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
+	async _updateClientNonClientDetails() {
 
-        if (!returnValue.succeeded) {
-            this.logger.log(`error`, `Unable to update client details on incident for a 3rd Party flow due to a system error`, `_updateClientDetails`, returnValue.correlationId);
-        }
-    }
+		if (!this.incidentDetails.incidentRecId || this.incidentDetails.incidentRecId === `0`) {
+			this.logger.log(`error`, `There is no incident available against which to record the client/ non-client details`, `_updateClientNonClientDetails`);
+			return;
+		}
 
-    // ---------
-    // RENDERING
-    // ---------
+		// Updating client details to Incident at Strack
+		const returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
 
-    static get styles() {
-        return [
-            super.styles,
-            css`
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateClientNonClientDetails`, returnValue.correlationId);
+		}
+
+		// Updating non-client details to Incident at Strack
+		if (this.callerInformation.is3rdParty) {
+			const nonClientDetails = {
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				firstName: this.callerInformation.nonClientFirstName,
+				surname: this.callerInformation.nonClientSurName,
+				cellPhone: this.callerInformation.nonClientCellPhone
+			};
+			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
+
+			if (!returnValue.succeeded) {
+				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_updateClientNonClientDetails`, returnValue.correlationId);
+			}
+		}
+	}
+
+	// ---------
+	// RENDERING
+	// ---------
+
+	static get styles() {
+		return [
+			super.styles,
+			css`
 				horizon-caller-dialog {
 					--horizon-modal-footer-padding: 16px 16px 16px 0px;
 				}
@@ -554,12 +548,12 @@ export class ConfirmCallerDetails extends Component {
 					--horizon-label-value-line-height: 20px;
 					--horizon-label-value-margin-top: 4px;
 				}
-                .footer-group{
-                    width: 690px;
-                }
-    			.footer-group > capitec-button:first-child {
+				.footer-group{
+					width: 690px;
+				}
+				.footer-group > capitec-button:first-child {
 
-                    padding-left: 16px;
+					padding-left: 16px;
 				}
 				capitec-tooltip {
 					display: none;
@@ -571,14 +565,21 @@ export class ConfirmCallerDetails extends Component {
 					--theme-layout-gap-spacing: 0px;
 				}
 			`
-        ];
-    }
+		];
+	}
 
-    _mobileTemplate() {
-        return this._webTemplate();
-    }
+	_mobileTemplate() {
+		return this._webTemplate();
+	}
 
-    _webTemplate() {
+	_webTemplate() {
+		return html`
+			${this._renderLoadingIndicator()}
+			${this._renderContent()}
+		`;
+	}
+
+	_renderContent() {
         switch (this.renderMode) {
             case RENDER_MODE.CONFIRM_CALLER:
                 return html`
@@ -594,7 +595,6 @@ export class ConfirmCallerDetails extends Component {
 									${this._renderError()}
 									${this._renderAlertBanner()}
 									${this._renderConfirmedCaller()}
-									${this._renderLoadingIndicator()}
 								</capitec-content-box>
 							</div>
 							<div slot="footer">
@@ -602,50 +602,50 @@ export class ConfirmCallerDetails extends Component {
 							</div>
 					</horizon-caller-dialog>`;
 
-            case RENDER_MODE.ADD_CALLER_DETAILS:
-                return html`${this.renderAddCallerDetailsModal()}`;
+			case RENDER_MODE.ADD_CALLER_DETAILS:
+				return html`${this.renderAddCallerDetailsModal()}`;
 
-            case RENDER_MODE.END_CALL:
-                return html`${this.renderEndCallModal()}`;
+			case RENDER_MODE.END_CALL:
+				return html`${this.renderEndCallModal()}`;
 
-            case RENDER_MODE.STOP_CARD_SEARCH_CALLER:
-                return html`${this.renderStopCardSearchModal()}`;
+			case RENDER_MODE.STOP_CARD_SEARCH_CALLER:
+				return html`${this.renderStopCardSearchModal()}`;
 
-            case RENDER_MODE.SEARCH_CALLER:
-                return html`${this.renderSearchModal()}`;
+			case RENDER_MODE.SEARCH_CALLER:
+				return html`${this.renderSearchModal()}`;
 
-            case RENDER_MODE.VERIFY_CALLER:
-                return html`${this.renderVerifyCallerModal()}`;
-            default:
-                return html``;
-        }
-    }
+			case RENDER_MODE.VERIFY_CALLER:
+				return html`${this.renderVerifyCallerModal()}`;
+			default:
+				return html``;
+		}
+	}
 
-    _renderError() {
-        return this.errorMessage === ``
-            ? html``
-            : html`
+	_renderError() {
+		return this.errorMessage === ``
+			? html``
+			: html`
 				<capitec-alert-banner 
 					data-automation-id="confirm-caller-details-error-banner"
 					type="unsuccessful-red"
 					label=${this.errorMessage}>
 				</capitec-alert-banner>`;
-    }
+	}
 
-    _renderAlertBanner() {
-        if (!this.confirmedCaller.isBranchConsultant) {
-            return html`
-		        <capitec-alert-banner 
+	_renderAlertBanner() {
+		if (!this.confirmedCaller.isBranchConsultant) {
+			return html`
+				<capitec-alert-banner 
 					id="id-banner-addcallerdetails" 
 					data-automation-id="confirm-caller-details-add-caller-banner"
 					type="warning">
-			        	<capitec-hyperlink label="Add Caller Details"
+						<capitec-hyperlink label="Add Caller Details"
 							data-automation-id="confirm-caller-details-add-caller-details"
-				    		@click="${() => this._addCallerDetailsClick()}">
+							@click="${() => this._addCallerDetailsClick()}">
 						</capitec-hyperlink>
 					if the caller is calling on another client's behalf
-		        </capitec-alert-banner>`;
-        } 
+				</capitec-alert-banner>`;
+		} 
 
 		return html`
 			<capitec-alert-banner 
@@ -656,8 +656,8 @@ export class ConfirmCallerDetails extends Component {
 			</capitec-alert-banner>`;
 	}
 
-    _renderConfirmedCaller() {
-        return html`
+	_renderConfirmedCaller() {
+		return html`
 				<capitec-group class="client-info" layout="horizontal" gap="clear">
 					<capitec-avatar 
 						shape="square"
@@ -713,32 +713,32 @@ export class ConfirmCallerDetails extends Component {
 					</capitec-group>
 				</capitec-group>
 		 `;
-    }
+	}
 
-    renderFooter() {
-        return html`
-            <capitec-group 
-            layout="horizontal" 
-            halign="left" 
-            valign="center" 
-            gap="none" 
-            class="footer-group">
+	renderFooter() {
+		return html`
+			<capitec-group 
+			layout="horizontal" 
+			halign="left" 
+			valign="center" 
+			gap="none" 
+			class="footer-group">
 				<capitec-button
 					data-automation-id="confirm-caller-details-back"
-                    class="footer-back"
+					class="footer-back"
 					type="clear"
 					label="Back"
 					@click="${() => this._searchClick()}"
 					?hidden="${!this.confirmedCaller.isBranchConsultant}">
 				</capitec-button>
-                <capitec-spacer></capitec-spacer>
+				<capitec-spacer></capitec-spacer>
 				<capitec-button 
 					id="id-search-button" 
 					data-automation-id="confirm-caller-details-search"
 					type="clear" 
 					label="Search Client"
 					@click="${() => this._searchClick()}"
-                    ?hidden="${this.confirmedCaller.isBranchConsultant}">
+					?hidden="${this.confirmedCaller.isBranchConsultant}">
 				</capitec-button>
 				<capitec-button 
 					id="id-confirm-button" 
@@ -749,16 +749,16 @@ export class ConfirmCallerDetails extends Component {
 					autofocus>
 				</capitec-button>
 			</capitec-group>`;
-    }
+	}
 
-    _renderLoadingIndicator() {
+	_renderLoadingIndicator() {
 		return this.isBusy 
 			? html`<capitec-loading-indicator></capitec-loading-indicator>` 
 			: html``;
-    }
+	}
 
-    renderAddCallerDetailsModal() {
-        return html`
+	renderAddCallerDetailsModal() {
+		return html`
 			<horizon-add-caller-details
 				.callerInformation="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
@@ -766,42 +766,42 @@ export class ConfirmCallerDetails extends Component {
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
 				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
 			</horizon-add-caller-details>`;
-    }
+	}
 
-    renderEndCallModal() {
-        return html`
+	renderEndCallModal() {
+		return html`
 			<horizon-end-call-session 
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
 				endCallContext="ConfirmClient"
 				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
 			</horizon-end-call-session>`;
-    }
+	}
 
-    renderStopCardSearchModal() {
-        return html`
+	renderStopCardSearchModal() {
+		return html`
 			<horizon-stop-card-search-caller
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
 				@client-identified="${(event) => this._identifiedClient(event)}"
 				@other-need-selected="${(event) => this._otherNeedSelected(event)}">
 			</horizon-stop-card-search-caller>`;
-    }
+	}
 
-    renderSearchModal() {
-        return html`
+	renderSearchModal() {
+		return html`
 			<horizon-search-caller
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
 				@client-identified="${(data) => this._identifiedClient(data)}"
 				@non-client-captured="${data => this._nonClientCaptured(data)}"
-                @branch-captured="${(event) => this._branchCaptured(event)}"
+				@branch-captured="${(event) => this._branchCaptured(event)}"
 				@stop-card-need-selected="${(event) => this._stopCardNeedSelected(event)}">
 			</horizon-search-caller>`;
-    }
+	}
 
-    renderVerifyCallerModal() {
-        return html`
+	renderVerifyCallerModal() {
+		return html`
 			<horizon-verify-caller
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
@@ -811,7 +811,7 @@ export class ConfirmCallerDetails extends Component {
 				@verified="${(event) => this._clientVerified(event)}">
 			</horizon-verify-caller>
 		`;
-    }
-}
+	}
 
+}
 window.customElements.define(`horizon-confirm-caller-details`, ConfirmCallerDetails);
