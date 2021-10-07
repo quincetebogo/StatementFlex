@@ -134,7 +134,11 @@ export class HorizonChannelService extends Service {
 	 * 
 	 * @param {string} url The Channel Service URL
 	 * @param {Object} customHeaders Any custom headers
-	 * @param {string} caller The name of the method for logging purposes
+	 * @param {string} caller The name of the method for logging purpose
+	 * @param {Boolean} [isBinary=false] When true, converts response into object with raw binary content
+	 * @param {Number} [sla=null] SLA in milliseconds to track for the maximum allowed duration of the request.
+	 * @param {Number} [timeout=null] Timeout in milliseconds for the request.
+	 * 
 	 * @returns {Promise<*>} The response of the Channel Service REquest
 	 * @memberof HorizonChannelService
 	 */
@@ -146,7 +150,7 @@ export class HorizonChannelService extends Service {
 		try {
 			const response = await super.httpClient.request({
 				method: `GET`,
-				url: url,				
+				url: url,
 				customHeaders: customHeaders,
 				correlationId: correlationId,
 				isBinary: isBinary,
@@ -180,7 +184,7 @@ export class HorizonChannelService extends Service {
 	 * @param {AbortController} [controller=null] The abort controller used to cancel file uploads, i.e. only works with FormData as model type.
 	 * @param {Number} [sla=null] SLA in milliseconds to track for the maximum allowed duration of the request.
 	 * @param {Number} [timeout=null] Timeout in milliseconds for the request.
-* 
+	 *
 	 * @returns {Promise<*>} The response of the Channel Service Request
 	 * @memberof HorizonChannelService
 	 */
@@ -786,7 +790,7 @@ export class HorizonChannelService extends Service {
 			`Cif=${insuranceClientInfo.CifNumber}&` +
 			`IsCallerVerified=${insuranceClientInfo.isCallerVarified}`;
 
-		return this._get(url, this._setToken(), `hasInsuranceProducts`, null, null, 1000);
+		return this._get(url, this._setToken(), `hasInsuranceProducts`, null, 1000);
 	}
 
 	// --------------
