@@ -138,13 +138,22 @@ export class HorizonChannelService extends Service {
 	 * @returns {Promise<*>} The response of the Channel Service REquest
 	 * @memberof HorizonChannelService
 	 */
-	async _get(url, customHeaders, caller) {
+	async _get(url, customHeaders, caller, isBinary = false, sla = null, timeout = null) {
 		const correlationId = v4();
 			
 		this._logger.log(`debug`, `url: ${url}`, caller, correlationId);
 
 		try {
-			const response = await super.httpClient.get(url, customHeaders, correlationId);
+			const response = await super.httpClient.request({
+				method: `GET`,
+				url: url,				
+				customHeaders: customHeaders,
+				correlationId: correlationId,
+				isBinary: isBinary,
+				sla: sla,
+				timeout: timeout,
+				caller: caller
+			});
 
 			this._logger.log(`debug`, `result: ${JSON.stringify(response)}`, caller, correlationId);
 
