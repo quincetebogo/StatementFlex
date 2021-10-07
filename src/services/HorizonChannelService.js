@@ -138,13 +138,22 @@ export class HorizonChannelService extends Service {
 	 * @returns {Promise<*>} The response of the Channel Service REquest
 	 * @memberof HorizonChannelService
 	 */
-	async _get(url, customHeaders, caller) {
+	async _get(url, customHeaders, caller, isBinary = false, sla = null, timeout = null) {
 		const correlationId = v4();
 			
 		this._logger.log(`debug`, `url: ${url}`, caller, correlationId);
 
 		try {
-			const response = await super.httpClient.get(url, customHeaders, correlationId);
+			const response = await super.httpClient.request({
+				method: `GET`,
+				url: url,				
+				customHeaders: customHeaders,
+				correlationId: correlationId,
+				isBinary: isBinary,
+				sla: sla,
+				timeout: timeout,
+				caller: caller
+			});
 
 			this._logger.log(`debug`, `result: ${JSON.stringify(response)}`, caller, correlationId);
 
@@ -229,7 +238,7 @@ export class HorizonChannelService extends Service {
 	accessChannel(cifNumber) {
 		const url = `/clientcare-accesschannels-${this._version}/access-channels`;
 		
-		return this._post(url, { 'cif': cifNumber }, this._setToken(), `accessChannels`);
+		return this._post(url, { 'cif': cifNumber }, this._setToken(), `accessChannels`, null, null, 1000);
 	}
 
 	// --------------------
@@ -277,7 +286,7 @@ export class HorizonChannelService extends Service {
 			}
 		}
 
-		return this._post(`/clientcare-call-${this._version}/load-xds-questions`, { 'clientID': clientID }, this._setToken(), `xdsQuestions`);
+		return this._post(`/clientcare-call-${this._version}/load-xds-questions`, { 'clientID': clientID }, this._setToken(), `xdsQuestions`, null, null, 3000);
 	}
 
 	async verifySecurityQuestions(answers) {
@@ -285,7 +294,7 @@ export class HorizonChannelService extends Service {
 			return this._mock.verifySecurityQuestions(answers);
 		}
 
-		return this._post(`/clientcare-call-${this._version}/xds-questions`, answers, this._setToken(), `verifySecurityQuestions`);
+		return this._post(`/clientcare-call-${this._version}/xds-questions`, answers, this._setToken(), `verifySecurityQuestions`, null, null, 3000);
 	}
 
 	/**
@@ -330,8 +339,7 @@ export class HorizonChannelService extends Service {
 				'identificationMethod': parseInt(clientInfo.identificationMethod, 10),
 				'value': clientInfo.searchValue
 			},
-			this._setToken(),
-			`searchCaller`
+			this._setToken(), `searchCaller`, null,	null, 1000
 		);
 	}
 
@@ -353,7 +361,7 @@ export class HorizonChannelService extends Service {
 				'incidentRecId': incidentRecId
 			},
 			this._setToken(),
-			`cardLimitsLanding`
+			`cardLimitsLanding`, null, null, 1000
 		);
 	}
 
@@ -415,8 +423,7 @@ export class HorizonChannelService extends Service {
 				'cifNumber': cifNumber,
 				'incidentRecId': incidentRecId
 			},
-			this._setToken(), 
-			`tapToPayLanding`
+			this._setToken(), `tapToPayLanding`, null, null, 1000
 		);
 	}
 
@@ -458,7 +465,7 @@ export class HorizonChannelService extends Service {
 				"incidentRecId": incidentData.incidentRecId
 			},
 			this._setToken(),
-			`assignTeams`
+			`assignTeams`, null, null, 900
 		);
 	}
 
@@ -470,7 +477,7 @@ export class HorizonChannelService extends Service {
 				"team": assignData.team
 			},
 			this._setToken(),
-			`assign`
+			`assign`, null, null, 900
 		);
 	}
 
@@ -484,7 +491,7 @@ export class HorizonChannelService extends Service {
 				"agentTelephoneNumber": incomingCallData.agentTelephoneNumber
 			},
 			this._setToken(),
-			`searchOptions`
+			`searchOptions`, null, null, 1000
 		);
 	}
 
@@ -508,7 +515,7 @@ export class HorizonChannelService extends Service {
 			'nonClientRelationship': callerData.nonClientRelationship
 		};
 
-		return this._post(url, model, this._setToken(), `identifyCaller`);
+		return this._post(url, model, this._setToken(), `identifyCaller`, null, null, 1000);
 	}
 
 	// ----------
@@ -552,7 +559,7 @@ export class HorizonChannelService extends Service {
 				'productStatus': request.status
 			},
 			this._setToken(), 
-			`getClientProducts`
+			`getClientProducts`, null, null, 1000
 		);
 	}
 
@@ -623,7 +630,7 @@ export class HorizonChannelService extends Service {
 				'isCallerVerified': clientInfo.isCallerVerified
 			},
 			this._setToken(),
-			`favouritesLanding`
+			`favouritesLanding`, null, null, 1000
 		);
 	}
 
@@ -644,13 +651,13 @@ export class HorizonChannelService extends Service {
 			cif: cifNumber
 		};
 
-		return this._post(`/clientcare-incident-${this._version}/UpdateIncidentClientDetails`, request, this._setToken(), `updateIncidentClientDetails`);
+		return this._post(`/clientcare-incident-${this._version}/UpdateIncidentClientDetails`, request, this._setToken(), `updateIncidentClientDetails`, null, null, 1000);
 	}
 
 	otherNeedCategories(orgUnit) {
 		const url = `/clientcare-incident-${this._version}/categories`;
 
-		return this._post(url, { 'orgUnit': encodeURIComponent(orgUnit) }, this._setToken(), `otherNeedCategories`);
+		return this._post(url, { 'orgUnit': encodeURIComponent(orgUnit) }, this._setToken(), `otherNeedCategories`, null, null, 1000);
 	}
 
 	otherNeedSpecificNeed(orgUnit, categoryName) {
@@ -662,8 +669,8 @@ export class HorizonChannelService extends Service {
 				'orgUnit': encodeURIComponent(orgUnit),
 				'categoryName': encodeURIComponent(categoryName)
 			},
-			this._setToken(), 
-			`otherNeedSpecificNeed`
+			this._setToken(),
+			`otherNeedSpecificNeed`, null, null, 1000
 		);
 	}
 
@@ -678,7 +685,7 @@ export class HorizonChannelService extends Service {
 				'need': encodeURIComponent(need)
 			},
 			this._setToken(), 
-			`otherNeedIssueType`
+			`otherNeedIssueType`, null, null, 1000
 		);
 	}
 
@@ -750,7 +757,7 @@ export class HorizonChannelService extends Service {
 				'updateIncident': feedbackDetails.updateIncident
 			},
 			this._setToken(),
-			`calculatePremiumDone`
+			`calculatePremiumDone`, null, null, 900
 		);
 	}
 
@@ -765,7 +772,7 @@ export class HorizonChannelService extends Service {
 				'cellPhone': callerData.cellPhone
 			},
 			this._setToken(), 
-			`addNonClientDetails`
+			`addNonClientDetails`, null, null, 900
 		);
 	}
 
@@ -779,7 +786,7 @@ export class HorizonChannelService extends Service {
 			`Cif=${insuranceClientInfo.CifNumber}&` +
 			`IsCallerVerified=${insuranceClientInfo.isCallerVarified}`;
 
-		return this._get(url, this._setToken(), `hasInsuranceProducts`);
+		return this._get(url, this._setToken(), `hasInsuranceProducts`, null, null, 1000);
 	}
 
 	// --------------
@@ -825,7 +832,7 @@ export class HorizonChannelService extends Service {
 				'moneyType': transactionHistoryRequest.moneyType
 			}, 
 			this._setToken(), 
-			`transactionHistory`
+			`transactionHistory`, null, null, 2000
 		);
 	}
 
