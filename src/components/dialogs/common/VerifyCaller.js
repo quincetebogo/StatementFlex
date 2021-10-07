@@ -230,7 +230,7 @@ export class VerifyCaller extends Component {
 		// Just asking for security questions counts as one attempt
 		// All previous pending/failed attempts after the last successful attempt count as attempts.
 		// There is no time limit after which an attempt is considered expired.
-		while (ndx < authHistory.length - 1) {
+		while (ndx <= authHistory.length - 1) {
 			if (authHistory[ndx].authenticationStatus !== `Authenticated`) {
 				ndx++;
 				usedAttempts++;
@@ -746,13 +746,13 @@ export class VerifyCaller extends Component {
 		if (!this._canVerify()) {
 			return this._renderClientCannotBeVerified();
 		}
+		if (this.hasSouthAfricanID && this.callerInformation.verificationAttempts.xdsAttempts !== 0 && this.callerInformation.verificationAttempts.xdsAttempts < MAX_XDS_ATTEMPTS ) {
+			return this._renderFailedFirstAttempt();
+		}
 		if (this._onlyVerifyByXds()) {
 			return this._renderClientBlockedByXds();
 		}
 		if (this.hasSouthAfricanID && this.xdsFailed && this.callerInformation.verificationAttempts.xdsAttempts === MAX_XDS_ATTEMPTS - 1) {
-		}
-		if (this.hasSouthAfricanID && this.callerInformation.verificationAttempts.xdsAttempts !== 0 && this.callerInformation.verificationAttempts.xdsAttempts < MAX_XDS_ATTEMPTS ) {
-			return this._renderFailedFirstAttempt();
 		}
 		if (this.hasSouthAfricanID && this.xdsFailed && this.callerInformation.verificationAttempts.xdsAttempts === MAX_XDS_ATTEMPTS - 1) {
 			this._renderXdsOneAttemptLeft();
