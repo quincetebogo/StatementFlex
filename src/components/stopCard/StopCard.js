@@ -80,6 +80,7 @@ export class StopCard extends Component {
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 
+		this.endCallContext = `LandingPage`;
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.cards = null;
 		this.selectedCardCount = 0;
@@ -209,7 +210,7 @@ export class StopCard extends Component {
 				supplementaryCard: card.supplementaryCard
 			}
 		)).filter(card => card.cardStopReason !== ``);
-
+		this.endCallContext = `QuickTransactionsInProgress`;
 		this.renderMode = RENDER_MODE.CARD_STOP_MODAL;
 
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARDS_CLICK, {

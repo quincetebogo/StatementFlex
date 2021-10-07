@@ -191,10 +191,8 @@ export class VerifyBySecurityQuestions extends Component {
 				"screen": TelemetryScreen.SECURITY_QUESTIONS,
 				"next-screen": null // Have to determine
 			});
-
 			this.alertBannerMessage = ``;
 			this.checked = false;
-
 			const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions);
 
 			if (returnValue.succeeded) {
@@ -569,11 +567,13 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_renderEndCallModal() {
+		const status=this.questionNumber > 0 ? `InProgress` : this.verificationAttempts.xdsAttempts > 0 ? `failed` : `` ;
+
 		return html`
 			<horizon-end-call-session
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
-				endCallContext="VerifyClient"
+				endCallContext='VerifyClient${status}'
 				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
 			</horizon-end-call-session>`;
 	}

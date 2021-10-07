@@ -30,7 +30,7 @@ export class TaxCertificateFailure extends ViewBase {
 
 		this.primaryToast = `Taxable savings certificate not sent`;
 		this.secondaryToast = `Tax-free certificate not sent`;
-
+		this.endCallContext = `QuickTransactionsUnSuccess`;
 		this._telemetry = HorizonTelemetry.instance;
 		this.horizonStore = HorizonStore.getInstance();
 	}

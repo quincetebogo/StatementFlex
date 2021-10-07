@@ -26,7 +26,7 @@ import 'app/components/common/RelatedOptions';
 
 		this.mailId = ``;
 		this.acNumber = ``;
-
+		this.endCallContext = `QuickTransactionsUnSuccess`;
 		this._telemetry = HorizonTelemetry.instance;
 	}
 
