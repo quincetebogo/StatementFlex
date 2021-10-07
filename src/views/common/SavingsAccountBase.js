@@ -234,7 +234,10 @@ export class SavingsAccountBase extends ViewBase {
 	_shouldDisable(need) {
 		const verificationMethod = this.callerInformation.verificationMethod;
 		
-		return verificationMethod === (`unverified` && !LOW_RISK_TRANSACTIONS.includes(need)) || (verificationMethod === `XDS` && HIGH_RISK_TRANSACTIONS.includes(need));
+		// TODO: Enable the logic once ITA accept/reject code is done
+		// return verificationMethod === (`unverified` && !LOW_RISK_TRANSACTIONS.includes(need)) || (verificationMethod === `XDS` && HIGH_RISK_TRANSACTIONS.includes(need));
+
+		return false;
 	}
 
 	// ---------

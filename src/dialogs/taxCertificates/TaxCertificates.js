@@ -85,8 +85,8 @@ export class TaxCertificatesDialog extends Component {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-	_back() {
-		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_BACK, {
+	async _back() {
+		await this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_BACK, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE
 		});
 
@@ -181,6 +181,10 @@ export class TaxCertificatesDialog extends Component {
 			"next-screen": TelemetryScreen.TAX_CERTIFICATE_DOCUMENT
 		});
 
+		if (type === `iT3BTaxCertificates`) {
+			return base64ToBlobUrl(item.contentData);
+		}
+
 		const request = this._formatViewCertificateRequest(item, type);
 
 		const returnValue = await this.quickTransactionService.viewTaxCertificate(request, () => true);
@@ -202,6 +206,40 @@ export class TaxCertificatesDialog extends Component {
 		return null;
 	}
 
+	async _getIT3BContentData(selectedCertificates) {
+		if (!selectedCertificates.iT3BTaxCertificates || selectedCertificates.iT3BTaxCertificates.length === 0) {
+			return [];
+		}
+
+		const request = {
+			cif: this.cifNumber,
+			iT3STaxCertificates: [],
+			iT3BTaxCertificates: selectedCertificates.iT3BTaxCertificates.map(item => {
+				return {
+					year: item.year,
+					documentId: item.documentId,
+					accountNumber: this.accountNumber,
+					payload: item.payload
+				};
+			})
+		};
+		const returnValue = await this.quickTransactionService.viewTaxCertificate(request, () => true);
+	
+		if (returnValue.succeeded && !isNullorEmpty(returnValue.result)) {
+			const result = returnValue.result;
+			
+			selectedCertificates.iT3BTaxCertificates.forEach(item => {
+				const docData = result.iT3BDocuments.find(doc => doc.year === item.year && doc.documentId === item.documentId);
+				item.contentData = docData.contentData;
+			});
+			return true;
+		}
+	
+		this.logger.log(`error`, `Unable to get iT3S content data`, `_getIT3SContentData`, returnValue.correlationId);
+		this.horizonRouter.navigateToTaxCertificateServiceError();
+		return null;
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -215,7 +253,7 @@ export class TaxCertificatesDialog extends Component {
 			"screen": TelemetryScreen.TAX_CERTIFICATE
 		});
 			
-		await this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP, {
+		this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP, {
 				"screen": TelemetryScreen.TAX_CERTIFICATE
 		});
 	
@@ -253,9 +291,15 @@ export class TaxCertificatesDialog extends Component {
 
 	_formatSendRequest(selectedCertType, selectedCertificates, email) {
 		const documentIds = [];
+		const attachments = [];
 
 		if (selectedCertificates.iT3BTaxCertificates && (selectedCertType === `iT3BTaxCertificates` || selectedCertType === `both`)) {
-			documentIds.push(...selectedCertificates.iT3BTaxCertificates.map(item => item.documentId));
+			attachments.push(...selectedCertificates.iT3BTaxCertificates.map(item => {
+				return {
+					name: `${item.year} it3b document for year`,
+					data: item.contentData
+				};
+			}));
 		}
 
 		if (selectedCertificates.iT3STaxCertificates && (selectedCertType === `iT3STaxCertificates` || selectedCertType === `both`)) {
@@ -270,7 +314,7 @@ export class TaxCertificatesDialog extends Component {
 				"title": this.taxCertificateDetails.title,
 				"surname": this.taxCertificateDetails.lastName
 			},
-			"attachments": []
+			"attachments": attachments
 		};
 		
 		return request;
@@ -299,7 +343,6 @@ export class TaxCertificatesDialog extends Component {
 
 		return request;
 	}
-
 
 /*
 	_formatViewCertificateRequest(item, type) {
@@ -356,6 +399,7 @@ export class TaxCertificatesDialog extends Component {
 			<capitec-pc-tax-certificate
 				.taxCertificateDetails="${this.taxCertificateDetails}"
 				.getTaxCertificatePDFCallback="${(item, type) => this._viewPDF(item, type)}"
+				.getIT3BContentData="${(selectedCertificates) => this._getIT3BContentData(selectedCertificates)}"
 				@send="${e => this._send(e)}"
 				@next="${e => this._next(e)}"
 				@close="${e => this._close()}"
