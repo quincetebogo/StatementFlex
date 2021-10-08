@@ -67,7 +67,6 @@ export class TransactionHistory extends Component {
 
         this.transactionHistory = null;
         this.accountDetails = null;
-        this.callerInformation = null;
 
         this.isBusy = false;
 
@@ -91,33 +90,37 @@ export class TransactionHistory extends Component {
         this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
     }
 
-    // --------------
-    // PROPERTIES
-    // --------------
+	// --------------
+	// PROPERTIES
+	// --------------
 
 	/**
 	 * @property {Object} transactionHistory Has list of client's transactions
+	 * @property {Object} accountDetails client's savings account info
+	 * @property {String} cifNumber client's cif number
+	 * @property {Function} loadMoreTransactions Callback function to fetch more data
 	 * 
 	 * @readonly
 	 * @static
 	 * @memberof TransactionHistory
 	 */
 
-    static get properties() {
-        return {
-            transactionHistory: { type: Object },
-            accountDetails: { type: Object },
-            callerInformation: { type: Object },
+	static get properties() {
+		return {
+			transactionHistory: { type: Object },
+			accountDetails: { type: Object },
+			cifNumber: { type: String },
+			loadMoreTransactions: { type: Function },
 
-            filteredData: { attribute: false },
-            renderMode: { attribute: false },
-            isBusy: { attribute: false },
-            startDate: { type: String, attribute: false },
-            endDate: { type: String, attribute: false },
-            searchTextLabel: { attribute: false },
-            statuslabel: { attribute: false }
-        };
-    }
+			filteredData: { attribute: false },
+			renderMode: { attribute: false },
+			isBusy: { attribute: false },
+			startDate: { type: String, attribute: false },
+			endDate: { type: String, attribute: false },
+			searchTextLabel: { attribute: false },
+			statuslabel: { attribute: false }
+		};
+	}
 
     // -------------------
     // LIFECYCLE OVERRIDES
@@ -127,9 +130,9 @@ export class TransactionHistory extends Component {
         super.connectedCallback();
 
         this.rawTableData = this.transactionHistory;
-        this.transactionHistory = this._initialize(this.transactionHistory);
         this.filteredData = this.transactionHistory;
 
+		this.showLoadMore = !(this.TransactionHistory.length % TRANSACTION_HISTORY.MAX_RESULTS < TRANSACTION_HISTORY.MAX_RESULTS);
     }
 
 	disconnectedCallback() {
@@ -162,7 +165,6 @@ export class TransactionHistory extends Component {
         }
     }
 
-
     getPredefinedDateRanges() {
         const last7day = new Date(today);
         const last30day = new Date(today);
@@ -181,7 +183,6 @@ export class TransactionHistory extends Component {
             { text: `Last 90 days`, value: { startDate: last90day.toISOString(), endDate: today.toISOString() } }
         ];
     }
-
 
     // To hide or show the label for the select field according to the design requirement.
     _statusFocussed(e) {
@@ -239,7 +240,7 @@ export class TransactionHistory extends Component {
 
     async _populateTransactions() {
         const transactionHistoryRequest = {
-            cifNumber: this.callerInformation.cifNumber,
+            cifNumber: this.cifNumber,
             accountNumber: this.accountDetails.accountNumber,
             accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
             startDate: this.startTransactionDate.toLocaleString().slice(0, 10),
@@ -309,22 +310,6 @@ export class TransactionHistory extends Component {
     // PRIVATE METHODS
     // ---------------
 
-    _initialize(tableData) {
-        this.showLoadMore = !(tableData.length < TRANSACTION_HISTORY.MAX_RESULTS);
-
-        tableData.map((item) => {
-            const date = new Date(Date.parse(item.transactionDate));
-
-            item.tranDate = date;
-            item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
-            item.formatedAmount = formatCurrency(item.amount);
-            item.formatedBalance = formatCurrency(item.balance);
-
-            return item;
-        });
-        return tableData.filter(item => item.transactionStatus !== ``);
-    }
-
     // To set the values to default on closing the chip or clearing all the filters
     _reset() {
         this.showLoadMore = true;
@@ -345,39 +330,14 @@ export class TransactionHistory extends Component {
         }
     }
 
-    async _loadMoreTransactions() {
-        const loadMoreData = this.transactionHistory.length > 0 ? await this.getMoreTransactions() : [];
-        if (loadMoreData.length > 0) {
-            this.rawTableData = [...this.rawTableData, ...loadMoreData];
-            const tableData = this._initialize(loadMoreData);
-            this.transactionHistory = [...this.transactionHistory, ...tableData];
-        }
-        if (!loadMoreData.length > 0 && this.transactionHistory.length > 0) {
-            this.showLoadMore = false;
-        }
-        this.filteredData = this.transactionHistory;
-        this._refineSearch();
-    }
+	async _loadMoreTransactions() {
 
-    async getMoreTransactions() {
-		const startDate = this.startTransactionDate && this.startTransactionDate.toLocaleString().slice(0, 10);
-		const endDate = this.endTransactionDate && this.endTransactionDate.toLocaleString().slice(0, 10);
+		const moreData = this.loadMoreTransactions(this.startDate, this.endDate, this.transactionHistory.length + 1);
 
-        const transactionHistoryRequest = {
-            cifNumber: this.callerInformation.cifNumber,
-            accountNumber: this.accountDetails.accountNumber,
-            accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
-            startDate: startDate || TRANSACTION_HISTORY.START_DATE,
-            endDate: endDate || TRANSACTION_HISTORY.END_DATE,
-            startAtIndex: this.rawTableData.length,
-            maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
-            moneyType: TRANSACTION_HISTORY.MONEY_TYPE
-        };
-        const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
-        if (returnValue.succeeded && returnValue.result) {
-            return returnValue.result.transactions;
-        }
-    }
+		this.rawTableData = this.transactionHistory;
+		this.filteredData = this.transactionHistory;
+		this._refineSearch();
+	}
 
 	_refineSearch() {
 		this.filteredData = this.transactionHistory;
@@ -393,7 +353,7 @@ export class TransactionHistory extends Component {
 					return this.filteredData.filter(item => item.description.toLowerCase().indexOf(key.toLowerCase()) !== -1 ||
 															parseFloat(item.amount).toFixed(2).startsWith(key) ||
 															(parseFloat(item.amount) * -1).toFixed(2).startsWith(key));
-			}
+				}
 				return [];
 			});
 			this.filteredData = Array.from(new Set([...searchTextResult.flat()]));           
@@ -614,9 +574,9 @@ export class TransactionHistory extends Component {
         ];
     }
 
-    _mobileTemplate() {
-        return this._webTemplate();
-    }
+	_mobileTemplate() {
+		return this._webTemplate();
+	}
 
     _webTemplate() {
         return html`
