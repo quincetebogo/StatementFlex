@@ -303,7 +303,7 @@ export const END_CALL_REASON = Object.freeze({
 		{
 			key: NEED_INCOMPLETE,
 			value: `Need incomplete - Transaction Failed`,
-			mapping: `telephony-disconnected`
+			mapping: ``
 		},
 		{
 			key: NEED_ASSIGNED,

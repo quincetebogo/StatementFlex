@@ -567,7 +567,7 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_renderEndCallModal() {
-		const status=this.questionNumber > 0 ? `InProgress` : this.verificationAttempts.xdsAttempts > 0 ? `failed` : `` ;
+		const status=this.questionNumber > 0 ? `InProgress` : this.verificationAttempts.xdsAttempts > 0 ? `Failed` : `` ;
 
 		return html`
 			<horizon-end-call-session
