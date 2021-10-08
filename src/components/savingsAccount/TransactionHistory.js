@@ -37,7 +37,7 @@ const NINETY_DAYS = 7777000000;
 const TRANSACTION_HISTORY = {
     ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
     END_DATE: new Date().toISOString().substr(0, 10),
-    START_DATE: new Date(`January 01, 2000`).toISOString().substr(0, 10),
+    START_DATE: new Date(Date.now() - 7776000000).toISOString().substr(0, 10),
     MAX_RESULTS: 50,
     MONEY_TYPE: `BOTH`
 };
@@ -126,8 +126,8 @@ export class TransactionHistory extends Component {
     // LIFECYCLE OVERRIDES
     // -------------------
 
-    connectedCallback() {
-        super.connectedCallback();
+	connectedCallback() {
+		super.connectedCallback();
 
         this.rawTableData = this.transactionHistory;
         this.filteredData = this.transactionHistory;
@@ -250,65 +250,65 @@ export class TransactionHistory extends Component {
             moneyType: TRANSACTION_HISTORY.MONEY_TYPE
         };
 
-        const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
-        if (returnValue.succeeded && returnValue.result) {
-            return returnValue.result.transactions;
-        }
-    }
+		const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
+		if (returnValue.succeeded && returnValue.result) {
+			return returnValue.result.transactions;
+		}
+	}
 
-    async _loadFilteredTransactions() {
+	async _loadFilteredTransactions() {
 
-        const loadMoreData = await this._populateTransactions();
+		const loadMoreData = await this._populateTransactions();
 
 		if (loadMoreData.length > 0) {
-            this.rawTableData = loadMoreData;
-            this.transactionHistory = this._initialize(loadMoreData);
-        }
-        if (!loadMoreData.length > 0 && this.transactionHistory.length > 0) {
-            this.showLoadMore = false;
-        }
-        this.filteredData = this.transactionHistory;
-        this._refineSearch();
-    }
+			this.rawTableData = loadMoreData;
+			this.transactionHistory = this._initialize(loadMoreData);
+		}
+		if (!loadMoreData.length > 0 && this.transactionHistory.length > 0) {
+			this.showLoadMore = false;
+		}
+		this.filteredData = this.transactionHistory;
+		this._refineSearch();
+	}
 
-    _filterByStatus(event) {
-        RENDER_CHIPS[FILTER_BY.STATUS] = event.detail.new;
-        this._refineSearch();
-    }
+	_filterByStatus(event) {
+		RENDER_CHIPS[FILTER_BY.STATUS] = event.detail.new;
+		this._refineSearch();
+	}
 
-    _closeChip(type) {
-        RENDER_CHIPS[type] = ``;
-        this._reset();
-        this._refineSearch();
-    }
+	_closeChip(type) {
+		RENDER_CHIPS[type] = ``;
+		this._reset();
+		this._refineSearch();
+	}
 
-    _clearFilters() {
-        RENDER_CHIPS[FILTER_BY.TEXT] = ``;
-        RENDER_CHIPS[FILTER_BY.DATE] = ``;
-        RENDER_CHIPS[FILTER_BY.STATUS] = ``;
-        this._reset();
+	_clearFilters() {
+		RENDER_CHIPS[FILTER_BY.TEXT] = ``;
+		RENDER_CHIPS[FILTER_BY.DATE] = ``;
+		RENDER_CHIPS[FILTER_BY.STATUS] = ``;
+		this._reset();
 
-        this.filteredData = this.transactionHistory;
-        this.requestUpdate();
-    }
+		this.filteredData = this.transactionHistory;
+		this.requestUpdate();
+	}
 
-    // To scroll the content of the Table to the Top when scroll to Top button is clicked
-    _scrollToTop(e) {
-        const element = this.shadowRoot.getElementById(`transactions-table`);
-        element.scrollTop = 0;
-    }
+	// To scroll the content of the Table to the Top when scroll to Top button is clicked
+	_scrollToTop(e) {
+		const element = this.shadowRoot.getElementById(`transactions-table`);
+		element.scrollTop = 0;
+	}
 
-    _toggleBusyFlag() {
-        this.isBusy = !this.isBusy;
-    }
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
 
-    _errorHandler(exception) {
-        this.dispatchEvent(new CustomEvent(`error-handler`, {}));
-    }
+	_errorHandler(exception) {
+		this.dispatchEvent(new CustomEvent(`error-handler`, {}));
+	}
 
-    // ---------------
-    // PRIVATE METHODS
-    // ---------------
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
 
     // To set the values to default on closing the chip or clearing all the filters
     _reset() {
@@ -321,14 +321,14 @@ export class TransactionHistory extends Component {
             this.startTransactionDate = new Date(`January 01, 2000`);
             this.endTransactionDate = new Date();
 
-            const calendar = this.shadowRoot.querySelector(`#calendarRange`);
-            if (calendar) {
-                calendar._placeholderEndDate = null;
-                calendar._placeholderStartDate = null;
-            }
+			const calendar = this.shadowRoot.querySelector(`#calendarRange`);
+			if (calendar) {
+				calendar._placeholderEndDate = null;
+				calendar._placeholderStartDate = null;
+			}
 			this._loadFilteredTransactions();
-        }
-    }
+		}
+	}
 
 	async _loadMoreTransactions() {
 
