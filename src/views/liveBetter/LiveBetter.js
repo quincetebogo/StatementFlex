@@ -21,6 +21,7 @@ import 'app/components/liveBetter/LiveBetterUnverifiedPage';
 import 'app/components/dialogs/liveBetter/ManageAutomaticSavings';
 import 'app/components/dialogs/common/StatementsDialog';
 import 'app/components/dialogs/liveBetter/LBBTransactionDetails';
+import { LBBLinkedTransactionDetails } from 'app/mocks/LiveBetterLandingMocks';
 
 const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE: 'LBB',
@@ -59,6 +60,9 @@ export class LiveBetter extends ViewBase {
 	
 		// private properites
 		this.loading = true;
+		this.executed = false;
+		this.showTooltip = false;
+		this.journalNumber = `00000`;
 		
 		this.livBetterService = new LivBetterService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -83,7 +87,10 @@ export class LiveBetter extends ViewBase {
 
 	static get properties() {
 		return {
-			loading: { attribute: false }
+			loading: { attribute: false },
+			showTooltip: { attribute: false },
+			transactionHistory: { attribute: false },
+			journalNumber: { type: String, attribute: false }
 		};
 	}
 	
@@ -160,6 +167,12 @@ export class LiveBetter extends ViewBase {
 	}
 	
 	_linkedTransactionClick(transactionDetails, formatedAmount) {
+		
+		this._telemetry.logEvent(LiveBetterEvents.LBB_TRANSACTION_HISTORY_VIEW_LINKED_TRANSACTIONS, {
+			"screen": TelemetryScreen.LIVE_BETTER_TRANSACTION_HISTORY,
+			"next-screen": TelemetryScreen.LIVE_BETTER_LINKED_TRANSACTIONS
+		});
+
 		this.selectedLinkedTransaction = transactionDetails;
 		this.selectedLinkedTransaction.amount = formatedAmount;
 
@@ -167,20 +180,38 @@ export class LiveBetter extends ViewBase {
 	}
 	
 	async _getLinkedransactionDetails(item) {
-		const transactionHistoryRequest ={
-			"journalNumber": "453858",// item.journalNumber;
-			"accountNumber": "1732948362",// this.landingPageInfo.accountNumber,
-			"postingDate": "2021-06-22"// item.postingDate
-		  };
-		const returnValue = await this.livBetterService.lbbLinkedTransactionDetails(transactionHistoryRequest);
+		
+			this._telemetry.logEvent(LiveBetterEvents.LBB_TRANSACTION_HISTORY_INFO, {
+				"screen": TelemetryScreen.LIVE_BETTER_TRANSACTION_HISTORY
+			});
 
-		if(returnValue.succeeded && returnValue.result) {
-			this.linkedTransactionDetails = returnValue.result.linkedTransactions;
-		}
+			const transactionHistoryRequest = {
+				"journalNumber": "453858",// item.journalNumber;
+				"accountNumber": "1733256405",// this.landingPageInfo.accountNumber,
+				"postingDate": "2021-06-22"// item.postingDate
+			};
 
-		this.loading = false;
+			const returnValue = await this.livBetterService.lbbLinkedTransactionDetails(transactionHistoryRequest);
+			if(returnValue.succeeded && returnValue.result) {
+				return returnValue.result.linkedTransactions;
+			} else {
+				return [];
+			}
 	}
+		  
+	async updated(changedProperties) {
+
+		const journalNumber = !(!changedProperties.get('journalNumber'));
 	
+		if(journalNumber) {
+
+			const expandedItem = this.transactionHistory.find( item => item.journalNumber === this.journalNumber);
+			expandedItem.linkedTransactionDetails = await this._getLinkedransactionDetails(expandedItem);
+
+			this.requestUpdate();
+		}
+	}
+
 	_errorHandler(exception) {
 		this.horizonRouter.navigateToSystemError();
 		return true;
@@ -268,7 +299,7 @@ export class LiveBetter extends ViewBase {
 	}
 
 	async _transactionHistory() {
-		this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_TRANSACTION_HISTORY, {
+		this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_TRANSACTION_HISTORY_SELECT, {
 			"screen": TelemetryScreen.LIVE_BETTER_LANDING_PAGE,
 			"next-screen": TelemetryScreen.LIVE_BETTER_TRANSACTION_HISTORY
 		});
@@ -288,7 +319,11 @@ export class LiveBetter extends ViewBase {
 
 		if (returnValue.succeeded && returnValue.result) {
 			
-			this.transactionHistory = returnValue.result.transactions;
+			this.transactionHistory = returnValue.result.transactions.map(item => {
+				item.expanded = false;
+				return item;
+			});
+
 			this.accountDetails = {
 				"Account number": this.landingPageInfo.accountNumber,
 				"Available balance": formatCurrency(this.landingPageInfo.accountAvailableBalance),
@@ -349,6 +384,14 @@ export class LiveBetter extends ViewBase {
         return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
     }
 	
+	// Tooltip is displayed by hovering on description only when description field is too long and is partially hidden
+	_displayTooltip(e) {
+
+		if (e.target.scrollWidth > e.target.offsetWidth) {
+			this.showTooltip = true;
+		}
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -381,7 +424,7 @@ export class LiveBetter extends ViewBase {
 			${super._webTemplate()}
 			${this._renderLandingPage()}
 			${this._renderTransactionHistory()}
-			${this._renderLinkedTransactionDetails()}
+			${this._renderLinkedTransactionDetailsModal()}
 			${this._renderAutomaticSavings()}
 			${this._renderStatementsModal()}
 		`;
@@ -445,7 +488,7 @@ export class LiveBetter extends ViewBase {
 		return this.renderMode === RENDER_MODE.TRANSACTION_HISTORY || this.renderMode === RENDER_MODE.TRANSACTION_DETAILS
 			? html`
 				<horizon-transaction-history
-					.transactionHistory="${this.transactionHistory}"
+					.transactionHistoryList="${this.transactionHistory}"
 					.accountDetails="${this.accountDetails}"
 					cifNumber="${this.callerInformation.cifNumber}"
 					type="${ACCOUNT_TYPES.LBB}"
@@ -463,28 +506,35 @@ export class LiveBetter extends ViewBase {
 	_renderTransHistoryColumns() {
 		return html`
 			<capitec-table-column
+				data-automation-id="transaction-history-transactionDate"
 				label="Transaction Date"
 				field="transactionDate"
 				type="date"
 				size="177px;">
 			</capitec-table-column>
 			<capitec-table-column
+				data-automation-id="transaction-history-description"
 				label="Description"
+				?wrap="${true}"
+				.renderer="${(item, Description, description) => this._renderDescription(item, Description, description)}"
 				field="description"
-				size="354px;">
+				size="347px;">
 			</capitec-table-column>
 			<capitec-table-column
+				data-automation-id="transaction-history-fromAccount"
 				label="From Account"
 				field="fromAccount"
 				size="196px;">
 			</capitec-table-column>
 			<capitec-table-column
+				data-automation-id="transaction-history-amount"
 				label="Amount(R)"
 				field="formatedAmount"
 				size="144px;"
 				type="currency">
 			</capitec-table-column>
 			<capitec-table-column
+				data-automation-id="transaction-history-balance"
 				label="Balance"
 				field="formatedBalance"
 				size="158px;"
@@ -494,15 +544,35 @@ export class LiveBetter extends ViewBase {
 		`;
 	}
 
-	_renderTransactionDetails(item) {
-		this._getLinkedransactionDetails(item);
-
+	_renderDescription(item, fieldName, fieldValue) {
 		return html`
+			<capitec-label 
+				style="display: ${this.showTooltip ? `none` : `block`}; ${unsafeCSS(TABLE_EXPANDER_CELL.columnTooltip)}"
+				label="${fieldValue}"
+				@mouseover="${(e) => this._displayTooltip(e)}">
+			</capitec-label>
+			<capitec-tooltip 
+				style="display: ${this.showTooltip ? `block` : `none`}; text-align: left; ${unsafeCSS(TABLE_EXPANDER_CELL.toolTip)}"
+				message="${fieldValue}" 
+				@mouseout = "${() => this.showTooltip = false}"
+				position="bottom">
+			<capitec-label 
+				style=" ${unsafeCSS(TABLE_EXPANDER_CELL.columnTooltip)}; display: block; width: 315px;" 
+				label="${fieldValue}">
+			</capitec-label>
+			</capitec-tooltip>`;
+	}
+
+	_renderTransactionDetails(item) {
+		this.journalNumber = item.journalNumber;
+		this.linkedTransactionDetails = item.linkedTransactionDetails;
+
+		return this.linkedTransactionDetails ? html`
 		<capitec-content-box style="height: auto;">
 			<capitec-label
 				style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
 				label="Transaction details"
-				data-automation-id="transaction-history-item-description">
+				data-automation-id="transaction-history-item-header">
 			</capitec-label>
 	
 			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
@@ -516,54 +586,83 @@ export class LiveBetter extends ViewBase {
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Amount"
 					value = "${item.formatedAmount}"
-					data-automation-id="transaction-history-item-transfer-account">
+					data-automation-id="transaction-history-item-amount">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="To account" 
 					value = "${item.toAccount}"
-					data-automation-id="transaction-history-item-posting-date">
+					data-automation-id="transaction-history-item-to-account">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Posting date"
 					value = "${this._formatDate(item.postingDate)}"
-					data-automation-id="transaction-history-item-processed-date">
+					data-automation-id="transaction-history-item-posting-date">
 				</horizon-label>
 			</capitec-group>
 
 			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Description"
-					value = "${item.originalDescription}"
-					data-automation-id="transaction-history-item-code">
-				</horizon-label>
+				<capitec-group 
+					data-automation-id="transaction-history-item-description"
+					class="toggle-group" 
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)}"
+					layout="vertical" 
+					gap="none" 
+					halign="left" 
+					valign="center">
+						<capitec-label 
+							style="${unsafeCSS(TABLE_EXPANDER_CELL.labelText)}" 
+							label="Description">
+						</capitec-label>
+						<capitec-label 
+							style="display: ${this.showTooltip ? `none` : `block`}; ${unsafeCSS(TABLE_EXPANDER_CELL.labelValue)}"
+							id="desc-label"
+							label="${item.statementDescription ? item.statementDescription : `-`}"
+							@mouseover="${(e) => this._displayTooltip(e)}">
+						</capitec-label>
+						<capitec-tooltip 
+							data-automation-id="transaction-history-item-description-tooltip"
+							style="display: ${this.showTooltip ? `block` : `none`}; ${unsafeCSS(TABLE_EXPANDER_CELL.toolTip)}"
+							id="desc-tooltip-label"
+							message="${item.statementDescription}" 
+							@mouseout = "${() => this.showTooltip = false}"
+							position="bottom">
+							<capitec-label 
+								style="${unsafeCSS(TABLE_EXPANDER_CELL.labelValue)} display: block;" 
+								label="${item.statementDescription}">
+							</capitec-label>
+					</capitec-tooltip>
+				</capitec-group>
+				
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)} width: auto;" 
 					label="Long Description"
-					value = "${item.statementDescription}"
-					data-automation-id="transaction-history-item-card-number">
+					value = "${item.originalDescription ? item.originalDescription : `-`}"
+					data-automation-id="transaction-history-item-long-description">
 				</horizon-label>
 			</capitec-group>
 			
 			<capitec-label
 				style = "${unsafeCSS(EXPANDER_LABEL).toString()} ${unsafeCSS(LINKED_TRANSACTION.heading).toString()}"
-				label="${this.linkedTransactionDetails.length} linked transactions (Round-up: R5)"
-				data-automation-id="transaction-history-item-description">
+				label="${this.linkedTransactionDetails.length} linked transactions (Round-up: R${this.landingPageInfo.roundupValue})"
+				data-automation-id="transaction-history-item-linked-transactions-header">
 			</capitec-label>
 
-			${this.linkedTransactionDetails.map(transaction => this._renderLinkedTransaction(transaction, item.formatedAmount))}
-			
+			<capitec-content-box style="${unsafeCSS(LINKED_TRANSACTION.contentBox).toString()}" layout="vertical" gap="clear" halign="left" valign="top">
+				${this.linkedTransactionDetails.map(transaction => this._renderLinkedTransactionTile(transaction, item.formatedAmount))}
+			</capitec-content-box>
+
 		</capitec-content-box>
-		`;
+		` : html ``;
 	}
 
-	_renderLinkedTransaction(item, formatedAmount) {
+	_renderLinkedTransactionTile(item, formatedAmount) {
 		return html`
 			<capitec-card 
+				data-automation-id="transaction-history-linked-transation"
 				?elevated="${true}" 
-				class="row-selector" 
+				class="row-selector"
 				style="${unsafeCSS(LINKED_TRANSACTION.card).toString()}"
 				@click="${() => this._linkedTransactionClick(item, formatedAmount)}">
 					<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
@@ -571,26 +670,26 @@ export class LiveBetter extends ViewBase {
 							style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)} ${unsafeCSS(LINKED_TRANSACTION.description).toString()}" 
 							label="Description"
 							value = "${item.originalDescription}"
-							data-automation-id="transaction-history-item-type">
+							data-automation-id="transaction-history-linked-transation-description"">
 						</horizon-label>
 						<div style="${unsafeCSS(LINKED_TRANSACTION.verticalLine).toString()}"></div>
 						<horizon-label
 							style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 							label="Transaction Date"
 							value = "${this._formatDate(item.transactionDate)}"
-							data-automation-id="transaction-history-item-transfer-account">
+							data-automation-id="transaction-history-linked-transation-date"">
 						</horizon-label>
 						<horizon-label
 							style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 							label="Round-up amount" 
 							value = "${formatCurrency(item.roundUpAmount)}"
-							data-automation-id="transaction-history-item-posting-date">
+							data-automation-id="transaction-history-linked-round-up-amount">
 						</horizon-label>
 					</capitec-group>
 			</capitec-card>`;
 	}
 	
-	_renderLinkedTransactionDetails() {
+	_renderLinkedTransactionDetailsModal() {
 		return this.renderMode === RENDER_MODE.TRANSACTION_DETAILS ?
 		 html`
 			<horizon-linked-transaction-details

@@ -11,9 +11,18 @@
 	LIVE_BETTER_ACCOUNT_NUMBER : `call.fulfill-need.live-better-savings.select.account-number`,
 	LIVE_BETTER_ROUND_UP_TOGGLE : `call.fulfill-need.live-better-savings.toggle.round-up`,
 	LIVE_BETTER_INTEREST_SWEEP_TOGGLE : `call.fulfill-need.live-better-savings.toggle.interest-sweep`,
-	LIVE_BETTER_TRANSACTION_HISTORY : `call.fulfill-need.live-better-savings.select.transaction-history`,
+	LIVE_BETTER_TRANSACTION_HISTORY_SELECT : `call.fulfill-need.live-better-savings.select.transaction-history`,
 	LIVE_BETTER_STATEMENTS : `call.fulfill-need.live-better-savings.select.statements`,
 	LIVE_BETTER_AUTOMATIC_SAVINGS : `call.fulfill-need.live-better-savings.select.automatic-savings`,
+
+	LBB_TRANSACTION_HISTORY: `call.fulfill-need.live-better-savings.transaction-history`,
+	LBB_TRANSACTION_HISTORY_FILTER: `call.fulfill-need.live-better-savings.transaction-history.filter`,
+	LBB_TRANSACTION_HISTORY_CLEAR_ALL: `call.fulfill-need.live-better-savings.transaction-history.filter.clear-all`,
+	LBB_TRANSACTION_HISTORY_CLEAR_FILTER: `call.fulfill-need.live-better-savings.transaction-history.filter.clear`,
+	LBB_TRANSACTION_HISTORY_INFO: `call.fulfill-need.live-better-savings.transaction-history.view-info`,
+	LBB_TRANSACTION_HISTORY_VIEW_LINKED_TRANSACTIONS: `call.fulfill-need.live-better-savings.transaction-history.linked-transaction-view`,
+	LBB_LINKED_TRANSACTIONS_DETAILS: `call.fulfill-need.live-better-savings.transaction-history.detailed-view`,
+	LBB_LINKED_TRANSACTIONS_DETAILS_CLOSE: `call.fulfill-need.live-better-savings.transaction-history.detailed-view.close`,
 
 	LIVE_BETTER_VIEW_BENEFITS: `call.fulfill-need.live-better-savings.view-benefits`
 };

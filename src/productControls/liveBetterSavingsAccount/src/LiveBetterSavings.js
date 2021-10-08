@@ -49,7 +49,7 @@ export class LiveBetterSavings extends Component {
 	 * @typedef {Object} LiveBetterAccountData
 	 * @property {String} accountNumber - The Live Better Savings Account Number
 	 * @property {Number} accountAvailableBalance - The Available Live Better Account Balance
-	 * @property {Number} roundUpAmount
+	 * @property {Number} roundupValue
 	 * @property {String} interestSweep
 	 * @property {String} interestRatePercentage
 	 * @property {String} accountStatus
@@ -329,7 +329,7 @@ export class LiveBetterSavings extends Component {
 						data-automation-id="live-better-verified-account-number"
 						label="Account number"
 						@click="${() => this._accountDetails()}"
-						value="${this.liveBetterAccountData.liveBetterSavingsAccountNumber}">
+						value="${this.liveBetterAccountData.accountNumber}">
 					</horizon-label>
 
 					<div class="vertical-line"></div>

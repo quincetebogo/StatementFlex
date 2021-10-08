@@ -1,5 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
 import 'platform/components/popups/Modal';
 
@@ -31,12 +33,16 @@ export class LinkedTransactionDetails extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		// Telemetry
+
+		this._telemetry.startSpan(LiveBetterEvents.LBB_LINKED_TRANSACTIONS_DETAILS, {});
+
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-		// Telemetry
+	
+		this._telemetry.endSpan(LiveBetterEvents.LBB_LINKED_TRANSACTIONS_DETAILS, {});
+
 	}
 
 	// --------------
@@ -62,6 +68,12 @@ export class LinkedTransactionDetails extends Component {
 	// --------------
 	
 	_onCloseClick() {
+
+		this._telemetry.logEvent(LiveBetterEvents.LBB_LINKED_TRANSACTIONS_DETAILS_CLOSE, {
+			"screen": TelemetryScreen.LIVE_BETTER_LINKED_TRANSACTIONS,
+			"next-screen": TelemetryScreen.LIVE_BETTER_TRANSACTION_HISTORY
+		});
+
 		this.dispatchEvent(new CustomEvent(`on-close`, {
 			detail: {}
 		}));
@@ -271,7 +283,7 @@ export class LinkedTransactionDetails extends Component {
 						<horizon-label 
 							data-automation-id="linked-transaction-details-description"
 							label="Description" 
-							value="${this.transactionDetails.originalDescription}">
+							value="${this.transactionDetails.originalDescription ? this.transactionDetails.originalDescription : `-`}">
 						</horizon-label>
 				</capitec-group>
 
@@ -283,7 +295,7 @@ export class LinkedTransactionDetails extends Component {
 						<horizon-label 
 							data-automation-id="linked-transaction-details-long-description"
 							label="Long description" 
-							value="${this.transactionDetails.longDescription}">
+							value="${this.transactionDetails.longDescription ? this.transactionDetails.longDescription : `-`}">
 						</horizon-label>
 				</capitec-group>
 		</capitec-content-box>
@@ -305,3 +317,13 @@ export class LinkedTransactionDetails extends Component {
 	}
 }
 window.customElements.define(`horizon-linked-transaction-details`, LinkedTransactionDetails);
+
+/**
+ * When clicked on close button
+ *
+ * @example
+ * <horizon-linked-transaction-details ... @on-close="${this._handler}"></horizon-linked-transaction-details>
+ *
+ * @event LinkedTransactionDetails#on-close
+ * @type {Object} - N/A
+ */

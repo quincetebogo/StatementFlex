@@ -263,7 +263,7 @@ const ACCOUNT_TYPE = {
 						<horizon-label
 							class="main-title"
 							label="Account Details"
-							value="${this.accountDetails.liveBetterSavingsAccountNumber}">
+							value="${this.accountDetails.accountNumber}">
 						</horizon-label>
 				</capitec-title-bar>
 
@@ -315,7 +315,7 @@ const ACCOUNT_TYPE = {
 						<horizon-label 
 							data-automation-id="live-better-account-details-account-number"
 							label="Account number" 
-							value="${this.accountDetails.liveBetterSavingsAccountNumber}">
+							value="${this.accountDetails.accountNumber}">
 						</horizon-label>
 						<horizon-label 
 							data-automation-id="live-better-account-details-available-balance" 
