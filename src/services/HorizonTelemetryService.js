@@ -321,8 +321,22 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns {Array} Baggage array
 	 */
 	_formatBaggageDetails(baggage) {				
-		return Object.entries(baggage).map(item => ({ [item[0]]: item[1] }));
+		return Object.entries(baggage).map(item => ({ [item[0]]: this._trimBaggage(item[1]) }));
 	}
+
+		/**
+	 * trims baggage
+	 * 
+	 * @param {object} item Object holds baggage item
+	 * @returns {string} baggage item
+	 */
+	_trimBaggage(item) {				
+		if(!!item && !Array.isArray(item)) {
+			return item.trim();
+		}
+		return item;
+	}
+	
 
 	/**
 	 * On starting a span for an event, this function is used to maintain active spans
