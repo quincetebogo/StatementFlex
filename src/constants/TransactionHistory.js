@@ -55,7 +55,7 @@ export const ACCOUNT_TYPES = Object.freeze({
 });
 
 
-export const ACCOUNT_TYPES_IN_NUM = Object.freeze({
+export const ACCOUNT_TYPES_LIST = Object.freeze({
 	'transact': `PRIMARY_SAVINGS`,
 	'lbb': `LBB`,
 	'credit' : '',

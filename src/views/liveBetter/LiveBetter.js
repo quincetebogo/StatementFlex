@@ -25,9 +25,8 @@ import { LBBLinkedTransactionDetails } from 'app/mocks/LiveBetterLandingMocks';
 
 const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE: 'LBB',
-	END_DATE: new Date().toISOString().substr(0, 10),//"2021-09-29", //
-	// 7776000000 is 90 days in milliseconds
-	START_DATE: new Date(Date.now() - 7776000000).toISOString().substr(0, 10),//"2019-04-20", //
+	END_DATE: new Date().toISOString().substr(0, 10),
+	START_DATE: new Date(Date.now() - 7776000000).toISOString().substr(0, 10),// 7776000000 is 90 days in milliseconds
 	START_AT_INDEX: 0,
 	MAX_RESULTS: 50,
 	MONEY_TYPE: `BOTH`
@@ -176,7 +175,7 @@ export class LiveBetter extends ViewBase {
 		this.selectedLinkedTransaction = transactionDetails;
 		this.selectedLinkedTransaction.amount = formatedAmount;
 
-		this.renderMode = RENDER_MODE.TRANSACTION_DETAILS;
+		this.renderMode = RENDER_MODE.LINKED_TRANSACTION_DETAILS;
 	}
 	
 	async _getLinkedransactionDetails(item) {
@@ -186,28 +185,28 @@ export class LiveBetter extends ViewBase {
 			});
 
 			const transactionHistoryRequest = {
-				"journalNumber": "453858",// item.journalNumber;
-				"accountNumber": "1733256405",// this.landingPageInfo.accountNumber,
-				"postingDate": "2021-06-22"// item.postingDate
+				"journalNumber": this.journalNumber, // "453858"// Details to work on DEV - for testing. 
+				"accountNumber": this.landingPageInfo.accountNumber, //"1733256405"//
+				"postingDate": item.postingDate //"2021-06-22"//
 			};
 
 			const returnValue = await this.livBetterService.lbbLinkedTransactionDetails(transactionHistoryRequest);
+			
 			if(returnValue.succeeded && returnValue.result) {
 				return returnValue.result.linkedTransactions;
 			} else {
 				return [];
 			}
 	}
-		  
+	
+	// Function that gets triggered on changing values for those set as properties ( eg: "journalNumber", "transactionHistory" ).
 	async updated(changedProperties) {
 
 		const journalNumber = !(!changedProperties.get('journalNumber'));
 	
 		if(journalNumber) {
-
 			const expandedItem = this.transactionHistory.find( item => item.journalNumber === this.journalNumber);
 			expandedItem.linkedTransactionDetails = await this._getLinkedransactionDetails(expandedItem);
-
 			this.requestUpdate();
 		}
 	}
@@ -319,10 +318,7 @@ export class LiveBetter extends ViewBase {
 
 		if (returnValue.succeeded && returnValue.result) {
 			
-			this.transactionHistory = returnValue.result.transactions.map(item => {
-				item.expanded = false;
-				return item;
-			});
+			this.transactionHistory = returnValue.result.transactions;
 
 			this.accountDetails = {
 				"Account number": this.landingPageInfo.accountNumber,
@@ -485,7 +481,7 @@ export class LiveBetter extends ViewBase {
 	}
 
 	_renderTransactionHistory() {
-		return this.renderMode === RENDER_MODE.TRANSACTION_HISTORY || this.renderMode === RENDER_MODE.TRANSACTION_DETAILS
+		return this.renderMode === RENDER_MODE.TRANSACTION_HISTORY || this.renderMode === RENDER_MODE.LINKED_TRANSACTION_DETAILS
 			? html`
 				<horizon-transaction-history
 					.transactionHistoryList="${this.transactionHistory}"
@@ -516,7 +512,7 @@ export class LiveBetter extends ViewBase {
 				data-automation-id="transaction-history-description"
 				label="Description"
 				?wrap="${true}"
-				.renderer="${(item, Description, description) => this._renderDescription(item, Description, description)}"
+				.renderer="${(item, Description, description) => this._renderDescriptionColumn(item, Description, description)}"
 				field="description"
 				size="347px;">
 			</capitec-table-column>
@@ -544,7 +540,7 @@ export class LiveBetter extends ViewBase {
 		`;
 	}
 
-	_renderDescription(item, fieldName, fieldValue) {
+	_renderDescriptionColumn(item, fieldName, fieldValue) {
 		return html`
 			<capitec-label 
 				style="display: ${this.showTooltip ? `none` : `block`}; ${unsafeCSS(TABLE_EXPANDER_CELL.columnTooltip)}"
@@ -552,7 +548,7 @@ export class LiveBetter extends ViewBase {
 				@mouseover="${(e) => this._displayTooltip(e)}">
 			</capitec-label>
 			<capitec-tooltip 
-				style="display: ${this.showTooltip ? `block` : `none`}; text-align: left; ${unsafeCSS(TABLE_EXPANDER_CELL.toolTip)}"
+				style="display: ${this.showTooltip ? `block` : `none`}; ${unsafeCSS(TABLE_EXPANDER_CELL.toolTip)}; text-align: left;"
 				message="${fieldValue}" 
 				@mouseout = "${() => this.showTooltip = false}"
 				position="bottom">
@@ -564,6 +560,8 @@ export class LiveBetter extends ViewBase {
 	}
 
 	_renderTransactionDetails(item) {
+
+		// Updating "this.journalNumber" to trigger service call that gets "linkedTransactionDetails".
 		this.journalNumber = item.journalNumber;
 		this.linkedTransactionDetails = item.linkedTransactionDetails;
 
@@ -690,7 +688,7 @@ export class LiveBetter extends ViewBase {
 	}
 	
 	_renderLinkedTransactionDetailsModal() {
-		return this.renderMode === RENDER_MODE.TRANSACTION_DETAILS ?
+		return this.renderMode === RENDER_MODE.LINKED_TRANSACTION_DETAILS ?
 		 html`
 			<horizon-linked-transaction-details
 				.transactionDetails = "${this.selectedLinkedTransaction}"
