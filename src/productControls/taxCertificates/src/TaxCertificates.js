@@ -290,7 +290,7 @@ export class TaxCertificates extends Component {
 				--theme-container-padding-left: 0px;
 				--theme-container-padding-right: 0px;
 				--theme-container-padding-top: 0px;
-				--theme-container-padding-bottom: 0px;
+				--theme-container-padding-bottom: 16px;
 				
 			}
 			.main-cb > capitec-alert-banner {
@@ -462,6 +462,7 @@ export class TaxCertificates extends Component {
 				--theme-layout-gap-spacing: 16px;
 				--theme-expander-indicator-width: 13px;
 				--theme-expander-header-height: 64px;
+				height: auto;
 			}
 			.choose-period-header {
 				margin: 16px 0px;
@@ -635,6 +636,10 @@ export class TaxCertificates extends Component {
 	}
 	
 	_renderCertificateTypes() {
+
+		if (this.disableNext) {
+			return html`${this._renderNoResults()}`;
+		}
 	
 		switch (this.selectedCertType) {
 			case `iT3BTaxCertificates`:
@@ -647,6 +652,21 @@ export class TaxCertificates extends Component {
 			default:
 				return html``;
 		}
+	}
+
+	_renderNoResults() {
+		return html`
+			<capitec-group
+				layout="vertical"
+				gap="clear"
+				halign="center"
+				valign="top"
+				class="no-results">
+					<capitec-image alt="No results" src="/images/tax-certificate/send-tax-certificate.svg">
+					</capitec-image>
+					<capitec-label label="No results found" type="strong">
+					</capitec-label>
+			</capitec-group>`;
 	}
 	
 	_renderEmail() {
@@ -673,7 +693,7 @@ export class TaxCertificates extends Component {
 	_renderChoosePeriod(certificateType) {
 		const data = this.taxCertificateDetails[certificateType];
 
-		return this.currentStep === 0 && this.selectedCertType && !this.disableNext
+		return this.currentStep === 0 && this.selectedCertType
 			? html`
 				<capitec-label
 					data-automation-id="tax-certificate-header-type"
@@ -686,19 +706,7 @@ export class TaxCertificates extends Component {
 					? data.map(item => this._renderCertificateYears(item, certificateType))
 					: html`<capitec-label label="No results found" type="default"></capitec-label>`
 				}`
-			: html`
-				<capitec-group
-					layout="vertical"
-					gap="clear"
-					halign="center"
-					valign="top"
-					class="no-results">
-					<capitec-image alt="No results" src="/images/tax-certificate/send-tax-certificate.svg">
-					</capitec-image>
-					<capitec-label label="No results found" type="strong">
-					</capitec-label>
-				</capitec-group>
-			`;
+			: html``;
 	}
 
 	_renderCertificateYears(item, certType) {
