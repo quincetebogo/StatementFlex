@@ -1,4 +1,5 @@
 import { css, html } from 'platform/elements';
+import { formatCurrency, getMonthName } from 'app/utils/channelServiceUtilities';
 import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
@@ -8,11 +9,13 @@ import 'app/components/savingsAccount/TransactionHistory';
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/common/StatementsDialog';
 
+// ninety days in milliseconds
+const NINETY_DAYS = 7777000000;
+
 const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
 	END_DATE: new Date().toISOString().substr(0, 10),
-	// 7776000000 is 90 days in milliseconds
-	START_DATE: new Date(Date.now() - 7776000000).toISOString().substr(0, 10),
+	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
 	START_AT_INDEX: 0,
 	MAX_RESULTS: 50,
 	MONEY_TYPE: `BOTH`
@@ -112,6 +115,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	}
 
 	_unloadTransactionHistory() {
+		this.transactionHistory = [];
 		this._setIncidentDone();
 	}
 	
@@ -184,14 +188,14 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		this.horizonRouter.navigateToSystemError();
 	}
 
-	async _transactionHistory(startDate = TRANSACTION_HISTORY.START_DATE, endDate = TRANSACTION_HISTORY.END_DATE, startAtIndex = TRANSACTION_HISTORY.START_AT_INDEX) {
+	async _transactionHistory(startDate, endDate, startAtIndex) {
 		const transactionHistoryRequest = {
 			cifNumber: this.callerInformation.cifNumber,
 			accountNumber: this.landingPageInfo.accountNumber,
 			accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
-			startDate: startDate,
-			endDate: endDate,
-			startAtIndex: startAtIndex,
+			startDate: startDate || TRANSACTION_HISTORY.START_DATE,
+			endDate: endDate || TRANSACTION_HISTORY.END_DATE,
+			startAtIndex: startAtIndex || TRANSACTION_HISTORY.START_AT_INDEX,
 			maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
 			moneyType: TRANSACTION_HISTORY.MONEY_TYPE
 		};
