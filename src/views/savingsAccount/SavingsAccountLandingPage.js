@@ -298,7 +298,8 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 					.transactionHistory = "${this.transactionHistory}"
 					.accountDetails = "${this.accountDetails}"
 					.cifNumber = "${this.callerInformation.cifNumber}"
-					.loadMoreTransactions="${(startDate, endDate, startAtIndex) => this._transactionHistory(startDate, endDate, startAtIndex)}"
+					.getTransactionHistory="${(startDate, endDate, startAtIndex) => this._transactionHistory(startDate, endDate, startAtIndex)}"
+					.disposeData="${() => this.transactionHistory = []}"
 					@error-handler = "${() => this._errorHandler()}"
 					@back="${() => this._exitTransactionHistory()}"
 					@unloading="${() => this._unloadTransactionHistory()}">
