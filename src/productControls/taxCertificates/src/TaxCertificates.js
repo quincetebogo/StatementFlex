@@ -64,6 +64,7 @@ export class TaxCertificates extends Component {
 		this.confirmEmailLabel = `Confirm email address`;
 		this.selectedCertType = null;
 		this.selectedCertificates = {};
+		this.disableNext = false;
 	}
 
 	// --------------
@@ -91,7 +92,8 @@ export class TaxCertificates extends Component {
 			alertBannerMessage: { attribute: false },
 			emailText: { attribute: false },
 			email: { attribute: false },
-			confirmEmail: { attribute: false }
+			confirmEmail: { attribute: false },
+			disableNext: { type: Boolean, attribute: false }
 		};
 	}
 
@@ -115,6 +117,9 @@ export class TaxCertificates extends Component {
 			this.alertBannerMessage = ``;
 			this.selectedCertType = e.target.id;
 			this.selectedCertificates = {};
+			this.disableNext = this.selectedCertType === `both`
+								? this.taxCertificateDetails.iT3BTaxCertificates.length + this.taxCertificateDetails.iT3STaxCertificates.length === 0
+								: this.taxCertificateDetails[this.selectedCertType].length === 0;
 		}
 	}
 
@@ -296,7 +301,7 @@ export class TaxCertificates extends Component {
 				--theme-container-padding-left: 0px;
 				--theme-container-padding-right: 0px;
 				--theme-container-padding-top: 0px;
-				--theme-container-padding-bottom: 0px;
+				--theme-container-padding-bottom: 16px;
 				
 			}
 			.main-cb > capitec-alert-banner {
@@ -321,7 +326,7 @@ export class TaxCertificates extends Component {
 			}
 			capitec-radio-group {
 				margin-top: 12px;
-				margin-bottom: 12px;
+				--theme-layout-gap-spacing: 12px;
 			}
 			capitec-radio-group > capitec-group{
 				margin: 0px;
@@ -468,6 +473,7 @@ export class TaxCertificates extends Component {
 				--theme-layout-gap-spacing: 16px;
 				--theme-expander-indicator-width: 13px;
 				--theme-expander-header-height: 64px;
+				height: auto;
 			}
 			.choose-period-header {
 				margin: 16px 0px;
@@ -524,6 +530,22 @@ export class TaxCertificates extends Component {
 			}
 			capitec-content-box > .contnent[slot="content"] {
 				height: auto;
+			}
+			.no-results {
+				margin-top: 88px;
+			}
+			capitec-image {
+				height: 182px;
+				width: 252px;
+			}
+			.no-results > capitec-label[type="strong"] {
+				line-height: 32px;
+				--theme-label-font-color: #3A3A3A;
+				--theme-label-strong-font-size: 24px;
+				--theme-label-strong-font-weight: 600;
+			}
+			capitec-label[type="default"] {
+				--theme-label-default-font-size: 16px;
 			}
 			`
 		];
@@ -625,6 +647,10 @@ export class TaxCertificates extends Component {
 	}
 	
 	_renderCertificateTypes() {
+
+		if (this.disableNext) {
+			return html`${this._renderNoResults()}`;
+		}
 	
 		switch (this.selectedCertType) {
 			case `iT3BTaxCertificates`:
@@ -637,6 +663,21 @@ export class TaxCertificates extends Component {
 			default:
 				return html``;
 		}
+	}
+
+	_renderNoResults() {
+		return html`
+			<capitec-group
+				layout="vertical"
+				gap="clear"
+				halign="center"
+				valign="top"
+				class="no-results">
+					<capitec-image alt="No results" src="/images/tax-certificate/send-tax-certificate.svg">
+					</capitec-image>
+					<capitec-label label="No results found" type="strong">
+					</capitec-label>
+			</capitec-group>`;
 	}
 	
 	_renderEmail() {
@@ -661,9 +702,10 @@ export class TaxCertificates extends Component {
 	}
 
 	_renderChoosePeriod(certificateType) {
-		
-		if (this.selectedCertType && this.currentStep === 0) {
-			return html`
+		const data = this.taxCertificateDetails[certificateType];
+
+		return this.currentStep === 0 && this.selectedCertType
+			? html`
 				<capitec-label
 					data-automation-id="tax-certificate-header-type"
 					class="choose-period-header"
@@ -671,9 +713,11 @@ export class TaxCertificates extends Component {
 					type="title">
 				</capitec-label>
 				
-				${this.taxCertificateDetails[certificateType].map(item => this._renderCertificateYears(item, certificateType))}
-			`;
-		}
+				${data.length > 0
+					? data.map(item => this._renderCertificateYears(item, certificateType))
+					: html`<capitec-label label="No results found" type="default"></capitec-label>`
+				}`
+			: html``;
 	}
 
 	_renderCertificateYears(item, certType) {
@@ -746,23 +790,21 @@ export class TaxCertificates extends Component {
 	}
 
 	_renderViewTaxcertificate() {
-		return Object.keys(this.selectedCertificates).map(certType => (this.selectedCertificates[certType].length > 0
-				? html`
-					<capitec-label
-						class="tax-certificate-heading"
-						type="subtitle"
-						label="View ${certType === `iT3BTaxCertificates` ? `taxable savings` : `tax-free`} certificate(s)">
-					</capitec-label>
-					<capitec-group
-						class="available-cards"
-						valign="top"
-						halign="left"
-						gap="clear"
-						layout="vertical">
-						${this._renderViewCertificateTile(certType)}
-					</capitec-group>`
-				: html``));
-		}
+		return Object.keys(this.selectedCertificates).map(certType => html`
+				<capitec-label
+					class="tax-certificate-heading"
+					type="subtitle"
+					label="View ${certType === `iT3BTaxCertificates` ? `taxable savings` : `tax-free`} certificate(s)">
+				</capitec-label>
+				<capitec-group
+					class="available-cards"
+					valign="top"
+					halign="left"
+					gap="clear"
+					layout="vertical">
+					${this._renderViewCertificateTile(certType)}
+			</capitec-group>`);
+	}
 
 	_renderViewCertificateTile(certType) {
 		return this.selectedCertificates[certType].map(certInfo => html`
@@ -814,7 +856,8 @@ export class TaxCertificates extends Component {
 				type="primary" 
 				label="Next"
 				@click="${() => this._nextClick()}"
-				?hidden="${this.currentStep === 1 || this.renderMode === RENDER_MODE.PDF}">
+				?hidden="${this.currentStep === 1 || this.renderMode === RENDER_MODE.PDF}"
+				.disabled="${this.disableNext}">
 			</capitec-button>
 			<capitec-button
 				data-automation-id="tax-certificate-dialog-send"
