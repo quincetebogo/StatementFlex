@@ -637,6 +637,10 @@ export class VerifyCaller extends Component {
 					line-height: 24px;
 					margin-bottom: 0px;
 				}
+				.failed-client {
+					font-weight: 600;
+					margin-bottom: 29px;
+				}
 				.timer-bold {
 					font-weight: 700;
 				}
@@ -955,7 +959,7 @@ export class VerifyCaller extends Component {
 			<capitec-content-box id="notification-status-box">
 				<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
 					<capitec-alert-banner type="warning">
-						<b>Notify: </b>You didn't pass the security questions.
+						<b>Notify client: </b>You didn't pass the security questions.
 					</capitec-alert-banner>
 					<capitec-group layout="vertical" 
 						halign="center"
@@ -963,7 +967,7 @@ export class VerifyCaller extends Component {
 						gap="clear"
 						id="notification-status-error-group">
 						<img src="/images/warning.svg" class="warning-svg connection-error-svg"/>
-						<div class="notification-info" style="margin-bottom: 18px">
+						<div class="notification-info failed-client">
 							Your first attempt was unsuccessful. <br>
 							You can try again or verify by accepting the push notification.
 						</div>
@@ -979,21 +983,21 @@ export class VerifyCaller extends Component {
 				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
 					<horizon-option-button 
 						label="Security Questions" 
-						icon="system/apply-now-action"
+						icon="system/knowledge-action"
 						iconSize="default"
 						?hidden=${!this.hasSouthAfricanID || this._xdsAttemptsExceeded() || !this._canVerify}
 						@click="${() => this._securityQuestionsClick()}">
 					</horizon-option-button>
 					<horizon-option-button 
-						label="Skip"
+						label="Skip Verification"
 						icon="system/arrow-right-action" 
 						iconSize="default"
 						@click="${() => this._skipClick()}">
 					</horizon-option-button>
 					<horizon-option-button
 					  class="btnTryAgain"
-						label="Try Again" 
-						img-src="/images/insure/refresh.svg"
+						label="Verify Via App/USSD" 
+						icon="system/cellphone-action"
 						iconSize="default"
 						?hidden=${!this.callerInformation.hasDigitalChannels || this._itaAttemptsExceeded() || this._itaInProgress()}
 						@click="${() => this._tryAgain()}">
