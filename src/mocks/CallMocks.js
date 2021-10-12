@@ -8,12 +8,12 @@ export const acceptCallSuccess = {
 	"agentTelephoneNumber": null,
 	"callerInformation": {
 		"name": `Joe Bloggs`,
-		"southAfricanIDNumber": `7612073182086`,
+		"southAfricanIDNumber": `9803095871081`,
 		"verifiedTelephoneNumber": `0811212121`,
 		"livesIn": `Somerset West`,
 		"languagePreference": `English`,
 		"birthdate": `1967-12-07T20:26:46.894Z`,
-		"cifNumber": `103769250`,
+		"cifNumber": `289739225`,
 		"profilePhoto": null
 	}
 };
