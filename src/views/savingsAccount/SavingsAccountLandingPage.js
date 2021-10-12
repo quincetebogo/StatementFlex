@@ -188,7 +188,12 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		this.horizonRouter.navigateToSystemError();
 	}
 
-	async _transactionHistory(startDate, endDate, startAtIndex) {
+	async _transactionHistory() {
+		await super.createAndClassifySubsIncident();
+		await this._getTransactionHistory();
+	}
+
+	async _getTransactionHistory(startDate, endDate, startAtIndex) {
 		const transactionHistoryRequest = {
 			cifNumber: this.callerInformation.cifNumber,
 			accountNumber: this.landingPageInfo.accountNumber,
@@ -203,8 +208,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
 
 		if (returnValue.succeeded && returnValue.result) {
-			await super.createAndClassifySubsIncident();
-			
 			const formattedTrans = returnValue.result.transactions
 									.filter(item => item.transactionStatus !== ``)
 									.map((item) => {
@@ -298,7 +301,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 					.transactionHistory = "${this.transactionHistory}"
 					.accountDetails = "${this.accountDetails}"
 					.cifNumber = "${this.callerInformation.cifNumber}"
-					.getTransactionHistory="${(startDate, endDate, startAtIndex) => this._transactionHistory(startDate, endDate, startAtIndex)}"
+					.getTransactionHistory="${(startDate, endDate, startAtIndex) => this._getTransactionHistory(startDate, endDate, startAtIndex)}"
 					.disposeData="${() => this.transactionHistory = []}"
 					@error-handler = "${() => this._errorHandler()}"
 					@back="${() => this._exitTransactionHistory()}"

@@ -30,15 +30,7 @@ const DEFAULTS = {
 	DATE_FORMAT: `dd mm yyyy`
 };
 
-const TRANSACTION_HISTORY = {
-	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
-	END_DATE: new Date().toISOString().substr(0, 10),
-	START_DATE: new Date(Date.now() - 7776000000).toISOString().substr(0, 10),
-	START_AT_INDEX: 0,
-	MAX_RESULTS: 50,
-	MONEY_TYPE: `BOTH`
-};
-
+const MAX_RESULTS = 50;
 const today = new Date();
 
 /**
@@ -75,9 +67,6 @@ export class TransactionHistory extends Component {
 		this.filteredData = [];
 		this.searchTextLabel = DEFAULTS.SEARCH_TEXT_LABEL;
 		this.statuslabel = DEFAULTS.STATUS_LABEL;
-
-		this.startTransactionDate = null; /* new Date("January 01, 2000"); */
-		this.endTransactionDate = null; /* new Date(); */
 	}
 
 	// --------------
@@ -122,7 +111,7 @@ export class TransactionHistory extends Component {
 		super.connectedCallback();
 
 		this.filteredData = this.transactionHistory;
-		this.hideLoadMore = this.transactionHistory.length % TRANSACTION_HISTORY.MAX_RESULTS > 0 && this.transactionHistory.length % TRANSACTION_HISTORY.MAX_RESULTS < TRANSACTION_HISTORY.MAX_RESULTS;
+		this.hideLoadMore = this.transactionHistory.length % MAX_RESULTS > 0 && this.transactionHistory.length % MAX_RESULTS < MAX_RESULTS;
 	}
 
 	disconnectedCallback() {
@@ -177,7 +166,6 @@ export class TransactionHistory extends Component {
 		let toDate = DateTime.fromISO(e.detail.new.endDate);
 		const today = DateTime.local();
 
-
 		if (toDate.diff(fromDate, [`days`]).days > 90) {
 			
 			toDate = fromDate.plus({ days: 90 });
@@ -211,20 +199,18 @@ export class TransactionHistory extends Component {
 		}
 
 		RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
-		this.startTransactionDate = this.startDate;
-		this.endTransactionDate = this.endDate;
 		await this._loadFilteredTransactions();
 		this._refineSearch();
 	}
 
 	async _loadFilteredTransactions() {
-		const startDate = this.startTransactionDate.toLocaleString().slice(0, 10);
-		const endDate = this.endTransactionDate.toLocaleString().slice(0, 10);
+		const startDate = this.startDate.toLocaleString().slice(0, 10);
+		const endDate = this.endDate.toLocaleString().slice(0, 10);
 
 		this.disposeData();
-		const loadMoreData = await this.getTransactionHistory(startDate, endDate, TRANSACTION_HISTORY.START_AT_INDEX);
+		await this.getTransactionHistory(startDate, endDate);
 
-		this.hideLoadMore = loadMoreData.length % TRANSACTION_HISTORY.MAX_RESULTS > 0 && loadMoreData.length % TRANSACTION_HISTORY.MAX_RESULTS < TRANSACTION_HISTORY.MAX_RESULTS;
+		this.hideLoadMore = this.transactionHistory.length % MAX_RESULTS > 0 && this.transactionHistory.length % MAX_RESULTS < MAX_RESULTS;
 	}
 
 	_filterByStatus(event) {
@@ -271,8 +257,6 @@ export class TransactionHistory extends Component {
 		if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
 			this.startDate = ``;
 			this.endDate = ``;
-			this.startTransactionDate = TRANSACTION_HISTORY.START_DATE;
-			this.endTransactionDate = TRANSACTION_HISTORY.END_DATE;
 
 			const calendar = this.shadowRoot.querySelector(`#calendarRange`);
 			if (calendar) {
@@ -284,11 +268,17 @@ export class TransactionHistory extends Component {
 	}
 
 	async _loadMoreTransactions() {
+		const oldCount = this.transactionHistory.length;
 
-		const moreData = await this.getTransactionHistory(this.startTransactionDate, this.endTransactionDate, this.transactionHistory.length + 1);
+		await this.getTransactionHistory(this.startDate, this.endDate, this.transactionHistory.length + 1);
 
-		this.filteredData = moreData;
-		this.hideLoadMore = moreData.length % TRANSACTION_HISTORY.MAX_RESULTS > 0 && moreData.length % TRANSACTION_HISTORY.MAX_RESULTS < TRANSACTION_HISTORY.MAX_RESULTS;
+		// If the old record count and count after load more are same means no more data to populate,
+		// so hiding loadmore button
+		if (oldCount === this.transactionHistory.length) {
+			this.hideLoadMore = true;
+		} else {
+			this.hideLoadMore = this.transactionHistory.length % MAX_RESULTS > 0 && this.transactionHistory.length % MAX_RESULTS < MAX_RESULTS;
+		}
 		this._refineSearch();
 	}
 
@@ -517,12 +507,6 @@ export class TransactionHistory extends Component {
 					padding-top : 0px;
 					padding-bottom: 0px; 
 					--theme-actionbar-background: #f4f4f4;
-				}
-				.show-load-more{
-					display: block;
-				}
-				.hide-load-more{
-					display: none;
 				}
 				.transaction-status-select{
 					--theme-input-label-font-size: 16px;
@@ -866,7 +850,7 @@ export class TransactionHistory extends Component {
 
 	_renderFooter() {
 		return html`
-			<capitec-action-bar class="load-more-bar ${this.hideLoadMore ? `hide-load-more` : `show-load-more`}">
+			<capitec-action-bar class="load-more-bar" ?hidden="${this.hideLoadMore}">
 				<capitec-spacer></capitec-spacer>
 				<capitec-button
 					type="clear"
