@@ -306,6 +306,14 @@ export class AppShell extends Shell {
 					--theme-product-tile-title-font-size: 18px;
 					--theme-product-tile-subtitle-height: 23px;
 					--theme-product-tile-subtitle-font-size: 15px;
+
+					/* Banner text should now be black - set it here until the platform does*/
+					--theme-alert-banner-info-font-color: #3A3A3A;
+					--theme-alert-banner-success-font-color: #3A3A3A;
+					--theme-alert-banner-warning-font-color: #3A3A3A;
+					--theme-alert-banner-error-font-color: #3A3A3A;
+					--theme-alert-banner-unsuccessful-font-color: #3A3A3A;
+					--theme-alert-banner-unsuccessful-red-font-color: #3A3A3A;
 				}`
 		];
 	}
