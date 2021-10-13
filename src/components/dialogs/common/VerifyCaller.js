@@ -58,6 +58,7 @@ export class VerifyCaller extends Component {
 
 		this.xdsMessage = ``;
 		this.xdsFailed = false;
+		this.xdsUnavailable = false;
 
 		this.itaInProgress = false;
 		this.itaTimer = null;
@@ -97,6 +98,7 @@ export class VerifyCaller extends Component {
 			
 			xdsMessage: { attribute: false }, // Set when there has been a system error with XDS
 			hasSouthAfricanID: { attribute: false },
+			xdsUnavailable: { type: Boolean },
 
 			itaInProgress: { attribute: false },
 			itaTimeout: { attribute: false },
@@ -173,10 +175,13 @@ export class VerifyCaller extends Component {
 
 		const clientID = this.callerInformation.southAfricanIDNumber;
 		const returnValue = await this.callHandleService.xdsQuestions(clientID, () => true);
-
 		if (returnValue.succeeded) {
 			return this._handleSecurityQuestions(returnValue.result);
 		} 
+		if (returnValue.exception.status === 404 || returnValue.exception.status === 500) {
+			this.xdsUnavailable = true;
+			console.log(this.xdsUnavailable)
+		}
 		
 		this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS;
 		this.xdsMessage = `System Issue: Unable to obtain security questions`;
@@ -638,7 +643,6 @@ export class VerifyCaller extends Component {
 					margin-bottom: 0px;
 				}
 				.failed-client {
-					font-weight: 600;
 					margin-bottom: 29px;
 				}
 				.timer-bold {
@@ -747,6 +751,9 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderBody() {
+		if (this.xdsUnavailable) {
+			return this._renderSecurityQuestionsUnavailable();
+		}
 		if (!this._canVerify()) {
 			return this._renderClientCannotBeVerified();
 		}
@@ -757,8 +764,6 @@ export class VerifyCaller extends Component {
 			return this._renderClientBlockedByXds();
 		}
 		if (this.hasSouthAfricanID && this.xdsFailed && this.callerInformation.verificationAttempts.xdsAttempts === MAX_XDS_ATTEMPTS - 1) {
-		}
-		if (this.hasSouthAfricanID && this.xdsFailed && this.callerInformation.verificationAttempts.xdsAttempts === MAX_XDS_ATTEMPTS - 1) {
 			this._renderXdsOneAttemptLeft();
 		}
 		if (this.hasSouthAfricanID && !this._xdsAttemptsExceeded() && this.xdsMessage !== ``) {
@@ -766,8 +771,7 @@ export class VerifyCaller extends Component {
 		}
 		if (this._itaInProgress()) {
 			return this._renderPushNotificationStatus();
-		};
-		
+		}
 		return this._renderPushNotificationError();
 	}
 
@@ -967,7 +971,7 @@ export class VerifyCaller extends Component {
 						gap="clear"
 						id="notification-status-error-group">
 						<img src="/images/warning.svg" class="warning-svg connection-error-svg"/>
-						<div class="notification-info failed-client">
+						<div class="notification-info">
 							Your first attempt was unsuccessful. <br>
 							You can try again or verify by accepting the push notification.
 						</div>
@@ -1006,6 +1010,37 @@ export class VerifyCaller extends Component {
 			</capitec-content-box>
 		`;
 	}
+
+	_renderSecurityQuestionsUnavailable() {
+		this.unavailableText = ``;
+		if (this.callerInformation.hasDigitalChannels) {
+			this.unavailableText = `Skip verification to continue with limited transactions or verify via the App/USSD.`;
+		} else {
+			this.unavailableText = `Skip verification to continue with limited trasactions`;
+		}
+
+		return html`
+			<capitec-content-box id="notification-status-box">
+				<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
+					<capitec-alert-banner type="error">
+						<b>Notify client: </b>A system error has occured..
+					</capitec-alert-banner>
+					<capitec-group layout="vertical" 
+						halign="center"
+						valign="top" 
+						gap="clear"
+						id="notification-status-error-group">
+						<img src="/images/errorBlocks.svg" class="warning-svg connection-error-svg"/>
+						<div class="notification-info failed-client">
+							<b>Security questions are currently unavailable.</b> <br>
+							${this.unavailableText}
+						</div>
+					</capitec-group>
+				</capitec-group>
+			</capitec-content-box>`;
+	}
+
+
 
 	_renderLoadingIndicator() {
 		if (this.isBusy) {
