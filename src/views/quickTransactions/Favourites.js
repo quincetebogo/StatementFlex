@@ -76,8 +76,8 @@ export class Favourites extends SavingsAccountBase {
 
 	static get properties() {
 		return {
-			isLoading: { attribute: false },
-			verificationToastDisplayed: { attribute: false }
+			isLoading: { state: true },
+			verificationToastDisplayed: { state: true }
 		};
 	}
 
@@ -371,7 +371,7 @@ export class Favourites extends SavingsAccountBase {
         if (this.landingPageInfo) {
             subtitle = {
                 savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
-				liveBetterSavings: this.landingPageInfo.liveBetterProductDescription,
+				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductDescription,
                 savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
                 insure: this.landingPageInfo.insureProductDescription,
                 credit: this.landingPageInfo.creditProductDescription
@@ -379,7 +379,7 @@ export class Favourites extends SavingsAccountBase {
 
             detail = {
                 savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
-				liveBetterSavings: this.landingPageInfo.liveBetterProductAmount,
+				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductAmount,
                 savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
                 insure: this.landingPageInfo.insureProductAmount,
                 credit: this.landingPageInfo.creditProductAmount

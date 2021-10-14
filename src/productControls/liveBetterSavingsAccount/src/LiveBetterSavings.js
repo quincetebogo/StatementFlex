@@ -30,7 +30,7 @@ export class LiveBetterSavings extends Component {
 		super();
 
 		this.liveBetterAccountData = null;
-		this.expanded = true;
+		this._expanded = true;
 	}
 
 	// -------------------
@@ -66,7 +66,7 @@ export class LiveBetterSavings extends Component {
 			liveBetterAccountData: { type: Object },
 
 			// Private Properties
-			expanded: { type: Boolean }
+			_expanded: { state: true }
 		};
 	}
 	
@@ -79,7 +79,7 @@ export class LiveBetterSavings extends Component {
 	}
 
 	_toggleExpander() {
-		this.expanded = !this.expanded;
+		this._expanded = !this._expanded;
 	}
 
 	_accountDetails() {
@@ -198,7 +198,7 @@ export class LiveBetterSavings extends Component {
 				.actionbar-header > horizon-label[label="Account number"] {
 					width: 150px;
 					--horizon-label-value-color: #009DE0;
-					cursor: pointer;
+					--theme-label-cursor: pointer;
 				}
 				.actionbar-header > horizon-label[label="Status"] {
 					width: 142px;
@@ -219,7 +219,6 @@ export class LiveBetterSavings extends Component {
 					--theme-label-font-weight: 600;
 					--theme-toggle-label-spacing: 6px;
 					--theme-toggle-track-inset: 1px;
-				}
 				}
 				.toggle-group > capitec-label {
 					--theme-label-default-font-size: 14px;
@@ -313,7 +312,7 @@ export class LiveBetterSavings extends Component {
 				<capitec-expander 
 					data-automation-id="live-better-verified-expander"
 					label="" 
-					?expanded="${this.expanded}">
+					?expanded="${this._expanded}">
 						${this._renderOptions()}
 				</capitec-expander>
 
@@ -329,7 +328,7 @@ export class LiveBetterSavings extends Component {
 						data-automation-id="live-better-verified-account-number"
 						label="Account number"
 						@click="${() => this._accountDetails()}"
-						value="${this.liveBetterAccountData.accountNumber}">
+						value="${this.liveBetterAccountData.liveBetterSavingsAccountNumber}">
 					</horizon-label>
 
 					<div class="vertical-line"></div>
@@ -349,9 +348,9 @@ export class LiveBetterSavings extends Component {
 						valign="center">
 							<capitec-label label="Round-up"></capitec-label>
 							<capitec-toggle 
-								label="${formatCurrency(this.liveBetterAccountData.roundUpAmount)}" 
+								label="${formatCurrency(this.liveBetterAccountData.roundupValue)}" 
 								@value-change="${() => this._toggleRoundUp()}"
-								checked>
+								?checked="${this.liveBetterAccountData.accountRoundUpActive}">
 							</capitec-toggle>
 					</capitec-group>
 
@@ -364,16 +363,16 @@ export class LiveBetterSavings extends Component {
 						valign="center">
 							<capitec-label label="Interest Sweep"></capitec-label>
 							<capitec-toggle 
-								label="${this.liveBetterAccountData.interestSweep}" 
+								label="${this.liveBetterAccountData.accountInterestSweepActive ? `On` : `Off`}" 
 								@value-change="${() => this._toggleInterestSweep()}"
-								checked>
+								?checked="${this.liveBetterAccountData.accountInterestSweepActive}">
 							</capitec-toggle>
 					</capitec-group>
 
 					<horizon-label
 						data-automation-id="live-better-verified-interest-rate"
 						label="Interest rate"
-						value="${this.liveBetterAccountData.interestRatePercentage}">
+						value="${this.liveBetterAccountData.interestRatePercentage}%">
 					</horizon-label>
 
 					<horizon-label
@@ -383,7 +382,7 @@ export class LiveBetterSavings extends Component {
 					</horizon-label>
 					
 					<capitec-group class="icon-chevron" @click="${() => this._toggleExpander()}" layout="vertical" gap="none" halign="center" valign="center">
-						<capitec-icon class="${this.expanded ? `transform-icon` : ``}" icon="system/chevron-down-action"></capitec-icon>
+						<capitec-icon class="${this._expanded ? `transform-icon` : ``}" icon="system/chevron-down-action"></capitec-icon>
 					</capitec-group>
 				</capitec-group>
 			</div>

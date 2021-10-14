@@ -25,6 +25,7 @@ export class HorizonChannelService extends Service {
 		this._version = `v1`;
 		this._mocking = null;
 		this._mock = null;
+		this._version_2 = `v2`;
 
 		this._configuration = Configuration.getInstance();
 		this._logger = Logger.getInstance();
@@ -840,6 +841,22 @@ export class HorizonChannelService extends Service {
 		);
 	}
 
+	//----------------------------
+	// Live Better Savings Acount
+	//----------------------------
+
+	async liveBetterLanding(clientDetails) {
+
+		if (await this._mockEnabled(`liveBetterLanding`)) {
+			return this._mock.liveBetterLanding();
+		}
+
+		return this._post(
+			`/clientcare-lbb-${this._version_2}/landing`, clientDetails,
+			this._setToken(), 
+			`liveBetterLanding`
+		);
+	}
 	// ----------------
 	// call - ITA & XDS
 	// ----------------

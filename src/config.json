@@ -137,6 +137,10 @@
 		"viewStatements": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"liveBetterLanding": {
+			"enabled": false,
+			"positiveCase": true
 		}
 	}
 }
