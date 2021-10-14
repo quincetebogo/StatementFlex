@@ -27,10 +27,7 @@ export class ValueAddedServices extends Component {
 		super();
 
 		this.isBusy = false;
-
-	
 		this._telemetry = HorizonTelemetry.instance;
-
 		this.valueAddedService = new ValueAddedService(() => this._toggleBusyFlag(), () => this._valueAddedServiceErrorHandler());
 	}
 
@@ -48,7 +45,6 @@ export class ValueAddedServices extends Component {
 	static get properties() {
 		return {
 			statusVAS: { type: Object },
-
 			isBusy: { attribute: false }
 		};
 	}
@@ -65,11 +61,7 @@ export class ValueAddedServices extends Component {
 		});
 
 		this.capitecEntityId = this.statusVAS.capitecEntityId;
-		this.optOutInsights = this.statusVAS.optOutInsights;
-		this.optOutBehaviouralMarketing = this.statusVAS.optOutBehaviouralMarketing;
-		this.optOutPreAssessments = this.statusVAS.optOutPreAssessments;
-		this.optOutAnalysis = this.statusVAS.optOutAnalysis;
-		this.optOutThirdParties = this.statusVAS.optOutThirdParties;
+
 	}
 
 	disconnectedCallback() {
@@ -116,9 +108,13 @@ export class ValueAddedServices extends Component {
 		}));
 	}
 
-	_toggleValue() {
+	_toggleValue(e) {
 		this.alertBannerMessage = ``;
-
+		this.optOutInsights = e.currentTarget.optOutInsights;
+		this.optOutBehaviouralMarketing = e.currentTarget.optOutBehaviouralMarketing;
+		this.optOutPreAssessments = e.currentTarget.optOutPreAssessments;
+		this.optOutAnalysis = e.currentTarget.optOutAnalysis;
+		this.optOutThirdParties = e.currentTarget.optOutThirdParties;
 	}
 
 	// --------------
@@ -154,9 +150,9 @@ export class ValueAddedServices extends Component {
 		return html`
 		<capitec-pc-value-added-services
 			.statusVAS="${this.statusVAS}"
-			@accept="${e => this._accept(e)}"
-			@toggleValue="${e => this._toggleValue(e)}"
-			@on-cancel="${e => this._cancel(e)}">
+			@accept="${(e) => this._accept(e)}"
+			@toggle-value="${(e) => this._toggleValue(e)}"
+			@on-cancel="${(e) => this._cancel(e)}">
 		</capitec-pc-value-added-services>`;
 	}
 

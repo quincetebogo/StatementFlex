@@ -2,8 +2,7 @@ import { Component, css, html } from 'platform/elements';
 
 
 /**
- * Value Added Services dialog is used to view and accept client value added services.
- * This component is envoked from the Favourites landing screen Insights bar.
+ * The Horizon Value Added Services dialog is used to seek permission to access client data.
  * 
  * Event Raised
  * -------------
@@ -71,7 +70,11 @@ export class ValueAddedServices extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
+		this.optOutInsights = this.statusVAS.optOutInsights;
+		this.optOutBehaviouralMarketing = this.statusVAS.optOutBehaviouralMarketing;
+		this.optOutPreAssessments = this.statusVAS.optOutPreAssessments;
+		this.optOutAnalysis = this.statusVAS.optOutAnalysis;
+		this.optOutThirdParties = this.statusVAS.optOutThirdParties;
 	}
 
 	// --------------
@@ -95,10 +98,10 @@ export class ValueAddedServices extends Component {
 		};
 		toggleSwitched[e.currentTarget.id]();
 
-		this.dispatchEvent(new CustomEvent(`toggleValue`, {
-			detail: {
-				toggleSwitched: toggleSwitched
-			}
+		// send the values, a structure with the new values
+		// similar to accept
+		this.dispatchEvent(new CustomEvent(`toggle-value`, {
+			detail: {}
 		}));
 	}
 
