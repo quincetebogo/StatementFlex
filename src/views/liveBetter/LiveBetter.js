@@ -169,7 +169,6 @@ export class LiveBetter extends ViewBase {
 		return true;
 	}
 
-
 	// --------------
 	// PUBLIC METHODS
 	// --------------
