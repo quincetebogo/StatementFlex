@@ -42,6 +42,7 @@ export class HorizonProductTile extends Component {
 		this.detailIcon = false;
 		this.icon = ``;
         this.selected = false;
+		this.disabled = false;
 	}
 
 	/**
@@ -66,7 +67,8 @@ export class HorizonProductTile extends Component {
 			navigational: { type: Boolean },
 			detailIcon: { type: Boolean },
 			icon: { type: String },
-            selected: { type: Boolean }
+            selected: { type: Boolean },
+			disabled: { type: Boolean }
         };
 	}
 
@@ -197,7 +199,12 @@ export class HorizonProductTile extends Component {
 					border: var(--theme-product-tile-focus-transact-border, 1.5px solid #009DE0);
 					box-shadow: var(--theme-product-tile-focus-shadow, 0 3px 6px 0 rgba(0,0,0,0.15));
 				}
-				
+				.tile.radio-button.disabled {
+					border: var(--theme-product-tile-disabled-radio-button-border, 1px solid #E1E1E1);
+					box-shadow: var(--theme-product-tile-disabled-shadow, none);
+					cursor: default;
+				}
+				}				
 				.tile.transact:hover {
 					border: var(--theme-product-tile-hover-transact-border, 1px solid #009DE0);
 					box-shadow: var(--theme-product-tile-hover-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
@@ -430,8 +437,8 @@ export class HorizonProductTile extends Component {
 
 				.radio-container.disabled > #content {
 					cursor: default;
-					border-color: var(--theme-radio-disabled-border-color, #DEDEDE);
-					background-color: var(--theme-radio-disabled-background-color, #DEDEDE);
+					border-color: var(--theme-radio-disabled-border-color, #E1E1E1);
+					background-color: var(--theme-radio-disabled-background-color, #F7F7F7);
 				}
 
 				.radio-container.disabled:hover > #content {
@@ -460,7 +467,7 @@ export class HorizonProductTile extends Component {
 
 		return html`
 			<button 
-				class="tile ${this.type ? this.type : `transact`}${this.selected ? ` selected` : ``}"
+				class="tile ${this.type ? this.type : `transact`}${this.disabled ? ` disabled` : this.selected ? ` selected` : ``}"
 				@click="${(e)=> this._tileClicked(e)}}"
 				@keydown="${e => this._keyDown(e)}"
 				tabindex="${this.disabled ? `` : 0}">

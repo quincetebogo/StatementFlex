@@ -76,8 +76,8 @@ export class Favourites extends SavingsAccountBase {
 
 	static get properties() {
 		return {
-			isLoading: { attribute: false },
-			verificationToastDisplayed: { attribute: false }
+			isLoading: { state: true },
+			verificationToastDisplayed: { state: true }
 		};
 	}
 
@@ -352,7 +352,9 @@ export class Favourites extends SavingsAccountBase {
 				liveBetterProductAmount: ``,
                 insureProductAmount: ``,
                 creditProductAmount: ``,
-                pendingMandateCount: 0
+				pendingMandateCount: 0,
+				accountNumber: ``,
+				accountOpenedDate: ``
             };
         }
 
@@ -369,7 +371,7 @@ export class Favourites extends SavingsAccountBase {
         if (this.landingPageInfo) {
             subtitle = {
                 savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
-				liveBetterSavings: this.landingPageInfo.liveBetterProductDescription,
+				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductDescription,
                 savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
                 insure: this.landingPageInfo.insureProductDescription,
                 credit: this.landingPageInfo.creditProductDescription
@@ -377,7 +379,7 @@ export class Favourites extends SavingsAccountBase {
 
             detail = {
                 savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
-				liveBetterSavings: this.landingPageInfo.liveBetterProductAmount,
+				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductAmount,
                 savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
                 insure: this.landingPageInfo.insureProductAmount,
                 credit: this.landingPageInfo.creditProductAmount
@@ -638,10 +640,10 @@ export class Favourites extends SavingsAccountBase {
 					<horizon-favourite-transactions 
 						class="favourites"
 						.landingPageInfo="${this.landingPageInfo}"
-						.incomingCallDetails="${this.incomingCallDetails}"
-						.callerInformation="${this.callerInformation}"
 						.verificationStatus="${this.callerInformation.verificationStatus}"
+						.verificationMethod="${this.callerInformation.verificationMethod}"
 						?displayVerificationStatusToast="${this._shouldToastDisplay()}"
+						.shouldDisable="${need => this._shouldDisable(need)}"
 						@verify-click="${() => super._verifyClick()}"
 						@option-click="${(e) => this._onFavouritesOptionClick(e)}">
 					</horizon-favourite-transactions>`;
@@ -723,6 +725,7 @@ export class Favourites extends SavingsAccountBase {
 		? html`
 			<horizon-tax-certificate
 				cifNumber="${this.callerInformation.cifNumber}"
+				accountNumber="${this.landingPageInfo.accountNumber}"
 				@cancel="${() => this._backToLandingPage()}">
 			</horizon-tax-certificate>
 		`

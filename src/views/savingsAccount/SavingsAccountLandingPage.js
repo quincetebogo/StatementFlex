@@ -50,7 +50,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		this.clientProducts = null;
 	
 		// private properites
-		this.loading = true;
+		this._loading = true;
 		
 		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option));
 	}
@@ -97,7 +97,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 	static get properties() {
 		return {
-			loading: { attribute: false }
+			_loading: { state: true }
 		};
 	}
 	
@@ -149,7 +149,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			this.landingPageInfo = { pendingMandateCount: 0 };
 		}
 
-		this.loading = false;
+		this._loading = false;
 		this._performReturnToScreen();
 	}
 
@@ -160,7 +160,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		if (this.landingPageInfo) {
 			subtitle = {
 				savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
-				liveBetterSavings: `Supercharge your savings`,
+				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductDescription,
 				savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
 				insure: this.landingPageInfo.insureProductDescription,
 				credit: this.landingPageInfo.creditProductDescription
@@ -168,7 +168,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 			detail = {
 				savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
-				liveBetterSavings: ``,
+				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductAmount,
 				savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
 				insure: this.landingPageInfo.insureProductAmount,
 				credit: this.landingPageInfo.creditProductAmount
@@ -274,11 +274,12 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	}
 
 	_renderSavingsLandingPage() {
-		return !this.loading && this.renderMode === RENDER_MODE.MAIN_PAGE
+		return !this._loading && this.renderMode === RENDER_MODE.MAIN_PAGE
 			? html`
 				<horizon-savings-account
 					class="savingsaccount"
 					.landingPageInfo = "${this.landingPageInfo}"
+					.shouldDisable="${need => this._shouldDisable(need)}"
 					@option-click="${(event) => this._optionClick(event.detail.option)}"
 					@savings-enquiry="${(event) => this._productEnquiry(event, `transact`)}">
 				</horizon-savings-account>`

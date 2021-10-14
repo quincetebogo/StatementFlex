@@ -22,7 +22,7 @@ export class ErrorScreen extends Component {
 		this.toast = ``;
 		this.displayToast = true;
 		this.image = null;
-		this.subDetail = ``;
+		this.hasSubDetails = ``;
 		this.secondaryToast = ``;
 	}
 
@@ -45,7 +45,7 @@ export class ErrorScreen extends Component {
 	* @property {String} right The text for the right hand button
 	* @property {String} [toast] The text for the tost message
 	* @property {String} [displayToast=true] Enables/Disables the toast message
-	* @property {String} [subDetail] Sub detail
+	* @property {String} [hasSubDetails=false] Indicates if the sub-detail line should be displayed
 	* @property {String} [secondaryToast] Secondary toast details
 	* @readonly
 	* @static
@@ -59,7 +59,7 @@ export class ErrorScreen extends Component {
 			toast: { type: String },
 			displayToast: { type: Boolean },
 			image: { type: String },
-			subDetail: { type: String },
+			hasSubDetails: { type: Boolean },
 			secondaryToast: { type: String }
 		};
 	}
@@ -264,7 +264,7 @@ export class ErrorScreen extends Component {
 	}
 
 	_renderSubTitle() {
-		return this.subDetail
+		return this.hasSubDetails
 			? html`
 				<capitec-group id = "id-sub-detail" layout="horizontal">
 					<capitec-icon size="default" icon="status/error-trans"></capitec-icon>
