@@ -158,14 +158,23 @@ export class StatementsDialog extends Component {
 	// PROPERTIES
 	// ----------
 
+	/**
+	 * @property {Array} clientProducts Contains list of products that the client has.
+	 * @property {Array} selectedOption Contains the product of which the client wants to send statement.
+	 * @property {string} cifNumber The client's CIF number
+	 * @property {string} type Contains the type of account
+	 * @readonly
+	 * @static
+	 * @memberof StatementsDialog
+	 */
 	static get properties() {
 		return {
-			callerInformation: { type: Object },
 			clientProducts: { type: Array },
 			selectedOption: { type: Array },
 			type : { type: String },
 			currentStep: { attribute: false},
 
+			cifNumber: { attribute: false },
 			isBusy: { attribute: false },
 			renderMode: { attribute: false },
 			notifyClient: { attribute: false },
@@ -187,7 +196,6 @@ export class StatementsDialog extends Component {
 
 		this._initialise();
 
-		// Telemetry
 		this._telemetry.startSpan(QuickTransactionEvents.STATEMENTS, {
 			"screen": TelemetryScreen.STATEMENTS
 		});
@@ -200,7 +208,6 @@ export class StatementsDialog extends Component {
 
 	async _cancel() {
 
-		// Telemetry
 		await this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_CANCEL, {
 			"screen": TelemetryScreen.STATEMENTS,
 			"nextScreen": TelemetryScreen.FAVOURITES
@@ -238,7 +245,7 @@ export class StatementsDialog extends Component {
 	}
 
 	_back() {
-		// Telemetry
+
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_BACK, {
 			"screen": TelemetryScreen.STATEMENTS
 		});
@@ -255,7 +262,6 @@ export class StatementsDialog extends Component {
 		this._customDateRange = false;
 		this.errorMessage = ``;
 
-		// Telemetry 
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SELECT_PERIOD, {
 			"screen": TelemetryScreen.STATEMENTS,
 			"period-selected": this.periodSelected
@@ -327,7 +333,7 @@ export class StatementsDialog extends Component {
 	}
 
 	async _viewPDF() {
-		// Telemetry
+
 		this._telemetry.logEvent(QuickTransactionEvents.SELECT_STATEMENTS_VIEW_PDF, {});
 		const statement = {
 			"cifNumber": this.callerInformation.cifNumber,
@@ -393,7 +399,7 @@ export class StatementsDialog extends Component {
 
 		if (returnValue.succeeded) {
 			this.horizonRouter.navigateToStatementSuccessful();
-		// Telemetry
+
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SEND, {
 			"screen": TelemetryScreen.STATEMENTS,
 			"next-screen": TelemetryScreen.STATEMENTS_OUTCOME
@@ -405,7 +411,7 @@ export class StatementsDialog extends Component {
 	}
 
 	_valueChanged(e) {
-		// Telemetry 
+
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SELECT_ACCOUNT, {
 			"screen": TelemetryScreen.STATEMENTS,
 			"accountType": this.selectedOption.label
@@ -447,7 +453,6 @@ export class StatementsDialog extends Component {
 
 		this.productSelected = this._getSelectedProductDetails();
 
-		// Telemetry 
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_ACCOUNT_NEXT, {
 			"screen": TelemetryScreen.STATEMENTS,
 			"account-type": this.selectedOption.label
@@ -475,7 +480,6 @@ export class StatementsDialog extends Component {
 			"endDate": this.toDate
 		});
 
-		// Telemetry 
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_PERIOD_NEXT, {
 			"screen": TelemetryScreen.STATEMENTS,
 			"period": this.periodSelected ? this.periodSelected : null,
@@ -535,6 +539,9 @@ export class StatementsDialog extends Component {
 	}
 
 	_getHeaderTitle() {
+		if (this.type) {
+			return `Live Better savings account`;
+		}
 		return this.renderMode === RENDER_MODE.PDF ? `View Document` : `Statements`;
 	}
 
@@ -830,7 +837,7 @@ export class StatementsDialog extends Component {
 	_webTemplate() {
 		return html`
 			<bb-stepper-modal
-				class="${this.selectedOption.type}"
+				class="${this.selectedOption.type} ${this.type}"
 				data-automation-id="statements-dialog"
 				.header="${this._getHeaderTitle()}"
 				.steps="${this.STEPPER_STEPS}"
