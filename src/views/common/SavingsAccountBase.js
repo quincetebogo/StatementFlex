@@ -303,7 +303,7 @@ export class SavingsAccountBase extends ViewBase {
 		return this.renderMode === RENDER_MODE.STATEMENTS 
 			? html`
 				<horizon-statements-dialog
-					.callerInformation="${this.callerInformation}"
+					.cifNumber="${this.callerInformation.cifNumber}"
 					.clientProducts="${this.clientProducts}"
 					@cancel="${() => this._backToLandingPage()}">
 				</horizon-statements-dialog>`

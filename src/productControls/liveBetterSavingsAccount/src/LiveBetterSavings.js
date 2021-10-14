@@ -30,7 +30,7 @@ export class LiveBetterSavings extends Component {
 		super();
 
 		this.liveBetterAccountData = null;
-		this.expanded = true;
+		this._expanded = true;
 	}
 
 	// -------------------
@@ -66,7 +66,7 @@ export class LiveBetterSavings extends Component {
 			liveBetterAccountData: { type: Object },
 
 			// Private Properties
-			expanded: { type: Boolean }
+			_expanded: { state: true }
 		};
 	}
 	
@@ -79,7 +79,7 @@ export class LiveBetterSavings extends Component {
 	}
 
 	_toggleExpander() {
-		this.expanded = !this.expanded;
+		this._expanded = !this._expanded;
 	}
 
 	_accountDetails() {
@@ -220,7 +220,6 @@ export class LiveBetterSavings extends Component {
 					--theme-toggle-label-spacing: 6px;
 					--theme-toggle-track-inset: 1px;
 				}
-				}
 				.toggle-group > capitec-label {
 					--theme-label-default-font-size: 14px;
 					--theme-label-font-family: Hind Vadodara;
@@ -313,7 +312,7 @@ export class LiveBetterSavings extends Component {
 				<capitec-expander 
 					data-automation-id="live-better-verified-expander"
 					label="" 
-					?expanded="${this.expanded}">
+					?expanded="${this._expanded}">
 						${this._renderOptions()}
 				</capitec-expander>
 
@@ -383,7 +382,7 @@ export class LiveBetterSavings extends Component {
 					</horizon-label>
 					
 					<capitec-group class="icon-chevron" @click="${() => this._toggleExpander()}" layout="vertical" gap="none" halign="center" valign="center">
-						<capitec-icon class="${this.expanded ? `transform-icon` : ``}" icon="system/chevron-down-action"></capitec-icon>
+						<capitec-icon class="${this._expanded ? `transform-icon` : ``}" icon="system/chevron-down-action"></capitec-icon>
 					</capitec-group>
 				</capitec-group>
 			</div>

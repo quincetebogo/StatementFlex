@@ -1,5 +1,5 @@
-import { Component, css, html } from 'platform/elements';
 import { ACCOUNT_TYPES, ACCOUNT_TYPES_LIST, RENDER_MODE, TRANSACTION_HISTORY, TRANSACTION_STATUS_LIST } from 'app/constants/TransactionHistory';
+import { Component, css, html } from 'platform/elements';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { DateTime } from 'luxon';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -128,7 +128,7 @@ export class TransactionHistory extends Component {
 			endDate: { type: String, attribute: false },
 			searchTextValue: { attribute: false },
 			statuslabel: { attribute: false },
-			selectedMoneyType: { attribute: false}
+			selectedMoneyType: { attribute: false }
 		};
 	}
 
@@ -141,7 +141,7 @@ export class TransactionHistory extends Component {
 
 		this._telemetry.startSpan(LiveBetterEvents.LBB_TRANSACTION_HISTORY, {});
 
-		//Making sure no baggage is carried from the previous instance.
+		// Making sure no baggage is carried from the previous instance.
 		RENDER_CHIPS[FILTER_BY.TEXT] = ``;
 		RENDER_CHIPS[FILTER_BY.DATE] = ``;
 		RENDER_CHIPS[FILTER_BY.STATUS] = ``;
@@ -186,7 +186,7 @@ export class TransactionHistory extends Component {
 		this.searchTextValue = e.detail.new ? e.detail.new : ``;
 	}
 
-	_searchTextBlur(e) {		
+	_searchTextBlur(e) {
 		this.searchTextValue = `Search for amount or transaction name`;
 	}
 
@@ -353,7 +353,7 @@ export class TransactionHistory extends Component {
 		element.scrollTop = 0;
 	}
 	
-	_selectedMoneyType(e){
+	_selectedMoneyType(e) {
 		RENDER_CHIPS[FILTER_BY.MONEY_TYPE] = e.target.label;
 		
 		this._telemetry.logEvent(LiveBetterEvents.LBB_TRANSACTION_HISTORY_FILTER, {
@@ -489,9 +489,9 @@ export class TransactionHistory extends Component {
 		if (RENDER_CHIPS[FILTER_BY.MONEY_TYPE] && this.type === ACCOUNT_TYPES.LBB) {
 			const moneyType = RENDER_CHIPS[FILTER_BY.MONEY_TYPE];
 
-			if(moneyType === `Money In`) {
+			if (moneyType === `Money In`) {
 				this.filteredData = this.filteredData.filter(item => item.amount > 0);
-			} else if(moneyType === `Money Out`) {
+			} else if (moneyType === `Money Out`) {
 				this.filteredData = this.filteredData.filter(item => item.amount < 0);
 			}
 		}
@@ -510,7 +510,7 @@ export class TransactionHistory extends Component {
 		const toDate = !this.endDate ? `dd mm yyyy` : this._formatDate(this.endDate);
 
 		const preDefinedRanges = this.getPredefinedDateRanges();
-		const selectedValue = preDefinedRanges.filter( item => this._formatDate(item.value.startDate) === fromDate && this._formatDate(item.value.endDate) === toDate);
+		const selectedValue = preDefinedRanges.filter(item => this._formatDate(item.value.startDate) === fromDate && this._formatDate(item.value.endDate) === toDate);
 
 		if (selectedValue.length > 0) {
 			return selectedValue[0].text;
@@ -703,7 +703,7 @@ export class TransactionHistory extends Component {
 					--theme-date-time-picker-range-calendar-border: 0px;
 					margin-right: 8px;
 					width: 280px;
-				}	
+				}
 				.transaction-action-bar > capitec-chip{
 					margin: 0px 8px;
 					--theme-chip-label-padding-left: 11px;
@@ -842,19 +842,19 @@ export class TransactionHistory extends Component {
 				
 				<capitec-chip 
 					label="All" 
-					class="${RENDER_CHIPS[FILTER_BY.MONEY_TYPE] === 'All' ? 'type-selected' : 'type-normal'}" 
+					class="${RENDER_CHIPS[FILTER_BY.MONEY_TYPE] === `All` ? `type-selected` : `type-normal`}" 
 					@click="${(e) => this._selectedMoneyType(e)}" 
 					?hidden="${this.type !== ACCOUNT_TYPES.LBB}">
 				</capitec-chip>
 				<capitec-chip 
 					label="Money In"
-					class="${RENDER_CHIPS[FILTER_BY.MONEY_TYPE] === 'Money In' ? 'type-selected' : 'type-normal'}" 
+					class="${RENDER_CHIPS[FILTER_BY.MONEY_TYPE] === `Money In` ? `type-selected` : `type-normal`}" 
 					@click="${(e) => this._selectedMoneyType(e)}" 
 					?hidden="${this.type !== ACCOUNT_TYPES.LBB}">
 				</capitec-chip>
 				<capitec-chip 
 					label="Money Out" 
-					class="${RENDER_CHIPS[FILTER_BY.MONEY_TYPE] === 'Money Out' ? 'type-selected' : 'type-normal'}" 
+					class="${RENDER_CHIPS[FILTER_BY.MONEY_TYPE] === `Money Out` ? `type-selected` : `type-normal`}" 
 					@click="${(e) => this._selectedMoneyType(e)}" 
 					?hidden="${this.type !== ACCOUNT_TYPES.LBB}">
 				</capitec-chip>
@@ -962,7 +962,7 @@ export class TransactionHistory extends Component {
 	}
 
 	_renderLoadMoreBar() {
-		return  this.filteredData.length> 0 && this.showLoadMore
+		return this.filteredData.length > 0 && this.showLoadMore
 		? html`
 			<capitec-action-bar class="load-more-bar">
 				<capitec-spacer></capitec-spacer>

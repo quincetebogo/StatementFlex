@@ -61,18 +61,18 @@
 	},
 	"mock": {
 		"enabled": true,
-    "acceptCall": {
-      "enabled": true,
-      "positiveCase": true
-    },
-    "identifyCaller": {
-      "enabled": true,
-      "positiveCase": true
-    },
-    "favouritesLanding": {
-      "enabled": true,
-      "positiveCase": true
-    },
+		"acceptCall": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"identifyCaller": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"favouritesLanding": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"cardLimitsLanding": {
 			"enabled": false,
 			"positiveCase": true

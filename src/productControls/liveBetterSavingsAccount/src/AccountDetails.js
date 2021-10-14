@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import 'app/components/common/HorizonLabel';
 import { formatCurrency } from '../../utilities/Currency';
+import 'app/components/common/HorizonLabel';
 
 const ACCOUNT_TYPE = {
 	300: `Savings Account`,
@@ -93,10 +93,7 @@ const ACCOUNT_TYPE = {
 
 	// Get all the account names for which round-up is active
 	_getActivatedRoundUpAccounts(activatedRoundUpAccounts) {
-		let accountsList = [];
-		activatedRoundUpAccounts.forEach(account => {
-			accountsList.push(ACCOUNT_TYPE[account.accountType]);
-		});
+		const accountsList = activatedRoundUpAccounts.map(account => ACCOUNT_TYPE[account.accountType]);
 		return accountsList.join(`, `);
 	}
 
