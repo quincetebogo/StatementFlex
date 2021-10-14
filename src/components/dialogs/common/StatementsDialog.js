@@ -59,6 +59,40 @@ const SELECTED_ACCOUNT_TYPES = {
 	lbb: 210
 };
 
+
+const ACCOUNT_INTCAT_ENUM = {
+	300: {
+		type: `PRIMARY_SAVINGS`,
+		category: `PRIMARY_SAVINGS`
+	},
+	200: {
+		type: `FLEXIBLE_SAVINGS`,
+		category: `FLEXIBLE_SAVINGS`
+	},
+	201: {
+		1: {
+			type: `FIXED_TERM_MULTIPLE_DEPOSITS`,
+			category: `FLEXIBLE_SAVINGS`
+		},
+		2: {
+			type: `FIXED_TERM_SINGLE_DEPOSIT`,
+			category: `FLEXIBLE_SAVINGS`
+		}
+	},
+	210:{
+		type : `LBB`,
+		category : `LIVE_BETTER_BENEFITS`
+	}
+	
+};
+
+const ACCOUNT_TYPE = {
+	300: `Savings Account`,
+	201: `Fixed Term Savings Plan`,
+	200: `Savings Plan`,
+	210: `Live Better Savings Account`,
+};
+
 const TIME_PERIOD = {
 	ONE_MONTH: {
 		value: `ONE_MONTH`,
@@ -338,7 +372,7 @@ export class StatementsDialog extends Component {
 		const statement = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"accountNumber": `${this.productSelected.accountNumber}`,
-			"accountType": this.productSelected.accountType,
+			"accountType": ACCOUNT_INTCAT_ENUM[this.productSelected.accountType].type,
 			"statementDateRange": {
 				"dateRange": {},
 				"presetInterval": `${this.periodSelected}`
@@ -357,9 +391,16 @@ export class StatementsDialog extends Component {
 			this.renderMode = RENDER_MODE.PDF;
 			// render the PDF
 			this.encodedPDF = base64ToBlobUrl(returnValue.result.statementData);
-		} else {
-			this.errorMessage = `System error. Please try again`;
-			this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewPDF`, returnValue.correlationId);
+		}
+		else {
+			if(this.productSelected.accountType === SELECTED_ACCOUNT_TYPES[`lbb`]){
+				this.horizonRouter.navigateToliveBetterSystemError();
+			}
+			else{
+				this.errorMessage = `System error. Please try again`;
+				this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewPDF`, returnValue.correlationId);
+			}
+			
 		}
 	}
 
@@ -379,7 +420,7 @@ export class StatementsDialog extends Component {
 			"emailAddress": this.email,
 			"cifNumber": this.callerInformation.cifNumber,
 			"accountNumber": `${this.productSelected.accountNumber}`,
-			"accountType": this.productSelected.accountType,
+			"accountType": ACCOUNT_INTCAT_ENUM[this.productSelected.accountType].type,
 			"statementDateRange": {
 				"dateRange": {},
 				"presetInterval": `${this.periodSelected}`
@@ -561,7 +602,7 @@ export class StatementsDialog extends Component {
 
 		return {
 			accountNumber: product.accountNumber,
-			accountType: product.accountType,
+			accountType: product.accountType, 
 			accountOpenDate: product.accountOpenDate
 		}
 	}
@@ -594,6 +635,7 @@ export class StatementsDialog extends Component {
 
 		screenDetails.emailAddress = this.email;
 		screenDetails.accountNumber = this.productSelected.accountNumber;
+		screenDetails.accountType=ACCOUNT_TYPE[this.productSelected.accountType];
 		
 		this.horizonStore.setScreenDetails(screenDetails);
 	}
@@ -634,9 +676,9 @@ export class StatementsDialog extends Component {
 					--theme-container-padding-right: 0px;
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 0px;
-					--theme-wizard-modal-max-width: 960px;
-					--theme-wizard-modal-max-height: 930px;
-					--theme-wizard-modal-lg-max-width:960px;
+					--theme-wizard-modal-max-width: 976px;
+					--theme-wizard-modal-max-height: 960px;
+					--theme-wizard-modal-lg-max-width:976px;
 					--theme-wizard-modal-header-padding: 18.5px 16px;
 					--theme-modal-footer-padding: 0px;
 					--theme-modal-body-box-shadow: none;
@@ -645,7 +687,7 @@ export class StatementsDialog extends Component {
 				}
 				div[slot="step"] {
 					height: 100%;
-					max-height: var(--theme-wizard-modal-max-height, 930px);
+					max-height: var(--theme-wizard-modal-max-height, 960px);
 
 					--theme-layout-gap-spacing: 0px;
 				}

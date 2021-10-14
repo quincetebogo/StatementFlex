@@ -42,7 +42,9 @@ const HORIZON_ROUTES = Object.freeze({
 	TAX_CERTIFICATE_SERVICE_ERROR: `/error/tax-certificate-service-error`,
 	AUTOMATIC_SAVINGS_SUCCESS : `/success/automatic-savings`,
 	AUTOMATIC_SAVINGS_FAILED : `/error/automatic-savings`,
-  LIVE_BETTER: `/liveBetter`  
+  	LIVE_BETTER: `/liveBetter`,
+	LIVE_BETTER_SYSTEM_ERROR : `/error/live-better`
+
 });
  
 
@@ -207,8 +209,8 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.INITIAL_SYSTEM_ERROR}`);
 	}
 
-	navigateToTaxCertificateServiceError() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.TAX_CERTIFICATE_SERVICE_ERROR}`);
+	navigateToliveBetterSystemError(){
+		this.router.navigateByPath(`${HORIZON_ROUTES.LIVE_BETTER_SYSTEM_ERROR}`);
 	}
 
 	navigateToDebiCheckSuccess() {
@@ -732,5 +734,13 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.LIVE_BETTER,
 		load: () => import(`../views/liveBetter/LiveBetter`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-	}      
+	},
+	{
+		name: `horizon-lbb-service-unavailable`,
+		title: `LBBServiceUnavailable`,
+		icon: null,
+		path: HORIZON_ROUTES.LIVE_BETTER_SYSTEM_ERROR,
+		load: () => import(`../views/liveBetter/LBBServiceUnavailable`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	}
 ];
