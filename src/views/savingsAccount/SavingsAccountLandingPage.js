@@ -50,7 +50,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		this.clientProducts = null;
 	
 		// private properites
-		this.loading = true;
+		this._loading = true;
 		
 		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option));
 	}
@@ -97,7 +97,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 	static get properties() {
 		return {
-			loading: { attribute: false }
+			_loading: { state: true }
 		};
 	}
 	
@@ -149,7 +149,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			this.landingPageInfo = { pendingMandateCount: 0 };
 		}
 
-		this.loading = false;
+		this._loading = false;
 		this._performReturnToScreen();
 	}
 
@@ -274,7 +274,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	}
 
 	_renderSavingsLandingPage() {
-		return !this.loading && this.renderMode === RENDER_MODE.MAIN_PAGE
+		return !this._loading && this.renderMode === RENDER_MODE.MAIN_PAGE
 			? html`
 				<horizon-savings-account
 					class="savingsaccount"

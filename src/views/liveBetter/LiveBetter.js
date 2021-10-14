@@ -1,18 +1,18 @@
+import { EXPANDER_LABEL, LINKED_TRANSACTION, TABLE_EXPANDER_CELL } from 'app/css/Lbb-TransactionHistory';
 import { css, html, unsafeCSS } from 'platform/elements';
+import { ACCOUNT_TYPES } from 'app/constants/TransactionHistory';
 import { Configuration } from 'platform/core';
-import { RENDER_MODE } from 'app/views/common/RenderModes';
-import { ViewBase } from 'app/views/common/ViewBase';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { SavingsAccountService } from 'app/services/SavingsAccountService';
-import { LivBetterService } from 'app/services/LiveBetterService';
+import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
+import { LiveBetterService } from 'app/services/LiveBetterService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { SavingsAccountService } from 'app/services/SavingsAccountService';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { ViewBase } from 'app/views/common/ViewBase';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
-import { ACCOUNT_TYPES } from 'app/constants/TransactionHistory';
-import { EXPANDER_LABEL, TABLE_EXPANDER_CELL, LINKED_TRANSACTION } from 'app/css/Lbb-TransactionHistory';
 
-import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
 
 import 'app/productControls/liveBetterSavingsAccount/src/LiveBetterSavings';
 import 'app/productControls/liveBetterSavingsAccount/src/AccountDetails';
@@ -60,7 +60,7 @@ export class LiveBetter extends ViewBase {
 		// private properites
 		this.loading = true;
 		
-		this.livBetterService = new LivBetterService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.liveBetterService = new LiveBetterService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		
 		// temporary use to load transaction history screen
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -72,7 +72,7 @@ export class LiveBetter extends ViewBase {
 	// -------------------
 	
 	connectedCallback() {
-		super.connectedCallback();		
+		super.connectedCallback();
 		this._initialise();
 	}
 
@@ -86,7 +86,7 @@ export class LiveBetter extends ViewBase {
 
 	static get properties() {
 		return {
-			loading: { attribute: false }
+			loading: { state: true }
 		};
 	}
 	
@@ -189,9 +189,9 @@ export class LiveBetter extends ViewBase {
 				"NationalIDNumber": this.callerInformation.southAfricanIDNumber
 			  };
 
-			const returnValue = await this.livBetterService.liveBetterLanding(clientDetails);
+			const returnValue = await this.liveBetterService.liveBetterLanding(clientDetails);
 
-			if(returnValue.succeeded && returnValue.result) {
+			if (returnValue.succeeded && returnValue.result) {
 			
 				// Navigate to Live better verified landing page if a client has Live better account 
 				this._telemetry.startSpan(LiveBetterEvents.LIVE_BETTER, {
@@ -200,12 +200,12 @@ export class LiveBetter extends ViewBase {
 				});
 
 				this.landingPageInfo = returnValue.result;
-				this._updateLeftBar()
+				this._updateLeftBar();
 
-			} else if(returnValue.succeeded) {
+			} else if (returnValue.succeeded) {
 
 				// Navigate to Live better non-client page if a client is not registered with Live better account
-				this.horizonRouter.navigateToProductInfo('LiveBetter');
+				this.horizonRouter.navigateToProductInfo(`LiveBetter`);
 			}
 			
 		}

@@ -76,8 +76,8 @@ export class Favourites extends SavingsAccountBase {
 
 	static get properties() {
 		return {
-			isLoading: { attribute: false },
-			verificationToastDisplayed: { attribute: false }
+			isLoading: { state: true },
+			verificationToastDisplayed: { state: true }
 		};
 	}
 
