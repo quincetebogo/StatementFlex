@@ -90,16 +90,16 @@ export class TransactionHistory extends Component {
 			transactionHistory: { type: Object },
 			accountDetails: { type: Object },
 			cifNumber: { type: String },
-			getTransactionHistory: { type: Function },
-			disposeData: { type: Function },
+			getTransactionHistory: { type: Object },
+			disposeData: { type: Object },
 
-			filteredData: { attribute: false },
-			isBusy: { attribute: false },
-			startDate: { type: String, attribute: false },
-			endDate: { type: String, attribute: false },
-			searchTextLabel: { attribute: false },
-			statuslabel: { attribute: false },
-			hideLoadMore: { type: Boolean, attribute: false }
+			filteredData: { state: true },
+			isBusy: { state: true },
+			startDate: { state: true },
+			endDate: { state: true },
+			searchTextLabel: { state: true },
+			statuslabel: { state: true },
+			hideLoadMore: { state: true }
 		};
 	}
 
@@ -164,14 +164,14 @@ export class TransactionHistory extends Component {
 	async _dateChanged(e) {
 		let fromDate = DateTime.fromISO(e.detail.new.startDate);
 		let toDate = DateTime.fromISO(e.detail.new.endDate);
-		const today = DateTime.local();
+		const currentDateTime = DateTime.local();
 
 		if (toDate.diff(fromDate, [`days`]).days > 90) {
 			
 			toDate = fromDate.plus({ days: 90 });
-			if (toDate > today) {
+			if (toDate > currentDateTime) {
 				this.startDate = fromDate;
-				this.endDate = today;
+				this.endDate = currentDateTime;
 			} else {
 				this.startDate = fromDate;
 				this.endDate = toDate;
@@ -183,8 +183,8 @@ export class TransactionHistory extends Component {
 		} else if (e.detail.new.endDate === null && this.endDate === ``) {
 			this.startDate = fromDate;
 			toDate = fromDate.plus({ days: 90 });
-			if (toDate.diff(today, [`days`]).days > 0) {
-				this.endDate = today;
+			if (toDate.diff(currentDateTime, [`days`]).days > 0) {
+				this.endDate = currentDateTime;
 			} else {
 				this.endDate = toDate;
 			}
@@ -336,7 +336,9 @@ export class TransactionHistory extends Component {
 	_clearFilter(type) {
 		const text = () => this._clearTextFilter();
 		const date = () => this._reset();
-		const status = () => { this.statuslabel = DEFAULTS.STATUS_LABEL; }
+		const status = () => { 
+			this.statuslabel = DEFAULTS.STATUS_LABEL; 
+		};
 		
 		const resetForfilters = {
 			'DATE': date,
