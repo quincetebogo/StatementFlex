@@ -271,7 +271,7 @@ export class SavingsAccount extends Component {
 	}
 
 	_renderOptions() {
-		const pendingMandates = (this.landingPageInfo && this.landingPageInfo.pendingMandateCount) || ``;
+		const pendingMandates = this.landingPageInfo?.pendingMandateCount ?? ``;
 		return html`
 			<capitec-group class= "" layout="vertical" gap="none" halign="left" valign="center">
 
