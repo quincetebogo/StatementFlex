@@ -127,9 +127,13 @@ export class SavingsAccountBase extends ViewBase {
 
 		const screenDetails = this.horizonStore.getScreenDetails();
 		screenDetails.mandateId = event.detail.mandateInfo.mandateName;
+
+		this.mandateInfo = event.detail.mandateInfo;
+		this.mandateId = this.mandateInfo.mandateId;
+		this.registerId = this.mandateInfo.registerId;
 		
-		const declineAction = (evt, scrDetails) => this._declineMandate(evt, scrDetails);
-		const approveAction = (evt, scrDetails) => this._approveMandate(evt, scrDetails);
+		const declineAction = (scrDetails) => this._declineMandate(scrDetails);
+		const approveAction = (scrDetails) => this._approveMandate(scrDetails);
 		const viewAction = (evt) => this._viewMandate(evt);
 
 		const mandateActions = {
@@ -148,13 +152,12 @@ export class SavingsAccountBase extends ViewBase {
 		}
 	}
 
-	_declineMandate(event, screenDetails) {
+	_declineMandate(screenDetails) {
 		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_DECLINE_MANDATE, {
 			"screen": TelemetryScreen.DEBICHECK,
 			"next-screen": TelemetryScreen.DECLINE_DEBICHECK
 		});
 
-		this.mandateInfo = event.detail.mandateInfo;
 		screenDetails.isApproved = false;
 		this.horizonStore.setScreenDetails(screenDetails);
 
@@ -163,13 +166,12 @@ export class SavingsAccountBase extends ViewBase {
 
         }
 
-	async _approveMandate(event, screenDetails) {
+	async _approveMandate(screenDetails) {
 		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
 			"screen": TelemetryScreen.DEBICHECK,
 			"next-screen": TelemetryScreen.APPROVE_DEBICHECK
 		});
 
-		this.mandateInfo = event.detail.mandateInfo;
 		screenDetails.isApproved = true;
 		this.horizonStore.setScreenDetails(screenDetails);
 
@@ -178,12 +180,13 @@ export class SavingsAccountBase extends ViewBase {
         return;
 	}
 
-	_viewMandate(event) {
+	async _viewMandate(event) {
 		
 		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_VIEW_MANDATE, {
 			"screen": TelemetryScreen.DEBICHECK,
 			"next-screen": TelemetryScreen.VIEWINFO
 		});
+		await super.createAndClassifySubsIncident();
 
 		this.isPending = event.detail.isPending;
 		this.renderMode = RENDER_MODE.DEBI_CHECK_VIEW_INFO;
@@ -194,8 +197,6 @@ export class SavingsAccountBase extends ViewBase {
 			"screen": TelemetryScreen.DECLINE_DEBICHECK,
 			"next-screen": TelemetryScreen.DEBICHECK_OUTCOME
 		});
-
-		this.mandateId = event.detail.mandateId;
 
 		await this._authenticateMandate(false);
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
@@ -329,8 +330,8 @@ export class SavingsAccountBase extends ViewBase {
 			surname: this.callerInformation.lastName,
 			identificationNumber: this.callerInformation.southAfricanIDNumber,
 			savingsAccountNumber: this.accountNumber,
-			registerId: this.mandateInfo.registerId,
-			mandateId: this.mandateInfo.mandateId,
+			registerId: this.registerId,
+			mandateId: this.mandateId,
 			mandateReferenceNumber: this.debiCheckDetails.mandateReference,
 			cifNumber: this.callerInformation.cifNumber
 		};
@@ -392,7 +393,7 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	async _getMandateDetails() {
-		const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, event.detail.mandateInfo.mandateId, event.detail.mandateInfo.registerId);
+		const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, this.mandateId, this.registerId);
 		
 		if (!returnValue.succeeded || !returnValue.result) {
 			this.horizonRouter.navigateToSystemError();
