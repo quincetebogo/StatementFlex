@@ -487,7 +487,6 @@ export class ApproveDebiCheckMandate extends Component {
 		let firstExpander = htmlDoc.getElementById("agreement-clauses-table");
 		firstExpander.style.width =  "100%";
 		firstExpander.style.fontSize = '16px';
-		firstExpander.style.css = ``;
 		let secondExpander = htmlDoc.getElementById("disclaimer-clauses-table");
 		secondExpander.style.width = "100%";
 
