@@ -82,7 +82,6 @@ export class ValueAddedServices extends Component {
 	// --------------
 
 	_toggleValue(e) {
-
 		const insights = () => this._insightsStatusChanged();
 		const behavioural = () => this._behavioralStatusChanged();
 		const preAssessment = () => this._preAssessmentStatusChanged();
@@ -106,11 +105,10 @@ export class ValueAddedServices extends Component {
 	}
 
 	_cancel() {
-				this.dispatchEvent(new CustomEvent(`on-cancel`, {}));
+		this.dispatchEvent(new CustomEvent(`on-cancel`, {}));
 	}
 
 	_accept() {
-
 		const request = {
 			capitecEntityId: this.statusVAS.capitecEntityId,
 			optOutInsights: this.optOutInsights,

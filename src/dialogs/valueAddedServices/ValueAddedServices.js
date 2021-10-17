@@ -1,10 +1,10 @@
-import { Component, css, html } from 'platform/elements';
+import { Component, html } from 'platform/elements';
 import { AccessMenuBarEvents } from 'app/constants/telemetry/events/AccessMenuBar';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ValueAddedService } from 'app/services/ValueAddedService';
 
-import 'app/productControls/valueAddedServices/ValueAddedServices';
+import 'app/productControls/valueAddedServices/src/ValueAddedServices';
 
 /**
  * The Horizon Value Added Services dialog is used to seek permission to access client data.
