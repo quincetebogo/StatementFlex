@@ -28,7 +28,7 @@ export class ValueAddedServices extends Component {
 
 		this.isBusy = false;
 		this._telemetry = HorizonTelemetry.instance;
-		this.valueAddedService = new ValueAddedService(() => this._toggleBusyFlag(), () => this._valueAddedServiceErrorHandler());
+		this.valueAddedService = new ValueAddedService(() => this._toggleBusyFlag(), () => true);
 	}
 
 	// -----------
@@ -45,7 +45,8 @@ export class ValueAddedServices extends Component {
 	static get properties() {
 		return {
 			statusVAS: { type: Object },
-			isBusy: { attribute: false }
+
+			isBusy: { state: true }
 		};
 	}
 
@@ -77,44 +78,17 @@ export class ValueAddedServices extends Component {
 	// --------------
 
 	_cancel() {
-
 		this._telemetry.logEvent(AccessMenuBarEvents.VALUE_ADDED_SERVICES_CANCEL, {
 			"screen": TelemetryScreen.VALUE_ADDED_SERVICES,
 			"next-screen": TelemetryScreen.FAVOURITES
 		});
+
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-	async _accept(e) {
 
-		const returnValue = await this.valueAddedService.putValueAddedServiceStatus(e.detail.request);
-
-		if (returnValue.succeeded) {
-
-			this._telemetry.logEvent(AccessMenuBarEvents.VALUE_ADDED_SERVICES_ACCEPTED, {
-				"screen": TelemetryScreen.VALUE_ADDED_SERVICES,
-				"next-screen": TelemetryScreen.FAVOURITES,
-				"capitec-entity-id": e.detail.request.capitecEntityId,
-				"insights": e.detail.request.optOutInsights,
-				"behavioural-marketing": e.detail.request.optOutBehaviouralMarketing,
-				"pre-assessments": e.detail.request.optOutPreAssessments,
-				"analysis": e.detail.request.optOutAnalysis,
-				"third-parties": e.detail.request.optOutThirdParties
-			});
-		}
-
-		this.dispatchEvent(new CustomEvent(`accept`, {
-			detail: {}
-		}));
-	}
-
-	_toggleValue(e) {
-		this.alertBannerMessage = ``;
-		this.optOutInsights = e.currentTarget.optOutInsights;
-		this.optOutBehaviouralMarketing = e.currentTarget.optOutBehaviouralMarketing;
-		this.optOutPreAssessments = e.currentTarget.optOutPreAssessments;
-		this.optOutAnalysis = e.currentTarget.optOutAnalysis;
-		this.optOutThirdParties = e.currentTarget.optOutThirdParties;
+	_accept(e) {
+		this.dispatchEvent(new CustomEvent(`accept`, {}));
 	}
 
 	// --------------
@@ -127,8 +101,24 @@ export class ValueAddedServices extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	_valueAddedServiceErrorHandler() {
-		this.alertBannerMessage = `System error. Please try again.`;
+	async _updateValueAddedServices(valueAddedServices) {
+		const returnValue = await this.valueAddedService.putValueAddedServiceStatus(valueAddedServices);
+
+		if (returnValue.succeeded) {
+
+			this._telemetry.logEvent(AccessMenuBarEvents.VALUE_ADDED_SERVICES_ACCEPTED, {
+				"screen": TelemetryScreen.VALUE_ADDED_SERVICES,
+				"next-screen": TelemetryScreen.FAVOURITES,
+				"capitec-entity-id": valueAddedServices.capitecEntityId,
+				"insights": valueAddedServices.optOutInsights,
+				"behavioural-marketing": valueAddedServices.optOutBehaviouralMarketing,
+				"pre-assessments": valueAddedServices.optOutPreAssessments,
+				"analysis": valueAddedServices.optOutAnalysis,
+				"third-parties": valueAddedServices.optOutThirdParties
+			});
+		}
+
+		return returnValue.succeeded;
 	}
 
 	// ---------
@@ -150,9 +140,9 @@ export class ValueAddedServices extends Component {
 		return html`
 		<capitec-pc-value-added-services
 			.statusVAS="${this.statusVAS}"
+			.updateValueAddedServicesCallback="${(valueAddedServices) => this._updateValueAddedServices(valueAddedServices)}"
 			@accept="${(e) => this._accept(e)}"
-			@toggle-value="${(e) => this._toggleValue(e)}"
-			@on-cancel="${(e) => this._cancel(e)}">
+			@cancel="${(e) => this._cancel(e)}">
 		</capitec-pc-value-added-services>`;
 	}
 

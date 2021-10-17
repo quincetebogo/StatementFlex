@@ -7,7 +7,6 @@ import { Component, css, html } from 'platform/elements';
  * Event Raised
  * -------------
  * cancel
- * toggle value
  * accept
  * 
  * @export
@@ -30,7 +29,7 @@ export class ValueAddedServices extends Component {
 		this.optOutThirdParties = false;
 		this.statusVAS = {};
 		this.alertBannerMessage = ``;
-
+		this.updateValueAddedServicesCallback = null;
 	}
 
 	
@@ -40,12 +39,6 @@ export class ValueAddedServices extends Component {
 
 	/**
 	 * @property {String} statusVAS - value of the statusVAS
-	 * @property {String} capitecEntityId - value of the capitecEntityId received from statusVAS
-	 * @property {String} optOutInsights - value of the optOutInsights received from statusVAS
-	 * @property {String} optOutBehaviouralMarketing - value of the optOutBehaviouralMarketing received from statusVAS
-	 * @property {String} optOutPreAssessments - value of the optOutPreAssessments received from statusVAS
-	 * @property {String} optOutAnalysis - value of the optOutAnalysis received from statusVAS
-	 * @property {String} optOutThirdParties - value of the optOutThirdParties received from statusVAS
 	 *
 	 * @readonly
 	 * @static
@@ -53,14 +46,16 @@ export class ValueAddedServices extends Component {
 	 */
 	 static get properties() {
 		return {
-			alertBannerMessage: { type: String },
+			statusVAS: { type: Object },
+			updateValueAddedServicesCallback: { type: Object },
 
-			capitecEntityId: { type: String, attribute: false },
-			optOutInsights: { type: Boolean, attribute: false },
-			optOutBehaviouralMarketing: { type: Boolean, attribute: false },
-			optOutPreAssessments: { type: Boolean, attribute: false },
-			optOutAnalysis: { type: Boolean, attribute: false },
-			optOutThirdParties: { type: Boolean, attribute: false }
+			alertBannerMessage: { state: true },
+			capitecEntityId: { state: true },
+			optOutInsights: { state: true },
+			optOutBehaviouralMarketing: { state: true },
+			optOutPreAssessments: { state: true },
+			optOutAnalysis: { state: true },
+			optOutThirdParties: { state: true }
 		};
 	}
 	
@@ -70,6 +65,7 @@ export class ValueAddedServices extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		
 		this.optOutInsights = this.statusVAS.optOutInsights;
 		this.optOutBehaviouralMarketing = this.statusVAS.optOutBehaviouralMarketing;
 		this.optOutPreAssessments = this.statusVAS.optOutPreAssessments;
@@ -82,6 +78,8 @@ export class ValueAddedServices extends Component {
 	// --------------
 
 	_toggleValue(e) {
+		this.alertBannerMessage = ``;
+
 		const insights = () => this._insightsStatusChanged();
 		const behavioural = () => this._behavioralStatusChanged();
 		const preAssessment = () => this._preAssessmentStatusChanged();
@@ -95,22 +93,17 @@ export class ValueAddedServices extends Component {
 			'analysis': analysis,
 			'thirdParty': thirdParty
 		};
-		toggleSwitched[e.currentTarget.id]();
 
-		// send the values, a structure with the new values
-		// similar to accept
-		this.dispatchEvent(new CustomEvent(`toggle-value`, {
-			detail: {}
-		}));
+		toggleSwitched[e.currentTarget.id]();
 	}
 
 	_cancel() {
-		this.dispatchEvent(new CustomEvent(`on-cancel`, {}));
+		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
 	_accept() {
-		const request = {
-			capitecEntityId: this.statusVAS.capitecEntityId,
+		const valueAddedServices = {
+			capitecEntityId: this.capitecEntityId,
 			optOutInsights: this.optOutInsights,
 			optOutBehaviouralMarketing: this.optOutBehaviouralMarketing,
 			optOutPreAssessments: this.optOutPreAssessments,
@@ -118,12 +111,12 @@ export class ValueAddedServices extends Component {
 			optOutThirdParties: this.optOutThirdParties
 		};
 
-			this.dispatchEvent(new CustomEvent(`accept`, {
-				detail: {
-					 request: request
-				}
-			}));
+		if (this.updateValueAddedServicesCallback(valueAddedServices)) {
+			this.dispatchEvent(new CustomEvent(`accept`, { detail: { valueAddedServices: valueAddedServices } }));
+			return;
+		}
 
+		this.alertBannerMessage = `System error. Please try again.`;
 	}
 
 	// ---------------
