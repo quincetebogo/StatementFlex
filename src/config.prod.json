@@ -15,7 +15,7 @@
 		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",
 		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js"
 	},
-	"VDN":"7250",
+	"VDN":"7253",
 	"LogRequestResponseModels" : false,
 	"ivrMapping": [
 		{
@@ -23,8 +23,16 @@
 			"primaryNeed": "StopCard"
 		},
 		{
-			"option": "7250",
+			"option": "7253",
 			"primaryNeed": "Transact"
+		},
+		{
+			"option": "8251",
+			"primaryNeed": "ProductEnquiry"
+		},
+		{
+			"option": "8252",
+			"primaryNeed": "ProductEnquiry"
 		}
 	],
 	"ivrActionMapping": {
@@ -55,7 +63,10 @@
 		"language-transfer": "LANGUAGE_TRANSFER",
 		"call-transfer": "CALL_TRANSFER",
 		"general-product-enquiry": "GENERAL_PRODUCT_ENQUIRY",
-		"failed-verification": "FAILED_VERIFICATION"
+		"failed-verification": "FAILED_VERIFICATION",
+		"debi-check-approve": "DEBI_CHECK_APPROVE",
+		"debi-check-decline": "DEBI_CHECK_DECLINE",
+		"debi-check-viewInfo": "DEBI_CHECK"
 	},
 	"mock": {
 		"enabled": false

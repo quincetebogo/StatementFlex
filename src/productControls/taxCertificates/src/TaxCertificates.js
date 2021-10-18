@@ -149,7 +149,7 @@ export class TaxCertificates extends Component {
 		if (!isValid) {
 			return false;
 		}
-		
+
 		this.dispatchEvent(new CustomEvent(`send`, {
 			detail: {
 				email: this.email,
@@ -174,8 +174,11 @@ export class TaxCertificates extends Component {
 			this.alertBannerMessage = ERROR_MESSAGE.CERT_TYPE;
 			return;
 		} 
+
+		const iTBsSelected = this.selectedCertificates.iT3BTaxCertificates && this.selectedCertificates.iT3BTaxCertificates.length;
+		const iTSsSelected = this.selectedCertificates.iT3STaxCertificates && this.selectedCertificates.iT3STaxCertificates.length;
 		
-		if (isNullorEmpty(this.selectedCertificates[this.selectedCertType]) && Object.keys(this.selectedCertificates).length === 0) {
+		if (!iTBsSelected && !iTSsSelected) {
 			this.alertBannerMessage = ERROR_MESSAGE.DOCUMENT_TYPE;
 			return;
 		}
@@ -183,6 +186,14 @@ export class TaxCertificates extends Component {
 		this.currentStep++;
 		await this.getIT3BContentData(this.selectedCertificates);
 
+		if (this.selectedCertificates.iT3BTaxCertificates !== undefined) {
+			this.selectedCertificates.iT3BTaxCertificates.sort((l, r) => r.year - l.year);
+		}
+
+		if (this.selectedCertificates.iT3STaxCertificates !== undefined) {
+			this.selectedCertificates.iT3STaxCertificates.sort((l, r) => r.year - l.year);
+		}
+		
 		this.dispatchEvent(new CustomEvent(`next`, { 
 			detail: {
 				selectedCertType: this.selectedCertType,
