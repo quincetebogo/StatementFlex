@@ -50,7 +50,6 @@ export class ValueAddedServices extends Component {
 			updateValueAddedServicesCallback: { type: Object },
 
 			alertBannerMessage: { state: true },
-			capitecEntityId: { state: true },
 			optOutInsights: { state: true },
 			optOutBehaviouralMarketing: { state: true },
 			optOutPreAssessments: { state: true },
@@ -66,6 +65,7 @@ export class ValueAddedServices extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		
+		this.capitecEntityId = this.statusVAS.capitecEntityId;
 		this.optOutInsights = this.statusVAS.optOutInsights;
 		this.optOutBehaviouralMarketing = this.statusVAS.optOutBehaviouralMarketing;
 		this.optOutPreAssessments = this.statusVAS.optOutPreAssessments;
@@ -101,7 +101,7 @@ export class ValueAddedServices extends Component {
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-	_accept() {
+	async _accept() {
 		const valueAddedServices = {
 			capitecEntityId: this.capitecEntityId,
 			optOutInsights: this.optOutInsights,
@@ -111,7 +111,7 @@ export class ValueAddedServices extends Component {
 			optOutThirdParties: this.optOutThirdParties
 		};
 
-		if (this.updateValueAddedServicesCallback(valueAddedServices)) {
+		if (await this.updateValueAddedServicesCallback(valueAddedServices)) {
 			this.dispatchEvent(new CustomEvent(`accept`, { detail: { valueAddedServices: valueAddedServices } }));
 			return;
 		}
