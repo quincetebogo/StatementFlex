@@ -409,9 +409,9 @@ export class ApproveDebiCheckMandate extends Component {
 					<tr>
 						<td>
 							<input type='radio' value='Yes' name='yesRadio${index}' id='yes${index}'/>
-							<label for='yes'>Yes</label>
+							<label for='yes${index}'>Yes</label>
 							<input type='radio' value='No' name='yesRadio${index}' id='no${index}' />
-							<label for='no'>No</label>	
+							<label for='no${index}'>No</label>	
 						</td>
 					</tr>
 				</tbody>
@@ -422,10 +422,11 @@ export class ApproveDebiCheckMandate extends Component {
 				this.requestUpdate();
 			});
 
-			htmlDoc.getElementById(`yes${index}`).addEventListener('change', () => {
+			htmlDoc.getElementById(`yes${index}`).addEventListener('click', () => {
 				QUESTIONS[index].accepted = YES;
 				this.requestUpdate();		
 			});	
+
 		}
 
 		let firstExpander = htmlDoc.getElementById("agreement-clauses-table");
