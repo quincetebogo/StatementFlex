@@ -78,21 +78,21 @@ export class TaxCertificates extends Component {
 	static get properties() {
 		return {
 			taxCertificateDetails: { type: Object },
-			getTaxCertificatePDFCallback: { type: Function },
-			getIT3BContentData: { type: Function },
+			getTaxCertificatePDFCallback: { type: Object },
+			getIT3BContentData: { type: Object },
 
 			// Private Properties
-			currentStep: { attribute: false },
-			renderMode: { attribute: false },
-			errorMessage: { attribute: false },
-			emailError: { attribute: false },
-			confirmEmailError: { attribute: false },
-			selectedCertType: { attribute: false },
-			selectedCertificates: { attribute: false },
-			alertBannerMessage: { attribute: false },
-			emailText: { attribute: false },
-			email: { attribute: false },
-			confirmEmail: { attribute: false },
+			currentStep: { state: true },
+			renderMode: { state: true },
+			errorMessage: { state: true },
+			emailError: { state: true },
+			confirmEmailError: { state: true },
+			selectedCertType: { state: true },
+			selectedCertificates: { state: true },
+			alertBannerMessage: { state: true },
+			emailText: { state: true },
+			email: { state: true },
+			confirmEmail: { state: true },
 			disableNext: { type: Boolean, attribute: false }
 		};
 	}
@@ -346,7 +346,7 @@ export class TaxCertificates extends Component {
 			}
 			.expander-header > horizon-label {
 				width: 156px;
-				height: auto%;
+				height: auto;
 				font-weight: 300;
 				justify-content: left;
 				padding: 0px 0px 0px 0px;
@@ -684,8 +684,8 @@ export class TaxCertificates extends Component {
 		if (this.currentStep === 1 && this.renderMode === RENDER_MODE.EMAIL) {
 			return html`
 				<horizon-email-input
-					email="${this.email}";
-					confirmEmail="${this.confirmEmail}";
+					email=${this.email};
+					confirmEmail=${this.confirmEmail};
 					@value-changed="${(e) => this._emailValueChanged(e)}"
 					@validation-update="${(e) => this._validEmailAddressCheck(e)}"
 					.labelOne="${this.emailLabel}"
@@ -728,9 +728,9 @@ export class TaxCertificates extends Component {
 					expandButtonAlignment="right"
 					inputType = "Checkbox"
 					@value-change="${(e) => this._selectedTaxPeriodChanged(e, item, certType)}"
-					?selected = ${this.selectedCertificates[certType] && this.selectedCertificates[certType].indexOf(item) !== -1}
+					?selected = "${this.selectedCertificates[certType] && this.selectedCertificates[certType].indexOf(item) !== -1}"
 					@expand="${(e) => this._onExpanded(e)}"
-					?disabled = ${!item.isTaxYearAvailable}>
+					?disabled = "${!item.isTaxYearAvailable}">
 						<capitec-group slot="custom-header" layout="horizontal" gap="none" halign="left" valign="center">
 							<horizon-label
 								class="check-box-label"
@@ -738,13 +738,22 @@ export class TaxCertificates extends Component {
 								value="${CERTIFICATE_TYPE[certType].type} ${item.isTaxYearAvailable ? `Available` : `Unavailable`}">
 							</horizon-label>
 						</capitec-group>
-						<capitec-content-box 
-							data-automation-id="tax-certificate-document-details"
-							class="expander-content" 
-							slot="content">
-							${this._renderCertificateDetails(item, certType)}
-						</capitec-content-box>
+						${this._renderOnlyIt3BExpanders(item, certType)}
 				</horizon-expander>`;
+	}
+
+	_renderOnlyIt3BExpanders(item, certType) {
+		if (certType === `iT3STaxCertificates`) {
+			return html``;
+		}
+
+		return html`
+			<capitec-content-box 
+				data-automation-id="tax-certificate-document-details"
+				class="expander-content" 
+				slot="content">
+				${this._renderCertificateDetails(item, certType)}
+			</capitec-content-box>`;
 	}
 
 	_renderCertificateDetails(item, certType) {
