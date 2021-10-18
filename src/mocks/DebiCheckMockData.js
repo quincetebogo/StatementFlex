@@ -57,7 +57,8 @@ export const mockMandates = {
             "maxCollectionAmount": 129900,
             "mandateName": "VODACOM 0340833372 1000",
             "mandateStatus": "INACTIVE",
-            "collectionDayFrequency": "22nd of Month"
+            "collectionDayFrequency": "22nd of Month",
+            "canBeAuthenticated": true
         },
         {
             "mandateId": 4,
@@ -70,7 +71,8 @@ export const mockMandates = {
             "maxCollectionAmount": 345000,
             "mandateName": "BMWFINANCE 989800101333",
             "mandateStatus": "SUSPENDED",
-            "collectionDayFrequency": "1st of Month"
+            "collectionDayFrequency": "1st of Month",
+            "canBeAuthenticated": true
         },
         {
             "mandateId": 5,
@@ -83,7 +85,8 @@ export const mockMandates = {
             "maxCollectionAmount": 120000,
             "mandateName": "FNBRVLLOAN4000069539246",
             "mandateStatus": "PENDING",
-            "collectionDayFrequency": "30th of Month"
+            "collectionDayFrequency": "30th of Month",
+            "canBeAuthenticated": true
         },
         {
             "mandateId": 6,
@@ -96,7 +99,8 @@ export const mockMandates = {
             "maxCollectionAmount": 120000,
             "mandateName": "MTN",
             "mandateStatus": "PENDING",
-            "collectionDayFrequency": "8th of Month"
+            "collectionDayFrequency": "8th of Month",
+            "canBeAuthenticated": true
         }
     ]
 };
@@ -113,7 +117,8 @@ export const mandateInfo = [
             "mandateReference": "2201709170000000000",
             "collectorEmail": "mandate1@collector.bank",
             "mrti": "4573",
-            "debtorAccountNumber": "123456789"
+            "debtorAccountNumber": "123456789",
+            "canBeAuthenticated": true
         }
     },
     {
@@ -127,12 +132,13 @@ export const mandateInfo = [
             "mandateReference": "JFGJ457487",
             "collectorEmail": "mandate2@collector.bank",
             "mrti": "547452",
-            "debtorAccountNumber": "123456798"
+            "debtorAccountNumber": "123456798",
+            "canBeAuthenticated": true
         }
     },
     {
-        mandateId: 2,
-        registerId: 2,
+        mandateId: 5,
+        registerId: 5,
         mandateInfo: {
             "firstCollectionDate": "2021-02-08T17:05:32.909Z",
             "tracking": "Yes",
@@ -141,7 +147,8 @@ export const mandateInfo = [
             "mandateReference": "kgyh85698",
             "collectorEmail": "mandate3@collector.bank",
             "mrti": "780780",
-            "debtorAccountNumber": "132456789"
+            "debtorAccountNumber": "132456789",
+            "canBeAuthenticated": true
         }
     }
 ];
