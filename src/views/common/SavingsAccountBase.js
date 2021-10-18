@@ -162,8 +162,6 @@ export class SavingsAccountBase extends ViewBase {
 		this.horizonStore.setScreenDetails(screenDetails);
 
             this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
-            return;
-
         }
 
 	async _approveMandate(screenDetails) {
@@ -177,7 +175,6 @@ export class SavingsAccountBase extends ViewBase {
 
 		await this._getAgreement();
 		this.renderMode = RENDER_MODE.DEBI_CHECK_APPROVE;
-        return;
 	}
 
 	async _viewMandate(event) {

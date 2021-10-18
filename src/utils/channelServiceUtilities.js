@@ -203,3 +203,64 @@ export function isWellFormedSouthAfricanID(southAfricanIDNumber) {
 	return html`${unsafeHTML(agreement)}`;
 
 }
+
+export function base64Decode(encodedValue){
+//built in Javascript base64 decode function does not cater for decoding of special characters
+	var Base64 = {
+		_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+		decode:function(e){
+			var t="";
+			var n,r,i;var s,o,u,a;
+			var index=0;
+			e=e.replace(/[^A-Za-z0-9+/=]/g,"");
+	
+			while(index < e.length){
+				s = this._keyStr.indexOf(e.charAt(index++));
+				o = this._keyStr.indexOf(e.charAt(index++));
+				u = this._keyStr.indexOf(e.charAt(index++));
+				a = this._keyStr.indexOf(e.charAt(index++));
+				n = s<<2|o>>4;
+				r = (o&15)<<4|u>>2;
+				i = (u&3)<<6|a;
+				t = t + String.fromCharCode(n);
+		
+				if(u!=64){
+					t = t+String.fromCharCode(r)
+				}					
+				if(a!=64){
+					t = t + String.fromCharCode(i)
+				}
+			}		
+			t = Base64._utf8_decode(t);		
+			return t
+		},
+		_utf8_decode:function(e){
+			var t="";
+			var n=0;
+			var r=0;
+			var c2=0;
+			var c3=0;
+	
+			while(n<e.length){
+				r = e.charCodeAt(n);
+				if(r < 128){
+					t +=String.fromCharCode(r);
+					n++
+				} else if(r>191&&r<224){
+					c2 = e.charCodeAt(n+1);
+					t +=String.fromCharCode((r&31)<<6|c2&63);
+					n +=2;
+				} else{
+					c2 = e.charCodeAt(n+1);
+					c3 = e.charCodeAt(n+2);
+					t +=String.fromCharCode((r&15)<<12|(c2&63)<<6|c3&63);
+					n +=3;
+				}
+			}				
+			return t
+		}
+	};
+
+	return Base64.decode(encodedValue);
+
+}
