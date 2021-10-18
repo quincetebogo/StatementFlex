@@ -4,10 +4,10 @@ import { DEFAULT_AUTO_RETRIES, ServiceBase } from 'app/services/ServiceBase';
  * Channel Service Methods for Live Better flow
  *
  * @export
- * @class LivBetterService
+ * @class LiveBetterService
  * @extends {ServiceBase}
  */
-export class LivBetterService extends ServiceBase {
+export class LiveBetterService extends ServiceBase {
 	// --------------
 	// INITIALISATION
 	// --------------

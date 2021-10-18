@@ -88,7 +88,7 @@ export class LiveBetter extends ViewBase {
 
 	static get properties() {
 		return {
-			loading: { state: true }
+			loading: { state: true },
 			showTooltip: { state: true },
 			transactionHistory: { state: true },
 			journalNumber: { state: true }
@@ -163,7 +163,7 @@ export class LiveBetter extends ViewBase {
 
 	async _getMoreTransactions(request) {
 
-		const result = await this.livBetterService.liveBetterTransactionHistory(request, () => true);
+		const result = await this.liveBetterService.liveBetterTransactionHistory(request, () => true);
 		return result;
 	}
 	
@@ -192,7 +192,7 @@ export class LiveBetter extends ViewBase {
 				"postingDate": item.postingDate //"2021-06-22"//
 			};
 
-			const returnValue = await this.livBetterService.lbbLinkedTransactionDetails(transactionHistoryRequest);
+			const returnValue = await this.liveBetterService.lbbLinkedTransactionDetails(transactionHistoryRequest);
 			
 			if(returnValue.succeeded && returnValue.result) {
 				return returnValue.result.linkedTransactions;
@@ -317,7 +317,7 @@ export class LiveBetter extends ViewBase {
 			moneyType: TRANSACTION_HISTORY.MONEY_TYPE
 		};
 
-		const returnValue = await this.livBetterService.liveBetterTransactionHistory(transactionHistoryRequest);
+		const returnValue = await this.liveBetterService.liveBetterTransactionHistory(transactionHistoryRequest);
 
 		if (returnValue.succeeded && returnValue.result) {
 			
