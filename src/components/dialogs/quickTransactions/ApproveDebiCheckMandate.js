@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { base64Decode, convertCentsToRand, formatCurrency, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { convertCentsToRand, formatCurrency, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
@@ -396,7 +396,7 @@ export class ApproveDebiCheckMandate extends Component {
 		var agree = this.shadowRoot.getElementById("agree");
 		var declare = this.shadowRoot.getElementById("declare");
 
-		const dec = base64Decode(this.agreementText);
+		const dec = decodeURIComponent(escape(window.atob(this.agreementText)));
 
 		var parser = new DOMParser();
 		var htmlDoc = parser.parseFromString(dec, 'text/html');
