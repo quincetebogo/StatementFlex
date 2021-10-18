@@ -1,6 +1,9 @@
 import { css, html } from 'platform/elements';
 import { Configuration } from 'platform/Configuration';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ServiceCallErrorScreen';
@@ -21,7 +24,7 @@ export class TaxCertificateServiceError extends ViewBase {
 
 	constructor() {
 		super();
-
+		this._telemetry = HorizonTelemetry.instance;
 		this._configuration = Configuration.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 	}
@@ -43,6 +46,10 @@ export class TaxCertificateServiceError extends ViewBase {
 	disconnectedCallback() {
 		super.disconnectedCallback();
 
+		this._telemetry.endSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
+			"screen": TelemetryScreen.TAX_CERTIFICATE,
+			"next-screen": TelemetryScreen.FAVOURITES
+		});
 		this.horizonStore.setScreenDetails({ taxCertificate: null });
 		this.horizonStore.clearReturnScreen();
 
@@ -57,6 +64,11 @@ export class TaxCertificateServiceError extends ViewBase {
 	async _findBranchClick() {
 		const branchLocatorUrl = await this._configuration.getSetting(`otherSystemsURL.branch-locator`);
 		window.open(`${branchLocatorUrl}`);
+		
+		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_FIND_BRANCH, {
+			"screen": TelemetryScreen.TAX_CERTIFICATE,
+			"next-screen": TelemetryScreen.FAVOURITES
+		});
 	}
 
 	// --------------
