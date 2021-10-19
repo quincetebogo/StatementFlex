@@ -6,6 +6,9 @@ import { ValueAddedService } from 'app/services/ValueAddedService';
 
 import 'platform/components';
 import 'app/productControls/AccessChannels/src/AccessChannels';
+import 'app/components/dialogs/valueAddedServices/ValueAddedServices';
+import 'app/components/dialogs/valueAddedServices/ValueAddedServicesUnavailable';
+import 'app/components/dialogs/valueAddedServices/VASNoClientData';
 
 /**
  * The AccessMenuBar is the right hand menu bar area in Horizon. This component currently houses
@@ -101,14 +104,6 @@ export class AccessMenuBar extends Component {
 	}
 
 
-
-	async _valueAddedService() {
-		const returnValue = await this.valueAddedService.getValueAddedServiceStatus(this.cifNumber);
-
-		return returnValue;
-
-	}
-
 	// ---------
 	// RENDERING
 	// ---------
@@ -131,10 +126,16 @@ export class AccessMenuBar extends Component {
 		return html`
 		<capitec-pc-access-channels
 			.status="${this.status}"
-			.isBusy = "${this.isBusy}"
-			.valueAddedService= "${()=> this._valueAddedService()}"
         ></capitec-pc-access-channels>
 		`;
+	}
+
+	_renderLoadingIndicator() {
+		if (this.isBusy) {
+			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		};
+
+		return html``;
 	}
 
 	
