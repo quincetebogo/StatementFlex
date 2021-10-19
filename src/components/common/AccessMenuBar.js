@@ -1,14 +1,12 @@
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator, Logger } from 'platform/core';
+import { Logger } from 'platform/core';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { ValueAddedService } from 'app/services/ValueAddedService';
 
 import 'platform/components';
 import 'app/components/dialogs/AccessChannelError';
-import 'app/dialogs/valueAddedServices/ValueAddedServices';
-import 'app/dialogs/valueAddedServices/ValueAddedServicesUnavailable';
-import 'app/dialogs/valueAddedServices/VASNoClientData';
+import 'app/productControls/ClientInsights/src/ClientInsights';
 
 /**
  * The AccessMenuBar is the right hand menu bar area in Horizon. This component currently houses
@@ -25,12 +23,8 @@ export class AccessMenuBar extends Component {
 
 		this.showAlert = false;
 		this.isBusy = false;
-		this.showValueAddedServicesModal = false;
-		this.showUnavailableVASModal = false;
-		this.showVASNoClientDataModal = false;
 
 		this.horizonStore = HorizonStore.getInstance();
-		this.eventAggregator = EventAggregator.getInstance();
 		this.logger = Logger.getInstance();
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
@@ -47,10 +41,7 @@ export class AccessMenuBar extends Component {
 
 			isBusy: { attribute: false },
 			status: { attribute: false },
-			statusVAS: { attribute: false },
-			showValueAddedServicesModal: { attribute: false },
-			showUnavailableVASModal: { attribute: false },
-			showVASNoClientDataModal: { attribute: false }
+			statusVAS: { attribute: false }
 		};
 	}
 
@@ -77,27 +68,6 @@ export class AccessMenuBar extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_showVASModal() {
-		this._valueAddedService();
-	}
-
-	_cancelVasClick() {
-		this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
-	}
-
-	_acceptVasClick() {
-		this.eventAggregator.publish(`horizon-accepted-vas`, {});
-		this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
-	}
-
-	_acceptVASNoClientDataClick() {
-		this.showVASNoClientDataModal = !this.showVASNoClientDataModal;
-	}
-
-	_acceptUnavailableVasClick() {
-		this.showUnavailableVASModal = !this.showUnavailableVASModal;
-	}
-
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -123,15 +93,7 @@ export class AccessMenuBar extends Component {
 	async _valueAddedService() {
 		const returnValue = await this.valueAddedService.getValueAddedServiceStatus(this.cifNumber);
 
-		if (returnValue.succeeded && returnValue.result !== ``) {
-			this.statusVAS = returnValue.result;
-			this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
-		} else if (returnValue.succeeded) {
-			this.showVASNoClientDataModal = !this.showVASNoClientDataModal;
-		} else {
-			this.logger.log(`error`, `Failed to load Value Added Services`, `_valueAddedService`, returnValue.correlationId);
-			this.showUnavailableVASModal = !this.showUnavailableVASModal;
-		}
+		return returnValue;
 	}
 
 	// ---------
@@ -142,36 +104,12 @@ export class AccessMenuBar extends Component {
 		return [
 			super.styles,
 			css`
-				.insights-card {
-					height: 462px;
-					width: var(--horizon-right-panel-width, 320px);
-				}
-				capitec-title-bar {
-					border-bottom: 1px solid #E1E1E1;
-
-					--theme-label-title-font-size: 18px;
-					--theme-label-title-font-weight: 600;
-					--theme-card-border-radius: 0px 4px 0 0;
-					--theme-titlebar-shadow: 1px solid #E1E1E1;
-				}
-				capitec-icon[icon="system/settings-action"] {
-					--theme-icon-size-small: 24px;
-					cursor: pointer;
-				}
-				.insights-group {
-					height: 398px;
-				}
-				.box-image {
-					height: 108px;
-					width: 108px;
-
-					--theme-layout-gap-spacing: 22px;
-				}
 				.access-group {
 					height: auto;
 					width: auto;
 					padding: 24px 0px 0px 0px;
 				}
+
 				.header-label {
 					height: auto;
 					width: auto;
@@ -180,6 +118,7 @@ export class AccessMenuBar extends Component {
 					--theme-label-default-font-weight: 600;
 					--theme-layout-gap-spacing: 18px;
 				}
+
 				horizon-product-tile {
 					--theme-product-tile--height: 72px;
 					--theme-product-tile-border-radius: 4px;
@@ -207,36 +146,16 @@ export class AccessMenuBar extends Component {
 			</section>
 			${this._renderAccessChannelError()}
 			${this._renderLoadingIndicator()}
-			${this._renderValueAddedServicesModal()}
-			${this._renderUnavailableVASModal()}
-			${this._renderVASNoClientDataModal()}
 		`;
 	}
 
 	_renderClientInsights() {
 		return html`
-			<capitec-card class="insights-card">
-				<capitec-title-bar
-					type="default"
-					label="Client Insights">
-						<capitec-spacer></capitec-spacer>
-						<capitec-icon
-							size="small"
-							icon="system/settings-action"
-							@click = "${() => this._showVASModal()}">
-						</capitec-icon>
-				</capitec-title-bar>
-
-				<capitec-group layout="vertical" halign="center" valign="center" gap="clear" class="insights-group">
-					<img
-						class="box-image"
-						src="images/landingPageImages/marketing.svg"/>
-					<capitec-label
-						type="subtitle"
-						label="Client insights coming soon...">
-					</capitec-label>
-				</capitec-group>
-			</capitec-card>`;
+			<capitec-pc-client-insights
+				.valueAddedService= "${()=> this._valueAddedService()}"
+				.scenario=${'cards'}>
+			</capitec-pc-client-insights>
+		`;
 	}
 
 	_renderAccessChannelTabs() {
@@ -284,37 +203,6 @@ export class AccessMenuBar extends Component {
 		};
 
 		return html``;
-	}
-
-	_renderValueAddedServicesModal() {
-		return this.showValueAddedServicesModal
-		? html`
-			<horizon-value-added-services
-				.statusVAS="${this.statusVAS}"
-				@cancel="${() => this._cancelVasClick()}"
-				@accept="${() => this._acceptVasClick()}">
-			</horizon-value-added-services>`
-		: html``;
-	}
-
-	_renderVASNoClientDataModal() {
-		return this.showVASNoClientDataModal 
-		? html`
-			<horizon-value-added-services-no-client-data
-				@okay-unavailable="${() => this._acceptVASNoClientDataClick()}">
-			</horizon-value-added-services-no-client-data>
-		`
-		: html``;
-	}
-
-	_renderUnavailableVASModal() {
-		return this.showUnavailableVASModal
-		? html`
-			<horizon-value-added-services-unavailable
-				@vas-unavailable="${() => this._acceptUnavailableVasClick()}">
-			</horizon-value-added-services-unavailable>
-		`
-		: html``;
 	}
 
 }
