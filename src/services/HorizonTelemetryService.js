@@ -336,7 +336,6 @@ export class HorizonTelemetry extends Telemetry {
 		}
 		return item;
 	}
-	
 
 	/**
 	 * On starting a span for an event, this function is used to maintain active spans
