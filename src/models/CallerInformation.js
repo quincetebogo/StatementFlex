@@ -63,7 +63,8 @@ export class CallerInformation {
 		verificationAttempts = { itaAttempts: 0, xdsAttempts: 0 },
 		isBranchConsultant = false,
 		isClientPresent = false,
-		verificationMethod = `unverified`
+		verificationMethod = `unverified`,
+		isMinorClient = false
 	) {
 		this.cifNumber = cifNumber;
 		this.birthdate = birthdate;
@@ -89,6 +90,7 @@ export class CallerInformation {
 		this.isBranchConsultant = isBranchConsultant;
 		this.isClientPresent = isClientPresent;
 		this.verificationMethod = `unverified`;
+		this.isMinorClient = isMinorClient;
 		Object.seal();
 	}
 }
