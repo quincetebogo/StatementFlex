@@ -16,6 +16,7 @@
 		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js"
 	},
 	"LogRequestResponseModels" : true,
+	"VDN": "7250",
 	"ivrMapping": [
 		{
 			"option": "7251",
