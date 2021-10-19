@@ -15,8 +15,7 @@
 		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",
 		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js"
 	},
-	"VDN": "7250",
-	"LogRequestResponseModels": true,
+	"LogRequestResponseModels" : true,
 	"ivrMapping": [
 		{
 			"option": "7251",
