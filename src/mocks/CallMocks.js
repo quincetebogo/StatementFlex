@@ -14,6 +14,12 @@ export const acceptCallSuccess = {
 		"languagePreference": `English`,
 		"birthdate": `1967-12-07T20:26:46.894Z`,
 		"cifNumber": `103769250`,
-		"profilePhoto": null
+        "profilePhoto": null,
+        "firstName": "Joe",
+        "lastName": "Bloggs",
+        "middleName1": "",
+        "middleName2": "",
+        "middleName3": "",
+        "initials": "JB"
 	}
 };
