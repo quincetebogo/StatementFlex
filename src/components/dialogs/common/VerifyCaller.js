@@ -178,7 +178,7 @@ export class VerifyCaller extends Component {
 		if (returnValue.succeeded) {
 			return this._handleSecurityQuestions(returnValue.result);
 		} 
-		if (returnValue.exception.status === 404 || returnValue.exception.status === 500) {
+		if (returnValue.exception.status === 404 || returnValue.exception.status === 500 || returnValue.exception.status === 424) {
 			this.xdsUnavailable = true;
 			console.log(this.xdsUnavailable)
 		}
