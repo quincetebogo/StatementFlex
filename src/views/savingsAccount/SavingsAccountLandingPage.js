@@ -12,11 +12,13 @@ import 'app/components/savingsAccount/SavingAccount';
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/common/StatementsDialog';
 
+// ninety days in milliseconds
+const NINETY_DAYS = 7777000000;
+
 const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
 	END_DATE: new Date().toISOString().substr(0, 10),
-	// 7776000000 is 90 days in milliseconds
-	START_DATE: new Date(Date.now() - 7776000000).toISOString().substr(0, 10),
+	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
 	START_AT_INDEX: 0,
 	MAX_RESULTS: 50,
 	MONEY_TYPE: `BOTH`
@@ -45,7 +47,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		this.configuration = Configuration.getInstance();
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
-		this.transactionHistory = null;
+		this.transactionHistory = [];
 		this.accountDetails = null;
 		this.clientProducts = null;
 	
@@ -73,7 +75,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 			const actions = {
 				'transaction-history': transactionHistory,
-				'debi-check': debiCheck,
+				'debi-check-viewInfo': debiCheck,
 				'statements': statements,
 				'more': more
 			};
@@ -116,6 +118,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	}
 
 	_unloadTransactionHistory() {
+		this.transactionHistory = [];
 		this._setIncidentDone();
 	}
 	
@@ -191,13 +194,18 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	}
 
 	async _transactionHistory() {
+		await super.createAndClassifySubsIncident();
+		await this._getTransactionHistory();
+	}
+
+	async _getTransactionHistory(startDate, endDate, startAtIndex) {
 		const transactionHistoryRequest = {
 			cifNumber: this.callerInformation.cifNumber,
 			accountNumber: this.landingPageInfo.accountNumber,
 			accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
-			startDate: TRANSACTION_HISTORY.START_DATE,
-			endDate: TRANSACTION_HISTORY.END_DATE,
-			startAtIndex: TRANSACTION_HISTORY.START_AT_INDEX,
+			startDate: startDate || TRANSACTION_HISTORY.START_DATE,
+			endDate: endDate || TRANSACTION_HISTORY.END_DATE,
+			startAtIndex: startAtIndex || TRANSACTION_HISTORY.START_AT_INDEX,
 			maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
 			moneyType: TRANSACTION_HISTORY.MONEY_TYPE
 		};
@@ -205,9 +213,19 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
 
 		if (returnValue.succeeded && returnValue.result) {
-			await super.createAndClassifySubsIncident();
-			
-			this.transactionHistory = returnValue.result.transactions;
+			const formattedTrans = returnValue.result.transactions
+									.filter(item => item.transactionStatus !== ``)
+									.map((item) => {
+										const date = new Date(Date.parse(item.transactionDate));
+							
+										item.tranDate = date;
+										item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
+										item.formatedAmount = formatCurrency(item.amount);
+										item.formatedBalance = formatCurrency(item.balance);
+							
+										return item;
+									});
+			this.transactionHistory.push(...formattedTrans);
 			this.accountDetails = {
 				"Account number": this.landingPageInfo.accountNumber,
 				"Balance": formatCurrency(this.landingPageInfo.accountBalance),
@@ -236,6 +254,11 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
 			window.open(`${globalOneUrl}${type}`);
 		}
+	}
+
+	_exitTransactionHistory() {
+		this._setIncidentDone();
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	// ---------
@@ -292,12 +315,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				<horizon-transaction-history
 					.transactionHistory="${this.transactionHistory}"
 					.accountDetails="${this.accountDetails}"
-					cifNumber="${this.callerInformation.cifNumber}"
+					.cifNumber = "${this.callerInformation.cifNumber}"
 					type="${ACCOUNT_TYPES.SAVINGS_ACCOUNT}"
-
 					.renderTableColumns="${() => this._renderTransHistoryColumns()}"
 					.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
 					.getMoreTransactions="${request => this._getMoreTransactions(request)}"
+					.getTransactionHistory="${(startDate, endDate, startAtIndex) => this._getTransactionHistory(startDate, endDate, startAtIndex)}"
+					.disposeData="${() => this.transactionHistory = []}"
 
 					@error-handler = "${() => this._errorHandler()}"
 					@back="${() => this._exitTransactionHistory()}"

@@ -11,6 +11,7 @@ const FILTER_BY = {
 };
 
 const MANDATE_STATUS = {
+    //ACTIVE, INACTIVE, SUSPENDED, PENDING, ALL
 	ACTIVE: `Accepted`,
 	INACTIVE: `Expired`,
 	PENDING: `Pending`,
@@ -59,8 +60,7 @@ export class DebiCheckMandates extends Component {
 	 */
 	static get properties() {
 		return {
-			debiCheckMandates: { type: Array },
-			
+			debiCheckMandates: { type: Array },			
 			filterBy: { attribute: false }
 		};
 	}
@@ -73,7 +73,6 @@ export class DebiCheckMandates extends Component {
 		super.connectedCallback();
 
 		this._loading();
-		this._convertCentsToRand();
 		this._initialise();
 	}
 
@@ -131,7 +130,8 @@ export class DebiCheckMandates extends Component {
 	}
 
 	_initialise() {
-		this.pendingMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.PENDING);
+        this.pendingMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.PENDING);
+        this.pendingMandates.sort(function (a, b) { return b.canBeAuthenticated - a.canBeAuthenticated });
 		this.activeMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.ACTIVE);
 		this.inActiveMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.INACTIVE);
 	}
@@ -147,18 +147,18 @@ export class DebiCheckMandates extends Component {
 											   parseFloat(item.maxCollectionAmount).toFixed(2).startsWith(searchText)));
 	}
 
-	_viewInfo(mandateId, registerId) {
-		this.dispatchEvent(new CustomEvent(`action`, { detail: { "action": `viewInfo`, "mandateId": mandateId, "registerId": registerId } }));
+	_viewInfo(mandateInfo, isPending) {
+        this.dispatchEvent(new CustomEvent(`action`, { detail: { "action": `viewInfo`, mandateInfo: mandateInfo, isPending: isPending } }));
 	}
 
-	_decline(mandateId) {
+	_decline(mandateInfo) {
 		// TODO: Add mandate data to the event
-		this.dispatchEvent(new CustomEvent(`action`, { detail: { action: `decline`, mandateId: mandateId } }));
+		this.dispatchEvent(new CustomEvent(`action`, { detail: { action: `decline`, mandateInfo: mandateInfo } }));
 	}
 
-	_approve(mandateId) {
+	_approve(mandateInfo) {
 		// TODO: Add mandate data to the event
-		this.dispatchEvent(new CustomEvent(`action`, { detail: { action: `approve`, mandateId: mandateId } }));
+		this.dispatchEvent(new CustomEvent(`action`, { detail: { action: `approve`, mandateInfo: mandateInfo } }));
 	}
 
 	_hasMandatesToDisplay() {
@@ -498,20 +498,20 @@ export class DebiCheckMandates extends Component {
 						   gap="none"
 						   halign="left"
 						   valign="center">
-				<div style="${unsafeCSS(TABLE_ROW_CSS.width280)} ${unsafeCSS(TABLE_ROW_CSS.borderRight).toString()}">
-					${this._renderCell(rowData.mandateName, formatCurrency(rowData.amount))}
+				<div style="${unsafeCSS(TABLE_ROW_CSS.width223)} ${unsafeCSS(TABLE_ROW_CSS.borderRight).toString()}">
+					${this._renderCell(rowData.mandateName, formatCurrency(convertCentsToRand(rowData.amount)))}
 				</div>
-				<div style="${unsafeCSS(TABLE_ROW_CSS.width165).toString()}">
-					${this._renderCell(`Max collection amount`, formatCurrency(rowData.maxCollectionAmount))}
+				<div style="${unsafeCSS(TABLE_ROW_CSS.width185).toString()}">
+					${this._renderCell(`Max collection amount`, formatCurrency(convertCentsToRand(rowData.maxCollectionAmount)))}
 				</div>
-				<div style="${unsafeCSS(TABLE_ROW_CSS.width240).toString()}">
+                <div style="${unsafeCSS(TABLE_ROW_CSS.width185).toString()}">
 					${this._renderCell(`Collection day`, rowData.collectionDayFrequency)}
 				</div>
-				<div style="${unsafeCSS(TABLE_ROW_CSS.width98).toString()}">
+				<div style="${unsafeCSS(TABLE_ROW_CSS.width128).toString()}">
 					${this._renderCell(`Status`, MANDATE_STATUS[rowData.mandateStatus])}
 				</div>
-				<capitec-group layout="horizontal" gap="clear" halign="right" valign="center" style="width: 250px;">
-					${this._renderButtons(rowData.mandateStatus, rowData.mandateId, rowData.registerId)}
+                <capitec-group layout="horizontal" gap="clear" halign="right" valign="center" style="width: 250px;">
+					${this._renderButtons(rowData.mandateStatus, rowData)}
 				</capitec-group>
 				<div></div>
 			</capitec-group>`;
@@ -538,26 +538,35 @@ export class DebiCheckMandates extends Component {
 		`;
 	}
 
-	_renderButtons(status, mandateId, registerId) {
-		return html`<capitec-label type="subtitle"
-									label="View Info"
-									style="${TABLE_ROW_CELL_CSS.cellButton}"
-									@click="${() => this._viewInfo(mandateId, registerId)}">
-					 </capitec-label>
-					 `;
-
-			/* Remove approve/decline buttons as this functionality is now part of release 2
-			  html`<capitec-label type="subtitle"
+    _renderButtons(status, rowData) {
+        if (status === 'PENDING') {
+            return rowData.canBeAuthenticated
+                ? html`<capitec-label type="subtitle"
 									label="Decline"
 									style="${TABLE_ROW_CELL_CSS.cellButton}"
-									@click="${() => this._decline(mandateId)}">
+									@click="${() => this._decline(rowData)}">
 					 </capitec-label>
 					 <capitec-label type="subtitle"
 					 				label="Approve"
 									style="${TABLE_ROW_CELL_CSS.cellButton}"
-									@click="${() => this._approve(mandateId)}">
+									@click="${() => this._approve(rowData)}">
+					 </capitec-label>
+                     <capitec-label type="subtitle"
+	    				label="View"
+						style="${TABLE_ROW_CELL_CSS.cellButton}"
+						@click="${() => this._viewInfo(rowData, false)}">
+					 </capitec-label>`
+                : html`<capitec-label type="subtitle"
+	    				label="View"
+						style="${TABLE_ROW_CELL_CSS.cellButton}"
+						@click="${() => this._viewInfo(rowData, true)}">
 					 </capitec-label>`;
-			*/
+        }
+        return html`<capitec-label type="subtitle"
+	    				label="View"
+						style="${TABLE_ROW_CELL_CSS.cellButton}"
+						@click="${() => this._viewInfo(rowData, false)}">
+					 </capitec-label>`;
 	}
 
 	_renderNoResults() {
