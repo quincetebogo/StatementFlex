@@ -271,7 +271,7 @@ export class SavingsAccount extends Component {
 	}
 
 	_renderOptions() {
-		const pendingMandates = (this.landingPageInfo && this.landingPageInfo.pendingMandateCount) || ``;
+		const pendingMandates = this.landingPageInfo?.pendingMandateCount ?? ``;
 		return html`
 			<capitec-group class= "" layout="vertical" gap="none" halign="left" valign="center">
 
@@ -289,7 +289,7 @@ export class SavingsAccount extends Component {
 						class="button-margin" 
 						label="DebiCheck" 
 						icon="system/debit-order-action"
-						@click="${() => this._optionSelectedClick(`debi-check`)}"
+						@click="${() => this._optionSelectedClick(`debi-check-viewInfo`)}"
 						?disabled="${this.shouldDisable(`debi-check`)}">
 					</horizon-option-button>
 					<horizon-option-button 
