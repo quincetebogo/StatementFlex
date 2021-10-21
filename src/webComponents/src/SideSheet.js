@@ -187,7 +187,7 @@ export class SideSheet extends Component {
 					display: flex;
 					flex-direction: row;
 					align-items: stretch;
-					position: absolute;
+					position: fixed;
 					width: 0%;
 					height: 0%;
 					left: 0px;
@@ -204,7 +204,7 @@ export class SideSheet extends Component {
 					justify-content: flex-start;
 				}
 
-				:host([expanded]) {
+				:host([expanded],[expanding],[collapsing]) {
 					width: 100%;
 					height: 100%;
 				}
@@ -215,6 +215,11 @@ export class SideSheet extends Component {
 					top: var(--theme-side-sheet-top, 16px);
 					background-color: var(--theme-side-sheet-background-color, white);
 					position: absolute;
+					display: none;
+				}
+
+				:host([expanded],[expanding],[collapsing]) > .content {
+					display: block;
 				}
 
 				/** EXPANDING */
