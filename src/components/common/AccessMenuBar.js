@@ -9,6 +9,7 @@ import 'app/components/dialogs/AccessChannelError';
 import 'app/components/dialogs/valueAddedServices/ValueAddedServices';
 import 'app/components/dialogs/valueAddedServices/ValueAddedServicesUnavailable';
 import 'app/components/dialogs/valueAddedServices/VASNoClientData';
+import 'app/webComponents/src/SideSheet';
 
 /**
  * The AccessMenuBar is the right hand menu bar area in Horizon. This component currently houses
@@ -28,6 +29,7 @@ export class AccessMenuBar extends Component {
 		this.showValueAddedServicesModal = false;
 		this.showUnavailableVASModal = false;
 		this.showVASNoClientDataModal = false;
+		this.showSideSheet = false;
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
@@ -50,7 +52,8 @@ export class AccessMenuBar extends Component {
 			statusVAS: { attribute: false },
 			showValueAddedServicesModal: { attribute: false },
 			showUnavailableVASModal: { attribute: false },
-			showVASNoClientDataModal: { attribute: false }
+			showVASNoClientDataModal: { attribute: false },
+			showSideSheet: { type: Boolean }
 		};
 	}
 
@@ -96,6 +99,10 @@ export class AccessMenuBar extends Component {
 
 	_acceptUnavailableVasClick() {
 		this.showUnavailableVASModal = !this.showUnavailableVASModal;
+	}
+
+	_showSlidingPanel() {
+		this.showSideSheet = !this.showSideSheet;
 	}
 
 	// --------------
@@ -191,6 +198,11 @@ export class AccessMenuBar extends Component {
 					--theme-product-tile-subtitle-height: 20px;
 					--theme-layout-gap-spacing: 16px;
 				}
+				capitec-side-sheet {
+					--theme-side-sheet-width: 344px;
+					--theme-side-sheet-height: 890px;
+					--theme-side-sheet-top: 96px;
+				}
 			`
 		];
 	}
@@ -210,6 +222,19 @@ export class AccessMenuBar extends Component {
 			${this._renderValueAddedServicesModal()}
 			${this._renderUnavailableVASModal()}
 			${this._renderVASNoClientDataModal()}
+
+			<capitec-side-sheet
+				.expanded="${this.showSideSheet}"
+				alignment="left">
+					<capitec-content-box
+						layout="vertical"
+						halign="center"
+						valign="center"
+						gap="clear">
+							<capitec-label type="Strong" label="Content comes here.."></capitec-label>
+							<capitec-button type="primary" label="Close" @click="${() => this._showSlidingPanel()}"></capitec-button>
+					</capitec-content-box>
+			</capitec-side-sheet>
 		`;
 	}
 
@@ -249,7 +274,8 @@ export class AccessMenuBar extends Component {
 					label="App & Online Banking"
 					subtitle=${this.status.appAndInternetActive ? `active` : `inactive`}
 					detail=""
-					icon="system/access">
+					icon="system/access"
+					@click="${() => this._showSlidingPanel()}">
 				</horizon-product-tile>
 
 				<horizon-product-tile 
@@ -257,7 +283,8 @@ export class AccessMenuBar extends Component {
 					label="USSD"
 					subtitle=${this.status.ussdActive ? `active` : `inactive`}
 					detail=""
-					icon="system/cellphone">
+					icon="system/cellphone"
+					@click="${() => this._showSlidingPanel()}">
 				</horizon-product-tile>
 
 				<horizon-product-tile 
@@ -265,7 +292,8 @@ export class AccessMenuBar extends Component {
 					label="Notifications"
 					subtitle=${this.status.notificationType ? this.status.notificationType : `inactive`}
 					detail=""
-					icon="system/messages">
+					icon="system/messages"
+					@click="${() => this._showSlidingPanel()}">
 				</horizon-product-tile>
 
 			</capitec-group>
