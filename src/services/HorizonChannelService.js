@@ -839,6 +839,13 @@ export class HorizonChannelService extends Service {
 	}
 
 	otherNeedIssueType(orgUnit, categoryName, need) {
+		const url = `/clientcare-incident-${this._version}/issue?` +
+		`OrgUnit=${encodeURIComponent(orgUnit)}&` +
+		`CategoryName=${encodeURIComponent(categoryName)}&` +
+		`Need=${encodeURIComponent(need)}`;
+		return this._get(url, this._setToken(), `otherNeedIssueType`);
+
+		/*
 		const url = `/clientcare-incident-${this._version}/issue`;
 
 		return this._post(
@@ -851,6 +858,7 @@ export class HorizonChannelService extends Service {
 			this._setToken(), 
 			`otherNeedIssueType`, null, null, 1000
 		);
+		*/
 	}
 
 	closeIncident(closeIncidentRequest) {
