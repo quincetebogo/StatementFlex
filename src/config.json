@@ -57,7 +57,7 @@
 		"call-transfer": "CALL_TRANSFER",
 		"general-product-enquiry": "GENERAL_PRODUCT_ENQUIRY",
 		"failed-verification": "FAILED_VERIFICATION",
-		"live-better-product-info": "PRODUCT_ENQUIRY_LIVE_BETTER"
+		"live-better-product-info": "PRODUCT_ENQUIRY_LIVE_BETTER",
 		"debi-check-approve": "DEBI_CHECK_APPROVE",		
 		"debi-check-decline": "DEBI_CHECK_DECLINE",
 		"debi-check-viewInfo": "DEBI_CHECK"
