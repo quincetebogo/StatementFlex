@@ -303,11 +303,9 @@ export class HorizonChannelService extends Service {
 			}
 		}
 
-		return this._get(`/clientcare-call-${this._version}/xds-questions?clientID=${clientID}`, this._setToken(), `xdsQuestions`, false, 3000);
+		// return this._get(`/clientcare-call-${this._version}/xds-questions?clientID=${clientID}`, this._setToken(), `xdsQuestions`, false, 3000);
 
-		/*
 		return this._post(`/clientcare-call-${this._version}/load-xds-questions`, { 'clientID': clientID }, this._setToken(), `xdsQuestions`, null, null, 3000);
-		*/
 	}
 
 	async verifySecurityQuestions(answers) {
@@ -330,6 +328,7 @@ export class HorizonChannelService extends Service {
 			return this._mock.acceptCall(incomingCallData);
 		}
 
+		/*
 		return this._get(
 			`/clientcare-call-${this._version}/search-caller?` +
 				`incomingTelephoneNumber=${clientInfo.incomingTelephoneNumber}&` +
@@ -342,8 +341,9 @@ export class HorizonChannelService extends Service {
 				this._setToken(),
 			`searchCaller`
 		);
+		*/
 
-		/*
+		
 		const url = `/clientcare-call-${this._version}/accept-call`;
 
 		return this._post(
@@ -358,10 +358,11 @@ export class HorizonChannelService extends Service {
 			this._setToken(), 
 			`acceptCall`
 		);
-		*/
 	}
 
 	searchCaller(clientInfo) {
+
+		/*
 		return this._get(
 			`/clientcare-call-${this._version}/search-caller?` +
 				`incomingTelephoneNumber=${clientInfo.incomingTelephoneNumber}&` +
@@ -376,8 +377,8 @@ export class HorizonChannelService extends Service {
 			false,
 			1000
 		);
-
-		/*
+		*/
+		
 		const url = `/clientcare-call-${this._version}/search-caller`;
 
 		return this._post(
@@ -393,7 +394,6 @@ export class HorizonChannelService extends Service {
 			},
 			this._setToken(), `searchCaller`, null, null, 1000
 		);
-		*/
 	}
 
 	// ----
@@ -762,14 +762,15 @@ export class HorizonChannelService extends Service {
 			return this._mock.favouritesLanding(clientInfo);
 		}
 
+		/*
 		const url = `/clientcare-favourites-${this._version}/landing?` +
 			`CifNumber=${clientInfo.cifNumber}&` +
 			`NationalIDNumber=${clientInfo.nationalIDNumber}&` +
 			`IsCallerVerified=${clientInfo.isCallerVerified}`;
 
 		return this._get(url, this._setToken(), `favouritesLanding`, false, 1000);
-
-		/*
+		*/
+		
 		const url = `/clientcare-favourites-${this._version}/landing`;
 
 		return this._post(
@@ -782,7 +783,6 @@ export class HorizonChannelService extends Service {
 			this._setToken(),
 			`favouritesLanding`, null, null, 1000
 		);
-		*/
 	}
 
 	// --------
