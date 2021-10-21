@@ -937,6 +937,10 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderClientBlockedByXds() {
+		const message = this.callerInformation.hasDigitalChannels && !this._xdsAttemptsExceeded()
+			? `You can skip to continue with limited transactions, verify via the App / USSD or be transferred to a team leader`
+			: `You can skip to continue with limited transactions or be transferred to a team leader`;
+
 		return html`
 			<capitec-content-box id="notification-status-box">
 				<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
@@ -950,8 +954,7 @@ export class VerifyCaller extends Component {
 						id="notification-status-error-group">
 						<img src="/images/client-blocked.svg" class="warning-svg connection-error-svg"/>
 						<div class="foreign-client notification-info">
-						You can visit any branch to unblock your access,<br>
-						or skip verification to continue with limited transactions. 
+							${message}
 						</div>
 					</capitec-group>
 				</capitec-group>
