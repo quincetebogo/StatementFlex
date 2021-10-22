@@ -6,9 +6,9 @@ import { ValueAddedService } from 'app/services/ValueAddedService';
 
 import 'platform/components';
 import 'app/components/dialogs/AccessChannelError';
-import 'app/components/dialogs/valueAddedServices/ValueAddedServices';
-import 'app/components/dialogs/valueAddedServices/ValueAddedServicesUnavailable';
-import 'app/components/dialogs/valueAddedServices/VASNoClientData';
+import 'app/dialogs/valueAddedServices/ValueAddedServices';
+import 'app/dialogs/valueAddedServices/ValueAddedServicesUnavailable';
+import 'app/dialogs/valueAddedServices/VASNoClientData';
 import 'app/webComponents/src/SideSheet';
 
 /**
