@@ -7,6 +7,42 @@ import 'app/dialogs/valueAddedServices/ValueAddedServices';
 import 'app/dialogs/valueAddedServices/ValueAddedServicesUnavailable';
 import 'app/dialogs/valueAddedServices/VASNoClientData';
 
+const SCENARIO_INFO = {
+	cards: {
+		subTitle: `Credit card expires in 3 days!`,
+		leftChipLabel: `Order via App`,
+		rightChipLabel: `Visit a Branch`,
+		leftChipIcon: `cards.svg`,
+		rightChipIcon: `location.svg`
+	},
+	recallRequest: {
+		subTitle: `Recall request awaiting feedback`,
+		leftChipLabel: `This was useful`,
+		rightChipLabel: `This didn't help`,
+		leftChipIcon: `thumbsUp.svg`,
+		rightChipIcon: `thumbsDown.svg`
+	},
+	didYouKnow: {
+		subTitle: `Use your card! Be safe.`,
+		leftChipLabel: `This was useful`,
+		rightChipLabel: `This didn't help`,
+		leftChipIcon: `thumbsUp.svg`,
+		rightChipIcon: `thumbsDown.svg`
+	}
+}
+
+/**
+ * Client Insights is used to display various information about the client.
+ * This component is rendered on the access menu bar.
+ * 
+ * Event Raised
+ * -------------
+ * None
+ * 
+ * @export
+ * @class ClientInsights
+ * @extends {Component}
+ */
 
 export class ClientInsights extends Component {
 
@@ -147,13 +183,21 @@ export class ClientInsights extends Component {
 
 				p {
 					margin: 0px;
-					text-align: center;
+					text-align: left;
 					font-size: 14px;
+					padding: 0px 12px;
+					width: 288px;
 				}
 
 				capitec-chip {
 					--theme-chip-background-color: #FFFFFF;
 				}
+
+				capitec-chip:hover {
+
+					--theme-chip-background-color: rgba(0,157,224,0.1);
+					--theme-chip-hover-border: none;
+					}
 
 				capitec-placeholder {
 					height: 152px;
@@ -161,6 +205,7 @@ export class ClientInsights extends Component {
 
 				.info {
 					height: 80px;
+					background-color: #F5F5F5;
 					--theme-layout-gap-spacing: 16px;
 				}
 			`
@@ -191,102 +236,89 @@ export class ClientInsights extends Component {
 					label="Client Insights">
 						<capitec-spacer></capitec-spacer>
 						<capitec-icon
+							data-automation-id="client-insights-show-vas-modal"
 							size="small"
 							icon="system/settings-action"
 							@click = "${() => this._showVASModal()}">
 						</capitec-icon>
 				</capitec-title-bar>
 
-				<capitec-group layout="vertical" halign="center" valign="center" gap="clear" class="insights-group">
-
-					${this._renderCardExpiry()}
-					${this._renderRecallRequest()}
-					${this._renderDidYouKnow()}
-
+				<capitec-group 
+						data-automation-id="client-insights-${this.scenario}"
+						layout="vertical" 
+						halign="center" 
+						valign="center" 
+						gap="clear" 
+						class="insights-group">
+					${this._renderContent()}
 				</capitec-group>
 			</capitec-card>
 		`;
 	}
 
+	_renderContent() {
+		return html`
+			<capitec-label
+				type="subtitle"
+				label="${SCENARIO_INFO[this.scenario].subTitle}">
+			</capitec-label>
+
+			<capitec-placeholder type="insure" label="" size="4"></capitec-placeholder>
+
+			<capitec-group layout="vertical" halign="center" valign="center" gap="none" class="info">
+				${this._renderCardExpiry()}
+				${this._renderRecallRequest()}
+				${this._renderDidYouKnow()}
+			</capitec-group>
+
+			<capitec-group layout="horizontal" halign="center" valign="center" gap="clear">
+
+				<capitec-chip 
+						data-automation-id="client-insights-left-chip"
+						label="${SCENARIO_INFO[this.scenario].leftChipLabel}" 
+						avatar-image="src/productControls/ClientInsights/src/images/${SCENARIO_INFO[this.scenario].leftChipIcon}">
+				</capitec-chip>
+
+				<capitec-chip 
+						data-automation-id="client-insights-left-chip"
+						label="${SCENARIO_INFO[this.scenario].rightChipLabel}" 
+						avatar-image="src/productControls/ClientInsights/src/images/${SCENARIO_INFO[this.scenario].rightChipIcon}">
+				</capitec-chip>
+
+			</capitec-group>`;
+	}
+
+
 	_renderCardExpiry() {
 		return this.scenario === `cards` ?
 			html`
-				<capitec-label
-					type="subtitle"
-					label="Credit card expires in 3 days!">
-				</capitec-label>
-
-				<capitec-placeholder type="insure" label="" size="4"></capitec-placeholder>
-
-				<capitec-group layout="vertical" halign="center" valign="center" gap="none" class="info">
-					<p>
-						Your credit card expires on <strong>30th April 2021.</strong><br>
-						Order your new card via the App <br>
-						or visit a branch.
-					</p>
-				</capitec-group>
-
-				<capitec-group layout="horizontal" halign="center" valign="center" gap="clear">
-
-					<capitec-chip label="Order via App" avatar-image="src/productControls/ClientInsights/src/images/cards.svg"></capitec-chip>
-					<capitec-chip label="Visit a Branch" avatar-image="src/productControls/ClientInsights/src/images/location.svg"></capitec-chip>
-
-				</capitec-group>`
+				<p>
+					Your credit card expires on <strong>30th April 2021.</strong><br>
+					Order your new card via the App <br>
+					or visit a branch.
+				</p>`
 			: html``;
 	}
 
 	_renderRecallRequest() {
 		return this.scenario === `recallRequest` ?
 			html`
-				<capitec-label
-					type="subtitle"
-					label="Recall request awaiting feedback">
-				</capitec-label>
-
-				<capitec-placeholder type="insure" label="" size="4"></capitec-placeholder>
-
-				<capitec-group layout="vertical" halign="center" valign="center" gap="none" class="info">
-
-					<p>
-						Reference number: <strong>${this.referenceNumber}</strong><br>
-						Logged: <strong>${this.logged}</strong><br>
-						Assigned to: <strong>${this.assigned}</strong><br>
-					</p>
-
-				</capitec-group>
-
-				<capitec-group layout="horizontal" halign="center" valign="center" gap="clear">
-
-					<capitec-chip label="This was useful" avatar-image="src/productControls/ClientInsights/src/images/thumbsUp.svg"></capitec-chip>
-					<capitec-chip label="This didn't help" avatar-image="src/productControls/ClientInsights/src/images/thumbsDown.svg"></capitec-chip>
-
-				</capitec-group>`
+				<p>
+					Reference number: <strong>${this.referenceNumber}</strong><br>
+					Logged: <strong>${this.logged}</strong><br>
+					Assigned to: <strong>${this.assigned}</strong><br>
+				</p>`
 			: html``;
 	}
 
 	_renderDidYouKnow() {
 		return this.scenario === `didYouKnow` ?
 			html`
-				<capitec-label
-					type="subtitle"
-					label="Use your card! Be safe.">
-				</capitec-label>
-
-				<capitec-placeholder type="insure" label="" size="4"></capitec-placeholder>
-
-				<capitec-group layout="vertical" halign="center" valign="center" gap="none" class="info">
-					<p>
-						Use your card instead of cash and you could<br>
-						<strong>save R40.00 per month</strong> on average.
-					</p>
-				</capitec-group>
-
-				<capitec-group layout="horizontal" halign="center" valign="center" gap="clear">
-
-					<capitec-chip label="This was useful" avatar-image="src/productControls/ClientInsights/src/images/thumbsUp.svg"></capitec-chip>
-					<capitec-chip label="This didn't help" avatar-image="src/productControls/ClientInsights/src/images/thumbDown.svg"></capitec-chip>
-
-				</capitec-group>`
+				<p>
+					Use your card instead of cash and you could<br>
+					<strong>save R40.00 per month</strong> on average.
+				</p>
+				`
 			: html``;
 	}
 
