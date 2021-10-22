@@ -645,7 +645,13 @@ export class SearchCaller extends Component {
 			name: identifiedClient.callerInformation.name.value,
 			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber.value,
 			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber.value,
-			isBranchConsultant: false
+            isBranchConsultant: false,
+            firstName: identifiedClient.callerInformation.firstName,
+            middleName1: identifiedClient.callerInformation.middleName1,
+            middleName2: identifiedClient.callerInformation.middleName2,
+            middleName3: identifiedClient.callerInformation.middleName3,
+            lastName: identifiedClient.callerInformation.lastName,
+            initials: identifiedClient.callerInformation.initials
 		};
 
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
@@ -855,7 +861,6 @@ export class SearchCaller extends Component {
 						column="2">
 					</capitec-radio>
 					<capitec-radio 
-						style="visibility:hidden;"
 						id="branch" 
 						data-automation-id="search-caller-branch"
 						label="Branch" 

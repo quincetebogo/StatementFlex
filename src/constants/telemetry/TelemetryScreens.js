@@ -25,6 +25,7 @@
 	DEBICHECK: `DebiCheck Mandates`,
 	VIEWINFO: `DebiCheck View Info`,
 	DECLINE_DEBICHECK: `Decline Debi Check`,
+	APPROVE_DEBICHECK: `Approve Debi Check`,
 	DEBICHECK_OUTCOME: `DebiCheck Outcome`,
 
 	UPDATE_CARD_LIMITS: `Update Card Limits`,
@@ -39,20 +40,20 @@
 	TAX_CERTIFICATE_DOCUMENT: `Tax Certificate Document`,
 	TAX_CERTIFICATE_OUTCOME: `Tax Certificate Outcome`,
 	PROOF_OF_ACCOUNT: `Proof of Account`,
-	PROOF_OF_ACCOUNT_OUTCOME: `Proof of Account`,
+	PROOF_OF_ACCOUNT_OUTCOME: `Proof of Account Outcome`,
 
 	SEARCH_OTHER_NEED: `Search Other Need`,
 	FEEDBACK: `Feedback`,
 	
-	ASSIGN_STOP_CARD: `Assign stop card`,
+	ASSIGN_STOP_CARD: `Assign Stop Card`,
 	END_CALL: `End Call Session`,
 	
     PRODUCT_INFO: `Product Info`,
 
     CARD_LIMITS_LANDING: `Card limits`,
-    DISCARD_CHANGES: `Discard changes`,
+    DISCARD_CHANGES: `Discard Changes`,
     LIMITS_AGREEMENT: `Update Limits Agreement`,
-    UPDATE_LIMITS_OUTCOME: `Update limits outcome`,
+    UPDATE_LIMITS_OUTCOME: `Update Limits Outcome`,
 
 	VALUE_ADDED_SERVICES: `Value Added Services`,
 	VALUE_ADDED_SERVICES_UNAVAILABLE: `Value Added Services Unavailable`,

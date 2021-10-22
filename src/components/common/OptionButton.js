@@ -90,6 +90,9 @@ export class OptionButton extends Button {
 		return [
 			super.styles,
 			css`
+				.option-button {
+					position: relative;
+				}
 				.badge {
 					position: absolute;
 					justify-content: flex-end;
@@ -134,7 +137,7 @@ export class OptionButton extends Button {
 	_webTemplate() {
 		return html`
 			<button
-				class="button icon-${this.iconPlacement} ${this.type ? this.type : `secondary`} ${this.disabled ? `disabled` : ``}" 
+				class="button option-button icon-${this.iconPlacement} ${this.type ? this.type : `secondary`} ${this.disabled ? `disabled` : ``}" 
 				@click="${this._buttonClicked}}" 
 				@keydown="${e => this._keyDown(e)}"
 				tabindex="${this.disabled ? `` : 0}">
