@@ -319,10 +319,6 @@ export class HorizonChannelService extends Service {
 			url,
 			{
 				'incomingTelephoneNumber': incomingCallData.incomingTelephoneNumber,
-				'voiceReferenceNumber': incomingCallData.voiceReferenceNumber,
-				'ivrOptionCode': incomingCallData.ivrOptionCode,
-				'incidentReferenceNumber': incomingCallData.incidentReferenceNumber,
-				'agentTelephoneNumber': incomingCallData.agentTelephoneNumber
 			},
 			this._setToken(), 
 			`acceptCall`
@@ -335,11 +331,6 @@ export class HorizonChannelService extends Service {
 		return this._post(
 			url,
 			{
-				'incomingTelephoneNumber': clientInfo.incomingTelephoneNumber,
-				'voiceReferenceNumber': clientInfo.voiceReferenceNumber,
-				'ivrOptionCode': clientInfo.ivrOption,
-				'incidentReferenceNumber': clientInfo.incidentNo,
-				'agentTelephoneNumber': clientInfo.agentTelephoneNumber,
 				'identificationMethod': parseInt(clientInfo.identificationMethod, 10),
 				'value': clientInfo.searchValue
 			},
@@ -451,11 +442,6 @@ export class HorizonChannelService extends Service {
 		const url = `/clientcare-card-${this._version}/StopCard`;
 		const model = {
 			"cards": stopCardRequest.cards,
-			"incomingTelephoneNumber": stopCardRequest.incomingTelephoneNumber,
-			"voiceReferenceNumber": stopCardRequest.voiceReferenceNumber,
-			"ivrOptionCode": stopCardRequest.ivrOptionCode,
-			"incidentReferenceNumber": stopCardRequest.incidentReferenceNumber,
-			"agentTelephoneNumber": stopCardRequest.agentTelephoneNumber,
 			"incidentRecId": stopCardRequest.incidentRecId
 		};
 
@@ -485,19 +471,14 @@ export class HorizonChannelService extends Service {
 		);
 	}
 
-	searchOptions(incomingCallData) {
-		return this._post(
-			`/clientcare-card-${this._version}/search/options`, {
-			"incomingTelephoneNumber": incomingCallData.incomingTelephoneNumber,
-			"voiceReferenceNumber": incomingCallData.voiceReferenceNumber,
-			"ivrOptionCode": incomingCallData.ivrOptionCode,
-			"incidentReferenceNumber": incomingCallData.incidentReferenceNumber,
-			"agentTelephoneNumber": incomingCallData.agentTelephoneNumber
-		},
-			this._setToken(),
-			`searchOptions`, null, null, 1000
-		);
-	}
+	//moved to UI - constants/SearchOptions.js
+	//searchOptions(incomingCallData) {
+	//	return this._post(
+	//		`/clientcare-card-${this._version}/search/options`, null,
+	//		this._setToken(),
+	//		`searchOptions`, null, null, 1000
+	//	);
+	//}
 
 	async identifyCaller(callerData) {
 		if (await this._mockEnabled(`stopCardLanding`)) {
@@ -508,11 +489,6 @@ export class HorizonChannelService extends Service {
 		const model = {
 			'incidentRecId': callerData.incidentRecId,
 			'idNumber': callerData.idNumber,
-			'incomingTelephoneNumber': callerData.incomingTelephoneNumber,
-			'voiceReferenceNumber': callerData.voiceReferenceNumber,
-			'ivrOptionCode': callerData.ivrOptionCode,
-			'incidentReferenceNumber': callerData.incidentReferenceNumber,
-			'agentTelephoneNumber': callerData.agentTelephoneNumber,
 			'nonClientFullName': callerData.nonClientFullName,
 			'nonClientCellPhone': callerData.nonClientCellPhone,
 			'nonClientIDNumber': callerData.nonClientIDNumber,
@@ -840,8 +816,6 @@ export class HorizonChannelService extends Service {
 		return this._post(
 			`/clientcare-insure-${this._version}/addCaller/nonclient`, {
 			'incidentRecId': callerData.incidentRecId,
-			'ivrOptionCode': callerData.ivrOptionCode,
-			'incomingTelephoneNumber': callerData.incomingTelephoneNumber,
 			'firstName': callerData.firstName,
 			'surname': callerData.surname,
 			'cellPhone': callerData.cellPhone

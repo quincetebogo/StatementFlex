@@ -84,8 +84,8 @@ export class CallHandleService extends ServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing search options and the result of the channel service call
 	 */
-	searchOptions(incomingCallData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.searchOptions(incomingCallData), `searchOptions`, errorHandler, autoRetries);
+	searchOptions(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.searchOptions(), `searchOptions`, errorHandler, autoRetries);
 	}
 
 	/**
