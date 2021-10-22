@@ -403,6 +403,7 @@ export class ConfirmCallerDetails extends Component {
 			this.callerInformation.hasDigitalChannels = true;
 			this.logger.log(`error`, `Could not determine if digital channels are available. Defaulting to available.`, `_setAvailabilityFlags`, returnValue.correlationId);
 		}
+		this.callerInformation.isMinorClient = this._checkForMinorClient();
 
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
@@ -494,6 +495,17 @@ export class ConfirmCallerDetails extends Component {
 				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_updateClientNonClientDetails`, returnValue.correlationId);
 			}
 		}
+	}
+	
+	// To check if client is minor.
+	_checkForMinorClient() {
+		const today = new Date();
+		const clientBirthDate = new Date(this.callerInformation.birthdate);
+
+		// Minimum age a client should meet for being a major ( > 16 years). ClientDOB after 'minMajorAge' are considered to be a minor client.
+		const minMajorAge = new Date(today.getFullYear() - 16, today.getMonth(), today.getDate());
+
+		return minMajorAge < clientBirthDate;
 	}
 
 	// ---------

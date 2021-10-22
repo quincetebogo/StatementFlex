@@ -569,6 +569,10 @@ export class VerifyCaller extends Component {
 		// cannot verify via ita but can verify via xds
 		return this.hasSouthAfricanID && !this.callerInformation.hasDigitalChannels && this.callerInformation.verificationAttempts.xdsAttempts === 0;
 	}
+
+	_foreignOrMinorClient() {
+		return (!this.hasSouthAfricanID || this.callerInformation.isMinorClient) && !this.callerInformation.hasDigitalChannels;
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -742,6 +746,9 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderBody() {
+		if (this._foreignOrMinorClient()) {
+			return this._renderForeignOrMinorClient();
+		}
 		if (!this._canVerify()) {
 			return this._renderClientCannotBeVerified();
 		}
@@ -944,16 +951,38 @@ export class VerifyCaller extends Component {
 			</capitec-content-box>`;
 	}
 
+	_renderForeignOrMinorClient() {
+		return html`
+			<capitec-content-box id="notification-status-box">
+				<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
+					<capitec-alert-banner type="error">
+						<b>Notify client : </b>We’re unable to verify you at this time.
+					</capitec-alert-banner>
+					<capitec-group layout="vertical" 
+						halign="center"
+						valign="top" 
+						gap="clear"
+						id="notification-status-error-group">
+						<img src="/images/foreign-minorClientError.svg" class="warning-svg connection-error-svg"/>
+						<div class="foreign-client notification-info">
+						<b>Foreign / minor client</b><br>
+						Skip verification to continue with limited transactions or transfer the call to a team leader
+						</div>
+					</capitec-group>
+				</capitec-group>
+			</capitec-content-box>`;
+	}
+
 	_renderOtherOptions() {
 		return html`
-			<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
+			<capitec-title-bar type="default" label="Choose option"></capitec-title-bar>
 			<capitec-content-box id="relation-options-btn">
 				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
 					<horizon-option-button 
 						label="Security Questions" 
 						icon="system/apply-now-action"
 						iconSize="default"
-						?hidden=${!this.hasSouthAfricanID || this._xdsAttemptsExceeded() || !this._canVerify}
+						?hidden=${!this.hasSouthAfricanID || this._xdsAttemptsExceeded() || !this._canVerify || this.callerInformation.isMinorClient}
 						@click="${() => this._securityQuestionsClick()}">
 					</horizon-option-button>
 					<horizon-option-button 
