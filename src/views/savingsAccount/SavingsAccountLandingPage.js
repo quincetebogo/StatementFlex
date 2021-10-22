@@ -72,7 +72,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 			const actions = {
 				'transaction-history': transactionHistory,
-				'debi-check': debiCheck,
+				'debi-check-viewInfo': debiCheck,
 				'statements': statements,
 				'more': more
 			};
@@ -244,6 +244,11 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
 			window.open(`${globalOneUrl}${type}`);
 		}
+	}
+
+	_exitTransactionHistory() {
+		this._setIncidentDone();
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	// ---------

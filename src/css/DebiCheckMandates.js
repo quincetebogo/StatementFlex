@@ -10,10 +10,11 @@ const rowItem = `height: 64px;
 				 margin-bottom: 8px;
 				 cursor: default`;
 
-const width280 = `width: 280px;`;
+const width223 = `width: 223px;`;
 const width240 = `width: 240px;`;
-const width165 = `width: 165px`;
-const width98 = `width: 98px;`;
+const width185 = `width: 185px`;
+const width128 = `width: 128px; margin-right: 50px;`;
+const width200 = `width: 200px`;
 
 const borderRight = `border-right: 1px solid #E1E1E1;`;
 
@@ -32,7 +33,7 @@ const cellColorGreen = `color: #70AF00;`;
 
 const cellColorRed = `color: #C83B37;`;
 
-const cellButton = `width: 100px;
+const cellButton = `width: 83px;
 					 text-align: center;
 					 cursor: pointer;
 					 --theme-label-font-color: #009DE0;`;
@@ -45,10 +46,11 @@ const cellButton = `width: 100px;
  */
 export const TABLE_ROW_CSS = {
 	rowItem: rowItem,
-	width280: width280,
+	width223: width223,
 	width240: width240,
-	width165: width165,
-	width98: width98,
+	width185: width185,
+    width128: width128,
+    width200: width200,
 	borderRight: borderRight
 };
 

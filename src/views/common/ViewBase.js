@@ -234,13 +234,13 @@ export class ViewBase extends View {
 			"screen": screenName
 		});
 	}
-	
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
 
-	async createAndClassifySubsIncident(incidentCategorization) {
-		await super.createAndClassifySubsIncident(() => this._toggleBusyFlag(), incidentCategorization);
+	async createAndClassifySubsIncident(incidentCategorization, classify) {
+		await super.createAndClassifySubsIncident(() => this._toggleBusyFlag(), incidentCategorization, classify);
 	}
 
 	// ---------
@@ -305,7 +305,7 @@ export class ViewBase extends View {
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.isReassigned="${this.isReassigned}"
-					endCallContext="${this.endCallContext}"
+					endCallContext=${this.endCallContext}
 					@cancel="${() => this._cancelEndCallClick()}">
 				</horizon-end-call-session>`
 			: html``;
