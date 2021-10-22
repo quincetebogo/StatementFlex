@@ -63,6 +63,7 @@ export class LiveBetter extends ViewBase {
 		this.executed = false;
 		this.showTooltip = false;
 		this.journalNumber = `00000`;
+		this.transactionHistory = [];
 		
 		this.liveBetterService = new LiveBetterService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -142,7 +143,7 @@ export class LiveBetter extends ViewBase {
 
 	async _optionClick(option) {
 
-		const transactionHistory = () => this._transactionHistory();
+		const transactionHistory = () => this._getTransactionHistory();
 		const statements = () => this._getStatements();
 		const automaticSavings = () => this._automaticSavings();
 		const productEnquiry = () => this._productEnquiry();
@@ -300,7 +301,7 @@ export class LiveBetter extends ViewBase {
 		this.horizonStore.saveState(state);
 	}
 
-	async _transactionHistory() {
+	async _getTransactionHistory(startDate, endDate, startAtIndex) {
 		this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_TRANSACTION_HISTORY_SELECT, {
 			"screen": TelemetryScreen.LIVE_BETTER_LANDING_PAGE,
 			"next-screen": TelemetryScreen.LIVE_BETTER_TRANSACTION_HISTORY
@@ -310,9 +311,9 @@ export class LiveBetter extends ViewBase {
 			cifNumber: this.callerInformation.cifNumber,
 			accountNumber: this.landingPageInfo.accountNumber,
 			accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
-			startDate: TRANSACTION_HISTORY.START_DATE,
-			endDate: TRANSACTION_HISTORY.END_DATE,
-			startAtIndex: TRANSACTION_HISTORY.START_AT_INDEX,
+			startDate: startDate || TRANSACTION_HISTORY.START_DATE,
+			endDate: endDate || TRANSACTION_HISTORY.END_DATE,
+			startAtIndex: startAtIndex || TRANSACTION_HISTORY.START_AT_INDEX,
 			maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
 			moneyType: TRANSACTION_HISTORY.MONEY_TYPE
 		};
@@ -320,20 +321,29 @@ export class LiveBetter extends ViewBase {
 		const returnValue = await this.liveBetterService.liveBetterTransactionHistory(transactionHistoryRequest);
 
 		if (returnValue.succeeded && returnValue.result) {
-			
-			this.transactionHistory = returnValue.result.transactions;
-
+			const formattedTrans = returnValue.result.transactions
+									.map((item) => {
+										const date = new Date(Date.parse(item.transactionDate));
+							
+										item.tranDate = date;
+										item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
+										item.formatedAmount = formatCurrency(item.amount);
+										item.formatedBalance = formatCurrency(item.balance);
+										item.description = item.statementDescription
+							
+										return item;
+									});
+			this.transactionHistory.push(...formattedTrans);
 			this.accountDetails = {
 				"Account number": this.landingPageInfo.accountNumber,
 				"Available balance": formatCurrency(this.landingPageInfo.accountAvailableBalance),
 				"Interest": `${this.landingPageInfo.interestRatePercentage}%`,
 				"Status": this.landingPageInfo.accountStatus
 			};
-			
+
 			this.endCallContext = `TransactionHistory`;
 			this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 		}
-
 	}
 
 	async _getStatements() {
@@ -488,17 +498,18 @@ export class LiveBetter extends ViewBase {
 		return this.renderMode === RENDER_MODE.TRANSACTION_HISTORY || this.renderMode === RENDER_MODE.LINKED_TRANSACTION_DETAILS
 			? html`
 				<horizon-transaction-history
-					.transactionHistoryList="${this.transactionHistory}"
+					.transactionHistory="${this.transactionHistory}"
 					.accountDetails="${this.accountDetails}"
-					cifNumber="${this.callerInformation.cifNumber}"
 					type="${ACCOUNT_TYPES.LBB}"
 
 					.renderTableColumns="${() => this._renderTransHistoryColumns()}"
 					.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
-					.getMoreTransactions="${request => this._getMoreTransactions(request)}"
+					.getTransactionHistory="${(startDate, endDate, startAtIndex) => this._getTransactionHistory(startDate, endDate, startAtIndex)}"
+					.disposeData="${() => this.transactionHistory = []}"
 
 					@error-handler = "${() => this._errorHandler()}"
-					@back="${() => this._setIncidentDone()}">
+					@back="${() => this._setIncidentDone()}"
+					@unloading="${() => this.transactionHistory = []}">
 				</horizon-transaction-history>`
 			: html``;
 	}

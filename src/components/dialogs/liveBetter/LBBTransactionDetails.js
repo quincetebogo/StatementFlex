@@ -227,7 +227,7 @@ export class LinkedTransactionDetails extends Component {
 							data-automation-id="linked-transaction-details-category"
 							class="col-1" 
 							label="Category" 
-							value="${this.transactionDetails.category}">
+							value="${this.transactionDetails.category ? this.transactionDetails.category : `-`}">
 						</horizon-label>
 				</capitec-group>
 
@@ -251,7 +251,7 @@ export class LinkedTransactionDetails extends Component {
 						<horizon-label 
 							data-automation-id="linked-transaction-details-from-account"
 							label="From account" 
-							value="${this.transactionDetails.fromAccount}">
+							value="${this.transactionDetails.fromAccount ? this.transactionDetails.fromAccount : `-`}">
 						</horizon-label>			
 				</capitec-group>
 

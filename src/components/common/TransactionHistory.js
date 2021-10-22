@@ -7,8 +7,6 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
 
-const today = new Date();
-
 const FILTER_BY = {
 	ALL: `ALL`,
 	TEXT: `TEXT`,
