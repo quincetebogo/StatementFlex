@@ -2,13 +2,17 @@
   "name": "Horizon-UI",
   "product": "BSC-Horizon",
   "group": "G_PL_HZN_DEV",
-  "version": "1.7.31",
+  "version": "1.7.35",
   "alias": "horizon",
   "release": "CLIRel",
   "contractVersion": "v1",
   "serviceType": "Hosting",
   "resourceSize": "small",
-  "redundancySize": "small",
+  "redundancySize": "custom",
+  "redundancySizes": {
+    "NP": 3,
+    "PROD": 6
+  },
   "port": 6001,
   "client": {
     "clientName": "Platform",
