@@ -2,7 +2,6 @@ import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Logger } from 'platform/core';
 
 import 'platform/components';
-import 'app/components/dialogs/AccessChannelError';
 import 'app/dialogs/valueAddedServices/ValueAddedServices';
 import 'app/dialogs/valueAddedServices/ValueAddedServicesUnavailable';
 import 'app/dialogs/valueAddedServices/VASNoClientData';
@@ -52,9 +51,7 @@ export class ClientInsights extends Component {
 
 	constructor() {
 		super();
-		
-		this.showAlert = false;
-		this.isBusy = false;
+
 		this.showValueAddedServicesModal = false;
 		this.showUnavailableVASModal = false;
 		this.showVASNoClientDataModal = false;
@@ -73,20 +70,28 @@ export class ClientInsights extends Component {
 	// --------------
 
 	/**
-	 * 
+	 *  @typedef {Object} valueAddedServiceResponse The VAS opted for by the client.
 	 */
 
+	/**
+	 * @callback valueAddedServiceCallback
+	 * @returns {valueAddedServiceResponse}
+	 */
+
+	/**
+	 * @property {String} scenario - holds the value of which client insight needs to be displayed (cards, recallRequest, didYourKnow)
+	 * @property {valueAddedServiceCallback} valueAddedService Callback function to load the VAS opted by the client.
+	*/
 	static get properties() {
 		return {
-			showAlert: { type: Boolean, attribute: false },
-			isBusy: {type: Boolean},
-			status: { type: Object},
+
+			scenario: { type: String },
 			statusVAS: { attribute: false },
 			valueAddedService: {type: Object, attribute: false},
 			showValueAddedServicesModal: { type: Boolean, attribute: false },
 			showUnavailableVASModal: {type: Boolean, attribute: false },
-			showVASNoClientDataModal: {type: Boolean, attribute: false },
-			scenario: { type: String }
+			showVASNoClientDataModal: {type: Boolean, attribute: false }
+
 		};
 	}
 
@@ -183,10 +188,8 @@ export class ClientInsights extends Component {
 
 				p {
 					margin: 0px;
-					text-align: left;
+					text-align: center;
 					font-size: 14px;
-					padding: 0px 12px;
-					width: 288px;
 				}
 
 				capitec-chip {
@@ -194,7 +197,6 @@ export class ClientInsights extends Component {
 				}
 
 				capitec-chip:hover {
-
 					--theme-chip-background-color: rgba(0,157,224,0.1);
 					--theme-chip-hover-border: none;
 					}
@@ -204,9 +206,15 @@ export class ClientInsights extends Component {
 				}
 
 				.info {
+					--theme-layout-gap-spacing: 16px;
+				}
+
+				.recallRequest-info {
+					width: 288px;
 					height: 80px;
 					background-color: #F5F5F5;
-					--theme-layout-gap-spacing: 16px;
+					text-align: left;
+					padding: 8px 12px;
 				}
 			`
 		];
@@ -221,7 +229,6 @@ export class ClientInsights extends Component {
 			<section>
 				${this._renderClientInsights()}
 			</section>
-			${this._renderLoadingIndicator()}
 			${this._renderValueAddedServicesModal()}
 			${this._renderUnavailableVASModal()}
 			${this._renderVASNoClientDataModal()}
@@ -303,7 +310,7 @@ export class ClientInsights extends Component {
 	_renderRecallRequest() {
 		return this.scenario === `recallRequest` ?
 			html`
-				<p>
+				<p class="recallRequest-info">
 					Reference number: <strong>${this.referenceNumber}</strong><br>
 					Logged: <strong>${this.logged}</strong><br>
 					Assigned to: <strong>${this.assigned}</strong><br>
@@ -320,14 +327,6 @@ export class ClientInsights extends Component {
 				</p>
 				`
 			: html``;
-	}
-
-	_renderLoadingIndicator() {
-		if (this.isBusy) {
-			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
-		};
-
-		return html``;
 	}
 
 	_renderValueAddedServicesModal() {
