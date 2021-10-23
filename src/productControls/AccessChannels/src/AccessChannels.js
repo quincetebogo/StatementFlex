@@ -2,7 +2,6 @@ import { Component, css, html } from 'platform/elements';
 
 import 'platform/components';
 
-
 export class AccessChannels extends Component {
 
 	// -----------------
@@ -24,7 +23,7 @@ export class AccessChannels extends Component {
 
 	static get properties() {
 		return {
-			status: { type: Object},
+			status: { type: Object }
 		};
 	}
 

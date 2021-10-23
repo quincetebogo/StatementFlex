@@ -1,10 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator, Logger } from 'platform/core';
 
 import 'platform/components';
-import 'app/dialogs/valueAddedServices/ValueAddedServices';
-import 'app/dialogs/valueAddedServices/ValueAddedServicesUnavailable';
-import 'app/dialogs/valueAddedServices/VASNoClientData';
 
 const SCENARIO_INFO = {
 	cards: {
@@ -52,12 +48,6 @@ export class ClientInsights extends Component {
 	constructor() {
 		super();
 
-		this.showValueAddedServicesModal = false;
-		this.showUnavailableVASModal = false;
-		this.showVASNoClientDataModal = false;
-		this.eventAggregator = EventAggregator.getInstance();
-		this.logger = Logger.getInstance();
-
 		// TODO: Placeholders in this file to be removed once the images are signed off.
 		// TODO: Hardcoded values to be removed when CS is implemented
 		this.referenceNumber = `838438439399`;
@@ -70,28 +60,11 @@ export class ClientInsights extends Component {
 	// --------------
 
 	/**
-	 *  @typedef {Object} valueAddedServiceResponse The VAS opted for by the client.
-	 */
-
-	/**
-	 * @callback valueAddedServiceCallback
-	 * @returns {valueAddedServiceResponse}
-	 */
-
-	/**
 	 * @property {String} scenario - holds the value of which client insight needs to be displayed (cards, recallRequest, didYourKnow)
-	 * @property {valueAddedServiceCallback} valueAddedService Callback function to load the VAS opted by the client.
 	*/
 	static get properties() {
 		return {
-
-			scenario: { type: String },
-			statusVAS: { attribute: false },
-			valueAddedService: {type: Object, attribute: false},
-			showValueAddedServicesModal: { type: Boolean, attribute: false },
-			showUnavailableVASModal: {type: Boolean, attribute: false },
-			showVASNoClientDataModal: {type: Boolean, attribute: false }
-
+			scenario: { type: String }
 		};
 	}
 
@@ -111,40 +84,14 @@ export class ClientInsights extends Component {
 	// EVENT HANDLERS
 	// --------------
 
+	_settingsIconClick() {
+		this.dispatchEvent(new CustomEvent(`settings-click`, {}));
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
-	async _showVASModal() {
-		const returnValue = await this.valueAddedService();
-
-		if (returnValue.succeeded && returnValue.result !== ``) {
-			this.statusVAS = returnValue.result;
-			this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
-		} else if (returnValue.succeeded) {
-			this.showVASNoClientDataModal = !this.showVASNoClientDataModal;
-		} else {
-			this.logger.log(`error`, `Failed to load Value Added Services`, `_valueAddedService`, returnValue.correlationId);
-			this.showUnavailableVASModal = !this.showUnavailableVASModal;
-		}
-	}
-
-	_cancelVasClick() {
-		this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
-	}
-
-	_acceptVasClick() {
-		this.eventAggregator.publish(`horizon-accepted-vas`, {});
-		this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
-	}
-
-	_acceptVASNoClientDataClick() {
-		this.showVASNoClientDataModal = !this.showVASNoClientDataModal;
-	}
-
-	_acceptUnavailableVasClick() {
-		this.showUnavailableVASModal = !this.showUnavailableVASModal;
-	}
 
 	// ---------------
 	// PUBLIC METHODS
@@ -225,14 +172,7 @@ export class ClientInsights extends Component {
 	}
 
 	_webTemplate() {
-		return html`
-			<section>
-				${this._renderClientInsights()}
-			</section>
-			${this._renderValueAddedServicesModal()}
-			${this._renderUnavailableVASModal()}
-			${this._renderVASNoClientDataModal()}
-		`;
+		return html`${this._renderClientInsights()}`;
 	}
 
 	_renderClientInsights() {
@@ -246,7 +186,7 @@ export class ClientInsights extends Component {
 							data-automation-id="client-insights-show-vas-modal"
 							size="small"
 							icon="system/settings-action"
-							@click = "${() => this._showVASModal()}">
+							@click = "${() => this._settingsIconClick()}">
 						</capitec-icon>
 				</capitec-title-bar>
 
@@ -297,8 +237,8 @@ export class ClientInsights extends Component {
 
 
 	_renderCardExpiry() {
-		return this.scenario === `cards` ?
-			html`
+		return this.scenario === `cards` 
+			? html`
 				<p>
 					Your credit card expires on <strong>30th April 2021.</strong><br>
 					Order your new card via the App <br>
@@ -308,8 +248,8 @@ export class ClientInsights extends Component {
 	}
 
 	_renderRecallRequest() {
-		return this.scenario === `recallRequest` ?
-			html`
+		return this.scenario === `recallRequest` 
+			? html`
 				<p class="recallRequest-info">
 					Reference number: <strong>${this.referenceNumber}</strong><br>
 					Logged: <strong>${this.logged}</strong><br>
@@ -319,8 +259,8 @@ export class ClientInsights extends Component {
 	}
 
 	_renderDidYouKnow() {
-		return this.scenario === `didYouKnow` ?
-			html`
+		return this.scenario === `didYouKnow` 
+			? html`
 				<p>
 					Use your card instead of cash and you could<br>
 					<strong>save R40.00 per month</strong> on average.
@@ -328,38 +268,6 @@ export class ClientInsights extends Component {
 				`
 			: html``;
 	}
-
-	_renderValueAddedServicesModal() {
-		return this.showValueAddedServicesModal
-		? html`
-			<horizon-value-added-services
-				.statusVAS="${this.statusVAS}"
-				@cancel="${() => this._cancelVasClick()}"
-				@accept="${() => this._acceptVasClick()}">
-			</horizon-value-added-services>`
-		: html``;
-	}
-
-	_renderUnavailableVASModal() {
-		return this.showUnavailableVASModal
-		? html`
-			<horizon-value-added-services-unavailable
-				@vas-unavailable="${() => this._acceptUnavailableVasClick()}">
-			</horizon-value-added-services-unavailable>
-		`
-		: html``;
-	}
-
-	_renderVASNoClientDataModal() {
-		return this.showVASNoClientDataModal 
-		? html`
-			<horizon-value-added-services-no-client-data
-				@okay-unavailable="${() => this._acceptVASNoClientDataClick()}">
-			</horizon-value-added-services-no-client-data>
-		`
-		: html``;
-	}
-
 }
 
 customElements.define(`capitec-pc-client-insights`, ClientInsights);
