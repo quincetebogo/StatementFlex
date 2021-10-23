@@ -126,7 +126,6 @@ export class SavingsAccountBase extends ViewBase {
 	async _mandateActionClick (event) {
 
 		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.mandateId = event.detail.mandateInfo.mandateName;
 
 		this.mandateInfo = event.detail.mandateInfo;
 		this.mandateId = this.mandateInfo.mandateId;
@@ -159,6 +158,7 @@ export class SavingsAccountBase extends ViewBase {
 		});
 
 		screenDetails.isApproved = false;
+		screenDetails.mandateId = this.mandateInfo.mandateName;
 		this.horizonStore.setScreenDetails(screenDetails);
 
             this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
@@ -171,6 +171,7 @@ export class SavingsAccountBase extends ViewBase {
 		});
 
 		screenDetails.isApproved = true;
+		screenDetails.mandateId = this.mandateInfo.mandateName;
 		this.horizonStore.setScreenDetails(screenDetails);
 
 		await this._getAgreement();
@@ -275,7 +276,7 @@ export class SavingsAccountBase extends ViewBase {
 			title: name[0],
 			firstName: this.callerInformation.firstName,
 			surname: this.callerInformation.lastName,
-			middleName: this.clientDetails.middleName,
+			middleName: this.clientDetails.middleName.trim(),
 			identificationNumber: this.callerInformation.southAfricanIDNumber,
 			residentialAddress: this.clientDetails.residentialAddress,
 			postalAddress: this.clientDetails.postalAddress,

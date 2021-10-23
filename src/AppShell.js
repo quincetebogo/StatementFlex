@@ -328,14 +328,14 @@ export class AppShell extends Shell {
 			${this._renderLoadingIndicator()}
 			${this._renderLoginFailed()}
 			${this._renderAuthenticating()}
-       		${this._renderContent()}
-        `;
+	   		${this._renderContent()}
+		`;
 	}
 
 	_mobileTemplate() {
 	}
 
-    _renderLoginFailed() {
+	_renderLoginFailed() {
 		if (!this.isAuthenticating && !this._security.isAuthenticated) {
 			return html`Login Failed`;
 		}
@@ -365,30 +365,32 @@ export class AppShell extends Shell {
 		}
 
 		return html`
-				<div class="screen-size">
-					${this.horizonViewManager.renderTopBar(this.currentView)}
+			<div class="screen-size">
+				${this.horizonViewManager.renderTopBar(this.currentView)}
 
-                	<capitec-content-box class="screen-content" nopadding>
-						<div class="grid-container">
-							<div class="left">
-							    ${this.horizonViewManager.renderLeftBar(this.currentView)}
-							</div>
-							<div class="middle">
-								<capitec-app-router></capitec-app-router>
-							</div>
-							<div class="right">
-								${this.horizonViewManager.renderRightBar(this.currentView)}
-							</div>
+				<capitec-content-box class="screen-content" nopadding>
+					
+					<div class="grid-container">
+						<div class="left">
+							${this.horizonViewManager.renderLeftBar(this.currentView)}
 						</div>
-					</capitec-content-box>
-					<horizon-statusbar 
-						currentStatus="${this.currentStatus}" 
-						currentMessage="${this.currentMessage}"
-						sblLink="${this.sblUrl}"
-						cdsLink="${this.cdsUrl}"
-						cnetLink="${this.cnetUrl}">
-					</horizon-statusbar>
-				</div>`;
+						<div class="middle">
+							<capitec-app-router></capitec-app-router>
+						</div>
+						<div class="right">
+							${this.horizonViewManager.renderRightBar(this.currentView)}
+						</div>
+					</div>
+				</capitec-content-box>
+				
+				<horizon-statusbar 
+					currentStatus="${this.currentStatus}" 
+					currentMessage="${this.currentMessage}"
+					sblLink="${this.sblUrl}"
+					cdsLink="${this.cdsUrl}"
+					cnetLink="${this.cnetUrl}">
+				</horizon-statusbar>
+			</div>`;
 	}
 
 	_renderLoadingIndicator() {
