@@ -21,6 +21,33 @@ const expanderCell = `height: 56px;
 					--horizon-label-value-font-size: 14px;
 					--horizon-label-value-line-height: 20px;`;
 
+const expanderDescriptionText = `height: 14px;
+					color: #3A3A3A;
+					font-size: 12px;
+					line-height: 14px;`;
+
+const expanderDecriptionValue = `width: 192px;
+					color: #3A3A3A;
+					font-size: 14px;
+					font-weight: 600;
+					height: 20px;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;`;
+
+const tableDescriptionLabel = `white-space: nowrap;
+					text-overflow: ellipsis;
+					overflow: hidden;
+					font-size: 15px;
+					cursor: pointer;
+					line-height: 20px;`;
+
+const expanderTooltip = `height: 20px;
+					--theme-tooltip-font-family: 'Hind Vadodara';
+					--theme-tooltip-font-size: 14px;
+					--theme-tooltip-line-height: 20px;
+					--theme-tooltip-border-radius: 4px;`;
+
 export const EXPANDER_LABEL = `margin: 6px 0px 6px 0px; 
 					height: 20px;
 					width: auto;
@@ -31,12 +58,18 @@ export const EXPANDER_LABEL = `margin: 6px 0px 6px 0px;
 					letter-spacing: 0;
 					line-height: 20px;`;
 
+const linkedTransactionContentBox = `
+					max-height: 186px;
+					margin-bottom: 16px;
+					`;
+
 const linkedTransactionsHeading = `
 					margin-top: 22px;
 					`;
 
 const linkedTransactionTile = `
-					--theme-card-min-width: 1032px;
+					height: 56px;
+					width: -webkit-fill-available;
 					--theme-card-min-height: 56px;
 					padding: 0px 16px;
 					margin-bottom: 8px;
@@ -47,16 +80,23 @@ const verticalSeparator = `
 					background-color: #E1E1E1;
 					`;
 const linkedDescription = `
-					--horizon-label-value-color: #009de0
+					--horizon-label-value-color: #009de0;
+					padding-right: 16px;
+					width: auto;
 					`;
 
 export const TABLE_EXPANDER_CELL = {
 	firstcolumn: firstcolumn,
 	expanderColumns: expanderColumns,
-	expanderCell: expanderCell
+	expanderCell: expanderCell,
+	labelText : expanderDescriptionText,
+	labelValue : expanderDecriptionValue,
+	toolTip: expanderTooltip,
+	columnTooltip : tableDescriptionLabel
 };
 
 export const LINKED_TRANSACTION = {
+	contentBox: linkedTransactionContentBox, 
 	heading: linkedTransactionsHeading,
 	card: linkedTransactionTile,
 	verticalLine: verticalSeparator,

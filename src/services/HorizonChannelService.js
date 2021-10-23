@@ -1054,6 +1054,26 @@ export class HorizonChannelService extends Service {
 			`liveBetterLanding`
 		);
 	}
+
+	async liveBetterTransactionHistory (transactionHistoryRequest) {
+	
+		if (await this._mockEnabled(`liveBetterTransactionHistory`)) {
+			return this._mock.liveBetterTransactionHistory(transactionHistoryRequest);
+		}
+
+		return this._post( `/clientcare-lbb-${this._version_2}/transactions`, transactionHistoryRequest, this._setToken(), `liveBetterTransactionHistory`);
+	}
+
+	async lbbLinkedTransactionDetails (transactionHistoryRequest) {
+
+		if (await this._mockEnabled(`lbbLinkedTransactionDetails`)) {
+			return this._mock.lbbLinkedTransactionDetails(transactionHistoryRequest);
+		}
+
+		return this._post( `/clientcare-lbb-${this._version_2}/transaction-detail`, transactionHistoryRequest, this._setToken(), `lbbLinkedTransactionDetails`);
+	
+	}
+
 	// ----------------
 	// call - ITA & XDS
 	// ----------------

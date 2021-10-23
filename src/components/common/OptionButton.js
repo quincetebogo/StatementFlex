@@ -123,6 +123,9 @@ export class OptionButton extends Button {
 				.button.clear:hover {
 					background-color: #FFFFFF;
 				}
+				capitec-image {
+					margin-bottom: 10px;
+				}
 			`
 		];
 	}
@@ -140,6 +143,7 @@ export class OptionButton extends Button {
 				tabindex="${this.disabled ? `` : 0}">
 					${this.renderBadge()}
 					${this.icon ? html`<capitec-icon icon="${this.icon}" size="${this.iconSize}" class="${this.label ? `spacing` : `no-spacing`}"></capitec-icon>` : ``}
+					${this.image ? html`<capitec-image src="${this.image}" class="${this.label ? `spacing` : `no-spacing`}"></capitec-image>` : ``}
 					${this.label ? html`<div class="label">${this.label}</div>` : ``}
 					<slot></slot>
 			</button>

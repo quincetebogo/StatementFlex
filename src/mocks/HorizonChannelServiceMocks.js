@@ -247,4 +247,22 @@ export class HorizonChannelServiceMocks {
 		return null;
 	}
 
+	liveBetterTransactionHistory() {
+		if (this._mocking.liveBetterTransactionHistory.positiveCase) {
+			return this.liveBetterLandingMocks.LBBTransactionHistory;
+		}
+
+		// Code for a negative case could come here
+		return null;
+	}
+
+	lbbLinkedTransactionDetails() {
+		if (this._mocking.lbbLinkedTransactionDetails.positiveCase) {
+			return this.liveBetterLandingMocks.LBBLinkedTransactionDetails;
+		}
+
+		// Code for a negative case could come here
+		return null;
+	}
+
 }
