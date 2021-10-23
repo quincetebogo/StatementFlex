@@ -32,20 +32,26 @@ export class CallerInformation {
 	 * @param {boolean} verificationToastDisplayed If false display the verification toast on landing pages
 	 * @param {boolean} is3rdParty  Indicates if the incoming caller is a third-party calling in about a Capitec client
 	 * @param {boolean} isNonClient Indicates if the incoming callers is not a client
-	 * @param {boolean} hasInsuranceProducts Indicates if the incoming caller has insurance products
-	 * @param {boolean} hasDigitalChannels Indicates if the incoming caller has digital channels (APP/USSD) 
-	 * @param {Object} verificationAttempts The number if XDS/ITA verification attempts for this client
-	 * @param {boolean} isBranchConsultant if the caller is a branch consultant or not
-	 * @param {boolean} isClientPresent if the client is present in branch when a consultant is phoning on their behalf
-	 * @param {"unverified"|"XDS"|"ITA"} verificationMethod Indicates the method used to verify the client
+	 * @param {boolean} [hasInsuranceProducts=false] Indicates if the incoming caller has insurance products
+	 * @param {boolean} [hasDigitalChannels=false] Indicates if the incoming caller has digital channels (APP/USSD) 
+	 * @param {Object} [verificationAttempts={ itaAttempts: 0, xdsAttempts: 0 }] The number if XDS/ITA verification attempts for this client
+	 * @param {boolean} [isBranchConsultant=false] if the caller is a branch consultant or not
+	 * @param {boolean} [isClientPresent=false] if the client is present in branch when a consultant is phoning on their behalf
+	 * @param {"unverified"|"XDS"|"ITA"} [verificationMethod="unverified"] Indicates the method used to verify the client
+	 * @param {string} [firstName=""] the client's first name
+	 * @param {string} [middleName1=""] The client's second name
+	 * @param {string} [middleName2=""] The client's third name
+	 * @param {string} [middleName3=""] the client's fourth name
+	 * @param {string} [lastName=""] the client's surname/last name
+	 * @param {string} [initials=""] Client's initials
 	 */
 	constructor(
 		cifNumber,
-		birthdate, 
-		languagePreference, 
-		livesIn, 
-		name, 
-		southAfricanIDNumber, 
+		birthdate,
+		languagePreference,
+		livesIn,
+		name,
+		southAfricanIDNumber,
 		verifiedTelephoneNumber,
 		nonClientFirstName,
 		nonClientSurName,
@@ -63,7 +69,14 @@ export class CallerInformation {
 		verificationAttempts = { itaAttempts: 0, xdsAttempts: 0 },
 		isBranchConsultant = false,
 		isClientPresent = false,
-		verificationMethod = `unverified`
+		verificationMethod = `unverified`,
+		firstName = ``,
+		middleName1 = ``,
+		middleName2 = ``,
+		middleName3 = ``,
+		lastName = ``,
+		initials = ``
+
 	) {
 		this.cifNumber = cifNumber;
 		this.birthdate = birthdate;
@@ -88,7 +101,13 @@ export class CallerInformation {
 		this.verificationAttempts = verificationAttempts;
 		this.isBranchConsultant = isBranchConsultant;
 		this.isClientPresent = isClientPresent;
-		this.verificationMethod = `unverified`;
+		this.verificationMethod = verificationMethod;
+		this.firstName = firstName;
+		this.middleName1 = middleName1;
+		this.middleName2 = middleName2;
+		this.middleName3 = middleName3;
+		this.lastName = lastName;
+		this.initials = initials;
 		Object.seal();
 	}
 }

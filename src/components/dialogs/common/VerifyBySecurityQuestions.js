@@ -199,7 +199,7 @@ export class VerifyBySecurityQuestions extends Component {
 				if (returnValue.result === `Authenticated`) {
 					this._xdsAuthenticated();
 				} else {
-					this.logger.log(`warning`, `Authentication result: ${returnValue.result}`, `_verifyClick`);
+					this.logger.log(`warning`, `Authentication result: ${JSON.stringify(returnValue.result)}`, `_verifyClick`);
 					this._xdsNotAuthenticated();
 				}
 			} else if (this.noOfXdsVerificationAttempted <= 1) {
