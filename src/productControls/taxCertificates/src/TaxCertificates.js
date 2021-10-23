@@ -684,8 +684,8 @@ export class TaxCertificates extends Component {
 		if (this.currentStep === 1 && this.renderMode === RENDER_MODE.EMAIL) {
 			return html`
 				<horizon-email-input
-					email=${this.email};
-					confirmEmail=${this.confirmEmail};
+					email=${this.email}
+					confirmEmail=${this.confirmEmail}
 					@value-changed="${(e) => this._emailValueChanged(e)}"
 					@validation-update="${(e) => this._validEmailAddressCheck(e)}"
 					.labelOne="${this.emailLabel}"
