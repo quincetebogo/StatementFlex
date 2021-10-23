@@ -1,10 +1,11 @@
-import { Component, html } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Logger } from 'platform/core';
 
 import 'platform/components';
 import 'app/productControls/AccessChannels/src/AccessChannels';
+import 'app/webComponents/src/SideSheet';
 
 /**
  * 
@@ -19,6 +20,7 @@ export class AccessChannels extends Component {
 		super();
 
 		this.isBusy = false;
+		this.showSideSheet = false;
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
@@ -33,7 +35,8 @@ export class AccessChannels extends Component {
 	static get properties() {
 		return {
 			isBusy: { state: true },
-			status: { state: true }
+			status: { state: true },
+			showSideSheet: { state: true }
 		};
 	}
 
@@ -60,6 +63,9 @@ export class AccessChannels extends Component {
 	// EVENT HANDLERS
 	// --------------
 
+	_showSlidingPanel(event) {
+		this.showSideSheet = !this.showSideSheet;
+	}
 
 	// --------------
 	// PUBLIC METHODS
@@ -87,6 +93,19 @@ export class AccessChannels extends Component {
 	// ---------
 	// RENDERING
 	// ---------
+
+	static get styles() {
+		return [
+			super.styles,
+			css`
+				capitec-side-sheet {
+					--theme-side-sheet-width: 344px;
+					--theme-side-sheet-height: 890px;
+					--theme-side-sheet-top: 96px;
+				}`
+		];
+	}
+
 	_mobileTemplate() {
 		return _webTemplate();
 	}
@@ -101,8 +120,21 @@ export class AccessChannels extends Component {
 		return html`
 		<capitec-pc-access-channels
 			.status="${this.status}"
-		></capitec-pc-access-channels>
-		`;
+			@tile-click="${(event) => this._showSlidingPanel(event)}">
+		</capitec-pc-access-channels>
+
+		<capitec-side-sheet
+			.expanded="${this.showSideSheet}"
+			alignment="right">
+				<capitec-content-box
+					layout="vertical"
+					halign="center"
+					valign="center"
+					gap="clear">
+						<capitec-label type="Strong" label="Content comes here.."></capitec-label>
+						<capitec-button type="primary" label="Close" @click="${() => this._showSlidingPanel()}"></capitec-button>
+				</capitec-content-box>
+		</capitec-side-sheet>`;
 	}
 
 	_renderLoadingIndicator() {
