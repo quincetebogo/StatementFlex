@@ -168,4 +168,3 @@ import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 }
 
 window.customElements.define(`horizon-value-added-services-no-client-data`, ValueAddedServiceNoClientData);
-

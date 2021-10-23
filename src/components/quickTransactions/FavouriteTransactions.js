@@ -352,7 +352,7 @@ export class FavouriteTransactions extends Component {
 						badgeText="${pendingMandates}"
 						icon="system/debi-check-action" iconSize="default"
 						label="DebiCheck"
-						@click="${() => this._optionSelectedClick(`debi-check`)}"
+						@click="${() => this._optionSelectedClick(`debi-check-viewInfo`)}"
 						?disabled="${this.shouldDisable(`debi-check`)}">
 					</horizon-option-button>
 				</capitec-button-bar>

@@ -208,7 +208,11 @@ export class CardLimitsLanding extends Component {
 			},
 			tapToPayStatusChange: tapToPayStatus
 		};
-
+		if(this._limitType === LIMIT_TYPES.PERMANENT){
+			request.cardDetails.tempCashAmountLimit = 0;
+			request.cardDetails.tempCnpAmountLimit = 0;
+			request.cardDetails.tempPurchaseAmountLimit = 0;
+		}
 		const result = await this.getCardLimitsAgreement(request);
 		
 		if (result) {

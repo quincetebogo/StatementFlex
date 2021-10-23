@@ -1,19 +1,9 @@
 import { Component, css, html } from 'platform/elements';
-// import all UI components
-// import 'platform/components/navigation/AppRouter';
 
-export class LandingPageMarketing extends Component {
+export class InfoGraphic extends Component {
 
 	constructor() {
 		super();
-
-		this.userDetails = null;
-	}
-
-	static get properties() {
-		return {
-			userDetails: { type: Object }
-		};
 	}
 
 	static get styles() {
@@ -36,4 +26,4 @@ export class LandingPageMarketing extends Component {
 
 }
 
-window.customElements.define(`landingpage-marketing`, LandingPageMarketing);
+window.customElements.define(`horizon-info-graphic`, InfoGraphic);
