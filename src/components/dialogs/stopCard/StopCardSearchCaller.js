@@ -284,7 +284,13 @@ export class StopCardSearchCaller extends Component {
 			livesIn: identifiedClient.callerInformation.livesIn.value,
 			name: identifiedClient.callerInformation.name.value,
 			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber.value,
-			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber.value
+            verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber.value,
+            firstName: identifiedClient.callerInformation.firstName,
+            middleName1: identifiedClient.callerInformation.middleName1,
+            middleName2: identifiedClient.callerInformation.middleName2,
+            middleName3: identifiedClient.callerInformation.middleName3,
+            lastName: identifiedClient.callerInformation.lastName,
+            initials: identifiedClient.callerInformation.initials
 		};
 
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
