@@ -7,8 +7,6 @@ import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'platform/components/buttons/Button';
 import 'app/components/stopCard/StopCard';
-import 'app/components/common/AccessMenuBar';
-import 'app/components/common/ProfileAndProductSummaryBar';
 
 /**
  * The Stop Card Landing Page. This view is currently based on the v1 Stop Card designs and will be completely redone
