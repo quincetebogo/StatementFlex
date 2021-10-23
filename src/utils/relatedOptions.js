@@ -10,6 +10,14 @@ export const relatedOptions = {
 		Success: [`transaction-history`],
 		Failure: [`transaction-history`]
 	},
+	'debi-check-approve': {
+		Success: [`transaction-history`],
+		Failure: [`transaction-history`]
+	},
+	'debi-check-decline': {
+		Success: [`transaction-history`],
+		Failure: [`transaction-history`]
+	},
 	'stop-card': {
 		Success: [`transaction-history`],
 		Failure: [`transaction-history`]
