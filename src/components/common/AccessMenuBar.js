@@ -1,12 +1,14 @@
 import { Component, css, html } from 'platform/elements';
-import { Logger } from 'platform/core';
+import { EventAggregator, Logger } from 'platform/core';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { ValueAddedService } from 'app/services/ValueAddedService';
 
 import 'platform/components';
-import 'app/components/dialogs/AccessChannelError';
-import 'app/productControls/ClientInsights/src/ClientInsights';
+import 'app/productControls/AccessChannels/src/AccessChannels';
+import 'app/dialogs/valueAddedServices/ValueAddedServices';
+import 'app/dialogs/valueAddedServices/ValueAddedServicesUnavailable';
+import 'app/dialogs/valueAddedServices/VASNoClientData';
 
 /**
  * The AccessMenuBar is the right hand menu bar area in Horizon. This component currently houses
@@ -21,10 +23,13 @@ export class AccessMenuBar extends Component {
 	constructor() {
 		super();
 
-		this.showAlert = false;
 		this.isBusy = false;
+		this.showValueAddedServicesModal = false;
+		this.showUnavailableVASModal = false;
+		this.showVASNoClientDataModal = false;
 
 		this.horizonStore = HorizonStore.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
 		this.logger = Logger.getInstance();
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
@@ -37,11 +42,12 @@ export class AccessMenuBar extends Component {
 
 	static get properties() {
 		return {
-			showAlert: { type: Boolean },
-
-			isBusy: { attribute: false },
-			status: { attribute: false },
-			statusVAS: { attribute: false }
+			isBusy: { state: true },
+			status: { state: true },
+			statusVAS: { attribute: false },
+			showValueAddedServicesModal: { attribute: false },
+			showUnavailableVASModal: { attribute: false },
+			showVASNoClientDataModal: { attribute: false }
 		};
 	}
 
@@ -68,6 +74,27 @@ export class AccessMenuBar extends Component {
 	// EVENT HANDLERS
 	// --------------
 
+	_showVASModal() {
+		this._valueAddedService();
+	}
+
+	_cancelVasClick() {
+		this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
+	}
+
+	_acceptVasClick() {
+		this.eventAggregator.publish(`horizon-accepted-vas`, {});
+		this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
+	}
+
+	_acceptVASNoClientDataClick() {
+		this.showVASNoClientDataModal = !this.showVASNoClientDataModal;
+	}
+
+	_acceptUnavailableVasClick() {
+		this.showUnavailableVASModal = !this.showUnavailableVASModal;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -85,15 +112,28 @@ export class AccessMenuBar extends Component {
 		
 		if (returnValue.succeeded) {
 			this.status = returnValue.result;
-		} else {
-			this.logger.log(`error`, `Failed to load access channel information`, `_accessChannelService`, returnValue.correlationId);
-		}
+			return;
+		} 
+		
+		this.logger.log(`error`, `Failed to load access channel information`, `_accessChannelService`, returnValue.correlationId);
 	}
 
 	async _valueAddedService() {
 		const returnValue = await this.valueAddedService.getValueAddedServiceStatus(this.cifNumber);
 
-		return returnValue;
+		if (returnValue.succeeded && returnValue.result !== ``) {
+			this.statusVAS = returnValue.result;
+			this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
+			return;
+		};
+		
+		if (returnValue.succeeded) {
+			this.showVASNoClientDataModal = !this.showVASNoClientDataModal;
+			return;
+		} 
+		
+		this.logger.log(`error`, `Failed to load Value Added Services`, `_valueAddedService`, returnValue.correlationId);
+		this.showUnavailableVASModal = !this.showUnavailableVASModal;
 	}
 
 	// ---------
@@ -104,33 +144,9 @@ export class AccessMenuBar extends Component {
 		return [
 			super.styles,
 			css`
-				.access-group {
-					height: auto;
-					width: auto;
-					padding: 24px 0px 0px 0px;
 				}
 
-				.header-label {
-					height: auto;
-					width: auto;
-					padding-left: 16px;
-					--theme-label-default-font-size: 18px;
-					--theme-label-default-font-weight: 600;
-					--theme-layout-gap-spacing: 18px;
-				}
 
-				horizon-product-tile {
-					--theme-product-tile--height: 72px;
-					--theme-product-tile-border-radius: 4px;
-					--theme-product-tile-colour-border-radius: 4px 0 0 4px;
-					--theme-product-tile-default-border-left: 4px solid #009DE0;
-					--theme-product-tile-hover-shadow: none;
-					--theme-product-tile-focus-shadow: none;
-					--theme-product-tile-title-height: 24px;
-					--theme-product-tile-subtitle-height: 20px;
-					--theme-layout-gap-spacing: 16px;
-				}
-			`
 		];
 	}
 
@@ -142,13 +158,15 @@ export class AccessMenuBar extends Component {
 		return html`
 			<section>
 				${this._renderClientInsights()}
-				${this._renderAccessChannelTabs()}
+				${this._renderAccessChannels()}
 			</section>
-			${this._renderAccessChannelError()}
 			${this._renderLoadingIndicator()}
+			${this._renderValueAddedServicesModal()}
+			${this._renderUnavailableVASModal()}
+			${this._renderVASNoClientDataModal()}
 		`;
 	}
-
+  
 	_renderClientInsights() {
 		return html`
 			<capitec-pc-client-insights
@@ -157,54 +175,34 @@ export class AccessMenuBar extends Component {
 			</capitec-pc-client-insights>
 		`;
 	}
-
-	_renderAccessChannelTabs() {
+  
+	_renderAccessChannels() {
 		return html`
-			<capitec-group class="access-group" layout="vertical" halign="stretch" valign="top" gap="clear">
-				<capitec-label class="header-label" label="Access Channels"></capitec-label>
-
-				<horizon-product-tile 
-					type="default"
-					label="App & Online Banking"
-					subtitle=${this.status.appAndInternetActive ? `active` : `inactive`}
-					detail=""
-					icon="system/access">
-				</horizon-product-tile>
-
-				<horizon-product-tile 
-					type="default"
-					label="USSD"
-					subtitle=${this.status.ussdActive ? `active` : `inactive`}
-					detail=""
-					icon="system/cellphone">
-				</horizon-product-tile>
-
-				<horizon-product-tile 
-					type="default"
-					label="Notifications"
-					subtitle=${this.status.notificationType ? this.status.notificationType : `inactive`}
-					detail=""
-					icon="system/messages">
-				</horizon-product-tile>
-
-			</capitec-group>
+		<capitec-pc-access-channels
+			.status="${this.status}"
+		></capitec-pc-access-channels>
 		`;
 	}
 
-	_renderAccessChannelError() {
-		if (this.showAlert) {
-			return html`<horizon-access-channel-error @on-OK="${() => this.showAlert = false}"></horizon-access-channel-error>`;
-		}
-	}
-
 	_renderLoadingIndicator() {
-		if (this.isBusy || this.loading) {
+		if (this.isBusy) {
 			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 		};
 
 		return html``;
 	}
 
+	_renderValueAddedServicesModal() {
+		return this.showValueAddedServicesModal
+		? html`
+			<horizon-value-added-services
+				.statusVAS="${this.statusVAS}"
+				@cancel="${() => this._cancelVasClick()}"
+				@accept="${() => this._acceptVasClick()}">
+			</horizon-value-added-services>`
+		: html``;
+	}
+	_renderVASNoClientDataModal() {
 }
 
 window.customElements.define(`horizon-access-menu-bar`, AccessMenuBar);
