@@ -188,7 +188,7 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_handleAuthenticationResult(result) {
-		this.logger.log(`info`, `verifySecurityQuestions returned: ${result}`);
+		this.logger.log(`info`, `verifySecurityQuestions returned: ${JSON.stringify(returnValue.result)}`, _handleAuthenticationResult);
 			
 		if (result === `Authenticated`) {
 			this.telemetry.logEvent(VerifyCallerEvents.XDS_SUCCESS, {

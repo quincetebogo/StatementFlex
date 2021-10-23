@@ -191,7 +191,6 @@ export class ConfirmCallerDetails extends Component {
 	_identifiedClient(event) {
 		// After a search we need to replace whatever we might have had for the confirmed caller with 
 		// the results of the search
-		// the results of the search
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.confirmedCaller = event.detail.confirmedCaller;
 		this.incidentDetails = event.detail.incidentDetails;
@@ -332,7 +331,14 @@ export class ConfirmCallerDetails extends Component {
 				xdsAttempts: 0
 			}, 
 			this.confirmedCaller.isBranchConsultant, // isBranchConsultant
-			this.confirmedCaller.isClientPresent // isClientPresent
+			this.confirmedCaller.isClientPresent, // isClientPresent
+			``,
+			this.confirmedCaller.firstName,
+			this.confirmedCaller.middleName1,
+			this.confirmedCaller.middleName2,
+			this.confirmedCaller.middleName3,
+			this.confirmedCaller.lastName,
+			this.confirmedCaller.initials
 		);
 	}
 
@@ -403,6 +409,7 @@ export class ConfirmCallerDetails extends Component {
 			this.callerInformation.hasDigitalChannels = true;
 			this.logger.log(`error`, `Could not determine if digital channels are available. Defaulting to available.`, `_setAvailabilityFlags`, returnValue.correlationId);
 		}
+		this.callerInformation.isMinorClient = this._checkForMinorClient();
 
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
@@ -473,7 +480,7 @@ export class ConfirmCallerDetails extends Component {
 		}
 
 		// Updating client details to Incident at Strack
-		const returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
+		let returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateClientNonClientDetails`, returnValue.correlationId);
@@ -488,12 +495,24 @@ export class ConfirmCallerDetails extends Component {
 				surname: this.callerInformation.nonClientSurName,
 				cellPhone: this.callerInformation.nonClientCellPhone
 			};
-			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
+
+			returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
 
 			if (!returnValue.succeeded) {
 				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_updateClientNonClientDetails`, returnValue.correlationId);
 			}
 		}
+	}
+	
+	// To check if client is minor.
+	_checkForMinorClient() {
+		const today = new Date();
+		const clientBirthDate = new Date(this.callerInformation.birthdate);
+
+		// Minimum age a client should meet for being a major ( > 16 years). ClientDOB after 'minMajorAge' are considered to be a minor client.
+		const minMajorAge = new Date(today.getFullYear() - 16, today.getMonth(), today.getDate());
+
+		return minMajorAge < clientBirthDate;
 	}
 
 	// ---------
@@ -808,6 +827,6 @@ export class ConfirmCallerDetails extends Component {
 			</horizon-verify-caller>
 		`;
 	}
-
 }
+
 window.customElements.define(`horizon-confirm-caller-details`, ConfirmCallerDetails);
