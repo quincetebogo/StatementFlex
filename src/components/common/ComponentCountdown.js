@@ -128,8 +128,8 @@ export class ComponentCountdown extends Component {
 		}, 1000);
 	}
 
-	//TODO: TEST the Reset function to put timer back to 60/70
-	//TEST: "Try Again" button will implement this functionality 
+	// TODO: TEST the Reset function to put timer back to 60/70
+	// TEST: "Try Again" button will implement this functionality 
 	resetTimer() {
 		clearInterval(this.timerInterval);
 		
@@ -147,7 +147,7 @@ export class ComponentCountdown extends Component {
 	}
 
 	formatTime(time) {
-		const minutes = "0" + Math.floor(time / 60);
+		const minutes = `0` + Math.floor(time / 60);
 		let seconds = time % 60;
 
 		if (seconds < 10) {
