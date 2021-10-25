@@ -329,7 +329,7 @@ export class EndCallSession extends Component {
 			// Don't close the incident if it has been reassigned or handed off
 			return true; 
 		} else if (incidentDetails.needStatus === super.HORIZON_NEED_STATUS.CLOSED) {
-			this.logger.log(`warn`, `Incident ${this.incidentRefNumber} already marked as closed. No further close action required.`);
+			this.logger.log(`info`, `Incident ${this.incidentRefNumber} already marked as closed. No further close action required.`);
 			// Incident might be closed for search other need, no need to close again
 			return true;
 		}
@@ -389,7 +389,7 @@ export class EndCallSession extends Component {
 		} 
 		
 		if (!continueUpdate) {
-			this.logger.log(`error`, `Incident:${incidentDetails.incidentReferenceNumber} has been already categorized at STrack.`, `_classifyAndClose`);
+			this.logger.log(`info`, `Incident:${incidentDetails.incidentReferenceNumber} has been already categorized at STrack.`, `_classifyAndClose`);
 		}
 		await this._closeIncident(strackIncidentInfo);
 	}

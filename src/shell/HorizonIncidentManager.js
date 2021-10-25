@@ -51,6 +51,7 @@ export class HorizonIncidentManager {
 		Component.prototype.createAndClassifySubsIncident = (toggleBusyFlag, incidentCategorization = null, classify = true) => this.createAndClassifySubsIncident(toggleBusyFlag, incidentCategorization, classify);
 		Component.prototype.closeIncident = (options, toggleBusyFlag) => this.closeIncident(options, toggleBusyFlag);
 		Component.prototype.classifyIncident = (toggleBusyFlag, incidentCategorization) => this.classifyIncident(toggleBusyFlag, incidentCategorization);
+
 		View.prototype._inicidentManager_ = (clientNeed, toggleBusyFlag) => this._handleMultipleNeed(clientNeed, toggleBusyFlag);
 		View.prototype.createAndClassifySubsIncident = (toggleBusyFlag, incidentCategorization = null, classify = true) => this.createAndClassifySubsIncident(toggleBusyFlag, incidentCategorization, classify);
 		View.prototype.closeIncident = (options, toggleBusyFlag) => this.closeIncident(options, toggleBusyFlag);
@@ -154,6 +155,7 @@ export class HorizonIncidentManager {
 			this.checkIncidentStatus = true;
 		} else {
 			const subsequentIncident = await this._createSubsIncident();
+
 			if (!subsequentIncident) {
 				return;
 			}
@@ -169,9 +171,12 @@ export class HorizonIncidentManager {
 	 * Since we know the need is fullfilled, closing incident with default values
 	 * Reason - Need Fullfilled & Cause code - Normal Enquiry
 	 * 
-	 * @param {string} clientNeed - Client's need [Stop card/ Proof of account/ Statements etc..]
+	 * @param {Object} Object
+	 * 			- clientNeed - Client's need [Stop card/ Proof of account/ Statements etc..]
+	 * 			- endCallReason - End call reason selected/ default to `Normal Enquiry'
+	 * 			- causeCodeByContext - Cause code to end call session
 	 * @param {Function} toggleBusyFlag - Toggle busy flag function
-	 * @returns {boolean} - true/ false, indicating close incident status 
+	 * @returns {boolean} - true/ false, indicating close incident status
 	 */
 	 async closeIncident({ clientNeed, endCallReason = {}, causeCodeByContext }, toggleBusyFlag) {
 
@@ -186,10 +191,10 @@ export class HorizonIncidentManager {
 		}
 	
 		if (isNullorEmpty(incidentInfo.category) && isNullorEmpty(incidentInfo.subCategory) && isNullorEmpty(incidentInfo.issue)) {
-				this.checkIncidentStatus = false;
-				// Incident is not classified. Trying to classify before closing
-				await this.classifyIncident(toggleBusyFlag);
-			}
+			this.checkIncidentStatus = false;
+			// Incident is not classified. Trying to classify before closing
+			await this.classifyIncident(toggleBusyFlag);
+		}
 
 		const reason = isNullorEmpty(endCallReason.key) ? CLOSE_REASONS[incidentDetails.needStatus] : endCallReason.key;
 		const resolution = this._getResolution(incidentInfo.resolution, incidentDetails, endCallReason);
@@ -220,7 +225,7 @@ export class HorizonIncidentManager {
 	 * @param {Object} incidentCategorization - Object holds category, subcategory & issue that needs to be updated for an incident
 	 * @returns {void}
 	 */
-	async classifyIncident(toggleBusyFlag, incidentCategorization) {
+	 async classifyIncident(toggleBusyFlag, incidentCategorization) {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		const ivrActionMapping = await this._getNeedActions();
@@ -316,7 +321,7 @@ export class HorizonIncidentManager {
 		}
 		return returnValue.result;
 	}
-
+		
 	async _createSubsIncident() {
 		const callerInfo = this.horizonStore.getCallerInformation();
 		const callDetails = this.horizonStore.getIncomingCallDetails();

@@ -6,7 +6,15 @@
  * @constant relatedOptions
  */
 export const relatedOptions = {
-	'debi-check': {
+	'debi-check-viewInfo': {
+		Success: [`transaction-history`],
+		Failure: [`transaction-history`]
+	},
+	'debi-check-approve': {
+		Success: [`transaction-history`],
+		Failure: [`transaction-history`]
+	},
+	'debi-check-decline': {
 		Success: [`transaction-history`],
 		Failure: [`transaction-history`]
 	},

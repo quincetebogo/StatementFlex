@@ -1,0 +1,123 @@
+import { Component, css, html } from 'platform/elements';
+
+import 'platform/components';
+
+export class AccessChannels extends Component {
+
+	// -----------------
+	// INITIALISATION
+	// -----------------
+
+	constructor() {
+		super();
+		
+	}
+
+	// --------------
+	// PROPERTIES
+	// --------------
+
+	/**
+	 * 
+	 */
+
+	static get properties() {
+		return {
+			status: { type: Object }
+		};
+	}
+
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+
+	connectedCallback() {
+		super.connectedCallback();
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+	}
+
+	// ---------
+	// RENDERING
+	// ---------
+
+	static get styles() {
+		return [
+			super.styles,
+			css`
+				.access-group {
+					height: auto;
+					width: auto;
+					padding: 24px 0px 0px 0px;
+				}
+				.header-label {
+					height: auto;
+					width: auto;
+					padding-left: 16px;
+					--theme-label-default-font-size: 18px;
+					--theme-label-default-font-weight: 600;
+					--theme-layout-gap-spacing: 18px;
+				}
+				horizon-product-tile {
+					--theme-product-tile--height: 72px;
+					--theme-product-tile-border-radius: 4px;
+					--theme-product-tile-colour-border-radius: 4px 0 0 4px;
+					--theme-product-tile-default-border-left: 4px solid #009DE0;
+					--theme-product-tile-hover-shadow: none;
+					--theme-product-tile-focus-shadow: none;
+					--theme-product-tile-title-height: 24px;
+					--theme-product-tile-subtitle-height: 20px;
+					--theme-layout-gap-spacing: 16px;
+				}
+			`
+		];
+	}
+
+	_mobileTemplate() {
+		return _webTemplate();
+	}
+
+	_webTemplate() {
+		return html`
+			<section>
+				${this._renderAccessChannelTabs()}
+			</section>
+		`;
+	}
+
+	_renderAccessChannelTabs() {
+		return html`
+			<capitec-group class="access-group" layout="vertical" halign="stretch" valign="top" gap="clear">
+				<capitec-label class="header-label" label="Access Channels"></capitec-label>
+
+				<horizon-product-tile 
+					type="default"
+					label="App & Online Banking"
+					subtitle=${this.status.appAndInternetActive ? `active` : `inactive`}
+					detail=""
+					icon="system/access">
+				</horizon-product-tile>
+
+				<horizon-product-tile 
+					type="default"
+					label="USSD"
+					subtitle=${this.status.ussdActive ? `active` : `inactive`}
+					detail=""
+					icon="system/cellphone">
+				</horizon-product-tile>
+
+				<horizon-product-tile 
+					type="default"
+					label="Notifications"
+					subtitle=${this.status.notificationType ? this.status.notificationType : `inactive`}
+					detail=""
+					icon="system/messages">
+				</horizon-product-tile>
+			</capitec-group>
+		`;
+	}
+}
+
+customElements.define(`capitec-pc-access-channels`, AccessChannels);
