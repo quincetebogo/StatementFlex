@@ -6,6 +6,7 @@ import { Logger } from 'platform/core';
 import 'platform/components';
 import 'app/productControls/AccessChannels/src/AccessChannels';
 import 'app/webComponents/src/SideSheet';
+import 'app/productControls/AccessChannels/src/InternetBankingProfileDetails';
 
 /**
  * 
@@ -51,7 +52,8 @@ export class AccessChannels extends Component {
 		
 		this.cifNumber = callerInformation.cifNumber;
 		this.status = {
-			appAndInternetActive: false,
+			appActive: false,
+			internetBankingActive: true,
 			ussdActive: false,
 			notificationType: `unknown`
 		};
@@ -64,6 +66,7 @@ export class AccessChannels extends Component {
 	// --------------
 
 	_showSlidingPanel(event) {
+		this.selectedAccessChannelType = event.detail && event.detail.tileClicked || ``;
 		this.showSideSheet = !this.showSideSheet;
 	}
 
@@ -120,21 +123,26 @@ export class AccessChannels extends Component {
 		return html`
 		<capitec-pc-access-channels
 			.status="${this.status}"
+			.internetBankingActive=${this.status.internetBankingActive}
 			@tile-click="${(event) => this._showSlidingPanel(event)}">
 		</capitec-pc-access-channels>
 
-		<capitec-side-sheet
-			.expanded="${this.showSideSheet}"
-			alignment="right">
-				<capitec-content-box
-					layout="vertical"
-					halign="center"
-					valign="center"
-					gap="clear">
-						<capitec-label type="Strong" label="Content comes here.."></capitec-label>
-						<capitec-button type="primary" label="Close" @click="${() => this._showSlidingPanel()}"></capitec-button>
-				</capitec-content-box>
-		</capitec-side-sheet>`;
+		${this._renderInternetBanking()}
+		
+		`;
+	}
+
+	_renderInternetBanking() {
+		return this.selectedAccessChannelType === `InternetBanking` ?
+		html`
+			<capitec-pc-internet-banking-profile-details
+				.isInternetBankingActive=${this.status.internetBankingActive}
+				.showSideSheet = ${this.showSideSheet}
+				@close-side-sheet="${(event) => this._showSlidingPanel(event)}"
+			>
+			</capitec-pc-internet-banking-profile-details>
+		`
+		: html``;
 	}
 
 	_renderLoadingIndicator() {

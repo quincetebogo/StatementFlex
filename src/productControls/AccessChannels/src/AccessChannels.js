@@ -74,6 +74,12 @@ export class AccessChannels extends Component {
 					--theme-product-tile-subtitle-height: 20px;
 					--theme-layout-gap-spacing: 16px;
 				}
+				.status-active {
+					--theme-product-tile-default-border-left: 4px solid #70B000;
+				}
+				.status-inactive {
+					--theme-product-tile-default-border-left: 4px solid #A5132A;
+				}
 			`
 		];
 	}
@@ -97,11 +103,21 @@ export class AccessChannels extends Component {
 
 				<horizon-product-tile 
 					type="default"
-					label="App & Online Banking"
-					subtitle=${this.status.appAndInternetActive ? `active` : `inactive`}
+					label="App"
+					subtitle=${this.status.appActive ? `active` : `inactive`}
+					detail=""
+					icon="system/cellphone"
+					@click="${() => this._tileClick(`App`)}">
+				</horizon-product-tile>
+
+				<horizon-product-tile 
+					class=${this.status.internetBankingActive ? `status-active` : `status-inactive`}
+					type="default"
+					label="Internet Banking"
+					subtitle=${this.status.internetBankingActive ? `active` : `inactive`}
 					detail=""
 					icon="system/access"
-					@click="${() => this._tileClick(`AppAndOnlineBanking`)}">
+					@click="${() => this._tileClick(`InternetBanking`)}">
 				</horizon-product-tile>
 
 				<horizon-product-tile 
