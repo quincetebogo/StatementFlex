@@ -29,6 +29,7 @@ const HORIZON_ROUTES = Object.freeze({
 	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`,
 	DEBICHECK_SUCCESS: `/success/debicheck`,
 	DEBICHECK_FAILED: `/error/debicheck`,
+	DEBICHECK_SERVICE_ERROR: `/error/debicheck-service-error`,
 	STATEMENTS_SUCCESSFUL: `/views/statements/StatementsSuccess`,
 	STATEMENTS_UNSUCCESSFUL: `/views/statements/StatementsUnsuccess`,
 	CARDS_LIMIT_UPDATE_SUCCESS: `/success/card-limit-update`,
@@ -41,7 +42,7 @@ const HORIZON_ROUTES = Object.freeze({
 	TAX_CERTIFICATE_FAILURE: `/error/tax-certificate`,
 	TAX_CERTIFICATE_SERVICE_ERROR: `/error/tax-certificate-service-error`
 });
- 
+
 
 /**
  * The HorizonRouter class provides a series of functions for navigating to pages.
@@ -210,6 +211,10 @@ export class HorizonRouter {
 
     navigateToDebiCheckFailed() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.DEBICHECK_FAILED}`);
+	}
+
+	navigateToDebiCheckServiceError() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.DEBICHECK_SERVICE_ERROR}`);
 	}
 
 	navigateToCardLimitUpdateSuccess() {
@@ -593,6 +598,14 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.DEBICHECK_FAILED,
 		load: () => import(`../views/quickTransactions/DebiCheckFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-debi-check-service-error`,
+		title: `DebiCheckServiceError`,
+		icon: null,
+		path: HORIZON_ROUTES.DEBICHECK_SERVICE_ERROR,
+		load: () => import(`../views/quickTransactions/DebiCheckServiceError`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{

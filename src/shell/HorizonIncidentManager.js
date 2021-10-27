@@ -178,8 +178,12 @@ export class HorizonIncidentManager {
 	 async closeIncident({ clientNeed, endCallReason = {}, causeCodeByContext }, toggleBusyFlag) {
 
 		this.incidentService._toggleBusyFlag = toggleBusyFlag;
-		
 		const incidentDetails = this.horizonStore.getIncidentDetails();
+
+		if (!incidentDetails.incidentReferenceNumber || incidentDetails.incidentReferenceNumber === `0`) {
+			return false;
+		}
+
 		const incidentInfo = await this._incidentStatus(incidentDetails.incidentRecId);
 
 		if (this._isReassigned(incidentInfo)) {
