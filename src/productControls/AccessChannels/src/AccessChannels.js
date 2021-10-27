@@ -10,7 +10,6 @@ export class AccessChannels extends Component {
 
 	constructor() {
 		super();
-		
 	}
 
 	// --------------
@@ -37,6 +36,10 @@ export class AccessChannels extends Component {
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+	}
+
+	_tileClick(buttonName) {
+		this.dispatchEvent(new CustomEvent(`tile-click`, { detail: { tileClicked: buttonName } }));
 	}
 
 	// ---------
@@ -97,7 +100,8 @@ export class AccessChannels extends Component {
 					label="App & Online Banking"
 					subtitle=${this.status.appAndInternetActive ? `active` : `inactive`}
 					detail=""
-					icon="system/access">
+					icon="system/access"
+					@click="${() => this._tileClick(`AppAndOnlineBanking`)}">
 				</horizon-product-tile>
 
 				<horizon-product-tile 
@@ -105,7 +109,8 @@ export class AccessChannels extends Component {
 					label="USSD"
 					subtitle=${this.status.ussdActive ? `active` : `inactive`}
 					detail=""
-					icon="system/cellphone">
+					icon="system/cellphone"
+					@click="${() => this._tileClick(`USSD`)}">
 				</horizon-product-tile>
 
 				<horizon-product-tile 
@@ -113,7 +118,8 @@ export class AccessChannels extends Component {
 					label="Notifications"
 					subtitle=${this.status.notificationType ? this.status.notificationType : `inactive`}
 					detail=""
-					icon="system/messages">
+					icon="system/messages"
+					@click="${() => this._tileClick(`Notifications`)}">
 				</horizon-product-tile>
 			</capitec-group>
 		`;
