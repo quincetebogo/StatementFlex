@@ -508,7 +508,7 @@ export class UpdateCardLimits extends Component {
 			.tapToPaySub {
 				--theme-label-subtitle-line-height: 12px;
 				--theme-label-subtitle-font-size: 12px;
-				width: 150px;
+				width: auto;
 				margin: 0px 0px 16px 8px;
 			}
 			capitec-modal {
