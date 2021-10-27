@@ -6,6 +6,7 @@ import { Logger } from 'platform/core';
 import 'platform/components';
 import 'app/productControls/AccessChannels/src/AccessChannels';
 import 'app/webComponents/src/SideSheet';
+import 'app/productControls/AccessChannels/src/AppProfileDetails'
 
 /**
  * 
@@ -51,7 +52,7 @@ export class AccessChannels extends Component {
 		
 		this.cifNumber = callerInformation.cifNumber;
 		this.status = {
-			appAndInternetActive: false,
+			appAndInternetActive: true,
 			ussdActive: false,
 			notificationType: `unknown`
 		};
@@ -64,7 +65,23 @@ export class AccessChannels extends Component {
 	// --------------
 
 	_showSlidingPanel(event) {
+
+		this.selectedAccessChannelType = event.detail && event.detail.tileClicked || ``;
 		this.showSideSheet = !this.showSideSheet;
+	}
+	
+	suspendAppAndOnlineBanking() {
+		// TO DO: Channel service call to suspend app should come here
+		// If successfully suspended, update app status, else Error scenario
+		this.status.appAndInternetActive = false;
+		return true;
+	}
+
+	unSuspendAppAndOnlineBanking() {
+		// TO DO: Channel service call to Un-suspend App should come here
+		// If successfully Unsuspended, update app status, else Error scenario
+		this.status.appAndInternetActive = true;
+		return true;
 	}
 
 	// --------------
@@ -119,22 +136,29 @@ export class AccessChannels extends Component {
 	_renderAccessChannels() {
 		return html`
 		<capitec-pc-access-channels
-			.status="${this.status}"
+			.status=${this.status}
+			.appAndInternetActive=${this.status.appAndInternetActive}
+			.ussdActive=${this.status.ussdActive}
+			.notificationType=${this.status.notificationType}
+			
 			@tile-click="${(event) => this._showSlidingPanel(event)}">
 		</capitec-pc-access-channels>
 
-		<capitec-side-sheet
-			.expanded="${this.showSideSheet}"
-			alignment="right">
-				<capitec-content-box
-					layout="vertical"
-					halign="center"
-					valign="center"
-					gap="clear">
-						<capitec-label type="Strong" label="Content comes here.."></capitec-label>
-						<capitec-button type="primary" label="Close" @click="${() => this._showSlidingPanel()}"></capitec-button>
-				</capitec-content-box>
-		</capitec-side-sheet>`;
+		${this._renderAppAndOnlineBanking()}
+		`;
+	}
+
+	_renderAppAndOnlineBanking() {
+		return this.selectedAccessChannelType === `AppAndOnlineBanking` ?
+		html`
+			<capitec-pc-app-profile-details
+				.isAppAndInternetActive = ${this.status.appAndInternetActive}
+				.showSideSheet = ${this.showSideSheet}
+				.suspendAppAndOnlineBanking = "${() => this.suspendAppAndOnlineBanking()}"
+				.unSuspendAppAndOnlineBanking = "${() => this.unSuspendAppAndOnlineBanking()}"
+				@close-side-sheet ="${(event) => this._showSlidingPanel(event)}" >
+			</capitec-pc-app-profile-details>`
+		: html``;
 	}
 
 	_renderLoadingIndicator() {
