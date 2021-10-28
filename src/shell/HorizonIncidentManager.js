@@ -181,6 +181,7 @@ export class HorizonIncidentManager {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 
 		if (!incidentDetails.incidentReferenceNumber || incidentDetails.incidentReferenceNumber === `0`) {
+			this.logger.log(`warning`, `Incident manager: Trying to close incident when ref no is 0 or empty. Current need: ${incidentDetails.currentNeed} previous need: ${incidentDetails.previousNeed}`, `closeIncident`, null);
 			return false;
 		}
 
