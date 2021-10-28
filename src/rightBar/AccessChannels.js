@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { Logger } from 'platform/core';
+import { EventAggregator, Logger } from 'platform/core';
 
 import 'platform/components';
 import 'app/productControls/AccessChannels/src/AccessChannels';
@@ -25,6 +25,7 @@ export class AccessChannels extends Component {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
 	}
@@ -36,8 +37,9 @@ export class AccessChannels extends Component {
 	static get properties() {
 		return {
 			isBusy: { state: true },
-			status: { state: true },
-			showSideSheet: { state: true }
+			status: { type: Object },
+			showSideSheet: { state: true },
+			selectedAccessChannelType: { state: true }
 		};
 	}
 
@@ -51,11 +53,6 @@ export class AccessChannels extends Component {
 		const callerInformation = this.horizonStore.getCallerInformation();
 		
 		this.cifNumber = callerInformation.cifNumber;
-		this.status = {
-			appAndInternetActive: true,
-			ussdActive: false,
-			notificationType: `unknown`
-		};
 
 		this._accessChannelService();
 	}
@@ -67,20 +64,23 @@ export class AccessChannels extends Component {
 	_showSlidingPanel(event) {
 
 		this.selectedAccessChannelType = event.detail && event.detail.tileClicked || ``;
+		this.eventAggregator.publish(`horizon-access-status-update`, this.status);
 		this.showSideSheet = !this.showSideSheet;
 	}
 	
-	suspendAppAndOnlineBanking() {
+	suspendApp() {
 		// TO DO: Channel service call to suspend app should come here
 		// If successfully suspended, update app status, else Error scenario
 		this.status.appAndInternetActive = false;
+
 		return true;
 	}
 
-	unSuspendAppAndOnlineBanking() {
+	unSuspendApp() {
 		// TO DO: Channel service call to Un-suspend App should come here
 		// If successfully Unsuspended, update app status, else Error scenario
 		this.status.appAndInternetActive = true;
+
 		return true;
 	}
 
@@ -100,7 +100,11 @@ export class AccessChannels extends Component {
 		const returnValue = await this.accessChannelService.accessChannelStatus(this.cifNumber);
 		
 		if (returnValue.succeeded) {
-			this.status = returnValue.result;
+			this.status = {
+				"ussdActive": true,
+				"appAndInternetActive": true,
+				"notificationType": "Unknown"
+			  }
 			return;
 		} 
 		
@@ -130,32 +134,31 @@ export class AccessChannels extends Component {
 	_webTemplate() {
 		return html`
 			${this._renderAccessChannels()}
-			${this._renderLoadingIndicator()}`;
+			${this._renderLoadingIndicator()}
+			${this._renderAppPanel()}
+		`;
 	}
     
 	_renderAccessChannels() {
-		return html`
+		return this.status ?
+		html`
 		<capitec-pc-access-channels
 			.status=${this.status}
-			.appAndInternetActive=${this.status.appAndInternetActive}
-			.ussdActive=${this.status.ussdActive}
-			.notificationType=${this.status.notificationType}
-			
 			@tile-click="${(event) => this._showSlidingPanel(event)}">
 		</capitec-pc-access-channels>
-
-		${this._renderAppAndOnlineBanking()}
-		`;
+		` : html``;
 	}
 
-	_renderAppAndOnlineBanking() {
-		return this.selectedAccessChannelType === `AppAndOnlineBanking` ?
+	_renderAppPanel() {
+		return this.selectedAccessChannelType === `App` ?
 		html`
 			<capitec-pc-app-profile-details
-				.isAppAndInternetActive = ${this.status.appAndInternetActive}
+				.isAppActive = ${this.status.appAndInternetActive}
 				.showSideSheet = ${this.showSideSheet}
-				.suspendAppAndOnlineBanking = "${() => this.suspendAppAndOnlineBanking()}"
-				.unSuspendAppAndOnlineBanking = "${() => this.unSuspendAppAndOnlineBanking()}"
+
+				.suspendApp = "${() => this.suspendApp()}"
+				.unSuspendApp = "${() => this.unSuspendApp()}"
+
 				@close-side-sheet ="${(event) => this._showSlidingPanel(event)}" >
 			</capitec-pc-app-profile-details>`
 		: html``;

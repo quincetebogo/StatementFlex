@@ -3,7 +3,6 @@ import { Component, css, html } from 'platform/elements';
 import 'platform/components';
 import 'app/components/common/HorizonLabel';
 import 'app/webComponents/src/SideSheet';
-import { stringify } from 'uuid';
 
 export class AppProfileDetails extends Component {
 
@@ -31,7 +30,7 @@ export class AppProfileDetails extends Component {
 	static get properties() {
 		return {
 			showSideSheet: { type: Object },
-			isAppAndInternetActive: { type: Boolean},
+			isAppActive: { type: Boolean},
 
 			suspendAppAndOnlineBanking: { type: Object },
 			unSuspendAppAndOnlineBanking: { type: Object },
@@ -71,10 +70,10 @@ export class AppProfileDetails extends Component {
 	async _onSuspendAppClick() {
 
 		if(this.selectedSuspendReason) {
-			const returnValue = await this.suspendAppAndOnlineBanking();
+			const returnValue = await this.suspendApp();
 		
 			if(returnValue) {
-				this.isAppAndInternetActive = false;
+				this.isAppActive = false;
 				this._displayAndCloseToast();
 				this._toggleSuspendReasonsSlide();
 			}
@@ -84,10 +83,10 @@ export class AppProfileDetails extends Component {
 	}
 
 	async _onUnsuspendAppClick() {
-		const returnValue = await this.unSuspendAppAndOnlineBanking();
+		const returnValue = await this.unSuspendApp();
 		
 		if(returnValue) {
-			this.isAppAndInternetActive = true;
+			this.isAppActive = true;
 			this._displayAndCloseToast();
 		}
 	}
@@ -201,6 +200,9 @@ export class AppProfileDetails extends Component {
     				padding: 0px 24px;
 					background-color: rgba(212, 120, 28, 0.15);
 				}
+				.header-suspend-error{
+					background-color: #F7E2E1;
+				}
 				.icon-warning {
 					--theme-icon-size-medium: 23px;
 					margin-right: 8.25px;
@@ -287,31 +289,31 @@ export class AppProfileDetails extends Component {
 							<horizon-label
 								data-automation-id=""
 								label="Status"
-								value="${ this.isAppAndInternetActive ? `Active` : `Suspended`}">
+								value="${ this.isAppActive ? `Active` : `Suspended`}">
 							</horizon-label>
 
 							<horizon-label 
 								data-automation-id=""
 								label="Last updated"
 								value="12 Jun 2019, 12:45pm"
-								style="display:${this.isAppAndInternetActive ? `none` : `block`}">
+								style="display:${this.isAppActive ? `none` : `block`}">
 							</horizon-label>
 
 							<horizon-label 
 								data-automation-id=""
 								label="Reason for suspending"
 								value="${this.selectedSuspendReason || `Lost`}"
-								style="display:${this.isAppAndInternetActive ? `none` : `block`}">
+								style="display:${this.isAppActive ? `none` : `block`}">
 							</horizon-label>
 
 							<capitec-button
 								type="primary"
-								?hidden=${!this.isAppAndInternetActive}
+								?hidden=${!this.isAppActive}
 								label="Suspend"
 								@click="${() => this._toggleSuspendReasonsSlide()}">
 							</capitec-button>
 							<capitec-button 
-								?hidden=${this.isAppAndInternetActive}
+								?hidden=${this.isAppActive}
 								type="primary" 
 								label="Unsuspend" 
 								@click="${() => this._onUnsuspendAppClick()}">
@@ -321,18 +323,19 @@ export class AppProfileDetails extends Component {
 	}
 
 	_renderSuspendAppReason() {
-		return html`
+		return this.showSuspendReasons ?
+		 html`
 			<capitec-side-sheet
 				class="suspend-reasons"
 				.expanded="${this.showSuspendReasons}"
 				alignment="right">
 					<capitec-group
-						class="header-group-suspend"
+						class="header-group-suspend ${this.showValidationBanner ? `header-suspend-error` : ``}"
 						layout="horizontal"
 						halign="left"
 						valign="center"
 						gap="none">
-						<capitec-icon class="icon-warning" size="medium" icon="status/warning-trans"></capitec-icon>
+						<capitec-icon class="icon-warning" size="medium" icon="${this.showValidationBanner ? `status/error-trans` : `status/warning-trans`}"></capitec-icon>
 						<capitec-label class="header-label" type="Strong" label="Suspend App"></capitec-label>
 						<capitec-spacer></capitec-spacer>
 						<capitec-icon class="icon-close" size="small" icon="system/close-action" @click="${() => this._toggleSuspendReasonsSlide()}"></capitec-icon>
@@ -350,21 +353,22 @@ export class AppProfileDetails extends Component {
 						<capitec-label class="header-label" type="Strong" label="Reasons to suspend"></capitec-label>
 						
 						<capitec-radio-group label="Radio group label">
-							<capitec-radio label="Lost" @value-change="${(event) => this._onReasonSelected(event)}" ?checked=${this.selectedSuspendReason === `Lost`}></capitec-radio>
-							<capitec-radio label="Stolen" @value-change="${(event) => this._onReasonSelected(event)}" ?checked=${this.selectedSuspendReason === `Stolen`}></capitec-radio>
-							<capitec-radio label="Cancelled remote banking" @value-change="${(event) => this._onReasonSelected(event)}" ?checked=${this.selectedSuspendReason === `Cancelled remote banking`}></capitec-radio>
-							<capitec-radio label="Faulty" @value-change="${(event) => this._onReasonSelected(event)}" ?checked=${this.selectedSuspendReason === `Faulty`}></capitec-radio>
+							<capitec-radio label="Lost" @value-changed="${(event) => this._onReasonSelected(event)}"></capitec-radio>
+							<capitec-radio label="Stolen" @value-changed="${(event) => this._onReasonSelected(event)}"></capitec-radio>
+							<capitec-radio label="Cancelled remote banking" @value-changed="${(event) => this._onReasonSelected(event)}"></capitec-radio>
+							<capitec-radio label="Faulty" @value-changed="${(event) => this._onReasonSelected(event)}"></capitec-radio>
 						</capitec-radio-group>
 
 						<capitec-button type="primary" label="Suspend" @click="${() => this._onSuspendAppClick()}"></capitec-button>
 						<capitec-button label="Cancel" @click="${() => this._toggleSuspendReasonsSlide()}"></capitec-button>
 
 					</capitec-content-box>
-			</capitec-side-sheet>`;
+			</capitec-side-sheet>`
+			: html``;
 	}
 
 	_renderNotificationBanner() {
-		return this.isAppAndInternetActive ? 
+		return this.isAppActive ? 
 		html`` : 
 		html`
 			<capitec-alert-banner 
@@ -378,7 +382,7 @@ export class AppProfileDetails extends Component {
 	}
 
 	_renderValidationBanner() {
-		return this.isAppAndInternetActive && this.showValidationBanner ? 
+		return this.isAppActive && this.showValidationBanner ? 
 		html`
 			<capitec-alert-banner 
 				class="validate-reasons"
@@ -396,7 +400,7 @@ export class AppProfileDetails extends Component {
 		<capitec-toast 
 			type="success" 
 			header="Successful!"
-			detail="App was ${this.isAppAndInternetActive ? `unsuspended` : `suspended`}"
+			detail="App was ${this.isAppActive ? `unsuspended` : `suspended`}&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp 12 Jun 2019, 12:45pm"
 			?hidden="${!this.displayToast}"
 			@click="${() => this.displayToast = false}"
 			closable>
