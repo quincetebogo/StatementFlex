@@ -3,6 +3,9 @@ import { AccessChannelService } from 'app/services/AccessChannelService';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Logger } from 'platform/core';
 
+import 'app/webComponents/src/SideSheet';
+import 'app/components/common/HorizonLabel';
+
 export class USSDProfileDetails extends Component {
 	constructor() {
 		super();
@@ -78,9 +81,12 @@ export class USSDProfileDetails extends Component {
 		// code to unblock SIM
 	}
 
+	_toggleCancelUSSD() {
+		// toggle show and hide of cancel ussd reasons
+	}
+
 	_cancelUSSD() {
-		// show the cancel USSD screen in panel
-		this._renderCancelUSSD();
+		// action of actually cancelling the service
 	}
 
 	_cancel() {
@@ -106,42 +112,48 @@ export class USSDProfileDetails extends Component {
 	_renderUSSDProfileDetails() {
 		// check if sim is blocked the show the error
 		return html`
-		<capitec-alert-banner type="${this.bannerType}" class="mainBanner" header="${this.bannerTitle}" label="${this.bannerSubtitle}" layout="vertical">
-		</capitec-alert-banner>
 
-		<div class="dateRegistered">
-			<capitec-label type="subtitle" label="Date registered"></capitec-label>
-			<capitec-label type="title" label="${this.dateRegistered}"></capitec-label>
-		</div>
+		<horizon-label 
+			class="dateRegistered"
+			label="Date registered"
+			value="${this.dateRegistered}">
+		</horizon-label>
 
-		<div class="cellNumber">
-			<capitec-label type="subtitle" label="Cellphone number (verified)"></capitec-label>
-			<capitec-label type="title" label="${this.cellNumber}"></capitec-label>
-		</div>
+		<horizon-label 
+			class="cellNumber"
+			label="Cellphone number (verified)"
+			value="${this.cellNumber}">
+		</horizon-label>
 
-		<div class="lastInteraction">
-			<capitec-label type="subtitle" label="Last interaction date"></capitec-label>
-			<capitec-label type="title" label="${this.lastInteraction}"></capitec-label>
-		</div>
+		<horizon-label 
+			class="lastInteraction"
+			label="Last interaction date"
+			value="${this.lastInteraction}">
+		</horizon-label>
 
-		<div class="ussdStatus">
-			<capitec-label type="subtitle" label="Status"></capitec-label>
-			<capitec-label type="title" label="${this.ussdStatus}"></capitec-label>
-		</div>
+		<horizon-label 
+			class="ussdStatus"
+			label="Status"
+			value="${this.ussdStatus}">
+		</horizon-label>
 
-		<div class="lastUpdated">
-			<capitec-label type="subtitle" label="Last updated"></capitec-label>
-			<capitec-label type="title" label="${this.lastUpdated}"></capitec-label>
-		</div>
+		<horizon-label 
+			class="lastUpdated"
+			label="Last updated"
+			value="${this.lastUpdated}"
+			>
+		</horizon-label>
 
-		<div class="cancelling">
-			<capitec-label type="subtitle" label="Reason for cancelling"></capitec-label>
-			<capitec-label type="title" label="${this.cancelling}"></capitec-label>
-		</div>
+		<horizon-label 
+			class="cancelling"
+			label="Reason for cancelling"
+			value="${this.cancelling}"
+			>
+		</horizon-label>
 
 		<div class="buttons">
 			<capitec-button label="Unblock SIM" @click="${() => this._unblockSIM()}"></capitec-button>
-			<capitec-button label="Cancel USSD" @click="${() => this._cancelUSSD()}"></capitec-button>
+			<capitec-button label="Cancel USSD" @click="${() => this._toggleCancelUSSD()}"></capitec-button>
 		</div>
 		`;
 	}
@@ -167,11 +179,36 @@ export class USSDProfileDetails extends Component {
 		</capitec-radio-group>
 
 		<div class="buttons">
-			<capitec-button label="Cancel USSD" @click="${() => this._cancelUSSD()}"></capitec-button>
-			<capitec-button label="Cancel" @click="${() => this._cancel()}"></capitec-button>
+			<capitec-button 
+				label="Cancel USSD" 
+				?hidden="${this.ussdActive}"
+				@click="${() => this._cancelUSSD()}">
+			</capitec-button>
+
+			<capitec-button 
+				label="Cancel" 
+				?hidden="${this.hide}"
+				@click="${() => this._cancel()}"></capitec-button>
 		</div>
 
 		`
+	}
+
+	_renderAlertBanner() {
+		// if sim blocked unsuccessful red banner
+		// 
+		return html `
+		<capitec-alert-banner type="${this.bannerType}" class="mainBanner" header="${this.bannerTitle}" label="${this.bannerSubtitle}" layout="vertical">
+		</capitec-alert-banner>
+		`;
+	}
+
+	_renderToast() {
+		// successful toast to only show for 3 seconds
+		// banner details will change for every transaction
+		return html `
+		<capitec-toast type="success" header="Successful" detail="${this.bannerDetails}"></capitec-toast>
+		`;
 	}
 
 	_renderLoadingIndicator() {
