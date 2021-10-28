@@ -6,6 +6,7 @@ import { Logger } from 'platform/core';
 import 'platform/components';
 import 'app/productControls/AccessChannels/src/AccessChannels';
 import 'app/webComponents/src/SideSheet';
+import 'app/productControls/AccessChannels/src/USSDProfileDetails';
 
 /**
  * 
@@ -84,6 +85,7 @@ export class AccessChannels extends Component {
 		
 		if (returnValue.succeeded) {
 			this.status = returnValue.result;
+			console.log(returnValue)
 			return;
 		} 
 		
@@ -135,6 +137,15 @@ export class AccessChannels extends Component {
 						<capitec-button type="primary" label="Close" @click="${() => this._showSlidingPanel()}"></capitec-button>
 				</capitec-content-box>
 		</capitec-side-sheet>`;
+	}
+
+	_renderUSSD() {
+		return this.selectedAccessChannelType === `USSD` ?
+		html `
+			<capitec-pc-ussd-profile-details>
+			</capitec-pc-ussd-profile-details>
+		` : 
+		html ``;
 	}
 
 	_renderLoadingIndicator() {
