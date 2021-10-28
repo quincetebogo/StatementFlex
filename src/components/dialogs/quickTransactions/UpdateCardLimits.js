@@ -962,7 +962,7 @@ export class UpdateCardLimits extends Component {
 				class="tapToPayTitle">
 			</capitec-label>
 			<capitec-label
-				label="Total daily No-PIN limit R500"
+				label="Total daily No-PIN limit R1 000"
 				type="subtitle"
 				class="tapToPaySub">
 			</capitec-label>

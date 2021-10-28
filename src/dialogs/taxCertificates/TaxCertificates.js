@@ -296,7 +296,7 @@ export class TaxCertificatesDialog extends Component {
 		if (selectedCertificates.iT3BTaxCertificates && (selectedCertType === `iT3BTaxCertificates` || selectedCertType === `both`)) {
 			attachments.push(...selectedCertificates.iT3BTaxCertificates.map(item => {
 				return {
-					name: `${item.year} it3b document for year`,
+					name: `${item.year} IT3b Tax Certificate`,
 					data: item.contentData
 				};
 			}));
