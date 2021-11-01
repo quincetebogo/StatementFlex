@@ -53,7 +53,7 @@ export class AccessChannels extends Component {
 		this.cifNumber = callerInformation.cifNumber;
 		this.status = {
 			appAndInternetActive: false,
-			ussdActive: false,
+			ussdActive: true,
 			notificationType: `unknown`
 		};
 
@@ -65,7 +65,22 @@ export class AccessChannels extends Component {
 	// --------------
 
 	_showSlidingPanel(event) {
+		this.selectedAccessChannelType = event.detail && event.detail.titleClicked || ``;
 		this.showSideSheet = !this.showSideSheet;
+	}
+	
+	cancelUSSD() {
+		// TO DO: add channel service call to cancel USSD service
+		// If cancel is successful, show toast, update ussd status, else show error
+		this.status.ussdActive = false;
+		return true;
+	}
+
+	activateFullMenuUSSD() {
+		// TO DO: add code to activate full menu for currently active ussd clients
+		// If client has active ussd, menu reduced, activate full menu function
+		this.status.ussdActive = true;
+		return true;
 	}
 
 	// --------------
@@ -85,7 +100,6 @@ export class AccessChannels extends Component {
 		
 		if (returnValue.succeeded) {
 			this.status = returnValue.result;
-			console.log(returnValue)
 			return;
 		} 
 		
@@ -121,11 +135,15 @@ export class AccessChannels extends Component {
 	_renderAccessChannels() {
 		return html`
 		<capitec-pc-access-channels
-			.status="${this.status}"
+			.status=${this.status}
+			.appAndInternetActive=${this.status.appAndInternetActive}
+			.ussdActive=${this.status.ussdActive}
+			.notificationType=${this.status.notificationType}
 			@tile-click="${(event) => this._showSlidingPanel(event)}">
 		</capitec-pc-access-channels>
 
-		<capitec-side-sheet
+		${this._renderUSSD()}
+		<!-- <capitec-side-sheet
 			.expanded="${this.showSideSheet}"
 			alignment="right">
 				<capitec-content-box
@@ -136,13 +154,19 @@ export class AccessChannels extends Component {
 						<capitec-label type="Strong" label="Content comes here.."></capitec-label>
 						<capitec-button type="primary" label="Close" @click="${() => this._showSlidingPanel()}"></capitec-button>
 				</capitec-content-box>
-		</capitec-side-sheet>`;
+		</capitec-side-sheet> -->
+		`;
 	}
 
 	_renderUSSD() {
 		return this.selectedAccessChannelType === `USSD` ?
 		html `
-			<capitec-pc-ussd-profile-details>
+			<capitec-pc-ussd-profile-details
+			.ussdActive="${this.ussdActive}"
+			.showSideSheet="${this.showSideSheet}"
+			.cancelUSSD="${() => this.cancelUSSD()}"
+			.activateFullMenuUSSD="${() => this.activateFullMenuUSSD()}"
+			@close-side-sheet="${(event) => this._this.showSideSheet(event)}">
 			</capitec-pc-ussd-profile-details>
 		` : 
 		html ``;

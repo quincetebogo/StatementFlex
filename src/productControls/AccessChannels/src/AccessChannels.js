@@ -96,15 +96,17 @@ export class AccessChannels extends Component {
 				<capitec-label class="header-label" label="Access Channels"></capitec-label>
 
 				<horizon-product-tile 
+					class=${this.status.appAndInternetActive ? `status-active` : `status-inactive`}
 					type="default"
 					label="App & Online Banking"
 					subtitle=${this.status.appAndInternetActive ? `active` : `inactive`}
 					detail=""
-					icon="system/access"
+					icon="system/cellphone"
 					@click="${() => this._tileClick(`AppAndOnlineBanking`)}">
 				</horizon-product-tile>
 
 				<horizon-product-tile 
+					class=${this.status.ussdActive ? `status-active` : `status-inactive`}
 					type="default"
 					label="USSD"
 					subtitle=${this.status.ussdActive ? `active` : `inactive`}
@@ -114,6 +116,7 @@ export class AccessChannels extends Component {
 				</horizon-product-tile>
 
 				<horizon-product-tile 
+					class=${this.status.notificationType ? `status-active` : `status-inactive`}
 					type="default"
 					label="Notifications"
 					subtitle=${this.status.notificationType ? this.status.notificationType : `inactive`}
