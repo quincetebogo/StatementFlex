@@ -187,6 +187,11 @@ export const END_CALL_REASON = Object.freeze({
 				mapping: `call-transfer`
 			},
 			{
+				key: NEED_INCOMPLETE,
+				value: `Need incomplete - bad connection`,
+				mapping: `telephony-disconnected`
+			},
+			{
 				key: PRODUCT_ENQUIRY,
 				value: `Product enquiry`,
 				mapping: `general-product-enquiry`

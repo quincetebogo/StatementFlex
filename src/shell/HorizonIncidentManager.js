@@ -181,8 +181,13 @@ export class HorizonIncidentManager {
 	 async closeIncident({ clientNeed, endCallReason = {}, causeCodeByContext }, toggleBusyFlag) {
 
 		this.incidentService._toggleBusyFlag = toggleBusyFlag;
-		
 		const incidentDetails = this.horizonStore.getIncidentDetails();
+
+		if (!incidentDetails.incidentReferenceNumber || incidentDetails.incidentReferenceNumber === `0`) {
+			this.logger.log(`warning`, `Incident manager: Trying to close incident when ref no is 0 or empty. Current need: ${incidentDetails.currentNeed} previous need: ${incidentDetails.previousNeed}`, `closeIncident`, null);
+			return false;
+		}
+
 		const incidentInfo = await this._incidentStatus(incidentDetails.incidentRecId);
 
 		if (this._isReassigned(incidentInfo)) {

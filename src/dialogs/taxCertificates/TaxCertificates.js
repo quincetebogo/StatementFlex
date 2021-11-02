@@ -13,6 +13,12 @@ import 'app/components/common/HorizonEmailInput';
 import 'app/productControls/taxCertificates/src/TaxCertificates';
 
 
+const MESSAGE_OPTION = {
+	'iT3STaxCertificates': `SEND_IT3S_STATEMENT`,
+	'iT3BTaxCertificates': `SEND_IT3B_STATEMENT`,
+	'both': `SEND_IT3B_AND_IT3S_STATEMENT`
+};
+
 /**
  * Tax Certificates dialog is used to send tax certificates from the primary savings account.
  * This component is invoked from the Favourites landing screen.
@@ -296,7 +302,7 @@ export class TaxCertificatesDialog extends Component {
 		if (selectedCertificates.iT3BTaxCertificates && (selectedCertType === `iT3BTaxCertificates` || selectedCertType === `both`)) {
 			attachments.push(...selectedCertificates.iT3BTaxCertificates.map(item => {
 				return {
-					name: `${item.year} it3b document for year`,
+					name: `${item.year} IT3b Tax Certificate`,
 					data: item.contentData
 				};
 			}));
@@ -305,10 +311,11 @@ export class TaxCertificatesDialog extends Component {
 		if (selectedCertificates.iT3STaxCertificates && (selectedCertType === `iT3STaxCertificates` || selectedCertType === `both`)) {
 			documentIds.push(...selectedCertificates.iT3STaxCertificates.map(item => item.documentId));
 		}
-
+		
 		const request = {
 			"cif": this.cifNumber,
 			"emailAddress": email,
+			"messageOption": MESSAGE_OPTION[selectedCertType],
 			"documentIds": documentIds,
 			"messageParameters": {
 				"title": this.taxCertificateDetails.title,
