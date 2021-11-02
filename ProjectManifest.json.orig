@@ -5,8 +5,8 @@
 <<<<<<< HEAD
   "version": "1.7.43",
 =======
-  "version": "1.6.30",
->>>>>>> origin/hotfix/EL-5545-ContactlessLimit
+  "version": "1.6.31",
+>>>>>>> origin/hotfix/STRack-Upgrade
   "alias": "horizon",
   "release": "CLIRel",
   "contractVersion": "v1",
