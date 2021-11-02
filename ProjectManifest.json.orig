@@ -1,0 +1,41 @@
+{
+  "name": "Horizon-UI",
+  "product": "BSC-Horizon",
+  "group": "G_PL_HZN_DEV",
+<<<<<<< HEAD
+  "version": "1.7.43",
+=======
+  "version": "1.6.30",
+>>>>>>> origin/hotfix/EL-5545-ContactlessLimit
+  "alias": "horizon",
+  "release": "CLIRel",
+  "contractVersion": "v1",
+  "serviceType": "Hosting",
+  "resourceSize": "medium",
+  "redundancySize": "custom",
+  "redundancySizes": {
+    "NP": 3,
+    "PROD": 3
+  },
+  "port": 6001,
+  "client": {
+    "clientName": "Platform",
+    "clientDescription": null,
+    "isUserInterface": false,
+    "flow": "password",
+    "extraScopes": "",
+    "roles": null
+  },
+  "secrets": [
+    "telemetrydatabussecret"
+  ],
+  "environmentVariables": [
+    "LogLevel",
+    "MetricsLogLevel",
+    "DatabusSourceSystem",
+    "DatabusResponsibleTeam",
+    "TelemetryApiKeySecretName",
+    "TelemetryApiId",
+    "TelemetryApiUrl"
+  ]
+}
