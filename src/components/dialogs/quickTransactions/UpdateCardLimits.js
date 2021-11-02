@@ -509,7 +509,7 @@ export class UpdateCardLimits extends Component {
 			.tapToPaySub {
 				--theme-label-subtitle-line-height: 12px;
 				--theme-label-subtitle-font-size: 12px;
-				width: 150px;
+				width: auto;
 				margin: 0px 0px 16px 8px;
 			}
 			capitec-modal {
@@ -963,7 +963,7 @@ export class UpdateCardLimits extends Component {
 				class="tapToPayTitle">
 			</capitec-label>
 			<capitec-label
-				label="Total daily No-PIN limit R500"
+				label="Total daily No-PIN limit R1 000"
 				type="subtitle"
 				class="tapToPaySub">
 			</capitec-label>
