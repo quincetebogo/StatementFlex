@@ -70,6 +70,22 @@ export class AccessChannels extends Component {
 		this.showSideSheet = !this.showSideSheet;
 	}
 
+	_suspendInternetBankingSecurityToken() {
+		// TO DO: Channel service call to Suspend internet banking should come here
+		// If successfully Suspended, update internet banking status, else Error scenario
+		this.status.internetBankingActive = false;
+
+		return true;
+	}
+
+	_unSuspendInternetBankingSecurityToken() {
+		// TO DO: Channel service call to Unsuspend internet banking should come here
+		// If successfully Unsuspended, update internet banking status, else Error scenario
+		this.status.internetBankingActive = true;
+
+		return true;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -138,6 +154,8 @@ export class AccessChannels extends Component {
 			<capitec-pc-internet-banking-profile-details
 				.isInternetBankingActive=${this.status.internetBankingActive}
 				.showSideSheet = ${this.showSideSheet}
+				.suspendInternetBankingSecurityToken = "${() => this._suspendInternetBankingSecurityToken()}"
+				.unSuspendInternetBankingSecurityToken = "${() => this._unSuspendInternetBankingSecurityToken()}"
 				@close-side-sheet="${(event) => this._showSlidingPanel(event)}"
 			>
 			</capitec-pc-internet-banking-profile-details>

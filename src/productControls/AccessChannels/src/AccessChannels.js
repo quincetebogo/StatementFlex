@@ -104,7 +104,7 @@ export class AccessChannels extends Component {
 				<horizon-product-tile 
 					type="default"
 					label="App"
-					subtitle=${this.status.appActive ? `active` : `inactive`}
+					subtitle="${this.status.appActive ? `active` : `inactive`}"
 					detail=""
 					icon="system/cellphone"
 					@click="${() => this._tileClick(`App`)}">
@@ -114,7 +114,7 @@ export class AccessChannels extends Component {
 					class=${this.status.internetBankingActive ? `status-active` : `status-inactive`}
 					type="default"
 					label="Internet Banking"
-					subtitle=${this.status.internetBankingActive ? `active` : `inactive`}
+					subtitle="${this.status.internetBankingActive ? `active` : `inactive`} | Last used 06 Jun 2021"
 					detail=""
 					icon="system/access"
 					@click="${() => this._tileClick(`InternetBanking`)}">
