@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { formatCurrency, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -385,7 +385,7 @@ export class UpdateCardLimits extends Component {
 		`;
 	}
 
-    _getFieldError(value) {
+    _getFieldError(value) { 
         return !value ? `` : `Max limit - ${formatCurrency(value, 0)}`;
     }
     
@@ -458,6 +458,11 @@ export class UpdateCardLimits extends Component {
 		this.alertBannerText = `Update limit(s) in order to continue.`;
 	}
 
+	_getFullDate(){
+		const expDate = new Date(this.cardLimits.tempLimitExpiryDate);
+		const month = parseInt(expDate.getMonth());
+		return `${expDate.getDate()} ${getMonthName(month)} ${expDate.getFullYear()}`		
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -920,6 +925,7 @@ export class UpdateCardLimits extends Component {
 				type="currency"
 				value="${this._getTextFieldValue(cashAmountLimit, limits.cashAmountLimit)}"
 				error="${this._getFieldError(this.error[transactionType][cashAmountLimit])}"
+				hint="${this.limitType===`Temporary` ? `Expires on ` + this._getFullDate() + ` at midnight`: ``}"
 				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD}"
 				@blur="${() => this.fieldFocused = ``}"
 				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"
@@ -933,6 +939,7 @@ export class UpdateCardLimits extends Component {
 				type="currency"
 				value="${this._getTextFieldValue(purchaseAmountLimit, limits.purchaseAmountLimit)}"
 				error="${this._getFieldError(this.error[transactionType][purchaseAmountLimit])}"
+				hint="${this.limitType===`Temporary` ? `Expires on ` + this._getFullDate() + ` at midnight`: ``}"
 				@blur="${() => this.fieldFocused = ``}"
 				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD}"
 				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"
@@ -946,6 +953,7 @@ export class UpdateCardLimits extends Component {
 				type="currency"
 				value="${this._getTextFieldValue(cnpAmountLimit, limits.cnpAmountLimit)}"
 				error="${this._getFieldError(this.error[transactionType][cnpAmountLimit])}"
+				hint="${this.limitType===`Temporary` ? `Expires on ` + this._getFullDate() + ` at midnight`: ``}"
 				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD}"
 				@blur="${() => this.fieldFocused = ``}"
 				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"
