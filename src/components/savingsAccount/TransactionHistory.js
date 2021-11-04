@@ -266,8 +266,10 @@ export class TransactionHistory extends Component {
 
     async _loadMoreTransactions() {
 		const oldCount = this.transactionHistory.length;
+		const startDate = this.startDate.toLocaleString().slice(0, 10);
+		const endDate = this.endDate.toLocaleString().slice(0, 10);
 		
-		await this.getTransactionHistory(this.startDate, this.endDate, this.transactionHistory.length + 1);
+		await this.getTransactionHistory(startDate, endDate, this.transactionHistory.length + 1);
 		// If the old record count and count after load more are same means no more data to populate,
 		// so hiding loadmore button
 		if (oldCount === this.transactionHistory.length) {
