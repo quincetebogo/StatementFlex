@@ -26,6 +26,7 @@ export class StopCardSuccess extends ViewBase {
 		this.displayNotification = false;
 		this.stoppedCards = [];
 		this.showAlertModal = false;
+		this.endCallContext = `QuickTransactionSuccess`;
 
 		this._telemetry = HorizonTelemetry.instance;
 	}
