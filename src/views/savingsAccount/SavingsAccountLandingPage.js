@@ -208,7 +208,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
 
 		if (returnValue.succeeded && returnValue.result) {
-			const formattedTrans = returnValue.result
+			const formattedTrans = returnValue.result.transactions
 									.filter(item => item.transactionStatus !== ``)
 									.map((item) => {
 										const date = new Date(Date.parse(item.transactionDate));
