@@ -1,4 +1,4 @@
-import { CLOSE_REASONS, HORIZON_NEED_STATUS, REASON_RESOLUTIONS } from 'app/constants/IncidentManager';
+import { CAUSE_CODE_BY_REASON, CLOSE_REASONS, HORIZON_NEED_STATUS, REASON_RESOLUTIONS } from 'app/constants/IncidentManager';
 import { Component, View } from 'platform/elements';
 import { Configuration, Logger, SecurityContext } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -172,13 +172,13 @@ export class HorizonIncidentManager {
 	 * Reason - Need Fullfilled & Cause code - Normal Enquiry
 	 * 
 	 * @param {Object} Object
-	 * 			- clientNeed - Client's need [Stop card/ Proof of account/ Statements etc..]
-	 * 			- endCallReason - End call reason selected/ default to `Normal Enquiry'
-	 * 			- causeCodeByContext - Cause code to end call session
+	 *          - clientNeed - Client's need [Stop card/ Proof of account/ Statements etc..]
+	 *          - endCallReason - End call reason selected/ default to `Normal Enquiry'
+	 *          - causeCodeByContext - Cause code to end call session
 	 * @param {Function} toggleBusyFlag - Toggle busy flag function
 	 * @returns {boolean} - true/ false, indicating close incident status
 	 */
-	 async closeIncident({ clientNeed, endCallReason = {}, causeCodeByContext }, toggleBusyFlag) {
+	 async closeIncident({ clientNeed, endCallReason = {} }, toggleBusyFlag) {
 
 		this.incidentService._toggleBusyFlag = toggleBusyFlag;
 		const incidentDetails = this.horizonStore.getIncidentDetails();
@@ -203,7 +203,7 @@ export class HorizonIncidentManager {
 
 		const reason = isNullorEmpty(endCallReason.key) ? CLOSE_REASONS[incidentDetails.needStatus] : endCallReason.key;
 		const resolution = this._getResolution(incidentInfo.resolution, incidentDetails, endCallReason);
-		const causeCode = this._getCauseCode(incidentInfo.causeCode, causeCodeByContext, incidentDetails);
+		const causeCode = this._getCauseCode(incidentInfo.causeCode, endCallReason.value || REASON_RESOLUTIONS[reason]);
 
 		const closeIncidentRequest = {
 			incidentRecId: incidentDetails.incidentRecId,
@@ -281,15 +281,16 @@ export class HorizonIncidentManager {
 		return resolution ? `${resolution}\n${endCallReason.value || REASON_RESOLUTIONS[reason]}` : `${endCallReason.value || REASON_RESOLUTIONS[reason]}`;
 	}
 
-	_getCauseCode(causeCode, caueCodeByContext, incidentDetails) {
-		let notStartedCode = ``;
-		// Special case, when subsequent need is created on opening a need, if its not required anymore
-		// then it should be tagged as 'TransactionCancelled'.
-		if (incidentDetails.needStatus === HORIZON_NEED_STATUS.NOT_STARTED) {
-			notStartedCode = `TransactionCancelled`;
-		}
-
-		return causeCode || notStartedCode || caueCodeByContext || `NormalEnquiry`;
+	/**
+	 * Returns relevant cause code based on endcall reason selected
+	 * 
+	 * @param {String} causeCode - gets value when updated cause-code on STack out side the application 
+	 * @param {String} endCallReason - hold value of selected endcall reason
+	 * @returns { String } - Returns "causeCode" || "causeCodeByReason" || "NormalEnquiry"
+	 */
+	 _getCauseCode(causeCode, endCallReason) {
+		const causeCodeByReason = CAUSE_CODE_BY_REASON[endCallReason] || ``;
+		return causeCode || causeCodeByReason || `NormalEnquiry`;
 	}
 
 	_formatLineBreaks(value) {

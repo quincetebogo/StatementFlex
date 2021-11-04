@@ -3,7 +3,6 @@ import { Component, css, html, live } from 'platform/elements';
 import { Configuration, Logger, SecurityContext } from 'platform/core';
 import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
-import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
 import { EndCallEvents } from 'app/constants/telemetry/events/EndCall';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -70,7 +69,6 @@ export class EndCallSession extends Component {
 
 		this._configuration = Configuration.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
-		this.endCallCauseCode = EndCallCauseCode.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
@@ -398,8 +396,7 @@ export class EndCallSession extends Component {
 		
 		const options = {
 			clientNeed: null,
-			endCallReason: this.endCallReason,
-			causeCodeByContext: this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
+			endCallReason: this.endCallReason
 		};
 
 		await super.closeIncident(options, () => this._toggleBusyFlag());
@@ -706,6 +703,7 @@ export class EndCallSession extends Component {
 					?hidden="${isNullorEmpty(this.category)}"
 					@value-changed="${(e) => this._subCategoryChanged(e)}"
 					labelAsPlaceholder
+					searchable
 					error="${this.errors.subCategory}">
 				</capitec-select>
 				
@@ -720,6 +718,7 @@ export class EndCallSession extends Component {
 					?hidden="${isNullorEmpty(this.need)}"
 					@value-changed="${(e) => this._issueChanged(e)}"
 					labelAsPlaceholder
+					searchable
 					error="${this.errors.issue}">
 				</capitec-select>`
 			: html``;

@@ -1,5 +1,4 @@
 import { css, html } from 'platform/elements';
-import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
@@ -162,8 +161,7 @@ export class Favourites extends SavingsAccountBase {
 
 		const options = {
 			clientNeed: null,
-			endCallReason: selectedOption,
-			causeCodeByContext: this.endCallCauseCode.getCauseCode(`LandingPage`, incomingCallDetails.ivrOptionCode, selectedOption.value)
+			endCallReason: selectedOption
 		};
 
 		const isSuccess = await super.closeIncident(options, () => this._toggleBusyFlag());
@@ -224,7 +222,7 @@ export class Favourites extends SavingsAccountBase {
 	_searchOtherNeedDone() {
 		this._refreshIncidentDetails();
 	
-		if(this.updateStrackClick) {
+		if (this.updateStrackClick) {
 			this.postAction._refreshScreen();
 			this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
 			this.updateStrackClick = false;
@@ -571,7 +569,7 @@ export class Favourites extends SavingsAccountBase {
 
 		const incidentDetails = this.horizonStore.getIncidentDetails() || {};
 
-		if(isNullorEmpty(incidentDetails.incidentRecId) || incidentDetails.incidentRecId === `0`) {
+		if (isNullorEmpty(incidentDetails.incidentRecId) || incidentDetails.incidentRecId === `0`) {
 			this.renderMode = RENDER_MODE.MAIN_PAGE;
 			return true;
 		}
@@ -648,7 +646,7 @@ export class Favourites extends SavingsAccountBase {
 		return true;
 	}
 
-	_updateNeedToState(category,need,issue) {
+	_updateNeedToState(category, need, issue) {
 		// Updating state with the latest values
 		const screenDetails = this.horizonStore.getScreenDetails();
 		screenDetails.category = category;

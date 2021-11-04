@@ -77,7 +77,6 @@ export const END_CALL_REASON = Object.freeze({
 				mapping: `telephony-disconnected`
 			}
 	], 
-
 	VerifyClientFailed: [
 		{
 			key: FAILED_VERIFICATION,
@@ -100,8 +99,6 @@ export const END_CALL_REASON = Object.freeze({
 			mapping: `general-product-enquiry`
 		}
 	],
-			
-		
 	VerifyClientInProgress: [
 		{
 			key: ABANDONED_VERIFICATION,
