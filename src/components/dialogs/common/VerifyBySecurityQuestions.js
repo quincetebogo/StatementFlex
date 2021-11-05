@@ -567,14 +567,20 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_renderEndCallModal() {
-		const status=this.questionNumber > 0 ? `InProgress` : this.callerInformation.verificationAttempts.xdsAttempts > 0 ? `Failed` : `` ;
+		let status = ``;
+
+		if (this.questionNumber > 0) {
+			status = `InProgress`;
+		} else if (this.callerInformation.verificationAttempts.xdsAttempts > 0) {
+			status = `Failed`;
+		} 
 
 		return html`
 			<horizon-end-call-session
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
 				endCallContext='VerifyClient${status}'
-				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
+				@cancel="${() => this.renderMode = RENDER_MODE.SECURITY_QUESTIONS}">
 			</horizon-end-call-session>`;
 	}
 

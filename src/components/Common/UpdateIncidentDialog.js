@@ -1,8 +1,8 @@
 import { Component, css, html } from 'platform/elements';
-import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { Logger } from 'platform/core';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 
 
@@ -304,7 +304,9 @@ export class UpdateIncidentDialog extends Component {
 		return html`
 			<capitec-modal class="updateIncident ${this.errorColor}" type="free" header-align="left">
 			<div slot="header">
-				<capitec-group layout="horizontal"style="margin-top: -10px;">
+				<capitec-group 
+					layout="horizontal"
+					style="margin-top: -10px;">
 					<img class="status-icon" src="${this.iconSource}"/>
 					<capitec-label class="headerLabel" label="Update Incident"></capitec-label>
 				</capitec-group>
@@ -377,7 +379,8 @@ export class UpdateIncidentDialog extends Component {
 				.items="${this.issues}"
 				@value-changed="${(e) => this._issueChanged(e)}"
 				.error="${this.issueError}"
-				labelAsPlaceholder>
+				labelAsPlaceholder
+				searchable>
 			</capitec-select>
 		`;
 	}
