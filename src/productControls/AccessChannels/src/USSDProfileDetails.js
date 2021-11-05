@@ -19,7 +19,9 @@ export class USSDProfileDetails extends Component {
 		this.bannerTitle = ``;
 		this.bannerSubtitle = ``;
 		this.bannerDetails = ``;
-		this.ussdStatus = `SIM Blocked`;
+
+		//Active, SIM Blocked, Cancelled, Unavailable
+		this.ussdStatus = `Active`;
 
 		this._checkUssdStatus(this.ussdStatus);
 
@@ -82,7 +84,7 @@ export class USSDProfileDetails extends Component {
 
 	_onUnblockSIM() {
 		// code to unblock SIM
-		this._displayAndCloseToast(`SIM for number ${this.cellNumber} was unblocked successfully.`)
+		this._displayAndCloseToast(`SIM for number ${this.cellNumber || '062 533 8016'} was unblocked successfully.`)
 	}
 
 	_checkUssdStatus(status) {
@@ -98,6 +100,11 @@ export class USSDProfileDetails extends Component {
 			this.bannerType = `unsuccessful-red`;
 			this.bannerTitle = `SIM Blocked`;
 			this.bannerSubtitle = `SIM blocked due to SIM swop detected.`
+		} else if (status === "Unavailable") {
+			this.showValidationBanner = true;
+			this.bannerType = `unsuccessful-red`;
+			this.bannerTitle = `Notify client`;
+			this.bannerSubtitle = `Service is currently unavailable`
 		}
 	}
 
@@ -128,7 +135,7 @@ export class USSDProfileDetails extends Component {
 	}
 
 	_activateFullMenu() {
-		this.ussdStatus = `Active`;
+		this.ussdStatus = `Active | Reduced menu`;
 		this._displayAndCloseToast('The full menu is active.')
 	}
 
@@ -204,12 +211,22 @@ export class USSDProfileDetails extends Component {
 			.content-box > horizon-label[value="SIM Blocked"] {
 				--horizon-label-value-color: #a5132a;
 			}
+			.content-box > horizon-label[value="Active | Reduced menu"] {
+				--horizon-label-value-color: #D4781C;
+			}
 			.header-label[label="Cancel USSD"] {
 				--theme-label-strong-font-size: 16px;
 			}
+			.header-label[label="Service is unavailable"] {
+				--theme-label-strong-font-size: 18px;
+			}
+			.header-label[label="For any urgent matters visit a branch."] {
+				--theme-label-strong-font-size: 15px;
+				margin-top: 19px;
+			}
 			.header-label[label="Reasons to cancel"] {
 				margin: 16px 0px 14px 0px;
-				--theme-label-strong-font-size: 16px;
+				--theme-label-font-size: 16px;
 			}
 			.content-box > capitec-button {
 				width: 296px;
@@ -258,6 +275,11 @@ export class USSDProfileDetails extends Component {
 				padding: 0px 24px;
 				background-color: rgba(212, 120, 28, 0.15);
 			}
+			.connection-error-svg {
+				height: 152px;
+				width: 210px;
+				margin: 18px 0px 13px 0px;
+			}
 			`
 		];
 	}
@@ -266,9 +288,16 @@ export class USSDProfileDetails extends Component {
 	}
 
 	_webTemplate() {
-		return html`
+		if (this.ussdStatus === `Unavailable`) {
+			return html `
+			${this._renderUSSDUnavailable()}
+			`
+		} else {
+		return html `
 			${this._renderUSSDProfileDetails()}
-			${this._renderCancelUSSD()}`;
+			${this._renderCancelUSSD()}
+			`;
+		}
 	}
 
 	_renderUSSDProfileDetails() {
@@ -302,21 +331,21 @@ export class USSDProfileDetails extends Component {
 			data-automation-id=""
 			class="dateRegistered"
 			label="Date registered"
-			value="${this.dateRegistered}">
+			value="${this.dateRegistered || '22 May 2017, 1:45pm'}">
 		</horizon-label>
 
 		<horizon-label 
 			data-automation-id=""
 			class="cellNumber"
 			label="Cellphone number (verified)"
-			value="${this.cellNumber}">
+			value="${this.cellNumber || '062 533 8016'}">
 		</horizon-label>
 
 		<horizon-label 
 			data-automation-id=""
 			class="lastInteraction"
 			label="Last interaction date"
-			value="${this.lastInteraction}">
+			value="${this.lastInteraction || '10 October 2020'}">
 		</horizon-label>
 
 		<horizon-label 
@@ -330,7 +359,7 @@ export class USSDProfileDetails extends Component {
 			data-automation-id=""
 			class="lastUpdated"
 			label="Last updated"
-			value="${this.lastUpdated}"
+			value="${this.lastUpdated || '20 June 2020, 12:30pm'}"
 			style="display:${this.ussdStatus === `Active` ? `none` : `block`}"
 			>
 		</horizon-label>
@@ -369,12 +398,6 @@ export class USSDProfileDetails extends Component {
 				?hidden="${this.ussdStatus === `Cancelled`}"
 				@click="${() => this._toggleCancelUSSD()}">
 			</capitec-button>
-
-		<!-- <capitec-button 
-				label="Cancel" 
-				?hidden="${this.hide}"
-				@click="${() => this._toggleAppSlidingPanel()}">
-			</capitec-button> -->
 		`;
 	}
 
@@ -458,6 +481,39 @@ export class USSDProfileDetails extends Component {
 		</capitec-content-box>
 		</capitec-side-sheet>
 		`
+	}
+
+	_renderUSSDUnavailable() {
+		return html `
+		<capitec-side-sheet
+		class="unavailable"
+		.expanded="${this.showSideSheet}"
+		alignment="right">
+		<capitec-group
+			class="header-group-app"
+			layout="horizontal"
+			halign="left"
+			valign="center"
+			gap="none">
+			<capitec-icon class="icon-app" size="medium" icon="system/cellphone"></capitec-icon>
+			<capitec-label class="header-label" type="Strong" label="USSD"></capitec-label>
+			<capitec-spacer></capitec-spacer>
+			<capitec-icon class="icon-close" size="small" icon="system/close-action" @click="${() => this._toggleAppSlidingPanel()}"></capitec-icon>
+		</capitec-group>
+		${this._renderAlertBanner()}
+		<capitec-content-box
+		class="content-box"
+		layout="vertical"
+		halign="center"
+		valign="top"
+		gap="none">
+		<img src="/images/insure/connection-error.svg" class="connection-error-svg"/>
+	<capitec-label class="header-label" type="Strong" label="Service is unavailable"></capitec-label>
+	<p style="text-align: center">We are experiencing technical difficulties. We are sorry for the inconvenience and aim to have it resolved soon.</p>
+	<capitec-label class="header-label" type="Strong" label="For any urgent matters visit a branch."></capitec-label>
+	</capitec-content-box>
+	</capitec-side-sheet>
+	`;
 	}
 
 	_renderAlertBanner() {
