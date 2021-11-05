@@ -240,9 +240,11 @@ export class EndCallSession extends Component {
 		const isClassified = !isNullorEmpty(this.incidentInfo.category) && !isNullorEmpty(this.incidentInfo.subCategory) && !isNullorEmpty(this.incidentInfo.issue);
 		// Determining at least we know categorization to classify
 		const hasValues = !isNullorEmpty(screenDetails.category) && !isNullorEmpty(screenDetails.subCategory) && !isNullorEmpty(screenDetails.issue);
+		// Checks if the curr incident is active
+		const isIncClosed = incidentDetails.needStatus === super.HORIZON_NEED_STATUS.CLOSED;
 
 		// If classification is not empty, no need to populate need
-		this.understandNeed = this.understandNeed && !hasValues && !isClassified;
+		this.understandNeed = this.understandNeed && !hasValues && !isClassified && !isIncClosed;
 		this._setClassification(screenDetails);
 
 		if (!this.understandNeed || this.categories.length !== 0 && this.endCallReason.key !== END_CALL_REASON.CALL_TRANSFERED) {

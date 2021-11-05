@@ -63,7 +63,6 @@ export class Favourites extends SavingsAccountBase {
 		this.feedbackOptions = [];
 		this.updateStrackClick = false;
 
-		this.endCallCauseCode = EndCallCauseCode.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
 
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
