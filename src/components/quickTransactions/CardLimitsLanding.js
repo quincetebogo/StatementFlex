@@ -8,6 +8,7 @@ import 'app/components/common/HorizonExpander';
 import 'app/components/common/CardArt';
 import 'app/components/dialogs/quickTransactions/UpdateCardLimits';
 import 'app/components/dialogs/common/DiscardChanges';
+import 'app/components/dialogs/common/ConfirmSelection';
 import 'app/components/common/MultiLineLabel';
 
 const RENDER_MODE = {
@@ -63,6 +64,7 @@ export class CardLimitsLanding extends Component {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.showUpdateLimitsModal = false;
 		this.showDiscardChangesModal = false;
+		this.showConfirmSelectionModal = false;
 
 		this.primaryCards = [];
 		this.supplementaryCards = [];
@@ -153,6 +155,7 @@ export class CardLimitsLanding extends Component {
 
 			renderMode: { attribute: false },
 			showUpdateLimitsModal: { attribute: false },
+			showConfirmSelectionModal: { attribute: false },
 			showDiscardChangesModal: { attribute: false }
 		};
 	}
@@ -389,7 +392,11 @@ export class CardLimitsLanding extends Component {
 			"card-display-type": this._cardDetails.cardDisplayName
 		});
 		
-		this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
+		if(new Date(card.cardLimits.tempLimitExpiryDate).getYear()<2){
+			this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
+		}else{
+			this._limitType === LIMIT_TYPES.TEMPORARY ? this.showUpdateLimitsModal = !this.showUpdateLimitsModal : this.showConfirmSelectionModal = !this.showConfirmSelectionModal;		
+		}
 	}
 
 	async _getPermanentLimits(request) {
@@ -427,12 +434,19 @@ export class CardLimitsLanding extends Component {
 			"next-screen": TelemetryScreen.UPDATE_CARD_LIMITS
 		});
 	}
+	_cancelModal() {
+		this.showConfirmSelectionModal = !this.showConfirmSelectionModal;
+	}
+	_confirmModal() {
+		this.showConfirmSelectionModal = !this.showConfirmSelectionModal;
+		this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
+	}
 
 	_calculateLimitExpiry() {
 		const date = new Date();
 		const expiryDate = new Date();
 
-		expiryDate.setDate(date.getDate() + 3);
+		expiryDate.setDate(date.getDate() + 2);
 
 		return expiryDate.toISOString();
 	}
@@ -628,6 +642,7 @@ export class CardLimitsLanding extends Component {
 			${this._renderContent()}
 			${this._renderUpdateLimitsModal()}
 			${this._renderDiscardChangesModal()}
+			${this._renderConfirmSelectionModal()}
 		`;
 	}
 
@@ -798,7 +813,7 @@ export class CardLimitsLanding extends Component {
 		}
 	}
   
-	_renderCreditLimits(card) {
+	_renderCreditLimits(card) {		
 		return html`
 			<capitec-group class="headerGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
 				<capitec-label class="col1 headerRow" style="text-align:left;" row="1" column="1" colspan="1" label="Credit limit" size="4"></capitec-label>
@@ -964,6 +979,18 @@ export class CardLimitsLanding extends Component {
 					@on-confirm="${() => this.showDiscardChangesModal = !this.showDiscardChangesModal}">
 				</horizon-discard-changes>`
 			: html``;
+	}
+
+	_renderConfirmSelectionModal() {
+		if (this.showConfirmSelectionModal) {
+			return html`
+				<horizon-confirm-selection
+					@on-cancel="${() => this._cancelModal()}"
+					@on-confirm="${() => this._confirmModal()}">
+				</horizon-confirm-selection>`;
+		}
+
+		return html``;
 	}
 }
 
