@@ -71,7 +71,7 @@ export class AccessChannels extends Component {
 	suspendApp() {
 		// TO DO: Channel service call to suspend app should come here
 		// If successfully suspended, update app status, else Error scenario
-		this.status.appAndInternetActive = false;
+		this.status.app.isActive = false;
 
 		return true;
 	}
@@ -79,7 +79,7 @@ export class AccessChannels extends Component {
 	unSuspendApp() {
 		// TO DO: Channel service call to Un-suspend App should come here
 		// If successfully Unsuspended, update app status, else Error scenario
-		this.status.appAndInternetActive = true;
+		this.status.app.isActive = true;
 
 		return true;
 	}
@@ -102,7 +102,9 @@ export class AccessChannels extends Component {
 		if (returnValue.succeeded) {
 			this.status = {
 				"ussdActive": true,
-				"appAndInternetActive": true,
+				"app": {
+					isActive: true,
+				},
 				"notificationType": "Unknown"
 			  }
 			return;
@@ -153,7 +155,7 @@ export class AccessChannels extends Component {
 		return this.selectedAccessChannelType === `App` ?
 		html`
 			<capitec-pc-app-profile-details
-				.isAppActive = ${this.status.appAndInternetActive}
+				.appDetails = ${this.status.app}
 				.showSideSheet = ${this.showSideSheet}
 
 				.suspendApp = "${() => this.suspendApp()}"

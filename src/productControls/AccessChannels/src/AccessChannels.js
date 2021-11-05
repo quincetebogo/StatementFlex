@@ -113,10 +113,10 @@ export class AccessChannels extends Component {
 				<capitec-label class="header-label" label="Access Channels"></capitec-label>
 
 				<horizon-product-tile 
-					class=${this.status.appAndInternetActive ? `status-active` : `status-inactive`}
+					class=${this.status.app.isActive ? `status-active` : `status-inactive`}
 					type="default"
 					label="App"
-					subtitle="${this.status.appAndInternetActive ? `Active | Last used 06 Jun 2021` : `Suspended | 12 Jun 2021, 12:45 pm`}"
+					subtitle="${this.status.app.isActive ? `Active | Last used 06 Jun 2021` : `Suspended | 12 Jun 2021, 12:45 pm`}"
 					detail=""
 					icon="system/cellphone"
 					@click="${() => this._tileClick(`App`)}">

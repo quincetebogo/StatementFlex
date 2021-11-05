@@ -3,6 +3,7 @@ import { Component, css, html } from 'platform/elements';
 import 'platform/components';
 import 'app/components/common/HorizonLabel';
 import 'app/webComponents/src/SideSheet';
+import { isNullorEmpty } from '../../../utils/channelServiceUtilities';
 
 export class AppProfileDetails extends Component {
 
@@ -29,8 +30,8 @@ export class AppProfileDetails extends Component {
 
 	static get properties() {
 		return {
-			showSideSheet: { type: Object },
-			isAppActive: { type: Boolean},
+			showSideSheet: { type: Boolean },
+			appDetails: { type: Object},
 
 			suspendAppAndOnlineBanking: { type: Object },
 			unSuspendAppAndOnlineBanking: { type: Object },
@@ -73,7 +74,7 @@ export class AppProfileDetails extends Component {
 			const returnValue = await this.suspendApp();
 		
 			if(returnValue) {
-				this.isAppActive = false;
+				this.appDetails.isActive = false;
 				this._displayAndCloseToast();
 				this._toggleSuspendReasonsSlide();
 			}
@@ -86,7 +87,7 @@ export class AppProfileDetails extends Component {
 		const returnValue = await this.unSuspendApp();
 		
 		if(returnValue) {
-			this.isAppActive = true;
+			this.appDetails.isActive = true;
 			this._displayAndCloseToast();
 		}
 	}
@@ -175,7 +176,6 @@ export class AppProfileDetails extends Component {
 				capitec-alert-banner > p {
 					margin: 0px;
     				padding-right: 33px;
-
 				}
 				.validate-reasons {
 					--theme-alert-banner-height: 64px;
@@ -221,6 +221,25 @@ export class AppProfileDetails extends Component {
 					margin-top: 16px;
 				}
 
+				/* Service unavailable stylings */
+				.service-unavilable-group{
+					text-align: center;
+					align-items: center;
+					padding: 14px 36px;
+				} 				
+				.unavailable-header{
+					margin: 16px 0px 5px 0px;
+					--theme-label-default-font-size: 18px;
+					--theme-label-default-font-weight: 600;
+				}
+				.unavilable-find-branch{
+					margin: 19px 0px;
+					--theme-label-default-font-size: 15px;
+					--theme-label-default-font-weight: 600;
+				}
+				.unavilable-alert-banner{
+					--theme-alert-banner-height: 64px;
+				}
 				`
 		];
 	}
@@ -253,73 +272,120 @@ export class AppProfileDetails extends Component {
 						<capitec-icon class="icon-close" size="small" icon="system/close-action" @click="${() => this._toggleAppSlidingPanel()}"></capitec-icon>
 					</capitec-group>
 
-					${this._renderSuccessToast()}
-					${this._renderNotificationBanner()}
-
-					<capitec-content-box
-						class="content-box"
-						layout="vertical"
-						halign="left"
-						valign="top"
-						gap="none">
-							<horizon-label
-								data-automation-id=""
-								label="Username"
-								value="1281243122">
-							</horizon-label>
-
-							<horizon-label
-								data-automation-id=""
-								label="Date registered"
-								value="12 May 2019, 12:45pm">
-							</horizon-label>
-
-							<horizon-label
-								data-automation-id=""
-								label="Cellphone number (verified)"
-								value="082 555 9090">
-							</horizon-label>
-
-							<horizon-label 
-								data-automation-id=""
-								label="Last interaction date"
-								value="22 Jun 2021">
-							</horizon-label>
-
-							<horizon-label
-								data-automation-id=""
-								label="Status"
-								value="${ this.isAppActive ? `Active` : `Suspended`}">
-							</horizon-label>
-
-							<horizon-label 
-								data-automation-id=""
-								label="Last updated"
-								value="12 Jun 2019, 12:45pm"
-								style="display:${this.isAppActive ? `none` : `block`}">
-							</horizon-label>
-
-							<horizon-label 
-								data-automation-id=""
-								label="Reason for suspending"
-								value="${this.selectedSuspendReason || `Lost`}"
-								style="display:${this.isAppActive ? `none` : `block`}">
-							</horizon-label>
-
-							<capitec-button
-								type="primary"
-								?hidden=${!this.isAppActive}
-								label="Suspend"
-								@click="${() => this._toggleSuspendReasonsSlide()}">
-							</capitec-button>
-							<capitec-button 
-								?hidden=${this.isAppActive}
-								type="primary" 
-								label="Unsuspend" 
-								@click="${() => this._onUnsuspendAppClick()}">
-							</capitec-button>
-					</capitec-content-box>
+					${this._renderAppDetails()}
+					
 			</capitec-side-sheet>`;
+	}
+
+	_renderAppDetails() {
+		return isNullorEmpty(this.appDetails) 
+		? html`
+			${this._renderServiceUnavailable()}`
+		: html `
+			${this._renderSuccessToast()}
+			${this._renderNotificationBanner()}
+			
+			<capitec-content-box
+				class="content-box"
+				layout="vertical"
+				halign="left"
+				valign="top"
+				gap="none">
+				<horizon-label
+					data-automation-id=""
+					label="Username"
+					value="1281243122">
+				</horizon-label>
+
+				<horizon-label
+					data-automation-id=""
+					label="Date registered"
+					value="12 May 2019, 12:45pm">
+				</horizon-label>
+
+				<horizon-label
+					data-automation-id=""
+					label="Cellphone number (verified)"
+					value="082 555 9090">
+				</horizon-label>
+
+				<horizon-label 
+					data-automation-id=""
+					label="Last interaction date"
+					value="22 Jun 2021">
+				</horizon-label>
+
+				<horizon-label
+					data-automation-id=""
+					label="Status"
+					value="${ this.appDetails.isActive ? `Active` : `Suspended`}">
+				</horizon-label>
+
+				<horizon-label 
+					data-automation-id=""
+					label="Last updated"
+					value="12 Jun 2019, 12:45pm"
+					style="display:${this.appDetails.isActive ? `none` : `block`}">
+				</horizon-label>
+
+				<horizon-label 
+					data-automation-id=""
+					label="Reason for suspending"
+					value="${this.selectedSuspendReason || `Lost`}"
+					style="display:${this.appDetails.isActive ? `none` : `block`}">
+				</horizon-label>
+
+				<capitec-button
+					type="primary"
+					?hidden=${!this.appDetails.isActive}
+					label="Suspend"
+					@click="${() => this._toggleSuspendReasonsSlide()}">
+				</capitec-button>
+				<capitec-button 
+					?hidden=${this.appDetails.isActive}
+					type="primary" 
+					label="Unsuspend" 
+					@click="${() => this._onUnsuspendAppClick()}">
+				</capitec-button>
+			</capitec-content-box>
+		`;
+	}
+
+	_renderServiceUnavailable(){
+		return html`
+
+			<capitec-alert-banner 
+				class="unavilable-alert-banner"
+				type="unsuccessful-red"
+				label=""
+				layout="vertical">
+				<b>Notify Client</b> <br>
+				<p>Service are currently unavailable</p>
+			</capitec-alert-banner>
+			
+			<capitec-group class="service-unavilable-group" layout="vertical" halign="center" valign="center" gap="none">
+				
+				<capitec-image src="platform/illustrations/no-connection.svg"></capitec-image>
+
+				<capitec-label 
+						class="unavailable-header"
+						label="Services is unavailable">
+				</capitec-label>
+
+				<capitec-label 
+						label="We are experiencing technical difficulties.">
+				</capitec-label>
+
+				<capitec-label 
+					label="We are sorry for the inconvenience and aim to have it resolved soon.">
+				</capitec-label>
+
+				<capitec-label 
+						class="unavilable-find-branch"
+						label="For any urgent matters visit a branch.">
+				</capitec-label>
+			</capitec-group>
+		`;
 	}
 
 	_renderSuspendAppReason() {
@@ -368,7 +434,7 @@ export class AppProfileDetails extends Component {
 	}
 
 	_renderNotificationBanner() {
-		return this.isAppActive ? 
+		return this.appDetails.isActive ? 
 		html`` : 
 		html`
 			<capitec-alert-banner 
@@ -382,7 +448,7 @@ export class AppProfileDetails extends Component {
 	}
 
 	_renderValidationBanner() {
-		return this.isAppActive && this.showValidationBanner ? 
+		return this.appDetails.isActive && this.showValidationBanner ? 
 		html`
 			<capitec-alert-banner 
 				class="validate-reasons"
@@ -400,7 +466,7 @@ export class AppProfileDetails extends Component {
 		<capitec-toast 
 			type="success" 
 			header="Successful!"
-			detail="App was ${this.isAppActive ? `unsuspended` : `suspended`}&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp 12 Jun 2019, 12:45pm"
+			detail="App was ${this.appDetails.isActive ? `unsuspended` : `suspended`}&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp 12 Jun 2019, 12:45pm"
 			?hidden="${!this.displayToast}"
 			@click="${() => this.displayToast = false}"
 			closable>
