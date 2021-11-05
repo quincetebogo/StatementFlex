@@ -6,7 +6,7 @@ const SUSPEND_REASONS = {
 	STOLEN: "Stolen",
 	LOST: "Lost",
 	FAULTY: "Faulty",
-	SERVICE_CANCELLATION: "Service Cancellation"
+	SERVICE_CANCELLATION: "Service cancellation"
 }
 
 export class InternetBankingProfileDetails  extends Component {
@@ -18,14 +18,7 @@ export class InternetBankingProfileDetails  extends Component {
 	constructor() {
 		super();
 
-		this.displayToast = false;
-		this.toastType = "error";
-		this.showSuspendPanel = false;
-		this.isTokenSuspended = false;
-
-		this.selectedReason = ``;
-		this.showNoReasonSelectedNotification = false;
-		this.showClientNotification = true;
+		// input properties
 		this.reasonForSuspending = "Lost";
 		this.userName = "1281243122";
 		this.tokenSerialNumber = "90876375849";
@@ -34,7 +27,17 @@ export class InternetBankingProfileDetails  extends Component {
 		this.lastInteractionDate = new Date().toISOString();
 		this.lastUpdated = new Date().toISOString();
 
+		// internal props
 		this.isInternetBankingActive = true;
+		this.displayToast = false;
+		this.displaySuspendToast = false;
+		this.toastType = "error";
+		this.showSuspendPanel = false;
+		this.isTokenSuspended = false;
+
+		this.selectedReason = ``;
+		this.showNoReasonSelectedNotification = false;
+		this.showClientNotification = true;
 	}
 
 	// --------------
@@ -43,10 +46,7 @@ export class InternetBankingProfileDetails  extends Component {
 
 	static get properties() {
 		return {
-			isInternetBankingActive: { type: Boolean },
-			showSideSheet: { type: Object },
-			displayToast: { type: Boolean },
-
+			// input properties
 			reasonForSuspending: { type: String },
 			userName: { type: String },
 			tokenSerialNumber: { type: String },
@@ -58,11 +58,17 @@ export class InternetBankingProfileDetails  extends Component {
 			toastType: { type: String },
 			toastHeader: { type: String },
 			toastDetail: { type: String },
-			showSuspendPanel: { type: Boolean },
 			selectedReason: { type: String },
-			isTokenSuspended: { type: Boolean },
-			showNoReasonSelectedNotification: { type: Boolean },
-			showClientNotification: { type: Boolean }
+
+			// internal props
+			isInternetBankingActive: { state: true },
+			showSideSheet: { state: true },
+			displayToast: { state: true },
+			displaySuspendToast: { state: true },
+			showSuspendPanel: { state: true },
+			isTokenSuspended: { state: true },
+			showNoReasonSelectedNotification: { state: true },
+			showClientNotification: { state: true }
 		};
 	}
 
@@ -89,7 +95,6 @@ export class InternetBankingProfileDetails  extends Component {
 	_toggleSuspendPanel() {
 		this.showSuspendPanel = !this.showSuspendPanel;
 		this._renderSuspendPanel();
-
 	}
 
 	_onToggleSuspendPanelClick() {
@@ -104,7 +109,7 @@ export class InternetBankingProfileDetails  extends Component {
 	async _onResetSecurityTokenClockClick() {
 		var unSuspendResult = await this.unSuspendInternetBankingSecurityToken();
 		if(unSuspendResult) {
-			this._showAndCloseToast("success");
+			this._displayTokenResetSuccessToast();
 		}
 	}
 
@@ -116,8 +121,8 @@ export class InternetBankingProfileDetails  extends Component {
 				this.showSuspendPanel = !this.showSuspendPanel;
 				this.isTokenSuspended = true;
 				this.isInternetBankingActive = false;
-				this._showAndCloseToast("success");
-				this._renderSuspendedNotification();
+				this._displayTokenSuspendSuccessToast();
+				//this._renderSuspendedNotification();
 			}
 		
 		}
@@ -141,12 +146,16 @@ export class InternetBankingProfileDetails  extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	_showAndCloseToast(tType) {
-		this.toastType = tType;
-		this.toastHeader = "Succesful!";
-		this.toastDetail = `Security token was reset. \nYou can now log in again. \n${this.lastUpdated}`;
+	_displayTokenResetSuccessToast() {
 		this.displayToast = true;
+		this._renderTokenResetSuccessToast();
 		window.setTimeout(() => this.displayToast = false, 3000);
+	}
+
+	_displayTokenSuspendSuccessToast() {
+		this.displaySuspendToast = true;
+		this._renderTokenSuspendSuccessToast();
+		window.setTimeout(() => this.displaySuspendToast = false, 3000);
 	}
 
 	// ---------
@@ -162,31 +171,38 @@ export class InternetBankingProfileDetails  extends Component {
 					--theme-side-sheet-height: 890px;
 					--theme-side-sheet-top: 96px;
 				}
-				.header-group-app{
+
+				.side-panel-header {
 					height: 64px;
-    				padding: 0px 24px;
+					width: 344px;
+					padding: 0px 24px;
 					border-bottom: 1px solid #E1E1E1;
 				}
-				.icon-app{
+
+				.side-panel-header-icon {
 					--theme-icon-size-medium: 25px;
-   					 margin-right: 20px;
+   					margin-right: 20px;
 				}
-				.header-label{
+
+				.side-panel-header-label {
 					height: 20px;
 					line-height: 20px;
-					--theme-label-strong-font-size: 18px;
+					--theme-label-strong-font-size: 16px;
 					--theme-label-strong-font-weight: 600;
 					--theme-label-font-color: #3A3A3A;
 				}
-				.icon-close{
+
+				.side-panel-header-close-icon {
 					--theme-icon-size-small: 13.5px;
 					cursor: pointer;
 				}
+				
 				.content-box{
 					--theme-container-padding-left: 24px;
 					--theme-container-padding-right: 24px;
 					--theme-container-padding-top: 7px;
 				}
+				
 				.content-box > horizon-label {
 					padding: 8px 0px 8px 0px;
 					--horizon-label-value-font-size: 16px;
@@ -197,54 +213,71 @@ export class InternetBankingProfileDetails  extends Component {
 					--horizon-label-value-color: #3A3A3A;
 					--horizon-label-text-color: #3A3A3A;
 				}
-				.content-box > capitec-radio {
-					padding: 8px 0px 8px 0px;
-					--horizon-label-value-font-size: 16px;
-					--horizon-label-text-height: 20px;
-					--horizon-label-text-line-height: 20px;
-					--horizon-label-value-height: 20px;
-					--horizon-label-value-line-height: 20px;
-					--horizon-label-value-color: #3A3A3A;
-					--horizon-label-text-color: #3A3A3A;
-				}
+
 				.content-box > horizon-label[value="Active"] {
-					--horizon-label-value-color: #72b004;
+					--horizon-label-value-color: #72B004;
 				}
+
 				.content-box > horizon-label[value="Suspended"] {
-					--horizon-label-value-color: #a5132a;
+					--horizon-label-value-color: #A5132A;
 				}
+
 				.content-box > capitec-button {
 					width: 296px;
 					margin-top: 24px;
 					--theme-button-font-weight: 600;
 				}
-				capitec-alert-banner {
-					margin: 8px 8px 0px 8px;
-					--theme-alert-banner-height: 84px;
-					--theme-alert-banner-icon-margin-left: 16px;
-					--theme-alert-banner-icon-margin-right: 16px;
-				}
-				.suspend-banner {
-					margin: 8px 8px 0px 8px;
-					--theme-alert-banner-height: 144px;
-					--theme-alert-banner-icon-margin-left: 16px;
-					--theme-alert-banner-icon-margin-right: 16px;
-				}
-				.notify-banner {
-					margin: 8px 8px 0px 8px;
-					--theme-alert-banner-height: 105px;
-					--theme-alert-banner-icon-margin-left: 16px;
-					--theme-alert-banner-icon-margin-right: 16px;
-				}
-				capitec-alert-banner > p {
-					margin: 0px;
-    				padding-right: 33px;
 
+				/* Suspend Side Panel */
+				.side-panel-header-suspend {
+					background-color: rgba(212, 120, 28, 0.15);
 				}
-				.validate-reasons {
-					--theme-alert-banner-height: 64px;
+
+				.side-panel-header-suspend-error {
+					background-color: #F7E2E1;
 				}
-				capitec-toast { 
+
+				.reason-to-suspend-label {
+					margin: 8px 0px 14px 0px;
+					--theme-label-strong-font-size: 16px;
+					height: 24px;
+  					width: 140px;
+					color: #3A3A3A;
+					font-family: "Hind Vadodara";
+					font-size: 16px;
+					font-weight: 600;
+					letter-spacing: 0;
+					line-height: 24px;
+				}
+
+				capitec-radio-group {
+					--theme-buttonbar-item-gap: 14px;
+				}
+
+				capitec-radio-group > capitec-radio {
+					height: 20px;
+					--theme-label-font-color: #3A3A3A;
+					--theme-label-font-family: "Hind Vadodara";
+					--theme-label-font-size: 15px;
+					--theme-label-font-weight: 500;
+					letter-spacing: 0;
+					line-height: 20px;
+				}
+
+				/* Notifications */
+				.token-reset-toast-success {
+					--theme-toast-height: 106px;
+					--theme-toast-icon-left: 16px;
+					--theme-toast-icon-top: 12px;
+				}
+
+				.token-suspend-toast-success {
+					--theme-toast-height: 186px;
+					--theme-toast-icon-left: 16px;
+					--theme-toast-icon-top: 12px;
+				}
+
+				capitec-toast {
 					--theme-toast-max-width: 315px;
 					--theme-toast-height: 106px;
 					--theme-icon-size-default: 24px;
@@ -255,46 +288,44 @@ export class InternetBankingProfileDetails  extends Component {
 					z-index: 100;
 				}
 
-				/* Suspend App reasons styles */
-				.suspend-reasons {
-					--theme-side-sheet-top: 104px;
+				capitec-alert-banner {
+					margin: 8px 8px 0px 8px;
+					--theme-alert-banner-height: 84px;
+					--theme-alert-banner-icon-margin-left: 16px;
+					--theme-alert-banner-icon-margin-right: 16px;
 				}
-				.header-group-suspend{
-					height: 56px;
-    				padding: 0px 24px;
-					background-color: rgba(212, 120, 28, 0.15);
+
+				capitec-alert-banner > capitec-hyperlink {
+					--theme-hyperlink-font-size: 14px;
+
 				}
-				.header-suspend-error{
-					background-color: #F7E2E1;
-				}
-				.icon-warning {
-					--theme-icon-size-medium: 23px;
-					margin-right: 8.25px;
-				}
-				.header-label[label="Suspend Security Token"] {
-					--theme-label-strong-font-size: 16px;
-				}
-				.header-label[label="Reasons to suspend"] {
-					margin: 16px 0px 14px 0px;
-					--theme-label-strong-font-size: 16px;
-				}
-				capitec-radio-group{
-					--theme-buttonbar-item-gap: 14px;
-				}
-				.content-box > capitec-button[label="Cancel"] {
-					margin-top: 16px;
-				}
-				.radio-button-label {
-					height: 20px;
+
+				capitec-alert-banner > p {
+					margin: 0px;
+    				padding-right: 33px;
+					height: 40px;
 					color: #3A3A3A;
 					font-family: "Hind Vadodara";
-					font-size: 15px;
-					font-weight: 500;
+					font-size: 14px;
 					letter-spacing: 0;
 					line-height: 20px;
 				}
 
-				`
+				.client-notify-banner {
+					margin: 8px 8px 0px 8px;
+					--theme-alert-banner-height: 105px;
+					--theme-alert-banner-icon-margin-left: 16px;
+					--theme-alert-banner-icon-margin-right: 16px;
+				}
+
+				.token-suspend-banner {
+					margin: 8px 8px 0px 8px;
+					--theme-alert-banner-height: 144px;
+					--theme-alert-banner-icon-margin-left: 16px;
+					--theme-alert-banner-icon-margin-right: 16px;
+					
+				}
+			`
 		];
 	}
 
@@ -315,20 +346,21 @@ export class InternetBankingProfileDetails  extends Component {
 				alignment="right"
 			>
 				<capitec-group
-					class="header-group-app"
+					class="side-panel-header"
 					layout="horizontal"
 					halign="left"
 					valign="center"
 					gap="none">
-					<capitec-icon class="icon-app" size="medium" icon="system/access"></capitec-icon>
-					<capitec-label class="header-label" type="Strong" label="Internet Banking"></capitec-label>
+					<capitec-icon class="side-panel-header-icon" size="medium" icon="system/access"></capitec-icon>
+					<capitec-label class="side-panel-header-label" type="Strong" label="Internet Banking"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-icon class="icon-close" size="small" icon="system/close-action" @click="${() => this._toggleInternetBankingPanel()}"></capitec-icon>
+					<capitec-icon class="side-panel-header-close-icon" size="small" icon="system/close-action" @click="${() => this._toggleInternetBankingPanel()}"></capitec-icon>
 				</capitec-group>
 
-				${this._renderToast()}
+				${this._renderTokenResetSuccessToast()}
+				${this._renderTokenSuspendSuccessToast()}
+				${this._renderTokenSuspendedNotification()}
 				${this._renderSuspendPanel()}
-				${this._renderSuspendedNotification()}
 
 				<capitec-content-box
 					class="content-box"
@@ -390,10 +422,12 @@ export class InternetBankingProfileDetails  extends Component {
 
 					<capitec-button
 						label="Reset Security Token Clock"
+						?hidden=${this.isTokenSuspended}
 						@click="${() => this._onResetSecurityTokenClockClick()}"
 					></capitec-button>
 					<capitec-button
 						label="Suspend Security Token"
+						?hidden=${this.isTokenSuspended}
 						@click="${() => this._onToggleSuspendPanelClick()}"
 					></capitec-button>
 
@@ -406,20 +440,19 @@ export class InternetBankingProfileDetails  extends Component {
 	_renderSuspendPanel() {
 		return html`
 			<capitec-side-sheet
-				class="suspend-reasons"
 				.expanded=${this.showSuspendPanel}
 				alignment="right"
 			>
 				<capitec-group
-					class="header-group-suspend ${this.showNoReasonSelectedNotification ? `header-suspend-error` : ``}"
+					class="side-panel-header side-panel-header-suspend ${this.showNoReasonSelectedNotification ? `side-panel-header-suspend-error` : ``}"
 					layout="horizontal"
 					halign="left"
 					valign="center"
 					gap="none">
-					<capitec-icon class="icon-warning" size="medium" icon=${this.showNoReasonSelectedNotification ? `status/info-trans` : `status/warning-trans`}></capitec-icon>
-					<capitec-label class="header-label" type="Strong" label="Suspend Security Token"></capitec-label>
+					<capitec-icon class="side-panel-header-icon" size="medium" icon=${this.showNoReasonSelectedNotification ? `status/error-trans` : `status/warning-trans`}></capitec-icon>
+					<capitec-label class="side-panel-header-label" type="Strong" label="Suspend Security Token"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-icon class="icon-close" size="small" icon="system/close-action" @click="${() => this._onToggleSuspendPanelClick()}"></capitec-icon>
+					<capitec-icon class="side-panel-close-icon" size="small" icon="system/close-action" @click="${() => this._onToggleSuspendPanelClick()}"></capitec-icon>
 				</capitec-group>
 
 				${this._renderClientNotification()}
@@ -433,8 +466,8 @@ export class InternetBankingProfileDetails  extends Component {
 					gap="none"
 				>
 					<capitec-label
-						class="header-label"
-						type="Strong"
+						class="reason-to-suspend-label"
+						type="subtitle"
 						data-automation-id=""
 						label="Reasons to suspend"
 						value=""
@@ -496,15 +529,30 @@ export class InternetBankingProfileDetails  extends Component {
 		`;
 	}
 
-	_renderToast() {
+	_renderTokenResetSuccessToast() {
 		return html`
 			<capitec-toast
-				type="${this.toastType}"
-				header="${this.toastHeader}"
-				detail="${this.toastDetail}"
+				class="token-reset-toast-success"
+				type="success"
+				header="Successful!"
+				detail="Security token was reset. You can now log in again. ${this.lastUpdated}"
 				?hidden="${!this.displayToast}"
 				@click="${() => this.displayToast = false}"
-				closable
+				?closable=false
+			></capitec-toast>
+		`;
+	}
+
+	_renderTokenSuspendSuccessToast() {
+		return html`
+			<capitec-toast
+				class="token-suspend-toast-success"
+				type="success"
+				header="Successful!"
+				detail="Internet security token was suspended. To access internet banking you will need to register on the App. ${this.lastUpdated}"
+				?hidden="${!this.displaySuspendToast}"
+				@click="${() => this.displaySuspendToast = false}"
+				?closable=false
 			></capitec-toast>
 		`;
 	}
@@ -513,11 +561,11 @@ export class InternetBankingProfileDetails  extends Component {
 		return this.showClientNotification ? html`
 			<capitec-alert-banner
 				type="warning"
-				class="notify-banner"
+				class="client-notify-banner"
 				label=""
 				layout="vertical">
-				<b>Notify client:</b> <br/>
-				<p>A fee will be charged to activate a new security token.</p>
+				<p><b>Notify client:</b><br>A fee will be charged to activate a new security token.</p>
+				<br>
 				<capitec-hyperlink
 					href="https://www.capitecbank.co.za/global-one/transact/fees/"
 					target="_blank"
@@ -528,15 +576,15 @@ export class InternetBankingProfileDetails  extends Component {
 		` : html``;
 	}
 
-	_renderSuspendedNotification() {
+	_renderTokenSuspendedNotification() {
 		return this.isTokenSuspended ? html`
 			<capitec-alert-banner
-				type="info"
-				class="suspend-banner"
+				type="error"
+				class="token-suspend-banner"
 				label=""
 				layout="vertical">
-				<p><b>Internet security token suspended.</b></p>
-				<p>To access internet banking you will to register on the App.</p>
+				<p><b>Internet security token suspended.</b><br>To access internet banking you will need to register on the App.</p>
+				<capitec-spacer></capitec-spacer>
 				<capitec-spacer></capitec-spacer>
 				<p>Please visit a branch to request a new securtiy token.</p>
 			</capitec-alert-banner>
@@ -546,7 +594,7 @@ export class InternetBankingProfileDetails  extends Component {
 	_renderNoReasonSelectedNotification() {
 		return this.showNoReasonSelectedNotification ? html`
 			<capitec-alert-banner
-				type="info"
+				type="unsuccessful-red"
 				label=""
 				layout="vertical">
 				<b>Notice:</b> <br/>
