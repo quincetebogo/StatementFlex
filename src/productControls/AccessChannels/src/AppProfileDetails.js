@@ -1,9 +1,22 @@
 import { Component, css, html } from 'platform/elements';
+import { isNullorEmpty } from '../../../utils/channelServiceUtilities';
 
 import 'platform/components';
 import 'app/components/common/HorizonLabel';
 import 'app/webComponents/src/SideSheet';
-import { isNullorEmpty } from '../../../utils/channelServiceUtilities';
+
+/**
+ * App profile Details component is used to show client's information and Suspend/Unsuspend app.
+ * This component is envoked from Access Channels component
+ * 
+ * Events Raised 
+ * -------------
+ * close-side-sheet
+ *  
+ * @export
+ * @class AppProfileDetails
+ * @extends {Component}
+ */
 
 export class AppProfileDetails extends Component {
 
@@ -23,8 +36,26 @@ export class AppProfileDetails extends Component {
 	// --------------
 	// PROPERTIES
 	// --------------
+	
+	/**
+	 * @callback suspendApp
+	 * @returns {suspendAppCallback} - Success or failure response from suspend App channel service call
+	 */
 
 	/**
+	 * @callback unSuspendApp
+	 * @returns {unSuspendAppCallback} - Success or failure response from Unsuspend App channel service call
+
+	 * 
+	 * @property {Boolean} [showSideSheet] - To toggle Side sheet component
+	 * @property {Object} [appDetails] - App profile details
+	 * @property {Boolean} [showSuspendReasons] - To toggle suspend reasons side sheet component
+	 * @property {String} [selectedSuspendReason] - Holds value of the selected suspend reason
+	 * @property {Boolean} [displayToast] - To hide or show the successful Toast
+	 * @property {Boolean} [showValidationBanner] - To hide or show the suspend reason validation banner on error 
+	 * 
+	 * @property {suspendAppCallback} suspendApp Callback function to suspend App
+	 * @property {unSuspendAppCallback} unSuspendApp Callback function to Unsuspend App
 	 * 
 	 */
 
@@ -33,8 +64,8 @@ export class AppProfileDetails extends Component {
 			showSideSheet: { type: Boolean },
 			appDetails: { type: Object},
 
-			suspendAppAndOnlineBanking: { type: Object },
-			unSuspendAppAndOnlineBanking: { type: Object },
+			suspendApp: { type: Object, attribute: false },
+			unSuspendApp: { type: Object, attribute: false },
 
 			showSuspendReasons: { state: true },
 			selectedSuspendReason: { state: true },
