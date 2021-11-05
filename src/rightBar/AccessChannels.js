@@ -2,6 +2,8 @@ import { Component, css, html } from 'platform/elements';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Logger } from 'platform/core';
+import { EventAggregator } from 'platform/core';
+
 
 import 'platform/components';
 import 'app/productControls/AccessChannels/src/AccessChannels';
@@ -25,6 +27,7 @@ export class AccessChannels extends Component {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
 	}
@@ -36,8 +39,9 @@ export class AccessChannels extends Component {
 	static get properties() {
 		return {
 			isBusy: { state: true },
-			status: { state: true },
-			showSideSheet: { state: true }
+			status: { type: Object },
+			showSideSheet: { state: true },
+			selectedAccessChannelType: { state: true }
 		};
 	}
 
@@ -51,11 +55,12 @@ export class AccessChannels extends Component {
 		const callerInformation = this.horizonStore.getCallerInformation();
 		
 		this.cifNumber = callerInformation.cifNumber;
-		this.status = {
-			appAndInternetActive: false,
-			ussdActive: true,
-			notificationType: `unknown`
-		};
+		// To mock the call for setting USSD active
+		// this.status = {
+		// 	appAndInternetActive: false,
+		// 	ussdActive: true,
+		// 	notificationType: `unknown`
+		// };
 
 		this._accessChannelService();
 	}
@@ -65,7 +70,8 @@ export class AccessChannels extends Component {
 	// --------------
 
 	_showSlidingPanel(event) {
-		this.selectedAccessChannelType = event.detail && event.detail.titleClicked || ``;
+		this.selectedAccessChannelType = event.detail && event.detail.tileClicked || ``;
+		this.eventAggregator.publish(`horizon-access-status-update`, this.status);
 		this.showSideSheet = !this.showSideSheet;
 	}
 	
@@ -99,7 +105,11 @@ export class AccessChannels extends Component {
 		const returnValue = await this.accessChannelService.accessChannelStatus(this.cifNumber);
 		
 		if (returnValue.succeeded) {
-			this.status = returnValue.result;
+			this.status = {
+				"ussdActive": true,
+				"appAndInternetActive": true,
+				"notificationType": "Unknown"
+			};
 			return;
 		} 
 		
@@ -129,44 +139,29 @@ export class AccessChannels extends Component {
 	_webTemplate() {
 		return html`
 			${this._renderAccessChannels()}
-			${this._renderLoadingIndicator()}`;
+			${this._renderLoadingIndicator()}
+			${this._renderUSSD()}`;
 	}
     
 	_renderAccessChannels() {
-		return html`
+		return this.status ?
+		html`
 		<capitec-pc-access-channels
 			.status=${this.status}
-			.appAndInternetActive=${this.status.appAndInternetActive}
-			.ussdActive=${this.status.ussdActive}
-			.notificationType=${this.status.notificationType}
 			@tile-click="${(event) => this._showSlidingPanel(event)}">
 		</capitec-pc-access-channels>
-
-		${this._renderUSSD()}
-		<!-- <capitec-side-sheet
-			.expanded="${this.showSideSheet}"
-			alignment="right">
-				<capitec-content-box
-					layout="vertical"
-					halign="center"
-					valign="center"
-					gap="clear">
-						<capitec-label type="Strong" label="Content comes here.."></capitec-label>
-						<capitec-button type="primary" label="Close" @click="${() => this._showSlidingPanel()}"></capitec-button>
-				</capitec-content-box>
-		</capitec-side-sheet> -->
-		`;
+		` : html``;
 	}
 
 	_renderUSSD() {
 		return this.selectedAccessChannelType === `USSD` ?
 		html `
 			<capitec-pc-ussd-profile-details
-			.ussdActive="${this.ussdActive}"
+			.ussdActive="${this.status.ussdActive}"
 			.showSideSheet="${this.showSideSheet}"
 			.cancelUSSD="${() => this.cancelUSSD()}"
 			.activateFullMenuUSSD="${() => this.activateFullMenuUSSD()}"
-			@close-side-sheet="${(event) => this._this.showSideSheet(event)}">
+			@close-side-sheet="${(event) => this._showSlidingPanel(event)}">
 			</capitec-pc-ussd-profile-details>
 		` : 
 		html ``;

@@ -226,7 +226,7 @@ export class USSDProfileDetails extends Component {
 			}
 			.header-label[label="Reasons to cancel"] {
 				margin: 16px 0px 14px 0px;
-				--theme-label-font-size: 16px;
+				--theme-label-strong-font-size: 16px;
 			}
 			.content-box > capitec-button {
 				width: 296px;
@@ -427,7 +427,7 @@ export class USSDProfileDetails extends Component {
 			halign="left"
 			valign="top"
 			gap="none">
-		<capitec-label class="header-label" type="title" label="Reasons to cancel"></capitec-label>
+		<capitec-label class="header-label" type="strong" label="Reasons to cancel"></capitec-label>
 
 		<capitec-radio-group>
 			<capitec-radio 

@@ -1,4 +1,6 @@
 import { Component, css, html } from 'platform/elements';
+import { EventAggregator } from 'platform/core';
+
 
 import 'platform/components';
 
@@ -10,6 +12,9 @@ export class AccessChannels extends Component {
 
 	constructor() {
 		super();
+
+		this.eventAggregator = EventAggregator.getInstance();
+		this.eventAggregator.subscribe(`horizon-access-status-update`, (event) => this._updateStatus(event));
 	}
 
 	// --------------
@@ -40,6 +45,11 @@ export class AccessChannels extends Component {
 
 	_tileClick(buttonName) {
 		this.dispatchEvent(new CustomEvent(`tile-click`, { detail: { tileClicked: buttonName } }));
+	}
+	
+	_updateStatus(event) {
+		this.status = event
+		this.requestUpdate();
 	}
 
 	// ---------
@@ -73,6 +83,15 @@ export class AccessChannels extends Component {
 					--theme-product-tile-title-height: 24px;
 					--theme-product-tile-subtitle-height: 20px;
 					--theme-layout-gap-spacing: 16px;
+					--theme-product-tile-heading-margin-left: 0px;
+					--theme-product-tile-title-font-weight: 600;
+					--theme-product-tile-subtitle-color: #3A3A3A;
+				}
+				.status-active {
+					--theme-product-tile-default-border-left: 4px solid #70B000;
+				}
+				.status-inactive {
+					--theme-product-tile-default-border-left: 4px solid #a5132a;
 				}
 			`
 		];
@@ -109,7 +128,7 @@ export class AccessChannels extends Component {
 					class=${this.status.ussdActive ? `status-active` : `status-inactive`}
 					type="default"
 					label="USSD"
-					subtitle=${this.status.ussdActive ? `active` : `inactive`}
+					subtitle="${this.status.ussdActive ? `Active | Last used 06 Jun 2021` : `Suspended | 12 Jun 2021, 12:45 pm`}"
 					detail=""
 					icon="system/cellphone"
 					@click="${() => this._tileClick(`USSD`)}">
