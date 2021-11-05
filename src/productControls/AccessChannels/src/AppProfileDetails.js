@@ -382,7 +382,7 @@ export class AppProfileDetails extends Component {
 		`;
 	}
 
-	_renderServiceUnavailable(){
+	_renderServiceUnavailable() {
 		return html`
 
 			<capitec-alert-banner 

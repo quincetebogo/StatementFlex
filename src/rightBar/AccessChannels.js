@@ -100,13 +100,16 @@ export class AccessChannels extends Component {
 		const returnValue = await this.accessChannelService.accessChannelStatus(this.cifNumber);
 		
 		if (returnValue.succeeded) {
-			this.status = {
-				"ussdActive": true,
-				"app": {
-					isActive: true,
-				},
-				"notificationType": "Unknown"
-			  }
+			this.status = returnValue.result;
+
+			// this.status = {
+			// 	"ussdActive": true,
+			// 	"app": {
+			// 		isActive: true,
+			// 	},
+			// 	"notificationType": "Unknown"
+			//   }
+			
 			return;
 		} 
 		
