@@ -37,7 +37,6 @@ export class InternetBankingProfileDetails  extends Component {
 
 		this.selectedReason = ``;
 		this.showNoReasonSelectedNotification = false;
-		this.showClientNotification = true;
 	}
 
 	// --------------
@@ -67,8 +66,7 @@ export class InternetBankingProfileDetails  extends Component {
 			displaySuspendToast: { state: true },
 			showSuspendPanel: { state: true },
 			isTokenSuspended: { state: true },
-			showNoReasonSelectedNotification: { state: true },
-			showClientNotification: { state: true }
+			showNoReasonSelectedNotification: { state: true }
 		};
 	}
 
@@ -100,7 +98,6 @@ export class InternetBankingProfileDetails  extends Component {
 	_onToggleSuspendPanelClick() {
 		this.showSuspendPanel = !this.showSuspendPanel;
 		this._renderSuspendPanel();
-		this.showClientNotification = true;
 		this.showNoReasonSelectedNotification = false;
 		this.selectedReason = ``;
 		this.isTokenSuspended = false;
@@ -122,22 +119,17 @@ export class InternetBankingProfileDetails  extends Component {
 				this.isTokenSuspended = true;
 				this.isInternetBankingActive = false;
 				this._displayTokenSuspendSuccessToast();
-				//this._renderSuspendedNotification();
 			}
 		
 		}
 		else {
-			this.showClientNotification = false;
 			this.showNoReasonSelectedNotification = true;
 		}
 	}
 
-	suspendReasonNotSelected() {
-		//this.showNotification = true;
-	}
-
 	_onSelectedReasonChanged(event) {
 		if(event.detail.new) {
+			this.showNoReasonSelectedNotification = false;
 			this.selectedReason = event.currentTarget.label;
 		}
 	}
@@ -273,6 +265,7 @@ export class InternetBankingProfileDetails  extends Component {
 
 				.token-suspend-toast-success {
 					--theme-toast-height: 186px;
+					--theme-toast-min-width: 312px;
 					--theme-toast-icon-left: 16px;
 					--theme-toast-icon-top: 12px;
 				}
@@ -558,7 +551,7 @@ export class InternetBankingProfileDetails  extends Component {
 	}
 
 	_renderClientNotification() {
-		return this.showClientNotification ? html`
+		return this.showNoReasonSelectedNotification ? html`` : html`
 			<capitec-alert-banner
 				type="warning"
 				class="client-notify-banner"
@@ -573,7 +566,7 @@ export class InternetBankingProfileDetails  extends Component {
 					inline
 				></capitec-hyperlink>
 			</capitec-alert-banner>
-		` : html``;
+		`;
 	}
 
 	_renderTokenSuspendedNotification() {

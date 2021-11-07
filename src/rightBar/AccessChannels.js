@@ -51,12 +51,6 @@ export class AccessChannels extends Component {
 		const callerInformation = this.horizonStore.getCallerInformation();
 		
 		this.cifNumber = callerInformation.cifNumber;
-		this.status = {
-			appActive: false,
-			internetBankingActive: true,
-			ussdActive: false,
-			notificationType: `unknown`
-		};
 
 		this._accessChannelService();
 	}
@@ -102,7 +96,13 @@ export class AccessChannels extends Component {
 		const returnValue = await this.accessChannelService.accessChannelStatus(this.cifNumber);
 		
 		if (returnValue.succeeded) {
-			this.status = returnValue.result;
+			//this.status = returnValue.result;
+			this.status = {
+				appActive: false,
+				internetBankingActive: true,
+				ussdActive: false,
+				notificationType: `unknown`
+			};
 			return;
 		} 
 		
