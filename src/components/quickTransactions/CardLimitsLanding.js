@@ -392,12 +392,10 @@ export class CardLimitsLanding extends Component {
 			"card-display-type": this._cardDetails.cardDisplayName
 		});
 		
-		if (new Date(card.cardLimits.tempLimitExpiryDate).getYear() < 2) {
-			this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
+		if (new Date(card.cardLimits.tempLimitExpiryDate).getYear() > 2 && this._limitType === LIMIT_TYPES.PERMANENT) {
+			this.showConfirmSelectionModal = !this.showConfirmSelectionModal;
 		} else {
-			this._limitType === LIMIT_TYPES.TEMPORARY 
-				? this.showUpdateLimitsModal = !this.showUpdateLimitsModal 
-				: this.showConfirmSelectionModal = !this.showConfirmSelectionModal;
+			this.showUpdateLimitsModal = !this.showUpdateLimitsModal; 
 		}
 	}
 
