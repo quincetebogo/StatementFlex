@@ -18,6 +18,7 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 		this.limitExpiryDate = ``;
 		this.istapToPayUnChanged = false;
 		this.tapToPayStatus = ``;
+		this.endCallContext = `QuickTransactionsUnSuccess`;
 	}
 
 	// --------------

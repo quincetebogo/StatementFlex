@@ -1,4 +1,4 @@
-import { CLOSE_REASONS, HORIZON_NEED_STATUS, REASON_RESOLUTIONS } from 'app/constants/IncidentManager';
+import { CAUSE_CODE_BY_REASON, CLOSE_REASONS, HORIZON_NEED_STATUS, REASON_RESOLUTIONS } from 'app/constants/IncidentManager';
 import { Component, View } from 'platform/elements';
 import { Configuration, Logger, SecurityContext } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -103,10 +103,10 @@ export class HorizonIncidentManager {
 		 * And if the client has a subsequent need, should continue by creating new incident
 		 * 
 		 */
-		if (clientNeed !== incidentDetails.currentNeed &&
+		 if (clientNeed !== incidentDetails.currentNeed &&
 			(incidentDetails.needStatus === HORIZON_NEED_STATUS.COMPLETED ||
-			 incidentDetails.needStatus === HORIZON_NEED_STATUS.ASSIGNED ||
-			 incidentDetails.needStatus === HORIZON_NEED_STATUS.FAILED)) {
+			incidentDetails.needStatus === HORIZON_NEED_STATUS.ASSIGNED ||
+			incidentDetails.needStatus === HORIZON_NEED_STATUS.FAILED)) {
 
 				this.primaryNeedIncidentRecId = incidentDetails.primaryIncidentRecID || incidentDetails.incidentRecId;
 
@@ -171,22 +171,30 @@ export class HorizonIncidentManager {
 	 * Since we know the need is fullfilled, closing incident with default values
 	 * Reason - Need Fullfilled & Cause code - Normal Enquiry
 	 * 
-	 * @param {string} clientNeed - Client's need [Stop card/ Proof of account/ Statements etc..]
+	 * @param {Object} Object
+	 *          - clientNeed - Client's need [Stop card/ Proof of account/ Statements etc..]
+	 *          - endCallReason - End call reason selected/ default to `Normal Enquiry'
+	 *          - causeCodeByContext - Cause code to end call session
 	 * @param {Function} toggleBusyFlag - Toggle busy flag function
-	 * @returns {boolean} - true/ false, indicating close incident status 
+	 * @returns {boolean} - true/ false, indicating close incident status
 	 */
-	 async closeIncident({ clientNeed, endCallReason = {}, causeCodeByContext }, toggleBusyFlag) {
+	 async closeIncident({ clientNeed, endCallReason = {} }, toggleBusyFlag) {
 
 		this.incidentService._toggleBusyFlag = toggleBusyFlag;
-		
 		const incidentDetails = this.horizonStore.getIncidentDetails();
+
+		if (!incidentDetails.incidentReferenceNumber || incidentDetails.incidentReferenceNumber === `0`) {
+			this.logger.log(`warning`, `Incident manager: Trying to close incident when ref no is 0 or empty. Current need: ${incidentDetails.currentNeed} previous need: ${incidentDetails.previousNeed}`, `closeIncident`, null);
+			return false;
+		}
+
 		const incidentInfo = await this._incidentStatus(incidentDetails.incidentRecId);
 
 		if (this._isReassigned(incidentInfo)) {
 			this.logger.log(`warning`, `Incident manager: ${incidentDetails.incidentRecId} is reassigned, skipping close incident`, `closeIncident`, null);
 			return true;
 		}
-
+	
 		if (isNullorEmpty(incidentInfo.category) && isNullorEmpty(incidentInfo.subCategory) && isNullorEmpty(incidentInfo.issue)) {
 			this.checkIncidentStatus = false;
 			// Incident is not classified. Trying to classify before closing
@@ -195,7 +203,7 @@ export class HorizonIncidentManager {
 
 		const reason = isNullorEmpty(endCallReason.key) ? CLOSE_REASONS[incidentDetails.needStatus] : endCallReason.key;
 		const resolution = this._getResolution(incidentInfo.resolution, incidentDetails, endCallReason);
-		const causeCode = this._getCauseCode(incidentInfo.causeCode, causeCodeByContext, incidentDetails);
+		const causeCode = this._getCauseCode(incidentInfo.causeCode, endCallReason.value || REASON_RESOLUTIONS[reason]);
 
 		const closeIncidentRequest = {
 			incidentRecId: incidentDetails.incidentRecId,
@@ -273,15 +281,16 @@ export class HorizonIncidentManager {
 		return resolution ? `${resolution}\n${endCallReason.value || REASON_RESOLUTIONS[reason]}` : `${endCallReason.value || REASON_RESOLUTIONS[reason]}`;
 	}
 
-	_getCauseCode(causeCode, caueCodeByContext, incidentDetails) {
-		let notStartedCode = ``;
-		// Special case, when subsequent need is created on opening a need, if its not required anymore
-		// then it should be tagged as 'TransactionCancelled'.
-		if (incidentDetails.needStatus === HORIZON_NEED_STATUS.NOT_STARTED) {
-			notStartedCode = `TransactionCancelled`;
-		}
-
-		return causeCode || notStartedCode || caueCodeByContext || `NormalEnquiry`;
+	/**
+	 * Returns relevant cause code based on endcall reason selected
+	 * 
+	 * @param {String} causeCode - gets value when updated cause-code on STack out side the application 
+	 * @param {String} endCallReason - hold value of selected endcall reason
+	 * @returns { String } - Returns "causeCode" || "causeCodeByReason" || "NormalEnquiry"
+	 */
+	 _getCauseCode(causeCode, endCallReason) {
+		const causeCodeByReason = CAUSE_CODE_BY_REASON[endCallReason] || ``;
+		return causeCode || causeCodeByReason || `NormalEnquiry`;
 	}
 
 	_formatLineBreaks(value) {
@@ -295,7 +304,7 @@ export class HorizonIncidentManager {
 			incidentReferenceNumber: `0`,
 			incidentRecId: `0`,
 			primaryIncidentRef: incidentDetails.primaryIncidentRef,
-			primaryIncidentRecID: this.primaryNeedIncidentRecId,
+			primaryIncidentRecID: incidentDetails.primaryIncidentRecID || incidentDetails.incidentRecId,
 			previousNeed: incidentDetails.currentNeed,
 			currentNeed: clientNeed,
 			needStatus: `InProgress`
@@ -318,13 +327,13 @@ export class HorizonIncidentManager {
 		}
 		return returnValue.result;
 	}
-
+		
 	async _createSubsIncident() {
 		const callerInfo = this.horizonStore.getCallerInformation();
 		const callDetails = this.horizonStore.getIncomingCallDetails();
 		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		const incidentDetails = this.horizonStore.getIncidentDetails();
-
+		
 		const createIncidentRequest = {
 			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
 			VDN: incomingCallDetails.VDN,
@@ -333,22 +342,22 @@ export class HorizonIncidentManager {
 		};
 
 		const returnValue = await this.incidentService.createIncident(createIncidentRequest);
-
+		
 		if (!returnValue.succeeded || !returnValue.result) {
 			this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `HorizonIncidentManager._createSubsIncident`, returnValue.correlationId);
 			return null;
 		}
-
+		
 		this.checkIncidentStatus = false;
 
 		incidentDetails.incidentReferenceNumber = returnValue.result.incidentNumber;
 		incidentDetails.incidentRecId = returnValue.result.incidentRecId;
 		this.horizonStore.setIncidentDetails(incidentDetails);
-
+		
 		/**
 		 * Updating client or non-client details based on the flow
 		 */
-		if (callerInfo.is3rdParty || !callerInfo.isNonClient) {
+		 if (callerInfo.is3rdParty || !callerInfo.isNonClient) {
 			await this._updateSubsequentNeedClientDetails(callDetails, callerInfo);
 		} else {
 			await this._updateSubsequentNeedNonClientDetails(callDetails, callerInfo);

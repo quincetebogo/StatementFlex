@@ -191,17 +191,15 @@ export class VerifyBySecurityQuestions extends Component {
 				"screen": TelemetryScreen.SECURITY_QUESTIONS,
 				"next-screen": null // Have to determine
 			});
-
 			this.alertBannerMessage = ``;
 			this.checked = false;
-
 			const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions);
 
 			if (returnValue.succeeded) {
 				if (returnValue.result === `Authenticated`) {
 					this._xdsAuthenticated();
 				} else {
-					this.logger.log(`warning`, `Authentication result: ${returnValue.result}`, `_verifyClick`);
+					this.logger.log(`warning`, `Authentication result: ${JSON.stringify(returnValue.result)}`, `_verifyClick`);
 					this._xdsNotAuthenticated();
 				}
 			} else if (this.noOfXdsVerificationAttempted <= 1) {
@@ -569,12 +567,20 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_renderEndCallModal() {
+		let status = ``;
+
+		if (this.questionNumber > 0) {
+			status = `InProgress`;
+		} else if (this.callerInformation.verificationAttempts.xdsAttempts > 0) {
+			status = `Failed`;
+		} 
+
 		return html`
 			<horizon-end-call-session
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
-				endCallContext="VerifyClient"
-				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
+				endCallContext='VerifyClient${status}'
+				@cancel="${() => this.renderMode = RENDER_MODE.SECURITY_QUESTIONS}">
 			</horizon-end-call-session>`;
 	}
 

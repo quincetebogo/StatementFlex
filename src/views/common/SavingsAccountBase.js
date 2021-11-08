@@ -94,18 +94,19 @@ export class SavingsAccountBase extends ViewBase {
 			nextScreen: TelemetryScreen.DEBICHECK
 		});
 
-		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber);
+		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber, () => true);
 
 		if (returnValue.succeeded) {
 			// landingPageInfo returns null sometimes - go get account number from ClientProducts
-			await this._getClientProducts();
+			await this._getClientProducts(() => this._debiCheckServiceError());
 
 			// eslint-disable-next-line no-extra-parens
 			this.debiCheckMandates = (returnValue.result && returnValue.result.mandateSummaryList) || [];
 
 			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 		} else {
-			// Todo: Handle error scenario
+			this.logger.log(`error`, `Unable to load debi check mandates`, `_debiCheck`, returnValue.correlationId);
+			this._debiCheckServiceError();
 		}
 	}
 
@@ -161,8 +162,8 @@ export class SavingsAccountBase extends ViewBase {
 		screenDetails.mandateId = this.mandateInfo.mandateName;
 		this.horizonStore.setScreenDetails(screenDetails);
 
-            this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
-        }
+		this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
+	}
 
 	async _approveMandate(screenDetails) {
 		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
@@ -250,12 +251,12 @@ export class SavingsAccountBase extends ViewBase {
 		return true;
 	}
 
-	async _getClientProducts() {
+	async _getClientProducts(customErrHandler = null) {
 		const request = {
 			cifNumber: this.callerInformation.cifNumber,
 			status: `OPEN`
 		};
-		const returnValue = await this.quickTransactionService.getClientProducts(request);
+		const returnValue = await this.quickTransactionService.getClientProducts(request, customErrHandler);
 
 		if (returnValue.succeeded) {
 
@@ -334,12 +335,13 @@ export class SavingsAccountBase extends ViewBase {
 			cifNumber: this.callerInformation.cifNumber
 		};
 
-		const returnValue = await this.savingsAccountService.debiCheckAgreement(agreementRequest);
+		const returnValue = await this.savingsAccountService.debiCheckAgreement(agreementRequest, () => true);
 
 		if (returnValue.succeeded && returnValue.result) {
 			this.clientDetails = returnValue.result;
 		} else {
-			this.horizonRouter.navigateToDebiCheckFailed();
+			this.logger.log(`error`, `Unable to get debi check agreement`, `_getAgreement`, returnValue.correlationId);
+			this._debiCheckServiceError();
 		}
 	}
 
@@ -384,21 +386,27 @@ export class SavingsAccountBase extends ViewBase {
 	_shouldDisable(need) {
 		//add this verification method in the verify caller component to check if the client has done ita 
 		const verificationMethod = this.callerInformation.verificationMethod;
+		const verificationStatus = this.callerInformation.verificationStatus;
 		
 		// TODO: Enable the logic once ITA accept/reject code is done
-		 return verificationMethod === (`unverified` && !LOW_RISK_TRANSACTIONS.includes(need)) || (verificationMethod === `XDS` && HIGH_RISK_TRANSACTIONS.includes(need));
+		// return (verificationMethod === `XDS` && HIGH_RISK_TRANSACTIONS.includes(need));
 
-		//return false;
+		return verificationStatus === `unverified` && !LOW_RISK_TRANSACTIONS.includes(need);
 	}
 
 	async _getMandateDetails() {
-		const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, this.mandateId, this.registerId);
+		const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, this.mandateId, this.registerId, () => true);
 		
 		if (!returnValue.succeeded || !returnValue.result) {
-			this.horizonRouter.navigateToSystemError();
-			return false;
+			this.logger.log(`error`, `Unable to load debi check mandate details`, `_getMandateDetails`, returnValue.correlationId);
+			this._debiCheckServiceError();
 		}
 		return returnValue.result;
+	}
+
+	_debiCheckServiceError() {
+		this.horizonRouter.navigateToDebiCheckServiceError();
+		return true;
 	}
 
 	// ---------
