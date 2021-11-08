@@ -211,7 +211,7 @@ export class CardLimitsLanding extends Component {
 			},
 			tapToPayStatusChange: tapToPayStatus
 		};
-		if(this._limitType === LIMIT_TYPES.PERMANENT){
+		if (this._limitType === LIMIT_TYPES.PERMANENT) {
 			request.cardDetails.tempCashAmountLimit = 0;
 			request.cardDetails.tempCnpAmountLimit = 0;
 			request.cardDetails.tempPurchaseAmountLimit = 0;
@@ -301,7 +301,7 @@ export class CardLimitsLanding extends Component {
 			screenRecordingReference: ``,
 			cardLimits: {
 				cardDetails: {
-					cardId: (cardDetails.linkedCardLimits && this._updateType === `Debit`) ? cardDetails.linkedCardId : cardDetails.cardId,
+					cardId: cardDetails.linkedCardLimits && this._updateType === `Debit` ? cardDetails.linkedCardId : cardDetails.cardId,
 					accountId: cardDetails.primarySavingsAccountId || cardDetails.primaryCreditAccountId,
 					customerId: this.cifNumber,
 					cardExpiryYear: cardDetails.cardExpiryYear,
@@ -392,10 +392,12 @@ export class CardLimitsLanding extends Component {
 			"card-display-type": this._cardDetails.cardDisplayName
 		});
 		
-		if(new Date(card.cardLimits.tempLimitExpiryDate).getYear()<2){
+		if (new Date(card.cardLimits.tempLimitExpiryDate).getYear() < 2) {
 			this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
-		}else{
-			this._limitType === LIMIT_TYPES.TEMPORARY ? this.showUpdateLimitsModal = !this.showUpdateLimitsModal : this.showConfirmSelectionModal = !this.showConfirmSelectionModal;		
+		} else {
+			this._limitType === LIMIT_TYPES.TEMPORARY 
+				? this.showUpdateLimitsModal = !this.showUpdateLimitsModal 
+				: this.showConfirmSelectionModal = !this.showConfirmSelectionModal;
 		}
 	}
 
@@ -434,9 +436,11 @@ export class CardLimitsLanding extends Component {
 			"next-screen": TelemetryScreen.UPDATE_CARD_LIMITS
 		});
 	}
+
 	_cancelModal() {
 		this.showConfirmSelectionModal = !this.showConfirmSelectionModal;
 	}
+
 	_confirmModal() {
 		this.showConfirmSelectionModal = !this.showConfirmSelectionModal;
 		this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
@@ -813,7 +817,7 @@ export class CardLimitsLanding extends Component {
 		}
 	}
   
-	_renderCreditLimits(card) {		
+	_renderCreditLimits(card) {
 		return html`
 			<capitec-group class="headerGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
 				<capitec-label class="col1 headerRow" style="text-align:left;" row="1" column="1" colspan="1" label="Credit limit" size="4"></capitec-label>
