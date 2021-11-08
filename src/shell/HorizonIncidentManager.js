@@ -212,7 +212,7 @@ export class HorizonIncidentManager {
 		const returnValue = await this.incidentService.closeIncident(closeIncidentRequest);
 
 		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Failed to close incident. Agent may have to manually close incident.`, `_closePrimaryIncident`, returnValue.correlationId);
+			this.logger.log(`warning`, `Failed to close incident. Agent may have to manually close incident.`, `_closePrimaryIncident`, returnValue.correlationId);
 			return false;
 		}
 		
@@ -257,7 +257,7 @@ export class HorizonIncidentManager {
 			const returnValue = await this.incidentService.classifyIncident(request);
 	
 			if (!returnValue.succeeded) {
-				this.logger.log(`error`, `Failed to classify incident. Agent may have to manually categorize at STrack.`, `classifyIncident`, returnValue.correlationId);
+				this.logger.log(`warning`, `Failed to classify incident. Agent may have to manually categorize at STrack.`, `classifyIncident`, returnValue.correlationId);
 				return;
 			}
 		}
@@ -340,7 +340,7 @@ export class HorizonIncidentManager {
 		const returnValue = await this.incidentService.createIncident(createIncidentRequest);
 
 		if (!returnValue.succeeded || !returnValue.result) {
-			this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `HorizonIncidentManager._createSubsIncident`, returnValue.correlationId);
+			this.logger.log(`warning`, `Failed to create incident. The call will be handled without incident data being tracked.`, `HorizonIncidentManager._createSubsIncident`, returnValue.correlationId);
 			return null;
 		}
 
