@@ -182,41 +182,22 @@ export class FavouriteTransactions extends Component {
 			#id-notify-banner-group {
 				width: 962px;
 			}
-
-			#id-notify-client-warning {
-				color: #D4781C;
-				font-family: "Hind Vadodara";
-				font-size: 14px;
-				font-weight: 600;
-				letter-spacing: 0;
-				line-height: 20px;
-				margin-right:3px;
-			}
-
-			#id-notify-client-warning-msg {
-				color: #D4781C;
-				font-family: "Hind Vadodara";
-				font-size: 14px;
-				letter-spacing: 0;
-				line-height: 20px;
-			}
 			
 			capitec-hyperlink {
 				--theme-hyperlink-color: #D4781C;
 				--theme-font-family: "Hind Vadodara";
 				--theme-font-weight: 600;
+				--theme-hyperlink-color: #3A3A3A;
 				text-decoration: underline;
 			}
 			capitec-label[type="strong"] {
 				--theme-label-strong-font-size: 14px;
 				--theme-label-strong-font-weight: 600;
 				--theme-layout-gap-spacing: 2px;
+				--theme-label-font-color: #3A3A3A;
 			}
 			capitec-group[layout="horizontal"] capitec-label[type="default"] {
 				--theme-label-default-font-size: 14px
-			}
-			capitec-hyperlink[data-automation-id="high-risk-transactions-verify"] {
-				--theme-hyperlink-color: #3A3A3A
 			}`
 		];
 	}
@@ -280,16 +261,17 @@ export class FavouriteTransactions extends Component {
 	}
 
 	_renderUnverifiedAlertBanner() {
-		if (this.verificationStatus === `unverified`) {
-			return html`
+		return this.verificationStatus === `unverified`
+			? html`
 				<capitec-alert-banner 
 					class="banner"
 					data-automation-id="favourite-transactions-unverified-alert-banner"
 					type="warning">
 					<capitec-group id="id-notify-banner-group" layout="horizontal">
-						<capitec-label id="id-notify-client-warning" label="Notify client: "></capitec-label>
-						<capitec-label id="id-notify-client-warning-msg"
-							label="We need to verify your details before doing any transactions on your account."></capitec-label>
+						<capitec-label type="strong" label="Notify client:"></capitec-label>
+						<capitec-label type="default"
+							label="For added security we will need to go through verification to proceed with additional transactions.">
+						</capitec-label>
 						<capitec-spacer></capitec-spacer>
 						<capitec-hyperlink 
 							data-automation-id="favourite-transactions-verify"
@@ -297,10 +279,8 @@ export class FavouriteTransactions extends Component {
 							@click="${() => this._verifyNowClick()}">
 						</capitec-hyperlink>
 					</capitec-group>
-				</capitec-alert-banner>
-			`;
-		}
-		return html``;
+				</capitec-alert-banner>`
+			: html``;
 	}
 
 	_renderFailedVerificationAlertBanner() {
