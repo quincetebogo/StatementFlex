@@ -27,6 +27,7 @@ export class TaxCertificateSuccess extends ViewBase {
 		this.email = {};
 		this.primaryToast = `Tax certificate sent`;
 		this.secondaryToast = `Tax-free certificate sent`;
+		this.endCallContext = `QuickTransactionSuccess`;
 		this.sendAnotherClicked = false;
 	}
 

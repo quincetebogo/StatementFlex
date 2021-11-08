@@ -17,6 +17,7 @@ export class TapToPaySuccess extends ViewBase {
 		this.tapToPayStatus = ``;
 		this.maskedCardNumber = ``;
 		this.cardType = ``;
+		this.endCallContext = `QuickTransactionSuccess`;
 	}
 
 	// --------------
