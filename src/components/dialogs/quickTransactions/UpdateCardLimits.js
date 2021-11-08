@@ -369,7 +369,6 @@ export class UpdateCardLimits extends Component {
 			acceptedTapToPayAgreement: false
 		};
 
-		// TO DO : limitLabel to be loaded dynamically depending on update type once we get proper value in Update type
 		this.limitLabel = `${this.updateType} Limits`;
 		const expDate = (this.updateType === `Debit` && this.cardDetails.linkedCardLimits ? this.cardDetails.linkedCardLimits.tempLimitExpiryDate : this.cardDetails.cardLimits.tempLimitExpiryDate);
 		this.expiryDate = new Date(expDate).getFullYear() < 2 ? `` : `Expires on ${this._getFullDate(expDate)} at midnight`;
