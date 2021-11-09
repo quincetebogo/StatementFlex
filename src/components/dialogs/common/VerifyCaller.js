@@ -63,7 +63,7 @@ export class VerifyCaller extends Component {
 		// Property initialization
 		this.renderMode = RENDER_MODE.VERIFY_CALLER;
 		this.incomingCallDetails = null;
-        this.timeLeft = `70`;		
+		this.timeLeft = `70`;
 		this.seconds = ITA_TIMEOUT_SECS;
 		this.appTimedOut = false;
 		this.isBusy = false;
@@ -393,28 +393,25 @@ export class VerifyCaller extends Component {
 
 				if (this.itaFailedCount >= MAX_ITA_ATTEMPTS) {
 					this._navigateToItaVerificationFailed();
-				} 
-				else if ((this.itaFailedCount < MAX_ITA_ATTEMPTS) && (this.callerInformation.verificationStatus === `verified` && this.callerInformation.verificationMethod === `XDS`)) {
+				} else if (this.itaFailedCount < MAX_ITA_ATTEMPTS && (this.callerInformation.verificationStatus === `verified` && this.callerInformation.verificationMethod === `XDS`)) {
 
 					this._updateApplicationState(`verified`, `XDS`);
-				}
-				else {
+				} else {
 					this._updateApplicationState(`unverified`, `unverified`);
 				}
 			}
 
-            this.timeLeft = `${this.seconds < 10 ? `0` : ``}${this.seconds.toString()}`;
+			this.timeLeft = `${this.seconds < 10 ? `0` : ``}${this.seconds.toString()}`;
 		}, 1000);
 
 		return startTimer;
 	}
 
 	_navigateToItaVerificationFailed() {
-		if ((this.itaFailedCount >= MAX_ITA_ATTEMPTS) && (this.callerInformation.verificationStatus === `verified` && this.callerInformation.verificationMethod === `XDS`)) {
+		if (this.itaFailedCount >= MAX_ITA_ATTEMPTS && (this.callerInformation.verificationStatus === `verified` && this.callerInformation.verificationMethod === `XDS`)) {
 
 			this._updateApplicationState(`verified`, `XDS`);
-		}
-		else {
+		} else {
 		this._updateApplicationState(`failed`, `unverified`);
 		this.horizonRouter.navigateToItaVerificationFailed();
 		}
@@ -750,21 +747,22 @@ export class VerifyCaller extends Component {
 		}
 		return html``;
 	}
+
 	_renderHeaderLabels() {
-		if(this.seconds < 16 && this.seconds > 0){
+		if (this.seconds < 16 && this.seconds > 0) {
 			return html`
 			<capitec-alert-banner type="warning">
 				<b>Notify client:</b> Your time is about to run out.
 			</capitec-alert-banner>`;
-		}
-		else{
-			return html`
+		} 
+		
+		return html`
 			<capitec-alert-banner type="info">
 				<b>Notify client:</b> A push notification was sent to your phone, you need to accept to continue.
 			</capitec-alert-banner>`;
-		}
 	}
-	_renderCountdown(){
+
+	_renderCountdown() {
 		return html`
 			<capitec-group layout="vertical"
 					halign="center"
@@ -776,8 +774,9 @@ export class VerifyCaller extends Component {
 			</capitec-group>
 			`;
 	}
-	_renderLabels(){
-		if(this.seconds < 16 && this.seconds > 0){
+
+	_renderLabels() {
+		if (this.seconds < 16 && this.seconds > 0) {
 			return html`
 			<capitec-group layout="vertical"
 					halign="center"
@@ -790,9 +789,9 @@ export class VerifyCaller extends Component {
 				<capitec-label type="title" label="You'll need to try again if the timer runs out.">
 				</capitec-label>
 			</capitec-group>`;
-		}
-		else{
-			return html`
+		} 
+
+		return html`
 			<capitec-group layout="vertical"
 					halign="center"
 					valign="top"
@@ -805,7 +804,6 @@ export class VerifyCaller extends Component {
 				<capitec-label type="title"
 					label= "Check your cellphone with number ${this.incomingCallDetails.incomingTelephoneNumber} to accept."></capitec-label>
 			</capitec-group>`;
-		}
 	}
 
 	_renderPushNotificationError() {
@@ -865,10 +863,10 @@ export class VerifyCaller extends Component {
 							${this.xdsMessage}
 						</capitec-alert-banner>
 						<capitec-group layout="vertical" 
-                                        halign="center"
-                                        valign="top" 
-                                        gap="clear"
-                                        id="notification-status-error-group">
+										halign="center"
+										valign="top" 
+										gap="clear"
+										id="notification-status-error-group">
 							<img src="/images/insure/connection-error.svg" class="connection-error-svg"/>
 							<div class="notification-info">
 								An error has occured.
@@ -884,8 +882,8 @@ export class VerifyCaller extends Component {
 		return html``;
 	}
 
-    _renderOtherOptions() {
-		if (this.callerInformation.verificationStatus === `verified` && this.callerInformation.verificationMethod === `XDS`){
+	_renderOtherOptions() {
+		if (this.callerInformation.verificationStatus === `verified` && this.callerInformation.verificationMethod === `XDS`) {
 			
 				return html`
 			<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
@@ -895,7 +893,7 @@ export class VerifyCaller extends Component {
 						label="Cancel"
 						icon="system/close-action" 
 						iconSize="default"
-					    @click="${() => this._cancelClick()}">
+						@click="${() => this._cancelClick()}">
 					</horizon-option-button>
 					<horizon-option-button
 					class="btnTryAgain"
@@ -909,9 +907,9 @@ export class VerifyCaller extends Component {
 			</capitec-content-box>
 		`;
 			
-		}
-		else {
-			return html`
+		} 
+
+		return html`
 			<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
 			<capitec-content-box id="relation-options-btn">
 				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
@@ -926,7 +924,7 @@ export class VerifyCaller extends Component {
 						label="Skip"
 						icon="system/arrow-right-action" 
 						iconSize="default"
-					    @click="${() => this._skipClick()}">
+						@click="${() => this._skipClick()}">
 					</horizon-option-button>
 					<horizon-option-button
 					class="btnTryAgain"
@@ -939,7 +937,6 @@ export class VerifyCaller extends Component {
 				</capitec-group>
 			</capitec-content-box>
 		`;
-		} 
 	}
 
 	_renderLoadingIndicator() {
