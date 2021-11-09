@@ -307,7 +307,7 @@ export class FavouriteTransactions extends Component {
 						<capitec-group id="id-notify-banner-group" layout="horizontal">
 							<capitec-label type="strong" label="Notify client:"></capitec-label>
 							<capitec-label type="default"
-								label="You can only do high risk transaction on your accout when you verify digitally. Do you want to verify using your phone?">
+								label="You can only do high risk transactions on your account when you verify digitally. Do you want to verify using your phone?">
 							</capitec-label>
 							<capitec-spacer></capitec-spacer>
 							<capitec-hyperlink
