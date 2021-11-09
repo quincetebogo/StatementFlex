@@ -180,6 +180,8 @@ export class ProfileAndProductSummaryBar extends Component {
 		this.product = ``;
 		this._telemetry.logEvent(LandingPageEvents.PRODUCT_BUTTON_FAVOURITES, {});
 		
+		// this.horizonStore.clearReturnScreen();
+		// this.horizonRouter.navigateToQuickTransactionFavourites();
 		this.horizonRouter.navigateToLandingPage(`Transact`, this.callerInformation.hasInsuranceProducts);
 	}
 
