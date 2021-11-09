@@ -194,6 +194,8 @@ export class TaxCertificates extends Component {
 			this.selectedCertificates.iT3STaxCertificates.sort((l, r) => r.year - l.year);
 		}
 		
+		this.selectedCertificates = Object.fromEntries(Object.entries(this.selectedCertificates).filter(([_, item]) => item != 0));
+		
 		this.dispatchEvent(new CustomEvent(`next`, { 
 			detail: {
 				selectedCertType: this.selectedCertType,
