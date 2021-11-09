@@ -50,6 +50,11 @@ export class AccessChannels extends Component {
 		this.requestUpdate();
 	}
 
+	_formatDate(dateToFormat) {
+        const stringToDate = new Date(dateToFormat);
+        const tempdate = stringToDate.toGMTString().substr(5, 11);
+		return tempdate;
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -107,46 +112,56 @@ export class AccessChannels extends Component {
 		`;
 	}
 
+	_getStatusColor(status) {
+		if (status === `Active`) {
+			return `status-active`;
+		} else if (status === `Suspended` || `Unavailable` || `Blocked`) {
+			return `status-inactive`;
+		} else {
+			// do nothing
+		}
+	}
+
 	_renderAccessChannelTabs() {
 		return html`
 			<capitec-group class="access-group" layout="vertical" halign="stretch" valign="top" gap="clear">
 				<capitec-label class="header-label" label="Access Channels"></capitec-label>
 
 				<horizon-product-tile 
-					class=${this.status.app.isActive ? `status-active` : `status-inactive`}
+					class=${this._getStatusColor(this.status.app.status)}
 					type="default"
 					label="App"
-					subtitle="${this.status.app.isActive ? `Active | Last used 06 Jun 2021` : `Suspended | 12 Jun 2021, 12:45 pm`}"
+					subtitle="${this.status.app.status} | Last used ${this._formatDate(this.status.app.dateLastUsed)}"
 					detail=""
 					icon="system/cellphone"
 					@click="${() => this._tileClick(`App`)}">
 				</horizon-product-tile>
 
 				<horizon-product-tile 
-					class=${this.status.appAndInternetActive ? `status-active` : `status-inactive`}
+					class=${this._getStatusColor(this.status.internetBanking.status)}
 					type="default"
 					label="Internet Banking"
-					subtitle="${this.status.appAndInternetActive ? `Active | Last used 06 Jun 2021` : `Suspended | 12 Jun 2021, 12:45 pm`}"
+					subtitle="${this.status.internetBanking.status} | Last used ${this._formatDate(this.status.internetBanking.dateLastUsed)}"
 					detail=""
 					icon="system/access"
 					@click="${() => this._tileClick(`InternetBanking`)}">
 				</horizon-product-tile>
 
 				<horizon-product-tile 
-					class=${this.status.ussdActive ? `status-active` : `status-inactive`}
+					class=${this._getStatusColor(this.status.ussd.status)}
 					type="default"
 					label="USSD"
-					subtitle="${this.status.ussdActive ? `Active | Last used 06 Jun 2021` : `Suspended | 12 Jun 2021, 12:45 pm`}"
+					subtitle="${this.status.ussd.status} | Last used ${this._formatDate(this.status.ussd.dateLastUsed)}"
 					detail=""
 					icon="system/cellphone"
 					@click="${() => this._tileClick(`USSD`)}">
 				</horizon-product-tile>
 
 				<horizon-product-tile 
-					class=${this.status.notificationType ? `status-active` : `status-inactive`}
+					class=""
 					type="default"
 					label="Notifications"
-					subtitle=${this.status.notificationType ? this.status.notificationType + ` | Anytime` : `Inactive`}
+					subtitle="Not registered"
 					detail=""
 					icon="system/notify"
 					@click="${() => this._tileClick(`Notifications`)}">

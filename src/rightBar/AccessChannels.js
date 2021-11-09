@@ -62,7 +62,6 @@ export class AccessChannels extends Component {
 	// --------------
 
 	_showSlidingPanel(event) {
-
 		this.selectedAccessChannelType = event.detail && event.detail.tileClicked || ``;
 		this.eventAggregator.publish(`horizon-access-status-update`, this.status);
 		this.showSideSheet = !this.showSideSheet;
@@ -98,18 +97,40 @@ export class AccessChannels extends Component {
 
 	async _accessChannelService() {
 		const returnValue = await this.accessChannelService.accessChannelStatus(this.cifNumber);
-		
+	
+	/* Mocked Access channels landing response untill Channel service is implemented
+
+		this.status = {
+			"msisdn": "",
+
+			"app": {
+				"status": "Suspended",
+				"statusReason": "Stolen",
+				"dateLastUsed": "2021-09-11T09:48:18.908Z",
+				"dateRegistered": "2021-11-08T09:48:18.908Z",
+				"userName": "Mr Tertius Steyl",
+				"userRegNo": "9065011004"
+			},
+			"internetBanking": {
+				"status": "Active",
+				"statusReason": "",
+				"dateLastUsed": "2021-11-08T09:48:18.908Z",
+				"dateRegistered": "2021-11-08T09:48:18.908Z",
+				"userName": "Mr Tertius Steyl",
+				"userRegNo": "9065011004"
+			},
+			"ussd": {
+				"status": "Active",
+				"statusReason": "",
+				"dateLastUsed": "2021-11-08T09:48:18.908Z",
+				"dateRegistered": "2021-11-08T09:48:18.908Z",
+				"userName": "Mr Tertius Steyl",
+				"userRegNo": "9065011004"
+			}
+		  }
+	*/
 		if (returnValue.succeeded) {
 			this.status = returnValue.result;
-
-			// this.status = {
-			// 	"ussdActive": true,
-			// 	"app": {
-			// 		isActive: true,
-			// 	},
-			// 	"notificationType": "Unknown"
-			//   }
-			
 			return;
 		} 
 		

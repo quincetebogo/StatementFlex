@@ -95,6 +95,7 @@ export class AppProfileDetails extends Component {
 	}
 
 	_toggleSuspendReasonsSlide() {
+		this.showValidationBanner = false;
 		this.showSuspendReasons = !this.showSuspendReasons;
 		this.showSuspendReasons ? this.selectedSuspendReason = `` : '';
 	}
@@ -105,7 +106,7 @@ export class AppProfileDetails extends Component {
 			const returnValue = await this.suspendApp();
 		
 			if(returnValue) {
-				this.appDetails.isActive = false;
+				this.appDetails.status = `Suspended`;
 				this._displayAndCloseToast();
 				this._toggleSuspendReasonsSlide();
 			}
@@ -118,7 +119,7 @@ export class AppProfileDetails extends Component {
 		const returnValue = await this.unSuspendApp();
 		
 		if(returnValue) {
-			this.appDetails.isActive = true;
+			this.appDetails.status = `Active`;
 			this._displayAndCloseToast();
 		}
 	}
@@ -139,6 +140,17 @@ export class AppProfileDetails extends Component {
 		window.setTimeout(() => this.displayToast = false, 3000);
 	}
 
+	_formatDate(dateToFormat) {
+        const stringToDate = new Date(dateToFormat);
+        const tempdate = stringToDate.toGMTString().substr(5, 11);
+		return tempdate;
+	}
+
+	_formatTime(timeToFormat) {
+		const formatedDate = new Date(timeToFormat);
+		const localTime = formatedDate.toLocaleTimeString()
+		return localTime.replace(localTime.slice(-6,-2), '')
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -211,7 +223,7 @@ export class AppProfileDetails extends Component {
 				.validate-reasons {
 					--theme-alert-banner-height: 64px;
 				}
-				capitec-toast { 
+				capitec-toast {
 					--theme-toast-max-width: 315px;
 					--theme-toast-height: 106px;
 					--theme-icon-size-default: 24px;
@@ -325,19 +337,19 @@ export class AppProfileDetails extends Component {
 				<horizon-label
 					data-automation-id=""
 					label="Username"
-					value="1281243122">
+					value="${this.appDetails.userName}">
 				</horizon-label>
 
 				<horizon-label
 					data-automation-id=""
 					label="Date registered"
-					value="12 May 2019, 12:45pm">
+					value="${this._formatDate(this.appDetails.dateRegistered)}, ${this._formatTime(this.appDetails.dateRegistered)}">
 				</horizon-label>
 
 				<horizon-label
 					data-automation-id=""
 					label="Cellphone number (verified)"
-					value="082 555 9090">
+					value="${this.appDetails.userRegNo}">
 				</horizon-label>
 
 				<horizon-label 
@@ -349,31 +361,31 @@ export class AppProfileDetails extends Component {
 				<horizon-label
 					data-automation-id=""
 					label="Status"
-					value="${ this.appDetails.isActive ? `Active` : `Suspended`}">
+					value="${ this.appDetails.status}">
 				</horizon-label>
 
 				<horizon-label 
 					data-automation-id=""
 					label="Last updated"
-					value="12 Jun 2019, 12:45pm"
-					style="display:${this.appDetails.isActive ? `none` : `block`}">
+					value="${this._formatDate(this.appDetails.dateLastUsed)}, ${this._formatTime(this.appDetails.dateLastUsed)}"
+					style="display:${this.appDetails.status === `Active` ? `none` : `block`}">
 				</horizon-label>
 
 				<horizon-label 
 					data-automation-id=""
 					label="Reason for suspending"
-					value="${this.selectedSuspendReason || `Lost`}"
-					style="display:${this.appDetails.isActive ? `none` : `block`}">
+					value="${this.selectedSuspendReason || this.appDetails.statusReason}"
+					style="display:${this.appDetails.status === `Active` ? `none` : `block`}">
 				</horizon-label>
 
 				<capitec-button
 					type="primary"
-					?hidden=${!this.appDetails.isActive}
+					?hidden=${this.appDetails.status !== `Active`}
 					label="Suspend"
 					@click="${() => this._toggleSuspendReasonsSlide()}">
 				</capitec-button>
 				<capitec-button 
-					?hidden=${this.appDetails.isActive}
+					?hidden=${this.appDetails.status === `Active`}
 					type="primary" 
 					label="Unsuspend" 
 					@click="${() => this._onUnsuspendAppClick()}">
@@ -465,7 +477,7 @@ export class AppProfileDetails extends Component {
 	}
 
 	_renderNotificationBanner() {
-		return this.appDetails.isActive ? 
+		return this.appDetails.status === `Active` ? 
 		html`` : 
 		html`
 			<capitec-alert-banner 
@@ -479,7 +491,7 @@ export class AppProfileDetails extends Component {
 	}
 
 	_renderValidationBanner() {
-		return this.appDetails.isActive && this.showValidationBanner ? 
+		return this.appDetails.status === `Active` && this.showValidationBanner ? 
 		html`
 			<capitec-alert-banner 
 				class="validate-reasons"
@@ -497,7 +509,7 @@ export class AppProfileDetails extends Component {
 		<capitec-toast 
 			type="success" 
 			header="Successful!"
-			detail="App was ${this.appDetails.isActive ? `unsuspended` : `suspended`}&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp 12 Jun 2019, 12:45pm"
+			detail="App was ${this.appDetails.status === `Active` ? `unsuspended` : `suspended`}&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp 12 Jun 2019, 12:45pm"
 			?hidden="${!this.displayToast}"
 			@click="${() => this.displayToast = false}"
 			closable>
