@@ -387,11 +387,10 @@ export class SavingsAccountBase extends ViewBase {
 		//add this verification method in the verify caller component to check if the client has done ita 
 		const verificationMethod = this.callerInformation.verificationMethod;
 		const verificationStatus = this.callerInformation.verificationStatus;
-		
-		// TODO: Enable the logic once ITA accept/reject code is done
-		// return (verificationMethod === `XDS` && HIGH_RISK_TRANSACTIONS.includes(need));
 
-		return verificationStatus === `unverified` && !LOW_RISK_TRANSACTIONS.includes(need);
+		return verificationStatus === `verified`
+				? verificationMethod === `XDS` && HIGH_RISK_TRANSACTIONS.includes(need)
+				: !LOW_RISK_TRANSACTIONS.includes(need);
 	}
 
 	async _getMandateDetails() {
