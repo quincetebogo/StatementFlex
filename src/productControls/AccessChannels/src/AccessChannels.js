@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/core';
 import 'platform/components';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 export class AccessChannels extends Component {
 
@@ -55,6 +56,13 @@ export class AccessChannels extends Component {
         const tempdate = stringToDate.toGMTString().substr(5, 11);
 		return tempdate;
 	}
+
+	_formatTime(timeToFormat) {
+		const formatedDate = new Date(timeToFormat);
+		const localTime = formatedDate.toLocaleTimeString()
+		return localTime.replace(localTime.slice(-6,-2), '')
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -115,11 +123,26 @@ export class AccessChannels extends Component {
 	_getStatusColor(status) {
 		if (status === `Active`) {
 			return `status-active`;
-		} else if (status === `Suspended` || `Unavailable` || `Blocked`) {
+		} else if (status === `Suspended` || `Unavailable` || `Blocked` || isNullorEmpty(status)) {
 			return `status-inactive`;
 		} else {
 			// do nothing
 		}
+	}
+
+	_getStatusDetails(type) {
+		const status = this.status[type] && this.status[type].status;
+		
+		if (isNullorEmpty(status)) {
+			return `Channel service is down`;
+		} else if (status === `Active`){
+			return status + ` | Last used ` + this._formatDate(this.status[type].dateLastUsed);
+		} else if ( status === `Suspended` || `Blocked`) {
+			return status + ` | ` + this._formatDate(this.status[type].dateLastUpdated || this.status[type].dateLastUsed) + `, ` + this._formatTime(this.status[type].dateLastUpdated || this.status[type].dateLastUsed);
+		} else {
+
+		}
+
 	}
 
 	_renderAccessChannelTabs() {
@@ -128,10 +151,10 @@ export class AccessChannels extends Component {
 				<capitec-label class="header-label" label="Access Channels"></capitec-label>
 
 				<horizon-product-tile 
-					class=${this._getStatusColor(this.status.app.status)}
+					class=${this._getStatusColor(this.status.app && this.status.app.status)}
 					type="default"
 					label="App"
-					subtitle="${this.status.app.status} | Last used ${this._formatDate(this.status.app.dateLastUsed)}"
+					subtitle="${this._getStatusDetails(`app`)}"
 					detail=""
 					icon="system/cellphone"
 					@click="${() => this._tileClick(`App`)}">
@@ -141,7 +164,7 @@ export class AccessChannels extends Component {
 					class=${this._getStatusColor(this.status.internetBanking.status)}
 					type="default"
 					label="Internet Banking"
-					subtitle="${this.status.internetBanking.status} | Last used ${this._formatDate(this.status.internetBanking.dateLastUsed)}"
+					subtitle="${this._getStatusDetails(`internetBanking`)}"
 					detail=""
 					icon="system/access"
 					@click="${() => this._tileClick(`InternetBanking`)}">
@@ -151,7 +174,7 @@ export class AccessChannels extends Component {
 					class=${this._getStatusColor(this.status.ussd.status)}
 					type="default"
 					label="USSD"
-					subtitle="${this.status.ussd.status} | Last used ${this._formatDate(this.status.ussd.dateLastUsed)}"
+					subtitle="${this._getStatusDetails(`ussd`)}"
 					detail=""
 					icon="system/cellphone"
 					@click="${() => this._tileClick(`USSD`)}">

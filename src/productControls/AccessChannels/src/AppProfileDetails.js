@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { isNullorEmpty } from '../../../utils/channelServiceUtilities';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components';
 import 'app/components/common/HorizonLabel';
@@ -91,7 +91,7 @@ export class AppProfileDetails extends Component {
 	// --------------
 
 	_toggleAppSlidingPanel() {
-		this.dispatchEvent(new CustomEvent(`close-side-sheet`, {}));
+		this.dispatchEvent(new CustomEvent(`close-side-sheet`,  { detail: { tileClicked: `App` } }));
 	}
 
 	_toggleSuspendReasonsSlide() {
@@ -137,7 +137,15 @@ export class AppProfileDetails extends Component {
 
 	_displayAndCloseToast() {
 		this.displayToast = true;
-		window.setTimeout(() => this.displayToast = false, 3000);
+
+		const elementToast = this.shadowRoot.getElementById(`app-success-toast`);
+		elementToast.style.animation = `slideDown 0.6s`; 
+
+		window.setTimeout(() =>{
+				elementToast.style.animation = `slideUp 0.6s`
+				window.setTimeout(() =>this.displayToast = false, 600);
+			}, 3000);
+		
 	}
 
 	_formatDate(dateToFormat) {
@@ -224,23 +232,45 @@ export class AppProfileDetails extends Component {
 					--theme-alert-banner-height: 64px;
 				}
 				capitec-toast {
+					animation-timing-function: cubic-bezier(0.2, 0.8, 0.5, 1);
+					animation-fill-mode: forwards;
+
 					--theme-toast-max-width: 315px;
 					--theme-toast-height: 106px;
 					--theme-icon-size-default: 24px;
-					--theme-toast-success-color: #3a3a3a;
+					--theme-toast-success-color: #3A3A3A;
 					--theme-toast-detail-line-height: 20px;
 					padding: 12px 0px 0px 16px;
 					position: absolute;
 					z-index: 100;
 				}
+				@keyframes slideDown {
+					0% {
+						transform: translateY(-50%);
+					},
+					100% {
+						transform: translateY(100%);
+					}
+				}
+				@keyframes slideUp{
+					0% {
+						transform: translateY(0%);
+					}
+					100% {
+						transform: translateY(-50%);
+					}
+				}
 
 				/* Suspend App reasons styles */
 				.suspend-reasons {
 					--theme-side-sheet-top: 104px;
+					--theme-modal-screen-background-color: transparent;
 				}
 				.header-group-suspend{
 					height: 56px;
     				padding: 0px 24px;
+					border-start-start-radius: 4px;
+				;
 					background-color: rgba(212, 120, 28, 0.15);
 				}
 				.header-suspend-error{
@@ -355,7 +385,7 @@ export class AppProfileDetails extends Component {
 				<horizon-label 
 					data-automation-id=""
 					label="Last interaction date"
-					value="22 Jun 2021">
+					value="${this._formatDate(this.appDetails.dateLastUsed)}">
 				</horizon-label>
 
 				<horizon-label
@@ -367,8 +397,8 @@ export class AppProfileDetails extends Component {
 				<horizon-label 
 					data-automation-id=""
 					label="Last updated"
-					value="${this._formatDate(this.appDetails.dateLastUsed)}, ${this._formatTime(this.appDetails.dateLastUsed)}"
-					style="display:${this.appDetails.status === `Active` ? `none` : `block`}">
+					value="${this._formatDate(this.appDetails.dateLastUpdated)}, ${this._formatTime(this.appDetails.dateLastUpdated)}"
+					style="display:${isNullorEmpty(this.appDetails.dateLastUpdated) ? `none` : `block`}">
 				</horizon-label>
 
 				<horizon-label 
@@ -396,14 +426,13 @@ export class AppProfileDetails extends Component {
 
 	_renderServiceUnavailable() {
 		return html`
-
 			<capitec-alert-banner 
 				class="unavilable-alert-banner"
 				type="unsuccessful-red"
 				label=""
 				layout="vertical">
 				<b>Notify Client</b> <br>
-				<p>Service are currently unavailable</p>
+				<p>Services are currently unavailable</p>
 			</capitec-alert-banner>
 			
 			<capitec-group class="service-unavilable-group" layout="vertical" halign="center" valign="center" gap="none">
@@ -412,7 +441,7 @@ export class AppProfileDetails extends Component {
 
 				<capitec-label 
 						class="unavailable-header"
-						label="Services is unavailable">
+						label="Services are unavailable">
 				</capitec-label>
 
 				<capitec-label 
@@ -433,7 +462,7 @@ export class AppProfileDetails extends Component {
 
 	_renderSuspendAppReason() {
 		return this.showSuspendReasons ?
-		 html`
+		html`
 			<capitec-side-sheet
 				class="suspend-reasons"
 				.expanded="${this.showSuspendReasons}"
@@ -507,13 +536,13 @@ export class AppProfileDetails extends Component {
 	_renderSuccessToast() {
 		return html `
 		<capitec-toast 
+			id="app-success-toast"
 			type="success" 
 			header="Successful!"
-			detail="App was ${this.appDetails.status === `Active` ? `unsuspended` : `suspended`}&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp 12 Jun 2019, 12:45pm"
+			detail="App was ${this.appDetails.status === `Active` ? `unsuspended` : `suspended`}&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp ${this._formatDate(this.appDetails.dateLastUpdated)}, ${this._formatTime(this.appDetails.dateLastUpdated)}"
 			?hidden="${!this.displayToast}"
 			@click="${() => this.displayToast = false}"
 			closable>
-			<p>12 Jun 2019, 12:45pm</p>
 		</capitec-toast>`
 	}
 }

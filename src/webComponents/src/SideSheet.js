@@ -205,8 +205,8 @@ export class SideSheet extends Component {
 				}
 
 				:host([expanded]) {
-					width: 100%;
-					height: 100%;
+					width: 1920px;
+					height: 1082px;
 				}
 
 				.content {
@@ -242,8 +242,8 @@ export class SideSheet extends Component {
 				/** COLLAPSING */
 
 				:host([collapsing]) {
-					width: 100%;
-					height: 100%;	
+					width: 1920px;
+					height: 1082px;	
 				}
 
 				:host([collapsing][alignment=right]) > .content {
@@ -289,6 +289,7 @@ export class SideSheet extends Component {
 				}
 
 				@keyframes collapseRight {
+					
 					100% {
 						transform: translateX(calc(0px + var(--theme-side-sheet-width, 250px)));
 					}

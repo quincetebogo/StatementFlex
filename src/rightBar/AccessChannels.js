@@ -71,6 +71,7 @@ export class AccessChannels extends Component {
 		// TO DO: Channel service call to suspend app should come here
 		// If successfully suspended, update app status, else Error scenario
 		this.status.app.isActive = false;
+		this.status.app.dateLastUpdated = new Date()
 
 		return true;
 	}
@@ -79,6 +80,7 @@ export class AccessChannels extends Component {
 		// TO DO: Channel service call to Un-suspend App should come here
 		// If successfully Unsuspended, update app status, else Error scenario
 		this.status.app.isActive = true;
+		this.status.app.dateLastUpdated = new Date();
 
 		return true;
 	}
@@ -96,7 +98,7 @@ export class AccessChannels extends Component {
 	}
 
 	async _accessChannelService() {
-		const returnValue = await this.accessChannelService.accessChannelStatus(this.cifNumber);
+	const returnValue = await this.accessChannelService.accessChannelStatus(this.cifNumber);
 	
 	/* Mocked Access channels landing response untill Channel service is implemented
 
@@ -104,7 +106,7 @@ export class AccessChannels extends Component {
 			"msisdn": "",
 
 			"app": {
-				"status": "Suspended",
+                "status": "Suspended",
 				"statusReason": "Stolen",
 				"dateLastUsed": "2021-09-11T09:48:18.908Z",
 				"dateRegistered": "2021-11-08T09:48:18.908Z",
@@ -127,8 +129,8 @@ export class AccessChannels extends Component {
 				"userName": "Mr Tertius Steyl",
 				"userRegNo": "9065011004"
 			}
-		  }
-	*/
+        }
+    */
 		if (returnValue.succeeded) {
 			this.status = returnValue.result;
 			return;
