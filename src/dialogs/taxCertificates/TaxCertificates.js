@@ -294,10 +294,16 @@ export class TaxCertificatesDialog extends Component {
 
 		this.horizonStore.setScreenDetails(screenDetails);
 	}
-
+	_getMessageOption(selectedCertificates) {
+		
+		return selectedCertificates.iT3STaxCertificates ? MESSAGE_OPTION.iT3STaxCertificates : MESSAGE_OPTION.iT3BTaxCertificates
+	}
 	_formatSendRequest(selectedCertType, selectedCertificates, email) {
 		const documentIds = [];
 		const attachments = [];
+		const messageOption = selectedCertificates.iT3BTaxCertificates && selectedCertificates.iT3STaxCertificates
+		? MESSAGE_OPTION[`both`]
+		: this._getMessageOption(selectedCertificates);
 
 		if (selectedCertificates.iT3BTaxCertificates && (selectedCertType === `iT3BTaxCertificates` || selectedCertType === `both`)) {
 			attachments.push(...selectedCertificates.iT3BTaxCertificates.map(item => {
@@ -315,7 +321,7 @@ export class TaxCertificatesDialog extends Component {
 		const request = {
 			"cif": this.cifNumber,
 			"emailAddress": email,
-			"messageOption": MESSAGE_OPTION[selectedCertType],
+			"messageOption": messageOption,
 			"documentIds": documentIds,
 			"messageParameters": {
 				"title": this.taxCertificateDetails.title,
