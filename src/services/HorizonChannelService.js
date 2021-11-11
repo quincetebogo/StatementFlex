@@ -390,8 +390,8 @@ export class HorizonChannelService extends Service {
 				'incidentReferenceNumber': clientInfo.incidentNo,
 				'agentTelephoneNumber': clientInfo.agentTelephoneNumber,
 				'searchType':{
-					'identificationMethod': parseInt(clientInfo.searchType.identificationMethod, 10),
-					'value': clientInfo.searchType.searchValue
+					'identificationMethod': parseInt(clientInfo.identificationMethod, 10),
+					'value': clientInfo.searchValue
 				}
 			},
 			this._setToken(), `searchCaller`, null, null, 1000
