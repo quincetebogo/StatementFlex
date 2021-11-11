@@ -225,8 +225,10 @@ export class StopCardSearchCaller extends Component {
 				incidentNo: this.incidentReferenceNumber,
 				agentTelephoneNumber: this.agentTelephoneNumber,
 				ivrOption: this.ivrOption.value,
-				identificationMethod: this.identificationMethods.value,
-				searchValue: this.searchFieldText
+				searchType: {
+					identificationMethod: this.searchType.key,
+					searchValue: this.searchValue
+				}
 			};
 
 			const returnValue = await this.callHandleService.searchCaller(searchClient);

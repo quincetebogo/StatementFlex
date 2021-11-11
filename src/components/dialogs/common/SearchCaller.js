@@ -313,8 +313,10 @@ export class SearchCaller extends Component {
 				incidentNo: this.incidentDetails.incidentReferenceNumber,
 				agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
 				ivrOption: this.incomingCallDetails.ivrOption.value,
-				identificationMethod: this.searchType.key,
-				searchValue: this.searchValue
+				searchType: {
+					identificationMethod: this.searchType.key,
+					searchValue: this.searchValue
+				}
 			};
 
 			const returnValue = await this.callHandleService.searchCaller(searchClient);
@@ -354,8 +356,10 @@ export class SearchCaller extends Component {
 					incidentNo: this.incidentDetails.incidentReferenceNumber,
 					agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
 					ivrOption: this.incomingCallDetails.ivrOption.value,
-					identificationMethod: this.searchType.key,
-					searchValue: this.searchValue
+					searchType: {
+						identificationMethod: this.searchType.key,
+						searchValue: this.searchValue
+					}
 				};
 
 				const returnValue = await this.callHandleService.searchCaller(searchClient);
