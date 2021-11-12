@@ -204,7 +204,7 @@ export class SideSheet extends Component {
 					justify-content: flex-start;
 				}
 
-				:host([expanded]) {
+				:host([expanded],[expanding],[collapsing]) {
 					width: var(--theme-side-sheet-expanded-screen-width, 1920px);
 					height: var(--theme-side-sheet-expanded-screen-height, 1082px);
 				}
@@ -217,9 +217,10 @@ export class SideSheet extends Component {
 					position: absolute;
 					border-top-left-radius: 4px;
 					border-bottom-left-radius: 4px;
+					display: none;
 				}
 
-				:host([expanded]) > .content {
+				:host([expanded],[expanding],[collapsing]) > .content {
 					display: block;
 				}
 
