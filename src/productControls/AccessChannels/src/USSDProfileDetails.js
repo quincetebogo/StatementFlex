@@ -39,10 +39,10 @@ export class USSDProfileDetails extends Component {
 	 * 
 	 * @property {Boolean} [showSideSheet] - To toggle Side sheet component
 	 * @property {Object} [ussd] - Ussd profile details
-	 * @property {Object} [ussdStatus] - Ussd profile status
+	 * @property {String} [ussdStatus] - Ussd profile status
 	 * @property {Boolean} [displaySuccessToast] - To hide or show the successful Toast
-	 * @property {Boolean} [showCancelReasons] - To toggle cancel reasons side sheet component
-	 * @property {String} [showNotificationBanner] - To hide or show the notification banner on some action 
+	 * @property {String} [showCancelReasons] - To toggle cancel reasons side sheet component
+	 * @property {Boolean} [showNotificationBanner] - To hide or show the notification banner on some action 
 	 * @property {Boolean} [showValidationBanner] - To hide or show the cancel reason validation banner on error 
 	 * 
 	 * @property {cancelUSSDCallback} cancelUSSD Callback function to cancel USSD
@@ -603,6 +603,9 @@ export class USSDProfileDetails extends Component {
 	}
 
 	_renderToast() {
+		/*  TO DO: "Header" and "Detail" properties can be removed when update platform to the latest version 
+			as content inside slot will be effective.*/
+
 		const formatedUpdatedDate = this._formatDate(this.ussd.dateLastUpdated) + `, ` + this._formatTime(this.ussd.dateLastUpdated);
 		
 		return html `
@@ -614,6 +617,10 @@ export class USSDProfileDetails extends Component {
 				?hidden="${!this.displaySuccessToast}"
 				@click="${() => this.displaySuccessToast = false}"
 				closable>
+					<capitec-label label="Successful!" type="strong"></capitec-label>
+					<capitec-label label="${this.toastDetails}"></capitec-label>
+					<capitec-spacer></capitec-spacer>
+					<capitec-label label="${formatedUpdatedDate}" type="strong"></capitec-label>
 			</capitec-toast>
 		`;
 	}
