@@ -265,12 +265,12 @@ export class TaxCertificateFailure extends ViewBase {
 			</section>`;
 	}
 
-	_renderTaxFreeLine() {
+	_renderTaxFreeLine(slot) {
 		return html`
 			<section 
 				data-automation-id="tax-certificate-success-tax-certificate-message" 
 				class="error-msg" 
-				slot="sub-detail">
+				slot="${slot}">
 				Tax free certificate for <strong>${this._taxFreeYears()}</strong> has not been emailed to <strong>${this.email}</strong>
 			</section>`;
 	}
