@@ -56,26 +56,26 @@ export const END_CALL_REASON = Object.freeze({
 		
 	],
 	VerifyClient: [
-			{
-				key: NEED_FULFILLED,
-				value: `Need fulfilled`,
-				mapping: `general-product-enquiry`
-			},
-			{
-				key: LANGUAGE_TRANSFER,
-				value: `Language transfer`,
-				mapping: `language-transfer`
-			},
-			{
-				key: CALL_TRANSFERED,
-				value: `Call transferred`,
-				mapping: `call-transfer`
-			},
-			{
-				key: NEED_INCOMPLETE,
-				value: `Need incomplete - bad connection`,
-				mapping: `telephony-disconnected`
-			}
+		{
+			key: NEED_FULFILLED,
+			value: `Need fulfilled`,
+			mapping: `general-product-enquiry`
+		},
+		{
+			key: LANGUAGE_TRANSFER,
+			value: `Language transfer`,
+			mapping: `language-transfer`
+		},
+		{
+			key: CALL_TRANSFERED,
+			value: `Call transferred`,
+			mapping: `call-transfer`
+		},
+		{
+			key: NEED_INCOMPLETE,
+			value: `Need incomplete - bad connection`,
+			mapping: `telephony-disconnected`
+		}
 	], 
 	VerifyClientFailed: [
 		{
@@ -103,7 +103,7 @@ export const END_CALL_REASON = Object.freeze({
 		{
 			key: ABANDONED_VERIFICATION,
 			value: `Abandoned Verification`,
-			mapping: ``
+			mapping: `abandoned-verification`
 		},
 		{
 			key: NEED_FULFILLED,

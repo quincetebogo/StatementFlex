@@ -351,7 +351,7 @@ export class SecurityQuestionsFailed extends Component {
 			<horizon-end-call-session
 				.incomingCallDetails = "${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
-				endCallContext = "VerifyClient"
+				endCallContext = "VerifyClientFailed"
 				@cancel="${() => this.renderMode = RENDER_MODE.VERIFY_CALLER_FAILED}">
 			</horizon-end-call-session>`;
     }

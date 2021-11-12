@@ -302,7 +302,7 @@ export class VerifyBySecurityQuestions extends Component {
 
 		this.horizonStore.setCallerInformation(this.callerInformation);
 
-		if (this.noOfXdsVerificationAttempted < 1) {
+		if (this.noOfXdsVerificationAttempted <= 1) {
 			this._showSQFailedScreen();
 			return;
 		}
@@ -567,13 +567,11 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_renderEndCallModal() {
-		let status = ``;
+		let status = `InProgress`;
 
-		if (this.questionNumber > 0) {
-			status = `InProgress`;
-		} else if (this.callerInformation.verificationAttempts.xdsAttempts > 0) {
+		if (this.callerInformation.verificationAttempts.xdsAttempts > 0) {
 			status = `Failed`;
-		} 
+		}
 
 		return html`
 			<horizon-end-call-session
