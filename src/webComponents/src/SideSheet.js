@@ -177,7 +177,7 @@ export class SideSheet extends Component {
 	 * @ignore
 	 * @returns {css} The css content of the component.
 	 */
-	static get styles() {
+	 static get styles() {
 
 		return [
 			super.styles,
@@ -205,8 +205,8 @@ export class SideSheet extends Component {
 				}
 
 				:host([expanded]) {
-					width: 100%;
-					height: 100%;
+					width: 1920px;
+					height: 1080px;
 				}
 
 				.content {
@@ -242,8 +242,8 @@ export class SideSheet extends Component {
 				/** COLLAPSING */
 
 				:host([collapsing]) {
-					width: 100%;
-					height: 100%;	
+					width: 1920px;
+					height: 1080px;
 				}
 
 				:host([collapsing][alignment=right]) > .content {
@@ -273,7 +273,7 @@ export class SideSheet extends Component {
 				@keyframes slideLeft {
 					0% {
 						transform: translateX(50%);
-					}
+					},
 					100% {
 						transform: translateX(100%);
 					}
@@ -282,7 +282,7 @@ export class SideSheet extends Component {
 				@keyframes slideRight {
 					0% {
 						transform: translateX(-100%);
-					}
+					},
 					100% {
 						transform: translateX(0%);
 					}

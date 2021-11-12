@@ -1,55 +1,68 @@
 import { Component, css, html } from 'platform/elements';
-
-import 'app/webComponents/src/SideSheet';
-import 'app/components/common/HorizonLabel';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+
+import 'app/components/common/HorizonLabel';
+import 'app/webComponents/src/SideSheet';
 
 
 export class USSDProfileDetails extends Component {
 	constructor() {
 		super();
 
-		this.isBusy = false;
 		this.displaySuccessToast = false;
 		this.showCancelReasons = false;
-		this.cancelReason = ``;
+		this.showNotificationBanner = false;
 		this.showValidationBanner = false;
-
-		this.bannerType = ``;
+		
+		this.cancelReason = ``;
 		this.bannerTitle = ``;
 		this.bannerSubtitle = ``;
-		this.bannerDetails = ``;
+		this.toastDetails = ``;
 
-		//Active, SIM Blocked, Cancelled, Unavailable
-		this.ussdStatus = `Active`;
-
-		this._checkUssdStatus(this.ussdStatus);
-
+		//Active, SIM Blocked, ussd Blocked, Service Unavailable - null
+		this.ussdStatus = ``;
 	}
 	
 	// ----------
 	// PROPERTIES
 	// ----------
+	
+	/**
+	 * @callback cancelUSSD
+	 * @returns {cancelUSSDCallback} - Success or failure response from cancelling the USSD services
+	 */
 
+	/**
+	 * @callback unblockSIM
+	 * @returns {unblockSIMCallback} - Success or failure response from Unblocking SIM
+
+	 * 
+	 * @property {Boolean} [showSideSheet] - To toggle Side sheet component
+	 * @property {Object} [ussd] - Ussd profile details
+	 * @property {Object} [ussdStatus] - Ussd profile status
+	 * @property {Boolean} [displaySuccessToast] - To hide or show the successful Toast
+	 * @property {Boolean} [showCancelReasons] - To toggle cancel reasons side sheet component
+	 * @property {String} [showNotificationBanner] - To hide or show the notification banner on some action 
+	 * @property {Boolean} [showValidationBanner] - To hide or show the cancel reason validation banner on error 
+	 * 
+	 * @property {cancelUSSDCallback} cancelUSSD Callback function to cancel USSD
+	 * @property {unblockSIMCallback} unblockSIM Callback function to Unblock SIM
+	 * 
+	 */
 	static get properties() {
 		return {
-			isBusy: { state: true },
-			displaySuccessToast: { type: Boolean },
-			isUssdActive: { type: Boolean },
-			
-			showSideSheet: { type: Object },
+			showSideSheet: { type: Boolean },
+			ussd: { type: Object },
+			ussdStatus: { type: String },
+
 			cancelUSSD: { type: Object },
 			activateFullMenuUSSD: { type: Object },
 			unblockSIM: { type: Object },
 			
-			status: { state: true },
+			displaySuccessToast: { state: true },
 			showCancelReasons: { state: true },
-			showValidationBanner: { state: true },
-
-			bannerType: { type: String },
-			bannerTitle: { type: String },
-			bannerSubtitle: { type: String },
-			bannerDetails: { type: String }
+			showNotificationBanner: { state: true },
+			showValidationBanner: { state: true }
 		};
 	}
 
@@ -59,83 +72,60 @@ export class USSDProfileDetails extends Component {
  
 	connectedCallback() {
 		super.connectedCallback();
+		
+		this.ussdStatus = this.ussd && this.ussd.status
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
 	}
 
-		// ---------------
-	// PRIVATE METHODS
-	// ---------------
+	// --------------
+	// EVENT HANDLERS
+	// --------------
 
 	_toggleAppSlidingPanel() {
-		this.dispatchEvent(new CustomEvent(`close-side-sheet`, {}));
+		this.dispatchEvent(new CustomEvent(`close-side-sheet`, { detail: { tileClicked: `USSD` } }));
 	}
-
-	_checkSimBlocked() {
-		// TO DO: service call to check if clients sim is blocked.
-
-		 if (this.ussdStatus === `SIM Blocked`) {
-			// Display unblock sim button
-			return true;
-		}
-	}
-
-	_onUnblockSIM() {
-		// code to unblock SIM
-		this._displayAndCloseToast(`SIM for number ${this.cellNumber || '062 533 8016'} was unblocked successfully.`)
-	}
-
-	_checkUssdStatus(status) {
-		if (status === "Cancelled") {
-			this.showValidationBanner = true;
-			this.bannerType = `unsuccessful-red`;
-			this.bannerTitle = `Service has been cancelled.`;
-			this.bannerSubtitle = `Visit a branch to reactivate USSD.`
-		} else if (status === "Active") {
-			this.showValidationBanner = false;
-		} else if (status === "SIM Blocked") {
-			this.showValidationBanner = true;
-			this.bannerType = `unsuccessful-red`;
-			this.bannerTitle = `SIM Blocked`;
-			this.bannerSubtitle = `SIM blocked due to SIM swop detected.`
-		} else if (status === "Unavailable") {
-			this.showValidationBanner = true;
-			this.bannerType = `unsuccessful-red`;
-			this.bannerTitle = `Notify client`;
-			this.bannerSubtitle = `Service is currently unavailable`
-		}
-	}
-
+	
 	_toggleCancelUSSD() {
-		// toggle show and hide of cancel ussd reasons
-		this.showValidationBanner = false;
+		// toggle show or hide of cancel ussd reasons
+		this.showNotificationBanner = false;
 		this.showCancelReasons = !this.showCancelReasons;
 		this.showCancelReasons ? this.cancelReason = ``:'';
 	}
 
+	async _onUnblockSIM() {
+		// code to unblock SIM
+		const returnValue = await this.unblockSIM();
+		if (returnValue) {
+			this.ussd.isSimBlocked = false;
+
+			this._displayAndCloseToast(`SIM for number ${this.ussd.userRegNo} was unblocked successfully.`)
+		}
+	}
+
 	async _onCancelUSSD() {
-		// action of actually cancelling the service
-		
+		// action of actually cancelling the ussd service
 		if (this.cancelReason) {
 			const returnValue = await this.cancelUSSD();
 			if (returnValue) {
-				this.ussdActive = false;
+				this.ussdStatus = `Blocked`;
 
-				this._displayAndCloseToast(`USSD was cancelled.`);
+				this._displayAndCloseToast("USSD was cancelled. You will need to visit  branch to reactivate USSD");
 				this._toggleCancelUSSD();
+				
+				this.showNotificationBanner = true;
 			}
 		} else {
-			this.showValidationBanner = true;
-			this.bannerType = `unsuccessful-red`;
 			this.bannerTitle = `Notice`;
 			this.bannerSubtitle = `Please choose a reason to cancel USSD.`;
+			this.showValidationBanner = true;
 		} 
 	}
 
 	_activateFullMenu() {
-		this.ussdStatus = `Active | Reduced menu`;
+        this.ussdStatus = `Active | Reduced menu`;
 		this._displayAndCloseToast('The full menu is active.')
 	}
 
@@ -146,14 +136,56 @@ export class USSDProfileDetails extends Component {
 		}
 	}
 
-	// display success toast for 3 seconds
-	_displayAndCloseToast(subtitle) {
-		this.displaySuccessToast = true;
-		this.bannerDetails = subtitle;
-		window.setTimeout(() => this.displaySuccessToast = false, 3000)
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_checkUssdStatus(status) {
+		
+		if (isNullorEmpty(status)) {
+			this.showNotificationBanner = true;
+			this.bannerTitle = `Notify client`;
+			this.bannerSubtitle = `Services are currently unavailable`
+		}  else if (status === "Active" && !this.ussd.isSimBlocked) {
+			this.showNotificationBanner = false;
+		} else if (this.ussd.isSimBlocked) {
+			this.showNotificationBanner = true;
+			this.bannerTitle = `SIM Blocked`;
+			this.bannerSubtitle = `SIM blocked due to SIM swop detected.`
+		} else if (status === "Blocked" && !this.ussd.isSimBlocked) {
+			this.showNotificationBanner = true;
+			this.bannerTitle = `Service has been cancelled.`;
+			this.bannerSubtitle = `Visit a branch to reactivate USSD.`
+		} else{
+			//do nothing
+		}
 	}
 
+	// display success toast for 3 seconds
+	_displayAndCloseToast(detail) {
+		this.displaySuccessToast = true;
+		this.toastDetails = detail;
 
+		const elementToast = this.shadowRoot.getElementById(`ussd-success-toast`);
+		elementToast.style.animation = `slideDown 0.6s`; 
+
+		window.setTimeout(() =>{
+			elementToast.style.animation = `slideUp 0.6s`
+			window.setTimeout(() =>this.displaySuccessToast = false, 600);
+		}, 3000);
+	}
+
+	_formatDate(dateToFormat) {
+		const stringToDate = new Date(dateToFormat);
+		const tempdate = stringToDate.toGMTString().substr(5, 11);
+		return tempdate;
+	}
+
+	_formatTime(timeToFormat) {
+		const formatedDate = new Date(timeToFormat);
+		const localTime = formatedDate.toLocaleTimeString()
+		return localTime.replace(localTime.slice(-6,-2), '')
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -208,7 +240,7 @@ export class USSDProfileDetails extends Component {
 			.content-box > horizon-label[value="Cancelled"] {
 				--horizon-label-value-color: #a5132a;
 			}
-			.content-box > horizon-label[value="SIM Blocked"] {
+			.content-box > horizon-label[value="Blocked: SIM Swop | reduced menu"] {
 				--horizon-label-value-color: #a5132a;
 			}
 			.content-box > horizon-label[value="Active | Reduced menu"] {
@@ -217,7 +249,7 @@ export class USSDProfileDetails extends Component {
 			.header-label[label="Cancel USSD"] {
 				--theme-label-strong-font-size: 16px;
 			}
-			.header-label[label="Service is unavailable"] {
+			.header-label[label="Services are unavailable"] {
 				--theme-label-strong-font-size: 18px;
 			}
 			.header-label[label="For any urgent matters visit a branch."] {
@@ -235,24 +267,28 @@ export class USSDProfileDetails extends Component {
 			}
 			capitec-alert-banner {
 				margin: 8px 8px 0px 8px;
-				--theme-alert-banner-height: 84px;
+				--theme-alert-banner-height: 64px;
 				--theme-alert-banner-icon-margin-left: 16px;
 				--theme-alert-banner-icon-margin-right: 16px;
 			}
 			capitec-alert-banner > p {
 				margin: 0px;
-				padding-right: 33px;
+				padding-right: 32px;
 
 			}
 			.validate-reasons {
 				--theme-alert-banner-height: 64px;
 			}
-			capitec-toast { 
+			capitec-toast {
+				animation-timing-function: cubic-bezier(0.2, 0.8, 0.5, 1);
+				animation-fill-mode: forwards;
+
 				--theme-toast-max-width: 315px;
-				--theme-toast-height: 106px;
+				--theme-toast-height: 126px;
 				--theme-icon-size-default: 24px;
 				--theme-toast-success-color: #3a3a3a;
-				--theme-toast-detail-line-height: 20px;
+				--theme-toast-detail-line-height: 22px;
+				--theme-toast-title-line-height: 22px;
 				padding: 12px 0px 0px 16px;
 				position: absolute;
 				z-index: 100;
@@ -269,33 +305,56 @@ export class USSDProfileDetails extends Component {
 			}
 			.cancel-reasons {
 				--theme-side-sheet-top: 104px;
+				--theme-modal-screen-background-color: transparent;
 			}
 			.header-group-cancel{
 				height: 56px;
 				padding: 0px 24px;
+				border-start-start-radius: 4px;
 				background-color: rgba(212, 120, 28, 0.15);
+			}
+			.header-cancel-error{
+				background-color: #F7E2E1;
 			}
 			.connection-error-svg {
 				height: 152px;
 				width: 210px;
 				margin: 18px 0px 13px 0px;
 			}
+
+			@keyframes slideDown {
+				0% {
+					transform: translateY(-50%);
+				},
+				100% {
+					transform: translateY(100%);
+				}
+			}
+			@keyframes slideUp{
+				0% {
+					transform: translateY(0%);
+				}
+				100% {
+					transform: translateY(-50%);
+				}
+			}
 			`
 		];
 	}
+
 	_mobileTemplate() {
 		return _webTemplate();
 	}
 
 	_webTemplate() {
-		if (this.ussdStatus === `Unavailable`) {
+		if (isNullorEmpty(this.ussd)) {
 			return html `
-			${this._renderUSSDUnavailable()}
-			`
+				${this._renderUSSDUnavailable()}
+			`;
 		} else {
-		return html `
-			${this._renderUSSDProfileDetails()}
-			${this._renderCancelUSSD()}
+			return html `
+				${this._renderUSSDProfileDetails()}
+				${this._renderCancelUSSD()}
 			`;
 		}
 	}
@@ -303,79 +362,77 @@ export class USSDProfileDetails extends Component {
 	_renderUSSDProfileDetails() {
 		// check if sim is blocked the show the error
 		return html`
-		<capitec-side-sheet
-			.expanded="${this.showSideSheet}"
-			alignment="right">
-		<capitec-group
-			class="header-group-app"
-			layout="horizontal"
-			halign="left"
-			valign="center"
-			gap="none">
-			<capitec-icon class="icon-app" size="medium" icon="system/cellphone"></capitec-icon>
-			<capitec-label class="header-label" type="Strong" label="USSD"></capitec-label>
-			<capitec-spacer></capitec-spacer>
-			<capitec-icon class="icon-close" size="small" icon="system/close-action" @click="${() => this._toggleAppSlidingPanel()}"></capitec-icon>
-		</capitec-group>
+			<capitec-side-sheet
+				.expanded="${this.showSideSheet}"
+				alignment="right">
+				<capitec-group
+					class="header-group-app"
+					layout="horizontal"
+					halign="left"
+					valign="center"
+					gap="none">
+					<capitec-icon class="icon-app" size="medium" icon="system/cellphone"></capitec-icon>
+					<capitec-label class="header-label" type="Strong" label="USSD"></capitec-label>
+					<capitec-spacer></capitec-spacer>
+					<capitec-icon class="icon-close" size="small" icon="system/close-action" @click="${() => this._toggleAppSlidingPanel()}"></capitec-icon>
+				</capitec-group>
 
-		${this._renderToast()}
-		${this._renderAlertBanner()}
+				${this._renderToast()}
+				${this._renderAlertBanner()}
 
-		<capitec-content-box
-			class="content-box"
-			layout="vertical"
-			halign="left"
-			valign="top"
-			gap="none">
-		<horizon-label 
-			data-automation-id=""
-			class="dateRegistered"
-			label="Date registered"
-			value="${this.dateRegistered || '22 May 2017, 1:45pm'}">
-		</horizon-label>
+				<capitec-content-box
+					class="content-box"
+					layout="vertical"
+					halign="left"
+					valign="top"
+					gap="none">
+					<horizon-label 
+						data-automation-id=""
+						class="dateRegistered"
+						label="Date registered"
+						value="${this._formatDate(this.ussd.dateRegistered)}, ${this._formatTime(this.ussd.dateRegistered)}">
+					</horizon-label>
 
-		<horizon-label 
-			data-automation-id=""
-			class="cellNumber"
-			label="Cellphone number (verified)"
-			value="${this.cellNumber || '062 533 8016'}">
-		</horizon-label>
+					<horizon-label 
+						data-automation-id=""
+						class="cellNumber"
+						label="Cellphone number (verified)"
+						value="${this.ussd.userRegNo}">
+					</horizon-label>
 
-		<horizon-label 
-			data-automation-id=""
-			class="lastInteraction"
-			label="Last interaction date"
-			value="${this.lastInteraction || '10 October 2020'}">
-		</horizon-label>
+					<horizon-label 
+						data-automation-id=""
+						class="lastInteraction"
+						label="Last interaction date"
+						value="${this._formatDate(this.ussd.dateLastUsed)}">
+					</horizon-label>
 
-		<horizon-label 
-			data-automation-id=""
-			class="ussdStatus"
-			label="Status"
-			value="${this.ussdStatus}">
-		</horizon-label>
+					<horizon-label 
+						data-automation-id=""
+						class="ussdStatus"
+						label="Status"
+						value="${this.ussd.isSimBlocked ? `Blocked: SIM Swop | reduced menu` : this.ussdStatus === `Blocked` && !this.ussd.isSimBlocked ? `Cancelled` : this.ussdStatus}">
+					</horizon-label>
 
-		<horizon-label 
-			data-automation-id=""
-			class="lastUpdated"
-			label="Last updated"
-			value="${this.lastUpdated || '20 June 2020, 12:30pm'}"
-			style="display:${this.ussdStatus === `Active` ? `none` : `block`}"
-			>
-		</horizon-label>
+					<horizon-label 
+						data-automation-id=""
+						class="lastUpdated"
+						label="Last updated"
+						value="${this._formatDate(this.ussd.dateLastUpdated)}, ${this._formatTime(this.ussd.dateLastUpdated)}">
+					</horizon-label>
 
-		<horizon-label 
-			data-automation-id=""
-			class="cancelling"
-			label="Reason for cancelling"
-			value="${this.cancelReason || `Lost`}"
-			style="display:${(this.ussdStatus === `SIM Blocked` || this.ussdStatus === `Active`) ? `none` : `block`}"
-			>
-		</horizon-label>
+					<horizon-label 
+						data-automation-id=""
+						class="cancelling"
+						label="Reason for cancelling"
+						value="${this.cancelReason || this.ussd.statusReason}"
+						style="display:${this.ussdStatus === `Active` ? `none` : `block`}"
+						>
+					</horizon-label>
 
-		${this._renderButtons()}
-		</capitec-content-box>
-		</capitec-side-sheet>
+					${this._renderButtons()}
+				</capitec-content-box>
+			</capitec-side-sheet>
 		`;
 	}
 
@@ -383,19 +440,19 @@ export class USSDProfileDetails extends Component {
 		return html `
 			<capitec-button 
 				label="Activate Full USSD Menu" 
-				?hidden="${this.ussdStatus === `Cancelled` || this.ussdStatus === `SIM Blocked` || this.ussdStatus === `Active`}"
+				?hidden="${this.ussd.isSimBlocked || this.ussdStatus === `Blocked` || this.ussdStatus === `Active`}"
 				@click="${() => this._activateFullMenu()}">
 			</capitec-button>
 
 			<capitec-button 
 				label="Unblock SIM" 
-				?hidden="${!this._checkSimBlocked()}"
+				?hidden="${!this.ussd.isSimBlocked}"
 				@click="${() => this._onUnblockSIM()}">
 			</capitec-button>
 
 			<capitec-button 
 				label="Cancel USSD" 
-				?hidden="${this.ussdStatus === `Cancelled`}"
+				?hidden="${this.ussdStatus === `Blocked`}"
 				@click="${() => this._toggleCancelUSSD()}">
 			</capitec-button>
 		`;
@@ -403,147 +460,163 @@ export class USSDProfileDetails extends Component {
 
 	_renderCancelUSSD() {
 		return html`
-		<capitec-side-sheet
-			class="cancel-reasons"
-			.expanded="${this.showCancelReasons}"
-			alignment="right">
-		<capitec-group
-			class="header-group-cancel"
-			layout="horizontal"
-			halign="left"
-			valign="center"
-			gap="none">
-			<capitec-icon class="icon-warning" size="medium" icon="status/warning-trans"></capitec-icon>
-			<capitec-label class="header-label" type="Strong" label="Cancel USSD"></capitec-label>
-			<capitec-spacer></capitec-spacer>
-			<capitec-icon class="icon-close" size="small" icon="system/close-action" @click="${() => this._toggleCancelUSSD()}"></capitec-icon>
-		</capitec-group>
+			<capitec-side-sheet
+				class="cancel-reasons"
+				.expanded="${this.showCancelReasons}"
+				alignment="right">
+				<capitec-group
+					class="header-group-cancel  ${this.showValidationBanner ? `header-cancel-error` : ``}"
+					layout="horizontal"
+					halign="left"
+					valign="center"
+					gap="none">
+					<capitec-icon class="icon-warning" size="medium" icon="${this.showValidationBanner ? `status/error-trans` : `status/warning-trans`}"></capitec-icon>
+					<capitec-label class="header-label" type="Strong" label="Cancel USSD"></capitec-label>
+					<capitec-spacer></capitec-spacer>
+					<capitec-icon class="icon-close" size="small" icon="system/close-action" @click="${() => this._toggleCancelUSSD()}"></capitec-icon>
+				</capitec-group>
 
-		${this._renderAlertBanner()}
+				${this._renderValidationBanner()}
 
-		<capitec-content-box
-			class="content-box"
-			layout="vertical"
-			halign="left"
-			valign="top"
-			gap="none">
-		<capitec-label class="header-label" type="strong" label="Reasons to cancel"></capitec-label>
+				<capitec-content-box
+					class="content-box"
+					layout="vertical"
+					halign="left"
+					valign="top"
+					gap="none">
+					<capitec-label class="header-label" type="strong" label="Reasons to cancel"></capitec-label>
 
-		<capitec-radio-group>
-			<capitec-radio 
-			@value-change="${(event) => this._onCancelReasonSelected(event)}" 
-			label="Do not use service enough"
-			?checked="${this.cancelReason === "Do not use service enough"}">
-		</capitec-radio>
-			<capitec-radio 
-			@value-change="${(event) => this._onCancelReasonSelected(event)}" 
-			label="Changing to remote/internet banking"
-			?checked="${this.cancelReason === "Changing to remote/internet banking"}">
-		</capitec-radio>
-			<capitec-radio 
-			@value-change="${(event) => this._onCancelReasonSelected(event)}" 
-			label="Mobile banking too expensive"
-			?checked="${this.cancelReason === "Mobile banking too expensive"}">
-		</capitec-radio>
-			<capitec-radio 
-			@value-change="${(event) => this._onCancelReasonSelected(event)}" 
-			label="Mobile banking too complicated"
-			?checked="${this.cancelReason === "Mobile banking too complicated"}">
-		</capitec-radio>
-			<capitec-radio 
-			@value-change="${(event) => this._onCancelReasonSelected(event)}" 
-			label="Need more functions"
-			?checked="${this.cancelReason === "Need more functions"}">
-		</capitec-radio>
-			<capitec-radio 
-			@value-change="${(event) => this._onCancelReasonSelected(event)}" 
-			label="Lack of support"
-			?checked="${this.cancelReason === "Lack of support"}">
-		</capitec-radio>
-			<capitec-radio 
-			@value-change="${(event) => this._onCancelReasonSelected(event)}" 
-			label="Closing account"
-			?checked="${this.cancelReason === "Closing account"}">
-		</capitec-radio>
-		</capitec-radio-group>
+					<capitec-radio-group>
+						<capitec-radio 
+						@value-change="${(event) => this._onCancelReasonSelected(event)}" 
+						label="Do not use service enough"
+						?checked="${this.cancelReason === "Do not use service enough"}">
+					</capitec-radio>
+						<capitec-radio 
+						@value-change="${(event) => this._onCancelReasonSelected(event)}" 
+						label="Changing to remote/internet banking"
+						?checked="${this.cancelReason === "Changing to remote/internet banking"}">
+					</capitec-radio>
+						<capitec-radio 
+						@value-change="${(event) => this._onCancelReasonSelected(event)}" 
+						label="Mobile banking too expensive"
+						?checked="${this.cancelReason === "Mobile banking too expensive"}">
+					</capitec-radio>
+						<capitec-radio 
+						@value-change="${(event) => this._onCancelReasonSelected(event)}" 
+						label="Mobile banking too complicated"
+						?checked="${this.cancelReason === "Mobile banking too complicated"}">
+					</capitec-radio>
+						<capitec-radio 
+						@value-change="${(event) => this._onCancelReasonSelected(event)}" 
+						label="Need more functions"
+						?checked="${this.cancelReason === "Need more functions"}">
+					</capitec-radio>
+						<capitec-radio 
+						@value-change="${(event) => this._onCancelReasonSelected(event)}" 
+						label="Lack of support"
+						?checked="${this.cancelReason === "Lack of support"}">
+					</capitec-radio>
+						<capitec-radio 
+						@value-change="${(event) => this._onCancelReasonSelected(event)}" 
+						label="Closing account"
+						?checked="${this.cancelReason === "Closing account"}">
+					</capitec-radio>
+					</capitec-radio-group>
 
-		<capitec-button 
-			type="primary"
-			label="Cancel USSD"
-			@click="${() => this._onCancelUSSD()}">
-		</capitec-button>
+					<capitec-button 
+						type="primary"
+						label="Cancel USSD"
+						@click="${() => this._onCancelUSSD()}">
+					</capitec-button>
 
-		<capitec-button 
-			label="Cancel" 
-			@click="${() => this._toggleCancelUSSD()}">
-		</capitec-button>
+					<capitec-button 
+						label="Cancel" 
+						@click="${() => this._toggleCancelUSSD()}">
+					</capitec-button>
 
-		</capitec-content-box>
-		</capitec-side-sheet>
+				</capitec-content-box>
+			</capitec-side-sheet>
 		`
 	}
 
 	_renderUSSDUnavailable() {
 		return html `
-		<capitec-side-sheet
-		class="unavailable"
-		.expanded="${this.showSideSheet}"
-		alignment="right">
-		<capitec-group
-			class="header-group-app"
-			layout="horizontal"
-			halign="left"
-			valign="center"
-			gap="none">
-			<capitec-icon class="icon-app" size="medium" icon="system/cellphone"></capitec-icon>
-			<capitec-label class="header-label" type="Strong" label="USSD"></capitec-label>
-			<capitec-spacer></capitec-spacer>
-			<capitec-icon class="icon-close" size="small" icon="system/close-action" @click="${() => this._toggleAppSlidingPanel()}"></capitec-icon>
-		</capitec-group>
-		${this._renderAlertBanner()}
-		<capitec-content-box
-		class="content-box"
-		layout="vertical"
-		halign="center"
-		valign="top"
-		gap="none">
-		<img src="/images/insure/connection-error.svg" class="connection-error-svg"/>
-	<capitec-label class="header-label" type="Strong" label="Service is unavailable"></capitec-label>
-	<p style="text-align: center">We are experiencing technical difficulties. We are sorry for the inconvenience and aim to have it resolved soon.</p>
-	<capitec-label class="header-label" type="Strong" label="For any urgent matters visit a branch."></capitec-label>
-	</capitec-content-box>
-	</capitec-side-sheet>
+			<capitec-side-sheet
+				class="unavailable"
+				.expanded="${this.showSideSheet}"
+				alignment="right">
+				<capitec-group
+					class="header-group-app"
+					layout="horizontal"
+					halign="left"
+					valign="center"
+					gap="none">
+					<capitec-icon class="icon-app" size="medium" icon="system/cellphone"></capitec-icon>
+					<capitec-label class="header-label" type="Strong" label="USSD"></capitec-label>
+					<capitec-spacer></capitec-spacer>
+					<capitec-icon class="icon-close" size="small" icon="system/close-action" @click="${() => this._toggleAppSlidingPanel()}"></capitec-icon>
+				</capitec-group>
+
+				${this._renderAlertBanner()}
+
+				<capitec-content-box
+					class="content-box"
+					layout="vertical"
+					halign="center"
+					valign="top"
+					gap="none">
+					<img src="/images/insure/connection-error.svg" class="connection-error-svg"/>
+					<capitec-label class="header-label" type="Strong" label="Services are unavailable"></capitec-label>
+					<p style="text-align: center">We are experiencing technical difficulties. We are sorry for the inconvenience and aim to have it resolved soon.</p>
+					<capitec-label class="header-label" type="Strong" label="For any urgent matters visit a branch."></capitec-label>
+				</capitec-content-box>
+			</capitec-side-sheet>
 	`;
 	}
 
 	_renderAlertBanner() {
 		// if sim blocked unsuccessful red banner
-		return !this.showValidationBanner ?
-		html ``:
-		html `
-		<capitec-alert-banner type="${this.bannerType}" layout="vertical">
-		<b>${this.bannerTitle}</b><br>
-		<p>${this.bannerSubtitle}</p>
-		</capitec-alert-banner>
-		`;
+		this._checkUssdStatus(this.ussdStatus);
+		
+		return this.showNotificationBanner ?
+			html `
+			<capitec-alert-banner type="unsuccessful-red" layout="vertical">
+			<b>${this.bannerTitle}</b><br>
+			<p>${this.bannerSubtitle}</p>
+			</capitec-alert-banner>
+		` : html ``;
+	}
+
+	_renderValidationBanner() {
+		return this.showValidationBanner ? 
+			html`
+				<capitec-alert-banner 
+					class="validate-reasons"
+					type="unsuccessful-red"
+					label=""
+					layout="vertical">
+					<b>Notice</b> <br>
+					<p>Please choose a reason to cancel USSD.</p>
+				</capitec-alert-banner>
+			` : html``;
 	}
 
 	_renderToast() {
-		// successful toast to only show for 3 seconds
-		// banner details will change for every transaction
+		const formatedUpdatedDate = this._formatDate(this.ussd.dateLastUpdated) + `, ` + this._formatTime(this.ussd.dateLastUpdated);
+		
 		return html `
-		<capitec-toast 
-			type="success" 
-			header="Successful" 
-			detail="${this.bannerDetails}"
-			?hidden="${!this.displaySuccessToast}"
-			@click="${() => this.displaySuccessToast = false}"
-			closable>
-		</capitec-toast>
+			<capitec-toast 
+				id="ussd-success-toast"
+				type="success" 
+				header="Successful!"
+				detail="${this.toastDetails} &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  ${formatedUpdatedDate}"
+				?hidden="${!this.displaySuccessToast}"
+				@click="${() => this.displaySuccessToast = false}"
+				closable>
+			</capitec-toast>
 		`;
 	}
 }
-
-
 
 window.customElements.define(`capitec-pc-ussd-profile-details`, USSDProfileDetails);

@@ -1,14 +1,13 @@
-import { Component, css, html } from 'platform/elements';
+
 import { AccessChannelService } from 'app/services/AccessChannelService';
+import { Component, css, html } from 'platform/elements';
+import { EventAggregator, Logger } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { Logger } from 'platform/core';
-import { EventAggregator } from 'platform/core';
 
-
-import 'platform/components';
 import 'app/productControls/AccessChannels/src/AccessChannels';
-import 'app/webComponents/src/SideSheet';
 import 'app/productControls/AccessChannels/src/USSDProfileDetails';
+import 'app/webComponents/src/SideSheet';
+import 'platform/components';
 
 /**
  * 
@@ -55,12 +54,6 @@ export class AccessChannels extends Component {
 		const callerInformation = this.horizonStore.getCallerInformation();
 		
 		this.cifNumber = callerInformation.cifNumber;
-		// To mock the call for setting USSD active
-		// this.status = {
-		// 	appAndInternetActive: false,
-		// 	ussdActive: true,
-		// 	notificationType: `unknown`
-		// };
 
 		this._accessChannelService();
 	}
@@ -78,7 +71,18 @@ export class AccessChannels extends Component {
 	cancelUSSD() {
 		// TO DO: add channel service call to cancel USSD service
 		// If cancel is successful, show toast, update ussd status, else show error
-		this.status.ussdActive = false;
+		this.status.ussd.status = `Blocked`;
+		this.status.ussd.dateLastUpdated = new Date();
+
+		return true;
+	}
+
+	unblockSIM() {
+		// TO DO: add channel service call to unblock SIM - ussd
+		// If unblock is successful, show toast, update ussd status, else show error
+		this.status.ussd.isSimBlocked = false;
+		this.status.ussd.dateLastUpdated = new Date();
+
 		return true;
 	}
 
@@ -104,12 +108,44 @@ export class AccessChannels extends Component {
 	async _accessChannelService() {
 		const returnValue = await this.accessChannelService.accessChannelStatus(this.cifNumber);
 		
+		/* Mocked Access channels landing response untill Channel service is implemented 
+
+		this.status = {
+			"msisdn": "",
+
+			"app": {
+                "status": "Suspended",
+				"statusReason": "Stolen",
+				"dateLastUsed": "2021-09-11T09:48:18.908Z",
+				"dateRegistered": "2021-11-08T09:48:18.908Z",
+				"userName": "Mr Tertius Steyl",
+				"userRegNo": "906 501 1004"
+			},
+			"internetBanking": {
+				"status": "Active",
+				"statusReason": "",
+				"dateLastUsed": "2021-11-08T09:48:18.908Z",
+				"dateRegistered": "2021-11-08T09:48:18.908Z",
+				"userName": "Mr Tertius Steyl",
+				"userRegNo": "906 501 1004"
+			},
+			"ussd": {
+				"status": "Active",
+				"isSimBlocked": true,
+				"dateLastUsed": "2021-11-08T09:48:18.908Z",
+				"dateRegistered": "2021-11-08T09:48:18.908Z",
+				"dateLastUpdated": "2021-11-10T09:48:18.908Z",
+				"userRegNo": "906 501 1004",
+				"features": {
+					"isFullMenuActive": true
+				}
+			}
+        }
+	*/
+
 		if (returnValue.succeeded) {
-			this.status = {
-				"ussdActive": true,
-				"appAndInternetActive": true,
-				"notificationType": "Unknown"
-			};
+			this.status = returnValue.result;
+
 			return;
 		} 
 		
@@ -157,10 +193,13 @@ export class AccessChannels extends Component {
 		return this.selectedAccessChannelType === `USSD` ?
 		html `
 			<capitec-pc-ussd-profile-details
-			.ussdActive="${this.status.ussdActive}"
+			.ussd="${this.status.ussd}"
 			.showSideSheet="${this.showSideSheet}"
+
 			.cancelUSSD="${() => this.cancelUSSD()}"
+			.unblockSIM="${() => this.unblockSIM()}"
 			.activateFullMenuUSSD="${() => this.activateFullMenuUSSD()}"
+
 			@close-side-sheet="${(event) => this._showSlidingPanel(event)}">
 			</capitec-pc-ussd-profile-details>
 		` : 
