@@ -177,7 +177,7 @@ export class SideSheet extends Component {
 	 * @ignore
 	 * @returns {css} The css content of the component.
 	 */
-	static get styles() {
+	 static get styles() {
 
 		return [
 			super.styles,
@@ -205,8 +205,8 @@ export class SideSheet extends Component {
 				}
 
 				:host([expanded]) {
-					width: var(--theme-side-sheet-screen-width, 1920px);
-					height: var(--theme-side-sheet-screen-height, 1082px);
+					width: var(--theme-side-sheet-expanded-screen-width, 1920px);
+					height: var(--theme-side-sheet-expanded-screen-height, 1082px);
 				}
 
 				.content {
@@ -240,8 +240,8 @@ export class SideSheet extends Component {
 				/** COLLAPSING */
 
 				:host([collapsing]) {
-					width: var(--theme-side-sheet-screen-width, 1920px);
-					height: var(--theme-side-sheet-screen-height, 1082px);
+					width: var(--theme-side-sheet-collapsing-screen-width, 1920px);
+					height: var(--theme-side-sheet-collapsing-screen-height, 1082px);
 				}
 
 				:host([collapsing][alignment=right]) > .content {
@@ -278,14 +278,13 @@ export class SideSheet extends Component {
 				@keyframes slideRight {
 					0% {
 						transform: translateX(-100%);
-					}
+					},
 					100% {
 						transform: translateX(0%);
 					}
 				}
 
 				@keyframes collapseRight {
-					
 					100% {
 						transform: translateX(calc(0px + var(--theme-side-sheet-width, 250px)));
 					}

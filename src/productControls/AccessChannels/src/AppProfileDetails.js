@@ -158,7 +158,7 @@ export class AppProfileDetails extends Component {
 		const localTime = formatedDate.toLocaleTimeString()
 		return localTime.replace(localTime.slice(-6,-2), '')
 	}
-	
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -534,6 +534,11 @@ export class AppProfileDetails extends Component {
 	}
 
 	_renderSuccessToast() {
+		/*  TO DO: "Header" and "Detail" properties can be removed when update platform to the latest version 
+		as content inside slot will be effective.*/
+
+		const formatedUpdatedDate = this._formatDate(this.appDetails.dateLastUpdated) + `, ` + this._formatTime(this.appDetails.dateLastUpdated);
+	
 		return html `
 		<capitec-toast 
 			id="app-success-toast"
@@ -543,6 +548,10 @@ export class AppProfileDetails extends Component {
 			?hidden="${!this.displayToast}"
 			@click="${() => this.displayToast = false}"
 			closable>
+				<capitec-label label="Successful!" type="strong"></capitec-label>
+				<capitec-label label="App was ${this.appDetails.status === `Active` ? `unsuspended` : `suspended`}"></capitec-label>
+				<capitec-spacer></capitec-spacer>
+				<capitec-label label="${formatedUpdatedDate}" type="strong"></capitec-label>
 		</capitec-toast>`
 	}
 }
