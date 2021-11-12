@@ -58,7 +58,8 @@
 		"failed-verification": "FAILED_VERIFICATION",
 		"debi-check-approve": "DEBI_CHECK_APPROVE",
 		"debi-check-decline": "DEBI_CHECK_DECLINE",
-		"debi-check-viewInfo": "DEBI_CHECK"
+		"debi-check-viewInfo": "DEBI_CHECK",
+		"abandoned-verification": "TELEPHONY_NO_SHOW"
 	},
 	"mock": {
 		"enabled": false
