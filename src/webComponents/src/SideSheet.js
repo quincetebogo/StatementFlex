@@ -205,8 +205,8 @@ export class SideSheet extends Component {
 				}
 
 				:host([expanded]) {
-					width: 1920px;
-					height: 1082px;
+					width: var(--theme-side-sheet-screen-width, 1920px);
+					height: var(--theme-side-sheet-screen-height, 1082px);
 				}
 
 				.content {
@@ -229,35 +229,31 @@ export class SideSheet extends Component {
 					animation: slideLeft 0.6s;
 					animation-timing-function: cubic-bezier(0.2, 0.8, 0.5, 1);
 					animation-fill-mode: forwards;
-					display: block;
 				}
 
 				:host([expanding][alignment=left]) > .content {
 					animation: slideRight 0.6s;
 					animation-timing-function: cubic-bezier(0.2, 0.8, 0.5, 1);
 					animation-fill-mode: forwards;
-					display: block;
 				}
 
 				/** COLLAPSING */
 
 				:host([collapsing]) {
-					width: 1920px;
-					height: 1082px;	
+					width: var(--theme-side-sheet-screen-width, 1920px);
+					height: var(--theme-side-sheet-screen-height, 1082px);
 				}
 
 				:host([collapsing][alignment=right]) > .content {
 					animation: collapseRight 0.6s;
 					animation-timing-function: cubic-bezier(0.2, 0.8, 0.5, 1);
 					animation-fill-mode: forwards;
-					display: block;
 				}
 
 				:host([collapsing][alignment=left]) > .content {
 					animation: collapseLeft 0.6s;
 					animation-timing-function: cubic-bezier(0.2, 0.8, 0.5, 1);
 					animation-fill-mode: forwards;
-					display: block;
 				}
 
 				/* Hide scrollbar for Chrome, Safari and Opera */

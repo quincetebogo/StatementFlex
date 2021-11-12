@@ -42,9 +42,23 @@ export class AccessChannels extends Component {
 		super.disconnectedCallback();
 	}
 
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
 	_tileClick(buttonName) {
 		this.dispatchEvent(new CustomEvent(`tile-click`, { detail: { tileClicked: buttonName } }));
 	}
+	
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+
+	// n/a
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
 
 	_updateStatus(event) {
 		this.status = event
@@ -52,8 +66,8 @@ export class AccessChannels extends Component {
 	}
 
 	_formatDate(dateToFormat) {
-        const stringToDate = new Date(dateToFormat);
-        const tempdate = stringToDate.toGMTString().substr(5, 11);
+		const stringToDate = new Date(dateToFormat);
+		const tempdate = stringToDate.toGMTString().substr(5, 11);
 		return tempdate;
 	}
 
@@ -61,6 +75,30 @@ export class AccessChannels extends Component {
 		const formatedDate = new Date(timeToFormat);
 		const localTime = formatedDate.toLocaleTimeString()
 		return localTime.replace(localTime.slice(-6,-2), '')
+	}
+
+	_getStatusColor(status) {
+		if (status === `Active`) {
+			return `status-active`;
+		} else if (status === `Suspended` || `Unavailable` || `Blocked` || isNullorEmpty(status)) {
+			return `status-inactive`;
+		} else {
+			// do nothing
+		}
+	}
+
+	_getStatusDetails(type) {
+		const status = this.status[type] && this.status[type].status;
+		
+		if (isNullorEmpty(status)) {
+			return `Channel service is down`;
+		} else if (status === `Active`){
+			return status + ` | Last used ` + this._formatDate(this.status[type].dateLastUsed);
+		} else if ( status === `Suspended` || `Blocked`) {
+			return status + ` | ` + this._formatDate(this.status[type].dateLastUpdated || this.status[type].dateLastUsed) + `, ` + this._formatTime(this.status[type].dateLastUpdated || this.status[type].dateLastUsed);
+		} else {
+			// do nothing
+		}
 	}
 
 	// ---------
@@ -118,31 +156,6 @@ export class AccessChannels extends Component {
 				${this._renderAccessChannelTabs()}
 			</section>
 		`;
-	}
-
-	_getStatusColor(status) {
-		if (status === `Active`) {
-			return `status-active`;
-		} else if (status === `Suspended` || `Unavailable` || `Blocked` || isNullorEmpty(status)) {
-			return `status-inactive`;
-		} else {
-			// do nothing
-		}
-	}
-
-	_getStatusDetails(type) {
-		const status = this.status[type] && this.status[type].status;
-		
-		if (isNullorEmpty(status)) {
-			return `Channel service is down`;
-		} else if (status === `Active`){
-			return status + ` | Last used ` + this._formatDate(this.status[type].dateLastUsed);
-		} else if ( status === `Suspended` || `Blocked`) {
-			return status + ` | ` + this._formatDate(this.status[type].dateLastUpdated || this.status[type].dateLastUsed) + `, ` + this._formatTime(this.status[type].dateLastUpdated || this.status[type].dateLastUsed);
-		} else {
-
-		}
-
 	}
 
 	_renderAccessChannelTabs() {

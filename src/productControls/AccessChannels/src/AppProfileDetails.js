@@ -1,9 +1,9 @@
 import { Component, css, html } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
-import 'platform/components';
 import 'app/components/common/HorizonLabel';
 import 'app/webComponents/src/SideSheet';
+import 'platform/components';
 
 /**
  * App profile Details component is used to show client's information and Suspend/Unsuspend app.
@@ -145,12 +145,11 @@ export class AppProfileDetails extends Component {
 				elementToast.style.animation = `slideUp 0.6s`
 				window.setTimeout(() =>this.displayToast = false, 600);
 			}, 3000);
-		
 	}
 
 	_formatDate(dateToFormat) {
-        const stringToDate = new Date(dateToFormat);
-        const tempdate = stringToDate.toGMTString().substr(5, 11);
+		const stringToDate = new Date(dateToFormat);
+		const tempdate = stringToDate.toGMTString().substr(5, 11);
 		return tempdate;
 	}
 
@@ -159,6 +158,7 @@ export class AppProfileDetails extends Component {
 		const localTime = formatedDate.toLocaleTimeString()
 		return localTime.replace(localTime.slice(-6,-2), '')
 	}
+	
 	// ---------
 	// RENDERING
 	// ---------

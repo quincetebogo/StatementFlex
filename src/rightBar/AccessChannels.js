@@ -1,15 +1,21 @@
-import { Component, css, html } from 'platform/elements';
-import { AccessChannelService } from 'app/services/AccessChannelService';
-import { HorizonStore } from 'app/store/HorizonStore';
-import { EventAggregator, Logger } from 'platform/core';
 
-import 'platform/components';
+import { AccessChannelService } from 'app/services/AccessChannelService';
+import { Component, css, html } from 'platform/elements';
+import { EventAggregator, Logger } from 'platform/core';
+import { HorizonStore } from 'app/store/HorizonStore';
+
 import 'app/productControls/AccessChannels/src/AccessChannels';
-import 'app/webComponents/src/SideSheet';
 import 'app/productControls/AccessChannels/src/AppProfileDetails'
+import 'app/webComponents/src/SideSheet';
+import 'platform/components';
 
 /**
+ * Access Channels component invokes and holds functionality for all the available access channels
+ * This component is envoked from RightBarLayout component
  * 
+ * @export
+ * @class AccessChannels
+ * @extends {Component}
  */
 export class AccessChannels extends Component {
 
@@ -33,6 +39,13 @@ export class AccessChannels extends Component {
 	// ----------
 	// PROPERTIES
 	// ----------
+	/**
+	 * @property {Boolean} [isBusy] - To toggle busy flag on active channel service call
+	 * @property {Object} [status] - Access channels details
+	 * @property {Boolean} [showSideSheet] - To toggle side sheet component
+	 * @property {String} [selectedAccessChannelType] - Holds value of the selected access channel type
+	 *
+	**/
 
 	static get properties() {
 		return {
