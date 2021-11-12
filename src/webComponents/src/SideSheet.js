@@ -187,7 +187,7 @@ export class SideSheet extends Component {
 					display: flex;
 					flex-direction: row;
 					align-items: stretch;
-					position: fixed;
+					position: absolute;
 					width: 0%;
 					height: 0%;
 					left: 0px;
@@ -204,7 +204,7 @@ export class SideSheet extends Component {
 					justify-content: flex-start;
 				}
 
-				:host([expanded],[expanding],[collapsing]) {
+				:host([expanded]) {
 					width: var(--theme-side-sheet-expanded-screen-width, 1920px);
 					height: var(--theme-side-sheet-expanded-screen-height, 1082px);
 				}
@@ -217,10 +217,9 @@ export class SideSheet extends Component {
 					position: absolute;
 					border-top-left-radius: 4px;
 					border-bottom-left-radius: 4px;
-					display: none;
 				}
 
-				:host([expanded],[expanding],[collapsing]) > .content {
+				:host([expanded]) > .content {
 					display: block;
 				}
 
@@ -230,12 +229,14 @@ export class SideSheet extends Component {
 					animation: slideLeft 0.6s;
 					animation-timing-function: cubic-bezier(0.2, 0.8, 0.5, 1);
 					animation-fill-mode: forwards;
+					display: block;
 				}
 
 				:host([expanding][alignment=left]) > .content {
 					animation: slideRight 0.6s;
 					animation-timing-function: cubic-bezier(0.2, 0.8, 0.5, 1);
 					animation-fill-mode: forwards;
+					display: block;
 				}
 
 				/** COLLAPSING */
@@ -249,12 +250,14 @@ export class SideSheet extends Component {
 					animation: collapseRight 0.6s;
 					animation-timing-function: cubic-bezier(0.2, 0.8, 0.5, 1);
 					animation-fill-mode: forwards;
+					display: block;
 				}
 
 				:host([collapsing][alignment=left]) > .content {
 					animation: collapseLeft 0.6s;
 					animation-timing-function: cubic-bezier(0.2, 0.8, 0.5, 1);
 					animation-fill-mode: forwards;
+					display: block;
 				}
 
 				/* Hide scrollbar for Chrome, Safari and Opera */
