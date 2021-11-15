@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { Logger } from 'platform/core';
+import { EventAggregator, Logger } from 'platform/core';
 
 import 'platform/components';
 import 'app/productControls/AccessChannels/src/AccessChannels';
@@ -25,6 +25,7 @@ export class AccessChannels extends Component {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
 	}
@@ -36,8 +37,9 @@ export class AccessChannels extends Component {
 	static get properties() {
 		return {
 			isBusy: { state: true },
-			status: { state: true },
-			showSideSheet: { state: true }
+			status: { type: Object },
+			showSideSheet: { state: true },
+			selectedAccessChannelType: { state: true }
 		};
 	}
 
@@ -61,13 +63,15 @@ export class AccessChannels extends Component {
 
 	_showSlidingPanel(event) {
 		this.selectedAccessChannelType = event.detail && event.detail.tileClicked || ``;
+		this.eventAggregator.publish(`horizon-access-status-update`, this.status);
 		this.showSideSheet = !this.showSideSheet;
 	}
 
 	_suspendInternetBankingSecurityToken() {
 		// TO DO: Channel service call to Suspend internet banking should come here
 		// If successfully Suspended, update internet banking status, else Error scenario
-		this.status.internetBankingActive = false;
+		this.status.internetBanking.isActive = false;
+		this.status.internetBanking.dateLastUpdated = new Date();
 
 		return true;
 	}
@@ -75,7 +79,8 @@ export class AccessChannels extends Component {
 	_unSuspendInternetBankingSecurityToken() {
 		// TO DO: Channel service call to Unsuspend internet banking should come here
 		// If successfully Unsuspended, update internet banking status, else Error scenario
-		this.status.internetBankingActive = true;
+		this.status.internetBanking.isActive = true;
+		this.status.internetBanking.dateLastUpdated = new Date();
 
 		return true;
 	}
@@ -93,20 +98,49 @@ export class AccessChannels extends Component {
 	}
 
 	async _accessChannelService() {
+
+		// Mocked Access channels landing response untill Channel service is implemented
+
+			this.status = {
+				"msisdn": "",
+
+				"app": {
+					"status": "Suspended",
+					"statusReason": "Stolen",
+					"dateLastUsed": "2021-09-11T09:48:18.908Z",
+					"dateRegistered": "2021-11-08T09:48:18.908Z",
+					"userName": "Mr Tertius Steyl",
+					"userRegNo": "9065011004"
+				},
+				"internetBanking": {
+					"status": "Active",
+					"statusReason": "",
+					"dateLastUsed": "2021-11-08T09:48:18.908Z",
+					"dateRegistered": "2021-11-08T09:48:18.908Z",
+					"userName": "Mr Tertius Steyl",
+					"userRegNo": "9065011004"
+				},
+				"ussd": {
+					"status": "Active",
+					"statusReason": "",
+					"dateLastUsed": "2021-11-08T09:48:18.908Z",
+					"dateRegistered": "2021-11-08T09:48:18.908Z",
+					"userName": "Mr Tertius Steyl",
+					"userRegNo": "9065011004"
+				}
+			}
+		
+		/*
 		const returnValue = await this.accessChannelService.accessChannelStatus(this.cifNumber);
 		
 		if (returnValue.succeeded) {
-			//this.status = returnValue.result;
-			this.status = {
-				appActive: false,
-				internetBankingActive: true,
-				ussdActive: false,
-				notificationType: `unknown`
-			};
+			this.status = returnValue.result;
 			return;
 		} 
 		
+		
 		this.logger.log(`error`, `Failed to load access channel information`, `_accessChannelService`, returnValue.correlationId);
+		*/
 	}
 
 	// ---------
@@ -136,26 +170,28 @@ export class AccessChannels extends Component {
 	}
     
 	_renderAccessChannels() {
-		return html`
+
+		return this.status ?
+		html`
 		<capitec-pc-access-channels
-			.status="${this.status}"
-			.internetBankingActive=${this.status.internetBankingActive}
+			.status=${this.status}
 			@tile-click="${(event) => this._showSlidingPanel(event)}">
 		</capitec-pc-access-channels>
 
 		${this._renderInternetBanking()}
-		
-		`;
+		` : html``;
 	}
 
 	_renderInternetBanking() {
 		return this.selectedAccessChannelType === `InternetBanking` ?
 		html`
 			<capitec-pc-internet-banking-profile-details
-				.isInternetBankingActive=${this.status.internetBankingActive}
+				.internetBankingDetails=${this.status.internetBanking}
 				.showSideSheet = ${this.showSideSheet}
+
 				.suspendInternetBankingSecurityToken = "${() => this._suspendInternetBankingSecurityToken()}"
 				.unSuspendInternetBankingSecurityToken = "${() => this._unSuspendInternetBankingSecurityToken()}"
+
 				@close-side-sheet="${(event) => this._showSlidingPanel(event)}"
 			>
 			</capitec-pc-internet-banking-profile-details>
