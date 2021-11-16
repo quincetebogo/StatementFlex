@@ -1,15 +1,3 @@
-
-const NEED_FULFILLED = 0;
-const NEED_INCOMPLETE = 1;
-const NEED_ASSIGNED = 2;
-const NEED_HANDED_OFF = 3;
-const FAILED_VERIFICATION = 4;
-const FOLLOW_UP = 5;
-const LANGUAGE_TRANSFER = 6;
-const BALANCE_ENQUIRY = 7;
-const CALL_TRANSFERED = 8;
-const PRODUCT_ENQUIRY = 9;
-
 /**
  * The end call reasons for end call dialog.
  * 
@@ -19,6 +7,16 @@ const PRODUCT_ENQUIRY = 9;
  * End call mapping refer from Confluience https://confluence.capitecbank.co.za:8443/display/HOR/Quick+Transactions%3A+STrack+Field+Mapping 
  * and https://confluence.capitecbank.co.za:8443/pages/viewpage.action?pageId=583797367
  */
+ const NEED_FULFILLED = 0;
+ const NEED_INCOMPLETE = 1;
+ const NEED_ASSIGNED = 2; 
+ const NEED_HANDED_OFF = 3;
+ const FAILED_VERIFICATION = 4;
+ const FOLLOW_UP = 5;
+ const LANGUAGE_TRANSFER = 6;
+ const BALANCE_ENQUIRY = 7;
+ const CALL_TRANSFERED = 8;
+ const PRODUCT_ENQUIRY = 9;
 
 export const END_CALL_REASON = Object.freeze({
 	
@@ -187,6 +185,11 @@ export const END_CALL_REASON = Object.freeze({
 				key: CALL_TRANSFERED,
 				value: `Call transferred`,
 				mapping: `call-transfer`
+			},
+			{
+				key: NEED_INCOMPLETE,
+				value: `Need incomplete - bad connection`,
+				mapping: `telephony-disconnected`
 			},
 			{
 				key: PRODUCT_ENQUIRY,

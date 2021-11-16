@@ -192,7 +192,6 @@ export class ConfirmCallerDetails extends Component {
 	_identifiedClient(event) {
 		// After a search we need to replace whatever we might have had for the confirmed caller with 
 		// the results of the search
-		// the results of the search
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.confirmedCaller = event.detail.confirmedCaller;
 		this.incidentDetails = event.detail.incidentDetails;
@@ -203,14 +202,14 @@ export class ConfirmCallerDetails extends Component {
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
-    _branchCaptured(event) {
-        this.incomingCallDetails = event.detail.incomingCallDetails;
-        this.confirmedCaller = event.detail.confirmedCaller;
-        this.incidentDetails = event.detail.incidentDetails;
-        this.callerInformation.isBranchConsultant = true;
-        this._initCallerInformation();
-        this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-    }
+	_branchCaptured(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.confirmedCaller = event.detail.confirmedCaller;
+		this.incidentDetails = event.detail.incidentDetails;
+		this.callerInformation.isBranchConsultant = true;
+		this._initCallerInformation();
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+	}
 
 	/**
 	 * Non-client information has been captured on the general need search dialog
@@ -328,9 +327,19 @@ export class ConfirmCallerDetails extends Component {
 			false, // isNonClient
 			false, // hasInsuranceProducts
 			false, // hasDigitalChannels
-			0, // verificationAttempts
+			{
+				itaAttempts: 0,
+				xdsAttempts: 0
+			}, 
 			this.confirmedCaller.isBranchConsultant, // isBranchConsultant
-			this.confirmedCaller.isClientPresent // isClientPresent
+			this.confirmedCaller.isClientPresent, // isClientPresent
+			``,
+			this.confirmedCaller.firstName,
+			this.confirmedCaller.middleName1,
+			this.confirmedCaller.middleName2,
+			this.confirmedCaller.middleName3,
+			this.confirmedCaller.lastName,
+			this.confirmedCaller.initials
 		);
 	}
 
@@ -471,7 +480,7 @@ export class ConfirmCallerDetails extends Component {
 		}
 
 		// Updating client details to Incident at Strack
-		const returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
+		let returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateClientNonClientDetails`, returnValue.correlationId);
@@ -486,7 +495,8 @@ export class ConfirmCallerDetails extends Component {
 				surname: this.callerInformation.nonClientSurName,
 				cellPhone: this.callerInformation.nonClientCellPhone
 			};
-			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
+
+			returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
 
 			if (!returnValue.succeeded) {
 				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_updateClientNonClientDetails`, returnValue.correlationId);
@@ -580,9 +590,9 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_renderContent() {
-        switch (this.renderMode) {
-            case RENDER_MODE.CONFIRM_CALLER:
-                return html`
+		switch (this.renderMode) {
+			case RENDER_MODE.CONFIRM_CALLER:
+				return html`
 					<horizon-caller-dialog 
 						.incomingCallDetails="${this.incomingCallDetails}"
 						.incidentDetails="${this.incidentDetails}"
@@ -812,6 +822,6 @@ export class ConfirmCallerDetails extends Component {
 			</horizon-verify-caller>
 		`;
 	}
-
 }
+
 window.customElements.define(`horizon-confirm-caller-details`, ConfirmCallerDetails);

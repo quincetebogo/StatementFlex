@@ -118,7 +118,7 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {string} eventName Event name to start a span
 	 * @param {object} baggage Options, this generally holds details of event
 	 * @param {boolean} systemTriggered Flag to determin telemetry event type
-	 * @returns {void}
+	 * @returns {Promise<void>} A Promise for starting a telemetry span
 	 */
 	async startSpan(eventName, baggage = null, systemTriggered = true) {
 
@@ -199,7 +199,7 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {string} eventName Event name to start a span
 	 * @param {object} baggage Options, this generally holds details of event
 	 * @param {boolean} systemTriggered Flag to determin telemetry event type
-	 * @returns {void}
+	 * @returns {Promise<void>} A promise for logging the event
 	 */
 	async logEvent(eventName, baggage = null, systemTriggered = false) {
 
@@ -320,7 +320,7 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {object} baggage Object holds event details
 	 * @returns {Array} Baggage array
 	 */
-	_formatBaggageDetails(baggage) {				
+	_formatBaggageDetails(baggage) {
 		return Object.entries(baggage).map(item => ({ [item[0]]: this._trimBaggage(item[1]) }));
 	}
 
@@ -330,13 +330,12 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {object} item Object holds baggage item
 	 * @returns {string} baggage item
 	 */
-	_trimBaggage(item) {				
-		if(!!item && !Array.isArray(item)) {
-			return item.trim();
+	_trimBaggage(item) {
+		if (!!item && !Array.isArray(item)) {
+			return String(item).trim();
 		}
 		return item;
 	}
-
 
 	/**
 	 * On starting a span for an event, this function is used to maintain active spans

@@ -5,7 +5,7 @@ import 'app/components/common/OptionButton';
 import 'app/components/common/SuccessScreen';
 
 /**
- * Display an confirmation/success screen indicating the selected debicheck mandate have been successfully declined.
+ * Display an confirmation/success screen indicating the selected debicheck mandate have been successfully declined/approved.
  *
  * @export
  * @class DebiCheckSuccess
@@ -13,54 +13,57 @@ import 'app/components/common/SuccessScreen';
  */
 export class DebiCheckSuccess extends ViewBase {
 
-	// --------------
-	// INITIALISATION
-	// --------------
+    // --------------
+    // INITIALISATION
+    // --------------
 
-	constructor() {
-		super();
+    constructor() {
+        super();
+        this.isApproved = ``;
+        this.mandateId = ``;
+    }
 
-		this.mandateId = ``;
-	}
 
+    // ----------
+    // PROPERTIES
+    // ----------
 
-	// ----------
-	// PROPERTIES
-	// ----------
-	
-	// -------------------
-	// LIFECYCLE OVERRIDES
-	// -------------------
+    // -------------------
+    // LIFECYCLE OVERRIDES
+    // -------------------
 
-	connectedCallback() {
-		super.connectedCallback();
-	}
+    connectedCallback() {
+        super.connectedCallback();
+        const screenDetails = this.horizonStore.getScreenDetails();
+        this.isApproved = screenDetails.isApproved;
+        this.mandateId = screenDetails.mandateId;
+    }
 
-	disconnectedCallback() {
-		super.disconnectedCallback();
-	}
+    disconnectedCallback() {
+        super.disconnectedCallback();
+    }
 
-	// --------------
-	// EVENT HANDLERS
-	// --------------
+    // --------------
+    // EVENT HANDLERS
+    // --------------
 
-	_doneClick() {
-		this.horizonStore.clearReturnScreen();
-		this.horizonRouter.navigateToQuickTransactionFavourites();
-	}
+    _doneClick() {
+        this.horizonStore.clearReturnScreen();
+        this.horizonRouter.navigateToQuickTransactionFavourites();
+    }
 
-	_debiCheckMandatesClick() {
-		this.horizonRouter.navigateToReturnPage();
-	}
+    _debiCheckMandatesClick() {
+        this.horizonRouter.navigateToReturnPage();
+    }
 
-	// ---------
-	// RENDERING
-	// ---------
+    // ---------
+    // RENDERING
+    // ---------
 
-	static get styles() {
-		return [
-			super.styles,
-			css`
+    static get styles() {
+        return [
+            super.styles,
+            css`
 				#id-error-msg {
 					width: auto;
 				}
@@ -72,39 +75,59 @@ export class DebiCheckSuccess extends ViewBase {
 					--horizon-option-btn-icon-width: 26px;
 				}
 			`
-		];
-	}
+        ];
+    }
 
-	_mobileTemplate() {
-		return this._webTemplate();
-	}
+    _mobileTemplate() {
+        return this._webTemplate();
+    }
 
-	_webTemplate() {
-		return html`
+    _webTemplate() {
+        return html`
 			${this._renderSuccessScreen()}
 
 			${super._webTemplate()}
 		`;
-	}
+    }
 
-	_renderSuccessScreen() {
-		return html`
+    _renderSuccessScreen() {
+        if (this.isApproved) {
+            return html`
 			<horizon-success-screen 
 				header="DebiCheck mandate approved"
 				image="/images/transactions/debiCheckMandate.svg"
 				secondaryImage="/images/transactions/debiCheckLogo.svg"
-				left="Done"
-				right="DebiCheck Mandates"
-				toast="DebiCheck mandate declined."
-				@left-click=${() => this._doneClick()}
-				@right-click=${() => this._debiCheckMandatesClick()}>
+				left="DebiCheck Mandates"
+				right="Done"
+				toast="DebiCheck mandate approved."
+				@left-click=${() => this._debiCheckMandatesClick()}
+				@right-click=${() => this._doneClick()}>
 					<section 
 						id="id-error-msg" 
-						slot="detail">DebiCheck mandate for <b>${this.mandateId}</b> has been declined.
+						slot="detail">DebiCheck mandate for <b>${this.mandateId}</b> has been approved.
 					</section>
 			</horizon-success-screen>
 		`;
-	}
+        }
+        else {
+            return html`
+				<horizon-success-screen 
+					header="DebiCheck mandate declined"
+					image="/images/transactions/debiCheckMandate.svg"
+					secondaryImage="/images/transactions/debiCheckLogo.svg"
+					left="DebiCheck Mandates"
+					right="Done"
+					toast="DebiCheck mandate declined."
+					@left-click=${() => this._debiCheckMandatesClick()}
+					@right-click=${() => this._doneClick()}>
+						<section 
+							id="id-error-msg" 
+							slot="detail">DebiCheck mandate for <b>${this.mandateId}</b> has been declined.
+						</section>
+				</horizon-success-screen>
+			`;
+        }
+    }
 
 }
 

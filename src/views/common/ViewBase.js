@@ -60,8 +60,8 @@ export class ViewBase extends View {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.showEndCall = false;
 		this.showAddCallerDetails = false;
-		this.displayToast = false;
-		this.toastDetail = ``;
+		this.displayVASToast = false;
+		this.toastDetailVAS = ``;
 	}
 
 	// --------------
@@ -79,7 +79,7 @@ export class ViewBase extends View {
 			isBusy: { attribute: false },
 			showEndCall: { attribute: false },
 			showAddCallerDetails: { attribute: false },
-			displayToast: { attribute: false }
+			displayVASToast: { attribute: false }
 		};
 	}
 
@@ -137,7 +137,7 @@ export class ViewBase extends View {
 	}
 
 	_assignIncidentClick() {
-        this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
+		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
 	}
 
 	_endCallClick() {
@@ -160,13 +160,13 @@ export class ViewBase extends View {
 	}
 
 	_toastVAS() {
-		this._toggleToastDisplay();
-		this.toastDetail = `Value added services complete, you can update anytime.`;
-		window.setTimeout(() => this._toggleToastDisplay(), 3000);
+		this._toggleVASToastDisplay();
+		this.toastDetailVAS = `Value added services complete, you can update anytime.`;
+		window.setTimeout(() => this._toggleVASToastDisplay(), 3000);
 	}
 
-	_toggleToastDisplay() {
-		this.displayToast = !this.displayToast;
+	_toggleVASToastDisplay() {
+		this.displayVASToast = !this.displayVASToast;
 	}
 
 	// ---------------
@@ -234,13 +234,13 @@ export class ViewBase extends View {
 			"screen": screenName
 		});
 	}
-	
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
 
-	async createAndClassifySubsIncident(incidentCategorization) {
-		await super.createAndClassifySubsIncident(() => this._toggleBusyFlag(), incidentCategorization);
+	async createAndClassifySubsIncident(incidentCategorization, classify) {
+		await super.createAndClassifySubsIncident(() => this._toggleBusyFlag(), incidentCategorization, classify);
 	}
 
 	// ---------
@@ -251,14 +251,14 @@ export class ViewBase extends View {
 		return [
 			super.styles,
 			css`
-				capitec-toast {
+				#VASToast {
 					position: absolute;
 					justify-content: center;
 					align-items: center;
 					top: var(--horizon-toast-top);
 					left: calc(50% - 200px);
 					z-index: 809;
-					
+										
 					--theme-toast-min-width: 560px;
 				}
 			`
@@ -279,7 +279,7 @@ export class ViewBase extends View {
 			${this._renderEndCallSessionModal()}
 			${this._renderLoadingIndicator()}
 			${this._renderAddCallerDetailsModal()}
-			${this._renderToast()}
+			${this._renderVASToast()}
 		`; 
 	}
 
@@ -305,7 +305,7 @@ export class ViewBase extends View {
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.isReassigned="${this.isReassigned}"
-					endCallContext="${this.endCallContext}"
+					endCallContext=${this.endCallContext}
 					@cancel="${() => this._cancelEndCallClick()}">
 				</horizon-end-call-session>`
 			: html``;
@@ -329,13 +329,14 @@ export class ViewBase extends View {
 			: html``;
 	}
 
-	_renderToast() {
-		return this.displayToast
+	_renderVASToast() {
+		return this.displayVASToast
 			? html`
 				<capitec-toast
+					id="VASToast"
 					type="success"
 					header="Successful"
-					detail="${this.toastDetail}"
+					detail="${this.toastDetailVAS}"
 					closable>
 				</capitec-toast>`
 		 	: html``;

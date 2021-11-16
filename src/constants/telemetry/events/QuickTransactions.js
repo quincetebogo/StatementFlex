@@ -5,7 +5,7 @@
  * @readonly
  * @enum {Object} QuickTransactionEvents
  */
- export const QuickTransactionEvents = {
+export const QuickTransactionEvents = {
 	FULFILL_NEED: `call.fulfill-need`,
 
 	// Pending mandates alert
@@ -66,23 +66,23 @@
 	TAP_TO_PAY_OUTCOME_ANOTHER: `call.fulfill-need.tap-to-pay.outcome.another`,
 	TAP_TO_PAY_OUTCOME_HANDOFF: `call.fulfill-need.tap-to-pay.outcome.hand-off`,
 	LAUNCH_STRACK_FEEDBACK: `call.fulfill-need.feedback`,
-     LAUNCH_STRACK_FEEDBACK_DONE: `call.fulfill-need.feedback.done`,
+	 LAUNCH_STRACK_FEEDBACK_DONE: `call.fulfill-need.feedback.done`,
 
-     // Update card limits 
-     CARD_LIMITS: `call.fulfill-need.card-limits`,
-     CARD_LIMITS_SELECT_CARD: `call.fulfill-need.card-limits.select-card`,
+	 // Update card limits 
+	 CARD_LIMITS: `call.fulfill-need.card-limits`,
+	 CARD_LIMITS_SELECT_CARD: `call.fulfill-need.card-limits.select-card`,
 
-     // Update card limits modal
-     UPDATE_LIMITS: `call.fulfill-need.card-limits.update-limits`,
-     UPDATE_LIMITS_NEXT: `call.fulfill-need.card-limits.update-limits.next`,
-     UPDATE_LIMITS_AGREE: `call.fulfill-need.card-limits.update-limits.agree`,
-     UPDATE_LIMITS_BACK: `call.fulfill-need.card-limits.update-limits.back`,
-     UPDATE_LIMITS_CANCEL: `call.fulfill-need.card-limits.update-limits.cancel`,
+	 // Update card limits modal
+	 UPDATE_LIMITS: `call.fulfill-need.card-limits.update-limits`,
+	 UPDATE_LIMITS_NEXT: `call.fulfill-need.card-limits.update-limits.next`,
+	 UPDATE_LIMITS_AGREE: `call.fulfill-need.card-limits.update-limits.agree`,
+	 UPDATE_LIMITS_BACK: `call.fulfill-need.card-limits.update-limits.back`,
+	 UPDATE_LIMITS_CANCEL: `call.fulfill-need.card-limits.update-limits.cancel`,
 
-     // Discard changes modal
-     DISCARD_CHANGES: `call.fulfill-need.card-limits.update-limits.discard-changes`,
-     DISCARD_CHANGES_CANCEL: `call.fulfill-need.card-limits.update-limits.discard-changes.cancel`,
-     DISCARD_CHANGES_CONFIRM: `call.fulfill-need.card-limits.update-limits.discard-changes.confirm`,
+	 // Discard changes modal
+	 DISCARD_CHANGES: `call.fulfill-need.card-limits.update-limits.discard-changes`,
+	 DISCARD_CHANGES_CANCEL: `call.fulfill-need.card-limits.update-limits.discard-changes.cancel`,
+	 DISCARD_CHANGES_CONFIRM: `call.fulfill-need.card-limits.update-limits.discard-changes.confirm`,
 
 	 // Satements
 	 STATEMENTS: `call.fulfill-need.statements`,
@@ -108,7 +108,26 @@
 	DEBICHECK_DECLINE_MANDATE: `call.fulfill-need.debicheck.decline-mandate`,
 	DEBICHECK_DECLINE_MANDATE_CANCEL: `call.fulfill-need.debicheck.decline-mandate.cancel`,
 	DEBICHECK_DECLINE_MANDATE_CONFIRM: `call.fulfill-need.debicheck.decline-mandate.confirm`,
-	DEBICHECK_APPROVE_MANDATE: `call.fulfill-need.debicheck.approve-mandate`
-	// Yet to confiure events for Debi check mandates approve and outcome screens
+	DEBICHECK_APPROVE_MANDATE: `call.fulfill-need.debicheck.approve-mandate`,
+	DEBICHECK_APPROVE_MANDATE_CANCECL: `call.fulfill-need.debicheck.approve-mandate.cancel`,
+	DEBICHECK_APPROVE_MANDATE_CONFIRM: `call.fulfill-need.debicheck.approve-mandate.confirm`,
+	DEBICHECK_FIND_BRANCH: `call.fulfill-need.debicheck.find-a-branch`,
+
+	// Yet to configure events for Debi check mandates approve and outcome screens
 	// It can be done when we implement those feature
- };
+
+	// Tax certificate
+	TAX_CERTIFICATE: `call.fulfill-need.tax-certificate`,
+	TAX_CERTIFICATE_POP_UP: `call.fulfill-need.tax-certificate.pop-up`,
+	TAX_CERTIFICATE_POP_UP_BACK: `call.fulfill-need.tax-certificate.pop-up.back`,
+	TAX_CERTIFICATE_POP_UP_NEXT: `call.fulfill-need.tax-certificate.pop-up.next`,
+	TAX_CERTIFICATE_POP_UP_CANCEL: `call.fulfill-need.tax-certificate.pop-up.cancel`,
+	TAX_CERTIFICATE_POP_UP_VIEW_DOCUMENT: `call.fulfill-need.tax-certificate.pop-up.certificate-clicked`,
+	TAX_CERTIFICATE_POP_UP_VIEW_PDF: `call.fulfill-need.tax-certificate.view-certificate`,
+	TAX_CERTIFICATE_POP_UP_CLOSE_PDF: `call.fulfill-need.tax-certificate.view-certificate.close`,
+	TAX_CERTIFICATE_SELECT_SEND: `call.fulfill-need.tax-certificate.pop-up.send`,
+	TAX_CERTIFICATE_OUTCOME: `call.fulfill-need.tax-certificate.outcome`,
+	TAX_CERTIFICATE_OUTCOME_DONE: `call.fulfill-need.tax-certificate.outcome.done`,
+	TAX_CERTIFICATE_OUTCOME_ASSIGN: `call.fulfill-need.tax-certificate.outcome.hand-off`,
+	TAX_CERTIFICATE_FIND_BRANCH: `call.fulfill-need.tax-certificate.find-a-branch`
+};

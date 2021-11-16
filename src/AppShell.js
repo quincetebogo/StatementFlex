@@ -306,6 +306,14 @@ export class AppShell extends Shell {
 					--theme-product-tile-title-font-size: 18px;
 					--theme-product-tile-subtitle-height: 23px;
 					--theme-product-tile-subtitle-font-size: 15px;
+
+					/* Banner text should now be black - set it here until the platform does*/
+					--theme-alert-banner-info-font-color: #3A3A3A;
+					--theme-alert-banner-success-font-color: #3A3A3A;
+					--theme-alert-banner-warning-font-color: #3A3A3A;
+					--theme-alert-banner-error-font-color: #3A3A3A;
+					--theme-alert-banner-unsuccessful-font-color: #3A3A3A;
+					--theme-alert-banner-unsuccessful-red-font-color: #3A3A3A;
 				}`
 		];
 	}
@@ -320,14 +328,14 @@ export class AppShell extends Shell {
 			${this._renderLoadingIndicator()}
 			${this._renderLoginFailed()}
 			${this._renderAuthenticating()}
-	   		${this._renderContent()}
-		`;
+       		${this._renderContent()}
+        `;
 	}
 
 	_mobileTemplate() {
 	}
 
-	_renderLoginFailed() {
+    _renderLoginFailed() {
 		if (!this.isAuthenticating && !this._security.isAuthenticated) {
 			return html`Login Failed`;
 		}
@@ -360,10 +368,10 @@ export class AppShell extends Shell {
 				<div class="screen-size">
 					${this.horizonViewManager.renderTopBar(this.currentView)}
 
-					<capitec-content-box class="screen-content" nopadding>
+                	<capitec-content-box class="screen-content" nopadding>
 						<div class="grid-container">
 							<div class="left">
-								${this.horizonViewManager.renderLeftBar(this.currentView)}
+							    ${this.horizonViewManager.renderLeftBar(this.currentView)}
 							</div>
 							<div class="middle">
 								<capitec-app-router></capitec-app-router>

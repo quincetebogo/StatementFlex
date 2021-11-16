@@ -136,7 +136,7 @@ export class DesktopAgentService {
 			newCallEvent.incomingTelephoneNumber = validate(eventData.IncomingTelephoneNumber, DesktopAgentService.incomingTelephoneNumberValidation);
 
 			if (newCallEvent.incomingTelephoneNumber === 0) {
-				if (this.incomingTelephoneNumber !== `anonymous`) {
+				if (eventData.IncomingTelephoneNumber.toLowerCase() !== `anonymous`) {
 					this._logger.log(`warn`, `Incoming number does not match validation rule: ${eventData.IncomingTelephoneNumber}`);
 				}
 				newCallEvent.incomingTelephoneNumber = `0000000000`;

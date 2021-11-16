@@ -201,7 +201,7 @@ export class VerifyBySecurityQuestions extends Component {
 				if (returnValue.result === `Authenticated`) {
 					this._xdsAuthenticated();
 				} else {
-					this.logger.log(`warning`, `Authentication result: ${returnValue.result}`, `_verifyClick`);
+					this.logger.log(`warning`, `Authentication result: ${JSON.stringify(returnValue.result)}`, `_verifyClick`);
 					this._xdsNotAuthenticated();
 				}
 			} else if (this.noOfXdsVerificationAttempted <= 1) {
@@ -286,6 +286,8 @@ export class VerifyBySecurityQuestions extends Component {
 		}, true);
 
 		this.callerInformation.verificationStatus = `verified`;
+		this.callerInformation.verificationMethod = `XDS`;
+
 		this.dispatchEvent(new CustomEvent(`verified`, {
 			detail: {
 				incomingCallDetails: this.incomingCallDetails,
@@ -456,7 +458,7 @@ export class VerifyBySecurityQuestions extends Component {
 		return html`
 			${this._renderLoadingIndicator()}
 			${this._renderContent()}
-		`
+		`;
 	}
 
 	_renderContent() {
