@@ -26,6 +26,7 @@ export class StatementsUnsuccess extends ViewBase {
 		this.mailId = ``;
 		this.acNumber = ``;
 		this.accType=``;
+		this.endCallContext = `QuickTransactionsUnSuccess`;
 		this._telemetry = HorizonTelemetry.instance;
 	}
 

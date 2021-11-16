@@ -178,7 +178,7 @@ export class ValueAddedServiceUnavailable extends Component {
 
 				<capitec-label 
 						class="vas-header"
-						label="Value added services currently unavalable">
+						label="Value added services currently unavailable">
 				</capitec-label>
 
 				<capitec-group layout="vertical" class="vas-technical-issues">

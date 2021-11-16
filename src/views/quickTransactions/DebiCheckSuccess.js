@@ -21,6 +21,7 @@ export class DebiCheckSuccess extends ViewBase {
         super();
         this.isApproved = ``;
         this.mandateId = ``;
+		this.endCallContext = `QuickTransactionSuccess`;
     }
 
 

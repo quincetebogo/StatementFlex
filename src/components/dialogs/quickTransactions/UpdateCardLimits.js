@@ -1,9 +1,9 @@
 import { Component, css, html } from 'platform/elements';
+import { formatCurrency, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { DateTime } from 'luxon';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/CardArt';
 
@@ -97,6 +97,15 @@ export class UpdateCardLimits extends Component {
 		this.totalTemporaryLimits = 0;
 		this.errorField = ``;
 		this.fieldFocused = ``;
+		this.expiryDate = ``;
+		this.tempError = {
+			tempCnpAmountLimit: ``,
+			tempCashAmountLimit: ``,
+			tempPurchaseAmountLimit: ``,
+			permanentPurchaseAmountLimit: ``,
+			permanentCashAmountLimit: ``,
+			permanentCnpAmountLimit: ``
+		};
 
 		this._telemetry = HorizonTelemetry.instance;
 	}
@@ -211,16 +220,22 @@ export class UpdateCardLimits extends Component {
 	_limitChanged(e, transactionType, maxLimit) {
 
 		this.alertBannerText = ``;
+		this.tempError[e.currentTarget.id] = ``;
 
 		const oldVal = e.detail.old || 0;
 		const newVal = e.detail.new || 0;
+
+		if (this.limitType === `Temporary`) {
+			const newDate = DateTime.now().plus({ days: 2 });
+			this.expiryDate = `Expires on ${this._getFullDate(newDate.toString())} at midnight`;
+		}
 
 		if (this.updateType === `Debit` && this.cardDetails.linkedCardLimits) {
 			this.linkedCardLimits[e.currentTarget.id] = parseInt(newVal, 10);
 		} else {
 			this.cardLimits[e.currentTarget.id] = parseInt(newVal, 10);
 		}
-		const diff = parseInt(newVal) - parseInt(oldVal);
+		const diff = parseInt(newVal, 10) - parseInt(oldVal, 10);
 
 		if (this.cardDetails.cardDisplayType === `Primary_Card`) {
 			if (this.limitType === `Permanent`) {
@@ -238,15 +253,24 @@ export class UpdateCardLimits extends Component {
 
 		this.totalPermanentLimits = this.totalPrimaryPermanentLimits + this.totalSuplementaryPermanentLimits;
 		this.totalTemporaryLimits = this.totalPrimaryTemporaryLimits + this.totalSuplementaryTemporaryLimits;
+		if (this.limitType === `Temporary`) {
+			const perm = e.currentTarget.id.replace(`temp`, `permanent`);
+			if (this.updateType === `Debit` && this.cardDetails.linkedCardLimits) {
+				this.tempError[e.currentTarget.id] = this.linkedCardLimits[e.currentTarget.id] === this.linkedCardLimits[perm] ? `Limit cannot be the same as permanent limit` : ``;
+			} else {
+				this.tempError[e.currentTarget.id] = this.cardLimits[e.currentTarget.id] === this.cardLimits[perm] ? `Limit cannot be the same as permanent limit` : ``;
+			}
+		}
+
 		this.error[transactionType][e.currentTarget.id] = Number(newVal) > Number(maxLimit) ? maxLimit : ``;
 		this.requestUpdate();
 	}
 
 	_randToInt(value) {
 		if (value.startsWith(`R`)) {
-			return parseInt(value.substring(1));
+			return parseInt(value.substring(1), 10);
 		}
-		return parseInt(value);
+		return parseInt(value, 10);
 	}
 
 	_back() {
@@ -264,7 +288,13 @@ export class UpdateCardLimits extends Component {
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-	async _next() {
+	_next() {
+		const tempErrors = Object.values(this.tempError).filter(item => item !== ``);
+
+		if (tempErrors.length > 0) {
+			return;
+		}
+
 		const compare = (obj, source) => Object.keys(source).every(key => obj.hasOwnProperty(key) && obj[key] === source[key]);
 		if (compare(this.cardLimits, this.cardDetails.cardLimits)) {
 			this._limitHasNotChanged();
@@ -310,7 +340,7 @@ export class UpdateCardLimits extends Component {
 		this.cardlimitsInfo[e.currentTarget.id] = e.detail.new;
 		this.alertBannerText = ``;
 
-        if (e.detail.new && this._getTapToPayStatus() !== TAP_TO_PAY_STATUS.UNCHANGED ) {
+        if (e.detail.new && this._getTapToPayStatus() !== TAP_TO_PAY_STATUS.UNCHANGED) {
             this.limitsAgreementExpanded = !this.limitsAgreementExpanded;
             this.tapToPayAgreementExpanded = !this.tapToPayAgreementExpanded;
         }
@@ -341,8 +371,9 @@ export class UpdateCardLimits extends Component {
 			acceptedTapToPayAgreement: false
 		};
 
-		// TO DO : limitLabel to be loaded dynamically depending on update type once we get proper value in Update type
 		this.limitLabel = `${this.updateType} Limits`;
+		const expDate = this.updateType === `Debit` && this.cardDetails.linkedCardLimits ? this.cardDetails.linkedCardLimits.tempLimitExpiryDate : this.cardDetails.cardLimits.tempLimitExpiryDate;
+		this.expiryDate = new Date(expDate).getFullYear() < 2 ? `` : `Expires on ${this._getFullDate(expDate)} at midnight`;
 
 
 		this.totalPrimaryCardLimits = this.cardDetails.totalDailyLimitExposures.find(item => item.cardTypeName === `Primary card limits`);
@@ -386,10 +417,10 @@ export class UpdateCardLimits extends Component {
 		`;
 	}
 
-    _getFieldError(value) {
+    _getFieldError(value) { 
         return !value ? `` : `Max limit - ${formatCurrency(value, 0)}`;
     }
-    
+   
     _getTapToPayStatus() {
         if (this._tapToPayStatus === this.cardDetails.isContactlessActivated) {
             return TAP_TO_PAY_STATUS.UNCHANGED;
@@ -459,6 +490,10 @@ export class UpdateCardLimits extends Component {
 		this.alertBannerText = `Update limit(s) in order to continue.`;
 	}
 
+	_getFullDate(date) {
+		const otherDate = DateTime.fromISO(date.substring(10, 0));
+		return `${otherDate.day} ${otherDate.monthShort} ${otherDate.year}`;
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -558,7 +593,7 @@ export class UpdateCardLimits extends Component {
 			}
 			.limits-cb {
 				--theme-container-padding-left: 16px;
-				--theme-container-padding-top: 32px;
+				--theme-container-padding-top: 16px;
 				--theme-container-padding-right: 0px;
 				--theme-container-padding-bottom: 0px;
 				--theme-layout-gap-spacing: 8px;
@@ -572,7 +607,7 @@ export class UpdateCardLimits extends Component {
 				--theme-layout-gap-spacing: 16px;
 			}
 			.limits-cb > capitec-text-field {
-				height: 72px;
+				height: 78px;
 
 				--theme-input-hint-font-color: #3A3A3A;
 				--theme-input-label-font-color: #7C7C7C;
@@ -810,7 +845,7 @@ export class UpdateCardLimits extends Component {
     _renderSetLimits() {
         return this.renderMode === RENDER_MODE.LIMITS
             ? html`
-				<capitec-label type="title" label="${this.cardDetails.isVirtualCard ? "Virtual Limits" :this.limitLabel}" class="limitLabel"></capitec-label>
+				<capitec-label type="title" label="${this.cardDetails.isVirtualCard ? `Virtual Limits` : this.limitLabel}" class="limitLabel"></capitec-label>
 				<capitec-group class="renderLimits" layout="horizontal" halign="left" valign="top" gap="clear">
 					<capitec-card style="display: inline">
 						${this._renderLimitsAlertBanner()}
@@ -920,7 +955,8 @@ export class UpdateCardLimits extends Component {
 				keyboardMode="numeric"
 				type="currency"
 				value="${this._getTextFieldValue(cashAmountLimit, limits.cashAmountLimit)}"
-				error="${this._getFieldError(this.error[transactionType][cashAmountLimit])}"
+				error="${this._getFieldError(this.error[transactionType][cashAmountLimit]) || this.tempError[cashAmountLimit]}"
+				hint="${this.limitType === `Temporary` ? this.expiryDate : ``}"
 				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD}"
 				@blur="${() => this.fieldFocused = ``}"
 				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"
@@ -933,7 +969,8 @@ export class UpdateCardLimits extends Component {
 				keyboardMode="numeric"
 				type="currency"
 				value="${this._getTextFieldValue(purchaseAmountLimit, limits.purchaseAmountLimit)}"
-				error="${this._getFieldError(this.error[transactionType][purchaseAmountLimit])}"
+				error="${this._getFieldError(this.error[transactionType][purchaseAmountLimit]) || this.tempError[purchaseAmountLimit]}"
+				hint="${this.limitType === `Temporary` ? this.expiryDate : ``}"
 				@blur="${() => this.fieldFocused = ``}"
 				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD}"
 				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"
@@ -946,7 +983,8 @@ export class UpdateCardLimits extends Component {
 				keyboardMode="numeric"
 				type="currency"
 				value="${this._getTextFieldValue(cnpAmountLimit, limits.cnpAmountLimit)}"
-				error="${this._getFieldError(this.error[transactionType][cnpAmountLimit])}"
+				error="${this._getFieldError(this.error[transactionType][cnpAmountLimit]) || this.tempError[cnpAmountLimit]}"
+				hint="${this.limitType === `Temporary` ? this.expiryDate : ``}"
 				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD}"
 				@blur="${() => this.fieldFocused = ``}"
 				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"

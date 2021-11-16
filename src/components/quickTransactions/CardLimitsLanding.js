@@ -9,6 +9,7 @@ import 'app/components/common/HorizonExpander';
 import 'app/components/common/CardArt';
 import 'app/components/dialogs/quickTransactions/UpdateCardLimits';
 import 'app/components/dialogs/common/DiscardChanges';
+import 'app/components/dialogs/common/ConfirmSelection';
 import 'app/components/common/MultiLineLabel';
 
 const RENDER_MODE = {
@@ -64,6 +65,7 @@ export class CardLimitsLanding extends Component {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.showUpdateLimitsModal = false;
 		this.showDiscardChangesModal = false;
+		this.showConfirmSelectionModal = false;
 
 		this.primaryCards = [];
 		this.supplementaryCards = [];
@@ -154,6 +156,7 @@ export class CardLimitsLanding extends Component {
 
 			renderMode: { attribute: false },
 			showUpdateLimitsModal: { attribute: false },
+			showConfirmSelectionModal: { attribute: false },
 			showDiscardChangesModal: { attribute: false }
 		};
 	}
@@ -209,7 +212,7 @@ export class CardLimitsLanding extends Component {
 			},
 			tapToPayStatusChange: tapToPayStatus
 		};
-		if(this._limitType === LIMIT_TYPES.PERMANENT){
+		if (this._limitType === LIMIT_TYPES.PERMANENT) {
 			request.cardDetails.tempCashAmountLimit = 0;
 			request.cardDetails.tempCnpAmountLimit = 0;
 			request.cardDetails.tempPurchaseAmountLimit = 0;
@@ -299,7 +302,7 @@ export class CardLimitsLanding extends Component {
 			screenRecordingReference: ``,
 			cardLimits: {
 				cardDetails: {
-					cardId: (cardDetails.linkedCardLimits && this._updateType === `Debit`) ? cardDetails.linkedCardId : cardDetails.cardId,
+					cardId: cardDetails.linkedCardLimits && this._updateType === `Debit` ? cardDetails.linkedCardId : cardDetails.cardId,
 					accountId: cardDetails.primarySavingsAccountId || cardDetails.primaryCreditAccountId,
 					customerId: this.cifNumber,
 					cardExpiryYear: cardDetails.cardExpiryYear,
@@ -390,7 +393,11 @@ export class CardLimitsLanding extends Component {
 			"card-display-type": this._cardDetails.cardDisplayName
 		});
 		
-		this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
+		if (new Date(card.cardLimits.tempLimitExpiryDate).getYear() > 2 && this._limitType === LIMIT_TYPES.PERMANENT) {
+			this.showConfirmSelectionModal = !this.showConfirmSelectionModal;
+		} else {
+			this.showUpdateLimitsModal = !this.showUpdateLimitsModal; 
+		}
 	}
 
 	async _getPermanentLimits(request) {
@@ -429,11 +436,20 @@ export class CardLimitsLanding extends Component {
 		});
 	}
 
+	_cancelModal() {
+		this.showConfirmSelectionModal = !this.showConfirmSelectionModal;
+	}
+
+	_confirmModal() {
+		this.showConfirmSelectionModal = !this.showConfirmSelectionModal;
+		this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
+	}
+
 	_calculateLimitExpiry() {
 		const date = new Date();
 		const expiryDate = new Date();
 
-		expiryDate.setDate(date.getDate() + 3);
+		expiryDate.setDate(date.getDate() + 2);
 
 		return expiryDate.toISOString();
 	}
@@ -629,6 +645,7 @@ export class CardLimitsLanding extends Component {
 			${this._renderContent()}
 			${this._renderUpdateLimitsModal()}
 			${this._renderDiscardChangesModal()}
+			${this._renderConfirmSelectionModal()}
 		`;
 	}
 
@@ -965,6 +982,18 @@ export class CardLimitsLanding extends Component {
 					@on-confirm="${() => this.showDiscardChangesModal = !this.showDiscardChangesModal}">
 				</horizon-discard-changes>`
 			: html``;
+	}
+
+	_renderConfirmSelectionModal() {
+		if (this.showConfirmSelectionModal) {
+			return html`
+				<horizon-confirm-selection
+					@on-cancel="${() => this._cancelModal()}"
+					@on-confirm="${() => this._confirmModal()}">
+				</horizon-confirm-selection>`;
+		}
+
+		return html``;
 	}
 }
 

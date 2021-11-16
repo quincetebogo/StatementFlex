@@ -18,7 +18,8 @@ export class StatementsSuccess extends ViewBase {
 
 		this.mailId = ``;
 		this.acNumber = ``;
-		this.accType=``;
+  	this.accType=``;
+		this.endCallContext = `QuickTransactionSuccess`;
 		this._telemetry = HorizonTelemetry.instance;
 	}
 

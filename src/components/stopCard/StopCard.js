@@ -209,7 +209,6 @@ export class StopCard extends Component {
 				supplementaryCard: card.supplementaryCard
 			}
 		)).filter(card => card.cardStopReason !== ``);
-
 		this.renderMode = RENDER_MODE.CARD_STOP_MODAL;
 
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARDS_CLICK, {
