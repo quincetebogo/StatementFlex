@@ -296,9 +296,9 @@ export const END_CALL_REASON = Object.freeze({
 	],
 	QuickTransactionSuccess: [
 		{
-			key: NEED_INCOMPLETE,
-			value: `Need incomplete - bad connection`,
-			mapping: `telephony-disconnected`
+			key: NEED_FULFILLED,
+			value: `Need fulfilled`,
+			mapping: `general-product-enquiry`
 		},
 		{
 			key: NEED_ASSIGNED,
@@ -314,6 +314,16 @@ export const END_CALL_REASON = Object.freeze({
 			key: CALL_TRANSFERED,
 			value: `Call transferred`,
 			mapping: `call-transfer`
+		},
+		{
+			key: NEED_INCOMPLETE,
+			value: `Need incomplete - bad connection`,
+			mapping: `telephony-disconnected`
+		},
+		{
+			key: FOLLOW_UP,
+			value: `Follow up required`,
+			mapping: ``
 		}
 	],
 	QuickTransactionsUnSuccess: [
