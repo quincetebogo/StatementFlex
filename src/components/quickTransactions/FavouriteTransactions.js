@@ -236,7 +236,7 @@ export class FavouriteTransactions extends Component {
 				return html`
 					${this._renderUnverifiedAlertBanner()}
 					${this._renderFailedVerificationAlertBanner()}
-					<!-- ${this._renderHighRiskTransAlertBanner()} -->
+					${this._renderHighRiskTransAlertBanner()}
 					${this._renderTransactSection()}
 					${this._renderCardsSection()}
 					${this._renderDocumentsSections()}
