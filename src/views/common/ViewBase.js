@@ -144,7 +144,9 @@ export class ViewBase extends View {
 	_endCallClick() {
 		this._telemetry.logEvent(LandingPageEvents.END_CALL, {});
 		this.showEndCall = !this.showEndCall;
-		this.endCallContext = this.incidentDetails.needStatus === HORIZON_NEED_STATUS.INPROGRESS ? `QuickTransactionsInProgress` : this.endCallContext;
+		this.endCallContext = this.incidentDetails.needStatus === HORIZON_NEED_STATUS.INPROGRESS && this.endCallContext !== `TransactionHistory`
+								? `QuickTransactionsInProgress`
+								: this.endCallContext;
 	}
 
 	_cancelEndCallClick() {
