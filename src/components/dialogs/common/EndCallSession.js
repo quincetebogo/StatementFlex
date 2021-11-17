@@ -181,11 +181,6 @@ export class EndCallSession extends Component {
 			} else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 				this._stopCardEndCall();
 			} else {
-				if (this._preventCloseOfIncident()) {
-					// Updating state as call ended and redirecting it to call waiting page
-					this._returnToCallWaitingPage();
-					return;
-				}
 				this._classifyAndClose();
 			}
 		}
@@ -242,9 +237,12 @@ export class EndCallSession extends Component {
 		const hasValues = !isNullorEmpty(screenDetails.category) && !isNullorEmpty(screenDetails.subCategory) && !isNullorEmpty(screenDetails.issue);
 		// Checks if the curr incident is active
 		const isIncClosed = incidentDetails.needStatus === super.HORIZON_NEED_STATUS.CLOSED;
+		// should classify as per need?
+		const ivrActionMapping = await this._getNeedActions();
+		const classifyAsPerNeed = incidentDetails.needStatus === super.HORIZON_NEED_STATUS.INPROGRESS && ivrActionMapping[incidentDetails.currentNeed];
 
 		// If classification is not empty, no need to populate need
-		this.understandNeed = this.understandNeed && !hasValues && !isClassified && !isIncClosed;
+		this.understandNeed = this.understandNeed && !hasValues && !isClassified && !isIncClosed && !classifyAsPerNeed;
 		this._setClassification(screenDetails);
 
 		if (!this.understandNeed || this.categories.length !== 0 && this.endCallReason.key !== END_CALL_REASON.CALL_TRANSFERED) {
@@ -390,6 +388,12 @@ export class EndCallSession extends Component {
 		
 		if (!continueUpdate) {
 			this.logger.log(`info`, `Incident:${incidentDetails.incidentReferenceNumber} has been already categorized at STrack.`, `_classifyAndClose`);
+		}
+
+		if (this._preventCloseOfIncident()) {
+			// Updating state as call ended and redirecting it to call waiting page
+			this._returnToCallWaitingPage();
+			return;
 		}
 		await this._closeIncident(strackIncidentInfo);
 	}
