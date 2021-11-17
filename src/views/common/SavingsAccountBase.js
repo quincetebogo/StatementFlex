@@ -476,7 +476,6 @@ export class SavingsAccountBase extends ViewBase {
 					.mandateInfo="${this.mandateInfo}"
 					.debiCheckDetails=${this.debiCheckDetails}
 					.clientDetails=${this.clientDetails}
-					.accountNumber = "${this.accountNumber}"
 					@cancel="${() => this._cancelMandateAction(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE_CANCECL, TelemetryScreen.APPROVE_DEBICHECK)}"
 					@approve="${(event) => this._approveDebiCheckMandate(event)}">
 				</horizon-approve-debicheck-mandate>`
