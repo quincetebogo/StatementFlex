@@ -222,8 +222,8 @@ export class UpdateCardLimits extends Component {
 		this.alertBannerText = ``;
 		this.tempError[e.currentTarget.id] = ``;
 
-		const oldVal = e.detail.old || 0;
-		const newVal = e.detail.new || 0;
+		const oldVal = e.detail.old;
+		const newVal = e.detail.new;
 
 		if (this.limitType === `Temporary`) {
 			const newDate = DateTime.now().plus({ days: 2 });
@@ -231,11 +231,11 @@ export class UpdateCardLimits extends Component {
 		}
 
 		if (this.updateType === `Debit` && this.cardDetails.linkedCardLimits) {
-			this.linkedCardLimits[e.currentTarget.id] = parseInt(newVal, 10);
+			this.linkedCardLimits[e.currentTarget.id] = isNullorEmpty(newVal) ? null : parseInt(newVal, 10);
 		} else {
-			this.cardLimits[e.currentTarget.id] = parseInt(newVal, 10);
+			this.cardLimits[e.currentTarget.id] = isNullorEmpty(newVal) ? null : parseInt(newVal, 10);
 		}
-		const diff = parseInt(newVal, 10) - parseInt(oldVal, 10);
+		const diff = (isNullorEmpty(newVal) ? 0 : parseInt(newVal, 10)) - (isNullorEmpty(oldVal) ? oldVal : parseInt(oldVal, 10));
 
 		if (this.cardDetails.cardDisplayType === `Primary_Card`) {
 			if (this.limitType === `Permanent`) {
@@ -351,7 +351,18 @@ export class UpdateCardLimits extends Component {
 	}
 
 	_getTextFieldValue(id, value) {
+		if(isNullorEmpty(value)) {
+			return ``;
+		}
 		return this.fieldFocused === id ? value : parseInt(value, 10).toFixed(2);  
+	}
+
+	_getTextFieldHint(value) {
+		if(this.limitType === `Temporary`) {
+			return isNullorEmpty(value) ? `Limit not set` : this.expiryDate ;
+		} else {
+			return ``;
+		}
 	}
 
 	// --------------
@@ -608,9 +619,9 @@ export class UpdateCardLimits extends Component {
 			}
 			.limits-cb > capitec-text-field {
 				height: 78px;
-
-				--theme-input-hint-font-color: #3A3A3A;
-				--theme-input-label-font-color: #7C7C7C;
+				--theme-input-label-font-size: 16px;
+				--theme-input-hint-font-color: #7C7C7C;
+				--theme-input-label-font-color: #3A3A3A;
 			}
 			capitec-label[type="title"] {
 				--theme-label-title-font-size: 18px;
@@ -953,10 +964,10 @@ export class UpdateCardLimits extends Component {
 				data-automation-id="update-card-limits-cash-amount"
 				label="Cash withdrawal (max ${formatCurrency(limits.maxCashAmountLimit, 0)})"
 				keyboardMode="numeric"
-				type="currency"
+				type="${limits.cashAmountLimit ? `currency` : `numeric`}"
 				value="${this._getTextFieldValue(cashAmountLimit, limits.cashAmountLimit)}"
 				error="${this._getFieldError(this.error[transactionType][cashAmountLimit]) || this.tempError[cashAmountLimit]}"
-				hint="${this.limitType === `Temporary` ? this.expiryDate : ``}"
+				hint="${this._getTextFieldHint(limits.cashAmountLimit)}"
 				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD}"
 				@blur="${() => this.fieldFocused = ``}"
 				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"
@@ -967,10 +978,10 @@ export class UpdateCardLimits extends Component {
 				data-automation-id="update-card-limits-purchase-amount"
 				label="Card machine purchases (max ${formatCurrency(limits.maxPurchaseAmountLimit, 0)})"
 				keyboardMode="numeric"
-				type="currency"
+				type="${limits.purchaseAmountLimit ? `currency` : `numeric`}"
 				value="${this._getTextFieldValue(purchaseAmountLimit, limits.purchaseAmountLimit)}"
 				error="${this._getFieldError(this.error[transactionType][purchaseAmountLimit]) || this.tempError[purchaseAmountLimit]}"
-				hint="${this.limitType === `Temporary` ? this.expiryDate : ``}"
+				hint="${this._getTextFieldHint(limits.purchaseAmountLimit)}"
 				@blur="${() => this.fieldFocused = ``}"
 				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD}"
 				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"
@@ -981,10 +992,10 @@ export class UpdateCardLimits extends Component {
 				data-automation-id="update-card-limits-cnp-amount"
 				label="Online/scan to pay/phone (max ${formatCurrency(limits.maxcnpAmountLimit, 0)})"
 				keyboardMode="numeric"
-				type="currency"
+				type="${limits.cnpAmountLimit ? `currency` : `numeric`}"
 				value="${this._getTextFieldValue(cnpAmountLimit, limits.cnpAmountLimit)}"
 				error="${this._getFieldError(this.error[transactionType][cnpAmountLimit]) || this.tempError[cnpAmountLimit]}"
-				hint="${this.limitType === `Temporary` ? this.expiryDate : ``}"
+				hint="${this._getTextFieldHint(limits.cnpAmountLimit)}"
 				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD}"
 				@blur="${() => this.fieldFocused = ``}"
 				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"

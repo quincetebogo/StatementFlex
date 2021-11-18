@@ -5,7 +5,7 @@ import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTran
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
+import { isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
@@ -243,12 +243,13 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _updatePermanentLimits(updateRequest) {
-		updateRequest.cardLimits.permanentCashAmountLimit *= 100;
-		updateRequest.cardLimits.permanentPurchaseAmountLimit *= 100;
-		updateRequest.cardLimits.permanentCnpAmountLimit *= 100;
-		updateRequest.cardLimits.tempCashAmountLimit *= 100;
-		updateRequest.cardLimits.tempPurchaseAmountLimit *= 100;
-		updateRequest.cardLimits.tempCnpAmountLimit *= 100;
+		
+		isNullorEmpty(updateRequest.cardLimits.permanentCashAmountLimit) ? `` : updateRequest.cardLimits.permanentCashAmountLimit *= 100;
+		isNullorEmpty(updateRequest.cardLimits.permanentPurchaseAmountLimit) ? `` : updateRequest.cardLimits.permanentPurchaseAmountLimit *= 100;
+		isNullorEmpty(updateRequest.cardLimits.permanentCnpAmountLimit) ? `` : updateRequest.cardLimits.permanentCnpAmountLimit *= 100;
+		isNullorEmpty(updateRequest.cardLimits.tempCashAmountLimit) ? `` : updateRequest.cardLimits.tempCashAmountLimit *= 100;
+		isNullorEmpty(updateRequest.cardLimits.tempPurchaseAmountLimit) ? `` : updateRequest.cardLimits.tempPurchaseAmountLimit *= 100;
+		isNullorEmpty(updateRequest.cardLimits.tempCnpAmountLimit) ? `` : updateRequest.cardLimits.tempCnpAmountLimit *= 100;
 
 		const returnValue = await this.quickTransactionService.updatePermanentLimits(updateRequest, () => true);
 
@@ -276,12 +277,13 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _updateTemporaryLimits(updateRequest) {
-		updateRequest.cardLimits.permanentCashAmountLimit *= 100;
-		updateRequest.cardLimits.permanentPurchaseAmountLimit *= 100;
-		updateRequest.cardLimits.permanentCnpAmountLimit *= 100;
-		updateRequest.cardLimits.tempCashAmountLimit *= 100;
-		updateRequest.cardLimits.tempPurchaseAmountLimit *= 100;
-		updateRequest.cardLimits.tempCnpAmountLimit *= 100;
+
+		isNullorEmpty(updateRequest.cardLimits.permanentCashAmountLimit) ? `` : updateRequest.cardLimits.permanentCashAmountLimit *= 100;
+		isNullorEmpty(updateRequest.cardLimits.permanentPurchaseAmountLimit) ? `` : 	updateRequest.cardLimits.permanentPurchaseAmountLimit *= 100;
+		isNullorEmpty(updateRequest.cardLimits.permanentCnpAmountLimit) ? `` : updateRequest.cardLimits.permanentCnpAmountLimit *= 100;
+		isNullorEmpty(updateRequest.cardLimits.tempCashAmountLimit) ? `` : updateRequest.cardLimits.tempCashAmountLimit *= 100;
+		isNullorEmpty(updateRequest.cardLimits.tempPurchaseAmountLimit) ? `` : updateRequest.cardLimits.tempPurchaseAmountLimit *= 100;
+		isNullorEmpty(updateRequest.cardLimits.tempCnpAmountLimit) ? `` : updateRequest.cardLimits.tempCnpAmountLimit *= 100;
 
 		const returnValue = await this.quickTransactionService.updateTemporaryLimits(updateRequest, () => true);
 
@@ -295,12 +297,13 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _getCardLimitsAgreement(agreementRequest) {
-		agreementRequest.cardDetails.permanentCashAmountLimit *= 100;
-		agreementRequest.cardDetails.permanentPurchaseAmountLimit *= 100;
-		agreementRequest.cardDetails.permanentCnpAmountLimit *= 100;
-		agreementRequest.cardDetails.tempCashAmountLimit *= 100;
-		agreementRequest.cardDetails.tempPurchaseAmountLimit *= 100;
-		agreementRequest.cardDetails.tempCnpAmountLimit *= 100;
+
+		isNullorEmpty(agreementRequest.cardDetails.permanentCashAmountLimit) ? `` : agreementRequest.cardDetails.permanentCashAmountLimit *= 100;
+		isNullorEmpty(agreementRequest.cardDetails.permanentPurchaseAmountLimit) ? `` : agreementRequest.cardDetails.permanentPurchaseAmountLimit *= 100;
+		isNullorEmpty(agreementRequest.cardDetails.permanentCnpAmountLimit) ? `` : agreementRequest.cardDetails.permanentCnpAmountLimit *= 100;
+		isNullorEmpty(agreementRequest.cardDetails.tempCashAmountLimit) ? `` : agreementRequest.cardDetails.tempCashAmountLimit *= 100;
+		isNullorEmpty(agreementRequest.cardDetails.tempPurchaseAmountLimit) ? `` : agreementRequest.cardDetails.tempPurchaseAmountLimit *= 100;
+		isNullorEmpty(agreementRequest.cardDetails.tempCnpAmountLimit) ? `` : agreementRequest.cardDetails.tempCnpAmountLimit *= 100;
 
 		const returnValue = await this.quickTransactionService.getCardLimitsAgreement(agreementRequest, () => this._createIncidentOnError());
 		
@@ -474,40 +477,26 @@ export class Favourites extends SavingsAccountBase {
             "next-screen": TelemetryScreen.CARD_LIMITS_LANDING
 		});
 
-		const returnValue = await this.quickTransactionService.cardLimitsLanding(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
+		const returnValue = await this.quickTransactionService.cardLimitsLanding("323191002", this.incidentDetails.incidentRecId);
 			 
 		if (returnValue.succeeded) {
 			this.cards = returnValue.result.cards;
-
+			
 			this.cards.forEach(card => {
-				card.cardLimits.permanentCashAmountLimit /= 100;
-				card.cardLimits.maxPermanentCashAmountLimit /= 100;
-				card.cardLimits.permanentPurchaseAmountLimit /= 100;
-				card.cardLimits.maxPermanentPurchaseAmountLimit /= 100;
-				card.cardLimits.permanentCnpAmountLimit /= 100;
-				card.cardLimits.maxPermanentCnpAmountLimit /= 100;
-				card.cardLimits.tempCashAmountLimit /= 100;
-				card.cardLimits.maxTemporaryCashAmountLimit /= 100;
-				card.cardLimits.tempPurchaseAmountLimit /= 100;
-				card.cardLimits.maxTemporaryPurchaseAmountLimit /= 100;
-				card.cardLimits.tempCnpAmountLimit /= 100;
-				card.cardLimits.maxTemporaryCnpAmountLimit /= 100;
+				Object.keys(card.cardLimits).map( key => {
+					if(!(isNullorEmpty(card.cardLimits[key]) || key === `tempLimitExpiryDate`)) {
+						card.cardLimits[key] /= 100;
+					}
+				});
 
 				if (card.linkedCardLimits) {
-					card.linkedCardLimits.permanentCashAmountLimit /= 100;
-					card.linkedCardLimits.maxPermanentCashAmountLimit /= 100;
-					card.linkedCardLimits.permanentPurchaseAmountLimit /= 100;
-					card.linkedCardLimits.maxPermanentPurchaseAmountLimit /= 100;
-					card.linkedCardLimits.permanentCnpAmountLimit /= 100;
-					card.linkedCardLimits.maxPermanentCnpAmountLimit /= 100;
-					card.linkedCardLimits.tempCashAmountLimit /= 100;
-					card.linkedCardLimits.maxTemporaryCashAmountLimit /= 100;
-					card.linkedCardLimits.tempPurchaseAmountLimit /= 100;
-					card.linkedCardLimits.maxTemporaryPurchaseAmountLimit /= 100;
-					card.linkedCardLimits.tempCnpAmountLimit /= 100;
-					card.linkedCardLimits.maxTemporaryCnpAmountLimit /= 100;
-				} 
-			});
+					Object.keys(card.linkedCardLimits).map( key => {
+						if(!(isNullorEmpty(card.linkedCardLimits[key]) || key === `tempLimitExpiryDate`)) {
+							card.linkedCardLimits[key] /= 100;
+						}
+					});
+				}	
+			});		
 
 			this.renderMode = RENDER_MODE.UPDATE_CARD_LIMITS;
 		}
