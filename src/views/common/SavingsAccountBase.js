@@ -384,6 +384,7 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	_shouldDisable(need) {
+		//add this verification method in the verify caller component to check if the client has done ita 
 		const verificationMethod = this.callerInformation.verificationMethod;
 		const verificationStatus = this.callerInformation.verificationStatus;
 
