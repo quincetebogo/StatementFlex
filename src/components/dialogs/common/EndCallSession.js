@@ -252,7 +252,7 @@ export class EndCallSession extends Component {
 		// If end call reason is call transferred, prepopulate category
 		if (this.endCallReason.key === END_CALL_REASON.CALL_TRANSFERED) {
 			this.category = CALL_TRANSFERED_CLASSIFICATION.category;
-			this.need = ``;
+			this.need = CALL_TRANSFERED_CLASSIFICATION.subcategory;
 			this.issue = ``;
 		}
 
