@@ -2,7 +2,7 @@
   "name": "Horizon-UI",
   "product": "BSC-Horizon",
   "group": "G_PL_HZN_DEV",
-  "version": "2.1.8",
+  "version": "2.1.9",
   "alias": "horizon",
   "release": "CLIRel",
   "contractVersion": "v1",
