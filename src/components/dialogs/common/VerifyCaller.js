@@ -810,7 +810,7 @@ export class VerifyCaller extends Component {
 					There are <span class="timer-bold">${this.timeLeft} seconds</span> left.
 				</div>
 				<capitec-label type="title"
-					label= "Check your cellphone with number ${this.incomingCallDetails.incomingTelephoneNumber} to accept."></capitec-label>
+					label= "Check your verified cellphone to accept."></capitec-label>
 			</capitec-group>`;
 	}
 
