@@ -103,7 +103,7 @@ export class SavingsAccountBase extends ViewBase {
 			// eslint-disable-next-line no-extra-parens
 			this.debiCheckMandates = (returnValue.result && returnValue.result.mandateSummaryList) || [];
 
-			this.endCallContext = `TransactionHistory`;
+			this.endCallContext = `DebiCheck`;
 			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 		} else {
 			this.logger.log(`error`, `Unable to load debi check mandates`, `_debiCheck`, returnValue.correlationId);
