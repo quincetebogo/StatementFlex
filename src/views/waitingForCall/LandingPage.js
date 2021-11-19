@@ -274,7 +274,7 @@ export class LandingPage extends ViewBase {
 			false, // is 3rd party
 			true, // is non-client
 			false, // has insurance products
-            false,
+			false,
 			{
 				itaAttempts: 0,
 				xdsAttempts: 0

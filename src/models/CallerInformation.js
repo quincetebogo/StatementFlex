@@ -75,9 +75,7 @@ export class CallerInformation {
 		middleName2 = ``,
 		middleName3 = ``,
 		lastName = ``,
-		initials = ``.
-		isMinorClient = false
-
+		initials = ``
 	) {
 		this.cifNumber = cifNumber;
 		this.birthdate = birthdate;
@@ -109,7 +107,6 @@ export class CallerInformation {
 		this.middleName3 = middleName3;
 		this.lastName = lastName;
 		this.initials = initials;
-		this.isMinorClient = isMinorClient;    
 		Object.seal();
 	}
 }

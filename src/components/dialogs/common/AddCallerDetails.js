@@ -48,8 +48,7 @@ const POSSIBLE_RELATIONSHIPS = [
 	{ key: 1, value: `Sibling` },
 	{ key: 2, value: `Child` },
 	{ key: 3, value: `Friend` },
-	{ key: 4, value: `Branch Consultant` },
-	{ key: 5, value: `Other` }
+	{ key: 4, value: `Other` }
 ];
 
 

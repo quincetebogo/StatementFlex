@@ -381,19 +381,6 @@ export class ConfirmCallerDetails extends Component {
 	async _setAvailabilityFlags() {
 		let flagsSet = false;
 
-		/* This will be put back. Insure is not part of the first release
-
-			Error handling needs to be re-assessed. This function currently always returns true but
-			may need to return false and trigger the display of a system error once additional 
-			flags (insurance are checked)
-
-			this.callerInformation.hasInsuranceProducts = await this._checkForInsuranceProducts(
-				this.confirmedCaller.southAfricanIDNumber, 
-				this.confirmedCaller.cifNumber,
-				false
-			);
-		*/
-
 		// Check if the client has digital channels
 		// Disabled error handler because if this call fails we will still attempt to help the client.
 		// It will just be with XDS Security Questions
@@ -409,8 +396,7 @@ export class ConfirmCallerDetails extends Component {
 			this.callerInformation.hasDigitalChannels = true;
 			this.logger.log(`error`, `Could not determine if digital channels are available. Defaulting to available.`, `_setAvailabilityFlags`, returnValue.correlationId);
 		}
-		this.callerInformation.isMinorClient = this._checkForMinorClient();
-
+		
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 		this.horizonStore.setCallerInformation(this.callerInformation);
@@ -504,17 +490,6 @@ export class ConfirmCallerDetails extends Component {
 		}
 	}
 	
-	// To check if client is minor.
-	_checkForMinorClient() {
-		const today = new Date();
-		const clientBirthDate = new Date(this.callerInformation.birthdate);
-
-		// Minimum age a client should meet for being a major ( > 16 years). ClientDOB after 'minMajorAge' are considered to be a minor client.
-		const minMajorAge = new Date(today.getFullYear() - 16, today.getMonth(), today.getDate());
-
-		return minMajorAge < clientBirthDate;
-	}
-
 	// ---------
 	// RENDERING
 	// ---------

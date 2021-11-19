@@ -1,8 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { CallHandleService } from 'app/services/CallHandleService';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { Logger } from 'platform/core';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -20,11 +18,7 @@ const RENDER_MODE = Object.freeze({
 });
 
 const HEADER_LABEL = `Security Questions`;
-
 const ERROR_MESSAGE = `Please choose an option`;
-const SYSTEM_ERROR = `System error. Please try again later`;
-
-const MAX_XDS_ATTEMPTS = 2;
 
 /**
  * Verify by Security questions dialog is used to verify the client's identity via Questions to mitigate the risk of fraud.
@@ -58,11 +52,7 @@ export class VerifyBySecurityQuestions extends Component {
 		this.isBusy = false;
 
 		this.logger = Logger.getInstance();
-
-		this.horizonStore = HorizonStore.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
 		this.telemetry = HorizonTelemetry.getInstance();
-
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag());
 	}
 
@@ -75,8 +65,8 @@ export class VerifyBySecurityQuestions extends Component {
 	 * 
 	 * @property {Object} incidentDetails Incident details
 	 * @property {Object} incomingCallDetails Information about the incoming call (incoming number etc.)
-	 * @property {Object} callerInformation Information on the incoming caller (mini-profile)
 	 * @property {Object} securityQuestions The security questions object retrieved from XDS
+	 * @property {Object} finalAttempt Indicates if this is the final round of security questions
 	 * 
 	 * @readonly
 	 * @static
@@ -87,13 +77,14 @@ export class VerifyBySecurityQuestions extends Component {
 		return {
 			incidentDetails: { type: Object },
 			incomingCallDetails: { type: Object },
-			callerInformation: { type: Object },
 			securityQuestions: { type: Object },
+			finalAttempt: { type: Boolean },
 
-			renderMode: { attribute: false },
-			questionNumber: { attribute: false },
-			isBusy: { attribute: false },
-			alertBannerMessage: { attribute: false }
+			renderMode: { state: true },
+			questionNumber: { state: true },
+			isBusy: { state: true },
+			alertBannerMessage: { state: true },
+			verificationResult: { state: true }
 		};
 	}
 
@@ -127,12 +118,7 @@ export class VerifyBySecurityQuestions extends Component {
 			"next-screen": null // Have to determine
 		});
 
-		this.dispatchEvent(new CustomEvent(`cancel`, {
-			detail: {
-				incomingCallDetails: this.incomingCallDetails,
-				callerInformation: this.callerInformation
-			}
-		}));
+		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
 	_skipClick() {
@@ -141,12 +127,7 @@ export class VerifyBySecurityQuestions extends Component {
 			"next-screen": null // Have to determine
 		});
 
-		this.dispatchEvent(new CustomEvent(`skip`, {
-			detail: {
-				incomingCallDetails: this.incomingCallDetails,
-				callerInformation: this.callerInformation
-			}
-		}));
+		this.dispatchEvent(new CustomEvent(`skip`, {}));
 	}
 
 	_continueClick() {
@@ -172,88 +153,40 @@ export class VerifyBySecurityQuestions extends Component {
 				
 		this.telemetry.logEvent(VerifyCallerEvents.XDS_VERIFY_ANSWERS, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
-			"next-screen": null // Have to determine
+			"next-screen": null
 		});
 
 		this.alertBannerMessage = ``;
 		this.checked = false;
-
 		const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, () => true);
+		const result = returnValue.result;
 		
-		if (returnValue.succeeded) {
-			return this._handleAuthenticationResult(returnValue.result);
+		if (!returnValue.succeeded) {
+			this.telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
+				"screen": TelemetryScreen.SECURITY_QUESTIONS,
+				"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE // TODO - this will now change
+			}, true);
+			this.dispatchEvent(new CustomEvent(`service-failure`, {}));
+			return;
 		};
 
-		return this._handleServiceFailure();
-	}
+		this.logger.log(`info`, `verifySecurityQuestions returned: ${JSON.stringify(result)}`, `_verifyClick`);
 
-	_handleAuthenticationResult(result) {
-		this.logger.log(`info`, `verifySecurityQuestions returned: ${JSON.stringify(returnValue.result)}`, _handleAuthenticationResult);
-			
-		if (result === `Authenticated`) {
+		if (result.toLowerCase() === `authenticated`) {
 			this.telemetry.logEvent(VerifyCallerEvents.XDS_SUCCESS, {
 				"screen": TelemetryScreen.SECURITY_QUESTIONS,
 				"next-screen": null // Have to determine
 			}, true);
 
-			this.callerInformation.verificationStatus = `verified`;
-		  this.callerInformation.verificationMethod = `XDS`;      
-			this.dispatchEvent(new CustomEvent(`verified`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
-			return;
-		} 
-		
-		if (result !== `Authenticated` && this.callerInformation.verificationAttempts.xdsAttempts < MAX_XDS_ATTEMPTS) {
-			this.telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
-				"screen": TelemetryScreen.SECURITY_QUESTIONS,
-				"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE
-			}, true);
-
-			this.dispatchEvent(new CustomEvent(`failed`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
-			return;
-		} 
-		
-		this.telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
-			"screen": TelemetryScreen.SECURITY_QUESTIONS,
-			"next-screen": TelemetryScreen.XDS_FAILED
-		}, true);
-
-		this.logger.log(`warn`, `Caller exceeded verification attempts!`, `_verifyClick`);
-
-		this.callerInformation.verificationStatus = `failed`;
-		this.horizonStore.setCallerInformation(this.callerInformation);
-		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-
-		this.horizonRouter.navigateToXdsVerificationFailed();
-	}
-
-	_handleServiceFailure() {
-		if (this.callerInformation.verificationAttempts.xdsAttempts < MAX_XDS_ATTEMPTS) {
-			this.telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
-				"screen": TelemetryScreen.SECURITY_QUESTIONS,
-				"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE
-			}, true);
-
-			// TODO: Look at what we should set verificationStatus to with respect to end call reasons and classification
-
-			this.logger.log(`error`, `Call to verifySecurityQuestions failed. Treating this as a first failure!`, `_verifyClick`);
-
-			this.renderMode = RENDER_MODE.FIRST_FAILURE;
+			this.dispatchEvent(new CustomEvent(`verified`, {}));
 			return;
 		} 
 
 		this.telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
-			"next-screen": TelemetryScreen.XDS_FAILED
+			"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE // TODO - this will now change
 		}, true);
-
-		this.logger.log(`error`, `Call to verifySecurityQuestions failed. Treating this as the final failure.`, `_verifyClick`);
-
-		this.callerInformation.verificationStatus = `failed`;
-
-		this.horizonStore.setCallerInformation(this.callerInformation);
-		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-
-		this.horizonRouter.navigateToXdsVerificationFailed();
+		this.dispatchEvent(new CustomEvent(`failed`, {}));
 	}
 
 	_valueChanged(e) {
@@ -282,7 +215,7 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_cancelEndCall() {
-		this.renderMode = this.callerInformation.verificationAttempts.xdsAttempts === 1 ? RENDER_MODE.FIRST_FAILURE : RENDER_MODE.SECURITY_QUESTIONS;
+		this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
 	}
 
 	// --------------
@@ -519,12 +452,14 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_renderEndCallModal() {
+		const status = finalAttempt ? `Failed` : `InProgress`;
+
 		return html`
 			<horizon-end-call-session
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
-				endCallContext="VerifyClient"
-				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
+				endCallContext='VerifyClient${status}'
+				@cancel="${() => this.renderMode = RENDER_MODE.SECURITY_QUESTIONS}">
 			</horizon-end-call-session>`;
 	}
 
