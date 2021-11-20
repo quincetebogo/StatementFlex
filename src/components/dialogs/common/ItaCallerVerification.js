@@ -3,59 +3,49 @@ import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonSignalRClient } from 'app/shell/HorizonSignalRClient';
 
 
-/**
+/*
 * The Horizon ItaCallerVerification class is used to allow ITA verification logic to be reusable when the client is verified via ITA.
-
+*/
 export class ItaCallerVerification {
 
 	// --------------
 	// INITIALISATION
 	// --------------
 
-	constructor(verificationStatusCallback, toggleBusyCallback, timeout = 70, maxItaAttempts = 3) {
+	/**
+	 * 
+	 * @param {*} verificationStatusCallback 
+	 * @param {*} toggleBusyCallback 
+	 * @param {*} attempt 
+	 * @param {*} maxItaAttempts 
+	 * @param {*} timeout 
+	 */
+	constructor(verificationStatusCallback, toggleBusyCallback, attempt, maxItaAttempts = 3, timeout = 70) {
 
 		// Property initialization
 		this.seconds = timeout;
 		this.verificationStatusCallback = verificationStatusCallback;
+		this.toggleBusyCallback = toggleBusyCallback;
 
-		this.cifNumber = null;
 		this.itaTimer = null;
 		this.maxItaAttempts = maxItaAttempts;
-		this.attempt = 0;
+		this.attempt = attempt;
 
 
 		this.configuration = Configuration.getInstance();
 		this.logger = Logger.getInstance();
 
-		this.callHandleService = new CallHandleService(() => toggleBusyCallback());
+		this.callHandleService = new CallHandleService(() => toggleBusyCallback(), () => true);
 	}
 
-	async initiateItaVerification(cifNumber) {
-	// PROPERTIES
-	// --------------
 	/**
-	 * @property {Object} incomingCallDetails Information on the incoming call
-	 * @property {Object} callerInformation Information (mini-profile) on the incoming caller
-	 * @property {object} incidentDetails Incident details
-		if (cifNumber !== this.cifNumber) {
-			this.attempt = 0;
+	 * 
+	 * @param {*} cifNumber 
+	 * @returns 
+	 */
+	async initiateItaVerification(cifNumber) {
 
-			
-
-
-	}
-	// -------------------
-		this.cifNumber = cifNumber;
-	// -------------------
-	// --------------
-	// EVENT HANDLERS
-	// --------------
-	// --------------
-	// PUBLIC METHODS
-	// --------------
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
+		this.close();
 
 		const signalRUrl = await this.configuration.getSetting(`signalRUrl`);
 
@@ -78,12 +68,18 @@ export class ItaCallerVerification {
 		this.logger.log(`info`, `Initiating ITA verification`, `_initiateItaVerification`);
 		this.horizonSignalRClient = HorizonSignalRClient.getInstance();
 
+		let connectionID;
 
-		const connectionID = await this._initialiseSignalR();
+		try {
+			this.toggleBusyCallback();
+			connectionID = await this._initialiseSignalR();
+		} finally {
+			this.toggleBusyCallback();
+		}
 		
 		let itaNotificationSent = false;
 		if (connectionID) {
-			itaNotificationSent = await this._itaServiceCall(connectionID);
+			itaNotificationSent = await this._itaServiceCall(connectionID, cifNumber);
 		};
 		
 		if (!itaNotificationSent) {
@@ -91,9 +87,18 @@ export class ItaCallerVerification {
 			return false;
 		}
 
+		this.verificationStatusCallback(`started`, attempt);
+
 		return true;
 	}
 
+	/**
+	 * 
+	 * @returns 
+	 */
+	async close() {
+		await this._stopTimer();
+		return this.attempt;
 	}
 
 	async _initialiseSignalR() {
@@ -112,7 +117,7 @@ export class ItaCallerVerification {
 		}
 	}
 
-	async _itaServiceCall(connectionID) {
+	async _itaServiceCall(connectionID, cifNumber) {
 		try {
 			await this.horizonSignalRClient.registerHandler(verificationStatus => this._signalRPostEventAction(verificationStatus));
 		} catch (error) {
@@ -121,22 +126,16 @@ export class ItaCallerVerification {
 		}
 
 		const request = {
-			cifNumber: this.callerInformation.cifNumber,
+			cifNumber: cifNumber,
 			connectionID: connectionID
 		};
 
-		const returnValue = await this.callHandleService.itaVerification(request, (ex) => this._itaErrorHandler(ex));
+		const returnValue = await this.callHandleService.itaVerification(request, () => true);
 
 		if (returnValue.succeeded) {
-			
-
-
-			this.logger.log(`info`, `ITA verification request successfully initiated`, `_itaServiceCall`);
-
 			this.attempt++;
-
+			this.logger.log(`info`, `ITA verification request successfully initiated`, `_itaServiceCall`);
 			this._startTimer();
-
 			return true;
 		} 
 
@@ -154,11 +153,7 @@ export class ItaCallerVerification {
 			this.seconds--;
 
 			if (this.seconds <= 0) {
-				
 				await this._stopTimer();
-				
-
-				// What happens when both ITA & XDS attempts are exaaused
 				this.verificationStatusCallback(`timeout`, this.attempt);
 			}
 		}, 1000);
@@ -175,17 +170,15 @@ export class ItaCallerVerification {
 	};
 	
 	async _signalRPostEventAction(verificationStatus) {
-		this.logger.log(`info`, `ITA verification event received. Status=${verificationStatus}`, `_signalRPostEventAction`);
+		this.logger.log(`info`, `ITA verification event received. Status=${JSON.stringify(verificationStatus)}`, `_signalRPostEventAction`);
 
 		await this._stopTimer();
 
 		if (this._isVerified(verificationStatus)) {
-			this._updateApplicationState(`verified`);
+			this.verificationStatusCallback(`verified`, this.attempt);
+			return;
+		}
 
-				}
-
-
-			// TODO: What happens when both ITA and XDS attemtps are exausted
 		this.verificationStatusCallback(`unverified`, this.attempt);
 	}
 
@@ -216,7 +209,4 @@ export class ItaCallerVerification {
 		}
 		return typeof verificationStatus === `string` && verificationStatus === `true`;
 	}
-	// ---------
-	// RENDERING
-	// ---------
 }
