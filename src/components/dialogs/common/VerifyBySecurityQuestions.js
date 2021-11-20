@@ -393,7 +393,6 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_renderSecurityQuestions(item, index) {
-
 		let answers = this.questions[index].answers;
 		answers = answers.map(answer => ({
 			"key": answer.answerId,

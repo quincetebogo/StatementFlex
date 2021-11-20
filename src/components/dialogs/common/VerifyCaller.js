@@ -136,7 +136,7 @@ export class VerifyCaller extends Component {
 		/*
 		this.hasSouthAfricanID = false;
 		*/
-		this.callerInformation.hasDigitalChannels = false;
+		this.callerInformation.hasDigitalChannels = true;
 
 		if (this.callerInformation.hasDigitalChannels) {
 			return this._initiateItaVerification();
@@ -278,16 +278,19 @@ export class VerifyCaller extends Component {
 	}
 
 	_verifiedViaSecurityQuestions() {
-		this.callerInformation.verificationStatus = `verified`;
-		this.callerInformation.verificationMethod = `XDS`;
-		this.dispatchEvent(new CustomEvent(`verified`, { detail: { callerInformation: this.callerInformation } }));
+		this._updateApplicationState(`verified`, `XDS`);
+		this.dispatchEvent(new CustomEvent(`verified`, { detail: { 
+				incomingCallDetails: this.incomingCallDetails,
+				callerInformation: this.callerInformation 
+		} }));
 	}
 
 	_failedSecurityQuestions() {
 		if (this._xdsAttemptsExceeded()) {
-			this._navigateToXdsVerificationFailed();
+			this._updateApplicationState(`failed`, `unverified`);
+			this.horizonRouter.navigateToXdsVerificationFailed();
 			return;
-		}
+		};
 
 		this.renderMode = RENDER_MODE.VERIFY_CALLER;
 	}
@@ -379,11 +382,6 @@ export class VerifyCaller extends Component {
 		}
 	}
 
-	_navigateToXdsVerificationFailed() {
-		this._updateApplicationState(`failed`, `unverified`);
-		return this.horizonRouter.navigateToXdsVerificationFailed();
-	};
-	
 	async _initiateItaVerification() {
 		const signalRUrl = await this.configuration.getSetting(`signalRUrl`);
 		if (signalRUrl === ``) {
@@ -626,7 +624,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_ItaAvailable() {
-		return this.hasDigitalChannels && !this._xdsAttemptsExceeded();
+		return this.callerInformation.hasDigitalChannels && !this._xdsAttemptsExceeded();
 	}
 
 	_itaInProgress() {
@@ -642,7 +640,6 @@ export class VerifyCaller extends Component {
 		// itaAttempts is 0 based and is incremented on successful initiation of an ITA request
 		return this.itaAttempts >= MAX_ITA_ATTEMPTS;
 	}
-
 
 	// To check if client is minor.
 	_isMinorClient() {

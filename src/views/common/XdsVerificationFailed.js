@@ -82,7 +82,7 @@ export class XdsVerificationFailed extends ViewBase {
 					height: 100%;
 				}
 				#id-error-msg {
-					width: 550px;
+					width: auto;
 				}
 				horizon-error-screen {
 					--horizon-error-screen-size: 889px;
@@ -108,12 +108,12 @@ export class XdsVerificationFailed extends ViewBase {
 			<horizon-error-screen 
 				header="Verification was unsuccessful" 
 				left="Continue Unverified"
-				right="${ this._itaAvailable() ? `Verify Via Banking App` : ``}"
-				toast="Your Verification has failed."
+				right="${this._itaAvailable() ? `Verify Via App/USSD` : ``}"
+				toast="Verification has failed."
 				image="/images/insure/assign-pay-arrears.svg"
 				@left-click=${() => this._continueUnverifiedClick()}
 				@right-click=${() => super._verifyClick()}>
-				<section id="id-error-msg" slot="detail">If it's an urgent matter, please visit a branch or you can call again after 24 hours.</section>
+				<section id="id-error-msg" slot="detail">Please visit a branch to unblock your access. You can continue with limited transactions.</section>
 			</horizon-error-screen>
 		`;
 	}

@@ -48,7 +48,7 @@ export class ProfileAndProductSummaryBar extends Component {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this._telemetry = HorizonTelemetry.instance;
+		this._telemetry = HorizonTelemetry.getInstance();
 
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 
@@ -71,11 +71,11 @@ export class ProfileAndProductSummaryBar extends Component {
 	 */
 	static get properties() {
 		return {
-			miniProfile: { attribute: false },
-			hasFavourites: { attribute: false },
-			subtitle: { attribute: false },
-			detail: { attribute: false },
-			activePageTitle: { attribute: false }
+			miniProfile: { state: true },
+			hasFavourites: { state: true },
+			subtitle: { state: true },
+			detail: { state: true },
+			activePageTitle: { state: true }
 		};
 	}
 
@@ -203,7 +203,7 @@ export class ProfileAndProductSummaryBar extends Component {
 				padding: 0px 0px 0px 0px;
 			}
 			.favourites-button{
-                padding: 0px 0px 0px 0px;
+				padding: 0px 0px 0px 0px;
 				width: var(--horizon-left-panel-width, 440px);
 				margin-top: 16px;
 			}

@@ -208,18 +208,19 @@ export class MiniProfile extends Component {
 					--theme-font-family: "Hind Vadodara Medium";
 				}
 				#id-verify-via-app-msg {
-					font-family: "Hind Vadodara";
+					font-family: "Hind Vadodara SemiBold";
 					font-size: 14px;
 					letter-spacing: 0;
 				}
 				#id-verify-via-app-failed-msg {
-					font-family: "Hind Vadodara";
+					font-family: "Hind Vadodara SemiBold";
 					font-size: 14px;
 					font-weight: 600;
 					letter-spacing: 0;
 				}
 				#verify-via-app-link{
-					--theme-font-family: "Hind Vadodara Medium";
+					--theme-hyperlink-font-size: 14px;
+					--theme-font-family: "Hind Vadodara SemiBold";
 				}
 				capitec-tooltip {
 					display: none;
@@ -365,18 +366,18 @@ export class MiniProfile extends Component {
 			`;
 		} else if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels) {
 			return html`
-			<capitec-alert-banner 
+			<capitec-alert-banner
 					class="banner" 
 					type="unsuccessful-red">
 				<capitec-group 
 						id="id-notify-banner-group" 
 						layout="horizontal">
-					<capitec-label 
+					<capitec-label
 						id="id-verify-via-app-msg" 
-						label="Verification Unsuccessful">
+						label="Verification Failed">
 					</capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-hyperlink 
+					<capitec-hyperlink
 						id="verify-via-app-link" 
 						data-automation-id="mini-profile-verify-app"
 						@click="${() => this._onVerifyNowClick()}"
