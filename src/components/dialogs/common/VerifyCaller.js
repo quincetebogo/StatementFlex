@@ -18,8 +18,7 @@ import 'app/components/Common/ComponentCountdown';
 const RENDER_MODE = Object.freeze({
 	VERIFY_CALLER: 1,
 	SECURITY_QUESTIONS: 2,
-	END_CALL: 3,
-	FOREIGN_CLIENT_ERR: 4
+	END_CALL: 3
 });
 
 const HEADER_LABEL = `Verify Caller`;
@@ -113,6 +112,7 @@ export class VerifyCaller extends Component {
 			itaSystemError: { state: true }, 
 			xdsAttempts: { state: true },
 			itaAttempts: { state: true },
+			timeLeft: { state: true },
 			isBusy: { state: true }
 		};
 	}
@@ -387,6 +387,9 @@ export class VerifyCaller extends Component {
 
 	async _initiateItaVerification() {
 		this.itaSystemError = !await this.itaService.initiateItaVerification(this.callerInformation.cifNumber);
+
+		this.itaSystemError = false;
+		this.itaInProgress = true;
 		
 		if (!this.itaSystemError) {
 			this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
@@ -453,6 +456,10 @@ export class VerifyCaller extends Component {
 		if (this._itaAttemptsExceeded()) {
 			this._navigateToItaVerificationFailed();
 		}
+	}
+
+	_tickCallback(timeLeft) {
+		this.timeLeft = timeLeft;
 	}
 
 	/**
@@ -778,43 +785,45 @@ export class VerifyCaller extends Component {
 		return html`
 			<capitec-content-box id="notification-status-box">
 				<capitec-group
-						layout="vertical"
-						halign="stretch" 
-						valign="top"
-						gap="clear">
-									${this._renderHeaderLabels()}
-									${this._renderCountdown()}
-									${this._renderLabels()}
-					</capitec-group>
-				</capitec-content-box>
-			`;
+					layout="vertical"
+					halign="stretch" 
+					valign="top"
+					gap="clear">
+						${this._renderHeaderLabels()}
+						${this._renderCountdown()}
+						${this._renderLabels()}
+				</capitec-group>
+			</capitec-content-box>`;
 	}
 
 	_renderHeaderLabels() {
-		if (this.seconds < 16 && this.seconds > 0) {
-			return html`
-			<capitec-alert-banner type="warning">
-				<b>Notify client:</b> Your time is about to run out.
-			</capitec-alert-banner>`;
-		} 
-		
-		return html`
-						<capitec-alert-banner type="info">
-				<b>Notify client:</b> A push notification was sent to your phone, you need to accept to continue.
-			</capitec-alert-banner>`;
+		return this.seconds < 16 && this.seconds > 0
+			? html`
+				<capitec-alert-banner type="warning">
+					<b>Notify client:</b> Your time is about to run out.
+				</capitec-alert-banner>`
+			: html`
+				<capitec-alert-banner type="info">
+					<b>Notify client:</b> A push notification was sent to your phone, you need to accept to continue.
+				</capitec-alert-banner>`;
 	}
 
 	_renderCountdown() {
 		return html`
-						<capitec-group layout="vertical"
-									halign="center"
-									valign="top"
-									gap="clear"
-									id="notification-status-group">
-				<horizon-countdown>
+			<capitec-group 
+				layout="vertical"
+				halign="center"
+				valign="top"
+				gap="clear"
+				id="notification-status-group">
+				<horizon-countdown
+					time-limit="${ITA_TIMEOUT_SECS}"
+					warning-threshold="${25}"
+					alert-threshold="${10}"
+					.tickCallback="${(timeLeft) => this._tickCallback(timeLeft)}"
+				>
 				</horizon-countdown>
-			</capitec-group>
-			`;
+			</capitec-group>`;
 	}
 
 	_renderLabels() {
