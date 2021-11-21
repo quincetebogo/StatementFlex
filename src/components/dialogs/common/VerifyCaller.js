@@ -137,11 +137,6 @@ export class VerifyCaller extends Component {
 
 		this.hasSouthAfricanID = isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber);
 
-		/*
-		this.hasSouthAfricanID = false;
-		*/
-		this.callerInformation.hasDigitalChannels = true;
-
 		if (this.callerInformation.hasDigitalChannels) {
 			return this._initiateItaVerification();
 		}
@@ -216,10 +211,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_updateXdsAuthenticationAttempts(securityQuestions) {
-		let authHistory = securityQuestions.authenticationHistory;
-
-		// TODO: remove debug line
-		authHistory = null;
+		const authHistory = securityQuestions.authenticationHistory;
 
 		if (!authHistory) {
 			// Just sending off a request counts as an attempt already
