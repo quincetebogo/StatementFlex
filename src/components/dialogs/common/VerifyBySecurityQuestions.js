@@ -155,7 +155,6 @@ export class VerifyBySecurityQuestions extends Component {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
 			"next-screen": null
 		});
-
 		this.alertBannerMessage = ``;
 		this.checked = false;
 		const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, () => true);
@@ -452,6 +451,7 @@ export class VerifyBySecurityQuestions extends Component {
 
 	_renderEndCallModal() {
 		const status = finalAttempt ? `Failed` : `InProgress`;
+
 
 		return html`
 			<horizon-end-call-session
