@@ -15,6 +15,7 @@ import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyBySecurityQuestions';
 import 'app/components/common/ComponentCountdown';
 import 'app/components/verifyCaller/NotRegisteredForIta';
+import 'app/components/verifyCaller/PushNotificationStatus';
 
 const RENDER_MODE = Object.freeze({
 	VERIFY_CALLER: 1,
@@ -459,7 +460,6 @@ export class VerifyCaller extends Component {
 
 	_tickCallback(timeLeft) {
 		this.timeLeft = timeLeft;
-
 	}
 
 	_itaTimeout() {
@@ -796,80 +796,14 @@ export class VerifyCaller extends Component {
 
 	_renderPushNotificationStatus() {
 		return html`
-			<capitec-content-box id="notification-status-box">
-				<capitec-group
-					layout="vertical"
-					halign="stretch" 
-					valign="top"
-					gap="clear">
-						${this._renderHeaderLabels()}
-						${this._renderCountdown()}
-						${this._renderLabels()}
-				</capitec-group>
-			</capitec-content-box>`;
-	}
-
-	_renderHeaderLabels() {
-		return this.timeLeft < 16 && this.timeLeft > 0
-			? html`
-				<capitec-alert-banner type="warning">
-					<b>Notify client:</b> Your time is about to run out.
-				</capitec-alert-banner>`
-			: html`
-				<capitec-alert-banner type="info">
-					<b>Notify client:</b> A push notification was sent to your phone, you need to accept to continue.
-				</capitec-alert-banner>`;
-	}
-
-	_renderCountdown() {
-		return html`
-			<capitec-group 
-				layout="vertical"
-				halign="center"
-				valign="top"
-				gap="clear"
-				id="notification-status-group">
-				<horizon-countdown
-					time-limit="${ITA_TIMEOUT_SECS}"
-					warning-threshold="${25}"
-					alert-threshold="${10}"
-					.tickCallback="${(timeLeft) => this._tickCallback(timeLeft)}"
-					@time-expired="${() => this._itaTimeout()}">
-				</horizon-countdown>
-			</capitec-group>`;
-	}
-
-	_renderLabels() {
-		if (this.timeLeft < 16 && this.timeLeft > 0) {
-			return html`
-			<capitec-group layout="vertical"
-					halign="center"
-					valign="top"
-					gap="clear"
-					id="notification-status-group">
-				<div class="notification-info">
-					<b>There are <span class="timer-bold">${this.timeLeft} seconds</span> left.</b>
-				</div>
-				<capitec-label type="title" label="You'll need to try again if the timer runs out.">
-				</capitec-label>
-			</capitec-group>`;
-		} 
-
-		return html`
-			<capitec-group layout="vertical"
-					halign="center"
-					valign="top"
-					gap="clear"
-					id="notification-status-group">
-			
-				<div class="notification-info">
-					There are <span class="timer-bold">${this.timeLeft} seconds</span> left.
-				</div>
-				<capitec-label 
-					type="title"
-					label= "Check your verified cellphone to accept.">
-				</capitec-label>
-			</capitec-group>`;
+			<horizon-push-notication-status
+				timeLimit="${ITA_TIMEOUT_SECS}"
+				warningThreshold="${25}"
+				alertThreshold="${10}"
+				timeLeft="${this.timeLeft}"
+				.tickCallback="${(timeleft) => this._tickCallback(timeleft)}"
+				@time-expired="${() => this._itaTimeout()}">
+			</horizon-push-notication-status>`;
 	}
 
 	_renderPushNotificationError() {
