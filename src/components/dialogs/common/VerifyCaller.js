@@ -53,7 +53,6 @@ export class VerifyCaller extends Component {
 
 		// Property initialization
 		this.renderMode = RENDER_MODE.VERIFY_CALLER;
-		this.seconds = ITA_TIMEOUT_SECS;
 		this.isBusy = false;
 
 		this.xdsMessage = ``;
@@ -107,7 +106,6 @@ export class VerifyCaller extends Component {
 			xdsUnavailable: { state: true }, // Set when there has been a system error with XDS
 			itaInProgress: { state: true },
 			itaTimeout: { state: true },
-			seconds: { state: true },
 			itaRejected: { state: true },
 			itaSystemError: { state: true }, 
 			xdsAttempts: { state: true },
@@ -150,10 +148,7 @@ export class VerifyCaller extends Component {
 	}
 
 	disconnectedCallback() {
-		// Cleanup before we leave the dialog
-		this.logger.log(`info`, `Entered disconnectedCallback - cleaning up resources`, `VerifyCaller`);
 		this.itaService.close();
-		super.disconnectedCallback();
 
 		this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
 			"screen": TelemetryScreen.VERIFY_CALLER
@@ -162,6 +157,8 @@ export class VerifyCaller extends Component {
 		this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER, {
 			"screen": TelemetryScreen.VERIFY_CALLER
 		});
+
+		super.disconnectedCallback();
 	}
 
 	// --------------
@@ -275,15 +272,23 @@ export class VerifyCaller extends Component {
 			"next-screen": null // TODO: Determine by need and failed verification counts
 		});
 
-		this._stopSignalRConnection();
-		this._updateApplicationState(`verified`, `XDS`);
+		this._updateApplicationState(`unverified`, `unverified`);
 		this.callerInformation.verificationAttempts.itaAttempts = this.itaFailedCount;
-		this.dispatchEvent(new CustomEvent(`cancel`, { detail: { callerInformation: this.callerInformation } }));
+		this.dispatchEvent(new CustomEvent(`cancel`, { detail: 
+			{ 
+				incomingCallDetails: this.incomingCallDetails,
+				callerInformation: this.callerInformation 
+		} }));
 	
 	}
 
-	_skippedSecurityQuestions(event) {
-		this.dispatchEvent(new CustomEvent(`skip`, { detail: { callerInformation: this.callerInformation } }));
+	_skippedSecurityQuestions() {
+		this._updateApplicationState(`unverified`, `unverified`);
+		this.dispatchEvent(new CustomEvent(`skip`, { detail: 
+			{
+				incomingCallDetails: this.incomingCallDetails,
+				callerInformation: this.callerInformation 
+			} }));
 	}
 
 	_cancelledSecurityQuestions() {
@@ -330,7 +335,6 @@ export class VerifyCaller extends Component {
 		});
 
 		this.xdsMessage = ``;
-		this.seconds = ITA_TIMEOUT_SECS;
 
 		this.itaService.close();
 
@@ -398,7 +402,7 @@ export class VerifyCaller extends Component {
 		}
 	}
 
-	_verificationStatusCallBack(status, attempt) {
+	_verificationStatusCallBack(status) {
 		this.itaRejected = false;
 		this.itaInProgress = false;
 		this.itaTimeout = false;
@@ -413,6 +417,8 @@ export class VerifyCaller extends Component {
 			return;
 		}
 
+		// This should no longer happen as the itaService no longer runs a timer
+		// Kept here in case we can get ITA timout notifications from the back end service
 		if (status === `timeout`) {
 			this.itaTimeout = true;
 	
@@ -460,6 +466,20 @@ export class VerifyCaller extends Component {
 
 	_tickCallback(timeLeft) {
 		this.timeLeft = timeLeft;
+
+	}
+
+	_itaTimeout() {
+		this.itaService.close();
+
+		this.itaRejected = false;
+		this.itaInProgress = false;
+		this.itaTimeout = true;
+		
+		this.telemetry.logEvent(VerifyCallerEvents.ITA_TIMEDOUT, {
+			"screen": TelemetryScreen.VERIFY_CALLER,
+			"next-screen": TelemetryScreen.VERIFY_CALLER
+		}, true);
 	}
 
 	/**
@@ -720,7 +740,7 @@ export class VerifyCaller extends Component {
 	_renderEndCallModal() {
 		let status = ``;
 
-		if (this.seconds > 0 && this.seconds < ITA_TIMEOUT_SECS) {
+		if (this.timeLeft > 0 && this.timeLeft < ITA_TIMEOUT_SECS) {
 			status = `InProgress`;
 		} else if (this.callerInformation.verificationAttempts.itaAttempts > 0) {
 			status = `Failed`;
@@ -797,7 +817,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderHeaderLabels() {
-		return this.seconds < 16 && this.seconds > 0
+		return this.timeLeft < 16 && this.timeLeft > 0
 			? html`
 				<capitec-alert-banner type="warning">
 					<b>Notify client:</b> Your time is about to run out.
@@ -821,13 +841,13 @@ export class VerifyCaller extends Component {
 					warning-threshold="${25}"
 					alert-threshold="${10}"
 					.tickCallback="${(timeLeft) => this._tickCallback(timeLeft)}"
-				>
+					@time-expired="${() => this._itaTimeout()}">
 				</horizon-countdown>
 			</capitec-group>`;
 	}
 
 	_renderLabels() {
-		if (this.seconds < 16 && this.seconds > 0) {
+		if (this.timeLeft < 16 && this.timeLeft > 0) {
 			return html`
 			<capitec-group layout="vertical"
 					halign="center"
@@ -862,14 +882,15 @@ export class VerifyCaller extends Component {
 	_renderPushNotificationError() {
 		let message = ``;
 		let instruction = ``;
+		let bannerType = `error`;
 
 		message = this.itaSystemError ? `The push notification didn't send due to a system error` : message;
-		message = this.itaRejected ? `The client rejected the notification` : message;
-		message = this.itaTimeout ? `The client did not accept the notification in time` : message;
-		message = this._itaAttemptsExceeded() ? `Maximum number of ITA Attempts reached` : message;
+		message = this.itaRejected ? `You rejected the push notification` : message;
+		message = this.itaTimeout ? `You didn't accept the push notification in time.` : message;
 
-		instruction = this.itaSystemError ? `You can try again or choose another option` : instruction;
+		instruction = this.itaSystemError || this.itaTimeout || this.itaRejected ? `You can try again or choose another option` : instruction;
 
+		bannerType = this.itaTimeout || this.itaRejected ? `warning` : bannerType;
 
 		return html`
 			<capitec-content-box id="notification-status-box">
@@ -879,7 +900,7 @@ export class VerifyCaller extends Component {
 					valign="top" 
 					gap="clear">
 					<capitec-alert-banner 
-						type="error">
+						type="${bannerType}">
 						<b>Notify client:</b> ${message} 
 					</capitec-alert-banner>
 					<capitec-group layout="vertical"

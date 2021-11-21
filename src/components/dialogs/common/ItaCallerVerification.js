@@ -14,23 +14,16 @@ export class ItaCallerVerification {
 
 	/**
 	 * 
-	 * @param {*} verificationStatusCallback 
-	 * @param {*} toggleBusyCallback 
-	 * @param {*} attempt 
-	 * @param {*} maxItaAttempts 
-	 * @param {*} timeout 
+	 * @param {*} verificationStatusCallback  A function for returning the verification status
+	 * @param {*} toggleBusyCallback A function for toggling a busy status
 	 */
-	constructor(verificationStatusCallback, toggleBusyCallback, attempt, maxItaAttempts = 3, timeout = 70) {
+	constructor(verificationStatusCallback, toggleBusyCallback) {
+
+		this.mockResponses = false;
 
 		// Property initialization
-		this.seconds = timeout;
 		this.verificationStatusCallback = verificationStatusCallback;
 		this.toggleBusyCallback = toggleBusyCallback;
-
-		this.itaTimer = null;
-		this.maxItaAttempts = maxItaAttempts;
-		this.attempt = attempt;
-
 
 		this.configuration = Configuration.getInstance();
 		this.logger = Logger.getInstance();
@@ -39,11 +32,28 @@ export class ItaCallerVerification {
 	}
 
 	/**
+	 * Initiates the ITA verification process. ITA responses will be returned via the callback
+	 * passed in the constructor
 	 * 
-	 * @param {*} cifNumber 
-	 * @returns 
+	 * @param {*} cifNumber  the client's CIF number
+	 * @returns { Promise<Boolean> } true if the ITA process could be successfully initiated
 	 */
 	async initiateItaVerification(cifNumber) {
+
+		if (this.mockResponses) {
+			this.toggleBusyCallback();
+			setTimeout(() => {
+				this.verificationStatusCallback(`rejected`);
+			}, 20000);
+
+			await this._sleep(2000);
+
+			this.toggleBusyCallback();
+
+			this.verificationStatusCallback(`started`);
+
+			return true;
+		}
 
 		this.close();
 
@@ -54,16 +64,10 @@ export class ItaCallerVerification {
 			return false;
 		}
 
-		if (this.attempt > this.maxItaAttempts) {
-			this.logger.log(`error`, `Cannot initiate ITA - maximum number of attempts exceeded`, `_initiateItaVerification`);
-			return false;
-		}
-
 		if (this.horizonSignalRClient) {
 			this.logger.log(`warn`, `ITA connection is already started, a new connection will not be started`, `_initiateItaVerification`);
 			return false;
 		}
-
 
 		this.logger.log(`info`, `Initiating ITA verification`, `_initiateItaVerification`);
 		this.horizonSignalRClient = HorizonSignalRClient.getInstance();
@@ -87,20 +91,23 @@ export class ItaCallerVerification {
 			return false;
 		}
 
-		this.verificationStatusCallback(`started`, attempt);
+		this.verificationStatusCallback(`started`);
 
 		return true;
 	}
 
 	/**
+	 * Closes the connection to the ITA service 
 	 * 
-	 * @returns 
+	 * @returns { Promise<void> } A promise for the completion of cleanup
 	 */
 	async close() {
-		await this._stopTimer();
-		return this.attempt;
+		await this._cleanupSignalRConnection();
 	}
 
+	// ===============
+	// PRIVATE METHODS
+	// ===============
 	async _initialiseSignalR() {
 		try {
 			await this.horizonSignalRClient.startConnection();
@@ -133,9 +140,7 @@ export class ItaCallerVerification {
 		const returnValue = await this.callHandleService.itaVerification(request, () => true);
 
 		if (returnValue.succeeded) {
-			this.attempt++;
 			this.logger.log(`info`, `ITA verification request successfully initiated`, `_itaServiceCall`);
-			this._startTimer();
 			return true;
 		} 
 
@@ -143,43 +148,17 @@ export class ItaCallerVerification {
 		return false;
 	}
 	
-	_startTimer() {
-		if (this.itaTimer) {
-			this.logger.log(`warn`, `Attempted to start ITA Timer before the previous timer has been stopped`, `_startTimer`);
-			return this.itaTimer;
-		}
-
-		this.itaTimer = setInterval(async () => {
-			this.seconds--;
-
-			if (this.seconds <= 0) {
-				await this._stopTimer();
-				this.verificationStatusCallback(`timeout`, this.attempt);
-			}
-		}, 1000);
-	}
-
-	async _stopTimer() {
-		await this._cleanupSignalRConnection();
-
-		if (this.itaTimer) {
-			clearInterval(this.itaTimer);
-			this.itaTimer = null;
-			this.logger.log(`info`, `ITA timer stopped`, `VerifyCaller`);
-		}
-	};
-	
 	async _signalRPostEventAction(verificationStatus) {
 		this.logger.log(`info`, `ITA verification event received. Status=${JSON.stringify(verificationStatus)}`, `_signalRPostEventAction`);
 
-		await this._stopTimer();
+		await this.close();
 
 		if (this._isVerified(verificationStatus)) {
-			this.verificationStatusCallback(`verified`, this.attempt);
+			this.verificationStatusCallback(`verified`);
 			return;
 		}
 
-		this.verificationStatusCallback(`unverified`, this.attempt);
+		this.verificationStatusCallback(`unverified`);
 	}
 
 	async _cleanupSignalRConnection() {
@@ -208,5 +187,9 @@ export class ItaCallerVerification {
 			return true;
 		}
 		return typeof verificationStatus === `string` && verificationStatus === `true`;
+	}
+
+	_sleep(ms) {
+		return new Promise(resolve => setTimeout(resolve, ms));
 	}
 }
