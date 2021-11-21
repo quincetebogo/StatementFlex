@@ -13,7 +13,8 @@ import 'app/components/common/OptionButton';
 import 'app/components/common/CallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyBySecurityQuestions';
-import 'app/components/Common/ComponentCountdown';
+import 'app/components/common/ComponentCountdown';
+import 'app/components/verifyCaller/NotRegisteredForIta';
 
 const RENDER_MODE = Object.freeze({
 	VERIFY_CALLER: 1,
@@ -968,26 +969,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderNotRegisteredForITA() {
-		return html`
-			<capitec-content-box id="notification-status-box">
-				<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
-					<capitec-alert-banner type="warning">
-						<b>Notify: </b>This client isn't registered for Remote Banking.
-					</capitec-alert-banner>
-					<capitec-group layout="vertical" 
-						halign="center"
-						valign="top" 
-						gap="clear"
-						id="notification-status-error-group">
-						<img src="/images/connection-error.svg" class="remote-connection-warning-svg"/>
-						<div class="no-remote-access-client notification-info">
-							<b>Notify client</b><br>
-							We need to ask you 5 security questions before accessing your account.<br>
-							Your answers will be checked by a third-party or credit bureau. Are you comfortable to continue?
-						</div>
-					</capitec-group>
-				</capitec-group>
-			</capitec-content-box>`;
+		return html`<horizon-not-registered-for-ita></horizon-not-registered-for-ita>`;
 	}
 
 	_renderClientBlockedByXds() {
