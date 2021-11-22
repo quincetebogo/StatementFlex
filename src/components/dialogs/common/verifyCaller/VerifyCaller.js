@@ -4,7 +4,7 @@ import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { ItaCallerVerification } from 'app/components/dialogs/common/ItaCallerVerification';
+import { ItaCallerVerification } from 'app/services/ItaCallerVerification';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { VerifyCallerEvents } from 'app/constants/telemetry/events/VerifyCaller';
 import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
