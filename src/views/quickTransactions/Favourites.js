@@ -554,7 +554,7 @@ export class Favourites extends SavingsAccountBase {
 		});
 
 		await super.createAndClassifySubsIncident();
-		
+
 		this.endCallContext = `SearchOtherNeed`;
 		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
 		await this.getCategories();
@@ -706,7 +706,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderProofOfAccount()}
 			${this._renderFeedback()}
 			${this._renderUpdateIncidentModal()}
-			${this._renderTaxCertificate()}
+   		${this._renderTaxCertificate()}
 
 
 			${super._webTemplate()}
@@ -762,6 +762,9 @@ export class Favourites extends SavingsAccountBase {
 					.cifNumber="${this.callerInformation.cifNumber}"
 					.voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
 					.getCardLimitsAgreement ="${renderRequest => this._getCardLimitsAgreement(renderRequest)}"
+					.incomingCallDetails="${this.incomingCallDetails}"
+					.incidentDetails="${this.incidentDetails}"
+					.callerInformation="${this.callerInformation}"
 
 					.updatePermanentLimits ="${renderRequest => this._updatePermanentLimits(renderRequest)}"
 					.updateTemporaryLimits ="${renderRequest => this._updateTemporaryLimits(renderRequest)}"

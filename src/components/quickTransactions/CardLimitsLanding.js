@@ -8,6 +8,7 @@ import 'app/components/common/HorizonExpander';
 import 'app/components/common/CardArt';
 import 'app/components/dialogs/quickTransactions/UpdateCardLimits';
 import 'app/components/dialogs/common/DiscardChanges';
+import 'app/components/dialogs/common/VerifyCaller';
 import 'app/components/dialogs/common/ConfirmSelection';
 import 'app/components/common/MultiLineLabel';
 
@@ -65,6 +66,7 @@ export class CardLimitsLanding extends Component {
 		this.showUpdateLimitsModal = false;
 		this.showDiscardChangesModal = false;
 		this.showConfirmSelectionModal = false;
+		this.showVerifyCallerModal = false;
 
 		this.primaryCards = [];
 		this.supplementaryCards = [];
@@ -127,6 +129,9 @@ export class CardLimitsLanding extends Component {
 	/**
 	 *
 	 * @property {Object} cards Object contains the list of client's card
+	 * @property {Object} incomingCallDetails Information on the incoming call
+	 * @property {object} incidentDetails Incident details
+	 * @property {Object} callerInformation Information (mini-profile) on the incoming caller
 	 * @property {String} cifNumber The client's account/cifNumber
 	 * @property {String} voiceRecordingReference The Avaya/Presence Voice Recording ID
 	 * @property {getCardLimitsAgreementsCallback} getCardLimitsAgreement Callback function to load limits agreements for displaying
@@ -134,7 +139,7 @@ export class CardLimitsLanding extends Component {
 	 * @property {getTemporaryLimitsCallback} getTemporaryLimits Callback function to get temporary limits
 	 * @property {updatePermanentLimitsCallback} updatePermanentLimits Callback function to update permanent limits & agreements
 	 * @property {updateTemporaryLimitsCallback} updateTemporaryLimits Callback function to update temporary limits & agreements
-	 *
+	 * 
 	 * @readonly
 	 * @static
 	 * @memberof CardLimitsLanding
@@ -144,6 +149,9 @@ export class CardLimitsLanding extends Component {
 			cards: { type: Object },
 			cifNumber: { type: String },
 			voiceRecordingReference: { type: String },
+			incomingCallDetails: { type: Object },
+			callerInformation: { type: Object },
+			incidentDetails: { type: Object },
 
 			getCardLimitsAgreement: { type: Object, attribute: false },
 			getPermanentLimits: { type: Object, attribute: false },
@@ -156,7 +164,8 @@ export class CardLimitsLanding extends Component {
 			renderMode: { attribute: false },
 			showUpdateLimitsModal: { attribute: false },
 			showConfirmSelectionModal: { attribute: false },
-			showDiscardChangesModal: { attribute: false }
+			showDiscardChangesModal: { attribute: false },
+			showVerifyCallerModal: { attribute: false }
 		};
 	}
 
@@ -333,6 +342,17 @@ export class CardLimitsLanding extends Component {
 		return request;
 	}
 
+	_verificationCancelled() {
+		this.showVerifyCallerModal = !this.showVerifyCallerModal;
+		this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
+	}
+
+	_clientVerified(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -455,6 +475,11 @@ export class CardLimitsLanding extends Component {
 
 	_result(success, limitDetails, failureReason) {
 		this.dispatchEvent(new CustomEvent(`result`, { detail: { success: success, limitDetails: limitDetails, failureReason: failureReason } }));
+	}
+
+	_verifyNowClick() {
+		this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
+		this.showVerifyCallerModal = !this.showVerifyCallerModal;
 	}
 
 	// ---------
@@ -645,6 +670,7 @@ export class CardLimitsLanding extends Component {
 			${this._renderUpdateLimitsModal()}
 			${this._renderDiscardChangesModal()}
 			${this._renderConfirmSelectionModal()}
+			${this._renderVerifyCallerModal()}
 		`;
 	}
 
@@ -962,11 +988,14 @@ export class CardLimitsLanding extends Component {
 		return this.showUpdateLimitsModal
 			? html`
 				<horizon-update-card-limits
+					.incomingCallDetails="${this.incomingCallDetails}"
+					.callerInformation="${this.callerInformation}"
 					.cardDetails="${this._cardDetails}"
 					.limitType="${this._limitType}"
 					.getTemporaryLimits="${(request) => this._getTemporaryLimits(request)}"
 					.updateType="${this._updateType}"
 					.getCardLimitsAgreement="${(card, newLimits, tapToPayStatus) => this._getLimitsAgreement(card, newLimits, tapToPayStatus)}"
+					@verify-now="${() => this._verifyNowClick()}"
 					@cancel="${() => this._cancelUpdateLimits()}"
 					@accepted="${(event) => this._updateLimitsAgreement(event)}">
 				</horizon-update-card-limits>`
@@ -994,6 +1023,20 @@ export class CardLimitsLanding extends Component {
 
 		return html``;
 	}
+
+	_renderVerifyCallerModal() {
+		return this.showVerifyCallerModal
+			? html`
+				<horizon-verify-caller 
+					.incomingCallDetails="${this.incomingCallDetails}"
+					.incidentDetails="${this.incidentDetails}"
+					.callerInformation="${this.callerInformation}"
+					@cancel="${(e) => this._verificationCancelled(e)}"
+					@verified="${(e) => this._clientVerified(e)}">
+				</horizon-verify-caller>`
+			: html``;
+	}
+
 }
 
 customElements.define(`horizon-card-limits-landing`, CardLimitsLanding);

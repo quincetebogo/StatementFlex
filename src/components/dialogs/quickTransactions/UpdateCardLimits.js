@@ -86,6 +86,7 @@ export class UpdateCardLimits extends Component {
 		this.limitsAgreementExpanded = true;
 		this.tapToPayAgreementExpanded = false;
 		this.alertBannerText = ``;
+		this.warningAlertBannerText = ``;
 		this.cardLimits = {};
 		this._tapToPayStatus = false;
 		this.cardToDisplay = ``;
@@ -131,12 +132,14 @@ export class UpdateCardLimits extends Component {
 			updateType: { type: String },
 			getAgreement: { type: String },
 			displayCard: { type: String },
+			callerInformation: { type: Object },
 			getCardLimitsAgreement: { type: Object, attribute: false },
 
 			limitLabel: { type: String },
 			limitsAgreementExpanded: { type: Boolean },
 			tapToPayAgreementExpanded: { type: Boolean },
 			alertBannerText: { type: String },
+			warningAlertBannerText: { type: String },
 
 			renderMode: { type: Boolean, attribute: false },
 			isBusy: { type: Boolean, attribute: false },
@@ -354,6 +357,14 @@ export class UpdateCardLimits extends Component {
 		return this.fieldFocused === id ? value : parseInt(value, 10).toFixed(2);  
 	}
 
+	_verifyClick() {
+		if (!this.callerInformation.hasDigitalChannels) {
+			this.warningAlertBannerText = `For added security, get the App to update your Online limit, alternatively visit your nearest branch`;
+		} else {
+			this.dispatchEvent(new CustomEvent(`verify-now`, {}));
+		}
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -562,7 +573,7 @@ export class UpdateCardLimits extends Component {
 				height: 661px;
 
 				--theme-container-padding-left: 16px;
-				--theme-container-padding-top: 16px;
+				--theme-container-padding-top: 14px;
 				--theme-container-padding-right: 16px;
 				--theme-container-padding-bottom: 0px;
 			}
@@ -572,6 +583,12 @@ export class UpdateCardLimits extends Component {
 				--theme-alert-banner-icon-margin-left: 16px;
 				--theme-alert-banner-icon-margin-right: 8px;
 				margin: 16px 16px 0px 16px;
+			}
+			capitec-alert-banner[type="warning"] {
+				--theme-alert-banner-height: 48px;
+				--theme-alert-banner-icon-margin-left: 16px;
+				--theme-alert-banner-icon-margin-right: 8px;
+				margin: 0px 0px 14px 0px;
 			}
 			.agreements-banner {
 				margin: 0px 0px 16px 0px;
@@ -593,7 +610,7 @@ export class UpdateCardLimits extends Component {
 			}
 			.limits-cb {
 				--theme-container-padding-left: 16px;
-				--theme-container-padding-top: 16px;
+				--theme-container-padding-top: 14px;
 				--theme-container-padding-right: 0px;
 				--theme-container-padding-bottom: 0px;
 				--theme-layout-gap-spacing: 8px;
@@ -798,6 +815,7 @@ export class UpdateCardLimits extends Component {
 
 					<capitec-content-box class="main-cb">
 						${this._renderAgreementsAlertBanner()}
+						${this._renderVerificationMethodAlert()}
 						${this._renderSetLimits()}
 						${this._renderAgreement()}
 					</capitec-content-box>
@@ -809,6 +827,26 @@ export class UpdateCardLimits extends Component {
 			</capitec-modal>
 			${this._renderLoadingIndicator()}
 		`;
+	}
+
+	_renderVerificationMethodAlert() {
+		if (this.callerInformation.verificationMethod === `XDS` && this.warningAlertBannerText === ``) {
+			return html`
+				<capitec-alert-banner type="warning">
+					<strong>Notify Client:</strong> For added security, we will be sendng a push notification to access additional transactions.
+
+					<capitec-hyperlink label="Verify Now" @click="${() => this._verifyClick()}">
+					</capitec-hyperlink>
+				</capitec-alert-banner>
+			`;
+		}
+
+		return this.warningAlertBannerText 
+		? html`
+			<capitec-alert-banner type="warning">
+					<strong>Notify Client:</strong> ${this.warningAlertBannerText}
+				</capitec-alert-banner>`
+		: html``;
 	}
 
 	_renderLimitsAlertBanner() {
@@ -985,6 +1023,7 @@ export class UpdateCardLimits extends Component {
 				value="${this._getTextFieldValue(cnpAmountLimit, limits.cnpAmountLimit)}"
 				error="${this._getFieldError(this.error[transactionType][cnpAmountLimit]) || this.tempError[cnpAmountLimit]}"
 				hint="${this.limitType === `Temporary` ? this.expiryDate : ``}"
+				?disabled=${this.callerInformation.verificationMethod === `XDS`}
 				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD}"
 				@blur="${() => this.fieldFocused = ``}"
 				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"
