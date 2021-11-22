@@ -15,7 +15,7 @@ export class ViewInfoDebiCheck extends Component {
 	constructor() {
 		super();
 		this.debiCheckDetails = {};
-		this.isPending = ``;
+		this.isPending = false;
 	}
 
 	// ----------
@@ -237,10 +237,10 @@ export class ViewInfoDebiCheck extends Component {
 	_renderError() {
 		return this.isPending
 			? html`
-			<capitec-alert-banner
-			type="warning">
-			<p><b>Notify client:</b> The DebiCheck can only be approved/declined by contacting the bank you selected for this payment</p>
-			</capitec-alert-banner>`
+				<capitec-alert-banner
+					type="warning">
+					<p><b>Notify client:</b> The DebiCheck can only be approved/declined by contacting the bank you selected for this payment</p>
+				</capitec-alert-banner>`
 			: html``;
 	}
 

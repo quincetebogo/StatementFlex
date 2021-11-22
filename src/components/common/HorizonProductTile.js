@@ -91,6 +91,7 @@ export class HorizonProductTile extends Component {
 		// Prevent the event from bubbling up.
 		event.stopPropagation();
 	}
+
 	/**
 	 * Handles component key down events.
 	 * 
@@ -406,7 +407,7 @@ export class HorizonProductTile extends Component {
 				}
 
 				.radio-container.checked:hover > #content {
-					background-color: var(--theme-radio-checked-background-color, #0096DA);					
+					background-color: var(--theme-radio-checked-background-color, #0096DA);
 				}
 				/* DISABLED STATE STYLES */
 
@@ -443,7 +444,7 @@ export class HorizonProductTile extends Component {
 		return html`
 			<button 
 				class="tile ${this.type ? this.type : `transact`}${this.selected ? ` selected` : ``}"
-				@click="${(e)=> this._tileClicked(e)}}"
+				@click="${(e) => this._tileClicked(e)}}"
 				@keydown="${e => this._keyDown(e)}"
 				tabindex="${this.disabled ? `` : 0}">
 					<div class="tile-container">
@@ -470,7 +471,7 @@ export class HorizonProductTile extends Component {
 					${this.selected ? html`<div class="indicator"></div>` : ``}
 				</div>
 			</div>
-		`
+		`;
 	}
 
 	_renderProduct() {        

@@ -62,7 +62,7 @@ export class FavouriteTransactions extends Component {
 	// -------------------
 
 	connectedCallback() {
-		super.connectedCallback();		
+		super.connectedCallback();
 		
 		if (this.verificationStatus === `verified` && this.displayVerificationStatusToast) {
 			this.displayVerificationStatusToast = false;
@@ -339,8 +339,9 @@ export class FavouriteTransactions extends Component {
 			</capitec-alert-banner>`
 		: html``;
 	}
+
 	_renderTransactSection() {
-		const pendingMandates = (this.landingPageInfo && this.landingPageInfo.pendingMandateCount) || ``;
+		const pendingMandates = this.landingPageInfo?.pendingMandateCount ?? ``;
 		return html`
 				<capitec-title-bar
 					class="transact-title"

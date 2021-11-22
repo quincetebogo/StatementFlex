@@ -389,7 +389,7 @@ export class HorizonChannelService extends Service {
 				'ivrOptionCode': clientInfo.ivrOption,
 				'incidentReferenceNumber': clientInfo.incidentNo,
 				'agentTelephoneNumber': clientInfo.agentTelephoneNumber,
-				'searchType':{
+				'searchType': {
 					'identificationMethod': parseInt(clientInfo.identificationMethod, 10),
 					'value': clientInfo.searchValue
 				}
