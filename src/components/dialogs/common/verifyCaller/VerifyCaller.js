@@ -12,7 +12,7 @@ import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import 'app/components/common/OptionButton';
 import 'app/components/common/CallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
-import 'app/components/dialogs/common/VerifyBySecurityQuestions';
+import 'app/components/dialogs/common/verifyCaller/VerifyBySecurityQuestions';
 import 'app/components/common/ComponentCountdown';
 import 'app/components/verifyCaller/NotRegisteredForIta';
 import 'app/components/verifyCaller/PushNotificationStatus';
