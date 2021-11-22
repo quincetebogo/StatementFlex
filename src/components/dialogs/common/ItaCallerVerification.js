@@ -40,11 +40,17 @@ export class ItaCallerVerification {
 	 */
 	async initiateItaVerification(cifNumber) {
 
+		this.mockResponses = false;
+		this.mockFailure = false;
+		
 		if (this.mockResponses) {
 			this.toggleBusyCallback();
-			setTimeout(() => {
-				this.verificationStatusCallback(`rejected`);
-			}, 20000);
+
+			if (this.mockFailure) {
+				setTimeout(() => {
+					this.verificationStatusCallback(`rejected`);
+				}, 20000);
+			}
 
 			await this._sleep(2000);
 

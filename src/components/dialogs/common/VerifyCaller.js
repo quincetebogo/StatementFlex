@@ -16,6 +16,7 @@ import 'app/components/dialogs/common/VerifyBySecurityQuestions';
 import 'app/components/common/ComponentCountdown';
 import 'app/components/verifyCaller/NotRegisteredForIta';
 import 'app/components/verifyCaller/PushNotificationStatus';
+import 'app/components/verifyCaller/PushNotificationError';
 
 const RENDER_MODE = Object.freeze({
 	VERIFY_CALLER: 1,
@@ -138,6 +139,8 @@ export class VerifyCaller extends Component {
 		this.itaAttempts = this.callerInformation.verificationAttempts.itaAttempts;
 
 		this.hasSouthAfricanID = isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber);
+
+		this.callerInformation.hasDigitalChannels = true;
 
 		if (this.callerInformation.hasDigitalChannels) {
 			return this._initiateItaVerification();
@@ -384,10 +387,8 @@ export class VerifyCaller extends Component {
 	}
 
 	async _initiateItaVerification() {
+		this.itaInProgress = false;
 		this.itaSystemError = !await this.itaService.initiateItaVerification(this.callerInformation.cifNumber);
-
-		this.itaSystemError = false;
-		this.itaInProgress = true;
 		
 		if (!this.itaSystemError) {
 			this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
@@ -807,42 +808,13 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderPushNotificationError() {
-		let message = ``;
-		let instruction = ``;
-		let bannerType = `error`;
-
-		message = this.itaSystemError ? `The push notification didn't send due to a system error` : message;
-		message = this.itaRejected ? `You rejected the push notification` : message;
-		message = this.itaTimeout ? `You didn't accept the push notification in time.` : message;
-
-		instruction = this.itaSystemError || this.itaTimeout || this.itaRejected ? `You can try again or choose another option` : instruction;
-
-		bannerType = this.itaTimeout || this.itaRejected ? `warning` : bannerType;
-
 		return html`
-			<capitec-content-box id="notification-status-box">
-				<capitec-group 
-					layout="vertical" 
-					halign="stretch" 
-					valign="top" 
-					gap="clear">
-					<capitec-alert-banner 
-						type="${bannerType}">
-						<b>Notify client:</b> ${message} 
-					</capitec-alert-banner>
-					<capitec-group layout="vertical"
-						halign="center"
-						valign="top"
-						gap="clear"
-						id="notification-status-group">
-						<img src="/images/common/ita-timeout.svg" class="ita-timeout-svg"/>
-						<capitec-label 
-							type="title"
-							label="${instruction}">
-						</capitec-label>
-					</capitec-group>
-				</capitec-group>
-			</capitec-content-box>`;
+			<horizon-push-notication-error
+				?itaTimeout="${this.itaTimeout}"
+				?itaRejected="${this.itaRejected}"
+				?itaSystemError="${this.itaSystemError}">
+			</horizon-push-notication-error>
+		`;
 	}
 
 	_renderXdsOneAttemptLeft() {
