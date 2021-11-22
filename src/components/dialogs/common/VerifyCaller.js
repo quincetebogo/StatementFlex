@@ -17,6 +17,7 @@ import 'app/components/common/ComponentCountdown';
 import 'app/components/verifyCaller/NotRegisteredForIta';
 import 'app/components/verifyCaller/PushNotificationStatus';
 import 'app/components/verifyCaller/PushNotificationError';
+import 'app/components/verifyCaller/VerificationUnavailable';
 
 const RENDER_MODE = Object.freeze({
 	VERIFY_CALLER: 1,
@@ -124,7 +125,6 @@ export class VerifyCaller extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.logger.log(`info`, `Entered connectedCallback`, `VerifyCaller`);
 		this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER);
 
 		// Set up ITA & XDS attempts if structure does not exist yet
@@ -139,8 +139,6 @@ export class VerifyCaller extends Component {
 		this.itaAttempts = this.callerInformation.verificationAttempts.itaAttempts;
 
 		this.hasSouthAfricanID = isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber);
-
-		this.callerInformation.hasDigitalChannels = true;
 
 		if (this.callerInformation.hasDigitalChannels) {
 			return this._initiateItaVerification();
@@ -817,6 +815,10 @@ export class VerifyCaller extends Component {
 		`;
 	}
 
+	_renderNotRegisteredForITA() {
+		return html`<horizon-not-registered-for-ita></horizon-not-registered-for-ita>`;
+	}
+
 	_renderXdsOneAttemptLeft() {
 		return html`
 			<capitec-content-box id="notification-status-box">
@@ -874,10 +876,6 @@ export class VerifyCaller extends Component {
 			</capitec-content-box>`;
 	}
 
-	_renderNotRegisteredForITA() {
-		return html`<horizon-not-registered-for-ita></horizon-not-registered-for-ita>`;
-	}
-
 	_renderClientBlockedByXds() {
 		const message = this.callerInformation.hasDigitalChannels && !this._xdsAttemptsExceeded()
 			? `You can skip to continue with limited transactions, verify via the App / USSD or be transferred to a team leader`
@@ -929,25 +927,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderVerificationUnavailable() {
-		return html`
-			<capitec-content-box id="notification-status-box">
-				<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
-					<capitec-alert-banner type="error">
-						<b>Notify client : </b>We’re unable to verify you at this time.
-					</capitec-alert-banner>
-					<capitec-group layout="vertical" 
-						halign="center"
-						valign="top" 
-						gap="clear"
-						id="notification-status-error-group">
-						<img src="/images/foreign-minorClientError.svg" class="warning-svg connection-error-svg"/>
-						<div class="foreign-client notification-info">
-						<b>Foreign / minor client</b><br>
-						Skip verification to continue with limited transactions or transfer the call to a team leader
-						</div>
-					</capitec-group>
-				</capitec-group>
-			</capitec-content-box>`;
+		return html`<horizon-verification-unavailable></horizon-verification-unavailable>`;
 	}
 
 	_renderOtherOptions() {
