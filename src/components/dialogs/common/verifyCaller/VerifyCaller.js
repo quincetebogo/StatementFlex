@@ -20,6 +20,7 @@ import 'app/components/dialogs/common/verifyCaller/PushNotificationStatus';
 import 'app/components/dialogs/common/verifyCaller/PushNotificationError';
 import 'app/components/dialogs/common/verifyCaller/VerificationUnavailable';
 import 'app/components/dialogs/common/verifyCaller/XdsAttemptFailed';
+import 'app/components/dialogs/common/verifyCaller/XdsUnavailable';
 
 const RENDER_MODE = Object.freeze({
 	VERIFY_CALLER: 1,
@@ -61,7 +62,6 @@ export class VerifyCaller extends Component {
 		this.renderMode = RENDER_MODE.VERIFY_CALLER;
 		this.isBusy = false;
 
-		this.xdsMessage = ``;
 		this.xdsUnavailable = false;
 
 		this.itaInProgress = false;
@@ -106,7 +106,6 @@ export class VerifyCaller extends Component {
 			incidentDetails: { type: Object },
 
 			renderMode: { state: true },
-			xdsMessage: { state: true }, // Set when there has been a system error with XDS
 			hasSouthAfricanID: { state: true },
 			xdsUnavailable: { state: true }, // Set when there has been a system error with XDS
 			itaInProgress: { state: true },
@@ -173,8 +172,6 @@ export class VerifyCaller extends Component {
 			"next-screen": TelemetryScreen.SECURITY_QUESTIONS
 		});
 
-		this.xdsMessage = ``;
-
 		// Stop any pending ITA attempt
 		this.itaService.close();
 		this.itaSystemError = false;
@@ -183,14 +180,17 @@ export class VerifyCaller extends Component {
 
 		const returnValue = await this.callHandleService.xdsQuestions(this.callerInformation.southAfricanIDNumber, () => true);
 
+		// TODO: remove following debug line
+		// returnValue.succeeded = false;
+
 		if (returnValue.succeeded) {
 			return this._handleSecurityQuestions(returnValue.result);
 		} 
 
-		// If we are unable to retreive security questions
-		if (returnValue.exception.status === 404 || returnValue.exception.status === 500 || returnValue.exception.status === 424) {
-			this.xdsUnavailable = true;
-		}
+		// If we are unable to retreive security questions. It doesn't matter why at present.
+		// We can't verify the client via XDS
+		// this.xdsAttempts = MAX_XDS_ATTEMPTS;
+		this.xdsUnavailable = true;
 	}
 
 	_handleSecurityQuestions(securityQuestions) {
@@ -212,9 +212,13 @@ export class VerifyCaller extends Component {
 			return;
 		};
 		
+		// There is something wrong with the response packet from XDS. Try to extract and log the error.
+		// XDS will be flagged as unavailable to the client for this session.
 		this.xdsAttempts = MAX_XDS_ATTEMPTS;
-		this.xdsMessage = securityQuestions.errorMessage ? securityQuestions.errorMessage : `System Issue: Unable to obtain security questions`;
-		this.logger.log(`error`, `XDS ERROR: ${$this.xdsMessage}`, `_securityQuestionsClick`);
+		this.xdsUnavailable = true;
+
+		const xdsMessage = securityQuestions.errorMessage ? securityQuestions.errorMessage : `System Issue: Unable to obtain security questions`;
+		this.logger.log(`error`, `XDS ERROR: ${xdsMessage}`, `_securityQuestionsClick`);
 	}
 
 	_updateXdsAuthenticationAttempts(securityQuestions) {
@@ -335,8 +339,6 @@ export class VerifyCaller extends Component {
 			"screen": TelemetryScreen.VERIFY_CALLER,
 			"next-screen": TelemetryScreen.VERIFY_CALLER
 		});
-
-		this.xdsMessage = ``;
 
 		this.itaService.close();
 
@@ -507,15 +509,20 @@ export class VerifyCaller extends Component {
 	 */
 	_canVerify() {
 		const canVerifyViaITA = this.callerInformation.hasDigitalChannels && !this._itaAttemptsExceeded();
-		const canVerifyViaXDS = this.hasSouthAfricanID && !this._xdsAttemptsExceeded();
 
-		return canVerifyViaITA || canVerifyViaXDS;
+		return canVerifyViaITA || this._canVerifyViaXds();
+	}
+
+	_canVerifyViaXds() {
+		return this.hasSouthAfricanID && !this._xdsAttemptsExceeded() && !this.xdsUnavailable;
 	}
 
 	_canOnlyVerifyByXds() {
 		return this.hasSouthAfricanID && // Need an SA ID to be able to use XDS
 			!this.callerInformation.hasDigitalChannels && // App/USSD is not an option
-			this.xdsAttempts === 0; // We have not tried to verify yet
+			this.xdsAttempts === 0 && // We have not tried to verify yet
+			!this.xdsUnavailable;
+			
 	}
 
 	_failedFirstXdsAttempt() {
@@ -561,8 +568,9 @@ export class VerifyCaller extends Component {
 	}
 		
 	_foreignOrMinorClient() {
-		return (!this.hasSouthAfricanID || this._isMinorClient) && // This client may be foreign or a minor
+		return (!this.hasSouthAfricanID || this._isMinorClient()) && // This client may be foreign or a minor
 			this.xdsAttempts === 0 && // No XDS attempts have been made yet
+			!this.xdsUnavailable &&
 			!this.callerInformation.hasDigitalChannels; // The client does not have the app
 	}
 	// ---------
@@ -576,72 +584,6 @@ export class VerifyCaller extends Component {
 				div[slot="body"]{
 					width: 100%;
 					height: 494px;
-				}
-				#notification-status-box {
-					--theme-container-padding-top: 18px;
-					--theme-container-padding-right: 17px;
-					--theme-container-padding-bottom: 12px;
-					--theme-container-padding-left: 16px;
-					--theme-container-margin-bottom: 0px;
-					height: auto;
-				}
-				#notification-status-box > capitec-group {
-					--theme-layout-gap-spacing: 16px;
-				}
-				#notification-status-box > capitec-group > capitec-alert-banner {
-					--theme-alert-banner-height: 48px;
-					--theme-alert-banner-info-border: none;
-				}
-				#notification-status-box > capitec-group > capitec-alert-banner[type="error"] {
-					--theme-alert-banner-icon-margin-left: 15px;
-					--theme-alert-banner-icon-margin-right: 15px;
-					--theme-alert-banner-unsuccessful-red-border: none;
-					--theme-alert-banner-margin-bottom: 0px;
-				}
-				#notification-status-group > capitec-label {
-					line-height: 24px;
-					margin: 0;
-					margin-bottom: 30px;
-
-					--theme-label-title-font-size: 15px;
-				}
-				#notification-status-error-group > capitec-label {
-					line-height: 24px;
-					margin: 0;
-					margin-bottom: 26px;
-
-					--theme-label-title-font-size: 15px;
-				}
-				.sms-svg{
-					height: 152px;
-					width: 210px;
-					margin: 15px 0px 12px 0px;
-				}
-				.connection-error-svg {
-					height: 152px;
-					width: 210px;
-					margin: 18px 0px 13px 0px;
-				}
-				.ita-timeout-svg {
-					height: 152px;
-					width: 210px;
-					margin: 18px 0px 20px 0px;
-				}
-				.notification-info {
-					color: #545D60;
-					font-family: "Hind Vadodara";
-					text-align: center;
-					font-size: 15px;
-					font-weight: 500;
-					letter-spacing: 0;
-					line-height: 24px;
-					margin-bottom: 10px;
-				}
-				.failed-client {
-					margin-bottom: 29px;
-				}
-				.timer-bold {
-					font-weight: 700;
 				}
 				capitec-title-bar {
 					--theme-titlebar-min-height: 32px;
@@ -672,17 +614,8 @@ export class VerifyCaller extends Component {
 					pointer-events:none;
 					filter: grayscale(100%);
 				}
-
 				horizon-caller-dialog {
 					--horizon-modal-footer-padding: 0px;
-				}
-				.foreign-client {
-					margin-bottom: 29px;
-					text-align: center;
-				}
-				.no-remote-access-client {
-					margin-bottom: 18px;
-					text-align: center;
 				}
 			`
 		];
@@ -781,29 +714,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderSecurityQuestionsUnavailable(canPush) {
-		return html`
-			<capitec-content-box id="notification-status-box">
-				<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
-					<capitec-alert-banner type="error">
-						<b>Notify client: </b>A system error has occured..
-					</capitec-alert-banner>
-					<capitec-group layout="vertical" 
-						halign="center"
-						valign="top" 
-						gap="clear"
-						id="notification-status-error-group">
-						<img src="/images/errorBlocks.svg" class="warning-svg connection-error-svg"/>
-						<div class="notification-info failed-client">
-							<b>Security questions are currently unavailable.</b> <br>
-							${canPush
-								? `Skip verification to continue with limited transactions or verify via the App/USSD.`
-								: `Skip verification to continue with limited trasactions`
-							}
-							${this.unavailableText}
-						</div>
-					</capitec-group>
-				</capitec-group>
-			</capitec-content-box>`;
+		return html`<horizon-xds-unavailable ?canPush="${canPush}"></horizon-xds-unavailable>`;
 	}
 
 	_renderVerificationUnavailable() {
@@ -845,7 +756,7 @@ export class VerifyCaller extends Component {
 						label="Security Questions" 
 						icon="system/knowledge-action"
 						iconSize="default"
-						?hidden=${!this.hasSouthAfricanID || this._xdsAttemptsExceeded() || !this._canVerify || this.callerInformation.isMinorClient}
+						?hidden=${!this._canVerifyViaXds() || this._foreignOrMinorClient()}
 						@click="${() => this._securityQuestionsClick()}">
 					</horizon-option-button>
 					<horizon-option-button 
