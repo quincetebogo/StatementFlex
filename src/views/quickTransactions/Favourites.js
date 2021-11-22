@@ -559,6 +559,7 @@ export class Favourites extends SavingsAccountBase {
 
 		await super.createAndClassifySubsIncident();
 		
+		this.endCallContext = `SearchOtherNeed`;
 		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
 		await this.getCategories();
 	}
@@ -597,6 +598,7 @@ export class Favourites extends SavingsAccountBase {
 			return true;
 		}
 
+		this.endCallContext = `LandingPage`;
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -708,7 +710,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderProofOfAccount()}
 			${this._renderFeedback()}
 			${this._renderUpdateIncidentModal()}
-   		${this._renderTaxCertificate()}
+			${this._renderTaxCertificate()}
 
 
 			${super._webTemplate()}
@@ -732,6 +734,7 @@ export class Favourites extends SavingsAccountBase {
 						.landingPageInfo="${this.landingPageInfo}"
 						.verificationStatus="${this.callerInformation.verificationStatus}"
 						.verificationMethod="${this.callerInformation.verificationMethod}"
+						.hasDigitalChannels="${this.callerInformation.hasDigitalChannels}"
 						?displayVerificationStatusToast="${this._shouldToastDisplay()}"
 						.shouldDisable="${need => this._shouldDisable(need)}"
 						@verify-click="${() => super._verifyClick()}"

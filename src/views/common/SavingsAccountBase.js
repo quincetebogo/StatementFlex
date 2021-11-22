@@ -103,6 +103,7 @@ export class SavingsAccountBase extends ViewBase {
 			// eslint-disable-next-line no-extra-parens
 			this.debiCheckMandates = (returnValue.result && returnValue.result.mandateSummaryList) || [];
 
+			this.endCallContext = `DebiCheck`;
 			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 		} else {
 			this.logger.log(`error`, `Unable to load debi check mandates`, `_debiCheck`, returnValue.correlationId);
@@ -379,11 +380,13 @@ export class SavingsAccountBase extends ViewBase {
 		 */
 		 await super.classifyIncident(() => this._toggleBusyFlag());
 
+		 this.endCallContext = `LandingPage`;
 		 this._setIncidentDone();
 		 this._telemetryEndSpan(eventName, screenName);
 	}
 
 	_shouldDisable(need) {
+		//add this verification method in the verify caller component to check if the client has done ita 
 		const verificationMethod = this.callerInformation.verificationMethod;
 		const verificationStatus = this.callerInformation.verificationStatus;
 
@@ -476,7 +479,6 @@ export class SavingsAccountBase extends ViewBase {
 					.mandateInfo="${this.mandateInfo}"
 					.debiCheckDetails=${this.debiCheckDetails}
 					.clientDetails=${this.clientDetails}
-					.accountNumber = "${this.accountNumber}"
 					@cancel="${() => this._cancelMandateAction(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE_CANCECL, TelemetryScreen.APPROVE_DEBICHECK)}"
 					@approve="${(event) => this._approveDebiCheckMandate(event)}">
 				</horizon-approve-debicheck-mandate>`

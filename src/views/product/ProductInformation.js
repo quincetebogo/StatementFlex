@@ -55,6 +55,7 @@ export class ProductInformation extends ViewBase {
 
 		this.navigationContext = NavigationContext.getInstance();
 		this.configuration = Configuration.getInstance();
+		this.endCallContext = `ProductEnquiry`;
 	}
 
 	// ----------
@@ -85,6 +86,13 @@ export class ProductInformation extends ViewBase {
 		this.navSub.dispose();
 
 		super.disconnectedCallback();
+
+		// Rule: When unloading any of the product info screen, if the current active incident is not completed/ closed
+		// which means we haven't started it, so manually setting it to Not strated status
+		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED && this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.CLOSED) {
+			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
+			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		}
 	}
 
 	// ---------

@@ -1,10 +1,8 @@
 import { Component, css, html } from 'platform/elements';
-import { convertCentsToRand, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { getMonthName } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/DiscardChanges';
 
@@ -31,20 +29,10 @@ export class ApproveDebiCheckMandate extends Component {
 	constructor() {
 		super();
 		this.mandateId = ``; // mandateInfo.mandateReference
-		this.referenceNumber = ``; // mandateInfo.contractReference
-		this.fullName = ``;
-		this.installmentAmount = 0; // mandateSummaryList.amount
-		this.firstCollectionDate = new Date(); // mandateInfo.firstCollectionDate  .substring(0, 10);
-		this.collectionDateFrequency = ``; // mandateSummaryList.collectionDate.frequency
-		this.accountNumber = ``;
-		this.shortName = ``;
-		this.today = new Date().toISOString().substr(0, 10);
-		this.emailAddress = ``;
 		this.alertType = `info`;
 		this.approve = false;
 		this.showDiscardChangesModal = false;
 		this._telemetry = HorizonTelemetry.instance;
-		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	// ----------
@@ -62,29 +50,16 @@ export class ApproveDebiCheckMandate extends Component {
 		return {
 			mandateInfo: { type: Object },
 			debiCheckDetails: { type: Object },
-			showDiscardChangesModal: { type: Boolean, attribute: false },
-			accountNumber: { type: Number },
-			clientDetails: { type: Object }
+			clientDetails: { type: Object },
+			showDiscardChangesModal: { state: true }
 		};
 	}
 
 
 	_initialise() {
-
 		this._clearAll();
 
 		this.mandateReference = this.debiCheckDetails.mandateReference;
-		this.referenceNumber = this.debiCheckDetails.contractReference;
-		const callerInformation = this.horizonStore.getCallerInformation();
-
-		this.fullName = this.titleCase(callerInformation.name);
-
-		this.shortName = this.clientDetails.accountShortName;
-		this.emailAddress = this.clientDetails.emailAddress;
-		this.installmentAmount = formatCurrency(convertCentsToRand(this.mandateInfo.amount));
-		this.firstCollectionDate = isNullorEmpty(this.debiCheckDetails) ? new Date() : new Date(this.debiCheckDetails.firstCollectionDate).toISOString().substr(0, 10);
-		this.collectionDateFrequency = this.mandateInfo.collectionDayFrequency;
-		this.today = new Date().toISOString().substr(0, 10);
 		this.agreementText = this.clientDetails.data.data;
 	}
 
@@ -121,7 +96,7 @@ export class ApproveDebiCheckMandate extends Component {
 		if (!this.showDiscardChangesModal) {
 			this._clearAll();
 			this.dispatchEvent(new CustomEvent(`cancel`));
-		}       
+		}
 	}
 
 	_cancelDiscardModal() {
@@ -215,7 +190,7 @@ export class ApproveDebiCheckMandate extends Component {
 					--theme-modal-header-background-color: #F7F7F7;
 					--theme-modal-header-padding-top: 20px;
 					--theme-modal-header-padding-bottom: 20px;
-					--theme-modal-footer-padding: 8px 16px 8px 0px;                    
+					--theme-modal-footer-padding: 8px 16px 8px 0px;
 				}
 
 				.main-cb {
@@ -307,7 +282,7 @@ export class ApproveDebiCheckMandate extends Component {
 					color: #3A3A3A;
 					font-family: "Hind Vadodara";
 					font-size: 16px;
-					border-top: 1px solid #E1E1E1;            
+					border-top: 1px solid #E1E1E1;
 				}
 				.agreement-content > ol {
 					margin: 0px;
@@ -379,7 +354,7 @@ export class ApproveDebiCheckMandate extends Component {
 				<capitec-group layout="horizontal"  valign="top" gap="none" class="alert-banner">
 					<capitec-label
 					label="Notify client: "
-					type="default">                    
+					type="default">
 					</capitec-label>
 					${this._checkWarning() ? WARNING_MESSAGE : MESSAGE}
 				</capitec-group>
@@ -466,14 +441,14 @@ export class ApproveDebiCheckMandate extends Component {
 			<capitec-content-box  
 			data-automation-id="debi-check-agreement-declaration"
 			class="declaration-content">
-			<div id="declare"></div>                   
+			<div id="declare"></div>
 				<capitec-card>
 					<capitec-check
 						label="Please confirm that you agree to these terms and conditions and that you are bound by them?"
 						@value-change="${(e) => this._toggleAgreementsAccept(e)}">
 					</capitec-check>
 				</capitec-card>
-			</capitec-content-box>            
+			</capitec-content-box>
 		`;
 	}
    

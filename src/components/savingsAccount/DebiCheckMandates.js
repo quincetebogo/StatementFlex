@@ -7,11 +7,11 @@ const FILTER_BY = {
 	ALL: 0,
 	PENDING: 1,
 	ACTIVE: 2,
-    INACTIVE: 3
+	INACTIVE: 3
 };
 
 const MANDATE_STATUS = {
-    //ACTIVE, INACTIVE, SUSPENDED, PENDING, ALL
+	// ACTIVE, INACTIVE, SUSPENDED, PENDING, ALL
 	ACTIVE: `Accepted`,
 	INACTIVE: `Expired`,
 	PENDING: `Pending`,
@@ -42,8 +42,8 @@ export class DebiCheckMandates extends Component {
 		this.pendingMandates = [];
 		this.activeMandates = [];
 		this.inActiveMandates = [];
-        this.filterBy = 0;
-        this.noMandatesError = `No DebiCheck mandates on the account`;
+		this.filterBy = 0;
+		this.noMandatesError = `No DebiCheck mandates on the account`;
 	}
 
 	// --------------
@@ -60,7 +60,7 @@ export class DebiCheckMandates extends Component {
 	 */
 	static get properties() {
 		return {
-			debiCheckMandates: { type: Array },			
+			debiCheckMandates: { type: Array },
 			filterBy: { attribute: false }
 		};
 	}
@@ -104,12 +104,12 @@ export class DebiCheckMandates extends Component {
 			return true;
 		}
 
-        const searchText = event.detail.new && event.detail.new.toLowerCase();
-        if (!searchText) {
-            this.noMandatesError = `No DebiCheck mandates on the account`;
+		const searchText = event.detail.new && event.detail.new.toLowerCase();
+		if (!searchText) {
+			this.noMandatesError = `No DebiCheck mandates on the account`;
 			this._initialise();
-        } else {
-            this.noMandatesError = `No results found`;
+		} else {
+			this.noMandatesError = `No results found`;
 			this.pendingMandates = this._lookForSearchText(MANDATE_STATUS.PENDING, searchText);
 			this.activeMandates = this._lookForSearchText(MANDATE_STATUS.ACTIVE, searchText);
 			this.inActiveMandates = this._lookForSearchText(MANDATE_STATUS.INACTIVE, searchText);
@@ -130,8 +130,8 @@ export class DebiCheckMandates extends Component {
 	}
 
 	_initialise() {
-        this.pendingMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.PENDING);
-        this.pendingMandates.sort(function (a, b) { return b.canBeAuthenticated - a.canBeAuthenticated });
+		this.pendingMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.PENDING);
+		this.pendingMandates.sort((a, b) => b.canBeAuthenticated - a.canBeAuthenticated);
 		this.activeMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.ACTIVE);
 		this.inActiveMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.INACTIVE);
 	}
@@ -148,7 +148,7 @@ export class DebiCheckMandates extends Component {
 	}
 
 	_viewInfo(mandateInfo, isPending) {
-        this.dispatchEvent(new CustomEvent(`action`, { detail: { "action": `viewInfo`, mandateInfo: mandateInfo, isPending: isPending } }));
+		this.dispatchEvent(new CustomEvent(`action`, { detail: { "action": `viewInfo`, mandateInfo: mandateInfo, isPending: isPending } }));
 	}
 
 	_decline(mandateInfo) {
@@ -164,26 +164,19 @@ export class DebiCheckMandates extends Component {
 	_hasMandatesToDisplay() {
 		let flag = false;
 
-        if (this.filterBy === FILTER_BY.ALL && (this.pendingMandates.length > 0 || this.activeMandates.length > 0 || this.inActiveMandates.length > 0)) {
-            flag = !flag;
+		if (this.filterBy === FILTER_BY.ALL && (this.pendingMandates.length > 0 || this.activeMandates.length > 0 || this.inActiveMandates.length > 0)) {
+			flag = !flag;
 		} else if (this.filterBy === FILTER_BY.PENDING && this.pendingMandates.length > 0) {
-            flag = !flag;
+			flag = !flag;
 		} else if (this.filterBy === FILTER_BY.ACTIVE && this.activeMandates.length > 0) {
-            flag = !flag;
+			flag = !flag;
 		} else if (this.filterBy === FILTER_BY.INACTIVE && this.inActiveMandates.length > 0) {
-            flag = !flag;
+			flag = !flag;
 		} else {
 			// do nothing
 		}
 
 		return flag;
-	}
-
-	_convertCentsToRand() {
-		this.debiCheckMandates.forEach(item => {
-			item.amount = convertCentsToRand(item.amount);
-			item.maxCollectionAmount = convertCentsToRand(item.maxCollectionAmount);
-		});
 	}
 
 	// ---------
@@ -504,13 +497,13 @@ export class DebiCheckMandates extends Component {
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width185).toString()}">
 					${this._renderCell(`Max collection amount`, formatCurrency(convertCentsToRand(rowData.maxCollectionAmount)))}
 				</div>
-                <div style="${unsafeCSS(TABLE_ROW_CSS.width185).toString()}">
+				<div style="${unsafeCSS(TABLE_ROW_CSS.width185).toString()}">
 					${this._renderCell(`Collection day`, rowData.collectionDayFrequency)}
 				</div>
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width128).toString()}">
 					${this._renderCell(`Status`, MANDATE_STATUS[rowData.mandateStatus])}
 				</div>
-                <capitec-group layout="horizontal" gap="clear" halign="right" valign="center" style="width: 250px;">
+				<capitec-group layout="horizontal" gap="clear" halign="right" valign="center" style="width: 250px;">
 					${this._renderButtons(rowData.mandateStatus, rowData)}
 				</capitec-group>
 				<div></div>
@@ -538,10 +531,10 @@ export class DebiCheckMandates extends Component {
 		`;
 	}
 
-    _renderButtons(status, rowData) {
-        if (status === 'PENDING') {
-            return rowData.canBeAuthenticated
-                ? html`<capitec-label type="subtitle"
+	_renderButtons(status, rowData) {
+		if (status === `PENDING`) {
+			return rowData.canBeAuthenticated
+				? html`<capitec-label type="subtitle"
 									label="Decline"
 									style="${TABLE_ROW_CELL_CSS.cellButton}"
 									@click="${() => this._decline(rowData)}">
@@ -551,19 +544,19 @@ export class DebiCheckMandates extends Component {
 									style="${TABLE_ROW_CELL_CSS.cellButton}"
 									@click="${() => this._approve(rowData)}">
 					 </capitec-label>
-                     <capitec-label type="subtitle"
-	    				label="View"
+					 <capitec-label type="subtitle"
+						label="View"
 						style="${TABLE_ROW_CELL_CSS.cellButton}"
 						@click="${() => this._viewInfo(rowData, false)}">
 					 </capitec-label>`
-                : html`<capitec-label type="subtitle"
-	    				label="View"
+				: html`<capitec-label type="subtitle"
+						label="View"
 						style="${TABLE_ROW_CELL_CSS.cellButton}"
 						@click="${() => this._viewInfo(rowData, true)}">
 					 </capitec-label>`;
-        }
-        return html`<capitec-label type="subtitle"
-	    				label="View"
+		}
+		return html`<capitec-label type="subtitle"
+						label="View"
 						style="${TABLE_ROW_CELL_CSS.cellButton}"
 						@click="${() => this._viewInfo(rowData, false)}">
 					 </capitec-label>`;
@@ -571,9 +564,9 @@ export class DebiCheckMandates extends Component {
 
 	_renderNoResults() {
 		
-        if (this._hasMandatesToDisplay()) {
-            return html``;
-        }
+		if (this._hasMandatesToDisplay()) {
+			return html``;
+		}
 
 		return html`
 			<capitec-group

@@ -1,12 +1,13 @@
 import { EventAggregator, Logger } from 'platform/core';
 import { View, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
+import { EXCEPTIONAL_ENDCALL_CONTEXTS } from 'app/constants/EndCallReasons';
+import { HORIZON_NEED_STATUS } from 'app/constants/IncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
-import { HORIZON_NEED_STATUS } from 'app/constants/IncidentManager';
 import { LandingPageEvents } from 'app/constants/telemetry/events/LandingPage';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 
@@ -144,7 +145,9 @@ export class ViewBase extends View {
 	_endCallClick() {
 		this._telemetry.logEvent(LandingPageEvents.END_CALL, {});
 		this.showEndCall = !this.showEndCall;
-		this.endCallContext = this.incidentDetails.needStatus === HORIZON_NEED_STATUS.INPROGRESS ? `QuickTransactionsInProgress` : this.endCallContext;
+		this.endCallContext = this.incidentDetails.needStatus === HORIZON_NEED_STATUS.INPROGRESS && !EXCEPTIONAL_ENDCALL_CONTEXTS.includes(this.endCallContext)
+								? `QuickTransactionsInProgress`
+								: this.endCallContext;
 	}
 
 	_cancelEndCallClick() {

@@ -19,6 +19,9 @@
  const PRODUCT_ENQUIRY = 9;
  const ABANDONED_VERIFICATION = 10;
 
+ let UNCOMMON_REASONS = {};
+ let PRODUCT_ENQUIRY_REASONS = {};
+
 export const END_CALL_REASON = Object.freeze({
 	
 	NEED_FULFILLED: NEED_FULFILLED,
@@ -126,7 +129,6 @@ export const END_CALL_REASON = Object.freeze({
 			mapping: `telephony-disconnected`
 		}
 	],
-
 	LandingPage: {
 		"unverified": [
 			{
@@ -192,7 +194,7 @@ export const END_CALL_REASON = Object.freeze({
 				mapping: `telephony-disconnected`
 			}
 		],
-		"non-client": [
+		"non-client": PRODUCT_ENQUIRY_REASONS = [
 			{
 				key: NEED_FULFILLED,
 				value: `Need fulfilled`,
@@ -262,7 +264,7 @@ export const END_CALL_REASON = Object.freeze({
 			}
 		]
 	},
-	TransactionHistory: [
+	TransactionHistory: UNCOMMON_REASONS = [
 		{
 			key: NEED_FULFILLED,
 			value: `Need fulfilled`,
@@ -296,9 +298,9 @@ export const END_CALL_REASON = Object.freeze({
 	],
 	QuickTransactionSuccess: [
 		{
-			key: NEED_INCOMPLETE,
-			value: `Need incomplete - bad connection`,
-			mapping: `telephony-disconnected`
+			key: NEED_FULFILLED,
+			value: `Need fulfilled`,
+			mapping: `general-product-enquiry`
 		},
 		{
 			key: NEED_ASSIGNED,
@@ -314,6 +316,16 @@ export const END_CALL_REASON = Object.freeze({
 			key: CALL_TRANSFERED,
 			value: `Call transferred`,
 			mapping: `call-transfer`
+		},
+		{
+			key: NEED_INCOMPLETE,
+			value: `Need incomplete - bad connection`,
+			mapping: `telephony-disconnected`
+		},
+		{
+			key: FOLLOW_UP,
+			value: `Follow up required`,
+			mapping: ``
 		}
 	],
 	QuickTransactionsUnSuccess: [
@@ -369,7 +381,10 @@ export const END_CALL_REASON = Object.freeze({
 			value: `Follow up required`,
 			mapping: ``
 		}
-	]
+	],
+	DebiCheck: UNCOMMON_REASONS,
+	SearchOtherNeed: UNCOMMON_REASONS,
+	ProductEnquiry: PRODUCT_ENQUIRY_REASONS
 });
 
 /**
@@ -379,7 +394,8 @@ export const END_CALL_REASON = Object.freeze({
  * @enum {Object} CALL_TRANSFERED_CLASSIFICATION
  */
 export const CALL_TRANSFERED_CLASSIFICATION = Object.freeze({
-	category: `Telephony`
+	category: `Telephony`,
+	subcategory: `Transfer`
 });
 
 /**
@@ -395,3 +411,16 @@ export const RECOGNIZE_NEED_REASONS = Object.freeze([
 	END_CALL_REASON.PRODUCT_ENQUIRY,
 	END_CALL_REASON.CALL_TRANSFERED
 ]);
+
+/**
+ * Exceptional end call contexts that do not fall under Incident inprogress logic
+ * 
+ * @readonly
+ * @enum {Object} EXCEPTIONAL_ENDCALL_CONTEXTS
+ */
+ export const EXCEPTIONAL_ENDCALL_CONTEXTS = Object.freeze([
+	 `TransactionHistory`,
+	 `DebiCheck`,
+	 `SearchOtherNeed`,
+	 `ProductEnquiry`
+ ]);

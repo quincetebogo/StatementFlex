@@ -51,7 +51,7 @@ export class FavouriteTransactions extends Component {
 			verificationMethod: { type: String },
 			displayVerificationStatusToast: { type: Boolean },
 			shouldDisable: { type: Object },
-
+			hasDigitalChannels: { type: Boolean },
 			isBusy: { attribute: false },
 			displayToast: { attribute: false }
 		};
@@ -62,8 +62,8 @@ export class FavouriteTransactions extends Component {
 	// -------------------
 
 	connectedCallback() {
-		super.connectedCallback();
-
+		super.connectedCallback();		
+		
 		if (this.verificationStatus === `verified` && this.displayVerificationStatusToast) {
 			this.displayVerificationStatusToast = false;
 			this.displayToast = true;
@@ -236,7 +236,8 @@ export class FavouriteTransactions extends Component {
 				return html`
 					${this._renderUnverifiedAlertBanner()}
 					${this._renderFailedVerificationAlertBanner()}
-					${this._renderHighRiskTransAlertBanner()}
+					${this._renderHighRiskTransAlertBanner()} 
+					${this._renderNoDigitalHighRiskTransAlertBanner()} 
 					${this._renderTransactSection()}
 					${this._renderCardsSection()}
 					${this._renderDocumentsSections()}
@@ -298,7 +299,7 @@ export class FavouriteTransactions extends Component {
 	}
 
 	_renderHighRiskTransAlertBanner() {
-		return this.verificationStatus === `verified` && this.verificationMethod === `XDS`
+		return this.hasDigitalChannels && this.verificationStatus === `verified` && this.verificationMethod === `XDS`
 			? html`
 				<capitec-alert-banner
 					class="banner"
@@ -307,7 +308,7 @@ export class FavouriteTransactions extends Component {
 						<capitec-group id="id-notify-banner-group" layout="horizontal">
 							<capitec-label type="strong" label="Notify client:"></capitec-label>
 							<capitec-label type="default"
-								label="You can only do high risk transaction on your accout when you verify digitally. Do you want to verify using your phone?">
+								label="For added security, we will be sending a push notification to access additional transactions.">
 							</capitec-label>
 							<capitec-spacer></capitec-spacer>
 							<capitec-hyperlink
@@ -320,6 +321,23 @@ export class FavouriteTransactions extends Component {
 			: html``;
 	}
 
+	_renderNoDigitalHighRiskTransAlertBanner() {
+		return !this.hasDigitalChannels && this.verificationStatus === `verified` && this.verificationMethod === `XDS`
+		? html`
+			<capitec-alert-banner
+				class="banner"
+				data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
+				type="warning">
+					<capitec-group id="id-notify-banner-group" layout="horizontal">
+						<capitec-label type="strong" label="Notify client:"></capitec-label>
+						<capitec-label type="default"
+							label="For added security get the remote banking App to perform additional transactions, alternatively, visit your nearest branch.">
+						</capitec-label>
+						<capitec-spacer></capitec-spacer>
+					</capitec-group>
+			</capitec-alert-banner>`
+		: html``;
+	}
 	_renderTransactSection() {
 		const pendingMandates = (this.landingPageInfo && this.landingPageInfo.pendingMandateCount) || ``;
 		return html`
