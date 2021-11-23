@@ -181,17 +181,26 @@ export class VerifyCaller extends Component {
 
 		const returnValue = await this.callHandleService.xdsQuestions(this.callerInformation.southAfricanIDNumber, () => true);
 
-		// TODO: remove following debug line
-		// returnValue.succeeded = false;
-
-		if (returnValue.succeeded) {
-			return this._handleSecurityQuestions(returnValue.result);
+		if (!returnValue.succeeded) {
+			// If we are unable to retreive security questions. It doesn't matter why at present.
+			// We can't verify the client via XDS
+			// this.xdsAttempts = MAX_XDS_ATTEMPTS;
+			this.xdsUnavailable = true;
+			return;
 		} 
 
-		// If we are unable to retreive security questions. It doesn't matter why at present.
-		// We can't verify the client via XDS
-		// this.xdsAttempts = MAX_XDS_ATTEMPTS;
-		this.xdsUnavailable = true;
+		const result = returnValue.result;
+
+		if (result?.errorCode) {
+			if (result.errorMessage) {
+				this.xdsAttempts = MAX_XDS_ATTEMPTS; 
+				this.xdsUnavailable = true;
+				this.logger.log(`warn`, `${result?.errorCode}: ${result.errorMessage}`, `_securityQuestionsClick`);
+			}
+			return;
+		}
+
+		return this._handleSecurityQuestions(result);
 	}
 
 	_handleSecurityQuestions(securityQuestions) {
