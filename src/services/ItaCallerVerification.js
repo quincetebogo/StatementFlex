@@ -44,7 +44,7 @@ export class ItaCallerVerification {
 		// The _mockingEnabled function will automatically disable mocking in SDLC environments
 		if (await this._mockEnabled(`itaVerification`)) {
 			const callTime = 800;
-			const successTime = callTime + 5000;
+			const successTime = callTime + 20000;
 
 			this.toggleBusyCallback();
 	

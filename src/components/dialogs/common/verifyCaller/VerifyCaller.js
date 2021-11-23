@@ -666,7 +666,7 @@ export class VerifyCaller extends Component {
 			return this._renderVerificationUnavailable();
 		}
 
-		if (this.xdsUnavailable) {
+		if (this.xdsUnavailable && !this.itaInProgress) {
 			return this._renderSecurityQuestionsUnavailable(this._ItaAvailable());
 		}
 

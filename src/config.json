@@ -89,11 +89,11 @@
 		},
 		"xdsQuestions": {
 			"enabled": true,
-			"substituteIdOnly": "",
+			"substituteIdOnly": "6712075142087",
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
