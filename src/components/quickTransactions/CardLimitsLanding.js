@@ -212,9 +212,9 @@ export class CardLimitsLanding extends Component {
 			tapToPayStatusChange: tapToPayStatus
 		};
 		if (this._limitType === LIMIT_TYPES.PERMANENT) {
-			request.cardDetails.tempCashAmountLimit = 0;
-			request.cardDetails.tempCnpAmountLimit = 0;
-			request.cardDetails.tempPurchaseAmountLimit = 0;
+			request.cardDetails.tempCashAmountLimit = null;
+			request.cardDetails.tempCnpAmountLimit = null;
+			request.cardDetails.tempPurchaseAmountLimit = null;
 		}
 		const result = await this.getCardLimitsAgreement(request);
 		
@@ -239,7 +239,7 @@ export class CardLimitsLanding extends Component {
 					cardSequenceNumber: cardDetails.cardSequenceNumber
 				},
 				tapToPayStatus: event.detail.tapToPayStatus ? `ON` : `OFF`,
-				customerId: this.cifNumber,
+                customerId: this.cifNumber,
 				voiceRecordingReference: this.voiceRecordingReference,
 				screenRecordingReference: ``,
 				agreementAccepted: event.detail.agreementAccepted,
@@ -303,7 +303,7 @@ export class CardLimitsLanding extends Component {
 				cardDetails: {
 					cardId: cardDetails.linkedCardLimits && this._updateType === `Debit` ? cardDetails.linkedCardId : cardDetails.cardId,
 					accountId: cardDetails.primarySavingsAccountId || cardDetails.primaryCreditAccountId,
-					customerId: this.cifNumber,
+                    customerId: this.cifNumber,
 					cardExpiryYear: cardDetails.cardExpiryYear,
 					cardExpiryMonth: cardDetails.cardExpiryMonth,
 					cardSequenceNumber: cardDetails.cardSequenceNumber
@@ -563,7 +563,7 @@ export class CardLimitsLanding extends Component {
                 
 				horizon-expander{
                     margin: 16px;
-                    width: 1032px;
+                    width: 1030px;
 					height: auto;
 					animation-timing-function: linear;
 					--horizon-expander-header-padding-left: 23px;

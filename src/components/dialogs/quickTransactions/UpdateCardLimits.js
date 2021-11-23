@@ -384,7 +384,7 @@ export class UpdateCardLimits extends Component {
 
 		this.limitLabel = `${this.updateType} Limits`;
 		const expDate = this.updateType === `Debit` && this.cardDetails.linkedCardLimits ? this.cardDetails.linkedCardLimits.tempLimitExpiryDate : this.cardDetails.cardLimits.tempLimitExpiryDate;
-		this.expiryDate = new Date(expDate).getFullYear() < 2 ? `` : `Expires on ${this._getFullDate(expDate)} at midnight`;
+		this.expiryDate = (isNullorEmpty(expDate) || new Date(expDate).getFullYear() < 2) ? `` : `Expires on ${this._getFullDate(expDate)} at midnight`;
 
 
 		this.totalPrimaryCardLimits = this.cardDetails.totalDailyLimitExposures.find(item => item.cardTypeName === `Primary card limits`);
@@ -964,7 +964,7 @@ export class UpdateCardLimits extends Component {
 				data-automation-id="update-card-limits-cash-amount"
 				label="Cash withdrawal (max ${formatCurrency(limits.maxCashAmountLimit, 0)})"
 				keyboardMode="numeric"
-				type="${limits.cashAmountLimit ? `currency` : `numeric`}"
+				type="${isNullorEmpty(limits.cashAmountLimit) ? `numeric` : `currency`}"
 				value="${this._getTextFieldValue(cashAmountLimit, limits.cashAmountLimit)}"
 				error="${this._getFieldError(this.error[transactionType][cashAmountLimit]) || this.tempError[cashAmountLimit]}"
 				hint="${this._getTextFieldHint(limits.cashAmountLimit)}"
@@ -978,7 +978,7 @@ export class UpdateCardLimits extends Component {
 				data-automation-id="update-card-limits-purchase-amount"
 				label="Card machine purchases (max ${formatCurrency(limits.maxPurchaseAmountLimit, 0)})"
 				keyboardMode="numeric"
-				type="${limits.purchaseAmountLimit ? `currency` : `numeric`}"
+				type="${isNullorEmpty(limits.purchaseAmountLimit) ? `numeric` : `currency`}"
 				value="${this._getTextFieldValue(purchaseAmountLimit, limits.purchaseAmountLimit)}"
 				error="${this._getFieldError(this.error[transactionType][purchaseAmountLimit]) || this.tempError[purchaseAmountLimit]}"
 				hint="${this._getTextFieldHint(limits.purchaseAmountLimit)}"
@@ -992,7 +992,7 @@ export class UpdateCardLimits extends Component {
 				data-automation-id="update-card-limits-cnp-amount"
 				label="Online/scan to pay/phone (max ${formatCurrency(limits.maxcnpAmountLimit, 0)})"
 				keyboardMode="numeric"
-				type="${limits.cnpAmountLimit ? `currency` : `numeric`}"
+				type="${isNullorEmpty(limits.cnpAmountLimit) ? `numeric` : `currency`}"
 				value="${this._getTextFieldValue(cnpAmountLimit, limits.cnpAmountLimit)}"
 				error="${this._getFieldError(this.error[transactionType][cnpAmountLimit]) || this.tempError[cnpAmountLimit]}"
 				hint="${this._getTextFieldHint(limits.cnpAmountLimit)}"
