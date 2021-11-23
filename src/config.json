@@ -94,10 +94,14 @@
 		},
 		"verifySecurityQuestions": {
 			"enabled": true,
-			"positiveCase": false
+			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
-			"enabled": false,
+			"enabled": true,
+			"positiveCase": true
+		},
+		"itaVerification":{
+			"enabled": true,
 			"positiveCase": true
 		},
 		"debiCheckMandates": {

@@ -18,8 +18,7 @@ export class ItaCallerVerification {
 	 * @param {*} toggleBusyCallback A function for toggling a busy status
 	 */
 	constructor(verificationStatusCallback, toggleBusyCallback) {
-
-		this.mockResponses = false;
+		this._mocking = null;
 
 		// Property initialization
 		this.verificationStatusCallback = verificationStatusCallback;
@@ -39,28 +38,35 @@ export class ItaCallerVerification {
 	 * @returns { Promise<Boolean> } true if the ITA process could be successfully initiated
 	 */
 	async initiateItaVerification(cifNumber) {
+		// Check for ITA mocking on lcoal development machines
+		// The _mockingEnabled function will automatically disable mocking in SDLC environments
+		if (await this._mockEnabled(`itaVerification`)) {
+			const callTime = 800;
+			const successTime = callTime + 5000;
 
-		this.mockResponses = false;
-		this.mockFailure = false;
-		
-		if (this.mockResponses) {
 			this.toggleBusyCallback();
-
-			if (this.mockFailure) {
+	
+			if (this._positiveMockEnabled()) {
+				setTimeout(() => {
+					this.verificationStatusCallback(`verified`);
+				}, successTime);
+			} else {
 				setTimeout(() => {
 					this.verificationStatusCallback(`rejected`);
-				}, 20000);
+				}, successTime);
 			}
-
-			await this._sleep(2000);
-
+	
+			// simulate the CS call taking some time
+			await this._sleep(callTime);
+	
 			this.toggleBusyCallback();
-
+	
 			this.verificationStatusCallback(`started`);
-
+	
 			return true;
 		}
 
+		// Everything is real from this point on... (only mocking code is the above)
 		this.close();
 
 		const signalRUrl = await this.configuration.getSetting(`signalRUrl`);
@@ -197,5 +203,59 @@ export class ItaCallerVerification {
 
 	_sleep(ms) {
 		return new Promise(resolve => setTimeout(resolve, ms));
+	}
+
+	_positiveMockEnabled() {
+		try {
+			if (!Object.prototype.hasOwnProperty.call(this._mocking, `itaVerification`)) {
+				return false;
+			}
+
+			const itaMockSettings = this._mocking.itaVerification;
+
+			if (Object.prototype.hasOwnProperty.call(itaMockSettings, `positiveCase`)) {
+				return itaMockSettings.positiveCase;
+			}
+		} catch {
+			return false;
+		}
+		
+		return false;
+	}
+
+	async _mockEnabled(mockName) {
+		if (this._mocking === null) {
+			try {
+				this._mocking = await this.configuration.getSetting(`mock`);
+
+				// Disable mocking in the SLDC environments. Only for local development
+				if (this.configuration.config.runtime.environment !== `LOCAL`) {
+					this._mocking = { enabled: false };
+					this.logger.log(`info`, `ITA mocking has been automatically disabled as the application is not running locally.`, `_mockEnabled`);
+				}
+			} catch {
+				// disable mocking if the setting is not present
+				this._mocking = { enabled: false };
+				this.logger.log(`info`, `ITA Mocking has been automatically disabled as no configuration is present.`, `_mockEnabled`);
+			}
+
+			if (this._mocking.enabled) {
+				// Dynamically load the configured mocks
+				this.logger.log(`info`, `ITA Mocking is enabled.`, `_mockEnabled`);
+			}
+		}
+
+		// Check if mocking is switched off globally
+		if (!this._mocking.enabled) {
+			return false;
+		}
+
+		// Check if specified mock is configured and enabled
+		if (Object.prototype.hasOwnProperty.call(this._mocking, mockName)) {
+			return this._mocking[mockName].enabled;
+
+		}
+
+		return false;
 	}
 }

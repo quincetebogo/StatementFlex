@@ -273,7 +273,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_cancelClick() {
-		this._telemetry.logEvent(VerifyCallerEvents.ITA_CANCEL_CLICK, {
+		this.telemetry.logEvent(VerifyCallerEvents.ITA_CANCEL_CLICK, {
 			"screen": TelemetryScreen.VERIFY_CALLER,
 			"next-screen": null // TODO: Determine by need and failed verification counts
 		});
