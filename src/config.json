@@ -88,7 +88,7 @@
 			"positiveCase": true
 		},
 		"xdsQuestions": {
-			"enabled": true,
+			"enabled": false,
 			"substituteIdOnly": "6712075142087",
 			"positiveCase": true
 		},
@@ -97,11 +97,11 @@
 			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"itaVerification":{
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
