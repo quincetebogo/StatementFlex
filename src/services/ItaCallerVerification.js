@@ -20,6 +20,8 @@ export class ItaCallerVerification {
 	constructor(verificationStatusCallback, toggleBusyCallback) {
 		this._mocking = null;
 
+		this.mockedResponseTimerId = null;
+
 		// Property initialization
 		this.verificationStatusCallback = verificationStatusCallback;
 		this.toggleBusyCallback = toggleBusyCallback;
@@ -47,11 +49,11 @@ export class ItaCallerVerification {
 			this.toggleBusyCallback();
 	
 			if (this._positiveMockEnabled()) {
-				setTimeout(() => {
+				this.mockedResponseTimerId = setTimeout(() => {
 					this.verificationStatusCallback(`verified`);
 				}, successTime);
 			} else {
-				setTimeout(() => {
+				this.mockedResponseTimerId = setTimeout(() => {
 					this.verificationStatusCallback(`rejected`);
 				}, successTime);
 			}
@@ -114,6 +116,14 @@ export class ItaCallerVerification {
 	 * @returns { Promise<void> } A promise for the completion of cleanup
 	 */
 	async close() {
+
+		// Mock code to allow cancelling the timer before it has expired
+		if (this.mockedResponseTimerId) {
+			clearTimeout(this.mockedResponseTimerId);
+			this.mockedResponseTimerId = null;
+		}
+
+		// The real code for cancelling/cleaning up the connection.
 		await this._cleanupSignalRConnection();
 	}
 

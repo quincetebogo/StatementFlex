@@ -84,7 +84,7 @@ export class XdsUnavailable extends Component {
 							<b>Security questions are currently unavailable.</b> <br>
 							${this.canPush
 								? `Skip verification to continue with limited transactions or verify via the App/USSD.`
-								: `Skip verification to continue with limited trasactions`
+								: `Skip verification to continue with limited transactions`
 							}
 						</div>
 					</capitec-group>

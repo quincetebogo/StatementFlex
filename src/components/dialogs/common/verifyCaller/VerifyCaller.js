@@ -174,6 +174,7 @@ export class VerifyCaller extends Component {
 
 		// Stop any pending ITA attempt
 		this.itaService.close();
+		this.itaInProgress = false;
 		this.itaSystemError = false;
 		this.itaTimeout = false;
 		this.itaRejected = false;
@@ -201,7 +202,7 @@ export class VerifyCaller extends Component {
 
 		if (!securityQuestions.authenticationPermitted) {
 			this.xdsAttempts = MAX_XDS_ATTEMPTS; 
-				this._updateApplicationState(`failed`, `unverified`);
+			this.xdsUnavailable = true;
 			this.logger.log(`warn`, `XDS returns authentication not permitted`, `_securityQuestionsClick`);
 			return;
 		} ;
@@ -527,7 +528,7 @@ export class VerifyCaller extends Component {
 
 	_failedFirstXdsAttempt() {
 		return this.hasSouthAfricanID && 
-			   this.xdsAttempts === 1; 
+			   this.xdsAttempts === 1;
 	}
 
 	_xdsAttemptsExceeded() {
@@ -537,7 +538,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_ItaAvailable() {
-		return this.callerInformation.hasDigitalChannels && !this._xdsAttemptsExceeded();
+		return this.callerInformation.hasDigitalChannels && !this._itaAttemptsExceeded();
 	}
 
 	_itaInProgress() {
@@ -722,6 +723,8 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderButtonBar() {
+		// Only Allow ITA/USSD if the client has already verified via XDS
+		// This is for high risk transactions
 		if (this.callerInformation.verificationStatus === `verified` && this.callerInformation.verificationMethod === `XDS`) {
 			
 				return html`
@@ -743,9 +746,7 @@ export class VerifyCaller extends Component {
 						@click="${() => this._tryAgain()}">
 					</horizon-option-button>
 				</capitec-group>
-			</capitec-content-box>
-		`;
-			
+			</capitec-content-box>`;
 		} 
 
 		return html`
