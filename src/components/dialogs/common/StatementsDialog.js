@@ -49,13 +49,13 @@ const TYPE = {
 	'201': { icon: `product/save`, label: `Future Savings`, type: `save`, serviceLabel: `FUTURE SAVINGS` },
 	'200': { icon: `product/save`, label: `Future Savings`, type: `save`, serviceLabel: `FUTURE SAVINGS` },
 	'210': { customIcon: `/images/liveBetter/live-better-icon.png`, label: `Live Better savings account`, type: `lbb`, serviceLabel: `LIVE BETTER SAVINGS ACCOUNT` },
-	'100': { icon: `product/credit`, label: `Credit Card`, type: `credit`, serviceLabel: `CREDIT` },
+	'100': { icon: `product/credit`, label: `Credit Card`, type: `credit`, serviceLabel: `CREDIT` }
 };
 
 const SELECTED_ACCOUNT_TYPES = {
 	transact: 300,
-	save: 200, //Flexible Savings
-	save: 201, //Fixed Savings
+	save: 200, // Flexible Savings
+	save: 201, // Fixed Savings
 	lbb: 210
 };
 
@@ -79,9 +79,9 @@ const ACCOUNT_INTCAT_ENUM = {
 			category: `FLEXIBLE_SAVINGS`
 		}
 	},
-	210:{
-		type : `LBB`,
-		category : `LIVE_BETTER_BENEFITS`
+	210: {
+		type: `LBB`,
+		category: `LIVE_BETTER_BENEFITS`
 	}
 	
 };
@@ -90,7 +90,7 @@ const ACCOUNT_TYPE = {
 	300: `Savings Account`,
 	201: `Fixed Term Savings Plan`,
 	200: `Savings Plan`,
-	210: `Live Better Savings Account`,
+	210: `Live Better Savings Account`
 };
 
 const TIME_PERIOD = {
@@ -205,8 +205,8 @@ export class StatementsDialog extends Component {
 		return {
 			clientProducts: { type: Array },
 			selectedOption: { type: Array },
-			type : { type: String },
-			currentStep: { attribute: false},
+			type: { type: String },
+			currentStep: { attribute: false },
 
 			cifNumber: { attribute: false },
 			isBusy: { attribute: false },
@@ -264,9 +264,9 @@ export class StatementsDialog extends Component {
 			1: selectPeriod,
 			2: emailClient
 		};
-		const result = validations[this.type ? this.currentStep+1 : this.currentStep]();
+		const result = validations[this.type ? this.currentStep + 1 : this.currentStep]();
 		if (result && this.errorMessage === ``) {
-			this.type ? this.currentStep+=2 : this.currentStep++;
+			this.currentStep = this.type ? this.currentStep + 2 : this.currentStep + 1;
 		}
 	}
 
@@ -285,7 +285,7 @@ export class StatementsDialog extends Component {
 		});
 
 		this.errorMessage = ``;
-		this.type ? this.currentStep-= 2 : this.currentStep--;
+		this.currentStep = this.type ? this.currentStep - 2 : this.currentStep - 1;
 	}
 
 	_choosePeriod(range) {
@@ -370,7 +370,7 @@ export class StatementsDialog extends Component {
 
 		this._telemetry.logEvent(QuickTransactionEvents.SELECT_STATEMENTS_VIEW_PDF, {});
 		const statement = {
-			"cifNumber": this.callerInformation.cifNumber,
+			"cifNumber": this.cifNumber,
 			"accountNumber": `${this.productSelected.accountNumber}`,
 			"accountType": ACCOUNT_INTCAT_ENUM[this.productSelected.accountType].type,
 			"statementDateRange": {
@@ -391,16 +391,11 @@ export class StatementsDialog extends Component {
 			this.renderMode = RENDER_MODE.PDF;
 			// render the PDF
 			this.encodedPDF = base64ToBlobUrl(returnValue.result.statementData);
-		}
-		else {
-			if(this.productSelected.accountType === SELECTED_ACCOUNT_TYPES[`lbb`]){
+		} else if (this.productSelected.accountType === SELECTED_ACCOUNT_TYPES.lbb) {
 				this.horizonRouter.navigateToliveBetterSystemError();
-			}
-			else{
-				this.errorMessage = `System error. Please try again`;
-				this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewPDF`, returnValue.correlationId);
-			}
-			
+		} else {
+			this.errorMessage = `System error. Please try again`;
+			this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewPDF`, returnValue.correlationId);
 		}
 	}
 
@@ -418,7 +413,7 @@ export class StatementsDialog extends Component {
 
 		const statement = {
 			"emailAddress": this.email,
-			"cifNumber": this.callerInformation.cifNumber,
+			"cifNumber": this.cifNumber,
 			"accountNumber": `${this.productSelected.accountNumber}`,
 			"accountType": ACCOUNT_INTCAT_ENUM[this.productSelected.accountType].type,
 			"statementDateRange": {
@@ -460,7 +455,7 @@ export class StatementsDialog extends Component {
 
 		if (e.detail.new) {
 			this.errorMessage = ``;
-			this.selectedOption = e.detail.new
+			this.selectedOption = e.detail.new;
 		}
 	}
 
@@ -594,17 +589,15 @@ export class StatementsDialog extends Component {
 
 		let product = {};
 
-		product = this.clientProducts.find(item => 
-			this.type 
-				? item.accountType === SELECTED_ACCOUNT_TYPES[this.type] 
-				: item.accountName === this.selectedOption.serviceLabel
-		);
+		product = this.clientProducts.find(item => (this.type 
+			? item.accountType === SELECTED_ACCOUNT_TYPES[this.type] 
+			: item.accountName === this.selectedOption.serviceLabel));
 
 		return {
 			accountNumber: product.accountNumber,
 			accountType: product.accountType, 
 			accountOpenDate: product.accountOpenDate
-		}
+		};
 	}
 
 	_getAvailableBal(type) {
@@ -635,12 +628,12 @@ export class StatementsDialog extends Component {
 
 		screenDetails.emailAddress = this.email;
 		screenDetails.accountNumber = this.productSelected.accountNumber;
-		screenDetails.accountType=ACCOUNT_TYPE[this.productSelected.accountType];
+		screenDetails.accountType = ACCOUNT_TYPE[this.productSelected.accountType];
 		
 		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
-	_getDateRange(numberOfDays){
+	_getDateRange(numberOfDays) {
 		const dateToday = new Date();
 		const accountOpenDate = new Date(this.productSelected.accountOpenDate);
 
@@ -971,17 +964,20 @@ export class StatementsDialog extends Component {
 	}
 
 	_renderOptions(e) {
-		const iconClass = `width: 24px; height: 24px; margin: 0px 8px 0px 0px; --theme-icon-size-small: 24px;`;
-
 		return html`
 			<capitec-group style="padding: 0px" layout="horizontal">
-				${e.icon 
-			? html`<capitec-icon style="${unsafeCSS(iconClass)}" size="medium" icon="${e.icon}"></capitec-icon>`
-			: html`<img style="${unsafeCSS(iconClass)}" src="${e.customIcon}"/>`
-				}
+				${this._renderOptionIcon(e)}
 				<capitec-label label="${e.label}"></capitec-label>
 			</capitec-group>
 		`;
+	}
+
+	_renderOptionIcon(e) {
+		const iconClass = `width: 24px; height: 24px; margin: 0px 8px 0px 0px; --theme-icon-size-small: 24px;`;
+
+		return e.icon
+		? html`<capitec-icon style="${unsafeCSS(iconClass).toString()}" size="medium" icon="${e.icon}"></capitec-icon>`
+		: html`<img style="${unsafeCSS(iconClass).toString()}" src="${e.customIcon}"/>`;
 	}
 
 	_renderChoosePeriod() {
@@ -1089,7 +1085,7 @@ export class StatementsDialog extends Component {
 					label="Choose from and to date"
 					startDate = "${this.fromDate === `dd mm yyyy` ? `` : this.fromDate}"
 					endDate = "${this.toDate === `dd mm yyyy` ? `` : this.toDate}"
-					minDate = "${this._getMinDate(this.productSelected.accountOpenDate)}"
+					minDate = "${this._getMinDate(this.productSelected.accountOpenDate).toISOString()}"
 					maxDate = "${this.today}"
 					error = "${this.calendarErrorMessage}"
 					inputType="calendar"
