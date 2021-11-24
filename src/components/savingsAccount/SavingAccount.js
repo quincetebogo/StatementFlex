@@ -128,7 +128,7 @@ export class SavingsAccount extends Component {
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 0px;
 					--theme-expander-header-height: 64px;
-					--theme-expander-height: 210px;
+					--theme-expander-height: 211px;
 					--theme-expander-indicator-width: 11.5px;
                     --theme-expander-indicator-height: 6.5px;
 					box-shadow:0 3px 6px 0.25px rgba(0,0,0,0.08);
