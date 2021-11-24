@@ -1,10 +1,10 @@
 import { Component, css, html } from 'platform/elements';
 import { DateTime } from 'luxon';
-import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/CardArt';
 
