@@ -120,6 +120,8 @@ export class UpdateCardLimits extends Component {
 	 * @property {string} limitType Flag to indicate Temporary/ Permanent
 	 * @property {Object} cardDetails Object has the card details
 	 * @property {string} updateType Flag to indicate Debit/ Credit
+	 * @property {String} verificationMethod Indicated the type of verification (xds/ita)
+	 * @property {Boolean} hasDigitalChannels Indicates if the client is registered for digital channels 
 	 *
 	 * @readonly
 	 * @static
@@ -132,7 +134,8 @@ export class UpdateCardLimits extends Component {
 			updateType: { type: String },
 			getAgreement: { type: String },
 			displayCard: { type: String },
-			callerInformation: { type: Object },
+			verificationMethod: { type: String },
+			hasDigitalChannels: { type: Boolean },
 			getCardLimitsAgreement: { type: Object, attribute: false },
 
 			limitLabel: { type: String },
@@ -358,11 +361,7 @@ export class UpdateCardLimits extends Component {
 	}
 
 	_verifyClick() {
-		if (!this.callerInformation.hasDigitalChannels) {
-			this.warningAlertBannerText = `For added security, get the App to update your Online limit, alternatively visit your nearest branch`;
-		} else {
-			this.dispatchEvent(new CustomEvent(`verify-now`, {}));
-		}
+		this.dispatchEvent(new CustomEvent(`verify-now`, {}));
 	}
 
 	// --------------
@@ -830,23 +829,40 @@ export class UpdateCardLimits extends Component {
 	}
 
 	_renderVerificationMethodAlert() {
-		if (this.callerInformation.verificationMethod === `XDS` && this.warningAlertBannerText === ``) {
+		if (this.hasDigitalChannels && this.verificationMethod === `XDS`) {
 			return html`
-				<capitec-alert-banner type="warning">
-					<strong>Notify Client:</strong> For added security, we will be sendng a push notification to access additional transactions.
+				<capitec-alert-banner 
+					data-automation-id="card-limits-landing-alert-banner"
+					type="warning">
+					<capitec-group id="id-notify-banner-group" layout="horizontal">
+						<capitec-label type="strong" label="Notify client:"></capitec-label>
+						<capitec-label 
+								type="default" 
+								label="For added security, we will be sending a push notification to access additional transactions.">
+						</capitec-label>
 
-					<capitec-hyperlink label="Verify Now" @click="${() => this._verifyClick()}">
-					</capitec-hyperlink>
+						<capitec-hyperlink label="Verify Now" @click="${() => this._verifyClick()}">
+						</capitec-hyperlink>
+					</capitec-group>
 				</capitec-alert-banner>
 			`;
 		}
 
-		return this.warningAlertBannerText 
-		? html`
-			<capitec-alert-banner type="warning">
-					<strong>Notify Client:</strong> ${this.warningAlertBannerText}
-				</capitec-alert-banner>`
-		: html``;
+		if (!this.hasDigitalChannels && this.verificationMethod === `XDS`) {
+			return html`
+				<capitec-alert-banner 
+					data-automation-id="card-limits-landing-alert-banner"
+					type="warning">
+					<capitec-group id="id-notify-banner-group" layout="horizontal">
+						<capitec-label type="strong" label="Notify client:"></capitec-label>
+						<capitec-label 
+									type="default"
+									label="For added security, get the App to update your Online limit, alternatively visit your nearest branch.">
+						</capitec-label>
+					</capitec-group>
+				</capitec-alert-banner>
+			`;
+		}
 	}
 
 	_renderLimitsAlertBanner() {
@@ -1023,7 +1039,7 @@ export class UpdateCardLimits extends Component {
 				value="${this._getTextFieldValue(cnpAmountLimit, limits.cnpAmountLimit)}"
 				error="${this._getFieldError(this.error[transactionType][cnpAmountLimit]) || this.tempError[cnpAmountLimit]}"
 				hint="${this.limitType === `Temporary` ? this.expiryDate : ``}"
-				?disabled=${this.callerInformation.verificationMethod === `XDS`}
+				?disabled=${this.verificationMethod === `XDS`}
 				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD}"
 				@blur="${() => this.fieldFocused = ``}"
 				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"

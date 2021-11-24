@@ -129,9 +129,6 @@ export class CardLimitsLanding extends Component {
 	/**
 	 *
 	 * @property {Object} cards Object contains the list of client's card
-	 * @property {Object} incomingCallDetails Information on the incoming call
-	 * @property {object} incidentDetails Incident details
-	 * @property {Object} callerInformation Information (mini-profile) on the incoming caller
 	 * @property {String} cifNumber The client's account/cifNumber
 	 * @property {String} voiceRecordingReference The Avaya/Presence Voice Recording ID
 	 * @property {getCardLimitsAgreementsCallback} getCardLimitsAgreement Callback function to load limits agreements for displaying
@@ -139,6 +136,8 @@ export class CardLimitsLanding extends Component {
 	 * @property {getTemporaryLimitsCallback} getTemporaryLimits Callback function to get temporary limits
 	 * @property {updatePermanentLimitsCallback} updatePermanentLimits Callback function to update permanent limits & agreements
 	 * @property {updateTemporaryLimitsCallback} updateTemporaryLimits Callback function to update temporary limits & agreements
+	 * @property {String} verificationMethod Indicated the type of verification (xds/ita)
+	 * @property {Boolean} hasDigitalChannels Indicates if the client is registered for digital channels 
 	 * 
 	 * @readonly
 	 * @static
@@ -149,9 +148,8 @@ export class CardLimitsLanding extends Component {
 			cards: { type: Object },
 			cifNumber: { type: String },
 			voiceRecordingReference: { type: String },
-			incomingCallDetails: { type: Object },
-			callerInformation: { type: Object },
-			incidentDetails: { type: Object },
+			verificationMethod: { type: String },
+			hasDigitalChannels: { type: Boolean },
 
 			getCardLimitsAgreement: { type: Object, attribute: false },
 			getPermanentLimits: { type: Object, attribute: false },
@@ -183,6 +181,14 @@ export class CardLimitsLanding extends Component {
 		this.primaryCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.PRIMARY_CARD);
 		this.supplementaryCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD);
 		this.virtualCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD);
+	}
+
+	attributeChangedCallback(name, oldValue, newValue) {
+		super.attributeChangedCallback(name, oldValue, newValue);
+
+		if (name === `verificationmethod` && oldValue !== null && oldValue !== undefined && newValue === `ITA`) {
+			this._clientVerified();
+		}
 	}
 
 	disconnectedCallback() {
@@ -342,17 +348,6 @@ export class CardLimitsLanding extends Component {
 		return request;
 	}
 
-	_verificationCancelled() {
-		this.showVerifyCallerModal = !this.showVerifyCallerModal;
-		this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
-	}
-
-	_clientVerified(event) {
-		this.incomingCallDetails = event.detail.incomingCallDetails;
-		this.callerInformation = event.detail.callerInformation;
-		this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
-	}
-
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -477,9 +472,16 @@ export class CardLimitsLanding extends Component {
 		this.dispatchEvent(new CustomEvent(`result`, { detail: { success: success, limitDetails: limitDetails, failureReason: failureReason } }));
 	}
 
-	_verifyNowClick() {
-		this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
-		this.showVerifyCallerModal = !this.showVerifyCallerModal;
+	_verifyClick() {
+		this.showVerifyCallerModal = true;
+		this.dispatchEvent(new CustomEvent(`verify-now`,{}))
+	}
+
+	async _clientVerified() {
+		this.showVerifyCallerModal = false;
+
+		// waiting to complete all updates and then perform required function.
+		await this.updateComplete.then(() => this.requestUpdate());
 	}
 
 	// ---------
@@ -513,14 +515,29 @@ export class CardLimitsLanding extends Component {
 					cursor: pointer;
 					margin-right: 15px;
 				}
-				capitec-alert-banner {
-					--theme-alert-banner-height: 45px;
-					--theme-alert-banner-info-border: none;
-					--theme-alert-banner-font-weight: 400;
-					--theme-alert-banner-line-height: 20px;
-					--theme-alert-banner-info-font-color: #08A6B5;
-					--theme-alert-banner-icon-margin-left: 15px;
-					--theme-alert-banner-icon-margin-right: 7px;
+				capitec-alert-banner[type="warning"] {
+					--theme-alert-banner-height: 48px;
+					--theme-alert-banner-icon-margin-left: 16px;
+					--theme-alert-banner-icon-margin-right: 8px;
+					--theme-alert-banner-warning-font-color: #3A3A3A;
+					--theme-hyperlink-color: #3A3A3A;
+					padding: 18px 0px 0px 16px;
+					margin: 0px;
+				}
+				capitec-hyperlink {
+					--theme-hyperlink-color: #3A3A3A;
+					--theme-font-weight: 600;
+					--theme-hyperlink-color: #3A3A3A;
+					text-decoration: underline;
+				}
+				#id-notify-banner-group {
+					width: 962px;
+				}
+				capitec-label[type="strong"] {
+					--theme-label-strong-font-size: 14px;
+					--theme-label-strong-font-weight: 600;
+					--theme-layout-gap-spacing: 2px;
+					--theme-label-font-color: #3A3A3A;
 				}
 				.card-title {
 					line-height: 24px;
@@ -670,7 +687,6 @@ export class CardLimitsLanding extends Component {
 			${this._renderUpdateLimitsModal()}
 			${this._renderDiscardChangesModal()}
 			${this._renderConfirmSelectionModal()}
-			${this._renderVerifyCallerModal()}
 		`;
 	}
 
@@ -679,6 +695,8 @@ export class CardLimitsLanding extends Component {
 			<capitec-card class="center-section">
 				${this._renderTitleBar()}
 				<capitec-content-box>
+					${this._renderVerifyNowAlertBanner()}
+					${this._renderNoItaAlertBanner()}
 					<capitec-expander-group modeset="multiple">
 						${this.primaryCards.length > 0 ? this._renderPrimaryCardGroup() : ``}
 						${this.virtualCards.length > 0 ? this._renderVirtualCardGroup() : ``}
@@ -701,6 +719,48 @@ export class CardLimitsLanding extends Component {
 				<capitec-label label="Update Card Limits" type="title"></capitec-label>
 			</capitec-title-bar>
 		`;
+	}
+
+	_renderVerifyNowAlertBanner() {
+		if (this.hasDigitalChannels && this.verificationMethod === `XDS`) {
+			return html`
+				<capitec-alert-banner 
+					data-automation-id="card-limits-landing-alert-banner"
+					type="warning">
+					<capitec-group id="id-notify-banner-group" layout="horizontal">
+						<capitec-label type="strong" label="Notify client:"></capitec-label>
+						<capitec-label 
+									type="default"
+									label="For added security, we will be sending a push notification to access additional transactions.">
+						</capitec-label>
+						<capitec-spacer></capitec-spacer>
+						<capitec-hyperlink 
+							data-automation-id="card-limits-landing-verify"
+							label="Verify Now"
+							@click="${() => this._verifyClick()}">
+						</capitec-hyperlink>
+					</capitec-group>
+				</capitec-alert-banner>
+			`;
+		}
+	}
+
+	_renderNoItaAlertBanner() {
+		if (!this.hasDigitalChannels && this.verificationMethod === `XDS`) {
+			return html`
+				<capitec-alert-banner 
+					data-automation-id="card-limits-landing-alert-banner"
+					type="warning">
+					<capitec-group id="id-notify-banner-group" layout="horizontal">
+						<capitec-label type="strong" label="Notify client:"></capitec-label>
+						<capitec-label 
+									type="default"
+									label="For added security, get the App to update your Online limit, alternatively visit your nearest branch.">
+						</capitec-label>
+					</capitec-group>
+				</capitec-alert-banner>
+			`;
+		}
 	}
 
 	_renderPrimaryCardGroup() {
@@ -985,17 +1045,17 @@ export class CardLimitsLanding extends Component {
 	}
 
 	_renderUpdateLimitsModal() {
-		return this.showUpdateLimitsModal
+		return this.showUpdateLimitsModal && !this.showVerifyCallerModal
 			? html`
 				<horizon-update-card-limits
-					.incomingCallDetails="${this.incomingCallDetails}"
-					.callerInformation="${this.callerInformation}"
+					.hasDigitalChannels="${this.hasDigitalChannels}"
+					.verificationMethod="${this.verificationMethod}"
 					.cardDetails="${this._cardDetails}"
 					.limitType="${this._limitType}"
 					.getTemporaryLimits="${(request) => this._getTemporaryLimits(request)}"
 					.updateType="${this._updateType}"
 					.getCardLimitsAgreement="${(card, newLimits, tapToPayStatus) => this._getLimitsAgreement(card, newLimits, tapToPayStatus)}"
-					@verify-now="${() => this._verifyNowClick()}"
+					@verify-now="${() => this._verifyClick()}"
 					@cancel="${() => this._cancelUpdateLimits()}"
 					@accepted="${(event) => this._updateLimitsAgreement(event)}">
 				</horizon-update-card-limits>`
@@ -1022,19 +1082,6 @@ export class CardLimitsLanding extends Component {
 		}
 
 		return html``;
-	}
-
-	_renderVerifyCallerModal() {
-		return this.showVerifyCallerModal
-			? html`
-				<horizon-verify-caller 
-					.incomingCallDetails="${this.incomingCallDetails}"
-					.incidentDetails="${this.incidentDetails}"
-					.callerInformation="${this.callerInformation}"
-					@cancel="${(e) => this._verificationCancelled(e)}"
-					@verified="${(e) => this._clientVerified(e)}">
-				</horizon-verify-caller>`
-			: html``;
 	}
 
 }
