@@ -171,6 +171,12 @@ export class VerifyBySecurityQuestions extends Component {
 
 		this.logger.log(`info`, `verifySecurityQuestions returned: ${JSON.stringify(result)}`, `_verifyClick`);
 
+		// If we got an error model back, fail XDS
+		if (result?.errorCode) {
+			this._XdsFailed(result);
+			return;
+		}
+
 		if (result.toLowerCase() === `authenticated`) {
 			this.telemetry.logEvent(VerifyCallerEvents.XDS_SUCCESS, {
 				"screen": TelemetryScreen.SECURITY_QUESTIONS,
@@ -181,10 +187,19 @@ export class VerifyBySecurityQuestions extends Component {
 			return;
 		} 
 
+		this._XdsFailed(result);
+	}
+
+	_XdsFailed(result) {
 		this.telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
 			"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE // TODO - this will now change
 		}, true);
+
+		if (result?.errorMessage) {
+			this.logger.log(`warn`, `${result?.errorCode}: ${result.errorMessage}`, `_XdsFailed`);
+		}
+
 		this.dispatchEvent(new CustomEvent(`failed`, {}));
 	}
 
