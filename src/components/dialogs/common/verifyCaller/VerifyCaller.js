@@ -535,6 +535,11 @@ export class VerifyCaller extends Component {
 			
 	}
 
+	_showXdsUnavailable() {
+		return (this.xdsUnavailable || this.xdsAttempts >= MAX_XDS_ATTEMPTS) && // Can't do XDS
+			!this.itaInProgress; // An ITA is not in progress
+	}
+
 	_failedFirstXdsAttempt() {
 		return this.hasSouthAfricanID && 
 			   this.xdsAttempts === 1;
@@ -675,7 +680,7 @@ export class VerifyCaller extends Component {
 			return this._renderVerificationUnavailable();
 		}
 
-		if (this.xdsUnavailable && !this.itaInProgress) {
+		if (this._showXdsUnavailable()) {
 			return this._renderSecurityQuestionsUnavailable(this._ItaAvailable());
 		}
 
