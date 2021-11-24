@@ -1085,7 +1085,7 @@ export class StatementsDialog extends Component {
 					label="Choose from and to date"
 					startDate = "${this.fromDate === `dd mm yyyy` ? `` : this.fromDate}"
 					endDate = "${this.toDate === `dd mm yyyy` ? `` : this.toDate}"
-					minDate = "${this._getMinDate(this.productSelected.accountOpenDate)}"
+					minDate = "${this._getMinDate(this.productSelected.accountOpenDate).toISOString()}"
 					maxDate = "${this.today}"
 					error = "${this.calendarErrorMessage}"
 					inputType="calendar"
