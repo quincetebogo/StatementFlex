@@ -370,7 +370,7 @@ export class StatementsDialog extends Component {
 
 		this._telemetry.logEvent(QuickTransactionEvents.SELECT_STATEMENTS_VIEW_PDF, {});
 		const statement = {
-			"cifNumber": this.callerInformation.cifNumber,
+			"cifNumber": this.cifNumber,
 			"accountNumber": `${this.productSelected.accountNumber}`,
 			"accountType": ACCOUNT_INTCAT_ENUM[this.productSelected.accountType].type,
 			"statementDateRange": {
@@ -418,7 +418,7 @@ export class StatementsDialog extends Component {
 
 		const statement = {
 			"emailAddress": this.email,
-			"cifNumber": this.callerInformation.cifNumber,
+			"cifNumber": this.cifNumber,
 			"accountNumber": `${this.productSelected.accountNumber}`,
 			"accountType": ACCOUNT_INTCAT_ENUM[this.productSelected.accountType].type,
 			"statementDateRange": {
@@ -971,17 +971,20 @@ export class StatementsDialog extends Component {
 	}
 
 	_renderOptions(e) {
-		const iconClass = `width: 24px; height: 24px; margin: 0px 8px 0px 0px; --theme-icon-size-small: 24px;`;
-
 		return html`
 			<capitec-group style="padding: 0px" layout="horizontal">
-				${e.icon 
-			? html`<capitec-icon style="${unsafeCSS(iconClass)}" size="medium" icon="${e.icon}"></capitec-icon>`
-			: html`<img style="${unsafeCSS(iconClass)}" src="${e.customIcon}"/>`
-				}
+				${this._renderOptionIcon(e)}
 				<capitec-label label="${e.label}"></capitec-label>
 			</capitec-group>
 		`;
+	}
+
+	_renderOptionIcon(e) {
+		const iconClass = `width: 24px; height: 24px; margin: 0px 8px 0px 0px; --theme-icon-size-small: 24px;`;
+
+		return e.icon
+		? html`<capitec-icon style="${unsafeCSS(iconClass)}" size="medium" icon="${e.icon}"></capitec-icon>`
+		: html`<img style="${unsafeCSS(iconClass)}" src="${e.customIcon}"/>`
 	}
 
 	_renderChoosePeriod() {

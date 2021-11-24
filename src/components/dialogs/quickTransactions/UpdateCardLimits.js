@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { DateTime } from 'luxon';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
