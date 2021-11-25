@@ -295,7 +295,7 @@ export class UpdateCardLimits extends Component {
 			return;
 		}
 
-		const compare = (obj, source) => Object.keys(source).every(key => obj.hasOwnProperty(key) && obj[key] === source[key]);
+		const compare = (obj, source) => Object.keys(source).every(key => Object.prototype.hasOwnProperty.call(obj, key) && obj[key] === source[key]);
 		if (compare(this.cardLimits, this.cardDetails.cardLimits)) {
 			this._limitHasNotChanged();
 		} else {
@@ -351,18 +351,17 @@ export class UpdateCardLimits extends Component {
 	}
 
 	_getTextFieldValue(id, value) {
-		if(isNullorEmpty(value)) {
+		if (isNullorEmpty(value)) {
 			return ``;
 		}
-		return this.fieldFocused === id ? value : parseInt(value, 10).toFixed(2);  
+		return this.fieldFocused === id ? value : parseInt(value, 10).toFixed(2);
 	}
 
 	_getTextFieldHint(value) {
-		if(this.limitType === `Temporary`) {
-			return isNullorEmpty(value) ? `Limit not set` : this.expiryDate ;
-		} else {
-			return ``;
+		if (this.limitType === `Temporary`) {
+			return isNullorEmpty(value) ? `Limit not set` : this.expiryDate;
 		}
+		return ``;
 	}
 
 	// --------------
@@ -384,7 +383,7 @@ export class UpdateCardLimits extends Component {
 
 		this.limitLabel = `${this.updateType} Limits`;
 		const expDate = this.updateType === `Debit` && this.cardDetails.linkedCardLimits ? this.cardDetails.linkedCardLimits.tempLimitExpiryDate : this.cardDetails.cardLimits.tempLimitExpiryDate;
-		this.expiryDate = (isNullorEmpty(expDate) || new Date(expDate).getFullYear() < 2) ? `` : `Expires on ${this._getFullDate(expDate)} at midnight`;
+		this.expiryDate = isNullorEmpty(expDate) || new Date(expDate).getFullYear() < 2 ? `` : `Expires on ${this._getFullDate(expDate)} at midnight`;
 
 
 		this.totalPrimaryCardLimits = this.cardDetails.totalDailyLimitExposures.find(item => item.cardTypeName === `Primary card limits`);

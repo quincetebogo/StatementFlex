@@ -40,6 +40,15 @@ const LIMIT_TYPES = {
 	TEMPORARY: `Temporary`
 };
 
+const LIMIT_VALUE_TYPE = {
+	PERMANENT_CASH_AMOUNT: { VALUE: `permanentCashAmountLimit`, MAX_VALUE: `maxPermanentCashAmountLimit` },
+	PERMANENT_PURCHASE_AMOUNT: { VALUE: `permanentPurchaseAmountLimit`, MAX_VALUE: `maxPermanentPurchaseAmountLimit` },
+	PERMANENT_CNP_AMOUNT: { VALUE: `permanentCnpAmountLimit`, MAX_VALUE: `maxPermanentCnpAmountLimit` },
+	TEMPORARY_CASH_AMOUNT: { VALUE: `tempCashAmountLimit`, MAX_VALUE: `maxTemporaryCashAmountLimit` },
+	TEMPORARY_PURCHASE_AMOUNT: { VALUE: `tempPurchaseAmountLimit`, MAX_VALUE: `maxTemporaryPurchaseAmountLimit` },
+	TEMPORARY_CNP_AMOUNT: { VALUE: `tempCnpAmountLimit`, MAX_VALUE: `maxTemporaryCnpAmountLimit` }
+};
+
 /**
  * This component implements the update card limits for Quick Transactions
  *
@@ -456,6 +465,48 @@ export class CardLimitsLanding extends Component {
 	_result(success, limitDetails, failureReason) {
 		this.dispatchEvent(new CustomEvent(`result`, { detail: { success: success, limitDetails: limitDetails, failureReason: failureReason } }));
 	}
+	
+	_getLimitValue(linkedLimits, limits, updateType, card, limitType) {
+		const value = linkedLimits && updateType === `Debit`
+			? linkedLimits[limitType.VALUE]
+			: limits[limitType.VALUE];
+		
+		const type = card.cardDisplayType;
+
+		if (type === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD && (limitType === LIMIT_VALUE_TYPE.PERMANENT_CNP_AMOUNT || limitType === LIMIT_VALUE_TYPE.TEMPORARY_CNP_AMOUNT)) {
+			return `N/A`;
+		} else if (type === CARD_DISPLAY_TYPES.VIRTUAL_CARD && limitType !== LIMIT_VALUE_TYPE.PERMANENT_CNP_AMOUNT) {
+			return `N/A`;
+		} else if ((limitType === LIMIT_VALUE_TYPE.TEMPORARY_CASH_AMOUNT || limitType === LIMIT_VALUE_TYPE.TEMPORARY_PURCHASE_AMOUNT || limitType === LIMIT_VALUE_TYPE.TEMPORARY_CNP_AMOUNT) && isNullorEmpty(value)) {
+			return `Not set`;
+		}
+
+		return formatCurrency(value);
+	}
+
+	_getMaxLimitValue(linkedLimits, limits, updateType, card, limitType) {
+		
+		const maxValue = linkedLimits && updateType === `Debit`
+			? linkedLimits[limitType.MAX_VALUE] 
+			: limits[limitType.MAX_VALUE];
+		
+		const value = linkedLimits && updateType === `Debit`
+			? linkedLimits[limitType.VALUE]
+			: limits[limitType.VALUE];
+
+		const type = card.cardDisplayType;
+		
+		if (type === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD && (limitType === LIMIT_VALUE_TYPE.PERMANENT_CNP_AMOUNT || limitType === LIMIT_VALUE_TYPE.TEMPORARY_CNP_AMOUNT)) {
+			return ``;
+		} else if (type === CARD_DISPLAY_TYPES.VIRTUAL_CARD && !(limitType === LIMIT_VALUE_TYPE.PERMANENT_CNP_AMOUNT)) {
+			return ``;
+		} else if ((limitType === LIMIT_VALUE_TYPE.TEMPORARY_CASH_AMOUNT || limitType === LIMIT_VALUE_TYPE.TEMPORARY_PURCHASE_AMOUNT || limitType === LIMIT_VALUE_TYPE.TEMPORARY_CNP_AMOUNT) && isNullorEmpty(value)) {
+			return ``;
+		}
+
+		return `max ${formatCurrency(maxValue, 0)}`;
+	}
+
 
 	// ---------
 	// RENDERING
@@ -865,20 +916,20 @@ export class CardLimitsLanding extends Component {
 					<bb-multi-line-label
 						class="col2"
 						row="1" column="2" colspan="1" size="4" rowspan="1"
-						label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.permanentCashAmountLimit : limits.permanentCashAmountLimit, card, `permCashLimit`)}"
-						value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxPermanentCashAmountLimit : limits.maxPermanentCashAmountLimit, linkedLimits && updateType === `Debit` ? linkedLimits.permanentCashAmountLimit : limits.permanentCashAmountLimit, card, `permCashLimit`)}">
+						label="${this._getLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.PERMANENT_CASH_AMOUNT)}"
+						value="${this._getMaxLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.PERMANENT_CASH_AMOUNT)}">
 					</bb-multi-line-label>
 					<bb-multi-line-label
 						class="col3"
 						row="1" column="3" colspan="1" size="4" rowspan="1"
-						label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.permanentPurchaseAmountLimit : limits.permanentPurchaseAmountLimit, card, `permPurchaseLimit`)}"
-						value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxPermanentPurchaseAmountLimit : limits.maxPermanentPurchaseAmountLimit, linkedLimits && updateType === `Debit` ? linkedLimits.permanentPurchaseAmountLimit : limits.permanentPurchaseAmountLimit, card, `permPurchaseLimit`)}">
+						label="${this._getLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.PERMANENT_PURCHASE_AMOUNT)}"
+						value="${this._getMaxLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.PERMANENT_PURCHASE_AMOUNT)}">
 					</bb-multi-line-label>
 					<bb-multi-line-label
 						class="col4"
 						row="1" column="4" colspan="1" size="4" rowspan="1"
-						label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.permanentCnpAmountLimit : limits.permanentCnpAmountLimit, card, `permOnlineLimit`)}"
-						value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxPermanentCnpAmountLimit : limits.maxPermanentCnpAmountLimit, linkedLimits && updateType === `Debit` ? linkedLimits.permanentCnpAmountLimit : limits.permanentCnpAmountLimit, card, `permOnlineLimit`)}">
+						label="${this._getLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.PERMANENT_CNP_AMOUNT)}"
+						value="${this._getMaxLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.PERMANENT_CNP_AMOUNT)}">
 					</bb-multi-line-label>
 					${this._renderUpdateButton(LIMIT_TYPES.PERMANENT, card)}
 			</capitec-group>
@@ -905,52 +956,24 @@ export class CardLimitsLanding extends Component {
 						<bb-multi-line-label
 							class="col2"
 							row="1" column="2" colspan="1" size="4" rowspan="1"
-							label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.tempCashAmountLimit : limits.tempCashAmountLimit, card, `tempCashLimit`)}"
-							value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxTemporaryCashAmountLimit : limits.maxTemporaryCashAmountLimit, linkedLimits && updateType === `Debit` ? linkedLimits.tempCashAmountLimit : limits.tempCashAmountLimit, card, `tempCashLimit`)}">
-						</bb-multi-line-label>
+							label="${this._getLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.TEMPORARY_CASH_AMOUNT)}"
+							value="${this._getMaxLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.TEMPORARY_CASH_AMOUNT)}">
+					</bb-multi-line-label>
 						<bb-multi-line-label
 							class="col3"
 							row="1" column="3" colspan="1" size="4" rowspan="1"
-							label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.tempPurchaseAmountLimit : limits.tempPurchaseAmountLimit, card, `tempPurchaseLimit`)}"
-							value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxTemporaryPurchaseAmountLimit : limits.maxTemporaryPurchaseAmountLimit, linkedLimits && updateType === `Debit` ? linkedLimits.tempPurchaseAmountLimit : limits.tempPurchaseAmountLimit, card, `tempPurchaseLimit`)}">
+							label="${this._getLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.TEMPORARY_PURCHASE_AMOUNT)}"
+							value="${this._getMaxLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.TEMPORARY_PURCHASE_AMOUNT)}">
 						</bb-multi-line-label>
-						<bb-multi-line-label
+						<bb-multi-line-label 
 							class="col4"
 							row="1" column="4" colspan="1" size="4" rowspan="1"
-							label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.tempCnpAmountLimit : limits.tempCnpAmountLimit, card, `tempOnlineLimit`)}"
-							value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxTemporaryCnpAmountLimit : limits.maxTemporaryCnpAmountLimit, linkedLimits && updateType === `Debit` ? linkedLimits.tempCnpAmountLimit : limits.tempCnpAmountLimit, card, `tempOnlineLimit`)}">
+							label="${this._getLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.TEMPORARY_CNP_AMOUNT)}"
+							value="${this._getMaxLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.TEMPORARY_CNP_AMOUNT)}">
 						</bb-multi-line-label>
 						${this._renderUpdateButton(LIMIT_TYPES.TEMPORARY, card)}
 				</capitec-group>`
 			: html``;
-	}
-
-	_getLimitValue(value, card, id) {
-		const type = card.cardDisplayType;
-
-		if (type === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD && (id === `permOnlineLimit` || id === `tempOnlineLimit`)) {
-			return `N/A`;
-		} else if (type === CARD_DISPLAY_TYPES.VIRTUAL_CARD && id !== `permOnlineLimit`) {
-			return `N/A`;
-		} else if ((id === `tempCashLimit` || id === `tempPurchaseLimit` || id === `tempOnlineLimit`) && isNullorEmpty(value)) {
-			return `Not set`;
-		}
-
-		return formatCurrency(value);
-	}
-
-	_getMaxLimitValue(maxValue, value, card, id) {
-		const type = card.cardDisplayType;
-
-		if (type === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD && (id === `permOnlineLimit` || id === `tempOnlineLimit`)) {
-			return ``;
-		} else if (type === CARD_DISPLAY_TYPES.VIRTUAL_CARD && !(id === `permOnlineLimit`)) {
-			return ``;
-		} else if ((id === `tempCashLimit` || id === `tempPurchaseLimit` || id === `tempOnlineLimit`) && isNullorEmpty(value)) {
-			return ``;
-		}
-
-		return `max ${formatCurrency(maxValue, 0)}`;
 	}
 
 	_renderUpdateButton(type, card) {
