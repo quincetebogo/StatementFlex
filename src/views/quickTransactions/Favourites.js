@@ -1,11 +1,11 @@
 import { css, html } from 'platform/elements';
+import { isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-import { isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
@@ -752,15 +752,14 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.UPDATE_CARD_LIMITS
 			? html`
 				<horizon-card-limits-landing
-					.cards="${this.cards}"
+				.cards="${this.cards}"
+					cifNumber="${this.callerInformation.cifNumber}"
+					voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
+					verificationMethod="${this.callerInformation.verificationMethod}"
+					?hasDigitalChannels="${this.callerInformation.hasDigitalChannels}"
+					.getCardLimitsAgreement ="${renderRequest => this._getCardLimitsAgreement(renderRequest)}"
 					.getPermanentLimits="${request => this._getPermanentLimits(request)}"
 					.getTemporaryLimits="${request => this._getTemporaryLimits(request)}"
-					.cifNumber="${this.callerInformation.cifNumber}"
-					.voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
-					.getCardLimitsAgreement ="${renderRequest => this._getCardLimitsAgreement(renderRequest)}"
-					.hasDigitalChannels="${this.callerInformation.hasDigitalChannels}"
-					.verificationMethod="${this.callerInformation.verificationMethod}"
-
 					.updatePermanentLimits ="${renderRequest => this._updatePermanentLimits(renderRequest)}"
 					.updateTemporaryLimits ="${renderRequest => this._updateTemporaryLimits(renderRequest)}"
 					@verify-now="${() => super._verifyClick()}"
