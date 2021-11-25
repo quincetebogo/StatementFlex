@@ -36,6 +36,7 @@ export class XdsVerificationFailed extends ViewBase {
 		super.connectedCallback();
 
 		this._updateMiniProfile();
+		this.endCallContext = `VerifyClientFailed`;
 	}
 
 	// --------------
