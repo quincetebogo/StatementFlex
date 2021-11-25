@@ -25,7 +25,7 @@ export class ProofOfAccountSuccess extends ViewBase {
 
 		this.acNumber = ``;
 		this.mailId = ``;
-
+		this.endCallContext = `QuickTransactionSuccess`;
 		this._telemetry = HorizonTelemetry.instance;
 	}
 

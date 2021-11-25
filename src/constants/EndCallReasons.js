@@ -17,6 +17,10 @@
  const BALANCE_ENQUIRY = 7;
  const CALL_TRANSFERED = 8;
  const PRODUCT_ENQUIRY = 9;
+ const ABANDONED_VERIFICATION = 10;
+
+ let UNCOMMON_REASONS = {};
+ let PRODUCT_ENQUIRY_REASONS = {};
 
 export const END_CALL_REASON = Object.freeze({
 	
@@ -43,21 +47,22 @@ export const END_CALL_REASON = Object.freeze({
 			mapping: `call-transfer`
 		},
 		{
+			key: NEED_FULFILLED,
+			value: `Need fulfilled`,
+			mapping: `general-product-enquiry`
+		},
+		{
 			key: NEED_INCOMPLETE,
 			value: `Need incomplete - bad connection`,
 			mapping: `telephony-disconnected`
-		},
-		{
-			key: PRODUCT_ENQUIRY,
-			value: `Product enquiry`,
-			mapping: `general-product-enquiry`
 		}
+		
 	],
 	VerifyClient: [
 		{
-			key: FAILED_VERIFICATION,
-			value: `Client failed verification`,
-			mapping: `failed-verification`
+			key: NEED_FULFILLED,
+			value: `Need fulfilled`,
+			mapping: `general-product-enquiry`
 		},
 		{
 			key: LANGUAGE_TRANSFER,
@@ -73,11 +78,55 @@ export const END_CALL_REASON = Object.freeze({
 			key: NEED_INCOMPLETE,
 			value: `Need incomplete - bad connection`,
 			mapping: `telephony-disconnected`
+		}
+	], 
+	VerifyClientFailed: [
+		{
+			key: FAILED_VERIFICATION,
+			value: `Client failed verification`,
+			mapping: `failed-verification`
 		},
 		{
-			key: PRODUCT_ENQUIRY,
-			value: `Product enquiry`,
+			key: CALL_TRANSFERED,
+			value: `Call transferred`,
+			mapping: `call-transfer`
+		},
+		{
+			key: NEED_INCOMPLETE,
+			value: `Need incomplete - bad connection`,
+			mapping: `telephony-disconnected`
+		},
+		{
+			key: NEED_FULFILLED,
+			value: `Need fulfilled`,
 			mapping: `general-product-enquiry`
+		}
+	],
+	VerifyClientInProgress: [
+		{
+			key: ABANDONED_VERIFICATION,
+			value: `Abandoned Verification`,
+			mapping: `abandoned-verification`
+		},
+		{
+			key: LANGUAGE_TRANSFER,
+			value: `Language transfer`,
+			mapping: `language-transfer`
+		},
+		{
+			key: CALL_TRANSFERED,
+			value: `Call transferred`,
+			mapping: `call-transfer`
+		},
+		{
+			key: NEED_FULFILLED,
+			value: `Need fulfilled`,
+			mapping: `general-product-enquiry`
+		},
+		{
+			key: NEED_INCOMPLETE,
+			value: `Need incomplete - bad connection`,
+			mapping: `telephony-disconnected`
 		}
 	],
 	LandingPage: {
@@ -111,11 +160,6 @@ export const END_CALL_REASON = Object.freeze({
 				key: NEED_INCOMPLETE,
 				value: `Need incomplete - bad connection`,
 				mapping: `telephony-disconnected`
-			},
-			{
-				key: PRODUCT_ENQUIRY,
-				value: `Product enquiry`,
-				mapping: `general-product-enquiry`
 			}
 		],
 		"verified": [
@@ -148,19 +192,9 @@ export const END_CALL_REASON = Object.freeze({
 				key: NEED_INCOMPLETE,
 				value: `Need incomplete - bad connection`,
 				mapping: `telephony-disconnected`
-			},
-			{
-				key: BALANCE_ENQUIRY,
-				value: `Balance enquiry`,
-				mapping: `savings-account-balance`
-			},
-			{
-				key: PRODUCT_ENQUIRY,
-				value: `Product enquiry`,
-				mapping: `general-product-enquiry`
 			}
 		],
-		"non-client": [
+		"non-client": PRODUCT_ENQUIRY_REASONS = [
 			{
 				key: NEED_FULFILLED,
 				value: `Need fulfilled`,
@@ -190,11 +224,6 @@ export const END_CALL_REASON = Object.freeze({
 				key: NEED_INCOMPLETE,
 				value: `Need incomplete - bad connection`,
 				mapping: `telephony-disconnected`
-			},
-			{
-				key: PRODUCT_ENQUIRY,
-				value: `Product enquiry`,
-				mapping: `general-product-enquiry`
 			}
 		],
 		"failed": [
@@ -202,6 +231,26 @@ export const END_CALL_REASON = Object.freeze({
 				key: FAILED_VERIFICATION,
 				value: `Client failed verification`,
 				mapping: `failed-verification`
+			},
+			{
+				key: NEED_FULFILLED,
+				value: `Need fulfilled`,
+				mapping: `general-product-enquiry`
+			},
+			{
+				key: NEED_ASSIGNED,
+				value: `Need assigned`,
+				mapping: `general-product-enquiry`
+			},
+			{
+				key: NEED_HANDED_OFF,
+				value: `Need handed off`,
+				mapping: `general-product-enquiry`
+			},
+			{
+				key: LANGUAGE_TRANSFER,
+				value: `Language transfer`,
+				mapping: `language-transfer`
 			},
 			{
 				key: CALL_TRANSFERED,
@@ -212,15 +261,10 @@ export const END_CALL_REASON = Object.freeze({
 				key: NEED_INCOMPLETE,
 				value: `Need incomplete - bad connection`,
 				mapping: `telephony-disconnected`
-			},
-			{
-				key: PRODUCT_ENQUIRY,
-				value: `Product enquiry`,
-				mapping: `general-product-enquiry`
 			}
 		]
 	},
-	TransactionHistory: [
+	TransactionHistory: UNCOMMON_REASONS = [
 		{
 			key: NEED_FULFILLED,
 			value: `Need fulfilled`,
@@ -247,19 +291,136 @@ export const END_CALL_REASON = Object.freeze({
 			mapping: `telephony-disconnected`
 		},
 		{
-			key: BALANCE_ENQUIRY,
-			value: `Balance enquiry`,
-			mapping: `transaction-history-request`
+			key: FOLLOW_UP,
+			value: `Follow up required`,
+			mapping: ``
+		}
+	],
+	QuickTransactionSuccess: [
+		{
+			key: NEED_FULFILLED,
+			value: `Need fulfilled`,
+			mapping: `general-product-enquiry`
 		},
 		{
-			key: PRODUCT_ENQUIRY,
-			value: `Product enquiry`,
+			key: NEED_ASSIGNED,
+			value: `Need assigned`,
 			mapping: `general-product-enquiry`
+		},
+		{
+			key: NEED_HANDED_OFF,
+			value: `Need handed off`,
+			mapping: `general-product-enquiry`
+		},
+		{
+			key: CALL_TRANSFERED,
+			value: `Call transferred`,
+			mapping: `call-transfer`
+		},
+		{
+			key: NEED_INCOMPLETE,
+			value: `Need incomplete - bad connection`,
+			mapping: `telephony-disconnected`
 		},
 		{
 			key: FOLLOW_UP,
 			value: `Follow up required`,
 			mapping: ``
 		}
-	]
+	],
+	QuickTransactionsUnSuccess: [
+		{
+			key: NEED_INCOMPLETE,
+			value: `Need incomplete - Transaction Failed`,
+			mapping: ``
+		},
+		{
+			key: NEED_ASSIGNED,
+			value: `Need assigned`,
+			mapping: `general-product-enquiry`
+		},
+		{
+			key: NEED_HANDED_OFF,
+			value: `Need handed off`,
+			mapping: `general-product-enquiry`
+		},
+		{
+			key: CALL_TRANSFERED,
+			value: `Call transferred`,
+			mapping: `call-transfer`
+		},
+		{
+			key: FOLLOW_UP,
+			value: `Follow up required`,
+			mapping: ``
+		}
+	],
+	QuickTransactionsInProgress: [
+		{
+			key: NEED_INCOMPLETE,
+			value: `Need incomplete - bad connection`,
+			mapping: `telephony-disconnected`
+		},
+		{
+			key: NEED_ASSIGNED,
+			value: `Need assigned`,
+			mapping: `general-product-enquiry`
+		},
+		{
+			key: NEED_HANDED_OFF,
+			value: `Need handed off`,
+			mapping: `general-product-enquiry`
+		},
+		{
+			key: CALL_TRANSFERED,
+			value: `Call transferred`,
+			mapping: `call-transfer`
+		},
+		{
+			key: FOLLOW_UP,
+			value: `Follow up required`,
+			mapping: ``
+		}
+	],
+	DebiCheck: UNCOMMON_REASONS,
+	SearchOtherNeed: UNCOMMON_REASONS,
+	ProductEnquiry: PRODUCT_ENQUIRY_REASONS
 });
+
+/**
+ * Classification for call transferred end call reason
+ * 
+ * @readonly
+ * @enum {Object} CALL_TRANSFERED_CLASSIFICATION
+ */
+export const CALL_TRANSFERED_CLASSIFICATION = Object.freeze({
+	category: `Telephony`,
+	subcategory: `Transfer`
+});
+
+/**
+ * Enum - For the below reasons, we need to recognize need when incident not classified
+ * 
+ * @readonly
+ * @enum {Object} RECOGNIZE_NEED_REASONS
+ */
+export const RECOGNIZE_NEED_REASONS = Object.freeze([
+	END_CALL_REASON.NEED_FULFILLED,
+	END_CALL_REASON.NEED_ASSIGNED,
+	END_CALL_REASON.NEED_HANDED_OFF,
+	END_CALL_REASON.PRODUCT_ENQUIRY,
+	END_CALL_REASON.CALL_TRANSFERED
+]);
+
+/**
+ * Exceptional end call contexts that do not fall under Incident inprogress logic
+ * 
+ * @readonly
+ * @enum {Object} EXCEPTIONAL_ENDCALL_CONTEXTS
+ */
+ export const EXCEPTIONAL_ENDCALL_CONTEXTS = Object.freeze([
+	 `TransactionHistory`,
+	 `DebiCheck`,
+	 `SearchOtherNeed`,
+	 `ProductEnquiry`
+ ]);

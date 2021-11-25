@@ -683,13 +683,21 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderEndCallModal() {
+		let status = ``;
+
+		if (this.seconds > 0 && this.seconds < ITA_TIMEOUT_SECS) {
+			status = `InProgress`;
+		} else if (this.callerInformation.verificationAttempts.itaAttempts > 0) {
+			status = `Failed`;
+		}
+
 		return this.renderMode !== RENDER_MODE.END_CALL
 			? html``
 			: html`
 				<horizon-end-call-session 
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.incidentDetails="${this.incidentDetails}"
-					endCallContext="VerifyClient"
+					endCallContext='VerifyClient${status}'
 					@cancel="${() => this.renderMode = RENDER_MODE.VERIFY_CALLER}">
 				</horizon-end-call-session>`;
 	}
