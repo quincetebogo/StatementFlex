@@ -8,7 +8,6 @@ import 'app/components/common/HorizonExpander';
 import 'app/components/common/CardArt';
 import 'app/components/dialogs/quickTransactions/UpdateCardLimits';
 import 'app/components/dialogs/common/DiscardChanges';
-import 'app/components/dialogs/common/VerifyCaller';
 import 'app/components/dialogs/common/ConfirmSelection';
 import 'app/components/common/MultiLineLabel';
 
@@ -525,7 +524,6 @@ export class CardLimitsLanding extends Component {
 					margin: 0px;
 				}
 				capitec-hyperlink {
-					--theme-hyperlink-color: #3A3A3A;
 					--theme-font-weight: 600;
 					--theme-hyperlink-color: #3A3A3A;
 					text-decoration: underline;
@@ -696,7 +694,6 @@ export class CardLimitsLanding extends Component {
 				${this._renderTitleBar()}
 				<capitec-content-box>
 					${this._renderVerifyNowAlertBanner()}
-					${this._renderNoItaAlertBanner()}
 					<capitec-expander-group modeset="multiple">
 						${this.primaryCards.length > 0 ? this._renderPrimaryCardGroup() : ``}
 						${this.virtualCards.length > 0 ? this._renderVirtualCardGroup() : ``}
@@ -722,45 +719,27 @@ export class CardLimitsLanding extends Component {
 	}
 
 	_renderVerifyNowAlertBanner() {
-		if (this.hasDigitalChannels && this.verificationMethod === `XDS`) {
-			return html`
-				<capitec-alert-banner 
-					data-automation-id="card-limits-landing-alert-banner"
-					type="warning">
-					<capitec-group id="id-notify-banner-group" layout="horizontal">
-						<capitec-label type="strong" label="Notify client:"></capitec-label>
-						<capitec-label 
-									type="default"
-									label="For added security, we will be sending a push notification to access additional transactions.">
-						</capitec-label>
-						<capitec-spacer></capitec-spacer>
-						<capitec-hyperlink 
+		const label = this.hasDigitalChannels && this.verificationMethod === `XDS` ? `For added security, we will be sending a push notification to access additional transactions.` : `For added security, get the App to update your Online limit, alternatively visit your nearest branch.`;
+		return html`
+			<capitec-alert-banner 
+						data-automation-id="card-limits-landing-alert-banner"
+						type="warning">
+				<capitec-group id="id-notify-banner-group" layout="horizontal">
+					<capitec-label type="strong" label="Notify client:"></capitec-label>
+					<capitec-label 
+								type="default"
+								label="${label}">
+					</capitec-label>
+					<capitec-spacer></capitec-spacer>
+					<capitec-hyperlink 
 							data-automation-id="card-limits-landing-verify"
 							label="Verify Now"
+							?hidden=${!this.hasDigitalChannels}
 							@click="${() => this._verifyClick()}">
-						</capitec-hyperlink>
-					</capitec-group>
-				</capitec-alert-banner>
-			`;
-		}
-	}
-
-	_renderNoItaAlertBanner() {
-		if (!this.hasDigitalChannels && this.verificationMethod === `XDS`) {
-			return html`
-				<capitec-alert-banner 
-					data-automation-id="card-limits-landing-alert-banner"
-					type="warning">
-					<capitec-group id="id-notify-banner-group" layout="horizontal">
-						<capitec-label type="strong" label="Notify client:"></capitec-label>
-						<capitec-label 
-									type="default"
-									label="For added security, get the App to update your Online limit, alternatively visit your nearest branch.">
-						</capitec-label>
-					</capitec-group>
-				</capitec-alert-banner>
-			`;
-		}
+					</capitec-hyperlink>
+				</capitec-group>
+			</capitec-alert-banner>
+		`;
 	}
 
 	_renderPrimaryCardGroup() {
