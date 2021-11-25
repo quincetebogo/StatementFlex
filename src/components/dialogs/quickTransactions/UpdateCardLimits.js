@@ -500,6 +500,15 @@ export class UpdateCardLimits extends Component {
 		const otherDate = DateTime.fromISO(date.substring(10, 0));
 		return `${otherDate.day} ${otherDate.monthShort} ${otherDate.year}`;
 	}
+
+	_getCnpHint(limitType, expiryDate, verificationMethod) {
+		if (verificationMethod === `XDS`) {
+			return `Have to verify client via ITA to update`;
+		}
+
+		return limitType === `Temporary` ? expiryDate : ``;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -1036,7 +1045,7 @@ export class UpdateCardLimits extends Component {
 				type="currency"
 				value="${this._getTextFieldValue(cnpAmountLimit, limits.cnpAmountLimit)}"
 				error="${this._getFieldError(this.error[transactionType][cnpAmountLimit]) || this.tempError[cnpAmountLimit]}"
-				hint="${this.limitType === `Temporary` ? this.expiryDate : ``}"
+				hint="${this._getCnpHint(this.limitType, this.expiryDate, this.verificationMethod)}"
 				?disabled=${this.verificationMethod === `XDS`}
 				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD}"
 				@blur="${() => this.fieldFocused = ``}"
