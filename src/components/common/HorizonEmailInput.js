@@ -140,10 +140,12 @@ export class HorizonEmailInput extends Component {
 			css`
 			.emailLabel[type="subtitle"] {
 				line-height: 24px;
-
 				--theme-label-subtitle-font-size: 18px;
 				--theme-label-subtitle-font-weight: 600;
 				--theme-layout-gap-spacing: 16px;
+			}
+			.emailTextField {
+				height: 60px;
 			}`
 		];
 	}
@@ -166,12 +168,16 @@ export class HorizonEmailInput extends Component {
 
 	_renderEmailGroup() {
 		return html`
-			<capitec-label
+
+<capitec-group layout="vertical" gap="clear" halign="stretch" valign="top">
+			
+	<capitec-label
 				class="emailLabel"
 				type="subtitle"
 				label="${this.labelOne}">
 			</capitec-label>
 
+<div class="emailTextField">
 			<capitec-text-field
 				id="email"
 				data-automation-id="email-input-email-address"
@@ -184,14 +190,15 @@ export class HorizonEmailInput extends Component {
 				@value-changed="${(e) => this._emailFormatCheck(e)}"
 				@input="${(e) => this._inputEmail(e)}">
 			</capitec-text-field>
-
+</div>
 			<capitec-label
-				style="padding-top:8px"
+				style="padding-top:16px"
 				class="emailLabel"
 				type="subtitle"
 				label="${this.labelTwo}">
 			</capitec-label>
 
+			<div class="emailTextField">
 			<capitec-text-field
 				id="confirmEmail"
 				data-automation-id="email-input-confirm-email-address"
@@ -204,7 +211,8 @@ export class HorizonEmailInput extends Component {
 				@value-changed="${(e) => this._emailFormatCheck(e)}"
 				@input="${(e) => this._inputEmail(e)}">
 			</capitec-text-field>
-
+			</div>
+	</capitec-group>
 			<hr class="seperator">
 		`;
 	}
