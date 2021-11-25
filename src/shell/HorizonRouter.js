@@ -211,15 +211,19 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.INITIAL_SYSTEM_ERROR}`);
 	}
 
-	navigateToliveBetterSystemError(){
+	navigateToTaxCertificateServiceError() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.TAX_CERTIFICATE_SERVICE_ERROR}`);
+	}
+
+	navigateToliveBetterSystemError() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.LIVE_BETTER_SYSTEM_ERROR}`);
 	}
 
 	navigateToDebiCheckSuccess() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.DEBICHECK_SUCCESS}`);
-    }
+	}
 
-    navigateToDebiCheckFailed() {
+	navigateToDebiCheckFailed() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.DEBICHECK_FAILED}`);
 	}
 
@@ -624,8 +628,8 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.DEBICHECK_SUCCESS,
 		load: () => import(`../views/quickTransactions/DebiCheckSuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
-    },
-    {
+	},
+	{
 		name: `horizon-debi-check-failure`,
 		title: `DebiCheckFailed`,
 		icon: null,
