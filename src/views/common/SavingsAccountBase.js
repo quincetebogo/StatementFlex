@@ -31,62 +31,62 @@ import 'app/components/dialogs/quickTransactions/ApproveDebiCheckMandate';
  */
 export class SavingsAccountBase extends ViewBase {
 
-    // --------------
-    // INITIALISATION
-    // --------------
+	// --------------
+	// INITIALISATION
+	// --------------
 
-    constructor() {
-        super();
+	constructor() {
+		super();
 
-        this.debiCheckDetails = {};
-        this.clientProducts = null;
-        this.debiCheckMandates = [];
-        this.incomingCallDetails = {};
-        this.incidentRecId = ``;
-        this.landingPageInfo = {};
-        this.callerInformation = {};
-        this.clientDetails = {};
-        this.mandateId = ``;
-        this.registerId = ``;
-        this.accountNumber = null;
-        this.isPending = ``;
+		this.debiCheckDetails = {};
+		this.clientProducts = null;
+		this.debiCheckMandates = [];
+		this.incomingCallDetails = {};
+		this.incidentRecId = ``;
+		this.landingPageInfo = {};
+		this.callerInformation = {};
+		this.clientDetails = {};
+		this.mandateId = ``;
+		this.registerId = ``;
+		this.accountNumber = null;
+		this.isPending = false;
 
-        this.navigationContext = NavigationContext.getInstance();
-        this.horizonStore = HorizonStore.getInstance();
-
-
-        this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
-        this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.navigationContext = NavigationContext.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 
 
-    }
-
-    // --------------
-    // PROPERTIES
-    // --------------
-
-    // -------------------
-    // LIFECYCLE OVERRIDES
-    // -------------------
-
-    connectedCallback() {
-        super.connectedCallback();
-        const state = this.horizonStore.recoverState();
-        this.callerInformation = this.horizonStore.getCallerInformation();
-        this.landingPageInfo = state.landingPageInfo;
-        this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-        this.incidentDetails = this.horizonStore.getIncidentDetails();
-        this.incidentRecId = this.incidentDetails.incidentRecId;
-    }
-
-    disconnectedCallback() {
-        super.disconnectedCallback();
-    }
+		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 
 
-    // --------------
-    // EVENT HANDLERS
-    // --------------
+	}
+
+	// --------------
+	// PROPERTIES
+	// --------------
+
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+
+	connectedCallback() {
+		super.connectedCallback();
+		const state = this.horizonStore.recoverState();
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		this.landingPageInfo = state.landingPageInfo;
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentRecId = this.incidentDetails.incidentRecId;
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+	}
+
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
 
 	async _debiCheck() {
 		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_DEBI_CHECK, {
@@ -386,7 +386,7 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	_shouldDisable(need) {
-		//add this verification method in the verify caller component to check if the client has done ita 
+		// add this verification method in the verify caller component to check if the client has done ita 
 		const verificationMethod = this.callerInformation.verificationMethod;
 		const verificationStatus = this.callerInformation.verificationStatus;
 
@@ -455,7 +455,7 @@ export class SavingsAccountBase extends ViewBase {
 			? html`
 				<horizon-viewinfo-debicheck
 					.debiCheckDetails=${this.debiCheckDetails}
-					.isPending=${this.isPending}
+					?isPending=${this.isPending}
 					@viewed="${() => this._closeViewMandateInfo()}"
 				></horizon-viewinfo-debicheck>`
 			: html``;
@@ -485,14 +485,14 @@ export class SavingsAccountBase extends ViewBase {
 			: html``;
 	}
 
-    _renderStatementsModal() {
-        return this.renderMode === RENDER_MODE.STATEMENTS
-            ? html`
+	_renderStatementsModal() {
+		return this.renderMode === RENDER_MODE.STATEMENTS
+			? html`
 				<horizon-statements-dialog
 					.cifNumber="${this.callerInformation.cifNumber}"
 					.clientProducts="${this.clientProducts}"
 					@cancel="${() => this._backToLandingPage()}">
 				</horizon-statements-dialog>`
-            : html``;
-    }
+			: html``;
+	}
 }

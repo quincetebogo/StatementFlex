@@ -90,7 +90,7 @@ export class Favourites extends SavingsAccountBase {
 		super.connectedCallback();
 		this.incidentRecId = this.incidentDetails.incidentRecId;
 		this.feedbackOptions = FEEDBACK_OPTIONS;
-		 
+		
 
 		this._telemetry.startSpan(QuickTransactionEvents.FULFILL_NEED, {
 			"screen": TelemetryScreen.FAVOURITES
@@ -184,13 +184,9 @@ export class Favourites extends SavingsAccountBase {
 
 		// re-initialise the page when the verification status changes
 		// verificationStatus is on the this.callerInformation object
-		await this._initialise();
-
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-		if (this.curOptionEvent) {
-			const optionSelected = this.curOptionEvent.detail.option;
-			this.curOptionEvent = null;
-			await this._performAction(optionSelected);
+		
+		if (this.callerInformation.verificationStatus !== `verified`) {
+        await this._initialise();
 		}
 	}
 
@@ -479,7 +475,7 @@ export class Favourites extends SavingsAccountBase {
 		});
 
 		const returnValue = await this.quickTransactionService.cardLimitsLanding(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
-			 
+			
 		if (returnValue.succeeded) {
 			this.cards = returnValue.result.cards;
 
@@ -558,7 +554,7 @@ export class Favourites extends SavingsAccountBase {
 		});
 
 		await super.createAndClassifySubsIncident();
-		
+
 		this.endCallContext = `SearchOtherNeed`;
 		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
 		await this.getCategories();
@@ -710,7 +706,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderProofOfAccount()}
 			${this._renderFeedback()}
 			${this._renderUpdateIncidentModal()}
-			${this._renderTaxCertificate()}
+		${this._renderTaxCertificate()}
 
 
 			${super._webTemplate()}
@@ -760,15 +756,17 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.UPDATE_CARD_LIMITS
 			? html`
 				<horizon-card-limits-landing
-					.cards="${this.cards}"
+				.cards="${this.cards}"
+					cifNumber="${this.callerInformation.cifNumber}"
+					voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
+					verificationMethod="${this.callerInformation.verificationMethod}"
+					?hasDigitalChannels="${this.callerInformation.hasDigitalChannels}"
+					.getCardLimitsAgreement ="${renderRequest => this._getCardLimitsAgreement(renderRequest)}"
 					.getPermanentLimits="${request => this._getPermanentLimits(request)}"
 					.getTemporaryLimits="${request => this._getTemporaryLimits(request)}"
-					.cifNumber="${this.callerInformation.cifNumber}"
-					.voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
-					.getCardLimitsAgreement ="${renderRequest => this._getCardLimitsAgreement(renderRequest)}"
-
 					.updatePermanentLimits ="${renderRequest => this._updatePermanentLimits(renderRequest)}"
 					.updateTemporaryLimits ="${renderRequest => this._updateTemporaryLimits(renderRequest)}"
+					@verify-now="${() => super._verifyClick()}"
 					@back="${() => this._backToLandingPage()}"
 					@result=${eventData => this._updateLimitsResult(eventData)}>
 				</horizon-card-limits-landing>`
@@ -824,7 +822,7 @@ export class Favourites extends SavingsAccountBase {
 			</horizon-update-incident-dialog>`
 		: html``;
 	}
-  
+
 	_renderTaxCertificate() {
 		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE
 		? html`
