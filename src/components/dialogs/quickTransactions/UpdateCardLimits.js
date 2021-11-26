@@ -235,7 +235,8 @@ export class UpdateCardLimits extends Component {
 		} else {
 			this.cardLimits[e.currentTarget.id] = isNullorEmpty(newVal) ? null : parseInt(newVal, 10);
 		}
-		const diff = (isNullorEmpty(newVal) ? 0 : parseInt(newVal, 10)) - (isNullorEmpty(oldVal) ? oldVal : parseInt(oldVal, 10));
+
+		const diff = this._getDifference(newVal, oldVal);
 
 		if (this.cardDetails.cardDisplayType === `Primary_Card`) {
 			if (this.limitType === `Permanent`) {
@@ -503,6 +504,14 @@ export class UpdateCardLimits extends Component {
 	_getFullDate(date) {
 		const otherDate = DateTime.fromISO(date.substring(10, 0));
 		return `${otherDate.day} ${otherDate.monthShort} ${otherDate.year}`;
+	}
+	
+	_getDifference(newVal, oldVal) {
+		
+		const newLimitValue = isNullorEmpty(newVal) ? 0 : parseInt(newVal, 10);
+		const oldLimitValue = isNullorEmpty(oldVal) ? oldVal : parseInt(oldVal, 10);
+		
+		return newLimitValue - oldLimitValue;
 	}
 	// ---------
 	// RENDERING
