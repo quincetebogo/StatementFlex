@@ -22,7 +22,6 @@ import 'app/components/liveBetter/LiveBetterUnverifiedPage';
 import 'app/components/dialogs/liveBetter/ManageAutomaticSavings';
 import 'app/components/dialogs/common/StatementsDialog';
 import 'app/components/dialogs/liveBetter/LBBTransactionDetails';
-import { LBBLinkedTransactionDetails } from 'app/mocks/LiveBetterLandingMocks';
 
 const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE: 'LBB',

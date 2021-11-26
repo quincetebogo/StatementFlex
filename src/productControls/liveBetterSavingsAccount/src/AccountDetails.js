@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency } from '../../utilities/Currency';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 import 'app/components/common/HorizonLabel';
 
 const ACCOUNT_TYPE = {
