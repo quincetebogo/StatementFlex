@@ -19,6 +19,7 @@
 	ITA_FAILED: `call.verify-caller.ita.failed`,
 	ITA_TIMEDOUT: `call.verify-caller.ita.timeout`,
 	ITA_END_CALL: `call.verify-caller.ita.end-call`,
+	ITA_CANCEL_CLICK: `call.verify-caller.ita.cancel`,
 
 	// Verify Caller by Security Question
 	VERIFY_CALLER_XDS: `call.verify-caller.xds`,
