@@ -185,7 +185,7 @@ export class ErrorScreen extends Component {
 					?hidden="${!this.displayToast}"
 					id="id-error-toast"
 					type="error" 
-					header="Unsuccesful" 
+					header="Unsuccessful" 
 					detail="${this.toast}" 
 					closable 
 					@click="${() => this.displayToast = false}">
@@ -229,7 +229,7 @@ export class ErrorScreen extends Component {
 					?hidden="${!this.displayToast}"
 					class="secondary-toast"
 					type="error" 
-					header="Unsuccesful" 
+					header="Unsuccessful" 
 					detail="${this.secondaryToast}"
 					closable 
 					@click="${() => this.displayToast = false}">
