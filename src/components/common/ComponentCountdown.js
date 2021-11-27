@@ -150,7 +150,7 @@ export class ComponentCountdown extends Component {
 	}
 
 	formatTime(time) {
-		const minutes = `0` + Math.floor(time / 60);
+		const minutes = `0${Math.floor(time / 60)}`;
 		let seconds = time % 60;
 
 		if (seconds < 10) {

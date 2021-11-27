@@ -61,6 +61,7 @@ export class VerifyCaller extends Component {
 		// Property initialization
 		this.renderMode = RENDER_MODE.VERIFY_CALLER;
 		this.isBusy = false;
+		this.isLoading = true;
 
 		this.xdsUnavailable = false;
 
@@ -68,6 +69,7 @@ export class VerifyCaller extends Component {
 		this.itaTimeout = false;
 		this.itaRejected = false;
 		this.itaSystemError = false;
+		this.timeLeft = ITA_TIMEOUT_SECS;
 
 		this.hasSouthAfricanID = false;
 
@@ -115,14 +117,15 @@ export class VerifyCaller extends Component {
 			xdsAttempts: { state: true },
 			itaAttempts: { state: true },
 			timeLeft: { state: true },
-			isBusy: { state: true }
+			isBusy: { state: true },
+			isLoading: { state: true }
 		};
 	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 
 		this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER);
@@ -140,13 +143,11 @@ export class VerifyCaller extends Component {
 
 		this.hasSouthAfricanID = isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber);
 
-
-		// TODO: Remember to remove debug lines
-		// this.callerInformation.hasDigitalChannels = true;
-
 		if (this.callerInformation.hasDigitalChannels) {
-			return this._initiateItaVerification();
+			await this._initiateItaVerification();
 		}
+
+		this.isLoading = false;
 	}
 
 	disconnectedCallback() {
@@ -641,6 +642,10 @@ export class VerifyCaller extends Component {
 	}
 
 	_webTemplate() {
+		if (this.isLoading) {
+			return `${this._renderLoadingIndicator()}`;
+		}
+		
 		return html`
 			${this._renderVerifyCallerDialog()}
 			${this._renderSecurityQuestionsDialog()}
@@ -831,7 +836,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderLoadingIndicator() {
-		if (this.isBusy) {
+		if (this.isBusy || this.isLoading) {
 			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 		};
 
