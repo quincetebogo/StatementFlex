@@ -43,6 +43,7 @@ export class DebiCheckFailure extends ViewBase {
         const screenDetails = this.horizonStore.getScreenDetails();
         this.isApproved = screenDetails.isApproved;
         this.mandateId = screenDetails.mandateId;
+		this.endCallContext = `QuickTransactionsUnSuccess`;
     }
 
     disconnectedCallback() {

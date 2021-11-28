@@ -264,7 +264,7 @@ export class SuccessScreen extends Component {
 					?hidden="${!this.displayToast}"
 					class="secondary-toast"
 					type="success" 
-					header="Succesful" 
+					header="Successful" 
 					detail="${this.secondaryToast}"
 					closable 
 					@click="${() => this.displayToast = false}">
