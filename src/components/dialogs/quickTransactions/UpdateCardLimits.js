@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { formatCurrency, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { DateTime } from 'luxon';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
@@ -116,10 +116,8 @@ export class UpdateCardLimits extends Component {
 
 	/**
 	 * 
-	 * @property {Boolean} hasDigitalChannels Indicates if the client is registered for digital channels 
-	 * @property {String} verificationMethod Indicated the type of verification (xds/ita)
-	 * @property {Object} cardDetails Object has the card details
 	 * @property {string} limitType Flag to indicate Temporary/ Permanent
+	 * @property {Object} cardDetails Object has the card details
 	 * @property {string} updateType Flag to indicate Debit/ Credit
 	 *
 	 * @readonly
@@ -128,28 +126,28 @@ export class UpdateCardLimits extends Component {
 	 */
 	static get properties() {
 		return {
-			hasDigitalChannels: { type: Boolean },
-			verificationMethod: { type: String },
-			cardDetails: { type: Object },
 			limitType: { type: String },
+			cardDetails: { type: Object },
 			updateType: { type: String },
-			getCardLimitsAgreement: { type: Object },
+			getAgreement: { type: String },
+			displayCard: { type: String },
+			getCardLimitsAgreement: { type: Object, attribute: false },
 
-			getAgreement: { state: true },
-			limitLabel: { state: true },
-			limitsAgreementExpanded: { state: true },
-			tapToPayAgreementExpanded: { state: true },
-			alertBannerText: { state: true },
-			renderMode: { state: true },
-			isBusy: { state: true },
-			_tapToPayStatus: { state: true },
-			totalPrimaryPermanentLimits: { state: true },
-			totalPrimaryTemporaryLimits: { state: true },
-			totalSuplementaryPermanentLimits: { state: true },
-			totalSuplementaryTemporaryLimits: { state: true },
-			totalPermanentLimits: { state: true },
-			totalTemporaryLimits: { state: true },
-			fieldFocused: { state: true }
+			limitLabel: { type: String },
+			limitsAgreementExpanded: { type: Boolean },
+			tapToPayAgreementExpanded: { type: Boolean },
+			alertBannerText: { type: String },
+
+			renderMode: { type: Boolean, attribute: false },
+			isBusy: { type: Boolean, attribute: false },
+			_tapToPayStatus: { type: Boolean, attribute: false },
+			totalPrimaryPermanentLimits: { type: Number, attribute: false },
+			totalPrimaryTemporaryLimits: { type: Number, attribute: false },
+			totalSuplementaryPermanentLimits: { type: Number, attribute: false },
+			totalSuplementaryTemporaryLimits: { type: Number, attribute: false },
+			totalPermanentLimits: { type: Number, attribute: false },
+			totalTemporaryLimits: { type: Number, attribute: false },
+			fieldFocused: { type: String, attribute: false }
 		};
 	}
 
@@ -342,11 +340,11 @@ export class UpdateCardLimits extends Component {
 		this.cardlimitsInfo[e.currentTarget.id] = e.detail.new;
 		this.alertBannerText = ``;
 
-		if (e.detail.new && this._getTapToPayStatus() !== TAP_TO_PAY_STATUS.UNCHANGED) {
-			this.limitsAgreementExpanded = !this.limitsAgreementExpanded;
-			this.tapToPayAgreementExpanded = !this.tapToPayAgreementExpanded;
-		}
-	}
+        if (e.detail.new && this._getTapToPayStatus() !== TAP_TO_PAY_STATUS.UNCHANGED) {
+            this.limitsAgreementExpanded = !this.limitsAgreementExpanded;
+            this.tapToPayAgreementExpanded = !this.tapToPayAgreementExpanded;
+        }
+    }
 
 	_textFieldFocused(e) {
 		this.fieldFocused = e.currentTarget.id;
@@ -354,10 +352,6 @@ export class UpdateCardLimits extends Component {
 
 	_getTextFieldValue(id, value) {
 		return this.fieldFocused === id ? value : parseInt(value, 10).toFixed(2);  
-	}
-
-	_verifyClick() {
-		this.dispatchEvent(new CustomEvent(`verify-now`, {}));
 	}
 
 	// --------------
@@ -423,16 +417,16 @@ export class UpdateCardLimits extends Component {
 		`;
 	}
 
-	_getFieldError(value) { 
-		return !value ? `` : `Max limit - ${formatCurrency(value, 0)}`;
-	}
+    _getFieldError(value) { 
+        return !value ? `` : `Max limit - ${formatCurrency(value, 0)}`;
+    }
    
-	_getTapToPayStatus() {
-		if (this._tapToPayStatus === this.cardDetails.isContactlessActivated) {
-			return TAP_TO_PAY_STATUS.UNCHANGED;
-		}
-		return this._tapToPayStatus ? TAP_TO_PAY_STATUS.ACTIVATED : TAP_TO_PAY_STATUS.DEACTIVATED;
-	}
+    _getTapToPayStatus() {
+        if (this._tapToPayStatus === this.cardDetails.isContactlessActivated) {
+            return TAP_TO_PAY_STATUS.UNCHANGED;
+        }
+        return this._tapToPayStatus ? TAP_TO_PAY_STATUS.ACTIVATED : TAP_TO_PAY_STATUS.DEACTIVATED;
+    }
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
@@ -500,15 +494,6 @@ export class UpdateCardLimits extends Component {
 		const otherDate = DateTime.fromISO(date.substring(10, 0));
 		return `${otherDate.day} ${otherDate.monthShort} ${otherDate.year}`;
 	}
-
-	_getCnpHint(limitType, expiryDate, verificationMethod) {
-		if (verificationMethod === `XDS`) {
-			return `Have to verify client via ITA to update`;
-		}
-
-		return limitType === `Temporary` ? expiryDate : ``;
-	}
-
 	// ---------
 	// RENDERING
 	// ---------
@@ -577,7 +562,7 @@ export class UpdateCardLimits extends Component {
 				height: 661px;
 
 				--theme-container-padding-left: 16px;
-				--theme-container-padding-top: 14px;
+				--theme-container-padding-top: 16px;
 				--theme-container-padding-right: 16px;
 				--theme-container-padding-bottom: 0px;
 			}
@@ -587,12 +572,6 @@ export class UpdateCardLimits extends Component {
 				--theme-alert-banner-icon-margin-left: 16px;
 				--theme-alert-banner-icon-margin-right: 8px;
 				margin: 16px 16px 0px 16px;
-			}
-			capitec-alert-banner[type="warning"] {
-				--theme-alert-banner-height: 48px;
-				--theme-alert-banner-icon-margin-left: 16px;
-				--theme-alert-banner-icon-margin-right: 8px;
-				margin: 0px 0px 14px 0px;
 			}
 			.agreements-banner {
 				margin: 0px 0px 16px 0px;
@@ -614,7 +593,7 @@ export class UpdateCardLimits extends Component {
 			}
 			.limits-cb {
 				--theme-container-padding-left: 16px;
-				--theme-container-padding-top: 14px;
+				--theme-container-padding-top: 16px;
 				--theme-container-padding-right: 0px;
 				--theme-container-padding-bottom: 0px;
 				--theme-layout-gap-spacing: 8px;
@@ -797,21 +776,6 @@ export class UpdateCardLimits extends Component {
 			.zeroPaddingRight {
 				--theme-container-padding-right: 0px;
 			}
-			capitec-hyperlink {
-				--theme-font-weight: 600;
-				--theme-hyperlink-color: #3A3A3A;
-				text-decoration: underline;
-			}
-			capitec-label[type="strong"] {
-				--theme-label-strong-font-size: 14px;
-				--theme-label-strong-font-weight: 600;
-				--theme-layout-gap-spacing: 2px;
-				--theme-label-font-color: #3A3A3A;
-			}
-			#id-notify-banner-group > .alert-banner-text {
-				--theme-label-default-font-weight: 400;
-				--theme-label-font-color: #3A3A3A;
-			}
 			`
 		];
 	}
@@ -834,7 +798,6 @@ export class UpdateCardLimits extends Component {
 
 					<capitec-content-box class="main-cb">
 						${this._renderAgreementsAlertBanner()}
-						${this._renderVerificationMethodAlert()}
 						${this._renderSetLimits()}
 						${this._renderAgreement()}
 					</capitec-content-box>
@@ -845,30 +808,6 @@ export class UpdateCardLimits extends Component {
 				</div>
 			</capitec-modal>
 			${this._renderLoadingIndicator()}
-		`;
-	}
-
-	_renderVerificationMethodAlert() {
-		const label = this.hasDigitalChannels && this.verificationMethod === `XDS` ? `For added security, we will be sending a push notification to access additional transactions.` : `For added security, get the App to update your Online limit, alternatively visit your nearest branch.`;
-		return html`
-			<capitec-alert-banner 
-				data-automation-id="card-limits-landing-alert-banner"
-				type="warning">
-				<capitec-group id="id-notify-banner-group" layout="horizontal">
-					<capitec-label type="strong" label="Notify client:"></capitec-label>
-					<capitec-label 
-								type="default"
-								class="alert-banner-text" 
-								label="${label}">
-					</capitec-label>
-
-					<capitec-hyperlink 
-							?hidden=${!this.hasDigitalChannels}
-							label="Verify Now" 
-							@click="${() => this._verifyClick()}">
-					</capitec-hyperlink>
-				</capitec-group>
-			</capitec-alert-banner>
 		`;
 	}
 
@@ -903,9 +842,9 @@ export class UpdateCardLimits extends Component {
 			: html``;
 	}
 
-	_renderSetLimits() {
-		return this.renderMode === RENDER_MODE.LIMITS
-			? html`
+    _renderSetLimits() {
+        return this.renderMode === RENDER_MODE.LIMITS
+            ? html`
 				<capitec-label type="title" label="${this.cardDetails.isVirtualCard ? `Virtual Limits` : this.limitLabel}" class="limitLabel"></capitec-label>
 				<capitec-group class="renderLimits" layout="horizontal" halign="left" valign="top" gap="clear">
 					<capitec-card style="display: inline">
@@ -1045,8 +984,7 @@ export class UpdateCardLimits extends Component {
 				type="currency"
 				value="${this._getTextFieldValue(cnpAmountLimit, limits.cnpAmountLimit)}"
 				error="${this._getFieldError(this.error[transactionType][cnpAmountLimit]) || this.tempError[cnpAmountLimit]}"
-				hint="${this._getCnpHint(this.limitType, this.expiryDate, this.verificationMethod)}"
-				?disabled=${this.verificationMethod === `XDS`}
+				hint="${this.limitType === `Temporary` ? this.expiryDate : ``}"
 				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD}"
 				@blur="${() => this.fieldFocused = ``}"
 				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"
@@ -1214,8 +1152,8 @@ export class UpdateCardLimits extends Component {
 		`;
 	}
 
-	_renderFooter() {
-		return html`
+    _renderFooter() {
+        return html`
 			<capitec-group 
 			class="footer" 
 			layout="horizontal"  
