@@ -525,7 +525,10 @@ export class VerifyCaller extends Component {
 	}
 
 	_canVerifyViaXds() {
-		return this.hasSouthAfricanID && !this._xdsAttemptsExceeded() && !this.xdsUnavailable;
+		return this.hasSouthAfricanID && 
+			!this._xdsAttemptsExceeded() && 
+			!this.xdsUnavailable && 
+			this.verificationMethod !== `XDS`; // Already verified via XDS
 	}
 
 	_canOnlyVerifyByXds() {
