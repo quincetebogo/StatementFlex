@@ -15,7 +15,7 @@ export class ViewInfoDebiCheck extends Component {
 	constructor() {
 		super();
 		this.debiCheckDetails = {};
-		this.isPending = false;
+		this.isPending = ``;
 	}
 
 	// ----------
