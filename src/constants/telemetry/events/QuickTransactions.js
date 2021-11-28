@@ -111,6 +111,7 @@ export const QuickTransactionEvents = {
 	DEBICHECK_APPROVE_MANDATE: `call.fulfill-need.debicheck.approve-mandate`,
 	DEBICHECK_APPROVE_MANDATE_CANCECL: `call.fulfill-need.debicheck.approve-mandate.cancel`,
 	DEBICHECK_APPROVE_MANDATE_CONFIRM: `call.fulfill-need.debicheck.approve-mandate.confirm`,
+	DEBICHECK_FIND_BRANCH: `call.fulfill-need.debicheck.find-a-branch`,
 
 	// Yet to configure events for Debi check mandates approve and outcome screens
 	// It can be done when we implement those feature

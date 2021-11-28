@@ -28,7 +28,7 @@
 		primaryIncidentRecID = ``,
 		currentNeed = ``,
 		previousNeed = ``,
-		needStatus = `InProgress`,
+		needStatus = `Not Started`,
 		feedback = ``
 	) {
 		this.incidentReferenceNumber = incidentReferenceNumber;

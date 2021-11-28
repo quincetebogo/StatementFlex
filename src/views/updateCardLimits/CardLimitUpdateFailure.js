@@ -20,6 +20,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 		this.istapToPayUnChanged = false;
 		this.incidentRecId = this.incidentDetails.incidentRecId;
 		this.tapToPayStatus = ``;
+		this.endCallContext = `QuickTransactionsUnSuccess`;
 	}
 
 	// --------------
