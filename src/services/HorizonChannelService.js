@@ -316,87 +316,6 @@ export class HorizonChannelService extends Service {
 		return this._post(`/clientcare-call-${this._version}/xds-questions`, answers, this._setToken(), `verifySecurityQuestions`, null, null, 3000);
 	}
 
-	/**
-	 * Records the information on an incoming call
-	 *
-	 * @param {Object} incomingCallData Incoming call information
-	 * @returns {Promise<*>} Caller information if the call is originating from a verified number
-	 * @memberof HorizonChannelService
-	 */
-	async acceptCall(incomingCallData) {
-		if (await this._mockEnabled(`acceptCall`)) {
-			return this._mock.acceptCall(incomingCallData);
-		}
-
-		/*
-		return this._get(
-			`/clientcare-call-${this._version}/search-caller?` +
-				`incomingTelephoneNumber=${clientInfo.incomingTelephoneNumber}&` +
-				`voiceReferenceNumber=${clientInfo.voiceReferenceNumber}&` +
-				`ivrOptionCode=${clientInfo.ivrOption}&` +
-				`incidentReferenceNumber=${clientInfo.incidentNo}&` +
-				`agentTelephoneNumber=${clientInfo.agentTelephoneNumber}&` +
-				`identificationMethod=${parseInt(clientInfo.identificationMethod, 10)}&` +
-				`value=${clientInfo.searchValue}`,
-				this._setToken(),
-			`searchCaller`
-		);
-		*/
-
-		
-		const url = `/clientcare-call-${this._version}/accept-call`;
-
-		return this._post(
-			url,
-			{
-				'incomingTelephoneNumber': incomingCallData.incomingTelephoneNumber,
-				'voiceReferenceNumber': incomingCallData.voiceReferenceNumber,
-				'ivrOptionCode': incomingCallData.ivrOptionCode,
-				'incidentReferenceNumber': incomingCallData.incidentReferenceNumber,
-				'agentTelephoneNumber': incomingCallData.agentTelephoneNumber
-			},
-			this._setToken(), 
-			`acceptCall`
-		);
-	}
-
-	searchCaller(clientInfo) {
-
-		/*
-		return this._get(
-			`/clientcare-call-${this._version}/search-caller?` +
-				`incomingTelephoneNumber=${clientInfo.incomingTelephoneNumber}&` +
-				`voiceReferenceNumber=${clientInfo.voiceReferenceNumber}&` +
-				`ivrOptionCode=${clientInfo.ivrOption}&` +
-				`incidentReferenceNumber=${clientInfo.incidentNo}&` +
-				`agentTelephoneNumber=${clientInfo.agentTelephoneNumber}&` +
-				`identificationMethod=${parseInt(clientInfo.identificationMethod, 10)}&` +
-				`value=${clientInfo.searchValue}`,
-				this._setToken(),
-			`searchCaller`,
-			false,
-			1000
-		);
-		*/
-		
-		const url = `/clientcare-call-${this._version}/search-caller`;
-
-		return this._post(
-			url,
-			{
-				'incomingTelephoneNumber': clientInfo.incomingTelephoneNumber,
-				'voiceReferenceNumber': clientInfo.voiceReferenceNumber,
-				'ivrOptionCode': clientInfo.ivrOption,
-				'incidentReferenceNumber': clientInfo.incidentNo,
-				'agentTelephoneNumber': clientInfo.agentTelephoneNumber,
-				'searchType':{
-					'identificationMethod': parseInt(clientInfo.identificationMethod, 10),
-					'value': clientInfo.searchValue
-				}
-			},
-			this._setToken(), `searchCaller`, null, null, 1000
-		);
-	}
 
 	// ----
 	// card
@@ -548,19 +467,6 @@ export class HorizonChannelService extends Service {
 		);
 	}
 
-	searchOptions(incomingCallData) {
-		return this._post(
-			`/clientcare-card-${this._version}/search/options`, {
-			"incomingTelephoneNumber": incomingCallData.incomingTelephoneNumber,
-			"voiceReferenceNumber": incomingCallData.voiceReferenceNumber,
-			"ivrOptionCode": incomingCallData.ivrOptionCode,
-			"incidentReferenceNumber": incomingCallData.incidentReferenceNumber,
-			"agentTelephoneNumber": incomingCallData.agentTelephoneNumber
-		},
-			this._setToken(),
-			`searchOptions`, null, null, 1000
-		);
-	}
 
 	async identifyCaller(callerData) {
 		if (await this._mockEnabled(`stopCardLanding`)) {

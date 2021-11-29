@@ -1,4 +1,4 @@
-import { DEFAULT_AUTO_RETRIES, ServiceBase } from 'app/services/ServiceBase';
+import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
 import { HorizonITAChannelService } from 'app/services/HorizonITAChannelService';
 
 /**
@@ -7,51 +7,48 @@ import { HorizonITAChannelService } from 'app/services/HorizonITAChannelService'
  *
  * @export
  * @class CallHandleService
- * @extends {ServiceBase}
+ * @extends {ChannelServiceBase}
  */
-export class CallHandleService extends ServiceBase {
+export class CallHandleService extends ChannelServiceBase {
 
 	// --------------
 	// INITIALISATION
 	// --------------
-	constructor(toggleBusyFunc, errorHandler = null) {
-		super(toggleBusyFunc, errorHandler);
-
+	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null, baseUrlKey = `serviceURIs.channelServiceUrl`, serviceName = `HorizonChannelService`, version = `v1`) {
+		super(toggleBusyFunc, defaultErrorHandlerFunc, baseUrlKey, serviceName, version);
 		this.itaService = HorizonITAChannelService.getInstance();
+	}
+
+
+	async initialise(mocking) {
+		this._mocking = mocking;
+
+		const logError = (err) => {
+			console.log(err);
+		};
+
+		this.callMocks = await this._loadMockModule(this.callMocks, `acceptCall`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
+		this.favouritesMocks = await this._loadMockModule(this.favouritesMocks, `favouritesLanding`, () => import(`../mocks/QuickTransactionMocks`).catch(err => logError(err)));
+		this.cardLimitsMocks = await this._loadMockModule(this.cardLimitsMocks, `cardLimitsLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
+		this.cardLimitsMocks = await this._loadMockModule(this.cardLimitsMocks, `getTemporaryLimits`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
+		this.cardLimitsMocks = await this._loadMockModule(this.cardLimitsMocks, `getCardLimitsAgreement`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
+		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckMandates`, () => import(`../mocks/DebiCheckMockData`).catch(err => logError(err)));
+		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckDetails`, () => import(`../mocks/DebiCheckMockData`).catch(err => logError(err)));
+        this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckConfirmAgreement`, () => import(`../mocks/DebiCheckMockData`).catch(err => logError(err)));
+		this.securityQuestionMocks = await this._loadMockModule(this.securityQuestionMocks, `xdsQuestions`, () => import(`../mocks/SecurityQuestions`).catch(err => logError(err)));
+		this.stopCardLandingMocks = await this._loadMockModule(this.stopCardLandingMocks, `stopCardLanding`, () => import(`../mocks/StopCardMockData`).catch(err => logError(err)));
+		this.hasInsuranceProductsMock = await this._loadMockModule(this.hasInsuranceProductsMock, `hasInsuranceProducts`, () => import(`../mocks/HasInsuranceProductsMock`).catch(err => logError(err)));
+		this.transactionHistoryMocks = await this._loadMockModule(this.transactionHistoryMocks, `transactionHistory`, () => import(`../mocks/TransactionHistoryMockData`).catch(err => logError(err)));   
+		this.savingsAccountDetails = await this._loadMockModule(this.savingsAccountDetails, `savingsAccountLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
+		this.viewStatementsMock = await this._loadMockModule(this.viewStatementsMock, `viewStatements`, () => import(`../mocks/ViewStatementMock`).catch(err => logError(err)));
+		this.tapToPayMocks = await this._loadMockModule(this.tapToPayMocks, `tapToPayLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
 	}
 
 	// ------------------------------------------
 	// Utility Methods - not part of API Contract
 	// ------------------------------------------
 
-	/**
-	 * A utility method to determine if the return type from acceptCall represents a 
-	 * confirmed caller
-	 * 
-	 * @param { object } acceptedCall An object returned from acceptCall()
-	 * @returns {boolean} Returns true if acceptedCall parameter is a confirmed caller object 
-	 */
-	isConfirmedCaller(acceptedCall) {
-		if (acceptedCall === null || acceptedCall === undefined) {
-			return false;
-		}
-		return acceptedCall.addCallerDetailsButton !== undefined;
-	}
-
-	/**
-	 * A utility method to determine if the return type from acceptCall represents an 
-	 * unverified caller
-	 * 
-	 * @param { object } acceptedCall An object returned from acceptCall()
-	 * @returns {boolean} Returns true if acceptedCall parameter is an unverified caller object 
-	 */
-	isUnverifiedCaller(acceptedCall) {
-		if (acceptedCall === null || acceptedCall === undefined) {
-			return false;
-		}
-		return !this.isConfirmedCaller(acceptedCall);
-	}
-
+	
 	/**
 	 * @callback errorHandlerCallback
 	 * @param {object} exception - The exception from the failing service call
@@ -72,8 +69,46 @@ export class CallHandleService extends ServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 * @memberof CallHandleService
 	 */
-	acceptCall(acceptCallData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.acceptCall(acceptCallData), `acceptCall`, errorHandler, autoRetries);
+	async acceptCall(acceptCallData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this._mockEnabled(`acceptCall`)) {
+			return this._mock.acceptCall(acceptCallData);
+		}
+
+		/*
+		return this._get(
+			`/clientcare-call-${this._version}/search-caller?` +
+				`incomingTelephoneNumber=${clientInfo.incomingTelephoneNumber}&` +
+				`voiceReferenceNumber=${clientInfo.voiceReferenceNumber}&` +
+				`ivrOptionCode=${clientInfo.ivrOption}&` +
+				`incidentReferenceNumber=${clientInfo.incidentNo}&` +
+				`agentTelephoneNumber=${clientInfo.agentTelephoneNumber}&` +
+				`identificationMethod=${parseInt(clientInfo.identificationMethod, 10)}&` +
+				`value=${clientInfo.searchValue}`,
+				this._setToken(),
+			`searchCaller`
+		);
+		*/
+
+		const url = `/clientcare-call-${this._version}/accept-call`;
+
+		return this.post(
+			url,
+			{
+				'incomingTelephoneNumber': acceptCallData.incomingTelephoneNumber,
+				'voiceReferenceNumber': acceptCallData.voiceReferenceNumber,
+				'ivrOptionCode': acceptCallData.ivrOptionCode,
+				'incidentReferenceNumber': acceptCallData.incidentReferenceNumber,
+				'agentTelephoneNumber': acceptCallData.agentTelephoneNumber
+			},
+			this._setToken(), 
+			`acceptCall`,
+			false,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
 
 	/**
@@ -85,7 +120,24 @@ export class CallHandleService extends ServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing search options and the result of the channel service call
 	 */
 	searchOptions(incomingCallData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.searchOptions(incomingCallData), `searchOptions`, errorHandler, autoRetries);
+		return this.post(
+			`/clientcare-card-${this._version}/search/options`, 
+			{
+				"incomingTelephoneNumber": incomingCallData.incomingTelephoneNumber,
+				"voiceReferenceNumber": incomingCallData.voiceReferenceNumber,
+				"ivrOptionCode": incomingCallData.ivrOptionCode,
+				"incidentReferenceNumber": incomingCallData.incidentReferenceNumber,
+				"agentTelephoneNumber": incomingCallData.agentTelephoneNumber
+			},
+			this._setToken(),
+			`searchOptions`, 
+			false,
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
 
 	/**
@@ -97,7 +149,48 @@ export class CallHandleService extends ServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing client information and the result of the channel service call
 	 */
 	searchCaller(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.searchCaller(clientInfo), `searchCaller`, errorHandler, autoRetries);
+
+		/*
+		return this._get(
+			`/clientcare-call-${this._version}/search-caller?` +
+				`incomingTelephoneNumber=${clientInfo.incomingTelephoneNumber}&` +
+				`voiceReferenceNumber=${clientInfo.voiceReferenceNumber}&` +
+				`ivrOptionCode=${clientInfo.ivrOption}&` +
+				`incidentReferenceNumber=${clientInfo.incidentNo}&` +
+				`agentTelephoneNumber=${clientInfo.agentTelephoneNumber}&` +
+				`identificationMethod=${parseInt(clientInfo.identificationMethod, 10)}&` +
+				`value=${clientInfo.searchValue}`,
+				this._setToken(),
+			`searchCaller`,
+			false,
+			1000
+		);
+		*/
+		
+		const url = `/clientcare-call-${this._version}/search-caller`;
+
+		return this.post(
+			url,
+			{
+				'incomingTelephoneNumber': clientInfo.incomingTelephoneNumber,
+				'voiceReferenceNumber': clientInfo.voiceReferenceNumber,
+				'ivrOptionCode': clientInfo.ivrOption,
+				'incidentReferenceNumber': clientInfo.incidentNo,
+				'agentTelephoneNumber': clientInfo.agentTelephoneNumber,
+				'searchType': {
+					'identificationMethod': parseInt(clientInfo.identificationMethod, 10),
+					'value': clientInfo.searchValue
+				}
+			},
+			this._setToken(), 
+			`searchCaller`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
 
 	/**
@@ -109,7 +202,7 @@ export class CallHandleService extends ServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing list of security questions & answers and the result of the channel service call
 	 */
 	xdsQuestions(clientID, errorHandler = null, autoRetries = 1) {
-		return this.wrapCall(this.channelService.xdsQuestions(clientID), `xdsQuestions`, errorHandler, autoRetries);
+		return this._wrapCall(this.channelService.xdsQuestions(clientID), `xdsQuestions`, errorHandler, autoRetries);
 	}
 
 	/**
@@ -121,14 +214,14 @@ export class CallHandleService extends ServiceBase {
 	 * @returns {Promise<ReturnValue>} An object indicating if the verification process was successful or if not, the reason for failure
 	 */
 	verifySecurityQuestions(response, errorHandler = null, autoRetries = 1) {
-		return this.wrapCall(this.channelService.verifySecurityQuestions(response), `verifySecurityQuetsions`, errorHandler, autoRetries);
+		return this._wrapCall(this.channelService.verifySecurityQuestions(response), `verifySecurityQuetsions`, errorHandler, autoRetries);
 	}
 
 	itaVerification(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.itaService.itaVerification(request), `itaVerification`, errorHandler, autoRetries);
+		return this._wrapCall(this.itaService.itaVerification(request), `itaVerification`, errorHandler, autoRetries);
 	}
 
 	digitalVerificationChannelsAvailable(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.digitalVerificationChannelsAvailable(cifNumber), `digitalVerificationChannelsAvailable`, errorHandler, autoRetries);
+		return this._wrapCall(this.channelService.digitalVerificationChannelsAvailable(cifNumber), `digitalVerificationChannelsAvailable`, errorHandler, autoRetries);
 	}
 }

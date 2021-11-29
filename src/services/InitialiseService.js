@@ -1,4 +1,4 @@
-import { DEFAULT_AUTO_RETRIES, ServiceBase } from 'app/services/ServiceBase';
+import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
 
 /**
  * The InitializeService is used on the Horizon Landing Page primarily to load the the 
@@ -6,15 +6,15 @@ import { DEFAULT_AUTO_RETRIES, ServiceBase } from 'app/services/ServiceBase';
  *
  * @export
  * @class InitialiseService
- * @extends {ServiceBase}
+ * @extends {ChannelServiceBase}
  */
-export class InitialiseService extends ServiceBase {
+export class InitialiseService extends ChannelServiceBase {
 
 	// --------------
 	// INITIALISATION
 	// --------------
-	constructor(toggleBusyFunc, errorHandler = null) {
-		super(toggleBusyFunc, errorHandler);
+	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null, baseUrlKey = `serviceURIs.channelServiceUrl`, serviceName = `HorizonChannelService`, version = `v1`) {
+		super(toggleBusyFunc, defaultErrorHandlerFunc, baseUrlKey, serviceName, version);
 	}
 
 	// --------------
@@ -41,6 +41,7 @@ export class InitialiseService extends ServiceBase {
 	 * @memberof InitialiseService
 	 */
 	initialise(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.initialise(), `initialise`, errorHandler, autoRetries);
+		const url = `/clientcare-initialise-${this._version}`;
+		return super.get(url, this._setToken(), `initialise`, false, null, null, errorHandler, autoRetries);
 	}
 }

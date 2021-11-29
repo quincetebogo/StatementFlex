@@ -57,8 +57,8 @@ export class ServiceBase {
 	*/
 
 	/**
-	 *
-	 *
+	 * @deprecated Use the new ChannelServiceBase class instead of this ServiceBase class!
+	 * 
 	 * @param {Promise<*>} channelServiceCallFunc A Promise that returns the result of a channel service call
 	 * @param {string} caller The method name of the channel service call being invoked (for logging purposes)
 	 * @param {function} [errorHandlerFunc=null] An error handler to invoke should the web service call fail
