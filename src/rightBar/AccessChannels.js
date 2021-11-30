@@ -1,8 +1,9 @@
 
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator, Logger } from 'platform/core';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { Logger } from 'platform/core';
+import { Utilities } from 'platform/Utilities';
 
 import 'app/productControls/AccessChannels/src/AccessChannels';
 import 'app/productControls/AccessChannels/src/AppProfileDetails';
@@ -39,7 +40,6 @@ export class AccessChannels extends Component {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
-		this.eventAggregator = EventAggregator.getInstance();
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
 	}
@@ -84,7 +84,6 @@ export class AccessChannels extends Component {
 
 	_showSlidingPanel(event) {
 		this.selectedAccessChannelType = event.detail?.tileClicked ?? ``;
-		this.eventAggregator.publish(`horizon-access-status-update`, this.status);
 		this.showSideSheet = !this.showSideSheet;
 	}
 	
@@ -92,8 +91,9 @@ export class AccessChannels extends Component {
 		// TO DO: Channel service call to suspend app should come here
 		// If successfully suspended, update app status, else Error scenario
 		this.status.app.status = `Suspended`;
-		this.status.app.dateLastUpdated = new Date();
-
+		this.status.app.dateLastUpdated = new Date().toISOString();
+		
+		this._deepCopyStatus();
 		return true;
 	}
 
@@ -101,8 +101,9 @@ export class AccessChannels extends Component {
 		// TO DO: Channel service call to Un-suspend App should come here
 		// If successfully Unsuspended, update app status, else Error scenario
 		this.status.app.status = `Active`;
-		this.status.app.dateLastUpdated = new Date();
+		this.status.app.dateLastUpdated = new Date().toISOString();
 
+		this._deepCopyStatus();
 		return true;
 	}
 
@@ -125,9 +126,13 @@ export class AccessChannels extends Component {
 		if (returnValue.succeeded) {
 			this.status = returnValue.result;
 			return;
-		} 
-		
+		}
 		this.logger.log(`error`, `Failed to load access channel information`, `_accessChannelService`, returnValue.correlationId);
+	}
+
+	_deepCopyStatus() {
+		// Creates and returns a deep copy of an Object this.status
+		this.status = Utilities.deepCopy(this.status);
 	}
 
 	// ---------
@@ -173,7 +178,7 @@ export class AccessChannels extends Component {
 		? html`
 			<capitec-pc-app-profile-details
 				.appDetails = ${this.status.app}
-				.showSideSheet = ${this.showSideSheet}
+				?showSideSheet = ${this.showSideSheet}
 
 				.suspendApp = "${() => this.suspendApp()}"
 				.unSuspendApp = "${() => this.unSuspendApp()}"

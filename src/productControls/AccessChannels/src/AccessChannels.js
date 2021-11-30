@@ -1,5 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator } from 'platform/core';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import 'platform/components';
 
@@ -38,9 +37,6 @@ export class AccessChannels extends Component {
 
 	constructor() {
 		super();
-		
-		this.eventAggregator = EventAggregator.getInstance();
-		this.eventAggregator.subscribe(`horizon-access-status-update`, (event) => this._updateStatus(event));
 	}
 
 	// --------------
@@ -101,7 +97,7 @@ export class AccessChannels extends Component {
 	_formatTime(timeToFormat) {
 		const formatedDate = new Date(timeToFormat);
 		const localTime = formatedDate.toLocaleTimeString();
-		return localTime.replace(localTime.slice(-6, -2), ``);
+		return localTime.replace(localTime.slice(-6, -2), ` `);
 	}
 
 	_getStatusColor(type) {

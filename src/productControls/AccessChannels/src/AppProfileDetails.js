@@ -27,6 +27,8 @@ export class AppProfileDetails extends Component {
 	constructor() {
 		super();
 
+		this.showSideSheet = false;
+
 		this.showSuspendReasons = false;
 		this.selectedSuspendReason = ``;
 		this.displayToast = false;
@@ -160,7 +162,7 @@ export class AppProfileDetails extends Component {
 	_formatTime(timeToFormat) {
 		const formatedDate = new Date(timeToFormat);
 		const localTime = formatedDate.toLocaleTimeString();
-		return localTime.replace(localTime.slice(-6, -2), ``);
+		return localTime.replace(localTime.slice(-6, -2), ` `);
 	}
 
 	// ---------
