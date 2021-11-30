@@ -10,7 +10,7 @@ import { Component, css, html } from 'platform/elements';
  * ```html
  * <capitec-side-sheet alignment="right">
  *     <capitec-label type="Strong" label="Content comes here.."></capitec-label>
- * 	   <capitec-button type="primary" label="Close" @click="${() => this._showSlidingPanel()}"></capitec-button>
+ *     <capitec-button type="primary" label="Close" @click="${() => this._showSlidingPanel()}"></capitec-button>
  * </capitec-side-sheet>
  * ```
  *
@@ -52,9 +52,7 @@ export class SideSheet extends Component {
 			alignment: { type: String },
 			expanded: {
 				type: Boolean,
-				hasChanged(newVal, oldVal) {
-					return oldVal !== null && oldVal !== undefined && newVal !== oldVal;
-				}
+				hasChanged: (newVal, oldVal) => oldVal !== null && oldVal !== undefined && newVal !== oldVal
 			}
 		};
 	}
@@ -90,7 +88,10 @@ export class SideSheet extends Component {
 	/**
 	 * Invoked when one of the element’s observedAttributes changes.
 	 *
-	 * @ignore
+	 * @param {string} name Attribute name.
+	 * @param {string} oldValue Attribute's old value.
+	 * @param {string} newValue Attribute's new value.
+
 	 *
 	 * @returns {void}
 	 */
@@ -161,7 +162,7 @@ export class SideSheet extends Component {
 	 * @fires collapse When the item is collapsed.
 	 * @returns {void}
 	 */
-	collapse() {	
+	collapse() {
 		// Trigger the collapsing animation.
 		this.removeAttribute(`expanding`);
 		this.setAttribute(`collapsing`, ``);
@@ -181,6 +182,7 @@ export class SideSheet extends Component {
 
 		return [
 			super.styles,
+
 			/* ---------- COMPONENT STYLING ---------- */
 			css`
 				:host {
@@ -193,7 +195,7 @@ export class SideSheet extends Component {
 					left: 0px;
 					top: 0px;
 					background-color: var(--theme-modal-screen-background-color, rgba(0,0,0,0.6));
-					cursor: default;	
+					cursor: default;
 				}
 
 				:host([alignment=right]) {

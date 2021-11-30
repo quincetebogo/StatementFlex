@@ -62,7 +62,7 @@ export class AppProfileDetails extends Component {
 	static get properties() {
 		return {
 			showSideSheet: { type: Boolean },
-			appDetails: { type: Object},
+			appDetails: { type: Object },
 
 			suspendApp: { type: Object, attribute: false },
 			unSuspendApp: { type: Object, attribute: false },
@@ -70,7 +70,7 @@ export class AppProfileDetails extends Component {
 			showSuspendReasons: { state: true },
 			selectedSuspendReason: { state: true },
 			displayToast: { type: Boolean },
-			showValidationBanner: { state: true}
+			showValidationBanner: { state: true }
 		};
 	}
 
@@ -91,41 +91,45 @@ export class AppProfileDetails extends Component {
 	// --------------
 
 	_toggleAppSlidingPanel() {
-		this.dispatchEvent(new CustomEvent(`close-side-sheet`,  { detail: { tileClicked: `App` } }));
+		this.dispatchEvent(new CustomEvent(`close-side-sheet`, { detail: { tileClicked: `App` } }));
 	}
 
 	_toggleSuspendReasonsSlide() {
 		this.showValidationBanner = false;
 		this.showSuspendReasons = !this.showSuspendReasons;
-		this.showSuspendReasons ? this.selectedSuspendReason = `` : '';
+	
+		if (this.showSuspendReasons) {
+			this.selectedSuspendReason = ``;
+		}
 	}
 
 	async _onSuspendAppClick() {
 
-		if(this.selectedSuspendReason) {
-			const returnValue = await this.suspendApp();
-		
-			if(returnValue) {
-				this.appDetails.status = `Suspended`;
-				this._displayAndCloseToast();
-				this._toggleSuspendReasonsSlide();
-			}
-		} else {
+		if (!this.selectedSuspendReason) {
 			this.showValidationBanner = true;
+		}
+
+		const returnValue = await this.suspendApp();
+	
+		if (returnValue) {
+			this.appDetails.status = `Suspended`;
+			this._displayAndCloseToast();
+			this._toggleSuspendReasonsSlide();
 		}
 	}
 
 	async _onUnsuspendAppClick() {
+	
 		const returnValue = await this.unSuspendApp();
 		
-		if(returnValue) {
+		if (returnValue) {
 			this.appDetails.status = `Active`;
 			this._displayAndCloseToast();
 		}
 	}
 
 	_onReasonSelected(event) {
-		if(event.detail.new) {
+		if (event.detail.new) {
 			this.selectedSuspendReason = event.currentTarget.label;
 			this.showValidationBanner = false;
 		}
@@ -141,9 +145,9 @@ export class AppProfileDetails extends Component {
 		const elementToast = this.shadowRoot.getElementById(`app-success-toast`);
 		elementToast.style.animation = `slideDown 0.6s`; 
 
-		window.setTimeout(() =>{
-				elementToast.style.animation = `slideUp 0.6s`
-				window.setTimeout(() =>this.displayToast = false, 600);
+		window.setTimeout(() => {
+				elementToast.style.animation = `slideUp 0.6s`;
+				window.setTimeout(() => this.displayToast = false, 600);
 			}, 3000);
 	}
 
@@ -155,8 +159,8 @@ export class AppProfileDetails extends Component {
 
 	_formatTime(timeToFormat) {
 		const formatedDate = new Date(timeToFormat);
-		const localTime = formatedDate.toLocaleTimeString()
-		return localTime.replace(localTime.slice(-6,-2), '')
+		const localTime = formatedDate.toLocaleTimeString();
+		return localTime.replace(localTime.slice(-6, -2), ``);
 	}
 
 	// ---------
@@ -299,7 +303,7 @@ export class AppProfileDetails extends Component {
 					text-align: center;
 					align-items: center;
 					padding: 14px 36px;
-				} 				
+				}
 				.unavailable-header{
 					margin: 16px 0px 5px 0px;
 					--theme-label-default-font-size: 18px;
@@ -354,7 +358,7 @@ export class AppProfileDetails extends Component {
 		return isNullorEmpty(this.appDetails) 
 		? html`
 			${this._renderServiceUnavailable()}`
-		: html `
+		: html`
 			${this._renderSuccessToast()}
 			${this._renderNotificationBanner()}
 			
@@ -391,7 +395,7 @@ export class AppProfileDetails extends Component {
 				<horizon-label
 					data-automation-id=""
 					label="Status"
-					value="${ this.appDetails.status}">
+					value="${this.appDetails.status}">
 				</horizon-label>
 
 				<horizon-label 
@@ -461,8 +465,8 @@ export class AppProfileDetails extends Component {
 	}
 
 	_renderSuspendAppReason() {
-		return this.showSuspendReasons ?
-		html`
+		return this.showSuspendReasons 
+		? html`
 			<capitec-side-sheet
 				class="suspend-reasons"
 				.expanded="${this.showSuspendReasons}"
@@ -502,13 +506,13 @@ export class AppProfileDetails extends Component {
 
 					</capitec-content-box>
 			</capitec-side-sheet>`
-			: html``;
+		: html``;
 	}
 
 	_renderNotificationBanner() {
-		return this.appDetails.status === `Active` ? 
-		html`` : 
-		html`
+		return this.appDetails.status === `Active` 
+		? html``
+		: html`
 			<capitec-alert-banner 
 				type="unsuccessful-red"
 				label=""
@@ -520,8 +524,8 @@ export class AppProfileDetails extends Component {
 	}
 
 	_renderValidationBanner() {
-		return this.appDetails.status === `Active` && this.showValidationBanner ? 
-		html`
+		return this.appDetails.status === `Active` && this.showValidationBanner 
+		? html`
 			<capitec-alert-banner 
 				class="validate-reasons"
 				type="unsuccessful-red"
@@ -529,30 +533,31 @@ export class AppProfileDetails extends Component {
 				layout="vertical">
 				<b>Notice</b> <br>
 				<p>Please choose a reason to suspend</p>
-			</capitec-alert-banner>
-		` : html``;
+			</capitec-alert-banner>`
+		: html``;
 	}
 
 	_renderSuccessToast() {
-		/*  TO DO: "Header" and "Detail" properties can be removed when update platform to the latest version 
+
+		/* TO DO: "Header" and "Detail" properties can be removed when update platform to the latest version 
 		as content inside slot will be effective.*/
 
-		const formatedUpdatedDate = this._formatDate(this.appDetails.dateLastUpdated) + `, ` + this._formatTime(this.appDetails.dateLastUpdated);
-	
-		return html `
+		return html`
 		<capitec-toast 
 			id="app-success-toast"
 			type="success" 
 			header="Successful!"
-			detail="App was ${this.appDetails.status === `Active` ? `unsuspended` : `suspended`}&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp ${this._formatDate(this.appDetails.dateLastUpdated)}, ${this._formatTime(this.appDetails.dateLastUpdated)}"
+			detail="App was ${this.appDetails.status === `Active` ? `unsuspended` : `suspended`}&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp 
+					&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp 
+					&nbsp &nbsp &nbsp ${this._formatDate(this.appDetails.dateLastUpdated)}, ${this._formatTime(this.appDetails.dateLastUpdated)}"
 			?hidden="${!this.displayToast}"
 			@click="${() => this.displayToast = false}"
 			closable>
 				<capitec-label label="Successful!" type="strong"></capitec-label>
 				<capitec-label label="App was ${this.appDetails.status === `Active` ? `unsuspended` : `suspended`}"></capitec-label>
 				<capitec-spacer></capitec-spacer>
-				<capitec-label label="${formatedUpdatedDate}" type="strong"></capitec-label>
-		</capitec-toast>`
+				<capitec-label label="${this._formatDate(this.appDetails.dateLastUpdated)}, ${this._formatTime(this.appDetails.dateLastUpdated)}" type="strong"></capitec-label>
+		</capitec-toast>`;
 	}
 }
 

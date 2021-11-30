@@ -1,7 +1,34 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/core';
-import 'platform/components';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import 'platform/components';
+
+const ACCESS_CHANNELS_TYPE = {
+	APP: `app`,
+	INTERNET_BANKING: `internetBanking`,
+	USSD: `ussd`,
+	NOTIFICATIONS: `notifications`
+};
+
+const ACCESS_CHANNEL_STATUS = {
+	ACTIVE: `Active`,
+	SUSPENDED: `Suspended`,
+	UNAVAILABLE: `Unavailable`,
+	BLOCKED: `Blocked`
+};
+
+/**
+ * Access Channels component is used to hold all the Access channels tiles available.
+ * This component is envoked from Access Channels component
+ * 
+ * Events Raised 
+ * -------------
+ * tile-click
+ *  
+ * @export
+ * @class AccessChannels
+ * @extends {Component}
+ */
 
 export class AccessChannels extends Component {
 
@@ -21,7 +48,7 @@ export class AccessChannels extends Component {
 	// --------------
 
 	/**
-	 * 
+	 * @property {Object} [status] - Holds details and status of all the available access channels
 	 */
 
 	static get properties() {
@@ -61,7 +88,7 @@ export class AccessChannels extends Component {
 	// ---------------
 
 	_updateStatus(event) {
-		this.status = event
+		this.status = event;
 		this.requestUpdate();
 	}
 
@@ -73,31 +100,32 @@ export class AccessChannels extends Component {
 
 	_formatTime(timeToFormat) {
 		const formatedDate = new Date(timeToFormat);
-		const localTime = formatedDate.toLocaleTimeString()
-		return localTime.replace(localTime.slice(-6,-2), '')
+		const localTime = formatedDate.toLocaleTimeString();
+		return localTime.replace(localTime.slice(-6, -2), ``);
 	}
 
-	_getStatusColor(status) {
-		if (status === `Active`) {
+	_getStatusColor(type) {
+		const status = this.status[type]?.status;
+
+		if (status === ACCESS_CHANNEL_STATUS.ACTIVE) {
 			return `status-active`;
-		} else if (status === `Suspended` || `Unavailable` || `Blocked` || isNullorEmpty(status)) {
+		} else if (status === ACCESS_CHANNEL_STATUS.SUSPENDED ||
+							ACCESS_CHANNEL_STATUS.UNAVAILABLE || 
+							ACCESS_CHANNEL_STATUS.BLOCKED || 
+							isNullorEmpty(status)) {
 			return `status-inactive`;
-		} else {
-			// do nothing
 		}
 	}
 
 	_getStatusDetails(type) {
-		const status = this.status[type] && this.status[type].status;
+		const status = this.status[type]?.status;
 		
 		if (isNullorEmpty(status)) {
 			return `Channel service is down`;
-		} else if (status === `Active`){
-			return status + ` | Last used ` + this._formatDate(this.status[type].dateLastUsed);
-		} else if ( status === `Suspended` || `Blocked`) {
-			return status + ` | ` + this._formatDate(this.status[type].dateLastUpdated || this.status[type].dateLastUsed) + `, ` + this._formatTime(this.status[type].dateLastUpdated || this.status[type].dateLastUsed);
-		} else {
-			// do nothing
+		} else if (status === ACCESS_CHANNEL_STATUS.ACTIVE) {
+			return `${status} | Last used ${this._formatDate(this.status[type].dateLastUsed)}`;
+		} else if (status === ACCESS_CHANNEL_STATUS.SUSPENDED || ACCESS_CHANNEL_STATUS.BLOCKED) {
+			return `${status} | ${this._formatDate(this.status[type].dateLastUpdated || this.status[type].dateLastUsed)}, ${this._formatTime(this.status[type].dateLastUpdated || this.status[type].dateLastUsed)}`;
 		}
 	}
 
@@ -164,33 +192,33 @@ export class AccessChannels extends Component {
 				<capitec-label class="header-label" label="Access Channels"></capitec-label>
 
 				<horizon-product-tile 
-					class=${this._getStatusColor(this.status.app && this.status.app.status)}
+					class=${this._getStatusColor(ACCESS_CHANNELS_TYPE.APP)}
 					type="default"
 					label="App"
-					subtitle="${this._getStatusDetails(`app`)}"
+					subtitle="${this._getStatusDetails(ACCESS_CHANNELS_TYPE.APP)}"
 					detail=""
 					icon="system/cellphone"
-					@click="${() => this._tileClick(`App`)}">
+					@click="${() => this._tileClick(ACCESS_CHANNELS_TYPE.APP)}">
 				</horizon-product-tile>
 
 				<horizon-product-tile 
-					class=${this._getStatusColor(this.status.internetBanking.status)}
+					class=${this._getStatusColor(ACCESS_CHANNELS_TYPE.INTERNET_BANKING)}
 					type="default"
 					label="Internet Banking"
-					subtitle="${this._getStatusDetails(`internetBanking`)}"
+					subtitle="${this._getStatusDetails(ACCESS_CHANNELS_TYPE.INTERNET_BANKING)}"
 					detail=""
 					icon="system/access"
-					@click="${() => this._tileClick(`InternetBanking`)}">
+					@click="${() => this._tileClick(ACCESS_CHANNELS_TYPE.INTERNET_BANKING)}">
 				</horizon-product-tile>
 
 				<horizon-product-tile 
-					class=${this._getStatusColor(this.status.ussd.status)}
+					class=${this._getStatusColor(ACCESS_CHANNELS_TYPE.USSD)}
 					type="default"
 					label="USSD"
-					subtitle="${this._getStatusDetails(`ussd`)}"
+					subtitle="${this._getStatusDetails(ACCESS_CHANNELS_TYPE.USSD)}"
 					detail=""
 					icon="system/cellphone"
-					@click="${() => this._tileClick(`USSD`)}">
+					@click="${() => this._tileClick(ACCESS_CHANNELS_TYPE.USSD)}">
 				</horizon-product-tile>
 
 				<horizon-product-tile 
@@ -200,7 +228,7 @@ export class AccessChannels extends Component {
 					subtitle="Not registered"
 					detail=""
 					icon="system/notify"
-					@click="${() => this._tileClick(`Notifications`)}">
+					@click="${() => this._tileClick(ACCESS_CHANNELS_TYPE.NOTIFICATIONS)}">
 				</horizon-product-tile>
 			</capitec-group>
 		`;

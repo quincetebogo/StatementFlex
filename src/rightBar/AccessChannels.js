@@ -1,13 +1,21 @@
 
-import { AccessChannelService } from 'app/services/AccessChannelService';
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Logger } from 'platform/core';
+import { AccessChannelService } from 'app/services/AccessChannelService';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/productControls/AccessChannels/src/AccessChannels';
-import 'app/productControls/AccessChannels/src/AppProfileDetails'
+import 'app/productControls/AccessChannels/src/AppProfileDetails';
 import 'app/webComponents/src/SideSheet';
 import 'platform/components';
+
+const ACCESS_CHANNELS_TYPE = {
+	APP: `app`,
+	INTERNET_BANKING: `internetBanking`,
+	USSD: `ussd`,
+	NOTIFICATIONS: `notifications`
+};
+
 
 /**
  * Access Channels component invokes and holds functionality for all the available access channels
@@ -75,7 +83,7 @@ export class AccessChannels extends Component {
 	// --------------
 
 	_showSlidingPanel(event) {
-		this.selectedAccessChannelType = event.detail && event.detail.tileClicked || ``;
+		this.selectedAccessChannelType = event.detail?.tileClicked ?? ``;
 		this.eventAggregator.publish(`horizon-access-status-update`, this.status);
 		this.showSideSheet = !this.showSideSheet;
 	}
@@ -83,8 +91,8 @@ export class AccessChannels extends Component {
 	suspendApp() {
 		// TO DO: Channel service call to suspend app should come here
 		// If successfully suspended, update app status, else Error scenario
-		this.status.app.isActive = false;
-		this.status.app.dateLastUpdated = new Date()
+		this.status.app.status = `Suspended`;
+		this.status.app.dateLastUpdated = new Date();
 
 		return true;
 	}
@@ -92,7 +100,7 @@ export class AccessChannels extends Component {
 	unSuspendApp() {
 		// TO DO: Channel service call to Un-suspend App should come here
 		// If successfully Unsuspended, update app status, else Error scenario
-		this.status.app.isActive = true;
+		this.status.app.status = `Active`;
 		this.status.app.dateLastUpdated = new Date();
 
 		return true;
@@ -111,39 +119,9 @@ export class AccessChannels extends Component {
 	}
 
 	async _accessChannelService() {
-	const returnValue = await this.accessChannelService.accessChannelStatus(this.cifNumber);
 	
-	/* Mocked Access channels landing response untill Channel service is implemented
-
-		this.status = {
-			"msisdn": "",
-
-			"app": {
-                "status": "Suspended",
-				"statusReason": "Stolen",
-				"dateLastUsed": "2021-09-11T09:48:18.908Z",
-				"dateRegistered": "2021-11-08T09:48:18.908Z",
-				"userName": "Mr Tertius Steyl",
-				"userRegNo": "9065011004"
-			},
-			"internetBanking": {
-				"status": "Active",
-				"statusReason": "",
-				"dateLastUsed": "2021-11-08T09:48:18.908Z",
-				"dateRegistered": "2021-11-08T09:48:18.908Z",
-				"userName": "Mr Tertius Steyl",
-				"userRegNo": "9065011004"
-			},
-			"ussd": {
-				"status": "Active",
-				"statusReason": "",
-				"dateLastUsed": "2021-11-08T09:48:18.908Z",
-				"dateRegistered": "2021-11-08T09:48:18.908Z",
-				"userName": "Mr Tertius Steyl",
-				"userRegNo": "9065011004"
-			}
-        }
-    */
+		const returnValue = await this.accessChannelService.accessChannelStatus(this.cifNumber);
+	
 		if (returnValue.succeeded) {
 			this.status = returnValue.result;
 			return;
@@ -179,20 +157,20 @@ export class AccessChannels extends Component {
 			${this._renderAppPanel()}
 		`;
 	}
-    
+
 	_renderAccessChannels() {
-		return this.status ?
-		html`
+		return this.status 
+		? html`
 		<capitec-pc-access-channels
 			.status=${this.status}
 			@tile-click="${(event) => this._showSlidingPanel(event)}">
-		</capitec-pc-access-channels>
-		` : html``;
+		</capitec-pc-access-channels>`
+		: html``;
 	}
 
 	_renderAppPanel() {
-		return this.selectedAccessChannelType === `App` ?
-		html`
+		return this.selectedAccessChannelType === ACCESS_CHANNELS_TYPE.APP
+		? html`
 			<capitec-pc-app-profile-details
 				.appDetails = ${this.status.app}
 				.showSideSheet = ${this.showSideSheet}

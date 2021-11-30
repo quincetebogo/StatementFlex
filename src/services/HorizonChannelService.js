@@ -239,7 +239,12 @@ export class HorizonChannelService extends Service {
 	// Access Channels 
 	// ----------------
 
-	accessChannel(cifNumber) {
+	async accessChannel(cifNumber) {
+
+		if (await this._mockEnabled(`accessChannel`)) {
+			return this._mock.accessChannel();
+		}
+
 		const url = `/clientcare-accesschannels-${this._version}/access-channels?cif=${cifNumber}`;
 		return this._get(url, this._setToken(), `accessChannels`, false, 1000);
 
@@ -389,7 +394,7 @@ export class HorizonChannelService extends Service {
 				'ivrOptionCode': clientInfo.ivrOption,
 				'incidentReferenceNumber': clientInfo.incidentNo,
 				'agentTelephoneNumber': clientInfo.agentTelephoneNumber,
-				'searchType':{
+				'searchType': {
 					'identificationMethod': parseInt(clientInfo.identificationMethod, 10),
 					'value': clientInfo.searchValue
 				}
