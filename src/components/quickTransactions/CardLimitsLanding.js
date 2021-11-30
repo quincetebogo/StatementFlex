@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency, getMonthName } from 'app/utils/channelServiceUtilities';
+import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -100,6 +101,10 @@ export class CardLimitsLanding extends Component {
 	 */
 
 	/**
+	 *  @typedef {Object} renderAlertBanner Display alter banner based on verification method
+	 */
+
+	/**
 	 * @callback getCardLimitsAgreementsCallback
 	 * @returns {getCardLimitsAgreement}
 	 */
@@ -125,16 +130,25 @@ export class CardLimitsLanding extends Component {
 	 */
 
 	/**
+	 * @callback renderAlterBannerCallback
+	 * @returns {html}
+	 */
+
+	/**
 	 *
 	 * @property {Object} cards Object contains the list of client's card
 	 * @property {String} cifNumber The client's account/cifNumber
 	 * @property {String} voiceRecordingReference The Avaya/Presence Voice Recording ID
+	 * @property {String} verificationMethod Indicated the type of verification (xds/ita)
+	 * @property {Boolean} hasDigitalChannels Indicates if the client is registered for digital channels
+	 * @property {Boolean} showVerifyCallerDialog Flag to know is verify caller dialog displaying?
 	 * @property {getCardLimitsAgreementsCallback} getCardLimitsAgreement Callback function to load limits agreements for displaying
 	 * @property {getPermanentLimitsCallback} getPermanentLimits Callback function to get permanent limits
 	 * @property {getTemporaryLimitsCallback} getTemporaryLimits Callback function to get temporary limits
 	 * @property {updatePermanentLimitsCallback} updatePermanentLimits Callback function to update permanent limits & agreements
 	 * @property {updateTemporaryLimitsCallback} updateTemporaryLimits Callback function to update temporary limits & agreements
-	 *
+	 * @property {renderAlterBannerCallback} renderAlertBanner Callback function to render alter banner based on verification status & method
+	 * 
 	 * @readonly
 	 * @static
 	 * @memberof CardLimitsLanding
@@ -144,19 +158,20 @@ export class CardLimitsLanding extends Component {
 			cards: { type: Object },
 			cifNumber: { type: String },
 			voiceRecordingReference: { type: String },
-
+			verificationMethod: { type: String },
+			hasDigitalChannels: { type: Boolean },
+			showVerifyCallerDialog: { type: Boolean },
 			getCardLimitsAgreement: { type: Object, attribute: false },
 			getPermanentLimits: { type: Object, attribute: false },
 			getTemporaryLimits: { type: Object, attribute: false },
 			updatePermanentLimits: { type: Object, attribute: false },
 			updateTemporaryLimits: { type: Object, attribute: false },
+			renderAlertBanner: { type: Object, attribute: false },
 
-			getAgreement: { type: String },
-
-			renderMode: { attribute: false },
-			showUpdateLimitsModal: { attribute: false },
-			showConfirmSelectionModal: { attribute: false },
-			showDiscardChangesModal: { attribute: false }
+			renderMode: { state: true },
+			showUpdateLimitsModal: { state: true },
+			showConfirmSelectionModal: { state: true },
+			showDiscardChangesModal: { state: true }
 		};
 	}
 
@@ -174,6 +189,14 @@ export class CardLimitsLanding extends Component {
 		this.primaryCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.PRIMARY_CARD);
 		this.supplementaryCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD);
 		this.virtualCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD);
+	}
+
+	attributeChangedCallback(name, oldValue, newValue) {
+		super.attributeChangedCallback(name, oldValue, newValue);
+
+		if (name === `verificationmethod` && oldValue !== null && oldValue !== undefined && newValue === `ITA`) {
+			this._clientVerified();
+		}
 	}
 
 	disconnectedCallback() {
@@ -457,6 +480,15 @@ export class CardLimitsLanding extends Component {
 		this.dispatchEvent(new CustomEvent(`result`, { detail: { success: success, limitDetails: limitDetails, failureReason: failureReason } }));
 	}
 
+	_verifyClick() {
+		this.dispatchEvent(new CustomEvent(`verify-now`, {}));
+	}
+
+	async _clientVerified() {
+		// waiting to complete all updates and then perform required function.
+		await this.updateComplete.then(() => this.requestUpdate());
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -472,6 +504,7 @@ export class CardLimitsLanding extends Component {
 		return [
 			super.styles,
 			css`
+				${ALERTBANNER_CSS}
 				.center-section {
 					height: var(--horizon-panel-height, 888px);
 					width: var(--horizon-center-panel-width, 1064px);
@@ -488,18 +521,15 @@ export class CardLimitsLanding extends Component {
 					cursor: pointer;
 					margin-right: 15px;
 				}
-				capitec-alert-banner {
-					--theme-alert-banner-height: 45px;
-					--theme-alert-banner-info-border: none;
-					--theme-alert-banner-font-weight: 400;
-					--theme-alert-banner-line-height: 20px;
-					--theme-alert-banner-info-font-color: #08A6B5;
-					--theme-alert-banner-icon-margin-left: 15px;
-					--theme-alert-banner-icon-margin-right: 7px;
+				capitec-label[type="strong"] {
+					--theme-label-strong-font-size: 14px;
+					--theme-label-strong-font-weight: 600;
+					--theme-layout-gap-spacing: 2px;
+					--theme-label-font-color: #3A3A3A;
 				}
 				.card-title {
 					line-height: 24px;
-					margin: 16px 16px 4px;
+					margin: 0px 16px 4px;
 					--theme-label-strong-font-size: 18px;
 					--theme-label-strong-font-weight: 600;
 					--theme-label-font-color: #3E4547;
@@ -518,7 +548,7 @@ export class CardLimitsLanding extends Component {
 					margin-bottom:0px;
 					background-color:#F7F7F7;
 				}
-                
+				
 				.headerGroup > capitec-label{
 				  text-align:right;
 				  justify-content: center;
@@ -557,14 +587,14 @@ export class CardLimitsLanding extends Component {
 					cursor: pointer;
 					border-top: 0px;
 				}
-                
+				
 				horizon-expander{
-                    margin: 16px;
-                    width: 1032px;
+					margin: 16px;
+					width: 1032px;
 					height: auto;
 					animation-timing-function: linear;
 					--horizon-expander-header-padding-left: 23px;
-                }
+				}
 				.border-debit{
 					--theme-expander-border-left: 4px solid #009DE0;
 				}
@@ -576,6 +606,7 @@ export class CardLimitsLanding extends Component {
 					--theme-container-padding-right: 0px;
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 16px;
+					overflow-x: hidden;
 				}
 				.col1{
 					width:222px;
@@ -618,20 +649,23 @@ export class CardLimitsLanding extends Component {
 					width: 146px;
 				}
 				horizon-label{
-                    width: 182px;
+					width: 182px;
 					--theme-layout-gap-spacing: 0px;
-                    --horizon-label-text-height: 20px;
-                    --horizon-label-text-color: #3A3A3A;
-                    --horizon-label-text-line-height: 20px;
-                    
-                    --horizon-label-value-height: 20px;
-                    --horizon-label-value-color: #3A3A3A;
-                    --horizon-label-value-font-size: 16px;
-                    --horizon-label-value-line-height: 20px;
-                }                
-                horizon-label[label="Card expiry date"]{
-                    width: 200px;
-                }`
+					--horizon-label-text-height: 20px;
+					--horizon-label-text-color: #3A3A3A;
+					--horizon-label-text-line-height: 20px;
+					
+					--horizon-label-value-height: 20px;
+					--horizon-label-value-color: #3A3A3A;
+					--horizon-label-value-font-size: 16px;
+					--horizon-label-value-line-height: 20px;
+				}                
+				horizon-label[label="Card expiry date"]{
+					width: 200px;
+				}
+				.m-t-16 {
+					margin-top: 16px;
+				}`
 		];
 	}
 
@@ -653,7 +687,8 @@ export class CardLimitsLanding extends Component {
 			<capitec-card class="center-section">
 				${this._renderTitleBar()}
 				<capitec-content-box>
-					<capitec-expander-group modeset="multiple">
+					${this.renderAlertBanner()}
+					<capitec-expander-group modeset="multiple" class="${this.verificationMethod === `ITA` ? `m-t-16` : ``}">
 						${this.primaryCards.length > 0 ? this._renderPrimaryCardGroup() : ``}
 						${this.virtualCards.length > 0 ? this._renderVirtualCardGroup() : ``}
 						${this.supplementaryCards.length > 0 ? this._renderSupplementaryCardGroup() : ``}
@@ -959,14 +994,16 @@ export class CardLimitsLanding extends Component {
 	}
 
 	_renderUpdateLimitsModal() {
-		return this.showUpdateLimitsModal
+		return this.showUpdateLimitsModal && !this.showVerifyCallerDialog
 			? html`
 				<horizon-update-card-limits
+					?hasDigitalChannels="${this.hasDigitalChannels}"
+					verificationMethod="${this.verificationMethod}"
 					.cardDetails="${this._cardDetails}"
-					.limitType="${this._limitType}"
-					.getTemporaryLimits="${(request) => this._getTemporaryLimits(request)}"
-					.updateType="${this._updateType}"
+					limitType="${this._limitType}"
+					updateType="${this._updateType}"
 					.getCardLimitsAgreement="${(card, newLimits, tapToPayStatus) => this._getLimitsAgreement(card, newLimits, tapToPayStatus)}"
+					@verify-now="${() => this._verifyClick()}"
 					@cancel="${() => this._cancelUpdateLimits()}"
 					@accepted="${(event) => this._updateLimitsAgreement(event)}">
 				</horizon-update-card-limits>`
@@ -994,6 +1031,7 @@ export class CardLimitsLanding extends Component {
 
 		return html``;
 	}
+
 }
 
 customElements.define(`horizon-card-limits-landing`, CardLimitsLanding);
