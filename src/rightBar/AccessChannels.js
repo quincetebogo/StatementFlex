@@ -58,7 +58,7 @@ export class AccessChannels extends Component {
 	static get properties() {
 		return {
 			isBusy: { state: true },
-			status: { type: Object },
+			status: { state: true },
 			showSideSheet: { state: true },
 			selectedAccessChannelType: { state: true }
 		};

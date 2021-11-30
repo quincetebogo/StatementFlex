@@ -71,7 +71,7 @@ export class AppProfileDetails extends Component {
 
 			showSuspendReasons: { state: true },
 			selectedSuspendReason: { state: true },
-			displayToast: { type: Boolean },
+			displayToast: { state: true },
 			showValidationBanner: { state: true }
 		};
 	}
@@ -109,6 +109,7 @@ export class AppProfileDetails extends Component {
 
 		if (!this.selectedSuspendReason) {
 			this.showValidationBanner = true;
+			return;
 		}
 
 		const returnValue = await this.suspendApp();
