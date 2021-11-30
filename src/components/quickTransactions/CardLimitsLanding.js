@@ -66,7 +66,6 @@ export class CardLimitsLanding extends Component {
 		this.showUpdateLimitsModal = false;
 		this.showDiscardChangesModal = false;
 		this.showConfirmSelectionModal = false;
-		this.showVerifyCallerModal = false;
 
 		this.primaryCards = [];
 		this.supplementaryCards = [];
@@ -140,14 +139,15 @@ export class CardLimitsLanding extends Component {
 	 * @property {Object} cards Object contains the list of client's card
 	 * @property {String} cifNumber The client's account/cifNumber
 	 * @property {String} voiceRecordingReference The Avaya/Presence Voice Recording ID
+	 * @property {String} verificationMethod Indicated the type of verification (xds/ita)
+	 * @property {Boolean} hasDigitalChannels Indicates if the client is registered for digital channels
+	 * @property {Boolean} showVerifyCallerDialog Flag to know is verify caller dialog displaying?
 	 * @property {getCardLimitsAgreementsCallback} getCardLimitsAgreement Callback function to load limits agreements for displaying
 	 * @property {getPermanentLimitsCallback} getPermanentLimits Callback function to get permanent limits
 	 * @property {getTemporaryLimitsCallback} getTemporaryLimits Callback function to get temporary limits
 	 * @property {updatePermanentLimitsCallback} updatePermanentLimits Callback function to update permanent limits & agreements
 	 * @property {updateTemporaryLimitsCallback} updateTemporaryLimits Callback function to update temporary limits & agreements
 	 * @property {renderAlterBannerCallback} renderAlertBanner Callback function to render alter banner based on verification status & method
-	 * @property {String} verificationMethod Indicated the type of verification (xds/ita)
-	 * @property {Boolean} hasDigitalChannels Indicates if the client is registered for digital channels 
 	 * 
 	 * @readonly
 	 * @static
@@ -160,6 +160,7 @@ export class CardLimitsLanding extends Component {
 			voiceRecordingReference: { type: String },
 			verificationMethod: { type: String },
 			hasDigitalChannels: { type: Boolean },
+			showVerifyCallerDialog: { type: Boolean },
 			getCardLimitsAgreement: { type: Object, attribute: false },
 			getPermanentLimits: { type: Object, attribute: false },
 			getTemporaryLimits: { type: Object, attribute: false },
@@ -170,8 +171,7 @@ export class CardLimitsLanding extends Component {
 			renderMode: { state: true },
 			showUpdateLimitsModal: { state: true },
 			showConfirmSelectionModal: { state: true },
-			showDiscardChangesModal: { state: true },
-			showVerifyCallerModal: { state: true }
+			showDiscardChangesModal: { state: true }
 		};
 	}
 
@@ -481,13 +481,10 @@ export class CardLimitsLanding extends Component {
 	}
 
 	_verifyClick() {
-		this.showVerifyCallerModal = true;
 		this.dispatchEvent(new CustomEvent(`verify-now`, {}));
 	}
 
 	async _clientVerified() {
-		this.showVerifyCallerModal = false;
-
 		// waiting to complete all updates and then perform required function.
 		await this.updateComplete.then(() => this.requestUpdate());
 	}
@@ -997,7 +994,7 @@ export class CardLimitsLanding extends Component {
 	}
 
 	_renderUpdateLimitsModal() {
-		return this.showUpdateLimitsModal && !this.showVerifyCallerModal
+		return this.showUpdateLimitsModal && !this.showVerifyCallerDialog
 			? html`
 				<horizon-update-card-limits
 					?hasDigitalChannels="${this.hasDigitalChannels}"

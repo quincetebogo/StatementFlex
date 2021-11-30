@@ -848,6 +848,7 @@ export class Favourites extends SavingsAccountBase {
 					voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
 					verificationMethod="${this.callerInformation.verificationMethod}"
 					?hasDigitalChannels="${this.callerInformation.hasDigitalChannels}"
+					?showVerifyCallerDialog="${this.showVerifyCallerDialog}"
 					.getCardLimitsAgreement ="${renderRequest => this._getCardLimitsAgreement(renderRequest)}"
 					.getPermanentLimits="${request => this._getPermanentLimits(request)}"
 					.getTemporaryLimits="${request => this._getTemporaryLimits(request)}"
