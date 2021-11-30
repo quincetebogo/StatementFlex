@@ -859,7 +859,7 @@ export class UpdateCardLimits extends Component {
 	}
 
 	_renderNoDigitalHighRiskTransAlertBanner() {
-		return this.verificationMethod === `XDS`
+		return this.verificationMethod === `XDS` && this.renderMode === RENDER_MODE.LIMITS
 			? html`
 				<capitec-alert-banner
 					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
@@ -876,7 +876,7 @@ export class UpdateCardLimits extends Component {
 	}
 
 	_renderHighRiskTransAlertBanner() {
-		return this.verificationMethod === `XDS`
+		return this.verificationMethod === `XDS` && this.renderMode === RENDER_MODE.LIMITS
 			? html`
 				<capitec-alert-banner
 					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
