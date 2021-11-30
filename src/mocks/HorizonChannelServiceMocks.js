@@ -1,8 +1,12 @@
 /**
  * Mocks for methods in the HorizonChannelService class
  */
-export class HorizonChannelServiceMocks {
+export default class HorizonChannelServiceMocks {
 
+	constructor() {
+		console.log(`test`);
+	}
+	
 	/**
 	 * Load a mocking module if it has not yet been loaded
 	 *

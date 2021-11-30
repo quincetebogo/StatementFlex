@@ -32,10 +32,9 @@ export class ChannelServiceBase extends Service {
 	 * @param {string} baseUrlKey The key in the configuratikon file for the base URL of the service
 	 * @param {String} serviceName The name of the channel service/microservice
 	 * @param {String} version The version of the service
-	 * @param {String} mockingmodule Javascript module containing mocking code
-	 * @param {String} constructorFunc Javascript module containing mocking code
+	 * @param {Function} mockLoadFunc Function that returns a dynamically imported module
 	 */
-	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null, baseUrlKey, serviceName, version, mockingmodule, constructorFunc) {
+	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null, baseUrlKey, serviceName, version, mockLoadFunc) {
 		super({
 			baseUrlKey: baseUrlKey,
 			name: serviceName
@@ -43,14 +42,12 @@ export class ChannelServiceBase extends Service {
 
 		this._version = version;
 		this._mocking = null;
-		this._mock = null;
 
 		this._configuration = Configuration.getInstance();
 		this._logger = Logger.getInstance();
 		this._toggleBusyFlag = toggleBusyFunc;
 		this._defaultErrorHandler = defaultErrorHandlerFunc;
-		this._mockingmodule = mockingmodule;
-		this._constructorFunc = constructorFunc;
+		this._mockLoadFunc = mockLoadFunc;
 		this.logRequestResponseModels = null;
 	}
 
@@ -195,43 +192,57 @@ export class ChannelServiceBase extends Service {
 	 * @returns {Promise<boolean>} A promise for a boolean that is true if the mock is enabled
 	 * @memberof HorizonChannelService
 	 */
-		 async _mockEnabled(mockName) {
-			if (this._mocking === null) {
-				try {
-					this._mocking = await this._configuration.getSetting(`mock`);
-	
-					// Disable mocking in the SLDC environments. Only for local development
-					if (this._configuration.config.runtime.environment !== `LOCAL`) {
-						this._mocking = { enabled: false };
-						this._logger.log(`info`, `Channel Service Mocking has been automatically disabled as the application is not running locally.`, `_mockEnabled`);
-					}
-				} catch {
-					// disable mocking if the setting is not present
+	async _mockEnabled(mockName) {
+		if (this._mocking === null) {
+			try {
+				this._mocking = await this._configuration.getSetting(`mock`);
+
+				// Disable mocking in the SLDC environments. Only for local development
+				if (this._configuration.config.runtime.environment !== `LOCAL`) {
 					this._mocking = { enabled: false };
-					this._logger.log(`info`, `Channel Service Mocking has been automatically disabled as no configuration is present.`, `_mockEnabled`);
+					this._logger.log(`info`, `Channel Service Mocking has been automatically disabled as the application is not running locally.`, `_mockEnabled`);
 				}
-	
-				if (this._mocking.enabled) {
-					// Dynamically load the configured mocks
-					this._logger.log(`info`, `Channel Service Mocking is enabled.`, `_mockEnabled`);
-					const test = await import(_mockingmodule);
-					this._mock = new test.HorizonChannelServiceMocks();
-					await this._mock.initialise(this._mocking);
-				}
+			} catch {
+				// disable mocking if the setting is not present
+				this._mocking = { enabled: false };
+				this._logger.log(`info`, `Channel Service Mocking has been automatically disabled as no configuration is present.`, `_mockEnabled`);
 			}
-	
-			// Check if mocking is switched off globally
+
 			if (!this._mocking.enabled) {
 				return false;
 			}
-	
-			// Check if specified mock is configured and enabled
-			if (Object.prototype.hasOwnProperty.call(this._mocking, mockName)) {
-				return this._mocking[mockName].enabled;
+
+			// Dynamically load the configured mocks
+			this._logger.log(`info`, `Channel Service Mocking is enabled.`, `_mockEnabled`);
+			const module = await this._mockLoadFunc();
+
+			if (!Object.prototype.hasOwnProperty.call(module, `default`)) {
+				this._logger.log(`info`, `Mocking module does not export a default object`, `_mockEnabled`);
 			}
-	
+
+			const defaultObject = new module.default();
+			const defaultObjectProtoType = Object.getPrototypeOf(defaultObject);
+
+			if (!Object.prototype.hasOwnProperty.call(defaultObjectProtoType, `initialise`)) {
+				this._logger.log(`info`, `Mocking class does not contain an initialise function`, `_mockEnabled`);
+			}
+			
+			await defaultObject.initialise(this._mocking);
+		}
+
+
+		// Check if mocking is switched off globally
+		if (!this._mocking.enabled) {
 			return false;
 		}
+
+		// Check if specified mock is configured and enabled
+		if (Object.prototype.hasOwnProperty.call(this._mocking, mockName)) {
+			return this._mocking[mockName].enabled;
+		}
+
+		return false;
+	}
 
 
 		/**
