@@ -427,14 +427,6 @@ export class HorizonChannelService extends Service {
 		*/
 	}
 
-	async getCardLimits(cardDetails) {
-		if (await this._mockEnabled(`cardLimits`)) {
-			return this._mock.getCardLimits();
-		}
-		const url = `/clientcare-card-${this._version}/temporary-limits`;
-		return this._get(url, this._setToken(), `getCardLimits`);
-	}
-
 	async getCardLimitsAgreement(cardDetails) {
 		if (await this._mockEnabled(`getCardLimitsAgreement`)) {
 			return this._mock.getCardLimitsAgreement(cardDetails);
