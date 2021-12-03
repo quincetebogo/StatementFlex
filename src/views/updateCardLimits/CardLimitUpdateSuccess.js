@@ -1,10 +1,9 @@
 import { css, html } from 'platform/elements';
 import { ViewBase } from 'app/views/common/ViewBase';
 
-import 'app/components/common/ErrorScreen';
-import 'app/components/common/RelatedOptions';
+import 'app/components/common/SuccessScreen';
 
-export class UnsuccessfulCardLimitUpdate extends ViewBase {
+export class SuccessfulCardLimitUpdate extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -18,8 +17,8 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 		this.maskedCardNumber = ``;
 		this.limitExpiryDate = ``;
 		this.istapToPayUnChanged = false;
-		this.incidentRecId = this.incidentDetails.incidentRecId;
 		this.tapToPayStatus = ``;
+		this.endCallContext = `QuickTransactionSuccess`;
 	}
 
 	// --------------
@@ -40,7 +39,6 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 		super.connectedCallback();
 
 		this._updateIncidentState();
-
 		const screenDetails = this.horizonStore.getScreenDetails();
 		const limitDetails = screenDetails.limitDetails;
 
@@ -52,10 +50,6 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 		this.tapToPayStatus = limitDetails.tapToPayStatus;
 	}
 
-	disconnectedCallback() {
-		super.disconnectedCallback();
-	}
-
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -65,8 +59,8 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
-	_onHandoff() {
-		this.horizonRouter.navigateToStrack(this.incidentRecId);
+	_updateCardLimitsClick() {
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	// --------------
@@ -79,7 +73,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 
 	_updateIncidentState() {
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
@@ -94,9 +88,8 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 				.id-update-msg {
 					width: auto;
 				}
-				.card {
-					height: 112px;
-					width: auto;
+				horizon-success-screen {
+					--horizon-button-group-margin-top: 28px;
 				}
 			`
 		];
@@ -108,50 +101,47 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 
 	_webTemplate() {
 		return html`
-			${this._renderCardLimitsUpdateFailure()}
-			${this._renderRelatedOptions()}
+			${this._renderCardLimitsUpdateSuccess()}
 
 			${super._webTemplate()}
 		`;
 	}
 
-	_renderCardLimitsUpdateFailure() {
+	_renderCardLimitsUpdateSuccess() {
 		return html`
-			<horizon-error-screen 
-				data-automation-id="card-limit-update-failure-screen"
-				header="${this.limitType} card limits not updated" 
-				left="Done"
-				right="Assign"
+			<horizon-success-screen 
+				data-automation-id="card-limit-update-success-screen"
+				header="${this.limitType} card limits updated" 
+				image="/images/cards-successful-limit-update.svg"
+				left="Update Card Limits"
+				right="Done"
 				toast="${this.limitType} card limit updated."
-				secondaryToast="${this.istapToPayUnChanged ? `` : `Tap to pay not updated`}"
-				image="/images/cards-unsuccesful-limit-update.svg"
+				secondaryToast="${this.istapToPayUnChanged ? `` : `Tap to pay updated`}"
 				?hasSubDetails="${!this.istapToPayUnChanged}"
-				@left-click=${() => this._doneClick()}
-				@right-click=${() => this._onHandoff()}>
-					<section
+				@left-click=${() => this._updateCardLimitsClick()}
+				@right-click=${() => this._doneClick()}>
+					<section 
+						class="id-update-msg" 
 						slot="detail">
-							The ${this.limitType.toLowerCase()} card limits for ${this.cardCategory.toLowerCase()} card <b>${this.maskedCardNumber}</b> was not updated.
+							The ${this.limitType.toLowerCase()} card limits for ${this.cardCategory.toLowerCase()} card <b>${this.maskedCardNumber}</b> was updated.
 					</section>
 
-					${this._getSubTitle()}
-			</horizon-error-screen>
+					${this._renderTapToPayInfo()}
+			</horizon-success-screen>
 		`;
 	}
 
-	_getSubTitle() {
+	_renderTapToPayInfo() {
+		// displayed only if hasSubDetails attribute is true on horizon-success-screen
 		return html`
-			<section slot="sub-detail">
-				The tap to pay functionality on your ${this.cardCategory.toLowerCase()} card <b>${this.maskedCardNumber}</b> was not ${this.tapToPayStatus === `TapToPayActivated` ? `activated` : `deactivated`}.
+			<section 
+				class="id-update-msg" 
+				slot="sub-detail">
+					The tap to pay functionality on your ${this.cardCategory.toLowerCase()} card <b>${this.maskedCardNumber}</b> ${this.tapToPayStatus === `TapToPayActivated`
+						? html`is pending tap to pay activation. <br /> To complete activation, insert card into card machine or ATM`
+						: `is deactivated`}.
 			</section>`;
-	}
-
-	_renderRelatedOptions() {
-		return html`
-			<horizon-related-options
-				context = "Failure">
-			</horizon-related-options>
-		`;
 	}
 }
 
-customElements.define(`card-limit-update-failure`, UnsuccessfulCardLimitUpdate);
+customElements.define(`card-limit-update-success`, SuccessfulCardLimitUpdate);

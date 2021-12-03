@@ -18,7 +18,7 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 	constructor() {
 		super();
-
+		this.endCallContext = `QuickTransactionsUnSuccess`;
 		this._telemetry = HorizonTelemetry.instance;
 	}
 

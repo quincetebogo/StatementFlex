@@ -24,6 +24,7 @@ export class ItaVerificationFailed extends ViewBase {
 		super.connectedCallback();
 
 		this._updateLeftBar();
+		this.endCallContext = `VerifyClientFailed`;
 	}
 
 	// -------------

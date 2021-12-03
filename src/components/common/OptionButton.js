@@ -112,6 +112,7 @@ export class OptionButton extends Button {
 				.button.disabled {
 					cursor: default;
 					filter: grayscale(100%);
+					color: #009DE0;
 				}
 				.button.clear {
 					--theme-button-clear-background-color: #FFFFFF;

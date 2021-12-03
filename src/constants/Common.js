@@ -17,4 +17,4 @@ export const HIGH_RISK_TRANSACTIONS = [
  * @enum {Object} LOW_RISK_TRANSACTIONS
  * 
  */
-export const LOW_RISK_TRANSACTIONS = [`stop-card`];
+export const LOW_RISK_TRANSACTIONS = [`stop-card`, `search-other-need`];
