@@ -604,10 +604,7 @@ export class UpdateCardLimits extends Component {
 				margin: 16px 16px 0px 16px;
 			}
 			capitec-alert-banner[type="warning"] {
-				--theme-alert-banner-height: 48px;
-				--theme-alert-banner-icon-margin-left: 16px;
-				--theme-alert-banner-icon-margin-right: 8px;
-				margin: 0px 0px 14px 0px;
+				margin: 14px 8px 0px 8px;
 			}
 			.agreements-banner {
 				margin: 0px 0px 16px 0px;
@@ -815,6 +812,7 @@ export class UpdateCardLimits extends Component {
 			capitec-hyperlink {
 				--theme-font-weight: 600;
 				--theme-hyperlink-color: #3A3A3A;
+				--theme-hyperlink-font-size: 14px;
 				text-decoration: underline;
 			}
 			capitec-label[type="strong"] {
@@ -826,6 +824,15 @@ export class UpdateCardLimits extends Component {
 			#id-notify-banner-group > .alert-banner-text {
 				--theme-label-default-font-weight: 400;
 				--theme-label-font-color: #3A3A3A;
+			}
+			capitec-text-field[disabled] {
+				--theme-input-font-color: #7C7C7C;
+				--theme-input-hint-font-color: #7C7C7C;
+				--theme-input-currency-symbol-color: #7C7C7C;
+				--theme-input-disabled-background-color: #FFFFFF;
+			}
+			.alert-banner-group > capitec-label[type="default"] {
+				--theme-label-default-font-weight: 500;
 			}
 			`
 		];
@@ -847,9 +854,12 @@ export class UpdateCardLimits extends Component {
 						active-step-number="${this.renderMode}">
 					</capitec-stepper>
 
+					${!this.hasDigitalChannels
+							? this._renderNoDigitalHighRiskTransAlertBanner()
+							: this._renderHighRiskTransAlertBanner()}
+
 					<capitec-content-box class="main-cb">
 						${this._renderAgreementsAlertBanner()}
-						${this._renderVerificationMethodAlert()}
 						${this._renderSetLimits()}
 						${this._renderAgreement()}
 					</capitec-content-box>
@@ -863,28 +873,43 @@ export class UpdateCardLimits extends Component {
 		`;
 	}
 
-	_renderVerificationMethodAlert() {
-		const label = this.hasDigitalChannels && this.verificationMethod === `XDS` ? `For added security, we will be sending a push notification to access additional transactions.` : `For added security, get the App to update your Online limit, alternatively visit your nearest branch.`;
-		return html`
-			<capitec-alert-banner 
-				data-automation-id="card-limits-landing-alert-banner"
-				type="warning">
-				<capitec-group id="id-notify-banner-group" layout="horizontal">
-					<capitec-label type="strong" label="Notify client:"></capitec-label>
-					<capitec-label 
-								type="default"
-								class="alert-banner-text" 
-								label="${label}">
-					</capitec-label>
+	_renderNoDigitalHighRiskTransAlertBanner() {
+		return this.verificationMethod === `XDS` && this.renderMode === RENDER_MODE.LIMITS
+			? html`
+				<capitec-alert-banner
+					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
+					type="warning">
+						<capitec-group layout="horizontal" class="alert-banner-group">
+							<capitec-label type="strong" label="Notify client:"></capitec-label>
+							<capitec-label type="default"
+								label="For added security get the remote banking App to perform additional transactions, alternatively, visit your nearest branch.">
+							</capitec-label>
+							<capitec-spacer></capitec-spacer>
+						</capitec-group>
+				</capitec-alert-banner>`
+			: html``;
+	}
 
-					<capitec-hyperlink 
-							?hidden=${!this.hasDigitalChannels}
-							label="Verify Now" 
-							@click="${() => this._verifyClick()}">
-					</capitec-hyperlink>
-				</capitec-group>
-			</capitec-alert-banner>
-		`;
+	_renderHighRiskTransAlertBanner() {
+		return this.verificationMethod === `XDS` && this.renderMode === RENDER_MODE.LIMITS
+			? html`
+				<capitec-alert-banner
+					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
+					type="warning">
+						<capitec-group layout="horizontal" class="alert-banner-group">
+							<capitec-label type="strong" label="Notify client:"></capitec-label>
+							<capitec-label type="default"
+								label="For added security, we will be sending a push notification to access additional transactions.">
+							</capitec-label>
+							<capitec-spacer></capitec-spacer>
+							<capitec-hyperlink
+								data-automation-id="high-risk-transactions-verify"
+								label="Verify Now"
+								@click="${() => this._verifyClick()}">
+							</capitec-hyperlink>
+						</capitec-group>
+				</capitec-alert-banner>`
+			: html``;
 	}
 
 	_renderLimitsAlertBanner() {

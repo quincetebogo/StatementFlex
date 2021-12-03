@@ -116,14 +116,14 @@ export class ViewBase extends View {
 	// --------------
 
 	_verifyClick() {
-		this.showVerifyCallerDialog = !this.showVerifyCallerDialog;
+		this.showVerifyCallerDialog = true;
 	}
 
 	_skipVerification(event) {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
 
-		this.showVerifyCallerDialog = !this.showVerifyCallerDialog;
+		this.showVerifyCallerDialog = false;
 	}
 
 	_verificationCancelled(event) {
@@ -131,7 +131,7 @@ export class ViewBase extends View {
 		this.callerInformation = event.detail.callerInformation;
 		this.verificationStatus = this.callerInformation.verificationStatus;
 
-		this.showVerifyCallerDialog = !this.showVerifyCallerDialog;
+		this.showVerifyCallerDialog = false;
 	}
 
 	_clientVerified(event) {
@@ -139,7 +139,7 @@ export class ViewBase extends View {
 		this.callerInformation = event.detail.callerInformation;
 		this.verificationStatus = this.callerInformation.verificationStatus;
 
-		this.showVerifyCallerDialog = !this.showVerifyCallerDialog;
+		this.showVerifyCallerDialog = false;
 	}
 
 	_assignIncidentClick() {

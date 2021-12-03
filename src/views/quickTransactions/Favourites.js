@@ -702,11 +702,104 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderProofOfAccount()}
 			${this._renderFeedback()}
 			${this._renderUpdateIncidentModal()}
-		${this._renderTaxCertificate()}
-
+			${this._renderTaxCertificate()}
 
 			${super._webTemplate()}
 		`;
+	}
+
+	renderAlertBanner() {
+		const unverified = () => this._renderUnverifiedAlertBanner();
+		const failed = () => this._renderFailedAlertBanner();
+		const verified = () => this._renderVerifiedAlertBanner();
+
+		const verificationStatuses = {
+			'unverified': unverified,
+			'failed': failed,
+			'verified': verified
+		};
+
+		if (verificationStatuses[this.verificationStatus]) {
+			return verificationStatuses[this.verificationStatus]();
+		}
+	}
+
+	_renderUnverifiedAlertBanner() {
+		return html`
+			<capitec-alert-banner
+				class="verificatoin-status"
+				data-automation-id="favourite-transactions-unverified-alert-banner"
+				type="warning">
+				<capitec-group layout="horizontal" class="alert-banner-group">
+					<capitec-label type="strong" label="Notify client:"></capitec-label>
+					<capitec-label type="default"
+						label="For added security we will need to go through verification to proceed with additional transactions.">
+					</capitec-label>
+					<capitec-spacer></capitec-spacer>
+					<capitec-hyperlink 
+						data-automation-id="favourite-transactions-verify"
+						label="Verify Now"
+						@click="${() => super._verifyClick()}">
+					</capitec-hyperlink>
+				</capitec-group>
+			</capitec-alert-banner>`;
+	}
+
+	_renderFailedAlertBanner() {
+		return html`
+			<capitec-alert-banner
+				class="verificatoin-status"
+				data-automation-id="favourite-transactions-failed-verification-alert-banner"
+				type="unsuccessful-red"
+				label="Notify client: I'm not able to access your account since you couldn't be verified. If it's an urgent matter please visit a branch, or you can call again after 24 hours.">
+			</capitec-alert-banner>`;
+	}
+
+	_renderVerifiedAlertBanner() {
+		return !this.callerInformation.hasDigitalChannels
+			? this._renderNoDigitalHighRiskTransAlertBanner()
+			: this._renderHighRiskTransAlertBanner();
+	}
+
+	_renderNoDigitalHighRiskTransAlertBanner() {
+		return this.callerInformation.verificationMethod === `XDS`
+			? html`
+				<capitec-alert-banner
+					class="verificatoin-status"
+					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
+					type="warning">
+						<capitec-group layout="horizontal" class="alert-banner-group">
+							<capitec-label type="strong" label="Notify client:"></capitec-label>
+							<capitec-label type="default"
+								label="For added security get the remote banking App to perform additional transactions, alternatively, visit your nearest branch.">
+							</capitec-label>
+							<capitec-spacer></capitec-spacer>
+						</capitec-group>
+				</capitec-alert-banner>`
+			: html``;
+	}
+
+	_renderHighRiskTransAlertBanner() {
+		return this.callerInformation.verificationMethod === `XDS`
+			? html`
+				<capitec-alert-banner
+					class="verificatoin-status"
+					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
+					type="warning">
+						<capitec-group layout="horizontal" class="alert-banner-group">
+							<capitec-label type="strong" label="Notify client:"></capitec-label>
+							<capitec-label type="default"
+								label="For added security, we will be sending a push notification to access additional transactions.">
+							</capitec-label>
+							<capitec-spacer></capitec-spacer>
+							<capitec-hyperlink
+								data-automation-id="high-risk-transactions-verify"
+								label="Verify Now"
+								@click="${() => super._verifyClick()}">
+							</capitec-hyperlink>
+						</capitec-group>
+				</capitec-alert-banner>`
+			: html``;
 	}
 
 	_renderFavouritesLandingPage() {
@@ -725,11 +818,9 @@ export class Favourites extends SavingsAccountBase {
 						class="favourites"
 						.landingPageInfo="${this.landingPageInfo}"
 						.verificationStatus="${this.callerInformation.verificationStatus}"
-						.verificationMethod="${this.callerInformation.verificationMethod}"
-						.hasDigitalChannels="${this.callerInformation.hasDigitalChannels}"
 						?displayVerificationStatusToast="${this._shouldToastDisplay()}"
 						.shouldDisable="${need => this._shouldDisable(need)}"
-						@verify-click="${() => super._verifyClick()}"
+						.renderAlertBanner="${() => this.renderAlertBanner()}"
 						@option-click="${(e) => this._onFavouritesOptionClick(e)}">
 					</horizon-favourite-transactions>`;
 			default:
@@ -757,11 +848,13 @@ export class Favourites extends SavingsAccountBase {
 					voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
 					verificationMethod="${this.callerInformation.verificationMethod}"
 					?hasDigitalChannels="${this.callerInformation.hasDigitalChannels}"
+					?showVerifyCallerDialog="${this.showVerifyCallerDialog}"
 					.getCardLimitsAgreement ="${renderRequest => this._getCardLimitsAgreement(renderRequest)}"
 					.getPermanentLimits="${request => this._getPermanentLimits(request)}"
 					.getTemporaryLimits="${request => this._getTemporaryLimits(request)}"
 					.updatePermanentLimits ="${renderRequest => this._updatePermanentLimits(renderRequest)}"
 					.updateTemporaryLimits ="${renderRequest => this._updateTemporaryLimits(renderRequest)}"
+					.renderAlertBanner="${() => this.renderAlertBanner()}"
 					@verify-now="${() => super._verifyClick()}"
 					@back="${() => this._backToLandingPage()}"
 					@result=${eventData => this._updateLimitsResult(eventData)}>
