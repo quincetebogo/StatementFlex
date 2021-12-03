@@ -297,7 +297,8 @@ export class SavingsAccountBase extends ViewBase {
 			accountConfirmation: accepted,
 			instalmentConfirmation: accepted,
 			permissionToDebit: accepted,
-			termsAndConditionsConfirmation: accepted
+			termsAndConditionsConfirmation: accepted,
+			documentId: this.clientDetails.data.documentId
 		};
 
 		const returnValue = await this.savingsAccountService.debiCheckConfirmAgreement(agreementInfo);
