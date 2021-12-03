@@ -67,6 +67,7 @@ export class UpdateCardLimits extends Component {
 		this.renderMode = RENDER_MODE.LIMITS;
 		this.cardlimitsInfo = {};
 		this.getAgreement = {};
+		this.hasDigitalChannels = false;
 
 		this.error = {
 			credit: {
@@ -237,7 +238,8 @@ export class UpdateCardLimits extends Component {
 		} else {
 			this.cardLimits[e.currentTarget.id] = isNullorEmpty(newVal) ? null : parseInt(newVal, 10);
 		}
-		const diff = (isNullorEmpty(newVal) ? 0 : parseInt(newVal, 10)) - (isNullorEmpty(oldVal) ? oldVal : parseInt(oldVal, 10));
+
+		const diff = this._getDifference(newVal, oldVal);
 
 		if (this.cardDetails.cardDisplayType === `Primary_Card`) {
 			if (this.limitType === `Permanent`) {
@@ -350,20 +352,6 @@ export class UpdateCardLimits extends Component {
 
 	_textFieldFocused(e) {
 		this.fieldFocused = e.currentTarget.id;
-	}
-
-	_getTextFieldValue(id, value) {
-		if (isNullorEmpty(value)) {
-			return ``;
-		}
-		return this.fieldFocused === id ? value : parseInt(value, 10).toFixed(2);
-	}
-
-	_getTextFieldHint(value) {
-		if (this.limitType === `Temporary`) {
-			return isNullorEmpty(value) ? `Limit not set` : this.expiryDate;
-		}
-		return ``;
 	}
 
 	_verifyClick() {
@@ -510,15 +498,32 @@ export class UpdateCardLimits extends Component {
 		const otherDate = DateTime.fromISO(date.substring(10, 0));
 		return `${otherDate.day} ${otherDate.monthShort} ${otherDate.year}`;
 	}
+	
+	_getTextFieldValue(id, value) {
+		if (isNullorEmpty(value)) {
+			return ``;
+		}
+		return this.fieldFocused === id ? value : parseInt(value, 10).toFixed(2);
+	}
 
-	_getCnpHint(limitType, expiryDate, verificationMethod) {
-		if (verificationMethod === `XDS`) {
+	_getTextFieldHint(value, isCNPLimit = false) {
+		if (this.verificationMethod === `XDS` && isCNPLimit) {
 			return `Have to verify client via ITA to update`;
 		}
 
-		return limitType === `Temporary` ? expiryDate : ``;
+		if (this.limitType === `Temporary`) {
+			return isNullorEmpty(value) ? `Limit not set` : this.expiryDate;
+		}
+		return ``;
 	}
 
+	_getDifference(newVal, oldVal) {
+		const newLimitValue = isNullorEmpty(newVal) ? 0 : parseInt(newVal, 10);
+		const oldLimitValue = isNullorEmpty(oldVal) ? oldVal : parseInt(oldVal, 10);
+		
+		return newLimitValue - oldLimitValue;
+	}
+	
 	// ---------
 	// RENDERING
 	// ---------
@@ -1055,8 +1060,8 @@ export class UpdateCardLimits extends Component {
 				type="${isNullorEmpty(limits.cnpAmountLimit) ? `numeric` : `currency`}"
 				value="${this._getTextFieldValue(cnpAmountLimit, limits.cnpAmountLimit)}"
 				error="${this._getFieldError(this.error[transactionType][cnpAmountLimit]) || this.tempError[cnpAmountLimit]}"
-				hint="${this._getCnpHint(this.limitType, this.expiryDate, this.verificationMethod)}"
-				hint="${this.limitType === `Temporary` ? this.expiryDate : ``}"
+				hint="${this._getTextFieldHint(limits.cnpAmountLimit, true)}"
+				?disabled=${this.verificationMethod === `XDS`}
 				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD}"
 				@blur="${() => this.fieldFocused = ``}"
 				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"

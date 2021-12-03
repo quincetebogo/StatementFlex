@@ -76,6 +76,8 @@ export class CardLimitsLanding extends Component {
 		this.showConfirmSelectionModal = false;
 		this.showVerifyCallerModal = false;
 
+		this.hasDigitalChannels = false;
+
 		this.primaryCards = [];
 		this.supplementaryCards = [];
 		this.virtualCards = [];
@@ -517,7 +519,6 @@ export class CardLimitsLanding extends Component {
 
 		return `max ${formatCurrency(maxValue, 0)}`;
 	}
-
 
 	_verifyClick() {
 		this.showVerifyCallerModal = true;
