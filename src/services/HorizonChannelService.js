@@ -620,37 +620,9 @@ export class HorizonChannelService extends Service {
 		if (await this._mockEnabled(`debiCheckConfirmAgreement`)) {
 			return this._mock.debiCheckConfirmAgreement(mandateInfo);
 		}
-
-		const request = {
-			cifNumber: mandateInfo.cifNumber,
-			mandateRef: mandateInfo.mandateRef,
-			title: mandateInfo.title,
-			firstName: mandateInfo.firstName,
-			surname: mandateInfo.surname,
-			middleName: mandateInfo.middleName,
-			identificationNumber: mandateInfo.identificationNumber,
-			residentialAddress: mandateInfo.residentialAddress,
-			postalAddress: mandateInfo.postalAddress,
-			cellphone: mandateInfo.cellphone,
-			homeNumber: mandateInfo.homeNumber,
-			workNumber: mandateInfo.workNumber,
-			savingsAccountNumber: mandateInfo.savingsAccountNumber,
-			cardNumber: mandateInfo.cardNumber,
-			contractReference: mandateInfo.contractReference,
-			instalmentAmount: mandateInfo.instalmentAmount,
-			frequency: mandateInfo.frequency,
-			firstCollectionDate: mandateInfo.firstCollectionDate,
-			collectionDayFrequencyWording: mandateInfo.collectionDayFrequencyWording,
-			ultimateDebtorName: mandateInfo.debitAccountName,            
-			debitAccountName: mandateInfo.debitAccountName,
-			accountConfirmation: mandateInfo.accountConfirmation,
-			instalmentConfirmation: mandateInfo.instalmentConfirmation,
-			permissionToDebit: mandateInfo.permissionToDebit,
-			termsAndConditionsConfirmation: mandateInfo.termsAndConditionsConfirmation
-		};
-
+		
 		const url = `/clientcare-debicheck-${this._version}/client-mandate-confirm-agreement`;
-		return this._post(url, request, this._setToken(), `debiCheckConfirmAgreement`);
+		return this._post(url, mandateInfo, this._setToken(), `debiCheckConfirmAgreement`);
 	}
 
 	debiCheckAuthenticate(cifNumber, mandateReferenceNumber, debtorAccountNumber, accepted) {
