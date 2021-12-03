@@ -75,6 +75,7 @@ export class CardLimitsLanding extends Component {
 		this.showUpdateLimitsModal = false;
 		this.showDiscardChangesModal = false;
 		this.showConfirmSelectionModal = false;
+		this.showVerifyCallerModal = false;
 
 		this.hasDigitalChannels = false;
 
