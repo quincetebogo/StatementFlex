@@ -272,6 +272,7 @@ export class SavingsAccountBase extends ViewBase {
 
 	async _confirmAgreement(accepted) {
 		const name = this.callerInformation.name.split(` `);
+		
 		const agreementInfo = {
 			cifNumber: this.callerInformation.cifNumber,
 			mandateRef: this.debiCheckDetails.mandateReference,
@@ -297,7 +298,8 @@ export class SavingsAccountBase extends ViewBase {
 			accountConfirmation: accepted,
 			instalmentConfirmation: accepted,
 			permissionToDebit: accepted,
-			termsAndConditionsConfirmation: accepted
+			termsAndConditionsConfirmation: accepted,
+			documentId: this.clientDetails.data.documentId
 		};
 
 		const returnValue = await this.savingsAccountService.debiCheckConfirmAgreement(agreementInfo);
