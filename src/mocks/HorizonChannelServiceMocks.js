@@ -18,12 +18,12 @@ export default class HorizonChannelServiceMocks {
 	 */
 	_loadMockModule(mockObj, mockName, doImport) {
 		if (!mockObj) {
-			if (Object.prototype.hasOwnProperty.call(this._mocking, mockName)) {
-				if (this._mocking[mockName].enabled) {
+			if (Object.prototype.hasOwnProperty.call(this._mockSettings, mockName)) {
+				if (this._mockSettings[mockName].enabled) {
 					return doImport();
 				}
 			} else {
-				this._mocking[mockName] = { enabled: false };
+				this._mockSettings[mockName] = { enabled: false };
 			}
 		}
 		return mockObj;
@@ -33,12 +33,12 @@ export default class HorizonChannelServiceMocks {
 	 * Load mocking modules if required. Checks are done to ensure that a mocking module is loaded once
 	 * and then only if needed.
 	 *
-	 * @param {object} mocking The mocking settings from the config.json file
+	 * @param {object} mockSettings The mocking settings from the config.json file
 	 * @returns {Promise<undefined>} The promise return type is not used
 	 * @memberof HorizonChannelServiceMocks
 	 */
-	async initialise(mocking) {
-		this._mocking = mocking;
+	async initialise(mockSettings) {
+		this._mockSettings = mockSettings;
 
 		const logError = (err) => {
 			console.log(err);
@@ -65,7 +65,7 @@ export default class HorizonChannelServiceMocks {
 	// Channel Service Mocking Methods
 	// ===============================
 	acceptCall(incomingCallData) {
-		if (this._mocking.acceptCall.positiveCase) {
+		if (this._mockSettings.acceptCall.positiveCase) {
 			const mockResponse = this.callMocks.acceptCallSuccess;
 			mockResponse.incidentReferenceNumber = incomingCallData.incidentReferenceNumber;
 			mockResponse.ivrOptionCode = incomingCallData.ivrOptionCode;
@@ -80,7 +80,7 @@ export default class HorizonChannelServiceMocks {
 	}
 
 	xdsQuestions(clientID) {
-		if (this._mocking.xdsQuestions.positiveCase) {
+		if (this._mockSettings.xdsQuestions.positiveCase) {
 			return this.securityQuestionMocks.securityQuestions;
 		}
 
@@ -88,7 +88,7 @@ export default class HorizonChannelServiceMocks {
 	}
 
 	verifySecurityQuestions(answers) {
-		if (this._mocking.verifySecurityQuestions.positiveCase) {
+		if (this._mockSettings.verifySecurityQuestions.positiveCase) {
 			return `Authenticated`;
 		} 
 
@@ -96,7 +96,7 @@ export default class HorizonChannelServiceMocks {
 	}
 
 	favouritesLanding(clientInfo) {
-		if (this._mocking.favouritesLanding.positiveCase) {
+		if (this._mockSettings.favouritesLanding.positiveCase) {
 			return this.favouritesMocks.favouritesLandingSuccess;
 		}
 
@@ -105,7 +105,7 @@ export default class HorizonChannelServiceMocks {
 	}
 
 	cardLimitsLanding() {
-		if (this._mocking.cardLimitsLanding.positiveCase) {
+		if (this._mockSettings.cardLimitsLanding.positiveCase) {
 			return this.cardLimitsMocks.limitsLandingResponse;
 		}
 
@@ -114,7 +114,7 @@ export default class HorizonChannelServiceMocks {
 	}
 
 	getTemporaryLimits() {
-		if (this._mocking.getTemporaryLimits.positiveCase) {
+		if (this._mockSettings.getTemporaryLimits.positiveCase) {
 			return this.cardLimitsMocks.temporaryLimitsResponse;
 		}
 
@@ -123,7 +123,7 @@ export default class HorizonChannelServiceMocks {
 	}
 
 	getCardLimitsAgreement() {
-		if (this._mocking.getCardLimitsAgreement.positiveCase) {
+		if (this._mockSettings.getCardLimitsAgreement.positiveCase) {
 			return this.cardLimitsMocks.limitsAgreementResponse;
 		}
 
@@ -132,7 +132,7 @@ export default class HorizonChannelServiceMocks {
 	}
 
 	debiCheckMandates(cifNumber) {
-		if (this._mocking.debiCheckMandates.positiveCase) {
+		if (this._mockSettings.debiCheckMandates.positiveCase) {
 			return this.mandatesMocks.mockMandates;
 		}
 
@@ -141,7 +141,7 @@ export default class HorizonChannelServiceMocks {
 	}
 
 	debiCheckDetails(cifNumber, mandateId, registerId) {
-		if (this._mocking.debiCheckDetails.positiveCase) {
+		if (this._mockSettings.debiCheckDetails.positiveCase) {
 			const mandateDetails = this.mandatesMocks.mandateInfo.find((entry, index, mandateInfo) => entry.mandateId === mandateId && entry.registerId === registerId);
 			if (mandateDetails) {
 				return mandateDetails.mandateInfo;
@@ -152,7 +152,7 @@ export default class HorizonChannelServiceMocks {
     }
 
     debiCheckConfirmAgreement(mandateInfo) {
-        if (this._mocking.debiCheckConfirmAgreement.positiveCase) {
+        if (this._mockSettings.debiCheckConfirmAgreement.positiveCase) {
             return this.mandatesMocks.agreement;
 		}
 
@@ -161,7 +161,7 @@ export default class HorizonChannelServiceMocks {
     }
 
 	savingsAccountLanding(cifNumber, mandateId, registerId) {
-		if (this._mocking.savingsAccountLanding.positiveCase) {
+		if (this._mockSettings.savingsAccountLanding.positiveCase) {
 			return this.savingsAccountDetails.savingsAccountDetails;
 		}
 
@@ -170,7 +170,7 @@ export default class HorizonChannelServiceMocks {
 	}
 
 	transactionHistory(transactionHistoryRequest) {
-		if (this._mocking.transactionHistory.positiveCase) {
+		if (this._mockSettings.transactionHistory.positiveCase) {
 			const transactions = this.transactionHistoryMocks.transactionHistoryMockData.transactionHistoryList.slice(transactionHistoryRequest.startAtIndex, transactionHistoryRequest.startAtIndex + transactionHistoryRequest.maxResults);
 			return transactions;
 		}
@@ -180,7 +180,7 @@ export default class HorizonChannelServiceMocks {
 	}
 
 	getCardLimits() {
-		if (this._mocking.cardLimits.positiveCase) {
+		if (this._mockSettings.cardLimits.positiveCase) {
 			return this.cardLimitsMocks.mockCardLimits;
 		}
 
@@ -189,7 +189,7 @@ export default class HorizonChannelServiceMocks {
 	}
 
 	stopCardLanding() {
-		if (this._mocking.stopCardLanding.positiveCase) {
+		if (this._mockSettings.stopCardLanding.positiveCase) {
 			const mockResponse = this.stopCardLandingMocks.stopCardMockResponse;
 
 			return mockResponse;
@@ -205,7 +205,7 @@ export default class HorizonChannelServiceMocks {
 				{
 					maskedCardNumber: card.maskedCardNumber,
 					result: {
-						statusCode: this._mocking.stopCard.positiveCase ? 200 : 400
+						statusCode: this._mockSettings.stopCard.positiveCase ? 200 : 400
 					}
 				}
 			))
@@ -215,7 +215,7 @@ export default class HorizonChannelServiceMocks {
 	}
 
 	hasInsuranceProducts() {
-		if (this._mocking.hasInsuranceProducts.positiveCase) {
+		if (this._mockSettings.hasInsuranceProducts.positiveCase) {
 			return this.hasInsuranceProductsMock.mockHasInsuranceProducts;
 		}
 
@@ -227,14 +227,14 @@ export default class HorizonChannelServiceMocks {
 
 	tapToPay(cifNumber) {
 
-		if (this._mocking.tapToPayLanding.positiveCase) {
+		if (this._mockSettings.tapToPayLanding.positiveCase) {
 			return this.tapToPayMocks.mockCards;
 		}
 		return null;
 	}
 
 	viewStatements() {
-		if (this._mocking.viewStatements.positiveCase) {
+		if (this._mockSettings.viewStatements.positiveCase) {
 			return this.viewStatementsMock.PDF;
 		}
 		return null;
