@@ -90,7 +90,7 @@ export class ComponentMultiLineLabel extends Component {
 					font-size: 14px;
 					font-weight: var(--horizon-multi-line-label-font-weight, 400);
 					letter-spacing: 0;
-					line-height: 20px;
+					line-height: var(--horizon-multi-line-label-line-height, 20px);
 					text-align: right;
 				}
 			`

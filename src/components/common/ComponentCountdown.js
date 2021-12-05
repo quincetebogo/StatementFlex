@@ -77,9 +77,10 @@ export class ComponentCountdown extends Component {
 			tickCallback: { type: Object },
 
 			circleDasharray: { state: true },
-			remainingPathColor: { state: true },
 			timeLeft: { state: true }
 		};
+
+
 	}
 
 	// -------------------

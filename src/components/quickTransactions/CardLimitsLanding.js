@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency, getMonthName } from 'app/utils/channelServiceUtilities';
+import { formatCurrency, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -40,6 +41,15 @@ const LIMIT_TYPES = {
 	TEMPORARY: `Temporary`
 };
 
+const LIMIT_VALUE_TYPE = {
+	PERMANENT_CASH_AMOUNT: { VALUE: `permanentCashAmountLimit`, MAX_VALUE: `maxPermanentCashAmountLimit` },
+	PERMANENT_PURCHASE_AMOUNT: { VALUE: `permanentPurchaseAmountLimit`, MAX_VALUE: `maxPermanentPurchaseAmountLimit` },
+	PERMANENT_CNP_AMOUNT: { VALUE: `permanentCnpAmountLimit`, MAX_VALUE: `maxPermanentCnpAmountLimit` },
+	TEMPORARY_CASH_AMOUNT: { VALUE: `tempCashAmountLimit`, MAX_VALUE: `maxTemporaryCashAmountLimit` },
+	TEMPORARY_PURCHASE_AMOUNT: { VALUE: `tempPurchaseAmountLimit`, MAX_VALUE: `maxTemporaryPurchaseAmountLimit` },
+	TEMPORARY_CNP_AMOUNT: { VALUE: `tempCnpAmountLimit`, MAX_VALUE: `maxTemporaryCnpAmountLimit` }
+};
+
 /**
  * This component implements the update card limits for Quick Transactions
  *
@@ -66,6 +76,8 @@ export class CardLimitsLanding extends Component {
 		this.showDiscardChangesModal = false;
 		this.showConfirmSelectionModal = false;
 		this.showVerifyCallerModal = false;
+
+		this.hasDigitalChannels = false;
 
 		this.primaryCards = [];
 		this.supplementaryCards = [];
@@ -101,6 +113,10 @@ export class CardLimitsLanding extends Component {
 	 */
 
 	/**
+	 *  @typedef {Object} renderAlertBanner Display alter banner based on verification method
+	 */
+
+	/**
 	 * @callback getCardLimitsAgreementsCallback
 	 * @returns {getCardLimitsAgreement}
 	 */
@@ -126,17 +142,24 @@ export class CardLimitsLanding extends Component {
 	 */
 
 	/**
+	 * @callback renderAlterBannerCallback
+	 * @returns {html}
+	 */
+
+	/**
 	 *
 	 * @property {Object} cards Object contains the list of client's card
 	 * @property {String} cifNumber The client's account/cifNumber
 	 * @property {String} voiceRecordingReference The Avaya/Presence Voice Recording ID
+	 * @property {String} verificationMethod Indicated the type of verification (xds/ita)
+	 * @property {Boolean} hasDigitalChannels Indicates if the client is registered for digital channels
+	 * @property {Boolean} showVerifyCallerDialog Flag to know is verify caller dialog displaying?
 	 * @property {getCardLimitsAgreementsCallback} getCardLimitsAgreement Callback function to load limits agreements for displaying
 	 * @property {getPermanentLimitsCallback} getPermanentLimits Callback function to get permanent limits
 	 * @property {getTemporaryLimitsCallback} getTemporaryLimits Callback function to get temporary limits
 	 * @property {updatePermanentLimitsCallback} updatePermanentLimits Callback function to update permanent limits & agreements
 	 * @property {updateTemporaryLimitsCallback} updateTemporaryLimits Callback function to update temporary limits & agreements
-	 * @property {String} verificationMethod Indicated the type of verification (xds/ita)
-	 * @property {Boolean} hasDigitalChannels Indicates if the client is registered for digital channels 
+	 * @property {renderAlterBannerCallback} renderAlertBanner Callback function to render alter banner based on verification status & method
 	 * 
 	 * @readonly
 	 * @static
@@ -149,17 +172,18 @@ export class CardLimitsLanding extends Component {
 			voiceRecordingReference: { type: String },
 			verificationMethod: { type: String },
 			hasDigitalChannels: { type: Boolean },
+			showVerifyCallerDialog: { type: Boolean },
 			getCardLimitsAgreement: { type: Object, attribute: false },
 			getPermanentLimits: { type: Object, attribute: false },
 			getTemporaryLimits: { type: Object, attribute: false },
 			updatePermanentLimits: { type: Object, attribute: false },
 			updateTemporaryLimits: { type: Object, attribute: false },
+			renderAlertBanner: { type: Object, attribute: false },
 
 			renderMode: { state: true },
 			showUpdateLimitsModal: { state: true },
 			showConfirmSelectionModal: { state: true },
-			showDiscardChangesModal: { state: true },
-			showVerifyCallerModal: { state: true }
+			showDiscardChangesModal: { state: true }
 		};
 	}
 
@@ -208,7 +232,7 @@ export class CardLimitsLanding extends Component {
 				cardDetails: {
 					cardId: cardId,
 					accountId: card.primarySavingsAccountId || card.primaryCreditAccountId,
-					customerId: this.cifNumber,
+                    customerId: this.cifNumber,
 					cardExpiryYear: card.cardExpiryYear,
 					cardExpiryMonth: card.cardExpiryMonth,
 					cardSequenceNumber: card.cardSequenceNumber
@@ -223,9 +247,9 @@ export class CardLimitsLanding extends Component {
 			tapToPayStatusChange: tapToPayStatus
 		};
 		if (this._limitType === LIMIT_TYPES.PERMANENT) {
-			request.cardDetails.tempCashAmountLimit = 0;
-			request.cardDetails.tempCnpAmountLimit = 0;
-			request.cardDetails.tempPurchaseAmountLimit = 0;
+			request.cardDetails.tempCashAmountLimit = null;
+			request.cardDetails.tempCnpAmountLimit = null;
+			request.cardDetails.tempPurchaseAmountLimit = null;
 		}
 		const result = await this.getCardLimitsAgreement(request);
 		
@@ -250,7 +274,7 @@ export class CardLimitsLanding extends Component {
 					cardSequenceNumber: cardDetails.cardSequenceNumber
 				},
 				tapToPayStatus: event.detail.tapToPayStatus ? `ON` : `OFF`,
-				customerId: this.cifNumber,
+                customerId: this.cifNumber,
 				voiceRecordingReference: this.voiceRecordingReference,
 				screenRecordingReference: ``,
 				agreementAccepted: event.detail.agreementAccepted,
@@ -314,7 +338,7 @@ export class CardLimitsLanding extends Component {
 				cardDetails: {
 					cardId: cardDetails.linkedCardLimits && this._updateType === `Debit` ? cardDetails.linkedCardId : cardDetails.cardId,
 					accountId: cardDetails.primarySavingsAccountId || cardDetails.primaryCreditAccountId,
-					customerId: this.cifNumber,
+                    customerId: this.cifNumber,
 					cardExpiryYear: cardDetails.cardExpiryYear,
 					cardExpiryMonth: cardDetails.cardExpiryMonth,
 					cardSequenceNumber: cardDetails.cardSequenceNumber
@@ -369,7 +393,7 @@ export class CardLimitsLanding extends Component {
 		this._updateType = updateType;
 		this._limitType = limitType;
 		this._cardDetails = card;
-
+		
 		if (this._limitType === LIMIT_TYPES.TEMPORARY && card.isVirtualCard) {
 			return;
 		}
@@ -379,7 +403,7 @@ export class CardLimitsLanding extends Component {
 			"cardDetails": {
 				"cardId": cardId,
 				"accountId": this._cardDetails.primarySavingsAccountId || this._cardDetails.primaryCreditAccountId,
-				"customerId": this.cifNumber,
+                "customerId": this.cifNumber,
 				"cardExpiryYear": this._cardDetails.cardExpiryYear,
 				"cardExpiryMonth": this._cardDetails.cardExpiryMonth,
 				"cardSequenceNumber": this._cardDetails.cardSequenceNumber
@@ -467,15 +491,53 @@ export class CardLimitsLanding extends Component {
 	_result(success, limitDetails, failureReason) {
 		this.dispatchEvent(new CustomEvent(`result`, { detail: { success: success, limitDetails: limitDetails, failureReason: failureReason } }));
 	}
+	
+	_getLimitValue(linkedLimits, limits, updateType, card, limitType) {
+		const value = linkedLimits && updateType === `Debit`
+			? linkedLimits[limitType.VALUE]
+			: limits[limitType.VALUE];
+		
+		const type = card.cardDisplayType;
+
+		if (type === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD && (limitType === LIMIT_VALUE_TYPE.PERMANENT_CNP_AMOUNT || limitType === LIMIT_VALUE_TYPE.TEMPORARY_CNP_AMOUNT)) {
+			return `N/A`;
+		} else if (type === CARD_DISPLAY_TYPES.VIRTUAL_CARD && limitType !== LIMIT_VALUE_TYPE.PERMANENT_CNP_AMOUNT) {
+			return `N/A`;
+		} else if ((limitType === LIMIT_VALUE_TYPE.TEMPORARY_CASH_AMOUNT || limitType === LIMIT_VALUE_TYPE.TEMPORARY_PURCHASE_AMOUNT || limitType === LIMIT_VALUE_TYPE.TEMPORARY_CNP_AMOUNT) && isNullorEmpty(value)) {
+			return `Not set`;
+		}
+
+		return formatCurrency(value);
+	}
+
+	_getMaxLimitValue(linkedLimits, limits, updateType, card, limitType) {
+		
+		const maxValue = linkedLimits && updateType === `Debit`
+			? linkedLimits[limitType.MAX_VALUE] 
+			: limits[limitType.MAX_VALUE];
+		
+		const value = linkedLimits && updateType === `Debit`
+			? linkedLimits[limitType.VALUE]
+			: limits[limitType.VALUE];
+
+		const type = card.cardDisplayType;
+		
+		if (type === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD && (limitType === LIMIT_VALUE_TYPE.PERMANENT_CNP_AMOUNT || limitType === LIMIT_VALUE_TYPE.TEMPORARY_CNP_AMOUNT)) {
+			return ``;
+		} else if (type === CARD_DISPLAY_TYPES.VIRTUAL_CARD && !(limitType === LIMIT_VALUE_TYPE.PERMANENT_CNP_AMOUNT)) {
+			return ``;
+		} else if ((limitType === LIMIT_VALUE_TYPE.TEMPORARY_CASH_AMOUNT || limitType === LIMIT_VALUE_TYPE.TEMPORARY_PURCHASE_AMOUNT || limitType === LIMIT_VALUE_TYPE.TEMPORARY_CNP_AMOUNT) && isNullorEmpty(value)) {
+			return ``;
+		}
+
+		return `max ${formatCurrency(maxValue, 0)}`;
+	}
 
 	_verifyClick() {
-		this.showVerifyCallerModal = true;
 		this.dispatchEvent(new CustomEvent(`verify-now`, {}));
 	}
 
 	async _clientVerified() {
-		this.showVerifyCallerModal = false;
-
 		// waiting to complete all updates and then perform required function.
 		await this.updateComplete.then(() => this.requestUpdate());
 	}
@@ -495,6 +557,7 @@ export class CardLimitsLanding extends Component {
 		return [
 			super.styles,
 			css`
+				${ALERTBANNER_CSS}
 				.center-section {
 					height: var(--horizon-panel-height, 888px);
 					width: var(--horizon-center-panel-width, 1064px);
@@ -511,23 +574,6 @@ export class CardLimitsLanding extends Component {
 					cursor: pointer;
 					margin-right: 15px;
 				}
-				capitec-alert-banner[type="warning"] {
-					--theme-alert-banner-height: 48px;
-					--theme-alert-banner-icon-margin-left: 16px;
-					--theme-alert-banner-icon-margin-right: 8px;
-					--theme-alert-banner-warning-font-color: #3A3A3A;
-					--theme-hyperlink-color: #3A3A3A;
-					padding: 18px 0px 0px 16px;
-					margin: 0px;
-				}
-				capitec-hyperlink {
-					--theme-font-weight: 600;
-					--theme-hyperlink-color: #3A3A3A;
-					text-decoration: underline;
-				}
-				#id-notify-banner-group {
-					width: 962px;
-				}
 				capitec-label[type="strong"] {
 					--theme-label-strong-font-size: 14px;
 					--theme-label-strong-font-weight: 600;
@@ -536,7 +582,7 @@ export class CardLimitsLanding extends Component {
 				}
 				.card-title {
 					line-height: 24px;
-					margin: 16px 16px 4px;
+					margin: 0px 16px 4px;
 					--theme-label-strong-font-size: 18px;
 					--theme-label-strong-font-weight: 600;
 					--theme-label-font-color: #3E4547;
@@ -581,6 +627,9 @@ export class CardLimitsLanding extends Component {
 					cursor: pointer;
 					border-top: 0px;
 				}
+				.columnGroup > bb-multi-line-label[value=""]{
+					--horizon-multi-line-label-line-height: 32px;
+				}
 				.columnGroup > capitec-label{
 					justify-content:center;
 					padding:0px 16px;
@@ -597,7 +646,7 @@ export class CardLimitsLanding extends Component {
 				
 				horizon-expander{
 					margin: 16px;
-					width: 1032px;
+                    width: 1030px;
 					height: auto;
 					animation-timing-function: linear;
 					--horizon-expander-header-padding-left: 23px;
@@ -613,6 +662,7 @@ export class CardLimitsLanding extends Component {
 					--theme-container-padding-right: 0px;
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 16px;
+					overflow-x: hidden;
 				}
 				.col1{
 					width:222px;
@@ -668,6 +718,9 @@ export class CardLimitsLanding extends Component {
 				}                
 				horizon-label[label="Card expiry date"]{
 					width: 200px;
+				}
+				.m-t-16 {
+					margin-top: 16px;
 				}`
 		];
 	}
@@ -690,8 +743,8 @@ export class CardLimitsLanding extends Component {
 			<capitec-card class="center-section">
 				${this._renderTitleBar()}
 				<capitec-content-box>
-					${this._renderVerifyNowAlertBanner()}
-					<capitec-expander-group modeset="multiple">
+					${this.renderAlertBanner()}
+					<capitec-expander-group modeset="multiple" class="${this.verificationMethod === `ITA` ? `m-t-16` : ``}">
 						${this.primaryCards.length > 0 ? this._renderPrimaryCardGroup() : ``}
 						${this.virtualCards.length > 0 ? this._renderVirtualCardGroup() : ``}
 						${this.supplementaryCards.length > 0 ? this._renderSupplementaryCardGroup() : ``}
@@ -712,30 +765,6 @@ export class CardLimitsLanding extends Component {
 				</capitec-icon>
 				<capitec-label label="Update Card Limits" type="title"></capitec-label>
 			</capitec-title-bar>
-		`;
-	}
-
-	_renderVerifyNowAlertBanner() {
-		const label = this.hasDigitalChannels && this.verificationMethod === `XDS` ? `For added security, we will be sending a push notification to access additional transactions.` : `For added security, get the App to update your Online limit, alternatively visit your nearest branch.`;
-		return html`
-			<capitec-alert-banner 
-						data-automation-id="card-limits-landing-alert-banner"
-						type="warning">
-				<capitec-group id="id-notify-banner-group" layout="horizontal">
-					<capitec-label type="strong" label="Notify client:"></capitec-label>
-					<capitec-label 
-								type="default"
-								label="${label}">
-					</capitec-label>
-					<capitec-spacer></capitec-spacer>
-					<capitec-hyperlink 
-							data-automation-id="card-limits-landing-verify"
-							label="Verify Now"
-							?hidden=${!this.hasDigitalChannels}
-							@click="${() => this._verifyClick()}">
-					</capitec-hyperlink>
-				</capitec-group>
-			</capitec-alert-banner>
 		`;
 	}
 
@@ -924,20 +953,20 @@ export class CardLimitsLanding extends Component {
 					<bb-multi-line-label
 						class="col2"
 						row="1" column="2" colspan="1" size="4" rowspan="1"
-						label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.permanentCashAmountLimit : limits.permanentCashAmountLimit, card, `permCashLimit`)}"
-						value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxPermanentCashAmountLimit : limits.maxPermanentCashAmountLimit, card, `permCashLimit`)}">
+						label="${this._getLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.PERMANENT_CASH_AMOUNT)}"
+						value="${this._getMaxLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.PERMANENT_CASH_AMOUNT)}">
 					</bb-multi-line-label>
 					<bb-multi-line-label
 						class="col3"
 						row="1" column="3" colspan="1" size="4" rowspan="1"
-						label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.permanentPurchaseAmountLimit : limits.permanentPurchaseAmountLimit, card, `permPurchaseLimit`)}"
-						value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxPermanentPurchaseAmountLimit : limits.maxPermanentPurchaseAmountLimit, card, `permPurchaseLimit`)}">
+						label="${this._getLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.PERMANENT_PURCHASE_AMOUNT)}"
+						value="${this._getMaxLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.PERMANENT_PURCHASE_AMOUNT)}">
 					</bb-multi-line-label>
 					<bb-multi-line-label
 						class="col4"
 						row="1" column="4" colspan="1" size="4" rowspan="1"
-						label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.permanentCnpAmountLimit : limits.permanentCnpAmountLimit, card, `permOnlineLimit`)}"
-						value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxPermanentCnpAmountLimit : limits.maxPermanentCnpAmountLimit, card, `permOnlineLimit`)}">
+						label="${this._getLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.PERMANENT_CNP_AMOUNT)}"
+						value="${this._getMaxLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.PERMANENT_CNP_AMOUNT)}">
 					</bb-multi-line-label>
 					${this._renderUpdateButton(LIMIT_TYPES.PERMANENT, card)}
 			</capitec-group>
@@ -964,48 +993,24 @@ export class CardLimitsLanding extends Component {
 						<bb-multi-line-label
 							class="col2"
 							row="1" column="2" colspan="1" size="4" rowspan="1"
-							label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.tempCashAmountLimit : limits.tempCashAmountLimit, card, `tempCashLimit`)}"
-							value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxTemporaryCashAmountLimit : limits.maxTemporaryCashAmountLimit, card, `tempCashLimit`)}">
-						</bb-multi-line-label>
+							label="${this._getLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.TEMPORARY_CASH_AMOUNT)}"
+							value="${this._getMaxLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.TEMPORARY_CASH_AMOUNT)}">
+					</bb-multi-line-label>
 						<bb-multi-line-label
 							class="col3"
 							row="1" column="3" colspan="1" size="4" rowspan="1"
-							label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.tempPurchaseAmountLimit : limits.tempPurchaseAmountLimit, card, `tempPurchaseLimit`)}"
-							value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxTemporaryPurchaseAmountLimit : limits.maxTemporaryPurchaseAmountLimit, card, `tempPurchaseLimit`)}">
+							label="${this._getLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.TEMPORARY_PURCHASE_AMOUNT)}"
+							value="${this._getMaxLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.TEMPORARY_PURCHASE_AMOUNT)}">
 						</bb-multi-line-label>
-						<bb-multi-line-label
+						<bb-multi-line-label 
 							class="col4"
 							row="1" column="4" colspan="1" size="4" rowspan="1"
-							label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.tempCnpAmountLimit : limits.tempCnpAmountLimit, card, `tempOnlineLimit`)}"
-							value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxTemporaryCnpAmountLimit : limits.maxTemporaryCnpAmountLimit, card, `tempOnlineLimit`)}">
+							label="${this._getLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.TEMPORARY_CNP_AMOUNT)}"
+							value="${this._getMaxLimitValue(linkedLimits, limits, updateType, card, LIMIT_VALUE_TYPE.TEMPORARY_CNP_AMOUNT)}">
 						</bb-multi-line-label>
 						${this._renderUpdateButton(LIMIT_TYPES.TEMPORARY, card)}
 				</capitec-group>`
 			: html``;
-	}
-
-	_getLimitValue(value, card, id) {
-		const type = card.cardDisplayType;
-
-		if (type === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD && (id === `permOnlineLimit` || id === `tempOnlineLimit`)) {
-			return `N/A`;
-		} else if (type === CARD_DISPLAY_TYPES.VIRTUAL_CARD && id !== `permOnlineLimit`) {
-			return `N/A`;
-		} 
-
-		return formatCurrency(value);
-	}
-
-	_getMaxLimitValue(value, card, id) {
-		const type = card.cardDisplayType;
-
-		if (type === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD && (id === `permOnlineLimit` || id === `tempOnlineLimit`)) {
-			return ``;
-		} else if (type === CARD_DISPLAY_TYPES.VIRTUAL_CARD && !(id === `permOnlineLimit`)) {
-			return ``;
-		}
-
-		return `max ${formatCurrency(value, 0)}`;
 	}
 
 	_renderUpdateButton(type, card) {
@@ -1021,7 +1026,7 @@ export class CardLimitsLanding extends Component {
 	}
 
 	_renderUpdateLimitsModal() {
-		return this.showUpdateLimitsModal && !this.showVerifyCallerModal
+		return this.showUpdateLimitsModal && !this.showVerifyCallerDialog
 			? html`
 				<horizon-update-card-limits
 					?hasDigitalChannels="${this.hasDigitalChannels}"
