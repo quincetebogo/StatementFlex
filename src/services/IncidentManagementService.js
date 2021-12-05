@@ -23,8 +23,8 @@ export class IncidentManagementService extends ChannelServiceBase {
 			defaultErrorHandlerFunc, 
 			`serviceURIs.channelServiceUrl`, 
 			`HorizonChannelService`, 
-			`v1`, 
-			() => import(`../mocks/HorizonChannelServiceMocks.js`)
+			`v1`,
+			null
 		);
 	}
 
