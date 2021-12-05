@@ -179,15 +179,6 @@ export default class HorizonChannelServiceMocks {
 		return null;
 	}
 
-	getCardLimits() {
-		if (this._mockSettings.cardLimits.positiveCase) {
-			return this.cardLimitsMocks.mockCardLimits;
-		}
-
-		// Code for a negative case could come here
-		return null;
-	}
-
 	stopCardLanding() {
 		if (this._mockSettings.stopCardLanding.positiveCase) {
 			const mockResponse = this.stopCardLandingMocks.stopCardMockResponse;
