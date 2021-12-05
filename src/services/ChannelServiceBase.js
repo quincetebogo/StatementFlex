@@ -29,6 +29,11 @@ export class ChannelServiceBase extends Service {
 	  * @property {Object} [exception] The exception object if an exception was raised
 	*/
 
+	/**
+	 * @callback errorHandlerCallback
+	 * @param {object} exception - The exception from the failing service call
+	 */
+
 	// --------------
 	// INITIALISATION
 	// --------------
@@ -36,7 +41,7 @@ export class ChannelServiceBase extends Service {
 	/**
 	 * Creates an instance of ChannelServiceBase.
 	 * @param {Function} toggleBusyFunc A function that can be used to toggle a busy indicator on/off
-	 * @param {Function} [defaultErrorHandlerFunc=null] An error handler function that will be invoked when a Channel Service Method fails
+	 * @param {errorHandlerCallback} [defaultErrorHandlerFunc=null] An error handler function that will be invoked when a Channel Service Method fails
 	 * @param {string} baseUrlKey The key in the configuratikon file for the base URL of the service
 	 * @param {String} serviceName The name of the channel service/microservice
 	 * @param {String} version The version of the service
@@ -79,7 +84,7 @@ export class ChannelServiceBase extends Service {
 	 * @param {AbortController} [controller=null] The abort controller used to cancel file uploads, i.e. only works with FormData as model type.
 	 * @param {Number} [sla=null] SLA in milliseconds to track for the maximum allowed duration of the request.
 	 * @param {Number} [timeout=null] Timeout in milliseconds for the request.
-	 * @param {function} [errorHandlerFunc=null] An error handler to invoke should the web service call fail
+	 * @param {errorHandlerCallback} [errorHandlerFunc=null] An error handler to invoke should the web service call fail
 	 * @param {number} [maxAttempts=3] The number of attempts to retry a service call before invoking the error handler
 	 * 
 	 * @returns {Promise<*>} The response of the Channel Service Request
@@ -105,7 +110,7 @@ export class ChannelServiceBase extends Service {
 	 * @param {Boolean} [isBinary=false] When true, converts response into object with raw binary content
 	 * @param {Number} [sla=null] SLA in milliseconds to track for the maximum allowed duration of the request.
 	 * @param {Number} [timeout=null] Timeout in milliseconds for the request.
-	 * @param {function} [errorHandlerFunc=null] An error handler to invoke should the web service call fail
+	 * @param {errorHandlerCallback} [errorHandlerFunc=null] An error handler to invoke should the web service call fail
 	 * @param {number} [maxAttempts=3] The number of attempts to retry a service call before invoking the error handler
 	 * 
 	 * @returns {Promise<*>} The response of the Channel Service REquest
@@ -118,7 +123,7 @@ export class ChannelServiceBase extends Service {
 		);
 	}
 
-	put(url, model, customHeaders, caller, isBinary, controller, sla, timeout) {
+	put(url, model, customHeaders, caller, isBinary, controller, sla, timeout, errorHandlerFunc = null, maxAttempts = DEFAULT_AUTO_RETRIES) {
 		return this._wrapCall(
 			this._put(url, model, customHeaders, caller, isBinary, controller, sla, timeout),
 				errorHandlerFunc, 
@@ -218,7 +223,7 @@ export class ChannelServiceBase extends Service {
 	 *
 	 * @param {Promise<*>} channelServiceCallFunc A Promise that returns the result of a channel service call
 	 * @param {string} caller The method name of the channel service call being invoked (for logging purposes)
-	 * @param {function} [errorHandlerFunc=null] An error handler to invoke should the web service call fail
+	 * @param {errorHandlerCallback} [errorHandlerFunc=null] An error handler to invoke should the web service call fail
 	 * @param {number} [maxAttempts=3] The number of attempts to retry a service call before invoking the error handler
 	 * @param {string} [correlationId] CorrellationId for tracing the call in logs
 	 * @returns {Promise<ReturnValue>} A promise for the return value of the completed web service call

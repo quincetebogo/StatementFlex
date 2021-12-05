@@ -5,6 +5,7 @@ import { DEFAULT_AUTO_RETRIES, ServiceBase } from 'app/services/ServiceBase';
  *
  * @export
  * @class InsureService
+ * @deprecated - InsureService is old code that will probably be completely replaced when we finally pick up Insure
  * @extends {ServiceBase}
  */
 export class InsureService extends ServiceBase {
