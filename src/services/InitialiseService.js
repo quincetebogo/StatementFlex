@@ -42,6 +42,6 @@ export class InitialiseService extends ChannelServiceBase {
 	 */
 	initialise(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const url = `/clientcare-initialise-${this._version}`;
-		return super.get(url, this._setToken(), `initialise`, false, null, null, errorHandler, autoRetries);
+		return super.get(url, this.setToken(), `initialise`, false, null, null, errorHandler, autoRetries);
 	}
 }

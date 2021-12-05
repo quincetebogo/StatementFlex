@@ -19,7 +19,8 @@ export const DEFAULT_AUTO_RETRIES = 3;
  *  The general error handler and default error handler may
  *  be overridden by providing a specific error handler on 
  *  the call methods.
-* 
+ * 
+ * @deprecated Derive from the ChannelServiceBase class instead
  */
 export class ServiceBase {
 	// --------------

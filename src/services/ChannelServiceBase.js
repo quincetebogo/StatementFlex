@@ -5,10 +5,9 @@ import { v4 } from 'uuid';
 export const DEFAULT_AUTO_RETRIES = 3;
 
 /**
- * This is a base class for Horizon Service Classes that utilize the Horizon Channel Service.
- * 
- * This class makes the HorizonChannelService (Resource Access) available to derived classes.
- * 
+ * This is a base class for Horizon Channel Service classes. Each class that
+ * interfaces to a channel service or microservice should derive from this class.
+ 
  *  The class provides a method to wrap web service calls in error
  *  handling logic. 
  *
@@ -21,6 +20,15 @@ export const DEFAULT_AUTO_RETRIES = 3;
 * 
  */
 export class ChannelServiceBase extends Service {
+
+	/**
+	  * @typedef {Object} ReturnValue
+	  * @property {boolean} succeeded Indicates if the service call succeeded
+	  * @property {object} result The result of the service call if succeeded is true
+	  * @property {string} correlationId The correlation ID from any exception that was raised
+	  * @property {Object} [exception] The exception object if an exception was raised
+	*/
+
 	// --------------
 	// INITIALISATION
 	// --------------
@@ -42,6 +50,7 @@ export class ChannelServiceBase extends Service {
 
 		this._version = version;
 		this._mocking = null;
+		this._mock = null;
 
 		this._configuration = Configuration.getInstance();
 		this._logger = Logger.getInstance();
@@ -84,23 +93,23 @@ export class ChannelServiceBase extends Service {
 		);
 	}
 
-		/**
-		 * Wrap's the platform's get method
-		 *
-		 *    - Debug logging is added over the platform's get capability
-		 *    - A correlation id is generated for the purposes of tracing calls through the UI and CS logs
-		 * 
-		 * @param {string} url The Channel Service URL
-		 * @param {Object} customHeaders Any custom headers
-		 * @param {string} caller The name of the method for logging purpose
-		 * @param {Boolean} [isBinary=false] When true, converts response into object with raw binary content
-		 * @param {Number} [sla=null] SLA in milliseconds to track for the maximum allowed duration of the request.
-		 * @param {Number} [timeout=null] Timeout in milliseconds for the request.
-		 * @param {function} [errorHandlerFunc=null] An error handler to invoke should the web service call fail
-		 * @param {number} [maxAttempts=3] The number of attempts to retry a service call before invoking the error handler
-		 * 
-		 * @returns {Promise<*>} The response of the Channel Service REquest
-		 */
+	/**
+	 * Wrap's the platform's get method
+	 *
+	 *    - Debug logging is added over the platform's get capability
+	 *    - A correlation id is generated for the purposes of tracing calls through the UI and CS logs
+	 * 
+	 * @param {string} url The Channel Service URL
+	 * @param {Object} customHeaders Any custom headers
+	 * @param {string} caller The name of the method for logging purpose
+	 * @param {Boolean} [isBinary=false] When true, converts response into object with raw binary content
+	 * @param {Number} [sla=null] SLA in milliseconds to track for the maximum allowed duration of the request.
+	 * @param {Number} [timeout=null] Timeout in milliseconds for the request.
+	 * @param {function} [errorHandlerFunc=null] An error handler to invoke should the web service call fail
+	 * @param {number} [maxAttempts=3] The number of attempts to retry a service call before invoking the error handler
+	 * 
+	 * @returns {Promise<*>} The response of the Channel Service REquest
+	 */
 	get(url, customHeaders, caller, isBinary = false, sla = null, timeout = null, errorHandlerFunc = null, maxAttempts = DEFAULT_AUTO_RETRIES) {
 		return this._wrapCall(
 			this._get(url, customHeaders, caller, isBinary, sla, timeout),
@@ -109,13 +118,101 @@ export class ChannelServiceBase extends Service {
 		);
 	}
 
-	/**
-	  * @typedef {Object} ReturnValue
-	  * @property {boolean} succeeded - Indicates if the service call succeeded
-	  * @property {object} result - The result of the service call if succeeded is true
-	  * @property {string} correlationId - The correlation ID from any exception that was raised
-	*/
+	put(url, model, customHeaders, caller, isBinary, controller, sla, timeout) {
+		return this._wrapCall(
+			this._put(url, model, customHeaders, caller, isBinary, controller, sla, timeout),
+				errorHandlerFunc, 
+				maxAttempts
+		);
+	}
 
+	/**
+	 * The X-User-Token is required by some calls where the Product Services/Capabilities services 
+	 * makes calls to OpenBancs 2/Way Gate in order to retreive the agent's BANCS/SBL teller number
+	 *
+	 * @returns {object} The X-User-Token custom header object
+	 * @memberof HorizonChannelService
+	 */
+	 setToken() {
+		return {
+			"X-User-Token": Security.getInstance().token
+		};
+	}
+
+	/**
+	 * Determine if mocking is enabled for the specified method
+	 *
+	 * @param {string} mockName Mock name/method name in the config.json file
+	 * @returns {Promise<boolean>} A promise for a boolean that is true if the mock is enabled
+	 * @memberof HorizonChannelService
+	 */
+	 async isMockEnabled(mockName) {
+		if (this._mocking === null) {
+			try {
+				this._mocking = await this._configuration.getSetting(`mock`);
+
+				// Disable mocking in the SLDC environments. Only for local development
+				if (this._configuration.config.runtime.environment !== `LOCAL`) {
+					this._mocking = { enabled: false };
+					this._logger.log(`info`, `Channel Service Mocking has been automatically disabled as the application is not running locally.`, `_mockEnabled`);
+				}
+			} catch {
+				// disable mocking if the setting is not present
+				this._mocking = { enabled: false };
+				this._logger.log(`info`, `Channel Service Mocking has been automatically disabled as no configuration is present.`, `_mockEnabled`);
+			}
+
+			if (!this._mocking.enabled) {
+				return false;
+			}
+
+			// Dynamically load the configured mocks
+			this._logger.log(`info`, `Channel Service Mocking is enabled.`, `_mockEnabled`);
+			const module = await this._mockLoadFunc();
+
+			if (!Object.prototype.hasOwnProperty.call(module, `default`)) {
+				this._logger.log(`info`, `Mocking module does not export a default object`, `_mockEnabled`);
+			}
+
+			this._mock = new module.default();
+			const defaultObjectProtoType = Object.getPrototypeOf(this._mock);
+
+			if (!Object.prototype.hasOwnProperty.call(defaultObjectProtoType, `initialise`)) {
+				this._logger.log(`info`, `Mocking class does not contain an initialise function`, `_mockEnabled`);
+			}
+			
+			await this._mock.initialise(this._mocking);
+		}
+
+
+		// Check if mocking is switched off globally
+		if (!this._mocking.enabled) {
+			return false;
+		}
+
+		// Check if specified mock is configured and enabled
+		if (Object.prototype.hasOwnProperty.call(this._mocking, mockName)) {
+			return this._mocking[mockName].enabled;
+		}
+
+		return false;
+	}
+
+
+	/**
+	 * Functions in mock classes should be called via the mock function. The mock function
+	 * wraps the return value in a similar fashion to the get/post functions on this class.
+	 * 
+	 * @param {*} funcName  The mock function name
+	 * @param  {...any} funcArgs Parameters for the mock function
+	 * @returns {Promise<*>} The response of the mock request
+	 */
+	async mock(funcName, ...funcArgs) {
+		if (await this.isMockEnabled(funcName)) {
+			return this._wrapCall(this._mock[funcName](...funcArgs));
+		}
+	}
+	
 	/**
 	 *
 	 *
@@ -186,156 +283,96 @@ export class ChannelServiceBase extends Service {
 	}
 
 	/**
-	 * Determine if mocking is enabled for the specified method
+	 * Wraps the platform's post method
+	 * 
+	 *    - Debug logging is added over the platform's post capability
+	 *    - A correlation id is generated for purposes of tracing calls through the UI and CS logs.
 	 *
-	 * @param {string} mockName Mock name/method name in the config.json file
-	 * @returns {Promise<boolean>} A promise for a boolean that is true if the mock is enabled
+	 * @param {string} url The Channel Service URL
+	 * @param {Object} model The request model
+	 * @param {Object} customHeaders Any custom headers
+	 * @param {string} caller The name of the method for logging purposes
+	 * @param {Boolean} [isBinary=false] When true, converts response into object with raw binary content
+	 * @param {AbortController} [controller=null] The abort controller used to cancel file uploads, i.e. only works with FormData as model type.
+	 * @param {Number} [sla=null] SLA in milliseconds to track for the maximum allowed duration of the request.
+	 * @param {Number} [timeout=null] Timeout in milliseconds for the request.
+	 * 
+	 * @returns {Promise<*>} The response of the Channel Service Request
 	 * @memberof HorizonChannelService
 	 */
-	async _mockEnabled(mockName) {
-		if (this._mocking === null) {
-			try {
-				this._mocking = await this._configuration.getSetting(`mock`);
+	async _post(url, model, customHeaders, caller, isBinary, controller, sla, timeout) {
+		const correlationId = v4();
 
-				// Disable mocking in the SLDC environments. Only for local development
-				if (this._configuration.config.runtime.environment !== `LOCAL`) {
-					this._mocking = { enabled: false };
-					this._logger.log(`info`, `Channel Service Mocking has been automatically disabled as the application is not running locally.`, `_mockEnabled`);
-				}
-			} catch {
-				// disable mocking if the setting is not present
-				this._mocking = { enabled: false };
-				this._logger.log(`info`, `Channel Service Mocking has been automatically disabled as no configuration is present.`, `_mockEnabled`);
-			}
+		this._logger.log(`debug`, `url: ${url}, body: ${JSON.stringify(model).substring(0, 19000)}`, caller, correlationId);
 
-			if (!this._mocking.enabled) {
-				return false;
-			}
+		try {
+			const response = await super.httpClient.request({
+				method: `POST`,
+				url: url,
+				model: model,
+				customHeaders: customHeaders,
+				correlationId: correlationId,
+				isBinary: isBinary,
+				controller: controller,
+				sla: sla,
+				timeout: timeout,
+				caller: caller
+			});
 
-			// Dynamically load the configured mocks
-			this._logger.log(`info`, `Channel Service Mocking is enabled.`, `_mockEnabled`);
-			const module = await this._mockLoadFunc();
+			this._logger.log(`debug`, `result: ${JSON.stringify(response).substring(0, 19000)}`, caller, correlationId);
 
-			if (!Object.prototype.hasOwnProperty.call(module, `default`)) {
-				this._logger.log(`info`, `Mocking module does not export a default object`, `_mockEnabled`);
-			}
-
-			const defaultObject = new module.default();
-			const defaultObjectProtoType = Object.getPrototypeOf(defaultObject);
-
-			if (!Object.prototype.hasOwnProperty.call(defaultObjectProtoType, `initialise`)) {
-				this._logger.log(`info`, `Mocking class does not contain an initialise function`, `_mockEnabled`);
-			}
-			
-			await defaultObject.initialise(this._mocking);
+			return response;
+		} catch (exception) {
+			exception.requestUrl = url;
+			exception.requestModel = model;
+			exception.requestCaller = caller;
+			throw exception;
 		}
-
-
-		// Check if mocking is switched off globally
-		if (!this._mocking.enabled) {
-			return false;
-		}
-
-		// Check if specified mock is configured and enabled
-		if (Object.prototype.hasOwnProperty.call(this._mocking, mockName)) {
-			return this._mocking[mockName].enabled;
-		}
-
-		return false;
 	}
+	
+	/**
+	 * Wrap's the platform's get method
+	 *
+	 *    - Debug logging is added over the platform's get capability
+	 *    - A correlation id is generated for the purposes of tracing calls through the UI and CS logs
+	 * 
+	 * @param {string} url The Channel Service URL
+	 * @param {Object} customHeaders Any custom headers
+	 * @param {string} caller The name of the method for logging purpose
+	 * @param {Boolean} [isBinary=false] When true, converts response into object with raw binary content
+	 * @param {Number} [sla=null] SLA in milliseconds to track for the maximum allowed duration of the request.
+	 * @param {Number} [timeout=null] Timeout in milliseconds for the request.
+	 * 
+	 * @returns {Promise<*>} The response of the Channel Service REquest
+	 * @memberof HorizonChannelService
+	 */
+	async _get(url, customHeaders, caller, isBinary = false, sla = null, timeout = null) {
+		const correlationId = v4();
+			
+		this._logger.log(`debug`, `url: ${url}`, caller, correlationId);
 
+		try {
+			const response = await super.httpClient.request({
+				method: `GET`,
+				url: url,
+				customHeaders: customHeaders,
+				correlationId: correlationId,
+				isBinary: isBinary,
+				sla: sla,
+				timeout: timeout,
+				caller: caller
+			});
 
-		/**
-		 * Wraps the platform's post method
-		 * 
-		 *    - Debug logging is added over the platform's post capability
-		 *    - A correlation id is generated for purposes of tracing calls through the UI and CS logs.
-		 *
-		 * @param {string} url The Channel Service URL
-		 * @param {Object} model The request model
-		 * @param {Object} customHeaders Any custom headers
-		 * @param {string} caller The name of the method for logging purposes
-		 * @param {Boolean} [isBinary=false] When true, converts response into object with raw binary content
-		 * @param {AbortController} [controller=null] The abort controller used to cancel file uploads, i.e. only works with FormData as model type.
-		 * @param {Number} [sla=null] SLA in milliseconds to track for the maximum allowed duration of the request.
-		 * @param {Number} [timeout=null] Timeout in milliseconds for the request.
-	* 
-		 * @returns {Promise<*>} The response of the Channel Service Request
-		 * @memberof HorizonChannelService
-		 */
-		async _post(url, model, customHeaders, caller, isBinary, controller, sla, timeout) {
-			const correlationId = v4();
-	
-			this._logger.log(`debug`, `url: ${url}, body: ${JSON.stringify(model).substring(0, 19000)}`, caller, correlationId);
-	
-			try {
-				const response = await super.httpClient.request({
-					method: `POST`,
-					url: url,
-					model: model,
-					customHeaders: customHeaders,
-					correlationId: correlationId,
-					isBinary: isBinary,
-					controller: controller,
-					sla: sla,
-					timeout: timeout,
-					caller: caller
-				});
-	
-				this._logger.log(`debug`, `result: ${JSON.stringify(response).substring(0, 19000)}`, caller, correlationId);
-	
-				return response;
-			} catch (exception) {
-				exception.requestUrl = url;
-				exception.requestModel = model;
-				exception.requestCaller = caller;
-				throw exception;
-			}
+			this._logger.log(`debug`, `result: ${JSON.stringify(response)}`, caller, correlationId);
+
+			return response;
+		} catch (exception) {
+			exception.requestUrl = url;
+			exception.requestModel = null;
+			exception.requestCaller = caller;
+			throw exception;
 		}
-	
-		/**
-		 * Wrap's the platform's get method
-		 *
-		 *    - Debug logging is added over the platform's get capability
-		 *    - A correlation id is generated for the purposes of tracing calls through the UI and CS logs
-		 * 
-		 * @param {string} url The Channel Service URL
-		 * @param {Object} customHeaders Any custom headers
-		 * @param {string} caller The name of the method for logging purpose
-		 * @param {Boolean} [isBinary=false] When true, converts response into object with raw binary content
-		 * @param {Number} [sla=null] SLA in milliseconds to track for the maximum allowed duration of the request.
-		 * @param {Number} [timeout=null] Timeout in milliseconds for the request.
-		 * 
-		 * @returns {Promise<*>} The response of the Channel Service REquest
-		 * @memberof HorizonChannelService
-		 */
-		async _get(url, customHeaders, caller, isBinary = false, sla = null, timeout = null) {
-			const correlationId = v4();
-				
-			this._logger.log(`debug`, `url: ${url}`, caller, correlationId);
-	
-			try {
-				const response = await super.httpClient.request({
-					method: `GET`,
-					url: url,
-					customHeaders: customHeaders,
-					correlationId: correlationId,
-					isBinary: isBinary,
-					sla: sla,
-					timeout: timeout,
-					caller: caller
-				});
-	
-				this._logger.log(`debug`, `result: ${JSON.stringify(response)}`, caller, correlationId);
-	
-				return response;
-			} catch (exception) {
-				exception.requestUrl = url;
-				exception.requestModel = null;
-				exception.requestCaller = caller;
-				throw exception;
-			}
-		}
+	}
 	
 		/**
 		 * Wraps the platform's put method
@@ -383,19 +420,6 @@ export class ChannelServiceBase extends Service {
 				exception.requestCaller = caller;
 				throw exception;
 			}
-		}
-	
-		/**
-		 * The X-User-Token is required by some calls where the Product Services/Capabilities services 
-		 * makes calls to OpenBancs 2/Way Gate in order to retreive the agent's BANCS/SBL teller number
-		 *
-		 * @returns {object} The X-User-Token custom header object
-		 * @memberof HorizonChannelService
-		 */
-		_setToken() {
-			return {
-				"X-User-Token": Security.getInstance().token
-			};
 		}
 	
 	// ---------------

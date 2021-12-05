@@ -2,9 +2,7 @@ import { Configuration, Logger, Security, Service } from 'platform/core';
 import { v4 } from 'uuid';
 
 /**
- * Channel Service Proxy (Resource Access) for the Horizon Channel Service.
- * It is not recommended to use this class directly. Instead Service classes
- * should be created to wrap portions of functionality (cards, insure, incident management, calls etc.)
+ * @deprecated Use a class derived from ChannelServiceBase rather than this class for all new functionality
  */
 export class HorizonChannelService extends Service {
 
@@ -239,15 +237,6 @@ export class HorizonChannelService extends Service {
 	// Access Channels 
 	// ----------------
 
-	accessChannel(cifNumber) {
-		const url = `/clientcare-accesschannels-${this._version}/access-channels?cif=${cifNumber}`;
-		return this._get(url, this._setToken(), `accessChannels`, false, 1000);
-
-		/*
-		const url = `/clientcare-accesschannels-${this._version}/access-channels`;
-		return this._post(url, { 'cif': cifNumber }, this._setToken(), `accessChannels`, null, null, 1000);
-		*/
-	}
 
 	// --------------------
 	// Value Added Services
@@ -278,43 +267,6 @@ export class HorizonChannelService extends Service {
 	// -----------
 	// Call Methods
 	// -----------
-
-	async digitalVerificationChannelsAvailable(cifNumber) {
-		if (await this._mockEnabled(`digitalVerificationChannelsAvailable`)) {
-			if (this._mocking.digitalVerificationChannelsAvailable.positiveCase) {
-				return this._mocking.digitalVerificationChannelsAvailable.positiveCase;
-			}
-			return false;
-		}
-
-		return this._get(`/clientcare-call-${this._version}/has-digital-verification-capability?Cif=${cifNumber}`, this._setToken(), `digitalVerificationChannelsAvailable`);
-
-		/*
-		return this._post(`/clientcare-call-${this._version}/has-digital-verification-capability`, { 'cif': cifNumber }, this._setToken(), `digitalVerificationChannelsAvailable`);
-		*/
-	}
-
-	async xdsQuestions(clientID) {
-		if (await this._mockEnabled(`xdsQuestions`)) {
-			if (this._mocking.xdsQuestions.substituteIdOnly && this._mocking.xdsQuestions.substituteIdOnly !== ``) {
-				clientID = this._mocking.xdsQuestions.substituteIdOnly;
-			} else {
-				return this._mock.xdsQuestions(clientID);
-			}
-		}
-
-		// return this._get(`/clientcare-call-${this._version}/xds-questions?clientID=${clientID}`, this._setToken(), `xdsQuestions`, false, 3000);
-
-		return this._post(`/clientcare-call-${this._version}/load-xds-questions`, { 'clientID': clientID }, this._setToken(), `xdsQuestions`, null, null, 3000);
-	}
-
-	async verifySecurityQuestions(answers) {
-		if (await this._mockEnabled(`verifySecurityQuestions`)) {
-			return this._mock.verifySecurityQuestions(answers);
-		}
-
-		return this._post(`/clientcare-call-${this._version}/xds-questions`, answers, this._setToken(), `verifySecurityQuestions`, null, null, 3000);
-	}
 
 
 	// ----
@@ -423,72 +375,6 @@ export class HorizonChannelService extends Service {
 		const url = `/clientcare-card-${this._version}/tap-to-pay`;
 
 		return this._post(url, acceptTapToPay, this._setToken(), `updateTapToPay`, null, null, 1000);
-	}
-
-	async stopCard(stopCardRequest) {
-		if (await this._mockEnabled(`stopCard`)) {
-			return this._mock.stopCard(stopCardRequest);
-		}
-
-		const url = `/clientcare-card-${this._version}/StopCard`;
-		const model = {
-			"cards": stopCardRequest.cards,
-			"incomingTelephoneNumber": stopCardRequest.incomingTelephoneNumber,
-			"voiceReferenceNumber": stopCardRequest.voiceReferenceNumber,
-			"ivrOptionCode": stopCardRequest.ivrOptionCode,
-			"incidentReferenceNumber": stopCardRequest.incidentReferenceNumber,
-			"agentTelephoneNumber": stopCardRequest.agentTelephoneNumber,
-			"incidentRecId": stopCardRequest.incidentRecId
-		};
-
-		return this._post(url, model, this._setToken(), `stopCard`, null, null, 1000);
-	}
-
-	assignTeams(incidentData) {
-		return this._post(
-			`/clientcare-card-${this._version}/Assign/Teams`, {
-			"cardIds": incidentData.cardIds,
-			"incidentRecId": incidentData.incidentRecId
-		},
-			this._setToken(),
-			`assignTeams`, null, null, 900
-		);
-	}
-
-	assign(assignData) {
-		return this._post(
-			`/clientcare-card-${this._version}/Assign`, {
-			"cardIds": assignData.cardIds,
-			"incidentRecId": assignData.incidentRecId,
-			"team": assignData.team
-		},
-			this._setToken(),
-			`assign`, null, null, 900
-		);
-	}
-
-
-	async identifyCaller(callerData) {
-		if (await this._mockEnabled(`stopCardLanding`)) {
-			return this._mock.stopCardLanding();
-		}
-
-		const url = `/clientcare-card-${this._version}/LoadConfirmedClientProfile`;
-		const model = {
-			'incidentRecId': callerData.incidentRecId,
-			'idNumber': callerData.idNumber,
-			'incomingTelephoneNumber': callerData.incomingTelephoneNumber,
-			'voiceReferenceNumber': callerData.voiceReferenceNumber,
-			'ivrOptionCode': callerData.ivrOptionCode,
-			'incidentReferenceNumber': callerData.incidentReferenceNumber,
-			'agentTelephoneNumber': callerData.agentTelephoneNumber,
-			'nonClientFullName': callerData.nonClientFullName,
-			'nonClientCellPhone': callerData.nonClientCellPhone,
-			'nonClientIDNumber': callerData.nonClientIDNumber,
-			'nonClientRelationship': callerData.nonClientRelationship
-		};
-
-		return this._post(url, model, this._setToken(), `identifyCaller`, null, null, 1000);
 	}
 
 	// ----------
@@ -944,20 +830,4 @@ export class HorizonChannelService extends Service {
 		);
 		*/
 	}
-
-	// ----------------
-	// call - ITA & XDS
-	// ----------------
-
-	/*
-	itaVerification(request) {
-		return this._get(`/clientcare/call/${this._version}/ita-verification?CifNumber=${request.cifNumber}&` + 
-									`ConnectionId=${request.connectionID}`, this._setToken(), `itaVerification`);
-	}
-	
-	itaVerification(request) {
-		return super.httpClient.get(`/clientcare/call/${this._version}/ita-verification?CifNumber=${request.cifNumber}&` + 
-									`ConnectionId=${request.connectionID}`);
-	}
-	*/
 }

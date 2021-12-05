@@ -1,9 +1,9 @@
 import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
-import { HorizonITAChannelService } from 'app/services/HorizonITAChannelService';
 
 /**
- * CallHandleService is used to start the tracking of a call against an incident. It is also
- * used to close off the tracking of a call against an incident.
+ * The call handling service contains service calls that start off the flow for 
+ * an incoming phone call. The service alls are around searching and verifying 
+ * a caller
  *
  * @export
  * @class CallHandleService
@@ -14,9 +14,15 @@ export class CallHandleService extends ChannelServiceBase {
 	// --------------
 	// INITIALISATION
 	// --------------
-	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null, baseUrlKey = `serviceURIs.channelServiceUrl`, serviceName = `HorizonChannelService`, version = `v1`) {
-		super(toggleBusyFunc, defaultErrorHandlerFunc, baseUrlKey, serviceName, version, () => import(`../mocks/HorizonChannelServiceMocks.js`));
-		this.itaService = HorizonITAChannelService.getInstance();
+	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null) {
+		super(
+			toggleBusyFunc, 
+			defaultErrorHandlerFunc, 
+			`serviceURIs.channelServiceUrl`, 
+			`HorizonChannelService`, 
+			`v1`, 
+			() => import(`../mocks/HorizonChannelServiceMocks.js`)
+		);
 	}
 
 	// ------------------------------------------
@@ -45,12 +51,12 @@ export class CallHandleService extends ChannelServiceBase {
 	 * @memberof CallHandleService
 	 */
 	async acceptCall(acceptCallData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		if (await this._mockEnabled(`acceptCall`)) {
-			return this._mock.acceptCall(acceptCallData);
+		if (await this.isMockEnabled(`acceptCall`)) {
+			return this.mock(`acceptCall`, acceptCallData);
 		}
 
 		/*
-		return this._get(
+		return this.get(
 			`/clientcare-call-${this._version}/search-caller?` +
 				`incomingTelephoneNumber=${clientInfo.incomingTelephoneNumber}&` +
 				`voiceReferenceNumber=${clientInfo.voiceReferenceNumber}&` +
@@ -75,7 +81,7 @@ export class CallHandleService extends ChannelServiceBase {
 				'incidentReferenceNumber': acceptCallData.incidentReferenceNumber,
 				'agentTelephoneNumber': acceptCallData.agentTelephoneNumber
 			},
-			this._setToken(), 
+			this.setToken(), 
 			`acceptCall`,
 			false,
 			null,
@@ -104,7 +110,7 @@ export class CallHandleService extends ChannelServiceBase {
 				"incidentReferenceNumber": incomingCallData.incidentReferenceNumber,
 				"agentTelephoneNumber": incomingCallData.agentTelephoneNumber
 			},
-			this._setToken(),
+			this.setToken(),
 			`searchOptions`, 
 			false,
 			null, 
@@ -126,7 +132,7 @@ export class CallHandleService extends ChannelServiceBase {
 	searchCaller(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
 		/*
-		return this._get(
+		return this.get(
 			`/clientcare-call-${this._version}/search-caller?` +
 				`incomingTelephoneNumber=${clientInfo.incomingTelephoneNumber}&` +
 				`voiceReferenceNumber=${clientInfo.voiceReferenceNumber}&` +
@@ -157,7 +163,7 @@ export class CallHandleService extends ChannelServiceBase {
 					'value': clientInfo.searchValue
 				}
 			},
-			this._setToken(), 
+			this.setToken(), 
 			`searchCaller`, 
 			null, 
 			null, 
@@ -173,30 +179,80 @@ export class CallHandleService extends ChannelServiceBase {
 	 * 
 	 * @param {string} clientID client identification number
 	 * @param {errorHandlerCallback} errorHandler An optional error handler
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing list of security questions & answers and the result of the channel service call
 	 */
-	xdsQuestions(clientID, errorHandler = null, autoRetries = 1) {
-		return this._wrapCall(this.channelService.xdsQuestions(clientID), `xdsQuestions`, errorHandler, autoRetries);
+	async xdsQuestions(clientID, errorHandler = null) {
+		if (await this.isMockEnabled(`xdsQuestions`)) {
+			if (this._mocking.xdsQuestions.substituteIdOnly && this._mocking.xdsQuestions.substituteIdOnly !== ``) {
+				clientID = this._mocking.xdsQuestions.substituteIdOnly;
+			} else {
+				return this.mock(`xdsQuestions`, clientID);
+			}
+		}
+
+		// return this.get(`/clientcare-call-${this._version}/xds-questions?clientID=${clientID}`, this._setToken(), `xdsQuestions`, false, 3000);
+
+		return this.post(
+			`/clientcare-call-${this._version}/load-xds-questions`, 
+			{ 'clientID': clientID }, 
+			this.setToken(), 
+			`xdsQuestions`, 
+			null, 
+			null, 
+			3000,
+			null,
+			errorHandler,
+			1
+		);
 	}
 
 	/**
 	 *  Verifies collected answers for security questions against XDS
 	 * 
-	 * @param {*} response An object containing the responses/answers to the asked security questoins
+	 * @param {*} answers An object containing the responses/answers to the asked security questoins
 	 * @param {errorHandlerCallback} errorHandler An optional error handler
-	 * @param {Number} autoRetries The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object indicating if the verification process was successful or if not, the reason for failure
 	 */
-	verifySecurityQuestions(response, errorHandler = null, autoRetries = 1) {
-		return this._wrapCall(this.channelService.verifySecurityQuestions(response), `verifySecurityQuetsions`, errorHandler, autoRetries);
+	 async verifySecurityQuestions(answers, errorHandler = null) {
+		if (await this.isMockEnabled(`verifySecurityQuestions`)) {
+			return this.mock(`verifySecurityQuestions`, answers);
+		}
+
+		return this.post(
+			`/clientcare-call-${this._version}/xds-questions`, 
+			answers, 
+			this.setToken(), 
+			`verifySecurityQuestions`, 
+			null, 
+			null, 
+			3000,
+			null,
+			errorHandler,
+			1
+		);
 	}
 
-	itaVerification(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this._wrapCall(this.itaService.itaVerification(request), `itaVerification`, errorHandler, autoRetries);
-	}
+	async digitalVerificationChannelsAvailable(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`digitalVerificationChannelsAvailable`)) {
+			if (this._mocking.digitalVerificationChannelsAvailable.positiveCase) {
+				return this._mocking.digitalVerificationChannelsAvailable.positiveCase;
+			}
+			return false;
+		}
 
-	digitalVerificationChannelsAvailable(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this._wrapCall(this.channelService.digitalVerificationChannelsAvailable(cifNumber), `digitalVerificationChannelsAvailable`, errorHandler, autoRetries);
+		return this.get(
+			`/clientcare-call-${this._version}/has-digital-verification-capability?Cif=${cifNumber}`, 
+			this.setToken(), 
+			`digitalVerificationChannelsAvailable`,
+			false,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+
+		/*
+		return this.post(`/clientcare-call-${this._version}/has-digital-verification-capability`, { 'cif': cifNumber }, this._setToken(), `digitalVerificationChannelsAvailable`);
+		*/
 	}
 }
