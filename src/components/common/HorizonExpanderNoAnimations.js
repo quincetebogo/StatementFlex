@@ -120,9 +120,6 @@ export class Expander2 extends Component {
 	connectedCallback() {
 		// Ensure the component is setup correctly.
 		super.connectedCallback();
-
-		// Listen for child label change events.
-		this.addEventListener(`animationend`, this._animationCompleted);
 	}
 
 	/**
@@ -133,8 +130,6 @@ export class Expander2 extends Component {
 	 * @returns {void}
 	 */
 	disconnectedCallback() {
-		// Stop listening for child label change events.
-		this.removeEventListener(`animationend`, this._animationCompleted);
 
 		// Ensure the component is cleaned up correctly.
 		super.disconnectedCallback();
@@ -161,89 +156,13 @@ export class Expander2 extends Component {
 		if (this.disabled) {
 			return;
 		}
-
-		// Toggle the expanded state of the item.
-		// if (this.expanded) {
-		// 	this.collapse();
-		// } else {
-		// 	this.expand();
-		// }
 	}
 
-	/**
-	 * Cleans up component animations upon completion.
-	 *
-	 * @ignore
-	 *
-	 * @param {AnimationEvent} event - The event details.
-	 *
-	 * @returns {void}
-	 */
-	_animationCompleted(event) {
-	}
 
 	// --------------
 	// PUBLIC METHODS
 	// --------------
 
-	/**
-	 * Expand the item to show it's content.
-	 *
-	 * @fires expand When the item is expanded.
-	 * @returns {void}
-	 */
-	expand() {
-		// Ignore the request to expand if the component is already expanded.
-		if (this.expanded === true || this.hasAttribute(`expanding`)) {
-			return;
-		}
-
-		// Trigger the expanding animation.
-		this.removeAttribute(`collapsing`);
-		this.setAttribute(`expanding`, ``);
-
-		// Notify any direct subscribers that the component was expanded.
-		this.dispatchEvent(new CustomEvent(`expand`, {
-			detail: {
-				label: this.label,
-				expanderGroup: (component) => this.expanderGroupMode(component)
-			}
-		}));
-	}
-
-	/**
-	 * Collapse the item to hide it's content.
-	 *
-	 * @fires expand When the item is expanded.
-	 * @returns {void}
-	 */
-	collapse() {
-		// Ignore the request to collapse if the component is already collapsed.
-		if (this.expanded === false || this.hasAttribute(`collapsing`)) {
-			return;
-		}
-
-		// Trigger the collapsing animation.
-		this.removeAttribute(`expanding`);
-		this.setAttribute(`collapsing`, ``);
-
-		// Notify any direct subscribers that the component was collapsed.
-		this.dispatchEvent(new CustomEvent(`collapse`, {
-			detail: {
-				label: this.label
-			}
-		}));
-	}
-
-	/**
-	 * Collapse all the other expanders except the current target expander in the component when given expand as an event.
-	 */
-
-	expanderGroupMode(component) {
-		component.shadowRoot.querySelectorAll(`horizon-expander-noanime`).forEach((item) => {
-			item.expanded = false;
-		});
-	}
 
 	/**
 	 * Provides status of the check-box
@@ -302,19 +221,6 @@ export class Expander2 extends Component {
 					background-color: var(--theme-expander-background-color, white);
 				}
 
-				:host([expanded]) {
-					max-height: unset;
-					height: var(--theme-expander-height, 100%);
-				}
-
-				:host([expanded].styled) {
-					box-shadow: var(--theme-expander-box-shadow, 0px 1px black);
-				}
-
-				:host([expanding].styled) {
-					box-shadow: var(--theme-expander-box-shadow, 0px 1px black);
-				}
-
 				/* HEADER */
 
 				:host > .header {
@@ -365,19 +271,6 @@ export class Expander2 extends Component {
 					cursor: default;
 				}
 
-				:host([expanded]) > .header {
-					border-bottom-left-radius: 0px;
-					border-bottom-right-radius: 0px;
-				}
-
-				:host([expanded]) > .header > .indicator {
-					transform: rotate(180deg);
-				}
-
-				:host(:not([expanded])) > .header > .indicator {
-					transform: none;
-				}
-
 				/* CONTENT */
 				.content{
 					padding: 0px;
@@ -389,71 +282,11 @@ export class Expander2 extends Component {
 					align-content: flex-start;
 				}
 
-				:host(*.styled[expanded]) > .content {
-					border-bottom: var(--theme-expander-border, 1px solid black);
-					border-bottom-left-radius: var(--theme-expander-border-radius, 5px);
-					border-bottom-right-radius: var(--theme-expander-border-radius, 5px);
-				}
-
-				:host(:not([expanded])) > .content {
-					overflow: hidden;
-					padding-top: var(--theme-expander-content-padding-top, 0px);
-					padding-bottom: var(--theme-expander-content-padding-bottom, 0px);
-				}
-
 				/** ANIMATIONS */
 
 				:host([noanimate]) {
 					animation-duration: 0s;
-				}
-
-				:host([expanding]) {
-					animation: expand 0.5s;
-					animation-timing-function: cubic-bezier(0.2, 0.8, 0.5, 1);
-					animation-fill-mode: forwards;
-				}
-
-				:host([expanding]) > .header > .indicator {
-					transition: all 0.15s linear 0s;
-					transform: rotate(180deg);
-				}
-
-				:host([collapsing]) > .header > .indicator {
-					transition: all 0.15s linear 0s;
-					transform: none;
-				}
-
-				:host([expanding]) > .content {
-					transition: padding linear 0.2s;
-					//padding-top: var(--theme-container-padding-top, 10px);
-					//padding-bottom: var(--theme-container-padding-bottom, 10px);
-				}
-
-				:host([expanding],[noPadding]) > .content {
-					transition: padding linear 0.2s;
-					padding-top: var(--theme-container-no-padding-top, 0px);
-					padding-bottom: var(--theme-container-no-padding-bottom, 0px);
-				}
-
-				:host([collapsing]) > .content {
-					overflow: hidden;
-				}
-
-				/* Hide scrollbar for Chrome, Safari and Opera */
-				:host([collapsing]) > .content::-webkit-scrollbar {
-					display: none;
-				}
-
-				/* Hide scrollbar for IE and Edge */
-				:host([collapsing]) > .content {
-					-ms-overflow-style: none;
-				}
-
-				:host([collapsing]) {
-					animation: collapse 0.5s;
-					animation-timing-function: cubic-bezier(0.2, 0.8, 0.5, 1);
-					animation-fill-mode: forwards;
-				}
+				}				
 
 				.indicator.right{
 					height: 24px;
@@ -474,31 +307,9 @@ export class Expander2 extends Component {
 					padding-left: var(--horizon-expander-noanime-header-padding-left, 0px);
 				}
 	
-				@keyframes expand {
-					0% {
-						max-height: var(--theme-expander-header-height, 50px);
-						height: var(--theme-expander-header-height, 50px);
-					}
-					99% {
-						max-height: var(--theme-expander-expanding-max-height, 100vh);
-						height: var(--theme-expander-height, 200px);
-					}
-					100% {
-						max-height: unset;
-						height: var(--theme-expander-height, 200px);
-					}
-				}
+				
 
-				@keyframes collapse {
-					0% {
-						max-height: var(--theme-expander-height, 200px);
-						overflow: hidden;
-					}
-					100% {
-						max-height: var(--theme-expander-header-height, 50px);
-						overflow: hidden;
-					}
-				}
+				
 			`
 		];
 	}
