@@ -427,7 +427,11 @@ export class CardLimitsLanding extends Component {
 			"card-display-type": this._cardDetails.cardDisplayName
 		});
 		
-		if (new Date(card.cardLimits.tempLimitExpiryDate).getYear() > 2 && this._limitType === LIMIT_TYPES.PERMANENT) {
+		if (new Date(card.cardLimits.tempLimitExpiryDate).getYear() > 2 &&
+					this._limitType === LIMIT_TYPES.PERMANENT && 
+					!(isNullorEmpty(this._cardDetails.cardLimits.tempCashAmountLimit) && 
+						isNullorEmpty(this._cardDetails.cardLimits.tempPurchaseAmountLimit) && 
+						isNullorEmpty(this._cardDetails.cardLimits.tempCnpAmountLimit))) {
 			this.showConfirmSelectionModal = !this.showConfirmSelectionModal;
 		} else {
 			this.showUpdateLimitsModal = !this.showUpdateLimitsModal; 
