@@ -753,7 +753,7 @@ export class TaxCertificates extends Component {
 						${this._renderOnlyIt3BExpanders(item, certType)}
 				</horizon-expander-noanime>`;
 		}
-			return html`
+		return html`
 				<horizon-expander
 					id="tax-expander"
 					data-automation-id="tax-certificate-document-period"
