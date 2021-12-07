@@ -62,6 +62,7 @@ export class ViewBase extends View {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.showEndCall = false;
 		this.showAddCallerDetails = false;
+		this.showVerifyCallerDialog = false;
 		this.displayVASToast = false;
 		this.toastDetailVAS = ``;
 	}
@@ -81,6 +82,7 @@ export class ViewBase extends View {
 			isBusy: { attribute: false },
 			showEndCall: { attribute: false },
 			showAddCallerDetails: { attribute: false },
+			showVerifyCallerDialog: { attribute: false },
 			displayVASToast: { attribute: false }
 		};
 	}
@@ -114,14 +116,14 @@ export class ViewBase extends View {
 	// --------------
 
 	_verifyClick() {
-		this.renderMode = RENDER_MODE.VERIFY_NOW;
+		this.showVerifyCallerDialog = true;
 	}
 
 	_skipVerification(event) {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
 
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this.showVerifyCallerDialog = false;
 	}
 
 	_verificationCancelled(event) {
@@ -129,13 +131,15 @@ export class ViewBase extends View {
 		this.callerInformation = event.detail.callerInformation;
 		this.verificationStatus = this.callerInformation.verificationStatus;
 
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this.showVerifyCallerDialog = false;
 	}
 
 	_clientVerified(event) {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
 		this.verificationStatus = this.callerInformation.verificationStatus;
+
+		this.showVerifyCallerDialog = false;
 	}
 
 	_assignIncidentClick() {
@@ -288,8 +292,8 @@ export class ViewBase extends View {
 	}
 
 	_renderVerifyNowModal() {
-		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
-			return html`
+		return this.showVerifyCallerDialog 
+			? html`
 				<horizon-verify-caller
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
@@ -297,9 +301,8 @@ export class ViewBase extends View {
 					@skip="${(e) => this._skipVerification(e)}"
 					@cancel="${(e) => this._verificationCancelled(e)}"
 					@verified="${(e) => this._clientVerified(e)}">
-				</horizon-verify-caller>`;
-		}
-		return html``;
+				</horizon-verify-caller>`
+			: html``;
 	}
 
 	_renderEndCallSessionModal() {

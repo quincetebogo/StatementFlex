@@ -76,6 +76,7 @@ export class VerifyCaller extends Component {
 		this.noOfXdsVerificationAttempted = 0;
 		this.itaVerificationFailed = false;
 		this.hasSouthAfricanID = false;
+		this.startTimer = false;
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
@@ -118,7 +119,8 @@ export class VerifyCaller extends Component {
 			loading: { attribute: false },
 			itaVerificationFailed: { attribute: false },
 			foreignClientErr: { attribute: false },
-			hasSouthAfricanID: { attribute: false }
+			hasSouthAfricanID: { attribute: false },
+			startTimer: { attribute: false }
 		};
 	}
 
@@ -151,6 +153,7 @@ export class VerifyCaller extends Component {
 
 			if (this.itaTimer) {
 				clearInterval(this.itaTimer);
+				this.startTimer = false;
 				this.itaTimer = null;
 				this.logger.log(`info`, `ITA timer stopped`, `VerifyCaller`);
 			}
@@ -386,7 +389,7 @@ export class VerifyCaller extends Component {
 				}, true);
 
 				this._stopTimer();
-				
+
 				this.itaTimer = null;
 				this.itaFailedCount += 1;
 				this.appTimedOut = true;
@@ -485,6 +488,7 @@ export class VerifyCaller extends Component {
 
 				if (this.itaFailedCount < MAX_ITA_ATTEMPTS) {
 					this.logger.log(`info`, `ITA timer started`, `_itaServiceCall`);
+					this.startTimer = true;
 					this.itaTimer = this._startTimer();
 				}
 			} else {
@@ -777,7 +781,8 @@ export class VerifyCaller extends Component {
 					valign="top"
 					gap="clear"
 					id="notification-status-group">
-				<horizon-countdown>
+				<horizon-countdown
+					.startTicking="${this.startTimer}">
 				</horizon-countdown>
 			</capitec-group>
 			`;
@@ -893,29 +898,29 @@ export class VerifyCaller extends Component {
 	_renderOtherOptions() {
 		if (this.callerInformation.verificationStatus === `verified` && this.callerInformation.verificationMethod === `XDS`) {
 			
-				return html`
-			<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
-			<capitec-content-box id="relation-options-btn">
-				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
-					<horizon-option-button 
-						label="Cancel"
-						icon="system/close-action" 
-						iconSize="default"
-						@click="${() => this._cancelClick()}">
-					</horizon-option-button>
-					<horizon-option-button
-					class="btnTryAgain"
-						label="Try Again" 
-						img-src="/images/insure/refresh.svg"
-						iconSize="default"
-						?hidden=${!this.appTimedOut || this.itaFailedCount >= MAX_ITA_ATTEMPTS}
-						@click="${() => this._tryAgain()}">
-					</horizon-option-button>
-				</capitec-group>
-			</capitec-content-box>
-		`;
-			
-		} 
+			return html`
+				<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
+				<capitec-content-box id="relation-options-btn">
+					<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
+						<horizon-option-button 
+							label="Cancel"
+							icon="system/close-action" 
+							iconSize="default"
+							@click="${() => this._cancelClick()}">
+						</horizon-option-button>
+						<horizon-option-button
+						class="btnTryAgain"
+							label="Try Again" 
+							img-src="/images/insure/refresh.svg"
+							iconSize="default"
+							?hidden=${!this.appTimedOut || this.itaFailedCount >= MAX_ITA_ATTEMPTS}
+							@click="${() => this._tryAgain()}">
+						</horizon-option-button>
+					</capitec-group>
+				</capitec-content-box>
+			`;
+
+		}
 
 		return html`
 			<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
@@ -935,11 +940,12 @@ export class VerifyCaller extends Component {
 						@click="${() => this._skipClick()}">
 					</horizon-option-button>
 					<horizon-option-button
-					class="btnTryAgain"
+						class="btnTryAgain"
 						label="Try Again" 
 						img-src="/images/insure/refresh.svg"
 						iconSize="default"
 						?hidden=${!this.callerInformation.hasDigitalChannels || this.itaFailedCount >= MAX_ITA_ATTEMPTS}
+						?disabled="${!this.appTimedOut && !this.itaVerificationFailed && !this.itaMessage}"
 						@click="${() => this._tryAgain()}">
 					</horizon-option-button>
 				</capitec-group>
