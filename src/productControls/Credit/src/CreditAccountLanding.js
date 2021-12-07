@@ -94,6 +94,9 @@ export class CreditAccountLanding extends Component {
 					--theme-label-title-font-size: 22px;
 					--theme-label-title-font-weight: 500;
 				}
+				capitec-title-bar > capitec-icon {
+					--theme-icon-size-medium: 24px;
+				}
 
 				/* Main view styles */
 				capitec-tab-group {
@@ -230,10 +233,10 @@ export class CreditAccountLanding extends Component {
 					--horizon-label-text-line-height: 12px;
 					--horizon-label-value-font-size: 14px;;
 				}
-				.budget-banner[label="Total budget balance"] {
+				.budget-banner > horizon-label[label="Total budget balance"] {
 					margin-left: 90px;
 				}
-				.budget-banner[label="Total budget insalment (monthly)"] {
+				.budget-banner > horizon-label[label="Total budget insalment (monthly)"] {
 					width: auto;
 				}
 				.budget-banner > capitec-hyperlink {
@@ -279,7 +282,7 @@ export class CreditAccountLanding extends Component {
 						data-automation-id="credit-account-landing-title"
 						type="credit">
 							<capitec-icon
-								size="small"
+								size="medium"
 								icon="product/credit-white">
 							</capitec-icon>
 							<capitec-label label="Credit" type="Title"></capitec-label>
@@ -305,8 +308,8 @@ export class CreditAccountLanding extends Component {
 	_renderFlexibleCreditTab() {
 		// Temporaty constant which shows if client has credit products.
 		// TO DO: Later to be replaced with information received from CS call.
-		const accountsAvailable = false;
-		const showBudgetFacilityBaner = false;
+		const accountsAvailable = true;
+		const showBudgetFacilityBaner = true;
 		
 		return accountsAvailable
 		? html`
