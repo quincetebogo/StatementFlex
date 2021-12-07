@@ -45,7 +45,7 @@ export class AppProfileDetails extends Component {
 	 */
 
 	/**
-	 * @callback unSuspendApp
+	 * @callback unsuspendApp
 	 * @returns {unSuspendAppCallback} - Success or failure response from Unsuspend App channel service call
 
 	 * 
@@ -57,7 +57,7 @@ export class AppProfileDetails extends Component {
 	 * @property {Boolean} [showValidationBanner] - To hide or show the suspend reason validation banner on error 
 	 * 
 	 * @property {suspendAppCallback} suspendApp Callback function to suspend App
-	 * @property {unSuspendAppCallback} unSuspendApp Callback function to Unsuspend App
+	 * @property {unSuspendAppCallback} unsuspendApp Callback function to Unsuspend App
 	 * 
 	 */
 
@@ -67,7 +67,7 @@ export class AppProfileDetails extends Component {
 			appDetails: { type: Object },
 
 			suspendApp: { type: Object, attribute: false },
-			unSuspendApp: { type: Object, attribute: false },
+			unsuspendApp: { type: Object, attribute: false },
 
 			showSuspendReasons: { state: true },
 			selectedSuspendReason: { state: true },
@@ -123,7 +123,7 @@ export class AppProfileDetails extends Component {
 
 	async _onUnsuspendAppClick() {
 	
-		const returnValue = await this.unSuspendApp();
+		const returnValue = await this.unsuspendApp();
 		
 		if (returnValue) {
 			this.appDetails.status = `Active`;
@@ -317,7 +317,7 @@ export class AppProfileDetails extends Component {
 					--theme-label-default-font-size: 15px;
 					--theme-label-default-font-weight: 600;
 				}
-				.unavilable-alert-banner{
+				.unavailable-alert-banner{
 					--theme-alert-banner-height: 64px;
 				}
 				`
@@ -372,56 +372,58 @@ export class AppProfileDetails extends Component {
 				valign="top"
 				gap="none">
 				<horizon-label
-					data-automation-id=""
+					data-automation-id="app-profile-details-username"
 					label="Username"
 					value="${this.appDetails.userName}">
 				</horizon-label>
 
 				<horizon-label
-					data-automation-id=""
+					data-automation-id="app-profile-details-date-registered"
 					label="Date registered"
 					value="${this._formatDate(this.appDetails.dateRegistered)}, ${this._formatTime(this.appDetails.dateRegistered)}">
 				</horizon-label>
 
 				<horizon-label
-					data-automation-id=""
+					data-automation-id="app-profile-details-cellphone-number"
 					label="Cellphone number (verified)"
 					value="${this.appDetails.userRegNo}">
 				</horizon-label>
 
 				<horizon-label 
-					data-automation-id=""
+					data-automation-id="app-profile-details-last-interaction-date"
 					label="Last interaction date"
 					value="${this._formatDate(this.appDetails.dateLastUsed)}">
 				</horizon-label>
 
 				<horizon-label
-					data-automation-id=""
+					data-automation-id="app-profile-details-status"
 					label="Status"
 					value="${this.appDetails.status}">
 				</horizon-label>
 
 				<horizon-label 
-					data-automation-id=""
+					data-automation-id="app-profile-details-last-updated"
 					label="Last updated"
 					value="${this._formatDate(this.appDetails.dateLastUpdated)}, ${this._formatTime(this.appDetails.dateLastUpdated)}"
 					style="display:${isNullorEmpty(this.appDetails.dateLastUpdated) ? `none` : `block`}">
 				</horizon-label>
 
-				<horizon-label 
-					data-automation-id=""
+				<horizon-label
+					data-automation-id="app-profile-details-suspending-reason"
 					label="Reason for suspending"
 					value="${this.selectedSuspendReason || this.appDetails.statusReason}"
 					style="display:${this.appDetails.status === `Active` ? `none` : `block`}">
 				</horizon-label>
 
 				<capitec-button
+					data-automation-id="app-profile-details-suspend-button"
 					type="primary"
 					?hidden=${this.appDetails.status !== `Active`}
 					label="Suspend"
 					@click="${() => this._toggleSuspendReasonsSlide()}">
 				</capitec-button>
-				<capitec-button 
+				<capitec-button
+					data-automation-id="app-profile-details-unsuspend-button"
 					?hidden=${this.appDetails.status === `Active`}
 					type="primary" 
 					label="Unsuspend" 
@@ -433,8 +435,9 @@ export class AppProfileDetails extends Component {
 
 	_renderServiceUnavailable() {
 		return html`
-			<capitec-alert-banner 
-				class="unavilable-alert-banner"
+			<capitec-alert-banner
+				data-automation-id="app-profile-details-unavailable-banner"
+				class="unavailable-alert-banner"
 				type="unsuccessful-red"
 				label=""
 				layout="vertical">
@@ -471,6 +474,7 @@ export class AppProfileDetails extends Component {
 		return this.showSuspendReasons 
 		? html`
 			<capitec-side-sheet
+				data-automation-id="app-profile-details-suspend-reasons-side-sheet"
 				class="suspend-reasons"
 				.expanded="${this.showSuspendReasons}"
 				alignment="right">
@@ -498,14 +502,39 @@ export class AppProfileDetails extends Component {
 						<capitec-label class="header-label" type="Strong" label="Reasons to suspend"></capitec-label>
 						
 						<capitec-radio-group label="Radio group label">
-							<capitec-radio label="Lost" @value-changed="${(event) => this._onReasonSelected(event)}"></capitec-radio>
-							<capitec-radio label="Stolen" @value-changed="${(event) => this._onReasonSelected(event)}"></capitec-radio>
-							<capitec-radio label="Cancelled remote banking" @value-changed="${(event) => this._onReasonSelected(event)}"></capitec-radio>
-							<capitec-radio label="Faulty" @value-changed="${(event) => this._onReasonSelected(event)}"></capitec-radio>
+							<capitec-radio 
+								data-automation-id="app-profile-details-reason-lost"
+								label="Lost" 
+								@value-changed="${(event) => this._onReasonSelected(event)}">
+							</capitec-radio>
+							<capitec-radio 
+								data-automation-id="app-profile-details-reason-stolen"
+								label="Stolen" 
+								@value-changed="${(event) => this._onReasonSelected(event)}">
+							</capitec-radio>
+							<capitec-radio 
+								data-automation-id="app-profile-details-reason-cancelled-remote-banking"
+								label="Cancelled remote banking" 
+								@value-changed="${(event) => this._onReasonSelected(event)}">
+							</capitec-radio>
+							<capitec-radio 
+								data-automation-id="app-profile-details-reason-faulty"
+								label="Faulty" 
+								@value-changed="${(event) => this._onReasonSelected(event)}">
+							</capitec-radio>
 						</capitec-radio-group>
 
-						<capitec-button type="primary" label="Suspend" @click="${() => this._onSuspendAppClick()}"></capitec-button>
-						<capitec-button label="Cancel" @click="${() => this._toggleSuspendReasonsSlide()}"></capitec-button>
+						<capitec-button 
+							data-automation-id="app-profile-details-suspend-app-button"
+							type="primary" 
+							label="Suspend" 
+							@click="${() => this._onSuspendAppClick()}">
+						</capitec-button>
+						<capitec-button 
+							data-automation-id="app-profile-details-cancel-button"
+							label="Cancel" 
+							@click="${() => this._toggleSuspendReasonsSlide()}">
+						</capitec-button>
 
 					</capitec-content-box>
 			</capitec-side-sheet>`
@@ -517,6 +546,7 @@ export class AppProfileDetails extends Component {
 		? html``
 		: html`
 			<capitec-alert-banner 
+				data-automation-id="app-profile-details-suspended-banner"
 				type="unsuccessful-red"
 				label=""
 				layout="vertical">
@@ -530,6 +560,7 @@ export class AppProfileDetails extends Component {
 		return this.appDetails.status === `Active` && this.showValidationBanner 
 		? html`
 			<capitec-alert-banner 
+				data-automation-id="app-profile-details-validation-banner"
 				class="validate-reasons"
 				type="unsuccessful-red"
 				label=""
@@ -547,6 +578,7 @@ export class AppProfileDetails extends Component {
 
 		return html`
 		<capitec-toast 
+			data-automation-id="app-profile-details-success-toast"
 			id="app-success-toast"
 			type="success" 
 			header="Successful!"

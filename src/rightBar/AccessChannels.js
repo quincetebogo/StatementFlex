@@ -97,7 +97,7 @@ export class AccessChannels extends Component {
 		return true;
 	}
 
-	unSuspendApp() {
+	unsuspendApp() {
 		// TO DO: Channel service call to Un-suspend App should come here
 		// If successfully Unsuspended, update app status, else Error scenario
 		this.status.app.status = `Active`;
@@ -177,11 +177,11 @@ export class AccessChannels extends Component {
 		return this.selectedAccessChannelType === ACCESS_CHANNELS_TYPE.APP
 		? html`
 			<capitec-pc-app-profile-details
-				.appDetails = ${this.status.app}
-				?showSideSheet = ${this.showSideSheet}
+				.appDetails = "${this.status.app}"
+				?showSideSheet = "${this.showSideSheet}"
 
 				.suspendApp = "${() => this.suspendApp()}"
-				.unSuspendApp = "${() => this.unSuspendApp()}"
+				.unsuspendApp = "${() => this.unsuspendApp()}"
 
 				@close-side-sheet ="${(event) => this._showSlidingPanel(event)}" >
 			</capitec-pc-app-profile-details>`

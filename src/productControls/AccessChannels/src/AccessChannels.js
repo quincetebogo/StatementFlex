@@ -83,11 +83,6 @@ export class AccessChannels extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	_updateStatus(event) {
-		this.status = event;
-		this.requestUpdate();
-	}
-
 	_formatDate(dateToFormat) {
 		const stringToDate = new Date(dateToFormat);
 		const tempdate = stringToDate.toGMTString().substr(5, 11);
@@ -100,28 +95,21 @@ export class AccessChannels extends Component {
 		return localTime.replace(localTime.slice(-6, -2), ` `);
 	}
 
-	_getStatusColor(type) {
-		const status = this.status[type]?.status;
-
-		if (status === ACCESS_CHANNEL_STATUS.ACTIVE) {
-			return `status-active`;
-		} else if (status === ACCESS_CHANNEL_STATUS.SUSPENDED ||
-							ACCESS_CHANNEL_STATUS.UNAVAILABLE || 
-							ACCESS_CHANNEL_STATUS.BLOCKED || 
-							isNullorEmpty(status)) {
-			return `status-inactive`;
-		}
-	}
-
 	_getStatusDetails(type) {
 		const status = this.status[type]?.status;
-		
+
 		if (isNullorEmpty(status)) {
 			return `Channel service is down`;
-		} else if (status === ACCESS_CHANNEL_STATUS.ACTIVE) {
-			return `${status} | Last used ${this._formatDate(this.status[type].dateLastUsed)}`;
-		} else if (status === ACCESS_CHANNEL_STATUS.SUSPENDED || ACCESS_CHANNEL_STATUS.BLOCKED) {
-			return `${status} | ${this._formatDate(this.status[type].dateLastUpdated || this.status[type].dateLastUsed)}, ${this._formatTime(this.status[type].dateLastUpdated || this.status[type].dateLastUsed)}`;
+		} 
+
+		switch (status) {
+			case ACCESS_CHANNEL_STATUS.ACTIVE:
+				return `${status} | Last used ${this._formatDate(this.status[type].dateLastUsed)}`;
+			case ACCESS_CHANNEL_STATUS.SUSPENDED:
+			case ACCESS_CHANNEL_STATUS.BLOCKED:
+				return `${status} | ${this._formatDate(this.status[type].dateLastUpdated || this.status[type].dateLastUsed)}, ${this._formatTime(this.status[type].dateLastUpdated || this.status[type].dateLastUsed)}`;
+			default:
+				return status;
 		}
 	}
 
@@ -160,10 +148,10 @@ export class AccessChannels extends Component {
 					--theme-product-tile-title-font-weight: 600;
 					--theme-product-tile-subtitle-color: #3A3A3A;
 				}
-				.status-active {
+				horizon-product-tile[status="Active"] {
 					--theme-product-tile-default-border-left: 4px solid #70B000;
 				}
-				.status-inactive {
+				horizon-product-tile[status="Suspended"], [status="Blocked"], [status="Unavailable"] {
 					--theme-product-tile-default-border-left: 4px solid #a5132a;
 				}
 			`
@@ -188,9 +176,10 @@ export class AccessChannels extends Component {
 				<capitec-label class="header-label" label="Access Channels"></capitec-label>
 
 				<horizon-product-tile 
-					class=${this._getStatusColor(ACCESS_CHANNELS_TYPE.APP)}
+					data-automation-id="access-channels-app"
 					type="default"
 					label="App"
+					status="${this.status.app?.status}"
 					subtitle="${this._getStatusDetails(ACCESS_CHANNELS_TYPE.APP)}"
 					detail=""
 					icon="system/cellphone"
@@ -198,9 +187,10 @@ export class AccessChannels extends Component {
 				</horizon-product-tile>
 
 				<horizon-product-tile 
-					class=${this._getStatusColor(ACCESS_CHANNELS_TYPE.INTERNET_BANKING)}
+					data-automation-id="access-channels-internet-banking"
 					type="default"
 					label="Internet Banking"
+					status="${this.status.internetBanking?.status}"
 					subtitle="${this._getStatusDetails(ACCESS_CHANNELS_TYPE.INTERNET_BANKING)}"
 					detail=""
 					icon="system/access"
@@ -208,9 +198,10 @@ export class AccessChannels extends Component {
 				</horizon-product-tile>
 
 				<horizon-product-tile 
-					class=${this._getStatusColor(ACCESS_CHANNELS_TYPE.USSD)}
+					data-automation-id="access-channels-ussd"
 					type="default"
 					label="USSD"
+					status="${this.status.ussd?.status}"
 					subtitle="${this._getStatusDetails(ACCESS_CHANNELS_TYPE.USSD)}"
 					detail=""
 					icon="system/cellphone"
@@ -218,9 +209,11 @@ export class AccessChannels extends Component {
 				</horizon-product-tile>
 
 				<horizon-product-tile 
+					data-automation-id="access-channels-notification"
 					class=""
 					type="default"
 					label="Notifications"
+					status="Not registered"
 					subtitle="Not registered"
 					detail=""
 					icon="system/notify"
