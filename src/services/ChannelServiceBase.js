@@ -92,7 +92,6 @@ export class ChannelServiceBase extends Service {
 	post(url, model, customHeaders, caller, isBinary, controller, sla, timeout, errorHandlerFunc = null, maxAttempts = DEFAULT_AUTO_RETRIES) {
 		return this._wrapCall(
 			this._post(url, model, customHeaders, caller, isBinary, controller, sla, timeout), 
-			caller, 
 			errorHandlerFunc, 
 			maxAttempts
 		);
@@ -157,7 +156,7 @@ export class ChannelServiceBase extends Service {
 				this._mocking = await this._configuration.getSetting(`mock`);
 
 				// Disable mocking in the SLDC environments. Only for local development
-				if (this._configuration.config.runtime.environment !== `LOCAL`) {
+				if (this._inSdlc()) {
 					this._mocking = { enabled: false };
 					this._logger.log(`info`, `Channel Service Mocking has been automatically disabled as the application is not running locally.`, `_mockEnabled`);
 				}
@@ -212,24 +211,31 @@ export class ChannelServiceBase extends Service {
 	 * @param  {...any} funcArgs Parameters for the mock function
 	 * @returns {Promise<*>} The response of the mock request
 	 */
-	async mock(funcName, ...funcArgs) {
-		if (await this.isMockEnabled(funcName)) {
-			return this._wrapCall(this._mock[funcName](...funcArgs));
+	mock(funcName, ...funcArgs) {
+		// Guard: If the caller forgets to check if mocks are enabled and calls this in the SDLC environment
+		// just fail outright.
+		if (this._inSdlc()) {
+			this._logger.log(`fatal`, `Cannot invoke a mock ${funcName} in an SDLC environment`, `mock`);
+			throw new Error(`Cannot invoke mock ${funcName} in an SDLC environment`);
 		}
+
+		return this._wrapCall(this._mock[funcName](...funcArgs));
+	}
+
+	_inSdlc() {
+		return this._configuration.config.runtime.environment !== `LOCAL`;
 	}
 	
 	/**
 	 *
 	 *
 	 * @param {Promise<*>} channelServiceCallFunc A Promise that returns the result of a channel service call
-	 * @param {string} caller The method name of the channel service call being invoked (for logging purposes)
 	 * @param {errorHandlerCallback} [errorHandlerFunc=null] An error handler to invoke should the web service call fail
 	 * @param {number} [maxAttempts=3] The number of attempts to retry a service call before invoking the error handler
-	 * @param {string} [correlationId] CorrellationId for tracing the call in logs
 	 * @returns {Promise<ReturnValue>} A promise for the return value of the completed web service call
 	 * @memberof ServiceBase
 	 */
-	async _wrapCall(channelServiceCallFunc, caller, errorHandlerFunc = null, maxAttempts = 3) {
+	async _wrapCall(channelServiceCallFunc, errorHandlerFunc = null, maxAttempts = 3) {
 		const returnValue = {
 			succeeded: false,
 			result: null,
@@ -276,8 +282,12 @@ export class ChannelServiceBase extends Service {
 				}
 
 				if (tryCount >= maxAttempts) {
-					returnValue.correlationId = exception.correlationId;
+					if (Object.prototype.hasOwnProperty.call(exception, `correlationId`)) {
+						returnValue.correlationId = exception.correlationId;
+					}
+
 					returnValue.exception = exception;
+
 					this._handleException(errorHandlerFunc, exception);
 				}
 			} finally {
@@ -432,19 +442,27 @@ export class ChannelServiceBase extends Service {
 	// ---------------
 	
 	_logException(exception) {
-		let message = `${exception.message}, Url=${exception.requestUrl}`;
+		let message = ``;
+
+		if (Object.prototype.hasOwnProperty.call(exception, `message`)) {
+			message = `${exception.message}`;
+		}
+
+		if (Object.prototype.hasOwnProperty.call(exception, `requestUrl`)) {
+			message = `${message}, Url=${exception.requestUrl}`;
+		}
 
 		if (this.logRequestResponseModels) {
-			message += exception.requestModel ? `, request=${JSON.stringify(exception.requestModel)}` : ``;
-			message += exception.output ? `, output=${JSON.stringify(exception.output)}` : ``;
+			message += exception?.requestModel ? `, request=${JSON.stringify(exception.requestModel)}` : ``;
+			message += exception?.output ? `, output=${JSON.stringify(exception.output)}` : ``;
 		}
 
 		if (exception instanceof TypeError) {
-			this._logger.log(`error`, message, exception.requestCaller, exception.correlationId);
+			this._logger.log(`error`, message, exception?.requestCaller, exception?.correlationId);
 		} else if (exception instanceof HttpStatusError) {
-			this._logger.log(`error`, `${exception.status}: ${message}`, exception.requestCaller, exception.correlationId);
+			this._logger.log(`error`, `${exception.status}: ${message}`, exception?.requestCaller, exception?.correlationId);
 		} else {
-			this._logger.log(`error`, message, exception.requestCaller, exception.correlationId);
+			this._logger.log(`error`, message, exception?.requestCaller, exception?.correlationId);
 		}
 	}
 	
