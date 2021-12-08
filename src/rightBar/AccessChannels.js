@@ -1,14 +1,30 @@
+
 import { Component, css, html } from 'platform/elements';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Logger } from 'platform/core';
+import { Utilities } from 'platform/Utilities';
 
-import 'platform/components';
 import 'app/productControls/AccessChannels/src/AccessChannels';
+import 'app/productControls/AccessChannels/src/AppProfileDetails';
 import 'app/webComponents/src/SideSheet';
+import 'platform/components';
+
+const ACCESS_CHANNELS_TYPE = {
+	APP: `app`,
+	INTERNET_BANKING: `internetBanking`,
+	USSD: `ussd`,
+	NOTIFICATIONS: `notifications`
+};
+
 
 /**
+ * Access Channels component invokes and holds functionality for all the available access channels
+ * This component is envoked from RightBarLayout component
  * 
+ * @export
+ * @class AccessChannels
+ * @extends {Component}
  */
 export class AccessChannels extends Component {
 
@@ -31,12 +47,20 @@ export class AccessChannels extends Component {
 	// ----------
 	// PROPERTIES
 	// ----------
+	/**
+	 * @property {Boolean} [isBusy] - To toggle busy flag on active channel service call
+	 * @property {Object} [status] - Access channels details
+	 * @property {Boolean} [showSideSheet] - To toggle side sheet component
+	 * @property {String} [selectedAccessChannelType] - Holds value of the selected access channel type
+	 *
+	**/
 
 	static get properties() {
 		return {
 			isBusy: { state: true },
 			status: { state: true },
-			showSideSheet: { state: true }
+			showSideSheet: { state: true },
+			selectedAccessChannelType: { state: true }
 		};
 	}
 
@@ -50,11 +74,6 @@ export class AccessChannels extends Component {
 		const callerInformation = this.horizonStore.getCallerInformation();
 		
 		this.cifNumber = callerInformation.cifNumber;
-		this.status = {
-			appAndInternetActive: false,
-			ussdActive: false,
-			notificationType: `unknown`
-		};
 
 		this._accessChannelService();
 	}
@@ -64,7 +83,28 @@ export class AccessChannels extends Component {
 	// --------------
 
 	_showSlidingPanel(event) {
+		this.selectedAccessChannelType = event.detail?.tileClicked ?? ``;
 		this.showSideSheet = !this.showSideSheet;
+	}
+	
+	suspendApp() {
+		// TO DO: Channel service call to suspend app should come here
+		// If successfully suspended, update app status, else Error scenario
+		this.status.app.status = `Suspended`;
+		this.status.app.dateLastUpdated = new Date().toISOString();
+		
+		this._deepCopyStatus();
+		return true;
+	}
+
+	unsuspendApp() {
+		// TO DO: Channel service call to Un-suspend App should come here
+		// If successfully Unsuspended, update app status, else Error scenario
+		this.status.app.status = `Active`;
+		this.status.app.dateLastUpdated = new Date().toISOString();
+
+		this._deepCopyStatus();
+		return true;
 	}
 
 	// --------------
@@ -80,14 +120,19 @@ export class AccessChannels extends Component {
 	}
 
 	async _accessChannelService() {
+	
 		const returnValue = await this.accessChannelService.accessChannelStatus(this.cifNumber);
-		
+	
 		if (returnValue.succeeded) {
 			this.status = returnValue.result;
 			return;
-		} 
-		
+		}
 		this.logger.log(`error`, `Failed to load access channel information`, `_accessChannelService`, returnValue.correlationId);
+	}
+
+	_deepCopyStatus() {
+		// Creates and returns a deep copy of an Object this.status
+		this.status = Utilities.deepCopy(this.status);
 	}
 
 	// ---------
@@ -113,28 +158,34 @@ export class AccessChannels extends Component {
 	_webTemplate() {
 		return html`
 			${this._renderAccessChannels()}
-			${this._renderLoadingIndicator()}`;
+			${this._renderLoadingIndicator()}
+			${this._renderAppPanel()}
+		`;
 	}
-    
-	_renderAccessChannels() {
-		return html`
-		<capitec-pc-access-channels
-			.status="${this.status}"
-			@tile-click="${(event) => this._showSlidingPanel(event)}">
-		</capitec-pc-access-channels>
 
-		<capitec-side-sheet
-			.expanded="${this.showSideSheet}"
-			alignment="right">
-				<capitec-content-box
-					layout="vertical"
-					halign="center"
-					valign="center"
-					gap="clear">
-						<capitec-label type="Strong" label="Content comes here.."></capitec-label>
-						<capitec-button type="primary" label="Close" @click="${() => this._showSlidingPanel()}"></capitec-button>
-				</capitec-content-box>
-		</capitec-side-sheet>`;
+	_renderAccessChannels() {
+		return this.status 
+		? html`
+		<capitec-pc-access-channels
+			.status=${this.status}
+			@tile-click="${(event) => this._showSlidingPanel(event)}">
+		</capitec-pc-access-channels>`
+		: html``;
+	}
+
+	_renderAppPanel() {
+		return this.selectedAccessChannelType === ACCESS_CHANNELS_TYPE.APP
+		? html`
+			<capitec-pc-app-profile-details
+				.appDetails = "${this.status.app}"
+				?showSideSheet = "${this.showSideSheet}"
+
+				.suspendApp = "${() => this.suspendApp()}"
+				.unsuspendApp = "${() => this.unsuspendApp()}"
+
+				@close-side-sheet ="${(event) => this._showSlidingPanel(event)}" >
+			</capitec-pc-app-profile-details>`
+		: html``;
 	}
 
 	_renderLoadingIndicator() {

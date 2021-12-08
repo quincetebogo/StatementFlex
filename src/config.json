@@ -139,6 +139,10 @@
 		"viewStatements": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"accessChannel": {
+			"enabled": true,
+			"positiveCase": true
 		}
 	}
 }
