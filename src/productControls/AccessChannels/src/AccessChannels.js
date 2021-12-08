@@ -1,8 +1,33 @@
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator } from 'platform/core';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
-
 import 'platform/components';
+
+const ACCESS_CHANNELS_TYPE = {
+	APP: `app`,
+	INTERNET_BANKING: `internetBanking`,
+	USSD: `ussd`,
+	NOTIFICATIONS: `notifications`
+};
+
+const ACCESS_CHANNEL_STATUS = {
+	ACTIVE: `Active`,
+	SUSPENDED: `Suspended`,
+	UNAVAILABLE: `Unavailable`,
+	BLOCKED: `Blocked`
+};
+
+/**
+ * Access Channels component is used to hold all the Access channels tiles available.
+ * This component is envoked from Access Channels component
+ * 
+ * Events Raised 
+ * -------------
+ * tile-click
+ *  
+ * @export
+ * @class AccessChannels
+ * @extends {Component}
+ */
 
 export class AccessChannels extends Component {
 
@@ -22,7 +47,7 @@ export class AccessChannels extends Component {
 	// --------------
 
 	/**
-	 * 
+	 * @property {Object} [status] - Holds details and status of all the available access channels
 	 */
 
 	static get properties() {
@@ -43,49 +68,51 @@ export class AccessChannels extends Component {
 		super.disconnectedCallback();
 	}
 
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
 	_tileClick(buttonName) {
 		this.dispatchEvent(new CustomEvent(`tile-click`, { detail: { tileClicked: buttonName } }));
 	}
 	
-	_updateStatus(event) {
-		this.status = event
-		this.requestUpdate();
-	}
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+
+	// n/a
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
 
 	_formatDate(dateToFormat) {
-        const stringToDate = new Date(dateToFormat);
-        const tempdate = stringToDate.toGMTString().substr(5, 11);
+		const stringToDate = new Date(dateToFormat);
+		const tempdate = stringToDate.toGMTString().substr(5, 11);
 		return tempdate;
 	}
 
 	_formatTime(timeToFormat) {
 		const formatedDate = new Date(timeToFormat);
-		const localTime = formatedDate.toLocaleTimeString()
-		return localTime.replace(localTime.slice(-6,-2), '')
+		const localTime = formatedDate.toLocaleTimeString();
+		return localTime.replace(localTime.slice(-6, -2), ` `);
 	}
 
-	// To get relavent status color on tile based on Access channel's status 
-	_getStatusColor(status) {
-		if (status === `Active`) {
-			return `status-active`;
-		} else if (status === `Suspended` || `Unavailable` || `Blocked` || isNullorEmpty(status)) {
-			return `status-inactive`;
-		} else {
-			// do nothing
-		}
-	}
-	
-	// To get relavent Status and details on tile based on Access channel's status 
-	_getStatusSubTitle(type) {
-		const status = this.status[type] && this.status[type].status;
-		
+	_getStatusDetails(type) {
+		const status = this.status[type]?.status;
+
 		if (isNullorEmpty(status)) {
 			return `Channel service is down`;
-		} else if (status === `Active`){
-			return status + ` | Last used ` + this._formatDate(this.status[type].dateLastUsed);
-		} else if ( status === `Suspended` || `Blocked`) {
-			return status + ` | ` + this._formatDate(this.status[type].dateLastUpdated || this.status[type].dateLastUsed) + `, ` + this._formatTime(this.status[type].dateLastUpdated || this.status[type].dateLastUsed);
-		} else {
+		} 
+
+		switch (status) {
+			case ACCESS_CHANNEL_STATUS.ACTIVE:
+				return `${status} | Last used ${this._formatDate(this.status[type].dateLastUsed)}`;
+			case ACCESS_CHANNEL_STATUS.SUSPENDED:
+			case ACCESS_CHANNEL_STATUS.BLOCKED:
+				return `${status} | ${this._formatDate(this.status[type].dateLastUpdated || this.status[type].dateLastUsed)}, ${this._formatTime(this.status[type].dateLastUpdated || this.status[type].dateLastUsed)}`;
+			default:
+				return status;
 		}
 	}
 
@@ -124,10 +151,10 @@ export class AccessChannels extends Component {
 					--theme-product-tile-title-font-weight: 600;
 					--theme-product-tile-subtitle-color: #3A3A3A;
 				}
-				.status-active {
+				horizon-product-tile[status="Active"] {
 					--theme-product-tile-default-border-left: 4px solid #70B000;
 				}
-				.status-inactive {
+				horizon-product-tile[status="Suspended"], [status="Blocked"], [status="Unavailable"] {
 					--theme-product-tile-default-border-left: 4px solid #a5132a;
 				}
 			`
@@ -152,43 +179,48 @@ export class AccessChannels extends Component {
 				<capitec-label class="header-label" label="Access Channels"></capitec-label>
 
 				<horizon-product-tile 
-					class=${this._getStatusColor(this.status.app && this.status.app.status)}
+					data-automation-id="access-channels-app"
 					type="default"
 					label="App"
-					subtitle="${this._getStatusSubTitle(`app`)}"
+					status="${this.status.app?.status}"
+					subtitle="${this._getStatusDetails(ACCESS_CHANNELS_TYPE.APP)}"
 					detail=""
 					icon="system/cellphone"
-					@click="${() => this._tileClick(`App`)}">
+					@click="${() => this._tileClick(ACCESS_CHANNELS_TYPE.APP)}">
 				</horizon-product-tile>
 
 				<horizon-product-tile 
-					class=${this._getStatusColor(this.status.internetBanking.status)}
+					data-automation-id="access-channels-internet-banking"
 					type="default"
 					label="Internet Banking"
-					subtitle="${this._getStatusSubTitle(`internetBanking`)}"
+					status="${this.status.internetBanking?.status}"
+					subtitle="${this._getStatusDetails(ACCESS_CHANNELS_TYPE.INTERNET_BANKING)}"
 					detail=""
 					icon="system/access"
-					@click="${() => this._tileClick(`InternetBanking`)}">
+					@click="${() => this._tileClick(ACCESS_CHANNELS_TYPE.INTERNET_BANKING)}">
 				</horizon-product-tile>
 
 				<horizon-product-tile 
-					class=${this._getStatusColor(this.status.ussd && (this.status.ussd.isSimBlocked ? `Blocked` : this.status.ussd.status))}
+					data-automation-id="access-channels-ussd"
 					type="default"
 					label="USSD"
-					subtitle="${this.status.ussd && this.status.ussd.isSimBlocked ? "Blocked | SIM Swop detected" : this._getStatusSubTitle(`ussd`)}"
+					status="${this.status.ussd?.status}"
+					subtitle="${this._getStatusDetails(ACCESS_CHANNELS_TYPE.USSD)}"
 					detail=""
 					icon="system/cellphone"
-					@click="${() => this._tileClick(`USSD`)}">
+					@click="${() => this._tileClick(ACCESS_CHANNELS_TYPE.USSD)}">
 				</horizon-product-tile>
 
 				<horizon-product-tile 
+					data-automation-id="access-channels-notification"
 					class=""
 					type="default"
 					label="Notifications"
+					status="Not registered"
 					subtitle="Not registered"
 					detail=""
 					icon="system/notify"
-					@click="${() => this._tileClick(`Notifications`)}">
+					@click="${() => this._tileClick(ACCESS_CHANNELS_TYPE.NOTIFICATIONS)}">
 				</horizon-product-tile>
 			</capitec-group>
 		`;

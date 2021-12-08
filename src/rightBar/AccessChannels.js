@@ -1,16 +1,33 @@
 
+import { Component, css, html } from 'platform/elements';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Logger } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { Logger } from 'platform/core';
+import { Utilities } from 'platform/Utilities';
 
 import 'app/productControls/AccessChannels/src/AccessChannels';
+import 'app/productControls/AccessChannels/src/AppProfileDetails';
 import 'app/productControls/AccessChannels/src/USSDProfileDetails';
 import 'app/webComponents/src/SideSheet';
 import 'platform/components';
 
+const ACCESS_CHANNELS_TYPE = {
+	APP: `app`,
+	INTERNET_BANKING: `internetBanking`,
+	USSD: `ussd`,
+	NOTIFICATIONS: `notifications`
+};
+
+
 /**
+ * Access Channels component invokes and holds functionality for all the available access channels
+ * This component is envoked from RightBarLayout component
  * 
+ * @export
+ * @class AccessChannels
+ * @extends {Component}
  */
 export class AccessChannels extends Component {
 
@@ -34,11 +51,18 @@ export class AccessChannels extends Component {
 	// ----------
 	// PROPERTIES
 	// ----------
+	/**
+	 * @property {Boolean} [isBusy] - To toggle busy flag on active channel service call
+	 * @property {Object} [status] - Access channels details
+	 * @property {Boolean} [showSideSheet] - To toggle side sheet component
+	 * @property {String} [selectedAccessChannelType] - Holds value of the selected access channel type
+	 *
+	**/
 
 	static get properties() {
 		return {
 			isBusy: { state: true },
-			status: { type: Object },
+			status: { state: true },
 			showSideSheet: { state: true },
 			selectedAccessChannelType: { state: true }
 		};
@@ -63,8 +87,7 @@ export class AccessChannels extends Component {
 	// --------------
 
 	_showSlidingPanel(event) {
-		this.selectedAccessChannelType = event.detail && event.detail.tileClicked || ``;
-		this.eventAggregator.publish(`horizon-access-status-update`, this.status);
+		this.selectedAccessChannelType = event.detail?.tileClicked ?? ``;
 		this.showSideSheet = !this.showSideSheet;
 	}
 	
@@ -93,6 +116,27 @@ export class AccessChannels extends Component {
 		return true;
 	}
 
+	
+	suspendApp() {
+		// TO DO: Channel service call to suspend app should come here
+		// If successfully suspended, update app status, else Error scenario
+		this.status.app.status = `Suspended`;
+		this.status.app.dateLastUpdated = new Date().toISOString();
+		
+		this._deepCopyStatus();
+		return true;
+	}
+
+	unsuspendApp() {
+		// TO DO: Channel service call to Un-suspend App should come here
+		// If successfully Unsuspended, update app status, else Error scenario
+		this.status.app.status = `Active`;
+		this.status.app.dateLastUpdated = new Date().toISOString();
+
+		this._deepCopyStatus();
+		return true;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -106,50 +150,20 @@ export class AccessChannels extends Component {
 	}
 
 	async _accessChannelService() {
+	
 		const returnValue = await this.accessChannelService.accessChannelStatus(this.cifNumber);
-		
-		/* Mocked Access channels landing response untill Channel service is implemented 
-
-		this.status = {
-			"msisdn": "",
-
-			"app": {
-                "status": "Suspended",
-				"statusReason": "Stolen",
-				"dateLastUsed": "2021-09-11T09:48:18.908Z",
-				"dateRegistered": "2021-11-08T09:48:18.908Z",
-				"userName": "Mr Tertius Steyl",
-				"userRegNo": "906 501 1004"
-			},
-			"internetBanking": {
-				"status": "Active",
-				"statusReason": "",
-				"dateLastUsed": "2021-11-08T09:48:18.908Z",
-				"dateRegistered": "2021-11-08T09:48:18.908Z",
-				"userName": "Mr Tertius Steyl",
-				"userRegNo": "906 501 1004"
-			},
-			"ussd": {
-				"status": "Active",
-				"isSimBlocked": true,
-				"dateLastUsed": "2021-11-08T09:48:18.908Z",
-				"dateRegistered": "2021-11-08T09:48:18.908Z",
-				"dateLastUpdated": "2021-11-10T09:48:18.908Z",
-				"userRegNo": "906 501 1004",
-				"features": {
-					"isFullMenuActive": true
-				}
-			}
-        }
-	*/
-
+	
 		if (returnValue.succeeded) {
 			this.status = returnValue.result;
 
 			return;
-		} 
-		
+		}
 		this.logger.log(`error`, `Failed to load access channel information`, `_accessChannelService`, returnValue.correlationId);
+	}
+
+	_deepCopyStatus() {
+		// Creates and returns a deep copy of an Object this.status
+		this.status = Utilities.deepCopy(this.status);
 	}
 
 	// ---------
@@ -176,34 +190,35 @@ export class AccessChannels extends Component {
 		return html`
 			${this._renderAccessChannels()}
 			${this._renderLoadingIndicator()}
+			${this._renderAppPanel()}
+		`;
+			${this._renderLoadingIndicator()}
 			${this._renderUSSD()}`;
 	}
-    
+
 	_renderAccessChannels() {
-		return this.status ?
-		html`
+		return this.status 
+		? html`
 		<capitec-pc-access-channels
 			.status=${this.status}
 			@tile-click="${(event) => this._showSlidingPanel(event)}">
-		</capitec-pc-access-channels>
-		` : html``;
+		</capitec-pc-access-channels>`
+		: html``;
 	}
 
-	_renderUSSD() {
-		return this.selectedAccessChannelType === `USSD` ?
-		html `
-			<capitec-pc-ussd-profile-details
-			.ussd="${this.status.ussd}"
-			.showSideSheet="${this.showSideSheet}"
+	_renderAppPanel() {
+		return this.selectedAccessChannelType === ACCESS_CHANNELS_TYPE.APP
+		? html`
+			<capitec-pc-app-profile-details
+				.appDetails = "${this.status.app}"
+				?showSideSheet = "${this.showSideSheet}"
 
-			.cancelUSSD="${() => this.cancelUSSD()}"
-			.unblockSIM="${() => this.unblockSIM()}"
-			.activateFullMenuUSSD="${() => this.activateFullMenuUSSD()}"
+				.suspendApp = "${() => this.suspendApp()}"
+				.unsuspendApp = "${() => this.unsuspendApp()}"
 
-			@close-side-sheet="${(event) => this._showSlidingPanel(event)}">
-			</capitec-pc-ussd-profile-details>
-		` : 
-		html ``;
+				@close-side-sheet ="${(event) => this._showSlidingPanel(event)}" >
+			</capitec-pc-app-profile-details>`
+		: html``;
 	}
 
 	_renderLoadingIndicator() {
