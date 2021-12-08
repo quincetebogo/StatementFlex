@@ -1,8 +1,6 @@
 
 import { Component, css, html } from 'platform/elements';
 import { AccessChannelService } from 'app/services/AccessChannelService';
-import { Component, css, html } from 'platform/elements';
-import { EventAggregator, Logger } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Logger } from 'platform/core';
 import { Utilities } from 'platform/Utilities';
@@ -43,7 +41,6 @@ export class AccessChannels extends Component {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
-		this.eventAggregator = EventAggregator.getInstance();
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
 	}
@@ -90,33 +87,7 @@ export class AccessChannels extends Component {
 		this.selectedAccessChannelType = event.detail?.tileClicked ?? ``;
 		this.showSideSheet = !this.showSideSheet;
 	}
-	
-	cancelUSSD() {
-		// TO DO: add channel service call to cancel USSD service
-		// If cancel is successful, show toast, update ussd status, else show error
-		this.status.ussd.status = `Blocked`;
-		this.status.ussd.dateLastUpdated = new Date();
 
-		return true;
-	}
-
-	unblockSIM() {
-		// TO DO: add channel service call to unblock SIM - ussd
-		// If unblock is successful, show toast, update ussd status, else show error
-		this.status.ussd.isSimBlocked = false;
-		this.status.ussd.dateLastUpdated = new Date();
-
-		return true;
-	}
-
-	activateFullMenuUSSD() {
-		// TO DO: add code to activate full menu for currently active ussd clients
-		// If client has active ussd, menu reduced, activate full menu function
-		this.status.ussdActive = true;
-		return true;
-	}
-
-	
 	suspendApp() {
 		// TO DO: Channel service call to suspend app should come here
 		// If successfully suspended, update app status, else Error scenario
@@ -134,6 +105,33 @@ export class AccessChannels extends Component {
 		this.status.app.dateLastUpdated = new Date().toISOString();
 
 		this._deepCopyStatus();
+		return true;
+	}
+	
+	cancelUSSD() {
+		// TO DO: add channel service call to cancel USSD service
+		// If cancel is successful, show toast, update ussd status, else show error
+		this.status.ussd.status = `Blocked`;
+		this.status.ussd.dateLastUpdated = new Date().toISOString();
+
+		this._deepCopyStatus();
+		return true;
+	}
+
+	unblockSIM() {
+		// TO DO: add channel service call to unblock SIM - ussd
+		// If unblock is successful, show toast, update ussd status, else show error
+		this.status.ussd.isSimBlocked = false;
+		this.status.ussd.dateLastUpdated = new Date().toISOString();
+
+		this._deepCopyStatus();
+		return true;
+	}
+
+	activateFullMenuUSSD() {
+		// TO DO: add code to activate full menu for currently active ussd clients
+		// If client has active ussd, menu reduced, activate full menu function
+		this.status.ussdActive = true;
 		return true;
 	}
 
@@ -191,8 +189,6 @@ export class AccessChannels extends Component {
 			${this._renderAccessChannels()}
 			${this._renderLoadingIndicator()}
 			${this._renderAppPanel()}
-		`;
-			${this._renderLoadingIndicator()}
 			${this._renderUSSD()}`;
 	}
 
@@ -218,6 +214,22 @@ export class AccessChannels extends Component {
 
 				@close-side-sheet ="${(event) => this._showSlidingPanel(event)}" >
 			</capitec-pc-app-profile-details>`
+		: html``;
+	}
+
+	_renderUSSD() {
+		return this.selectedAccessChannelType === `ussd` 
+		? html`
+			<capitec-pc-ussd-profile-details
+			.ussd="${this.status.ussd}"
+			.showSideSheet="${this.showSideSheet}"
+
+			.cancelUSSD="${() => this.cancelUSSD()}"
+			.unblockSIM="${() => this.unblockSIM()}"
+			.activateFullMenuUSSD="${() => this.activateFullMenuUSSD()}"
+
+			@close-side-sheet="${(event) => this._showSlidingPanel(event)}">
+			</capitec-pc-ussd-profile-details>`
 		: html``;
 	}
 

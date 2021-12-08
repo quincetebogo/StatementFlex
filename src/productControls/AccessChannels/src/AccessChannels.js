@@ -37,9 +37,6 @@ export class AccessChannels extends Component {
 
 	constructor() {
 		super();
-
-		this.eventAggregator = EventAggregator.getInstance();
-		this.eventAggregator.subscribe(`horizon-access-status-update`, (event) => this._updateStatus(event));
 	}
 
 	// --------------
