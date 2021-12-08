@@ -177,7 +177,7 @@ export class SideSheet extends Component {
 	 * @ignore
 	 * @returns {css} The css content of the component.
 	 */
-	static get styles() {
+	 static get styles() {
 
 		return [
 			super.styles,
@@ -204,9 +204,9 @@ export class SideSheet extends Component {
 					justify-content: flex-start;
 				}
 
-				:host([expanded],[expanding],[collapsing]) {
-					width: 100%;
-					height: 100%;
+				:host([expanded]) {
+					width: var(--theme-side-sheet-expanded-screen-width, 1920px);
+					height: var(--theme-side-sheet-expanded-screen-height, 1082px);
 				}
 
 				.content {
@@ -215,10 +215,11 @@ export class SideSheet extends Component {
 					top: var(--theme-side-sheet-top, 16px);
 					background-color: var(--theme-side-sheet-background-color, white);
 					position: absolute;
-					display: none;
+					border-top-left-radius: 4px;
+					border-bottom-left-radius: 4px;
 				}
 
-				:host([expanded],[expanding],[collapsing]) > .content {
+				:host([expanded]) > .content {
 					display: block;
 				}
 
@@ -239,8 +240,8 @@ export class SideSheet extends Component {
 				/** COLLAPSING */
 
 				:host([collapsing]) {
-					width: 100%;
-					height: 100%;	
+					width: var(--theme-side-sheet-collapsing-screen-width, 1920px);
+					height: var(--theme-side-sheet-collapsing-screen-height, 1082px);
 				}
 
 				:host([collapsing][alignment=right]) > .content {
@@ -277,7 +278,7 @@ export class SideSheet extends Component {
 				@keyframes slideRight {
 					0% {
 						transform: translateX(-100%);
-					}
+					},
 					100% {
 						transform: translateX(0%);
 					}

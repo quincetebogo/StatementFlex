@@ -1,11 +1,13 @@
-import { Component, css, html } from 'platform/elements';
-import { AccessChannelService } from 'app/services/AccessChannelService';
-import { HorizonStore } from 'app/store/HorizonStore';
-import { Logger } from 'platform/core';
 
-import 'platform/components';
+import { AccessChannelService } from 'app/services/AccessChannelService';
+import { Component, css, html } from 'platform/elements';
+import { EventAggregator, Logger } from 'platform/core';
+import { HorizonStore } from 'app/store/HorizonStore';
+
 import 'app/productControls/AccessChannels/src/AccessChannels';
+import 'app/productControls/AccessChannels/src/USSDProfileDetails';
 import 'app/webComponents/src/SideSheet';
+import 'platform/components';
 
 /**
  * 
@@ -24,6 +26,7 @@ export class AccessChannels extends Component {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
 	}
@@ -35,8 +38,9 @@ export class AccessChannels extends Component {
 	static get properties() {
 		return {
 			isBusy: { state: true },
-			status: { state: true },
-			showSideSheet: { state: true }
+			status: { type: Object },
+			showSideSheet: { state: true },
+			selectedAccessChannelType: { state: true }
 		};
 	}
 
@@ -50,11 +54,6 @@ export class AccessChannels extends Component {
 		const callerInformation = this.horizonStore.getCallerInformation();
 		
 		this.cifNumber = callerInformation.cifNumber;
-		this.status = {
-			appAndInternetActive: false,
-			ussdActive: false,
-			notificationType: `unknown`
-		};
 
 		this._accessChannelService();
 	}
@@ -64,7 +63,34 @@ export class AccessChannels extends Component {
 	// --------------
 
 	_showSlidingPanel(event) {
+		this.selectedAccessChannelType = event.detail && event.detail.tileClicked || ``;
+		this.eventAggregator.publish(`horizon-access-status-update`, this.status);
 		this.showSideSheet = !this.showSideSheet;
+	}
+	
+	cancelUSSD() {
+		// TO DO: add channel service call to cancel USSD service
+		// If cancel is successful, show toast, update ussd status, else show error
+		this.status.ussd.status = `Blocked`;
+		this.status.ussd.dateLastUpdated = new Date();
+
+		return true;
+	}
+
+	unblockSIM() {
+		// TO DO: add channel service call to unblock SIM - ussd
+		// If unblock is successful, show toast, update ussd status, else show error
+		this.status.ussd.isSimBlocked = false;
+		this.status.ussd.dateLastUpdated = new Date();
+
+		return true;
+	}
+
+	activateFullMenuUSSD() {
+		// TO DO: add code to activate full menu for currently active ussd clients
+		// If client has active ussd, menu reduced, activate full menu function
+		this.status.ussdActive = true;
+		return true;
 	}
 
 	// --------------
@@ -82,8 +108,44 @@ export class AccessChannels extends Component {
 	async _accessChannelService() {
 		const returnValue = await this.accessChannelService.accessChannelStatus(this.cifNumber);
 		
+		/* Mocked Access channels landing response untill Channel service is implemented 
+
+		this.status = {
+			"msisdn": "",
+
+			"app": {
+                "status": "Suspended",
+				"statusReason": "Stolen",
+				"dateLastUsed": "2021-09-11T09:48:18.908Z",
+				"dateRegistered": "2021-11-08T09:48:18.908Z",
+				"userName": "Mr Tertius Steyl",
+				"userRegNo": "906 501 1004"
+			},
+			"internetBanking": {
+				"status": "Active",
+				"statusReason": "",
+				"dateLastUsed": "2021-11-08T09:48:18.908Z",
+				"dateRegistered": "2021-11-08T09:48:18.908Z",
+				"userName": "Mr Tertius Steyl",
+				"userRegNo": "906 501 1004"
+			},
+			"ussd": {
+				"status": "Active",
+				"isSimBlocked": true,
+				"dateLastUsed": "2021-11-08T09:48:18.908Z",
+				"dateRegistered": "2021-11-08T09:48:18.908Z",
+				"dateLastUpdated": "2021-11-10T09:48:18.908Z",
+				"userRegNo": "906 501 1004",
+				"features": {
+					"isFullMenuActive": true
+				}
+			}
+        }
+	*/
+
 		if (returnValue.succeeded) {
 			this.status = returnValue.result;
+
 			return;
 		} 
 		
@@ -113,28 +175,35 @@ export class AccessChannels extends Component {
 	_webTemplate() {
 		return html`
 			${this._renderAccessChannels()}
-			${this._renderLoadingIndicator()}`;
+			${this._renderLoadingIndicator()}
+			${this._renderUSSD()}`;
 	}
     
 	_renderAccessChannels() {
-		return html`
+		return this.status ?
+		html`
 		<capitec-pc-access-channels
-			.status="${this.status}"
+			.status=${this.status}
 			@tile-click="${(event) => this._showSlidingPanel(event)}">
 		</capitec-pc-access-channels>
+		` : html``;
+	}
 
-		<capitec-side-sheet
-			.expanded="${this.showSideSheet}"
-			alignment="right">
-				<capitec-content-box
-					layout="vertical"
-					halign="center"
-					valign="center"
-					gap="clear">
-						<capitec-label type="Strong" label="Content comes here.."></capitec-label>
-						<capitec-button type="primary" label="Close" @click="${() => this._showSlidingPanel()}"></capitec-button>
-				</capitec-content-box>
-		</capitec-side-sheet>`;
+	_renderUSSD() {
+		return this.selectedAccessChannelType === `USSD` ?
+		html `
+			<capitec-pc-ussd-profile-details
+			.ussd="${this.status.ussd}"
+			.showSideSheet="${this.showSideSheet}"
+
+			.cancelUSSD="${() => this.cancelUSSD()}"
+			.unblockSIM="${() => this.unblockSIM()}"
+			.activateFullMenuUSSD="${() => this.activateFullMenuUSSD()}"
+
+			@close-side-sheet="${(event) => this._showSlidingPanel(event)}">
+			</capitec-pc-ussd-profile-details>
+		` : 
+		html ``;
 	}
 
 	_renderLoadingIndicator() {

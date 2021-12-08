@@ -4,7 +4,7 @@
 	},
 	"signalRUrl": "",
 	"DesktopAgent": {
-		"registrationUrl": "http://localhost:8889/subscribe"
+		"registrationUrl": "http://localhost:8888/subscribe"
 	},
 	"otherSystemsURL": {
 		"sbl": "http://SBLDEV01.int.capinet:8102/",
