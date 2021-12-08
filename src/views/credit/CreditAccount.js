@@ -106,8 +106,13 @@ export class CreditAccount extends ViewBase {
 		
 		if (this.verificationStatus === `verified`) {
 			
-			// TO DO: Credit landing page service call should come here
-			// this._updateLeftBar();
+			/* TO DO: Credit landing page service call should come here.
+					If client has Credit product, navigate to credit landing screens.
+					If client doesn't have Credit product, navigate to non-client - more info screen.
+
+					Update left bar details once available from channel service call*/
+
+			// ${this._updateLeftBar()};
 		}
 		
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
@@ -115,6 +120,7 @@ export class CreditAccount extends ViewBase {
 		this.loading = false;
 	}
 
+	/*
 	_updateLeftBar() {
 		let subtitle = null;
 		let detail = null;
@@ -145,10 +151,7 @@ export class CreditAccount extends ViewBase {
 
 		this.horizonStore.saveState(state);
 	}
-
-	_errorHandler(exception) {
-		this.horizonRouter.navigateToSystemError();
-	}
+	*/
 
 	_transactionHistory() {
 		// TO DO: Place holder for credit transaction history flow.
@@ -188,25 +191,6 @@ export class CreditAccount extends ViewBase {
 	// RENDERING
 	// ---------
 
-	/**
-	 * Generates the view stylesheet.
-	 *
-	 * @readonly
-	 * @static
-	 * @returns {css} CSS for the view.
-	 */
-	static get styles() {
-		return [
-			super.styles,
-			css`
-			.creditAccount{
-				width: 100%;
-				height: var(--horizon-panel-height, 888px);
-			}
-			`
-		];
-	}
-
 	_mobileTemplate() {
 		return this._webTemplate();
 	}
@@ -227,9 +211,9 @@ export class CreditAccount extends ViewBase {
 
 	_renderCreditVerifiedLandingPage() {
 		return html`
-		<capitec-pc-credit-account
-			@option-click = "${(e) => this._optionClick(e.detail.option)}">
-		</capitec-pc-credit-account>`;
+			<capitec-pc-credit-account
+				@option-click = "${(e) => this._optionClick(e.detail.option)}">
+			</capitec-pc-credit-account>`;
 	}
 	
 

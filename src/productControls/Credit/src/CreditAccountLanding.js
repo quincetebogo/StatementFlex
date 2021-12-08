@@ -146,17 +146,13 @@ export class CreditAccountLanding extends Component {
 					margin: 17px 0px 15px 0px;
 					width: auto;
 				}
-				horizon-option-button {
-					width: 204px;
-					height: 80px;
-
-					--horizon-option-btn-text-margin-top: 3px;
-				}
-				.button-margin {
-					height: 80px;
+				.options-group > horizon-option-button {
 					width: 186px;
+					height: 80px;
 					margin-left: 16px;
 					padding: 0px;
+
+					--horizon-option-btn-text-margin-top: 3px;
 					--horizon-option-btn-icon-height: 26px;
 					--horizon-option-btn-icon-width: 26px;
 				}
@@ -172,6 +168,9 @@ export class CreditAccountLanding extends Component {
 				}
 				horizon-expander[expanded] {
 					box-shadow: 0 6px 10px 0.25px rgb(0 0 0 / 7%);
+				}
+				.expander-budget-facility {
+					--theme-expander-header-height: 112px;
 				}
 				.expander-header > capitec-icon {
 					--theme-icon-size-default: 20px;
@@ -236,7 +235,7 @@ export class CreditAccountLanding extends Component {
 				.budget-banner > horizon-label[label="Total budget balance"] {
 					margin-left: 90px;
 				}
-				.budget-banner > horizon-label[label="Total budget insalment (monthly)"] {
+				.budget-banner > horizon-label[label="Total budget instalment (monthly)"] {
 					width: auto;
 				}
 				.budget-banner > capitec-hyperlink {
@@ -292,12 +291,12 @@ export class CreditAccountLanding extends Component {
 						<capitec-tab
 							data-automation-id="credit-account-flexible-credit-tab"
 							label="Flexible Credit">
-							${this._renderFlexibleCreditTab()}
+								${this._renderFlexibleCreditTab()}
 						</capitec-tab>
 						<capitec-tab
 							data-automation-id="credit-account-fixed-term-tab"
 							label="Fixed Term Credit">
-							${this._renderFixedTermCreditTab()}
+								${this._renderFixedTermCreditTab()}
 						</capitec-tab>
 					</capitec-tab-group>
 
@@ -306,22 +305,22 @@ export class CreditAccountLanding extends Component {
 	}
 
 	_renderFlexibleCreditTab() {
-		// Temporaty constant which shows if client has credit products.
+		// Temporary constant which shows if client has credit products.
 		// TO DO: Later to be replaced with information received from CS call.
 		const accountsAvailable = true;
-		const showBudgetFacilityBaner = true;
+		const showBudgetFacilityBanner = true;
 		
 		return accountsAvailable
 		? html`
-			${this._renderFlexibleAccounts(showBudgetFacilityBaner)}`
+			${this._renderFlexibleAccounts(showBudgetFacilityBanner)}`
 		: html`
 			${this._renderCreditNotAvailable(`flexible`)}`;
 	}
 
 	_renderFixedTermCreditTab() {
-		// Temporaty constant which shows if client has credit products.
+		// Temporary constant which shows if client has credit products.
 		// TO DO: Later to be replaced with information received from CS call.
-		const accountsAvailable = false;
+		const accountsAvailable = true;
 		
 		return accountsAvailable
 		? html`
@@ -330,12 +329,13 @@ export class CreditAccountLanding extends Component {
 			${this._renderCreditNotAvailable(`fixed term`)}`;
 	}
 
-	_renderFlexibleAccounts(showBudgetFacilityBaner) {
+	_renderFlexibleAccounts(showBudgetFacilityBanner) {
 
 		// TO DO: Expanders to be rendered dynamicaly once CS data is available
 		return html`
 			<capitec-content-box class="accounts-box">
 				<horizon-expander
+					class="${showBudgetFacilityBanner ? `expander-budget-facility` : ``}"
 					expandButtonAlignment="right"
 					.expanded="${true}">
 						<capitec-group 
@@ -394,13 +394,13 @@ export class CreditAccountLanding extends Component {
 										type="default"
 										label="Budget facilities"
 										class="budget-banner"
-										?hidden="${!showBudgetFacilityBaner}">
+										?hidden="${!showBudgetFacilityBanner}">
 											<horizon-label 
 												label="Total budget balance"
 												value="R35 000.00">
 											</horizon-label>
 											<horizon-label
-												label="Total budget insalment (monthly)"
+												label="Total budget instalment (monthly)"
 												value="R1 564.76">
 											</horizon-label>
 
@@ -677,7 +677,6 @@ export class CreditAccountLanding extends Component {
 			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
 				<horizon-option-button 
 						data-automation-id="credit-account-transaction-history"
-						class="button-margin"
 						label="Transaction History"
 						icon="system/time-action"
 						?hidden="${false}"
@@ -685,7 +684,6 @@ export class CreditAccountLanding extends Component {
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="credit-account-statements"
-						class="button-margin"
 						label="Statements"
 						icon="system/documents-action"
 						?hidden="${false}"
@@ -693,7 +691,6 @@ export class CreditAccountLanding extends Component {
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="credit-account-settlement-quote"
-						class="button-margin"
 						label="Settlement Quote"
 						icon="system/documents-action"
 						?hidden="${false}"
@@ -701,7 +698,6 @@ export class CreditAccountLanding extends Component {
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="credit-account-paid-up-letter"
-						class="button-margin"
 						label="Paid up Letter"
 						icon="system/documents-action"
 						?hidden="${true}"
@@ -709,7 +705,6 @@ export class CreditAccountLanding extends Component {
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="credit-account-settle-close"
-						class="button-margin"
 						label="Settle & Close"
 						icon="system/close-circle-action"
 						?hidden="${false}"
@@ -717,7 +712,6 @@ export class CreditAccountLanding extends Component {
 				</horizon-option-button>
 				<horizon-option-button
 						data-automation-id="credit-account-budget-facility"
-						class="button-margin"
 						label="Budget Facility"
 						icon="system/documents-action"
 						?hidden="${true}"
@@ -766,7 +760,6 @@ export class CreditAccountLanding extends Component {
 				<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
 					<horizon-option-button
 							data-automation-id="credit-account-product-enquiry"
-							class="button-margin"
 							label="Product enquiry"
 							icon="system/info-action"
 							@click="${() => this._click(`product-enquiry`)}">
