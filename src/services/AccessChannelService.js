@@ -23,7 +23,11 @@ export class AccessChannelService extends ChannelServiceBase {
 		);
 	}
 
-	accessChannelStatus(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async accessChannelStatus(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`accessChannel`)) {
+			return this.mock(`accessChannel`);
+		}
+
 		const url = `/clientcare-accesschannels-${this._version}/access-channels?cif=${cifNumber}`;
 		return this.get(
 			url, 
