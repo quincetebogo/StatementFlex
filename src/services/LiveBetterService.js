@@ -1,23 +1,33 @@
-import { DEFAULT_AUTO_RETRIES, ServiceBase } from 'app/services/ServiceBase';
+import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
 
 /**
  * Channel Service Methods for Live Better flow
  *
  * @export
  * @class LiveBetterService
- * @extends {ServiceBase}
+ * @extends {ChannelServiceBase}
  */
-export class LiveBetterService extends ServiceBase {
+export class LiveBetterService extends ChannelServiceBase {
 	// --------------
 	// INITIALISATION
 	// --------------
-	constructor(toggleBusyFunc, errorHandler = null) {
-		super(toggleBusyFunc, errorHandler);
+	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null) {
+		super(
+			toggleBusyFunc, 
+			defaultErrorHandlerFunc, 
+			`serviceURIs.channelServiceUrl`, 
+			`HorizonChannelService`, 
+			`v1`, 
+			() => import(`../mocks/HorizonChannelServiceMocks.js`)
+		);
+
+		this._version_2 = `v2`;
 	}
 
 	// --------------
 	// PUBLIC METHODS
 	// --------------
+
 
 	/**
 	 * Get Live better savings account landing page information
@@ -27,8 +37,23 @@ export class LiveBetterService extends ServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
- 	liveBetterLanding (clientDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.liveBetterLanding(clientDetails), `liveBetterLanding`, errorHandler, autoRetries);
+ 	async liveBetterLanding (clientDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`liveBetterLanding`)) {
+			return this.mock(`liveBetterLanding`);
+		}
+
+		return this.post(
+			`/clientcare-lbb-${this._version_2}/landing`, 
+			clientDetails,
+			this.setToken(), 
+			`liveBetterLanding`,
+			null,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
 
 		
@@ -40,8 +65,23 @@ export class LiveBetterService extends ServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	 liveBetterTransactionHistory (transactionHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.liveBetterTransactionHistory(transactionHistoryRequest), `liveBetterTransactionHistory`, errorHandler, autoRetries);
+	 async liveBetterTransactionHistory (transactionHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`liveBetterTransactionHistory`)) {
+			return this.mock(`liveBetterTransactionHistory`, transactionHistoryRequest);
+		}
+
+		return this.post(
+			`/clientcare-lbb-${this._version_2}/transactions`, 
+			transactionHistoryRequest, 
+			this.setToken(), 
+			`liveBetterTransactionHistory`,
+			null,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
 
 	/**
@@ -52,7 +92,22 @@ export class LiveBetterService extends ServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	 lbbLinkedTransactionDetails (transactionHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.lbbLinkedTransactionDetails(transactionHistoryRequest), `lbbLinkedTransactionDetails`, errorHandler, autoRetries);
+	 async lbbLinkedTransactionDetails (transactionHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`lbbLinkedTransactionDetails`)) {
+			return this._mock.lbbLinkedTransactionDetails(transactionHistoryRequest);
+		}
+
+		return this.post(
+			`/clientcare-lbb-${this._version_2}/transaction-detail`, 
+			transactionHistoryRequest, 
+			this.setToken(), 
+			`lbbLinkedTransactionDetails`,
+			null,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
 }

@@ -1,4 +1,4 @@
-import { DEFAULT_AUTO_RETRIES, ServiceBase } from 'app/services/ServiceBase';
+import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
 import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 
 /**
@@ -6,14 +6,21 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
  *
  * @export
  * @class SavingsAccountService
- * @extends {ServiceBase}
+ * @extends {ChannelServiceBase}
  */
-export class SavingsAccountService extends ServiceBase {
+export class SavingsAccountService extends ChannelServiceBase {
 	// --------------
 	// INITIALISATION
 	// --------------
-	constructor(toggleBusyFunc, errorHandler = null) {
-		super(toggleBusyFunc, errorHandler);
+	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null) {
+		super(
+			toggleBusyFunc, 
+			defaultErrorHandlerFunc, 
+			`serviceURIs.channelServiceUrl`, 
+			`HorizonChannelService`, 
+			`v1`, 
+			() => import(`../mocks/HorizonChannelServiceMocks.js`)
+		);
 	}
 
 	// --------------
@@ -31,7 +38,28 @@ export class SavingsAccountService extends ServiceBase {
 	async debiCheckMandates(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag, null, false);
 
-		return this.wrapCall(this.channelService.debiCheckMandates(cifNumber), `debiCheckMandates`, errorHandler, autoRetries);
+		if (await this.isMockEnabled(`debiCheckMandates`)) {
+			return this.mock(`debiCheckMandates`, cifNumber);
+		}
+
+		const request = {
+			cifNumber: cifNumber
+		};
+
+		const url = `/clientcare-debicheck-${this._version}/client-mandate`;
+
+		return this.post(
+			url, 
+			request, 
+			this.setToken(), 
+			`debiCheckMandates`,
+			null,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
 	
 	/**
@@ -44,8 +72,31 @@ export class SavingsAccountService extends ServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	debiCheckDetails(cifNumber, mandateId, registerId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.debiCheckDetails(cifNumber, mandateId, registerId), `debiCheckDetails`, errorHandler, autoRetries);
+	async debiCheckDetails(cifNumber, mandateId, registerId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`debiCheckDetails`)) {
+			return this.mock(`debiCheckDetails`, cifNumber, mandateId, registerId);
+		}
+
+		const request = {
+			cifNumber: cifNumber,
+			mandateId: mandateId,
+			registerId: registerId
+		};
+
+		const url = `/clientcare-debicheck-${this._version}/client-mandate-details`;
+
+		return this.post(
+			url, 
+			request, 
+			this.setToken(), 
+			`debiCheckDetails`,
+			null,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
 
 	/**
@@ -54,7 +105,7 @@ export class SavingsAccountService extends ServiceBase {
 	 * @param {string} cifNumber The Client's CIF number
 	 * @param {string} mandateReferenceNumber mandate refernece number
 	 * @param {string} debtorAccountNumber debtor account number
-     * @param {boolean} accepted true if accepted and false if declined
+	 * @param {boolean} accepted true if accepted and false if declined
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
@@ -62,10 +113,30 @@ export class SavingsAccountService extends ServiceBase {
 	async debiCheckAuthenticate(cifNumber, mandateReferenceNumber, debtorAccountNumber, accepted, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
-		return this.wrapCall(this.channelService.debiCheckAuthenticate(cifNumber, mandateReferenceNumber, debtorAccountNumber, accepted), `debiCheckAuthenticate`, errorHandler, autoRetries);
+		const request = {
+			cifNumber: cifNumber,
+			mandateReferenceNumber: mandateReferenceNumber,
+			debtorAccountNumber: debtorAccountNumber,
+			accepted: accepted
+		};
+
+		const url = `/clientcare-debicheck-${this._version}/client-mandate-authenticate`;
+
+		return this.post(
+			url, 
+			request, 
+			this.setToken(), 
+			`debiCheckAuthenticate`,
+			null,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
 
-    /**
+	/**
 	 * Confirm agreement of decline/approve debi-check mandate
 	 *
 	 * @param {Object} mandateInfo Information about the mandate and account holder
@@ -75,11 +146,56 @@ export class SavingsAccountService extends ServiceBase {
 	 */
 	async debiCheckConfirmAgreement (mandateInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
-		
-		return this.wrapCall(this.channelService.debiCheckConfirmAgreement(mandateInfo), `debiCheckConfirmAgreement`, errorHandler, autoRetries);
+
+		if (await this.IsMockEnabled(`debiCheckConfirmAgreement`)) {
+			return this.mock(`debiCheckConfirmAgreement`, mandateInfo);
+		}
+	
+		const request = {
+			cifNumber: mandateInfo.cifNumber,
+			mandateRef: mandateInfo.mandateRef,
+			title: mandateInfo.title,
+			firstName: mandateInfo.firstName,
+			surname: mandateInfo.surname,
+			middleName: mandateInfo.middleName,
+			identificationNumber: mandateInfo.identificationNumber,
+			residentialAddress: mandateInfo.residentialAddress,
+			postalAddress: mandateInfo.postalAddress,
+			cellphone: mandateInfo.cellphone,
+			homeNumber: mandateInfo.homeNumber,
+			workNumber: mandateInfo.workNumber,
+			savingsAccountNumber: mandateInfo.savingsAccountNumber,
+			cardNumber: mandateInfo.cardNumber,
+			contractReference: mandateInfo.contractReference,
+			instalmentAmount: mandateInfo.instalmentAmount,
+			frequency: mandateInfo.frequency,
+			firstCollectionDate: mandateInfo.firstCollectionDate,
+			collectionDayFrequencyWording: mandateInfo.collectionDayFrequencyWording,
+			ultimateDebtorName: mandateInfo.debitAccountName,            
+			debitAccountName: mandateInfo.debitAccountName,
+			accountConfirmation: mandateInfo.accountConfirmation,
+			instalmentConfirmation: mandateInfo.instalmentConfirmation,
+			permissionToDebit: mandateInfo.permissionToDebit,
+			termsAndConditionsConfirmation: mandateInfo.termsAndConditionsConfirmation
+		};
+
+		const url = `/clientcare-debicheck-${this._version}/client-mandate-confirm-agreement`;
+
+		return this.post(
+			url, 
+			request, 
+			this.setToken(), 
+			`debiCheckConfirmAgreement`,
+			null,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
 
-    /**
+	/**
 	 * Agreement of approve debi-check mandate
 	 *
 	 * @param {Object} mandateInfo Information about the mandate and account holder
@@ -89,7 +205,32 @@ export class SavingsAccountService extends ServiceBase {
 	 */
 
 	debiCheckAgreement (clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.debiCheckAgreement(clientInfo), `debiCheckAgreement`, errorHandler, autoRetries);
+		const request = {
+				title: clientInfo.title,
+				firstName: clientInfo.firstName,
+			surname: clientInfo.surname,
+			identificationNumber: clientInfo.identificationNumber,
+			savingsAccountNumber: clientInfo.savingsAccountNumber,
+			registerId: clientInfo.registerId,
+			mandateId: clientInfo.mandateId,
+			mandateReferenceNumber: clientInfo.mandateReferenceNumber,
+			cifNumber: clientInfo.cifNumber 
+		};
+		
+		const url = `/clientcare-debicheck-${this._version}/client-mandate-agreement-template`;
+
+		return this.post(
+			url, 
+			request, 
+			this.setToken(), 
+			`debiCheckAgreement`,
+			null,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
 	
 	/**
@@ -100,8 +241,51 @@ export class SavingsAccountService extends ServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	transactionHistory (transactionHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.transactionHistory(transactionHistoryRequest), `transactionHistory`, errorHandler, autoRetries);
+	async transactionHistory (transactionHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`transactionHistory`)) {
+			return this.mock(`transactionHistory`, transactionHistoryRequest);
+		}
+
+		const url = `/clientcare-savingsaccount-${this._version}/client/transactions?` +
+			`CIFNumber=${transactionHistoryRequest.cifNumber}&` +
+			`AccountNumber=${transactionHistoryRequest.accountNumber}&` +
+			`AccountType=${transactionHistoryRequest.accountType}&` +
+			`StartDate=${transactionHistoryRequest.startDate}&` +
+			`EndDate=${transactionHistoryRequest.endDate}&` +
+			`StartAtIndex=${transactionHistoryRequest.startAtIndex}&` +
+			`MaxResults=${transactionHistoryRequest.maxResults}&` +
+			`MoneyType=${transactionHistoryRequest.moneyType}`;
+
+		return this.get(
+			url, 
+			this.setToken(), 
+			`transactionHistory`, 
+			false, 
+			2000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+
+		/*
+		const url = `/clientcare-savingsaccount-${this._version}/client/transactions`;
+
+		return this._post(
+			url,
+			{
+				'cifNumber': transactionHistoryRequest.cifNumber,
+				'accountNumber': transactionHistoryRequest.accountNumber,
+				'accountType': transactionHistoryRequest.accountType,
+				'startDate': transactionHistoryRequest.startDate,
+				'endDate': transactionHistoryRequest.endDate,
+				'startAtIndex': transactionHistoryRequest.startAtIndex,
+				'maxResults': transactionHistoryRequest.maxResults,
+				'moneyType': transactionHistoryRequest.moneyType
+			}, 
+			this._setToken(), 
+			`transactionHistory`, null, null, 2000
+		);
+		*/
 	}
 
 	/**
@@ -114,7 +298,40 @@ export class SavingsAccountService extends ServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
- 	savingsAccountLanding (cifNumber, nationalIDNumber, getGenericData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.savingsAccountLanding(cifNumber, nationalIDNumber, getGenericData), `savingsAccountLanding`, errorHandler, autoRetries);
+ 	async savingsAccountLanding (cifNumber, nationalIDNumber, getGenericData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`savingsAccountLanding`)) {
+			return this.mock(`savingsAccountLanding`, cifNumber, nationalIDNumber, getGenericData);
+		}
+
+		const url = `/clientcare-savingsaccount-${this._version}/landing?` +
+			`CifNumber=${cifNumber}&` +
+			`NationalIDNumber=${nationalIDNumber}&` +
+			`GetGenericData=${getGenericData}`;
+		
+		return this.get(
+			url, 
+			this.setToken(), 
+			`savingsAccountLanding`,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+
+		/*
+		const url = `/clientcare-savingsaccount-${this._version}/landing`;
+
+		return this._post(
+			url,
+			{
+				'cifNumber': cifNumber,
+				'nationalIDNumber': nationalIDNumber,
+				'getGenericData': getGenericData
+			},
+			this._setToken(), 
+			`savingsAccountLanding`
+		);
+		*/
 	}
 }
