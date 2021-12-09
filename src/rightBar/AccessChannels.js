@@ -7,6 +7,7 @@ import { Utilities } from 'platform/Utilities';
 
 import 'app/productControls/AccessChannels/src/AccessChannels';
 import 'app/productControls/AccessChannels/src/AppProfileDetails';
+import 'app/productControls/AccessChannels/src/USSDProfileDetails';
 import 'app/webComponents/src/SideSheet';
 import 'platform/components';
 
@@ -107,6 +108,34 @@ export class AccessChannels extends Component {
 		return true;
 	}
 
+	
+	cancelUSSD() {
+		// TO DO: add channel service call to cancel USSD service
+		// If cancel is successful, show toast, update ussd status, else show error
+		this.status.ussd.status = `Blocked`;
+		this.status.ussd.dateLastUpdated = new Date().toISOString();
+		
+		this._deepCopyStatus();
+		return true;
+	}
+
+	unblockSIM() {
+		// TO DO: add channel service call to unblock SIM - ussd
+		// If unblock is successful, show toast, update ussd status, else show error
+		this.status.ussd.isSimBlocked = false;
+		this.status.ussd.dateLastUpdated = new Date().toISOString();
+		
+		this._deepCopyStatus();
+		return true;
+	}
+
+	activateFullMenuUSSD() {
+		// TO DO: add code to activate full menu for currently active ussd clients
+		// If client has active ussd, menu reduced, activate full menu function
+		this.status.ussdActive = true;
+		return true;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -125,6 +154,7 @@ export class AccessChannels extends Component {
 	
 		if (returnValue.succeeded) {
 			this.status = returnValue.result;
+
 			return;
 		}
 		this.logger.log(`error`, `Failed to load access channel information`, `_accessChannelService`, returnValue.correlationId);
@@ -159,33 +189,50 @@ export class AccessChannels extends Component {
 		return html`
 			${this._renderAccessChannels()}
 			${this._renderLoadingIndicator()}
+
 			${this._renderAppPanel()}
-		`;
+			${this._renderUSSD()}`;
 	}
 
 	_renderAccessChannels() {
-		return this.status 
-		? html`
-		<capitec-pc-access-channels
-			.status=${this.status}
-			@tile-click="${(event) => this._showSlidingPanel(event)}">
-		</capitec-pc-access-channels>`
-		: html``;
+		return this.status
+			? html`
+				<capitec-pc-access-channels
+					.status=${this.status}
+					@tile-click="${(event) => this._showSlidingPanel(event)}">
+				</capitec-pc-access-channels>`
+			: html``;
 	}
 
 	_renderAppPanel() {
 		return this.selectedAccessChannelType === ACCESS_CHANNELS_TYPE.APP
-		? html`
-			<capitec-pc-app-profile-details
-				.appDetails = "${this.status.app}"
-				?showSideSheet = "${this.showSideSheet}"
+			? html`
+				<capitec-pc-app-profile-details
+					.appDetails = "${this.status.app}"
+					?showSideSheet = "${this.showSideSheet}"
 
-				.suspendApp = "${() => this.suspendApp()}"
-				.unsuspendApp = "${() => this.unsuspendApp()}"
+					.suspendApp = "${() => this.suspendApp()}"
+					.unsuspendApp = "${() => this.unsuspendApp()}"
 
-				@close-side-sheet ="${(event) => this._showSlidingPanel(event)}" >
-			</capitec-pc-app-profile-details>`
-		: html``;
+					@close-side-sheet ="${(event) => this._showSlidingPanel(event)}" >
+				</capitec-pc-app-profile-details>`
+			: html``;
+	}
+
+	_renderUSSD() {
+		return this.selectedAccessChannelType === ACCESS_CHANNELS_TYPE.USSD
+			? html`
+				<capitec-pc-ussd-profile-details
+				.ussd="${this.status.ussd}"
+				?showSideSheet="${this.showSideSheet}"
+
+				.cancelUSSD="${() => this.cancelUSSD()}"
+				.unblockSIM="${() => this.unblockSIM()}"
+				.activateFullMenuUSSD="${() => this.activateFullMenuUSSD()}"
+
+				@close-side-sheet="${(event) => this._showSlidingPanel(event)}">
+				</capitec-pc-ussd-profile-details>`
+			: html``;
 	}
 
 	_renderLoadingIndicator() {
@@ -196,5 +243,4 @@ export class AccessChannels extends Component {
 		return html``;
 	}
 }
-
 window.customElements.define(`horizon-access-channels`, AccessChannels);
