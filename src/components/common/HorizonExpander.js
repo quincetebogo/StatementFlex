@@ -333,7 +333,7 @@ export class Expander extends Component {
 					border: 1px solid #E1E1E1;
 					border-left: var(--theme-expander-border-left, 1px solid #E1E1E1);
 					cursor: pointer;
-					padding: 0px;
+					padding: var(--theme-expander-header-padding, 0px);
 					border-radius:4px;
 					height: 64px;
 				}

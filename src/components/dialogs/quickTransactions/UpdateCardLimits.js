@@ -882,7 +882,7 @@ export class UpdateCardLimits extends Component {
 						<capitec-group layout="horizontal" class="alert-banner-group">
 							<capitec-label type="strong" label="Notify client:"></capitec-label>
 							<capitec-label type="default"
-								label="For added security get the remote banking App to perform additional transactions, alternatively, visit your nearest branch.">
+								label="For added security get the App to update your Online limit, alternatively, visit your nearest branch.">
 							</capitec-label>
 							<capitec-spacer></capitec-spacer>
 						</capitec-group>
