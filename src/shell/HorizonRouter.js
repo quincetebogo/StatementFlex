@@ -44,9 +44,9 @@ const HORIZON_ROUTES = Object.freeze({
 	TAX_CERTIFICATE_SERVICE_ERROR: `/error/tax-certificate-service-error`,
 	AUTOMATIC_SAVINGS_SUCCESS : `/success/automatic-savings`,
 	AUTOMATIC_SAVINGS_FAILED : `/error/automatic-savings`,
-  	LIVE_BETTER: `/liveBetter`,
+  LIVE_BETTER: `/liveBetter`,
 	LIVE_BETTER_SYSTEM_ERROR : `/error/live-better`
-
+	CREDIT_ACCOUNT: `/transact/credit`
 });
 
 
@@ -261,7 +261,7 @@ export class HorizonRouter {
 		// const insure = hasInsuranceProducts ? () => this.navigateToInsureExistingClient() : () => this.navigateToInsureProspectiveClient();
 		const insure = () => this.navigateToProductInfo(`Insure`);
 		const savings = () => this.navigateToSavingsAccount();
-		const credit = () => this.navigateToProductInfo(`Credit`);
+		const credit = () => this.navigateToCreditAccount();
 		const savingsPlan = () => this.navigateToProductInfo(`SavingsPlan`);
 		const liveBetterSavings = () => this.navigateToLiveBetter();
 		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
@@ -311,6 +311,10 @@ export class HorizonRouter {
 
 	navigateToTapToPaySuccess() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.TAP_TO_PAY_SUCCESSFUL}`);
+	}
+
+	navigateToCreditAccount() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.CREDIT_ACCOUNT}`);
 	}
 
 	navigateToLiveBetter() {
@@ -772,5 +776,13 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.LIVE_BETTER_SYSTEM_ERROR,
 		load: () => import(`../views/liveBetter/LBBServiceUnavailable`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
-	}
+	},
+	{
+		name: `horizon-credit-account`,
+		title: `CreditAccount`,
+		icon: null,
+		path: HORIZON_ROUTES.CREDIT_ACCOUNT,
+		load: () => import(`../views/credit/CreditAccount`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	}  
 ];

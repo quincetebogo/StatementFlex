@@ -53,10 +53,6 @@ export class QuickTransactionsService extends ServiceBase {
 		return this.wrapCall(this.channelService.cardLimitsLanding(cifNumber, incidentRecId), `cardLimitsLanding`, errorHandler, autoRetries);
 	}
 
-	getCardLimits(cardDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.getCardLimits(cardDetails), `getCardLimits`, errorHandler, autoRetries);
-	}
-
 	async sendProofOfAccount(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 		
