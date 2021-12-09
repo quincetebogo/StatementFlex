@@ -131,7 +131,11 @@ export class AccessChannels extends Component {
 	activateFullMenuUSSD() {
 		// TO DO: add code to activate full menu for currently active ussd clients
 		// If client has active ussd, menu reduced, activate full menu function
-		this.status.ussdActive = true;
+		
+		const indexOfReducedMenu = this.status.ussd.features.indexOf(`REDUCED_MENU`);
+		this.status.ussd.features.splice(indexOfReducedMenu, 1);
+		
+		this._deepCopyStatus();
 		return true;
 	}
 
@@ -218,11 +222,11 @@ export class AccessChannels extends Component {
 	}
 
 	_renderUSSD() {
-		return this.selectedAccessChannelType === `ussd` 
+		return this.selectedAccessChannelType === ACCESS_CHANNELS_TYPE.USSD
 		? html`
 			<capitec-pc-ussd-profile-details
 			.ussd="${this.status.ussd}"
-			.showSideSheet="${this.showSideSheet}"
+			?showSideSheet="${this.showSideSheet}"
 
 			.cancelUSSD="${() => this.cancelUSSD()}"
 			.unblockSIM="${() => this.unblockSIM()}"

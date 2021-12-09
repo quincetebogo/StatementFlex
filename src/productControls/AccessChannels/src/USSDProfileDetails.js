@@ -9,6 +9,8 @@ export class USSDProfileDetails extends Component {
 	constructor() {
 		super();
 
+		this.showSideSheet = false;
+
 		this.displaySuccessToast = false;
 		this.showCancelReasons = false;
 		this.showNotificationBanner = false;
@@ -29,12 +31,16 @@ export class USSDProfileDetails extends Component {
 	
 	/**
 	 * @callback cancelUSSD
-	 * @returns {cancelUSSDCallback} - Success or failure response from cancelling the USSD services
+	 * @returns {cancelUSSDCallback} - Success or failure response from cancelling the USSD services.
 	 */
 
 	/**
 	 * @callback unblockSIM
-	 * @returns {unblockSIMCallback} - Success or failure response from Unblocking SIM
+	 * @returns {unblockSIMCallback} - Success or failure response from Unblocking SIM.
+	
+	 /**
+	 * @callback activateFullMenuUSSD
+	 * @returns {activateFullMenuUSSDCallback} - Success or failure response for activating full ussd.
 
 	 * 
 	 * @property {Boolean} [showSideSheet] - To toggle Side sheet component
@@ -53,12 +59,12 @@ export class USSDProfileDetails extends Component {
 		return {
 			showSideSheet: { type: Boolean },
 			ussd: { type: Object },
-			ussdStatus: { type: String },
 
-			cancelUSSD: { type: Object },
-			activateFullMenuUSSD: { type: Object },
-			unblockSIM: { type: Object },
+			cancelUSSD: { type: Object, attribute: false },
+			activateFullMenuUSSD: { type: Object, attribute: false },
+			unblockSIM: { type: Object, attribute: false },
 			
+			ussdStatus: { state: true },
 			displaySuccessToast: { state: true },
 			showCancelReasons: { state: true },
 			showNotificationBanner: { state: true },
@@ -127,9 +133,12 @@ export class USSDProfileDetails extends Component {
 		} 
 	}
 
-	_activateFullMenu() {
-        this.ussdStatus = `Active | Reduced menu`;
-		this._displayAndCloseToast(`The full menu is active.`);
+	async _activateFullMenu() {
+		const returnValue = await this.activateFullMenuUSSD();
+
+		if (returnValue) {
+			this._displayAndCloseToast(`The full menu is active.`);
+		}
 	}
 
 	_onCancelReasonSelected(event) {
@@ -189,6 +198,16 @@ export class USSDProfileDetails extends Component {
 		const localTime = formatedDate.toLocaleTimeString();
 		return localTime.replace(localTime.slice(-6, -2), ` `);
 	}
+
+	_getUssdStatus() {
+
+		const ussdStatus = this.ussdStatus === `Blocked` ? `Cancelled` : this.ussdStatus;
+		const SIMStatus = this.ussd.isSimBlocked ? `Blocked: SIM Swop` : ``;
+		const menuStatus = this.ussd.features.includes(`REDUCED_MENU`) && this.ussdStatus !== `Blocked`? ` | Reduced menu` : ``;
+
+		return `${this.ussd.isSimBlocked ? SIMStatus : ussdStatus}${menuStatus}`;
+	}
+	
 	// ---------
 	// RENDERING
 	// ---------
@@ -243,7 +262,7 @@ export class USSDProfileDetails extends Component {
 			.content-box > horizon-label[value="Cancelled"] {
 				--horizon-label-value-color: #a5132a;
 			}
-			.content-box > horizon-label[value="Blocked: SIM Swop | reduced menu"] {
+			.content-box > horizon-label[value*="Blocked"] {
 				--horizon-label-value-color: #a5132a;
 			}
 			.content-box > horizon-label[value="Active | Reduced menu"] {
@@ -328,7 +347,7 @@ export class USSDProfileDetails extends Component {
 			@keyframes slideDown {
 				0% {
 					transform: translateY(-50%);
-				},
+				};
 				100% {
 					transform: translateY(100%);
 				}
@@ -388,14 +407,14 @@ export class USSDProfileDetails extends Component {
 					halign="left"
 					valign="top"
 					gap="none">
-					<horizon-label 
+					<horizon-label
 						data-automation-id=""
 						class="dateRegistered"
 						label="Date registered"
 						value="${this._formatDate(this.ussd.dateRegistered)}, ${this._formatTime(this.ussd.dateRegistered)}">
 					</horizon-label>
 
-					<horizon-label 
+					<horizon-label
 						data-automation-id=""
 						class="cellNumber"
 						label="Cellphone number (verified)"
@@ -413,7 +432,7 @@ export class USSDProfileDetails extends Component {
 						data-automation-id=""
 						class="ussdStatus"
 						label="Status"
-						value="${this.ussd.isSimBlocked ? `Blocked: SIM Swop | reduced menu` : this.ussdStatus === `Blocked` && !this.ussd.isSimBlocked ? `Cancelled` : this.ussdStatus}">
+						value="${this._getUssdStatus()}">
 					</horizon-label>
 
 					<horizon-label 
@@ -427,9 +446,8 @@ export class USSDProfileDetails extends Component {
 						data-automation-id=""
 						class="cancelling"
 						label="Reason for cancelling"
-						value="${this.cancelReason || this.ussd.statusReason}"
-						style="display:${this.ussdStatus === `Active` ? `none` : `block`}"
-						>
+						value="${this.cancelReason}"
+						style="display:${isNullorEmpty(this.cancelReason) ? `none` : `block`}">
 					</horizon-label>
 
 					${this._renderButtons()}
@@ -442,7 +460,7 @@ export class USSDProfileDetails extends Component {
 		return html`
 			<capitec-button 
 				label="Activate Full USSD Menu" 
-				?hidden="${this.ussd.isSimBlocked || this.ussdStatus === `Blocked` || this.ussdStatus === `Active`}"
+				?hidden="${!this.ussd.features.includes(`REDUCED_MENU`) || this.ussd.isSimBlocked || this.ussdStatus === `Blocked`}"
 				@click="${() => this._activateFullMenu()}">
 			</capitec-button>
 
