@@ -100,7 +100,13 @@ export class AccessChannels extends Component {
 
 		if (isNullorEmpty(status)) {
 			return `Channel service is down`;
-		} 
+		}
+		if (type === ACCESS_CHANNELS_TYPE.USSD && this.status.ussd.isSimBlocked) {
+			return `Blocked | SIM Swop detected`;
+		}
+		if (type === ACCESS_CHANNELS_TYPE.USSD && this.status.ussd.features.includes(`REDUCED_MENU`) && status !== ACCESS_CHANNEL_STATUS.BLOCKED) {
+			return `${status} | Reduced menu`;
+		}
 
 		switch (status) {
 			case ACCESS_CHANNEL_STATUS.ACTIVE:
@@ -111,6 +117,20 @@ export class AccessChannels extends Component {
 			default:
 				return status;
 		}
+	}
+
+	_getUssdStatus(ussdDetails) {
+
+		if (isNullorEmpty(ussdDetails)) {
+			return ACCESS_CHANNEL_STATUS.UNAVAILABLE;
+		}
+		if (ussdDetails.isSimBlocked || ussdDetails.status === ACCESS_CHANNEL_STATUS.BLOCKED) {
+			return ACCESS_CHANNEL_STATUS.BLOCKED;
+		}
+		if (ussdDetails.features.includes(`REDUCED_MENU`)) {
+			return `Reduced menu`;
+		}
+		return ussdDetails.status;
 	}
 
 	// ---------
@@ -153,6 +173,9 @@ export class AccessChannels extends Component {
 				}
 				horizon-product-tile[status="Suspended"], [status="Blocked"], [status="Unavailable"] {
 					--theme-product-tile-default-border-left: 4px solid #a5132a;
+				}
+				horizon-product-tile[status*="Reduced menu"] {
+					--theme-product-tile-default-border-left: 4px solid #d4781c;
 				}
 			`
 		];
@@ -201,7 +224,7 @@ export class AccessChannels extends Component {
 					data-automation-id="access-channels-ussd"
 					type="default"
 					label="USSD"
-					status="${this.status.ussd?.status}"
+					status="${this._getUssdStatus(this.status.ussd)}"
 					subtitle="${this._getStatusDetails(ACCESS_CHANNELS_TYPE.USSD)}"
 					detail=""
 					icon="system/cellphone"

@@ -9,6 +9,8 @@ export class USSDProfileDetails extends Component {
 	constructor() {
 		super();
 
+		this.showSideSheet = false;
+
 		this.displaySuccessToast = false;
 		this.showCancelReasons = false;
 		this.showNotificationBanner = false;
@@ -19,7 +21,7 @@ export class USSDProfileDetails extends Component {
 		this.bannerSubtitle = ``;
 		this.toastDetails = ``;
 
-		//Active, SIM Blocked, ussd Blocked, Service Unavailable - null
+		// Active, SIM Blocked, ussd Blocked, Service Unavailable - null
 		this.ussdStatus = ``;
 	}
 	
@@ -29,12 +31,16 @@ export class USSDProfileDetails extends Component {
 	
 	/**
 	 * @callback cancelUSSD
-	 * @returns {cancelUSSDCallback} - Success or failure response from cancelling the USSD services
+	 * @returns {cancelUSSDCallback} - Success or failure response from cancelling the USSD services.
 	 */
 
 	/**
 	 * @callback unblockSIM
-	 * @returns {unblockSIMCallback} - Success or failure response from Unblocking SIM
+	 * @returns {unblockSIMCallback} - Success or failure response from Unblocking SIM.
+	
+	 /**
+	 * @callback activateFullMenuUSSD
+	 * @returns {activateFullMenuUSSDCallback} - Success or failure response for activating full ussd.
 
 	 * 
 	 * @property {Boolean} [showSideSheet] - To toggle Side sheet component
@@ -53,12 +59,12 @@ export class USSDProfileDetails extends Component {
 		return {
 			showSideSheet: { type: Boolean },
 			ussd: { type: Object },
-			ussdStatus: { type: String },
 
-			cancelUSSD: { type: Object },
-			activateFullMenuUSSD: { type: Object },
-			unblockSIM: { type: Object },
+			cancelUSSD: { type: Object, attribute: false },
+			activateFullMenuUSSD: { type: Object, attribute: false },
+			unblockSIM: { type: Object, attribute: false },
 			
+			ussdStatus: { state: true },
 			displaySuccessToast: { state: true },
 			showCancelReasons: { state: true },
 			showNotificationBanner: { state: true },
@@ -73,7 +79,7 @@ export class USSDProfileDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		
-		this.ussdStatus = this.ussd && this.ussd.status
+		this.ussdStatus = this.ussd && this.ussd.status;
 	}
 
 	disconnectedCallback() {
@@ -92,7 +98,10 @@ export class USSDProfileDetails extends Component {
 		// toggle show or hide of cancel ussd reasons
 		this.showNotificationBanner = false;
 		this.showCancelReasons = !this.showCancelReasons;
-		this.showCancelReasons ? this.cancelReason = ``:'';
+		
+		if (this.showCancelReasons) {
+			this.cancelReason = ``;
+		}
 	}
 
 	async _onUnblockSIM() {
@@ -101,7 +110,7 @@ export class USSDProfileDetails extends Component {
 		if (returnValue) {
 			this.ussd.isSimBlocked = false;
 
-			this._displayAndCloseToast(`SIM for number ${this.ussd.userRegNo} was unblocked successfully.`)
+			this._displayAndCloseToast(`SIM for number ${this.ussd.userRegNo} was unblocked successfully.`);
 		}
 	}
 
@@ -112,7 +121,7 @@ export class USSDProfileDetails extends Component {
 			if (returnValue) {
 				this.ussdStatus = `Blocked`;
 
-				this._displayAndCloseToast("USSD was cancelled. You will need to visit  branch to reactivate USSD");
+				this._displayAndCloseToast(`USSD was cancelled. You will need to visit  branch to reactivate USSD`);
 				this._toggleCancelUSSD();
 				
 				this.showNotificationBanner = true;
@@ -124,13 +133,16 @@ export class USSDProfileDetails extends Component {
 		} 
 	}
 
-	_activateFullMenu() {
-        this.ussdStatus = `Active | Reduced menu`;
-		this._displayAndCloseToast('The full menu is active.')
+	async _activateFullMenu() {
+		const returnValue = await this.activateFullMenuUSSD();
+
+		if (returnValue) {
+			this._displayAndCloseToast(`The full menu is active.`);
+		}
 	}
 
 	_onCancelReasonSelected(event) {
-		if(event.detail.new) {
+		if (event.detail.new) {
 			this.cancelReason = event.currentTarget.label;
 			this.showValidationBanner = false;
 		}
@@ -145,19 +157,19 @@ export class USSDProfileDetails extends Component {
 		if (isNullorEmpty(status)) {
 			this.showNotificationBanner = true;
 			this.bannerTitle = `Notify client`;
-			this.bannerSubtitle = `Services are currently unavailable`
-		}  else if (status === "Active" && !this.ussd.isSimBlocked) {
+			this.bannerSubtitle = `Services are currently unavailable`;
+		} else if (status === `Active` && !this.ussd.isSimBlocked) {
 			this.showNotificationBanner = false;
 		} else if (this.ussd.isSimBlocked) {
 			this.showNotificationBanner = true;
 			this.bannerTitle = `SIM Blocked`;
-			this.bannerSubtitle = `SIM blocked due to SIM swop detected.`
-		} else if (status === "Blocked" && !this.ussd.isSimBlocked) {
+			this.bannerSubtitle = `SIM blocked due to SIM swop detected.`;
+		} else if (status === `Blocked` && !this.ussd.isSimBlocked) {
 			this.showNotificationBanner = true;
 			this.bannerTitle = `Service has been cancelled.`;
-			this.bannerSubtitle = `Visit a branch to reactivate USSD.`
-		} else{
-			//do nothing
+			this.bannerSubtitle = `Visit a branch to reactivate USSD.`;
+		} else {
+			// do nothing
 		}
 	}
 
@@ -169,9 +181,9 @@ export class USSDProfileDetails extends Component {
 		const elementToast = this.shadowRoot.getElementById(`ussd-success-toast`);
 		elementToast.style.animation = `slideDown 0.6s`; 
 
-		window.setTimeout(() =>{
-			elementToast.style.animation = `slideUp 0.6s`
-			window.setTimeout(() =>this.displaySuccessToast = false, 600);
+		window.setTimeout(() => {
+			elementToast.style.animation = `slideUp 0.6s`;
+			window.setTimeout(() => this.displaySuccessToast = false, 600);
 		}, 3000);
 	}
 
@@ -183,9 +195,19 @@ export class USSDProfileDetails extends Component {
 
 	_formatTime(timeToFormat) {
 		const formatedDate = new Date(timeToFormat);
-		const localTime = formatedDate.toLocaleTimeString()
-		return localTime.replace(localTime.slice(-6,-2), '')
+		const localTime = formatedDate.toLocaleTimeString();
+		return localTime.replace(localTime.slice(-6, -2), ` `);
 	}
+
+	_getUssdStatus() {
+
+		const ussdStatus = this.ussdStatus === `Blocked` ? `Cancelled` : this.ussdStatus;
+		const SIMStatus = this.ussd.isSimBlocked ? `Blocked: SIM Swop` : ``;
+		const menuStatus = this.ussd.features.includes(`REDUCED_MENU`) && this.ussdStatus !== `Blocked`? ` | Reduced menu` : ``;
+
+		return `${this.ussd.isSimBlocked ? SIMStatus : ussdStatus}${menuStatus}`;
+	}
+	
 	// ---------
 	// RENDERING
 	// ---------
@@ -240,7 +262,7 @@ export class USSDProfileDetails extends Component {
 			.content-box > horizon-label[value="Cancelled"] {
 				--horizon-label-value-color: #a5132a;
 			}
-			.content-box > horizon-label[value="Blocked: SIM Swop | reduced menu"] {
+			.content-box > horizon-label[value*="Blocked"] {
 				--horizon-label-value-color: #a5132a;
 			}
 			.content-box > horizon-label[value="Active | Reduced menu"] {
@@ -348,15 +370,14 @@ export class USSDProfileDetails extends Component {
 
 	_webTemplate() {
 		if (isNullorEmpty(this.ussd)) {
-			return html `
+			return html`
 				${this._renderUSSDUnavailable()}
 			`;
-		} else {
-			return html `
-				${this._renderUSSDProfileDetails()}
-				${this._renderCancelUSSD()}
-			`;
 		}
+		return html`
+			${this._renderUSSDProfileDetails()}
+			${this._renderCancelUSSD()}
+		`;
 	}
 
 	_renderUSSDProfileDetails() {
@@ -386,14 +407,14 @@ export class USSDProfileDetails extends Component {
 					halign="left"
 					valign="top"
 					gap="none">
-					<horizon-label 
+					<horizon-label
 						data-automation-id=""
 						class="dateRegistered"
 						label="Date registered"
 						value="${this._formatDate(this.ussd.dateRegistered)}, ${this._formatTime(this.ussd.dateRegistered)}">
 					</horizon-label>
 
-					<horizon-label 
+					<horizon-label
 						data-automation-id=""
 						class="cellNumber"
 						label="Cellphone number (verified)"
@@ -411,7 +432,7 @@ export class USSDProfileDetails extends Component {
 						data-automation-id=""
 						class="ussdStatus"
 						label="Status"
-						value="${this.ussd.isSimBlocked ? `Blocked: SIM Swop | reduced menu` : this.ussdStatus === `Blocked` && !this.ussd.isSimBlocked ? `Cancelled` : this.ussdStatus}">
+						value="${this._getUssdStatus()}">
 					</horizon-label>
 
 					<horizon-label 
@@ -425,9 +446,8 @@ export class USSDProfileDetails extends Component {
 						data-automation-id=""
 						class="cancelling"
 						label="Reason for cancelling"
-						value="${this.cancelReason || this.ussd.statusReason}"
-						style="display:${this.ussdStatus === `Active` ? `none` : `block`}"
-						>
+						value="${this.cancelReason}"
+						style="display:${isNullorEmpty(this.cancelReason) ? `none` : `block`}">
 					</horizon-label>
 
 					${this._renderButtons()}
@@ -437,10 +457,10 @@ export class USSDProfileDetails extends Component {
 	}
 
 	_renderButtons() {
-		return html `
+		return html`
 			<capitec-button 
 				label="Activate Full USSD Menu" 
-				?hidden="${this.ussd.isSimBlocked || this.ussdStatus === `Blocked` || this.ussdStatus === `Active`}"
+				?hidden="${!this.ussd.features.includes(`REDUCED_MENU`) || this.ussd.isSimBlocked || this.ussdStatus === `Blocked`}"
 				@click="${() => this._activateFullMenu()}">
 			</capitec-button>
 
@@ -490,37 +510,37 @@ export class USSDProfileDetails extends Component {
 						<capitec-radio 
 						@value-change="${(event) => this._onCancelReasonSelected(event)}" 
 						label="Do not use service enough"
-						?checked="${this.cancelReason === "Do not use service enough"}">
+						?checked="${this.cancelReason === `Do not use service enough`}">
 					</capitec-radio>
 						<capitec-radio 
 						@value-change="${(event) => this._onCancelReasonSelected(event)}" 
 						label="Changing to remote/internet banking"
-						?checked="${this.cancelReason === "Changing to remote/internet banking"}">
+						?checked="${this.cancelReason === `Changing to remote/internet banking`}">
 					</capitec-radio>
 						<capitec-radio 
 						@value-change="${(event) => this._onCancelReasonSelected(event)}" 
 						label="Mobile banking too expensive"
-						?checked="${this.cancelReason === "Mobile banking too expensive"}">
+						?checked="${this.cancelReason === `Mobile banking too expensive`}">
 					</capitec-radio>
 						<capitec-radio 
 						@value-change="${(event) => this._onCancelReasonSelected(event)}" 
 						label="Mobile banking too complicated"
-						?checked="${this.cancelReason === "Mobile banking too complicated"}">
+						?checked="${this.cancelReason === `Mobile banking too complicated`}">
 					</capitec-radio>
 						<capitec-radio 
 						@value-change="${(event) => this._onCancelReasonSelected(event)}" 
 						label="Need more functions"
-						?checked="${this.cancelReason === "Need more functions"}">
+						?checked="${this.cancelReason === `Need more functions`}">
 					</capitec-radio>
 						<capitec-radio 
 						@value-change="${(event) => this._onCancelReasonSelected(event)}" 
 						label="Lack of support"
-						?checked="${this.cancelReason === "Lack of support"}">
+						?checked="${this.cancelReason === `Lack of support`}">
 					</capitec-radio>
 						<capitec-radio 
 						@value-change="${(event) => this._onCancelReasonSelected(event)}" 
 						label="Closing account"
-						?checked="${this.cancelReason === "Closing account"}">
+						?checked="${this.cancelReason === `Closing account`}">
 					</capitec-radio>
 					</capitec-radio-group>
 
@@ -537,11 +557,11 @@ export class USSDProfileDetails extends Component {
 
 				</capitec-content-box>
 			</capitec-side-sheet>
-		`
+		`;
 	}
 
 	_renderUSSDUnavailable() {
-		return html `
+		return html`
 			<capitec-side-sheet
 				class="unavailable"
 				.expanded="${this.showSideSheet}"
@@ -579,48 +599,47 @@ export class USSDProfileDetails extends Component {
 		// if sim blocked unsuccessful red banner
 		this._checkUssdStatus(this.ussdStatus);
 		
-		return this.showNotificationBanner ?
-			html `
-			<capitec-alert-banner type="unsuccessful-red" layout="vertical">
-			<b>${this.bannerTitle}</b><br>
-			<p>${this.bannerSubtitle}</p>
-			</capitec-alert-banner>
-		` : html ``;
+		return this.showNotificationBanner 
+			? html`
+				<capitec-alert-banner type="unsuccessful-red" layout="vertical">
+				<b>${this.bannerTitle}</b><br>
+				<p>${this.bannerSubtitle}</p>
+				</capitec-alert-banner>`
+			: html``;
 	}
 
 	_renderValidationBanner() {
-		return this.showValidationBanner ? 
-			html`
-				<capitec-alert-banner 
-					class="validate-reasons"
-					type="unsuccessful-red"
-					label=""
-					layout="vertical">
-					<b>Notice</b> <br>
-					<p>Please choose a reason to cancel USSD.</p>
-				</capitec-alert-banner>
-			` : html``;
+		return this.showValidationBanner 
+		? html`
+			<capitec-alert-banner 
+				class="validate-reasons"
+				type="unsuccessful-red"
+				label=""
+				layout="vertical">
+				<b>Notice</b> <br>
+				<p>Please choose a reason to cancel USSD.</p>
+			</capitec-alert-banner>`
+		: html``;
 	}
 
 	_renderToast() {
-		/*  TO DO: "Header" and "Detail" properties can be removed when update platform to the latest version 
-			as content inside slot will be effective.*/
-
-		const formatedUpdatedDate = this._formatDate(this.ussd.dateLastUpdated) + `, ` + this._formatTime(this.ussd.dateLastUpdated);
 		
-		return html `
+		/* TO DO: "Header" and "Detail" properties can be removed when update platform to the latest version 
+			as content inside slot will be effective.*/
+		
+		return html`
 			<capitec-toast 
 				id="ussd-success-toast"
 				type="success" 
 				header="Successful!"
-				detail="${this.toastDetails} &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  ${formatedUpdatedDate}"
+				detail="${this.toastDetails} &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp ${this._formatDate(this.ussd.dateLastUpdated)}, ${this._formatTime(this.ussd.dateLastUpdated)}"
 				?hidden="${!this.displaySuccessToast}"
 				@click="${() => this.displaySuccessToast = false}"
 				closable>
 					<capitec-label label="Successful!" type="strong"></capitec-label>
 					<capitec-label label="${this.toastDetails}"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-label label="${formatedUpdatedDate}" type="strong"></capitec-label>
+					<capitec-label label="${this._formatDate(this.ussd.dateLastUpdated)}, ${this._formatTime(this.ussd.dateLastUpdated)}" type="strong"></capitec-label>
 			</capitec-toast>
 		`;
 	}

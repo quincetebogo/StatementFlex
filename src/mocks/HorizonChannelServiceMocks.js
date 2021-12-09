@@ -231,7 +231,7 @@ export default class HorizonChannelServiceMocks {
 	// Access channels
 
 	accessChannel() {
-		if (this._mocking.accessChannel.positiveCase) {
+		if (this._mockSettings.accessChannel.positiveCase) {
 			return this.accessChannelsMocks.accessChannelsDetails;
 		}
 		return null;
