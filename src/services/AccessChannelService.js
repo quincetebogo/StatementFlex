@@ -19,7 +19,7 @@ export class AccessChannelService extends ChannelServiceBase {
 			`serviceURIs.channelServiceUrl`, 
 			`HorizonChannelService`, 
 			`v1`, 
-			null
+			() => import(`../mocks/HorizonChannelServiceMocks.js`)
 		);
 	}
 
