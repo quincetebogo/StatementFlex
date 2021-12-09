@@ -5,6 +5,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonSignalRClient } from 'app/shell/HorizonSignalRClient';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { ITAChannelService } from 'app/services/ITAChannelService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { VerifyCallerEvents } from 'app/constants/telemetry/events/VerifyCaller';
 import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
@@ -86,6 +87,7 @@ export class VerifyCaller extends Component {
 		this._telemetry = HorizonTelemetry.instance;
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._xdsErrorHandler(ex));
+		this.itaService = new ITAChannelService(() => this._toggleBusyFlag());
 	}
 
 	// ----------
@@ -472,7 +474,7 @@ export class VerifyCaller extends Component {
 				connectionID: connectionID
 			};
 
-			const returnValue = await this.callHandleService.itaVerification(request, (ex) => this._itaErrorHandler(ex));
+			const returnValue = await this.itaService.itaVerification(request, (ex) => this._itaErrorHandler(ex));
 
 			if (returnValue.succeeded) {
 
