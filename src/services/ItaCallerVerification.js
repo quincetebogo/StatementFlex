@@ -1,7 +1,6 @@
 import { Configuration, Logger } from 'platform/core';
-import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonSignalRClient } from 'app/shell/HorizonSignalRClient';
-
+import { ITAChannelService } from 'app/services/ITAChannelService';
 
 /*
 * The Horizon ItaCallerVerification class is used to allow ITA verification logic to be reusable when the client is verified via ITA.
@@ -29,7 +28,7 @@ export class ItaCallerVerification {
 		this.configuration = Configuration.getInstance();
 		this.logger = Logger.getInstance();
 
-		this.callHandleService = new CallHandleService(() => toggleBusyCallback(), () => true);
+		this.itaChannelService = new ITAChannelService(() => toggleBusyCallback(), () => true);
 	}
 
 	/**
@@ -159,7 +158,7 @@ export class ItaCallerVerification {
 			connectionID: connectionID
 		};
 
-		const returnValue = await this.callHandleService.itaVerification(request, () => true);
+		const returnValue = await this.itaChannelService.itaVerification(request, () => true);
 
 		if (returnValue.succeeded) {
 			this.logger.log(`info`, `ITA verification request successfully initiated`, `_itaServiceCall`);
