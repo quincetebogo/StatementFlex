@@ -25,8 +25,8 @@ export class TaxCertificateSuccess extends ViewBase {
 		this._telemetry = HorizonTelemetry.instance;
 
 		this.email = {};
-		this.primaryToast = `Tax certificate sent`;
-		this.secondaryToast = `Tax-free certificate sent`;
+		this.primaryToast = `Taxable savings certificate sent`;
+		this.secondaryToast = `Tax free certificate sent`;
 		this.endCallContext = `QuickTransactionSuccess`;
 		this.sendAnotherClicked = false;
 	}

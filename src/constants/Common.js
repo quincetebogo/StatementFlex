@@ -5,10 +5,7 @@
  * @enum {Object} HIGH_RISK_TRANSACTIONS
  * 
  */
-export const HIGH_RISK_TRANSACTIONS = [
-	`debi-check`,
-	`update-card-limits`
-];
+export const HIGH_RISK_TRANSACTIONS = [`debi-check`];
 
 /**
  * Transactions that doesn't even require authentication to perform
