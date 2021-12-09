@@ -1,11 +1,11 @@
 import { css, html } from 'platform/elements';
+import { isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-import { isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
@@ -38,27 +38,27 @@ const ERROR_LIST = {
  */
 export class Favourites extends SavingsAccountBase {
 
-    // --------------
-    // INITIALISATION
-    // --------------
+	// --------------
+	// INITIALISATION
+	// --------------
 
-    constructor() {
-        super();
+	constructor() {
+		super();
 
 		this.agreementResult = ``;
 		// private properites
 		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
 
-        this.isLoading = true;
+		this.isLoading = true;
 
-        // private variables
+		// private variables
 		this.alertBannerMessage = ``;
 		this.category = ``;
 		this.need = ``;
 		this.issue = ``;
-        this.landingPageInfo = null;
-        this.curOptionEvent = null;
-        this.cards = [];
+		this.landingPageInfo = null;
+		this.curOptionEvent = null;
+		this.cards = [];
 		this.selectedFeedback = [];
 		this.feedbackOptions = [];
 		this.updateStrackClick = false;
@@ -71,76 +71,76 @@ export class Favourites extends SavingsAccountBase {
 		Object.assign(Favourites.prototype, searchOtherNeedMixin);
 	}
 
-    // --------------
-    // PROPERTIES
-    // --------------
+	// --------------
+	// PROPERTIES
+	// --------------
 
-    static get properties() {
-        return {
-            isLoading: { attribute: false },
-            verificationToastDisplayed: { attribute: false }
+	static get properties() {
+		return {
+			isLoading: { attribute: false },
+			verificationToastDisplayed: { attribute: false }
 		};
 	}
 
-    // -------------------
-    // LIFECYCLE OVERRIDES
-    // -------------------
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
 
-    connectedCallback() {
-        super.connectedCallback();
+	connectedCallback() {
+		super.connectedCallback();
 		this.incidentRecId = this.incidentDetails.incidentRecId;
 		this.feedbackOptions = FEEDBACK_OPTIONS;
-		 
+		
 
 		this._telemetry.startSpan(QuickTransactionEvents.FULFILL_NEED, {
 			"screen": TelemetryScreen.FAVOURITES
 		});
 
-        this._initialise();
-        this._performAction = async (option) => {
+		this._initialise();
+		this._performAction = async (option) => {
 
-            const stopCard = () => this._stopCard();
-            const debiCheck = () => this._debiCheck();
-            const updateCardLimits = () => this._updateCardLimits();
-            const tapToPay = () => this._tapToPay();
-            const statements = () => this._getStatements();
-            const taxCertificates = () => this._taxCertificates();
-            const proofOfAccount = () => this._proofOfAccount();
-            const searchOtherNeed = () => this._searchOtherNeed();
-            
-            const actions = {
-                'stop-card': stopCard,
-                'debi-check-viewInfo': debiCheck,
-                'update-card-limits': updateCardLimits,
-                'tap-to-pay': tapToPay,
-                'statements': statements,
-                'tax-certificate': taxCertificates,
-                'proof-of-account': proofOfAccount,
-                'search-other-need': searchOtherNeed
-            };
+			const stopCard = () => this._stopCard();
+			const debiCheck = () => this._debiCheck();
+			const updateCardLimits = () => this._updateCardLimits();
+			const tapToPay = () => this._tapToPay();
+			const statements = () => this._getStatements();
+			const taxCertificates = () => this._taxCertificates();
+			const proofOfAccount = () => this._proofOfAccount();
+			const searchOtherNeed = () => this._searchOtherNeed();
+			
+			const actions = {
+				'stop-card': stopCard,
+				'debi-check-viewInfo': debiCheck,
+				'update-card-limits': updateCardLimits,
+				'tap-to-pay': tapToPay,
+				'statements': statements,
+				'tax-certificate': taxCertificates,
+				'proof-of-account': proofOfAccount,
+				'search-other-need': searchOtherNeed
+			};
 
-            if (actions[option]) {
-                await super._inicidentManager_(option, () => this._toggleBusyFlag());
-                this._refreshIncidentDetails();
-                return actions[option]();
-            }
+			if (actions[option]) {
+				await super._inicidentManager_(option, () => this._toggleBusyFlag());
+				this._refreshIncidentDetails();
+				return actions[option]();
+			}
 
 			/**
 			 * When verify now on mini profile is selected, we dont need to perform any action
 			 * Returning true for such case
 			 */
-            return true;
-        };
-    }
+			return true;
+		};
+	}
 
 	disconnectedCallback() {
 		this.returnToSub.dispose();
 		super.disconnectedCallback();
 	}
 
-    // --------------
-    // EVENT HANDLERS
-    // --------------
+	// --------------
+	// EVENT HANDLERS
+	// --------------
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
@@ -179,44 +179,40 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-    async _clientVerified(event) {
-        super._clientVerified(event);
+	async _clientVerified(event) {
+		super._clientVerified(event);
 
-        // re-initialise the page when the verification status changes
-        // verificationStatus is on the this.callerInformation object
-        await this._initialise();
+		// re-initialise the page when the verification status changes
+		// verificationStatus is on the this.callerInformation object
+		
+		if (this.callerInformation.verificationStatus !== `verified`) {
+			await this._initialise();
+		}
+	}
 
-        this.renderMode = RENDER_MODE.MAIN_PAGE;
-        if (this.curOptionEvent) {
-            const optionSelected = this.curOptionEvent.detail.option;
-            this.curOptionEvent = null;
-            await this._performAction(optionSelected);
-        }
-    }
+	async _onFavouritesOptionClick(e) {
+		// Getting hold of event to perform continue action if client decides to do verification
+		this.curOptionEvent = e;
 
-    async _onFavouritesOptionClick(e) {
-        // Getting hold of event to perform continue action if client decides to do verification
-        this.curOptionEvent = e;
+		if (e.detail.stopPropagation) {
+			this._unavailableOption();
+		} else {
+			await this._performAction(e.detail.option);
+		}
+	}
 
-        if (e.detail.stopPropagation) {
-            this._unavailableOption();
-        } else {
-            await this._performAction(e.detail.option);
-        }
-    }
-
-    _debiCheckToMainPage() {
+	_debiCheckToMainPage() {
 
 		/**
 		 * This is supposed to happen in debicheck success screen
 		 * TODO: This should be to success screen when decline or approve is ready
 		 */
-        const incidentDetails = this.horizonStore.getIncidentDetails();
-        incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-        this.horizonStore.setIncidentDetails(incidentDetails);
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(incidentDetails);
 
-        this.renderMode = RENDER_MODE.MAIN_PAGE;
-    }
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
 
 	_searchOtherNeedDone() {
 		this._refreshIncidentDetails();
@@ -243,12 +239,8 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _updatePermanentLimits(updateRequest) {
-		updateRequest.cardLimits.permanentCashAmountLimit *= 100;
-		updateRequest.cardLimits.permanentPurchaseAmountLimit *= 100;
-		updateRequest.cardLimits.permanentCnpAmountLimit *= 100;
-		updateRequest.cardLimits.tempCashAmountLimit *= 100;
-		updateRequest.cardLimits.tempPurchaseAmountLimit *= 100;
-		updateRequest.cardLimits.tempCnpAmountLimit *= 100;
+	
+		updateRequest.cardLimits = this._limitsRandsToCents(updateRequest.cardLimits);
 
 		const returnValue = await this.quickTransactionService.updatePermanentLimits(updateRequest, () => true);
 
@@ -276,12 +268,8 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _updateTemporaryLimits(updateRequest) {
-		updateRequest.cardLimits.permanentCashAmountLimit *= 100;
-		updateRequest.cardLimits.permanentPurchaseAmountLimit *= 100;
-		updateRequest.cardLimits.permanentCnpAmountLimit *= 100;
-		updateRequest.cardLimits.tempCashAmountLimit *= 100;
-		updateRequest.cardLimits.tempPurchaseAmountLimit *= 100;
-		updateRequest.cardLimits.tempCnpAmountLimit *= 100;
+		
+		updateRequest.cardLimits = this._limitsRandsToCents(updateRequest.cardLimits);
 
 		const returnValue = await this.quickTransactionService.updateTemporaryLimits(updateRequest, () => true);
 
@@ -295,12 +283,8 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _getCardLimitsAgreement(agreementRequest) {
-		agreementRequest.cardDetails.permanentCashAmountLimit *= 100;
-		agreementRequest.cardDetails.permanentPurchaseAmountLimit *= 100;
-		agreementRequest.cardDetails.permanentCnpAmountLimit *= 100;
-		agreementRequest.cardDetails.tempCashAmountLimit *= 100;
-		agreementRequest.cardDetails.tempPurchaseAmountLimit *= 100;
-		agreementRequest.cardDetails.tempCnpAmountLimit *= 100;
+
+		agreementRequest.cardDetails = this._limitsRandsToCents(agreementRequest.cardDetails);
 
 		const returnValue = await this.quickTransactionService.getCardLimitsAgreement(agreementRequest, () => this._createIncidentOnError());
 		
@@ -360,90 +344,90 @@ export class Favourites extends SavingsAccountBase {
 	// PRIVATE METHODS
 	// ---------------
 
-    async _initialise() {
+	async _initialise() {
 
-        if (this.callerInformation.verificationStatus !== `non-client` && isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber)) {
-            const landingRequest = {
-                cifNumber: this.callerInformation.cifNumber,
-                nationalIDNumber: this.callerInformation.southAfricanIDNumber,
-                isCallerVerified: this.callerInformation.verificationStatus === `verified`
-            };
+		if (this.callerInformation.verificationStatus !== `non-client` && isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber)) {
+			const landingRequest = {
+				cifNumber: this.callerInformation.cifNumber,
+				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
+				isCallerVerified: this.callerInformation.verificationStatus === `verified`
+			};
 
-            const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest);
+			const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest);
 
-            if (returnValue.succeeded) {
-                this.isLoading = false;
-                this.landingPageInfo = returnValue.result;
-            }
-        } else {
-            // minimal object for the Favourites landing page component
-            this.isLoading = false;
-            this.landingPageInfo = {
-                savingsAccountProductDescription: ``,
-                savingsPlanProductDescription: ``,
-                insureProductDescription: ``,
-                creditProductDescription: ``,
-                savingsAccountProductAmount: ``,
-                savingsPlanProductAmount: ``,
-                insureProductAmount: ``,
-                creditProductAmount: ``,
+			if (returnValue.succeeded) {
+				this.isLoading = false;
+				this.landingPageInfo = returnValue.result;
+			}
+		} else {
+			// minimal object for the Favourites landing page component
+			this.isLoading = false;
+			this.landingPageInfo = {
+				savingsAccountProductDescription: ``,
+				savingsPlanProductDescription: ``,
+				insureProductDescription: ``,
+				creditProductDescription: ``,
+				savingsAccountProductAmount: ``,
+				savingsPlanProductAmount: ``,
+				insureProductAmount: ``,
+				creditProductAmount: ``,
 				pendingMandateCount: 0,
 				accountNumber: ``,
 				accountOpenedDate: ``
-            };
-        }
+			};
+		}
 
-        this.verificationStatus = this.callerInformation.verificationStatus;
-        // Now we can update the information on the product buttons
-        this._updateLeftBar();
-        this._performReturnToScreen();
-    }
+		this.verificationStatus = this.callerInformation.verificationStatus;
+		// Now we can update the information on the product buttons
+		this._updateLeftBar();
+		this._performReturnToScreen();
+	}
 
-    _updateLeftBar() {
-        let subtitle = null;
-        let detail = null;
+	_updateLeftBar() {
+		let subtitle = null;
+		let detail = null;
 
-        if (this.landingPageInfo) {
-            subtitle = {
-                savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
-                savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
-                insure: this.landingPageInfo.insureProductDescription,
-                credit: this.landingPageInfo.creditProductDescription
-            };
+		if (this.landingPageInfo) {
+			subtitle = {
+				savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
+				savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
+				insure: this.landingPageInfo.insureProductDescription,
+				credit: this.landingPageInfo.creditProductDescription
+			};
 
-            detail = {
-                savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
-                savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
-                insure: this.landingPageInfo.insureProductAmount,
-                credit: this.landingPageInfo.creditProductAmount
-            };
-        }
+			detail = {
+				savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
+				savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
+				insure: this.landingPageInfo.insureProductAmount,
+				credit: this.landingPageInfo.creditProductAmount
+			};
+		}
 
-        this.horizonStore.setCallerInformation(this.callerInformation);
+		this.horizonStore.setCallerInformation(this.callerInformation);
 
-        const state = {
-            leftBarButtonConfig: {
-                hasFavourites: true,
-                subtitle: subtitle ? subtitle : ``,
-                detail: detail ? detail : ``
-            },
-            landingPageInfo: this.landingPageInfo
-        };
+		const state = {
+			leftBarButtonConfig: {
+				hasFavourites: true,
+				subtitle: subtitle ? subtitle : ``,
+				detail: detail ? detail : ``
+			},
+			landingPageInfo: this.landingPageInfo
+		};
 
-        this.horizonStore.saveState(state);
-    }
+		this.horizonStore.saveState(state);
+	}
 
-    _shouldToastDisplay() {
-        if (this.verificationToastDisplayed) {
-            return false;
-        }
+	_shouldToastDisplay() {
+		if (this.verificationToastDisplayed) {
+			return false;
+		}
 
-        this.callerInformation.verificationToastDisplayed = true;
-        this.horizonStore.setCallerInformation(this.callerInformation);
+		this.callerInformation.verificationToastDisplayed = true;
+		this.horizonStore.setCallerInformation(this.callerInformation);
 
-        this.verificationToastDisplayed = true;
-        return true;
-    }
+		this.verificationToastDisplayed = true;
+		return true;
+	}
 
 	async _stopCard() {
 		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_STOP_CARD, {
@@ -471,49 +455,36 @@ export class Favourites extends SavingsAccountBase {
 	async _updateCardLimits() {
 		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_UPDATE_CARD_LIMITS, {
 			"screen": TelemetryScreen.FAVOURITES,
-            "next-screen": TelemetryScreen.CARD_LIMITS_LANDING
+			"next-screen": TelemetryScreen.CARD_LIMITS_LANDING
 		});
 
 		const returnValue = await this.quickTransactionService.cardLimitsLanding(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
-			 
+			
 		if (returnValue.succeeded) {
 			this.cards = returnValue.result.cards;
-
+			
+			// Convert all vaules on card limits into Rands
 			this.cards.forEach(card => {
-				card.cardLimits.permanentCashAmountLimit /= 100;
-				card.cardLimits.maxPermanentCashAmountLimit /= 100;
-				card.cardLimits.permanentPurchaseAmountLimit /= 100;
-				card.cardLimits.maxPermanentPurchaseAmountLimit /= 100;
-				card.cardLimits.permanentCnpAmountLimit /= 100;
-				card.cardLimits.maxPermanentCnpAmountLimit /= 100;
-				card.cardLimits.tempCashAmountLimit /= 100;
-				card.cardLimits.maxTemporaryCashAmountLimit /= 100;
-				card.cardLimits.tempPurchaseAmountLimit /= 100;
-				card.cardLimits.maxTemporaryPurchaseAmountLimit /= 100;
-				card.cardLimits.tempCnpAmountLimit /= 100;
-				card.cardLimits.maxTemporaryCnpAmountLimit /= 100;
+				Object.keys(card.cardLimits).forEach(key => {
+					if (!(isNullorEmpty(card.cardLimits[key]) || key === `tempLimitExpiryDate`)) {
+						card.cardLimits[key] /= 100;
+					}
+				});
 
 				if (card.linkedCardLimits) {
-					card.linkedCardLimits.permanentCashAmountLimit /= 100;
-					card.linkedCardLimits.maxPermanentCashAmountLimit /= 100;
-					card.linkedCardLimits.permanentPurchaseAmountLimit /= 100;
-					card.linkedCardLimits.maxPermanentPurchaseAmountLimit /= 100;
-					card.linkedCardLimits.permanentCnpAmountLimit /= 100;
-					card.linkedCardLimits.maxPermanentCnpAmountLimit /= 100;
-					card.linkedCardLimits.tempCashAmountLimit /= 100;
-					card.linkedCardLimits.maxTemporaryCashAmountLimit /= 100;
-					card.linkedCardLimits.tempPurchaseAmountLimit /= 100;
-					card.linkedCardLimits.maxTemporaryPurchaseAmountLimit /= 100;
-					card.linkedCardLimits.tempCnpAmountLimit /= 100;
-					card.linkedCardLimits.maxTemporaryCnpAmountLimit /= 100;
-				} 
+					Object.keys(card.linkedCardLimits).forEach(key => {
+						if (!(isNullorEmpty(card.linkedCardLimits[key]) || key === `tempLimitExpiryDate`)) {
+							card.linkedCardLimits[key] /= 100;
+						}
+					});
+				}
 			});
 
 			this.renderMode = RENDER_MODE.UPDATE_CARD_LIMITS;
 		}
 	}
 
-    _taxCertificates() {
+	_taxCertificates() {
 		// TODO: Functionality to generate tax certificate comes here
 		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_TAX_CERTIFICATE, {
 			"screen": TelemetryScreen.FAVOURITES,
@@ -537,15 +508,15 @@ export class Favourites extends SavingsAccountBase {
 		if (clientProductDetails) {
 			const primarySavingsProduct = clientProductDetails.find(item => item.accountType === SAVINGS_ACCOUNT_TYPE);
 
-            this.landingPageInfo.accountNumber = primarySavingsProduct.accountNumber;
-            this.landingPageInfo.accountOpenedDate = primarySavingsProduct.accountOpenDate;
-            this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
-        }
-    }
+			this.landingPageInfo.accountNumber = primarySavingsProduct.accountNumber;
+			this.landingPageInfo.accountOpenedDate = primarySavingsProduct.accountOpenDate;
+			this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
+		}
+	}
 
-    _unavailableOption() {
-        this.renderMode = RENDER_MODE.ALERT_MODAL;
-    }
+	_unavailableOption() {
+		this.renderMode = RENDER_MODE.ALERT_MODAL;
+	}
 
 	async _searchOtherNeed() {
 		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_SEARCH_OTHER_NEED, {
@@ -554,7 +525,7 @@ export class Favourites extends SavingsAccountBase {
 		});
 
 		await super.createAndClassifySubsIncident();
-		
+
 		this.endCallContext = `SearchOtherNeed`;
 		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
 		await this.getCategories();
@@ -667,9 +638,34 @@ export class Favourites extends SavingsAccountBase {
 		this._backToLandingPage();
 	}
 
+	_limitsRandsToCents(cardDetails) {
+ 
+		// Converting limits from rands to cents before updating
+		if (cardDetails.permanentCashAmountLimit) {
+			cardDetails.permanentCashAmountLimit *= 100;
+		}
+		if (cardDetails.permanentPurchaseAmountLimit) {
+			cardDetails.permanentPurchaseAmountLimit *= 100;
+		}
+		if (cardDetails.permanentCnpAmountLimit) {
+			cardDetails.permanentCnpAmountLimit *= 100;
+		}
+		if (cardDetails.tempCashAmountLimit) {
+			cardDetails.tempCashAmountLimit *= 100;
+		}
+		if (cardDetails.tempPurchaseAmountLimit) {
+			cardDetails.tempPurchaseAmountLimit *= 100;
+		}
+		if (cardDetails.tempCnpAmountLimit) {
+			cardDetails.tempCnpAmountLimit *= 100;
+		}
+		
+		return cardDetails;
+	}
+
 	// ---------
-    // RENDERING
-    // ---------
+	// RENDERING
+	// ---------
 
 	/**
 	 * Generates the view stylesheet.
@@ -678,10 +674,10 @@ export class Favourites extends SavingsAccountBase {
 	 * @static
 	 * @returns {css} CSS for the view.
 	 */
-    static get styles() {
-        return [
-            super.styles,
-            css`
+	static get styles() {
+		return [
+			super.styles,
+			css`
 				.favourites{
 					width: 100%;
 					height: 100%;
@@ -692,11 +688,11 @@ export class Favourites extends SavingsAccountBase {
 					height: var(--horizon-panel-height, 888px);
 				}
 			`
-        ];
-    }
+		];
+	}
 
-    _webTemplate() {
-        return html`
+	_webTemplate() {
+		return html`
 			${this._renderFavouritesLandingPage()}
 			${this._renderUpdateCardLimits()}
 
@@ -708,14 +704,107 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderUpdateIncidentModal()}
 			${this._renderTaxCertificate()}
 
-
 			${super._webTemplate()}
 		`;
-    }
+	}
 
-    _renderFavouritesLandingPage() {
-        switch (this.renderMode) {
-            case RENDER_MODE.MAIN_PAGE:
+	renderAlertBanner() {
+		const unverified = () => this._renderUnverifiedAlertBanner();
+		const failed = () => this._renderFailedAlertBanner();
+		const verified = () => this._renderVerifiedAlertBanner();
+
+		const verificationStatuses = {
+			'unverified': unverified,
+			'failed': failed,
+			'verified': verified
+		};
+
+		if (verificationStatuses[this.verificationStatus]) {
+			return verificationStatuses[this.verificationStatus]();
+		}
+	}
+
+	_renderUnverifiedAlertBanner() {
+		return html`
+			<capitec-alert-banner
+				class="verificatoin-status"
+				data-automation-id="favourite-transactions-unverified-alert-banner"
+				type="warning">
+				<capitec-group layout="horizontal" class="alert-banner-group">
+					<capitec-label type="strong" label="Notify client:"></capitec-label>
+					<capitec-label type="default"
+						label="For added security we will need to go through verification to proceed with additional transactions.">
+					</capitec-label>
+					<capitec-spacer></capitec-spacer>
+					<capitec-hyperlink 
+						data-automation-id="favourite-transactions-verify"
+						label="Verify Now"
+						@click="${() => super._verifyClick()}">
+					</capitec-hyperlink>
+				</capitec-group>
+			</capitec-alert-banner>`;
+	}
+
+	_renderFailedAlertBanner() {
+		return html`
+			<capitec-alert-banner
+				class="verificatoin-status"
+				data-automation-id="favourite-transactions-failed-verification-alert-banner"
+				type="unsuccessful-red"
+				label="Notify client: I'm not able to access your account since you couldn't be verified. If it's an urgent matter please visit a branch, or you can call again after 24 hours.">
+			</capitec-alert-banner>`;
+	}
+
+	_renderVerifiedAlertBanner() {
+		return !this.callerInformation.hasDigitalChannels
+			? this._renderNoDigitalHighRiskTransAlertBanner()
+			: this._renderHighRiskTransAlertBanner();
+	}
+
+	_renderNoDigitalHighRiskTransAlertBanner() {
+		return this.callerInformation.verificationMethod === `XDS`
+			? html`
+				<capitec-alert-banner
+					class="verificatoin-status"
+					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
+					type="warning">
+						<capitec-group layout="horizontal" class="alert-banner-group">
+							<capitec-label type="strong" label="Notify client:"></capitec-label>
+							<capitec-label type="default"
+								label="For added security get the remote banking App to perform additional transactions, alternatively, visit your nearest branch.">
+							</capitec-label>
+							<capitec-spacer></capitec-spacer>
+						</capitec-group>
+				</capitec-alert-banner>`
+			: html``;
+	}
+
+	_renderHighRiskTransAlertBanner() {
+		return this.callerInformation.verificationMethod === `XDS`
+			? html`
+				<capitec-alert-banner
+					class="verificatoin-status"
+					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
+					type="warning">
+						<capitec-group layout="horizontal" class="alert-banner-group">
+							<capitec-label type="strong" label="Notify client:"></capitec-label>
+							<capitec-label type="default"
+								label="For added security, we will be sending a push notification to access additional transactions.">
+							</capitec-label>
+							<capitec-spacer></capitec-spacer>
+							<capitec-hyperlink
+								data-automation-id="high-risk-transactions-verify"
+								label="Verify Now"
+								@click="${() => super._verifyClick()}">
+							</capitec-hyperlink>
+						</capitec-group>
+				</capitec-alert-banner>`
+			: html``;
+	}
+
+	_renderFavouritesLandingPage() {
+		switch (this.renderMode) {
+			case RENDER_MODE.MAIN_PAGE:
 			case RENDER_MODE.TAX_CERTIFICATE:
 			case RENDER_MODE.PROOF_OF_ACCOUNT:
 			case RENDER_MODE.STATEMENTS:
@@ -729,58 +818,60 @@ export class Favourites extends SavingsAccountBase {
 						class="favourites"
 						.landingPageInfo="${this.landingPageInfo}"
 						.verificationStatus="${this.callerInformation.verificationStatus}"
-						.verificationMethod="${this.callerInformation.verificationMethod}"
-						.hasDigitalChannels="${this.callerInformation.hasDigitalChannels}"
 						?displayVerificationStatusToast="${this._shouldToastDisplay()}"
 						.shouldDisable="${need => this._shouldDisable(need)}"
-						@verify-click="${() => super._verifyClick()}"
+						.renderAlertBanner="${() => this.renderAlertBanner()}"
 						@option-click="${(e) => this._onFavouritesOptionClick(e)}">
 					</horizon-favourite-transactions>`;
-            default:
-                return html``;
-        }
-    }
+			default:
+				return html``;
+		}
+	}
 
-    _renderAlertModal() {
-        if (this.renderMode === RENDER_MODE.ALERT_MODAL) {
-            return html`
+	_renderAlertModal() {
+		if (this.renderMode === RENDER_MODE.ALERT_MODAL) {
+			return html`
 				<horizon-client-not-verified
 					@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
 					@verify-now="${() => super._verifyClick()}">
 				</horizon-client-not-verified>
 			`;
-        }
-    }
+		}
+	}
 
-    _renderUpdateCardLimits() {
-        return this.renderMode === RENDER_MODE.UPDATE_CARD_LIMITS
-            ? html`
+	_renderUpdateCardLimits() {
+		return this.renderMode === RENDER_MODE.UPDATE_CARD_LIMITS
+			? html`
 				<horizon-card-limits-landing
-					.cards="${this.cards}"
+				.cards="${this.cards}"
+					cifNumber="${this.callerInformation.cifNumber}"
+					voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
+					verificationMethod="${this.callerInformation.verificationMethod}"
+					?hasDigitalChannels="${this.callerInformation.hasDigitalChannels}"
+					?showVerifyCallerDialog="${this.showVerifyCallerDialog}"
+					.getCardLimitsAgreement ="${renderRequest => this._getCardLimitsAgreement(renderRequest)}"
 					.getPermanentLimits="${request => this._getPermanentLimits(request)}"
 					.getTemporaryLimits="${request => this._getTemporaryLimits(request)}"
-					.cifNumber="${this.callerInformation.cifNumber}"
-					.voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
-					.getCardLimitsAgreement ="${renderRequest => this._getCardLimitsAgreement(renderRequest)}"
-
 					.updatePermanentLimits ="${renderRequest => this._updatePermanentLimits(renderRequest)}"
 					.updateTemporaryLimits ="${renderRequest => this._updateTemporaryLimits(renderRequest)}"
+					.renderAlertBanner="${() => this.renderAlertBanner()}"
+					@verify-now="${() => super._verifyClick()}"
 					@back="${() => this._backToLandingPage()}"
 					@result=${eventData => this._updateLimitsResult(eventData)}>
 				</horizon-card-limits-landing>`
-            : html``;
-    }
+			: html``;
+	}
 
-    _renderProofOfAccount() {
-        return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
-            ? html`
+	_renderProofOfAccount() {
+		return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
+			? html`
 				<horizon-proof-of-account
 					.callerInformation="${this.callerInformation}"
 					.landingPageInfo="${this.landingPageInfo}"
 					@cancel="${() => this._backToLandingPage()}">
 				</horizon-proof-of-account>`
 			: html``;
-    }
+	}
 
 	_renderSearchOtherNeed() {
 		return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED || this.renderMode === RENDER_MODE.FEEDBACK
@@ -820,7 +911,7 @@ export class Favourites extends SavingsAccountBase {
 			</horizon-update-incident-dialog>`
 		: html``;
 	}
-  
+
 	_renderTaxCertificate() {
 		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE
 		? html`

@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
 
 import 'app/components/common/OptionButton';
 
@@ -33,12 +34,21 @@ export class FavouriteTransactions extends Component {
 	// --------------
 
 	/**
+	 *  @typedef {Object} renderAlertBanner Display alter banner based on verification status
+	 */
+
+	/**
+	 * @callback renderAlterBannerCallback
+	 * @returns {html}
+	 */
+
+	/**
 	 *
 	 * @property {Object} landingPageInfo Data for the Favourites Landing Page display
 	 * @property {string} verificationStatus Indicates if the client is verified, unverified, non-client etc.
-	 * @property {String} verificationMethod Indicated the type of verification (xds/ita)
 	 * @property {Boolean} displayVerificationStatusToast If true, display a toast for the verification status
 	 * @property {Object} shouldDisable Callback function, returns true or false to disable need button
+	 * @property {renderAlterBannerCallback} renderAlertBanner Callback function to render alter banner based on verification status & method
 	 *
 	 * @readonly
 	 * @static
@@ -48,10 +58,9 @@ export class FavouriteTransactions extends Component {
 		return {
 			landingPageInfo: { type: Object },
 			verificationStatus: { type: String },
-			verificationMethod: { type: String },
 			displayVerificationStatusToast: { type: Boolean },
 			shouldDisable: { type: Object },
-			hasDigitalChannels: { type: Boolean },
+			renderAlertBanner: { type: Object, attribute: false },
 			isBusy: { attribute: false },
 			displayToast: { attribute: false }
 		};
@@ -62,7 +71,7 @@ export class FavouriteTransactions extends Component {
 	// -------------------
 
 	connectedCallback() {
-		super.connectedCallback();		
+		super.connectedCallback();
 		
 		if (this.verificationStatus === `verified` && this.displayVerificationStatusToast) {
 			this.displayVerificationStatusToast = false;
@@ -88,15 +97,11 @@ export class FavouriteTransactions extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_verifyNowClick() {
-		this.dispatchEvent(new CustomEvent(`verify-click`, {}));
-	}
-
 	_optionSelectedClick(selectedOption) {
 		this.dispatchEvent(new CustomEvent(`option-click`, {
 			detail: {
 				option: selectedOption,
-				stopPropagation: (selectedOption !== `stop-card` && selectedOption !== `search-other-need`) && this.verificationStatus !== `verified`
+				stopPropagation: selectedOption !== `stop-card` && selectedOption !== `search-other-need` && this.verificationStatus !== `verified`
 			}
 		}));
 	};
@@ -110,95 +115,65 @@ export class FavouriteTransactions extends Component {
 		return [
 			super.styles,
 			css`
-			.card{
-				width:100%;
-				height:100%;
-			}
+				${ALERTBANNER_CSS}
+				.card{
+					width:100%;
+					height:100%;
+				}
 
-			.favourites {
-				height: 32px;
-				width: 111px;
-				color: #3E4547;
-				font-family: "Hind Vadodara";
-				font-size: 24px;
-				font-weight: 600;
-				letter-spacing: 0;
-				line-height: 32px;
-			}
+				.favourites {
+					height: 32px;
+					width: 111px;
+					color: #3E4547;
+					font-family: "Hind Vadodara";
+					font-size: 24px;
+					font-weight: 600;
+					letter-spacing: 0;
+					line-height: 32px;
+				}
 
-			capitec-group > capitec-title-bar {
-				--theme-titlebar-min-height: 32px;
-				--theme-titlebar-padding: 0px 0px 0px 16px;
-				--theme-type-default-background: rgb(244, 244, 244);
-				--theme-label-title-font-size: 14px;
-				--theme-label-title-font-weight: 600;
-				width: 100%;
-				border-top: 1px solid #E1E1E1;
-				box-shadow: none!important;
-			}
+				capitec-group > capitec-title-bar {
+					--theme-titlebar-min-height: 32px;
+					--theme-titlebar-padding: 0px 0px 0px 16px;
+					--theme-type-default-background: rgb(244, 244, 244);
+					--theme-label-title-font-size: 14px;
+					--theme-label-title-font-weight: 600;
+					width: 100%;
+					border-top: 1px solid #E1E1E1;
+					box-shadow: none!important;
+				}
 
-			.transact-title {
-				border-top: none!important;
-			}
+				.transact-title {
+					border-top: none!important;
+				}
 
-			capitec-button-bar {
-				height: 120px;
-				width: 100%;
-				--buttonbar-align: left;
-				--theme-buttonbar-padding: 16px 0px 0px 16px;
-				--theme-buttonbar-item-gap: 0px;
-			}
-		
-			horizon-option-button {
-				height: 80px;
-				width: 188px;
-				margin-right: 16px;
-			}
-
-			.toast {
-				position: absolute;
-				top : 70px;
-				left: 790px;
-				height: 64px;
-				width: 428px;
-				border-radius: 4px;
-				color: #70AF00;
-				z-index: 201;
-				left: calc(50.8% - 200px);
-				justify-content: center;
-				align-items: center;
-			}
-
-			.banner {
-				--theme-alert-banner-height: 48px;
-				--theme-alert-banner-icon-margin-left: 15px;
-				--theme-alert-banner-icon-margin-right: 7px;
-				--theme-alert-banner-warning-border: none;
-				--theme-alert-banner-unsuccessful-red-border: none;
-				width: 100%;
-				padding: 16px;
-			}
-
-			#id-notify-banner-group {
-				width: 962px;
-			}
+				capitec-button-bar {
+					height: 120px;
+					width: 100%;
+					--buttonbar-align: left;
+					--theme-buttonbar-padding: 16px 0px 0px 16px;
+					--theme-buttonbar-item-gap: 0px;
+				}
 			
-			capitec-hyperlink {
-				--theme-hyperlink-color: #D4781C;
-				--theme-font-family: "Hind Vadodara";
-				--theme-font-weight: 600;
-				--theme-hyperlink-color: #3A3A3A;
-				text-decoration: underline;
-			}
-			capitec-label[type="strong"] {
-				--theme-label-strong-font-size: 14px;
-				--theme-label-strong-font-weight: 600;
-				--theme-layout-gap-spacing: 2px;
-				--theme-label-font-color: #3A3A3A;
-			}
-			capitec-group[layout="horizontal"] capitec-label[type="default"] {
-				--theme-label-default-font-size: 14px
-			}`
+				horizon-option-button {
+					height: 80px;
+					width: 188px;
+					margin-right: 16px;
+				}
+
+				.toast {
+					position: absolute;
+					top : 70px;
+					left: 790px;
+					height: 64px;
+					width: 428px;
+					border-radius: 4px;
+					color: #70AF00;
+					z-index: 201;
+					left: calc(50.8% - 200px);
+					justify-content: center;
+					align-items: center;
+				}`
 		];
 	}
 
@@ -234,10 +209,7 @@ export class FavouriteTransactions extends Component {
 				return html`${this._renderSearchOtherNeed()}`;
 			default:
 				return html`
-					${this._renderUnverifiedAlertBanner()}
-					${this._renderFailedVerificationAlertBanner()}
-					${this._renderHighRiskTransAlertBanner()} 
-					${this._renderNoDigitalHighRiskTransAlertBanner()} 
+					${this.renderAlertBanner()}
 					${this._renderTransactSection()}
 					${this._renderCardsSection()}
 					${this._renderDocumentsSections()}
@@ -261,83 +233,6 @@ export class FavouriteTransactions extends Component {
 		return html``;
 	}
 
-	_renderUnverifiedAlertBanner() {
-		return this.verificationStatus === `unverified`
-			? html`
-				<capitec-alert-banner 
-					class="banner"
-					data-automation-id="favourite-transactions-unverified-alert-banner"
-					type="warning">
-					<capitec-group id="id-notify-banner-group" layout="horizontal">
-						<capitec-label type="strong" label="Notify client:"></capitec-label>
-						<capitec-label type="default"
-							label="For added security we will need to go through verification to proceed with additional transactions.">
-						</capitec-label>
-						<capitec-spacer></capitec-spacer>
-						<capitec-hyperlink 
-							data-automation-id="favourite-transactions-verify"
-							label="Verify Now"
-							@click="${() => this._verifyNowClick()}">
-						</capitec-hyperlink>
-					</capitec-group>
-				</capitec-alert-banner>`
-			: html``;
-	}
-
-	_renderFailedVerificationAlertBanner() {
-		if (this.verificationStatus === `failed`) {
-			return html`
-				<capitec-alert-banner 
-					class="banner"
-					data-automation-id="favourite-transactions-failed-verification-alert-banner"
-					type="unsuccessful-red"
-					label="Notify client: I'm not able to access your account since you couldn't be verified. If it's an urgent matter please visit a branch, or you can call again after 24 hours.">
-				</capitec-alert-banner>
-			`;
-		}
-		return html``;
-	}
-
-	_renderHighRiskTransAlertBanner() {
-		return this.hasDigitalChannels && this.verificationStatus === `verified` && this.verificationMethod === `XDS`
-			? html`
-				<capitec-alert-banner
-					class="banner"
-					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
-					type="warning">
-						<capitec-group id="id-notify-banner-group" layout="horizontal">
-							<capitec-label type="strong" label="Notify client:"></capitec-label>
-							<capitec-label type="default"
-								label="For added security, we will be sending a push notification to access additional transactions.">
-							</capitec-label>
-							<capitec-spacer></capitec-spacer>
-							<capitec-hyperlink
-								data-automation-id="high-risk-transactions-verify"
-								label="Verify Now"
-								@click="${() => this._verifyNowClick()}">
-							</capitec-hyperlink>
-						</capitec-group>
-				</capitec-alert-banner>`
-			: html``;
-	}
-
-	_renderNoDigitalHighRiskTransAlertBanner() {
-		return !this.hasDigitalChannels && this.verificationStatus === `verified` && this.verificationMethod === `XDS`
-		? html`
-			<capitec-alert-banner
-				class="banner"
-				data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
-				type="warning">
-					<capitec-group id="id-notify-banner-group" layout="horizontal">
-						<capitec-label type="strong" label="Notify client:"></capitec-label>
-						<capitec-label type="default"
-							label="For added security get the remote banking App to perform additional transactions, alternatively, visit your nearest branch.">
-						</capitec-label>
-						<capitec-spacer></capitec-spacer>
-					</capitec-group>
-			</capitec-alert-banner>`
-		: html``;
-	}
 	_renderTransactSection() {
 		const pendingMandates = (this.landingPageInfo && this.landingPageInfo.pendingMandateCount) || ``;
 		return html`

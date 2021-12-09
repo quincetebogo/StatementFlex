@@ -40,7 +40,8 @@ const HORIZON_ROUTES = Object.freeze({
 	TAP_TO_PAY_UNSUCCESSFUL: `/error/tap-to-pay`,
 	TAX_CERTIFICATE_SUCCESSFUL: `/success/tax-certificate`,
 	TAX_CERTIFICATE_FAILURE: `/error/tax-certificate`,
-	TAX_CERTIFICATE_SERVICE_ERROR: `/error/tax-certificate-service-error`
+	TAX_CERTIFICATE_SERVICE_ERROR: `/error/tax-certificate-service-error`,
+	CREDIT_ACCOUNT: `/transact/credit`
 });
 
 
@@ -247,7 +248,7 @@ export class HorizonRouter {
 		// const insure = hasInsuranceProducts ? () => this.navigateToInsureExistingClient() : () => this.navigateToInsureProspectiveClient();
 		const insure = () => this.navigateToProductInfo(`Insure`);
 		const savings = () => this.navigateToSavingsAccount();
-		const credit = () => this.navigateToProductInfo(`Credit`);
+		const credit = () => this.navigateToCreditAccount();
 		const savingsPlan = () => this.navigateToProductInfo(`SavingsPlan`);
 		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
 
@@ -295,6 +296,10 @@ export class HorizonRouter {
 
 	navigateToTapToPaySuccess() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.TAP_TO_PAY_SUCCESSFUL}`);
+	}
+
+	navigateToCreditAccount() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.CREDIT_ACCOUNT}`);
 	}
 
 	_productLandingPagesActive() {
@@ -703,5 +708,13 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.TAX_CERTIFICATE_SUCCESSFUL,
 		load: () => import(`../views/taxCertificate/TaxCertificateSuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-credit-account`,
+		title: `CreditAccount`,
+		icon: null,
+		path: HORIZON_ROUTES.CREDIT_ACCOUNT,
+		load: () => import(`../views/credit/CreditAccount`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}
 ];
