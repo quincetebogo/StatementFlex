@@ -8,7 +8,7 @@ import 'app/components/common/ErrorScreen';
 import 'app/components/common/RelatedOptions';
 
 /**
- * Display an Unsuccessful screen statement for savings account was not emailed.
+ * Display an Unsuccessful screen statement for credit card account was not emailed.
  *
  * @export
  * @class CreditStatementsUnsuccess
