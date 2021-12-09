@@ -325,7 +325,7 @@ export class USSDProfileDetails extends Component {
 			@keyframes slideDown {
 				0% {
 					transform: translateY(-50%);
-				},
+				};
 				100% {
 					transform: translateY(100%);
 				}

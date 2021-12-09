@@ -239,7 +239,12 @@ export class HorizonChannelService extends Service {
 	// Access Channels 
 	// ----------------
 
-	accessChannel(cifNumber) {
+	async accessChannel(cifNumber) {
+
+		if (await this._mockEnabled(`accessChannel`)) {
+			return this._mock.accessChannel();
+		}
+
 		const url = `/clientcare-accesschannels-${this._version}/access-channels?cif=${cifNumber}`;
 		return this._get(url, this._setToken(), `accessChannels`, false, 1000);
 
@@ -389,8 +394,10 @@ export class HorizonChannelService extends Service {
 				'ivrOptionCode': clientInfo.ivrOption,
 				'incidentReferenceNumber': clientInfo.incidentNo,
 				'agentTelephoneNumber': clientInfo.agentTelephoneNumber,
-				'identificationMethod': parseInt(clientInfo.identificationMethod, 10),
-				'value': clientInfo.searchValue
+				'searchType': {
+					'identificationMethod': parseInt(clientInfo.identificationMethod, 10),
+					'value': clientInfo.searchValue
+				}
 			},
 			this._setToken(), `searchCaller`, null, null, 1000
 		);
@@ -686,8 +693,8 @@ export class HorizonChannelService extends Service {
 	// ---------
 
 	getClientProducts(request) {
-		const url = `/clientcare-documents-${this._version}/statements/client/CIFNumber=${request.cifNumber}` +
-					`ProductStatus=${request.status}`;
+		const url = `/clientcare-documents-${this._version}/statements/client?CIFNumber=${request.cifNumber}` +
+					`&ProductStatus=${request.status}`;
 		return this._get(url, this._setToken(), `getClientProducts`, false, 1000);
 
 		/*

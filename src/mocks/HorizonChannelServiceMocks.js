@@ -55,6 +55,7 @@ export class HorizonChannelServiceMocks {
 		this.savingsAccountDetails = await this._loadMockModule(this.savingsAccountDetails, `savingsAccountLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
 		this.viewStatementsMock = await this._loadMockModule(this.viewStatementsMock, `viewStatements`, () => import(`../mocks/ViewStatementMock`).catch(err => logError(err)));
 		this.tapToPayMocks = await this._loadMockModule(this.tapToPayMocks, `tapToPayLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
+		this.accessChannelsMocks = await this._loadMockModule(this.accessChannelsMocks, `accessChannel`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err)));
 	}
 
 	// ===============================
@@ -232,6 +233,15 @@ export class HorizonChannelServiceMocks {
 	viewStatements() {
 		if (this._mocking.viewStatements.positiveCase) {
 			return this.viewStatementsMock.PDF;
+		}
+		return null;
+	}
+
+	// Access channels
+
+	accessChannel() {
+		if (this._mocking.accessChannel.positiveCase) {
+			return this.accessChannelsMocks.accessChannelsDetails;
 		}
 		return null;
 	}
