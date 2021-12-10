@@ -384,74 +384,89 @@ export class USSDProfileDetails extends Component {
 		// check if sim is blocked the show the error
 		return html`
 			<capitec-side-sheet
+				data-automation-id="ussd-profile-details-main-sheet"
 				.expanded="${this.showSideSheet}"
 				alignment="right">
-				<capitec-group
-					class="header-group-app"
-					layout="horizontal"
-					halign="left"
-					valign="center"
-					gap="none">
-					<capitec-icon class="icon-app" size="medium" icon="system/cellphone"></capitec-icon>
-					<capitec-label class="header-label" type="Strong" label="USSD"></capitec-label>
-					<capitec-spacer></capitec-spacer>
-					<capitec-icon class="icon-close" size="small" icon="system/close-action" @click="${() => this._toggleAppSlidingPanel()}"></capitec-icon>
-				</capitec-group>
+					<capitec-group
+						class="header-group-app"
+						layout="horizontal"
+						halign="left"
+						valign="center"
+						gap="none">
+							<capitec-icon 
+								class="icon-app" 
+								size="medium" 
+								icon="system/cellphone">
+							</capitec-icon>
+							<capitec-label 
+								class="header-label" 
+								type="Strong" 
+								label="USSD">
+							</capitec-label>
+							<capitec-spacer></capitec-spacer>
+							<capitec-icon 
+								data-automation-id="ussd-profile-details-close-side-sheet"
+								class="icon-close" 
+								size="small" 
+								icon="system/close-action" 
+								@click="${() => this._toggleAppSlidingPanel()}">
+							</capitec-icon>
+					</capitec-group>
 
-				${this._renderToast()}
-				${this._renderAlertBanner()}
+					${this._renderToast()}
+					${this._renderAlertBanner()}
 
-				<capitec-content-box
-					class="content-box"
-					layout="vertical"
-					halign="left"
-					valign="top"
-					gap="none">
-					<horizon-label
-						data-automation-id=""
-						class="dateRegistered"
-						label="Date registered"
-						value="${this._formatDate(this.ussd.dateRegistered)}, ${this._formatTime(this.ussd.dateRegistered)}">
-					</horizon-label>
+					<capitec-content-box
+						class="content-box"
+						layout="vertical"
+						halign="left"
+						valign="top"
+						gap="none">
+							<horizon-label
+								data-automation-id="ussd-profile-details-date-registered"
+								class="dateRegistered"
+								label="Date registered"
+								value="${this._formatDate(this.ussd.dateRegistered)}, ${this._formatTime(this.ussd.dateRegistered)}">
+							</horizon-label>
 
-					<horizon-label
-						data-automation-id=""
-						class="cellNumber"
-						label="Cellphone number (verified)"
-						value="${this.ussd.userRegNo}">
-					</horizon-label>
+							<horizon-label
+								data-automation-id="ussd-profile-details-cellphone-number"
+								class="cellNumber"
+								label="Cellphone number (verified)"
+								value="${this.ussd.userRegNo}">
+							</horizon-label>
 
-					<horizon-label 
-						data-automation-id=""
-						class="lastInteraction"
-						label="Last interaction date"
-						value="${this._formatDate(this.ussd.dateLastUsed)}">
-					</horizon-label>
+							<horizon-label 
+								data-automation-id="ussd-profile-details-last-interaction-date"
+								class="lastInteraction"
+								label="Last interaction date"
+								value="${this._formatDate(this.ussd.dateLastUsed)}">
+							</horizon-label>
 
-					<horizon-label 
-						data-automation-id=""
-						class="ussdStatus"
-						label="Status"
-						value="${this._getUssdStatus()}">
-					</horizon-label>
+							<horizon-label 
+								data-automation-id="ussd-profile-details-status"
+								class="ussdStatus"
+								label="Status"
+								value="${this._getUssdStatus()}">
+							</horizon-label>
 
-					<horizon-label 
-						data-automation-id=""
-						class="lastUpdated"
-						label="Last updated"
-						value="${this._formatDate(this.ussd.dateLastUpdated)}, ${this._formatTime(this.ussd.dateLastUpdated)}">
-					</horizon-label>
+							<horizon-label 
+								data-automation-id="ussd-profile-details-last-updated"
+								class="lastUpdated"
+								label="Last updated"
+								value="${this._formatDate(this.ussd.dateLastUpdated)}, ${this._formatTime(this.ussd.dateLastUpdated)}">
+							</horizon-label>
 
-					<horizon-label 
-						data-automation-id=""
-						class="cancelling"
-						label="Reason for cancelling"
-						value="${this.cancelReason}"
-						style="display:${isNullorEmpty(this.cancelReason) ? `none` : `block`}">
-					</horizon-label>
+							<horizon-label 
+								data-automation-id="ussd-profile-details-cancelling-reason"
+								class="cancelling"
+								label="Reason for cancelling"
+								value="${this.cancelReason}"
+								style="display:${!isNullorEmpty(this.cancelReason) && this.ussdStatus === `Blocked` ? `block` : `none`}">
+							</horizon-label>
 
-					${this._renderButtons()}
-				</capitec-content-box>
+							${this._renderButtons()}
+					</capitec-content-box>
 			</capitec-side-sheet>
 		`;
 	}
@@ -459,18 +474,21 @@ export class USSDProfileDetails extends Component {
 	_renderButtons() {
 		return html`
 			<capitec-button 
+				data-automation-id="ussd-profile-details-activate-full-ussd-button"
 				label="Activate Full USSD Menu" 
 				?hidden="${!this.ussd.features.includes(`REDUCED_MENU`) || this.ussd.isSimBlocked || this.ussdStatus === `Blocked`}"
 				@click="${() => this._activateFullMenu()}">
 			</capitec-button>
 
 			<capitec-button 
+				data-automation-id="ussd-profile-details-unblock-sim-button"
 				label="Unblock SIM" 
 				?hidden="${!this.ussd.isSimBlocked}"
 				@click="${() => this._onUnblockSIM()}">
 			</capitec-button>
 
 			<capitec-button 
+				data-automation-id="ussd-profile-details-cancel-ussd-button"
 				label="Cancel USSD" 
 				?hidden="${this.ussdStatus === `Blocked`}"
 				@click="${() => this._toggleCancelUSSD()}">
@@ -481,81 +499,103 @@ export class USSDProfileDetails extends Component {
 	_renderCancelUSSD() {
 		return html`
 			<capitec-side-sheet
+				data-automation-id="ussd-profile-details-cancel-reasons-sheet"
 				class="cancel-reasons"
 				.expanded="${this.showCancelReasons}"
 				alignment="right">
-				<capitec-group
-					class="header-group-cancel  ${this.showValidationBanner ? `header-cancel-error` : ``}"
-					layout="horizontal"
-					halign="left"
-					valign="center"
-					gap="none">
-					<capitec-icon class="icon-warning" size="medium" icon="${this.showValidationBanner ? `status/error-trans` : `status/warning-trans`}"></capitec-icon>
-					<capitec-label class="header-label" type="Strong" label="Cancel USSD"></capitec-label>
-					<capitec-spacer></capitec-spacer>
-					<capitec-icon class="icon-close" size="small" icon="system/close-action" @click="${() => this._toggleCancelUSSD()}"></capitec-icon>
-				</capitec-group>
+					<capitec-group
+						class="header-group-cancel  ${this.showValidationBanner ? `header-cancel-error` : ``}"
+						layout="horizontal"
+						halign="left"
+						valign="center"
+						gap="none">
+							<capitec-icon 
+								class="icon-warning" 
+								size="medium" 
+								icon="${this.showValidationBanner ? `status/error-trans` : `status/warning-trans`}">
+							</capitec-icon>
+							<capitec-label 
+								class="header-label" 
+								type="Strong" label="Cancel USSD"></capitec-label>
+							<capitec-spacer></capitec-spacer>
+							<capitec-icon 
+								data-automation-id="ussd-profile-details-cancel-reasons-side-sheet"
+								class="icon-close" 
+								size="small" 
+								icon="system/close-action" 
+								@click="${() => this._toggleCancelUSSD()}">
+							</capitec-icon>
+					</capitec-group>
 
-				${this._renderValidationBanner()}
+					${this._renderValidationBanner()}
 
-				<capitec-content-box
-					class="content-box"
-					layout="vertical"
-					halign="left"
-					valign="top"
-					gap="none">
-					<capitec-label class="header-label" type="strong" label="Reasons to cancel"></capitec-label>
+					<capitec-content-box
+						class="content-box"
+						layout="vertical"
+						halign="left"
+						valign="top"
+						gap="none">
+							<capitec-label class="header-label" type="strong" label="Reasons to cancel"></capitec-label>
 
-					<capitec-radio-group>
-						<capitec-radio 
-						@value-change="${(event) => this._onCancelReasonSelected(event)}" 
-						label="Do not use service enough"
-						?checked="${this.cancelReason === `Do not use service enough`}">
-					</capitec-radio>
-						<capitec-radio 
-						@value-change="${(event) => this._onCancelReasonSelected(event)}" 
-						label="Changing to remote/internet banking"
-						?checked="${this.cancelReason === `Changing to remote/internet banking`}">
-					</capitec-radio>
-						<capitec-radio 
-						@value-change="${(event) => this._onCancelReasonSelected(event)}" 
-						label="Mobile banking too expensive"
-						?checked="${this.cancelReason === `Mobile banking too expensive`}">
-					</capitec-radio>
-						<capitec-radio 
-						@value-change="${(event) => this._onCancelReasonSelected(event)}" 
-						label="Mobile banking too complicated"
-						?checked="${this.cancelReason === `Mobile banking too complicated`}">
-					</capitec-radio>
-						<capitec-radio 
-						@value-change="${(event) => this._onCancelReasonSelected(event)}" 
-						label="Need more functions"
-						?checked="${this.cancelReason === `Need more functions`}">
-					</capitec-radio>
-						<capitec-radio 
-						@value-change="${(event) => this._onCancelReasonSelected(event)}" 
-						label="Lack of support"
-						?checked="${this.cancelReason === `Lack of support`}">
-					</capitec-radio>
-						<capitec-radio 
-						@value-change="${(event) => this._onCancelReasonSelected(event)}" 
-						label="Closing account"
-						?checked="${this.cancelReason === `Closing account`}">
-					</capitec-radio>
-					</capitec-radio-group>
+							<capitec-radio-group>
+								<capitec-radio 
+									data-automation-id="ussd-profile-details-do-not-use-service-enough"
+									@value-change="${(event) => this._onCancelReasonSelected(event)}" 
+									label="Do not use service enough"
+									?checked="${this.cancelReason === `Do not use service enough`}">
+								</capitec-radio>
+								<capitec-radio 
+									data-automation-id="ussd-profile-details-changing-to-remote-banking"
+									@value-change="${(event) => this._onCancelReasonSelected(event)}" 
+									label="Changing to remote/internet banking"
+									?checked="${this.cancelReason === `Changing to remote/internet banking`}">
+								</capitec-radio>
+								<capitec-radio 
+									data-automation-id="ussd-profile-details-mobile-banking-too-expensive"
+									@value-change="${(event) => this._onCancelReasonSelected(event)}" 
+									label="Mobile banking too expensive"
+									?checked="${this.cancelReason === `Mobile banking too expensive`}">
+								</capitec-radio>
+								<capitec-radio 
+									data-automation-id="ussd-profile-details-mobile-banking-too-complicated"
+									@value-change="${(event) => this._onCancelReasonSelected(event)}" 
+									label="Mobile banking too complicated"
+									?checked="${this.cancelReason === `Mobile banking too complicated`}">
+								</capitec-radio>
+								<capitec-radio 
+									data-automation-id="ussd-profile-details-need-more-functions"
+									@value-change="${(event) => this._onCancelReasonSelected(event)}" 
+									label="Need more functions"
+									?checked="${this.cancelReason === `Need more functions`}">
+								</capitec-radio>
+								<capitec-radio 
+									data-automation-id="ussd-profile-details-lack-off-support"
+									@value-change="${(event) => this._onCancelReasonSelected(event)}" 
+									label="Lack of support"
+									?checked="${this.cancelReason === `Lack of support`}">
+								</capitec-radio>
+								<capitec-radio 
+									data-automation-id="ussd-profile-details-closing-account"
+									@value-change="${(event) => this._onCancelReasonSelected(event)}" 
+									label="Closing account"
+									?checked="${this.cancelReason === `Closing account`}">
+								</capitec-radio>
+							</capitec-radio-group>
 
-					<capitec-button 
-						type="primary"
-						label="Cancel USSD"
-						@click="${() => this._onCancelUSSD()}">
-					</capitec-button>
+							<capitec-button 
+								data-automation-id="ussd-profile-details-cancle-ussd-button"
+								type="primary"
+								label="Cancel USSD"
+								@click="${() => this._onCancelUSSD()}">
+							</capitec-button>
 
-					<capitec-button 
-						label="Cancel" 
-						@click="${() => this._toggleCancelUSSD()}">
-					</capitec-button>
+							<capitec-button 
+								data-automation-id="ussd-profile-details-cancel-button"
+								label="Cancel" 
+								@click="${() => this._toggleCancelUSSD()}">
+							</capitec-button>
 
-				</capitec-content-box>
+					</capitec-content-box>
 			</capitec-side-sheet>
 		`;
 	}
@@ -563,20 +603,34 @@ export class USSDProfileDetails extends Component {
 	_renderUSSDUnavailable() {
 		return html`
 			<capitec-side-sheet
+				data-automation-id="ussd-profile-details-service-unavailable-sheet"
 				class="unavailable"
 				.expanded="${this.showSideSheet}"
 				alignment="right">
-				<capitec-group
-					class="header-group-app"
-					layout="horizontal"
-					halign="left"
-					valign="center"
-					gap="none">
-					<capitec-icon class="icon-app" size="medium" icon="system/cellphone"></capitec-icon>
-					<capitec-label class="header-label" type="Strong" label="USSD"></capitec-label>
-					<capitec-spacer></capitec-spacer>
-					<capitec-icon class="icon-close" size="small" icon="system/close-action" @click="${() => this._toggleAppSlidingPanel()}"></capitec-icon>
-				</capitec-group>
+					<capitec-group
+						class="header-group-app"
+						layout="horizontal"
+						halign="left"
+						valign="center"
+						gap="none">
+							<capitec-icon 
+								class="icon-app" 
+								size="medium" 
+								icon="system/cellphone">
+							</capitec-icon>
+							<capitec-label 
+								class="header-label" 
+								type="Strong" 
+								label="USSD">
+							</capitec-label>
+							<capitec-spacer></capitec-spacer>
+							<capitec-icon 
+								class="icon-close" 
+								size="small" 
+								icon="system/close-action" 
+								@click="${() => this._toggleAppSlidingPanel()}">
+							</capitec-icon>
+					</capitec-group>
 
 				${this._renderAlertBanner()}
 
@@ -601,9 +655,12 @@ export class USSDProfileDetails extends Component {
 		
 		return this.showNotificationBanner 
 			? html`
-				<capitec-alert-banner type="unsuccessful-red" layout="vertical">
-				<b>${this.bannerTitle}</b><br>
-				<p>${this.bannerSubtitle}</p>
+				<capitec-alert-banner 
+					data-automation-id="ussd-profile-details-status-banner"
+					type="unsuccessful-red" 
+					layout="vertical">
+						<b>${this.bannerTitle}</b><br>
+						<p>${this.bannerSubtitle}</p>
 				</capitec-alert-banner>`
 			: html``;
 	}
@@ -612,12 +669,13 @@ export class USSDProfileDetails extends Component {
 		return this.showValidationBanner 
 		? html`
 			<capitec-alert-banner 
+				data-automation-id="ussd-profile-details-validation-banner"
 				class="validate-reasons"
 				type="unsuccessful-red"
 				label=""
 				layout="vertical">
-				<b>Notice</b> <br>
-				<p>Please choose a reason to cancel USSD.</p>
+					<b>Notice</b> <br>
+					<p>Please choose a reason to cancel USSD.</p>
 			</capitec-alert-banner>`
 		: html``;
 	}
@@ -629,6 +687,7 @@ export class USSDProfileDetails extends Component {
 		
 		return html`
 			<capitec-toast 
+				data-automation-id="ussd-profile-details-success-toast"
 				id="ussd-success-toast"
 				type="success" 
 				header="Successful!"

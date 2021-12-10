@@ -139,34 +139,6 @@ export class AccessChannels extends Component {
 		return true;
 	}
 
-	
-	cancelUSSD() {
-		// TO DO: add channel service call to cancel USSD service
-		// If cancel is successful, show toast, update ussd status, else show error
-		this.status.ussd.status = `Blocked`;
-		this.status.ussd.dateLastUpdated = new Date().toISOString();
-		
-		this._deepCopyStatus();
-		return true;
-	}
-
-	unblockSIM() {
-		// TO DO: add channel service call to unblock SIM - ussd
-		// If unblock is successful, show toast, update ussd status, else show error
-		this.status.ussd.isSimBlocked = false;
-		this.status.ussd.dateLastUpdated = new Date().toISOString();
-		
-		this._deepCopyStatus();
-		return true;
-	}
-
-	activateFullMenuUSSD() {
-		// TO DO: add code to activate full menu for currently active ussd clients
-		// If client has active ussd, menu reduced, activate full menu function
-		this.status.ussdActive = true;
-		return true;
-	}
-
 	// --------------
 	// PUBLIC METHODS
 	// --------------
