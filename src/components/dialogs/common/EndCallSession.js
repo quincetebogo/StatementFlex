@@ -1,9 +1,8 @@
-import { Component, css, html } from 'platform/elements';
+import { CALL_TRANSFERED_CLASSIFICATION, END_CALL_REASON, RECOGNIZE_NEED_REASONS } from 'app/constants/EndCallReasons';
+import { Component, css, html, live } from 'platform/elements';
 import { Configuration, Logger, SecurityContext } from 'platform/core';
 import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
-import { END_CALL_REASON } from 'app/constants/EndCallReasons';
-import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
 import { EndCallEvents } from 'app/constants/telemetry/events/EndCall';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -11,6 +10,7 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 
 import 'platform/components/popups/Modal';
 import 'app/components/common/HorizonLabel';
@@ -19,7 +19,7 @@ import 'app/components/common/RadioButtonGroup';
 import 'app/components/common/CallerDialog';
 
 const HEADER_LABEL = `End Call Session`;
-const ERROR_MESSAGE = `Choose an option to end call`;
+const ERROR_MESSAGE = `You must complete all fields to end call`;
 
 /**
  * The end call dialog allows the client care agent to select a reason/cause code when ending the call.
@@ -51,15 +51,32 @@ export class EndCallSession extends Component {
 		this.incidentRefNumber = ``;
 		this.incidentRecId = ``;
 
+		// Private Variables
+		this.category = ``;
+		this.need = ``;
+		this.issue = ``;
+		this.understandNeed = false;
+		this.categories = [];
+		this.needs = [];
+		this.issues = [];
+		this.incidentInfo = {};
+		this.errors = {
+			endCallReason: ``,
+			category: ``,
+			subCategory: ``,
+			issue: ``
+		};
+
 		this._configuration = Configuration.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
-		this.endCallCauseCode = EndCallCauseCode.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
 		this.securityContext = SecurityContext.getInstance();
 
 		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._endCallErrorHandler(ex));
+
+		Object.assign(EndCallSession.prototype, searchOtherNeedMixin);
 	}
 
 	// --------------
@@ -84,14 +101,18 @@ export class EndCallSession extends Component {
 
 			isBusy: { attribute: false },
 			endCallReasons: { attribute: false },
-			alertBannerMessage: { attribute: false }
+			alertBannerMessage: { attribute: false },
+			category: { attribute: false },
+			need: { attribute: false },
+			issue: { attribute: false },
+			understandNeed: { attribute: false }
 		};
 	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 		
 		this._telemetry.startSpan(EndCallEvents.END_CALL, {
@@ -112,6 +133,7 @@ export class EndCallSession extends Component {
 		this.incidentRecId = incidentDetails.incidentRecId || this.incidentDetails.incidentRecId;
 
 		this._setDefaultValues();
+		this.incidentInfo = await this._incidentStatus() || {};
 	}
 
 	disconnectedCallback() {
@@ -142,7 +164,7 @@ export class EndCallSession extends Component {
 	}
 
 	_endCallClick() {
-		const isValid = this._validateCloseIncidentReason();
+		const isValid = this._validateMandatoryFields();
 
 		if (isValid) {
 			this._telemetry.logEvent(EndCallEvents.END_CALL_CONFIRM, {
@@ -159,11 +181,6 @@ export class EndCallSession extends Component {
 			} else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 				this._stopCardEndCall();
 			} else {
-				if (this._preventCloseOfIncident()) {
-					// Updating state as call ended and redirecting it to call waiting page
-					this._returnToCallWaitingPage();
-					return;
-				}
 				this._classifyAndClose();
 			}
 		}
@@ -172,8 +189,88 @@ export class EndCallSession extends Component {
 	_valueChanged(e) {
 		if (e.detail.new) {
 			this.alertBannerMessage = ``;
+			this.errors[e.currentTarget.id] = ``;
+
 			this.endCallReason = this.endCallReasons.find(reason => reason.key === e.detail.new.key);
+			this.understandNeed = RECOGNIZE_NEED_REASONS.includes(this.endCallReason.key);
+
+			this._prepopulateNeed();
 		}
+	}
+
+	async _categoryChanged(e) {
+		if (e.detail.new !== null) {
+			this.category = e.detail.new;
+			this.need = ``;
+			this.issue = ``;
+			this.alertBannerMessage = ``;
+			this.errors[e.currentTarget.id] = ``;
+			
+			await this.getSubCategories({ detail: { category: this.category } });
+		}
+	}
+
+	async _subCategoryChanged(e) {
+		if (e.detail.new !== null) {
+			this.need = e.detail.new;
+			this.issue = ``;
+			this.alertBannerMessage = ``;
+			this.errors[e.currentTarget.id] = ``;
+
+			await this.getIssues({ detail: { category: this.category, need: this.need } });
+		}
+	}
+
+	_issueChanged(e) {
+		this.issue = e.currentTarget.value.issue;
+		this.alertBannerMessage = ``;
+		this.errors[e.currentTarget.id] = ``;
+	}
+
+	async _prepopulateNeed() {
+		const screenDetails = this.horizonStore.getScreenDetails() || {};
+		const incidentDetails = this.horizonStore.getIncidentDetails() || {};
+
+		// Determining if its already classified
+		const isClassified = !isNullorEmpty(this.incidentInfo.category) && !isNullorEmpty(this.incidentInfo.subCategory) && !isNullorEmpty(this.incidentInfo.issue);
+		// Determining at least we know categorization to classify
+		const hasValues = !isNullorEmpty(screenDetails.category) && !isNullorEmpty(screenDetails.subCategory) && !isNullorEmpty(screenDetails.issue);
+		// Checks if the curr incident is active
+		const isIncClosed = incidentDetails.needStatus === super.HORIZON_NEED_STATUS.CLOSED;
+		// should classify as per need?
+		const ivrActionMapping = await this._getNeedActions();
+		const classifyAsPerNeed = incidentDetails.needStatus === super.HORIZON_NEED_STATUS.INPROGRESS && ivrActionMapping[incidentDetails.currentNeed];
+
+		// If classification is not empty, no need to populate need
+		this.understandNeed = this.understandNeed && !hasValues && !isClassified && !isIncClosed && !classifyAsPerNeed;
+		this._setClassification(screenDetails);
+
+		if (!this.understandNeed || this.categories.length !== 0 && this.endCallReason.key !== END_CALL_REASON.CALL_TRANSFERED) {
+			return;
+		}
+
+		// If end call reason is call transferred, prepopulate category
+		if (this.endCallReason.key === END_CALL_REASON.CALL_TRANSFERED) {
+			this.category = CALL_TRANSFERED_CLASSIFICATION.category;
+			this.need = CALL_TRANSFERED_CLASSIFICATION.subcategory;
+			this.issue = ``;
+		}
+
+		await this.getCategories();
+
+		if (!isNullorEmpty(this.category)) {
+			await this.getSubCategories({ detail: { category: this.category } });
+		}
+
+		if (!isNullorEmpty(this.need)) {
+			await this.getIssues({ detail: { category: this.category, need: this.need } });
+		}
+	}
+
+	_setClassification(screenDetails) {
+		this.category = screenDetails.category || ``;
+		this.need = screenDetails.subCategory || ``;
+		this.issue = screenDetails.issue || ``;
 	}
 
 	// --------------
@@ -243,11 +340,21 @@ export class EndCallSession extends Component {
 		return false;
 	}
 
-	_validateCloseIncidentReason() {
-		if (isNullorEmpty(this.endCallReason.key)) {
+	_validateMandatoryFields() {
+		const endCallContent = this.shadowRoot.getElementById(`end-call-content-box`);
+		const fields = endCallContent.children;
+		const inputFields = Array.from(fields).filter(field => field.localName === `capitec-select` && !field.hidden);
+
+		const emptyFields = inputFields.filter(field => isNullorEmpty(field.value) || field.value === {});
+
+		if (emptyFields.length > 0) {
 			this.alertBannerMessage = ERROR_MESSAGE;
+			emptyFields.forEach(field => {
+				this.errors[field.id] = `Required field`;
+			});
 			return false;
 		}
+
 		return true;
 	}
 
@@ -263,13 +370,14 @@ export class EndCallSession extends Component {
 		const strackIncidentInfo = await this._incidentStatus() || {};
 		// Flag to check, if the incident is already updated outside of Horizon
 		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
+		const classification = this._getClassification();
 
 		if (!isNullorEmpty(needAction) && continueUpdate) {
 			const request = {
 				incidentRecId: this.incidentRecId,
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
 				needAction: needAction,
-				incidentCategorization: null
+				incidentCategorization: classification
 			};
 			const returnValue = await this.incidentManagementService.classifyIncident(request);
 
@@ -281,6 +389,12 @@ export class EndCallSession extends Component {
 		if (!continueUpdate) {
 			this.logger.log(`info`, `Incident:${incidentDetails.incidentReferenceNumber} has been already categorized at STrack.`, `_classifyAndClose`);
 		}
+
+		if (this._preventCloseOfIncident()) {
+			// Updating state as call ended and redirecting it to call waiting page
+			this._returnToCallWaitingPage();
+			return;
+		}
 		await this._closeIncident(strackIncidentInfo);
 	}
 
@@ -288,8 +402,7 @@ export class EndCallSession extends Component {
 		
 		const options = {
 			clientNeed: null,
-			endCallReason: this.endCallReason,
-			causeCodeByContext: this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
+			endCallReason: this.endCallReason
 		};
 
 		await super.closeIncident(options, () => this._toggleBusyFlag());
@@ -299,6 +412,12 @@ export class EndCallSession extends Component {
 	}
 
 	async _incidentStatus() {
+		
+		if (isNullorEmpty(this.incidentRecId) || this.incidentRecId === `0`) {
+			this.logger.log(`info`, `No active incident to get status`, `_incidentStatus`, null);
+			return null;
+		}
+
 		const returnValue = await this.incidentManagementService.incidentStatus(this.incidentRecId);
 
 		if (!returnValue.succeeded) {
@@ -374,6 +493,28 @@ export class EndCallSession extends Component {
 		return this.cardStopAttemptMade && this.endCallReason && this.endCallReason.key === END_CALL_REASON.NEED_FULFILLED && this.isReassigned && this.incomingCallDetails.ivrOptionCode === `StopCard`;
 	}
 
+	_getClassification() {
+		const screenDetails = this.horizonStore.getScreenDetails();
+
+		if (!isNullorEmpty(screenDetails.category) && !isNullorEmpty(screenDetails.subCategory) && !isNullorEmpty(screenDetails.issue)) {
+			return {
+				category: `${screenDetails.category}`,
+				need: `${screenDetails.subCategory}`,
+				issue: `${screenDetails.issue}`
+			};
+		} 
+		
+		if (!isNullorEmpty(this.category) && !isNullorEmpty(this.need) && !isNullorEmpty(this.issue)) {
+			return {
+				category: `${this.category}`,
+				need: `${this.need}`,
+				issue: `${this.issue}`
+			};
+		}
+
+		return null;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -422,24 +563,24 @@ export class EndCallSession extends Component {
 			}
 
 			.body-box {
-				height: 395px;
 				--theme-container-padding-bottom: 0px;
 			}
 
-			.end-reason-label {
-				height: 24px;
-				width: 117px;
-				color: #3E4547;
-				font-family: "Hind Vadodara";
-				font-size: 18px;
-				font-weight: 600;
-				letter-spacing: 0;
+			capitec-label[type="subtitle"] {
 				line-height: 24px;
-				margin: 0px 0px 8px 0px;
+
+				--theme-label-subtitle-font-size: 18px;
+				--theme-label-subtitle-font-weight: 600;
+				--theme-layout-gap-spacing: 16px;
 			  }
 
-			  .id-options{
-				margin-top: 17px;
+			capitec-select {
+				width: 100%;
+
+				--theme-layout-gap-spacing: 18px;
+			}
+			capitec-select[data-automation-id="end-call-session-select-reason"] {
+				--theme-layout-gap-spacing: 24px;
 			}
 
 			#id-cancel-button {
@@ -468,6 +609,8 @@ export class EndCallSession extends Component {
 			}
 			
 			capitec-alert-banner {
+				width: 100%;
+
 				--theme-alert-banner-icon-margin-left: 15px;
 				--theme-alert-banner-icon-margin-right: 7px;
 				--theme-icon-size-default: 26px;
@@ -482,22 +625,29 @@ export class EndCallSession extends Component {
 	_webTemplate() {
 		return html`
 			<horizon-caller-dialog
-						data-automation-id="end-call-session-dialog"
-						.incomingCallDetails="${this.incomingCallDetails}"
-						.incidentDetails="${this.incidentDetails}"
-						.isNeedSelectable=${false}
-						.headerLabel="${HEADER_LABEL}" 
-						.displayButton="${false}">
-				<div slot="body">
-					<capitec-content-box class="body-box">
-						${this._renderAlertBanner()}
-						${this._renderChooseEndCallReason()}
-						${this._renderLoadingIndicator()}
-					</capitec-content-box>
-				</div>
-				<div slot="footer">
-					${this._renderFooter()}
-				</div>
+				data-automation-id="end-call-session-dialog"
+				.incomingCallDetails="${this.incomingCallDetails}"
+				.incidentDetails="${this.incidentDetails}"
+				.isNeedSelectable=${false}
+				.headerLabel="${HEADER_LABEL}" 
+				.displayButton="${false}">
+					<div slot="body">
+						<capitec-content-box
+							id="end-call-content-box"
+							class="body-box"
+							layout="vertical"
+							halign="left"
+							valign="top"
+							gap="clear">
+								${this._renderAlertBanner()}
+								${this._renderChooseEndCallReason()}
+								${this._renderUnderstandNeed()}
+								${this._renderLoadingIndicator()}
+						</capitec-content-box>
+					</div>
+					<div slot="footer">
+						${this._renderFooter()}
+					</div>
 			</horizon-caller-dialog>
 		`;
 	}
@@ -505,26 +655,79 @@ export class EndCallSession extends Component {
 	_renderChooseEndCallReason() {
 		return html`
 			<capitec-label
-				class="end-reason-label"
+				type="subtitle"
 				label="Choose reason">
 			</capitec-label>
-			<capitec-group layout="vertical" gap="none" halign="stretch" valign="top">
-				<div class="end-call-reason">
-					<capitec-select
-						data-automation-id="end-call-session-select-reason"
-						label="Choose reason"
-						class="id-options" 
-						id-field="key"
-						display-field="value"
-						.items=${this.endCallReasons}
-						@value-changed="${(e) => this._valueChanged(e)}"
-						tabindex=3
-						value="${this.endCallReason.value || ``}"
-						select-mode="single">
-					</capitec-select>
-				</div>
-			</capitec-group>
+			
+			<capitec-select
+				id="endCallReason"
+				data-automation-id="end-call-session-select-reason"
+				label="Choose reason"
+				id-field="key"
+				display-field="value"
+				.items=${this.endCallReasons}
+				@value-changed="${(e) => this._valueChanged(e)}"
+				tabindex=3
+				value="${this.endCallReason.value || ``}"
+				select-mode="single"
+				error="${this.errors.endCallReason}">
+			</capitec-select>
 		`;
+	}
+
+	_renderUnderstandNeed() {
+		return this.understandNeed
+			? html`
+				<capitec-label
+					type="subtitle"
+					label="What was the need">
+				</capitec-label>
+
+				<capitec-select
+					id="category"
+					data-automation-id="end-call-session-category"
+					label="Search client need"
+					.items="${this.categories}"
+					display-field="category"
+					id-field="category"
+					value="${live(this.category)}"
+					?hidden="${false}"
+					@value-changed="${(e) => this._categoryChanged(e)}"
+					labelAsPlaceholder
+					searchable
+					error="${this.errors.category}">
+				</capitec-select>
+
+				<capitec-select
+					id="subCategory"
+					data-automation-id="end-call-session-need"
+					label="Choose specific need"
+					.items="${this.needs}"
+					display-field="need"
+					id-field="need"
+					value="${live(this.need)}"
+					?hidden="${isNullorEmpty(this.category)}"
+					@value-changed="${(e) => this._subCategoryChanged(e)}"
+					labelAsPlaceholder
+					searchable
+					error="${this.errors.subCategory}">
+				</capitec-select>
+				
+				<capitec-select
+					id="issue"
+					data-automation-id="end-call-session-issue"
+					label="Choose issue type"
+					.items="${this.issues}"
+					display-field="issue"
+					id-field="issue"
+					value="${live(this.issue)}"
+					?hidden="${isNullorEmpty(this.need)}"
+					@value-changed="${(e) => this._issueChanged(e)}"
+					labelAsPlaceholder
+					searchable
+					error="${this.errors.issue}">
+				</capitec-select>`
+			: html``;
 	}
 
 	_renderFooter() {
@@ -554,7 +757,7 @@ export class EndCallSession extends Component {
 				<capitec-alert-banner 
 					data-automation-id="end-call-session-banner"
 					type="unsuccessful-red">
-					<b>Notify: </b>${this.alertBannerMessage}
+						${this.alertBannerMessage}
 				</capitec-alert-banner>`;
 		}
 	}

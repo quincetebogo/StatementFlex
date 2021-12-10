@@ -31,62 +31,62 @@ import 'app/components/dialogs/quickTransactions/ApproveDebiCheckMandate';
  */
 export class SavingsAccountBase extends ViewBase {
 
-    // --------------
-    // INITIALISATION
-    // --------------
+	// --------------
+	// INITIALISATION
+	// --------------
 
-    constructor() {
-        super();
+	constructor() {
+		super();
 
-        this.debiCheckDetails = {};
-        this.clientProducts = null;
-        this.debiCheckMandates = [];
-        this.incomingCallDetails = {};
-        this.incidentRecId = ``;
-        this.landingPageInfo = {};
-        this.callerInformation = {};
-        this.clientDetails = {};
-        this.mandateId = ``;
-        this.registerId = ``;
-        this.accountNumber = null;
-        this.isPending = ``;
+		this.debiCheckDetails = {};
+		this.clientProducts = null;
+		this.debiCheckMandates = [];
+		this.incomingCallDetails = {};
+		this.incidentRecId = ``;
+		this.landingPageInfo = {};
+		this.callerInformation = {};
+		this.clientDetails = {};
+		this.mandateId = ``;
+		this.registerId = ``;
+		this.accountNumber = null;
+		this.isPending = false;
 
-        this.navigationContext = NavigationContext.getInstance();
-        this.horizonStore = HorizonStore.getInstance();
-
-
-        this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
-        this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.navigationContext = NavigationContext.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 
 
-    }
-
-    // --------------
-    // PROPERTIES
-    // --------------
-
-    // -------------------
-    // LIFECYCLE OVERRIDES
-    // -------------------
-
-    connectedCallback() {
-        super.connectedCallback();
-        const state = this.horizonStore.recoverState();
-        this.callerInformation = this.horizonStore.getCallerInformation();
-        this.landingPageInfo = state.landingPageInfo;
-        this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-        this.incidentDetails = this.horizonStore.getIncidentDetails();
-        this.incidentRecId = this.incidentDetails.incidentRecId;
-    }
-
-    disconnectedCallback() {
-        super.disconnectedCallback();
-    }
+		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 
 
-    // --------------
-    // EVENT HANDLERS
-    // --------------
+	}
+
+	// --------------
+	// PROPERTIES
+	// --------------
+
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+
+	connectedCallback() {
+		super.connectedCallback();
+		const state = this.horizonStore.recoverState();
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		this.landingPageInfo = state.landingPageInfo;
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentRecId = this.incidentDetails.incidentRecId;
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+	}
+
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
 
 	async _debiCheck() {
 		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_DEBI_CHECK, {
@@ -94,18 +94,20 @@ export class SavingsAccountBase extends ViewBase {
 			nextScreen: TelemetryScreen.DEBICHECK
 		});
 
-		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber);
+		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber, () => true);
 
 		if (returnValue.succeeded) {
 			// landingPageInfo returns null sometimes - go get account number from ClientProducts
-			await this._getClientProducts();
+			await this._getClientProducts(() => this._debiCheckServiceError());
 
 			// eslint-disable-next-line no-extra-parens
 			this.debiCheckMandates = (returnValue.result && returnValue.result.mandateSummaryList) || [];
 
+			this.endCallContext = `DebiCheck`;
 			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 		} else {
-			// Todo: Handle error scenario
+			this.logger.log(`error`, `Unable to load debi check mandates`, `_debiCheck`, returnValue.correlationId);
+			this._debiCheckServiceError();
 		}
 	}
 
@@ -161,8 +163,8 @@ export class SavingsAccountBase extends ViewBase {
 		screenDetails.mandateId = this.mandateInfo.mandateName;
 		this.horizonStore.setScreenDetails(screenDetails);
 
-            this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
-        }
+		this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
+	}
 
 	async _approveMandate(screenDetails) {
 		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
@@ -250,12 +252,12 @@ export class SavingsAccountBase extends ViewBase {
 		return true;
 	}
 
-	async _getClientProducts() {
+	async _getClientProducts(customErrHandler = null) {
 		const request = {
 			cifNumber: this.callerInformation.cifNumber,
 			status: `OPEN`
 		};
-		const returnValue = await this.quickTransactionService.getClientProducts(request);
+		const returnValue = await this.quickTransactionService.getClientProducts(request, customErrHandler);
 
 		if (returnValue.succeeded) {
 
@@ -270,6 +272,7 @@ export class SavingsAccountBase extends ViewBase {
 
 	async _confirmAgreement(accepted) {
 		const name = this.callerInformation.name.split(` `);
+		
 		const agreementInfo = {
 			cifNumber: this.callerInformation.cifNumber,
 			mandateRef: this.debiCheckDetails.mandateReference,
@@ -295,7 +298,8 @@ export class SavingsAccountBase extends ViewBase {
 			accountConfirmation: accepted,
 			instalmentConfirmation: accepted,
 			permissionToDebit: accepted,
-			termsAndConditionsConfirmation: accepted
+			termsAndConditionsConfirmation: accepted,
+			documentId: this.clientDetails.data.documentId
 		};
 
 		const returnValue = await this.savingsAccountService.debiCheckConfirmAgreement(agreementInfo);
@@ -334,12 +338,13 @@ export class SavingsAccountBase extends ViewBase {
 			cifNumber: this.callerInformation.cifNumber
 		};
 
-		const returnValue = await this.savingsAccountService.debiCheckAgreement(agreementRequest);
+		const returnValue = await this.savingsAccountService.debiCheckAgreement(agreementRequest, () => true);
 
 		if (returnValue.succeeded && returnValue.result) {
 			this.clientDetails = returnValue.result;
 		} else {
-			this.horizonRouter.navigateToDebiCheckFailed();
+			this.logger.log(`error`, `Unable to get debi check agreement`, `_getAgreement`, returnValue.correlationId);
+			this._debiCheckServiceError();
 		}
 	}
 
@@ -377,27 +382,34 @@ export class SavingsAccountBase extends ViewBase {
 		 */
 		 await super.classifyIncident(() => this._toggleBusyFlag());
 
+		 this.endCallContext = `LandingPage`;
 		 this._setIncidentDone();
 		 this._telemetryEndSpan(eventName, screenName);
 	}
 
 	_shouldDisable(need) {
+		// add this verification method in the verify caller component to check if the client has done ita 
 		const verificationMethod = this.callerInformation.verificationMethod;
-		
-		// TODO: Enable the logic once ITA accept/reject code is done
-		// return verificationMethod === (`unverified` && !LOW_RISK_TRANSACTIONS.includes(need)) || (verificationMethod === `XDS` && HIGH_RISK_TRANSACTIONS.includes(need));
+		const verificationStatus = this.callerInformation.verificationStatus;
 
-		return false;
+		return verificationStatus === `verified`
+				? verificationMethod === `XDS` && HIGH_RISK_TRANSACTIONS.includes(need)
+				: !LOW_RISK_TRANSACTIONS.includes(need);
 	}
 
 	async _getMandateDetails() {
-		const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, this.mandateId, this.registerId);
+		const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, this.mandateId, this.registerId, () => true);
 		
 		if (!returnValue.succeeded || !returnValue.result) {
-			this.horizonRouter.navigateToSystemError();
-			return false;
+			this.logger.log(`error`, `Unable to load debi check mandate details`, `_getMandateDetails`, returnValue.correlationId);
+			this._debiCheckServiceError();
 		}
 		return returnValue.result;
+	}
+
+	_debiCheckServiceError() {
+		this.horizonRouter.navigateToDebiCheckServiceError();
+		return true;
 	}
 
 	// ---------
@@ -445,7 +457,7 @@ export class SavingsAccountBase extends ViewBase {
 			? html`
 				<horizon-viewinfo-debicheck
 					.debiCheckDetails=${this.debiCheckDetails}
-					.isPending=${this.isPending}
+					?isPending=${this.isPending}
 					@viewed="${() => this._closeViewMandateInfo()}"
 				></horizon-viewinfo-debicheck>`
 			: html``;
@@ -469,21 +481,20 @@ export class SavingsAccountBase extends ViewBase {
 					.mandateInfo="${this.mandateInfo}"
 					.debiCheckDetails=${this.debiCheckDetails}
 					.clientDetails=${this.clientDetails}
-					.accountNumber = "${this.accountNumber}"
 					@cancel="${() => this._cancelMandateAction(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE_CANCECL, TelemetryScreen.APPROVE_DEBICHECK)}"
 					@approve="${(event) => this._approveDebiCheckMandate(event)}">
 				</horizon-approve-debicheck-mandate>`
 			: html``;
 	}
 
-    _renderStatementsModal() {
-        return this.renderMode === RENDER_MODE.STATEMENTS
-            ? html`
+	_renderStatementsModal() {
+		return this.renderMode === RENDER_MODE.STATEMENTS
+			? html`
 				<horizon-statements-dialog
 					.callerInformation="${this.callerInformation}"
 					.clientProducts="${this.clientProducts}"
 					@cancel="${() => this._backToLandingPage()}">
 				</horizon-statements-dialog>`
-            : html``;
-    }
+			: html``;
+	}
 }

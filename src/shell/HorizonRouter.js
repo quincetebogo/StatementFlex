@@ -29,6 +29,7 @@ const HORIZON_ROUTES = Object.freeze({
 	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`,
 	DEBICHECK_SUCCESS: `/success/debicheck`,
 	DEBICHECK_FAILED: `/error/debicheck`,
+	DEBICHECK_SERVICE_ERROR: `/error/debicheck-service-error`,
 	STATEMENTS_SUCCESSFUL: `/views/statements/StatementsSuccess`,
 	STATEMENTS_UNSUCCESSFUL: `/views/statements/StatementsUnsuccess`,
 	CARDS_LIMIT_UPDATE_SUCCESS: `/success/card-limit-update`,
@@ -39,9 +40,10 @@ const HORIZON_ROUTES = Object.freeze({
 	TAP_TO_PAY_UNSUCCESSFUL: `/error/tap-to-pay`,
 	TAX_CERTIFICATE_SUCCESSFUL: `/success/tax-certificate`,
 	TAX_CERTIFICATE_FAILURE: `/error/tax-certificate`,
-	TAX_CERTIFICATE_SERVICE_ERROR: `/error/tax-certificate-service-error`
+	TAX_CERTIFICATE_SERVICE_ERROR: `/error/tax-certificate-service-error`,
+	CREDIT_ACCOUNT: `/transact/credit`
 });
- 
+
 
 /**
  * The HorizonRouter class provides a series of functions for navigating to pages.
@@ -212,6 +214,10 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.DEBICHECK_FAILED}`);
 	}
 
+	navigateToDebiCheckServiceError() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.DEBICHECK_SERVICE_ERROR}`);
+	}
+
 	navigateToCardLimitUpdateSuccess() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.CARDS_LIMIT_UPDATE_SUCCESS}`);
 	}
@@ -242,7 +248,7 @@ export class HorizonRouter {
 		// const insure = hasInsuranceProducts ? () => this.navigateToInsureExistingClient() : () => this.navigateToInsureProspectiveClient();
 		const insure = () => this.navigateToProductInfo(`Insure`);
 		const savings = () => this.navigateToSavingsAccount();
-		const credit = () => this.navigateToProductInfo(`Credit`);
+		const credit = () => this.navigateToCreditAccount();
 		const savingsPlan = () => this.navigateToProductInfo(`SavingsPlan`);
 		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
 
@@ -290,6 +296,10 @@ export class HorizonRouter {
 
 	navigateToTapToPaySuccess() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.TAP_TO_PAY_SUCCESSFUL}`);
+	}
+
+	navigateToCreditAccount() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.CREDIT_ACCOUNT}`);
 	}
 
 	_productLandingPagesActive() {
@@ -596,6 +606,14 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
+		name: `horizon-debi-check-service-error`,
+		title: `DebiCheckServiceError`,
+		icon: null,
+		path: HORIZON_ROUTES.DEBICHECK_SERVICE_ERROR,
+		load: () => import(`../views/quickTransactions/DebiCheckServiceError`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
 		name: `horizon-savings-account-landing-page`,
 		title: `SavingsAccount`,
 		icon: null,
@@ -690,5 +708,13 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.TAX_CERTIFICATE_SUCCESSFUL,
 		load: () => import(`../views/taxCertificate/TaxCertificateSuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-credit-account`,
+		title: `CreditAccount`,
+		icon: null,
+		path: HORIZON_ROUTES.CREDIT_ACCOUNT,
+		load: () => import(`../views/credit/CreditAccount`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}
 ];

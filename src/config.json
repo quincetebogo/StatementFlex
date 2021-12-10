@@ -10,7 +10,7 @@
 		"sbl": "http://SBLDEV01.int.capinet:8102/",
 		"cds": "https://clientdocsearchdev.int.capinet:51443/",
 		"cnet": "http://c-net.int.capinet:51001/Pages/default.aspx",
-		"strack": "http://strack-dev.capitecbank.co.za/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
+		"strack": "https://strack-dev.capitecbank.co.za/HEAT?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/",
 		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",
 		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js"
@@ -58,20 +58,21 @@
 		"failed-verification": "FAILED_VERIFICATION",
 		"debi-check-approve": "DEBI_CHECK_APPROVE",
 		"debi-check-decline": "DEBI_CHECK_DECLINE",
-		"debi-check-viewInfo": "DEBI_CHECK"
+		"debi-check-viewInfo": "DEBI_CHECK",
+		"abandoned-verification": "TELEPHONY_NO_SHOW"
 	},
 	"mock": {
 		"enabled": true,
 		"acceptCall": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"identifyCaller": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
@@ -100,11 +101,11 @@
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"debiCheckDetails": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"cardLimits": {
@@ -112,23 +113,23 @@
 			"positiveCase": true
 		},
 		"hasInsuranceProducts": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"stopCardLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"stopCard": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": false
 		},
 		"transactionHistory": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"savingsAccountLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"tapToPayLanding": {
@@ -137,6 +138,10 @@
 		},
 		"viewStatements": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"accessChannel": {
+			"enabled": true,
 			"positiveCase": true
 		}
 	}

@@ -5,6 +5,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonSignalRClient } from 'app/shell/HorizonSignalRClient';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { ITAChannelService } from 'app/services/ITAChannelService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { VerifyCallerEvents } from 'app/constants/telemetry/events/VerifyCaller';
 import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
@@ -13,6 +14,7 @@ import 'app/components/common/OptionButton';
 import 'app/components/common/CallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyBySecurityQuestions';
+import 'app/components/Common/ComponentCountdown';
 
 const RENDER_MODE = Object.freeze({
 	VERIFY_CALLER: 1,
@@ -62,7 +64,7 @@ export class VerifyCaller extends Component {
 		// Property initialization
 		this.renderMode = RENDER_MODE.VERIFY_CALLER;
 		this.incomingCallDetails = null;
-        this.timeLeft = `70`;		
+		this.timeLeft = `70`;
 		this.seconds = ITA_TIMEOUT_SECS;
 		this.appTimedOut = false;
 		this.isBusy = false;
@@ -75,6 +77,7 @@ export class VerifyCaller extends Component {
 		this.noOfXdsVerificationAttempted = 0;
 		this.itaVerificationFailed = false;
 		this.hasSouthAfricanID = false;
+		this.startTimer = false;
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
@@ -84,6 +87,7 @@ export class VerifyCaller extends Component {
 		this._telemetry = HorizonTelemetry.instance;
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._xdsErrorHandler(ex));
+		this.itaService = new ITAChannelService(() => this._toggleBusyFlag());
 	}
 
 	// ----------
@@ -94,6 +98,9 @@ export class VerifyCaller extends Component {
 	 * @property {Object} incomingCallDetails Information on the incoming call
 	 * @property {Object} callerInformation Information (mini-profile) on the incoming caller
 	 * @property {object} incidentDetails Incident details
+	 * @property {string} verificationStatus Indicates if the client is verified, unverified, non-client etc.
+	 * @property {String} verificationMethod Indicated the type of verification (xds/ita)
+	 
 	 * 
 	 */
 	static get properties() {
@@ -102,6 +109,8 @@ export class VerifyCaller extends Component {
 			callerInformation: { type: Object },
 			noOfXdsVerificationAttempted: { type: Number },
 			incidentDetails: { type: Object },
+			verificationStatus: { type: String },
+			verificationMethod: { type: String },
 
 			renderMode: { attribute: false },
 			timeLeft: { attribute: false },
@@ -112,7 +121,8 @@ export class VerifyCaller extends Component {
 			loading: { attribute: false },
 			itaVerificationFailed: { attribute: false },
 			foreignClientErr: { attribute: false },
-			hasSouthAfricanID: { attribute: false }
+			hasSouthAfricanID: { attribute: false },
+			startTimer: { attribute: false }
 		};
 	}
 
@@ -135,13 +145,17 @@ export class VerifyCaller extends Component {
 
 		this.itaFailedCount = this.callerInformation.verificationAttempts.itaAttempts;
 		this.appTimedOut = this.itaFailedCount >= MAX_ITA_ATTEMPTS;
+		if (this.callerInformation.verificationStatus === `verified` && this.callerInformation.verificationMethod === `XDS`) {
 
+			this._updateApplicationState(`verified`, `XDS`);
+		}
 		// function for stopping the ITA timer
 		this._stopTimer = () => {
 			this._stopSignalRConnection();
 
 			if (this.itaTimer) {
 				clearInterval(this.itaTimer);
+				this.startTimer = false;
 				this.itaTimer = null;
 				this.logger.log(`info`, `ITA timer stopped`, `VerifyCaller`);
 			}
@@ -250,6 +264,19 @@ export class VerifyCaller extends Component {
 
 		this.callerInformation.verificationAttempts.itaAttempts = this.itaFailedCount;
 		this.dispatchEvent(new CustomEvent(`skip`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
+	}
+
+	_cancelClick() {
+		this._telemetry.logEvent(VerifyCallerEvents.ITA_CANCEL_CLICK, {
+			"screen": TelemetryScreen.VERIFY_CALLER,
+			"next-screen": null // TODO: Determine by need and failed verification counts
+		});
+
+		this._stopSignalRConnection();
+		this._updateApplicationState(`verified`, `XDS`);
+		this.callerInformation.verificationAttempts.itaAttempts = this.itaFailedCount;
+		this.dispatchEvent(new CustomEvent(`cancel`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
+	
 	}
 
 	_skippedSecurityQuestions(event) {
@@ -364,27 +391,35 @@ export class VerifyCaller extends Component {
 				}, true);
 
 				this._stopTimer();
-				
+
 				this.itaTimer = null;
 				this.itaFailedCount += 1;
 				this.appTimedOut = true;
 
 				if (this.itaFailedCount >= MAX_ITA_ATTEMPTS) {
 					this._navigateToItaVerificationFailed();
+				} else if (this.itaFailedCount < MAX_ITA_ATTEMPTS && (this.callerInformation.verificationStatus === `verified` && this.callerInformation.verificationMethod === `XDS`)) {
+
+					this._updateApplicationState(`verified`, `XDS`);
 				} else {
 					this._updateApplicationState(`unverified`, `unverified`);
 				}
 			}
 
-            this.timeLeft = `${this.seconds < 10 ? `0` : ``}${this.seconds.toString()}`;
+			this.timeLeft = `${this.seconds < 10 ? `0` : ``}${this.seconds.toString()}`;
 		}, 1000);
 
 		return startTimer;
 	}
 
 	_navigateToItaVerificationFailed() {
+		if (this.itaFailedCount >= MAX_ITA_ATTEMPTS && (this.callerInformation.verificationStatus === `verified` && this.callerInformation.verificationMethod === `XDS`)) {
+
+			this._updateApplicationState(`verified`, `XDS`);
+		} else {
 		this._updateApplicationState(`failed`, `unverified`);
 		this.horizonRouter.navigateToItaVerificationFailed();
+		}
 	}
 
 	async _initiateItaVerification() {
@@ -439,7 +474,7 @@ export class VerifyCaller extends Component {
 				connectionID: connectionID
 			};
 
-			const returnValue = await this.callHandleService.itaVerification(request, (ex) => this._itaErrorHandler(ex));
+			const returnValue = await this.itaService.itaVerification(request, (ex) => this._itaErrorHandler(ex));
 
 			if (returnValue.succeeded) {
 
@@ -455,6 +490,7 @@ export class VerifyCaller extends Component {
 
 				if (this.itaFailedCount < MAX_ITA_ATTEMPTS) {
 					this.logger.log(`info`, `ITA timer started`, `_itaServiceCall`);
+					this.startTimer = true;
 					this.itaTimer = this._startTimer();
 				}
 			} else {
@@ -573,6 +609,11 @@ export class VerifyCaller extends Component {
 					width: 210px;
 					margin: 18px 0px 13px 0px;
 				}
+				.ita-timeout-svg {
+					height: 152px;
+					width: 210px;
+					margin: 18px 0px 20px 0px;
+				}
 				.notification-info {
 					color: #545D60;
 					font-family: "Hind Vadodara";
@@ -580,7 +621,7 @@ export class VerifyCaller extends Component {
 					font-weight: 500;
 					letter-spacing: 0;
 					line-height: 24px;
-					margin-bottom: 0px;
+					margin-bottom: 10px;
 				}
 				.timer-bold {
 					font-weight: 700;
@@ -683,13 +724,21 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderEndCallModal() {
+		let status = ``;
+
+		if (this.seconds > 0 && this.seconds < ITA_TIMEOUT_SECS) {
+			status = `InProgress`;
+		} else if (this.callerInformation.verificationAttempts.itaAttempts > 0) {
+			status = `Failed`;
+		}
+
 		return this.renderMode !== RENDER_MODE.END_CALL
 			? html``
 			: html`
 				<horizon-end-call-session 
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.incidentDetails="${this.incidentDetails}"
-					endCallContext="VerifyClient"
+					endCallContext='VerifyClient${status}'
 					@cancel="${() => this.renderMode = RENDER_MODE.VERIFY_CALLER}">
 				</horizon-end-call-session>`;
 	}
@@ -702,21 +751,10 @@ export class VerifyCaller extends Component {
 									halign="stretch" 
 									valign="top"
 									gap="clear">
-						<capitec-alert-banner type="info">
-							Notify client that a push notification has been sent and they need to accept to continue.
-						</capitec-alert-banner>
-						<capitec-group layout="vertical"
-									halign="center"
-									valign="top"
-									gap="clear"
-									id="notification-status-group">
-							<img src="/images/insure/sms.svg" class="sms-svg"/>
-							<div class="notification-info">
-								You have <span class="timer-bold">${this.timeLeft} seconds</span> remaining.
-							</div>
-							<capitec-label type="title" label="If the client has not received the notification, choose Try Again.">
-							</capitec-label>
-						</capitec-group>
+						
+									${this._renderHeaderLabels()}
+									${this._renderCountdown()}
+									${this._renderLabels()}
 					</capitec-group>
 				</capitec-content-box>
 			`;
@@ -724,14 +762,73 @@ export class VerifyCaller extends Component {
 		return html``;
 	}
 
+	_renderHeaderLabels() {
+		if (this.seconds < 16 && this.seconds > 0) {
+			return html`
+			<capitec-alert-banner type="warning">
+				<b>Notify client:</b> Your time is about to run out.
+			</capitec-alert-banner>`;
+		} 
+		
+		return html`
+			<capitec-alert-banner type="info">
+				<b>Notify client:</b> A push notification was sent to your phone, you need to accept to continue.
+			</capitec-alert-banner>`;
+	}
+
+	_renderCountdown() {
+		return html`
+			<capitec-group layout="vertical"
+					halign="center"
+					valign="top"
+					gap="clear"
+					id="notification-status-group">
+				<horizon-countdown
+					.startTicking="${this.startTimer}">
+				</horizon-countdown>
+			</capitec-group>
+			`;
+	}
+
+	_renderLabels() {
+		if (this.seconds < 16 && this.seconds > 0) {
+			return html`
+			<capitec-group layout="vertical"
+					halign="center"
+					valign="top"
+					gap="clear"
+					id="notification-status-group">
+				<div class="notification-info">
+					<b>There are <span class="timer-bold">${this.timeLeft} seconds</span> left.</b>
+				</div>
+				<capitec-label type="title" label="You'll need to try again if the timer runs out.">
+				</capitec-label>
+			</capitec-group>`;
+		} 
+
+		return html`
+			<capitec-group layout="vertical"
+					halign="center"
+					valign="top"
+					gap="clear"
+					id="notification-status-group">
+			
+				<div class="notification-info">
+					There are <span class="timer-bold">${this.timeLeft} seconds</span> left.
+				</div>
+				<capitec-label type="title"
+					label= "Check your verified cellphone to accept."></capitec-label>
+			</capitec-group>`;
+	}
+
 	_renderPushNotificationError() {
 		if (this.callerInformation.hasDigitalChannels && (this.appTimedOut || this.itaVerificationFailed) && !this.xdsMessage) {
 
 			let message = ``;
 			if (this.appTimedOut) {
-				message = `The client did not accept the notification in time`;
+				message = `You didn't accept the push notification in time.`;
 			} else if (this.itaVerificationFailed && !this.itaMessage) {
-				message = `The client rejected the notification`;
+				message = `The client rejected the notification.`;
 			} else {
 				message = `The notification didn't send due to a system error.`;
 			}
@@ -743,20 +840,23 @@ export class VerifyCaller extends Component {
 									valign="top" 
 									gap="clear">
 						<capitec-alert-banner type="error">
-							${message} 
+						<b>Notify client:</b> ${message} 
 						</capitec-alert-banner>
-						<capitec-group layout="vertical"
-										halign="center"
-										valign="top"
-										gap="clear" 
-										id="notification-status-error-group">
-							<img src="/images/insure/connection-error.svg" class="connection-error-svg"/>
-							<div class="notification-info">
-								An error has occured.
-							</div>
-							<capitec-label type="title"
-								label="Notify the client and either try again${this.hasSouthAfricanID ? ` or complete through security questions.` : ``}">
-							</capitec-label>
+			<capitec-group layout="vertical"
+					halign="center"
+					valign="top"
+					gap="clear"
+					id="notification-status-group">
+					<img src="/images/common/ita-timeout.svg" class="ita-timeout-svg"/>
+				
+				<div class="time-out-notification-info">
+					<b>You can try again or choose another option.</b>
+				</div>
+				<capitec-label type="title">
+					<b>You can try again or choose another option.</b>
+				</capitec-label>
+				<capitec-group>
+			</capitec-group>
 						</capitec-group>
 					</capitec-group>
 				</capitec-content-box>
@@ -778,10 +878,10 @@ export class VerifyCaller extends Component {
 							${this.xdsMessage}
 						</capitec-alert-banner>
 						<capitec-group layout="vertical" 
-                                        halign="center"
-                                        valign="top" 
-                                        gap="clear"
-                                        id="notification-status-error-group">
+										halign="center"
+										valign="top" 
+										gap="clear"
+										id="notification-status-error-group">
 							<img src="/images/insure/connection-error.svg" class="connection-error-svg"/>
 							<div class="notification-info">
 								An error has occured.
@@ -797,7 +897,33 @@ export class VerifyCaller extends Component {
 		return html``;
 	}
 
-    _renderOtherOptions() {
+	_renderOtherOptions() {
+		if (this.callerInformation.verificationStatus === `verified` && this.callerInformation.verificationMethod === `XDS`) {
+			
+			return html`
+				<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
+				<capitec-content-box id="relation-options-btn">
+					<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
+						<horizon-option-button 
+							label="Cancel"
+							icon="system/close-action" 
+							iconSize="default"
+							@click="${() => this._cancelClick()}">
+						</horizon-option-button>
+						<horizon-option-button
+						class="btnTryAgain"
+							label="Try Again" 
+							img-src="/images/insure/refresh.svg"
+							iconSize="default"
+							?hidden=${!this.appTimedOut || this.itaFailedCount >= MAX_ITA_ATTEMPTS}
+							@click="${() => this._tryAgain()}">
+						</horizon-option-button>
+					</capitec-group>
+				</capitec-content-box>
+			`;
+
+		}
+
 		return html`
 			<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
 			<capitec-content-box id="relation-options-btn">
@@ -813,14 +939,15 @@ export class VerifyCaller extends Component {
 						label="Skip"
 						icon="system/arrow-right-action" 
 						iconSize="default"
-					    @click="${() => this._skipClick()}">
+						@click="${() => this._skipClick()}">
 					</horizon-option-button>
 					<horizon-option-button
-					class="btnTryAgain"
+						class="btnTryAgain"
 						label="Try Again" 
 						img-src="/images/insure/refresh.svg"
 						iconSize="default"
 						?hidden=${!this.callerInformation.hasDigitalChannels || this.itaFailedCount >= MAX_ITA_ATTEMPTS}
+						?disabled="${!this.appTimedOut && !this.itaVerificationFailed && !this.itaMessage}"
 						@click="${() => this._tryAgain()}">
 					</horizon-option-button>
 				</capitec-group>

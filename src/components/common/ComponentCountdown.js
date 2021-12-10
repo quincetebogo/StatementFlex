@@ -48,7 +48,7 @@ export class ComponentCountdown extends Component {
 		this.timeLeft = this.timeLimit;
 		this.timerInterval = null;
 		this.remainingPathColor = this.COLOR_CODES.info.color;
-		this.startTimer();
+		this._startTimer = false;
 	}
 
 	// ----------
@@ -78,8 +78,22 @@ export class ComponentCountdown extends Component {
 			timeLeft: { type: Number, attribute: false },
 			timeLimit: { type: Number, attribute: `time-limit` },
 			warningThreshold: { type: Number, attribute: `warning-threshold` },
-			alertThreshold: { type: Number, attribute: `alert-threshold` }
+			alertThreshold: { type: Number, attribute: `alert-threshold` },
+			startTicking: { type: Boolean }
 		};
+	}
+
+	get startTicking() {
+		return this._startTimer;
+	}
+
+	set startTicking(val) {
+		this._startTimer = val;
+		if (val) {
+			this.startTimer();
+		} else {
+			clearInterval(this.timerInterval);
+		}
 	}
 
 	// -------------------
@@ -128,8 +142,8 @@ export class ComponentCountdown extends Component {
 		}, 1000);
 	}
 
-	//TODO: TEST the Reset function to put timer back to 60/70
-	//TEST: "Try Again" button will implement this functionality 
+	// TODO: TEST the Reset function to put timer back to 60/70
+	// TEST: "Try Again" button will implement this functionality 
 	resetTimer() {
 		clearInterval(this.timerInterval);
 		
@@ -147,7 +161,7 @@ export class ComponentCountdown extends Component {
 	}
 
 	formatTime(time) {
-		const minutes = "0" + Math.floor(time / 60);
+		const minutes = `0${Math.floor(time / 60)}`;
 		let seconds = time % 60;
 
 		if (seconds < 10) {
