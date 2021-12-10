@@ -44,8 +44,8 @@ const HORIZON_ROUTES = Object.freeze({
 	TAX_CERTIFICATE_SERVICE_ERROR: `/error/tax-certificate-service-error`,
 	AUTOMATIC_SAVINGS_SUCCESS : `/success/automatic-savings`,
 	AUTOMATIC_SAVINGS_FAILED : `/error/automatic-savings`,
-  LIVE_BETTER: `/liveBetter`,
-	LIVE_BETTER_SYSTEM_ERROR : `/error/live-better`
+	LIVE_BETTER: `/liveBetter`,
+	LIVE_BETTER_SYSTEM_ERROR : `/error/live-better`,
 	CREDIT_ACCOUNT: `/transact/credit`
 });
 
