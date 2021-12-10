@@ -134,6 +134,7 @@ export class EndCallSession extends Component {
 
 		this._setDefaultValues();
 		this.incidentInfo = await this._incidentStatus() || {};
+		this._loading();
 	}
 
 	disconnectedCallback() {
@@ -280,6 +281,10 @@ export class EndCallSession extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_loading() {
+		this.dispatchEvent(new CustomEvent(`on-loading`, {}));
+	}
 
 	_setDefaultValues() {
 		const incidentDetails = this.horizonStore.getIncidentDetails();

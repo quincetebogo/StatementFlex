@@ -233,7 +233,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_updateXdsAuthenticationAttempts(securityQuestions) {
-		let authHistory = securityQuestions.authenticationHistory;
+		const authHistory = securityQuestions.authenticationHistory;
 
 		// TODO: next line is debug - remember to remove
 		// authHistory = null;
@@ -592,6 +592,15 @@ export class VerifyCaller extends Component {
 			!this.xdsUnavailable &&
 			!this.callerInformation.hasDigitalChannels; // The client does not have the app
 	}
+
+	async _cancelEndCall() {
+		if (!this.itaRejected) {
+			await this._initiateItaVerification();
+		}
+
+		this.renderMode = RENDER_MODE.VERIFY_CALLER;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -834,7 +843,8 @@ export class VerifyCaller extends Component {
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.incidentDetails="${this.incidentDetails}"
 					endCallContext='VerifyClient${status}'
-					@cancel="${() => this.renderMode = RENDER_MODE.VERIFY_CALLER}">
+					@cancel="${() => this._cancelEndCall()}"
+					@on-loading="${() => this.itaService.close()}">
 				</horizon-end-call-session>`;
 	}
 
