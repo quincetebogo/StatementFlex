@@ -220,7 +220,7 @@ export class ManageAutomaticSavings extends Component {
 				.round-up-account{
 					padding: 8px 16px 15px 16px;
 				}
-				.round-up-account > capitec-check { */
+				.round-up-account > capitec-check {
 					height: 40px;
 					padding: 8px 0px;
 				}
