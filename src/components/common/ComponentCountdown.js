@@ -211,12 +211,12 @@ export class ComponentCountdown extends Component {
 				}
 
 				.path-elapsed {
-					stroke-width: 7px;
+					stroke-width: 5px;
 					opacity: 0.2;
 				}
 
 				.path-remaining {
-					stroke-width: 7px;
+					stroke-width: 5px;
 					stroke-linecap: round;
 					transform: rotate(90deg);
 					transform-origin: center;
