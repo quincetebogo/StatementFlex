@@ -938,7 +938,7 @@ export class VerifyCaller extends Component {
 					<horizon-option-button 
 						label="Skip"
 						icon="system/arrow-right-action" 
-						iconSize="default"
+						iconSize="small"
 						@click="${() => this._skipClick()}">
 					</horizon-option-button>
 					<horizon-option-button
