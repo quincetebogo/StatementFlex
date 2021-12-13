@@ -508,7 +508,7 @@ export class UpdateCardLimits extends Component {
 
 	_getTextFieldHint(value, isCNPLimit = false) {
 		if (this.verificationMethod === `XDS` && isCNPLimit) {
-			return `Have to verify client via ITA to update`;
+			return ``;
 		}
 
 		if (this.limitType === `Temporary`) {
@@ -899,7 +899,7 @@ export class UpdateCardLimits extends Component {
 						<capitec-group layout="horizontal" class="alert-banner-group">
 							<capitec-label type="strong" label="Notify client:"></capitec-label>
 							<capitec-label type="default"
-								label="For added security, we will be sending a push notification to access additional transactions.">
+								label="To update your Online limit, we will need to send you a push notification to proceed.">
 							</capitec-label>
 							<capitec-spacer></capitec-spacer>
 							<capitec-hyperlink
