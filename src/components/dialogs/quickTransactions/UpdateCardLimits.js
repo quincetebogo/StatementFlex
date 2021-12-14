@@ -507,10 +507,6 @@ export class UpdateCardLimits extends Component {
 	}
 
 	_getTextFieldHint(value, isCNPLimit = false) {
-		if (this.verificationMethod === `XDS` && isCNPLimit) {
-			return ``;
-		}
-
 		if (this.limitType === `Temporary`) {
 			return isNullorEmpty(value) ? `Limit not set` : this.expiryDate;
 		}
