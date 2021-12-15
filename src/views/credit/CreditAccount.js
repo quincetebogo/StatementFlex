@@ -4,6 +4,7 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { ViewBase } from '../common/ViewBase';
 
 import 'app/productControls/Credit/src/CreditAccountLanding';
+import 'app/components/dialogs/common/CreditStatements';
 
 /**
  * Credit Account View
@@ -159,6 +160,7 @@ export class CreditAccount extends ViewBase {
 
 	_getStatements() {
 		// TO DO: Place holder for credit statements flow.
+		this.renderMode = RENDER_MODE.STATEMENTS;
 	}
 
 	_settlementQuote() {
@@ -186,6 +188,15 @@ export class CreditAccount extends ViewBase {
 		window.open(`${globalOneUrl}credit/get-credit-for-all-your-needs/`);
 
 	}
+	_backToLandingPage() {
+
+		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
+			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		}
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
 
 	// ---------
 	// RENDERING
@@ -199,6 +210,7 @@ export class CreditAccount extends ViewBase {
 		return html`
 			${super._webTemplate()}
 			${this._renderLandingPage()}
+			${this._renderStatements()}
 		`;
 	}
 
@@ -215,8 +227,15 @@ export class CreditAccount extends ViewBase {
 				@option-click = "${(e) => this._optionClick(e.detail.option)}">
 			</capitec-pc-credit-account>`;
 	}
-	
 
+	_renderStatements(){
+		return this.renderMode === RENDER_MODE.STATEMENTS
+		? html`			
+			<horizon-credit-statements-dialog
+				@cancel="${()=> this._backToLandingPage()}">
+			</horizon-credit-statements-dialog>`
+		: html``;
+	}
 }
 
 customElements.define(`horizon-credit-account`, CreditAccount);
