@@ -73,7 +73,8 @@ export class ItaVerificationFailed extends ViewBase {
 					width: 550px;
 				}
 				horizon-error-screen {
-					--horizon-error-screen-size: 912px;
+					--horizon-error-screen-height: 876px;
+					--horizon-error-screen-size: 876px;
 				}
 			`
 		];

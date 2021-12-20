@@ -95,6 +95,7 @@ export class XdsVerificationFailed extends ViewBase {
 					width: auto;
 				}
 				horizon-error-screen {
+					--horizon-error-screen-height: 876px;
 					--horizon-error-screen-size: 889px;
 				}
 			`

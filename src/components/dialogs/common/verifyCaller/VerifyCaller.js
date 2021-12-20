@@ -507,7 +507,7 @@ export class VerifyCaller extends Component {
 		const blockedOnXDS = this.hasSouthAfricanID ? this._xdsAttemptsExceeded() : false;
 
 		// If the client is blocked on both we cannot verify.
-		return blockedOnITA || blockedOnXDS;
+		return blockedOnITA && blockedOnXDS;
 	}
 
 	/**
