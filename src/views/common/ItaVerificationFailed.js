@@ -31,6 +31,12 @@ export class ItaVerificationFailed extends ViewBase {
 	// PRIVATE METHODS
 	// -------------
 
+	async _clientVerified(event) {
+		await super._clientVerified(event);
+
+		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
+	}
+
 	_updateLeftBar() {
 		const state = {
 			leftBarButtonConfig: {

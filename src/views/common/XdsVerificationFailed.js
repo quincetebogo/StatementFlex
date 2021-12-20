@@ -39,6 +39,16 @@ export class XdsVerificationFailed extends ViewBase {
 		this.endCallContext = `VerifyClientFailed`;
 	}
 
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	async _clientVerified(event) {
+		await super._clientVerified(event);
+
+		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
+	}
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------

@@ -289,7 +289,6 @@ export class VerifyCaller extends Component {
 			"next-screen": null // TODO: Determine by need and failed verification counts
 		});
 
-		this._updateApplicationState(`unverified`, `unverified`);
 		this.callerInformation.verificationAttempts.itaAttempts = this.itaFailedCount;
 		this.dispatchEvent(new CustomEvent(`cancel`, { detail: 
 			{ 
@@ -508,7 +507,7 @@ export class VerifyCaller extends Component {
 		const blockedOnXDS = this.hasSouthAfricanID ? this._xdsAttemptsExceeded() : false;
 
 		// If the client is blocked on both we cannot verify.
-		return blockedOnITA && blockedOnXDS;
+		return blockedOnITA || blockedOnXDS;
 	}
 
 	/**
@@ -758,27 +757,27 @@ export class VerifyCaller extends Component {
 		// This is for high risk transactions
 		if (this.callerInformation.verificationStatus === `verified` && this.callerInformation.verificationMethod === `XDS`) {
 			
-				return html`
-			<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
-			<capitec-content-box id="relation-options-btn">
-				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
-					<horizon-option-button 
-						label="Cancel"
-						icon="system/close-action" 
-						iconSize="default"
-						@click="${() => this._cancelClick()}">
-					</horizon-option-button>
-					<horizon-option-button
-					class="btnTryAgain"
-						label="Try Again" 
-						img-src="/images/insure/refresh.svg"
-						iconSize="default"
-						?hidden=${!this.appTimedOut || this.itaFailedCount >= MAX_ITA_ATTEMPTS}
-						@click="${() => this._tryAgain()}">
-					</horizon-option-button>
-				</capitec-group>
-			</capitec-content-box>`;
-		} 
+			return html`
+				<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
+				<capitec-content-box id="relation-options-btn">
+					<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
+						<horizon-option-button 
+							label="Cancel"
+							icon="system/close-action" 
+							iconSize="default"
+							@click="${() => this._cancelClick()}">
+						</horizon-option-button>
+						<horizon-option-button
+							class="btnTryAgain"
+							label="Try Again" 
+							img-src="/images/insure/refresh.svg"
+							iconSize="default"
+							?hidden=${!this.itaTimeout || this.itaFailedCount >= MAX_ITA_ATTEMPTS}
+							@click="${() => this._tryAgain()}">
+						</horizon-option-button>
+					</capitec-group>
+				</capitec-content-box>`;
+		}
 
 		return html`
 			<capitec-title-bar type="default" label="Choose option"></capitec-title-bar>
@@ -798,11 +797,19 @@ export class VerifyCaller extends Component {
 						@click="${() => this._skipClick()}">
 					</horizon-option-button>
 					<horizon-option-button
-					  class="btnTryAgain"
-						label="Verify Via App/USSD" 
+						class="btnTryAgain"
+						label="Try Again"
+						img-src="/images/insure/refresh.svg"
+						iconSize="default"
+						?hidden=${!(this.itaTimeout || this.itaRejected) || this.itaFailedCount >= MAX_ITA_ATTEMPTS || this._failedFirstXdsAttempt()}
+						@click="${() => this._tryAgain()}">
+					</horizon-option-button>
+					<horizon-option-button
+						class="btnTryAgain"
+						label="Verify Via App/USSD"
 						icon="system/cellphone-action"
 						iconSize="default"
-						?hidden=${!this.callerInformation.hasDigitalChannels || this._itaAttemptsExceeded() || this._itaInProgress()}
+						?hidden=${!this.callerInformation.hasDigitalChannels || this._itaAttemptsExceeded() || this._itaInProgress() || !this._failedFirstXdsAttempt()}
 						@click="${() => this._tryAgain()}">
 					</horizon-option-button>
 				</capitec-group>
