@@ -1,5 +1,9 @@
 import { Component, css, html } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+
 import 'platform/components';
 
 const ACCESS_CHANNELS_TYPE = {
@@ -37,6 +41,8 @@ export class AccessChannels extends Component {
 
 	constructor() {
 		super();
+
+		this._telemetry = HorizonTelemetry.instance;
 	}
 
 	// --------------
@@ -59,10 +65,16 @@ export class AccessChannels extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		this._telemetry.startSpan(QuickTransactionEvents.CARD_LIMITS, {
+			"screen": TelemetryScreen.CARD_LIMITS_LANDING
+		});
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+		this._telemetry.endSpan(QuickTransactionEvents.CARD_LIMITS, {
+			"screen": TelemetryScreen.CARD_LIMITS_LANDING
+		});
 	}
 
 	// --------------
