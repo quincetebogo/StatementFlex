@@ -829,6 +829,7 @@ export class UpdateCardLimits extends Component {
 			}
 			.alert-banner-group > capitec-label[type="default"] {
 				--theme-label-default-font-weight: 500;
+				margin-right: 50px;
 			}
 			`
 		];
@@ -887,7 +888,7 @@ export class UpdateCardLimits extends Component {
 	}
 
 	_renderHighRiskTransAlertBanner() {
-		return this.verificationMethod === `XDS` && this.renderMode === RENDER_MODE.LIMITS
+		return this.verificationMethod === `XDS` && this.cardDetails.cardDisplayType !== CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD && this.renderMode === RENDER_MODE.LIMITS
 			? html`
 				<capitec-alert-banner
 					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
