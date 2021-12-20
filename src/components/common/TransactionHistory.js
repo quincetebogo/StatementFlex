@@ -90,7 +90,7 @@ export class TransactionHistory extends Component {
 	 */
 
 	/**
-	 * @property {Object} transactionHistoryList - Object holds transaction data
+	 * @property {Object} transactionHistory - Object holds transaction data
 	 * @property {Object} accountDetails - Account details (Account number, balance, etc..)
 	 * @property {String} type - Type of account (savings/ lbb/ credit)
 	 * 
@@ -106,7 +106,7 @@ export class TransactionHistory extends Component {
 
 	static get properties() {
 		return {
-			transactionHistoryList: { type: Object },
+			transactionHistory: { type: Object },
 			accountDetails: { type: Object },
 			type: { type: String },
 
