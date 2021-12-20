@@ -48,7 +48,7 @@ export class HorizonMonthCalendar extends Component {
 		this.error = null;
 		this.label = null;
 		this.today = new DateTime.now();
-		this.minDate = DateTime.local(2001, 1);		
+		this.minDate = DateTime.local(2001, 1);
 		this.maxDate = this.today;
 		this.months = [`Jan`, `Feb`, `Mar`, `Apr`, `May`, `Jun`, `Jul`, `Aug`, `Sep`, `Oct`, `Nov`, `Dec`];
 		this.year = this.today.year;
@@ -64,7 +64,7 @@ export class HorizonMonthCalendar extends Component {
 			.subscribe((event) => {
 				this._windowWidth = event.target.innerWidth;
 			});
-			this.buttonType=[];
+			this.buttonType = [];
 	}
 
 	// ----------
@@ -99,7 +99,7 @@ export class HorizonMonthCalendar extends Component {
 			label: { type: String },
 			minDate: { type: String, converter: dateConverter },
 			maxDate: { type: String, converter: dateConverter },
-			year: { type: Number},
+			year: { type: Number },
 			buttonType: { type: Array },
 
 			_isFocussed: { type: Boolean },
@@ -136,7 +136,6 @@ export class HorizonMonthCalendar extends Component {
 	// PUBLIC METHODS
 	// --------------
 
-
 	_toggleExpander() {
 		this._showExpander = !this._showExpander;
 		this._isFocussed = this._showExpander;
@@ -150,20 +149,33 @@ export class HorizonMonthCalendar extends Component {
 		return `Choose another date`;
 	}
 
-	_dateSelected(index){
-		if(this.buttonType[index]==="white"){
+	_dateSelected(index) {
+		if (this.buttonType[index] === `white`) {
 			return;
 		}
 		this._toggleExpander();
 		this.dispatchEvent(new CustomEvent(`value-changed`, {
-			detail:{
+			detail: {
 				month: this.months[index],
-				year: this.year			
+				year: this.year
 			}
-
 		}));
 		
 		this.requestUpdate();
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_nextYear() {
+		if (this.year < this.today.year) {
+			this.year++;
+		}
+	}
+
+	_previourYear() {
+		this.year--;
 	}
 
 	// ---------
@@ -360,13 +372,13 @@ export class HorizonMonthCalendar extends Component {
 				<capitec-group>
 					<div class="yearContainer">
 						<capitec-group layout="horizontal">
-							<div class="leftArrow" @click=${() => {this.year--}}>
+							<div class="leftArrow" @click=${() => this._previourYear()}>
 								<img
 									class="rotateChevronLeft"
 									src="./platform/icons/system/chevron-down-action.svg"/>
 							</div>
 							<capitec-label type="strong" label="${this.year}"></capitec-label>
-							<div class="rightArrow" @click=${() => {this.year<this.today.year ? this.year++ : ``}}>
+							<div class="rightArrow" @click=${() => this._nextYear()}>
 								<img
 									class="rotateChevronRight"
 									src="./platform/icons/system/chevron-down-action.svg"/>
@@ -375,42 +387,45 @@ export class HorizonMonthCalendar extends Component {
 					</div>
 
 					<div class="monthContainer">
-						${this.months.map((item, index)=>this._renderButtons(item, index))}
+						${this.months.map((item, index) => this._renderButtons(item, index))}
 					</div>
 				</capitec-group>
 			</div>
 		`;
 	}
 
-	_renderButtons(name, index){
+	_renderButtons(name, index) {
 
-		if(this.minDate.year>this.year){
-			return html`
-				<capitec-button class="monthButton" type="${this.buttonType[index] = `white`}" label="${name}" @click="${e => this._dateSelected(index)}"></capitec-button>
-			`;
-		}
-		if(this.minDate.year === this.year && this.minDate.month > this.months.indexOf(name)){
-			return html`
-				<capitec-button class="monthButton" type="${this.buttonType[index] = `white`}" label="${name}" @click="${e => this._dateSelected(index)}"></capitec-button>
-			`;
-		}
-		if(this.maxDate.year<this.year){
-			return html`
-				<capitec-button class="monthButton" type="${this.buttonType[index] = `white`}" label="${name}" @click="${e => this._dateSelected(index)}"></capitec-button>
-			`;
-		}
-		if(this.maxDate.year === this.year && this.maxDate.month <= this.months.indexOf(name)){
+		if (this.minDate.year > this.year) {
 			return html`
 				<capitec-button class="monthButton" type="${this.buttonType[index] = `white`}" label="${name}" @click="${e => this._dateSelected(index)}"></capitec-button>
 			`;
 		}
 
-		if(this.year === this.today.year && this.today.monthShort === name){
+		if (this.minDate.year === this.year && this.minDate.month > this.months.indexOf(name)) {
+			return html`
+				<capitec-button class="monthButton" type="${this.buttonType[index] = `white`}" label="${name}" @click="${e => this._dateSelected(index)}"></capitec-button>
+			`;
+		}
+
+		if (this.maxDate.year < this.year) {
+			return html`
+				<capitec-button class="monthButton" type="${this.buttonType[index] = `white`}" label="${name}" @click="${e => this._dateSelected(index)}"></capitec-button>
+			`;
+		}
+
+		if (this.maxDate.year === this.year && this.maxDate.month <= this.months.indexOf(name)) {
+			return html`
+				<capitec-button class="monthButton" type="${this.buttonType[index] = `white`}" label="${name}" @click="${e => this._dateSelected(index)}"></capitec-button>
+			`;
+		}
+
+		if (this.year === this.today.year && this.today.monthShort === name) {
 			return this.maxDate >= this.today 
 			? html`
 				<capitec-button class="monthButton"  label="${name}" @click="${e => this._dateSelected(index)}"></capitec-button>`
 			: html``;
-		}		
+		}
 
 		return html`
 			<capitec-button class="monthButton" type="${this.buttonType[index] = `clear`}" label="${name}" @click="${e => this._dateSelected(index)}"></capitec-button>
@@ -418,7 +433,6 @@ export class HorizonMonthCalendar extends Component {
 	}
 
 	/**
-	 * @param  {Boolean} shouldShow renders the icon when this is true
 	 * @param  {Boolean} isSelected icon in active state
 	 * @param  {Function} onClickHandler function to call on click
 	 * @returns {html} renders the calendar icon
@@ -468,7 +482,7 @@ export class HorizonMonthCalendar extends Component {
 				tabindex="${this.disabled ? `-1` : undefined}"
 				@click=${() => this._toggleExpander()}
 			/>
-			${this._renderCalendarIcon( this._showExpander && this._isFocussed, this._toggleExpander)}
+			${this._renderCalendarIcon(this._showExpander && this._isFocussed, this._toggleExpander)}
 		`;
 	}
 
