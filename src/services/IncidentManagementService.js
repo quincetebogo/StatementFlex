@@ -231,7 +231,7 @@ export class IncidentManagementService extends ChannelServiceBase {
 
 		return this.get(
 			url, 
-			this._setToken(), 
+			this.setToken(),
 			`otherNeedIssueType`,
 			null,
 			null,
