@@ -338,6 +338,7 @@ export class AppProfileDetails extends Component {
 	_renderAppPanel() {
 		return html`
 			<capitec-side-sheet
+				data-automation-id="app-profile-details-main-side-sheet"
 				.expanded="${this.showSideSheet}"
 				alignment="right">
 					<capitec-group
