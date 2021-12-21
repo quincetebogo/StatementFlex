@@ -66,35 +66,35 @@ export const QuickTransactionEvents = {
 	TAP_TO_PAY_OUTCOME_ANOTHER: `call.fulfill-need.tap-to-pay.outcome.another`,
 	TAP_TO_PAY_OUTCOME_HANDOFF: `call.fulfill-need.tap-to-pay.outcome.hand-off`,
 	LAUNCH_STRACK_FEEDBACK: `call.fulfill-need.feedback`,
-	 LAUNCH_STRACK_FEEDBACK_DONE: `call.fulfill-need.feedback.done`,
+	LAUNCH_STRACK_FEEDBACK_DONE: `call.fulfill-need.feedback.done`,
 
-	 // Update card limits 
-	 CARD_LIMITS: `call.fulfill-need.card-limits`,
-	 CARD_LIMITS_SELECT_CARD: `call.fulfill-need.card-limits.select-card`,
+	// Update card limits 
+	CARD_LIMITS: `call.fulfill-need.card-limits`,
+	CARD_LIMITS_SELECT_CARD: `call.fulfill-need.card-limits.select-card`,
 
-	 // Update card limits modal
-	 UPDATE_LIMITS: `call.fulfill-need.card-limits.update-limits`,
-	 UPDATE_LIMITS_NEXT: `call.fulfill-need.card-limits.update-limits.next`,
-	 UPDATE_LIMITS_AGREE: `call.fulfill-need.card-limits.update-limits.agree`,
-	 UPDATE_LIMITS_BACK: `call.fulfill-need.card-limits.update-limits.back`,
-	 UPDATE_LIMITS_CANCEL: `call.fulfill-need.card-limits.update-limits.cancel`,
+	// Update card limits modal
+	UPDATE_LIMITS: `call.fulfill-need.card-limits.update-limits`,
+	UPDATE_LIMITS_NEXT: `call.fulfill-need.card-limits.update-limits.next`,
+	UPDATE_LIMITS_AGREE: `call.fulfill-need.card-limits.update-limits.agree`,
+	UPDATE_LIMITS_BACK: `call.fulfill-need.card-limits.update-limits.back`,
+	UPDATE_LIMITS_CANCEL: `call.fulfill-need.card-limits.update-limits.cancel`,
 
-	 // Discard changes modal
-	 DISCARD_CHANGES: `call.fulfill-need.card-limits.update-limits.discard-changes`,
-	 DISCARD_CHANGES_CANCEL: `call.fulfill-need.card-limits.update-limits.discard-changes.cancel`,
-	 DISCARD_CHANGES_CONFIRM: `call.fulfill-need.card-limits.update-limits.discard-changes.confirm`,
+	// Discard changes modal
+	DISCARD_CHANGES: `call.fulfill-need.card-limits.update-limits.discard-changes`,
+	DISCARD_CHANGES_CANCEL: `call.fulfill-need.card-limits.update-limits.discard-changes.cancel`,
+	DISCARD_CHANGES_CONFIRM: `call.fulfill-need.card-limits.update-limits.discard-changes.confirm`,
 
-	 // Satements
-	 STATEMENTS: `call.fulfill-need.statements`,
-	 STATEMENTS_CANCEL: `call.fulfill-need.statements.cancel`,
+	// Satements
+	STATEMENTS: `call.fulfill-need.statements`,
+	STATEMENTS_CANCEL: `call.fulfill-need.statements.cancel`,
 
-	 STATEMENTS_SELECT_ACCOUNT: `call.fulfill-need.statements.select-account`,
-	 STATEMENTS_SELECT_PLAN: `call.fulfill-need.statements.select-plan`,
-	 STATEMENTS_ACCOUNT_NEXT: `call.fulfill-need.statements.next`,
-	 STATEMENTS_SELECT_PERIOD: `call.fulfill-need.statements.select-period`,
-	 STATEMENTS_BACK: `call.fulfill-need.statements.back`,
-	 STATEMENTS_SELECT_DATE_RANGE: `call.fulfill-need.statements.select-custom-period`,
-	 STATEMENTS_PERIOD_NEXT: `call.fulfill-need.statements.select-period.next`,
+	STATEMENTS_SELECT_ACCOUNT: `call.fulfill-need.statements.select-account`,
+	STATEMENTS_SELECT_PLAN: `call.fulfill-need.statements.select-plan`,
+	STATEMENTS_ACCOUNT_NEXT: `call.fulfill-need.statements.next`,
+	STATEMENTS_SELECT_PERIOD: `call.fulfill-need.statements.select-period`,
+	STATEMENTS_BACK: `call.fulfill-need.statements.back`,
+	STATEMENTS_SELECT_DATE_RANGE: `call.fulfill-need.statements.select-custom-period`,
+	STATEMENTS_PERIOD_NEXT: `call.fulfill-need.statements.select-period.next`,
 
 	SELECT_STATEMENTS_VIEW_PDF: `call.fulfill-need.statements.view-document`,
 	SELECT_STATEMENTS_CLOSE_PDF: `call.fulfill-need.statements.close-document`,
@@ -132,7 +132,24 @@ export const QuickTransactionEvents = {
 	TAX_CERTIFICATE_FIND_BRANCH: `call.fulfill-need.tax-certificate.find-a-branch`,
 
 	// Access Channels
-	ACCESS_CHANNELS: ``,
-	ACCESS_CHANNELS_APP_SUSPEND: ``,
-
+	ACCESS_CHANNELS: `call.fulfill-need.access-channels`,
+	ACCESS_CHANNELS_APP: `call.fulfill-need.access-channels.app`,
+	ACCESS_CHANNELS_APP_SUSPEND: `call.fulfill-need.access-channels.app.suspend`,
+	ACCESS_CHANNELS_APP_SUSPEND_CANCEL: `call.fulfill-need.access-channels.app.suspend.cancel`,
+	ACCESS_CHANNELS_APP_SUSPEND_CONFIRM: `call.fulfill-need.access-channels.app.suspend.confirm`,
+	ACCESS_CHANNELS_APP_UNSUSPEND: `call.fulfill-need.access-channels.app.unsuspend`,
+	ACCESS_CHANNELS_INTERNET_BANKING: `call.fulfill-need.access-channels.internet-banking`,
+	ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN: `call.fulfill-need.access-channels.internet-banking.suspend-security-token`,
+	ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_CANCEL: `call.fulfill-need.access-channels.internet-banking.suspend-security-token.cancel`,
+	ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_CONFIRM: `call.fulfill-need.access-channels.internet-banking.suspend-security-token.confirm`,
+	ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN: `call.fulfill-need.access-channels.internet-banking.reset-security-token`,
+	ACCESS_CHANNELS_USSD: `call.fulfill-need.access-channels.ussd`,
+	ACCESS_CHANNELS_USSD_UNBLOCK_SIM: `call.fulfill-need.access-channels.ussd.unblock-sim`,
+	ACCESS_CHANNELS_USSD_CANCEL_USSD: `call.fulfill-need.access-channels.ussd.cancel-ussd`,
+	ACCESS_CHANNELS_USSD_CANCEL_USSD_CANCEL: `call.fulfill-need.access-channels.ussd.cancel-ussd.cancel`,
+	ACCESS_CHANNELS_USSD_CANCEL_USSD_CONFIRM: `call.fulfill-need.access-channels.ussd.cancel-ussd.confirm`,
+	ACCESS_CHANNELS_USSD_ACTIVATE_FULL_USSD_MENU: `call.fulfill-need.access-channels.ussd.activate-full-ussd-menu`,
+	ACCESS_CHANNELS_NOTIFICATIONS: `call.fulfill-need.access-channels.notifications`,
+	ACCESS_CHANNELS_NOTIFICATIONS_UPDATE: `call.fulfill-need.access-channels.notifications.update`,
+	ACCESS_CHANNELS_NOTIFICATIONS_UPDATE_CONFIRM: `call.fulfill-need.access-channels.notifications.update.confirm`
 };
