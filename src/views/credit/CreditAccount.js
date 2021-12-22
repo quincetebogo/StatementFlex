@@ -10,6 +10,7 @@ import { ViewBase } from '../common/ViewBase';
 import 'app/productControls/Credit/src/CreditAccountLanding';
 import 'app/productControls/Credit/src/CreditUnverifiedLanding';
 import 'app/components/common/ServiceCallErrorScreen';
+import 'app/dialogs/credit/CreditStatements';
 
 /**
  * Credit Account View
@@ -191,8 +192,8 @@ export class CreditAccount extends ViewBase {
 
 			//await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData, () => true);
 			const returnValue = {
-				result: false,
-				succeeded: false
+				result: true,
+				succeeded: true
 			}
 			if (returnValue.succeeded && returnValue.result) {
 				
@@ -270,6 +271,7 @@ export class CreditAccount extends ViewBase {
 			"credit-type": creditType,
 			"product-type": productType
 		});
+		this.renderMode = RENDER_MODE.STATEMENTS;
 	}
 
 	_settlementQuote(creditType, productType) {
@@ -305,6 +307,16 @@ export class CreditAccount extends ViewBase {
 	_budgetFacility() {
 		// TO DO: Place holder for budget facility flow.
 	}
+
+	_backToLandingPage() {
+
+		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
+			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		}
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
 
 	// ---------
 	// RENDERING
@@ -348,6 +360,7 @@ export class CreditAccount extends ViewBase {
 			${super._webTemplate()}
 			${this._renderLandingPage()}
 			${this._renderCreditServiceUnavailable()}
+			${this._renderStatements()}
 		`;
 	}
 
@@ -398,6 +411,15 @@ export class CreditAccount extends ViewBase {
 					@verify-now= "${() => this._verifyNowClick()}">
 				</capitec-pc-credit-unverified-landing>`
 			: html``;
+	}
+
+	_renderStatements(){
+		return this.renderMode === RENDER_MODE.STATEMENTS
+		? html`
+			<horizon-credit-statements-dialog
+				@cancel="${()=> this._backToLandingPage()}">
+			</horizon-credit-statements-dialog>`
+		: html``;
 	}
 }
 
