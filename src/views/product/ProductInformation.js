@@ -27,6 +27,14 @@ const CONFIG = {
 	}
 };
 
+const TELEMETRY_EVENTS = {
+	transact: `call.fulfill-need.transact.view-benefits`,
+	save: `call.fulfill-need.save.view-benefits`,
+	insure: `call.fulfill-need.insure.view-benefits`,
+	credit: `call.fulfill-need.credit.view-benefits`,
+	liveBetter: `call.fulfill-need.live-better.view-benefits`
+};
+
 /**
  * Implements the dynamic view for Product Information screen. This opens the appropriate
  * page on CNET to allow the agent to provide the client with product information
@@ -93,9 +101,18 @@ export class ProductInformation extends ViewBase {
 	// ---------
 
 	async _viewBenefits() {
-		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
-		window.open(`${globalOneUrl}${this._config.type}/`);
+		let productUrl = '';
+		this._telemetry.logEvent(TELEMETRY_EVENTS[this._config.type], {});
 
+		if(this._config.type === `liveBetter`){
+			productUrl = await this.configuration.getSetting(`otherSystemsURL.live-better`);
+		} else {
+			const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
+			productUrl = `${globalOneUrl}${this._config.type}`;
+		}
+		
+		window.open(`${productUrl}/`);
+		
 		await super.createAndClassifySubsIncident();
 		
 		this._updateIncidentState();

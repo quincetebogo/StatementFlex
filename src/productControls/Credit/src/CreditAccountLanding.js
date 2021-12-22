@@ -56,8 +56,20 @@ export class CreditAccountLanding extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_click(selection) {
-		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection } }));
+	_click(selection, creditType, productType) {
+		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection, creditType: creditType, productType: productType } }));
+	}
+
+	_accountDetails(creditType, productType) {
+		this.dispatchEvent(new CustomEvent(`account-details`, { detail: { creditType: creditType, productType: productType }}));
+	}
+
+	_productEnquiry() {
+		this.dispatchEvent(new CustomEvent(`product-enquiry`, { detail: {}}));
+	}
+
+	_viewInfo() {
+		this.dispatchEvent(new CustomEvent(`view-info`, { detail: {}}));
 	}
 
 	// --------------
@@ -307,7 +319,7 @@ export class CreditAccountLanding extends Component {
 	_renderFlexibleCreditTab() {
 		// Temporary constant which shows if client has credit products.
 		// TO DO: Later to be replaced with information received from CS call.
-		const accountsAvailable = true;
+		const accountsAvailable = false;
 		const showBudgetFacilityBanner = true;
 		
 		return accountsAvailable
@@ -347,13 +359,15 @@ export class CreditAccountLanding extends Component {
 							valign="center">
 								<capitec-icon
 									data-automation-id="credit-account-flexible-credit-info"
-									icon="system/info-action">
+									icon="system/info-action"
+									@click="${() => this._accountDetails(`Flexible`, `Credit Card`)}">
 								</capitec-icon>
 								<horizon-label
 									class="label-pointer"
 									data-automation-id="credit-account-number"
 									label="Credit card"
-									value="1234567890">
+									value="1234567890"
+									@click="${() => this._accountDetails(`Flexible`, `Credit Card`)}">
 								</horizon-label>
 								<div class="vertical-line"></div>
 								<horizon-label
@@ -406,9 +420,13 @@ export class CreditAccountLanding extends Component {
 
 											<capitec-spacer></capitec-spacer>
 											
-											<capitec-hyperlink label="View details" inline></capitec-hyperlink>
+											<capitec-hyperlink 
+												label="View details" 
+												@click="${() => this._click(`budget-facility`, `Flexible`, `Credit Card`)}" 
+												inline>
+											</capitec-hyperlink>
 									</capitec-title-bar>
-									${this._renderOptionsGroup()}
+									${this._renderOptionsGroup(`Flexible`, `Credit Card`)}
 							</capitec-group>
 						</div>
 				</horizon-expander>
@@ -425,13 +443,15 @@ export class CreditAccountLanding extends Component {
 							valign="center">
 								<capitec-icon
 									data-automation-id="credit-account-flexible-credit-info"
-									icon="system/info-action">
+									icon="system/info-action"
+									@click="${() => this._accountDetails(`Flexible`, `Access facility`)}">
 								</capitec-icon>
 								<horizon-label 
 									data-automation-id="credit-account-access-facility"
 									class="label-pointer"
 									label="Access facility"
-									value="1234567890">
+									value="1234567890"
+									@click="${() => this._accountDetails(`Flexible`, `Access facility`)}">
 								</horizon-label>
 								<div class="vertical-line"></div>
 								<horizon-label
@@ -468,7 +488,7 @@ export class CreditAccountLanding extends Component {
 								gap="none"
 								halign="left"
 								valign="center">
-									${this._renderOptionsGroup()}
+								${this._renderOptionsGroup(`Flexible`, `Access facility`)}
 							</capitec-group>
 						</div>
 				</horizon-expander>
@@ -495,13 +515,15 @@ export class CreditAccountLanding extends Component {
 							valign="center">
 								<capitec-icon
 									data-automation-id="credit-account-fixed-term-info"
-									icon="system/info-action">
+									icon="system/info-action"
+									@click="${() => this._accountDetails(`Fixed Credit`, `Term Loan`)}">
 								</capitec-icon>
 								<horizon-label
 									data-automation-id="credit-account-number"
 									class="label-pointer"
 									label="56 month term loan"
-									value="1234567890">
+									value="1234567890"
+									@click="${() => this._accountDetails(`Fixed Credit`, `Term Loan`)}">
 								</horizon-label>
 								<div class="vertical-line"></div>
 								<horizon-label
@@ -538,7 +560,7 @@ export class CreditAccountLanding extends Component {
 								gap="none"
 								halign="left"
 								valign="center">
-									${this._renderOptionsGroup()}
+									${this._renderOptionsGroup(`Fixed Credit`, `Term Loan`)}
 							</capitec-group>
 						</div>
 				</horizon-expander>
@@ -555,13 +577,15 @@ export class CreditAccountLanding extends Component {
 							valign="center">
 								<capitec-icon
 									data-automation-id="credit-account-fixed-term-info"
-									icon="system/info-action">
+									icon="system/info-action"
+									@click="${() => this._accountDetails(`Fixed Credit`, `Term Loan`)}">
 								</capitec-icon>
 								<horizon-label
 									data-automation-id="credit-account-number"
 									class="label-pointer"
 									label="24 month term loan"
-									value="3456789098">
+									value="3456789098"
+									@click="${() => this._accountDetails(`Fixed Credit`, `Term Loan`)}">
 								</horizon-label>
 								<div class="vertical-line"></div>
 								<horizon-label
@@ -598,7 +622,7 @@ export class CreditAccountLanding extends Component {
 								gap="none"
 								halign="left"
 								valign="center">
-									${this._renderOptionsGroup()}
+									${this._renderOptionsGroup(`Fixed Credit`, `Term Loan`)}
 							</capitec-group>
 						</div>
 				</horizon-expander>
@@ -615,13 +639,15 @@ export class CreditAccountLanding extends Component {
 							valign="center">
 								<capitec-icon
 									data-automation-id="credit-account-fixed-term-info"
-									icon="system/info-action">
+									icon="system/info-action"
+									@click="${() => this._accountDetails(`Fixed Credit`, `Term Loan`)}">
 								</capitec-icon>
 								<horizon-label
 									data-automation-id="credit-account-number"
 									class="label-pointer"
 									label="72 month term loan"
-									value="1234567890">
+									value="1234567890"
+									@click="${() => this._accountDetails(`Fixed Credit`, `Term Loan`)}">
 								</horizon-label>
 								<div class="vertical-line"></div>
 								<horizon-label
@@ -658,7 +684,7 @@ export class CreditAccountLanding extends Component {
 								gap="none"
 								halign="left"
 								valign="center">
-									${this._renderOptionsGroup()}
+									${this._renderOptionsGroup(`Fixed Credit`, `Term Loan`)}
 							</capitec-group>
 						</div>
 				</horizon-expander>
@@ -666,7 +692,7 @@ export class CreditAccountLanding extends Component {
 		`;
 	}
 
-	_renderOptionsGroup() {
+	_renderOptionsGroup(creditType, productType) {
 
 		// TO DO: Hide/show respected option buttons dynamically
 		return html`
@@ -680,42 +706,42 @@ export class CreditAccountLanding extends Component {
 						label="Transaction History"
 						icon="system/time-action"
 						?hidden="${false}"
-						@click="${() => this._click(`transaction-history`)}">
+						@click="${() => this._click(`transaction-history`, creditType, productType)}">
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="credit-account-statements"
 						label="Statements"
 						icon="system/documents-action"
 						?hidden="${false}"
-						@click="${() => this._click(`statements`)}">
+						@click="${() => this._click(`statements`, creditType, productType)}">
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="credit-account-settlement-quote"
 						label="Settlement Quote"
 						icon="system/documents-action"
 						?hidden="${false}"
-						@click="${() => this._click(`settlement-quote`)}">
+						@click="${() => this._click(`settlement-quote`, creditType, productType)}">
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="credit-account-paid-up-letter"
 						label="Paid up Letter"
 						icon="system/documents-action"
 						?hidden="${true}"
-						@click="${() => this._click(`paid-up-letter`)}">
+						@click="${() => this._click(`paid-up-letter`, creditType, productType)}">
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="credit-account-settle-close"
 						label="Settle & Close"
 						icon="system/close-circle-action"
 						?hidden="${false}"
-						@click="${() => this._click(`settle-close`)}">
+						@click="${() => this._click(`settle-close`, creditType, productType)}">
 				</horizon-option-button>
 				<horizon-option-button
 						data-automation-id="credit-account-budget-facility"
 						label="Budget Facility"
 						icon="system/documents-action"
 						?hidden="${true}"
-						@click="${() => this._click(`budget-facility`)}">
+						@click="${() => this._click(`budget-facility`, creditType, productType)}">
 				</horizon-option-button>
 			</capitec-group>
 		`;
@@ -745,7 +771,7 @@ export class CreditAccountLanding extends Component {
 							class="info-button"
 							type="primary"
 							label="View Info"
-							@click="${() => this._click(`product-enquiry`)}">
+							@click="${() => this._viewInfo()}">
 					</capitec-button>
 			</capitec-group>`;
 	}
@@ -762,7 +788,7 @@ export class CreditAccountLanding extends Component {
 							data-automation-id="credit-account-product-enquiry"
 							label="Product enquiry"
 							icon="system/info-action"
-							@click="${() => this._click(`product-enquiry`)}">
+							@click="${() => this._productEnquiry()}">
 					</horizon-option-button>
 				</capitec-group>
 			</capitec-group>

@@ -167,8 +167,11 @@ export class ProfileAndProductSummaryBar extends Component {
 		
 		// Note that when invoked from the agent's waiting for call landing page we will
 		// not have caller information
+
 		if (this.callerInformation) {
 			if (this.callerInformation.verificationStatus === `verified`) {
+				this.horizonRouter.navigateToLandingPage(this.product, false);
+			} else if (this.callerInformation.verificationStatus === `unverified` && (this.product === `Credit` || this.product === `LiveBetter`)) {
 				this.horizonRouter.navigateToLandingPage(this.product, false);
 			} else {
 				this.horizonRouter.navigateToProductInfo(this.product);
