@@ -1,11 +1,9 @@
 import { css, html } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
-import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-import { ViewBase } from '../common/ViewBase';
+import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/productControls/Credit/src/CreditAccountLanding';
 import 'app/productControls/Credit/src/CreditUnverifiedLanding';
@@ -33,10 +31,7 @@ export class CreditAccount extends ViewBase {
 		super();
 
 		this.configuration = Configuration.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
-
-		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 	
 		// private properites
 		this.loading = true;
@@ -116,12 +111,7 @@ export class CreditAccount extends ViewBase {
 		// verificationStatus is on the this.callerInformation object
 		await this._initialise();
 	}
-
-	_errorHandler(exception) {
-		this.horizonRouter.navigateToSystemError();
-		return true;
-	}
-
+	
 	async _productEnquiry() {
 		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
 		window.open(`${globalOneUrl}credit/get-credit-for-all-your-needs/`);
@@ -160,6 +150,11 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
+	async _viewFees() {
+		const fees = await this.configuration.getSetting(`otherSystemsURL.fees`);
+		window.open(`${fees}`);
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -179,9 +174,9 @@ export class CreditAccount extends ViewBase {
 			this.horizonStore.setCallerInformation(this.callerInformation);
 		
 			/* 
-				TO DO: Credit landing page service call should come here.
-				If client has Credit product, navigate to credit landing screens.
-				If client doesn't have Credit product, navigate to non-client - more info screen.
+				TO DO: Credit landing page service call should come here to load returnValue.
+				Error handler should be bypassed when implementing CS call.
+				Example: const returnValue = await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData, () => true);
 			*/
 
 			const landingRequest = {
@@ -195,6 +190,7 @@ export class CreditAccount extends ViewBase {
 				result: true,
 				succeeded: true
 			}
+
 			if (returnValue.succeeded && returnValue.result) {
 				
 				this._telemetry.startSpan(CreditEvents.CREDIT, {
@@ -385,7 +381,9 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderLandingPage() {
-		return this.renderMode === RENDER_MODE.MAIN_PAGE && !this.loading
+		return this.renderMode === RENDER_MODE.MAIN_PAGE ||
+			   this.renderMode === RENDER_MODE.STATEMENTS &&
+			   !this.loading
 			? html`
 				${this._renderCreditVerifiedLandingPage()}
 				${this._renderCreditUnverifiedLandingPage()}`
@@ -417,7 +415,8 @@ export class CreditAccount extends ViewBase {
 		return this.renderMode === RENDER_MODE.STATEMENTS
 		? html`
 			<horizon-credit-statements-dialog
-				@cancel="${()=> this._backToLandingPage()}">
+				@cancel="${()=> this._backToLandingPage()}"
+				@view-fees="${() => this._viewFees()}">
 			</horizon-credit-statements-dialog>`
 		: html``;
 	}

@@ -319,7 +319,7 @@ export class CreditAccountLanding extends Component {
 	_renderFlexibleCreditTab() {
 		// Temporary constant which shows if client has credit products.
 		// TO DO: Later to be replaced with information received from CS call.
-		const accountsAvailable = false;
+		const accountsAvailable = true;
 		const showBudgetFacilityBanner = true;
 		
 		return accountsAvailable

@@ -41,7 +41,9 @@ const HORIZON_ROUTES = Object.freeze({
 	TAX_CERTIFICATE_SUCCESSFUL: `/success/tax-certificate`,
 	TAX_CERTIFICATE_FAILURE: `/error/tax-certificate`,
 	TAX_CERTIFICATE_SERVICE_ERROR: `/error/tax-certificate-service-error`,
-	CREDIT_ACCOUNT: `/transact/credit`
+	CREDIT_ACCOUNT: `/transact/credit`,
+	CREDIT_STATEMENTS_SUCCESS: `/success/credit-statements`,
+	CREDIT_STATEMENTS_FAILURE: `/error/credit-statements`
 });
 
 
@@ -300,6 +302,14 @@ export class HorizonRouter {
 
 	navigateToCreditAccount() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.CREDIT_ACCOUNT}`);
+	}
+
+	navigateToCreditStatementSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.CREDIT_STATEMENTS_SUCCESS}`);
+	}
+
+	navigateToCreditStatementUnsuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.CREDIT_STATEMENTS_FAILURE}`);
 	}
 
 	_productLandingPagesActive() {
@@ -715,6 +725,22 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.CREDIT_ACCOUNT,
 		load: () => import(`../views/credit/CreditAccount`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-credit-statements-success`,
+		title: `CreditStatementsSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.CREDIT_STATEMENTS_SUCCESS,
+		load: () => import(`../views/statements/CreditStatementSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-credit-statements-unsuccess`,
+		title: `CreditStatementsUnsuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.CREDIT_STATEMENTS_FAILURE,
+		load: () => import(`../views/statements/CreditStatementUnsuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}
 ];

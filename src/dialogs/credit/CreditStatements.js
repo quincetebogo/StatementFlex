@@ -1,7 +1,10 @@
 import { Component, css, html } from 'platform/elements';
-import { Configuration } from 'platform/Configuration';
+import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { DateTime } from 'luxon';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 import 'app/components/common/StepperModal';
 import 'app/components/common/HorizonMonthCalendar';
@@ -31,6 +34,10 @@ const RENDER_MODE = Object.freeze({
 });
 
 export class CreditStatementsDialog extends Component {
+	
+	// --------------
+	// INITIALISATION
+	// --------------
 
 	constructor() {
 		super();
@@ -55,8 +62,13 @@ export class CreditStatementsDialog extends Component {
 		};
 		this.encodedPDF = ``;
 
-		this._configuration = Configuration.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
+		this.horizonRouter = HorizonRouter.getInstance();
 	}
+
+	// ----------
+	// PROPERTIES
+	// ----------
 
 	static get properties() {
 		return {
@@ -66,11 +78,125 @@ export class CreditStatementsDialog extends Component {
 			errorMessage: { type: String }
 		};
 	}
+	
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
 
 	connectedCallback() {
+
+		this._telemetry.startSpan(CreditEvents.CREDIT_STATEMENTS, {});
+		this._telemetry.startSpan(CreditEvents.CREDIT_STATEMENTS_DIALOG, {
+			"screen": TelemetryScreen.CREDIT_STATEMENTS
+		});
+
 		super.connectedCallback();
 		this._initialise();
 	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		this._telemetry.endSpan(CreditEvents.CREDIT_STATEMENTS_DIALOG, {});
+	}
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
+	_cancel() {
+		this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_CANCEL, {
+			"screen": TelemetryScreen.CREDIT_STATEMENTS,
+			"next-screen": TelemetryScreen.CREDIT_LANDING
+		});
+
+		this._telemetry.endSpan(CreditEvents.CREDIT_STATEMENTS, {
+			"screen": TelemetryScreen.CREDIT_STATEMENTS_SUCCESS,
+			"nextScreen": TelemetryScreen.CREDIT_LANDING
+		});
+
+		this.dispatchEvent(new CustomEvent(`cancel`, {}));
+	}
+
+	_next() {
+		let dateSelected = false;
+	
+		for (let index = 0; index < this.checkBox.length; index++) {
+			if (this.checkBox[index]) {
+				dateSelected = true;
+			}
+		}
+
+		if (this.filteredDate.length > 0) {
+			dateSelected = true;
+		}
+
+		if (!dateSelected) {
+			this.errorMessage = `Choose period`;
+		} else {
+			this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_NEXT, {
+				"screen": TelemetryScreen.CREDIT_STATEMENTS,
+				"period": TelemetryScreen.CREDIT_LANDING,
+				"start-date": null,
+				"end-date": null,
+				"select-months": null
+			});
+
+			this.currentStep++;
+		}
+		this.requestUpdate();
+	}
+
+	_back() {
+		this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_BACK, {
+			"screen": TelemetryScreen.CREDIT_STATEMENTS,
+			"next-screen": TelemetryScreen.CREDIT_STATEMENTS
+		});
+
+		this.currentStep--;
+		this.requestUpdate();
+	}
+
+	_viewFees() {
+		
+		this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_VIEW_FEES, {});
+		this.dispatchEvent(new CustomEvent(`view-fees`, {}));
+	}
+
+	_viewPDF() {
+		// TO DO: cifNumber, accountType and accountNumber to be passed as input while implementing CS call
+
+		this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_VIEW_DOCUMENTS, {
+			"cifNumber": null,
+			"accountNumber": null,
+			"accountType": null,
+			"statementDateRange": null,
+			"view-document": null,
+			"preset-interval": null
+		});
+	}
+	
+	_close() {
+		this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_CLOSE_DOCUMENTS, {
+			"screen": TelemetryScreen.CREDIT_STATEMENTS
+		});
+	}
+
+	_sendStatement() {
+		this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_SEND, {
+			"screen": null,
+			"next-screen": null,
+			"email-address": null
+		});
+		
+		// TO DO: Navigation to success or failure screens based on CS call response.
+	
+		this.horizonRouter.navigateToCreditStatementSuccess();
+		//this.horizonRouter.navigateToCreditStatementUnsuccess();
+	}
+	
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
 
 	_initialise() {
 
@@ -87,44 +213,6 @@ export class CreditStatementsDialog extends Component {
 		}
 		this.rows = 0;
 		this.columns = 0;
-	}
-
-	_cancel() {
-		this.dispatchEvent(new CustomEvent(`cancel`, {}));
-	}
-
-	_next() {
-		let dateSelected = false;
-		for (let index = 0; index < this.checkBox.length; index++) {
-			if (this.checkBox[index]) {
-				dateSelected = true;
-			}
-		}
-
-		if (this.filteredDate.length > 0) {
-			dateSelected = true;
-		}
-
-		if (!dateSelected) {
-			this.errorMessage = `Choose period`;
-		} else {
-			this.currentStep++;
-		}
-		this.requestUpdate();
-	}
-
-	_back() {
-		this.currentStep--;
-		this.requestUpdate();
-	}
-
-	_viewFees() {
-
-		this.dispatchEvent(new CustomEvent(`view-fees`, {}));
-
-		// Place in product control where class gets called
-		// const fees = await this._configuration.getSetting(`otherSystemsURL.fees`);
-		// window.open(`${fees}`);
 	}
 
 	_clearFilter(filterDate) {
@@ -210,7 +298,6 @@ export class CreditStatementsDialog extends Component {
 		this.errorMessage = ``;
 	}
 
-
 	_datePicked(e) {
 		this._clearErrors();
 		const selectedMonth = e.detail.month;
@@ -224,6 +311,10 @@ export class CreditStatementsDialog extends Component {
 
 		this.requestUpdate();
 	}
+	
+	// ---------
+	// RENDERING
+	// ---------
 
 	static get styles() {
 		return [

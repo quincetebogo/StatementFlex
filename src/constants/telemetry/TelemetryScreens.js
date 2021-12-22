@@ -64,6 +64,8 @@
 	CREDIT_TRANSACTION_HISTORY: `Credit Transaction History`,
 	CREDIT_STATEMENTS: `Credit Statements`,
 	CREDIT_SETTLEMENT_QUOTE: `Credit Settlement Quote`,
-	CREDIT_SETTLE_CLOSE: `Credit Settle Close`
+	CREDIT_SETTLE_CLOSE: `Credit Settle Close`,
+	CREDIT_STATEMENTS_SUCCESS: `Credit Statement success`,
+	CREDIT_STATEMENTS_FAILURE: `Credit Statement failure`
 
 };
