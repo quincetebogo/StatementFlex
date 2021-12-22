@@ -42,17 +42,17 @@ export class InternetBankingProfileDetails extends Component {
 		this.showSideSheet = false;
 
 		// input properties
-		// this.selectedTokens = [];
+		this.selectedTokens = [];
 
 		// internal props
 		this.isInternetBankingActive = true;
-		// this.displayToast = false;
-		// this.displaySuspendToast = false;
+		this.displayToast = false;
+		this.displaySuspendToast = false;
 		this.showSuspendPanel = false;
 		this.showResetTokenPanel = false;
 		this.isTokenSuspended = false;
 
-		// this.selectedReason = ``;
+		this.selectedReason = ``;
 		this.showNoReasonSelectedNotification = false;
 
 		this.renderMode = RENDER_MODE.CLIENT_TOKENS;
@@ -97,19 +97,18 @@ export class InternetBankingProfileDetails extends Component {
 	static get properties() {
 		return {
 			// input properties
-			// internetBankingDetails: { type: Object },
-			// selectedReason: { type: String },
-			// selectedTokens: { type: Object },
+			internetBankingDetails: { type: Object },
+			selectedReason: { type: String },
+			selectedTokens: { type: Object },
 			showSideSheet: { type: Boolean },
 
-			// suspendInternetBankingSecurityToken: { type: Object, attribute: false },
-			// unsuspendInternetBankingSecurityToken: { type: Object, attribute: false },
+			suspendInternetBankingSecurityToken: { type: Object, attribute: false },
+			unsuspendInternetBankingSecurityToken: { type: Object, attribute: false },
 
 			// internal props
 			isInternetBankingActive: { state: true },
-			// showSideSheet: { state: true },
-			// displayToast: { state: true },
-			// displaySuspendToast: { state: true },
+			displayToast: { state: true },
+			displaySuspendToast: { state: true },
 			showSuspendPanel: { state: true },
 			showResetTokenPanel: { state: true },
 			isTokenSuspended: { state: true },
