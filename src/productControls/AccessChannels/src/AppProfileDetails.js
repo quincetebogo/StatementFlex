@@ -112,10 +112,15 @@ export class AppProfileDetails extends Component {
 		if (this.showSuspendReasons) {
 			this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_APP_SUSPEND, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_APP,
-				"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP
+				"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP_SUSPEND_REASON
 			});
 			
 			this.selectedSuspendReason = ``;
+		} else {
+			this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_APP_SUSPEND_CANCEL, {
+				"screen": TelemetryScreen.ACCESS_CHANNELS_APP_SUSPEND_REASON,
+				"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP
+			});
 		}
 	}
 
@@ -130,7 +135,7 @@ export class AppProfileDetails extends Component {
 	
 		if (returnValue) {
 			this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_APP_SUSPEND_CONFIRM, {
-				"screen": TelemetryScreen.ACCESS_CHANNELS_APP,
+				"screen": TelemetryScreen.ACCESS_CHANNELS_APP_SUSPEND_REASON,
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP,
 				"suspend-reason": this.selectedSuspendReason
 			});

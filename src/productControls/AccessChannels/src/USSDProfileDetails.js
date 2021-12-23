@@ -111,8 +111,13 @@ export class USSDProfileDetails extends Component {
 		if (this.showCancelReasons) {
 			this.cancelReason = ``;
 
-			this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD_CANCEL, {
+			this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_USSD,
+				"next-screen": TelemetryScreen.ACCESS_CHANNELS_USSD_CANCEL_USSD
+			});
+		} else {
+			this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD_CANCEL, {
+				"screen": TelemetryScreen.ACCESS_CHANNELS_USSD_CANCEL_USSD,
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_USSD
 			});
 		}
@@ -128,8 +133,7 @@ export class USSDProfileDetails extends Component {
 
 			
 			this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_USSD_UNBLOCK_SIM, {
-				"screen": TelemetryScreen.ACCESS_CHANNELS_USSD,
-				"next-screen": TelemetryScreen.ACCESS_CHANNELS_USSD
+				"screen": TelemetryScreen.ACCESS_CHANNELS_USSD
 			});
 		}
 	}
@@ -147,7 +151,7 @@ export class USSDProfileDetails extends Component {
 				this.showNotificationBanner = true;
 
 				this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD_CONFIRM, {
-					"screen": TelemetryScreen.ACCESS_CHANNELS_USSD,
+					"screen": TelemetryScreen.ACCESS_CHANNELS_USSD_CANCEL_USSD,
 					"next-screen": TelemetryScreen.ACCESS_CHANNELS_USSD,
 					"cancel-reason": this.cancelReason
 				});
@@ -166,8 +170,7 @@ export class USSDProfileDetails extends Component {
 			this._displayAndCloseToast(`The full menu is active.`);
 
 			this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_USSD_ACTIVATE_FULL_USSD_MENU, {
-				"screen": TelemetryScreen.ACCESS_CHANNELS_USSD,
-				"next-screen": TelemetryScreen.ACCESS_CHANNELS_USSD
+				"screen": TelemetryScreen.ACCESS_CHANNELS_USSD
 			});
 		}
 	}
@@ -234,7 +237,7 @@ export class USSDProfileDetails extends Component {
 
 		const ussdStatus = this.ussdStatus === `Blocked` ? `Cancelled` : this.ussdStatus;
 		const SIMStatus = this.ussd.isSimBlocked ? `Blocked: SIM Swop` : ``;
-		const menuStatus = this.ussd.features.includes(`REDUCED_MENU`) && this.ussdStatus !== `Blocked`? ` | Reduced menu` : ``;
+		const menuStatus = this.ussd.features.includes(`REDUCED_MENU`) && this.ussdStatus !== `Blocked` ? ` | Reduced menu` : ``;
 
 		return `${this.ussd.isSimBlocked ? SIMStatus : ussdStatus}${menuStatus}`;
 	}
