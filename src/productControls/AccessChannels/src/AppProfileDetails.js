@@ -1,4 +1,7 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonLabel';
@@ -33,6 +36,8 @@ export class AppProfileDetails extends Component {
 		this.selectedSuspendReason = ``;
 		this.displayToast = false;
 		this.showValidationBanner = false;
+
+		this._telemetry = HorizonTelemetry.instance;
 	}
 
 	// --------------
@@ -82,6 +87,10 @@ export class AppProfileDetails extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this._telemetry.startSpan(QuickTransactionEvents.ACCESS_CHANNELS_APP, {
+			"screen": TelemetryScreen.ACCESS_CHANNELS_APP
+		});
 	}
 
 	disconnectedCallback() {
@@ -101,6 +110,11 @@ export class AppProfileDetails extends Component {
 		this.showSuspendReasons = !this.showSuspendReasons;
 	
 		if (this.showSuspendReasons) {
+			this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_APP_SUSPEND, {
+				"screen": TelemetryScreen.ACCESS_CHANNELS_APP,
+				"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP
+			});
+			
 			this.selectedSuspendReason = ``;
 		}
 	}
@@ -115,6 +129,12 @@ export class AppProfileDetails extends Component {
 		const returnValue = await this.suspendApp();
 	
 		if (returnValue) {
+			this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_APP_SUSPEND_CONFIRM, {
+				"screen": TelemetryScreen.ACCESS_CHANNELS_APP,
+				"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP,
+				"suspend-reason": this.selectedSuspendReason
+			});
+
 			this.appDetails.status = `Suspended`;
 			this._displayAndCloseToast();
 			this._toggleSuspendReasonsSlide();
@@ -126,6 +146,11 @@ export class AppProfileDetails extends Component {
 		const returnValue = await this.unsuspendApp();
 		
 		if (returnValue) {
+			this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_APP_UNSUSPEND, {
+				"screen": TelemetryScreen.ACCESS_CHANNELS_APP,
+				"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP
+			});
+
 			this.appDetails.status = `Active`;
 			this._displayAndCloseToast();
 		}

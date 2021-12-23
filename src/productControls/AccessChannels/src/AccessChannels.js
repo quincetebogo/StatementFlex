@@ -1,8 +1,8 @@
 import { Component, css, html } from 'platform/elements';
-import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components';
 
@@ -65,15 +65,17 @@ export class AccessChannels extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this._telemetry.startSpan(QuickTransactionEvents.CARD_LIMITS, {
-			"screen": TelemetryScreen.CARD_LIMITS_LANDING
+
+		this._telemetry.startSpan(QuickTransactionEvents.ACCESS_CHANNELS, {
+			"screen": TelemetryScreen.ACCESS_CHANNELS
 		});
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-		this._telemetry.endSpan(QuickTransactionEvents.CARD_LIMITS, {
-			"screen": TelemetryScreen.CARD_LIMITS_LANDING
+
+		this._telemetry.endSpan(QuickTransactionEvents.ACCESS_CHANNELS, {
+			"screen": TelemetryScreen.ACCESS_CHANNELS
 		});
 	}
 
