@@ -1,4 +1,7 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonLabel';
@@ -55,16 +58,18 @@ export class InternetBankingProfileDetails extends Component {
 		this.selectedReason = ``;
 		this.showNoReasonSelectedNotification = false;
 
-		this.renderMode = RENDER_MODE.CLIENT_TOKENS;
-		this.isMultipleDevices = true;
+		// this.renderMode = RENDER_MODE.CLIENT_TOKENS;
+		// this.isMultipleDevices = true;
 		this.isIndeterminate = false;
 
-		// this.renderMode = RENDER_MODE.SUSPEND_REASONS;
-		// this.isMultipleDevices = false;
+		this.renderMode = RENDER_MODE.SUSPEND_REASONS;
+		this.isMultipleDevices = false;
 
 		this.clientTokens = [{ token: `90876375849`, selected: false }, { token: `123476375849`, selected: false }, { token: `019836375849`, selected: false }, { token: `23776375849`, selected: false }];
 		this.isSuspendReasonSelected = false;
 		this.isTokenSelected = false;
+
+		this._telemetry = HorizonTelemetry.instance;
 	}
 
 	// --------------
@@ -130,6 +135,11 @@ export class InternetBankingProfileDetails extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this._telemetry.startSpan(QuickTransactionEvents.ACCESS_CHANNELS_INTERNET_BANKING, {
+			"screen": TelemetryScreen.ACCESS_CHANNELS,
+			"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING
+		});
 	}
 
 	disconnectedCallback() {
@@ -150,22 +160,34 @@ export class InternetBankingProfileDetails extends Component {
 		this.selectedReason = ``;
 		this.isTokenSuspended = false;
 
+		if (this.showSuspendPanel) {
+			this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN, {
+				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
+				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON
+			});
+		} else {
+			this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_CANCEL, {
+				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON,
+				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING
+			});
+		}
+
 		if (!this.isMultipleDevices && this.showSuspendPanel) {
 			this._renderSuspendPanel();
 		} else {
 			this._renderMultipleDevicesSuspendPanel();
-		}
 
-		this.isIndeterminate = false;
-		this.isTokenSelected = false;
-		this.selectedTokens = [];
-		this.renderMode = RENDER_MODE.CLIENT_TOKENS;
-		this.selectAll = false;
-		this.clientTokens.forEach(item => {
-			if (item.selected) {
-				item.selected = false;
-			}
-		});
+			this.isIndeterminate = false;
+			this.isTokenSelected = false;
+			this.selectedTokens = [];
+			this.renderMode = RENDER_MODE.CLIENT_TOKENS;
+			this.selectAll = false;
+			this.clientTokens.forEach(item => {
+				if (item.selected) {
+					item.selected = false;
+				}
+			});
+		}
 	}
 
 	_onToggleResetPanelClick() {
@@ -181,6 +203,10 @@ export class InternetBankingProfileDetails extends Component {
 			const unsuspendResult = await this.unsuspendInternetBankingSecurityToken();
 			if (unsuspendResult) {
 				this._displayTokenResetSuccessToast();
+
+				await this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN, {
+					"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING
+				});
 			}
 		}
 		
@@ -206,6 +232,12 @@ export class InternetBankingProfileDetails extends Component {
 				this.isTokenSuspended = true;
 				this.isInternetBankingActive = false;
 				this._displayTokenSuspendSuccessToast();
+
+				await this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_CONFIRM, {
+					"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON,
+					"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
+					"suspend-reason": this.selectedReason
+				});
 			}
 		} else {
 			this.showNoReasonSelectedNotification = true;
@@ -633,6 +665,7 @@ export class InternetBankingProfileDetails extends Component {
 			${this._renderInternetBankingPanel()}
 			${this._renderMultipleDevicesSuspendPanel()}
 			${this._renderMultipleDevicesResetTokenPanel()}
+			${this._renderSuspendPanel()}
 		`;
 	}
 
@@ -670,7 +703,6 @@ export class InternetBankingProfileDetails extends Component {
 			${this._renderTokenResetSuccessToast()}
 			${this._renderTokenSuspendSuccessToast()}
 			${this._renderTokenSuspendedNotification()}
-			${this._renderSuspendPanel()}
 
 			<capitec-content-box
 				class="content-box"

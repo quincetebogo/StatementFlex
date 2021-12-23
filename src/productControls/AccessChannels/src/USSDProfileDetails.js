@@ -203,7 +203,7 @@ export class USSDProfileDetails extends Component {
 
 		const ussdStatus = this.ussdStatus === `Blocked` ? `Cancelled` : this.ussdStatus;
 		const SIMStatus = this.ussd.isSimBlocked ? `Blocked: SIM Swop` : ``;
-		const menuStatus = this.ussd.features.includes(`REDUCED_MENU`) && this.ussdStatus !== `Blocked`? ` | Reduced menu` : ``;
+		const menuStatus = this.ussd.features.includes(`REDUCED_MENU`) && this.ussdStatus !== `Blocked` ? ` | Reduced menu` : ``;
 
 		return `${this.ussd.isSimBlocked ? SIMStatus : ussdStatus}${menuStatus}`;
 	}

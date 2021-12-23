@@ -57,6 +57,10 @@
 
 	VALUE_ADDED_SERVICES: `Value Added Services`,
 	VALUE_ADDED_SERVICES_UNAVAILABLE: `Value Added Services Unavailable`,
-	VALUE_ADDED_SERVICES_NO_CLIENT_DATA: `Value Added Services No Client Data`
+	VALUE_ADDED_SERVICES_NO_CLIENT_DATA: `Value Added Services No Client Data`,
+
+	ACCESS_CHANNELS: `Access Channels`,
+	ACCESS_CHANNELS_INTERNET_BANKING: `Access Channels Internet Banking`,
+	ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON: `Access Channels Internet Banking Suspend Reason`
 
 };
