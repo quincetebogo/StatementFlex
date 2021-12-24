@@ -4,6 +4,7 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { ViewBase } from '../common/ViewBase';
 
 import 'app/productControls/Credit/src/CreditAccountLanding';
+import 'app/productControls/Credit/src/BudgetAccountDetails';
 
 /**
  * Credit Account View
@@ -199,6 +200,7 @@ export class CreditAccount extends ViewBase {
 		return html`
 			${super._webTemplate()}
 			${this._renderLandingPage()}
+			${this._renderBudgetAccountDetails()}
 		`;
 	}
 
@@ -215,8 +217,13 @@ export class CreditAccount extends ViewBase {
 				@option-click = "${(e) => this._optionClick(e.detail.option)}">
 			</capitec-pc-credit-account>`;
 	}
-	
 
+	// TO DO: Need to be wired up with Budget Account view when developed.
+	_renderBudgetAccountDetails() {
+		html`
+			<capitec-pc-budget-account-details></capitec-pc-budget-account-details>`
+		;
+	}
 }
 
 customElements.define(`horizon-credit-account`, CreditAccount);
