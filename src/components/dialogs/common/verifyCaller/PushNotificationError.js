@@ -9,7 +9,7 @@ export class PushNotificationError extends Component {
 		return {
 			itaTimeout: { type: Boolean },
 			itaRejected: { type: Boolean },
-			itaSystemError: { type: Boolean },
+			itaSystemError: { type: Boolean }
 		};
 	}
 

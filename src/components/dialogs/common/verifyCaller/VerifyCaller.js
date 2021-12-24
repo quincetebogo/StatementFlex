@@ -398,8 +398,8 @@ export class VerifyCaller extends Component {
 
 			this._updateApplicationState(`verified`, `XDS`);
 		} else {
-		this._updateApplicationState(`failed`, `unverified`);
-		this.horizonRouter.navigateToItaVerificationFailed();
+			this._updateApplicationState(`failed`, `unverified`);
+			this.horizonRouter.navigateToItaVerificationFailed();
 		}
 	}
 
@@ -540,7 +540,7 @@ export class VerifyCaller extends Component {
 
 	_showXdsUnavailable() {
 		return (this.xdsUnavailable || this.xdsAttempts >= MAX_XDS_ATTEMPTS) && // Can't do XDS
-			!this.itaInProgress; // An ITA is not in progress
+			!this.itaInProgress && !this._pushFailed(); // And ITA is not in progress & push failed
 	}
 
 	_failedFirstXdsAttempt() {
@@ -772,7 +772,7 @@ export class VerifyCaller extends Component {
 							label="Try Again" 
 							img-src="/images/insure/refresh.svg"
 							iconSize="default"
-							?hidden=${!this.itaTimeout || this.itaFailedCount >= MAX_ITA_ATTEMPTS}
+							?hidden=${!(this.itaTimeout || this.itaRejected || this.itaSystemError)}
 							@click="${() => this._tryAgain()}">
 						</horizon-option-button>
 					</capitec-group>
@@ -801,7 +801,7 @@ export class VerifyCaller extends Component {
 						label="Try Again"
 						img-src="/images/insure/refresh.svg"
 						iconSize="default"
-						?hidden=${!(this.itaTimeout || this.itaRejected) || this.itaFailedCount >= MAX_ITA_ATTEMPTS || this._failedFirstXdsAttempt()}
+						?hidden=${!(this.itaTimeout || this.itaRejected || this.itaSystemError)}
 						@click="${() => this._tryAgain()}">
 					</horizon-option-button>
 					<horizon-option-button
@@ -809,7 +809,7 @@ export class VerifyCaller extends Component {
 						label="Verify Via App/USSD"
 						icon="system/cellphone-action"
 						iconSize="default"
-						?hidden=${!this.callerInformation.hasDigitalChannels || this._itaAttemptsExceeded() || this._itaInProgress() || !this._failedFirstXdsAttempt()}
+						?hidden=${!this.callerInformation.hasDigitalChannels || this._itaAttemptsExceeded() || !(this._showXdsUnavailable() || this._failedFirstXdsAttempt())}
 						@click="${() => this._tryAgain()}">
 					</horizon-option-button>
 				</capitec-group>
