@@ -61,6 +61,8 @@
 
 	ACCESS_CHANNELS: `Access Channels`,
 	ACCESS_CHANNELS_INTERNET_BANKING: `Access Channels Internet Banking`,
+	ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN: `Access Channels Internet Banking Reset Security Token`,
+	ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_TOKENS: `Access Channels Internet Banking Suspend Tokens`,
 	ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON: `Access Channels Internet Banking Suspend Reason`
 
 };

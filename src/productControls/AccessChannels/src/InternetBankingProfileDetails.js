@@ -58,12 +58,12 @@ export class InternetBankingProfileDetails extends Component {
 		this.selectedReason = ``;
 		this.showNoReasonSelectedNotification = false;
 
-		// this.renderMode = RENDER_MODE.CLIENT_TOKENS;
-		// this.isMultipleDevices = true;
+		this.renderMode = RENDER_MODE.CLIENT_TOKENS;
+		this.isMultipleDevices = true;
 		this.isIndeterminate = false;
 
-		this.renderMode = RENDER_MODE.SUSPEND_REASONS;
-		this.isMultipleDevices = false;
+		// this.renderMode = RENDER_MODE.SUSPEND_REASONS;
+		// this.isMultipleDevices = false;
 
 		this.clientTokens = [{ token: `90876375849`, selected: false }, { token: `123476375849`, selected: false }, { token: `019836375849`, selected: false }, { token: `23776375849`, selected: false }];
 		this.isSuspendReasonSelected = false;
@@ -193,6 +193,13 @@ export class InternetBankingProfileDetails extends Component {
 	_onToggleResetPanelClick() {
 		this.showResetTokenPanel = !this.showResetTokenPanel;
 		this.selectedTokens = [];
+
+		if (this.showResetTokenPanel) {
+			this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN_CANCEL, {
+				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN,
+				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING
+			});
+		}
 	}
 
 	async _onResetSecurityTokenClockClick() {
@@ -209,7 +216,6 @@ export class InternetBankingProfileDetails extends Component {
 				});
 			}
 		}
-		
 	}
 
 	async _onMultipleTokensResetBtnClick() {
@@ -220,6 +226,12 @@ export class InternetBankingProfileDetails extends Component {
 					this.showResetTokenPanel = !this.showResetTokenPanel;
 					this._displayTokenResetSuccessToast();
 				}
+
+				await this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN, {
+					"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN,
+					"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
+					"token-numbers": this.selectedTokens
+				});
 			}
 		}
 	}
@@ -247,6 +259,12 @@ export class InternetBankingProfileDetails extends Component {
 	_onNextBtnClick() {
 		if (this.selectedTokens.length > 0) {
 			this.renderMode = RENDER_MODE.SUSPEND_REASONS;
+
+			this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_NEXT, {
+				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_TOKENS,
+				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON,
+				"token-numbers": this.selectedTokens
+			});
 		} else {
 			this.renderMode = RENDER_MODE.CLIENT_TOKENS;
 		}
@@ -258,6 +276,11 @@ export class InternetBankingProfileDetails extends Component {
 			this.isTokenSelected = false;
 			this.isIndeterminate = false;
 		}
+
+		this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_BACK, {
+			"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON,
+			"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_TOKENS
+		});
 	}
 
 	_onValueChange(event, item) {
