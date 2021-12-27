@@ -1,20 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency } from 'app/utils/channelServiceUtilities';
 import 'app/components/common/HorizonLabel';
-
-// TO DO: Temporary data. Can be removed when implemented CS call.
-const ACCOUNT_DETAILS = {
-	accountName: `Shoprite Pleican PARK Grassy Park ZA`,
-	monthlyRepayment: 74.11,
-	purchaseAmount: 433.35,
-	outstandingBalance: 364.06,
-	openingDate: "2021-11-12T03:09:58.829Z",
-	interestRate: 7.75,
-	term: 3,
-	paymentMade: 74.11,
-	settlementAmount: 191.71,
-	remainingTerm: 2
-}
 
 /**
  * Budget Account details screen for Credit product
@@ -38,7 +23,7 @@ const ACCOUNT_DETAILS = {
 	constructor() {
 		super();
 
-		this.accountDetails = ACCOUNT_DETAILS;
+		this.accountDetails = {};
 	}
 
 	// -------------------
@@ -85,17 +70,7 @@ const ACCOUNT_DETAILS = {
 	// PRIVATE METHODS
 	// ---------------
 
-	// Formating date in the form 'DD MMM YYYY'
-	_formatDate(date) {
-		const newdate = new Date(Date.parse(date));
-		return `${newdate.getDate()} ${this.getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
-	}
-
-	// Get month name using month as a number (0 = Jan, 1 = Feb,... )
-	getMonthName(month) {
-		const monthNames = [`Jan`, `Feb`, `Mar`, `Apr`, `May`, `Jun`, `Jul`, `Aug`, `Sep`, `Oct`, `Nov`, `Dec`];
-		return monthNames.slice(month)[0];
-	}
+	//N/A
 
 	// ---------
 	// RENDERING
@@ -149,6 +124,7 @@ const ACCOUNT_DETAILS = {
 
 				horizon-label {
 					height: 64px;
+					width: 353px;
 					padding: 12px 0px 12px 16px;
 
 					--horizon-label-text-height: 20px;
@@ -160,6 +136,12 @@ const ACCOUNT_DETAILS = {
 					--horizon-label-value-line-height: 20px;
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-color: #3A3A3A;
+				}
+				.transfer-button {
+					--theme-button-font-weight: 600;
+					--theme-button-default-background-color: #e31515;
+					--theme-button-default-border-color: #FFFFFF;
+					--theme-button-default-font-color: #FFFFFF;
 				}
 			`
 		];
@@ -184,6 +166,16 @@ const ACCOUNT_DETAILS = {
 							label="Budget Details"
 							value="${this.accountDetails.accountName}">
 						</horizon-label>
+
+						<capitec-spacer></capitec-spacer>
+
+						<capitec-button
+							class="transfer-button"
+							data-automation-id="budget-account-details-transfer-button"
+							style="visibility: hidden"
+							label="Transfer"
+							@click="${() => ``}">
+						</capitec-button>
 				</capitec-title-bar>
 
 				${this._renderAccountDetails()}
@@ -193,82 +185,36 @@ const ACCOUNT_DETAILS = {
 	}
 
 	_renderAccountDetails() {
+		
+		// Creates similar constant to this.accountDetails without 'accountName'.
+		const { ['accountName']:_, ...accDetails } = this.accountDetails;
+		
 		return html`
-		<capitec-content-box
-			class="details-vertical" 
-			layout="vertical"
-			gap="clear"
-			halign="stretch"
-			valign="top">
-				<capitec-group 
-					class="details-horizontal"
-					layout="horizontal"
-					gap="none"
-					halign="stretch"
-					valign="top">
-						<horizon-label
-							data-automation-id="budget-account-details-monthly-repayment"
-							label="Monthly repayment"
-							value="${formatCurrency(this.accountDetails.monthlyRepayment)}">
-						</horizon-label>
-						<horizon-label 
-							data-automation-id="budget-account-details-purchase-amount" 
-							label="Purchase amount" 
-							value="${formatCurrency(this.accountDetails.purchaseAmount)}">
-						</horizon-label>
-						<horizon-label 
-							data-automation-id="budget-account-details-outstanding-balance"
-							label="Outstanding balance"
-							value="${formatCurrency(this.accountDetails.outstandingBalance)}">
-						</horizon-label>
-				</capitec-group>
-
-				<capitec-group 
-					class="details-horizontal"
-					layout="horizontal"
-					gap="none" 
-					halign="stretch" 
-					valign="center">
-						<horizon-label 
-							data-automation-id="budget-account-details-opening-date"
-							label="Opening date" 
-							value="${this._formatDate(this.accountDetails.openingDate)}">
-						</horizon-label>
-						<horizon-label 
-							data-automation-id="budget-account-details-interest-rate"
-							label="Interest rate" 
-							value="${this.accountDetails.interestRate}%">
-						</horizon-label>
-						<horizon-label
-							data-automation-id="budget-account-details-term"
-							label="Term (months)" 
-							value="${formatCurrency(this.accountDetails.outstandingBalance)}">
-						</horizon-label>
-				</capitec-group>
-
-				<capitec-group 
-					class="details-horizontal"
-					layout="horizontal"
-					gap="none" 
-					halign="stretch" 
-					valign="center">
-						<horizon-label 
-							data-automation-id="budget-account-details-payment-made"
-							label="Payment made" 
-							value="${formatCurrency(this.accountDetails.paymentMade)}">
-						</horizon-label>
-						<horizon-label 
-							data-automation-id="budget-account-details-settlement-amount"
-							label="Settlement amount" 
-							value="${formatCurrency(this.accountDetails.settlementAmount)}">
-						</horizon-label>
-						<horizon-label
-							data-automation-id="budget-account-details-remaining-term"
-							label="Remaining term (months)"
-							value="${this.accountDetails.remainingTerm}">
-						</horizon-label>
-				</capitec-group>
-		</capitec-content-box>
+			<capitec-content-box
+				class="details-vertical" 
+				layout="vertical"
+				gap="clear"
+				halign="stretch"
+				valign="top">
+					<capitec-group 
+						class="details-horizontal"
+						layout="horizontal"
+						gap="none"
+						halign="left"
+						valign="top"
+						wrap>
+							${Object.entries(accDetails).map(item => {
+								const [key, value] = item;
+								return html`
+									<horizon-label
+										label="${key}"
+										value="${value}"
+										data-automation-id="budget-account-details-${key.toLowerCase().split(``).join(`-`)}">
+									</horizon-label>
+								`;
+							})}
+					</capitec-group>
+			</capitec-content-box>
 		`;
 	}
 
