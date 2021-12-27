@@ -39,6 +39,16 @@ export class XdsVerificationFailed extends ViewBase {
 		this.endCallContext = `VerifyClientFailed`;
 	}
 
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	async _clientVerified(event) {
+		await super._clientVerified(event);
+
+		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
+	}
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -85,6 +95,7 @@ export class XdsVerificationFailed extends ViewBase {
 					width: auto;
 				}
 				horizon-error-screen {
+					--horizon-error-screen-height: 876px;
 					--horizon-error-screen-size: 889px;
 				}
 			`
