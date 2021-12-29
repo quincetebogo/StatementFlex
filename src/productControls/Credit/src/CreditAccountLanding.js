@@ -60,6 +60,10 @@ export class CreditAccountLanding extends Component {
 		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection } }));
 	}
 
+	_viewBudgetAccounts(creditCardNumber) {
+		this.dispatchEvent(new CustomEvent(`view-budget-accounts`, { detail: { creditCardNumber: creditCardNumber } }));
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -405,10 +409,11 @@ export class CreditAccountLanding extends Component {
 											</horizon-label>
 
 											<capitec-spacer></capitec-spacer>
-											
+
+											<!-- TO DO: credit card number need to be passed dynamically -->
 											<capitec-hyperlink 
 												label="View details"
-												@click="${() => this._click(`budget-facility`)}" 
+												@click="${() => this._viewBudgetAccounts(`1234567890`)}" 
 												inline></capitec-hyperlink>
 									</capitec-title-bar>
 									${this._renderOptionsGroup()}

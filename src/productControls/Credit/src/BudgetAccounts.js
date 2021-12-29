@@ -39,6 +39,7 @@ import 'app/components/common/HorizonLabel';
 	connectedCallback() {
 		super.connectedCallback();
 		
+		// Grouping budget accounts available based on total number of term months.
 		this.groupAccountsByTerm = Utilities.groupBy(this.budgetFacilityAccounts.creditCardBudgetList, 'originalTerm');
 		this.filteredAccounts = { ...this.groupAccountsByTerm };
 	}
@@ -56,8 +57,9 @@ import 'app/components/common/HorizonLabel';
 	static get properties() {
 		return {
 			budgetFacilityAccounts: { type: Object },
-			groupAccountsByTerm: { type: Object },
-			filteredAccounts: { type: Object }
+
+			groupAccountsByTerm: { attribute: false },
+			filteredAccounts: { attribute: false }
 		};
 	}
 	
@@ -80,13 +82,15 @@ import 'app/components/common/HorizonLabel';
 		this.filteredAccounts = { ...this.groupAccountsByTerm};
 		this.searchText = event.detail.new.toLowerCase();
 
-		Object.keys(this.filteredAccounts).forEach(term => {
-			this.filteredAccounts[term] = this.filteredAccounts[term].filter(item => item.budgetName.toLowerCase().indexOf(this.searchText) !== -1 ||
-																					parseFloat(item.budgetInstallment).toFixed(2).startsWith(this.searchText) ||
-																					parseFloat(item.originalAmount).toFixed(2).startsWith(this.searchText) ||
-																					parseFloat(item.budgetBalance).toFixed(2).startsWith(this.searchText))
-		});
-	
+		if(this.searchText) {
+			Object.keys(this.filteredAccounts).forEach(term => {
+				this.filteredAccounts[term] = this.filteredAccounts[term].filter(item => item.budgetName.toLowerCase().indexOf(this.searchText) !== -1 ||
+																						parseFloat(item.budgetInstallment).toFixed(2).startsWith(this.searchText) ||
+																						parseFloat(item.originalAmount).toFixed(2).startsWith(this.searchText) ||
+																						parseFloat(item.budgetBalance).toFixed(2).startsWith(this.searchText))
+			});
+		}
+
 		this.requestUpdate()
 	}
 
@@ -131,12 +135,12 @@ import 'app/components/common/HorizonLabel';
 					margin-bottom: 16px;
 					height: 32px;
 				}
-
 				.left-arrow {
 					cursor: pointer;
 					margin: 0px 15px 8px 0px;
 				}
 
+				/* Account details bar styles */
 				.account-details-bar {
 					width: auto;
 					height: 64px;
@@ -146,6 +150,22 @@ import 'app/components/common/HorizonLabel';
 					padding: 12px 62px 12px 0px;
 					--horizon-label-text-color: #FFFFFF;
 					--horizon-label-value-color:#FFFFFF;
+				}
+
+				/* Search bar styles */
+				capitec-search-field {
+					margin: 8px 16px;
+				}
+
+				/* Busget Accounts content styles */
+				capitec-content-box {
+					width: auto;
+					height: 678px;
+					
+					--theme-container-padding-left: 0px;
+					--theme-container-padding-top: 0px;
+					--theme-container-padding-right: 0px;
+					--theme-container-padding-bottom: 0px;
 				}
 				horizon-label {
 					height: 100%;
@@ -165,18 +185,6 @@ import 'app/components/common/HorizonLabel';
 				horizon-label[label="Budget name"] {
 					width: 284px;
 					--theme-label-cursor: pointer;
-				}
-				capitec-content-box {
-					width: auto;
-					height: 678px;
-					
-					--theme-container-padding-left: 0px;
-					--theme-container-padding-top: 0px;
-					--theme-container-padding-right: 0px;
-					--theme-container-padding-bottom: 0px;
-				}
-				capitec-search-field {
-					margin: 8px 16px;
 				}
 				.term-header {
 					--theme-titlebar-min-height: 32px;
@@ -216,7 +224,6 @@ import 'app/components/common/HorizonLabel';
 					margin-left: 16px;
 					background-color: #E1E1E1;
 				}
-
 			`
 		];
 	}
@@ -228,23 +235,25 @@ import 'app/components/common/HorizonLabel';
 	_webTemplate() {
 		return html`
 			<capitec-card 
-				data-automation-id=""
+				data-automation-id="budget-facility-list-view"
 				class="card">
 					<capitec-title-bar 
-						data-automation-id=""
+						data-automation-id="budget-facility-title"
 						type="credit">
 							<img
+								data-automation-id="budget-facility-back-button"
 								src="src/productControls/credit/images/left-arrow.svg"
 								@click="${() => this._back()}"
 								class="left-arrow"/>
 							<capitec-label label="Budget Facility" type="Title"></capitec-label>
+						
 							${this._renderAccountDetailsBar()}
+				
 					</capitec-title-bar>
 
 					<capitec-content-box>
 						${this._renderSearchBar()}
 						${this._renderBudgetAccounts()}
-					
 					</capitec-content-box>
 
 			</capitec-card>
@@ -256,25 +265,25 @@ import 'app/components/common/HorizonLabel';
 			<capitec-group class= "account-details-bar" layout="horizontal" gap="none" halign="left" valign="center">
 
 				<horizon-label
-					data-automation-id=""
+					data-automation-id="budget-facility-credit-card-number"
 					label="Credit card"
-					value="1234567890">
+					value="${this.budgetFacilityAccounts.creditCardNumber}">
 				</horizon-label>
 
 				<horizon-label
-					data-automation-id=""
+					data-automation-id="budget-facility-number-of-budgets"
 					label="Number of budget accounts"
 					value="${this.budgetFacilityAccounts.numberOfBudgetAccounts}">
 				</horizon-label>
 
 				<horizon-label
-					data-automation-id=""
+					data-automation-id="budget-facility-total-budget-balance"
 					label="Total budget balance"
 					value="${formatCurrency(this.budgetFacilityAccounts.totalBudgetBalance)}">
 				</horizon-label>
 
 				<horizon-label
-					data-automation-id=""
+					data-automation-id="budget-facility-total-budget-installment"
 					label="Total budget installment (monthly)"
 					value="${formatCurrency(this.budgetFacilityAccounts.totalBudgetInstallmentAmount)}">
 				</horizon-label>
@@ -284,10 +293,10 @@ import 'app/components/common/HorizonLabel';
 
 	_renderSearchBar() {
 		return html`
-			<capitec-search-field 
+			<capitec-search-field
+				data-automation-id="budget-facility-search-bar"
 				label="Search for amount or transaction name" 
 				value="${this.searchText}"
-				?realtimeSearch = ${true}
 				@key-input="${(event) => this._searchValueChange(event)}">
 			</capitec-search-field>
 		`;
@@ -300,6 +309,7 @@ import 'app/components/common/HorizonLabel';
 				html`
 					<capitec-group class="accounts-group" layout="vertical" gap="none" halign="left" valign="center">
 						<capitec-title-bar
+							data-automation-id="budget-facility-term-group-header"
 							class="term-header"
 							type="default"
 							label="${term} months">
@@ -314,14 +324,14 @@ import 'app/components/common/HorizonLabel';
 		return html`
 			<capitec-group class="account-details-tile" layout="horizontal" gap="none" halign="left" valign="center">
 				<capitec-icon
-					data-automation-id=""
+					data-automation-id="budget-facility-account-info"
 					size="medium" 
 					icon="system/info-action"
 					@click="${() => this._accountDetails(budgetAccount)}">
 				</capitec-icon>
 
 				<horizon-label
-					data-automation-id=""
+					data-automation-id="budget-facility-account-name"
 					label="Budget name"
 					value="${budgetAccount.budgetName}"
 					@click="${() => this._accountDetails(budgetAccount)}">
@@ -330,19 +340,19 @@ import 'app/components/common/HorizonLabel';
 				<div class="vertical-line"></div>
 
 				<horizon-label
-					data-automation-id=""
+					data-automation-id="budget-facility-monthly-repayment"
 					label="Monthly repayment"
 					value="${formatCurrency(budgetAccount.budgetInstallment)}">
 				</horizon-label>
 
 				<horizon-label
-					data-automation-id=""
+					data-automation-id="budget-facility-purchase-amount"
 					label="Purchase amount"
 					value="${formatCurrency(budgetAccount.originalAmount)}">
 				</horizon-label>
 
 				<horizon-label
-					data-automation-id=""
+					data-automation-id="budget-facility-outstanding-balance"
 					label="Outstanding balance"
 					value="${formatCurrency(budgetAccount.budgetBalance)}">
 				</horizon-label>
@@ -350,7 +360,7 @@ import 'app/components/common/HorizonLabel';
 				<capitec-spacer></capitec-spacer> 
 				
 				<capitec-button
-					data-automation-id=""
+					data-automation-id="budget-facility-transfer-button"
 					type="clear"
 					label="Transfer"
 					@click="${() => this._transferClick()}">
@@ -369,4 +379,16 @@ customElements.define(`capitec-pc-budget-facility-accounts`, BudgetFacilityAccou
  *
  * @event BudgetFacilityAccounts#click
  * @type {Object} N/A
+ */
+
+/**
+ * When Account name or info icon is clicked
+ *
+ * @example
+ * <capitec-pc-budget-facility-accounts ... @account-details"${this._handler}"></capitec-pc-budget-facility-accounts>
+ *
+ * @event BudgetFacilityAccounts#click
+ * @type {Object} 
+ * @property {Object} detail - Contains information on the clicked item
+ * @property {String} detail.selectedAccountDetails - Selected budget facility account details
  */

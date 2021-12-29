@@ -9,25 +9,8 @@ import 'app/productControls/Credit/src/CreditAccountLanding';
 import 'app/productControls/Credit/src/BudgetAccounts';
 import 'app/productControls/Credit/src/BudgetAccountDetails';
 
-const BUDGET_ACCOUNT_DETAILS = {
-	accountName: `Shoprite Pleican PARK Grassy Park ZA`,
-	monthlyRepayment: 74.11,
-	purchaseAmount: 433.35,
-	outstandingBalance: 364.06,
-	openingDate: "2021-11-12T03:09:58.829Z",
-	interestRate: 7.75,
-	term: 3,
-	paymentMade: 74.11,
-	settlementAmount: 191.71,
-	remainingTerm: 2
-};
-
 /**
  * Credit Account View
- *
- * Events Raised
- * -------------
- * -
  * 
  * @export
  * @class CreditAccount
@@ -107,9 +90,7 @@ export class CreditAccount extends ViewBase {
 	// --------------
 
 	_budgetAccountDetails(selectedAccountDetails) {
-		// TO DO: Temporarily wired Budget account details view to View-details click on budget facility banner.
-		// TO DO: Temporary data. Can be replaced when implemented CS call.
-		
+
 		this.budgetAccountDetails = {
 			budgetName: selectedAccountDetails.budgetName,
 			"Monthly repayment": formatCurrency(selectedAccountDetails.budgetInstallment),
@@ -213,10 +194,12 @@ export class CreditAccount extends ViewBase {
 		// TO DO: Place holder for credit settle loan flow.
 	}
 
-	_budgetFacility() {
+	_budgetFacility(e) {
 		// TO DO: Place holder for budget facility flow.
 		// TO DO: 'budgetfacilityresponse' mock data should be replaced with CS implementation
 		this.budgetFacilityAccounts = budgetfacilityresponse;
+		this.budgetFacilityAccounts.creditCardNumber = e.detail.creditCardNumber;
+
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW;
 	}
 
@@ -265,7 +248,8 @@ export class CreditAccount extends ViewBase {
 	_renderCreditVerifiedLandingPage() {
 		return html`
 			<capitec-pc-credit-account
-				@option-click = "${(e) => this._optionClick(e.detail.option)}">
+				@option-click = "${(e) => this._optionClick(e.detail.option)}"
+				@view-budget-accounts = "${(e) => this._budgetFacility(e)}">
 			</capitec-pc-credit-account>`;
 	}
 	
@@ -281,8 +265,6 @@ export class CreditAccount extends ViewBase {
 			: html``;
 	}
 
-
-	// TO DO: Need to be wired up with Budget Account view when developed.
 	_renderBudgetAccountDetails() {
 		return this.renderMode === RENDER_MODE.BUDGET_ACCOUNT_DETAILS
 		? html`
