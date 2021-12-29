@@ -69,8 +69,10 @@ import 'app/components/common/HorizonLabel';
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
-	_accountDetails() {
-		this.dispatchEvent(new CustomEvent(`account-details`, {}));
+	_accountDetails(selectedBudgetAccount) {
+		this.dispatchEvent(new CustomEvent(`account-details`, {
+			detail: {selectedAccountDetails: selectedBudgetAccount}
+		}));
 	}
 
 	_searchValueChange(event) {
@@ -315,13 +317,14 @@ import 'app/components/common/HorizonLabel';
 					data-automation-id=""
 					size="medium" 
 					icon="system/info-action"
-					@click="${() => this._accountDetails()}">
+					@click="${() => this._accountDetails(budgetAccount)}">
 				</capitec-icon>
 
 				<horizon-label
 					data-automation-id=""
 					label="Budget name"
-					value="${budgetAccount.budgetName}">
+					value="${budgetAccount.budgetName}"
+					@click="${() => this._accountDetails(budgetAccount)}">
 				</horizon-label>
 
 				<div class="vertical-line"></div>
