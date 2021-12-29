@@ -1,9 +1,11 @@
 import { css, html } from 'platform/elements';
+import { budgetfacilityresponse } from 'app/mocks/creditBudgetFacilityAccounts'
 import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { ViewBase } from '../common/ViewBase';
 
 import 'app/productControls/Credit/src/CreditAccountLanding';
+import 'app/productControls/Credit/src/BudgetAccounts';
 
 /**
  * Credit Account View
@@ -179,6 +181,9 @@ export class CreditAccount extends ViewBase {
 
 	_budgetFacility() {
 		// TO DO: Place holder for budget facility flow.
+		// TO DO: 'budgetfacilityresponse' mock data should be replaced with CS implementation
+		this.budgetFacilityAccounts = budgetfacilityresponse;
+		this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW;
 	}
 
 	async _productEnquiry() {
@@ -199,6 +204,7 @@ export class CreditAccount extends ViewBase {
 		return html`
 			${super._webTemplate()}
 			${this._renderLandingPage()}
+			${this._renderBudgetFacilityAccounts()}
 		`;
 	}
 
@@ -216,6 +222,17 @@ export class CreditAccount extends ViewBase {
 			</capitec-pc-credit-account>`;
 	}
 	
+	_renderBudgetFacilityAccounts() {
+		return this.renderMode === RENDER_MODE.BUDGET_ACCOUNTS_VIEW
+			? html`
+				<capitec-pc-budget-facility-accounts
+					.budgetFacilityAccounts="${this.budgetFacilityAccounts}"
+					
+					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
+					@account-details="${() => ``}">
+				</capitec-pc-budget-facility-accounts>`
+			: html``;
+	}
 
 }
 
