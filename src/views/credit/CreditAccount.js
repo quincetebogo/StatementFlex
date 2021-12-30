@@ -197,6 +197,10 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
+	async _viewFees(){
+		const fees = await this.configuration.getSetting(`otherSystemsURL.fees`);
+		window.open(`${fees}`);
+	}
 
 	// ---------
 	// RENDERING
@@ -232,7 +236,8 @@ export class CreditAccount extends ViewBase {
 		return this.renderMode === RENDER_MODE.STATEMENTS
 		? html`			
 			<horizon-credit-statements-dialog
-				@cancel="${()=> this._backToLandingPage()}">
+				@cancel="${()=> this._backToLandingPage()}"
+				@view-fees="${()=>this._viewFees()}">
 			</horizon-credit-statements-dialog>`
 		: html``;
 	}
