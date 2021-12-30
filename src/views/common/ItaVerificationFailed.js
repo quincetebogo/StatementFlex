@@ -1,4 +1,6 @@
 import { css, html } from 'platform/elements';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { VerifyCallerEvents } from 'app/constants/telemetry/events/VerifyCaller';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
@@ -23,8 +25,16 @@ export class ItaVerificationFailed extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this._telemetry.startSpan(VerifyCallerEvents.ITA_VERIFICATION_FAILED);
+
 		this._updateLeftBar();
 		this.endCallContext = `VerifyClientFailed`;
+	}
+
+	disconnectedCallback() {
+		this._telemetry.endSpan(VerifyCallerEvents.ITA_VERIFICATION_FAILED);
+	
+		super.disconnectedCallback();
 	}
 
 	// -------------
@@ -54,6 +64,12 @@ export class ItaVerificationFailed extends ViewBase {
 	// --------------
 
 	_leftClick() {
+
+		this._telemetry.logEvent(VerifyCallerEvents.ITA_VERIFICATION_FAILED_CONTINUE_UNVERIFIED, {
+			"screen": TelemetryScreen.ITA_FAILED,
+			"next-screen": TelemetryScreen.FAVOURITES
+		});
+
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 

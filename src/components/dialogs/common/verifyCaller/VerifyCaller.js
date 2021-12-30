@@ -548,6 +548,17 @@ export class VerifyCaller extends Component {
 			   this.xdsAttempts === 1;
 	}
 
+	_isXdsfirstFailureAttempt() {
+		if(this._failedFirstXdsAttempt()) {
+			this.telemetry.logEvent(VerifyCallerEvents.XDS_FIRST_FAILURE_ATTEMPT, {
+				"screen": TelemetryScreen.SECURITY_QUESTIONS,
+				"next-screen": TelemetryScreen.XDS_FIRST_ATTEMPT_FAILURE,
+				"failure-reason": `Invalid answers`
+			});
+		}
+		return this._failedFirstXdsAttempt();
+	}
+
 	_xdsAttemptsExceeded() {
 		// xdsAttempts is 0 based and is incremented on attempting to retrieve security questions
 		// This is because simply retreiving security questions counts as an attempt
@@ -709,7 +720,7 @@ export class VerifyCaller extends Component {
 		}
 
 		// Subsequent displays 
-		if (this._failedFirstXdsAttempt()) {
+		if (this._isXdsfirstFailureAttempt()) {
 			return this._renderFailedFirstXdsAttempt(this._ItaAvailable());
 		}
 	}

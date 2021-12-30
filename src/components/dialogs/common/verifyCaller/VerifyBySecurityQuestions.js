@@ -163,7 +163,8 @@ export class VerifyBySecurityQuestions extends Component {
 		if (!returnValue.succeeded) {
 			this.telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
 				"screen": TelemetryScreen.SECURITY_QUESTIONS,
-				"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE // TODO - this will now change
+				"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE,
+				"failure-reason": result
 			}, true);
 			this.dispatchEvent(new CustomEvent(`service-failure`, {}));
 			return;
@@ -193,7 +194,8 @@ export class VerifyBySecurityQuestions extends Component {
 	_XdsFailed(result) {
 		this.telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
-			"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE // TODO - this will now change
+			"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE,
+			"failure-reason": result
 		}, true);
 
 		if (result?.errorMessage) {

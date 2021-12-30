@@ -1,5 +1,8 @@
 import { css, html } from 'platform/elements';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { VerifyCallerEvents } from 'app/constants/telemetry/events/VerifyCaller';
 import { ViewBase } from 'app/views/common/ViewBase';
+
 import 'app/components/common/ErrorScreen';
 
 
@@ -35,8 +38,16 @@ export class XdsVerificationFailed extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this._telemetry.startSpan(VerifyCallerEvents.XDS_VERIFICATION_FAILED);
+
 		this._updateMiniProfile();
 		this.endCallContext = `VerifyClientFailed`;
+	}
+
+	disconnectedCallback() {
+		this._telemetry.endSpan(VerifyCallerEvents.XDS_VERIFICATION_FAILED);
+
+		super.disconnectedCallback();
 	}
 
 	// ---------------
@@ -54,7 +65,21 @@ export class XdsVerificationFailed extends ViewBase {
 	// --------------
 
 	_continueUnverifiedClick() {
+		this._telemetry.logEvent(VerifyCallerEvents.XDS_VERIFICATION_FAILED_CONTINUE_UNVERIFIED, {
+			"screen": TelemetryScreen.XDS_FAILED,
+			"next-screen": TelemetryScreen.FAVOURITES
+		});
+
 		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
+	}
+
+	_verifyViaApp() {
+		this._telemetry.logEvent(VerifyCallerEvents.XDS_VERIFICATION_FAILED_VERIFY_VIA_APP, {
+				"screen": TelemetryScreen.XDS_FAILED,
+				"next-screen": TelemetryScreen.FAVOURITES
+		});
+
+		super._verifyClick()
 	}
 
 	_updateMiniProfile() {
@@ -123,7 +148,7 @@ export class XdsVerificationFailed extends ViewBase {
 				toast="Verification has failed."
 				image="/images/insure/assign-pay-arrears.svg"
 				@left-click=${() => this._continueUnverifiedClick()}
-				@right-click=${() => super._verifyClick()}>
+				@right-click=${() => this._verifyViaApp()}>
 				<section id="id-error-msg" slot="detail">Please visit a branch to unblock your access. You can continue with limited transactions.</section>
 			</horizon-error-screen>
 		`;
