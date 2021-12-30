@@ -1,10 +1,25 @@
 import { css, html } from 'platform/elements';
 import { Configuration } from 'platform/core';
+import { formatCurrency } from 'app/utils/channelServiceUtilities';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { ViewBase } from '../common/ViewBase';
 
 import 'app/productControls/Credit/src/CreditAccountLanding';
 import 'app/components/dialogs/common/CreditStatements';
+import 'app/productControls/Credit/src/BudgetAccountDetails';
+
+const BUDGET_ACCOUNT_DETAILS = {
+	accountName: `Shoprite Pleican PARK Grassy Park ZA`,
+	monthlyRepayment: 74.11,
+	purchaseAmount: 433.35,
+	outstandingBalance: 364.06,
+	openingDate: "2021-11-12T03:09:58.829Z",
+	interestRate: 7.75,
+	term: 3,
+	paymentMade: 74.11,
+	settlementAmount: 191.71,
+	remainingTerm: 2
+};
 
 /**
  * Credit Account View
@@ -31,6 +46,7 @@ export class CreditAccount extends ViewBase {
 	
 		// private properites
 		this.loading = true;
+		this.budgetAccountDetails = null;
 	}
 
 	// -------------------
@@ -180,13 +196,41 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_budgetFacility() {
-		// TO DO: Place holder for budget facility flow.
+		// TO DO: Temporarily wired Budget account details view to View-details click on budget facility banner.
+		// TO DO: Temporary data. Can be replaced when implemented CS call.
+		
+		this.budgetAccountDetails = {
+			accountName: BUDGET_ACCOUNT_DETAILS.accountName,
+			"Monthly repayment": formatCurrency(BUDGET_ACCOUNT_DETAILS.monthlyRepayment),
+			"Purchase amount": formatCurrency(BUDGET_ACCOUNT_DETAILS.purchaseAmount),
+			"Outstanding balance": formatCurrency(BUDGET_ACCOUNT_DETAILS.outstandingBalance),
+			"Opening date": this._formatDate(BUDGET_ACCOUNT_DETAILS.openingDate),
+			"Interest rate": `${BUDGET_ACCOUNT_DETAILS.interestRate}%`,
+			"Term (months)": BUDGET_ACCOUNT_DETAILS.term,
+			"Payment made": formatCurrency(BUDGET_ACCOUNT_DETAILS.paymentMade),
+			"Settlement amount": formatCurrency(BUDGET_ACCOUNT_DETAILS.settlementAmount),
+			"Remaining term (months)": BUDGET_ACCOUNT_DETAILS.remainingTerm
+		}
+
+		this.renderMode = RENDER_MODE.BUDGET_ACCOUNT_DETAILS;
 	}
 
 	async _productEnquiry() {
 		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
 		window.open(`${globalOneUrl}credit/get-credit-for-all-your-needs/`);
 
+	}
+
+	// Formating date in the form 'DD MMM YYYY'
+	_formatDate(date) {
+		const newdate = new Date(Date.parse(date));
+		return `${newdate.getDate()} ${this.getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+	}
+
+	// Get month name using month as a number (0 = Jan, 1 = Feb,... )
+	getMonthName(month) {
+		const monthNames = [`Jan`, `Feb`, `Mar`, `Apr`, `May`, `Jun`, `Jul`, `Aug`, `Sep`, `Oct`, `Nov`, `Dec`];
+		return monthNames.slice(month)[0];
 	}
 	_backToLandingPage() {
 
@@ -214,6 +258,7 @@ export class CreditAccount extends ViewBase {
 		return html`
 			${super._webTemplate()}
 			${this._renderLandingPage()}
+			${this._renderBudgetAccountDetails()}
 			${this._renderStatements()}
 		`;
 	}
@@ -230,6 +275,16 @@ export class CreditAccount extends ViewBase {
 			<capitec-pc-credit-account
 				@option-click = "${(e) => this._optionClick(e.detail.option)}">
 			</capitec-pc-credit-account>`;
+	}
+
+	// TO DO: Need to be wired up with Budget Account view when developed.
+	_renderBudgetAccountDetails() {
+		return this.renderMode === RENDER_MODE.BUDGET_ACCOUNT_DETAILS
+		? html`
+			<capitec-pc-budget-account-details
+				.accountDetails="${this.budgetAccountDetails}">
+			</capitec-pc-budget-account-details>`
+		: html``;
 	}
 
 	_renderStatements(){
