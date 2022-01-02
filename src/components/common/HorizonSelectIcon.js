@@ -1,5 +1,5 @@
 import { css, html } from 'platform/elements';
-import { Select } from 'platform/components/inputs'
+import { Select } from 'platform/components/inputs';
 
 export class HorizonSelect extends Select {
 
@@ -14,6 +14,19 @@ export class HorizonSelect extends Select {
 	// --------------
 	// PROPERTIES
 	// --------------
+
+	get selectedValue() {
+
+		if (!this.value) {
+			return ``;
+		} else if (typeof this.value === `string`) {
+			return this.value;
+		} else if (typeof this.value === `object`) {
+			return this.value[this.displayField] || ``;
+		}
+
+		return ``;
+	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -55,7 +68,7 @@ export class HorizonSelect extends Select {
 					padding-left: calc(var(--theme-input-icon-margin-left, 0px) + var(--theme-icon-size-small, 0px) + 8px);
 				}
 			`
-		]
+		];
 	};
 
 	_mobileTemplate() {
@@ -69,7 +82,7 @@ export class HorizonSelect extends Select {
 				${this._getSelectedValueIcon()}
 				${super._renderLabel()}
 				<input id="inputField" class="field ${this.mode === `filter` ? `icon-padding` : ``}" type="text" readonly
-					value="${this.value.label ? this.value.label : ``}" tabindex="${this.disabled ? `-1` : undefined}" @click="${this._onInputClick}" />
+					value="${this.selectedValue}" tabindex="${this.disabled ? `-1` : undefined}" @click="${this._onInputClick}" />
 			
 				${super._renderIcons(`web`)}
 				${super._renderOptions()}
@@ -82,7 +95,7 @@ export class HorizonSelect extends Select {
 	}
 
 	_getSelectedValueIcon() {
-		const selectedObj = this.items.find(item => item.label === this.value.label);
+		const selectedObj = this.items.find(item => item[this.idField] === this.value[this.idField]);
 		if (selectedObj) {
 			return selectedObj.icon 
 			? html`<capitec-icon class="selected-icon" size="small" icon=${selectedObj.icon} for="inputField"></capitec-icon>`

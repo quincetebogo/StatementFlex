@@ -41,23 +41,9 @@ export const TRANSACTION_HISTORY = Object.freeze({
 	MONEY_TYPE: `BOTH`
 });
 
-/**
- * Account types that Transaction history component supports {@link TransactionHistory}
- * 
- * @readonly
- * @enum {Object} ACCOUNT_TYPES
- */
-export const ACCOUNT_TYPES = Object.freeze({
-	SAVINGS_ACCOUNT: `transact`,
-	LBB: `lbb`,
-	CREDIT: `credit`,
-	SAVINGS_PLAN: `save`
-});
-
-
 export const ACCOUNT_TYPES_LIST = Object.freeze({
 	'transact': `PRIMARY_SAVINGS`,
 	'lbb': `LBB`,
-	'credit' : '',
-	'save': ''
+	'credit': ``,
+	'save': ``
 });
