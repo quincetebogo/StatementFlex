@@ -5,7 +5,7 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { ViewBase } from '../common/ViewBase';
 
 import 'app/productControls/Credit/src/CreditAccountLanding';
-import 'app/components/dialogs/common/CreditStatements';
+import 'app/dialogs/credit/CreditStatements';
 import 'app/productControls/Credit/src/BudgetAccountDetails';
 
 const BUDGET_ACCOUNT_DETAILS = {
