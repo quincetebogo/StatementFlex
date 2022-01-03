@@ -1,10 +1,8 @@
-import { Component, css, html } from 'platform/elements';
-import { CreditEvents } from 'app/constants/telemetry/events/Credit';
+import { css, html } from 'platform/elements';
 import { DateTime } from 'luxon';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { StatementsDialog } from 'app/components/dialogs/common/StatementsDialog';
 
 import 'app/components/common/StepperModal';
 import 'app/components/common/HorizonMonthCalendar';
@@ -33,7 +31,7 @@ const RENDER_MODE = Object.freeze({
 	PDF: 1
 });
 
-export class CreditStatementsDialog extends Component {
+export class CreditStatementsDialog extends StatementsDialog {
 	
 	// --------------
 	// INITIALISATION
@@ -42,14 +40,9 @@ export class CreditStatementsDialog extends Component {
 	constructor() {
 		super();
 
-		this.currentStep = 0;
-		this.renderMode = RENDER_MODE.EMAIL;
 		this.notifyMessage = ` A fee will be charged for email statements.`;
-		this.errorMessage = ``;
 		this.filteredDate = [];
 		this.sixMonths = [];
-		this.rows = 0;
-		this.columns = 0;
 		this.checkAll = false;
 		this.checkBox = [];
 		this.isChecked = false;
@@ -62,7 +55,6 @@ export class CreditStatementsDialog extends Component {
 		};
 		this.encodedPDF = ``;
 
-		this._telemetry = HorizonTelemetry.instance;
 		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
@@ -84,19 +76,12 @@ export class CreditStatementsDialog extends Component {
 	// -------------------
 
 	connectedCallback() {
-
-		this._telemetry.startSpan(CreditEvents.CREDIT_STATEMENTS, {});
-		this._telemetry.startSpan(CreditEvents.CREDIT_STATEMENTS_DIALOG, {
-			"screen": TelemetryScreen.CREDIT_STATEMENTS
-		});
-
 		super.connectedCallback();
 		this._initialise();
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-		this._telemetry.endSpan(CreditEvents.CREDIT_STATEMENTS_DIALOG, {});
 	}
 
 	// --------------
@@ -104,16 +89,6 @@ export class CreditStatementsDialog extends Component {
 	// --------------
 
 	_cancel() {
-		this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_CANCEL, {
-			"screen": TelemetryScreen.CREDIT_STATEMENTS,
-			"next-screen": TelemetryScreen.CREDIT_LANDING
-		});
-
-		this._telemetry.endSpan(CreditEvents.CREDIT_STATEMENTS, {
-			"screen": TelemetryScreen.CREDIT_STATEMENTS_SUCCESS,
-			"nextScreen": TelemetryScreen.CREDIT_LANDING
-		});
-
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
@@ -131,63 +106,28 @@ export class CreditStatementsDialog extends Component {
 		}
 
 		if (!dateSelected) {
-			this.errorMessage = `Choose period`;
+			super.errorMessage = `Choose period`;
 		} else {
-			this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_NEXT, {
-				"screen": TelemetryScreen.CREDIT_STATEMENTS,
-				"period": TelemetryScreen.CREDIT_LANDING,
-				"start-date": null,
-				"end-date": null,
-				"select-months": null
-			});
-
 			this.currentStep++;
 		}
 		this.requestUpdate();
 	}
 
 	_back() {
-		this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_BACK, {
-			"screen": TelemetryScreen.CREDIT_STATEMENTS,
-			"next-screen": TelemetryScreen.CREDIT_STATEMENTS
-		});
-
 		this.currentStep--;
 		this.requestUpdate();
 	}
 
 	_viewFees() {
-		
-		this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_VIEW_FEES, {});
 		this.dispatchEvent(new CustomEvent(`view-fees`, {}));
 	}
 
-	_viewPDF() {
-		// TO DO: cifNumber, accountType and accountNumber to be passed as input while implementing CS call
-
-		this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_VIEW_DOCUMENTS, {
-			"cifNumber": null,
-			"accountNumber": null,
-			"accountType": null,
-			"statementDateRange": null,
-			"view-document": null,
-			"preset-interval": null
-		});
-	}
-	
-	_close() {
-		this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_CLOSE_DOCUMENTS, {
-			"screen": TelemetryScreen.CREDIT_STATEMENTS
-		});
+	_viewPDF(){
+		//TODO: PDF viewer with arrows
 	}
 
 	_sendStatement() {
-		this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_SEND, {
-			"screen": null,
-			"next-screen": null,
-			"email-address": null
-		});
-		
+	
 		// TO DO: Navigation to success or failure screens based on CS call response.
 	
 		this.horizonRouter.navigateToCreditStatementSuccess();
@@ -208,11 +148,9 @@ export class CreditStatementsDialog extends Component {
 
 		// account opened date if not 6 months
 		for (let month = 0; month < 6; month++) {
-			this.sixMonths[month] = getMonthName(currDate.getMonth());
+			this.sixMonths[month] = `${getMonthName(currDate.getMonth())} ${currDate.getFullYear()}`;
 			currDate.setMonth(currDate.getMonth() - 1);
 		}
-		this.rows = 0;
-		this.columns = 0;
 	}
 
 	_clearFilter(filterDate) {
@@ -236,7 +174,6 @@ export class CreditStatementsDialog extends Component {
 		if (this.checkBox.every(val => val === true)) {
 			this.checkAll = false;
 			this.isChecked = true;
-			console.log(`checked`);
 		} else if (this.checkBox.every(val => val === false)) {
 			this.checkAll = false;
 			this.isChecked = false;
@@ -265,37 +202,8 @@ export class CreditStatementsDialog extends Component {
 		this.requestUpdate();
 	}
 
-	_emailFormatCheck(e) {
-		
-		this[e.currentTarget.id] = e.detail.new;
-
-		if (e.detail.new.length > 0) {
-			if (!EMAIL_REGEX.test(e.detail.new)) {
-				this.errorMessage = `Invalid email format`;
-				this.mailClientError.email = `Invalid email format`;
-				this.mailClientError.confirmEmail = `Invalid email format`;
-			} else {
-				this.errorMessage = ``;
-				this.mailClientError[e.currentTarget.id] = ``;
-			}
-		}
-		if (!this._confirmEmailMatch()) {
-			this.errorMessage = `Emails don't match`;
-			this.mailClientError.email = `Emails don't match`;
-				this.mailClientError.confirmEmail = `Emails don't match`;
-		}
-		this.requestUpdate();
-	}
-
-	_inputEmail(e) {
-		this.mailClientError[e.currentTarget.id] = ``;
-		this.mailClientError.email = ``;
-		this.mailClientError.confirmEmail = ``;
-		this.errorMessage = ``;
-	}
-
 	_clearErrors() {
-		this.errorMessage = ``;
+		super.errorMessage = ``;
 	}
 
 	_datePicked(e) {
@@ -303,11 +211,8 @@ export class CreditStatementsDialog extends Component {
 		const selectedMonth = e.detail.month;
 		const selectedYear = e.detail.year;
 
-		if (this.filteredDate.includes(`${selectedMonth} ${selectedYear}`)) {
-			return;
-		}
-
 		this.filteredDate[this.filteredDate.length] = `${selectedMonth} ${selectedYear}`;
+		this.filteredDate = [...new Set(this.filteredDate)];
 
 		this.requestUpdate();
 	}
@@ -322,46 +227,10 @@ export class CreditStatementsDialog extends Component {
 			css`
 			
 				bb-stepper-modal  {              
-					--theme-modal-header-height: 64px;
-					--theme-modal-header-font-size: 18px;
-					--theme-modal-header-padding-left: 16px;
 					--theme-modal-header-color: #FFFFFF;
 					--theme-modal-header-background-color: #E61414;
-					--theme-stepper-inner-step-container-width: 324px;
-					--theme-stepper-step-title-font-style: Hind Vadodara SemiBold;
-					--theme-stepper-step-title-font-size: 15px;
-					--theme-stepper-step-title-max-width: 328px;
-					--theme-container-padding-left: 0px;
-					--theme-container-padding-right: 0px;
-					--theme-container-padding-top: 0px;
-					--theme-container-padding-bottom: 0px;
 					--theme-wizard-modal-max-width: 990px;
 					--theme-wizard-modal-max-height: 960px;
-					--theme-wizard-modal-header-padding: 18.5px 16px;
-					--theme-modal-footer-padding: 0px;
-				}
-				div[slot="step"] {
-					height: 100%;
-
-					--theme-layout-gap-spacing: 0px;
-				}
-				div[slot="footer"] {
-					
-					--theme-container-padding-left: 16px;
-					--theme-container-padding-top: 16px;
-					--theme-container-padding-right: 16px;
-					--theme-container-padding-bottom: 16px;
-				}
-
-				.main-cb {
-					--theme-container-padding-left: 16px;
-					--theme-container-padding-top: 16px;
-					--theme-container-padding-right: 16px;
-					--theme-container-padding-bottom: 0px;
-				}
-				.main-cb > capitec-alert-banner {
-					--theme-alert-banner-height: 48px;
-					--theme-layout-gap-spacing: 15px;
 				}
 				capitec-hyperlink{
 					--theme-hyperlink-color: ##3A3A3A;
@@ -375,10 +244,17 @@ export class CreditStatementsDialog extends Component {
 
 				}
 				capitec-label[type="strong"]{
-					font-weight: 600;
 					margin-right: 0px;
+					line-height: 20px;
+
+					--theme-label-font-color: #009DE0;
+					--theme-label-strong-font-size: 16px;
 				}
-	
+				.alertLabel{
+					margin-right: 0px;
+					color: #3A3A3A;
+					font-size: 14px;				
+				}				
 				.checktrue{
 					height: 56px;
 					width: 220px;
@@ -417,16 +293,20 @@ export class CreditStatementsDialog extends Component {
 				.choose-period-header > capitec-check{
 					margin-right:10px;
 				}
-				.seperator {
-					width: 941px;
+				.line{
+					width: 955px;
 					border: 0.5px solid #E1E1E1;
 					margin-bottom: 17px;
-					// margin-top: 16px;
+					margin-top: 0px;
+				}
+				.seperator{
+					width: 955px;
 				}
 				capitec-chip{
 					width: 110px;
-					height:32px;
-					margin-left:8px;
+					height: 32px;
+					margin-left: 8px;
+					margin-bottom: 8px;
 				}
 				.filter-label{
 					color: #3A3A3A;
@@ -452,7 +332,7 @@ export class CreditStatementsDialog extends Component {
 			<bb-stepper-modal
 				header="Statements"
 				.steps="${STATEMENTS_STEPS}"
-				current-active-step="${this.currentStep}">
+				current-active-step="${super.currentStep}">
 					<div slot="step">
 						${this._renderContent()}
 					</div>
@@ -463,7 +343,7 @@ export class CreditStatementsDialog extends Component {
 	}
 
 	_renderContent() {
-		switch (this.renderMode) {
+		switch (super.renderMode) {
 			case RENDER_MODE.PDF:
 				return html`${this._renderPDFViewer()}`;
 			case RENDER_MODE.EMAIL:
@@ -483,11 +363,11 @@ export class CreditStatementsDialog extends Component {
 	}
 
 	_renderAlertBanner() {
-		if (this.errorMessage) {
+		if (super.errorMessage) {
 			return html`
 				<capitec-alert-banner
 					type="unsuccessful-red">
-						<p><b>Notify:</b> ${this.errorMessage}</p>
+						<p><b>Notify:</b> ${super.errorMessage}</p>
 				</capitec-alert-banner>`;
 		}
 
@@ -495,7 +375,7 @@ export class CreditStatementsDialog extends Component {
 			<capitec-alert-banner
 				type="warning">
 					<capitec-group layout="horizontal" class="alert-banner-group">
-					<capitec-label type="strong" label="Notify client:"></capitec-label>
+					<capitec-label type="strong" class="alertLabel" label="Notify client:"></capitec-label>
 					<capitec-label type="default"
 						label=${this.notifyMessage}>
 					</capitec-label>
@@ -510,7 +390,7 @@ export class CreditStatementsDialog extends Component {
 	}
 
 	_renderChoosePeriod() {
-		return this.currentStep === 0
+		return super.currentStep === 0
 			? html`
 				<capitec-group
 					class="choose-period-header"
@@ -544,7 +424,7 @@ export class CreditStatementsDialog extends Component {
 			<div class="check${this.checkBox[index]}"> 
 				<capitec-check
 					class="months"
-					label="${month} ${this.today.year}"
+					label="${month}"
 					@value-changed=${(e) => this._checkBox(e, index)}
 					?checked="${this.checkBox[index]}">
 				</capitec-check>
@@ -557,7 +437,7 @@ export class CreditStatementsDialog extends Component {
 		// minDate="${DateTime.local(2019, 7).toString()}"
 
 		return html`
-			<hr class="seperator">
+			<hr class="line">
 			<capitec-label
 				type="subtitle"
 				label="Choose other dates">
@@ -580,9 +460,12 @@ export class CreditStatementsDialog extends Component {
 	_renderFilter() {
 		if (this.filteredDate.length > 0) {
 			return html`
-				<capitec-group class="chip-group" layout="horizontal">
-					<capitec-label class="filter-label" label = "Active filters:"></capitec-label>
-					${this.filteredDate.map(item => this._renderChips(item))}
+				<capitec-group 
+					class="chip-group" 
+					layout="horizontal" 
+					wrap="true">
+						<capitec-label class="filter-label" label = "Active filters:"></capitec-label>
+						${this.filteredDate.map(item => this._renderChips(item))}
 				</capitec-group>
 			`;
 		}
@@ -590,8 +473,14 @@ export class CreditStatementsDialog extends Component {
 	}
 
 	_renderEmailClient() {
-		// TODO Add code for email section and PDF viewer
-		return this.currentStep === 1 && this.renderMode === RENDER_MODE.EMAIL
+		// TODO Add code for email section and PDF viewer		
+		let datesSelected = this.filteredDate.concat(this.checkBox.map((item, index) =>item === true ? this.sixMonths[index] : ``));
+		//removes duplicates and empty values
+		datesSelected = [...new Set(datesSelected.filter((item) => item!== ``))];
+		//sort according to date from latest date
+		datesSelected.sort((a, b) => new Date(b) - new Date(a));
+		
+		return super.currentStep === 1 && super.renderMode === RENDER_MODE.EMAIL
 		? html`
 		<capitec-label
 			type="subtitle"
@@ -606,8 +495,8 @@ export class CreditStatementsDialog extends Component {
 			oncut="return false"
 			value="${this.email}"
 			error="${this.mailClientError.email}"
-			@value-changed="${(e) => this._emailFormatCheck(e)}"
-			@input="${(e) => this._inputEmail(e)}">
+			@value-changed="${(e) => super._emailFormatCheck(e)}"
+			@input="${(e) => super._inputEmail(e)}">
 		</capitec-text-field>
 
 		<capitec-label
@@ -623,8 +512,8 @@ export class CreditStatementsDialog extends Component {
 			oncut="return false"
 			value="${this.confirmEmail}"
 			error="${this.mailClientError.confirmEmail}"
-			@value-changed="${(e) => this._emailFormatCheck(e)}"
-			@input="${(e) => this._inputEmail(e)}">
+			@value-changed="${(e) => super._emailFormatCheck(e)}"
+			@input="${(e) => super._inputEmail(e)}">
 		</capitec-text-field>
 	
 		<hr class="seperator">
@@ -634,17 +523,22 @@ export class CreditStatementsDialog extends Component {
 			label="View document">
 		</capitec-label>
 
-		<!--add dates to list then list.map((item) => this._renderViewDocument(item)) and label="item"-->
+		${datesSelected.map(item => this._renderViewDocument(item))}`
+		: html``;
+	}
+
+		_renderViewDocument(item) {
+		return super.currentStep === 1 && super.renderMode === RENDER_MODE.EMAIL
+		? html`
 		<horizon-product-tile
 			class="view-document"
 			type="default"
-			label="Sep 2021"
+			label="${item}"
 			subtitle="Last 30 days">
 				${this._renderViewDocumnetLink()}
-		</horizon-product-tile>
-	`
-		: html``;
-	}
+		</horizon-product-tile> `
+		: html ``;
+	}	
 
 	_renderViewDocumnetLink() {
 		return html`
@@ -652,6 +546,7 @@ export class CreditStatementsDialog extends Component {
 				slot="detail"
 				type="strong"
 				label="View Document"
+				class="viewDocumentLink"				
 				@click="${() => this._viewPDF()}">
 			</capitec-label>
 		`;
@@ -679,37 +574,37 @@ export class CreditStatementsDialog extends Component {
 						data-automation-id="statements-dialog-back"
 						type="clear"
 						label="Back"
-						@click="${(e) => this._back()}"
-						?hidden="${this.currentStep === 0 || this.renderMode === RENDER_MODE.PDF}">
+						@click="${(e) => super._back()}"
+						?hidden="${super.currentStep === 0 || super.renderMode === RENDER_MODE.PDF}">
 					</capitec-button> 
 					<capitec-spacer></capitec-spacer>
 					<capitec-button
 						data-automation-id="statements-dialog-cancel"
 						type="secondary"
 						label="Cancel"
-						@click="${() => this._cancel()}"
-						?hidden="${this.renderMode === RENDER_MODE.PDF}">
+						@click="${() => super._cancel()}"
+						?hidden="${super.renderMode === RENDER_MODE.PDF}">
 					</capitec-button>
 					<capitec-button
 						data-automation-id="statements-dialog-next"
 						type="primary"
 						label="Next"
 						@click="${() => this._next()}"
-						?hidden="${this.currentStep === 1 || this.renderMode === RENDER_MODE.PDF}">
+						?hidden="${super.currentStep === 1 || super.renderMode === RENDER_MODE.PDF}">
 					</capitec-button>
 					<capitec-button
 						data-automation-id="statements-dialog-send"
 						type="primary"
 						label="Send"
 						@click="${() => this._sendStatement()}"
-						?hidden="${this.currentStep !== 1 || this.renderMode === RENDER_MODE.PDF}">
+						?hidden="${super.currentStep !== 1 || super.renderMode === RENDER_MODE.PDF}">
 					</capitec-button>
 					<capitec-button
 						data-automation-id="statements-dialog-close"
 						type="primary"
 						label="Close"
-						@click="${() => this._close()}"
-						?hidden="${this.renderMode !== RENDER_MODE.PDF}">
+						@click="${() => super._close()}"
+						?hidden="${super.renderMode !== RENDER_MODE.PDF}">
 					</capitec-button>
 			</capitec-content-box>
 		`;

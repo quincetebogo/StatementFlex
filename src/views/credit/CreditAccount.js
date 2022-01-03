@@ -6,11 +6,11 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
-import 'app/productControls/Credit/src/CreditAccountLanding';
 import 'app/productControls/Credit/src/BudgetAccountDetails';
+import 'app/productControls/Credit/src/CreditAccountLanding';
+import 'app/dialogs/credit/CreditStatements';
 import 'app/productControls/Credit/src/CreditUnverifiedLanding';
 import 'app/components/common/ServiceCallErrorScreen';
-import 'app/dialogs/credit/CreditStatements';
 
 const BUDGET_ACCOUNT_DETAILS = {
 	accountName: `Shoprite Pleican PARK Grassy Park ZA`,
@@ -126,11 +126,6 @@ export class CreditAccount extends ViewBase {
 		// re-initialise the page when the verification status changes
 		// verificationStatus is on the this.callerInformation object
 		await this._initialise();
-	}
-	
-	async _productEnquiry() {
-		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
-		window.open(`${globalOneUrl}credit/get-credit-for-all-your-needs/`);
 	}
 
 	_viewInfo() {
@@ -336,13 +331,10 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNT_DETAILS;
 	}
 
-	_backToLandingPage() {
+	async _productEnquiry() {
+		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
+		window.open(`${globalOneUrl}credit/get-credit-for-all-your-needs/`);
 
-		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
-			this.horizonStore.setIncidentDetails(this.incidentDetails);
-		}
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	// Formating date in the form 'DD MMM YYYY'
@@ -355,6 +347,15 @@ export class CreditAccount extends ViewBase {
 	getMonthName(month) {
 		const monthNames = [`Jan`, `Feb`, `Mar`, `Apr`, `May`, `Jun`, `Jul`, `Aug`, `Sep`, `Oct`, `Nov`, `Dec`];
 		return monthNames.slice(month)[0];
+	}
+
+	_backToLandingPage() {
+
+		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
+			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		}
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	// ---------
