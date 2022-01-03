@@ -23,6 +23,8 @@ export class CreditStatementsSuccess extends ViewBase {
 	// PROPERTIES
 	// ----------
 	
+	// N/A
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -51,13 +53,13 @@ export class CreditStatementsSuccess extends ViewBase {
 	// EVENT HANDLERS
 	// --------------
 
-	_doneClick() {
-		this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_SUCCESS_DONE, {
+	async _doneClick() {
+		await this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_SUCCESS_DONE, {
 			"screen": TelemetryScreen.CREDIT_STATEMENTS_SUCCESS,
 			"nextScreen": TelemetryScreen.CREDIT_LANDING
 		});
 
-		this._telemetry.endSpan(CreditEvents.CREDIT_STATEMENTS_SUCCESS, {
+		await this._telemetry.endSpan(CreditEvents.CREDIT_STATEMENTS_SUCCESS, {
 			"screen": TelemetryScreen.CREDIT_STATEMENTS_SUCCESS
 		});
 
@@ -70,8 +72,8 @@ export class CreditStatementsSuccess extends ViewBase {
 		this.horizonRouter.navigateToCreditAccount();
 	}
 
-	_sendAnotherClick() {
-		this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_SUCCESS_SEND_ANOTHER, {
+	async _sendAnotherClick() {
+		await this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_SUCCESS_SEND_ANOTHER, {
 			"screen": TelemetryScreen.CREDIT_STATEMENTS_SUCCESS,
 			"nextScreen": TelemetryScreen.CREDIT_STATEMENTS
 		});

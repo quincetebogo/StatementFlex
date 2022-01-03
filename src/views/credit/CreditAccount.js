@@ -354,8 +354,8 @@ export class CreditAccount extends ViewBase {
 	_webTemplate() {
 		return html`
 			${super._webTemplate()}
-			${this._renderLandingPage()}
 			${this._renderCreditServiceUnavailable()}
+			${this._renderLandingPage()}
 			${this._renderStatements()}
 		`;
 	}

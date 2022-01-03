@@ -248,10 +248,10 @@ export class HorizonRouter {
 		const stopCard = () => this.navigateToStopCard();
 		const transact = () => this.navigateToQuickTransactionFavourites();
 		// const insure = hasInsuranceProducts ? () => this.navigateToInsureExistingClient() : () => this.navigateToInsureProspectiveClient();
-		const insure = () => this.navigateToProductInfo(`Insure`);
+		const insure = () => this.navigateToProductInfo(ivrOption);
 		const savings = () => this.navigateToSavingsAccount();
 		const credit = () => this.navigateToCreditAccount();
-		const savingsPlan = () => this.navigateToProductInfo(`SavingsPlan`);
+		const savingsPlan = () => this.navigateToProductInfo(ivrOption);
 		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
 
 		const landingPageFunc = {

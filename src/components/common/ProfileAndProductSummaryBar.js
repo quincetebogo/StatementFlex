@@ -169,12 +169,10 @@ export class ProfileAndProductSummaryBar extends Component {
 		// not have caller information
 
 		if (this.callerInformation) {
-			if (this.callerInformation.verificationStatus === `verified`) {
-				this.horizonRouter.navigateToLandingPage(this.product, false);
-			} else if (this.callerInformation.verificationStatus === `unverified` && (this.product === `Credit` || this.product === `LiveBetter`)) {
-				this.horizonRouter.navigateToLandingPage(this.product, false);
-			} else {
+			if (this.callerInformation.isNonClient || this.callerInformation.verificationStatus === `failed`) {
 				this.horizonRouter.navigateToProductInfo(this.product);
+			} else {
+				this.horizonRouter.navigateToLandingPage(this.product, false);
 			}
 		} 
 	}
