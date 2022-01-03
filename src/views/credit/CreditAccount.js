@@ -357,7 +357,6 @@ export class CreditAccount extends ViewBase {
 		return monthNames.slice(month)[0];
 	}
 
-
 	// ---------
 	// RENDERING
 	// ---------
@@ -465,7 +464,7 @@ export class CreditAccount extends ViewBase {
 			</capitec-pc-budget-account-details>`
 		: html``;
 	}
-	
+
 	_renderStatements(){
 		return this.renderMode === RENDER_MODE.STATEMENTS
 		? html`

@@ -4,6 +4,17 @@ import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
 
+const CREDIT_TYPE = {
+	FLEXIBLE: `Flexible`,
+	FIXED: `Fixed Credit`
+};
+
+const PRODUCT_TYPE = {
+	CREDIT_CARD: `Credit Card`,
+	ACCESS_FACILITY: `Access facility`,
+	TERM_LOAN: `Term Loan`
+};
+
 /**
  * Credit Account verified landing Product Control
  * 
@@ -360,14 +371,14 @@ export class CreditAccountLanding extends Component {
 								<capitec-icon
 									data-automation-id="credit-account-flexible-credit-info"
 									icon="system/info-action"
-									@click="${() => this._accountDetails(`Flexible`, `Credit Card`)}">
+									@click="${() => this._accountDetails(CREDIT_TYPE.FLEXIBLE, PRODUCT_TYPE.CREDIT_CARD)}">
 								</capitec-icon>
 								<horizon-label
 									class="label-pointer"
 									data-automation-id="credit-account-number"
 									label="Credit card"
 									value="1234567890"
-									@click="${() => this._accountDetails(`Flexible`, `Credit Card`)}">
+									@click="${() => this._accountDetails(CREDIT_TYPE.FLEXIBLE, PRODUCT_TYPE.CREDIT_CARD)}">
 								</horizon-label>
 								<div class="vertical-line"></div>
 								<horizon-label
@@ -422,11 +433,11 @@ export class CreditAccountLanding extends Component {
 											
 											<capitec-hyperlink 
 												label="View details" 
-												@click="${() => this._click(`budget-facility`, `Flexible`, `Credit Card`)}" 
+												@click="${() => this._click(`budget-facility`, CREDIT_TYPE.FLEXIBLE, PRODUCT_TYPE.CREDIT_CARD)}" 
 												inline>
 											</capitec-hyperlink>
 									</capitec-title-bar>
-									${this._renderOptionsGroup(`Flexible`, `Credit Card`)}
+									${this._renderOptionsGroup(CREDIT_TYPE.FLEXIBLE, PRODUCT_TYPE.CREDIT_CARD)}
 							</capitec-group>
 						</div>
 				</horizon-expander>
@@ -444,14 +455,14 @@ export class CreditAccountLanding extends Component {
 								<capitec-icon
 									data-automation-id="credit-account-flexible-credit-info"
 									icon="system/info-action"
-									@click="${() => this._accountDetails(`Flexible`, `Access facility`)}">
+									@click="${() => this._accountDetails(CREDIT_TYPE.FLEXIBLE, PRODUCT_TYPE.ACCESS_FACILITY)}">
 								</capitec-icon>
 								<horizon-label 
 									data-automation-id="credit-account-access-facility"
 									class="label-pointer"
 									label="Access facility"
 									value="1234567890"
-									@click="${() => this._accountDetails(`Flexible`, `Access facility`)}">
+									@click="${() => this._accountDetails(CREDIT_TYPE.FLEXIBLE, PRODUCT_TYPE.ACCESS_FACILITY)}">
 								</horizon-label>
 								<div class="vertical-line"></div>
 								<horizon-label
@@ -488,7 +499,7 @@ export class CreditAccountLanding extends Component {
 								gap="none"
 								halign="left"
 								valign="center">
-								${this._renderOptionsGroup(`Flexible`, `Access facility`)}
+								${this._renderOptionsGroup(CREDIT_TYPE.FLEXIBLE, PRODUCT_TYPE.ACCESS_FACILITY)}
 							</capitec-group>
 						</div>
 				</horizon-expander>
@@ -516,14 +527,14 @@ export class CreditAccountLanding extends Component {
 								<capitec-icon
 									data-automation-id="credit-account-fixed-term-info"
 									icon="system/info-action"
-									@click="${() => this._accountDetails(`Fixed Credit`, `Term Loan`)}">
+									@click="${() => this._accountDetails(CREDIT_TYPE.FIXED, PRODUCT_TYPE.TERM_LOAN)}">
 								</capitec-icon>
 								<horizon-label
 									data-automation-id="credit-account-number"
 									class="label-pointer"
 									label="56 month term loan"
 									value="1234567890"
-									@click="${() => this._accountDetails(`Fixed Credit`, `Term Loan`)}">
+									@click="${() => this._accountDetails(CREDIT_TYPE.FIXED, PRODUCT_TYPE.TERM_LOAN)}">
 								</horizon-label>
 								<div class="vertical-line"></div>
 								<horizon-label
@@ -560,7 +571,7 @@ export class CreditAccountLanding extends Component {
 								gap="none"
 								halign="left"
 								valign="center">
-									${this._renderOptionsGroup(`Fixed Credit`, `Term Loan`)}
+									${this._renderOptionsGroup(CREDIT_TYPE.FIXED, PRODUCT_TYPE.TERM_LOAN)}
 							</capitec-group>
 						</div>
 				</horizon-expander>
@@ -578,14 +589,14 @@ export class CreditAccountLanding extends Component {
 								<capitec-icon
 									data-automation-id="credit-account-fixed-term-info"
 									icon="system/info-action"
-									@click="${() => this._accountDetails(`Fixed Credit`, `Term Loan`)}">
+									@click="${() => this._accountDetails(CREDIT_TYPE.FIXED, PRODUCT_TYPE.TERM_LOAN)}">
 								</capitec-icon>
 								<horizon-label
 									data-automation-id="credit-account-number"
 									class="label-pointer"
 									label="24 month term loan"
 									value="3456789098"
-									@click="${() => this._accountDetails(`Fixed Credit`, `Term Loan`)}">
+									@click="${() => this._accountDetails(CREDIT_TYPE.FIXED, PRODUCT_TYPE.TERM_LOAN)}">
 								</horizon-label>
 								<div class="vertical-line"></div>
 								<horizon-label
@@ -622,7 +633,7 @@ export class CreditAccountLanding extends Component {
 								gap="none"
 								halign="left"
 								valign="center">
-									${this._renderOptionsGroup(`Fixed Credit`, `Term Loan`)}
+									${this._renderOptionsGroup(CREDIT_TYPE.FIXED, PRODUCT_TYPE.TERM_LOAN)}
 							</capitec-group>
 						</div>
 				</horizon-expander>
@@ -640,14 +651,14 @@ export class CreditAccountLanding extends Component {
 								<capitec-icon
 									data-automation-id="credit-account-fixed-term-info"
 									icon="system/info-action"
-									@click="${() => this._accountDetails(`Fixed Credit`, `Term Loan`)}">
+									@click="${() => this._accountDetails(CREDIT_TYPE.FIXED, PRODUCT_TYPE.TERM_LOAN)}">
 								</capitec-icon>
 								<horizon-label
 									data-automation-id="credit-account-number"
 									class="label-pointer"
 									label="72 month term loan"
 									value="1234567890"
-									@click="${() => this._accountDetails(`Fixed Credit`, `Term Loan`)}">
+									@click="${() => this._accountDetails(CREDIT_TYPE.FIXED, PRODUCT_TYPE.TERM_LOAN)}">
 								</horizon-label>
 								<div class="vertical-line"></div>
 								<horizon-label
@@ -684,7 +695,7 @@ export class CreditAccountLanding extends Component {
 								gap="none"
 								halign="left"
 								valign="center">
-									${this._renderOptionsGroup(`Fixed Credit`, `Term Loan`)}
+									${this._renderOptionsGroup(CREDIT_TYPE.FIXED, PRODUCT_TYPE.TERM_LOAN)}
 							</capitec-group>
 						</div>
 				</horizon-expander>
