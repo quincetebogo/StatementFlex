@@ -7,6 +7,7 @@ import { ViewBase } from '../common/ViewBase';
 
 import 'app/productControls/Credit/src/CreditAccountLanding';
 import 'app/productControls/Credit/src/BudgetAccounts';
+import 'app/dialogs/credit/CreditStatements';
 import 'app/productControls/Credit/src/BudgetAccountDetails';
 
 /**
@@ -176,6 +177,7 @@ export class CreditAccount extends ViewBase {
 
 	_getStatements() {
 		// TO DO: Place holder for credit statements flow.
+		this.renderMode = RENDER_MODE.STATEMENTS;
 	}
 
 	_settlementQuote() {
@@ -220,6 +222,20 @@ export class CreditAccount extends ViewBase {
 		const monthNames = [`Jan`, `Feb`, `Mar`, `Apr`, `May`, `Jun`, `Jul`, `Aug`, `Sep`, `Oct`, `Nov`, `Dec`];
 		return monthNames.slice(month)[0];
 	}
+	
+	_backToLandingPage() {
+
+		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
+			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		}
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	async _viewFees(){
+		const fees = await this.configuration.getSetting(`otherSystemsURL.fees`);
+		window.open(`${fees}`);
+	}
 
 	// ---------
 	// RENDERING
@@ -235,6 +251,7 @@ export class CreditAccount extends ViewBase {
 			${this._renderLandingPage()}
 			${this._renderBudgetFacilityAccounts()}
 			${this._renderBudgetAccountDetails()}
+			${this._renderStatements()}
 		`;
 	}
 
@@ -272,6 +289,16 @@ export class CreditAccount extends ViewBase {
 				.accountDetails="${this.budgetAccountDetails}"
 				@back="${() => this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW}">
 			</capitec-pc-budget-account-details>`
+		: html``;
+	}
+
+	_renderStatements(){
+		return this.renderMode === RENDER_MODE.STATEMENTS
+		? html`			
+			<horizon-credit-statements-dialog
+				@cancel="${()=> this._backToLandingPage()}"
+				@view-fees="${()=>this._viewFees()}">
+			</horizon-credit-statements-dialog>`
 		: html``;
 	}
 }
