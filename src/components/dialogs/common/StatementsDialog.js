@@ -118,7 +118,7 @@ export class StatementsDialog extends Component {
 
 		// Fetching the telemetry events object at runtime based on product type
 		// const type = this.type || `Default`;
-		const { STATEMENT_EVENTS } = await this.telemetryEvents[this.type]();
+		const { STATEMENT_EVENTS } = await this.telemetryEvents[this.accountType]();
 
 		this.STEPPER_STEPS = [...STATEMENTS_STEPS];
 		this.telemetryEvent = STATEMENT_EVENTS;
