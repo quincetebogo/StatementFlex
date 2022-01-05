@@ -1,8 +1,8 @@
+import { QuickTransactionEvents, STATEMENT_EVENTS } from 'app/constants/telemetry/events/QuickTransactions';
 import { css, html } from 'platform/elements';
 import { isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -498,6 +498,15 @@ export class Favourites extends SavingsAccountBase {
 		this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
 	}
 
+	async _getStatements() {
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_STATEMENTS, {
+			screen: TelemetryScreen.FAVOURITES,
+			nextScreen: TelemetryScreen.STATEMENTS
+		});
+
+		await super._getStatements();
+	}
+
 	async _proofOfAccount() {
 		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_PROOF_OF_ACCOUNT, {
 			"screen": TelemetryScreen.FAVOURITES,
@@ -665,6 +674,11 @@ export class Favourites extends SavingsAccountBase {
 		}
 		
 		return cardDetails;
+	}
+
+	_cancelStatements() {
+		this._telemetry.endSpan(STATEMENT_EVENTS.STATEMENTS);
+		super._backToLandingPage();
 	}
 
 	// ---------

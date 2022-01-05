@@ -57,7 +57,9 @@
 
 	VALUE_ADDED_SERVICES: `Value Added Services`,
 	VALUE_ADDED_SERVICES_UNAVAILABLE: `Value Added Services Unavailable`,
-	VALUE_ADDED_SERVICES_NO_CLIENT_DATA : `Value Added Services No Client Data`,
+	VALUE_ADDED_SERVICES_NO_CLIENT_DATA: `Value Added Services No Client Data`,
+
+	SAVINGS_ACCOUNT: `Savings Account`,
 
 	LIVE_BETTER: `Live Better verified landing page`,
 	LIVE_BETTER_ACCOUNT_DETAILS: `Live Better Account details`,

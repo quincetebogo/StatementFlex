@@ -1,16 +1,16 @@
 import { EXPANDER_LABEL, LINKED_TRANSACTION, TABLE_EXPANDER_CELL } from 'app/css/Lbb-TransactionHistory';
+import { LiveBetterEvents, STATEMENT_EVENTS } from 'app/constants/telemetry/events/LiveBetter';
 import { css, html, unsafeCSS } from 'platform/elements';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
 import { LiveBetterService } from 'app/services/LiveBetterService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-import { ViewBase } from 'app/views/common/ViewBase';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
 
@@ -27,7 +27,7 @@ import 'app/components/dialogs/liveBetter/LBBTransactionDetails';
 const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE: `LBB`,
 	END_DATE: new Date().toISOString().substr(0, 10),
-	START_DATE: new Date(Date.now() - 7776000000).toISOString().substr(0, 10),// 7776000000 is 90 days in milliseconds
+	START_DATE: new Date(Date.now() - 7776000000).toISOString().substr(0, 10), // 7776000000 is 90 days in milliseconds
 	START_AT_INDEX: 0,
 	MAX_RESULTS: 50,
 	MONEY_TYPE: `BOTH`
@@ -44,9 +44,9 @@ const LBB = 210;
  * 
  * @export
  * @class LiveBetter
- * @extends {ViewBase}
+ * @extends {SavingsAccountBase}
  */
-export class LiveBetter extends ViewBase {
+export class LiveBetter extends SavingsAccountBase {
 	
 	// --------------
 	// INITIALISATION
@@ -206,10 +206,10 @@ export class LiveBetter extends ViewBase {
 	// Function that gets triggered on changing values for those set as properties ( eg: "journalNumber", "transactionHistory" ).
 	async updated(changedProperties) {
 
-		const journalNumber = !(!changedProperties.get('journalNumber'));
+		const journalNumber = Boolean(!changedProperties.get(`journalNumber`));
 	
-		if(journalNumber) {
-			const expandedItem = this.transactionHistory.find( item => item.journalNumber === this.journalNumber);
+		if (journalNumber) {
+			const expandedItem = this.transactionHistory.find(item => item.journalNumber === this.journalNumber);
 			expandedItem.linkedTransactionDetails = await this._getLinkedransactionDetails(expandedItem);
 			this.requestUpdate();
 		}
@@ -410,6 +410,11 @@ export class LiveBetter extends ViewBase {
 		if (e.target.scrollWidth > e.target.offsetWidth) {
 			this.showTooltip = true;
 		}
+	}
+
+	_cancelStatements() {
+		this._telemetry.endSpan(STATEMENT_EVENTS.STATEMENTS);
+		super._backToLandingPage();
 	}
 
 	// ---------
@@ -677,7 +682,7 @@ export class LiveBetter extends ViewBase {
 			</capitec-content-box>
 
 		</capitec-content-box>
-		` : html ``;
+		` : html``;
 	}
 
 	_renderLinkedTransactionTile(item, formatedAmount) {
@@ -713,12 +718,12 @@ export class LiveBetter extends ViewBase {
 	}
 	
 	_renderLinkedTransactionDetailsModal() {
-		return this.renderMode === RENDER_MODE.LINKED_TRANSACTION_DETAILS ?
-		 html`
-			<horizon-linked-transaction-details
-				.transactionDetails = "${this.selectedLinkedTransaction}"
-				@on-close = "${() => this.renderMode = RENDER_MODE.TRANSACTION_HISTORY}">
-			</horizon-linked-transaction-details>` 
+		return this.renderMode === RENDER_MODE.LINKED_TRANSACTION_DETAILS
+			? html`
+				<horizon-linked-transaction-details
+					.transactionDetails = "${this.selectedLinkedTransaction}"
+					@on-close = "${() => this.renderMode = RENDER_MODE.TRANSACTION_HISTORY}">
+				</horizon-linked-transaction-details>` 
 			: html``;
 	}
 
@@ -738,7 +743,7 @@ export class LiveBetter extends ViewBase {
 					.cifNumber="${this.callerInformation.cifNumber}"
 					.clientProducts="${this.clientProducts}"
 					type="${ACCOUNT_TYPES.LBB}"
-					@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+					@cancel="${() => this._cancelStatements()}">
 				</horizon-statements-dialog>`
 			: html``;
 	}

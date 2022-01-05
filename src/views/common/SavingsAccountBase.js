@@ -111,11 +111,6 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	async _getStatements() {
-		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_STATEMENTS, {
-			screen: TelemetryScreen.FAVOURITES,
-			nextScreen: TelemetryScreen.STATEMENTS
-		});
-
 		const clientProductDetails = await this._getClientProducts();
 
 		if (clientProductDetails) {
@@ -509,7 +504,7 @@ export class SavingsAccountBase extends ViewBase {
 					.cifNumber="${this.callerInformation.cifNumber}"
 					.clientProducts="${this.clientProducts}"
 					type="${type}"
-					@cancel="${() => this._backToLandingPage()}">
+					@cancel="${() => this._cancelStatements()}">
 				</horizon-statements-dialog>`
 			: html``;
 	}
