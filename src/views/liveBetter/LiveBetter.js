@@ -353,7 +353,7 @@ export class LiveBetter extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.LIVE_BETTER_SATEMENTS
 		});
 
-		const productInfo = ACCOUNT_INTCAT_ENUM[SAVINGS_ACCOUNT];
+		const productInfo = ACCOUNT_INTCAT_ENUM[LBB];
 		this.clientProducts = [
 			{
 				'accountNumber': this.landingPageInfo.accountNumber,

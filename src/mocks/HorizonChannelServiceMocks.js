@@ -230,7 +230,7 @@ export default class HorizonChannelServiceMocks {
 
 	// Live Better Mocks
 	liveBetterLanding() {
-		if (this._mocking.liveBetterLanding.positiveCase) {
+		if (this._mockSettings.liveBetterLanding.positiveCase) {
 			return this.liveBetterLandingMocks.LiveBetterLandingInfo;
 		}
 
@@ -239,7 +239,7 @@ export default class HorizonChannelServiceMocks {
 	}
 
 	liveBetterTransactionHistory() {
-		if (this._mocking.liveBetterTransactionHistory.positiveCase) {
+		if (this._mockSettings.liveBetterTransactionHistory.positiveCase) {
 			return this.liveBetterLandingMocks.LBBTransactionHistory;
 		}
 
@@ -248,7 +248,7 @@ export default class HorizonChannelServiceMocks {
 	}
 
 	lbbLinkedTransactionDetails() {
-		if (this._mocking.lbbLinkedTransactionDetails.positiveCase) {
+		if (this._mockSettings.lbbLinkedTransactionDetails.positiveCase) {
 			return this.liveBetterLandingMocks.LBBLinkedTransactionDetails;
 		}
 
