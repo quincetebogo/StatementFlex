@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
+import { AccessChannelsEvents } from 'app/constants/telemetry/events/AccessChannels';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -15,9 +15,16 @@ const SUSPEND_REASONS = {
 	SERVICE_CANCELLATION: `Service cancellation`
 };
 
-const RENDER_MODE = {
+const RENDER_STEPPER_MODE = {
+	NONE: 0,
 	CLIENT_TOKENS: 1,
 	SUSPEND_REASONS: 2
+};
+
+const RENDER_MODE = {
+	NONE: 0,
+	SINGLE_TOKEN: 1,
+	MULTIPLE_TOKEN: 2
 };
 
 /**
@@ -58,12 +65,11 @@ export class InternetBankingProfileDetails extends Component {
 		this.selectedReason = ``;
 		this.showNoReasonSelectedNotification = false;
 
-		this.renderMode = RENDER_MODE.CLIENT_TOKENS;
+		this.renderMode = RENDER_MODE.NONE;
+		this.renderStepperMode = RENDER_STEPPER_MODE.NONE;
 		this.isMultipleDevices = true;
-		this.isIndeterminate = false;
-
-		// this.renderMode = RENDER_MODE.SUSPEND_REASONS;
 		// this.isMultipleDevices = false;
+		this.isIndeterminate = false;
 
 		this.clientTokens = [{ token: `90876375849`, selected: false }, { token: `123476375849`, selected: false }, { token: `019836375849`, selected: false }, { token: `23776375849`, selected: false }];
 		this.isSuspendReasonSelected = false;
@@ -78,12 +84,12 @@ export class InternetBankingProfileDetails extends Component {
 
 	/**
 	 * @callback suspendInternetBankingSecurityToken
-	 * @returns {suspendInternetBankingSecurityTokenCallback} - Success or failure response from suspend Internet Banking Security Token channel service call
+	 * @returns {suspendInternetBankingSecurityTokenCallback} - Success or failure response from Suspend Internet Banking Security Token channel service call
 	 */
 
 	/**
-	 * @callback unsuspendInternetBankingSecurityToken
-	 * @returns {unsuspendInternetBankingSecurityTokenCallback} - Success or failure response from Unsuspend Internet Banking Security Token channel service call
+	 * @callback resetInternetBankingSecurityToken
+	 * @returns {resetInternetBankingSecurityTokenCallback} - Success or failure response from Reset Internet Banking Security Token channel service call
 
 	 * 
 	 * @property {Boolean} [showSideSheet] - To toggle Side sheet component
@@ -95,7 +101,7 @@ export class InternetBankingProfileDetails extends Component {
 	 * @property {Boolean} [showValidationBanner] - To hide or show the suspend reason validation banner on error 
 	 * 
 	 * @property {suspendInternetBankingSecurityTokenCallback} suspendInternetBankingSecurityToken Callback function to suspend Internet Banking Security Token
-	 * @property {unsuspendInternetBankingSecurityTokenCallback} unsuspendInternetBankingSecurityToken Callback function to Unsuspend Internet Banking Security Token
+	 * @property {resetInternetBankingSecurityTokenCallback} resetInternetBankingSecurityToken Callback function to Reset Internet Banking Security Token
 	 * 
 	 */
 
@@ -108,7 +114,7 @@ export class InternetBankingProfileDetails extends Component {
 			showSideSheet: { type: Boolean },
 
 			suspendInternetBankingSecurityToken: { type: Object, attribute: false },
-			unsuspendInternetBankingSecurityToken: { type: Object, attribute: false },
+			resetInternetBankingSecurityToken: { type: Object, attribute: false },
 
 			// internal props
 			isInternetBankingActive: { state: true },
@@ -121,6 +127,7 @@ export class InternetBankingProfileDetails extends Component {
 
 			isMultipleDevices: { state: true },
 			renderMode: { type: Boolean, attribute: false },
+			renderStepperMode: { type: Boolean, attribute: false },
 			isIndeterminate: { state: true },
 
 			clientTokens: { type: Array },
@@ -136,7 +143,7 @@ export class InternetBankingProfileDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this._telemetry.startSpan(QuickTransactionEvents.ACCESS_CHANNELS_INTERNET_BANKING, {
+		this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING, {
 			"screen": TelemetryScreen.ACCESS_CHANNELS,
 			"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING
 		});
@@ -154,80 +161,44 @@ export class InternetBankingProfileDetails extends Component {
 		this.dispatchEvent(new CustomEvent(`close-side-sheet`, {}));
 	}
 
-	_onToggleSuspendPanelClick() {
-		this.showSuspendPanel = !this.showSuspendPanel;
-		this.showNoReasonSelectedNotification = false;
-		this.selectedReason = ``;
-		this.isTokenSuspended = false;
-
-		if (this.showSuspendPanel) {
-			this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN, {
-				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
-				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON
-			});
-		} else {
-			this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_CANCEL, {
-				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON,
-				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING
-			});
-		}
-
-		if (!this.isMultipleDevices && this.showSuspendPanel) {
-			this._renderSuspendPanel();
-		} else {
-			this._renderMultipleDevicesSuspendPanel();
-
-			this.isIndeterminate = false;
-			this.isTokenSelected = false;
-			this.selectedTokens = [];
-			this.renderMode = RENDER_MODE.CLIENT_TOKENS;
+	async _onResetSecurityTokenClockClick() {
+		if (this.isMultipleDevices) {
+			this.showResetTokenPanel = true;
+			
 			this.selectAll = false;
 			this.clientTokens.forEach(item => {
 				if (item.selected) {
 					item.selected = false;
 				}
 			});
-		}
-	}
 
-	_onToggleResetPanelClick() {
-		this.showResetTokenPanel = !this.showResetTokenPanel;
-		this.selectedTokens = [];
-
-		if (this.showResetTokenPanel) {
-			this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN_CANCEL, {
-				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN,
-				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING
-			});
-		}
-	}
-
-	async _onResetSecurityTokenClockClick() {
-		if (this.isMultipleDevices) {
-			this.showResetTokenPanel = !this.showResetTokenPanel;
-			this._renderMultipleDevicesResetTokenPanel();
+			this.renderMode = RENDER_MODE.MULTIPLE_TOKEN;
+			this.renderStepperMode = RENDER_STEPPER_MODE.CLIENT_TOKENS;
 		} else {
-			const unsuspendResult = await this.unsuspendInternetBankingSecurityToken();
-			if (unsuspendResult) {
+			const resetTokenResult = await this.resetInternetBankingSecurityToken();
+			if (resetTokenResult) {
 				this._displayTokenResetSuccessToast();
 
-				await this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN, {
+				await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN, {
 					"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING
 				});
 			}
+
+			this.renderMode = RENDER_MODE.NONE;
+			this.renderStepperMode = RENDER_STEPPER_MODE.NONE;
 		}
 	}
-
+	
 	async _onMultipleTokensResetBtnClick() {
 		if (this.selectedTokens.length > 0) {
-			const unsuspendResult = await this.unsuspendInternetBankingSecurityToken();
-			if (unsuspendResult) {
+			const resetTokenResult = await this.resetInternetBankingSecurityToken();
+			if (resetTokenResult) {
 				if (this.isMultipleDevices) {
 					this.showResetTokenPanel = !this.showResetTokenPanel;
 					this._displayTokenResetSuccessToast();
 				}
 
-				await this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN, {
+				await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN, {
 					"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN,
 					"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
 					"token-numbers": this.selectedTokens
@@ -245,7 +216,7 @@ export class InternetBankingProfileDetails extends Component {
 				this.isInternetBankingActive = false;
 				this._displayTokenSuspendSuccessToast();
 
-				await this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_CONFIRM, {
+				await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_CONFIRM, {
 					"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON,
 					"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
 					"suspend-reason": this.selectedReason
@@ -256,48 +227,71 @@ export class InternetBankingProfileDetails extends Component {
 		}
 	}
 
-	_onNextBtnClick() {
-		if (this.selectedTokens.length > 0) {
-			this.renderMode = RENDER_MODE.SUSPEND_REASONS;
+	_onCloseResetPanelClick() {
+		this.showResetTokenPanel = false;
+		this.selectedTokens = [];
 
-			this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_NEXT, {
-				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_TOKENS,
-				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON,
-				"token-numbers": this.selectedTokens
-			});
-		} else {
-			this.renderMode = RENDER_MODE.CLIENT_TOKENS;
-		}
-	}
+		this.selectAll = false;
+		this.clientTokens.forEach(item => {
+			if (item.selected) {
+				item.selected = false;
+			}
+		});
 
-	_onBackBtnClick() {
-		this.renderMode = RENDER_MODE.CLIENT_TOKENS;
-		if (this.selectedTokens.length === 0) {
-			this.isTokenSelected = false;
-			this.isIndeterminate = false;
-		}
-
-		this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_BACK, {
-			"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON,
-			"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_TOKENS
+		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN_CANCEL, {
+			"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN,
+			"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING
 		});
 	}
 
-	_onValueChange(event, item) {
-		if (event.detail.new) {
-			if (!this.selectedTokens.includes(event.currentTarget.label)) {
-				this.selectedTokens.push(event.currentTarget.label);
-			}
-			item.selected = true;
-			this.isTokenSelected = true;
-			this.isIndeterminate = true;
+	_onOpenSuspendPanelClick() {
+		this.showSuspendPanel = true;
+
+		if (this.isMultipleDevices) {
+			this.renderMode = RENDER_MODE.MULTIPLE_TOKEN;
+			this.renderStepperMode = RENDER_STEPPER_MODE.CLIENT_TOKENS;
+
+			this.isIndeterminate = false;
+			this.isTokenSelected = false;
+			this.selectedTokens = [];
+			this.renderStepperMode = RENDER_STEPPER_MODE.CLIENT_TOKENS;
+			this.selectAll = false;
+			this.clientTokens.forEach(item => {
+				if (item.selected) {
+					item.selected = false;
+				}
+			});
 		} else {
-			item.selected = false;
-			this.selectedTokens = this.selectedTokens.filter(token => token !== event.currentTarget.label);
-			if (this.selectedTokens.length === 0) {
-				this.isTokenSelected = false;
-				this.isIndeterminate = false;
-			}
+			this.renderMode = RENDER_MODE.SINGLE_TOKEN;
+			this.renderStepperMode = RENDER_STEPPER_MODE.SUSPEND_REASONS;
+		}
+
+		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN, {
+			"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
+			"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON
+		});
+	}
+
+	_onCloseSuspendPanelClick() {
+		this.showSuspendPanel = false;
+		this.renderMode = RENDER_MODE.NONE;
+		this.renderStepperMode = RENDER_STEPPER_MODE.NONE;
+
+		this.showNoReasonSelectedNotification = false;
+		this.selectedReason = ``;
+		this.isTokenSuspended = false;
+
+		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_CANCEL, {
+			"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON,
+			"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING
+		});
+	}
+
+	_onSelectedReasonChanged(event) {
+		if (event.detail.new) {
+			this.showNoReasonSelectedNotification = false;
+			this.selectedReason = event.currentTarget.label;
+			this.isSuspendReasonSelected = true;
 		}
 	}
 
@@ -325,12 +319,50 @@ export class InternetBankingProfileDetails extends Component {
 		}
 	}
 
-	_onSelectedReasonChanged(event) {
+	_onValueChange(event, item) {
 		if (event.detail.new) {
-			this.showNoReasonSelectedNotification = false;
-			this.selectedReason = event.currentTarget.label;
-			this.isSuspendReasonSelected = true;
+			if (!this.selectedTokens.includes(event.currentTarget.label)) {
+				this.selectedTokens.push(event.currentTarget.label);
+			}
+			item.selected = true;
+			this.isTokenSelected = true;
+			this.isIndeterminate = true;
+		} else {
+			item.selected = false;
+			this.selectedTokens = this.selectedTokens.filter(token => token !== event.currentTarget.label);
+			if (this.selectedTokens.length === 0) {
+				this.isTokenSelected = false;
+				this.isIndeterminate = false;
+			}
 		}
+	}
+
+	_onNextBtnClick() {
+		if (this.selectedTokens.length > 0) {
+			this.renderStepperMode = RENDER_STEPPER_MODE.SUSPEND_REASONS;
+
+			this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_NEXT, {
+				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_TOKENS,
+				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON,
+				"token-numbers": this.selectedTokens
+			});
+		} else {
+			this.renderStepperMode = RENDER_STEPPER_MODE.CLIENT_TOKENS;
+		}
+	}
+
+	_onBackBtnClick() {
+		this.renderStepperMode = RENDER_STEPPER_MODE.CLIENT_TOKENS;
+
+		if (this.selectedTokens.length === 0) {
+			this.isTokenSelected = false;
+			this.isIndeterminate = false;
+		}
+
+		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_BACK, {
+			"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON,
+			"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_TOKENS
+		});
 	}
 
 	// ---------------
@@ -339,13 +371,11 @@ export class InternetBankingProfileDetails extends Component {
 
 	_displayTokenResetSuccessToast() {
 		this.displayToast = true;
-		this._renderTokenResetSuccessToast();
 		window.setTimeout(() => this.displayToast = false, 3000);
 	}
 
 	_displayTokenSuspendSuccessToast() {
 		this.displaySuspendToast = true;
-		this._renderTokenSuspendSuccessToast();
 		window.setTimeout(() => this.displaySuspendToast = false, 3000);
 	}
 
@@ -402,10 +432,12 @@ export class InternetBankingProfileDetails extends Component {
 					cursor: pointer;
 				}
 
+				/* Content box */
 				.content-box{
 					--theme-container-padding-left: 24px;
 					--theme-container-padding-right: 24px;
 					--theme-container-padding-top: 7px;
+					height: auto;
 				}
 
 				.content-box > horizon-label {
@@ -473,7 +505,6 @@ export class InternetBankingProfileDetails extends Component {
 					justify-content: left;
 				}
 
-
 				.side-panel-stepper-group > capitec-label {
 					font-family: "Hind Vadodara";
 					letter-spacing: 0;
@@ -533,7 +564,7 @@ export class InternetBankingProfileDetails extends Component {
 				}
 
 				capitec-check-group {
-					width: 366px;
+					width: 100%;
 					height: 168px;
 				}
 				
@@ -577,10 +608,7 @@ export class InternetBankingProfileDetails extends Component {
 					--theme-alert-banner-height: 105px;
 					--theme-alert-banner-width: 328px;
 				}
-				   
-															   
-								   
-
+				
 				.reason-to-suspend-label {
 					margin: 8px 0px 14px 0px;
 					--theme-label-strong-font-size: 16px;
@@ -620,28 +648,8 @@ export class InternetBankingProfileDetails extends Component {
 
 				.token-reset-toast-success {
 					--theme-toast-height: 146px;
-								   
-														
-	 
-						  
-				  
-						  
-									
-	 
-												
-	 
-						  
-							   
-	 
-				   
 					--theme-toast-min-width: 312px;
-						  
-	 
-										
 					--theme-toast-icon-left: 16px;
-	 
-											   
-							   
 					--theme-toast-icon-top: 12px;
 				}
 				
@@ -686,9 +694,9 @@ export class InternetBankingProfileDetails extends Component {
 	_webTemplate() {
 		return html`
 			${this._renderInternetBankingPanel()}
+			${this._renderSuspendPanel()}
 			${this._renderMultipleDevicesSuspendPanel()}
 			${this._renderMultipleDevicesResetTokenPanel()}
-			${this._renderSuspendPanel()}
 		`;
 	}
 
@@ -795,14 +803,14 @@ export class InternetBankingProfileDetails extends Component {
 				<capitec-button
 					label="Suspend Security Token"
 					?hidden=${this.isTokenSuspended}
-					@click="${() => this._onToggleSuspendPanelClick()}"
+					@click="${() => this._onOpenSuspendPanelClick()}"
 				></capitec-button>
 			</capitec-content-box>
 		`;
 	}
 
 	_renderSuspendPanel() {
-		return this.isMultipleDevices ? html`` : html`
+		return this.renderMode === RENDER_MODE.SINGLE_TOKEN ? html`
 			<capitec-side-sheet
 				class="side-panel-sheet"
 				.expanded=${this.showSuspendPanel}
@@ -817,19 +825,72 @@ export class InternetBankingProfileDetails extends Component {
 					<capitec-icon class="side-panel-header-icon" size="medium" icon=${this.showNoReasonSelectedNotification ? `status/error-trans` : `status/warning-trans`}></capitec-icon>
 					<capitec-label class="side-panel-header-label" type="Strong" label="Suspend Security Token"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-icon class="side-panel-close-icon" size="small" icon="system/close-action" @click="${() => this._onToggleSuspendPanelClick()}"></capitec-icon>
+					<capitec-icon class="side-panel-close-icon" size="small" icon="system/close-action" @click="${() => this._onCloseSuspendPanelClick()}"></capitec-icon>
 				</capitec-group>
 
 				${this._renderSuspendReasons()}
 
-				</capitec-content-box>
-
 			</capitec-side-sheet>
+		` : html``;
+	}
+
+	_renderMultipleDevicesSuspendPanel() {
+		return this.renderMode === RENDER_MODE.MULTIPLE_TOKEN ? html`
+			<capitec-side-sheet
+				class="side-panel-sheet"
+				.expanded=${this.showSuspendPanel}
+				alignment="right"
+			>
+				<capitec-group
+					class="side-panel-header-suspend ${this.showNoReasonSelectedNotification ? `side-panel-header-suspend-error` : ``}"
+					layout="horizontal"
+					halign="left"
+					valign="center"
+					gap="none">
+					<capitec-icon class="side-panel-header-suspend-icon" size="medium" icon=${this.showNoReasonSelectedNotification ? `status/error-trans` : `status/warning-trans`}></capitec-icon>
+					<capitec-label class="side-panel-header-label" type="Strong" label="Suspend Security Token"></capitec-label>
+					<capitec-spacer></capitec-spacer>
+					<capitec-icon class="side-panel-close-icon" size="small" icon="system/close-action" @click="${() => this._onCloseSuspendPanelClick()}"></capitec-icon>
+				</capitec-group>
+
+				${this._renderMulitpleDevicesStepper()}
+				${this._renderSuspendReasons()}
+				${this._renderClientTokens()}
+				
+			</capitec-side-sheet>
+		` : html``;
+	}
+
+	_renderMulitpleDevicesStepper() {
+		return this.renderStepperMode === RENDER_STEPPER_MODE.CLIENT_TOKENS ? html`
+			<capitec-content-box
+				class="side-panel-stepper"
+				halign="left"
+				valign="center"
+				gap="none">
+				<capitec-badge class="${this.isTokenSelected ? `step-success` : `step-todo`}" number="1" iconSize="medium" color="#FFFFFF" icon="${this.isTokenSelected ? `status/success-trans` : ``}"></capitec-badge>
+				<capitec-group class="side-panel-stepper-group">
+					<capitec-label class="step-count-label" label="Step 1 of 2"></capitec-label>
+					<capitec-label class="step-label label-strong" type="strong" label="Choose security token to be suspended"></capitec-label>
+				</capitec-group>
+			</capitec-content-box>
+		` : html`
+			<capitec-content-box
+				class="side-panel-stepper"
+				halign="left"
+				valign="center"
+				gap="none">
+				<capitec-badge class="${this.isSuspendReasonSelected ? `step-success` : `step-todo`}" number="2" iconSize="medium" color="#FFFFFF" icon="${this.isSuspendReasonSelected ? `status/success-trans` : ``}"></capitec-badge>
+				<capitec-group class="side-panel-stepper-group">
+					<capitec-label label="Step 2 of 2"></capitec-label>
+					<capitec-label class="label-strong" type="strong" label="Choose a reason to suspend"></capitec-label>
+				</capitec-group>
+			</capitec-content-box>
 		`;
 	}
 
 	_renderSuspendReasons() {
-		return this.renderMode === RENDER_MODE.SUSPEND_REASONS ? html`
+		return this.renderStepperMode === RENDER_STEPPER_MODE.SUSPEND_REASONS ? html`
 			${this._renderClientNotification()}
 			${this._renderNoReasonSelectedNotification()}
 
@@ -901,7 +962,7 @@ export class InternetBankingProfileDetails extends Component {
 					></capitec-button>
 					<capitec-button
 						label="Cancel"
-						@click="${() => this._onToggleSuspendPanelClick()}"
+						@click="${() => this._onCloseSuspendPanelClick()}"
 						?hidden=${this.isMultipleDevices === true}
 					></capitec-button>
 				</capitec-content-box>
@@ -909,32 +970,39 @@ export class InternetBankingProfileDetails extends Component {
 	}
 
 	_renderClientTokens() {
-		return this.renderMode === RENDER_MODE.CLIENT_TOKENS ? html`
+		return this.renderStepperMode === RENDER_STEPPER_MODE.CLIENT_TOKENS ? html`
+			<capitec-content-box
+				class="content-box"
+				layout="vertical"
+				halign="left"
+				valign="top"
+				gap="none"
+			>
+				<capitec-check-group class="check-group">
+					<capitec-check 
+						label="Select all"
+						class="token-select-all"
+						?checked = ${this.selectAll}
+						?disabled = ${this.disabled}
+						?indeterminate = ${this.isIndeterminate}
+						@value-changed="${(e) => this._onSelectAllChange(e)}"></capitec-check>
 
-			<capitec-check-group class="check-group">
-				<capitec-check 
-					label="Select all"
-					class="token-select-all"
-					?checked = ${this.selectAll}
-					?disabled = ${this.disabled}
-					?indeterminate = ${this.isIndeterminate}
-					@value-changed="${(e) => this._onSelectAllChange(e)}"></capitec-check>
+					${this.clientTokens.map(item => this.renderCheck(item))}
+				</capitec-check-group>
 
-				${this.clientTokens.map(item => this.renderCheck(item))}
-			</capitec-check-group>
-
-			<!-- Multiple Client Tokens -->
-			<capitec-button
-				type="primary"
-				label="Next"
-				@click="${() => this._onNextBtnClick()}"
-				?hidden=${this.showResetTokenPanel}
-			></capitec-button>
-			<capitec-button
-				label="Cancel"
-				@click="${() => this._onToggleSuspendPanelClick()}"
-				?hidden=${this.showResetTokenPanel}
-			></capitec-button>
+				<!-- Multiple Client Tokens -->
+				<capitec-button
+					type="primary"
+					label="Next"
+					@click="${() => this._onNextBtnClick()}"
+					?hidden=${this.showResetTokenPanel}
+				></capitec-button>
+				<capitec-button
+					label="Cancel"
+					@click="${() => this._onCloseSuspendPanelClick()}"
+					?hidden=${this.showResetTokenPanel}
+				></capitec-button>
+			</capitec-content-box>
 
 		` : html``;
 	}
@@ -950,72 +1018,8 @@ export class InternetBankingProfileDetails extends Component {
 		`;
 	}
 
-	_renderMultipleDevicesSuspendPanel() {
-		return this.isMultipleDevices ? html`
-			<capitec-side-sheet
-				class="side-panel-sheet"
-				.expanded=${this.showSuspendPanel}
-				alignment="right"
-			>
-				<capitec-group
-					class="side-panel-header-suspend ${this.showNoReasonSelectedNotification ? `side-panel-header-suspend-error` : ``}"
-					layout="horizontal"
-					halign="left"
-					valign="center"
-					gap="none">
-					<capitec-icon class="side-panel-header-suspend-icon" size="medium" icon=${this.showNoReasonSelectedNotification ? `status/error-trans` : `status/warning-trans`}></capitec-icon>
-					<capitec-label class="side-panel-header-label" type="Strong" label="Suspend Security Token"></capitec-label>
-					<capitec-spacer></capitec-spacer>
-					<capitec-icon class="side-panel-close-icon" size="small" icon="system/close-action" @click="${() => this._onToggleSuspendPanelClick()}"></capitec-icon>
-				</capitec-group>
-
-				${this._renderMulitpleDevicesStepper()}
-				${this._renderSuspendReasons()}
-
-				<capitec-content-box
-					class="content-box"
-					layout="vertical"
-					halign="left"
-					valign="top"
-					gap="none"
-				>
-					${this._renderClientTokens()}
-				</capitec-content-box>
-
-			</capitec-side-sheet>
-		` : html``;
-	}
-
-	_renderMulitpleDevicesStepper() {
-		return this.renderMode === RENDER_MODE.CLIENT_TOKENS ? html`
-			<capitec-content-box
-				class="side-panel-stepper"
-				halign="left"
-				valign="center"
-				gap="none">
-				<capitec-badge class="${this.isTokenSelected ? `step-success` : `step-todo`}" number="1" iconSize="medium" color="#FFFFFF" icon="${this.isTokenSelected ? `status/success-trans` : ``}"></capitec-badge>
-				<capitec-group class="side-panel-stepper-group">
-					<capitec-label class="step-count-label" label="Step 1 of 2"></capitec-label>
-					<capitec-label class="step-label label-strong" type="strong" label="Choose security token to be suspended"></capitec-label>
-				</capitec-group>
-			</capitec-content-box>
-		` : html`
-			<capitec-content-box
-				class="side-panel-stepper"
-				halign="left"
-				valign="center"
-				gap="none">
-				<capitec-badge class="${this.isSuspendReasonSelected ? `step-success` : `step-todo`}" number="2" iconSize="medium" color="#FFFFFF" icon="${this.isSuspendReasonSelected ? `status/success-trans` : ``}"></capitec-badge>
-				<capitec-group class="side-panel-stepper-group">
-					<capitec-label label="Step 2 of 2"></capitec-label>
-					<capitec-label class="label-strong" type="strong" label="Choose a reason to suspend"></capitec-label>
-				</capitec-group>
-			</capitec-content-box>
-		`;
-	}
-
 	_renderMultipleDevicesResetTokenPanel() {
-		return this.isMultipleDevices ? html`
+		return this.renderMode === RENDER_MODE.MULTIPLE_TOKEN ? html`
 			<capitec-side-sheet
 				class="side-panel-sheet"
 				.expanded=${this.showResetTokenPanel}
@@ -1029,7 +1033,7 @@ export class InternetBankingProfileDetails extends Component {
 					gap="none">
 					<capitec-label class="side-panel-header-label" type="Strong" label="Reset Security Token Clock"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-icon class="side-panel-close-icon" size="small" icon="system/close-action" @click="${() => this._onToggleResetPanelClick()}"></capitec-icon>
+					<capitec-icon class="side-panel-close-icon" size="small" icon="system/close-action" @click="${() => this._onCloseResetPanelClick()}"></capitec-icon>
 				</capitec-group>
 
 				<capitec-content-box
@@ -1057,87 +1061,11 @@ export class InternetBankingProfileDetails extends Component {
 					></capitec-button>
 					<capitec-button
 						label="Cancel"
-						@click="${() => this._onToggleResetPanelClick()}"
+						@click="${() => this._onCloseResetPanelClick()}"
 					></capitec-button>
 				</capitec-content-box>
 
 			</capitec-side-sheet>
-		` : html``;
-	}
-
-	_renderTokenResetSuccessToast() {
-		return html`
-			<capitec-toast
-				class="token-reset-toast-success"
-				type="success"
-				header="Successful!"
-				detail="Security token was reset. &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp You can now log in again.  &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp ${this._formatDate(this.internetBankingDetails.dateLastUpdated)}"
-				?hidden="${!this.displayToast}"
-				@click="${() => this.displayToast = false}"
-				?closable=false
-			></capitec-toast>
-		`;
-	}
-
-	_renderTokenSuspendSuccessToast() {
-		const formatedUpdatedDate = `${this._formatDate(this.internetBankingDetails.dateLastUpdated)}, ${this._formatTime(this.internetBankingDetails.dateLastUpdated)}`;
-
-		return html`
-			<capitec-toast
-				class="token-suspend-toast-success"
-				type="success"
-				header="Successful!"
-				detail="Internet security token was suspended. &nbsp &nbsp &nbsp &nbsp To access internet banking you will need to register on the App. &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp ${formatedUpdatedDate}"
-				?hidden="${!this.displaySuspendToast}"
-				@click="${() => this.displaySuspendToast = false}"
-				?closable=false
-			></capitec-toast>
-		`;
-	}
-
-	_renderClientNotification() {
-		return this.showNoReasonSelectedNotification ? html`` : html`
-			<capitec-alert-banner
-				type="warning"
-				class="client-notify-banner"
-				label=""
-				layout="vertical">
-				<p><b>Notify client:</b><br>A fee will be charged to activate a new security token.</p>
-				<br>
-				<capitec-hyperlink
-					href="https://www.capitecbank.co.za/global-one/transact/fees/"
-					target="_blank"
-					label="View fees"
-					inline
-				></capitec-hyperlink>
-			</capitec-alert-banner>
-		`;
-	}
-
-	_renderTokenSuspendedNotification() {
-		return this.isTokenSuspended ? html`
-			<capitec-alert-banner
-				type="error"
-				class="token-suspend-banner"
-				label=""
-				layout="vertical">
-				<p><b>Internet security token suspended.</b><br>To access internet banking you will need to register on the App.</p>
-				<capitec-spacer></capitec-spacer>
-				<capitec-spacer></capitec-spacer>
-				<p>Please visit a branch to request a new securtiy token.</p>
-			</capitec-alert-banner>
-		` : html``;
-	}
-
-	_renderNoReasonSelectedNotification() {
-		return this.showNoReasonSelectedNotification ? html`
-			<capitec-alert-banner
-				type="unsuccessful-red"
-				label=""
-				layout="vertical">
-				<b>Notice:</b> <br/>
-				<p>Please choose a reason to suspend.</p>
-			</capitec-alert-banner>
 		` : html``;
 	}
 
@@ -1176,6 +1104,82 @@ export class InternetBankingProfileDetails extends Component {
 				</capitec-label>
 			</capitec-group>
 		`;
+	}
+
+	_renderTokenResetSuccessToast() {
+		return this.displayToast ? html`
+			<capitec-toast
+				class="token-reset-toast-success"
+				type="success"
+				header="Successful!"
+				detail="Security token was reset. &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp You can now log in again.  &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp ${this._formatDate(this.internetBankingDetails.dateLastUpdated)}"
+				?hidden="${!this.displayToast}"
+				@click="${() => this.displayToast = false}"
+				?closable=${false}
+			></capitec-toast>
+		` : html``;
+	}
+
+	_renderTokenSuspendSuccessToast() {
+		const formatedUpdatedDate = `${this._formatDate(this.internetBankingDetails.dateLastUpdated)}, ${this._formatTime(this.internetBankingDetails.dateLastUpdated)}`;
+
+		return this.displaySuspendToast ? html`
+			<capitec-toast
+				class="token-suspend-toast-success"
+				type="success"
+				header="Successful!"
+				detail="Internet security token was suspended. &nbsp &nbsp &nbsp &nbsp To access internet banking you will need to register on the App. &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp ${formatedUpdatedDate}"
+				?hidden="${!this.displaySuspendToast}"
+				@click="${() => this.displaySuspendToast = false}"
+				?closable=${false}
+			></capitec-toast>
+		` : html``;
+	}
+
+	_renderTokenSuspendedNotification() {
+		return this.isTokenSuspended ? html`
+			<capitec-alert-banner
+				type="error"
+				class="token-suspend-banner"
+				label=""
+				layout="vertical">
+				<p><b>Internet security token suspended.</b><br>To access internet banking you will need to register on the App.</p>
+				<capitec-spacer></capitec-spacer>
+				<capitec-spacer></capitec-spacer>
+				<p>Please visit a branch to request a new securtiy token.</p>
+			</capitec-alert-banner>
+		` : html``;
+	}
+
+	_renderClientNotification() {
+		return this.showNoReasonSelectedNotification ? html`` : html`
+			<capitec-alert-banner
+				type="warning"
+				class="client-notify-banner"
+				label=""
+				layout="vertical">
+				<p><b>Notify client:</b><br>A fee will be charged to activate a new security token.</p>
+				<br>
+				<capitec-hyperlink
+					href="https://www.capitecbank.co.za/global-one/transact/fees/"
+					target="_blank"
+					label="View fees"
+					inline
+				></capitec-hyperlink>
+			</capitec-alert-banner>
+		`;
+	}
+
+	_renderNoReasonSelectedNotification() {
+		return this.showNoReasonSelectedNotification ? html`
+			<capitec-alert-banner
+				type="unsuccessful-red"
+				label=""
+				layout="vertical">
+				<b>Notice:</b> <br/>
+				<p>Please choose a reason to suspend.</p>
+			</capitec-alert-banner>
+		` : html``;
 	}
 }
 

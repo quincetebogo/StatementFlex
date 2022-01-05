@@ -150,9 +150,9 @@ export class AccessChannels extends Component {
 		return true;
 	}
 
-	unsuspendInternetBanking() {
-		// TO DO: Channel service call to Un-suspend Internet Banking should come here
-		// If successfully Unsuspended, update Internet Banking status, else Error scenario
+	resetInternetBanking() {
+		// TO DO: Channel service call to Reset Internet Banking should come here
+		// If successfully reset, update Internet Banking status, else Error scenario
 		this.status.internetBanking.status = `Active`;
 		this.status.internetBanking.dateLastUpdated = new Date().toISOString();
 
@@ -237,7 +237,7 @@ export class AccessChannels extends Component {
 					?showSideSheet = "${this.showSideSheet}"
 
 					.suspendInternetBankingSecurityToken = "${() => this.suspendInternetBanking()}"
-					.unsuspendInternetBankingSecurityToken = "${() => this.unsuspendInternetBanking()}"
+					.resetInternetBankingSecurityToken = "${() => this.resetInternetBanking()}"
 
 					@close-side-sheet ="${(event) => this._showSlidingPanel(event)}" >
 				</capitec-pc-internet-banking-profile-details>`
