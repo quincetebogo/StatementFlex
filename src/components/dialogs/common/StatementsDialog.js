@@ -93,10 +93,10 @@ export class StatementsDialog extends Component {
 		return {
 			clientProducts: { type: Array },
 			selectedOption: { type: Array },
-			type: { type: String },
+			accountType: { type: String, attribute: type },
+			cifNumber: { type: String },
 
 			currentStep: { state: true },
-			cifNumber: { state: true },
 			isBusy: { state: true },
 			renderMode: { state: true },
 			notifyClient: { state: true },
@@ -281,7 +281,7 @@ export class StatementsDialog extends Component {
 			this.renderMode = RENDER_MODE.PDF;
 			// render the PDF
 			this.encodedPDF = base64ToBlobUrl(returnValue.result.statementData);
-		} else if (this.type === ACCOUNT_TYPES.LBB) {
+		} else if (this.accountType === ACCOUNT_TYPES.LBB) {
 				this.horizonRouter.navigateToliveBetterSystemError();
 		} else {
 			this.errorMessage = `System error. Please try again`;
@@ -354,8 +354,8 @@ export class StatementsDialog extends Component {
 	// ---------------
 
 	_initialise() {
-		if (this.type) {
-			this.productSelected = this.clientProducts.find(product => product.category === this.type);
+		if (this.accountType) {
+			this.productSelected = this.clientProducts.find(product => product.category === this.accountType);
 			// Removing first stepper at run time
 			this.STEPPER_STEPS.shift();
 			this.renderMode = this.STEPPER_STEPS[this.currentStep].renderMode;
@@ -754,7 +754,7 @@ export class StatementsDialog extends Component {
 	_webTemplate() {
 		return html`
 			<bb-stepper-modal
-				class="${this.productSelected?.category ?? ``} ${this.type}"
+				class="${this.productSelected?.category ?? ``} ${this.accountType}"
 				data-automation-id="statements-dialog"
 				.header="${this._getHeaderTitle()}"
 				.steps="${this.STEPPER_STEPS}"
