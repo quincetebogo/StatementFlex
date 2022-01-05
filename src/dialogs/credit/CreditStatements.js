@@ -51,6 +51,8 @@ export class CreditStatementsDialog extends StatementsDialog {
 			confirmEmail: ``
 		};
 		this.encodedPDF = ``;
+		this.currPage = 0;
+		this.totalPages = 0;
 	}
 
 	static get properties() {
@@ -58,7 +60,9 @@ export class CreditStatementsDialog extends StatementsDialog {
 			checkAll: { type: String },
 			checkBox: { type: Array },
 			filterDate: { type: Array },
-			errorMessage: { type: String }
+			errorMessage: { type: String },
+			navigatePDF: { type: Object },
+			currPage: { type: Number }
 		};
 	}
 
@@ -106,8 +110,21 @@ export class CreditStatementsDialog extends StatementsDialog {
 		this.dispatchEvent(new CustomEvent(`view-fees`, {}));
 	}
 
-	_viewPDF(){
+	_navigate(step){
+		let datesSelected = this._getAllDates();
+		if(step==="next"){
+			this.currPage < datesSelected.length ? this.currPage++ : this.currPage;			
+			this.navigatePDF(datesSelected[this.currPage-1]);
+		}else{
+			this.currPage > 1 ? this.currPage-- : this.currPage;
+			this.navigatePDF(datesSelected[this.currPage-1]);
+		}
+	}
+
+	_viewPDF(date){
 		//TODO: PDF viewer with arrows
+		let selectedDates = this._getAllDates();
+		this.currPage = selectedDates.indexOf(date) + 1;
 		super.renderMode = RENDER_MODE.PDF;
 	}
 
@@ -178,6 +195,15 @@ export class CreditStatementsDialog extends StatementsDialog {
 
 	_cancelPDF(){
 		super.renderMode = RENDER_MODE.EMAIL;
+	}
+
+	_getAllDates(){
+		let datesSelected = this.filteredDate.concat(this.checkBox.map((item, index) =>item === true ? this.sixMonths[index] : ``));
+		//removes duplicates and empty values
+		datesSelected = [...new Set(datesSelected.filter((item) => item!== ``))];
+		//sort according to date from latest date
+		datesSelected.sort((a, b) => new Date(b) - new Date(a));
+		return datesSelected;
 	}
 
 	static get styles() {
@@ -430,12 +456,8 @@ export class CreditStatementsDialog extends StatementsDialog {
 	}
 
 	_renderEmailClient() {
-		// TODO Add code for email section and PDF viewer		
-		let datesSelected = this.filteredDate.concat(this.checkBox.map((item, index) =>item === true ? this.sixMonths[index] : ``));
-		//removes duplicates and empty values
-		datesSelected = [...new Set(datesSelected.filter((item) => item!== ``))];
-		//sort according to date from latest date
-		datesSelected.sort((a, b) => new Date(b) - new Date(a));
+		// TODO Add code for email section and PDF viewer	
+		let datesSelected = this._getAllDates();			
 		
 		return super.currentStep === 1 && super.renderMode === RENDER_MODE.EMAIL
 		? html`
@@ -492,19 +514,19 @@ export class CreditStatementsDialog extends StatementsDialog {
 			type="default"
 			label="${item}"
 			subtitle="Last 30 days">
-				${this._renderViewDocumnetLink()}
+				${this._renderViewDocumnetLink(item)}
 		</horizon-product-tile> `
 		: html ``;
 	}	
 
-	_renderViewDocumnetLink() {
+	_renderViewDocumnetLink(item) {
 		return html`
 			<capitec-label
 				slot="detail"
 				type="strong"
 				label="View Document"
 				class="viewDocumentLink"				
-				@click="${() => this._viewPDF()}">
+				@click="${() => this._viewPDF(item)}">
 			</capitec-label>
 		`;
 	}
@@ -520,10 +542,15 @@ export class CreditStatementsDialog extends StatementsDialog {
 	}
 
 	_renderPDFViewer(){
+		let datesSelected = this._getAllDates();
 		return html`
 			<horizon-pdf-viewer
 			header="Settlement Quote: Credit Card"
-			@cancel="${()=>this._cancelPDF()}">
+			totalPages="${datesSelected.length}"
+			currPage="${this.currPage}"
+			@cancel="${()=>this._cancelPDF()}"
+			@next="${() => this._navigate("next")}"
+			@previous="${() => this._navigate("previous")}">
 
 			</horizon-pdf-viewer>
 		`;

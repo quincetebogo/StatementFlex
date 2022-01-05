@@ -246,6 +246,10 @@ export class CreditAccount extends ViewBase {
 		window.open(`${fees}`);
 	}
 
+	async _navigatePDF(currPage){
+		console.log(currPage);
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -292,7 +296,8 @@ export class CreditAccount extends ViewBase {
 		? html`			
 			<horizon-credit-statements-dialog
 				@cancel="${()=> this._backToLandingPage()}"
-				@view-fees="${()=>this._viewFees()}">
+				@view-fees="${()=>this._viewFees()}"
+				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
 			</horizon-credit-statements-dialog>`
 		: html``;
 	}
