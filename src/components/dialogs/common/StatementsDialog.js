@@ -94,18 +94,18 @@ export class StatementsDialog extends Component {
 			clientProducts: { type: Array },
 			selectedOption: { type: Array },
 			type: { type: String },
-			currentStep: { attribute: false },
 
-			cifNumber: { attribute: false },
-			isBusy: { attribute: false },
-			renderMode: { attribute: false },
-			notifyClient: { attribute: false },
-			periodSelected: { attribute: false },
-			showCalendar: { attribute: false },
-			fromDate: { attribute: false },
-			toDate: { attribute: false },
-			_customDateRange: { attribute: false },
-			errorMessage: { attribute: false }
+			currentStep: { state: true },
+			cifNumber: { state: true },
+			isBusy: { state: true },
+			renderMode: { state: true },
+			notifyClient: { state: true },
+			periodSelected: { state: true },
+			showCalendar: { state: true },
+			fromDate: { state: true },
+			toDate: { state: true },
+			_customDateRange: { state: true },
+			errorMessage: { state: true }
 		};
 	}
 
@@ -326,18 +326,16 @@ export class StatementsDialog extends Component {
 		if (returnValue.succeeded) {
 			this.horizonRouter.navigateToStatementSuccessful();
 
-		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SEND, {
-			"screen": TelemetryScreen.STATEMENTS,
-			"next-screen": TelemetryScreen.STATEMENTS_OUTCOME
-		});
-
+			this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SEND, {
+				"screen": TelemetryScreen.STATEMENTS,
+				"next-screen": TelemetryScreen.STATEMENTS_OUTCOME
+			});
 		} else {
 			this.horizonRouter.navigateToStatementUnsuccessful();
 		}
 	}
 
 	_valueChanged(e) {
-
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SELECT_ACCOUNT, {
 			"screen": TelemetryScreen.STATEMENTS,
 			"accountType": e.detail.new.accountName
