@@ -5,6 +5,7 @@ import { getMonthName } from 'app/utils/channelServiceUtilities';
 import { StatementsDialog } from 'app/components/dialogs/common/StatementsDialog';
 
 import 'app/components/common/StepperModal';
+import 'app/components/common/HorizonPDFViewer';
 import 'app/components/common/HorizonMonthCalendar';
 
 /* To add dialog to class
@@ -107,6 +108,7 @@ export class CreditStatementsDialog extends StatementsDialog {
 
 	_viewPDF(){
 		//TODO: PDF viewer with arrows
+		super.renderMode = RENDER_MODE.PDF;
 	}
 
 	_clearFilter(filterDate) {
@@ -172,6 +174,10 @@ export class CreditStatementsDialog extends StatementsDialog {
 		this.filteredDate = [...new Set(this.filteredDate)];
 
 		this.requestUpdate();
+	}
+
+	_cancelPDF(){
+		super.renderMode = RENDER_MODE.EMAIL;
 	}
 
 	static get styles() {
@@ -281,38 +287,36 @@ export class CreditStatementsDialog extends StatementsDialog {
 	}
 
 	_webTemplate() {
+		switch(super.renderMode){
+			case RENDER_MODE.PDF:
+				return html`${this._renderPDFViewer()}`;
+			case RENDER_MODE.EMAIL:
+			default:
+				return html`${this._renderModal()}`;
+		}		
+	}
+
+	_renderModal(){
 		return html`
 			<bb-stepper-modal
 				header="Statements"
 				.steps="${STATEMENTS_STEPS}"
 				current-active-step="${super.currentStep}">
 					<div slot="step">
-						${this._renderContent()}
+						<capitec-content-box
+							class="main-cb"
+							layout="vertical"
+							gap="clear"
+							?noScroll="${false}">
+								${this._renderAlertBanner()}
+								${this._renderChoosePeriod()}
+								${this._renderEmailClient()}
+						</capitec-content-box>
 					</div>
 					<div slot="footer">
 						${this._renderFooter()}
 					</div>
 			</bb-stepper-modal>`;
-	}
-
-	_renderContent() {
-		switch (super.renderMode) {
-			case RENDER_MODE.PDF:
-				return html`${this._renderPDFViewer()}`;
-			case RENDER_MODE.EMAIL:
-			default:
-				return html`
-					<capitec-content-box
-						class="main-cb"
-						layout="vertical"
-						gap="clear"
-						?noScroll="${false}">
-							${this._renderAlertBanner()}
-							${this._renderChoosePeriod()}
-							${this._renderEmailClient()}
-					</capitec-content-box>
-				`;
-		}
 	}
 
 	_renderAlertBanner() {
@@ -512,6 +516,16 @@ export class CreditStatementsDialog extends StatementsDialog {
 				@remove="${() => this._clearFilter(chip)}"
 				closable>
 			</capitec-chip>
+		`;
+	}
+
+	_renderPDFViewer(){
+		return html`
+			<horizon-pdf-viewer
+			header="Settlement Quote: Credit Card"
+			@cancel="${()=>this._cancelPDF()}">
+
+			</horizon-pdf-viewer>
 		`;
 	}
 
