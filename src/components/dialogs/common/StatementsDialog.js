@@ -93,7 +93,7 @@ export class StatementsDialog extends Component {
 		return {
 			clientProducts: { type: Array },
 			selectedOption: { type: Array },
-			accountType: { type: String, attribute: type },
+			accountType: { type: String, attribute: `type` },
 			cifNumber: { type: String },
 
 			currentStep: { state: true },
