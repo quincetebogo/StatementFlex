@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
+import { AccessChannelsEvents } from 'app/constants/telemetry/events/AccessChannels';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -88,7 +88,7 @@ export class AppProfileDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this._telemetry.startSpan(QuickTransactionEvents.ACCESS_CHANNELS_APP, {
+		this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_APP, {
 			"screen": TelemetryScreen.ACCESS_CHANNELS_APP
 		});
 	}
@@ -110,14 +110,14 @@ export class AppProfileDetails extends Component {
 		this.showSuspendReasons = !this.showSuspendReasons;
 	
 		if (this.showSuspendReasons) {
-			this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_APP_SUSPEND, {
+			this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_APP,
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP_SUSPEND_REASON
 			});
 			
 			this.selectedSuspendReason = ``;
 		} else {
-			this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_APP_SUSPEND_CANCEL, {
+			this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND_CANCEL, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_APP_SUSPEND_REASON,
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP
 			});
@@ -134,7 +134,7 @@ export class AppProfileDetails extends Component {
 		const returnValue = await this.suspendApp();
 	
 		if (returnValue) {
-			this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_APP_SUSPEND_CONFIRM, {
+			this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND_CONFIRM, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_APP_SUSPEND_REASON,
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP,
 				"suspend-reason": this.selectedSuspendReason
@@ -151,7 +151,7 @@ export class AppProfileDetails extends Component {
 		const returnValue = await this.unsuspendApp();
 		
 		if (returnValue) {
-			this._telemetry.logEvent(QuickTransactionEvents.ACCESS_CHANNELS_APP_UNSUSPEND, {
+			this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_UNSUSPEND, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_APP,
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP
 			});

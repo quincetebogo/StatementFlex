@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
+import { AccessChannelsEvents } from 'app/constants/telemetry/events/AccessChannels';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -66,7 +66,7 @@ export class AccessChannels extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this._telemetry.startSpan(QuickTransactionEvents.ACCESS_CHANNELS, {
+		this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS, {
 			"screen": TelemetryScreen.ACCESS_CHANNELS
 		});
 	}
@@ -74,7 +74,7 @@ export class AccessChannels extends Component {
 	disconnectedCallback() {
 		super.disconnectedCallback();
 
-		this._telemetry.endSpan(QuickTransactionEvents.ACCESS_CHANNELS, {
+		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS, {
 			"screen": TelemetryScreen.ACCESS_CHANNELS
 		});
 	}
