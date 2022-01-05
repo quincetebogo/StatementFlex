@@ -1,11 +1,11 @@
-import { ACCOUNT_TYPES, TRANSACTION_STATUS_LIST } from 'app/constants/TransactionHistory';
 import { Component, css, html } from 'platform/elements';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { DateTime } from 'luxon';
-
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
+import { TRANSACTION_STATUS_LIST } from 'app/constants/TransactionHistory';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 const FILTER_BY = {
 	ALL: `ALL`,
@@ -330,7 +330,6 @@ export class TransactionHistory extends Component {
 	}
 
 
-	  
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------

@@ -1,6 +1,7 @@
 import { EXPANDER_LABEL, LINKED_TRANSACTION, TABLE_EXPANDER_CELL } from 'app/css/Lbb-TransactionHistory';
 import { css, html, unsafeCSS } from 'platform/elements';
-import { ACCOUNT_TYPES } from 'app/constants/TransactionHistory';
+import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
+import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
@@ -24,13 +25,15 @@ import 'app/components/dialogs/common/StatementsDialog';
 import 'app/components/dialogs/liveBetter/LBBTransactionDetails';
 
 const TRANSACTION_HISTORY = {
-	ACCOUNT_TYPE: 'LBB',
+	ACCOUNT_TYPE: `LBB`,
 	END_DATE: new Date().toISOString().substr(0, 10),
 	START_DATE: new Date(Date.now() - 7776000000).toISOString().substr(0, 10),// 7776000000 is 90 days in milliseconds
 	START_AT_INDEX: 0,
 	MAX_RESULTS: 50,
 	MONEY_TYPE: `BOTH`
 };
+
+const LBB = 210;
 
 /**
  * Live Better View
@@ -182,23 +185,22 @@ export class LiveBetter extends ViewBase {
 	
 	async _getLinkedransactionDetails(item) {
 		
-			this._telemetry.logEvent(LiveBetterEvents.LBB_TRANSACTION_HISTORY_INFO, {
-				"screen": TelemetryScreen.LIVE_BETTER_TRANSACTION_HISTORY
-			});
+		this._telemetry.logEvent(LiveBetterEvents.LBB_TRANSACTION_HISTORY_INFO, {
+			"screen": TelemetryScreen.LIVE_BETTER_TRANSACTION_HISTORY
+		});
 
-			const transactionHistoryRequest = {
-				"journalNumber": this.journalNumber, // "453858"// Details to work on DEV - for testing. 
-				"accountNumber": this.landingPageInfo.accountNumber, //"1733256405"//
-				"postingDate": item.postingDate //"2021-06-22"//
-			};
+		const transactionHistoryRequest = {
+			"journalNumber": this.journalNumber, // "453858"// Details to work on DEV - for testing. 
+			"accountNumber": this.landingPageInfo.accountNumber, // "1733256405"//
+			"postingDate": item.postingDate // "2021-06-22"//
+		};
 
-			const returnValue = await this.liveBetterService.lbbLinkedTransactionDetails(transactionHistoryRequest);
+		const returnValue = await this.liveBetterService.lbbLinkedTransactionDetails(transactionHistoryRequest);
 			
-			if(returnValue.succeeded && returnValue.result) {
-				return returnValue.result.linkedTransactions;
-			} else {
-				return [];
-			}
+		if (returnValue.succeeded && returnValue.result) {
+			return returnValue.result.linkedTransactions;
+		}
+		return [];
 	}
 	
 	// Function that gets triggered on changing values for those set as properties ( eg: "journalNumber", "transactionHistory" ).
@@ -328,7 +330,7 @@ export class LiveBetter extends ViewBase {
 										item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
 										item.formatedAmount = formatCurrency(item.amount);
 										item.formatedBalance = formatCurrency(item.balance);
-										item.description = item.statementDescription
+										item.description = item.statementDescription;
 							
 										return item;
 									});
@@ -345,18 +347,27 @@ export class LiveBetter extends ViewBase {
 		}
 	}
 
-	async _getStatements() {
+	_getStatements() {
 		this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_STATEMENTS, {
 			"screen": TelemetryScreen.LIVE_BETTER_LANDING_PAGE,
 			"next-screen": TelemetryScreen.LIVE_BETTER_SATEMENTS
 		});
 
-		const clientProductDetails = await this._getClientProducts();
-		
-		if (clientProductDetails) {
-			this.clientProducts = clientProductDetails;
-			this.renderMode = RENDER_MODE.STATEMENTS;
-		}
+		const productInfo = ACCOUNT_INTCAT_ENUM[LBB];
+		this.clientProducts = [
+			{
+				'accountNumber': this.landingPageInfo.accountNumber,
+				'accountName': productInfo.name,
+				'accountType': LBB,
+				'accountOpenDate': this.landingPageInfo.dateOpened,
+				'type': productInfo.type,
+				'category': productInfo.category,
+				'icon': productInfo.icon,
+				'customIcon': productInfo.customIcon,
+				'order': productInfo.order
+			}
+		];
+		this.renderMode = RENDER_MODE.STATEMENTS;
 	}
 
 	_automaticSavings() {

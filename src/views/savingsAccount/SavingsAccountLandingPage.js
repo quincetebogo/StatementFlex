@@ -1,6 +1,7 @@
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { css, html, unsafeCSS } from 'platform/elements';
-import { ACCOUNT_TYPES } from 'app/constants/TransactionHistory';
+import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
+import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
@@ -14,6 +15,7 @@ import 'app/components/dialogs/common/StatementsDialog';
 
 // ninety days in milliseconds
 const NINETY_DAYS = 7777000000;
+const SAVINGS_ACCOUNT = 300;
 
 const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
@@ -255,6 +257,24 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
+	_getStatements() {
+		const productInfo = ACCOUNT_INTCAT_ENUM[SAVINGS_ACCOUNT];
+		this.clientProducts = [
+			{
+				'accountNumber': this.landingPageInfo.accountNumber,
+				'accountName': productInfo.name,
+				'accountType': SAVINGS_ACCOUNT,
+				'accountOpenDate': this.landingPageInfo.accountOpenDate,
+				'type': productInfo.type,
+				'category': productInfo.category,
+				'icon': productInfo.icon,
+				'customIcon': productInfo.customIcon,
+				'order': productInfo.order
+			}
+		];
+		this.renderMode = RENDER_MODE.STATEMENTS;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -286,12 +306,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		return html`
 			${this._renderSavingsLandingPage()}
 			${this._renderTransactionHistory()}
-			${super._webTemplate()}
+			${super._webTemplate(ACCOUNT_TYPES.SAVINGS_ACCOUNT)}
 		`;
 	}
 
 	_renderSavingsLandingPage() {
-		return !this._loading && this.renderMode === RENDER_MODE.MAIN_PAGE
+		return this.renderMode === RENDER_MODE.MAIN_PAGE ||
+				this.renderMode === RENDER_MODE.STATEMENTS
 			? html`
 				<horizon-savings-account
 					class="savingsaccount"
