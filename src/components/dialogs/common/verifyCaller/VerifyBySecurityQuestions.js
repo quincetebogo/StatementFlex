@@ -155,17 +155,17 @@ export class VerifyBySecurityQuestions extends Component {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
 			"next-screen": null
 		});
+
 		this.alertBannerMessage = ``;
 		this.checked = false;
 		const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, () => true);
 		const result = returnValue.result;
 		
 		if (!returnValue.succeeded) {
-			this.telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
-				"screen": TelemetryScreen.SECURITY_QUESTIONS,
-				"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE,
-				"failure-reason": result
+			this.telemetry.logEvent(VerifyCallerEvents.XDS_SERVICE_FAILURE, {
+				"failure-reason": returnValue.exception.message
 			}, true);
+
 			this.dispatchEvent(new CustomEvent(`service-failure`, {}));
 			return;
 		};
@@ -192,12 +192,6 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_XdsFailed(result) {
-		this.telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
-			"screen": TelemetryScreen.SECURITY_QUESTIONS,
-			"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE,
-			"failure-reason": result
-		}, true);
-
 		if (result?.errorMessage) {
 			this.logger.log(`warn`, `${result?.errorCode}: ${result.errorMessage}`, `_XdsFailed`);
 		}

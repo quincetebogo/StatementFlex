@@ -68,7 +68,7 @@ export class ItaVerificationFailed extends ViewBase {
 		this._telemetry.logEvent(VerifyCallerEvents.ITA_VERIFICATION_FAILED_CONTINUE_UNVERIFIED, {
 			"screen": TelemetryScreen.ITA_FAILED,
 			"next-screen": TelemetryScreen.FAVOURITES
-		});
+		}, true);
 
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}

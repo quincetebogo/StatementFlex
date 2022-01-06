@@ -16,7 +16,6 @@
 	SECURITY_QUESTIONS_FAILURE: `Security Questions Failure`,
 	XDS_FAILED: `XDS Verification Failed`,
 	ITA_FAILED: `ITA Verification Failed`,
-	XDS_FIRST_ATTEMPT_FAILURE: `XDS first attempt failure screen`,
 
 	STOP_CARD: `Stop Card`,
 	STOP_CARD_OUTCOME: `Stop Card Outcome`,

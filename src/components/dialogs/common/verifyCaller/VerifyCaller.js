@@ -128,7 +128,9 @@ export class VerifyCaller extends Component {
 	async connectedCallback() {
 		super.connectedCallback();
 
-		this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER);
+		this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER, {
+			"remote-channels-registered": this.callerInformation.hasDigitalChannels
+		});
 
 		// Set up ITA & XDS attempts if structure does not exist yet
 		if (!this.callerInformation.verificationAttempts) {
@@ -168,11 +170,7 @@ export class VerifyCaller extends Component {
 	// EVENT HANDLERS
 	// --------------
 	async _securityQuestionsClick() {
-		this.telemetry.logEvent(VerifyCallerEvents.ITA_SQ_CLICK, {
-			"screen": TelemetryScreen.VERIFY_CALLER,
-			"next-screen": TelemetryScreen.SECURITY_QUESTIONS
-		});
-
+		
 		// Stop any pending ITA attempt
 		this.itaService.close();
 		this.itaInProgress = false;
@@ -186,6 +184,14 @@ export class VerifyCaller extends Component {
 			// If we are unable to retreive security questions. It doesn't matter why at present.
 			// We can't verify the client via XDS
 			// this.xdsAttempts = MAX_XDS_ATTEMPTS;
+		
+			this.telemetry.logEvent(VerifyCallerEvents.SECURITY_QUESTIONS_CLICK, {
+				"screen": TelemetryScreen.VERIFY_CALLER,
+				"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE,
+				"attempt": null,
+				"outcome": returnValue.exception.message
+			});
+	
 			this.xdsUnavailable = true;
 			return;
 		} 
@@ -193,6 +199,14 @@ export class VerifyCaller extends Component {
 		const result = returnValue.result;
 
 		if (result?.errorCode) {
+
+			this.telemetry.logEvent(VerifyCallerEvents.SECURITY_QUESTIONS_CLICK, {
+				"screen": TelemetryScreen.VERIFY_CALLER,
+				"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE,
+				"attempt": null,
+				"outcome": `${result?.errorCode}: ${result.errorMessage}` 
+			});
+	
 			if (result.errorMessage) {
 				this.xdsAttempts = MAX_XDS_ATTEMPTS; 
 				this.xdsUnavailable = true;
@@ -211,6 +225,14 @@ export class VerifyCaller extends Component {
 		this._updateXdsAuthenticationAttempts(securityQuestions);
 
 		if (!securityQuestions.authenticationPermitted) {
+
+			this.telemetry.logEvent(VerifyCallerEvents.SECURITY_QUESTIONS_CLICK, {
+				"screen": TelemetryScreen.VERIFY_CALLER,
+				"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE,
+				"attempt": this.xdsAttempts,
+				"outcome": `XDS returns not permitted`
+			});
+	
 			this.xdsAttempts = MAX_XDS_ATTEMPTS; 
 			this.xdsUnavailable = true;
 			this.logger.log(`warn`, `XDS returns authentication not permitted`, `_securityQuestionsClick`);
@@ -218,6 +240,14 @@ export class VerifyCaller extends Component {
 		} ;
 		
 		if (securityQuestions.questions && securityQuestions.questions.length > 0) {
+
+			this.telemetry.logEvent(VerifyCallerEvents.SECURITY_QUESTIONS_CLICK, {
+				"screen": TelemetryScreen.VERIFY_CALLER,
+				"next-screen": TelemetryScreen.SECURITY_QUESTIONS,
+				"attempt": this.xdsAttempts,
+				"outcome": `Security questions retrieved successfully`
+			});
+	
 			this.logger.log(`info`, `XDS Questions retrieved, transitioning to Security Questions Dialog`, `_securityQuestionsClick`);
 			this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
 			return;
@@ -230,6 +260,13 @@ export class VerifyCaller extends Component {
 
 		const xdsMessage = securityQuestions.errorMessage ? securityQuestions.errorMessage : `System Issue: Unable to obtain security questions`;
 		this.logger.log(`error`, `XDS ERROR: ${xdsMessage}`, `_securityQuestionsClick`);
+				
+		this.telemetry.logEvent(VerifyCallerEvents.SECURITY_QUESTIONS_CLICK, {
+			"screen": TelemetryScreen.VERIFY_CALLER,
+			"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE,
+			"attempt": this.xdsAttempts,
+			"outcome": xdsMessage
+		});
 	}
 
 	_updateXdsAuthenticationAttempts(securityQuestions) {
@@ -324,6 +361,13 @@ export class VerifyCaller extends Component {
 	}
 
 	_failedSecurityQuestions() {
+
+		this.telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
+			"screen": TelemetryScreen.SECURITY_QUESTIONS,
+			"next-screen": this._xdsAttemptsExceeded() ? TelemetryScreen.XDS_FAILED: TelemetryScreen.VERIFY_CALLER,
+			"attempt": this._calculateXDSAttempts(this.securityQuestions.authenticationHistory)
+		}, true);
+
 		if (this._xdsAttemptsExceeded()) {
 			this._updateApplicationState(`failed`, `unverified`);
 			this.horizonRouter.navigateToXdsVerificationFailed();
@@ -407,11 +451,14 @@ export class VerifyCaller extends Component {
 		this.itaInProgress = false;
 		this.itaSystemError = !await this.itaService.initiateItaVerification(this.callerInformation.cifNumber);
 		
-		if (!this.itaSystemError) {
-			this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
-				"screen": TelemetryScreen.VERIFY_CALLER
-			}, false);
+		if (this.itaSystemError) {
+			this.telemetry.logEvent(VerifyCallerEvents.ITA_SERVICE_FAILURE, {}, true);
+			return;
 		}
+
+		this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
+			"screen": TelemetryScreen.VERIFY_CALLER
+		});
 	}
 
 	_verificationStatusCallBack(status) {
@@ -443,9 +490,10 @@ export class VerifyCaller extends Component {
 		}
 
 		if (status === `verified`) {
-			this.telemetry.logEvent(VerifyCallerEvents.ITA_SUCCESS, {
+			this.telemetry.logEvent(VerifyCallerEvents.ITA_OUTCOME, {
 				"screen": TelemetryScreen.VERIFY_CALLER,
-				"next-screen": null // Determine by need / path its opened from
+				"next-screen": null, // Determine by need / path its opened from
+				"ITA-outcome": status
 			}, true);
 
 			this.itaAttempts++;
@@ -466,9 +514,10 @@ export class VerifyCaller extends Component {
 		this.itaFailedCount++;
 		this.itaAttempts++;
 		
-		this.telemetry.logEvent(VerifyCallerEvents.ITA_FAILED, {
+		this.telemetry.logEvent(VerifyCallerEvents.ITA_OUTCOME, {
 			"screen": TelemetryScreen.VERIFY_CALLER,
-			"next-screen": this.itaFailedCount >= MAX_ITA_ATTEMPTS ? TelemetryScreen.ITA_FAILED : TelemetryScreen.VERIFY_CALLER
+			"next-screen": this.itaFailedCount >= MAX_ITA_ATTEMPTS ? TelemetryScreen.ITA_FAILED : TelemetryScreen.VERIFY_CALLER,
+			"ITA-outcome": status
 		}, true);
 
 		if (this._itaAttemptsExceeded()) {
@@ -546,17 +595,6 @@ export class VerifyCaller extends Component {
 	_failedFirstXdsAttempt() {
 		return this.hasSouthAfricanID && 
 			   this.xdsAttempts === 1;
-	}
-
-	_isXdsfirstFailureAttempt() {
-		if(this._failedFirstXdsAttempt()) {
-			this.telemetry.logEvent(VerifyCallerEvents.XDS_FIRST_FAILURE_ATTEMPT, {
-				"screen": TelemetryScreen.SECURITY_QUESTIONS,
-				"next-screen": TelemetryScreen.XDS_FIRST_ATTEMPT_FAILURE,
-				"failure-reason": `Invalid answers`
-			});
-		}
-		return this._failedFirstXdsAttempt();
 	}
 
 	_xdsAttemptsExceeded() {
@@ -720,7 +758,7 @@ export class VerifyCaller extends Component {
 		}
 
 		// Subsequent displays 
-		if (this._isXdsfirstFailureAttempt()) {
+		if (this._failedFirstXdsAttempt()) {
 			return this._renderFailedFirstXdsAttempt(this._ItaAvailable());
 		}
 	}

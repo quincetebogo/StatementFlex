@@ -68,16 +68,16 @@ export class XdsVerificationFailed extends ViewBase {
 		this._telemetry.logEvent(VerifyCallerEvents.XDS_VERIFICATION_FAILED_CONTINUE_UNVERIFIED, {
 			"screen": TelemetryScreen.XDS_FAILED,
 			"next-screen": TelemetryScreen.FAVOURITES
-		});
+		}, true);
 
 		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
 	}
 
 	_verifyViaApp() {
 		this._telemetry.logEvent(VerifyCallerEvents.XDS_VERIFICATION_FAILED_VERIFY_VIA_APP, {
-				"screen": TelemetryScreen.XDS_FAILED,
-				"next-screen": TelemetryScreen.FAVOURITES
-		});
+			"screen": TelemetryScreen.XDS_FAILED,
+			"next-screen": TelemetryScreen.FAVOURITES
+		}, true);
 
 		super._verifyClick()
 	}
