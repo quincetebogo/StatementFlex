@@ -18,7 +18,7 @@ const RENDER_MODE = Object.freeze({
 });
 
 const HEADER_LABEL = `Security Questions`;
-const ERROR_MESSAGE = `Please choose an option`;
+const CHOOSE_OPTION_MESSAGE = `Please choose an option`;
 
 /**
  * Verify by Security questions dialog is used to verify the client's identity via Questions to mitigate the risk of fraud.
@@ -132,22 +132,23 @@ export class VerifyBySecurityQuestions extends Component {
 
 	_continueClick() {
 		if (!this.checked) {
-			this.alertBannerMessage = ERROR_MESSAGE;
-		} else {
-			this.telemetry.logEvent(VerifyCallerEvents.XDS_NEXT_QUESTION, {
-				"screen": TelemetryScreen.SECURITY_QUESTIONS,
-				"next-screen": TelemetryScreen.SECURITY_QUESTIONS
-			});
+			this.alertBannerMessage = CHOOSE_OPTION_MESSAGE;
+			return;
+		} 
+		
+		this.telemetry.logEvent(VerifyCallerEvents.XDS_NEXT_QUESTION, {
+			"screen": TelemetryScreen.SECURITY_QUESTIONS,
+			"next-screen": TelemetryScreen.SECURITY_QUESTIONS
+		});
 
-			this.alertBannerMessage = ``;
-			this.questionNumber++;
-			this.checked = false;
-		}
+		this.alertBannerMessage = ``;
+		this.questionNumber++;
+		this.checked = false;
 	}
 
 	async _verifyClick() {
 		if (!this.checked) {
-			this.alertBannerMessage = ERROR_MESSAGE;
+			this.alertBannerMessage = CHOOSE_OPTION_MESSAGE;
 			return;
 		};
 				
@@ -163,7 +164,7 @@ export class VerifyBySecurityQuestions extends Component {
 		
 		if (!returnValue.succeeded) {
 			this.telemetry.logEvent(VerifyCallerEvents.XDS_SERVICE_FAILURE, {
-				"failure-reason": returnValue.exception.message
+				"failure-reason": returnValue?.exception?.message
 			}, true);
 
 			this.dispatchEvent(new CustomEvent(`service-failure`, {}));
@@ -188,14 +189,26 @@ export class VerifyBySecurityQuestions extends Component {
 			return;
 		} 
 
-		this._XdsFailed(result);
+		this._authenticationFailed(result);
 	}
 
 	_XdsFailed(result) {
-		if (result?.errorMessage) {
-			this.logger.log(`warn`, `${result?.errorCode}: ${result.errorMessage}`, `_XdsFailed`);
-		}
+		this.telemetry.logEvent(VerifyCallerEvents.XDS_SERVICE_FAILURE, {
+				"failure-reason": `${result?.errorCode}: ${result?.errorMessage}`
+		}, true);
 
+		this.logger.log(`warn`, `${result?.errorCode}: ${result?.errorMessage}`, `_XdsFailed`);
+
+		this.dispatchEvent(new CustomEvent(`failed`, {}));
+	}
+
+	_authenticationFailed(result) {
+		this.telemetry.logEvent(VerifyCallerEvents.XDS_SERVICE_FAILURE, {
+			"failure-reason": `${JSON.stringify(result)}`
+		}, true);
+
+		this.logger.log(`warn`, `${JSON.stringify(result)}`, `_authenticationFailed`);
+		
 		this.dispatchEvent(new CustomEvent(`failed`, {}));
 	}
 
@@ -204,7 +217,7 @@ export class VerifyBySecurityQuestions extends Component {
 			this.checked = !this.checked;
 		}
 
-		this.alertBannerMessage = this.checked ? `` : ERROR_MESSAGE;
+		this.alertBannerMessage = this.checked ? `` : CHOOSE_OPTION_MESSAGE;
 
 		this.questions[this.questionNumber].answers.forEach(answer => {
 			if (answer.answerId === e.detail.key) {

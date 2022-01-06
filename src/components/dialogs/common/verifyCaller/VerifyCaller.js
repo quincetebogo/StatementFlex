@@ -197,17 +197,17 @@ export class VerifyCaller extends Component {
 				"screen": TelemetryScreen.VERIFY_CALLER,
 				"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE,
 				"attempt": null,
-				"outcome": returnValue.exception.message
+				"outcome": returnValue?.exception?.message
 			});
 	
 			this.xdsUnavailable = true;
+
 			return;
 		} 
 
 		const result = returnValue.result;
 
 		if (result?.errorCode) {
-
 			this.telemetry.logEvent(VerifyCallerEvents.SECURITY_QUESTIONS_CLICK, {
 				"screen": TelemetryScreen.VERIFY_CALLER,
 				"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE,
@@ -220,6 +220,7 @@ export class VerifyCaller extends Component {
 				this.xdsUnavailable = true;
 				this.logger.log(`warn`, `${result?.errorCode}: ${result.errorMessage}`, `_securityQuestionsClick`);
 			}
+
 			return;
 		}
 
@@ -232,18 +233,20 @@ export class VerifyCaller extends Component {
 
 		this._updateXdsAuthenticationAttempts(securityQuestions);
 
+		// The channel service sets authenticationPermitted to false if there have already
+		// been two or more authentication attempts. 
 		if (!securityQuestions.authenticationPermitted) {
 
 			this.telemetry.logEvent(VerifyCallerEvents.SECURITY_QUESTIONS_CLICK, {
 				"screen": TelemetryScreen.VERIFY_CALLER,
 				"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE,
 				"attempt": this.xdsAttempts,
-				"outcome": `XDS returns not permitted`
+				"outcome": `XDS verification not permitted`
 			});
 	
 			this.xdsAttempts = MAX_XDS_ATTEMPTS; 
 			this.xdsUnavailable = true;
-			this.logger.log(`warn`, `XDS returns authentication not permitted`, `_securityQuestionsClick`);
+			this.logger.log(`warn`, `XDS verification not permitted`, `_securityQuestionsClick`);
 			return;
 		} ;
 		
@@ -279,9 +282,6 @@ export class VerifyCaller extends Component {
 
 	_updateXdsAuthenticationAttempts(securityQuestions) {
 		const authHistory = securityQuestions.authenticationHistory;
-
-		// TODO: next line is debug - remember to remove
-		// authHistory = null;
 
 		if (!authHistory) {
 			// Just sending off a request counts as an attempt already
@@ -369,7 +369,6 @@ export class VerifyCaller extends Component {
 	}
 
 	_failedSecurityQuestions() {
-
 		this.telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
 			"next-screen": this._xdsAttemptsExceeded() ? TelemetryScreen.XDS_FAILED : TelemetryScreen.VERIFY_CALLER,
@@ -399,7 +398,7 @@ export class VerifyCaller extends Component {
 	_tryAgain() {
 		this.telemetry.logEvent(VerifyCallerEvents.ITA_TRY_AGAIN, {
 			"screen": TelemetryScreen.VERIFY_CALLER,
-			"next-screen": TelemetryScreen.VERIFY_CALLER
+			"next-screen": TelemetryScreen.VERIFY_CALLER // TODO: The next screen could be the ITA failure screen
 		});
 
 		this._itaClose();
@@ -415,10 +414,14 @@ export class VerifyCaller extends Component {
 	}
 
 	_endCall() {
-		this.telemetry.logEvent(VerifyCallerEvents.ITA_END_CALL, {
-			"screen": TelemetryScreen.VERIFY_CALLER,
-			"next-screen": TelemetryScreen.END_CALL
-		});
+		if (this.callerInformation.hasDigitalChannels) {
+			this.telemetry.logEvent(VerifyCallerEvents.ITA_END_CALL, {
+				"screen": TelemetryScreen.VERIFY_CALLER,
+				"next-screen": TelemetryScreen.END_CALL
+			});
+		}
+
+		// TODO: XDS end call event and what do we do if no channels available.... verify dialog end call
 
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
