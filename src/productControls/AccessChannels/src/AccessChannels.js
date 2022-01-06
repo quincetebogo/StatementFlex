@@ -236,8 +236,8 @@ export class AccessChannels extends Component {
 					class=""
 					type="default"
 					label="Notifications"
-					status="Not registered"
-					subtitle="Not registered"
+					status="${this.status.notifications?.messageType}"
+					subtitle="${this.status.notifications?.messageTime}"
 					detail=""
 					icon="system/notify"
 					@click="${() => this._tileClick(ACCESS_CHANNELS_TYPE.NOTIFICATIONS)}">

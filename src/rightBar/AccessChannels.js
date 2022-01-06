@@ -8,6 +8,7 @@ import { Utilities } from 'platform/Utilities';
 import 'app/productControls/AccessChannels/src/AccessChannels';
 import 'app/productControls/AccessChannels/src/AppProfileDetails';
 import 'app/productControls/AccessChannels/src/USSDProfileDetails';
+import 'app/productControls/AccessChannels/src/NotificationsDetails';
 import 'app/webComponents/src/SideSheet';
 import 'platform/components';
 
@@ -139,6 +140,24 @@ export class AccessChannels extends Component {
 		return true;
 	}
 
+	updateMessageTime() {
+		// TO DO: add channel service call to update notifications time
+		// If unblock is successful, show toast, update ussd status, else show error
+		this.status.notifications.dateLastUpdated = new Date().toISOString();
+
+		this._deepCopyStatus();
+		return true;
+	}
+
+	updateMessageType() {
+		// TO DO: add channel service call to update notifications type
+		// If unblock is successful, show toast, update ussd status, else show error
+		this.status.notifications.dateLastUpdated = new Date().toISOString();
+		
+		this._deepCopyStatus();
+		return true;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -194,7 +213,8 @@ export class AccessChannels extends Component {
 			${this._renderLoadingIndicator()}
 
 			${this._renderAppPanel()}
-			${this._renderUSSD()}`;
+			${this._renderUSSD()}
+			${this._renderNotificationsPanel()}`;
 	}
 
 	_renderAccessChannels() {
@@ -235,6 +255,23 @@ export class AccessChannels extends Component {
 
 			@close-side-sheet="${(event) => this._showSlidingPanel(event)}">
 			</capitec-pc-ussd-profile-details>`
+		: html``;
+	}
+
+	_renderNotificationsPanel() {
+		return this.selectedAccessChannelType === ACCESS_CHANNELS_TYPE.NOTIFICATIONS
+		? html`
+			<capitec-pc-notifications-details
+				.notificationsDetails="${this.status.notifications}"
+				?showSideSheet="${this.showSideSheet}"
+
+				.updateMessageType="${() => updateMessageType()}"
+				.updateMessageTime="${() => updateMessageTime()}"
+
+				@close-side-sheet="${(event) => this._showSlidingPanel(event)}"
+			>
+			</capitec-pc-notifications-details>
+		`
 		: html``;
 	}
 
