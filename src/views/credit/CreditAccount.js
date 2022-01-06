@@ -1,9 +1,9 @@
 import { css, html } from 'platform/elements';
-import { budgetfacilityresponse } from 'app/mocks/creditBudgetFacilityAccounts'
 import { Configuration } from 'platform/core';
-import { formatCurrency } from 'app/utils/channelServiceUtilities';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { ViewBase } from '../common/ViewBase';
+import { budgetfacilityresponse } from 'app/mocks/creditBudgetFacilityAccounts';
+import { formatCurrency } from 'app/utils/channelServiceUtilities';
 
 import 'app/productControls/Credit/src/CreditAccountLanding';
 import 'app/productControls/Credit/src/BudgetAccounts';
@@ -103,7 +103,7 @@ export class CreditAccount extends ViewBase {
 			"Payment made": formatCurrency(selectedAccountDetails.repaymentAmount),
 			"Settlement amount": formatCurrency(selectedAccountDetails.settlementAmount),
 			"Remaining term (months)": selectedAccountDetails.termRemaining
-		}
+		};
 
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNT_DETAILS;
 	}
@@ -232,7 +232,7 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	async _viewFees(){
+	async _viewFees() {
 		const fees = await this.configuration.getSetting(`otherSystemsURL.fees`);
 		window.open(`${fees}`);
 	}
@@ -292,12 +292,12 @@ export class CreditAccount extends ViewBase {
 		: html``;
 	}
 
-	_renderStatements(){
+	_renderStatements() {
 		return this.renderMode === RENDER_MODE.STATEMENTS
-		? html`			
+		? html`
 			<horizon-credit-statements-dialog
-				@cancel="${()=> this._backToLandingPage()}"
-				@view-fees="${()=>this._viewFees()}">
+				@cancel="${() => this._backToLandingPage()}"
+				@view-fees="${() => this._viewFees()}">
 			</horizon-credit-statements-dialog>`
 		: html``;
 	}

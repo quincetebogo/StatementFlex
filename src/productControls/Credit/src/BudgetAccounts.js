@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency } from 'app/utils/channelServiceUtilities';
 import { Utilities } from '@cb/platform-web-core';
+import { formatCurrency } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
@@ -40,7 +40,7 @@ import 'app/components/common/HorizonLabel';
 		super.connectedCallback();
 		
 		// Grouping budget accounts available based on total number of term months.
-		this.groupAccountsByTerm = Utilities.groupBy(this.budgetFacilityAccounts.creditCardBudgetList, 'originalTerm');
+		this.groupAccountsByTerm = Utilities.groupBy(this.budgetFacilityAccounts.creditCardBudgetList, `originalTerm`);
 		this.filteredAccounts = { ...this.groupAccountsByTerm };
 	}
 
@@ -58,8 +58,8 @@ import 'app/components/common/HorizonLabel';
 		return {
 			budgetFacilityAccounts: { type: Object },
 
-			groupAccountsByTerm: { attribute: false },
-			filteredAccounts: { attribute: false }
+			groupAccountsByTerm: { state: true },
+			filteredAccounts: { state: true }
 		};
 	}
 	
@@ -73,25 +73,25 @@ import 'app/components/common/HorizonLabel';
 
 	_accountDetails(selectedBudgetAccount) {
 		this.dispatchEvent(new CustomEvent(`account-details`, {
-			detail: {selectedAccountDetails: selectedBudgetAccount}
+			detail: { selectedAccountDetails: selectedBudgetAccount }
 		}));
 	}
 
 	_searchValueChange(event) {
 		
-		this.filteredAccounts = { ...this.groupAccountsByTerm};
+		this.filteredAccounts = { ...this.groupAccountsByTerm };
 		this.searchText = event.detail.new.toLowerCase();
 
-		if(this.searchText) {
+		if (this.searchText) {
 			Object.keys(this.filteredAccounts).forEach(term => {
 				this.filteredAccounts[term] = this.filteredAccounts[term].filter(item => item.budgetName.toLowerCase().indexOf(this.searchText) !== -1 ||
 																						parseFloat(item.budgetInstallment).toFixed(2).startsWith(this.searchText) ||
 																						parseFloat(item.originalAmount).toFixed(2).startsWith(this.searchText) ||
-																						parseFloat(item.budgetBalance).toFixed(2).startsWith(this.searchText))
+																						parseFloat(item.budgetBalance).toFixed(2).startsWith(this.searchText));
 			});
 		}
 
-		this.requestUpdate()
+		this.requestUpdate();
 	}
 
 	_transferClick() {
@@ -305,8 +305,8 @@ import 'app/components/common/HorizonLabel';
 	_renderBudgetAccounts() {
 		return Object.entries(this.filteredAccounts).map(termGroup => {
 			const [term, accountsList] = termGroup;
-			return accountsList.length !== 0 ?
-				html`
+			return accountsList.length !== 0
+			 ? html`
 					<capitec-group class="accounts-group" layout="vertical" gap="none" halign="left" valign="center">
 						<capitec-title-bar
 							data-automation-id="budget-facility-term-group-header"
@@ -317,7 +317,7 @@ import 'app/components/common/HorizonLabel';
 						${accountsList.map(budgetAccount => this._renderBudgetAccountTile(budgetAccount))}
 					</capitec-group>`
 				: html``;
-		})
+		});
 	}
 
 	_renderBudgetAccountTile(budgetAccount) {

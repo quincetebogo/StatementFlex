@@ -74,7 +74,7 @@ import 'app/components/common/HorizonLabel';
 	// PRIVATE METHODS
 	// ---------------
 
-	//N/A
+	// N/A
 
 	// ---------
 	// RENDERING
@@ -187,7 +187,7 @@ import 'app/components/common/HorizonLabel';
 	_renderAccountDetails() {
 		
 		// Creates similar constant to this.accountDetails without 'budgetName'.
-		const { ['budgetName']:_, ...accDetails } = this.accountDetails;
+		const { budgetName: _, ...accDetails } = this.accountDetails;
 		
 		return html`
 			<capitec-content-box
