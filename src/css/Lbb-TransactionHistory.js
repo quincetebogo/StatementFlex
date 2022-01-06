@@ -89,10 +89,10 @@ export const TABLE_EXPANDER_CELL = {
 	firstcolumn: firstcolumn,
 	expanderColumns: expanderColumns,
 	expanderCell: expanderCell,
-	labelText : expanderDescriptionText,
-	labelValue : expanderDecriptionValue,
+	labelText: expanderDescriptionText,
+	labelValue: expanderDecriptionValue,
 	toolTip: expanderTooltip,
-	columnTooltip : tableDescriptionLabel
+	columnTooltip: tableDescriptionLabel
 };
 
 export const LINKED_TRANSACTION = {
@@ -101,4 +101,4 @@ export const LINKED_TRANSACTION = {
 	card: linkedTransactionTile,
 	verticalLine: verticalSeparator,
 	description: linkedDescription
-}
+};

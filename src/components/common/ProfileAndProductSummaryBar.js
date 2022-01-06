@@ -61,6 +61,7 @@ export class ProfileAndProductSummaryBar extends Component {
 		this.favouritesBarSub = this.eventAggregator.subscribe(`horizon-favorites-bar`, (e) => this.hasFavourites = e.hasFavourites);
 		this.navContextSub = this.eventAggregator.subscribe(`platform-navigation-context-updated`, () => this._onNavigationContextUpdated());
 
+		this.activePageTitle = ``;
 		this.product = ``;
 	}
 
@@ -76,11 +77,11 @@ export class ProfileAndProductSummaryBar extends Component {
 	 */
 	static get properties() {
 		return {
-			miniProfile: { attribute: false },
-			hasFavourites: { attribute: false },
-			subtitle: { attribute: false },
-			detail: { attribute: false },
-			activePageTitle: { attribute: false }
+			miniProfile: { state: true },
+			hasFavourites: { state: true },
+			subtitle: { state: true },
+			detail: { state: true },
+			activePageTitle: { state: true } // Determines which product button should be highlighted
 		};
 	}
 
@@ -106,7 +107,7 @@ export class ProfileAndProductSummaryBar extends Component {
 	// ---------
 
 	_stateChanged(state) {
-		if (state && state.callerInformation) {
+		if (state?.callerInformation) {
 			this.callerInformation = state.callerInformation;
 
 			let contactNumber = ``;
@@ -138,8 +139,7 @@ export class ProfileAndProductSummaryBar extends Component {
 			};
 		}
 
-		if (state && state.leftBarButtonConfig) {
-			console.log(state.leftBarButtonConfig);
+		if (state?.leftBarButtonConfig) {
 			this.hasFavourites = state.leftBarButtonConfig.hasFavourites;
 			this.subtitle = state.leftBarButtonConfig.subtitle;
 			this.detail = state.leftBarButtonConfig.detail;
@@ -153,17 +153,19 @@ export class ProfileAndProductSummaryBar extends Component {
 	}
 
 	_onNavigationContextUpdated() {
-		// TODO: _getCurrentRoute() was supposed to be a private function, re-evaluate
-		const activePage = this.horizonRouter._getCurrentRoute(); 
+		const activePage = this.horizonRouter.getCurrentRoute(); 
 
 		// Initialise activePage properly if the current route is not yet readable
 		if (!activePage) {
 			this.activePageTitle = ``;
-		} else {
-			this.activePageTitle = activePage.title;
-			if (this.activePageTitle === `ProductInfo`) {
-				this.activePageTitle = this.product;
-			}
+			return;
+		} 
+		
+		// this.activePageTitle is passed to the horizon-product-button-panel control and is used to
+		// determine which product button should be highlighted.
+		this.activePageTitle = activePage.title;
+		if (this.activePageTitle === `ProductInfo`) {
+			this.activePageTitle = this.product;
 		}
 	};
 
@@ -178,17 +180,21 @@ export class ProfileAndProductSummaryBar extends Component {
 		
 		// Note that when invoked from the agent's waiting for call landing page we will
 		// not have caller information
-		if (this.callerInformation && (this.callerInformation.verificationStatus === `unverified` && this.product === `LiveBetter`)) {
+		if (!this.callerInformation) {
+			return;
+		}
+
+		if (this.callerInformation.verificationStatus === `unverified` && this.product === `LiveBetter`) {
 			this.horizonRouter.navigateToLandingPage(this.product, false);
 			return;
 		}
-		if (this.callerInformation) {
-			if (this.callerInformation.verificationStatus === `verified`) {
-				this.horizonRouter.navigateToLandingPage(this.product, false);
-			} else {
-				this.horizonRouter.navigateToProductInfo(this.product);
-			}
+
+		if (this.callerInformation.verificationStatus === `verified`) {
+			this.horizonRouter.navigateToLandingPage(this.product, false);
+			return;
 		} 
+		
+		this.horizonRouter.navigateToProductInfo(this.product);
 	}
 
 	async _favouritesClicked() {
@@ -207,9 +213,10 @@ export class ProfileAndProductSummaryBar extends Component {
 	/**
 	 * Private function to clear all active telemetry span associated to current
 	 * product screen
-	 * @param {any} current - Current product screen
-	 * @param {any} incoming - Product screen navigating to
-	 * @returns {void}
+	 * 
+	 * @param {any} current Current product screen
+	 * @param {any} incoming Product screen navigating to
+	 * @returns {Promise<void>} A promise for clearing/closing active telemetry spands
 	 */
 	async _clearPrevProductSpans(current, incoming) {
 		if (current === incoming) {
@@ -245,7 +252,7 @@ export class ProfileAndProductSummaryBar extends Component {
 				padding: 0px 0px 0px 0px;
 			}
 			.favourites-button{
-                padding: 0px 0px 0px 0px;
+				padding: 0px 0px 0px 0px;
 				width: var(--horizon-left-panel-width, 440px);
 				margin-top: 16px;
 			}

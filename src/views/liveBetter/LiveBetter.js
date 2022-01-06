@@ -573,17 +573,17 @@ export class LiveBetter extends SavingsAccountBase {
 	_renderDescriptionColumn(item, fieldName, fieldValue) {
 		return html`
 			<capitec-label 
-				style="display: ${this.showTooltip ? `none` : `block`}; ${unsafeCSS(TABLE_EXPANDER_CELL.columnTooltip)}"
+				style="display: ${this.showTooltip ? `none` : `block`}; ${unsafeCSS(TABLE_EXPANDER_CELL.columnTooltip).toString()}"
 				label="${fieldValue}"
 				@mouseover="${(e) => this._displayTooltip(e)}">
 			</capitec-label>
 			<capitec-tooltip 
-				style="display: ${this.showTooltip ? `block` : `none`}; ${unsafeCSS(TABLE_EXPANDER_CELL.toolTip)}; text-align: left;"
+				style="display: ${this.showTooltip ? `block` : `none`}; ${unsafeCSS(TABLE_EXPANDER_CELL.toolTip).toString()}; text-align: left;"
 				message="${fieldValue}" 
 				@mouseout = "${() => this.showTooltip = false}"
 				position="bottom">
 			<capitec-label 
-				style=" ${unsafeCSS(TABLE_EXPANDER_CELL.columnTooltip)}; display: block; width: 315px;" 
+				style=" ${unsafeCSS(TABLE_EXPANDER_CELL.columnTooltip).toString()}; display: block; width: 315px;" 
 				label="${fieldValue}">
 			</capitec-label>
 			</capitec-tooltip>`;
@@ -605,25 +605,25 @@ export class LiveBetter extends SavingsAccountBase {
 	
 			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
 				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn).toString()} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell).toString()}" 
 					label="Transaction type"
 					value = "${item.transactionType ? item.transactionType : `-`}"
 					data-automation-id="transaction-history-item-type">
 				</horizon-label>
 				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns).toString()} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell).toString()}" 
 					label="Amount"
 					value = "${item.formatedAmount}"
 					data-automation-id="transaction-history-item-amount">
 				</horizon-label>
 				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns).toString()} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell).toString()}" 
 					label="To account" 
 					value = "${item.toAccount}"
 					data-automation-id="transaction-history-item-to-account">
 				</horizon-label>
 				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns).toString()} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell).toString()}" 
 					label="Posting date"
 					value = "${this._formatDate(item.postingDate)}"
 					data-automation-id="transaction-history-item-posting-date">
@@ -634,24 +634,24 @@ export class LiveBetter extends SavingsAccountBase {
 				<capitec-group 
 					data-automation-id="transaction-history-item-description"
 					class="toggle-group" 
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)}"
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn).toString()}"
 					layout="vertical" 
 					gap="none" 
 					halign="left" 
 					valign="center">
 						<capitec-label 
-							style="${unsafeCSS(TABLE_EXPANDER_CELL.labelText)}" 
+							style="${unsafeCSS(TABLE_EXPANDER_CELL.labelText).toString()}" 
 							label="Description">
 						</capitec-label>
 						<capitec-label 
-							style="display: ${this.showTooltip ? `none` : `block`}; ${unsafeCSS(TABLE_EXPANDER_CELL.labelValue)}"
+							style="display: ${this.showTooltip ? `none` : `block`}; ${unsafeCSS(TABLE_EXPANDER_CELL.labelValue).toString()}"
 							id="desc-label"
 							label="${item.statementDescription ? item.statementDescription : `-`}"
 							@mouseover="${(e) => this._displayTooltip(e)}">
 						</capitec-label>
 						<capitec-tooltip 
 							data-automation-id="transaction-history-item-description-tooltip"
-							style="display: ${this.showTooltip ? `block` : `none`}; ${unsafeCSS(TABLE_EXPANDER_CELL.toolTip)}"
+							style="display: ${this.showTooltip ? `block` : `none`}; ${unsafeCSS(TABLE_EXPANDER_CELL.toolTip).toString()}"
 							id="desc-tooltip-label"
 							message="${item.statementDescription}" 
 							@mouseout = "${() => this.showTooltip = false}"
@@ -664,7 +664,7 @@ export class LiveBetter extends SavingsAccountBase {
 				</capitec-group>
 				
 				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)} width: auto;" 
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell).toString()} width: auto;" 
 					label="Long Description"
 					value = "${item.originalDescription ? item.originalDescription : `-`}"
 					data-automation-id="transaction-history-item-long-description">
@@ -695,20 +695,20 @@ export class LiveBetter extends SavingsAccountBase {
 				@click="${() => this._linkedTransactionClick(item, formatedAmount)}">
 					<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
 						<horizon-label
-							style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)} ${unsafeCSS(LINKED_TRANSACTION.description).toString()}" 
+							style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn).toString()} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell).toString()} ${unsafeCSS(LINKED_TRANSACTION.description).toString()}" 
 							label="Description"
 							value = "${item.originalDescription}"
 							data-automation-id="transaction-history-linked-transation-description"">
 						</horizon-label>
 						<div style="${unsafeCSS(LINKED_TRANSACTION.verticalLine).toString()}"></div>
 						<horizon-label
-							style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+							style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns).toString()} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell).toString()}" 
 							label="Transaction Date"
 							value = "${this._formatDate(item.transactionDate)}"
 							data-automation-id="transaction-history-linked-transation-date"">
 						</horizon-label>
 						<horizon-label
-							style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+							style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns).toString()} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell).toString()}" 
 							label="Round-up amount" 
 							value = "${formatCurrency(item.roundUpAmount)}"
 							data-automation-id="transaction-history-linked-round-up-amount">

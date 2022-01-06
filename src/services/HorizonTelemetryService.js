@@ -163,7 +163,7 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {boolean} systemTriggered Flag to determin telemetry event type
 	 * @param {boolean} closeParentSpan Flag tells to close parent span or not
 	 * @param {boolean} closeChildSpans Flag tells to close its child spans or not
-	 * @returns {void}
+	 * @returns {Promise<void>} A promise to end the telemetry span
 	 */
 	async endSpan(eventName, baggage = null, systemTriggered = true, closeParentSpan = false, closeChildSpans = false) {
 
@@ -236,6 +236,12 @@ export class HorizonTelemetry extends Telemetry {
 		// event, thus no new span reference to update
 	}
 
+	/**
+	 * Closes all the child spans of an event
+	 * 
+	 * @param {*} parentEvent The parent event.
+	 * @returns {Promise<void>} A promise to class all child spans of the parent event
+	 */
 	async closeChildSpans(parentEvent) {
 
 		if (!parentEvent) {
@@ -265,7 +271,7 @@ export class HorizonTelemetry extends Telemetry {
 
 	_initialise() {
 		const telemetryDetails = this.telemetryStore.getTelemetryDetails();
-		const _activeSpans = (telemetryDetails && telemetryDetails.activeSpanTree) || [];
+		const _activeSpans = telemetryDetails?.activeSpanTree ?? [];
 
 		this.activeSpanTree = [..._activeSpans, ...this.activeSpanTree];
 	}

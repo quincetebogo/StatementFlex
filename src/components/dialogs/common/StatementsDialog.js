@@ -63,6 +63,7 @@ export class StatementsDialog extends Component {
 		this.today = new Date().toISOString();
 		this.productSelected = {};
 		this.clientProducts = [];
+		this.accountType = ``;
 		this.clientAccountsType = [];
 		this.STEPPER_STEPS = [];
 		

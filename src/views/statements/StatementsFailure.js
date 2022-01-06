@@ -12,7 +12,7 @@ import 'app/components/common/RelatedOptions';
  * @class StatementsUnsuccess
  * @extends {ViewBase}
  */
-export class StatementsUnsuccess extends ViewBase {
+export class StatementsFailure extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -150,4 +150,4 @@ export class StatementsUnsuccess extends ViewBase {
 
 }
 
-customElements.define(`horizon-statements-unsuccess`, StatementsUnsuccess);
+customElements.define(`horizon-statements-failure`, StatementsFailure);

@@ -113,7 +113,7 @@ export class HorizonRouter {
 		};
 	}
 
-	_getCurrentRoute() {
+	getCurrentRoute() {
 		return this.router.currentRoute;
 	}
 
@@ -706,11 +706,11 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
-		name: `horizon-statements-unsuccess`,
+		name: `horizon-statements-failure`,
 		title: `StatementUnsuccessful`,
 		icon: null,
 		path: HORIZON_ROUTES.STATEMENTS_UNSUCCESSFUL,
-		load: () => import(`../views/statements/StatementsUnsuccess`),
+		load: () => import(`../views/statements/StatementsFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
