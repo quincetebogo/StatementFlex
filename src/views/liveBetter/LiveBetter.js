@@ -1,16 +1,16 @@
 import { EXPANDER_LABEL, LINKED_TRANSACTION, TABLE_EXPANDER_CELL } from 'app/css/Lbb-TransactionHistory';
+import { LiveBetterEvents, STATEMENT_EVENTS } from 'app/constants/telemetry/events/LiveBetter';
 import { css, html, unsafeCSS } from 'platform/elements';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
 import { LiveBetterService } from 'app/services/LiveBetterService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-import { ViewBase } from 'app/views/common/ViewBase';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
 
@@ -27,7 +27,7 @@ import 'app/components/dialogs/liveBetter/LBBTransactionDetails';
 const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE: `LBB`,
 	END_DATE: new Date().toISOString().substr(0, 10),
-	START_DATE: new Date(Date.now() - 7776000000).toISOString().substr(0, 10),// 7776000000 is 90 days in milliseconds
+	START_DATE: new Date(Date.now() - 7776000000).toISOString().substr(0, 10), // 7776000000 is 90 days in milliseconds
 	START_AT_INDEX: 0,
 	MAX_RESULTS: 50,
 	MONEY_TYPE: `BOTH`
@@ -44,9 +44,9 @@ const LBB = 210;
  * 
  * @export
  * @class LiveBetter
- * @extends {ViewBase}
+ * @extends {SavingsAccountBase}
  */
-export class LiveBetter extends ViewBase {
+export class LiveBetter extends SavingsAccountBase {
 	
 	// --------------
 	// INITIALISATION
@@ -206,10 +206,10 @@ export class LiveBetter extends ViewBase {
 	// Function that gets triggered on changing values for those set as properties ( eg: "journalNumber", "transactionHistory" ).
 	async updated(changedProperties) {
 
-		const journalNumber = !(!changedProperties.get('journalNumber'));
+		const journalNumber = Boolean(!changedProperties.get(`journalNumber`));
 	
-		if(journalNumber) {
-			const expandedItem = this.transactionHistory.find( item => item.journalNumber === this.journalNumber);
+		if (journalNumber) {
+			const expandedItem = this.transactionHistory.find(item => item.journalNumber === this.journalNumber);
 			expandedItem.linkedTransactionDetails = await this._getLinkedransactionDetails(expandedItem);
 			this.requestUpdate();
 		}
@@ -412,6 +412,11 @@ export class LiveBetter extends ViewBase {
 		}
 	}
 
+	_cancelStatements() {
+		this._telemetry.endSpan(STATEMENT_EVENTS.STATEMENTS);
+		super._backToLandingPage();
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -568,17 +573,17 @@ export class LiveBetter extends ViewBase {
 	_renderDescriptionColumn(item, fieldName, fieldValue) {
 		return html`
 			<capitec-label 
-				style="display: ${this.showTooltip ? `none` : `block`}; ${unsafeCSS(TABLE_EXPANDER_CELL.columnTooltip)}"
+				style="display: ${this.showTooltip ? `none` : `block`}; ${unsafeCSS(TABLE_EXPANDER_CELL.columnTooltip).toString()}"
 				label="${fieldValue}"
 				@mouseover="${(e) => this._displayTooltip(e)}">
 			</capitec-label>
 			<capitec-tooltip 
-				style="display: ${this.showTooltip ? `block` : `none`}; ${unsafeCSS(TABLE_EXPANDER_CELL.toolTip)}; text-align: left;"
+				style="display: ${this.showTooltip ? `block` : `none`}; ${unsafeCSS(TABLE_EXPANDER_CELL.toolTip).toString()}; text-align: left;"
 				message="${fieldValue}" 
 				@mouseout = "${() => this.showTooltip = false}"
 				position="bottom">
 			<capitec-label 
-				style=" ${unsafeCSS(TABLE_EXPANDER_CELL.columnTooltip)}; display: block; width: 315px;" 
+				style=" ${unsafeCSS(TABLE_EXPANDER_CELL.columnTooltip).toString()}; display: block; width: 315px;" 
 				label="${fieldValue}">
 			</capitec-label>
 			</capitec-tooltip>`;
@@ -600,25 +605,25 @@ export class LiveBetter extends ViewBase {
 	
 			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
 				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn).toString()} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell).toString()}" 
 					label="Transaction type"
 					value = "${item.transactionType ? item.transactionType : `-`}"
 					data-automation-id="transaction-history-item-type">
 				</horizon-label>
 				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns).toString()} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell).toString()}" 
 					label="Amount"
 					value = "${item.formatedAmount}"
 					data-automation-id="transaction-history-item-amount">
 				</horizon-label>
 				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns).toString()} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell).toString()}" 
 					label="To account" 
 					value = "${item.toAccount}"
 					data-automation-id="transaction-history-item-to-account">
 				</horizon-label>
 				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns).toString()} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell).toString()}" 
 					label="Posting date"
 					value = "${this._formatDate(item.postingDate)}"
 					data-automation-id="transaction-history-item-posting-date">
@@ -629,24 +634,24 @@ export class LiveBetter extends ViewBase {
 				<capitec-group 
 					data-automation-id="transaction-history-item-description"
 					class="toggle-group" 
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)}"
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn).toString()}"
 					layout="vertical" 
 					gap="none" 
 					halign="left" 
 					valign="center">
 						<capitec-label 
-							style="${unsafeCSS(TABLE_EXPANDER_CELL.labelText)}" 
+							style="${unsafeCSS(TABLE_EXPANDER_CELL.labelText).toString()}" 
 							label="Description">
 						</capitec-label>
 						<capitec-label 
-							style="display: ${this.showTooltip ? `none` : `block`}; ${unsafeCSS(TABLE_EXPANDER_CELL.labelValue)}"
+							style="display: ${this.showTooltip ? `none` : `block`}; ${unsafeCSS(TABLE_EXPANDER_CELL.labelValue).toString()}"
 							id="desc-label"
 							label="${item.statementDescription ? item.statementDescription : `-`}"
 							@mouseover="${(e) => this._displayTooltip(e)}">
 						</capitec-label>
 						<capitec-tooltip 
 							data-automation-id="transaction-history-item-description-tooltip"
-							style="display: ${this.showTooltip ? `block` : `none`}; ${unsafeCSS(TABLE_EXPANDER_CELL.toolTip)}"
+							style="display: ${this.showTooltip ? `block` : `none`}; ${unsafeCSS(TABLE_EXPANDER_CELL.toolTip).toString()}"
 							id="desc-tooltip-label"
 							message="${item.statementDescription}" 
 							@mouseout = "${() => this.showTooltip = false}"
@@ -659,7 +664,7 @@ export class LiveBetter extends ViewBase {
 				</capitec-group>
 				
 				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)} width: auto;" 
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell).toString()} width: auto;" 
 					label="Long Description"
 					value = "${item.originalDescription ? item.originalDescription : `-`}"
 					data-automation-id="transaction-history-item-long-description">
@@ -677,7 +682,7 @@ export class LiveBetter extends ViewBase {
 			</capitec-content-box>
 
 		</capitec-content-box>
-		` : html ``;
+		` : html``;
 	}
 
 	_renderLinkedTransactionTile(item, formatedAmount) {
@@ -690,20 +695,20 @@ export class LiveBetter extends ViewBase {
 				@click="${() => this._linkedTransactionClick(item, formatedAmount)}">
 					<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
 						<horizon-label
-							style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)} ${unsafeCSS(LINKED_TRANSACTION.description).toString()}" 
+							style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn).toString()} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell).toString()} ${unsafeCSS(LINKED_TRANSACTION.description).toString()}" 
 							label="Description"
 							value = "${item.originalDescription}"
 							data-automation-id="transaction-history-linked-transation-description"">
 						</horizon-label>
 						<div style="${unsafeCSS(LINKED_TRANSACTION.verticalLine).toString()}"></div>
 						<horizon-label
-							style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+							style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns).toString()} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell).toString()}" 
 							label="Transaction Date"
 							value = "${this._formatDate(item.transactionDate)}"
 							data-automation-id="transaction-history-linked-transation-date"">
 						</horizon-label>
 						<horizon-label
-							style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+							style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns).toString()} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell).toString()}" 
 							label="Round-up amount" 
 							value = "${formatCurrency(item.roundUpAmount)}"
 							data-automation-id="transaction-history-linked-round-up-amount">
@@ -713,12 +718,12 @@ export class LiveBetter extends ViewBase {
 	}
 	
 	_renderLinkedTransactionDetailsModal() {
-		return this.renderMode === RENDER_MODE.LINKED_TRANSACTION_DETAILS ?
-		 html`
-			<horizon-linked-transaction-details
-				.transactionDetails = "${this.selectedLinkedTransaction}"
-				@on-close = "${() => this.renderMode = RENDER_MODE.TRANSACTION_HISTORY}">
-			</horizon-linked-transaction-details>` 
+		return this.renderMode === RENDER_MODE.LINKED_TRANSACTION_DETAILS
+			? html`
+				<horizon-linked-transaction-details
+					.transactionDetails = "${this.selectedLinkedTransaction}"
+					@on-close = "${() => this.renderMode = RENDER_MODE.TRANSACTION_HISTORY}">
+				</horizon-linked-transaction-details>` 
 			: html``;
 	}
 
@@ -738,7 +743,7 @@ export class LiveBetter extends ViewBase {
 					.cifNumber="${this.callerInformation.cifNumber}"
 					.clientProducts="${this.clientProducts}"
 					type="${ACCOUNT_TYPES.LBB}"
-					@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+					@cancel="${() => this._cancelStatements()}">
 				</horizon-statements-dialog>`
 			: html``;
 	}

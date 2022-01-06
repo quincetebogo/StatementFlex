@@ -6,7 +6,6 @@ import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -64,9 +63,11 @@ export class StatementsDialog extends Component {
 		this.today = new Date().toISOString();
 		this.productSelected = {};
 		this.clientProducts = [];
+		this.accountType = ``;
 		this.clientAccountsType = [];
 		this.STEPPER_STEPS = [];
-
+		
+		this._telemetryEventsImport();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
@@ -93,7 +94,7 @@ export class StatementsDialog extends Component {
 		return {
 			clientProducts: { type: Array },
 			selectedOption: { type: Array },
-			accountType: { type: String, attribute: type },
+			accountType: { type: String, attribute: `type` },
 			cifNumber: { type: String },
 
 			currentStep: { state: true },
@@ -113,32 +114,34 @@ export class StatementsDialog extends Component {
 	// LIFECYLCE EVENTS
 	// ----------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 
-		this.STEPPER_STEPS = [...STATEMENTS_STEPS];
-		this._initialise();
+		// Fetching the telemetry events object at runtime based on product type
+		// const type = this.type || `Default`;
+		const { STATEMENT_EVENTS } = await this.telemetryEvents[this.accountType]();
 
-		this._telemetry.startSpan(QuickTransactionEvents.STATEMENTS, {
-			"screen": TelemetryScreen.STATEMENTS
-		});
+		this.STEPPER_STEPS = [...STATEMENTS_STEPS];
+		this.telemetryEvent = STATEMENT_EVENTS;
+
+		this._initialise();
+		this._onLoading();
 	}
 
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		this._telemetry.endSpan(this.telemetryEvent.STATEMENTS_POP);
+	}
 	
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
 	async _cancel() {
-
-		await this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_CANCEL, {
-			"screen": TelemetryScreen.STATEMENTS,
-			"nextScreen": TelemetryScreen.FAVOURITES
+		await this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_CANCEL, {
+			"screen": TelemetryScreen.STATEMENTS
 		});
-		this._telemetry.endSpan(QuickTransactionEvents.STATEMENTS, {
-			"screen": TelemetryScreen.STATEMENTS,
-			"nextScreen": TelemetryScreen.FAVOURITES
-		});
+		await this._telemetry.endSpan(this.telemetryEvent.STATEMENTS_POP, {}, false, false);
 
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
@@ -161,17 +164,12 @@ export class StatementsDialog extends Component {
 	}
 
 	_close() {
+		this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_CLOSE_PDF);
 		this.renderMode = RENDER_MODE.EMAIL;
-		
-		this._telemetry.logEvent(QuickTransactionEvents.SELECT_STATEMENTS_CLOSE_PDF, {
-			"screen": TelemetryScreen.STATEMENTS
-		});
 	}
 
 	_back() {
-		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_BACK, {
-			"screen": TelemetryScreen.STATEMENTS
-		});
+		this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_BACK);
 
 		this.errorMessage = ``;
 		this.currentStep--;
@@ -185,11 +183,6 @@ export class StatementsDialog extends Component {
 
 		this._customDateRange = false;
 		this.errorMessage = ``;
-
-		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SELECT_PERIOD, {
-			"screen": TelemetryScreen.STATEMENTS,
-			"period-selected": this.periodSelected
-		});
 	}
 
 	_customDateRangeSelected() {
@@ -257,8 +250,6 @@ export class StatementsDialog extends Component {
 	}
 
 	async _viewPDF() {
-
-		this._telemetry.logEvent(QuickTransactionEvents.SELECT_STATEMENTS_VIEW_PDF, {});
 		const statement = {
 			"cifNumber": this.cifNumber,
 			"accountNumber": `${this.productSelected.accountNumber}`,
@@ -275,6 +266,14 @@ export class StatementsDialog extends Component {
 				"endDate": this.toDate
 			};
 		}
+
+		await this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_VIEW_PDF, {
+			'cifNumber': statement.cifNumber,
+			'accountNumber': statement.accountNumber,
+			'accountType': statement.accountType,
+			'dateRange': this._customDateRange ? `${this.fromDate}-${this.toDate}` : ``,
+			'statement-period': statement.statementDateRange.parseInterval
+		});
 
 		const returnValue = await this.quickTransactionService.viewStatement(statement, () => this._createIncidentOnError());
 		if (returnValue.succeeded) {
@@ -299,7 +298,7 @@ export class StatementsDialog extends Component {
 
 		if (this.errorMessage) {
 			return false;
-		} 
+		}
 
 		const statement = {
 			"emailAddress": this.email,
@@ -319,28 +318,26 @@ export class StatementsDialog extends Component {
 			};
 		}
 
+		await this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_SEND, {
+			'screen': TelemetryScreen.STATEMENTS,
+			'email-address': statement.emailAddress,
+			'dateRange': this._customDateRange ? `${this.fromDate}-${this.toDate}` : ``,
+			'statement-period': statement.statementDateRange.parseInterval,
+			'next-screen': TelemetryScreen.STATEMENTS_OUTCOME
+		});
+
 		const returnValue = await this.quickTransactionService.sendStatement(statement);
 		this._updateScreenDetails();
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `statements`);
 
 		if (returnValue.succeeded) {
 			this.horizonRouter.navigateToStatementSuccessful();
-
-			this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SEND, {
-				"screen": TelemetryScreen.STATEMENTS,
-				"next-screen": TelemetryScreen.STATEMENTS_OUTCOME
-			});
 		} else {
 			this.horizonRouter.navigateToStatementUnsuccessful();
 		}
 	}
 
 	_valueChanged(e) {
-		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SELECT_ACCOUNT, {
-			"screen": TelemetryScreen.STATEMENTS,
-			"accountType": e.detail.new.accountName
-		});
-
 		if (e.detail.new) {
 			this.errorMessage = ``;
 			this.productSelected = e.detail.new;
@@ -353,6 +350,11 @@ export class StatementsDialog extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
+	async _onLoading() {
+		await this._telemetry.startSpan(this.telemetryEvent.STATEMENTS);
+		await this._telemetry.startSpan(this.telemetryEvent.STATEMENTS_POP);
+	}
+
 	_initialise() {
 		if (this.accountType) {
 			this.productSelected = this.clientProducts.find(product => product.category === this.accountType);
@@ -360,6 +362,15 @@ export class StatementsDialog extends Component {
 			this.STEPPER_STEPS.shift();
 			this.renderMode = this.STEPPER_STEPS[this.currentStep].renderMode;
 		}
+	}
+
+	_telemetryEventsImport() {
+		this.telemetryEvent = {};
+		this.telemetryEvents = {
+			[ACCOUNT_TYPES.SAVINGS_ACCOUNT]: () => import(`app/constants/telemetry/events/SavingsAccount`),
+			[ACCOUNT_TYPES.LBB]: () => import(`app/constants/telemetry/events/LiveBetter`),
+			'': () => import(`app/constants/telemetry/events/QuickTransactions`) // Default
+		};
 	}
 
 	_toggleBusyFlag() {
@@ -372,8 +383,7 @@ export class StatementsDialog extends Component {
 			return false;
 		}
 
-		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_ACCOUNT_NEXT, {
-			"screen": TelemetryScreen.STATEMENTS,
+		this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_ACCOUNT_NEXT, {
 			"account-type": this.productSelected.accountName
 		});
 
@@ -393,13 +403,7 @@ export class StatementsDialog extends Component {
 
 		this._getSummary();
 
-		await this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SELECT_DATE_RANGE, {
-			"screen": TelemetryScreen.STATEMENTS,
-			"startDate": this.fromDate,
-			"endDate": this.toDate
-		});
-
-		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_PERIOD_NEXT, {
+		await this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_PERIOD_NEXT, {
 			"screen": TelemetryScreen.STATEMENTS,
 			"period": this.periodSelected ? this.periodSelected : null,
 			"start-date": this.fromDate ? this.fromDate : null,
@@ -499,6 +503,7 @@ export class StatementsDialog extends Component {
 		screenDetails.emailAddress = this.email;
 		screenDetails.accountNumber = this.productSelected.accountNumber;
 		screenDetails.accountType = this.productSelected.accountName;
+		screenDetails.telemetryEvent = this.telemetryEvent;
 		
 		this.horizonStore.setScreenDetails(screenDetails);
 	}

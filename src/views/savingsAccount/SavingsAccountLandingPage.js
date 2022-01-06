@@ -1,10 +1,12 @@
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
+import { STATEMENT_EVENTS, SavingsAccLandingPage } from 'app/constants/telemetry/events/SavingsAccount';
 import { css, html, unsafeCSS } from 'platform/elements';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
 
@@ -66,6 +68,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this._telemetryStartSpan(SavingsAccLandingPage.SAVINGS_ACCOUNT, TelemetryScreen.SAVINGS_ACCOUNT);
 		this._initialise();
 
 		this._optionClick = async (option) => {
@@ -258,6 +261,11 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	}
 
 	_getStatements() {
+		this._telemetry.logEvent(SavingsAccLandingPage.SAVINGS_ACC_STATEMENTS, {
+			screen: TelemetryScreen.SAVINGS_ACCOUNT,
+			nextScreen: TelemetryScreen.STATEMENTS
+		});
+
 		const productInfo = ACCOUNT_INTCAT_ENUM[SAVINGS_ACCOUNT];
 		this.clientProducts = [
 			{
@@ -273,6 +281,11 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			}
 		];
 		this.renderMode = RENDER_MODE.STATEMENTS;
+	}
+
+	_cancelStatements() {
+		this._telemetry.endSpan(STATEMENT_EVENTS.STATEMENTS);
+		super._backToLandingPage();
 	}
 
 	// ---------
