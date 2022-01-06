@@ -153,11 +153,7 @@ export class VerifyCaller extends Component {
 	}
 
 	disconnectedCallback() {
-		this.itaService.close();
-
-		this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
-			"screen": TelemetryScreen.VERIFY_CALLER
-		});
+		this._itaClose();
 
 		this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER, {
 			"screen": TelemetryScreen.VERIFY_CALLER
@@ -172,7 +168,7 @@ export class VerifyCaller extends Component {
 	async _securityQuestionsClick() {
 		
 		// Stop any pending ITA attempt
-		this.itaService.close();
+		this._itaClose();
 		this.itaInProgress = false;
 		this.itaSystemError = false;
 		this.itaTimeout = false;
@@ -364,7 +360,7 @@ export class VerifyCaller extends Component {
 
 		this.telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
-			"next-screen": this._xdsAttemptsExceeded() ? TelemetryScreen.XDS_FAILED: TelemetryScreen.VERIFY_CALLER,
+			"next-screen": this._xdsAttemptsExceeded() ? TelemetryScreen.XDS_FAILED : TelemetryScreen.VERIFY_CALLER,
 			"attempt": this._calculateXDSAttempts(this.securityQuestions.authenticationHistory)
 		}, true);
 
@@ -394,7 +390,7 @@ export class VerifyCaller extends Component {
 			"next-screen": TelemetryScreen.VERIFY_CALLER
 		});
 
-		this.itaService.close();
+		this._itaClose();
 
 		if (!this._itaAttemptsExceeded()) {
 			this.logger.log(`info`, `Retrying ITA verification`, `_tryAgain`);
@@ -449,16 +445,20 @@ export class VerifyCaller extends Component {
 
 	async _initiateItaVerification() {
 		this.itaInProgress = false;
-		this.itaSystemError = !await this.itaService.initiateItaVerification(this.callerInformation.cifNumber);
-		
-		if (this.itaSystemError) {
-			this.telemetry.logEvent(VerifyCallerEvents.ITA_SERVICE_FAILURE, {}, true);
-			return;
-		}
 
-		this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
-			"screen": TelemetryScreen.VERIFY_CALLER
-		});
+		try {
+			await this.itaService.initiateItaVerification(this.callerInformation.cifNumber);
+			this.itaSystemError = false;
+			this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
+				"screen": TelemetryScreen.VERIFY_CALLER
+			});
+		} catch (error) {
+			this.itaSystemError = true;
+			this.telemetry.logEvent(VerifyCallerEvents.ITA_SERVICE_FAILURE, { "failure-reason": error?.message }, true);
+			this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
+				"screen": TelemetryScreen.VERIFY_CALLER
+			});
+			}
 	}
 
 	_verificationStatusCallBack(status) {
@@ -466,62 +466,57 @@ export class VerifyCaller extends Component {
 		this.itaInProgress = false;
 		this.itaTimeout = false;
 
-		if (status === `started`) {
-			this.itaInProgress = true;
+		switch (status) {
+			case `started `: 
+				this.itaInProgress = true;
+				this.telemetry.logEvent(VerifyCallerEvents.ITA_REQUEST_SENT, {
+					"screen": TelemetryScreen.VERIFY_CALLER
+				}, true);
+				break;
 
-			this.telemetry.logEvent(VerifyCallerEvents.ITA_REQUEST_SENT, {
-				"screen": TelemetryScreen.VERIFY_CALLER
-			}, true);
+			case `timeout `: 
+				// This should no longer happen as the itaService no longer runs a timer
+				// Kept here in case we can get ITA timout notifications from the back end service
+				this.itaTimeout = true;
+				this.telemetry.logEvent(VerifyCallerEvents.ITA_TIMEDOUT, {
+					"screen": TelemetryScreen.VERIFY_CALLER,
+					"next-screen": TelemetryScreen.VERIFY_CALLER
+				}, true);
+				break;
 
-			return;
-		}
+			case `verified`: 
+				this.telemetry.logEvent(VerifyCallerEvents.ITA_OUTCOME, {
+					"screen": TelemetryScreen.VERIFY_CALLER,
+					"next-screen": null, // Determine by need / path its opened from
+					"ITA-outcome": status
+				}, true);
 
-		// This should no longer happen as the itaService no longer runs a timer
-		// Kept here in case we can get ITA timout notifications from the back end service
-		if (status === `timeout`) {
-			this.itaTimeout = true;
+				this.itaAttempts++;
+				this._updateApplicationState(`verified`, `ITA`);
+				this.dispatchEvent(new CustomEvent(`verified`, {
+					detail: {
+						incomingCallDetails: this.incomingCallDetails,
+						callerInformation: this.callerInformation
+					}
+				}));
+				break;
 	
-			this.telemetry.logEvent(VerifyCallerEvents.ITA_TIMEDOUT, {
-				"screen": TelemetryScreen.VERIFY_CALLER,
-				"next-screen": TelemetryScreen.VERIFY_CALLER
-			}, true);
+			default: 
+				this.logger.log(`info`, `ITA SignalR event indicated that verification was rejected`, `_signalRPostEventAction`);
 
-			return;
-		}
-
-		if (status === `verified`) {
-			this.telemetry.logEvent(VerifyCallerEvents.ITA_OUTCOME, {
-				"screen": TelemetryScreen.VERIFY_CALLER,
-				"next-screen": null, // Determine by need / path its opened from
-				"ITA-outcome": status
-			}, true);
-
-			this.itaAttempts++;
-			this._updateApplicationState(`verified`, `ITA`);
-			this.dispatchEvent(new CustomEvent(`verified`, {
-				detail: {
-					incomingCallDetails: this.incomingCallDetails,
-					callerInformation: this.callerInformation
-				}
-			}));
-
-			return;
-		}
-
-		this.logger.log(`info`, `ITA SignalR event indicated that verification was rejected`, `_signalRPostEventAction`);
-
-		this.itaRejected = true;
-		this.itaFailedCount++;
-		this.itaAttempts++;
+				this.itaRejected = true;
+				this.itaFailedCount++;
+				this.itaAttempts++;
+				
+				this.telemetry.logEvent(VerifyCallerEvents.ITA_OUTCOME, {
+					"screen": TelemetryScreen.VERIFY_CALLER,
+					"next-screen": this._itaAttemptsExceeded() ? TelemetryScreen.ITA_FAILED : TelemetryScreen.VERIFY_CALLER,
+					"ITA-outcome": status
+				}, true);
 		
-		this.telemetry.logEvent(VerifyCallerEvents.ITA_OUTCOME, {
-			"screen": TelemetryScreen.VERIFY_CALLER,
-			"next-screen": this.itaFailedCount >= MAX_ITA_ATTEMPTS ? TelemetryScreen.ITA_FAILED : TelemetryScreen.VERIFY_CALLER,
-			"ITA-outcome": status
-		}, true);
-
-		if (this._itaAttemptsExceeded()) {
-			this._navigateToItaVerificationFailed();
+				if (this._itaAttemptsExceeded()) {
+					this._navigateToItaVerificationFailed();
+				}
 		}
 	}
 
@@ -529,17 +524,26 @@ export class VerifyCaller extends Component {
 		this.timeLeft = timeLeft;
 	}
 
-	_itaTimeout() {
-		this.itaService.close();
-
-		this.itaRejected = false;
-		this.itaInProgress = false;
-		this.itaTimeout = true;
-		
+	async _itaTimeout() {
 		this.telemetry.logEvent(VerifyCallerEvents.ITA_TIMEDOUT, {
 			"screen": TelemetryScreen.VERIFY_CALLER,
 			"next-screen": TelemetryScreen.VERIFY_CALLER
 		}, true);
+
+		await this._itaClose();
+
+		this.itaRejected = false;
+		this.itaInProgress = false;
+		this.itaTimeout = true;
+	}
+
+	async _itaClose() {
+		// close() will return false if no ITA connection was open (and therefore no ITA span was started)
+		if (await this.itaService.close()) {
+			this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
+				"screen": TelemetryScreen.VERIFY_CALLER
+			});
+		}
 	}
 
 	/**

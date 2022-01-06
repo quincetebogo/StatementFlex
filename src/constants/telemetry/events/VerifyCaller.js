@@ -37,7 +37,7 @@
 	ITA_VERIFICATION_FAILED: `call.ita-failed`,
 	ITA_VERIFICATION_FAILED_CONTINUE_UNVERIFIED: `call.ita-failed.continue-unverified`,
 
-	//XDS failed
+	// XDS failed
 	XDS_VERIFICATION_FAILED: `call.xds-failed`,
 	XDS_VERIFICATION_FAILED_CONTINUE_UNVERIFIED: `call.xds-failed.continue-unverified`,
 	XDS_VERIFICATION_FAILED_VERIFY_VIA_APP: `call.xds-failed.verify-via-app-ussd`

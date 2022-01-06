@@ -36,7 +36,7 @@ export class ItaCallerVerification {
 	 * passed in the constructor
 	 * 
 	 * @param {*} cifNumber  the client's CIF number
-	 * @returns { Promise<Boolean> } true if the ITA process could be successfully initiated
+	 * @returns { Promise<void> } A promise to initiate the ITA process
 	 */
 	async initiateItaVerification(cifNumber) {
 		// Check for ITA mocking on lcoal development machines
@@ -74,12 +74,12 @@ export class ItaCallerVerification {
 
 		if (signalRUrl === ``) {
 			this.logger.log(`warn`, `ITA is not configured`, `_initiateItaVerification`);
-			return false;
+			throw new Error(`ITA is not configured`);
 		}
 
 		if (this.horizonSignalRClient) {
 			this.logger.log(`warn`, `ITA connection is already started, a new connection will not be started`, `_initiateItaVerification`);
-			return false;
+			throw new Error(`ITA connection is already started, a new connection will not be started`);
 		}
 
 		this.logger.log(`info`, `Initiating ITA verification`, `_initiateItaVerification`);
@@ -94,19 +94,14 @@ export class ItaCallerVerification {
 			this.toggleBusyCallback();
 		}
 		
-		let itaNotificationSent = false;
-		if (connectionID) {
-			itaNotificationSent = await this._itaServiceCall(connectionID, cifNumber);
-		};
-		
-		if (!itaNotificationSent) {
+		try {
+			await this._itaServiceCall(connectionID, cifNumber);
+		} catch (error) {
 			this._cleanupSignalRConnection();
-			return false;
+			throw error;
 		}
-
+		
 		this.verificationStatusCallback(`started`);
-
-		return true;
 	}
 
 	/**
@@ -114,16 +109,17 @@ export class ItaCallerVerification {
 	 * 
 	 * @returns { Promise<void> } A promise for the completion of cleanup
 	 */
-	async close() {
+	close() {
 
 		// Mock code to allow cancelling the timer before it has expired
 		if (this.mockedResponseTimerId) {
 			clearTimeout(this.mockedResponseTimerId);
 			this.mockedResponseTimerId = null;
+			return true;
 		}
 
 		// The real code for cancelling/cleaning up the connection.
-		await this._cleanupSignalRConnection();
+		return this._cleanupSignalRConnection();
 	}
 
 	// ===============
@@ -134,14 +130,14 @@ export class ItaCallerVerification {
 			await this.horizonSignalRClient.startConnection();
 		} catch (error) {
 			this.logger.log(`error`, `Failed to establish ITA Hub Connection`, `_initialiseSignalR`);
-			return null;
+			throw new Error(`Failed to establish ITA Hub Connection`);
 		}
 
 		try {
 			return await this.horizonSignalRClient.getConnectionId();
 		} catch (error) {
 			this.logger.log(`error`, `Failed to obtain Connection ID`, `_initialiseSignalR`);
-			return null;
+			throw new Error(`Failed to obtain Connection ID`);
 		}
 	}
 
@@ -150,7 +146,7 @@ export class ItaCallerVerification {
 			await this.horizonSignalRClient.registerHandler(verificationStatus => this._signalRPostEventAction(verificationStatus));
 		} catch (error) {
 			this.logger.log(`error`, `Failed to register handler`, `_itaServiceCall`);
-			return false;
+			throw new Error(`Failed to register handler`);
 		}
 
 		const request = {
@@ -162,11 +158,11 @@ export class ItaCallerVerification {
 
 		if (returnValue.succeeded) {
 			this.logger.log(`info`, `ITA verification request successfully initiated`, `_itaServiceCall`);
-			return true;
+			return;
 		} 
 
 		this.logger.log(`error`, `itaVerification channel service call failed`, `_itaServiceCall`, returnValue.correlationId);
-		return false;
+		throw new Error(`itaVerification channel service call failed`);
 	}
 	
 	async _signalRPostEventAction(verificationStatus) {
@@ -183,24 +179,28 @@ export class ItaCallerVerification {
 	}
 
 	async _cleanupSignalRConnection() {
-		if (this.horizonSignalRClient) {
-			this.logger.log(`info`, `Stopping SignalR Connection for ITA Verification`, `_stopSignalRConnection`);
-
-			try {
-				await this.horizonSignalRClient.deRegisterHandler();
-			} catch (error) {
-				this.logger.log(`error`, `Failure while deregistering handler`, `_stopSignalRConnection`);
-			}
-
-			try {
-				await this.horizonSignalRClient.stopConnection();
-			} catch (error) {
-				this.logger.log(`error`, `Failure while stopping ITA connection`, `_stopSignalRConnection`);
-			}
-
-			this.horizonSignalRClient = null;
-			this.logger.log(`info`, `ITA SignalR subscription stopped`, `_stopSignalRConnection`);
+		if (!this.horizonSignalRClient) {
+			return false;
 		}
+
+		this.logger.log(`info`, `Stopping SignalR Connection for ITA Verification`, `_stopSignalRConnection`);
+
+		try {
+			await this.horizonSignalRClient.deRegisterHandler();
+		} catch (error) {
+			this.logger.log(`error`, `Failure while deregistering handler`, `_stopSignalRConnection`);
+		}
+
+		try {
+			await this.horizonSignalRClient.stopConnection();
+		} catch (error) {
+			this.logger.log(`error`, `Failure while stopping ITA connection`, `_stopSignalRConnection`);
+		}
+
+		this.horizonSignalRClient = null;
+		this.logger.log(`info`, `ITA SignalR subscription stopped`, `_stopSignalRConnection`);
+
+		return true;
 	}
 
 	_isVerified(verificationStatus) {
