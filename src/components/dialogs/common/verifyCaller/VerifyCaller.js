@@ -132,6 +132,12 @@ export class VerifyCaller extends Component {
 			"remote-channels-registered": this.callerInformation.hasDigitalChannels
 		});
 
+		if (this.callerInformation.hasDigitalChannels) {
+			this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
+				"screen": TelemetryScreen.VERIFY_CALLER
+			});
+		}
+
 		// Set up ITA & XDS attempts if structure does not exist yet
 		if (!this.callerInformation.verificationAttempts) {
 			this.callerInformation.verificationAttempts = {
@@ -154,6 +160,12 @@ export class VerifyCaller extends Component {
 
 	disconnectedCallback() {
 		this._itaClose();
+
+		if (this.callerInformation.hasDigitalChannels) {
+			this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
+				"screen": TelemetryScreen.VERIFY_CALLER
+			});
+		}
 
 		this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER, {
 			"screen": TelemetryScreen.VERIFY_CALLER
@@ -449,16 +461,10 @@ export class VerifyCaller extends Component {
 		try {
 			await this.itaService.initiateItaVerification(this.callerInformation.cifNumber);
 			this.itaSystemError = false;
-			this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
-				"screen": TelemetryScreen.VERIFY_CALLER
-			});
 		} catch (error) {
 			this.itaSystemError = true;
 			this.telemetry.logEvent(VerifyCallerEvents.ITA_SERVICE_FAILURE, { "failure-reason": error?.message }, true);
-			this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
-				"screen": TelemetryScreen.VERIFY_CALLER
-			});
-			}
+		}
 	}
 
 	_verificationStatusCallBack(status) {
@@ -538,12 +544,7 @@ export class VerifyCaller extends Component {
 	}
 
 	async _itaClose() {
-		// close() will return false if no ITA connection was open (and therefore no ITA span was started)
-		if (await this.itaService.close()) {
-			this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
-				"screen": TelemetryScreen.VERIFY_CALLER
-			});
-		}
+		await this.itaService.close();
 	}
 
 	/**
