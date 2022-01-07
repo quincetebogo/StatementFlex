@@ -1,7 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { AccessChannelsEvents } from 'app/constants/telemetry/events/AccessChannels';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonLabel';
@@ -36,8 +33,6 @@ export class AppProfileDetails extends Component {
 		this.selectedSuspendReason = ``;
 		this.displayToast = false;
 		this.showValidationBanner = false;
-
-		this._telemetry = HorizonTelemetry.instance;
 	}
 
 	// --------------
@@ -88,13 +83,13 @@ export class AppProfileDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_APP, {
-			"screen": TelemetryScreen.ACCESS_CHANNELS_APP
-		});
+		this.dispatchEvent(new CustomEvent(`toggle-side-sheet`, { detail: { tileClicked: `App`, action: `Open` } }));
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+
+		this.dispatchEvent(new CustomEvent(`toggle-side-sheet`, { detail: { tileClicked: `App`, action: `Close` } }));
 	}
 
 	// --------------
@@ -109,18 +104,9 @@ export class AppProfileDetails extends Component {
 		this.showValidationBanner = false;
 		this.showSuspendReasons = !this.showSuspendReasons;
 	
+		this.dispatchEvent(new CustomEvent(`toggle-app-suspend-reasons`, { detail: { showSuspendReasons: this.showSuspendReasons } }));
 		if (this.showSuspendReasons) {
-			this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND, {
-				"screen": TelemetryScreen.ACCESS_CHANNELS_APP,
-				"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP_SUSPEND_REASON
-			});
-			
 			this.selectedSuspendReason = ``;
-		} else {
-			this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND_CANCEL, {
-				"screen": TelemetryScreen.ACCESS_CHANNELS_APP_SUSPEND_REASON,
-				"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP
-			});
 		}
 	}
 
@@ -134,12 +120,6 @@ export class AppProfileDetails extends Component {
 		const returnValue = await this.suspendApp();
 	
 		if (returnValue) {
-			this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND_CONFIRM, {
-				"screen": TelemetryScreen.ACCESS_CHANNELS_APP_SUSPEND_REASON,
-				"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP,
-				"suspend-reason": this.selectedSuspendReason
-			});
-
 			this.appDetails.status = `Suspended`;
 			this._displayAndCloseToast();
 			this._toggleSuspendReasonsSlide();
@@ -151,11 +131,6 @@ export class AppProfileDetails extends Component {
 		const returnValue = await this.unsuspendApp();
 		
 		if (returnValue) {
-			this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_UNSUSPEND, {
-				"screen": TelemetryScreen.ACCESS_CHANNELS_APP,
-				"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP
-			});
-
 			this.appDetails.status = `Active`;
 			this._displayAndCloseToast();
 		}

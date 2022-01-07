@@ -1,7 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { AccessChannelsEvents } from 'app/constants/telemetry/events/AccessChannels';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonLabel';
@@ -26,8 +23,6 @@ export class USSDProfileDetails extends Component {
 
 		// Active, SIM Blocked, ussd Blocked, Service Unavailable - null
 		this.ussdStatus = ``;
-
-		this._telemetry = HorizonTelemetry.instance;
 	}
 	
 	// ----------
@@ -86,13 +81,13 @@ export class USSDProfileDetails extends Component {
 		
 		this.ussdStatus = this.ussd && this.ussd.status;
 
-		this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_USSD, {
-			"screen": TelemetryScreen.ACCESS_CHANNELS_USSD
-		});
+		this.dispatchEvent(new CustomEvent(`toggle-side-sheet`, { detail: { tileClicked: `USSD`, action: `Open` } }));
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+
+		this.dispatchEvent(new CustomEvent(`toggle-side-sheet`, { detail: { tileClicked: `USSD`, action: `Close` } }));
 	}
 
 	// --------------
@@ -108,18 +103,9 @@ export class USSDProfileDetails extends Component {
 		this.showNotificationBanner = false;
 		this.showCancelReasons = !this.showCancelReasons;
 		
+		this.dispatchEvent(new CustomEvent(`toggle-ussd-cancel-reasons`, { detail: { showCancelReasons: this.showCancelReasons } }));
 		if (this.showCancelReasons) {
 			this.cancelReason = ``;
-
-			this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD, {
-				"screen": TelemetryScreen.ACCESS_CHANNELS_USSD,
-				"next-screen": TelemetryScreen.ACCESS_CHANNELS_USSD_CANCEL_USSD
-			});
-		} else {
-			this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD_CANCEL, {
-				"screen": TelemetryScreen.ACCESS_CHANNELS_USSD_CANCEL_USSD,
-				"next-screen": TelemetryScreen.ACCESS_CHANNELS_USSD
-			});
 		}
 	}
 
@@ -130,11 +116,6 @@ export class USSDProfileDetails extends Component {
 			this.ussd.isSimBlocked = false;
 
 			this._displayAndCloseToast(`SIM for number ${this.ussd.userRegNo} was unblocked successfully.`);
-
-			
-			this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_UNBLOCK_SIM, {
-				"screen": TelemetryScreen.ACCESS_CHANNELS_USSD
-			});
 		}
 	}
 
@@ -149,12 +130,6 @@ export class USSDProfileDetails extends Component {
 				this._toggleCancelUSSD();
 				
 				this.showNotificationBanner = true;
-
-				this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD_CONFIRM, {
-					"screen": TelemetryScreen.ACCESS_CHANNELS_USSD_CANCEL_USSD,
-					"next-screen": TelemetryScreen.ACCESS_CHANNELS_USSD,
-					"cancel-reason": this.cancelReason
-				});
 			}
 		} else {
 			this.bannerTitle = `Notice`;
@@ -168,10 +143,6 @@ export class USSDProfileDetails extends Component {
 
 		if (returnValue) {
 			this._displayAndCloseToast(`The full menu is active.`);
-
-			this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_ACTIVATE_FULL_USSD_MENU, {
-				"screen": TelemetryScreen.ACCESS_CHANNELS_USSD
-			});
 		}
 	}
 
