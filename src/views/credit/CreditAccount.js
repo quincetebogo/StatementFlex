@@ -14,10 +14,10 @@ import 'app/components/credit/CreditCardDetails';
 import 'app/components/credit/AccessFacilityDetails';
 import 'app/components/credit/TermLoanDetails';
 import 'app/dialogs/credit/CreditStatements';
-import 'app/productControls/Credit/src/BudgetAccounts';
-import 'app/productControls/Credit/src/BudgetAccountDetails';
-import 'app/productControls/Credit/src/CreditAccountLanding';
-import 'app/productControls/Credit/src/CreditUnverifiedLanding';
+import 'app/productControls/credit/src/BudgetAccounts';
+import 'app/productControls/credit/src/BudgetAccountDetails';
+import 'app/productControls/credit/src/CreditAccountLanding';
+import 'app/productControls/credit/src/CreditUnverifiedLanding';
 
 const PRODUCTS = {
 	CREDIT_CARD: `Credit Card`,
