@@ -1,7 +1,7 @@
 import { Component, html } from 'platform/elements';
 import { formatCurrency, formatDate, getDateOrdinal } from 'app/utils/channelServiceUtilities';
 
-import 'app/productControls/Credit/src/AccountDetaislView';
+import 'app/productControls/Credit/src/AccountDetailsView';
 
 /**
  * Access facility details view
