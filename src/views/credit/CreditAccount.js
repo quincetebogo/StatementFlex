@@ -1,10 +1,11 @@
 import { css, html } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
-import { formatCurrency } from 'app/utils/channelServiceUtilities';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { creditOverview } from 'app/mocks/CreditMocks';
+import { formatCurrency } from 'app/utils/channelServiceUtilities';
 
 import 'app/productControls/Credit/src/BudgetAccountDetails';
 import 'app/productControls/Credit/src/CreditAccountLanding';
@@ -17,12 +18,23 @@ const BUDGET_ACCOUNT_DETAILS = {
 	monthlyRepayment: 74.11,
 	purchaseAmount: 433.35,
 	outstandingBalance: 364.06,
-	openingDate: "2021-11-12T03:09:58.829Z",
+	openingDate: `2021-11-12T03:09:58.829Z`,
 	interestRate: 7.75,
 	term: 3,
 	paymentMade: 74.11,
 	settlementAmount: 191.71,
 	remainingTerm: 2
+};
+
+const PRODUCTS = {
+	CREDIT_CARD: `Credit Card`,
+	ACCESS_FACILITY: `Access facility`,
+	TERM_LOAN: `Term Loan`
+};
+
+const CREDIT_TYPE = {
+	FLEXIBLE: `Flexible`,
+	FIXED: `Fixed Credit`
 };
 
 /**
@@ -49,7 +61,6 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	
 		// private properites
-		this.loading = true;
 		this.budgetAccountDetails = null;
 	}
 
@@ -84,8 +95,8 @@ export class CreditAccount extends ViewBase {
 
 			if (actions[option]) {
 				
-				const clientNeed = `${option}-${productType.toLowerCase().replace(' ', '-')}`;
-				
+				const clientNeed = `${option}-${productType.toLowerCase().replace(` `, `-`)}`;
+				 
 				await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
 				this._refreshIncidentDetails();
 				return actions[option]();
@@ -103,7 +114,6 @@ export class CreditAccount extends ViewBase {
 
 	static get properties() {
 		return {
-			loading: { attribute: false },
 			landingPageInfo: { attribute: false }
 		};
 	}
@@ -176,55 +186,77 @@ export class CreditAccount extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
-	async _initialise() {
+	_initialise() {
 
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		
 		if (this.verificationStatus === `verified`) {
 			
 			this.horizonStore.setCallerInformation(this.callerInformation);
-		
+
 			/* 
 				TO DO: Credit landing page service call should come here to load returnValue.
 				Error handler should be bypassed when implementing CS call.
 				Example: const returnValue = await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData, () => true);
-			*/
 
-			const landingRequest = {
-				cifNumber: this.callerInformation.cifNumber,
-				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
-				getGenericData: true
-			};
+				Scenario-1: CS call successfull and client has Flexible/Fixed term products - Navigate to credit landing page with details
+				Scenario-2: CS call successfull and client doesn't have either Flexible & Fixed term products - Navigate to Credit product info screen
+				Scenario-3: CS call failure - Navigate to credit service failure screen 
+				*/
 
-			//await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData, () => true);
-			const returnValue = {
-				result: true,
-				succeeded: true
-			}
+			this.creditAccountDetails = creditOverview;
+			this._formatCreditOverviewResponse();
+			this.flexibleCreditAccounts = [...creditOverview.creditCardSummaryList, ...creditOverview.accessFacilitySummaryList];
+			this.fixedTermCreditAccounts = [...creditOverview.loanAccountSummaryList];
 
-			if (returnValue.succeeded && returnValue.result) {
-				
-				this._telemetry.startSpan(CreditEvents.CREDIT, {
-					"screen": TelemetryScreen.CREDIT_LANDING,
-					"credit-active": true
-				});
-
-				this.landingPageInfo = returnValue.result;
-				
-				// Update left bar details once available from channel service call
-				this._updateLeftBar();
-			} else if (returnValue.succeeded) {
-				
-				// Navigate to credit non-client page if a client is not registered with any of the credit accounts.
-				this.horizonRouter.navigateToProductInfo(`Credit`);
-			} else {
-				// Navigate to services unavailable screen when service call fails.
-				this.renderMode = RENDER_MODE.SERVICE_UNAVAILABLE;
-			}
+			this._telemetry.startSpan(CreditEvents.CREDIT, {
+				"screen": TelemetryScreen.CREDIT_LANDING,
+				"credit-active": true
+			});
 		}
 		
 		this.endCallContext = `LandingPage`;
-		this.loading = false;
+	}
+
+	_formatCreditOverviewResponse() {
+		// TODO: Improve the formatting
+		this.creditAccountDetails.creditCardSummaryList.map(item => {
+			item.type = PRODUCTS.CREDIT_CARD;
+			item.category = CREDIT_TYPE.FLEXIBLE;
+			item.currentBalance = formatCurrency(item.currentBalance);
+			item.availableCredit = formatCurrency(item.availableCredit);
+			item.creditLimit = formatCurrency(item.creditLimit);
+			item.nextRepayment = formatCurrency(item.nextRepayment);
+
+			return item;
+		});
+
+		this.creditAccountDetails.accessFacilitySummaryList.map(item => {
+			item.type = PRODUCTS.ACCESS_FACILITY;
+			item.category = CREDIT_TYPE.FLEXIBLE;
+			item.currentBalance = formatCurrency(item.currentBalance);
+			item.availableCredit = formatCurrency(item.availableCredit);
+			item.creditLimit = formatCurrency(item.creditLimit);
+			item.nextRepayment = formatCurrency(item.nextRepayment);
+
+			return item;
+		});
+
+		this.creditAccountDetails.loanAccountSummaryList.map(item => {
+			item.type = PRODUCTS.TERM_LOAN;
+			item.category = CREDIT_TYPE.FIXED;
+			item.currentBalance = formatCurrency(item.currentBalance);
+			item.availableCredit = formatCurrency(item.availableCredit);
+			item.creditLimit = formatCurrency(item.creditLimit);
+			item.nextRepayment = formatCurrency(item.nextRepayment);
+
+			return item;
+		});
+
+		this.budgetAccountsSummary = {
+			"totalBudgetBalance": formatCurrency(this.creditAccountDetails.budgetAccountsSummary.totalBudgetBalance),
+			"totalBudgetInstallmentAmount": formatCurrency(this.creditAccountDetails.budgetAccountsSummary.totalBudgetInstallmentAmount)
+		};
 	}
 
 	_updateLeftBar() {
@@ -326,7 +358,7 @@ export class CreditAccount extends ViewBase {
 			"Payment made": formatCurrency(BUDGET_ACCOUNT_DETAILS.paymentMade),
 			"Settlement amount": formatCurrency(BUDGET_ACCOUNT_DETAILS.settlementAmount),
 			"Remaining term (months)": BUDGET_ACCOUNT_DETAILS.remainingTerm
-		}
+		};
 
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNT_DETAILS;
 	}
@@ -427,8 +459,7 @@ export class CreditAccount extends ViewBase {
 
 	_renderLandingPage() {
 		return this.renderMode === RENDER_MODE.MAIN_PAGE ||
-			   this.renderMode === RENDER_MODE.STATEMENTS &&
-			   !this.loading
+			   this.renderMode === RENDER_MODE.STATEMENTS
 			? html`
 				${this._renderCreditVerifiedLandingPage()}
 				${this._renderCreditUnverifiedLandingPage()}`
@@ -436,13 +467,17 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderCreditVerifiedLandingPage() {
-		return this.verificationStatus === `verified` && this.landingPageInfo
+		return this.verificationStatus === `verified`
 			? html`
 				<capitec-pc-credit-account
-					@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.creditType, e.detail.productType)}"
-					@account-details = "${(e) => this._accountDetails(e)}"
+					.flexibleCreditAccounts="${this.flexibleCreditAccounts}"
+					.fixedTermCreditAccounts="${this.fixedTermCreditAccounts}"
+					.budgetAccountsSummary="${this.budgetAccountsSummary}"
+					@option-click="${(e) => this._optionClick(e.detail.option, e.detail.creditType, e.detail.productType)}"
+					@account-details="${(e) => this._accountDetails(e)}"
 					@product-enquiry="${() => this._productEnquiry()}"
-					@view-info = "${() => this._viewInfo()}">
+					@view-info="${() => this._viewInfo()}"
+					@view-budget-accounts="${(e) => this._budgetFacility(e)}">
 				</capitec-pc-credit-account>`
 			: html``;
 	}
@@ -466,11 +501,11 @@ export class CreditAccount extends ViewBase {
 		: html``;
 	}
 
-	_renderStatements(){
+	_renderStatements() {
 		return this.renderMode === RENDER_MODE.STATEMENTS
 		? html`
 			<horizon-credit-statements-dialog
-				@cancel="${()=> this._backToLandingPage()}"
+				@cancel="${() => this._backToLandingPage()}"
 				@view-fees="${() => this._viewFees()}">
 			</horizon-credit-statements-dialog>`
 		: html``;

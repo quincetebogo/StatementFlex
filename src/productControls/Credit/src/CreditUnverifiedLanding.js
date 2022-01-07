@@ -85,7 +85,7 @@ export class CreditUnverifiedLanding extends Component {
 					--theme-titlebar-shadow: 0px;
 					--theme-titlebar-padding: 12px 16px;
 				}
-				capitec-group > img {
+				capitec-group > capitec-image {
 					height: 182px;
 					width: 252px;
 					margin-top: 125px;
@@ -142,7 +142,7 @@ export class CreditUnverifiedLanding extends Component {
 					padding: 0px;
 					--horizon-option-btn-icon-height: 26px;
 					--horizon-option-btn-icon-width: 26px;
-				}		
+				}
 			`
 		];
 	}
@@ -180,8 +180,10 @@ export class CreditUnverifiedLanding extends Component {
 						class="content"
 						layout="vertical"
 						halign="center"
+						valign="top"
 						gap="none">
-							<img src="platform/illustrations/authenticate.svg">
+							<capitec-image src="platform/illustrations/authenticate.svg">
+							</capitec-image>
 							<capitec-label
 								data-automation-id="credit-unverified-header"
 								class="content-header"
@@ -211,6 +213,6 @@ window.customElements.define(`capitec-pc-credit-unverified-landing`, CreditUnver
  * @example
  * <capitec-pc-credit-unverified-landing ... @verify-now="${this._handler}"></capitec-pc-credit-unverified-landing>
  *
- * @event CreditUnverifiedLanding#verify-now 	
+ * @event CreditUnverifiedLanding#verify-now
  * @type {Object} - N/A
  */
