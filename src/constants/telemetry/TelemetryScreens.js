@@ -57,6 +57,15 @@
 
 	VALUE_ADDED_SERVICES: `Value Added Services`,
 	VALUE_ADDED_SERVICES_UNAVAILABLE: `Value Added Services Unavailable`,
-	VALUE_ADDED_SERVICES_NO_CLIENT_DATA : `Value Added Services No Client Data`
+	VALUE_ADDED_SERVICES_NO_CLIENT_DATA : `Value Added Services No Client Data`,
+
+	CREDIT_LANDING: `Credit Landing`,
+	CREDIT_ACCOUNT_DETAILS: `Credit Account details`,
+	CREDIT_TRANSACTION_HISTORY: `Credit Transaction History`,
+	CREDIT_STATEMENTS: `Credit Statements`,
+	CREDIT_SETTLEMENT_QUOTE: `Credit Settlement Quote`,
+	CREDIT_SETTLE_CLOSE: `Credit Settle Close`,
+	CREDIT_STATEMENTS_SUCCESS: `Credit Statement success`,
+	CREDIT_STATEMENTS_FAILURE: `Credit Statement failure`
 
 };

@@ -1,7 +1,7 @@
-import { Component, css, html } from 'platform/elements';
-import { Configuration } from 'platform/Configuration';
+import { css, html } from 'platform/elements';
 import { DateTime } from 'luxon';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { StatementsDialog } from 'app/components/dialogs/common/StatementsDialog';
 
 import 'app/components/common/StepperModal';
@@ -33,6 +33,10 @@ const RENDER_MODE = Object.freeze({
 });
 
 export class CreditStatementsDialog extends StatementsDialog {
+	
+	// --------------
+	// INITIALISATION
+	// --------------
 
 	constructor() {
 		super();
@@ -53,7 +57,13 @@ export class CreditStatementsDialog extends StatementsDialog {
 		this.encodedPDF = ``;
 		this.currPage = 0;
 		this.totalPages = 0;
+
+		this.horizonRouter = HorizonRouter.getInstance();
 	}
+
+	// ----------
+	// PROPERTIES
+	// ----------
 
 	static get properties() {
 		return {
@@ -66,29 +76,31 @@ export class CreditStatementsDialog extends StatementsDialog {
 			encodedPDF: { type: String }
 		};
 	}
+	
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
 
 	connectedCallback() {
 		super.connectedCallback();
 		this._initialise();
 	}
 
-	_initialise() {
+	disconnectedCallback() {
+		super.disconnectedCallback();
+	}
 
-		for (let index = 0; index < 6; index++) {
-			this.checkBox[index] = false;
-		}
+	// --------------
+	// EVENT HANDLERS
+	// --------------
 
-		const currDate = new Date();
-
-		// account opened date if not 6 months
-		for (let month = 0; month < 6; month++) {
-			this.sixMonths[month] = `${getMonthName(currDate.getMonth())} ${currDate.getFullYear()}`;
-			currDate.setMonth(currDate.getMonth() - 1);
-		}
+	_cancel() {
+		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
 	_next() {
 		let dateSelected = false;
+	
 		for (let index = 0; index < this.checkBox.length; index++) {
 			if (this.checkBox[index]) {
 				dateSelected = true;
@@ -102,8 +114,13 @@ export class CreditStatementsDialog extends StatementsDialog {
 		if (!dateSelected) {
 			super.errorMessage = `Choose period`;
 		} else {
-			super.currentStep++;
+			this.currentStep++;
 		}
+		this.requestUpdate();
+	}
+
+	_back() {
+		this.currentStep--;
 		this.requestUpdate();
 	}
 
@@ -128,6 +145,33 @@ export class CreditStatementsDialog extends StatementsDialog {
 		this.currPage = selectedDates.indexOf(date) + 1;
 		this.encodedPDF = await this.navigatePDF(this.currPage);
 		super.renderMode = RENDER_MODE.PDF;
+	}
+
+	_sendStatement() {
+	
+		// TO DO: Navigation to success or failure screens based on CS call response.
+	
+		this.horizonRouter.navigateToCreditStatementSuccess();
+		//this.horizonRouter.navigateToCreditStatementUnsuccess();
+	}
+	
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_initialise() {
+
+		for (let index = 0; index < 6; index++) {
+			this.checkBox[index] = false;
+		}
+
+		const currDate = new Date();
+
+		// account opened date if not 6 months
+		for (let month = 0; month < 6; month++) {
+			this.sixMonths[month] = `${getMonthName(currDate.getMonth())} ${currDate.getFullYear()}`;
+			currDate.setMonth(currDate.getMonth() - 1);
+		}
 	}
 
 	_clearFilter(filterDate) {
@@ -183,7 +227,6 @@ export class CreditStatementsDialog extends StatementsDialog {
 		super.errorMessage = ``;
 	}
 
-
 	_datePicked(e) {
 		this._clearErrors();
 		const selectedMonth = e.detail.month;
@@ -207,6 +250,11 @@ export class CreditStatementsDialog extends StatementsDialog {
 		datesSelected.sort((a, b) => new Date(b) - new Date(a));
 		return datesSelected;
 	}
+
+	
+	// ---------
+	// RENDERING
+	// ---------
 
 	static get styles() {
 		return [

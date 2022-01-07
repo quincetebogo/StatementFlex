@@ -60,6 +60,10 @@ import 'app/components/common/HorizonLabel';
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
+	_transferClick() {
+		// TO DO: Transfer click functionality should come here.
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -70,7 +74,7 @@ import 'app/components/common/HorizonLabel';
 	// PRIVATE METHODS
 	// ---------------
 
-	//N/A
+	// N/A
 
 	// ---------
 	// RENDERING
@@ -90,7 +94,6 @@ import 'app/components/common/HorizonLabel';
 					--theme-titlebar-padding: 10px 24px 6px 16px;
 					--theme-titlebar-item-gap: 0px;
 				}
-
 				.main-title {
 					--horizon-label-text-font-size: 24px;
 					--horizon-label-text-line-height: 26px;
@@ -106,12 +109,10 @@ import 'app/components/common/HorizonLabel';
 					height: 64px;
 					width: auto;
 				}
-
 				.left-arrow {
 					cursor: pointer;
 					margin-bottom: 24px;
 				}
-			
 				.details-vertical {
 					width: auto;
 					height: auto;
@@ -121,7 +122,6 @@ import 'app/components/common/HorizonLabel';
 					--theme-container-padding-right: 0px;
 					--theme-layout-gap-spacing: 0px;
 				}
-
 				horizon-label {
 					height: 64px;
 					width: 353px;
@@ -164,7 +164,7 @@ import 'app/components/common/HorizonLabel';
 						<horizon-label
 							class="main-title"
 							label="Budget Details"
-							value="${this.accountDetails.accountName}">
+							value="${this.accountDetails.budgetName}">
 						</horizon-label>
 
 						<capitec-spacer></capitec-spacer>
@@ -174,7 +174,7 @@ import 'app/components/common/HorizonLabel';
 							data-automation-id="budget-account-details-transfer-button"
 							style="visibility: hidden"
 							label="Transfer"
-							@click="${() => ``}">
+							@click="${() => this._transferClick()}">
 						</capitec-button>
 				</capitec-title-bar>
 
@@ -186,8 +186,8 @@ import 'app/components/common/HorizonLabel';
 
 	_renderAccountDetails() {
 		
-		// Creates similar constant to this.accountDetails without 'accountName'.
-		const { ['accountName']:_, ...accDetails } = this.accountDetails;
+		// Creates similar constant to this.accountDetails without 'budgetName'.
+		const { budgetName: _, ...accDetails } = this.accountDetails;
 		
 		return html`
 			<capitec-content-box
