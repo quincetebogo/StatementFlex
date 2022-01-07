@@ -1,6 +1,7 @@
 import { css, html } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { formatCurrency } from 'app/utils/channelServiceUtilities';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { ViewBase } from '../common/ViewBase';
 
@@ -47,6 +48,11 @@ export class CreditAccount extends ViewBase {
 		// private properites
 		this.loading = true;
 		this.budgetAccountDetails = null;
+
+		this.encodedPDF = ``;
+
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
+
 	}
 
 	// -------------------
@@ -247,7 +253,12 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _navigatePDF(currPage){
-		console.log(currPage);
+		//add CS call to get encodedPDF 
+		//currPage is date currently selected
+		const returnValue = await this.quickTransactionService.viewStatement(currPage, () => this._createIncidentOnError());
+		if(returnValue){
+			return returnValue.result.statementData;
+		}
 	}
 
 	// ---------

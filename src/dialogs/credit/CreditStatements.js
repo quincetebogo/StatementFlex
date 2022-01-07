@@ -62,7 +62,8 @@ export class CreditStatementsDialog extends StatementsDialog {
 			filterDate: { type: Array },
 			errorMessage: { type: String },
 			navigatePDF: { type: Object },
-			currPage: { type: Number }
+			currPage: { type: Number },
+			encodedPDF: { type: String }
 		};
 	}
 
@@ -110,21 +111,22 @@ export class CreditStatementsDialog extends StatementsDialog {
 		this.dispatchEvent(new CustomEvent(`view-fees`, {}));
 	}
 
-	_navigate(step){
+	async _navigate(step){
 		let datesSelected = this._getAllDates();
 		if(step==="next"){
 			this.currPage < datesSelected.length ? this.currPage++ : this.currPage;			
-			this.navigatePDF(datesSelected[this.currPage-1]);
+			 this.encodedPDF = await this.navigatePDF(datesSelected[this.currPage-1]);
 		}else{
 			this.currPage > 1 ? this.currPage-- : this.currPage;
-			this.navigatePDF(datesSelected[this.currPage-1]);
+			this.encodedPDF = await this.navigatePDF(datesSelected[this.currPage-1]);
 		}
 	}
 
-	_viewPDF(date){
+	async _viewPDF(date){
 		//TODO: PDF viewer with arrows
 		let selectedDates = this._getAllDates();
 		this.currPage = selectedDates.indexOf(date) + 1;
+		this.encodedPDF = await this.navigatePDF(this.currPage);
 		super.renderMode = RENDER_MODE.PDF;
 	}
 
@@ -548,6 +550,7 @@ export class CreditStatementsDialog extends StatementsDialog {
 			header="Settlement Quote: Credit Card"
 			totalPages="${datesSelected.length}"
 			currPage="${this.currPage}"
+			encodedPDF="${this.encodedPDF}"
 			@cancel="${()=>this._cancelPDF()}"
 			@next="${() => this._navigate("next")}"
 			@previous="${() => this._navigate("previous")}">
