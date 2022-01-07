@@ -2,6 +2,8 @@ import { accessFacilityDetails, creditCardDetails, creditOverview, termLoanDetai
 import { css, html } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
+import { formatCurrency } from 'app/utils/channelServiceUtilities';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
@@ -55,6 +57,9 @@ export class CreditAccount extends ViewBase {
 		this.creditCardDetails = {};
 		this.accessFacilityDetails = {};
 		this.termLoanDetails = {};
+		this.encodedPDF = ``;
+
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 	}
 
 	// -------------------
@@ -420,6 +425,15 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
 	}
 
+	async _navigatePDF(currPage){
+		//add CS call to get encodedPDF 
+		//currPage is date currently selected
+		const returnValue = await this.quickTransactionService.viewStatement(currPage, () => this._createIncidentOnError());
+		if(returnValue){
+			return returnValue.result.statementData;
+		}
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -584,8 +598,9 @@ export class CreditAccount extends ViewBase {
 		return this.renderMode === RENDER_MODE.STATEMENTS
 		? html`
 			<horizon-credit-statements-dialog
-				@cancel="${() => this._backToLandingPage()}"
-				@view-fees="${() => this._viewFees()}">
+				@cancel="${()=> this._backToLandingPage()}"
+				@view-fees="${()=>this._viewFees()}"
+				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
 			</horizon-credit-statements-dialog>`
 		: html``;
 	}
