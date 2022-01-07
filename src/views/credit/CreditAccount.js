@@ -4,27 +4,16 @@ import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { budgetfacilityresponse } from 'app/mocks/creditBudgetFacilityAccounts';
 import { creditOverview } from 'app/mocks/CreditMocks';
 import { formatCurrency } from 'app/utils/channelServiceUtilities';
 
+import 'app/productControls/Credit/src/BudgetAccounts';
 import 'app/productControls/Credit/src/BudgetAccountDetails';
 import 'app/productControls/Credit/src/CreditAccountLanding';
 import 'app/dialogs/credit/CreditStatements';
 import 'app/productControls/Credit/src/CreditUnverifiedLanding';
 import 'app/components/common/ServiceCallErrorScreen';
-
-const BUDGET_ACCOUNT_DETAILS = {
-	accountName: `Shoprite Pleican PARK Grassy Park ZA`,
-	monthlyRepayment: 74.11,
-	purchaseAmount: 433.35,
-	outstandingBalance: 364.06,
-	openingDate: `2021-11-12T03:09:58.829Z`,
-	interestRate: 7.75,
-	term: 3,
-	paymentMade: 74.11,
-	settlementAmount: 191.71,
-	remainingTerm: 2
-};
 
 const PRODUCTS = {
 	CREDIT_CARD: `Credit Card`,
@@ -39,10 +28,6 @@ const CREDIT_TYPE = {
 
 /**
  * Credit Account View
- *
- * Events Raised
- * -------------
- * -
  * 
  * @export
  * @class CreditAccount
@@ -174,6 +159,24 @@ export class CreditAccount extends ViewBase {
 	async _viewFees() {
 		const fees = await this.configuration.getSetting(`otherSystemsURL.fees`);
 		window.open(`${fees}`);
+	}
+
+	_budgetAccountDetails(selectedAccountDetails) {
+
+		this.budgetAccountDetails = {
+			budgetName: selectedAccountDetails.budgetName,
+			"Monthly repayment": formatCurrency(selectedAccountDetails.budgetInstallment),
+			"Purchase amount": formatCurrency(selectedAccountDetails.originalAmount),
+			"Outstanding balance": formatCurrency(selectedAccountDetails.budgetBalance),
+			"Opening date": this._formatDate(selectedAccountDetails.budgetDateTaken),
+			"Interest rate": `${selectedAccountDetails.interestRate}%`,
+			"Term (months)": selectedAccountDetails.originalTerm,
+			"Payment made": formatCurrency(selectedAccountDetails.repaymentAmount),
+			"Settlement amount": formatCurrency(selectedAccountDetails.settlementAmount),
+			"Remaining term (months)": selectedAccountDetails.termRemaining
+		};
+
+		this.renderMode = RENDER_MODE.BUDGET_ACCOUNT_DETAILS;
 	}
 
 	// --------------
@@ -343,24 +346,13 @@ export class CreditAccount extends ViewBase {
 		// TO DO: Place holder for credit settle loan flow.
 	}
 
-	_budgetFacility() {
-		// TO DO: Temporarily wired Budget account details view to View-details click on budget facility banner.
-		// TO DO: Temporary data. Can be replaced when implemented CS call.
-		
-		this.budgetAccountDetails = {
-			accountName: BUDGET_ACCOUNT_DETAILS.accountName,
-			"Monthly repayment": formatCurrency(BUDGET_ACCOUNT_DETAILS.monthlyRepayment),
-			"Purchase amount": formatCurrency(BUDGET_ACCOUNT_DETAILS.purchaseAmount),
-			"Outstanding balance": formatCurrency(BUDGET_ACCOUNT_DETAILS.outstandingBalance),
-			"Opening date": this._formatDate(BUDGET_ACCOUNT_DETAILS.openingDate),
-			"Interest rate": `${BUDGET_ACCOUNT_DETAILS.interestRate}%`,
-			"Term (months)": BUDGET_ACCOUNT_DETAILS.term,
-			"Payment made": formatCurrency(BUDGET_ACCOUNT_DETAILS.paymentMade),
-			"Settlement amount": formatCurrency(BUDGET_ACCOUNT_DETAILS.settlementAmount),
-			"Remaining term (months)": BUDGET_ACCOUNT_DETAILS.remainingTerm
-		};
+	_budgetFacility(e) {
+		// TO DO: Place holder for budget facility flow.
+		// TO DO: 'budgetfacilityresponse' mock data should be replaced with CS implementation
+		this.budgetFacilityAccounts = budgetfacilityresponse;
+		this.budgetFacilityAccounts.creditCardNumber = e.detail.creditCardNumber;
 
-		this.renderMode = RENDER_MODE.BUDGET_ACCOUNT_DETAILS;
+		this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW;
 	}
 
 	async _productEnquiry() {
@@ -388,6 +380,11 @@ export class CreditAccount extends ViewBase {
 			this.horizonStore.setIncidentDetails(this.incidentDetails);
 		}
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	async _viewFees() {
+		const fees = await this.configuration.getSetting(`otherSystemsURL.fees`);
+		window.open(`${fees}`);
 	}
 
 	// ---------
@@ -432,6 +429,7 @@ export class CreditAccount extends ViewBase {
 			${super._webTemplate()}
 			${this._renderCreditServiceUnavailable()}
 			${this._renderLandingPage()}
+			${this._renderBudgetFacilityAccounts()}
 			${this._renderBudgetAccountDetails()}
 			${this._renderStatements()}
 		`;
@@ -490,13 +488,25 @@ export class CreditAccount extends ViewBase {
 				</capitec-pc-credit-unverified-landing>`
 			: html``;
 	}
+	
+	_renderBudgetFacilityAccounts() {
+		return this.renderMode === RENDER_MODE.BUDGET_ACCOUNTS_VIEW
+			? html`
+				<capitec-pc-budget-facility-accounts
+					.budgetFacilityAccounts="${this.budgetFacilityAccounts}"
+					
+					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
+					@account-details="${(event) => this._budgetAccountDetails(event.detail.selectedAccountDetails)}">
+				</capitec-pc-budget-facility-accounts>`
+			: html``;
+	}
 
-	// TO DO: Need to be wired up with Budget Account view when developed.
 	_renderBudgetAccountDetails() {
 		return this.renderMode === RENDER_MODE.BUDGET_ACCOUNT_DETAILS
 		? html`
 			<capitec-pc-budget-account-details
-				.accountDetails="${this.budgetAccountDetails}">
+				.accountDetails="${this.budgetAccountDetails}"
+				@back="${() => this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW}">
 			</capitec-pc-budget-account-details>`
 		: html``;
 	}
