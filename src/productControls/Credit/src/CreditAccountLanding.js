@@ -4,6 +4,12 @@ import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
 
+const PRODUCT_TYPE = {
+	CREDIT_CARD: `Credit Card`,
+	ACCESS_FACILITY: `Access facility`,
+	TERM_LOAN: `Term Loan`
+};
+
 /**
  * Credit Account verified landing Product Control
  * 
@@ -25,7 +31,9 @@ export class CreditAccountLanding extends Component {
 	constructor() {
 		super();
 
-		this.creditAccountDetails = null;
+		this.flexibleCreditAccounts = [];
+		this.fixedTermCreditAccounts = [];
+		this.budgetAccountsSummary = {};
 	}
 
 	// -------------------
@@ -43,12 +51,16 @@ export class CreditAccountLanding extends Component {
 	/**
 	 * Registry of all properties defined by the component.
 	 *
-	 * @property {creditAccountDetails} creditAccountDetails Data for verified credit account landing Page display
+	 * @property {flexibleCreditAccounts} flexibleCreditAccounts 
+	 * @property {fixedTermCreditAccounts} fixedTermCreditAccounts 
+	 * @property {budgetAccountsSummary} budgetAccountsSummary 
 	 *
 	 */
-	static get properties() {
+	 static get properties() {
 		return {
-			creditAccountDetails: { type: Object }
+			flexibleCreditAccounts: { type: Array },
+			fixedTermCreditAccounts: { type: Array },
+			budgetAccountsSummary: { type: Object }
 		};
 	}
 	
@@ -56,8 +68,20 @@ export class CreditAccountLanding extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_click(selection) {
-		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection } }));
+	_click(selection, creditType, productType) {
+		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection, creditType: creditType, productType: productType } }));
+	}
+
+	_accountDetails(creditType, productType) {
+		this.dispatchEvent(new CustomEvent(`account-details`, { detail: { creditType: creditType, productType: productType } }));
+	}
+
+	_productEnquiry() {
+		this.dispatchEvent(new CustomEvent(`product-enquiry`, { detail: {} }));
+	}
+
+	_viewInfo() {
+		this.dispatchEvent(new CustomEvent(`view-info`, { detail: {} }));
 	}
 
 	_viewBudgetAccounts(creditCardNumber) {
@@ -125,9 +149,6 @@ export class CreditAccountLanding extends Component {
 					--theme-container-padding-bottom: 16px;
 					--theme-container-padding-top: 0px;
 					--theme-layout-gap-spacing: 0px;
-				}
-				.fixed-accounts-box {
-					height: 748px;
 				}
 
 				/* Option button styles */
@@ -203,8 +224,9 @@ export class CreditAccountLanding extends Component {
 					width: 132px;
 					--horizon-label-value-color: #a5132a;
 				}
-				.label-pointer {
+				.label-account-number {
 					--theme-label-cursor: pointer;
+					--horizon-label-value-color: #009DE0;
 				}
 				.vertical-line {
 					height: 40px;
@@ -255,6 +277,8 @@ export class CreditAccountLanding extends Component {
 					--theme-label-strong-font-size: 24px;
 					--theme-label-strong-font-weight: 600;
 					--theme-label-font-color: #3A3A3A;
+					line-height: 32px;
+					margin-bottom: 6px;
 				}
 				.not-available {
 					height: auto;
@@ -290,391 +314,223 @@ export class CreditAccountLanding extends Component {
 							</capitec-icon>
 							<capitec-label label="Credit" type="Title"></capitec-label>
 					</capitec-title-bar>
+					${this._renderContent()}
+			</capitec-card>`;
+	}
 
-					<capitec-tab-group class="tabs">
-						<capitec-tab
-							data-automation-id="credit-account-flexible-credit-tab"
-							label="Flexible Credit">
-								${this._renderFlexibleCreditTab()}
-						</capitec-tab>
-						<capitec-tab
-							data-automation-id="credit-account-fixed-term-tab"
-							label="Fixed Term Credit">
-								${this._renderFixedTermCreditTab()}
-						</capitec-tab>
-					</capitec-tab-group>
-
-			</capitec-card>
-		`;
+	_renderContent() {
+		return this.flexibleCreditAccounts.length > 0 || this.fixedTermCreditAccounts.length > 0
+			? html`
+				<capitec-tab-group class="tabs">
+					<capitec-tab
+						data-automation-id="credit-account-flexible-credit-tab"
+						label="Flexible Credit">
+							${this._renderFlexibleCreditTab()}
+					</capitec-tab>
+					<capitec-tab
+						data-automation-id="credit-account-fixed-term-tab"
+						label="Fixed Term Credit">
+							${this._renderFixedTermCreditTab()}
+					</capitec-tab>
+				</capitec-tab-group>`
+			: html``;
 	}
 
 	_renderFlexibleCreditTab() {
 		// Temporary constant which shows if client has credit products.
 		// TO DO: Later to be replaced with information received from CS call.
-		const accountsAvailable = true;
-		const showBudgetFacilityBanner = true;
 		
-		return accountsAvailable
-		? html`
-			${this._renderFlexibleAccounts(showBudgetFacilityBanner)}`
-		: html`
-			${this._renderCreditNotAvailable(`flexible`)}`;
+		return this.flexibleCreditAccounts.length > 0
+			? html`
+				<capitec-content-box class="accounts-box">
+					${this._renderFlexibleAccounts()}
+				</capitec-content-box>
+				
+				${this._renderFooter()}`
+			: html`
+				${this._renderCreditNotAvailable(`flexible`)}`;
 	}
 
 	_renderFixedTermCreditTab() {
 		// Temporary constant which shows if client has credit products.
 		// TO DO: Later to be replaced with information received from CS call.
-		const accountsAvailable = true;
 		
-		return accountsAvailable
-		? html`
-			${this._renderFixedTermAccounts()}`
+		return this.fixedTermCreditAccounts.length > 0
+			? html`
+				<capitec-content-box class="accounts-box">
+					${this._renderFixedTermAccounts()}
+				</capitec-content-box>
+				
+				${this._renderFooter()}`
 		: html`
-			${this._renderCreditNotAvailable(`fixed term`)}`;
+			${this._renderCreditNotAvailable(`fixed-term`)}`;
 	}
 
-	_renderFlexibleAccounts(showBudgetFacilityBanner) {
+	_renderFlexibleAccounts() {
 
-		// TO DO: Expanders to be rendered dynamicaly once CS data is available
-		return html`
-			<capitec-content-box class="accounts-box">
-				<horizon-expander
-					class="${showBudgetFacilityBanner ? `expander-budget-facility` : ``}"
-					expandButtonAlignment="right"
-					.expanded="${true}">
+		// TODO: Expanders to be rendered dynamicaly once CS data is available
+		return this.flexibleCreditAccounts.map((item, index) => html`
+			<horizon-expander
+				expandButtonAlignment="right"
+				.expanded="${index === 0}">
+					<capitec-group
+						class="expander-header"
+						slot="custom-header"
+						layout="horizontal"
+						gap="clear"
+						halign="left"
+						valign="center">
+							<capitec-icon
+								data-automation-id="credit-account-flexible-credit-info"
+								icon="system/info-action"
+								@click="${() => this._accountDetails(item.category, item.type)}">
+							</capitec-icon>
+							<horizon-label 
+								data-automation-id="credit-account-access-facility"
+								class="label-account-number"
+								label="${item.productTypeDescription}"
+								value="${item.accountNumber}"
+								@click="${() => this._accountDetails(item.category, item.type)}">
+							</horizon-label>
+							<div class="vertical-line"></div>
+							<horizon-label
+								data-automation-id="credit-account-balance"
+								label="Balance"
+								value="${item.currentBalance}">
+							</horizon-label>
+							<horizon-label
+								data-automation-id="credit-account-available-balance"
+								label="Available balance"
+								value="${item.availableCredit}">
+							</horizon-label>
+							<horizon-label
+								data-automation-id="credit-account-credit-limit"
+								label="Credit limit"
+								value="${item.creditLimit}">
+							</horizon-label>
+							<horizon-label
+								data-automation-id="credit-account-next-instalment"
+								label="Next instalment"
+								value="${item.nextRepayment}">
+							</horizon-label>
+							<horizon-label
+								data-automation-id="credit-account-status"
+								label="Status"
+								value="${item.accountStatusDescription}">
+							</horizon-label>
+					</capitec-group>
+
+					<div slot="content">
 						<capitec-group 
-							class="expander-header"
-							slot="custom-header"
-							layout="horizontal"
-							gap="clear"
+							class="expander-content"
+							layout="vertical"
+							gap="none"
 							halign="left"
 							valign="center">
-								<capitec-icon
-									data-automation-id="credit-account-flexible-credit-info"
-									icon="system/info-action">
-								</capitec-icon>
-								<horizon-label
-									class="label-pointer"
-									data-automation-id="credit-account-number"
-									label="Credit card"
-									value="1234567890">
-								</horizon-label>
-								<div class="vertical-line"></div>
-								<horizon-label
-									data-automation-id="credit-account-balance"
-									label="Balance"
-									value="-R10 634.00">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="credit-account-available-balance"
-									label="Available balance"
-									value="R20 000.00">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="credit-account-credit-limit"
-									label="Credit limit"
-									value="R35 000.00">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="credit-account-next-instalment"
-									label="Next instalment"
-									value="R1 564.00">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="credit-account-status"
-									label="Status"
-									value="Active">
-								</horizon-label>
+								${this._renderBudgetDetailsBar(item)}
+								${this._renderOptionsGroup(item.category, item.type)}
 						</capitec-group>
+					</div>
+			</horizon-expander>`);
+	}
 
-						<div slot="content">
-							<capitec-group 
-								class="expander-content" 
-								layout="vertical"
-								gap="none"
-								halign="left"
-								valign="center">
-									<capitec-title-bar
-										type="default"
-										label="Budget facilities"
-										class="budget-banner"
-										?hidden="${!showBudgetFacilityBanner}">
-											<horizon-label 
-												label="Total budget balance"
-												value="R35 000.00">
-											</horizon-label>
-											<horizon-label
-												label="Total budget instalment (monthly)"
-												value="R1 564.76">
-											</horizon-label>
-
-											<capitec-spacer></capitec-spacer>
-
-											<!-- TO DO: credit card number need to be passed dynamically -->
-											<capitec-hyperlink 
-												label="View details"
-												@click="${() => this._viewBudgetAccounts(`1234567890`)}" 
-												inline></capitec-hyperlink>
-									</capitec-title-bar>
-									${this._renderOptionsGroup()}
-							</capitec-group>
-						</div>
-				</horizon-expander>
-
-				<horizon-expander
-					expandButtonAlignment="right"
-					.expanded="${false}">
-						<capitec-group
-							class="expander-header"
-							slot="custom-header"
-							layout="horizontal"
-							gap="clear"
-							halign="left"
-							valign="center">
-								<capitec-icon
-									data-automation-id="credit-account-flexible-credit-info"
-									icon="system/info-action">
-								</capitec-icon>
-								<horizon-label 
-									data-automation-id="credit-account-access-facility"
-									class="label-pointer"
-									label="Access facility"
-									value="1234567890">
-								</horizon-label>
-								<div class="vertical-line"></div>
+	_renderBudgetDetailsBar(item) {
+		return item.type === PRODUCT_TYPE.CREDIT_CARD &&
+				this.budgetAccountsSummary.totalBudgetBalance &&
+				this.budgetAccountsSummary.totalBudgetInstallmentAmount
+					? html`
+						<capitec-title-bar
+							type="default"
+							label="Budget facilities"
+							class="budget-banner">
 								<horizon-label
-									data-automation-id="credit-account-balance"
-									label="Balance"
-									value="-R10 634.00">
+									label="Total budget balance"
+									value="${this.budgetAccountsSummary.totalBudgetBalance}">
 								</horizon-label>
 								<horizon-label
-									data-automation-id="credit-account-available-balance"
-									label="Available balance"
-									value="R20 000.00">
+									label="Total budget instalment (monthly)"
+									value="${this.budgetAccountsSummary.totalBudgetInstallmentAmount}">
 								</horizon-label>
-								<horizon-label
-									data-automation-id="credit-account-credit-limit"
-									label="Credit limit"
-									value="R35 000.00">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="credit-account-next-instalment"
-									label="Next instalment"
-									value="R1 564.00">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="credit-account-status"
-									label="Status"
-									value="In arrears">
-								</horizon-label>
-						</capitec-group>
+								
+								<capitec-spacer></capitec-spacer>
 
-						<div slot="content">
-							<capitec-group 
-								class="expander-content"
-								layout="vertical"
-								gap="none"
-								halign="left"
-								valign="center">
-									${this._renderOptionsGroup()}
-							</capitec-group>
-						</div>
-				</horizon-expander>
-			</capitec-content-box>
-			
-			${this._renderFooter()}
-		`;
+								<capitec-hyperlink 
+									label="View details" 
+									@click="${() => this._viewBudgetAccounts(item.accountNumber)}" 
+									inline>
+								</capitec-hyperlink>
+						</capitec-title-bar>`
+					: html``;
 	}
 
 	_renderFixedTermAccounts() {
 		
 		// TO DO: Expanders to be rendered dynamicaly once CS data is available
-		return html`
-			<capitec-content-box class="accounts-box fixed-accounts-box">
-				<horizon-expander
-					expandButtonAlignment="right"
-					.expanded="${true}">
-						<capitec-group
-							class="expander-header"
-							slot="custom-header"
-							layout="horizontal"
-							gap="clear"
+		return this.fixedTermCreditAccounts.map((item, index) => html`
+			<horizon-expander
+				expandButtonAlignment="right"
+				.expanded="${index === 0}">
+					<capitec-group
+						class="expander-header"
+						slot="custom-header"
+						layout="horizontal"
+						gap="clear"
+						halign="left"
+						valign="center">
+							<capitec-icon
+								data-automation-id="credit-account-fixed-term-info"
+								icon="system/info-action"
+								@click="${() => this._accountDetails(item.category, item.type)}">
+							</capitec-icon>
+							<horizon-label
+								data-automation-id="credit-account-number"
+								class="label-account-number"
+								label="${item.productTypeDescription}"
+								value="${item.accountNumber}"
+								@click="${() => this._accountDetails(item.category, item.type)}">
+							</horizon-label>
+							<div class="vertical-line"></div>
+							<horizon-label
+								data-automation-id="credit-account-loan-amount"
+								label="Loan amount"
+								value="${item.creditLimit}">
+							</horizon-label>
+							<horizon-label
+								data-automation-id="credit-account-outstanding-balance"
+								label="Outstanding balance"
+								value="${item.currentBalance}">
+							</horizon-label>
+							<horizon-label
+								data-automation-id="credit-account-remaining-instalment"
+								label="Remaining instalment"
+								value="${item.remainingMonths}">
+							</horizon-label>
+							<horizon-label
+								data-automation-id="credit-account-next-instalment"
+								label="Next instalment"
+								value="${item.repayAmount}">
+							</horizon-label>
+							<horizon-label
+								data-automation-id="credit-account-status"
+								label="Status"
+								value="${item.accountStatusDescription}">
+							</horizon-label>
+					</capitec-group>
+
+					<div slot="content">
+						<capitec-group 
+							class="expander-content"
+							layout="vertical"
+							gap="none"
 							halign="left"
 							valign="center">
-								<capitec-icon
-									data-automation-id="credit-account-fixed-term-info"
-									icon="system/info-action">
-								</capitec-icon>
-								<horizon-label
-									data-automation-id="credit-account-number"
-									class="label-pointer"
-									label="56 month term loan"
-									value="1234567890">
-								</horizon-label>
-								<div class="vertical-line"></div>
-								<horizon-label
-									data-automation-id="credit-account-loan-amount"
-									label="Loan amount"
-									value="R100 000.00">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="credit-account-outstanding-balance"
-									label="Outstanding balance"
-									value="R85 000.00">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="credit-account-remaining-instalment"
-									label="Remaining instalment"
-									value="43">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="credit-account-next-instalment"
-									label="Next instalment"
-									value="R4 592.10">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="credit-account-status"
-									label="Status"
-									value="Active">
-								</horizon-label>
+								${this._renderOptionsGroup(item.category, item.type)}
 						</capitec-group>
-
-						<div slot="content">
-							<capitec-group 
-								class="expander-content"
-								layout="vertical"
-								gap="none"
-								halign="left"
-								valign="center">
-									${this._renderOptionsGroup()}
-							</capitec-group>
-						</div>
-				</horizon-expander>
-
-				<horizon-expander
-					expandButtonAlignment="right"
-					.expanded="${false}">
-						<capitec-group
-							class="expander-header"
-							slot="custom-header"
-							layout="horizontal"
-							gap="clear"
-							halign="left"
-							valign="center">
-								<capitec-icon
-									data-automation-id="credit-account-fixed-term-info"
-									icon="system/info-action">
-								</capitec-icon>
-								<horizon-label
-									data-automation-id="credit-account-number"
-									class="label-pointer"
-									label="24 month term loan"
-									value="3456789098">
-								</horizon-label>
-								<div class="vertical-line"></div>
-								<horizon-label
-									data-automation-id="credit-account-loan-amount"
-									label="Loan amount"
-									value="R35 000.00">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="credit-account-outstanding-balance"
-									label="Outstanding balance"
-									value="R24 000.00">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="credit-account-remaining-instalment"
-									label="Remaining instalment"
-									value="12">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="credit-account-next-instalment"
-									label="Next instalment"
-									value="R2 592.10">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="credit-account-status"
-									label="Status"
-									value="Active">
-								</horizon-label>
-						</capitec-group>
-
-						<div slot="content">
-							<capitec-group 
-								class="expander-content"
-								layout="vertical"
-								gap="none"
-								halign="left"
-								valign="center">
-									${this._renderOptionsGroup()}
-							</capitec-group>
-						</div>
-				</horizon-expander>
-
-				<horizon-expander
-					expandButtonAlignment="right"
-					.expanded="${false}">
-						<capitec-group
-							class="expander-header"
-							slot="custom-header"
-							layout="horizontal"
-							gap="clear"
-							halign="left"
-							valign="center">
-								<capitec-icon
-									data-automation-id="credit-account-fixed-term-info"
-									icon="system/info-action">
-								</capitec-icon>
-								<horizon-label
-									data-automation-id="credit-account-number"
-									class="label-pointer"
-									label="72 month term loan"
-									value="1234567890">
-								</horizon-label>
-								<div class="vertical-line"></div>
-								<horizon-label
-									data-automation-id="credit-account-loan-amount"
-									label="Loan amount"
-									value="R120 000.00">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="credit-account-outstanding-balance"
-									label="Outstanding balance"
-									value="R73 000.00">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="credit-account-remaining-instalment"
-									label="Remaining instalment"
-									value="65">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="credit-account-next-instalment"
-									label="Next instalment"
-									value="R3 910.10">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="credit-account-status"
-									label="Status"
-									value="Active">
-								</horizon-label>
-						</capitec-group>
-
-						<div slot="content">
-							<capitec-group 
-								class="expander-content"
-								layout="vertical"
-								gap="none"
-								halign="left"
-								valign="center">
-									${this._renderOptionsGroup()}
-							</capitec-group>
-						</div>
-				</horizon-expander>
-			</capitec-content-box>
-		`;
+					</div>
+			</horizon-expander>`);
 	}
 
-	_renderOptionsGroup() {
+	_renderOptionsGroup(creditType, productType) {
 
 		// TO DO: Hide/show respected option buttons dynamically
 		return html`
@@ -688,49 +544,49 @@ export class CreditAccountLanding extends Component {
 						label="Transaction History"
 						icon="system/time-action"
 						?hidden="${false}"
-						@click="${() => this._click(`transaction-history`)}">
+						@click="${() => this._click(`transaction-history`, creditType, productType)}">
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="credit-account-statements"
 						label="Statements"
 						icon="system/documents-action"
 						?hidden="${false}"
-						@click="${() => this._click(`statements`)}">
+						@click="${() => this._click(`statements`, creditType, productType)}">
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="credit-account-settlement-quote"
 						label="Settlement Quote"
 						icon="system/documents-action"
 						?hidden="${false}"
-						@click="${() => this._click(`settlement-quote`)}">
+						@click="${() => this._click(`settlement-quote`, creditType, productType)}">
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="credit-account-paid-up-letter"
 						label="Paid up Letter"
 						icon="system/documents-action"
 						?hidden="${true}"
-						@click="${() => this._click(`paid-up-letter`)}">
+						@click="${() => this._click(`paid-up-letter`, creditType, productType)}">
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="credit-account-settle-close"
 						label="Settle & Close"
 						icon="system/close-circle-action"
 						?hidden="${false}"
-						@click="${() => this._click(`settle-close`)}">
+						@click="${() => this._click(`settle-close`, creditType, productType)}">
 				</horizon-option-button>
 				<horizon-option-button
 						data-automation-id="credit-account-budget-facility"
 						label="Budget Facility"
 						icon="system/documents-action"
 						?hidden="${true}"
-						@click="${() => this._click(`budget-facility`)}">
+						@click="${() => this._click(`budget-facility`, creditType, productType)}">
 				</horizon-option-button>
 			</capitec-group>
 		`;
 	}
 
 	_renderCreditNotAvailable(creditType) {
-		const headerText = creditType === `flexible` ? `flexible credit` : `fixed term`;
+		const headerText = creditType === `flexible` ? `flexible credit` : `fixed-term`;
 
 		return html`
 			<capitec-group
@@ -745,7 +601,7 @@ export class CreditAccountLanding extends Component {
 						type="strong">
 					</capitec-label>
 					<capitec-label
-						label="Go to the app to get all the info about ${creditType} credit or visit capitecbank.co.za"
+						label="Get info about ${creditType} credit on the app or visit capitecbank.co.za"
 						type="strong">
 					</capitec-label>
 					<capitec-button
@@ -753,7 +609,7 @@ export class CreditAccountLanding extends Component {
 							class="info-button"
 							type="primary"
 							label="View Info"
-							@click="${() => this._click(`product-enquiry`)}">
+							@click="${() => this._viewInfo()}">
 					</capitec-button>
 			</capitec-group>`;
 	}
@@ -770,7 +626,7 @@ export class CreditAccountLanding extends Component {
 							data-automation-id="credit-account-product-enquiry"
 							label="Product enquiry"
 							icon="system/info-action"
-							@click="${() => this._click(`product-enquiry`)}">
+							@click="${() => this._productEnquiry()}">
 					</horizon-option-button>
 				</capitec-group>
 			</capitec-group>

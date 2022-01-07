@@ -1,7 +1,5 @@
 import { css, html } from 'platform/elements';
-import { HorizonStore } from 'app/store/HorizonStore';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
@@ -19,19 +17,25 @@ export class CreditStatementsSuccess extends ViewBase {
 		this.mailId = ``;
 		this.acNumber = ``;
 		this.endCallContext = `QuickTransactionSuccess`;
-		this._telemetry = HorizonTelemetry.instance;
 	}
 
 	// ----------
 	// PROPERTIES
 	// ----------
 	
+	// N/A
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this._telemetry.startSpan(CreditEvents.CREDIT_STATEMENTS_SUCCESS, {
+			"screen": TelemetryScreen.CREDIT_STATEMENTS_SUCCESS,
+			"outcome": `Success`
+		});
 
 		const screenDetails = this.horizonStore.getScreenDetails();
 
@@ -49,22 +53,35 @@ export class CreditStatementsSuccess extends ViewBase {
 	// EVENT HANDLERS
 	// --------------
 
-	_doneClick() {
-		this._telemetry.endSpan(QuickTransactionEvents.STATEMENTS, {
-			"screen": TelemetryScreen.STATEMENTS_OUTCOME,
-			"nextScreen": TelemetryScreen.FAVOURITES
+	async _doneClick() {
+		await this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_SUCCESS_DONE, {
+			"screen": TelemetryScreen.CREDIT_STATEMENTS_SUCCESS,
+			"nextScreen": TelemetryScreen.CREDIT_LANDING
 		});
 
-		this.horizonStore.clearReturnScreen();
-		this.horizonRouter.navigateToQuickTransactionFavourites();
-	}
+		await this._telemetry.endSpan(CreditEvents.CREDIT_STATEMENTS_SUCCESS, {
+			"screen": TelemetryScreen.CREDIT_STATEMENTS_SUCCESS
+		});
 
-	_sendAnotherClick() {
-		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS, {
-			"screen": TelemetryScreen.STATEMENTS_OUTCOME,
-			"nextScreen": TelemetryScreen.STATEMENTS
+		this._telemetry.endSpan(CreditEvents.CREDIT_STATEMENTS, {
+			"screen": TelemetryScreen.CREDIT_STATEMENTS_SUCCESS,
+			"nextScreen": TelemetryScreen.CREDIT_LANDING
 		});
 		
+		this.horizonStore.clearReturnScreen();
+		this.horizonRouter.navigateToCreditAccount();
+	}
+
+	async _sendAnotherClick() {
+		await this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_SUCCESS_SEND_ANOTHER, {
+			"screen": TelemetryScreen.CREDIT_STATEMENTS_SUCCESS,
+			"nextScreen": TelemetryScreen.CREDIT_STATEMENTS
+		});
+
+		this._telemetry.endSpan(CreditEvents.CREDIT_STATEMENTS_SUCCESS, {
+			"screen": TelemetryScreen.CREDIT_STATEMENTS_SUCCESS
+		});
+
 		this.horizonRouter.navigateToReturnPage();
 	}
 

@@ -1,7 +1,7 @@
-import { Component, css, html } from 'platform/elements';
-import { Configuration } from 'platform/Configuration';
+import { css, html } from 'platform/elements';
 import { DateTime } from 'luxon';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { StatementsDialog } from 'app/components/dialogs/common/StatementsDialog';
 
 import 'app/components/common/StepperModal';
@@ -32,6 +32,10 @@ const RENDER_MODE = Object.freeze({
 });
 
 export class CreditStatementsDialog extends StatementsDialog {
+	
+	// --------------
+	// INITIALISATION
+	// --------------
 
 	constructor() {
 		super();
@@ -50,7 +54,13 @@ export class CreditStatementsDialog extends StatementsDialog {
 			confirmEmail: ``
 		};
 		this.encodedPDF = ``;
+
+		this.horizonRouter = HorizonRouter.getInstance();
 	}
+
+	// ----------
+	// PROPERTIES
+	// ----------
 
 	static get properties() {
 		return {
@@ -60,11 +70,73 @@ export class CreditStatementsDialog extends StatementsDialog {
 			errorMessage: { type: String }
 		};
 	}
+	
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
 
 	connectedCallback() {
 		super.connectedCallback();
 		this._initialise();
 	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+	}
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
+	_cancel() {
+		this.dispatchEvent(new CustomEvent(`cancel`, {}));
+	}
+
+	_next() {
+		let dateSelected = false;
+	
+		for (let index = 0; index < this.checkBox.length; index++) {
+			if (this.checkBox[index]) {
+				dateSelected = true;
+			}
+		}
+
+		if (this.filteredDate.length > 0) {
+			dateSelected = true;
+		}
+
+		if (!dateSelected) {
+			super.errorMessage = `Choose period`;
+		} else {
+			this.currentStep++;
+		}
+		this.requestUpdate();
+	}
+
+	_back() {
+		this.currentStep--;
+		this.requestUpdate();
+	}
+
+	_viewFees() {
+		this.dispatchEvent(new CustomEvent(`view-fees`, {}));
+	}
+
+	_viewPDF(){
+		//TODO: PDF viewer with arrows
+	}
+
+	_sendStatement() {
+	
+		// TO DO: Navigation to success or failure screens based on CS call response.
+	
+		this.horizonRouter.navigateToCreditStatementSuccess();
+		//this.horizonRouter.navigateToCreditStatementUnsuccess();
+	}
+	
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
 
 	_initialise() {
 
@@ -79,34 +151,6 @@ export class CreditStatementsDialog extends StatementsDialog {
 			this.sixMonths[month] = `${getMonthName(currDate.getMonth())} ${currDate.getFullYear()}`;
 			currDate.setMonth(currDate.getMonth() - 1);
 		}
-	}
-
-	_next() {
-		let dateSelected = false;
-		for (let index = 0; index < this.checkBox.length; index++) {
-			if (this.checkBox[index]) {
-				dateSelected = true;
-			}
-		}
-
-		if (this.filteredDate.length > 0) {
-			dateSelected = true;
-		}
-
-		if (!dateSelected) {
-			super.errorMessage = `Choose period`;
-		} else {
-			super.currentStep++;
-		}
-		this.requestUpdate();
-	}
-
-	_viewFees() {
-		this.dispatchEvent(new CustomEvent(`view-fees`, {}));
-	}
-
-	_viewPDF(){
-		//TODO: PDF viewer with arrows
 	}
 
 	_clearFilter(filterDate) {
@@ -162,7 +206,6 @@ export class CreditStatementsDialog extends StatementsDialog {
 		super.errorMessage = ``;
 	}
 
-
 	_datePicked(e) {
 		this._clearErrors();
 		const selectedMonth = e.detail.month;
@@ -173,6 +216,10 @@ export class CreditStatementsDialog extends StatementsDialog {
 
 		this.requestUpdate();
 	}
+	
+	// ---------
+	// RENDERING
+	// ---------
 
 	static get styles() {
 		return [
