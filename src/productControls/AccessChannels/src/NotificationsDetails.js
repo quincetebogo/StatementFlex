@@ -443,10 +443,13 @@ export class NotificationsDetails extends Component {
 					width: 100%;
 					box-shadow: none!important;
 				}
-
 				capitec-radio-group {
 					width: 100%;
 					height: 168px;
+				}
+				.message-group {
+					display: flex;
+					justify-content: space-between;
 				}
 			`
 		];
@@ -506,7 +509,7 @@ export class NotificationsDetails extends Component {
 				gap="none"
 			>
 				<capitec-group
-					class=""
+					class="message-group"
 					layout="horizontal"
 					halign="left"
 					valign="center"
@@ -526,7 +529,7 @@ export class NotificationsDetails extends Component {
 				</capitec-group>
 				<capitec-menu-separator></capitec-menu-separator>
 				<capitec-group
-					class=""
+					class="message-group"
 					layout="horizontal"
 					halign="left"
 					valign="center"
@@ -545,7 +548,7 @@ export class NotificationsDetails extends Component {
 					></capitec-button>
 				</capitec-group>
 				<capitec-group
-					class=""
+					class="message-group"
 					layout="vertical"
 					halign="left"
 					valign="center"
@@ -553,7 +556,7 @@ export class NotificationsDetails extends Component {
 					<capitec-title-bar type="default" label="Transactions"></capitec-title-bar>
 
 					<capitec-group
-						class=""
+						class="message-group"
 						layout="horizontal"
 						halign="left"
 						valign="center"
@@ -568,7 +571,7 @@ export class NotificationsDetails extends Component {
 						<capitec-check disabled checked></capitec-check>
 					</capitec-group>
 					<capitec-group
-						class=""
+						class="message-group"
 						layout="horizontal"
 						halign="left"
 						valign="center"
@@ -585,7 +588,7 @@ export class NotificationsDetails extends Component {
 					
 				</capitec-group>
 				<capitec-group
-					class=""
+					class="message-group"
 					layout="vertical"
 					halign="left"
 					valign="center"
@@ -593,7 +596,7 @@ export class NotificationsDetails extends Component {
 					<capitec-title-bar type="default" label="Security"></capitec-title-bar>
 					
 					<capitec-group
-						class=""
+						class="message-group"
 						layout="horizontal"
 						halign="left"
 						valign="center"
