@@ -77,6 +77,10 @@ export class AccessChannels extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS, {
+			"screen": TelemetryScreen.ACCESS_CHANNELS
+		});
+
 		const callerInformation = this.horizonStore.getCallerInformation();
 		
 		this.cifNumber = callerInformation.cifNumber;
@@ -86,6 +90,10 @@ export class AccessChannels extends Component {
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+
+		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS, {
+			"screen": TelemetryScreen.ACCESS_CHANNELS
+		});
 	}
 
 	// --------------

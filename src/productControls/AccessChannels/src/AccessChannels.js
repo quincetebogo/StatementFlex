@@ -1,7 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { AccessChannelsEvents } from 'app/constants/telemetry/events/AccessChannels';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components';
@@ -41,8 +38,6 @@ export class AccessChannels extends Component {
 
 	constructor() {
 		super();
-
-		this._telemetry = HorizonTelemetry.instance;
 	}
 
 	// --------------
@@ -65,18 +60,10 @@ export class AccessChannels extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS, {
-			"screen": TelemetryScreen.ACCESS_CHANNELS
-		});
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-
-		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS, {
-			"screen": TelemetryScreen.ACCESS_CHANNELS
-		});
 	}
 
 	// --------------

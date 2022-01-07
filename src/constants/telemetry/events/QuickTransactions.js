@@ -129,27 +129,5 @@ export const QuickTransactionEvents = {
 	TAX_CERTIFICATE_OUTCOME: `call.fulfill-need.tax-certificate.outcome`,
 	TAX_CERTIFICATE_OUTCOME_DONE: `call.fulfill-need.tax-certificate.outcome.done`,
 	TAX_CERTIFICATE_OUTCOME_ASSIGN: `call.fulfill-need.tax-certificate.outcome.hand-off`,
-	TAX_CERTIFICATE_FIND_BRANCH: `call.fulfill-need.tax-certificate.find-a-branch`,
-
-	// Access Channels
-	ACCESS_CHANNELS: `call.fulfill-need.access-channels`,
-	ACCESS_CHANNELS_APP: `call.fulfill-need.access-channels.app`,
-	ACCESS_CHANNELS_APP_SUSPEND: `call.fulfill-need.access-channels.app.suspend`,
-	ACCESS_CHANNELS_APP_SUSPEND_CANCEL: `call.fulfill-need.access-channels.app.suspend.cancel`,
-	ACCESS_CHANNELS_APP_SUSPEND_CONFIRM: `call.fulfill-need.access-channels.app.suspend.confirm`,
-	ACCESS_CHANNELS_APP_UNSUSPEND: `call.fulfill-need.access-channels.app.unsuspend`,
-	ACCESS_CHANNELS_INTERNET_BANKING: `call.fulfill-need.access-channels.internet-banking`,
-	ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN: `call.fulfill-need.access-channels.internet-banking.suspend-security-token`,
-	ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_CANCEL: `call.fulfill-need.access-channels.internet-banking.suspend-security-token.cancel`,
-	ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_CONFIRM: `call.fulfill-need.access-channels.internet-banking.suspend-security-token.confirm`,
-	ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN: `call.fulfill-need.access-channels.internet-banking.reset-security-token`,
-	ACCESS_CHANNELS_USSD: `call.fulfill-need.access-channels.ussd`,
-	ACCESS_CHANNELS_USSD_UNBLOCK_SIM: `call.fulfill-need.access-channels.ussd.unblock-sim`,
-	ACCESS_CHANNELS_USSD_CANCEL_USSD: `call.fulfill-need.access-channels.ussd.cancel-ussd`,
-	ACCESS_CHANNELS_USSD_CANCEL_USSD_CANCEL: `call.fulfill-need.access-channels.ussd.cancel-ussd.cancel`,
-	ACCESS_CHANNELS_USSD_CANCEL_USSD_CONFIRM: `call.fulfill-need.access-channels.ussd.cancel-ussd.confirm`,
-	ACCESS_CHANNELS_USSD_ACTIVATE_FULL_USSD_MENU: `call.fulfill-need.access-channels.ussd.activate-full-ussd-menu`,
-	ACCESS_CHANNELS_NOTIFICATIONS: `call.fulfill-need.access-channels.notifications`,
-	ACCESS_CHANNELS_NOTIFICATIONS_UPDATE: `call.fulfill-need.access-channels.notifications.update`,
-	ACCESS_CHANNELS_NOTIFICATIONS_UPDATE_CONFIRM: `call.fulfill-need.access-channels.notifications.update.confirm`
+	TAX_CERTIFICATE_FIND_BRANCH: `call.fulfill-need.tax-certificate.find-a-branch`
 };
