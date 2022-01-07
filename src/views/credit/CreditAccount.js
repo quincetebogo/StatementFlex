@@ -1,32 +1,17 @@
 import { css, html } from 'platform/elements';
 import { Configuration } from 'platform/core';
-import { formatCurrency } from 'app/utils/channelServiceUtilities';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { ViewBase } from '../common/ViewBase';
+import { budgetfacilityresponse } from 'app/mocks/creditBudgetFacilityAccounts';
+import { formatCurrency } from 'app/utils/channelServiceUtilities';
 
 import 'app/productControls/Credit/src/CreditAccountLanding';
+import 'app/productControls/Credit/src/BudgetAccounts';
 import 'app/dialogs/credit/CreditStatements';
 import 'app/productControls/Credit/src/BudgetAccountDetails';
 
-const BUDGET_ACCOUNT_DETAILS = {
-	accountName: `Shoprite Pleican PARK Grassy Park ZA`,
-	monthlyRepayment: 74.11,
-	purchaseAmount: 433.35,
-	outstandingBalance: 364.06,
-	openingDate: "2021-11-12T03:09:58.829Z",
-	interestRate: 7.75,
-	term: 3,
-	paymentMade: 74.11,
-	settlementAmount: 191.71,
-	remainingTerm: 2
-};
-
 /**
  * Credit Account View
- *
- * Events Raised
- * -------------
- * -
  * 
  * @export
  * @class CreditAccount
@@ -105,7 +90,23 @@ export class CreditAccount extends ViewBase {
 	// EVENT HANDLERS
 	// --------------
 
-	// N/A
+	_budgetAccountDetails(selectedAccountDetails) {
+
+		this.budgetAccountDetails = {
+			budgetName: selectedAccountDetails.budgetName,
+			"Monthly repayment": formatCurrency(selectedAccountDetails.budgetInstallment),
+			"Purchase amount": formatCurrency(selectedAccountDetails.originalAmount),
+			"Outstanding balance": formatCurrency(selectedAccountDetails.budgetBalance),
+			"Opening date": this._formatDate(selectedAccountDetails.budgetDateTaken),
+			"Interest rate": `${selectedAccountDetails.interestRate}%`,
+			"Term (months)": selectedAccountDetails.originalTerm,
+			"Payment made": formatCurrency(selectedAccountDetails.repaymentAmount),
+			"Settlement amount": formatCurrency(selectedAccountDetails.settlementAmount),
+			"Remaining term (months)": selectedAccountDetails.termRemaining
+		};
+
+		this.renderMode = RENDER_MODE.BUDGET_ACCOUNT_DETAILS;
+	}
 
 	// --------------
 	// PUBLIC METHODS
@@ -195,24 +196,13 @@ export class CreditAccount extends ViewBase {
 		// TO DO: Place holder for credit settle loan flow.
 	}
 
-	_budgetFacility() {
-		// TO DO: Temporarily wired Budget account details view to View-details click on budget facility banner.
-		// TO DO: Temporary data. Can be replaced when implemented CS call.
-		
-		this.budgetAccountDetails = {
-			accountName: BUDGET_ACCOUNT_DETAILS.accountName,
-			"Monthly repayment": formatCurrency(BUDGET_ACCOUNT_DETAILS.monthlyRepayment),
-			"Purchase amount": formatCurrency(BUDGET_ACCOUNT_DETAILS.purchaseAmount),
-			"Outstanding balance": formatCurrency(BUDGET_ACCOUNT_DETAILS.outstandingBalance),
-			"Opening date": this._formatDate(BUDGET_ACCOUNT_DETAILS.openingDate),
-			"Interest rate": `${BUDGET_ACCOUNT_DETAILS.interestRate}%`,
-			"Term (months)": BUDGET_ACCOUNT_DETAILS.term,
-			"Payment made": formatCurrency(BUDGET_ACCOUNT_DETAILS.paymentMade),
-			"Settlement amount": formatCurrency(BUDGET_ACCOUNT_DETAILS.settlementAmount),
-			"Remaining term (months)": BUDGET_ACCOUNT_DETAILS.remainingTerm
-		}
+	_budgetFacility(e) {
+		// TO DO: Place holder for budget facility flow.
+		// TO DO: 'budgetfacilityresponse' mock data should be replaced with CS implementation
+		this.budgetFacilityAccounts = budgetfacilityresponse;
+		this.budgetFacilityAccounts.creditCardNumber = e.detail.creditCardNumber;
 
-		this.renderMode = RENDER_MODE.BUDGET_ACCOUNT_DETAILS;
+		this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW;
 	}
 
 	async _productEnquiry() {
@@ -232,6 +222,7 @@ export class CreditAccount extends ViewBase {
 		const monthNames = [`Jan`, `Feb`, `Mar`, `Apr`, `May`, `Jun`, `Jul`, `Aug`, `Sep`, `Oct`, `Nov`, `Dec`];
 		return monthNames.slice(month)[0];
 	}
+	
 	_backToLandingPage() {
 
 		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
@@ -241,7 +232,7 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	async _viewFees(){
+	async _viewFees() {
 		const fees = await this.configuration.getSetting(`otherSystemsURL.fees`);
 		window.open(`${fees}`);
 	}
@@ -258,6 +249,7 @@ export class CreditAccount extends ViewBase {
 		return html`
 			${super._webTemplate()}
 			${this._renderLandingPage()}
+			${this._renderBudgetFacilityAccounts()}
 			${this._renderBudgetAccountDetails()}
 			${this._renderStatements()}
 		`;
@@ -273,26 +265,39 @@ export class CreditAccount extends ViewBase {
 	_renderCreditVerifiedLandingPage() {
 		return html`
 			<capitec-pc-credit-account
-				@option-click = "${(e) => this._optionClick(e.detail.option)}">
+				@option-click = "${(e) => this._optionClick(e.detail.option)}"
+				@view-budget-accounts = "${(e) => this._budgetFacility(e)}">
 			</capitec-pc-credit-account>`;
 	}
+	
+	_renderBudgetFacilityAccounts() {
+		return this.renderMode === RENDER_MODE.BUDGET_ACCOUNTS_VIEW
+			? html`
+				<capitec-pc-budget-facility-accounts
+					.budgetFacilityAccounts="${this.budgetFacilityAccounts}"
+					
+					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
+					@account-details="${(event) => this._budgetAccountDetails(event.detail.selectedAccountDetails)}">
+				</capitec-pc-budget-facility-accounts>`
+			: html``;
+	}
 
-	// TO DO: Need to be wired up with Budget Account view when developed.
 	_renderBudgetAccountDetails() {
 		return this.renderMode === RENDER_MODE.BUDGET_ACCOUNT_DETAILS
 		? html`
 			<capitec-pc-budget-account-details
-				.accountDetails="${this.budgetAccountDetails}">
+				.accountDetails="${this.budgetAccountDetails}"
+				@back="${() => this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW}">
 			</capitec-pc-budget-account-details>`
 		: html``;
 	}
 
-	_renderStatements(){
+	_renderStatements() {
 		return this.renderMode === RENDER_MODE.STATEMENTS
-		? html`			
+		? html`
 			<horizon-credit-statements-dialog
-				@cancel="${()=> this._backToLandingPage()}"
-				@view-fees="${()=>this._viewFees()}">
+				@cancel="${() => this._backToLandingPage()}"
+				@view-fees="${() => this._viewFees()}">
 			</horizon-credit-statements-dialog>`
 		: html``;
 	}
