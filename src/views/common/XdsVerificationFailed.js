@@ -76,10 +76,10 @@ export class XdsVerificationFailed extends ViewBase {
 	_verifyViaApp() {
 		this._telemetry.logEvent(VerifyCallerEvents.XDS_VERIFICATION_FAILED_VERIFY_VIA_APP, {
 			"screen": TelemetryScreen.XDS_FAILED,
-			"next-screen": TelemetryScreen.FAVOURITES
+			"next-screen": TelemetryScreen.VERIFY_CALLER
 		}, true);
 
-		super._verifyClick()
+		super._verifyClick();
 	}
 
 	_updateMiniProfile() {
