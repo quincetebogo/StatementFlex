@@ -68,7 +68,7 @@ import 'app/productControls/Credit/src/AccountDetaislView';
 			},
 			'arrears': null,
 			'repayment': {
-				'Repayment amount (%)': `${formatCurrency(this.accountDetails.repaymentAmount)} ${this.accessFacilityDetails.repaymentValue}(%)`,
+				'Repayment amount (%)': `${formatCurrency(this.accessFacilityDetails.repaymentAmount)} ${this.accessFacilityDetails.repaymentValue}(%)`,
 				'Repayment date': this._getOccurance(this.accessFacilityDetails.repaymentDay, `month`),
 				'Next repayment due': formatDate(this.accessFacilityDetails.nextRepaymentDate, `dd mmm yyyy`),
 				'Repayment period': this.accessFacilityDetails.repaymentPeriod,

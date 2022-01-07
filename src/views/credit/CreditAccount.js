@@ -1,19 +1,20 @@
-import { accessFacilityDetails, creditCardDetails } from 'app/mocks/CreditMocks';
+import { accessFacilityDetails, creditCardDetails, creditOverview, termLoanDetails } from 'app/mocks/CreditMocks';
 import { css, html } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
-import { creditOverview } from 'app/mocks/CreditMocks';
 import { formatCurrency } from 'app/utils/channelServiceUtilities';
 
+import 'app/components/common/ServiceCallErrorScreen';
 import 'app/components/credit/CreditCardDetails';
+import 'app/components/credit/AccessFacilityDetails';
+import 'app/components/credit/TermLoanDetails';
 import 'app/dialogs/credit/CreditStatements';
 import 'app/productControls/Credit/src/BudgetAccountDetails';
 import 'app/productControls/Credit/src/CreditAccountLanding';
 import 'app/productControls/Credit/src/CreditUnverifiedLanding';
-import 'app/components/common/ServiceCallErrorScreen';
 
 const BUDGET_ACCOUNT_DETAILS = {
 	accountName: `Shoprite Pleican PARK Grassy Park ZA`,
@@ -64,7 +65,7 @@ export class CreditAccount extends ViewBase {
 	
 		// private properites
 		this.budgetAccountDetails = null;
-		this.accountViewType = PRODUCT_TYPE.CREDIT_CARD;
+		this.accountViewType = ``;
 		this.creditCardDetails = {};
 		this.accessFacilityDetails = {};
 		this.termLoanDetails = {};
@@ -120,7 +121,7 @@ export class CreditAccount extends ViewBase {
 
 	static get properties() {
 		return {
-			loading: { attribute: false },
+			loading: { state: false },
 			renderMode: { state: false },
 			accountViewType: { state: false }
 		};
@@ -136,21 +137,6 @@ export class CreditAccount extends ViewBase {
 			"next-screen": TelemetryScreen.VERIFY_CALLER
 		});
 		this._verifyClick();
-	}
-	async _accountDetails(event) {
-		
-		const creditCard = () => this._getCreditCardDetails();
-		const accessFacility = () => this._getAccessFacilityDetails();
-		const termLoan = () => this._getTermLoanDetails();
-
-		const creditProducts = {
-			[PRODUCT_TYPE.CREDIT_CARD]: creditCard,
-			[PRODUCT_TYPE.ACCESS_FACILITY]: accessFacility,
-			[PRODUCT_TYPE.TERM_LOAN]: termLoan
-		};
-
-		await creditProducts[event.detail.productType]();
-		this.accountViewType = event.detail.productType;
 	}
 
 	async _clientVerified(event) {
@@ -173,7 +159,7 @@ export class CreditAccount extends ViewBase {
 		window.open(`${branchLocatorUrl}`);
 	}
 	
-	_accountDetails(event) {
+	async _accountDetails(event) {
 		this._telemetry.logEvent(CreditEvents.CREDIT_ACCOUNT_NUMBER_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
 			"next-screen": TelemetryScreen.CREDIT_ACCOUNT_DETAILS,
@@ -181,7 +167,18 @@ export class CreditAccount extends ViewBase {
 			"product-type": event.detail.productType
 		});
 
-		// TO DO: Render Account details screen here
+		const creditCard = () => this._getCreditCardDetails();
+		const accessFacility = () => this._getAccessFacilityDetails();
+		const termLoan = () => this._getTermLoanDetails();
+
+		const creditProducts = {
+			[PRODUCTS.CREDIT_CARD]: creditCard,
+			[PRODUCTS.ACCESS_FACILITY]: accessFacility,
+			[PRODUCTS.TERM_LOAN]: termLoan
+		};
+
+		await creditProducts[event.detail.productType]();
+		this.accountViewType = event.detail.productType;
 	}
 
 	_backFromAccountDetails() {
@@ -413,11 +410,6 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	async _viewFees() {
-		const fees = await this.configuration.getSetting(`otherSystemsURL.fees`);
-		window.open(`${fees}`);
-	}
-
 	_getCreditCardDetails() {
 		// TODO: Service implementation should come here
 		this.creditCardDetails = creditCardDetails;
@@ -427,6 +419,11 @@ export class CreditAccount extends ViewBase {
 	_getAccessFacilityDetails() {
 		// TODO: Service implementation will come here
 		this.accessFacilityDetails = accessFacilityDetails;
+		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
+	}
+
+	_getTermLoanDetails() {
+		this.termLoanDetails = termLoanDetails;
 		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
 	}
 
@@ -539,14 +536,15 @@ export class CreditAccount extends ViewBase {
 		return this.renderMode === RENDER_MODE.BUDGET_ACCOUNT_DETAILS
 		? html`
 			<capitec-pc-budget-account-details
-				.accountDetails="${this.budgetAccountDetails}">
+				.accountDetails="${this.budgetAccountDetails}"
+				@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 			</capitec-pc-budget-account-details>`
 		: html``;
 	}
 
 	_renderCreditCardDetailsView() {
 		return this.renderMode === RENDER_MODE.ACCOUNT_DETAIL_VIEW &&
-				this.accountViewType === PRODUCT_TYPE.CREDIT_CARD
+				this.accountViewType === PRODUCTS.CREDIT_CARD
 			? html`
 				<horizon-credit-card-details-view
 					.creditCardDetails="${this.creditCardDetails}"
@@ -558,7 +556,7 @@ export class CreditAccount extends ViewBase {
 
 	_renderAccessFacilityDetailsView() {
 		return this.renderMode === RENDER_MODE.ACCOUNT_DETAIL_VIEW &&
-				this.accountViewType === PRODUCT_TYPE.ACCESS_FACILITY
+				this.accountViewType === PRODUCTS.ACCESS_FACILITY
 			? html`
 				<horizon-access-facility-details-view
 					.accessFacilityDetails="${this.accessFacilityDetails}"
@@ -569,10 +567,10 @@ export class CreditAccount extends ViewBase {
 
 	_renderTermLoanDetailsView() {
 		return this.renderMode === RENDER_MODE.ACCOUNT_DETAIL_VIEW &&
-				this.accountViewType === PRODUCT_TYPE.TERM_LOAN
+				this.accountViewType === PRODUCTS.TERM_LOAN
 			? html`
 				<horizon-term-loan-details-view
-					.accessFacilityDetails="${this.accessFacilityDetails}"
+					.termLoanDetails="${this.termLoanDetails}"
 					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 				</horizon-term-loan-details-view>`
 			: html``;
