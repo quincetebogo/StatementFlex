@@ -13,7 +13,7 @@
 
 	VERIFY_CALLER: `Verify Caller`,
 	SECURITY_QUESTIONS: `Security Questions`,
-	SECURITY_QUESTIONS_FAILURE: `Security Queations Failure`,
+	SECURITY_QUESTIONS_FAILURE: `Security Questions Failure`,
 	XDS_FAILED: `XDS Verification Failed`,
 	ITA_FAILED: `ITA Verification Failed`,
 

@@ -34,7 +34,7 @@ export const OutcomeScreen = {
  * using the platform capability.
  *
  * @export
- * @class TelemetryService
+ * @class HorizonTelemetry
  * @extends Telemetry
  */
 export class HorizonTelemetry extends Telemetry {
@@ -54,7 +54,7 @@ export class HorizonTelemetry extends Telemetry {
 
 	/**
 	 * @static
-	 * @returns {Object} Singleton
+	 * @returns {HorizonTelemetry} Singleton
 	 */
 	static getInstance() {
 		return this.instance;
