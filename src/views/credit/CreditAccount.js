@@ -1,24 +1,32 @@
+import { accessFacilityDetails, creditCardDetails } from 'app/mocks/CreditMocks';
 import { css, html } from 'platform/elements';
 import { Configuration } from 'platform/core';
-import { formatCurrency } from 'app/utils/channelServiceUtilities';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
-import { ViewBase } from '../common/ViewBase';
+import { ViewBase } from 'app/views/common/ViewBase';
+import { formatCurrency } from 'app/utils/channelServiceUtilities';
 
-import 'app/productControls/Credit/src/CreditAccountLanding';
+import 'app/components/credit/CreditCardDetails';
 import 'app/dialogs/credit/CreditStatements';
 import 'app/productControls/Credit/src/BudgetAccountDetails';
+import 'app/productControls/Credit/src/CreditAccountLanding';
 
 const BUDGET_ACCOUNT_DETAILS = {
 	accountName: `Shoprite Pleican PARK Grassy Park ZA`,
 	monthlyRepayment: 74.11,
 	purchaseAmount: 433.35,
 	outstandingBalance: 364.06,
-	openingDate: "2021-11-12T03:09:58.829Z",
+	openingDate: `2021-11-12T03:09:58.829Z`,
 	interestRate: 7.75,
 	term: 3,
 	paymentMade: 74.11,
 	settlementAmount: 191.71,
 	remainingTerm: 2
+};
+
+const PRODUCT_TYPE = {
+	CREDIT_CARD: `Credit Card`,
+	ACCESS_FACILITY: `Access facility`,
+	TERM_LOAN: `Term Loan`
 };
 
 /**
@@ -47,6 +55,10 @@ export class CreditAccount extends ViewBase {
 		// private properites
 		this.loading = true;
 		this.budgetAccountDetails = null;
+		this.accountViewType = PRODUCT_TYPE.CREDIT_CARD;
+		this.creditCardDetails = {};
+		this.accessFacilityDetails = {};
+		this.termLoanDetails = {};
 	}
 
 	// -------------------
@@ -97,7 +109,9 @@ export class CreditAccount extends ViewBase {
 
 	static get properties() {
 		return {
-			loading: { attribute: false }
+			loading: { attribute: false },
+			renderMode: { state: false },
+			accountViewType: { state: false }
 		};
 	}
 	
@@ -105,7 +119,21 @@ export class CreditAccount extends ViewBase {
 	// EVENT HANDLERS
 	// --------------
 
-	// N/A
+	async _accountDetails(event) {
+		
+		const creditCard = () => this._getCreditCardDetails();
+		const accessFacility = () => this._getAccessFacilityDetails();
+		const termLoan = () => this._getTermLoanDetails();
+
+		const creditProducts = {
+			[PRODUCT_TYPE.CREDIT_CARD]: creditCard,
+			[PRODUCT_TYPE.ACCESS_FACILITY]: accessFacility,
+			[PRODUCT_TYPE.TERM_LOAN]: termLoan
+		};
+
+		await creditProducts[event.detail.productType]();
+		this.accountViewType = event.detail.productType;
+	}
 
 	// --------------
 	// PUBLIC METHODS
@@ -132,7 +160,8 @@ export class CreditAccount extends ViewBase {
 			// ${this._updateLeftBar()};
 		}
 		
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this._getCreditCardDetails();
+		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
 		this.endCallContext = `LandingPage`;
 		this.loading = false;
 	}
@@ -210,7 +239,7 @@ export class CreditAccount extends ViewBase {
 			"Payment made": formatCurrency(BUDGET_ACCOUNT_DETAILS.paymentMade),
 			"Settlement amount": formatCurrency(BUDGET_ACCOUNT_DETAILS.settlementAmount),
 			"Remaining term (months)": BUDGET_ACCOUNT_DETAILS.remainingTerm
-		}
+		};
 
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNT_DETAILS;
 	}
@@ -232,6 +261,7 @@ export class CreditAccount extends ViewBase {
 		const monthNames = [`Jan`, `Feb`, `Mar`, `Apr`, `May`, `Jun`, `Jul`, `Aug`, `Sep`, `Oct`, `Nov`, `Dec`];
 		return monthNames.slice(month)[0];
 	}
+
 	_backToLandingPage() {
 
 		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
@@ -241,9 +271,21 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	async _viewFees(){
+	async _viewFees() {
 		const fees = await this.configuration.getSetting(`otherSystemsURL.fees`);
 		window.open(`${fees}`);
+	}
+
+	_getCreditCardDetails() {
+		// TODO: Service implementation should come here
+		this.creditCardDetails = creditCardDetails;
+		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
+	}
+
+	_getAccessFacilityDetails() {
+		// TODO: Service implementation will come here
+		this.accessFacilityDetails = accessFacilityDetails;
+		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
 	}
 
 	// ---------
@@ -259,6 +301,9 @@ export class CreditAccount extends ViewBase {
 			${super._webTemplate()}
 			${this._renderLandingPage()}
 			${this._renderBudgetAccountDetails()}
+			${this._renderCreditCardDetailsView()}
+			${this._renderAccessFacilityDetailsView()}
+			${this._renderTermLoanDetailsView()}
 			${this._renderStatements()}
 		`;
 	}
@@ -287,12 +332,46 @@ export class CreditAccount extends ViewBase {
 		: html``;
 	}
 
-	_renderStatements(){
+	_renderCreditCardDetailsView() {
+		return this.renderMode === RENDER_MODE.ACCOUNT_DETAIL_VIEW &&
+				this.accountViewType === PRODUCT_TYPE.CREDIT_CARD
+			? html`
+				<horizon-credit-card-details-view
+					.creditCardDetails="${this.creditCardDetails}"
+					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+				</horizon-credit-card-details-view>
+			`
+			: html``;
+	}
+
+	_renderAccessFacilityDetailsView() {
+		return this.renderMode === RENDER_MODE.ACCOUNT_DETAIL_VIEW &&
+				this.accountViewType === PRODUCT_TYPE.ACCESS_FACILITY
+			? html`
+				<horizon-access-facility-details-view
+					.accessFacilityDetails="${this.accessFacilityDetails}"
+					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+				</horizon-access-facility-details-view>`
+			: html``;
+	}
+
+	_renderTermLoanDetailsView() {
+		return this.renderMode === RENDER_MODE.ACCOUNT_DETAIL_VIEW &&
+				this.accountViewType === PRODUCT_TYPE.TERM_LOAN
+			? html`
+				<horizon-term-loan-details-view
+					.accessFacilityDetails="${this.accessFacilityDetails}"
+					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+				</horizon-term-loan-details-view>`
+			: html``;
+	}
+
+	_renderStatements() {
 		return this.renderMode === RENDER_MODE.STATEMENTS
-		? html`			
+		? html`
 			<horizon-credit-statements-dialog
-				@cancel="${()=> this._backToLandingPage()}"
-				@view-fees="${()=>this._viewFees()}">
+				@cancel="${() => this._backToLandingPage()}"
+				@view-fees="${() => this._viewFees()}">
 			</horizon-credit-statements-dialog>`
 		: html``;
 	}
