@@ -1,4 +1,5 @@
 import { Configuration, NavigationContext } from 'platform/core';
+import { ProductInfoEvents } from 'app/constants/telemetry/events/ProductInformation';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { html } from 'platform/elements';
 
@@ -25,14 +26,6 @@ const CONFIG = {
 		header: `Credit`,
 		product: `credit-product-info`
 	}
-};
-
-const TELEMETRY_EVENTS = {
-	transact: `call.fulfill-need.transact.view-benefits`,
-	save: `call.fulfill-need.save.view-benefits`,
-	insure: `call.fulfill-need.insure.view-benefits`,
-	credit: `call.fulfill-need.credit.view-benefits`,
-	liveBetter: `call.fulfill-need.live-better.view-benefits`
 };
 
 /**
@@ -101,10 +94,10 @@ export class ProductInformation extends ViewBase {
 	// ---------
 
 	async _viewBenefits() {
-		let productUrl = '';
-		this._telemetry.logEvent(TELEMETRY_EVENTS[this._config.type], {});
+		let productUrl = ``;
+		this._telemetry.logEvent(ProductInfoEvents[`VIEW_BENEFITS_${this._config.type}`], {});
 
-		if(this._config.type === `liveBetter`){
+		if (this._config.type === `liveBetter`) {
 			productUrl = await this.configuration.getSetting(`otherSystemsURL.live-better`);
 		} else {
 			const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);

@@ -84,6 +84,10 @@ export class CreditAccountLanding extends Component {
 		this.dispatchEvent(new CustomEvent(`view-info`, { detail: {} }));
 	}
 
+	_viewBudgetAccounts(creditCardNumber) {
+		this.dispatchEvent(new CustomEvent(`view-budget-accounts`, { detail: { creditCardNumber: creditCardNumber } }));
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -452,7 +456,7 @@ export class CreditAccountLanding extends Component {
 
 								<capitec-hyperlink 
 									label="View details" 
-									@click="${() => this._click(`budget-facility`, item.category, item.type)}" 
+									@click="${() => this._viewBudgetAccounts(item.accountNumber)}" 
 									inline>
 								</capitec-hyperlink>
 						</capitec-title-bar>`
