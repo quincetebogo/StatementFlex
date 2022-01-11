@@ -147,7 +147,7 @@ export class SavingsAccountService extends ChannelServiceBase {
 	async debiCheckConfirmAgreement (mandateInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
-		if (await this.IsMockEnabled(`debiCheckConfirmAgreement`)) {
+		if (await this.isMockEnabled(`debiCheckConfirmAgreement`)) {
 			return this.mock(`debiCheckConfirmAgreement`, mandateInfo);
 		}
 	
