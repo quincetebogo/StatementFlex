@@ -80,14 +80,10 @@ export class USSDProfileDetails extends Component {
 		super.connectedCallback();
 		
 		this.ussdStatus = this.ussd && this.ussd.status;
-
-		this.dispatchEvent(new CustomEvent(`toggle-side-sheet`, { detail: { tileClicked: `USSD`, action: `Open` } }));
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-
-		this.dispatchEvent(new CustomEvent(`toggle-side-sheet`, { detail: { tileClicked: `USSD`, action: `Close` } }));
 	}
 
 	// --------------
@@ -95,7 +91,7 @@ export class USSDProfileDetails extends Component {
 	// --------------
 
 	_toggleAppSlidingPanel() {
-		this.dispatchEvent(new CustomEvent(`close-side-sheet`, { detail: { tileClicked: `USSD` } }));
+		this.dispatchEvent(new CustomEvent(`close-side-sheet`, { detail: { tileClicked: `ussd` } }));
 	}
 	
 	_toggleCancelUSSD() {
@@ -122,12 +118,14 @@ export class USSDProfileDetails extends Component {
 	async _onCancelUSSD() {
 		// action of actually cancelling the ussd service
 		if (this.cancelReason) {
-			const returnValue = await this.cancelUSSD();
+			const returnValue = await this.cancelUSSD(this.cancelReason);
 			if (returnValue) {
 				this.ussdStatus = `Blocked`;
 
 				this._displayAndCloseToast(`USSD was cancelled. You will need to visit  branch to reactivate USSD`);
-				this._toggleCancelUSSD();
+				
+				this.showNotificationBanner = false;
+				this.showCancelReasons = !this.showCancelReasons;
 				
 				this.showNotificationBanner = true;
 			}

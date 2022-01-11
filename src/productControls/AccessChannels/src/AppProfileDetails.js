@@ -82,14 +82,10 @@ export class AppProfileDetails extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		this.dispatchEvent(new CustomEvent(`toggle-side-sheet`, { detail: { tileClicked: `App`, action: `Open` } }));
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-
-		this.dispatchEvent(new CustomEvent(`toggle-side-sheet`, { detail: { tileClicked: `App`, action: `Close` } }));
 	}
 
 	// --------------
@@ -97,7 +93,7 @@ export class AppProfileDetails extends Component {
 	// --------------
 
 	_toggleAppSlidingPanel() {
-		this.dispatchEvent(new CustomEvent(`close-side-sheet`, { detail: { tileClicked: `App` } }));
+		this.dispatchEvent(new CustomEvent(`close-side-sheet`, { detail: { tileClicked: `app` } }));
 	}
 
 	_toggleSuspendReasonsSlide() {
@@ -105,6 +101,7 @@ export class AppProfileDetails extends Component {
 		this.showSuspendReasons = !this.showSuspendReasons;
 	
 		this.dispatchEvent(new CustomEvent(`toggle-app-suspend-reasons`, { detail: { showSuspendReasons: this.showSuspendReasons } }));
+		
 		if (this.showSuspendReasons) {
 			this.selectedSuspendReason = ``;
 		}
@@ -117,12 +114,14 @@ export class AppProfileDetails extends Component {
 			return;
 		}
 
-		const returnValue = await this.suspendApp();
+		const returnValue = await this.suspendApp(this.selectedSuspendReason);
 	
 		if (returnValue) {
 			this.appDetails.status = `Suspended`;
 			this._displayAndCloseToast();
-			this._toggleSuspendReasonsSlide();
+
+			this.showValidationBanner = false;
+			this.showSuspendReasons = !this.showSuspendReasons;
 		}
 	}
 

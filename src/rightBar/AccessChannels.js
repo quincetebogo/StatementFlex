@@ -21,6 +21,12 @@ const ACCESS_CHANNELS_TYPE = {
 	NOTIFICATIONS: `notifications`
 };
 
+const CHANNEL_TYPE = {
+	'app': `APP`,
+	'internetBanking': `INTERNET_BANKING`,
+	'ussd': `USSD`,
+	'notifications': `NOTIFICATIONS`
+};
 
 /**
  * Access Channels component invokes and holds functionality for all the available access channels
@@ -77,12 +83,7 @@ export class AccessChannels extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS, {
-			"screen": TelemetryScreen.ACCESS_CHANNELS
-		});
-
 		const callerInformation = this.horizonStore.getCallerInformation();
-		
 		this.cifNumber = callerInformation.cifNumber;
 
 		this._accessChannelService();
@@ -90,156 +91,146 @@ export class AccessChannels extends Component {
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-
-		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS, {
-			"screen": TelemetryScreen.ACCESS_CHANNELS
-		});
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
-	_showSlidingPanel(event) {
+	async _showSlidingPanel(event) {
 		this.selectedAccessChannelType = event.detail?.tileClicked ?? ``;
 		this.showSideSheet = !this.showSideSheet;
-	}
 
-	_toggleSideSheet(event) {
-		const accessChannelType = event.detail.tileClicked;
-		const actionType = event.detail.action;
+		if (this.showSideSheet) {
+			await this._telemetry.logEvent(AccessChannelsEvents[`ACCESS_CHANNELS_TILE_${CHANNEL_TYPE[this.selectedAccessChannelType]}`], {
+				"screen": TelemetryScreen.ACCESS_CHANNELS
+			});
 
-		switch (accessChannelType) {
-			case `App`:
-				if (actionType === `Open`) {
-					this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_APP, {
-						"screen": TelemetryScreen.ACCESS_CHANNELS_APP
-					});
-				}
-				break;
-			case `USSD`:
-				if (actionType === `Open`) {
-					this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_USSD, {
-						"screen": TelemetryScreen.ACCESS_CHANNELS_USSD
-					});
-				}
-				break;
-			default:
-				break;
+			this._telemetry.startSpan(AccessChannelsEvents[`ACCESS_CHANNELS_${CHANNEL_TYPE[this.selectedAccessChannelType]}`]);
+		} else {
+			this._telemetry.endSpan(AccessChannelsEvents[`ACCESS_CHANNELS_${CHANNEL_TYPE[this.selectedAccessChannelType]}`]);
 		}
 	}
 
-	_toggleAppSuspendReasons(event) {
+	// App profile details
+	async _toggleAppSuspendReasons(event) {
 		const showAppSuspendReasons = event.detail.showSuspendReasons;
 
-		if (this.showAppSuspendReasons) {
-			this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND, {
+		if (showAppSuspendReasons) {
+			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_APP,
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP_SUSPEND_REASON
 			});
+
+			this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND);
 		} else {
-			this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND_CANCEL, {
+			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND_CANCEL, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_APP_SUSPEND_REASON,
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP
 			});
+
+			this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND);
 		}
 	}
 
-	_toggleUssdCancelReasons(event) {
-		const showUssdCancelReasons = event.detail.showCancelReasons;
-		if (showUssdCancelReasons) {
-			this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD, {
-				"screen": TelemetryScreen.ACCESS_CHANNELS_USSD,
-				"next-screen": TelemetryScreen.ACCESS_CHANNELS_USSD_CANCEL_USSD
-			});
-		} else {
-			this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD_CANCEL, {
-				"screen": TelemetryScreen.ACCESS_CHANNELS_USSD_CANCEL_USSD,
-				"next-screen": TelemetryScreen.ACCESS_CHANNELS_USSD
-			});
-		}
-	}
+	async suspendApp(suspendReason) {
 
-	suspendApp() {
+		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND_CONFIRM, {
+			"screen": TelemetryScreen.ACCESS_CHANNELS_APP_SUSPEND_REASON,
+			"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP,
+			"suspend-reason": suspendReason
+		});
+
+		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND);
+
 		// TO DO: Channel service call to suspend app should come here
 		// If successfully suspended, update app status, else Error scenario
 		
 		this.status.app.status = `Suspended`;
 		this.status.app.dateLastUpdated = new Date().toISOString();
 
-		if (this.status.app.status === `Suspended`) {
-			this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND_CONFIRM, {
-				"screen": TelemetryScreen.ACCESS_CHANNELS_APP_SUSPEND_REASON,
-				"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP,
-				"suspend-reason": this.status.app.statusReason
-			});
-		}
-		
 		this._deepCopyStatus();
 		return true;
 	}
 
 	unsuspendApp() {
+
+		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_UNSUSPEND, {
+			"screen": TelemetryScreen.ACCESS_CHANNELS_APP,
+			"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP
+		});
+
 		// TO DO: Channel service call to Un-suspend App should come here
 		// If successfully Unsuspended, update app status, else Error scenario
+
 		this.status.app.status = `Active`;
 		this.status.app.dateLastUpdated = new Date().toISOString();
-
-		if (this.status.app.status === `Active`) {
-			this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_UNSUSPEND, {
-				"screen": TelemetryScreen.ACCESS_CHANNELS_APP,
-				"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP
-			});
-		}
 
 		this._deepCopyStatus();
 		return true;
 	}
 	
-	cancelUSSD() {
+	// USSD details
+	async _toggleUssdCancelReasons(event) {
+		const showUssdCancelReasons = event.detail.showCancelReasons;
+		
+		if (showUssdCancelReasons) {
+			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD, {
+				"screen": TelemetryScreen.ACCESS_CHANNELS_USSD,
+				"next-screen": TelemetryScreen.ACCESS_CHANNELS_USSD_CANCEL_USSD
+			});
+
+			this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD);
+		} else {
+			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD_CANCEL, {
+				"screen": TelemetryScreen.ACCESS_CHANNELS_USSD_CANCEL_USSD,
+				"next-screen": TelemetryScreen.ACCESS_CHANNELS_USSD
+			});
+
+			this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD);
+		}
+	}
+
+	async cancelUSSD(cancelReason) {
+
+		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD_CONFIRM, {
+			"screen": TelemetryScreen.ACCESS_CHANNELS_USSD_CANCEL_USSD,
+			"next-screen": TelemetryScreen.ACCESS_CHANNELS_USSD,
+			"cancel-reason": cancelReason
+		});
+		
+		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD);
+
 		// TO DO: add channel service call to cancel USSD service
 		// If cancel is successful, show toast, update ussd status, else show error
+		
 		this.status.ussd.status = `Blocked`;
 		this.status.ussd.dateLastUpdated = new Date().toISOString();
-
-		if (this.status.ussd.status === `Blocked`) {
-			this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD_CONFIRM, {
-				"screen": TelemetryScreen.ACCESS_CHANNELS_USSD_CANCEL_USSD,
-				"next-screen": TelemetryScreen.ACCESS_CHANNELS_USSD,
-				"cancel-reason": this.status.ussd.statusReason
-			});
-		}
 		this._deepCopyStatus();
 		return true;
 	}
 
 	unblockSIM() {
+
+		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_UNBLOCK_SIM);
+
 		// TO DO: add channel service call to unblock SIM - ussd
 		// If unblock is successful, show toast, update ussd status, else show error
 		this.status.ussd.isSimBlocked = false;
 		this.status.ussd.dateLastUpdated = new Date().toISOString();
 
-		if (!this.status.ussd.isSimBlocked) {
-			this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_UNBLOCK_SIM, {
-				"screen": TelemetryScreen.ACCESS_CHANNELS_USSD
-			});
-		}
 		this._deepCopyStatus();
 		return true;
 	}
 
 	activateFullMenuUSSD() {
+		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_ACTIVATE_FULL_USSD_MENU);
+
 		// TO DO: add code to activate full menu for currently active ussd clients
 		// If client has active ussd, menu reduced, activate full menu function
 		
 		const indexOfReducedMenu = this.status.ussd.features.indexOf(`REDUCED_MENU`);
 		this.status.ussd.features.splice(indexOfReducedMenu, 1);
-
-		if (this.status.ussd.features.indexOf(`REDUCED_MENU`) === -1) {
-			this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_ACTIVATE_FULL_USSD_MENU, {
-				"screen": TelemetryScreen.ACCESS_CHANNELS_USSD
-			});
-		}
 
 		this._deepCopyStatus();
 		return true;
@@ -320,10 +311,9 @@ export class AccessChannels extends Component {
 					.appDetails = "${this.status.app}"
 					?showSideSheet = "${this.showSideSheet}"
 
-					.suspendApp = "${() => this.suspendApp()}"
+					.suspendApp = "${suspendReason => this.suspendApp(suspendReason)}"
 					.unsuspendApp = "${() => this.unsuspendApp()}"
 
-					@toggle-side-sheet="${(event) => this._toggleSideSheet(event)}"
 					@toggle-app-suspend-reasons="${(event) => this._toggleAppSuspendReasons(event)}"
 					@close-side-sheet ="${(event) => this._showSlidingPanel(event)}" >
 				</capitec-pc-app-profile-details>`
@@ -337,7 +327,7 @@ export class AccessChannels extends Component {
 			.ussd="${this.status.ussd}"
 			?showSideSheet="${this.showSideSheet}"
 
-			.cancelUSSD="${() => this.cancelUSSD()}"
+			.cancelUSSD="${cancelReason => this.cancelUSSD(cancelReason)}"
 			.unblockSIM="${() => this.unblockSIM()}"
 			.activateFullMenuUSSD="${() => this.activateFullMenuUSSD()}"
 
