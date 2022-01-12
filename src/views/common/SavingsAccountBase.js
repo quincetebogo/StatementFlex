@@ -422,6 +422,19 @@ export class SavingsAccountBase extends ViewBase {
 		return true;
 	}
 
+	/**
+	 * Function updates the need based on account selected in statements
+	 * so as to classify incident accordingly
+	 * 
+	 * @param {object} event - event raised by statements dialog
+	 * @returns {void}
+	 */
+	async _statementsAccConfirmed(event) {
+		const need = `statements-${event.detail.account}`;
+
+		await super._inicidentManager_(need, () => this._toggleBusyFlag());
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -504,7 +517,8 @@ export class SavingsAccountBase extends ViewBase {
 					.cifNumber="${this.callerInformation.cifNumber}"
 					.clientProducts="${this.clientProducts}"
 					type="${type}"
-					@cancel="${() => this._cancelStatements()}">
+					@cancel="${() => this._cancelStatements()}"
+					@account-selected="${(event) => this._statementsAccConfirmed(event)}">
 				</horizon-statements-dialog>`
 			: html``;
 	}

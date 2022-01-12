@@ -341,7 +341,13 @@ export class StatementsDialog extends Component {
 		if (e.detail.new) {
 			this.errorMessage = ``;
 			this.productSelected = e.detail.new;
+			
 			this._resetPeriodSelection();
+			this.dispatchEvent(new CustomEvent(`account-selected`, {
+				detail: {
+					account: this.productSelected.category
+				}
+			}));
 			this.requestUpdate();
 		}
 	}
