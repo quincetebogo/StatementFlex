@@ -133,6 +133,10 @@ export class AccessChannels extends Component {
 		return ussdDetails.status;
 	}
 
+	_getNotificationsDetails() {
+		return `${this.status.notifications?.messageType} | ${this.status.notifications?.messageTime}`;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -236,8 +240,8 @@ export class AccessChannels extends Component {
 					class=""
 					type="default"
 					label="Notifications"
-					status="${this.status.notifications?.messageType}"
-					subtitle="${this.status.notifications?.messageTime}"
+					status="${this.status.notifications?.status}"
+					subtitle="${this._getNotificationsDetails()}"
 					detail=""
 					icon="system/notify"
 					@click="${() => this._tileClick(ACCESS_CHANNELS_TYPE.NOTIFICATIONS)}">
