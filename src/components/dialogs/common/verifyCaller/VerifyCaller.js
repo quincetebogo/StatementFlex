@@ -476,14 +476,14 @@ export class VerifyCaller extends Component {
 		this.itaTimeout = false;
 
 		switch (status) {
-			case `started `: 
+			case `started`: 
 				this.itaInProgress = true;
 				this.telemetry.logEvent(VerifyCallerEvents.ITA_REQUEST_SENT, {
 					"screen": TelemetryScreen.VERIFY_CALLER
 				}, true);
 				break;
 
-			case `timeout `: 
+			case `timeout`: 
 				// This should no longer happen as the itaService no longer runs a timer
 				// Kept here in case we can get ITA timout notifications from the back end service
 				this.itaTimeout = true;
@@ -511,7 +511,7 @@ export class VerifyCaller extends Component {
 				break;
 	
 			default: 
-				this.logger.log(`info`, `ITA SignalR event indicated that verification was rejected`, `_signalRPostEventAction`);
+				this.logger.log(`info`, `ITA SignalR event indicated that verification was rejected, status=${status}`, `_signalRPostEventAction`);
 
 				this.itaRejected = true;
 				this.itaFailedCount++;
