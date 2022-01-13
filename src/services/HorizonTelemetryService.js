@@ -3,6 +3,7 @@ import { TelemetryStore } from 'app/store/TelemetryStore';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { v4 } from 'uuid';
 
+
 /*
  * Horizon Telemetry
  *
@@ -40,6 +41,19 @@ export const OutcomeScreen = {
 export class HorizonTelemetry extends Telemetry {
 	// TODO: add logic to close all child spans when parent span gets closed. Log a warning if this happens.
 	
+
+	_validateTelemetryEventParams(params) {
+		return true;
+	}
+
+	_validateSpanStartParams(params, requireSpanId = false) {
+		return true;
+	}
+
+	_validateSpanEndParams(params) {
+		return true;
+	}
+
 	// #region INITIALISATION
 	// --------------
 	// INITIALISATION
@@ -321,6 +335,7 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns {Array} Baggage array
 	 */
 	_formatBaggageDetails(baggage) {
+		// return Object.entries(baggage).map(item => ({ "key": item[0], "value": this._trimBaggage(item[1]) }));
 		return Object.entries(baggage).map(item => ({ [item[0]]: this._trimBaggage(item[1]) }));
 	}
 
@@ -331,10 +346,11 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns {string} baggage item
 	 */
 	_trimBaggage(item) {
-		if (!!item && !Array.isArray(item)) {
-			return String(item).trim();
+		if (item && !Utilities.isString(item)) {
+			return String(JSON.stringify(item).trim());
 		}
-		return item;
+
+		return String(item?.trim() ?? ``);
 	}
 
 	/**
