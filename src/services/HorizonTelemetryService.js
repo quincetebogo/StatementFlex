@@ -1,4 +1,4 @@
-import { SecurityContext, Telemetry } from 'platform/core';
+import { SecurityContext, Telemetry, Utilities } from 'platform/core';
 import { TelemetryStore } from 'app/store/TelemetryStore';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { v4 } from 'uuid';
