@@ -42,15 +42,126 @@ export class HorizonTelemetry extends Telemetry {
 	// TODO: add logic to close all child spans when parent span gets closed. Log a warning if this happens.
 	
 
+	// TODO: OVERRIDE TO ALLOW OLD TELEMETRY CONTRACT. THIS MUST BE REMOVED AS SOON AS WE CAN GO TO THE NEW CONTRACT
 	_validateTelemetryEventParams(params) {
+		if (!params) {
+			throw new Error(`"params" not provided`);
+		}
+
+		if (!params.traceId) {
+            throw new Error(`"params.traceId" not provided`);
+		}
+
+		if (!params.eventName) {
+			throw new Error(`"params.eventName" not provided`);
+		}
+
+		if (!params.eventType) {
+			throw new Error(`"params.eventType" not provided`);
+		}
+
+		if (params.eventType !== `system` && params.eventType !== `person`) {
+			throw new Error(`"params.eventType" invalid`);
+		}
+
+		if (!params.eventOriginator) {
+			throw new Error(`"params.eventOriginator" not provided`);
+		}
+
+		if (!params.tags) {
+			throw new Error(`"params.tags" not provided`);
+		}
+
+		if (!Array.isArray(params.tags)) {
+            throw new Error(`"params.tags" invalid`);
+        }
+
+        if (params.baggage && !Array.isArray(params.baggage)) {
+            throw new Error(`"params.baggage" invalid`);
+        }
+
 		return true;
 	}
 
+	// TODO: OVERRIDE TO ALLOW OLD TELEMETRY CONTRACT. THIS MUST BE REMOVED AS SOON AS WE CAN GO TO THE NEW CONTRACT
 	_validateSpanStartParams(params, requireSpanId = false) {
+		if (!params) {
+            throw new Error(`"params" not provided`);
+        }
+
+        if (!params.traceId) {
+            throw new Error(`"params.traceId" not provided`);
+        }
+
+        if (!params.eventName) {
+            throw new Error(`"params.eventName" not provided`);
+        }
+
+        if (!params.eventType) {
+            throw new Error(`"params.eventType" not provided`);
+        }
+
+        if (params.eventType !== `system` && params.eventType !== `person`) {
+            throw new Error(`"params.eventType" invalid`);
+        }
+
+        if (!params.eventOriginator) {
+            throw new Error(`"params.eventOriginator" not provided`);
+        }
+
+        if (!params.tags) {
+            throw new Error(`"params.tags" not provided`);
+        }
+
+        if (!Array.isArray(params.tags)) {
+            throw new Error(`"params.tags" invalid`);
+        }
+
+        if (params.baggage && !Array.isArray(params.baggage)) {
+            throw new Error(`"params.baggage" invalid`);
+        }
+
 		return true;
 	}
 
+	// TODO: OVERRIDE TO ALLOW OLD TELEMETRY CONTRACT. THIS MUST BE REMOVED AS SOON AS WE CAN GO TO THE NEW CONTRACT
 	_validateSpanEndParams(params) {
+		if (!params) {
+            throw new Error(`"params" not provided`);
+        }
+
+        if (!params.spanId) {
+            throw new Error(`"params.spanId" not provided`);
+        }
+
+        if (!params.eventName) {
+            throw new Error(`"params.eventName" not provided`);
+        }
+
+        if (!params.eventType) {
+            throw new Error(`"params.eventType" not provided`);
+        }
+
+        if (params.eventType !== `system` && params.eventType !== `person`) {
+            throw new Error(`"params.eventType" invalid`);
+        }
+
+        if (!params.eventOriginator) {
+            throw new Error(`"params.eventOriginator" not provided`);
+        }
+
+        if (!params.tags) {
+            throw new Error(`"params.tags" not provided`);
+        }
+
+        if (!Array.isArray(params.tags)) {
+            throw new Error(`"params.tags" invalid`);
+        }
+
+        if (params.baggage && !Array.isArray(params.baggage)) {
+            throw new Error(`"params.baggage" invalid`);
+        }
+
 		return true;
 	}
 
