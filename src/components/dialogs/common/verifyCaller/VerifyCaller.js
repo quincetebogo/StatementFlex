@@ -20,6 +20,7 @@ import 'app/components/dialogs/common/verifyCaller/PushNotificationStatus';
 import 'app/components/dialogs/common/verifyCaller/PushNotificationError';
 import 'app/components/dialogs/common/verifyCaller/VerificationUnavailable';
 import 'app/components/dialogs/common/verifyCaller/XdsAttemptFailed';
+import 'app/components/dialogs/common/verifyCaller/XdsBlocked';
 import 'app/components/dialogs/common/verifyCaller/XdsUnavailable';
 
 const RENDER_MODE = Object.freeze({
@@ -64,6 +65,7 @@ export class VerifyCaller extends Component {
 		this.isLoading = true;
 
 		this.xdsUnavailable = false;
+		this.xdsBlocked = false;
 
 		this.itaInProgress = false;
 		this.itaTimeout = false;
@@ -132,12 +134,6 @@ export class VerifyCaller extends Component {
 			"remote-channels-registered": this.callerInformation.hasDigitalChannels
 		});
 
-		if (this.callerInformation.hasDigitalChannels) {
-			this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
-				"screen": TelemetryScreen.VERIFY_CALLER
-			});
-		}
-
 		// Set up ITA & XDS attempts if structure does not exist yet
 		if (!this.callerInformation.verificationAttempts) {
 			this.callerInformation.verificationAttempts = {
@@ -152,6 +148,9 @@ export class VerifyCaller extends Component {
 		this.hasSouthAfricanID = isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber);
 
 		if (this.callerInformation.hasDigitalChannels) {
+			await this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
+				"screen": TelemetryScreen.VERIFY_CALLER
+			});
 			await this._initiateItaVerification();
 		}
 
@@ -216,8 +215,8 @@ export class VerifyCaller extends Component {
 			});
 	
 			if (result.errorMessage) {
-				this.xdsAttempts = MAX_XDS_ATTEMPTS; 
-				this.xdsUnavailable = true;
+				this.xdsAttempts = MAX_XDS_ATTEMPTS;
+				this.xdsBlocked = true;
 				this.logger.log(`warn`, `${result?.errorCode}: ${result.errorMessage}`, `_securityQuestionsClick`);
 			}
 
@@ -245,7 +244,7 @@ export class VerifyCaller extends Component {
 			});
 	
 			this.xdsAttempts = MAX_XDS_ATTEMPTS; 
-			this.xdsUnavailable = true;
+			this.xdsBlocked = true;
 			this.logger.log(`warn`, `XDS verification not permitted`, `_securityQuestionsClick`);
 			return;
 		} ;
@@ -596,8 +595,13 @@ export class VerifyCaller extends Component {
 	}
 
 	_showXdsUnavailable() {
-		return (this.xdsUnavailable || this.xdsAttempts >= MAX_XDS_ATTEMPTS) && // Can't do XDS
-			!this.itaInProgress && !this._pushFailed(); // And ITA is not in progress & push failed
+		return this.xdsUnavailable && // Can't do XDS
+			   !this.itaInProgress && !this._pushFailed(); // And ITA is not in progress & push failed
+	}
+
+	_showXDSBlocked() {
+		return Boolean(this.xdsBlocked) && // XDS blocked
+			   !this.itaInProgress && !this._pushFailed(); // And ITA is not in progress & push failed;
 	}
 
 	_failedFirstXdsAttempt() {
@@ -765,6 +769,10 @@ export class VerifyCaller extends Component {
 			return this._renderPushNotificationError();
 		}
 
+		if (this._showXDSBlocked()) {
+			return this._renderXdsBlocked();
+		}
+
 		// Subsequent displays 
 		if (this._failedFirstXdsAttempt()) {
 			return this._renderFailedFirstXdsAttempt(this._ItaAvailable());
@@ -809,7 +817,14 @@ export class VerifyCaller extends Component {
 		return html`<horizon-verification-unavailable></horizon-verification-unavailable>`;
 	}
 
+	_renderXdsBlocked() {
+		return html`<horizon-xds-blocked></horizon-xds-blocked>`;
+	}
+
 	_renderButtonBar() {
+		const showVerifyViaApp = !this.callerInformation.hasDigitalChannels || this._itaAttemptsExceeded() || 
+								 !(this._showXdsUnavailable() || this._showXDSBlocked() || this._failedFirstXdsAttempt());
+		
 		// Only Allow ITA/USSD if the client has already verified via XDS
 		// This is for high risk transactions
 		if (this.callerInformation.verificationStatus === `verified` && this.callerInformation.verificationMethod === `XDS`) {
@@ -866,7 +881,7 @@ export class VerifyCaller extends Component {
 						label="Verify Via App/USSD"
 						icon="system/cellphone-action"
 						iconSize="default"
-						?hidden=${!this.callerInformation.hasDigitalChannels || this._itaAttemptsExceeded() || !(this._showXdsUnavailable() || this._failedFirstXdsAttempt())}
+						?hidden=${showVerifyViaApp}
 						@click="${() => this._tryAgain()}">
 					</horizon-option-button>
 				</capitec-group>
