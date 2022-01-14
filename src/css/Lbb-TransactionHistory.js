@@ -83,6 +83,7 @@ const linkedDescription = `
 					--horizon-label-value-color: #009de0;
 					padding-right: 16px;
 					width: auto;
+					min-width: 192px;
 					`;
 
 export const TABLE_EXPANDER_CELL = {

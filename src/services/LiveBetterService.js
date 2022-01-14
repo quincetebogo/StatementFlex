@@ -94,7 +94,7 @@ export class LiveBetterService extends ChannelServiceBase {
 	 */
 	 async lbbLinkedTransactionDetails (transactionHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`lbbLinkedTransactionDetails`)) {
-			return this._mock.lbbLinkedTransactionDetails(transactionHistoryRequest);
+			return this.mock(`lbbLinkedTransactionDetails`, transactionHistoryRequest);
 		}
 
 		return this.post(
