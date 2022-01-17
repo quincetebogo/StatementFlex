@@ -1,5 +1,5 @@
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
-import { STATEMENT_EVENTS, SavingsAccLandingPage } from 'app/constants/telemetry/events/SavingsAccount';
+import { STATEMENT_EVENTS, SavingsAccLandingPage, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/SavingsAccount';
 import { css, html, unsafeCSS } from 'platform/elements';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { ACCOUNT_TYPES } from 'app/constants/Common';
@@ -200,6 +200,11 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	}
 
 	async _transactionHistory() {
+		await this._telemetry.logEvent(SavingsAccLandingPage.SAVINGS_ACC_TRANSACTION_HISTORY, {
+			"screen": TelemetryScreen.SAVINGS_ACCOUNT,
+			"next-screen": TelemetryScreen.TRANSACTION_HISTORY
+		});
+
 		await super.createAndClassifySubsIncident();
 		await this._getTransactionHistory();
 	}
@@ -401,6 +406,10 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	}
 
 	_renderTransactionDetails(item) {
+		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_INFO, {
+			'journal-no': item.journalNumber
+		});
+
 		return html`
 			<capitec-label
 				style = "${unsafeCSS(EXPANDER_LABEL).toString()}"

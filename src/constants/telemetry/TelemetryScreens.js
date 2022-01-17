@@ -60,6 +60,7 @@
 	VALUE_ADDED_SERVICES_NO_CLIENT_DATA: `Value Added Services No Client Data`,
 
 	SAVINGS_ACCOUNT: `Savings Account`,
+	TRANSACTION_HISTORY: `Transaction History`,
 
 	LIVE_BETTER: `Live Better verified landing page`,
 	LIVE_BETTER_ACCOUNT_DETAILS: `Live Better Account details`,

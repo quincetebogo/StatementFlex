@@ -15,15 +15,6 @@
 	LIVE_BETTER_STATEMENTS: `call.fulfill-need.live-better-savings.select.statements`,
 	LIVE_BETTER_AUTOMATIC_SAVINGS: `call.fulfill-need.live-better-savings.select.automatic-savings`,
 
-	LBB_TRANSACTION_HISTORY: `call.fulfill-need.live-better-savings.transaction-history`,
-	LBB_TRANSACTION_HISTORY_FILTER: `call.fulfill-need.live-better-savings.transaction-history.filter`,
-	LBB_TRANSACTION_HISTORY_CLEAR_ALL: `call.fulfill-need.live-better-savings.transaction-history.filter.clear-all`,
-	LBB_TRANSACTION_HISTORY_CLEAR_FILTER: `call.fulfill-need.live-better-savings.transaction-history.filter.clear`,
-	LBB_TRANSACTION_HISTORY_INFO: `call.fulfill-need.live-better-savings.transaction-history.view-info`,
-	LBB_TRANSACTION_HISTORY_VIEW_LINKED_TRANSACTIONS: `call.fulfill-need.live-better-savings.transaction-history.linked-transaction-view`,
-	LBB_LINKED_TRANSACTIONS_DETAILS: `call.fulfill-need.live-better-savings.transaction-history.detailed-view`,
-	LBB_LINKED_TRANSACTIONS_DETAILS_CLOSE: `call.fulfill-need.live-better-savings.transaction-history.detailed-view.close`,
-
 	LIVE_BETTER_VIEW_BENEFITS: `call.fulfill-need.live-better-savings.view-benefits`
 };
 
@@ -55,3 +46,24 @@
 	STATEMENTS_FAILURE_DONE: `call.fulfill-need.live-better-savings.statements.failure.done`,
 	STATEMENTS_FAILURE_ASSIGN: `call.fulfill-need.live-better-savings.statements.failure.assign`
 });
+
+/**
+ * The event names to use when logging telemetry for transaction history flow from LBB.
+ * This correspond to the `Action` and `eventName` columns in the Data Spec.
+ * 
+ * @readonly
+ * @enum {Object} TRANSACTION_ENQUIRY_EVENTS
+ */
+ export const TRANSACTION_ENQUIRY_EVENTS = Object.freeze({
+	TRANSACTION_HISTORY: `call.fulfill-need.live-better-savings.transaction-history`,
+	TRANSACTION_HISTORY_FILTER: `call.fulfill-need.live-better-savings.transaction-history.filter`,
+	TRANSACTION_HISTORY_CLEAR_ALL: `call.fulfill-need.live-better-savings.transaction-history.filter.clear-all`,
+	TRANSACTION_HISTORY_CLEAR_FILTER: `call.fulfill-need.live-better-savings.transaction-history.filter.clear`,
+	TRANSACTION_HISTORY_INFO: `call.fulfill-need.live-better-savings.transaction-history.view-info`,
+	TRANSACTION_HISTORY_BACK: `call.fulfill-need.live-better-savings.transaction-history.back`,
+	TRANSACTION_HISTORY_VIEW_LINKED_TRANSACTIONS: `call.fulfill-need.live-better-savings.transaction-history.linked-transaction-view`,
+	TRANSACTION_HISTORY_LOAD_MORE: `call.fulfill-need.live-better-savings.transaction-history.load-more`,
+	TRANSACTION_HISTORY_SCROLL_TOP: `call.fulfill-need.live-better-savings.transaction-history.scroll-to-top`,
+	LINKED_TRANSACTIONS_DETAILS: `call.fulfill-need.live-better-savings.transaction-history.detailed-view`,
+	LINKED_TRANSACTIONS_DETAILS_CLOSE: `call.fulfill-need.live-better-savings.transaction-history.detailed-view.close`
+ });

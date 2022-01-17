@@ -43,3 +43,21 @@
 	STATEMENTS_FAILURE_DONE: `call.fulfill-need.savings-account.statements.failure.done`,
 	STATEMENTS_FAILURE_ASSIGN: `call.fulfill-need.savings-account.statements.failure.assign`
 });
+
+/**
+ * The event names to use when logging telemetry for transaction history flow from LBB.
+ * This correspond to the `Action` and `eventName` columns in the Data Spec.
+ * 
+ * @readonly
+ * @enum {Object} TRANSACTION_ENQUIRY_EVENTS
+ */
+ export const TRANSACTION_ENQUIRY_EVENTS = Object.freeze({
+	TRANSACTION_HISTORY: `call.fulfill-need.savings-account.transaction-history`,
+	TRANSACTION_HISTORY_FILTER: `call.fulfill-need.savings-account.transaction-history.filter`,
+	TRANSACTION_HISTORY_CLEAR_ALL: `call.fulfill-need.savings-account.transaction-history.filter.clear-all`,
+	TRANSACTION_HISTORY_CLEAR_FILTER: `call.fulfill-need.savings-account.transaction-history.filter.clear`,
+	TRANSACTION_HISTORY_INFO: `call.fulfill-need.savings-account.transaction-history.view-info`,
+	TRANSACTION_HISTORY_BACK: `call.fulfill-need.savings-account.transaction-history.back`,
+	TRANSACTION_HISTORY_LOAD_MORE: `call.fulfill-need.savings-account.transaction-history.load-more`,
+	TRANSACTION_HISTORY_SCROLL_TOP: `call.fulfill-need.savings-account.transaction-history.scroll-to-top`
+ });
