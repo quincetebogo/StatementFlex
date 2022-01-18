@@ -132,7 +132,7 @@ export class PayCreditCardBudget extends Component {
 					--theme-icon-size-small: 24px;
 				}
 				.transfer-from {
-					margin: 15px 0px 12px 0px;
+					margin: 24px 0px 12px 0px;
 					--theme-label-title-font-weight: 600;
 					--theme-label-title-font-size: 16px;
 				}
@@ -186,8 +186,7 @@ export class PayCreditCardBudget extends Component {
 				data-automation-id="pay-budget-balance"
 				label="Budget amount"
 				type="currency"
-				value="${this.budgetAccountDetails.budgetBalance}"
-				hint="Max amount R250.00">
+				value="${this.budgetAccountDetails.budgetBalance}">
 			</capitec-text-field>
 
 			<capitec-label
