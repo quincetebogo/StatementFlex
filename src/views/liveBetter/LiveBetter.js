@@ -206,7 +206,7 @@ export class LiveBetter extends SavingsAccountBase {
 	// Function that gets triggered on changing values for those set as properties ( eg: "journalNumber", "transactionHistory" ).
 	async updated(changedProperties) {
 
-		const journalNumber = Boolean(!changedProperties.get(`journalNumber`));
+		const journalNumber = Boolean(changedProperties.get(`journalNumber`));
 	
 		if (journalNumber) {
 			const expandedItem = this.transactionHistory.find(item => item.journalNumber === this.journalNumber);
