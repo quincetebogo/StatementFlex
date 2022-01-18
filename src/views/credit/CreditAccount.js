@@ -2,13 +2,12 @@ import { accessFacilityDetails, creditCardDetails, creditOverview, termLoanDetai
 import { css, html } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
-import { formatCurrency } from 'app/utils/channelServiceUtilities';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { budgetfacilityresponse } from 'app/mocks/creditBudgetFacilityAccounts';
-import { creditOverview } from 'app/mocks/CreditMocks';
 import { formatCurrency } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/ServiceCallErrorScreen';
@@ -20,9 +19,10 @@ import 'app/productControls/credit/src/BudgetAccounts';
 import 'app/productControls/credit/src/BudgetAccountDetails';
 import 'app/productControls/credit/src/CreditAccountLanding';
 import 'app/productControls/credit/src/CreditUnverifiedLanding';
+import 'app/productControls/credit/src/PayCreditCardBudget';
 
 const PRODUCTS = {
-	CREDIT_CARD: `Credit Card`,
+	CREDIT_CARD: `Credit card`,
 	ACCESS_FACILITY: `Access facility`,
 	TERM_LOAN: `Term Loan`
 };
@@ -30,6 +30,15 @@ const PRODUCTS = {
 const CREDIT_TYPE = {
 	FLEXIBLE: `Flexible`,
 	FIXED: `Fixed Credit`
+};
+
+// TO DO: This constant can be pulled from 'app/constants/Statements' ACCOUNT_INTCAT_ENUM when merged with Live-better.
+const PRIMARY_SAVINGS_ACCOUNT = {
+	accountType: 300,
+	name: `Savings account`,
+	type: `PRIMARY_SAVINGS`,
+	category: `transact`,
+	icon: `product/transact`
 };
 
 /**
@@ -49,6 +58,7 @@ export class CreditAccount extends ViewBase {
 		super();
 
 		this.configuration = Configuration.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	
 		// private properites
@@ -151,9 +161,11 @@ export class CreditAccount extends ViewBase {
 	}
 	
 	async _accountDetails(event) {
+		this.accountViewType = event.detail.productType;
+
 		this._telemetry.logEvent(CreditEvents.CREDIT_ACCOUNT_NUMBER_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
-			"next-screen": TelemetryScreen.CREDIT_ACCOUNT_DETAILS,
+			"next-screen": `${this.accountViewType} details`,
 			"credit-type": event.detail.creditType,
 			"product-type": event.detail.productType
 		});
@@ -168,15 +180,12 @@ export class CreditAccount extends ViewBase {
 			[PRODUCTS.TERM_LOAN]: termLoan
 		};
 
-		await creditProducts[event.detail.productType]();
-		this.accountViewType = event.detail.productType;
+		await creditProducts[this.accountViewType]();
 	}
 
 	_backFromAccountDetails() {
-
-		// TO DO: This function to be used when clicked back from account details screen.
 		this._telemetry.logEvent(CreditEvents.CREDIT_ACCOUNT_DETAILS_CLOSE, {
-			"screen": TelemetryScreen.CREDIT_ACCOUNT_DETAILS,
+			"screen": `${this.accountViewType} details`,
 			"next-screen": TelemetryScreen.CREDIT_LANDING
 		});
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
@@ -203,6 +212,48 @@ export class CreditAccount extends ViewBase {
 		};
 
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNT_DETAILS;
+	}
+
+	async _payBudgetAccount(selectedAccountDetails) {
+	
+		const request = {
+			cifNumber: this.callerInformation.cifNumber,
+			status: `OPEN`
+		};
+
+		const returnValue = await this.quickTransactionService.getClientProducts(request);
+		
+		if (returnValue.succeeded && returnValue.result.savingsProducts) {
+			
+			// TO DO: Check for list of account that can be used to pay budget from once architecture work is complete.
+			// A/c to the present information, Primary savings account with enough balance to transfer can be listed.
+			const fromAccount = returnValue.result.savingsProducts.filter(item => item.accountType === PRIMARY_SAVINGS_ACCOUNT.accountType && item.availableBalance > selectedAccountDetails.budgetBalance)[0];
+			const accName = fromAccount.accountName.toLowerCase();
+		
+			this.clientProducts = [
+				{
+					'accountNumber': fromAccount.accountNumber,
+					'accountName': `${accName.charAt(0).toUpperCase()}${accName.slice(1)}`,
+					'accountType': fromAccount.accountType,
+					'accountOpenDate': fromAccount.accountOpenDate,
+					'type': PRIMARY_SAVINGS_ACCOUNT.type,
+					'category': PRIMARY_SAVINGS_ACCOUNT.category,
+					'icon': PRIMARY_SAVINGS_ACCOUNT.icon,
+					'customIcon': PRIMARY_SAVINGS_ACCOUNT.customIcon
+				}
+			];
+
+			this.renderMode = RENDER_MODE.PAY_BUDGET_DIALOG;
+			this.payBudgetAccountDetails = selectedAccountDetails;
+		}
+	}
+
+	_transferPayBudget() {
+		// TO DO: This function to be used to confirm transfer pay budget.
+	}
+
+	_errorHandler() {
+		this.horizonRouter.navigateToSystemError();
 	}
 
 	// --------------
@@ -425,11 +476,11 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
 	}
 
-	async _navigatePDF(currPage){
-		//add CS call to get encodedPDF 
-		//currPage is date currently selected
+	async _navigatePDF(currPage) {
+		// add CS call to get encodedPDF 
+		// currPage is date currently selected
 		const returnValue = await this.quickTransactionService.viewStatement(currPage, () => this._createIncidentOnError());
-		if(returnValue){
+		if (returnValue) {
 			return returnValue.result.statementData;
 		}
 	}
@@ -482,6 +533,7 @@ export class CreditAccount extends ViewBase {
 			${this._renderAccessFacilityDetailsView()}
 			${this._renderTermLoanDetailsView()}
 			${this._renderStatements()}
+			${this._renderPayBudgetDialog()}
 		`;
 	}
 
@@ -540,13 +592,15 @@ export class CreditAccount extends ViewBase {
 	}
 	
 	_renderBudgetFacilityAccounts() {
-		return this.renderMode === RENDER_MODE.BUDGET_ACCOUNTS_VIEW
+		return this.renderMode === RENDER_MODE.BUDGET_ACCOUNTS_VIEW ||
+				this.renderMode === RENDER_MODE.PAY_BUDGET_DIALOG
 			? html`
 				<capitec-pc-budget-facility-accounts
 					.budgetFacilityAccounts="${this.budgetFacilityAccounts}"
 					
 					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
-					@account-details="${(event) => this._budgetAccountDetails(event.detail.selectedAccountDetails)}">
+					@account-details="${(event) => this._budgetAccountDetails(event.detail.selectedAccountDetails)}"
+					@transfer-click="${(event) => this._payBudgetAccount(event.detail.selectedAccountDetails)}">
 				</capitec-pc-budget-facility-accounts>`
 			: html``;
 	}
@@ -555,9 +609,24 @@ export class CreditAccount extends ViewBase {
 		return this.renderMode === RENDER_MODE.BUDGET_ACCOUNT_DETAILS
 		? html`
 			<capitec-pc-budget-account-details
-				.accountDetails="${this.budgetAccountDetails}">
+				.accountDetails="${this.budgetAccountDetails}"
+				@back="${() => this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW}">
 			</capitec-pc-budget-account-details>`
 		: html``;
+	}
+	
+	_renderPayBudgetDialog() {
+		return this.renderMode === RENDER_MODE.PAY_BUDGET_DIALOG
+			? html`
+				<capitec-pc-pay-budget-dialog
+					.budgetAccountDetails="${this.payBudgetAccountDetails}"
+					.clientProducts="${this.clientProducts}"
+					
+					@cancel="${() => this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW}"
+					@transfer="${() => this._transferPayBudget()}">
+				</capitec-pc-pay-budget-dialog>
+			`
+			: html``;
 	}
 
 	_renderCreditCardDetailsView() {
@@ -566,7 +635,7 @@ export class CreditAccount extends ViewBase {
 			? html`
 				<horizon-credit-card-details-view
 					.creditCardDetails="${this.creditCardDetails}"
-					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+					@back="${() => this._backFromAccountDetails()}">
 				</horizon-credit-card-details-view>
 			`
 			: html``;
@@ -578,7 +647,7 @@ export class CreditAccount extends ViewBase {
 			? html`
 				<horizon-access-facility-details-view
 					.accessFacilityDetails="${this.accessFacilityDetails}"
-					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+					@back="${() => this._backFromAccountDetails()}">
 				</horizon-access-facility-details-view>`
 			: html``;
 	}
@@ -589,7 +658,7 @@ export class CreditAccount extends ViewBase {
 			? html`
 				<horizon-term-loan-details-view
 					.termLoanDetails="${this.termLoanDetails}"
-					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+					@back="${() => this._backFromAccountDetails()}">
 				</horizon-term-loan-details-view>`
 			: html``;
 	}
@@ -598,8 +667,8 @@ export class CreditAccount extends ViewBase {
 		return this.renderMode === RENDER_MODE.STATEMENTS
 		? html`
 			<horizon-credit-statements-dialog
-				@cancel="${()=> this._backToLandingPage()}"
-				@view-fees="${()=>this._viewFees()}"
+				@cancel="${() => this._backToLandingPage()}"
+				@view-fees="${() => this._viewFees()}"
 				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
 			</horizon-credit-statements-dialog>`
 		: html``;
