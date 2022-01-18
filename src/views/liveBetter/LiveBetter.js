@@ -151,9 +151,9 @@ export class LiveBetter extends SavingsAccountBase {
 		const productEnquiry = () => this._productEnquiry();
 
 		const actions = {
-			'transaction-history': transactionHistory,
-			'statements': statements,
-			'automatic-savings': automaticSavings,
+			'transaction-history-lbb': transactionHistory,
+			'statements-lbb': statements,
+			'automatic-savings-lbb': automaticSavings,
 			'product-enquiry': productEnquiry
 		};
 
