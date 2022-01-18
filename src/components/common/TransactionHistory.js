@@ -3,7 +3,6 @@ import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { DateTime } from 'luxon';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
 import { TRANSACTION_STATUS_LIST } from 'app/constants/TransactionHistory';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
@@ -26,6 +25,11 @@ const DEFAULTS = {
 	SEARCH_TEXT_LABEL: `Search for amount or transaction name`,
 	STATUS_LABEL: `Transaction status`,
 	DATE_FORMAT: `dd mm yyyy`
+};
+
+const _importTelemetryEvents_ = {
+	[ACCOUNT_TYPES.SAVINGS_ACCOUNT]: () => import(`app/constants/telemetry/events/SavingsAccount`),
+	[ACCOUNT_TYPES.LBB]: () => import(`app/constants/telemetry/events/LiveBetter`)
 };
 
 const MAX_RESULTS = 50;
@@ -130,10 +134,11 @@ export class TransactionHistory extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 
-		this._telemetry.startSpan(LiveBetterEvents.LBB_TRANSACTION_HISTORY, {});
+		await this._initialise();
+		await this._telemetry.startSpan(this.telemetryEvent.TRANSACTION_HISTORY, {});
 
 		// Making sure no baggage is carried from the previous instance.
 		RENDER_CHIPS[FILTER_BY.TEXT] = ``;
@@ -151,35 +156,33 @@ export class TransactionHistory extends Component {
 		this._unloading();
 	}
 
-	disconnectedCallback() {
-		super.disconnectedCallback();
-	
-		this._telemetry.endSpan(LiveBetterEvents.LBB_TRANSACTION_HISTORY, {});
-
-	}
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
 	_back() {
+		this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_BACK, {});
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
 	_searchTextChange(event) {
 		RENDER_CHIPS[FILTER_BY.TEXT] = event.detail.new;
-
-		this._telemetry.logEvent(LiveBetterEvents.LBB_TRANSACTION_HISTORY_FILTER, {
-			"screen": TelemetryScreen.LIVE_BETTER_TRANSACTION_HISTORY,
-			"search-by-text": RENDER_CHIPS[FILTER_BY.TEXT],
-			"date-filter": RENDER_CHIPS[FILTER_BY.DATE],
-			"type": RENDER_CHIPS[FILTER_BY.MONEY_TYPE]
-		});
-
 		this._refineSearch();
 	}
 
 	_searchTextBlur(e) {
-		this.searchTextLabel = isNullorEmpty(RENDER_CHIPS[FILTER_BY.TEXT]) ? DEFAULTS.SEARCH_TEXT_LABEL : ``;
+		if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.TEXT])) {
+			this.searchTextLabel = DEFAULTS.SEARCH_TEXT_LABEL;
+			return true;
+		}
+
+		this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_FILTER, {
+			'search-by-text': RENDER_CHIPS[FILTER_BY.TEXT],
+			'date-filter': RENDER_CHIPS[FILTER_BY.DATE],
+			'status': RENDER_CHIPS[FILTER_BY.STATUS],
+			'money-type': RENDER_CHIPS[FILTER_BY.MONEY_TYPE]
+		});
+		this.searchTextLabel = ``;
 	}
 
 	getPredefinedDateRanges() {
@@ -244,11 +247,12 @@ export class TransactionHistory extends Component {
 		}
 
 		RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
-		this._telemetry.logEvent(LiveBetterEvents.LBB_TRANSACTION_HISTORY_FILTER, {
-		    "screen": TelemetryScreen.LIVE_BETTER_TRANSACTION_HISTORY,
-		    "search-by-text": RENDER_CHIPS[FILTER_BY.TEXT],
-		    "date-filter": RENDER_CHIPS[FILTER_BY.DATE],
-		    "type": RENDER_CHIPS[FILTER_BY.MONEY_TYPE]
+		
+		await this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_FILTER, {
+			'search-by-text': RENDER_CHIPS[FILTER_BY.TEXT],
+			'date-filter': RENDER_CHIPS[FILTER_BY.DATE],
+			'status': RENDER_CHIPS[FILTER_BY.STATUS],
+			'money-type': RENDER_CHIPS[FILTER_BY.MONEY_TYPE]
 		});
 		await this._loadFilteredTransactions();
 		this._refineSearch();
@@ -268,30 +272,28 @@ export class TransactionHistory extends Component {
 
 		RENDER_CHIPS[FILTER_BY.STATUS] = event.detail.new;
 
-		this._telemetry.logEvent(LiveBetterEvents.LBB_TRANSACTION_HISTORY_FILTER, {
-			"screen": TelemetryScreen.LIVE_BETTER_TRANSACTION_HISTORY,
-			"search-by-text": RENDER_CHIPS[FILTER_BY.TEXT],
-			"date-filter": RENDER_CHIPS[FILTER_BY.DATE],
-			"type": RENDER_CHIPS[FILTER_BY.MONEY_TYPE]
+		this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_FILTER, {
+			'search-by-text': RENDER_CHIPS[FILTER_BY.TEXT],
+			'date-filter': RENDER_CHIPS[FILTER_BY.DATE],
+			'status': RENDER_CHIPS[FILTER_BY.STATUS],
+			'money-type': RENDER_CHIPS[FILTER_BY.MONEY_TYPE]
 		});
-
 		this._refineSearch();
 	}
 
-	_closeChip(type) {
-	    this._telemetry.logEvent(LiveBetterEvents.LBB_TRANSACTION_HISTORY_CLEAR_FILTER, {
-	        "screen": TelemetryScreen.LIVE_BETTER_TRANSACTION_HISTORY,
-	        "filter-type": type
-	    });
+	async _closeChip(type) {
+
+		await this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_CLEAR_FILTER, {
+			"filter-type": type
+		});
 		this._clearFilter(type);
 		this._refineSearch();
 	}
 
 	_clearFilters() {
 
-	    this._telemetry.logEvent(LiveBetterEvents.LBB_TRANSACTION_HISTORY_CLEAR_ALL, {
-	        "screen": TelemetryScreen.LIVE_BETTER_TRANSACTION_HISTORY
-	    });
+		this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_CLEAR_ALL, {});
+
 		const activeFilters = this.shadowRoot.getElementById(`active-filters`);
 		Array.from(activeFilters.children)
 			 .filter(field => field.localName === `capitec-chip` && !field.hidden)
@@ -306,18 +308,19 @@ export class TransactionHistory extends Component {
 	_scrollToTop(e) {
 		const element = this.shadowRoot.getElementById(`transactions-table`);
 		element.scrollTop = 0;
+
+		this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_SCROLL_TOP, {});
 	}
 	
 	_selectedMoneyType(e) {
 		RENDER_CHIPS[FILTER_BY.MONEY_TYPE] = e.target.label;
 		
-		this._telemetry.logEvent(LiveBetterEvents.LBB_TRANSACTION_HISTORY_FILTER, {
-			"screen": TelemetryScreen.LIVE_BETTER_TRANSACTION_HISTORY,
-			"search-by-text": RENDER_CHIPS[FILTER_BY.TEXT],
-			"date-filter": RENDER_CHIPS[FILTER_BY.DATE],
-			"type": RENDER_CHIPS[FILTER_BY.MONEY_TYPE]
+		this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_FILTER, {
+			'search-by-text': RENDER_CHIPS[FILTER_BY.TEXT],
+			'date-filter': RENDER_CHIPS[FILTER_BY.DATE],
+			'status': RENDER_CHIPS[FILTER_BY.STATUS],
+			'money-type': RENDER_CHIPS[FILTER_BY.MONEY_TYPE]
 		});
-
 		this._refineSearch();
 	}
 
@@ -329,10 +332,18 @@ export class TransactionHistory extends Component {
 		this.dispatchEvent(new CustomEvent(`error-handler`, {}));
 	}
 
-
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	async _initialise() {
+		this.telemetryEvent = {};
+		
+		// Fetching the telemetry events object at runtime based on product type
+		const { TRANSACTION_ENQUIRY_EVENTS } = await _importTelemetryEvents_[this.type]();
+
+		this.telemetryEvent = TRANSACTION_ENQUIRY_EVENTS;
+	}
 
 	// To set the values to default on closing the chip or clearing all the filters
 	async _reset() {
@@ -352,6 +363,7 @@ export class TransactionHistory extends Component {
 	async _loadMoreTransactions() {
 		const oldCount = this.transactionHistory.length;
 
+		await this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_LOAD_MORE, {});
 		await this.getTransactionHistory(this.startDate, this.endDate, this.transactionHistory.length + 1);
 
 		// If the old record count and count after load more are same means no more data to populate,
@@ -432,6 +444,7 @@ export class TransactionHistory extends Component {
 	}
 
 	_unloading() {
+		this._telemetry.endSpan(this.telemetryEvent.TRANSACTION_HISTORY, {});
 		this.dispatchEvent(new CustomEvent(`unloading`));
 	}
 

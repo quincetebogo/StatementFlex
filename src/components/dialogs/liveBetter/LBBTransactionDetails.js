@@ -1,8 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
+
 import 'platform/components/popups/Modal';
 
 /**
@@ -27,22 +25,15 @@ export class LinkedTransactionDetails extends Component {
 		super();
 
 		this.transactionDetails = null;
-
-		this._telemetry = HorizonTelemetry.instance;
 	}
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		this._telemetry.startSpan(LiveBetterEvents.LBB_LINKED_TRANSACTIONS_DETAILS, {});
-
+		this.dispatchEvent(new CustomEvent(`on-loading`, { detail: {} }));
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-	
-		this._telemetry.endSpan(LiveBetterEvents.LBB_LINKED_TRANSACTIONS_DETAILS, {});
-
 	}
 
 	// --------------
@@ -68,15 +59,7 @@ export class LinkedTransactionDetails extends Component {
 	// --------------
 	
 	_onCloseClick() {
-
-		this._telemetry.logEvent(LiveBetterEvents.LBB_LINKED_TRANSACTIONS_DETAILS_CLOSE, {
-			"screen": TelemetryScreen.LIVE_BETTER_LINKED_TRANSACTIONS,
-			"next-screen": TelemetryScreen.LIVE_BETTER_TRANSACTION_HISTORY
-		});
-
-		this.dispatchEvent(new CustomEvent(`on-close`, {
-			detail: {}
-		}));
+		this.dispatchEvent(new CustomEvent(`on-close`, { detail: {} }));
 	}
 
 	// ---------
@@ -116,7 +99,7 @@ export class LinkedTransactionDetails extends Component {
 					border-radius: 4px 4px 0px 0px;
 					position: absolute;
 					left: -551px;
-					top: -44px;					
+					top: -44px;
 					background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
 					--theme-label-title-font-size: 18px;
 					--theme-titlebar-padding: 20px 16px;
@@ -241,7 +224,7 @@ export class LinkedTransactionDetails extends Component {
 							class="col-1" 
 							label="Transaction type" 
 							value="${this.transactionDetails.transactionType}">
-						</horizon-label>	
+						</horizon-label>
 						<horizon-label 
 							data-automation-id="linked-transaction-details-amount"
 							class="col-2" 
@@ -252,7 +235,7 @@ export class LinkedTransactionDetails extends Component {
 							data-automation-id="linked-transaction-details-from-account"
 							label="From account" 
 							value="${this.transactionDetails.fromAccount ? this.transactionDetails.fromAccount : `-`}">
-						</horizon-label>			
+						</horizon-label>
 				</capitec-group>
 
 				<capitec-group 
@@ -312,8 +295,7 @@ export class LinkedTransactionDetails extends Component {
 						@click="${() => this._onCloseClick()}">
 				</capitec-button>
 			</capitec-group>
-		
-			`;
+		`;
 	}
 }
 window.customElements.define(`horizon-linked-transaction-details`, LinkedTransactionDetails);
