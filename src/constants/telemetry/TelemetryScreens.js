@@ -57,6 +57,14 @@
 
 	VALUE_ADDED_SERVICES: `Value Added Services`,
 	VALUE_ADDED_SERVICES_UNAVAILABLE: `Value Added Services Unavailable`,
-	VALUE_ADDED_SERVICES_NO_CLIENT_DATA: `Value Added Services No Client Data`
+	VALUE_ADDED_SERVICES_NO_CLIENT_DATA: `Value Added Services No Client Data`,
+
+	SAVINGS_PLAN_LANDING: `Savings Plan Landing`,
+	SAVINGS_PLAN_ACCOUNT_DETAILS: `Savings Plan Account Details`,
+	SAVINGS_PLAN_STATEMENTS: `Savings Plan Statements`,
+	SAVINGS_PLAN_TAX_CERTIFICATE: `Savings Plan Tax Certificate`,
+	SAVINGS_PLAN_PRODUCT_ENQUIRY: `Savings Plan Product Enquiry`,
+	SAVINGS_PLAN_SAVINGS_CALCULATOR: `Savings Plan Savings Calculator`,
+	SAVINGS_PLAN_INTEREST_RATES: `Savings Plan Interest Rates`
 
 };

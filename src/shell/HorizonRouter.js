@@ -41,7 +41,8 @@ const HORIZON_ROUTES = Object.freeze({
 	TAX_CERTIFICATE_SUCCESSFUL: `/success/tax-certificate`,
 	TAX_CERTIFICATE_FAILURE: `/error/tax-certificate`,
 	TAX_CERTIFICATE_SERVICE_ERROR: `/error/tax-certificate-service-error`,
-	CREDIT_ACCOUNT: `/transact/credit`
+	CREDIT_ACCOUNT: `/transact/credit`,
+	SAVINGS_PLAN: `/transact/savings-plan`
 });
 
 
@@ -249,7 +250,7 @@ export class HorizonRouter {
 		const insure = () => this.navigateToProductInfo(`Insure`);
 		const savings = () => this.navigateToSavingsAccount();
 		const credit = () => this.navigateToCreditAccount();
-		const savingsPlan = () => this.navigateToProductInfo(`SavingsPlan`);
+		const savingsPlan = () => this.navigateToSavingsPlan();
 		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
 
 		const landingPageFunc = {
@@ -301,7 +302,9 @@ export class HorizonRouter {
 	navigateToCreditAccount() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.CREDIT_ACCOUNT}`);
 	}
-
+	navigateToSavingsPlan() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_PLAN}`);
+	}
 	_productLandingPagesActive() {
 		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
 	}
@@ -715,6 +718,14 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.CREDIT_ACCOUNT,
 		load: () => import(`../views/credit/CreditAccount`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-savings-plan`,
+		title: `SavingsPlan`,
+		icon: null,
+		path: HORIZON_ROUTES.SAVINGS_PLAN,
+		load: () => import(`../views/savingsPlan/SavingsPlan`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}
 ];
