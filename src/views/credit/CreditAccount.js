@@ -58,7 +58,6 @@ export class CreditAccount extends ViewBase {
 		super();
 
 		this.configuration = Configuration.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	
 		// private properites
@@ -227,21 +226,21 @@ export class CreditAccount extends ViewBase {
 			
 			// TO DO: Check for list of account that can be used to pay budget from once architecture work is complete.
 			// A/c to the present information, Primary savings account with enough balance to transfer can be listed.
-			const fromAccount = returnValue.result.savingsProducts.filter(item => item.accountType === PRIMARY_SAVINGS_ACCOUNT.accountType && item.availableBalance > selectedAccountDetails.budgetBalance)[0];
-			const accName = fromAccount.accountName.toLowerCase();
+			const fromAccount = returnValue.result.savingsProducts.filter(item => item.accountType === PRIMARY_SAVINGS_ACCOUNT.accountType && item.availableBalance > selectedAccountDetails.budgetBalance);
 		
-			this.clientProducts = [
-				{
-					'accountNumber': fromAccount.accountNumber,
-					'accountName': `${accName.charAt(0).toUpperCase()}${accName.slice(1)}`,
-					'accountType': fromAccount.accountType,
-					'accountOpenDate': fromAccount.accountOpenDate,
-					'type': PRIMARY_SAVINGS_ACCOUNT.type,
-					'category': PRIMARY_SAVINGS_ACCOUNT.category,
-					'icon': PRIMARY_SAVINGS_ACCOUNT.icon,
-					'customIcon': PRIMARY_SAVINGS_ACCOUNT.customIcon
-				}
-			];
+			this.clientProducts = fromAccount.map(account => {
+				const accName = account.accountName.toLowerCase();
+				return {
+						'accountNumber': account.accountNumber,
+						'accountName': `${accName.charAt(0).toUpperCase()}${accName.slice(1)}`,
+						'accountType': account.accountType,
+						'accountOpenDate': account.accountOpenDate,
+						'type': PRIMARY_SAVINGS_ACCOUNT.type,
+						'category': PRIMARY_SAVINGS_ACCOUNT.category,
+						'icon': PRIMARY_SAVINGS_ACCOUNT.icon,
+						'customIcon': PRIMARY_SAVINGS_ACCOUNT.customIcon
+					};
+				});
 
 			this.renderMode = RENDER_MODE.PAY_BUDGET_DIALOG;
 			this.payBudgetAccountDetails = selectedAccountDetails;

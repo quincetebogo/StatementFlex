@@ -130,6 +130,7 @@ export class PayCreditCardBudget extends Component {
 					--theme-select-options-max-height: 304px;
 					--theme-input-icon-margin-left: 16px;
 					--theme-icon-size-small: 24px;
+					--theme-layout-gap-spacing: 8px;
 				}
 				.transfer-from {
 					margin: 24px 0px 12px 0px;
@@ -218,13 +219,12 @@ export class PayCreditCardBudget extends Component {
 	}
 
 	_renderOptionIcon(e) {
-		const iconClass = `width: 24px; height: 24px; margin: 0px 8px 0px 0px; --theme-icon-size-small: 24px;`;
+		const iconClass = `width: 24px; height: 24px;`;
 
 		return e.icon
 			? html`
 				<capitec-icon
-					style="${unsafeCSS(iconClass).toString()}"
-					size="medium"
+					size="small"
 					icon="${e.icon}">
 				</capitec-icon>`
 			: html`
