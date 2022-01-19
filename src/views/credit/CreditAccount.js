@@ -2,7 +2,6 @@ import { accessFacilityDetails, creditCardDetails, creditOverview, termLoanDetai
 import { css, html } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -33,13 +32,50 @@ const CREDIT_TYPE = {
 };
 
 // TO DO: This constant can be pulled from 'app/constants/Statements' ACCOUNT_INTCAT_ENUM when merged with Live-better.
-const PRIMARY_SAVINGS_ACCOUNT = {
-	accountType: 300,
-	name: `Savings account`,
-	type: `PRIMARY_SAVINGS`,
-	category: `transact`,
-	icon: `product/transact`
-};
+const ACCOUNT_INTCAT_ENUM = Object.freeze({
+	300: {
+		name: `Savings account`,
+		type: `PRIMARY_SAVINGS`,
+		category: `transact`,
+		icon: `product/transact`,
+		order: 1
+	},
+	200: {
+		name: ``,
+		type: `FLEXIBLE_SAVINGS`,
+		category: `save`,
+		icon: `product/save`,
+		order: 2
+	},
+	201: {
+		1: {
+			name: ``,
+			type: `FIXED_TERM_MULTIPLE_DEPOSITS`,
+			category: `save`,
+			icon: `product/save`,
+			order: 3
+		},
+		2: {
+			name: ``,
+			type: `FIXED_TERM_SINGLE_DEPOSIT`,
+			category: `save`,
+			icon: `product/save`,
+			order: 4
+		}
+	},
+	210: {
+		name: `Live better savings account`,
+		type: `LBB`,
+		category: `lbb`,
+		customIcon: `/images/liveBetter/live-better-icon.png`,
+		order: 5
+	}
+});
+
+const FROM_ACCOUNTS_LIST = [
+		// Primary savings
+		300
+	];
 
 /**
  * Credit Account View
@@ -226,21 +262,25 @@ export class CreditAccount extends ViewBase {
 			
 			// TO DO: Check for list of account that can be used to pay budget from once architecture work is complete.
 			// A/c to the present information, Primary savings account with enough balance to transfer can be listed.
-			const fromAccount = returnValue.result.savingsProducts.filter(item => item.accountType === PRIMARY_SAVINGS_ACCOUNT.accountType && item.availableBalance > selectedAccountDetails.budgetBalance);
-		
-			this.clientProducts = fromAccount.map(account => {
-				const accName = account.accountName.toLowerCase();
-				return {
-						'accountNumber': account.accountNumber,
-						'accountName': `${accName.charAt(0).toUpperCase()}${accName.slice(1)}`,
-						'accountType': account.accountType,
-						'accountOpenDate': account.accountOpenDate,
-						'type': PRIMARY_SAVINGS_ACCOUNT.type,
-						'category': PRIMARY_SAVINGS_ACCOUNT.category,
-						'icon': PRIMARY_SAVINGS_ACCOUNT.icon,
-						'customIcon': PRIMARY_SAVINGS_ACCOUNT.customIcon
-					};
-				});
+			
+			this.clientProducts = returnValue.result.savingsProducts
+										.filter(item => FROM_ACCOUNTS_LIST.includes(item.accountType) &&
+												item.availableBalance > selectedAccountDetails.budgetBalance)
+										.map(item => {
+												const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType][item.interestCategory] || 
+																	ACCOUNT_INTCAT_ENUM[item.accountType];
+												const accName = item.accountName.toLowerCase();
+
+												return {
+													'accountNumber': item.accountNumber,
+													'accountName': `${accName.charAt(0).toUpperCase()}${accName.slice(1)}`,
+													'accountType': item.accountType,
+													'icon': productInfo.icon,
+													'customIcon': productInfo.customIcon,
+													'order': productInfo.order
+												};
+											})
+										.sort((x, y) => x.order - y.order);
 
 			this.renderMode = RENDER_MODE.PAY_BUDGET_DIALOG;
 			this.payBudgetAccountDetails = selectedAccountDetails;

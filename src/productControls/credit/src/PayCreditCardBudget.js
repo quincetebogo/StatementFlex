@@ -50,8 +50,7 @@ export class PayCreditCardBudget extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		
-		this.productSelected = this.clientProducts.find(product => product.category === `transact`);
+		[this.productSelected] = this.clientProducts;
 	}
 
 	disconnectedCallback() {
