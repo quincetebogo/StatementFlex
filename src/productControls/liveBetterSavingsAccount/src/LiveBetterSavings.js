@@ -290,7 +290,6 @@ export class LiveBetterSavings extends Component {
 						data-automation-id="live-better-verified-title"
 						type="primary">
 							<img src='src/productControls/liveBetterSavingsAccount/images/liveBetter-white.svg'/>
-							</capitec-icon>
 							<capitec-label label="Live Better Savings Account" type="Title"></capitec-label>
 					</capitec-title-bar>
 
@@ -400,21 +399,21 @@ export class LiveBetterSavings extends Component {
 						class="button-margin" 
 						label="Transaction History" 
 						icon="system/time-action"
-						@click="${() => this._click(`transaction-history`)}">
+						@click="${() => this._click(`transaction-history-lbb`)}">
 					</horizon-option-button>
 					<horizon-option-button 
 						data-automation-id="live-better-verified-statements"
 						class="button-margin" 
 						label="Statements" 
 						icon="system/documents-action"
-						@click="${() => this._click(`statements`)}">
+						@click="${() => this._click(`statements-lbb`)}">
 					</horizon-option-button>
 					<horizon-option-button 
 						data-automation-id="live-better-verified-automatic-savings"
 						class="button-margin"
 						label="Automatic Savings" 
 						img-src="src/productControls/liveBetterSavingsAccount/images/automatic-savings.svg"
-						@click="${() => this._click(`automatic-savings`)}">
+						@click="${() => this._click(`automatic-savings-lbb`)}">
 					</horizon-option-button>
 				</capitec-group>
 			</capitec-group>
