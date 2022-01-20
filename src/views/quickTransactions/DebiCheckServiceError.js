@@ -40,6 +40,7 @@ export class DebiCheckServiceError extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
+		this.endCallContext = `DebiCheckServiceError`;
 	}
 
 	disconnectedCallback() {

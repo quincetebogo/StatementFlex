@@ -1,3 +1,4 @@
+import { accessFacilityDetails, creditCardDetails, creditOverview, termLoanDetails } from 'app/mocks/CreditMocks';
 import { css, html } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
@@ -10,12 +11,15 @@ import { ViewBase } from 'app/views/common/ViewBase';
 import { budgetfacilityresponse } from 'app/mocks/creditBudgetFacilityAccounts';
 import { creditOverview } from 'app/mocks/CreditMocks';
 
-import 'app/productControls/Credit/src/BudgetAccounts';
-import 'app/productControls/Credit/src/BudgetAccountDetails';
-import 'app/productControls/Credit/src/CreditAccountLanding';
-import 'app/dialogs/credit/CreditStatements';
-import 'app/productControls/Credit/src/CreditUnverifiedLanding';
 import 'app/components/common/ServiceCallErrorScreen';
+import 'app/components/credit/CreditCardDetails';
+import 'app/components/credit/AccessFacilityDetails';
+import 'app/components/credit/TermLoanDetails';
+import 'app/dialogs/credit/CreditStatements';
+import 'app/productControls/credit/src/BudgetAccounts';
+import 'app/productControls/credit/src/BudgetAccountDetails';
+import 'app/productControls/credit/src/CreditAccountLanding';
+import 'app/productControls/credit/src/CreditUnverifiedLanding';
 
 const PRODUCTS = {
 	CREDIT_CARD: `Credit Card`,
@@ -49,11 +53,13 @@ export class CreditAccount extends ViewBase {
 	
 		// private properites
 		this.budgetAccountDetails = null;
-
+		this.accountViewType = ``;
+		this.creditCardDetails = {};
+		this.accessFacilityDetails = {};
+		this.termLoanDetails = {};
 		this.encodedPDF = ``;
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
-
 	}
 
 	// -------------------
@@ -106,7 +112,9 @@ export class CreditAccount extends ViewBase {
 
 	static get properties() {
 		return {
-			landingPageInfo: { attribute: false }
+			loading: { state: false },
+			renderMode: { state: false },
+			accountViewType: { state: false }
 		};
 	}
 	
@@ -142,7 +150,7 @@ export class CreditAccount extends ViewBase {
 		window.open(`${branchLocatorUrl}`);
 	}
 	
-	_accountDetails(event) {
+	async _accountDetails(event) {
 		this._telemetry.logEvent(CreditEvents.CREDIT_ACCOUNT_NUMBER_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
 			"next-screen": TelemetryScreen.CREDIT_ACCOUNT_DETAILS,
@@ -150,7 +158,18 @@ export class CreditAccount extends ViewBase {
 			"product-type": event.detail.productType
 		});
 
-		// TO DO: Render Account details screen here
+		const creditCard = () => this._getCreditCardDetails();
+		const accessFacility = () => this._getAccessFacilityDetails();
+		const termLoan = () => this._getTermLoanDetails();
+
+		const creditProducts = {
+			[PRODUCTS.CREDIT_CARD]: creditCard,
+			[PRODUCTS.ACCESS_FACILITY]: accessFacility,
+			[PRODUCTS.TERM_LOAN]: termLoan
+		};
+
+		await creditProducts[event.detail.productType]();
+		this.accountViewType = event.detail.productType;
 	}
 
 	_backFromAccountDetails() {
@@ -389,9 +408,21 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	async _viewFees() {
-		const fees = await this.configuration.getSetting(`otherSystemsURL.fees`);
-		window.open(`${fees}`);
+	_getCreditCardDetails() {
+		// TODO: Service implementation should come here
+		this.creditCardDetails = creditCardDetails;
+		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
+	}
+
+	_getAccessFacilityDetails() {
+		// TODO: Service implementation will come here
+		this.accessFacilityDetails = accessFacilityDetails;
+		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
+	}
+
+	_getTermLoanDetails() {
+		this.termLoanDetails = termLoanDetails;
+		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
 	}
 
 	async _navigatePDF(currPage){
@@ -447,6 +478,9 @@ export class CreditAccount extends ViewBase {
 			${this._renderLandingPage()}
 			${this._renderBudgetFacilityAccounts()}
 			${this._renderBudgetAccountDetails()}
+			${this._renderCreditCardDetailsView()}
+			${this._renderAccessFacilityDetailsView()}
+			${this._renderTermLoanDetailsView()}
 			${this._renderStatements()}
 		`;
 	}
@@ -521,10 +555,43 @@ export class CreditAccount extends ViewBase {
 		return this.renderMode === RENDER_MODE.BUDGET_ACCOUNT_DETAILS
 		? html`
 			<capitec-pc-budget-account-details
-				.accountDetails="${this.budgetAccountDetails}"
-				@back="${() => this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW}">
+				.accountDetails="${this.budgetAccountDetails}">
 			</capitec-pc-budget-account-details>`
 		: html``;
+	}
+
+	_renderCreditCardDetailsView() {
+		return this.renderMode === RENDER_MODE.ACCOUNT_DETAIL_VIEW &&
+				this.accountViewType === PRODUCTS.CREDIT_CARD
+			? html`
+				<horizon-credit-card-details-view
+					.creditCardDetails="${this.creditCardDetails}"
+					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+				</horizon-credit-card-details-view>
+			`
+			: html``;
+	}
+
+	_renderAccessFacilityDetailsView() {
+		return this.renderMode === RENDER_MODE.ACCOUNT_DETAIL_VIEW &&
+				this.accountViewType === PRODUCTS.ACCESS_FACILITY
+			? html`
+				<horizon-access-facility-details-view
+					.accessFacilityDetails="${this.accessFacilityDetails}"
+					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+				</horizon-access-facility-details-view>`
+			: html``;
+	}
+
+	_renderTermLoanDetailsView() {
+		return this.renderMode === RENDER_MODE.ACCOUNT_DETAIL_VIEW &&
+				this.accountViewType === PRODUCTS.TERM_LOAN
+			? html`
+				<horizon-term-loan-details-view
+					.termLoanDetails="${this.termLoanDetails}"
+					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+				</horizon-term-loan-details-view>`
+			: html``;
 	}
 
 	_renderStatements() {

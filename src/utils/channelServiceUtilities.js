@@ -203,3 +203,38 @@ export function isWellFormedSouthAfricanID(southAfricanIDNumber) {
 	return html`${unsafeHTML(agreement)}`;
 
 }
+
+/**
+ * Converts date time to specific format
+ * 
+ * @param {string} value - Date time in string
+ * @param {string} format - Format, we wish to convert (dd/mm/yyyy)
+ * @returns {string} formatted string value 
+ */
+export function formatDate(value, format) {
+
+	const dateTime = new Date(value);
+	const date = dateTime.getDate();
+	const month = dateTime.getMonth();
+	const monthName = getMonthName(month);
+	const year = dateTime.getFullYear();
+	let formattedDate = ``;
+
+	// cases would be extended, based on our need in future
+	switch (format) {
+		case `dd-mmm`:
+			formattedDate = `${date}-${monthName}`;
+			break;
+		case `dd mmm yyyy`:
+			formattedDate = `${date} ${monthName} ${year}`;
+			break;
+		case `dd/mm/yyyy`:
+			formattedDate = `${date}/${monthName}/${year}`;
+			break;
+		default:
+			formattedDate = `${date}-${month}-${year}`;
+			break;
+	}
+
+	return formattedDate;
+}
