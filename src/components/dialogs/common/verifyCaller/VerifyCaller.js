@@ -715,7 +715,7 @@ export class VerifyCaller extends Component {
 
 	_webTemplate() {
 		if (this.isLoading) {
-			return `${this._renderLoadingIndicator()}`;
+			return html`${this._renderLoadingIndicator()}`;
 		}
 		
 		return html`
