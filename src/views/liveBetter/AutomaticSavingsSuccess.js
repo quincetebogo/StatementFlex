@@ -37,8 +37,9 @@ export class AutomaticSavingsSuccess extends ViewBase {
 		super.connectedCallback();
 
 		this.screenDetails = this.horizonStore.getScreenDetails();
+		this.roundupDetails = this.screenDetails.lbbRoundupDetails;
+		this.updatedRoundupDetails = this.screenDetails.updatedLbbRoundupDetails;
 
-		
 		this._updateIncidentState();
 	}
 
@@ -51,13 +52,11 @@ export class AutomaticSavingsSuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
-	
 		this.horizonStore.clearReturnScreen();
-		this.horizonRouter.navigateToQuickTransactionFavourites();
+		this.horizonRouter.navigateToLiveBetter();
 	}
 
 	_manageAutomaticSavingsClick() {
-		
 		this.horizonRouter.navigateToReturnPage();
 	}
 
@@ -83,9 +82,8 @@ export class AutomaticSavingsSuccess extends ViewBase {
 					--theme-slot-detail-width: auto;
 				}
 				.bullet-label{
-					padding:
-				}
-			`
+					padding-left: 16px;
+				}`
 		];
 	}
 
@@ -112,45 +110,42 @@ export class AutomaticSavingsSuccess extends ViewBase {
 				toast="Automatic savings successfully updated"
 				subContent=${true}
 				@left-click=${() => this._manageAutomaticSavingsClick()}
-				@right-click=${() => this.__doneClick()}>
+				@right-click=${() => this._doneClick()}>
 					
-					${this._renderSubContent()}
-					${this._renderDetails()}
-					${this._renderRoundUpOff()}
-
+				${this._renderRoundupSwitchedOff()}
+				${this._renderRoundupValueChange()}
+				${this._renderRoundupAccountsChange()}
 			</horizon-success-screen>
 		`;
 	}
 
-	_renderSubContent() {
-		return this.roundUpAccountChange 
+	_renderRoundupSwitchedOff() {
+		return !this.updatedRoundupDetails.accountRoundUpActive && this.roundupDetails.accountRoundUpActive 
 			? html`
-					<section slot="sub-content">
-						Updated on the following accounts:
-						<li class="bullet-label"><b>Main Savings account</b></li>
-						<li class="bullet-label"><b>Credit card</b></li>
-					</section>
-					`
-					: html``;
+				<section slot="detail">
+					Round-up successfully switched off.
+				</section>`
+			: html``;
 	}
 
-	_renderDetails() {
-		return this.isRoundupOff 
+	_renderRoundupValueChange() {
+		return this.roundupDetails.roundupValue !== this.updatedRoundupDetails.roundupValue
 			? html`
-					<section slot="detail">
-						Round-up successfully switched off.
-					</section>
-					`
-					: html``;
+				<section slot="detail">
+					Round-up successfully updated to <b>${this.updatedRoundupDetails.roundupValue}</b>
+				</section>`
+			: html``;
 	}
-	
-	_renderRoundUpOff() {
-		return this.roundUpAmountChange 
+
+	_renderRoundupAccountsChange() {
+		return this.updatedRoundupDetails.activatedRoundUpAccounts.length >= 0
 			? html`
-			<section slot="detail">
-				Round-up successfully updated to <b>R10</b>
-			</section>
-			`
+				<section slot="sub-content">
+					Updated on the following accounts:
+					${this.updatedRoundupDetails.activatedRoundUpAccounts.map(account => html`
+						<li class="bullet-label"><b>${account.accountName}</b></li>`)
+					}
+				</section>`
 			: html``;
 	}
 }

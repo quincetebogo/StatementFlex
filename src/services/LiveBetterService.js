@@ -110,4 +110,31 @@ export class LiveBetterService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+
+	/**
+	 * Update live better roundup details
+	 *
+	 * @param {object} updateRoundupRequest details required to update lbb roundup details
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	 lbbUpdateRoundupDetails (updateRoundupRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		// if (await this.isMockEnabled(`lbbUpdateRoundupDetails`)) {
+		// return this.mock(`lbbUpdateRoundupDetails`, updateRoundupRequest);
+		// }
+
+		return this.put(
+			`/clientcare-lbb-${this._version_2}/update-lbb-account`, 
+			updateRoundupRequest, 
+			this.setToken(), 
+			`lbbUpdateRoundupDetails`,
+			null,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 }

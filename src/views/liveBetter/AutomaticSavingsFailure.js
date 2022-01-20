@@ -39,7 +39,7 @@ export class AutomaticSavingsFailure extends ViewBase {
 	_doneClick() {
 
 		this.horizonStore.clearReturnScreen();
-		this.horizonRouter.navigateToQuickTransactionFavourites();
+		this.horizonRouter.navigateToLiveBetter();
 	}
 
 	_assignClick() {

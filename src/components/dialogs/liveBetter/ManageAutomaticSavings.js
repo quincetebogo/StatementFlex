@@ -1,5 +1,8 @@
 import { Component, css, html } from 'platform/elements';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 import 'app/components/common/RadioButtonGroup';
+
+const ROUNDUP_VALUES = [2, 5, 10];
 
 /**
  * The Horizon Value Added Services dialog is used to seek permission to access client data.
@@ -20,12 +23,6 @@ export class ManageAutomaticSavings extends Component {
 
 	constructor() {
 		super();
-		this.roundUpActive=true;
-		this.checked = false;
-		this.alertBannerMessage = ``;
-		this.roundUpCheck=false;
-		this.roundupAccountActive=false;
-
 	}
 
 	// -----------
@@ -33,11 +30,9 @@ export class ManageAutomaticSavings extends Component {
 	// -----------
 	static get properties() {
 		return {
-			roundUpActive : {type:Boolean},
-			checked : { type: Boolean },
-			alertBannerMessage : { type: String },
-			roundUpActive : {type: Boolean, attribute: false},
-			roundupAccountActive : {type: Boolean, attribute: false}
+			accountDetails: { type: Object },
+			isRoundUpActive: { state: true },
+			isInterestSweepActive: { state: true }
 		};
 	}
 
@@ -48,11 +43,12 @@ export class ManageAutomaticSavings extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this.isRoundUpActive = this.accountDetails.accountRoundUpActive;
+		this.isInterestSweepActive = this.accountDetails.accountInterestSweepActive;
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-
 	}
 
 	// --------------
@@ -63,13 +59,12 @@ export class ManageAutomaticSavings extends Component {
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-	_onValueChanged() {
-		this.checked = !this.checked;
-		if (this.checked) {
-			this.alertBannerMessage = ``;
-		}
-	}
+	_update() {
+		this.accountDetails.accountRoundUpActive = this.isRoundUpActive;
+		this.accountDetails.accountInterestSweepActive = this.isInterestSweepActive;
 
+		this.dispatchEvent(new CustomEvent(`update`, { detail: { updatedRoundupDetails: this.accountDetails } }));
+	}
 
 	// --------------
 	// PUBLIC METHODS
@@ -78,6 +73,20 @@ export class ManageAutomaticSavings extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+	
+	_selectRoundUpAmount(e, value) {
+		if (e.detail.new) {
+			this.accountDetails.roundupValue = value; 
+		}
+	}
+
+	_selectedRoundUpAccounts(e, account) {
+		if (e.detail.new) {
+			this.accountDetails.activatedRoundUpAccounts.push(account);
+			return;
+		}
+		this.accountDetails.activatedRoundUpAccounts.splice(this.accountDetails.activatedRoundUpAccounts.indexOf(account), 1);
+	}
 
 	
 	// ---------
@@ -110,20 +119,18 @@ export class ManageAutomaticSavings extends Component {
 					border-radius: 4px 4px 0px 0px;
 					position: absolute;
 					left: -852px;
-					top: -44px;					
+					top: -44px;
 					background: url(/images/liveBetter/LBB_bg_64px.png);
 					--theme-label-title-font-size: 18px;
 					--theme-titlebar-padding: 20px 16px;
-					--theme-label-font-family: 'Hind Vadodara semibold';
+					--theme-titlebar-item-gap: 0px;
 				}
 
 				.header-gradient > capitec-label {
-					line-height: 64px;
 					padding-left: 12px;
 					--theme-label-default-font-size: 18px;
+					--theme-label-default-font-weight: 600;
 					--theme-label-font-color: #ffffff;
-					letter-spacing: 0;
-					--theme-label-font-family: 'Hind Vadodara SemiBold';
 				}
 				capitec-alert-banner[type="info"] {
 					--theme-alert-banner-info-font-color: #3A3A3A;
@@ -131,119 +138,78 @@ export class ManageAutomaticSavings extends Component {
 					--theme-alert-banner-icon-margin-left: 16px;
 					--theme-alert-banner-icon-margin-right: 12px;
 				}
-
-				capitec-alert-banner[type="warning"] {
-					--theme-alert-banner-icon-margin-left: 15px;
-					--theme-alert-banner-icon-margin-right: 9px;
-					--theme-alert-banner-warning-font-color: #3A3A3A;
-					--theme-alert-banner-height: 63px;
-				}
-
-				capitec-alert-banner[type="unsuccessful-red"] {
-					--theme-alert-banner-height: 48px;
-					--theme-alert-banner-icon-margin-left: 15px;
-					--theme-alert-banner-icon-margin-right: 15px;
-					--theme-layout-gap-spacing: 16px;
-					--theme-alert-banner-font-weight: 600;
-				}
-
 				capitec-label[type="title"] {
-					--theme-label-title-font-size: 18px;
+					--theme-label-title-font-size: 16px;
 					--theme-label-title-font-weight: 600;
-					--theme-layout-gap-spacing: 6px;
+					padding-left: 7px;
 				}
-
 				.main-container {
 					height: 754px;
 					width: auto;
 					border-bottom: 1px solid #E1E1E1;
-					--theme-container-padding-top: 15px;
-					--theme-container-padding-right: 17px;
-					--theme-container-padding-bottom: 0px;
-					--theme-container-padding-left: 16px;
-					--theme-layout-gap-spacing: 16px;
 				}
-
 				.alert-banner {
 					--theme-alert-banner-height: 48px;
 					--theme-alert-banner-width: 840px;
 					--theme-alert-banner-font-weight: 600;
 					--theme-alert-banner-info-background-color: #DAF2F4;
-					--theme-layout-gap-spacing: 8px;
+					--theme-layout-gap-spacing: 20px;
 					--theme-alert-banner-info-font-color: #3A3A3A;
 					--theme-alert-banner-icon-margin-right: 12px;
 				}
-
+				.alert-banner > p {
+					display: inline-block;
+					font-weight: 400;
+					color: #3A3A3A;
+				}
 				capitec-title-bar {
 					--theme-titlebar-padding: 12px 16px;
-					--theme-type-primary-background: url(/images/liveBetter/LBB_bg_64px.png);
 				}
 				capitec-title-bar > capitec-label {
 					--theme-label-title-font-size: 24px;
 					--theme-label-title-font-weight: 600;
 				}
-
-				.alert-banner-paragraph {
-					display: inline-block;
-					font-weight: 400;
-					color: #3A3A3A;
+				.header-off {
+					background-color: #F7F7F7;
 				}
-
-				.header-label {
-					height: 20px;
-					width: 318px;
-					color: #3A3A3A;
-					font-family: "Hind Vadodara";
-					font-size: 16px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 20px;
-
+				.round-up-amount {
+					padding: 0px 16px 16px 16px;
+					--theme-buttonbar-item-gap: 0px;
 				}
-
-				.title-style{
-					height: 20px;
-					width: 233px;
-					color: #3A3A3A;
-					font-family: "Hind Vadodara";
-					font-size: 14px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 20px;
-					margin-left:16px;
+				capitec-radio {
+					margin-top: 16px;
 				}
-
-				.round-up-amount{
-					padding: 8px 16px 15px 16px;
-					--theme-buttonbar-item-gap: 16px;
-				}
-				.round-up-account{
-					padding: 8px 16px 15px 16px;
-				}
-				.round-up-account > capitec-check {
-					height: 40px;
-					padding: 8px 0px;
+				.account-check-box {
+					height: 24px;
+					margin: 16px 16px 0px 16px;
 				}
 				#id-toggle-label {
-					--theme-layout-gap-spacing: 0px;
+					--theme-layout-gap-spacing: 8px;
+					--theme-label-default-font-weight: 600;
 					--theme-label-default-font-size: 15px;
 					--theme-label-font-color: #3A3A3A;
 				}
-
 				#id-interest-sweep{
 					--theme-card-min-width: 840px;
     				--theme-card-min-height: 48px;
+					--theme-layout-gap-spacing: 0px;
 				}
-
 				#id-round-up{
 					--theme-card-min-width: 840px;
-    				--theme-card-min-height: 394px;
+    				--theme-card-min-height: 48px;
+					--theme-layout-gap-spacing: 0px;
+					margin-bottom: 16px;
+					height: auto;
 				}
-
-				#id-check-round-up-accounts{
-					height:143px;
+				.group-accounts {
+					margin-bottom: 23px;
 				}
-
+				.hide-group {
+					display: none;
+				}
+				.show-group {
+					display: block;
+				}
 				.other-options {
 					height: 32px;
 					--theme-titlebar-min-height: 32px;
@@ -265,7 +231,6 @@ export class ManageAutomaticSavings extends Component {
 					width: auto;
 					padding: 7px 16px 8px 0px;
 				}
-
 				capitec-button {
 					height: 48px;
 					--theme-button-font-weight: 600;
@@ -291,26 +256,28 @@ export class ManageAutomaticSavings extends Component {
 			<capitec-modal type="free" header-align="left">
 				<div slot="header">
 					<capitec-title-bar data-automation-id="manage-automatic-savings-image" type="primary" class="header-gradient">
-						<img src="/images/liveBetter/round-up.svg"/>
-						<capitec-label  label="Manage Automatic Savings"></capitec-label>
+						<capitec-image src="src/productControls/liveBetterSavingsAccount/images/Automatic-savings-white.svg"></capitec-image>
+						<capitec-label label="Manage Automatic Savings"></capitec-label>
 					</capitec-title-bar>
 				</div>
 				<div slot="body">
 					<capitec-content-box class="main-container">
-					${this._renderAlertBanner()}
-					<capitec-card id="id-round-up">
-						${this._renderRoundUpSaveToggle()}
-						${this._renderSetRoundUpAmount()}
-						${this._renderActiveRoundUpAccounts()}
-					</capitec-card>
-					<capitec-group>
-						<capitec-card id="id-interest-sweep">
-						${this._renderInterestSweep()}
+						
+						${this._renderAlertBanner()}
+						
+						<capitec-card id="id-round-up">
+							${this._renderRoundUpSaveToggle()}
+							${this._renderSetRoundUpAmount()}
+							${this._renderActiveRoundUpAccounts()}
 						</capitec-card>
-					</capitec-group>	
+						
+						<capitec-card id="id-interest-sweep">
+							${this._renderInterestSweep()}
+						</capitec-card>
+					
 					</capitec-content-box>
 				</div>
-				<div slot="footer" class="footer-class">
+				<div slot="footer">
 					${this._renderFooter()}
 				</div>
 			</capitec-modal>
@@ -326,81 +293,101 @@ export class ManageAutomaticSavings extends Component {
 		`;
 	}
 
-	_renderRoundUpSaveToggle(){
+	_renderRoundUpSaveToggle() {
 		return html`
-		<capitec-group class="card-header" gap="clear" halign="left" valign="center" layout="horizontal">
+		<capitec-group class="card-header ${this.isRoundUpActive ? `` : `header-off`}" gap="clear" halign="left" valign="center" layout="horizontal">
 			<img src='/images/liveBetter/round-up.svg'/>
-			<capitec-label class="header-label" type="title" label="Round-up. Save a little every time you spend"></capitec-label>
+			<capitec-label type="title" label="Round-up. Save a little every time you spend"></capitec-label>
 			<capitec-spacer></capitec-spacer>
 					<capitec-label
 						id="id-toggle-label"
-						style="font-weight: 600"
-						label="${this.roundUpActive ? 'On': 'Off'}"
+						label="${this.isRoundUpActive ? `On` : `Off`}"
 						type="default">
 					</capitec-label>
-				<capitec-toggle data-automation-id="manage-automatic-savings-toggle" id="id-toggle" checked>
+				<capitec-toggle 
+					data-automation-id="manage-automatic-savings-toggle" 
+					id="id-toggle" 
+					?checked="${this.isRoundUpActive}"
+					@value-change="${() => this.isRoundUpActive = !this.isRoundUpActive}">
 				</capitec-toggle>
 			</capitec-group>
+		`;
+	}
 
+	_renderSetRoundUpAmount() {
+		return html`
+			<capitec-group 
+				layout="vertical"
+				halign="left" 
+				valign="center" 
+				gap="clear"
+				class="${this.isRoundUpActive ? `show-group` : `hide-group`}">
+					<capitec-title-bar
+						type="default"
+						label="Set Round-up amount"
+						class="other-options">
+					</capitec-title-bar>
+
+					<capitec-radio-group 
+						data-automation-id="manage-automatic-savings-radio-amount" 
+						class="round-up-amount">
+							${ROUNDUP_VALUES.map(value => html`
+								<capitec-radio 
+									label="${formatCurrency(value)}" 
+									?checked="${this.accountDetails.roundupValue === value}"
+									@value-change="${(e) => this._selectRoundUpAmount(e, value)}">
+								</capitec-radio>
+							`)}
+					</capitec-radio-group>
 			</capitec-group>
 		`;
 	}
 
-	_renderSetRoundUpAmount(){
+	_renderActiveRoundUpAccounts() {
 		return html`
-			<capitec-group layout="vertical" gap="line" halign="left" valign="center" gap="clear">
-				<capitec-title-bar
-					type="default"
-					label="Set Round-up amount"
-					class="other-options">
-				</capitec-title-bar>
-
-				<capitec-radio-group data-automation-id="manage-automatic-savings-radio-amount" class="round-up-amount">
-					<capitec-radio label="R2.00" checked></capitec-radio>
-					<capitec-radio label="R5.00"></capitec-radio>
-					<capitec-radio label="R10.00"></capitec-radio>
-				</capitec-radio-group>
-
+			<capitec-group 
+				layout="vertical" 
+				gap="none" 
+				halign="left" 
+				valign="center"
+				class="${this.isRoundUpActive ? `show-group` : `hide-group`} group-accounts">
+					<capitec-title-bar
+						type="default"
+						label="Active round-up accounts"
+						class="other-options">
+					</capitec-title-bar>
+						${this.accountDetails.roundUpAccounts.map(account => html`
+							<capitec-check 
+								class="account-check-box"
+								label="${account.accountName}"
+								?checked="${this.accountDetails.activatedRoundUpAccounts.find(activeAccount => activeAccount.accountNumber === account.accountNumber)}"
+								@value-change="${(e) => this._selectedRoundUpAccounts(e, account)}">
+							</capitec-check>
+						`)}
 			</capitec-group>
 		`;
 	}
 
-	_renderActiveRoundUpAccounts(){
+	_renderInterestSweep() {
 		return html`
-			<capitec-group layout="vertical" gap="line" halign="left" valign="center" gap="clear">
-				<capitec-title-bar
-					type="default"
-					label="Active round-up accounts"
-					class="other-options">
-				</capitec-title-bar>
-				<capitec-check-group data-automation-id="manage-automatic-savings-check-account" class="round-up-account">
-					<capitec-check label="Main Savings account"></capitec-check>
-					<capitec-check label="My new Car"></capitec-check>
-					<capitec-check label="Credit card"></capitec-check>
-				</capitec-check-group>
-
-			</capitec-group>
-		`;
-	}
-
-	_renderInterestSweep(){
-		return html`
-		<capitec-group class="card-header" gap="clear" halign="left" valign="center" layout="horizontal">
+		<capitec-group class="card-header ${this.isInterestSweepActive ? `` : `header-off`}" gap="clear" halign="left" valign="center" layout="horizontal">
 			<img src='/images/liveBetter/interest-sweep.svg'/>
-			<capitec-label class="header-label" type="title" label="Intrest Sweep. SuperCharge your interest"></capitec-label>
+			<capitec-label type="title" label="Intrest Sweep. SuperCharge your interest"></capitec-label>
 			<capitec-spacer></capitec-spacer>
 					<capitec-label
 						id="id-toggle-label"
-						style="font-weight: 600"
-						label="${this.roundUpActive ? 'On': 'Off'}"
+						label="${this.isInterestSweepActive ? `On` : `Off`}"
 						type="default">
 					</capitec-label>
-				<capitec-toggle data-automation-id="manage-automatic-savings-toggle" id="id-toggle" checked>
+					<capitec-toggle 
+						data-automation-id="manage-automatic-savings-toggle" 
+						id="id-toggle"
+						?checked="${this.isInterestSweepActive}"
+						@value-change="${() => this.isInterestSweepActive = !this.isInterestSweepActive}">
 				</capitec-toggle>
 		</capitec-group>
 		`;
 	}
-
 
 	_renderFooter() {
 		return html`
@@ -417,7 +404,8 @@ export class ManageAutomaticSavings extends Component {
 					id="button-update"
 					data-automation-id="manage-automatic-savings-update"
 					type="primary" 
-					label="Update">
+					label="Update"
+					@click="${() => this._update()}">
 				</capitec-button>
 
 			</capitec-group>

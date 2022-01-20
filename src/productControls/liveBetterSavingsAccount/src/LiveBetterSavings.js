@@ -307,7 +307,8 @@ export class LiveBetterSavings extends Component {
 	}
 	
 	_renderAccountDetailsBar() {
-		return html`
+		return this.liveBetterAccountData 
+		? html`
 			<div class="account-details-bar">
 				<capitec-expander 
 					data-automation-id="live-better-verified-expander"
@@ -385,8 +386,8 @@ export class LiveBetterSavings extends Component {
 						<capitec-icon class="${this._expanded ? `transform-icon` : ``}" icon="system/chevron-down-action"></capitec-icon>
 					</capitec-group>
 				</capitec-group>
-			</div>
-		`;
+			</div>`
+		: html``;
 	}
 
 	_renderOptions() {
@@ -400,21 +401,21 @@ export class LiveBetterSavings extends Component {
 						class="button-margin" 
 						label="Transaction History" 
 						icon="system/time-action"
-						@click="${() => this._click(`transaction-history`)}">
+						@click="${() => this._click(`transaction-history-lbb`)}">
 					</horizon-option-button>
 					<horizon-option-button 
 						data-automation-id="live-better-verified-statements"
 						class="button-margin" 
 						label="Statements" 
 						icon="system/documents-action"
-						@click="${() => this._click(`statements`)}">
+						@click="${() => this._click(`statements-lbb`)}">
 					</horizon-option-button>
 					<horizon-option-button 
 						data-automation-id="live-better-verified-automatic-savings"
 						class="button-margin"
 						label="Automatic Savings" 
 						img-src="src/productControls/liveBetterSavingsAccount/images/automatic-savings.svg"
-						@click="${() => this._click(`automatic-savings`)}">
+						@click="${() => this._click(`automatic-savings-lbb`)}">
 					</horizon-option-button>
 				</capitec-group>
 			</capitec-group>

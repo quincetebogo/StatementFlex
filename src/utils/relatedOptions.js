@@ -64,7 +64,7 @@ export const relatedOptions = {
 			`statements`
 		]
 	},
-	'automatic-savings': {
+	'automatic-savings-lbb': {
 		Success: [`statements`],
 		Failure: [`statements`]
 	}
