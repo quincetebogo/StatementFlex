@@ -1,6 +1,7 @@
 import { css, html } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
+import { DateTime } from 'luxon';
 import { formatCurrency } from 'app/utils/channelServiceUtilities';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
@@ -8,7 +9,6 @@ import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { budgetfacilityresponse } from 'app/mocks/creditBudgetFacilityAccounts';
 import { creditOverview } from 'app/mocks/CreditMocks';
-import { formatCurrency } from 'app/utils/channelServiceUtilities';
 
 import 'app/productControls/Credit/src/BudgetAccounts';
 import 'app/productControls/Credit/src/BudgetAccountDetails';
@@ -528,6 +528,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderStatements() {
+		//startDate="${DateTime.local(2021, 10).toString()}"
 		return this.renderMode === RENDER_MODE.STATEMENTS
 		? html`
 			<horizon-credit-statements-dialog
