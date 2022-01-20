@@ -24,8 +24,11 @@ const RENDER_MODE = {
 	MULTIPLE_TOKEN: 2
 };
 
+// to be replaced with data from channel service
+const CLIENT_TOKENS = [{ token: `90876375849`, selected: false }, { token: `123476375849`, selected: false }, { token: `019836375849`, selected: false }, { token: `23776375849`, selected: false }];
+
 /**
- * Internet Banking profile Details component is used to show client's information and Suspend/Unsuspend Security Tokens.
+ * Internet Banking profile Details component is used to show client's information and Suspend/Reset Security Tokens.
  * This component is envoked from Access Channels component
  * 
  * Events Raised 
@@ -52,7 +55,7 @@ export class InternetBankingProfileDetails extends Component {
 		this.selectedTokens = [];
 
 		// internal props
-		this.isInternetBankingActive = true;
+		// this.isInternetBankingActive = true;
 		this.displayToast = false;
 		this.displaySuspendToast = false;
 		this.showSuspendPanel = false;
@@ -65,10 +68,10 @@ export class InternetBankingProfileDetails extends Component {
 		this.renderMode = RENDER_MODE.NONE;
 		this.renderStepperMode = RENDER_STEPPER_MODE.NONE;
 		// this.isMultipleDevices = true;
-		this.isMultipleDevices = false;
+		// this.isMultipleDevices = false;
 		this.isIndeterminate = false;
 
-		this.clientTokens = [{ token: `90876375849`, selected: false }, { token: `123476375849`, selected: false }, { token: `019836375849`, selected: false }, { token: `23776375849`, selected: false }];
+		this.clientTokens = [];
 		this.isSuspendReasonSelected = false;
 		this.isTokenSelected = false;
 	}
@@ -104,30 +107,23 @@ export class InternetBankingProfileDetails extends Component {
 		return {
 			// input properties
 			internetBankingDetails: { type: Object },
-			selectedReason: { type: String },
-			selectedTokens: { type: Object },
 			showSideSheet: { type: Boolean },
 
+			// callback functions
 			suspendInternetBankingSecurityToken: { type: Object, attribute: false },
 			resetInternetBankingSecurityToken: { type: Object, attribute: false },
 
-			// internal props
-			isInternetBankingActive: { state: true },
-			displayToast: { state: true },
-			displaySuspendToast: { state: true },
-			showSuspendPanel: { state: true },
-			showResetTokenPanel: { state: true },
-			isTokenSuspended: { state: true },
-			showNoReasonSelectedNotification: { state: true },
-
-			isMultipleDevices: { state: true },
+			// internal prop
+			selectedReason: { type: String },
+			selectedTokens: { type: Object },
 			renderMode: { type: Boolean, attribute: false },
 			renderStepperMode: { type: Boolean, attribute: false },
-			isIndeterminate: { state: true },
 
-			clientTokens: { type: Array },
-			isTokenSelected: { state: true },
-			isSuspendReasonSelected: { state: true }
+			displayToast: { type: Boolean, attribute: false },
+			displaySuspendToast: { type: Boolean, attribute: false },
+			isIndeterminate: { type: Boolean, attribute: false },
+			showNoReasonSelectedNotification: { type: Boolean, attribute: false },
+			showResetTokenPanel: { type: Boolean, attribute: false }
 		};
 	}
 
@@ -137,6 +133,10 @@ export class InternetBankingProfileDetails extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this.clientTokens = CLIENT_TOKENS;
+		this.isMultipleDevices = true;
+		this.isInternetBankingActive = this.internetBankingDetails.status === `Active`;
 	}
 
 	disconnectedCallback() {
@@ -151,16 +151,22 @@ export class InternetBankingProfileDetails extends Component {
 		this.dispatchEvent(new CustomEvent(`close-side-sheet`, {}));
 	}
 
+	_resetTokenValues() {
+		this.isIndeterminate = false;
+		this.selectedTokens = [];
+		this.selectAll = false;
+		this.clientTokens.forEach(item => {
+			if (item.selected) {
+				item.selected = false;
+			}
+		});
+	}
+
 	async _onResetSecurityTokenClockClick() {
 		if (this.isMultipleDevices) {
 			this.showResetTokenPanel = true;
-			
-			this.selectAll = false;
-			this.clientTokens.forEach(item => {
-				if (item.selected) {
-					item.selected = false;
-				}
-			});
+
+			this._resetTokenValues();
 
 			this.renderMode = RENDER_MODE.MULTIPLE_TOKEN;
 			this.renderStepperMode = RENDER_STEPPER_MODE.CLIENT_TOKENS;
@@ -205,14 +211,7 @@ export class InternetBankingProfileDetails extends Component {
 
 	_onCloseResetPanelClick() {
 		this.showResetTokenPanel = false;
-		this.selectedTokens = [];
-
-		this.selectAll = false;
-		this.clientTokens.forEach(item => {
-			if (item.selected) {
-				item.selected = false;
-			}
-		});
+		this._resetTokenValues();
 	}
 
 	_onOpenSuspendPanelClick() {
@@ -222,16 +221,10 @@ export class InternetBankingProfileDetails extends Component {
 			this.renderMode = RENDER_MODE.MULTIPLE_TOKEN;
 			this.renderStepperMode = RENDER_STEPPER_MODE.CLIENT_TOKENS;
 
-			this.isIndeterminate = false;
 			this.isTokenSelected = false;
-			this.selectedTokens = [];
 			this.renderStepperMode = RENDER_STEPPER_MODE.CLIENT_TOKENS;
-			this.selectAll = false;
-			this.clientTokens.forEach(item => {
-				if (item.selected) {
-					item.selected = false;
-				}
-			});
+
+			this._resetTokenValues();
 		} else {
 			this.renderMode = RENDER_MODE.SINGLE_TOKEN;
 			this.renderStepperMode = RENDER_STEPPER_MODE.SUSPEND_REASONS;
@@ -246,6 +239,7 @@ export class InternetBankingProfileDetails extends Component {
 		this.showNoReasonSelectedNotification = false;
 		this.selectedReason = ``;
 		this.isTokenSuspended = false;
+		this.selectedTokens = [];
 	}
 
 	_onSelectedReasonChanged(event) {
@@ -682,7 +676,6 @@ export class InternetBankingProfileDetails extends Component {
 		return html`
 			${this._renderInternetBankingPanel()}
 			${this._renderSuspendPanel()}
-			${this._renderMultipleDevicesSuspendPanel()}
 			${this._renderMultipleDevicesResetTokenPanel()}
 		`;
 	}
@@ -801,45 +794,19 @@ export class InternetBankingProfileDetails extends Component {
 			<capitec-side-sheet
 				class="side-panel-sheet"
 				.expanded=${this.showSuspendPanel}
-				alignment="right"
-			>
-				<capitec-group
-					class="side-panel-header-suspend ${this.showNoReasonSelectedNotification ? `side-panel-header-suspend-error` : ``}"
-					layout="horizontal"
-					halign="left"
-					valign="center"
-					gap="none">
-					<capitec-icon class="side-panel-header-icon" size="medium" icon=${this.showNoReasonSelectedNotification ? `status/error-trans` : `status/warning-trans`}></capitec-icon>
-					<capitec-label class="side-panel-header-label" type="Strong" label="Suspend Security Token"></capitec-label>
-					<capitec-spacer></capitec-spacer>
-					<capitec-icon class="side-panel-close-icon" size="small" icon="system/close-action" @click="${() => this._onCloseSuspendPanelClick()}"></capitec-icon>
-				</capitec-group>
+				alignment="right">
 
+				${this._renderSuspendPanelHeader()}
 				${this._renderSuspendReasons()}
 
 			</capitec-side-sheet>
-		` : html``;
-	}
-
-	_renderMultipleDevicesSuspendPanel() {
-		return this.renderMode === RENDER_MODE.MULTIPLE_TOKEN ? html`
+		` : html`
 			<capitec-side-sheet
 				class="side-panel-sheet"
 				.expanded=${this.showSuspendPanel}
-				alignment="right"
-			>
-				<capitec-group
-					class="side-panel-header-suspend ${this.showNoReasonSelectedNotification ? `side-panel-header-suspend-error` : ``}"
-					layout="horizontal"
-					halign="left"
-					valign="center"
-					gap="none">
-					<capitec-icon class="side-panel-header-suspend-icon" size="medium" icon=${this.showNoReasonSelectedNotification ? `status/error-trans` : `status/warning-trans`}></capitec-icon>
-					<capitec-label class="side-panel-header-label" type="Strong" label="Suspend Security Token"></capitec-label>
-					<capitec-spacer></capitec-spacer>
-					<capitec-icon class="side-panel-close-icon" size="small" icon="system/close" @click="${() => this._onCloseSuspendPanelClick()}"></capitec-icon>
-				</capitec-group>
+				alignment="right">
 
+				${this._renderSuspendPanelHeader()}
 				${this._renderMulitpleDevicesStepper()}
 				${this._renderSuspendReasons()}
 
@@ -852,9 +819,24 @@ export class InternetBankingProfileDetails extends Component {
 				>
 					${this._renderClientTokens()}
 				</capitec-content-box>
-				
 			</capitec-side-sheet>
-		` : html``;
+		`;
+	}
+
+	_renderSuspendPanelHeader() {
+		return html`
+			<capitec-group
+				class="side-panel-header-suspend ${this.showNoReasonSelectedNotification ? `side-panel-header-suspend-error` : ``}"
+				layout="horizontal"
+				halign="left"
+				valign="center"
+				gap="none">
+				<capitec-icon class="${this.renderMode === RENDER_MODE.SINGLE_TOKEN ? `side-panel-header-icon` : `side-panel-header-suspend-icon`}" size="medium" icon=${this.showNoReasonSelectedNotification ? `status/error-trans` : `status/warning-trans`}></capitec-icon>
+				<capitec-label class="side-panel-header-label" type="Strong" label="Suspend Security Token"></capitec-label>
+				<capitec-spacer></capitec-spacer>
+				<capitec-icon class="side-panel-close-icon" size="small" icon="${this.renderMode === RENDER_MODE.SINGLE_TOKEN ? `system/close-action` : `system/close`}" @click="${() => this._onCloseSuspendPanelClick()}"></capitec-icon>
+			</capitec-group>
+		`;
 	}
 
 	_renderMulitpleDevicesStepper() {
@@ -888,7 +870,6 @@ export class InternetBankingProfileDetails extends Component {
 	_renderSuspendReasons() {
 		return this.renderStepperMode === RENDER_STEPPER_MODE.SUSPEND_REASONS ? html`
 			${this._renderClientNotification()}
-			${this._renderNoReasonSelectedNotification()}
 
 			<capitec-content-box
 				class="content-box"
@@ -1140,7 +1121,15 @@ export class InternetBankingProfileDetails extends Component {
 	}
 
 	_renderClientNotification() {
-		return this.showNoReasonSelectedNotification ? html`` : html`
+		return this.showNoReasonSelectedNotification ? html`
+			<capitec-alert-banner
+				type="unsuccessful-red"
+				label=""
+				layout="vertical">
+				<p></b><b>Notice:</b></p>
+				<p>Please choose a reason to suspend.</p>
+			</capitec-alert-banner>
+		` : html`
 			<capitec-alert-banner
 				type="warning"
 				class="client-notify-banner"
@@ -1156,18 +1145,6 @@ export class InternetBankingProfileDetails extends Component {
 				></capitec-hyperlink>
 			</capitec-alert-banner>
 		`;
-	}
-
-	_renderNoReasonSelectedNotification() {
-		return this.showNoReasonSelectedNotification ? html`
-			<capitec-alert-banner
-				type="unsuccessful-red"
-				label=""
-				layout="vertical">
-				<p></b><b>Notice:</b></p>
-				<p>Please choose a reason to suspend.</p>
-			</capitec-alert-banner>
-		` : html``;
 	}
 }
 
