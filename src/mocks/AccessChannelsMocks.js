@@ -21,6 +21,7 @@ export const accessChannelsDetails = {
 	},
 	"ussd": {
 		"status": "Active",
+		"statusReason": "",
 		"isSimBlocked": true,
 		"dateLastUsed": "2021-12-08T08:00:48.879Z",
 		"dateRegistered": "2021-12-08T08:00:48.879Z",
