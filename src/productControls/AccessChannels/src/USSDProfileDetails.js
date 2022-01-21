@@ -23,6 +23,8 @@ export class USSDProfileDetails extends Component {
 
 		// Active, SIM Blocked, ussd Blocked, Service Unavailable - null
 		this.ussdStatus = ``;
+
+		this.activateFullMenuUSSDSuccessful = true;
 	}
 	
 	// ----------
@@ -50,6 +52,7 @@ export class USSDProfileDetails extends Component {
 	 * @property {String} [showCancelReasons] - To toggle cancel reasons side sheet component
 	 * @property {Boolean} [showNotificationBanner] - To hide or show the notification banner on some action 
 	 * @property {Boolean} [showValidationBanner] - To hide or show the cancel reason validation banner on error 
+	 * @property {Boolean} [activateFullMenuUSSDSuccessful] - Indicates whether activating full ussd was successful
 	 * 
 	 * @property {cancelUSSDCallback} cancelUSSD Callback function to cancel USSD
 	 * @property {unblockSIMCallback} unblockSIM Callback function to Unblock SIM
@@ -62,6 +65,7 @@ export class USSDProfileDetails extends Component {
 
 			cancelUSSD: { type: Object, attribute: false },
 			activateFullMenuUSSD: { type: Object, attribute: false },
+			activateFullMenuUSSDSuccessful: { type: Boolean, attribute: false },
 			unblockSIM: { type: Object, attribute: false },
 			
 			ussdStatus: { state: true },
@@ -134,11 +138,11 @@ export class USSDProfileDetails extends Component {
 	}
 
 	async _activateFullMenu() {
-		const returnValue = await this.activateFullMenuUSSD();
+		this.activateFullMenuUSSDSuccessful = await this.activateFullMenuUSSD();
 
-		if (returnValue) {
+		if (this.activateFullMenuUSSDSuccessful) {
 			this._displayAndCloseToast(`The full menu is active.`);
-		}
+		} 
 	}
 
 	_onCancelReasonSelected(event) {
@@ -158,6 +162,10 @@ export class USSDProfileDetails extends Component {
 			this.showNotificationBanner = true;
 			this.bannerTitle = `Notify client`;
 			this.bannerSubtitle = `Services are currently unavailable`;
+		} else if (this._getUssdStatus() === `Active | Reduced menu` && !this.activateFullMenuUSSDSuccessful) {
+			this.showNotificationBanner = true;
+			this.bannerTitle = `Failed`;
+			this.bannerSubtitle = `Failed to activate USSD full menu.`;
 		} else if (status === `Active` && !this.ussd.isSimBlocked) {
 			this.showNotificationBanner = false;
 		} else if (this.ussd.isSimBlocked) {
@@ -203,7 +211,7 @@ export class USSDProfileDetails extends Component {
 
 		const ussdStatus = this.ussdStatus === `Blocked` ? `Cancelled` : this.ussdStatus;
 		const SIMStatus = this.ussd.isSimBlocked ? `Blocked: SIM Swop` : ``;
-		const menuStatus = this.ussd.features.includes(`REDUCED_MENU`) && this.ussdStatus !== `Blocked`? ` | Reduced menu` : ``;
+		const menuStatus = this.ussd.features.includes(`REDUCED_MENU`) && this.ussdStatus !== `Blocked` ? ` | Reduced menu` : ``;
 
 		return `${this.ussd.isSimBlocked ? SIMStatus : ussdStatus}${menuStatus}`;
 	}

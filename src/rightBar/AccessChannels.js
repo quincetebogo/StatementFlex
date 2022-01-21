@@ -128,11 +128,27 @@ export class AccessChannels extends Component {
 		return true;
 	}
 
-	activateFullMenuUSSD() {
+	async activateFullMenuUSSD() {
 		// TO DO: add code to activate full menu for currently active ussd clients
 		// If client has active ussd, menu reduced, activate full menu function
-		
+
 		const indexOfReducedMenu = this.status.ussd.features.indexOf(`REDUCED_MENU`);
+		
+		if (this.status.ussd.status !== `Active` || indexOfReducedMenu === -1) {
+			return false;
+		}
+
+		const returnValue = await this.accessChannelService.activatefullUssdMenu();
+
+		if (!returnValue.succeeded) {
+			this.log(`error`, `Unsuccessful call the activate full USSD menu`, `activateFullMenuUSSD`, returnValue.correlationId);
+			return false;
+		}
+
+		if (!returnValue.result) {
+			return false;
+		}
+
 		this.status.ussd.features.splice(indexOfReducedMenu, 1);
 		
 		this._deepCopyStatus();

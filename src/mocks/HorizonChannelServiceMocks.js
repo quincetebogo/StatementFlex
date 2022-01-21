@@ -236,4 +236,14 @@ export default class HorizonChannelServiceMocks {
 		}
 		return null;
 	}
+
+	activatefullUssdMenu() {
+
+		if (this._mockSettings.activatefullUssdMenu.positiveCase) {
+			return {};
+		}
+
+		return null;
+
+	}
 }

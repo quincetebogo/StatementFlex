@@ -45,4 +45,31 @@ export class AccessChannelService extends ChannelServiceBase {
 		return this.post(url, { 'cif': cifNumber }, this._setToken(), `accessChannels`, null, null, 1000);
 		*/
 	}
+
+	async activatefullUssdMenu(cifNumber, msisdn, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`activatefullUssdMenu`)) {
+			return this.mock(`activatefullUssdMenu`);
+		}
+
+		const request = 
+		{
+			"msisdn": `${msisdn}`,
+			"cifNumber": `${cifNumber}` 
+		};
+
+		const url = `/clientcare-accesschannels-${this._version}/ussd/activate-full`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`ussdActivatefullUssdMenu`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 }
