@@ -24,6 +24,9 @@ export class TaxCertificateServiceError extends ViewBase {
 
 	constructor() {
 		super();
+
+		this.endCallContext = `ServiceError`;
+
 		this._telemetry = HorizonTelemetry.instance;
 		this._configuration = Configuration.getInstance();
 		this.horizonStore = HorizonStore.getInstance();

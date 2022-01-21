@@ -6,6 +6,7 @@
  * 
  * End call mapping refer from Confluience https://confluence.capitecbank.co.za:8443/display/HOR/Quick+Transactions%3A+STrack+Field+Mapping 
  * and https://confluence.capitecbank.co.za:8443/pages/viewpage.action?pageId=583797367
+ * End call contexts confluence https://confluence.capitecbank.co.za:8443/display/HOR/User+Story+1%3A+End+call+session+-+Enhanced
  */
  const NEED_FULFILLED = 0;
  const NEED_INCOMPLETE = 1;
@@ -21,6 +22,7 @@
 
  let UNCOMMON_REASONS = {};
  let PRODUCT_ENQUIRY_REASONS = {};
+ let UNSUCCESSFUL_REASONS = {};
 
 export const END_CALL_REASON = Object.freeze({
 	
@@ -56,7 +58,6 @@ export const END_CALL_REASON = Object.freeze({
 			value: `Need incomplete - bad connection`,
 			mapping: `telephony-disconnected`
 		}
-		
 	],
 	VerifyClient: [
 		{
@@ -328,7 +329,7 @@ export const END_CALL_REASON = Object.freeze({
 			mapping: ``
 		}
 	],
-	QuickTransactionsUnSuccess: [
+	QuickTransactionsUnSuccess: UNSUCCESSFUL_REASONS = [
 		{
 			key: NEED_INCOMPLETE,
 			value: `Need incomplete - Transaction Failed`,
@@ -383,8 +384,11 @@ export const END_CALL_REASON = Object.freeze({
 		}
 	],
 	DebiCheck: UNCOMMON_REASONS,
+	DebiCheckServiceError: UNCOMMON_REASONS,
 	SearchOtherNeed: UNCOMMON_REASONS,
-	ProductEnquiry: PRODUCT_ENQUIRY_REASONS
+	ProductEnquiry: PRODUCT_ENQUIRY_REASONS,
+	ServiceError: UNSUCCESSFUL_REASONS, 
+	SystemError: UNSUCCESSFUL_REASONS
 });
 
 /**
