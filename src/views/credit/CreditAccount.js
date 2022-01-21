@@ -49,7 +49,6 @@ export class CreditAccount extends ViewBase {
 
 		this.configuration = Configuration.getInstance();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
-
 		// private properites
 		this.budgetAccountDetails = null;
 		this.accountViewType = ``;
@@ -57,7 +56,6 @@ export class CreditAccount extends ViewBase {
 		this.accessFacilityDetails = {};
 		this.termLoanDetails = {};
 		this.encodedPDF = ``;
-		
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 	}
 
@@ -329,7 +327,7 @@ export class CreditAccount extends ViewBase {
 		});
 	}
 	_getTLStatements(creditType, productType , term) {
-		
+
 		this.renderMode = RENDER_MODE.FIXED_STATEMENTS;
 	}
 
@@ -340,8 +338,7 @@ export class CreditAccount extends ViewBase {
 			"next-screen": TelemetryScreen.CREDIT_STATEMENTS,
 			"credit-type": creditType,
 			"product-type": productType
-		});
-		
+		});		
 		this.renderMode = RENDER_MODE.STATEMENTS;
 	}
 
