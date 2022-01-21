@@ -120,10 +120,7 @@ export class LiveBetterService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
 	 lbbUpdateRoundupDetails (updateRoundupRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		// if (await this.isMockEnabled(`lbbUpdateRoundupDetails`)) {
-		// return this.mock(`lbbUpdateRoundupDetails`, updateRoundupRequest);
-		// }
-
+		
 		return this.put(
 			`/clientcare-lbb-${this._version_2}/update-lbb-account`, 
 			updateRoundupRequest, 

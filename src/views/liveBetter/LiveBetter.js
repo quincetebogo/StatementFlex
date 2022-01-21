@@ -11,6 +11,7 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { Utilities } from 'platform/Utilities';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
 
@@ -131,8 +132,10 @@ export class LiveBetter extends SavingsAccountBase {
 		});
 
 		this._getAutomaticSavingsDetails();
+		this.landingPageInfo.accountRoundUpActive = event.detail.roundUpStatus;
 		this.automaticSavingsDetails.accountRoundUpActive = event.detail.roundUpStatus;
 		this.renderMode = RENDER_MODE.AUTOMATIC_SAVINGS;
+		this._deepCopyProperty();
 	}
 
 	_toggleInterestSweep(event) {
@@ -140,16 +143,23 @@ export class LiveBetter extends SavingsAccountBase {
 			"screen": TelemetryScreen.LIVE_BETTER_LANDING_PAGE,
 			"next-screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS
 		});
-	
+
 		this._getAutomaticSavingsDetails();
+		this.landingPageInfo.accountInterestSweepActive = event.detail.interestSweepStatus;
 		this.automaticSavingsDetails.accountInterestSweepActive = event.detail.interestSweepStatus;
 		this.renderMode = RENDER_MODE.AUTOMATIC_SAVINGS;
+		this._deepCopyProperty();
 	}
 
-	_backToLBBLandingScreen() {
+	_backFromAutomaticSavings() {
+		const screenDetails = this.horizonStore.getScreenDetails();
+		this.landingPageInfo.accountRoundUpActive = screenDetails.LBSADetails.accountRoundUpActive;
+		this.landingPageInfo.accountInterestSweepActive = screenDetails.LBSADetails.accountInterestSweepActive;
+
+		this._deepCopyProperty();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
-	
+
 	_setIncidentDone() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
@@ -160,12 +170,14 @@ export class LiveBetter extends SavingsAccountBase {
 		const statements = () => this._getStatements();
 		const automaticSavings = () => this._automaticSavings();
 		const productEnquiry = () => this._productEnquiry();
+		const partnerBenefits = () => this._partnerBenefits();
 
 		const actions = {
 			'transaction-history-lbb': transactionHistory,
 			'statements-lbb': statements,
 			'automatic-savings-lbb': automaticSavings,
-			'product-enquiry': productEnquiry
+			'product-enquiry': productEnquiry,
+			'partner-benefits': partnerBenefits
 		};
 
 		if (actions[option]) {
@@ -439,6 +451,11 @@ export class LiveBetter extends SavingsAccountBase {
 		window.open(`${globalOneUrl}`);
 	}
 
+	async _partnerBenefits() {
+		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.partner-benefits`);
+		window.open(`${globalOneUrl}`);
+	}
+	
 	async _getClientProducts() {
 		const request = {
 			cifNumber: this.callerInformation.cifNumber,
@@ -473,9 +490,6 @@ export class LiveBetter extends SavingsAccountBase {
 	}
 
 	_getAutomaticSavingsDetails() {
-		if (this.automaticSavingsDetails) {
-			return;
-		}
 
 		this.automaticSavingsDetails = {
 			"accountRoundUpActive": this.landingPageInfo.accountRoundUpActive,
@@ -483,10 +497,18 @@ export class LiveBetter extends SavingsAccountBase {
 			"roundUpAccounts": this.landingPageInfo.roundUpAccounts,
 			"activatedRoundUpAccounts": this.landingPageInfo.activatedRoundUpAccounts,
 			"activatedRoundUpAccountNums": this.landingPageInfo.activatedRoundUpAccounts.map(item => item.accountNumber),
-			"accountInterestSweepActive": this.landingPageInfo.accountInterestSweepActive
+			"accountInterestSweepActive": this.landingPageInfo.accountInterestSweepActive,
+			
+			// Following properties are used to detect toggel change from lbb landing screen
+			"actualRoundUpStatus": this.landingPageInfo.accountRoundUpActive,
+			"actualInterestSweepStatus": this.landingPageInfo.accountInterestSweepActive
 		};
 	}
 
+	_deepCopyProperty() {
+		// Creates and returns a deep copy of an Object this.landingPageInfo which helps to render main screen.
+		this.landingPageInfo = Utilities.deepCopy(this.landingPageInfo);
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -573,7 +595,7 @@ export class LiveBetter extends SavingsAccountBase {
 			? html`
 				<capitec-pc-live-better-account-details
 					.accountDetails = "${this.landingPageInfo}"
-					@back= "${() => this._backToLBBLandingScreen()}"
+					@back= "${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
 					@round-up="${(event) => this._toggleRoundUp(event)}"
 					@interest-sweep="${(event) => this._toggleInterestSweep(event)}">
 				</capitec-pc-live-better-account-details>`
@@ -805,7 +827,8 @@ export class LiveBetter extends SavingsAccountBase {
 		? html`
 			<horizon-manage-automatic-savings
 				.automaticSavingsDetails = "${this.automaticSavingsDetails}"
-				@cancel = "${() => this._backToLBBLandingScreen()}"
+
+				@cancel = "${() => this._backFromAutomaticSavings()}"
 				@update = "${(e) => this._updateAutomaticSavings(e.detail.updatedDetails)}">
 			</horizon-manage-automatic-savings>`
 		: html``;

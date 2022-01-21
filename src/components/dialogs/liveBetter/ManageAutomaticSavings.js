@@ -126,11 +126,12 @@ export class ManageAutomaticSavings extends Component {
 	_isUpdated() {
 		this.updatedDetails = {};
 
-		if (this.automaticSavingsDetails.accountRoundUpActive !== this.isRoundUpActive) {
+
+		if (this.automaticSavingsDetails.actualRoundUpStatus !== this.isRoundUpActive) {
 			this.updatedDetails.accountRoundUpActive = this.isRoundUpActive;
 		}
 
-		if (this.automaticSavingsDetails.accountInterestSweepActive !== this.isInterestSweepActive) {
+		if (this.automaticSavingsDetails.actualInterestSweepStatus !== this.isInterestSweepActive) {
 			this.updatedDetails.accountInterestSweepActive = this.isInterestSweepActive;
 		}
 
