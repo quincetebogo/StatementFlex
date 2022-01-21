@@ -69,6 +69,22 @@ const ACCOUNT_TYPE = {
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
+	_toggleRoundUp(event) {
+		this.dispatchEvent(new CustomEvent(`round-up`, {
+			detail: {
+				roundUpStatus: event.detail.new
+			}
+		}));
+	}
+
+	_toggleInterestSweep(event) {
+		this.dispatchEvent(new CustomEvent(`interest-sweep`, {
+			detail: {
+				interestSweepStatus: event.detail.new
+			}
+		}));
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -402,7 +418,8 @@ const ACCOUNT_TYPE = {
 								</capitec-label>
 								<capitec-toggle 
 									label="${formatCurrency(this.accountDetails.roundupValue)}" 
-									?checked="${this.accountDetails.accountRoundUpActive}">
+									?checked="${this.accountDetails.accountRoundUpActive}"
+									@value-change="${(event) => this._toggleRoundUp(event)}">
 								</capitec-toggle>
 						</capitec-group>
 						<horizon-label 
@@ -436,7 +453,8 @@ const ACCOUNT_TYPE = {
 								</capitec-label>
 								<capitec-toggle 
 									label="${this.accountDetails.accountInterestSweepActive ? `On` : `Off`}"
-									?checked="${this.accountDetails.accountInterestSweepActive}">
+									?checked="${this.accountDetails.accountInterestSweepActive}"
+									@value-change="${(event) => this._toggleInterestSweep(event)}">
 								</capitec-toggle>
 						</capitec-group>
 						<horizon-label 

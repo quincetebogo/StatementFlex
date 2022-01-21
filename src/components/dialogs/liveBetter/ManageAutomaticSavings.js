@@ -233,7 +233,7 @@ export class ManageAutomaticSavings extends Component {
 				.section-alert-banner {
 					--theme-alert-banner-height: 40px;
 				}
-				.alert-banner > p {
+				capitec-alert-banner > p {
 					display: inline-block;
 					font-weight: 400;
 					color: #3A3A3A;

@@ -84,6 +84,9 @@ export class AutomaticSavingsSuccess extends ViewBase {
 				}
 				.bullet-label{
 					padding-left: 16px;
+				}
+				section[slot="detail"] {
+					height: auto;
 				}`
 		];
 	}

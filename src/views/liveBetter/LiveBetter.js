@@ -573,7 +573,9 @@ export class LiveBetter extends SavingsAccountBase {
 			? html`
 				<capitec-pc-live-better-account-details
 					.accountDetails = "${this.landingPageInfo}"
-					@back= "${() => this._backToLBBLandingScreen()}">
+					@back= "${() => this._backToLBBLandingScreen()}"
+					@round-up="${(event) => this._toggleRoundUp(event)}"
+					@interest-sweep="${(event) => this._toggleInterestSweep(event)}">
 				</capitec-pc-live-better-account-details>`
 			: html``;
 	}
