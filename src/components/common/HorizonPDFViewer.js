@@ -5,10 +5,11 @@ class HorizonPDFViewer extends Component{
 	constructor(){
 		super();
 		this.header = ``;
-		this.zoom = 100;
+		this.zoom = 90;
 		this.totalPages = 0;
 		this.currPage = 0;
 		this.encodedPDF = ``;
+		this.dateSelected = ``;
 	}
 
 	static get properties(){
@@ -17,7 +18,8 @@ class HorizonPDFViewer extends Component{
 		zoom: { type: Number },
 		totalPages: { type: Number },
 		currPage: { type: Number },
-		encodedPDF: { type: String }
+		encodedPDF: { type: String },
+		dateSelected: { type: String}
 		};
 	}
 
@@ -119,6 +121,10 @@ class HorizonPDFViewer extends Component{
 					margin-right: 32px;
 					width: 110px;
 				}
+
+				.icon-spacer{
+					width: 48px;
+				}
 			`
 		];
 	}
@@ -143,7 +149,7 @@ class HorizonPDFViewer extends Component{
 				icon="system/arrow-left-action"
 				@click="${() => this.dispatchEvent(new CustomEvent(`cancel`, {}))}">
 			</capitec-icon>
-			<capitec-label label="${this.header}" type="title"></capitec-label>
+			<capitec-label label="${this.header} ${this.dateSelected}" type="title"></capitec-label>
 		</capitec-title-bar>
 		`;
 	}
@@ -157,23 +163,29 @@ class HorizonPDFViewer extends Component{
 				<capitec-group 
 					layout="horizontal"
 					valign="center">
+					${this.currPage === 1 
+						? html `<capitec-spacer class="icon-spacer"></capitec-spacer>` 
+						: html`
 					<capitec-icon 
 						class="icon dark system" 
 						size="large" 
 						icon="system/previous"
 						@click="${() => this.dispatchEvent(new CustomEvent(`previous`, {}))}">
-					</capitec-icon>
+					</capitec-icon>`}
 					<object
 						class="pdf-viewer"
 						data="${this._base64ToBlobUrl(this.encodedPDF)}"
 						type="application/pdf">
 					</object>
-					<capitec-icon 
-						class="icon dark system" 
-						size="large" 
-						icon="system/next"
-						@click="${() => this.dispatchEvent(new CustomEvent(`next`, {}))}">
-					</capitec-icon>
+					${this.currPage === this.totalPages 
+					? html `<capitec-spacer class="icon-spacer"></capitec-spacer>`
+					: html`
+						<capitec-icon 
+							class="icon dark system" 
+							size="large" 
+							icon="system/next"
+							@click="${() => this.dispatchEvent(new CustomEvent(`next`, {}))}">
+						</capitec-icon>`}
 				</capitec-group>
 			</capitec-content-box>
 						`;
@@ -184,14 +196,14 @@ class HorizonPDFViewer extends Component{
 			<capitec-button-bar>
 				<capitec-spacer></capitec-spacer>
 				<capitec-group layout="horizontal">
-					<capitec-label class="page-index" label="Document ${this.currPage} of ${this.totalPages}"></capitec-label>
+					<capitec-label class="page-index" label="Page ${this.currPage} of ${this.totalPages}"></capitec-label>
 					<capitec-icon 
 						class="zoom" 
 						size="medium" 
 						icon="system/minus-action" 
 						@click="${()=>this._zoom("Out")}">
 					</capitec-icon>
-					<capitec-label label="${this.zoom}%"></capitec-label>
+					<capitec-label label="${this.zoom + 10}%"></capitec-label>
 					<capitec-icon 
 						class="zoom" 
 						size="medium" 

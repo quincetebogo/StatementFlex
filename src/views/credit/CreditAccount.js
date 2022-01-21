@@ -703,6 +703,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderStatements() {
+		// startDate="${DateTime.local(2021, 10).toString()}"
 		return this.renderMode === RENDER_MODE.STATEMENTS
 		? html`
 			<horizon-credit-statements-dialog
