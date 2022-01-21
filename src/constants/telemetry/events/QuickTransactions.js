@@ -130,4 +130,5 @@ export const QuickTransactionEvents = {
 	TAX_CERTIFICATE_OUTCOME_DONE: `call.fulfill-need.tax-certificate.outcome.done`,
 	TAX_CERTIFICATE_OUTCOME_ASSIGN: `call.fulfill-need.tax-certificate.outcome.hand-off`,
 	TAX_CERTIFICATE_FIND_BRANCH: `call.fulfill-need.tax-certificate.find-a-branch`
+
 };

@@ -1,10 +1,11 @@
 /**
- * The event names to use when logging AccessChannels telemetry events.
+ * The event names to use when logging Access Channels telemetry events.
  * This correspond to the `Action` and `eventName` columns in the Data Spec.
  * 
  * @readonly
  * @enum {Object} AccessChannelsEvents
  */
+
 export const AccessChannelsEvents = {
 	ACCESS_CHANNELS_TILE_APP: `call.fulfill-need.access-channels.app`,
 	ACCESS_CHANNELS_TILE_INTERNET_BANKING: `call.fulfill-need.access-channels.internet-banking`,
@@ -38,4 +39,5 @@ export const AccessChannelsEvents = {
 	ACCESS_CHANNELS_NOTIFICATIONS: `call.fulfill-need.access-channels.notifications`,
 	ACCESS_CHANNELS_NOTIFICATIONS_UPDATE: `call.fulfill-need.access-channels.notifications.update`,
 	ACCESS_CHANNELS_NOTIFICATIONS_UPDATE_CONFIRM: `call.fulfill-need.access-channels.notifications.update.confirm`
+
 };

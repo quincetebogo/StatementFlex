@@ -9,6 +9,7 @@ import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { Utilities } from 'platform/Utilities';
 
 import 'app/productControls/AccessChannels/src/AccessChannels';
+import 'app/productControls/AccessChannels/src/InternetBankingProfileDetails';
 import 'app/productControls/AccessChannels/src/AppProfileDetails';
 import 'app/productControls/AccessChannels/src/USSDProfileDetails';
 import 'app/webComponents/src/SideSheet';
@@ -236,6 +237,26 @@ export class AccessChannels extends Component {
 		return true;
 	}
 
+	suspendInternetBanking() {
+		// TO DO: Channel service call to suspend Internet Banking should come here
+		// If successfully suspended, update Internet Banking status, else Error scenario
+		this.status.internetBanking.status = `Suspended`;
+		this.status.internetBanking.dateLastUpdated = new Date().toISOString();
+		
+		this._deepCopyStatus();
+		return true;
+	}
+
+	resetInternetBanking() {
+		// TO DO: Channel service call to Reset Internet Banking should come here
+		// If successfully reset, update Internet Banking status, else Error scenario
+		this.status.internetBanking.status = `Active`;
+		this.status.internetBanking.dateLastUpdated = new Date().toISOString();
+
+		this._deepCopyStatus();
+		return true;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -254,10 +275,10 @@ export class AccessChannels extends Component {
 	
 		if (returnValue.succeeded) {
 			this.status = returnValue.result;
-
 			return;
 		}
 		this.logger.log(`error`, `Failed to load access channel information`, `_accessChannelService`, returnValue.correlationId);
+		
 	}
 
 	_deepCopyStatus() {
@@ -290,6 +311,7 @@ export class AccessChannels extends Component {
 			${this._renderAccessChannels()}
 			${this._renderLoadingIndicator()}
 
+			${this._renderInternetBankingPanel()}
 			${this._renderAppPanel()}
 			${this._renderUSSD()}`;
 	}
@@ -301,6 +323,21 @@ export class AccessChannels extends Component {
 					.status=${this.status}
 					@tile-click="${(event) => this._showSlidingPanel(event)}">
 				</capitec-pc-access-channels>`
+			: html``;
+	}
+
+	_renderInternetBankingPanel() {
+		return this.selectedAccessChannelType === ACCESS_CHANNELS_TYPE.INTERNET_BANKING
+			? html`
+				<capitec-pc-internet-banking-profile-details
+					.internetBankingDetails = "${this.status.internetBanking}"
+					?showSideSheet = "${this.showSideSheet}"
+
+					.suspendInternetBankingSecurityToken = "${() => this.suspendInternetBanking()}"
+					.resetInternetBankingSecurityToken = "${() => this.resetInternetBanking()}"
+
+					@close-side-sheet ="${(event) => this._showSlidingPanel(event)}" >
+				</capitec-pc-internet-banking-profile-details>`
 			: html``;
 	}
 
