@@ -61,16 +61,10 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 
 		this.notifyMessage = ` A fee will be charged for email statements.`;
 		this.filteredDate = [];
-		this.sixMonths = [];
-		this.checkAll = false;
-		this.checkBox = [];
-		this.isChecked = false;
 		this.today = new DateTime.now();
 		this.email = ``;
 		this.confirmEmail = ``;
 		this.encodedPDF = ``;
-		this.currPage = 0;
-		this.totalPages = 0;
 		this.periodSelected = ``;
 		this._summary = {
 			dateRangeLabel: ``,
@@ -89,12 +83,8 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 
 	static get properties() {
 		return {
-			checkAll: { type: String },
-			checkBox: { type: Array },
-			filterDate: { type: Array },
 			errorMessage: { type: String },
 			navigatePDF: { type: Object },
-			currPage: { type: Number },
 			encodedPDF: { type: String }
 		};
 	}
@@ -132,7 +122,7 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 		}
 		super._getSummary();
 		this.currentStep++;
-		this.requestUpdate();
+		// this.requestUpdate();
 	}
 
 	_back() {
@@ -157,8 +147,6 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 
 	async _viewPDF(date){
 		//TODO: PDF viewer with arrows
-		let selectedDates = this._getAllDates();
-		this.currPage = selectedDates.indexOf(date) + 1;
 		this.encodedPDF = await this.navigatePDF(this.currPage);
 		super.renderMode = RENDER_MODE.PDF;
 	}
@@ -174,45 +162,18 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 	// ---------------
 
 	_initialise() {
+		//this.today is currDate. method is not needed
 		const currDate = new Date();
-	}
-
-	_clearFilter(filterDate) {
-		const index = this.filteredDate.indexOf(filterDate);
-
-		if (index > -1) {
-			this.filteredDate.splice(index, 1);
-		}
-		this.requestUpdate();
 	}
 
 	_clearErrors() {
 		super.errorMessage = ``;
 	}
 
-	_datePicked(e) {
-		this._clearErrors();
-		const selectedMonth = e.detail.month;
-		const selectedYear = e.detail.year;
-
-		this.filteredDate[this.filteredDate.length] = `${selectedMonth} ${selectedYear}`;
-		this.filteredDate = [...new Set(this.filteredDate)];
-
-		this.requestUpdate();
-	}
-
 	_cancelPDF(){
 		super.renderMode = RENDER_MODE.EMAIL;
 	}
 
-	_getAllDates(){
-		let datesSelected = this.filteredDate.concat(this.checkBox.map((item, index) =>item === true ? this.sixMonths[index] : ``));
-		//removes duplicates and empty values
-		datesSelected = [...new Set(datesSelected.filter((item) => item!== ``))];
-		//sort according to date from latest date
-		datesSelected.sort((a, b) => new Date(b) - new Date(a));
-		return datesSelected;
-	}
 
 	
 	// ---------
@@ -335,6 +296,25 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 		}		
 	}
 
+	_webTemplate() {
+		return html`
+			<bb-stepper-modal
+				data-automation-id="statements-dialog"
+				.header="${this._getHeaderTitle()}"
+				.steps="${STATEMENTS_STEPS}"
+				current-active-step="${this.currentStep}">
+					<div slot="step">
+						${this._renderContent()}
+					</div>
+
+					<div slot="footer">
+						${this._renderFooter()}
+					</div>
+			</bb-stepper-modal>
+			${this._renderLoadingIndicator()}`;
+	}
+
+
 	_renderModal(){
 		return html`
 			<bb-stepper-modal
@@ -438,7 +418,6 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 	}
 	_renderEmailClient() {
 		// TODO Add code for email section and PDF viewer	
-		let datesSelected = this._getAllDates();			
 		
 		return super.currentStep === 1 && super.renderMode === RENDER_MODE.EMAIL
 		? html`
@@ -480,7 +459,7 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 	
 		<hr class="seperator">
 
-	<capitec-label
+		<capitec-label
 			type="subtitle"
 			label="View document">
 		</capitec-label>
@@ -491,60 +470,68 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 			type="default"
 			label="${this._summary.dateRangeLabel}"
 			subtitle="${this._summary.detail}">
-				${this._renderViewDocumnetLink()}
+				${super._renderViewDocumnetLink()}
 		</horizon-product-tile>`
 		: html``;
 	}
 
-	_renderViewDocument(item) {
-		return super.currentStep === 1 && super.renderMode === RENDER_MODE.EMAIL
-		? html`
-		<horizon-product-tile
-			class="view-document"
-			type="default"
-			label="${item}"
-			subtitle="Last 30 days">
-				${this._renderViewDocumnetLink(item)}
-		</horizon-product-tile> `
-		: html ``;
-	}	
+	// _renderViewDocument(item) {
+	// 	return super.currentStep === 1 && super.renderMode === RENDER_MODE.EMAIL
+	// 	? html`
+	// 	<horizon-product-tile
+	// 		class="view-document"
+	// 		type="default"
+	// 		label="${item}"
+	// 		subtitle="Last 30 days">
+	// 			${this._renderViewDocumnetLink(item)}
+	// 	</horizon-product-tile> `
+	// 	: html ``;
+	// }	
 
-	_renderViewDocumnetLink(item) {
+	// _renderViewDocumnetLink(item) {
+	// 	return html`
+	// 		<capitec-label
+	// 			slot="detail"
+	// 			type="strong"
+	// 			label="View Document"
+	// 			class="viewDocumentLink"				
+	// 			@click="${() => this._viewPDF(item)}">
+	// 		</capitec-label>
+	// 	`;
+	// }
+
+	_renderPDFViewer() {
 		return html`
-			<capitec-label
-				slot="detail"
-				type="strong"
-				label="View Document"
-				class="viewDocumentLink"				
-				@click="${() => this._viewPDF(item)}">
-			</capitec-label>
+			<capitec-content-box
+				data-automation-id="statements-dialog-pdf-viewer"
+				class="main-cb pdf-cb"
+				layout="vertical"
+				gap="clear"
+				?noScroll="${false}">
+					<object
+						class="pdf-viewer"
+						data="${this.encodedPDF}"
+						type="application/pdf">
+					</object>
+			</capitec-content-box>
 		`;
 	}
-	_renderChips(chip) {
-		return html`
-			<capitec-chip
-				label="${chip}"
-				@remove="${() => this._clearFilter(chip)}"
-				closable>
-			</capitec-chip>
-		`;
-	}
 
-	_renderPDFViewer(){
-		let datesSelected = this._getAllDates();
-		return html`
-			<horizon-pdf-viewer
-			header="Settlement Quote: Credit Card"
-			totalPages="${datesSelected.length}"
-			currPage="${this.currPage}"
-			encodedPDF="${this.encodedPDF}"
-			@cancel="${()=>this._cancelPDF()}"
-			@next="${() => this._navigate("next")}"
-			@previous="${() => this._navigate("previous")}">
+	// _renderPDFViewer(){
+	// 	return html`
+	// 		<horizon-pdf-viewer
+	// 		header="Settlement Quote: Credit Card"
+	// 		totalPages="${datesSelected.length}"
+	// 		currPage="${this.currPage}"
+	// 		encodedPDF="${this.encodedPDF}"
+	// 		@cancel="${()=>this._cancelPDF()}"
+	// 		@next="${() => this._navigate("next")}"
+	// 		@previous="${() => this._navigate("previous")}">
 
-			</horizon-pdf-viewer>
-		`;
-	}
+	// 		</horizon-pdf-viewer>
+	// 	`;
+	// }
+
 	_renderFooter() {
 		return html`
 			<capitec-content-box
@@ -554,7 +541,6 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 				halign="left"
 				valign="center">
 					<capitec-button
-						data-automation-id="statements-dialog-back"
 						type="clear"
 						label="Back"
 						@click="${(e) => super._back()}"
@@ -562,28 +548,24 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 					</capitec-button> 
 					<capitec-spacer></capitec-spacer>
 					<capitec-button
-						data-automation-id="statements-dialog-cancel"
 						type="secondary"
 						label="Cancel"
 						@click="${() => super._cancel()}"
 						?hidden="${super.renderMode === RENDER_MODE.PDF}">
 					</capitec-button>
 					<capitec-button
-						data-automation-id="statements-dialog-next"
 						type="primary"
 						label="Next"
 						@click="${() => this._next()}"
 						?hidden="${super.currentStep === 1 || super.renderMode === RENDER_MODE.PDF}">
 					</capitec-button>
 					<capitec-button
-						data-automation-id="statements-dialog-send"
 						type="primary"
 						label="Send"
 						@click="${() => this._sendStatement()}"
 						?hidden="${super.currentStep !== 1 || super.renderMode === RENDER_MODE.PDF}">
 					</capitec-button>
 					<capitec-button
-						data-automation-id="statements-dialog-close"
 						type="primary"
 						label="Close"
 						@click="${() => super._close()}"
