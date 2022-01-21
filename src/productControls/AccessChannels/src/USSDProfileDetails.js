@@ -1,15 +1,17 @@
 import { Component, css, html } from 'platform/elements';
+import { AccessChannelService } from 'app/services/AccessChannelService';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonLabel';
 import 'app/webComponents/src/SideSheet';
-
 
 export class USSDProfileDetails extends Component {
 	constructor() {
 		super();
 
 		this.showSideSheet = false;
+		this.isBusy = false;
 
 		this.displaySuccessToast = false;
 		this.showCancelReasons = false;
@@ -23,6 +25,9 @@ export class USSDProfileDetails extends Component {
 
 		// Active, SIM Blocked, ussd Blocked, Service Unavailable - null
 		this.ussdStatus = ``;
+		
+		this.horizonStore = HorizonStore.getInstance();
+		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 	
 	// ----------
@@ -68,7 +73,8 @@ export class USSDProfileDetails extends Component {
 			displaySuccessToast: { state: true },
 			showCancelReasons: { state: true },
 			showNotificationBanner: { state: true },
-			showValidationBanner: { state: true }
+			showValidationBanner: { state: true },
+			isBusy: { attribute: false }
 		};
 	}
 
@@ -79,7 +85,8 @@ export class USSDProfileDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		
-		this.ussdStatus = this.ussd && this.ussd.status;
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		this._initialise();
 	}
 
 	disconnectedCallback() {
@@ -151,6 +158,25 @@ export class USSDProfileDetails extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
+
+	async _initialise() {
+		const clientInfo = {
+			msisdn: this.callerInformation.verifiedTelephoneNumber
+		};
+
+		const returnValue = await this.accessChannelService.accessChannelsUssdLanding(clientInfo);
+
+		if (returnValue.succeeded) {
+			
+			this.ussd = returnValue.result;
+
+			this.ussdStatus = this.ussd && this.ussd.status;
+		}
+	}
 
 	_checkUssdStatus(status) {
 		
@@ -375,6 +401,7 @@ export class USSDProfileDetails extends Component {
 			`;
 		}
 		return html`
+			${this._renderLoadingIndicator()}
 			${this._renderUSSDProfileDetails()}
 			${this._renderCancelUSSD()}
 		`;
@@ -701,6 +728,12 @@ export class USSDProfileDetails extends Component {
 					<capitec-label label="${this._formatDate(this.ussd.dateLastUpdated)}, ${this._formatTime(this.ussd.dateLastUpdated)}" type="strong"></capitec-label>
 			</capitec-toast>
 		`;
+	}
+	
+	_renderLoadingIndicator() {
+		return this.isBusy
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
 	}
 }
 

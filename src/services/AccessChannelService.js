@@ -45,4 +45,28 @@ export class AccessChannelService extends ChannelServiceBase {
 		return this.post(url, { 'cif': cifNumber }, this._setToken(), `accessChannels`, null, null, 1000);
 		*/
 	}
+
+	async accessChannelsUssdLanding(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`accessChannelUssdLanding`)) {
+			return this.mock(`accessChannelUssdLanding`);
+		}
+
+		const requestBody = {
+			'msisdn': clientInfo.msisdn
+		};
+
+		const url = `/clientcare-accesschannels-${this._version}/ussd/landing`;
+		return this.post(
+			url, 
+			requestBody,
+			this.setToken(), 
+			`accessChannelUSSDLanding`, 
+			null, 
+			null,
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 }

@@ -143,6 +143,10 @@
 		"accessChannel": {
 			"enabled": true,
 			"positiveCase": true
+		},
+		"accessChannelUssdLanding": {
+			"enabled": true,
+			"positiveCase": true
 		}
 	}
 }
