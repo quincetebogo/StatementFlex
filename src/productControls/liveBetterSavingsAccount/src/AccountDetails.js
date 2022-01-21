@@ -69,6 +69,22 @@ const ACCOUNT_TYPE = {
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
+	_toggleRoundUp(event) {
+		this.dispatchEvent(new CustomEvent(`round-up`, {
+			detail: {
+				roundUpStatus: event.detail.new
+			}
+		}));
+	}
+
+	_toggleInterestSweep(event) {
+		this.dispatchEvent(new CustomEvent(`interest-sweep`, {
+			detail: {
+				interestSweepStatus: event.detail.new
+			}
+		}));
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -81,6 +97,10 @@ const ACCOUNT_TYPE = {
 
 	// Formating date in the form 'DD MMM YYYY'
 	_formatDate(date) {
+		if (!date) {
+			return `-`;
+		}
+
 		const newdate = new Date(Date.parse(date));
 		return `${newdate.getDate()} ${this.getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
 	}
@@ -254,7 +274,7 @@ const ACCOUNT_TYPE = {
 					data-automation-id="live-better-account-details-title"
 					type="primary">
 						<img
-						src="src/productControls/liveBetterSavingsAccount/images/left-arrow.svg"
+						src="/src/productControls/liveBetterSavingsAccount/images/left-arrow.svg"
 						@click="${() => this._back()}"
 						class="left-arrow"/>
 						<horizon-label
@@ -296,7 +316,7 @@ const ACCOUNT_TYPE = {
 			halign="left" 
 			valign="top">
 				<capitec-group class="sub-header" layout="horizontal" gap="clear" halign="left" valign="center">
-					<capitec-image src="src/productControls/liveBetterSavingsAccount/images/AccountDetails.svg"></capitec-image>
+					<capitec-image src="/src/productControls/liveBetterSavingsAccount/images/AccountDetails.svg"></capitec-image>
 					<capitec-label
 						label="Account details"
 						class="title-style"
@@ -373,7 +393,7 @@ const ACCOUNT_TYPE = {
 			halign="left" 
 			valign="top">
 				<capitec-group class="sub-header" layout="horizontal" gap="clear" halign="left" valign="center">
-					<capitec-image src="src/productControls/liveBetterSavingsAccount/images/automatic-savings.svg"></capitec-image>
+					<capitec-image src="/src/productControls/liveBetterSavingsAccount/images/automatic-savings.svg"></capitec-image>
 						<capitec-label 
 							label="Automatic savings"
 							type="title"
@@ -398,7 +418,8 @@ const ACCOUNT_TYPE = {
 								</capitec-label>
 								<capitec-toggle 
 									label="${formatCurrency(this.accountDetails.roundupValue)}" 
-									?checked="${this.accountDetails.accountRoundUpActive}">
+									?checked="${this.accountDetails.accountRoundUpActive}"
+									@value-change="${(event) => this._toggleRoundUp(event)}">
 								</capitec-toggle>
 						</capitec-group>
 						<horizon-label 
@@ -432,7 +453,8 @@ const ACCOUNT_TYPE = {
 								</capitec-label>
 								<capitec-toggle 
 									label="${this.accountDetails.accountInterestSweepActive ? `On` : `Off`}"
-									?checked="${this.accountDetails.accountInterestSweepActive}">
+									?checked="${this.accountDetails.accountInterestSweepActive}"
+									@value-change="${(event) => this._toggleInterestSweep(event)}">
 								</capitec-toggle>
 						</capitec-group>
 						<horizon-label 

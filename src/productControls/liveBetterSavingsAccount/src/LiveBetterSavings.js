@@ -86,12 +86,20 @@ export class LiveBetterSavings extends Component {
 		this.dispatchEvent(new CustomEvent(`account-details`, {}));
 	}
 
-	_toggleRoundUp() {
-		this.dispatchEvent(new CustomEvent(`round-up`, {}));
+	_toggleRoundUp(event) {
+		this.dispatchEvent(new CustomEvent(`round-up`, {
+			detail: {
+				roundUpStatus: event.detail.new
+			}
+		}));
 	}
 
-	_toggleInterestSweep() {
-		this.dispatchEvent(new CustomEvent(`interest-sweep`, {}));
+	_toggleInterestSweep(event) {
+		this.dispatchEvent(new CustomEvent(`interest-sweep`, {
+			detail: {
+				interestSweepStatus: event.detail.new
+			}
+		}));
 	}
 
 	// --------------
@@ -289,7 +297,7 @@ export class LiveBetterSavings extends Component {
 					<capitec-title-bar 
 						data-automation-id="live-better-verified-title"
 						type="primary">
-							<img src='src/productControls/liveBetterSavingsAccount/images/liveBetter-white.svg'/>
+							<img src='/src/productControls/liveBetterSavingsAccount/images/liveBetter-white.svg'/>
 							<capitec-label label="Live Better Savings Account" type="Title"></capitec-label>
 					</capitec-title-bar>
 
@@ -306,7 +314,8 @@ export class LiveBetterSavings extends Component {
 	}
 	
 	_renderAccountDetailsBar() {
-		return html`
+		return this.liveBetterAccountData 
+		? html`
 			<div class="account-details-bar">
 				<capitec-expander 
 					data-automation-id="live-better-verified-expander"
@@ -348,7 +357,7 @@ export class LiveBetterSavings extends Component {
 							<capitec-label label="Round-up"></capitec-label>
 							<capitec-toggle 
 								label="${formatCurrency(this.liveBetterAccountData.roundupValue)}" 
-								@value-change="${() => this._toggleRoundUp()}"
+								@value-change="${(event) => this._toggleRoundUp(event)}"
 								?checked="${this.liveBetterAccountData.accountRoundUpActive}">
 							</capitec-toggle>
 					</capitec-group>
@@ -363,7 +372,7 @@ export class LiveBetterSavings extends Component {
 							<capitec-label label="Interest Sweep"></capitec-label>
 							<capitec-toggle 
 								label="${this.liveBetterAccountData.accountInterestSweepActive ? `On` : `Off`}" 
-								@value-change="${() => this._toggleInterestSweep()}"
+								@value-change="${(event) => this._toggleInterestSweep(event)}"
 								?checked="${this.liveBetterAccountData.accountInterestSweepActive}">
 							</capitec-toggle>
 					</capitec-group>
@@ -384,8 +393,8 @@ export class LiveBetterSavings extends Component {
 						<capitec-icon class="${this._expanded ? `transform-icon` : ``}" icon="system/chevron-down-action"></capitec-icon>
 					</capitec-group>
 				</capitec-group>
-			</div>
-		`;
+			</div>`
+		: html``;
 	}
 
 	_renderOptions() {
@@ -412,7 +421,7 @@ export class LiveBetterSavings extends Component {
 						data-automation-id="live-better-verified-automatic-savings"
 						class="button-margin"
 						label="Automatic Savings" 
-						img-src="src/productControls/liveBetterSavingsAccount/images/automatic-savings.svg"
+						img-src="/src/productControls/liveBetterSavingsAccount/images/automatic-savings.svg"
 						@click="${() => this._click(`automatic-savings-lbb`)}">
 					</horizon-option-button>
 				</capitec-group>

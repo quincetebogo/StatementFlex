@@ -18,24 +18,6 @@ export const LiveBetterLandingInfo = {
 		"accountType": 100
 	  },
 	  {
-		"accountNumber": "1183734741",
-		"accountDescription": "MPA PRODUCT",
-		"accountName": "",
-		"accountType": 800
-	  },
-	  {
-		"accountNumber": "1153581769",
-		"accountDescription": "MPA PRODUCT",
-		"accountName": "",
-		"accountType": 800
-	  },
-	  {
-		"accountNumber": "1138410142",
-		"accountDescription": "MPA PRODUCT",
-		"accountName": "",
-		"accountType": 800
-	  },
-	  {
 		"accountNumber": "1130081182",
 		"accountDescription": "SAVINGS PLAN",
 		"accountName": "TSFT CAP1",
@@ -54,36 +36,6 @@ export const LiveBetterLandingInfo = {
 		"accountType": 201
 	  },
 	  {
-		"accountNumber": "1122659103",
-		"accountDescription": "MPA PRODUCT",
-		"accountName": "",
-		"accountType": 800
-	  },
-	  {
-		"accountNumber": "1122284843",
-		"accountDescription": "MPA PRODUCT",
-		"accountName": "",
-		"accountType": 800
-	  },
-	  {
-		"accountNumber": "1122137271",
-		"accountDescription": "MPA PRODUCT",
-		"accountName": "",
-		"accountType": 800
-	  },
-	  {
-		"accountNumber": "1122137263",
-		"accountDescription": "MPA PRODUCT",
-		"accountName": "",
-		"accountType": 800
-	  },
-	  {
-		"accountNumber": "1122137255",
-		"accountDescription": "MPA PRODUCT",
-		"accountName": "",
-		"accountType": 800
-	  },
-	  {
 		"accountNumber": "1111350173",
 		"accountDescription": "SAVINGS PLAN",
 		"accountName": "PAROW BRANCH",
@@ -97,6 +49,12 @@ export const LiveBetterLandingInfo = {
 	  }
 	],
 	"activatedRoundUpAccounts": [
+		{
+		"accountNumber": "1126204186",
+		"accountDescription": "FIXED TERM SAVINGS PLAN",
+		"accountName": "MICHELE FUNDS",
+		"accountType": 201
+	  },
 	  {
 		"accountNumber": "1130081182",
 		"accountDescription": "SAVINGS PLAN",
@@ -104,7 +62,7 @@ export const LiveBetterLandingInfo = {
 		"accountType": 200
 	  }
 	],
-	"accountInterestSweepActive": true,
+	"accountInterestSweepActive": false,
 	"interestSweepActivationDate": "2021-08-20T10:36:11.56",
 	"liveBetterSavingsAccountNumber": "1732948362",
 	"savingsAccountProductDescription": "Available balance",
