@@ -1,5 +1,6 @@
 import { css, html } from 'platform/elements';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/SuccessScreen';
 import 'app/components/common/RelatedOptions';
@@ -37,8 +38,8 @@ export class AutomaticSavingsSuccess extends ViewBase {
 		super.connectedCallback();
 
 		this.screenDetails = this.horizonStore.getScreenDetails();
-		this.roundupDetails = this.screenDetails.lbbRoundupDetails;
-		this.updatedRoundupDetails = this.screenDetails.updatedLbbRoundupDetails;
+		this.updatedLBSADetails = this.screenDetails.updatedLBSADetails;
+		this.LBSADetails = this.screenDetails.LBSADetails;
 
 		this._updateIncidentState();
 	}
@@ -111,41 +112,60 @@ export class AutomaticSavingsSuccess extends ViewBase {
 				subContent=${true}
 				@left-click=${() => this._manageAutomaticSavingsClick()}
 				@right-click=${() => this._doneClick()}>
-					
-				${this._renderRoundupSwitchedOff()}
-				${this._renderRoundupValueChange()}
-				${this._renderRoundupAccountsChange()}
-			</horizon-success-screen>
-		`;
+					<section slot="detail">
+						<capitec-group
+							layout="vertical"
+							halign="stretch"
+							valign="top"
+							gap="clear">
+								${this._renderRoundupStatus()}
+								${this._renderInterestSweepStatus()}
+								${this._renderRoundupValueChange()}
+								${this._renderRoundupAccountsChange()}
+						</capitec-group>
+					</section>
+			</horizon-success-screen>`;
 	}
 
-	_renderRoundupSwitchedOff() {
-		return !this.updatedRoundupDetails.accountRoundUpActive && this.roundupDetails.accountRoundUpActive 
-			? html`
-				<section slot="detail">
-					Round-up successfully switched off.
-				</section>`
-			: html``;
+	_renderRoundupStatus() {
+		return isNullorEmpty(this.updatedLBSADetails?.accountRoundUpActive)
+			? html``
+			: html`
+				<span>Round-up successfully switched ${this.updatedLBSADetails.accountRoundUpActive ? `on` : `off`}.</span>`;
+	}
+
+	_renderInterestSweepStatus() {
+		return isNullorEmpty(this.updatedLBSADetails?.accountInterestSweepActive)
+			? html``
+			: html`
+				<span>Interest Sweep successfully switched ${this.updatedLBSADetails.accountInterestSweepActive ? `on` : `off`}.</span>`;
 	}
 
 	_renderRoundupValueChange() {
-		return this.roundupDetails.roundupValue !== this.updatedRoundupDetails.roundupValue
+		return this.updatedLBSADetails?.roundUpValue
 			? html`
-				<section slot="detail">
-					Round-up successfully updated to <b>${this.updatedRoundupDetails.roundupValue}</b>
-				</section>`
+				Round-up successfully updated to <b>${this.updatedLBSADetails.roundUpValue}</b>
+				${this._renderUpdatedAccounts()}`
 			: html``;
 	}
 
+	_renderUpdatedAccounts() {
+		return this.updatedLBSADetails?.activatedRoundUpAccounts
+			? html``
+			: html`
+				Updated on the following accounts:
+				${this.LBSADetails.activatedRoundUpAccounts.map(item => html`
+					<li class="bullet-label"><b>${item.accountName}</b></li>`)
+				}`;
+	}
+
 	_renderRoundupAccountsChange() {
-		return this.updatedRoundupDetails.activatedRoundUpAccounts.length >= 0
+		return this.updatedLBSADetails?.activatedRoundUpAccounts
 			? html`
-				<section slot="sub-content">
-					Updated on the following accounts:
-					${this.updatedRoundupDetails.activatedRoundUpAccounts.map(account => html`
-						<li class="bullet-label"><b>${account.accountName}</b></li>`)
-					}
-				</section>`
+				Updated on the following accounts:
+				${this.updatedLBSADetails.activatedRoundUpAccounts.map(item => html`
+					<li class="bullet-label"><b>${item.accountName}</b></li>`)
+				}`
 			: html``;
 	}
 }

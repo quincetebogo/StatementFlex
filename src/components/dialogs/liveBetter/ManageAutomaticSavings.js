@@ -3,6 +3,12 @@ import { formatCurrency } from 'app/productControls/utilities/Currency';
 import 'app/components/common/RadioButtonGroup';
 
 const ROUNDUP_VALUES = [2, 5, 10];
+const ERROR_MESSAGES = {
+	ALERT_BANNER: `You must choose a Round-up amount and account.`,
+	ALERT_ROUNDUP_VALUE: `You must choose a Round-up amount.`,
+	ALERT_ROUNDUP_ACC: `You must choose a Round-up account.`,
+	ROUNDUP_ON: `You must choose an option to switch Round-up on.`
+};
 
 /**
  * The Horizon Value Added Services dialog is used to seek permission to access client data.
@@ -23,6 +29,12 @@ export class ManageAutomaticSavings extends Component {
 
 	constructor() {
 		super();
+
+		this.isRoundUpActive = false;
+		this.isInterestSweepActive = false;
+		this.roundUpValue = ``;
+		this.roundUpAccounts = [];
+		this.errorMessage = ``;
 	}
 
 	// -----------
@@ -30,9 +42,12 @@ export class ManageAutomaticSavings extends Component {
 	// -----------
 	static get properties() {
 		return {
-			accountDetails: { type: Object },
+			automaticSavingsDetails: { type: Object },
+
 			isRoundUpActive: { state: true },
-			isInterestSweepActive: { state: true }
+			isInterestSweepActive: { state: true },
+			roundUpValue: { state: true },
+			errorMessage: { state: true }
 		};
 	}
 
@@ -43,8 +58,10 @@ export class ManageAutomaticSavings extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.isRoundUpActive = this.accountDetails.accountRoundUpActive;
-		this.isInterestSweepActive = this.accountDetails.accountInterestSweepActive;
+		this.isRoundUpActive = this.automaticSavingsDetails.accountRoundUpActive;
+		this.isInterestSweepActive = this.automaticSavingsDetails.accountInterestSweepActive;
+		this.roundUpValue = this.automaticSavingsDetails.roundupValue;
+		this.roundUpAccounts = [...this.automaticSavingsDetails.activatedRoundUpAccountNums];
 	}
 
 	disconnectedCallback() {
@@ -60,10 +77,20 @@ export class ManageAutomaticSavings extends Component {
 	}
 
 	_update() {
-		this.accountDetails.accountRoundUpActive = this.isRoundUpActive;
-		this.accountDetails.accountInterestSweepActive = this.isInterestSweepActive;
+		if (!this._isValid()) {
+			return false;
+		}
 
-		this.dispatchEvent(new CustomEvent(`update`, { detail: { updatedRoundupDetails: this.accountDetails } }));
+		this.dispatchEvent(new CustomEvent(`update`, { 
+			detail: {
+				updatedDetails: this.updatedDetails
+			}
+		}));
+	}
+
+	_toggleRoundUpActive() {
+		this.isRoundUpActive = !this.isRoundUpActive;
+		this.errorMessage = ``;
 	}
 
 	// --------------
@@ -76,18 +103,62 @@ export class ManageAutomaticSavings extends Component {
 	
 	_selectRoundUpAmount(e, value) {
 		if (e.detail.new) {
-			this.accountDetails.roundupValue = value; 
+			this.roundUpValue = value; 
+			this.errorMessage = ``;
 		}
 	}
 
 	_selectedRoundUpAccounts(e, account) {
 		if (e.detail.new) {
-			this.accountDetails.activatedRoundUpAccounts.push(account);
-			return;
+			this.roundUpAccounts.push(account.accountNumber);
+			this.automaticSavingsDetails.activatedRoundUpAccounts.push(account);
+		} else {
+			const index = this.roundUpAccounts.findIndex(item => item === account.accountNumber);
+			const parIndex = this.automaticSavingsDetails.activatedRoundUpAccounts.findIndex(item => item.accountNumber === account.accountNumber);
+			
+			this.roundUpAccounts.splice(index, 1);
+			this.automaticSavingsDetails.activatedRoundUpAccounts.splice(parIndex, 1);
 		}
-		this.accountDetails.activatedRoundUpAccounts.splice(this.accountDetails.activatedRoundUpAccounts.indexOf(account), 1);
+		this.errorMessage = ``;
+		this.requestUpdate();
 	}
 
+	_isUpdated() {
+		this.updatedDetails = {};
+
+		if (this.automaticSavingsDetails.accountRoundUpActive !== this.isRoundUpActive) {
+			this.updatedDetails.accountRoundUpActive = this.isRoundUpActive;
+		}
+
+		if (this.automaticSavingsDetails.accountInterestSweepActive !== this.isInterestSweepActive) {
+			this.updatedDetails.accountInterestSweepActive = this.isInterestSweepActive;
+		}
+
+		if (this.automaticSavingsDetails.roundupValue !== this.roundUpValue) {
+			this.updatedDetails.roundUpValue = this.roundUpValue;
+		}
+
+		if (!this.roundUpAccounts.every(item => this.automaticSavingsDetails.activatedRoundUpAccountNums.includes(item))) {
+			this.updatedDetails.activatedRoundUpAccountNums = this.roundUpAccounts;
+			this.updatedDetails.activatedRoundUpAccounts = this.automaticSavingsDetails.activatedRoundUpAccounts;
+		}
+		return Object.keys(this.updatedDetails).length > 0;
+	}
+
+	_isValid() {
+		if (!this.isRoundUpActive) {
+			return true;
+		}
+
+		if (!this.roundUpValue && !this.roundUpAccounts.length) {
+			this.errorMessage = ERROR_MESSAGES.ALERT_BANNER;
+			return false;
+		}
+		this.errorMessage = !this.roundUpValue ? ERROR_MESSAGES.ALERT_ROUNDUP_VALUE : ``;
+		this.errorMessage = !this.roundUpAccounts.length ? ERROR_MESSAGES.ALERT_ROUNDUP_ACC : ``;
+
+		return !this.errorMessage;
+	}
 	
 	// ---------
 	// RENDERING
@@ -132,11 +203,22 @@ export class ManageAutomaticSavings extends Component {
 					--theme-label-default-font-weight: 600;
 					--theme-label-font-color: #ffffff;
 				}
-				capitec-alert-banner[type="info"] {
-					--theme-alert-banner-info-font-color: #3A3A3A;
+				capitec-alert-banner {
+					width: 100%;
+
 					--theme-alert-banner-height: 48px;
+					--theme-alert-banner-width: 840px;
+					--theme-alert-banner-font-weight: 600;
+					--theme-layout-gap-spacing: 20px;
+					--theme-alert-banner-info-font-color: #3A3A3A;
 					--theme-alert-banner-icon-margin-left: 16px;
 					--theme-alert-banner-icon-margin-right: 12px;
+				}
+				capitec-alert-banner[type="info"] {
+					--theme-alert-banner-info-background-color: #DAF2F4;
+				}
+				capitec-alert-banner[type="error"] {
+					--theme-alert-banner-info-background-color: rgba(165,19,42,0.15);
 				}
 				capitec-label[type="title"] {
 					--theme-label-title-font-size: 16px;
@@ -148,14 +230,8 @@ export class ManageAutomaticSavings extends Component {
 					width: auto;
 					border-bottom: 1px solid #E1E1E1;
 				}
-				.alert-banner {
-					--theme-alert-banner-height: 48px;
-					--theme-alert-banner-width: 840px;
-					--theme-alert-banner-font-weight: 600;
-					--theme-alert-banner-info-background-color: #DAF2F4;
-					--theme-layout-gap-spacing: 20px;
-					--theme-alert-banner-info-font-color: #3A3A3A;
-					--theme-alert-banner-icon-margin-right: 12px;
+				.section-alert-banner {
+					--theme-alert-banner-height: 40px;
 				}
 				.alert-banner > p {
 					display: inline-block;
@@ -204,12 +280,6 @@ export class ManageAutomaticSavings extends Component {
 				.group-accounts {
 					margin-bottom: 23px;
 				}
-				.hide-group {
-					display: none;
-				}
-				.show-group {
-					display: block;
-				}
 				.other-options {
 					height: 32px;
 					--theme-titlebar-min-height: 32px;
@@ -222,7 +292,7 @@ export class ManageAutomaticSavings extends Component {
 					--theme-titlebar-shadow: 0px;
 					border-top: 1px solid rgb(225, 225, 225);
 					border-bottom: 1px solid rgb(225, 225, 225);
-					}
+				}
 				.card-header {
 					height: 48px;
 					padding: 15px;
@@ -256,7 +326,7 @@ export class ManageAutomaticSavings extends Component {
 			<capitec-modal type="free" header-align="left">
 				<div slot="header">
 					<capitec-title-bar data-automation-id="manage-automatic-savings-image" type="primary" class="header-gradient">
-						<capitec-image src="src/productControls/liveBetterSavingsAccount/images/Automatic-savings-white.svg"></capitec-image>
+						<capitec-image src="/src/productControls/liveBetterSavingsAccount/images/Automatic-savings-white.svg"></capitec-image>
 						<capitec-label label="Manage Automatic Savings"></capitec-label>
 					</capitec-title-bar>
 				</div>
@@ -285,12 +355,21 @@ export class ManageAutomaticSavings extends Component {
 	}
 
 	_renderAlertBanner() {
-		return html`
-			<capitec-alert-banner data-automation-id="manage-automatic-savings-alert-banner" class="alert-banner" type="info">
-				<strong>Notify client:</strong>
-				<p class="alert-banner-paragraph">Your Round-up and Interest Sweep values will always be transferred from your main savings account</p>
-			</capitec-alert-banner>
-		`;
+		return !this.errorMessage
+			? html`
+				<capitec-alert-banner
+					data-automation-id="manage-automatic-savings-info-banner"
+					type="info">
+						<strong>Notify client:</strong>
+						<p class="alert-banner-paragraph">Your Round-up and Interest Sweep values will always be transferred from your main savings account</p>
+				</capitec-alert-banner>`
+			: html`
+				<capitec-alert-banner
+					data-automation-id="manage-automatic-savings-error-banner"
+					type="error">
+						<strong>Notify client:</strong>
+						<p class="alert-banner-paragraph">${this.errorMessage}</p>
+				</capitec-alert-banner>`;
 	}
 
 	_renderRoundUpSaveToggle() {
@@ -299,73 +378,96 @@ export class ManageAutomaticSavings extends Component {
 			<img src='/images/liveBetter/round-up.svg'/>
 			<capitec-label type="title" label="Round-up. Save a little every time you spend"></capitec-label>
 			<capitec-spacer></capitec-spacer>
-					<capitec-label
-						id="id-toggle-label"
-						label="${this.isRoundUpActive ? `On` : `Off`}"
-						type="default">
-					</capitec-label>
+				<capitec-label
+					id="id-toggle-label"
+					label="${this.isRoundUpActive ? `On` : `Off`}"
+					type="default">
+				</capitec-label>
 				<capitec-toggle 
 					data-automation-id="manage-automatic-savings-toggle" 
 					id="id-toggle" 
 					?checked="${this.isRoundUpActive}"
-					@value-change="${() => this.isRoundUpActive = !this.isRoundUpActive}">
+					@value-change="${() => this._toggleRoundUpActive()}">
 				</capitec-toggle>
 			</capitec-group>
 		`;
 	}
 
 	_renderSetRoundUpAmount() {
-		return html`
-			<capitec-group 
-				layout="vertical"
-				halign="left" 
-				valign="center" 
-				gap="clear"
-				class="${this.isRoundUpActive ? `show-group` : `hide-group`}">
-					<capitec-title-bar
-						type="default"
-						label="Set Round-up amount"
-						class="other-options">
-					</capitec-title-bar>
+		return this.isRoundUpActive
+			? html`
+				<capitec-group
+					layout="vertical"
+					halign="left" 
+					valign="center" 
+					gap="clear">
+						<capitec-title-bar
+							type="default"
+							label="Set Round-up amount"
+							class="other-options">
+						</capitec-title-bar>
 
-					<capitec-radio-group 
-						data-automation-id="manage-automatic-savings-radio-amount" 
-						class="round-up-amount">
-							${ROUNDUP_VALUES.map(value => html`
-								<capitec-radio 
-									label="${formatCurrency(value)}" 
-									?checked="${this.accountDetails.roundupValue === value}"
-									@value-change="${(e) => this._selectRoundUpAmount(e, value)}">
-								</capitec-radio>
-							`)}
-					</capitec-radio-group>
-			</capitec-group>
-		`;
+						${!this.roundUpValue && this.errorMessage
+							? html`
+								<capitec-alert-banner
+									data-automation-id="manage-automatic-savings-error-banner"
+									class="section-alert-banner"
+									type="error">
+										<strong>Notify client:</strong>
+										<p class="alert-banner-paragraph">${ERROR_MESSAGES.ALERT_ROUNDUP_VALUE}</p>
+								</capitec-alert-banner>`
+							: html``}
+
+						<capitec-radio-group 
+							data-automation-id="manage-automatic-savings-radio-amount" 
+							class="round-up-amount">
+								${ROUNDUP_VALUES.map(value => html`
+									<capitec-radio 
+										label="${formatCurrency(value)}" 
+										?checked="${this.automaticSavingsDetails.roundupValue === value}"
+										@value-change="${(e) => this._selectRoundUpAmount(e, value)}">
+									</capitec-radio>
+								`)}
+						</capitec-radio-group>
+				</capitec-group>`
+			: html``;
 	}
 
 	_renderActiveRoundUpAccounts() {
-		return html`
-			<capitec-group 
-				layout="vertical" 
-				gap="none" 
-				halign="left" 
-				valign="center"
-				class="${this.isRoundUpActive ? `show-group` : `hide-group`} group-accounts">
-					<capitec-title-bar
-						type="default"
-						label="Active round-up accounts"
-						class="other-options">
-					</capitec-title-bar>
-						${this.accountDetails.roundUpAccounts.map(account => html`
+		return this.isRoundUpActive
+			? html`
+				<capitec-group 
+					layout="vertical" 
+					gap="none" 
+					halign="left" 
+					valign="center"
+					class="group-accounts">
+						<capitec-title-bar
+							type="default"
+							label="Active round-up accounts"
+							class="other-options">
+						</capitec-title-bar>
+						${!this.roundUpAccounts.length && this.errorMessage
+							? html`
+								<capitec-alert-banner
+									data-automation-id="manage-automatic-savings-error-banner"
+									class="section-alert-banner"
+									type="error">
+										<strong>Notify client:</strong>
+										<p class="alert-banner-paragraph">${ERROR_MESSAGES.ALERT_ROUNDUP_ACC}</p>
+								</capitec-alert-banner>`
+							: html``}
+
+						${this.automaticSavingsDetails.roundUpAccounts.map(account => html`
 							<capitec-check 
 								class="account-check-box"
 								label="${account.accountName}"
-								?checked="${this.accountDetails.activatedRoundUpAccounts.find(activeAccount => activeAccount.accountNumber === account.accountNumber)}"
+								?checked="${this.automaticSavingsDetails.activatedRoundUpAccounts.find(activeAccount => activeAccount.accountNumber === account.accountNumber)}"
 								@value-change="${(e) => this._selectedRoundUpAccounts(e, account)}">
 							</capitec-check>
 						`)}
-			</capitec-group>
-		`;
+				</capitec-group>`
+			: html``;
 	}
 
 	_renderInterestSweep() {
@@ -405,6 +507,7 @@ export class ManageAutomaticSavings extends Component {
 					data-automation-id="manage-automatic-savings-update"
 					type="primary" 
 					label="Update"
+					?disabled="${!this._isUpdated()}"
 					@click="${() => this._update()}">
 				</capitec-button>
 

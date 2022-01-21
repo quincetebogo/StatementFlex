@@ -81,6 +81,10 @@ const ACCOUNT_TYPE = {
 
 	// Formating date in the form 'DD MMM YYYY'
 	_formatDate(date) {
+		if (!date) {
+			return `-`;
+		}
+
 		const newdate = new Date(Date.parse(date));
 		return `${newdate.getDate()} ${this.getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
 	}
@@ -254,7 +258,7 @@ const ACCOUNT_TYPE = {
 					data-automation-id="live-better-account-details-title"
 					type="primary">
 						<img
-						src="src/productControls/liveBetterSavingsAccount/images/left-arrow.svg"
+						src="/src/productControls/liveBetterSavingsAccount/images/left-arrow.svg"
 						@click="${() => this._back()}"
 						class="left-arrow"/>
 						<horizon-label
@@ -296,7 +300,7 @@ const ACCOUNT_TYPE = {
 			halign="left" 
 			valign="top">
 				<capitec-group class="sub-header" layout="horizontal" gap="clear" halign="left" valign="center">
-					<capitec-image src="src/productControls/liveBetterSavingsAccount/images/AccountDetails.svg"></capitec-image>
+					<capitec-image src="/src/productControls/liveBetterSavingsAccount/images/AccountDetails.svg"></capitec-image>
 					<capitec-label
 						label="Account details"
 						class="title-style"
@@ -373,7 +377,7 @@ const ACCOUNT_TYPE = {
 			halign="left" 
 			valign="top">
 				<capitec-group class="sub-header" layout="horizontal" gap="clear" halign="left" valign="center">
-					<capitec-image src="src/productControls/liveBetterSavingsAccount/images/automatic-savings.svg"></capitec-image>
+					<capitec-image src="/src/productControls/liveBetterSavingsAccount/images/automatic-savings.svg"></capitec-image>
 						<capitec-label 
 							label="Automatic savings"
 							type="title"
