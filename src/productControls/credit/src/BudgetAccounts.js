@@ -273,7 +273,7 @@ import 'app/components/common/HorizonLabel';
 				<horizon-label
 					data-automation-id="budget-facility-number-of-budgets"
 					label="Number of budget accounts"
-					value="${this.budgetFacilityAccounts.numberOfBudgetAccounts}">
+					value="${this.budgetFacilityAccounts.creditCardBudgetList.length}">
 				</horizon-label>
 
 				<horizon-label
@@ -342,7 +342,7 @@ import 'app/components/common/HorizonLabel';
 				<horizon-label
 					data-automation-id="budget-facility-monthly-repayment"
 					label="Monthly repayment"
-					value="${formatCurrency(budgetAccount.budgetInstallment)}">
+					value="${formatCurrency(budgetAccount.budgetInstalment)}">
 				</horizon-label>
 
 				<horizon-label

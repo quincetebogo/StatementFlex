@@ -60,17 +60,21 @@ import 'app/productControls/credit/src/AccountDetailsView';
 			'accountNumber': this.termLoanDetails.accountNumber,
 			'overview': {
 				'Current balance': formatCurrency(this.termLoanDetails.accountBalance),
-				'Credit limit': formatCurrency(this.termLoanDetails.creditLimit),
+				// TODO: creditLimit => approvedAmount
+				'Approved Amount': formatCurrency(this.termLoanDetails.approvedAmount),
 				'Debit interest rate(yearly)': this.termLoanDetails.interestRate,
 				'Take-up date': formatDate(this.termLoanDetails.approvedDate, `dd mmm yyyy`),
 				'Account status': this.termLoanDetails.accountStatusDescription
 			},
 			'arrears': null,
 			'repayment': {
+				// TODO: repaymentDay not returned from service?
 				'Repayment date': this._getOccurance(this.termLoanDetails.repaymentDay, `month`),
+				// TODO: repaymentValue not returned from service.
 				'Repayment option': `${this.termLoanDetails.repaymentValueType} (${this.termLoanDetails.repaymentValue}%)`,
+				// TODO: Should these not be instalments instead of repayments? As repayments don't get returned
 				'Next repayment due': formatDate(this.termLoanDetails.nextRepaymentDate, `dd mmm yyyy`),
-				'Last repayment received': formatDate(this.termLoanDetails.lastpaymentDate, `dd mmm yyyy`),
+				'Last repayment received': formatDate(this.termLoanDetails.lastPaymentDate, `dd mmm yyyy`),
 				'Last payment received': formatCurrency(this.termLoanDetails.lastPaymentReceived)
 			},
 			'insurance': {

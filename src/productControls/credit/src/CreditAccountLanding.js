@@ -3,6 +3,7 @@ import { Component, css, html } from 'platform/elements';
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
+import 'app/views/product/CreditProduct';
 
 const PRODUCT_TYPE = {
 	CREDIT_CARD: `Credit Card`,
@@ -72,8 +73,8 @@ export class CreditAccountLanding extends Component {
 		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection, creditType: creditType, productType: productType } }));
 	}
 
-	_accountDetails(creditType, productType) {
-		this.dispatchEvent(new CustomEvent(`account-details`, { detail: { creditType: creditType, productType: productType } }));
+	_accountDetails(creditType, productType, accountNumber) {
+		this.dispatchEvent(new CustomEvent(`account-details`, { detail: { creditType: creditType, productType: productType, accountNumber: accountNumber } }));
 	}
 
 	_productEnquiry() {
@@ -85,6 +86,7 @@ export class CreditAccountLanding extends Component {
 	}
 
 	_viewBudgetAccounts(creditCardNumber) {
+		// TODO: Card Card Number?
 		this.dispatchEvent(new CustomEvent(`view-budget-accounts`, { detail: { creditCardNumber: creditCardNumber } }));
 	}
 
@@ -333,7 +335,7 @@ export class CreditAccountLanding extends Component {
 							${this._renderFixedTermCreditTab()}
 					</capitec-tab>
 				</capitec-tab-group>`
-			: html``;
+		: html``;
 	}
 
 	_renderFlexibleCreditTab() {
@@ -383,14 +385,14 @@ export class CreditAccountLanding extends Component {
 							<capitec-icon
 								data-automation-id="credit-account-flexible-credit-info"
 								icon="system/info-action"
-								@click="${() => this._accountDetails(item.category, item.type)}">
+								@click="${() => this._accountDetails(item.category, item.type, item.accountNumber)}">
 							</capitec-icon>
 							<horizon-label 
 								data-automation-id="credit-account-access-facility"
 								class="label-account-number"
 								label="${item.productTypeDescription}"
 								value="${item.accountNumber}"
-								@click="${() => this._accountDetails(item.category, item.type)}">
+								@click="${() => this._accountDetails(item.category, item.type, item.accountNumber)}">
 							</horizon-label>
 							<div class="vertical-line"></div>
 							<horizon-label
@@ -480,14 +482,14 @@ export class CreditAccountLanding extends Component {
 							<capitec-icon
 								data-automation-id="credit-account-fixed-term-info"
 								icon="system/info-action"
-								@click="${() => this._accountDetails(item.category, item.type)}">
+								@click="${() => this._accountDetails(item.category, item.type, item.accountNumber)}">
 							</capitec-icon>
 							<horizon-label
 								data-automation-id="credit-account-number"
 								class="label-account-number"
 								label="${item.productTypeDescription}"
 								value="${item.accountNumber}"
-								@click="${() => this._accountDetails(item.category, item.type)}">
+								@click="${() => this._accountDetails(item.category, item.type, item.accountNumber)}">
 							</horizon-label>
 							<div class="vertical-line"></div>
 							<horizon-label

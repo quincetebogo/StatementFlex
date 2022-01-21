@@ -68,13 +68,16 @@ import 'app/productControls/credit/src/AccountDetailsView';
 			},
 			'arrears': null,
 			'repayment': {
-				'Repayment amount (%)': `${formatCurrency(this.accessFacilityDetails.repaymentAmount)} ${this.accessFacilityDetails.repaymentValue}(%)`,
+				// TODO: repaymentAmount => repaymentValue. 
+				'Repayment amount': `${formatCurrency(this.accessFacilityDetails.repaymentValue)}`,
 				'Repayment date': this._getOccurance(this.accessFacilityDetails.repaymentDay, `month`),
 				'Next repayment due': formatDate(this.accessFacilityDetails.nextRepaymentDate, `dd mmm yyyy`),
 				'Repayment period': this.accessFacilityDetails.repaymentPeriod,
 				'Remaning monthly repayments': this.accessFacilityDetails.outstandingRepayments,
-				'Last repayment received': formatDate(this.accessFacilityDetails.lastpaymentDate, `dd mmm yyyy`),
-				'Repayment method': this.accessFacilityDetails.repaymentMethod
+				// TODO: LastPaymentDate => lastFinancialDate
+				'Last repayment received': formatDate(this.accessFacilityDetails.lastFinancialDate, `dd mmm yyyy`),
+				// TODO: RepaymentMethod => repaymentValueType
+				'Repayment method': this.accessFacilityDetails.repaymentValueType
 			},
 			'insurance': {
 				'Option': this.accessFacilityDetails.insuranceOptionCode,
@@ -110,6 +113,7 @@ import 'app/productControls/credit/src/AccountDetailsView';
 	// ---------------
 
 	_getOccurance(value, occurance) {
+		// TODO: Not sure this is doing what is needed
 		const parsedDate = new Date(value);
 		const date = parsedDate.getDate();
 

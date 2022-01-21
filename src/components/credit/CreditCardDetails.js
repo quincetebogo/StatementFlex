@@ -72,6 +72,7 @@ import 'app/productControls/credit/src/AccountDetailsView';
 			'repayment': {
 				'Repayment day': this._getOccurance(this.creditCardDetails.repaymentDay, `month`),
 				'Repayment method': this.creditCardDetails.repaymentMethod,
+				// TODO: Logic for displaying amount vs percentages
 				'Repayment option': `${this.creditCardDetails.repaymentValueType} (${this.creditCardDetails.repaymentValue}%)`,
 				'Next repayment due': formatDate(this.creditCardDetails.nextRepaymentDate, `dd mmm yyyy`),
 				'Last repayment received': formatDate(this.creditCardDetails.lastpaymentDate, `dd mmm yyyy`),

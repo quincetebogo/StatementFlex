@@ -1,14 +1,11 @@
-import { accessFacilityDetails, creditCardDetails, creditOverview, termLoanDetails } from 'app/mocks/CreditMocks';
 import { css, html } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
-import { formatCurrency } from 'app/utils/channelServiceUtilities';
+import { CreditService } from 'app/services/CreditService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
-import { budgetfacilityresponse } from 'app/mocks/creditBudgetFacilityAccounts';
-import { creditOverview } from 'app/mocks/CreditMocks';
 import { formatCurrency } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/ServiceCallErrorScreen';
@@ -58,9 +55,14 @@ export class CreditAccount extends ViewBase {
 		this.accessFacilityDetails = {};
 		this.termLoanDetails = {};
 		this.encodedPDF = ``;
+		this.flexibleCreditAccounts = [];
+		this.fixedTermCreditAccounts = []; 
 
+		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
+		// TODO: There is no errorHanlder method defined in this scope. Should we not be calling _handleChannelServiceError
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 	}
+
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -68,7 +70,7 @@ export class CreditAccount extends ViewBase {
 	
 	connectedCallback() {
 		super.connectedCallback();
-
+ 
 		this._initialise();
 
 		this._optionClick = async (option, creditType, productType) => {
@@ -114,7 +116,9 @@ export class CreditAccount extends ViewBase {
 		return {
 			loading: { state: false },
 			renderMode: { state: false },
-			accountViewType: { state: false }
+			accountViewType: { state: false },
+			flexibleCreditAccounts: { type: Array, state: true, attribute: false },
+			fixedTermCreditAccounts: { type: Array, state: true, attribute: false }
 		};
 	}
 	
@@ -158,9 +162,9 @@ export class CreditAccount extends ViewBase {
 			"product-type": event.detail.productType
 		});
 
-		const creditCard = () => this._getCreditCardDetails();
-		const accessFacility = () => this._getAccessFacilityDetails();
-		const termLoan = () => this._getTermLoanDetails();
+		const creditCard = () => this._getCreditCardDetails(event.detail.accountNumber);
+		const accessFacility = () => this._getAccessFacilityDetails(event.detail.accountNumber);
+		const termLoan = () => this._getTermLoanDetails(event.detail.accountNumber);
 
 		const creditProducts = {
 			[PRODUCTS.CREDIT_CARD]: creditCard,
@@ -191,7 +195,7 @@ export class CreditAccount extends ViewBase {
 
 		this.budgetAccountDetails = {
 			budgetName: selectedAccountDetails.budgetName,
-			"Monthly repayment": formatCurrency(selectedAccountDetails.budgetInstallment),
+			"Monthly repayment": formatCurrency(selectedAccountDetails.budgetInstalment),
 			"Purchase amount": formatCurrency(selectedAccountDetails.originalAmount),
 			"Outstanding balance": formatCurrency(selectedAccountDetails.budgetBalance),
 			"Opening date": this._formatDate(selectedAccountDetails.budgetDateTaken),
@@ -215,7 +219,7 @@ export class CreditAccount extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
-	_initialise() {
+	async _initialise() {
 
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		
@@ -223,20 +227,25 @@ export class CreditAccount extends ViewBase {
 			
 			this.horizonStore.setCallerInformation(this.callerInformation);
 
-			/* 
-				TO DO: Credit landing page service call should come here to load returnValue.
-				Error handler should be bypassed when implementing CS call.
-				Example: const returnValue = await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData, () => true);
+			const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber);
+			const successfullServiceResponse = returnValue.succeeded;
 
-				Scenario-1: CS call successfull and client has Flexible/Fixed term products - Navigate to credit landing page with details
-				Scenario-2: CS call successfull and client doesn't have either Flexible & Fixed term products - Navigate to Credit product info screen
-				Scenario-3: CS call failure - Navigate to credit service failure screen 
-				*/
+			if (!successfullServiceResponse) {
+				this.logger(`error`, `Failed to retrieve client overview from credit service.`, `_initialise`, returnValue.correlationId);
+				return;
+			}
+
+			const creditOverview = returnValue.result;
 
 			this.creditAccountDetails = creditOverview;
 			this._formatCreditOverviewResponse();
 			this.flexibleCreditAccounts = [...creditOverview.creditCardSummaryList, ...creditOverview.accessFacilitySummaryList];
 			this.fixedTermCreditAccounts = [...creditOverview.loanAccountSummaryList];
+
+			if (this.flexibleCreditAccounts.length === 0 && this.fixedTermCreditAccounts.length === 0) {
+				this.horizonRouter.navigateToProductInfo(`Credit`);
+				return;
+			}
 
 			this._telemetry.startSpan(CreditEvents.CREDIT, {
 				"screen": TelemetryScreen.CREDIT_LANDING,
@@ -372,12 +381,18 @@ export class CreditAccount extends ViewBase {
 		// TO DO: Place holder for credit settle loan flow.
 	}
 
-	_budgetFacility(e) {
+	async _budgetFacility(e) {
 		// TO DO: Place holder for budget facility flow.
-		// TO DO: 'budgetfacilityresponse' mock data should be replaced with CS implementation
-		this.budgetFacilityAccounts = budgetfacilityresponse;
-		this.budgetFacilityAccounts.creditCardNumber = e.detail.creditCardNumber;
+		const returnValue = await this.creditService.budgetFacility(e.creditCardNumber);
+		const successfullServiceResponse = returnValue.succeeded;
 
+		if (!successfullServiceResponse) {
+			this.logger(`error`, `Failed to retrieve client credit card budget details from credit service.`, `_budgetFacility`, returnValue.correlationId);
+			return;
+		}
+
+		this.budgetFacilityAccounts = returnValue.result;
+		this.budgetFacilityAccounts.creditCardNumber = e.detail.creditCardNumber;
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW;
 	}
 
@@ -408,28 +423,50 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_getCreditCardDetails() {
-		// TODO: Service implementation should come here
-		this.creditCardDetails = creditCardDetails;
+	async _getCreditCardDetails(accountNumber) {
+		const returnValue = await this.creditService.creditCardDetails(accountNumber);
+		const successfullServiceResponse = returnValue.succeeded;
+
+		if (!successfullServiceResponse) {
+			this.logger(`error`, `Failed to retrieve client credit card details from credit service.`, `_getCreditCardDetails`, returnValue.correlationId);
+			return;
+		}
+
+		this.creditCardDetails = returnValue.result;
 		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
 	}
 
-	_getAccessFacilityDetails() {
-		// TODO: Service implementation will come here
-		this.accessFacilityDetails = accessFacilityDetails;
+	async _getAccessFacilityDetails(accountNumber) {
+		const returnValue = await this.creditService.accessFacilityDetails(accountNumber);
+		const successfullServiceResponse = returnValue.succeeded;
+
+		if (!successfullServiceResponse) {
+			this.logger(`error`, `Failed to retrieve client access facility details from credit service.`, `_getAccessFacilityDetails`, returnValue.correlationId);
+			return;
+		}
+
+		this.accessFacilityDetails = returnValue.result;
 		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
 	}
 
-	_getTermLoanDetails() {
-		this.termLoanDetails = termLoanDetails;
+	async _getTermLoanDetails(accountNumber) {
+		const returnValue = await this.creditService.termLoanDetails(accountNumber);
+		const successfullServiceResponse = returnValue.succeeded;
+
+		if (!successfullServiceResponse) {
+			this.logger(`error`, `Failed to retrieve client loan details from credit service.`, `_getTermLoanDetails`, returnValue.correlationId);
+			return;
+		}
+
+		this.termLoanDetails = returnValue.result;
 		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
 	}
 
-	async _navigatePDF(currPage){
-		//add CS call to get encodedPDF 
-		//currPage is date currently selected
+	async _navigatePDF(currPage) {
+		// add CS call to get encodedPDF 
+		// currPage is date currently selected
 		const returnValue = await this.quickTransactionService.viewStatement(currPage, () => this._createIncidentOnError());
-		if(returnValue){
+		if (returnValue) {
 			return returnValue.result.statementData;
 		}
 	}
@@ -515,19 +552,17 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderCreditVerifiedLandingPage() {
-		return this.verificationStatus === `verified`
-			? html`
-				<capitec-pc-credit-account
-					.flexibleCreditAccounts="${this.flexibleCreditAccounts}"
-					.fixedTermCreditAccounts="${this.fixedTermCreditAccounts}"
-					.budgetAccountsSummary="${this.budgetAccountsSummary}"
-					@option-click="${(e) => this._optionClick(e.detail.option, e.detail.creditType, e.detail.productType)}"
-					@account-details="${(e) => this._accountDetails(e)}"
-					@product-enquiry="${() => this._productEnquiry()}"
-					@view-info="${() => this._viewInfo()}"
-					@view-budget-accounts="${(e) => this._budgetFacility(e)}">
-				</capitec-pc-credit-account>`
-			: html``;
+		return this.verificationStatus === `verified` ? html`
+			<capitec-pc-credit-account
+			.flexibleCreditAccounts="${this.flexibleCreditAccounts}"
+			.fixedTermCreditAccounts="${this.fixedTermCreditAccounts}"
+			.budgetAccountsSummary="${this.budgetAccountsSummary}"
+			@option-click="${(e) => this._optionClick(e.detail.option, e.detail.creditType, e.detail.productType)}"
+			@account-details="${(e) => this._accountDetails(e)}"
+			@product-enquiry="${() => this._productEnquiry()}"
+			@view-info="${() => this._viewInfo()}"
+			@view-budget-accounts="${(e) => this._budgetFacility(e)}">
+		</capitec-pc-credit-account>` : html``;
 	}
 	
 	_renderCreditUnverifiedLandingPage() {
@@ -598,8 +633,8 @@ export class CreditAccount extends ViewBase {
 		return this.renderMode === RENDER_MODE.STATEMENTS
 		? html`
 			<horizon-credit-statements-dialog
-				@cancel="${()=> this._backToLandingPage()}"
-				@view-fees="${()=>this._viewFees()}"
+				@cancel="${() => this._backToLandingPage()}"
+				@view-fees="${() => this._viewFees()}"
 				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
 			</horizon-credit-statements-dialog>`
 		: html``;
