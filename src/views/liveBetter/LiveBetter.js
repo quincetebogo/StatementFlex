@@ -516,12 +516,11 @@ export class LiveBetter extends SavingsAccountBase {
 
 	_webTemplate() {
 		return html`
-			${super._webTemplate()}
+			${super._webTemplate(ACCOUNT_TYPES.LBB)}
 			${this._renderLandingPage()}
 			${this._renderTransactionHistory()}
 			${this._renderLinkedTransactionDetailsModal()}
 			${this._renderAutomaticSavings()}
-			${this._renderStatementsModal()}
 		`;
 	}
 
@@ -808,18 +807,6 @@ export class LiveBetter extends SavingsAccountBase {
 				@update = "${(e) => this._updateAutomaticSavings(e.detail.updatedDetails)}">
 			</horizon-manage-automatic-savings>`
 		: html``;
-	}
-
-	_renderStatementsModal() {
-		return this.renderMode === RENDER_MODE.STATEMENTS 
-			? html`
-				<horizon-statements-dialog
-					.cifNumber="${this.callerInformation.cifNumber}"
-					.clientProducts="${this.clientProducts}"
-					type="${ACCOUNT_TYPES.LBB}"
-					@cancel="${() => this._cancelStatements()}">
-				</horizon-statements-dialog>`
-			: html``;
 	}
 }
 

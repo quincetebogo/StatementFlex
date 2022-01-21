@@ -298,7 +298,6 @@ export class LiveBetterSavings extends Component {
 						data-automation-id="live-better-verified-title"
 						type="primary">
 							<img src='/src/productControls/liveBetterSavingsAccount/images/liveBetter-white.svg'/>
-							</capitec-icon>
 							<capitec-label label="Live Better Savings Account" type="Title"></capitec-label>
 					</capitec-title-bar>
 
