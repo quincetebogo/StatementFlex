@@ -424,7 +424,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_getStatements(creditType, productType) {
-
+		// TO DO: Place holder for credit statements flow.
 		this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
 			"next-screen": TelemetryScreen.CREDIT_STATEMENTS,
