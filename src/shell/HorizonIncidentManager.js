@@ -71,7 +71,8 @@ export class HorizonIncidentManager {
 		 * New case: possible to open search other needs more than once.
 		 */
 		if (clientNeed === incidentDetails.currentNeed && incidentDetails.needStatus !== HORIZON_NEED_STATUS.CLOSED) {
-			// Do nothing
+			incidentDetails.needStatus = HORIZON_NEED_STATUS.INPROGRESS;
+			this.horizonStore.setIncidentDetails(incidentDetails);
 			return true;
 		}
 
