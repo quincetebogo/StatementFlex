@@ -91,7 +91,16 @@ export class ManageAutomaticSavings extends Component {
 	_toggleRoundUpActive() {
 		this.isRoundUpActive = !this.isRoundUpActive;
 		this.errorMessage = ``;
+
+		this.dispatchEvent(new CustomEvent(`round-up`, {}));
 	}
+
+	_toggleInterestSweep() {
+		this.isInterestSweepActive = !this.isInterestSweepActive;
+		
+		this.dispatchEvent(new CustomEvent(`interest-sweep`, {}));
+	}
+
 
 	// --------------
 	// PUBLIC METHODS
@@ -486,7 +495,7 @@ export class ManageAutomaticSavings extends Component {
 						data-automation-id="manage-automatic-savings-toggle" 
 						id="id-toggle"
 						?checked="${this.isInterestSweepActive}"
-						@value-change="${() => this.isInterestSweepActive = !this.isInterestSweepActive}">
+						@value-change="${() => this._toggleInterestSweep()}">
 				</capitec-toggle>
 		</capitec-group>
 		`;

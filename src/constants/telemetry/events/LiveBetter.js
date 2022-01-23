@@ -15,7 +15,15 @@
 	LIVE_BETTER_STATEMENTS: `call.fulfill-need.live-better-savings.select.statements`,
 	LIVE_BETTER_AUTOMATIC_SAVINGS: `call.fulfill-need.live-better-savings.select.automatic-savings`,
 
-	LIVE_BETTER_VIEW_BENEFITS: `call.fulfill-need.live-better-savings.view-benefits`
+	LIVE_BETTER_VIEW_BENEFITS: `call.fulfill-need.live-better-savings.view-benefits`,
+	
+	// Automatic Savings
+	LBB_AUTOMATIC_SAVINGS: `call.fulfill-need.live-better-savings.automatic-savings`,
+	LBB_AUTOMATIC_SAVINGS_TOGGLE_ROUNDUP: `call.fulfill-need.live-better-savings.automatic-savings.toggle.round-up`,
+	LBB_AUTOMATIC_SAVINGS_TOGGLE_INTEREST_SWEEP: `call.fulfill-need.live-better-savings.automatic-savings.toggle.interest-sweep`,
+	LBB_AUTOMATIC_SAVINGS_SELECT_UPDATE: `call.fulfill-need.live-better-savings.automatic-savings.select.update`,
+	LBB_AUTOMATIC_SAVINGS_SELECT_CANCEL: `call.fulfill-need.live-better-savings.automatic-savings.select.cancel`
+
 };
 
 /**

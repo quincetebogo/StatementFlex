@@ -1,4 +1,6 @@
 import { css, html } from 'platform/elements';
+import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -50,6 +52,11 @@ export class AutomaticSavingsSuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
+		this._telemetry.endSpan(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS, {
+			"screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_SUCCESS,
+			"next-screen": TelemetryScreen.LIVE_BETTER
+		});
+
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToLiveBetter();
 	}

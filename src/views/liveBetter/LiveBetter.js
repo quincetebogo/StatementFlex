@@ -101,7 +101,8 @@ export class LiveBetter extends SavingsAccountBase {
 			showTooltip: { state: true },
 			transactionHistory: { state: true },
 			journalNumber: { state: true },
-			updateAutomaticSavings: { state: true }
+			updateAutomaticSavings: { state: true },
+			landingPageInfo: { state: true }
 		};
 	}
 	
@@ -138,6 +139,7 @@ export class LiveBetter extends SavingsAccountBase {
 		this.landingPageInfo.accountRoundUpActive = event.detail.roundUpStatus;
 		this.automaticSavingsDetails.accountRoundUpActive = event.detail.roundUpStatus;
 		this._deepCopyProperty();
+
 		// To classify incident, setting need as automatic savings
 		await this._optionClick(`automatic-savings-lbb`);
 	}
@@ -152,11 +154,22 @@ export class LiveBetter extends SavingsAccountBase {
 		this.landingPageInfo.accountInterestSweepActive = event.detail.interestSweepStatus;
 		this.automaticSavingsDetails.accountInterestSweepActive = event.detail.interestSweepStatus;
 		this._deepCopyProperty();
+
 		// To classify incident, setting need as automatic savings
 		await this._optionClick(`automatic-savings-lbb`);
 	}
 
-	_backFromAutomaticSavings() {
+	async _backFromAutomaticSavings() {
+		await this._telemetry.logEvent(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS_SELECT_CANCEL, {
+			"screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS,
+			"next-screen": this.renderMode === RENDER_MODE.LIVE_BETTER_ACCOUNT_DETAILS ? TelemetryScreen.LIVE_BETTER_ACCOUNT_DETAILS : TelemetryScreen.LIVE_BETTER
+		});
+
+		this._telemetry.endSpan(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS, {
+			"screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS,
+			"next-screen": this.renderMode === RENDER_MODE.LIVE_BETTER_ACCOUNT_DETAILS ? TelemetryScreen.LIVE_BETTER_ACCOUNT_DETAILS : TelemetryScreen.LIVE_BETTER
+		});
+
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.landingPageInfo.accountRoundUpActive = screenDetails.LBSADetails.accountRoundUpActive;
 		this.landingPageInfo.accountInterestSweepActive = screenDetails.LBSADetails.accountInterestSweepActive;
@@ -261,6 +274,7 @@ export class LiveBetter extends SavingsAccountBase {
 	}
 
 	async _updateAutomaticSavings(updatedDetails) {
+
 		const updateRequest = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"accountRoundUpActive": updatedDetails?.accountRoundUpActive ?? this.automaticSavingsDetails.accountRoundUpActive,
@@ -272,6 +286,15 @@ export class LiveBetter extends SavingsAccountBase {
 		const returnValue = await this.liveBetterService.lbbUpdateRoundupDetails(updateRequest, () => true);
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `automatic-savings-lbb`);
 
+		this._telemetry.logEvent(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS_SELECT_UPDATE, {
+			"screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS,
+			"round-up": updatedDetails?.accountRoundUpActive ?? this.automaticSavingsDetails.accountRoundUpActive,
+			"interest-sweep": updatedDetails?.accountInterestSweepActive ?? this.automaticSavingsDetails.accountInterestSweepActive,
+			"roundup-value": updatedDetails?.roundupValue ?? this.automaticSavingsDetails.roundupValue,
+			"roundup-accounts": updatedDetails?.activatedRoundUpAccountNums ?? this.automaticSavingsDetails.activatedRoundUpAccountNums,
+			"next-screen": returnValue.succeeded ? TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_SUCCESS : TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_FAILURE
+		});
+
 		if (returnValue.succeeded) {
 
 			const screenDetails = this.horizonStore.getScreenDetails();
@@ -282,6 +305,18 @@ export class LiveBetter extends SavingsAccountBase {
 		} else {
 			this.horizonRouter.navigateToAutomaticSavingsFailure();
 		}
+	}
+
+	_toggleRoundUpTelemetry() {
+		this._telemetry.logEvent(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS_TOGGLE_ROUNDUP, {
+			"screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS
+		});
+	}
+
+	_toggleInterestSweepTelemetry() {
+		this._telemetry.logEvent(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS_TOGGLE_INTEREST_SWEEP, {
+			"screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS
+		});
 	}
 
 	// --------------
@@ -310,7 +345,7 @@ export class LiveBetter extends SavingsAccountBase {
 			
 				// Navigate to Live better verified landing page if a client has Live better account 
 				this._telemetry.startSpan(LiveBetterEvents.LIVE_BETTER, {
-					"screen": TelemetryScreen.LIVE_BETTER,
+					"screen": TelemetryScreen.LIVE_BETTER_LANDING_PAGE,
 					"liveBetter": true
 				});
 
@@ -444,11 +479,12 @@ export class LiveBetter extends SavingsAccountBase {
 		this.renderMode = RENDER_MODE.STATEMENTS;
 	}
 
-	_automaticSavings() {
-		this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_AUTOMATIC_SAVINGS, {
+	async _automaticSavings() {
+		await this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_AUTOMATIC_SAVINGS, {
 			"screen": TelemetryScreen.LIVE_BETTER_LANDING_PAGE,
 			"next-screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS
 		});
+		this._telemetry.startSpan(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS);
 
 		this._getAutomaticSavingsDetails();
 		this.updateAutomaticSavings = true;
@@ -480,9 +516,9 @@ export class LiveBetter extends SavingsAccountBase {
 	
 	// Formating date in the form 'DD MMM YYYY'
 	_formatDate(date) {
-        const newdate = new Date(Date.parse(date));
-        return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
-    }
+		const newdate = new Date(Date.parse(date));
+		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+	}
 	
 	// Tooltip is displayed by hovering on description only when description field is too long and is partially hidden
 	_displayTooltip(e) {
@@ -521,6 +557,7 @@ export class LiveBetter extends SavingsAccountBase {
 		// Creates and returns a deep copy of an Object this.landingPageInfo which helps to render main screen.
 		this.landingPageInfo = Utilities.deepCopy(this.landingPageInfo);
 	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -840,6 +877,9 @@ export class LiveBetter extends SavingsAccountBase {
 			? html`
 				<horizon-manage-automatic-savings
 					.automaticSavingsDetails = "${this.automaticSavingsDetails}"
+
+					@round-up = "${() => this._toggleRoundUpTelemetry()}"
+					@interest-sweep = "${() => this._toggleInterestSweepTelemetry()}"
 					@cancel = "${() => this._backFromAutomaticSavings()}"
 					@update = "${(e) => this._updateAutomaticSavings(e.detail.updatedDetails)}">
 				</horizon-manage-automatic-savings>`
