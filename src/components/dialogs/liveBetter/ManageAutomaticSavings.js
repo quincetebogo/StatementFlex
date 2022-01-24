@@ -164,8 +164,12 @@ export class ManageAutomaticSavings extends Component {
 			this.errorMessage = ERROR_MESSAGES.ALERT_BANNER;
 			return false;
 		}
-		this.errorMessage = !this.roundUpValue ? ERROR_MESSAGES.ALERT_ROUNDUP_VALUE : ``;
-		this.errorMessage = !this.roundUpAccounts.length ? ERROR_MESSAGES.ALERT_ROUNDUP_ACC : ``;
+		if (!this.roundUpValue) {
+			this.errorMessage = ERROR_MESSAGES.ALERT_ROUNDUP_VALUE;
+		}
+		if (!this.roundUpAccounts.length) {
+			this.errorMessage = ERROR_MESSAGES.ALERT_ROUNDUP_ACC;
+		}
 
 		return !this.errorMessage;
 	}
@@ -242,6 +246,7 @@ export class ManageAutomaticSavings extends Component {
 				}
 				.section-alert-banner {
 					--theme-alert-banner-height: 40px;
+					--theme-layout-gap-spacing: 0px;
 				}
 				capitec-alert-banner > p {
 					display: inline-block;

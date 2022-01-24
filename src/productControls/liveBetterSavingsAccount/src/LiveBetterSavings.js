@@ -356,7 +356,7 @@ export class LiveBetterSavings extends Component {
 						valign="center">
 							<capitec-label label="Round-up"></capitec-label>
 							<capitec-toggle 
-								label="${formatCurrency(this.liveBetterAccountData.roundupValue)}" 
+								label="${this.liveBetterAccountData.roundupValue ? formatCurrency(this.liveBetterAccountData.roundupValue) : ``}" 
 								@value-change="${(event) => this._toggleRoundUp(event)}"
 								?checked="${this.liveBetterAccountData.accountRoundUpActive}">
 							</capitec-toggle>

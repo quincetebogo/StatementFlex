@@ -295,12 +295,12 @@ export class LiveBetter extends SavingsAccountBase {
 			"next-screen": returnValue.succeeded ? TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_SUCCESS : TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_FAILURE
 		});
 
-		if (returnValue.succeeded) {
-
-			const screenDetails = this.horizonStore.getScreenDetails();
-			screenDetails.updatedLBSADetails = updatedDetails;
-			this.horizonStore.setScreenDetails(screenDetails);
 		
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.updatedLBSADetails = updatedDetails;
+		this.horizonStore.setScreenDetails(screenDetails);
+	
+		if (returnValue.succeeded) {
 			this.horizonRouter.navigateToAutomaticSavingsSuccess();
 		} else {
 			this.horizonRouter.navigateToAutomaticSavingsFailure();
