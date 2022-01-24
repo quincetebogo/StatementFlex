@@ -2,7 +2,7 @@ import { css, html } from 'platform/elements';
 import { DateTime } from 'luxon';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { StatementsDialog } from 'app/components/dialogs/common/StatementsDialog';
-
+import { base64ToBlobUrl } from 'app/utils/channelServiceUtilities';
 import 'app/components/common/StepperModal';
 import 'app/components/common/HorizonPDFViewer';
 import 'app/components/common/HorizonMonthCalendar';
@@ -98,7 +98,6 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this._initialise();
 	}
 
 	disconnectedCallback() {
@@ -129,26 +128,17 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 
 	_back() {
 		this.currentStep--;
-		this.requestUpdate();
 	}
 
 	_viewFees() {
 		this.dispatchEvent(new CustomEvent(`view-fees`, {}));
 	}
 
-	async _navigate(step){
-		if(step==="next"){
-			this.currPage < datesSelected.length ? this.currPage++ : this.currPage;			
-			this.encodedPDF = await this.navigatePDF(datesSelected[this.currPage-1]);
-		}else{
-			this.currPage > 1 ? this.currPage-- : this.currPage;
-			this.encodedPDF = await this.navigatePDF(datesSelected[this.currPage-1]);
-		}
-	}
+	async _viewPDF(){
 
-	async _viewPDF(date){
-		this.encodedPDF = await this.navigatePDF(this.currPage);
+		this.encodedPDF = await this.navigatePDF(1);
 		super.renderMode = RENDER_MODE.PDF;
+
 	}
 
 	_sendStatement() {
@@ -160,10 +150,6 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	_initialise() {
-		const currDate = new Date();
-	}
 
 	_clearErrors() {
 		super.errorMessage = ``;
@@ -181,7 +167,6 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 		return [
 			super.styles,
 			css`
-			
 				bb-stepper-modal  {              
 					--theme-modal-header-color: #FFFFFF;
 					--theme-modal-header-background-color: #E61414;
@@ -211,34 +196,6 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 					color: #3A3A3A;
 					font-size: 14px;				
 				}				
-				.checktrue{
-					height: 56px;
-					width: 220px;
-					border: 1px solid #E1E1E1;
-					border-radius: 4px;
-					background-color: #FFFFFF;
-					box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
-					margin-right: 16px;
-					margin-bottom: 16px;
-				}
-				.checkfalse{
-					height: 56px;
-					width: 220px;
-					border: 1px solid #E1E1E1;
-					border-radius: 4px;
-					background-color: #FFFFFF;
-					margin-right: 16px;
-					margin-bottom: 16px;
-				}
-				.months{
-					line-height: 20px;
-					margin-top:16px;
-					margin-left:16px;
-					--theme-check-label-spacing: 13px;
-					--theme-label-font-size: 16px;
-					--theme-label-font-weight: 600;
-					--theme-label-font-color: #3A3A3A;
-				}
 				.choose-period{
 					margin-bottom:16px;
 					margin-right:-10px;
@@ -249,34 +206,8 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 				.choose-period-header > capitec-check{
 					margin-right:10px;
 				}
-				.line{
-					width: 955px;
-					border: 0.5px solid #E1E1E1;
-					margin-bottom: 17px;
-					margin-top: 0px;
-				}
 				.seperator{
 					width: 955px;
-				}
-				capitec-chip{
-					width: 110px;
-					height: 32px;
-					margin-left: 8px;
-					margin-bottom: 8px;
-				}
-				.filter-label{
-					color: #3A3A3A;
-					font-family: "Hind Vadodara";
-					font-size: 14px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 30px;
-				}
-				.chip-group{
-					margin-top:14px;
-				}
-				horizon-month-calendar{
-					width:320px;
 				}
 			
 			`
@@ -303,7 +234,7 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 	_renderContent() {
 		switch (this.renderMode) {
 			case RENDER_MODE.PDF:
-				return html`${super._renderPDFViewer()}`;
+				return html`${this._renderPDFViewer()}`;
 			case RENDER_MODE.EMAIL:
 			default:
 				return html`
@@ -319,39 +250,6 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 				`;
 		}
 	}
-
-	// _webTemplate() {
-	// 	switch(super.renderMode){
-	// 		case RENDER_MODE.PDF:
-	// 			return html`${this._renderPDFViewer()}`;
-	// 		case RENDER_MODE.EMAIL:
-	// 		default:
-	// 			return html`${this._renderModal()}`;
-	// 	}		
-	// }
-
-	// _renderModal(){
-	// 	return html`
-	// 		<bb-stepper-modal
-	// 			header="Statements"
-	// 			.steps="${STATEMENTS_STEPS}"
-	// 			current-active-step="${super.currentStep}">
-	// 				<div slot="step">
-	// 					<capitec-content-box
-	// 						class="main-cb"
-	// 						layout="vertical"
-	// 						gap="clear"
-	// 						?noScroll="${false}">
-	// 							${this._renderAlertBanner()}
-	// 							${this._renderChoosePeriod()}
-	// 							${this._renderEmailClient()}
-	// 					</capitec-content-box>
-	// 				</div>
-	// 				<div slot="footer">
-	// 					${this._renderFooter()}
-	// 				</div>
-	// 		</bb-stepper-modal>`;
-	// }
 
 	_renderAlertBanner() {
 		if (super.errorMessage) {
@@ -477,7 +375,7 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 			type="default"
 			label="${this._summary.dateRangeLabel}"
 			subtitle="${this._summary.detail}">
-				${super._renderViewDocumnetLink()}
+				${this._renderViewDocumnetLink()}
 		</horizon-product-tile>`
 		: html``;
 	}
@@ -490,7 +388,7 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 			type="default"
 			label="${item}"
 			subtitle="Last 30 days">
-				${super._renderViewDocumnetLink(item)}
+				${this._renderViewDocumnetLink(item)}
 		</horizon-product-tile> `
 		: html ``;
 	}	
@@ -502,24 +400,25 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 				type="strong"
 				label="View Document"
 				class="viewDocumentLink"				
-				@click="${() => super._viewPDF(item)}">
+				@click="${() => this._viewPDF()}">
 			</capitec-label>
 		`;
 	}
-
-	_renderPDFViewer(){
-		return html`
-			<horizon-pdf-viewer
-			header="Settlement Quote: Credit Card"
-			currPage="${this.currPage}"
-			encodedPDF="${this.encodedPDF}"
-			@cancel="${()=>this._cancelPDF()}"
-			@next="${() => this._navigate("next")}"
-			@previous="${() => this._navigate("previous")}">
-
-			</horizon-pdf-viewer>
-		`;
-	}
+	_renderPDFViewer() {
+	return html`
+	<capitec-content-box
+		class="main-cb pdf-cb"
+			layout="vertical"
+			gap="clear"
+			?noScroll="${false}">
+				<object
+					class="pdf-viewer"
+					data="${base64ToBlobUrl(this.encodedPDF)}"
+					type="application/pdf">
+				</object>
+		</capitec-content-box>
+	`;
+    }
 	_renderFooter() {
 		return html`
 			<capitec-content-box
