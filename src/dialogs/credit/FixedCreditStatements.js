@@ -65,6 +65,8 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 		this.email = ``;
 		this.confirmEmail = ``;
 		this.encodedPDF = ``;
+		this.currPage = 0;
+		this.totalPages = 0;
 		this.periodSelected = ``;
 		this._summary = {
 			dateRangeLabel: ``,
@@ -85,6 +87,7 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 		return {
 			errorMessage: { type: String },
 			navigatePDF: { type: Object },
+			currPage: { type: Number },
 			encodedPDF: { type: String }
 		};
 	}
@@ -122,7 +125,6 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 		}
 		super._getSummary();
 		this.currentStep++;
-		// this.requestUpdate();
 	}
 
 	_back() {
@@ -135,10 +137,9 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 	}
 
 	async _navigate(step){
-		let datesSelected = this._getAllDates();
 		if(step==="next"){
 			this.currPage < datesSelected.length ? this.currPage++ : this.currPage;			
-			 this.encodedPDF = await this.navigatePDF(datesSelected[this.currPage-1]);
+			this.encodedPDF = await this.navigatePDF(datesSelected[this.currPage-1]);
 		}else{
 			this.currPage > 1 ? this.currPage-- : this.currPage;
 			this.encodedPDF = await this.navigatePDF(datesSelected[this.currPage-1]);
@@ -146,7 +147,6 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 	}
 
 	async _viewPDF(date){
-		//TODO: PDF viewer with arrows
 		this.encodedPDF = await this.navigatePDF(this.currPage);
 		super.renderMode = RENDER_MODE.PDF;
 	}
@@ -162,7 +162,6 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 	// ---------------
 
 	_initialise() {
-		//this.today is currDate. method is not needed
 		const currDate = new Date();
 	}
 
@@ -174,8 +173,6 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 		super.renderMode = RENDER_MODE.EMAIL;
 	}
 
-
-	
 	// ---------
 	// RENDERING
 	// ---------
@@ -287,20 +284,9 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 	}
 
 	_webTemplate() {
-		switch(super.renderMode){
-			case RENDER_MODE.PDF:
-				return html`${this._renderPDFViewer()}`;
-			case RENDER_MODE.EMAIL:
-			default:
-				return html`${this._renderModal()}`;
-		}		
-	}
-
-	_webTemplate() {
 		return html`
 			<bb-stepper-modal
-				data-automation-id="statements-dialog"
-				.header="${this._getHeaderTitle()}"
+				header="Statements"
 				.steps="${STATEMENTS_STEPS}"
 				current-active-step="${this.currentStep}">
 					<div slot="step">
@@ -311,32 +297,61 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 						${this._renderFooter()}
 					</div>
 			</bb-stepper-modal>
-			${this._renderLoadingIndicator()}`;
+			${super._renderLoadingIndicator()}`;
 	}
 
-
-	_renderModal(){
-		return html`
-			<bb-stepper-modal
-				header="Statements"
-				.steps="${STATEMENTS_STEPS}"
-				current-active-step="${super.currentStep}">
-					<div slot="step">
-						<capitec-content-box
-							class="main-cb"
-							layout="vertical"
-							gap="clear"
-							?noScroll="${false}">
-								${this._renderAlertBanner()}
-								${this._renderChoosePeriod()}
-								${this._renderEmailClient()}
-						</capitec-content-box>
-					</div>
-					<div slot="footer">
-						${this._renderFooter()}
-					</div>
-			</bb-stepper-modal>`;
+	_renderContent() {
+		switch (this.renderMode) {
+			case RENDER_MODE.PDF:
+				return html`${super._renderPDFViewer()}`;
+			case RENDER_MODE.EMAIL:
+			default:
+				return html`
+					<capitec-content-box
+						class="main-cb"
+						layout="vertical"
+						gap="clear"
+						?noScroll="${false}">
+							${this._renderAlertBanner()}
+							${this._renderChoosePeriod()}
+							${this._renderEmailClient()}
+					</capitec-content-box>
+				`;
+		}
 	}
+
+	// _webTemplate() {
+	// 	switch(super.renderMode){
+	// 		case RENDER_MODE.PDF:
+	// 			return html`${this._renderPDFViewer()}`;
+	// 		case RENDER_MODE.EMAIL:
+	// 		default:
+	// 			return html`${this._renderModal()}`;
+	// 	}		
+	// }
+
+	// _renderModal(){
+	// 	return html`
+	// 		<bb-stepper-modal
+	// 			header="Statements"
+	// 			.steps="${STATEMENTS_STEPS}"
+	// 			current-active-step="${super.currentStep}">
+	// 				<div slot="step">
+	// 					<capitec-content-box
+	// 						class="main-cb"
+	// 						layout="vertical"
+	// 						gap="clear"
+	// 						?noScroll="${false}">
+	// 							${this._renderAlertBanner()}
+	// 							${this._renderChoosePeriod()}
+	// 							${this._renderEmailClient()}
+	// 					</capitec-content-box>
+	// 				</div>
+	// 				<div slot="footer">
+	// 					${this._renderFooter()}
+	// 				</div>
+	// 		</bb-stepper-modal>`;
+	// }
 
 	_renderAlertBanner() {
 		if (super.errorMessage) {
@@ -377,7 +392,6 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 				class="choose-period"
 				layout="horizontal">
 					<horizon-product-tile
-						data-automation-id="statements-dialog-one-month-period"
 						type="radio-button"
 						label="1 month"
 						subtitle="Last 30 days"
@@ -386,7 +400,6 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 						?selected="${this.periodSelected === TIME_PERIOD.ONE_MONTH.value}">
 					</horizon-product-tile>
 					<horizon-product-tile
-						data-automation-id="statements-dialog-three-months-period"
 						type="radio-button"
 						label="3 months"
 						subtitle="Last 90 days"
@@ -395,7 +408,6 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 						?selected="${this.periodSelected === TIME_PERIOD.THREE_MONHTS.value}">
 					</horizon-product-tile>
 					<horizon-product-tile
-						data-automation-id="statements-dialog-six-months-period"
 						type="radio-button"
 						label="6 months"
 						subtitle="Last 180 days"
@@ -404,7 +416,6 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 						?selected="${this.periodSelected === TIME_PERIOD.SIX_MONTHS.value}">
 					</horizon-product-tile>
 					<horizon-product-tile
-						data-automation-id="statements-dialog-nine-months-period"
 						type="radio-button"
 						label="9 months"
 						subtitle="Last 270 days"
@@ -417,8 +428,7 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 			: html``;
 	}
 	_renderEmailClient() {
-		// TODO Add code for email section and PDF viewer	
-		
+		// TODO Add code for email section and PDF viewer			
 		return super.currentStep === 1 && super.renderMode === RENDER_MODE.EMAIL
 		? html`
 		<capitec-label
@@ -428,7 +438,6 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 
 		<capitec-text-field
 			id="email"
-			data-automation-id="statements-dialog-email-address"
 			label="Email address"
 			oncopy="return false"
 			onpaste="return false"
@@ -446,7 +455,6 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 		</capitec-label>
 		<capitec-text-field
 			id="confirmEmail"
-			data-automation-id="statements-dialog-confirm-email-address"
 			label="Email address"
 			oncopy="return false" 
 			onpaste="return false"
@@ -459,13 +467,12 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 	
 		<hr class="seperator">
 
-		<capitec-label
+	<capitec-label
 			type="subtitle"
 			label="View document">
 		</capitec-label>
 
 		<horizon-product-tile
-			data-automation-id="statements-dialog-view-document"
 			class="view-document"
 			type="default"
 			label="${this._summary.dateRangeLabel}"
@@ -475,63 +482,44 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 		: html``;
 	}
 
-	// _renderViewDocument(item) {
-	// 	return super.currentStep === 1 && super.renderMode === RENDER_MODE.EMAIL
-	// 	? html`
-	// 	<horizon-product-tile
-	// 		class="view-document"
-	// 		type="default"
-	// 		label="${item}"
-	// 		subtitle="Last 30 days">
-	// 			${this._renderViewDocumnetLink(item)}
-	// 	</horizon-product-tile> `
-	// 	: html ``;
-	// }	
+	_renderViewDocument(item) {
+		return super.currentStep === 1 && super.renderMode === RENDER_MODE.EMAIL
+		? html`
+		<horizon-product-tile
+			class="view-document"
+			type="default"
+			label="${item}"
+			subtitle="Last 30 days">
+				${super._renderViewDocumnetLink(item)}
+		</horizon-product-tile> `
+		: html ``;
+	}	
 
-	// _renderViewDocumnetLink(item) {
-	// 	return html`
-	// 		<capitec-label
-	// 			slot="detail"
-	// 			type="strong"
-	// 			label="View Document"
-	// 			class="viewDocumentLink"				
-	// 			@click="${() => this._viewPDF(item)}">
-	// 		</capitec-label>
-	// 	`;
-	// }
-
-	_renderPDFViewer() {
+	_renderViewDocumnetLink(item) {
 		return html`
-			<capitec-content-box
-				data-automation-id="statements-dialog-pdf-viewer"
-				class="main-cb pdf-cb"
-				layout="vertical"
-				gap="clear"
-				?noScroll="${false}">
-					<object
-						class="pdf-viewer"
-						data="${this.encodedPDF}"
-						type="application/pdf">
-					</object>
-			</capitec-content-box>
+			<capitec-label
+				slot="detail"
+				type="strong"
+				label="View Document"
+				class="viewDocumentLink"				
+				@click="${() => super._viewPDF(item)}">
+			</capitec-label>
 		`;
 	}
 
-	// _renderPDFViewer(){
-	// 	return html`
-	// 		<horizon-pdf-viewer
-	// 		header="Settlement Quote: Credit Card"
-	// 		totalPages="${datesSelected.length}"
-	// 		currPage="${this.currPage}"
-	// 		encodedPDF="${this.encodedPDF}"
-	// 		@cancel="${()=>this._cancelPDF()}"
-	// 		@next="${() => this._navigate("next")}"
-	// 		@previous="${() => this._navigate("previous")}">
+	_renderPDFViewer(){
+		return html`
+			<horizon-pdf-viewer
+			header="Settlement Quote: Credit Card"
+			currPage="${this.currPage}"
+			encodedPDF="${this.encodedPDF}"
+			@cancel="${()=>this._cancelPDF()}"
+			@next="${() => this._navigate("next")}"
+			@previous="${() => this._navigate("previous")}">
 
-	// 		</horizon-pdf-viewer>
-	// 	`;
-	// }
-
+			</horizon-pdf-viewer>
+		`;
+	}
 	_renderFooter() {
 		return html`
 			<capitec-content-box
