@@ -1,7 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { AccessChannelsEvents } from 'app/constants/telemetry/events/AccessChannels';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonLabel';
@@ -39,8 +36,6 @@ export class NotificationsDetails extends Component {
 		this.inAppMessage = false;
 		this.displaySuccessToast = false;
 		this.messageTimeSelected = ``;
-
-		this._telemetry = HorizonTelemetry.instance;
 	}
 
 	// --------------

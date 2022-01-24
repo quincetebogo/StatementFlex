@@ -91,7 +91,7 @@ export class USSDProfileDetails extends Component {
 	// --------------
 
 	_toggleAppSlidingPanel() {
-		this.dispatchEvent(new CustomEvent(`close-side-sheet`, { detail: { tileClicked: `USSD` } }));
+		this.dispatchEvent(new CustomEvent(`close-side-sheet`, { detail: { tileClicked: `ussd` } }));
 	}
 	
 	_toggleCancelUSSD() {
@@ -99,6 +99,7 @@ export class USSDProfileDetails extends Component {
 		this.showNotificationBanner = false;
 		this.showCancelReasons = !this.showCancelReasons;
 		
+		this.dispatchEvent(new CustomEvent(`toggle-ussd-cancel-reasons`, { detail: { showCancelReasons: this.showCancelReasons } }));
 		if (this.showCancelReasons) {
 			this.cancelReason = ``;
 		}
@@ -117,12 +118,14 @@ export class USSDProfileDetails extends Component {
 	async _onCancelUSSD() {
 		// action of actually cancelling the ussd service
 		if (this.cancelReason) {
-			const returnValue = await this.cancelUSSD();
+			const returnValue = await this.cancelUSSD(this.cancelReason);
 			if (returnValue) {
 				this.ussdStatus = `Blocked`;
 
 				this._displayAndCloseToast(`USSD was cancelled. You will need to visit  branch to reactivate USSD`);
-				this._toggleCancelUSSD();
+				
+				this.showNotificationBanner = false;
+				this.showCancelReasons = !this.showCancelReasons;
 				
 				this.showNotificationBanner = true;
 			}
@@ -203,7 +206,7 @@ export class USSDProfileDetails extends Component {
 
 		const ussdStatus = this.ussdStatus === `Blocked` ? `Cancelled` : this.ussdStatus;
 		const SIMStatus = this.ussd.isSimBlocked ? `Blocked: SIM Swop` : ``;
-		const menuStatus = this.ussd.features.includes(`REDUCED_MENU`) && this.ussdStatus !== `Blocked`? ` | Reduced menu` : ``;
+		const menuStatus = this.ussd.features.includes(`REDUCED_MENU`) && this.ussdStatus !== `Blocked` ? ` | Reduced menu` : ``;
 
 		return `${this.ussd.isSimBlocked ? SIMStatus : ussdStatus}${menuStatus}`;
 	}
