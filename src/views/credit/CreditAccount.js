@@ -230,6 +230,11 @@ export class CreditAccount extends ViewBase {
 		window.open(`${fees}`);
 	}
 
+	_sendStatement(){
+		// TO DO: Navigation to success or failure screens based on CS call response.
+		this.horizonRouter.navigateToCreditStatementSuccess();
+	}
+
 	_budgetAccountDetails(selectedAccountDetails) {
 
 		this.budgetAccountDetails = {
@@ -712,6 +717,7 @@ export class CreditAccount extends ViewBase {
 			<horizon-credit-statements-dialog
 				@cancel="${() => this._backToLandingPage()}"
 				@view-fees="${() => this._viewFees()}"
+				@send="${() => this._sendStatement()}"
 				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
 			</horizon-credit-statements-dialog>`
 		: html``;
@@ -722,6 +728,7 @@ export class CreditAccount extends ViewBase {
 			<horizon-fixed-credit-statements-dialog
 				@cancel="${()=> this._backToLandingPage()}"
 				@view-fees="${()=>this._viewFees()}"
+				@send="${() => this._sendStatement()}"
 				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
 			</horizon-fixed-credit-statements-dialog>`
 		: html``;

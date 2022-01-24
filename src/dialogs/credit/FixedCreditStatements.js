@@ -1,6 +1,5 @@
 import { css, html } from 'platform/elements';
 import { DateTime } from 'luxon';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { StatementsDialog } from 'app/components/dialogs/common/StatementsDialog';
 import { base64ToBlobUrl } from 'app/utils/channelServiceUtilities';
 import 'app/components/common/StepperModal';
@@ -73,7 +72,6 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 			email: ``,
 			confirmEmail: ``
 		};
-		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	// ----------
@@ -138,9 +136,7 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 	}
 
 	_sendStatement() {
-	
-		// TO DO: Navigation to success or failure screens based on CS call response.
-		this.horizonRouter.navigateToCreditStatementSuccess();
+		this.dispatchEvent(new CustomEvent(`send`, {}));
 	}
 	
 	// ---------------
