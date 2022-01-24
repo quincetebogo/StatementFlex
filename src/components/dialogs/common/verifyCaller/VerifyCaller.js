@@ -233,7 +233,7 @@ export class VerifyCaller extends Component {
 		this._updateXdsAuthenticationAttempts(securityQuestions);
 
 
-		if (!this._xdsAttemptsExceeded()) {
+		if (this._xdsAttemptsExceeded()) {
 
 			this.telemetry.logEvent(VerifyCallerEvents.SECURITY_QUESTIONS_CLICK, {
 				"screen": TelemetryScreen.VERIFY_CALLER,
@@ -279,11 +279,15 @@ export class VerifyCaller extends Component {
 	}
 
 	_updateXdsAuthenticationAttempts(securityQuestions) {
-		if (securityQuestions.IsUserBlocked) {
+		if (!securityQuestions.blockingEnabledFlag) {
+			return this.xdsAttempts++;
+		}
+
+		if (securityQuestions.isUserBlocked) {
 			this.xdsAttempts = MAX_XDS_ATTEMPTS;
 		}
 
-		this.xdsAttempts = MAX_XDS_ATTEMPTS - securityQuestions?.NoOfAttemptsRemaining ?? 0;
+		this.xdsAttempts = MAX_XDS_ATTEMPTS - securityQuestions?.noOfAttemptsRemaining ?? 0;
 
 		// IF XDS has their max attempts set higher than our limit then treat the all excess attempts
 		// as first attempts
@@ -400,7 +404,8 @@ export class VerifyCaller extends Component {
 	}
 
 	_xdsServiceFailure() {
-		this.callerInformation.verificationStatus = `failed`;
+		this.callerInformation.verificationStatus = `unverified`;
+		this.xdsUnavailable = true;
 		this.renderMode = RENDER_MODE.VERIFY_CALLER;
 	}
 
