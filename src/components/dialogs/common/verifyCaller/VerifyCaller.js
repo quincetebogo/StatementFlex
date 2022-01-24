@@ -232,9 +232,8 @@ export class VerifyCaller extends Component {
 
 		this._updateXdsAuthenticationAttempts(securityQuestions);
 
-		// The channel service sets authenticationPermitted to false if there have already
-		// been two or more authentication attempts. 
-		if (!securityQuestions.authenticationPermitted) {
+
+		if (!this._xdsAttemptsExceeded()) {
 
 			this.telemetry.logEvent(VerifyCallerEvents.SECURITY_QUESTIONS_CLICK, {
 				"screen": TelemetryScreen.VERIFY_CALLER,
@@ -280,6 +279,20 @@ export class VerifyCaller extends Component {
 	}
 
 	_updateXdsAuthenticationAttempts(securityQuestions) {
+		if (securityQuestions.IsUserBlocked) {
+			this.xdsAttempts = MAX_XDS_ATTEMPTS;
+		}
+
+		this.xdsAttempts = MAX_XDS_ATTEMPTS - securityQuestions?.NoOfAttemptsRemaining ?? 0;
+
+		// IF XDS has their max attempts set higher than our limit then treat the all excess attempts
+		// as first attempts
+		if (this.xdsAttempts <= 0) {
+			this.logger.log(`warning`, `XDS appears to be configured to allow more attempts than Horizon expects`, `_updateXdsAuthenticationAttempts`);
+			this.xdsAttempts = 1;
+		}
+
+		/*
 		const authHistory = securityQuestions.authenticationHistory;
 
 		if (!authHistory) {
@@ -293,8 +306,10 @@ export class VerifyCaller extends Component {
 		if (this.xdsAttempts > 1) {
 			this.logger.log(`warn`, `The caller made ${this.xdsAttempts} to verify via XDS!`);
 		}
+		*/
 	}
 
+	/*
 	_calculateXDSAttempts(authHistory) {
 		let ndx = 0;
 		let usedAttempts = 0;
@@ -313,6 +328,7 @@ export class VerifyCaller extends Component {
 
 		return usedAttempts;
 	}
+	*/
 
 	_skipClick() {
 		this.telemetry.logEvent(VerifyCallerEvents.ITA_SKIP_CLICK, {
