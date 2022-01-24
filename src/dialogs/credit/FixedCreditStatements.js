@@ -60,13 +60,10 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 		super();
 
 		this.notifyMessage = ` A fee will be charged for email statements.`;
-		this.filteredDate = [];
 		this.today = new DateTime.now();
 		this.email = ``;
 		this.confirmEmail = ``;
 		this.encodedPDF = ``;
-		this.currPage = 0;
-		this.totalPages = 0;
 		this.periodSelected = ``;
 		this._summary = {
 			dateRangeLabel: ``,
@@ -87,7 +84,6 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 		return {
 			errorMessage: { type: String },
 			navigatePDF: { type: Object },
-			currPage: { type: Number },
 			encodedPDF: { type: String }
 		};
 	}
@@ -326,7 +322,6 @@ export class FixedCreditStatementsDialog extends StatementsDialog {
 			: html``;
 	}
 	_renderEmailClient() {
-		// TODO Add code for email section and PDF viewer			
 		return super.currentStep === 1 && super.renderMode === RENDER_MODE.EMAIL
 		? html`
 		<capitec-label
