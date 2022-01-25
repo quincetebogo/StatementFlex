@@ -326,7 +326,7 @@ export class ManageAutomaticSavings extends Component {
 			<capitec-modal type="free" header-align="left">
 				<div slot="header">
 					<capitec-title-bar data-automation-id="manage-automatic-savings-image" type="primary" class="header-gradient">
-						<capitec-image src="/src/productControls/liveBetterSavingsAccount/images/Automatic-savings-white.svg"></capitec-image>
+						<capitec-image src="/images/liveBetter/Automatic-savings-white.svg"></capitec-image>
 						<capitec-label label="Manage Automatic Savings"></capitec-label>
 					</capitec-title-bar>
 				</div>
