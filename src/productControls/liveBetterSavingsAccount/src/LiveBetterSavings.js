@@ -297,7 +297,7 @@ export class LiveBetterSavings extends Component {
 					<capitec-title-bar 
 						data-automation-id="live-better-verified-title"
 						type="primary">
-							<img src='/src/productControls/liveBetterSavingsAccount/images/liveBetter-white.svg'/>
+							<img src='/images/liveBetter/liveBetter-white.svg'/>
 							<capitec-label label="Live Better Savings Account" type="Title"></capitec-label>
 					</capitec-title-bar>
 
@@ -421,7 +421,7 @@ export class LiveBetterSavings extends Component {
 						data-automation-id="live-better-verified-automatic-savings"
 						class="button-margin"
 						label="Automatic Savings" 
-						img-src="/src/productControls/liveBetterSavingsAccount/images/automatic-savings.svg"
+						img-src="/images/liveBetter/automatic-savings.svg"
 						@click="${() => this._click(`automatic-savings-lbb`)}">
 					</horizon-option-button>
 				</capitec-group>
