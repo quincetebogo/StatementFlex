@@ -1,4 +1,6 @@
 import { css, html } from 'platform/elements';
+import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -20,9 +22,6 @@ export class AutomaticSavingsSuccess extends ViewBase {
 
 	constructor() {
 		super();
-		this.isRoundupOff = false;
-		this.roundUpAmountChange = true;
-		this.roundUpAccountChange = true;
 	}
 
 
@@ -41,6 +40,11 @@ export class AutomaticSavingsSuccess extends ViewBase {
 		this.updatedLBSADetails = this.screenDetails.updatedLBSADetails;
 		this.LBSADetails = this.screenDetails.LBSADetails;
 
+		this.hasRoundupChanged = !isNullorEmpty(this.updatedLBSADetails?.accountRoundUpActive) ||
+								 Boolean(this.updatedLBSADetails?.roundUpValue) ||
+								 Boolean(this.updatedLBSADetails?.activatedRoundUpAccounts);
+		this.hasInterestSweepChanged = !isNullorEmpty(this.updatedLBSADetails?.accountInterestSweepActive);
+
 		this._updateIncidentState();
 	}
 
@@ -53,6 +57,11 @@ export class AutomaticSavingsSuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
+		this._telemetry.endSpan(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS, {
+			"screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_SUCCESS,
+			"next-screen": TelemetryScreen.LIVE_BETTER
+		});
+
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToLiveBetter();
 	}
@@ -112,64 +121,47 @@ export class AutomaticSavingsSuccess extends ViewBase {
 				left="Manage Automatic Savings"
 				right="Done"
 				toast="Automatic savings successfully updated"
-				subContent=${true}
+				?hasSubDetails=${this.hasRoundupChanged && this.hasInterestSweepChanged}
 				@left-click=${() => this._manageAutomaticSavingsClick()}
 				@right-click=${() => this._doneClick()}>
-					<section slot="detail">
-						<capitec-group
-							layout="vertical"
-							halign="stretch"
-							valign="top"
-							gap="clear">
-								${this._renderRoundupStatus()}
-								${this._renderInterestSweepStatus()}
-								${this._renderRoundupValueChange()}
-								${this._renderRoundupAccountsChange()}
-						</capitec-group>
-					</section>
+				
+					${this._renderRoundupChanges()}
+					${this._renderInterestSweepChanges()}
+					
 			</horizon-success-screen>`;
 	}
 
-	_renderRoundupStatus() {
-		return isNullorEmpty(this.updatedLBSADetails?.accountRoundUpActive)
-			? html``
-			: html`
-				<span>Round-up successfully switched ${this.updatedLBSADetails.accountRoundUpActive ? `on` : `off`}.</span>`;
+	_renderRoundupChanges() {
+		return this.hasRoundupChanged
+			? html`
+				<section slot="detail">
+					${this._renderRoundupMessage()}
+				</section>`
+			: html``;
 	}
 
-	_renderInterestSweepStatus() {
+	_renderRoundupMessage() {
+			if (this.updatedLBSADetails.accountRoundUpActive || this.updatedLBSADetails.roundUpValue) {
+				// Round-up turned ON or round-up value updated
+				return html`<span>Round-up settings updated to <b>R${this.updatedLBSADetails.roundUpValue}</b></span>`;
+
+			} else if (!isNullorEmpty(this.updatedLBSADetails.accountRoundUpActive) && !this.updatedLBSADetails.accountRoundUpActive) {
+				// only Round-up status turned OFF
+				return html`<span>Round-up settings switched off.</span>`;
+			}
+			// only selection/deselction of accounts listed.
+			return html`<span>Round-up settings updated</span>`;
+	}
+
+	_renderInterestSweepChanges() {
+		// Interest-sweep status turned ON/OFF
 		return isNullorEmpty(this.updatedLBSADetails?.accountInterestSweepActive)
 			? html``
 			: html`
-				<span>Interest Sweep successfully switched ${this.updatedLBSADetails.accountInterestSweepActive ? `on` : `off`}.</span>`;
-	}
-
-	_renderRoundupValueChange() {
-		return this.updatedLBSADetails?.roundUpValue
-			? html`
-				Round-up successfully updated to <b>${this.updatedLBSADetails.roundUpValue}</b>
-				${this._renderUpdatedAccounts()}`
-			: html``;
-	}
-
-	_renderUpdatedAccounts() {
-		return this.updatedLBSADetails?.activatedRoundUpAccounts
-			? html``
-			: html`
-				Updated on the following accounts:
-				${this.LBSADetails.activatedRoundUpAccounts.map(item => html`
-					<li class="bullet-label"><b>${item.accountName}</b></li>`)
-				}`;
-	}
-
-	_renderRoundupAccountsChange() {
-		return this.updatedLBSADetails?.activatedRoundUpAccounts
-			? html`
-				Updated on the following accounts:
-				${this.updatedLBSADetails.activatedRoundUpAccounts.map(item => html`
-					<li class="bullet-label"><b>${item.accountName}</b></li>`)
-				}`
-			: html``;
+				<section slot="${this.hasRoundupChanged ? `sub-detail` : `detail`}">
+					<span>Interest sweep settings switched ${this.updatedLBSADetails.accountInterestSweepActive ? `on` : `off`}.</span>
+				</section>
+			`;
 	}
 }
 

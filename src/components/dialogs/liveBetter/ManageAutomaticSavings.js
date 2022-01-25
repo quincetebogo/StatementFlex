@@ -91,7 +91,16 @@ export class ManageAutomaticSavings extends Component {
 	_toggleRoundUpActive() {
 		this.isRoundUpActive = !this.isRoundUpActive;
 		this.errorMessage = ``;
+
+		this.dispatchEvent(new CustomEvent(`round-up`, {}));
 	}
+
+	_toggleInterestSweep() {
+		this.isInterestSweepActive = !this.isInterestSweepActive;
+		
+		this.dispatchEvent(new CustomEvent(`interest-sweep`, {}));
+	}
+
 
 	// --------------
 	// PUBLIC METHODS
@@ -126,11 +135,12 @@ export class ManageAutomaticSavings extends Component {
 	_isUpdated() {
 		this.updatedDetails = {};
 
-		if (this.automaticSavingsDetails.accountRoundUpActive !== this.isRoundUpActive) {
+
+		if (this.automaticSavingsDetails.actualRoundUpStatus !== this.isRoundUpActive) {
 			this.updatedDetails.accountRoundUpActive = this.isRoundUpActive;
 		}
 
-		if (this.automaticSavingsDetails.accountInterestSweepActive !== this.isInterestSweepActive) {
+		if (this.automaticSavingsDetails.actualInterestSweepStatus !== this.isInterestSweepActive) {
 			this.updatedDetails.accountInterestSweepActive = this.isInterestSweepActive;
 		}
 
@@ -154,8 +164,12 @@ export class ManageAutomaticSavings extends Component {
 			this.errorMessage = ERROR_MESSAGES.ALERT_BANNER;
 			return false;
 		}
-		this.errorMessage = !this.roundUpValue ? ERROR_MESSAGES.ALERT_ROUNDUP_VALUE : ``;
-		this.errorMessage = !this.roundUpAccounts.length ? ERROR_MESSAGES.ALERT_ROUNDUP_ACC : ``;
+		if (!this.roundUpValue) {
+			this.errorMessage = ERROR_MESSAGES.ALERT_ROUNDUP_VALUE;
+		}
+		if (!this.roundUpAccounts.length) {
+			this.errorMessage = ERROR_MESSAGES.ALERT_ROUNDUP_ACC;
+		}
 
 		return !this.errorMessage;
 	}
@@ -232,6 +246,7 @@ export class ManageAutomaticSavings extends Component {
 				}
 				.section-alert-banner {
 					--theme-alert-banner-height: 40px;
+					--theme-layout-gap-spacing: 0px;
 				}
 				capitec-alert-banner > p {
 					display: inline-block;
@@ -485,7 +500,7 @@ export class ManageAutomaticSavings extends Component {
 						data-automation-id="manage-automatic-savings-toggle" 
 						id="id-toggle"
 						?checked="${this.isInterestSweepActive}"
-						@value-change="${() => this.isInterestSweepActive = !this.isInterestSweepActive}">
+						@value-change="${() => this._toggleInterestSweep()}">
 				</capitec-toggle>
 		</capitec-group>
 		`;

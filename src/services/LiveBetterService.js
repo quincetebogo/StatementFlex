@@ -1,4 +1,5 @@
 import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 
 /**
  * Channel Service Methods for Live Better flow
@@ -119,10 +120,8 @@ export class LiveBetterService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	 lbbUpdateRoundupDetails (updateRoundupRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		// if (await this.isMockEnabled(`lbbUpdateRoundupDetails`)) {
-		// return this.mock(`lbbUpdateRoundupDetails`, updateRoundupRequest);
-		// }
+	 async lbbUpdateRoundupDetails (updateRoundupRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		return this.put(
 			`/clientcare-lbb-${this._version_2}/update-lbb-account`, 

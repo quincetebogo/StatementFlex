@@ -359,12 +359,15 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	_backToLandingPage() {
+		this._setIncidentNotstarted();
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
 
+	_setIncidentNotstarted() {
 		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
 			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
 			this.horizonStore.setIncidentDetails(this.incidentDetails);
 		}
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	_setIncidentDone() {

@@ -14,7 +14,8 @@
 		"global-one": "https://www.capitecbank.co.za/global-one/",
 		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",
 		"live-better": "https://www.capitecbank.co.za/live-better/live-better-savings-account",	
-		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js"
+		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js",
+		"partner-benefits": "https://www.capitecbank.co.za/bank-better-live-better/articles/benefits/"
 	},
 	"LogRequestResponseModels" : true,
 	"VDN": "7250",
