@@ -232,8 +232,8 @@ export class VerifyCaller extends Component {
 
 		this._updateXdsAuthenticationAttempts(securityQuestions);
 
-
-		if (this._xdsAttemptsExceeded()) {
+		// Must be >, not >= as we bump this count as soon as we have requested questions
+		if (this.xdsAttempts > MAX_XDS_ATTEMPTS) {
 
 			this.telemetry.logEvent(VerifyCallerEvents.SECURITY_QUESTIONS_CLICK, {
 				"screen": TelemetryScreen.VERIFY_CALLER,
@@ -283,10 +283,16 @@ export class VerifyCaller extends Component {
 			return this.xdsAttempts++;
 		}
 
+		// Should not get this as the CS should have caught it and returned an error
+		// code. So the blocked case should have been handled when examining the errorCode
+		// on the response to the request for security questions
 		if (securityQuestions.isUserBlocked) {
 			this.xdsAttempts = MAX_XDS_ATTEMPTS;
 		}
 
+		// Now compute the number of attempts given the number of allowed attempts
+		// and the number of remaining attempts. MAX_XDS_ATTEMPTS must be aligned with
+		// what is set in our XDS profile for this to work properly
 		this.xdsAttempts = MAX_XDS_ATTEMPTS - securityQuestions?.noOfAttemptsRemaining ?? 0;
 
 		// IF XDS has their max attempts set higher than our limit then treat the all excess attempts
@@ -391,7 +397,7 @@ export class VerifyCaller extends Component {
 		this.telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
 			"next-screen": this._xdsAttemptsExceeded() ? TelemetryScreen.XDS_FAILED : TelemetryScreen.VERIFY_CALLER,
-			"attempt": this._calculateXDSAttempts(this.securityQuestions.authenticationHistory)
+			"attempt": this.xdsAttempts
 		}, true);
 
 		if (this._xdsAttemptsExceeded()) {
@@ -632,7 +638,7 @@ export class VerifyCaller extends Component {
 
 	_xdsAttemptsExceeded() {
 		// xdsAttempts is 0 based and is incremented on attempting to retrieve security questions
-		// This is because simply retreiving security questions counts as an attempt
+		// This is because simply retrieving security questions counts as an attempt
 		return this.xdsAttempts >= MAX_XDS_ATTEMPTS;
 	}
 
