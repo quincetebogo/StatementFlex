@@ -231,7 +231,7 @@ export class CreditAccount extends ViewBase {
 			const successfullServiceResponse = returnValue.succeeded;
 
 			if (!successfullServiceResponse) {
-				this.logger(`error`, `Failed to retrieve client overview from credit service.`, `_initialise`, returnValue.correlationId);
+				this.logger.log(`error`, `Failed to retrieve client overview from credit service.`, `_initialise`, returnValue.correlationId);
 				return;
 			}
 

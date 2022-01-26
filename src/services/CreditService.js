@@ -30,7 +30,7 @@ export class CreditService extends ChannelServiceBase {
 	creditOverview(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
 		const creditOverviewRequest = {
-			"cifnumber": `205226566`
+			"cifnumber": `130103578`
 		};
 
 		const url = `/clientcare-credit-${this._version}/credit/overview`;
@@ -74,7 +74,7 @@ export class CreditService extends ChannelServiceBase {
 	creditCardDetails(accountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
 		const creditCardDetailsRequest = {
-			"accountnumber": `6000000013`
+			"accountnumber": `6005215999`
 		};
 
 		const url = `/clientcare-credit-${this._version}/credit/creditcard/details`;

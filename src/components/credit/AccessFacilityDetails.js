@@ -59,27 +59,32 @@ import 'app/productControls/credit/src/AccountDetailsView';
 			'title': this.accessFacilityDetails.accountDescription,
 			'accountNumber': this.accessFacilityDetails.accountNumber,
 			'overview': {
+				// TODO: totalBalance gets mapped to currentBalance in the CS?
 				'Current balance': formatCurrency(this.accessFacilityDetails.currentBalance),
 				'Available balance': formatCurrency(this.accessFacilityDetails.availableBalance),
 				'Credit limit': formatCurrency(this.accessFacilityDetails.creditLimit),
 				'Take-up date': formatDate(this.accessFacilityDetails.openDate, `dd mmm yyyy`),
+				// TODO: Should this be mapped to YES or NO to match invision?
 				'Auto limit increase': this.accessFacilityDetails.autoIncreaseLimitOption,
 				'Account status': this.accessFacilityDetails.accountStatusDescription
 			},
 			'arrears': null,
 			'repayment': {
-				// TODO: repaymentAmount => repaymentValue. 
+				// TODO: Removed repaymentAmount. Only included repaymentValue as it is always amount. 
 				'Repayment amount': `${formatCurrency(this.accessFacilityDetails.repaymentValue)}`,
-				'Repayment date': this._getOccurance(this.accessFacilityDetails.repaymentDay, `month`),
+				// TODO: Tweeked this implementation a bit
+				'Repayment date': `${this.accessFacilityDetails.repaymentDay}${getDateOrdinal(this.accessFacilityDetails.repaymentDay)} of every month`,
 				'Next repayment due': formatDate(this.accessFacilityDetails.nextRepaymentDate, `dd mmm yyyy`),
 				'Repayment period': this.accessFacilityDetails.repaymentPeriod,
-				'Remaning monthly repayments': this.accessFacilityDetails.outstandingRepayments,
-				// TODO: LastPaymentDate => lastFinancialDate
+				// TODO: outstandingRepayments => remainingRepayments
+				'Remaning monthly repayments': this.accessFacilityDetails.remainingRepayments,
+				// TODO: lastpaymentDate => lastFinancialDate?
 				'Last repayment received': formatDate(this.accessFacilityDetails.lastFinancialDate, `dd mmm yyyy`),
-				// TODO: RepaymentMethod => repaymentValueType
-				'Repayment method': this.accessFacilityDetails.repaymentValueType
+				// TODO: RepaymentMethod does not get returned. Is it always debit order?
+				'Repayment method': this.accessFacilityDetails.repaymentMethod
 			},
 			'insurance': {
+				// TODO: What exactly should this be? 
 				'Option': this.accessFacilityDetails.insuranceOptionCode,
 				'Type': this.accessFacilityDetails.insuranceTypeDescription,
 				'Waiting period expiry date': formatDate(this.accessFacilityDetails.waitingPeriodExpiryDate, `dd mmm yyyy`)
@@ -88,6 +93,7 @@ import 'app/productControls/credit/src/AccountDetailsView';
 
 		if (this.accessFacilityDetails.accountStatusDescription === `In arrears`) {
 			this.accountDetails.arrears = {
+				// TODO: This should probably be totalArrearsPayable
 				'Total arrears amount': formatCurrency(this.accessFacilityDetails.arrearsAmount),
 				'Last arrears date': formatDate(this.accessFacilityDetails.lastArrearsDate, `dd mmm yyyy`)
 			};
