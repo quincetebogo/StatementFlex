@@ -154,12 +154,16 @@ export class SavingsPlan extends ViewBase {
 		// TO DO: Place holder for tax certificate flow.
 	}
 
-	_savingsCalculator() {
+	async _savingsCalculator() {
 		// TO DO: Place holder for savings calculator flow.
+		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
+		window.open(`${globalOneUrl}/save/`);
 	}
 
-	_interestRates() {
+	async _interestRates() {
 		// TO DO: Place holder for interest rates flow.
+		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
+		window.open(`${globalOneUrl}/save/rates-and-fees/`);
 	}
 
 	async _productEnquiry() {

@@ -84,7 +84,6 @@ export class SavingsPlanLanding extends Component {
 					width: 100%;
 					height: 888px;
 				}
-
 				/* Title Bar styles */
 				capitec-title-bar {
 					--theme-titlebar-padding: 12px 16px;
@@ -100,7 +99,7 @@ export class SavingsPlanLanding extends Component {
 
 				/* Main view styles */
 				capitec-tab-group {
-					--theme-tab-tab-bar-background-color: linear-gradient(90deg, #003354 0%, #00486D 100%);
+					--theme-tab-tab-bar-background-color: linear-gradient(135deg, #002A3F 0%, #00537D 52.97%, #024D73 100%);
 					--theme-tab-hover-background-color: transparent;
 					--theme-tab-selected-indicator-color: #FFFFFF;
 					--theme-tab-selected-font-color: #FFFFFF;

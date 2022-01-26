@@ -110,7 +110,10 @@ export class FlexibleSavingsPlanDetails extends Component {
 					color: #70AF00;
 				}
 				.blank-space {
-					color: #FFFFFF
+					color: #FFFFFF;
+					font-weight: 800;
+					margin-top: -10px;
+					margin-bottom: 20px;
 				}
 			
 			`
