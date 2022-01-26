@@ -55,7 +55,7 @@ export class AutomaticSavingsFailure extends ViewBase {
 
 	_doneClick() {
 		this._telemetry.endSpan(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS, {
-			"screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_SUCCESS,
+			"screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_FAILURE,
 			"next-screen": TelemetryScreen.LIVE_BETTER
 		});
 		
@@ -64,6 +64,10 @@ export class AutomaticSavingsFailure extends ViewBase {
 	}
 
 	_assignClick() {
+		this._telemetry.logEvent(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS_FAILURE_ASSIGN, {
+			"screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_FAILURE,
+			"next-screen": TelemetryScreen.LIVE_BETTER
+		});
 
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
