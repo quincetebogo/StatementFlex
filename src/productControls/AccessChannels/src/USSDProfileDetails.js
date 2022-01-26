@@ -130,6 +130,8 @@ export class USSDProfileDetails extends Component {
 				
 				this.showNotificationBanner = true;
 			}
+
+			// TODO: Navigate to failure screen
 		} else {
 			this.bannerTitle = `Notice`;
 			this.bannerSubtitle = `Please choose a reason to cancel USSD.`;
@@ -143,6 +145,8 @@ export class USSDProfileDetails extends Component {
 		if (this.activateFullMenuUSSDSuccessful) {
 			this._displayAndCloseToast(`The full menu is active.`);
 		} 
+
+		// TODO: Navigate to failure screen
 	}
 
 	_onCancelReasonSelected(event) {

@@ -54,7 +54,7 @@ export class AccessChannelService extends ChannelServiceBase {
 		const request = 
 		{
 			"msisdn": `${msisdn}`,
-			"cifNumber": `${cifNumber}` 
+			"cif": `${cifNumber}` 
 		};
 
 		const url = `/clientcare-accesschannels-${this._version}/ussd/activate-full`;
@@ -64,6 +64,59 @@ export class AccessChannelService extends ChannelServiceBase {
 			request,
 			this.setToken(),
 			`ussdActivatefullUssdMenu`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async cancelUSSD(cifNumber, msisdn, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`cancelUSSD`)) {
+			return this.mock(`cancelUSSD`);
+		}
+
+		const request = 
+		{
+			"msisdn": `${msisdn}`,
+			"cif": `${cifNumber}` 
+		};
+
+		const url = `/clientcare-accesschannels-${this._version}/ussd/cancel`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`cancelUSSD`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async unblockSIM(msisdn, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`unblockSIM`)) {
+			return this.mock(`unblockSIM`);
+		}
+
+		const request = 
+		{
+			"msisdn": `${msisdn}`
+		};
+
+		const url = `/clientcare-accesschannels-${this._version}/ussd/unblock-sim`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`unblockSIM`,
 			null,
 			null,
 			900,

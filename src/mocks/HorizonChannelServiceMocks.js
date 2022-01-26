@@ -238,12 +238,26 @@ export default class HorizonChannelServiceMocks {
 	}
 
 	activatefullUssdMenu() {
-
 		if (this._mockSettings.activatefullUssdMenu.positiveCase) {
 			return {};
 		}
 
 		return null;
+	}
 
+	cancelUSSD() {
+		if (this._mockSettings.cancelUSSD.positiveCase) {
+			return {};
+		}
+
+		return null;
+	}
+
+	unblockSIM() {
+		if (this._mockSettings.unblockSIM.positiveCase) {
+			return {};
+		}
+
+		return null;
 	}
 }

@@ -108,9 +108,24 @@ export class AccessChannels extends Component {
 		return true;
 	}
 	
-	cancelUSSD() {
+	async cancelUSSD() {
 		// TO DO: add channel service call to cancel USSD service
 		// If cancel is successful, show toast, update ussd status, else show error
+
+		// TODO: Check if these checks are required. 
+		// TODO: Note Blocked does not get returned from the CS. I think this should be DISABLED
+		if (this.status.ussd.status === `Blocked`) {
+			return true;
+		}
+
+		const returnValue = await this.accessChannelService.cancelUSSD(this.cifNumber, this.status.msisdn);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unsuccessful call to cancel USSD`, `cancelUSSD`, returnValue.correlationId);
+			return false;
+		}
+
+		// TODO: Should this not be Disabled? 
 		this.status.ussd.status = `Blocked`;
 		this.status.ussd.dateLastUpdated = new Date().toISOString();
 
@@ -118,9 +133,22 @@ export class AccessChannels extends Component {
 		return true;
 	}
 
-	unblockSIM() {
+	async unblockSIM() {
 		// TO DO: add channel service call to unblock SIM - ussd
 		// If unblock is successful, show toast, update ussd status, else show error
+
+		// TODO: Check if this logic is needed
+		if (!this.status.ussd.isSimBlocked) {
+			return true;
+		}
+
+		const returnValue = await this.accessChannelService.unblockSIM(this.status.msisdn);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to unblock SIM.`, `unblockSIM`, returnValue.correlationId);
+			return false;
+		}
+
 		this.status.ussd.isSimBlocked = false;
 		this.status.ussd.dateLastUpdated = new Date().toISOString();
 
@@ -132,20 +160,21 @@ export class AccessChannels extends Component {
 		// TO DO: add code to activate full menu for currently active ussd clients
 		// If client has active ussd, menu reduced, activate full menu function
 
+		// TODO: Check if these checks are required
+		if (this.status.ussd.status !== `Active`) {
+			return false;
+		}
+		
 		const indexOfReducedMenu = this.status.ussd.features.indexOf(`REDUCED_MENU`);
 		
-		if (this.status.ussd.status !== `Active` || indexOfReducedMenu === -1) {
-			return false;
+		if (indexOfReducedMenu === -1) {
+			return true;
 		}
 
 		const returnValue = await this.accessChannelService.activatefullUssdMenu();
 
 		if (!returnValue.succeeded) {
-			this.log(`error`, `Unsuccessful call the activate full USSD menu`, `activateFullMenuUSSD`, returnValue.correlationId);
-			return false;
-		}
-
-		if (!returnValue.result) {
+			this.logger.log(`error`, `Unsuccessful call the activate full USSD menu`, `activateFullMenuUSSD`, returnValue.correlationId);
 			return false;
 		}
 
