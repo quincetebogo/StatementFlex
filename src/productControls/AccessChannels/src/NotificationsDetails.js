@@ -35,6 +35,7 @@ export class NotificationsDetails extends Component {
 		this.showHelperText = false;
 		this.inAppMessage = false;
 		this.displaySuccessToast = false;
+		this.messageTypeSelected = ``;
 		this.messageTimeSelected = ``;
 	}
 
@@ -71,6 +72,7 @@ export class NotificationsDetails extends Component {
 			inAppMessage: { type: Boolean },
 			displaySuccessToast: { type: Boolean },
 			notificationsDetails: { type: Object },
+			messageTypeSelected: { type: String },
 			messageTimeSelected: { type: String }
 		};
 	}
@@ -102,15 +104,17 @@ export class NotificationsDetails extends Component {
 
 	onOpenMessageTypePanelClick() {
 		this.showUpdateMessageTypePanel = true;
+		this.dispatchEvent(new CustomEvent(`toggle-notifications-settings-update`, { detail: { updateType: `Message Type` } }));
 	}
 
 	onOpenMessageTimePanelClick() {
 		this.showUpdateMessageTimePanel = true;
+		this.dispatchEvent(new CustomEvent(`toggle-notifications-settings-update`, { detail: { updateType: `Message Time` } }));
 	}
 
 	_onTypeValueChanged(event) {
 		if (event.detail.new) {
-			this.notificationsDetails.messageType = event.currentTarget.label;
+			this.notificationsDetails.messageType = this.messageTypeSelected = event.currentTarget.label;
 			this.isTypeValueChanged = true;
 
 			if (this.notificationsDetails.messageType === `In-app message`) {
@@ -129,18 +133,26 @@ export class NotificationsDetails extends Component {
 		}
 	}
 
-	onUpdateMessageTypeClick() {
+	async onUpdateMessageTypeClick() {
 		this.showUpdateMessageTypePanel = false;
 		this.isTypeValueChanged = false;
-		const toastDetail = `Preferred message type updated.`;
-		this._displayNotificationsUpdateSuccessToast(toastDetail);
+
+		const updateMessageTypeResult = await this.updateMessageType(this.messageTypeSelected);
+		if (updateMessageTypeResult) {
+			const toastDetail = `Preferred message type updated.`;
+			this._displayNotificationsUpdateSuccessToast(toastDetail);
+		}
 	}
 
-	onUpdateMessageTimeClick() {
+	async onUpdateMessageTimeClick() {
 		this.showUpdateMessageTimePanel = false;
 		this.isTimeValueChanged = false;
-		const toastDetail = `Message time updated to ${this.messageTimeSelected}`;
-		this._displayNotificationsUpdateSuccessToast(toastDetail);
+
+		const updateMessageTimeResult = await this.updateMessageTime(this.messageTimeSelected);
+		if (updateMessageTimeResult) {
+			const toastDetail = `Message time updated to ${this.messageTimeSelected}`;
+			this._displayNotificationsUpdateSuccessToast(toastDetail);
+		}
 	}
 
 	// ---------------

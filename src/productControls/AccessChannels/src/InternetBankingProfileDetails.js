@@ -55,7 +55,6 @@ export class InternetBankingProfileDetails extends Component {
 		this.selectedTokens = [];
 
 		// internal props
-		// this.isInternetBankingActive = true;
 		this.displayToast = false;
 		this.displaySuspendToast = false;
 		this.showSuspendPanel = false;
@@ -67,8 +66,6 @@ export class InternetBankingProfileDetails extends Component {
 
 		this.renderMode = RENDER_MODE.NONE;
 		this.renderStepperMode = RENDER_STEPPER_MODE.NONE;
-		// this.isMultipleDevices = true;
-		// this.isMultipleDevices = false;
 		this.isIndeterminate = false;
 
 		this.clientTokens = [];
@@ -134,8 +131,8 @@ export class InternetBankingProfileDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this.isMultipleDevices = false;
 		this.clientTokens = CLIENT_TOKENS;
-		this.isMultipleDevices = true;
 		this.isInternetBankingActive = this.internetBankingDetails.status === `Active`;
 	}
 
@@ -170,12 +167,16 @@ export class InternetBankingProfileDetails extends Component {
 
 			this.renderMode = RENDER_MODE.MULTIPLE_TOKEN;
 			this.renderStepperMode = RENDER_STEPPER_MODE.CLIENT_TOKENS;
+
+			this.dispatchEvent(new CustomEvent(`toggle-token-reset-panel`, { detail: { showResetTokenPanel: this.showResetTokenPanel } }));
 		} else {
-			const resetTokenResult = await this.resetInternetBankingSecurityToken();
+			this.selectedTokens.push(this.internetBankingDetails.tokenSerialNumber);
+			const resetTokenResult = await this.resetInternetBankingSecurityToken(this.selectedTokens);
 			if (resetTokenResult) {
 				this._displayTokenResetSuccessToast();
 			}
 
+			this.selectedTokens = [];
 			this.renderMode = RENDER_MODE.NONE;
 			this.renderStepperMode = RENDER_STEPPER_MODE.NONE;
 		}
@@ -183,7 +184,7 @@ export class InternetBankingProfileDetails extends Component {
 	
 	async _onMultipleTokensResetBtnClick() {
 		if (this.selectedTokens.length > 0) {
-			const resetTokenResult = await this.resetInternetBankingSecurityToken();
+			const resetTokenResult = await this.resetInternetBankingSecurityToken(this.selectedTokens);
 			if (resetTokenResult) {
 				if (this.isMultipleDevices) {
 					this.showResetTokenPanel = !this.showResetTokenPanel;
@@ -195,7 +196,7 @@ export class InternetBankingProfileDetails extends Component {
 
 	async _onSuspendSecurityTokenClick() {
 		if (this.selectedReason) {
-			const suspendResult = await this.suspendInternetBankingSecurityToken();
+			const suspendResult = await this.suspendInternetBankingSecurityToken(this.selectedReason);
 			if (suspendResult) {
 				this.showSuspendPanel = !this.showSuspendPanel;
 				this.isTokenSuspended = true;
@@ -212,6 +213,8 @@ export class InternetBankingProfileDetails extends Component {
 	_onCloseResetPanelClick() {
 		this.showResetTokenPanel = false;
 		this._resetTokenValues();
+
+		this.dispatchEvent(new CustomEvent(`toggle-token-reset-panel`, { detail: { showResetTokenPanel: this.showResetTokenPanel } }));
 	}
 
 	_onOpenSuspendPanelClick() {
@@ -222,13 +225,13 @@ export class InternetBankingProfileDetails extends Component {
 			this.renderStepperMode = RENDER_STEPPER_MODE.CLIENT_TOKENS;
 
 			this.isTokenSelected = false;
-			this.renderStepperMode = RENDER_STEPPER_MODE.CLIENT_TOKENS;
-
 			this._resetTokenValues();
 		} else {
 			this.renderMode = RENDER_MODE.SINGLE_TOKEN;
 			this.renderStepperMode = RENDER_STEPPER_MODE.SUSPEND_REASONS;
 		}
+
+		this.dispatchEvent(new CustomEvent(`toggle-token-suspend-panel`, { detail: { showSuspendPanel: this.showSuspendPanel } }));
 	}
 
 	_onCloseSuspendPanelClick() {
@@ -240,6 +243,8 @@ export class InternetBankingProfileDetails extends Component {
 		this.selectedReason = ``;
 		this.isTokenSuspended = false;
 		this.selectedTokens = [];
+
+		this.dispatchEvent(new CustomEvent(`toggle-token-suspend-panel`, { detail: { showSuspendPanel: this.showSuspendPanel } }));
 	}
 
 	_onSelectedReasonChanged(event) {
@@ -295,6 +300,7 @@ export class InternetBankingProfileDetails extends Component {
 	_onNextBtnClick() {
 		if (this.selectedTokens.length > 0) {
 			this.renderStepperMode = RENDER_STEPPER_MODE.SUSPEND_REASONS;
+			this.dispatchEvent(new CustomEvent(`toggle-token-suspend-reasons`, { detail: { selectedTokens: this.selectedTokens } }));
 		} else {
 			this.renderStepperMode = RENDER_STEPPER_MODE.CLIENT_TOKENS;
 		}
@@ -302,7 +308,7 @@ export class InternetBankingProfileDetails extends Component {
 
 	_onBackBtnClick() {
 		this.renderStepperMode = RENDER_STEPPER_MODE.CLIENT_TOKENS;
-
+		this.dispatchEvent(new CustomEvent(`toggle-token-suspend-reasons`, { detail: { selectedTokens: null } }));
 		if (this.selectedTokens.length === 0) {
 			this.isTokenSelected = false;
 			this.isIndeterminate = false;
