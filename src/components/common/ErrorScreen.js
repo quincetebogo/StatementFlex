@@ -92,7 +92,7 @@ export class ErrorScreen extends Component {
 					height: var(--horizon-error-screen-size, 768px);
 				}
 				#id-unsuccessful-img {
-          			width: auto;
+					width: auto;
 				}
 				#id-verify-unsuccessful {
 					height: 32px;
@@ -114,39 +114,16 @@ export class ErrorScreen extends Component {
 					justify-content: center;
 					margin-top: 13px;
 				}
-				#id-visit-branch-msg{
-					height: 24px;
-					width: 543px;
-					color: #545D60;
-					font-family: "Hind Vadodara";
-					font-size: 16px;
-					letter-spacing: 0;
-					line-height: 24px;
-					text-align: center;
-				}
 				#id-button-group {
 					justify-content: center;
 					margin-top: 35px;
 				}
 				.button{
 					height: 48px;
-					--theme-button-font-weight: 600;
 					--theme-button-font-size: 16px;
-					--theme-button-font-family: "Hind Vadodara";
+					--theme-button-font-family: "Hind Vadodara SemiBold";
 					--theme-button-padding-top: 13px;
 					--theme-button-padding-bottom: 13px;
-				}
-				#button-left {
-					margin-right: 16px;
-				}
-
-				.center-button {
-					--theme-button-font-size: 16px;
-					--theme-button-font-weight: 600;
-					--theme-button-padding-left: 22px;
-					--theme-button-padding-top: 12.5px;
-					--theme-button-padding-bottom: 12.5px;
-					--theme-button-padding-right: 22px;
 				}
 				#id-error-toast {
 					--theme-toast-error-color: #3A3A3A;
@@ -156,7 +133,6 @@ export class ErrorScreen extends Component {
 					margin-left: var(--toast-margin-left, 382px);
 					width : var(--toast-width, 365px)
 				}
-
 				.secondary-toast {
 					--theme-toast-error-color: #3A3A3A;
 					width: 432px;
@@ -164,7 +140,6 @@ export class ErrorScreen extends Component {
 					top : var(--toast-top, 130px);
 					margin-left: var(--toast-margin-left, 382px);
 				}
-				
 				slot[name=detail]::slotted(*){
 					height: 26px;
 					color: #545D60;
