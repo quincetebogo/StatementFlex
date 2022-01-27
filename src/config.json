@@ -65,15 +65,15 @@
 		"enabled": false,
 		"acceptCall": {
 			"enabled": false,
-      "positiveCase": true
+			"positiveCase": true
 		},
 		"identifyCaller": {
 			"enabled": false,
-      "positiveCase": true
+			"positiveCase": true
 		},
 		"favouritesLanding": {
 			"enabled": false,
-      "positiveCase": true
+			"positiveCase": true
 		},
 		"cardLimitsLanding": {
 			"enabled": false,
@@ -97,7 +97,7 @@
 			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"itaVerification":{
