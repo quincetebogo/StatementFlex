@@ -227,13 +227,15 @@ export class VerifyCaller extends Component {
 	}
 
 	_handleSecurityQuestions(securityQuestions) {
-		// Set this.securityQuestions for passing to the secuirty questions dialog
+		// Set this.securityQuestions for passing to the security questions dialog
 		this.securityQuestions = securityQuestions;
 
-		this._updateXdsAuthenticationAttempts(securityQuestions);
+		this.logger.log(`info`, `BlockingEnabled=${securityQuestions.blockingEnabledFlag} Blocked=${securityQuestions.isUserBlocked} AuthStatusInd=${securityQuestions.authenticationStatusInd} AuthTypeInd=${securityQuestions.authenticationTypeInd} Remaining=${securityQuestions.noOfAttemptsRemaining}`, `_updateXdsAuthenticationAttempts`);
+
+		this.xdsAttempts = this._updateXdsAuthenticationAttempts(securityQuestions, this.xdsAttempts);
 
 		// Must be >, not >= as we bump this count as soon as we have requested questions
-		if (this.xdsAttempts > MAX_XDS_ATTEMPTS) {
+		if (securityQuestions.isUserBlocked || this.xdsAttempts > MAX_XDS_ATTEMPTS) {
 
 			this.telemetry.logEvent(VerifyCallerEvents.SECURITY_QUESTIONS_CLICK, {
 				"screen": TelemetryScreen.VERIFY_CALLER,
@@ -278,29 +280,63 @@ export class VerifyCaller extends Component {
 		});
 	}
 
-	_updateXdsAuthenticationAttempts(securityQuestions) {
+	_updateXdsAuthenticationAttempts(securityQuestions, xdsAttempts) {
+		// It appears that this blockingEnabledFlag is not respected in the Horizon Profile
+		/*
 		if (!securityQuestions.blockingEnabledFlag) {
 			return this.xdsAttempts++;
 		}
+		*/
+		
 
 		// Should not get this as the CS should have caught it and returned an error
 		// code. So the blocked case should have been handled when examining the errorCode
 		// on the response to the request for security questions
 		if (securityQuestions.isUserBlocked) {
-			this.xdsAttempts = MAX_XDS_ATTEMPTS;
+			return MAX_XDS_ATTEMPTS;
 		}
 
+		// This is the inital attempt. XDS documentation states that AuthenticationTypeInd=P is the primary set of 
+		// questions. This should mean that this is our initial attempt 
+		if (securityQuestions.authenticationStatusInd === `P` && securityQuestions.authenticationTypeInd === `P`) {
+			return 1;
+		}
+
+		// The current attempt will always show as the first attempt in history. This attempt should be PENDING
+		// If the previous attempt is `authenticated' then it also indicates that this is the first attempt of this
+		// session, irrespective of the authenticationTypeInd
+		/*
+		const authHistory = securityQuestions.authenticationHistory;
+		if (authHistory.length >= 2 && authHistory[1].authenticationStatus.toLowerCase() === `authenticated`) {
+			return 1;
+		}
+		*/
+
+		// AuthenticationTypeInd=S means that we got back secondary questions after a failed attempt at 
+		// answering questions. So this is at least the second attempt. It seeems that it takes two 
+		// successful authentications before XDS go back to sending primary questions. All the time 
+		// we are getting secondary questions, only one attempt will be allowed. 
+		if (securityQuestions.authenticationStatusInd === `P` && securityQuestions.authenticationTypeInd === `S`) {
+			// if we are starting from no recorded attempts in the UI but XDS says this is a secondary attempt then
+			// assume that this is the final attempt, otherwise just bump the attempt count by one
+			return xdsAttempts = xdsAttempts === 0 ? MAX_XDS_ATTEMPTS : xdsAttempts + 1;
+		}
+
+		// We probably won't be able to get here... 
+		//
 		// Now compute the number of attempts given the number of allowed attempts
 		// and the number of remaining attempts. MAX_XDS_ATTEMPTS must be aligned with
 		// what is set in our XDS profile for this to work properly
-		this.xdsAttempts = MAX_XDS_ATTEMPTS - securityQuestions?.noOfAttemptsRemaining ?? 0;
+		xdsAttempts = MAX_XDS_ATTEMPTS - securityQuestions?.noOfAttemptsRemaining ?? 0;
 
 		// IF XDS has their max attempts set higher than our limit then treat the all excess attempts
 		// as first attempts
-		if (this.xdsAttempts <= 0) {
+		if (xdsAttempts <= 0) {
 			this.logger.log(`warning`, `XDS appears to be configured to allow more attempts than Horizon expects`, `_updateXdsAuthenticationAttempts`);
-			this.xdsAttempts = 1;
+			xdsAttempts = 1;
 		}
+
+		return xdsAttempts;
 
 		/*
 		const authHistory = securityQuestions.authenticationHistory;
@@ -393,7 +429,12 @@ export class VerifyCaller extends Component {
 		} }));
 	}
 
-	_failedSecurityQuestions() {
+	_failedSecurityQuestions(reason) {
+		if (reason?.errorCode === `1004`) {
+			this.xdsAttempts = MAX_XDS_ATTEMPTS;
+			this.xdsBlocked = true;
+		}
+
 		this.telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
 			"next-screen": this._xdsAttemptsExceeded() ? TelemetryScreen.XDS_FAILED : TelemetryScreen.VERIFY_CALLER,
@@ -928,7 +969,7 @@ export class VerifyCaller extends Component {
 					@cancel="${() => this._cancelledSecurityQuestions()}"
 					@skip="${() => this._skippedSecurityQuestions()}"
 					@verified="${() => this._verifiedViaSecurityQuestions()}"
-					@failed="${() => this._failedSecurityQuestions()}"
+					@failed="${(reason) => this._failedSecurityQuestions(reason)}"
 					@service-failure="${() => this._xdsServiceFailure()}">
 				</horizon-security-question>`;
 	}

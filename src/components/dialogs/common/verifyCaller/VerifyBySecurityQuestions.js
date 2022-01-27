@@ -199,7 +199,12 @@ export class VerifyBySecurityQuestions extends Component {
 
 		this.logger.log(`warn`, `${result?.errorCode}: ${result?.errorMessage}`, `_XdsFailed`);
 
-		this.dispatchEvent(new CustomEvent(`failed`, {}));
+		this.dispatchEvent(new CustomEvent(`failed`, { 
+			detail: {
+				errorCode: result?.errorCode, 
+				errorMessage: result?.errorMessage 
+			} 
+		}));
 	}
 
 	_authenticationFailed(result) {
@@ -209,7 +214,12 @@ export class VerifyBySecurityQuestions extends Component {
 
 		this.logger.log(`warn`, `${JSON.stringify(result)}`, `_authenticationFailed`);
 		
-		this.dispatchEvent(new CustomEvent(`failed`, {}));
+		this.dispatchEvent(new CustomEvent(`failed`, { 
+			detail: {
+				errorCode: result?.errorCode, 
+				errorMessage: result?.errorMessage 
+			} 
+		}));
 	}
 
 	_valueChanged(e) {
