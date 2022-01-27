@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Logger, NavigationContext } from 'platform/core';
 import { optionsConfig, relatedOptions } from 'app/utils/relatedOptions';
+import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -216,7 +217,23 @@ export class RelatedOptions extends Component {
 		const clientProductDetails = await this._getClientProducts();
 
 		if (clientProductDetails) {
-			this.clientProducts = clientProductDetails;
+			this.clientProducts = clientProductDetails.map(item => {
+									const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType][item.interestCategory] || 
+														ACCOUNT_INTCAT_ENUM[item.accountType];
+									const accName = item.accountName.toLowerCase();
+
+									return {
+										'accountNumber': item.accountNumber,
+										'accountName': `${accName.charAt(0).toUpperCase()}${accName.slice(1)}`,
+										'accountType': item.accountType,
+										'accountOpenDate': item.accountOpenDate,
+										'type': productInfo.type,
+										'category': productInfo.category,
+										'icon': productInfo.icon,
+										'customIcon': productInfo.customIcon,
+										'order': productInfo.order
+									};
+								}).sort((x, y) => x.order - y.order);
 			this.renderMode = RENDER_MODE.STATEMENTS;
 		}
 	}
@@ -350,8 +367,9 @@ export class RelatedOptions extends Component {
 		return this.renderMode === RENDER_MODE.STATEMENTS
 			? html`
 				<horizon-statements-dialog
-					.callerInformation="${this.callerInformation}"
+					.cifNumber="${this.callerInformation.cifNumber}"
 					.clientProducts="${this.clientProducts}"
+					type=""
 					@cancel="${() => this._backToLandingPage()}">
 				</horizon-statements-dialog>`
 			: html``;

@@ -299,7 +299,7 @@ export class CardArt extends Component {
 	}
 
 	_webTemplate() {
-		switch(this.context) {
+		switch (this.context) {
 			case `cardArt`:
 				return html`${this.cardArtSVG}`;
 			default:

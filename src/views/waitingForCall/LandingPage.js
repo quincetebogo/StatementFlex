@@ -44,7 +44,7 @@ export class LandingPage extends ViewBase {
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
 		this._configuration = Configuration.getInstance();
-		this._telemetry = HorizonTelemetry.instance;
+		this.telemetry = HorizonTelemetry.getInstance();
 
 		this.initialiseService = new InitialiseService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
@@ -93,7 +93,7 @@ export class LandingPage extends ViewBase {
 	disconnectedCallback() {
 		// Telemetry
 		// TODO: This should probably move since this point will also mark the end of the caller verification.
-		this._telemetry.endSpan(IDCallerEvents.IDENTIFY_CALLER);
+		this.telemetry.endSpan(IDCallerEvents.IDENTIFY_CALLER);
 		// TODO: Fulfill need span should start here
 
 		// Cleanup all event aggregator and state management subscriptions;
@@ -152,7 +152,7 @@ export class LandingPage extends ViewBase {
 		 }
 
 		if (incident) {
-			await this._telemetry.logEvent(AcceptCallEvents.INCIDENT_CREATED, {
+			await this.telemetry.logEvent(AcceptCallEvents.INCIDENT_CREATED, {
 				"incident-reference": incident.incidentNumber,
 				"incident-rec-id": incident.incidentRecId
 			}, true);
@@ -170,7 +170,7 @@ export class LandingPage extends ViewBase {
 		newCallInfo.incidentRecId = this.incidentDetails.incidentRecId;
 
 		// Telemetry
-		this._telemetry.startSpan(IDCallerEvents.IDENTIFY_CALLER);
+		this.telemetry.startSpan(IDCallerEvents.IDENTIFY_CALLER);
 
 		// If the incoming call was manually created (by pressing the search button on the agent's action bar)
 		// then we don't invoke acceptCall as this method tries to identify the incoming caller based the incoming
@@ -270,15 +270,15 @@ export class LandingPage extends ViewBase {
 			``, // Non client relationship
 			false, // is Confirmed Client
 			`non-client`, // Verification Status
-			false,
-			false,
-			true,
-			false,
+			false, // verification toast
+			false, // is 3rd party
+			true, // is non-client
+			false, // has insurance products
 			false,
 			{
 				itaAttempts: 0,
 				xdsAttempts: 0
-			}, 
+			},
 			event.detail.isBranchConsultant
 		);
 		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);

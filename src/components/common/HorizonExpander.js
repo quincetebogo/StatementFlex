@@ -534,8 +534,8 @@ export class Expander extends Component {
 				return html`
 						<capitec-check
 							class="input"
-							?checked = ${this.selected}
-							?disabled = ${this.disabled}
+							?checked = "${this.selected}"
+							?disabled = "${this.disabled}"
 							@value-changed="${(e) => this._onValueChange(e)}">
 						</capitec-check>`;
 			default:
