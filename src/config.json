@@ -2,7 +2,7 @@
 	"serviceURIs": {
 		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet"
 	},
-	"signalRUrl": "",
+	"signalRUrl": "http://localhost:6001",
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
@@ -30,7 +30,7 @@
 		}
 	],
 	"mock": {
-		"enabled": true,
+		"enabled": false,
 		"acceptCall": {
 			"enabled": false,
 			"positiveCase": true
@@ -56,16 +56,20 @@
 			"positiveCase": true
 		},
 		"xdsQuestions": {
-			"enabled": true,
+			"enabled": false,
 			"substituteIdOnly": "",
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
-			"enabled": true,
+			"enabled": false,
+			"positiveCase": true
+		},
+		"itaVerification":{
+			"enabled": false,
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
