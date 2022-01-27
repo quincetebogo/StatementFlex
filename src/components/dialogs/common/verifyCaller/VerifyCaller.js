@@ -230,7 +230,7 @@ export class VerifyCaller extends Component {
 		// Set this.securityQuestions for passing to the security questions dialog
 		this.securityQuestions = securityQuestions;
 
-		this.logger.log(`info`, `BlockingEnabled=${securityQuestions.blockingEnabledFlag} Blocked=${securityQuestions.isUserBlocked} AuthStatusInd=${securityQuestions.authenticationStatusInd} AuthTypeInd=${securityQuestions.authenticationTypeInd} Remaining=${securityQuestions.noOfAttemptsRemaining}`, `_updateXdsAuthenticationAttempts`);
+		this.logger.log(`debug`, `BlockingEnabled=${securityQuestions.blockingEnabledFlag} Blocked=${securityQuestions.isUserBlocked} AuthStatusInd=${securityQuestions.authenticationStatusInd} AuthTypeInd=${securityQuestions.authenticationTypeInd} Remaining=${securityQuestions.noOfAttemptsRemaining}`, `_updateXdsAuthenticationAttempts`);
 
 		this.xdsAttempts = this._updateXdsAuthenticationAttempts(securityQuestions, this.xdsAttempts);
 
@@ -431,6 +431,8 @@ export class VerifyCaller extends Component {
 
 	_failedSecurityQuestions(reason) {
 		if (reason?.errorCode === `1004`) {
+			// 1003 means security questions failed
+			// 1004 means security questions failed and the user is now blocked
 			this.xdsAttempts = MAX_XDS_ATTEMPTS;
 			this.xdsBlocked = true;
 		}

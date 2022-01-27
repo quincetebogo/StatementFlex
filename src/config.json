@@ -62,7 +62,7 @@
 		"abandoned-verification": "TELEPHONY_NO_SHOW"
 	},
 	"mock": {
-		"enabled": true,
+		"enabled": false,
 		"acceptCall": {
 			"enabled": false,
 			"positiveCase": true
@@ -89,7 +89,7 @@
 		},
 		"xdsQuestions": {
 			"enabled": false,
-			"substituteIdOnly": "6712075142087",
+			"substituteIdOnly": "",
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
