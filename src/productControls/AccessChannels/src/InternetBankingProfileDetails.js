@@ -195,8 +195,7 @@ export class InternetBankingProfileDetails extends Component {
 
 	async _onSuspendSecurityTokenClick() {
 		if (this.selectedReason) {
-			const tokens = this.selectedTokens;
-			const suspendResult = await this.suspendInternetBankingSecurityToken(tokens);
+			const suspendResult = await this.suspendInternetBankingSecurityToken();
 			if (suspendResult) {
 				this.showSuspendPanel = !this.showSuspendPanel;
 				this.isTokenSuspended = true;
@@ -726,7 +725,7 @@ export class InternetBankingProfileDetails extends Component {
 				<horizon-label
 					data-automation-id=""
 					label="Username"
-					value="${this.internetBankingDetails.username}"
+					value="${this.internetBankingDetails.userName}"
 				></horizon-label>
 
 				<horizon-label
@@ -752,7 +751,7 @@ export class InternetBankingProfileDetails extends Component {
 				<horizon-label
 					data-automation-id=""
 					label="Last interaction date"
-					value="${this._formatDate(this.internetBankingDetails.dateLastUsed)}"
+					value="${this._formatDate(this.internetBankingDetails.dateRegistered)}"
 				></horizon-label>
 
 				<horizon-label

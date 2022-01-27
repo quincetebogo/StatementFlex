@@ -19,7 +19,7 @@ const ACCESS_CHANNELS_TYPE = {
 	APP: `app`,
 	INTERNET_BANKING: `internetBanking`,
 	USSD: `ussd`,
-	NOTIFICATIONS: `notification`
+	NOTIFICATIONS: `notifications`
 };
 
 const CHANNEL_TYPE = {
@@ -48,7 +48,6 @@ export class AccessChannels extends Component {
 
 		this.isBusy = false;
 		this.showSideSheet = false;
-		this.landingInfo = {};
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
@@ -89,7 +88,6 @@ export class AccessChannels extends Component {
 		this.cifNumber = callerInformation.cifNumber;
 
 		this._accessChannelService();
-		this._landingInfo();
 	}
 
 	disconnectedCallback() {
@@ -104,7 +102,6 @@ export class AccessChannels extends Component {
 		this.selectedAccessChannelType = event.detail?.tileClicked ?? ``;
 		this.showSideSheet = !this.showSideSheet;
 
-		this._landingInfo();
 		if (this.showSideSheet) {
 			await this._telemetry.logEvent(AccessChannelsEvents[`ACCESS_CHANNELS_TILE_${CHANNEL_TYPE[this.selectedAccessChannelType]}`], {
 				"screen": TelemetryScreen.ACCESS_CHANNELS
@@ -240,23 +237,14 @@ export class AccessChannels extends Component {
 		return true;
 	}
 
-	suspendInternetBanking(token) {
+	suspendInternetBanking() {
 		// TO DO: Channel service call to suspend Internet Banking should come here
-		const requestBody = {
-			cifNumber: this.cifNumber,
-			tokenSerialNo: token,
-			reason: "Unknown"
-		};
-		const returnValue = this.accessChannelService.suspendToken(requestBody);
-		if(returnValue.succeeded) {
-			// If successfully suspended, update Internet Banking status, else Error scenario
-			this.status.internetBanking.status = `Suspended`;
-			this.status.internetBanking.dateLastUpdated = new Date().toISOString();		
-			this._deepCopyStatus();
-			return true;
-		}
-
-		return false;
+		// If successfully suspended, update Internet Banking status, else Error scenario
+		this.status.internetBanking.status = `Suspended`;
+		this.status.internetBanking.dateLastUpdated = new Date().toISOString();
+		
+		this._deepCopyStatus();
+		return true;
 	}
 
 	resetInternetBanking() {
@@ -291,17 +279,6 @@ export class AccessChannels extends Component {
 		}
 		this.logger.log(`error`, `Failed to load access channel information`, `_accessChannelService`, returnValue.correlationId);
 		
-	}
-
-	async _landingInfo() {
-
-		const returnValue = await this.accessChannelService.accessChannelLanding(this.cifNumber);
-
-		if(returnValue.succeeded){
-			this.landingInfo = returnValue.result;
-			return;
-		}
-		this.logger.log(`error`, `Failed to load access channel landing information`, `_landingInfo`, returnValue.correlationId);
 	}
 
 	_deepCopyStatus() {
@@ -353,10 +330,10 @@ export class AccessChannels extends Component {
 		return this.selectedAccessChannelType === ACCESS_CHANNELS_TYPE.INTERNET_BANKING
 			? html`
 				<capitec-pc-internet-banking-profile-details
-					.internetBankingDetails = "${this.landingInfo.internetBanking}"
+					.internetBankingDetails = "${this.status.internetBanking}"
 					?showSideSheet = "${this.showSideSheet}"
 
-					.suspendInternetBankingSecurityToken = "${(token) => this.suspendInternetBanking(token)}"
+					.suspendInternetBankingSecurityToken = "${() => this.suspendInternetBanking()}"
 					.resetInternetBankingSecurityToken = "${() => this.resetInternetBanking()}"
 
 					@close-side-sheet ="${(event) => this._showSlidingPanel(event)}" >
