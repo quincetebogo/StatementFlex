@@ -247,11 +247,19 @@ export class AccessChannels extends Component {
 		return true;
 	}
 
-	resetInternetBanking() {
+	async resetInternetBanking(selectedTokens) {
 		// TO DO: Channel service call to Reset Internet Banking should come here
+		const requestParams = {
+			"tokenSerialNo": selectedTokens
+		};
+		const returnValue = await this.accessChannelService.resetSecurityTokenClock(requestParams);
 		// If successfully reset, update Internet Banking status, else Error scenario
-		this.status.internetBanking.status = `Active`;
-		this.status.internetBanking.dateLastUpdated = new Date().toISOString();
+		if (returnValue.succeeded) {
+			this.status.internetBanking.status = `Active`;
+			this.status.internetBanking.dateLastUpdated = new Date().toISOString();
+		} else {
+			
+		}
 
 		this._deepCopyStatus();
 		return true;
@@ -334,7 +342,7 @@ export class AccessChannels extends Component {
 					?showSideSheet = "${this.showSideSheet}"
 
 					.suspendInternetBankingSecurityToken = "${() => this.suspendInternetBanking()}"
-					.resetInternetBankingSecurityToken = "${() => this.resetInternetBanking()}"
+					.resetInternetBankingSecurityToken = "${(selectedTokens) => this.resetInternetBanking(selectedTokens)}"
 
 					@close-side-sheet ="${(event) => this._showSlidingPanel(event)}" >
 				</capitec-pc-internet-banking-profile-details>`

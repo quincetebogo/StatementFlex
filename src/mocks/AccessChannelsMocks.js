@@ -32,3 +32,58 @@ export const accessChannelsDetails = {
 		]
 	}
 };
+
+export const accessChannelResetSecurityTokenClock = {
+	"succeeded": false,
+	"result": {
+		"responseCode": "string",
+		"responseDescription": "string",
+		"traceIdentifier": "string",
+		"operationalErrorModels": [
+		  {
+			"operation": "INPUT_VALIDATION",
+			"operationState": "SUCCESS",
+			"errorCode": 0,
+			"errorType": "WARNING",
+			"errorDetails": {
+			  "errorCode": 0,
+			  "errorType": "string",
+			  "errorMessage": "string",
+			  "message": "string",
+			  "recommendedPostAction": "RETRY",
+			  "errorDescription": "string"
+			},
+			"inputErrors": [
+			  {
+				"fieldName": "string",
+				"validationError": "string"
+			  }
+			],
+			"recommendedPostAction": "RETRY"
+		  }
+		],
+		"errors": [
+		  {
+			"operation": "INPUT_VALIDATION",
+			"operationState": "SUCCESS",
+			"errorCode": 0,
+			"errorType": "WARNING",
+			"errorDetails": {
+			  "errorCode": 0,
+			  "errorType": "string",
+			  "errorMessage": "string",
+			  "message": "string",
+			  "recommendedPostAction": "RETRY",
+			  "errorDescription": "string"
+			},
+			"inputErrors": [
+			  {
+				"fieldName": "string",
+				"validationError": "string"
+			  }
+			],
+			"recommendedPostAction": "RETRY"
+		  }
+		]
+	}
+};

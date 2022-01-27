@@ -45,4 +45,29 @@ export class AccessChannelService extends ChannelServiceBase {
 		return this.post(url, { 'cif': cifNumber }, this._setToken(), `accessChannels`, null, null, 1000);
 		*/
 	}
+
+	async resetSecurityTokenClock() {
+		if (await this.isMockEnabled(`accessChannelResetSecurityTokenClock`)) {
+			return this.mock(`accessChannelResetSecurityTokenClock`, clientInfo);
+		}
+
+		const url = `/clientcare-accesschannels-${this._version}/internet-banking/reset-token`;
+
+		const requestBody = {
+			'tokenSerialNo': clientInfo.tokenSerialNo
+		};
+
+		return this.post(
+			url,
+			requestBody,
+			this.setToken(),
+			`accessChannelResetSecurityTokenClock`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 }
