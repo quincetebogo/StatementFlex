@@ -274,12 +274,14 @@ export class StopCard extends Component {
 				hasFavourites: true,
 				subtitle: {
 					savingsAccount: ``,
+					liveBetterSavings: ``,
 					savingsPlan: ``,
 					insure: ``,
 					credit: ``
 				},
 				detail: {
 					savingsAccount: ``,
+					liveBetterSavings: ``,
 					savingsPlan: ``,
 					insure: ``,
 					credit: ``

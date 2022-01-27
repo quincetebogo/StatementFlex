@@ -8,6 +8,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { STRACK_MAPPING } from 'app/constants/StrackMapping';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
@@ -239,8 +240,7 @@ export class EndCallSession extends Component {
 		// Checks if the curr incident is active
 		const isIncClosed = incidentDetails.needStatus === super.HORIZON_NEED_STATUS.CLOSED;
 		// should classify as per need?
-		const ivrActionMapping = await this._getNeedActions();
-		const classifyAsPerNeed = incidentDetails.needStatus === super.HORIZON_NEED_STATUS.INPROGRESS && ivrActionMapping[incidentDetails.currentNeed];
+		const classifyAsPerNeed = incidentDetails.needStatus === super.HORIZON_NEED_STATUS.INPROGRESS && STRACK_MAPPING[incidentDetails.currentNeed];
 
 		// If classification is not empty, no need to populate need
 		this.understandNeed = this.understandNeed && !hasValues && !isClassified && !isIncClosed && !classifyAsPerNeed;
@@ -363,15 +363,9 @@ export class EndCallSession extends Component {
 		return true;
 	}
 
-	async _getNeedActions() {
-		const ivrActionMapping = await this._configuration.getSetting(`ivrActionMapping`);
-		return ivrActionMapping;
-	}
-
 	async _classifyAndClose() {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
-		const ivrActionMapping = await this._getNeedActions();
-		const needAction = ivrActionMapping[incidentDetails.currentNeed] || ivrActionMapping[this.endCallReason.mapping];
+		const needAction = STRACK_MAPPING[incidentDetails.currentNeed] || STRACK_MAPPING[this.endCallReason.mapping];
 		const strackIncidentInfo = await this._incidentStatus() || {};
 		// Flag to check, if the incident is already updated outside of Horizon
 		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);

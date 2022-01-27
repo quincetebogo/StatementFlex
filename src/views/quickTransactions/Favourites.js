@@ -1,8 +1,8 @@
+import { QuickTransactionEvents, STATEMENT_EVENTS } from 'app/constants/telemetry/events/QuickTransactions';
 import { css, html } from 'platform/elements';
 import { isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -20,7 +20,7 @@ import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
 import 'app/components/dialogs/common/Feedback';
 
-import 'app/dialogs/taxCertificates/taxCertificates';
+import 'app/dialogs/taxCertificates/TaxCertificates';
 
 
 const SAVINGS_ACCOUNT_TYPE = 300;
@@ -77,8 +77,8 @@ export class Favourites extends SavingsAccountBase {
 
 	static get properties() {
 		return {
-			isLoading: { attribute: false },
-			verificationToastDisplayed: { attribute: false }
+			isLoading: { state: true },
+			verificationToastDisplayed: { state: true }
 		};
 	}
 
@@ -186,7 +186,7 @@ export class Favourites extends SavingsAccountBase {
 		// verificationStatus is on the this.callerInformation object
 		
 		if (this.callerInformation.verificationStatus !== `verified`) {
-			await this._initialise();
+        await this._initialise();
 		}
 	}
 
@@ -365,10 +365,12 @@ export class Favourites extends SavingsAccountBase {
 			this.landingPageInfo = {
 				savingsAccountProductDescription: ``,
 				savingsPlanProductDescription: ``,
+				liveBetterProductDescription: ``,
 				insureProductDescription: ``,
 				creditProductDescription: ``,
 				savingsAccountProductAmount: ``,
 				savingsPlanProductAmount: ``,
+				liveBetterProductAmount: ``,
 				insureProductAmount: ``,
 				creditProductAmount: ``,
 				pendingMandateCount: 0,
@@ -390,6 +392,7 @@ export class Favourites extends SavingsAccountBase {
 		if (this.landingPageInfo) {
 			subtitle = {
 				savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
+				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductDescription,
 				savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
 				insure: this.landingPageInfo.insureProductDescription,
 				credit: this.landingPageInfo.creditProductDescription
@@ -397,6 +400,7 @@ export class Favourites extends SavingsAccountBase {
 
 			detail = {
 				savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
+				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductAmount,
 				savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
 				insure: this.landingPageInfo.insureProductAmount,
 				credit: this.landingPageInfo.creditProductAmount
@@ -492,6 +496,15 @@ export class Favourites extends SavingsAccountBase {
 		});
 
 		this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
+	}
+
+	async _getStatements() {
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_STATEMENTS, {
+			screen: TelemetryScreen.FAVOURITES,
+			nextScreen: TelemetryScreen.STATEMENTS
+		});
+
+		await super._getStatements();
 	}
 
 	async _proofOfAccount() {
@@ -661,6 +674,11 @@ export class Favourites extends SavingsAccountBase {
 		}
 		
 		return cardDetails;
+	}
+
+	_cancelStatements() {
+		this._telemetry.endSpan(STATEMENT_EVENTS.STATEMENTS);
+		super._backToLandingPage();
 	}
 
 	// ---------
