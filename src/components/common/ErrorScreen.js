@@ -154,6 +154,7 @@ export class ErrorScreen extends Component {
 					position: absolute;
 					top : var(--toast-top, 56px);
 					margin-left: var(--toast-margin-left, 382px);
+					width : var(--toast-width, 365px)
 				}
 
 				.secondary-toast {
