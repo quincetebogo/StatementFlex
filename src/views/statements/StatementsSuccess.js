@@ -1,7 +1,4 @@
 import { css, html } from 'platform/elements';
-import { HorizonStore } from 'app/store/HorizonStore';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
@@ -18,8 +15,8 @@ export class StatementsSuccess extends ViewBase {
 
 		this.mailId = ``;
 		this.acNumber = ``;
+		this.accType = ``;
 		this.endCallContext = `QuickTransactionSuccess`;
-		this._telemetry = HorizonTelemetry.instance;
 	}
 
 	// ----------
@@ -30,40 +27,47 @@ export class StatementsSuccess extends ViewBase {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
-
+		
 		const screenDetails = this.horizonStore.getScreenDetails();
 
 		this.mailId = screenDetails && screenDetails.emailAddress;
 		this.acNumber = screenDetails && screenDetails.accountNumber;
+		this.accType = screenDetails && screenDetails.accountType;
+		this.telemetryEvent = screenDetails?.telemetryEvent ?? {};
 
+		await this._telemetry.startSpan(this.telemetryEvent.STATEMENTS_SUCCESS);
 		this._updateIncidentState();
 	}
 
-	disconnectedCallback() {
+	async disconnectedCallback() {
 		super.disconnectedCallback();
+		
+		await this._telemetry.endSpan(this.telemetryEvent.STATEMENTS_SUCCESS, {}, true, true);
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
-	_doneClick() {
-		this._telemetry.endSpan(QuickTransactionEvents.STATEMENTS, {
-			"screen": TelemetryScreen.STATEMENTS_OUTCOME,
-			"nextScreen": TelemetryScreen.FAVOURITES
+	async _doneClick() {
+		await this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_SUCCESS_DONE, {
+			"screen": TelemetryScreen.STATEMENTS_OUTCOME
 		});
+		await this._telemetry.endSpan(this.telemetryEvent.STATEMENTS_SUCCESS, {}, true, true);
 
-		this.horizonStore.clearReturnScreen();
-		this.horizonRouter.navigateToQuickTransactionFavourites();
+		const returnToScreen = this.horizonStore.getReturnToScreen();
+		this.horizonStore.setReturnScreen(returnToScreen.route, ``);
+		
+		this.horizonRouter.navigateToReturnPage();
 	}
 
-	_sendAnotherClick() {
-		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS, {
-			"screen": TelemetryScreen.STATEMENTS_OUTCOME,
-			"nextScreen": TelemetryScreen.STATEMENTS
+	async _sendAnotherClick() {
+		await this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_SEND_ANOTHER, {
+			"screen": TelemetryScreen.STATEMENTS_OUTCOME
 		});
+		await this._telemetry.endSpan(this.telemetryEvent.STATEMENTS_SUCCESS);
 		
 		this.horizonRouter.navigateToReturnPage();
 	}
@@ -119,7 +123,7 @@ export class StatementsSuccess extends ViewBase {
 					<section 
 						id="id-error-msg" 
 						slot="detail">
-							The statement for savings account <b>${this.acNumber}</b> was emailed to <b>${this.mailId}</b>
+							The statement for ${this.accType} <b>${this.acNumber}</b> was emailed to <b>${this.mailId}</b>
 					</section>
 			</horizon-success-screen>
 		`;

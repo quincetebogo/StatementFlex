@@ -57,6 +57,21 @@
 
 	VALUE_ADDED_SERVICES: `Value Added Services`,
 	VALUE_ADDED_SERVICES_UNAVAILABLE: `Value Added Services Unavailable`,
-	VALUE_ADDED_SERVICES_NO_CLIENT_DATA: `Value Added Services No Client Data`
+	VALUE_ADDED_SERVICES_NO_CLIENT_DATA: `Value Added Services No Client Data`,
 
+	SAVINGS_ACCOUNT: `Savings Account`,
+	TRANSACTION_HISTORY: `Transaction History`,
+
+	LIVE_BETTER_LANDING_PAGE: `Live Better verified landing page`,
+	LIVE_BETTER_ACCOUNT_DETAILS: `Live Better Account details`,
+	LIVE_BETTER_TRANSACTION_HISTORY: `Live Better Transaction History`,
+	LIVE_BETTER_SATEMENTS: `Live Better Statements`,
+	LIVE_BETTER_AUTOMATIC_SAVINGS: `Live Better Automatic savings`,
+	LIVE_BETTER_LINKED_TRANSACTIONS: `Live Better Linked Transactions`,
+
+	LIVE_BETTER_BENEFITS: `Live Better Benefits`,
+	LIVE_BETTER_BENEFITS_UNAVAILABLE: `Live Better Benefits Unavailable`,
+
+	LIVE_BETTER_AUTOMATIC_SAVINGS_SUCCESS: `Live Better Automatic savings success`,
+	LIVE_BETTER_AUTOMATIC_SAVINGS_FAILURE: `Live Better Automatic savings failure`
 };
