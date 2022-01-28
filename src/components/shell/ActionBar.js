@@ -215,7 +215,7 @@ export class HorizonActionBar extends Component {
 									@click="${() => this._onAssign()}"
 									data-automation-id="action-bar-assign-button">
 					</capitec-button>
-					<div class="vertical-line" ?hidden= ${true}></div>
+					<div class="vertical-line" ?hidden="${true}"></div>
 					<capitec-button type="clear" 
 									label="Handoff"
 									?hidden="${this.isHidden}"

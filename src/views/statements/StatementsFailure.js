@@ -1,6 +1,4 @@
 import { css, html } from 'platform/elements';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
@@ -14,7 +12,7 @@ import 'app/components/common/RelatedOptions';
  * @class StatementsUnsuccess
  * @extends {ViewBase}
  */
-export class StatementsUnsuccess extends ViewBase {
+export class StatementsFailure extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -25,8 +23,8 @@ export class StatementsUnsuccess extends ViewBase {
 
 		this.mailId = ``;
 		this.acNumber = ``;
+		this.accType = ``;
 		this.endCallContext = `QuickTransactionsUnSuccess`;
-		this._telemetry = HorizonTelemetry.instance;
 	}
 
 
@@ -38,45 +36,51 @@ export class StatementsUnsuccess extends ViewBase {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 
 		this.screenDetails = this.horizonStore.getScreenDetails();
 		
 		this.mailId = this.screenDetails && this.screenDetails.emailAddress;
 		this.acNumber = this.screenDetails && this.screenDetails.accountNumber;
+		this.accType = this.screenDetails && this.screenDetails.accountType;
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		this.telemetryEvent = this.screenDetails?.telemetryEvent ?? {};
+
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		await this._telemetry.startSpan(this.telemetryEvent.STATEMENTS_FAILURE);
+
+		const returnToScreen = this.horizonStore.getReturnToScreen();
+		this.horizonStore.setReturnScreen(returnToScreen.route, ``); // Failure flow don't have perform again action
 	}
 		
-	disconnectedCallback() {
+	async disconnectedCallback() {
 		super.disconnectedCallback();
+
+		await this._telemetry.endSpan(this.telemetryEvent.STATEMENTS_FAILURE, {}, true, true);
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
-	_doneClick() {
-		// Telemetry
-		this._telemetry.endSpan(QuickTransactionEvents.STATEMENTS, {
-			"screen": TelemetryScreen.STATEMENTS_OUTCOME,
-			"nextScreen": TelemetryScreen.FAVOURITES
-		});
-		this.horizonStore.clearReturnScreen();
-		this.horizonRouter.navigateToQuickTransactionFavourites();
-	}
-
-	_handoffClick() {
-		// Telemetry
-		this._telemetry.endSpan(QuickTransactionEvents.STATEMENTS, {
+	async _doneClick() {
+		await this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_FAILURE_DONE, {
 			"screen": TelemetryScreen.STATEMENTS_OUTCOME
 		});
+		
+		this.horizonRouter.navigateToReturnPage();
+	}
+
+	async _handoffClick() {
+		await this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_FAILURE_ASSIGN, {
+			"screen": TelemetryScreen.STATEMENTS_OUTCOME
+		});
+
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 
 		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
-		this.horizonStore.clearReturnScreen();
 	}
 
 	// ---------
@@ -128,7 +132,7 @@ export class StatementsUnsuccess extends ViewBase {
 					<section 
 						id="id-error-msg" 
 						slot="detail">
-							The statement for savings account <b>${this.acNumber}</b> was not emailed to <b>${this.mailId}</b>
+							The statement for ${this.accType} <b>${this.acNumber}</b> was not emailed to <b>${this.mailId}</b>
 					</section>
 			</horizon-error-screen>
 		`;
@@ -146,4 +150,4 @@ export class StatementsUnsuccess extends ViewBase {
 
 }
 
-customElements.define(`horizon-statements-unsuccess`, StatementsUnsuccess);
+customElements.define(`horizon-statements-failure`, StatementsFailure);

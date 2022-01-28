@@ -3,6 +3,7 @@ import { Component, View } from 'platform/elements';
 import { Configuration, Logger, SecurityContext } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { STRACK_MAPPING } from 'app/constants/StrackMapping';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 /**
@@ -69,9 +70,13 @@ export class HorizonIncidentManager {
 		 * 
 		 * New case: possible to open search other needs more than once.
 		 */
-		if (clientNeed === incidentDetails.currentNeed && incidentDetails.needStatus !== HORIZON_NEED_STATUS.CLOSED) {
-			// Do nothing
-			return true;
+
+		if (clientNeed === incidentDetails.currentNeed &&
+			![HORIZON_NEED_STATUS.CLOSED, HORIZON_NEED_STATUS.COMPLETED, HORIZON_NEED_STATUS.ASSIGNED, HORIZON_NEED_STATUS.FAILED].includes(incidentDetails.needStatus)) {
+			
+				incidentDetails.needStatus = HORIZON_NEED_STATUS.INPROGRESS;
+				this.horizonStore.setIncidentDetails(incidentDetails);
+				return true;
 		}
 
 		/**
@@ -233,7 +238,6 @@ export class HorizonIncidentManager {
 	 async classifyIncident(toggleBusyFlag, incidentCategorization) {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		const ivrActionMapping = await this._getNeedActions();
 		let canClassify = !this.checkIncidentStatus;
 
 		this.incidentService._toggleBusyFlag = toggleBusyFlag;
@@ -248,7 +252,7 @@ export class HorizonIncidentManager {
 			canClassify = isNullorEmpty(incidentInfo.category) && isNullorEmpty(incidentInfo.subCategory) && isNullorEmpty(incidentInfo.issue);
 		}
 
-		const needAction = ivrActionMapping[incidentDetails.currentNeed];
+		const needAction = STRACK_MAPPING[incidentDetails.currentNeed];
 
 		if (canClassify && (!isNullorEmpty(needAction) || !isNullorEmpty(incidentCategorization))) {
 			const request = {
@@ -311,11 +315,6 @@ export class HorizonIncidentManager {
 		};
 
 		this.horizonStore.setIncidentDetails(curIncidentDetails);
-	}
-
-	async _getNeedActions() {
-		const ivrActionMapping = await this._configuration.getSetting(`ivrActionMapping`);
-		return ivrActionMapping;
 	}
 
 	async _incidentStatus(incidentRecId) {
