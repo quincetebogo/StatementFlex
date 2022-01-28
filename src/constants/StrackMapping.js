@@ -28,6 +28,7 @@
 	"statements-save": `STATEMENTS`,
 
 	// LBB
+	"account-details-lbb": `ACCOUNT_INFORMATION_LBB`,
 	"transaction-history-lbb": `TRANSACTION_HISTORY_LBB`,
 	"statements-lbb": `STATEMENTS_LBB`,
 	"automatic-savings-lbb": `AUTOMATIC_SAVINGS_LBB`,
