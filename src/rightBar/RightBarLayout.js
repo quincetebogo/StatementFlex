@@ -22,6 +22,8 @@ export class RightBarLayout extends Component {
 		this.callerInformation = {};
 
 		this.horizonStore = HorizonStore.getInstance();
+
+		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 	}
 
 	// ----------
@@ -40,23 +42,29 @@ export class RightBarLayout extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	async updated() {
-		await this.updateComplete;
-		this.callerInformation = this.horizonStore.getCallerInformation();
-	}
+	// N/A
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
+	_stateChanged(state) {
+		if (state?.callerInformation) {
+			this.callerInformation = state.callerInformation;
+		}
+	}
 
 	// --------------
 	// PUBLIC METHODS
 	// --------------
 
+	// N/A
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	// N/A
 
 	// ---------
 	// RENDERING
