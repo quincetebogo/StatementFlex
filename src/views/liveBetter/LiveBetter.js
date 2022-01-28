@@ -285,7 +285,7 @@ export class LiveBetter extends SavingsAccountBase {
 		const updateRequest = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"accountRoundUpActive": updatedDetails?.accountRoundUpActive ?? this.automaticSavingsDetails.accountRoundUpActive,
-			"roundupValue": updatedDetails?.roundupValue ?? this.automaticSavingsDetails.roundupValue,
+			"roundupValue": updatedDetails?.roundUpValue ?? this.automaticSavingsDetails.roundupValue,
 			"activateRoundUpAccounts": updatedDetails?.activatedRoundUpAccountNums ?? this.automaticSavingsDetails.activatedRoundUpAccountNums,
 			"accountInterestSweepActive": updatedDetails?.accountInterestSweepActive ?? this.automaticSavingsDetails.accountInterestSweepActive
 		};
@@ -297,7 +297,7 @@ export class LiveBetter extends SavingsAccountBase {
 			"screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS,
 			"round-up": updatedDetails?.accountRoundUpActive ?? this.automaticSavingsDetails.accountRoundUpActive,
 			"interest-sweep": updatedDetails?.accountInterestSweepActive ?? this.automaticSavingsDetails.accountInterestSweepActive,
-			"roundup-value": updatedDetails?.roundupValue ?? this.automaticSavingsDetails.roundupValue,
+			"roundup-value": updatedDetails?.roundUpValue ?? this.automaticSavingsDetails.roundupValue,
 			"roundup-accounts": updatedDetails?.activatedRoundUpAccountNums ?? this.automaticSavingsDetails.activatedRoundUpAccountNums,
 			"next-screen": returnValue.succeeded ? TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_SUCCESS : TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_FAILURE
 		});
