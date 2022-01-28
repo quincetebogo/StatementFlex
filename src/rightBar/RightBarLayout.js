@@ -1,4 +1,5 @@
 import { Component, html } from 'platform/elements';
+import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'platform/components';
 import 'app/rightBar/AccessChannels';
@@ -18,6 +19,9 @@ export class RightBarLayout extends Component {
 		super();
 
 		this.layout = `info-graphic`;
+		this.callerInformation = {};
+
+		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	// ----------
@@ -26,7 +30,8 @@ export class RightBarLayout extends Component {
 
 	static get properties() {
 		return {
-			layout: { type: String }
+			layout: { type: String },
+			callerInformation: { state: true }
 		};
 	}
 
@@ -34,6 +39,11 @@ export class RightBarLayout extends Component {
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
+
+	async updated() {
+		await this.updateComplete;
+		this.callerInformation = this.horizonStore.getCallerInformation();
+	}
 
 	// --------------
 	// EVENT HANDLERS
@@ -62,7 +72,9 @@ export class RightBarLayout extends Component {
 				</horizon-info-graphic>`
 			: html`
 				<section>
-					<horizon-insights></horizon-insights>
+					<horizon-insights
+						cifNumber="${this.callerInformation?.cifNumber}">
+					</horizon-insights>
 					<horizon-access-channels></horizon-access-channels>
 				</section>`}`;
 	}
