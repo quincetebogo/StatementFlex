@@ -19,7 +19,7 @@ import 'platform/components/core/Icon';
 import 'app/components/dialogs/common/AddCallerDetails';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/stopCard/StopCardSearchCaller';
-import 'app/components/dialogs/common/VerifyCaller';
+import 'app/components/dialogs/common/verifyCaller/VerifyCaller';
 
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
@@ -37,7 +37,6 @@ const RENDER_MODE = {
 	VERIFY_CALLER: 5
 };
 
-const HEADER_LABEL = `Confirm Caller Details`;
 const branchBannerMessage = ` Branch calling in on behalf of the client`;
 
 /**
@@ -153,16 +152,16 @@ export class ConfirmCallerDetails extends Component {
 		this.callerInformation = event.detail.callerInformation;
 
 		this._confirmClick();
-	}
+        }
 
 	async _confirmClick() {
-		this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_CONFIRM_CLICK, {
-			"screen": TelemetryScreen.CONFIRM_CALLER,
-			"next-screen": this.incomingCallDetails.ivrOption.value === `StopCard` ? TelemetryScreen.STOP_CARD : TelemetryScreen.VERIFY_CALLER,
-			"confirmed-primary-need": null,
-			"confirmed-specific-need": this.incomingCallDetails.ivrOptionCode,
-			"confirmed-client-cif": this.callerInformation.cifNumber
-		});
+            this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_CONFIRM_CLICK, {
+                "screen": TelemetryScreen.CONFIRM_CALLER,
+                "next-screen": this.incomingCallDetails.ivrOption.value === `StopCard` ? TelemetryScreen.STOP_CARD : TelemetryScreen.VERIFY_CALLER,
+                "confirmed-primary-need": null,
+                "confirmed-specific-need": this.incomingCallDetails.ivrOptionCode,
+                "confirmed-client-cif": this.callerInformation.cifNumber
+            });
 
 		if (this.confirmedCaller.isClientPresent || !this.callerInformation.isBranchConsultant) {
 			const stopCard = () => this._navigateToLandingPage();
@@ -177,10 +176,10 @@ export class ConfirmCallerDetails extends Component {
 
 			await this._updateClientNonClientDetails();
 
-			clientNeed[this.incomingCallDetails.ivrOptionCode]();
+            clientNeed[this.incomingCallDetails.ivrOptionCode]();     
 		} else {
 			this._navigateToLandingPage();
-		}
+        }    
 	}
 
 	async _verifyCaller() {
@@ -382,19 +381,6 @@ export class ConfirmCallerDetails extends Component {
 	async _setAvailabilityFlags() {
 		let flagsSet = false;
 
-		/* This will be put back. Insure is not part of the first release
-
-			Error handling needs to be re-assessed. This function currently always returns true but
-			may need to return false and trigger the display of a system error once additional 
-			flags (insurance are checked)
-
-			this.callerInformation.hasInsuranceProducts = await this._checkForInsuranceProducts(
-				this.confirmedCaller.southAfricanIDNumber, 
-				this.confirmedCaller.cifNumber,
-				false
-			);
-		*/
-
 		// Check if the client has digital channels
 		// Disabled error handler because if this call fails we will still attempt to help the client.
 		// It will just be with XDS Security Questions
@@ -410,7 +396,7 @@ export class ConfirmCallerDetails extends Component {
 			this.callerInformation.hasDigitalChannels = true;
 			this.logger.log(`error`, `Could not determine if digital channels are available. Defaulting to available.`, `_setAvailabilityFlags`, returnValue.correlationId);
 		}
-
+		
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 		this.horizonStore.setCallerInformation(this.callerInformation);
@@ -503,7 +489,7 @@ export class ConfirmCallerDetails extends Component {
 			}
 		}
 	}
-
+	
 	// ---------
 	// RENDERING
 	// ---------
@@ -513,7 +499,7 @@ export class ConfirmCallerDetails extends Component {
 			super.styles,
 			css`
 				horizon-caller-dialog {
-					--horizon-modal-footer-padding: 16px 16px 16px 0px;
+					--horizon-modal-footer-padding: 16px;
 				}
 				capitec-content-box{
 					height: ${this.errorMessage = `` ? css`332px` : css`364`};
@@ -558,13 +544,6 @@ export class ConfirmCallerDetails extends Component {
 					--horizon-label-value-line-height: 20px;
 					--horizon-label-value-margin-top: 4px;
 				}
-				.footer-group{
-					width: 690px;
-				}
-				.footer-group > capitec-button:first-child {
-
-					padding-left: 16px;
-				}
 				capitec-tooltip {
 					display: none;
 					height: 27px;
@@ -593,11 +572,11 @@ export class ConfirmCallerDetails extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.CONFIRM_CALLER:
 				return html`
-					<horizon-caller-dialog 
+					<horizon-caller-dialog
 						.incomingCallDetails="${this.incomingCallDetails}"
 						.incidentDetails="${this.incidentDetails}"
 						.isNeedSelectable=${true}
-						.headerLabel="${HEADER_LABEL}" 
+						headerLabel="Confirm Caller"
 						@on-end-call="${() => this._onEndCall()}"
 						@on-need-changed="${(e) => this._needChanged(e)}">
 							<div slot="body">
@@ -649,7 +628,8 @@ export class ConfirmCallerDetails extends Component {
 					id="id-banner-addcallerdetails" 
 					data-automation-id="confirm-caller-details-add-caller-banner"
 					type="warning">
-						<capitec-hyperlink label="Add Caller Details"
+						<capitec-hyperlink 
+							label="Add Caller Details"
 							data-automation-id="confirm-caller-details-add-caller-details"
 							@click="${() => this._addCallerDetailsClick()}">
 						</capitec-hyperlink>

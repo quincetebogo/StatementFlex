@@ -13,7 +13,7 @@
 
 	VERIFY_CALLER: `Verify Caller`,
 	SECURITY_QUESTIONS: `Security Questions`,
-	SECURITY_QUESTIONS_FAILURE: `Security Queations Failure`,
+	SECURITY_QUESTIONS_FAILURE: `Security Questions Failure`,
 	XDS_FAILED: `XDS Verification Failed`,
 	ITA_FAILED: `ITA Verification Failed`,
 
@@ -59,7 +59,24 @@
 	VALUE_ADDED_SERVICES_UNAVAILABLE: `Value Added Services Unavailable`,
 	VALUE_ADDED_SERVICES_NO_CLIENT_DATA: `Value Added Services No Client Data`,
 
-	ACCESS_CHANNELS: `Access Channels`,
+	SAVINGS_ACCOUNT: `Savings Account`,
+	TRANSACTION_HISTORY: `Transaction History`,
+
+	LIVE_BETTER_LANDING_PAGE: `Live Better verified landing page`,
+	LIVE_BETTER_ACCOUNT_DETAILS: `Live Better Account details`,
+	LIVE_BETTER_TRANSACTION_HISTORY: `Live Better Transaction History`,
+	LIVE_BETTER_SATEMENTS: `Live Better Statements`,
+	LIVE_BETTER_AUTOMATIC_SAVINGS: `Live Better Automatic savings`,
+	LIVE_BETTER_LINKED_TRANSACTIONS: `Live Better Linked Transactions`,
+
+	LIVE_BETTER_BENEFITS: `Live Better Benefits`,
+	LIVE_BETTER_BENEFITS_UNAVAILABLE: `Live Better Benefits Unavailable`,
+
+	LIVE_BETTER_AUTOMATIC_SAVINGS_SUCCESS: `Live Better Automatic savings success`,
+	LIVE_BETTER_AUTOMATIC_SAVINGS_FAILURE: `Live Better Automatic savings failure`,
+  
+  ACCESS_CHANNELS: `Access Channels`,
+  
 	ACCESS_CHANNELS_INTERNET_BANKING: `Access Channels Internet Banking`,
 	ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN: `Access Channels Internet Banking Reset Security Token`,
 	ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN: `Access Channels Internet Banking Suspend Security Token`,
@@ -74,5 +91,4 @@
 
 	ACCESS_CHANNELS_NOTIFICATIONS: `Access Channels Notifications`,
 	ACCESS_CHANNELS_NOTIFICATIONS_UPDATE: `Access Channels Notifications Update`
-
 };

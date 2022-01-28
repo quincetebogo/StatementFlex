@@ -447,7 +447,7 @@ export class StopCardSearchCaller extends Component {
 						.incomingCallDetails="${this.incomingCallDetails}"
 						.incidentDetails="${this.incidentDetails}"
 						.isNeedSelectable=${true}
-						.headerLabel="${HEADER_LABEL}"
+						headerLabel="${HEADER_LABEL}"
 						@on-end-call="${() => this._onEndCall()}"
 						@on-need-changed="${(event) => this._onNeedChanged(event)}">
 						<div slot="body" class="main">
