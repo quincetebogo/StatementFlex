@@ -196,8 +196,8 @@ export class InternetBankingProfileDetails extends Component {
 
 	async _onSuspendSecurityTokenClick() {
 		if (this.selectedReason) {
-			const tokens = this.selectedTokens;
-			const suspendResult = await this.suspendInternetBankingSecurityToken(tokens);
+			// const selectedToken = this.selectedTokens;
+			const suspendResult = await this.suspendInternetBankingSecurityToken(this.selectedReason, this.selectedTokens);
 			if (suspendResult) {
 				this.showSuspendPanel = !this.showSuspendPanel;
 				this.isTokenSuspended = true;

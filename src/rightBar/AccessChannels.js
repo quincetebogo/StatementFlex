@@ -303,7 +303,7 @@ export class AccessChannels extends Component {
 		}
 	}
 
-	suspendInternetBanking(suspendReason) {
+	suspendInternetBanking(suspendReason, token) {
 		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN, {
 			"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
 			"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
@@ -314,12 +314,21 @@ export class AccessChannels extends Component {
 
 		// TO DO: Channel service call to suspend Internet Banking should come here
 		// If successfully suspended, update Internet Banking status, else Error scenario
-		this.status.internetBanking.status = `Suspended`;
-		this.status.internetBanking.dateLastUpdated = new Date().toISOString();
 		
-		this._deepCopyStatus();
-		return true;
-	}
+		const requestBody = {
+			cifNumber: this.cifNumber,
+			tokenSerialNo: token,
+			reason: suspendReason
+		};
+		const returnValue = this.accessChannelService.suspendToken(requestBody);
+
+		if(returnValue.succeeded) {
+			this.status.internetBanking.status = `Suspended`;
+			this.status.internetBanking.dateLastUpdated = new Date().toISOString();
+			
+			this._deepCopyStatus();
+			return true;
+		}
 
 		return false;
 	}
@@ -472,7 +481,7 @@ export class AccessChannels extends Component {
 					.internetBankingDetails = "${this.landingInfo.internetBanking}"
 					?showSideSheet = "${this.showSideSheet}"
 
-					.suspendInternetBankingSecurityToken = "${(token) => this.suspendInternetBanking(token)}"
+					.suspendInternetBankingSecurityToken = "${(suspendReason, selectedToken) => this.suspendInternetBanking(suspendReason, selectedToken)}"
 					.resetInternetBankingSecurityToken = "${(selectedTokens) => this.resetInternetBanking(selectedTokens)}"
 
 					@toggle-token-reset-panel="${(event) => this._toggleInternetBankingTokenResetPanel(event)}"
