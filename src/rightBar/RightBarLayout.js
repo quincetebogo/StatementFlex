@@ -42,7 +42,10 @@ export class RightBarLayout extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	// N/A
+	disconnectedCallback() {
+		// Unsubscribe from store.
+		this.stateChangeSub.unsubscribe();
+	}
 
 	// --------------
 	// EVENT HANDLERS
