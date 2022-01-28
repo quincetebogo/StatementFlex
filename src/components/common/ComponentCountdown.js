@@ -32,12 +32,10 @@ export class ComponentCountdown extends Component {
 				color: `info`
 			},
 			warning: {
-				color: `warning`,
-				threshold: this.warningThreshold
+				color: `warning`
 			},
 			alert: {
-				color: `alert`,
-				threshold: this.alertThreshold
+				color: `alert`
 			}
 		};
 
@@ -48,7 +46,7 @@ export class ComponentCountdown extends Component {
 		this.timeLeft = this.timeLimit;
 		this.timerInterval = null;
 		this.remainingPathColor = this.COLOR_CODES.info.color;
-		this._startTimer = false;
+		this.startTimer();
 	}
 
 	// ----------
@@ -60,9 +58,9 @@ export class ComponentCountdown extends Component {
 	 
 	 * @property {String} width - Width of the countdown timer.
 	 * @property {String} height - Height of the countdown timer.
-	 * @property {Number} time-limit - Time limit in seconds.
-	 * @property {Number} warning-threshold - Time when warning colors is shown in seconds.
-	 * @property {Number} alert-threshold - Time when alert colors is shown in seconds
+	 * @property {Number} timeLimit - Time limit in seconds.
+	 * @property {Number} warningthreshold - Time when warning colors is shown in seconds.
+	 * @property {Number} alertthreshold - Time when alert colors is shown in seconds
 	 * 
 	 * @readonly
 	 * @static
@@ -73,27 +71,16 @@ export class ComponentCountdown extends Component {
 		return {
 			width: { type: String },
 			height: { type: String },
-			circleDasharray: { type: String, attribute: false },
-			remainingPathColor: { type: String, attribute: false },
-			timeLeft: { type: Number, attribute: false },
 			timeLimit: { type: Number, attribute: `time-limit` },
 			warningThreshold: { type: Number, attribute: `warning-threshold` },
 			alertThreshold: { type: Number, attribute: `alert-threshold` },
-			startTicking: { type: Boolean }
+			tickCallback: { type: Object },
+
+			circleDasharray: { state: true },
+			timeLeft: { state: true }
 		};
-	}
 
-	get startTicking() {
-		return this._startTimer;
-	}
 
-	set startTicking(val) {
-		this._startTimer = val;
-		if (val) {
-			this.startTimer();
-		} else {
-			clearInterval(this.timerInterval);
-		}
 	}
 
 	// -------------------
@@ -134,11 +121,14 @@ export class ComponentCountdown extends Component {
 			this.timeLeft = this.timeLimit - this.timePassed;
 			this.setCircleDasharray();
 			this.setRemainingPathColor(this.timeLeft);
+			
+			if (this.tickCallback) {
+				this.tickCallback(this.timeLeft);
+			}
 
 			if (this.timeLeft === 0) {
 				this.onTimesUp();
 			}
-			this.requestUpdate();
 		}, 1000);
 	}
 
@@ -174,9 +164,9 @@ export class ComponentCountdown extends Component {
 	setRemainingPathColor(timeLeft) {
 		const { alert, warning } = this.COLOR_CODES;
 
-		if (timeLeft <= alert.threshold) {
+		if (timeLeft <= this.alertThreshold) {
 			this.remainingPathColor = alert.color;
-		} else if (timeLeft <= warning.threshold) {
+		} else if (timeLeft <= this.warningThreshold) {
 			this.remainingPathColor = warning.color;
 		}
 	}
@@ -189,7 +179,6 @@ export class ComponentCountdown extends Component {
 
 	setCircleDasharray() {
 		this.circleDasharray = `${(this.calculateTimeFraction() * this.FULL_DASH_ARRAY).toFixed(0)} 283`;
-		this.requestUpdate(`circleDasharray`);
 	}
 
 	// ---------
@@ -222,12 +211,12 @@ export class ComponentCountdown extends Component {
 				}
 
 				.path-elapsed {
-					stroke-width: 7px;
+					stroke-width: 5px;
 					opacity: 0.2;
 				}
 
 				.path-remaining {
-					stroke-width: 7px;
+					stroke-width: 5px;
 					stroke-linecap: round;
 					transform: rotate(90deg);
 					transform-origin: center;
@@ -292,7 +281,10 @@ export class ComponentCountdown extends Component {
 			<div class="base-timer" style=${style}>
 				<svg class="svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
 					<g class="circle">
-						<circle class="path-elapsed ${this.remainingPathColor}" cx="50" cy="50" r="45"></circle>
+						<circle 
+							class="path-elapsed ${this.remainingPathColor}" 
+							cx="50" cy="50" r="45">
+						</circle>
 						<path
 							id="base-timer-path-remaining"
 							stroke-dasharray="${this.circleDasharray}"
@@ -302,8 +294,8 @@ export class ComponentCountdown extends Component {
 							m -45, 0
 							a 45,45 0 1,0 90,0
 							a 45,45 0 1,0 -90,0
-							"
-						></path>
+							">
+						</path>
 					</g>
 				</svg>
 				<span id="base-timer-label" class="label ${this.remainingPathColor}" style=${style}>${this.formatTime(this.timeLeft)}</span>

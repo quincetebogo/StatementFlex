@@ -76,7 +76,6 @@ export class CallerInformation {
 		middleName3 = ``,
 		lastName = ``,
 		initials = ``
-
 	) {
 		this.cifNumber = cifNumber;
 		this.birthdate = birthdate;
