@@ -150,7 +150,8 @@ export class SavingsAccountService extends ChannelServiceBase {
 		if (await this.isMockEnabled(`debiCheckConfirmAgreement`)) {
 			return this.mock(`debiCheckConfirmAgreement`, mandateInfo);
 		}
-	
+
+		// TODO: Remove this duplicate reassign, input model is ready to make service call
 		const request = {
 			cifNumber: mandateInfo.cifNumber,
 			mandateRef: mandateInfo.mandateRef,
@@ -176,7 +177,8 @@ export class SavingsAccountService extends ChannelServiceBase {
 			accountConfirmation: mandateInfo.accountConfirmation,
 			instalmentConfirmation: mandateInfo.instalmentConfirmation,
 			permissionToDebit: mandateInfo.permissionToDebit,
-			termsAndConditionsConfirmation: mandateInfo.termsAndConditionsConfirmation
+			termsAndConditionsConfirmation: mandateInfo.termsAndConditionsConfirmation,
+			documentId: mandateInfo.documentId
 		};
 
 		const url = `/clientcare-debicheck-${this._version}/client-mandate-confirm-agreement`;
