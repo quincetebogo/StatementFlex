@@ -172,8 +172,7 @@ export class LiveBetter extends SavingsAccountBase {
 		});
 
 		const screenDetails = this.horizonStore.getScreenDetails();
-		this.landingPageInfo.accountRoundUpActive = screenDetails.LBSADetails.accountRoundUpActive;
-		this.landingPageInfo.accountInterestSweepActive = screenDetails.LBSADetails.accountInterestSweepActive;
+		this.landingPageInfo = screenDetails.LBSADetails;
 		
 		this._setIncidentNotstarted();
 		this._deepCopyProperty();
