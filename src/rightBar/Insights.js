@@ -33,8 +33,18 @@ export class Insights extends Component {
 	// PROPERTIES
 	// ----------
 
+	/**
+	 * @property {String} cifNumber - Client's cif number
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof Insights
+	 */
+
 	static get properties() {
 		return {
+			cifNumber: { type: String },
+			
 			isBusy: { state: true },
 			statusVAS: { state: true },
 			showValueAddedServicesModal: { state: true },
