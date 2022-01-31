@@ -1,7 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
-import { HORIZON_CALLER_DIALOG_HEADER_CSS } from 'app/css/HorizonModalHeader';
 
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
@@ -101,12 +100,7 @@ export class CallerInfoBar extends Component {
 	static get styles() {
 		return [
 			super.styles,
-			css`
-			
-			${CALLERINFOBAR_CSS}
-			${HORIZON_CALLER_DIALOG_HEADER_CSS}
-
-			`
+			css`${CALLERINFOBAR_CSS}`
 		];
 	}
 

@@ -12,7 +12,7 @@ import { LandingPageEvents } from 'app/constants/telemetry/events/LandingPage';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 
 import 'app/components/dialogs/common/EndCallSession';
-import 'app/components/dialogs/common/VerifyCaller';
+import 'app/components/dialogs/common/verifyCaller/VerifyCaller';
 import 'app/components/dialogs/common/AddCallerDetails';
 
 
