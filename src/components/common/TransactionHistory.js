@@ -255,7 +255,6 @@ export class TransactionHistory extends Component {
 			'money-type': RENDER_CHIPS[FILTER_BY.MONEY_TYPE]
 		});
 		await this._loadFilteredTransactions();
-		this._refineSearch();
 	}
 
 	async _loadFilteredTransactions() {
@@ -266,6 +265,7 @@ export class TransactionHistory extends Component {
 		await this.getTransactionHistory(startDate, endDate);
 
 		this.hideLoadMore = this.transactionHistory.length % MAX_RESULTS > 0 && this.transactionHistory.length % MAX_RESULTS < MAX_RESULTS;
+		this._refineSearch();
 	}
 
 	_filterByStatus(event) {
@@ -921,7 +921,7 @@ export class TransactionHistory extends Component {
 
 	_renderFooter() {
 		return html`
-			<capitec-action-bar class="load-more-bar" ?hidden="${this.hideLoadMore}">
+			<capitec-action-bar class="load-more-bar" ?hidden="${this.hideLoadMore || this.transactionHistory.length === 0}">
 				<capitec-spacer></capitec-spacer>
 				<capitec-button
 					type="clear"
