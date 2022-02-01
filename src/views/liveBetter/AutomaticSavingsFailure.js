@@ -43,6 +43,8 @@ export class AutomaticSavingsFailure extends ViewBase {
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
+
+		this._telemetry.startSpan(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS_FAILURE);
 	}
 
 	disconnectedCallback() {
@@ -54,7 +56,7 @@ export class AutomaticSavingsFailure extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		this._telemetry.endSpan(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS, {
+		this._telemetry.endSpan(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS_FAILURE_DONE, {
 			"screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_FAILURE,
 			"next-screen": TelemetryScreen.LIVE_BETTER
 		});

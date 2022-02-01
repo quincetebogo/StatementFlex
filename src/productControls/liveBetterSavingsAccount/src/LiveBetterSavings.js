@@ -1,5 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/OptionButton';
@@ -39,6 +38,10 @@ export class LiveBetterSavings extends Component {
 	
 	connectedCallback() {
 		super.connectedCallback();
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
 	}
 
 	// --------------

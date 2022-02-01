@@ -21,9 +21,15 @@
 	LBB_AUTOMATIC_SAVINGS: `call.fulfill-need.live-better-savings.automatic-savings`,
 	LBB_AUTOMATIC_SAVINGS_TOGGLE_ROUNDUP: `call.fulfill-need.live-better-savings.automatic-savings.toggle.round-up`,
 	LBB_AUTOMATIC_SAVINGS_TOGGLE_INTEREST_SWEEP: `call.fulfill-need.live-better-savings.automatic-savings.toggle.interest-sweep`,
-	LBB_AUTOMATIC_SAVINGS_SELECT_UPDATE: `call.fulfill-need.live-better-savings.automatic-savings.select.update`,
-	LBB_AUTOMATIC_SAVINGS_SELECT_CANCEL: `call.fulfill-need.live-better-savings.automatic-savings.select.cancel`,
-	LBB_AUTOMATIC_SAVINGS_FAILURE_ASSIGN: `call.fulfill-need.live-better-savings.automatic-savings.failure.assign`
+	LBB_AUTOMATIC_SAVINGS_SELECT_UPDATE: `call.fulfill-need.live-better-savings.automatic-savings.pop-up.select.update`,
+	LBB_AUTOMATIC_SAVINGS_SELECT_CANCEL: `call.fulfill-need.live-better-savings.automatic-savings.pop-up.cancel`,
+	LBB_AUTOMATIC_SAVINGS_SUCCESS_SEND_ANOTHER: `call.fulfill-need.live-better-savings.automatic-savings.success.send-another`,
+	LBB_AUTOMATIC_SAVINGS_SUCCESS_DONE: `call.fulfill-need.live-better-savings.automatic-savings.success.done`,
+	LBB_AUTOMATIC_SAVINGS_FAILURE_ASSIGN: `call.fulfill-need.live-better-savings.automatic-savings.failure.assign`,
+	LBB_AUTOMATIC_SAVINGS_FAILURE_DONE: `call.fulfill-need.live-better-savings.automatic-savings.failure.done`,
+
+	LBB_AUTOMATIC_SAVINGS_POP: `call.fulfill-need.live-better-savings.automatic-savings.pop-up`,
+	LBB_AUTOMATIC_SAVINGS_FAILURE: `call.fulfill-need.live-better-savings.automatic-savings.failure`
 };
 
 /**
