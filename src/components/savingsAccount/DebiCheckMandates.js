@@ -1,6 +1,7 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { TABLE_ROW_CELL_CSS, TABLE_ROW_CSS, getFontColor } from 'app/css/DebiCheckMandates';
-import { convertCentsToRand, formatCurrency, getDateOrdinal } from 'app/utils/channelServiceUtilities';
+import { convertCentsToRand, getDateOrdinal } from 'app/utils/channelServiceUtilities';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 const FILTER_BY = {
 	ALL: 0,
@@ -212,7 +213,7 @@ export class DebiCheckMandates extends Component {
 				}
 				capitec-title-bar > capitec-icon {
 					cursor: pointer;
-					margin-right: 34px;
+					margin-right: 16px;
 				}
 				.debicheck-action-bar {
 					height: 64px;

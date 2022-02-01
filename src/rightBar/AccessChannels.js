@@ -12,6 +12,7 @@ import 'app/productControls/AccessChannels/src/AccessChannels';
 import 'app/productControls/AccessChannels/src/InternetBankingProfileDetails';
 import 'app/productControls/AccessChannels/src/AppProfileDetails';
 import 'app/productControls/AccessChannels/src/USSDProfileDetails';
+import 'app/productControls/AccessChannels/src/NotificationsDetails';
 import 'app/webComponents/src/SideSheet';
 import 'platform/components';
 
@@ -237,7 +238,77 @@ export class AccessChannels extends Component {
 		return true;
 	}
 
-	suspendInternetBanking() {
+	// Internet Banking
+	async _toggleInternetBankingSuspendTokenPanel(event) {
+		const showSuspendPanel = event.detail.showSuspendPanel;
+		
+		if (showSuspendPanel) {
+			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN, {
+				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
+				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN
+			});
+
+			this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN);
+		} else {
+			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_CANCEL, {
+				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN,
+				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING
+			});
+
+			this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN);
+		}
+	}
+
+	async _toggleInternetBankingSuspendReasons(event) {
+		const selectedTokens = event.detail.selectedTokens;
+		
+		if (selectedTokens) {
+			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_NEXT, {
+				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_TOKENS,
+				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON,
+				"token-numbers": selectedTokens
+			});
+
+			this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN);
+		} else {
+			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_BACK, {
+				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON,
+				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_TOKENS
+			});
+
+			this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN);
+		}
+	}
+
+	async _toggleInternetBankingTokenResetPanel(event) {
+		const showResetTokenPanel = event.detail.showResetTokenPanel;
+		
+		if (showResetTokenPanel) {
+			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN, {
+				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
+				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN
+			});
+
+			this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN);
+		} else {
+			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN_CANCEL, {
+				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN,
+				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING
+			});
+
+			this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN);
+		}
+	}
+
+	suspendInternetBanking(suspendReason) {
+		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN, {
+			"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
+			"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
+			"suspend-reason": suspendReason
+		});
+
+		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN);
+
 		// TO DO: Channel service call to suspend Internet Banking should come here
 		// If successfully suspended, update Internet Banking status, else Error scenario
 		this.status.internetBanking.status = `Suspended`;
@@ -248,6 +319,12 @@ export class AccessChannels extends Component {
 	}
 
 	async resetInternetBanking(selectedTokens) {
+		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN, {
+			"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
+			"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
+			"token-numbers": selectedTokens
+		});
+
 		// TO DO: Channel service call to Reset Internet Banking should come here
 		const requestParams = {
 			"tokenSerialNo": selectedTokens
@@ -263,6 +340,50 @@ export class AccessChannels extends Component {
 
 		this._deepCopyStatus();
 		return true;
+	}
+
+	// Notifications
+	_toggleNotificationsSettingsUpdate(event) {
+		const updateType = event.detail.updateType;
+		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_NOTIFICATIONS_UPDATE, {
+			"screen": TelemetryScreen.ACCESS_CHANNELS_NOTIFICATIONS,
+			"next-screen": TelemetryScreen.ACCESS_CHANNELS_NOTIFICATIONS_UPDATE,
+			"update-type": updateType
+		});
+
+		this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_NOTIFICATIONS_UPDATE);
+	}
+
+	updateMessageType(selectedType) {
+		this.logNotificationUpdateTelemetry(selectedType);
+		
+		// TO DO: add channel service call to update notifications type
+		// If unblock is successful, show toast, update ussd status, else show error
+		this.status.notifications.dateLastUpdated = new Date().toISOString();
+		
+		this._deepCopyStatus();
+		return true;
+	}
+
+	updateMessageTime(selectedTime) {
+		this.logNotificationUpdateTelemetry(selectedTime);
+
+		// TO DO: add channel service call to update notifications time
+		// If unblock is successful, show toast, update ussd status, else show error
+		this.status.notifications.dateLastUpdated = new Date().toISOString();
+
+		this._deepCopyStatus();
+		return true;
+	}
+
+	logNotificationUpdateTelemetry(valueType) {
+		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_NOTIFICATIONS_UPDATE_CONFIRM, {
+			"screen": TelemetryScreen.ACCESS_CHANNELS_NOTIFICATIONS_UPDATE,
+			"next-screen": TelemetryScreen.ACCESS_CHANNELS_NOTIFICATIONS,
+			"value-type": valueType
+		});
+
+		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_NOTIFICATIONS_UPDATE);
 	}
 
 	// --------------
@@ -321,7 +442,8 @@ export class AccessChannels extends Component {
 
 			${this._renderInternetBankingPanel()}
 			${this._renderAppPanel()}
-			${this._renderUSSD()}`;
+			${this._renderUSSD()}
+			${this._renderNotificationsPanel()}`;
 	}
 
 	_renderAccessChannels() {
@@ -341,10 +463,13 @@ export class AccessChannels extends Component {
 					.internetBankingDetails = "${this.status.internetBanking}"
 					?showSideSheet = "${this.showSideSheet}"
 
-					.suspendInternetBankingSecurityToken = "${() => this.suspendInternetBanking()}"
+					.suspendInternetBankingSecurityToken = "${(suspendReason) => this.suspendInternetBanking(suspendReason)}"
 					.resetInternetBankingSecurityToken = "${(selectedTokens) => this.resetInternetBanking(selectedTokens)}"
 
-					@close-side-sheet ="${(event) => this._showSlidingPanel(event)}" >
+					@toggle-token-reset-panel="${(event) => this._toggleInternetBankingTokenResetPanel(event)}"
+					@toggle-token-suspend-reasons="${(event) => this._toggleInternetBankingSuspendReasons(event)}"
+					@toggle-token-suspend-panel="${(event) => this._toggleInternetBankingSuspendTokenPanel(event)}"
+					@close-side-sheet ="${(event) => this._showSlidingPanel(event)}">
 				</capitec-pc-internet-banking-profile-details>`
 			: html``;
 	}
@@ -367,19 +492,35 @@ export class AccessChannels extends Component {
 
 	_renderUSSD() {
 		return this.selectedAccessChannelType === ACCESS_CHANNELS_TYPE.USSD
-		? html`
-			<capitec-pc-ussd-profile-details
-			.ussd="${this.status.ussd}"
-			?showSideSheet="${this.showSideSheet}"
+			? html`
+				<capitec-pc-ussd-profile-details
+				.ussd="${this.status.ussd}"
+				?showSideSheet="${this.showSideSheet}"
 
-			.cancelUSSD="${cancelReason => this.cancelUSSD(cancelReason)}"
-			.unblockSIM="${() => this.unblockSIM()}"
-			.activateFullMenuUSSD="${() => this.activateFullMenuUSSD()}"
+				.cancelUSSD="${cancelReason => this.cancelUSSD(cancelReason)}"
+				.unblockSIM="${() => this.unblockSIM()}"
+				.activateFullMenuUSSD="${() => this.activateFullMenuUSSD()}"
 
-			@toggle-ussd-cancel-reasons="${(event) => this._toggleUssdCancelReasons(event)}"
-			@close-side-sheet="${(event) => this._showSlidingPanel(event)}">
-			</capitec-pc-ussd-profile-details>`
-		: html``;
+				@toggle-ussd-cancel-reasons="${(event) => this._toggleUssdCancelReasons(event)}"
+				@close-side-sheet="${(event) => this._showSlidingPanel(event)}">
+				</capitec-pc-ussd-profile-details>`
+			: html``;
+	}
+
+	_renderNotificationsPanel() {
+		return this.selectedAccessChannelType === ACCESS_CHANNELS_TYPE.NOTIFICATIONS
+			? html`
+				<capitec-pc-notifications-details
+					.notificationsDetails="${this.status.notifications}"
+					?showSideSheet="${this.showSideSheet}"
+
+					.updateMessageType="${(selectedType) => this.updateMessageType(selectedType)}"
+					.updateMessageTime="${(selectedTime) => this.updateMessageTime(selectedTime)}"
+
+					@toggle-notifications-settings-update="${(event) => this._toggleNotificationsSettingsUpdate(event)}"
+					@close-side-sheet="${(event) => this._showSlidingPanel(event)}">
+				</capitec-pc-notifications-details>`
+			: html``;
 	}
 
 	_renderLoadingIndicator() {

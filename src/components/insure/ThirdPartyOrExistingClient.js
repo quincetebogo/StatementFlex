@@ -7,7 +7,7 @@ import 'app/components/common/OptionButton';
 import 'app/components/insure/InsureHowToClaim';
 
 import 'app/components/dialogs/common/ClientNotVerified';
-import 'app/components/dialogs/common/VerifyCaller';
+import 'app/components/dialogs/common/verifyCaller/VerifyCaller';
 import 'app/components/dialogs/common/EndCallSession';
 
 import 'app/components/dialogs/insure/CalculatePremium';
