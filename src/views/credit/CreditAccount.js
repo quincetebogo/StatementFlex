@@ -59,7 +59,6 @@ export class CreditAccount extends ViewBase {
 		this.fixedTermCreditAccounts = []; 
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
-		// TODO: There is no errorHanlder method defined in this scope. Should we not be calling _handleChannelServiceError
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 	}
 

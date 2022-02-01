@@ -86,7 +86,6 @@ export class CreditAccountLanding extends Component {
 	}
 
 	_viewBudgetAccounts(creditCardNumber) {
-		// TODO: Card Card Number?
 		this.dispatchEvent(new CustomEvent(`view-budget-accounts`, { detail: { creditCardNumber: creditCardNumber } }));
 	}
 
