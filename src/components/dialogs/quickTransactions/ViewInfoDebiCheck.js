@@ -14,8 +14,8 @@ export class ViewInfoDebiCheck extends Component {
 	
 	constructor() {
 		super();
-        this.debiCheckDetails = {};
-        this.isPending = ``;
+		this.debiCheckDetails = {};
+		this.isPending = false;
 	}
 
 	// ----------
@@ -31,8 +31,8 @@ export class ViewInfoDebiCheck extends Component {
 	 */
 	static get properties() {
 		return {
-            debiCheckDetails: { type: Object },
-            isPending: { type: Boolean}
+			debiCheckDetails: { type: Object },
+			isPending: { type: Boolean }
 		};
 	}
 
@@ -94,10 +94,10 @@ export class ViewInfoDebiCheck extends Component {
 				--theme-modal-footer-padding: 0px 18px 18px 0px;
 			}
 			
-            capitec-alert-banner{
-                margin-left: -5px;
-                --theme-alert-banner-font-size: 13.7px;
-            }
+			capitec-alert-banner{
+				margin-left: -5px;
+				--theme-alert-banner-font-size: 13.7px;
+			}
 
 			div[slot="header"] {
 				width: 690px;
@@ -172,8 +172,8 @@ export class ViewInfoDebiCheck extends Component {
 				capitec-label {
 					--theme-label-font-family: "Hind Vadodara";
 					--theme-label-font-weight: 500;
-    				--theme-label-default-font-size: 16px;
-    				--theme-label-font-color: #3A3A3A;
+					--theme-label-default-font-size: 16px;
+					--theme-label-font-color: #3A3A3A;
 					--theme-label-letter-spacing: 0;
 					--theme-label-line-height: 20px;
 				}
@@ -211,8 +211,8 @@ export class ViewInfoDebiCheck extends Component {
 	_renderDebiCheckDetails() {
 		return html`
 				<img class="image" src="/images/transactions/DebiCheck-logo-Banner-1024x256.svg"/>
-                ${this._renderError()}
-                <capitec-group class="group-layout" layout="grid" rows="uniform" columns="auto" row-gap="clear" >
+				${this._renderError()}
+				<capitec-group class="group-layout" layout="grid" rows="uniform" columns="auto" row-gap="clear" >
 				<capitec-label type="subtitle" label="First collection date" row="1" column="1"></capitec-label>
 				<capitec-label id="label-value"
 								type="subtitle" 
@@ -234,15 +234,15 @@ export class ViewInfoDebiCheck extends Component {
 		`;
 	}
 
-    _renderError() {
-        return this.isPending
-            ? html`
-            <capitec-alert-banner
-            type="warning">
-            <p><b>Notify client:</b> The DebiCheck can only be approved/declined by contacting the bank you selected for this payment</p>
-			</capitec-alert-banner>`
-            : html``;
-    }
+	_renderError() {
+		return this.isPending
+			? html`
+				<capitec-alert-banner
+					type="warning">
+					<p><b>Notify client:</b> The DebiCheck can only be approved/declined by contacting the bank you selected for this payment</p>
+				</capitec-alert-banner>`
+			: html``;
+	}
 
 
 	_renderFooter() {

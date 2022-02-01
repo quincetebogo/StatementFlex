@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+
 /**
  * Description for your Component here.
  *
@@ -8,72 +9,74 @@ import { Component, css, html } from 'platform/elements';
  * ```
  */
 export class ComponentMultiLineLabel extends Component {
-    // --------------
-    // INITIALISATION
-    // --------------
-    /**
-     * Initialises the component.
-     *
-     * @hideconstructor
-     */
-    constructor() {
-        super();
-        this.label = ``;
-        this.value = ``;
-        this.noPadding = false;
-    }
-    // ----------
-    // PROPERTIES
-    // ----------
-    /**
-     * Registry of all properties defined by the component.
-     */
-    static get properties() {
-        return {
-            label: { type: String },
-            value: { type: String },
-            noPadding: { type: Boolean, attribute: `no-padding` }
-        };
-    }
-    // -------------------
-    // LIFECYCLE OVERRIDES
-    // -------------------
-    // n/a
-    // --------------
-    // EVENT HANDLERS
-    // --------------
-    // n/a
-    // --------------
-    // PUBLIC METHODS
-    // --------------
-    // n/a
-    // ---------------
-    // PRIVATE METHODS
-    // ---------------
-    // n/a
-    // ---------
-    // RENDERING
-    // ---------
-    /**
-     * Generates the component stylesheet.
-     *
-     * @ignore
-     * @returns {css} The css content of the component.
-     */
-    static get styles() {
-        return [
-            super.styles,
-            css`
-                :host {
-                    padding: 8px;
-                }
-                :host([no-padding]) {
-                    padding: 0px;
-                }
-                :host([reverse]) capitec-group {
-                    flex-direction: column-reverse;
-                }
-                .value {
+	// --------------
+	// INITIALISATION
+	// --------------
+	/**
+	 * Initialises the component.
+	 *
+	 * @hideconstructor
+	 */
+	constructor() {
+		super();
+		this.label = ``;
+		this.value = ``;
+		this.noPadding = false;
+	}
+	
+	// ----------
+	// PROPERTIES
+	// ----------
+	/**
+	 * Registry of all properties defined by the component.
+	 */
+	static get properties() {
+		return {
+			label: { type: String },
+			value: { type: String },
+			noPadding: { type: Boolean, attribute: `no-padding` }
+		};
+	}
+	
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+	// n/a
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+	// n/a
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+	// n/a
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+	// n/a
+	// ---------
+	// RENDERING
+	// ---------
+	/**
+	 * Generates the component stylesheet.
+	 *
+	 * @ignore
+	 * @returns {css} The css content of the component.
+	 */
+	static get styles() {
+		return [
+			super.styles,
+			css`
+				:host {
+					padding: 8px;
+				}
+				:host([no-padding]) {
+					padding: 0px;
+				}
+				:host([reverse]) capitec-group {
+					flex-direction: column-reverse;
+				}
+				.value {
 					height: 12px;
 					font-size: 12px;
 					line-height: 12px;
@@ -87,50 +90,54 @@ export class ComponentMultiLineLabel extends Component {
 					font-size: 14px;
 					font-weight: var(--horizon-multi-line-label-font-weight, 400);
 					letter-spacing: 0;
-					line-height: 20px;
+					line-height: var(--horizon-multi-line-label-line-height, 20px);
 					text-align: right;
 				}
 			`
-        ];
-    }
-    _renderValue() {
-        if (Array.isArray(this.value) && this.value.length > 0) {
-            return html`
-                    <capitec-group layout="vertical">
-                        ${this.value.map(val => html`<capitec-label class="value" label="${val}"></capitec-label>`)}
-                    </capitec-group>
-                `;
-        }
-        return html`<capitec-label class="value" label="${this.value}"></capitec-label>`;
-    }
-    /**
-     * Generates the component template for mobile mode.
-     *
-     * @returns {html} The html content of the component.
-     */
-    _mobileTemplate() {
-        return this._webTemplate();
-    }
-    /**
-     * Generates the component template for web mode.
-     *
-     * @returns {html} The html content of the component.
-     */
-    _webTemplate() {
-        return html`
-            <capitec-group layout="vertical" gap="none">
-                <capitec-label label="${this.label}" ></capitec-label>
-                ${this._renderValue()}
-            </capitec-group>
-        `;
-    }
-    /**
-     * Generates the component template for kiosk mode.
-     *
-     * @returns {html} The html content of the component.
-     */
-    _kioskTemplate() {
-        return this._webTemplate();
-    }
+		];
+	}
+
+	_renderValue() {
+		if (Array.isArray(this.value) && this.value.length > 0) {
+			return html`
+					<capitec-group layout="vertical">
+						${this.value.map(val => html`<capitec-label class="value" label="${val}"></capitec-label>`)}
+					</capitec-group>
+				`;
+		}
+		return html`<capitec-label class="value" label="${this.value}"></capitec-label>`;
+	}
+
+	/**
+	 * Generates the component template for mobile mode.
+	 *
+	 * @returns {html} The html content of the component.
+	 */
+	_mobileTemplate() {
+		return this._webTemplate();
+	}
+
+	/**
+	 * Generates the component template for web mode.
+	 *
+	 * @returns {html} The html content of the component.
+	 */
+	_webTemplate() {
+		return html`
+			<capitec-group layout="vertical" gap="none">
+				<capitec-label label="${this.label}" ></capitec-label>
+				${this._renderValue()}
+			</capitec-group>
+		`;
+	}
+
+	/**
+	 * Generates the component template for kiosk mode.
+	 *
+	 * @returns {html} The html content of the component.
+	 */
+	_kioskTemplate() {
+		return this._webTemplate();
+	}
 }
 window.customElements.define(`bb-multi-line-label`, ComponentMultiLineLabel);

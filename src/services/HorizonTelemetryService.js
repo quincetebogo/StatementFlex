@@ -34,7 +34,7 @@ export const OutcomeScreen = {
  * using the platform capability.
  *
  * @export
- * @class TelemetryService
+ * @class HorizonTelemetry
  * @extends Telemetry
  */
 export class HorizonTelemetry extends Telemetry {
@@ -44,8 +44,20 @@ export class HorizonTelemetry extends Telemetry {
 	// --------------
 	// INITIALISATION
 	// --------------
+
+	/**
+	 * @deprecated Use getInstance() as is standard through the platform/Horizon
+	 */
 	static get instance() {
 		return this._instance || (this._instance = new HorizonTelemetry());
+	}
+
+	/**
+	 * @static
+	 * @returns {HorizonTelemetry} Singleton
+	 */
+	static getInstance() {
+		return this.instance;
 	}
 
 	constructor() {
@@ -161,9 +173,11 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {string} eventName Event name to start a span
 	 * @param {object} baggage Options, this generally holds details of event
 	 * @param {boolean} systemTriggered Flag to determin telemetry event type
-	 * @returns {void}
+	 * @param {boolean} closeParentSpan Flag tells to close parent span or not
+	 * @param {boolean} closeChildSpans Flag tells to close its child spans or not
+	 * @returns {Promise<void>} A promise to end the telemetry span
 	 */
-	async endSpan(eventName, baggage = null, systemTriggered = true) {
+	async endSpan(eventName, baggage = null, systemTriggered = true, closeParentSpan = false, closeChildSpans = false) {
 
 		/**
 		 * Extracting eventName(call.id-caller) into events array(['call', 'id-caller'])
@@ -175,6 +189,11 @@ export class HorizonTelemetry extends Telemetry {
 		const eventType = systemTriggered ? TelemetryEventType.SYSTEM : TelemetryEventType.PERSON;
 
 		if (this.traceId && spanId) {
+
+			if (closeChildSpans) {
+				await this.closeChildSpans(eventName);
+			}
+
 			await super.spanEnd({
 				baggage: this._formatBaggageDetails(baggage || []),
 				eventName: `horizon.${eventName}.end-span`,
@@ -188,6 +207,11 @@ export class HorizonTelemetry extends Telemetry {
 	
 			// disposing current span node reference
 			this._deleteFromActiveSpanTree(currentSpan);
+
+			if (closeParentSpan) {
+				events.pop();
+				this.endSpan(events.join(`.`));
+			}
 		} else {
 			// TODO: Log that there was a telemetry failure (missing trace ID or span ID)
 		}
@@ -224,6 +248,31 @@ export class HorizonTelemetry extends Telemetry {
 		// event, thus no new span reference to update
 	}
 
+	/**
+	 * Closes all the child spans of an event
+	 * 
+	 * @param {*} parentEvent The parent event.
+	 * @returns {Promise<void>} A promise to class all child spans of the parent event
+	 */
+	async closeChildSpans(parentEvent) {
+
+		if (!parentEvent) {
+			return;
+		}
+
+		const childSpans = this.activeSpanTree.filter(obj => obj.event.startsWith(parentEvent) && obj.event !== parentEvent);
+
+		await childSpans.reduceRight(async (promise, span) => {
+			// This line will wait for the last async function to finish.
+			// The first iteration uses an already resolved Promise
+			// so, it will immediately continue.
+			await promise;
+			await this.endSpan(span.event, {
+				"info": `Closing span, as commanded by parent span`
+			});
+		}, Promise.resolve());
+	}
+
 	// #endregion PUBLIC METHODS
 
 	// #region PRIVATE METHODS
@@ -234,7 +283,7 @@ export class HorizonTelemetry extends Telemetry {
 
 	_initialise() {
 		const telemetryDetails = this.telemetryStore.getTelemetryDetails();
-		const _activeSpans = (telemetryDetails && telemetryDetails.activeSpanTree) || [];
+		const _activeSpans = telemetryDetails?.activeSpanTree ?? [];
 
 		this.activeSpanTree = [..._activeSpans, ...this.activeSpanTree];
 	}
@@ -331,8 +380,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns {string} baggage item
 	 */
 	_trimBaggage(item) {
-		if(!!item && !Array.isArray(item)) {
-			return item.trim();
+		if (!!item && !Array.isArray(item)) {
+			return String(item).trim();
 		}
 		return item;
 	}

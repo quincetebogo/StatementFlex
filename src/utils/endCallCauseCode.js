@@ -54,7 +54,10 @@ export class EndCallCauseCode {
 		const toDoActionByContext = {
 			VerifyClient: verifyClient,
 			LandingPage: landingPage,
-			TransactionHistory: landingPage
+			TransactionHistory: landingPage,
+			QuickTransactionSuccess: landingPage,
+			QuickTransactionsUnSuccess: landingPage,
+			QuickTransactionsInProgress: landingPage
 		};
 
 		if (toDoActionByContext[context]) {

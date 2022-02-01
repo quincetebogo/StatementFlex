@@ -4,6 +4,9 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { LandingPageEvents } from 'app/constants/telemetry/events/LandingPage';
+import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { SavingsAccLandingPage } from 'app/constants/telemetry/events/SavingsAccount';
 
 import 'app/components/common/MiniProfile';
 import 'app/components/common/FavouritesTile';
@@ -33,6 +36,7 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.subtitle = {
 			savingsAccount: ``,
+			liveBetterSavings: ``,
 			savingsPlan: ``,
 			insure: ``, 
 			credit: ``
@@ -40,6 +44,7 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.detail = {
 			savingsAccount: ``,
+			liveBetterSavings: ``,
 			savingsPlan: ``,
 			insure: ``, 
 			credit: ``
@@ -48,7 +53,7 @@ export class ProfileAndProductSummaryBar extends Component {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this._telemetry = HorizonTelemetry.instance;
+		this._telemetry = HorizonTelemetry.getInstance();
 
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 
@@ -56,6 +61,7 @@ export class ProfileAndProductSummaryBar extends Component {
 		this.favouritesBarSub = this.eventAggregator.subscribe(`horizon-favorites-bar`, (e) => this.hasFavourites = e.hasFavourites);
 		this.navContextSub = this.eventAggregator.subscribe(`platform-navigation-context-updated`, () => this._onNavigationContextUpdated());
 
+		this.activePageTitle = ``;
 		this.product = ``;
 	}
 
@@ -71,11 +77,11 @@ export class ProfileAndProductSummaryBar extends Component {
 	 */
 	static get properties() {
 		return {
-			miniProfile: { attribute: false },
-			hasFavourites: { attribute: false },
-			subtitle: { attribute: false },
-			detail: { attribute: false },
-			activePageTitle: { attribute: false }
+			miniProfile: { state: true },
+			hasFavourites: { state: true },
+			subtitle: { state: true },
+			detail: { state: true },
+			activePageTitle: { state: true } // Determines which product button should be highlighted
 		};
 	}
 
@@ -101,7 +107,7 @@ export class ProfileAndProductSummaryBar extends Component {
 	// ---------
 
 	_stateChanged(state) {
-		if (state && state.callerInformation) {
+		if (state?.callerInformation) {
 			this.callerInformation = state.callerInformation;
 
 			let contactNumber = ``;
@@ -133,7 +139,7 @@ export class ProfileAndProductSummaryBar extends Component {
 			};
 		}
 
-		if (state && state.leftBarButtonConfig) {
+		if (state?.leftBarButtonConfig) {
 			this.hasFavourites = state.leftBarButtonConfig.hasFavourites;
 			this.subtitle = state.leftBarButtonConfig.subtitle;
 			this.detail = state.leftBarButtonConfig.detail;
@@ -147,39 +153,56 @@ export class ProfileAndProductSummaryBar extends Component {
 	}
 
 	_onNavigationContextUpdated() {
-		// TODO: _getCurrentRoute() was supposed to be a private function, re-evaluate
-		const activePage = this.horizonRouter._getCurrentRoute(); 
+		const activePage = this.horizonRouter.getCurrentRoute(); 
 
 		// Initialise activePage properly if the current route is not yet readable
 		if (!activePage) {
 			this.activePageTitle = ``;
-		} else {
-			this.activePageTitle = activePage.title;
-			if (this.activePageTitle === `ProductInfo`) {
-				this.activePageTitle = this.product;
-			}
+			return;
+		} 
+		
+		// this.activePageTitle is passed to the horizon-product-button-panel control and is used to
+		// determine which product button should be highlighted.
+		this.activePageTitle = activePage.title;
+		if (this.activePageTitle === `ProductInfo`) {
+			this.activePageTitle = this.product;
 		}
 	};
 
-	_productButtonClick(event) {
+	async _productButtonClick(event) {
+		await this._clearPrevProductSpans(this.product, event.detail.productButton);
+
 		this.product = event.detail.productButton;
-		this._telemetry.logEvent(LandingPageEvents[`PRODUCT_BUTTON_${this.product}`], {});
+		await this._telemetry.logEvent(LandingPageEvents[`PRODUCT_BUTTON_${this.product}`], {});
+
+		// Clear return to state before navigation
+		this.horizonStore.clearReturnScreen();
 		
 		// Note that when invoked from the agent's waiting for call landing page we will
 		// not have caller information
-		if (this.callerInformation) {
-			if (this.callerInformation.verificationStatus === `verified`) {
-				this.horizonRouter.navigateToLandingPage(this.product, false);
-			} else {
-				this.horizonRouter.navigateToProductInfo(this.product);
-			}
+		if (!this.callerInformation) {
+			return;
+		}
+
+		if (this.callerInformation.verificationStatus === `unverified` && this.product === `LiveBetter`) {
+			this.horizonRouter.navigateToLandingPage(this.product, false);
+			return;
+		}
+
+		if (this.callerInformation.verificationStatus === `verified`) {
+			this.horizonRouter.navigateToLandingPage(this.product, false);
+			return;
 		} 
+		
+		this.horizonRouter.navigateToProductInfo(this.product);
 	}
 
-	_favouritesClicked() {
+	async _favouritesClicked() {
+		await this._clearPrevProductSpans(this.product, ``);
+		await this._telemetry.logEvent(LandingPageEvents.PRODUCT_BUTTON_FAVOURITES, {});
+
 		this.product = ``;
-		this._telemetry.logEvent(LandingPageEvents.PRODUCT_BUTTON_FAVOURITES, {});
-		
+		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToLandingPage(`Transact`, this.callerInformation.hasInsuranceProducts);
 	}
 
@@ -187,6 +210,33 @@ export class ProfileAndProductSummaryBar extends Component {
 	// PRIVATE
 	// ---------
 
+	/**
+	 * Private function to clear all active telemetry span associated to current
+	 * product screen
+	 * 
+	 * @param {any} current Current product screen
+	 * @param {any} incoming Product screen navigating to
+	 * @returns {Promise<void>} A promise for clearing/closing active telemetry spands
+	 */
+	async _clearPrevProductSpans(current, incoming) {
+		if (current === incoming) {
+			return;
+		}
+
+		const productEvents = {
+			'SavingsAccount': SavingsAccLandingPage.SAVINGS_ACCOUNT,
+			'SavingsPlan': ``,
+			'LiveBetter': LiveBetterEvents.LIVE_BETTER,
+			'Insure': ``,
+			'Credit': ``
+		};
+
+		if (!this.product) {
+			await this._telemetry.closeChildSpans(QuickTransactionEvents.FULFILL_NEED);
+		} else {
+			await this._telemetry.endSpan(productEvents[this.product], {}, false, false, true);
+		}
+	}
 
 	// ---------
 	// RENDERING
@@ -202,7 +252,7 @@ export class ProfileAndProductSummaryBar extends Component {
 				padding: 0px 0px 0px 0px;
 			}
 			.favourites-button{
-                padding: 0px 0px 0px 0px;
+				padding: 0px 0px 0px 0px;
 				width: var(--horizon-left-panel-width, 440px);
 				margin-top: 16px;
 			}

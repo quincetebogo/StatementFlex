@@ -1,4 +1,4 @@
-import { DEFAULT_AUTO_RETRIES, ServiceBase } from 'app/services/ServiceBase';
+import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
 import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 
 /**
@@ -6,14 +6,21 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
  *
  * @export
  * @class CardService
- * @extends {ServiceBase}
+ * @extends {ChannelServiceBase}
  */
-export class CardService extends ServiceBase {
+export class CardService extends ChannelServiceBase {
 	// --------------
 	// INITIALISATION
 	// --------------
-	constructor(toggleBusyFunc, errorHandler = null) {
-		super(toggleBusyFunc, errorHandler);
+	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null) {
+		super(
+			toggleBusyFunc, 
+			defaultErrorHandlerFunc, 
+			`serviceURIs.channelServiceUrl`, 
+			`HorizonChannelService`, 
+			`v1`, 
+			() => import(`../mocks/HorizonChannelServiceMocks.js`)
+		);
 	}
 
 	// --------------
@@ -25,29 +32,46 @@ export class CardService extends ServiceBase {
 	// PUBLIC METHODS
 	// --------------
 
-	identifyCaller(callerInformation, incomingCallDetails, incidentDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const callerData = {
-			idNumber: callerInformation.southAfricanIDNumber,
-			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
-			voiceReferenceNumber: incomingCallDetails.voiceReferenceNumber,
-			ivrOptionCode: `StopCard`,
-			incidentReferenceNumber: incidentDetails.incidentReferenceNumber,
-			incidentRecId: incidentDetails.incidentRecId,
-			agentTelephoneNumber: incomingCallDetails.agentTelephoneNumber,
-			nonClientFullName: callerInformation.nonClientFullName,
-			nonClientCellPhone: callerInformation.nonClientCellPhone,
-			nonClientIDNumber: ``,
-			nonClientRelationship: callerInformation.nonClientRelationship
-		};
+	async identifyCaller(callerInformation, incomingCallDetails, incidentDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`stopCardLanding`)) {
+			return this.mock(`stopCardLanding`);
+		}
 
-		return this.wrapCall(this.channelService.identifyCaller(callerData), `identifyCaller`, errorHandler, autoRetries);
+		const url = `/clientcare-card-${this._version}/LoadConfirmedClientProfile`;
+
+		const model = {
+			'incidentRecId': incidentDetails.incidentRecId,
+			'idNumber': callerInformation.southAfricanIDNumber,
+			'incomingTelephoneNumber': incomingCallDetails.incomingTelephoneNumber,
+			'voiceReferenceNumber': incomingCallDetails.voiceReferenceNumber,
+			'ivrOptionCode': `StopCard`,
+			'incidentReferenceNumber': incidentDetails.incidentReferenceNumber,
+			'agentTelephoneNumber': incomingCallDetails.agentTelephoneNumber,
+			'nonClientFullName': callerInformation.nonClientFullName,
+			'nonClientCellPhone': callerInformation.nonClientCellPhone,
+			'nonClientIDNumber': ``,
+			'nonClientRelationship': callerInformation.nonClientRelationship
+		};
+	
+		return this.post(
+			url, 
+			model, 
+			this.setToken(), 
+			`identifyCaller`, 
+			null, 
+			null, 
+			1000,
+			null, 
+			errorHandler,
+			autoRetries
+		);
 	};
 
 	async stopCards(cardsToStop, callerInfo, incidentDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		let cardStopResults = [];
-		incidentDetails = this.horizonStore.getIncidentDetails();
+		// incidentDetails = this.horizonStore.getIncidentDetails();
 
 		const stopCardRequest = {
 			cards: cardsToStop.map((card) => ({
@@ -66,7 +90,25 @@ export class CardService extends ServiceBase {
 			incidentRecId: incidentDetails.incidentRecId
 		};
 
-		const returnValue = await this.wrapCall(this.channelService.stopCard(stopCardRequest), `stopCard`, errorHandler, autoRetries);
+		if (await this.isMockEnabled(`stopCard`)) {
+			return this.mock(`stopCard`, stopCardRequest);
+		}
+	
+		const url = `/clientcare-card-${this._version}/StopCard`;
+	
+		const returnValue = this.post(
+			url, 
+			stopCardRequest, 
+			this.setToken(), 
+			`stopCard`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	
 		const stopCardResponse = returnValue.result;
 
 		if (returnValue.succeeded && stopCardResponse && stopCardResponse.cardResponses) {
@@ -83,15 +125,45 @@ export class CardService extends ServiceBase {
 			}));
 		}
 
-		return { succeeded: returnValue.succeeded, result: cardStopResults };
-	}
+		returnValue.result = cardStopResults;
+
+		return returnValue;
+ 	}
 
 	assignTeams(incidentData, errorHandler, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.assignTeams(incidentData), `assignTeams`, errorHandler, autoRetries);
+		return this.post(
+			`/clientcare-card-${this._version}/Assign/Teams`, 
+			{
+				"cardIds": incidentData.cardIds,
+				"incidentRecId": incidentData.incidentRecId
+			},
+			this.setToken(),
+			`assignTeams`, 
+			null, 
+			null, 
+			900,
+			null,
+			errorHandler, 
+			autoRetries
+		);
 	}
 
 	// assignRequest
 	assign(assignData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.assign(assignData), `assign`, errorHandler, autoRetries);
+		return this.post(
+			`/clientcare-card-${this._version}/Assign`, 
+			{
+				"cardIds": assignData.cardIds,
+				"incidentRecId": assignData.incidentRecId,
+				"team": assignData.team
+			},
+			this.setToken(),
+			`assign`, 
+			null, 
+			null, 
+			900,
+			null,
+			errorHandler, autoRetries
+		);
 	}
 }

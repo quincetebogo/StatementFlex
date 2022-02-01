@@ -16,6 +16,7 @@ const HORIZON_ROUTES = Object.freeze({
 	// SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE: `/product/savings-plan/tax-free`,
 	PRODUCT_INSURE: `/product/insure`,
 	PRODUCT_CREDIT: `/product/credit`,
+	PRODUCT_LIVE_BETTER: `/product/live-better`,
 	CARD_STOP_PAGE: `/card-stop`,
 	CARD_STOP_SUCCESS_PAGE: `/card-stop/success`,
 	CARD_STOP_FAILURE_PAGE: `/card-stop/failed`,
@@ -29,6 +30,7 @@ const HORIZON_ROUTES = Object.freeze({
 	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`,
 	DEBICHECK_SUCCESS: `/success/debicheck`,
 	DEBICHECK_FAILED: `/error/debicheck`,
+	DEBICHECK_SERVICE_ERROR: `/error/debicheck-service-error`,
 	STATEMENTS_SUCCESSFUL: `/views/statements/StatementsSuccess`,
 	STATEMENTS_UNSUCCESSFUL: `/views/statements/StatementsUnsuccess`,
 	CARDS_LIMIT_UPDATE_SUCCESS: `/success/card-limit-update`,
@@ -39,9 +41,14 @@ const HORIZON_ROUTES = Object.freeze({
 	TAP_TO_PAY_UNSUCCESSFUL: `/error/tap-to-pay`,
 	TAX_CERTIFICATE_SUCCESSFUL: `/success/tax-certificate`,
 	TAX_CERTIFICATE_FAILURE: `/error/tax-certificate`,
-	TAX_CERTIFICATE_SERVICE_ERROR: `/error/tax-certificate-service-error`
+	TAX_CERTIFICATE_SERVICE_ERROR: `/error/tax-certificate-service-error`,
+	AUTOMATIC_SAVINGS_SUCCESS : `/success/automatic-savings`,
+	AUTOMATIC_SAVINGS_FAILED : `/error/automatic-savings`,
+	LIVE_BETTER: `/liveBetter`,
+	LIVE_BETTER_SYSTEM_ERROR : `/error/live-better`,
+	CREDIT_ACCOUNT: `/transact/credit`
 });
- 
+
 
 /**
  * The HorizonRouter class provides a series of functions for navigating to pages.
@@ -106,7 +113,7 @@ export class HorizonRouter {
 		};
 	}
 
-	_getCurrentRoute() {
+	getCurrentRoute() {
 		return this.router.currentRoute;
 	}
 
@@ -149,6 +156,10 @@ export class HorizonRouter {
 
 	navigateToCreditProduct() {
 		this.router.navigateByPath(HORIZON_ROUTES.PRODUCT_CREDIT);
+	}
+
+	navigateToLiveBetterProduct() {
+		this.router.navigateByPath(HORIZON_ROUTES.PRODUCT_LIVE_BETTER);
 	}
 
 	navigateToStopCard() {
@@ -204,12 +215,20 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.TAX_CERTIFICATE_SERVICE_ERROR}`);
 	}
 
+	navigateToliveBetterSystemError() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.LIVE_BETTER_SYSTEM_ERROR}`);
+	}
+
 	navigateToDebiCheckSuccess() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.DEBICHECK_SUCCESS}`);
-    }
+	}
 
-    navigateToDebiCheckFailed() {
+	navigateToDebiCheckFailed() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.DEBICHECK_FAILED}`);
+	}
+
+	navigateToDebiCheckServiceError() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.DEBICHECK_SERVICE_ERROR}`);
 	}
 
 	navigateToCardLimitUpdateSuccess() {
@@ -242,8 +261,10 @@ export class HorizonRouter {
 		// const insure = hasInsuranceProducts ? () => this.navigateToInsureExistingClient() : () => this.navigateToInsureProspectiveClient();
 		const insure = () => this.navigateToProductInfo(`Insure`);
 		const savings = () => this.navigateToSavingsAccount();
-		const credit = () => this.navigateToProductInfo(`Credit`);
+		const credit = () => this.navigateToProductInfo(`Credit`); // This line is correct for the Feb 2022 release but must be removed on the credit feature branch
+		// const credit = () => this.navigateToCreditAccount();    <=== This line must be restored on the credit branchy
 		const savingsPlan = () => this.navigateToProductInfo(`SavingsPlan`);
+		const liveBetterSavings = () => this.navigateToLiveBetter();
 		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
 
 		const landingPageFunc = {
@@ -253,6 +274,7 @@ export class HorizonRouter {
 			SavingsAccount: savings,
 			Credit: credit,
 			SavingsPlan: savingsPlan,
+			LiveBetter: liveBetterSavings,
 			ProductEnquiry: productEnquiry
 		}[ivrOption]();
 	};
@@ -292,8 +314,24 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.TAP_TO_PAY_SUCCESSFUL}`);
 	}
 
+	navigateToCreditAccount() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.CREDIT_ACCOUNT}`);
+	}
+
+	navigateToLiveBetter() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.LIVE_BETTER}`);
+	}
+
 	_productLandingPagesActive() {
 		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
+	}
+
+	navigateToAutomaticSavingsSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.AUTOMATIC_SAVINGS_SUCCESS}`);
+	}
+
+	navigateToAutomaticSavingsFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.AUTOMATIC_SAVINGS_FAILED}`);
 	}
 
 	/**
@@ -480,6 +518,15 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{
+		name: `horizon-live-better-product`,
+		title: `LiveBetterProductView`,
+		icon: null,
+		path: HORIZON_ROUTES.PRODUCT_LIVE_BETTER,
+		load: () => import(`../views/product/LiveBetterProduct`),
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
+	},
+	{
 		name: `horizon-stop-card-landing-page`,
 		title: `Favourites`,
 		icon: null,
@@ -586,13 +633,21 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.DEBICHECK_SUCCESS,
 		load: () => import(`../views/quickTransactions/DebiCheckSuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
-    },
-    {
+	},
+	{
 		name: `horizon-debi-check-failure`,
 		title: `DebiCheckFailed`,
 		icon: null,
 		path: HORIZON_ROUTES.DEBICHECK_FAILED,
 		load: () => import(`../views/quickTransactions/DebiCheckFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-debi-check-service-error`,
+		title: `DebiCheckServiceError`,
+		icon: null,
+		path: HORIZON_ROUTES.DEBICHECK_SERVICE_ERROR,
+		load: () => import(`../views/quickTransactions/DebiCheckServiceError`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
@@ -652,11 +707,11 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
-		name: `horizon-statements-unsuccess`,
+		name: `horizon-statements-failure`,
 		title: `StatementUnsuccessful`,
 		icon: null,
 		path: HORIZON_ROUTES.STATEMENTS_UNSUCCESSFUL,
-		load: () => import(`../views/statements/StatementsUnsuccess`),
+		load: () => import(`../views/statements/StatementsFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
@@ -690,5 +745,45 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.TAX_CERTIFICATE_SUCCESSFUL,
 		load: () => import(`../views/taxCertificate/TaxCertificateSuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
-	}
+	},
+	{
+		name: `horizon-automatic-savings-failure`,
+		title: `AutomaticSavingsFailed`,
+		icon: null,
+		path: HORIZON_ROUTES.AUTOMATIC_SAVINGS_FAILED,
+		load: () => import(`../views/liveBetter/AutomaticSavingsFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-automatic-savings-success`,
+		title: `AutomaticSavingsSuccessful`,
+		icon: null,
+		path: HORIZON_ROUTES.AUTOMATIC_SAVINGS_SUCCESS,
+		load: () => import(`../views/liveBetter/AutomaticSavingsSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-live-better`,
+		title: `LiveBetter`,
+		icon: null,
+		path: HORIZON_ROUTES.LIVE_BETTER,
+		load: () => import(`../views/liveBetter/LiveBetter`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-lbb-service-unavailable`,
+		title: `LBBServiceUnavailable`,
+		icon: null,
+		path: HORIZON_ROUTES.LIVE_BETTER_SYSTEM_ERROR,
+		load: () => import(`../views/liveBetter/LBBServiceUnavailable`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-credit-account`,
+		title: `CreditAccount`,
+		icon: null,
+		path: HORIZON_ROUTES.CREDIT_ACCOUNT,
+		load: () => import(`../views/credit/CreditAccount`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	}  
 ];

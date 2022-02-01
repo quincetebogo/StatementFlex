@@ -56,7 +56,8 @@ export class SuccessScreen extends Component {
 			image: { type: String },
 			secondaryImage: { type: String }, 
 			secondaryToast: { type: String },
-			hasSubDetails: { type: Boolean }
+			hasSubDetails: { type: Boolean },
+			subContent: { type: String }
 		};
 	}
 
@@ -142,6 +143,10 @@ export class SuccessScreen extends Component {
 					justify-content: center;
 				}
 
+				#id-sub-content {
+					justify-content: center;
+				}
+
 				#id-button-group {
 					justify-content: center;
 					margin-top: var(--horizon-button-group-margin-top, 64px);
@@ -198,7 +203,7 @@ export class SuccessScreen extends Component {
 				
 				slot[name=detail]::slotted(*){
 					height: 24px;
-					width: 543px;
+					width: var(--theme-slot-detail-width , 543px);
 					color: #3E4547;
 					font-family: "Hind Vadodara";
 					font-size: 16px;
@@ -264,7 +269,7 @@ export class SuccessScreen extends Component {
 					?hidden="${!this.displayToast}"
 					class="secondary-toast"
 					type="success" 
-					header="Succesful" 
+					header="Successful" 
 					detail="${this.secondaryToast}"
 					closable 
 					@click="${() => this.displayToast = false}">
@@ -298,6 +303,10 @@ export class SuccessScreen extends Component {
 				${this._renderSubDetail()}
 			</capitec-group>
 
+			<capitec-group layout="horizontal">
+				${this._renderSubContent()}
+			</capitec-group>
+
 			<capitec-group id="id-button-group" layout="horizontal">
 				${this._renderLeftButton()}
 				${this._renderRightButton()}
@@ -315,7 +324,18 @@ export class SuccessScreen extends Component {
 			 				icon="status/success-trans">
 		 				</capitec-icon>
 		 					<slot name="sub-detail"></slot>
-	 			</capitec-group>`
+					</capitec-group>`
+			: html``;
+	}
+
+	_renderSubContent() {
+		return this.subContent
+		? html`
+			<capitec-group 
+					id="id-sub-content" 
+					layout="horizontal">
+				<slot name="sub-content"></slot>
+	 		</capitec-group>`
 		: html``;
 	}
 

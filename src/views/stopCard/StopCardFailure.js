@@ -41,6 +41,7 @@ export class StopCardFailure extends ViewBase {
 		this.isReassigned = false;
 		this.showHandoffModal = false;
 		this.failedCards = [];
+		this.endCallContext = `QuickTransactionsUnSuccess`;
 
 		this._telemetry = HorizonTelemetry.instance;
 	}

@@ -1,16 +1,23 @@
-import { css, html } from 'platform/elements';
-import { formatCurrency, getMonthName } from 'app/utils/channelServiceUtilities';
+import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
+import { STATEMENT_EVENTS, SavingsAccLandingPage, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/SavingsAccount';
+import { css, html, unsafeCSS } from 'platform/elements';
+import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
+import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { getMonthName } from 'app/utils/channelServiceUtilities';
 
+import 'app/components/common/TransactionHistory';
 import 'app/components/savingsAccount/SavingAccount';
-import 'app/components/savingsAccount/TransactionHistory';
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/common/StatementsDialog';
 
 // ninety days in milliseconds
 const NINETY_DAYS = 7777000000;
+const SAVINGS_ACCOUNT = 300;
 
 const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
@@ -49,7 +56,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		this.clientProducts = null;
 	
 		// private properites
-		this.loading = true;
+		this._loading = true;
 		
 		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option));
 	}
@@ -61,6 +68,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this._telemetryStartSpan(SavingsAccLandingPage.SAVINGS_ACCOUNT, TelemetryScreen.SAVINGS_ACCOUNT);
 		this._initialise();
 
 		this._optionClick = async (option) => {
@@ -73,7 +81,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			const actions = {
 				'transaction-history': transactionHistory,
 				'debi-check-viewInfo': debiCheck,
-				'statements': statements,
+				'statements-transact': statements,
 				'more': more
 			};
 
@@ -96,7 +104,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 	static get properties() {
 		return {
-			loading: { attribute: false }
+			_loading: { state: true }
 		};
 	}
 	
@@ -115,6 +123,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	}
 
 	_unloadTransactionHistory() {
+		this.endCallContext = `LandingPage`;
 		this.transactionHistory = [];
 		this._setIncidentDone();
 	}
@@ -149,7 +158,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			this.landingPageInfo = { pendingMandateCount: 0 };
 		}
 
-		this.loading = false;
+		this._loading = false;
 		this._performReturnToScreen();
 	}
 
@@ -160,6 +169,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		if (this.landingPageInfo) {
 			subtitle = {
 				savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
+				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductDescription,
 				savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
 				insure: this.landingPageInfo.insureProductDescription,
 				credit: this.landingPageInfo.creditProductDescription
@@ -167,6 +177,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 			detail = {
 				savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
+				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductAmount,
 				savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
 				insure: this.landingPageInfo.insureProductAmount,
 				credit: this.landingPageInfo.creditProductAmount
@@ -189,6 +200,11 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	}
 
 	async _transactionHistory() {
+		await this._telemetry.logEvent(SavingsAccLandingPage.SAVINGS_ACC_TRANSACTION_HISTORY, {
+			"screen": TelemetryScreen.SAVINGS_ACCOUNT,
+			"next-screen": TelemetryScreen.TRANSACTION_HISTORY
+		});
+
 		await super.createAndClassifySubsIncident();
 		await this._getTransactionHistory();
 	}
@@ -209,7 +225,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions
-									.filter(item => item.transactionStatus !== ``)
 									.map((item) => {
 										const date = new Date(Date.parse(item.transactionDate));
 							
@@ -222,17 +237,16 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 									});
 			this.transactionHistory.push(...formattedTrans);
 			this.accountDetails = {
-				"accountNumber": this.landingPageInfo.accountNumber,
-				"balance": this.landingPageInfo.accountBalance,
-				"availableBalance": this.landingPageInfo.accountAvailableBalance,
-				"pendingAmount": this.landingPageInfo.accountPendingAmount,
-				"interest": this.landingPageInfo.interestRatePercentage,
-				"status": this.landingPageInfo.accountStatus
+				"Account number": this.landingPageInfo.accountNumber,
+				"Balance": formatCurrency(this.landingPageInfo.accountBalance),
+				"Available balance": formatCurrency(this.landingPageInfo.accountAvailableBalance),
+				"Pending amount": formatCurrency(this.landingPageInfo.accountPendingAmount),
+				"Interest": `${this.landingPageInfo.interestRatePercentage}%`,
+				"Status": this.landingPageInfo.accountStatus
 			};
 			this.endCallContext = `TransactionHistory`;
 			this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 		}
-		return this.transactionHistory;
 	}
 
 	_more() {
@@ -249,6 +263,34 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	_exitTransactionHistory() {
 		this._setIncidentDone();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_getStatements() {
+		this._telemetry.logEvent(SavingsAccLandingPage.SAVINGS_ACC_STATEMENTS, {
+			screen: TelemetryScreen.SAVINGS_ACCOUNT,
+			nextScreen: TelemetryScreen.STATEMENTS
+		});
+
+		const productInfo = ACCOUNT_INTCAT_ENUM[SAVINGS_ACCOUNT];
+		this.clientProducts = [
+			{
+				'accountNumber': this.landingPageInfo.accountNumber,
+				'accountName': productInfo.name,
+				'accountType': SAVINGS_ACCOUNT,
+				'accountOpenDate': this.landingPageInfo.accountOpenDate,
+				'type': productInfo.type,
+				'category': productInfo.category,
+				'icon': productInfo.icon,
+				'customIcon': productInfo.customIcon,
+				'order': productInfo.order
+			}
+		];
+		this.renderMode = RENDER_MODE.STATEMENTS;
+	}
+
+	_cancelStatements() {
+		this._telemetry.endSpan(STATEMENT_EVENTS.STATEMENTS);
+		super._backToLandingPage();
 	}
 
 	// ---------
@@ -282,12 +324,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		return html`
 			${this._renderSavingsLandingPage()}
 			${this._renderTransactionHistory()}
-			${super._webTemplate()}
+			${super._webTemplate(ACCOUNT_TYPES.SAVINGS_ACCOUNT)}
 		`;
 	}
 
 	_renderSavingsLandingPage() {
-		return !this.loading && this.renderMode === RENDER_MODE.MAIN_PAGE
+		return this.renderMode === RENDER_MODE.MAIN_PAGE ||
+				this.renderMode === RENDER_MODE.STATEMENTS
 			? html`
 				<horizon-savings-account
 					class="savingsaccount"
@@ -300,19 +343,175 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	}
 
 	_renderTransactionHistory() {
-		return this.renderMode === RENDER_MODE.TRANSACTION_HISTORY 
+		return this.renderMode === RENDER_MODE.TRANSACTION_HISTORY
 			? html`
 				<horizon-transaction-history
-					.transactionHistory = "${this.transactionHistory}"
-					.accountDetails = "${this.accountDetails}"
-					.cifNumber = "${this.callerInformation.cifNumber}"
+					.transactionHistory="${this.transactionHistory}"
+					.accountDetails="${this.accountDetails}"
+					type="${ACCOUNT_TYPES.SAVINGS_ACCOUNT}"
+					.renderTableColumns="${() => this._renderTransHistoryColumns()}"
+					.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
 					.getTransactionHistory="${(startDate, endDate, startAtIndex) => this._getTransactionHistory(startDate, endDate, startAtIndex)}"
 					.disposeData="${() => this.transactionHistory = []}"
+
 					@error-handler = "${() => this._errorHandler()}"
 					@back="${() => this._exitTransactionHistory()}"
 					@unloading="${() => this._unloadTransactionHistory()}">
 				</horizon-transaction-history>`
 			: html``;
+	}
+
+	_renderTransHistoryColumns() {
+		return html`
+			<capitec-table-column
+				label="Transaction Date"
+				field="transactionDate"
+				type="date"
+				size="156px;">
+			</capitec-table-column>
+			<capitec-table-column
+				label="Description"
+				field="description"
+				size="410px;">
+			</capitec-table-column>
+			<capitec-table-column
+				label="Transaction Status"
+				field="transactionStatus"
+				size="144px;"
+				.renderer="${(item, fieldName, value) => this._renderTransactionStatus(value)}">
+			</capitec-table-column>
+			<capitec-table-column
+				label="Amount"
+				field="formatedAmount"
+				size="158px;"
+				type="currency">
+			</capitec-table-column>
+			<capitec-table-column
+				label="Balance"
+				field="formatedBalance"
+				size="130px;"
+				type="currency"
+				align ="right">
+			</capitec-table-column>
+		`;
+	}
+
+	_renderTransactionStatus(value) {
+		return value === `Processed`
+			? html``
+			: html`
+				<div style="${unsafeCSS(STATUS_TAG.tagContainer)} ${unsafeCSS(STATUS_TAG.tagType)}">
+					<div style="${unsafeCSS(STATUS_TAG.tagLabel).toString()}">${value}</div>
+				</div>`;
+	}
+
+	_renderTransactionDetails(item) {
+		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_INFO, {
+			'journal-no': item.journalNumber
+		});
+
+		return html`
+			<capitec-label
+				style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
+				label="Statement description: ${item.description}"
+				data-automation-id="transaction-history-item-description">
+			</capitec-label>
+	
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Transaction type"
+					value = "${item.transactionType ? item.transactionType : `-`}"
+					data-automation-id="transaction-history-item-type">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Transfer account"
+					value = "${item.transferAccount ? item.transferAccount : `-`}"
+					data-automation-id="transaction-history-item-transfer-account">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Posting date" 
+					value = "${this._formatDate(item.postingDate)}"
+					data-automation-id="transaction-history-item-posting-date">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Processed date"
+					value = "${this._formatDate(item.processDate)}"
+					data-automation-id="transaction-history-item-processed-date">
+				</horizon-label>
+			</capitec-group>
+
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Transaction code"
+					value = "${item.transactionCode ? item.transactionCode : `-`}"
+					data-automation-id="transaction-history-item-code">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Card number"
+					value = "${item.cardNumber ? item.cardNumber : `-`}"
+					data-automation-id="transaction-history-item-card-number">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Card authentication type"
+					value = "${item.cardAuthType ? item.cardAuthType : `-`}"
+					data-automation-id="transaction-history-item-card-auth-type">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Journal number"
+					value = "${item.journalNumber ? item.journalNumber : `-`}"
+					data-automation-id="transaction-history-item-journal-number">
+				</horizon-label>
+			</capitec-group>
+
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Includes Vat"
+					value = "${item.includesVat ? `Yes` : `No`}"
+					data-automation-id="transaction-history-item-includes-vat">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="External terminal ID"
+					value = "${item.externalTerminalId ? item.externalTerminalId : `-`}"
+					data-automation-id="transaction-history-item-terminalID">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Cash back"
+					value = "${item.cashback ? item.cashback : `-`}"
+					data-automation-id="transaction-history-item-cashback">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Branch" 
+					value = "${item.branch ? item.branch : `-`}"
+					data-automation-id="transaction-history-item-branch">
+				</horizon-label>
+			</capitec-group>
+
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Teller"
+					value = "${item.teller ? item.teller : `-`}"
+					data-automation-id="transaction-history-item-teller">
+				</horizon-label>
+			</capitec-group>
+		`;
+	}
+
+	_formatDate(date) {
+		const newdate = new Date(Date.parse(date));
+		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
 	}
 }
 

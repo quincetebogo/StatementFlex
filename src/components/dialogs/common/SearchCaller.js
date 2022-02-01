@@ -30,7 +30,7 @@ const CLIENT_TYPE = Object.freeze({
 // ToDO: Below const need to be removed, once channelService fix the issue on contract.
 // These error messages has to come from service
 const ERROR_MESSAGES = {
-	SYSTEM_ERROR: `System error. Please try again later`,
+    SYSTEM_ERROR: html`<b>System error:</b> Please try again later`,
 	STRACK_ERROR: `Take note: A system error has occured. Please go to STrack to search for client.`,
 	NONCLIENT_REQUIRED_FIELDS_EMPTY: `Name and surname must be completed`,
 	REQUIRED_FIELDS_EMPTY: `All fields are required`,
@@ -767,13 +767,9 @@ export class SearchCaller extends Component {
 				}
 				capitec-alert-banner{
 					--theme-alert-banner-height: 48px;
-					--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
 					--theme-alert-banner-icon-margin-left: 15px;
 					--theme-alert-banner-icon-margin-right: 15px;
-
 					margin: 0px 0px 16px 0px;
-					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
-					color: var(--theme-alert-banner-unsuccessful-red-font-color, #C83C37);
 				}
 				#id-label-enter-details {
 					margin: 0px 0px 16px 0px;
@@ -792,7 +788,7 @@ export class SearchCaller extends Component {
 						.incomingCallDetails="${this.incomingCallDetails}"
 						.incidentDetails="${this.incidentDetails}"
 						.isNeedSelectable=${true}
-						.headerLabel="${this.headerLabel}"
+						headerLabel="${this.headerLabel}"
 						@on-end-call="${() => this._onEndCall()}"
 						@on-need-changed="${(event) => this._needChanged(event)}">
 						<div slot="body">
@@ -1031,9 +1027,9 @@ export class SearchCaller extends Component {
 		if (!isNullorEmpty(this.alertBannerMessage) && !this.errMessage.inBranch) {
 			return html`
 				<capitec-alert-banner 
-					data-automation-id="search-caller-alert-message"
-					type="unsuccessful-red" 
-					label="${this.alertBannerMessage}">
+						data-automation-id="search-caller-alert-message"
+						type="unsuccessful-red">
+					${this.alertBannerMessage}
 				</capitec-alert-banner>
 			`;
 		}

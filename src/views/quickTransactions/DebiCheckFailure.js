@@ -18,72 +18,73 @@ import { ScreenDetails } from '../../models/ScreenDetails';
  */
 export class DebiCheckFailure extends ViewBase {
 
-    // --------------
-    // INITIALISATION
-    // --------------
-    constructor() {
-        super();
-        this.isApproved = ``;
-        this.mandateId = ``;
+	// --------------
+	// INITIALISATION
+	// --------------
+	constructor() {
+		super();
+		this.isApproved = ``;
+		this.mandateId = ``;
 
-        this._telemetry = HorizonTelemetry.instance;
-    }
+		this._telemetry = HorizonTelemetry.instance;
+	}
 
-    // ----------
-    // PROPERTIES
-    // ----------
+	// ----------
+	// PROPERTIES
+	// ----------
 
-    // -------------------
-    // LIFECYCLE OVERRIDES
-    // -------------------
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
 
-    connectedCallback() {
-        super.connectedCallback();
+	connectedCallback() {
+		super.connectedCallback();
 
-        const screenDetails = this.horizonStore.getScreenDetails();
-        this.isApproved = screenDetails.isApproved;
-        this.mandateId = screenDetails.mandateId;
-    }
+		const screenDetails = this.horizonStore.getScreenDetails();
+		this.isApproved = screenDetails.isApproved;
+		this.mandateId = screenDetails.mandateId;
+		this.endCallContext = `QuickTransactionsUnSuccess`;
+	}
 
-    disconnectedCallback() {
-        super.disconnectedCallback();
-    }
+	disconnectedCallback() {
+		super.disconnectedCallback();
+	}
 
-    // --------------
-    // EVENT HANDLERS
-    // --------------
+	// --------------
+	// EVENT HANDLERS
+	// --------------
 
-    _doneClick() {
-        //this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME_DONE, {
-        //    "screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
-        //    "next-screen": TelemetryScreen.FAVOURITES
-        //});
+	_doneClick() {
+		//this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME_DONE, {
+		//    "screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
+		//    "next-screen": TelemetryScreen.FAVOURITES
+		//});
 
-        this.horizonStore.clearReturnScreen();
-        this.horizonRouter.navigateToQuickTransactionFavourites();
-    }
+		this.horizonStore.clearReturnScreen();
+		this.horizonRouter.navigateToQuickTransactionFavourites();
+	}
 
-    _assignClick() {
-        //this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME_HANDOFF, {
-        //    "screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
-        //    "next-screen": TelemetryScreen.FAVOURITES
-        //});
+	_assignClick() {
+		//this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME_HANDOFF, {
+		//    "screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
+		//    "next-screen": TelemetryScreen.FAVOURITES
+		//});
 
-        this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
-        this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 
-        this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
-        this.horizonStore.clearReturnScreen();
-    }
+		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
+		this.horizonStore.clearReturnScreen();
+	}
 
-    // ---------
-    // RENDERING
-    // ---------
+	// ---------
+	// RENDERING
+	// ---------
 
-    static get styles() {
-        return [
-            super.styles,
-            css`
+	static get styles() {
+		return [
+			super.styles,
+			css`
 			horizon-error-screen {
 				--horizon-error-screen-height:750px;
 			}
@@ -98,25 +99,25 @@ export class DebiCheckFailure extends ViewBase {
 					--horizon-option-btn-icon-width: 26px;
 				}
 			`
-        ];
-    }
+		];
+	}
 
-    _mobileTemplate() {
-        return this._webTemplate();
-    }
+	_mobileTemplate() {
+		return this._webTemplate();
+	}
 
-    _webTemplate() {
-        return html`
+	_webTemplate() {
+		return html`
 			${this._renderFailureScreen()}
 			
 			${this._renderRelatedOptions()}
 			${super._webTemplate()}
 		`;
-    }
+	}
 
-    _renderFailureScreen() {
-        if (this.isApproved) {
-            return html`
+	_renderFailureScreen() {
+		if (this.isApproved) {
+			return html`
 			<horizon-error-screen
 				data-automation-id="debi-check-failure-screen"
 				image="/images/insure/assign-pay-arrears.svg"
@@ -132,34 +133,33 @@ export class DebiCheckFailure extends ViewBase {
 				</section>
 			</horizon-error-screen>
 		`;
-        } else {
-            return html`
-			<horizon-error-screen
-				data-automation-id="debi-check-failure-screen"
-				image="/images/insure/assign-pay-arrears.svg"
-				secondaryImage="/images/transactions/debiCheckLogo.svg"
-				header="DebiCheck mandate not declined" 
-				left="Done"
-				right="Assign"
-				toast="DebiCheck mandate not declined"
-				@left-click=${() => this._doneClick()}
-				@right-click=${() => this._assignClick()}>
-				<section id="id-error-msg" slot="detail">
-					DebiCheck mandate for <b>${this.mandateId}</b> was not declined.
-				</section>
-			</horizon-error-screen>
-		`;
-        }
-    }
+		};
+		
+		return html`
+		<horizon-error-screen
+			data-automation-id="debi-check-failure-screen"
+			image="/images/insure/assign-pay-arrears.svg"
+			secondaryImage="/images/transactions/debiCheckLogo.svg"
+			header="DebiCheck mandate not declined" 
+			left="Done"
+			right="Assign"
+			toast="DebiCheck mandate not declined"
+			@left-click=${() => this._doneClick()}
+			@right-click=${() => this._assignClick()}>
+			<section id="id-error-msg" slot="detail">
+				DebiCheck mandate for <b>${this.mandateId}</b> was not declined.
+			</section>
+		</horizon-error-screen>`;
+	}
 
-    _renderRelatedOptions() {
-        return html`
+	_renderRelatedOptions() {
+		return html`
 			<horizon-related-options
 			data-automation-id="debi-check-failure-related-options"
 				context = "Failure">
 			</horizon-related-options>
 		`;
-    }
+	}
 }
 
 customElements.define(`horizon-debi-check-failure`, DebiCheckFailure);

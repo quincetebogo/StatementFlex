@@ -3,6 +3,8 @@ import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonExpander';
 import 'app/components/common/HorizonEmailInput';
+import 'app/components/common/HorizonExpanderNoAnimations';
+
 
 const RENDER_MODE = Object.freeze({
 	EMAIL: 0,
@@ -193,6 +195,8 @@ export class TaxCertificates extends Component {
 		if (this.selectedCertificates.iT3STaxCertificates !== undefined) {
 			this.selectedCertificates.iT3STaxCertificates.sort((l, r) => r.year - l.year);
 		}
+		
+		this.selectedCertificates = Object.fromEntries(Object.entries(this.selectedCertificates).filter(([_, item]) => item != 0));
 		
 		this.dispatchEvent(new CustomEvent(`next`, { 
 			detail: {
@@ -468,6 +472,12 @@ export class TaxCertificates extends Component {
 			.check-details {
 				margin-left: 8px; 
 			}
+			horizon-expander-noanime{
+				--theme-layout-gap-spacing: 16px;
+				--theme-expander-indicator-width: 13px;
+				--theme-expander-header-height: 64px;
+				height: auto;
+			}
 
 			horizon-expander{
 				--theme-layout-gap-spacing: 16px;
@@ -684,8 +694,8 @@ export class TaxCertificates extends Component {
 		if (this.currentStep === 1 && this.renderMode === RENDER_MODE.EMAIL) {
 			return html`
 				<horizon-email-input
-					email=${this.email};
-					confirmEmail=${this.confirmEmail};
+					email=${this.email}
+					confirmEmail=${this.confirmEmail}
 					@value-changed="${(e) => this._emailValueChanged(e)}"
 					@validation-update="${(e) => this._validEmailAddressCheck(e)}"
 					.labelOne="${this.emailLabel}"
@@ -721,7 +731,29 @@ export class TaxCertificates extends Component {
 	}
 
 	_renderCertificateYears(item, certType) {
+		if (certType === `iT3STaxCertificates`)
+		{
 			return html`
+				<horizon-expander-noanime
+					id="tax-expander"
+					data-automation-id="tax-certificate-document-period"
+					expandButtonAlignment="right"
+					inputType = "Checkbox"
+					@value-change="${(e) => this._selectedTaxPeriodChanged(e, item, certType)}"
+					?selected = "${this.selectedCertificates[certType] && this.selectedCertificates[certType].indexOf(item) !== -1}"
+					@expand="${(e) => this._onExpanded(e)}"
+					?disabled = "${!item.isTaxYearAvailable}">
+						<capitec-group slot="custom-header" layout="horizontal" gap="none" halign="left" valign="center">
+							<horizon-label
+								class="check-box-label"
+								label="${item.year}"
+								value="${CERTIFICATE_TYPE[certType].type} ${item.isTaxYearAvailable ? `Available` : `Unavailable`}">
+							</horizon-label>
+						</capitec-group>
+						${this._renderOnlyIt3BExpanders(item, certType)}
+				</horizon-expander-noanime>`;
+		}
+		return html`
 				<horizon-expander
 					id="tax-expander"
 					data-automation-id="tax-certificate-document-period"
@@ -743,10 +775,12 @@ export class TaxCertificates extends Component {
 	}
 
 	_renderOnlyIt3BExpanders(item, certType) {
-		if (certType === `iT3STaxCertificates`) {
+		if (certType === `iT3STaxCertificates`) 
+		{
 			return html``;
 		}
 
+		
 		return html`
 			<capitec-content-box 
 				data-automation-id="tax-certificate-document-details"

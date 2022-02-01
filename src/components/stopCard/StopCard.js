@@ -76,7 +76,7 @@ export class StopCard extends Component {
 		this.logger = Logger.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
 
-		//this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
+		// this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 
@@ -139,7 +139,7 @@ export class StopCard extends Component {
 	}
 
 	disconnectedCallback() {
-		//this.verifySub.dispose();
+		// this.verifySub.dispose();
 		super.disconnectedCallback();
 	}
 
@@ -209,7 +209,6 @@ export class StopCard extends Component {
 				supplementaryCard: card.supplementaryCard
 			}
 		)).filter(card => card.cardStopReason !== ``);
-
 		this.renderMode = RENDER_MODE.CARD_STOP_MODAL;
 
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARDS_CLICK, {
@@ -275,12 +274,14 @@ export class StopCard extends Component {
 				hasFavourites: true,
 				subtitle: {
 					savingsAccount: ``,
+					liveBetterSavings: ``,
 					savingsPlan: ``,
 					insure: ``,
 					credit: ``
 				},
 				detail: {
 					savingsAccount: ``,
+					liveBetterSavings: ``,
 					savingsPlan: ``,
 					insure: ``,
 					credit: ``

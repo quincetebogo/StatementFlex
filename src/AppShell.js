@@ -199,7 +199,7 @@ export class AppShell extends Shell {
 	_stateChanged() {
 		const callerInfo = HorizonStore.getInstance().getCallerInformation();
 		
-		if (callerInfo && callerInfo.verificationStatus === `verified` && this.currentView == HORIZON_VIEW_SET.UNVERIFIED_PAGES) {
+		if (callerInfo && callerInfo.verificationStatus === `verified` && this.currentView === HORIZON_VIEW_SET.UNVERIFIED_PAGES) {
 			this.horizonViewManager.transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
 			this.currentView = this.horizonViewManager.getCurrentView();
 		}
@@ -245,6 +245,9 @@ export class AppShell extends Shell {
 					--horizon-right-panel-width: 320px;
 					--horizon-panel-height: 888px;
 					--horizon-toast-top: 68px;
+					--horizon-modal-width: 696px;
+					--horizon-end-call-button-margin-right: 16px;
+					--horizon-end-call-button-margin-top: 8px;
 					--horizon-status-bar-icon-group-right-margin: 80px;
 				}
 
@@ -295,6 +298,7 @@ export class AppShell extends Shell {
 					--theme-modal-header-font-size: 18px;
 					--theme-modal-header-font-weight: 600;
 					--theme-modal-header-padding-left: 16px;
+					--theme-modal-header-padding-right: 16px;
 
 					/* StatusBar */
 					--theme-statusbar-min-height: 72px;
@@ -314,6 +318,8 @@ export class AppShell extends Shell {
 					--theme-alert-banner-error-font-color: #3A3A3A;
 					--theme-alert-banner-unsuccessful-font-color: #3A3A3A;
 					--theme-alert-banner-unsuccessful-red-font-color: #3A3A3A;
+
+					--theme-hyperlink-color:  #3A3A3A;
 				}`
 		];
 	}
@@ -328,14 +334,14 @@ export class AppShell extends Shell {
 			${this._renderLoadingIndicator()}
 			${this._renderLoginFailed()}
 			${this._renderAuthenticating()}
-       		${this._renderContent()}
-        `;
+	   		${this._renderContent()}
+		`;
 	}
 
 	_mobileTemplate() {
 	}
 
-    _renderLoginFailed() {
+	_renderLoginFailed() {
 		if (!this.isAuthenticating && !this._security.isAuthenticated) {
 			return html`Login Failed`;
 		}
@@ -365,30 +371,32 @@ export class AppShell extends Shell {
 		}
 
 		return html`
-				<div class="screen-size">
-					${this.horizonViewManager.renderTopBar(this.currentView)}
+			<div class="screen-size">
+				${this.horizonViewManager.renderTopBar(this.currentView)}
 
-                	<capitec-content-box class="screen-content" nopadding>
-						<div class="grid-container">
-							<div class="left">
-							    ${this.horizonViewManager.renderLeftBar(this.currentView)}
-							</div>
-							<div class="middle">
-								<capitec-app-router></capitec-app-router>
-							</div>
-							<div class="right">
-								${this.horizonViewManager.renderRightBar(this.currentView)}
-							</div>
+				<capitec-content-box class="screen-content" nopadding>
+					
+					<div class="grid-container">
+						<div class="left">
+							${this.horizonViewManager.renderLeftBar(this.currentView)}
 						</div>
-					</capitec-content-box>
-					<horizon-statusbar 
-						currentStatus="${this.currentStatus}" 
-						currentMessage="${this.currentMessage}"
-						sblLink="${this.sblUrl}"
-						cdsLink="${this.cdsUrl}"
-						cnetLink="${this.cnetUrl}">
-					</horizon-statusbar>
-				</div>`;
+						<div class="middle">
+							<capitec-app-router></capitec-app-router>
+						</div>
+						<div class="right">
+							${this.horizonViewManager.renderRightBar(this.currentView)}
+						</div>
+					</div>
+				</capitec-content-box>
+				
+				<horizon-statusbar 
+					currentStatus="${this.currentStatus}" 
+					currentMessage="${this.currentMessage}"
+					sblLink="${this.sblUrl}"
+					cdsLink="${this.cdsUrl}"
+					cnetLink="${this.cnetUrl}">
+				</horizon-statusbar>
+			</div>`;
 	}
 
 	_renderLoadingIndicator() {
