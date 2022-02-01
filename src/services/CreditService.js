@@ -29,6 +29,10 @@ export class CreditService extends ChannelServiceBase {
 	// --------------
 	creditOverview(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
+		const creditOverviewRequest = {
+			"cifnumber": cifNumber
+		};
+
 		const url = `/clientcare-credit-${this._version}/credit/overview`;
 
 		return this.post(
@@ -46,6 +50,10 @@ export class CreditService extends ChannelServiceBase {
 	}
 
 	budgetFacility(accountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		const budgetFacilityRequest = {
+			"accountnumber": accountNumber
+		};
 
 		const url = `/clientcare-credit-${this._version}/credit/budgetaccounts/details`;
 
@@ -65,6 +73,10 @@ export class CreditService extends ChannelServiceBase {
 
 	creditCardDetails(accountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
+		const creditCardDetailsRequest = {
+			"accountnumber": accountNumber
+		};
+
 		const url = `/clientcare-credit-${this._version}/credit/creditcard/details`;
 
 		return this.post(
@@ -82,6 +94,10 @@ export class CreditService extends ChannelServiceBase {
 	}
 
 	accessFacilityDetails(accountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		const accessFacilityDetailsRequest = {
+			"accountnumber": accountNumber
+		};
 
 		const url = `/clientcare-credit-${this._version}/credit/accessfacility/details`;
 
@@ -101,6 +117,10 @@ export class CreditService extends ChannelServiceBase {
 
 	termLoanDetails(accountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
+		const termLoanDetailsRequest = {
+			"accountnumber": accountNumber
+		};
+
 		const url = `/clientcare-credit-${this._version}/credit/loans/details`;
 
 		return this.post(
@@ -116,6 +136,4 @@ export class CreditService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
-
-
 }
