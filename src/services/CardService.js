@@ -96,7 +96,7 @@ export class CardService extends ChannelServiceBase {
 	
 		const url = `/clientcare-card-${this._version}/StopCard`;
 	
-		const returnValue = this.post(
+		const returnValue = await this.post(
 			url, 
 			stopCardRequest, 
 			this.setToken(), 
