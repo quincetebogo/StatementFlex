@@ -59,10 +59,7 @@ import 'app/productControls/credit/src/AccountDetailsView';
 			'title': this.termLoanDetails.accountDescription,
 			'accountNumber': this.termLoanDetails.accountNumber,
 			'overview': {
-				// TODO: Should I add a negative sign here?
-				// TODO: Is this mapping correct?
 				'Current balance': formatCurrency(this.termLoanDetails.accountBalance),
-				// TODO: creditLimit => approvedAmount
 				'Approved Amount': formatCurrency(this.termLoanDetails.approvedAmount),
 				'Debit interest rate(yearly)': `${this.termLoanDetails.interestRate}%`,
 				'Take-up date': formatDate(this.termLoanDetails.approvedDate, `dd mmm yyyy`),
@@ -70,22 +67,25 @@ import 'app/productControls/credit/src/AccountDetailsView';
 			},
 			'arrears': null,
 			'repayment': {
-				// TODO: repaymentDay => nextInstalmentDate
-				'Repayment date': this._getOccurance(this.termLoanDetails.nextInstalmentDate, `month`),
-				// TODO: repaymentValue => nextInstalmentDueAmount. NOTE Option is always amount
-				'Repayment option': `${this.termLoanDetails.repaymentValueType} (${formatCurrency(this.termLoanDetails.nextInstalmentDueAmount)})`,
-				// TODO: nextRepaymentDate => nextInstalmentDate
+				'Repayment date': `${this.termLoanDetails.salaryDate}${getDateOrdinal(this.termLoanDetails.salaryDate)} of every month`,
+				'Repayment amount': `${formatCurrency(this.termLoanDetails.nextInstalmentDueAmount)}`,
 				'Next repayment due': formatDate(this.termLoanDetails.nextInstalmentDate, `dd mmm yyyy`),
 				'Last repayment received': formatDate(this.termLoanDetails.lastPaymentDate, `dd mmm yyyy`),
 				'Last payment received': formatCurrency(this.termLoanDetails.lastPaymentReceived)
 			},
 			'insurance': {
-				// TODO: What exactly should this be? 
 				'Option': this.termLoanDetails.insuranceOptionCode,
 				'Type': this.termLoanDetails.insuranceTypeDescription,
 				'Waiting period expiry date': formatDate(this.termLoanDetails.waitingPeriodExpiryDate, `dd mmm yyyy`)
 			}
 		};
+
+		if (this.termLoanDetails.accountStatusDescription === `In arrears`) {
+			this.accountDetails.arrears = {
+				'Total arrears amount': formatCurrency(this.termLoanDetails.totalArrearsPayable),
+				'Last arrears date': formatDate(this.termLoanDetails.lastArrearsDate, `dd mmm yyyy`)
+			};
+		}
 	}
 
 	// ---------------
@@ -105,13 +105,6 @@ import 'app/productControls/credit/src/AccountDetailsView';
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	_getOccurance(value, occurance) {
-		const parsedDate = new Date(value);
-		const date = parsedDate.getDate();
-
-		return `${date}${getDateOrdinal(date)} of every ${occurance}`;
-	}
 
 	// ---------
 	// RENDERING

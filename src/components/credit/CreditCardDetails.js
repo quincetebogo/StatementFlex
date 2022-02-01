@@ -59,33 +59,25 @@ import 'app/productControls/credit/src/AccountDetailsView';
 			'title': this.creditCardDetails.accountDescription,
 			'accountNumber': this.creditCardDetails.accountNumber,
 			'overview': {
-				// TODO: totalBalance gets mapped to currentBalance in the CS?
 				'Current balance': formatCurrency(this.creditCardDetails.currentBalance),
 				'Available balance': formatCurrency(this.creditCardDetails.availableBalance),
-				// TODO: Tweeked this implementation a bit
 				'Debit interest rate(yearly)': `${this.creditCardDetails.interestRate}%`,
 				'Credit limit': formatCurrency(this.creditCardDetails.creditLimit),
 				'Outstanding authorisations': formatCurrency(this.creditCardDetails.outstandingAuthorizations),
 				'Take-up date': formatDate(this.creditCardDetails.openDate, `dd mmm yyyy`),
-				// TODO: Should this be mapped to YES or NO to match invision?
-				'Auto limit increase': this.creditCardDetails.autoIncreaseLimitOption,
+				'Auto limit increase': `${this.creditCardDetails.autoIncreaseLimitOption ? `Yes` : `No`}`,
 				'Account status': this.creditCardDetails.accountStatusDescription
 			},
 			'arrears': null,
 			'repayment': {
-				// TODO: Tweeked this implementation a bit
 				'Repayment day': `${this.creditCardDetails.repaymentDay}${getDateOrdinal(this.creditCardDetails.repaymentDay)} of every month`,
-				// TODO: Should this not be repaymentMethod Description to match Invision? Otherwise mapped to description here in UI
-				'Repayment method': this.creditCardDetails.repaymentMethod,
-				// TODO: Logic for displaying amount vs percentages
-				'Repayment option': `${this.creditCardDetails.repaymentValueType} (${this.creditCardDetails.repaymentValue}%)`,
+				'Repayment method': this.creditCardDetails.repaymentMethodDescription,
+				'Repayment option': this._formatCreditCardRepaymentOption(this.creditCardDetails.repaymentValueType, this.creditCardDetails.repaymentValue),
 				'Next repayment due': formatDate(this.creditCardDetails.nextRepaymentDate, `dd mmm yyyy`),
 				'Last repayment received': formatDate(this.creditCardDetails.lastPaymentDate, `dd mmm yyyy`),
-				// TODO: Tweeked this implementation a bit
 				'Statement day': `${this.creditCardDetails.statementDay}${getDateOrdinal(this.creditCardDetails.statementDay)} of every month`
 			},
 			'insurance': {
-				// TODO: What exactly should this be? 
 				'Option': this.creditCardDetails.insuranceOptionCode,
 				'Type': this.creditCardDetails.insuranceTypeDescription,
 				'Waiting period expiry date': formatDate(this.creditCardDetails.waitingPeriodExpiryDate, `dd mmm yyyy`)
@@ -94,10 +86,7 @@ import 'app/productControls/credit/src/AccountDetailsView';
 
 		if (this.creditCardDetails.accountStatusDescription === `In arrears`) {
 			this.accountDetails.arrears = {
-				// TODO: This should probably be totalArrearsPayable
-				'Total arrears amount': formatCurrency(this.creditCardDetails.arrearsAmount),
-				// TODO: Not returned from CS?
-				'Last arrears date': formatDate(this.creditCardDetails.lastArrearsDate, `dd mmm yyyy`)
+				'Total arrears amount': formatCurrency(this.creditCardDetails.totalArrearsPayable)
 			};
 		}
 	}
@@ -120,12 +109,8 @@ import 'app/productControls/credit/src/AccountDetailsView';
 	// PRIVATE METHODS
 	// ---------------
 
-	_getOccurance(value, occurance) {
-		const parsedDate = new Date(value);
-		const date = parsedDate.getDate();
-		const month = parsedDate.getMonth();
-
-		return `${date}${getDateOrdinal(date)} of every ${occurance}`;
+	_formatCreditCardRepaymentOption(repaymentValueType, repaymentValue) {
+		return repaymentValueType === `Percentage` ? `${repaymentValue}% (${repaymentValueType})` : `${formatCurrency(repaymentValue)} (${repaymentValueType})`;
 	}
 
 	// ---------
