@@ -202,13 +202,15 @@ export class WizardStepperModal extends Component {
 					display: flex;
 					align-items: center;
 					color: var(--theme-modal-header-color,#4E6066);
-					background-color: var(--theme-modal-header-background-color, #F7F7F7);
+					background: var(--theme-modal-header-background, #F7F7F7);
 					font-family: var(--theme-font-family);
 					font-size: var(--theme-modal-header-font-size, 20px);
 					font-weight: var(--theme-modal-header-font-weight, 500);
 					padding: var(--theme-wizard-modal-header-padding, 20px 16px);
 					border-radius: var(--theme-modal-border-radius, 4px);
 					position: relative;
+					border-bottom-left-radius: 0px;
+					border-bottom-right-radius: 0px;
 				}
 
 				.body {

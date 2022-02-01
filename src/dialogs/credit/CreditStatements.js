@@ -57,6 +57,8 @@ export class CreditStatementsDialog extends StatementsDialog {
 		this.encodedPDF = ``;
 		this.currPage = 0;
 		this.totalPages = 0;
+		this.startDate = DateTime.local(2001, 1);
+		this.endDate =this.today;		
 
 		this.horizonRouter = HorizonRouter.getInstance();
 	}
@@ -66,6 +68,18 @@ export class CreditStatementsDialog extends StatementsDialog {
 	// ----------
 
 	static get properties() {
+		const dateConverter = (value) => {
+			const date = value && value !== `null` ? new Date(value) : null;
+
+			if (date) {
+				const dateTime = DateTime.fromJSDate(date);
+				// const dateTime = new Date(date);
+
+				return dateTime.isValid ? dateTime : null;
+			}
+
+			return null;
+		};
 		return {
 			checkAll: { type: String },
 			checkBox: { type: Array },
@@ -73,7 +87,9 @@ export class CreditStatementsDialog extends StatementsDialog {
 			errorMessage: { type: String },
 			navigatePDF: { type: Object },
 			currPage: { type: Number },
-			encodedPDF: { type: String }
+			encodedPDF: { type: String },
+			startDate: { type: String, converter: dateConverter },
+			endDate: { type: String, converter: dateConverter }
 		};
 	}
 	
@@ -165,13 +181,20 @@ export class CreditStatementsDialog extends StatementsDialog {
 			this.checkBox[index] = false;
 		}
 
+		let accOpened = 6;
 		const currDate = new Date();
+		let minDate = DateTime.local().minus({ months: 6 }).toJSDate();
 
-		// account opened date if not 6 months
-		for (let month = 0; month < 6; month++) {
+		if(this.startDate > minDate){
+			//start date is less than 6 months
+			let diff = DateTime.local().diff(this.startDate, ["months"]);
+			accOpened = Math.ceil(diff.toObject().months);
+		}
+
+		for (let month = 0; month < accOpened; month++) {
 			this.sixMonths[month] = `${getMonthName(currDate.getMonth())} ${currDate.getFullYear()}`;
 			currDate.setMonth(currDate.getMonth() - 1);
-		}
+		}			
 	}
 
 	_clearFilter(filterDate) {
@@ -482,6 +505,7 @@ export class CreditStatementsDialog extends StatementsDialog {
 				mode="date"
 				inputType="calendar"
 				outputType="string"
+				minDate="${this.startDate.toString()}"
 				@value-changed="${e => this._datePicked(e)}">
 			</horizon-month-calendar>
 		
@@ -595,9 +619,10 @@ export class CreditStatementsDialog extends StatementsDialog {
 		let datesSelected = this._getAllDates();
 		return html`
 			<horizon-pdf-viewer
-			header="Settlement Quote: Credit Card"
+			header="Settlement Quote: "
 			totalPages="${datesSelected.length}"
 			currPage="${this.currPage}"
+			dateSelected="${datesSelected[this.currPage-1]}"
 			encodedPDF="${this.encodedPDF}"
 			@cancel="${()=>this._cancelPDF()}"
 			@next="${() => this._navigate("next")}"

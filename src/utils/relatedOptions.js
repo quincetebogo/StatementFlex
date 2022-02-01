@@ -1,3 +1,5 @@
+let STATEMENTS_RO = {};
+
 /**
  * Related options list: Mapping based on need and the context of success/ failure
  * Related options common component imports this const to determine the options at runtime
@@ -42,10 +44,12 @@ export const relatedOptions = {
 			`stop-card`
 		]
 	},
-	'statements': {
+	'statements-transact': STATEMENTS_RO = {
 		Success: [`proof-of-account`],
 		Failure: [`proof-of-account`]
 	},
+	'statements-save': STATEMENTS_RO,
+	'statements-lbb': STATEMENTS_RO,
 	'proof-of-account': {
 		Success: [`statements`],
 		Failure: [`statements`]
@@ -60,6 +64,10 @@ export const relatedOptions = {
 			`statements`
 		]
 	},
+	'automatic-savings-lbb': {
+		Success: [`statements`],
+		Failure: [`statements`]
+	},
 	"statements-credit-card": {
 		Success: [
 			`tax-certificate`,
@@ -69,7 +77,7 @@ export const relatedOptions = {
 			`tax-certificate`,
 			`proof-of-account`
 		]
-	}
+	}  
 };
 
 /**

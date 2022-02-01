@@ -1,4 +1,5 @@
 import { HIGH_RISK_TRANSACTIONS, LOW_RISK_TRANSACTIONS } from 'app/constants/Common';
+import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { NavigationContext } from 'platform/core';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
@@ -57,8 +58,6 @@ export class SavingsAccountBase extends ViewBase {
 
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
-
-
 	}
 
 	// --------------
@@ -112,15 +111,26 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	async _getStatements() {
-		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_STATEMENTS, {
-			screen: TelemetryScreen.FAVOURITES,
-			nextScreen: TelemetryScreen.STATEMENTS
-		});
-
 		const clientProductDetails = await this._getClientProducts();
 
 		if (clientProductDetails) {
-			this.clientProducts = clientProductDetails;
+			this.clientProducts = clientProductDetails.map(item => {
+									const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType][item.interestCategory] || 
+														ACCOUNT_INTCAT_ENUM[item.accountType];
+									const accName = item.accountName.toLowerCase();
+
+									return {
+										'accountNumber': item.accountNumber,
+										'accountName': `${accName.charAt(0).toUpperCase()}${accName.slice(1)}`,
+										'accountType': item.accountType,
+										'accountOpenDate': item.accountOpenDate,
+										'type': productInfo.type,
+										'category': productInfo.category,
+										'icon': productInfo.icon,
+										'customIcon': productInfo.customIcon,
+										'order': productInfo.order
+									};
+								}).sort((x, y) => x.order - y.order);
 			this.renderMode = RENDER_MODE.STATEMENTS;
 		}
 	}
@@ -349,12 +359,15 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	_backToLandingPage() {
+		this._setIncidentNotstarted();
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
 
+	_setIncidentNotstarted() {
 		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
 			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
 			this.horizonStore.setIncidentDetails(this.incidentDetails);
 		}
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	_setIncidentDone() {
@@ -412,6 +425,19 @@ export class SavingsAccountBase extends ViewBase {
 		return true;
 	}
 
+	/**
+	 * Function updates the need based on account selected in statements
+	 * so as to classify incident accordingly
+	 * 
+	 * @param {object} event - event raised by statements dialog
+	 * @returns {void}
+	 */
+	async _statementsAccConfirmed(event) {
+		const need = `statements-${event.detail.account}`;
+
+		await super._inicidentManager_(need, () => this._toggleBusyFlag());
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -424,9 +450,9 @@ export class SavingsAccountBase extends ViewBase {
 		return this._webTemplate();
 	}
 
-	_webTemplate() {
+	_webTemplate(type = ``) {
 		return html`
-			${this._renderStatementsModal()}
+			${this._renderStatementsModal(type)}
 			${this._renderDebiCheckMandates()}
 			${this._renderDebiCheckDeclineMandate()}
 			${this._renderDebiCheckApproveMandate()}
@@ -487,13 +513,15 @@ export class SavingsAccountBase extends ViewBase {
 			: html``;
 	}
 
-	_renderStatementsModal() {
+	_renderStatementsModal(type) {
 		return this.renderMode === RENDER_MODE.STATEMENTS
 			? html`
 				<horizon-statements-dialog
-					.callerInformation="${this.callerInformation}"
+					.cifNumber="${this.callerInformation.cifNumber}"
 					.clientProducts="${this.clientProducts}"
-					@cancel="${() => this._backToLandingPage()}">
+					type="${type}"
+					@cancel="${() => this._cancelStatements()}"
+					@account-selected="${(event) => this._statementsAccConfirmed(event)}">
 				</horizon-statements-dialog>`
 			: html``;
 	}

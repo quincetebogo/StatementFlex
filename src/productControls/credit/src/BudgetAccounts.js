@@ -94,8 +94,10 @@ import 'app/components/common/HorizonLabel';
 		this.requestUpdate();
 	}
 
-	_transferClick() {
-		// TO DO: Transfer click functionality should come here.
+	_transferClick(selectedBudgetAccount) {
+		this.dispatchEvent(new CustomEvent(`transfer-click`, {
+			detail: { selectedAccountDetails: selectedBudgetAccount }
+		}));
 	}
 
 	// --------------
@@ -363,7 +365,7 @@ import 'app/components/common/HorizonLabel';
 					data-automation-id="budget-facility-transfer-button"
 					type="clear"
 					label="Transfer"
-					@click="${() => this._transferClick()}">
+					@click="${() => this._transferClick(budgetAccount)}">
 				</capitec-button>
 			</capitec-group>`;
 	}
@@ -377,7 +379,7 @@ customElements.define(`capitec-pc-budget-facility-accounts`, BudgetFacilityAccou
  * @example
  * <capitec-pc-budget-facility-accounts ... @back"${this._handler}"></capitec-pc-budget-facility-accounts>
  *
- * @event BudgetFacilityAccounts#click
+ * @event BudgetFacilityAccounts#back
  * @type {Object} N/A
  */
 
@@ -387,7 +389,7 @@ customElements.define(`capitec-pc-budget-facility-accounts`, BudgetFacilityAccou
  * @example
  * <capitec-pc-budget-facility-accounts ... @account-details"${this._handler}"></capitec-pc-budget-facility-accounts>
  *
- * @event BudgetFacilityAccounts#click
+ * @event BudgetFacilityAccounts#account-details
  * @type {Object} 
  * @property {Object} detail - Contains information on the clicked item
  * @property {String} detail.selectedAccountDetails - Selected budget facility account details

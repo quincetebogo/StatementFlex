@@ -6,7 +6,7 @@ import 'app/components/common/HorizonExpander';
 import 'app/views/product/CreditProduct';
 
 const PRODUCT_TYPE = {
-	CREDIT_CARD: `Credit Card`,
+	CREDIT_CARD: `Credit card`,
 	ACCESS_FACILITY: `Access facility`,
 	TERM_LOAN: `Term Loan`
 };
