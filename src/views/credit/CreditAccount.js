@@ -474,7 +474,7 @@ export class CreditAccount extends ViewBase {
 
 	async _budgetFacility(e) {
 		// TO DO: Place holder for budget facility flow.
-		const returnValue = await this.creditService.budgetFacility(e.creditCardNumber);
+		const returnValue = await this.creditService.budgetFacility(e.detail.creditCardNumber);
 		const successfullServiceResponse = returnValue.succeeded;
 
 		if (!successfullServiceResponse) {

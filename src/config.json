@@ -1,7 +1,7 @@
 {
 	"serviceURIs": {
 		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet",
-		"creditMicroChannelServiceUrl": "http://localhost:6001"
+		"creditMicroChannelServiceUrl": "https://bsc-horizon-credit.platform-dev.int.capinet"
 	},
 	"signalRUrl": "http://localhost:6001",
 	"DesktopAgent": {
@@ -32,7 +32,7 @@
 		}
 	],
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"acceptCall": {
 			"enabled": false,
 			"positiveCase": true
@@ -58,12 +58,12 @@
 			"positiveCase": true
 		},
 		"xdsQuestions": {
-			"enabled": false,
+			"enabled": true,
 			"substituteIdOnly": "",
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
