@@ -25,6 +25,7 @@ const RENDER_MODE = {
 };
 
 // to be replaced with data from channel service
+//create NEW client_token list from token list. map and add boolean
 const CLIENT_TOKENS = [{ token: `90876375849`, selected: false }, { token: `123476375849`, selected: false }, { token: `019836375849`, selected: false }, { token: `23776375849`, selected: false }];
 
 /**
@@ -97,6 +98,7 @@ export class InternetBankingProfileDetails extends Component {
 	 * 
 	 * @property {suspendInternetBankingSecurityTokenCallback} suspendInternetBankingSecurityToken Callback function to suspend Internet Banking Security Token
 	 * @property {resetInternetBankingSecurityTokenCallback} resetInternetBankingSecurityToken Callback function to Reset Internet Banking Security Token
+	 * @property {getClientTokensCallback} getClientTokens Callback function to get Internet Banking Security Tokens
 	 * 
 	 */
 
@@ -109,6 +111,7 @@ export class InternetBankingProfileDetails extends Component {
 			// callback functions
 			suspendInternetBankingSecurityToken: { type: Object, attribute: false },
 			resetInternetBankingSecurityToken: { type: Object, attribute: false },
+			getClientTokens: { type: Object, attribute: false },
 
 			// internal prop
 			selectedReason: { type: String },
@@ -128,11 +131,23 @@ export class InternetBankingProfileDetails extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
+		this.tokenList = await this.getClientTokens();
 
-		this.isMultipleDevices = false;
-		this.clientTokens = CLIENT_TOKENS;
+
+		this.tokenList.map(item => {
+			const clientToken =
+			{ 
+				token: item.tokens.serialNo, 
+				selected: false
+			}
+			this.clientTokens.push(clientToken);
+		});
+
+		this.isMultipleDevices = this.clientTokens.length > 1 ? true : false;
+
+		// this.clientTokens = CLIENT_TOKENS;
 		this.isInternetBankingActive = this.internetBankingDetails.status === `Active`;
 	}
 
@@ -205,6 +220,9 @@ export class InternetBankingProfileDetails extends Component {
 				this.internetBankingDetails.statusReason = this.selectedReason;
 				this.internetBankingDetails.dateLastUpdated = new Date().toISOString();
 				this._displayTokenSuspendSuccessToast();
+            } else {
+                //unsuccessfull screen
+
 			}
 		} else {
 			this.showNoReasonSelectedNotification = true;
@@ -327,6 +345,11 @@ export class InternetBankingProfileDetails extends Component {
 
 	_displayTokenSuspendSuccessToast() {
 		this.displaySuspendToast = true;
+		window.setTimeout(() => this.displaySuspendToast = false, 3000);
+	}
+
+	_displayTokenSuspendUnsuccessToast() {
+		this.displaySuspendUnsuccessToast = true;
 		window.setTimeout(() => this.displaySuspendToast = false, 3000);
 	}
 
@@ -720,6 +743,7 @@ export class InternetBankingProfileDetails extends Component {
 		: html`
 			${this._renderTokenResetSuccessToast()}
 			${this._renderTokenSuspendSuccessToast()}
+			${this._renderTokenSuspendUnsuccessToast()}
 			${this._renderTokenSuspendedNotification()}
 
 			<capitec-content-box
@@ -1108,6 +1132,22 @@ export class InternetBankingProfileDetails extends Component {
 				detail="Internet security token was suspended. &nbsp &nbsp &nbsp &nbsp To access internet banking you will need to register on the App. &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp ${formatedUpdatedDate}"
 				?hidden="${!this.displaySuspendToast}"
 				@click="${() => this.displaySuspendToast = false}"
+				?closable=${false}
+			></capitec-toast>
+		` : html``;
+	}
+
+	_renderTokenSuspendUnsuccessToast() {
+		const formatedUpdatedDate = `${this._formatDate(this.internetBankingDetails.dateLastUpdated)}, ${this._formatTime(this.internetBankingDetails.dateLastUpdated)}`;
+
+		return this.displaySuspendUnsuccessToast ? html`
+			<capitec-toast
+				class="token-suspend-toast-success"
+				type="error"
+				header="Unsuccessful!"
+				detail="Internet security token was not suspended. &nbsp &nbsp &nbsp &nbsp To access internet banking you will need to register on the App. &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp ${formatedUpdatedDate}"
+				?hidden="${!this.displaySuspendUnsuccessToast}"
+				@click="${() => this.displaySuspendUnsuccessToast = false}"
 				?closable=${false}
 			></capitec-toast>
 		` : html``;

@@ -20,7 +20,7 @@ const ACCESS_CHANNELS_TYPE = {
 	APP: `app`,
 	INTERNET_BANKING: `internetBanking`,
 	USSD: `ussd`,
-	NOTIFICATIONS: `notification`
+	NOTIFICATIONS: `notifications`
 };
 
 const CHANNEL_TYPE = {
@@ -105,7 +105,6 @@ export class AccessChannels extends Component {
 		this.selectedAccessChannelType = event.detail?.tileClicked ?? ``;
 		this.showSideSheet = !this.showSideSheet;
 
-		this._landingInfo();
 		if (this.showSideSheet) {
 			await this._telemetry.logEvent(AccessChannelsEvents[`ACCESS_CHANNELS_TILE_${CHANNEL_TYPE[this.selectedAccessChannelType]}`], {
 				"screen": TelemetryScreen.ACCESS_CHANNELS
@@ -151,8 +150,8 @@ export class AccessChannels extends Component {
 		// TO DO: Channel service call to suspend app should come here
 		// If successfully suspended, update app status, else Error scenario
 		
-		this.status.app.status = `Suspended`;
-		this.status.app.dateLastUpdated = new Date().toISOString();
+		this.landingInfo.app.status = `Suspended`;
+		this.landingInfo.app.dateLastUpdated = new Date().toISOString();
 
 		this._deepCopyStatus();
 		return true;
@@ -168,8 +167,8 @@ export class AccessChannels extends Component {
 		// TO DO: Channel service call to Un-suspend App should come here
 		// If successfully Unsuspended, update app status, else Error scenario
 
-		this.status.app.status = `Active`;
-		this.status.app.dateLastUpdated = new Date().toISOString();
+		this.landingInfo.app.status = `Active`;
+		this.landingInfo.app.dateLastUpdated = new Date().toISOString();
 
 		this._deepCopyStatus();
 		return true;
@@ -209,8 +208,8 @@ export class AccessChannels extends Component {
 		// TO DO: add channel service call to cancel USSD service
 		// If cancel is successful, show toast, update ussd status, else show error
 		
-		this.status.ussd.status = `Blocked`;
-		this.status.ussd.dateLastUpdated = new Date().toISOString();
+		this.landingInfo.ussd.status = `Blocked`;
+		this.landingInfo.ussd.dateLastUpdated = new Date().toISOString();
 		this._deepCopyStatus();
 		return true;
 	}
@@ -221,8 +220,8 @@ export class AccessChannels extends Component {
 
 		// TO DO: add channel service call to unblock SIM - ussd
 		// If unblock is successful, show toast, update ussd status, else show error
-		this.status.ussd.isSimBlocked = false;
-		this.status.ussd.dateLastUpdated = new Date().toISOString();
+		this.landingInfo.ussd.isSimBlocked = false;
+		this.landingInfo.ussd.dateLastUpdated = new Date().toISOString();
 
 		this._deepCopyStatus();
 		return true;
@@ -234,8 +233,8 @@ export class AccessChannels extends Component {
 		// TO DO: add code to activate full menu for currently active ussd clients
 		// If client has active ussd, menu reduced, activate full menu function
 		
-		const indexOfReducedMenu = this.status.ussd.features.indexOf(`REDUCED_MENU`);
-		this.status.ussd.features.splice(indexOfReducedMenu, 1);
+		const indexOfReducedMenu = this.landingInfo.ussd.features.indexOf(`REDUCED_MENU`);
+		this.landingInfo.ussd.features.splice(indexOfReducedMenu, 1);
 
 		this._deepCopyStatus();
 		return true;
@@ -323,10 +322,11 @@ export class AccessChannels extends Component {
 		const returnValue = this.accessChannelService.suspendToken(requestBody);
 
 		if(returnValue.succeeded) {
-			this.status.internetBanking.status = `Suspended`;
-			this.status.internetBanking.dateLastUpdated = new Date().toISOString();
+			this.landingInfo.internetBanking.status = `Suspended`;
+			this.landingInfo.internetBanking.dateLastUpdated = new Date().toISOString();
 			
 			this._deepCopyStatus();
+			this._landingInfo();
 			return true;
 		}
 
@@ -342,11 +342,21 @@ export class AccessChannels extends Component {
 
 		// TO DO: Channel service call to Reset Internet Banking should come here
 		// If successfully reset, update Internet Banking status, else Error scenario
-		this.status.internetBanking.status = `Active`;
-		this.status.internetBanking.dateLastUpdated = new Date().toISOString();
+		this.landingInfo.internetBanking.status = `Active`;
+		this.landingInfo.internetBanking.dateLastUpdated = new Date().toISOString();
 
 		this._deepCopyStatus();
 		return true;
+	}
+
+	async getTokens(userRegNo) {
+		const returnValue = await this.accessChannelService.internetBankingLanding(userRegNo);
+
+		if(returnValue.succeeded){
+			return returnValue.result;
+		}
+
+		this.logger.log(`error`, `Failed to load internet banking landing information`, `getToken`, returnValue.correlationId);
 	}
 
 	// Notifications
@@ -366,7 +376,7 @@ export class AccessChannels extends Component {
 		
 		// TO DO: add channel service call to update notifications type
 		// If unblock is successful, show toast, update ussd status, else show error
-		this.status.notifications.dateLastUpdated = new Date().toISOString();
+		this.landingInfo.notifications.dateLastUpdated = new Date().toISOString();
 		
 		this._deepCopyStatus();
 		return true;
@@ -377,7 +387,7 @@ export class AccessChannels extends Component {
 
 		// TO DO: add channel service call to update notifications time
 		// If unblock is successful, show toast, update ussd status, else show error
-		this.status.notifications.dateLastUpdated = new Date().toISOString();
+		this.landingInfo.notifications.dateLastUpdated = new Date().toISOString();
 
 		this._deepCopyStatus();
 		return true;
@@ -483,6 +493,7 @@ export class AccessChannels extends Component {
 
 					.suspendInternetBankingSecurityToken = "${(suspendReason, selectedToken) => this.suspendInternetBanking(suspendReason, selectedToken)}"
 					.resetInternetBankingSecurityToken = "${(selectedTokens) => this.resetInternetBanking(selectedTokens)}"
+					.getClientTokens = "${(userRegNo) => this.getTokens(userRegNo)}"
 
 					@toggle-token-reset-panel="${(event) => this._toggleInternetBankingTokenResetPanel(event)}"
 					@toggle-token-suspend-reasons="${(event) => this._toggleInternetBankingSuspendReasons(event)}"
@@ -496,7 +507,7 @@ export class AccessChannels extends Component {
 		return this.selectedAccessChannelType === ACCESS_CHANNELS_TYPE.APP
 			? html`
 				<capitec-pc-app-profile-details
-					.appDetails = "${this.status.app}"
+					.appDetails = "${this.landingInfo.app}"
 					?showSideSheet = "${this.showSideSheet}"
 
 					.suspendApp = "${suspendReason => this.suspendApp(suspendReason)}"
@@ -512,7 +523,7 @@ export class AccessChannels extends Component {
 		return this.selectedAccessChannelType === ACCESS_CHANNELS_TYPE.USSD
 		? html`
 			<capitec-pc-ussd-profile-details
-			.ussd="${this.status.ussd}"
+			.ussd="${this.landingInfo.ussd}"
 			?showSideSheet="${this.showSideSheet}"
 
 			.cancelUSSD="${cancelReason => this.cancelUSSD(cancelReason)}"
@@ -529,7 +540,7 @@ export class AccessChannels extends Component {
 		return this.selectedAccessChannelType === ACCESS_CHANNELS_TYPE.NOTIFICATIONS
 		? html`
 			<capitec-pc-notifications-details
-				.notificationsDetails="${this.status.notifications}"
+				.notificationsDetails="${this.landingInfo.notification}"
 				?showSideSheet="${this.showSideSheet}"
 
 				.updateMessageType="${(selectedType) => this.updateMessageType(selectedType)}"
