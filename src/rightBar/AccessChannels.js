@@ -335,11 +335,12 @@ export class AccessChannels extends Component {
 			this.status.internetBanking.status = `Active`;
 			this.status.internetBanking.dateLastUpdated = new Date().toISOString();
 		} else {
-			
+			this.errorMessage = `System error. Please try again`;
+			this.logger.log(`error`, `Unable to reset internet banking security token`, `_resetInternetBankingToken`, returnValue.correlationId);
 		}
 
 		this._deepCopyStatus();
-		return true;
+		return returnValue.succeeded;
 	}
 
 	// Notifications

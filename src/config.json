@@ -30,7 +30,7 @@
 		}
 	],
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"acceptCall": {
 			"enabled": false,
 			"positiveCase": true
@@ -61,7 +61,7 @@
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
@@ -125,6 +125,10 @@
 			"positiveCase": true
 		},
 		"accessChannel": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"accessChannelResetSecurityTokenClock": {
 			"enabled": true,
 			"positiveCase": true
 		}

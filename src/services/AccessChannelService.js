@@ -46,15 +46,15 @@ export class AccessChannelService extends ChannelServiceBase {
 		*/
 	}
 
-	async resetSecurityTokenClock() {
+	async resetSecurityTokenClock(requestParams, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`accessChannelResetSecurityTokenClock`)) {
-			return this.mock(`accessChannelResetSecurityTokenClock`, clientInfo);
+			return this.mock(`accessChannelResetSecurityTokenClock`);
 		}
 
 		const url = `/clientcare-accesschannels-${this._version}/internet-banking/reset-token`;
 
 		const requestBody = {
-			'tokenSerialNo': clientInfo.tokenSerialNo
+			'tokenSerialNo': requestParams.tokenSerialNo
 		};
 
 		return this.post(
