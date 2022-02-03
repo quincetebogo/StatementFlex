@@ -135,7 +135,7 @@ export class AccessChannels extends Component {
 		}
 	}
 
-	async suspendApp(suspendReason) {
+	async _suspendApp(suspendReason, userRegNo) {
 
 		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND_CONFIRM, {
 			"screen": TelemetryScreen.ACCESS_CHANNELS_APP_SUSPEND_REASON,
@@ -147,12 +147,18 @@ export class AccessChannels extends Component {
 
 		// TO DO: Channel service call to suspend app should come here
 		// If successfully suspended, update app status, else Error scenario
-		
-		this.status.app.status = `Suspended`;
-		this.status.app.dateLastUpdated = new Date().toISOString();
+		const returnValue = await this.accessChannelService.suspendApp(suspendReason, userRegNo);
+	
+		if (returnValue.succeeded) {
+			this.status.app.status = `Suspended`;
+			this.status.app.dateLastUpdated = new Date().toISOString();
 
-		this._deepCopyStatus();
-		return true;
+			this._deepCopyStatus();
+			return true;
+		}
+
+		this.logger.log(`error`, `Failed to suspend app`, `_suspendApp`, returnValue.correlationId);
+		return false;
 	}
 
 	unsuspendApp() {
@@ -473,7 +479,7 @@ export class AccessChannels extends Component {
 					.appDetails = "${this.status.app}"
 					?showSideSheet = "${this.showSideSheet}"
 
-					.suspendApp = "${suspendReason => this.suspendApp(suspendReason)}"
+					.suspendApp = "${(suspendReason, userRegNo) => this._suspendApp(suspendReason, userRegNo)}"
 					.unsuspendApp = "${() => this.unsuspendApp()}"
 
 					@toggle-app-suspend-reasons="${(event) => this._toggleAppSuspendReasons(event)}"

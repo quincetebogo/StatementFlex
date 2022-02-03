@@ -263,4 +263,8 @@ export default class HorizonChannelServiceMocks {
 		}
 		return null;
 	}
+
+	suspendApp() {
+		return this._mockSettings.suspendApp.positiveCase;
+	}
 }

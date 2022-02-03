@@ -82,6 +82,8 @@ export class AppProfileDetails extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this.serviceUnavailable = isNullorEmpty(this.appDetails);
 	}
 
 	disconnectedCallback() {
@@ -114,15 +116,18 @@ export class AppProfileDetails extends Component {
 			return;
 		}
 
-		const returnValue = await this.suspendApp(this.selectedSuspendReason);
+		const returnValue = await this.suspendApp(this.selectedSuspendReason, this.appDetails.userRegNo);
 	
-		if (returnValue) {
-			this.appDetails.status = `Suspended`;
-			this._displayAndCloseToast();
-
-			this.showValidationBanner = false;
-			this.showSuspendReasons = !this.showSuspendReasons;
+		if (!returnValue) {
+			this.serviceUnavailable = true;
+			return false;
 		}
+
+		this.appDetails.status = `Suspended`;
+		this._displayAndCloseToast();
+
+		this.showValidationBanner = false;
+		this.showSuspendReasons = !this.showSuspendReasons;
 	}
 
 	async _onUnsuspendAppClick() {
@@ -363,7 +368,7 @@ export class AppProfileDetails extends Component {
 	}
 
 	_renderAppDetails() {
-		return isNullorEmpty(this.appDetails) 
+		return this.serviceUnavailable 
 		? html`
 			${this._renderServiceUnavailable()}`
 		: html`
@@ -582,22 +587,22 @@ export class AppProfileDetails extends Component {
 		as content inside slot will be effective.*/
 
 		return html`
-		<capitec-toast 
-			data-automation-id="app-profile-details-success-toast"
-			id="app-success-toast"
-			type="success" 
-			header="Successful!"
-			detail="App was ${this.appDetails.status === `Active` ? `unsuspended` : `suspended`}&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp 
-					&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp 
-					&nbsp &nbsp &nbsp ${this._formatDate(this.appDetails.dateLastUpdated)}, ${this._formatTime(this.appDetails.dateLastUpdated)}"
-			?hidden="${!this.displayToast}"
-			@click="${() => this.displayToast = false}"
-			closable>
-				<capitec-label label="Successful!" type="strong"></capitec-label>
-				<capitec-label label="App was ${this.appDetails.status === `Active` ? `unsuspended` : `suspended`}"></capitec-label>
-				<capitec-spacer></capitec-spacer>
-				<capitec-label label="${this._formatDate(this.appDetails.dateLastUpdated)}, ${this._formatTime(this.appDetails.dateLastUpdated)}" type="strong"></capitec-label>
-		</capitec-toast>`;
+			<capitec-toast 
+				data-automation-id="app-profile-details-success-toast"
+				id="app-success-toast"
+				type="success" 
+				header="Successful!"
+				detail="App was ${this.appDetails.status === `Active` ? `unsuspended` : `suspended`}&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp 
+						&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp 
+						&nbsp &nbsp &nbsp ${this._formatDate(this.appDetails.dateLastUpdated)}, ${this._formatTime(this.appDetails.dateLastUpdated)}"
+				?hidden="${!this.displayToast}"
+				@click="${() => this.displayToast = false}"
+				closable>
+					<capitec-label label="Successful!" type="strong"></capitec-label>
+					<capitec-label label="App was ${this.appDetails.status === `Active` ? `unsuspended` : `suspended`}"></capitec-label>
+					<capitec-spacer></capitec-spacer>
+					<capitec-label label="${this._formatDate(this.appDetails.dateLastUpdated)}, ${this._formatTime(this.appDetails.dateLastUpdated)}" type="strong"></capitec-label>
+			</capitec-toast>`;
 	}
 }
 
