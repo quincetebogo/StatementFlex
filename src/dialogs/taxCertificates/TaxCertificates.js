@@ -56,12 +56,12 @@ export class TaxCertificatesDialog extends Component {
 	// --------------
 
 	/**
-	 * @property {String} cifNumber The client's CIF Number
+	 * @property {Object} callerInformation - information on incoming caller
 	 * @property {String} accountNumber Primary savings account number
 	 */
 	static get properties() {
 		return {
-			cifNumber: { type: String },
+			callerInformation: { type: Object },
 			accountNumber: { type: String },
 
 			// Private Properties
@@ -218,7 +218,7 @@ export class TaxCertificatesDialog extends Component {
 		}
 
 		const request = {
-			cif: this.cifNumber,
+			cif: this.callerInformation.cifNumber,
 			iT3STaxCertificates: [],
 			iT3BTaxCertificates: selectedCertificates.iT3BTaxCertificates.map(item => {
 				return {
@@ -263,7 +263,7 @@ export class TaxCertificatesDialog extends Component {
 				"screen": TelemetryScreen.TAX_CERTIFICATE
 		});
 	
-		const returnValue = await this.quickTransactionService.getTaxCertificate(this.cifNumber, () => true);
+		const returnValue = await this.quickTransactionService.getTaxCertificate(this.callerInformation.cifNumber, () => true);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unable to get load tax certificates information`, `_taxCertificates`, returnValue.correlationId);
@@ -319,7 +319,7 @@ export class TaxCertificatesDialog extends Component {
 		}
 		
 		const request = {
-			"cif": this.cifNumber,
+			"cif": this.callerInformation.cifNumber,
 			"emailAddress": email,
 			"messageOption": messageOption,
 			"documentIds": documentIds,
@@ -342,7 +342,7 @@ export class TaxCertificatesDialog extends Component {
 		 */
 		const [first] = item.taxCertificateAccounts; // Extracting first element from taxcertificate accounts array
 		const request = {
-			"cif": this.cifNumber,
+			"cif": this.callerInformation.cifNumber,
 			"iT3BTaxCertificates": [],
 			"iT3STaxCertificates": []
 		};
@@ -360,7 +360,7 @@ export class TaxCertificatesDialog extends Component {
 /*
 	_formatViewCertificateRequest(item, type) {
 		const request = {
-			"cif": this.cifNumber
+			"cif": this.callerInformation.cifNumber
 		};
 
 		if (type === `iT3BTaxCertificates`) {

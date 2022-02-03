@@ -46,7 +46,7 @@ export class TapToPayLanding extends Component {
 
 	/**
 	 * @property {Object} cards Object contains the list of client's cards
-	 * @property {String} cifNumber The client's account/cifNumber
+	 * @property {Object} callerInformation - information on incoming caller
 	 * @property {String} voiceRecordingReference The Avaya/Presence Voice Recording ID
 	 * @property {getAgreementsCallback} getAgreements Callback function to load agreements for displaying
 	 * @property {updateAgreementCallback} updateAgreement Callback function to update agreement
@@ -55,7 +55,7 @@ export class TapToPayLanding extends Component {
 		return {
 			// Input properties
 			cards: { type: Object },
-			cifNumber: { type: String },
+			callerInformation: { type: Object },
 			voiceRecordingReference: { type: String },
 
 			getAgreements: { type: Object, attribute: false },
@@ -126,7 +126,7 @@ export class TapToPayLanding extends Component {
 		this._updateCards();
 
 		const request = {
-			cifNumber: this.cifNumber,
+			cifNumber: this.callerInformation.cifNumber,
 			tapToPayStatus: event.detail.new ? `TapToPayActivated` : `TapToPayDeactivated`,
 			cardDetails: {
 				cardId: this.selectedCard.cardId,
@@ -163,7 +163,7 @@ export class TapToPayLanding extends Component {
 					cardSequenceNumber: this.selectedCard.cardSequenceNumber
 				},
 				tapToPayStatus: tapToPayStatus,
-				customerId: this.cifNumber,
+				customerId: this.callerInformation.cifNumber,
 				voiceRecordingReference: this.voiceRecordingReference,
 				screenRecordingReference: ``,
 				agreementAccepted: event.detail.tapToPayAccepted,
@@ -176,7 +176,9 @@ export class TapToPayLanding extends Component {
 					scriptContentData: this.agreementResult.cardAgreement.scriptContent.scriptContentData,
 					documentId: this.agreementResult.cardAgreement.scriptContent.documentId,
 					scriptContentType: `HTML`
-				}
+				},
+				title: this.callerInformation.title,
+				lastName: this.callerInformation.lastName
 			}
 		};
 

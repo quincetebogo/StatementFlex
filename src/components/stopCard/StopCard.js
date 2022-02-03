@@ -555,6 +555,7 @@ export class StopCard extends Component {
 		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
 			return html`
 				<horizon-stop-card-confirm
+					.callerInformation="${this.callerInformation}"
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.cardsToStop="${this.cardsToStop}"

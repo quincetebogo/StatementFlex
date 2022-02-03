@@ -83,6 +83,7 @@ export class StatementsDialog extends Component {
 
 	/**
 	 * @property {Array} clientProducts Contains list of products that the client has.
+	 * @property {Object} callerInformation - information on incoming caller
 	 * @property {Array} selectedOption Contains the product of which the client wants to send statement.
 	 * @property {string} cifNumber The client's CIF number
 	 * @property {string} type Contains the type of account
@@ -95,7 +96,7 @@ export class StatementsDialog extends Component {
 			clientProducts: { type: Array },
 			selectedOption: { type: Array },
 			accountType: { type: String, attribute: `type` },
-			cifNumber: { type: String },
+			callerInformation: { type: Object },
 
 			currentStep: { state: true },
 			isBusy: { state: true },
@@ -251,7 +252,7 @@ export class StatementsDialog extends Component {
 
 	async _viewPDF() {
 		const statement = {
-			"cifNumber": this.cifNumber,
+			"cifNumber": this.callerInformation.cifNumber,
 			"accountNumber": `${this.productSelected.accountNumber}`,
 			"accountType": `${this.productSelected.type}`,
 			"statementDateRange": {
@@ -302,13 +303,15 @@ export class StatementsDialog extends Component {
 
 		const statement = {
 			"emailAddress": this.email,
-			"cifNumber": this.cifNumber,
+			"cifNumber": this.callerInformation.cifNumber,
 			"accountNumber": `${this.productSelected.accountNumber}`,
 			"accountType": `${this.productSelected.type}`,
 			"statementDateRange": {
 				"dateRange": {},
 				"presetInterval": `${this.periodSelected}`
-			}
+			},
+			"title": this.callerInformation.title,
+			"lastName": this.callerInformation.lastName
 		};
 
 		if (this._customDateRange) {

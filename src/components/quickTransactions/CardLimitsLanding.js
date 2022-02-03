@@ -87,6 +87,10 @@ export class CardLimitsLanding extends Component {
 		this.expanderSubtitle = [];
 		this.expanderHeaders = [];
 		this._telemetry = HorizonTelemetry.instance;
+
+		this.cifNumber = this.callerInformation.cifNumber;
+		this.title = this.callerInformation.title;
+		this.lastName = this.callerInformation.lastName;
 	}
 
 	// ----------
@@ -150,7 +154,7 @@ export class CardLimitsLanding extends Component {
 	/**
 	 *
 	 * @property {Object} cards Object contains the list of client's card
-	 * @property {String} cifNumber The client's account/cifNumber
+	 * @property {Object} callerInformation - information on incoming caller
 	 * @property {String} voiceRecordingReference The Avaya/Presence Voice Recording ID
 	 * @property {String} verificationMethod Indicated the type of verification (xds/ita)
 	 * @property {Boolean} hasDigitalChannels Indicates if the client is registered for digital channels
@@ -169,7 +173,7 @@ export class CardLimitsLanding extends Component {
 	static get properties() {
 		return {
 			cards: { type: Object },
-			cifNumber: { type: String },
+			callerInformation: { type: Object },
 			voiceRecordingReference: { type: String },
 			verificationMethod: { type: String },
 			hasDigitalChannels: { type: Boolean },
@@ -355,9 +359,14 @@ export class CardLimitsLanding extends Component {
 
 				agreementAccepted: event.detail.agreementAccepted,
 				agreementContent: event.detail.agreements.cardLimitsAgreement.agreementContent,
-				scriptContent: event.detail.agreements.cardLimitsAgreement.scriptContent
+				scriptContent: event.detail.agreements.cardLimitsAgreement.scriptContent,
+
+				title: this.title,
+				lastName: this.lastName
 			},
-			tapToPayStatusChange: event.detail.tapToPayStatusChange
+			tapToPayStatusChange: event.detail.tapToPayStatusChange,
+			title: this.title,
+			lastName: this.lastName
 		};
 
 		// Don't send tapToPayDetails in the request body tap to pay details have not changed

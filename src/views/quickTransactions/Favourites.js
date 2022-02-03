@@ -861,8 +861,8 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.UPDATE_CARD_LIMITS
 			? html`
 				<horizon-card-limits-landing
-				.cards="${this.cards}"
-					cifNumber="${this.callerInformation.cifNumber}"
+					.cards="${this.cards}"
+					.callerInformation="${this.callerInformation}"
 					voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
 					verificationMethod="${this.callerInformation.verificationMethod}"
 					?hasDigitalChannels="${this.callerInformation.hasDigitalChannels}"
@@ -934,7 +934,7 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE
 		? html`
 			<horizon-tax-certificate
-				cifNumber="${this.callerInformation.cifNumber}"
+				.callerInformation="${this.callerInformation}"
 				accountNumber="${this.landingPageInfo.accountNumber}"
 				@cancel="${() => this._backToLandingPage()}">
 			</horizon-tax-certificate>

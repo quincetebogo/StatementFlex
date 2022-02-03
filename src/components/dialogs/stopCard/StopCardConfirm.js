@@ -37,6 +37,7 @@ export class StopCardConfirm extends Component {
 	 * @property {Object} incidentDetails Incident details
 	 * @property {Object} incomingCallDetails Incoming call information
 	 * @property {Object} cardsToStop List of cards to stop
+	 * @property {Object} callerInformation - information on incoming caller
 	 * 
 	 * @readonly
 	 * @static
@@ -77,7 +78,7 @@ export class StopCardConfirm extends Component {
 			"screen": TelemetryScreen.STOP_CARD
 		});
 
-		const returnValue = await this.cardService.stopCards(this.cardsToStop, this.incomingCallDetails, this.incidentDetails);
+		const returnValue = await this.cardService.stopCards(this.cardsToStop, this.incomingCallDetails, this.incidentDetails, this.callerInformation);
 		const cardStopResults = returnValue.result;
 
 		if (returnValue.succeeded) {

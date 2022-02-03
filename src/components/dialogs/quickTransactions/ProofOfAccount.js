@@ -116,7 +116,9 @@ export class ProofOfAccount extends Component {
 				"accountNumber": this.landingPageInfo.accountNumber,
 				"accountOpenedDate": this._formatDate(this.landingPageInfo.accountOpenedDate),
 				"emailAddress": this.idEmailAddress,
-				"accountType": ACCOUNT_TYPE
+				"accountType": ACCOUNT_TYPE,
+				"title": this.callerInformation.title,
+				"lastName": this.callerInformation.lastName
 			};
 			const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
 

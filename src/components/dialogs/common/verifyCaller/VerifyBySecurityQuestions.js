@@ -159,6 +159,11 @@ export class VerifyBySecurityQuestions extends Component {
 
 		this.alertBannerMessage = ``;
 		this.checked = false;
+
+		this.securityQuestions.title = this.callerInformation.title;
+		this.securityQuestions.lastName = this.callerInformation.lastName;
+		this.securityQuestions.cif = this.callerInformation.cif;
+
 		const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, () => true);
 		const result = returnValue.result;
 		

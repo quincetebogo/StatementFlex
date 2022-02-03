@@ -323,7 +323,7 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	async _authenticateMandate(accepted) {
-		const returnValue = await this.savingsAccountService.debiCheckAuthenticate(this.callerInformation.cifNumber, this.debiCheckDetails.mandateReference, this.debiCheckDetails.debtorAccountNumber, accepted);
+		const returnValue = await this.savingsAccountService.debiCheckAuthenticate(this.callerInformation, this.debiCheckDetails, this.mandateInfo, accepted);
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `debi-check-viewInfo`);
 		
 		if (returnValue.succeeded) {
@@ -517,7 +517,7 @@ export class SavingsAccountBase extends ViewBase {
 		return this.renderMode === RENDER_MODE.STATEMENTS
 			? html`
 				<horizon-statements-dialog
-					.cifNumber="${this.callerInformation.cifNumber}"
+					.callerInformation="${this.callerInformation}"
 					.clientProducts="${this.clientProducts}"
 					type="${type}"
 					@cancel="${() => this._cancelStatements()}"
