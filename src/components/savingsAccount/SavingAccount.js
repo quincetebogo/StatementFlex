@@ -296,7 +296,7 @@ export class SavingsAccount extends Component {
 						class="button-margin" 
 						label="Statements" 
 						icon="system/documents-action"
-						@click="${() => this._optionSelectedClick(`statements`)}"
+						@click="${() => this._optionSelectedClick(`statements-transact`)}"
 						?disabled="${this.shouldDisable(`statements`)}">
 					</horizon-option-button>
 					<horizon-option-button 
