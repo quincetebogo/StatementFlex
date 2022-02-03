@@ -384,7 +384,7 @@ export class AppProfileDetails extends Component {
 				<horizon-label
 					data-automation-id="app-profile-details-username"
 					label="Username"
-					value="${this.appDetails.userName}">
+					value="${this.appDetails.username}">
 				</horizon-label>
 
 				<horizon-label

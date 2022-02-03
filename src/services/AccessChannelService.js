@@ -16,7 +16,7 @@ export class AccessChannelService extends ChannelServiceBase {
 		super(
 			toggleBusyFunc, 
 			defaultErrorHandlerFunc, 
-			`serviceURIs.channelServiceUrl`, 
+			`serviceURIs.accessChannelsUrl`, 
 			`HorizonChannelService`, 
 			`v1`, 
 			() => import(`../mocks/HorizonChannelServiceMocks.js`)
@@ -28,9 +28,12 @@ export class AccessChannelService extends ChannelServiceBase {
 			return this.mock(`accessChannel`);
 		}
 
-		const url = `/clientcare-accesschannels-${this._version}/access-channels?cif=${cifNumber}`;
-		return this.get(
-			url, 
+		const url = `/clientcare-accesschannels-${this._version}/landing`;
+		return this.post(
+			url,
+			{
+				"cif": cifNumber
+			},
 			this.setToken(), 
 			`accessChannelStatus`, 
 			false, 
