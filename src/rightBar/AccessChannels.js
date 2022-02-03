@@ -102,6 +102,7 @@ export class AccessChannels extends Component {
 	// --------------
 
 	async _showSlidingPanel(event) {
+		this._landingInfo();
 		this.selectedAccessChannelType = event.detail?.tileClicked ?? ``;
 		this.showSideSheet = !this.showSideSheet;
 
@@ -352,7 +353,7 @@ export class AccessChannels extends Component {
 	async getTokens(userRegNo) {
 		const returnValue = await this.accessChannelService.internetBankingLanding(userRegNo);
 
-		if(returnValue.succeeded){
+		if(returnValue.succeeded && returnValue.result){
 			return returnValue.result;
 		}
 

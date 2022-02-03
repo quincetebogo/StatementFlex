@@ -133,17 +133,18 @@ export class InternetBankingProfileDetails extends Component {
 
 	async connectedCallback() {
 		super.connectedCallback();
-		this.tokenList = await this.getClientTokens();
+		this.tokenList = await this.getClientTokens(this.internetBankingDetails.userRegNo);
 
-
-		this.tokenList.map(item => {
-			const clientToken =
-			{ 
-				token: item.tokens.serialNo, 
-				selected: false
-			}
-			this.clientTokens.push(clientToken);
-		});
+		if(this.tokenList.tokens !== null) {
+			this.tokenList.map(item => {
+				const clientToken =
+				{ 
+					token: item.tokens.serialNo, 
+					selected: false
+				}
+				this.clientTokens.push(clientToken);
+			});
+		}
 
 		this.isMultipleDevices = this.clientTokens.length > 1 ? true : false;
 
