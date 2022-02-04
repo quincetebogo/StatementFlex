@@ -120,12 +120,13 @@ export class LiveBetter extends SavingsAccountBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_accountDetails() {
+	async _accountDetails() {
 		this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_ACCOUNT_NUMBER, {
 			"screen": TelemetryScreen.LIVE_BETTER_LANDING_PAGE,
 			"next-screen": TelemetryScreen.LIVE_BETTER_ACCOUNT_DETAILS
 		});
 
+		await super.createAndClassifySubsIncident();
 		this.renderMode = RENDER_MODE.LIVE_BETTER_ACCOUNT_DETAILS;
 	}
 
@@ -171,8 +172,7 @@ export class LiveBetter extends SavingsAccountBase {
 		});
 
 		const screenDetails = this.horizonStore.getScreenDetails();
-		this.landingPageInfo.accountRoundUpActive = screenDetails.LBSADetails.accountRoundUpActive;
-		this.landingPageInfo.accountInterestSweepActive = screenDetails.LBSADetails.accountInterestSweepActive;
+		this.landingPageInfo = screenDetails.LBSADetails;
 		
 		this._setIncidentNotstarted();
 		this._deepCopyProperty();
@@ -182,11 +182,16 @@ export class LiveBetter extends SavingsAccountBase {
 	}
 
 	_setIncidentDone() {
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	async _optionClick(option) {
 
+		const accountDetails = () => this._accountDetails();
 		const transactionHistory = () => this._transactionHistory();
 		const statements = () => this._getStatements();
 		const automaticSavings = () => this._automaticSavings();
@@ -194,6 +199,7 @@ export class LiveBetter extends SavingsAccountBase {
 		const partnerBenefits = () => this._partnerBenefits();
 
 		const actions = {
+			'account-details-lbb': accountDetails,
 			'transaction-history-lbb': transactionHistory,
 			'statements-lbb': statements,
 			'automatic-savings-lbb': automaticSavings,
@@ -229,11 +235,11 @@ export class LiveBetter extends SavingsAccountBase {
 	
 	async _getLinkedransactionDetails(item) {
 
-		const transactionHistoryRequest = {
-			"journalNumber": this.journalNumber, // "453858"// Details to work on DEV - for testing. 
-			"accountNumber": this.landingPageInfo.accountNumber, // "1733256405"//
-			"postingDate": item.postingDate // "2021-06-22"//
-		};
+        const transactionHistoryRequest = {
+            "journalNumber": this.journalNumber, // "453858"// Details to work on DEV - for testing. 
+            "accountNumber": this.landingPageInfo.accountNumber, // "1733256405"//
+            "postingDate": item.postingDate // "2021-06-22"//
+        };
 
 		const returnValue = await this.liveBetterService.lbbLinkedTransactionDetails(transactionHistoryRequest);
 		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_INFO, {
@@ -278,7 +284,7 @@ export class LiveBetter extends SavingsAccountBase {
 		const updateRequest = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"accountRoundUpActive": updatedDetails?.accountRoundUpActive ?? this.automaticSavingsDetails.accountRoundUpActive,
-			"roundupValue": updatedDetails?.roundupValue ?? this.automaticSavingsDetails.roundupValue,
+			"roundupValue": updatedDetails?.roundUpValue ?? this.automaticSavingsDetails.roundupValue,
 			"activateRoundUpAccounts": updatedDetails?.activatedRoundUpAccountNums ?? this.automaticSavingsDetails.activatedRoundUpAccountNums,
 			"accountInterestSweepActive": updatedDetails?.accountInterestSweepActive ?? this.automaticSavingsDetails.accountInterestSweepActive
 		};
@@ -290,7 +296,7 @@ export class LiveBetter extends SavingsAccountBase {
 			"screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS,
 			"round-up": updatedDetails?.accountRoundUpActive ?? this.automaticSavingsDetails.accountRoundUpActive,
 			"interest-sweep": updatedDetails?.accountInterestSweepActive ?? this.automaticSavingsDetails.accountInterestSweepActive,
-			"roundup-value": updatedDetails?.roundupValue ?? this.automaticSavingsDetails.roundupValue,
+			"roundup-value": updatedDetails?.roundUpValue ?? this.automaticSavingsDetails.roundupValue,
 			"roundup-accounts": updatedDetails?.activatedRoundUpAccountNums ?? this.automaticSavingsDetails.activatedRoundUpAccountNums,
 			"next-screen": returnValue.succeeded ? TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_SUCCESS : TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_FAILURE
 		});
@@ -319,6 +325,12 @@ export class LiveBetter extends SavingsAccountBase {
 		});
 	}
 
+	_unloadTransactionHistory() {
+		this.endCallContext = `LandingPage`;
+		this.transactionHistory = [];
+		this._setIncidentDone();
+	}
+	
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -622,7 +634,6 @@ export class LiveBetter extends SavingsAccountBase {
 					class="liveBetter"
 					.liveBetterAccountData = "${this.landingPageInfo}"
 					@option-click = "${(e) => this._optionClick(e.detail.option)}"
-					@account-details="${() => this._accountDetails()}"
 					@round-up="${(event) => this._toggleRoundUp(event)}"
 					@interest-sweep="${(event) => this._toggleInterestSweep(event)}">
 				</capitec-pc-live-better-savings>`
@@ -646,7 +657,8 @@ export class LiveBetter extends SavingsAccountBase {
 			? html`
 				<capitec-pc-live-better-account-details
 					.accountDetails = "${this.landingPageInfo}"
-					@back= "${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
+					@back="${() => this._setIncidentDone()}"
+					@unloading="${() => this._setIncidentDone()}"
 					@round-up="${(event) => this._toggleRoundUp(event)}"
 					@interest-sweep="${(event) => this._toggleInterestSweep(event)}">
 				</capitec-pc-live-better-account-details>`
@@ -668,7 +680,7 @@ export class LiveBetter extends SavingsAccountBase {
 
 					@error-handler = "${() => this._errorHandler()}"
 					@back="${() => this._setIncidentDone()}"
-					@unloading="${() => this.transactionHistory = []}">
+					@unloading="${() => this._unloadTransactionHistory()}">
 				</horizon-transaction-history>`
 			: html``;
 	}

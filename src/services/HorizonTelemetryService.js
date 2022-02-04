@@ -34,7 +34,7 @@ export const OutcomeScreen = {
  * using the platform capability.
  *
  * @export
- * @class TelemetryService
+ * @class HorizonTelemetry
  * @extends Telemetry
  */
 export class HorizonTelemetry extends Telemetry {
@@ -44,8 +44,20 @@ export class HorizonTelemetry extends Telemetry {
 	// --------------
 	// INITIALISATION
 	// --------------
+
+	/**
+	 * @deprecated Use getInstance() as is standard through the platform/Horizon
+	 */
 	static get instance() {
 		return this._instance || (this._instance = new HorizonTelemetry());
+	}
+
+	/**
+	 * @static
+	 * @returns {HorizonTelemetry} Singleton
+	 */
+	static getInstance() {
+		return this.instance;
 	}
 
 	constructor() {

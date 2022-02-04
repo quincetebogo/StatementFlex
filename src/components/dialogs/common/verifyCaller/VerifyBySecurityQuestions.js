@@ -1,8 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { CallHandleService } from 'app/services/CallHandleService';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { Logger } from 'platform/core';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -13,20 +11,14 @@ import 'app/components/common/HorizonSelect';
 import 'app/components/common/RadioButtonGroup';
 import 'app/components/common/CallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
-import 'app/components/dialogs/common/SecurityQuestionsFailed';
 
 const RENDER_MODE = Object.freeze({
 	SECURITY_QUESTIONS: 1,
-	FIRST_FAILURE: 2,
-	END_CALL: 3
+	END_CALL: 2
 });
 
 const HEADER_LABEL = `Security Questions`;
-
-const ERROR_MESSAGE = `Please choose an option`;
-const SYSTEM_ERROR = `System error. Please try again later`;
-
-const MAX_XDS_ATTEMPTS = 2;
+const CHOOSE_OPTION_MESSAGE = `Please choose an option`;
 
 /**
  * Verify by Security questions dialog is used to verify the client's identity via Questions to mitigate the risk of fraud.
@@ -60,12 +52,8 @@ export class VerifyBySecurityQuestions extends Component {
 		this.isBusy = false;
 
 		this.logger = Logger.getInstance();
-
-		this.horizonStore = HorizonStore.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
-		this._telemetry = HorizonTelemetry.instance;
-
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._xdsErrorHandler(ex));
+		this.telemetry = HorizonTelemetry.getInstance();
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag());
 	}
 
 	// --------------
@@ -77,9 +65,8 @@ export class VerifyBySecurityQuestions extends Component {
 	 * 
 	 * @property {Object} incidentDetails Incident details
 	 * @property {Object} incomingCallDetails Information about the incoming call (incoming number etc.)
-	 * @property {Object} callerInformation Information on the incoming caller (mini-profile)
 	 * @property {Object} securityQuestions The security questions object retrieved from XDS
-	 * @property {Object} noOfXdsVerificationAttempted Number of verification attempts so far
+	 * @property {Object} finalAttempt Indicates if this is the final round of security questions
 	 * 
 	 * @readonly
 	 * @static
@@ -90,14 +77,14 @@ export class VerifyBySecurityQuestions extends Component {
 		return {
 			incidentDetails: { type: Object },
 			incomingCallDetails: { type: Object },
-			callerInformation: { type: Object },
 			securityQuestions: { type: Object },
-			noOfXdsVerificationAttempted: { type: Number },
+			finalAttempt: { type: Boolean },
 
-			renderMode: { attribute: false },
-			questionNumber: { attribute: false },
-			isBusy: { attribute: false },
-			alertBannerMessage: { attribute: false }
+			renderMode: { state: true },
+			questionNumber: { state: true },
+			isBusy: { state: true },
+			alertBannerMessage: { state: true },
+			verificationResult: { state: true }
 		};
 	}
 
@@ -107,8 +94,7 @@ export class VerifyBySecurityQuestions extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		this._telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_XDS, {
+		this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_XDS, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS
 		});
 		this.questions = this.securityQuestions.questions;
@@ -117,7 +103,7 @@ export class VerifyBySecurityQuestions extends Component {
 	disconnectedCallback() {
 		super.disconnectedCallback();
 
-		this._telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER_XDS, {
+		this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER_XDS, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS
 		});
 	}
@@ -127,89 +113,113 @@ export class VerifyBySecurityQuestions extends Component {
 	// --------------
 
 	_cancelClick() {
-		this._telemetry.logEvent(VerifyCallerEvents.XDS_CANCEL, {
+		this.telemetry.logEvent(VerifyCallerEvents.XDS_CANCEL, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
 			"next-screen": null // Have to determine
 		});
 
-		this.dispatchEvent(new CustomEvent(`cancel`, {
-			detail: {
-				incomingCallDetails: this.incomingCallDetails,
-				callerInformation: this.callerInformation
-			}
-		}));
+		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
 	_skipClick() {
-		this._telemetry.logEvent(VerifyCallerEvents.XDS_SKIP, {
+		this.telemetry.logEvent(VerifyCallerEvents.XDS_SKIP, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
 			"next-screen": null // Have to determine
 		});
 
-		this.dispatchEvent(new CustomEvent(`skip`, {
-			detail: {
-				incomingCallDetails: this.incomingCallDetails,
-				callerInformation: this.callerInformation
-			}
-		}));
-	}
-
-	_verifyViaApp() {
-		this._telemetry.logEvent(VerifyCallerEvents.XDS_VERIFY_VIA_APP, {
-			"screen": TelemetryScreen.SECURITY_QUESTIONS,
-			"next-screen": TelemetryScreen.VERIFY_CALLER
-		});
-
-		this.dispatchEvent(new CustomEvent(`verify-via-app`, {
-			detail: {
-				incomingCallDetails: this.incomingCallDetails,
-				callerInformation: this.callerInformation
-			}
-		}));
+		this.dispatchEvent(new CustomEvent(`skip`, {}));
 	}
 
 	_continueClick() {
 		if (!this.checked) {
-			this.alertBannerMessage = ERROR_MESSAGE;
-		} else {
-			this._telemetry.logEvent(VerifyCallerEvents.XDS_NEXT_QUESTION, {
-				"screen": TelemetryScreen.SECURITY_QUESTIONS,
-				"next-screen": TelemetryScreen.SECURITY_QUESTIONS
-			});
+			this.alertBannerMessage = CHOOSE_OPTION_MESSAGE;
+			return;
+		} 
+		
+		this.telemetry.logEvent(VerifyCallerEvents.XDS_NEXT_QUESTION, {
+			"screen": TelemetryScreen.SECURITY_QUESTIONS,
+			"next-screen": TelemetryScreen.SECURITY_QUESTIONS
+		});
 
-			this.alertBannerMessage = ``;
-			this.questionNumber++;
-			this.checked = false;
-		}
+		this.alertBannerMessage = ``;
+		this.questionNumber++;
+		this.checked = false;
 	}
 
 	async _verifyClick() {
 		if (!this.checked) {
-			this.alertBannerMessage = ERROR_MESSAGE;
-		} else {
-			this._telemetry.logEvent(VerifyCallerEvents.XDS_VERIFY_ANSWERS, {
+			this.alertBannerMessage = CHOOSE_OPTION_MESSAGE;
+			return;
+		};
+				
+		this.telemetry.logEvent(VerifyCallerEvents.XDS_VERIFY_ANSWERS, {
+			"screen": TelemetryScreen.SECURITY_QUESTIONS,
+			"next-screen": null
+		});
+
+		this.alertBannerMessage = ``;
+		this.checked = false;
+		const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, () => true);
+		const result = returnValue.result;
+		
+		if (!returnValue.succeeded) {
+			this.telemetry.logEvent(VerifyCallerEvents.XDS_SERVICE_FAILURE, {
+				"failure-reason": returnValue?.exception?.message
+			}, true);
+
+			this.dispatchEvent(new CustomEvent(`service-failure`, {}));
+			return;
+		};
+
+		this.logger.log(`info`, `verifySecurityQuestions returned: ${JSON.stringify(result)}`, `_verifyClick`);
+
+		// If we got an error model back, fail XDS
+		if (result?.errorCode) {
+			this._XdsFailed(result);
+			return;
+		}
+
+		if (result.toLowerCase() === `authenticated`) {
+			this.telemetry.logEvent(VerifyCallerEvents.XDS_SUCCESS, {
 				"screen": TelemetryScreen.SECURITY_QUESTIONS,
 				"next-screen": null // Have to determine
-			});
-			this.alertBannerMessage = ``;
-			this.checked = false;
-			const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions);
+			}, true);
 
-			if (returnValue.succeeded) {
-				if (returnValue.result === `Authenticated`) {
-					this._xdsAuthenticated();
-				} else {
-					this.logger.log(`warning`, `Authentication result: ${JSON.stringify(returnValue.result)}`, `_verifyClick`);
-					this._xdsNotAuthenticated();
-				}
-			} else if (this.noOfXdsVerificationAttempted <= 1) {
-				this.logger.log(`error`, `Call to verifySecurityQuestions failed. Treating this as a first failure!`, `_verifyClick`);
-				this._showSQFailedScreen();
-			} else {
-				this.logger.log(`error`, `Call to verifySecurityQuestions failed. Treatign this as the final failure.`, `_verifyClick`);
-				this._navigateToXDSFailedVerification();
-			}
-		}
+			this.dispatchEvent(new CustomEvent(`verified`, {}));
+			return;
+		} 
+
+		this._authenticationFailed(result);
+	}
+
+	_XdsFailed(result) {
+		this.telemetry.logEvent(VerifyCallerEvents.XDS_SERVICE_FAILURE, {
+				"failure-reason": `${result?.errorCode}: ${result?.errorMessage}`
+		}, true);
+
+		this.logger.log(`warn`, `${result?.errorCode}: ${result?.errorMessage}`, `_XdsFailed`);
+
+		this.dispatchEvent(new CustomEvent(`failed`, { 
+			detail: {
+				errorCode: result?.errorCode, 
+				errorMessage: result?.errorMessage 
+			} 
+		}));
+	}
+
+	_authenticationFailed(result) {
+		this.telemetry.logEvent(VerifyCallerEvents.XDS_SERVICE_FAILURE, {
+			"failure-reason": `${JSON.stringify(result)}`
+		}, true);
+
+		this.logger.log(`warn`, `${JSON.stringify(result)}`, `_authenticationFailed`);
+		
+		this.dispatchEvent(new CustomEvent(`failed`, { 
+			detail: {
+				errorCode: result?.errorCode, 
+				errorMessage: result?.errorMessage 
+			} 
+		}));
 	}
 
 	_valueChanged(e) {
@@ -217,7 +227,7 @@ export class VerifyBySecurityQuestions extends Component {
 			this.checked = !this.checked;
 		}
 
-		this.alertBannerMessage = this.checked ? `` : ERROR_MESSAGE;
+		this.alertBannerMessage = this.checked ? `` : CHOOSE_OPTION_MESSAGE;
 
 		this.questions[this.questionNumber].answers.forEach(answer => {
 			if (answer.answerId === e.detail.key) {
@@ -228,18 +238,8 @@ export class VerifyBySecurityQuestions extends Component {
 		});
 	}
 
-	_retrySecurityQuestions(e) {
-		if (this.noOfXdsVerificationAttempted < MAX_XDS_ATTEMPTS) {
-			this.questionNumber = 0;
-			this.securityQuestions = e.detail.securityQuestions;
-			this.questions = e.detail.securityQuestions.questions;
-			this.alertBannerMessage = ``;
-			this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
-		}
-	}
-
 	_endCallClick() {
-		this._telemetry.logEvent(VerifyCallerEvents.XDS_END_CALL, {
+		this.telemetry.logEvent(VerifyCallerEvents.XDS_END_CALL, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
 			"next-screen": TelemetryScreen.END_CALL
 		});
@@ -248,7 +248,7 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_cancelEndCall() {
-		this.renderMode = this.noOfXdsVerificationAttempted === 1 ? RENDER_MODE.FIRST_FAILURE : RENDER_MODE.SECURITY_QUESTIONS;
+		this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
 	}
 
 	// --------------
@@ -259,76 +259,8 @@ export class VerifyBySecurityQuestions extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	_xdsErrorHandler(exception) {
-		this.noOfXdsVerificationAttempted++;
-
-		this.callerInformation.verificationStatus = `failed`;
-		this.callerInformation.verificationAttempts.xdsAttempts = this.noOfXdsVerificationAttempted;
-
-		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-		this.horizonStore.setCallerInformation(this.callerInformation);
-
-		this.alertBannerMessage = SYSTEM_ERROR;
-
-		return true;
-	}
-
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
-	}
-
-	_xdsAuthenticated() {
-		this._telemetry.logEvent(VerifyCallerEvents.XDS_SUCCESS, {
-			"screen": TelemetryScreen.SECURITY_QUESTIONS,
-			"next-screen": null // Have to determine
-		}, true);
-
-		this.callerInformation.verificationStatus = `verified`;
-		this.callerInformation.verificationMethod = `XDS`;
-
-		this.dispatchEvent(new CustomEvent(`verified`, {
-			detail: {
-				incomingCallDetails: this.incomingCallDetails,
-				callerInformation: this.callerInformation
-			}
-		}));
-	}
-
-	_xdsNotAuthenticated() {
-		this.noOfXdsVerificationAttempted++;
-
-		this.callerInformation.verificationStatus = `failed`;
-		this.callerInformation.verificationAttempts.xdsAttempts = this.noOfXdsVerificationAttempted;
-
-		this.horizonStore.setCallerInformation(this.callerInformation);
-
-		if (this.noOfXdsVerificationAttempted <= 1) {
-			this._showSQFailedScreen();
-			return;
-		}
-
-		this.logger.log(`warn`, `Caller exceeded verification attempts!`, `_xdsNotAuthenticated`);
-		this._navigateToXDSFailedVerification();
-	}
-
-	_showSQFailedScreen() {
-		this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
-			"screen": TelemetryScreen.SECURITY_QUESTIONS,
-			"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE
-		}, true);
-
-		this.renderMode = RENDER_MODE.FIRST_FAILURE;
-	}
-
-	_navigateToXDSFailedVerification() {
-		this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
-			"screen": TelemetryScreen.SECURITY_QUESTIONS,
-			"next-screen": TelemetryScreen.XDS_FAILED
-		}, true);
-
-		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-
-		this.horizonRouter.navigateToXdsVerificationFailed();
 	}
 
 	// ---------
@@ -467,7 +399,7 @@ export class VerifyBySecurityQuestions extends Component {
 							.incomingCallDetails="${this.incomingCallDetails}"
 							.incidentDetails="${this.incidentDetails}"
 							.isNeedSelectable=${false} 
-							.headerLabel="${HEADER_LABEL}" 
+							headerLabel="${HEADER_LABEL}" 
 							@on-end-call="${() => this._endCallClick()}">
 						<div slot="body">
 							<capitec-content-box class="body-box">
@@ -482,9 +414,7 @@ export class VerifyBySecurityQuestions extends Component {
 				`;
 			case RENDER_MODE.END_CALL:
 				return html`${this._renderEndCallModal()}`;
-			case RENDER_MODE.FIRST_FAILURE:
-				return html`${this._renderFailureModal()}`;
-			default:
+		default:
 				return html``;
 		}
 	}
@@ -496,7 +426,6 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_renderSecurityQuestions(item, index) {
-
 		let answers = this.questions[index].answers;
 		answers = answers.map(answer => ({
 			"key": answer.answerId,
@@ -554,24 +483,9 @@ export class VerifyBySecurityQuestions extends Component {
 		`;
 	}
 
-	_renderFailureModal() {
-		return html`
-			<horizon-security-questions-failed
-				.incidentDetails="${this.incidentDetails}"
-				.incomingCallDetails="${this.incomingCallDetails}"
-				.callerInformation="${this.callerInformation}" 
-				@security-questions="${(e) => this._retrySecurityQuestions(e)}"
-				@skip="${() => this._skipClick()}"
-				@verify-via-app="${() => this._verifyViaApp()}">
-			</horizon-security-questions-failed>`;
-	}
-
 	_renderEndCallModal() {
-		let status = `InProgress`;
+		const status = finalAttempt ? `Failed` : `InProgress`;
 
-		if (this.callerInformation.verificationAttempts.xdsAttempts > 0) {
-			status = `Failed`;
-		}
 
 		return html`
 			<horizon-end-call-session

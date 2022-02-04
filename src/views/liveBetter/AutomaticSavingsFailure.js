@@ -40,11 +40,8 @@ export class AutomaticSavingsFailure extends ViewBase {
 								 Boolean(this.updatedLBSADetails?.activatedRoundUpAccounts);
 		this.hasInterestSweepChanged = !isNullorEmpty(this.updatedLBSADetails?.accountInterestSweepActive);
 
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
-
 		this._telemetry.startSpan(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS_FAILURE);
+		this._updateIncidentState();
 	}
 
 	disconnectedCallback() {
@@ -78,6 +75,15 @@ export class AutomaticSavingsFailure extends ViewBase {
 		this.horizonStore.clearReturnScreen();
 	}
 
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_updateIncidentState() {
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+	}
 	// ---------
 	// RENDERING
 	// ---------
