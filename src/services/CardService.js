@@ -42,11 +42,6 @@ export class CardService extends ChannelServiceBase {
 		const model = {
 			'incidentRecId': incidentDetails.incidentRecId,
 			'idNumber': callerInformation.southAfricanIDNumber,
-			'incomingTelephoneNumber': incomingCallDetails.incomingTelephoneNumber,
-			'voiceReferenceNumber': incomingCallDetails.voiceReferenceNumber,
-			'ivrOptionCode': `StopCard`,
-			'incidentReferenceNumber': incidentDetails.incidentReferenceNumber,
-			'agentTelephoneNumber': incomingCallDetails.agentTelephoneNumber,
 			'nonClientFullName': callerInformation.nonClientFullName,
 			'nonClientCellPhone': callerInformation.nonClientCellPhone,
 			'nonClientIDNumber': ``,
@@ -82,11 +77,6 @@ export class CardService extends ChannelServiceBase {
 				cardSequenceNumber: card.cardSequenceNumber,
 				reason: card.cardStopReason.key
 			})),
-			incomingTelephoneNumber: callerInfo.incomingTelephoneNumber,
-			voiceReferenceNumber: callerInfo.voiceReferenceNumber,
-			ivrOptionCode: callerInfo.ivrOptionCode,
-			incidentReferenceNumber: incidentDetails.incidentReferenceNumber,
-			agentTelephoneNumber: callerInfo.agentTelephoneNumber,
 			incidentRecId: incidentDetails.incidentRecId
 		};
 

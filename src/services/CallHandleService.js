@@ -75,11 +75,7 @@ export class CallHandleService extends ChannelServiceBase {
 		return this.post(
 			url,
 			{
-				'incomingTelephoneNumber': acceptCallData.incomingTelephoneNumber,
-				'voiceReferenceNumber': acceptCallData.voiceReferenceNumber,
-				'ivrOptionCode': acceptCallData.ivrOptionCode,
-				'incidentReferenceNumber': acceptCallData.incidentReferenceNumber,
-				'agentTelephoneNumber': acceptCallData.agentTelephoneNumber
+				'incomingTelephoneNumber': acceptCallData.incomingTelephoneNumber
 			},
 			this.setToken(), 
 			`acceptCall`,
@@ -100,16 +96,10 @@ export class CallHandleService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing search options and the result of the channel service call
 	 */
-	searchOptions(incomingCallData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	searchOptions(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
 			`/clientcare-card-${this._version}/search/options`, 
-			{
-				"incomingTelephoneNumber": incomingCallData.incomingTelephoneNumber,
-				"voiceReferenceNumber": incomingCallData.voiceReferenceNumber,
-				"ivrOptionCode": incomingCallData.ivrOptionCode,
-				"incidentReferenceNumber": incomingCallData.incidentReferenceNumber,
-				"agentTelephoneNumber": incomingCallData.agentTelephoneNumber
-			},
+			null,
 			this.setToken(),
 			`searchOptions`, 
 			false,
@@ -119,8 +109,6 @@ export class CallHandleService extends ChannelServiceBase {
 			errorHandler,
 			autoRetries
 		);
-	searchOptions(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.searchOptions(), `searchOptions`, errorHandler, autoRetries);
 	}
 
 	/**
@@ -155,11 +143,6 @@ export class CallHandleService extends ChannelServiceBase {
 		return this.post(
 			url,
 			{
-				'incomingTelephoneNumber': clientInfo.incomingTelephoneNumber,
-				'voiceReferenceNumber': clientInfo.voiceReferenceNumber,
-				'ivrOptionCode': clientInfo.ivrOption,
-				'incidentReferenceNumber': clientInfo.incidentNo,
-				'agentTelephoneNumber': clientInfo.agentTelephoneNumber,
 				'searchType': {
 					'identificationMethod': parseInt(clientInfo.identificationMethod, 10),
 					'value': clientInfo.searchValue
