@@ -117,6 +117,7 @@ export class AppProfileDetails extends Component {
 		}
 
 		const returnValue = await this.suspendApp(this.selectedSuspendReason, this.appDetails.userRegNo);
+		this.showSuspendReasons = !this.showSuspendReasons;
 	
 		if (!returnValue) {
 			this.serviceUnavailable = true;

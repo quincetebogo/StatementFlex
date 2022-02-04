@@ -1,4 +1,4 @@
-
+import { ACCESS_CHANNELS_TYPE, APP_STATUS, CHANNEL_TYPE } from 'app/constants/AccessChannels';
 import { Component, css, html } from 'platform/elements';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { AccessChannelsEvents } from 'app/constants/telemetry/events/AccessChannels';
@@ -15,20 +15,6 @@ import 'app/productControls/AccessChannels/src/USSDProfileDetails';
 import 'app/productControls/AccessChannels/src/NotificationsDetails';
 import 'app/webComponents/src/SideSheet';
 import 'platform/components';
-
-const ACCESS_CHANNELS_TYPE = {
-	APP: `app`,
-	INTERNET_BANKING: `internetBanking`,
-	USSD: `ussd`,
-	NOTIFICATIONS: `notifications`
-};
-
-const CHANNEL_TYPE = {
-	'app': `APP`,
-	'internetBanking': `INTERNET_BANKING`,
-	'ussd': `USSD`,
-	'notifications': `NOTIFICATIONS`
-};
 
 /**
  * Access Channels component invokes and holds functionality for all the available access channels
@@ -150,7 +136,7 @@ export class AccessChannels extends Component {
 		const returnValue = await this.accessChannelService.suspendApp(suspendReason, userRegNo);
 	
 		if (returnValue.succeeded) {
-			this.status.app.status = `Suspended`;
+			this.status.app.status = APP_STATUS.SUSPENDED;
 			this.status.app.dateLastUpdated = new Date().toISOString();
 
 			this._deepCopyStatus();
@@ -171,7 +157,7 @@ export class AccessChannels extends Component {
 		// TO DO: Channel service call to Un-suspend App should come here
 		// If successfully Unsuspended, update app status, else Error scenario
 
-		this.status.app.status = `Active`;
+		this.status.app.status = APP_STATUS.ACTIVE;
 		this.status.app.dateLastUpdated = new Date().toISOString();
 
 		this._deepCopyStatus();
