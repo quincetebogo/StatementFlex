@@ -263,4 +263,11 @@ export default class HorizonChannelServiceMocks {
 		}
 		return null;
 	}
+
+	accessChannelResetSecurityTokenClock() {
+		if (this._mockSettings.accessChannelResetSecurityTokenClock.positiveCase) {
+			return this.accessChannelsMocks.accessChannelResetSecurityTokenClock;
+		}
+		return null;
+	}
 }

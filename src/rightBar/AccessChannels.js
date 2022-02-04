@@ -331,16 +331,14 @@ export class AccessChannels extends Component {
 		};
 		const returnValue = await this.accessChannelService.resetSecurityTokenClock(requestParams);
 		// If successfully reset, update Internet Banking status, else Error scenario
-		if (returnValue.succeeded) {
-			this.status.internetBanking.status = `Active`;
-			this.status.internetBanking.dateLastUpdated = new Date().toISOString();
-		} else {
-			this.errorMessage = `System error. Please try again`;
+		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unable to reset internet banking security token`, `_resetInternetBankingToken`, returnValue.correlationId);
+			return false;
 		}
 
 		this._deepCopyStatus();
-		return returnValue.succeeded;
+		this.status.internetBanking.dateLastUpdated = new Date().toISOString();
+		return true;
 	}
 
 	// Notifications

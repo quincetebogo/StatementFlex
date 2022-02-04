@@ -61,7 +61,7 @@ export class AccessChannelService extends ChannelServiceBase {
 			url,
 			requestBody,
 			this.setToken(),
-			`accessChannelResetSecurityTokenClock`, 
+			`resetSecurityTokenClock`, 
 			null, 
 			null, 
 			1000,
