@@ -80,7 +80,7 @@ import 'app/productControls/credit/src/AccountDetailsView';
 			}
 		};
 
-		if (this.termLoanDetails.accountStatusDescription === `In arrears`) {
+		if (this.termLoanDetails.arrearsStatus) {
 			this.accountDetails.arrears = {
 				'Total arrears amount': formatCurrency(this.termLoanDetails.totalArrearsPayable),
 				'Last arrears date': formatDate(this.termLoanDetails.lastArrearsDate, `dd mmm yyyy`)

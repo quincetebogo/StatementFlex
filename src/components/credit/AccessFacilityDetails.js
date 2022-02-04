@@ -72,7 +72,7 @@ import 'app/productControls/credit/src/AccountDetailsView';
 				'Repayment date': `${this.accessFacilityDetails.repaymentDay}${getDateOrdinal(this.accessFacilityDetails.repaymentDay)} of every month`,
 				'Next repayment due': formatDate(this.accessFacilityDetails.nextRepaymentDate, `dd mmm yyyy`),
 				'Repayment period': `${this.accessFacilityDetails.repaymentPeriod} months`,
-				'Remianing monthly repayments': this.accessFacilityDetails.remainingRepayments,
+				'Remaining monthly repayments': this.accessFacilityDetails.remainingRepayments,
 				'Last repayment received': formatDate(this.accessFacilityDetails.lastFinancialDate, `dd mmm yyyy`),
 				'Repayment method': this.accessFacilityDetails.repaymentMethod
 			},
@@ -83,7 +83,7 @@ import 'app/productControls/credit/src/AccountDetailsView';
 			}
 		};
 
-		if (this.accessFacilityDetails.accountStatusDescription === `In arrears`) {
+		if (this.accessFacilityDetails.arrearsStatus) {
 			this.accountDetails.arrears = {
 				'Total arrears amount': formatCurrency(this.accessFacilityDetails.totalArrearsPayable),
 				'Last arrears date': formatDate(this.accessFacilityDetails.lastArrearsDate, `dd mmm yyyy`)

@@ -104,6 +104,7 @@ export class CreditAccount extends ViewBase {
 		this.encodedPDF = ``;
 		this.flexibleCreditAccounts = [];
 		this.fixedTermCreditAccounts = []; 
+		this.creditBalance = ``;
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
@@ -164,7 +165,8 @@ export class CreditAccount extends ViewBase {
 			renderMode: { state: false },
 			accountViewType: { state: false },
 			flexibleCreditAccounts: { type: Array, state: true, attribute: false },
-			fixedTermCreditAccounts: { type: Array, state: true, attribute: false }
+			fixedTermCreditAccounts: { type: Array, state: true, attribute: false },
+			creditBalance: { state: true, attribute: false }
 		};
 	}
 	
@@ -318,25 +320,35 @@ export class CreditAccount extends ViewBase {
 			
 			this.horizonStore.setCallerInformation(this.callerInformation);
 
-			const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber);
-			const successfullServiceResponse = returnValue.succeeded;
+			let returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber);
+			let successfullServiceResponse = returnValue.succeeded;
 
 			if (!successfullServiceResponse) {
 				this.logger.log(`error`, `Failed to retrieve client overview from credit service.`, `_initialise`, returnValue.correlationId);
 				return;
 			}
 
-			const creditOverview = returnValue.result;
-
-			this.creditAccountDetails = creditOverview;
+			this.creditAccountDetails = returnValue.result;
 			this._formatCreditOverviewResponse();
-			this.flexibleCreditAccounts = [...creditOverview.creditCardSummaryList, ...creditOverview.accessFacilitySummaryList];
-			this.fixedTermCreditAccounts = [...creditOverview.loanAccountSummaryList];
+			this.flexibleCreditAccounts = [...this.creditAccountDetails.creditCardSummaryList, ...this.creditAccountDetails.accessFacilitySummaryList];
+			this.fixedTermCreditAccounts = [...this.creditAccountDetails.loanAccountSummaryList];
 
 			if (this.flexibleCreditAccounts.length === 0 && this.fixedTermCreditAccounts.length === 0) {
 				this.horizonRouter.navigateToProductInfo(`Credit`);
 				return;
 			}
+
+			returnValue = await this.creditService.creditBalance(this.callerInformation.cifNumber);
+			successfullServiceResponse = returnValue.succeeded;
+
+			if (!successfullServiceResponse) {
+				this.logger.log(`error`, `Failed to retrieve client creit balance from credit service.`, `_initialise`, returnValue.correlationId);
+			} 
+
+			this.creditBalance = returnValue.result;
+
+			// TODO: How are we going populate the left bar? There is no landing page endpoint 
+			// this._updateLeftBar();
 
 			this._telemetry.startSpan(CreditEvents.CREDIT, {
 				"screen": TelemetryScreen.CREDIT_LANDING,

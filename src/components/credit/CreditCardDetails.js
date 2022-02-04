@@ -84,7 +84,7 @@ import 'app/productControls/credit/src/AccountDetailsView';
 			}
 		};
 
-		if (this.creditCardDetails.accountStatusDescription === `In arrears`) {
+		if (this.creditCardDetails.arrearsStatus) {
 			this.accountDetails.arrears = {
 				'Total arrears amount': formatCurrency(this.creditCardDetails.totalArrearsPayable)
 			};
@@ -110,7 +110,7 @@ import 'app/productControls/credit/src/AccountDetailsView';
 	// ---------------
 
 	_formatCreditCardRepaymentOption(repaymentValueType, repaymentValue) {
-		return repaymentValueType === `Percentage` ? `${repaymentValue}% (${repaymentValueType})` : `${formatCurrency(repaymentValue)} (${repaymentValueType})`;
+		return repaymentValueType === `Percentage` ? `${repaymentValueType} (${repaymentValue}%)` : `${repaymentValueType} (${formatCurrency(repaymentValue)})`;
 	}
 
 	// ---------

@@ -49,6 +49,28 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
+	creditBalance(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		const creditBalanceRequest = {
+			"cifnumber": cifNumber
+		};
+
+		const url = `/clientcare-credit-${this._version}/credit/balance`;
+
+		return this.post(
+			url,
+			creditBalanceRequest,
+			this.setToken(),
+			`creditBalance`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
 	budgetFacility(accountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
 		const budgetFacilityRequest = {
