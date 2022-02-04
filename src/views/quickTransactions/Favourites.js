@@ -19,7 +19,8 @@ import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
 import 'app/components/dialogs/common/Feedback';
-
+import 'app/dialogs/credit/PaidUpAccounts';
+import 'app/dialogs/credit/PaidUpLetter';
 import 'app/dialogs/taxCertificates/TaxCertificates';
 
 
@@ -107,6 +108,7 @@ export class Favourites extends SavingsAccountBase {
 			const taxCertificates = () => this._taxCertificates();
 			const proofOfAccount = () => this._proofOfAccount();
 			const searchOtherNeed = () => this._searchOtherNeed();
+			const paidUpAccounts = () => this._paidUpAccounts ();
 			
 			const actions = {
 				'stop-card': stopCard,
@@ -116,7 +118,8 @@ export class Favourites extends SavingsAccountBase {
 				'statements': statements,
 				'tax-certificate': taxCertificates,
 				'proof-of-account': proofOfAccount,
-				'search-other-need': searchOtherNeed
+				'search-other-need': searchOtherNeed,
+				'paid-up-accounts' : paidUpAccounts
 			};
 
 			if (actions[option]) {
@@ -527,6 +530,11 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
+	_paidUpAccounts ()
+	{
+		this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
+	}
+
 	_unavailableOption() {
 		this.renderMode = RENDER_MODE.ALERT_MODAL;
 	}
@@ -721,6 +729,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderFeedback()}
 			${this._renderUpdateIncidentModal()}
 			${this._renderTaxCertificate()}
+			${this._renderpaidUpAccounts()}
 
 			${super._webTemplate()}
 		`;
@@ -940,7 +949,18 @@ export class Favourites extends SavingsAccountBase {
 			</horizon-tax-certificate>
 		`
 		: html``;
-	}  
+	} 
+
+	_renderpaidUpAccounts ()
+	{
+		return this.renderMode === RENDER_MODE.PAID_UP_ACCOUNTS
+		? html`
+		<horizon-paid-up-accounts
+			.landingPageInfo="${this.landingPageInfo}"
+			@cancel="${() => this._backToLandingPage()}">
+		</horizon-paid-up-accounts>`
+	: html``;
+	}
 }
 
 customElements.define(`horizon-favourites`, Favourites);
