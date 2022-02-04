@@ -337,7 +337,6 @@ export class AccessChannels extends Component {
 		}
 
 		this._deepCopyStatus();
-		this.status.internetBanking.dateLastUpdated = new Date().toISOString();
 		return true;
 	}
 

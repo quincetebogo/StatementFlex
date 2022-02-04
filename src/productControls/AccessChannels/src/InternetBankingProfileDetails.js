@@ -1113,7 +1113,7 @@ export class InternetBankingProfileDetails extends Component {
 				@click="${() => this.displayToast = false}"
 				?closable=${false}>
 				<capitec-label label="Successful!" type="strong"></capitec-label>
-				<capitec-label label="Security token was reset"></capitec-label>
+				<capitec-label label="Security token was reset."></capitec-label>
 				<capitec-spacer></capitec-spacer>
 				<capitec-label label="You can now log in again."></capitec-label>
 				<capitec-spacer></capitec-spacer>
@@ -1131,9 +1131,17 @@ export class InternetBankingProfileDetails extends Component {
 				detail="Internet security token was not reset."
 				?hidden="${!this.displayResetUnsuccessfulToast}"
 				@click="${() => this.displayResetUnsuccessfulToast = false}"
-				?closable=${false}
-			></capitec-toast>
-		` : html``;
+				?closable=${false}>
+				<capitec-label label="Unsuccessful!" type="strong"></capitec-label>
+				<capitec-label label="Internet security token was not reset."></capitec-label>
+				<capitec-spacer></capitec-spacer>
+				<capitec-hyperlink
+					@click="${() => this._onResetSecurityTokenClockClick()}"
+					label="Try again"
+					inline
+				></capitec-hyperlink>
+			</capitec-toast>` 
+			: html``;
 	}
 
 	_renderTokenSuspendSuccessToast() {
