@@ -199,27 +199,28 @@ export class MiniProfile extends Component {
 					width: 380px;
 				}
 				#id-notify-client-warning-msg {
-					color: #D4781C;
-					font-family: "Hind Vadodara";
-					font-size: 15px;
+					font-family: "Hind Vadodara SemiBold";
+					font-size: 14px;
 					letter-spacing: 0;
 				}
 				#id-verify-now-warning-link {
-					--theme-hyperlink-color: #D4781C;
-					--theme-font-family: "Hind Vadodara";
-					--theme-font-weight: 600;
+					--theme-hyperlink-color: var(--theme-alert-banner-warning-font-color);
+					--theme-font-family: "Hind Vadodara Medium";
 				}
 				#id-verify-via-app-msg {
-					color:#C83C37;
-					font-family: "Hind Vadodara";
-					font-size: 15px;
+					font-family: "Hind Vadodara SemiBold";
+					font-size: 14px;
+					letter-spacing: 0;
+				}
+				#id-verify-via-app-failed-msg {
+					font-family: "Hind Vadodara SemiBold";
+					font-size: 14px;
+					font-weight: 600;
 					letter-spacing: 0;
 				}
 				#verify-via-app-link{
-					--theme-hyperlink-color:#C83C37;
-					--theme-font-family: "Hind Vadodara";
-					--theme-font-weight: 600;
-					text-decoration: underline;
+					--theme-hyperlink-font-size: 14px;
+					--theme-font-family: "Hind Vadodara SemiBold";
 				}
 				capitec-tooltip {
 					display: none;
@@ -360,10 +361,32 @@ export class MiniProfile extends Component {
 					data-automation-id="mini-profile-3rdparty-banner"
 					class="banner" 
 					type="warning">
-				Client has not been verified
+				<b>Client has not been verified</b>
 			</capitec-alert-banner>
 			`;
 		} else if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels) {
+			return html`
+			<capitec-alert-banner
+					class="banner" 
+					type="unsuccessful-red">
+				<capitec-group 
+						id="id-notify-banner-group" 
+						layout="horizontal">
+					<capitec-label
+						id="id-verify-via-app-msg" 
+						label="Verification Failed">
+					</capitec-label>
+					<capitec-spacer></capitec-spacer>
+					<capitec-hyperlink
+						id="verify-via-app-link" 
+						data-automation-id="mini-profile-verify-app"
+						@click="${() => this._onVerifyNowClick()}"
+						label="Verify now">
+					</capitec-hyperlink>
+				</capitec-group>
+			</capitec-alert-banner>
+			`;
+		} else if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels && this.miniProfile.verificationAttempts.itaAttempts > 2) {
 			return html`
 			<capitec-alert-banner 
 					class="banner" 
@@ -372,16 +395,9 @@ export class MiniProfile extends Component {
 						id="id-notify-banner-group" 
 						layout="horizontal">
 					<capitec-label 
-						id="id-verify-via-app-msg" 
-						label="Verification Unsuccessful">
+						id="id-verify-via-app-failed-msg" 
+						label="Blocked on Remote / Mobile Banking Channels">
 					</capitec-label>
-					<capitec-spacer></capitec-spacer>
-					<capitec-hyperlink 
-						id="verify-via-app-link" 
-						data-automation-id="mini-profile-verify-app"
-						@click="${() => this._onVerifyNowClick()}"
-						label="Verify Now">
-					</capitec-hyperlink>
 				</capitec-group>
 			</capitec-alert-banner>
 			`;
@@ -401,7 +417,7 @@ export class MiniProfile extends Component {
 						id="id-verify-now-warning-link" 
 						data-automation-id="mini-profile-verify"
 						@click="${() => this._onVerifyNowClick()}"
-						label="Verify Now">
+						label="Verify now">
 					</capitec-hyperlink>
 				</capitec-group>
 			</capitec-alert-banner>

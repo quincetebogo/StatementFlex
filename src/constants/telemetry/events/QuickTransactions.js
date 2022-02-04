@@ -66,40 +66,25 @@ export const QuickTransactionEvents = {
 	TAP_TO_PAY_OUTCOME_ANOTHER: `call.fulfill-need.tap-to-pay.outcome.another`,
 	TAP_TO_PAY_OUTCOME_HANDOFF: `call.fulfill-need.tap-to-pay.outcome.hand-off`,
 	LAUNCH_STRACK_FEEDBACK: `call.fulfill-need.feedback`,
-	 LAUNCH_STRACK_FEEDBACK_DONE: `call.fulfill-need.feedback.done`,
+	LAUNCH_STRACK_FEEDBACK_DONE: `call.fulfill-need.feedback.done`,
 
-	 // Update card limits 
-	 CARD_LIMITS: `call.fulfill-need.card-limits`,
-	 CARD_LIMITS_SELECT_CARD: `call.fulfill-need.card-limits.select-card`,
+	// Update card limits 
+	CARD_LIMITS: `call.fulfill-need.card-limits`,
+	CARD_LIMITS_SELECT_CARD: `call.fulfill-need.card-limits.select-card`,
 
-	 // Update card limits modal
-	 UPDATE_LIMITS: `call.fulfill-need.card-limits.update-limits`,
-	 UPDATE_LIMITS_NEXT: `call.fulfill-need.card-limits.update-limits.next`,
-	 UPDATE_LIMITS_AGREE: `call.fulfill-need.card-limits.update-limits.agree`,
-	 UPDATE_LIMITS_BACK: `call.fulfill-need.card-limits.update-limits.back`,
-	 UPDATE_LIMITS_CANCEL: `call.fulfill-need.card-limits.update-limits.cancel`,
+	// Update card limits modal
+	UPDATE_LIMITS: `call.fulfill-need.card-limits.update-limits`,
+	UPDATE_LIMITS_NEXT: `call.fulfill-need.card-limits.update-limits.next`,
+	UPDATE_LIMITS_AGREE: `call.fulfill-need.card-limits.update-limits.agree`,
+	UPDATE_LIMITS_BACK: `call.fulfill-need.card-limits.update-limits.back`,
+	UPDATE_LIMITS_CANCEL: `call.fulfill-need.card-limits.update-limits.cancel`,
 
-	 // Discard changes modal
-	 DISCARD_CHANGES: `call.fulfill-need.card-limits.update-limits.discard-changes`,
-	 DISCARD_CHANGES_CANCEL: `call.fulfill-need.card-limits.update-limits.discard-changes.cancel`,
-	 DISCARD_CHANGES_CONFIRM: `call.fulfill-need.card-limits.update-limits.discard-changes.confirm`,
+	// Discard changes modal
+	DISCARD_CHANGES: `call.fulfill-need.card-limits.update-limits.discard-changes`,
+	DISCARD_CHANGES_CANCEL: `call.fulfill-need.card-limits.update-limits.discard-changes.cancel`,
+	DISCARD_CHANGES_CONFIRM: `call.fulfill-need.card-limits.update-limits.discard-changes.confirm`,
 
 	 // Satements
-	 STATEMENTS: `call.fulfill-need.statements`,
-	 STATEMENTS_CANCEL: `call.fulfill-need.statements.cancel`,
-
-	 STATEMENTS_SELECT_ACCOUNT: `call.fulfill-need.statements.select-account`,
-	 STATEMENTS_SELECT_PLAN: `call.fulfill-need.statements.select-plan`,
-	 STATEMENTS_ACCOUNT_NEXT: `call.fulfill-need.statements.next`,
-	 STATEMENTS_SELECT_PERIOD: `call.fulfill-need.statements.select-period`,
-	 STATEMENTS_BACK: `call.fulfill-need.statements.back`,
-	 STATEMENTS_SELECT_DATE_RANGE: `call.fulfill-need.statements.select-custom-period`,
-	 STATEMENTS_PERIOD_NEXT: `call.fulfill-need.statements.select-period.next`,
-
-	SELECT_STATEMENTS_VIEW_PDF: `call.fulfill-need.statements.view-document`,
-	SELECT_STATEMENTS_CLOSE_PDF: `call.fulfill-need.statements.close-document`,
-	STATEMENTS_SEND: `call.fulfill-need.statements.send`,
-
 	// Debi-check
 	DEBICHECK: `call.fulfill-need.debicheck`,
 	DEBICHECK_EXIT: `call.fulfill-need.debicheck.exit`,
@@ -132,3 +117,33 @@ export const QuickTransactionEvents = {
 	TAX_CERTIFICATE_FIND_BRANCH: `call.fulfill-need.tax-certificate.find-a-branch`
 
 };
+
+/**
+ * The event names to use when logging telemetry events for statements flow from Favourites.
+ * This correspond to the `Action` and `eventName` columns in the Data Spec.
+ * 
+ * @readonly
+ * @enum {Object} STATEMENT_EVENTS
+ */
+export const STATEMENT_EVENTS = Object.freeze({
+	STATEMENTS: `call.fulfill-need.statements`,
+	STATEMENTS_POP: `call.fulfill-need.statements.pop-up`,
+	STATEMENTS_CANCEL: `call.fulfill-need.statements.pop-up.cancel`,
+	
+	STATEMENTS_ACCOUNT_NEXT: `call.fulfill-need.statements.pop-up.choose-account.next`,
+	STATEMENTS_PERIOD_NEXT: `call.fulfill-need.statements.pop-up.choose-period.next`,
+	STATEMENTS_BACK: `call.fulfill-need.statements.pop-up.back`,
+	STATEMENTS_SEND: `call.fulfill-need.statements.pop-up.send`,
+	
+	STATEMENTS_VIEW_PDF: `call.fulfill-need.statements.pop-up.view-document`,
+	STATEMENTS_CLOSE_PDF: `call.fulfill-need.statements.pop-up.close-document`,
+
+	// Outcome screens
+	STATEMENTS_SUCCESS: `call.fulfill-need.statements.success`,
+	STATEMENTS_SUCCESS_DONE: `call.fulfill-need.statements.success.done`,
+	STATEMENTS_SEND_ANOTHER: `call.fulfill-need.statements.success.send-another`,
+
+	STATEMENTS_FAILURE: `call.fulfill-need.statements.failure`,
+	STATEMENTS_FAILURE_DONE: `call.fulfill-need.statements.failure.done`,
+	STATEMENTS_FAILURE_ASSIGN: `call.fulfill-need.statements.failure.assign`
+});

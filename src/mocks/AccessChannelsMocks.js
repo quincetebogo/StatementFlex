@@ -21,6 +21,7 @@ export const accessChannelsDetails = {
 	},
 	"ussd": {
 		"status": "Active",
+		"statusReason": "",
 		"isSimBlocked": true,
 		"dateLastUsed": "2021-12-08T08:00:48.879Z",
 		"dateRegistered": "2021-12-08T08:00:48.879Z",
@@ -29,5 +30,11 @@ export const accessChannelsDetails = {
 		"features": [
 			"REDUCED_MENU"
 		]
+	},
+	"notifications": {
+		"status": "Active",
+		"messageType": "SMS Update",
+		"messageTime": "Anytime",
+		"dateLastUpdated": "2021-12-08T08:00:48.879Z"
 	}
 };

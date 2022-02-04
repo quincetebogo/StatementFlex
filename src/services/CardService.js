@@ -71,7 +71,7 @@ export class CardService extends ChannelServiceBase {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		let cardStopResults = [];
-		incidentDetails = this.horizonStore.getIncidentDetails();
+		// incidentDetails = this.horizonStore.getIncidentDetails();
 
 		const stopCardRequest = {
 			cards: cardsToStop.map((card) => ({
@@ -96,7 +96,7 @@ export class CardService extends ChannelServiceBase {
 	
 		const url = `/clientcare-card-${this._version}/StopCard`;
 	
-		const returnValue = this.post(
+		const returnValue = await this.post(
 			url, 
 			stopCardRequest, 
 			this.setToken(), 

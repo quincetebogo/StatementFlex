@@ -245,6 +245,9 @@ export class AppShell extends Shell {
 					--horizon-right-panel-width: 320px;
 					--horizon-panel-height: 888px;
 					--horizon-toast-top: 68px;
+					--horizon-modal-width: 696px;
+					--horizon-end-call-button-margin-right: 16px;
+					--horizon-end-call-button-margin-top: 8px;
 					--horizon-status-bar-icon-group-right-margin: 80px;
 				}
 
@@ -295,6 +298,7 @@ export class AppShell extends Shell {
 					--theme-modal-header-font-size: 18px;
 					--theme-modal-header-font-weight: 600;
 					--theme-modal-header-padding-left: 16px;
+					--theme-modal-header-padding-right: 16px;
 
 					/* StatusBar */
 					--theme-statusbar-min-height: 72px;
@@ -314,6 +318,8 @@ export class AppShell extends Shell {
 					--theme-alert-banner-error-font-color: #3A3A3A;
 					--theme-alert-banner-unsuccessful-font-color: #3A3A3A;
 					--theme-alert-banner-unsuccessful-red-font-color: #3A3A3A;
+
+					--theme-hyperlink-color:  #3A3A3A;
 				}`
 		];
 	}
