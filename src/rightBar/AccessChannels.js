@@ -55,6 +55,9 @@ export class AccessChannels extends Component {
 		this.logger = Logger.getInstance();
 
 		this._telemetry = HorizonTelemetry.instance;
+		const callerInformation = this.horizonStore.getCallerInformation();
+		this.cifNumber = callerInformation.cifNumber;
+		this.verifiedTelephoneNumber = callerInformation.verifiedTelephoneNumber;
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
 	}
@@ -85,9 +88,6 @@ export class AccessChannels extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		const callerInformation = this.horizonStore.getCallerInformation();
-		this.cifNumber = callerInformation.cifNumber;
 
 		this._accessChannelService();
 		this._landingInfo();
@@ -490,6 +490,7 @@ export class AccessChannels extends Component {
 			? html`
 				<capitec-pc-internet-banking-profile-details
 					.internetBankingDetails = "${this.landingInfo.internetBanking}"
+					verifiedNumber = "${this.verifiedTelephoneNumber}"
 					?showSideSheet = "${this.showSideSheet}"
 
 					.suspendInternetBankingSecurityToken = "${(suspendReason, selectedToken) => this.suspendInternetBanking(suspendReason, selectedToken)}"

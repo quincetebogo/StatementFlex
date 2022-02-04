@@ -107,6 +107,7 @@ export class InternetBankingProfileDetails extends Component {
 			// input properties
 			internetBankingDetails: { type: Object },
 			showSideSheet: { type: Boolean },
+			verifiedNumber: { type: String},
 
 			// callback functions
 			suspendInternetBankingSecurityToken: { type: Object, attribute: false },
@@ -133,22 +134,24 @@ export class InternetBankingProfileDetails extends Component {
 
 	async connectedCallback() {
 		super.connectedCallback();
-		this.tokenList = await this.getClientTokens(this.internetBankingDetails.userRegNo);
+		// this.tokenList = await this.getClientTokens(this.internetBankingDetails.userRegNo);
 
-		if(this.tokenList.tokens !== null) {
-			this.tokenList.map(item => {
-				const clientToken =
-				{ 
-					token: item.tokens.serialNo, 
-					selected: false
-				}
-				this.clientTokens.push(clientToken);
-			});
-		}
+		// if(this.tokenList.tokens !== null) {
+		// 	this.tokenList.map(item => {
+		// 		const clientToken =
+		// 		{ 
+		// 			token: item.tokens.serialNo, 
+		// 			selected: false
+		// 		}
+		// 		this.clientTokens.push(clientToken);
+		// 	});
+		// }
+
+
+		this.clientTokens = CLIENT_TOKENS;
 
 		this.isMultipleDevices = this.clientTokens.length > 1 ? true : false;
 
-		// this.clientTokens = CLIENT_TOKENS;
 		this.isInternetBankingActive = this.internetBankingDetails.status === `Active`;
 	}
 
@@ -222,6 +225,8 @@ export class InternetBankingProfileDetails extends Component {
 				this.internetBankingDetails.dateLastUpdated = new Date().toISOString();
 				this._displayTokenSuspendSuccessToast();
             } else {
+				this.showSuspendPanel = !this.showSuspendPanel;
+				this._displayTokenSuspendUnsuccessToast();
                 //unsuccessfull screen
 
 			}
@@ -351,7 +356,7 @@ export class InternetBankingProfileDetails extends Component {
 
 	_displayTokenSuspendUnsuccessToast() {
 		this.displaySuspendUnsuccessToast = true;
-		window.setTimeout(() => this.displaySuspendToast = false, 3000);
+		window.setTimeout(() => this.displaySuspendUnsuccessToast = false, 3000);
 	}
 
 	_formatDate(dateToFormat) {
@@ -776,7 +781,7 @@ export class InternetBankingProfileDetails extends Component {
 				<horizon-label
 					data-automation-id=""
 					label="Cellphone number (verified)"
-					value="082 555 9090"
+					value="${this.verifiedNumber}"
 					style="display:${this.isMultipleDevices ? `block` : `none`}"
 				></horizon-label>
 
@@ -792,12 +797,13 @@ export class InternetBankingProfileDetails extends Component {
 					value="${this.isInternetBankingActive ? `Active` : `Suspended`}"
 				></horizon-label>
 
-				<horizon-label
+				<!-- TODO: FIND FIELD AND ADD IT -->
+				<!-- <horizon-label
 					data-automation-id=""
 					label="Last updated"
 					value="${this._formatDate(this.internetBankingDetails.dateLastUpdated)}, ${this._formatTime(this.internetBankingDetails.dateLastUpdated)}"
 					style="display:${this.isInternetBankingActive ? `none` : `block`}"
-				></horizon-label>
+				></horizon-label> -->
 
 				<horizon-label
 					data-automation-id=""
@@ -1139,14 +1145,12 @@ export class InternetBankingProfileDetails extends Component {
 	}
 
 	_renderTokenSuspendUnsuccessToast() {
-		const formatedUpdatedDate = `${this._formatDate(this.internetBankingDetails.dateLastUpdated)}, ${this._formatTime(this.internetBankingDetails.dateLastUpdated)}`;
-
 		return this.displaySuspendUnsuccessToast ? html`
 			<capitec-toast
 				class="token-suspend-toast-success"
 				type="error"
 				header="Unsuccessful!"
-				detail="Internet security token was not suspended. &nbsp &nbsp &nbsp &nbsp To access internet banking you will need to register on the App. &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp ${formatedUpdatedDate}"
+				detail="Internet security token was not suspended."
 				?hidden="${!this.displaySuspendUnsuccessToast}"
 				@click="${() => this.displaySuspendUnsuccessToast = false}"
 				?closable=${false}

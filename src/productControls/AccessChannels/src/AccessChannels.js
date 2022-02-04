@@ -135,7 +135,7 @@ export class AccessChannels extends Component {
 	}
 
 	_getNotificationsDetails() {
-		return `${this.status.notifications?.messageType} | ${this.status.notifications?.messageTime}`;
+		return `${this.status.notification?.messageType} | ${this.status.notification?.messageTime}`;
 	}
 
 	// ---------
@@ -229,7 +229,7 @@ export class AccessChannels extends Component {
 					data-automation-id="access-channels-ussd"
 					type="default"
 					label="USSD"
-					status="${this._getUssdStatus(this.status.ussd)}"
+					status="${this._getUssdStatus(this.status.ussdActive)}"
 					subtitle="${this._getStatusDetails(ACCESS_CHANNELS_TYPE.USSD)}"
 					detail=""
 					icon="system/cellphone"
