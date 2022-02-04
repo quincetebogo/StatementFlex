@@ -405,10 +405,10 @@ export class AccessChannels extends Component {
 	async getUssdLandingDetails(clientInfo) {
 		const returnValue = await this.accessChannelService.accessChannelsUssdLanding(clientInfo);
 		if (returnValue.succeeded) {
-			this.status = returnValue.result;
-			return;
+			return returnValue.result;
 		}
 		this.logger.log(`error`, `Failed to load USSD landing details`, `getUssdLandingDetails`, returnValue.correlationId);
+		return null;
 	}
 
 	_deepCopyStatus() {
