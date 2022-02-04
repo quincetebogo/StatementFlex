@@ -317,6 +317,13 @@ export class FavouriteTransactions extends Component {
 					@click="${() => this._optionSelectedClick(`proof-of-account`)}"
 					?disabled="${this.shouldDisable(`proof-of-account`)}">
 				</horizon-option-button>
+				<horizon-option-button
+					label="Paid up Letter" 
+					icon="system/documents-action" 
+					iconSize="default"
+					@click="${() => this._optionSelectedClick(`paid-up-accounts`)}"
+					?disabled="${this.shouldDisable(`paid-up-accounts`)}">
+				</horizon-option-button>
 			</capitec-button-bar>
 		`;
 	}
