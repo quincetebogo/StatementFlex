@@ -1,5 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { AccessChannelService } from 'app/services/AccessChannelService';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -27,7 +26,6 @@ export class USSDProfileDetails extends Component {
 		this.ussdStatus = ``;
 		
 		this.horizonStore = HorizonStore.getInstance();
-		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 	
 	// ----------
@@ -46,7 +44,10 @@ export class USSDProfileDetails extends Component {
 	 /**
 	 * @callback activateFullMenuUSSD
 	 * @returns {activateFullMenuUSSDCallback} - Success or failure response for activating full ussd.
-
+	 * 
+	 * @callback getUssdLandingDetails
+	 * @returns {getUssdLandingDetailsCallback} - get ussd landing details
+	
 	 * 
 	 * @property {Boolean} [showSideSheet] - To toggle Side sheet component
 	 * @property {Object} [ussd] - Ussd profile details
@@ -58,6 +59,7 @@ export class USSDProfileDetails extends Component {
 	 * 
 	 * @property {cancelUSSDCallback} cancelUSSD Callback function to cancel USSD
 	 * @property {unblockSIMCallback} unblockSIM Callback function to Unblock SIM
+	 * @property {getUssdLandingDetailsCallback} getUssdLandingDetails Callback gets USSD landing details
 	 * 
 	 */
 	static get properties() {
@@ -162,21 +164,15 @@ export class USSDProfileDetails extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
-	}
-
 	async _initialise() {
 		const clientInfo = {
 			msisdn: this.callerInformation.verifiedTelephoneNumber
 		};
 
-		const returnValue = await this.accessChannelService.accessChannelsUssdLanding(clientInfo);
+		const result = await this.getUssdLandingDetails(clientInfo);
 
-		if (returnValue.succeeded) {
-			
-			this.ussd = returnValue.result;
-
+		if (result) {
+			this.ussd = returnValue;
 			this.ussdStatus = this.ussd && this.ussd.status;
 		}
 	}

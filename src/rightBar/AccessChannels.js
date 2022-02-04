@@ -402,6 +402,15 @@ export class AccessChannels extends Component {
 		
 	}
 
+	async getUssdLandingDetails(clientInfo) {
+		const returnValue = await this.accessChannelService.accessChannelsUssdLanding(clientInfo);
+		if (returnValue.succeeded) {
+			this.status = returnValue.result;
+			return;
+		}
+		this.logger.log(`error`, `Failed to load USSD landing details`, `getUssdLandingDetails`, returnValue.correlationId);
+	}
+
 	_deepCopyStatus() {
 		// Creates and returns a deep copy of an Object this.status
 		this.status = Utilities.deepCopy(this.status);
@@ -492,6 +501,7 @@ export class AccessChannels extends Component {
 			.cancelUSSD="${cancelReason => this.cancelUSSD(cancelReason)}"
 			.unblockSIM="${() => this.unblockSIM()}"
 			.activateFullMenuUSSD="${() => this.activateFullMenuUSSD()}"
+			.getUssdLandingDetails="${(clientInfo) => this.getUssdLandingDetails(clientInfo)}"
 
 			@toggle-ussd-cancel-reasons="${(event) => this._toggleUssdCancelReasons(event)}"
 			@close-side-sheet="${(event) => this._showSlidingPanel(event)}">
