@@ -1,5 +1,7 @@
 import { Component, html } from 'platform/elements';
 import { EventAggregator, Logger } from 'platform/core';
+import { ClientInsightsService } from 'app/services/ClientInsightsService';
+import { Utilities } from 'platform/Utilities';
 import { ValueAddedService } from 'app/services/ValueAddedService';
 
 import 'platform/components';
@@ -8,6 +10,55 @@ import 'app/dialogs/valueAddedServices/ValueAddedServices';
 import 'app/dialogs/valueAddedServices/ValueAddedServicesUnavailable';
 import 'app/dialogs/valueAddedServices/VASNoClientData';
 
+const mockData = [
+	{
+		"entityId": "71da20cb-4e25-40ac-b363-aa9300833000",
+		"nbaId": 100,
+		"parentCategoryId": 23,
+		"reference": "ID",
+		"message": "Recall request awaiting feedback\n\nDescription: Remote banking\nRef #: In123456\nDate Logged: 5 July 2015\nStatus: active\nOwner: remote team",
+		"actions": [
+		{
+		"displayName": "This was useful",
+		"type": "deepLink",
+		"data": {
+		"constant": "STrack"
+		},
+		"replyReference": "eyJFbnRpdHlJZCI6IjcxZGEyMGNiLTRlMjUtNDBhYy1iMzYzLWFhOTMwMDgzMzAwMCIsIk5iYUlkIjoxMDAsIlBhcmVudENhdGVnb3J5SWQiOjIzLCJBY3Rpb24iOiJPcGVuIFNUcmFjayJ9"
+		},
+		{
+		"displayName": "This didn't help",
+		"type": "NoAction",
+		"data": null,
+		"replyReference": "eyJFbnRpdHlJZCI6IjcxZGEyMGNiLTRlMjUtNDBhYy1iMzYzLWFhOTMwMDgzMzAwMCIsIk5iYUlkIjoxMDAsIlBhcmVudENhdGVnb3J5SWQiOjIzLCJBY3Rpb24iOiJGdWxmaWxsIE5lZWQifQ=="
+		}
+		]
+	},
+
+	{
+		"entityId": "71da20cb-4e25-40ac-b363-aa9300833000",
+		"nbaId": 100,
+		"parentCategoryId": 23,
+		"reference": "ID",
+		"message": "Your Remote banking is in progress\n\nDescription: Remote banking\nRef #: In123456\nDate Logged: 5 July 2015\nStatus: active\nOwner: remote team",
+		"actions": [
+		{
+		"displayName": "This was useful",
+		"type": "deepLink",
+		"data": {
+		"constant": "STrack"
+		},
+		"replyReference": "eyJFbnRpdHlJZCI6IjcxZGEyMGNiLTRlMjUtNDBhYy1iMzYzLWFhOTMwMDgzMzAwMCIsIk5iYUlkIjoxMDAsIlBhcmVudENhdGVnb3J5SWQiOjIzLCJBY3Rpb24iOiJPcGVuIFNUcmFjayJ9"
+		},
+		{
+		"displayName": "This didn't help",
+		"type": "NoAction",
+		"data": null,
+		"replyReference": "eyJFbnRpdHlJZCI6IjcxZGEyMGNiLTRlMjUtNDBhYy1iMzYzLWFhOTMwMDgzMzAwMCIsIk5iYUlkIjoxMDAsIlBhcmVudENhdGVnb3J5SWQiOjIzLCJBY3Rpb24iOiJGdWxmaWxsIE5lZWQifQ=="
+		}
+		]
+	}
+];
 export class Insights extends Component {
 
 	// --------------
@@ -27,6 +78,7 @@ export class Insights extends Component {
 		this.logger = Logger.getInstance();
 
 		this.valueAddedService = new ValueAddedService(() => this._toggleBusyFlag(), () => true);
+		this.clientInsightsService = new ClientInsightsService(() => this._toggleBusyFlag(), () => true);
 	}
 
 	// ----------
@@ -49,7 +101,8 @@ export class Insights extends Component {
 			statusVAS: { state: true },
 			showValueAddedServicesModal: { state: true },
 			showUnavailableVASModal: { state: true },
-			showVASNoClientDataModal: { state: true }
+			showVASNoClientDataModal: { state: true },
+			clientInsightsDetails: { state: true }
 		};
 	}
 
@@ -59,6 +112,8 @@ export class Insights extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this._getClientInsights();
 	}
 
 	// --------------
@@ -118,6 +173,50 @@ export class Insights extends Component {
 		this.showUnavailableVASModal = !this.showUnavailableVASModal;
 	}
 
+	async _getClientInsights() {
+		const returnValue = await this.clientInsightsService.getClientInsights(this.cifNumber);
+
+		// TO DO: Get data from CS response once Test data is available
+		const clientInsights = mockData.shift();
+		this._formatInsightDetails(clientInsights);
+	
+	}
+
+	async _insightsAction(replyReference) {
+		const returnValue = await this.clientInsightsService.sendInsightsAction(replyReference);
+
+		if (returnValue.succeeded) {
+
+			
+			if (mockData.length > 0) {
+				this._formatInsightDetails(mockData.shift());
+				this._deepCopyProperty();
+			} else {
+				// TO DO: Dispaly Special Campaigns
+			}
+		}
+	}
+
+	_formatInsightDetails(clientInsights) {
+		const message = clientInsights.message.split(`\n\n`);
+		// const details = JSON.parse(message[1]);
+
+		this.clientInsightsDetails = {
+			header: message[0],
+			actions: clientInsights.actions,
+			details: {
+				"Reference number": `838438439399`,
+				"Logged": `1 April 2021`,
+				"Assigned to": `Thomas`
+			}
+		};
+	}
+
+	_deepCopyProperty() {
+		// Creates and returns a deep copy of an Object this.clientInsightsDetails which helps to render main screen.
+		this.clientInsightsDetails = Utilities.deepCopy(this.clientInsightsDetails);
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -138,10 +237,10 @@ export class Insights extends Component {
 	_renderClientInsights() {
 		return html`
 			<capitec-pc-client-insights
-				.scenario=${`cards`}
-				@settings-click="${() => this._showVASModal()}">
-			</capitec-pc-client-insights>
-		`;
+				.clientInsightsDetails=${this.clientInsightsDetails}
+				@settings-click="${() => this._showVASModal()}"
+				@response-selected="${(e) => this._insightsAction(e.detail.replyReference)}">
+			</capitec-pc-client-insights>`;
 	}
 
 	_renderValueAddedServicesModal() {

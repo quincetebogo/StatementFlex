@@ -24,7 +24,7 @@ const SCENARIO_INFO = {
 		leftChipIcon: `thumbsUp.svg`,
 		rightChipIcon: `thumbsDown.svg`
 	}
-}
+};
 
 /**
  * Client Insights is used to display various information about the client.
@@ -50,9 +50,8 @@ export class ClientInsights extends Component {
 
 		// TODO: Placeholders in this file to be removed once the images are signed off.
 		// TODO: Hardcoded values to be removed when CS is implemented
-		this.referenceNumber = `838438439399`;
-		this.logged = `1 April 2021`;
-		this.assigned = `Thomas`;
+
+		this.displayDetails = [];
 	}
 
 	// --------------
@@ -64,7 +63,8 @@ export class ClientInsights extends Component {
 	*/
 	static get properties() {
 		return {
-			scenario: { type: String }
+			clientInsightsDetails: { type: Object },
+			selectedResponse: { state: true }
 		};
 	}
 
@@ -88,6 +88,12 @@ export class ClientInsights extends Component {
 		this.dispatchEvent(new CustomEvent(`settings-click`, {}));
 	}
 
+	_selectResponse(replyReference) {
+		this.selectedResponse = replyReference;
+		
+		this.dispatchEvent(new CustomEvent(`response-selected`, { detail: { replyReference: this.selectedResponse } }));
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -106,7 +112,7 @@ export class ClientInsights extends Component {
 			super.styles,
 			css`
 				.insights-card {
-					height: 462px;
+					height: 428px;
 					width: var(--horizon-right-panel-width, 320px);
 				}
 
@@ -123,33 +129,49 @@ export class ClientInsights extends Component {
 					--theme-icon-size-small: 24px;
 					cursor: pointer;
 				}
-
+				.box-image {
+					margin-top: 100px;
+				}
 				.insights-group {
-					height: 398px;
+					height: 364px;
 				}
 
 				capitec-label {
 					--theme-label-subtitle-font-weight: 600;
 					--theme-label-subtitle-font-size: 18px;
+					--theme-layout-gap-spacing: 7px;
+					margin-top: 18px;
 				}
 
 				p {
+					width: 288px;
 					margin: 0px;
-					text-align: center;
+					padding: 12px;
 					font-size: 14px;
+					background-color: #F5F5F5;
+					border-radius: 4px;
 				}
 
 				capitec-chip {
 					--theme-chip-background-color: #FFFFFF;
+					--theme-avatar-size-extra-small: 16px;
+					--theme-chip-label-padding-left: 7px;
+					--theme-chip-padding: 8px;
+					--theme-chip-label-padding-right: 8px;
 				}
 
 				capitec-chip:hover {
-					--theme-chip-background-color: rgba(0,157,224,0.1);
-					--theme-chip-hover-border: none;
-					}
+					--theme-chip-hover-border: 1px solid rgba(0,157,224,0.1);
+				}
 
 				capitec-placeholder {
 					height: 152px;
+				}
+
+				.selected-chip {
+					--theme-chip-background-color: #009de0;
+					--theme-chip-hover-border: 1px solid #009de0;
+					--theme-chip-label-color: #FFFFFF;
 				}
 
 				.info {
@@ -194,7 +216,7 @@ export class ClientInsights extends Component {
 						data-automation-id="client-insights-${this.scenario}"
 						layout="vertical" 
 						halign="center" 
-						valign="center" 
+						valign="top" 
 						gap="clear" 
 						class="insights-group">
 					${this._renderContent()}
@@ -206,35 +228,53 @@ export class ClientInsights extends Component {
 	}
 
 	_renderContent() {
-		return html`
+		return this.clientInsightsDetails 
+		? html`
 			<capitec-label
 				type="subtitle"
-				label="${SCENARIO_INFO[this.scenario].subTitle}">
+				label="${this.clientInsightsDetails.header}">
 			</capitec-label>
 
-			<capitec-placeholder type="insure" label="" size="4"></capitec-placeholder>
-
 			<capitec-group layout="vertical" halign="center" valign="center" gap="none" class="info">
-				${this._renderCardExpiry()}
+				<capitec-image src="platform/illustrations/processing.svg"></capitec-image>
+				<p>
+					Reference number: <strong>${this.clientInsightsDetails.details[`Reference number`]}</strong><br>
+					Logged: <strong>${this.clientInsightsDetails.details.Logged}</strong><br>
+					Assigned to: <strong>${this.clientInsightsDetails.details[`Assigned to`]}</strong><br>
+				</p>
+				
+				<!-- ${this._renderCardExpiry()}
 				${this._renderRecallRequest()}
-				${this._renderDidYouKnow()}
+				${this._renderDidYouKnow()} -->
 			</capitec-group>
 
 			<capitec-group layout="horizontal" halign="center" valign="center" gap="clear">
 
-				<capitec-chip 
+				<capitec-chip
 						data-automation-id="client-insights-left-chip"
-						label="${SCENARIO_INFO[this.scenario].leftChipLabel}" 
-						avatar-image="src/productControls/ClientInsights/src/images/${SCENARIO_INFO[this.scenario].leftChipIcon}">
+						class="${this.selectedResponse === this.clientInsightsDetails.actions[0].replyReference ? `selected-chip` : ``}"
+						label="${this.clientInsightsDetails.actions[0].displayName}"
+						avatar-image="src/productControls/ClientInsights/src/images/${this.selectedResponse === this.clientInsightsDetails.actions[0].replyReference ? `thumbsUp-white` : `thumbsUp`}.svg"
+						@click="${() => this._selectResponse(this.clientInsightsDetails.actions[0].replyReference)}">
 				</capitec-chip>
 
-				<capitec-chip 
+				<capitec-chip
 						data-automation-id="client-insights-left-chip"
-						label="${SCENARIO_INFO[this.scenario].rightChipLabel}" 
-						avatar-image="src/productControls/ClientInsights/src/images/${SCENARIO_INFO[this.scenario].rightChipIcon}">
+						class="${this.selectedResponse === this.clientInsightsDetails.actions[1].replyReference ? `selected-chip` : ``}"
+						label="${this.clientInsightsDetails.actions[1].displayName}" 
+						avatar-image="src/productControls/ClientInsights/src/images/${this.selectedResponse === this.clientInsightsDetails.actions[1].replyReference ? `thumbsDown-white` : `thumbsDown`}.svg"
+						@click="${() => this._selectResponse(this.clientInsightsDetails.actions[1].replyReference)}">
 				</capitec-chip>
 
-			</capitec-group>`;
+			</capitec-group>`
+		: html`
+			<img
+				class="box-image"
+				src="images/landingPageImages/marketing.svg"/>
+			<capitec-label
+				type="subtitle"
+				label="Client insights coming soon...">
+			</capitec-label>`;
 	}
 
 
@@ -252,6 +292,7 @@ export class ClientInsights extends Component {
 	_renderRecallRequest() {
 		return this.scenario === `recallRequest` 
 			? html`
+				<capitec-image src="platform/illustrations/processing.svg"></capitec-image>
 				<p class="recallRequest-info">
 					Reference number: <strong>${this.referenceNumber}</strong><br>
 					Logged: <strong>${this.logged}</strong><br>
