@@ -229,7 +229,7 @@ export class AccessChannels extends Component {
 					data-automation-id="access-channels-ussd"
 					type="default"
 					label="USSD"
-					status="${this._getUssdStatus(this.status.ussdActive)}"
+					status="${this._getUssdStatus(this.status.ussd)}"
 					subtitle="${this._getStatusDetails(ACCESS_CHANNELS_TYPE.USSD)}"
 					detail=""
 					icon="system/cellphone"

@@ -134,21 +134,21 @@ export class InternetBankingProfileDetails extends Component {
 
 	async connectedCallback() {
 		super.connectedCallback();
-		// this.tokenList = await this.getClientTokens(this.internetBankingDetails.userRegNo);
+		this.tokenList = await this.getClientTokens(this.internetBankingDetails.userRegNo);
 
-		// if(this.tokenList.tokens !== null) {
-		// 	this.tokenList.map(item => {
-		// 		const clientToken =
-		// 		{ 
-		// 			token: item.tokens.serialNo, 
-		// 			selected: false
-		// 		}
-		// 		this.clientTokens.push(clientToken);
-		// 	});
-		// }
+		if(this.tokenList.tokens !== null) {
+			this.tokenList.map(item => {
+				const clientToken =
+				{ 
+					token: item.tokens.serialNo, 
+					selected: false
+				}
+				this.clientTokens.push(clientToken);
+			});
+		}
 
 
-		this.clientTokens = CLIENT_TOKENS;
+		// this.clientTokens = CLIENT_TOKENS;
 
 		this.isMultipleDevices = this.clientTokens.length > 1 ? true : false;
 
@@ -796,14 +796,6 @@ export class InternetBankingProfileDetails extends Component {
 					label="Status"
 					value="${this.isInternetBankingActive ? `Active` : `Suspended`}"
 				></horizon-label>
-
-				<!-- TODO: FIND FIELD AND ADD IT -->
-				<!-- <horizon-label
-					data-automation-id=""
-					label="Last updated"
-					value="${this._formatDate(this.internetBankingDetails.dateLastUpdated)}, ${this._formatTime(this.internetBankingDetails.dateLastUpdated)}"
-					style="display:${this.isInternetBankingActive ? `none` : `block`}"
-				></horizon-label> -->
 
 				<horizon-label
 					data-automation-id=""
