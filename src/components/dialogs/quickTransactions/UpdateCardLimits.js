@@ -1,9 +1,10 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { DateTime } from 'luxon';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/CardArt';
 
@@ -507,10 +508,6 @@ export class UpdateCardLimits extends Component {
 	}
 
 	_getTextFieldHint(value, isCNPLimit = false) {
-		if (this.verificationMethod === `XDS` && isCNPLimit) {
-			return `Have to verify client via ITA to update`;
-		}
-
 		if (this.limitType === `Temporary`) {
 			return isNullorEmpty(value) ? `Limit not set` : this.expiryDate;
 		}
@@ -833,6 +830,7 @@ export class UpdateCardLimits extends Component {
 			}
 			.alert-banner-group > capitec-label[type="default"] {
 				--theme-label-default-font-weight: 500;
+				margin-right: 50px;
 			}
 			`
 		];
@@ -891,7 +889,7 @@ export class UpdateCardLimits extends Component {
 	}
 
 	_renderHighRiskTransAlertBanner() {
-		return this.verificationMethod === `XDS` && this.renderMode === RENDER_MODE.LIMITS
+		return this.verificationMethod === `XDS` && this.cardDetails.cardDisplayType !== CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD && this.renderMode === RENDER_MODE.LIMITS
 			? html`
 				<capitec-alert-banner
 					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
@@ -899,7 +897,7 @@ export class UpdateCardLimits extends Component {
 						<capitec-group layout="horizontal" class="alert-banner-group">
 							<capitec-label type="strong" label="Notify client:"></capitec-label>
 							<capitec-label type="default"
-								label="For added security, we will be sending a push notification to access additional transactions.">
+								label="To update your Online limit, we will need to send you a push notification to proceed.">
 							</capitec-label>
 							<capitec-spacer></capitec-spacer>
 							<capitec-hyperlink

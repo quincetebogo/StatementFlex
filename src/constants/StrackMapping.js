@@ -1,0 +1,63 @@
+/**
+ * Strack mapping to classify a need
+ * Key - corresponds to the transaction, we gonna do for the client
+ * value - Key configured at CS to classify the need
+ * 
+ * @readonly
+ * @enum {Object} STRACK_MAPPING
+ */
+ export const STRACK_MAPPING = Object.freeze({
+	
+	// Quick transactions
+	"debi-check": `DEBI_CHECK`,
+	"debi-check-approve": `DEBI_CHECK_APPROVE`,
+	"debi-check-decline": `DEBI_CHECK_DECLINE`,
+	"debi-check-viewInfo": `DEBI_CHECK`,
+	"stop-card": `STOP_CARD`,
+	"update-card-limits": `UPDATE_CARD_LIMITS`,
+	"tap-to-pay": `TAP_TO_PAY`,
+	"statements": `STATEMENTS`,
+	"tax-certificate": `TAX_CERTIFICATE`,
+	"proof-of-account": `PROOF_OF_ACCOUNT`,
+
+	// Savings account
+	"transaction-history": `TRANSACTION_HISTORY`,
+	"statements-transact": `STATEMENTS`,
+
+	// Savings plan
+	"statements-save": `STATEMENTS`,
+
+	// LBB
+	"account-details-lbb": `ACCOUNT_INFORMATION_LBB`,
+	"transaction-history-lbb": `TRANSACTION_HISTORY_LBB`,
+	"statements-lbb": `STATEMENTS_LBB`,
+	"automatic-savings-lbb": `AUTOMATIC_SAVINGS_LBB`,
+
+	// Product info screens
+	"savings-product-info": `PRODUCT_ENQUIRY_SAVINGS`,
+	"savings-plan-info": `PRODUCT_ENQUIRY_SAVINGS_PLAN`,
+	"insure-product-info": `PRODUCT_ENQUIRY_INSURE`,
+	"credit-product-info": `PRODUCT_ENQUIRY_CREDIT`,
+	"live-better-product-info": `PRODUCT_ENQUIRY_LIVE_BETTER`,
+
+	// End call reason mapping
+	"telephony-disconnected": `TELEPHONY_DISCONNECTED`,
+	"language-transfer": `LANGUAGE_TRANSFER`,
+	"call-transfer": `CALL_TRANSFER`,
+	"general-product-enquiry": `GENERAL_PRODUCT_ENQUIRY`,
+	"failed-verification": `FAILED_VERIFICATION`,
+	"abandoned-verification": `TELEPHONY_NO_SHOW`,
+
+	// Unkonwn references/ dynamic implementations
+	"credit-card-statements": `STATEMENTS_CC`,
+	"savings-account": `SAVINGS_ACCOUNT`,
+	"telephony-hung-up": `TELEPHONY_HUNG_UP`,
+	"telephony-call-back": `TELEPHONY_CALL_BACK`,
+	"telephony-bad-connection": `TELEPHONY_BAD_CONNECTION`,
+	"telephony-no-reply": `TELEPHONY_NO_REPLY`,
+	"credit-card-balance": `CREDIT_CARD_BALANCE`,
+	"savings-account-balance": `SAVINGS_BALANCE`,
+	"mobile-banking": `MOBILE_BANKING_BALANCE`,
+	"transaction-history-request": `SAVINGS_BALANCE_TRANSACTIONS`,
+	"pending-transaction-information": `SAVINGS_BLANCE_PENDING`
+});
