@@ -452,33 +452,6 @@ export class SearchCaller extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	//TODO: Delete - search options moved to UI - see import SEARCH_OPTIONS
-	async _loadSearchOptions() {
-		
-		const returnValue = await this.callHandleService.searchOptions();
-		const options = SEARCH_OPTIONS; //returnValue.result;
-
-		if (returnValue.succeeded) {
-			this.identificationMethodsList = options.identificationMethods;
-			if (this.identificationMethodsList !== undefined) {
-				this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
-			}
-		} else {
-			this.horizonRouter.navigateToSystemError();
-		}
-	}
-
-	extractIdentificationMethods(identificationMethods) {
-
-		identificationMethods.possibleValues = identificationMethods.possibleValues.map(identificationMethod => {
-
-			Object.assign(identificationMethod, identificationMethod.value);
-			delete identificationMethod.value;
-			return identificationMethod;
-		});
-		return identificationMethods;
-	}
-
 	_validateNonClientFields() {
 		// Trimming/ removing empty spaces around non client details
 		this.nameValue = this.nameValue.trim();
