@@ -24,9 +24,6 @@ const RENDER_MODE = {
 	MULTIPLE_TOKEN: 2
 };
 
-// to be replaced with data from channel service
-//create NEW client_token list from token list. map and add boolean
-const CLIENT_TOKENS = [{ token: `90876375849`, selected: false }, { token: `123476375849`, selected: false }, { token: `019836375849`, selected: false }, { token: `23776375849`, selected: false }];
 
 /**
  * Internet Banking profile Details component is used to show client's information and Suspend/Reset Security Tokens.
@@ -108,6 +105,7 @@ export class InternetBankingProfileDetails extends Component {
 			internetBankingDetails: { type: Object },
 			showSideSheet: { type: Boolean },
 			verifiedNumber: { type: String},
+			clientTokens: { type: Object},
 
 			// callback functions
 			suspendInternetBankingSecurityToken: { type: Object, attribute: false },
@@ -122,6 +120,7 @@ export class InternetBankingProfileDetails extends Component {
 
 			displayToast: { type: Boolean, attribute: false },
 			displaySuspendToast: { type: Boolean, attribute: false },
+			displaySuspendUnsuccessToast: { type: Boolean, attribute: false },
 			isIndeterminate: { type: Boolean, attribute: false },
 			showNoReasonSelectedNotification: { type: Boolean, attribute: false },
 			showResetTokenPanel: { type: Boolean, attribute: false }
@@ -134,21 +133,19 @@ export class InternetBankingProfileDetails extends Component {
 
 	async connectedCallback() {
 		super.connectedCallback();
+
 		this.tokenList = await this.getClientTokens(this.internetBankingDetails.userRegNo);
 
 		if(this.tokenList.tokens !== null) {
-			this.tokenList.map(item => {
+			this.tokenList.tokens.map(item => {
 				const clientToken =
 				{ 
-					token: item.tokens.serialNo, 
+					token: item.tokenSerialNo, 
 					selected: false
 				}
 				this.clientTokens.push(clientToken);
 			});
 		}
-
-
-		// this.clientTokens = CLIENT_TOKENS;
 
 		this.isMultipleDevices = this.clientTokens.length > 1 ? true : false;
 
@@ -215,8 +212,8 @@ export class InternetBankingProfileDetails extends Component {
 
 	async _onSuspendSecurityTokenClick() {
 		if (this.selectedReason) {
-			// const selectedToken = this.selectedTokens;
-			const suspendResult = await this.suspendInternetBankingSecurityToken(this.selectedReason, this.selectedTokens);
+			const selectedToken = this.isMultipleDevices ? this.selectedTokens : this.clientTokens[0].token;
+			const suspendResult = await this.suspendInternetBankingSecurityToken(this.selectedReason, selectedToken);
 			if (suspendResult) {
 				this.showSuspendPanel = !this.showSuspendPanel;
 				this.isTokenSuspended = true;
@@ -768,7 +765,7 @@ export class InternetBankingProfileDetails extends Component {
 				<horizon-label
 					data-automation-id=""
 					label="Token serial number"
-					value="${this.internetBankingDetails.tokenSerialNumber}"
+					value="${this.clientTokens[0].token}"
 					style="display:${this.isMultipleDevices === false ? `block` : `none`}"
 				></horizon-label>
 
@@ -1142,7 +1139,7 @@ export class InternetBankingProfileDetails extends Component {
 				class="token-suspend-toast-success"
 				type="error"
 				header="Unsuccessful!"
-				detail="Internet security token was not suspended."
+				detail="Internet security token was not suspended. &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp Please try again."
 				?hidden="${!this.displaySuspendUnsuccessToast}"
 				@click="${() => this.displaySuspendUnsuccessToast = false}"
 				?closable=${false}
