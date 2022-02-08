@@ -10,6 +10,10 @@ export const SavingsPlanEvents = {
 SAVINGS_PLAN: `call.fulfill-need.savings-plan`, 
 SAVINGS_PLAN_VERIFY_NOW:`call.fulfill-need.savings-plan.verify-now`,
 SAVINGS_PLAN_VIEW_INFO: `call.fulfill-need.savings-plan.view-info`,
+SAVINGS_PLAN_VIEW_BENEFITS: `call.fulfill-need.savings-plan.view-benefits`,
+SAVINGS_PLAN_FIND_A_BRANCH: `call.fulfill-need.savings-plan.find-a-branch`,
+SAVINGS_PLAN_ACCOUNT_DETAILS: `call.fulfill-need.savings-plan.close.account-details`,
+SAVINGS_PLAN_TRANSACTION_HISTORY: `call.fulfill-need.savings-plan.select.transaction-history`,
 
 SAVINGS_PLAN_ACCOUNT_NUMBER_SELECT: `call.fulfill-need.savings-plan.select.account-number`, 
 SAVINGS_PLAN_STATEMENTS_SELECT: `call.fulfill-need.savings-plan.select.statements`, 
@@ -47,5 +51,7 @@ SAVINGS_PLAN_TAX_CERTIFICATE_SUCCESS_DONE: `call.fulfill-need.savings-plan-tax-c
 SAVINGS_PLAN_TAX_CERTIFICATE_SUCCESS_SEND_ANOTHER: `call.fulfill-need.savings-plan-tax-certificate.success.send-another`,
 SAVINGS_PLAN_TAX_CERTIFICATE_FAILURE: `call.fulfill-need.savings-plan-tax-certificate.failure`, 
 SAVINGS_PLAN_TAX_CERTIFICATE_FAILURE_TRY_AGAIN: `call.fulfill-need.savings-plan-tax-certificate.failure.try-again`,
-SAVINGS_PLAN_TAX_CERTIFICATE_FAILURE_DONE: `call.fulfill-need.savings-plan-tax-certificate.failure.done`
+SAVINGS_PLAN_TAX_CERTIFICATE_FAILURE_DONE: `call.fulfill-need.savings-plan-tax-certificate.failure.done`,
+SAVINGS_PLAN_TAX_CERTIFICATE_FIND_A_BRANCH: `call.fulfill-need.savings-plan-tax-certificate.find-a-branch`,
+SAVINGS_PLAN_TAX_CERTIFICATE_CLICKED: `call.fulfill-need.savings-plan-tax-certificate.pop-up.certificate-clicked`
 };
