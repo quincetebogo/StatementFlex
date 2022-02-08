@@ -302,7 +302,7 @@ export class AccessChannels extends Component {
 		}
 	}
 
-	suspendInternetBanking(suspendReason, token) {
+	async suspendInternetBanking(suspendReason, token) {
 		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN, {
 			"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
 			"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
@@ -319,7 +319,7 @@ export class AccessChannels extends Component {
 			tokenSerialNo: token,
 			reason: suspendReason
 		};
-		const returnValue = this.accessChannelService.suspendToken(requestBody);
+		const returnValue = await this.accessChannelService.suspendToken(requestBody);
 
 		if(returnValue.succeeded) {
 			this.landingInfo.internetBanking.status = `Suspended`;

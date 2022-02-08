@@ -69,6 +69,7 @@ export class InternetBankingProfileDetails extends Component {
 		this.clientTokens = [];
 		this.isSuspendReasonSelected = false;
 		this.isTokenSelected = false;
+		this.singleToken = ``;
 	}
 
 	// --------------
@@ -106,6 +107,7 @@ export class InternetBankingProfileDetails extends Component {
 			showSideSheet: { type: Boolean },
 			verifiedNumber: { type: String},
 			clientTokens: { type: Object},
+			singleToken: { type: String },
 
 			// callback functions
 			suspendInternetBankingSecurityToken: { type: Object, attribute: false },
@@ -148,6 +150,10 @@ export class InternetBankingProfileDetails extends Component {
 		}
 
 		this.isMultipleDevices = this.clientTokens.length > 1 ? true : false;
+		
+		if(!this.isMultipleDevices){
+			this.singleToken = this.clientTokens[0].token;
+		}
 
 		this.isInternetBankingActive = this.internetBankingDetails.status === `Active`;
 	}
@@ -212,7 +218,7 @@ export class InternetBankingProfileDetails extends Component {
 
 	async _onSuspendSecurityTokenClick() {
 		if (this.selectedReason) {
-			const selectedToken = this.isMultipleDevices ? this.selectedTokens : this.clientTokens[0].token;
+			const selectedToken = this.isMultipleDevices ? this.selectedTokens : [this.clientTokens[0].token];
 			const suspendResult = await this.suspendInternetBankingSecurityToken(this.selectedReason, selectedToken);
 			if (suspendResult) {
 				this.showSuspendPanel = !this.showSuspendPanel;
@@ -348,7 +354,7 @@ export class InternetBankingProfileDetails extends Component {
 
 	_displayTokenSuspendSuccessToast() {
 		this.displaySuspendToast = true;
-		window.setTimeout(() => this.displaySuspendToast = false, 3000);
+		window.setTimeout(() => this.displaySuspendToast = false, 5000);
 	}
 
 	_displayTokenSuspendUnsuccessToast() {
@@ -765,7 +771,7 @@ export class InternetBankingProfileDetails extends Component {
 				<horizon-label
 					data-automation-id=""
 					label="Token serial number"
-					value="${this.clientTokens[0].token}"
+					value="${this.singleToken}"
 					style="display:${this.isMultipleDevices === false ? `block` : `none`}"
 				></horizon-label>
 
@@ -1125,7 +1131,7 @@ export class InternetBankingProfileDetails extends Component {
 				class="token-suspend-toast-success"
 				type="success"
 				header="Successful!"
-				detail="Internet security token was suspended. &nbsp &nbsp &nbsp &nbsp To access internet banking you will need to register on the App. &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp ${formatedUpdatedDate}"
+				detail="Internet security token was suspended. &nbsp &nbsp &nbsp To access internet banking you will need to register on the App. &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp ${formatedUpdatedDate}"
 				?hidden="${!this.displaySuspendToast}"
 				@click="${() => this.displaySuspendToast = false}"
 				?closable=${false}
