@@ -71,8 +71,10 @@
 
 	LIVE_BETTER_BENEFITS: `Live Better Benefits`,
 	LIVE_BETTER_BENEFITS_UNAVAILABLE: `Live Better Benefits Unavailable`,
-	VALUE_ADDED_SERVICES_NO_CLIENT_DATA: `Value Added Services No Client Data`,
 
+	LIVE_BETTER_AUTOMATIC_SAVINGS_SUCCESS: `Live Better Automatic savings success`,
+	LIVE_BETTER_AUTOMATIC_SAVINGS_FAILURE: `Live Better Automatic savings failure`,
+	
 	SAVINGS_PLAN_LANDING: `Savings Plan Landing`,
 	SAVINGS_PLAN_ACCOUNT_DETAILS: `Savings Plan Account Details`,
 	SAVINGS_PLAN_STATEMENTS: `Savings Plan Statements`,
@@ -81,6 +83,4 @@
 	SAVINGS_PLAN_SAVINGS_CALCULATOR: `Savings Plan Savings Calculator`,
 	SAVINGS_PLAN_INTEREST_RATES: `Savings Plan Interest Rates`
 
-	LIVE_BETTER_AUTOMATIC_SAVINGS_SUCCESS: `Live Better Automatic savings success`,
-	LIVE_BETTER_AUTOMATIC_SAVINGS_FAILURE: `Live Better Automatic savings failure`
 };

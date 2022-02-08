@@ -46,7 +46,6 @@ const HORIZON_ROUTES = Object.freeze({
 	AUTOMATIC_SAVINGS_FAILED : `/error/automatic-savings`,
 	LIVE_BETTER: `/liveBetter`,
 	LIVE_BETTER_SYSTEM_ERROR : `/error/live-better`,
-	CREDIT_ACCOUNT: `/transact/credit`
 	CREDIT_ACCOUNT: `/transact/credit`,
 	SAVINGS_PLAN: `/transact/savings-plan`
 });
@@ -265,10 +264,9 @@ export class HorizonRouter {
 		const savings = () => this.navigateToSavingsAccount();
 		const credit = () => this.navigateToProductInfo(`Credit`); // This line is correct for the Feb 2022 release but must be removed on the credit feature branch
 		// const credit = () => this.navigateToCreditAccount();    <=== This line must be restored on the credit branchy
-		const savingsPlan = () => this.navigateToProductInfo(`SavingsPlan`);
-		const liveBetterSavings = () => this.navigateToLiveBetter();
-		const credit = () => this.navigateToCreditAccount();
+		// const savingsPlan = () => this.navigateToProductInfo(`SavingsPlan`);
 		const savingsPlan = () => this.navigateToSavingsPlan();
+		const liveBetterSavings = () => this.navigateToLiveBetter();
 		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
 
 		const landingPageFunc = {
