@@ -1,9 +1,10 @@
-import { css, html } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { ViewBase } from '../common/ViewBase';
+import { html } from 'platform/elements';
 
 import 'app/productControls/SavingsPlan/SavingsPlanLanding';
+
 /**
  * Savings Plan View
  *
@@ -99,7 +100,7 @@ export class SavingsPlan extends ViewBase {
 		if (this.verificationStatus === `verified`) {
 			
 			/* TO DO: Savings plan landing page service call should come here.
-					If client has savings plan product, navigate to credit landing screens.
+					If client has savings plan product, navigate to landing screens.
 					If client doesn't have savings plan product, navigate to non-client - more info screen.
 
 					Update left bar details once available from channel service call*/
@@ -155,13 +156,11 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	async _savingsCalculator() {
-		// TO DO: Place holder for savings calculator flow.
 		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
 		window.open(`${globalOneUrl}/save/`);
 	}
 
 	async _interestRates() {
-		// TO DO: Place holder for interest rates flow.
 		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
 		window.open(`${globalOneUrl}/save/rates-and-fees/`);
 	}
@@ -169,7 +168,6 @@ export class SavingsPlan extends ViewBase {
 	async _productEnquiry() {
 		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
 		window.open(`${globalOneUrl}/save/`);
-
 	}
 
 	// ---------
@@ -193,15 +191,13 @@ export class SavingsPlan extends ViewBase {
 				${this._renderSavingsPlanVerifiedLandingPage()}`
 			: html``;
 	}
-//import savings landing page
-_renderSavingsPlanVerifiedLandingPage() {
-		return html`
-			<capitec-pc-savings-plan
-				@option-click = "${(e) => this._optionClick(e.detail.option)}">
-			</capitec-pc-savings-plan>`;
-	}
 	
-
+	_renderSavingsPlanVerifiedLandingPage() {
+			return html`
+				<capitec-pc-savings-plan
+					@option-click = "${(e) => this._optionClick(e.detail.option)}">
+				</capitec-pc-savings-plan>`;
+		}
 }
 
 customElements.define(`horizon-savings-plan`, SavingsPlan);

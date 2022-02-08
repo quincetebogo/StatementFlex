@@ -6,7 +6,10 @@ import 'app/components/common/HorizonExpander';
 
 /**
  * Flexible Savings Plan verified Screen
- * 
+ *
+ * Events Raised
+ * -------------
+ * back
  * 
  * @export
  * @class FlexibleSavingsPlanDetails
@@ -52,9 +55,8 @@ export class FlexibleSavingsPlanDetails extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-
 	_back() {
-		// initate back to favourite transactions page (on back arrow)
+		// initate back to savings plan landing page (on back arrow)
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
@@ -85,15 +87,27 @@ export class FlexibleSavingsPlanDetails extends Component {
 
 				/* Title Bar styles */
 				capitec-title-bar {
-					--theme-titlebar-padding: 12px 16px;
+					--theme-titlebar-padding: 16px 16px 12px 16px;
+					--theme-titlebar-item-gap: 0px;
 					margin-bottom: 0px;
 				}
-				capitec-title-bar > capitec-label {
-					--theme-label-title-font-size: 22px;
-					--theme-label-title-font-weight: 500;
+				.left-arrow {
+					padding-bottom: 26px;
+					cursor: pointer;
 				}
-				capitec-title-bar > capitec-icon {
-					--theme-icon-size-medium: 24px;
+				.main-title {
+					--horizon-label-text-font-size: 24px;
+					--horizon-label-value-font-size: 16px;
+					--horizon-label-text-line-height: 26px;
+					--horizon-label-text-line-width: 168px;
+					--horizon-label-text-color: #FFFFFF;
+					--horizon-label-text-height: 32px;
+					--horizon-label-text-font-weight: 600;
+					--horizon-label-value-height: 20px;
+					--horizon-label-value-line-height: 20px;
+					--horizon-label-value-color: #FFFFFF;
+					--horizon-label-value-font-weight: 500;
+					padding: 0px 16px;
 				}
 				.first-column {
 					padding: 16px;
@@ -125,88 +139,77 @@ export class FlexibleSavingsPlanDetails extends Component {
 	_webTemplate() {
 		return html`
 			<capitec-card 
-				data-automation-id="savings-plan-landing-screen"
+				data-automation-id="flexible-savings-details"
 				class="card">
 					<capitec-title-bar 
-						data-automation-id="savings-plan-landing-title"
+						data-automation-id="flexible-savings-details-title"
 						type="save">
-						<capitec-group
-								layout="horizontal"
-								gap="clear"
-								halign="left"
-								valign="center">
-							<capitec-icon size="small" icon="system/arrow-left-action"
-							@click="${() => this._back()}">
-							</capitec-icon></capitec-group>
-							<capitec-group
-								layout="vertical"
-								gap="clear"
-								halign="left"
-								valign="top">
-							<capitec-label label="Flexible Savings Plan" type="Title"></capitec-label>
-							<capitec-label label="My new car - 1633823409" type="default"></capitec-label>
-			</capitec-group>
+							<img
+							src="/images/liveBetter/left-arrow.svg"
+							@click="${() => this._back()}"
+							class="left-arrow"/>
+							<horizon-label class="main-title" label="Flexible Savings Plan" value="My new car - 1633823409"></horizon-label>
 					</capitec-title-bar>
-
-			${this._renderFlexibleSavingsPlan()}
-			</capitec-card>
-		`;
+					 
+					${this._renderFlexibleSavingsPlan()}
+			</capitec-card>`;
 	}
 
 	_renderFlexibleSavingsPlan() {
-		
 		return html`
-		
-		<capitec-group
-					layout="horizontal"
-					gap="clear"
-					halign="stretch" 
-					valign="center">
-				<capitec-group
-					class= "first-column"
-					layout="vertical"
-					gap="clear"
-					halign="left"
-					valign="center">
-
+			<capitec-group
+				layout="horizontal"
+				gap="clear"
+				halign="stretch" 
+				valign="center">
+					<capitec-group
+						class= "first-column"
+						layout="vertical"
+						gap="clear"
+						halign="left"
+						valign="center">
 						<horizon-label label="Current balance" value="R25 000.00"></horizon-label>
 						<horizon-label label="Accrued interest May" value="R75.00"></horizon-label>
 						<horizon-label label="Fees last month" value="R5.80"></horizon-label>
 						<horizon-label label="Posting restrictions" value="R0.00"></horizon-label>
 						<horizon-label label="Date opened" value="19 Dec 2019"></horizon-label>
+					</capitec-group>
 
-					</capitec-group>	
 					<capitec-group
-					layout="vertical"
-					gap="clear"
-					halign="left"
-					valign="top">
-
-					<horizon-label label="Available balance" value="R25 000.00"></horizon-label>
-					<horizon-label label="Interest earned Apr" value="R135.00"></horizon-label>
-					<horizon-label label="Last maturity date" value="12 Jan 2021"></horizon-label>
-					<horizon-label label="Outstanding authorisations" value="R0.00"></horizon-label>
-					<horizon-label label="Last Update" value="12 Jun 2021"></horizon-label>
-
+						layout="vertical"
+						gap="clear"
+						halign="left"
+						valign="top">
+						<horizon-label label="Available balance" value="R25 000.00"></horizon-label>
+						<horizon-label label="Interest earned Apr" value="R135.00"></horizon-label>
+						<horizon-label label="Last maturity date" value="12 Jan 2021"></horizon-label>
+						<horizon-label label="Outstanding authorisations" value="R0.00"></horizon-label>
+						<horizon-label label="Last Update" value="12 Jun 2021"></horizon-label>
 					</capitec-group>
 					<capitec-group
-					layout="vertical"
-					gap="clear"
-					halign="left"
-					valign="top">
-
-					<horizon-label label="Interest rate" value="5.5%"></horizon-label>
-					<horizon-label label="Interest earned for tax year" value="R548.00"></horizon-label>
-					<capitec-label class="blank-space" label="_"></capitec-label>
-					<capitec-label class="blank-space"label="_"></capitec-label>
-					<horizon-label label="Holds" value="R0.00"></horizon-label>
-					<horizon-label label="Account status" value="Open"></horizon-label>
-					
-					</capitec-group>	
-			</capitec-group>
-					`
+						layout="vertical"
+						gap="clear"
+						halign="left"
+						valign="top">
+						<horizon-label label="Interest rate" value="5.5%"></horizon-label>
+						<horizon-label label="Interest earned for tax year" value="R548.00"></horizon-label>
+						<capitec-label class="blank-space" label="_"></capitec-label>
+						<capitec-label class="blank-space" label="_"></capitec-label>
+						<horizon-label label="Holds" value="R0.00"></horizon-label>
+						<horizon-label label="Account status" value="Open"></horizon-label>
+					</capitec-group>
+			</capitec-group>`;
 	}
-
 }
 
 customElements.define(`capitec-flexible-savings-plan-details`, FlexibleSavingsPlanDetails);
+
+ /**
+ * When left arrow on the title bar is clicked to go back
+ *
+ * @example
+ * <capitec-flexible-savings-plan-details ... @back="${this._handler}"></capitec-flexible-savings-plan-details>
+ *
+ * @event FlexibleSavingsPlanDetails#back
+ * @type {Object} - N/A
+ */
