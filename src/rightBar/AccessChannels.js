@@ -89,7 +89,6 @@ export class AccessChannels extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this._accessChannelService();
 		this._landingInfo();
 	}
 
@@ -376,7 +375,7 @@ export class AccessChannels extends Component {
 		
 		// TO DO: add channel service call to update notifications type
 		// If unblock is successful, show toast, update ussd status, else show error
-		this.landingInfo.notifications.dateLastUpdated = new Date().toISOString();
+		this.landingInfo.notification.dateLastUpdated = new Date().toISOString();
 		
 		this._deepCopyStatus();
 		return true;
@@ -387,7 +386,7 @@ export class AccessChannels extends Component {
 
 		// TO DO: add channel service call to update notifications time
 		// If unblock is successful, show toast, update ussd status, else show error
-		this.landingInfo.notifications.dateLastUpdated = new Date().toISOString();
+		this.landingInfo.notification.dateLastUpdated = new Date().toISOString();
 
 		this._deepCopyStatus();
 		return true;
@@ -415,24 +414,14 @@ export class AccessChannels extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
-	async _accessChannelService() {
-	
-		const returnValue = await this.accessChannelService.accessChannelStatus(this.cifNumber);
-	
-		if (returnValue.succeeded) {
-			this.status = returnValue.result;
-			return;
-		}
-		this.logger.log(`error`, `Failed to load access channel information`, `_accessChannelService`, returnValue.correlationId);
-		
-	}
 
 	async _landingInfo() {
 
 		const returnValue = await this.accessChannelService.accessChannelLanding(this.cifNumber);
 
-		if(returnValue.succeeded){
+		if (returnValue.succeeded) {
 			this.landingInfo = returnValue.result;
+			this.requestUpdate();
 			return;
 		}
 		this.logger.log(`error`, `Failed to load access channel landing information`, `_landingInfo`, returnValue.correlationId);
@@ -475,10 +464,10 @@ export class AccessChannels extends Component {
 	}
 
 	_renderAccessChannels() {
-		return this.status
+		return this.landingInfo
 			? html`
 				<capitec-pc-access-channels
-					.status=${this.status}
+					.status=${this.landingInfo}
 					@tile-click="${(event) => this._showSlidingPanel(event)}">
 				</capitec-pc-access-channels>`
 			: html``;

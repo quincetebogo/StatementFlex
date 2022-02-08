@@ -138,7 +138,7 @@ export class InternetBankingProfileDetails extends Component {
 
 		this.tokenList = await this.getClientTokens(this.internetBankingDetails.userRegNo);
 
-		if(this.tokenList.tokens !== null) {
+		if (this.tokenList.tokens !== null) {
 			this.tokenList.tokens.map(item => {
 				const clientToken =
 				{ 
@@ -149,9 +149,9 @@ export class InternetBankingProfileDetails extends Component {
 			});
 		}
 
-		this.isMultipleDevices = this.clientTokens.length > 1 ? true : false;
+		this.isMultipleDevices = this.clientTokens.length > 1;
 		
-		if(!this.isMultipleDevices){
+		if (!this.isMultipleDevices) {
 			this.singleToken = this.clientTokens[0].token;
 		}
 
@@ -772,7 +772,7 @@ export class InternetBankingProfileDetails extends Component {
 					data-automation-id=""
 					label="Token serial number"
 					value="${this.singleToken}"
-					style="display:${this.isMultipleDevices === false ? `block` : `none`}"
+					?hidden="${this.isMultipleDevices}"
 				></horizon-label>
 
 				<horizon-label
@@ -785,7 +785,7 @@ export class InternetBankingProfileDetails extends Component {
 					data-automation-id=""
 					label="Cellphone number (verified)"
 					value="${this.verifiedNumber}"
-					style="display:${this.isMultipleDevices ? `block` : `none`}"
+					?hidden="${this.isMultipleDevices}"
 				></horizon-label>
 
 				<horizon-label
