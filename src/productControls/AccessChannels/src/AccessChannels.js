@@ -114,7 +114,7 @@ export class AccessChannels extends Component {
 				return `${status} | Last used ${this._formatDate(this.status[type].dateLastUsed)}`;
 			case ACCESS_CHANNEL_STATUS.SUSPENDED:
 			case ACCESS_CHANNEL_STATUS.BLOCKED:
-				return `${status} | ${this._formatDate(this.status[type].dateLastUpdated || this.status[type].dateLastUsed)}, ${this._formatTime(this.status[type].dateLastUpdated || this.status[type].dateLastUsed)}`;
+				return `${status} | ${this._formatDate(this.status[type].dateLastUsed)}, ${this._formatTime(this.status[type].dateLastUsed)}`;
 			default:
 				return status;
 		}
@@ -135,7 +135,7 @@ export class AccessChannels extends Component {
 	}
 
 	_getNotificationsDetails() {
-		return `${this.status.notifications?.messageType} | ${this.status.notifications?.messageTime}`;
+		return `${this.status.notification?.notificationType} | ${this.status.notification?.notificationTime}`;
 	}
 
 	// ---------
@@ -241,7 +241,7 @@ export class AccessChannels extends Component {
 					class=""
 					type="default"
 					label="Notifications"
-					status="${this.status.notifications?.status}"
+					status="${this.status.notification?.status}"
 					subtitle="${this._getNotificationsDetails()}"
 					detail=""
 					icon="system/notify"

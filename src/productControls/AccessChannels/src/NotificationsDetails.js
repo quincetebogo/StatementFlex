@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/HorizonLabel';
 import 'app/webComponents/src/SideSheet';
@@ -37,6 +38,7 @@ export class NotificationsDetails extends Component {
 		this.displaySuccessToast = false;
 		this.messageTypeSelected = ``;
 		this.messageTimeSelected = ``;
+		this.notificationsDetails = {};
 	}
 
 	// --------------
@@ -114,10 +116,10 @@ export class NotificationsDetails extends Component {
 
 	_onTypeValueChanged(event) {
 		if (event.detail.new) {
-			this.notificationsDetails.messageType = this.messageTypeSelected = event.currentTarget.label;
+			this.notificationsDetails.notificationType = this.messageTypeSelected = event.currentTarget.label;
 			this.isTypeValueChanged = true;
 
-			if (this.notificationsDetails.messageType === `In-app message`) {
+			if (this.notificationsDetails.notificationType === `In-app message`) {
 				this.inAppMessage = true;
 			} else {
 				this.inAppMessage = false;
@@ -127,7 +129,7 @@ export class NotificationsDetails extends Component {
 
 	_onTimeValueChanged(event) {
 		if (event.detail.new) {
-			this.notificationsDetails.messageTime = this.messageTimeSelected = event.currentTarget.label;
+			this.notificationsDetails.notificationTime = this.messageTimeSelected = event.currentTarget.label;
 			this.isTimeValueChanged = true;
 			this.showHelperText = true;
 		}
@@ -460,7 +462,7 @@ export class NotificationsDetails extends Component {
 					<horizon-label
 						data-automation-id=""
 						label="Preferred message type"
-						value="${this.notificationsDetails.messageType}"
+						value="${this.notificationsDetails.notificationType}"
 					></horizon-label>
 					
 					<capitec-button 
@@ -480,7 +482,7 @@ export class NotificationsDetails extends Component {
 					<horizon-label
 						data-automation-id=""
 						label="Choose message time"
-						value="${this.notificationsDetails.messageTime}"
+						value="${this.notificationsDetails.notificationTime}"
 					></horizon-label>
 					
 					<capitec-button 
@@ -516,10 +518,12 @@ export class NotificationsDetails extends Component {
 						<horizon-label
 							data-automation-id=""
 							label="Money out"
-							value="R100.00"
+							value="${formatCurrency(this.notificationsDetails.moneyOutAmount)}"
 						></horizon-label>
 						<capitec-spacer></capitec-spacer>
-						<capitec-check disabled checked></capitec-check>
+						<capitec-check
+						?disabled = ${this.notificationsDetails.moneyOutEnabled}
+						checked></capitec-check>
 					</capitec-group>
 					<capitec-menu-separator></capitec-menu-separator>
 					<capitec-group
@@ -532,10 +536,12 @@ export class NotificationsDetails extends Component {
 						<horizon-label
 							data-automation-id=""
 							label="Money in"
-							value="R100.00"
+							value="${formatCurrency(this.notificationsDetails.moneyInAmount)}"
 						></horizon-label>
 						<capitec-spacer></capitec-spacer>
-						<capitec-check disabled checked></capitec-check>
+						<capitec-check
+						?disabled = ${this.notificationsDetails.moneyInEnabled}
+						checked></capitec-check>
 					</capitec-group>
 					
 				</capitec-group>
@@ -567,7 +573,9 @@ export class NotificationsDetails extends Component {
 							label="SMS security">
 						</capitec-label>
 						<capitec-spacer></capitec-spacer>
-						<capitec-check disabled checked></capitec-check>
+						<capitec-check 
+						?disabled = ${!this.notificationsDetails.smsSecurity}
+						checked></capitec-check>
 					</capitec-group>
 				</capitec-group>
 			</capitec-content-box>
@@ -603,7 +611,7 @@ export class NotificationsDetails extends Component {
 					<capitec-radio-group>
 						<capitec-radio 
 							label="SMS Update"
-							?checked="${this.notificationsDetails.messageType === `SMS Update`}"
+							?checked="${this.notificationsDetails.notificationType === `SMS Update`}"
 							@value-change="${(e) => this._onTypeValueChanged(e)}"
 						></capitec-radio>
 						<capitec-group 
@@ -614,7 +622,7 @@ export class NotificationsDetails extends Component {
 							valign="center">
 							<capitec-radio
 								label="In-app message"
-								?checked="${this.notificationsDetails.messageType === `In-app message`}"
+								?checked="${this.notificationsDetails.notificationType === `In-app message`}"
 								@value-change="${(e) => this._onTypeValueChanged(e)}">
 							</capitec-radio>
 							<capitec-tag label="FREE" color="#F5F5F5" label-color="#3A3A3A" type="custom"></capitec-tag>
@@ -669,7 +677,7 @@ export class NotificationsDetails extends Component {
 							valign="center">
 							<capitec-radio
 								label="Anytime"
-								?checked="${this.notificationsDetails.messageTime === `Anytime`}"
+								?checked="${this.notificationsDetails.notificationTime === `Anytime`}"
 								@value-change="${(e) => this._onTimeValueChanged(e)}">
 							</capitec-radio>
 							<capitec-tag label="Best option" color="#F5F5F5" label-color="#3A3A3A" type="custom"></capitec-tag>
@@ -682,12 +690,12 @@ export class NotificationsDetails extends Component {
 							valign="center">
 							<capitec-radio 
 								label="5am - 10pm"
-								?checked="${this.notificationsDetails.messageTime === `5am - 10pm`}"
+								?checked="${this.notificationsDetails.notificationTime === `5am - 10pm`}"
 								@value-change="${(e) => this._onTimeValueChanged(e)}">
 							</capitec-radio>
 							<capitec-radio 
 								label="7am - 6pm"
-								?checked="${this.notificationsDetails.messageTime === `7am - 6pm`}"
+								?checked="${this.notificationsDetails.notificationTime === `7am - 6pm`}"
 								@value-change="${(e) => this._onTimeValueChanged(e)}">
 							</capitec-radio>
 						</capitec-group>
