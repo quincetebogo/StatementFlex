@@ -135,7 +135,7 @@ export class AccessChannels extends Component {
 	}
 
 	_getNotificationsDetails() {
-		return `${this.status.notification?.messageType} | ${this.status.notification?.messageTime}`;
+		return `${this.status.notification?.notificationType} | ${this.status.notification?.notificationTime}`;
 	}
 
 	// ---------
