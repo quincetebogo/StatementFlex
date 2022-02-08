@@ -42,7 +42,7 @@ export class PaidUpLetter extends Component {
 			idEmailAddress: ``,
 			idConfirmEmail: ``
 		};
-		this.flag= false;
+		this.flag = false;
 		this.currPage = 0;
 
 		this.encodedPDF = ``;
@@ -61,23 +61,25 @@ export class PaidUpLetter extends Component {
 		return {
 			callerInformation: { type: Object },
 			landingPageInfo: { type: Object },
-			selectedAccounts: { type: Object},
-			encodedPDFs: { type: Object},
+			selectedAccounts: { type: Object },
+			encodedPDFs: { type: Object },
 			navigatePDF: { type: Object },
-			isBusy: { attribute: false },
-			flag : {type: Boolean , attribute : false},
-			alertBannerMessage: { attribute: false },
-			emailText: { attribute: false }
+
+			// private properties
+			isBusy: { state: true },
+			flag: { state: true },
+			alertBannerMessage: { state: true },
+			emailText: { state: true }
 		};
 	}
-
+	
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
 	connectedCallback() {
 		super.connectedCallback();
-		this._initialise ();
+		this._initialise();
 	}
 
 	disconnectedCallback() {
@@ -88,24 +90,23 @@ export class PaidUpLetter extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-    _errorHandler(ex) {
-        return true;
-    }
+	_errorHandler(ex) {
+		return true;
+	}
 
-    _toggleBusyFlag() {
-        this.isBusy = !this.isBusy;
-    }
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
 
 	_initialise() {
 		
 		this._toggleBusyFlag();
-		//flow for selected accounts done here 
+		// flow for selected accounts done here 
 		
 	}
 
 	async _sendClick(e) {
-		if (this._validateEmail(e)) 
-		{
+		if (this._validateEmail(e)) {
 			// flow to success or unsuccessful 
 		}
 	}
@@ -119,45 +120,45 @@ export class PaidUpLetter extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-    _validateEmail(e) {
+	_validateEmail(e) {
 
-        // CORRECT
-        if (!this._isNullorEmpty(this.idEmailAddress) && this.idEmailAddress === this.idConfirmEmailAddress) {
-            if (EMAIL_REG_EXP.test(this.idEmailAddress)) {
-                this.alertBannerMessage = ``;
-                this.errMessage.idEmailAddress = ``;
-                this.errMessage.idConfirmEmail = ``;
-                return true;
-            } else if (!this.idEmailAddress.includes(`@`)) {
-                this.alertBannerMessage = `Email address is invalid`;
-                this.errMessage.idEmailAddress = `An email must contain a single @`;
+		// CORRECT
+		if (!this._isNullorEmpty(this.idEmailAddress) && this.idEmailAddress === this.idConfirmEmailAddress) {
+			if (EMAIL_REG_EXP.test(this.idEmailAddress)) {
+				this.alertBannerMessage = ``;
+				this.errMessage.idEmailAddress = ``;
+				this.errMessage.idConfirmEmail = ``;
+				return true;
+			} else if (!this.idEmailAddress.includes(`@`)) {
+				this.alertBannerMessage = `Email address is invalid`;
+				this.errMessage.idEmailAddress = `An email must contain a single @`;
 				return false;
-            }
+			}
 
-                this.alertBannerMessage = `Incorrect email address format ie. email@gmail.com`;
+				this.alertBannerMessage = `Incorrect email address format ie. email@gmail.com`;
 			this.errMessage.idEmailAddress = `Invalid email address`;
-            this.errMessage.idConfirmEmail = `Invalid email address`;
-            return false;
-        } else if (this._isNullorEmpty(this.idEmailAddress)) {
+			this.errMessage.idConfirmEmail = `Invalid email address`;
+			return false;
+		} else if (this._isNullorEmpty(this.idEmailAddress)) {
 			// EMAIL EMPTY
-            if (this._isNullorEmpty(this.idConfirmEmailAddress)) {
-                this.errMessage.idConfirmEmail = `Enter a valid email address i.e. email@gmail.com`;
+			if (this._isNullorEmpty(this.idConfirmEmailAddress)) {
+				this.errMessage.idConfirmEmail = `Enter a valid email address i.e. email@gmail.com`;
 				this.emailText = `email@gmail.com`;
 			}
 			this.alertBannerMessage = `Complete all fields to continue`;
-            this.errMessage.idEmailAddress = `Enter a valid email address i.e. email@gmail.com`;
-            this.emailText = `email@gmail.com`;
-            return false;
-        } else if (this._isNullorEmpty(this.idConfirmEmailAddress)) {
-            this.alertBannerMessage = `Complete all fields to continue`;
-            this.errMessage.idConfirmEmail = `Enter a valid email address i.e. email@gmail.com`;
-            this.emailText = `email@gmail.com`;
-            return false;
-        } else if (this.idEmailAddress !== this.idConfirmEmailAddress) {
+			this.errMessage.idEmailAddress = `Enter a valid email address i.e. email@gmail.com`;
+			this.emailText = `email@gmail.com`;
+			return false;
+		} else if (this._isNullorEmpty(this.idConfirmEmailAddress)) {
+			this.alertBannerMessage = `Complete all fields to continue`;
+			this.errMessage.idConfirmEmail = `Enter a valid email address i.e. email@gmail.com`;
+			this.emailText = `email@gmail.com`;
+			return false;
+		} else if (this.idEmailAddress !== this.idConfirmEmailAddress) {
 			// EMAILS DON'T MATCH 
 			this.alertBannerMessage = `Email and Confirm email don't match`;
-            this.errMessage.idEmailAddress = `Invalid email`;
-            this.errMessage.idConfirmEmail = `Invalid email`;
+			this.errMessage.idEmailAddress = `Invalid email`;
+			this.errMessage.idConfirmEmail = `Invalid email`;
 			return false;
 		}
 	}
@@ -167,8 +168,8 @@ export class PaidUpLetter extends Component {
 	}
 
 	_clearErrors(e) {
-        this.errMessage.idEmailAddress = ``;
-        this.errMessage.idConfirmEmail = ``;
+		this.errMessage.idEmailAddress = ``;
+		this.errMessage.idConfirmEmail = ``;
 		this.alertBannerMessage = ``;
 		this.emailText = `Email address`;
 	}
@@ -288,8 +289,8 @@ export class PaidUpLetter extends Component {
 	}
 
 	_webTemplate() {
-		return this.flag ? this._viewPDF():
-		html`
+		return this.flag ? this._viewPDF()
+		: html`
 		<capitec-modal type="free" header-align="left" header="Paid Up Letter">
 			<div slot="body" class="${this.alertBannerMessage ? `err-body` : `body-class`} ">
 				${this._renderAlertBanner()}
@@ -325,7 +326,7 @@ export class PaidUpLetter extends Component {
 	}
 
 	_renderEmailFields() {
-		let datesSelected = this.selectedAccounts;
+		const datesSelected = this.selectedAccounts;
 		return html`
 		<capitec-group layout="vertical" gap="none" halign="stretch" valign="top">
 			<div class="email-div">
@@ -333,10 +334,10 @@ export class PaidUpLetter extends Component {
 				<capitec-text-field 
 					class="email-text" 
 					id="idEmailAddress" 
-                    oncopy="return false"
+					oncopy="return false"
 					onpaste="return false"
 					oncut="return false"
-				    .value="${this.idEmailAddress}"
+					.value="${this.idEmailAddress}"
 					name="mailAddress" 
 					@value-changed="${(e) => this._valueChanged(e)}"
 					@key-input="${(e) => this._onKeyPress(e)}" 
@@ -349,7 +350,7 @@ export class PaidUpLetter extends Component {
 				<capitec-label class="confirm-search-label" label="Confirm email address"></capitec-label>
 				<capitec-text-field 
 					class="email-text" id="idConfirmEmailAddress" 
-                    oncopy="return false"
+					oncopy="return false"
 					onpaste="return false"
 					oncut="return false"
 					.value="${this.idConfirmEmailAddress}"
@@ -383,9 +384,8 @@ export class PaidUpLetter extends Component {
 			label="${item}"
 			subtitle="123456789">
 				${this._renderViewDocumnetLink(item)}
-		</horizon-product-tile>`
-		;
-	}	
+		</horizon-product-tile>`;
+	}
 
 	_renderViewDocumnetLink(item) {
 		this.currPage = this.selectedAccounts.indexOf(item);
@@ -394,45 +394,39 @@ export class PaidUpLetter extends Component {
 				slot="detail"
 				type="strong"
 				label="View Document"
-				class="viewDocumentLink"				
+				class="viewDocumentLink"
 				@click="${() => this._viewPDFViewer()}">
 			</capitec-label>
 		`;
 	}
 
-	_viewPDFViewer ()
-	{
+	_viewPDFViewer () {
 		this.flag = !this.flag;
 	}
 
-	_viewPDF() 
-	{
-		return html `
+	_viewPDF() {
+		return html`
 		<horizon-pdf-viewer
 			header="Paid Up Letter: Credit Card"
 			encodedPDF="${this.encodedPDF}"
 			totalPages="${this.selectedAccounts.length}"
 			currPage="${this.currPage}"
-			@cancel="${()=>this._viewPDFViewer()}"
-			@next="${() => this._navigate("next")}"
-			@previous="${() => this._navigate("previous")}">
-		</horizon-pdf-viewer>`
-		;
+			@cancel="${() => this._viewPDFViewer()}"
+			@next="${() => this._navigate(`next`)}"
+			@previous="${() => this._navigate(`previous`)}">
+		</horizon-pdf-viewer>`;
 	}
 
-	async _navigate(step)
-	{
-        let datesSelected = this.selectedAccounts;
-        if(step==="next"){
-			this.currPage < datesSelected.length ? this.currPage++ : this.currPage;         
-        	this.encodedPDF = await this.navigatePDF(datesSelected[this.currPage-1]);
-        }else
-		{
-            this.currPage > 1 ? this.currPage-- : this.currPage;
-            this.encodedPDF = await this.navigatePDF(datesSelected[this.currPage-1]);
-        }
-    }
-
+	async _navigate(step) {
+		const datesSelected = this.selectedAccounts;
+		if (step === `next`) {
+			this.currPage += this.currPage < datesSelected.length ? 1 : 0;
+			this.encodedPDF = await this.navigatePDF(datesSelected[this.currPage - 1]);
+		} else {
+			this.currPage -= this.currPage ? 1 : 0;
+			this.encodedPDF = await this.navigatePDF(datesSelected[this.currPage - 1]);
+		}
+	}
 	
 	_renderFooter() {
 		return html`
