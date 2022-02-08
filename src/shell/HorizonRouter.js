@@ -42,10 +42,10 @@ const HORIZON_ROUTES = Object.freeze({
 	TAX_CERTIFICATE_SUCCESSFUL: `/success/tax-certificate`,
 	TAX_CERTIFICATE_FAILURE: `/error/tax-certificate`,
 	TAX_CERTIFICATE_SERVICE_ERROR: `/error/tax-certificate-service-error`,
-	AUTOMATIC_SAVINGS_SUCCESS : `/success/automatic-savings`,
-	AUTOMATIC_SAVINGS_FAILED : `/error/automatic-savings`,
+	AUTOMATIC_SAVINGS_SUCCESS: `/success/automatic-savings`,
+	AUTOMATIC_SAVINGS_FAILED: `/error/automatic-savings`,
 	LIVE_BETTER: `/liveBetter`,
-	LIVE_BETTER_SYSTEM_ERROR : `/error/live-better`,
+	LIVE_BETTER_SYSTEM_ERROR: `/error/live-better`,
 	CREDIT_ACCOUNT: `/transact/credit`,
 	SAVINGS_PLAN: `/transact/savings-plan`
 });
@@ -327,6 +327,7 @@ export class HorizonRouter {
 	navigateToSavingsPlan() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_PLAN}`);
 	}
+	
 	_productLandingPagesActive() {
 		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
 	}

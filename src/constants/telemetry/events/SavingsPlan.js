@@ -8,7 +8,7 @@
 
 export const SavingsPlanEvents = {
 SAVINGS_PLAN: `call.fulfill-need.savings-plan`, 
-SAVINGS_PLAN_VERIFY_NOW:`call.fulfill-need.savings-plan.verify-now`,
+SAVINGS_PLAN_VERIFY_NOW: `call.fulfill-need.savings-plan.verify-now`,
 SAVINGS_PLAN_VIEW_INFO: `call.fulfill-need.savings-plan.view-info`,
 
 SAVINGS_PLAN_ACCOUNT_NUMBER_SELECT: `call.fulfill-need.savings-plan.select.account-number`, 

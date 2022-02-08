@@ -276,14 +276,14 @@ export class SavingsPlanLanding extends Component {
 		`;
 	}
 
-	_renderFlexibleSavingsPlanTab() {		
+	_renderFlexibleSavingsPlanTab() {
 		return html`
 			${this._renderFlexibleAccounts()}`;
 	}
 
 	_renderFixedTermSavingsPlanTab() {
 		
-		return  html`
+		return html`
 			${this._renderFixedTermAccounts()}`;
 	}
 
