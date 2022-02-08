@@ -927,7 +927,7 @@ export class InternetBankingProfileDetails extends Component {
 							class="radio-button-label"
 							data-automation-id="suspend-reason-stolen"
 							label=${SUSPEND_REASONS.STOLEN}
-							?checked=${this.selectedReason === SUSPEND_REASONS.STOLEN || ``}
+							?checked=${this.selectedReason === SUSPEND_REASONS.STOLEN}
 							@value-changed="${(e) => this._onSelectedReasonChanged(e)}"
 						></capitec-radio>
 
@@ -936,7 +936,7 @@ export class InternetBankingProfileDetails extends Component {
 							class="radio-button-label"
 							data-automation-id="suspend-reason-lost"
 							label=${SUSPEND_REASONS.LOST}
-							?checked=${this.selectedReason === SUSPEND_REASONS.LOST || ``}
+							?checked=${this.selectedReason === SUSPEND_REASONS.LOST}
 							@value-changed="${(e) => this._onSelectedReasonChanged(e)}"
 						></capitec-radio>
 
@@ -945,7 +945,7 @@ export class InternetBankingProfileDetails extends Component {
 							class="radio-button-label"
 							data-automation-id="suspend-reason-faulty"
 							label=${SUSPEND_REASONS.FAULTY}
-							?checked=${this.selectedReason === SUSPEND_REASONS.FAULTY || ``}
+							?checked=${this.selectedReason === SUSPEND_REASONS.FAULTY}
 							@value-changed="${(e) => this._onSelectedReasonChanged(e)}"
 						></capitec-radio>
 
@@ -954,7 +954,7 @@ export class InternetBankingProfileDetails extends Component {
 							class="radio-button-label"
 							data-automation-id="suspend-reason-service-cancellation"
 							label=${SUSPEND_REASONS.SERVICE_CANCELLATION}
-							?checked=${this.selectedReason === SUSPEND_REASONS.SERVICE_CANCELLATION || ``}
+							?checked=${this.selectedReason === SUSPEND_REASONS.SERVICE_CANCELLATION}
 							@value-changed="${(e) => this._onSelectedReasonChanged(e)}"
 						></capitec-radio>
 					</capitec-radio-group>
