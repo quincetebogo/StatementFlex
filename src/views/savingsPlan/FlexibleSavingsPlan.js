@@ -55,7 +55,7 @@ export class FlexibleSavingsPlanDetails extends Component {
 
 	_back() {
 		// initate back to favourite transactions page (on back arrow)
-		this.dispatchEvent(new CustomEvent(`back`, {detail : {category: this.category, need: this.need, issue: this.issue, postAction: this}}));
+		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
 	// --------------
@@ -103,11 +103,9 @@ export class FlexibleSavingsPlanDetails extends Component {
 					margin-top: -10px;
 					margin-bottom: 20px;
 				}
-				capitec-label[label="Open"] {
-					font-weight: 800;
-					margin-top: -10px;
-					margin-bottom: 20px;
-					color: #70AF00;
+				horizon-label[value="Open"] {
+					width: 132px;
+					--horizon-label-value-color: #70AF00;
 				}
 				.blank-space {
 					color: #FFFFFF;
@@ -162,7 +160,7 @@ export class FlexibleSavingsPlanDetails extends Component {
 		<capitec-group
 					layout="horizontal"
 					gap="clear"
-					halign="stretch"
+					halign="stretch" 
 					valign="center">
 				<capitec-group
 					class= "first-column"
@@ -171,16 +169,11 @@ export class FlexibleSavingsPlanDetails extends Component {
 					halign="left"
 					valign="center">
 
-						<capitec-label label="Current balance" type="default"></capitec-label>
-						<capitec-label class="details" label="R25 000.00" type="default"></capitec-label>
-						<capitec-label label="Accrued interest May" type="default"></capitec-label>
-						<capitec-label class="details" label="R75.00" type="default"></capitec-label>
-						<capitec-label label="Fees last month" type="default"></capitec-label>
-						<capitec-label class="details" label="R5.80" type="default"></capitec-label>
-						<capitec-label label="Posting restrictions" type="default"></capitec-label>
-						<capitec-label class="details" label="R0.00" type="default"></capitec-label>
-						<capitec-label label="Date opened" type="default"></capitec-label>
-						<capitec-label class="details" label="19 Dec 2019" type="default"></capitec-label>
+						<horizon-label label="Current balance" value="R25 000.00"></horizon-label>
+						<horizon-label label="Accrued interest May" value="R75.00"></horizon-label>
+						<horizon-label label="Fees last month" value="R5.80"></horizon-label>
+						<horizon-label label="Posting restrictions" value="R0.00"></horizon-label>
+						<horizon-label label="Date opened" value="19 Dec 2019"></horizon-label>
 
 					</capitec-group>	
 					<capitec-group
@@ -189,16 +182,11 @@ export class FlexibleSavingsPlanDetails extends Component {
 					halign="left"
 					valign="top">
 
-					<capitec-label label="Available balance" type="default"></capitec-label>
-					<capitec-label class="details" label="R25 000.00" type="default"></capitec-label>
-					<capitec-label label="Interest earned Apr" type="default"></capitec-label>
-					<capitec-label class="details" label="R135.00" type="default"></capitec-label>
-					<capitec-label label="Last maturity date" type="default"></capitec-label>
-					<capitec-label class="details" label="12 Jan 2021" type="default"></capitec-label>
-					<capitec-label label="Outstanding authorisations" type="default"></capitec-label>
-					<capitec-label class="details" label="R0.00" type="default"></capitec-label>
-					<capitec-label label="Last Update" type="default"></capitec-label>
-					<capitec-label class="details" label="12 Jun 2021" type="default"></capitec-label>
+					<horizon-label label="Available balance" value="R25 000.00"></horizon-label>
+					<horizon-label label="Interest earned Apr" value="R135.00"></horizon-label>
+					<horizon-label label="Last maturity date" value="12 Jan 2021"></horizon-label>
+					<horizon-label label="Outstanding authorisations" value="R0.00"></horizon-label>
+					<horizon-label label="Last Update" value="12 Jun 2021"></horizon-label>
 
 					</capitec-group>
 					<capitec-group
@@ -207,16 +195,12 @@ export class FlexibleSavingsPlanDetails extends Component {
 					halign="left"
 					valign="top">
 
-					<capitec-label label="Interest rate" type="default"></capitec-label>
-					<capitec-label class="details" label="5.5%" type="default"></capitec-label>
-					<capitec-label label="Interest earned for tax year" type="default"></capitec-label>
-					<capitec-label class="details" label="R548.00" type="default"></capitec-label>
+					<horizon-label label="Interest rate" value="5.5%"></horizon-label>
+					<horizon-label label="Interest earned for tax year" value="R548.00"></horizon-label>
 					<capitec-label class="blank-space" label="_"></capitec-label>
 					<capitec-label class="blank-space"label="_"></capitec-label>
-					<capitec-label label="Holds" type="default"></capitec-label>
-					<capitec-label class="details" label="R0.00" type="default"></capitec-label>
-					<capitec-label label="Account status" type="default"></capitec-label>
-					<capitec-label class="vert-test1" label="Open" type="default"></capitec-label>
+					<horizon-label label="Holds" value="R0.00"></horizon-label>
+					<horizon-label label="Account status" value="Open"></horizon-label>
 					
 					</capitec-group>	
 			</capitec-group>

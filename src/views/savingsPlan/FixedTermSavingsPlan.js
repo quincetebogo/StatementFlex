@@ -1,7 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { Configuration } from 'platform/core';
-import { RENDER_MODE } from 'app/views/common/RenderModes';
-import { ViewBase } from '../common/ViewBase';
 
 import 'app/productControls/SavingsPlan/SavingsPlanLanding';
 /**
@@ -58,7 +55,7 @@ export class FixedTermSavingsPlan extends Component {
 
 	_back() {
 		// initate back to favourite transactions page (on back arrow)
-		this.dispatchEvent(new CustomEvent(`back`, {detail : {category: this.category, need: this.need, issue: this.issue, postAction: this}}));
+		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
 	// --------------
@@ -106,11 +103,9 @@ export class FixedTermSavingsPlan extends Component {
 					margin-top: -10px;
 					margin-bottom: 20px;
 				}
-				capitec-label[label="Open"] {
-					font-weight: 800;
-					margin-top: -10px;
-					margin-bottom: 20px;
-					color: #70AF00;
+				horizon-label[value="Open"] {
+					width: 132px;
+					--horizon-label-value-color: #70AF00;
 				}
 				.blank-space {
 					color: #FFFFFF;
@@ -120,7 +115,7 @@ export class FixedTermSavingsPlan extends Component {
 				}
 				.grid-layout {
 					width: 95%;
-					margin-top: 8px;  
+					margin-top: 23px;  
 					margin-left: 20px;
 					--theme-data-table-body-group-font-weight: 600;
 					--theme-data-table-body-group-padding-top: 0px;
@@ -229,18 +224,12 @@ export class FixedTermSavingsPlan extends Component {
 					halign="left"
 					valign="center">
 
-						<capitec-label label="Current balance" type="default"></capitec-label>
-						<capitec-label class="details" label="R25 000.00" type="default"></capitec-label>
-						<capitec-label label="Effective interest rate" type="default"></capitec-label>
-						<capitec-label class="details" label="6.15%" type="default"></capitec-label>
-						<capitec-label label="Interest earned for tax year" type="default"></capitec-label>
-						<capitec-label class="details" label="R548.00" type="default"></capitec-label>
-						<capitec-label label="Maturity date" type="default"></capitec-label>
-						<capitec-label class="details" label="12 Jan 2021" type="default"></capitec-label>
-						<capitec-label label="Available contributions" type="default"></capitec-label>
-						<capitec-label class="details" label="R0.00" type="default"></capitec-label>
-						<capitec-label label="Last updated" type="default"></capitec-label>
-						<capitec-label class="details" label="12 Jun 2021" type="default"></capitec-label>
+						<horizon-label label="Current balance" value="R25 000.00"></horizon-label>
+						<horizon-label label="Effective interest rate" value="6.15%"></horizon-label>
+						<horizon-label label="Interest earned for tax year" value="R548.00"></horizon-label>
+						<horizon-label label="Maturity date" value="12 Jan 2021"></horizon-label>
+						<horizon-label label="Available contributions" value="R0.00"></horizon-label>
+						<horizon-label label="Last updated" value="12 Jun 2021"></horizon-label>
 
 					</capitec-group>	
 					<capitec-group
@@ -249,18 +238,12 @@ export class FixedTermSavingsPlan extends Component {
 					halign="left"
 					valign="top">
 
-					<capitec-label label="Available balance" type="default"></capitec-label>
-					<capitec-label class="details" label="R25 000.00" type="default"></capitec-label>
-					<capitec-label label="Interest earned May" type="default"></capitec-label>
-					<capitec-label class="details" label="R75.00" type="default"></capitec-label>
-					<capitec-label label="Date fixed" type="default"></capitec-label>
-					<capitec-label class="details" label="12 Jun 2019" type="default"></capitec-label>
-					<capitec-label label="Interest option" type="default"></capitec-label>
-					<capitec-label class="details" label="Reinvest" type="default"></capitec-label>
-					<capitec-label label="Contribution limit" type="default"></capitec-label>
-					<capitec-label class="details" label="R1 200.00" type="default"></capitec-label>
-					<capitec-label label="Account status" type="default"></capitec-label>
-					<capitec-label class="vert-test1" label="Open" type="default"></capitec-label>
+					<horizon-label label="Available balance" value="R25 000.00"></horizon-label>
+					<horizon-label label="Interest earned May" value="R75.00"></horizon-label>
+					<horizon-label label="Date fixed" value="12 Jun 2019"></horizon-label>
+					<horizon-label label="Interest option" value="Reinvest"></horizon-label>
+					<horizon-label label="Contribution limit" value="R1 200.00"></horizon-label>
+					<horizon-label label="Account status" value="Open"></horizon-label>
 
 					</capitec-group>
 					<capitec-group
@@ -269,16 +252,11 @@ export class FixedTermSavingsPlan extends Component {
 					halign="left"
 					valign="top">
 
-					<capitec-label label="Nominal interest rate" type="default"></capitec-label>
-					<capitec-label class="details" label="5.98%" type="default"></capitec-label>
-					<capitec-label label="Interest earned Apr" type="default"></capitec-label>
-					<capitec-label class="details" label="R135.00" type="default"></capitec-label>
-					<capitec-label label="Term (months)" type="default"></capitec-label>
-					<capitec-label class="details" label="24" type="default"></capitec-label>
-					<capitec-label label="Total contributions" type="default"></capitec-label>
-					<capitec-label class="details" label="R0.00" type="default"></capitec-label>
-					<capitec-label label="Posting restrictions" type="default"></capitec-label>
-					<capitec-label class="details" label="No-hold" type="default"></capitec-label>
+					<horizon-label label="Nominal interest rate" value="5.98%"></horizon-label>
+					<horizon-label label="Interest earned Apr" value="R135.00"></horizon-label>
+					<horizon-label label="Term (months)" value="24"></horizon-label>
+					<horizon-label label="Total contributions" value="R0.00"></horizon-label>
+					<horizon-label label="Posting restrictions" value="No-hold"></horizon-label>
 					<capitec-label class="blank-space" label="._"></capitec-label>
 					<capitec-label class="blank-space"label="_"></capitec-label>
 					
