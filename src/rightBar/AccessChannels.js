@@ -102,7 +102,6 @@ export class AccessChannels extends Component {
 	// --------------
 
 	async _showSlidingPanel(event) {
-		this._landingInfo();
 		this.selectedAccessChannelType = event.detail?.tileClicked ?? ``;
 		this.showSideSheet = !this.showSideSheet;
 
