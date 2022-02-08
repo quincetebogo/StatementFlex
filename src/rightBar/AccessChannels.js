@@ -136,12 +136,6 @@ export class AccessChannels extends Component {
 	async unblockSIM() {
 		// TO DO: add channel service call to unblock SIM - ussd
 		// If unblock is successful, show toast, update ussd status, else show error
-
-		// TODO: Check if this logic is needed
-		if (!this.status.ussd.isSimBlocked) {
-			return true;
-		}
-
 		const returnValue = await this.accessChannelService.unblockSIM(this.status.msisdn);
 
 		if (!returnValue.succeeded) {

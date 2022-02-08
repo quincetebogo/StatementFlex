@@ -3,6 +3,7 @@ import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonLabel';
 import 'app/webComponents/src/SideSheet';
+import 'platform/components';
 
 
 export class USSDProfileDetails extends Component {
@@ -12,6 +13,7 @@ export class USSDProfileDetails extends Component {
 		this.showSideSheet = false;
 
 		this.displaySuccessToast = false;
+		this.displayUnsuccessfulToast = false;
 		this.showCancelReasons = false;
 		this.showNotificationBanner = false;
 		this.showValidationBanner = false;
@@ -19,7 +21,8 @@ export class USSDProfileDetails extends Component {
 		this.cancelReason = ``;
 		this.bannerTitle = ``;
 		this.bannerSubtitle = ``;
-		this.toastDetails = ``;
+		this.successToastDetails = ``;
+		this.unsuccessfulToastDetails = ``;
 
 		// Active, SIM Blocked, ussd Blocked, Service Unavailable - null
 		this.ussdStatus = ``;
@@ -47,6 +50,7 @@ export class USSDProfileDetails extends Component {
 	 * @property {Object} [ussd] - Ussd profile details
 	 * @property {String} [ussdStatus] - Ussd profile status
 	 * @property {Boolean} [displaySuccessToast] - To hide or show the successful Toast
+	 * @property {Boolean} [displayUnsuccessfulToast] - To hide or show the unsuccessful Toast
 	 * @property {String} [showCancelReasons] - To toggle cancel reasons side sheet component
 	 * @property {Boolean} [showNotificationBanner] - To hide or show the notification banner on some action 
 	 * @property {Boolean} [showValidationBanner] - To hide or show the cancel reason validation banner on error 
@@ -66,6 +70,7 @@ export class USSDProfileDetails extends Component {
 			
 			ussdStatus: { state: true },
 			displaySuccessToast: { state: true },
+			displayUnsuccessfulToast: { state: true },
 			showCancelReasons: { state: true },
 			showNotificationBanner: { state: true },
 			showValidationBanner: { state: true }
@@ -110,7 +115,9 @@ export class USSDProfileDetails extends Component {
 		if (returnValue) {
 			this.ussd.isSimBlocked = false;
 
-			this._displayAndCloseToast(`SIM for number ${this.ussd.userRegNo} was unblocked successfully.`);
+			this._displayAndCloseSuccessToast(`SIM for number ${this.ussd.userRegNo} was unblocked successfully.`);
+		} else {
+			this._displayAndCloseUnsuccessfulToast(`SIM for number ${this.ussd.userRegNo} was not unblocked. Please try again.`);
 		}
 	}
 
@@ -121,13 +128,13 @@ export class USSDProfileDetails extends Component {
 			if (returnValue) {
 				this.ussdStatus = `Blocked`;
 
-				this._displayAndCloseToast(`USSD was cancelled. You will need to visit  branch to reactivate USSD`);
+				this._displayAndCloseSuccessToast(`USSD was cancelled. You will need to visit  branch to reactivate USSD`);
 				this._toggleCancelUSSD();
 				
 				this.showNotificationBanner = true;
+			} else {
+				this._displayAndCloseUnsuccessfulToast(`USSD was not cancelled. Please try again.`);
 			}
-
-			// TODO: Display failure toast
 		} else {
 			this.bannerTitle = `Notice`;
 			this.bannerSubtitle = `Please choose a reason to cancel USSD.`;
@@ -139,9 +146,9 @@ export class USSDProfileDetails extends Component {
 		const activateFullMenuUSSDSuccessful = await this.activateFullMenuUSSD();
 
 		if (activateFullMenuUSSDSuccessful) {
-			this._displayAndCloseToast(`The full menu is active.`);
+			this._displayAndCloseSuccessToast(`The full menu is active.`);
 		} else {
-			// TODO: Display failure toast
+			this._displayAndCloseUnsuccessfulToast(`Full USSD menu was not activated. Please try again.`);
 		}
 	}
 
@@ -178,9 +185,9 @@ export class USSDProfileDetails extends Component {
 	}
 
 	// display success toast for 3 seconds
-	_displayAndCloseToast(detail) {
+	_displayAndCloseSuccessToast(detail) {
 		this.displaySuccessToast = true;
-		this.toastDetails = detail;
+		this.successToastDetails = detail;
 
 		const elementToast = this.shadowRoot.getElementById(`ussd-success-toast`);
 		elementToast.style.animation = `slideDown 0.6s`; 
@@ -188,6 +195,19 @@ export class USSDProfileDetails extends Component {
 		window.setTimeout(() => {
 			elementToast.style.animation = `slideUp 0.6s`;
 			window.setTimeout(() => this.displaySuccessToast = false, 600);
+		}, 3000);
+	}
+
+	_displayAndCloseUnsuccessfulToast(detail) {
+		this.displayUnsuccessfulToast = true;
+		this.unsuccessfulToastDetails = detail;
+
+		const elementToast = this.shadowRoot.getElementById(`ussd-unsuccessful-toast`);
+		elementToast.style.animation = `slideDown 0.6s`; 
+
+		window.setTimeout(() => {
+			elementToast.style.animation = `slideUp 0.6s`;
+			window.setTimeout(() => this.displayUnsuccessfulToast = false, 600);
 		}, 3000);
 	}
 
@@ -417,7 +437,8 @@ export class USSDProfileDetails extends Component {
 							</capitec-icon>
 					</capitec-group>
 
-					${this._renderToast()}
+					${this._renderSuccessToast()}
+					${this._renderUnsuccessfulToast()}
 					${this._renderAlertBanner()}
 
 					<capitec-content-box
@@ -476,6 +497,8 @@ export class USSDProfileDetails extends Component {
 	}
 
 	_renderButtons() {
+		// TODO: What if USSD is active?
+		// TODO: Added check on unblock SIM button to hide if ussdStatus === Blocked?
 		return html`
 			<capitec-button 
 				data-automation-id="ussd-profile-details-activate-full-ussd-button"
@@ -684,7 +707,7 @@ export class USSDProfileDetails extends Component {
 		: html``;
 	}
 
-	_renderToast() {
+	_renderSuccessToast() {
 		
 		/* TO DO: "Header" and "Detail" properties can be removed when update platform to the latest version 
 			as content inside slot will be effective.*/
@@ -695,14 +718,29 @@ export class USSDProfileDetails extends Component {
 				id="ussd-success-toast"
 				type="success" 
 				header="Successful!"
-				detail="${this.toastDetails} &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp ${this._formatDate(this.ussd.dateLastUpdated)}, ${this._formatTime(this.ussd.dateLastUpdated)}"
+				detail="${this.successToastDetails} &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp ${this._formatDate(this.ussd.dateLastUpdated)}, ${this._formatTime(this.ussd.dateLastUpdated)}"
 				?hidden="${!this.displaySuccessToast}"
 				@click="${() => this.displaySuccessToast = false}"
 				closable>
-					<capitec-label label="Successful!" type="strong"></capitec-label>
-					<capitec-label label="${this.toastDetails}"></capitec-label>
-					<capitec-spacer></capitec-spacer>
-					<capitec-label label="${this._formatDate(this.ussd.dateLastUpdated)}, ${this._formatTime(this.ussd.dateLastUpdated)}" type="strong"></capitec-label>
+			</capitec-toast>
+		`;
+	}
+
+	_renderUnsuccessfulToast() {
+		
+		/* TO DO: "Header" and "Detail" properties can be removed when update platform to the latest version 
+			as content inside slot will be effective.*/
+		
+		return html`
+			<capitec-toast 
+				data-automation-id="ussd-profile-details-unsuccessful-toast"
+				id="ussd-unsuccessful-toast"
+				type="error" 
+				header="Unsuccessful!"
+				detail="${this.unsuccessfulToastDetails}"
+				?hidden="${!this.displayUnsuccessfulToast}"
+				@click="${() => this.displayUnsuccessfulToast = false}"
+				closable>
 			</capitec-toast>
 		`;
 	}

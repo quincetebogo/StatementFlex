@@ -146,15 +146,15 @@
 		},
 		"activatefullUssdMenu": {
 			"enabled": true,
-			"postiveCase": true
+			"positiveCase": true
 		},
 		"cancelUSSD": {
 			"enabled": true,
-			"postiveCase": true
+			"positiveCase": true
 		},
 		"unblockSIM": {
 			"enabled": true,
-			"positveCase": true
+			"positiveCase": true
 		}
 	}
 }
