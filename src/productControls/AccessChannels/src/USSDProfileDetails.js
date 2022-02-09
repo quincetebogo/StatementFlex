@@ -1,5 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonLabel';
@@ -21,11 +20,10 @@ export class USSDProfileDetails extends Component {
 		this.bannerTitle = ``;
 		this.bannerSubtitle = ``;
 		this.toastDetails = ``;
+		this.verifiedTelephoneNumber = ``;
 
 		// Active, SIM Blocked, ussd Blocked, Service Unavailable - null
 		this.ussdStatus = ``;
-		
-		this.horizonStore = HorizonStore.getInstance();
 	}
 	
 	// ----------
@@ -64,21 +62,27 @@ export class USSDProfileDetails extends Component {
 	 */
 	static get properties() {
 		return {
-			showSideSheet: { type: Boolean },
 			ussd: { type: Object },
+			showSideSheet: { type: Boolean },
+			verifiedTelephoneNumber: { type: String },
 
-			cancelUSSD: { type: Object, attribute: false },
-			activateFullMenuUSSD: { type: Object, attribute: false },
-			unblockSIM: { type: Object, attribute: false },
+			cancelUSSD: { type: Object },
+			unblockSIM: { type: Object },
+			activateFullMenuUSSD: { type: Object },
+			getUssdLandingDetails: { type: Object },
 			
+			// private properties
 			ussdStatus: { state: true },
 			displaySuccessToast: { state: true },
 			showCancelReasons: { state: true },
 			showNotificationBanner: { state: true },
 			showValidationBanner: { state: true },
-			isBusy: { attribute: false }
+			isBusy: { state: true }
 		};
 	}
+
+
+
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -87,7 +91,6 @@ export class USSDProfileDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		
-		this.callerInformation = this.horizonStore.getCallerInformation();
 		this._initialise();
 	}
 
@@ -166,7 +169,7 @@ export class USSDProfileDetails extends Component {
 
 	async _initialise() {
 		const clientInfo = {
-			msisdn: this.callerInformation.verifiedTelephoneNumber
+			msisdn: this.verifiedTelephoneNumber
 		};
 
 		const result = await this.getUssdLandingDetails(clientInfo);
