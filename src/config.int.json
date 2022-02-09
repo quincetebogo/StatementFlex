@@ -1,6 +1,7 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://horizoncs-v1.platform-int.int.capinet"
+		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet",
+		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-dev.int.capinet"
 	},
 	"signalRUrl": "https://horizoncs-ita-v1.platform-int.int.capinet",
 	"DesktopAgent": {
