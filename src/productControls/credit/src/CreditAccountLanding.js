@@ -437,8 +437,8 @@ export class CreditAccountLanding extends Component {
 
 	_renderBudgetDetailsBar(item) {
 		return item.type === PRODUCT_TYPE.CREDIT_CARD &&
-				this.budgetAccountsSummary.totalBudgetBalance &&
-				this.budgetAccountsSummary.totalBudgetInstallmentAmount
+				(this.budgetAccountsSummary.totalBudgetBalance && this.budgetAccountsSummary.totalBudgetBalance !== `R0.00`) &&
+				(this.budgetAccountsSummary.totalBudgetInstallmentAmount && this.budgetAccountsSummary.totalBudgetInstallmentAmount !== `R0.00`)
 					? html`
 						<capitec-title-bar
 							type="default"
