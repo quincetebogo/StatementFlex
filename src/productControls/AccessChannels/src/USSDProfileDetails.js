@@ -4,12 +4,12 @@ import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import 'app/components/common/HorizonLabel';
 import 'app/webComponents/src/SideSheet';
 
-
 export class USSDProfileDetails extends Component {
 	constructor() {
 		super();
 
 		this.showSideSheet = false;
+		this.isBusy = false;
 
 		this.displaySuccessToast = false;
 		this.showCancelReasons = false;
@@ -20,6 +20,7 @@ export class USSDProfileDetails extends Component {
 		this.bannerTitle = ``;
 		this.bannerSubtitle = ``;
 		this.toastDetails = ``;
+		this.verifiedTelephoneNumber = ``;
 
 		// Active, SIM Blocked, ussd Blocked, Service Unavailable - null
 		this.ussdStatus = ``;
@@ -41,7 +42,10 @@ export class USSDProfileDetails extends Component {
 	 /**
 	 * @callback activateFullMenuUSSD
 	 * @returns {activateFullMenuUSSDCallback} - Success or failure response for activating full ussd.
-
+	 * 
+	 * @callback getUssdLandingDetails
+	 * @returns {getUssdLandingDetailsCallback} - get ussd landing details
+	
 	 * 
 	 * @property {Boolean} [showSideSheet] - To toggle Side sheet component
 	 * @property {Object} [ussd] - Ussd profile details
@@ -53,24 +57,32 @@ export class USSDProfileDetails extends Component {
 	 * 
 	 * @property {cancelUSSDCallback} cancelUSSD Callback function to cancel USSD
 	 * @property {unblockSIMCallback} unblockSIM Callback function to Unblock SIM
+	 * @property {getUssdLandingDetailsCallback} getUssdLandingDetails Callback gets USSD landing details
 	 * 
 	 */
 	static get properties() {
 		return {
-			showSideSheet: { type: Boolean },
 			ussd: { type: Object },
+			showSideSheet: { type: Boolean },
+			verifiedTelephoneNumber: { type: String },
 
-			cancelUSSD: { type: Object, attribute: false },
-			activateFullMenuUSSD: { type: Object, attribute: false },
-			unblockSIM: { type: Object, attribute: false },
+			cancelUSSD: { type: Object },
+			unblockSIM: { type: Object },
+			activateFullMenuUSSD: { type: Object },
+			getUssdLandingDetails: { type: Object },
 			
+			// private properties
 			ussdStatus: { state: true },
 			displaySuccessToast: { state: true },
 			showCancelReasons: { state: true },
 			showNotificationBanner: { state: true },
-			showValidationBanner: { state: true }
+			showValidationBanner: { state: true },
+			isBusy: { state: true }
 		};
 	}
+
+
+
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -79,7 +91,7 @@ export class USSDProfileDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		
-		this.ussdStatus = this.ussd && this.ussd.status;
+		this._initialise();
 	}
 
 	disconnectedCallback() {
@@ -154,6 +166,19 @@ export class USSDProfileDetails extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	async _initialise() {
+		const clientInfo = {
+			msisdn: this.verifiedTelephoneNumber
+		};
+
+		const result = await this.getUssdLandingDetails(clientInfo);
+
+		if (result) {
+			this.ussd = returnValue;
+			this.ussdStatus = this.ussd && this.ussd.status;
+		}
+	}
 
 	_checkUssdStatus(status) {
 		
@@ -378,6 +403,7 @@ export class USSDProfileDetails extends Component {
 			`;
 		}
 		return html`
+			${this._renderLoadingIndicator()}
 			${this._renderUSSDProfileDetails()}
 			${this._renderCancelUSSD()}
 		`;
@@ -704,6 +730,12 @@ export class USSDProfileDetails extends Component {
 					<capitec-label label="${this._formatDate(this.ussd.dateLastUpdated)}, ${this._formatTime(this.ussd.dateLastUpdated)}" type="strong"></capitec-label>
 			</capitec-toast>
 		`;
+	}
+	
+	_renderLoadingIndicator() {
+		return this.isBusy
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
 	}
 }
 
