@@ -1,4 +1,4 @@
-
+import { ACCESS_CHANNELS_TYPE, APP_STATUS, CHANNEL_TYPE } from 'app/constants/AccessChannels';
 import { Component, css, html } from 'platform/elements';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { AccessChannelsEvents } from 'app/constants/telemetry/events/AccessChannels';
@@ -15,20 +15,6 @@ import 'app/productControls/AccessChannels/src/USSDProfileDetails';
 import 'app/productControls/AccessChannels/src/NotificationsDetails';
 import 'app/webComponents/src/SideSheet';
 import 'platform/components';
-
-const ACCESS_CHANNELS_TYPE = {
-	APP: `app`,
-	INTERNET_BANKING: `internetBanking`,
-	USSD: `ussd`,
-	NOTIFICATIONS: `notifications`
-};
-
-const CHANNEL_TYPE = {
-	'app': `APP`,
-	'internetBanking': `INTERNET_BANKING`,
-	'ussd': `USSD`,
-	'notifications': `NOTIFICATIONS`
-};
 
 /**
  * Access Channels component invokes and holds functionality for all the available access channels
@@ -136,7 +122,7 @@ export class AccessChannels extends Component {
 		}
 	}
 
-	async suspendApp(suspendReason) {
+	async _suspendApp(suspendReason, userRegNo) {
 
 		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND_CONFIRM, {
 			"screen": TelemetryScreen.ACCESS_CHANNELS_APP_SUSPEND_REASON,
@@ -148,12 +134,18 @@ export class AccessChannels extends Component {
 
 		// TO DO: Channel service call to suspend app should come here
 		// If successfully suspended, update app status, else Error scenario
-		
-		this.landingInfo.app.status = `Suspended`;
-		this.landingInfo.app.dateLastUpdated = new Date().toISOString();
+		const returnValue = await this.accessChannelService.suspendApp(suspendReason, userRegNo);
+	
+		if (returnValue.succeeded) {
+			this.landingInfo.app.status = APP_STATUS.SUSPENDED;
+			this.landingInfo.app.dateLastUpdated = new Date().toISOString();
 
-		this._deepCopyStatus();
-		return true;
+			this._deepCopyStatus();
+			return true;
+		}
+
+		this.logger.log(`error`, `Failed to suspend app`, `_suspendApp`, returnValue.correlationId);
+		return false;
 	}
 
 	unsuspendApp() {
@@ -320,7 +312,7 @@ export class AccessChannels extends Component {
 		};
 		const returnValue = await this.accessChannelService.suspendToken(requestBody);
 
-		if(returnValue.succeeded) {
+		if (returnValue.succeeded) {
 			this.landingInfo.internetBanking.status = `Suspended`;
 			this.landingInfo.internetBanking.dateLastUpdated = new Date().toISOString();
 			
@@ -351,7 +343,7 @@ export class AccessChannels extends Component {
 	async getTokens(userRegNo) {
 		const returnValue = await this.accessChannelService.internetBankingLanding(userRegNo);
 
-		if(returnValue.succeeded && returnValue.result){
+		if (returnValue.succeeded && returnValue.result) {
 			return returnValue.result;
 		}
 
@@ -509,7 +501,7 @@ export class AccessChannels extends Component {
 					.appDetails = "${this.landingInfo.app}"
 					?showSideSheet = "${this.showSideSheet}"
 
-					.suspendApp = "${suspendReason => this.suspendApp(suspendReason)}"
+					.suspendApp = "${(suspendReason, userRegNo) => this._suspendApp(suspendReason, userRegNo)}"
 					.unsuspendApp = "${() => this.unsuspendApp()}"
 
 					@toggle-app-suspend-reasons="${(event) => this._toggleAppSuspendReasons(event)}"

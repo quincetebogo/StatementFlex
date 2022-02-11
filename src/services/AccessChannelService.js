@@ -150,4 +150,27 @@ export class AccessChannelService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+
+	async suspendApp(reason, userRegNo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`suspendApp`)) {
+			return this.mock(`suspendApp`);
+		}
+
+		const url = `/clientcare-accesschannels-${this._version}/app/suspend`;
+		return this.post(
+			url,
+			{
+				"reason": reason,
+				"userRegNo": userRegNo
+			},
+			this.setToken(), 
+			`suspendApp`,
+			false,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 }
