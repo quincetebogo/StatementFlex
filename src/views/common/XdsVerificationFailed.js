@@ -149,7 +149,7 @@ export class XdsVerificationFailed extends ViewBase {
 				image="/images/insure/assign-pay-arrears.svg"
 				@left-click=${() => this._continueUnverifiedClick()}
 				@right-click=${() => this._verifyViaApp()}>
-				<section id="id-error-msg" slot="detail">Please visit a branch to unblock your access. You can continue with limited transactions.</section>
+				<section id="id-error-msg" slot="detail">You can continue with limited transactions.</section>
 			</horizon-error-screen>
 		`;
 	}
