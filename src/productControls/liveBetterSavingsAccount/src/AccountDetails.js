@@ -43,6 +43,11 @@ const ACCOUNT_TYPE = {
 		super.connectedCallback();
 	}
 
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		this.dispatchEvent(new CustomEvent(`unloading`));
+	}
+
 	// --------------
 	// PROPERTIES
 	// --------------

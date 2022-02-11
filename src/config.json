@@ -1,7 +1,7 @@
 {
 	"serviceURIs": {
 		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet",
-		"accessChannelsUrl": "https://hzn-accesschannelscs-v1.platform-dev.int.capinet"
+		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-dev.int.capinet"
 	},
 	"signalRUrl": "",
 	"DesktopAgent": {
@@ -31,7 +31,7 @@
 		}
 	],
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"acceptCall": {
 			"enabled": false,
 			"positiveCase": true
@@ -57,20 +57,20 @@
 			"positiveCase": true
 		},
 		"xdsQuestions": {
-			"enabled": false,
+			"enabled": true,
 			"substituteIdOnly": "",
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"itaVerification":{
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
@@ -126,7 +126,7 @@
 			"positiveCase": true
 		},
 		"accessChannel": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		}
 	}

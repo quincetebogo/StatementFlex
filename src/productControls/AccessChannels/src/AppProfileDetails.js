@@ -416,14 +416,14 @@ export class AppProfileDetails extends Component {
 					data-automation-id="app-profile-details-last-updated"
 					label="Last updated"
 					value="${this._formatDate(this.appDetails.dateLastUpdated)}, ${this._formatTime(this.appDetails.dateLastUpdated)}"
-					style="display:${isNullorEmpty(this.appDetails.dateLastUpdated) ? `none` : `block`}">
+					?hidden="${isNullorEmpty(this.appDetails.dateLastUpdated)}">
 				</horizon-label>
 
 				<horizon-label
 					data-automation-id="app-profile-details-suspending-reason"
 					label="Reason for suspending"
 					value="${this.selectedSuspendReason || this.appDetails.statusReason}"
-					style="display:${this.appDetails.status === `Active` ? `none` : `block`}">
+					?hidden="${this.appDetails.status === `Active`}">
 				</horizon-label>
 
 				<capitec-button
@@ -435,9 +435,9 @@ export class AppProfileDetails extends Component {
 				</capitec-button>
 				<capitec-button
 					data-automation-id="app-profile-details-unsuspend-button"
-					?hidden=${this.appDetails.status === `Active`}
 					type="primary" 
-					label="Unsuspend" 
+					label="Unsuspend"
+					?hidden="${true}"
 					@click="${() => this._onUnsuspendAppClick()}">
 				</capitec-button>
 			</capitec-content-box>

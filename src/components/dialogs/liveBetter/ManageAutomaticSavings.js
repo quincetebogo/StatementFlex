@@ -148,12 +148,13 @@ export class ManageAutomaticSavings extends Component {
 			this.updatedDetails.roundUpValue = this.roundUpValue;
 		}
 
-		if (!this.roundUpAccounts.every(item => this.automaticSavingsDetails.activatedRoundUpAccountNums.includes(item))) {
-			this.updatedDetails.activatedRoundUpAccountNums = this.roundUpAccounts;
-			this.updatedDetails.activatedRoundUpAccounts = this.automaticSavingsDetails.activatedRoundUpAccounts;
+		if (this.roundUpAccounts.length !== this.automaticSavingsDetails.activatedRoundUpAccountNums.length ||
+			!this.roundUpAccounts.every(item => this.automaticSavingsDetails.activatedRoundUpAccountNums.includes(item))) {
+				this.updatedDetails.activatedRoundUpAccountNums = this.roundUpAccounts;
+				this.updatedDetails.activatedRoundUpAccounts = this.automaticSavingsDetails.activatedRoundUpAccounts;
 		}
 		return Object.keys(this.updatedDetails).length > 0;
-	}
+		}
 
 	_isValid() {
 		if (!this.isRoundUpActive) {
@@ -174,6 +175,11 @@ export class ManageAutomaticSavings extends Component {
 		return !this.errorMessage;
 	}
 	
+	_formatAccountName(accountName) {
+		const name = accountName.toLowerCase();
+		return `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -459,7 +465,7 @@ export class ManageAutomaticSavings extends Component {
 					class="group-accounts">
 						<capitec-title-bar
 							type="default"
-							label="Active round-up accounts"
+							label="Activate Round-up on these accounts"
 							class="other-options">
 						</capitec-title-bar>
 						${!this.roundUpAccounts.length && this.errorMessage
@@ -476,7 +482,7 @@ export class ManageAutomaticSavings extends Component {
 						${this.automaticSavingsDetails.roundUpAccounts.map(account => html`
 							<capitec-check 
 								class="account-check-box"
-								label="${account.accountName}"
+								label="${this._formatAccountName(account.accountName)}"
 								?checked="${this.automaticSavingsDetails.activatedRoundUpAccounts.find(activeAccount => activeAccount.accountNumber === account.accountNumber)}"
 								@value-change="${(e) => this._selectedRoundUpAccounts(e, account)}">
 							</capitec-check>
@@ -489,7 +495,7 @@ export class ManageAutomaticSavings extends Component {
 		return html`
 		<capitec-group class="card-header ${this.isInterestSweepActive ? `` : `header-off`}" gap="clear" halign="left" valign="center" layout="horizontal">
 			<img src='/images/liveBetter/interest-sweep.svg'/>
-			<capitec-label type="title" label="Intrest Sweep. SuperCharge your interest"></capitec-label>
+			<capitec-label type="title" label="Interest Sweep. Supercharge your interest"></capitec-label>
 			<capitec-spacer></capitec-spacer>
 					<capitec-label
 						id="id-toggle-label"
