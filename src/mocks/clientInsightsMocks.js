@@ -42,7 +42,7 @@ export const insightsMocks = [
 				"data": {
 					"constant": null
 				},
-				"replyReference": "eyJ0cmFja2luZ0lkIjoiMTExYWQ3Y2EtNGUyNS00ZDQ0LWE1N2YtOGFmNzU2UTY5MjVlIiwiRW50aXR5SWQiOiIzMjY1NDY4YS03MmZmLTQ4NjUtODc0MC03MzViMjI0NDE5OTYiLCJOYmFJZCI6MjY3LCJQYXJlbnRDYXRlZ29yeUlkIjo2NSwiQWN0aW9uRGlzcGxheU5hbWUiOiJUaHVtYnN1cCIsIkFjdGlvblR5cGUiOjR9"
+				"replyReference": "eyJ0cmFja2luZ0lkIjoiMTExYWQ3Y2EtNGUyNS00ZDQ0LWE1N2YtOGFmNzU1YTU5MjVlIiwiRW50aXR5SWQiOiIzMjY1NDY4YS03MmZmLTQ4NjUtODc0MC03MzViMjI0NDE5OTYiLCJOYmFJZCI6MjY3LCJQYXJlbnRDYXRlZ29yeUlkIjo2NSwiQWN0aW9uRGlzcGxheU5hbWUiOiJUaHVtYnN1cCIsIkFjdGlvblR5cGUiOjR9"
 			},
 			{
 				"displayName": "Thumbsdown",
