@@ -9,62 +9,11 @@ import 'app/productControls/ClientInsights/src/ClientInsights';
 import 'app/dialogs/valueAddedServices/ValueAddedServices';
 import 'app/dialogs/valueAddedServices/ValueAddedServicesUnavailable';
 import 'app/dialogs/valueAddedServices/VASNoClientData';
-
-const mockData = [
-	{
-		"entityId": "71da20cb-4e25-40ac-b363-aa9300833000",
-		"nbaId": 100,
-		"parentCategoryId": 23,
-		"reference": "ID",
-		"message": "Recall request awaiting feedback\n\nDescription: Remote banking\nRef #: In123456\nDate Logged: 5 July 2015\nStatus: active\nOwner: remote team",
-		"actions": [
-		{
-		"displayName": "This was useful",
-		"type": "deepLink",
-		"data": {
-		"constant": "STrack"
-		},
-		"replyReference": "eyJFbnRpdHlJZCI6IjcxZGEyMGNiLTRlMjUtNDBhYy1iMzYzLWFhOTMwMDgzMzAwMCIsIk5iYUlkIjoxMDAsIlBhcmVudENhdGVnb3J5SWQiOjIzLCJBY3Rpb24iOiJPcGVuIFNUcmFjayJ9"
-		},
-		{
-		"displayName": "This didn't help",
-		"type": "NoAction",
-		"data": null,
-		"replyReference": "eyJFbnRpdHlJZCI6IjcxZGEyMGNiLTRlMjUtNDBhYy1iMzYzLWFhOTMwMDgzMzAwMCIsIk5iYUlkIjoxMDAsIlBhcmVudENhdGVnb3J5SWQiOjIzLCJBY3Rpb24iOiJGdWxmaWxsIE5lZWQifQ=="
-		}
-		]
-	},
-
-	{
-		"entityId": "71da20cb-4e25-40ac-b363-aa9300833000",
-		"nbaId": 100,
-		"parentCategoryId": 23,
-		"reference": "ID",
-		"message": "Your Remote banking is in progress\n\nDescription: Remote banking\nRef #: In123456\nDate Logged: 5 July 2015\nStatus: active\nOwner: remote team",
-		"actions": [
-		{
-		"displayName": "This was useful",
-		"type": "deepLink",
-		"data": {
-		"constant": "STrack"
-		},
-		"replyReference": "eyJFbnRpdHlJZCI6IjcxZGEyMGNiLTRlMjUtNDBhYy1iMzYzLWFhOTMwMDgzMzAwMCIsIk5iYUlkIjoxMDAsIlBhcmVudENhdGVnb3J5SWQiOjIzLCJBY3Rpb24iOiJPcGVuIFNUcmFjayJ9"
-		},
-		{
-		"displayName": "This didn't help",
-		"type": "NoAction",
-		"data": null,
-		"replyReference": "eyJFbnRpdHlJZCI6IjcxZGEyMGNiLTRlMjUtNDBhYy1iMzYzLWFhOTMwMDgzMzAwMCIsIk5iYUlkIjoxMDAsIlBhcmVudENhdGVnb3J5SWQiOjIzLCJBY3Rpb24iOiJGdWxmaWxsIE5lZWQifQ=="
-		}
-		]
-	}
-];
 export class Insights extends Component {
 
 	// --------------
 	// INITIALISATION
 	// --------------
-
 
 	constructor() {
 		super();
@@ -102,7 +51,7 @@ export class Insights extends Component {
 			showValueAddedServicesModal: { state: true },
 			showUnavailableVASModal: { state: true },
 			showVASNoClientDataModal: { state: true },
-			clientInsightsDetails: { state: true }
+			insightDetails: { state: true }
 		};
 	}
 
@@ -176,45 +125,45 @@ export class Insights extends Component {
 	async _getClientInsights() {
 		const returnValue = await this.clientInsightsService.getClientInsights(this.cifNumber);
 
-		// TO DO: Get data from CS response once Test data is available
-		const clientInsights = mockData.shift();
-		this._formatInsightDetails(clientInsights);
-	
+		if (returnValue.succeeded && returnValue.result.length > 0) {
+			this.clientInsightsDetails = returnValue.result;
+			this._formatInsightDetails(this.clientInsightsDetails.shift());
+		}
 	}
 
 	async _insightsAction(replyReference) {
 		const returnValue = await this.clientInsightsService.sendInsightsAction(replyReference);
 
-		if (returnValue.succeeded) {
-
-			
-			if (mockData.length > 0) {
-				this._formatInsightDetails(mockData.shift());
-				this._deepCopyProperty();
-			} else {
-				// TO DO: Dispaly Special Campaigns
-			}
+		if (returnValue.succeeded && this.clientInsightsDetails.length > 0) {
+			this._formatInsightDetails(this.clientInsightsDetails.shift());
+			this._deepCopyProperty();
+			return true;
 		}
+		// TO DO: Flow after responding to all the available insights should come here
 	}
 
 	_formatInsightDetails(clientInsights) {
-		const message = clientInsights.message.split(`\n\n`);
-		// const details = JSON.parse(message[1]);
-
-		this.clientInsightsDetails = {
-			header: message[0],
-			actions: clientInsights.actions,
-			details: {
-				"Reference number": `838438439399`,
-				"Logged": `1 April 2021`,
-				"Assigned to": `Thomas`
-			}
+		this.insightDetails = {
+			actions: clientInsights.actions
 		};
+
+		// Format message: Split with \n characters and load each of the resulted item into 'insightDetails' Object.
+		const message = clientInsights.message.split(/\n\n|\r\n|\n|\r/gm);
+		if (message.length > 2) {
+			this.insightDetails.header = message.shift();
+
+			message.forEach(item => {
+				const itemDetails = item.split(`: `);
+				this.insightDetails[itemDetails[0]] = itemDetails[1];
+			});
+		} else {
+			[this.insightDetails.header, this.insightDetails.subText] = message;
+		}
 	}
 
 	_deepCopyProperty() {
-		// Creates and returns a deep copy of an Object this.clientInsightsDetails which helps to render main screen.
-		this.clientInsightsDetails = Utilities.deepCopy(this.clientInsightsDetails);
+		// Creates and returns a deep copy of an Object this.insightDetails which helps to render main screen.
+		this.insightDetails = Utilities.deepCopy(this.insightDetails);
 	}
 
 	// ---------
@@ -237,9 +186,9 @@ export class Insights extends Component {
 	_renderClientInsights() {
 		return html`
 			<capitec-pc-client-insights
-				.clientInsightsDetails=${this.clientInsightsDetails}
-				@settings-click="${() => this._showVASModal()}"
-				@response-selected="${(e) => this._insightsAction(e.detail.replyReference)}">
+				.insightDetails=${this.insightDetails}
+				.updateInsights = ${(replyReference) => this._insightsAction(replyReference)}
+				@settings-click="${() => this._showVASModal()}">
 			</capitec-pc-client-insights>`;
 	}
 

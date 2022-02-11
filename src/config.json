@@ -124,6 +124,10 @@
 		"lbbLinkedTransactionDetails": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"getClientInsights": {
+			"enabled": true,
+			"positiveCase": true
 		}
 	}
 }

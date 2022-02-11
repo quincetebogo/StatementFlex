@@ -48,8 +48,11 @@ export class ClientInsightsService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object with client insights and the result of the channel service call
 	 */
 
-	getClientInsights(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		
+	async getClientInsights(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`getClientInsights`)) {
+			return this.mock(`getClientInsights`);
+		}
+
 		return this.post(
 			`/clientcare-insights-${this._version}/insights`,
 			{
@@ -76,8 +79,8 @@ export class ClientInsightsService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object with the result of the channel service call
 	 */
 
-	 sendInsightsAction(replyReference, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		
+	sendInsightsAction(replyReference, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
 		return this.post(
 			`/clientcare-insights-${this._version}/insights/action`,
 			{

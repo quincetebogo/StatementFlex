@@ -2,30 +2,6 @@ import { Component, css, html } from 'platform/elements';
 
 import 'platform/components';
 
-const SCENARIO_INFO = {
-	cards: {
-		subTitle: `Credit card expires in 3 days!`,
-		leftChipLabel: `Order via App`,
-		rightChipLabel: `Visit a Branch`,
-		leftChipIcon: `cards.svg`,
-		rightChipIcon: `location.svg`
-	},
-	recallRequest: {
-		subTitle: `Recall request awaiting feedback`,
-		leftChipLabel: `This was useful`,
-		rightChipLabel: `This didn't help`,
-		leftChipIcon: `thumbsUp.svg`,
-		rightChipIcon: `thumbsDown.svg`
-	},
-	didYouKnow: {
-		subTitle: `Use your card! Be safe.`,
-		leftChipLabel: `This was useful`,
-		rightChipLabel: `This didn't help`,
-		leftChipIcon: `thumbsUp.svg`,
-		rightChipIcon: `thumbsDown.svg`
-	}
-};
-
 /**
  * Client Insights is used to display various information about the client.
  * This component is rendered on the access menu bar.
@@ -47,24 +23,35 @@ export class ClientInsights extends Component {
 
 	constructor() {
 		super();
-
 		// TODO: Placeholders in this file to be removed once the images are signed off.
-		// TODO: Hardcoded values to be removed when CS is implemented
-
-		this.displayDetails = [];
 	}
 
 	// --------------
 	// PROPERTIES
 	// --------------
+	/**
+	 *  @typedef {Object} updateInsights update selected Insights action and get back the result.
+	 */
 
 	/**
-	 * @property {String} scenario - holds the value of which client insight needs to be displayed (cards, recallRequest, didYourKnow)
+	 * @callback updateInsightsCallback
+	 * @returns {updateInsights}
+	 */
+
+	/**
+	* @property {Object} insightDetails Client insight details
+	* @property {updateInsightsCallback} updateInsights Callback function to update selected Insights action and get back the result.
+	* 
+	* @readonly
+	* @static
+	* @memberof ClientInsights
 	*/
 	static get properties() {
 		return {
-			clientInsightsDetails: { type: Object },
-			selectedResponse: { state: true }
+			insightDetails: { type: Object },
+			selectedResponse: { state: true },
+
+			updateInsights: { type: Object, attribute: false }
 		};
 	}
 
@@ -88,21 +75,28 @@ export class ClientInsights extends Component {
 		this.dispatchEvent(new CustomEvent(`settings-click`, {}));
 	}
 
-	_selectResponse(replyReference) {
+	async _selectResponse(replyReference) {
 		this.selectedResponse = replyReference;
 		
-		this.dispatchEvent(new CustomEvent(`response-selected`, { detail: { replyReference: this.selectedResponse } }));
+		const updateInsightsAction = await this.updateInsights(replyReference);
+
+		if (updateInsightsAction) {
+			this.selectedResponse = ``;
+		}
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
+	// N/A
 
 	// ---------------
 	// PUBLIC METHODS
 	// ---------------
 
+	// N/A
+	
 	// ---------
 	// RENDERING
 	// ---------
@@ -135,55 +129,51 @@ export class ClientInsights extends Component {
 				.insights-group {
 					height: 364px;
 				}
-
 				capitec-label {
 					--theme-label-subtitle-font-weight: 600;
 					--theme-label-subtitle-font-size: 18px;
 					--theme-layout-gap-spacing: 7px;
 					margin-top: 18px;
 				}
-
-				p {
+				.sub-details {
 					width: 288px;
+					max-height: 100px;
 					margin: 0px;
 					padding: 12px;
 					font-size: 14px;
 					background-color: #F5F5F5;
 					border-radius: 4px;
 				}
-
+				.sub-text {
+					max-height: 100px;
+					padding: 16px;
+					margin-top: 0px;
+					font-size: 14px;
+					text-align: center;
+					overflow: auto;
+				}
+				.chips-group {
+					margin-bottom: 16px;
+				}
 				capitec-chip {
+					width: 140px;
 					--theme-chip-background-color: #FFFFFF;
 					--theme-avatar-size-extra-small: 16px;
 					--theme-chip-label-padding-left: 7px;
 					--theme-chip-padding: 8px;
 					--theme-chip-label-padding-right: 8px;
 				}
-
 				capitec-chip:hover {
 					--theme-chip-hover-border: 1px solid rgba(0,157,224,0.1);
 				}
-
-				capitec-placeholder {
-					height: 152px;
-				}
-
 				.selected-chip {
 					--theme-chip-background-color: #009de0;
 					--theme-chip-hover-border: 1px solid #009de0;
 					--theme-chip-label-color: #FFFFFF;
+					--theme-avatar-size-extra-small: 14px;
 				}
-
 				.info {
-					--theme-layout-gap-spacing: 16px;
-				}
-
-				.recallRequest-info {
-					width: 288px;
-					height: 80px;
-					background-color: #F5F5F5;
-					text-align: left;
-					padding: 8px 12px;
+					--theme-layout-gap-spacing: auto;
 				}
 			`
 		];
@@ -228,89 +218,56 @@ export class ClientInsights extends Component {
 	}
 
 	_renderContent() {
-		return this.clientInsightsDetails 
+		return this.insightDetails 
 		? html`
 			<capitec-label
 				type="subtitle"
-				label="${this.clientInsightsDetails.header}">
+				label="${this.insightDetails.header}">
 			</capitec-label>
 
 			<capitec-group layout="vertical" halign="center" valign="center" gap="none" class="info">
 				<capitec-image src="platform/illustrations/processing.svg"></capitec-image>
-				<p>
-					Reference number: <strong>${this.clientInsightsDetails.details[`Reference number`]}</strong><br>
-					Logged: <strong>${this.clientInsightsDetails.details.Logged}</strong><br>
-					Assigned to: <strong>${this.clientInsightsDetails.details[`Assigned to`]}</strong><br>
-				</p>
-				
-				<!-- ${this._renderCardExpiry()}
-				${this._renderRecallRequest()}
-				${this._renderDidYouKnow()} -->
+				${this._renderDetails()}
 			</capitec-group>
 
-			<capitec-group layout="horizontal" halign="center" valign="center" gap="clear">
+			<capitec-group class="chips-group" layout="horizontal" halign="center" valign="center" gap="clear">
 
 				<capitec-chip
 						data-automation-id="client-insights-left-chip"
-						class="${this.selectedResponse === this.clientInsightsDetails.actions[0].replyReference ? `selected-chip` : ``}"
-						label="${this.clientInsightsDetails.actions[0].displayName}"
-						avatar-image="src/productControls/ClientInsights/src/images/${this.selectedResponse === this.clientInsightsDetails.actions[0].replyReference ? `thumbsUp-white` : `thumbsUp`}.svg"
-						@click="${() => this._selectResponse(this.clientInsightsDetails.actions[0].replyReference)}">
+						class="${this.selectedResponse === this.insightDetails.actions[0].replyReference ? `selected-chip` : ``}"
+						label="${this.insightDetails.actions[0].displayName}"
+						avatar-image="src/productControls/ClientInsights/src/images/${this.selectedResponse === this.insightDetails.actions[0].replyReference ? `thumbsUp-white` : `thumbsUp`}.svg"
+						@click="${() => this._selectResponse(this.insightDetails.actions[0].replyReference)}">
 				</capitec-chip>
 
 				<capitec-chip
 						data-automation-id="client-insights-left-chip"
-						class="${this.selectedResponse === this.clientInsightsDetails.actions[1].replyReference ? `selected-chip` : ``}"
-						label="${this.clientInsightsDetails.actions[1].displayName}" 
-						avatar-image="src/productControls/ClientInsights/src/images/${this.selectedResponse === this.clientInsightsDetails.actions[1].replyReference ? `thumbsDown-white` : `thumbsDown`}.svg"
-						@click="${() => this._selectResponse(this.clientInsightsDetails.actions[1].replyReference)}">
+						class="${this.selectedResponse === this.insightDetails.actions[1].replyReference ? `selected-chip` : ``}"
+						label="${this.insightDetails.actions[1].displayName}" 
+						avatar-image="src/productControls/ClientInsights/src/images/${this.selectedResponse === this.insightDetails.actions[1].replyReference ? `thumbsDown-white` : `thumbsDown`}.svg"
+						@click="${() => this._selectResponse(this.insightDetails.actions[1].replyReference)}">
 				</capitec-chip>
 
 			</capitec-group>`
 		: html`
-			<img
+			<capitec-image
 				class="box-image"
-				src="images/landingPageImages/marketing.svg"/>
-			<capitec-label
-				type="subtitle"
-				label="Client insights coming soon...">
-			</capitec-label>`;
+				src="images/landingPageImages/marketing.svg">
+			</capitec-image>`;
 	}
 
-
-	_renderCardExpiry() {
-		return this.scenario === `cards` 
+	_renderDetails() {
+		return !this.insightDetails.subText 
 			? html`
-				<p>
-					Your credit card expires on <strong>30th April 2021.</strong><br>
-					Order your new card via the App <br>
-					or visit a branch.
+				<p class="sub-details">
+					Reference number: <strong>${this.insightDetails[`Ref #`]}</strong><br>
+					Logged: <strong>${this.insightDetails[`Date Logged`]}</strong><br>
+					Assigned to: <strong>${this.insightDetails.Owner}</strong><br>
 				</p>`
-			: html``;
+			: html`
+				<capitec-label class="sub-text" label="${this.insightDetails.subText}"></capitec-label>`;
 	}
 
-	_renderRecallRequest() {
-		return this.scenario === `recallRequest` 
-			? html`
-				<capitec-image src="platform/illustrations/processing.svg"></capitec-image>
-				<p class="recallRequest-info">
-					Reference number: <strong>${this.referenceNumber}</strong><br>
-					Logged: <strong>${this.logged}</strong><br>
-					Assigned to: <strong>${this.assigned}</strong><br>
-				</p>`
-			: html``;
-	}
-
-	_renderDidYouKnow() {
-		return this.scenario === `didYouKnow` 
-			? html`
-				<p>
-					Use your card instead of cash and you could<br>
-					<strong>save R40.00 per month</strong> on average.
-				</p>
-				`
-			: html``;
-	}
 }
 
 customElements.define(`capitec-pc-client-insights`, ClientInsights);

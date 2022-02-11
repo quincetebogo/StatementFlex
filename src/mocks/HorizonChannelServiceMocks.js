@@ -56,6 +56,7 @@ export default class HorizonChannelServiceMocks {
 		this.viewStatementsMock = await this._loadMockModule(this.viewStatementsMock, `viewStatements`, () => import(`../mocks/ViewStatementMock`).catch(err => logError(err)));
 		this.tapToPayMocks = await this._loadMockModule(this.tapToPayMocks, `tapToPayLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
 		this.liveBetterLandingMocks = await this._loadMockModule(this.liveBetterLandingMocks, `liveBetterLanding`, () => import(`../mocks/LiveBetterLandingMocks`).catch(err => logError(err)));
+		this.clientInsightsMocks = await this._loadMockModule(this.clientInsightsMocks, `getClientInsights`, () => import(`../mocks/clientInsightsMocks`).catch(err => logError(err)));
 	}
 
 	// ===============================
@@ -253,6 +254,14 @@ export default class HorizonChannelServiceMocks {
 		}
 
 		// Code for a negative case could come here
+		return null;
+	}
+
+	getClientInsights() {
+		if (this._mockSettings.getClientInsights.positiveCase) {
+			return this.clientInsightsMocks.insightsMocks;
+		}
+
 		return null;
 	}
 
