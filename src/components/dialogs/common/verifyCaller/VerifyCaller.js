@@ -658,6 +658,7 @@ export class VerifyCaller extends Component {
 
 	_canOnlyVerifyByXds() {
 		return this.hasSouthAfricanID && // Need an SA ID to be able to use XDS
+			!this._isMinorClient() &&
 			!this.callerInformation.hasDigitalChannels && // App/USSD is not an option
 			this.xdsAttempts === 0 && // We have not tried to verify yet
 			!this.xdsUnavailable;
@@ -705,7 +706,10 @@ export class VerifyCaller extends Component {
 
 	// To check if client is minor.
 	_isMinorClient() {
-		// TODO - check that we have the birth date and that it is valid
+		if (!this.callerInformation.birthdate) {
+			return false;
+		}
+
 		const today = new Date();
 		const clientBirthDate = new Date(this.callerInformation.birthdate);
 	
