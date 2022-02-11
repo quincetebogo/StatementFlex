@@ -236,7 +236,7 @@ export class ClientInsights extends Component {
 						data-automation-id="client-insights-left-chip"
 						class="${this.selectedResponse === this.insightDetails.actions[0].replyReference ? `selected-chip` : ``}"
 						label="This was useful"
-						avatar-image="src/productControls/ClientInsights/src/images/${this.selectedResponse === this.insightDetails.actions[0].replyReference ? `thumbsUp-white` : `thumbsUp`}.svg"
+						avatar-image="/images/insights/${this.selectedResponse === this.insightDetails.actions[0].replyReference ? `thumbsUp-white` : `thumbsUp`}.svg"
 						@click="${() => this._selectResponse(this.insightDetails.actions[0].replyReference)}">
 				</capitec-chip>
 
@@ -244,7 +244,7 @@ export class ClientInsights extends Component {
 						data-automation-id="client-insights-left-chip"
 						class="${this.selectedResponse === this.insightDetails.actions[1].replyReference ? `selected-chip` : ``}"
 						label="This didn't help" 
-						avatar-image="src/productControls/ClientInsights/src/images/${this.selectedResponse === this.insightDetails.actions[1].replyReference ? `thumbsDown-white` : `thumbsDown`}.svg"
+						avatar-image="/images/insights/${this.selectedResponse === this.insightDetails.actions[1].replyReference ? `thumbsDown-white` : `thumbsDown`}.svg"
 						@click="${() => this._selectResponse(this.insightDetails.actions[1].replyReference)}">
 				</capitec-chip>
 

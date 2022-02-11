@@ -5,7 +5,7 @@ import { Utilities } from 'platform/Utilities';
 import { ValueAddedService } from 'app/services/ValueAddedService';
 
 import 'platform/components';
-import 'app/productControls/ClientInsights/src/ClientInsights';
+import 'app/productControls/ClientInsights/ClientInsights';
 import 'app/dialogs/valueAddedServices/ValueAddedServices';
 import 'app/dialogs/valueAddedServices/ValueAddedServicesUnavailable';
 import 'app/dialogs/valueAddedServices/VASNoClientData';
