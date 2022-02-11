@@ -141,16 +141,16 @@ export class AutomaticSavingsSuccess extends ViewBase {
 	}
 
 	_renderRoundupMessage() {
-			if (this.updatedLBSADetails.accountRoundUpActive || this.updatedLBSADetails.roundUpValue) {
-				// Round-up turned ON or round-up value updated
-				return html`<span>Round-up settings updated to <b>R${this.updatedLBSADetails.roundUpValue}</b></span>`;
+		if (!isNullorEmpty(this.updatedLBSADetails.accountRoundUpActive) && !this.updatedLBSADetails.accountRoundUpActive) {
+			// only Round-up status turned OFF
+			return html`<span>Round-up settings switched off.</span>`;
+		} else if (this.updatedLBSADetails.accountRoundUpActive || this.updatedLBSADetails.roundUpValue) {
+			// Round-up turned ON or round-up value updated
+			return html`<span>Round-up settings updated to <b>R${this.updatedLBSADetails.roundUpValue || this.LBSADetails.roundupValue}</b></span>`;
 
-			} else if (!isNullorEmpty(this.updatedLBSADetails.accountRoundUpActive) && !this.updatedLBSADetails.accountRoundUpActive) {
-				// only Round-up status turned OFF
-				return html`<span>Round-up settings switched off.</span>`;
-			}
-			// only selection/deselction of accounts listed.
-			return html`<span>Round-up settings updated</span>`;
+		}
+		// only selection/deselction of accounts listed.
+		return html`<span>Round-up settings updated</span>`;
 	}
 
 	_renderInterestSweepChanges() {

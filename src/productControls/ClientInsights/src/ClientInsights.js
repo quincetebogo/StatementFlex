@@ -190,21 +190,6 @@ export class ClientInsights extends Component {
 						</capitec-icon>
 				</capitec-title-bar>
 
-				<capitec-group layout="vertical" halign="center" valign="center" gap="clear" class="insights-group">
-					<img
-						class="box-image"
-						src="images/landingPageImages/marketing.svg"/>
-					<capitec-label
-						type="subtitle"
-						label="Client insights coming soon...">
-					</capitec-label>
-				</capitec-group>
-
-			</capitec-card>
-
-		`;
-
-/* TODO: replace the client insights place holder above with this code once insights work starts in anger
 				<capitec-group 
 						data-automation-id="client-insights-${this.scenario}"
 						layout="vertical" 
@@ -214,7 +199,10 @@ export class ClientInsights extends Component {
 						class="insights-group">
 					${this._renderContent()}
 				</capitec-group>
-*/
+
+			</capitec-card>
+
+		`;
 	}
 
 	_renderContent() {
