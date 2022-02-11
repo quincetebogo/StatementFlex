@@ -39,6 +39,35 @@ export class AccessChannelService extends ChannelServiceBase {
 			errorHandler,
 			autoRetries
 		);
+		
+		/*
+		const url = `/clientcare-accesschannels-${this._version}/access-channels`;
+		return this.post(url, { 'cif': cifNumber }, this._setToken(), `accessChannels`, null, null, 1000);
+		*/
+	}
+	
+	async accessChannelLanding(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`accessChannel`)) {
+			return this.mock(`accessChannel`);
+		}
+
+		const request = {
+			"cif": `${cifNumber}`
+		};
+
+		const url = `/clientcare-accesschannels-${this._version}/landing`;
+		return this.post(
+			url, 
+			request,
+			this.setToken(), 
+			`accessChannelStatus`, 
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
 
 		/*
 		const url = `/clientcare-accesschannels-${this._version}/access-channels`;

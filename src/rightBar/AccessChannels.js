@@ -109,15 +109,6 @@ export class AccessChannels extends Component {
 	}
 	
 	async cancelUSSD() {
-		// TO DO: add channel service call to cancel USSD service
-		// If cancel is successful, show toast, update ussd status, else show error
-
-		// TODO: Check if these checks are required. 
-		// TODO: Note Blocked does not get returned from the CS. I think this should be DISABLED
-		if (this.status.ussd.status === `Blocked`) {
-			return true;
-		}
-
 		const returnValue = await this.accessChannelService.cancelUSSD(this.cifNumber, this.status.msisdn);
 
 		if (!returnValue.succeeded) {
@@ -125,7 +116,6 @@ export class AccessChannels extends Component {
 			return false;
 		}
 
-		// TODO: Should this not be Disabled? 
 		this.status.ussd.status = `Blocked`;
 		this.status.ussd.dateLastUpdated = new Date().toISOString();
 
@@ -134,8 +124,6 @@ export class AccessChannels extends Component {
 	}
 
 	async unblockSIM() {
-		// TO DO: add channel service call to unblock SIM - ussd
-		// If unblock is successful, show toast, update ussd status, else show error
 		const returnValue = await this.accessChannelService.unblockSIM(this.status.msisdn);
 
 		if (!returnValue.succeeded) {
@@ -151,14 +139,6 @@ export class AccessChannels extends Component {
 	}
 
 	async activateFullMenuUSSD() {
-		// TO DO: add code to activate full menu for currently active ussd clients
-		// If client has active ussd, menu reduced, activate full menu function
-
-		// TODO: Check if these checks are required
-		if (this.status.ussd.status !== `Active`) {
-			return false;
-		}
-		
 		const indexOfReducedMenu = this.status.ussd.features.indexOf(`REDUCED_MENU`);
 		
 		if (indexOfReducedMenu === -1) {
@@ -192,7 +172,7 @@ export class AccessChannels extends Component {
 
 	async _accessChannelService() {
 	
-		const returnValue = await this.accessChannelService.accessChannelStatus(this.cifNumber);
+		const returnValue = await this.accessChannelService.accessChannelLanding(this.cifNumber);
 	
 		if (returnValue.succeeded) {
 			this.status = returnValue.result;
