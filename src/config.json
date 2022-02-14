@@ -1,6 +1,7 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet"
+		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet",
+		"creditMicroChannelServiceUrl": "https://bsc-horizon-credit.platform-dev.int.capinet"
 	},
 	"signalRUrl": "http://localhost:6001",
 	"DesktopAgent": {

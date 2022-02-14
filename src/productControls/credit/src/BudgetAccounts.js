@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { Utilities } from '@cb/platform-web-core';
-import { formatCurrency } from 'app/utils/channelServiceUtilities';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
