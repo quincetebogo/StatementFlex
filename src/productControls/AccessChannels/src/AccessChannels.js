@@ -100,7 +100,7 @@ export class AccessChannels extends Component {
 		const status = this.status[type]?.status;
 
 		if (isNullorEmpty(status)) {
-			return `Channel service is down`;
+			return `Channel service is unavailable`;
 		}
 		if (type === ACCESS_CHANNELS_TYPE.USSD && this.status.ussd.isSimBlocked) {
 			return `Blocked | SIM Swop detected`;

@@ -20,7 +20,7 @@ export class USSDProfileDetails extends Component {
 		this.bannerTitle = ``;
 		this.bannerSubtitle = ``;
 		this.toastDetails = ``;
-		this.verifiedTelephoneNumber = ``;
+		this.cellphoneNumber = ``;
 
 		// Active, SIM Blocked, ussd Blocked, Service Unavailable - null
 		this.ussdStatus = ``;
@@ -64,7 +64,7 @@ export class USSDProfileDetails extends Component {
 		return {
 			ussd: { type: Object },
 			showSideSheet: { type: Boolean },
-			verifiedTelephoneNumber: { type: String },
+			cellphoneNumber: { type: String },
 
 			cancelUSSD: { type: Object },
 			unblockSIM: { type: Object },
@@ -80,9 +80,6 @@ export class USSDProfileDetails extends Component {
 			isBusy: { state: true }
 		};
 	}
-
-
-
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -168,14 +165,11 @@ export class USSDProfileDetails extends Component {
 	// ---------------
 
 	async _initialise() {
-		const clientInfo = {
-			msisdn: this.verifiedTelephoneNumber
-		};
+		const returnValue = await this.getUssdLandingDetails();
 
-		const result = await this.getUssdLandingDetails(clientInfo);
-
-		if (result) {
-			this.ussd = returnValue;
+		if (returnValue) {
+			this.ussd.status = returnValue.status;
+			this.ussd.dateLastUpdated = returnValue.dateLastUpdated;
 			this.ussdStatus = this.ussd && this.ussd.status;
 		}
 	}
@@ -462,7 +456,7 @@ export class USSDProfileDetails extends Component {
 								data-automation-id="ussd-profile-details-cellphone-number"
 								class="cellNumber"
 								label="Cellphone number (verified)"
-								value="${this.ussd.userRegNo}">
+								value="${this.cellphoneNumber}">
 							</horizon-label>
 
 							<horizon-label 
