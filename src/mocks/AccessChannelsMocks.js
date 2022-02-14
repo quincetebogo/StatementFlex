@@ -36,3 +36,5 @@ export const accessChannelsDetails = {
 		"dateLastUpdated": `2021-12-08T08:00:48.879Z`
 	}
 };
+
+export const accessChannelResetSecurityTokenClock = {};

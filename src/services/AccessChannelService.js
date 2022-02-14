@@ -51,6 +51,7 @@ export class AccessChannelService extends ChannelServiceBase {
 			return this.mock(`accessChannelUssdLanding`);
 		}
 
+
 		const requestBody = {
 			'msisdn': clientInfo.msisdn
 		};
@@ -172,4 +173,29 @@ export class AccessChannelService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+  
+	async resetSecurityTokenClock(requestParams, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`accessChannelResetSecurityTokenClock`)) {
+			return this.mock(`accessChannelResetSecurityTokenClock`);
+		}
+
+		const url = `/clientcare-accesschannels-${this._version}/internet-banking/reset-token`;
+
+		const requestBody = {
+			'tokenSerialNo': requestParams.tokenSerialNo
+		};
+
+		return this.post(
+			url,
+			requestBody,
+			this.setToken(),
+			`resetSecurityTokenClock`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}  
 }

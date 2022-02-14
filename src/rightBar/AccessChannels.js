@@ -324,17 +324,22 @@ export class AccessChannels extends Component {
 		return false;
 	}
 
-	resetInternetBanking(selectedTokens) {
+	async resetInternetBanking(selectedTokens) {
 		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN, {
 			"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
 			"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
 			"token-numbers": selectedTokens
 		});
 
-		// TO DO: Channel service call to Reset Internet Banking should come here
+		const requestParams = {
+			"tokenSerialNo": selectedTokens
+		};
+		const returnValue = await this.accessChannelService.resetSecurityTokenClock(requestParams);
 		// If successfully reset, update Internet Banking status, else Error scenario
-		this.landingInfo.internetBanking.status = `Active`;
-		this.landingInfo.internetBanking.dateLastUpdated = new Date().toISOString();
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unable to reset internet banking security token`, `_resetInternetBankingToken`, returnValue.correlationId);
+			return false;
+		}
 
 		this._deepCopyStatus();
 		return true;
@@ -516,39 +521,37 @@ export class AccessChannels extends Component {
 
 	_renderUSSD() {
 		return this.selectedAccessChannelType === ACCESS_CHANNELS_TYPE.USSD
-		? html`
-			<capitec-pc-ussd-profile-details
+			? html`
+				<capitec-pc-ussd-profile-details
 			.ussd="${this.landingInfo.ussd}"
-			?showSideSheet="${this.showSideSheet}"
+				?showSideSheet="${this.showSideSheet}"
 			verifiedTelephoneNumber="${this.callerInformation.verifiedTelephoneNumber}"
 
-			.cancelUSSD="${cancelReason => this.cancelUSSD(cancelReason)}"
-			.unblockSIM="${() => this.unblockSIM()}"
-			.activateFullMenuUSSD="${() => this.activateFullMenuUSSD()}"
+				.cancelUSSD="${cancelReason => this.cancelUSSD(cancelReason)}"
+				.unblockSIM="${() => this.unblockSIM()}"
+				.activateFullMenuUSSD="${() => this.activateFullMenuUSSD()}"
 			.getUssdLandingDetails="${(clientInfo) => this.getUssdLandingDetails(clientInfo)}"
 
-			@toggle-ussd-cancel-reasons="${(event) => this._toggleUssdCancelReasons(event)}"
-			@close-side-sheet="${(event) => this._showSlidingPanel(event)}">
-			</capitec-pc-ussd-profile-details>`
-		: html``;
+				@toggle-ussd-cancel-reasons="${(event) => this._toggleUssdCancelReasons(event)}"
+				@close-side-sheet="${(event) => this._showSlidingPanel(event)}">
+				</capitec-pc-ussd-profile-details>`
+			: html``;
 	}
 
 	_renderNotificationsPanel() {
 		return this.selectedAccessChannelType === ACCESS_CHANNELS_TYPE.NOTIFICATIONS
-		? html`
-			<capitec-pc-notifications-details
+			? html`
+				<capitec-pc-notifications-details
 				.notificationsDetails="${this.landingInfo.notification}"
-				?showSideSheet="${this.showSideSheet}"
+					?showSideSheet="${this.showSideSheet}"
 
-				.updateMessageType="${(selectedType) => this.updateMessageType(selectedType)}"
-				.updateMessageTime="${(selectedTime) => this.updateMessageTime(selectedTime)}"
+					.updateMessageType="${(selectedType) => this.updateMessageType(selectedType)}"
+					.updateMessageTime="${(selectedTime) => this.updateMessageTime(selectedTime)}"
 
-				@toggle-notifications-settings-update="${(event) => this._toggleNotificationsSettingsUpdate(event)}"
-				@close-side-sheet="${(event) => this._showSlidingPanel(event)}"
-			>
-			</capitec-pc-notifications-details>
-		`
-		: html``;
+					@toggle-notifications-settings-update="${(event) => this._toggleNotificationsSettingsUpdate(event)}"
+					@close-side-sheet="${(event) => this._showSlidingPanel(event)}">
+				</capitec-pc-notifications-details>`
+			: html``;
 	}
 
 	_renderLoadingIndicator() {
