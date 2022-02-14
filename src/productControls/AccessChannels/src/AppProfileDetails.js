@@ -65,6 +65,7 @@ export class AppProfileDetails extends Component {
 		return {
 			showSideSheet: { type: Boolean },
 			appDetails: { type: Object },
+			verifiedNumber: { type: String},
 
 			suspendApp: { type: Object, attribute: false },
 			unsuspendApp: { type: Object, attribute: false },
@@ -397,7 +398,7 @@ export class AppProfileDetails extends Component {
 				<horizon-label
 					data-automation-id="app-profile-details-cellphone-number"
 					label="Cellphone number (verified)"
-					value="${this.appDetails.userRegNo}">
+					value="${this.verifiedNumber}">
 				</horizon-label>
 
 				<horizon-label 
