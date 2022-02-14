@@ -1190,7 +1190,7 @@ export class InternetBankingProfileDetails extends Component {
 				&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp ${formatedUpdatedDate}"
 				?hidden="${!this.displaySuspendToast}"
 				@click="${() => this.displaySuspendToast = false}"
-				closable>
+				?closable=${false}>
 					<capitec-label label="Successful!" type="strong"></capitec-label>
 					<capitec-label label="Internet security token was suspended."></capitec-label>
 					<capitec-spacer></capitec-spacer>
