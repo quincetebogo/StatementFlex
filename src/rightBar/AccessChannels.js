@@ -479,7 +479,7 @@ export class AccessChannels extends Component {
 			? html`
 				<capitec-pc-internet-banking-profile-details
 					.internetBankingDetails = "${this.landingInfo.internetBanking}"
-					verifiedNumber = "${this.verifiedTelephoneNumber}"
+					verifiedNumber = "${this.landingInfo.msisdn}"
 					?showSideSheet = "${this.showSideSheet}"
 
 					.suspendInternetBankingSecurityToken = "${(suspendReason, selectedToken) => this.suspendInternetBanking(suspendReason, selectedToken)}"
@@ -499,7 +499,7 @@ export class AccessChannels extends Component {
 			? html`
 				<capitec-pc-app-profile-details
 					.appDetails = "${this.landingInfo.app}"
-					verifiedNumber = "${this.verifiedTelephoneNumber}"
+					verifiedNumber = "${this.landingInfo.msisdn}"
 					?showSideSheet = "${this.showSideSheet}"
 
 					.suspendApp = "${(suspendReason, userRegNo) => this._suspendApp(suspendReason, userRegNo)}"
