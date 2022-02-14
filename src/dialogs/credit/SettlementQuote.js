@@ -275,7 +275,7 @@ export class SendSettlementQuote extends Component {
 		if (!this._isNullorEmpty(this.alertBannerMessage)) {
 			return html`
 				<capitec-alert-banner type="unsuccessful-red">
-					<capitec-group layout="horizontal">
+					<!-- <capitec-group layout="horizontal">
 						<capitec-label
 							type="subtitle"
 							label="Notify: "
@@ -285,7 +285,8 @@ export class SendSettlementQuote extends Component {
 							label="${this.alertBannerMessage}"
 							class="label-err-message">
 						</capitec-label>
-					</capitec-group>
+					</capitec-group> -->
+					<p><b>Notify:</b> ${this.alertBannerMessage}</p>
 				</capitec-alert-banner>
 			`;
 		}
