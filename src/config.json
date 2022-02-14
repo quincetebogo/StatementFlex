@@ -63,7 +63,7 @@
 		},
 		"verifySecurityQuestions": {
 			"enabled": true,
-			"positiveCase": false
+			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
 			"enabled": true,
@@ -130,7 +130,7 @@
 			"positiveCase": true
 		},
 		"accessChannelUssdLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		}
 	}
