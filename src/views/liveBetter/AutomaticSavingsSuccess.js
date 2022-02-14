@@ -57,7 +57,7 @@ export class AutomaticSavingsSuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		this._telemetry.endSpan(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS, {
+		this._telemetry.endSpan(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS_SUCCESS_DONE, {
 			"screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_SUCCESS,
 			"next-screen": TelemetryScreen.LIVE_BETTER
 		});
@@ -67,6 +67,11 @@ export class AutomaticSavingsSuccess extends ViewBase {
 	}
 
 	_manageAutomaticSavingsClick() {
+		this._telemetry.logEvent(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS_SUCCESS_SEND_ANOTHER, {
+			"screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_SUCCESS,
+			"next-screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS
+		});
+
 		this.horizonRouter.navigateToReturnPage();
 	}
 
