@@ -7,6 +7,7 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { Logger } from 'platform/core';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { Utilities } from 'platform/Utilities';
+import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 
 import 'app/productControls/AccessChannels/src/AccessChannels';
 import 'app/productControls/AccessChannels/src/InternetBankingProfileDetails';
@@ -43,7 +44,7 @@ export class AccessChannels extends Component {
 		this._telemetry = HorizonTelemetry.instance;
 		const callerInformation = this.horizonStore.getCallerInformation();
 		this.cifNumber = callerInformation.cifNumber;
-		this.verifiedTelephoneNumber = callerInformation.verifiedTelephoneNumber;
+		this.verifiedTelephoneNumber = ``;
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
 	}
@@ -413,6 +414,9 @@ export class AccessChannels extends Component {
 
 		if (returnValue.succeeded) {
 			this.landingInfo = returnValue.result;
+			if (this.landingInfo.msisdn.length >= 9) {
+				this.verifiedTelephoneNumber = `0${this.landingInfo.msisdn.substr(this.landingInfo.msisdn.length - 9)}`;	
+			}
 			this.requestUpdate();
 			return;
 		}
@@ -479,7 +483,7 @@ export class AccessChannels extends Component {
 			? html`
 				<capitec-pc-internet-banking-profile-details
 					.internetBankingDetails = "${this.landingInfo.internetBanking}"
-					verifiedNumber = "${this.landingInfo.msisdn}"
+					verifiedNumber = "${formatPhoneNumber(this.verifiedTelephoneNumber)}"
 					?showSideSheet = "${this.showSideSheet}"
 
 					.suspendInternetBankingSecurityToken = "${(suspendReason, selectedToken) => this.suspendInternetBanking(suspendReason, selectedToken)}"
@@ -499,7 +503,7 @@ export class AccessChannels extends Component {
 			? html`
 				<capitec-pc-app-profile-details
 					.appDetails = "${this.landingInfo.app}"
-					verifiedNumber = "${this.landingInfo.msisdn}"
+					verifiedNumber = "${formatPhoneNumber(this.verifiedTelephoneNumber)}"
 					?showSideSheet = "${this.showSideSheet}"
 
 					.suspendApp = "${(suspendReason, userRegNo) => this._suspendApp(suspendReason, userRegNo)}"
