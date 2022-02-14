@@ -343,6 +343,7 @@ export class SettlementQuote extends Component {
 		this.isAccountsChecked = [];
 		this.selectedAccounts = [];
 		this.filteredData = [];
+		this.listValue = ``;
 		
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 	}
@@ -367,7 +368,9 @@ export class SettlementQuote extends Component {
 			isBusy: { attribute: false },
 			showSendDialog: { type: Boolean, attribute: false },
 			isChecked: { type: Boolean, attribute: false },
-			checkAll: { type: Boolean, attribute: false}
+			checkAll: { type: Boolean, attribute: false},
+			filteredData: { type: Array },
+			listValue: { type: String }
 		};
 	}
 
@@ -416,8 +419,39 @@ export class SettlementQuote extends Component {
 		return false;
 	}
 
-	_searchTextChange (){
-		return true;
+	_filter(e) {
+		this.listValue = e.detail.new;
+		this._search(e);
+	}
+
+	_search (e) {
+		const text = e.detail.new;
+		this.filteredData = quotes;
+
+		if(text === `All`) {
+			return;
+		}
+
+		if(this.listValue !== `` && this.listValue !== `All`) {
+			this.filteredData = this.filteredData.filter(item => item.quoteName.toLowerCase().indexOf(this.listValue.toLowerCase()) !== -1);
+		}	
+
+		if(text) {		
+			const searchText = text.split(` `);
+			const searchResult = searchText.map(key => {
+				if (key !== ``){
+					return this.filteredData.filter(item => item.quoteName.toLowerCase().indexOf(key.toLowerCase()) !== -1 ||
+															parseFloat(item.settlementAmount).toFixed(2).startsWith(key) ||
+															parseFloat(item.loanAmount).toFixed(2).startsWith(key) ||
+															parseFloat(item.instalment).toFixed(2).startsWith(key) ||
+															item.accountNumber.startsWith(key));
+				}
+				return [];
+			});
+			this.filteredData = Array.from(new Set([...searchResult.flat()]));
+		}
+		
+
 	}
 
 	_back(){
@@ -621,7 +655,7 @@ export class SettlementQuote extends Component {
 	_webTemplate() {
 		return html`
 			${this._renderContent()}
-			${this._renderpaidUpLetter()}
+			${this._renderSendQuote()}
 		`;
 	}
 
@@ -658,15 +692,16 @@ export class SettlementQuote extends Component {
  					label="${DEFAULTS.SEARCH_TEXT_LABEL}"
  					type="search"
  					keyboardMode="alpha-numeric"
- 					@key-input="${(e) => this._searchTextChange(e)}"
- 					@value-change="${(e) => this._searchTextChange(e)}"
- 					value="${this.textValue}">
+ 					@key-input="${(e) => this._search(e)}"
+ 					@value-change="${(e) => this._search(e)}">
  				</capitec-text-field>
 				<capitec-select 
 					label="${DEFAULTS.TYPE_LABEL}" 
 					.items="${CREDIT_TYPE_LIST}" 
 					display-field="text"
-					filter-id="select">
+					filter-id="select"
+					@value-change = "${(e) => this._filter(e)}"
+					value="${this.listValue}">
 				</capitec-select>
 			</capitec-title-bar>
 			<capitec-content-box class="main-cb" layout="vertical" halign="stretch" valign="top" gap="clear">
@@ -705,7 +740,7 @@ export class SettlementQuote extends Component {
 		`;
 	}
 
-	_renderpaidUpLetter() {
+	_renderSendQuote() {
 		return this.showSendDialog ? 
 		html`
 		<horizon-settlement-quote-dialog
