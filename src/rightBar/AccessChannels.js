@@ -499,6 +499,7 @@ export class AccessChannels extends Component {
 			? html`
 				<capitec-pc-app-profile-details
 					.appDetails = "${this.landingInfo.app}"
+					verifiedNumber = "${this.verifiedTelephoneNumber}"
 					?showSideSheet = "${this.showSideSheet}"
 
 					.suspendApp = "${(suspendReason, userRegNo) => this._suspendApp(suspendReason, userRegNo)}"
