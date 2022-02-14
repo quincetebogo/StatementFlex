@@ -516,7 +516,7 @@ export class AccessChannels extends Component {
 			<capitec-pc-ussd-profile-details
 			.ussd="${this.landingInfo.ussd}"
 			?showSideSheet="${this.showSideSheet}"
-			verifiedTelephoneNumber="${this.callerInformation.verifiedTelephoneNumber}"
+			verifiedTelephoneNumber="${this.verifiedTelephoneNumber}"
 
 			.cancelUSSD="${cancelReason => this.cancelUSSD(cancelReason)}"
 			.unblockSIM="${() => this.unblockSIM()}"
