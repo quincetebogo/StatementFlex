@@ -6,6 +6,7 @@ import 'app/components/common/HorizonPDFViewer';
 import 'app/components/common/OptionButton';
 import 'app/components/common/StepperModal';
 import 'app/components/common/HorizonProductTile'; 
+import 'app/dialogs/credit/SettlementQuote'; 
 
 const DEFAULTS = {
 	SEARCH_TEXT_LABEL: `Search loan, amount or account number`,
@@ -333,7 +334,7 @@ export class SettlementQuote extends Component {
 		super();
 		this.checkAll = false;
 		this.isChecked = false;
-		this.showPaidUpLetter = false;
+		this.showSendDialog = false;
 		this.accountsInfo = [];
 		this.errorMessage = ``;
 		this.cardTypes = [];
@@ -341,12 +342,16 @@ export class SettlementQuote extends Component {
 		this.isBusy = false;
 		this.isAccountsChecked = [];
 		this.selectedAccounts = [];
+		this.filteredData = [];
 		
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 	}
+
+
 	// --------------
 	// PROPERTIES
 	// --------------
+
 	/**
 	 *
 	 * @property {Object} landingPageInfo Data for the Favourites Landing Page display
@@ -354,32 +359,48 @@ export class SettlementQuote extends Component {
 	 * @static
 	 * @memberof FavouriteTransactions
 	 */
+
+
 	static get properties() {
 		return {
 			landingPageInfo: { type: Object },
 			isBusy: { attribute: false },
-			showPaidUpLetter: { type: Boolean, attribute: false }
+			showSendDialog: { type: Boolean, attribute: false },
+			isChecked: { type: Boolean, attribute: false },
+			checkAll: { type: Boolean, attribute: false}
 		};
 	}
+
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
+
+
 	connectedCallback() {
 		super.connectedCallback();
 		this._initialise();
 	}
+
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
+
 	_initialise() {
 		for (let index = 0; index < quotes.length; index++)
 		 {
 			this.isAccountsChecked[index] = false;
 		}	
+
+		this.filteredData = quotes;
 	}
+
 	_isAnySelected ()
 	{
 		for (let index = 0; index < this.isAccountsChecked.length; index++) 
@@ -390,27 +411,37 @@ export class SettlementQuote extends Component {
 			}
 		}
 		this.errorMessage = `Please select an account`;
-		this._renderAlertBanner()
+		this._renderAlertBanner();
 		this.requestUpdate();
 		return false;
 	}
-	_backToLandingPage(){
-		// back to landing page
+
+	_searchTextChange (){
+		return true;
 	}
-	_showSendDialog ()
-	{
+
+	_back(){
+		this.dispatchEvent(new CustomEvent(`back`, {}));
+	}
+
+	_showSendDialog () {
 		this.selectedAccounts = [];
-		if (this._isAnySelected())
-		{
-			for (let index = 0; index < this.isAccountsChecked.length; index++)
-			{
-				if (this.isAccountsChecked[index])
-				{
-					this.selectedAccounts[index] = this.accountsInfo[index];
-				}
-			}
-			this.showPaidUpLetter = !this.showPaidUpLetter;
+
+		if(this.isAccountsChecked.every(val => val === false)) {
+			this.errorMessage = `Please select an account`;
+			this._renderAlertBanner();
+			this.requestUpdate();
+			return;
 		}
+
+		for (let index = 0; index < this.isAccountsChecked.length; index++)
+		{
+			if (this.isAccountsChecked[index])
+			{
+				this.selectedAccounts[index] = quotes[index].quoteName;
+			}
+		}
+		this.showSendDialog = !this.showSendDialog;		
 	}
 
 	_checkBox(e,index) {
@@ -432,19 +463,31 @@ export class SettlementQuote extends Component {
 		}
 		this.requestUpdate();
 	}
+
 	_selectAll() {
 		this.checkAll = false;
 		if (this.isAccountsChecked.every(val => val === true)) {
+			this.isChecked = false;
 			for (let index = 0; index < this.isAccountsChecked.length; index++) {
 				this.isAccountsChecked[index] = false;
 			}
 		} else {
+			this._clearErrors();
 			this.isChecked = true;
 			for (let index = 0; index < this.isAccountsChecked.length; index++) {
 				this.isAccountsChecked[index] = true;
 			}
 		}
 		this.requestUpdate();
+	}
+
+	_deselect() {
+		this.checkAll = false;
+		this.isChecked = false;
+		for (let index = 0; index < this.isAccountsChecked.length; index++) {
+			this.isAccountsChecked[index] = false;			
+		}
+		this._clearErrors();
 	}
 	// --------------
 	// EVENT HANDLERS
@@ -475,32 +518,52 @@ export class SettlementQuote extends Component {
 					width:100%;
 					height:100%;
 				}
+				capitec-text-field {
+					width: 337px;
+				}
+				capitec-title-bar {
+					border-bottom: 1px solid rgb(225, 225, 225);	
+					box-shadow: 0px 0px;				
+				}
+				.main-cb {
+					height: 590px;
+				}
 				.main-cb > capitec-label[type="subtitle"] {
 					line-height: 24px;
+					padding-top: 0px;
 
 					--theme-label-subtitle-font-size: 18px;
 					--theme-label-subtitle-font-weight: 600;
 					--theme-layout-gap-spacing: 18px;
 				}
-				.favourites {
+
+				capitec-title-bar > capitec-label {
 					height: 32px;
-					width: 111px;
-					color: #3E4547;
+					width: 191px;
+					color: #3A3A3A;
 					font-family: "Hind Vadodara";
 					font-size: 24px;
 					font-weight: 600;
 					letter-spacing: 0;
 					line-height: 32px;
 				}
+
 				capitec-group > capitec-title-bar {
 					--theme-titlebar-min-height: 32px;
 					--theme-titlebar-padding: 0px 0px 0px 16px;
-					--theme-type-default-background: rgb(244, 244, 244);
-					--theme-label-title-font-size: 14px;
-					--theme-label-title-font-weight: 600;
 					width: 100%;
-					border-top: 1px solid #E1E1E1;
-					box-shadow: none!important;
+				}
+
+				capitec-hyperlink {
+					margin-left: 16px;
+					height: 20px;
+					width: 84px;
+					--theme-hyperlink-color: #009DE0;
+					font-family: "Hind Vadodara";
+					font-size: 16px;
+					font-weight: 600;
+					letter-spacing: 0;
+					line-height: 20px;
 				}
 				
 				horizon-label{
@@ -515,11 +578,7 @@ export class SettlementQuote extends Component {
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-line-height: 20px;
 				} 
-				capitec-label{
-					margin: 16px 0px 16px 0px;
-					--theme-label-font-size: 18px;
-					--theme-label-font-family: Hind Vadodara;
-				}
+
 				capitec-button-bar {
 					height: 50x;
 					width: 100%;
@@ -528,11 +587,6 @@ export class SettlementQuote extends Component {
 					--theme-buttonbar-item-gap: 0px;
 				}
 			
-				horizon-option-button {
-					height: 80px;
-					width: 188px;
-					margin-right: 16px;
-				}
 				.btnSend {
 					height: 20px;
 					margin-right: 16px;
@@ -553,23 +607,11 @@ export class SettlementQuote extends Component {
 					width: 100%;
 					position: relative;
 					border: 1px solid #E1E1E1;
+					padding-left: 16px;
 				}
 				.alert-banner
 				{
 					width:100%;
-				}
-				.toast {
-					position: absolute;
-					top : 70px;
-					left: 790px;
-					height: 64px;
-					width: 428px;
-					border-radius: 4px;
-					color: #70AF00;
-					z-index: 201;
-					left: calc(50.8% - 200px);
-					justify-content: center;
-					align-items: center;
 				}`
 		];
 	}
@@ -582,31 +624,35 @@ export class SettlementQuote extends Component {
 			${this._renderpaidUpLetter()}
 		`;
 	}
+
 	_renderContent() {
 		return html`
-			<capitec-card class="card">
-				<capitec-title-bar>
-					<capitec-icon			
-						icon="system/arrow-left-action"
-						@click="${() => this._backToLandingPage()}">
-					</capitec-icon>
-					<capitec-label
-						label=" Settlement quote"
-						type="title">
-					</capitec-label>
-				</capitec-title-bar>
-				<capitec-group layout="vertical" halign="left" valign="top" gap="2">
-					${this._renderAlertBanner()}
-					${this._renderSearch()}
-					${this._renderFooter()}
-				</capitec-group>
-			</capitec-card>`;
+			<capitec-card class="center-section">
+				${this._renderTitleBar()}
+				${this._renderSearch()}
+				${this._renderFooter()}
+			</capitec-card>
+		`;
 	}
+
+
+	_renderTitleBar() {
+		return html`
+			<capitec-title-bar>
+				<capitec-icon 
+					size="small"
+					icon="system/arrow-left-action"
+					@click="${() => this._back()}">
+				</capitec-icon>
+				<capitec-label label="Settlement Quote" type="title"></capitec-label>
+			</capitec-title-bar>
+		`;
+	}
+
 	_renderSearch() {
 		this.textValue = ``;
 		return html `			
-			<capitec-action-bar>
-				<!-- <capitec-search-field label="${DEFAULTS.SEARCH_TEXT_LABEL}" style="width: 350px;" value focussed></capitec-search-field> -->
+			<capitec-title-bar>
 				<capitec-text-field
  					id="text-filter"
  					label="${DEFAULTS.SEARCH_TEXT_LABEL}"
@@ -614,8 +660,6 @@ export class SettlementQuote extends Component {
  					keyboardMode="alpha-numeric"
  					@key-input="${(e) => this._searchTextChange(e)}"
  					@value-change="${(e) => this._searchTextChange(e)}"
- 					@focus="${(e) => this.searchTextLabel = ``}"
- 					@blur="${(e) => this._searchTextBlur(e)}"
  					value="${this.textValue}">
  				</capitec-text-field>
 				<capitec-select 
@@ -624,10 +668,11 @@ export class SettlementQuote extends Component {
 					display-field="text"
 					filter-id="select">
 				</capitec-select>
-			</capitec-action-bar>
-			<capitec-content-box class="main-cb" style="height: 500px;" layout="vertical" halign="stretch" valign="top" gap="clear">
+			</capitec-title-bar>
+			<capitec-content-box class="main-cb" layout="vertical" halign="stretch" valign="top" gap="clear">
+			${this._renderAlertBanner()}
 			<capitec-label type="subtitle" label="Choose an account"></capitec-label>
-			${quotes.map((item, index) => this._renderAcountInfoTile(item, index))}
+			${this.filteredData.map((item, index) => this._renderAcountInfoTile(item, index))}
 			</capitec-content-box>
 		`;
 	}
@@ -661,14 +706,14 @@ export class SettlementQuote extends Component {
 	}
 
 	_renderpaidUpLetter() {
-		return this.showPaidUpLetter ? 
+		return this.showSendDialog ? 
 		html`
-		<horizon-paid-up-letter-dialog
+		<horizon-settlement-quote-dialog
 			.landingPageInfo="${this.landingPageInfo}"
 			.selectedAccounts="${this.selectedAccounts}"
 			@cancel="${() => this._showSendDialog()}"
 			.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
-		</horizon-paid-up-letter-dialog>`
+		</horizon-settlement-quote-dialog>`
 		: html ``;
 	}
 	_renderLoadingIndicator() {
@@ -695,7 +740,7 @@ export class SettlementQuote extends Component {
 					?checked="${this.isChecked}"
 					@value-change="${e => this._selectAll()}">
 				</capitec-check>
-				<capitec-hyperlink label="Deselect all"></capitec-hyperlink>
+				<capitec-hyperlink ?hidden="${!this.isChecked && !this.checkAll}" label="Deselect all" @click="${() => this._deselect()}"></capitec-hyperlink>
 				<capitec-spacer></capitec-spacer>
 				<capitec-button 
 					type="primary" 
