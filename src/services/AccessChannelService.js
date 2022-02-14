@@ -46,14 +46,15 @@ export class AccessChannelService extends ChannelServiceBase {
 		*/
 	}
 
-	async accessChannelsUssdLanding(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async accessChannelsUssdLanding(requestParams, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`accessChannelUssdLanding`)) {
 			return this.mock(`accessChannelUssdLanding`);
 		}
 
 
 		const requestBody = {
-			'msisdn': clientInfo.msisdn
+			'msisdn': requestParams.msisdn,
+			'cif': requestParams.cif
 		};
 
 		const url = `/clientcare-accesschannels-${this._version}/ussd/landing`;

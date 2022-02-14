@@ -427,13 +427,16 @@ export class AccessChannels extends Component {
 		this.logger.log(`error`, `Failed to load access channel landing information`, `_landingInfo`, returnValue.correlationId);
 	}
 
-	async getUssdLandingDetails(clientInfo) {
-		const returnValue = await this.accessChannelService.accessChannelsUssdLanding(clientInfo);
+	async getUssdLandingDetails() {
+		const requestParams = {
+			'msisdn': this.landingInfo.msisdn,
+			'cif': `0${this.cifNumber}`
+		};
+		const returnValue = await this.accessChannelService.accessChannelsUssdLanding(requestParams);
 		if (returnValue.succeeded) {
 			return returnValue.result;
 		}
 		this.logger.log(`error`, `Failed to load USSD landing details`, `getUssdLandingDetails`, returnValue.correlationId);
-		return null;
 	}
 
 	_deepCopyStatus() {
@@ -525,7 +528,7 @@ export class AccessChannels extends Component {
 				<capitec-pc-ussd-profile-details
 			.ussd="${this.landingInfo.ussd}"
 				?showSideSheet="${this.showSideSheet}"
-			verifiedTelephoneNumber="${this.callerInformation.verifiedTelephoneNumber}"
+			cellphoneNumber="${formatPhoneNumber(`0${this.landingInfo.msisdn.substr(this.landingInfo.msisdn.length - 9)}`)}"
 
 				.cancelUSSD="${cancelReason => this.cancelUSSD(cancelReason)}"
 				.unblockSIM="${() => this.unblockSIM()}"
