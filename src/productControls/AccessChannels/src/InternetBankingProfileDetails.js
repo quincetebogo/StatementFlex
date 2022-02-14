@@ -119,6 +119,8 @@ export class InternetBankingProfileDetails extends Component {
 			selectedTokens: { type: Object },
 			renderMode: { type: Boolean, attribute: false },
 			renderStepperMode: { type: Boolean, attribute: false },
+			isInternetBankingActive: { type: Boolean, attribute: false },
+			isTokenSuspended: { type: Boolean, attribute: false },
 
 			displayToast: { type: Boolean, attribute: false },
 			displaySuspendToast: { type: Boolean, attribute: false },
@@ -151,11 +153,12 @@ export class InternetBankingProfileDetails extends Component {
 
 		this.isMultipleDevices = this.clientTokens.length > 1;
 		
-		if (!this.isMultipleDevices) {
+		if (!this.isMultipleDevices && this.clientTokens.length > 0) {
 			this.singleToken = this.clientTokens[0].token;
 		}
 
 		this.isInternetBankingActive = this.internetBankingDetails.status === `Active`;
+		this.isTokenSuspended = !this.isInternetBankingActive;
 	}
 
 	disconnectedCallback() {

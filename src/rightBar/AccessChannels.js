@@ -41,10 +41,10 @@ export class AccessChannels extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
 
-		this._telemetry = HorizonTelemetry.instance;
+		this._telemetry = HorizonTelemetry.getInstance();
 		const callerInformation = this.horizonStore.getCallerInformation();
 		this.cifNumber = callerInformation.cifNumber;
-		this.verifiedTelephoneNumber = callerInformation.verifiedTelephoneNumber;
+		this.verifiedTelephoneNumber = ``;
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
 	}
@@ -133,7 +133,6 @@ export class AccessChannels extends Component {
 
 		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND);
 
-		// TO DO: Channel service call to suspend app should come here
 		// If successfully suspended, update app status, else Error scenario
 		const returnValue = await this.accessChannelService.suspendApp(suspendReason, userRegNo);
 	
@@ -156,7 +155,7 @@ export class AccessChannels extends Component {
 			"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP
 		});
 
-		// TO DO: Channel service call to Un-suspend App should come here
+		// TODO: Channel service call to Un-suspend App should come here
 		// If successfully Unsuspended, update app status, else Error scenario
 
 		this.landingInfo.app.status = `Active`;
@@ -197,7 +196,7 @@ export class AccessChannels extends Component {
 		
 		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD);
 
-		// TO DO: add channel service call to cancel USSD service
+		// TODO: add channel service call to cancel USSD service
 		// If cancel is successful, show toast, update ussd status, else show error
 		
 		this.landingInfo.ussd.status = `Blocked`;
@@ -210,7 +209,7 @@ export class AccessChannels extends Component {
 
 		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_UNBLOCK_SIM);
 
-		// TO DO: add channel service call to unblock SIM - ussd
+		// TODO: add channel service call to unblock SIM - ussd
 		// If unblock is successful, show toast, update ussd status, else show error
 		this.landingInfo.ussd.isSimBlocked = false;
 		this.landingInfo.ussd.dateLastUpdated = new Date().toISOString();
@@ -222,7 +221,7 @@ export class AccessChannels extends Component {
 	activateFullMenuUSSD() {
 		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_ACTIVATE_FULL_USSD_MENU);
 
-		// TO DO: add code to activate full menu for currently active ussd clients
+		// TODO: add code to activate full menu for currently active ussd clients
 		// If client has active ussd, menu reduced, activate full menu function
 		
 		const indexOfReducedMenu = this.landingInfo.ussd.features.indexOf(`REDUCED_MENU`);
@@ -414,6 +413,9 @@ export class AccessChannels extends Component {
 
 		if (returnValue.succeeded) {
 			this.landingInfo = returnValue.result;
+			if (this.landingInfo.msisdn.length >= 9) {
+				this.verifiedTelephoneNumber = `0${this.landingInfo.msisdn.substr(this.landingInfo.msisdn.length - 9)}`;
+			}
 			this.requestUpdate();
 			return;
 		}
@@ -483,7 +485,7 @@ export class AccessChannels extends Component {
 			? html`
 				<capitec-pc-internet-banking-profile-details
 					.internetBankingDetails = "${this.landingInfo.internetBanking}"
-					verifiedNumber = "${this.verifiedTelephoneNumber}"
+					verifiedNumber = "${formatPhoneNumber(this.verifiedTelephoneNumber)}"
 					?showSideSheet = "${this.showSideSheet}"
 
 					.suspendInternetBankingSecurityToken = "${(suspendReason, selectedToken) => this.suspendInternetBanking(suspendReason, selectedToken)}"
@@ -503,6 +505,7 @@ export class AccessChannels extends Component {
 			? html`
 				<capitec-pc-app-profile-details
 					.appDetails = "${this.landingInfo.app}"
+					verifiedNumber = "${formatPhoneNumber(this.verifiedTelephoneNumber)}"
 					?showSideSheet = "${this.showSideSheet}"
 
 					.suspendApp = "${(suspendReason, userRegNo) => this._suspendApp(suspendReason, userRegNo)}"

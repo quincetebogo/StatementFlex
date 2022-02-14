@@ -71,7 +71,7 @@ export class AccessChannelService extends ChannelServiceBase {
 		);
 	}
 
-	async accessChannelLanding(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	accessChannelLanding(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const request = {
 			"cif": cifNumber
 		};
@@ -92,7 +92,7 @@ export class AccessChannelService extends ChannelServiceBase {
 		);
 	}
 
-	async internetBankingLanding(userRegNo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	internetBankingLanding(userRegNo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const request = {
 			"userRegNo": userRegNo
 		};
@@ -112,7 +112,7 @@ export class AccessChannelService extends ChannelServiceBase {
 		);
 	}
 
-	async suspendToken(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	suspendToken(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const url = `/clientcare-accesschannels-${this._version}/internet-banking/suspend-token`;
 
 		return this.post(
@@ -134,8 +134,7 @@ export class AccessChannelService extends ChannelServiceBase {
 		);
 	}
 
-	async updateNotificationType(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		// TODO: add url 
+	updateNotificationType(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const url = `/clientcare-accesschannels-${this._version}/`;
 
 		return this.put(
