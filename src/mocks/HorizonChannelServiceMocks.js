@@ -264,10 +264,21 @@ export default class HorizonChannelServiceMocks {
 		return null;
 	}
 
+	accessChannelUssdLanding() {
+		if (this._mockSettings.accessChannelUssdLanding.positiveCase) {
+			return this.accessChannelsMocks.accessChannelsDetails.ussd;
+		}
+		return null;
+	}
+
+	suspendApp() {
+		return this._mockSettings.suspendApp.positiveCase;
+	}
+  
 	accessChannelResetSecurityTokenClock() {
 		if (this._mockSettings.accessChannelResetSecurityTokenClock.positiveCase) {
 			return this.accessChannelsMocks.accessChannelResetSecurityTokenClock;
 		}
 		return null;
-	}
+	}  
 }

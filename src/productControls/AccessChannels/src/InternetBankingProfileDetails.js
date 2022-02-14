@@ -24,8 +24,6 @@ const RENDER_MODE = {
 	MULTIPLE_TOKEN: 2
 };
 
-// to be replaced with data from channel service
-const CLIENT_TOKENS = [{ token: `90876375849`, selected: false }, { token: `123476375849`, selected: false }, { token: `019836375849`, selected: false }, { token: `23776375849`, selected: false }];
 
 /**
  * Internet Banking profile Details component is used to show client's information and Suspend/Reset Security Tokens.
@@ -72,6 +70,7 @@ export class InternetBankingProfileDetails extends Component {
 		this.clientTokens = [];
 		this.isSuspendReasonSelected = false;
 		this.isTokenSelected = false;
+		this.singleToken = ``;
 	}
 
 	// --------------
@@ -98,6 +97,7 @@ export class InternetBankingProfileDetails extends Component {
 	 * 
 	 * @property {suspendInternetBankingSecurityTokenCallback} suspendInternetBankingSecurityToken Callback function to suspend Internet Banking Security Token
 	 * @property {resetInternetBankingSecurityTokenCallback} resetInternetBankingSecurityToken Callback function to Reset Internet Banking Security Token
+	 * @property {getClientTokensCallback} getClientTokens Callback function to get Internet Banking Security Tokens
 	 * 
 	 */
 
@@ -106,20 +106,27 @@ export class InternetBankingProfileDetails extends Component {
 			// input properties
 			internetBankingDetails: { type: Object },
 			showSideSheet: { type: Boolean },
+			verifiedNumber: { type: String},
+			clientTokens: { type: Object},
+			singleToken: { type: String },
 
 			// callback functions
 			suspendInternetBankingSecurityToken: { type: Object, attribute: false },
 			resetInternetBankingSecurityToken: { type: Object, attribute: false },
+			getClientTokens: { type: Object, attribute: false },
 
 			// internal prop
 			selectedReason: { type: String },
 			selectedTokens: { type: Object },
 			renderMode: { type: Boolean, attribute: false },
 			renderStepperMode: { type: Boolean, attribute: false },
+			isInternetBankingActive: { type: Boolean, attribute: false },
+			isTokenSuspended: { type: Boolean, attribute: false },
 
 			displayToast: { type: Boolean, attribute: false },
 			displayResetUnsuccessfulToast: { type: Boolean, attribute: false },
 			displaySuspendToast: { type: Boolean, attribute: false },
+			displaySuspendUnsuccessToast: { type: Boolean, attribute: false },
 			isIndeterminate: { type: Boolean, attribute: false },
 			showNoReasonSelectedNotification: { type: Boolean, attribute: false },
 			showResetTokenPanel: { type: Boolean, attribute: false }
@@ -130,12 +137,30 @@ export class InternetBankingProfileDetails extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 
-		this.isMultipleDevices = true;
-		this.clientTokens = CLIENT_TOKENS;
+		this.tokenList = await this.getClientTokens(this.internetBankingDetails.userRegNo);
+
+		if (this.tokenList.tokens !== null) {
+			this.tokenList.tokens.map(item => {
+				const clientToken =
+				{ 
+					token: item.tokenSerialNo, 
+					selected: false
+				}
+				this.clientTokens.push(clientToken);
+			});
+		}
+
+		this.isMultipleDevices = this.clientTokens.length > 1;
+		
+		if (!this.isMultipleDevices && this.clientTokens.length > 0) {
+			this.singleToken = this.clientTokens[0].token;
+		}
+
 		this.isInternetBankingActive = this.internetBankingDetails.status === `Active`;
+		this.isTokenSuspended = !this.isInternetBankingActive;
 	}
 
 	disconnectedCallback() {
@@ -202,7 +227,8 @@ export class InternetBankingProfileDetails extends Component {
 
 	async _onSuspendSecurityTokenClick() {
 		if (this.selectedReason) {
-			const suspendResult = await this.suspendInternetBankingSecurityToken(this.selectedReason);
+			const selectedToken = this.isMultipleDevices ? this.selectedTokens : [this.clientTokens[0].token];
+			const suspendResult = await this.suspendInternetBankingSecurityToken(this.selectedReason, selectedToken);
 			if (suspendResult) {
 				this.showSuspendPanel = !this.showSuspendPanel;
 				this.isTokenSuspended = true;
@@ -210,6 +236,11 @@ export class InternetBankingProfileDetails extends Component {
 				this.internetBankingDetails.statusReason = this.selectedReason;
 				this.internetBankingDetails.dateLastUpdated = new Date().toISOString();
 				this._displayTokenSuspendSuccessToast();
+            } else {
+				this.showSuspendPanel = !this.showSuspendPanel;
+				this._displayTokenSuspendUnsuccessToast();
+                //unsuccessfull screen
+
 			}
 		} else {
 			this.showNoReasonSelectedNotification = true;
@@ -337,7 +368,12 @@ export class InternetBankingProfileDetails extends Component {
 
 	_displayTokenSuspendSuccessToast() {
 		this.displaySuspendToast = true;
-		window.setTimeout(() => this.displaySuspendToast = false, 3000);
+		window.setTimeout(() => this.displaySuspendToast = false, 5000);
+	}
+
+	_displayTokenSuspendUnsuccessToast() {
+		this.displaySuspendUnsuccessToast = true;
+		window.setTimeout(() => this.displaySuspendUnsuccessToast = false, 3000);
 	}
 
 	_formatDate(dateToFormat) {
@@ -731,6 +767,7 @@ export class InternetBankingProfileDetails extends Component {
 			${this._renderTokenResetSuccessToast()}
 			${this._renderTokenResetUnsuccessfulToast()}
 			${this._renderTokenSuspendSuccessToast()}
+			${this._renderTokenSuspendUnsuccessToast()}
 			${this._renderTokenSuspendedNotification()}
 
 			<capitec-content-box
@@ -743,14 +780,14 @@ export class InternetBankingProfileDetails extends Component {
 				<horizon-label
 					data-automation-id=""
 					label="Username"
-					value="${this.internetBankingDetails.userName}"
+					value="${this.internetBankingDetails.username}"
 				></horizon-label>
 
 				<horizon-label
 					data-automation-id=""
 					label="Token serial number"
-					value="${this.internetBankingDetails.tokenSerialNumber}"
-					style="display:${this.isMultipleDevices === false ? `block` : `none`}"
+					value="${this.singleToken}"
+					?hidden="${this.isMultipleDevices}"
 				></horizon-label>
 
 				<horizon-label
@@ -762,27 +799,20 @@ export class InternetBankingProfileDetails extends Component {
 				<horizon-label
 					data-automation-id=""
 					label="Cellphone number (verified)"
-					value="082 555 9090"
-					style="display:${this.isMultipleDevices ? `block` : `none`}"
+					value="${this.verifiedNumber}"
+					?hidden="${this.isMultipleDevices}"
 				></horizon-label>
 
 				<horizon-label
 					data-automation-id=""
 					label="Last interaction date"
-					value="${this._formatDate(this.internetBankingDetails.dateRegistered)}"
+					value="${this._formatDate(this.internetBankingDetails.dateLastUsed)}"
 				></horizon-label>
 
 				<horizon-label
 					data-automation-id=""
 					label="Status"
 					value="${this.isInternetBankingActive ? `Active` : `Suspended`}"
-				></horizon-label>
-
-				<horizon-label
-					data-automation-id=""
-					label="Last updated"
-					value="${this._formatDate(this.internetBankingDetails.dateLastUpdated)}, ${this._formatTime(this.internetBankingDetails.dateLastUpdated)}"
-					style="display:${this.isInternetBankingActive ? `none` : `block`}"
 				></horizon-label>
 
 				<horizon-label
@@ -912,7 +942,7 @@ export class InternetBankingProfileDetails extends Component {
 							class="radio-button-label"
 							data-automation-id="suspend-reason-stolen"
 							label=${SUSPEND_REASONS.STOLEN}
-							?checked=${this.selectedReason === SUSPEND_REASONS.STOLEN || ``}
+							?checked=${this.selectedReason === SUSPEND_REASONS.STOLEN}
 							@value-changed="${(e) => this._onSelectedReasonChanged(e)}"
 						></capitec-radio>
 
@@ -921,7 +951,7 @@ export class InternetBankingProfileDetails extends Component {
 							class="radio-button-label"
 							data-automation-id="suspend-reason-lost"
 							label=${SUSPEND_REASONS.LOST}
-							?checked=${this.selectedReason === SUSPEND_REASONS.LOST || ``}
+							?checked=${this.selectedReason === SUSPEND_REASONS.LOST}
 							@value-changed="${(e) => this._onSelectedReasonChanged(e)}"
 						></capitec-radio>
 
@@ -930,7 +960,7 @@ export class InternetBankingProfileDetails extends Component {
 							class="radio-button-label"
 							data-automation-id="suspend-reason-faulty"
 							label=${SUSPEND_REASONS.FAULTY}
-							?checked=${this.selectedReason === SUSPEND_REASONS.FAULTY || ``}
+							?checked=${this.selectedReason === SUSPEND_REASONS.FAULTY}
 							@value-changed="${(e) => this._onSelectedReasonChanged(e)}"
 						></capitec-radio>
 
@@ -939,7 +969,7 @@ export class InternetBankingProfileDetails extends Component {
 							class="radio-button-label"
 							data-automation-id="suspend-reason-service-cancellation"
 							label=${SUSPEND_REASONS.SERVICE_CANCELLATION}
-							?checked=${this.selectedReason === SUSPEND_REASONS.SERVICE_CANCELLATION || ``}
+							?checked=${this.selectedReason === SUSPEND_REASONS.SERVICE_CANCELLATION}
 							@value-changed="${(e) => this._onSelectedReasonChanged(e)}"
 						></capitec-radio>
 					</capitec-radio-group>
@@ -1154,7 +1184,7 @@ export class InternetBankingProfileDetails extends Component {
 				class="token-suspend-toast-success"
 				type="success" 
 				header="Successful!"
-				detail="Internet security token was suspended. &nbsp &nbsp &nbsp &nbsp 
+				detail="Internet security token was suspended. &nbsp &nbsp &nbsp &nbsp To access internet banking you will need to register on the App. &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp ${formatedUpdatedDate}"
 				To access internet banking you will need to register on the App. &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp 
 				&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp 
 				&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp ${formatedUpdatedDate}"
@@ -1169,6 +1199,20 @@ export class InternetBankingProfileDetails extends Component {
 					<capitec-label label="${formatedUpdatedDate}" type="strong"></capitec-label>
 			</capitec-toast>`
 			: html``;
+	}
+
+	_renderTokenSuspendUnsuccessToast() {
+		return this.displaySuspendUnsuccessToast ? html`
+			<capitec-toast
+				class="token-suspend-toast-success"
+				type="error"
+				header="Unsuccessful!"
+				detail="Internet security token was not suspended. &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp Please try again."
+				?hidden="${!this.displaySuspendUnsuccessToast}"
+				@click="${() => this.displaySuspendUnsuccessToast = false}"
+				?closable=${false}
+			></capitec-toast>
+		` : html``;
 	}
 
 	_renderTokenSuspendedNotification() {
