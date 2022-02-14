@@ -15,9 +15,8 @@ const DEFAULTS = {
 
 const CREDIT_TYPE_LIST = Object.freeze([
 'All',
-'Credit card',
-'Term Loan',
-'Access facility'
+'Fixed credit',
+'Flexible credit'
 ]);
 
 const quotes = [
@@ -26,306 +25,37 @@ const quotes = [
 		accountNumber: `1234596`,
 		loanAmount: 35000,
 		instalment: 1234.91,
-		settlementAmount: 18000
+		settlementAmount: 18000,
+		creditType: `Fixed credit`
 	},
 	{
 		quoteName: `Term Loan (84 months)`,
 		accountNumber: `456789`,
 		loanAmount: 15000,
 		instalment: 1498.91,
-		settlementAmount: 7920
+		settlementAmount: 7920,
+		creditType: `Fixed credit`
 	},
 	{
 		quoteName: `Credit card`,
 		accountNumber: `147852`,
 		loanAmount: 150000,
 		instalment: 3982.91,
-		settlementAmount: 31938.99
+		settlementAmount: 31938.99,
+		creditType: `Flexible credit`
 	},
 	{
 		quoteName: `Access facility`,
 		accountNumber: `852369`,
 		loanAmount: 50000,
 		instalment: 2479.01,
-		settlementAmount: 7820
+		settlementAmount: 7820,
+		creditType: `Flexible credit`
 	}
 ];
 
 export class SettlementQuote extends Component {
 
-// 	// --------------
-// 	// INITIALISATION
-// 	// --------------
-
-// 	constructor() {
-// 		super();
-
-// 		this.searchTextLabel = DEFAULTS.SEARCH_TEXT_LABEL;
-// 		this.typeLabel = DEFAULTS.TYPE_LABEL;
-// 		this.textValue = this.typeValue = ``;
-// 	}
-
-
-// 	// ----------
-// 	// PROPERTIES
-// 	// ----------
-
-// 	static get properties() {
-// 		return {
-// 			quotes: { type: Object},
-// 			searchTextLabel: { state: true }
-// 		};
-// 	}
-
-// 	// -------------------
-// 	// LIFECYCLE OVERRIDES
-// 	// -------------------
-
-// 	connectedCallback() {
-// 		super.connectedCallback();
-// 	}
-
-// 	disconnectedCallback() {
-	
-// 	}
-
-// 	_refineSearch() {
-// 		// Assigning the raw data before performing the filter
-// 		this.filteredData = this.transactionHistory.filter(item => item.transactionStatus !== ``);
-
-// 		if (FILTER_BY.TEXT) {
-
-// 			const searchTextResult = searchText.map(key => {
-// 				if (key !== ``) {
-// 					if (key.startsWith(`-`)) {
-// 						return this.filteredData.filter(item => parseFloat(item.amount).toFixed(2).startsWith(key));
-// 					}
-// 					return this.filteredData.filter(item => item.description.toLowerCase().indexOf(key.toLowerCase()) !== -1 ||
-// 															parseFloat(item.amount).toFixed(2).startsWith(key) ||
-// 															(parseFloat(item.amount) * -1).toFixed(2).startsWith(key));
-// 				}
-// 				return [];
-// 			});
-// 			this.filteredData = Array.from(new Set([...searchTextResult.flat()]));
-// 		}
-
-// 		// Status filter is apllicable only on Savings Account Transaction History screen in the current state of application
-// 		if (FILTER_BY.TYPE) {
-// 			this.filteredData = this.filteredData.filter(item => item.transactionStatus === status);
-// 		}
-
-// 		this.requestUpdate();
-// 	}
-
-// 	// --------------
-// 	// EVENT HANDLERS
-// 	// --------------
-
-// 	_searchTextChange(event) {
-// 		RENDER_CHIPS[FILTER_BY.TEXT] = event.detail.new;
-// 		this._refineSearch();
-// 	}
-
-// 	_back() {
-// 		this.dispatchEvent(new CustomEvent(`back`, {}));
-// 	}
-
-// 	// ---------------
-// 	// PRIVATE METHODS
-// 	// ---------------
-
-// 	_initialise() {
-	
-// 	}
-
-// 	// ---------
-// 	// RENDERING
-// 	// ---------
-
-// 	/**
-// 	 * Generates the component stylesheet.
-// 	 *
-// 	 * @readonly
-// 	 * @static
-// 	 * @returns {css} CSS for the component.
-// 	 */
-// 	 static get styles() {
-// 		return [
-// 			super.styles,
-// 			css`			
-// 			capitec-title-bar {
-// 				--theme-label-title-font-size: 24px;
-// 				--theme-label-title-font-weight: 600;
-// 				--theme-titlebar-shadow: none;
-// 				--theme-titlebar-border: 1px solid #E1E1E1;
-// 			}
-// 			capitec-title-bar > capitec-icon {
-// 				cursor: pointer;
-// 				margin-right: 15px;
-// 			}
-// 			.main-cb {
-// 				height: 690px;				
-// 			}
-// 			.type-select{
-// 				--theme-input-label-font-size: 16px;
-// 				--theme-input-padding-bottom: 13px;
-// 				--theme-select-options-max-height: 308px;
-// 				--theme-input-font-size: 16px;
-// 				--theme-input-label-font-color: #3A3A3A;
-// 				--theme-input-font-weight: 400;
-// 				--theme-input-icon-top: 8px;
-// 				line-height: 30px;
-// 				width: 224px;
-// 			}
-// 			.action-bar {
-// 				height: 64px;
-// 				width: var(--horizon-center-panel-width, 1064px);
-// 			}
-// 			.action-bar > capitec-text-field {
-// 				height: 47px;
-// 				width: 388px;
-// 				padding-left: 8px;
-			
-// 				--theme-label-font-color: #3A3A3A;
-// 				--theme-input-label-font-size: 16px;
-// 				--theme-layout-gap-spacing: 8px; 
-// 				--theme-input-clear-icon-height: 0px;
-// 				--theme-input-clear-icon-width: 0px;
-// 			}
-// 			.main-cb > capitec-label[type="subtitle"] {
-// 				line-height: 24px;
-
-// 				--theme-label-subtitle-font-size: 18px;
-// 				--theme-label-subtitle-font-weight: 600;
-// 				--theme-layout-gap-spacing: 18px;
-// 			}
-// 			`
-// 		];
-// 	}
-
-
-// 	_mobileTemplate() {
-// 		return this._webTemplate();
-// 	}
-
-// 	_webTemplate() {
-// 		return html`
-// 			${this._renderContent()}
-// 		`;
-// 	}
-
-// 	_renderContent() {
-// 		return html`
-// 			<capitec-card class="center-section">
-// 				${this._renderTitleBar()}
-// 				${this._renderSearch()}
-// 				<capitec-content-box class="main-cb">
-// 					${this._renderAlertBanner()}
-// 					${this._renderQuotes()}
-// 					${this._renderFooter()}
-// 				</capitec-content-box>
-// 			</capitec-card>
-// 		`;
-// 	}
-
-// 	_renderAlertBanner() {
-// 		return html``
-// 	}
-
-// 	_renderTitleBar() {
-// 		return html`
-// 			<capitec-title-bar>
-// 				<capitec-icon 
-// 					size="small"
-// 					icon="system/arrow-left-action"
-// 					@click="${() => this._back()}">
-// 				</capitec-icon>
-// 				<capitec-label label="Settlement Quote" type="title"></capitec-label>
-// 			</capitec-title-bar>
-// 		`;
-// 	}
-
-// 	_renderSearch() {
-// 		return html`
-// 			<capitec-title-bar>
-// 			<capitec-group layout="horizontal" halign="left" valign="center" gap="clear" class="action-bar">
-// 				<capitec-text-field
-// 					id="text-filter"
-// 					label=${this.searchTextLabel}
-// 					type="search"
-// 					keyboardMode="alpha-numeric"
-// 					@key-input="${(e) => this._searchTextChange(e)}"
-// 					@value-change="${(e) => this._searchTextChange(e)}"
-// 					@focus="${(e) => this.searchTextLabel = ``}"
-// 					@blur="${(e) => this._searchTextBlur(e)}"
-// 					value="${this.textValue}">
-// 				</capitec-text-field>
-
-// 				<capitec-select
-// 					label="${this.typeLabel}" 
-// 					class="type-select"
-// 					.items="${CREDIT_TYPE_LIST}"
-// 					@focus="${(e) => this._statusFocussed(e)}"
-// 					@value-change = "${(e) => this._filterByStatus(e)}"
-// 					value = ${this.typeValue}>					
-// 				</capitec-select>
-// 			</capitec-group>
-// 			</capitec-title-bar>
-// 		`;
-// 	}
-
-// 	_renderQuotes() {
-// 		return html`
-// 			<capitec-label type="subtitle" label="Choose an account"></capitec-label>
-// 			${quotes.map(item => this._renderRow(item))}
-// 		`;
-// 	}
-
-// 	_renderRow(item) {
-// 		return html`
-// 			<capitec-group layout="grid" rows="auto" columns="uniform" gap="none">
-// 				${this._renderRowInput(item)}
-// 				${this._renderRowData(item)}
-// 			</capitec-group>
-// 		`;
-// 	}
-
-// 	_renderRowInput(rowData) {
-// 		return html`
-// 			<div 
-// 				row="1" 
-// 				column="1" 
-// 				style="width: 35px; height: 22px;">
-// 				<capitec-check 
-// 					data-automation-id="stop-card-select"
-// 					label="" 
-// 					style="--theme-check-width: 21px; --theme-check-height: 21px;"
-// 					@value-changed="${(e) => this._valueChanged(e, rowData)}">
-// 				</capitec-check>
-// 			</div>`;
-// 	}
-
-// 	_renderRowData(rowData) {
-// 		return html`
-// 		<div row="1" column="2" colspan="2" style="display: flex; align-items: center;">
-
-// 		<horizon-label label="${rowData.quoteName}" value="${rowData.accountNumber}">
-// 		</horizon-label>
-
-// 		<horizon-label label="Loan amount" value="${rowData.loanAmount}">
-// 		</horizon-label>
-
-// 		<horizon-label label="Instalment" value="${rowData.instalment}">
-// 		</horizon-label>
-
-// 		<horizon-label label="Settlement amount" value="${rowData.settlementAmount}">
-// 		</horizon-label>
-// 		</div>`;
-// 	}
-
-// _renderFooter() {
-// 	return html ``;
-// }
 
 	// --------------
 	// INITIALISATION
@@ -343,7 +73,8 @@ export class SettlementQuote extends Component {
 		this.isAccountsChecked = [];
 		this.selectedAccounts = [];
 		this.filteredData = [];
-		this.listValue = ``;
+		this.listValue = `Credit type`;
+		this.selectedLabel = `Select All`;
 		
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 	}
@@ -370,7 +101,8 @@ export class SettlementQuote extends Component {
 			isChecked: { type: Boolean, attribute: false },
 			checkAll: { type: Boolean, attribute: false},
 			filteredData: { type: Array },
-			listValue: { type: String }
+			listValue: { type: String },
+			selectedLabel: { type: String }
 		};
 	}
 
@@ -433,7 +165,7 @@ export class SettlementQuote extends Component {
 		}
 
 		if(this.listValue !== `` && this.listValue !== `All`) {
-			this.filteredData = this.filteredData.filter(item => item.quoteName.toLowerCase().indexOf(this.listValue.toLowerCase()) !== -1);
+			this.filteredData = this.filteredData.filter(item => item.creditType.toLowerCase().indexOf(this.listValue.toLowerCase()) !== -1);
 		}	
 
 		if(text) {		
@@ -441,6 +173,7 @@ export class SettlementQuote extends Component {
 			const searchResult = searchText.map(key => {
 				if (key !== ``){
 					return this.filteredData.filter(item => item.quoteName.toLowerCase().indexOf(key.toLowerCase()) !== -1 ||
+															item.creditType.toLowerCase().indexOf(key.toLowerCase()) !== -1 ||
 															parseFloat(item.settlementAmount).toFixed(2).startsWith(key) ||
 															parseFloat(item.loanAmount).toFixed(2).startsWith(key) ||
 															parseFloat(item.instalment).toFixed(2).startsWith(key) ||
@@ -495,6 +228,17 @@ export class SettlementQuote extends Component {
 			this.checkAll = true;
 			this.isChecked = false;
 		}
+
+		const amountSelected = this.isAccountsChecked.filter(Boolean).length;
+
+		if(amountSelected === 0) {
+			this.selectedLabel = `Select All`;
+		}else if (amountSelected === 1) {
+			this.selectedLabel = `1 account selected`
+		}else {
+			this.selectedLabel = `${this.isAccountsChecked.filter(Boolean).length} accounts selected`;
+		}
+
 		this.requestUpdate();
 	}
 
@@ -502,6 +246,7 @@ export class SettlementQuote extends Component {
 		this.checkAll = false;
 		if (this.isAccountsChecked.every(val => val === true)) {
 			this.isChecked = false;
+			this.selectedLabel = `Select All`;
 			for (let index = 0; index < this.isAccountsChecked.length; index++) {
 				this.isAccountsChecked[index] = false;
 			}
@@ -511,6 +256,7 @@ export class SettlementQuote extends Component {
 			for (let index = 0; index < this.isAccountsChecked.length; index++) {
 				this.isAccountsChecked[index] = true;
 			}
+			this.selectedLabel = `${this.isAccountsChecked.length} accounts selected`;
 		}
 		this.requestUpdate();
 	}
@@ -518,6 +264,7 @@ export class SettlementQuote extends Component {
 	_deselect() {
 		this.checkAll = false;
 		this.isChecked = false;
+		this.selectedLabel = `Select All`;
 		for (let index = 0; index < this.isAccountsChecked.length; index++) {
 			this.isAccountsChecked[index] = false;			
 		}
@@ -571,6 +318,10 @@ export class SettlementQuote extends Component {
 					--theme-layout-gap-spacing: 18px;
 				}
 
+				capitec-button-bar>capitec-check {
+					margin-top: 15px;
+				}
+
 				capitec-title-bar > capitec-label {
 					height: 32px;
 					width: 191px;
@@ -590,6 +341,7 @@ export class SettlementQuote extends Component {
 
 				capitec-hyperlink {
 					margin-left: 16px;
+					margin-top: 15px;
 					height: 20px;
 					width: 84px;
 					--theme-hyperlink-color: #009DE0;
@@ -617,12 +369,12 @@ export class SettlementQuote extends Component {
 					height: 50x;
 					width: 100%;
 					--buttonbar-align: right;
-					--theme-buttonbar-padding: 16px 0px 0px 16px;
+					// --theme-buttonbar-padding: 16px 0px 0px 16px;
 					--theme-buttonbar-item-gap: 0px;
 				}
 			
 				.btnSend {
-					height: 20px;
+					height: 48px;
 					margin-right: 16px;
 				}
 				.vertical-line{
@@ -635,13 +387,22 @@ export class SettlementQuote extends Component {
 					display: inline-flex;
 					flex-direction: row;
 					box-sizing: border-box;
-					height: var(--theme-product-tile--height, 80px);
+					height: 64px;
 					background-color: transparent;
 					padding: 0px;
 					width: 100%;
 					position: relative;
 					border: 1px solid #E1E1E1;
 					padding-left: 16px;
+				}
+				.no-result-group {
+					width: 1020px;
+					margin-top: 130px;
+				}
+				.no-results {
+					--theme-label-strong-font-size: 24px;
+					--theme-label-strong-font-weight: 600;
+					--theme-label-font-color: #3A3A3A;
 				}
 				.alert-banner
 				{
@@ -695,8 +456,7 @@ export class SettlementQuote extends Component {
  					@key-input="${(e) => this._search(e)}"
  					@value-change="${(e) => this._search(e)}">
  				</capitec-text-field>
-				<capitec-select 
-					label="${DEFAULTS.TYPE_LABEL}" 
+				<capitec-select 					 
 					.items="${CREDIT_TYPE_LIST}" 
 					display-field="text"
 					filter-id="select"
@@ -706,9 +466,34 @@ export class SettlementQuote extends Component {
 			</capitec-title-bar>
 			<capitec-content-box class="main-cb" layout="vertical" halign="stretch" valign="top" gap="clear">
 			${this._renderAlertBanner()}
-			<capitec-label type="subtitle" label="Choose an account"></capitec-label>
-			${this.filteredData.map((item, index) => this._renderAcountInfoTile(item, index))}
+			<capitec-label 
+				type="subtitle" 
+				label="Choose an account" 
+				?hidden="${this.filteredData.length < 1}" >
+			</capitec-label>
+			${this.filteredData.length > 0 ? this.filteredData.map((item, index) => this._renderAcountInfoTile(item, index)) : this._renderNoResult()}
 			</capitec-content-box>
+		`;
+	}
+
+	_renderNoResult() {
+		return html`
+			<capitec-group
+				class="no-result-group"
+				layout="vertical"
+				halign="center"
+				valign="center"
+				gap="none">
+					<img
+						src="platform/illustrations/history.svg"
+						class="document-icon"/>
+					<capitec-label
+						class="no-results"
+						label="No results found"
+						type="strong">
+					</capitec-label>
+
+			</capitec-group>
 		`;
 	}
 	_renderAcountInfoTile (item,index) {
@@ -770,17 +555,17 @@ export class SettlementQuote extends Component {
 		return html`
 			<capitec-button-bar>				
 				<capitec-check
-					label="Select all"
+					label="${this.selectedLabel}"
 					?indeterminate="${this.checkAll}"
 					?checked="${this.isChecked}"
 					@value-change="${e => this._selectAll()}">
 				</capitec-check>
-				<capitec-hyperlink ?hidden="${!this.isChecked && !this.checkAll}" label="Deselect all" @click="${() => this._deselect()}"></capitec-hyperlink>
+				<capitec-hyperlink ?hidden="${!this.isChecked && !this.checkAll}" label="Deselect All" @click="${() => this._deselect()}"></capitec-hyperlink>
 				<capitec-spacer></capitec-spacer>
 				<capitec-button 
 					type="primary" 
 					class ="btnSend" 
-					label="Send Statement(s)" 
+					label="Send Settlement Quote(s)" 
 					@click="${() => this._showSendDialog()}">
 				</capitec-button>			
 			</capitec-button-bar>`;
