@@ -65,7 +65,7 @@ export class SendSettlementQuote extends Component {
 	// -------------------
 	connectedCallback() {
 		super.connectedCallback();
-		this._initialise();
+		this._toggleBusyFlag();
 	}
 	disconnectedCallback() {
 		super.disconnectedCallback();
@@ -81,10 +81,6 @@ export class SendSettlementQuote extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
-	_initialise() {		
-		this._toggleBusyFlag();
-	}
-
 	async _sendClick(e) {
 		if (this._validateEmail(e)) {
 			// flow to success or unsuccessful 
@@ -94,9 +90,13 @@ export class SendSettlementQuote extends Component {
 	_cancelClick(e) {
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
+
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+
 	_validateEmail(e) {
 		// CORRECT
 		if (!this._isNullorEmpty(this.idEmailAddress) && this.idEmailAddress === this.idConfirmEmailAddress) {
@@ -188,16 +188,9 @@ export class SendSettlementQuote extends Component {
 				--theme-product-tile--height: 64px;
 				--theme-product-tile-title-height: 20px;
 				--theme-product-tile-title-font-size: 16px;
-				// --theme-product-tile-subtitle-height: 20px;
-				// --theme-product-tile-subtitle-font-size: 16px;
 				--theme-product-tile-heading-margin-left: 16px;
-				// --theme-product-tile-heading-margin-left: 6px;
 				--theme-layout-gap-spacing: 8px;
 				--theme-product-tile-title-font-weight: 600;
-			}
-
-			.label-err-message{
-				--theme-label-font-color:#C83C37;
 			}
 			capitec-alert-banner > capitec-label{
 				margin: 16px 0px 16px 0px;
@@ -258,8 +251,7 @@ export class SendSettlementQuote extends Component {
 		return this.flag ? this._viewPDF()
 		: html`
 		<capitec-modal type="free" header-align="left" header="Settlement Quote">
-			<div slot="body" class="${`body-class`} ">
-			<!-- <div slot="body" class="${this.alertBannerMessage ? `err-body` : `body-class`} "> -->
+			<div slot="body" class="body-class">
 				${this._renderAlertBanner()}
 				${this._renderEmailFields()}
 				${this._renderLoadingIndicator()}
@@ -275,17 +267,6 @@ export class SendSettlementQuote extends Component {
 		if (!this._isNullorEmpty(this.alertBannerMessage)) {
 			return html`
 				<capitec-alert-banner type="unsuccessful-red">
-					<!-- <capitec-group layout="horizontal">
-						<capitec-label
-							type="subtitle"
-							label="Notify: "
-							class="label-err-message">
-						</capitec-label>
-						<capitec-label
-							label="${this.alertBannerMessage}"
-							class="label-err-message">
-						</capitec-label>
-					</capitec-group> -->
 					<p><b>Notify:</b> ${this.alertBannerMessage}</p>
 				</capitec-alert-banner>
 			`;
@@ -365,14 +346,10 @@ export class SendSettlementQuote extends Component {
 		`;
 	}
 
-	// _viewPDFViewer () {
-	// 	this.flag = !this.flag;
-	// }
-
 	_viewPDF() {
 		return html`
 		<horizon-pdf-viewer
-			header="Paid Up Letter: Credit Card"
+			header="Settlement Quote"
 			encodedPDF="${this.encodedPDF}"
 			totalPages="${this.selectedAccounts.length}"
 			currPage="${this.currPage}"

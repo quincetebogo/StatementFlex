@@ -65,10 +65,7 @@ export class SettlementQuote extends Component {
 		this.checkAll = false;
 		this.isChecked = false;
 		this.showSendDialog = false;
-		this.accountsInfo = [];
 		this.errorMessage = ``;
-		this.cardTypes = [];
-		this.landingPageInfo = null;
 		this.isBusy = false;
 		this.isAccountsChecked = [];
 		this.selectedAccounts = [];
@@ -86,7 +83,6 @@ export class SettlementQuote extends Component {
 
 	/**
 	 *
-	 * @property {Object} landingPageInfo Data for the Favourites Landing Page display
 	 * @readonly
 	 * @static
 	 * @memberof FavouriteTransactions
@@ -95,7 +91,6 @@ export class SettlementQuote extends Component {
 
 	static get properties() {
 		return {
-			landingPageInfo: { type: Object },
 			isBusy: { attribute: false },
 			showSendDialog: { type: Boolean, attribute: false },
 			isChecked: { type: Boolean, attribute: false },
@@ -140,7 +135,7 @@ export class SettlementQuote extends Component {
 	{
 		for (let index = 0; index < this.isAccountsChecked.length; index++) 
 		{
-			if (this.isAccountsChecked[index]===true)
+			if (this.isAccountsChecked[index])
 			{
 				return true;
 			}
@@ -369,7 +364,6 @@ export class SettlementQuote extends Component {
 					height: 50x;
 					width: 100%;
 					--buttonbar-align: right;
-					// --theme-buttonbar-padding: 16px 0px 0px 16px;
 					--theme-buttonbar-item-gap: 0px;
 				}
 			
@@ -529,7 +523,6 @@ export class SettlementQuote extends Component {
 		return this.showSendDialog ? 
 		html`
 		<horizon-settlement-quote-dialog
-			.landingPageInfo="${this.landingPageInfo}"
 			.selectedAccounts="${this.selectedAccounts}"
 			@cancel="${() => this._showSendDialog()}"
 			.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
@@ -560,7 +553,11 @@ export class SettlementQuote extends Component {
 					?checked="${this.isChecked}"
 					@value-change="${e => this._selectAll()}">
 				</capitec-check>
-				<capitec-hyperlink ?hidden="${!this.isChecked && !this.checkAll}" label="Deselect All" @click="${() => this._deselect()}"></capitec-hyperlink>
+				<capitec-hyperlink 
+					?hidden="${!this.isChecked && !this.checkAll}" 
+					label="Deselect All" 
+					@click="${() => this._deselect()}">
+				</capitec-hyperlink>
 				<capitec-spacer></capitec-spacer>
 				<capitec-button 
 					type="primary" 
