@@ -198,7 +198,7 @@ export class AccessChannels extends Component {
 
 		// TODO: add channel service call to cancel USSD service
 		// If cancel is successful, show toast, update ussd status, else show error
-		const returnValue = await this.accessChannelService.cancelUSSD(this.cifNumber, this.status.msisdn);
+		const returnValue = await this.accessChannelService.cancelUSSD(this.cifNumber, this.landingInfo.msisdn);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unsuccessful call to cancel USSD`, `cancelUSSD`, returnValue.correlationId);
@@ -217,7 +217,7 @@ export class AccessChannels extends Component {
 
 		// TODO: add channel service call to unblock SIM - ussd
 		// If unblock is successful, show toast, update ussd status, else show error
-		const returnValue = await this.accessChannelService.unblockSIM(this.status.msisdn);
+		const returnValue = await this.accessChannelService.unblockSIM(this.landingInfo.msisdn);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to unblock SIM.`, `unblockSIM`, returnValue.correlationId);
@@ -463,8 +463,8 @@ export class AccessChannels extends Component {
 	}
 
 	_deepCopyStatus() {
-		// Creates and returns a deep copy of an Object this.status
-		this.status = Utilities.deepCopy(this.status);
+		// Creates and returns a deep copy of an Object this.landingInfo
+		this.landingInfo = Utilities.deepCopy(this.landingInfo);
 	}
 
 	// ---------
