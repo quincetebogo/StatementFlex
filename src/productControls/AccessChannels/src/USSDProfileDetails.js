@@ -9,8 +9,9 @@ export class USSDProfileDetails extends Component {
 		super();
 
 		this.showSideSheet = false;
-		this.isBusy = false;
+		this.isVerifiedClient = false;
 
+		this.isBusy = false;
 		this.displaySuccessToast = false;
 		this.showCancelReasons = false;
 		this.showNotificationBanner = false;
@@ -65,6 +66,7 @@ export class USSDProfileDetails extends Component {
 			ussd: { type: Object },
 			showSideSheet: { type: Boolean },
 			verifiedTelephoneNumber: { type: String },
+			isVerifiedClient: { type: Boolean },
 
 			cancelUSSD: { type: Object },
 			unblockSIM: { type: Object },
@@ -80,9 +82,6 @@ export class USSDProfileDetails extends Component {
 			isBusy: { state: true }
 		};
 	}
-
-
-
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -168,14 +167,12 @@ export class USSDProfileDetails extends Component {
 	// ---------------
 
 	async _initialise() {
-		const clientInfo = {
-			msisdn: this.verifiedTelephoneNumber
-		};
 
-		const result = await this.getUssdLandingDetails(clientInfo);
+		const returnValue = await this.getUssdLandingDetails();
 
-		if (result) {
-			this.ussd = returnValue;
+		if (returnValue) {
+			// this.ussd.status = returnValue.status;
+			this.ussd.dateLastUpdated = returnValue.dateLastUpdated;
 			this.ussdStatus = this.ussd && this.ussd.status;
 		}
 	}
@@ -455,7 +452,8 @@ export class USSDProfileDetails extends Component {
 								data-automation-id="ussd-profile-details-date-registered"
 								class="dateRegistered"
 								label="Date registered"
-								value="${this._formatDate(this.ussd.dateRegistered)}, ${this._formatTime(this.ussd.dateRegistered)}">
+								value="${this._formatDate(this.ussd.dateRegistered)}, ${this._formatTime(this.ussd.dateRegistered)}"
+								?hidden="${!this.isVerifiedClient}">
 							</horizon-label>
 
 							<horizon-label
@@ -483,7 +481,8 @@ export class USSDProfileDetails extends Component {
 								data-automation-id="ussd-profile-details-last-updated"
 								class="lastUpdated"
 								label="Last updated"
-								value="${this._formatDate(this.ussd.dateLastUpdated)}, ${this._formatTime(this.ussd.dateLastUpdated)}">
+								value="${this._formatDate(this.ussd.dateLastUpdated)}, ${this._formatTime(this.ussd.dateLastUpdated)}"
+								?hidden="${!this.isVerifiedClient}">
 							</horizon-label>
 
 							<horizon-label 
@@ -491,6 +490,7 @@ export class USSDProfileDetails extends Component {
 								class="cancelling"
 								label="Reason for cancelling"
 								value="${this.cancelReason}"
+								?hidden="${!this.isVerifiedClient}"
 								style="display:${!isNullorEmpty(this.cancelReason) && this.ussdStatus === `Blocked` ? `block` : `none`}">
 							</horizon-label>
 
@@ -505,14 +505,14 @@ export class USSDProfileDetails extends Component {
 			<capitec-button 
 				data-automation-id="ussd-profile-details-activate-full-ussd-button"
 				label="Activate Full USSD Menu" 
-				?hidden="${!this.ussd.features.includes(`REDUCED_MENU`) || this.ussd.isSimBlocked || this.ussdStatus === `Blocked`}"
+				?hidden="${!this.ussd.features.includes(`REDUCED_MENU`) || this.ussd.isSimBlocked || this.ussdStatus === `Blocked` || !this.isVerifiedClient}"
 				@click="${() => this._activateFullMenu()}">
 			</capitec-button>
 
 			<capitec-button 
 				data-automation-id="ussd-profile-details-unblock-sim-button"
 				label="Unblock SIM" 
-				?hidden="${!this.ussd.isSimBlocked}"
+				?hidden="${!this.ussd.isSimBlocked || !this.isVerifiedClient}"
 				@click="${() => this._onUnblockSIM()}">
 			</capitec-button>
 

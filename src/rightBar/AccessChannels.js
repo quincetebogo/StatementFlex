@@ -41,11 +41,10 @@ export class AccessChannels extends Component {
 		this.logger = Logger.getInstance();
 
 		this._telemetry = HorizonTelemetry.instance;
-		const callerInformation = this.horizonStore.getCallerInformation();
-		this.cifNumber = callerInformation.cifNumber;
-		this.verifiedTelephoneNumber = callerInformation.verifiedTelephoneNumber;
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
+		
+		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 	}
 
 	// ----------
@@ -75,10 +74,17 @@ export class AccessChannels extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this.cifNumber = this.callerInformation?.cifNumber;
+		this.verifiedTelephoneNumber = this.callerInformation?.verifiedTelephoneNumber;
+		this.isVerifiedClient = this.callerInformation?.verificationStatus === `verified`;
+
 		this._landingInfo();
 	}
 
 	disconnectedCallback() {
+		// Unsubscribe from store.
+		this.stateChangeSub.unsubscribe();
+
 		super.disconnectedCallback();
 	}
 
@@ -394,6 +400,12 @@ export class AccessChannels extends Component {
 		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_NOTIFICATIONS_UPDATE);
 	}
 
+	_stateChanged(state) {
+		if (state?.callerInformation) {
+			this.callerInformation = state.callerInformation;
+		}
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -419,8 +431,13 @@ export class AccessChannels extends Component {
 		this.logger.log(`error`, `Failed to load access channel landing information`, `_landingInfo`, returnValue.correlationId);
 	}
 
-	async getUssdLandingDetails(clientInfo) {
-		const returnValue = await this.accessChannelService.accessChannelsUssdLanding(clientInfo);
+	async getUssdLandingDetails() {
+		const requestParams = {
+			'msisdn': this.landingInfo.msisdn,
+			'cif': `0${this.cifNumber}`
+		};
+
+		const returnValue = await this.accessChannelService.accessChannelsUssdLanding(requestParams);
 		if (returnValue.succeeded) {
 			return returnValue.result;
 		}
@@ -469,6 +486,7 @@ export class AccessChannels extends Component {
 			? html`
 				<capitec-pc-access-channels
 					.status=${this.landingInfo}
+					?isVerifiedClient="${this.isVerifiedClient}"
 					@tile-click="${(event) => this._showSlidingPanel(event)}">
 				</capitec-pc-access-channels>`
 			: html``;
@@ -481,6 +499,7 @@ export class AccessChannels extends Component {
 					.internetBankingDetails = "${this.landingInfo.internetBanking}"
 					verifiedNumber = "${this.verifiedTelephoneNumber}"
 					?showSideSheet = "${this.showSideSheet}"
+					?isVerifiedClient="${this.isVerifiedClient}"
 
 					.suspendInternetBankingSecurityToken = "${(suspendReason, selectedToken) => this.suspendInternetBanking(suspendReason, selectedToken)}"
 					.resetInternetBankingSecurityToken = "${(selectedTokens) => this.resetInternetBanking(selectedTokens)}"
@@ -500,6 +519,7 @@ export class AccessChannels extends Component {
 				<capitec-pc-app-profile-details
 					.appDetails = "${this.landingInfo.app}"
 					?showSideSheet = "${this.showSideSheet}"
+					?isVerifiedClient="${this.isVerifiedClient}"
 
 					.suspendApp = "${(suspendReason, userRegNo) => this._suspendApp(suspendReason, userRegNo)}"
 					.unsuspendApp = "${() => this.unsuspendApp()}"
@@ -516,12 +536,13 @@ export class AccessChannels extends Component {
 			<capitec-pc-ussd-profile-details
 			.ussd="${this.landingInfo.ussd}"
 			?showSideSheet="${this.showSideSheet}"
+			?isVerifiedClient="${this.isVerifiedClient}"
 			verifiedTelephoneNumber="${this.callerInformation.verifiedTelephoneNumber}"
 
 			.cancelUSSD="${cancelReason => this.cancelUSSD(cancelReason)}"
 			.unblockSIM="${() => this.unblockSIM()}"
 			.activateFullMenuUSSD="${() => this.activateFullMenuUSSD()}"
-			.getUssdLandingDetails="${(clientInfo) => this.getUssdLandingDetails(clientInfo)}"
+			.getUssdLandingDetails="${() => this.getUssdLandingDetails()}"
 
 			@toggle-ussd-cancel-reasons="${(event) => this._toggleUssdCancelReasons(event)}"
 			@close-side-sheet="${(event) => this._showSlidingPanel(event)}">

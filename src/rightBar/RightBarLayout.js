@@ -5,6 +5,7 @@ import 'platform/components';
 import 'app/rightBar/AccessChannels';
 import 'app/rightBar/Insights';
 import 'app/rightBar/InfoGraphic';
+import 'app/rightBar/InfoGraphicShort';
 
 /**
  * Layout selector component for the right hand bar in the Horizon User Interface
@@ -77,17 +78,28 @@ export class RightBarLayout extends Component {
 	}
 
 	_webTemplate() {
-		return html`${this.layout === `info-graphic`
+		return this.layout === `info-graphic`
 			? html`
-				<horizon-info-graphic>
-				</horizon-info-graphic>`
+				${this._renderInfoGraphic()}`
 			: html`
 				<section>
 					<horizon-insights
 						cifNumber="${this.callerInformation?.cifNumber}">
 					</horizon-insights>
 					<horizon-access-channels></horizon-access-channels>
-				</section>`}`;
+				</section>`;
+	}
+
+	_renderInfoGraphic() {
+		return this.callerInformation.verificationStatus === `unverified`
+		 ? html`
+			<section>
+				<horizon-info-graphic-short></horizon-info-graphic-short>
+				<horizon-access-channels></horizon-access-channels>
+			</section>`
+		 : html`
+		 	<horizon-info-graphic>
+			</horizon-info-graphic>`;
 	}
 }
 
