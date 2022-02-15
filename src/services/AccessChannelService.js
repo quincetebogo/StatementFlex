@@ -16,7 +16,7 @@ export class AccessChannelService extends ChannelServiceBase {
 		super(
 			toggleBusyFunc, 
 			defaultErrorHandlerFunc, 
-			`serviceURIs.channelServiceUrl`, 
+			`serviceURIs.accessChannelServiceUrl`, 
 			`HorizonChannelService`, 
 			`v1`, 
 			() => import(`../mocks/HorizonChannelServiceMocks.js`)
@@ -80,10 +80,10 @@ export class AccessChannelService extends ChannelServiceBase {
 			return this.mock(`activatefullUssdMenu`);
 		}
 
-		const request = 
+		const request =
 		{
 			"msisdn": `${msisdn}`,
-			"cif": `${cifNumber}` 
+			"cif": `${cifNumber}`
 		};
 
 		const url = `/clientcare-accesschannels-${this._version}/ussd/activate-full`;
@@ -102,15 +102,62 @@ export class AccessChannelService extends ChannelServiceBase {
 		);
 	}
 
+	async accessChannelsUssdLanding(requestParams, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`accessChannelUssdLanding`)) {
+			return this.mock(`accessChannelUssdLanding`);
+		}
+
+
+		const requestBody = {
+			'msisdn': requestParams.msisdn,
+			'cif': requestParams.cif
+		};
+
+		const url = `/clientcare-accesschannels-${this._version}/ussd/landing`;
+		return this.post(
+			url, 
+			requestBody,
+			this.setToken(), 
+			`accessChannelUSSDLanding`, 
+			null, 
+			null,
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	accessChannelLanding(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const request = {
+			"cif": cifNumber
+		};
+
+		const url = `/clientcare-accesschannels-${this._version}/landing`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`accessChannelLanding`,
+			null,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
 	async cancelUSSD(cifNumber, msisdn, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`cancelUSSD`)) {
 			return this.mock(`cancelUSSD`);
 		}
 
-		const request = 
+		const request =
 		{
 			"msisdn": `${msisdn}`,
-			"cif": `${cifNumber}` 
+			"cif": `${cifNumber}`
 		};
 
 		const url = `/clientcare-accesschannels-${this._version}/ussd/cancel`;
@@ -123,6 +170,27 @@ export class AccessChannelService extends ChannelServiceBase {
 			null,
 			null,
 			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	internetBankingLanding(userRegNo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const request = {
+			"userRegNo": userRegNo
+		};
+
+		const url = `/clientcare-accesschannels-${this._version}/internet-banking/landing`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`internetBankingLanding`,
+			null,
+			null,
+			null,
 			null,
 			errorHandler,
 			autoRetries
@@ -154,4 +222,91 @@ export class AccessChannelService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+
+	suspendToken(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const url = `/clientcare-accesschannels-${this._version}/internet-banking/suspend-token`;
+
+		return this.post(
+			url,
+			{
+				"cif": request.cifNumber,
+				"tokenSerialNo": request.tokenSerialNo,
+				"reason": request.reason
+			},
+			// request,
+			this.setToken(),
+			`suspendToken`,
+			null,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	updateNotificationType(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const url = `/clientcare-accesschannels-${this._version}/`;
+
+		return this.put(
+			url,
+			request,
+			this.setToken(),
+			`updateNotificationType`,
+			null,
+			null,
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async suspendApp(reason, userRegNo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`suspendApp`)) {
+			return this.mock(`suspendApp`);
+		}
+
+		const url = `/clientcare-accesschannels-${this._version}/app/suspend`;
+		return this.post(
+			url,
+			{
+				"reason": reason,
+				"userRegNo": userRegNo
+			},
+			this.setToken(), 
+			`suspendApp`,
+			false,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+  
+	async resetSecurityTokenClock(requestParams, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`accessChannelResetSecurityTokenClock`)) {
+			return this.mock(`accessChannelResetSecurityTokenClock`);
+		}
+
+		const url = `/clientcare-accesschannels-${this._version}/internet-banking/reset-token`;
+
+		const requestBody = {
+			'tokenSerialNo': requestParams.tokenSerialNo
+		};
+
+		return this.post(
+			url,
+			requestBody,
+			this.setToken(),
+			`resetSecurityTokenClock`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}  
 }

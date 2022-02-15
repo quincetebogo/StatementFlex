@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 
 import 'platform/components/popups/Modal';
-import 'app/components/dialogs/common/VerifyCaller';
+import 'app/components/dialogs/common/verifyCaller/VerifyCaller';
 
 /**
  * A warning dialog that indicates that the client is not verified and offers the user

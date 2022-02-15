@@ -234,10 +234,16 @@ export class CallHandleService extends ChannelServiceBase {
 
 	async digitalVerificationChannelsAvailable(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`digitalVerificationChannelsAvailable`)) {
-			if (this._mocking.digitalVerificationChannelsAvailable.positiveCase) {
-				return this._mocking.digitalVerificationChannelsAvailable.positiveCase;
+			if (Object.prototype.hasOwnProperty.call(this._mocking.digitalVerificationChannelsAvailable, `positiveCase`)) {
+				return {
+					succeeded: true,
+					result: this._mocking.digitalVerificationChannelsAvailable.positiveCase
+				};
 			}
-			return false;
+			return {
+				succeeded: false,
+				result: this._mocking.digitalVerificationChannelsAvailable.positiveCase
+			};
 		}
 
 		return this.get(

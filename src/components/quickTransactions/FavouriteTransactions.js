@@ -189,6 +189,7 @@ export class FavouriteTransactions extends Component {
 	}
 
 	_renderContent() {
+
 		return html`
 			<capitec-card 
 				data-automation-id="favourite-transactions"
@@ -210,11 +211,11 @@ export class FavouriteTransactions extends Component {
 			default:
 				return html`
 					${this.renderAlertBanner()}
-					${this._renderTransactSection()}
-					${this._renderCardsSection()}
-					${this._renderDocumentsSections()}
-					${this._renderSearchOtherNeed()}
-				`;
+							${this._renderTransactSection()}
+							${this._renderCardsSection()}
+							${this._renderDocumentsSections()}
+							${this._renderSearchOtherNeed()}
+					`;
 		}
 	}
 
@@ -233,8 +234,9 @@ export class FavouriteTransactions extends Component {
 		return html``;
 	}
 
+
 	_renderTransactSection() {
-		const pendingMandates = (this.landingPageInfo && this.landingPageInfo.pendingMandateCount) || ``;
+		const pendingMandates = this.landingPageInfo?.pendingMandateCount ?? ``;
 		return html`
 				<capitec-title-bar
 					class="transact-title"

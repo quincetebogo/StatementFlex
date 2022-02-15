@@ -1,6 +1,7 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://horizoncs-v1.platform.int.capinet"
+		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet",
+		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-dev.int.capinet"
 	},
 	"signalRUrl": "https://horizoncs-ita-v1.platform.int.capinet",
 	"DesktopAgent": {
@@ -13,7 +14,9 @@
 		"strack": "https://strack.capitecbank.co.za/HEAT?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/",
 		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",
-		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js"
+		"live-better": "https://www.capitecbank.co.za/live-better/live-better-savings-account",	
+		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js",
+		"partner-benefits": "https://www.capitecbank.co.za/bank-better-live-better/articles/benefits/"
 	},
 	"LogRequestResponseModels" : false,
 	"VDN":"7250",
@@ -27,40 +30,6 @@
 			"primaryNeed": "Transact"
 		}
 	],
-	"ivrActionMapping": {
-		"debi-check": "DEBI_CHECK",
-		"stop-card": "STOP_CARD",
-		"update-card-limits": "UPDATE_CARD_LIMITS",
-		"tap-to-pay": "TAP_TO_PAY",
-		"statements": "STATEMENTS",
-		"proof-of-account": "PROOF_OF_ACCOUNT",
-		"tax-certificate": "TAX_CERTIFICATE",
-		"transaction-history": "TRANSACTION_HISTORY",
-		"savings-product-info": "PRODUCT_ENQUIRY_SAVINGS",
-		"savings-plan-info": "PRODUCT_ENQUIRY_SAVINGS_PLAN",
-		"insure-product-info": "PRODUCT_ENQUIRY_INSURE",
-		"credit-product-info": "PRODUCT_ENQUIRY_CREDIT",
-		"credit-card-statements": "STATEMENTS_CC",
-		"savings-account": "SAVINGS_ACCOUNT",
-		"telephony-hung-up": "TELEPHONY_HUNG_UP",
-		"telephony-call-back": "TELEPHONY_CALL_BACK",
-		"telephony-bad-connection": "TELEPHONY_BAD_CONNECTION",
-		"telephony-disconnected": "TELEPHONY_DISCONNECTED",
-		"telephony-no-reply": "TELEPHONY_NO_REPLY",
-		"credit-card-balance": "CREDIT_CARD_BALANCE",
-		"savings-account-balance": "SAVINGS_BALANCE",
-		"mobile-banking": "MOBILE_BANKING_BALANCE",
-		"transaction-history-request": "SAVINGS_BALANCE_TRANSACTIONS",
-		"pending-transaction-information": "SAVINGS_BLANCE_PENDING",
-		"language-transfer": "LANGUAGE_TRANSFER",
-		"call-transfer": "CALL_TRANSFER",
-		"general-product-enquiry": "GENERAL_PRODUCT_ENQUIRY",
-		"failed-verification": "FAILED_VERIFICATION",
-		"debi-check-approve": "DEBI_CHECK_APPROVE",
-		"debi-check-decline": "DEBI_CHECK_DECLINE",
-		"debi-check-viewInfo": "DEBI_CHECK",
-		"abandoned-verification": "TELEPHONY_NO_SHOW"
-	},
 	"mock": {
 		"enabled": false
 	}

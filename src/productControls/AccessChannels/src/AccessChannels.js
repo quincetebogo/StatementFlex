@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+
 import 'platform/components';
 
 const ACCESS_CHANNELS_TYPE = {
@@ -99,7 +100,7 @@ export class AccessChannels extends Component {
 		const status = this.status[type]?.status;
 
 		if (isNullorEmpty(status)) {
-			return `Channel service is down`;
+			return `Service unavailable`;
 		}
 		if (type === ACCESS_CHANNELS_TYPE.USSD && this.status.ussd.isSimBlocked) {
 			return `Blocked | SIM Swop detected`;
@@ -113,7 +114,7 @@ export class AccessChannels extends Component {
 				return `${status} | Last used ${this._formatDate(this.status[type].dateLastUsed)}`;
 			case ACCESS_CHANNEL_STATUS.SUSPENDED:
 			case ACCESS_CHANNEL_STATUS.BLOCKED:
-				return `${status} | ${this._formatDate(this.status[type].dateLastUpdated || this.status[type].dateLastUsed)}, ${this._formatTime(this.status[type].dateLastUpdated || this.status[type].dateLastUsed)}`;
+				return `${status} | ${this._formatDate(this.status[type].dateLastUsed)}, ${this._formatTime(this.status[type].dateLastUsed)}`;
 			default:
 				return status;
 		}
@@ -131,6 +132,10 @@ export class AccessChannels extends Component {
 			return `Reduced menu`;
 		}
 		return ussdDetails.status;
+	}
+
+	_getNotificationsDetails() {
+		return `${this.status.notification?.notificationType} | ${this.status.notification?.notificationTime}`;
 	}
 
 	// ---------
@@ -236,8 +241,8 @@ export class AccessChannels extends Component {
 					class=""
 					type="default"
 					label="Notifications"
-					status="Not registered"
-					subtitle="Not registered"
+					status="${this.status.notification?.status}"
+					subtitle="${this._getNotificationsDetails()}"
 					detail=""
 					icon="system/notify"
 					@click="${() => this._tileClick(ACCESS_CHANNELS_TYPE.NOTIFICATIONS)}">

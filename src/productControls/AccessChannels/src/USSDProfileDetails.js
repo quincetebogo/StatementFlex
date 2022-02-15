@@ -5,12 +5,12 @@ import 'app/components/common/HorizonLabel';
 import 'app/webComponents/src/SideSheet';
 import 'platform/components';
 
-
 export class USSDProfileDetails extends Component {
 	constructor() {
 		super();
 
 		this.showSideSheet = false;
+		this.isBusy = false;
 
 		this.displaySuccessToast = false;
 		this.displayUnsuccessfulToast = false;
@@ -23,6 +23,7 @@ export class USSDProfileDetails extends Component {
 		this.bannerSubtitle = ``;
 		this.successToastDetails = ``;
 		this.unsuccessfulToastDetails = ``;
+		this.cellphoneNumber = ``;
 
 		// Active, SIM Blocked, ussd Blocked, Service Unavailable - null
 		this.ussdStatus = ``;
@@ -44,7 +45,10 @@ export class USSDProfileDetails extends Component {
 	 /**
 	 * @callback activateFullMenuUSSD
 	 * @returns {activateFullMenuUSSDCallback} - Success or failure response for activating full ussd.
-
+	 * 
+	 * @callback getUssdLandingDetails
+	 * @returns {getUssdLandingDetailsCallback} - get ussd landing details
+	
 	 * 
 	 * @property {Boolean} [showSideSheet] - To toggle Side sheet component
 	 * @property {Object} [ussd] - Ussd profile details
@@ -57,23 +61,28 @@ export class USSDProfileDetails extends Component {
 	 * 
 	 * @property {cancelUSSDCallback} cancelUSSD Callback function to cancel USSD
 	 * @property {unblockSIMCallback} unblockSIM Callback function to Unblock SIM
+	 * @property {getUssdLandingDetailsCallback} getUssdLandingDetails Callback gets USSD landing details
 	 * 
 	 */
 	static get properties() {
 		return {
-			showSideSheet: { type: Boolean },
 			ussd: { type: Object },
+			showSideSheet: { type: Boolean },
+			cellphoneNumber: { type: String },
 
-			cancelUSSD: { type: Object, attribute: false },
-			activateFullMenuUSSD: { type: Object, attribute: false },
-			unblockSIM: { type: Object, attribute: false },
+			cancelUSSD: { type: Object },
+			unblockSIM: { type: Object },
+			activateFullMenuUSSD: { type: Object },
+			getUssdLandingDetails: { type: Object },
 			
+			// private properties
 			ussdStatus: { state: true },
 			displaySuccessToast: { state: true },
 			displayUnsuccessfulToast: { state: true },
 			showCancelReasons: { state: true },
 			showNotificationBanner: { state: true },
-			showValidationBanner: { state: true }
+			showValidationBanner: { state: true },
+			isBusy: { state: true }
 		};
 	}
 
@@ -84,7 +93,7 @@ export class USSDProfileDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		
-		this.ussdStatus = this.ussd && this.ussd.status;
+		this._initialise();
 	}
 
 	disconnectedCallback() {
@@ -96,7 +105,7 @@ export class USSDProfileDetails extends Component {
 	// --------------
 
 	_toggleAppSlidingPanel() {
-		this.dispatchEvent(new CustomEvent(`close-side-sheet`, { detail: { tileClicked: `USSD` } }));
+		this.dispatchEvent(new CustomEvent(`close-side-sheet`, { detail: { tileClicked: `ussd` } }));
 	}
 	
 	_toggleCancelUSSD() {
@@ -104,6 +113,7 @@ export class USSDProfileDetails extends Component {
 		this.showNotificationBanner = false;
 		this.showCancelReasons = !this.showCancelReasons;
 		
+		this.dispatchEvent(new CustomEvent(`toggle-ussd-cancel-reasons`, { detail: { showCancelReasons: this.showCancelReasons } }));
 		if (this.showCancelReasons) {
 			this.cancelReason = ``;
 		}
@@ -124,12 +134,14 @@ export class USSDProfileDetails extends Component {
 	async _onCancelUSSD() {
 		// action of actually cancelling the ussd service
 		if (this.cancelReason) {
-			const returnValue = await this.cancelUSSD();
+			const returnValue = await this.cancelUSSD(this.cancelReason);
 			if (returnValue) {
 				this.ussdStatus = `Blocked`;
 
 				this._displayAndCloseSuccessToast(`USSD was cancelled. You will need to visit  branch to reactivate USSD`);
-				this._toggleCancelUSSD();
+				
+				this.showNotificationBanner = false;
+				this.showCancelReasons = !this.showCancelReasons;
 				
 				this.showNotificationBanner = true;
 			} else {
@@ -162,6 +174,16 @@ export class USSDProfileDetails extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	async _initialise() {
+		const returnValue = await this.getUssdLandingDetails();
+
+		if (returnValue && !isNullorEmpty(this.ussd)) {
+			this.ussd.status = returnValue.status;
+			this.ussd.dateLastUpdated = returnValue.dateLastUpdated;
+			this.ussdStatus = this.ussd && this.ussd.status;
+		}
+	}
 
 	_checkUssdStatus(status) {
 		
@@ -399,6 +421,7 @@ export class USSDProfileDetails extends Component {
 			`;
 		}
 		return html`
+			${this._renderLoadingIndicator()}
 			${this._renderUSSDProfileDetails()}
 			${this._renderCancelUSSD()}
 		`;
@@ -458,7 +481,7 @@ export class USSDProfileDetails extends Component {
 								data-automation-id="ussd-profile-details-cellphone-number"
 								class="cellNumber"
 								label="Cellphone number (verified)"
-								value="${this.ussd.userRegNo}">
+								value="${this.cellphoneNumber}">
 							</horizon-label>
 
 							<horizon-label 
@@ -743,6 +766,12 @@ export class USSDProfileDetails extends Component {
 				closable>
 			</capitec-toast>
 		`;
+	}
+	
+	_renderLoadingIndicator() {
+		return this.isBusy
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
 	}
 }
 

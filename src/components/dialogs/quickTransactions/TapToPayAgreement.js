@@ -97,7 +97,7 @@ export class TapToPayAgreement extends Component {
 	}
 
 	_validateCheckBox() {
-		this.tapToPayInfo.acceptedTapToPay ? this.alertBannerText = `` : this.alertBannerText = `Please confirm agreement to the terms and conditions`;
+		this.alertBannerText = this.tapToPayInfo.acceptedTapToPay ? `` : `Please confirm agreement to the terms and conditions`;
 		return this.tapToPayInfo.acceptedTapToPay;
 	}
 

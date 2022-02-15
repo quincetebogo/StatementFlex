@@ -57,7 +57,8 @@ export default class HorizonChannelServiceMocks {
 		this.savingsAccountDetails = await this._loadMockModule(this.savingsAccountDetails, `savingsAccountLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
 		this.viewStatementsMock = await this._loadMockModule(this.viewStatementsMock, `viewStatements`, () => import(`../mocks/ViewStatementMock`).catch(err => logError(err)));
 		this.tapToPayMocks = await this._loadMockModule(this.tapToPayMocks, `tapToPayLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
-		this.accessChannelsMocks = await this._loadMockModule(this.accessChannelsMocks, `accessChannel`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err)));
+		this.liveBetterLandingMocks = await this._loadMockModule(this.liveBetterLandingMocks, `liveBetterLanding`, () => import(`../mocks/LiveBetterLandingMocks`).catch(err => logError(err)));
+		this.accessChannelsMocks = await this._loadMockModule(this.accessChannelsMocks, `accessChannel`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err)));    
 	}
 
 	// ===============================
@@ -170,8 +171,8 @@ export default class HorizonChannelServiceMocks {
 
 	transactionHistory(transactionHistoryRequest) {
 		if (this._mockSettings.transactionHistory.positiveCase) {
-			const transactions = this.transactionHistoryMocks.transactionHistoryMockData.transactionHistoryList.slice(transactionHistoryRequest.startAtIndex, transactionHistoryRequest.startAtIndex + transactionHistoryRequest.maxResults);
-			return transactions;
+			const result = {transactions : this.transactionHistoryMocks.transactionHistoryMockData.transactionHistoryList.slice(transactionHistoryRequest.startAtIndex, transactionHistoryRequest.startAtIndex + transactionHistoryRequest.maxResults)}
+			return result;
 		}
 
 		// Code for a negative case could come here
@@ -229,7 +230,34 @@ export default class HorizonChannelServiceMocks {
 		}
 		return null;
 	}
-	// Access channels
+
+	// Live Better Mocks
+	liveBetterLanding() {
+		if (this._mockSettings.liveBetterLanding.positiveCase) {
+			return this.liveBetterLandingMocks.LiveBetterLandingInfo;
+		}
+
+		// Code for a negative case could come here
+		return null;
+	}
+
+	liveBetterTransactionHistory() {
+		if (this._mockSettings.liveBetterTransactionHistory.positiveCase) {
+			return this.liveBetterLandingMocks.LBBTransactionHistory;
+		}
+
+		// Code for a negative case could come here
+		return null;
+	}
+
+	lbbLinkedTransactionDetails() {
+		if (this._mockSettings.lbbLinkedTransactionDetails.positiveCase) {
+			return this.liveBetterLandingMocks.LBBLinkedTransactionDetails;
+		}
+
+		// Code for a negative case could come here
+		return null;
+	}
 
 	accessChannel() {
 		if (this._mockSettings.accessChannel.positiveCase) {

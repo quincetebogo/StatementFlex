@@ -1,9 +1,12 @@
 import { css, html } from 'platform/elements';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { VerifyCallerEvents } from 'app/constants/telemetry/events/VerifyCaller';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
+
+
+const MAX_ITA_ATTEMPTS = 3;
 
 /**
  * The XDS Verification Failed screen is displayed the second time a client fails verification.
@@ -35,8 +38,26 @@ export class XdsVerificationFailed extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this._telemetry.startSpan(VerifyCallerEvents.XDS_VERIFICATION_FAILED);
+
 		this._updateMiniProfile();
 		this.endCallContext = `VerifyClientFailed`;
+	}
+
+	disconnectedCallback() {
+		this._telemetry.endSpan(VerifyCallerEvents.XDS_VERIFICATION_FAILED);
+
+		super.disconnectedCallback();
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	async _clientVerified(event) {
+		await super._clientVerified(event);
+
+		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
 	}
 
 	// --------------
@@ -44,7 +65,21 @@ export class XdsVerificationFailed extends ViewBase {
 	// --------------
 
 	_continueUnverifiedClick() {
+		this._telemetry.logEvent(VerifyCallerEvents.XDS_VERIFICATION_FAILED_CONTINUE_UNVERIFIED, {
+			"screen": TelemetryScreen.XDS_FAILED,
+			"next-screen": TelemetryScreen.FAVOURITES
+		}, true);
+
 		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
+	}
+
+	_verifyViaApp() {
+		this._telemetry.logEvent(VerifyCallerEvents.XDS_VERIFICATION_FAILED_VERIFY_VIA_APP, {
+			"screen": TelemetryScreen.XDS_FAILED,
+			"next-screen": TelemetryScreen.VERIFY_CALLER
+		}, true);
+
+		super._verifyClick();
 	}
 
 	_updateMiniProfile() {
@@ -64,6 +99,14 @@ export class XdsVerificationFailed extends ViewBase {
 	// ---------
 	// RENDERING
 	// ---------
+	_itaAvailable() {
+		// itaAttempts is 0 based and is incremented on successful initiation of an ITA request
+		return this.callerInformation.hasDigitalChannels && this.callerInformation.verificationAttempts.itaAttempts < MAX_ITA_ATTEMPTS;
+	}
+
+	// ---------
+	// RENDERING
+	// ---------
 
 	static get styles() {
 		return [
@@ -74,9 +117,10 @@ export class XdsVerificationFailed extends ViewBase {
 					height: 100%;
 				}
 				#id-error-msg {
-					width: 550px;
+					width: auto;
 				}
 				horizon-error-screen {
+					--horizon-error-screen-height: 876px;
 					--horizon-error-screen-size: 889px;
 				}
 			`
@@ -100,12 +144,12 @@ export class XdsVerificationFailed extends ViewBase {
 			<horizon-error-screen 
 				header="Verification was unsuccessful" 
 				left="Continue Unverified"
-				right="${this.callerInformation.hasDigitalChannels ? `Verify Via Banking App` : ``}"
-				toast="Your Verification has failed."
+				right="${this._itaAvailable() ? `Verify Via App/USSD` : ``}"
+				toast="Verification has failed."
 				image="/images/insure/assign-pay-arrears.svg"
 				@left-click=${() => this._continueUnverifiedClick()}
-				@right-click=${() => super._verifyClick()}>
-				<section id="id-error-msg" slot="detail">If it's an urgent matter, please visit a branch or you can call again after 24 hours.</section>
+				@right-click=${() => this._verifyViaApp()}>
+				<section id="id-error-msg" slot="detail">You can continue with limited transactions.</section>
 			</horizon-error-screen>
 		`;
 	}
