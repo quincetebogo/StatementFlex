@@ -308,9 +308,6 @@ export class AccessChannels extends Component {
 
 		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN);
 
-		// TO DO: Channel service call to suspend Internet Banking should come here
-		// If successfully suspended, update Internet Banking status, else Error scenario
-		
 		const requestBody = {
 			cifNumber: this.cifNumber,
 			tokenSerialNo: token,
@@ -377,7 +374,7 @@ export class AccessChannels extends Component {
 		this.logNotificationUpdateTelemetry(selectedType);
 		
 		// TO DO: add channel service call to update notifications type
-		// If unblock is successful, show toast, update ussd status, else show error
+		// If update is successful, show toast, else show error
 		this.landingInfo.notification.dateLastUpdated = new Date().toISOString();
 		
 		this._deepCopyStatus();
@@ -388,7 +385,7 @@ export class AccessChannels extends Component {
 		this.logNotificationUpdateTelemetry(selectedTime);
 
 		// TO DO: add channel service call to update notifications time
-		// If unblock is successful, show toast, update ussd status, else show error
+		// If update is successful, show toast, else show error
 		this.landingInfo.notification.dateLastUpdated = new Date().toISOString();
 
 		this._deepCopyStatus();
@@ -422,7 +419,6 @@ export class AccessChannels extends Component {
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
-
 
 	async _landingInfo() {
 
