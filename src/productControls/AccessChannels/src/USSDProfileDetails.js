@@ -520,8 +520,6 @@ export class USSDProfileDetails extends Component {
 	}
 
 	_renderButtons() {
-		// TODO: What if USSD is active?
-		// TODO: Added check on unblock SIM button to hide if ussdStatus === Blocked?
 		return html`
 			<capitec-button 
 				data-automation-id="ussd-profile-details-activate-full-ussd-button"
