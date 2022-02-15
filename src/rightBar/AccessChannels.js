@@ -526,17 +526,17 @@ export class AccessChannels extends Component {
 		return this.selectedAccessChannelType === ACCESS_CHANNELS_TYPE.USSD
 			? html`
 				<capitec-pc-ussd-profile-details
-			.ussd="${this.landingInfo.ussd}"
-				?showSideSheet="${this.showSideSheet}"
-			cellphoneNumber="${formatPhoneNumber(`0${this.landingInfo.msisdn.substr(this.landingInfo.msisdn.length - 9)}`)}"
+					.ussd="${this.landingInfo.ussd}"
+					?showSideSheet="${this.showSideSheet}"
+					cellphoneNumber="${formatPhoneNumber(this.verifiedTelephoneNumber)}"
 
-				.cancelUSSD="${cancelReason => this.cancelUSSD(cancelReason)}"
-				.unblockSIM="${() => this.unblockSIM()}"
-				.activateFullMenuUSSD="${() => this.activateFullMenuUSSD()}"
-			.getUssdLandingDetails="${(clientInfo) => this.getUssdLandingDetails(clientInfo)}"
+					.cancelUSSD="${cancelReason => this.cancelUSSD(cancelReason)}"
+					.unblockSIM="${() => this.unblockSIM()}"
+					.activateFullMenuUSSD="${() => this.activateFullMenuUSSD()}"
+					.getUssdLandingDetails="${(clientInfo) => this.getUssdLandingDetails(clientInfo)}"
 
-				@toggle-ussd-cancel-reasons="${(event) => this._toggleUssdCancelReasons(event)}"
-				@close-side-sheet="${(event) => this._showSlidingPanel(event)}">
+					@toggle-ussd-cancel-reasons="${(event) => this._toggleUssdCancelReasons(event)}"
+					@close-side-sheet="${(event) => this._showSlidingPanel(event)}">
 				</capitec-pc-ussd-profile-details>`
 			: html``;
 	}
@@ -545,7 +545,7 @@ export class AccessChannels extends Component {
 		return this.selectedAccessChannelType === ACCESS_CHANNELS_TYPE.NOTIFICATIONS
 			? html`
 				<capitec-pc-notifications-details
-				.notificationsDetails="${this.landingInfo.notification}"
+					.notificationsDetails="${this.landingInfo.notification}"
 					?showSideSheet="${this.showSideSheet}"
 
 					.updateMessageType="${(selectedType) => this.updateMessageType(selectedType)}"

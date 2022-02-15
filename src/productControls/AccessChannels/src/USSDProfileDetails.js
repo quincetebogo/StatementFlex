@@ -167,7 +167,7 @@ export class USSDProfileDetails extends Component {
 	async _initialise() {
 		const returnValue = await this.getUssdLandingDetails();
 
-		if (returnValue) {
+		if (returnValue && !isNullorEmpty(this.ussd)) {
 			this.ussd.status = returnValue.status;
 			this.ussd.dateLastUpdated = returnValue.dateLastUpdated;
 			this.ussdStatus = this.ussd && this.ussd.status;
