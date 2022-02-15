@@ -7,6 +7,7 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { Logger } from 'platform/core';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { Utilities } from 'platform/Utilities';
+import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 
 import 'app/productControls/AccessChannels/src/AccessChannels';
 import 'app/productControls/AccessChannels/src/InternetBankingProfileDetails';
@@ -138,7 +139,6 @@ export class AccessChannels extends Component {
 
 		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND);
 
-		// TO DO: Channel service call to suspend app should come here
 		// If successfully suspended, update app status, else Error scenario
 		const returnValue = await this.accessChannelService.suspendApp(suspendReason, userRegNo);
 	
@@ -161,7 +161,7 @@ export class AccessChannels extends Component {
 			"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP
 		});
 
-		// TO DO: Channel service call to Un-suspend App should come here
+		// TODO: Channel service call to Un-suspend App should come here
 		// If successfully Unsuspended, update app status, else Error scenario
 
 		this.landingInfo.app.status = `Active`;
@@ -202,7 +202,7 @@ export class AccessChannels extends Component {
 		
 		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD);
 
-		// TO DO: add channel service call to cancel USSD service
+		// TODO: add channel service call to cancel USSD service
 		// If cancel is successful, show toast, update ussd status, else show error
 		
 		this.landingInfo.ussd.status = `Blocked`;
@@ -215,7 +215,7 @@ export class AccessChannels extends Component {
 
 		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_UNBLOCK_SIM);
 
-		// TO DO: add channel service call to unblock SIM - ussd
+		// TODO: add channel service call to unblock SIM - ussd
 		// If unblock is successful, show toast, update ussd status, else show error
 		this.landingInfo.ussd.isSimBlocked = false;
 		this.landingInfo.ussd.dateLastUpdated = new Date().toISOString();
@@ -227,7 +227,7 @@ export class AccessChannels extends Component {
 	activateFullMenuUSSD() {
 		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_ACTIVATE_FULL_USSD_MENU);
 
-		// TO DO: add code to activate full menu for currently active ussd clients
+		// TODO: add code to activate full menu for currently active ussd clients
 		// If client has active ussd, menu reduced, activate full menu function
 		
 		const indexOfReducedMenu = this.landingInfo.ussd.features.indexOf(`REDUCED_MENU`);
@@ -330,17 +330,22 @@ export class AccessChannels extends Component {
 		return false;
 	}
 
-	resetInternetBanking(selectedTokens) {
+	async resetInternetBanking(selectedTokens) {
 		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN, {
 			"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
 			"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
 			"token-numbers": selectedTokens
 		});
 
-		// TO DO: Channel service call to Reset Internet Banking should come here
+		const requestParams = {
+			"tokenSerialNo": selectedTokens
+		};
+		const returnValue = await this.accessChannelService.resetSecurityTokenClock(requestParams);
 		// If successfully reset, update Internet Banking status, else Error scenario
-		this.landingInfo.internetBanking.status = `Active`;
-		this.landingInfo.internetBanking.dateLastUpdated = new Date().toISOString();
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unable to reset internet banking security token`, `_resetInternetBankingToken`, returnValue.correlationId);
+			return false;
+		}
 
 		this._deepCopyStatus();
 		return true;
@@ -425,6 +430,9 @@ export class AccessChannels extends Component {
 
 		if (returnValue.succeeded) {
 			this.landingInfo = returnValue.result;
+			if (this.landingInfo.msisdn.length >= 9) {
+				this.verifiedTelephoneNumber = `0${this.landingInfo.msisdn.substr(this.landingInfo.msisdn.length - 9)}`;
+			}
 			this.requestUpdate();
 			return;
 		}
@@ -436,13 +444,11 @@ export class AccessChannels extends Component {
 			'msisdn': this.landingInfo.msisdn,
 			'cif': `0${this.cifNumber}`
 		};
-
 		const returnValue = await this.accessChannelService.accessChannelsUssdLanding(requestParams);
 		if (returnValue.succeeded) {
 			return returnValue.result;
 		}
 		this.logger.log(`error`, `Failed to load USSD landing details`, `getUssdLandingDetails`, returnValue.correlationId);
-		return null;
 	}
 
 	_deepCopyStatus() {
@@ -497,7 +503,7 @@ export class AccessChannels extends Component {
 			? html`
 				<capitec-pc-internet-banking-profile-details
 					.internetBankingDetails = "${this.landingInfo.internetBanking}"
-					verifiedNumber = "${this.verifiedTelephoneNumber}"
+					verifiedNumber = "${formatPhoneNumber(this.verifiedTelephoneNumber)}"
 					?showSideSheet = "${this.showSideSheet}"
 					?isVerifiedClient="${this.isVerifiedClient}"
 
@@ -518,6 +524,7 @@ export class AccessChannels extends Component {
 			? html`
 				<capitec-pc-app-profile-details
 					.appDetails = "${this.landingInfo.app}"
+					verifiedNumber = "${formatPhoneNumber(this.verifiedTelephoneNumber)}"
 					?showSideSheet = "${this.showSideSheet}"
 					?isVerifiedClient="${this.isVerifiedClient}"
 
@@ -532,40 +539,38 @@ export class AccessChannels extends Component {
 
 	_renderUSSD() {
 		return this.selectedAccessChannelType === ACCESS_CHANNELS_TYPE.USSD
-		? html`
-			<capitec-pc-ussd-profile-details
-			.ussd="${this.landingInfo.ussd}"
-			?showSideSheet="${this.showSideSheet}"
-			?isVerifiedClient="${this.isVerifiedClient}"
-			verifiedTelephoneNumber="${this.callerInformation.verifiedTelephoneNumber}"
+			? html`
+				<capitec-pc-ussd-profile-details
+					.ussd="${this.landingInfo.ussd}"
+					?showSideSheet="${this.showSideSheet}"
+			        ?isVerifiedClient="${this.isVerifiedClient}"
+					cellphoneNumber="${formatPhoneNumber(this.verifiedTelephoneNumber)}"
 
-			.cancelUSSD="${cancelReason => this.cancelUSSD(cancelReason)}"
-			.unblockSIM="${() => this.unblockSIM()}"
-			.activateFullMenuUSSD="${() => this.activateFullMenuUSSD()}"
-			.getUssdLandingDetails="${() => this.getUssdLandingDetails()}"
+					.cancelUSSD="${cancelReason => this.cancelUSSD(cancelReason)}"
+					.unblockSIM="${() => this.unblockSIM()}"
+					.activateFullMenuUSSD="${() => this.activateFullMenuUSSD()}"
+					.getUssdLandingDetails="${(clientInfo) => this.getUssdLandingDetails(clientInfo)}"
 
-			@toggle-ussd-cancel-reasons="${(event) => this._toggleUssdCancelReasons(event)}"
-			@close-side-sheet="${(event) => this._showSlidingPanel(event)}">
-			</capitec-pc-ussd-profile-details>`
-		: html``;
+					@toggle-ussd-cancel-reasons="${(event) => this._toggleUssdCancelReasons(event)}"
+					@close-side-sheet="${(event) => this._showSlidingPanel(event)}">
+				</capitec-pc-ussd-profile-details>`
+			: html``;
 	}
 
 	_renderNotificationsPanel() {
 		return this.selectedAccessChannelType === ACCESS_CHANNELS_TYPE.NOTIFICATIONS
-		? html`
-			<capitec-pc-notifications-details
-				.notificationsDetails="${this.landingInfo.notification}"
-				?showSideSheet="${this.showSideSheet}"
+			? html`
+				<capitec-pc-notifications-details
+					.notificationsDetails="${this.landingInfo.notification}"
+					?showSideSheet="${this.showSideSheet}"
 
-				.updateMessageType="${(selectedType) => this.updateMessageType(selectedType)}"
-				.updateMessageTime="${(selectedTime) => this.updateMessageTime(selectedTime)}"
+					.updateMessageType="${(selectedType) => this.updateMessageType(selectedType)}"
+					.updateMessageTime="${(selectedTime) => this.updateMessageTime(selectedTime)}"
 
-				@toggle-notifications-settings-update="${(event) => this._toggleNotificationsSettingsUpdate(event)}"
-				@close-side-sheet="${(event) => this._showSlidingPanel(event)}"
-			>
-			</capitec-pc-notifications-details>
-		`
-		: html``;
+					@toggle-notifications-settings-update="${(event) => this._toggleNotificationsSettingsUpdate(event)}"
+					@close-side-sheet="${(event) => this._showSlidingPanel(event)}">
+				</capitec-pc-notifications-details>`
+			: html``;
 	}
 
 	_renderLoadingIndicator() {

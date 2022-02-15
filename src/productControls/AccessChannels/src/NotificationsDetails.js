@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonLabel';
 import 'app/webComponents/src/SideSheet';
@@ -96,7 +96,7 @@ export class NotificationsDetails extends Component {
 	// --------------
 
 	_closeNotificationsPanel() {
-		this.dispatchEvent(new CustomEvent(`close-side-sheet`, {}));
+		this.dispatchEvent(new CustomEvent(`close-side-sheet`, { detail: { tileClicked: `notifications` } }));
 	}
 
 	_onCloseUpdatePanelClick() {

@@ -35,3 +35,5 @@ export const accessChannelsDetails = {
 		"smsSecurity": false
 	}
 };
+
+export const accessChannelResetSecurityTokenClock = {};

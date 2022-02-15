@@ -132,6 +132,10 @@
 		"accessChannelUssdLanding": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"accessChannelResetSecurityTokenClock": {
+			"enabled": true,
+			"positiveCase": true
 		}
 	}
 }

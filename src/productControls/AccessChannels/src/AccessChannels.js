@@ -102,7 +102,7 @@ export class AccessChannels extends Component {
 		const status = this.status[type]?.status;
 
 		if (isNullorEmpty(status)) {
-			return `Channel service is down`;
+			return `Service unavailable`;
 		}
 		if (!this.isVerifiedClient) {
 			return `${status} | Last used ${this._formatDate(this.status[type].dateLastUsed)}`;
@@ -181,7 +181,7 @@ export class AccessChannels extends Component {
 				horizon-product-tile[status="Active"] {
 					--theme-product-tile-default-border-left: 4px solid #70B000;
 				}
-				horizon-product-tile[status="Suspended"], [status="Blocked"], [status="Unavailable"] {
+				horizon-product-tile[status="Suspended"], [status="Blocked"], [status="Unavailable"], [subtitle="Service unavailable"] {
 					--theme-product-tile-default-border-left: 4px solid #a5132a;
 				}
 				horizon-product-tile[status*="Reduced menu"] {
