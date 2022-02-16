@@ -132,6 +132,9 @@ import 'app/components/common/HorizonLabel';
 					--theme-label-title-font-size: 14px;
 					--theme-label-title-font-weight: 600;
 				}
+				capitec-alert-banner {
+					padding: 16px 16px 0px 16px;
+				}
 				.details-vertical > capitec-title-bar:not(:first-child) {
 					margin-top: 16px;
 				}
@@ -189,12 +192,22 @@ import 'app/components/common/HorizonLabel';
 				gap="none"
 				halign="stretch"
 				valign="top">
+					${this._renderArrearsAlertBanner()}
 					${this._renderOverview()}
 					${this._renderArrears()}
 					${this._renderRepayment()}
 					${this._renderInsurance()}
 			</capitec-content-box>
 		`;
+	}
+
+	_renderArrearsAlertBanner() {
+		return !this.accountDetails.arrears ? html``
+			: html`
+			<capitec-alert-banner
+					type="error">
+				<p><b>Notify:</b> ${this.accountDetails.title} is in arrears ${this.accountDetails.arrears[`Total arrears amount`]}</p>
+			</capitec-alert-banner>`;
 	}
 
 	_renderOverview() {
