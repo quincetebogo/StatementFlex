@@ -125,50 +125,29 @@ export class Insights extends Component {
 	async _getClientInsights() {
 		const returnValue = await this.clientInsightsService.getClientInsights(this.cifNumber);
 
-		if (returnValue.succeeded && returnValue.result.length > 0) {
-			this.clientInsightsDetails = returnValue.result;
-			this._formatInsightDetails(this.clientInsightsDetails.shift());
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to get Client insights`, `_getClientInsights`, returnValue.correlationId);
+			return;
 		}
+			
+		this.insightDetails = returnValue.result?.shift() || null;
 	}
 
 	async _insightsAction(replyReference) {
 		const returnValue = await this.clientInsightsService.sendInsightsAction(replyReference);
 
-		if (returnValue.succeeded && this.clientInsightsDetails.length > 0) {
-			this._formatInsightDetails(this.clientInsightsDetails.shift());
-			this._deepCopyProperty();
-			return true;
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to update insights action`, `_insightsAction`, returnValue.correlationId);
+			return;
 		}
-		// TO DO: Flow after responding to all the available insights should come here
-	}
 
-	_formatInsightDetails(clientInsights) {
-		this.insightDetails = {
-			actions: clientInsights.actions
-		};
-
-		// Format message: Split with \n characters and load each of the resulted item into 'insightDetails' Object.
-		const message = clientInsights.message.split(/\n\n|\r\n|\n|\r/gm);
-		if (message.length > 2) {
-			this.insightDetails.header = message.shift();
-
-			message.forEach(item => {
-				const itemDetails = item.split(`: `);
-				this.insightDetails[itemDetails[0]] = itemDetails[1];
-			});
-		} else {
-			[this.insightDetails.header, this.insightDetails.subText] = message;
-		}
-	}
-
-	_deepCopyProperty() {
-		// Creates and returns a deep copy of an Object this.insightDetails which helps to render main screen.
-		this.insightDetails = Utilities.deepCopy(this.insightDetails);
+		this.insightDetails = null;
 	}
 
 	// ---------
 	// RENDERING
 	// ---------
+	
 	_mobileTemplate() {
 		return _webTemplate();
 	}

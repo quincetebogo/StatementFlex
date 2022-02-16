@@ -109,7 +109,6 @@ export class ClientInsights extends Component {
 					height: 428px;
 					width: var(--horizon-right-panel-width, 320px);
 				}
-
 				capitec-title-bar {
 					border-bottom: 1px solid #E1E1E1;
 
@@ -118,7 +117,6 @@ export class ClientInsights extends Component {
 					--theme-card-border-radius: 0px 4px 0 0;
 					--theme-titlebar-shadow: 1px solid #E1E1E1;
 				}
-
 				capitec-icon[icon="system/settings-action"] {
 					--theme-icon-size-small: 24px;
 					cursor: pointer;
@@ -132,28 +130,17 @@ export class ClientInsights extends Component {
 				capitec-label {
 					--theme-label-subtitle-font-weight: 600;
 					--theme-label-subtitle-font-size: 18px;
-					--theme-layout-gap-spacing: 7px;
-					margin-top: 18px;
-				}
-				.sub-details {
-					width: 288px;
-					max-height: 100px;
-					margin: 0px;
-					padding: 12px;
-					font-size: 14px;
-					background-color: #F5F5F5;
-					border-radius: 4px;
+					margin-top: 32px;
 				}
 				.sub-text {
-					max-height: 100px;
+					--theme-label-default-font-size: 14px;
 					padding: 16px;
 					margin-top: 0px;
-					font-size: 14px;
+					margin-bottom: auto;
 					text-align: center;
-					overflow: auto;
 				}
 				.chips-group {
-					margin-bottom: 16px;
+					margin-bottom: 24px;
 				}
 				capitec-chip {
 					width: 140px;
@@ -222,20 +209,17 @@ export class ClientInsights extends Component {
 		? html`
 			<capitec-label
 				type="subtitle"
-				label="${this.insightDetails.header}">
+				label="Open STrack Incident">
 			</capitec-label>
 
-			<capitec-group layout="vertical" halign="center" valign="center" gap="none" class="info">
-				<capitec-image src="platform/illustrations/processing.svg"></capitec-image>
-				${this._renderDetails()}
-			</capitec-group>
+			<capitec-label class="sub-text" label="${this.insightDetails.message}"></capitec-label>
 
 			<capitec-group class="chips-group" layout="horizontal" halign="center" valign="center" gap="clear">
 
 				<capitec-chip
 						data-automation-id="client-insights-left-chip"
 						class="${this.selectedResponse === this.insightDetails.actions[0].replyReference ? `selected-chip` : ``}"
-						label="This was useful"
+						label="${this.insightDetails.actions[0].displayName === `Thumbsup` ? `This was useful` : this.insightDetails.actions[0].displayName}"
 						avatar-image="/images/insights/${this.selectedResponse === this.insightDetails.actions[0].replyReference ? `thumbsUp-white` : `thumbsUp`}.svg"
 						@click="${() => this._selectResponse(this.insightDetails.actions[0].replyReference)}">
 				</capitec-chip>
@@ -243,7 +227,7 @@ export class ClientInsights extends Component {
 				<capitec-chip
 						data-automation-id="client-insights-left-chip"
 						class="${this.selectedResponse === this.insightDetails.actions[1].replyReference ? `selected-chip` : ``}"
-						label="This didn't help" 
+						label="${this.insightDetails.actions[1].displayName === `Thumbsdown` ? `This didn't help` : this.insightDetails.actions[1].displayName}"
 						avatar-image="/images/insights/${this.selectedResponse === this.insightDetails.actions[1].replyReference ? `thumbsDown-white` : `thumbsDown`}.svg"
 						@click="${() => this._selectResponse(this.insightDetails.actions[1].replyReference)}">
 				</capitec-chip>
@@ -254,18 +238,6 @@ export class ClientInsights extends Component {
 				class="box-image"
 				src="images/landingPageImages/marketing.svg">
 			</capitec-image>`;
-	}
-
-	_renderDetails() {
-		return !this.insightDetails.subText 
-			? html`
-				<p class="sub-details">
-					Reference number: <strong>${this.insightDetails[`Ref #`]}</strong><br>
-					Logged: <strong>${this.insightDetails[`Date Logged`]}</strong><br>
-					Assigned to: <strong>${this.insightDetails.Owner}</strong><br>
-				</p>`
-			: html`
-				<capitec-label class="sub-text" label="${this.insightDetails.subText}"></capitec-label>`;
 	}
 
 }
