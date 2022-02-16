@@ -123,14 +123,23 @@ export class Insights extends Component {
 	}
 
 	async _getClientInsights() {
+		this.insightDetails = null;
+
 		const returnValue = await this.clientInsightsService.getClientInsights(this.cifNumber);
+		const insights = returnValue.result;
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to get Client insights`, `_getClientInsights`, returnValue.correlationId);
 			return;
 		}
-			
-		this.insightDetails = returnValue.result?.shift() || null;
+
+		if (!Array.isArray(insights)) {
+			return;
+		}
+		
+		if (insights.length >= 1) {
+			this.insightDetails = returnValue.result.shift();
+		}
 	}
 
 	async _insightsAction(replyReference) {
