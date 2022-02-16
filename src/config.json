@@ -134,7 +134,7 @@
 			"positiveCase": true
 		},
 		"accessChannelResetSecurityTokenClock": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"activatefullUssdMenu": {
