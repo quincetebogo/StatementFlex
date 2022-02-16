@@ -1,4 +1,4 @@
-import { ACCESS_CHANNELS_TYPE, APP_STATUS, CHANNEL_TYPE } from 'app/constants/AccessChannels';
+import { ACCESS_CHANNELS_REASONS, ACCESS_CHANNELS_TYPE, APP_STATUS, CHANNEL_TYPE } from 'app/constants/AccessChannels';
 import { Component, css, html } from 'platform/elements';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { AccessChannelsEvents } from 'app/constants/telemetry/events/AccessChannels';
@@ -196,7 +196,7 @@ export class AccessChannels extends Component {
 		
 		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD);
 
-		const returnValue = await this.accessChannelService.cancelUSSD(this.cifNumber, this.landingInfo.msisdn);
+		const returnValue = await this.accessChannelService.cancelUSSD(this.cifNumber, this.landingInfo.msisdn, ACCESS_CHANNELS_REASONS.DEFAULT);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unsuccessful call to cancel USSD`, `cancelUSSD`, returnValue.correlationId);
@@ -236,7 +236,7 @@ export class AccessChannels extends Component {
 			return true;
 		}
 
-		const returnValue = await this.accessChannelService.activatefullUssdMenu();
+		const returnValue = await this.accessChannelService.activatefullUssdMenu(this.cifNumber, this.landingInfo.msisdn, ACCESS_CHANNELS_REASONS.DEFAULT);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unsuccessful call the activate full USSD menu`, `activateFullMenuUSSD`, returnValue.correlationId);

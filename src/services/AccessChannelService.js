@@ -46,7 +46,7 @@ export class AccessChannelService extends ChannelServiceBase {
 		*/
 	}
 
-	async activatefullUssdMenu(cifNumber, msisdn, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async activatefullUssdMenu(cifNumber, msisdn, reason, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`activatefullUssdMenu`)) {
 			return this.mock(`activatefullUssdMenu`);
 		}
@@ -54,7 +54,8 @@ export class AccessChannelService extends ChannelServiceBase {
 		const request =
 		{
 			"msisdn": `${msisdn}`,
-			"cif": `${cifNumber}`
+			"cif": `0${cifNumber}`,
+			"reason": `${reason}`
 		};
 
 		const url = `/clientcare-accesschannels-${this._version}/ussd/activate-full`;
@@ -120,7 +121,7 @@ export class AccessChannelService extends ChannelServiceBase {
 		);
 	}
 
-	async cancelUSSD(cifNumber, msisdn, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async cancelUSSD(cifNumber, msisdn, reason, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`cancelUSSD`)) {
 			return this.mock(`cancelUSSD`);
 		}
@@ -128,7 +129,8 @@ export class AccessChannelService extends ChannelServiceBase {
 		const request =
 		{
 			"msisdn": `${msisdn}`,
-			"cif": `${cifNumber}`
+			"cif": `0${cifNumber}`,
+			"reason": `${reason}`
 		};
 
 		const url = `/clientcare-accesschannels-${this._version}/ussd/cancel`;
