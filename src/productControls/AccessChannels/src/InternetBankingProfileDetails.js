@@ -151,7 +151,7 @@ export class InternetBankingProfileDetails extends Component {
 				};
 				this.clientTokens.push(clientToken);
 			});
-		}
+        }
 
 		this.isMultipleDevices = this.clientTokens.length > 1;
 		
@@ -829,7 +829,7 @@ export class InternetBankingProfileDetails extends Component {
 				</capitec-button>
 				<capitec-button
 					label="Suspend Security Token"
-					?hidden=${this.isTokenSuspended}
+					?hidden=${this.isTokenSuspended || !Boolean(this.clientTokens?.length)}
 					@click="${() => this._onOpenSuspendPanelClick()}">
 				</capitec-button>
 			</capitec-content-box>

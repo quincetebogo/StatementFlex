@@ -204,8 +204,11 @@ export class MiniProfile extends Component {
 					letter-spacing: 0;
 				}
 				#id-verify-now-warning-link {
+					--theme-font-family: "Hind Vadodara";
+					--theme-font-weight: 600;
 					--theme-hyperlink-color: var(--theme-alert-banner-warning-font-color);
-					--theme-font-family: "Hind Vadodara Medium";
+					--theme-hyperlink-font-size: 14px;
+					text-decoration: underline;
 				}
 				#id-verify-via-app-msg {
 					font-family: "Hind Vadodara SemiBold";
@@ -221,6 +224,7 @@ export class MiniProfile extends Component {
 				#verify-via-app-link{
 					--theme-hyperlink-font-size: 14px;
 					--theme-font-family: "Hind Vadodara SemiBold";
+					text-decoration: underline;
 				}
 				capitec-tooltip {
 					display: none;

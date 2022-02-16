@@ -10,7 +10,7 @@ export class InfoGraphicShort extends Component {
 		return [
 			super.styles,
 			css`
-				.landingpage-marketing-img{
+				.landingpage-marketing-short-img{
 					width: var(--horizon-right-panel-width, 320px);
 					height: 427px;
 				}`
@@ -20,7 +20,7 @@ export class InfoGraphicShort extends Component {
 
 	render() {
 		return html`
-			<img class="landingpage-marketing-img" src="/images/landingPageImages/Banner.png" alt="banner" />
+			<img class="landingpage-marketing-short-img" src="/images/landingPageImages/Banner-short.png" alt="banner" />
 		`;
 	}
 

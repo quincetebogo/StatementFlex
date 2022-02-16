@@ -1,4 +1,5 @@
 import { Component, html } from 'platform/elements';
+import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'platform/components';
@@ -23,6 +24,7 @@ export class RightBarLayout extends Component {
 		this.callerInformation = {};
 
 		this.horizonStore = HorizonStore.getInstance();
+		this.horizonViewManager = HorizonViewManager.getInstance();
 
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 	}
@@ -55,6 +57,8 @@ export class RightBarLayout extends Component {
 	_stateChanged(state) {
 		if (state?.callerInformation) {
 			this.callerInformation = state.callerInformation;
+		} else {
+			this.callerInformation = null;
 		}
 	}
 
@@ -91,7 +95,7 @@ export class RightBarLayout extends Component {
 	}
 
 	_renderInfoGraphic() {
-		return this.callerInformation.verificationStatus === `unverified`
+		return this.callerInformation?.verificationStatus === `unverified` && this.horizonViewManager.getCurrentView() !== HORIZON_VIEW_SET.LANDING_PAGES
 		 ? html`
 			<section>
 				<horizon-info-graphic-short></horizon-info-graphic-short>
