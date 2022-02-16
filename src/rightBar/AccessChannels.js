@@ -41,7 +41,7 @@ export class AccessChannels extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
 
-		this._telemetry = HorizonTelemetry.instance;
+		this._telemetry = HorizonTelemetry.getInstance();
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
 		
