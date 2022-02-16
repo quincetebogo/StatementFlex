@@ -193,7 +193,7 @@ export class USSDProfileDetails extends Component {
 			this.bannerTitle = `Service has been cancelled.`;
 			this.bannerSubtitle = `Visit a branch to reactivate USSD.`;
 		} else {
-			// do nothing
+			this.showNotificationBanner = false;
 		}
 	}
 

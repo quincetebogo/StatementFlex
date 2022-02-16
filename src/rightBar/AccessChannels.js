@@ -448,8 +448,8 @@ export class AccessChannels extends Component {
 	}
 
 	_deepCopyStatus() {
-		// Creates and returns a deep copy of an Object this.status
-		this.status = Utilities.deepCopy(this.status);
+		// Creates and returns a deep copy of an Object this.landingInfo
+		this.landingInfo = Utilities.deepCopy(this.landingInfo);
 	}
 
 	// ---------
