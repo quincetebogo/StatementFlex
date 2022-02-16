@@ -140,6 +140,9 @@ export class AccessChannels extends Component {
 	}
 
 	_getNotificationsDetails() {
+		if (isNullorEmpty(this.status.notification)) {
+			return `Service unavailable`;
+		}
 		return `${this.status.notification?.notificationType} | ${this.status.notification?.notificationTime}`;
 	}
 
