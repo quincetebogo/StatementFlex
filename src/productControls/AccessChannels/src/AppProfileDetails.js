@@ -33,6 +33,7 @@ export class AppProfileDetails extends Component {
 		this.selectedSuspendReason = ``;
 		this.displayToast = false;
 		this.showValidationBanner = false;
+		this.isVerifiedClient = false;
 	}
 
 	// --------------
@@ -65,7 +66,7 @@ export class AppProfileDetails extends Component {
 		return {
 			showSideSheet: { type: Boolean },
 			appDetails: { type: Object },
-			verifiedNumber: { type: String},
+			isVerifiedClient: { type: Boolean },
 
 			suspendApp: { type: Object, attribute: false },
 			unsuspendApp: { type: Object, attribute: false },
@@ -129,7 +130,6 @@ export class AppProfileDetails extends Component {
 		this._displayAndCloseToast();
 
 		this.showValidationBanner = false;
-		this.showSuspendReasons = !this.showSuspendReasons;
 	}
 
 	async _onUnsuspendAppClick() {
@@ -392,13 +392,15 @@ export class AppProfileDetails extends Component {
 				<horizon-label
 					data-automation-id="app-profile-details-date-registered"
 					label="Date registered"
-					value="${this._formatDate(this.appDetails.dateRegistered)}, ${this._formatTime(this.appDetails.dateRegistered)}">
+					value="${this._formatDate(this.appDetails.dateRegistered)}, ${this._formatTime(this.appDetails.dateRegistered)}"
+					?hidden="${!this.isVerifiedClient}">
 				</horizon-label>
 
 				<horizon-label
 					data-automation-id="app-profile-details-cellphone-number"
 					label="Cellphone number (verified)"
-					value="${this.verifiedNumber}">
+					value="${this.appDetails.userRegNo}"
+					?hidden="${!this.isVerifiedClient}">
 				</horizon-label>
 
 				<horizon-label 
@@ -417,7 +419,7 @@ export class AppProfileDetails extends Component {
 					data-automation-id="app-profile-details-last-updated"
 					label="Last updated"
 					value="${this._formatDate(this.appDetails.dateLastUpdated)}, ${this._formatTime(this.appDetails.dateLastUpdated)}"
-					?hidden="${isNullorEmpty(this.appDetails.dateLastUpdated)}">
+					?hidden="${!this.isVerifiedClient || isNullorEmpty(this.appDetails.dateLastUpdated)}">
 				</horizon-label>
 
 				<horizon-label

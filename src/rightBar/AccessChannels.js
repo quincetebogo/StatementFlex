@@ -42,11 +42,10 @@ export class AccessChannels extends Component {
 		this.logger = Logger.getInstance();
 
 		this._telemetry = HorizonTelemetry.getInstance();
-		const callerInformation = this.horizonStore.getCallerInformation();
-		this.cifNumber = callerInformation.cifNumber;
-		this.verifiedTelephoneNumber = ``;
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
+		
+		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 	}
 
 	// ----------
@@ -76,10 +75,17 @@ export class AccessChannels extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this.cifNumber = this.callerInformation?.cifNumber;
+		this.verifiedTelephoneNumber = this.callerInformation?.verifiedTelephoneNumber;
+		this.isVerifiedClient = this.callerInformation?.verificationStatus === `verified`;
+
 		this._landingInfo();
 	}
 
 	disconnectedCallback() {
+		// Unsubscribe from store.
+		this.stateChangeSub.unsubscribe();
+
 		super.disconnectedCallback();
 	}
 
@@ -302,9 +308,6 @@ export class AccessChannels extends Component {
 
 		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN);
 
-		// TO DO: Channel service call to suspend Internet Banking should come here
-		// If successfully suspended, update Internet Banking status, else Error scenario
-		
 		const requestBody = {
 			cifNumber: this.cifNumber,
 			tokenSerialNo: token,
@@ -371,7 +374,7 @@ export class AccessChannels extends Component {
 		this.logNotificationUpdateTelemetry(selectedType);
 		
 		// TO DO: add channel service call to update notifications type
-		// If unblock is successful, show toast, update ussd status, else show error
+		// If update is successful, show toast, else show error
 		this.landingInfo.notification.dateLastUpdated = new Date().toISOString();
 		
 		this._deepCopyStatus();
@@ -382,7 +385,7 @@ export class AccessChannels extends Component {
 		this.logNotificationUpdateTelemetry(selectedTime);
 
 		// TO DO: add channel service call to update notifications time
-		// If unblock is successful, show toast, update ussd status, else show error
+		// If update is successful, show toast, else show error
 		this.landingInfo.notification.dateLastUpdated = new Date().toISOString();
 
 		this._deepCopyStatus();
@@ -399,6 +402,12 @@ export class AccessChannels extends Component {
 		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_NOTIFICATIONS_UPDATE);
 	}
 
+	_stateChanged(state) {
+		if (state?.callerInformation) {
+			this.callerInformation = state.callerInformation;
+		}
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -410,7 +419,6 @@ export class AccessChannels extends Component {
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
-
 
 	async _landingInfo() {
 
@@ -440,8 +448,8 @@ export class AccessChannels extends Component {
 	}
 
 	_deepCopyStatus() {
-		// Creates and returns a deep copy of an Object this.status
-		this.status = Utilities.deepCopy(this.status);
+		// Creates and returns a deep copy of an Object this.landingInfo
+		this.landingInfo = Utilities.deepCopy(this.landingInfo);
 	}
 
 	// ---------
@@ -480,6 +488,7 @@ export class AccessChannels extends Component {
 			? html`
 				<capitec-pc-access-channels
 					.status=${this.landingInfo}
+					?isVerifiedClient="${this.isVerifiedClient}"
 					@tile-click="${(event) => this._showSlidingPanel(event)}">
 				</capitec-pc-access-channels>`
 			: html``;
@@ -492,6 +501,7 @@ export class AccessChannels extends Component {
 					.internetBankingDetails = "${this.landingInfo.internetBanking}"
 					verifiedNumber = "${formatPhoneNumber(this.verifiedTelephoneNumber)}"
 					?showSideSheet = "${this.showSideSheet}"
+					?isVerifiedClient="${this.isVerifiedClient}"
 
 					.suspendInternetBankingSecurityToken = "${(suspendReason, selectedToken) => this.suspendInternetBanking(suspendReason, selectedToken)}"
 					.resetInternetBankingSecurityToken = "${(selectedTokens) => this.resetInternetBanking(selectedTokens)}"
@@ -512,6 +522,7 @@ export class AccessChannels extends Component {
 					.appDetails = "${this.landingInfo.app}"
 					verifiedNumber = "${formatPhoneNumber(this.verifiedTelephoneNumber)}"
 					?showSideSheet = "${this.showSideSheet}"
+					?isVerifiedClient="${this.isVerifiedClient}"
 
 					.suspendApp = "${(suspendReason, userRegNo) => this._suspendApp(suspendReason, userRegNo)}"
 					.unsuspendApp = "${() => this.unsuspendApp()}"
@@ -528,6 +539,7 @@ export class AccessChannels extends Component {
 				<capitec-pc-ussd-profile-details
 					.ussd="${this.landingInfo.ussd}"
 					?showSideSheet="${this.showSideSheet}"
+			        ?isVerifiedClient="${this.isVerifiedClient}"
 					cellphoneNumber="${formatPhoneNumber(this.verifiedTelephoneNumber)}"
 
 					.cancelUSSD="${cancelReason => this.cancelUSSD(cancelReason)}"
