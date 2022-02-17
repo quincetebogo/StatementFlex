@@ -464,12 +464,13 @@ export class NotificationsDetails extends Component {
 						label="Preferred message type"
 						value="${this.notificationsDetails.notificationType}"
 					></horizon-label>
-					
+					<!--Hidden untill service call is implemented-->
 					<capitec-button 
 						type="clear" 
 						icon="system/more-action" 
 						icon-size="small"
 						@click="${() => this.onOpenMessageTypePanelClick()}"
+						?hidden="${true}"
 					></capitec-button>
 				</capitec-group>
 				<capitec-menu-separator></capitec-menu-separator>
@@ -484,12 +485,13 @@ export class NotificationsDetails extends Component {
 						label="Choose message time"
 						value="${this.notificationsDetails.notificationTime}"
 					></horizon-label>
-					
+					<!--Hidden untill service call is implemented-->					
 					<capitec-button 
 						type="clear" 
 						icon="system/more-action" 
 						icon-size="small"
 						@click="${() => this.onOpenMessageTimePanelClick()}"
+						?hidden="${true}"
 					></capitec-button>
 
 				</capitec-group>
@@ -521,8 +523,10 @@ export class NotificationsDetails extends Component {
 							value="${formatCurrency(this.notificationsDetails.moneyOutAmount)}"
 						></horizon-label>
 						<capitec-spacer></capitec-spacer>
+						<!--Disabled until service call is added
+						?disabled = ${this.notificationsDetails.moneyOutEnabled}-->
 						<capitec-check
-						?disabled = ${this.notificationsDetails.moneyOutEnabled}
+						?disabled = ${true}
 						checked></capitec-check>
 					</capitec-group>
 					<capitec-menu-separator></capitec-menu-separator>
@@ -531,16 +535,17 @@ export class NotificationsDetails extends Component {
 						layout="horizontal"
 						halign="left"
 						valign="center"
-						gap="none">
-						
+						gap="none">						
 						<horizon-label
 							data-automation-id=""
 							label="Money in"
 							value="${formatCurrency(this.notificationsDetails.moneyInAmount)}"
 						></horizon-label>
 						<capitec-spacer></capitec-spacer>
+						<!--Disabled until service call is added
+						?disabled = ${this.notificationsDetails.moneyInEnabled}-->
 						<capitec-check
-						?disabled = ${this.notificationsDetails.moneyInEnabled}
+						?disabled = ${true}
 						checked></capitec-check>
 					</capitec-group>
 					
@@ -573,8 +578,10 @@ export class NotificationsDetails extends Component {
 							label="SMS security">
 						</capitec-label>
 						<capitec-spacer></capitec-spacer>
+						<!--Disabled until service call is added
+							?disabled = ${!this.notificationsDetails.smsSecurity}-->
 						<capitec-check 
-						?disabled = ${!this.notificationsDetails.smsSecurity}
+						?disabled = ${true}
 						checked></capitec-check>
 					</capitec-group>
 				</capitec-group>
