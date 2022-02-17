@@ -1,7 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import 'app/components/common/HorizonProductTile';
 import 'app/components/common/HorizonPDFViewer';
-import { SettlementQuote } from '../../components/quickTransactions/SettlementQuote';
 
 
 const EMAIL_REG_EXP = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
