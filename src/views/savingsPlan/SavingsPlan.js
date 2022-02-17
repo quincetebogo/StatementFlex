@@ -1,5 +1,6 @@
 import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { ViewBase } from '../common/ViewBase';
 import { html } from 'platform/elements';
 
@@ -30,6 +31,8 @@ export class SavingsPlan extends ViewBase {
 	
 		// private properites
 		this.loading = true;
+
+		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// -------------------
@@ -73,6 +76,7 @@ export class SavingsPlan extends ViewBase {
 
 	static get properties() {
 		return {
+			landingPageInfo: { state: true },
 			loading: { attribute: false }
 		};
 	}
@@ -93,27 +97,49 @@ export class SavingsPlan extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
-	_initialise() {
+	_errorHandler(exception) {
+		this.horizonRouter.navigateToSystemError();
+		return true;
+	}
+
+	async _initialise() {
 
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		
 		if (this.verificationStatus === `verified`) {
 			
-			/* TO DO: Savings plan landing page service call should come here.
+			/* 
+				TO DO: Savings plan landing page service call should come here. - Done
 					If client has savings plan product, navigate to landing screens.
 					If client doesn't have savings plan product, navigate to non-client - more info screen.
 
-					Update left bar details once available from channel service call*/
+					Update left bar details once available from channel service call
+			*/
 
-			// ${this._updateLeftBar()};
+			const landingRequest = {
+				cifNumber: this.callerInformation.cifNumber,
+				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
+				getGenericData: true
+			};
+
+			const returnValue = await this.savingsAccountService.savingsPlanLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
+			 
+			if (returnValue.succeeded && returnValue.result) {
+                this.landingPageInfo = returnValue.result;
+
+				// Now we can update the information on the product buttons
+				this._updateLeftBar();
+				this.endCallContext = `LandingPage`;
+				this.renderMode = RENDER_MODE.MAIN_PAGE;
+			}
+		} else {
+			this.horizonRouter.navigateToProductInfo(`Save`);
 		}
-		
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-		this.endCallContext = `LandingPage`;
+
 		this.loading = false;
+		this._performReturnToScreen();
 	}
 
-	/*
 	_updateLeftBar() {
 		let subtitle = null;
 		let detail = null;
@@ -144,8 +170,6 @@ export class SavingsPlan extends ViewBase {
 
 		this.horizonStore.saveState(state);
 	}
-	*/
-
 
 	_getStatements() {
 		// TO DO: Place holder for savings plan statements flow.
@@ -195,6 +219,8 @@ export class SavingsPlan extends ViewBase {
 	_renderSavingsPlanVerifiedLandingPage() {
 			return html`
 				<capitec-pc-savings-plan
+					.savingsPlanDetails="${this.landingPageInfo.savingsPlans}"
+
 					@option-click = "${(e) => this._optionClick(e.detail.option)}">
 				</capitec-pc-savings-plan>`;
 		}

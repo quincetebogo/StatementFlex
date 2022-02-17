@@ -30,7 +30,7 @@
 		}
 	],
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"acceptCall": {
 			"enabled": false,
 			"positiveCase": true
@@ -56,20 +56,20 @@
 			"positiveCase": true
 		},
 		"xdsQuestions": {
-			"enabled": false,
+			"enabled": true,
 			"substituteIdOnly": "",
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"itaVerification":{
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"debiCheckMandates": {

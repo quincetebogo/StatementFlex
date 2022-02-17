@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
@@ -16,6 +17,11 @@ import 'app/components/common/HorizonExpander';
  * @class SavingsPlanLanding
  * @extends {Component}
  */
+
+const PLAN_TYPE = {
+	SAVINGS_PLAN: `SAVINGS PLAN`,
+	FIXED_TERM: `FIXED TERM SAVINGS PLAN`
+};
 export class SavingsPlanLanding extends Component {
 	
 	// --------------
@@ -41,9 +47,13 @@ export class SavingsPlanLanding extends Component {
 	// --------------
 
 	/**
+	 * @typedef {Object} SavingsPlanDetails
+ 	 */
+
+	/**
 	 * Registry of all properties defined by the component.
 	 *
-	 * @property {savingsPlanDetails} savingsPlanDetails Data for verified credit account landing Page display
+	 * @property {SavingsPlanDetails} savingsPlanDetails Data for verified credit account landing Page display
 	 *
 	 */
 	static get properties() {
@@ -292,7 +302,16 @@ export class SavingsPlanLanding extends Component {
 		// TO DO: Expanders to be rendered dynamicaly once CS data is available
 		return html`
 			<capitec-content-box class="accounts-box">
-				<horizon-expander
+				${this.savingsPlanDetails.filter(savingsPlanItem => savingsPlanItem.planType === PLAN_TYPE.SAVINGS_PLAN).map(savingsPlanItem => this._renderFlexibleSavingsPlan(savingsPlanItem))}
+			</capitec-content-box>
+			
+			${this._renderFooter()}
+		`;
+	}
+
+	_renderFlexibleSavingsPlan(savingsPlanItem) {
+		return html`
+			<horizon-expander
 					expandButtonAlignment="right"
 					.expanded="${true}">
 						<capitec-group 
@@ -309,29 +328,29 @@ export class SavingsPlanLanding extends Component {
 								<horizon-label
 									class="label-pointer"
 									data-automation-id="savings-plan-account-number"
-									label="My New Car"
-									value="1633823409">
+									label="${savingsPlanItem.planName}"
+									value="${savingsPlanItem.accountNumber}">
 								</horizon-label>
 								<div class="vertical-line"></div>
 								<horizon-label
 									data-automation-id="savings-plan-balance"
 									label="Balance"
-									value="R25 000.00">
+									value="${formatCurrency(savingsPlanItem.currentBalance)}">
 								</horizon-label>
 								<horizon-label
 									data-automation-id="savings-plan-available-balance"
 									label="Available balance"
-									value="R25 000.00">
+									value="${formatCurrency(savingsPlanItem.availableBalance)}">
 								</horizon-label>
 								<horizon-label
 									data-automation-id="savings-plan-interest-rate"
 									label="Interest rate"
-									value="5.5%">
+									value="${savingsPlanItem.interestRate}">
 								</horizon-label>
 								<horizon-label
 									data-automation-id="savings-plan-status"
 									label="Status"
-									value="Open">
+									value="${savingsPlanItem.accountStatus}">
 								</horizon-label>
 						</capitec-group>
 						<div slot="content">
@@ -345,64 +364,6 @@ export class SavingsPlanLanding extends Component {
 							</capitec-group>
 						</div>
 				</horizon-expander>
-
-				<horizon-expander
-					expandButtonAlignment="right"
-					.expanded="${false}">
-						<capitec-group
-							class="expander-header"
-							slot="custom-header"
-							layout="horizontal"
-							gap="clear"
-							halign="left"
-							valign="center">
-								<capitec-icon
-									data-automation-id="savings-plan-flexible-info"
-									icon="system/info-action">
-								</capitec-icon>
-								<horizon-label 
-									data-automation-id="savings-plan-access-facility"
-									class="label-pointer"
-									label="Holiday savings"
-									value="1633823409">
-								</horizon-label>
-								<div class="vertical-line"></div>
-								<horizon-label
-									data-automation-id="savings-plan-balance"
-									label="Balance"
-									value="R5 000.00">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="savings-plan-available-balance"
-									label="Available balance"
-									value="R5 000.00">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="savings-plan-interest-rate"
-									label="Interest rate"
-									value="5.5%">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="savings-plan-status"
-									label="Status"
-									value="Open">
-								</horizon-label>
-						</capitec-group>
-
-						<div slot="content">
-							<capitec-group 
-								class="expander-content"
-								layout="vertical"
-								gap="none"
-								halign="left"
-								valign="center">
-									${this._renderOptionsGroup()}
-							</capitec-group>
-						</div>
-				</horizon-expander>
-			</capitec-content-box>
-			
-			${this._renderFooter()}
 		`;
 	}
 
@@ -411,136 +372,77 @@ export class SavingsPlanLanding extends Component {
 		// TO DO: Expanders to be rendered dynamicaly once CS data is available
 		return html`
 			<capitec-content-box class="accounts-box fixed-accounts-box">
-				<horizon-expander
-					expandButtonAlignment="right"
-					.expanded="${true}">
-						<capitec-group
-							class="expander-header"
-							slot="custom-header"
-							layout="horizontal"
-							gap="clear"
-							halign="left"
-							valign="center">
-								<capitec-icon
-									data-automation-id="savings-plan-fixed-term-info"
-									icon="system/info-action">
-								</capitec-icon>
-								<horizon-label
-									data-automation-id="savings-plan-number"
-									class="label-pointer"
-									label="House deposit"
-									value="1633823409">
-								</horizon-label>
-								<div class="vertical-line"></div>
-								<horizon-label
-									data-automation-id="savings-plan-balance"
-									label="Balance"
-									value="R100 000.00">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="savings-plan-term"
-									label="Term (months)"
-									value="24">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="savings-plan-nominal-interest-rate"
-									label="Nominal interest rate"
-									value="5.98%">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="savings-plan-effective-interest-rate"
-									label="Effective interest rate"
-									value="6.15%">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="savings-plan-status"
-									label="Status"
-									value="Open">
-								</horizon-label>
-						</capitec-group>
-
-						<div slot="content">
-							<capitec-group 
-								class="expander-content"
-								layout="vertical"
-								gap="none"
-								halign="left"
-								valign="center">
-								<capitec-title-bar
-								class="account-deposit-type"
-									type="default"
-									label="Single Deposit - Reinvest">
-								</capitec-title-bar>
-									${this._renderOptionsGroup()}
-							</capitec-group>
-						</div>
-				</horizon-expander>
-
-				<horizon-expander
-					expandButtonAlignment="right"
-					.expanded="${false}">
-						<capitec-group
-							class="expander-header"
-							slot="custom-header"
-							layout="horizontal"
-							gap="clear"
-							halign="left"
-							valign="center">
-								<capitec-icon
-									data-automation-id="savings-plan-fixed-term-info"
-									icon="system/info-action">
-								</capitec-icon>
-								<horizon-label
-									data-automation-id="savings-plan-number"
-									class="label-pointer"
-									label="Tax-free Savings Plan"
-									value="1984399101">
-								</horizon-label>
-								<div class="vertical-line"></div>
-								<horizon-label
-									data-automation-id="savings-plan-balance"
-									label="Balance"
-									value="R10 000.00">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="savings-plan-term"
-									label="Term (months)"
-									value="12">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="savings-plan-nominal-interest-rate"
-									label="Nominal interest rate"
-									value="5.77%">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="savings-plan-effective-interest-rate"
-									label="Effective interest rate"
-									value="5.93%">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="savings-plan-status"
-									label="Status"
-									value="Open">
-								</horizon-label>
-						</capitec-group>
-
-						<div slot="content">
-							<capitec-group 
-								class="expander-content"
-								layout="vertical"
-								gap="none"
-								halign="left"
-								valign="center">
-								<capitec-title-bar
-								class="account-deposit-type"
-									type="default"
-									label="Single Deposit - Reinvest">
-								</capitec-title-bar>
-									${this._renderOptionsGroup()}
-							</capitec-group>
-						</div>
-				</horizon-expander>
+			${this.savingsPlanDetails.filter(savingsPlanItem => savingsPlanItem.planType !== PLAN_TYPE.SAVINGS_PLAN).map(savingsPlanItem => this._renderFixedSavingsPlan(savingsPlanItem))}
 			</capitec-content-box>
+		`;
+	}
+
+	_renderFixedSavingsPlan(savingsPlanItem) {
+		return html`
+			<horizon-expander
+				expandButtonAlignment="right"
+				.expanded="${true}">
+					<capitec-group
+						class="expander-header"
+						slot="custom-header"
+						layout="horizontal"
+						gap="clear"
+						halign="left"
+						valign="center">
+							<capitec-icon
+								data-automation-id="savings-plan-fixed-term-info"
+								icon="system/info-action">
+							</capitec-icon>
+							<horizon-label
+								data-automation-id="savings-plan-number"
+								class="label-pointer"
+								label="${savingsPlanItem.planName}"
+								value="${savingsPlanItem.accountNumber}">
+							</horizon-label>
+							<div class="vertical-line"></div>
+							<horizon-label
+								data-automation-id="savings-plan-balance"
+								label="Balance"
+								value="${formatCurrency(savingsPlanItem.currentBalance)}">
+							</horizon-label>
+							<horizon-label
+								data-automation-id="savings-plan-term"
+								label="Term (months)"
+								value="${savingsPlanItem.term}">
+							</horizon-label>
+							<horizon-label
+								data-automation-id="savings-plan-nominal-interest-rate"
+								label="Nominal interest rate"
+								value="${savingsPlanItem.nominalInterestRate}%">
+							</horizon-label>
+							<horizon-label
+								data-automation-id="savings-plan-effective-interest-rate"
+								label="Effective interest rate"
+								value="${savingsPlanItem.effectiveInterestRate}%">
+							</horizon-label>
+							<horizon-label
+								data-automation-id="savings-plan-status"
+								label="Status"
+								value="${savingsPlanItem.accountStatus}">
+							</horizon-label>
+					</capitec-group>
+
+					<div slot="content">
+						<capitec-group 
+							class="expander-content"
+							layout="vertical"
+							gap="none"
+							halign="left"
+							valign="center">
+							<capitec-title-bar
+							class="account-deposit-type"
+								type="default"
+								label="Single Deposit - Reinvest">
+							</capitec-title-bar>
+								${this._renderOptionsGroup()}
+						</capitec-group>
+					</div>
+			</horizon-expander>
 		`;
 	}
 
