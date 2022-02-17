@@ -125,7 +125,6 @@ export class XdsBlocked extends Component {
 						id="notification-status-error-group">
 						<img src="/images/errorBlocks.svg" class="warning-svg connection-error-svg"/>
 						<div class="notification-info failed-client">
-							Please visit a branch to unblock your access. <br/>
 							You can skip to continue with limited access to transactions.
 						</div>
 					</capitec-group>

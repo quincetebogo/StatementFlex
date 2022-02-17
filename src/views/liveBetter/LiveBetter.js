@@ -166,7 +166,7 @@ export class LiveBetter extends SavingsAccountBase {
 			"next-screen": this.renderMode === RENDER_MODE.LIVE_BETTER_ACCOUNT_DETAILS ? TelemetryScreen.LIVE_BETTER_ACCOUNT_DETAILS : TelemetryScreen.LIVE_BETTER
 		});
 
-		this._telemetry.endSpan(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS, {
+		this._telemetry.endSpan(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS_POP, {
 			"screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS,
 			"next-screen": this.renderMode === RENDER_MODE.LIVE_BETTER_ACCOUNT_DETAILS ? TelemetryScreen.LIVE_BETTER_ACCOUNT_DETAILS : TelemetryScreen.LIVE_BETTER
 		});
@@ -492,11 +492,12 @@ export class LiveBetter extends SavingsAccountBase {
 	}
 
 	async _automaticSavings() {
-		await this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_AUTOMATIC_SAVINGS, {
+		await this._telemetry.logEvent(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS, {
 			"screen": TelemetryScreen.LIVE_BETTER_LANDING_PAGE,
 			"next-screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS
 		});
 		this._telemetry.startSpan(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS);
+		this._telemetry.startSpan(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS_POP);
 
 		this._getAutomaticSavingsDetails();
 		this.updateAutomaticSavings = true;
