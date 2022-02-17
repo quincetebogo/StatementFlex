@@ -464,13 +464,14 @@ export class NotificationsDetails extends Component {
 						label="Preferred message type"
 						value="${this.notificationsDetails.notificationType}"
 					></horizon-label>
-					<!--Hidden untill service call is implemented-->
+					<!--disabled untill service call is implemented
+						icon="system/more-action" 
+						@click="${() => this.onOpenMessageTypePanelClick()}"
+						-->
 					<capitec-button 
 						type="clear" 
-						icon="system/more-action" 
+						icon="system/more" 
 						icon-size="small"
-						@click="${() => this.onOpenMessageTypePanelClick()}"
-						?hidden="${true}"
 					></capitec-button>
 				</capitec-group>
 				<capitec-menu-separator></capitec-menu-separator>
@@ -485,13 +486,14 @@ export class NotificationsDetails extends Component {
 						label="Preferred message time"
 						value="${this.notificationsDetails.notificationTime}"
 					></horizon-label>
-					<!--Hidden untill service call is implemented-->					
+					<!--disabled untill service call is implemented
+						icon="system/more-action" 
+						@click="${() => this.onOpenMessageTimePanelClick()}"
+					-->					
 					<capitec-button 
 						type="clear" 
-						icon="system/more-action" 
+						icon="system/more" 
 						icon-size="small"
-						@click="${() => this.onOpenMessageTimePanelClick()}"
-						?hidden="${true}"
 					></capitec-button>
 
 				</capitec-group>
