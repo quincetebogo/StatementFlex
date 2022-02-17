@@ -482,7 +482,7 @@ export class NotificationsDetails extends Component {
 					gap="none">
 					<horizon-label
 						data-automation-id=""
-						label="Choose message time"
+						label="Preferred message time"
 						value="${this.notificationsDetails.notificationTime}"
 					></horizon-label>
 					<!--Hidden untill service call is implemented-->					
