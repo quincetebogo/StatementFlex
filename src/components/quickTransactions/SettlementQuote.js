@@ -1,5 +1,9 @@
 import { Component, css, html } from 'platform/elements';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
+import { CREDIT_TYPE_LIST, DEFAULTS } from 'app/constants/Credit';
+import { settlementQuoteDetails } from 'app/mocks/CreditMocks';
+
+
 
 import { QuickTransactionsService }from'app/services/QuickTransactionsService';
 import 'app/components/common/HorizonPDFViewer';
@@ -8,51 +12,17 @@ import 'app/components/common/StepperModal';
 import 'app/components/common/HorizonProductTile'; 
 import 'app/dialogs/credit/SettlementQuote'; 
 
-const DEFAULTS = {
-	SEARCH_TEXT_LABEL: `Search loan, amount or account number`,
-	TYPE_LABEL: `Credit type`,
-};
-
-const CREDIT_TYPE_LIST = Object.freeze([
-'All',
-'Fixed credit',
-'Flexible credit'
-]);
-
-const quotes = [
-	{
-		quoteName: `Term Loan (32 months)`,
-		accountNumber: `1234596`,
-		loanAmount: 35000,
-		instalment: 1234.91,
-		settlementAmount: 18000,
-		creditType: `Fixed credit`
-	},
-	{
-		quoteName: `Term Loan (84 months)`,
-		accountNumber: `456789`,
-		loanAmount: 15000,
-		instalment: 1498.91,
-		settlementAmount: 7920,
-		creditType: `Fixed credit`
-	},
-	{
-		quoteName: `Credit card`,
-		accountNumber: `147852`,
-		loanAmount: 150000,
-		instalment: 3982.91,
-		settlementAmount: 31938.99,
-		creditType: `Flexible credit`
-	},
-	{
-		quoteName: `Access facility`,
-		accountNumber: `852369`,
-		loanAmount: 50000,
-		instalment: 2479.01,
-		settlementAmount: 7820,
-		creditType: `Flexible credit`
-	}
-];
+/**
+ * This component implements the Settlement quote for Quick Transactions
+ *
+ * Events Raised 
+ * -------------
+ * back
+ * 
+ * @export
+ * @class SettlementQuote
+ * @extends {Component}
+ */
 
 export class SettlementQuote extends Component {
 
@@ -60,6 +30,7 @@ export class SettlementQuote extends Component {
 	// --------------
 	// INITIALISATION
 	// --------------
+
 	constructor() {
 		super();
 		this.checkAll = false;
@@ -123,12 +94,13 @@ export class SettlementQuote extends Component {
 	}
 
 	_initialise() {
-		for (let index = 0; index < quotes.length; index++)
+		this.filteredData = settlementQuoteDetails;
+
+		for (let index = 0; index < this.filteredData.length; index++)
 		 {
 			this.isAccountsChecked[index] = false;
 		}	
 
-		this.filteredData = quotes;
 	}
 
 	_isAnySelected ()
@@ -153,13 +125,13 @@ export class SettlementQuote extends Component {
 
 	_search (e) {
 		const text = e.detail.new;
-		this.filteredData = quotes;
+		this.filteredData = settlementQuoteDetails;
 
 		if(text === `All`) {
 			return;
 		}
 
-		if(this.listValue !== `` && this.listValue !== `All`) {
+		if(this.listValue !== `Credit type` && this.listValue !== `All`) {
 			this.filteredData = this.filteredData.filter(item => item.creditType.toLowerCase().indexOf(this.listValue.toLowerCase()) !== -1);
 		}	
 
@@ -200,7 +172,7 @@ export class SettlementQuote extends Component {
 		{
 			if (this.isAccountsChecked[index])
 			{
-				this.selectedAccounts[index] = quotes[index].quoteName;
+				this.selectedAccounts[index] = this.filteredData[index].quoteName;
 			}
 		}
 		this.showSendDialog = !this.showSendDialog;		
