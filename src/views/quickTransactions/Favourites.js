@@ -9,6 +9,7 @@ import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
+import 'app/components/dialogs/common/CCSstatus';
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
 import 'app/components/dialogs/quickTransactions/DeclineDebiCheckMandate';
@@ -62,6 +63,7 @@ export class Favourites extends SavingsAccountBase {
 		this.selectedFeedback = [];
 		this.feedbackOptions = [];
 		this.updateStrackClick = false;
+		this.showCCSmodal = false;
 
 		this._telemetry = HorizonTelemetry.instance;
 
@@ -78,7 +80,8 @@ export class Favourites extends SavingsAccountBase {
 	static get properties() {
 		return {
 			isLoading: { state: true },
-			verificationToastDisplayed: { state: true }
+			verificationToastDisplayed: { state: true },
+			showCCSmodal: { type: Boolean }
 		};
 	}
 
@@ -721,6 +724,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderFeedback()}
 			${this._renderUpdateIncidentModal()}
 			${this._renderTaxCertificate()}
+			${this._renderCcsModal()}
 
 			${super._webTemplate()}
 		`;
@@ -941,6 +945,15 @@ export class Favourites extends SavingsAccountBase {
 		`
 		: html``;
 	}  
+
+	_renderCcsModal() {
+		return this.showCCSmodal
+		? html`
+			<horizon-ccs-status-dialog
+				@on-okay="${() => this.showCCSmodal = !this.showCCSmodal}">
+			</horizon-ccs-status-dialog>`
+		: html``;
+	}
 }
 
 customElements.define(`horizon-favourites`, Favourites);
