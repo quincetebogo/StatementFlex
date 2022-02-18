@@ -1,3 +1,5 @@
+import { HttpStatusError } from 'platform/errors/HttpStatusError';
+
 /**
  * Mocks for methods in the HorizonChannelService class
  */
@@ -281,4 +283,52 @@ export default class HorizonChannelServiceMocks {
 		}
 		return null;
 	}  
+
+	activatefullUssdMenu() {
+		if (this._mockSettings.activatefullUssdMenu.positiveCase) {
+			return {};
+		}
+
+		const errPromise = new Promise(() => {
+			const httpError = new HttpStatusError();
+			httpError.status = 400;
+			httpError.message = `Oh no! A fake 400!`;
+	
+			throw httpError;
+		});
+
+		return errPromise;
+	}
+
+	cancelUSSD() {
+		if (this._mockSettings.cancelUSSD.positiveCase) {
+			return {};
+		}
+
+		const errPromise = new Promise(() => {
+			const httpError = new HttpStatusError();
+			httpError.status = 400;
+			httpError.message = `Oh no! A fake 400!`;
+	
+			throw httpError;
+		});
+
+		return errPromise;
+	}
+
+	unblockSIM() {
+		if (this._mockSettings.unblockSIM.positiveCase) {
+			return {};
+		}
+
+		const errPromise = new Promise(() => {
+			const httpError = new HttpStatusError();
+			httpError.status = 400;
+			httpError.message = `Oh no! A fake 400!`;
+	
+			throw httpError;
+		});
+
+		return errPromise;
+	}
 }

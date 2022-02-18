@@ -488,8 +488,7 @@ export class NotificationsDetails extends Component {
 					></horizon-label>
 					<!--disabled untill service call is implemented
 						icon="system/more-action" 
-						@click="${() => this.onOpenMessageTimePanelClick()}"
-					-->					
+						@click="${() => this.onOpenMessageTimePanelClick()}"-->
 					<capitec-button 
 						type="clear" 
 						icon="system/more" 
@@ -537,7 +536,7 @@ export class NotificationsDetails extends Component {
 						layout="horizontal"
 						halign="left"
 						valign="center"
-						gap="none">						
+						gap="none">
 						<horizon-label
 							data-automation-id=""
 							label="Money in"

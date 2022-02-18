@@ -65,6 +65,7 @@ export class AppProfileDetails extends Component {
 			showSideSheet: { type: Boolean },
 			appDetails: { type: Object },
 			isVerifiedClient: { type: Boolean },
+			verifiedNumber: { type: String },
 
 			suspendApp: { type: Object, attribute: false },
 			unsuspendApp: { type: Object, attribute: false },
@@ -374,6 +375,11 @@ export class AppProfileDetails extends Component {
 	}
 
 	_renderAppDetails() {
+
+		if (this.appDetails === null) {
+			return this._renderAppNotRegistered();
+		}
+
 		return this.serviceUnavailable 
 		? html`
 			${this._renderServiceUnavailable()}`
@@ -404,7 +410,7 @@ export class AppProfileDetails extends Component {
 				<horizon-label
 					data-automation-id="app-profile-details-cellphone-number"
 					label="Cellphone number (verified)"
-					value="${this.appDetails.userRegNo}"
+					value="${this.verifiedNumber}"
 					?hidden="${!this.isVerifiedClient}">
 				</horizon-label>
 
@@ -448,6 +454,21 @@ export class AppProfileDetails extends Component {
 					?hidden="${true}"
 					@click="${() => this._onUnsuspendAppClick()}">
 				</capitec-button>
+			</capitec-content-box>
+		`;
+	}
+
+	_renderAppNotRegistered() {
+		return html`
+			<capitec-content-box
+				class="content-box"
+				layout="vertical"
+				halign="center"
+				valign="top"
+				gap="none">
+				<img src="/images/insure/connection-error.svg" class="connection-error-svg"/>
+				<capitec-label class="header-label" type="Strong" label="Client not registered"></capitec-label>
+				<p style="text-align: center">Download the App now to register. You will need a verified cellphone number to use the app. If you do not have a verified number you will need to visit a branch.</p>
 			</capitec-content-box>
 		`;
 	}

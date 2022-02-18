@@ -1,4 +1,4 @@
-import { ACCESS_CHANNELS_TYPE, APP_STATUS, CHANNEL_TYPE } from 'app/constants/AccessChannels';
+import { ACCESS_CHANNELS_REASONS, ACCESS_CHANNELS_TYPE, APP_STATUS, CHANNEL_TYPE } from 'app/constants/AccessChannels';
 import { Component, css, html } from 'platform/elements';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { AccessChannelsEvents } from 'app/constants/telemetry/events/AccessChannels';
@@ -202,21 +202,30 @@ export class AccessChannels extends Component {
 		
 		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD);
 
-		// TODO: add channel service call to cancel USSD service
-		// If cancel is successful, show toast, update ussd status, else show error
+		const returnValue = await this.accessChannelService.cancelUSSD(this.cifNumber, this.landingInfo.msisdn, ACCESS_CHANNELS_REASONS.DEFAULT);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unsuccessful call to cancel USSD`, `cancelUSSD`, returnValue.correlationId);
+			return false;
+		}
 		
-		this.landingInfo.ussd.status = `Blocked`;
+		this.landingInfo.ussd.status = `Inactive`;
 		this.landingInfo.ussd.dateLastUpdated = new Date().toISOString();
 		this._deepCopyStatus();
 		return true;
 	}
 
-	unblockSIM() {
+	async unblockSIM() {
 
 		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_UNBLOCK_SIM);
 
-		// TODO: add channel service call to unblock SIM - ussd
-		// If unblock is successful, show toast, update ussd status, else show error
+		const returnValue = await this.accessChannelService.unblockSIM(this.landingInfo.msisdn);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to unblock SIM.`, `unblockSIM`, returnValue.correlationId);
+			return false;
+		}
+
 		this.landingInfo.ussd.isSimBlocked = false;
 		this.landingInfo.ussd.dateLastUpdated = new Date().toISOString();
 
@@ -224,13 +233,22 @@ export class AccessChannels extends Component {
 		return true;
 	}
 
-	activateFullMenuUSSD() {
+	async activateFullMenuUSSD() {
 		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_ACTIVATE_FULL_USSD_MENU);
 
-		// TODO: add code to activate full menu for currently active ussd clients
-		// If client has active ussd, menu reduced, activate full menu function
-		
 		const indexOfReducedMenu = this.landingInfo.ussd.features.indexOf(`REDUCED_MENU`);
+
+		if (indexOfReducedMenu === -1) {
+			return true;
+		}
+
+		const returnValue = await this.accessChannelService.activatefullUssdMenu(this.cifNumber, this.landingInfo.msisdn, ACCESS_CHANNELS_REASONS.DEFAULT);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unsuccessful call the activate full USSD menu`, `activateFullMenuUSSD`, returnValue.correlationId);
+			return false;
+		}
+
 		this.landingInfo.ussd.features.splice(indexOfReducedMenu, 1);
 
 		this._deepCopyStatus();
@@ -429,6 +447,7 @@ export class AccessChannels extends Component {
 			if (this.landingInfo.msisdn.length >= 9) {
 				this.verifiedTelephoneNumber = `0${this.landingInfo.msisdn.substr(this.landingInfo.msisdn.length - 9)}`;
 			}
+
 			this.requestUpdate();
 			return;
 		}

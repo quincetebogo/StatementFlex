@@ -769,6 +769,11 @@ export class InternetBankingProfileDetails extends Component {
 	}
 
 	_renderInternetBankingDetails() {
+
+		if (this.internetBankingDetails === null) {
+			return this._renderInternetBankingNotRegistered();
+		}
+
 		return isNullorEmpty(this.internetBankingDetails) 
 		? html`
 			${this._renderServiceUnavailable()}
@@ -845,6 +850,21 @@ export class InternetBankingProfileDetails extends Component {
 					?hidden=${this.isTokenSuspended || !Boolean(this.clientTokens?.length)}
 					@click="${() => this._onOpenSuspendPanelClick()}">
 				</capitec-button>
+			</capitec-content-box>
+		`;
+	}
+
+	_renderInternetBankingNotRegistered() {
+		return html`
+			<capitec-content-box
+				class="content-box"
+				layout="vertical"
+				halign="center"
+				valign="top"
+				gap="none">
+				<img src="/images/insure/connection-error.svg" class="connection-error-svg"/>
+				<capitec-label class="side-panel-header-label" type="Strong" label="Client not registered"></capitec-label>
+				<p style="text-align: center">You need to visit a branch to register for Internet banking.</p>
 			</capitec-content-box>
 		`;
 	}
