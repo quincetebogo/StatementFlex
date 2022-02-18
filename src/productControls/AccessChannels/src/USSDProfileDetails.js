@@ -552,9 +552,8 @@ export class USSDProfileDetails extends Component {
 								class="cancelling"
 								label="Reason for cancelling"
 								value="${this.cancelReason}"
-								style="display:${!isNullorEmpty(this.cancelReason) && this.ussdStatus === `Inactive` ? `block` : `none`}">
-								?hidden="${!this.isVerifiedClient}"
-								style="display:${!isNullorEmpty(this.cancelReason) && this.ussdStatus === `Blocked` ? `block` : `none`}">
+								style="display:${!isNullorEmpty(this.cancelReason) && this.ussdStatus === `Inactive` ? `block` : `none`}"
+								?hidden="${!this.isVerifiedClient}"></horizon-label>
 							</horizon-label>
 
 							${this._renderButtons()}
@@ -568,7 +567,7 @@ export class USSDProfileDetails extends Component {
 			<capitec-button 
 				data-automation-id="ussd-profile-details-activate-full-ussd-button"
 				label="Activate Full USSD Menu" 
-				?hidden="${!this.ussd.features.includes(`REDUCED_MENU`) || this.ussd.isSimBlocked || this.ussdStatus === `Inactive`}"
+				?hidden="${!this.ussd.features.includes(`REDUCED_MENU`) || this.ussd.isSimBlocked || this.ussdStatus === `Inactive` || !this.isVerifiedClient}"
 				@click="${() => this._activateFullMenu()}">
 			</capitec-button>
 

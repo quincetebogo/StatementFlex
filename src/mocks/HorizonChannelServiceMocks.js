@@ -259,6 +259,13 @@ export default class HorizonChannelServiceMocks {
 		return null;
 	}
 
+	accessChannelLanding() {
+		if (this._mockSettings.accessChannelLanding.positiveCase) {
+			return this.accessChannelsMocks.accessChannelsDetails;
+		}
+		return null;
+	}
+
 	accessChannelUssdLanding() {
 		if (this._mockSettings.accessChannelUssdLanding.positiveCase) {
 			return this.accessChannelsMocks.accessChannelsDetails.ussd;
@@ -276,13 +283,6 @@ export default class HorizonChannelServiceMocks {
 		}
 		return null;
 	}  
-
-	accessChannelLanding() {
-		if (this._mockSettings.accessChannelLanding.positiveCase) {
-			return this.accessChannelsMocks.accessChannelsDetails;
-		}
-		return null;
-	}
 
 	activatefullUssdMenu() {
 		if (this._mockSettings.activatefullUssdMenu.positiveCase) {
