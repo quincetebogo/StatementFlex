@@ -145,13 +145,15 @@ export class InternetBankingProfileDetails extends Component {
 
 		if (this.tokenList.tokens !== null) {
 			this.tokenList.tokens.forEach(item => {
-				const clientToken = {
-					token: item.tokenSerialNo,
-					selected: false
-				};
-				this.clientTokens.push(clientToken);
+				if (item.tokenType !== `Soft Token`) {
+					const clientToken = {
+						token: item.tokenSerialNo,
+						selected: false
+					};
+					this.clientTokens.push(clientToken);
+				}
 			});
-        }
+		}
 
 		this.isMultipleDevices = this.clientTokens.length > 1;
 		
@@ -825,7 +827,7 @@ export class InternetBankingProfileDetails extends Component {
 				<capitec-button
 					data-automation-id="internet-banking-reset-token-button"
 					label="Reset Security Token Clock"
-					?hidden=${!this.isVerifiedClient || this.isTokenSuspended}
+					?hidden=${!this.isVerifiedClient || this.isTokenSuspended || !Boolean(this.clientTokens?.length)}
 					@click="${() => this._onResetSecurityTokenClockClick()}">
 				</capitec-button>
 				<capitec-button

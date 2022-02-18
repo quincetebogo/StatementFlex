@@ -350,7 +350,32 @@ export class AccessChannels extends Component {
 
 	async getTokens(userRegNo) {
 		const returnValue = await this.accessChannelService.internetBankingLanding(userRegNo);
-
+		const tokens = {
+			"tokens": [
+			  {
+				"tokenType": "Hard Token",
+				"tokenSerialNo": "123456",
+				"tokenStatus": "Active"
+			  },
+			  {
+				"tokenType": "Hard Token",
+				"tokenSerialNo": "123456",
+				"tokenStatus": "Active"
+			  },
+			  {
+				"tokenType": "Hard Token",
+				"tokenSerialNo": "123456",
+				"tokenStatus": "Active"
+			  },
+			  {
+				"tokenType": "Hard Token",
+				"tokenSerialNo": "123456",
+				"tokenStatus": "Active"
+			  }
+			]
+		  };
+		return tokens;
+		
 		if (returnValue.succeeded && returnValue.result) {
 			return returnValue.result;
 		}
