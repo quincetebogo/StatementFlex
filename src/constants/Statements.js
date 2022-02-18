@@ -85,12 +85,19 @@
 		order: 6
 	},
 	101: {
-		name: `Credit Card`,
+		name: `Credit card`,
 		type: `FLEXIBLE_CREDIT`,
 		category: `credit`,
 		icon: `product/credit`,
 		order: 7
-	}
+	},
+	6000: {
+		name: `Access facility`,
+		type: `FLEXIBLE_CREDIT`,
+		category: `credit`,
+		icon: `product/credit`,
+		order: 8
+	},
 });
 
 /**
