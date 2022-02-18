@@ -203,7 +203,7 @@ export class AccessChannels extends Component {
 			return false;
 		}
 		
-		this.landingInfo.ussd.status = `Blocked`;
+		this.landingInfo.ussd.status = `Inactive`;
 		this.landingInfo.ussd.dateLastUpdated = new Date().toISOString();
 		this._deepCopyStatus();
 		return true;
@@ -438,6 +438,7 @@ export class AccessChannels extends Component {
 			if (this.landingInfo.msisdn.length >= 9) {
 				this.verifiedTelephoneNumber = `0${this.landingInfo.msisdn.substr(this.landingInfo.msisdn.length - 9)}`;
 			}
+
 			this.requestUpdate();
 			return;
 		}

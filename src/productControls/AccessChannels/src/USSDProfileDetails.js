@@ -25,7 +25,7 @@ export class USSDProfileDetails extends Component {
 		this.unsuccessfulToastDetails = ``;
 		this.cellphoneNumber = ``;
 
-		// Active, SIM Blocked, ussd Blocked, Service Unavailable - null
+		// Active, Inactive, SIM Blocked Blocked, Service Unavailable - null
 		this.ussdStatus = ``;
 	}
 	
@@ -93,7 +93,7 @@ export class USSDProfileDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		
-		this._initialise();
+		this.ussdStatus = this.ussd && this.ussd.status;
 	}
 
 	disconnectedCallback() {
@@ -136,7 +136,7 @@ export class USSDProfileDetails extends Component {
 		if (this.cancelReason) {
 			const returnValue = await this.cancelUSSD(this.cancelReason);
 			if (returnValue) {
-				this.ussdStatus = `Blocked`;
+				this.ussdStatus = `Inactive`;
 
 				this._displayAndCloseSuccessToast(`USSD was cancelled. You will need to visit  branch to reactivate USSD`);
 				
@@ -174,17 +174,6 @@ export class USSDProfileDetails extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	async _initialise() {
-		const returnValue = await this.getUssdLandingDetails();
-
-		if (returnValue && !isNullorEmpty(this.ussd)) {
-			this.ussd.status = returnValue.status;
-			this.ussd.dateLastUpdated = returnValue.dateLastUpdated;
-			this.ussdStatus = this.ussd && this.ussd.status;
-		}
-	}
-
 	_checkUssdStatus(status) {
 		
 		if (isNullorEmpty(status)) {
@@ -197,7 +186,7 @@ export class USSDProfileDetails extends Component {
 			this.showNotificationBanner = true;
 			this.bannerTitle = `SIM Blocked`;
 			this.bannerSubtitle = `SIM blocked due to SIM swop detected.`;
-		} else if (status === `Blocked` && !this.ussd.isSimBlocked) {
+		} else if (status === `Inactive` && !this.ussd.isSimBlocked) {
 			this.showNotificationBanner = true;
 			this.bannerTitle = `Service has been cancelled.`;
 			this.bannerSubtitle = `Visit a branch to reactivate USSD.`;
@@ -247,9 +236,9 @@ export class USSDProfileDetails extends Component {
 
 	_getUssdStatus() {
 
-		const ussdStatus = this.ussdStatus === `Blocked` ? `Cancelled` : this.ussdStatus;
+		const ussdStatus = this.ussdStatus === `Inactive` ? `Cancelled` : this.ussdStatus;
 		const SIMStatus = this.ussd.isSimBlocked ? `Blocked: SIM Swop` : ``;
-		const menuStatus = this.ussd.features.includes(`REDUCED_MENU`) && this.ussdStatus !== `Blocked` ? ` | Reduced menu` : ``;
+		const menuStatus = this.ussd.features.includes(`REDUCED_MENU`) && this.ussdStatus !== `Inactive` ? ` | Reduced menu` : ``;
 
 		return `${this.ussd.isSimBlocked ? SIMStatus : ussdStatus}${menuStatus}`;
 	}
@@ -415,16 +404,66 @@ export class USSDProfileDetails extends Component {
 	}
 
 	_webTemplate() {
-		if (isNullorEmpty(this.ussd)) {
+		if (this.ussd === undefined) {
 			return html`
 				${this._renderUSSDUnavailable()}
 			`;
+		}
+
+		if (this.ussd === null) {
+			return html`${this._renderUSSDNotRegistered()}`;
 		}
 		return html`
 			${this._renderLoadingIndicator()}
 			${this._renderUSSDProfileDetails()}
 			${this._renderCancelUSSD()}
 		`;
+	}
+
+	_renderUSSDNotRegistered() {
+		return html`
+			<capitec-side-sheet
+				data-automation-id="ussd-profile-details-service-not-registered-sheet"
+				class="unavailable"
+				.expanded="${this.showSideSheet}"
+				alignment="right">
+					<capitec-group
+						class="header-group-app"
+						layout="horizontal"
+						halign="left"
+						valign="center"
+						gap="none">
+							<capitec-icon 
+								class="icon-app" 
+								size="medium" 
+								icon="system/cellphone">
+							</capitec-icon>
+							<capitec-label 
+								class="header-label" 
+								type="Strong" 
+								label="USSD">
+							</capitec-label>
+							<capitec-spacer></capitec-spacer>
+							<capitec-icon 
+								class="icon-close" 
+								size="small" 
+								icon="system/close-action" 
+								@click="${() => this._toggleAppSlidingPanel()}">
+							</capitec-icon>
+					</capitec-group>
+
+				<capitec-content-box
+					class="content-box"
+					layout="vertical"
+					halign="center"
+					valign="top"
+					gap="none">
+					<img src="/images/insure/connection-error.svg" class="connection-error-svg"/>
+					<capitec-label class="header-label" type="Strong" label="Client not registered"></capitec-label>
+					<p style="text-align: center">You need to vist a branch to register for USSD.</p>
+				</capitec-content-box>
+			</capitec-side-sheet>
+	`;
 	}
 
 	_renderUSSDProfileDetails() {
@@ -510,7 +549,7 @@ export class USSDProfileDetails extends Component {
 								class="cancelling"
 								label="Reason for cancelling"
 								value="${this.cancelReason}"
-								style="display:${!isNullorEmpty(this.cancelReason) && this.ussdStatus === `Blocked` ? `block` : `none`}">
+								style="display:${!isNullorEmpty(this.cancelReason) && this.ussdStatus === `Inactive` ? `block` : `none`}">
 							</horizon-label>
 
 							${this._renderButtons()}
@@ -524,7 +563,7 @@ export class USSDProfileDetails extends Component {
 			<capitec-button 
 				data-automation-id="ussd-profile-details-activate-full-ussd-button"
 				label="Activate Full USSD Menu" 
-				?hidden="${!this.ussd.features.includes(`REDUCED_MENU`) || this.ussd.isSimBlocked || this.ussdStatus === `Blocked`}"
+				?hidden="${!this.ussd.features.includes(`REDUCED_MENU`) || this.ussd.isSimBlocked || this.ussdStatus === `Inactive`}"
 				@click="${() => this._activateFullMenu()}">
 			</capitec-button>
 
@@ -538,7 +577,7 @@ export class USSDProfileDetails extends Component {
 			<capitec-button 
 				data-automation-id="ussd-profile-details-cancel-ussd-button"
 				label="Cancel USSD" 
-				?hidden="${this.ussdStatus === `Blocked`}"
+				?hidden="${this.ussdStatus === `Inactive`}"
 				@click="${() => this._toggleCancelUSSD()}">
 			</capitec-button>
 		`;
