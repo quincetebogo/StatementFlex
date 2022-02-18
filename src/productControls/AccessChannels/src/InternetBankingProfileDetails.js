@@ -106,8 +106,8 @@ export class InternetBankingProfileDetails extends Component {
 			// input properties
 			internetBankingDetails: { type: Object },
 			showSideSheet: { type: Boolean },
-			verifiedNumber: { type: String},
-			clientTokens: { type: Object},
+			verifiedNumber: { type: String },
+			clientTokens: { type: Object },
 			singleToken: { type: String },
 
 			// callback functions
@@ -239,7 +239,7 @@ export class InternetBankingProfileDetails extends Component {
             } else {
 				this.showSuspendPanel = !this.showSuspendPanel;
 				this._displayTokenSuspendUnsuccessToast();
-                //unsuccessfull screen
+                // unsuccessfull screen
 
 			}
 		} else {
@@ -759,6 +759,11 @@ export class InternetBankingProfileDetails extends Component {
 	}
 
 	_renderInternetBankingDetails() {
+
+		if (this.internetBankingDetails === null) {
+			return this._renderInternetBankingNotRegistered();
+		}
+
 		return isNullorEmpty(this.internetBankingDetails) 
 		? html`
 			${this._renderServiceUnavailable()}
@@ -833,6 +838,21 @@ export class InternetBankingProfileDetails extends Component {
 					?hidden=${this.isTokenSuspended}
 					@click="${() => this._onOpenSuspendPanelClick()}"
 				></capitec-button>
+			</capitec-content-box>
+		`;
+	}
+
+	_renderInternetBankingNotRegistered() {
+		return html`
+			<capitec-content-box
+				class="content-box"
+				layout="vertical"
+				halign="center"
+				valign="top"
+				gap="none">
+				<img src="/images/insure/connection-error.svg" class="connection-error-svg"/>
+				<capitec-label class="side-panel-header-label" type="Strong" label="Client not registered"></capitec-label>
+				<p style="text-align: center">You need to visit a branch to register for Internet banking.</p>
 			</capitec-content-box>
 		`;
 	}

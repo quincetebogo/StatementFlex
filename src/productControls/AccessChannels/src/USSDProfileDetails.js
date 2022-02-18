@@ -423,8 +423,7 @@ export class USSDProfileDetails extends Component {
 	_renderUSSDNotRegistered() {
 		return html`
 			<capitec-side-sheet
-				data-automation-id="ussd-profile-details-service-not-registered-sheet"
-				class="unavailable"
+				data-automation-id="ussd-profile-details-not-registered-sheet"
 				.expanded="${this.showSideSheet}"
 				alignment="right">
 					<capitec-group
