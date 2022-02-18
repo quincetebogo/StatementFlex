@@ -134,12 +134,10 @@ export class USSDProfileDetails extends Component {
 				this.ussdStatus = `Blocked`;
 
 				this._displayAndCloseToast(`USSD was cancelled. You will need to visit  branch to reactivate USSD`);
-				
-				this.showNotificationBanner = false;
-				this.showCancelReasons = !this.showCancelReasons;
-				
 				this.showNotificationBanner = true;
 			}
+			
+			this.showCancelReasons = !this.showCancelReasons;
 		} else {
 			this.bannerTitle = `Notice`;
 			this.bannerSubtitle = `Please choose a reason to cancel USSD.`;
