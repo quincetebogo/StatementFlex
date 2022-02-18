@@ -323,7 +323,6 @@ export class AccessChannels extends Component {
 			this._landingInfo();
 			return true;
 		}
-
 		return false;
 	}
 
@@ -344,38 +343,14 @@ export class AccessChannels extends Component {
 			return false;
 		}
 
+		this.landingInfo.internetBanking.dateLastUpdated = new Date().toISOString();
 		this._deepCopyStatus();
 		return true;
 	}
 
 	async getTokens(userRegNo) {
 		const returnValue = await this.accessChannelService.internetBankingLanding(userRegNo);
-		const tokens = {
-			"tokens": [
-			  {
-				"tokenType": "Hard Token",
-				"tokenSerialNo": "123456",
-				"tokenStatus": "Active"
-			  },
-			  {
-				"tokenType": "Hard Token",
-				"tokenSerialNo": "123456",
-				"tokenStatus": "Active"
-			  },
-			  {
-				"tokenType": "Hard Token",
-				"tokenSerialNo": "123456",
-				"tokenStatus": "Active"
-			  },
-			  {
-				"tokenType": "Hard Token",
-				"tokenSerialNo": "123456",
-				"tokenStatus": "Active"
-			  }
-			]
-		  };
-		return tokens;
-		
+
 		if (returnValue.succeeded && returnValue.result) {
 			return returnValue.result;
 		}
