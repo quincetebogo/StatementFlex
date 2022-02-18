@@ -127,17 +127,13 @@ export class ClientInsights extends Component {
 				.insights-group {
 					height: 364px;
 				}
-				capitec-label {
-					--theme-label-subtitle-font-weight: 600;
-					--theme-label-subtitle-font-size: 18px;
-					margin-top: 32px;
-				}
 				.sub-text {
 					--theme-label-default-font-size: 14px;
 					padding: 16px;
 					margin-top: 0px;
 					margin-bottom: auto;
 					text-align: center;
+					margin-top: 32px;
 				}
 				.chips-group {
 					margin-bottom: 24px;
@@ -207,11 +203,6 @@ export class ClientInsights extends Component {
 	_renderContent() {
 		return this.insightDetails 
 		? html`
-			<capitec-label
-				type="subtitle"
-				label="Open STrack Incident">
-			</capitec-label>
-
 			<capitec-label class="sub-text" label="${this.insightDetails.message}"></capitec-label>
 
 			<capitec-group class="chips-group" layout="horizontal" halign="center" valign="center" gap="clear">
