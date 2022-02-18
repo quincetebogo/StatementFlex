@@ -47,12 +47,12 @@ export class InternetBankingProfileDetails extends Component {
 	constructor() {
 		super();
 
-		this.showSideSheet = false;
-
 		// input properties
-		this.selectedTokens = [];
+		this.showSideSheet = false;
+		this.isVerifiedClient = false;
 
 		// internal props
+		this.selectedTokens = [];
 		this.displayToast = false;
 		this.displayResetUnsuccessfulToast = false;
 		this.displaySuspendToast = false;
@@ -109,6 +109,7 @@ export class InternetBankingProfileDetails extends Component {
 			verifiedNumber: { type: String },
 			clientTokens: { type: Object },
 			singleToken: { type: String },
+			isVerifiedClient: { type: Boolean },
 
 			// callback functions
 			suspendInternetBankingSecurityToken: { type: Object, attribute: false },
@@ -143,15 +144,14 @@ export class InternetBankingProfileDetails extends Component {
 		this.tokenList = await this.getClientTokens(this.internetBankingDetails.userRegNo);
 
 		if (this.tokenList.tokens !== null) {
-			this.tokenList.tokens.map(item => {
-				const clientToken =
-				{ 
-					token: item.tokenSerialNo, 
+			this.tokenList.tokens.forEach(item => {
+				const clientToken = {
+					token: item.tokenSerialNo,
 					selected: false
-				}
+				};
 				this.clientTokens.push(clientToken);
 			});
-		}
+        }
 
 		this.isMultipleDevices = this.clientTokens.length > 1;
 		
@@ -172,7 +172,7 @@ export class InternetBankingProfileDetails extends Component {
 	// --------------
 
 	_closeInternetBankingPanel() {
-		this.dispatchEvent(new CustomEvent(`close-side-sheet`, {}));
+		this.dispatchEvent(new CustomEvent(`close-side-sheet`, { detail: { tileClicked: `internetBanking` } }));
 	}
 
 	_resetTokenValues() {
@@ -736,10 +736,9 @@ export class InternetBankingProfileDetails extends Component {
 	_renderInternetBankingPanel() {
 		return html`
 			<capitec-side-sheet
-				data-automation-id="internetBanking-profile-details-main-side-sheet"
+				data-automation-id="internet-banking-main-side-sheet"
 				.expanded=${this.showSideSheet}
-				alignment="right"
-			>
+				alignment="right">
 				<capitec-group
 					class="side-panel-sheet-header"
 					layout="horizontal"
@@ -780,64 +779,66 @@ export class InternetBankingProfileDetails extends Component {
 				layout="vertical"
 				halign="left"
 				valign="top"
-				gap="none"
-			>
+				gap="none">
 				<horizon-label
-					data-automation-id=""
+					data-automation-id="internet-banking-username"
 					label="Username"
-					value="${this.internetBankingDetails.username}"
-				></horizon-label>
+					value="${this.internetBankingDetails.username}">
+				</horizon-label>
 
 				<horizon-label
-					data-automation-id=""
+					data-automation-id="internet-banking-token-number"
 					label="Token serial number"
 					value="${this.singleToken}"
-					?hidden="${this.isMultipleDevices}"
-				></horizon-label>
+					?hidden="${isNullorEmpty(this.singleToken) || !this.isVerifiedClient || this.isMultipleDevices}">
+				</horizon-label>
 
 				<horizon-label
-					data-automation-id=""
+					data-automation-id="internet-banking-date-registered"
 					label="Date registered"
 					value="${this._formatDate(this.internetBankingDetails.dateRegistered)}, ${this._formatTime(this.internetBankingDetails.dateRegistered)}"
-				></horizon-label>
+					?hidden="${!this.isVerifiedClient}">
+				</horizon-label>
 
 				<horizon-label
-					data-automation-id=""
+					data-automation-id="internet-banking-cellphone-number"
 					label="Cellphone number (verified)"
 					value="${this.verifiedNumber}"
-					?hidden="${this.isMultipleDevices}"
-				></horizon-label>
+					?hidden="${!this.isVerifiedClient || this.isMultipleDevices}">
+				</horizon-label>
 
 				<horizon-label
-					data-automation-id=""
+					data-automation-id="internet-banking-last-used-date"
 					label="Last interaction date"
-					value="${this._formatDate(this.internetBankingDetails.dateLastUsed)}"
-				></horizon-label>
+					value="${this._formatDate(this.internetBankingDetails.dateLastUsed)}">
+				</horizon-label>
 
 				<horizon-label
-					data-automation-id=""
+					data-automation-id="internet-banking-status"
 					label="Status"
-					value="${this.isInternetBankingActive ? `Active` : `Suspended`}"
-				></horizon-label>
+					value="${this.isInternetBankingActive ? `Active` : `Suspended`}">
+				</horizon-label>
 
 				<horizon-label
-					data-automation-id=""
+					data-automation-id="internet-banking-suspending-reason"
 					label="Reason for suspending"
 					value="${this.internetBankingDetails.statusReason}"
-					style="display:${this.isInternetBankingActive ? `none` : `block`}"
-				></horizon-label>
+					?hidden="${this.isInternetBankingActive}">
+				</horizon-label>
 
 				<!-- Main Panel -->
 				<capitec-button
+					data-automation-id="internet-banking-reset-token-button"
 					label="Reset Security Token Clock"
-					?hidden=${this.isTokenSuspended}
-					@click="${() => this._onResetSecurityTokenClockClick()}"
-				></capitec-button>
+					?hidden=${!this.isVerifiedClient || this.isTokenSuspended}
+					@click="${() => this._onResetSecurityTokenClockClick()}">
+				</capitec-button>
 				<capitec-button
+					data-automation-id="internet-banking-suspend-token-button"
 					label="Suspend Security Token"
-					?hidden=${this.isTokenSuspended}
-					@click="${() => this._onOpenSuspendPanelClick()}"
-				></capitec-button>
+					?hidden=${this.isTokenSuspended || !Boolean(this.clientTokens?.length)}
+					@click="${() => this._onOpenSuspendPanelClick()}">
+				</capitec-button>
 			</capitec-content-box>
 		`;
 	}
@@ -860,6 +861,7 @@ export class InternetBankingProfileDetails extends Component {
 	_renderSuspendPanel() {
 		return this.renderMode === RENDER_MODE.SINGLE_TOKEN ? html`
 			<capitec-side-sheet
+				data-automation-id="internet-banking-single-token-panel"
 				class="side-panel-sheet"
 				.expanded=${this.showSuspendPanel}
 				alignment="right">
@@ -870,6 +872,7 @@ export class InternetBankingProfileDetails extends Component {
 			</capitec-side-sheet>
 		` : html`
 			<capitec-side-sheet
+				data-automation-id="internet-banking-multiple-token-panel"
 				class="side-panel-sheet"
 				.expanded=${this.showSuspendPanel}
 				alignment="right">
@@ -883,8 +886,7 @@ export class InternetBankingProfileDetails extends Component {
 					layout="vertical"
 					halign="left"
 					valign="top"
-					gap="none"
-				>
+					gap="none">
 					${this._renderClientTokens()}
 				</capitec-content-box>
 			</capitec-side-sheet>
@@ -944,72 +946,73 @@ export class InternetBankingProfileDetails extends Component {
 				layout="vertical"
 				halign="left"
 				valign="top"
-				gap="none"
-			>
+				gap="none">
 				<capitec-label
 					class="reason-to-suspend-label"
 					type="subtitle"
 					data-automation-id=""
 					label="Reasons to suspend"
-					value=""
-				></capitec-label>
+					value="">
+				</capitec-label>
 
 				<capitec-radio-group
-					label="Radio group label"
-					>
+					label="Radio group label">
 						<capitec-radio
 							id="stolen"
 							class="radio-button-label"
-							data-automation-id="suspend-reason-stolen"
+							data-automation-id="internet-banking-suspend-reason-stolen"
 							label=${SUSPEND_REASONS.STOLEN}
 							?checked=${this.selectedReason === SUSPEND_REASONS.STOLEN}
-							@value-changed="${(e) => this._onSelectedReasonChanged(e)}"
-						></capitec-radio>
+							@value-changed="${(e) => this._onSelectedReasonChanged(e)}">
+						</capitec-radio>
 
 						<capitec-radio
 							id="lost"
 							class="radio-button-label"
-							data-automation-id="suspend-reason-lost"
+							data-automation-id="internet-banking-suspend-reason-lost"
 							label=${SUSPEND_REASONS.LOST}
 							?checked=${this.selectedReason === SUSPEND_REASONS.LOST}
-							@value-changed="${(e) => this._onSelectedReasonChanged(e)}"
-						></capitec-radio>
+							@value-changed="${(e) => this._onSelectedReasonChanged(e)}">
+						</capitec-radio>
 
 						<capitec-radio
 							id="faulty"
 							class="radio-button-label"
-							data-automation-id="suspend-reason-faulty"
+							data-automation-id="internet-banking-suspend-reason-faulty"
 							label=${SUSPEND_REASONS.FAULTY}
 							?checked=${this.selectedReason === SUSPEND_REASONS.FAULTY}
-							@value-changed="${(e) => this._onSelectedReasonChanged(e)}"
-						></capitec-radio>
+							@value-changed="${(e) => this._onSelectedReasonChanged(e)}">
+						</capitec-radio>
 
 						<capitec-radio
 							id="serviceCancellation"
 							class="radio-button-label"
-							data-automation-id="suspend-reason-service-cancellation"
+							data-automation-id="internet-banking-suspend-reason-service-cancellation"
 							label=${SUSPEND_REASONS.SERVICE_CANCELLATION}
 							?checked=${this.selectedReason === SUSPEND_REASONS.SERVICE_CANCELLATION}
-							@value-changed="${(e) => this._onSelectedReasonChanged(e)}"
-						></capitec-radio>
+							@value-changed="${(e) => this._onSelectedReasonChanged(e)}">
+						</capitec-radio>
 					</capitec-radio-group>
 
 					<!-- Suspend Reasons Panel -->
 					<capitec-button
+						data-automation-id="internet-banking-suspend-token-button"
 						type="primary"
 						label="Suspend Security Token"
-						@click="${() => this._onSuspendSecurityTokenClick()}"
-					></capitec-button>
+						@click="${() => this._onSuspendSecurityTokenClick()}">
+					</capitec-button>
 					<capitec-button
+						data-automation-id="internet-banking-back-button"
 						label="Back"
 						@click="${() => this._onBackBtnClick()}"
-						?hidden=${this.isMultipleDevices === false}
-					></capitec-button>
+						?hidden=${this.isMultipleDevices === false}>
+					</capitec-button>
 					<capitec-button
+						data-automation-id="internet-banking-cancel-button"
 						label="Cancel"
 						@click="${() => this._onCloseSuspendPanelClick()}"
-						?hidden=${this.isMultipleDevices === true}
-					></capitec-button>
+						?hidden=${this.isMultipleDevices === true}>
+					</capitec-button>
 				</capitec-content-box>
 		` : html``;
 	}
@@ -1017,7 +1020,9 @@ export class InternetBankingProfileDetails extends Component {
 	_renderClientTokens() {
 		return this.renderStepperMode === RENDER_STEPPER_MODE.CLIENT_TOKENS ? html`
 			
-				<capitec-check-group class="check-group">
+				<capitec-check-group 
+					class="check-group"
+					data-automation-id="internet-banking-token-group">
 					<capitec-check 
 						label="Select all"
 						class="token-select-all"
@@ -1031,16 +1036,18 @@ export class InternetBankingProfileDetails extends Component {
 
 				<!-- Multiple Client Tokens -->
 				<capitec-button
+					data-automation-id="internet-banking-next-button"
 					type="primary"
 					label="Next"
 					@click="${() => this._onNextBtnClick()}"
-					?hidden=${this.showResetTokenPanel}
-				></capitec-button>
+					?hidden=${this.showResetTokenPanel}>
+				</capitec-button>
 				<capitec-button
+					data-automation-id="internet-banking-cancel-button"
 					label="Cancel"
 					@click="${() => this._onCloseSuspendPanelClick()}"
-					?hidden=${this.showResetTokenPanel}
-				></capitec-button>
+					?hidden=${this.showResetTokenPanel}>
+				</capitec-button>
 
 		` : html``;
 	}
@@ -1061,8 +1068,7 @@ export class InternetBankingProfileDetails extends Component {
 			<capitec-side-sheet
 				class="side-panel-sheet"
 				.expanded=${this.showResetTokenPanel}
-				alignment="right"
-			>
+				alignment="right">
 				<capitec-group
 					class="side-panel-header-reset-token"
 					layout="horizontal"
@@ -1079,28 +1085,29 @@ export class InternetBankingProfileDetails extends Component {
 					layout="vertical"
 					halign="left"
 					valign="top"
-					gap="none"
-				>
+					gap="none">
 					<capitec-label
 						class="reset-security-token-label"
 						type="subtitle"
 						data-automation-id=""
 						label="Choose security token to reset"
-						value=""
-					></capitec-label>
+						value="">
+					</capitec-label>
 
 					${this._renderClientTokens()}
 
 					<!-- Multiple Client Tokens -->
 					<capitec-button
+						data-automation-id="internet-banking-reset-token-button"
 						type="primary"
 						label="Reset Security Token Clock"
-						@click="${() => this._onMultipleTokensResetBtnClick()}"
-					></capitec-button>
+						@click="${() => this._onMultipleTokensResetBtnClick()}">
+					</capitec-button>
 					<capitec-button
+						data-automation-id="internet-banking-cancel-button"
 						label="Cancel"
-						@click="${() => this._onCloseResetPanelClick()}"
-					></capitec-button>
+						@click="${() => this._onCloseResetPanelClick()}">
+					</capitec-button>
 				</capitec-content-box>
 
 			</capitec-side-sheet>
@@ -1149,7 +1156,7 @@ export class InternetBankingProfileDetails extends Component {
 
 		return this.displayToast ? html`
 			<capitec-toast 
-				data-automation-id="internet-banking-details-success-toast"
+				data-automation-id="internet-banking-reset-token-success-toast"
 				id="internet-banking-success-toast"
 				class="token-reset-toast-success"
 				type="success" 
@@ -1175,6 +1182,7 @@ export class InternetBankingProfileDetails extends Component {
 	_renderTokenResetUnsuccessfulToast() {
 		return this.displayResetUnsuccessfulToast ? html`
 			<capitec-toast
+				data-automation-id="internet-banking-reset-token-ussuccess-toast"
 				class="token-reset-toast-success"
 				type="error"
 				header="Unsuccessful!"
@@ -1199,7 +1207,7 @@ export class InternetBankingProfileDetails extends Component {
 
 		return this.displaySuspendToast ? html`
 			<capitec-toast 
-				data-automation-id="internet-banking-details-token-suspend-success-toast"
+				data-automation-id="internet-banking-suspend-token-success-toast"
 				id="internet-banking-token-suspend-success-toast"
 				class="token-suspend-toast-success"
 				type="success" 
@@ -1224,14 +1232,15 @@ export class InternetBankingProfileDetails extends Component {
 	_renderTokenSuspendUnsuccessToast() {
 		return this.displaySuspendUnsuccessToast ? html`
 			<capitec-toast
+				data-automation-id="internet-banking-suspend-token-unsuccess-toast"
 				class="token-suspend-toast-success"
 				type="error"
 				header="Unsuccessful!"
 				detail="Internet security token was not suspended. &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp Please try again."
 				?hidden="${!this.displaySuspendUnsuccessToast}"
 				@click="${() => this.displaySuspendUnsuccessToast = false}"
-				?closable=${false}
-			></capitec-toast>
+				?closable=${false}>
+			</capitec-toast>
 		` : html``;
 	}
 
@@ -1270,8 +1279,8 @@ export class InternetBankingProfileDetails extends Component {
 					href="https://www.capitecbank.co.za/global-one/transact/fees/"
 					target="_blank"
 					label="View fees"
-					inline
-				></capitec-hyperlink>
+					inline>
+				</capitec-hyperlink>
 			</capitec-alert-banner>
 		`;
 	}

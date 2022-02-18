@@ -1,39 +1,38 @@
 export const accessChannelsDetails = {
-	"msisdn": ``,
-
+	"msisdn": `27725528539`,
 	"app": {
 		"status": `Active`,
-		"statusReason": `Stolen`,
-		"dateLastUsed": `2021-09-11T09:48:18.908Z`,
-		"dateRegistered": `2021-11-08T09:48:18.908Z`,
-		"userName": `Mr Tertius Steyl`,
-		"userRegNo": `9065011004`
+		"statusReason": null,
+		"dateLastUsed": `2022-01-04T13:26:01`,
+		"dateRegistered": `2021-08-31T08:39:04`,
+		"username": `1561532302`,
+		"userRegNo": 10004831
 	},
 	"internetBanking": {
 		"status": `Active`,
-		"statusReason": ``,
-		"dateLastUsed": `2021-11-08T09:48:18.908Z`,
-		"dateRegistered": `2021-11-08T09:48:18.908Z`,
-		"dateLastUpdated": `2021-06-12T12:45:18.908T`,
-		"userName": `Mr Tertius Steyl`,
-		"userRegNo": `9065011004`,
-		"tokenSerialNumber": `11111111111`
+		"statusReason": null,
+		"dateLastUsed": `2021-11-24T10:45:00`,
+		"dateRegistered": `2021-08-31T08:37:53`,
+		"username": `1561532302`,
+		"userRegNo": 10004831,
+		"tokenType": `Soft Token`
 	},
 	"ussd": {
 		"status": `Active`,
-		"statusReason": ``,
-		"isSimBlocked": true,
-		"dateLastUsed": `2021-12-08T08:00:48.879Z`,
-		"dateRegistered": `2021-12-08T08:00:48.879Z`,
-		"dateLastUpdated": `2021-12-08T08:00:48.879Z`,
-		"userRegNo": `906 501 1004`,
-		"features": [`REDUCED_MENU`]
+		"isSimBlocked": false,
+		"dateLastUsed": `2021-11-24T10:45:00`,
+		"dateRegistered": `2021-01-26T10:45:00`,
+		"dateLastUpdated": null,
+		"features": []
 	},
-	"notifications": {
-		"status": `Active`,
-		"messageType": `SMS Update`,
-		"messageTime": `Anytime`,
-		"dateLastUpdated": `2021-12-08T08:00:48.879Z`
+	"notification": {
+		"notificationType": `Unspecified`,
+		"notificationTime": `any`,
+		"moneyInEnabled": true,
+		"moneyInAmount": 30.0,
+		"moneyOutEnabled": true,
+		"moneyOutAmount": 30.0,
+		"smsSecurity": false
 	}
 };
 

@@ -39,6 +39,7 @@ export class AccessChannels extends Component {
 
 	constructor() {
 		super();
+		this.isVerifiedClient = false;
 	}
 
 	// --------------
@@ -51,7 +52,8 @@ export class AccessChannels extends Component {
 
 	static get properties() {
 		return {
-			status: { type: Object }
+			status: { type: Object },
+			isVerifiedClient: { type: Boolean }
 		};
 	}
 
@@ -115,7 +117,7 @@ export class AccessChannels extends Component {
 			return `Blocked | SIM Swop detected`;
 		}
 
-		if (type === ACCESS_CHANNELS_TYPE.USSD && this.status.ussd.features.includes(`REDUCED_MENU`) && status !== ACCESS_CHANNEL_STATUS.BLOCKED) {
+		if (type === ACCESS_CHANNELS_TYPE.USSD && this.status.ussd.features.includes(`REDUCED_MENU`) && status !== ACCESS_CHANNEL_STATUS.INACTIVE) {
 			return `${status} | Reduced menu`;
 		}
 
@@ -154,6 +156,9 @@ export class AccessChannels extends Component {
 	}
 
 	_getNotificationsDetails() {
+		if (isNullorEmpty(this.status.notification)) {
+			return `Service unavailable`;
+		}
 		return `${this.status.notification?.notificationType} | ${this.status.notification?.notificationTime}`;
 	}
 
@@ -195,11 +200,14 @@ export class AccessChannels extends Component {
 				horizon-product-tile[status="Active"] {
 					--theme-product-tile-default-border-left: 4px solid #70B000;
 				}
-				horizon-product-tile[status="Suspended"], [status="Blocked"], [status="Unavailable"], [status="Inactive"] {
+				horizon-product-tile[status="Suspended"], [status="Blocked"], [status="Unavailable"], [subtitle="Service unavailable"], [status="Inactive"] {
 					--theme-product-tile-default-border-left: 4px solid #a5132a;
 				}
 				horizon-product-tile[status*="Reduced menu"] {
 					--theme-product-tile-default-border-left: 4px solid #d4781c;
+				}
+				.hide-tile {
+					display: none;
 				}
 			`
 		];
@@ -257,7 +265,7 @@ export class AccessChannels extends Component {
 
 				<horizon-product-tile 
 					data-automation-id="access-channels-notification"
-					class=""
+					class="${this.isVerifiedClient ? `` : `hide-tile`}"
 					type="default"
 					label="Notifications"
 					status="${this.status.notification?.status}"
