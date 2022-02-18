@@ -2,6 +2,7 @@ import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { ViewBase } from '../common/ViewBase';
 import { html } from 'platform/elements';
+import { savingsPlanMocks } from 'app/mocks/SavingsPlanMocks';
 
 import 'app/productControls/SavingsPlan/SavingsPlanLanding';
 
