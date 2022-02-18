@@ -155,3 +155,38 @@ export const creditCardDetails = {
 	"insuranceTypeDescription": `Death and disability`,
 	"waitingPeriodExpiryDate": `2022-05-06T15:18:57.074Z`
 };
+
+export const settlementQuoteDetails = [
+	{
+		quoteName: `Term Loan (32 months)`,
+		accountNumber: `1234596`,
+		loanAmount: 35000,
+		instalment: 1234.91,
+		settlementAmount: 18000,
+		creditType: `Fixed credit`
+	},
+	{
+		quoteName: `Term Loan (84 months)`,
+		accountNumber: `456789`,
+		loanAmount: 15000,
+		instalment: 1498.91,
+		settlementAmount: 7920,
+		creditType: `Fixed credit`
+	},
+	{
+		quoteName: `Credit card`,
+		accountNumber: `147852`,
+		loanAmount: 150000,
+		instalment: 3982.91,
+		settlementAmount: 31938.99,
+		creditType: `Flexible credit`
+	},
+	{
+		quoteName: `Access facility`,
+		accountNumber: `852369`,
+		loanAmount: 50000,
+		instalment: 2479.01,
+		settlementAmount: 7820,
+		creditType: `Flexible credit`
+	}
+];
