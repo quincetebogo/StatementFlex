@@ -14,7 +14,8 @@ const ACCESS_CHANNEL_STATUS = {
 	ACTIVE: `Active`,
 	SUSPENDED: `Suspended`,
 	UNAVAILABLE: `Unavailable`,
-	BLOCKED: `Blocked`
+	BLOCKED: `Blocked`,
+	INACTIVE: `Inactive`
 };
 
 /**
@@ -99,19 +100,29 @@ export class AccessChannels extends Component {
 	}
 
 	_getStatusDetails(type) {
-		const status = this.status[type]?.status;
+		
+		const accessChannel = this.status[type]; 
 
-		if (isNullorEmpty(status)) {
+		if (accessChannel === null) {
+			return `Not registered`;
+		}
+		
+		if (accessChannel === undefined) {
 			return `Service unavailable`;
 		}
-		if (!this.isVerifiedClient) {
-			return `${status} | Last used ${this._formatDate(this.status[type].dateLastUsed)}`;
-		}
+
+		const status = accessChannel.status;
+
 		if (type === ACCESS_CHANNELS_TYPE.USSD && this.status.ussd.isSimBlocked) {
 			return `Blocked | SIM Swop detected`;
 		}
-		if (type === ACCESS_CHANNELS_TYPE.USSD && this.status.ussd.features.includes(`REDUCED_MENU`) && status !== ACCESS_CHANNEL_STATUS.BLOCKED) {
+
+		if (type === ACCESS_CHANNELS_TYPE.USSD && this.status.ussd.features.includes(`REDUCED_MENU`) && status !== ACCESS_CHANNEL_STATUS.INACTIVE) {
 			return `${status} | Reduced menu`;
+		}
+
+		if (type === ACCESS_CHANNELS_TYPE.USSD && status === ACCESS_CHANNEL_STATUS.INACTIVE) {
+			return `Cancelled | ${this._formatDate(accessChannel.dateLastUpdated)}, ${this._formatTime(accessChannel.dateLastUpdated)}`;
 		}
 
 		switch (status) {
@@ -127,10 +138,15 @@ export class AccessChannels extends Component {
 
 	_getUssdStatus(ussdDetails) {
 
-		if (isNullorEmpty(ussdDetails)) {
+		if (ussdDetails === undefined) {
 			return ACCESS_CHANNEL_STATUS.UNAVAILABLE;
 		}
-		if (ussdDetails.isSimBlocked || ussdDetails.status === ACCESS_CHANNEL_STATUS.BLOCKED) {
+
+		if (ussdDetails === null) {
+			return `Not registered`;
+		}
+
+		if (ussdDetails.isSimBlocked) {
 			return ACCESS_CHANNEL_STATUS.BLOCKED;
 		}
 		if (ussdDetails.features.includes(`REDUCED_MENU`)) {
@@ -184,7 +200,7 @@ export class AccessChannels extends Component {
 				horizon-product-tile[status="Active"] {
 					--theme-product-tile-default-border-left: 4px solid #70B000;
 				}
-				horizon-product-tile[status="Suspended"], [status="Blocked"], [status="Unavailable"], [subtitle="Service unavailable"] {
+				horizon-product-tile[status="Suspended"], [status="Blocked"], [status="Unavailable"], [subtitle="Service unavailable"], [status="Inactive"] {
 					--theme-product-tile-default-border-left: 4px solid #a5132a;
 				}
 				horizon-product-tile[status*="Reduced menu"] {

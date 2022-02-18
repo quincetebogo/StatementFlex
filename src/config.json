@@ -134,7 +134,19 @@
 			"positiveCase": true
 		},
 		"accessChannelResetSecurityTokenClock": {
-			"enabled": true,
+			"enabled": false,
+			"positiveCase": true
+		},
+		"activatefullUssdMenu": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"cancelUSSD": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"unblockSIM": {
+			"enabled": false,
 			"positiveCase": true
 		}
 	}

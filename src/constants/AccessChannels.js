@@ -37,3 +37,14 @@
 	ACTIVE: `Active`,
 	SUSPENDED: `Suspended`
 });
+
+/**
+ * Access channels reasons
+ * 
+ * @readonly
+ * @enum {Object} ACCESS_CHANNELS_REASONS
+ * 
+ */
+export const ACCESS_CHANNELS_REASONS = Object.freeze({
+	DEFAULT: `Unspecified`
+});
