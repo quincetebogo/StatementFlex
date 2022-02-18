@@ -161,7 +161,7 @@ export class AppProfileDetails extends Component {
 				elementToast.style.animation = `slideUp 0.6s`;
 				
 				window.setTimeout(() => elementToast.style.display = `none`, 600);
-			}, 30000000);
+			}, 3000);
 	}
 
 	_closeToast(e) {
