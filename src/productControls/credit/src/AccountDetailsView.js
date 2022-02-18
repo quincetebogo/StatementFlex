@@ -153,6 +153,14 @@ import 'app/components/common/HorizonLabel';
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-color: #3A3A3A;
 				}
+				horizon-label[value="Active"][label="Account status"] {
+					width: 132px;
+					--horizon-label-value-color: #70AF00;
+				}
+				horizon-label[value="In arrears"][label="Account status"] {
+					width: 132px;
+					--horizon-label-value-color: #a5132a;
+				}
 			`
 		];
 	}

@@ -1,5 +1,5 @@
 import { Component, html } from 'platform/elements';
-import { formatCurrency, formatDate, getDateOrdinal } from 'app/utils/channelServiceUtilities';
+import { formatCurrency, formatDate, formatStringAsPascalCase, getDateOrdinal } from 'app/utils/channelServiceUtilities';
 
 import 'app/productControls/credit/src/AccountDetailsView';
 
@@ -56,7 +56,7 @@ import 'app/productControls/credit/src/AccountDetailsView';
 
 		// formatting credit card details received from service
 		this.accountDetails = {
-			'title': this.accessFacilityDetails.accountDescription,
+			'title': formatStringAsPascalCase(this.accessFacilityDetails.accountDescription),
 			'accountNumber': this.accessFacilityDetails.accountNumber,
 			'overview': {
 				'Current balance': formatCurrency(this.accessFacilityDetails.currentBalance),
@@ -64,7 +64,7 @@ import 'app/productControls/credit/src/AccountDetailsView';
 				'Credit limit': formatCurrency(this.accessFacilityDetails.creditLimit),
 				'Take-up date': formatDate(this.accessFacilityDetails.openDate, `dd mmm yyyy`),
 				'Auto limit increase': `${this.accessFacilityDetails.autoIncreaseLimitOption ? `Yes` : `No`}`,
-				'Account status': this.accessFacilityDetails.accountStatusDescription
+				'Account status': this.accessFacilityDetails.arrearsStatus ? `In arrears` : formatStringAsPascalCase(this.accessFacilityDetails.accountStatusDescription)
 			},
 			'arrears': null,
 			'repayment': {

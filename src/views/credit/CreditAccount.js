@@ -1,4 +1,5 @@
 import { css, html } from 'platform/elements';
+import { formatCurrency, formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 import { Configuration } from 'platform/core';
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { CreditService } from 'app/services/CreditService';
@@ -6,7 +7,6 @@ import { QuickTransactionsService } from 'app/services/QuickTransactionsService'
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
-import { formatCurrency } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/ServiceCallErrorScreen';
 import 'app/components/credit/CreditCardDetails';
@@ -241,7 +241,7 @@ export class CreditAccount extends ViewBase {
 	_budgetAccountDetails(selectedAccountDetails) {
 
 		this.budgetAccountDetails = {
-			budgetName: selectedAccountDetails.budgetName,
+			budgetName: formatStringAsPascalCase(selectedAccountDetails.budgetName),
 			"Monthly repayment": formatCurrency(selectedAccountDetails.budgetInstalment),
 			"Purchase amount": formatCurrency(selectedAccountDetails.originalAmount),
 			"Outstanding balance": formatCurrency(selectedAccountDetails.budgetBalance),
@@ -364,10 +364,12 @@ export class CreditAccount extends ViewBase {
 		this.creditAccountDetails.creditCardSummaryList.map(item => {
 			item.type = PRODUCTS.CREDIT_CARD;
 			item.category = CREDIT_TYPE.FLEXIBLE;
+			item.productTypeDescription = formatStringAsPascalCase(item.productTypeDescription);
 			item.currentBalance = formatCurrency(item.currentBalance);
 			item.availableCredit = formatCurrency(item.availableCredit);
 			item.creditLimit = formatCurrency(item.creditLimit);
 			item.nextRepayment = formatCurrency(item.nextRepayment);
+			item.accountStatusDescription = formatStringAsPascalCase(item.accountStatusDescription);
 
 			return item;
 		});
@@ -375,10 +377,12 @@ export class CreditAccount extends ViewBase {
 		this.creditAccountDetails.accessFacilitySummaryList.map(item => {
 			item.type = PRODUCTS.ACCESS_FACILITY;
 			item.category = CREDIT_TYPE.FLEXIBLE;
+			item.productTypeDescription = formatStringAsPascalCase(item.productTypeDescription);
 			item.currentBalance = formatCurrency(item.currentBalance);
 			item.availableCredit = formatCurrency(item.availableCredit);
 			item.creditLimit = formatCurrency(item.creditLimit);
 			item.nextRepayment = formatCurrency(item.nextRepayment);
+			item.accountStatusDescription = formatStringAsPascalCase(item.accountStatusDescription);
 
 			return item;
 		});
@@ -386,10 +390,12 @@ export class CreditAccount extends ViewBase {
 		this.creditAccountDetails.loanAccountSummaryList.map(item => {
 			item.type = PRODUCTS.TERM_LOAN;
 			item.category = CREDIT_TYPE.FIXED;
+			item.productTypeDescription = formatStringAsPascalCase(item.productTypeDescription);
 			item.currentBalance = formatCurrency(item.currentBalance);
 			item.availableCredit = formatCurrency(item.availableCredit);
 			item.creditLimit = formatCurrency(item.creditLimit);
 			item.nextRepayment = formatCurrency(item.nextRepayment);
+			item.accountStatusDescription = formatStringAsPascalCase(item.accountStatusDescription);
 
 			return item;
 		});

@@ -237,3 +237,21 @@ export function formatDate(value, format) {
 
 	return formattedDate;
 }
+
+/**
+ * 
+ * Formats strings as pascal case
+ * 
+ * @param {string} unformatedString - Unformatted string
+ * @returns {string} pascal formated string
+ */
+export function formatStringAsPascalCase(unformatedString) {
+
+	const words = unformatedString.split(` `);
+
+	let formattedString = ``;
+
+	words.forEach((item, index) => formattedString += item.replace(/(\w)(\w*)/g, (g0, g1, g2) => ` ${g1.toUpperCase() + g2.toLowerCase()}`));
+
+	return formattedString.trim();
+}
