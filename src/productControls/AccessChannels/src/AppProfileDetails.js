@@ -405,7 +405,7 @@ export class AppProfileDetails extends Component {
 				<horizon-label
 					data-automation-id="app-profile-details-cellphone-number"
 					label="Cellphone number (verified)"
-					value="${this.appDetails.userRegNo}"
+					value="${this.verifiedNumber}"
 					?hidden="${!this.isVerifiedClient}">
 				</horizon-label>
 
