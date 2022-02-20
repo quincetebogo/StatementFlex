@@ -347,9 +347,6 @@ export class CreditAccount extends ViewBase {
 
 			this.creditBalance = returnValue.result;
 
-			// TODO: How are we going populate the left bar? There is no landing page endpoint 
-			// this._updateLeftBar();
-
 			this._telemetry.startSpan(CreditEvents.CREDIT, {
 				"screen": TelemetryScreen.CREDIT_LANDING,
 				"credit-active": true
@@ -369,7 +366,7 @@ export class CreditAccount extends ViewBase {
 			item.availableCredit = formatCurrency(item.availableCredit);
 			item.creditLimit = formatCurrency(item.creditLimit);
 			item.nextRepayment = formatCurrency(item.nextRepayment);
-			item.accountStatusDescription = formatStringAsPascalCase(item.accountStatusDescription);
+			item.accountStatusDescription = item.arrearIndicator ? `In arrears` : formatStringAsPascalCase(item.accountStatusDescription);
 
 			return item;
 		});
@@ -382,7 +379,7 @@ export class CreditAccount extends ViewBase {
 			item.availableCredit = formatCurrency(item.availableCredit);
 			item.creditLimit = formatCurrency(item.creditLimit);
 			item.nextRepayment = formatCurrency(item.nextRepayment);
-			item.accountStatusDescription = formatStringAsPascalCase(item.accountStatusDescription);
+			item.accountStatusDescription = item.arrearIndicator ? `In arrears` : formatStringAsPascalCase(item.accountStatusDescription);
 
 			return item;
 		});
@@ -395,7 +392,7 @@ export class CreditAccount extends ViewBase {
 			item.availableCredit = formatCurrency(item.availableCredit);
 			item.creditLimit = formatCurrency(item.creditLimit);
 			item.nextRepayment = formatCurrency(item.nextRepayment);
-			item.accountStatusDescription = formatStringAsPascalCase(item.accountStatusDescription);
+			item.accountStatusDescription = item.arrearIndicator ? `In arrears` : formatStringAsPascalCase(item.accountStatusDescription);
 
 			return item;
 		});

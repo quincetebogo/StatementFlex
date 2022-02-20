@@ -83,7 +83,9 @@ import 'app/productControls/credit/src/AccountDetailsView';
 		if (this.termLoanDetails.arrearsStatus) {
 			this.accountDetails.arrears = {
 				'Total arrears amount': formatCurrency(this.termLoanDetails.totalArrearsPayable),
-				'Last arrears date': formatDate(this.termLoanDetails.lastArrearsDate, `dd mmm yyyy`)
+				'Last arrears date': formatDate(this.termLoanDetails.lastArrearsDate, `dd mmm yyyy`),
+				'Decemeber arrears': formatCurrency(this.termLoanDetails.decemberArrears),
+				'Arrears excluding Decemeber arrears': formatCurrency(this.termLoanDetails.arrearsExcludingDecemberArrears)
 			};
 		}
 	}
