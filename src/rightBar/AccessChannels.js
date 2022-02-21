@@ -341,7 +341,6 @@ export class AccessChannels extends Component {
 			this._landingInfo();
 			return true;
 		}
-
 		return false;
 	}
 
@@ -362,6 +361,7 @@ export class AccessChannels extends Component {
 			return false;
 		}
 
+		this.landingInfo.internetBanking.dateLastUpdated = new Date().toISOString();
 		this._deepCopyStatus();
 		return true;
 	}

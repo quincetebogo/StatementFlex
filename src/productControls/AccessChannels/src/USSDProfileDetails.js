@@ -141,14 +141,12 @@ export class USSDProfileDetails extends Component {
 				this.ussdStatus = `Inactive`;
 
 				this._displayAndCloseSuccessToast(`USSD was cancelled. You will need to visit  branch to reactivate USSD`);
-				
-				this.showNotificationBanner = false;
-				this.showCancelReasons = !this.showCancelReasons;
-				
 				this.showNotificationBanner = true;
 			} else {
 				this._displayAndCloseUnsuccessfulToast(`USSD was not cancelled. Please try again.`);
 			}
+			
+			this.showCancelReasons = !this.showCancelReasons;
 		} else {
 			this.bannerTitle = `Notice`;
 			this.bannerSubtitle = `Please choose a reason to cancel USSD.`;

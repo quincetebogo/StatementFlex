@@ -31,7 +31,6 @@ export class AppProfileDetails extends Component {
 
 		this.showSuspendReasons = false;
 		this.selectedSuspendReason = ``;
-		this.displayToast = false;
 		this.showValidationBanner = false;
 		this.isVerifiedClient = false;
 	}
@@ -54,7 +53,6 @@ export class AppProfileDetails extends Component {
 	 * @property {Object} [appDetails] - App profile details
 	 * @property {Boolean} [showSuspendReasons] - To toggle suspend reasons side sheet component
 	 * @property {String} [selectedSuspendReason] - Holds value of the selected suspend reason
-	 * @property {Boolean} [displayToast] - To hide or show the successful Toast
 	 * @property {Boolean} [showValidationBanner] - To hide or show the suspend reason validation banner on error 
 	 * 
 	 * @property {suspendAppCallback} suspendApp Callback function to suspend App
@@ -74,7 +72,6 @@ export class AppProfileDetails extends Component {
 
 			showSuspendReasons: { state: true },
 			selectedSuspendReason: { state: true },
-			displayToast: { state: true },
 			showValidationBanner: { state: true }
 		};
 	}
@@ -123,12 +120,12 @@ export class AppProfileDetails extends Component {
 		this.showSuspendReasons = !this.showSuspendReasons;
 	
 		if (!returnValue) {
-			this.serviceUnavailable = true;
+			this._displayAndCloseToast(`app-unsuccess-toast`);
 			return false;
 		}
 
 		this.appDetails.status = `Suspended`;
-		this._displayAndCloseToast();
+		this._displayAndCloseToast(`app-success-toast`);
 
 		this.showValidationBanner = false;
 	}
@@ -139,7 +136,7 @@ export class AppProfileDetails extends Component {
 		
 		if (returnValue) {
 			this.appDetails.status = `Active`;
-			this._displayAndCloseToast();
+			this._displayAndCloseToast(`app-success-toast`);
 		}
 	}
 
@@ -154,16 +151,22 @@ export class AppProfileDetails extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	_displayAndCloseToast() {
-		this.displayToast = true;
+	_displayAndCloseToast(elementId) {
 
-		const elementToast = this.shadowRoot.getElementById(`app-success-toast`);
-		elementToast.style.animation = `slideDown 0.6s`; 
+		const elementToast = this.shadowRoot.getElementById(elementId);
+		elementToast.style.display = `block`;
+		elementToast.style.animation = `slideDown 0.6s`;
 
 		window.setTimeout(() => {
 				elementToast.style.animation = `slideUp 0.6s`;
-				window.setTimeout(() => this.displayToast = false, 600);
+				
+				window.setTimeout(() => elementToast.style.display = `none`, 600);
 			}, 3000);
+	}
+
+	_closeToast(e) {
+		const elementToast = this.shadowRoot.getElementById(e.target.id);
+		elementToast.style.display = `none`;
 	}
 
 	_formatDate(dateToFormat) {
@@ -262,6 +265,7 @@ export class AppProfileDetails extends Component {
 					padding: 12px 0px 0px 16px;
 					position: absolute;
 					z-index: 100;
+					display: none;
 				}
 				@keyframes slideDown {
 					0% {
@@ -381,6 +385,7 @@ export class AppProfileDetails extends Component {
 			${this._renderServiceUnavailable()}`
 		: html`
 			${this._renderSuccessToast()}
+			${this._renderUnsuccessToast()}
 			${this._renderNotificationBanner()}
 			
 			<capitec-content-box
@@ -620,13 +625,31 @@ export class AppProfileDetails extends Component {
 				detail="App was ${this.appDetails.status === `Active` ? `unsuspended` : `suspended`}&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp 
 						&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp 
 						&nbsp &nbsp &nbsp ${this._formatDate(this.appDetails.dateLastUpdated)}, ${this._formatTime(this.appDetails.dateLastUpdated)}"
-				?hidden="${!this.displayToast}"
-				@click="${() => this.displayToast = false}"
+				@click="${(e) => this._closeToast(e)}"
 				closable>
 					<capitec-label label="Successful!" type="strong"></capitec-label>
 					<capitec-label label="App was ${this.appDetails.status === `Active` ? `unsuspended` : `suspended`}"></capitec-label>
 					<capitec-spacer></capitec-spacer>
 					<capitec-label label="${this._formatDate(this.appDetails.dateLastUpdated)}, ${this._formatTime(this.appDetails.dateLastUpdated)}" type="strong"></capitec-label>
+			</capitec-toast>`;
+	}
+
+	_renderUnsuccessToast() {
+
+		/* TO DO: "Header" and "Detail" properties can be removed when update platform to the latest version 
+		as content inside slot will be effective.*/
+
+		return html`
+			<capitec-toast 
+				data-automation-id="app-profile-details-unsuccess-toast"
+				id="app-unsuccess-toast"
+				type="error" 
+				header="Unsuccessful!"
+				detail="App was not suspended &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp Try again"
+				@click="${(e) => this._closeToast(e)}"
+				closable>
+					<capitec-label label="Unsuccessful!" type="strong"></capitec-label>
+					<capitec-label label="App was not suspended"></capitec-label>
 			</capitec-toast>`;
 	}
 }
