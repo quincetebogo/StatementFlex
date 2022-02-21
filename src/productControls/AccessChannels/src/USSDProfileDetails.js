@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { ACCESS_CHANNEL_STATUS } from './AccessChannels';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonLabel';
@@ -404,15 +405,14 @@ export class USSDProfileDetails extends Component {
 	}
 
 	_webTemplate() {
-		if (this.ussd === undefined) {
-			return html`
-				${this._renderUSSDUnavailable()}
-			`;
+		if (isNullorEmpty(this.ussd) || this.ussd.status === ACCESS_CHANNEL_STATUS.UNAVAILABLE) {
+			return this._renderUSSDUnavailable();
 		}
 
-		if (this.ussd === null) {
-			return html`${this._renderUSSDNotRegistered()}`;
+		if (this.ussd.status === ACCESS_CHANNEL_STATUS.NOTREGISTERED) {
+			return this._renderUSSDNotRegistered();
 		}
+
 		return html`
 			${this._renderLoadingIndicator()}
 			${this._renderUSSDProfileDetails()}
