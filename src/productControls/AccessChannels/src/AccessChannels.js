@@ -13,10 +13,10 @@ export const ACCESS_CHANNELS_TYPE = Object.freeze({
 export const ACCESS_CHANNEL_STATUS = Object.freeze({
 	ACTIVE: `Active`,
 	SUSPENDED: `Suspended`,
-	UNAVAILABLE: `Service unavailable`,
+	UNAVAILABLE: `Service Unavailable`,
 	BLOCKED: `Blocked`,
 	INACTIVE: `Inactive`,
-	NOTREGISTERED: `Not registered`
+	NOTREGISTERED: `Not Registered`
 });
 
 /**
