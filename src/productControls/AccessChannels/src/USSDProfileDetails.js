@@ -520,7 +520,7 @@ export class USSDProfileDetails extends Component {
 								data-automation-id="ussd-profile-details-date-registered"
 								class="dateRegistered"
 								label="Date registered"
-								value="${this._getFormattedDateTime(this.ussd.dateRegistered)}}"
+								value="${this._getFormattedDateTime(this.ussd.dateRegistered)}"
 								?hidden="${!this.isVerifiedClient}">
 							</horizon-label>
 
