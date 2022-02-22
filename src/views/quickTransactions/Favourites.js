@@ -19,6 +19,8 @@ import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
 import 'app/components/dialogs/common/Feedback';
+import 'app/components/quickTransactions/SettlementQuote';
+
 import 'app/dialogs/credit/PaidUpAccounts';
 import 'app/dialogs/credit/PaidUpLetter';
 import 'app/dialogs/taxCertificates/TaxCertificates';
@@ -108,6 +110,7 @@ export class Favourites extends SavingsAccountBase {
 			const taxCertificates = () => this._taxCertificates();
 			const proofOfAccount = () => this._proofOfAccount();
 			const searchOtherNeed = () => this._searchOtherNeed();
+			const settlementQuote = () => this._settlementQuote();
 			const paidUpAccounts = () => this._paidUpAccounts ();
 			
 			const actions = {
@@ -119,6 +122,7 @@ export class Favourites extends SavingsAccountBase {
 				'tax-certificate': taxCertificates,
 				'proof-of-account': proofOfAccount,
 				'search-other-need': searchOtherNeed,
+				'settlement-quote': settlementQuote
 				'paid-up-accounts' : paidUpAccounts
 			};
 
@@ -530,6 +534,12 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
+	_settlementQuote() {
+		//TODO: CS call to get info
+
+		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE;
+	}
+
 	_paidUpAccounts ()
 	{
 		this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
@@ -730,6 +740,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderUpdateIncidentModal()}
 			${this._renderTaxCertificate()}
 			${this._renderpaidUpAccounts()}
+			${this._renderSettlementQuote()}
 
 			${super._webTemplate()}
 		`;
@@ -949,6 +960,16 @@ export class Favourites extends SavingsAccountBase {
 			</horizon-tax-certificate>
 		`
 		: html``;
+	}
+	
+	_renderSettlementQuote() {
+		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE
+		? html`
+		<horizon-settlement-quote
+		@back="${() => this._backToLandingPage()}">
+		</horizon-settlement-quote>`
+		: html``;
+	}
 	} 
 
 	_renderpaidUpAccounts ()

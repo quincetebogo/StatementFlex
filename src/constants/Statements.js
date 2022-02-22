@@ -76,7 +76,28 @@
 		category: `lbb`,
 		customIcon: `/images/liveBetter/live-better-icon.png`,
 		order: 5
-	}
+	},
+	4010: {
+		name: ``,
+		type: `FIXED_TERM_CREDIT`,
+		category: `credit`,
+		icon: `product/credit`,
+		order: 6
+	},
+	101: {
+		name: `Credit card`,
+		type: `FLEXIBLE_CREDIT`,
+		category: `credit`,
+		icon: `product/credit`,
+		order: 7
+	},
+	6000: {
+		name: `Access facility`,
+		type: `FLEXIBLE_CREDIT`,
+		category: `credit`,
+		icon: `product/credit`,
+		order: 8
+	},
 });
 
 /**

@@ -1,5 +1,6 @@
 import { Component, html } from 'platform/elements';
-import { formatCurrency, formatDate, getDateOrdinal } from 'app/utils/channelServiceUtilities';
+import { formatDate, getDateOrdinal } from 'app/utils/channelServiceUtilities';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/productControls/credit/src/AccountDetailsView';
 

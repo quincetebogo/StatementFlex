@@ -324,6 +324,14 @@ export class FavouriteTransactions extends Component {
 					@click="${() => this._optionSelectedClick(`paid-up-accounts`)}"
 					?disabled="${this.shouldDisable(`paid-up-accounts`)}">
 				</horizon-option-button>
+				<horizon-option-button
+					data-automation-id="favourite-transactions-settlement-quote"
+					label="Settlement Quote" 
+					icon="system/documents-action" 
+					iconSize="default"
+					@click="${() => this._optionSelectedClick(`settlement-quote`)}"
+					?disabled="${this.shouldDisable(`settlement-quote`)}">
+				</horizon-option-button>
 			</capitec-button-bar>
 		`;
 	}

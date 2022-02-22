@@ -1,5 +1,7 @@
-import { HIGH_RISK_TRANSACTIONS, LOW_RISK_TRANSACTIONS } from 'app/constants/Common';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
+import { CreditService } from 'app/services/CreditService';
+import { HIGH_RISK_TRANSACTIONS, LOW_RISK_TRANSACTIONS } from 'app/constants/Common';
+import { html } from 'platform/elements';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { NavigationContext } from 'platform/core';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
@@ -8,7 +10,6 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
-import { html } from 'platform/elements';
 
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/common/StatementsDialog';
@@ -58,6 +59,7 @@ export class SavingsAccountBase extends ViewBase {
 
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.creditService = new CreditService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// --------------
@@ -111,19 +113,24 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	async _getStatements() {
-		const clientProductDetails = await this._getClientProducts();
+		const clientSavingsProductDetails = await this._getClientProducts();
+		const clientCreditProductDetails = await this._getClientCreditProducts();
 
-		if (clientProductDetails) {
+		const clientProductDetails = [...clientSavingsProductDetails, ...clientCreditProductDetails.accessFacilitySummaryList, ...clientCreditProductDetails.creditCardSummaryList, ...clientCreditProductDetails.loanAccountSummaryList];
+
+			if (clientProductDetails) {
 			this.clientProducts = clientProductDetails.map(item => {
-									const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType][item.interestCategory] || 
-														ACCOUNT_INTCAT_ENUM[item.accountType];
-									const accName = item.accountName.toLowerCase();
+									const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType || item.productTypeCode][item.interestCategory] || 
+														ACCOUNT_INTCAT_ENUM[item.accountType || item.productTypeCode];
+
+									const accountName = item.accountName || item.productTypeDescription;
+									const accName = accountName.toLowerCase();
 
 									return {
 										'accountNumber': item.accountNumber,
 										'accountName': `${accName.charAt(0).toUpperCase()}${accName.slice(1)}`,
-										'accountType': item.accountType,
-										'accountOpenDate': item.accountOpenDate,
+										'accountType': item.accountType || item.productTypeCode,
+										'accountOpenDate': item.accountOpenDate || item.openDate,
 										'type': productInfo.type,
 										'category': productInfo.category,
 										'icon': productInfo.icon,
@@ -276,6 +283,16 @@ export class SavingsAccountBase extends ViewBase {
 		
 
 			return returnValue.result.savingsProducts;
+		}
+		return [];
+	}
+
+	async _getClientCreditProducts(customErrHandler = null) {
+
+		const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber, customErrHandler);
+
+		if (returnValue.succeeded) {
+			return returnValue.result;
 		}
 		return [];
 	}
