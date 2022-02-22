@@ -95,7 +95,7 @@ export class AccessChannels extends Component {
 
 		const status = accessChannel.status;
 		
-		if (accessChannel === ACCESS_CHANNEL_STATUS.UNAVAILABLE) {
+		if (status === ACCESS_CHANNEL_STATUS.UNAVAILABLE) {
 			return `Service unavailable`;
 		}
 
