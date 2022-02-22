@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { ACCESS_CHANNEL_STATUS } from './AccessChannels';
+import { ACCESS_CHANNEL_STATUS } from './Constants';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonLabel';

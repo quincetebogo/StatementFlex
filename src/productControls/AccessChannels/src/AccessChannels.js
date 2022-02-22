@@ -1,23 +1,8 @@
+import { ACCESS_CHANNELS_TYPE, ACCESS_CHANNEL_STATUS } from './Constants';
 import { Component, css, html } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components';
-
-export const ACCESS_CHANNELS_TYPE = Object.freeze({
-	APP: `app`,
-	INTERNET_BANKING: `internetBanking`,
-	USSD: `ussd`,
-	NOTIFICATIONS: `notification`
-};
-
-export const ACCESS_CHANNEL_STATUS = Object.freeze({
-	ACTIVE: `Active`,
-	SUSPENDED: `Suspended`,
-	UNAVAILABLE: `Service Unavailable`,
-	BLOCKED: `Blocked`,
-	INACTIVE: `Inactive`,
-	NOTREGISTERED: `Not Registered`
-});
 
 /**
  * Access Channels component is used to hold all the Access channels tiles available.
