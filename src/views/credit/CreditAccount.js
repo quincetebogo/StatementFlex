@@ -2,12 +2,12 @@ import { accessFacilityDetails, creditCardDetails, creditOverview, termLoanDetai
 import { css, html } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
-import { formatCurrency } from 'app/utils/channelServiceUtilities';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { budgetfacilityresponse } from 'app/mocks/creditBudgetFacilityAccounts';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/ServiceCallErrorScreen';
 import 'app/components/credit/CreditCardDetails';
