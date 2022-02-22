@@ -381,6 +381,8 @@ export class ConfirmCallerDetails extends Component {
 	async _setAvailabilityFlags() {
 		let flagsSet = false;
 
+		this.callerInformation.hasInsuranceProducts = true;
+
 		// Check if the client has digital channels
 		// Disabled error handler because if this call fails we will still attempt to help the client.
 		// It will just be with XDS Security Questions

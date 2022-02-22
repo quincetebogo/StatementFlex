@@ -44,10 +44,13 @@ export class InsureInformation extends Component {
 		super();
 		this.router = Router.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-        this.horizonStore = HorizonStore.getInstance();
-        this.horizonRouter = HorizonRouter.getInstance();
-        this.incomingCallDetails = this.state.incomingCallDetails;
-        this.incidentRecId = this.incomingCallDetails.incidentRecId;
+
+		this.horizonStore = HorizonStore.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
+		
+		this.incomingCallDetails = this.horizonStore.getCallerInformation();
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentRecId = this.incidentDetails.incidentRecId;
 
 		
 		this.index = 0;
@@ -179,8 +182,8 @@ export class InsureInformation extends Component {
 	}
 
 	_onAssignIncident() {
-        this.renderMode = RENDER_MODE.SELECT_ASSIGN_REASON;
-        this.horizonRouter.navigateToStrack(this.incidentRecId);
+		this.renderMode = RENDER_MODE.SELECT_ASSIGN_REASON;
+		this.horizonRouter.navigateToStrack(this.incidentRecId);
 	}
 
 	_onCancelSelectAssignReason() {
@@ -507,14 +510,14 @@ export class InsureInformation extends Component {
 				margin: 10px 0px 10px 0px;
 			}
 			capitec-expander-group > capitec-expander{
-                height: 554px;
-            }
-            .expander > capitec-label {
-                margin: 0px;
-            } 
-            
-            capitec-label[column="2"] {
-                width: 500px;
+				height: 554px;
+			}
+			.expander > capitec-label {
+				margin: 0px;
+			} 
+			
+			capitec-label[column="2"] {
+				width: 500px;
 			}
 			.documents-claim-label{
 				height: 24px;

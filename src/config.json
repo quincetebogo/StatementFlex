@@ -62,7 +62,7 @@
 		},
 		"verifySecurityQuestions": {
 			"enabled": true,
-			"positiveCase": false
+			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
 			"enabled": false,

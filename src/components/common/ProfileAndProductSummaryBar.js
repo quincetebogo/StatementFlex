@@ -185,12 +185,12 @@ export class ProfileAndProductSummaryBar extends Component {
 		}
 
 		if (this.callerInformation.verificationStatus === `unverified` && this.product === `LiveBetter`) {
-			this.horizonRouter.navigateToLandingPage(this.product, false);
+			this.horizonRouter.navigateToLandingPage(this.product, this.callerInformation.hasInsuranceProducts);
 			return;
 		}
 
 		if (this.callerInformation.verificationStatus === `verified`) {
-			this.horizonRouter.navigateToLandingPage(this.product, false);
+			this.horizonRouter.navigateToLandingPage(this.product, this.callerInformation.hasInsuranceProducts);
 			return;
 		} 
 		
