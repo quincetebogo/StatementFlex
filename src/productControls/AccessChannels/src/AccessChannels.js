@@ -100,11 +100,11 @@ export class AccessChannels extends Component {
 	}
 
 	_getFormattedDateTime(datetime) {
-		return !datetime ? `` : `${this._formatDate(datetime)}, ${this._formatTime(datetime)}`;
+		return !datetime ? `` : `| ${this._formatDate(datetime)}, ${this._formatTime(datetime)}`;
 	}
 
 	_getLastUsed(datetime) {
-		return !datetime ? `` : `Last used ${this._formatDate(datetime)}`;
+		return !datetime ? `` : `| Last used ${this._formatDate(datetime)}`;
 	}
 
 	_getStatusDetails(type) {
@@ -130,15 +130,15 @@ export class AccessChannels extends Component {
 		}
 
 		if (type === ACCESS_CHANNELS_TYPE.USSD && status === ACCESS_CHANNEL_STATUS.INACTIVE) {
-			return `Cancelled | ${this._getFormattedDateTime(accessChannel.dateLastUpdated)}`;
+			return `Cancelled ${this._getFormattedDateTime(accessChannel.dateLastUpdated)}`;
 		}
 
 		switch (status) {
 			case ACCESS_CHANNEL_STATUS.ACTIVE:
-				return `${status} | ${this._getLastUsed(this.status[type].dateLastUsed)}`;
+				return `${status} ${this._getLastUsed(this.status[type].dateLastUsed)}`;
 			case ACCESS_CHANNEL_STATUS.SUSPENDED:
 			case ACCESS_CHANNEL_STATUS.BLOCKED:
-				return `${status} | ${this._getFormattedDateTime(this.status[type].dateLastUsed)}`;
+				return `${status} ${this._getFormattedDateTime(this.status[type].dateLastUsed)}`;
 			default:
 				return status;
 		}
