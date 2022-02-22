@@ -7,8 +7,8 @@ export const ACCESS_CHANNELS_TYPE = Object.freeze({
 	APP: `app`,
 	INTERNET_BANKING: `internetBanking`,
 	USSD: `ussd`,
-	NOTIFICATIONS: `notifications`
-});
+	NOTIFICATIONS: `notification`
+};
 
 export const ACCESS_CHANNEL_STATUS = Object.freeze({
 	ACTIVE: `Active`,
