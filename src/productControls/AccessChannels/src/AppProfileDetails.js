@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { ACCESS_CHANNEL_STATUS } from './Constants';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonLabel';
@@ -82,8 +83,6 @@ export class AppProfileDetails extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		this.serviceUnavailable = isNullorEmpty(this.appDetails);
 	}
 
 	disconnectedCallback() {
@@ -384,14 +383,15 @@ export class AppProfileDetails extends Component {
 
 	_renderAppDetails() {
 
-		if (this.appDetails === null) {
+		if (isNullorEmpty(this.appDetails) || this.appDetails.status === ACCESS_CHANNEL_STATUS.UNAVAILABLE) {
+			return this._renderServiceUnavailable();
+		}
+
+		if (this.appDetails.status === ACCESS_CHANNEL_STATUS.NOTREGISTERED) {
 			return this._renderAppNotRegistered();
 		}
 
-		return this.serviceUnavailable 
-		? html`
-			${this._renderServiceUnavailable()}`
-		: html`
+		return html`
 			${this._renderSuccessToast()}
 			${this._renderUnsuccessToast()}
 			${this._renderNotificationBanner()}

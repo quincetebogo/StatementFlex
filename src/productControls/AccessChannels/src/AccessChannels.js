@@ -1,22 +1,8 @@
+import { ACCESS_CHANNELS_TYPE, ACCESS_CHANNEL_STATUS } from './Constants';
 import { Component, css, html } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components';
-
-const ACCESS_CHANNELS_TYPE = {
-	APP: `app`,
-	INTERNET_BANKING: `internetBanking`,
-	USSD: `ussd`,
-	NOTIFICATIONS: `notification`
-};
-
-const ACCESS_CHANNEL_STATUS = {
-	ACTIVE: `Active`,
-	SUSPENDED: `Suspended`,
-	UNAVAILABLE: `Unavailable`,
-	BLOCKED: `Blocked`,
-	INACTIVE: `Inactive`
-};
 
 /**
  * Access Channels component is used to hold all the Access channels tiles available.
@@ -109,17 +95,21 @@ export class AccessChannels extends Component {
 
 	_getStatusDetails(type) {
 		
-		const accessChannel = this.status[type]; 
-
-		if (accessChannel === null) {
-			return `Not registered`;
-		}
+		const accessChannel = this.status[type];
 		
-		if (accessChannel === undefined) {
+		if (isNullorEmpty(accessChannel)) {
 			return `Service unavailable`;
 		}
 
 		const status = accessChannel.status;
+		
+		if (status === ACCESS_CHANNEL_STATUS.UNAVAILABLE) {
+			return `Service unavailable`;
+		}
+
+		if (status === ACCESS_CHANNEL_STATUS.NOTREGISTERED) {
+			return `Not registered`;
+		}
 
 		if (type === ACCESS_CHANNELS_TYPE.USSD && this.status.ussd.isSimBlocked) {
 			return `Blocked | SIM Swop detected`;
@@ -146,11 +136,11 @@ export class AccessChannels extends Component {
 
 	_getUssdStatus(ussdDetails) {
 
-		if (ussdDetails === undefined) {
+		if (isNullorEmpty(ussdDetails) || ussdDetails === ACCESS_CHANNEL_STATUS.UNAVAILABLE) {
 			return ACCESS_CHANNEL_STATUS.UNAVAILABLE;
 		}
 
-		if (ussdDetails === null) {
+		if (ussdDetails === ACCESS_CHANNEL_STATUS.NOTREGISTERED) {
 			return `Not registered`;
 		}
 
