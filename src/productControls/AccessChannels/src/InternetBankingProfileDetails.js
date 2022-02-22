@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { ACCESS_CHANNEL_STATUS } from './Constants';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonLabel';
@@ -770,15 +771,15 @@ export class InternetBankingProfileDetails extends Component {
 
 	_renderInternetBankingDetails() {
 
-		if (this.internetBankingDetails === null) {
+		if (isNullorEmpty(this.internetBankingDetails) || this.internetBankingDetails.status === ACCESS_CHANNEL_STATUS.UNAVAILABLE) {
+			return this._renderServiceUnavailable();
+		}
+
+		if (this.internetBankingDetails.status === ACCESS_CHANNEL_STATUS.NOTREGISTERED) {
 			return this._renderInternetBankingNotRegistered();
 		}
 
-		return isNullorEmpty(this.internetBankingDetails) 
-		? html`
-			${this._renderServiceUnavailable()}
-		` 
-		: html`
+		return html`
 			${this._renderTokenResetSuccessToast()}
 			${this._renderTokenResetUnsuccessfulToast()}
 			${this._renderTokenSuspendSuccessToast()}
