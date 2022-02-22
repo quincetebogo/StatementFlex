@@ -13,7 +13,9 @@
 		"strack": "https://strack-dev.capitecbank.co.za/HEAT?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/",
 		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",
+		"live-better": "https://www.capitecbank.co.za/live-better/live-better-savings-account",	
 		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js",
+		"partner-benefits": "https://www.capitecbank.co.za/bank-better-live-better/articles/benefits/",
 		"fees": "https://www.capitecbank.co.za/global-one/transact/fees/"
 	},
 	"LogRequestResponseModels" : false,
@@ -28,55 +30,6 @@
 			"primaryNeed": "Transact"
 		}
 	],
-	"ivrActionMapping": {
-		"debi-check": "DEBI_CHECK",
-		"stop-card": "STOP_CARD",
-		"update-card-limits": "UPDATE_CARD_LIMITS",
-		"tap-to-pay": "TAP_TO_PAY",
-		"statements": "STATEMENTS",
-		"proof-of-account": "PROOF_OF_ACCOUNT",
-		"tax-certificate": "TAX_CERTIFICATE",
-		"transaction-history": "TRANSACTION_HISTORY",
-		"savings-product-info": "PRODUCT_ENQUIRY_SAVINGS",
-		"savings-plan-info": "PRODUCT_ENQUIRY_SAVINGS_PLAN",
-		"insure-product-info": "PRODUCT_ENQUIRY_INSURE",
-		"credit-product-info": "PRODUCT_ENQUIRY_CREDIT",
-		"credit-card-statements": "STATEMENTS_CC",
-		"savings-account": "SAVINGS_ACCOUNT",
-		"telephony-hung-up": "TELEPHONY_HUNG_UP",
-		"telephony-call-back": "TELEPHONY_CALL_BACK",
-		"telephony-bad-connection": "TELEPHONY_BAD_CONNECTION",
-		"telephony-disconnected": "TELEPHONY_DISCONNECTED",
-		"telephony-no-reply": "TELEPHONY_NO_REPLY",
-		"credit-card-balance": "CREDIT_CARD_BALANCE",
-		"savings-account-balance": "SAVINGS_BALANCE",
-		"mobile-banking": "MOBILE_BANKING_BALANCE",
-		"transaction-history-request": "SAVINGS_BALANCE_TRANSACTIONS",
-		"pending-transaction-information": "SAVINGS_BLANCE_PENDING",
-		"language-transfer": "LANGUAGE_TRANSFER",
-		"call-transfer": "CALL_TRANSFER",
-		"general-product-enquiry": "GENERAL_PRODUCT_ENQUIRY",
-		"failed-verification": "FAILED_VERIFICATION",
-		"debi-check-approve": "DEBI_CHECK_APPROVE",
-		"debi-check-decline": "DEBI_CHECK_DECLINE",
-		"debi-check-viewInfo": "DEBI_CHECK",
-		"abandoned-verification": "TELEPHONY_NO_SHOW",
-		
-		"transaction-history-credit-card": "VIEW_TRANSACTION_HISTORY_CREDIT_CARD",
-		"statements-credit-card": "SEND_STATEMENTS_CREDIT_CARD",
-		"settlement-quote-credit-card": "SETTLEMENT_QUOTE_CREDIT_CARD",
-		"settle-close-credit-card": "SETTLE_CLOSE_CREDIT_CARD",
-		"budget-facility-credit-card": "VIEW_BUDGET_ACCOUNT_INFO",
-		"pay-budget-accounts": "PAY_BUDGET_ACCOUNTS",
-
-		"statements-access-facility": "SEND_STATEMENTS_ACCESS_FACILITY",
-		"settlement-quote-access-facility": "SETTLEMENT_QUOTE_ACCESS_FACILITY",
-		"settle-close-access-facility": "SETTLE_CLOSE_ACCESS_FACILITY",
-
-		"statements-term-loan": "SEND_STATEMENTS_TERM_LOAN",
-		"settlement-quote-term-loan": "SETTLEMENT_QUOTE_TERM_LOAN",
-		"settle-close-term-loan": "SETTLE_CLOSE_TERM_LOAN"
-	},
 	"mock": {
 		"enabled": false	
 	}

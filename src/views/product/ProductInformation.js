@@ -3,6 +3,8 @@ import { ProductInfoEvents } from 'app/constants/telemetry/events/ProductInforma
 import { ViewBase } from 'app/views/common/ViewBase';
 import { html } from 'platform/elements';
 
+import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
+
 import 'app/components/product/CnetProductInfo';
 
 const CONFIG = {
@@ -25,6 +27,11 @@ const CONFIG = {
 		type: `credit`,
 		header: `Credit`,
 		product: `credit-product-info`
+	},
+	LiveBetter: {
+		type: `liveBetter`,
+		header: `Live Better Savings Account`,
+		product: `live-better-product-info`
 	}
 };
 
@@ -94,18 +101,22 @@ export class ProductInformation extends ViewBase {
 	// ---------
 
 	async _viewBenefits() {
-		let productUrl = ``;
-		this._telemetry.logEvent(ProductInfoEvents[`VIEW_BENEFITS_${this._config.type}`], {});
+		let productUrl = '';
 
-		if (this._config.type === `liveBetter`) {
+		if(this._config.type === `liveBetter`){
+			
+			this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_VIEW_BENEFITS, {});
+
 			productUrl = await this.configuration.getSetting(`otherSystemsURL.live-better`);
 		} else {
+		  this._telemetry.logEvent(ProductInfoEvents[`VIEW_BENEFITS_${this._config.type}`], {});
+    
 			const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
 			productUrl = `${globalOneUrl}${this._config.type}`;
 		}
 		
 		window.open(`${productUrl}/`);
-		
+
 		await super.createAndClassifySubsIncident();
 		
 		this._updateIncidentState();

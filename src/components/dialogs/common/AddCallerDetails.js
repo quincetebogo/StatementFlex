@@ -25,7 +25,7 @@ const ERROR_MESSAGE = {
 	REQUIRED_FIELD_HINT: `This is a required field`,
 	INVALID_CELLPHONE_NUMBER: `Cellphone number must be 10 digits`,
 	INVALID_FIRSTNAME: `Only alpha characters and hyphen allowed`,
-    INVALID_SURNAME: `Only alpha characters and hyphen allowed`
+	INVALID_SURNAME: `Only alpha characters and hyphen allowed`
 };
  
 const REGEX_CELLPHONE = {
@@ -88,7 +88,7 @@ export class AddCallerDetails extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-        this._telemetry = HorizonTelemetry.instance;
+		this.telemetry = HorizonTelemetry.getInstance();
 
 		this.nonClientRelationship = ``;
 
@@ -130,7 +130,7 @@ export class AddCallerDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		
-		this._telemetry.startSpan(IDCallerEvents.ADD_CALLER, {
+		this.telemetry.startSpan(IDCallerEvents.ADD_CALLER, {
 			"screen": TelemetryScreen.ADD_CALLER_DETAILS
 		});
 
@@ -146,7 +146,7 @@ export class AddCallerDetails extends Component {
 	}
 
 	disconnectedCallback() {
-		this._telemetry.endSpan(IDCallerEvents.ADD_CALLER, {
+		this.telemetry.endSpan(IDCallerEvents.ADD_CALLER, {
 			"screen": TelemetryScreen.ADD_CALLER_DETAILS
 		});
 	}
@@ -166,7 +166,7 @@ export class AddCallerDetails extends Component {
 	}
 
 	_confirmClick() {
-		this._telemetry.logEvent(IDCallerEvents.ADD_CALLER_CONFIRM_CLICK, {
+		this.telemetry.logEvent(IDCallerEvents.ADD_CALLER_CONFIRM_CLICK, {
 			"screen": TelemetryScreen.ADD_CALLER_DETAILS,
 			"next-screen": null,
 			"name": this.callerInformation.nonClientFirstName,
@@ -199,15 +199,19 @@ export class AddCallerDetails extends Component {
 						true,
 						false,
 						false, // presence of insurance products not yet determined
-						false // availability of digital channels not yet determined
+						false, // availability of digital channels not yet determined
+						{
+							xdsAttempts: 0,
+							itaAttempts: 0
+						}
 					)
 				}
-            }));
+			}));
 		}
 	}
 
 	_backClick() {
-		this._telemetry.logEvent(IDCallerEvents.ADD_CALLER_CANCEL_CLICK, {
+		this.telemetry.logEvent(IDCallerEvents.ADD_CALLER_CANCEL_CLICK, {
 			"screen": TelemetryScreen.ADD_CALLER_DETAILS,
 			"next-screen": TelemetryScreen.CONFIRM_CALLER
 		});
@@ -220,7 +224,7 @@ export class AddCallerDetails extends Component {
 	};
 
 	_endCall() {
-		this._telemetry.logEvent(IDCallerEvents.ADD_CALLER_END_CALL_CLICK, {
+		this.telemetry.logEvent(IDCallerEvents.ADD_CALLER_END_CALL_CLICK, {
 			"screen": TelemetryScreen.ADD_CALLER_DETAILS,
 			"next-screen": TelemetryScreen.END_CALL
 		});
@@ -238,7 +242,7 @@ export class AddCallerDetails extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-    _validateData() {
+	_validateData() {
 		if (isNullorEmpty(this.firstNameTextField)) {
 			// When the field is required and it doesn't have any value - assigning error message
 			this.validationFailed = true;
@@ -341,7 +345,7 @@ export class AddCallerDetails extends Component {
 						.incomingCallDetails="${this.incomingCallDetails}"
 						.incidentDetails="${this.incidentDetails}"
 						.isNeedSelectable=${false}
-						.headerLabel="${HEADER_LABEL}" 
+						headerLabel="${HEADER_LABEL}" 
 						@on-end-call="${() => this._endCall()}">
 							<div slot="body" class="main">
 								${this._renderErrorMessage()}
