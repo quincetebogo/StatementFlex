@@ -64,6 +64,8 @@ export class Favourites extends SavingsAccountBase {
 		this.selectedFeedback = [];
 		this.feedbackOptions = [];
 		this.updateStrackClick = false;
+		//TO DO get ccs status for client
+		this.ccsStatus = true;
 		this.showCCSmodal = false;
 
 		this._telemetry = HorizonTelemetry.instance;
@@ -536,6 +538,11 @@ export class Favourites extends SavingsAccountBase {
 	_settlementQuote() {
 		//TODO: CS call to get info
 
+		if(this.ccsStatus) {
+			this.showCCSmodal = true;
+			return;
+		}
+
 		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE;
 	}
 
@@ -960,7 +967,7 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE
 		? html`
 		<horizon-settlement-quote
-		@back="${() => this._backToLandingPage()}">
+			@back="${() => this._backToLandingPage()}">
 		</horizon-settlement-quote>`
 		: html``;
 	} 

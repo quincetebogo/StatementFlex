@@ -312,7 +312,7 @@ export class CreditAccount extends ViewBase {
 
 	_initialise() {
 
-		//get ccs status from permission endpoint
+		//TO DO: get ccs status from permission endpoint
 			// permissionResultList:[
 			// 	operationIdentifier: "ALL",
 			// 	permissionResult: "Denied",
