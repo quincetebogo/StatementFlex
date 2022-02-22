@@ -486,7 +486,7 @@ export class AccessChannels extends Component {
 
 		if (returnValue.succeeded) {
 			this.landingInfo = returnValue.result;
-			if (this.landingInfo.msisdn.length >= 9) {
+			if (this.landingInfo.msisdn?.length >= 9) {
 				this.verifiedTelephoneNumber = `0${this.landingInfo.msisdn.substr(this.landingInfo.msisdn.length - 9)}`;
 			}
 

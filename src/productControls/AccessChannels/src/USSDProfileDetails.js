@@ -224,6 +224,10 @@ export class USSDProfileDetails extends Component {
 	}
 
 	_formatDate(dateToFormat) {
+		if (!dateToFormat) {
+			return `-`;
+		}
+
 		const stringToDate = new Date(dateToFormat);
 		const tempdate = stringToDate.toGMTString().substr(5, 11);
 		return tempdate;
@@ -233,6 +237,10 @@ export class USSDProfileDetails extends Component {
 		const formatedDate = new Date(timeToFormat);
 		const localTime = formatedDate.toLocaleTimeString();
 		return localTime.replace(localTime.slice(-6, -2), ` `);
+	}
+
+	_getFormattedDateTime(datetime) {
+		return !datetime ? `-` : `${this._formatDate(datetime)}, ${this._formatTime(datetime)}`;
 	}
 
 	_getUssdStatus() {
@@ -512,7 +520,7 @@ export class USSDProfileDetails extends Component {
 								data-automation-id="ussd-profile-details-date-registered"
 								class="dateRegistered"
 								label="Date registered"
-								value="${this._formatDate(this.ussd.dateRegistered)}, ${this._formatTime(this.ussd.dateRegistered)}"
+								value="${this._getFormattedDateTime(this.ussd.dateRegistered)}"
 								?hidden="${!this.isVerifiedClient}">
 							</horizon-label>
 
@@ -541,7 +549,7 @@ export class USSDProfileDetails extends Component {
 								data-automation-id="ussd-profile-details-last-updated"
 								class="lastUpdated"
 								label="Last updated"
-								value="${this._formatDate(this.ussd.dateLastUpdated)}, ${this._formatTime(this.ussd.dateLastUpdated)}"
+								value="${this._getFormattedDateTime(this.ussd.dateLastUpdated)}"
 								?hidden="${!this.isVerifiedClient}">
 							</horizon-label>
 
@@ -780,7 +788,7 @@ export class USSDProfileDetails extends Component {
 				id="ussd-success-toast"
 				type="success" 
 				header="Successful!"
-				detail="${this.successToastDetails} &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp ${this._formatDate(this.ussd.dateLastUpdated)}, ${this._formatTime(this.ussd.dateLastUpdated)}"
+				detail="${this.successToastDetails} &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp ${this._getFormattedDateTime(this.ussd.dateLastUpdated)}}"
 				?hidden="${!this.displaySuccessToast}"
 				@click="${() => this.displaySuccessToast = false}"
 				closable>
