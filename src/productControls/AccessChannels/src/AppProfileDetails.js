@@ -170,6 +170,10 @@ export class AppProfileDetails extends Component {
 	}
 
 	_formatDate(dateToFormat) {
+		if (!dateToFormat) {
+			return `-`;
+		}
+
 		const stringToDate = new Date(dateToFormat);
 		const tempdate = stringToDate.toGMTString().substr(5, 11);
 		return tempdate;
@@ -179,6 +183,10 @@ export class AppProfileDetails extends Component {
 		const formatedDate = new Date(timeToFormat);
 		const localTime = formatedDate.toLocaleTimeString();
 		return localTime.replace(localTime.slice(-6, -2), ` `);
+	}
+
+	_getFormattedDateTime(datetime) {
+		return !datetime ? `-` : `${this._formatDate(datetime)}, ${this._formatTime(datetime)}`;
 	}
 
 	// ---------
@@ -403,7 +411,7 @@ export class AppProfileDetails extends Component {
 				<horizon-label
 					data-automation-id="app-profile-details-date-registered"
 					label="Date registered"
-					value="${this._formatDate(this.appDetails.dateRegistered)}, ${this._formatTime(this.appDetails.dateRegistered)}"
+					value="${this._getFormattedDateTime(this.appDetails.dateRegistered)}"
 					?hidden="${!this.isVerifiedClient}">
 				</horizon-label>
 
@@ -429,7 +437,7 @@ export class AppProfileDetails extends Component {
 				<horizon-label 
 					data-automation-id="app-profile-details-last-updated"
 					label="Last updated"
-					value="${this._formatDate(this.appDetails.dateLastUpdated)}, ${this._formatTime(this.appDetails.dateLastUpdated)}"
+					value="${this._getFormattedDateTime(this.appDetails.dateLastUpdated)}"
 					?hidden="${!this.isVerifiedClient || isNullorEmpty(this.appDetails.dateLastUpdated)}">
 				</horizon-label>
 
@@ -624,13 +632,13 @@ export class AppProfileDetails extends Component {
 				header="Successful!"
 				detail="App was ${this.appDetails.status === `Active` ? `unsuspended` : `suspended`}&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp 
 						&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp 
-						&nbsp &nbsp &nbsp ${this._formatDate(this.appDetails.dateLastUpdated)}, ${this._formatTime(this.appDetails.dateLastUpdated)}"
+						&nbsp &nbsp &nbsp ${this._getFormattedDateTime(this.appDetails.dateLastUpdated)}"
 				@click="${(e) => this._closeToast(e)}"
 				closable>
 					<capitec-label label="Successful!" type="strong"></capitec-label>
 					<capitec-label label="App was ${this.appDetails.status === `Active` ? `unsuspended` : `suspended`}"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-label label="${this._formatDate(this.appDetails.dateLastUpdated)}, ${this._formatTime(this.appDetails.dateLastUpdated)}" type="strong"></capitec-label>
+					<capitec-label label="${this._getFormattedDateTime(this.appDetails.dateLastUpdated)}" type="strong"></capitec-label>
 			</capitec-toast>`;
 	}
 

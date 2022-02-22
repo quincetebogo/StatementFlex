@@ -379,8 +379,12 @@ export class InternetBankingProfileDetails extends Component {
 	}
 
 	_formatDate(dateToFormat) {
-        const stringToDate = new Date(dateToFormat);
-        const tempdate = stringToDate.toGMTString().substr(5, 11);
+		if (!dateToFormat) {
+			return `-`;
+		}
+
+		const stringToDate = new Date(dateToFormat);
+		const tempdate = stringToDate.toGMTString().substr(5, 11);
 
 		return tempdate;
 	}
@@ -390,6 +394,10 @@ export class InternetBankingProfileDetails extends Component {
 		const localTime = formatedDate.toLocaleTimeString();
 
 		return localTime.replace(localTime.slice(-6, -2), ``);
+	}
+
+	_getFormattedDateTime(datetime) {
+		return !datetime ? `-` : `${this._formatDate(datetime)}, ${this._formatTime(datetime)}`;
 	}
 
 	// ---------
@@ -807,7 +815,7 @@ export class InternetBankingProfileDetails extends Component {
 				<horizon-label
 					data-automation-id="internet-banking-date-registered"
 					label="Date registered"
-					value="${this._formatDate(this.internetBankingDetails.dateRegistered)}, ${this._formatTime(this.internetBankingDetails.dateRegistered)}"
+					value="${this._getFormattedDateTime(this.internetBankingDetails.dateRegistered)}"
 					?hidden="${!this.isVerifiedClient}">
 				</horizon-label>
 
@@ -1163,7 +1171,7 @@ export class InternetBankingProfileDetails extends Component {
 	}
 
 	_renderTokenResetSuccessToast() {
-		const formatedUpdatedDate = `${this._formatDate(this.internetBankingDetails.dateLastUpdated)}, ${this._formatTime(this.internetBankingDetails.dateLastUpdated)}`;
+		const formatedUpdatedDate = `${this._getFormattedDateTime(this.internetBankingDetails.dateLastUpdated)}`;
 
 		return this.displayToast ? html`
 			<capitec-toast 
@@ -1215,7 +1223,7 @@ export class InternetBankingProfileDetails extends Component {
 	}
 
 	_renderTokenSuspendSuccessToast() {
-		const formatedUpdatedDate = `${this._formatDate(this.internetBankingDetails.dateLastUpdated)}, ${this._formatTime(this.internetBankingDetails.dateLastUpdated)}`;
+		const formatedUpdatedDate = `${this._getFormattedDateTime(this.internetBankingDetails.dateLastUpdated)}`;
 
 		return this.displaySuspendToast ? html`
 			<capitec-toast 
