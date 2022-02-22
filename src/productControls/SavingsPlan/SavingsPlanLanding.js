@@ -25,7 +25,7 @@ export class SavingsPlanLanding extends Component {
 	constructor() {
 		super();
 
-		this.savingsPlanDetails = null;
+		this.savingsPlanDetails = {};
 	}
 
 	// -------------------
@@ -56,8 +56,8 @@ export class SavingsPlanLanding extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_click(selection) {
-		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection } }));
+	_click(selection, type) {
+		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection, saveType: type } }));
 	}
 
 	// --------------
@@ -121,10 +121,6 @@ export class SavingsPlanLanding extends Component {
 					--theme-container-padding-top: 0px;
 					--theme-layout-gap-spacing: 0px;
 				}
-				.fixed-accounts-box {
-					height: 748px;
-				}
-
 				/* Option button styles */
 				capitec-group > capitec-title-bar {
 					--theme-titlebar-min-height: 32px;
@@ -212,6 +208,9 @@ export class SavingsPlanLanding extends Component {
 				.expander-content > capitec-title-bar {
 					border-top: 0px;
 				}
+				.fixed-term-exp {
+					--theme-expander-header-height: 96px;
+				}
 
 				/* No results available styles */
 				.no-results {
@@ -277,24 +276,34 @@ export class SavingsPlanLanding extends Component {
 	}
 
 	_renderFlexibleSavingsPlanTab() {
-		return html`
-			${this._renderFlexibleAccounts()}`;
+		return this.savingsPlanDetails.flexibileSavingsPlanSummaryList.length > 0 
+		? html`
+			<capitec-content-box class="accounts-box">
+				${this._renderFlexibleAccounts()}
+			</capitec-content-box>
+			
+			${this._renderFooter()}`
+		: html``;
 	}
 
 	_renderFixedTermSavingsPlanTab() {
-		
-		return html`
-			${this._renderFixedTermAccounts()}`;
+		return this.savingsPlanDetails.fixedSavingsPlanSummaryList.length > 0 
+		? html`
+			<capitec-content-box class="accounts-box">
+				${this._renderFixedTermAccounts()}
+			</capitec-content-box>
+			
+			${this._renderFooter()}`
+		: html``;
 	}
 
 	_renderFlexibleAccounts() {
 
 		// TO DO: Expanders to be rendered dynamicaly once CS data is available
-		return html`
-			<capitec-content-box class="accounts-box">
+		return this.savingsPlanDetails.flexibileSavingsPlanSummaryList.map((item, index) => html`
 				<horizon-expander
 					expandButtonAlignment="right"
-					.expanded="${true}">
+					.expanded="${index === 0}">
 						<capitec-group 
 							class="expander-header"
 							slot="custom-header"
@@ -304,34 +313,36 @@ export class SavingsPlanLanding extends Component {
 							valign="center">
 								<capitec-icon
 									data-automation-id="savings-plan-flexible-info"
-									icon="system/info-action">
+									icon="system/info-action"
+									@click="${() => this._click(`account-details`, item.saveType)}">
 								</capitec-icon>
 								<horizon-label
 									class="label-pointer"
 									data-automation-id="savings-plan-account-number"
-									label="My New Car"
-									value="1633823409">
+									label="${item.productTypeName}"
+									value="${item.accountNumber}"
+									@click="${() => this._click(`account-details`, item.saveType)}">
 								</horizon-label>
 								<div class="vertical-line"></div>
 								<horizon-label
 									data-automation-id="savings-plan-balance"
 									label="Balance"
-									value="R25 000.00">
+									value="${item.accountBalance}">
 								</horizon-label>
 								<horizon-label
 									data-automation-id="savings-plan-available-balance"
 									label="Available balance"
-									value="R25 000.00">
+									value="${item.availableBalance}">
 								</horizon-label>
 								<horizon-label
 									data-automation-id="savings-plan-interest-rate"
 									label="Interest rate"
-									value="5.5%">
+									value="${item.interestRate}%">
 								</horizon-label>
 								<horizon-label
 									data-automation-id="savings-plan-status"
 									label="Status"
-									value="Open">
+									value="${item.accountStatusDescription}">
 								</horizon-label>
 						</capitec-group>
 						<div slot="content">
@@ -344,76 +355,17 @@ export class SavingsPlanLanding extends Component {
 									${this._renderOptionsGroup()}
 							</capitec-group>
 						</div>
-				</horizon-expander>
-
-				<horizon-expander
-					expandButtonAlignment="right"
-					.expanded="${false}">
-						<capitec-group
-							class="expander-header"
-							slot="custom-header"
-							layout="horizontal"
-							gap="clear"
-							halign="left"
-							valign="center">
-								<capitec-icon
-									data-automation-id="savings-plan-flexible-info"
-									icon="system/info-action">
-								</capitec-icon>
-								<horizon-label 
-									data-automation-id="savings-plan-access-facility"
-									class="label-pointer"
-									label="Holiday savings"
-									value="1633823409">
-								</horizon-label>
-								<div class="vertical-line"></div>
-								<horizon-label
-									data-automation-id="savings-plan-balance"
-									label="Balance"
-									value="R5 000.00">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="savings-plan-available-balance"
-									label="Available balance"
-									value="R5 000.00">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="savings-plan-interest-rate"
-									label="Interest rate"
-									value="5.5%">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="savings-plan-status"
-									label="Status"
-									value="Open">
-								</horizon-label>
-						</capitec-group>
-
-						<div slot="content">
-							<capitec-group 
-								class="expander-content"
-								layout="vertical"
-								gap="none"
-								halign="left"
-								valign="center">
-									${this._renderOptionsGroup()}
-							</capitec-group>
-						</div>
-				</horizon-expander>
-			</capitec-content-box>
-			
-			${this._renderFooter()}
-		`;
+				</horizon-expander>`);
 	}
 
 	_renderFixedTermAccounts() {
 		
 		// TO DO: Expanders to be rendered dynamicaly once CS data is available
-		return html`
-			<capitec-content-box class="accounts-box fixed-accounts-box">
+		return this.savingsPlanDetails.fixedSavingsPlanSummaryList.map((item, index) => html`
 				<horizon-expander
+					class="fixed-term-exp"
 					expandButtonAlignment="right"
-					.expanded="${true}">
+					.expanded="${index === 0}">
 						<capitec-group
 							class="expander-header"
 							slot="custom-header"
@@ -423,39 +375,41 @@ export class SavingsPlanLanding extends Component {
 							valign="center">
 								<capitec-icon
 									data-automation-id="savings-plan-fixed-term-info"
-									icon="system/info-action">
+									icon="system/info-action"
+									@click="${() => this._click(`account-details`, item.saveType)}">
 								</capitec-icon>
 								<horizon-label
 									data-automation-id="savings-plan-number"
 									class="label-pointer"
-									label="House deposit"
-									value="1633823409">
+									label="${item.productTypeName}"
+									value="${item.accountNumber}"
+									@click="${() => this._click(`account-details`, item.saveType)}">
 								</horizon-label>
 								<div class="vertical-line"></div>
 								<horizon-label
 									data-automation-id="savings-plan-balance"
 									label="Balance"
-									value="R100 000.00">
+									value="${item.accountBalance}">
 								</horizon-label>
 								<horizon-label
 									data-automation-id="savings-plan-term"
 									label="Term (months)"
-									value="24">
+									value="${item.savingsTerm}">
 								</horizon-label>
 								<horizon-label
 									data-automation-id="savings-plan-nominal-interest-rate"
 									label="Nominal interest rate"
-									value="5.98%">
+									value="${item.nominalInterestRate}%">
 								</horizon-label>
 								<horizon-label
 									data-automation-id="savings-plan-effective-interest-rate"
 									label="Effective interest rate"
-									value="6.15%">
+									value="${item.effectiveInterestRate}%">
 								</horizon-label>
 								<horizon-label
 									data-automation-id="savings-plan-status"
 									label="Status"
-									value="Open">
+									value="${item.accountStatusDescription}">
 								</horizon-label>
 						</capitec-group>
 
@@ -469,79 +423,12 @@ export class SavingsPlanLanding extends Component {
 								<capitec-title-bar
 								class="account-deposit-type"
 									type="default"
-									label="Single Deposit - Reinvest">
+									label="${item.accountDepositType}">
 								</capitec-title-bar>
 									${this._renderOptionsGroup()}
 							</capitec-group>
 						</div>
-				</horizon-expander>
-
-				<horizon-expander
-					expandButtonAlignment="right"
-					.expanded="${false}">
-						<capitec-group
-							class="expander-header"
-							slot="custom-header"
-							layout="horizontal"
-							gap="clear"
-							halign="left"
-							valign="center">
-								<capitec-icon
-									data-automation-id="savings-plan-fixed-term-info"
-									icon="system/info-action">
-								</capitec-icon>
-								<horizon-label
-									data-automation-id="savings-plan-number"
-									class="label-pointer"
-									label="Tax-free Savings Plan"
-									value="1984399101">
-								</horizon-label>
-								<div class="vertical-line"></div>
-								<horizon-label
-									data-automation-id="savings-plan-balance"
-									label="Balance"
-									value="R10 000.00">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="savings-plan-term"
-									label="Term (months)"
-									value="12">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="savings-plan-nominal-interest-rate"
-									label="Nominal interest rate"
-									value="5.77%">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="savings-plan-effective-interest-rate"
-									label="Effective interest rate"
-									value="5.93%">
-								</horizon-label>
-								<horizon-label
-									data-automation-id="savings-plan-status"
-									label="Status"
-									value="Open">
-								</horizon-label>
-						</capitec-group>
-
-						<div slot="content">
-							<capitec-group 
-								class="expander-content"
-								layout="vertical"
-								gap="none"
-								halign="left"
-								valign="center">
-								<capitec-title-bar
-								class="account-deposit-type"
-									type="default"
-									label="Single Deposit - Reinvest">
-								</capitec-title-bar>
-									${this._renderOptionsGroup()}
-							</capitec-group>
-						</div>
-				</horizon-expander>
-			</capitec-content-box>
-		`;
+				</horizon-expander>`);
 	}
 
 	_renderOptionsGroup() {

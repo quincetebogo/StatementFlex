@@ -5,17 +5,17 @@ export const savingsPlanMocks = {
 		{
 			"productTypeName": `My New Car`,
 			"accountNumber": `1633823409`,
-			"accountBalance": `R25 000.00`,
-			"availableBalance": `R25 000.00`,
-			"interestRate": `5.5%`,
+			"accountBalance": `25000`,
+			"availableBalance": `25000`,
+			"interestRate": `5.5`,
 			"accountStatusDescription": `Open`
 		},
 		{
 			"productTypeName": `Holiday Savings`,
 			"accountNumber": `1633823409`,
-			"accountBalance": `R5 000.00`,
-			"availableBalance": `R5 000.00`,
-			"interestRate": `5.5%`, 
+			"accountBalance": `5000`,
+			"availableBalance": `5000`,
+			"interestRate": `5.5`, 
 			"accountStatusDescription": `Open`
 		} 
 	],
@@ -23,26 +23,25 @@ export const savingsPlanMocks = {
 		{
 			"productTypeName": `House deposit`,
 			"accountNumber": `1633823409`,
-			"accountBalance": `R100 000.00`,
+			"accountBalance": `100000`,
 			"savingsTerm": `24`,
-			"nominalInterestRate": `5.98%`,
-			"effectiveInterestRate": `6.15%`,
+			"nominalInterestRate": `5.98`,
+			"effectiveInterestRate": `6.15`,
 			"accountStatusDescription": `Open`,
 			"accountDepositType": `Single Deposit - Reinvest`
 		},
 		{
 			"productTypeName": `Tax-free Savings Plan`,
 			"accountNumber": `1984399101`,
-			"accountBalance": `R10 000.00`,
+			"accountBalance": `10000`,
 			"savingsTerm": `12`,
-			"nominalInterestRate": `5.77%`,
-			"effectiveInterestRate": `5.93%`,
+			"nominalInterestRate": `5.77`,
+			"effectiveInterestRate": `5.93`,
 			"accountStatusDescription": `Open`,
 			"accountDepositType": `Single Deposit - Reinvest`
-		},
+		}
 	],
-	"flexibleSavingsPlanDetailList": [
-		{
+	"flexibleSavingsPlanDetailList": {
 		"productTypeName": `My New Car`,
 		"accountNumber": `1633823409`,
 		"currentBalance": `R25 000.00`,
@@ -59,10 +58,8 @@ export const savingsPlanMocks = {
 		"interestEarnedForTaxYear": `R548.00`,
 		"holds": `R0.00`,
 		"accountStatus": `Open`
-		}
-	],
-	"fixedTermSavingsPlanDetailList": [
-		{
+		},
+	"fixedTermSavingsPlanDetailList": {
 		"productTypeName": `House deposit`,
 		"accountNumber": `1633823409`,
 		"currentBalance": `R25 000.00`,
@@ -81,7 +78,6 @@ export const savingsPlanMocks = {
 		"interestEarnedApr": `R135.00`,
 		"term": `24`,
 		"totalContributions": `R0.00`,
+		"postingRestrictions": `No-hold`
 		}
-	]
-
-}
+};
