@@ -1,4 +1,5 @@
 import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 
 /**
  * AccessChannelService is used to get the status of the access channels 
@@ -48,6 +49,8 @@ export class AccessChannelService extends ChannelServiceBase {
 	}
 
 	async activatefullUssdMenu(cifNumber, msisdn, reason, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
 		if (await this.isMockEnabled(`activatefullUssdMenu`)) {
 			return this.mock(`activatefullUssdMenu`);
 		}
@@ -74,6 +77,7 @@ export class AccessChannelService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+	
 	async accessChannelLanding(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`accessChannelLanding`)) {
 			return this.mock(`accessChannelLanding`);
@@ -101,6 +105,8 @@ export class AccessChannelService extends ChannelServiceBase {
 
 	// App profile details 
 	async suspendApp(reason, userRegNo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
 		if (await this.isMockEnabled(`suspendApp`)) {
 			return this.mock(`suspendApp`);
 		}
@@ -124,6 +130,8 @@ export class AccessChannelService extends ChannelServiceBase {
 	}
 
 	async cancelUSSD(cifNumber, msisdn, reason, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
 		if (await this.isMockEnabled(`cancelUSSD`)) {
 			return this.mock(`cancelUSSD`);
 		}
@@ -174,6 +182,8 @@ export class AccessChannelService extends ChannelServiceBase {
 	}
 
 	async unblockSIM(msisdn, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
 		if (await this.isMockEnabled(`unblockSIM`)) {
 			return this.mock(`unblockSIM`);
 		}
@@ -199,7 +209,9 @@ export class AccessChannelService extends ChannelServiceBase {
 		);
 	}
 
-	suspendToken(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async suspendToken(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
 		const url = `/clientcare-accesschannels-${this._version}/internet-banking/suspend-token`;
 
 		return this.post(
@@ -222,6 +234,8 @@ export class AccessChannelService extends ChannelServiceBase {
 	}
 	
 	async resetSecurityTokenClock(requestParams, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
 		if (await this.isMockEnabled(`accessChannelResetSecurityTokenClock`)) {
 			return this.mock(`accessChannelResetSecurityTokenClock`);
 		}

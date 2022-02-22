@@ -7,7 +7,7 @@ const ACCESS_CHANNELS_TYPE = {
 	APP: `app`,
 	INTERNET_BANKING: `internetBanking`,
 	USSD: `ussd`,
-	NOTIFICATIONS: `notifications`
+	NOTIFICATIONS: `notification`
 };
 
 const ACCESS_CHANNEL_STATUS = {

@@ -96,7 +96,7 @@ export class NotificationsDetails extends Component {
 	// --------------
 
 	_closeNotificationsPanel() {
-		this.dispatchEvent(new CustomEvent(`close-side-sheet`, { detail: { tileClicked: `notifications` } }));
+		this.dispatchEvent(new CustomEvent(`close-side-sheet`, { detail: { tileClicked: `notification` } }));
 	}
 
 	_onCloseUpdatePanelClick() {

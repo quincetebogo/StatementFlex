@@ -9,7 +9,7 @@
 	APP: `app`,
 	INTERNET_BANKING: `internetBanking`,
 	USSD: `ussd`,
-	NOTIFICATIONS: `notifications`
+	NOTIFICATIONS: `notification`
 });
 
 /**
