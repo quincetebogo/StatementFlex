@@ -79,6 +79,40 @@ export class AccessChannels extends Component {
 		this.verifiedTelephoneNumber = this.callerInformation?.verifiedTelephoneNumber;
 		this.isVerifiedClient = this.callerInformation?.verificationStatus === `verified`;
 
+		this._performAction = async (need, options) => {
+
+			const viewApp = () => {};
+			const suspendApp = () => this._suspendApp(options.reason, options.regNo);
+			const viewInternetBanking = () => {};
+			const suspendToken = () => this.suspendInternetBanking(options.reason, options.token);
+			const resetSecurityToken = () => this.resetInternetBanking(options.token);
+			const viewUSSD = () => {};
+			const cancelUssd = () => this.cancelUSSD(options.reason);
+			const unblockSim = () => this.unblockSIM();
+			const activateFullMenuUssd = () => this.activateFullMenuUSSD();
+			const viewNotifications = () => {};
+
+			const actions = {
+				'view-app': viewApp,
+				'suspend-app': suspendApp,
+				'view-internetBanking': viewInternetBanking,
+				'suspend-token': suspendToken,
+				'reset-security-token': resetSecurityToken,
+				'view-ussd': viewUSSD,
+				'cancel-ussd': cancelUssd,
+				'unblock-sim': unblockSim,
+				'active-full-menu-ussd': activateFullMenuUssd,
+				'view-notifications': viewNotifications,
+			};
+
+			if (actions[need]) {
+				await super._inicidentManager_(need, () => this._toggleBusyFlag());
+				//this._refreshIncidentDetails();
+				return actions[option]();
+			}
+			return true;
+		};
+
 		this._landingInfo();
 	}
 
@@ -103,8 +137,14 @@ export class AccessChannels extends Component {
 			});
 
 			this._telemetry.startSpan(AccessChannelsEvents[`ACCESS_CHANNELS_${CHANNEL_TYPE[this.selectedAccessChannelType]}`]);
+
+			await this._performAction(`view-${event.detail.tileClicked}`);
 		} else {
 			this._telemetry.endSpan(AccessChannelsEvents[`ACCESS_CHANNELS_${CHANNEL_TYPE[this.selectedAccessChannelType]}`]);
+
+			if (this.landingInfo??[event.details.tileClicked]) {
+					await super.createAndClassifySubsIncident(this._toggleBusyFlag());
+			}
 		}
 	}
 
@@ -522,8 +562,8 @@ export class AccessChannels extends Component {
 					?showSideSheet = "${this.showSideSheet}"
 					?isVerifiedClient="${this.isVerifiedClient}"
 
-					.suspendInternetBankingSecurityToken = "${(suspendReason, selectedToken) => this.suspendInternetBanking(suspendReason, selectedToken)}"
-					.resetInternetBankingSecurityToken = "${(selectedTokens) => this.resetInternetBanking(selectedTokens)}"
+					.suspendInternetBankingSecurityToken = "${(suspendReason, selectedToken) => this._performAction('suspend-internetBanking', {reason: suspendReason, token: selectedTokens})}"
+					.resetInternetBankingSecurityToken = "${(selectedTokens) => this._performAction('reset-security-token', {token: selectedTokens})}"
 					.getClientTokens = "${(userRegNo) => this.getTokens(userRegNo)}"
 
 					@toggle-token-reset-panel="${(event) => this._toggleInternetBankingTokenResetPanel(event)}"
@@ -543,7 +583,7 @@ export class AccessChannels extends Component {
 					?showSideSheet = "${this.showSideSheet}"
 					?isVerifiedClient="${this.isVerifiedClient}"
 
-					.suspendApp = "${(suspendReason, userRegNo) => this._suspendApp(suspendReason, userRegNo)}"
+					.suspendApp = "${(suspendReason, userRegNo) => this._performAction('suspend-app', {reason: suspendReason, regNo: userRegNo})}"
 					.unsuspendApp = "${() => this.unsuspendApp()}"
 
 					@toggle-app-suspend-reasons="${(event) => this._toggleAppSuspendReasons(event)}"
@@ -561,9 +601,9 @@ export class AccessChannels extends Component {
 			        ?isVerifiedClient="${this.isVerifiedClient}"
 					cellphoneNumber="${formatPhoneNumber(this.verifiedTelephoneNumber)}"
 
-					.cancelUSSD="${cancelReason => this.cancelUSSD(cancelReason)}"
-					.unblockSIM="${() => this.unblockSIM()}"
-					.activateFullMenuUSSD="${() => this.activateFullMenuUSSD()}"
+					.cancelUSSD="${cancelReason => this._performAction('cancel-ussd', {reason: cancelReason})}"
+					.unblockSIM="${() => this._performAction('unblock-sim')}"
+					.activateFullMenuUSSD="${() => this._performAction('active-full-menu-ussd')}"
 					.getUssdLandingDetails="${(clientInfo) => this.getUssdLandingDetails(clientInfo)}"
 
 					@toggle-ussd-cancel-reasons="${(event) => this._toggleUssdCancelReasons(event)}"
