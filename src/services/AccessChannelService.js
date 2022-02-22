@@ -1,4 +1,5 @@
 import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 
 /**
  * AccessChannelService is used to get the status of the access channels 
@@ -76,6 +77,7 @@ export class AccessChannelService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+	
 	async accessChannelLanding(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`accessChannelLanding`)) {
 			return this.mock(`accessChannelLanding`);

@@ -102,13 +102,12 @@ export class AccessChannels extends Component {
 				'cancel-ussd': cancelUssd,
 				'unblock-sim': unblockSim,
 				'active-full-menu-ussd': activateFullMenuUssd,
-				'view-notifications': viewNotifications,
+				'view-notification': viewNotifications
 			};
 
 			if (actions[need]) {
 				await super._inicidentManager_(need, () => this._toggleBusyFlag());
-				//this._refreshIncidentDetails();
-				return actions[option]();
+				return actions[need]();
 			}
 			return true;
 		};
@@ -142,8 +141,11 @@ export class AccessChannels extends Component {
 		} else {
 			this._telemetry.endSpan(AccessChannelsEvents[`ACCESS_CHANNELS_${CHANNEL_TYPE[this.selectedAccessChannelType]}`]);
 
-			if (this.landingInfo??[event.details.tileClicked]) {
-					await super.createAndClassifySubsIncident(this._toggleBusyFlag());
+			if (this.landingInfo && this.landingInfo[event.detail.tileClicked]) {
+				await super.createAndClassifySubsIncident(() => this._toggleBusyFlag());
+				this._updateIncidentState(super.HORIZON_NEED_STATUS.COMPLETED);
+			} else {
+				this._updateIncidentState(super.HORIZON_NEED_STATUS.NOT_STARTED);
 			}
 		}
 	}
@@ -511,6 +513,12 @@ export class AccessChannels extends Component {
 		this.landingInfo = Utilities.deepCopy(this.landingInfo);
 	}
 
+	_updateIncidentState(status) {
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = status;
+		this.horizonStore.setIncidentDetails(incidentDetails);
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -562,8 +570,8 @@ export class AccessChannels extends Component {
 					?showSideSheet = "${this.showSideSheet}"
 					?isVerifiedClient="${this.isVerifiedClient}"
 
-					.suspendInternetBankingSecurityToken = "${(suspendReason, selectedToken) => this._performAction('suspend-internetBanking', {reason: suspendReason, token: selectedTokens})}"
-					.resetInternetBankingSecurityToken = "${(selectedTokens) => this._performAction('reset-security-token', {token: selectedTokens})}"
+					.suspendInternetBankingSecurityToken = "${(suspendReason, selectedToken) => this._performAction(`suspend-internetBanking`, { reason: suspendReason, token: selectedTokens })}"
+					.resetInternetBankingSecurityToken = "${(selectedTokens) => this._performAction(`reset-security-token`, { token: selectedTokens })}"
 					.getClientTokens = "${(userRegNo) => this.getTokens(userRegNo)}"
 
 					@toggle-token-reset-panel="${(event) => this._toggleInternetBankingTokenResetPanel(event)}"
@@ -583,7 +591,7 @@ export class AccessChannels extends Component {
 					?showSideSheet = "${this.showSideSheet}"
 					?isVerifiedClient="${this.isVerifiedClient}"
 
-					.suspendApp = "${(suspendReason, userRegNo) => this._performAction('suspend-app', {reason: suspendReason, regNo: userRegNo})}"
+					.suspendApp = "${(suspendReason, userRegNo) => this._performAction(`suspend-app`, { reason: suspendReason, regNo: userRegNo })}"
 					.unsuspendApp = "${() => this.unsuspendApp()}"
 
 					@toggle-app-suspend-reasons="${(event) => this._toggleAppSuspendReasons(event)}"
@@ -601,9 +609,9 @@ export class AccessChannels extends Component {
 			        ?isVerifiedClient="${this.isVerifiedClient}"
 					cellphoneNumber="${formatPhoneNumber(this.verifiedTelephoneNumber)}"
 
-					.cancelUSSD="${cancelReason => this._performAction('cancel-ussd', {reason: cancelReason})}"
-					.unblockSIM="${() => this._performAction('unblock-sim')}"
-					.activateFullMenuUSSD="${() => this._performAction('active-full-menu-ussd')}"
+					.cancelUSSD="${cancelReason => this._performAction(`cancel-ussd`, { reason: cancelReason })}"
+					.unblockSIM="${() => this._performAction(`unblock-sim`)}"
+					.activateFullMenuUSSD="${() => this._performAction(`active-full-menu-ussd`)}"
 					.getUssdLandingDetails="${(clientInfo) => this.getUssdLandingDetails(clientInfo)}"
 
 					@toggle-ussd-cancel-reasons="${(event) => this._toggleUssdCancelReasons(event)}"

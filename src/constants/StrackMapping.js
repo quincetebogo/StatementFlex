@@ -71,5 +71,5 @@
 	"cancel-ussd": `CANCEL_USSD`,
 	"unblock-sim": `UNBLOCK_SIM`,
 	"active-full-menu-ussd": `ACTIVE_REDUCED_MENU_USSD`,
-	"view-notifications": `NOTIFICATIONS`
+	"view-notification": `NOTIFICATIONS`
 });
