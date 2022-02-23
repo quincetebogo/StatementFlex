@@ -1,6 +1,7 @@
 {
 	"serviceURIs": {
 		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet",
+		"clientInsightsUrl": "https://hzn-cs-clientinsights-v1.platform-dev.int.capinet",
 		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-dev.int.capinet"
 	},
 	"signalRUrl": "",
@@ -125,14 +126,18 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"getClientInsights": {
+			"enabled": false,
+			"positiveCase": true
+		},
 		"accessChannelLanding": {
 			"enabled": false,
 			"positiveCase": true
-		},
+		},		
 		"accessChannelUssdLanding": {
 			"enabled": false,
 			"positiveCase": true
-		},
+		},		
 		"accessChannelResetSecurityTokenClock": {
 			"enabled": false,
 			"positiveCase": true
