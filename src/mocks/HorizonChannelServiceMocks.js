@@ -1,3 +1,5 @@
+import { HttpStatusError } from 'platform/errors/HttpStatusError';
+
 /**
  * Mocks for methods in the HorizonChannelService class
  */
@@ -57,6 +59,7 @@ export default class HorizonChannelServiceMocks {
 		this.tapToPayMocks = await this._loadMockModule(this.tapToPayMocks, `tapToPayLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
 		this.liveBetterLandingMocks = await this._loadMockModule(this.liveBetterLandingMocks, `liveBetterLanding`, () => import(`../mocks/LiveBetterLandingMocks`).catch(err => logError(err)));
 		this.clientInsightsMocks = await this._loadMockModule(this.clientInsightsMocks, `getClientInsights`, () => import(`../mocks/ClientInsightsMocks`).catch(err => logError(err)));
+    this.accessChannelsMocks = await this._loadMockModule(this.accessChannelsMocks, `accessChannelLanding`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err)));    
 	}
 
 	// ===============================
@@ -261,8 +264,79 @@ export default class HorizonChannelServiceMocks {
 		if (this._mockSettings.getClientInsights.positiveCase) {
 			return this.clientInsightsMocks.insightsMocks;
 		}
-
+		return null;
+	}
+    
+	accessChannelLanding() {
+		if (this._mockSettings.accessChannelLanding.positiveCase) {
+			return this.accessChannelsMocks.accessChannelsDetails;
+		}
 		return null;
 	}
 
+	accessChannelUssdLanding() {
+		if (this._mockSettings.accessChannelUssdLanding.positiveCase) {
+			return this.accessChannelsMocks.accessChannelsDetails.ussd;
+		}
+		return null;
+	}
+
+	suspendApp() {
+		return this._mockSettings.suspendApp.positiveCase;
+	}
+  
+	accessChannelResetSecurityTokenClock() {
+		if (this._mockSettings.accessChannelResetSecurityTokenClock.positiveCase) {
+			return this.accessChannelsMocks.accessChannelResetSecurityTokenClock;
+		}
+		return null;
+	}  
+
+	activatefullUssdMenu() {
+		if (this._mockSettings.activatefullUssdMenu.positiveCase) {
+			return {};
+		}
+
+		const errPromise = new Promise(() => {
+			const httpError = new HttpStatusError();
+			httpError.status = 400;
+			httpError.message = `Oh no! A fake 400!`;
+	
+			throw httpError;
+		});
+
+		return errPromise;
+	}
+
+	cancelUSSD() {
+		if (this._mockSettings.cancelUSSD.positiveCase) {
+			return {};
+		}
+
+		const errPromise = new Promise(() => {
+			const httpError = new HttpStatusError();
+			httpError.status = 400;
+			httpError.message = `Oh no! A fake 400!`;
+	
+			throw httpError;
+		});
+
+		return errPromise;
+	}
+
+	unblockSIM() {
+		if (this._mockSettings.unblockSIM.positiveCase) {
+			return {};
+		}
+
+		const errPromise = new Promise(() => {
+			const httpError = new HttpStatusError();
+			httpError.status = 400;
+			httpError.message = `Oh no! A fake 400!`;
+	
+			throw httpError;
+		});
+
+		return errPromise;
+	}
 }
