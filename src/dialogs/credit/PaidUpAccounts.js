@@ -26,6 +26,7 @@ export class PaidUpAccounts extends Component {
 
 	constructor() {
 		super();
+
 		this.checkAll = false;
 		this.isChecked = false;
 		//this.selectedAccounts = [];
@@ -103,8 +104,9 @@ export class PaidUpAccounts extends Component {
 		this.requestUpdate();
 		return false;
 	}
-	_backToLandingPage(){
-		// back to landing page
+
+	_back(){
+		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
 	_showPaidUpLetter ()
@@ -126,15 +128,6 @@ export class PaidUpAccounts extends Component {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-
-	_optionSelectedClick(selectedOption) {
-		this.dispatchEvent(new CustomEvent(`option-click`, {
-			detail: {
-				option: selectedOption,
-				stopPropagation: selectedOption !== `stop-card` && selectedOption !== `search-other-need` && this.verificationStatus !== `verified`
-			}
-		}));
-	};
 
 	async _navigatePDF(currPage){
         //add CS call to get encodedPDF 
@@ -159,28 +152,25 @@ export class PaidUpAccounts extends Component {
 					height:100%;
 				}
 
-				.favourites {
+				capitec-title-bar > capitec-label {
 					height: 32px;
-					width: 111px;
-					color: #3E4547;
+					width: 191px;
+					color: #3A3A3A;
 					font-family: "Hind Vadodara";
 					font-size: 24px;
 					font-weight: 600;
 					letter-spacing: 0;
 					line-height: 32px;
 				}
-
-				capitec-group > capitec-title-bar {
-					--theme-titlebar-min-height: 32px;
-					--theme-titlebar-padding: 0px 0px 0px 16px;
-					--theme-type-default-background: rgb(244, 244, 244);
-					--theme-label-title-font-size: 14px;
-					--theme-label-title-font-weight: 600;
-					width: 100%;
-					border-top: 1px solid #E1E1E1;
-					box-shadow: none!important;
-				}
 				
+				.choose-account{
+					line-height: 20px;
+					padding-bottom: 5px;
+
+					--theme-label-subtitle-font-size: 18px;
+					--theme-label-subtitle-font-weight: 600;
+					--theme-layout-gap-spacing: 18px;
+				}
 
 				horizon-label{
 					width: 182px;
@@ -199,12 +189,19 @@ export class PaidUpAccounts extends Component {
 					--theme-label-font-size: 18px;
 					--theme-label-font-family: Hind Vadodara;
 				}
+								.main-cb > capitec-label[type="subtitle"] {
+					line-height: 24px;
+					padding-top: 0px;
+
+					--theme-label-subtitle-font-size: 18px;
+					--theme-label-subtitle-font-weight: 600;
+					--theme-layout-gap-spacing: 18px;
+				}
 
 				capitec-button-bar {
 					height: 50x;
 					width: 100%;
 					--buttonbar-align: right;
-					--theme-buttonbar-padding: 16px 0px 0px 16px;
 					--theme-buttonbar-item-gap: 0px;
 				}
 			
@@ -230,11 +227,13 @@ export class PaidUpAccounts extends Component {
 					display: inline-flex;
 					flex-direction: row;
 					box-sizing: border-box;
-					height: var(--theme-product-tile--height, 80px);
+					height: 64px;
 					background-color: transparent;
 					padding: 0px;
 					width: 100%;
 					position: relative;
+					border: 1px solid #E1E1E1;
+					padding-left: 16px;
 
 				}
 				.alert-banner
@@ -270,17 +269,15 @@ export class PaidUpAccounts extends Component {
 
 	_renderContent() {
 		return html`
-			<capitec-card class="card">
-				<capitec-title-bar >
-				<capitec-icon			
+			<capitec-card class="center-section">
+			<capitec-title-bar>
+				<capitec-icon 
+					size="small"
 					icon="system/arrow-left-action"
-					@click="${() => this._backToLandingPage()}">
+					@click="${() => this._back()}">
 				</capitec-icon>
-				<capitec-label
-					label=" Paid Up Letter"
-					type="title">
-				</capitec-label>
-				</capitec-title-bar>
+				<capitec-label label="Paid Up Letter" type="title"></capitec-label>
+			</capitec-title-bar>
 
 				<capitec-group layout="vertical" halign="left" valign="top" gap="2">
 					${this._renderAlertBanner()}
@@ -294,7 +291,7 @@ export class PaidUpAccounts extends Component {
 		let accInfo = this.accountsInfo ;
 		return html `			
 			<capitec-action-bar show-filters>
-				<capitec-search-field label="Search loan , amount or account number" style="width: 350px;" value focussed></capitec-search-field>
+				<capitec-search-field label="Search loan , amount or account number" style="width: 320px;" value focussed></capitec-search-field>
 				<capitec-select 
 					label="Account type" 
 					.items="${this.cardTypes}" 
@@ -303,12 +300,15 @@ export class PaidUpAccounts extends Component {
 				</capitec-select>
 			</capitec-action-bar>
 
-			<capitec-content-box style="height: 500px;" layout="vertical" halign="stretch" valign="top" gap="clear">
-			${this.accountsInfo.map((item, index) => this._renderAcountInfoTile(item, index))}
+			<capitec-content-box style="height: 550px;" layout="vertical" halign="stretch" valign="top" gap="clear">
+				<capitec-label class="choose-account"
+					type="subtitle" 
+					label="Choose an account">
+				</capitec-label>
+				${this.accountsInfo.map((item, index) => this._renderAcountInfoTile(item, index))}
 			</capitec-content-box>
 
 			<capitec-button-bar>
-				
 				<capitec-check-group>
 					<capitec-check
 						label="Select all"
@@ -318,8 +318,7 @@ export class PaidUpAccounts extends Component {
 					</capitec-check>
 				</capitec-check-group>
 				<capitec-spacer></capitec-spacer>
-				<capitec-button type="primary" class ="btnSend" label="Send Statement(s)" @click="${() => this._showPaidUpLetter()}"></capitec-button>
-				
+				<capitec-button type="primary" class ="btnSend" label="Send Statement(s)" @click="${() => this._showPaidUpLetter()}"></capitec-button>				
 			</capitec-button-bar>
 		`;
 	}
@@ -352,7 +351,7 @@ export class PaidUpAccounts extends Component {
 							label="Settlement Amount"
 							value="R${(Math.floor(Math.random() * 30) + 10).toString()} ${(Math.floor(Math.random() * 1000) + 100).toString()}.00">
 						</horizon-label>
-				</capitec-group>
+		</capitec-group>
 		`;
 	}
 
