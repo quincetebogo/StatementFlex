@@ -177,7 +177,7 @@ export class USSDProfileDetails extends Component {
 	// ---------------
 	_checkUssdStatus(status) {
 		
-		if (isNullorEmpty(status)) {
+		if (isNullorEmpty(status) || this.ussd.status === ACCESS_CHANNEL_STATUS.UNAVAILABLE) {
 			this.showNotificationBanner = true;
 			this.bannerTitle = `Notify client`;
 			this.bannerSubtitle = `Services are currently unavailable`;

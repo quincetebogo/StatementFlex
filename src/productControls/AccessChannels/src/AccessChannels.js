@@ -1,4 +1,4 @@
-import { ACCESS_CHANNELS_TYPE, ACCESS_CHANNEL_STATUS } from './Constants';
+import { ACCESS_CHANNELS_TYPE, ACCESS_CHANNEL_STATUS, PREFERRED_MSG_TIME } from './Constants';
 import { Component, css, html } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -157,7 +157,7 @@ export class AccessChannels extends Component {
 		if (isNullorEmpty(this.status.notification)) {
 			return `Service unavailable`;
 		}
-		return `${this.status.notification?.notificationType} | ${this.status.notification?.notificationTime}`;
+		return `${this.status.notification?.notificationType} | ${PREFERRED_MSG_TIME[this.status.notification?.notificationTime]}`;
 	}
 
 	// ---------
