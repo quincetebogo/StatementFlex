@@ -130,7 +130,7 @@
 			"enabled": false,
 			"positiveCase": true
 		},
-		"accessChannelLanding": {
+		"accessChannel": {
 			"enabled": false,
 			"positiveCase": true
 		},		
