@@ -111,7 +111,7 @@ export class Favourites extends SavingsAccountBase {
 			const proofOfAccount = () => this._proofOfAccount();
 			const searchOtherNeed = () => this._searchOtherNeed();
 			const settlementQuote = () => this._settlementQuote();
-			const paidUpAccounts = () => this._paidUpAccounts ();
+			const paidUpAccounts = () => this._paidUpAccounts();
 			
 			const actions = {
 				'stop-card': stopCard,
@@ -123,7 +123,7 @@ export class Favourites extends SavingsAccountBase {
 				'proof-of-account': proofOfAccount,
 				'search-other-need': searchOtherNeed,
 				'settlement-quote': settlementQuote,
-				'paid-up-accounts' : paidUpAccounts
+				'paid-up-accounts': paidUpAccounts
 			};
 
 			if (actions[option]) {
