@@ -122,7 +122,7 @@ export class Favourites extends SavingsAccountBase {
 				'tax-certificate': taxCertificates,
 				'proof-of-account': proofOfAccount,
 				'search-other-need': searchOtherNeed,
-				'settlement-quote': settlementQuote
+				'settlement-quote': settlementQuote,
 				'paid-up-accounts' : paidUpAccounts
 			};
 
