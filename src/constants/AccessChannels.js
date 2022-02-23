@@ -9,7 +9,7 @@
 	APP: `app`,
 	INTERNET_BANKING: `internetBanking`,
 	USSD: `ussd`,
-	NOTIFICATIONS: `notifications`
+	NOTIFICATIONS: `notification`
 });
 
 /**
@@ -36,4 +36,15 @@
  export const APP_STATUS = Object.freeze({
 	ACTIVE: `Active`,
 	SUSPENDED: `Suspended`
+});
+
+/**
+ * Access channels reasons
+ * 
+ * @readonly
+ * @enum {Object} ACCESS_CHANNELS_REASONS
+ * 
+ */
+export const ACCESS_CHANNELS_REASONS = Object.freeze({
+	DEFAULT: `Unspecified`
 });

@@ -1,3 +1,5 @@
+import { HttpStatusError } from 'platform/errors/HttpStatusError';
+
 /**
  * Mocks for methods in the HorizonChannelService class
  */
@@ -56,7 +58,7 @@ export default class HorizonChannelServiceMocks {
 		this.viewStatementsMock = await this._loadMockModule(this.viewStatementsMock, `viewStatements`, () => import(`../mocks/ViewStatementMock`).catch(err => logError(err)));
 		this.tapToPayMocks = await this._loadMockModule(this.tapToPayMocks, `tapToPayLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
 		this.liveBetterLandingMocks = await this._loadMockModule(this.liveBetterLandingMocks, `liveBetterLanding`, () => import(`../mocks/LiveBetterLandingMocks`).catch(err => logError(err)));
-		this.accessChannelsMocks = await this._loadMockModule(this.accessChannelsMocks, `accessChannel`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err)));    
+		this.accessChannelsMocks = await this._loadMockModule(this.accessChannelsMocks, `accessChannelLanding`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err)));    
 	}
 
 	// ===============================
@@ -257,8 +259,8 @@ export default class HorizonChannelServiceMocks {
 		return null;
 	}
 
-	accessChannel() {
-		if (this._mockSettings.accessChannel.positiveCase) {
+	accessChannelLanding() {
+		if (this._mockSettings.accessChannelLanding.positiveCase) {
 			return this.accessChannelsMocks.accessChannelsDetails;
 		}
 		return null;
@@ -281,4 +283,52 @@ export default class HorizonChannelServiceMocks {
 		}
 		return null;
 	}  
+
+	activatefullUssdMenu() {
+		if (this._mockSettings.activatefullUssdMenu.positiveCase) {
+			return {};
+		}
+
+		const errPromise = new Promise(() => {
+			const httpError = new HttpStatusError();
+			httpError.status = 400;
+			httpError.message = `Oh no! A fake 400!`;
+	
+			throw httpError;
+		});
+
+		return errPromise;
+	}
+
+	cancelUSSD() {
+		if (this._mockSettings.cancelUSSD.positiveCase) {
+			return {};
+		}
+
+		const errPromise = new Promise(() => {
+			const httpError = new HttpStatusError();
+			httpError.status = 400;
+			httpError.message = `Oh no! A fake 400!`;
+	
+			throw httpError;
+		});
+
+		return errPromise;
+	}
+
+	unblockSIM() {
+		if (this._mockSettings.unblockSIM.positiveCase) {
+			return {};
+		}
+
+		const errPromise = new Promise(() => {
+			const httpError = new HttpStatusError();
+			httpError.status = 400;
+			httpError.message = `Oh no! A fake 400!`;
+	
+			throw httpError;
+		});
+
+		return errPromise;
+	}
 }

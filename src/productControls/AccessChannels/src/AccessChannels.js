@@ -1,21 +1,8 @@
+import { ACCESS_CHANNELS_TYPE, ACCESS_CHANNEL_STATUS, PREFERRED_MSG_TIME } from './Constants';
 import { Component, css, html } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components';
-
-const ACCESS_CHANNELS_TYPE = {
-	APP: `app`,
-	INTERNET_BANKING: `internetBanking`,
-	USSD: `ussd`,
-	NOTIFICATIONS: `notifications`
-};
-
-const ACCESS_CHANNEL_STATUS = {
-	ACTIVE: `Active`,
-	SUSPENDED: `Suspended`,
-	UNAVAILABLE: `Unavailable`,
-	BLOCKED: `Blocked`
-};
 
 /**
  * Access Channels component is used to hold all the Access channels tiles available.
@@ -38,6 +25,7 @@ export class AccessChannels extends Component {
 
 	constructor() {
 		super();
+		this.isVerifiedClient = false;
 	}
 
 	// --------------
@@ -50,7 +38,8 @@ export class AccessChannels extends Component {
 
 	static get properties() {
 		return {
-			status: { type: Object }
+			status: { type: Object },
+			isVerifiedClient: { type: Boolean }
 		};
 	}
 
@@ -96,25 +85,50 @@ export class AccessChannels extends Component {
 		return localTime.replace(localTime.slice(-6, -2), ` `);
 	}
 
-	_getStatusDetails(type) {
-		const status = this.status[type]?.status;
+	_getFormattedDateTime(datetime) {
+		return !datetime ? `` : `| ${this._formatDate(datetime)}, ${this._formatTime(datetime)}`;
+	}
 
-		if (isNullorEmpty(status)) {
+	_getLastUsed(datetime) {
+		return !datetime ? `` : `| Last used ${this._formatDate(datetime)}`;
+	}
+
+	_getStatusDetails(type) {
+		
+		const accessChannel = this.status[type];
+		
+		if (isNullorEmpty(accessChannel)) {
 			return `Service unavailable`;
 		}
+
+		const status = accessChannel.status;
+		
+		if (status === ACCESS_CHANNEL_STATUS.UNAVAILABLE) {
+			return `Service unavailable`;
+		}
+
+		if (status === ACCESS_CHANNEL_STATUS.NOTREGISTERED) {
+			return `Not registered`;
+		}
+
 		if (type === ACCESS_CHANNELS_TYPE.USSD && this.status.ussd.isSimBlocked) {
 			return `Blocked | SIM Swop detected`;
 		}
-		if (type === ACCESS_CHANNELS_TYPE.USSD && this.status.ussd.features.includes(`REDUCED_MENU`) && status !== ACCESS_CHANNEL_STATUS.BLOCKED) {
+
+		if (type === ACCESS_CHANNELS_TYPE.USSD && this.status.ussd.features?.includes(`REDUCED_MENU`) && status !== ACCESS_CHANNEL_STATUS.INACTIVE) {
 			return `${status} | Reduced menu`;
+		}
+
+		if (type === ACCESS_CHANNELS_TYPE.USSD && status === ACCESS_CHANNEL_STATUS.INACTIVE) {
+			return `Cancelled ${this._getFormattedDateTime(accessChannel.dateLastUpdated)}`;
 		}
 
 		switch (status) {
 			case ACCESS_CHANNEL_STATUS.ACTIVE:
-				return `${status} | Last used ${this._formatDate(this.status[type].dateLastUsed)}`;
+				return `${status} ${this._getLastUsed(this.status[type].dateLastUsed)}`;
 			case ACCESS_CHANNEL_STATUS.SUSPENDED:
 			case ACCESS_CHANNEL_STATUS.BLOCKED:
-				return `${status} | ${this._formatDate(this.status[type].dateLastUsed)}, ${this._formatTime(this.status[type].dateLastUsed)}`;
+				return `${status} ${this._getFormattedDateTime(this.status[type].dateLastUsed)}`;
 			default:
 				return status;
 		}
@@ -122,23 +136,28 @@ export class AccessChannels extends Component {
 
 	_getUssdStatus(ussdDetails) {
 
-		if (isNullorEmpty(ussdDetails)) {
+		if (isNullorEmpty(ussdDetails) || ussdDetails === ACCESS_CHANNEL_STATUS.UNAVAILABLE) {
 			return ACCESS_CHANNEL_STATUS.UNAVAILABLE;
 		}
-		if (ussdDetails.isSimBlocked || ussdDetails.status === ACCESS_CHANNEL_STATUS.BLOCKED) {
+
+		if (ussdDetails === ACCESS_CHANNEL_STATUS.NOTREGISTERED) {
+			return `Not registered`;
+		}
+
+		if (ussdDetails.isSimBlocked) {
 			return ACCESS_CHANNEL_STATUS.BLOCKED;
 		}
-		if (ussdDetails.features.includes(`REDUCED_MENU`)) {
+		if (ussdDetails.features?.includes(`REDUCED_MENU`)) {
 			return `Reduced menu`;
 		}
 		return ussdDetails.status;
 	}
 
 	_getNotificationsDetails() {
-		if(isNullorEmpty(status.notification)) {
+		if (isNullorEmpty(this.status.notification)) {
 			return `Service unavailable`;
 		}
-		return `${this.status.notification?.notificationType} | ${this.status.notification?.notificationTime}`;
+		return `${this.status.notification?.notificationType} | ${PREFERRED_MSG_TIME[this.status.notification?.notificationTime]}`;
 	}
 
 	// ---------
@@ -179,11 +198,14 @@ export class AccessChannels extends Component {
 				horizon-product-tile[status="Active"] {
 					--theme-product-tile-default-border-left: 4px solid #70B000;
 				}
-				horizon-product-tile[status="Suspended"], [status="Blocked"], [status="Unavailable"] {
+				horizon-product-tile[status="Suspended"], [status="Blocked"], [status="Unavailable"], [subtitle="Service unavailable"], [status="Inactive"] {
 					--theme-product-tile-default-border-left: 4px solid #a5132a;
 				}
 				horizon-product-tile[status*="Reduced menu"] {
 					--theme-product-tile-default-border-left: 4px solid #d4781c;
+				}
+				.hide-tile {
+					display: none;
 				}
 			`
 		];
@@ -241,7 +263,7 @@ export class AccessChannels extends Component {
 
 				<horizon-product-tile 
 					data-automation-id="access-channels-notification"
-					class=""
+					class="${this.isVerifiedClient ? `` : `hide-tile`}"
 					type="default"
 					label="Notifications"
 					status="${this.status.notification?.status}"

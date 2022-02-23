@@ -1,4 +1,4 @@
-import { ACCESS_CHANNELS_TYPE, APP_STATUS, CHANNEL_TYPE } from 'app/constants/AccessChannels';
+import { ACCESS_CHANNELS_REASONS, ACCESS_CHANNELS_TYPE, APP_STATUS, CHANNEL_TYPE } from 'app/constants/AccessChannels';
 import { Component, css, html } from 'platform/elements';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { AccessChannelsEvents } from 'app/constants/telemetry/events/AccessChannels';
@@ -42,11 +42,10 @@ export class AccessChannels extends Component {
 		this.logger = Logger.getInstance();
 
 		this._telemetry = HorizonTelemetry.getInstance();
-		const callerInformation = this.horizonStore.getCallerInformation();
-		this.cifNumber = callerInformation.cifNumber;
-		this.verifiedTelephoneNumber = ``;
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
+		
+		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 	}
 
 	// ----------
@@ -76,10 +75,50 @@ export class AccessChannels extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this.cifNumber = this.callerInformation?.cifNumber;
+		this.verifiedTelephoneNumber = this.callerInformation?.verifiedTelephoneNumber;
+		this.isVerifiedClient = this.callerInformation?.verificationStatus === `verified`;
+
+		this._performAction = async (need, options) => {
+
+			const viewApp = () => {};
+			const suspendApp = () => this._suspendApp(options.reason, options.regNo);
+			const viewInternetBanking = () => {};
+			const suspendToken = () => this.suspendInternetBanking(options.reason, options.token);
+			const resetSecurityToken = () => this.resetInternetBanking(options.token);
+			const viewUSSD = () => {};
+			const cancelUssd = () => this.cancelUSSD(options.reason);
+			const unblockSim = () => this.unblockSIM();
+			const activateFullMenuUssd = () => this.activateFullMenuUSSD();
+			const viewNotifications = () => {};
+
+			const actions = {
+				'view-app': viewApp,
+				'suspend-app': suspendApp,
+				'view-internetBanking': viewInternetBanking,
+				'suspend-token': suspendToken,
+				'reset-security-token': resetSecurityToken,
+				'view-ussd': viewUSSD,
+				'cancel-ussd': cancelUssd,
+				'unblock-sim': unblockSim,
+				'active-full-menu-ussd': activateFullMenuUssd,
+				'view-notification': viewNotifications
+			};
+
+			if (actions[need]) {
+				await super._inicidentManager_(need, () => this._toggleBusyFlag());
+				return actions[need]();
+			}
+			return true;
+		};
+
 		this._landingInfo();
 	}
 
 	disconnectedCallback() {
+		// Unsubscribe from store.
+		this.stateChangeSub.unsubscribe();
+
 		super.disconnectedCallback();
 	}
 
@@ -97,8 +136,17 @@ export class AccessChannels extends Component {
 			});
 
 			this._telemetry.startSpan(AccessChannelsEvents[`ACCESS_CHANNELS_${CHANNEL_TYPE[this.selectedAccessChannelType]}`]);
+
+			await this._performAction(`view-${event.detail.tileClicked}`);
 		} else {
 			this._telemetry.endSpan(AccessChannelsEvents[`ACCESS_CHANNELS_${CHANNEL_TYPE[this.selectedAccessChannelType]}`]);
+
+			if (this.landingInfo && this.landingInfo[event.detail.tileClicked]) {
+				await super.createAndClassifySubsIncident(() => this._toggleBusyFlag());
+				this._updateIncidentState(super.HORIZON_NEED_STATUS.COMPLETED);
+			} else {
+				this._updateIncidentState(super.HORIZON_NEED_STATUS.NOT_STARTED);
+			}
 		}
 	}
 
@@ -196,21 +244,30 @@ export class AccessChannels extends Component {
 		
 		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD);
 
-		// TODO: add channel service call to cancel USSD service
-		// If cancel is successful, show toast, update ussd status, else show error
+		const returnValue = await this.accessChannelService.cancelUSSD(this.cifNumber, this.landingInfo.msisdn, ACCESS_CHANNELS_REASONS.DEFAULT);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unsuccessful call to cancel USSD`, `cancelUSSD`, returnValue.correlationId);
+			return false;
+		}
 		
-		this.landingInfo.ussd.status = `Blocked`;
+		this.landingInfo.ussd.status = `Inactive`;
 		this.landingInfo.ussd.dateLastUpdated = new Date().toISOString();
 		this._deepCopyStatus();
 		return true;
 	}
 
-	unblockSIM() {
+	async unblockSIM() {
 
 		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_UNBLOCK_SIM);
 
-		// TODO: add channel service call to unblock SIM - ussd
-		// If unblock is successful, show toast, update ussd status, else show error
+		const returnValue = await this.accessChannelService.unblockSIM(this.landingInfo.msisdn);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to unblock SIM.`, `unblockSIM`, returnValue.correlationId);
+			return false;
+		}
+
 		this.landingInfo.ussd.isSimBlocked = false;
 		this.landingInfo.ussd.dateLastUpdated = new Date().toISOString();
 
@@ -218,13 +275,22 @@ export class AccessChannels extends Component {
 		return true;
 	}
 
-	activateFullMenuUSSD() {
+	async activateFullMenuUSSD() {
 		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_ACTIVATE_FULL_USSD_MENU);
 
-		// TODO: add code to activate full menu for currently active ussd clients
-		// If client has active ussd, menu reduced, activate full menu function
-		
 		const indexOfReducedMenu = this.landingInfo.ussd.features.indexOf(`REDUCED_MENU`);
+
+		if (indexOfReducedMenu === -1) {
+			return true;
+		}
+
+		const returnValue = await this.accessChannelService.activatefullUssdMenu(this.cifNumber, this.landingInfo.msisdn, ACCESS_CHANNELS_REASONS.DEFAULT);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unsuccessful call the activate full USSD menu`, `activateFullMenuUSSD`, returnValue.correlationId);
+			return false;
+		}
+
 		this.landingInfo.ussd.features.splice(indexOfReducedMenu, 1);
 
 		this._deepCopyStatus();
@@ -302,9 +368,6 @@ export class AccessChannels extends Component {
 
 		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN);
 
-		// TO DO: Channel service call to suspend Internet Banking should come here
-		// If successfully suspended, update Internet Banking status, else Error scenario
-		
 		const requestBody = {
 			cifNumber: this.cifNumber,
 			tokenSerialNo: token,
@@ -320,7 +383,6 @@ export class AccessChannels extends Component {
 			this._landingInfo();
 			return true;
 		}
-
 		return false;
 	}
 
@@ -341,6 +403,7 @@ export class AccessChannels extends Component {
 			return false;
 		}
 
+		this.landingInfo.internetBanking.dateLastUpdated = new Date().toISOString();
 		this._deepCopyStatus();
 		return true;
 	}
@@ -371,7 +434,7 @@ export class AccessChannels extends Component {
 		this.logNotificationUpdateTelemetry(selectedType);
 		
 		// TO DO: add channel service call to update notifications type
-		// If unblock is successful, show toast, update ussd status, else show error
+		// If update is successful, show toast, else show error
 		this.landingInfo.notification.dateLastUpdated = new Date().toISOString();
 		
 		this._deepCopyStatus();
@@ -382,7 +445,7 @@ export class AccessChannels extends Component {
 		this.logNotificationUpdateTelemetry(selectedTime);
 
 		// TO DO: add channel service call to update notifications time
-		// If unblock is successful, show toast, update ussd status, else show error
+		// If update is successful, show toast, else show error
 		this.landingInfo.notification.dateLastUpdated = new Date().toISOString();
 
 		this._deepCopyStatus();
@@ -399,6 +462,12 @@ export class AccessChannels extends Component {
 		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_NOTIFICATIONS_UPDATE);
 	}
 
+	_stateChanged(state) {
+		if (state?.callerInformation) {
+			this.callerInformation = state.callerInformation;
+		}
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -411,16 +480,16 @@ export class AccessChannels extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
-
 	async _landingInfo() {
 
 		const returnValue = await this.accessChannelService.accessChannelLanding(this.cifNumber);
 
 		if (returnValue.succeeded) {
 			this.landingInfo = returnValue.result;
-			if (this.landingInfo.msisdn.length >= 9) {
+			if (this.landingInfo.msisdn?.length >= 9) {
 				this.verifiedTelephoneNumber = `0${this.landingInfo.msisdn.substr(this.landingInfo.msisdn.length - 9)}`;
 			}
+
 			this.requestUpdate();
 			return;
 		}
@@ -440,8 +509,14 @@ export class AccessChannels extends Component {
 	}
 
 	_deepCopyStatus() {
-		// Creates and returns a deep copy of an Object this.status
-		this.status = Utilities.deepCopy(this.status);
+		// Creates and returns a deep copy of an Object this.landingInfo
+		this.landingInfo = Utilities.deepCopy(this.landingInfo);
+	}
+
+	_updateIncidentState(status) {
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = status;
+		this.horizonStore.setIncidentDetails(incidentDetails);
 	}
 
 	// ---------
@@ -480,6 +555,7 @@ export class AccessChannels extends Component {
 			? html`
 				<capitec-pc-access-channels
 					.status=${this.landingInfo}
+					?isVerifiedClient="${this.isVerifiedClient}"
 					@tile-click="${(event) => this._showSlidingPanel(event)}">
 				</capitec-pc-access-channels>`
 			: html``;
@@ -492,9 +568,10 @@ export class AccessChannels extends Component {
 					.internetBankingDetails = "${this.landingInfo.internetBanking}"
 					verifiedNumber = "${formatPhoneNumber(this.verifiedTelephoneNumber)}"
 					?showSideSheet = "${this.showSideSheet}"
+					?isVerifiedClient="${this.isVerifiedClient}"
 
-					.suspendInternetBankingSecurityToken = "${(suspendReason, selectedToken) => this.suspendInternetBanking(suspendReason, selectedToken)}"
-					.resetInternetBankingSecurityToken = "${(selectedTokens) => this.resetInternetBanking(selectedTokens)}"
+					.suspendInternetBankingSecurityToken = "${(suspendReason, selectedToken) => this._performAction(`suspend-internetBanking`, { reason: suspendReason, token: selectedTokens })}"
+					.resetInternetBankingSecurityToken = "${(selectedTokens) => this._performAction(`reset-security-token`, { token: selectedTokens })}"
 					.getClientTokens = "${(userRegNo) => this.getTokens(userRegNo)}"
 
 					@toggle-token-reset-panel="${(event) => this._toggleInternetBankingTokenResetPanel(event)}"
@@ -512,8 +589,9 @@ export class AccessChannels extends Component {
 					.appDetails = "${this.landingInfo.app}"
 					verifiedNumber = "${formatPhoneNumber(this.verifiedTelephoneNumber)}"
 					?showSideSheet = "${this.showSideSheet}"
+					?isVerifiedClient="${this.isVerifiedClient}"
 
-					.suspendApp = "${(suspendReason, userRegNo) => this._suspendApp(suspendReason, userRegNo)}"
+					.suspendApp = "${(suspendReason, userRegNo) => this._performAction(`suspend-app`, { reason: suspendReason, regNo: userRegNo })}"
 					.unsuspendApp = "${() => this.unsuspendApp()}"
 
 					@toggle-app-suspend-reasons="${(event) => this._toggleAppSuspendReasons(event)}"
@@ -528,11 +606,12 @@ export class AccessChannels extends Component {
 				<capitec-pc-ussd-profile-details
 					.ussd="${this.landingInfo.ussd}"
 					?showSideSheet="${this.showSideSheet}"
+			        ?isVerifiedClient="${this.isVerifiedClient}"
 					cellphoneNumber="${formatPhoneNumber(this.verifiedTelephoneNumber)}"
 
-					.cancelUSSD="${cancelReason => this.cancelUSSD(cancelReason)}"
-					.unblockSIM="${() => this.unblockSIM()}"
-					.activateFullMenuUSSD="${() => this.activateFullMenuUSSD()}"
+					.cancelUSSD="${cancelReason => this._performAction(`cancel-ussd`, { reason: cancelReason })}"
+					.unblockSIM="${() => this._performAction(`unblock-sim`)}"
+					.activateFullMenuUSSD="${() => this._performAction(`active-full-menu-ussd`)}"
 					.getUssdLandingDetails="${(clientInfo) => this.getUssdLandingDetails(clientInfo)}"
 
 					@toggle-ussd-cancel-reasons="${(event) => this._toggleUssdCancelReasons(event)}"
