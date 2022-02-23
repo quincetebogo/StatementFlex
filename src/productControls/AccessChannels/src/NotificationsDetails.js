@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { PREFERRED_MSG_TIME } from 'app/productControls/AccessChannels/src/Constants';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -484,7 +485,7 @@ export class NotificationsDetails extends Component {
 					<horizon-label
 						data-automation-id=""
 						label="Preferred message time"
-						value="${this.notificationsDetails.notificationTime}"
+						value="${PREFERRED_MSG_TIME[this.notificationsDetails.notificationTime]}"
 					></horizon-label>
 					<!--disabled untill service call is implemented
 						icon="system/more-action" 

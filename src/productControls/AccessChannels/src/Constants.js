@@ -27,3 +27,15 @@ export const ACCESS_CHANNEL_STATUS = Object.freeze({
 	INACTIVE: `Inactive`,
 	NOTREGISTERED: `Not Registered`
 });
+
+/**
+ * Preferred meesage time to display in Notifications tile
+ * 
+ * @readonly
+ * @enum {Object} PREFERRED_MSG_TIME
+ */
+export const PREFERRED_MSG_TIME = Object.freeze({
+	'any': `Anytime`,
+	'5am-10pm': `5am-10pm`,
+	'7am-6pm': `7am-6pm`
+});
