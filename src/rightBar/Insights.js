@@ -1,19 +1,19 @@
 import { Component, html } from 'platform/elements';
 import { EventAggregator, Logger } from 'platform/core';
+import { ClientInsightsService } from 'app/services/ClientInsightsService';
+import { Utilities } from 'platform/Utilities';
 import { ValueAddedService } from 'app/services/ValueAddedService';
 
 import 'platform/components';
-import 'app/productControls/ClientInsights/src/ClientInsights';
+import 'app/productControls/ClientInsights/ClientInsights';
 import 'app/dialogs/valueAddedServices/ValueAddedServices';
 import 'app/dialogs/valueAddedServices/ValueAddedServicesUnavailable';
 import 'app/dialogs/valueAddedServices/VASNoClientData';
-
 export class Insights extends Component {
 
 	// --------------
 	// INITIALISATION
 	// --------------
-
 
 	constructor() {
 		super();
@@ -27,6 +27,7 @@ export class Insights extends Component {
 		this.logger = Logger.getInstance();
 
 		this.valueAddedService = new ValueAddedService(() => this._toggleBusyFlag(), () => true);
+		this.clientInsightsService = new ClientInsightsService(() => this._toggleBusyFlag(), () => true);
 	}
 
 	// ----------
@@ -49,7 +50,8 @@ export class Insights extends Component {
 			statusVAS: { state: true },
 			showValueAddedServicesModal: { state: true },
 			showUnavailableVASModal: { state: true },
-			showVASNoClientDataModal: { state: true }
+			showVASNoClientDataModal: { state: true },
+			insightDetails: { state: true }
 		};
 	}
 
@@ -59,6 +61,8 @@ export class Insights extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this._getClientInsights();
 	}
 
 	// --------------
@@ -118,9 +122,41 @@ export class Insights extends Component {
 		this.showUnavailableVASModal = !this.showUnavailableVASModal;
 	}
 
+	async _getClientInsights() {
+		this.insightDetails = null;
+
+		const returnValue = await this.clientInsightsService.getClientInsights(this.cifNumber);
+		const insights = returnValue.result;
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to get Client insights`, `_getClientInsights`, returnValue.correlationId);
+			return;
+		}
+
+		if (!Array.isArray(insights)) {
+			return;
+		}
+		
+		if (insights.length >= 1) {
+			this.insightDetails = returnValue.result.shift();
+		}
+	}
+
+	async _insightsAction(replyReference) {
+		const returnValue = await this.clientInsightsService.sendInsightsAction(replyReference);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to update insights action`, `_insightsAction`, returnValue.correlationId);
+			return;
+		}
+
+		this.insightDetails = null;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
+	
 	_mobileTemplate() {
 		return _webTemplate();
 	}
@@ -138,10 +174,10 @@ export class Insights extends Component {
 	_renderClientInsights() {
 		return html`
 			<capitec-pc-client-insights
-				.scenario=${`cards`}
+				.insightDetails=${this.insightDetails}
+				.updateInsights = ${(replyReference) => this._insightsAction(replyReference)}
 				@settings-click="${() => this._showVASModal()}">
-			</capitec-pc-client-insights>
-		`;
+			</capitec-pc-client-insights>`;
 	}
 
 	_renderValueAddedServicesModal() {
