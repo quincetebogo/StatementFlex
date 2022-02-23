@@ -542,6 +542,7 @@ export class Favourites extends SavingsAccountBase {
 
 	_paidUpAccounts ()
 	{
+		//TODO: CS call to get info
 		this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
 	}
 
@@ -962,7 +963,8 @@ export class Favourites extends SavingsAccountBase {
 		: html``;
 	}
 	
-	_renderSettlementQuote() {
+	_renderSettlementQuote() 
+	{
 		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE
 		? html`
 		<horizon-settlement-quote
@@ -970,7 +972,6 @@ export class Favourites extends SavingsAccountBase {
 		</horizon-settlement-quote>`
 		: html``;
 	}
-	} 
 
 	_renderpaidUpAccounts ()
 	{
@@ -980,7 +981,7 @@ export class Favourites extends SavingsAccountBase {
 			.landingPageInfo="${this.landingPageInfo}"
 			@cancel="${() => this._backToLandingPage()}">
 		</horizon-paid-up-accounts>`
-	: html``;
+		: html``;
 	}
 }
 
