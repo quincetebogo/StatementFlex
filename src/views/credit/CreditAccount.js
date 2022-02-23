@@ -1,6 +1,7 @@
+import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { accessFacilityDetails, creditCardDetails, creditOverview, termLoanDetails } from 'app/mocks/CreditMocks';
 import { css, html } from 'platform/elements';
-import { Configuration } from 'platform/core';
+import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
@@ -19,6 +20,7 @@ import 'app/productControls/credit/src/BudgetAccountDetails';
 import 'app/productControls/credit/src/CreditAccountLanding';
 import 'app/productControls/credit/src/CreditUnverifiedLanding';
 import 'app/productControls/credit/src/PayCreditCardBudget';
+import 'app/dialogs/credit/SettlementQuote';
 
 const PRODUCTS = {
 	CREDIT_CARD: `Credit card`,
@@ -30,47 +32,6 @@ const CREDIT_TYPE = {
 	FLEXIBLE: `Flexible`,
 	FIXED: `Fixed Credit`
 };
-
-// TO DO: This constant can be pulled from 'app/constants/Statements' ACCOUNT_INTCAT_ENUM when merged with Live-better.
-const ACCOUNT_INTCAT_ENUM = Object.freeze({
-	300: {
-		name: `Savings account`,
-		type: `PRIMARY_SAVINGS`,
-		category: `transact`,
-		icon: `product/transact`,
-		order: 1
-	},
-	200: {
-		name: ``,
-		type: `FLEXIBLE_SAVINGS`,
-		category: `save`,
-		icon: `product/save`,
-		order: 2
-	},
-	201: {
-		1: {
-			name: ``,
-			type: `FIXED_TERM_MULTIPLE_DEPOSITS`,
-			category: `save`,
-			icon: `product/save`,
-			order: 3
-		},
-		2: {
-			name: ``,
-			type: `FIXED_TERM_SINGLE_DEPOSIT`,
-			category: `save`,
-			icon: `product/save`,
-			order: 4
-		}
-	},
-	210: {
-		name: `Live better savings account`,
-		type: `LBB`,
-		category: `lbb`,
-		customIcon: `/images/liveBetter/live-better-icon.png`,
-		order: 5
-	}
-});
 
 const FROM_ACCOUNTS_LIST = [
 		// Primary savings
@@ -93,7 +54,9 @@ export class CreditAccount extends ViewBase {
 	constructor() {
 		super();
 
+		this.eventAggregator = EventAggregator.getInstance();
 		this.configuration = Configuration.getInstance();
+		this.navigationContext = NavigationContext.getInstance();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	
 		// private properites
@@ -116,11 +79,11 @@ export class CreditAccount extends ViewBase {
 
 		this._initialise();
 
-		this._optionClick = async (option, creditType, productType) => {
+		this._optionClick = async (option, creditType, productType, selectedAccountDetails) => {
 
 			const transactionHistory = () => this._transactionHistory(creditType, productType);
 			const statements = () => this._getStatements(creditType, productType);
-			const settlementQuote = () => this._settlementQuote(creditType, productType);
+			const settlementQuote = () => this._settlementQuote(creditType, productType, selectedAccountDetails);
 			const settleAndClose = () => this._settleAndClose(creditType, productType);
 			const paidUpLetter = () => this._paidUpLetter();
 			const settleLoan = () => this._settleLoan();
@@ -335,6 +298,8 @@ export class CreditAccount extends ViewBase {
 		}
 		
 		this.endCallContext = `LandingPage`;
+		
+		this._performReturnToScreen();
 	}
 
 	_formatCreditOverviewResponse() {
@@ -432,7 +397,7 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.STATEMENTS;
 	}
 
-	_settlementQuote(creditType, productType) {
+	_settlementQuote(creditType, productType, selectedAccountDetails) {
 		// TO DO: Place holder for credit settlement Quote flow.
 		
 		this._telemetry.logEvent(CreditEvents.CREDIT_SETTLEMENT_QUOTE_SELECT, {
@@ -441,6 +406,13 @@ export class CreditAccount extends ViewBase {
 			"credit-type": creditType,
 			"product-type": productType
 		});
+
+		this.selectedAccountDetails = [
+				{ accountName: selectedAccountDetails.productTypeDescription,
+				  accountNumber: selectedAccountDetails.accountNumber }
+			];
+
+		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_DIALOG;
 	}
 
 	_paidUpLetter() {
@@ -515,6 +487,20 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
 	}
 
+	_sendSettlementQuote(details) {
+
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.selectedAccounts = details.selectedAccounts;
+		screenDetails.emailAddress = details.emailAddress;
+		this.horizonStore.setScreenDetails(screenDetails);
+		
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `settlement-quote`);
+		// TO DO: CS call to send Settlement Quote sould come here
+
+		// this.horizonRouter.navigateToSettlementQuoteSuccess();
+		this.horizonRouter.navigateToSettlementQuoteFailure();
+	}
+
 	async _navigatePDF(currPage) {
 		// add CS call to get encodedPDF 
 		// currPage is date currently selected
@@ -523,7 +509,7 @@ export class CreditAccount extends ViewBase {
 			return returnValue.result.statementData;
 		}
 	}
-
+	
 	// ---------
 	// RENDERING
 	// ---------
@@ -573,6 +559,7 @@ export class CreditAccount extends ViewBase {
 			${this._renderTermLoanDetailsView()}
 			${this._renderStatements()}
 			${this._renderPayBudgetDialog()}
+			${this._renderSettlementQuote()}
 		`;
 	}
 
@@ -598,7 +585,8 @@ export class CreditAccount extends ViewBase {
 
 	_renderLandingPage() {
 		return this.renderMode === RENDER_MODE.MAIN_PAGE ||
-			   this.renderMode === RENDER_MODE.STATEMENTS
+			   this.renderMode === RENDER_MODE.STATEMENTS ||
+			   this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG
 			? html`
 				${this._renderCreditVerifiedLandingPage()}
 				${this._renderCreditUnverifiedLandingPage()}`
@@ -612,7 +600,7 @@ export class CreditAccount extends ViewBase {
 					.flexibleCreditAccounts="${this.flexibleCreditAccounts}"
 					.fixedTermCreditAccounts="${this.fixedTermCreditAccounts}"
 					.budgetAccountsSummary="${this.budgetAccountsSummary}"
-					@option-click="${(e) => this._optionClick(e.detail.option, e.detail.creditType, e.detail.productType)}"
+					@option-click="${(e) => this._optionClick(e.detail.option, e.detail.creditType, e.detail.productType, e.detail.selectedAccountDetails)}"
 					@account-details="${(e) => this._accountDetails(e)}"
 					@product-enquiry="${() => this._productEnquiry()}"
 					@view-info="${() => this._viewInfo()}"
@@ -713,7 +701,18 @@ export class CreditAccount extends ViewBase {
 			</horizon-credit-statements-dialog>`
 		: html``;
 	}
-
+	
+	_renderSettlementQuote() {
+		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG
+		? html`
+			<horizon-settlement-quote-dialog
+				.selectedAccounts="${this.selectedAccountDetails}"
+				@cancel="${() => this._backToLandingPage()}"
+				@send="${(e) => this._sendSettlementQuote(e.detail)}"
+				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
+			</horizon-settlement-quote-dialog>`
+		: html``;
+	}
 }
 
 customElements.define(`horizon-credit-account`, CreditAccount);

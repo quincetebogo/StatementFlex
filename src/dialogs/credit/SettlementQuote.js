@@ -46,6 +46,7 @@ export class SendSettlementQuote extends Component {
 	 * @param {object} selectedAccounts which accounts to send quote
 	 * @param {object} encodedPDFs  Settlement quote pdfs to be viewed
 	 */
+
 	static get properties() {
 		return {
 			selectedAccounts: { type: Object },
@@ -66,12 +67,14 @@ export class SendSettlementQuote extends Component {
 		super.connectedCallback();
 		this._toggleBusyFlag();
 	}
+
 	disconnectedCallback() {
 		super.disconnectedCallback();
 	}
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+
 	_errorHandler(ex) {
 		return true;
 	}
@@ -80,9 +83,10 @@ export class SendSettlementQuote extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
-	async _sendClick(e) {
+	_sendClick(e) {
 		if (this._validateEmail(e)) {
-			// flow to success or unsuccessful 
+
+			this.dispatchEvent(new CustomEvent(`send`, { detail: { selectedAccounts: this.selectedAccounts, emailAddress: this.idEmailAddress } }));
 		}
 	}
 
@@ -94,7 +98,6 @@ export class SendSettlementQuote extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
 
 	_validateEmail(e) {
 		// CORRECT
@@ -209,7 +212,6 @@ export class SendSettlementQuote extends Component {
 				margin-right: 16px;
 			}
 			.view-document {
-				--theme-product-tile-heading-margin-top: 20px;
 				--theme-product-tile-heading-margin-left: 16px;
 				--theme-product-tile-detail-top: 20px;
 				--theme-product-tile-detail-right: 16px;
@@ -327,7 +329,8 @@ export class SendSettlementQuote extends Component {
 		<horizon-product-tile 
 			class="view-document"
 			type="default"
-			label="${item}">
+			label="${item.accountName}"
+			subtitle="${item.accountNumber}">
 				${this._renderViewDocumnetLink(item)}
 		</horizon-product-tile>`;
 	}

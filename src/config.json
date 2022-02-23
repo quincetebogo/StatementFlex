@@ -32,7 +32,7 @@
 		}
 	],
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"acceptCall": {
 			"enabled": false,
 			"positiveCase": true
@@ -42,7 +42,7 @@
 			"positiveCase": true
 		},
 		"favouritesLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
@@ -58,12 +58,12 @@
 			"positiveCase": true
 		},
 		"xdsQuestions": {
-			"enabled": false,
+			"enabled": true,
 			"substituteIdOnly": "",
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {

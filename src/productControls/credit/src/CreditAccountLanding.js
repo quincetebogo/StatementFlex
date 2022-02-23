@@ -68,8 +68,13 @@ export class CreditAccountLanding extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_click(selection, creditType, productType) {
-		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection, creditType: creditType, productType: productType } }));
+	_click(selection, creditType, productType, selectedAccountDetails) {
+		this.dispatchEvent(new CustomEvent(`option-click`, { 
+			detail: { option: selection, 
+						creditType: creditType, 
+						productType: productType,
+						selectedAccountDetails: selectedAccountDetails }
+				}));
 	}
 
 	_accountDetails(creditType, productType) {
@@ -428,7 +433,7 @@ export class CreditAccountLanding extends Component {
 							halign="left"
 							valign="center">
 								${this._renderBudgetDetailsBar(item)}
-								${this._renderOptionsGroup(item.category, item.type)}
+								${this._renderOptionsGroup(item.category, item.type, item)}
 						</capitec-group>
 					</div>
 			</horizon-expander>`);
@@ -524,13 +529,13 @@ export class CreditAccountLanding extends Component {
 							gap="none"
 							halign="left"
 							valign="center">
-								${this._renderOptionsGroup(item.category, item.type)}
+								${this._renderOptionsGroup(item.category, item.type, item)}
 						</capitec-group>
 					</div>
 			</horizon-expander>`);
 	}
 
-	_renderOptionsGroup(creditType, productType) {
+	_renderOptionsGroup(creditType, productType, selectedAccountDetails) {
 
 		// TO DO: Hide/show respected option buttons dynamically
 		return html`
@@ -558,7 +563,7 @@ export class CreditAccountLanding extends Component {
 						label="Settlement Quote"
 						icon="system/documents-action"
 						?hidden="${false}"
-						@click="${() => this._click(`settlement-quote`, creditType, productType)}">
+						@click="${() => this._click(`settlement-quote`, creditType, productType, selectedAccountDetails)}">
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="credit-account-paid-up-letter"

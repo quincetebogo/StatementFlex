@@ -7,6 +7,7 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
+import { settlementQuoteDetails } from 'app/mocks/CreditMocks';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
 import 'app/components/dialogs/common/ClientNotVerified';
@@ -343,6 +344,35 @@ export class Favourites extends SavingsAccountBase {
 		await this.getIssues(event);
 	}
 
+	_sendQuote(selectedAccounts) {
+		this.selectedAccountDetails = selectedAccounts;
+		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_DIALOG;
+	}
+
+	_sendSettlementQuote(details) {
+
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.selectedAccounts = details.selectedAccounts.filter(item => !isNullorEmpty(item));
+		screenDetails.emailAddress = details.emailAddress;
+		this.horizonStore.setScreenDetails(screenDetails);
+		
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `settlement-quote`);
+		// TO DO: CS call to send Settlement Quote sould come here
+
+		// this.horizonRouter.navigateToSettlementQuoteSuccess();
+		this.horizonRouter.navigateToSettlementQuoteFailure();
+	}
+
+	async _navigatePDF(currPage) {
+
+        // add CS call to get encodedPDF 
+        // currPage is date currently selected
+        const returnValue = await this.quickTransactionService.viewStatement(currPage, () => this._createIncidentOnError());
+        if (returnValue) {
+           return returnValue.result.statementData;
+        }
+    }
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -531,9 +561,9 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_settlementQuote() {
-		//TODO: CS call to get info
-
-		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE;
+		// TODO: CS call to get info
+		this.settlementQuoteDetails = settlementQuoteDetails;
+		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
 	}
 
 	_unavailableOption() {
@@ -731,6 +761,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderUpdateIncidentModal()}
 			${this._renderTaxCertificate()}
 			${this._renderSettlementQuote()}
+			${this._renderSendSettlementQuoteDialog()}
 
 			${super._webTemplate()}
 		`;
@@ -953,13 +984,29 @@ export class Favourites extends SavingsAccountBase {
 	}
 	
 	_renderSettlementQuote() {
-		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE
+		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_VIEW ||
+				this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG 
 		? html`
 		<horizon-settlement-quote
-		@back="${() => this._backToLandingPage()}">
+			.settlementQuoteDetails="${this.settlementQuoteDetails}"
+			@back="${() => this._backToLandingPage()}"
+			@send-quote="${(e) => this._sendQuote(e.detail.selectedAccounts)}">
 		</horizon-settlement-quote>`
 		: html``;
 	}
+
+	_renderSendSettlementQuoteDialog() {
+		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG 
+		? html`
+			<horizon-settlement-quote-dialog
+				.selectedAccounts="${this.selectedAccountDetails}"
+				@cancel="${() => this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW}"
+				@send="${(e) => this._sendSettlementQuote(e.detail)}"
+				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
+			</horizon-settlement-quote-dialog>`
+		: html``;
+	}
+
 }
 
 customElements.define(`horizon-favourites`, Favourites);

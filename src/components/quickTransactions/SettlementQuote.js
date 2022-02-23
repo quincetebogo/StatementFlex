@@ -1,11 +1,8 @@
+
+import { CREDIT_TYPE_LIST, DEFAULTS } from 'app/constants/Credit';
 import { Component, css, html } from 'platform/elements';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
-import { CREDIT_TYPE_LIST, DEFAULTS } from 'app/constants/Credit';
-import { settlementQuoteDetails } from 'app/mocks/CreditMocks';
 
-
-
-import { QuickTransactionsService }from'app/services/QuickTransactionsService';
 import 'app/components/common/HorizonPDFViewer';
 import 'app/components/common/OptionButton';
 import 'app/components/common/StepperModal';
@@ -33,6 +30,7 @@ export class SettlementQuote extends Component {
 
 	constructor() {
 		super();
+		this.settlementQuoteDetails = {};
 		this.checkAll = false;
 		this.isChecked = false;
 		this.showSendDialog = false;
@@ -43,8 +41,6 @@ export class SettlementQuote extends Component {
 		this.filteredData = [];
 		this.listValue = `Credit type`;
 		this.selectedLabel = `Select All`;
-		
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 	}
 
 
@@ -62,10 +58,11 @@ export class SettlementQuote extends Component {
 
 	static get properties() {
 		return {
+			settlementQuoteDetails: { type: Array },
 			isBusy: { attribute: false },
 			showSendDialog: { type: Boolean, attribute: false },
 			isChecked: { type: Boolean, attribute: false },
-			checkAll: { type: Boolean, attribute: false},
+			checkAll: { type: Boolean, attribute: false },
 			filteredData: { type: Array },
 			listValue: { type: String },
 			selectedLabel: { type: String }
@@ -94,21 +91,16 @@ export class SettlementQuote extends Component {
 	}
 
 	_initialise() {
-		this.filteredData = settlementQuoteDetails;
+		this.filteredData = this.settlementQuoteDetails;
 
-		for (let index = 0; index < this.filteredData.length; index++)
-		 {
+		for (let index = 0; index < this.filteredData.length; index++) {
 			this.isAccountsChecked[index] = false;
-		}	
-
+		}
 	}
 
-	_isAnySelected ()
-	{
-		for (let index = 0; index < this.isAccountsChecked.length; index++) 
-		{
-			if (this.isAccountsChecked[index])
-			{
+	_isAnySelected () {
+		for (let index = 0; index < this.isAccountsChecked.length; index++) {
+			if (this.isAccountsChecked[index]) {
 				return true;
 			}
 		}
@@ -125,20 +117,20 @@ export class SettlementQuote extends Component {
 
 	_search (e) {
 		const text = e.detail.new;
-		this.filteredData = settlementQuoteDetails;
+		this.filteredData = this.settlementQuoteDetails;
 
-		if(text === `All`) {
+		if (text === `All`) {
 			return;
 		}
 
-		if(this.listValue !== `Credit type` && this.listValue !== `All`) {
+		if (this.listValue !== `Credit type` && this.listValue !== `All`) {
 			this.filteredData = this.filteredData.filter(item => item.creditType.toLowerCase().indexOf(this.listValue.toLowerCase()) !== -1);
-		}	
+		}
 
-		if(text) {		
+		if (text) {
 			const searchText = text.split(` `);
 			const searchResult = searchText.map(key => {
-				if (key !== ``){
+				if (key !== ``) {
 					return this.filteredData.filter(item => item.quoteName.toLowerCase().indexOf(key.toLowerCase()) !== -1 ||
 															item.creditType.toLowerCase().indexOf(key.toLowerCase()) !== -1 ||
 															parseFloat(item.settlementAmount).toFixed(2).startsWith(key) ||
@@ -154,31 +146,33 @@ export class SettlementQuote extends Component {
 
 	}
 
-	_back(){
+	_back() {
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
 	_showSendDialog () {
 		this.selectedAccounts = [];
 
-		if(this.isAccountsChecked.every(val => val === false)) {
+		if (this.isAccountsChecked.every(val => val === false)) {
 			this.errorMessage = `Please select an account`;
 			this._renderAlertBanner();
 			this.requestUpdate();
 			return;
 		}
 
-		for (let index = 0; index < this.isAccountsChecked.length; index++)
-		{
-			if (this.isAccountsChecked[index])
-			{
-				this.selectedAccounts[index] = this.filteredData[index].quoteName;
+		for (let index = 0; index < this.isAccountsChecked.length; index++) {
+			if (this.isAccountsChecked[index]) {
+				this.selectedAccounts[index] = {
+					accountName: this.filteredData[index].quoteName,
+					accountNumber: this.filteredData[index].accountNumber
+				};
 			}
 		}
-		this.showSendDialog = !this.showSendDialog;		
+		
+		this.dispatchEvent(new CustomEvent(`send-quote`, { detail: { selectedAccounts: this.selectedAccounts } }));
 	}
 
-	_checkBox(e,index) {
+	_checkBox(e, index) {
 		this._clearErrors();
 		if (this.isAccountsChecked[index] === true) {
 			this.isAccountsChecked[index] = false;
@@ -198,11 +192,11 @@ export class SettlementQuote extends Component {
 
 		const amountSelected = this.isAccountsChecked.filter(Boolean).length;
 
-		if(amountSelected === 0) {
+		if (amountSelected === 0) {
 			this.selectedLabel = `Select All`;
-		}else if (amountSelected === 1) {
-			this.selectedLabel = `1 account selected`
-		}else {
+		} else if (amountSelected === 1) {
+			this.selectedLabel = `1 account selected`;
+		} else {
 			this.selectedLabel = `${this.isAccountsChecked.filter(Boolean).length} accounts selected`;
 		}
 
@@ -233,22 +227,14 @@ export class SettlementQuote extends Component {
 		this.isChecked = false;
 		this.selectedLabel = `Select All`;
 		for (let index = 0; index < this.isAccountsChecked.length; index++) {
-			this.isAccountsChecked[index] = false;			
+			this.isAccountsChecked[index] = false;
 		}
 		this._clearErrors();
 	}
+	
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-
-	async _navigatePDF(currPage){
-        //add CS call to get encodedPDF 
-        //currPage is date currently selected
-        const returnValue = await this.quickTransactionService.viewStatement(currPage, () => this._createIncidentOnError());
-        if(returnValue){
-           return returnValue.result.statementData;
-        }
-    }
 
 	_clearErrors() {
 		this.errorMessage = ``;
@@ -270,8 +256,8 @@ export class SettlementQuote extends Component {
 					width: 337px;
 				}
 				capitec-title-bar {
-					border-bottom: 1px solid rgb(225, 225, 225);	
-					box-shadow: 0px 0px;				
+					border-bottom: 1px solid rgb(225, 225, 225);
+					box-shadow: 0px 0px;
 				}
 				.main-cb {
 					height: 590px;
@@ -376,13 +362,14 @@ export class SettlementQuote extends Component {
 				}`
 		];
 	}
+
 	_mobileTemplate() {
 		return this._webTemplate();
 	}
+
 	_webTemplate() {
 		return html`
 			${this._renderContent()}
-			${this._renderSendQuote()}
 		`;
 	}
 
@@ -395,7 +382,6 @@ export class SettlementQuote extends Component {
 			</capitec-card>
 		`;
 	}
-
 
 	_renderTitleBar() {
 		return html`
@@ -412,7 +398,7 @@ export class SettlementQuote extends Component {
 
 	_renderSearch() {
 		this.textValue = ``;
-		return html `			
+		return html`
 			<capitec-title-bar>
 				<capitec-text-field
  					id="text-filter"
@@ -422,7 +408,7 @@ export class SettlementQuote extends Component {
  					@key-input="${(e) => this._search(e)}"
  					@value-change="${(e) => this._search(e)}">
  				</capitec-text-field>
-				<capitec-select 					 
+				<capitec-select
 					.items="${CREDIT_TYPE_LIST}" 
 					display-field="text"
 					filter-id="select"
@@ -462,8 +448,9 @@ export class SettlementQuote extends Component {
 			</capitec-group>
 		`;
 	}
-	_renderAcountInfoTile (item,index) {
-		return html `
+
+	_renderAcountInfoTile (item, index) {
+		return html`
 			<capitec-group class="accounts" layout="horizontal" gap="clear" valign="center">
 				<capitec-check 
 					data="${item}"
@@ -491,21 +478,12 @@ export class SettlementQuote extends Component {
 		`;
 	}
 
-	_renderSendQuote() {
-		return this.showSendDialog ? 
-		html`
-		<horizon-settlement-quote-dialog
-			.selectedAccounts="${this.selectedAccounts}"
-			@cancel="${() => this._showSendDialog()}"
-			.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
-		</horizon-settlement-quote-dialog>`
-		: html ``;
-	}
 	_renderLoadingIndicator() {
 		return this.isBusy
 			? html`<capitec-loading-indicator></capitec-loading-indicator>`
 			: html``;
 	}
+
 	_renderAlertBanner() {
 		if (this.errorMessage) {
 			return html`
@@ -518,7 +496,7 @@ export class SettlementQuote extends Component {
 
 	_renderFooter() {
 		return html`
-			<capitec-button-bar>				
+			<capitec-button-bar>
 				<capitec-check
 					label="${this.selectedLabel}"
 					?indeterminate="${this.checkAll}"
@@ -536,7 +514,7 @@ export class SettlementQuote extends Component {
 					class ="btnSend" 
 					label="Send Settlement Quote(s)" 
 					@click="${() => this._showSendDialog()}">
-				</capitec-button>			
+				</capitec-button>
 			</capitec-button-bar>`;
 	}
 }
