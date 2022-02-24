@@ -27,6 +27,7 @@ export class FlexibleSavingsPlanDetails extends Component {
 		super();
 
 		this.savingsPlanItemDetails = null;
+		this.flexibleAccountDetails = null;
 	}
 
 	// -------------------
@@ -45,11 +46,13 @@ export class FlexibleSavingsPlanDetails extends Component {
 	 * Registry of all properties defined by the component.
 	 *
 	 * @property {savingsPlanItemDetails} savingsPlanItemDetails Data for verified flexible savings plan display
+	 * @property {savingsPlanDetails} flexibleAccountDetails Data for verified flexible savings plan display
 	 *
 	 */
 	static get properties() {
 		return {
-			savingsPlanItemDetails: { type: Object }
+			savingsPlanItemDetails: { type: Object },
+			flexibleAccountDetails: { type: Object }
 		};
 	}
 	
@@ -164,6 +167,7 @@ export class FlexibleSavingsPlanDetails extends Component {
 							@click="${() => this._back()}"
 							class="left-arrow"/>
 							<horizon-label class="main-title" label="Flexible Savings Plan" value="${this.savingsPlanItemDetails.planName} - ${this.savingsPlanItemDetails.accountNumber}"></horizon-label>
+							<horizon-label class="main-title" label="Flexible Savings Plan" value="${this.flexibleAccountDetails.productTypeName} - ${this.flexibleAccountDetails.accountNumber}"></horizon-label>
 					</capitec-title-bar>
 					 
 					${this._renderFlexibleSavingsPlan()}
@@ -188,6 +192,11 @@ export class FlexibleSavingsPlanDetails extends Component {
 						<horizon-label label="Fees last month" value="${formatCurrency(this.savingsPlanItemDetails.feesLastMonth, 0)}"></horizon-label>
 						<horizon-label label="Posting restrictions" value="${formatCurrency(this.savingsPlanItemDetails.postingRestrictions, 0)}"></horizon-label>
 						<horizon-label label="Date opened" value="${this._formatDate(this.savingsPlanItemDetails.dateOpened)}"></horizon-label>
+						<horizon-label label="Current balance" value="${this.flexibleAccountDetails.currentBalance}"></horizon-label>
+						<horizon-label label="Accrued interest May" value="${this.flexibleAccountDetails.accruedInterestMay}"></horizon-label>
+						<horizon-label label="Fees last month" value="${this.flexibleAccountDetails.feesLastMonth}"></horizon-label>
+						<horizon-label label="Posting restrictions" value="${this.flexibleAccountDetails.postingRestrictions}"></horizon-label>
+						<horizon-label label="Date opened" value="${this.flexibleAccountDetails.dateOpened}"></horizon-label>
 					</capitec-group>
 
 					<capitec-group
@@ -200,6 +209,11 @@ export class FlexibleSavingsPlanDetails extends Component {
 						<horizon-label label="Last maturity date" value="${this._formatDate(this.savingsPlanItemDetails.maturityDate)}"></horizon-label>
 						<horizon-label label="Outstanding authorisations" value="${formatCurrency(this.savingsPlanItemDetails.outstandingAuthorizations)}"></horizon-label>
 						<horizon-label label="Last Update" value="${this._formatDate(this.savingsPlanItemDetails.lastUpdate)}"></horizon-label>
+						<horizon-label label="Available balance" value="${this.flexibleAccountDetails.availableBalance}"></horizon-label>
+						<horizon-label label="Interest earned Apr" value="${this.flexibleAccountDetails.interestEarnedApr}"></horizon-label>
+						<horizon-label label="Last maturity date" value="${this.flexibleAccountDetails.lastMaturityDate}"></horizon-label>
+						<horizon-label label="Outstanding authorisations" value="${this.flexibleAccountDetails.outstandingAuthorisations}"></horizon-label>
+						<horizon-label label="Last Update" value="${this.flexibleAccountDetails.lastUpdate}"></horizon-label>
 					</capitec-group>
 					<capitec-group
 						layout="vertical"
@@ -212,6 +226,11 @@ export class FlexibleSavingsPlanDetails extends Component {
 						<capitec-label class="blank-space" label="_"></capitec-label>
 						<horizon-label label="Holds" value="${formatCurrency(this.savingsPlanItemDetails.holds)}"></horizon-label>
 						<horizon-label label="Account status" value="${this.savingsPlanItemDetails.accountStatus}"></horizon-label>
+						<horizon-label label="Interest rate" value="${this.flexibleAccountDetails.interestRate}"></horizon-label>
+						<horizon-label label="Interest earned for tax year" value="${this.flexibleAccountDetails.interestEarnedForTaxYear}"></horizon-label>
+						<horizon-label></horizon-label>
+						<horizon-label label="Holds" value="${this.flexibleAccountDetails.holds}"></horizon-label>
+						<horizon-label label="Account status" value="${this.flexibleAccountDetails.accountStatus}"></horizon-label>
 					</capitec-group>
 			</capitec-group>`;
 	}
