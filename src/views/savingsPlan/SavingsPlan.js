@@ -4,6 +4,7 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { ViewBase } from '../common/ViewBase';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { getMonthName } from 'app/utils/channelServiceUtilities';
 import { html } from 'platform/elements';
 import { savingsPlanMocks } from 'app/mocks/SavingsPlanMocks';
 
@@ -58,7 +59,7 @@ export class SavingsPlan extends ViewBase {
 		// private properites
 		this.loading = true;
 		this.selectedAccountNumber = ``;
-		this.planType = PLAN_TYPE.NONE;
+		// this.planType = PLAN_TYPE.NONE;
 
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.accountViewType = ``;
@@ -73,16 +74,14 @@ export class SavingsPlan extends ViewBase {
 
 		this._initialise();
 
-		this._optionClick = (option, type, accountNumber) => {
+		this._optionClick = (option, saveType, accountNumber) => {
 
 			const statements = () => this._getStatements(accountNumber);
 			const taxCertificates = () => this._taxCertificates(accountNumber);
 			const productEnquiry = () => this._productEnquiry();
 			const savingsCalculator = () => this._savingsCalculator();
 			const interestRates = () => this._interestRates();
-			const flexibleSavings = () => this._flexibleSavings(accountNumber);
-			const fixedSavings = () => this._fixedSavings(accountNumber);
-			const accountDetails = () => this._accountDetails(type);
+			const accountDetails = () => this._accountDetails(saveType, accountNumber);
 
 			const actions = {
 				'statements': statements,
@@ -90,8 +89,6 @@ export class SavingsPlan extends ViewBase {
 				'product-enquiry': productEnquiry,
 				'savings-calculator': savingsCalculator,
 				'interest-rates': interestRates,
-				'flexible-savings': flexibleSavings,
-				'fixed-savings': fixedSavings,
 				'account-details': accountDetails
 			};
 
@@ -121,11 +118,11 @@ export class SavingsPlan extends ViewBase {
 	// EVENT HANDLERS
 	// --------------
 
-	_accountDetails(type) {
+	_accountDetails(type, accNumber) {
 		this.accountViewType = type;
 
-		const flexibleSavePlan = () => this._getFlexibleSavePlan();
-		const fixedTermSavePlan = () => this._getFixedTermSavePlan();
+		const flexibleSavePlan = () => this._getFlexibleSavePlan(accNumber);
+		const fixedTermSavePlan = () => this._getFixedTermSavePlan(accNumber);
 
 		const saveProducts = {
 			'flexible-save-plan': flexibleSavePlan,
@@ -178,6 +175,9 @@ export class SavingsPlan extends ViewBase {
                 this.landingPageInfo = returnValue.result;
 
 				// Now we can update the information on the product buttons
+				this.savingsPlanDetails = this.landingPageInfo.savingsPlans;
+				this._formatSavingsPlanDetails();
+
 				this._updateLeftBar();
 				this.endCallContext = `LandingPage`;
 				this.renderMode = RENDER_MODE.MAIN_PAGE;
@@ -195,37 +195,52 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	_updateLeftBar() {
-		let subtitle = null;
-		let detail = null;
-		// ${this._updateLeftBar()};
-
-	
-		this.savingsPlanDetails = savingsPlanMocks;
-		this._formatSavingsPlanDetails();
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.endCallContext = `LandingPage`;
 		this.loading = false;
-		
+	}
+
+	_formatDate(date) {
+		const newdate = new Date(Date.parse(date));
+		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
 	}
 
 	_formatSavingsPlanDetails() {
-		this.savingsPlanDetails.flexibileSavingsPlanSummaryList.map(item => {
-			item.accountBalance = formatCurrency(item.accountBalance);
+		this.savingsPlanDetails.filter(item => item.planType === PLAN_TYPE.SAVINGS_PLAN).map(item => {
+			item.currentBalance = formatCurrency(item.currentBalance);
 			item.availableBalance = formatCurrency(item.availableBalance);
-			item.saveType = SAVE_PLAN_TYPE.FLEXIBLE;
+			item.accruedInterestCurrentMonth = formatCurrency(item.accruedInterestCurrentMonth);
+			item.accruedInterestLastMonth = formatCurrency(item.accruedInterestLastMonth);
+			item.interestEarned = formatCurrency(item.interestEarned);
+			item.feesLastMonth = formatCurrency(item.feesLastMonth);
+			item.maturityDate = this._formatDate(item.maturityDate);
+			item.dateOpened = this._formatDate(item.dateOpened);
+			item.lastUpdate = this._formatDate(item.lastUpdate);
 
 			return item;
 		});
 
-		this.savingsPlanDetails.fixedSavingsPlanSummaryList.map(item => {
-			item.accountBalance = formatCurrency(item.accountBalance);
-			item.saveType = SAVE_PLAN_TYPE.FIXED_TERM;
+		this.savingsPlanDetails.filter(item => item.planType !== PLAN_TYPE.SAVINGS_PLAN).map(item => {
+			item.currentBalance = formatCurrency(item.currentBalance);
+			item.availableBalance = formatCurrency(item.availableBalance);
+			item.accruedInterestCurrentMonth = formatCurrency(item.accruedInterestCurrentMonth);
+			item.accruedInterestLastMonth = formatCurrency(item.accruedInterestLastMonth);
+			item.interestEarned = formatCurrency(item.interestEarned);
+			item.availableContributions = formatCurrency(item.availableContributions);
+			item.contributionLimit = formatCurrency(item.contributionLimit);
+			item.totalContributions = formatCurrency(item.totalContributions);
+
+			item.maturityDate = this._formatDate(item.maturityDate);
+			item.dateOpened = this._formatDate(item.dateOpened);
+			item.dateFixed = this._formatDate(item.dateFixed);
+			item.lastUpdate = this._formatDate(item.lastUpdate);
 
 			return item;
 		});
 	}
 
+	/*
 	_flexibleSavings(accNumber) {
 		this.renderMode = RENDER_MODE.FLEXIBLE_SAVINGS_PLAN_DETAILS;
 		this.selectedSavingsPlanItem = this.landingPageInfo.savingsPlans.find(savingsPlan => savingsPlan.accountNumber === accNumber);
@@ -235,6 +250,7 @@ export class SavingsPlan extends ViewBase {
 		this.renderMode = RENDER_MODE.FIXED_SAVINGS_PLAN_DETAILS;
 		this.selectedSavingsPlanItem = this.landingPageInfo.savingsPlans.find(savingsPlan => savingsPlan.accountNumber === accNumber);
 	}
+	*/
 
 	_getStatements(accNumber) {
 		// TO DO: Place holder for savings plan statements flow.
@@ -293,15 +309,15 @@ export class SavingsPlan extends ViewBase {
 		// await super._inicidentManager_(need, () => this._toggleBusyFlag());
 	}
 	
-	_getFlexibleSavePlan() {
+	_getFlexibleSavePlan(accNumber) {
 		// TO DO: "flexibleAccountDetails" details to be pulled and formated from services
-		this.flexibleAccountDetails = savingsPlanMocks.flexibleSavingsPlanDetailList;
+		this.flexibleAccountDetails = this.savingsPlanDetails.find(item => item.accountNumber === accNumber);
 		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
 	}
 
-	_getFixedTermSavePlan() {
+	_getFixedTermSavePlan(accNumber) {
 		// TO DO: "fixedTermAccountDetails" details to be pulled and formated from services
-		this.fixedTermAccountDetails = savingsPlanMocks.fixedTermSavingsPlanDetailList;
+		this.fixedTermAccountDetails = this.savingsPlanDetails.find(item => item.accountNumber === accNumber);
 		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
 	}
 
@@ -316,13 +332,11 @@ export class SavingsPlan extends ViewBase {
 	_webTemplate() {
 		return html`
 			${super._webTemplate()}
-			${this._renderStatements()}
-			${this._renderTaxCertificate()}
-			${this._renderFlexibleSavingsPlanDetails()}
-			${this._renderFixedSavingsPlanDetails()}
 			${this._renderLandingPage()}
 			${this._renderFlexibleDetailsView()}
 			${this._renderFixedTermDetailsView()}
+			${this._renderStatements()}
+			${this._renderTaxCertificate()}
 		`;
 	}
 
@@ -336,12 +350,14 @@ export class SavingsPlan extends ViewBase {
 	_renderSavingsPlanVerifiedLandingPage() {
 		return html`
 			<capitec-pc-savings-plan
-				.savingsPlanDetails="${this.landingPageInfo?.savingsPlans}"
+				.flexibleSavingsPlanDetails="${this.savingsPlanDetails.filter(item => item.planType === PLAN_TYPE.SAVINGS_PLAN)}"
+				.fixedSavingsPlanDetails="${this.savingsPlanDetails.filter(item => item.planType !== PLAN_TYPE.SAVINGS_PLAN)}"
 
-				@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.accountNumber)}">
+				@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.saveType, e.detail.accountNumber)}">
 			</capitec-pc-savings-plan>`;
 	}
 
+	/*
 	_renderFlexibleSavingsPlanDetails() {
 		return this.renderMode === RENDER_MODE.FLEXIBLE_SAVINGS_PLAN_DETAILS ? html`
 				<capitec-flexible-savings-plan-details
@@ -355,6 +371,7 @@ export class SavingsPlan extends ViewBase {
 					@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.saveType)}">
 				</capitec-pc-savings-plan>`;
 		}
+	*/
 
 	_renderFlexibleDetailsView() {
 		return this.renderMode === RENDER_MODE.ACCOUNT_DETAIL_VIEW &&
@@ -362,12 +379,26 @@ export class SavingsPlan extends ViewBase {
 			? html`
 				<capitec-flexible-savings-plan-details
 					.flexibleAccountDetails="${this.flexibleAccountDetails}"
+
 					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 				</capitec-flexible-savings-plan-details>
 			`
 			: html``;
 	}
 
+	_renderFixedTermDetailsView() {
+		return this.renderMode === RENDER_MODE.ACCOUNT_DETAIL_VIEW &&
+				this.accountViewType === SAVE_PLAN_TYPE.FIXED_TERM
+			? html`
+				<capitec-fixed-term-savings-plan-details
+					.fixedTermAccountDetails="${this.fixedTermAccountDetails}"
+
+					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+				</capitec-fixed-term-savings-plan-details>`
+			: html``;
+	}
+
+	/*
 	_renderFixedSavingsPlanDetails() {
 		return this.renderMode === RENDER_MODE.FIXED_SAVINGS_PLAN_DETAILS
 			? html`
@@ -380,6 +411,7 @@ export class SavingsPlan extends ViewBase {
 			`
 			: html``;
 	}
+	*/
 
 	_renderStatements() {
 		return this.renderMode === RENDER_MODE.STATEMENTS
@@ -403,17 +435,6 @@ export class SavingsPlan extends ViewBase {
 					@cancel="${() => this._backToLandingPage()}">
 				</horizon-tax-certificate>
 			`
-			: html``;
-	}  
-	
-	_renderFixedTermDetailsView() {
-		return this.renderMode === RENDER_MODE.ACCOUNT_DETAIL_VIEW &&
-				this.accountViewType === SAVE_PLAN_TYPE.FIXED_TERM
-			? html`
-				<horizon-fixed-term-savings-plan
-					.fixedTermAccountDetails="${this.fixedTermAccountDetails}"
-					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
-				</horizon-fixed-term-savings-plan>`
 			: html``;
 	}
 	

@@ -24,7 +24,6 @@ export class FixedTermSavingsPlan extends Component {
 	constructor() {
 		super();
 
-		this.savingsPlanItemDetails = null;
 		this.fixedTermAccountDetails = null;
 	}
 
@@ -43,13 +42,11 @@ export class FixedTermSavingsPlan extends Component {
 	/**
 	 * Registry of all properties defined by the component.
 	 *
-	 * @property {savingsPlanItemDetails} savingsPlanItemDetails Data for verified fixed term savings plan display
-	 * @property {savingsPlanDetails} fixedTermAccountDetails Data for verified fixed term savings plan display
+	 * @property {fixedTermAccountDetails} fixedTermAccountDetails Data for verified fixed term savings plan display
 	 *
 	 */
 	static get properties() {
 		return {
-			savingsPlanItemDetails: { type: Object },
 			fixedTermAccountDetails: { type: Object }
 		};
 	}
@@ -219,8 +216,7 @@ export class FixedTermSavingsPlan extends Component {
 							src="/images/liveBetter/left-arrow.svg"
 							@click="${() => this._back()}"
 							class="left-arrow"/>
-							<horizon-label class="main-title" label="Fixed-term Savings Plan" value="${this.savingsPlanItemDetails.planName} - ${this.savingsPlanItemDetails.accountNumber}"></horizon-label>
-							<horizon-label class="main-title" label="Fixed-term Savings Plan" value="${this.fixedTermAccountDetails.productTypeName} - ${this.fixedTermAccountDetails.accountNumber}"></horizon-label>
+							<horizon-label class="main-title" label="Fixed-term Savings Plan" value="${this.fixedTermAccountDetails.planName} - ${this.fixedTermAccountDetails.accountNumber}"></horizon-label>
 					</capitec-title-bar>
 
 					${this._renderFixedTermSavingsPlan()}
@@ -241,18 +237,12 @@ export class FixedTermSavingsPlan extends Component {
 					gap="clear"
 					halign="left"
 					valign="center">
-					<horizon-label label="Current balance" value="${formatCurrency(this.savingsPlanItemDetails.currentBalance)}"></horizon-label>
-					<horizon-label label="Effective interest rate" value="${this.savingsPlanItemDetails.effectiveInterestRate}%"></horizon-label>
-					<horizon-label label="Interest earned for tax year" value="${formatCurrency(this.savingsPlanItemDetails.interestEarned)}"></horizon-label>
-					<horizon-label label="Maturity date" value="${this._formatDate(this.savingsPlanItemDetails.maturityDate)}"></horizon-label>
-					<horizon-label label="Available contributions" value="${formatCurrency(this.savingsPlanItemDetails.availableContributions)}"></horizon-label>
-					<horizon-label label="Last updated" value="${this._formatDate(this.savingsPlanItemDetails.lastUpdate)}"></horizon-label>
 					<horizon-label label="Current balance" value="${this.fixedTermAccountDetails.currentBalance}"></horizon-label>
 					<horizon-label label="Effective interest rate" value="${this.fixedTermAccountDetails.effectiveInterestRate}"></horizon-label>
-					<horizon-label label="Interest earned for tax year" value="${this.fixedTermAccountDetails.interestEarnedForTaxYear}"></horizon-label>
+					<horizon-label label="Interest earned for tax year" value="${this.fixedTermAccountDetails.interestEarned}"></horizon-label>
 					<horizon-label label="Maturity date" value="${this.fixedTermAccountDetails.maturityDate}"></horizon-label>
 					<horizon-label label="Available contributions" value="${this.fixedTermAccountDetails.availableContributions}"></horizon-label>
-					<horizon-label label="Last updated" value="${this.fixedTermAccountDetails.lastUpdated}"></horizon-label>
+					<horizon-label label="Last updated" value="${this.fixedTermAccountDetails.lastUpdate}"></horizon-label>
 				</capitec-group>
 
 				<capitec-group
@@ -260,14 +250,8 @@ export class FixedTermSavingsPlan extends Component {
 					gap="clear"
 					halign="left"
 					valign="top">
-					<horizon-label label="Available balance" value="${formatCurrency(this.savingsPlanItemDetails.availableBalance)}"></horizon-label>
-					<horizon-label label="Interest earned ${this._getCurrentMonth()}" value="${formatCurrency(this.savingsPlanItemDetails.accruedInterestCurrentMonth)}"></horizon-label>
-					<horizon-label label="Date fixed" value="${this._formatDate(this.savingsPlanItemDetails.dateFixed)}"></horizon-label>
-					<horizon-label label="Interest option" value="${this.savingsPlanItemDetails.interestOption}"></horizon-label>
-					<horizon-label label="Contribution limit" value="${formatCurrency(this.savingsPlanItemDetails.contributionLimit)}"></horizon-label>
-					<horizon-label label="Account status" value="${this.savingsPlanItemDetails.accountStatus}"></horizon-label>
 					<horizon-label label="Available balance" value="${this.fixedTermAccountDetails.availableBalance}"></horizon-label>
-					<horizon-label label="Interest earned May" value="${this.fixedTermAccountDetails.interestEarnedMay}"></horizon-label>
+					<horizon-label label="Interest earned ${this._getCurrentMonth()}" value="${this.fixedTermAccountDetails.accruedInterestCurrentMonth}"></horizon-label>
 					<horizon-label label="Date fixed" value="${this.fixedTermAccountDetails.dateFixed}"></horizon-label>
 					<horizon-label label="Interest option" value="${this.fixedTermAccountDetails.interestOption}"></horizon-label>
 					<horizon-label label="Contribution limit" value="${this.fixedTermAccountDetails.contributionLimit}"></horizon-label>
@@ -279,15 +263,8 @@ export class FixedTermSavingsPlan extends Component {
 					gap="clear"
 					halign="left"
 					valign="top">
-					<horizon-label label="Nominal interest rate" value="${this.savingsPlanItemDetails.nominalInterestRate}%"></horizon-label>
-					<horizon-label label="Interest earned ${this._getPreviousMonth()}" value="${formatCurrency(this.savingsPlanItemDetails.accruedInterestLastMonth)}"></horizon-label>
-					<horizon-label label="Term (months)" value="${this.savingsPlanItemDetails.term}"></horizon-label>
-					<horizon-label label="Total contributions" value="${formatCurrency(this.savingsPlanItemDetails.totalContributions)}"></horizon-label>
-					<horizon-label label="Posting restrictions" value="${this.savingsPlanItemDetails.postingRestrictions}"></horizon-label>
-					<capitec-label class="blank-space" label="._"></capitec-label>
-					<capitec-label class="blank-space" label="_"></capitec-label>
 					<horizon-label label="Nominal interest rate" value="${this.fixedTermAccountDetails.nominalInterestRate}"></horizon-label>
-					<horizon-label label="Interest earned Apr" value="${this.fixedTermAccountDetails.interestEarnedApr}"></horizon-label>
+					<horizon-label label="Interest earned ${this._getPreviousMonth()}" value="${this.fixedTermAccountDetails.accruedInterestLastMonth}"></horizon-label>
 					<horizon-label label="Term (months)" value="${this.fixedTermAccountDetails.term}"></horizon-label>
 					<horizon-label label="Total contributions" value="${this.fixedTermAccountDetails.totalContributions}"></horizon-label>
 					<horizon-label label="Posting restrictions" value="${this.fixedTermAccountDetails.postingRestrictions}"></horizon-label>
