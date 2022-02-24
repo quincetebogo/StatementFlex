@@ -161,7 +161,15 @@ export class PaidUpAccounts extends Component {
 					font-weight: 600;
 					letter-spacing: 0;
 					line-height: 32px;
+					margin-left: 15px;
 				}
+				capitec-action-bar {
+
+                    border-bottom: 1px solid rgb(225, 225, 225);    
+
+                    box-shadow: 0px 0px;                
+
+                }
 				
 				.choose-account{
 					line-height: 20px;
@@ -212,7 +220,7 @@ export class PaidUpAccounts extends Component {
 				}
 
 				.btnSend {
-					height: 20px;
+					height: 52px;
 					margin-right: 16px;
 				}
 
@@ -221,6 +229,10 @@ export class PaidUpAccounts extends Component {
 					width: 1px;
 					background-color: #E1E1E1;
 					margin-right: 16px;
+				}
+				.main-content-box
+				{
+					height:570px;
 				}
 
 				.accounts{
@@ -269,16 +281,16 @@ export class PaidUpAccounts extends Component {
 
 	_renderContent() {
 		return html`
-			<capitec-card class="center-section">
-			<capitec-title-bar>
-				<capitec-icon 
-					size="small"
-					icon="system/arrow-left-action"
-					@click="${() => this._back()}">
-				</capitec-icon>
-				<capitec-label label="Paid Up Letter" type="title"></capitec-label>
-			</capitec-title-bar>
+			<capitec-card class="center-section" >
+				<capitec-title-bar>
+					<capitec-icon 
+						size="small"
+						icon="system/arrow-left-action"
+						@click="${() => this._back()}">
+					</capitec-icon>
 
+					<capitec-label label="Paid Up Letter" type="title"></capitec-label>
+				</capitec-title-bar>
 				<capitec-group layout="vertical" halign="left" valign="top" gap="2">
 					${this._renderAlertBanner()}
 					${this._renderpaidUpAccounts()}
@@ -290,7 +302,7 @@ export class PaidUpAccounts extends Component {
 	{
 		let accInfo = this.accountsInfo ;
 		return html `			
-			<capitec-action-bar show-filters>
+			<capitec-action-bar>
 				<capitec-search-field label="Search loan , amount or account number" style="width: 320px;" value focussed></capitec-search-field>
 				<capitec-select 
 					label="Account type" 
@@ -300,7 +312,7 @@ export class PaidUpAccounts extends Component {
 				</capitec-select>
 			</capitec-action-bar>
 
-			<capitec-content-box style="height: 550px;" layout="vertical" halign="stretch" valign="top" gap="clear">
+			<capitec-content-box class="main-content-box" layout="vertical" halign="stretch" valign="top" gap="clear">
 				<capitec-label class="choose-account"
 					type="subtitle" 
 					label="Choose an account">

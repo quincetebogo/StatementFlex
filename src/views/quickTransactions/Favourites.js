@@ -979,7 +979,7 @@ export class Favourites extends SavingsAccountBase {
 		? html`
 		<horizon-paid-up-accounts
 			.landingPageInfo="${this.landingPageInfo}"
-			@cancel="${() => this._backToLandingPage()}">
+			@back="${() => this._backToLandingPage()}">
 		</horizon-paid-up-accounts>`
 		: html``;
 	}
