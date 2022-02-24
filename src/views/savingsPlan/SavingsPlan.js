@@ -1,3 +1,4 @@
+import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
@@ -5,6 +6,11 @@ import { ViewBase } from '../common/ViewBase';
 import { html } from 'platform/elements';
 
 import 'app/productControls/SavingsPlan/SavingsPlanLanding';
+import 'app/dialogs/taxCertificates/TaxCertificates';
+import 'app/components/dialogs/common/StatementsDialog';
+
+import 'app/views/savingsPlan/FlexibleSavingsPlan';
+import 'app/views/savingsPlan/FixedTermSavingsPlan';
 
 /**
  * Savings Plan View
@@ -17,6 +23,19 @@ import 'app/productControls/SavingsPlan/SavingsPlanLanding';
  * @class SavingsPlan
  * @extends {SavingsPlan}
  */
+
+const ACCOUNT_TYPE = {
+	FLEXIBLE: 200,
+	FIXED: 201,
+	MULTIPLE: 1
+};
+
+const PLAN_TYPE = {
+	NONE: `NONE`,
+	SAVINGS_PLAN: `SAVINGS PLAN`,
+	FIXED_TERM: `FIXED TERM SAVINGS PLAN`
+};
+
 export class SavingsPlan extends ViewBase {
 	
 	// --------------
@@ -31,6 +50,8 @@ export class SavingsPlan extends ViewBase {
 	
 		// private properites
 		this.loading = true;
+		this.selectedAccountNumber = ``;
+		this.planType = PLAN_TYPE.NONE;
 
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
@@ -44,20 +65,24 @@ export class SavingsPlan extends ViewBase {
 
 		this._initialise();
 
-		this._optionClick = (option) => {
+		this._optionClick = (option, accountNumber) => {
 
-			const statements = () => this._getStatements();
-			const taxCertificates = () => this._taxCertificates();
+			const statements = () => this._getStatements(accountNumber);
+			const taxCertificates = () => this._taxCertificates(accountNumber);
 			const productEnquiry = () => this._productEnquiry();
 			const savingsCalculator = () => this._savingsCalculator();
 			const interestRates = () => this._interestRates();
+			const flexibleSavings = () => this._flexibleSavings(accountNumber);
+			const fixedSavings = () => this._fixedSavings(accountNumber);
 
 			const actions = {
 				'statements': statements,
-				'tax-certificate': taxCertificates,
+				'tax-certificates': taxCertificates,
 				'product-enquiry': productEnquiry,
 				'savings-calculator': savingsCalculator,
-				'interest-rates': interestRates
+				'interest-rates': interestRates,
+				'flexible-savings': flexibleSavings,
+				'fixed-savings': fixedSavings
 			};
 
 			if (actions[option]) {
@@ -136,8 +161,12 @@ export class SavingsPlan extends ViewBase {
 			this.horizonRouter.navigateToProductInfo(`Save`);
 		}
 
+		if (this.verificationStatus === `non-client`) {}
+
+		if (this.verificationStatus === `unverified`) {}
+
 		this.loading = false;
-		this._performReturnToScreen();
+		// this._performReturnToScreen();
 	}
 
 	_updateLeftBar() {
@@ -171,12 +200,50 @@ export class SavingsPlan extends ViewBase {
 		this.horizonStore.saveState(state);
 	}
 
-	_getStatements() {
-		// TO DO: Place holder for savings plan statements flow.
+	_flexibleSavings(accNumber) {
+		this.renderMode = RENDER_MODE.FLEXIBLE_SAVINGS_PLAN_DETAILS;
+		this.selectedSavingsPlanItem = this.landingPageInfo.savingsPlans.find(savingsPlan => savingsPlan.accountNumber === accNumber);
 	}
 
-	_taxCertificates() {
+	_fixedSavings(accNumber) {
+		this.renderMode = RENDER_MODE.FIXED_SAVINGS_PLAN_DETAILS;
+		this.selectedSavingsPlanItem = this.landingPageInfo.savingsPlans.find(savingsPlan => savingsPlan.accountNumber === accNumber);
+	}
+
+	_getStatements(accNumber) {
+		// TO DO: Place holder for savings plan statements flow.
+		const accountItem = this.landingPageInfo.savingsPlans.find(savingsPlan => savingsPlan.accountNumber === accNumber);
+		const productInfo = ACCOUNT_INTCAT_ENUM[ACCOUNT_TYPE.FLEXIBLE];
+		const accName = accountItem.planName.toLowerCase();
+
+		this.clientProducts = [
+			{
+				'accountNumber': accountItem.accountNumber,
+				'accountName': `${accName.charAt(0).toUpperCase()}${accName.slice(1)}`,
+				'accountType': accountItem.planType,
+				'accountOpenDate': accountItem.accountOpenDate,
+				'type': productInfo.type,
+				'category': productInfo.category,
+				'icon': productInfo.icon,
+				'customIcon': productInfo.customIcon,
+				'order': productInfo.order
+			}
+		];
+		this.renderMode = RENDER_MODE.STATEMENTS;
+	}
+
+	_cancelStatements() {
+		this._backToLandingPage();
+	}
+
+	_backToLandingPage() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_taxCertificates(accNumber) {
 		// TO DO: Place holder for tax certificate flow.
+		this.selectedAccountNumber = accNumber;
+		this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
 	}
 
 	async _savingsCalculator() {
@@ -194,6 +261,12 @@ export class SavingsPlan extends ViewBase {
 		window.open(`${globalOneUrl}/save/`);
 	}
 
+	async _statementsAccConfirmed(event) {
+		// const need = `statements-${event.detail.account}`;
+
+		// await super._inicidentManager_(need, () => this._toggleBusyFlag());
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -205,6 +278,10 @@ export class SavingsPlan extends ViewBase {
 	_webTemplate() {
 		return html`
 			${super._webTemplate()}
+			${this._renderStatements()}
+			${this._renderTaxCertificate()}
+			${this._renderFlexibleSavingsPlanDetails()}
+			${this._renderFixedSavingsPlanDetails()}
 			${this._renderLandingPage()}
 		`;
 	}
@@ -217,13 +294,64 @@ export class SavingsPlan extends ViewBase {
 	}
 	
 	_renderSavingsPlanVerifiedLandingPage() {
-			return html`
-				<capitec-pc-savings-plan
-					.savingsPlanDetails="${this.landingPageInfo.savingsPlans}"
+		return html`
+			<capitec-pc-savings-plan
+				.savingsPlanDetails="${this.landingPageInfo?.savingsPlans}"
 
-					@option-click = "${(e) => this._optionClick(e.detail.option)}">
-				</capitec-pc-savings-plan>`;
-		}
+				@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.accountNumber)}">
+			</capitec-pc-savings-plan>`;
+	}
+
+	_renderFlexibleSavingsPlanDetails() {
+		return this.renderMode === RENDER_MODE.FLEXIBLE_SAVINGS_PLAN_DETAILS
+			? html`
+				<capitec-flexible-savings-plan-details
+					.savingsPlanItemDetails="${this.selectedSavingsPlanItem}"
+
+					@back="${() => this._backToLandingPage()}"
+				>
+				</capitec-flexible-savings-plan-details>
+			`
+			: html``;
+	}
+
+	_renderFixedSavingsPlanDetails() {
+		return this.renderMode === RENDER_MODE.FIXED_SAVINGS_PLAN_DETAILS
+			? html`
+				<capitec-fixed-term-savings-plan-details
+					.savingsPlanItemDetails="${this.selectedSavingsPlanItem}"
+
+					@back="${() => this._backToLandingPage()}"
+				>
+				</capitec-fixed-term-savings-plan-details>
+			`
+			: html``;
+	}
+
+	_renderStatements() {
+		return this.renderMode === RENDER_MODE.STATEMENTS
+			? html`
+				<horizon-statements-dialog
+					.cifNumber="${this.callerInformation.cifNumber}"
+					.clientProducts="${this.clientProducts}"
+					type="${``}"
+					@cancel="${() => this._cancelStatements()}"
+					@account-selected="${(event) => this._statementsAccConfirmed(event)}">
+				</horizon-statements-dialog>`
+			: html``;
+	}
+
+	_renderTaxCertificate() {
+		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE
+			? html`
+				<horizon-tax-certificate
+					cifNumber="${this.callerInformation.cifNumber}"
+					accountNumber="${this.selectedAccountNumber}"
+					@cancel="${() => this._backToLandingPage()}">
+				</horizon-tax-certificate>
+			`
+			: html``;
+	}  
 }
 
 customElements.define(`horizon-savings-plan`, SavingsPlan);
