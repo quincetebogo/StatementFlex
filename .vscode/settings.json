@@ -44,5 +44,7 @@
 		"repos",
 		"ucid"
 	],
-	"eslint.enable": true
+	"eslint.enable": true,
+	"eslint.format.enable": true,
+	"eslint.debug": true
 }

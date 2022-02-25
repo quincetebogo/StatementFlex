@@ -59,5 +59,17 @@
 	"savings-account-balance": `SAVINGS_BALANCE`,
 	"mobile-banking": `MOBILE_BANKING_BALANCE`,
 	"transaction-history-request": `SAVINGS_BALANCE_TRANSACTIONS`,
-	"pending-transaction-information": `SAVINGS_BLANCE_PENDING`
+	"pending-transaction-information": `SAVINGS_BLANCE_PENDING`,
+
+	// Access channels mapping
+	"view-app": `VIEW_APP_DETAILS`,
+	"suspend-app": `SUSPEND_APP`,
+	"view-internetBanking": `VIEW_INTERNET_BANKING_DETAILS`,
+	"suspend-token": `SUSPEND_SECURITY_TOKEN`,
+	"reset-security-token": `RESET_SECURITY_TOKEN_CLOCK`,
+	"view-ussd": `VIEW_USSD_DETAILS`,
+	"cancel-ussd": `CANCEL_USSD`,
+	"unblock-sim": `UNBLOCK_SIM`,
+	"active-full-menu-ussd": `ACTIVE_REDUCED_MENU_USSD`,
+	"view-notification": `NOTIFICATIONS`
 });

@@ -1,5 +1,6 @@
 import { Configuration, Logger, Security, Service } from 'platform/core';
 import { HttpStatusError } from 'platform/core/errors/HttpStatusError';
+import { isFunction } from 'util';
 import { v4 } from 'uuid';
 
 export const DEFAULT_AUTO_RETRIES = 3;
@@ -167,6 +168,16 @@ export class ChannelServiceBase extends Service {
 			}
 
 			if (!this._mocking.enabled) {
+				return false;
+			}
+
+			if (!this._mockLoadFunc) {
+				this._logger.log(`info`, `No mock load function provided for mock "${mockName}"`, `_mockEnabled`);
+				return false;
+			}
+
+			if (typeof this._mockLoadFunc !== `function`) {
+				this._logger.log(`info`, `Value provided for "mockLoadFunc" is not a function. Mocking disabled for "${mockName}"`, `_mockEnabled`);
 				return false;
 			}
 
