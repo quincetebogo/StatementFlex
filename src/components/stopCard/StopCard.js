@@ -85,6 +85,7 @@ export class StopCard extends Component {
 		this.selectedCardCount = 0;
 		this.cardsToStop = [];
 		this.isBusy = false;
+		this.hasCardsAvailable = false;
 		
 		// Recover state information
 		this.callerInformation = this.horizonStore.getCallerInformation();
@@ -109,6 +110,7 @@ export class StopCard extends Component {
 		return {
 			cards: { type: Array },
 			incomingCallDetails: { type: Object },
+			hasCardsAvailable: { type: Boolean },
 
 			selectedCardCount: { type: Number, attribute: false },
 			renderMode: { type: Number, attribute: false },
@@ -129,6 +131,8 @@ export class StopCard extends Component {
 		* Add rowIndex, selected, stopReason fields to cards array. 
 		* Logic to show/hide stop card reasons is based on rowIndex
 		*/
+		this.clientHasCards();
+
 		this.addFieldsToCardsArray();
 
 		this._updateLeftBar();
@@ -250,6 +254,10 @@ export class StopCard extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	clientHasCards() {
+		this.cards.length > 0 ? this.hasCardsAvailable = true : this.hasCardsAvailable = false;
+	}
 
 	addFieldsToCardsArray() {
 		this.cards.map((card, index) => {
@@ -387,6 +395,18 @@ export class StopCard extends Component {
 				img {
 					cursor: pointer;
 				}
+				capitec-image {
+					margin: 109px 406px 0px 406px;
+					width: 252px;
+					height: 182px;
+				}
+				.client-has-no-card {
+					margin: 15px 0px 16px;
+					color: #3A3A3A;
+					font-size: 24px;
+					font-weight: 600;
+					line-height: 36px;
+				}
 			`
 		];
 	}
@@ -400,10 +420,9 @@ export class StopCard extends Component {
 				<capitec-group layout="grid" gap="none" row="auto" columns="uniform" style="width:100%;">
 			
 					${this._renderTitleBar()}
-					${this._renderNotifyClient()}
-					${this._renderCardDetails()}
-					${this._renderFooter()}
-			
+					${this._renderNoCardsAvailable()}
+					${this._renderCardsToStop()}
+
 				</capitec-group>
 			</capitec-card>
 			${this._renderStopCardModal()}
@@ -426,6 +445,23 @@ export class StopCard extends Component {
 							type="title">
 						</capitec-label>
 			</capitec-title-bar>`;
+	}
+
+	_renderNoCardsAvailable() {
+		return !this.hasCardsAvailable
+		? html`
+			<capitec-image src="platform/illustrations/cards.svg"></capitec-image>
+			<p class="client-has-no-card">Client has no cards to fulfill this transaction</p>`
+		: html``;
+	}
+
+	_renderCardsToStop() {
+		return this.hasCardsAvailable
+		? html`
+			${this._renderNotifyClient()}
+			${this._renderCardDetails()}
+			${this._renderFooter()}`
+		: html``;
 	}
 
 	_renderNotifyClient() {

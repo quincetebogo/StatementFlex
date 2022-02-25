@@ -77,6 +77,7 @@ export class CardLimitsLanding extends Component {
 		this.showDiscardChangesModal = false;
 		this.showConfirmSelectionModal = false;
 		this.showVerifyCallerModal = false;
+		this.hasCardsAvailable = false;
 
 		this.hasDigitalChannels = false;
 
@@ -173,6 +174,7 @@ export class CardLimitsLanding extends Component {
 			voiceRecordingReference: { type: String },
 			verificationMethod: { type: String },
 			hasDigitalChannels: { type: Boolean },
+			hasCardsAvailable: { type: Boolean },
 			showVerifyCallerDialog: { type: Boolean },
 			getCardLimitsAgreement: { type: Object, attribute: false },
 			getPermanentLimits: { type: Object, attribute: false },
@@ -380,6 +382,9 @@ export class CardLimitsLanding extends Component {
 	// ---------------
 
 	_initialise() {
+
+		this.clientHasCards();
+
 		this.cards.forEach(card => {
 			if (CARD_TYPE_MAPPING[card.cardType] === CARD_TYPES.CREDIT && card.linkedCardId !== null) {
 				card.category = CARD_TYPES.DUAL;
@@ -388,6 +393,10 @@ export class CardLimitsLanding extends Component {
 			}
 			card.isVirtualCard = card.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD;
 		});
+	}
+
+	clientHasCards() {
+		this.cards.length > 0 ? this.hasCardsAvailable = true : this.hasCardsAvailable = false;
 	}
 
 	async _updateLimits(card, limitType, updateType) {
@@ -563,7 +572,7 @@ export class CardLimitsLanding extends Component {
 			super.styles,
 			css`
 				${ALERTBANNER_CSS}
-				.center-section {
+				capitec-card {
 					height: var(--horizon-panel-height, 888px);
 					width: var(--horizon-center-panel-width, 1064px);
 					--theme-card-border-radius: 5px;
@@ -726,7 +735,21 @@ export class CardLimitsLanding extends Component {
 				}
 				.m-t-16 {
 					margin-top: 16px;
-				}`
+				}
+				capitec-image {
+					margin: 109px 406px 0px 406px;
+					width: 252px;
+					height: 182px;
+				}
+				.client-has-no-card {
+					margin: 15px 0px 16px;
+					color: #3A3A3A;
+					font-size: 24px;
+					font-weight: 600;
+					line-height: 36px;
+					text-align: center;
+				}
+			`
 		];
 	}
 
@@ -745,15 +768,11 @@ export class CardLimitsLanding extends Component {
 
 	_renderContent() {
 		return html`
-			<capitec-card class="center-section">
+			<capitec-card>
 				${this._renderTitleBar()}
 				<capitec-content-box>
-					${this.renderAlertBanner()}
-					<capitec-expander-group modeset="multiple" class="${this.verificationMethod === `ITA` ? `m-t-16` : ``}">
-						${this.primaryCards.length > 0 ? this._renderPrimaryCardGroup() : ``}
-						${this.virtualCards.length > 0 ? this._renderVirtualCardGroup() : ``}
-						${this.supplementaryCards.length > 0 ? this._renderSupplementaryCardGroup() : ``}
-					</capitec-expander-group>
+					${this._renderNoCardsAvailable()}
+					${this._renderCardLimitsBody()}
 				</capitec-content-box>
 			</capitec-card>
 		`;
@@ -771,6 +790,26 @@ export class CardLimitsLanding extends Component {
 				<capitec-label label="Update Card Limits" type="title"></capitec-label>
 			</capitec-title-bar>
 		`;
+	}
+
+	_renderNoCardsAvailable() {
+		return !this.hasCardsAvailable
+		? html`
+			<capitec-image src="platform/illustrations/cards.svg"></capitec-image>
+			<p class="client-has-no-card">Client has no cards to fulfill this transaction</p>`
+		: html``;
+	}
+
+	_renderCardLimitsBody() {
+		return this.hasCardsAvailable
+		? html`
+			${this.renderAlertBanner()}
+			<capitec-expander-group modeset="multiple" class="${this.verificationMethod === `ITA` ? `m-t-16` : ``}">
+				${this.primaryCards.length > 0 ? this._renderPrimaryCardGroup() : ``}
+				${this.virtualCards.length > 0 ? this._renderVirtualCardGroup() : ``}
+				${this.supplementaryCards.length > 0 ? this._renderSupplementaryCardGroup() : ``}
+			</capitec-expander-group>`
+		: html``;
 	}
 
 	_renderPrimaryCardGroup() {
