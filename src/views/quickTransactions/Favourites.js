@@ -553,6 +553,12 @@ export class Favourites extends SavingsAccountBase {
 	_paidUpAccounts ()
 	{
 		//TODO: CS call to get info
+
+		if(this.ccsStatus) {
+			this.showCCSmodal = true;
+			return;
+		}
+
 		this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
 	}
 
