@@ -1275,7 +1275,7 @@ export class InternetBankingProfileDetails extends Component {
 				layout="vertical">
 				<p><b>Internet security token suspended.</b><br>To access internet banking you will need to register on the App.</p>
 				<capitec-spacer></capitec-spacer>
-				<p>Please visit a branch to request a new securtiy token.</p>
+				<p>Please visit a branch to request a new security token.</p>
 			</capitec-alert-banner>
 		` : html``;
 	}
