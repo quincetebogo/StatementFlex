@@ -570,7 +570,7 @@ export class AccessChannels extends Component {
 					?showSideSheet = "${this.showSideSheet}"
 					?isVerifiedClient="${this.isVerifiedClient}"
 
-					.suspendInternetBankingSecurityToken = "${(suspendReason, selectedToken) => this._performAction(`suspend-internetBanking`, { reason: suspendReason, token: selectedTokens })}"
+					.suspendInternetBankingSecurityToken = "${(suspendReason, selectedTokens) => this._performAction(`suspend-token`, { reason: suspendReason, token: selectedTokens })}"
 					.resetInternetBankingSecurityToken = "${(selectedTokens) => this._performAction(`reset-security-token`, { token: selectedTokens })}"
 					.getClientTokens = "${(userRegNo) => this.getTokens(userRegNo)}"
 
