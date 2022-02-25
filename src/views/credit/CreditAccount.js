@@ -15,6 +15,7 @@ import 'app/components/credit/AccessFacilityDetails';
 import 'app/components/credit/TermLoanDetails';
 import 'app/components/dialogs/common/CCSstatus';
 import 'app/dialogs/credit/CreditStatements';
+import 'app/dialogs/credit/FixedCreditStatements';
 import 'app/productControls/credit/src/BudgetAccounts';
 import 'app/productControls/credit/src/BudgetAccountDetails';
 import 'app/productControls/credit/src/CreditAccountLanding';
@@ -96,7 +97,6 @@ export class CreditAccount extends ViewBase {
 
 		this.configuration = Configuration.getInstance();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	
 		// private properites
 		this.budgetAccountDetails = null;
 		this.accountViewType = ``;
@@ -123,7 +123,7 @@ export class CreditAccount extends ViewBase {
 		this._optionClick = async (option, creditType, productType) => {
 
 			const transactionHistory = () => this._transactionHistory(creditType, productType);
-			const statements = () => this._getStatements(creditType, productType);
+			const statements = creditType==`Fixed Credit`? () =>this._getTLStatements(creditType, productType) :() => this._getStatements(creditType, productType);
 			const settlementQuote = () => this._settlementQuote(creditType, productType);
 			const settleAndClose = () => this._settleAndClose(creditType, productType);
 			const paidUpLetter = () => this._paidUpLetter();
@@ -234,6 +234,11 @@ export class CreditAccount extends ViewBase {
 	async _viewFees() {
 		const fees = await this.configuration.getSetting(`otherSystemsURL.fees`);
 		window.open(`${fees}`);
+	}
+
+	_sendStatement(){
+		// TO DO: Navigation to success or failure screens based on CS call response.
+		this.horizonRouter.navigateToCreditStatementSuccess();
 	}
 
 	_budgetAccountDetails(selectedAccountDetails) {
@@ -432,6 +437,10 @@ export class CreditAccount extends ViewBase {
 			"product-type": productType
 		});
 	}
+	_getTLStatements(creditType, productType , term) {
+
+		this.renderMode = RENDER_MODE.FIXED_STATEMENTS;
+	}
 
 	_getStatements(creditType, productType) {
 		// TO DO: Place holder for credit statements flow.
@@ -446,7 +455,7 @@ export class CreditAccount extends ViewBase {
 			"next-screen": TelemetryScreen.CREDIT_STATEMENTS,
 			"credit-type": creditType,
 			"product-type": productType
-		});
+		});		
 		this.renderMode = RENDER_MODE.STATEMENTS;
 	}
 
@@ -602,6 +611,7 @@ export class CreditAccount extends ViewBase {
 			${this._renderTermLoanDetailsView()}
 			${this._renderStatements()}
 			${this._renderPayBudgetDialog()}
+			${this._renderFixedStatements()}
 			${this._renderCcsModal()}
 		`;
 	}
@@ -739,8 +749,20 @@ export class CreditAccount extends ViewBase {
 			<horizon-credit-statements-dialog
 				@cancel="${() => this._backToLandingPage()}"
 				@view-fees="${() => this._viewFees()}"
+				@send="${() => this._sendStatement()}"
 				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
 			</horizon-credit-statements-dialog>`
+		: html``;
+	}
+	_renderFixedStatements() {
+		return this.renderMode === RENDER_MODE.FIXED_STATEMENTS
+		? html`
+			<horizon-fixed-credit-statements-dialog
+				@cancel="${()=> this._backToLandingPage()}"
+				@view-fees="${()=>this._viewFees()}"
+				@send="${() => this._sendStatement()}"
+				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
+			</horizon-fixed-credit-statements-dialog>`
 		: html``;
 	}
 

@@ -1,10 +1,12 @@
 import { Component, html } from 'platform/elements';
+import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'platform/components';
 import 'app/rightBar/AccessChannels';
 import 'app/rightBar/Insights';
 import 'app/rightBar/InfoGraphic';
+import 'app/rightBar/InfoGraphicShort';
 
 /**
  * Layout selector component for the right hand bar in the Horizon User Interface
@@ -22,6 +24,7 @@ export class RightBarLayout extends Component {
 		this.callerInformation = {};
 
 		this.horizonStore = HorizonStore.getInstance();
+		this.horizonViewManager = HorizonViewManager.getInstance();
 
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 	}
@@ -54,6 +57,8 @@ export class RightBarLayout extends Component {
 	_stateChanged(state) {
 		if (state?.callerInformation) {
 			this.callerInformation = state.callerInformation;
+		} else {
+			this.callerInformation = null;
 		}
 	}
 
@@ -77,17 +82,28 @@ export class RightBarLayout extends Component {
 	}
 
 	_webTemplate() {
-		return html`${this.layout === `info-graphic`
+		return this.layout === `info-graphic`
 			? html`
-				<horizon-info-graphic>
-				</horizon-info-graphic>`
+				${this._renderInfoGraphic()}`
 			: html`
 				<section>
 					<horizon-insights
 						cifNumber="${this.callerInformation?.cifNumber}">
 					</horizon-insights>
 					<horizon-access-channels></horizon-access-channels>
-				</section>`}`;
+				</section>`;
+	}
+
+	_renderInfoGraphic() {
+		return this.callerInformation?.verificationStatus === `unverified` && this.horizonViewManager.getCurrentView() !== HORIZON_VIEW_SET.LANDING_PAGES
+		 ? html`
+			<section>
+				<horizon-info-graphic-short></horizon-info-graphic-short>
+				<horizon-access-channels></horizon-access-channels>
+			</section>`
+		 : html`
+		 	<horizon-info-graphic>
+			</horizon-info-graphic>`;
 	}
 }
 
