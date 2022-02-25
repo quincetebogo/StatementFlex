@@ -523,6 +523,10 @@ export class StatementsDialog extends Component {
 	}
 	
 	_getMinDate(accountOpenDate) {
+		if (!accountOpenDate) {
+			return new Date(2001, 3, 1);
+		}
+
 		const minDate = new Date(accountOpenDate);
 		minDate.setDate(minDate.getDate() - 1);
 		return minDate;
