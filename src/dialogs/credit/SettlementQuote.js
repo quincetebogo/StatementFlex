@@ -276,7 +276,7 @@ export class SendSettlementQuote extends Component {
 	}
 
 	_renderEmailFields() {
-		const datesSelected = this.selectedAccounts;
+		const selectedItems = this.selectedAccounts;
 		return html`
 		<capitec-group layout="vertical" gap="none" halign="stretch" valign="top">
 			<div class="email-div">
@@ -318,7 +318,7 @@ export class SendSettlementQuote extends Component {
 			label="View document(s)">
 		</capitec-label>
 		<capitec-group layout="vertical" gap="clear" halign="stretch" valign="top">
-			${datesSelected.map(item => this._renderViewDocument(item))}
+			${selectedItems.map(item => this._renderViewDocument(item))}
 		</capitec-group>
 		
 		`;
@@ -329,7 +329,7 @@ export class SendSettlementQuote extends Component {
 		<horizon-product-tile 
 			class="view-document"
 			type="default"
-			label="${item.accountName}"
+			label="${item.productTypeDescription}"
 			subtitle="${item.accountNumber}">
 				${this._renderViewDocumnetLink(item)}
 		</horizon-product-tile>`;
@@ -362,13 +362,13 @@ export class SendSettlementQuote extends Component {
 	}
 
 	async _navigate(step) {
-		const datesSelected = this.selectedAccounts;
+		const selectedItems = this.selectedAccounts;
 		if (step === `next`) {
-			this.currPage += this.currPage < datesSelected.length ? 1 : 0;
-			this.encodedPDF = await this.navigatePDF(datesSelected[this.currPage - 1]);
+			this.currPage += this.currPage < selectedItems.length ? 1 : 0;
+			this.encodedPDF = await this.navigatePDF(selectedItems[this.currPage - 1]);
 		} else {
 			this.currPage -= this.currPage ? 1 : 0;
-			this.encodedPDF = await this.navigatePDF(datesSelected[this.currPage - 1]);
+			this.encodedPDF = await this.navigatePDF(selectedItems[this.currPage - 1]);
 		}
 	}
 	

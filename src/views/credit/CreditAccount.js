@@ -1,3 +1,4 @@
+import { CREDIT_TYPE, FROM_ACCOUNTS_LIST, PRODUCTS } from 'app/constants/Credit';
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { accessFacilityDetails, creditCardDetails, creditOverview, termLoanDetails } from 'app/mocks/CreditMocks';
 import { css, html } from 'platform/elements';
@@ -22,21 +23,6 @@ import 'app/productControls/credit/src/CreditUnverifiedLanding';
 import 'app/productControls/credit/src/PayCreditCardBudget';
 import 'app/dialogs/credit/SettlementQuote';
 
-const PRODUCTS = {
-	CREDIT_CARD: `Credit card`,
-	ACCESS_FACILITY: `Access facility`,
-	TERM_LOAN: `Term Loan`
-};
-
-const CREDIT_TYPE = {
-	FLEXIBLE: `Flexible`,
-	FIXED: `Fixed Credit`
-};
-
-const FROM_ACCOUNTS_LIST = [
-		// Primary savings
-		300
-	];
 
 /**
  * Credit Account View
@@ -68,6 +54,7 @@ export class CreditAccount extends ViewBase {
 		this.encodedPDF = ``;
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
+		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._preformAction(e));
 	}
 
 	// -------------------
@@ -76,38 +63,7 @@ export class CreditAccount extends ViewBase {
 	
 	connectedCallback() {
 		super.connectedCallback();
-
 		this._initialise();
-
-		this._optionClick = async (option, creditType, productType, selectedAccountDetails) => {
-
-			const transactionHistory = () => this._transactionHistory(creditType, productType);
-			const statements = () => this._getStatements(creditType, productType);
-			const settlementQuote = () => this._settlementQuote(creditType, productType, selectedAccountDetails);
-			const settleAndClose = () => this._settleAndClose(creditType, productType);
-			const paidUpLetter = () => this._paidUpLetter();
-			const settleLoan = () => this._settleLoan();
-			const budgetFacility = () => this._budgetFacility();
-
-			const actions = {
-				'transaction-history': transactionHistory,
-				'statements': statements,
-				'settlement-quote': settlementQuote,
-				'paid-up-letter': paidUpLetter,
-				'settle-close': settleAndClose,
-				'settle-loan': settleLoan,
-				'budget-facility': budgetFacility
-			};
-
-			if (actions[option]) {
-				
-				const clientNeed = `${option}-${productType.toLowerCase().replace(` `, `-`)}`;
-				 
-				await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
-				this._refreshIncidentDetails();
-				return actions[option]();
-			}
-		};
 	}
 
 	disconnectedCallback() {
@@ -145,6 +101,36 @@ export class CreditAccount extends ViewBase {
 		// verificationStatus is on the this.callerInformation object
 		await this._initialise();
 	}
+
+	async _optionClick(option, creditType, productType, selectedAccountDetails) {
+
+		const transactionHistory = () => this._transactionHistory(creditType, productType);
+		const statements = () => this._getStatements(creditType, productType);
+		const settlementQuote = () => this._settlementQuote(creditType, productType, selectedAccountDetails);
+		const settleAndClose = () => this._settleAndClose(creditType, productType);
+		const paidUpLetter = () => this._paidUpLetter();
+		const settleLoan = () => this._settleLoan();
+		const budgetFacility = () => this._budgetFacility();
+
+		const actions = {
+			'transaction-history': transactionHistory,
+			'statements': statements,
+			'settlement-quote': settlementQuote,
+			'paid-up-letter': paidUpLetter,
+			'settle-close': settleAndClose,
+			'settle-loan': settleLoan,
+			'budget-facility': budgetFacility
+		};
+
+		if (actions[option]) {
+			
+			const clientNeed = `${option}-${productType.toLowerCase().replace(` `, `-`)}`;
+			 
+			await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
+			this._refreshIncidentDetails();
+			return actions[option]();
+		}
+	};
 
 	_viewInfo() {
 		this._telemetry.logEvent(CreditEvents.CREDIT_VIEW_INFO, {});
@@ -258,6 +244,14 @@ export class CreditAccount extends ViewBase {
 		this.horizonRouter.navigateToSystemError();
 	}
 
+	_preformAction(e) {
+		const screenDetails = this.horizonStore.getScreenDetails();
+		
+		if (screenDetails?.productType) {
+			this._optionClick(e.option, screenDetails?.creditType, screenDetails?.productType, screenDetails?.selectedAccounts);
+		}
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -290,6 +284,7 @@ export class CreditAccount extends ViewBase {
 			this._formatCreditOverviewResponse();
 			this.flexibleCreditAccounts = [...creditOverview.creditCardSummaryList, ...creditOverview.accessFacilitySummaryList];
 			this.fixedTermCreditAccounts = [...creditOverview.loanAccountSummaryList];
+			this.selectedTab = CREDIT_TYPE.FLEXIBLE;
 
 			this._telemetry.startSpan(CreditEvents.CREDIT, {
 				"screen": TelemetryScreen.CREDIT_LANDING,
@@ -398,8 +393,6 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_settlementQuote(creditType, productType, selectedAccountDetails) {
-		// TO DO: Place holder for credit settlement Quote flow.
-		
 		this._telemetry.logEvent(CreditEvents.CREDIT_SETTLEMENT_QUOTE_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
 			"next-screen": TelemetryScreen.CREDIT_SETTLEMENT_QUOTE,
@@ -407,11 +400,15 @@ export class CreditAccount extends ViewBase {
 			"product-type": productType
 		});
 
-		this.selectedAccountDetails = [
-				{ accountName: selectedAccountDetails.productTypeDescription,
-				  accountNumber: selectedAccountDetails.accountNumber }
-			];
-
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.creditType = creditType;
+		screenDetails.productType = productType;
+		this.horizonStore.setScreenDetails(screenDetails);
+		
+		this.selectedTab = creditType;
+		
+		this.selectedAccountDetails = selectedAccountDetails;
+		
 		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_DIALOG;
 	}
 
@@ -462,7 +459,6 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_backToLandingPage() {
-
 		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
 			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
 			this.horizonStore.setIncidentDetails(this.incidentDetails);
@@ -473,17 +469,20 @@ export class CreditAccount extends ViewBase {
 	_getCreditCardDetails() {
 		// TODO: Service implementation should come here
 		this.creditCardDetails = creditCardDetails;
+		this.selectedTab = CREDIT_TYPE.FLEXIBLE;
 		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
 	}
 
 	_getAccessFacilityDetails() {
 		// TODO: Service implementation will come here
 		this.accessFacilityDetails = accessFacilityDetails;
+		this.selectedTab = CREDIT_TYPE.FLEXIBLE;
 		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
 	}
 
 	_getTermLoanDetails() {
 		this.termLoanDetails = termLoanDetails;
+		this.selectedTab = CREDIT_TYPE.FIXED;
 		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
 	}
 
@@ -510,6 +509,11 @@ export class CreditAccount extends ViewBase {
 		}
 	}
 	
+	_cancelSettleQuote() {
+		this.horizonStore.clearScreenDetails();
+		this._backToLandingPage();
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -600,6 +604,7 @@ export class CreditAccount extends ViewBase {
 					.flexibleCreditAccounts="${this.flexibleCreditAccounts}"
 					.fixedTermCreditAccounts="${this.fixedTermCreditAccounts}"
 					.budgetAccountsSummary="${this.budgetAccountsSummary}"
+					selectedTab="${this.selectedTab}"
 					@option-click="${(e) => this._optionClick(e.detail.option, e.detail.creditType, e.detail.productType, e.detail.selectedAccountDetails)}"
 					@account-details="${(e) => this._accountDetails(e)}"
 					@product-enquiry="${() => this._productEnquiry()}"
@@ -707,7 +712,7 @@ export class CreditAccount extends ViewBase {
 		? html`
 			<horizon-settlement-quote-dialog
 				.selectedAccounts="${this.selectedAccountDetails}"
-				@cancel="${() => this._backToLandingPage()}"
+				@cancel="${() => this._cancelSettleQuote()}"
 				@send="${(e) => this._sendSettlementQuote(e.detail)}"
 				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
 			</horizon-settlement-quote-dialog>`

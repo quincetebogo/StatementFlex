@@ -1,15 +1,14 @@
 import { css, html } from 'platform/elements';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
 import 'app/components/common/RelatedOptions';
 
 /**
- * Display an confirmation/success screen indicating the proof of account statement has been successfully sent.
+ * Display an confirmation/success screen indicating the settlement quote has been successfully sent.
  *
  * @export
- * @class ProofOfAccountSuccess
+ * @class SettlementQuoteSuccess
  * @extends {ViewBase}
  */
 export class SettlementQuoteSuccess extends ViewBase {
@@ -24,7 +23,6 @@ export class SettlementQuoteSuccess extends ViewBase {
 		this.selectedAccounts = [];
 		this.emailAddress = ``;
 		this.endCallContext = `QuickTransactionSuccess`;
-		this._telemetry = HorizonTelemetry.instance;
 	}
 
 	// ----------
@@ -61,10 +59,12 @@ export class SettlementQuoteSuccess extends ViewBase {
 		this.horizonStore.setReturnScreen(returnToScreen.route, ``);
 
 		this.horizonRouter.navigateToReturnPage();
+		this.horizonStore.clearScreenDetails();
 	}
 
 	_sendAnotherClick() {
 		this.horizonRouter.navigateToQuickTransactionFavourites();
+		this.horizonStore.clearScreenDetails();
 	}
 
 	// ---------------
@@ -116,7 +116,7 @@ export class SettlementQuoteSuccess extends ViewBase {
 				@left-click=${() => this._sendAnotherClick()}
 				@right-click=${() => this._doneClick()}>
 					<section id="id-error-msg" slot="detail">
-						Settlement quote for ${this.selectedAccounts[0].accountName.toLowerCase()} has been emailed to <b>${this.emailAddress}</b>.
+						Settlement quote was emailed to <b>${this.emailAddress}</b>.
 					</section>
 			</horizon-success-screen>
 		`;

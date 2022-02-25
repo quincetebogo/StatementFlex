@@ -1,5 +1,5 @@
 
-import { CREDIT_TYPE_LIST, DEFAULTS } from 'app/constants/Credit';
+import { CREDIT_TYPE, CREDIT_TYPE_LIST, DEFAULTS, PRODUCTS } from 'app/constants/Credit';
 import { Component, css, html } from 'platform/elements';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
 
@@ -85,7 +85,6 @@ export class SettlementQuote extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
@@ -111,7 +110,7 @@ export class SettlementQuote extends Component {
 	}
 
 	_filter(e) {
-		this.listValue = e.detail.new;
+		[this.listValue] = e.detail.new.split(` `);
 		this._search(e);
 	}
 
@@ -124,18 +123,18 @@ export class SettlementQuote extends Component {
 		}
 
 		if (this.listValue !== `Credit type` && this.listValue !== `All`) {
-			this.filteredData = this.filteredData.filter(item => item.creditType.toLowerCase().indexOf(this.listValue.toLowerCase()) !== -1);
+			this.filteredData = this.filteredData.filter(item => item.category.toLowerCase().indexOf(this.listValue.toLowerCase()) !== -1);
 		}
 
 		if (text) {
 			const searchText = text.split(` `);
 			const searchResult = searchText.map(key => {
 				if (key !== ``) {
-					return this.filteredData.filter(item => item.quoteName.toLowerCase().indexOf(key.toLowerCase()) !== -1 ||
-															item.creditType.toLowerCase().indexOf(key.toLowerCase()) !== -1 ||
-															parseFloat(item.settlementAmount).toFixed(2).startsWith(key) ||
-															parseFloat(item.loanAmount).toFixed(2).startsWith(key) ||
-															parseFloat(item.instalment).toFixed(2).startsWith(key) ||
+					return this.filteredData.filter(item => item.productTypeDescription.toLowerCase().indexOf(key.toLowerCase()) !== -1 ||
+															item.category.toLowerCase().indexOf(key.toLowerCase()) !== -1 ||
+															parseFloat(this._deformatCurrency(item.currentBalance)).toFixed(2).startsWith(key) ||
+															parseFloat(this._deformatCurrency(item.creditLimit)).toFixed(2).startsWith(key) ||
+															parseFloat(this._deformatCurrency(item.repayAmount || item.nextRepayment)).toFixed(2).startsWith(key) ||
 															item.accountNumber.startsWith(key));
 				}
 				return [];
@@ -162,10 +161,7 @@ export class SettlementQuote extends Component {
 
 		for (let index = 0; index < this.isAccountsChecked.length; index++) {
 			if (this.isAccountsChecked[index]) {
-				this.selectedAccounts[index] = {
-					accountName: this.filteredData[index].quoteName,
-					accountNumber: this.filteredData[index].accountNumber
-				};
+				this.selectedAccounts[index] = this.filteredData[index];
 			}
 		}
 		
@@ -232,6 +228,11 @@ export class SettlementQuote extends Component {
 		this._clearErrors();
 	}
 	
+	// Removing currency formating for better search results
+	_deformatCurrency(value) {
+		const amount = value.split(`R`)[1].replaceAll(` `, ``);
+		return amount;
+	}
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -458,21 +459,21 @@ export class SettlementQuote extends Component {
 					?checked="${this.isAccountsChecked[index]}">>
 				</capitec-check>
 				<horizon-label
-					label="${item.quoteName}"
+					label="${item.productTypeDescription}"
 					value="${item.accountNumber}">
 				</horizon-label>
 				<div class="vertical-line"></div>
 				<horizon-label
-					label="Loan amount"
-					value="R${item.loanAmount}">
+					label="${item.type === PRODUCTS.CREDIT_CARD ? `Credit` : `Loan`} amount"
+					value="${item.creditLimit}">
 				</horizon-label>
 				<horizon-label
-					label="Instalment"
-					value="R${item.instalment}">
+					label="${item.category === CREDIT_TYPE.FLEXIBLE ? `Monthly repayment` : `Instalment`}"
+					value="${item.repayAmount || item.nextRepayment}">
 				</horizon-label>
 				<horizon-label
 					label="Settlement Amount"
-					value="R${item.settlementAmount}">
+					value="${item.currentBalance}">
 				</horizon-label>
 			</capitec-group>
 		`;
