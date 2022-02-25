@@ -318,6 +318,13 @@ export class FavouriteTransactions extends Component {
 					?disabled="${this.shouldDisable(`proof-of-account`)}">
 				</horizon-option-button>
 				<horizon-option-button
+					label="Paid up Letter" 
+					icon="system/documents-action" 
+					iconSize="default"
+					@click="${() => this._optionSelectedClick(`paid-up-accounts`)}"
+					?disabled="${this.shouldDisable(`paid-up-accounts`)}">
+				</horizon-option-button>
+				<horizon-option-button
 					data-automation-id="favourite-transactions-settlement-quote"
 					label="Settlement Quote" 
 					icon="system/documents-action" 

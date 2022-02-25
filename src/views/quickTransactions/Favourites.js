@@ -21,6 +21,8 @@ import 'app/components/quickTransactions/TapToPayLanding';
 import 'app/components/dialogs/common/Feedback';
 import 'app/components/quickTransactions/SettlementQuote';
 
+import 'app/dialogs/credit/PaidUpAccounts';
+import 'app/dialogs/credit/PaidUpLetter';
 import 'app/dialogs/taxCertificates/TaxCertificates';
 
 
@@ -109,6 +111,7 @@ export class Favourites extends SavingsAccountBase {
 			const proofOfAccount = () => this._proofOfAccount();
 			const searchOtherNeed = () => this._searchOtherNeed();
 			const settlementQuote = () => this._settlementQuote();
+			const paidUpAccounts = () => this._paidUpAccounts();
 			
 			const actions = {
 				'stop-card': stopCard,
@@ -119,7 +122,8 @@ export class Favourites extends SavingsAccountBase {
 				'tax-certificate': taxCertificates,
 				'proof-of-account': proofOfAccount,
 				'search-other-need': searchOtherNeed,
-				'settlement-quote': settlementQuote
+				'settlement-quote': settlementQuote,
+				'paid-up-accounts': paidUpAccounts
 			};
 
 			if (actions[option]) {
@@ -536,6 +540,12 @@ export class Favourites extends SavingsAccountBase {
 		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE;
 	}
 
+	_paidUpAccounts ()
+	{
+		//TODO: CS call to get info
+		this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
+	}
+
 	_unavailableOption() {
 		this.renderMode = RENDER_MODE.ALERT_MODAL;
 	}
@@ -730,6 +740,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderFeedback()}
 			${this._renderUpdateIncidentModal()}
 			${this._renderTaxCertificate()}
+			${this._renderpaidUpAccounts()}
 			${this._renderSettlementQuote()}
 
 			${super._webTemplate()}
@@ -952,12 +963,24 @@ export class Favourites extends SavingsAccountBase {
 		: html``;
 	}
 	
-	_renderSettlementQuote() {
+	_renderSettlementQuote() 
+	{
 		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE
 		? html`
 		<horizon-settlement-quote
 		@back="${() => this._backToLandingPage()}">
 		</horizon-settlement-quote>`
+		: html``;
+	}
+
+	_renderpaidUpAccounts ()
+	{
+		return this.renderMode === RENDER_MODE.PAID_UP_ACCOUNTS
+		? html`
+		<horizon-paid-up-accounts
+			.landingPageInfo="${this.landingPageInfo}"
+			@back="${() => this._backToLandingPage()}">
+		</horizon-paid-up-accounts>`
 		: html``;
 	}
 }

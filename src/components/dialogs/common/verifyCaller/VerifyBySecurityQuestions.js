@@ -484,7 +484,7 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_renderEndCallModal() {
-		const status = finalAttempt ? `Failed` : `InProgress`;
+		const status = this.finalAttempt ? `Failed` : `InProgress`;
 
 
 		return html`
