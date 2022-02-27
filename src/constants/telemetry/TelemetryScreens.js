@@ -74,7 +74,22 @@
 
 	LIVE_BETTER_AUTOMATIC_SAVINGS_SUCCESS: `Live Better Automatic savings success`,
 	LIVE_BETTER_AUTOMATIC_SAVINGS_FAILURE: `Live Better Automatic savings failure`,
+  
+  ACCESS_CHANNELS: `Access Channels`,
+  
+	ACCESS_CHANNELS_INTERNET_BANKING: `Access Channels Internet Banking`,
+	ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN: `Access Channels Internet Banking Reset Security Token`,
+	ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN: `Access Channels Internet Banking Suspend Security Token`,
+	ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_TOKENS: `Access Channels Internet Banking Suspend Tokens`,
+	ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON: `Access Channels Internet Banking Suspend Reason`,
 
+	ACCESS_CHANNELS_APP_SUSPEND_REASON: `Access Channels App Suspend Reasons`,
+
+	ACCESS_CHANNELS_USSD_CANCEL_USSD: `Access Channels Ussd cancel Ussd`,
+
+	ACCESS_CHANNELS_NOTIFICATIONS: `Access Channels Notifications`,
+	ACCESS_CHANNELS_NOTIFICATIONS_UPDATE: `Access Channels Notifications Update`,
+  
 	CREDIT_LANDING: `Credit Landing`,
 	CREDIT_ACCOUNT_DETAILS: `Credit Account details`,
 	CREDIT_TRANSACTION_HISTORY: `Credit Transaction History`,
@@ -82,5 +97,5 @@
 	CREDIT_SETTLEMENT_QUOTE: `Credit Settlement Quote`,
 	CREDIT_SETTLE_CLOSE: `Credit Settle Close`,
 	CREDIT_STATEMENTS_SUCCESS: `Credit Statement success`,
-	CREDIT_STATEMENTS_FAILURE: `Credit Statement failure`
+	CREDIT_STATEMENTS_FAILURE: `Credit Statement failure`  
 };

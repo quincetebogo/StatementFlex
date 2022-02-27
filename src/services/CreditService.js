@@ -16,13 +16,12 @@ export class CreditService extends ChannelServiceBase {
 		super(
 			toggleBusyFunc, 
 			defaultErrorHandlerFunc, 
-			`serviceURIs.creditMicroChannelServiceUrl`, 
+			`serviceURIs.creditChannelServiceUrl`, 
 			`credit-v1`, 
 			`v1`,
 			null
 		);
 	}
-
 
 	// --------------
 	// PUBLIC METHODS

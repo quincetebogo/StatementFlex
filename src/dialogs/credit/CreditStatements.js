@@ -1,7 +1,6 @@
 import { css, html } from 'platform/elements';
 import { DateTime } from 'luxon';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { StatementsDialog } from 'app/components/dialogs/common/StatementsDialog';
 
 import 'app/components/common/StepperModal';
@@ -59,8 +58,6 @@ export class CreditStatementsDialog extends StatementsDialog {
 		this.totalPages = 0;
 		this.startDate = DateTime.local(2001, 1);
 		this.endDate =this.today;		
-
-		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	// ----------
@@ -164,11 +161,7 @@ export class CreditStatementsDialog extends StatementsDialog {
 	}
 
 	_sendStatement() {
-	
-		// TO DO: Navigation to success or failure screens based on CS call response.
-	
-		this.horizonRouter.navigateToCreditStatementSuccess();
-		//this.horizonRouter.navigateToCreditStatementUnsuccess();
+		this.dispatchEvent(new CustomEvent(`send`, {}));
 	}
 	
 	// ---------------

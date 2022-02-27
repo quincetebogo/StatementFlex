@@ -21,7 +21,6 @@ import { html, unsafeHTML } from 'platform/elements';
 	const currencyString = amount >= 0 ? `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}` : `- R${amount.toString().substring(1).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
 	return currencyString;
 }
-
 /**
  * Indicates if a string value is null, undefined or empty
  *
