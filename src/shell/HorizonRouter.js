@@ -42,11 +42,12 @@ const HORIZON_ROUTES = Object.freeze({
 	TAX_CERTIFICATE_SUCCESSFUL: `/success/tax-certificate`,
 	TAX_CERTIFICATE_FAILURE: `/error/tax-certificate`,
 	TAX_CERTIFICATE_SERVICE_ERROR: `/error/tax-certificate-service-error`,
-	AUTOMATIC_SAVINGS_SUCCESS : `/success/automatic-savings`,
-	AUTOMATIC_SAVINGS_FAILED : `/error/automatic-savings`,
+	AUTOMATIC_SAVINGS_SUCCESS: `/success/automatic-savings`,
+	AUTOMATIC_SAVINGS_FAILED: `/error/automatic-savings`,
 	LIVE_BETTER: `/liveBetter`,
-	LIVE_BETTER_SYSTEM_ERROR : `/error/live-better`,
-	CREDIT_ACCOUNT: `/transact/credit`
+	LIVE_BETTER_SYSTEM_ERROR: `/error/live-better`,
+	CREDIT_ACCOUNT: `/transact/credit`,
+	SAVINGS_PLAN: `/transact/savings-plan`
 });
 
 
@@ -263,7 +264,8 @@ export class HorizonRouter {
 		const savings = () => this.navigateToSavingsAccount();
 		const credit = () => this.navigateToProductInfo(`Credit`); // This line is correct for the Feb 2022 release but must be removed on the credit feature branch
 		// const credit = () => this.navigateToCreditAccount();    <=== This line must be restored on the credit branchy
-		const savingsPlan = () => this.navigateToProductInfo(`SavingsPlan`);
+		// const savingsPlan = () => this.navigateToProductInfo(`SavingsPlan`);
+		const savingsPlan = () => this.navigateToSavingsPlan();
 		const liveBetterSavings = () => this.navigateToLiveBetter();
 		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
 
@@ -322,6 +324,10 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.LIVE_BETTER}`);
 	}
 
+	navigateToSavingsPlan() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_PLAN}`);
+	}
+	
 	_productLandingPagesActive() {
 		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
 	}
@@ -785,5 +791,13 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.CREDIT_ACCOUNT,
 		load: () => import(`../views/credit/CreditAccount`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-	}  
+	},
+	{
+		name: `horizon-savings-plan`,
+		title: `SavingsPlan`,
+		icon: null,
+		path: HORIZON_ROUTES.SAVINGS_PLAN,
+		load: () => import(`../views/savingsPlan/SavingsPlan`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	}
 ];
