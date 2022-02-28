@@ -184,7 +184,7 @@ export class ProfileAndProductSummaryBar extends Component {
 			return;
 		}
 
-		if (this.callerInformation.verificationStatus === `unverified` && this.product === `LiveBetter`) {
+		if (this.callerInformation.verificationStatus === `unverified` && (this.product === `LiveBetter` || this.product === `SavingsPlan`)) {
 			this.horizonRouter.navigateToLandingPage(this.product, false);
 			return;
 		}

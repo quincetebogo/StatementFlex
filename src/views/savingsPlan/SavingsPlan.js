@@ -1,3 +1,4 @@
+import { css, html } from 'platform/elements';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
@@ -5,7 +6,6 @@ import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { ViewBase } from '../common/ViewBase';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
-import { html } from 'platform/elements';
 import { savingsPlanMocks } from 'app/mocks/SavingsPlanMocks';
 
 import 'app/productControls/SavingsPlan/SavingsPlanLanding';
@@ -14,6 +14,9 @@ import 'app/components/dialogs/common/StatementsDialog';
 
 import 'app/views/savingsPlan/FlexibleSavingsPlan';
 import 'app/views/savingsPlan/FixedTermSavingsPlan';
+
+import 'app/views/savingsPlan/SavingsPlanServiceError';
+import 'app/views/savingsPlan/SavingsPlanUnverifiedPage';
 
 const SAVE_PLAN_TYPE = {
 	FLEXIBLE: `flexible-save-plan`,
@@ -53,13 +56,13 @@ export class SavingsPlan extends ViewBase {
 	constructor() {
 		super();
 
+		this.savingsPlanDetails = [];
 		this.configuration = Configuration.getInstance();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	
 		// private properites
 		this.loading = true;
 		this.selectedAccountNumber = ``;
-		// this.planType = PLAN_TYPE.NONE;
 
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.accountViewType = ``;
@@ -181,16 +184,24 @@ export class SavingsPlan extends ViewBase {
 				this._updateLeftBar();
 				this.endCallContext = `LandingPage`;
 				this.renderMode = RENDER_MODE.MAIN_PAGE;
+			} else {
+				this.savingsPlanDetails = null;
+				this.renderMode = RENDER_MODE.MAIN_PAGE;
 			}
 		} else {
-			this.horizonRouter.navigateToProductInfo(`Save`);
+			// this.horizonRouter.navigateToProductInfo(`Save`);
 		}
 
-		if (this.verificationStatus === `non-client`) {}
+		if (this.verificationStatus === `non-client`) {
+			this.renderMode = RENDER_MODE.MAIN_PAGE;
+		}
 
-		if (this.verificationStatus === `unverified`) {}
+		if (this.verificationStatus === `unverified`) {
+			this.renderMode = RENDER_MODE.MAIN_PAGE;
+		}
 
 		this.loading = false;
+		
 		// this._performReturnToScreen();
 	}
 
@@ -239,18 +250,6 @@ export class SavingsPlan extends ViewBase {
 			return item;
 		});
 	}
-
-	/*
-	_flexibleSavings(accNumber) {
-		this.renderMode = RENDER_MODE.FLEXIBLE_SAVINGS_PLAN_DETAILS;
-		this.selectedSavingsPlanItem = this.landingPageInfo.savingsPlans.find(savingsPlan => savingsPlan.accountNumber === accNumber);
-	}
-
-	_fixedSavings(accNumber) {
-		this.renderMode = RENDER_MODE.FIXED_SAVINGS_PLAN_DETAILS;
-		this.selectedSavingsPlanItem = this.landingPageInfo.savingsPlans.find(savingsPlan => savingsPlan.accountNumber === accNumber);
-	}
-	*/
 
 	_getStatements(accNumber) {
 		// TO DO: Place holder for savings plan statements flow.
@@ -321,9 +320,33 @@ export class SavingsPlan extends ViewBase {
 		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
 	}
 
+	async _findBranch() {
+		const branchLocatorUrl = await this._configuration.getSetting(`otherSystemsURL.branch-locator`);
+		window.open(`${branchLocatorUrl}`);
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
+
+	/**
+	 * Generates the view stylesheet.
+	 *
+	 * @readonly
+	 * @static
+	 * @returns {css} CSS for the view.
+	 */
+	 static get styles() {
+		return [
+			super.styles,
+			css`
+			.liveBetter{
+				width: 100%;
+				height: var(--horizon-panel-height, 888px);
+			}
+			`
+		];
+	}
 
 	_mobileTemplate() {
 		return this._webTemplate();
@@ -343,35 +366,22 @@ export class SavingsPlan extends ViewBase {
 	_renderLandingPage() {
 		return this.renderMode === RENDER_MODE.MAIN_PAGE && !this.loading
 			? html`
-				${this._renderSavingsPlanVerifiedLandingPage()}`
+				${this._renderSavingsPlanVerifiedLandingPage()}
+				${this._renderSavingsPlanUnverifiedPage()}`
 			: html``;
 	}
 	
 	_renderSavingsPlanVerifiedLandingPage() {
-		return html`
+		return this.verificationStatus === `verified` && this.savingsPlanDetails ? html`
 			<capitec-pc-savings-plan
-				.flexibleSavingsPlanDetails="${this.savingsPlanDetails.filter(item => item.planType === PLAN_TYPE.SAVINGS_PLAN)}"
-				.fixedSavingsPlanDetails="${this.savingsPlanDetails.filter(item => item.planType !== PLAN_TYPE.SAVINGS_PLAN)}"
+				.savingsPlanDetails="${this.savingsPlanDetails}"
 
 				@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.saveType, e.detail.accountNumber)}">
-			</capitec-pc-savings-plan>`;
-	}
-
-	/*
-	_renderFlexibleSavingsPlanDetails() {
-		return this.renderMode === RENDER_MODE.FLEXIBLE_SAVINGS_PLAN_DETAILS ? html`
-				<capitec-flexible-savings-plan-details
-					.savingsPlanItemDetails="${this.selectedSavingsPlanItem}"
-
-					@back="${() => this._backToLandingPage()}"
-				>`
+			</capitec-pc-savings-plan>`
 			: html`
-				<capitec-pc-savings-plan
-					.savingsPlanDetails="${this.savingsPlanDetails}"
-					@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.saveType)}">
-				</capitec-pc-savings-plan>`;
-		}
-	*/
+				${this._renderSavingsPlanServiceError()}
+			`;
+	}
 
 	_renderFlexibleDetailsView() {
 		return this.renderMode === RENDER_MODE.ACCOUNT_DETAIL_VIEW &&
@@ -398,21 +408,6 @@ export class SavingsPlan extends ViewBase {
 			: html``;
 	}
 
-	/*
-	_renderFixedSavingsPlanDetails() {
-		return this.renderMode === RENDER_MODE.FIXED_SAVINGS_PLAN_DETAILS
-			? html`
-				<capitec-fixed-term-savings-plan-details
-					.savingsPlanItemDetails="${this.selectedSavingsPlanItem}"
-
-					@back="${() => this._backToLandingPage()}"
-				>
-				</capitec-fixed-term-savings-plan-details>
-			`
-			: html``;
-	}
-	*/
-
 	_renderStatements() {
 		return this.renderMode === RENDER_MODE.STATEMENTS
 			? html`
@@ -438,6 +433,25 @@ export class SavingsPlan extends ViewBase {
 			: html``;
 	}
 	
+	_renderSavingsPlanUnverifiedPage() {
+		return this.verificationStatus === `unverified`
+			? html`
+				<horizon-savings-plans-unverified-page
+					class="liveBetter"
+					@verify-now= "${() => this._verifyClick()}">
+				</horizon-savings-plans-unverified-page>`
+			: html``;
+	}
+
+	_renderSavingsPlanServiceError() {
+		return !this.savingsPlanDetails
+			? html`
+				<horizon-savings-plans-service-error
+					class="liveBetter"
+					@find-branch= "${() => this._findBranch()}">
+				</horizon-savings-plans-service-error>`
+			: html``;
+	}
 }
 
 customElements.define(`horizon-savings-plan`, SavingsPlan);

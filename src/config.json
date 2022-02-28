@@ -106,7 +106,7 @@
 		},
 		"savingsPlanLanding": {
 			"enabled": true,
-			"positiveCase": true
+			"positiveCase": false
 		},
 		"tapToPayLanding": {
 			"enabled": false,

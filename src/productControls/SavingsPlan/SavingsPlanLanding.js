@@ -37,8 +37,7 @@ export class SavingsPlanLanding extends Component {
 	constructor() {
 		super();
 
-		this.flexibleSavingsPlanDetails = {};
-		this.fixedSavingsPlanDetails = {};
+		this.savingsPlanDetails = {};
 	}
 
 	// -------------------
@@ -60,15 +59,13 @@ export class SavingsPlanLanding extends Component {
 	/**
 	 * Registry of all properties defined by the component.
 	 *
-	 *  @property {flexibleSavingsPlanDetails} flexibleSavingsPlanDetails Data for verified flexible savings plan account landing Page display
-	 *  @property {fixedSavingsPlanDetails} fixedSavingsPlanDetails Data for verified fixed savings plan account landing Page display
+	 *  @property {savingsPlanDetails} savingsPlanDetails Data for verified savings plan account landing Page display
 	 *
 	 */
 
 	static get properties() {
 		return {
-			flexibleSavingsPlanDetails: { type: Object },
-			fixedSavingsPlanDetails: { type: Object }
+			savingsPlanDetails: { type: Object }
 		};
 	}
 	
@@ -299,6 +296,23 @@ export class SavingsPlanLanding extends Component {
 					padding-bottom: 12px;
 					border-right: 1px solid #dfdfdf;
 				}
+
+				/* service error message */
+				.error-msg {
+					width: auto;
+					height: 60px;
+					font-family: "Hind Vadodara";
+					color: #3A3A3A;
+					font-size: 16px;
+					font-weight: 600;
+					letter-spacing: 0;
+					text-align: center;
+				}
+	
+				horizon-service-call-error-screen {
+					--horizon-service-call-error-screen-height: 100%;
+				
+				}
 			`
 		];
 	}
@@ -333,22 +347,22 @@ export class SavingsPlanLanding extends Component {
 				<capitec-tab
 					data-automation-id="savings-plan-flexible-tab"
 					label="Flexible Savings">
-						${this._renderFlexibleSavingsPlanTab()}
+						${this._renderFlexibleSavingsPlanTab(this.savingsPlanDetails.filter(item => item.planType === PLAN_TYPE.SAVINGS_PLAN))}
 				</capitec-tab>
 				<capitec-tab
 					data-automation-id="savings-plan-fixed-term-tab"
 					label="Fixed-term Savings">
-						${this._renderFixedTermSavingsPlanTab()}
+						${this._renderFixedTermSavingsPlanTab(this.savingsPlanDetails.filter(item => item.planType !== PLAN_TYPE.SAVINGS_PLAN))}
 				</capitec-tab>
 			</capitec-tab-group>
 		`;
 	}
 
-	_renderFlexibleSavingsPlanTab() {
-		return this.flexibleSavingsPlanDetails.length > 0 
+	_renderFlexibleSavingsPlanTab(flexibleSavingsPlanDetails) {
+		return flexibleSavingsPlanDetails.length > 0 
 		? html`
 			<capitec-content-box class="accounts-box">
-				${this._renderFlexibleAccounts()}
+				${this._renderFlexibleAccounts(flexibleSavingsPlanDetails)}
 			</capitec-content-box>
 			
 			${this._renderFooter()}`
@@ -357,11 +371,11 @@ export class SavingsPlanLanding extends Component {
 		`;
 	}
 
-	_renderFixedTermSavingsPlanTab() {
-		return this.fixedSavingsPlanDetails.length > 0 
+	_renderFixedTermSavingsPlanTab(fixedSavingsPlanDetails) {
+		return fixedSavingsPlanDetails.length > 0 
 		? html`
 			<capitec-content-box class="accounts-box">
-				${this._renderFixedTermAccounts()}
+				${this._renderFixedTermAccounts(fixedSavingsPlanDetails)}
 			</capitec-content-box>
 			
 			${this._renderFooter()}`
@@ -370,10 +384,10 @@ export class SavingsPlanLanding extends Component {
 		`;
 	}
 
-	_renderFlexibleAccounts() {
+	_renderFlexibleAccounts(flexibleSavingsPlanDetails) {
 
 		// TO DO: Expanders to be rendered dynamicaly once CS data is available
-		return this.flexibleSavingsPlanDetails.map((item, index) => html`
+		return flexibleSavingsPlanDetails.map((item, index) => html`
 				<horizon-expander
 					expandButtonAlignment="right"
 					.expanded="${index === 0}">
@@ -431,9 +445,9 @@ export class SavingsPlanLanding extends Component {
 				</horizon-expander>`);
 	}
 
-	_renderFixedTermAccounts() {
+	_renderFixedTermAccounts(fixedSavingsPlanDetails) {
 
-		return this.fixedSavingsPlanDetails.map((item, index) => html`
+		return fixedSavingsPlanDetails.map((item, index) => html`
 				<horizon-expander
 					class="fixed-term-exp"
 					expandButtonAlignment="right"
