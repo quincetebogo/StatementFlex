@@ -100,7 +100,7 @@ export class TapToPayLanding extends Component {
 	}
 
 	clientHasCards() {
-		this.cards.length > 0 ? this.hasCardsAvailable = true : this.hasCardsAvailable = false;
+		this.hasCardsAvailable = this.cards.length > 0;
 	}
 
 	_loading() {
@@ -347,23 +347,14 @@ export class TapToPayLanding extends Component {
 				</capitec-title-bar>
 
 				<capitec-content-box class="content-body">
-					${this._renderNoCardsAvailable()}
-					${this._renderTapToPayBody()}
+					${this._renderTapToPayContent()}
 				</capitec-content-box>
 
 			</capitec-card>
 		`;
 	}
 
-	_renderNoCardsAvailable() {
-		return !this.hasCardsAvailable
-		? html`
-			<capitec-image src="platform/illustrations/cards.svg"></capitec-image>
-			<p class="client-has-no-card">Client has no cards to fulfill this transaction</p>`
-		: html``;
-	}
-
-	_renderTapToPayBody() {
+	_renderTapToPayContent() {
 		return this.hasCardsAvailable
 		? html`
 			<capitec-alert-banner
@@ -377,7 +368,10 @@ export class TapToPayLanding extends Component {
 
 			${this._renderPrimaryCards()}
 			${this._renderSupplementaryCards()}`
-		: html``;
+		: html`
+			<capitec-image src="platform/illustrations/cards.svg"></capitec-image>
+			<p class="client-has-no-card">Client has no cards to fulfill this transaction</p>
+		`;
 	}
 
 	_renderPrimaryCards() {

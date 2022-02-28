@@ -396,7 +396,7 @@ export class CardLimitsLanding extends Component {
 	}
 
 	clientHasCards() {
-		this.cards.length > 0 ? this.hasCardsAvailable = true : this.hasCardsAvailable = false;
+		this.hasCardsAvailable = this.cards.length > 0;
 	}
 
 	async _updateLimits(card, limitType, updateType) {
@@ -771,8 +771,7 @@ export class CardLimitsLanding extends Component {
 			<capitec-card>
 				${this._renderTitleBar()}
 				<capitec-content-box>
-					${this._renderNoCardsAvailable()}
-					${this._renderCardLimitsBody()}
+					${this._renderCardsLimitsContent()}
 				</capitec-content-box>
 			</capitec-card>
 		`;
@@ -792,15 +791,7 @@ export class CardLimitsLanding extends Component {
 		`;
 	}
 
-	_renderNoCardsAvailable() {
-		return !this.hasCardsAvailable
-		? html`
-			<capitec-image src="platform/illustrations/cards.svg"></capitec-image>
-			<p class="client-has-no-card">Client has no cards to fulfill this transaction</p>`
-		: html``;
-	}
-
-	_renderCardLimitsBody() {
+	_renderCardsLimitsContent() {
 		return this.hasCardsAvailable
 		? html`
 			${this.renderAlertBanner()}
@@ -809,7 +800,10 @@ export class CardLimitsLanding extends Component {
 				${this.virtualCards.length > 0 ? this._renderVirtualCardGroup() : ``}
 				${this.supplementaryCards.length > 0 ? this._renderSupplementaryCardGroup() : ``}
 			</capitec-expander-group>`
-		: html``;
+		: html`
+			<capitec-image src="platform/illustrations/cards.svg"></capitec-image>
+			<p class="client-has-no-card">Client has no cards to fulfill this transaction</p>
+		`;
 	}
 
 	_renderPrimaryCardGroup() {

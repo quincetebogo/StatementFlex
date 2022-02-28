@@ -256,7 +256,7 @@ export class StopCard extends Component {
 	// ---------------
 
 	clientHasCards() {
-		this.cards.length > 0 ? this.hasCardsAvailable = true : this.hasCardsAvailable = false;
+		this.hasCardsAvailable = this.cards.length > 0;
 	}
 
 	addFieldsToCardsArray() {
@@ -420,8 +420,7 @@ export class StopCard extends Component {
 				<capitec-group layout="grid" gap="none" row="auto" columns="uniform" style="width:100%;">
 			
 					${this._renderTitleBar()}
-					${this._renderNoCardsAvailable()}
-					${this._renderCardsToStop()}
+					${this._renderStopCardContent()}
 
 				</capitec-group>
 			</capitec-card>
@@ -447,21 +446,16 @@ export class StopCard extends Component {
 			</capitec-title-bar>`;
 	}
 
-	_renderNoCardsAvailable() {
-		return !this.hasCardsAvailable
-		? html`
-			<capitec-image src="platform/illustrations/cards.svg"></capitec-image>
-			<p class="client-has-no-card">Client has no cards to fulfill this transaction</p>`
-		: html``;
-	}
-
-	_renderCardsToStop() {
+	_renderStopCardContent() {
 		return this.hasCardsAvailable
 		? html`
 			${this._renderNotifyClient()}
 			${this._renderCardDetails()}
 			${this._renderFooter()}`
-		: html``;
+		: html`
+			<capitec-image src="platform/illustrations/cards.svg"></capitec-image>
+			<p class="client-has-no-card">Client has no cards to fulfill this transaction</p>
+		`;
 	}
 
 	_renderNotifyClient() {
