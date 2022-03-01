@@ -36,7 +36,7 @@ export const savingsPlanDetails = {
 			"availableBalance": 0,
 			"currentBalance": 0,
 			"dateOpened": "2020-05-11T00:00:00+00:00",
-			"feesLastMonth": "",
+			"feesLastMonth": 0,
 			"holds": 0,
 			"interestEarned": 0,
 			"interestRate": 2.75,

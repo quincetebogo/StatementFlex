@@ -27,12 +27,12 @@ const SAVE_PLAN_TYPE = {
  * Savings Plan View
  *
  * Events Raised
- * -------------
- * -
+ * --------------
  * 
  * @export
  * @class SavingsPlan
  * @extends {SavingsPlan}
+ * 
  */
 
 const ACCOUNT_TYPE = {
@@ -158,14 +158,6 @@ export class SavingsPlan extends ViewBase {
 		
 		if (this.verificationStatus === `verified`) {
 			
-			/* 
-				TO DO: Savings plan landing page service call should come here. - Done
-					If client has savings plan product, navigate to landing screens.
-					If client doesn't have savings plan product, navigate to non-client - more info screen.
-
-					Update left bar details once available from channel service call
-			*/
-
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
 				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
@@ -182,34 +174,65 @@ export class SavingsPlan extends ViewBase {
 				this._formatSavingsPlanDetails();
 
 				this._updateLeftBar();
-				this.endCallContext = `LandingPage`;
-				this.renderMode = RENDER_MODE.MAIN_PAGE;
+				
+			} else if (returnValue.succeeded) {
+				this.horizonRouter.navigateToProductInfo(`SavingsPlan`);
 			} else {
 				this.savingsPlanDetails = null;
-				this.renderMode = RENDER_MODE.MAIN_PAGE;
 			}
-		} else {
-			// this.horizonRouter.navigateToProductInfo(`Save`);
+
 		}
-
-		if (this.verificationStatus === `non-client`) {
-			this.renderMode = RENDER_MODE.MAIN_PAGE;
-		}
-
-		if (this.verificationStatus === `unverified`) {
-			this.renderMode = RENDER_MODE.MAIN_PAGE;
-		}
-
-		this.loading = false;
-		
-		// this._performReturnToScreen();
-	}
-
-	_updateLeftBar() {
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.endCallContext = `LandingPage`;
 		this.loading = false;
+		this._performReturnToScreen();
+	}
+
+	_updateLeftBar() {
+		let subtitle = null;
+		let detail = null;
+
+		if (this.landingPageInfo) {
+			subtitle = {
+				savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
+				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductDescription,
+				savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
+				insure: this.landingPageInfo.insureProductDescription,
+				credit: this.landingPageInfo.creditProductDescription
+			};
+
+			detail = {
+				savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
+				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductAmount,
+				savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
+				insure: this.landingPageInfo.insureProductAmount,
+				credit: this.landingPageInfo.creditProductAmount
+			};
+		}
+
+		this.horizonStore.setCallerInformation(this.callerInformation);
+
+		const state = {
+			leftBarButtonConfig: {
+				hasFavourites: true,
+				subtitle: subtitle ? subtitle : ``,
+				detail: detail ? detail : ``
+			},
+			landingPageInfo: this.landingPageInfo
+		};
+
+		this.horizonStore.saveState(state);
+	}
+
+	_performReturnToScreen() {
+		const returnToScreen = this.horizonStore.getReturnToScreen();
+
+		if (returnToScreen && returnToScreen.optionalData) {
+			this.eventAggregator.publish(`horizon-return-to-screen`, { option: returnToScreen.optionalData });
+		}
+
+		this.horizonStore.clearReturnScreen();
 	}
 
 	_formatDate(date) {
@@ -372,7 +395,7 @@ export class SavingsPlan extends ViewBase {
 	}
 	
 	_renderSavingsPlanVerifiedLandingPage() {
-		return this.verificationStatus === `verified` && this.savingsPlanDetails ? html`
+		return this.savingsPlanDetails ? html`
 			<capitec-pc-savings-plan
 				.savingsPlanDetails="${this.savingsPlanDetails}"
 
