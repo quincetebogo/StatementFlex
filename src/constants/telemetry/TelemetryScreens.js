@@ -81,6 +81,22 @@
 	SAVINGS_PLAN_TAX_CERTIFICATE: `Savings Plan Tax Certificate`,
 	SAVINGS_PLAN_PRODUCT_ENQUIRY: `Savings Plan Product Enquiry`,
 	SAVINGS_PLAN_SAVINGS_CALCULATOR: `Savings Plan Savings Calculator`,
-	SAVINGS_PLAN_INTEREST_RATES: `Savings Plan Interest Rates`
+	SAVINGS_PLAN_INTEREST_RATES: `Savings Plan Interest Rates`,
 
+  	ACCESS_CHANNELS: `Access Channels`,
+  
+	ACCESS_CHANNELS_INTERNET_BANKING: `Access Channels Internet Banking`,
+	ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN: `Access Channels Internet Banking Reset Security Token`,
+	ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN: `Access Channels Internet Banking Suspend Security Token`,
+	ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_TOKENS: `Access Channels Internet Banking Suspend Tokens`,
+	ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON: `Access Channels Internet Banking Suspend Reason`,
+
+	ACCESS_CHANNELS_APP: `Access Channels App`,
+	ACCESS_CHANNELS_APP_SUSPEND_REASON: `Access Channels App Suspend Reasons`,
+
+	ACCESS_CHANNELS_USSD: `Access Channels Ussd`,
+	ACCESS_CHANNELS_USSD_CANCEL_USSD: `Access Channels Ussd cancel Ussd`,
+
+	ACCESS_CHANNELS_NOTIFICATIONS: `Access Channels Notifications`,
+	ACCESS_CHANNELS_NOTIFICATIONS_UPDATE: `Access Channels Notifications Update`
 };

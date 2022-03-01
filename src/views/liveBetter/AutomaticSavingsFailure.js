@@ -40,6 +40,7 @@ export class AutomaticSavingsFailure extends ViewBase {
 								 Boolean(this.updatedLBSADetails?.activatedRoundUpAccounts);
 		this.hasInterestSweepChanged = !isNullorEmpty(this.updatedLBSADetails?.accountInterestSweepActive);
 
+		this._telemetry.startSpan(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS_FAILURE);
 		this._updateIncidentState();
 	}
 
@@ -52,8 +53,8 @@ export class AutomaticSavingsFailure extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		this._telemetry.endSpan(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS, {
-			"screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_SUCCESS,
+		this._telemetry.endSpan(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS_FAILURE_DONE, {
+			"screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_FAILURE,
 			"next-screen": TelemetryScreen.LIVE_BETTER
 		});
 		
@@ -62,6 +63,10 @@ export class AutomaticSavingsFailure extends ViewBase {
 	}
 
 	_assignClick() {
+		this._telemetry.logEvent(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS_FAILURE_ASSIGN, {
+			"screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_FAILURE,
+			"next-screen": TelemetryScreen.LIVE_BETTER
+		});
 
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
