@@ -44,7 +44,7 @@
 			"positiveCase": true
 		},
 		"favouritesLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {

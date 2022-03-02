@@ -323,7 +323,7 @@ export class CreditAccountLanding extends Component {
 	_renderContent() {
 		return this.flexibleCreditAccounts.length > 0 || this.fixedTermCreditAccounts.length > 0
 			? html`
-				<capitec-tab-group class="tabs" selectedIndex="${this.selectedTab === CREDIT_TYPE.FLEXIBLE ? 0 : 1}">
+				<capitec-tab-group class="tabs" selectedIndex="${this.selectedTab === CREDIT_TYPE.FIXED ? 1 : 0}">
 					<capitec-tab
 						data-automation-id="credit-account-flexible-credit-tab"
 						label="Flexible Credit">

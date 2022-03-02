@@ -7,6 +7,7 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { creditMixin } from 'app/views/credit/CreditMixin';
 import { creditOverview } from 'app/mocks/CreditMocks';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
@@ -75,6 +76,7 @@ export class Favourites extends SavingsAccountBase {
 
 		Object.assign(Favourites.prototype, tapToPayMixin);
 		Object.assign(Favourites.prototype, searchOtherNeedMixin);
+		Object.assign(Favourites.prototype, creditMixin);
 	}
 
 	// --------------
@@ -350,35 +352,6 @@ export class Favourites extends SavingsAccountBase {
 		await this.getIssues(event);
 	}
 
-	_sendQuote(selectedAccounts) {
-		this.selectedAccountDetails = selectedAccounts;
-		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_DIALOG;
-	}
-
-	_sendSettlementQuote(details) {
-
-		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.selectedAccounts = details.selectedAccounts.filter(item => !isNullorEmpty(item));
-		screenDetails.emailAddress = details.emailAddress;
-		this.horizonStore.setScreenDetails(screenDetails);
-		
-		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `settlement-quote`);
-		// TO DO: CS call to send Settlement Quote sould come here
-
-		this.horizonRouter.navigateToSettlementQuoteSuccess();
-		// this.horizonRouter.navigateToSettlementQuoteFailure();
-	}
-
-	async _navigatePDF(currPage) {
-
-        // add CS call to get encodedPDF 
-        // currPage is date currently selected
-        const returnValue = await this.quickTransactionService.viewStatement(currPage, () => this._createIncidentOnError());
-        if (returnValue) {
-           return returnValue.result.statementData;
-        }
-    }
-
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -587,7 +560,7 @@ export class Favourites extends SavingsAccountBase {
 		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
 
 		if (screenDetails.selectedAccounts) {
-			this._sendQuote(screenDetails.selectedAccounts);
+			this._settlementQuoteDialog(screenDetails.selectedAccounts);
 		}
 	}
 
@@ -750,7 +723,7 @@ export class Favourites extends SavingsAccountBase {
 		super._backToLandingPage();
 	}
 
-	_backToSettlementQuoteView() {
+	_backFromSettlementQuoteDialog() {
 		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
 		this.horizonStore.clearScreenDetails();
 	}
@@ -797,7 +770,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderTaxCertificate()}
 			${this._renderpaidUpAccounts()}
 			${this._renderSettlementQuote()}
-			${this._renderSendSettlementQuoteDialog()}
+			${this._renderSettlementQuoteDialog()}
 
 			${super._webTemplate()}
 		`;
@@ -1026,23 +999,10 @@ export class Favourites extends SavingsAccountBase {
 		<horizon-settlement-quote
 			.settlementQuoteDetails="${this.settlementQuoteDetails}"
 			@back="${() => this._backToLandingPage()}"
-			@send-quote="${(e) => this._sendQuote(e.detail.selectedAccounts)}">
+			@send-quote="${(e) => this._settlementQuoteDialog(e.detail.selectedAccounts)}">
 		</horizon-settlement-quote>`
 		: html``;
 	}
-
-	_renderSendSettlementQuoteDialog() {
-		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG 
-		? html`
-			<horizon-settlement-quote-dialog
-				.selectedAccounts="${this.selectedAccountDetails}"
-				@cancel="${() => this._backToSettlementQuoteView()}"
-				@send="${(e) => this._sendSettlementQuote(e.detail)}"
-				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
-			</horizon-settlement-quote-dialog>`
-		: html``;
-	}
-
 
 	_renderpaidUpAccounts () {
 		return this.renderMode === RENDER_MODE.PAID_UP_ACCOUNTS

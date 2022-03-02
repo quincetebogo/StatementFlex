@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { PRODUCTS } from 'app/constants/Credit';
 import 'app/components/common/HorizonProductTile';
 import 'app/components/common/HorizonPDFViewer';
 
@@ -94,7 +95,17 @@ export class SendSettlementQuote extends Component {
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-
+	async _navigate(step) {
+		const selectedItems = this.selectedAccounts;
+		if (step === `next`) {
+			this.currPage += this.currPage < selectedItems.length ? 1 : 0;
+			this.encodedPDF = await this.navigatePDF(selectedItems[this.currPage - 1]);
+		} else {
+			this.currPage -= this.currPage ? 1 : 0;
+			this.encodedPDF = await this.navigatePDF(selectedItems[this.currPage - 1]);
+		}
+	}
+	
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -329,7 +340,7 @@ export class SendSettlementQuote extends Component {
 		<horizon-product-tile 
 			class="view-document"
 			type="default"
-			label="${item.productTypeDescription}"
+			label="${item.type === PRODUCTS.TERM_LOAN ? `Term loan (${item.productTypeDescription.split(` `)[0]} months)` : item.productTypeDescription}"
 			subtitle="${item.accountNumber}">
 				${this._renderViewDocumnetLink(item)}
 		</horizon-product-tile>`;
@@ -361,17 +372,6 @@ export class SendSettlementQuote extends Component {
 		</horizon-pdf-viewer>`;
 	}
 
-	async _navigate(step) {
-		const selectedItems = this.selectedAccounts;
-		if (step === `next`) {
-			this.currPage += this.currPage < selectedItems.length ? 1 : 0;
-			this.encodedPDF = await this.navigatePDF(selectedItems[this.currPage - 1]);
-		} else {
-			this.currPage -= this.currPage ? 1 : 0;
-			this.encodedPDF = await this.navigatePDF(selectedItems[this.currPage - 1]);
-		}
-	}
-	
 	_renderFooter() {
 		return html`
 		<capitec-group layout="horizontal">

@@ -1,4 +1,3 @@
-
 import { CREDIT_TYPE, CREDIT_TYPE_LIST, DEFAULTS, PRODUCTS } from 'app/constants/Credit';
 import { Component, css, html } from 'platform/elements';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
@@ -31,16 +30,12 @@ export class SettlementQuote extends Component {
 	constructor() {
 		super();
 		this.settlementQuoteDetails = {};
-		this.checkAll = false;
-		this.isChecked = false;
-		this.showSendDialog = false;
 		this.errorMessage = ``;
 		this.isBusy = false;
-		this.isAccountsChecked = [];
 		this.selectedAccounts = [];
 		this.filteredData = [];
 		this.listValue = `Credit type`;
-		this.selectedLabel = `Select All`;
+		this.selectedLabel = `Select all`;
 	}
 
 
@@ -60,9 +55,6 @@ export class SettlementQuote extends Component {
 		return {
 			settlementQuoteDetails: { type: Array },
 			isBusy: { attribute: false },
-			showSendDialog: { type: Boolean, attribute: false },
-			isChecked: { type: Boolean, attribute: false },
-			checkAll: { type: Boolean, attribute: false },
 			filteredData: { type: Array },
 			listValue: { type: String },
 			selectedLabel: { type: String }
@@ -80,38 +72,70 @@ export class SettlementQuote extends Component {
 		this._initialise();
 	}
 
-
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
-
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+	
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
-	}
-
-	_initialise() {
-		this.filteredData = this.settlementQuoteDetails;
-
-		for (let index = 0; index < this.filteredData.length; index++) {
-			this.isAccountsChecked[index] = false;
-		}
-	}
-
-	_isAnySelected () {
-		for (let index = 0; index < this.isAccountsChecked.length; index++) {
-			if (this.isAccountsChecked[index]) {
-				return true;
-			}
-		}
-		this.errorMessage = `Please select an account`;
-		this._renderAlertBanner();
-		this.requestUpdate();
-		return false;
 	}
 
 	_filter(e) {
 		[this.listValue] = e.detail.new.split(` `);
 		this._search(e);
+	}
+
+	_back() {
+		this.dispatchEvent(new CustomEvent(`back`, {}));
+	}
+
+	_showSendDialog () {
+		this.selectedAccounts = this.settlementQuoteDetails.filter(item => item.selected);
+		this.dispatchEvent(new CustomEvent(`send-quote`, { detail: { selectedAccounts: this.selectedAccounts } }));
+	}
+
+	_checkBox(e, accountDetails) {
+		accountDetails.selected = e.detail.new;
+
+		const accountsSelected = this._numberOfAccountsSelected();
+
+		if (accountsSelected === 0) {
+			this.selectedLabel = `Select all`;
+		} else if (accountsSelected === 1) {
+			this.selectedLabel = `1 account selected`;
+		} else {
+			this.selectedLabel = `${accountsSelected} accounts selected`;
+		}
+
+	}
+
+	_selectAll() {
+		if (this.settlementQuoteDetails.every(item => item.selected)) {
+			this.selectedLabel = `Select all`;
+			this.settlementQuoteDetails.forEach(item => item.selected = false);
+		} else {
+			this.settlementQuoteDetails.forEach(item => item.selected = true);
+			this.selectedLabel = `${this._numberOfAccountsSelected()} accounts selected`;
+		}
+	}
+
+	_deselect() {
+		this.selectedLabel = `Select all`;
+		this.settlementQuoteDetails.forEach(item => item.selected = false);
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+
+	_initialise() {
+		this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
+			item.selected = false;
+			return item;
+		});
+
+		this.filteredData = this.settlementQuoteDetails;
 	}
 
 	_search (e) {
@@ -144,101 +168,19 @@ export class SettlementQuote extends Component {
 		
 
 	}
-
-	_back() {
-		this.dispatchEvent(new CustomEvent(`back`, {}));
-	}
-
-	_showSendDialog () {
-		this.selectedAccounts = [];
-
-		if (this.isAccountsChecked.every(val => val === false)) {
-			this.errorMessage = `Please select an account`;
-			this._renderAlertBanner();
-			this.requestUpdate();
-			return;
-		}
-
-		for (let index = 0; index < this.isAccountsChecked.length; index++) {
-			if (this.isAccountsChecked[index]) {
-				this.selectedAccounts[index] = this.filteredData[index];
-			}
-		}
-		
-		this.dispatchEvent(new CustomEvent(`send-quote`, { detail: { selectedAccounts: this.selectedAccounts } }));
-	}
-
-	_checkBox(e, index) {
-		this._clearErrors();
-		if (this.isAccountsChecked[index] === true) {
-			this.isAccountsChecked[index] = false;
-		} else {
-			this.isAccountsChecked[index] = true;
-		}
-		if (this.isAccountsChecked.every(val => val === true)) {
-			this.checkAll = false;
-			this.isChecked = true;
-		} else if (this.isAccountsChecked.every(val => val === false)) {
-			this.checkAll = false;
-			this.isChecked = false;
-		} else {
-			this.checkAll = true;
-			this.isChecked = false;
-		}
-
-		const amountSelected = this.isAccountsChecked.filter(Boolean).length;
-
-		if (amountSelected === 0) {
-			this.selectedLabel = `Select All`;
-		} else if (amountSelected === 1) {
-			this.selectedLabel = `1 account selected`;
-		} else {
-			this.selectedLabel = `${this.isAccountsChecked.filter(Boolean).length} accounts selected`;
-		}
-
-		this.requestUpdate();
-	}
-
-	_selectAll() {
-		this.checkAll = false;
-		if (this.isAccountsChecked.every(val => val === true)) {
-			this.isChecked = false;
-			this.selectedLabel = `Select All`;
-			for (let index = 0; index < this.isAccountsChecked.length; index++) {
-				this.isAccountsChecked[index] = false;
-			}
-		} else {
-			this._clearErrors();
-			this.isChecked = true;
-			for (let index = 0; index < this.isAccountsChecked.length; index++) {
-				this.isAccountsChecked[index] = true;
-			}
-			this.selectedLabel = `${this.isAccountsChecked.length} accounts selected`;
-		}
-		this.requestUpdate();
-	}
-
-	_deselect() {
-		this.checkAll = false;
-		this.isChecked = false;
-		this.selectedLabel = `Select All`;
-		for (let index = 0; index < this.isAccountsChecked.length; index++) {
-			this.isAccountsChecked[index] = false;
-		}
-		this._clearErrors();
-	}
 	
 	// Removing currency formating for better search results
 	_deformatCurrency(value) {
 		const amount = value.split(`R`)[1].replaceAll(` `, ``);
 		return amount;
 	}
-	// --------------
-	// EVENT HANDLERS
-	// --------------
 
-	_clearErrors() {
-		this.errorMessage = ``;
+	_isAnyAccountSelected() {
+		return this.settlementQuoteDetails.filter(item => item.selected).length > 0;
+	}
+
+	_numberOfAccountsSelected() {
+		return this.settlementQuoteDetails.filter(item => item.selected).length;
 	}
 
 	// ---------
@@ -255,10 +197,15 @@ export class SettlementQuote extends Component {
 				}
 				capitec-text-field {
 					width: 337px;
+					--theme-input-label-font-size: 16px;
+					--theme-input-search-icon-margin-left: 15px;
+					--theme-input-label-font-color: #959595;
+					--theme-input-search-label-idle-margin-left: 30px;
 				}
 				capitec-title-bar {
 					border-bottom: 1px solid rgb(225, 225, 225);
-					box-shadow: 0px 0px;
+					--theme-titlebar-padding: 8px 16px;
+					--theme-titlebar-shadow: 0px 0px;
 				}
 				.main-cb {
 					height: 590px;
@@ -272,19 +219,21 @@ export class SettlementQuote extends Component {
 					--theme-layout-gap-spacing: 18px;
 				}
 
-				capitec-button-bar>capitec-check {
-					margin-top: 15px;
+				capitec-button-bar > capitec-check {
+					--theme-check-label-spacing: 8px;
+					--theme-label-font-weight: 500;
+					--theme-label-font-size: 16px;
+					--theme-label-font-color: #3a3a3a;
+					margin-top: 12px;
 				}
 
 				capitec-title-bar > capitec-label {
 					height: 32px;
-					width: 191px;
-					color: #3A3A3A;
-					font-family: "Hind Vadodara";
-					font-size: 24px;
-					font-weight: 600;
-					letter-spacing: 0;
+					margin-left: 10px;
 					line-height: 32px;
+					--theme-label-font-color: #3A3A3A;
+					--theme-label-title-font-size: 24px;
+					--theme-label-title-font-weight: 600;
 				}
 
 				capitec-group > capitec-title-bar {
@@ -320,15 +269,9 @@ export class SettlementQuote extends Component {
 				} 
 
 				capitec-button-bar {
-					height: 50x;
 					width: 100%;
-					--buttonbar-align: right;
 					--theme-buttonbar-item-gap: 0px;
-				}
-			
-				.btnSend {
-					height: 48px;
-					margin-right: 16px;
+					--theme-buttonbar-padding: 6px 16px 6px 24px;
 				}
 				.vertical-line{
 					height: 50px;
@@ -337,16 +280,10 @@ export class SettlementQuote extends Component {
 					margin-right: 16px;
 				}
 				.accounts{
-					display: inline-flex;
-					flex-direction: row;
-					box-sizing: border-box;
 					height: 64px;
-					background-color: transparent;
-					padding: 0px;
-					width: 100%;
-					position: relative;
 					border: 1px solid #E1E1E1;
 					padding-left: 16px;
+					border-radius: 4px;
 				}
 				.no-result-group {
 					width: 1020px;
@@ -418,7 +355,7 @@ export class SettlementQuote extends Component {
 				</capitec-select>
 			</capitec-title-bar>
 			<capitec-content-box class="main-cb" layout="vertical" halign="stretch" valign="top" gap="clear">
-			${this._renderAlertBanner()}
+
 			<capitec-label 
 				type="subtitle" 
 				label="Choose an account" 
@@ -455,11 +392,11 @@ export class SettlementQuote extends Component {
 			<capitec-group class="accounts" layout="horizontal" gap="clear" valign="center">
 				<capitec-check 
 					data="${item}"
-					@value-changed=${(e) => this._checkBox(e, index)}
-					?checked="${this.isAccountsChecked[index]}">>
+					@value-changed=${(e) => this._checkBox(e, item)}
+					?checked="${item.selected}">
 				</capitec-check>
 				<horizon-label
-					label="${item.productTypeDescription}"
+					label="${item.type === PRODUCTS.TERM_LOAN ? `Term loan (${item.productTypeDescription.split(` `)[0]} months)` : item.productTypeDescription}"
 					value="${item.accountNumber}">
 				</horizon-label>
 				<div class="vertical-line"></div>
@@ -485,35 +422,25 @@ export class SettlementQuote extends Component {
 			: html``;
 	}
 
-	_renderAlertBanner() {
-		if (this.errorMessage) {
-			return html`
-				<capitec-alert-banner class="alert-banner"
-					type="unsuccessful-red">
-						<p><b>Notify:</b> ${this.errorMessage}</p>
-				</capitec-alert-banner>`;
-		}
-	}
-
 	_renderFooter() {
 		return html`
 			<capitec-button-bar>
 				<capitec-check
 					label="${this.selectedLabel}"
-					?indeterminate="${this.checkAll}"
-					?checked="${this.isChecked}"
-					@value-change="${e => this._selectAll()}">
+					?indeterminate="${this._isAnyAccountSelected()}"
+					?checked="${this.settlementQuoteDetails.every(item => item.selected)}"
+					@value-change="${() => this._selectAll()}">
 				</capitec-check>
 				<capitec-hyperlink 
-					?hidden="${!this.isChecked && !this.checkAll}" 
+					?hidden="${!this._isAnyAccountSelected()}"
 					label="Deselect All" 
 					@click="${() => this._deselect()}">
 				</capitec-hyperlink>
 				<capitec-spacer></capitec-spacer>
 				<capitec-button 
-					type="primary" 
-					class ="btnSend" 
-					label="Send Settlement Quote(s)" 
+					type="primary"
+					label="Send Settlement Quote(s)"
+					?hidden=${!this._isAnyAccountSelected()}
 					@click="${() => this._showSendDialog()}">
 				</capitec-button>
 			</capitec-button-bar>`;

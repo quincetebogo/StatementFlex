@@ -76,7 +76,7 @@ import 'app/components/common/RelatedOptions';
 			super.styles,
 			css`
 				horizon-error-screen {
-					--horizon-error-screen-height:768px;
+					--horizon-error-screen-height: 744px;
 				}
 				#id-error-msg {
 					width: auto;

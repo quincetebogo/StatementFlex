@@ -482,17 +482,17 @@ export class AccessChannels extends Component {
 
 	async _landingInfo() {
 
-		const returnValue = await this.accessChannelService.accessChannelLanding(this.cifNumber);
+		// const returnValue = await this.accessChannelService.accessChannelLanding(this.cifNumber);
 
-		if (returnValue.succeeded) {
-			this.landingInfo = returnValue.result;
-			if (this.landingInfo.msisdn?.length >= 9) {
-				this.verifiedTelephoneNumber = `0${this.landingInfo.msisdn.substr(this.landingInfo.msisdn.length - 9)}`;
-			}
+		// if (returnValue.succeeded) {
+		// 	this.landingInfo = returnValue.result;
+		// 	if (this.landingInfo.msisdn?.length >= 9) {
+		// 		this.verifiedTelephoneNumber = `0${this.landingInfo.msisdn.substr(this.landingInfo.msisdn.length - 9)}`;
+		// 	}
 
-			this.requestUpdate();
-			return;
-		}
+		// 	this.requestUpdate();
+		// 	return;
+		// }
 		this.logger.log(`error`, `Failed to load access channel landing information`, `_landingInfo`, returnValue.correlationId);
 	}
 

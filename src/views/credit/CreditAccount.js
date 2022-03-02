@@ -9,6 +9,7 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { budgetfacilityresponse } from 'app/mocks/creditBudgetFacilityAccounts';
+import { creditMixin } from 'app/views/credit/CreditMixin';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/ServiceCallErrorScreen';
@@ -54,6 +55,8 @@ export class CreditAccount extends ViewBase {
 		this.encodedPDF = ``;
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._preformAction(e));
+		
+		Object.assign(CreditAccount.prototype, creditMixin);
 	}
 
 	// -------------------
@@ -222,11 +225,10 @@ export class CreditAccount extends ViewBase {
 										.map(item => {
 												const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType][item.interestCategory] || 
 																	ACCOUNT_INTCAT_ENUM[item.accountType];
-												const accName = item.accountName.toLowerCase();
-
+												
 												return {
 													'accountNumber': item.accountNumber,
-													'accountName': `${accName.charAt(0).toUpperCase()}${accName.slice(1)}`,
+													'accountName': this._formatStringCase(item.accountName),
 													'accountType': item.accountType,
 													'icon': productInfo.icon,
 													'customIcon': productInfo.customIcon,
@@ -288,7 +290,6 @@ export class CreditAccount extends ViewBase {
 			this._formatCreditOverviewResponse();
 			this.flexibleCreditAccounts = [...creditOverview.creditCardSummaryList, ...creditOverview.accessFacilitySummaryList];
 			this.fixedTermCreditAccounts = [...creditOverview.loanAccountSummaryList];
-			this.selectedTab = CREDIT_TYPE.FLEXIBLE;
 
 			this._telemetry.startSpan(CreditEvents.CREDIT, {
 				"screen": TelemetryScreen.CREDIT_LANDING,
@@ -306,21 +307,24 @@ export class CreditAccount extends ViewBase {
 		this.creditAccountDetails.creditCardSummaryList.map(item => {
 			item.type = PRODUCTS.CREDIT_CARD;
 			item.category = CREDIT_TYPE.FLEXIBLE;
+			item.productTypeDescription = this._formatStringCase(item.productTypeDescription);
 			item.currentBalance = formatCurrency(item.currentBalance);
 			item.availableCredit = formatCurrency(item.availableCredit);
 			item.creditLimit = formatCurrency(item.creditLimit);
 			item.nextRepayment = formatCurrency(item.nextRepayment);
-
+			item.accountStatusDescription = this._formatStringCase(item.accountStatusDescription);
 			return item;
 		});
 
 		this.creditAccountDetails.accessFacilitySummaryList.map(item => {
 			item.type = PRODUCTS.ACCESS_FACILITY;
 			item.category = CREDIT_TYPE.FLEXIBLE;
+			item.productTypeDescription = this._formatStringCase(item.productTypeDescription);
 			item.currentBalance = formatCurrency(item.currentBalance);
 			item.availableCredit = formatCurrency(item.availableCredit);
 			item.creditLimit = formatCurrency(item.creditLimit);
 			item.nextRepayment = formatCurrency(item.nextRepayment);
+			item.accountStatusDescription = this._formatStringCase(item.accountStatusDescription);
 
 			return item;
 		});
@@ -328,10 +332,12 @@ export class CreditAccount extends ViewBase {
 		this.creditAccountDetails.loanAccountSummaryList.map(item => {
 			item.type = PRODUCTS.TERM_LOAN;
 			item.category = CREDIT_TYPE.FIXED;
+			item.productTypeDescription = this._formatStringCase(item.productTypeDescription);
 			item.currentBalance = formatCurrency(item.currentBalance);
 			item.availableCredit = formatCurrency(item.availableCredit);
 			item.creditLimit = formatCurrency(item.creditLimit);
 			item.nextRepayment = formatCurrency(item.nextRepayment);
+			item.accountStatusDescription = this._formatStringCase(item.accountStatusDescription);
 
 			return item;
 		});
@@ -414,9 +420,7 @@ export class CreditAccount extends ViewBase {
 		
 		this.selectedTab = creditType;
 		
-		this.selectedAccountDetails = selectedAccountDetails;
-		
-		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_DIALOG;
+		this._settlementQuoteDialog(selectedAccountDetails);
 	}
 
 	_paidUpLetter() {
@@ -493,32 +497,13 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
 	}
 
-	_sendSettlementQuote(details) {
-
-		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.selectedAccounts = details.selectedAccounts;
-		screenDetails.emailAddress = details.emailAddress;
-		this.horizonStore.setScreenDetails(screenDetails);
-		
-		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `settlement-quote`);
-		// TO DO: CS call to send Settlement Quote sould come here
-
-		// this.horizonRouter.navigateToSettlementQuoteSuccess();
-		this.horizonRouter.navigateToSettlementQuoteFailure();
-	}
-
-	async _navigatePDF(currPage) {
-		// add CS call to get encodedPDF 
-		// currPage is date currently selected
-		const returnValue = await this.quickTransactionService.viewStatement(currPage, () => this._createIncidentOnError());
-		if (returnValue) {
-			return returnValue.result.statementData;
-		}
-	}
-	
-	_cancelSettleQuote() {
+	_backFromSettlementQuoteDialog() {
 		this.horizonStore.clearScreenDetails();
 		this._backToLandingPage();
+	}
+	
+	_formatStringCase(value) {
+		return `${value.toLowerCase().charAt(0).toUpperCase()}${value.toLowerCase().slice(1)}`;
 	}
 
 	// ---------
@@ -570,7 +555,7 @@ export class CreditAccount extends ViewBase {
 			${this._renderTermLoanDetailsView()}
 			${this._renderStatements()}
 			${this._renderPayBudgetDialog()}
-			${this._renderSettlementQuote()}
+			${this._renderSettlementQuoteDialog()}
 			${this._renderFixedStatements()}
 		`;
 	}
@@ -713,18 +698,6 @@ export class CreditAccount extends ViewBase {
 				@send="${() => this._sendStatement()}"
 				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
 			</horizon-credit-statements-dialog>`
-		: html``;
-	}
-	
-	_renderSettlementQuote() {
-		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG
-		? html`
-			<horizon-settlement-quote-dialog
-				.selectedAccounts="${this.selectedAccountDetails}"
-				@cancel="${() => this._cancelSettleQuote()}"
-				@send="${(e) => this._sendSettlementQuote(e.detail)}"
-				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
-			</horizon-settlement-quote-dialog>`
 		: html``;
 	}
 
