@@ -451,7 +451,7 @@ export class StopCard extends Component {
 			${this._renderFooter()}`
 		: html`
 			<capitec-image src="platform/illustrations/cards.svg"></capitec-image>
-			<p class="client-has-no-card">Client has no cards to fulfill this transaction</p>
+			<capitec-label type="title" class="client-has-no-card" label="Client has no cards to fulfill this transaction"></capitec-label>
 		`;
 	}
 

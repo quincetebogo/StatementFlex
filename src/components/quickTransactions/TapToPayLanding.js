@@ -366,7 +366,7 @@ export class TapToPayLanding extends Component {
 			${this._renderSupplementaryCards()}`
 		: html`
 			<capitec-image src="platform/illustrations/cards.svg"></capitec-image>
-			<p class="client-has-no-card">Client has no cards to fulfill this transaction</p>
+			<capitec-label type="title" class="client-has-no-card" label="Client has no cards to fulfill this transaction"></capitec-label>
 		`;
 	}
 
