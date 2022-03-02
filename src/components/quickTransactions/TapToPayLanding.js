@@ -89,7 +89,7 @@ export class TapToPayLanding extends Component {
 
 	_initialise() {
 
-		this.clientHasCards();
+		this.hasCardsAvailable = this.cards.length > 0;
 
 		this.cards.forEach(card => {
 			if (card.isSupplementaryCard) {
@@ -97,10 +97,6 @@ export class TapToPayLanding extends Component {
 			} 
 			card.cardDisplayName = CARD_TYPE_MAPPING[card.cardType];
 		});
-	}
-
-	clientHasCards() {
-		this.hasCardsAvailable = this.cards.length > 0;
 	}
 
 	_loading() {

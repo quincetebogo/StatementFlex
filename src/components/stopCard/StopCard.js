@@ -131,7 +131,8 @@ export class StopCard extends Component {
 		* Add rowIndex, selected, stopReason fields to cards array. 
 		* Logic to show/hide stop card reasons is based on rowIndex
 		*/
-		this.clientHasCards();
+
+		this.hasCardsAvailable = this.cards.length > 0;
 
 		this.addFieldsToCardsArray();
 
@@ -254,10 +255,6 @@ export class StopCard extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	clientHasCards() {
-		this.hasCardsAvailable = this.cards.length > 0;
-	}
 
 	addFieldsToCardsArray() {
 		this.cards.map((card, index) => {

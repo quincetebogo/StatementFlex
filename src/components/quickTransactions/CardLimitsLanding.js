@@ -383,7 +383,7 @@ export class CardLimitsLanding extends Component {
 
 	_initialise() {
 
-		this.clientHasCards();
+		this.hasCardsAvailable = this.cards.length > 0;
 
 		this.cards.forEach(card => {
 			if (CARD_TYPE_MAPPING[card.cardType] === CARD_TYPES.CREDIT && card.linkedCardId !== null) {
@@ -393,10 +393,6 @@ export class CardLimitsLanding extends Component {
 			}
 			card.isVirtualCard = card.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD;
 		});
-	}
-
-	clientHasCards() {
-		this.hasCardsAvailable = this.cards.length > 0;
 	}
 
 	async _updateLimits(card, limitType, updateType) {
