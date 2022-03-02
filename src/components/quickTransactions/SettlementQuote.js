@@ -110,11 +110,11 @@ export class SettlementQuote extends Component {
 	}
 
 	_selectAll() {
-		if (this.settlementQuoteDetails.every(item => item.selected)) {
+		if (this.filteredData.every(item => item.selected)) {
 			this.selectedLabel = `Select all`;
 			this.settlementQuoteDetails.forEach(item => item.selected = false);
 		} else {
-			this.settlementQuoteDetails.forEach(item => item.selected = true);
+			this.filteredData.forEach(item => item.selected = true);
 			this.selectedLabel = `${this._numberOfAccountsSelected()} accounts selected`;
 		}
 	}
