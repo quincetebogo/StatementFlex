@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { PRODUCTS } from 'app/constants/Credit';
 import 'app/components/common/HorizonProductTile';
 import 'app/components/common/HorizonPDFViewer';
 
@@ -46,6 +47,7 @@ export class SendSettlementQuote extends Component {
 	 * @param {object} selectedAccounts which accounts to send quote
 	 * @param {object} encodedPDFs  Settlement quote pdfs to be viewed
 	 */
+
 	static get properties() {
 		return {
 			selectedAccounts: { type: Object },
@@ -66,12 +68,14 @@ export class SendSettlementQuote extends Component {
 		super.connectedCallback();
 		this._toggleBusyFlag();
 	}
+
 	disconnectedCallback() {
 		super.disconnectedCallback();
 	}
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+
 	_errorHandler(ex) {
 		return true;
 	}
@@ -80,9 +84,10 @@ export class SendSettlementQuote extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
-	async _sendClick(e) {
+	_sendClick(e) {
 		if (this._validateEmail(e)) {
-			// flow to success or unsuccessful 
+
+			this.dispatchEvent(new CustomEvent(`send`, { detail: { selectedAccounts: this.selectedAccounts, emailAddress: this.idEmailAddress } }));
 		}
 	}
 
@@ -90,11 +95,20 @@ export class SendSettlementQuote extends Component {
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-
+	async _navigate(step) {
+		const selectedItems = this.selectedAccounts;
+		if (step === `next`) {
+			this.currPage += this.currPage < selectedItems.length ? 1 : 0;
+			this.encodedPDF = await this.navigatePDF(selectedItems[this.currPage - 1]);
+		} else {
+			this.currPage -= this.currPage ? 1 : 0;
+			this.encodedPDF = await this.navigatePDF(selectedItems[this.currPage - 1]);
+		}
+	}
+	
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
 
 	_validateEmail(e) {
 		// CORRECT
@@ -209,7 +223,6 @@ export class SendSettlementQuote extends Component {
 				margin-right: 16px;
 			}
 			.view-document {
-				--theme-product-tile-heading-margin-top: 20px;
 				--theme-product-tile-heading-margin-left: 16px;
 				--theme-product-tile-detail-top: 20px;
 				--theme-product-tile-detail-right: 16px;
@@ -274,7 +287,7 @@ export class SendSettlementQuote extends Component {
 	}
 
 	_renderEmailFields() {
-		const datesSelected = this.selectedAccounts;
+		const selectedItems = this.selectedAccounts;
 		return html`
 		<capitec-group layout="vertical" gap="none" halign="stretch" valign="top">
 			<div class="email-div">
@@ -316,7 +329,7 @@ export class SendSettlementQuote extends Component {
 			label="View document(s)">
 		</capitec-label>
 		<capitec-group layout="vertical" gap="clear" halign="stretch" valign="top">
-			${datesSelected.map(item => this._renderViewDocument(item))}
+			${selectedItems.map(item => this._renderViewDocument(item))}
 		</capitec-group>
 		
 		`;
@@ -327,7 +340,8 @@ export class SendSettlementQuote extends Component {
 		<horizon-product-tile 
 			class="view-document"
 			type="default"
-			label="${item}">
+			label="${item.type === PRODUCTS.TERM_LOAN ? `Term loan (${item.productTypeDescription.split(` `)[0]} months)` : item.productTypeDescription}"
+			subtitle="${item.accountNumber}">
 				${this._renderViewDocumnetLink(item)}
 		</horizon-product-tile>`;
 	}
@@ -358,17 +372,6 @@ export class SendSettlementQuote extends Component {
 		</horizon-pdf-viewer>`;
 	}
 
-	async _navigate(step) {
-		const datesSelected = this.selectedAccounts;
-		if (step === `next`) {
-			this.currPage += this.currPage < datesSelected.length ? 1 : 0;
-			this.encodedPDF = await this.navigatePDF(datesSelected[this.currPage - 1]);
-		} else {
-			this.currPage -= this.currPage ? 1 : 0;
-			this.encodedPDF = await this.navigatePDF(datesSelected[this.currPage - 1]);
-		}
-	}
-	
 	_renderFooter() {
 		return html`
 		<capitec-group layout="horizontal">

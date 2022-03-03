@@ -263,6 +263,16 @@ export class ViewBase extends View {
 		await super.createAndClassifySubsIncident(() => this._toggleBusyFlag(), incidentCategorization, classify);
 	}
 
+	_performReturnToScreen() {
+		const returnToScreen = this.horizonStore.getReturnToScreen();
+
+		if (returnToScreen && returnToScreen.optionalData) {
+			this.eventAggregator.publish(`horizon-return-to-screen`, { option: returnToScreen.optionalData });
+		}
+
+		this.horizonStore.clearReturnScreen();
+	}
+
 	// ---------
 	// RENDERING
 	// ---------

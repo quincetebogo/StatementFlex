@@ -1,11 +1,14 @@
+import { CREDIT_TYPE, FROM_ACCOUNTS_LIST, PRODUCTS } from 'app/constants/Credit';
+import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { css, html } from 'platform/elements';
-import { Configuration } from 'platform/core';
+import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { CreditService } from 'app/services/CreditService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { creditMixin } from 'app/views/credit/CreditMixin';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 
@@ -20,63 +23,8 @@ import 'app/productControls/credit/src/BudgetAccountDetails';
 import 'app/productControls/credit/src/CreditAccountLanding';
 import 'app/productControls/credit/src/CreditUnverifiedLanding';
 import 'app/productControls/credit/src/PayCreditCardBudget';
+import 'app/dialogs/credit/SettlementQuote';
 
-const PRODUCTS = {
-	CREDIT_CARD: `Credit card`,
-	ACCESS_FACILITY: `Access facility`,
-	TERM_LOAN: `Term Loan`
-};
-
-const CREDIT_TYPE = {
-	FLEXIBLE: `Flexible`,
-	FIXED: `Fixed Credit`
-};
-
-// TO DO: This constant can be pulled from 'app/constants/Statements' ACCOUNT_INTCAT_ENUM when merged with Live-better.
-const ACCOUNT_INTCAT_ENUM = Object.freeze({
-	300: {
-		name: `Savings account`,
-		type: `PRIMARY_SAVINGS`,
-		category: `transact`,
-		icon: `product/transact`,
-		order: 1
-	},
-	200: {
-		name: ``,
-		type: `FLEXIBLE_SAVINGS`,
-		category: `save`,
-		icon: `product/save`,
-		order: 2
-	},
-	201: {
-		1: {
-			name: ``,
-			type: `FIXED_TERM_MULTIPLE_DEPOSITS`,
-			category: `save`,
-			icon: `product/save`,
-			order: 3
-		},
-		2: {
-			name: ``,
-			type: `FIXED_TERM_SINGLE_DEPOSIT`,
-			category: `save`,
-			icon: `product/save`,
-			order: 4
-		}
-	},
-	210: {
-		name: `Live better savings account`,
-		type: `LBB`,
-		category: `lbb`,
-		customIcon: `/images/liveBetter/live-better-icon.png`,
-		order: 5
-	}
-});
-
-const FROM_ACCOUNTS_LIST = [
-		// Primary savings
-		300
-	];
 
 /**
  * Credit Account View
@@ -94,7 +42,9 @@ export class CreditAccount extends ViewBase {
 	constructor() {
 		super();
 
+		this.eventAggregator = EventAggregator.getInstance();
 		this.configuration = Configuration.getInstance();
+		this.navigationContext = NavigationContext.getInstance();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		// private properites
 		this.budgetAccountDetails = null;
@@ -109,6 +59,9 @@ export class CreditAccount extends ViewBase {
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
+		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._preformAction(e));
+		
+		Object.assign(CreditAccount.prototype, creditMixin);
 	}
 
 
@@ -120,36 +73,6 @@ export class CreditAccount extends ViewBase {
 		super.connectedCallback();
  
 		this._initialise();
-
-		this._optionClick = async (option, creditType, productType) => {
-
-			const transactionHistory = () => this._transactionHistory(creditType, productType);
-			const statements = creditType === `Fixed Credit` ? () => this._getTLStatements(creditType, productType) : () => this._getStatements(creditType, productType);
-			const settlementQuote = () => this._settlementQuote(creditType, productType);
-			const settleAndClose = () => this._settleAndClose(creditType, productType);
-			const paidUpLetter = () => this._paidUpLetter();
-			const settleLoan = () => this._settleLoan();
-			const budgetFacility = () => this._budgetFacility();
-
-			const actions = {
-				'transaction-history': transactionHistory,
-				'statements': statements,
-				'settlement-quote': settlementQuote,
-				'paid-up-letter': paidUpLetter,
-				'settle-close': settleAndClose,
-				'settle-loan': settleLoan,
-				'budget-facility': budgetFacility
-			};
-
-			if (actions[option]) {
-				
-				const clientNeed = `${option}-${productType.toLowerCase().replace(` `, `-`)}`;
-				 
-				await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
-				this._refreshIncidentDetails();
-				return actions[option]();
-			}
-		};
 	}
 
 	disconnectedCallback() {
@@ -190,6 +113,36 @@ export class CreditAccount extends ViewBase {
 		// verificationStatus is on the this.callerInformation object
 		await this._initialise();
 	}
+
+	async _optionClick(option, creditType, productType, selectedAccountDetails) {
+
+		const transactionHistory = () => this._transactionHistory(creditType, productType);
+		const statements = creditType === `Fixed Credit` ? () => this._getTLStatements(creditType, productType) : () => this._getStatements(creditType, productType);
+		const settlementQuote = () => this._settlementQuote(creditType, productType, selectedAccountDetails);
+		const settleAndClose = () => this._settleAndClose(creditType, productType);
+		const paidUpLetter = () => this._paidUpLetter();
+		const settleLoan = () => this._settleLoan();
+		const budgetFacility = () => this._budgetFacility();
+
+		const actions = {
+			'transaction-history': transactionHistory,
+			'statements': statements,
+			'settlement-quote': settlementQuote,
+			'paid-up-letter': paidUpLetter,
+			'settle-close': settleAndClose,
+			'settle-loan': settleLoan,
+			'budget-facility': budgetFacility
+		};
+
+		if (actions[option]) {
+			
+			const clientNeed = `${option}-${productType.toLowerCase().replace(` `, `-`)}`;
+			 
+			await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
+			this._refreshIncidentDetails();
+			return actions[option]();
+		}
+	};
 
 	_viewInfo() {
 		this._telemetry.logEvent(CreditEvents.CREDIT_VIEW_INFO, {});
@@ -282,11 +235,10 @@ export class CreditAccount extends ViewBase {
 										.map(item => {
 												const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType][item.interestCategory] || 
 																	ACCOUNT_INTCAT_ENUM[item.accountType];
-												const accName = item.accountName.toLowerCase();
-
+												
 												return {
 													'accountNumber': item.accountNumber,
-													'accountName': `${accName.charAt(0).toUpperCase()}${accName.slice(1)}`,
+													'accountName': formatStringAsPascalCase(item.accountName),
 													'accountType': item.accountType,
 													'icon': productInfo.icon,
 													'customIcon': productInfo.customIcon,
@@ -306,6 +258,14 @@ export class CreditAccount extends ViewBase {
 
 	_errorHandler() {
 		this.horizonRouter.navigateToSystemError();
+	}
+
+	_preformAction(e) {
+		const screenDetails = this.horizonStore.getScreenDetails();
+		
+		if (screenDetails?.productType) {
+			this._optionClick(e.option, screenDetails?.creditType, screenDetails?.productType, screenDetails?.selectedAccounts);
+		}
 	}
 
 	// --------------
@@ -331,6 +291,7 @@ export class CreditAccount extends ViewBase {
 
 			if (!successfullServiceResponse) {
 				this.logger.log(`error`, `Failed to retrieve client overview from credit service.`, `_initialise`, returnValue.correlationId);
+				this.renderMode = RENDER_MODE.SERVICE_UNAVAILABLE;
 				return;
 			}
 
@@ -360,6 +321,8 @@ export class CreditAccount extends ViewBase {
 		}
 		
 		this.endCallContext = `LandingPage`;
+		
+		this._performReturnToScreen();
 	}
 
 	_formatCreditOverviewResponse() {
@@ -466,15 +429,22 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.STATEMENTS;
 	}
 
-	_settlementQuote(creditType, productType) {
-		// TO DO: Place holder for credit settlement Quote flow.
-		
+	_settlementQuote(creditType, productType, selectedAccountDetails) {
 		this._telemetry.logEvent(CreditEvents.CREDIT_SETTLEMENT_QUOTE_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
 			"next-screen": TelemetryScreen.CREDIT_SETTLEMENT_QUOTE,
 			"credit-type": creditType,
 			"product-type": productType
 		});
+
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.creditType = creditType;
+		screenDetails.productType = productType;
+		this.horizonStore.setScreenDetails(screenDetails);
+		
+		this.selectedTab = creditType;
+		
+		this._settlementQuoteDialog(selectedAccountDetails);
 	}
 
 	_paidUpLetter() {
@@ -530,7 +500,6 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_backToLandingPage() {
-
 		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
 			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
 			this.horizonStore.setIncidentDetails(this.incidentDetails);
@@ -577,13 +546,9 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
 	}
 
-	async _navigatePDF(currPage) {
-		// add CS call to get encodedPDF 
-		// currPage is date currently selected
-		const returnValue = await this.quickTransactionService.viewStatement(currPage, () => this._createIncidentOnError());
-		if (returnValue) {
-			return returnValue.result.statementData;
-		}
+	_backFromSettlementQuoteDialog() {
+		this.horizonStore.clearScreenDetails();
+		this._backToLandingPage();
 	}
 
 	// ---------
@@ -635,6 +600,7 @@ export class CreditAccount extends ViewBase {
 			${this._renderTermLoanDetailsView()}
 			${this._renderStatements()}
 			${this._renderPayBudgetDialog()}
+			${this._renderSettlementQuoteDialog()}
 			${this._renderFixedStatements()}
 		`;
 	}
@@ -661,7 +627,8 @@ export class CreditAccount extends ViewBase {
 
 	_renderLandingPage() {
 		return this.renderMode === RENDER_MODE.MAIN_PAGE ||
-			   this.renderMode === RENDER_MODE.STATEMENTS
+			   this.renderMode === RENDER_MODE.STATEMENTS ||
+			   this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG
 			? html`
 				${this._renderCreditVerifiedLandingPage()}
 				${this._renderCreditUnverifiedLandingPage()}`
@@ -669,17 +636,20 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderCreditVerifiedLandingPage() {
-		return this.verificationStatus === `verified` ? html`
-			<capitec-pc-credit-account
-			.flexibleCreditAccounts="${this.flexibleCreditAccounts}"
-			.fixedTermCreditAccounts="${this.fixedTermCreditAccounts}"
-			.budgetAccountsSummary="${this.budgetAccountsSummary}"
-			@option-click="${(e) => this._optionClick(e.detail.option, e.detail.creditType, e.detail.productType)}"
-			@account-details="${(e) => this._accountDetails(e)}"
-			@product-enquiry="${() => this._productEnquiry()}"
-			@view-info="${() => this._viewInfo()}"
-			@view-budget-accounts="${(e) => this._budgetFacility(e)}">
-		</capitec-pc-credit-account>` : html``;
+		return this.verificationStatus === `verified`
+			? html`
+				<capitec-pc-credit-account
+					.flexibleCreditAccounts="${this.flexibleCreditAccounts}"
+					.fixedTermCreditAccounts="${this.fixedTermCreditAccounts}"
+					.budgetAccountsSummary="${this.budgetAccountsSummary}"
+					selectedTab="${this.selectedTab}"
+					@option-click="${(e) => this._optionClick(e.detail.option, e.detail.creditType, e.detail.productType, e.detail.selectedAccountDetails)}"
+					@account-details="${(e) => this._accountDetails(e)}"
+					@product-enquiry="${() => this._productEnquiry()}"
+					@view-info="${() => this._viewInfo()}"
+					@view-budget-accounts="${(e) => this._budgetFacility(e)}">
+				</capitec-pc-credit-account>`
+			: html``;
 	}
 	
 	_renderCreditUnverifiedLandingPage() {

@@ -97,7 +97,7 @@
 		category: `credit`,
 		icon: `product/credit`,
 		order: 8
-	},
+	}
 });
 
 /**

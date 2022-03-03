@@ -1,15 +1,10 @@
+import { CREDIT_TYPE, PRODUCTS } from 'app/constants/Credit';
 import { Component, css, html } from 'platform/elements';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
 import 'app/views/product/CreditProduct';
-
-const PRODUCT_TYPE = {
-	CREDIT_CARD: `Credit card`,
-	ACCESS_FACILITY: `Access facility`,
-	TERM_LOAN: `Term Loan`
-};
 
 /**
  * Credit Account verified landing Product Control
@@ -35,6 +30,7 @@ export class CreditAccountLanding extends Component {
 		this.flexibleCreditAccounts = [];
 		this.fixedTermCreditAccounts = [];
 		this.budgetAccountsSummary = {};
+		this.selectedTab = CREDIT_TYPE.FLEXIBLE;
 	}
 
 	// -------------------
@@ -61,7 +57,8 @@ export class CreditAccountLanding extends Component {
 		return {
 			flexibleCreditAccounts: { type: Array },
 			fixedTermCreditAccounts: { type: Array },
-			budgetAccountsSummary: { type: Object }
+			budgetAccountsSummary: { type: Object },
+			selectedTab: { type: String }
 		};
 	}
 	
@@ -69,8 +66,13 @@ export class CreditAccountLanding extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_click(selection, creditType, productType) {
-		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection, creditType: creditType, productType: productType } }));
+	_click(selection, creditType, productType, selectedAccountDetails) {
+		this.dispatchEvent(new CustomEvent(`option-click`, { 
+			detail: { option: selection, 
+						creditType: creditType, 
+						productType: productType,
+						selectedAccountDetails: selectedAccountDetails }
+				}));
 	}
 
 	_accountDetails(creditType, productType, accountNumber) {
@@ -322,7 +324,7 @@ export class CreditAccountLanding extends Component {
 	_renderContent() {
 		return this.flexibleCreditAccounts.length > 0 || this.fixedTermCreditAccounts.length > 0
 			? html`
-				<capitec-tab-group class="tabs">
+				<capitec-tab-group class="tabs" selectedIndex="${this.selectedTab === CREDIT_TYPE.FIXED ? 1 : 0}">
 					<capitec-tab
 						data-automation-id="credit-account-flexible-credit-tab"
 						label="Flexible Credit">
@@ -429,14 +431,14 @@ export class CreditAccountLanding extends Component {
 							halign="left"
 							valign="center">
 								${this._renderBudgetDetailsBar(item)}
-								${this._renderOptionsGroup(item.category, item.type)}
+								${this._renderOptionsGroup(item.category, item.type, item)}
 						</capitec-group>
 					</div>
 			</horizon-expander>`);
 	}
 
 	_renderBudgetDetailsBar(item) {
-		return item.type === PRODUCT_TYPE.CREDIT_CARD &&
+		return item.type === PRODUCTS.CREDIT_CARD &&
 				(this.budgetAccountsSummary.totalBudgetBalance && this.budgetAccountsSummary.totalBudgetBalance !== `R0.00`) &&
 				(this.budgetAccountsSummary.totalBudgetInstallmentAmount && this.budgetAccountsSummary.totalBudgetInstallmentAmount !== `R0.00`)
 					? html`
@@ -525,13 +527,13 @@ export class CreditAccountLanding extends Component {
 							gap="none"
 							halign="left"
 							valign="center">
-								${this._renderOptionsGroup(item.category, item.type)}
+								${this._renderOptionsGroup(item.category, item.type, item)}
 						</capitec-group>
 					</div>
 			</horizon-expander>`);
 	}
 
-	_renderOptionsGroup(creditType, productType) {
+	_renderOptionsGroup(creditType, productType, selectedAccountDetails) {
 
 		// TO DO: Hide/show respected option buttons dynamically
 		return html`
@@ -559,7 +561,7 @@ export class CreditAccountLanding extends Component {
 						label="Settlement Quote"
 						icon="system/documents-action"
 						?hidden="${false}"
-						@click="${() => this._click(`settlement-quote`, creditType, productType)}">
+						@click="${() => this._click(`settlement-quote`, creditType, productType, [selectedAccountDetails])}">
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="credit-account-paid-up-letter"
