@@ -121,7 +121,8 @@ export class SettlementQuote extends Component {
 
 	_deselect() {
 		this.selectedLabel = `Select all`;
-		this.settlementQuoteDetails.forEach(item => item.selected = false);
+		this.filteredData.forEach(item => item.selected = false);
+		this.selectedLabel = `${this._numberOfAccountsSelected()} accounts selected`;
 	}
 
 	// ---------------

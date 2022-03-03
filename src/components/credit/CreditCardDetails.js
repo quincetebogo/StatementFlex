@@ -1,5 +1,5 @@
 import { Component, html } from 'platform/elements';
-import { formatDate, getDateOrdinal } from 'app/utils/channelServiceUtilities';
+import { formatDate, formatStringAsPascalCase, getDateOrdinal } from 'app/utils/channelServiceUtilities';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/productControls/credit/src/AccountDetailsView';
@@ -57,26 +57,26 @@ import 'app/productControls/credit/src/AccountDetailsView';
 
 		// formatting credit card details received from service
 		this.accountDetails = {
-			'title': this.creditCardDetails.accountDescription,
+			'title': formatStringAsPascalCase(this.creditCardDetails.accountDescription),
 			'accountNumber': this.creditCardDetails.accountNumber,
 			'overview': {
 				'Current balance': formatCurrency(this.creditCardDetails.currentBalance),
 				'Available balance': formatCurrency(this.creditCardDetails.availableBalance),
-				'Debit interest rate(yearly)': this.creditCardDetails.interestRate,
+				'Debit interest rate(yearly)': `${this.creditCardDetails.interestRate}%`,
 				'Credit limit': formatCurrency(this.creditCardDetails.creditLimit),
 				'Outstanding authorisations': formatCurrency(this.creditCardDetails.outstandingAuthorizations),
 				'Take-up date': formatDate(this.creditCardDetails.openDate, `dd mmm yyyy`),
-				'Auto limit increase': this.creditCardDetails.autoIncreaseLimitOption,
-				'Account status': this.creditCardDetails.accountStatusDescription
+				'Auto limit increase': `${this.creditCardDetails.autoIncreaseLimitOption ? `Yes` : `No`}`,
+				'Account status': this.creditCardDetails.arrearsStatus ? `In arrears` : formatStringAsPascalCase(this.creditCardDetails.accountStatusDescription)
 			},
 			'arrears': null,
 			'repayment': {
-				'Repayment day': this._getOccurance(this.creditCardDetails.repaymentDay, `month`),
-				'Repayment method': this.creditCardDetails.repaymentMethod,
-				'Repayment option': `${this.creditCardDetails.repaymentValueType} (${this.creditCardDetails.repaymentValue}%)`,
+				'Repayment day': `${this.creditCardDetails.repaymentDay}${getDateOrdinal(this.creditCardDetails.repaymentDay)} of every month`,
+				'Repayment method': this.creditCardDetails.repaymentMethodDescription,
+				'Repayment option': this._formatCreditCardRepaymentOption(this.creditCardDetails.repaymentValueType, this.creditCardDetails.repaymentValue),
 				'Next repayment due': formatDate(this.creditCardDetails.nextRepaymentDate, `dd mmm yyyy`),
-				'Last repayment received': formatDate(this.creditCardDetails.lastpaymentDate, `dd mmm yyyy`),
-				'Statement day': this._getOccurance(this.creditCardDetails.statementDay, `month`)
+				'Last repayment received': formatDate(this.creditCardDetails.lastPaymentDate, `dd mmm yyyy`),
+				'Statement day': `${this.creditCardDetails.statementDay}${getDateOrdinal(this.creditCardDetails.statementDay)} of every month`
 			},
 			'insurance': {
 				'Option': this.creditCardDetails.insuranceOptionCode,
@@ -85,10 +85,9 @@ import 'app/productControls/credit/src/AccountDetailsView';
 			}
 		};
 
-		if (this.creditCardDetails.accountStatusDescription === `In arrears`) {
+		if (this.creditCardDetails.arrearsStatus) {
 			this.accountDetails.arrears = {
-				'Total arrears amount': formatCurrency(this.creditCardDetails.arrearsAmount),
-				'Last arrears date': formatDate(this.creditCardDetails.lastArrearsDate, `dd mmm yyyy`)
+				'Total arrears amount': formatCurrency(this.creditCardDetails.totalArrearsPayable)
 			};
 		}
 	}
@@ -111,12 +110,8 @@ import 'app/productControls/credit/src/AccountDetailsView';
 	// PRIVATE METHODS
 	// ---------------
 
-	_getOccurance(value, occurance) {
-		const parsedDate = new Date(value);
-		const date = parsedDate.getDate();
-		const month = parsedDate.getMonth();
-
-		return `${date}${getDateOrdinal(date)} of every ${occurance}`;
+	_formatCreditCardRepaymentOption(repaymentValueType, repaymentValue) {
+		return repaymentValueType === `Percentage` ? `${repaymentValueType} (${repaymentValue}%)` : `${repaymentValueType} (${formatCurrency(repaymentValue)})`;
 	}
 
 	// ---------

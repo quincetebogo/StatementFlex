@@ -65,6 +65,17 @@ export const creditOverview = {
 	}
 };
 
+export const creditOverviewEmpty = {
+	"loanAccountSummaryList": [],
+	"accessFacilitySummaryList": [],
+	"creditCardSummaryList": [],
+	"budgetAccountsSummary": {
+		"totalBudgetBalance": 0,
+		"totalBudgetInstallmentAmount": 0
+	}
+};
+
+
 /**
  * credit card details mocks
  * 

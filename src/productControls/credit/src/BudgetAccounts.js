@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { Utilities } from '@cb/platform-web-core';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
@@ -186,7 +187,9 @@ import 'app/components/common/HorizonLabel';
 				}
 				horizon-label[label="Budget name"] {
 					width: 284px;
+					height: fit-content;
 					--theme-label-cursor: pointer;
+					--horizon-label-value-height: fit-content;
 				}
 				.term-header {
 					--theme-titlebar-min-height: 32px;
@@ -208,7 +211,7 @@ import 'app/components/common/HorizonLabel';
 				.account-details-tile {
 					margin: 16px 16px 0px 16px;
 					width: 1032px;
-					height: 64px;
+					height: fit-content;
 					border: 1px solid #e1e1e1;
 					border-radius: 4px;
 					padding: 0px 16px;
@@ -275,7 +278,7 @@ import 'app/components/common/HorizonLabel';
 				<horizon-label
 					data-automation-id="budget-facility-number-of-budgets"
 					label="Number of budget accounts"
-					value="${this.budgetFacilityAccounts.numberOfBudgetAccounts}">
+					value="${this.budgetFacilityAccounts.creditCardBudgetList.length}">
 				</horizon-label>
 
 				<horizon-label
@@ -335,7 +338,7 @@ import 'app/components/common/HorizonLabel';
 				<horizon-label
 					data-automation-id="budget-facility-account-name"
 					label="Budget name"
-					value="${budgetAccount.budgetName}"
+					value="${formatStringAsPascalCase(budgetAccount.budgetName)}"
 					@click="${() => this._accountDetails(budgetAccount)}">
 				</horizon-label>
 
@@ -344,7 +347,7 @@ import 'app/components/common/HorizonLabel';
 				<horizon-label
 					data-automation-id="budget-facility-monthly-repayment"
 					label="Monthly repayment"
-					value="${formatCurrency(budgetAccount.budgetInstallment)}">
+					value="${formatCurrency(budgetAccount.budgetInstalment)}">
 				</horizon-label>
 
 				<horizon-label

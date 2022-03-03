@@ -1,5 +1,5 @@
 import { Component, html } from 'platform/elements';
-import { formatDate, getDateOrdinal } from 'app/utils/channelServiceUtilities';
+import { formatDate, formatStringAsPascalCase, getDateOrdinal } from 'app/utils/channelServiceUtilities';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/productControls/credit/src/AccountDetailsView';
@@ -57,21 +57,21 @@ import 'app/productControls/credit/src/AccountDetailsView';
 
 		// formatting credit card details received from service
 		this.accountDetails = {
-			'title': this.termLoanDetails.accountDescription,
+			'title': formatStringAsPascalCase(this.termLoanDetails.accountDescription),
 			'accountNumber': this.termLoanDetails.accountNumber,
 			'overview': {
 				'Current balance': formatCurrency(this.termLoanDetails.accountBalance),
-				'Credit limit': formatCurrency(this.termLoanDetails.creditLimit),
-				'Debit interest rate(yearly)': this.termLoanDetails.interestRate,
+				'Approved Amount': formatCurrency(this.termLoanDetails.approvedAmount),
+				'Debit interest rate(yearly)': `${this.termLoanDetails.interestRate}%`,
 				'Take-up date': formatDate(this.termLoanDetails.approvedDate, `dd mmm yyyy`),
-				'Account status': this.termLoanDetails.accountStatusDescription
+				'Account status': this.termLoanDetails.arrearsStatus ? `In arrears` : formatStringAsPascalCase(this.termLoanDetails.accountStatusDescription)
 			},
 			'arrears': null,
 			'repayment': {
-				'Repayment date': this._getOccurance(this.termLoanDetails.repaymentDay, `month`),
-				'Repayment option': `${this.termLoanDetails.repaymentValueType} (${this.termLoanDetails.repaymentValue}%)`,
-				'Next repayment due': formatDate(this.termLoanDetails.nextRepaymentDate, `dd mmm yyyy`),
-				'Last repayment received': formatDate(this.termLoanDetails.lastpaymentDate, `dd mmm yyyy`),
+				'Repayment date': `${this.termLoanDetails.salaryDate}${getDateOrdinal(this.termLoanDetails.salaryDate)} of every month`,
+				'Repayment amount': `${formatCurrency(this.termLoanDetails.nextInstalmentDueAmount)}`,
+				'Next repayment due': formatDate(this.termLoanDetails.nextInstalmentDate, `dd mmm yyyy`),
+				'Last repayment received': formatDate(this.termLoanDetails.lastPaymentDate, `dd mmm yyyy`),
 				'Last payment received': formatCurrency(this.termLoanDetails.lastPaymentReceived)
 			},
 			'insurance': {
@@ -80,6 +80,15 @@ import 'app/productControls/credit/src/AccountDetailsView';
 				'Waiting period expiry date': formatDate(this.termLoanDetails.waitingPeriodExpiryDate, `dd mmm yyyy`)
 			}
 		};
+
+		if (this.termLoanDetails.arrearsStatus) {
+			this.accountDetails.arrears = {
+				'Total arrears amount': formatCurrency(this.termLoanDetails.totalArrearsPayable),
+				'Last arrears date': formatDate(this.termLoanDetails.lastArrearsDate, `dd mmm yyyy`),
+				'Decemeber arrears': formatCurrency(this.termLoanDetails.decemberArrears),
+				'Arrears excluding Decemeber arrears': formatCurrency(this.termLoanDetails.arrearsExcludingDecemberArrears)
+			};
+		}
 	}
 
 	// ---------------
@@ -99,13 +108,6 @@ import 'app/productControls/credit/src/AccountDetailsView';
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	_getOccurance(value, occurance) {
-		const parsedDate = new Date(value);
-		const date = parsedDate.getDate();
-
-		return `${date}${getDateOrdinal(date)} of every ${occurance}`;
-	}
 
 	// ---------
 	// RENDERING
