@@ -2,7 +2,8 @@
 	"serviceURIs": {
 		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet",
 		"clientInsightsUrl": "https://hzn-cs-clientinsights-v1.platform-dev.int.capinet",
-		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-dev.int.capinet"		
+		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-dev.int.capinet",		
+		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-dev.int.capinet"
 	},
 	"signalRUrl": "",
 	"DesktopAgent": {

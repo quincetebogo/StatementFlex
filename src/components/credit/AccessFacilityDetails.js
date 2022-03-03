@@ -1,5 +1,5 @@
 import { Component, html } from 'platform/elements';
-import { formatDate, getDateOrdinal } from 'app/utils/channelServiceUtilities';
+import { formatDate, formatStringAsPascalCase, getDateOrdinal } from 'app/utils/channelServiceUtilities';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/productControls/credit/src/AccountDetailsView';
@@ -57,24 +57,24 @@ import 'app/productControls/credit/src/AccountDetailsView';
 
 		// formatting credit card details received from service
 		this.accountDetails = {
-			'title': this.accessFacilityDetails.accountDescription,
+			'title': formatStringAsPascalCase(this.accessFacilityDetails.accountDescription),
 			'accountNumber': this.accessFacilityDetails.accountNumber,
 			'overview': {
 				'Current balance': formatCurrency(this.accessFacilityDetails.currentBalance),
 				'Available balance': formatCurrency(this.accessFacilityDetails.availableBalance),
 				'Credit limit': formatCurrency(this.accessFacilityDetails.creditLimit),
 				'Take-up date': formatDate(this.accessFacilityDetails.openDate, `dd mmm yyyy`),
-				'Auto limit increase': this.accessFacilityDetails.autoIncreaseLimitOption,
-				'Account status': this.accessFacilityDetails.accountStatusDescription
+				'Auto limit increase': `${this.accessFacilityDetails.autoIncreaseLimitOption ? `Yes` : `No`}`,
+				'Account status': this.accessFacilityDetails.arrearsStatus ? `In arrears` : formatStringAsPascalCase(this.accessFacilityDetails.accountStatusDescription)
 			},
 			'arrears': null,
 			'repayment': {
-				'Repayment amount (%)': `${formatCurrency(this.accessFacilityDetails.repaymentAmount)} ${this.accessFacilityDetails.repaymentValue}(%)`,
-				'Repayment date': this._getOccurance(this.accessFacilityDetails.repaymentDay, `month`),
+				'Repayment amount': `${formatCurrency(this.accessFacilityDetails.repaymentValue)}`,
+				'Repayment date': `${this.accessFacilityDetails.repaymentDay}${getDateOrdinal(this.accessFacilityDetails.repaymentDay)} of every month`,
 				'Next repayment due': formatDate(this.accessFacilityDetails.nextRepaymentDate, `dd mmm yyyy`),
-				'Repayment period': this.accessFacilityDetails.repaymentPeriod,
-				'Remaning monthly repayments': this.accessFacilityDetails.outstandingRepayments,
-				'Last repayment received': formatDate(this.accessFacilityDetails.lastpaymentDate, `dd mmm yyyy`),
+				'Repayment period': `${this.accessFacilityDetails.repaymentPeriod} months`,
+				'Remaining monthly repayments': this.accessFacilityDetails.remainingRepayments,
+				'Last repayment received': formatDate(this.accessFacilityDetails.lastFinancialDate, `dd mmm yyyy`),
 				'Repayment method': this.accessFacilityDetails.repaymentMethod
 			},
 			'insurance': {
@@ -84,9 +84,9 @@ import 'app/productControls/credit/src/AccountDetailsView';
 			}
 		};
 
-		if (this.accessFacilityDetails.accountStatusDescription === `In arrears`) {
+		if (this.accessFacilityDetails.arrearsStatus) {
 			this.accountDetails.arrears = {
-				'Total arrears amount': formatCurrency(this.accessFacilityDetails.arrearsAmount),
+				'Total arrears amount': formatCurrency(this.accessFacilityDetails.totalArrearsPayable),
 				'Last arrears date': formatDate(this.accessFacilityDetails.lastArrearsDate, `dd mmm yyyy`)
 			};
 		}
@@ -109,13 +109,6 @@ import 'app/productControls/credit/src/AccountDetailsView';
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	_getOccurance(value, occurance) {
-		const parsedDate = new Date(value);
-		const date = parsedDate.getDate();
-
-		return `${date}${getDateOrdinal(date)} of every ${occurance}`;
-	}
 
 	// ---------
 	// RENDERING
