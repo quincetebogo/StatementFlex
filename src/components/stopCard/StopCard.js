@@ -399,10 +399,7 @@ export class StopCard extends Component {
 				}
 				.client-has-no-card {
 					margin: 15px 0px 16px;
-					color: #3A3A3A;
-					font-size: 24px;
-					font-weight: 600;
-					line-height: 36px;
+					--theme-label-font-color: #3A3A3A;
 				}
 			`
 		];

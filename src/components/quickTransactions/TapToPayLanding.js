@@ -306,13 +306,17 @@ export class TapToPayLanding extends Component {
 					height: 182px;
 				}
 
-				.client-has-no-card {
+				capitec-icon {
+					cursor: pointer;
+				}
+
+				capitec-content-box > capitec-label[type="title"] {
 					margin: 15px 0px 16px;
-					color: #3A3A3A;
-					font-size: 24px;
-					font-weight: 600;
-					line-height: 36px;
 					text-align: center;
+
+					--theme-label-font-color: #3A3A3A;
+					--theme-label-title-font-size: 24px;
+					--theme-label-title-font-weight: 600;
 				}
 			`
 		];
@@ -366,7 +370,7 @@ export class TapToPayLanding extends Component {
 			${this._renderSupplementaryCards()}`
 		: html`
 			<capitec-image src="platform/illustrations/cards.svg"></capitec-image>
-			<capitec-label type="title" class="client-has-no-card" label="Client has no cards to fulfill this transaction"></capitec-label>
+			<capitec-label type="title" label="Client has no cards to fulfill this transaction"></capitec-label>
 		`;
 	}
 
