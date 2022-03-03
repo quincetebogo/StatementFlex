@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { Utilities } from '@cb/platform-web-core';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
@@ -337,7 +338,7 @@ import 'app/components/common/HorizonLabel';
 				<horizon-label
 					data-automation-id="budget-facility-account-name"
 					label="Budget name"
-					value="${budgetAccount.budgetName}"
+					value="${formatStringAsPascalCase(budgetAccount.budgetName)}"
 					@click="${() => this._accountDetails(budgetAccount)}">
 				</horizon-label>
 

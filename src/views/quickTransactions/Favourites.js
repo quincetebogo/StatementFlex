@@ -1,3 +1,4 @@
+import { CREDIT_ACCOUNT_TYPE, PRODUCT_TYPE } from 'app/constants/Credit';
 import { QuickTransactionEvents, STATEMENT_EVENTS } from 'app/constants/telemetry/events/QuickTransactions';
 import { css, html } from 'platform/elements';
 import { isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
@@ -6,6 +7,9 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { creditMixin } from 'app/views/credit/CreditMixin';
+import { creditOverview } from 'app/mocks/CreditMocks';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
@@ -76,6 +80,7 @@ export class Favourites extends SavingsAccountBase {
 
 		Object.assign(Favourites.prototype, tapToPayMixin);
 		Object.assign(Favourites.prototype, searchOtherNeedMixin);
+		Object.assign(Favourites.prototype, creditMixin);
 	}
 
 	// --------------
@@ -540,19 +545,29 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_settlementQuote() {
-		//TODO: CS call to get info
+		const screenDetails = this.horizonStore.getScreenDetails();
 
-		if(this.ccsStatus) {
-			this.showCCSmodal = true;
-			return;
+		// TODO: CS call to get credit accounts info and diaplay appropriate values on settlement quote view screen - details are pulled from mocks now
+		
+		this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
+			item.type = PRODUCT_TYPE[item.productTypeCode];
+			item.category = CREDIT_ACCOUNT_TYPE[item.productTypeCode];
+			item.productTypeDescription = `${item.productTypeDescription.toLowerCase().charAt(0).toUpperCase()}${item.productTypeDescription.toLowerCase().slice(1)}`;
+			item.creditLimit = formatCurrency(item.creditLimit);
+			item.repayAmount = item.repayAmount ? formatCurrency(item.repayAmount) : null;
+			item.nextRepayment = item.nextRepayment ? formatCurrency(item.nextRepayment) : null;
+			item.currentBalance = formatCurrency(item.currentBalance);
+
+
+		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
+
+		if (screenDetails.selectedAccounts) {
+			this._settlementQuoteDialog(screenDetails.selectedAccounts);
 		}
-
-		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE;
 	}
 
-	_paidUpAccounts ()
-	{
-		//TODO: CS call to get info
+	_paidUpAccounts () {
+		// TODO: CS call to get info
 
 		if(this.ccsStatus) {
 			this.showCCSmodal = true;
@@ -716,6 +731,11 @@ export class Favourites extends SavingsAccountBase {
 		super._backToLandingPage();
 	}
 
+	_backFromSettlementQuoteDialog() {
+		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
+		this.horizonStore.clearScreenDetails();
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -758,6 +778,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderTaxCertificate()}
 			${this._renderpaidUpAccounts()}
 			${this._renderSettlementQuote()}
+			${this._renderSettlementQuoteDialog()}
 			${this._renderCcsModal()}
 
 			${super._webTemplate()}
@@ -980,12 +1001,14 @@ export class Favourites extends SavingsAccountBase {
 		: html``;
 	}
 	
-	_renderSettlementQuote() 
-	{
-		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE
+	_renderSettlementQuote() {
+		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_VIEW ||
+				this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG 
 		? html`
 		<horizon-settlement-quote
-			@back="${() => this._backToLandingPage()}">
+			.settlementQuoteDetails="${this.settlementQuoteDetails}"
+			@back="${() => this._backToLandingPage()}"
+			@send-quote="${(e) => this._settlementQuoteDialog(e.detail.selectedAccounts)}">
 		</horizon-settlement-quote>`
 		: html``;
 	} 
@@ -999,8 +1022,7 @@ export class Favourites extends SavingsAccountBase {
 		: html``;
 	}
 
-	_renderpaidUpAccounts ()
-	{
+	_renderpaidUpAccounts () {
 		return this.renderMode === RENDER_MODE.PAID_UP_ACCOUNTS
 		? html`
 		<horizon-paid-up-accounts

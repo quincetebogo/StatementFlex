@@ -42,13 +42,15 @@ const HORIZON_ROUTES = Object.freeze({
 	TAX_CERTIFICATE_SUCCESSFUL: `/success/tax-certificate`,
 	TAX_CERTIFICATE_FAILURE: `/error/tax-certificate`,
 	TAX_CERTIFICATE_SERVICE_ERROR: `/error/tax-certificate-service-error`,
-	AUTOMATIC_SAVINGS_SUCCESS : `/success/automatic-savings`,
-	AUTOMATIC_SAVINGS_FAILED : `/error/automatic-savings`,
+	AUTOMATIC_SAVINGS_SUCCESS: `/success/automatic-savings`,
+	AUTOMATIC_SAVINGS_FAILED: `/error/automatic-savings`,
 	LIVE_BETTER: `/liveBetter`,
-	LIVE_BETTER_SYSTEM_ERROR : `/error/live-better`,
+	LIVE_BETTER_SYSTEM_ERROR: `/error/live-better`,
 	CREDIT_ACCOUNT: `/transact/credit`,
 	CREDIT_STATEMENTS_SUCCESS: `/success/credit-statements`,
-	CREDIT_STATEMENTS_FAILURE: `/error/credit-statements`
+	CREDIT_STATEMENTS_FAILURE: `/error/credit-statements`,
+	SETTLEMENT_QUOTE_SUCCESS: `/success/settlement-quote`,
+	SETTLEMENT_QUOTE_FAILURE: `/error/settlement-quote`
 });
 
 
@@ -341,6 +343,14 @@ export class HorizonRouter {
 
 	navigateToAutomaticSavingsFailure() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.AUTOMATIC_SAVINGS_FAILED}`);
+	}
+	
+	navigateToSettlementQuoteSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLEMENT_QUOTE_SUCCESS}`);
+	}
+
+	navigateToSettlementQuoteFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLEMENT_QUOTE_FAILURE}`);
 	}
 
 	/**
@@ -809,6 +819,22 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.CREDIT_STATEMENTS_FAILURE,
 		load: () => import(`../views/statements/CreditStatementUnsuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-settlement-quote-success`,
+		title: `SettlementQuoteSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.SETTLEMENT_QUOTE_SUCCESS,
+		load: () => import(`../views/credit/SettlementQuoteSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-settlement-quote-failure`,
+		title: `SettlementQuoteFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.SETTLEMENT_QUOTE_FAILURE,
+		load: () => import(`../views/credit/SettlementQuoteFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}  
 ];

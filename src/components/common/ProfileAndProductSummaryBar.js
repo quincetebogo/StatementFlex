@@ -180,22 +180,13 @@ export class ProfileAndProductSummaryBar extends Component {
 		
 		// Note that when invoked from the agent's waiting for call landing page we will
 		// not have caller information
-
-		if (!this.callerInformation) {
-			return;
+		if (this.callerInformation) {
+			if (this.callerInformation.isNonClient || this.callerInformation.verificationStatus === `failed`) {
+				this.horizonRouter.navigateToProductInfo(this.product);
+			} else {
+				this.horizonRouter.navigateToLandingPage(this.product, false);
+			}
 		}
-
-		if (this.callerInformation.verificationStatus === `unverified` && this.product === `LiveBetter`) {
-			this.horizonRouter.navigateToLandingPage(this.product, false);
-			return;
-		}
-
-		if (this.callerInformation.verificationStatus === `verified`) {
-			this.horizonRouter.navigateToLandingPage(this.product, false);
-			return;
-		} 
-		
-		this.horizonRouter.navigateToProductInfo(this.product);
 	}
 
 	async _favouritesClicked() {
