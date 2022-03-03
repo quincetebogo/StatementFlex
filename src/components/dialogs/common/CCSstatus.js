@@ -65,14 +65,12 @@ export class CCSstatus extends Component {
 					left: -350px;
 					top: -11px;
 					--theme-modal-header-height: 64px;
-				}
-
-				div[slot="header"] > span {
-					padding-left: 15px;
+					padding-left: 43px;
 				}
 
 				capitec-content-box {
 					height: 198px;
+					width: 345px;
 					border-bottom: 1px solid #E1E1E1;
 					--theme-container-padding-top: 16px;
 					--theme-container-padding-bottom: 21px;
@@ -80,24 +78,25 @@ export class CCSstatus extends Component {
 					--theme-container-padding-right: 16px;
 				}
 
-				capitec-label {
+				capitec-label[type="subtitle"] {
 					padding-left: 16px;
 					height: 24px;
 					width: auto;
+					line-height: 24px;
 					font-family: "Hind Vadodara";
 					font-size: 18px;
 					font-weight: 600;
-					line-height: 24px;
 				}
 
-				capitec-content-box > p {
+				capitec-label{
 					height: 160px;
-					width: 344px;
+					width: 300px;
+					margin: 0px;	
 					color: #3A3A3A;
-					font-family: "Hind Vadodara";
-					font-size: 16px;
-					font-weight: 500;
-					margin: 0px;
+
+					--theme-label-font-family: "Hind Vadodara";
+					--theme-label-font-size: 16px;
+					--theme-label-font-weight: 500;
 				}
 
 				.status-icon {
@@ -141,13 +140,13 @@ export class CCSstatus extends Component {
 					<span>
 						<capitec-group layout="horizontal">
 							<img class="status-icon" src="/images/statusIcons/horizon-warning-trans.svg"/>
-							<capitec-label label="Warning!"></capitec-label>
+							<capitec-label type="subtitle" label="Warning!"></capitec-label>
 						</capitec-group>
 					</span>
 				</div>
 				<div slot="body">
 					<capitec-content-box>
-						<p>Unable to perform this transaction as there is a CCS status on this account.</p>
+						<capitec-label label="Unable to perform this transaction as there is a CCS status on this account."></capitec-label>
 					</capitec-content-box>
 				</div>
 				<div slot="footer">
