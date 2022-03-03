@@ -19,6 +19,7 @@ export class USSDProfileDetails extends Component {
 		this.showCancelReasons = false;
 		this.showNotificationBanner = false;
 		this.showValidationBanner = false;
+		this.canPerformHighRiskActions = false;
 		
 		this.cancelReason = ``;
 		this.bannerTitle = ``;
@@ -51,6 +52,9 @@ export class USSDProfileDetails extends Component {
 	 * @callback getUssdLandingDetails
 	 * @returns {getUssdLandingDetailsCallback} - get ussd landing details
 	
+	 * @callback renderVerificationAlertBanner
+	 * @returns {renderVerificationAlertBannerCallback} - Display alter banner based on verification status
+	
 	 * 
 	 * @property {Boolean} [showSideSheet] - To toggle Side sheet component
 	 * @property {Object} [ussd] - Ussd profile details
@@ -64,6 +68,7 @@ export class USSDProfileDetails extends Component {
 	 * @property {cancelUSSDCallback} cancelUSSD Callback function to cancel USSD
 	 * @property {unblockSIMCallback} unblockSIM Callback function to Unblock SIM
 	 * @property {getUssdLandingDetailsCallback} getUssdLandingDetails Callback gets USSD landing details
+	 * @property {renderVerificationAlertBannerCallback} renderVerificationAlertBanner Callback function to render alter banner based on verification status & method
 	 * 
 	 */
 	static get properties() {
@@ -72,11 +77,13 @@ export class USSDProfileDetails extends Component {
 			showSideSheet: { type: Boolean },
 			cellphoneNumber: { type: String },
 			isVerifiedClient: { type: Boolean },
+			canPerformHighRiskActions: { type: Boolean },
 
 			cancelUSSD: { type: Object },
 			unblockSIM: { type: Object },
 			activateFullMenuUSSD: { type: Object },
 			getUssdLandingDetails: { type: Object },
+			renderVerificationAlertBanner: { type: Object, attribute: false },
 			
 			// private properties
 			ussdStatus: { state: true },
@@ -331,6 +338,13 @@ export class USSDProfileDetails extends Component {
 				margin-top: 24px;
 				--theme-button-font-weight: 600;
 			}
+			.content-box > capitec-button[label="Cancel"] {
+				margin-top: 16px;
+			}
+			.content-box > capitec-button[disabled] {
+				--theme-check-disabled-background-color: #FFFFFF;
+				--theme-button-default-font-color: #7C7C7C;
+			}
 			capitec-alert-banner {
 				margin: 8px 8px 0px 8px;
 				--theme-alert-banner-height: 64px;
@@ -340,7 +354,15 @@ export class USSDProfileDetails extends Component {
 			capitec-alert-banner > p {
 				margin: 0px;
 				padding-right: 32px;
-
+			}
+			.no-digital-channels {
+				--theme-label-strong-font-weight: 600;
+				--theme-alert-banner-height: 100px;
+			}
+			.has-digital-channels {
+				--theme-label-strong-font-weight: 600;
+				--theme-alert-banner-height: 140px;
+				--theme-hyperlink-font-size: 14px;
 			}
 			.validate-reasons {
 				--theme-alert-banner-height: 64px;
@@ -361,9 +383,6 @@ export class USSDProfileDetails extends Component {
 			}
 			capitec-radio-group{
 				--theme-buttonbar-item-gap: 14px;
-			}
-			.content-box > capitec-button[label="Cancel"] {
-				margin-top: 16px;
 			}
 			.icon-warning {
 				--theme-icon-size-medium: 23px;
@@ -574,6 +593,7 @@ export class USSDProfileDetails extends Component {
 				data-automation-id="ussd-profile-details-activate-full-ussd-button"
 				label="Activate Full USSD Menu" 
 				?hidden="${!this.ussd.features.includes(`REDUCED_MENU`) || this.ussd.isSimBlocked || this.ussdStatus === `Inactive` || !this.isVerifiedClient}"
+				?disabled="${!this.canPerformHighRiskActions}"
 				@click="${() => this._activateFullMenu()}">
 			</capitec-button>
 
@@ -581,6 +601,7 @@ export class USSDProfileDetails extends Component {
 				data-automation-id="ussd-profile-details-unblock-sim-button"
 				label="Unblock SIM" 
 				?hidden="${!this.ussd.isSimBlocked || !this.isVerifiedClient}"
+				?disabled="${!this.canPerformHighRiskActions}"
 				@click="${() => this._onUnblockSIM()}">
 			</capitec-button>
 
@@ -747,6 +768,14 @@ export class USSDProfileDetails extends Component {
 	}
 
 	_renderAlertBanner() {
+		return this.isVerifiedClient && !this.canPerformHighRiskActions
+			? html`
+				${this.renderVerificationAlertBanner()}`
+			: html`
+				${this._renderStatusAlertBanner()}`;
+	}
+
+	_renderStatusAlertBanner() {
 		// if sim blocked unsuccessful red banner
 		this._checkUssdStatus(this.ussdStatus);
 		
