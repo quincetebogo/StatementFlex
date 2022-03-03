@@ -1,5 +1,8 @@
 import { Component, css, html } from 'platform/elements';
+import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 import 'app/components/common/HorizonProductTile';
 import 'app/components/common/HorizonPDFViewer';
@@ -46,6 +49,8 @@ export class PaidUpLetter extends Component {
 		this.currPage = 0;
 
 		this.encodedPDF = ``;
+
+		this._telemetry = HorizonTelemetry.instance;
 	}
 	// --------------
 	// PROPERTIES
@@ -79,11 +84,15 @@ export class PaidUpLetter extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this._telemetry.startSpan(CreditEvents.CREDIT_PAID_UP_LETTER_POP_UP, {});
+
 		this._initialise();
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+		this._telemetry.endSpan(CreditEvents.CREDIT_PAID_UP_LETTER_POP_UP, {});
 	}
 
 	// --------------
@@ -99,21 +108,29 @@ export class PaidUpLetter extends Component {
 	}
 
 	_initialise() {
-		
+
 		this._toggleBusyFlag();
-		// flow for selected accounts done here 
+		// flow for selected accounts done here
 		
 	}
 
-	async _sendClick(e) {
+	_sendClick(e) {
 		if (this._validateEmail(e)) {
 			// flow to success or unsuccessful 
+			this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_POP_UP_SEND, {
+				"screen": TelemetryScreen.CREDIT_PAID_UP_LETTER,
+				"email address": this.idConfirmEmailAddress,
+				"next-screen": null // TODO: Logic required to indicate if the next screen is succussful or unsuccessful
+			});
 		}
 	}
 
 	_cancelClick(e) {
+		this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_POP_UP_CANCEL, {
+			"screen": TelemetryScreen.CREDIT_PAID_UP_LETTER,
+			"next-screen": null // TODO: How do we know what the next screen is? i.e. Favourites or Credit Landing?
+		});
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
-
 	}
 
 	// ---------------
@@ -395,12 +412,20 @@ export class PaidUpLetter extends Component {
 				type="strong"
 				label="View Document"
 				class="viewDocumentLink"
-				@click="${() => this._viewPDFViewer()}">
+				@click="${() => this._viewPDFViewer(item)}">
 			</capitec-label>
 		`;
 	}
 
-	_viewPDFViewer () {
+	_viewPDFViewer (item) {
+
+		this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_POP_UP_VIEW_DOCUMENT, {
+			// TODO: Uncomment once CS integration is complete and real data is being retrieved.
+			// "cifNumber": item.cifNumber,
+			// "accountNumber": item.accountNumber,
+			// "accountType": item.accountType
+		});
+
 		this.flag = !this.flag;
 	}
 

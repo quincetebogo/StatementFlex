@@ -535,14 +535,18 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_settlementQuote() {
-		//TODO: CS call to get info
+		// TODO: CS call to get info
 
 		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE;
 	}
 
-	_paidUpAccounts ()
-	{
-		//TODO: CS call to get info
+	_paidUpAccounts () {
+		// TODO: CS call to get info
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_PAID_UP_LETTER, {
+			"screen": TelemetryScreen.FAVOURITES,
+			"next-screen": TelemetryScreen.PAID_UP_LETTER_ACCOUNTS
+		});
+
 		this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
 	}
 
@@ -963,8 +967,7 @@ export class Favourites extends SavingsAccountBase {
 		: html``;
 	}
 	
-	_renderSettlementQuote() 
-	{
+	_renderSettlementQuote() {
 		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE
 		? html`
 		<horizon-settlement-quote
@@ -973,8 +976,7 @@ export class Favourites extends SavingsAccountBase {
 		: html``;
 	}
 
-	_renderpaidUpAccounts ()
-	{
+	_renderpaidUpAccounts () {
 		return this.renderMode === RENDER_MODE.PAID_UP_ACCOUNTS
 		? html`
 		<horizon-paid-up-accounts

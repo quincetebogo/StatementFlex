@@ -97,5 +97,10 @@
 	CREDIT_SETTLEMENT_QUOTE: `Credit Settlement Quote`,
 	CREDIT_SETTLE_CLOSE: `Credit Settle Close`,
 	CREDIT_STATEMENTS_SUCCESS: `Credit Statement success`,
-	CREDIT_STATEMENTS_FAILURE: `Credit Statement failure`  
+	CREDIT_STATEMENTS_FAILURE: `Credit Statement failure`,
+
+	PAID_UP_LETTER_ACCOUNTS: `Paid Up Letter Account Selection`,
+	CREDIT_PAID_UP_LETTER: `Credit Paid Up Letter Screen`,
+	CREDIT_PAID_UP_LETTER_SUCCESS: `Credit Paid Up Letter Success`,
+	CREDIT_PAID_UP_LETTER_FAILURE: `Credit Paid Up Letter Failure`
 };

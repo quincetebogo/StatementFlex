@@ -23,6 +23,7 @@ export const QuickTransactionEvents = {
 	FAVOURITES_PROOF_OF_ACCOUNT: `call.fulfill-need.select-proof-of-account`,
 	FAVOURITES_SEARCH_OTHER_NEED: `call.fulfill-need.select-other-need`,
 	FAVOURITES_END_CALL: `call.fulfill-need.end-call`,
+	FAVOURITES_PAID_UP_LETTER: `call.fulfill-need.select.paid-up-letter`,
 
 	// Stop Card
 	STOP_CARD: `call.fulfill-need.stop-card`,
