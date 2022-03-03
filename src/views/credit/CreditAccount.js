@@ -16,6 +16,7 @@ import 'app/components/common/ServiceCallErrorScreen';
 import 'app/components/credit/CreditCardDetails';
 import 'app/components/credit/AccessFacilityDetails';
 import 'app/components/credit/TermLoanDetails';
+import 'app/components/dialogs/common/CCSstatus';
 import 'app/dialogs/credit/CreditStatements';
 import 'app/dialogs/credit/FixedCreditStatements';
 import 'app/productControls/credit/src/BudgetAccounts';
@@ -56,8 +57,12 @@ export class CreditAccount extends ViewBase {
 		this.flexibleCreditAccounts = [];
 		this.fixedTermCreditAccounts = []; 
 		this.creditBalance = ``;
+		//ccs status of client set to true until real value retrieved from CS
+		this.ccsStatus = true;
+		this.showCCSmodal = false;
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
+
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._preformAction(e));
 		
@@ -90,7 +95,8 @@ export class CreditAccount extends ViewBase {
 			accountViewType: { state: false },
 			flexibleCreditAccounts: { type: Array, state: true, attribute: false },
 			fixedTermCreditAccounts: { type: Array, state: true, attribute: false },
-			creditBalance: { state: true, attribute: false }
+			creditBalance: { state: true, attribute: false },
+			showCCSmodal: { type: Boolean }
 		};
 	}
 	
@@ -280,6 +286,14 @@ export class CreditAccount extends ViewBase {
 
 	async _initialise() {
 
+		//TO DO: get ccs status from permission endpoint
+			// permissionResultList:[
+			// 	operationIdentifier: "ALL",
+			// 	permissionResult: "Denied",
+			// 	declineReason: "Deceased"
+			// ]
+		// this.ccsStatus = this.quickTransactionService.permissions();
+
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		
 		if (this.verificationStatus === `verified`) {
@@ -420,6 +434,12 @@ export class CreditAccount extends ViewBase {
 
 	_getStatements(creditType, productType) {
 		// TO DO: Place holder for credit statements flow.
+
+		if(this.ccsStatus) {
+			this.showCCSmodal = true;
+			return;
+		}
+		
 		this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
 			"next-screen": TelemetryScreen.CREDIT_STATEMENTS,
@@ -430,6 +450,11 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_settlementQuote(creditType, productType, selectedAccountDetails) {
+		if(this.ccsStatus) {
+			this.showCCSmodal = true;
+			return;
+		}
+
 		this._telemetry.logEvent(CreditEvents.CREDIT_SETTLEMENT_QUOTE_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
 			"next-screen": TelemetryScreen.CREDIT_SETTLEMENT_QUOTE,
@@ -449,6 +474,12 @@ export class CreditAccount extends ViewBase {
 
 	_paidUpLetter() {
 		// TO DO: Place holder for paid up Letter flow.
+
+		if(this.ccsStatus) {
+			this.showCCSmodal = true;
+			return;
+		}
+
 	}
 
 	_settleAndClose(creditType, productType) {
@@ -602,6 +633,7 @@ export class CreditAccount extends ViewBase {
 			${this._renderPayBudgetDialog()}
 			${this._renderSettlementQuoteDialog()}
 			${this._renderFixedStatements()}
+			${this._renderCcsModal()}
 		`;
 	}
 
@@ -755,6 +787,15 @@ export class CreditAccount extends ViewBase {
 				@send="${() => this._sendStatement()}"
 				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
 			</horizon-fixed-credit-statements-dialog>`
+		: html``;
+	}
+
+	_renderCcsModal() {
+		return this.showCCSmodal
+		? html`
+		<horizon-ccs-status-dialog
+			@on-okay="${() => this.showCCSmodal = !this.showCCSmodal}">
+		</horizon-ccs-status-dialog>`
 		: html``;
 	}
 

@@ -13,6 +13,7 @@ import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
+import 'app/components/dialogs/common/CCSstatus';
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
 import 'app/components/dialogs/quickTransactions/DeclineDebiCheckMandate';
@@ -69,6 +70,9 @@ export class Favourites extends SavingsAccountBase {
 		this.selectedFeedback = [];
 		this.feedbackOptions = [];
 		this.updateStrackClick = false;
+		//TO DO get ccs status for client
+		this.ccsStatus = true;
+		this.showCCSmodal = false;
 
 		this._telemetry = HorizonTelemetry.instance;
 
@@ -86,7 +90,8 @@ export class Favourites extends SavingsAccountBase {
 	static get properties() {
 		return {
 			isLoading: { state: true },
-			verificationToastDisplayed: { state: true }
+			verificationToastDisplayed: { state: true },
+			showCCSmodal: { type: Boolean }
 		};
 	}
 
@@ -543,7 +548,6 @@ export class Favourites extends SavingsAccountBase {
 		const screenDetails = this.horizonStore.getScreenDetails();
 
 		// TODO: CS call to get credit accounts info and diaplay appropriate values on settlement quote view screen - details are pulled from mocks now
-		this.settlementQuoteDetails = [...creditOverview.creditCardSummaryList, ...creditOverview.accessFacilitySummaryList, ...creditOverview.loanAccountSummaryList];
 		
 		this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
 			item.type = PRODUCT_TYPE[item.productTypeCode];
@@ -554,8 +558,6 @@ export class Favourites extends SavingsAccountBase {
 			item.nextRepayment = item.nextRepayment ? formatCurrency(item.nextRepayment) : null;
 			item.currentBalance = formatCurrency(item.currentBalance);
 
-			return item;
-		});
 
 		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
 
@@ -566,6 +568,12 @@ export class Favourites extends SavingsAccountBase {
 
 	_paidUpAccounts () {
 		// TODO: CS call to get info
+
+		if(this.ccsStatus) {
+			this.showCCSmodal = true;
+			return;
+		}
+
 		this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
 	}
 
@@ -771,6 +779,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderpaidUpAccounts()}
 			${this._renderSettlementQuote()}
 			${this._renderSettlementQuoteDialog()}
+			${this._renderCcsModal()}
 
 			${super._webTemplate()}
 		`;
@@ -1001,6 +1010,15 @@ export class Favourites extends SavingsAccountBase {
 			@back="${() => this._backToLandingPage()}"
 			@send-quote="${(e) => this._settlementQuoteDialog(e.detail.selectedAccounts)}">
 		</horizon-settlement-quote>`
+		: html``;
+	} 
+
+	_renderCcsModal() {
+		return this.showCCSmodal
+		? html`
+			<horizon-ccs-status-dialog
+				@on-okay="${() => this.showCCSmodal = !this.showCCSmodal}">
+			</horizon-ccs-status-dialog>`
 		: html``;
 	}
 
