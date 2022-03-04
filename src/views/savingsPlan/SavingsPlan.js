@@ -131,13 +131,11 @@ export class SavingsPlan extends ViewBase {
 		this._verifyClick();
 	}
 
-	_accountDetails(type) {
+	_accountDetails(type, accNumber) {
 		this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_ACCOUNT_NUMBER_SELECT, {
 			"screen": TelemetryScreen.SAVINGS_PLAN_LANDING,
 			"next-screen": TelemetryScreen.SAVINGS_PLAN_ACCOUNT_DETAILS
 		});
-
-	_accountDetails(type, accNumber) {
 		this.accountViewType = type;
 
 		const flexibleSavePlan = () => this._getFlexibleSavePlan(accNumber);
@@ -196,21 +194,16 @@ export class SavingsPlan extends ViewBase {
 			} else {
 				this.savingsPlanDetails = null;
 			}
-
-		}
-
 			this._telemetry.startSpan(SavingsPlanEvents.SAVINGS_PLAN, {
 				"screen": TelemetryScreen.SAVINGS_PLAN_LANDING
 			});
+		}
+
 			this.renderMode = RENDER_MODE.MAIN_PAGE;
 			this.endCallContext = `LandingPage`;
 			this.loading = false;
+			this._performReturnToScreen();
 		}
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-		this.endCallContext = `LandingPage`;
-		this.loading = false;
-		this._performReturnToScreen();
-	}
 
 	_updateLeftBar() {
 		let subtitle = null;
@@ -305,7 +298,7 @@ export class SavingsPlan extends ViewBase {
 		});
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
-	_getStatements() {
+	
 	_getStatements(accNumber) {
 		// TO DO: Place holder for savings plan statements flow.
 		const accountItem = this.landingPageInfo.savingsPlans.find(savingsPlan => savingsPlan.accountNumber === accNumber);
@@ -325,11 +318,11 @@ export class SavingsPlan extends ViewBase {
 				'order': productInfo.order
 			}
 		];
-		this.renderMode = RENDER_MODE.STATEMENTS;
 		this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_STATEMENTS_SELECT, {
 			"screen": TelemetryScreen.SAVINGS_PLAN_LANDING,
 			"next-screen": TelemetryScreen.SAVINGS_PLAN_STATEMENTS
 		});
+		this.renderMode = RENDER_MODE.STATEMENTS;
 	}
 
 	_cancelStatements() {
