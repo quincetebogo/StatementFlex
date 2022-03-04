@@ -1,15 +1,24 @@
+import { css, html } from 'platform/elements';
+import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { ViewBase } from '../common/ViewBase';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { html } from 'platform/elements';
+import { getMonthName } from 'app/utils/channelServiceUtilities';
 import { savingsPlanMocks } from 'app/mocks/SavingsPlanMocks';
 import { SavingsPlanEvents } from 'app/constants/telemetry/events/SavingsPlan';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 import 'app/productControls/SavingsPlan/SavingsPlanLanding';
-import 'app/views/savingsPlan/FixedTermSavingsPlan';
+import 'app/dialogs/taxCertificates/TaxCertificates';
+import 'app/components/dialogs/common/StatementsDialog';
+
 import 'app/views/savingsPlan/FlexibleSavingsPlan';
+import 'app/views/savingsPlan/FixedTermSavingsPlan';
+
+import 'app/views/savingsPlan/SavingsPlanServiceError';
+import 'app/views/savingsPlan/SavingsPlanUnverifiedPage';
 
 const SAVE_PLAN_TYPE = {
 	FLEXIBLE: `flexible-save-plan`,
@@ -20,13 +29,26 @@ const SAVE_PLAN_TYPE = {
  * Savings Plan View
  *
  * Events Raised
- * -------------
- * -
+ * --------------
  * 
  * @export
  * @class SavingsPlan
  * @extends {SavingsPlan}
+ * 
  */
+
+const ACCOUNT_TYPE = {
+	FLEXIBLE: 200,
+	FIXED: 201,
+	MULTIPLE: 1
+};
+
+const PLAN_TYPE = {
+	NONE: `NONE`,
+	SAVINGS_PLAN: `SAVINGS PLAN`,
+	FIXED_TERM: `FIXED TERM SAVINGS PLAN`
+};
+
 export class SavingsPlan extends ViewBase {
 	
 	// --------------
@@ -36,11 +58,15 @@ export class SavingsPlan extends ViewBase {
 	constructor() {
 		super();
 
+		this.savingsPlanDetails = [];
 		this.configuration = Configuration.getInstance();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	
 		// private properites
 		this.loading = true;
+		this.selectedAccountNumber = ``;
+
+		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.accountViewType = ``;
 	}
 
@@ -53,18 +79,18 @@ export class SavingsPlan extends ViewBase {
 
 		this._initialise();
 
-		this._optionClick = (option, type) => {
+		this._optionClick = (option, saveType, accountNumber) => {
 
-			const statements = () => this._getStatements();
-			const taxCertificates = () => this._taxCertificates();
+			const statements = () => this._getStatements(accountNumber);
+			const taxCertificates = () => this._taxCertificates(accountNumber);
 			const productEnquiry = () => this._productEnquiry();
 			const savingsCalculator = () => this._savingsCalculator();
 			const interestRates = () => this._interestRates();
-			const accountDetails = () => this._accountDetails(type);
+			const accountDetails = () => this._accountDetails(saveType, accountNumber);
 
 			const actions = {
 				'statements': statements,
-				'tax-certificate': taxCertificates,
+				'tax-certificates': taxCertificates,
 				'product-enquiry': productEnquiry,
 				'savings-calculator': savingsCalculator,
 				'interest-rates': interestRates,
@@ -87,6 +113,7 @@ export class SavingsPlan extends ViewBase {
 
 	static get properties() {
 		return {
+			landingPageInfo: { state: true },
 			loading: { attribute: false },
 			accountViewType: { state: false }
 		};
@@ -110,10 +137,11 @@ export class SavingsPlan extends ViewBase {
 			"next-screen": TelemetryScreen.SAVINGS_PLAN_ACCOUNT_DETAILS
 		});
 
+	_accountDetails(type, accNumber) {
 		this.accountViewType = type;
 
-		const flexibleSavePlan = () => this._getFlexibleSavePlan();
-		const fixedTermSavePlan = () => this._getFixedTermSavePlan();
+		const flexibleSavePlan = () => this._getFlexibleSavePlan(accNumber);
+		const fixedTermSavePlan = () => this._getFixedTermSavePlan(accNumber);
 
 		const saveProducts = {
 			'flexible-save-plan': flexibleSavePlan,
@@ -135,23 +163,41 @@ export class SavingsPlan extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
-	_initialise() {
+	_errorHandler(exception) {
+		this.horizonRouter.navigateToSystemError();
+		return true;
+	}
+
+	async _initialise() {
 
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		
 		if (this.verificationStatus === `verified`) {
 			
-			/* TO DO: Savings plan landing page service call should come here.
-					If client has savings plan product, navigate to landing screens.
-					If client doesn't have savings plan product, navigate to non-client - more info screen.
+			const landingRequest = {
+				cifNumber: this.callerInformation.cifNumber,
+				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
+				getGenericData: true
+			};
 
-					Update left bar details once available from channel service call*/
+			const returnValue = await this.savingsAccountService.savingsPlanLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
+			 
+			if (returnValue.succeeded && returnValue.result) {
+                this.landingPageInfo = returnValue.result;
 
-			// ${this._updateLeftBar()};
-	
-		
-			this.savingsPlanDetails = savingsPlanMocks;
-			this._formatSavingsPlanDetails();
+				// Now we can update the information on the product buttons
+				this.savingsPlanDetails = this.landingPageInfo.savingsPlans;
+				this._formatSavingsPlanDetails();
+
+				this._updateLeftBar();
+				
+			} else if (returnValue.succeeded) {
+				this.horizonRouter.navigateToProductInfo(`SavingsPlan`);
+			} else {
+				this.savingsPlanDetails = null;
+			}
+
+		}
 
 			this._telemetry.startSpan(SavingsPlanEvents.SAVINGS_PLAN, {
 				"screen": TelemetryScreen.SAVINGS_PLAN_LANDING
@@ -160,20 +206,92 @@ export class SavingsPlan extends ViewBase {
 			this.endCallContext = `LandingPage`;
 			this.loading = false;
 		}
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this.endCallContext = `LandingPage`;
+		this.loading = false;
+		this._performReturnToScreen();
+	}
+
+	_updateLeftBar() {
+		let subtitle = null;
+		let detail = null;
+
+		if (this.landingPageInfo) {
+			subtitle = {
+				savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
+				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductDescription,
+				savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
+				insure: this.landingPageInfo.insureProductDescription,
+				credit: this.landingPageInfo.creditProductDescription
+			};
+
+			detail = {
+				savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
+				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductAmount,
+				savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
+				insure: this.landingPageInfo.insureProductAmount,
+				credit: this.landingPageInfo.creditProductAmount
+			};
+		}
+
+		this.horizonStore.setCallerInformation(this.callerInformation);
+
+		const state = {
+			leftBarButtonConfig: {
+				hasFavourites: true,
+				subtitle: subtitle ? subtitle : ``,
+				detail: detail ? detail : ``
+			},
+			landingPageInfo: this.landingPageInfo
+		};
+
+		this.horizonStore.saveState(state);
+	}
+
+	_performReturnToScreen() {
+		const returnToScreen = this.horizonStore.getReturnToScreen();
+
+		if (returnToScreen && returnToScreen.optionalData) {
+			this.eventAggregator.publish(`horizon-return-to-screen`, { option: returnToScreen.optionalData });
+		}
+
+		this.horizonStore.clearReturnScreen();
+	}
+
+	_formatDate(date) {
+		const newdate = new Date(Date.parse(date));
+		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
 	}
 
 	_formatSavingsPlanDetails() {
-		this.savingsPlanDetails.flexibileSavingsPlanSummaryList.map(item => {
-			item.accountBalance = formatCurrency(item.accountBalance);
+		this.savingsPlanDetails.filter(item => item.planType === PLAN_TYPE.SAVINGS_PLAN).map(item => {
+			item.currentBalance = formatCurrency(item.currentBalance);
 			item.availableBalance = formatCurrency(item.availableBalance);
-			item.saveType = SAVE_PLAN_TYPE.FLEXIBLE;
+			item.accruedInterestCurrentMonth = formatCurrency(item.accruedInterestCurrentMonth);
+			item.accruedInterestLastMonth = formatCurrency(item.accruedInterestLastMonth);
+			item.interestEarned = formatCurrency(item.interestEarned);
+			item.feesLastMonth = formatCurrency(item.feesLastMonth);
+			item.maturityDate = this._formatDate(item.maturityDate);
+			item.dateOpened = this._formatDate(item.dateOpened);
+			item.lastUpdate = this._formatDate(item.lastUpdate);
 
 			return item;
 		});
 
-		this.savingsPlanDetails.fixedSavingsPlanSummaryList.map(item => {
-			item.accountBalance = formatCurrency(item.accountBalance);
-			item.saveType = SAVE_PLAN_TYPE.FIXED_TERM;
+		this.savingsPlanDetails.filter(item => item.planType !== PLAN_TYPE.SAVINGS_PLAN).map(item => {
+			item.currentBalance = formatCurrency(item.currentBalance);
+			item.availableBalance = formatCurrency(item.availableBalance);
+			item.accruedInterestCurrentMonth = formatCurrency(item.accruedInterestCurrentMonth);
+			item.accruedInterestLastMonth = formatCurrency(item.accruedInterestLastMonth);
+			item.interestEarned = formatCurrency(item.interestEarned);
+			item.availableContributions = formatCurrency(item.availableContributions);
+			item.contributionLimit = formatCurrency(item.contributionLimit);
+			item.totalContributions = formatCurrency(item.totalContributions);
+
+			item.maturityDate = this._formatDate(item.maturityDate);
+			item.dateOpened = this._formatDate(item.dateOpened);
+			item.dateFixed = this._formatDate(item.dateFixed);
+			item.lastUpdate = this._formatDate(item.lastUpdate);
 
 			return item;
 		});
@@ -188,19 +306,48 @@ export class SavingsPlan extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 	_getStatements() {
+	_getStatements(accNumber) {
 		// TO DO: Place holder for savings plan statements flow.
+		const accountItem = this.landingPageInfo.savingsPlans.find(savingsPlan => savingsPlan.accountNumber === accNumber);
+		const productInfo = ACCOUNT_INTCAT_ENUM[ACCOUNT_TYPE.FLEXIBLE];
+		const accName = accountItem.planName.toLowerCase();
+
+		this.clientProducts = [
+			{
+				'accountNumber': accountItem.accountNumber,
+				'accountName': `${accName.charAt(0).toUpperCase()}${accName.slice(1)}`,
+				'accountType': accountItem.planType,
+				'accountOpenDate': accountItem.accountOpenDate,
+				'type': productInfo.type,
+				'category': productInfo.category,
+				'icon': productInfo.icon,
+				'customIcon': productInfo.customIcon,
+				'order': productInfo.order
+			}
+		];
+		this.renderMode = RENDER_MODE.STATEMENTS;
 		this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_STATEMENTS_SELECT, {
 			"screen": TelemetryScreen.SAVINGS_PLAN_LANDING,
 			"next-screen": TelemetryScreen.SAVINGS_PLAN_STATEMENTS
 		});
 	}
 
-	_taxCertificates() {
+	_cancelStatements() {
+		this._backToLandingPage();
+	}
+
+	_backToLandingPage() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_taxCertificates(accNumber) {
 		// TO DO: Place holder for tax certificate flow.
 		this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_TAX_CERTIFICATE_SELECT, {
 			"screen": TelemetryScreen.SAVINGS_PLAN_LANDING,
 			"next-screen": TelemetryScreen.SAVINGS_PLAN_TAX_CERTIFICATE
 		});
+		this.selectedAccountNumber = accNumber;
+		this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
 	}
 	
 	async _savingsCalculator() {
@@ -218,21 +365,51 @@ export class SavingsPlan extends ViewBase {
 		window.open(`${globalOneUrl}/save/`);
 	}
 
-	_getFlexibleSavePlan() {
+	async _statementsAccConfirmed(event) {
+		// const need = `statements-${event.detail.account}`;
+
+		// await super._inicidentManager_(need, () => this._toggleBusyFlag());
+	}
+	
+	_getFlexibleSavePlan(accNumber) {
 		// TO DO: "flexibleAccountDetails" details to be pulled and formated from services
-		this.flexibleAccountDetails = savingsPlanMocks.flexibleSavingsPlanDetailList;
+		this.flexibleAccountDetails = this.savingsPlanDetails.find(item => item.accountNumber === accNumber);
 		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
 	}
 
-	_getFixedTermSavePlan() {
+	_getFixedTermSavePlan(accNumber) {
 		// TO DO: "fixedTermAccountDetails" details to be pulled and formated from services
-		this.fixedTermAccountDetails = savingsPlanMocks.fixedTermSavingsPlanDetailList;
+		this.fixedTermAccountDetails = this.savingsPlanDetails.find(item => item.accountNumber === accNumber);
 		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
+	}
+
+	async _findBranch() {
+		const branchLocatorUrl = await this._configuration.getSetting(`otherSystemsURL.branch-locator`);
+		window.open(`${branchLocatorUrl}`);
 	}
 
 	// ---------
 	// RENDERING
 	// ---------
+
+	/**
+	 * Generates the view stylesheet.
+	 *
+	 * @readonly
+	 * @static
+	 * @returns {css} CSS for the view.
+	 */
+	 static get styles() {
+		return [
+			super.styles,
+			css`
+			.liveBetter{
+				width: 100%;
+				height: var(--horizon-panel-height, 888px);
+			}
+			`
+		];
+	}
 
 	_mobileTemplate() {
 		return this._webTemplate();
@@ -244,23 +421,30 @@ export class SavingsPlan extends ViewBase {
 			${this._renderLandingPage()}
 			${this._renderFlexibleDetailsView()}
 			${this._renderFixedTermDetailsView()}
+			${this._renderStatements()}
+			${this._renderTaxCertificate()}
 		`;
 	}
 
 	_renderLandingPage() {
 		return this.renderMode === RENDER_MODE.MAIN_PAGE && !this.loading
 			? html`
-				${this._renderSavingsPlanVerifiedLandingPage()}`
+				${this._renderSavingsPlanVerifiedLandingPage()}
+				${this._renderSavingsPlanUnverifiedPage()}`
 			: html``;
 	}
 	
 	_renderSavingsPlanVerifiedLandingPage() {
-			return html`
-				<capitec-pc-savings-plan
-					.savingsPlanDetails="${this.savingsPlanDetails}"
-					@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.saveType)}">
-				</capitec-pc-savings-plan>`;
-		}
+		return this.savingsPlanDetails ? html`
+			<capitec-pc-savings-plan
+				.savingsPlanDetails="${this.savingsPlanDetails}"
+
+				@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.saveType, e.detail.accountNumber)}">
+			</capitec-pc-savings-plan>`
+			: html`
+				${this._renderSavingsPlanServiceError()}
+			`;
+	}
 
 	_renderFlexibleDetailsView() {
 		return this.renderMode === RENDER_MODE.ACCOUNT_DETAIL_VIEW &&
@@ -268,6 +452,7 @@ export class SavingsPlan extends ViewBase {
 			? html`
 				<capitec-flexible-savings-plan-details
 					.flexibleAccountDetails="${this.flexibleAccountDetails}"
+
 					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 				</capitec-flexible-savings-plan-details>
 			`
@@ -278,13 +463,58 @@ export class SavingsPlan extends ViewBase {
 		return this.renderMode === RENDER_MODE.ACCOUNT_DETAIL_VIEW &&
 				this.accountViewType === SAVE_PLAN_TYPE.FIXED_TERM
 			? html`
-				<horizon-fixed-term-savings-plan
+				<capitec-fixed-term-savings-plan-details
 					.fixedTermAccountDetails="${this.fixedTermAccountDetails}"
+
 					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
-				</horizon-fixed-term-savings-plan>`
+				</capitec-fixed-term-savings-plan-details>`
+			: html``;
+	}
+
+	_renderStatements() {
+		return this.renderMode === RENDER_MODE.STATEMENTS
+			? html`
+				<horizon-statements-dialog
+					.cifNumber="${this.callerInformation.cifNumber}"
+					.clientProducts="${this.clientProducts}"
+					type="${``}"
+					@cancel="${() => this._cancelStatements()}"
+					@account-selected="${(event) => this._statementsAccConfirmed(event)}">
+				</horizon-statements-dialog>`
+			: html``;
+	}
+
+	_renderTaxCertificate() {
+		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE
+			? html`
+				<horizon-tax-certificate
+					cifNumber="${this.callerInformation.cifNumber}"
+					accountNumber="${this.selectedAccountNumber}"
+					@cancel="${() => this._backToLandingPage()}">
+				</horizon-tax-certificate>
+			`
 			: html``;
 	}
 	
+	_renderSavingsPlanUnverifiedPage() {
+		return this.verificationStatus === `unverified`
+			? html`
+				<horizon-savings-plans-unverified-page
+					class="liveBetter"
+					@verify-now= "${() => this._verifyClick()}">
+				</horizon-savings-plans-unverified-page>`
+			: html``;
+	}
+
+	_renderSavingsPlanServiceError() {
+		return !this.savingsPlanDetails
+			? html`
+				<horizon-savings-plans-service-error
+					class="liveBetter"
+					@find-branch= "${() => this._findBranch()}">
+				</horizon-savings-plans-service-error>`
+			: html``;
+	}
 }
 
 customElements.define(`horizon-savings-plan`, SavingsPlan);
