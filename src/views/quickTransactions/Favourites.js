@@ -579,7 +579,12 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-	_paidUpAccounts() {
+	_paidUpAccounts () {
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_PAID_UP_LETTER, {
+			"screen": TelemetryScreen.FAVOURITES,
+			"next-screen": TelemetryScreen.PAID_UP_LETTER_ACCOUNTS
+		});
+
 		// TODO: CS call to get info
 
 		if (this.ccsStatus) {
