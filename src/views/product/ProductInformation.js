@@ -1,4 +1,5 @@
 import { Configuration, NavigationContext } from 'platform/core';
+import { ProductInfoEvents } from 'app/constants/telemetry/events/ProductInformation';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { html } from 'platform/elements';
 
@@ -108,6 +109,8 @@ export class ProductInformation extends ViewBase {
 
 			productUrl = await this.configuration.getSetting(`otherSystemsURL.live-better`);
 		} else {
+		  this._telemetry.logEvent(ProductInfoEvents[`VIEW_BENEFITS_${this._config.type}`], {});
+    
 			const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
 			productUrl = `${globalOneUrl}${this._config.type}`;
 		}

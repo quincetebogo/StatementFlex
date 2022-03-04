@@ -42,11 +42,15 @@ const HORIZON_ROUTES = Object.freeze({
 	TAX_CERTIFICATE_SUCCESSFUL: `/success/tax-certificate`,
 	TAX_CERTIFICATE_FAILURE: `/error/tax-certificate`,
 	TAX_CERTIFICATE_SERVICE_ERROR: `/error/tax-certificate-service-error`,
-	AUTOMATIC_SAVINGS_SUCCESS : `/success/automatic-savings`,
-	AUTOMATIC_SAVINGS_FAILED : `/error/automatic-savings`,
+	AUTOMATIC_SAVINGS_SUCCESS: `/success/automatic-savings`,
+	AUTOMATIC_SAVINGS_FAILED: `/error/automatic-savings`,
 	LIVE_BETTER: `/liveBetter`,
-	LIVE_BETTER_SYSTEM_ERROR : `/error/live-better`,
-	CREDIT_ACCOUNT: `/transact/credit`
+	LIVE_BETTER_SYSTEM_ERROR: `/error/live-better`,
+	CREDIT_ACCOUNT: `/transact/credit`,
+	CREDIT_STATEMENTS_SUCCESS: `/success/credit-statements`,
+	CREDIT_STATEMENTS_FAILURE: `/error/credit-statements`,
+	SETTLEMENT_QUOTE_SUCCESS: `/success/settlement-quote`,
+	SETTLEMENT_QUOTE_FAILURE: `/error/settlement-quote`
 });
 
 
@@ -259,11 +263,10 @@ export class HorizonRouter {
 		const stopCard = () => this.navigateToStopCard();
 		const transact = () => this.navigateToQuickTransactionFavourites();
 		// const insure = hasInsuranceProducts ? () => this.navigateToInsureExistingClient() : () => this.navigateToInsureProspectiveClient();
-		const insure = () => this.navigateToProductInfo(`Insure`);
+		const insure = () => this.navigateToProductInfo(ivrOption);
 		const savings = () => this.navigateToSavingsAccount();
-		const credit = () => this.navigateToProductInfo(`Credit`); // This line is correct for the Feb 2022 release but must be removed on the credit feature branch
-		// const credit = () => this.navigateToCreditAccount();    <=== This line must be restored on the credit branchy
-		const savingsPlan = () => this.navigateToProductInfo(`SavingsPlan`);
+		const credit = () => this.navigateToCreditAccount();
+		const savingsPlan = () => this.navigateToProductInfo(ivrOption);
 		const liveBetterSavings = () => this.navigateToLiveBetter();
 		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
 
@@ -318,6 +321,14 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.CREDIT_ACCOUNT}`);
 	}
 
+	navigateToCreditStatementSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.CREDIT_STATEMENTS_SUCCESS}`);
+	}
+
+	navigateToCreditStatementUnsuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.CREDIT_STATEMENTS_FAILURE}`);
+	}
+
 	navigateToLiveBetter() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.LIVE_BETTER}`);
 	}
@@ -332,6 +343,14 @@ export class HorizonRouter {
 
 	navigateToAutomaticSavingsFailure() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.AUTOMATIC_SAVINGS_FAILED}`);
+	}
+	
+	navigateToSettlementQuoteSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLEMENT_QUOTE_SUCCESS}`);
+	}
+
+	navigateToSettlementQuoteFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLEMENT_QUOTE_FAILURE}`);
 	}
 
 	/**
@@ -784,6 +803,38 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.CREDIT_ACCOUNT,
 		load: () => import(`../views/credit/CreditAccount`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-credit-statements-success`,
+		title: `CreditStatementsSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.CREDIT_STATEMENTS_SUCCESS,
+		load: () => import(`../views/statements/CreditStatementSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-credit-statements-unsuccess`,
+		title: `CreditStatementsUnsuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.CREDIT_STATEMENTS_FAILURE,
+		load: () => import(`../views/statements/CreditStatementUnsuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-settlement-quote-success`,
+		title: `SettlementQuoteSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.SETTLEMENT_QUOTE_SUCCESS,
+		load: () => import(`../views/credit/SettlementQuoteSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-settlement-quote-failure`,
+		title: `SettlementQuoteFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.SETTLEMENT_QUOTE_FAILURE,
+		load: () => import(`../views/credit/SettlementQuoteFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}  
 ];

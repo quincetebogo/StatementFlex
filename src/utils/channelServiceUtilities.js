@@ -4,7 +4,23 @@ import { html, unsafeHTML } from 'platform/elements';
 	Utility Functions
 */
 
+/**
+ * Formatting currency
+ *
+ * @export
+ * @param {*} value currency value
+ * @param {number} fractionDigits How many digits to round off while parsing to float
+ * @returns {*} Formatted currency value (E.g R 250 000)
+ */
+ export function formatCurrency(value, fractionDigits = 2) {
+	if (value && value.toString().includes(`R`)) {
+		return `${value.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
+	}
 
+	const amount = parseFloat(value).toFixed(fractionDigits);
+	const currencyString = amount >= 0 ? `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}` : `- R${amount.toString().substring(1).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
+	return currencyString;
+}
 /**
  * Indicates if a string value is null, undefined or empty
  *
@@ -184,4 +200,57 @@ export function isWellFormedSouthAfricanID(southAfricanIDNumber) {
 	const agreement = atob(agreementContent);
 	return html`${unsafeHTML(agreement)}`;
 
+}
+
+/**
+ * Converts date time to specific format
+ * 
+ * @param {string} value - Date time in string
+ * @param {string} format - Format, we wish to convert (dd/mm/yyyy)
+ * @returns {string} formatted string value 
+ */
+export function formatDate(value, format) {
+
+	const dateTime = new Date(value);
+	const date = dateTime.getDate();
+	const month = dateTime.getMonth();
+	const monthName = getMonthName(month);
+	const year = dateTime.getFullYear();
+	let formattedDate = ``;
+
+	// cases would be extended, based on our need in future
+	switch (format) {
+		case `dd-mmm`:
+			formattedDate = `${date}-${monthName}`;
+			break;
+		case `dd mmm yyyy`:
+			formattedDate = `${date} ${monthName} ${year}`;
+			break;
+		case `dd/mm/yyyy`:
+			formattedDate = `${date}/${monthName}/${year}`;
+			break;
+		default:
+			formattedDate = `${date}-${month}-${year}`;
+			break;
+	}
+
+	return formattedDate;
+}
+
+/**
+ * 
+ * Formats strings as pascal case
+ * 
+ * @param {string} unformatedString - Unformatted string
+ * @returns {string} pascal formated string
+ */
+export function formatStringAsPascalCase(unformatedString) {
+
+	const words = unformatedString.split(` `);
+
+	let formattedString = ``;
+
+	words.forEach((item, index) => formattedString += item.replace(/(\w)(\w*)/g, (g0, g1, g2) => ` ${g1.toUpperCase() + g2.toLowerCase()}`));
+
+	return formattedString.trim();
 }

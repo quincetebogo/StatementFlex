@@ -136,7 +136,9 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		
-		if (this.callerInformation.verificationStatus !== `non-client`) {
+		if (this.callerInformation.verificationStatus === `unverified`) {
+			this.horizonRouter.navigateToProductInfo(`SavingsAccount`);
+		} else {
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
 				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
@@ -146,18 +148,15 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			const returnValue = await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
 			 
 			if (returnValue.succeeded) {
-                this.landingPageInfo = returnValue.result;
+				this.landingPageInfo = returnValue.result;
 
 				// Now we can update the information on the product buttons
 				this._updateLeftBar();
 				this.endCallContext = `LandingPage`;
 				this.renderMode = RENDER_MODE.MAIN_PAGE;
 			}
-		} else {
-			// minimal object for the Favourites landing page component
-			this.landingPageInfo = { pendingMandateCount: 0 };
 		}
-
+		
 		this._loading = false;
 		this._performReturnToScreen();
 	}
