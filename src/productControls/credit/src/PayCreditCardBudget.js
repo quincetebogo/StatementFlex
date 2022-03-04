@@ -1,4 +1,5 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
+import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelectIcon';
 
@@ -179,7 +180,7 @@ export class PayCreditCardBudget extends Component {
 			<horizon-label
 				data-automation-id="pay-budget-name"
 				label="Budget name"
-				value="${this.budgetAccountDetails.budgetName}">
+				value="${formatStringAsPascalCase(this.budgetAccountDetails.budgetName)}">
 			</horizon-label>
 
 			<capitec-text-field

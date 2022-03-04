@@ -33,7 +33,9 @@ export const creditMixin = {
 		this.horizonStore.setScreenDetails(screenDetails);
 		
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `settlement-quote`);
+	
 		// TO DO: CS call to send Settlement Quote sould come here
+		// Settlement Quote outcome screens to be modified as per CS outcome to handle multiple account selection
 
 		this.horizonRouter.navigateToSettlementQuoteSuccess();
 		// this.horizonRouter.navigateToSettlementQuoteFailure();

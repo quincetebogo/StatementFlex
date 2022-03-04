@@ -128,7 +128,8 @@ export class CreditAccount extends ViewBase {
 		const settleAndClose = () => this._settleAndClose(creditType, productType);
 		const paidUpLetter = () => this._paidUpLetter();
 		const settleLoan = () => this._settleLoan();
-		const budgetFacility = () => this._budgetFacility();
+		const budgetFacility = () => this._budgetFacility(selectedAccountDetails);
+		const payBudget = () => this._payBudgetAccount(selectedAccountDetails);
 
 		const actions = {
 			'transaction-history': transactionHistory,
@@ -137,7 +138,8 @@ export class CreditAccount extends ViewBase {
 			'paid-up-letter': paidUpLetter,
 			'settle-close': settleAndClose,
 			'settle-loan': settleLoan,
-			'budget-facility': budgetFacility
+			'budget-facility': budgetFacility,
+			'pay-budget': payBudget
 		};
 
 		if (actions[option]) {
@@ -272,6 +274,14 @@ export class CreditAccount extends ViewBase {
 		if (screenDetails?.productType) {
 			this._optionClick(e.option, screenDetails?.creditType, screenDetails?.productType, screenDetails?.selectedAccounts);
 		}
+	}
+
+	_setIncidentDone() {
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	// --------------
@@ -426,6 +436,10 @@ export class CreditAccount extends ViewBase {
 			"credit-type": creditType,
 			"product-type": productType
 		});
+
+		// TO DO: Uncomment the below line to have STrack incident logging when implemented Trasnaction History
+		// when coming back from transaction history screen, set incident as done "_setIncidentDone()"".
+		// await super.createAndClassifySubsIncident();
 	}
 
 	_getTLStatements(creditType, productType, term) {
@@ -497,9 +511,10 @@ export class CreditAccount extends ViewBase {
 		// TO DO: Place holder for credit settle loan flow.
 	}
 
-	async _budgetFacility(e) {
-		// TO DO: Place holder for budget facility flow.
-		const returnValue = await this.creditService.budgetFacility(e.detail.creditCardNumber);
+	async _budgetFacility(selectedAccountDetails) {
+		await super.createAndClassifySubsIncident();
+
+		const returnValue = await this.creditService.budgetFacility(selectedAccountDetails.accountNumber);
 		const successfullServiceResponse = returnValue.succeeded;
 
 		if (!successfullServiceResponse) {
@@ -508,7 +523,7 @@ export class CreditAccount extends ViewBase {
 		}
 
 		this.budgetFacilityAccounts = returnValue.result;
-		this.budgetFacilityAccounts.creditCardNumber = e.detail.creditCardNumber;
+		this.budgetFacilityAccounts.creditCardNumber = selectedAccountDetails.accountNumber;
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW;
 	}
 
@@ -580,6 +595,14 @@ export class CreditAccount extends ViewBase {
 	_backFromSettlementQuoteDialog() {
 		this.horizonStore.clearScreenDetails();
 		this._backToLandingPage();
+	}
+
+	_backFromPayBudgetDialog() {
+		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.incidentDetails.currentNeed = `budget-facility-credit-card`;
+			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		}
+		this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW;
 	}
 
 	// ---------
@@ -678,8 +701,7 @@ export class CreditAccount extends ViewBase {
 					@option-click="${(e) => this._optionClick(e.detail.option, e.detail.creditType, e.detail.productType, e.detail.selectedAccountDetails)}"
 					@account-details="${(e) => this._accountDetails(e)}"
 					@product-enquiry="${() => this._productEnquiry()}"
-					@view-info="${() => this._viewInfo()}"
-					@view-budget-accounts="${(e) => this._budgetFacility(e)}">
+					@view-info="${() => this._viewInfo()}">
 				</capitec-pc-credit-account>`
 			: html``;
 	}
@@ -700,9 +722,9 @@ export class CreditAccount extends ViewBase {
 				<capitec-pc-budget-facility-accounts
 					.budgetFacilityAccounts="${this.budgetFacilityAccounts}"
 					
-					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
+					@back="${() => this._setIncidentDone()}"
 					@account-details="${(event) => this._budgetAccountDetails(event.detail.selectedAccountDetails)}"
-					@transfer-click="${(event) => this._payBudgetAccount(event.detail.selectedAccountDetails)}">
+					@transfer-click="${(event) => this._optionClick(`pay-budget`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, event.detail.selectedAccountDetails)}">
 				</capitec-pc-budget-facility-accounts>`
 			: html``;
 	}
@@ -724,7 +746,7 @@ export class CreditAccount extends ViewBase {
 					.budgetAccountDetails="${this.payBudgetAccountDetails}"
 					.clientProducts="${this.clientProducts}"
 					
-					@cancel="${() => this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW}"
+					@cancel="${() => this._backFromPayBudgetDialog()}"
 					@transfer="${() => this._transferPayBudget()}">
 				</capitec-pc-pay-budget-dialog>
 			`
