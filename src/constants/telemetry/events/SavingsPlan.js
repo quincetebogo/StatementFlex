@@ -12,7 +12,7 @@ SAVINGS_PLAN_VERIFY_NOW: `call.fulfill-need.savings-plan.verify-now`,
 SAVINGS_PLAN_VIEW_INFO: `call.fulfill-need.savings-plan.view-info`,
 SAVINGS_PLAN_VIEW_BENEFITS: `call.fulfill-need.savings-plan.view-benefits`,
 SAVINGS_PLAN_FIND_A_BRANCH: `call.fulfill-need.savings-plan.find-a-branch`,
-SAVINGS_PLAN_ACCOUNT_DETAILS: `call.fulfill-need.savings-plan.close.account-details`,
+SAVINGS_PLAN_ACCOUNT_DETAILS_CLOSE: `call.fulfill-need.savings-plan.close.account-details`,
 SAVINGS_PLAN_TRANSACTION_HISTORY: `call.fulfill-need.savings-plan.select.transaction-history`,
 
 SAVINGS_PLAN_ACCOUNT_NUMBER_SELECT: `call.fulfill-need.savings-plan.select.account-number`, 

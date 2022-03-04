@@ -7,6 +7,8 @@ import { ViewBase } from '../common/ViewBase';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
 import { savingsPlanMocks } from 'app/mocks/SavingsPlanMocks';
+import { SavingsPlanEvents } from 'app/constants/telemetry/events/SavingsPlan';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 import 'app/productControls/SavingsPlan/SavingsPlanLanding';
 import 'app/dialogs/taxCertificates/TaxCertificates';
@@ -120,8 +122,20 @@ export class SavingsPlan extends ViewBase {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+	_verifyNowClick() {
+		// TODO: Placeholder for verify now click
+		this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_VIEW_INFO, {
+			"screen": TelemetryScreen.SAVINGS_PLAN_LANDING,
+			"next-screen": TelemetryScreen.VERIFY_CALLER
+		});
+		this._verifyClick();
+	}
 
 	_accountDetails(type, accNumber) {
+		this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_ACCOUNT_NUMBER_SELECT, {
+			"screen": TelemetryScreen.SAVINGS_PLAN_LANDING,
+			"next-screen": TelemetryScreen.SAVINGS_PLAN_ACCOUNT_DETAILS
+		});
 		this.accountViewType = type;
 
 		const flexibleSavePlan = () => this._getFlexibleSavePlan(accNumber);
@@ -180,14 +194,16 @@ export class SavingsPlan extends ViewBase {
 			} else {
 				this.savingsPlanDetails = null;
 			}
-
+			this._telemetry.startSpan(SavingsPlanEvents.SAVINGS_PLAN, {
+				"screen": TelemetryScreen.SAVINGS_PLAN_LANDING
+			});
 		}
 
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-		this.endCallContext = `LandingPage`;
-		this.loading = false;
-		this._performReturnToScreen();
-	}
+			this.renderMode = RENDER_MODE.MAIN_PAGE;
+			this.endCallContext = `LandingPage`;
+			this.loading = false;
+			this._performReturnToScreen();
+		}
 
 	_updateLeftBar() {
 		let subtitle = null;
@@ -274,6 +290,15 @@ export class SavingsPlan extends ViewBase {
 		});
 	}
 
+	_backFromAccountDetails() {
+		// TO DO: This function to be used when clicked back from account details screen.
+		this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_ACCOUNT_DETAILS_CLOSE, {
+			"screen": TelemetryScreen.SAVINGS_PLAN_ACCOUNT_DETAILS,
+			"next-screen": TelemetryScreen.SAVINGS_PLAN_LANDING
+		});
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+	
 	_getStatements(accNumber) {
 		// TO DO: Place holder for savings plan statements flow.
 		const accountItem = this.landingPageInfo.savingsPlans.find(savingsPlan => savingsPlan.accountNumber === accNumber);
@@ -293,6 +318,10 @@ export class SavingsPlan extends ViewBase {
 				'order': productInfo.order
 			}
 		];
+		this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_STATEMENTS_SELECT, {
+			"screen": TelemetryScreen.SAVINGS_PLAN_LANDING,
+			"next-screen": TelemetryScreen.SAVINGS_PLAN_STATEMENTS
+		});
 		this.renderMode = RENDER_MODE.STATEMENTS;
 	}
 
@@ -306,10 +335,14 @@ export class SavingsPlan extends ViewBase {
 
 	_taxCertificates(accNumber) {
 		// TO DO: Place holder for tax certificate flow.
+		this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_TAX_CERTIFICATE_SELECT, {
+			"screen": TelemetryScreen.SAVINGS_PLAN_LANDING,
+			"next-screen": TelemetryScreen.SAVINGS_PLAN_TAX_CERTIFICATE
+		});
 		this.selectedAccountNumber = accNumber;
 		this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
 	}
-
+	
 	async _savingsCalculator() {
 		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
 		window.open(`${globalOneUrl}/save/`);
