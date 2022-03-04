@@ -200,7 +200,7 @@ export class InternetBankingProfileDetails extends Component {
 
 			this.dispatchEvent(new CustomEvent(`toggle-token-reset-panel`, { detail: { showResetTokenPanel: this.showResetTokenPanel } }));
 		} else {
-			this.selectedTokens.push(this.internetBankingDetails.tokenSerialNumber);
+			this.selectedTokens.push(this.singleToken);
 			const resetTokenResult = await this.resetInternetBankingSecurityToken(this.selectedTokens);
 			if (resetTokenResult) {
 				this._displayTokenResetSuccessToast();

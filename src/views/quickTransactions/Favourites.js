@@ -1,3 +1,4 @@
+import { CREDIT_ACCOUNT_TYPE, PRODUCT_TYPE } from 'app/constants/Credit';
 import { QuickTransactionEvents, STATEMENT_EVENTS } from 'app/constants/telemetry/events/QuickTransactions';
 import { css, html } from 'platform/elements';
 import { isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
@@ -6,9 +7,13 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { creditMixin } from 'app/views/credit/CreditMixin';
+import { creditOverview } from 'app/mocks/CreditMocks';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
+import 'app/components/dialogs/common/CCSstatus';
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
 import 'app/components/dialogs/quickTransactions/DeclineDebiCheckMandate';
@@ -65,6 +70,9 @@ export class Favourites extends SavingsAccountBase {
 		this.selectedFeedback = [];
 		this.feedbackOptions = [];
 		this.updateStrackClick = false;
+		// TODO: get ccs status for client
+		this.ccsStatus = true;
+		this.showCCSmodal = false;
 
 		this._telemetry = HorizonTelemetry.instance;
 
@@ -72,6 +80,7 @@ export class Favourites extends SavingsAccountBase {
 
 		Object.assign(Favourites.prototype, tapToPayMixin);
 		Object.assign(Favourites.prototype, searchOtherNeedMixin);
+		Object.assign(Favourites.prototype, creditMixin);
 	}
 
 	// --------------
@@ -81,7 +90,8 @@ export class Favourites extends SavingsAccountBase {
 	static get properties() {
 		return {
 			isLoading: { state: true },
-			verificationToastDisplayed: { state: true }
+			verificationToastDisplayed: { state: true },
+			showCCSmodal: { type: Boolean }
 		};
 	}
 
@@ -360,11 +370,22 @@ export class Favourites extends SavingsAccountBase {
 				isCallerVerified: this.callerInformation.verificationStatus === `verified`
 			};
 
-			const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest);
+			const returnValues = await Promise.all([this.quickTransactionService.favouritesLanding(landingRequest), this.creditService.creditBalance(this.callerInformation.cifNumber)]);
 
-			if (returnValue.succeeded) {
+			if (returnValues[0].succeeded) {
 				this.isLoading = false;
-				this.landingPageInfo = returnValue.result;
+
+				this.landingPageInfo = returnValues[0].result;
+				
+				/* 
+				 * NOTE: This is a work around as the favourites landing does not return credit information. 
+				 * NOTE: This implementation will not include credit information in the favourites landing call fails.
+				 * TODO: Develop better solution
+				 */
+				if (returnValues[1].succeeded) {
+					this.landingPageInfo.creditProductDescription = `Available balance`;
+					this.landingPageInfo.creditProductAmount = formatCurrency(returnValues[1].result.availableBalance);
+				}
 			}
 		} else {
 			// minimal object for the Favourites landing page component
@@ -535,17 +556,41 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_settlementQuote() {
-		// TODO: CS call to get info
+		const screenDetails = this.horizonStore.getScreenDetails();
 
-		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE;
+		// TODO: CS call to get credit accounts info and diaplay appropriate values on settlement quote view screen - details are pulled from mocks now
+		
+		this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
+			item.type = PRODUCT_TYPE[item.productTypeCode];
+			item.category = CREDIT_ACCOUNT_TYPE[item.productTypeCode];
+			item.productTypeDescription = `${item.productTypeDescription.toLowerCase().charAt(0).toUpperCase()}${item.productTypeDescription.toLowerCase().slice(1)}`;
+			item.creditLimit = formatCurrency(item.creditLimit);
+			item.repayAmount = item.repayAmount ? formatCurrency(item.repayAmount) : null;
+			item.nextRepayment = item.nextRepayment ? formatCurrency(item.nextRepayment) : null;
+			item.currentBalance = formatCurrency(item.currentBalance);
+
+			return item;
+		});
+
+		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
+
+		if (screenDetails.selectedAccounts) {
+			this._settlementQuoteDialog(screenDetails.selectedAccounts);
+		}
 	}
 
 	_paidUpAccounts () {
-		// TODO: CS call to get info
 		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_PAID_UP_LETTER, {
 			"screen": TelemetryScreen.FAVOURITES,
 			"next-screen": TelemetryScreen.PAID_UP_LETTER_ACCOUNTS
 		});
+
+		// TODO: CS call to get info
+
+		if (this.ccsStatus) {
+			this.showCCSmodal = true;
+			return;
+		}
 
 		this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
 	}
@@ -704,6 +749,11 @@ export class Favourites extends SavingsAccountBase {
 		super._backToLandingPage();
 	}
 
+	_backFromSettlementQuoteDialog() {
+		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
+		this.horizonStore.clearScreenDetails();
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -746,6 +796,8 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderTaxCertificate()}
 			${this._renderpaidUpAccounts()}
 			${this._renderSettlementQuote()}
+			${this._renderSettlementQuoteDialog()}
+			${this._renderCcsModal()}
 
 			${super._webTemplate()}
 		`;
@@ -968,11 +1020,23 @@ export class Favourites extends SavingsAccountBase {
 	}
 	
 	_renderSettlementQuote() {
-		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE
+		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_VIEW ||
+				this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG 
 		? html`
 		<horizon-settlement-quote
-		@back="${() => this._backToLandingPage()}">
+			.settlementQuoteDetails="${this.settlementQuoteDetails}"
+			@back="${() => this._backToLandingPage()}"
+			@send-quote="${(e) => this._settlementQuoteDialog(e.detail.selectedAccounts)}">
 		</horizon-settlement-quote>`
+		: html``;
+	} 
+
+	_renderCcsModal() {
+		return this.showCCSmodal
+		? html`
+			<horizon-ccs-status-dialog
+				@on-okay="${() => this.showCCSmodal = !this.showCCSmodal}">
+			</horizon-ccs-status-dialog>`
 		: html``;
 	}
 

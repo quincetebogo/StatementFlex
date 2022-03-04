@@ -3,42 +3,42 @@
 export const creditOverview = {
 	"loanAccountSummaryList": [
 		{
-			"productTypeDescription": `56 month term loan`,
-			"productTypeCode": `56month`,
-			"accountNumber": `9873493849`,
-			"currentBalance": 85000,
-			"creditLimit": 100000,
-			"remainingMonths": 43,
-			"repayAmount": 4592.10,
-			"accountStatusDescription": `Active`,
-			"accountStatusCode": `Open`,
-			"openDate": `2022-01-06T06:51:16.483Z`,
-			"lastPaymentDate": `2022-01-06T06:51:16.483Z`
+			"productTypeDescription": `40 MONTH TERM LOAN`,
+			"productTypeCode": `4010`,
+			"accountNumber": `1657155046`,
+			"currentBalance": 81248.67,
+			"creditLimit": 70817.77,
+			"remainingMonths": 21,
+			"repayAmount": 2493.79,
+			"accountStatusDescription": `ACTIVE`,
+			"accountStatusCode": `8`,
+			"openDate": `2019-07-31T00:00:00`,
+			"lastPaymentDate": `2021-11-19T00:00:00`
 		},
 		{
-			"productTypeDescription": `24 month term loan`,
-			"productTypeCode": `56month`,
-			"accountNumber": `9873493849`,
-			"currentBalance": 24000,
-			"creditLimit": 35000,
-			"remainingMonths": 12,
-			"repayAmount": 2938.01,
-			"accountStatusDescription": `Active`,
-			"accountStatusCode": `Open`,
-			"openDate": `2022-01-06T06:51:16.483Z`,
-			"lastPaymentDate": `2022-01-06T06:51:16.483Z`
+			"productTypeDescription": `12 MONTH TERM LOAN`,
+			"productTypeCode": `4010`,
+			"accountNumber": `1720318679`,
+			"currentBalance": 24966.84,
+			"creditLimit": 20000.0,
+			"remainingMonths": 1,
+			"repayAmount": 2125.35,
+			"accountStatusDescription": `ACTIVE`,
+			"accountStatusCode": `8`,
+			"openDate": `2020-07-27T00:00:00`,
+			"lastPaymentDate": `2021-08-19T00:00:00`
 		}
 	],
 	"accessFacilitySummaryList": [
 		{
-			"productTypeDescription": `Access facility`,
-			"productTypeCode": `AccessFacility`,
+			"productTypeDescription": `ACCESS FACILITY`,
+			"productTypeCode": `6000`,
 			"accountNumber": `1633823409`,
 			"currentBalance": -10000,
 			"availableCredit": 20000,
 			"creditLimit": 30000,
 			"nextRepayment": 789.01,
-			"accountStatusDescription": `Active`,
+			"accountStatusDescription": `ACTIVE`,
 			"accountStatusCode": `Open`,
 			"openDate": `2022-01-06T06:51:16.483Z`,
 			"lastPaymentDate": `2022-01-06T06:51:16.483Z`
@@ -46,24 +46,35 @@ export const creditOverview = {
 	],
 	"creditCardSummaryList": [
 		{
-			"productTypeDescription": `Credit card`,
-			"productTypeCode": `Credit`,
-			"accountNumber": `1633823410`,
-			"currentBalance": 10634,
-			"availableCredit": 20000,
-			"creditLimit": 35000,
-			"nextRepayment": 1564.76,
-			"accountStatusDescription": `In arrears`,
-			"accountStatusCode": `Arrears`,
-			"openDate": `2022-01-06T06:51:16.483Z`,
-			"lastPaymentDate": `2022-01-06T06:51:16.483Z`
+			"productTypeDescription": `CREDIT CARD`,
+			"productTypeCode": `101`,
+			"accountNumber": `6006841885`,
+			"currentBalance": -5834.09,
+			"availableCredit": 0.0,
+			"creditLimit": 4000.0,
+			"nextRepayment": 134.87,
+			"accountStatusDescription": `ACTIVE`,
+			"accountStatusCode": `0`,
+			"openDate": `2019-07-31T00:00:00`,
+			"lastPaymentDate": `2021-10-26T00:00:00`
 		}
 	],
 	"budgetAccountsSummary": {
-		"totalBudgetBalance": 35000,
-		"totalBudgetInstallmentAmount": 1534.76
+		"totalBudgetBalance": 0.0,
+		"totalBudgetInstallmentAmount": `0`
 	}
 };
+
+export const creditOverviewEmpty = {
+	"loanAccountSummaryList": [],
+	"accessFacilitySummaryList": [],
+	"creditCardSummaryList": [],
+	"budgetAccountsSummary": {
+		"totalBudgetBalance": 0,
+		"totalBudgetInstallmentAmount": 0
+	}
+};
+
 
 /**
  * credit card details mocks
