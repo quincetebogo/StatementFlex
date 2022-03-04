@@ -71,5 +71,21 @@
 	"cancel-ussd": `CANCEL_USSD`,
 	"unblock-sim": `UNBLOCK_SIM`,
 	"active-full-menu-ussd": `ACTIVE_REDUCED_MENU_USSD`,
-	"view-notification": `NOTIFICATIONS`
+	"view-notification": `NOTIFICATIONS`,
+
+	// Credit
+	"transaction-history-credit-card": `VIEW_TRANSACTION_HISTORY_CREDIT_CARD`, //
+	"statements-credit-card": `SEND_STATEMENTS_CREDIT_CARD`,
+	"settlement-quote-credit-card": `SETTLEMENT_QUOTE_CREDIT_CARD`,
+	"settle-close-credit-card": `SETTLE_CLOSE_CREDIT_CARD`,
+	"budget-facility-credit-card": `VIEW_BUDGET_ACCOUNT_INFO`,
+	"pay-budget-credit-card": `PAY_BUDGET_ACCOUNTS`,
+
+	"statements-access-facility": `SEND_STATEMENTS_ACCESS_FACILITY`,
+	"settlement-quote-access-facility": `SETTLEMENT_QUOTE_ACCESS_FACILITY`,
+	"settle-close-access-facility": `SETTLE_CLOSE_ACCESS_FACILITY`,
+
+	"statements-term-loan": `SEND_STATEMENTS_TERM_LOAN`,
+	"settlement-quote-term-loan": `SETTLEMENT_QUOTE_TERM_LOAN`,
+	"settle-close-term-loan": `SETTLE_CLOSE_TERM_LOAN`
 });

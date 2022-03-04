@@ -116,7 +116,7 @@ export class SettlementQuoteSuccess extends ViewBase {
 				@left-click=${() => this._sendAnotherClick()}
 				@right-click=${() => this._doneClick()}>
 					<section id="id-error-msg" slot="detail">
-						Settlement quote was emailed to <b>${this.emailAddress}</b>.
+						Settlement quote ${this.selectedAccounts.length === 1 ? `for ${this.selectedAccounts[0].productTypeDescription.toLowerCase()}` : ``} was emailed to <b>${this.emailAddress}</b>.
 					</section>
 			</horizon-success-screen>
 		`;
