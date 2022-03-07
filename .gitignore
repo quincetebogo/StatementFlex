@@ -5,5 +5,6 @@ jsconfig.json
 ocwp
 **.log
 .vs
+**.orig
 package.json
 package-lock.json
