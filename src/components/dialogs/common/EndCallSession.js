@@ -521,7 +521,7 @@ export class EndCallSession extends Component {
 	async _endSession() {
 		if (Object.prototype.hasOwnProperty.call(this.callerInformation, `cifNumber`)) {
 			const req = {
-				endReason: this.endCallReason.value,
+				endReason: this.endCallReason.key,
 				title: this.callerInformation.title,
 				lastName: this.callerInformation.lastName,
 				cif: this.callerInformation.cifNumber,
