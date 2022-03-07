@@ -67,7 +67,7 @@ export class CardService extends ChannelServiceBase {
 		);
 	};
 
-	async stopCards(cardsToStop, callerInfo, incidentDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async stopCards(cardsToStop, callerInfo, incidentDetails, cif, title, lastName, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		let cardStopResults = [];
@@ -87,7 +87,10 @@ export class CardService extends ChannelServiceBase {
 			ivrOptionCode: callerInfo.ivrOptionCode,
 			incidentReferenceNumber: incidentDetails.incidentReferenceNumber,
 			agentTelephoneNumber: callerInfo.agentTelephoneNumber,
-			incidentRecId: incidentDetails.incidentRecId
+			incidentRecId: incidentDetails.incidentRecId,
+			title: title,
+			lastName: lastName,
+			cif: cif
 		};
 
 		if (await this.isMockEnabled(`stopCard`)) {

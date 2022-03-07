@@ -261,4 +261,29 @@ export class CallHandleService extends ChannelServiceBase {
 		return this.post(`/clientcare-call-${this._version}/has-digital-verification-capability`, { 'cif': cifNumber }, this._setToken(), `digitalVerificationChannelsAvailable`);
 		*/
 	}
+
+	/**
+	 *  End call triggers automated messaging
+	 * 
+	 * @param {object} request End call request object
+	 * @param {errorHandlerCallback} errorHandler An optional error handler
+	 * @param {number} autoRetries auto retires 
+	 * @returns {Promise<ReturnValue>} An object indicating if the verification process was successful or if not, the reason for failure
+	 */
+	endCall(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const url = `/clientcare-call-${this._version}/end-call`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(), 
+			`endCall`,
+			false,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 }
