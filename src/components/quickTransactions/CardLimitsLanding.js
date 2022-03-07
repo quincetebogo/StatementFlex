@@ -278,7 +278,8 @@ export class CardLimitsLanding extends Component {
 					cardId: cardDetails.linkedCardLimits && this._updateType === `Debit` ? cardDetails.linkedCardId : cardDetails.cardId,
 					cardExpiryMonth: cardDetails.cardExpiryMonth,
 					cardExpiryYear: cardDetails.cardExpiryYear,
-					cardSequenceNumber: cardDetails.cardSequenceNumber
+					cardSequenceNumber: cardDetails.cardSequenceNumber,
+					cardDisplayName: cardDetails.cardDisplayName
 				},
 				tapToPayStatus: event.detail.tapToPayStatus ? `ON` : `OFF`,
 				customerId: this.cifNumber,
@@ -351,7 +352,7 @@ export class CardLimitsLanding extends Component {
 					cardExpiryYear: cardDetails.cardExpiryYear,
 					cardExpiryMonth: cardDetails.cardExpiryMonth,
 					cardSequenceNumber: cardDetails.cardSequenceNumber,
-					cardDisplayName: ``
+					cardDisplayName: cardDetails.cardDisplayName
 				},
 				permanentCashAmountLimit: limits.permanentCashAmountLimit,
 				permanentPurchaseAmountLimit: limits.permanentPurchaseAmountLimit,

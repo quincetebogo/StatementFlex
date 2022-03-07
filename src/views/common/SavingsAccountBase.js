@@ -323,7 +323,14 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	async _authenticateMandate(accepted) {
-		const returnValue = await this.savingsAccountService.debiCheckAuthenticate(this.callerInformation, this.debiCheckDetails, this.mandateInfo, accepted);
+		const returnValue = await this.savingsAccountService.debiCheckAuthenticate(
+			this.callerInformation.cifNumber,
+			this.callerInformation.title,
+			this.callerInformation.lastName,
+			this.debiCheckDetails,
+			this.mandateInfo,
+			accepted
+		);
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `debi-check-viewInfo`);
 		
 		if (returnValue.succeeded) {

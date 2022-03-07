@@ -102,7 +102,9 @@ export class SavingsAccountService extends ChannelServiceBase {
 	/**
 	 * Decline and Approve a debi-check mandate
 	 *
-	 * @param {string} callerInformation Caller info details
+	 * @param {string} cifNumber Client's cif number
+	 * @param {string} title Client's title (Mr/ Mrs)
+	 * @param {string} lastName Client's last name
 	 * @param {string} debiCheckDetails details of the selected mandate
 	 * @param {string} mandateInfo details of the selected mandate
 	 * @param {boolean} accepted true if accepted and false if declined
@@ -110,16 +112,16 @@ export class SavingsAccountService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	async debiCheckAuthenticate(callerInformation, debiCheckDetails, mandateInfo, accepted, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async debiCheckAuthenticate(cifNumber, title, lastName, debiCheckDetails, mandateInfo, accepted, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		const request = {
-			cifNumber: callerInformation.cifNumber,
+			cifNumber: cifNumber,
 			mandateReferenceNumber: debiCheckDetails.mandateReferenceNumber,
 			debtorAccountNumber: debiCheckDetails.debtorAccountNumber,
 			accepted: accepted,
-			title: callerInformation.title,
-			lastName: callerInformation.lastName,
+			title: title,
+			lastName: lastName,
 			collectorName: mandateInfo.collectorName,
 			instalmentAmount: mandateInfo.amount,
 			firstCollectionDate: debiCheckDetails.firstCollectionDate
