@@ -19,6 +19,7 @@
 	 * @param {string} languagePreference The client's language preference
 	 * @param {string} livesIn An indication of where the client lives
 	 * @param {string} name The client's full name
+	 * @param {string} title Client's title
 	 * @param {string} southAfricanIDNumber The client's South African ID number
 	 * @param {string} verifiedTelephoneNumber The client's verified number (not necessarily the incoming number)
 	 * @param {string} nonClientFirstName A third-party/non-client's first name

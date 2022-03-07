@@ -1,10 +1,10 @@
 import { Component, css, html } from 'platform/elements';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/HorizonExpander';
 import 'app/components/common/CardArt';
@@ -87,10 +87,6 @@ export class CardLimitsLanding extends Component {
 		this.expanderSubtitle = [];
 		this.expanderHeaders = [];
 		this._telemetry = HorizonTelemetry.instance;
-
-		this.cifNumber = this.callerInformation.cifNumber;
-		this.title = this.callerInformation.title;
-		this.lastName = this.callerInformation.lastName;
 	}
 
 	// ----------
@@ -154,7 +150,9 @@ export class CardLimitsLanding extends Component {
 	/**
 	 *
 	 * @property {Object} cards Object contains the list of client's card
-	 * @property {Object} callerInformation - information on incoming caller
+	 * @property {string} cifNumber The client's CIF number
+	 * @property {string} title client's title (Mr/ Mrs)
+	 * @property {string} lastName client's last name
 	 * @property {String} voiceRecordingReference The Avaya/Presence Voice Recording ID
 	 * @property {String} verificationMethod Indicated the type of verification (xds/ita)
 	 * @property {Boolean} hasDigitalChannels Indicates if the client is registered for digital channels
@@ -173,7 +171,9 @@ export class CardLimitsLanding extends Component {
 	static get properties() {
 		return {
 			cards: { type: Object },
-			callerInformation: { type: Object },
+			cifNumber: { type: String },
+			title: { type: String },
+			lastName: { type: String },
 			voiceRecordingReference: { type: String },
 			verificationMethod: { type: String },
 			hasDigitalChannels: { type: Boolean },
@@ -284,7 +284,9 @@ export class CardLimitsLanding extends Component {
 				screenRecordingReference: ``,
 				agreementAccepted: event.detail.agreementAccepted,
 				agreementContent: event.detail.agreements.tapToPayAgreement.agreementContent,
-				scriptContent: event.detail.agreements.tapToPayAgreement.scriptContent
+				scriptContent: event.detail.agreements.tapToPayAgreement.scriptContent,
+				title: this.title,
+				lastName: this.lastName
 			};
 		}
 
@@ -346,7 +348,8 @@ export class CardLimitsLanding extends Component {
                     customerId: this.cifNumber,
 					cardExpiryYear: cardDetails.cardExpiryYear,
 					cardExpiryMonth: cardDetails.cardExpiryMonth,
-					cardSequenceNumber: cardDetails.cardSequenceNumber
+					cardSequenceNumber: cardDetails.cardSequenceNumber,
+					cardDisplayName: ``
 				},
 				permanentCashAmountLimit: limits.permanentCashAmountLimit,
 				permanentPurchaseAmountLimit: limits.permanentPurchaseAmountLimit,
@@ -359,10 +362,7 @@ export class CardLimitsLanding extends Component {
 
 				agreementAccepted: event.detail.agreementAccepted,
 				agreementContent: event.detail.agreements.cardLimitsAgreement.agreementContent,
-				scriptContent: event.detail.agreements.cardLimitsAgreement.scriptContent,
-
-				title: this.title,
-				lastName: this.lastName
+				scriptContent: event.detail.agreements.cardLimitsAgreement.scriptContent
 			},
 			tapToPayStatusChange: event.detail.tapToPayStatusChange,
 			title: this.title,

@@ -967,6 +967,9 @@ export class VerifyCaller extends Component {
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.securityQuestions="${this.securityQuestions}"
+					.cifNumber="${this.callerInformation.cifNumber}"
+					.title="${this.callerInformation.title}"
+					.lastName="${this.callerInformation.lastName}"
 					?finalAttempt=${this.xdsAttempts === MAX_XDS_ATTEMPTS}
 					@cancel="${() => this._cancelledSecurityQuestions()}"
 					@skip="${() => this._skippedSecurityQuestions()}"

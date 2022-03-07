@@ -102,7 +102,7 @@ export class SavingsAccountService extends ChannelServiceBase {
 	/**
 	 * Decline and Approve a debi-check mandate
 	 *
-	 * @param {string} cifNumber The Client's CIF number
+	 * @param {string} callerInformation Caller info details
 	 * @param {string} debiCheckDetails details of the selected mandate
 	 * @param {string} mandateInfo details of the selected mandate
 	 * @param {boolean} accepted true if accepted and false if declined
@@ -213,8 +213,8 @@ export class SavingsAccountService extends ChannelServiceBase {
 
 	debiCheckAgreement (clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const request = {
-				title: clientInfo.title,
-				firstName: clientInfo.firstName,
+			title: clientInfo.title,
+			firstName: clientInfo.firstName,
 			surname: clientInfo.surname,
 			identificationNumber: clientInfo.identificationNumber,
 			savingsAccountNumber: clientInfo.savingsAccountNumber,

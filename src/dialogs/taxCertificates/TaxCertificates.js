@@ -56,12 +56,12 @@ export class TaxCertificatesDialog extends Component {
 	// --------------
 
 	/**
-	 * @property {Object} callerInformation - information on incoming caller
+	 * @property {string} cifNumber The client's CIF number
 	 * @property {String} accountNumber Primary savings account number
 	 */
 	static get properties() {
 		return {
-			callerInformation: { type: Object },
+			cifNumber: { type: String },
 			accountNumber: { type: String },
 
 			// Private Properties
@@ -218,15 +218,16 @@ export class TaxCertificatesDialog extends Component {
 		}
 
 		const request = {
-			cif: this.callerInformation.cifNumber,
+			cif: this.cifNumber,
 			iT3STaxCertificates: [],
 			iT3BTaxCertificates: selectedCertificates.iT3BTaxCertificates.map(item => {
-				return {
+				const temp = {
 					year: item.year,
 					documentId: item.documentId,
 					accountNumber: this.accountNumber,
 					payload: item.payload
 				};
+				return temp;
 			})
 		};
 		const returnValue = await this.quickTransactionService.viewTaxCertificate(request, () => true);
@@ -263,7 +264,7 @@ export class TaxCertificatesDialog extends Component {
 				"screen": TelemetryScreen.TAX_CERTIFICATE
 		});
 	
-		const returnValue = await this.quickTransactionService.getTaxCertificate(this.callerInformation.cifNumber, () => true);
+		const returnValue = await this.quickTransactionService.getTaxCertificate(this.cifNumber, () => true);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unable to get load tax certificates information`, `_taxCertificates`, returnValue.correlationId);
@@ -294,23 +295,26 @@ export class TaxCertificatesDialog extends Component {
 
 		this.horizonStore.setScreenDetails(screenDetails);
 	}
+
 	_getMessageOption(selectedCertificates) {
 		
-		return selectedCertificates.iT3STaxCertificates ? MESSAGE_OPTION.iT3STaxCertificates : MESSAGE_OPTION.iT3BTaxCertificates
+		return selectedCertificates.iT3STaxCertificates ? MESSAGE_OPTION.iT3STaxCertificates : MESSAGE_OPTION.iT3BTaxCertificates;
 	}
+
 	_formatSendRequest(selectedCertType, selectedCertificates, email) {
 		const documentIds = [];
 		const attachments = [];
 		const messageOption = selectedCertificates.iT3BTaxCertificates && selectedCertificates.iT3STaxCertificates
-		? MESSAGE_OPTION[`both`]
+		? MESSAGE_OPTION.both
 		: this._getMessageOption(selectedCertificates);
 
 		if (selectedCertificates.iT3BTaxCertificates && (selectedCertType === `iT3BTaxCertificates` || selectedCertType === `both`)) {
 			attachments.push(...selectedCertificates.iT3BTaxCertificates.map(item => {
-				return {
+				const temp = {
 					name: `${item.year} IT3b Tax Certificate`,
 					data: item.contentData
 				};
+				return temp;
 			}));
 		}
 
@@ -319,7 +323,7 @@ export class TaxCertificatesDialog extends Component {
 		}
 		
 		const request = {
-			"cif": this.callerInformation.cifNumber,
+			"cif": this.cifNumber,
 			"emailAddress": email,
 			"messageOption": messageOption,
 			"documentIds": documentIds,
@@ -342,7 +346,7 @@ export class TaxCertificatesDialog extends Component {
 		 */
 		const [first] = item.taxCertificateAccounts; // Extracting first element from taxcertificate accounts array
 		const request = {
-			"cif": this.callerInformation.cifNumber,
+			"cif": this.cifNumber,
 			"iT3BTaxCertificates": [],
 			"iT3STaxCertificates": []
 		};
@@ -360,7 +364,7 @@ export class TaxCertificatesDialog extends Component {
 /*
 	_formatViewCertificateRequest(item, type) {
 		const request = {
-			"cif": this.callerInformation.cifNumber
+			"cif": this.cifNumber
 		};
 
 		if (type === `iT3BTaxCertificates`) {

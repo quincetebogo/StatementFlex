@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+
 import 'app/components/common/CardArt';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
 
@@ -46,7 +47,9 @@ export class TapToPayLanding extends Component {
 
 	/**
 	 * @property {Object} cards Object contains the list of client's cards
-	 * @property {Object} callerInformation - information on incoming caller
+	 * @property {string} cifNumber The client's CIF number
+	 * @property {string} title client's title (Mr/ Mrs)
+	 * @property {string} lastName client's last name
 	 * @property {String} voiceRecordingReference The Avaya/Presence Voice Recording ID
 	 * @property {getAgreementsCallback} getAgreements Callback function to load agreements for displaying
 	 * @property {updateAgreementCallback} updateAgreement Callback function to update agreement
@@ -55,7 +58,9 @@ export class TapToPayLanding extends Component {
 		return {
 			// Input properties
 			cards: { type: Object },
-			callerInformation: { type: Object },
+			cifNumber: { type: String },
+			title: { type: String },
+			lastName: { type: String },
 			voiceRecordingReference: { type: String },
 
 			getAgreements: { type: Object, attribute: false },
@@ -126,13 +131,14 @@ export class TapToPayLanding extends Component {
 		this._updateCards();
 
 		const request = {
-			cifNumber: this.callerInformation.cifNumber,
+			cifNumber: this.cifNumber,
 			tapToPayStatus: event.detail.new ? `TapToPayActivated` : `TapToPayDeactivated`,
 			cardDetails: {
 				cardId: this.selectedCard.cardId,
 				cardExpiryYear: this.selectedCard.cardExpiryYear,
 				cardExpiryMonth: this.selectedCard.cardExpiryMonth,
-				cardSequenceNumber: this.selectedCard.cardSequenceNumber
+				cardSequenceNumber: this.selectedCard.cardSequenceNumber,
+				cardDisplayName: this.selectedCard.cardDisplayName
 			}
 		};
 
@@ -160,10 +166,11 @@ export class TapToPayLanding extends Component {
 					cardId: this.selectedCard.cardId,
 					cardExpiryMonth: this.selectedCard.cardExpiryMonth,
 					cardExpiryYear: this.selectedCard.cardExpiryYear,
-					cardSequenceNumber: this.selectedCard.cardSequenceNumber
+					cardSequenceNumber: this.selectedCard.cardSequenceNumber,
+					cardDisplayName: this.selectedCard.cardDisplayName
 				},
 				tapToPayStatus: tapToPayStatus,
-				customerId: this.callerInformation.cifNumber,
+				customerId: this.cifNumber,
 				voiceRecordingReference: this.voiceRecordingReference,
 				screenRecordingReference: ``,
 				agreementAccepted: event.detail.tapToPayAccepted,
@@ -177,8 +184,8 @@ export class TapToPayLanding extends Component {
 					documentId: this.agreementResult.cardAgreement.scriptContent.documentId,
 					scriptContentType: `HTML`
 				},
-				title: this.callerInformation.title,
-				lastName: this.callerInformation.lastName
+				title: this.title,
+				lastName: this.lastName
 			}
 		};
 

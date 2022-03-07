@@ -305,17 +305,13 @@ export class ConfirmCallerDetails extends Component {
 	// ---------------
 	_initCallerInformation() {
 		// This is the callerInformation object that will be persisted to state.
-
-		this.name = this.confirmedCaller.name.split(" ");
-		this.title = this.name[0];
-
 		this.callerInformation = new CallerInformation(
 			this.confirmedCaller.cifNumber, // cif
 			this.confirmedCaller.birthdate, // birthdate
 			this.confirmedCaller.languagePreference, // languagePreference
 			this.confirmedCaller.livesIn, // livesIn
 			this.confirmedCaller.name, // name
-			this.title,
+			this.confirmedCaller.title,
 			this.confirmedCaller.southAfricanIDNumber, // SA id
 			this.confirmedCaller.verifiedTelephoneNumber, // verified number
 			``, // nonclient firstname

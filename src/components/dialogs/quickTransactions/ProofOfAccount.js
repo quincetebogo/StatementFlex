@@ -58,13 +58,17 @@ export class ProofOfAccount extends Component {
 	// --------------
 
 	/**
-	 * @param {object} callerInformation Identified caller information
 	 * @param {Object} landingPageInfo Favourites landing page info
+	 * @property {string} cifNumber The client's CIF number
+	 * @property {string} title client's title (Mr/ Mrs)
+	 * @property {string} lastName client's last name
 	 */
 	static get properties() {
 		return {
-			callerInformation: { type: Object },
 			landingPageInfo: { type: Object },
+			cifNumber: { type: String },
+			title: { type: String },
+			lastName: { type: String },
 			
 			isBusy: { attribute: false },
 			alertBannerMessage: { attribute: false },
@@ -112,13 +116,13 @@ export class ProofOfAccount extends Component {
 			this._updateScreenDetails();
 
 			const clientInfo = {
-				"cifNumber": this.callerInformation.cifNumber,
+				"cifNumber": this.cifNumber,
 				"accountNumber": this.landingPageInfo.accountNumber,
 				"accountOpenedDate": this._formatDate(this.landingPageInfo.accountOpenedDate),
 				"emailAddress": this.idEmailAddress,
 				"accountType": ACCOUNT_TYPE,
-				"title": this.callerInformation.title,
-				"lastName": this.callerInformation.lastName
+				"title": this.title,
+				"lastName": this.lastName
 			};
 			const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
 
