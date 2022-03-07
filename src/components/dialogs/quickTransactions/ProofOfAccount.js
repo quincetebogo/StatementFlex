@@ -8,7 +8,12 @@ import { QuickTransactionsService } from 'app/services/QuickTransactionsService'
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 const ACCOUNT_TYPE = `PRIMARY_SAVINGS`;
-const EMAIL_REG_EXP = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
+
+const ERROR_MESSAGE = {
+	EMAIL_REQUIRED: `Complete all fields to continue`,
+	INVALID_EMAIL: `Enter a valid email address`,
+	EMAIL_MISMATCH: `Email address does not match. Enter the correct email address`
+};
 
 /**
  * Proof of Account dialog is used to send POA for a primary savings account.
@@ -45,6 +50,8 @@ export class ProofOfAccount extends Component {
 		this.emailText = `Email address`;
 		
 		// private variables
+		this.emailLabel = `Enter email address`;
+		this.confirmEmailLabel = `Confirm email`;
 		this.idEmailAddress = ``;
 		this.idConfirmEmailAddress = ``;
 		this.errMessage = {
@@ -156,51 +163,31 @@ export class ProofOfAccount extends Component {
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
+	_clearAlerts() {
+		this.alertBannerMessage = ``;
+	}
+
+	_emailValueChanged(e) {
+		this.email = e.detail.email;
+		this.confirmEmail = e.detail.confirmEmail;
+
+		if (e.detail.invalidFormat) {
+			this.alertBannerMessage = ERROR_MESSAGE.INVALID_EMAIL;
+		} else if (e.detail.mismatched) {
+			this.alertBannerMessage = ERROR_MESSAGE.EMAIL_MISMATCH;
+		}
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
-    _validateEmail(e) {
-
-        // CORRECT
-        if (!this._isNullorEmpty(this.idEmailAddress) && this.idEmailAddress === this.idConfirmEmailAddress) {
-            if (EMAIL_REG_EXP.test(this.idEmailAddress)) {
-                this.alertBannerMessage = ``;
-                this.errMessage.idEmailAddress = ``;
-                this.errMessage.idConfirmEmail = ``;
-                return true;
-            } else if (!this.idEmailAddress.includes(`@`)) {
-                this.alertBannerMessage = `Email address is invalid`;
-                this.errMessage.idEmailAddress = `An email must contain a single @`;
-				return false;
-            }
-
-                this.alertBannerMessage = `Incorrect email address format ie. email@gmail.com`;
-			this.errMessage.idEmailAddress = `Invalid email address`;
-            this.errMessage.idConfirmEmail = `Invalid email address`;
-            return false;
-        } else if (this._isNullorEmpty(this.idEmailAddress)) {
-			// EMAIL EMPTY
-            if (this._isNullorEmpty(this.idConfirmEmailAddress)) {
-                this.errMessage.idConfirmEmail = `Enter a valid email address i.e. email@gmail.com`;
-				this.emailText = `email@gmail.com`;
-			}
-			this.alertBannerMessage = `Complete all fields to continue`;
-            this.errMessage.idEmailAddress = `Enter a valid email address i.e. email@gmail.com`;
-            this.emailText = `email@gmail.com`;
-            return false;
-        } else if (this._isNullorEmpty(this.idConfirmEmailAddress)) {
-            this.alertBannerMessage = `Complete all fields to continue`;
-            this.errMessage.idConfirmEmail = `Enter a valid email address i.e. email@gmail.com`;
-            this.emailText = `email@gmail.com`;
-            return false;
-        } else if (this.idEmailAddress !== this.idConfirmEmailAddress) {
-			// EMAILS DON'T MATCH 
-			this.alertBannerMessage = `Email and Confirm email don't match`;
-            this.errMessage.idEmailAddress = `Invalid email`;
-            this.errMessage.idConfirmEmail = `Invalid email`;
-			return false;
+	_validateEmailAddress() {
+		if (isNullorEmpty(this.email) || isNullorEmpty(this.confirmEmail)) {
+			this.alertBannerMessage = ERROR_MESSAGE.EMAIL_REQUIRED;
 		}
+
+		return isNullorEmpty(this.alertBannerMessage);
 	}
 
 	_onKeyPress(e) {
@@ -247,71 +234,68 @@ export class ProofOfAccount extends Component {
 		return [
 			super.styles, 
 			css`
-			capitec-modal {
-				width: 531px;
-				height: 721px;
-				--theme-modal-header-padding-left: 16px;
-				--theme-modal-header-color: #3A3A3A;
-				--theme-modal-header-background-color: #F7F7F7;
-				--theme-modal-header-padding-top: 20px;
-				--theme-modal-header-padding-bottom: 20px;
-			}
+				capitec-modal {
+					width: 531px;
+					height: 721px;
+					--theme-modal-header-padding-left: 16px;
+					--theme-modal-header-color: #3A3A3A;
+					--theme-modal-header-background-color: #F7F7F7;
+					--theme-modal-header-padding-top: 20px;
+					--theme-modal-header-padding-bottom: 20px;
+				}
+				capitec-alert-banner {
+					--theme-alert-banner-height: 48px;
+					--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
+					--theme-alert-banner-icon-margin-left: 15px;
+					--theme-alert-banner-icon-margin-right: 15px;
 
-			capitec-alert-banner{
-				--theme-alert-banner-height: 48px;
-				--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
-				--theme-alert-banner-icon-margin-left: 15px;
-				--theme-alert-banner-icon-margin-right: 15px;
-
-				margin: 16px 0px 0px 0px;
-			
-			}
-		.label-err-message{
-				--theme-label-font-color:#C83C37;
-			}
-
-			capitec-label{
-				margin: 16px 0px 16px 0px;
-				--theme-label-font-size: 18px;
-				--theme-label-font-family: Hind Vadodara;
-			}
-
-			.body-class {
-				width: 531px;
-				height: 280px;
-				margin-left:16px;
-				margin-right: 16px;
-			}
-			.err-body{
-				width: 531px;
-				height: 315px;
-				margin-left:16px;
-				margin-right: 16px;
-			}
-			.search-label{
-				height: 24px;
-				width: 200px;
-				color: #3E4547;
-				font-family: "Hind Vadodara";
-				font-size: 18px;
-				font-weight: 600;
-				letter-spacing: 0;
-				line-height: 24px;
-				margin-top: 16px;
-				margin-bottom: 16px;
-			}
-			.confirm-search-label{
-				height: 24px;
-				width: 200px;
-				color: #3E4547;
-				font-family: "Hind Vadodara";
-				font-size: 18px;
-				font-weight: 600;
-				letter-spacing: 0;
-				line-height: 24px;
-				margin-bottom: 16px;
-			}
-
+					margin: 16px 0px 0px 0px;
+				
+				}
+				.label-err-message {
+					--theme-label-font-color:#C83C37;
+				}
+				capitec-label {
+					margin: 16px 0px 16px 0px;
+					--theme-label-font-size: 18px;
+					--theme-label-font-family: Hind Vadodara;
+				}
+				.body-class {
+					width: 531px;
+					height: 280px;
+					margin: 16px 16px 0px 16px;
+				}
+				.err-body {
+					width: 531px;
+					height: 315px;
+					margin: 16px 16px 0px 16px;
+				}
+				.search-label {
+					height: 24px;
+					width: 200px;
+					color: #3E4547;
+					font-family: "Hind Vadodara";
+					font-size: 18px;
+					font-weight: 600;
+					letter-spacing: 0;
+					line-height: 24px;
+					margin-top: 16px;
+					margin-bottom: 16px;
+				}
+				.confirm-search-label {
+					height: 24px;
+					width: 200px;
+					color: #3E4547;
+					font-family: "Hind Vadodara";
+					font-size: 18px;
+					font-weight: 600;
+					letter-spacing: 0;
+					line-height: 24px;
+					margin-bottom: 16px;
+				}
+				horizon-email-input {
+					--theme-layout-gap-spacing: 0px;
+				}
 			`
 		];
 	}
@@ -360,41 +344,13 @@ export class ProofOfAccount extends Component {
 
 	_renderEmailFields() {
 		return html`
-		<capitec-group layout="vertical" gap="none" halign="stretch" valign="top">
-			<div class="email-div">
-				<capitec-label class="search-label" label="Enter email address" type="title"> </capitec-label>
-				<capitec-text-field 
-					data-automation-id="proof-of-account-email"
-					class="email-text" 
-					id="idEmailAddress" 
-                    oncopy="return false"
-					onpaste="return false"
-					oncut="return false"
-				    .value="${this.idEmailAddress}"
-					name="mailAddress" 
-					@value-changed="${(e) => this._valueChanged(e)}"
-					@key-input="${(e) => this._onKeyPress(e)}" 
-					label="${this.emailText}" 
-					error="${this.errMessage.idEmailAddress}">
-				</capitec-text-field>
-			</div>
-
-			<div class="email-div">
-				<capitec-label class="confirm-search-label" label="Confirm email address"></capitec-label>
-				<capitec-text-field 
-					data-automation-id="proof-of-account-confirm-email"
-					class="email-text" id="idConfirmEmailAddress" 
-                    oncopy="return false"
-					onpaste="return false"
-					oncut="return false"
-					.value="${this.idConfirmEmailAddress}"
-					@value-changed="${(e) => this._valueChanged(e)}" 
-					@key-input="${(e) => this._onKeyPress(e)}"
-					name="confirmMailAddress" label="${this.emailText}" 
-					error="${this.errMessage.idConfirmEmail}">
-				</capitec-text-field>
-			</div>
-		</capitec-group>
+			<horizon-email-input
+				labelOne="${this.emailLabel}"
+				labelTwo="${this.confirmEmailLabel}"
+				?showRequiredError="${this.alertBannerMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
+				.callBack="${() => this._clearAlerts()}"
+				@value-changed="${(e) => this._emailValueChanged(e)}">
+			</horizon-email-input>
 		`;
 	}
 

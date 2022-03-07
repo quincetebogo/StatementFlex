@@ -30,7 +30,7 @@ export const securityQuestions = {
 	"encryptedReferenceNo": "string",
 	"authenticationComment": "string",
 	"safpsIndicator": true,
-	"isUserBlocked": true,
+	"isUserBlocked": false,
 	"personalQuestionsEnabled": true,
 	"blockingEnabledFlag": true,
 	"referToFraud": true,

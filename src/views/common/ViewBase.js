@@ -98,6 +98,17 @@ export class ViewBase extends View {
 		this.addCallerDetailsSub = this.eventAggregator.subscribe(`horizon-add-caller-details`, () => this._addCallerDetails());
 		this.vasToast = this.eventAggregator.subscribe(`horizon-accepted-vas`, () => this._toastVAS());
 
+		/**
+		 * Subscribing to keep the incident details variable in line with state
+		 * Use case: When performing an action on access channels/ insights, updating the incident details state
+		 * is not reflected here.
+		 */
+		this.stateChanged = this.horizonStore.stateChangedProperties.subscribe(changes => {
+			if (changes && changes.stateChanges?.incidentDetails) {
+				this._refreshIncidentDetails();
+			}
+		});
+
 		super.connectedCallback();
 	}
 
@@ -107,6 +118,7 @@ export class ViewBase extends View {
 		this.assignSub.dispose();
 		this.addCallerDetailsSub.dispose();
 		this.vasToast.dispose();
+		this.stateChanged.unsubscribe();
 	
 		super.disconnectedCallback();
 	}
