@@ -224,6 +224,10 @@ import 'app/components/common/HorizonLabel';
 				.account-details-tile > capitec-button {
 					--theme-button-font-weight: 600;
 				}
+				.account-details-tile > horizon-label {
+					height: fit-content;
+					--horizon-label-value-height: fit-content;
+				}
 				.vertical-line{
 					height: 48px;
 					width: 1px;
