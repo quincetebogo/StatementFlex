@@ -23,7 +23,9 @@ export const CREDIT_TYPE = {
 
 export const FROM_ACCOUNTS_LIST = [
 		// Primary savings
-		300
+		300,
+		// Flexible savings plan
+		200
 	];
 	
 export const CREDIT_ACCOUNT_TYPE = {

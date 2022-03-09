@@ -25,6 +25,7 @@ import 'app/productControls/credit/src/CreditAccountLanding';
 import 'app/productControls/credit/src/CreditUnverifiedLanding';
 import 'app/productControls/credit/src/PayCreditCardBudget';
 import 'app/dialogs/credit/SettlementQuote';
+import 'app/dialogs/credit/SettleAndCloseDialog';
 
 
 /**
@@ -57,8 +58,8 @@ export class CreditAccount extends ViewBase {
 		this.flexibleCreditAccounts = [];
 		this.fixedTermCreditAccounts = []; 
 		this.creditBalance = ``;
-		//ccs status of client set to true until real value retrieved from CS
-		this.ccsStatus = true;
+		// ccs status of client set to true until real value retrieved from CS
+		this.ccsStatus = false;
 		this.showCCSmodal = false;
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
@@ -125,7 +126,7 @@ export class CreditAccount extends ViewBase {
 		const transactionHistory = () => this._transactionHistory(creditType, productType);
 		const statements = creditType === `Fixed Credit` ? () => this._getTLStatements(creditType, productType) : () => this._getStatements(creditType, productType);
 		const settlementQuote = () => this._settlementQuote(creditType, productType, selectedAccountDetails);
-		const settleAndClose = () => this._settleAndClose(creditType, productType);
+		const settleAndClose = () => this._settleAndClose(creditType, productType, selectedAccountDetails);
 		const paidUpLetter = () => this._paidUpLetter();
 		const settleLoan = () => this._settleLoan();
 		const budgetFacility = () => this._budgetFacility(selectedAccountDetails);
@@ -224,44 +225,17 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _payBudgetAccount(selectedAccountDetails) {
-	
-		const request = {
-			cifNumber: this.callerInformation.cifNumber,
-			status: `OPEN`
-		};
-
-		const returnValue = await this.quickTransactionService.getClientProducts(request);
-		
-		if (returnValue.succeeded && returnValue.result.savingsProducts) {
-			
-			// TO DO: Check for list of account that can be used to pay budget from once architecture work is complete.
-			// A/c to the present information, Primary savings account with enough balance to transfer can be listed.
-			
-			this.clientProducts = returnValue.result.savingsProducts
-										.filter(item => FROM_ACCOUNTS_LIST.includes(item.accountType) &&
-												item.availableBalance > selectedAccountDetails.budgetBalance)
-										.map(item => {
-												const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType][item.interestCategory] || 
-																	ACCOUNT_INTCAT_ENUM[item.accountType];
-												
-												return {
-													'accountNumber': item.accountNumber,
-													'accountName': formatStringAsPascalCase(item.accountName),
-													'accountType': item.accountType,
-													'icon': productInfo.icon,
-													'customIcon': productInfo.customIcon,
-													'order': productInfo.order
-												};
-											})
-										.sort((x, y) => x.order - y.order);
-
-			this.renderMode = RENDER_MODE.PAY_BUDGET_DIALOG;
-			this.payBudgetAccountDetails = selectedAccountDetails;
-		}
+		this.clientProducts = await this._getClientProducts();
+		this.payBudgetAccountDetails = selectedAccountDetails;
+		this.renderMode = RENDER_MODE.PAY_BUDGET_DIALOG;
 	}
 
 	_transferPayBudget() {
 		// TO DO: This function to be used to confirm transfer pay budget.
+	}
+
+	_confirmSettleAndClose() {
+		// TO DO: This function to be used to confirm settle and close credit card or Loans.
 	}
 
 	_errorHandler() {
@@ -284,6 +258,41 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
+	async _getClientProducts() {
+		const request = {
+			cifNumber: this.callerInformation.cifNumber,
+			status: `OPEN`
+		};
+	
+		// TO DO: Check for list of account that can be used to pay budget from once architecture work is complete.
+		// A/c to the present information, Primary savings account with enough balance to transfer can be listed.
+	
+		const returnValue = await this.quickTransactionService.getClientProducts(request);
+		
+		if (returnValue.succeeded && returnValue.result.savingsProducts) {
+			
+			const clientProducts = returnValue.result.savingsProducts
+										.filter(item => FROM_ACCOUNTS_LIST.includes(item.accountType))
+										.map(item => {
+												const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType][item.interestCategory] || 
+																	ACCOUNT_INTCAT_ENUM[item.accountType];
+												
+												return {
+													'accountNumber': item.accountNumber,
+													'accountName': formatStringAsPascalCase(item.accountName),
+													'availableBalance': formatCurrency(item.availableBalance),
+													'accountType': item.accountType,
+													'icon': productInfo.icon,
+													'customIcon': productInfo.customIcon,
+													'order': productInfo.order
+												};
+											})
+										.sort((x, y) => x.order - y.order);
+
+			return clientProducts;
+		}
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -296,11 +305,11 @@ export class CreditAccount extends ViewBase {
 
 	async _initialise() {
 
-		//TO DO: get ccs status from permission endpoint
+		// TO DO: get ccs status from permission endpoint
 			// permissionResultList:[
-			// 	operationIdentifier: "ALL",
-			// 	permissionResult: "Denied",
-			// 	declineReason: "Deceased"
+			// operationIdentifier: "ALL",
+			// permissionResult: "Denied",
+			// declineReason: "Deceased"
 			// ]
 		// this.ccsStatus = this.quickTransactionService.permissions();
 
@@ -449,7 +458,7 @@ export class CreditAccount extends ViewBase {
 	_getStatements(creditType, productType) {
 		// TO DO: Place holder for credit statements flow.
 
-		if(this.ccsStatus) {
+		if (this.ccsStatus) {
 			this.showCCSmodal = true;
 			return;
 		}
@@ -464,7 +473,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_settlementQuote(creditType, productType, selectedAccountDetails) {
-		if(this.ccsStatus) {
+		if (this.ccsStatus) {
 			this.showCCSmodal = true;
 			return;
 		}
@@ -489,15 +498,16 @@ export class CreditAccount extends ViewBase {
 	_paidUpLetter() {
 		// TO DO: Place holder for paid up Letter flow.
 
-		if(this.ccsStatus) {
+		if (this.ccsStatus) {
 			this.showCCSmodal = true;
-			return;
 		}
 
 	}
 
-	_settleAndClose(creditType, productType) {
+	async _settleAndClose(creditType, productType, selectedAccountDetails) {
 		// TO DO: Place holder for credit settle and close flow.
+		// This function has to be called after continue click on Disclaimer dialog
+		// "this.settleAndCloseDetails" has to be formed correctly after CS implementaion.
 		
 		this._telemetry.logEvent(CreditEvents.CREDIT_SETTLE_CLOSE_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
@@ -505,6 +515,18 @@ export class CreditAccount extends ViewBase {
 			"credit-type": creditType,
 			"product-type": productType
 		});
+
+		this.clientProducts = await this._getClientProducts();
+		this.settleAndCloseDetails = {
+			header: selectedAccountDetails.category === CREDIT_TYPE.FLEXIBLE ? `Settle And Close` : `Settle Loan`,
+			[selectedAccountDetails.productTypeDescription]: selectedAccountDetails.accountNumber,
+			'Available balance': selectedAccountDetails.availableCredit,
+			'Outstanding balance': selectedAccountDetails.currentBalance,
+			'Interest not capitalised': `R150.00`,
+			'Expected interest and fees': `R40.00`,
+			'Settlement amount': `R11 491.09`
+		};
+		this.renderMode = RENDER_MODE.SETTLE_AND_CLOSE;
 	}
 
 	_settleLoan() {
@@ -657,6 +679,7 @@ export class CreditAccount extends ViewBase {
 			${this._renderSettlementQuoteDialog()}
 			${this._renderFixedStatements()}
 			${this._renderCcsModal()}
+			${this._renderSettleAndCloseDialog()}
 		`;
 	}
 
@@ -683,7 +706,8 @@ export class CreditAccount extends ViewBase {
 	_renderLandingPage() {
 		return this.renderMode === RENDER_MODE.MAIN_PAGE ||
 			   this.renderMode === RENDER_MODE.STATEMENTS ||
-			   this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG
+			   this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG ||
+			   this.renderMode === RENDER_MODE.SETTLE_AND_CLOSE
 			? html`
 				${this._renderCreditVerifiedLandingPage()}
 				${this._renderCreditUnverifiedLandingPage()}`
@@ -821,6 +845,18 @@ export class CreditAccount extends ViewBase {
 		: html``;
 	}
 
+	_renderSettleAndCloseDialog() {
+		return this.renderMode === RENDER_MODE.SETTLE_AND_CLOSE
+		? html`
+			<horizon-settle-and-close-dialog 
+				.settleAndCloseDetails="${this.settleAndCloseDetails}"
+				.clientProducts="${this.clientProducts}"
+
+				@cancel="${() => this._backToLandingPage()}"
+				@settle-and-close="${() => this._confirmSettleAndClose()}">
+			</horizon-settle-and-close-dialog>`
+		: html``;
+	}
 }
 
 customElements.define(`horizon-credit-account`, CreditAccount);

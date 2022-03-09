@@ -9,11 +9,24 @@ export class HorizonSelect extends Select {
 
 	constructor() {
 		super();
+		this.details = false;
 	}
 
 	// --------------
 	// PROPERTIES
 	// --------------
+	
+	/**
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof PayCreditCardBudget
+	 */
+	 static get properties() {
+		return {
+			details: { type: Boolean }
+		};
+	}
 
 	get selectedValue() {
 
@@ -81,9 +94,7 @@ export class HorizonSelect extends Select {
 				class="select container ${this.mode === `inline` ? `inline` : ``} ${this.value && this.mode !== `filter` ? `completed` : ``} ${this.value && this.mode === `filter` ? `filtered` : ``} ${this.error ? `error` : ``} ${this.focussed ? `focussed` : ``} ${this.disabled ? `disabled` : ``}">
 				${this._getSelectedValueIcon()}
 				${super._renderLabel()}
-				<input id="inputField" class="field ${this.mode === `filter` ? `icon-padding` : ``}" type="text" readonly
-					value="${this.selectedValue}" tabindex="${this.disabled ? `-1` : undefined}" @click="${this._onInputClick}" />
-			
+				${this._renderInputField()}
 				${super._renderIcons(`web`)}
 				${super._renderOptions()}
 			
@@ -92,6 +103,16 @@ export class HorizonSelect extends Select {
 			
 			</div>
 		`;
+	}
+
+	_renderInputField() {
+		return this.details 
+		? html`
+			<slot name="custom-input" @click="${this._onInputClick}"></slot>`
+		: html`
+			<input id="inputField" class="field ${this.mode === `filter` ? `icon-padding` : ``}" type="text" readonly
+			value="${this.selectedValue}" tabindex="${this.disabled ? `-1` : undefined}" @click="${this._onInputClick}" />
+			`;
 	}
 
 	_getSelectedValueIcon() {
