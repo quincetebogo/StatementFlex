@@ -246,19 +246,22 @@ export class CallHandleService extends ChannelServiceBase {
 			};
 		}
 
-		return this.get(
-			`/clientcare-call-${this._version}/has-digital-verification-capability?Cif=${cifNumber}`, 
+		const request = {
+			"cif": cifNumber
+		  };
+
+		return this.post(
+			`/clientcare-call-${this._version}/has-digital-verification-capability`, 
+			request, 
 			this.setToken(), 
-			`digitalVerificationChannelsAvailable`,
-			false,
-			null,
+			`digitalVerificationChannelsAvailable`, 
+			null, 
+			null, 
+			1000,
 			null,
 			errorHandler,
 			autoRetries
 		);
-
-		/*
-		return this.post(`/clientcare-call-${this._version}/has-digital-verification-capability`, { 'cif': cifNumber }, this._setToken(), `digitalVerificationChannelsAvailable`);
-		*/
+		
 	}
 }

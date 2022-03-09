@@ -153,24 +153,24 @@ export class IncidentManagementService extends ChannelServiceBase {
 	 * @memberof IncidentManagementService
 	 */
 	 otherNeedCategories(orgUnit, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const url = `/clientcare-incident-${this._version}/categories?OrgUnit=${encodeURIComponent(orgUnit)}`;
+		const request = {
+			"orgUnit": encodeURIComponent(orgUnit)
+		};
 
-		return this.get(
-			url, 
+		const url = `/clientcare-incident-${this._version}/categories`;
+
+		return this.post(
+			url,
+			request,
 			this.setToken(), 
 			`otherNeedCategories`, 
-			false, 
+			null, 
+			null, 
 			1000,
 			null,
 			errorHandler,
 			autoRetries
 		);
-	
-		/*
-		const url = `/clientcare-incident-${this._version}/categories`;
-
-		return this._post(url, { 'orgUnit': encodeURIComponent(orgUnit) }, this._setToken(), `otherNeedCategories`, null, null, 1000);
-		*/
 	}
 
 	/**
@@ -184,32 +184,25 @@ export class IncidentManagementService extends ChannelServiceBase {
 	 * @memberof IncidentManagementService
 	 */
 	 otherNeedSpecificNeed(orgUnit, category, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const url = `/clientcare-incident-${this._version}/need?OrgUnit=${encodeURIComponent(orgUnit)}&CategoryName=${encodeURIComponent(category)}`;
+		const request = {
+			"orgUnit": encodeURIComponent(orgUnit),
+			"categoryName": encodeURIComponent(category)
+		};
 
-		return this.get(
-			url, 
+		const url = `/clientcare-incident-${this._version}/need`;
+		
+		return this.post(
+			url,
+			request,
 			this.setToken(), 
 			`otherNeedSpecificNeed`, 
-			false, 
+			null, 
+			null, 
 			1000,
 			null,
 			errorHandler,
 			autoRetries
 		);
-	
-		/*
-		const url = `/clientcare-incident-${this._version}/need`;
-
-		return this._post(
-			url,
-			{
-				'orgUnit': encodeURIComponent(orgUnit),
-				'categoryName': encodeURIComponent(categoryName)
-			},
-			this._setToken(),
-			`otherNeedSpecificNeed`, null, null, 1000
-		);
-		*/
 	}
 
 	/**
@@ -224,36 +217,26 @@ export class IncidentManagementService extends ChannelServiceBase {
 	 * @memberof IncidentManagementService
 	 */
 	 otherNeedIssueType(orgUnit, category, need, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const url = `/clientcare-incident-${this._version}/issue?` +
-			`OrgUnit=${encodeURIComponent(orgUnit)}&` +
-			`CategoryName=${encodeURIComponent(category)}&` +
-			`Need=${encodeURIComponent(need)}`;
+		const request = {
+			"orgUnit": encodeURIComponent(orgUnit),
+			"categoryName": encodeURIComponent(category),
+			"need": encodeURIComponent(need)
+		};
 
-		return this.get(
-			url, 
-			this.setToken(),
-			`otherNeedIssueType`,
-			null,
-			null,
+		const url = `/clientcare-incident-${this._version}/issue?`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(), 
+			`otherNeedIssueType`, 
+			null, 
+			null, 
+			1000,
 			null,
 			errorHandler,
 			autoRetries
 		);
-	
-		/*
-		const url = `/clientcare-incident-${this._version}/issue`;
-
-		return this._post(
-			url,
-			{
-				'orgUnit': encodeURIComponent(orgUnit),
-				'categoryName': encodeURIComponent(categoryName),
-				'need': encodeURIComponent(need)
-			},
-			this._setToken(), 
-			`otherNeedIssueType`, null, null, 1000
-		);
-		*/
 	}
 
 	/**
@@ -375,23 +358,23 @@ export class IncidentManagementService extends ChannelServiceBase {
 	 * @memberof IncidentManagementService
 	 */
 	GetConsultantInformation(cpNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const url = `/clientcare-incident-${this._version}/user-details?UserID=${cpNumber}`;
+		const request = {
+			"userID": cpNumber
+		};
 
-		return this.get(
-			url, 
-			this.setToken(), 
-			`GetConsultantInformation`,
-			null,
-			null,
+		const url = `/clientcare-incident-${this._version}/user-details`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`GetConsultantInformation`, 
+			null, 
+			null, 
+			1000,
 			null,
 			errorHandler,
 			autoRetries
 		);
-	
-		/*
-		const url = `/clientcare-incident-${this._version}/user-details`;
-
-		return this._post(url, { 'userID': cpNumber }, this._setToken(), `GetConsultantInformation`);
-		*/
 	}
 }
