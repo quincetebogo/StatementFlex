@@ -3,6 +3,7 @@ import { Utilities } from '@cb/platform-web-core';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 
+import 'app/components/common/NoResultsSearchScreen';
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 
@@ -321,7 +322,9 @@ import 'app/components/common/HorizonLabel';
 						</capitec-title-bar>
 						${accountsList.map(budgetAccount => this._renderBudgetAccountTile(budgetAccount))}
 					</capitec-group>`
-				: html``;
+				: html`
+					<horizon-no-results-search-screen></horizon-no-results-search-screen>
+				`;
 		});
 	}
 
