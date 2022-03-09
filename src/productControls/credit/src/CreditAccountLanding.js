@@ -521,7 +521,6 @@ export class CreditAccountLanding extends Component {
 	}
 
 	_renderOptionsGroup(creditType, productType, selectedAccountDetails) {
-		// TODO: Transaction History is going to be added on a later release
 		return html`
 			<capitec-title-bar
 				type="default"
