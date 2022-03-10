@@ -223,7 +223,7 @@ export class IncidentManagementService extends ChannelServiceBase {
 			"need": encodeURIComponent(need)
 		};
 
-		const url = `/clientcare-incident-${this._version}/issue?`;
+		const url = `/clientcare-incident-${this._version}/issue`;
 
 		return this.post(
 			url,

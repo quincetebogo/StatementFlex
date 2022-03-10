@@ -259,7 +259,7 @@ export class SavingsAccountService extends ChannelServiceBase {
 			"moneyType": transactionHistoryRequest.moneyType
 		};
 
-		const url = `/clientcare-savingsaccount-${this._version}/client/transactions?`;
+		const url = `/clientcare-savingsaccount-${this._version}/client/transactions`;
 
 		return this.post(
 			url,
@@ -296,7 +296,7 @@ export class SavingsAccountService extends ChannelServiceBase {
 			"getGenericData": getGenericData
 		};
 
-		const url = `/clientcare-savingsaccount-${this._version}/landing?`;
+		const url = `/clientcare-savingsaccount-${this._version}/landing`;
 
 		return this.post(
 			url,

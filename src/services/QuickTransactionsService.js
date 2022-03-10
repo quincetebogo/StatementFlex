@@ -163,7 +163,7 @@ export class QuickTransactionsService extends ChannelServiceBase {
 			"incidentRecId": incidentRecId
 		};
 
-		const url = `/clientcare-card-${this._version}/limits-landing?`;
+		const url = `/clientcare-card-${this._version}/limits-landing`;
 
 		return this.post(
 			url,
