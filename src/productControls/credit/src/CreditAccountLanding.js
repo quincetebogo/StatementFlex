@@ -319,19 +319,19 @@ export class CreditAccountLanding extends Component {
 
 	_renderContent() {
 		return this.flexibleCreditAccounts.length > 0 || this.fixedTermCreditAccounts.length > 0
-			? html`
-				<capitec-tab-group class="tabs" selectedIndex="${this.selectedTab === CREDIT_TYPE.FIXED ? 1 : 0}">
-					<capitec-tab
-						data-automation-id="credit-account-flexible-credit-tab"
-						label="Flexible Credit">
-							${this._renderFlexibleCreditTab()}
-					</capitec-tab>
-					<capitec-tab
-						data-automation-id="credit-account-fixed-term-tab"
-						label="Fixed Term Credit">
-							${this._renderFixedTermCreditTab()}
-					</capitec-tab>
-				</capitec-tab-group>`
+		? html`
+			<capitec-tab-group class="tabs" selectedIndex="${this.selectedTab === CREDIT_TYPE.FIXED ? 1 : 0}">
+				<capitec-tab
+					data-automation-id="credit-account-flexible-credit-tab"
+					label="Flexible Credit">
+						${this._renderFlexibleCreditTab()}
+				</capitec-tab>
+				<capitec-tab
+					data-automation-id="credit-account-fixed-term-tab"
+					label="Fixed Term Credit">
+						${this._renderFixedTermCreditTab()}
+				</capitec-tab>
+			</capitec-tab-group>`
 		: html``;
 	}
 
@@ -340,14 +340,14 @@ export class CreditAccountLanding extends Component {
 		// TO DO: Later to be replaced with information received from CS call.
 		
 		return this.flexibleCreditAccounts.length > 0
-			? html`
-				<capitec-content-box class="accounts-box">
-					${this._renderFlexibleAccounts()}
-				</capitec-content-box>
-				
-				${this._renderFooter()}`
-			: html`
-				${this._renderCreditNotAvailable(`flexible`)}`;
+		? html`
+			<capitec-content-box class="accounts-box">
+				${this._renderFlexibleAccounts()}
+			</capitec-content-box>
+			
+			${this._renderFooter()}`
+		: html`
+			${this._renderCreditNotAvailable(`flexible`)}`;
 	}
 
 	_renderFixedTermCreditTab() {
@@ -355,12 +355,12 @@ export class CreditAccountLanding extends Component {
 		// TO DO: Later to be replaced with information received from CS call.
 		
 		return this.fixedTermCreditAccounts.length > 0
-			? html`
-				<capitec-content-box class="accounts-box">
-					${this._renderFixedTermAccounts()}
-				</capitec-content-box>
-				
-				${this._renderFooter()}`
+		? html`
+			<capitec-content-box class="accounts-box">
+				${this._renderFixedTermAccounts()}
+			</capitec-content-box>
+			
+			${this._renderFooter()}`
 		: html`
 			${this._renderCreditNotAvailable(`fixed-term`)}`;
 	}
@@ -585,7 +585,7 @@ export class CreditAccountLanding extends Component {
 	}
 
 	_renderCreditNotAvailable(creditType) {
-		const headerText = creditType === `flexible` ? `flexible credit` : `fixed-term`;
+		const headerText = creditType === CREDIT_TYPE.FLEXIBLE ? `flexible credit` : `fixed-term`;
 
 		return html`
 			<capitec-group

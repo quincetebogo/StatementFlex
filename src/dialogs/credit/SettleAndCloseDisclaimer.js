@@ -2,7 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import { CREDIT_TYPE } from 'app/constants/Credit';
 
 /**
- * A warning dialog that prompts the agent that a client has a CCS status on their credit account
+ * A warning dialog that prompts the agent to inform they're settling and closing the selected account.
  *
  * @export
  * @class CCSstatus
