@@ -568,10 +568,10 @@ export class CreditAccountLanding extends Component {
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="credit-account-settle-close"
-						label="Settle & Close"
+						label="${creditType === CREDIT_TYPE.FIXED ? `Settle Loan` : `Settle & Close`}"
 						icon="system/close-circle-action"
 						?hidden="${false}"
-						@click="${() => this._click(`settle-close`, creditType, productType)}">
+						@click="${() => this._click(`settle-close`, creditType, productType, selectedAccountDetails)}">
 				</horizon-option-button>
 				<horizon-option-button
 						data-automation-id="credit-account-budget-facility"

@@ -17,6 +17,7 @@ import 'app/components/credit/CreditCardDetails';
 import 'app/components/credit/AccessFacilityDetails';
 import 'app/components/credit/TermLoanDetails';
 import 'app/components/dialogs/common/CCSstatus';
+import 'app/dialogs/credit/SettleAndCloseDisclaimer';
 import 'app/dialogs/credit/CreditStatements';
 import 'app/dialogs/credit/FixedCreditStatements';
 import 'app/productControls/credit/src/BudgetAccounts';
@@ -35,7 +36,7 @@ import 'app/dialogs/credit/SettlementQuote';
  * @extends {CreditAccount}
  */
 export class CreditAccount extends ViewBase {
-	
+
 	// --------------
 	// INITIALISATION
 	// --------------
@@ -57,9 +58,12 @@ export class CreditAccount extends ViewBase {
 		this.flexibleCreditAccounts = [];
 		this.fixedTermCreditAccounts = []; 
 		this.creditBalance = ``;
+		this.productType = ``;
+		this.creditType = ``;
 		//ccs status of client set to true until real value retrieved from CS
 		this.ccsStatus = true;
 		this.showCCSmodal = false;
+		this.showSettleCloseModal = false;
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 
@@ -96,10 +100,11 @@ export class CreditAccount extends ViewBase {
 			flexibleCreditAccounts: { type: Array, state: true, attribute: false },
 			fixedTermCreditAccounts: { type: Array, state: true, attribute: false },
 			creditBalance: { state: true, attribute: false },
-			showCCSmodal: { type: Boolean }
+			showCCSmodal: { type: Boolean },
+			showSettleCloseModal: { type: Boolean }
 		};
 	}
-	
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -125,9 +130,8 @@ export class CreditAccount extends ViewBase {
 		const transactionHistory = () => this._transactionHistory(creditType, productType);
 		const statements = creditType === `Fixed Credit` ? () => this._getTLStatements(creditType, productType) : () => this._getStatements(creditType, productType);
 		const settlementQuote = () => this._settlementQuote(creditType, productType, selectedAccountDetails);
-		const settleAndClose = () => this._settleAndClose(creditType, productType);
+		const settleAndClose = () => this._settleAndClose(creditType, productType, selectedAccountDetails);
 		const paidUpLetter = () => this._paidUpLetter();
-		const settleLoan = () => this._settleLoan();
 		const budgetFacility = () => this._budgetFacility(selectedAccountDetails);
 		const payBudget = () => this._payBudgetAccount(selectedAccountDetails);
 
@@ -137,7 +141,6 @@ export class CreditAccount extends ViewBase {
 			'settlement-quote': settlementQuote,
 			'paid-up-letter': paidUpLetter,
 			'settle-close': settleAndClose,
-			'settle-loan': settleLoan,
 			'budget-facility': budgetFacility,
 			'pay-budget': payBudget
 		};
@@ -496,19 +499,24 @@ export class CreditAccount extends ViewBase {
 
 	}
 
-	_settleAndClose(creditType, productType) {
+	_settleAndClose(creditType, productType, selectedAccountDetails) {
 		// TO DO: Place holder for credit settle and close flow.
-		
+
 		this._telemetry.logEvent(CreditEvents.CREDIT_SETTLE_CLOSE_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
 			"next-screen": TelemetryScreen.CREDIT_SETTLE_CLOSE,
 			"credit-type": creditType,
 			"product-type": productType
 		});
-	}
 
-	_settleLoan() {
-		// TO DO: Place holder for credit settle loan flow.
+		if(this.ccsStatus) {
+			this.showCCSmodal = true;
+			return;
+		}
+
+		this.productType = selectedAccountDetails.productTypeDescription;
+		this.creditType = creditType;
+		this.showSettleCloseModal = !this.showSettleCloseModal;
 	}
 
 	async _budgetFacility(selectedAccountDetails) {
@@ -657,6 +665,7 @@ export class CreditAccount extends ViewBase {
 			${this._renderSettlementQuoteDialog()}
 			${this._renderFixedStatements()}
 			${this._renderCcsModal()}
+			${this._renderSettleCloseModal()}
 		`;
 	}
 
@@ -738,7 +747,7 @@ export class CreditAccount extends ViewBase {
 			</capitec-pc-budget-account-details>`
 		: html``;
 	}
-	
+
 	_renderPayBudgetDialog() {
 		return this.renderMode === RENDER_MODE.PAY_BUDGET_DIALOG
 			? html`
@@ -748,8 +757,7 @@ export class CreditAccount extends ViewBase {
 					
 					@cancel="${() => this._backFromPayBudgetDialog()}"
 					@transfer="${() => this._transferPayBudget()}">
-				</capitec-pc-pay-budget-dialog>
-			`
+				</capitec-pc-pay-budget-dialog>`
 			: html``;
 	}
 
@@ -760,8 +768,7 @@ export class CreditAccount extends ViewBase {
 				<horizon-credit-card-details-view
 					.creditCardDetails="${this.creditCardDetails}"
 					@back="${() => this._backFromAccountDetails()}">
-				</horizon-credit-card-details-view>
-			`
+				</horizon-credit-card-details-view>`
 			: html``;
 	}
 
@@ -815,10 +822,21 @@ export class CreditAccount extends ViewBase {
 	_renderCcsModal() {
 		return this.showCCSmodal
 		? html`
-		<horizon-ccs-status-dialog
-			@on-okay="${() => this.showCCSmodal = !this.showCCSmodal}">
-		</horizon-ccs-status-dialog>`
+			<horizon-ccs-status-dialog
+				@on-okay="${() => this.showCCSmodal = !this.showCCSmodal}">
+			</horizon-ccs-status-dialog>`
 		: html``;
+	}
+
+	_renderSettleCloseModal() {
+		return this.showSettleCloseModal
+		? html`
+			<horizon-settle-n-close-dialog
+				.productType="${this.productType}"
+				.creditType="${this.creditType}"
+				@cancel="${() => this.showSettleCloseModal = !this.showSettleCloseModal}">
+			</horizon-settle-n-close-dialog>`
+		: html``
 	}
 
 }
