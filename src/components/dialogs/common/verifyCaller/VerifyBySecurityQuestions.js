@@ -165,7 +165,7 @@ export class VerifyBySecurityQuestions extends Component {
 
 		this.securityQuestions.title = this.title;
 		this.securityQuestions.lastName = this.lastName;
-		this.securityQuestions.cif = this.cif;
+		this.securityQuestions.cif = this.cifNumber;
 
 		const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, () => true);
 		const result = returnValue.result;
