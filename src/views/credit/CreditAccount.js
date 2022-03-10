@@ -614,10 +614,13 @@ export class CreditAccount extends ViewBase {
 		// "this.settleAndCloseDetails" has to be formed correctly after CS implementaion.
 
 		this.clientProducts = await this._getClientProducts();
+		const balanceField = selectedAccountDetails.category === CREDIT_TYPE.FLEXIBLE ? `Available balance` : `Credit limit`;
+		const balanceFieldValue = selectedAccountDetails.category === CREDIT_TYPE.FLEXIBLE ? selectedAccountDetails.availableCredit : selectedAccountDetails.creditLimit;
+
 		this.settleAndCloseDetails = {
 			header: selectedAccountDetails.category === CREDIT_TYPE.FLEXIBLE ? `Settle And Close` : `Settle Loan`,
 			[selectedAccountDetails.productTypeDescription]: selectedAccountDetails.accountNumber,
-			'Available balance': `R200.08`,
+			[balanceField]: balanceFieldValue,
 			'Outstanding balance': selectedAccountDetails.currentBalance,
 			'Interest not capitalised': `R150.00`,
 			'Expected interest and fees': `R40.00`,
