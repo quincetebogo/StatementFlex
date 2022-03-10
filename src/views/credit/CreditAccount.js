@@ -128,7 +128,6 @@ export class CreditAccount extends ViewBase {
 		const settlementQuote = () => this._settlementQuote(creditType, productType, selectedAccountDetails);
 		const settleAndClose = () => this._settleAndClose(creditType, productType, selectedAccountDetails);
 		const paidUpLetter = () => this._paidUpLetter();
-		const settleLoan = () => this._settleLoan();
 		const budgetFacility = () => this._budgetFacility(selectedAccountDetails);
 		const payBudget = () => this._payBudgetAccount(selectedAccountDetails);
 
@@ -138,7 +137,6 @@ export class CreditAccount extends ViewBase {
 			'settlement-quote': settlementQuote,
 			'paid-up-letter': paidUpLetter,
 			'settle-close': settleAndClose,
-			'settle-loan': settleLoan,
 			'budget-facility': budgetFacility,
 			'pay-budget': payBudget
 		};
@@ -264,9 +262,6 @@ export class CreditAccount extends ViewBase {
 			status: `OPEN`
 		};
 	
-		// TO DO: Check for list of account that can be used to pay budget from once architecture work is complete.
-		// A/c to the present information, Primary savings account with enough balance to transfer can be listed.
-	
 		const returnValue = await this.quickTransactionService.getClientProducts(request);
 		
 		if (returnValue.succeeded && returnValue.result.savingsProducts) {
@@ -319,8 +314,8 @@ export class CreditAccount extends ViewBase {
 			
 			this.horizonStore.setCallerInformation(this.callerInformation);
 
-			let returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber);
-			let successfullServiceResponse = returnValue.succeeded;
+            let returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber);
+            let successfullServiceResponse = returnValue.succeeded;
 
 			if (!successfullServiceResponse) {
 				this.logger.log(`error`, `Failed to retrieve client overview from credit service.`, `_initialise`, returnValue.correlationId);
@@ -328,7 +323,7 @@ export class CreditAccount extends ViewBase {
 				return;
 			}
 
-			this.creditAccountDetails = returnValue.result;
+            this.creditAccountDetails = returnValue.result;
 			this._formatCreditOverviewResponse();
 			this.flexibleCreditAccounts = [...this.creditAccountDetails.creditCardSummaryList, ...this.creditAccountDetails.accessFacilitySummaryList];
 			this.fixedTermCreditAccounts = [...this.creditAccountDetails.loanAccountSummaryList];
@@ -338,14 +333,14 @@ export class CreditAccount extends ViewBase {
 				return;
 			}
 
-			returnValue = await this.creditService.creditBalance(this.callerInformation.cifNumber);
-			successfullServiceResponse = returnValue.succeeded;
+            returnValue = await this.creditService.creditBalance(this.callerInformation.cifNumber);
+            successfullServiceResponse = returnValue.succeeded;
 
-			if (!successfullServiceResponse) {
-				this.logger.log(`error`, `Failed to retrieve client creit balance from credit service.`, `_initialise`, returnValue.correlationId);
-			} 
+            if (!successfullServiceResponse) {
+                this.logger.log(`error`, `Failed to retrieve client creit balance from credit service.`, `_initialise`, returnValue.correlationId);
+            }
 
-			this.creditBalance = returnValue.result;
+            this.creditBalance = returnValue.result;
 
 			this._telemetry.startSpan(CreditEvents.CREDIT, {
 				"screen": TelemetryScreen.CREDIT_LANDING,
@@ -504,10 +499,8 @@ export class CreditAccount extends ViewBase {
 
 	}
 
-	async _settleAndClose(creditType, productType, selectedAccountDetails) {
+	_settleAndClose(creditType, productType, selectedAccountDetails) {
 		// TO DO: Place holder for credit settle and close flow.
-		// This function has to be called after continue click on Disclaimer dialog
-		// "this.settleAndCloseDetails" has to be formed correctly after CS implementaion.
 		
 		this._telemetry.logEvent(CreditEvents.CREDIT_SETTLE_CLOSE_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
@@ -515,22 +508,10 @@ export class CreditAccount extends ViewBase {
 			"credit-type": creditType,
 			"product-type": productType
 		});
-
-		this.clientProducts = await this._getClientProducts();
-		this.settleAndCloseDetails = {
-			header: selectedAccountDetails.category === CREDIT_TYPE.FLEXIBLE ? `Settle And Close` : `Settle Loan`,
-			[selectedAccountDetails.productTypeDescription]: selectedAccountDetails.accountNumber,
-			'Available balance': selectedAccountDetails.availableCredit,
-			'Outstanding balance': selectedAccountDetails.currentBalance,
-			'Interest not capitalised': `R150.00`,
-			'Expected interest and fees': `R40.00`,
-			'Settlement amount': `R11 491.09`
-		};
-		this.renderMode = RENDER_MODE.SETTLE_AND_CLOSE;
-	}
-
-	_settleLoan() {
-		// TO DO: Place holder for credit settle loan flow.
+		
+		// TO DO: This function has to be called after continue click on Disclaimer dialog
+		// This is now added here only to pass "selectedAccountDetails".
+		this._settleAndCloseChooseAccount(selectedAccountDetails);
 	}
 
 	async _budgetFacility(selectedAccountDetails) {
@@ -626,6 +607,25 @@ export class CreditAccount extends ViewBase {
 		}
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW;
 	}
+	
+	async _settleAndCloseChooseAccount(selectedAccountDetails) {
+		// TO DO: Place holder for credit settle and close flow.
+		// This function has to be called after continue click on Disclaimer dialog
+		// "this.settleAndCloseDetails" has to be formed correctly after CS implementaion.
+
+		this.clientProducts = await this._getClientProducts();
+		this.settleAndCloseDetails = {
+			header: selectedAccountDetails.category === CREDIT_TYPE.FLEXIBLE ? `Settle And Close` : `Settle Loan`,
+			[selectedAccountDetails.productTypeDescription]: selectedAccountDetails.accountNumber,
+			'Available balance': `R200.08`,
+			'Outstanding balance': selectedAccountDetails.currentBalance,
+			'Interest not capitalised': `R150.00`,
+			'Expected interest and fees': `R40.00`,
+			'Settlement amount': `R491.09`
+		};
+		this.renderMode = RENDER_MODE.SETTLE_AND_CLOSE;
+	}
+
 
 	// ---------
 	// RENDERING

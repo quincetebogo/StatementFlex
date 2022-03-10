@@ -9,7 +9,7 @@ export class HorizonSelect extends Select {
 
 	constructor() {
 		super();
-		this.details = false;
+		this.customInput = false;
 	}
 
 	// --------------
@@ -24,7 +24,7 @@ export class HorizonSelect extends Select {
 	 */
 	 static get properties() {
 		return {
-			details: { type: Boolean }
+			customInput: { type: Boolean }
 		};
 	}
 
@@ -106,7 +106,7 @@ export class HorizonSelect extends Select {
 	}
 
 	_renderInputField() {
-		return this.details 
+		return this.customInput 
 		? html`
 			<slot name="custom-input" @click="${this._onInputClick}"></slot>`
 		: html`

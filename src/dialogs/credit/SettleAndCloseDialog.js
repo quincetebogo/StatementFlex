@@ -1,27 +1,7 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
+import { CUSTOM_SELECT_STYLES } from 'app/css/HorizonSelectCustomInput';
 
 import 'app/components/common/HorizonSelectIcon';
-
-const labelStyles = `
-			--horizon-label-text-height: 20px;
-			--horizon-label-text-font-size: 16px;
-			--horizon-label-text-font-weight: 600;
-			--horizon-label-text-line-height: 20px;
-			--horizon-label-value-height: 12px;
-			--horizon-label-value-font-size: 12px;
-			--horizon-label-value-font-weight: 500;
-			--horizon-label-value-line-height: 12px;
-			height: 32px;`;
-
-const inputGroup = `
-			height: 33px;
-			width: 550px;`;
-
-const inputAmount = `
-margin-right: 36px;
---theme-label-default-font-weight: 600;
---theme-label-default-font-size: 16px;
---theme-label-font-color: #3A3A3A;`;
 
 /**
  * Common component to settle & close credit card/Term loans by choosing an account
@@ -116,7 +96,7 @@ export class SettleAndCloseDialog extends Component {
 
 	_deformatCurrency(value) {
 		const amount = value.split(`R`)[1].replaceAll(` `, ``);
-		return amount;
+		return parseFloat(amount);
 	}
 
 	// ---------
@@ -201,6 +181,12 @@ export class SettleAndCloseDialog extends Component {
 				capitec-button {
 					height: 48px;
 					--theme-button-font-weight: 600;
+				}
+				capitec-button[disabled]{
+					--theme-button-primary-background-color: #f5f5f5;
+					--theme-button-primary-border-width: 1px;
+					--theme-button-primary-border-color: #f5f5f5;
+					--theme-button-primary-font-color: #7c7c7c;
 				}
 				.input-group {
 					height: 48px;
@@ -298,24 +284,29 @@ export class SettleAndCloseDialog extends Component {
 				.items="${this.clientProducts}"
 				display-field="accountName"
 				id-field="accountNumber"
-				?details=${true}
+				?customInput=${true}
 				.value="${this.productSelected}"
 				.error="${this.hasEnoughFunds ? null : `Transfer cannot exceed available balance`}"
 				.displayRenderer="${(e) => this._renderOptions(e)}"
 				@value-changed="${(e) => this._valueChanged(e)}">
 					<div slot="custom-input">
-						<capitec-group class="input-group ${this.hasEnoughFunds ? `` : `input-group-error`}" ?noPadding="${true}" layout="horizontal">
-							<horizon-label
-								class="input-label"
-								label="${this.productSelected.accountName}"
-								value="Available balance">
-							</horizon-label>
-							<capitec-spacer></capitec-spacer>
-							<capitec-label label="${this.productSelected.availableBalance}">></capitec-label>
-						</capitec-group>
+						${this._renderCustomSelectInput()}
 					</div>
 			</horizon-select-icon>
 		`;
+	}
+
+	_renderCustomSelectInput() {
+		return html`
+			<capitec-group class="input-group ${this.hasEnoughFunds ? `` : `input-group-error`}" ?noPadding="${true}" layout="horizontal">
+				<horizon-label
+					class="input-label"
+					label="${this.productSelected.accountName}"
+					value="Available balance">
+				</horizon-label>
+				<capitec-spacer></capitec-spacer>
+				<capitec-label label="${this.productSelected.availableBalance}">></capitec-label>
+			</capitec-group>`;
 	}
 
 	_renderFields() {
@@ -339,24 +330,22 @@ export class SettleAndCloseDialog extends Component {
 			<capitec-group ?noPadding="${true}" layout="horizontal">
 				${this._renderOptionIcon(e)}
 					<capitec-group 
-						style="${unsafeCSS(inputGroup).toString()}" 
+						style="${unsafeCSS(CUSTOM_SELECT_STYLES.inputGroup).toString()}" 
 						?noPadding="${true}" 
 						layout="horizontal">
 							<horizon-label
-								style="${unsafeCSS(labelStyles).toString()}" 
+								style="${unsafeCSS(CUSTOM_SELECT_STYLES.inputLabel).toString()}" 
 								label="${e.accountName}"
 								value="Available balance">
 							</horizon-label>
 							<capitec-spacer></capitec-spacer>
-							<capitec-label style="${unsafeCSS(inputAmount).toString()}" label="${e.availableBalance}">></capitec-label>
+							<capitec-label style="${unsafeCSS(CUSTOM_SELECT_STYLES.inputDetails).toString()}" label="${e.availableBalance}">></capitec-label>
 					</capitec-group>
 			</capitec-group>
 		`;
 	}
 
 	_renderOptionIcon(e) {
-		const iconClass = `width: 24px; height: 24px;`;
-
 		return e.icon
 			? html`
 				<capitec-icon
@@ -365,7 +354,7 @@ export class SettleAndCloseDialog extends Component {
 				</capitec-icon>`
 			: html`
 				<capitec-image
-					style="${unsafeCSS(iconClass).toString()}"
+					style="${unsafeCSS(CUSTOM_SELECT_STYLES.inputicon).toString()}"
 					src="${e.customIcon}">
 				</capitec-image>`;
 	}
@@ -387,7 +376,7 @@ export class SettleAndCloseDialog extends Component {
 					data-automation-id="pay-budget-transfer-button"
 					id="id-transfer-button" 
 					type="primary" 
-					?disable="${!this.hasEnoughFunds}"
+					?disabled="${!this.hasEnoughFunds}"
 					label="${this.settleAndCloseDetails.header}"
 					@click="${() => this._onSettleAndCloseClick()}">
 				</capitec-button>
