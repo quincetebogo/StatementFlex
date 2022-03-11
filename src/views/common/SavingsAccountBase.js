@@ -136,7 +136,8 @@ export class SavingsAccountBase extends ViewBase {
 										'category': productInfo.category,
 										'icon': productInfo.icon,
 										'customIcon': productInfo.customIcon,
-										'order': productInfo.order
+										'order': productInfo.order,
+										'choosePeriod': productInfo.choosePeriod
 									};
 								}).sort((x, y) => x.order - y.order);
 			this.renderMode = RENDER_MODE.STATEMENTS;

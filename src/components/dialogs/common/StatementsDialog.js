@@ -1,7 +1,7 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
+import { ERRORS, NOTIFICATION_MESSAGE, PERIOD_TYPE, RANGE_SELECTOR, RENDER_MODE, STATEMENTS_STEPS, TIME_PERIOD } from 'app/constants/Statements';
 import { EventAggregator, Logger, NavigationContext } from 'platform/core';
-import { NOTIFICATION_MESSAGE, RENDER_MODE, STATEMENTS_STEPS, TIME_PERIOD } from 'app/constants/Statements';
-import { base64ToBlobUrl, calculateDays, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { base64ToBlobUrl, calculateDays, formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -14,6 +14,7 @@ import 'platform/components/popups/Modal';
 import 'app/components/common/StepperModal';
 import 'app/components/common/HorizonEmailInput';
 import 'app/components/common/HorizonSelectIcon';
+import 'app/components/statements/MonthPeriodSelector';
 
 const ERROR_MESSAGE = {
 	EMAIL_REQUIRED: `Complete all fields to continue`,
@@ -43,8 +44,6 @@ export class StatementsDialog extends Component {
 	constructor() {
 		super();
 
-		this.navigationContext = NavigationContext.getInstance();
-
 		this.isBusy = false;
 		this.renderMode = RENDER_MODE.CHOOSE_ACCOUNT;
 		this.currentStep = 0;
@@ -69,6 +68,8 @@ export class StatementsDialog extends Component {
 		this.alertBannerMessage = ``;
 		this.emailLabel = `Enter email address`;
 		this.confirmEmailLabel = `Confirm email`;
+		this.periodType = PERIOD_TYPE.STATIC;
+		this.selectedMonths = [];
 		
 		this._telemetryEventsImport();
 		this.eventAggregator = EventAggregator.getInstance();
@@ -76,6 +77,7 @@ export class StatementsDialog extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
+		this.navigationContext = NavigationContext.getInstance();
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 	}
@@ -110,7 +112,8 @@ export class StatementsDialog extends Component {
 			fromDate: { state: true },
 			toDate: { state: true },
 			_customDateRange: { state: true },
-			errorMessage: { state: true }
+			errorMessage: { state: true },
+			periodType: { state: true }
 		};
 	}
 
@@ -185,21 +188,16 @@ export class StatementsDialog extends Component {
 		this._summary.dateRangeLabel = `${TIME_PERIOD[range].label}`;
 		this._summary.detail = `Last ${TIME_PERIOD[range].range} days`;
 
-		this._customDateRange = false;
+		this.periodType = PERIOD_TYPE.STATIC;
 		this.errorMessage = ``;
 	}
 
 	_customDateRangeSelected() {
-		this.showCalendar = true;
 		this.periodSelected = ``;
 		this.calendarErrorMessage = ``;
 		this.fromDate = `dd mm yyyy`;
 		this.toDate = `dd mm yyyy`;
-		this._customDateRange = !this._customDateRange;
-	}
-
-	_showCalendar() {
-		this.showCalendar = !this.showCalendar;
+		this.periodType = PERIOD_TYPE.CUSTOM;
 	}
 	
 	_calendarSelectionChange(e) {
@@ -233,7 +231,7 @@ export class StatementsDialog extends Component {
 		}
 	}
 
-	async _viewPDF() {
+	async _viewPDF(month) {
 		const statement = {
 			"cifNumber": this.cifNumber,
 			"accountNumber": `${this.productSelected.accountNumber}`,
@@ -244,7 +242,7 @@ export class StatementsDialog extends Component {
 			}
 		};
 
-		if (this._customDateRange) {
+		if (!this.fromDate && !this.toDate) {
 			statement.statementDateRange.dateRange = {
 				"startDate": this.fromDate,
 				"endDate": this.toDate
@@ -265,7 +263,7 @@ export class StatementsDialog extends Component {
 			// render the PDF
 			this.encodedPDF = base64ToBlobUrl(returnValue.result.statementData);
 		} else if (this.accountType === ACCOUNT_TYPES.LBB) {
-				this.horizonRouter.navigateToliveBetterSystemError();
+			this.horizonRouter.navigateToliveBetterSystemError();
 		} else {
 			this.errorMessage = `System error. Please try again`;
 			this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewPDF`, returnValue.correlationId);
@@ -290,7 +288,7 @@ export class StatementsDialog extends Component {
 			}
 		};
 
-		if (this._customDateRange) {
+		if (!this.fromDate && !this.toDate) {
 			statement.statementDateRange.dateRange = {
 				"startDate": this.fromDate,
 				"endDate": this.toDate
@@ -331,6 +329,11 @@ export class StatementsDialog extends Component {
 		}
 	}
 
+	_monthPeriodSelected(event) {
+		this.selectedMonths = event.detail.months;
+		this.errorMessage = ``;
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -354,6 +357,7 @@ export class StatementsDialog extends Component {
 		this.telemetryEvents = {
 			[ACCOUNT_TYPES.SAVINGS_ACCOUNT]: () => import(`app/constants/telemetry/events/SavingsAccount`),
 			[ACCOUNT_TYPES.LBB]: () => import(`app/constants/telemetry/events/LiveBetter`),
+			[ACCOUNT_TYPES.CREDIT]: () => import(`app/constants/telemetry/events/Credit`),
 			'': () => import(`app/constants/telemetry/events/QuickTransactions`) // Default
 		};
 	}
@@ -375,16 +379,24 @@ export class StatementsDialog extends Component {
 		return true;
 	}
 
-	async _validatePeriodSelection() {
-		if (this.periodSelected === `` && !this._customDateRange) {
-			this.errorMessage = `You must choose an option in order to continue`;
+	_validatePeriodSelection() {
+		if (this.productSelected.choosePeriod === RANGE_SELECTOR.MONTH) {
+			return this._validateMonthPeriod();
+		}
+
+		return this._validateDatePeriod();
+	}
+
+	async _validateDatePeriod() {
+		if (this.periodSelected === `` && this.periodType === PERIOD_TYPE.STATIC) {
+			this.errorMessage = ERRORS.REQUIRED_PERIOD;
 			this.calendarErrorMessage = `Required`;
 			return false;
-		} else if (this._customDateRange && (this.fromDate === `dd mm yyyy` || this.toDate === `dd mm yyyy`)) {
-			this.errorMessage = `You must choose an option in order to continue`;
+		} else if (this.periodType === PERIOD_TYPE.CUSTOM && (this.fromDate === `dd mm yyyy` || this.toDate === `dd mm yyyy`)) {
+			this.errorMessage = ERRORS.REQUIRED_PERIOD;
 			this.calendarErrorMessage = `Required`;
 			return false;
-		} 
+		}
 
 		this._getSummary();
 
@@ -398,23 +410,21 @@ export class StatementsDialog extends Component {
 		return true;
 	}
 
+	_validateMonthPeriod() {
+		if (this.selectedMonths.length === 0) {
+			this.errorMessage = ERRORS.REQUIRED_PERIOD;
+			return false;
+		}
+
+		return true;
+	}
+
 	_validateEmailAddress() {
 		if (isNullorEmpty(this.email) || isNullorEmpty(this.confirmEmail)) {
 			this.alertBannerMessage = ERROR_MESSAGE.EMAIL_REQUIRED;
 		}
 
 		return isNullorEmpty(this.alertBannerMessage);
-	}
-
-	_validateRangeSelected() {
-		if (this._customDateRange) {
-			const rangeDiff = Math.floor((new Date(this.toDate).getTime() - new Date(this.fromDate).getTime()) / (1000 * 3600 * 24));
-			if (rangeDiff > 90) {
-				this.errorMessage = `Out of range, please select the correct range up to 90 days`;
-				return false;
-			}
-		}
-		return true;
 	}
 
 	_getSummary() {
@@ -489,7 +499,7 @@ export class StatementsDialog extends Component {
 		screenDetails.accountNumber = this.productSelected.accountNumber;
 		screenDetails.accountType = this.productSelected.accountName;
 		screenDetails.telemetryEvent = this.telemetryEvent;
-		
+
 		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
@@ -517,6 +527,12 @@ export class StatementsDialog extends Component {
 		this._customDateRange = false;
 		this.fromDate = `dd mm yyyy`;
 		this.toDate = `dd mm yyyy`;
+	}
+
+	_getDaysinMonth(value) {
+		const [first, second] = value.split(`/`);
+		const daysInMonth = new Date(second, first - 1, 0).getDate();
+		return daysInMonth;
 	}
 
 	// ---------
@@ -638,19 +654,6 @@ export class StatementsDialog extends Component {
 				}
 				.custom-date-card > capitec-content-box > capitec-group:first-child {
 					--theme-layout-gap-spacing: 8px;
-				}
-				.datePicker-btn {
-					width: 386px;
-					height: 48px;
-
-					--theme-button-white-border-color: #E1E1E1;
-					--theme-button-padding-top: 6px;
-					--theme-button-padding-bottom: 6px;
-					--theme-button-padding-left: 16px;
-					--theme-button-padding-right: 16px;
-				}
-				.datePicker-btn:hover {
-					box-shadow: none;
 				}
 				capitec-group > .calendar:first-child {
 					--theme-layout-gap-spacing: 0px;
@@ -851,63 +854,73 @@ export class StatementsDialog extends Component {
 	}
 
 	_renderChoosePeriod() {
-		if (this.renderMode === RENDER_MODE.CHOOSE_PERIOD) {
-			return html`
-				<capitec-label
-					type="subtitle"
-					label="Choose Period">
-				</capitec-label>
-
-				<capitec-group
-					class="choose-period"
-					layout="horizontal">
-						<horizon-product-tile
-							data-automation-id="statements-dialog-one-month-period"
-							type="radio-button"
-							label="1 month"
-							subtitle="Last 30 days"
-							detail=""
-							?disabled="${this._getDateRange(30)}"
-							@click="${(e) => this._choosePeriod(`ONE_MONTH`)}"
-							?selected="${this.periodSelected === TIME_PERIOD.ONE_MONTH.value}">
-						</horizon-product-tile>
-						<horizon-product-tile
-							data-automation-id="statements-dialog-three-months-period"
-							type="radio-button"
-							label="3 months"
-							subtitle="Last 90 days"
-							detail=""
-							?disabled="${this._getDateRange(90)}"
-							@click="${(e) => this._choosePeriod(`THREE_MONHTS`)}"
-							?selected="${this.periodSelected === TIME_PERIOD.THREE_MONHTS.value}">
-						</horizon-product-tile>
-						<horizon-product-tile
-							data-automation-id="statements-dialog-six-months-period"
-							type="radio-button"
-							label="6 months"
-							subtitle="Last 180 days"
-							detail=""
-							?disabled="${this._getDateRange(180)}"
-							@click="${(e) => this._choosePeriod(`SIX_MONTHS`)}"
-							?selected="${this.periodSelected === TIME_PERIOD.SIX_MONTHS.value}">
-						</horizon-product-tile>
-						<horizon-product-tile
-							data-automation-id="statements-dialog-nine-months-period"
-							type="radio-button"
-							label="9 months"
-							subtitle="Last 270 days"
-							detail=""
-							?disabled="${this._getDateRange(270)}"
-							@click="${(e) => this._choosePeriod(`NINE_MONTHS`)}"
-							?selected="${this.periodSelected === TIME_PERIOD.NINE_MONTHS.value}">
-						</horizon-product-tile>
-				</capitec-group>
-				${this._renderPeriodSelected()}
-			`;
+		switch (true) {
+			case this.productSelected.choosePeriod === RANGE_SELECTOR.MONTH && this.renderMode === RENDER_MODE.CHOOSE_PERIOD:
+				return html`${this._renderChooseMonthPeriod()}`;
+			case this.productSelected.choosePeriod === RANGE_SELECTOR.DATE && this.renderMode === RENDER_MODE.CHOOSE_PERIOD:
+				return html`${this._renderChooseDatePeriod()}`;
+			default:
+				return html``;
+				
 		}
 	}
 
-	_renderPeriodSelected() {
+	_renderChooseDatePeriod() {
+		return html`
+			<capitec-label
+				type="subtitle"
+				label="Choose Period">
+			</capitec-label>
+
+			<capitec-group
+				class="choose-period"
+				layout="horizontal">
+					<horizon-product-tile
+						data-automation-id="statements-dialog-one-month-period"
+						type="radio-button"
+						label="1 month"
+						subtitle="Last 30 days"
+						detail=""
+						?disabled="${this._getDateRange(30)}"
+						@click="${(e) => this._choosePeriod(`ONE_MONTH`)}"
+						?selected="${this.periodSelected === TIME_PERIOD.ONE_MONTH.value}">
+					</horizon-product-tile>
+					<horizon-product-tile
+						data-automation-id="statements-dialog-three-months-period"
+						type="radio-button"
+						label="3 months"
+						subtitle="Last 90 days"
+						detail=""
+						?disabled="${this._getDateRange(90)}"
+						@click="${(e) => this._choosePeriod(`THREE_MONHTS`)}"
+						?selected="${this.periodSelected === TIME_PERIOD.THREE_MONHTS.value}">
+					</horizon-product-tile>
+					<horizon-product-tile
+						data-automation-id="statements-dialog-six-months-period"
+						type="radio-button"
+						label="6 months"
+						subtitle="Last 180 days"
+						detail=""
+						?disabled="${this._getDateRange(180)}"
+						@click="${(e) => this._choosePeriod(`SIX_MONTHS`)}"
+						?selected="${this.periodSelected === TIME_PERIOD.SIX_MONTHS.value}">
+					</horizon-product-tile>
+					<horizon-product-tile
+						data-automation-id="statements-dialog-nine-months-period"
+						type="radio-button"
+						label="9 months"
+						subtitle="Last 270 days"
+						detail=""
+						?disabled="${this._getDateRange(270)}"
+						@click="${(e) => this._choosePeriod(`NINE_MONTHS`)}"
+						?selected="${this.periodSelected === TIME_PERIOD.NINE_MONTHS.value}">
+					</horizon-product-tile>
+			</capitec-group>
+			${this._renderCustomDateRange()}
+		`;
+	}
+
+	_renderCustomDateRange() {
 		return html`
 			<capitec-label
 				class="date-label"
@@ -922,15 +935,15 @@ export class StatementsDialog extends Component {
 				label="Choose date range"
 				subtitle="Up to 90 days"
 				detail=""
-				?selected="${this._customDateRange}"
+				?selected="${this.periodType === PERIOD_TYPE.CUSTOM}"
 				@click="${() => this._customDateRangeSelected()}">
 			</horizon-product-tile>
-			${this._renderCustomDateRange()}
+			${this._renderCalendarInput()}
 		`;
 	}
 
-	_renderCustomDateRange() {
-		if (this._customDateRange) {
+	_renderCalendarInput() {
+		if (this.periodType === PERIOD_TYPE.CUSTOM) {
 			return html`
 				<capitec-card
 					class="custom-date-card">
@@ -945,66 +958,98 @@ export class StatementsDialog extends Component {
 	}
 
 	_renderCalendar() {
-		if (this.showCalendar) {
-			return html`
-				<capitec-date-time-picker
-					data-automation-id="statements-dialog-calendar"
-					class="calendar"
-					type="range"
-					mode="date"
-					label="Choose from and to date"
-					startDate = "${this.fromDate === `dd mm yyyy` ? `` : this.fromDate}"
-					endDate = "${this.toDate === `dd mm yyyy` ? `` : this.toDate}"
-					minDate = "${this._getMinDate(this.productSelected.accountOpenDate).toISOString()}"
-					maxDate = "${this.today}"
-					error = "${this.calendarErrorMessage}"
-					inputType="calendar"
-					outputType="string"
-					@value-changed="${(e) => this._calendarSelectionChange(e)}">
-				</capitec-date-time-picker>
-			`;
-		}
-		return html``;
+		return html`
+			<capitec-date-time-picker
+				data-automation-id="statements-dialog-calendar"
+				class="calendar"
+				type="range"
+				mode="date"
+				label="Choose from and to date"
+				startDate = "${this.fromDate === `dd mm yyyy` ? `` : this.fromDate}"
+				endDate = "${this.toDate === `dd mm yyyy` ? `` : this.toDate}"
+				minDate = "${this._getMinDate(this.productSelected.accountOpenDate).toISOString()}"
+				maxDate = "${this.today}"
+				error = "${this.calendarErrorMessage}"
+				inputType="calendar"
+				outputType="string"
+				@value-changed="${(e) => this._calendarSelectionChange(e)}">
+			</capitec-date-time-picker>`;
+	}
+
+	_renderChooseMonthPeriod() {
+		return html`
+			<horizon-month-period-selector
+				accountOpenDate="${this.productSelected.accountOpenDate}"
+				.value="${this.selectedMonths}"
+				@value-changed="${(event) => this._monthPeriodSelected(event)}">
+			</horizon-month-period-selector>
+		`;
 	}
 
 	_renderEmailClient() {
-		if (this.renderMode === RENDER_MODE.EMAIL) {
-			return html`
+		return this.renderMode === RENDER_MODE.EMAIL
+		? html`
+			<horizon-email-input
+				labelOne="${this.emailLabel}"
+				labelTwo="${this.confirmEmailLabel}"
+				?showRequiredError="${this.alertBannerMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
+				.callBack="${() => this._clearAlerts()}"
+				@value-changed="${(e) => this._emailValueChanged(e)}">
+			</horizon-email-input>
 
-				<horizon-email-input
-					labelOne="${this.emailLabel}"
-					labelTwo="${this.confirmEmailLabel}"
-					?showRequiredError="${this.alertBannerMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
-					.callBack="${() => this._clearAlerts()}"
-					@value-changed="${(e) => this._emailValueChanged(e)}">
-				</horizon-email-input>
+			<hr class="seperator">
 
-				<hr class="seperator">
+			<capitec-label
+				type="subtitle"
+				label="View document">
+			</capitec-label>
+			${this._renderViewDocuments()}`
+		: html``;
+	}
 
-				<capitec-label
-					type="subtitle"
-					label="View document">
-				</capitec-label>
-
-				<horizon-product-tile
-					data-automation-id="statements-dialog-view-document"
-					class="view-document"
-					type="default"
-					label="${this._summary.dateRangeLabel}"
-					subtitle="${this._summary.detail}">
-						${this._renderViewDocumnetLink()}
-				</horizon-product-tile>
-			`;
+	_renderViewDocuments() {
+		switch (true) {
+			case this.productSelected.choosePeriod === RANGE_SELECTOR.MONTH:
+				return html`${this._renderSelectedMonthsView()}`;
+			case this.productSelected.choosePeriod === RANGE_SELECTOR.DATE:
+			default:
+				return html`${this._renderSelectedDateView()}`;
 		}
 	}
 
-	_renderViewDocumnetLink() {
+	_renderSelectedDateView() {
+		return html`
+			<horizon-product-tile
+				data-automation-id="statements-dialog-view-document"
+				class="view-document"
+				type="default"
+				label="${this._summary.dateRangeLabel}"
+				subtitle="${this._summary.detail}">
+					${this._renderViewDocumnetLink()}
+			</horizon-product-tile>
+		`;
+	}
+
+	_renderSelectedMonthsView() {
+		return this.selectedMonths.map(month => html`
+			<horizon-product-tile
+				data-automation-id="statements-dialog-view-document"
+				class="view-document"
+				type="default"
+				label="${formatDate(`01/${month}`, `MM yyyy`)}"
+				subtitle="${this._getDaysinMonth(month)} days">
+					${this._renderViewDocumnetLink(month)}
+			</horizon-product-tile>
+		`);
+	}
+
+	_renderViewDocumnetLink(month = null) {
 		return html`
 			<capitec-label
 				slot="detail"
 				type="strong"
 				label="View Document"
-				@click="${() => this._viewPDF()}">
+				@click="${() => this._viewPDF(month)}">
 			</capitec-label>
 		`;
 	}

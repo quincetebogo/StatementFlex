@@ -2,6 +2,7 @@ import { CREDIT_TYPE, FROM_ACCOUNTS_LIST, PRODUCTS } from 'app/constants/Credit'
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { css, html } from 'platform/elements';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
+import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { CreditService } from 'app/services/CreditService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
@@ -9,6 +10,7 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { creditMixin } from 'app/views/credit/CreditMixin';
+import { creditOverview } from 'app/mocks/CreditMocks';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 
@@ -17,8 +19,7 @@ import 'app/components/credit/CreditCardDetails';
 import 'app/components/credit/AccessFacilityDetails';
 import 'app/components/credit/TermLoanDetails';
 import 'app/components/dialogs/common/CCSstatus';
-import 'app/dialogs/credit/CreditStatements';
-import 'app/dialogs/credit/FixedCreditStatements';
+import 'app/components/dialogs/common/StatementsDialog';
 import 'app/productControls/credit/src/BudgetAccounts';
 import 'app/productControls/credit/src/BudgetAccountDetails';
 import 'app/productControls/credit/src/CreditAccountLanding';
@@ -57,8 +58,8 @@ export class CreditAccount extends ViewBase {
 		this.flexibleCreditAccounts = [];
 		this.fixedTermCreditAccounts = []; 
 		this.creditBalance = ``;
-		//ccs status of client set to true until real value retrieved from CS
-		this.ccsStatus = true;
+		// ccs status of client set to true until real value retrieved from CS
+		this.ccsStatus = false;
 		this.showCCSmodal = false;
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
@@ -123,7 +124,7 @@ export class CreditAccount extends ViewBase {
 	async _optionClick(option, creditType, productType, selectedAccountDetails) {
 
 		const transactionHistory = () => this._transactionHistory(creditType, productType);
-		const statements = creditType === `Fixed Credit` ? () => this._getTLStatements(creditType, productType) : () => this._getStatements(creditType, productType);
+		const statements = () => this._getStatements(creditType, productType, selectedAccountDetails.productTypeCode, selectedAccountDetails.accountNumber, selectedAccountDetails.openDate);
 		const settlementQuote = () => this._settlementQuote(creditType, productType, selectedAccountDetails);
 		const settleAndClose = () => this._settleAndClose(creditType, productType);
 		const paidUpLetter = () => this._paidUpLetter();
@@ -296,7 +297,7 @@ export class CreditAccount extends ViewBase {
 
 	async _initialise() {
 
-		//TO DO: get ccs status from permission endpoint
+		// TO DO: get ccs status from permission endpoint
 			// permissionResultList:[
 			// 	operationIdentifier: "ALL",
 			// 	permissionResult: "Denied",
@@ -336,7 +337,7 @@ export class CreditAccount extends ViewBase {
 				this.logger.log(`error`, `Failed to retrieve client creit balance from credit service.`, `_initialise`, returnValue.correlationId);
 			} 
 
-			this.creditBalance = returnValue.result;
+			this.creditBalance = 0;
 
 			this._telemetry.startSpan(CreditEvents.CREDIT, {
 				"screen": TelemetryScreen.CREDIT_LANDING,
@@ -442,14 +443,10 @@ export class CreditAccount extends ViewBase {
 		// await super.createAndClassifySubsIncident();
 	}
 
-	_getTLStatements(creditType, productType, term) {
-		this.renderMode = RENDER_MODE.FIXED_STATEMENTS;
-	}
-
-	_getStatements(creditType, productType) {
+	_getStatements(creditType, productType, productCode, accNum, openDate) {
 		// TO DO: Place holder for credit statements flow.
 
-		if(this.ccsStatus) {
+		if (this.ccsStatus) {
 			this.showCCSmodal = true;
 			return;
 		}
@@ -460,11 +457,27 @@ export class CreditAccount extends ViewBase {
 			"credit-type": creditType,
 			"product-type": productType
 		});
+
+		const productInfo = ACCOUNT_INTCAT_ENUM[productCode];
+		this.clientProducts = [
+			{
+				'accountNumber': accNum,
+				'accountName': productInfo.name,
+				'accountType': productCode,
+				'accountOpenDate': openDate,
+				'type': productInfo.type,
+				'category': productInfo.category,
+				'icon': productInfo.icon,
+				'customIcon': productInfo.customIcon,
+				'order': productInfo.order,
+				'choosePeriod': productInfo.choosePeriod
+			}
+		];
 		this.renderMode = RENDER_MODE.STATEMENTS;
 	}
 
 	_settlementQuote(creditType, productType, selectedAccountDetails) {
-		if(this.ccsStatus) {
+		if (this.ccsStatus) {
 			this.showCCSmodal = true;
 			return;
 		}
@@ -489,11 +502,10 @@ export class CreditAccount extends ViewBase {
 	_paidUpLetter() {
 		// TO DO: Place holder for paid up Letter flow.
 
-		if(this.ccsStatus) {
+		if (this.ccsStatus) {
 			this.showCCSmodal = true;
-			return;
+			return true;
 		}
-
 	}
 
 	_settleAndClose(creditType, productType) {
@@ -655,7 +667,6 @@ export class CreditAccount extends ViewBase {
 			${this._renderStatements()}
 			${this._renderPayBudgetDialog()}
 			${this._renderSettlementQuoteDialog()}
-			${this._renderFixedStatements()}
 			${this._renderCcsModal()}
 		`;
 	}
@@ -788,27 +799,17 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderStatements() {
-		// startDate="${DateTime.local(2021, 10).toString()}"
 		return this.renderMode === RENDER_MODE.STATEMENTS
 		? html`
-			<horizon-credit-statements-dialog
+			<horizon-statements-dialog
+				.cifNumber="${this.callerInformation.cifNumber}"
+				.clientProducts="${this.clientProducts}"
+				type="${ACCOUNT_TYPES.CREDIT}"
+				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}"
 				@cancel="${() => this._backToLandingPage()}"
 				@view-fees="${() => this._viewFees()}"
-				@send="${() => this._sendStatement()}"
-				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
-			</horizon-credit-statements-dialog>`
-		: html``;
-	}
-
-	_renderFixedStatements() {
-		return this.renderMode === RENDER_MODE.FIXED_STATEMENTS
-		? html`
-			<horizon-fixed-credit-statements-dialog
-				@cancel="${() => this._backToLandingPage()}"
-				@view-fees="${() => this._viewFees()}"
-				@send="${() => this._sendStatement()}"
-				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
-			</horizon-fixed-credit-statements-dialog>`
+				@account-selected="${(event) => this._statementsAccConfirmed(event)}">
+			</horizon-statements-dialog>`
 		: html``;
 	}
 

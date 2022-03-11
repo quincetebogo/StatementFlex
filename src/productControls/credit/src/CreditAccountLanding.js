@@ -550,7 +550,7 @@ export class CreditAccountLanding extends Component {
 						label="Statements"
 						icon="system/documents-action"
 						?hidden="${false}"
-						@click="${() => this._click(`statements`, creditType, productType)}">
+						@click="${() => this._click(`statements`, creditType, productType, selectedAccountDetails)}">
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="credit-account-settlement-quote"

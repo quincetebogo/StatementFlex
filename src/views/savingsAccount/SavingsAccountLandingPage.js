@@ -281,7 +281,8 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				'category': productInfo.category,
 				'icon': productInfo.icon,
 				'customIcon': productInfo.customIcon,
-				'order': productInfo.order
+				'order': productInfo.order,
+				'choosePeriod': productInfo.choosePeriod
 			}
 		];
 		this.renderMode = RENDER_MODE.STATEMENTS;
