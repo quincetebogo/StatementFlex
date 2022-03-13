@@ -57,8 +57,8 @@ export class CreditAccount extends ViewBase {
 		this.flexibleCreditAccounts = [];
 		this.fixedTermCreditAccounts = []; 
 		this.creditBalance = ``;
-		//ccs status of client set to true until real value retrieved from CS
-		this.ccsStatus = true;
+		// ccs status of client set to true until real value retrieved from CS
+		this.ccsStatus = false;
 		this.showCCSmodal = false;
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
@@ -296,11 +296,11 @@ export class CreditAccount extends ViewBase {
 
 	async _initialise() {
 
-		//TO DO: get ccs status from permission endpoint
+		// TO DO: get ccs status from permission endpoint
 			// permissionResultList:[
-			// 	operationIdentifier: "ALL",
-			// 	permissionResult: "Denied",
-			// 	declineReason: "Deceased"
+			// operationIdentifier: "ALL",
+			// permissionResult: "Denied",
+			// declineReason: "Deceased"
 			// ]
 		// this.ccsStatus = this.quickTransactionService.permissions();
 
@@ -449,7 +449,7 @@ export class CreditAccount extends ViewBase {
 	_getStatements(creditType, productType) {
 		// TO DO: Place holder for credit statements flow.
 
-		if(this.ccsStatus) {
+		if (this.ccsStatus) {
 			this.showCCSmodal = true;
 			return;
 		}
@@ -464,7 +464,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_settlementQuote(creditType, productType, selectedAccountDetails) {
-		if(this.ccsStatus) {
+		if (this.ccsStatus) {
 			this.showCCSmodal = true;
 			return;
 		}
@@ -488,8 +488,9 @@ export class CreditAccount extends ViewBase {
 
 	_paidUpLetter() {
 		// TO DO: Place holder for paid up Letter flow.
-
-		if(this.ccsStatus) {
+		debugger;
+		
+		if (this.ccsStatus) {
 			this.showCCSmodal = true;
 			return;
 		}

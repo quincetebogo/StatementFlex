@@ -71,7 +71,7 @@ export class Favourites extends SavingsAccountBase {
 		this.feedbackOptions = [];
 		this.updateStrackClick = false;
 		// TODO: get ccs status for client
-		this.ccsStatus = true;
+		this.ccsStatus = false;
 		this.showCCSmodal = false;
 
 		this._telemetry = HorizonTelemetry.instance;
@@ -581,7 +581,6 @@ export class Favourites extends SavingsAccountBase {
 
 	_paidUpAccounts() {
 		// TODO: CS call to get info
-
 		if (this.ccsStatus) {
 			this.showCCSmodal = true;
 			return;
