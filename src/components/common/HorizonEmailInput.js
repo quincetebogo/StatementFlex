@@ -1,54 +1,69 @@
 import { Component, css, html } from 'platform/elements';
+import { EMAIL_DOMAINS } from 'app/constants/Common';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
-
 const EMAIL_REGEX = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
+const ERROR_MESSAGE = {
+	FORMAT: `Enter a valid email address`,
+	MISMATCH: `Emails don't match`,
+	REQUIRED: `Enter a valid email address i.e.email@gmail.com`
+};
 
 /**
- * Reusable email component to be used to send statements.
+ * An email component, with two fields to capture email and confrim email values.
+ * This is coded to do format check and comparison validations itself.
  * 
  * Events Raised 
  * -------------
- * cancel
- * send email
+ * value-changed
  *  
  * @export
- * @class StatementsDialog
+ * @class HorizonEmailInput
  * @extends {Component}
  */
 
 export class HorizonEmailInput extends Component {
+
 	// --------------
-    // INITIALISATION
-    // --------------
+	// INITIALISATION
+	// --------------
 
 	constructor() {
 		super();
 
 		this.email = ``;
+		this.emailError = ``;
+		this.emailSuggestion = ``;
+
 		this.confirmEmail = ``;
-		this.errorMessage = ``;
-		this.mailClientError = {
-			email: ``,
-			confirmEmail: ``
-		};
+		this.confirmEmailError = ``;
+		this.confirmEmailSuggestion = ``;
 	}
 
-    // ----------
-    // PROPERTIES
-    // ----------
+	// ----------
+	// PROPERTIES
+	// ----------
 
 	/**
-	* Registry of all properties defined by the component.
+	* @param {string} labelOne - First text field label value
+	* @param {string} labelTwo - Second text field label value
+	* @param {Boolean} showRequiredError - Flag to let this component show required field error
+	* @param {Object} callBack - Callback function to parent component, can be used for any purpose
 	**/
 	 static get properties() {
 		 return {
-			email: { type: String },
-			confirmEmail: { type: String },
 			labelOne: { type: String },
 			labelTwo: { type: String },
-			emailError: { attribute: false },
-			confirmEmailError: { attribute: false }
+			showRequiredError: { type: Boolean },
+			callBack: { type: Object },
+
+			email: { type: String, state: true },
+			emailError: { state: true },
+			emailSuggestion: { state: true },
+
+			confirmEmail: { type: String, state: true },
+			confirmEmailError: { state: true },
+			confirmEmailSuggestion: { state: true }
 		 };
 	}
 
@@ -56,32 +71,99 @@ export class HorizonEmailInput extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
+	connectedCallback() {
+		super.connectedCallback();
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+	}
+
+	async updated(changedProperties) {
+		await this.updateComplete;
+
+		const emailChange = Boolean(changedProperties.get(`email`));
+		const confirmEmailChange = Boolean(changedProperties.get(`confirmEmail`));
+		const requiredError = this.showRequiredError;
+
+		if (emailChange) {
+			this._showDomainSuggestion(this.email, `email`);
+		} else if (confirmEmailChange) {
+			this._showDomainSuggestion(this.confirmEmail, `confirmEmail`);
+		} else if (requiredError) {
+			this._showRequiredErrors();
+		}
+	}
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-	
-	/**
-	 * Input of an email address
-	 * @param {string} email - The clients email address
-	 * @param {string} confirmEmail - The clients email address repeated
-	 * @param {string} type - Used for error validations and messages
-	 */
 
-	_emailValueChange(email, confirm) {
-		this.dispatchEvent(new CustomEvent(`value-changed`, {
-			detail: {
-				email: email,
-				confirmEmail: confirm
-			}
-		}));
+	_keyDownTab(evt) {
+		if (evt.keyCode === 9) {
+			this.email = `${this.email}${this.emailSuggestion}`;
+			this.confirmEmail = `${this.confirmEmail}${this.confirmEmailSuggestion}`;
+
+			this.emailSuggestion = ``;
+			this.confirmEmailSuggestion = ``;
+		}
 	}
 
-	_validateEmailAddress() {
-		this.dispatchEvent(new CustomEvent(`validation-update`, {
+	_inputEmail(event) {
+		if (event.detail) {
+			this.emailError = ``;
+			this.confirmEmailError = this.confirmEmailError === ERROR_MESSAGE.MISMATCH ? `` : this.confirmEmailError;
+			this.email = event.detail.new;
+			this.callBack();
+		}
+	}
+
+	_inputConfirmEmail(event) {
+		if (event.detail) {
+			this.confirmEmailError = ``;
+			this.emailError = this.emailError === ERROR_MESSAGE.MISMATCH ? `` : this.emailError;
+			this.confirmEmail = event.detail.new;
+			this.callBack();
+		}
+	}
+
+	/**
+	 * On focusing out from an input, following operations are carried out
+	 * 1. Empty the suggestion
+	 * 2. If value is empty, don't do any further checks/ dispatch event
+	 * 3. If value is not empty, do regex email format check
+	 * 4. When regex check is passed, do compare check
+	 * 5. When all the above are passed, dispatch event
+	 * 
+	 * @param {Object} event - focus out event object
+	 * @returns {void}
+	 */
+	_focusOutInput(event) {
+		this[`${event.currentTarget.id}Suggestion`] = ``;
+
+		const value = this[`${event.currentTarget.id}`]; // Fetching current target value
+		if (!value) {
+			// When value is empty, don't do any further checks
+			return true;
+		}
+
+		const isValid = this._validateInput(value);
+		if (!isValid) {
+			this[`${event.currentTarget.id}Error`] = ERROR_MESSAGE.FORMAT; // invalid email error
+		}
+
+		const isMatched = this._compareEmails();
+		if (!isMatched) {
+			this.emailError = ERROR_MESSAGE.MISMATCH; // not matched error
+			this.confirmEmailError = ERROR_MESSAGE.MISMATCH; // not matched error
+		}
+
+		this.dispatchEvent(new CustomEvent(`value-changed`, {
 			detail: {
-				errorMessage: this.errorMessage,
-				emailError: this.mailClientError.email,
-				confirmEmailError: this.mailClientError.confirmEmail
+				email: this.email,
+				confirmEmail: this.confirmEmail,
+				invalidFormat: this.emailError === ERROR_MESSAGE.FORMAT || this.confirmEmailError === ERROR_MESSAGE.FORMAT,
+				mismatched: !isMatched
 			}
 		}));
 	}
@@ -90,63 +172,116 @@ export class HorizonEmailInput extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	_confirmEmailMatch() {
-		if (isNullorEmpty(this.email) || isNullorEmpty(this.confirmEmail)) {
-			return false;
-		}
+	/**
+	 * Suggests email domain value for the input string.
+	 * This starts peforming only when the input has @ and there after any character
+	 * 
+	 * @param {string} value - Textfield value (from email/ confirm email)
+	 * @param {string} id - Current target id
+	 * @return {void}
+	 */
+	_showDomainSuggestion(value, id) {
+		if (value.indexOf(`@`) > -1) {
+		
+			const change = value.split(`@`);
+			const suggestFor = change[1];
 
-		if (this.email === this.confirmEmail) {
-			this._emailValueChange(this.email, this.confirmEmail);
+			if (suggestFor) {
+				// Retrieving input replica label elem
+				const inputReplica = this.shadowRoot.getElementById(`${id}-replica`);
+				// Retrieving text field computed styles
+				const textField = this.shadowRoot.getElementById(id);
+				const textFieldStyles = getComputedStyle(textField);
+				const paddingLeft = textFieldStyles?.getPropertyValue(`--theme-input-padding-left`);
+				const bufferSpace = 4; // 2px;
+
+				const suggestionElem = this.shadowRoot.getElementById(`${id}-suggestion`);
+				suggestionElem.style.setProperty(`left`, `calc(${inputReplica.offsetWidth + 3}px + ${paddingLeft})`);
+
+				const suggestionValue = EMAIL_DOMAINS.find(item => item.startsWith(suggestFor.toLowerCase()));
+				this[`${id}Suggestion`] = suggestionValue?.substring(suggestFor.length) ?? ``;
+			} else {
+				this[`${id}Suggestion`] = ``;
+			}
+		} else {
+			this[`${id}Suggestion`] = ``;
+		}
+	}
+
+	_validateInput(val) {
+		return EMAIL_REGEX.test(val);
+	}
+
+	_compareEmails() {
+		const hasFormatError = this.emailError === ERROR_MESSAGE.FORMAT || this.confirmEmailError === ERROR_MESSAGE.FORMAT;
+		const hasValues = Boolean(this.email) && Boolean(this.confirmEmail);
+
+		if (!hasValues || hasFormatError) {
+			// One of email values is empty, cannot compare at this moment
 			return true;
 		}
 
-		return false;
-	}
-
-	_inputEmail(e) {
-		this._validateEmailAddress();
-		this.errorMessage = ``;
-		this.mailClientError.email = ``;
-		this.mailClientError.confirmEmail = ``;
-	}
-
-	_emailFormatCheck(e) {
-		this[e.currentTarget.id] = e.detail.new;
-
-		if (e.detail.new.length > 0) {
-			if (!EMAIL_REGEX.test(e.detail.new)) {
-				this.errorMessage = `Invalid email format`;
-				this.mailClientError.email = `Invalid email format`;
-				this.mailClientError.confirmEmail = `Invalid email format`;
-			
-			} else {
-				this.errorMessage = ``;
-				this.mailClientError[e.currentTarget.id] = ``;
-			}
+		const isMatching = this.email === this.confirmEmail;
+		if (isMatching) {
+			this._clearErrors();
 		}
 
-		if (!this._confirmEmailMatch()) {
-			this.errorMessage = `Emails don't match`;
-			this.mailClientError.email = `Emails don't match`;
-			this.mailClientError.confirmEmail = `Emails don't match`;
-		}
-
-		this._validateEmailAddress();
+		return isMatching;
 	}
+
+	_clearErrors() {
+		this.emailError = ``;
+		this.confirmEmailError = ``;
+	}
+
+	_showRequiredErrors() {
+		this.emailError = !this.email ? ERROR_MESSAGE.REQUIRED : this.emailError;
+		this.confirmEmailError = !this.confirmEmailError ? ERROR_MESSAGE.REQUIRED : this.confirmEmailError;
+	}
+
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+
+	// N/A
+
+	// ---------
+	// RENDERING
+	// ---------
 
 	static get styles() {
 		return [
 			super.styles,
 			css`
-			.emailLabel[type="subtitle"] {
-				line-height: 24px;
-				--theme-label-subtitle-font-size: 18px;
-				--theme-label-subtitle-font-weight: 600;
-				--theme-layout-gap-spacing: 16px;
-			}
-			.emailTextField {
-				height: 60px;
-			}`
+				.header-label {
+					--theme-layout-gap-spacing: 16px;
+				}
+				.emailLabel[type="subtitle"] {
+					line-height: 24px;
+					--theme-label-subtitle-font-size: 18px;
+					--theme-label-subtitle-font-weight: 600;
+				}
+				.replica {
+					--theme-label-default-font-size: val(--theme-input-font-size);
+				}
+				.hide-visibility {
+					visibility: hidden;
+				}
+				.domain-suggestion {
+					display: block;
+					box-sizing: content-box;
+					font-family: var(--theme-input-font-family);
+					font-size: var(--theme-input-font-size);
+    				font-weight: var(--theme-input-font-weight);
+					line-height: normal;
+					letter-spacing: 0px;
+					top: -36px;
+					position: relative;
+					color: #a9a9a9;
+					width: 100px;
+					height: 12px;
+				}
+			`
 		];
 	}
 
@@ -160,24 +295,35 @@ export class HorizonEmailInput extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-group>
+			<capitec-content-box noPadding>
 				${this._renderEmailGroup()}
-			</capitec-group>
+			</capitec-content-box>
+		`;
+	}
+//<hr class="seperator">
+	_renderEmailGroup() {
+		return html`
+			${this._renderEmail()}
+			${this._renderConfirmEmail()}
 		`;
 	}
 
-	_renderEmailGroup() {
+	_renderEmail() {
 		return html`
+			<capitec-group class="header-label" layout="horizontal" halign="left" valign="center" gap="none">
+				<capitec-label
+					class="emailLabel"
+					type="subtitle"
+					label="${this.labelOne}">
+				</capitec-label>
 
-<capitec-group layout="vertical" gap="clear" halign="stretch" valign="top">
-			
-	<capitec-label
-				class="emailLabel"
-				type="subtitle"
-				label="${this.labelOne}">
-			</capitec-label>
+				<capitec-label
+					id="email-replica"
+					class="replica hide-visibility"
+					label="${this.email}">
+				</capitec-label>
+			</capitec-group>
 
-<div class="emailTextField">
 			<capitec-text-field
 				id="email"
 				data-automation-id="email-input-email-address"
@@ -187,18 +333,29 @@ export class HorizonEmailInput extends Component {
 				oncut="return false"
 				value="${this.email}"
 				error="${this.emailError}"
-				@value-changed="${(e) => this._emailFormatCheck(e)}"
-				@input="${(e) => this._inputEmail(e)}">
+				@input="${(e) => this._inputEmail(e)}"
+				@keydown="${(e) => this._keyDownTab(e)}"
+				@focusout="${(e) => this._focusOutInput(e)}">
 			</capitec-text-field>
-</div>
-			<capitec-label
-				style="padding-top:16px"
-				class="emailLabel"
-				type="subtitle"
-				label="${this.labelTwo}">
-			</capitec-label>
+			<span id="email-suggestion" class="domain-suggestion">${this.emailSuggestion}</span>`;
+	}
 
-			<div class="emailTextField">
+	_renderConfirmEmail() {
+		return html`
+			<capitec-group class="header-label" layout="horizontal" halign="left" valign="center" gap="none">
+				<capitec-label
+					class="emailLabel"
+					type="subtitle"
+					label="${this.labelTwo}">
+				</capitec-label>
+
+				<capitec-label
+					id="confirmEmail-replica"
+					class="replica hide-visibility"
+					label="${this.confirmEmail}">
+				</capitec-label>
+			</capitec-group>
+
 			<capitec-text-field
 				id="confirmEmail"
 				data-automation-id="email-input-confirm-email-address"
@@ -208,13 +365,11 @@ export class HorizonEmailInput extends Component {
 				oncut="return false"
 				value="${this.confirmEmail}"
 				error="${this.confirmEmailError}"
-				@value-changed="${(e) => this._emailFormatCheck(e)}"
-				@input="${(e) => this._inputEmail(e)}">
+				@input="${(e) => this._inputConfirmEmail(e)}"
+				@keydown="${(e) => this._keyDownTab(e)}"
+				@focusout="${(e) => this._focusOutInput(e)}">
 			</capitec-text-field>
-			</div>
-	</capitec-group>
-			<hr class="seperator">
-		`;
+			<span id="confirmEmail-suggestion" class="domain-suggestion">${this.confirmEmailSuggestion}</span>`;
 	}
 };
 

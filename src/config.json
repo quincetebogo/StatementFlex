@@ -1,8 +1,10 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet"
+		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet",
+		"clientInsightsUrl": "https://hzn-cs-clientinsights-v1.platform-dev.int.capinet",
+		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-dev.int.capinet"
 	},
-	"signalRUrl": "http://localhost:6001",
+	"signalRUrl": "",
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
@@ -30,7 +32,7 @@
 		}
 	],
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"acceptCall": {
 			"enabled": false,
 			"positiveCase": true
@@ -56,20 +58,20 @@
 			"positiveCase": true
 		},
 		"xdsQuestions": {
-			"enabled": false,
+			"enabled": true,
 			"substituteIdOnly": "",
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"itaVerification":{
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
@@ -121,6 +123,34 @@
 			"positiveCase": true
 		},
 		"lbbLinkedTransactionDetails": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"getClientInsights": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"accessChannel": {
+			"enabled": false,
+			"positiveCase": true
+		},		
+		"accessChannelUssdLanding": {
+			"enabled": false,
+			"positiveCase": true
+		},		
+		"accessChannelResetSecurityTokenClock": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"activatefullUssdMenu": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"cancelUSSD": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"unblockSIM": {
 			"enabled": false,
 			"positiveCase": true
 		}
