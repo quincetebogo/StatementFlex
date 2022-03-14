@@ -11,6 +11,7 @@ import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/CardLimitsLanding';
+import 'app/dialogs/statements/Statements';
 
 const RENDER_MODE = Object.freeze({
 	MAIN_PAGE: 0,
@@ -366,12 +367,12 @@ export class RelatedOptions extends Component {
 	_renderStatements() {
 		return this.renderMode === RENDER_MODE.STATEMENTS
 			? html`
-				<horizon-statements-dialog
+				<horizon-statements
 					.cifNumber="${this.callerInformation.cifNumber}"
 					.clientProducts="${this.clientProducts}"
 					type=""
 					@cancel="${() => this._backToLandingPage()}">
-				</horizon-statements-dialog>`
+				</horizon-statements>`
 			: html``;
 	}
 

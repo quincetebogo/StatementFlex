@@ -13,8 +13,8 @@ import { ViewBase } from 'app/views/common/ViewBase';
 import { html } from 'platform/elements';
 
 import 'app/components/savingsAccount/DebiCheckMandates';
-import 'app/components/dialogs/common/StatementsDialog';
 import 'app/components/dialogs/quickTransactions/ApproveDebiCheckMandate';
+import 'app/dialogs/statements/Statements';
 
 /**
  * A sub-base class of viewbase for Favourites & Savings account landing pages 
@@ -525,13 +525,13 @@ export class SavingsAccountBase extends ViewBase {
 	_renderStatementsModal(type) {
 		return this.renderMode === RENDER_MODE.STATEMENTS
 			? html`
-				<horizon-statements-dialog
+				<horizon-statements
 					.cifNumber="${this.callerInformation.cifNumber}"
 					.clientProducts="${this.clientProducts}"
 					type="${type}"
 					@cancel="${() => this._cancelStatements()}"
 					@account-selected="${(event) => this._statementsAccConfirmed(event)}">
-				</horizon-statements-dialog>`
+				</horizon-statements>`
 			: html``;
 	}
 }

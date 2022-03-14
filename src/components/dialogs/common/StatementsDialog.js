@@ -1,13 +1,6 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { ERRORS, NOTIFICATION_MESSAGE, PERIOD_TYPE, RANGE_SELECTOR, RENDER_MODE, STATEMENTS_STEPS, TIME_PERIOD } from 'app/constants/Statements';
-import { EventAggregator, Logger, NavigationContext } from 'platform/core';
-import { base64ToBlobUrl, calculateDays, formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { ACCOUNT_TYPES } from 'app/constants/Common';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
-import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { calculateDays, formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'platform/components/popups/Modal';
@@ -23,8 +16,9 @@ const ERROR_MESSAGE = {
 };
 
 /**
- * View and email statements based on account selection and date range.
+ * View and email statements based on account selection and period.
  * This component will be called from the favourites screen statements option as well as related options component. (TODO)
+ * Config to set period (date/month) to be done on constants/statements.js
  * 
  * Events Raised 
  * -------------
@@ -44,7 +38,6 @@ export class StatementsDialog extends Component {
 	constructor() {
 		super();
 
-		this.isBusy = false;
 		this.renderMode = RENDER_MODE.CHOOSE_ACCOUNT;
 		this.currentStep = 0;
 		this.notifyClient = true;
@@ -63,23 +56,12 @@ export class StatementsDialog extends Component {
 		this.productSelected = {};
 		this.clientProducts = [];
 		this.accountType = ``;
-		this.clientAccountsType = [];
 		this.STEPPER_STEPS = [];
 		this.alertBannerMessage = ``;
 		this.emailLabel = `Enter email address`;
 		this.confirmEmailLabel = `Confirm email`;
 		this.periodType = PERIOD_TYPE.STATIC;
 		this.selectedMonths = [];
-		
-		this._telemetryEventsImport();
-		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
-		this.logger = Logger.getInstance();
-		this._telemetry = HorizonTelemetry.instance;
-		this.navigationContext = NavigationContext.getInstance();
-
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 	}
 
 	// ----------
@@ -88,8 +70,6 @@ export class StatementsDialog extends Component {
 
 	/**
 	 * @property {Array} clientProducts Contains list of products that the client has.
-	 * @property {Array} selectedOption Contains the product of which the client wants to send statement.
-	 * @property {string} cifNumber The client's CIF number
 	 * @property {string} type Contains the type of account
 	 * @readonly
 	 * @static
@@ -98,9 +78,9 @@ export class StatementsDialog extends Component {
 	static get properties() {
 		return {
 			clientProducts: { type: Array },
-			selectedOption: { type: Array },
 			accountType: { type: String, attribute: `type` },
-			cifNumber: { type: String },
+			viewStatement: { type: Object },
+			sendStatement: { type: Object },
 
 			alertBannerMessage: { state: true },
 			currentStep: { state: true },
@@ -121,35 +101,22 @@ export class StatementsDialog extends Component {
 	// LIFECYLCE EVENTS
 	// ----------------
 
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
 
-		// Fetching the telemetry events object at runtime based on product type
-		// const type = this.type || `Default`;
-		const { STATEMENT_EVENTS } = await this.telemetryEvents[this.accountType]();
-
 		this.STEPPER_STEPS = [...STATEMENTS_STEPS];
-		this.telemetryEvent = STATEMENT_EVENTS;
-
 		this._initialise();
-		this._onLoading();
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-		this._telemetry.endSpan(this.telemetryEvent.STATEMENTS_POP);
 	}
 	
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
-	async _cancel() {
-		await this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_CANCEL, {
-			"screen": TelemetryScreen.STATEMENTS
-		});
-		await this._telemetry.endSpan(this.telemetryEvent.STATEMENTS_POP, {}, false, false);
-
+	_cancel() {
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
@@ -165,22 +132,33 @@ export class StatementsDialog extends Component {
 		};
 		const result = validations[this.renderMode]();
 		if (result && this.errorMessage === ``) {
+			this.dispatchEvent(new CustomEvent(`next`, {
+				detail: {
+					'stepper': this.renderMode,
+					'accountName': this.productSelected.accountName,
+					'periodSelected': this.periodSelected,
+					'fromDate': this.fromDate === `dd mm yyyy` ? `` : this.fromDate,
+					'toDate': this.toDate === `dd mm yyyy` ? `` : this.toDate,
+					'selectedMonths': this.selectedMonths
+				}
+			}));
+
 			this.currentStep++;
 			this.renderMode = this.STEPPER_STEPS[this.currentStep].renderMode;
 		}
 	}
 
 	_close() {
-		this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_CLOSE_PDF);
+		this.dispatchEvent(new CustomEvent(`close-pdf`, {}));
 		this.renderMode = RENDER_MODE.EMAIL;
 	}
 
 	_back() {
-		this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_BACK);
-
 		this.errorMessage = ``;
 		this.currentStep--;
 		this.renderMode = this.STEPPER_STEPS[this.currentStep].renderMode;
+
+		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
 	_choosePeriod(range) {
@@ -232,41 +210,23 @@ export class StatementsDialog extends Component {
 	}
 
 	async _viewPDF(month) {
-		const statement = {
-			"cifNumber": this.cifNumber,
-			"accountNumber": `${this.productSelected.accountNumber}`,
-			"accountType": `${this.productSelected.type}`,
-			"statementDateRange": {
-				"dateRange": {},
-				"presetInterval": `${this.periodSelected}`
-			}
+		const request = {
+			"accountNumber": this.productSelected.accountNumber,
+			"accountType": this.productSelected.type,
+			"dateInterval": this.periodSelected,
+			"startDate": this.fromDate === `dd mm yyyy` ? `` : this.fromDate,
+			"endDate": this.toDate === `dd mm yyyy` ? `` : this.toDate,
+			"month": month // This is specifically for month period
 		};
 
-		if (!this.fromDate && !this.toDate) {
-			statement.statementDateRange.dateRange = {
-				"startDate": this.fromDate,
-				"endDate": this.toDate
-			};
-		}
+		const encodedPDF = await this.viewStatement(this.productSelected.category, request);
 
-		await this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_VIEW_PDF, {
-			'cifNumber': statement.cifNumber,
-			'accountNumber': statement.accountNumber,
-			'accountType': statement.accountType,
-			'dateRange': this._customDateRange ? `${this.fromDate}-${this.toDate}` : ``,
-			'statement-period': statement.statementDateRange.parseInterval
-		});
-
-		const returnValue = await this.quickTransactionService.viewStatement(statement, () => this._createIncidentOnError());
-		if (returnValue.succeeded) {
+		if (encodedPDF) {
 			this.renderMode = RENDER_MODE.PDF;
 			// render the PDF
-			this.encodedPDF = base64ToBlobUrl(returnValue.result.statementData);
-		} else if (this.accountType === ACCOUNT_TYPES.LBB) {
-			this.horizonRouter.navigateToliveBetterSystemError();
+			this.encodedPDF = encodedPDF;
 		} else {
-			this.errorMessage = `System error. Please try again`;
-			this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewPDF`, returnValue.correlationId);
+			this.errorMessage = ERRORS.SYSTEM_ERROR;
 		}
 	}
 
@@ -277,41 +237,18 @@ export class StatementsDialog extends Component {
 			return false;
 		}
 
-		const statement = {
+		const request = {
 			"emailAddress": this.email,
-			"cifNumber": this.cifNumber,
-			"accountNumber": `${this.productSelected.accountNumber}`,
-			"accountType": `${this.productSelected.type}`,
-			"statementDateRange": {
-				"dateRange": {},
-				"presetInterval": `${this.periodSelected}`
-			}
+			"accountNumber": this.productSelected.accountNumber,
+			"accountName": this.productSelected.accountName,
+			"accountType": this.productSelected.type,
+			"dateInterval": this.periodSelected,
+			"startDate": this.fromDate === `dd mm yyyy` ? `` : this.fromDate,
+			"endDate": this.toDate === `dd mm yyyy` ? `` : this.toDate,
+			"monthInterval": this.selectedMonths // This is specifically for month period
 		};
 
-		if (!this.fromDate && !this.toDate) {
-			statement.statementDateRange.dateRange = {
-				"startDate": this.fromDate,
-				"endDate": this.toDate
-			};
-		}
-
-		await this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_SEND, {
-			'screen': TelemetryScreen.STATEMENTS,
-			'email-address': statement.emailAddress,
-			'dateRange': this._customDateRange ? `${this.fromDate}-${this.toDate}` : ``,
-			'statement-period': statement.statementDateRange.parseInterval,
-			'next-screen': TelemetryScreen.STATEMENTS_OUTCOME
-		});
-
-		const returnValue = await this.quickTransactionService.sendStatement(statement);
-		this._updateScreenDetails();
-		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `statements`);
-
-		if (returnValue.succeeded) {
-			this.horizonRouter.navigateToStatementSuccessful();
-		} else {
-			this.horizonRouter.navigateToStatementUnsuccessful();
-		}
+		await this.sendStatement(this.productSelected.category, request);
 	}
 
 	_valueChanged(e) {
@@ -338,11 +275,6 @@ export class StatementsDialog extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	async _onLoading() {
-		await this._telemetry.startSpan(this.telemetryEvent.STATEMENTS);
-		await this._telemetry.startSpan(this.telemetryEvent.STATEMENTS_POP);
-	}
-
 	_initialise() {
 		if (this.accountType) {
 			this.productSelected = this.clientProducts.find(product => product.category === this.accountType);
@@ -352,29 +284,11 @@ export class StatementsDialog extends Component {
 		}
 	}
 
-	_telemetryEventsImport() {
-		this.telemetryEvent = {};
-		this.telemetryEvents = {
-			[ACCOUNT_TYPES.SAVINGS_ACCOUNT]: () => import(`app/constants/telemetry/events/SavingsAccount`),
-			[ACCOUNT_TYPES.LBB]: () => import(`app/constants/telemetry/events/LiveBetter`),
-			[ACCOUNT_TYPES.CREDIT]: () => import(`app/constants/telemetry/events/Credit`),
-			'': () => import(`app/constants/telemetry/events/QuickTransactions`) // Default
-		};
-	}
-
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
-	}
-
 	_validateAccountSelection() {
 		if (Object.entries(this.productSelected).length === 0) {
 			this.errorMessage = `Choose Account`;
 			return false;
 		}
-
-		this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_ACCOUNT_NEXT, {
-			"account-type": this.productSelected.accountName
-		});
 
 		return true;
 	}
@@ -387,7 +301,7 @@ export class StatementsDialog extends Component {
 		return this._validateDatePeriod();
 	}
 
-	async _validateDatePeriod() {
+	_validateDatePeriod() {
 		if (this.periodSelected === `` && this.periodType === PERIOD_TYPE.STATIC) {
 			this.errorMessage = ERRORS.REQUIRED_PERIOD;
 			this.calendarErrorMessage = `Required`;
@@ -399,14 +313,6 @@ export class StatementsDialog extends Component {
 		}
 
 		this._getSummary();
-
-		await this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_PERIOD_NEXT, {
-			"screen": TelemetryScreen.STATEMENTS,
-			"period": this.periodSelected ? this.periodSelected : null,
-			"start-date": this.fromDate ? this.fromDate : null,
-			"end-date": this.toDate ? this.toDate : null
-		});
-
 		return true;
 	}
 
@@ -447,15 +353,6 @@ export class StatementsDialog extends Component {
 		return parsedDate.toLocaleString(`default`, { month: `long` });
 	}
 
-	_errorHandler(exception) {
-		return true;
-	}
-
-	async _createIncidentOnError() {
-		await super.createAndClassifySubsIncident(() => this._toggleBusyFlag());
-		return true;
-	}
-
 	_getHeaderTitle() {
 		return this.renderMode === RENDER_MODE.PDF ? `View Document` : `Statements`;
 	}
@@ -490,17 +387,6 @@ export class StatementsDialog extends Component {
 		// Rounding off the decimal value
 		totalAmount = Math.round((availableBalance + currentBalance) * 100) / 100;
 		return formatCurrency(totalAmount);
-	}
-
-	_updateScreenDetails() {
-		const screenDetails = this.horizonStore.getScreenDetails();
-
-		screenDetails.emailAddress = this.email;
-		screenDetails.accountNumber = this.productSelected.accountNumber;
-		screenDetails.accountType = this.productSelected.accountName;
-		screenDetails.telemetryEvent = this.telemetryEvent;
-
-		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
 	_getDateRange(numberOfDays) {
@@ -748,8 +634,7 @@ export class StatementsDialog extends Component {
 					<div slot="footer">
 						${this._renderFooter()}
 					</div>
-			</bb-stepper-modal>
-			${this._renderLoadingIndicator()}`;
+			</bb-stepper-modal>`;
 	}
 
 	_renderContent() {
@@ -1119,12 +1004,6 @@ export class StatementsDialog extends Component {
 					</object>
 			</capitec-content-box>
 		`;
-	}
-
-	_renderLoadingIndicator() {
-		return this.isBusy
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
-			: html``;
 	}
 }
 

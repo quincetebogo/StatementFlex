@@ -19,13 +19,13 @@ import 'app/components/credit/CreditCardDetails';
 import 'app/components/credit/AccessFacilityDetails';
 import 'app/components/credit/TermLoanDetails';
 import 'app/components/dialogs/common/CCSstatus';
-import 'app/components/dialogs/common/StatementsDialog';
+import 'app/dialogs/credit/SettlementQuote';
+import 'app/dialogs/statements/Statements';
 import 'app/productControls/credit/src/BudgetAccounts';
 import 'app/productControls/credit/src/BudgetAccountDetails';
 import 'app/productControls/credit/src/CreditAccountLanding';
 import 'app/productControls/credit/src/CreditUnverifiedLanding';
 import 'app/productControls/credit/src/PayCreditCardBudget';
-import 'app/dialogs/credit/SettlementQuote';
 
 
 /**
@@ -801,7 +801,7 @@ export class CreditAccount extends ViewBase {
 	_renderStatements() {
 		return this.renderMode === RENDER_MODE.STATEMENTS
 		? html`
-			<horizon-statements-dialog
+			<horizon-statements
 				.cifNumber="${this.callerInformation.cifNumber}"
 				.clientProducts="${this.clientProducts}"
 				type="${ACCOUNT_TYPES.CREDIT}"
@@ -809,7 +809,7 @@ export class CreditAccount extends ViewBase {
 				@cancel="${() => this._backToLandingPage()}"
 				@view-fees="${() => this._viewFees()}"
 				@account-selected="${(event) => this._statementsAccConfirmed(event)}">
-			</horizon-statements-dialog>`
+			</horizon-statements>`
 		: html``;
 	}
 
