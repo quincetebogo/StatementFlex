@@ -415,9 +415,8 @@ export class StatementsDialog extends Component {
 		this.toDate = `dd mm yyyy`;
 	}
 
-	_getDaysinMonth(value) {
-		const [first, second] = value.split(`/`);
-		const daysInMonth = new Date(second, first - 1, 0).getDate();
+	_getDaysinMonth(month, year) {
+		const daysInMonth = new Date(year, month - 1, 0).getDate();
 		return daysInMonth;
 	}
 
@@ -916,16 +915,19 @@ export class StatementsDialog extends Component {
 	}
 
 	_renderSelectedMonthsView() {
-		return this.selectedMonths.map(month => html`
-			<horizon-product-tile
-				data-automation-id="statements-dialog-view-document"
-				class="view-document"
-				type="default"
-				label="${formatDate(`01/${month}`, `MM yyyy`)}"
-				subtitle="${this._getDaysinMonth(month)} days">
-					${this._renderViewDocumnetLink(month)}
-			</horizon-product-tile>
-		`);
+		return this.selectedMonths.map(month => {
+			const [first, second] = month.split(`/`); // first as month & second as year
+
+			return html`
+				<horizon-product-tile
+					data-automation-id="statements-dialog-view-document"
+					class="view-document"
+					type="default"
+					label="${formatDate(`${first - 1}/01/${second}`, `MM yyyy`)}"
+					subtitle="${this._getDaysinMonth(first, second)} days">
+						${this._renderViewDocumnetLink(month)}
+				</horizon-product-tile>`;
+		});
 	}
 
 	_renderViewDocumnetLink(month = null) {
