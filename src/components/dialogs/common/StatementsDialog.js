@@ -15,7 +15,11 @@ import 'app/components/common/StepperModal';
 import 'app/components/common/HorizonEmailInput';
 import 'app/components/common/HorizonSelectIcon';
 
-const EMAIL_REGEX = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
+const ERROR_MESSAGE = {
+	EMAIL_REQUIRED: `Complete all fields to continue`,
+	INVALID_EMAIL: `Enter a valid email address`,
+	EMAIL_MISMATCH: `Email address does not match. Enter the correct email address`
+};
 
 /**
  * View and email statements based on account selection and date range.
@@ -55,10 +59,6 @@ export class StatementsDialog extends Component {
 			detail: ``
 		};
 		this.calendarErrorMessage = ``;
-		this.mailClientError = {
-			email: ``,
-			confirmEmail: ``
-		};
 		this.encodedPDF = ``;
 		this.today = new Date().toISOString();
 		this.productSelected = {};
@@ -66,6 +66,9 @@ export class StatementsDialog extends Component {
 		this.accountType = ``;
 		this.clientAccountsType = [];
 		this.STEPPER_STEPS = [];
+		this.alertBannerMessage = ``;
+		this.emailLabel = `Enter email address`;
+		this.confirmEmailLabel = `Confirm email`;
 		
 		this._telemetryEventsImport();
 		this.eventAggregator = EventAggregator.getInstance();
@@ -97,6 +100,7 @@ export class StatementsDialog extends Component {
 			accountType: { type: String, attribute: `type` },
 			cifNumber: { type: String },
 
+			alertBannerMessage: { state: true },
 			currentStep: { state: true },
 			isBusy: { state: true },
 			renderMode: { state: true },
@@ -214,39 +218,19 @@ export class StatementsDialog extends Component {
 		}
 	}
 
-	_emailFormatCheck(e) {
-		this[e.currentTarget.id] = e.detail.new;
-
-		if (e.detail.new.length > 0) {
-			if (!EMAIL_REGEX.test(e.detail.new)) {
-				this.errorMessage = `Invalid email format`;
-				this.mailClientError.email = `Invalid email format`;
-				this.mailClientError.confirmEmail = `Invalid email format`;
-			} else {
-				this.errorMessage = ``;
-				this.mailClientError[e.currentTarget.id] = ``;
-			}
-		}
-		if (!this._confirmEmailMatch()) {
-			this.errorMessage = `Emails don't match`;
-			this.mailClientError.email = `Emails don't match`;
-				this.mailClientError.confirmEmail = `Emails don't match`;
-		}
-		this.requestUpdate();
+	_clearAlerts() {
+		this.alertBannerMessage = ``;
 	}
 
-	_confirmEmailMatch() {
-		if (!isNullorEmpty(this.email) && !isNullorEmpty(this.confirmEmail)) {
-			return this.email === this.confirmEmail;
-		}
-		return true;
-	}
+	_emailValueChanged(e) {
+		this.email = e.detail.email;
+		this.confirmEmail = e.detail.confirmEmail;
 
-	_inputEmail(e) {
-		this.mailClientError[e.currentTarget.id] = ``;
-		this.mailClientError.email = ``;
-		this.mailClientError.confirmEmail = ``;
-		this.errorMessage = ``;
+		if (e.detail.invalidFormat) {
+			this.alertBannerMessage = ERROR_MESSAGE.INVALID_EMAIL;
+		} else if (e.detail.mismatched) {
+			this.alertBannerMessage = ERROR_MESSAGE.EMAIL_MISMATCH;
+		}
 	}
 
 	async _viewPDF() {
@@ -289,14 +273,9 @@ export class StatementsDialog extends Component {
 	}
 
 	async _sendStatement() {
-		if (!this._validateEmailAddress()) {
-			this.mailClientError.email = `Please enter email`;
-			this.mailClientError.confirmEmai = `Please enter email`;
-			this.errorMessage = `Complete all fields.`;
-			return false;
-		}
+		const isValid = this._validateEmailAddress();
 
-		if (this.errorMessage) {
+		if (!isValid) {
 			return false;
 		}
 
@@ -420,11 +399,11 @@ export class StatementsDialog extends Component {
 	}
 
 	_validateEmailAddress() {
-		this.mailClientError.email = isNullorEmpty(this.email) ? `Please enter email` : ``;
-		this.mailClientError.confirmEmail = isNullorEmpty(this.confirmEmail) ? `Please enter email` : ``;
+		if (isNullorEmpty(this.email) || isNullorEmpty(this.confirmEmail)) {
+			this.alertBannerMessage = ERROR_MESSAGE.EMAIL_REQUIRED;
+		}
 
-		const errorMessage = this.mailClientError.email || this.mailClientError.confirmEmail ? `Complete all fields.` : ``;
-		return errorMessage === ``;
+		return isNullorEmpty(this.alertBannerMessage);
 	}
 
 	_validateRangeSelected() {
@@ -523,6 +502,10 @@ export class StatementsDialog extends Component {
 	}
 	
 	_getMinDate(accountOpenDate) {
+		if (!accountOpenDate) {
+			return new Date(2001, 3, 1);
+		}
+
 		const minDate = new Date(accountOpenDate);
 		minDate.setDate(minDate.getDate() - 1);
 		return minDate;
@@ -574,7 +557,7 @@ export class StatementsDialog extends Component {
 
 					--theme-layout-gap-spacing: 0px;
 				}
-				.margin-top {
+				.date-label {
 					margin-top: var(--horizon-statement-generic-margin-top, 24px);
 				}
 				.main-cb {
@@ -644,16 +627,6 @@ export class StatementsDialog extends Component {
 					--theme-product-tile-focus-transact-border: 1px solid #E1E1E1;
 					--theme-product-tile-border-radius: 4px 4px 0px 0px;
 				}
-				.date-selector {
-					--theme-layout-gap-spacing: 16px;
-				}
-				.date-selector > capitec-label[type="default"] {
-					line-height: 20px;
-
-					--theme-layout-gap-spacing: 4px;
-					--theme-label-default-font-size: 14px;
-					--theme-label-default-font-weight: 600;
-				}
 				.custom-date-card {
 					border-top: 0px;
 
@@ -679,11 +652,6 @@ export class StatementsDialog extends Component {
 				.datePicker-btn:hover {
 					box-shadow: none;
 				}
-				.calendar-label {
-					font-weight: normal;
-					color: #3A3A3A;
-				}
-
 				capitec-group > .calendar:first-child {
 					--theme-layout-gap-spacing: 0px;
 				}
@@ -713,7 +681,6 @@ export class StatementsDialog extends Component {
 					--theme-label-font-color: #009DE0;
 					--theme-label-strong-font-size: 16px;
 					--theme-label-strong-font-weight: 600;
-
 				}
 				.pdf-cb {
 					height: inherit;
@@ -729,7 +696,7 @@ export class StatementsDialog extends Component {
 					margin-bottom: 30px;
 					margin-top: 30px;
 				}
-				capitec-date-time-picker.calendar{
+				capitec-date-time-picker.calendar {
 					height: auto;
 					margin-left: 16px;
 					margin-bottom: 16px;
@@ -943,7 +910,7 @@ export class StatementsDialog extends Component {
 	_renderPeriodSelected() {
 		return html`
 			<capitec-label
-				class="margin-top"
+				class="date-label"
 				type="subtitle"
 				label="Choose date range">
 			</capitec-label>
@@ -1003,42 +970,15 @@ export class StatementsDialog extends Component {
 	_renderEmailClient() {
 		if (this.renderMode === RENDER_MODE.EMAIL) {
 			return html`
-				<capitec-label
-					type="subtitle"
-					label="Enter email address">
-				</capitec-label>
 
-				<capitec-text-field
-					id="email"
-					data-automation-id="statements-dialog-email-address"
-					label="Email address"
-					oncopy="return false"
-					onpaste="return false"
-					oncut="return false"
-					value="${this.email}"
-					error="${this.mailClientError.email}"
-					@value-changed="${(e) => this._emailFormatCheck(e)}"
-					@input="${(e) => this._inputEmail(e)}">
-				</capitec-text-field>
+				<horizon-email-input
+					labelOne="${this.emailLabel}"
+					labelTwo="${this.confirmEmailLabel}"
+					?showRequiredError="${this.alertBannerMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
+					.callBack="${() => this._clearAlerts()}"
+					@value-changed="${(e) => this._emailValueChanged(e)}">
+				</horizon-email-input>
 
-				<capitec-label
-					class="chooseText"
-					type="subtitle"
-					label="Confirm email address">
-				</capitec-label>
-				<capitec-text-field
-					id="confirmEmail"
-					data-automation-id="statements-dialog-confirm-email-address"
-					label="Email address"
-					oncopy="return false" 
-					onpaste="return false"
-					oncut="return false"
-					value="${this.confirmEmail}"
-					error="${this.mailClientError.confirmEmail}"
-					@value-changed="${(e) => this._emailFormatCheck(e)}"
-					@input="${(e) => this._inputEmail(e)}">
-				</capitec-text-field>
-			
 				<hr class="seperator">
 
 				<capitec-label

@@ -57,7 +57,7 @@ export class AutomaticSavingsSuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		this._telemetry.endSpan(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS, {
+		this._telemetry.endSpan(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS_SUCCESS_DONE, {
 			"screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_SUCCESS,
 			"next-screen": TelemetryScreen.LIVE_BETTER
 		});
@@ -67,6 +67,11 @@ export class AutomaticSavingsSuccess extends ViewBase {
 	}
 
 	_manageAutomaticSavingsClick() {
+		this._telemetry.logEvent(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS_SUCCESS_SEND_ANOTHER, {
+			"screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_SUCCESS,
+			"next-screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS
+		});
+
 		this.horizonRouter.navigateToReturnPage();
 	}
 
@@ -141,16 +146,16 @@ export class AutomaticSavingsSuccess extends ViewBase {
 	}
 
 	_renderRoundupMessage() {
-			if (this.updatedLBSADetails.accountRoundUpActive || this.updatedLBSADetails.roundUpValue) {
-				// Round-up turned ON or round-up value updated
-				return html`<span>Round-up settings updated to <b>R${this.updatedLBSADetails.roundUpValue}</b></span>`;
+		if (!isNullorEmpty(this.updatedLBSADetails.accountRoundUpActive) && !this.updatedLBSADetails.accountRoundUpActive) {
+			// only Round-up status turned OFF
+			return html`<span>Round-up settings switched off.</span>`;
+		} else if (this.updatedLBSADetails.accountRoundUpActive || this.updatedLBSADetails.roundUpValue) {
+			// Round-up turned ON or round-up value updated
+			return html`<span>Round-up settings updated to <b>R${this.updatedLBSADetails.roundUpValue || this.LBSADetails.roundupValue}</b></span>`;
 
-			} else if (!isNullorEmpty(this.updatedLBSADetails.accountRoundUpActive) && !this.updatedLBSADetails.accountRoundUpActive) {
-				// only Round-up status turned OFF
-				return html`<span>Round-up settings switched off.</span>`;
-			}
-			// only selection/deselction of accounts listed.
-			return html`<span>Round-up settings updated</span>`;
+		}
+		// only selection/deselction of accounts listed.
+		return html`<span>Round-up settings updated</span>`;
 	}
 
 	_renderInterestSweepChanges() {
