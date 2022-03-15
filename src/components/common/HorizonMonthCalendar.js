@@ -156,7 +156,7 @@ export class HorizonMonthCalendar extends Component {
 		this._toggleExpander();
 		this.dispatchEvent(new CustomEvent(`value-changed`, {
 			detail: {
-				month: this.months[index],
+				month: index + 1,
 				year: this.year
 			}
 		}));
