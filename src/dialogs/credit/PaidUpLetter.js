@@ -168,6 +168,7 @@ export class PaidUpLetter extends Component {
 					width: 900px;
 					height: auto;
 
+					--theme-modal-free-max-height: 657px;
 					--theme-modal-header-padding-left: 16px;
 					--theme-modal-header-color: #3A3A3A;
 					--theme-modal-header-background-color: #F7F7F7;
@@ -191,19 +192,23 @@ export class PaidUpLetter extends Component {
 					--theme-product-tile-title-font-weight: 600;
 				}
 
-				.label-err-message {
-					--theme-label-font-color:#C83C37;
-				}
-
-				capitec-alert-banner > capitec-label {
+				capitec-alert-banner > capitec-group > capitec-label {
 					margin: 16px 0px 16px 0px;
 
-					--theme-label-font-size: 18px;
+					--theme-label-font-color: #3A3A3A;
+					--theme-label-font-size: 14px;
 					--theme-label-font-family: Hind Vadodara;
+				}
+
+				capitec-alert-banner > capitec-group > capitec-label[type="subtitle"] {
+					margin-right: 5px;
+					--theme-label-subtitle-font-size: 14px;
+					--theme-label-subtitle-font-weight: 600;
 				}
 
 				div[slot="body"] {
 					width: 531px;
+					border-bottom: 1px solid #E1E1E1;
 				}
 
 				.seperator {
@@ -264,12 +269,10 @@ export class PaidUpLetter extends Component {
 				<capitec-group layout="horizontal">
 					<capitec-label
 						type="subtitle"
-						label="Notify: "
-						class="label-err-message">
+						label="Notify:">
 					</capitec-label>
 					<capitec-label
-						label="${this.alertBannerMessage}"
-						class="label-err-message">
+						label="${this.alertBannerMessage}">
 					</capitec-label>
 				</capitec-group>
 			</capitec-alert-banner>`
@@ -282,6 +285,8 @@ export class PaidUpLetter extends Component {
 			<horizon-email-input
 				labelOne="${this.emailLabel}"
 				labelTwo="${this.confirmEmailLabel}"
+				email="${this.email}"
+				confirmEmail="${this.confirmEmail}"
 				?showRequiredError="${this.alertBannerMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
 				.callBack="${() => this._clearAlerts()}"
 				@value-changed="${(e) => this._emailValueChanged(e)}">
@@ -344,7 +349,6 @@ export class PaidUpLetter extends Component {
 			<capitec-group layout="horizontal">
 				<capitec-button
 					id="id-cancel-button" 
-					type="clear" 
 					label="Cancel" 
 					@click="${(e) => this._cancelClick(e)}">
 				</capitec-button>
