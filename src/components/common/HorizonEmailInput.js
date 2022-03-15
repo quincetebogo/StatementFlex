@@ -301,7 +301,6 @@ export class HorizonEmailInput extends Component {
 		`;
 	}
 
-	// <hr class="seperator">
 	_renderEmailGroup() {
 		return html`
 			${this._renderEmail()}
