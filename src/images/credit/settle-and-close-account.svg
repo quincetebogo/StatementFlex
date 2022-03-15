@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="210px" height="152px" viewBox="0 0 210 152" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>ill / 📱track 2 / transfer</title>
+	<g id="ill-/-📱track-2-/-transfer" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+		<g id="Bounds" opacity="0" stroke="#F5F5F5">
+			<rect x="20" y="16" width="170" height="120"></rect>
+			<rect x="0" y="0" width="210" height="152"></rect>
+		</g>
+		<g id="Group-7" transform="translate(45.000000, 38.000000)">
+			<rect id="Rectangle" fill="#E1E1E1" x="1" y="1" width="14" height="30" rx="1"></rect>
+			<path d="M2,0.5 L118,0.5 C118.828427,0.5 119.5,1.17157288 119.5,2 L119.5,30 C119.5,30.8284271 118.828427,31.5 118,31.5 L2,31.5 C1.17157288,31.5 0.5,30.8284271 0.5,30 L0.5,2 C0.5,1.17157288 1.17157288,0.5 2,0.5 Z M2,1.5 C1.72385763,1.5 1.5,1.72385763 1.5,2 L1.5,30 C1.5,30.2761424 1.72385763,30.5 2,30.5 L118,30.5 C118.276142,30.5 118.5,30.2761424 118.5,30 L118.5,2 C118.5,1.72385763 118.276142,1.5 118,1.5 L2,1.5 Z" id="Rectangle" fill="#4E6066" fill-rule="nonzero"></path>
+			<rect id="Rectangle" fill="#E1E1E1" x="22" y="8" width="42" height="8" rx="1"></rect>
+			<rect id="Rectangle" fill="#F5F5F5" x="22" y="20" width="27" height="4" rx="1"></rect>
+			<rect id="Rectangle" fill="#F5F5F5" x="73" y="14" width="27" height="4" rx="1"></rect>
+			<rect id="Rectangle" fill="#E63934" transform="translate(109.000000, 16.000000) scale(-1, 1) translate(-109.000000, -16.000000) " x="105" y="12" width="8" height="8" rx="1"></rect>
+		</g>
+		<g id="Group-7" transform="translate(46.000000, 83.000000)">
+			<rect id="Rectangle" fill="#F5F5F5" x="0" y="0" width="14" height="30" rx="1"></rect>
+			<path d="M1,-0.5 L117,-0.5 C117.828427,-0.5 118.5,0.171572875 118.5,1 L118.5,29 C118.5,29.8284271 117.828427,30.5 117,30.5 L1,30.5 C0.171572875,30.5 -0.5,29.8284271 -0.5,29 L-0.5,1 C-0.5,0.171572875 0.171572875,-0.5 1,-0.5 Z M1,0.5 C0.723857625,0.5 0.5,0.723857625 0.5,1 L0.5,29 C0.5,29.2761424 0.723857625,29.5 1,29.5 L117,29.5 C117.276142,29.5 117.5,29.2761424 117.5,29 L117.5,1 C117.5,0.723857625 117.276142,0.5 117,0.5 L1,0.5 Z" id="Rectangle" fill="#E1E1E1" fill-rule="nonzero"></path>
+			<rect id="Rectangle" fill="#E1E1E1" x="21" y="7" width="42" height="8" rx="1"></rect>
+			<rect id="Rectangle" fill="#F5F5F5" x="21" y="19" width="27" height="4" rx="1"></rect>
+			<rect id="Rectangle" fill="#F5F5F5" x="72" y="13" width="27" height="4" rx="1"></rect>
+			<rect id="Rectangle" fill="#F5F5F5" transform="translate(108.000000, 15.000000) scale(-1, 1) translate(-108.000000, -15.000000) " x="104" y="11" width="8" height="8" rx="1"></rect>
+		</g>
+		<g id="Group-6" transform="translate(89.000000, 60.000000)">
+			<circle id="Oval" stroke="#00486D" fill="#00486D" cx="16" cy="16" r="16"></circle>
+			<g id="Group-3" transform="translate(10.000000, 6.000000)" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round">
+				<polyline id="Path-2" points="11 0 16 5 11 10"></polyline>
+				<line x1="0" y1="5" x2="15.5" y2="5" id="Line-2"></line>
+			</g>
+			<g id="Group-5" transform="translate(6.000000, 16.000000)" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round">
+				<polyline id="Path-2" transform="translate(2.500000, 5.000000) scale(-1, 1) translate(-2.500000, -5.000000) " points="0 0 5 5 0 10"></polyline>
+				<line x1="0" y1="5" x2="15.5" y2="5" id="Line-2"></line>
+			</g>
+		</g>
+	</g>
+</svg>

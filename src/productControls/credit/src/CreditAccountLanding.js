@@ -543,14 +543,14 @@ export class CreditAccountLanding extends Component {
 						label="Transaction History"
 						icon="system/time-action"
 						?hidden="${false}"
-						@click="${() => this._click(`transaction-history`, creditType, productType)}">
+						@click="${() => this._click(`transaction-history`, creditType, productType, selectedAccountDetails)}">
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="credit-account-statements"
 						label="Statements"
 						icon="system/documents-action"
 						?hidden="${false}"
-						@click="${() => this._click(`statements`, creditType, productType)}">
+						@click="${() => this._click(`statements`, creditType, productType, selectedAccountDetails)}">
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="credit-account-settlement-quote"
@@ -564,7 +564,7 @@ export class CreditAccountLanding extends Component {
 						label="Paid up Letter"
 						icon="system/documents-action"
 						?hidden="${true}"
-						@click="${() => this._click(`paid-up-letter`, creditType, productType)}">
+						@click="${() => this._click(`paid-up-letter`, creditType, productType, selectedAccountDetails)}">
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="credit-account-settle-close"
@@ -578,7 +578,7 @@ export class CreditAccountLanding extends Component {
 						label="Budget Facility"
 						icon="system/documents-action"
 						?hidden="${true}"
-						@click="${() => this._click(`budget-facility`, creditType, productType)}">
+						@click="${() => this._click(`budget-facility`, creditType, productType, selectedAccountDetails)}">
 				</horizon-option-button>
 			</capitec-group>
 		`;
