@@ -84,7 +84,27 @@ export const relatedOptions = {
 	'settlement-quote': CREDIT_RO,
 	'settlement-quote-credit-card': CREDIT_RO,
 	'settlement-quote-access-facility': CREDIT_RO,
-	'settlement-quote-term-loan': CREDIT_RO
+	'settlement-quote-term-loan': CREDIT_RO,
+	'settle-close-credit-card':{
+		Success: [
+			`paid-up-accounts`,
+			`statements`
+		],
+		Failure: [
+			`tax-certificate`,
+			`proof-of-account`
+		]
+	},
+	'settle-close-term-loan': {
+		Success: [
+			`paid-up-accounts`,
+			`statements`
+		],
+		Failure: [
+			`tax-certificate`,
+			`proof-of-account`
+		]
+	}
 };
 
 /**
@@ -121,5 +141,9 @@ export const optionsConfig = {
 	'transaction-history': {
 		label: `Transaction History`,
 		src: `system/time-action`
+	},
+	'paid-up-accounts': {
+		label: `Paid up Letter`,
+		src: `system/documents-action`
 	}
 };
