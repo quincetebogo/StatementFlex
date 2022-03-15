@@ -229,6 +229,9 @@ export function formatDate(value, format) {
 		case `dd/mm/yyyy`:
 			formattedDate = `${date}/${monthName}/${year}`;
 			break;
+		case `MM yyyy`:
+			formattedDate = `${monthName} ${year}`;
+			break;
 		default:
 			formattedDate = `${date}-${month}-${year}`;
 			break;
