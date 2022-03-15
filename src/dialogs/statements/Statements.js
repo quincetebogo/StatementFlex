@@ -97,7 +97,8 @@ export class Statements extends Component {
 	_statementsAccConfirmed(event) {
 		this.dispatchEvent(new CustomEvent(`account-selected`, {
 			detail: {
-				account: event.detail.account
+				account: event.detail.account,
+				subCategory: event.detail.subCategory
 			}
 		}));
 	}

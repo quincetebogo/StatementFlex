@@ -57,6 +57,7 @@ export const PERIOD_TYPE = Object.freeze({
 		name: `Savings account`,
 		type: `PRIMARY_SAVINGS`,
 		category: `transact`,
+		subCategory: ``,
 		icon: `product/transact`,
 		order: 1,
 		choosePeriod: RANGE_SELECTOR.DATE
@@ -65,6 +66,7 @@ export const PERIOD_TYPE = Object.freeze({
 		name: ``,
 		type: `FLEXIBLE_SAVINGS`,
 		category: `save`,
+		subCategory: ``,
 		icon: `product/save`,
 		order: 2,
 		choosePeriod: RANGE_SELECTOR.DATE
@@ -74,6 +76,7 @@ export const PERIOD_TYPE = Object.freeze({
 			name: ``,
 			type: `FIXED_TERM_MULTIPLE_DEPOSITS`,
 			category: `save`,
+			subCategory: ``,
 			icon: `product/save`,
 			order: 3,
 			choosePeriod: RANGE_SELECTOR.DATE
@@ -82,6 +85,7 @@ export const PERIOD_TYPE = Object.freeze({
 			name: ``,
 			type: `FIXED_TERM_SINGLE_DEPOSIT`,
 			category: `save`,
+			subCategory: ``,
 			icon: `product/save`,
 			order: 4,
 			choosePeriod: RANGE_SELECTOR.DATE
@@ -91,6 +95,7 @@ export const PERIOD_TYPE = Object.freeze({
 		name: `Live better savings account`,
 		type: `LBB`,
 		category: `lbb`,
+		subCategory: ``,
 		customIcon: `/images/liveBetter/live-better-icon.png`,
 		order: 5,
 		choosePeriod: RANGE_SELECTOR.DATE
@@ -99,6 +104,7 @@ export const PERIOD_TYPE = Object.freeze({
 		name: ``,
 		type: `FIXED_TERM_CREDIT`,
 		category: `credit`,
+		subCategory: `term-loan`,
 		icon: `product/credit`,
 		order: 6,
 		choosePeriod: RANGE_SELECTOR.DATE
@@ -107,6 +113,7 @@ export const PERIOD_TYPE = Object.freeze({
 		name: `Credit card`,
 		type: `FLEXIBLE_CREDIT`,
 		category: `credit`,
+		subCategory: `credit-card`,
 		icon: `product/credit`,
 		order: 7,
 		choosePeriod: RANGE_SELECTOR.MONTH
@@ -115,6 +122,7 @@ export const PERIOD_TYPE = Object.freeze({
 		name: `Access facility`,
 		type: `FLEXIBLE_CREDIT`,
 		category: `credit`,
+		subCategory: `access-facility`,
 		icon: `product/credit`,
 		order: 8,
 		choosePeriod: RANGE_SELECTOR.MONTH

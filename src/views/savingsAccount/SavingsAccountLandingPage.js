@@ -279,6 +279,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				'accountOpenDate': this.landingPageInfo.accountOpenDate,
 				'type': productInfo.type,
 				'category': productInfo.category,
+				'subCategory': productInfo.subCategory,
 				'icon': productInfo.icon,
 				'customIcon': productInfo.customIcon,
 				'order': productInfo.order,

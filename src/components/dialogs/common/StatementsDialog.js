@@ -257,7 +257,8 @@ export class StatementsDialog extends Component {
 			this._resetPeriodSelection();
 			this.dispatchEvent(new CustomEvent(`account-selected`, {
 				detail: {
-					account: this.productSelected.category
+					account: this.productSelected.category,
+					subCategory: this.productSelected.subCategory
 				}
 			}));
 			this.requestUpdate();

@@ -10,7 +10,6 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { creditMixin } from 'app/views/credit/CreditMixin';
-import { creditOverview } from 'app/mocks/CreditMocks';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 
@@ -134,7 +133,7 @@ export class CreditAccount extends ViewBase {
 
 		const actions = {
 			'transaction-history': transactionHistory,
-			'statements': statements,
+			[`statements-${selectedAccountDetails.subCategory}`]: statements,
 			'settlement-quote': settlementQuote,
 			'paid-up-letter': paidUpLetter,
 			'settle-close': settleAndClose,
@@ -194,11 +193,6 @@ export class CreditAccount extends ViewBase {
 			"next-screen": TelemetryScreen.CREDIT_LANDING
 		});
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
-
-	async _viewFees() {
-		const fees = await this.configuration.getSetting(`otherSystemsURL.fees`);
-		window.open(`${fees}`);
 	}
 
 	_sendStatement() {
@@ -337,7 +331,7 @@ export class CreditAccount extends ViewBase {
 				this.logger.log(`error`, `Failed to retrieve client creit balance from credit service.`, `_initialise`, returnValue.correlationId);
 			} 
 
-			this.creditBalance = 0;
+			this.creditBalance = returnValue.result;
 
 			this._telemetry.startSpan(CreditEvents.CREDIT, {
 				"screen": TelemetryScreen.CREDIT_LANDING,
@@ -807,7 +801,6 @@ export class CreditAccount extends ViewBase {
 				type="${ACCOUNT_TYPES.CREDIT}"
 				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}"
 				@cancel="${() => this._backToLandingPage()}"
-				@view-fees="${() => this._viewFees()}"
 				@account-selected="${(event) => this._statementsAccConfirmed(event)}">
 			</horizon-statements>`
 		: html``;

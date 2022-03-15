@@ -134,6 +134,7 @@ export class SavingsAccountBase extends ViewBase {
 										'accountOpenDate': item.accountOpenDate || item.openDate,
 										'type': productInfo.type,
 										'category': productInfo.category,
+										'subCategory': productInfo.subCategory,
 										'icon': productInfo.icon,
 										'customIcon': productInfo.customIcon,
 										'order': productInfo.order,
@@ -442,7 +443,7 @@ export class SavingsAccountBase extends ViewBase {
 	 * @returns {void}
 	 */
 	async _statementsAccConfirmed(event) {
-		const need = `statements-${event.detail.account}`;
+		const need = `statements-${event.detail.subCategory || event.detail.account}`;
 
 		await super._inicidentManager_(need, () => this._toggleBusyFlag());
 	}
