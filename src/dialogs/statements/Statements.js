@@ -1,5 +1,5 @@
 import { Component, html } from 'platform/elements';
-import { Logger, NavigationContext } from 'platform/core';
+import { Configuration, Logger, NavigationContext } from 'platform/core';
 import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -33,7 +33,8 @@ export class Statements extends Component {
 		super();
 
 		this.isBusy = false;
-		
+
+		this.configuration = Configuration.getInstance();
 		this.logger = Logger.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
@@ -155,6 +156,11 @@ export class Statements extends Component {
 
 	_closePDF() {
 		this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_CLOSE_PDF);
+	}
+
+	async _viewFees() {
+		const fees = await this.configuration.getSetting(`otherSystemsURL.fees`);
+		window.open(`${fees}`);
 	}
 
 	// ---------------
@@ -305,7 +311,8 @@ export class Statements extends Component {
 				.viewStatement="${(productType, request) => this._viewPDF(productType, request)}"
 				.sendStatement="${(productType, request) => this._send(productType, request)}"
 				@close-pdf="${() => this._closePDF()}"
-				@account-selected="${(event) => this._statementsAccConfirmed(event)}">
+				@account-selected="${(event) => this._statementsAccConfirmed(event)}"
+				@view-fees="${() => this._viewFees()}">
 			</horizon-statements-dialog>
 		`;
 	}

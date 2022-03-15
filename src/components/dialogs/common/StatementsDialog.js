@@ -1,6 +1,7 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { ERRORS, NOTIFICATION_MESSAGE, PERIOD_TYPE, RANGE_SELECTOR, RENDER_MODE, STATEMENTS_STEPS, TIME_PERIOD } from 'app/constants/Statements';
 import { calculateDays, formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'platform/components/popups/Modal';
@@ -41,7 +42,6 @@ export class StatementsDialog extends Component {
 		this.renderMode = RENDER_MODE.CHOOSE_ACCOUNT;
 		this.currentStep = 0;
 		this.notifyClient = true;
-		this.notifyMessage = NOTIFICATION_MESSAGE.APP;
 		this._resetPeriodSelection();
 		this.errorMessage = ``;
 		this.email = ``;
@@ -57,7 +57,6 @@ export class StatementsDialog extends Component {
 		this.clientProducts = [];
 		this.accountType = ``;
 		this.STEPPER_STEPS = [];
-		this.alertBannerMessage = ``;
 		this.emailLabel = `Enter email address`;
 		this.confirmEmailLabel = `Confirm email`;
 		this.periodType = PERIOD_TYPE.STATIC;
@@ -84,7 +83,6 @@ export class StatementsDialog extends Component {
 
 			alertBannerMessage: { state: true },
 			currentStep: { state: true },
-			isBusy: { state: true },
 			renderMode: { state: true },
 			notifyClient: { state: true },
 			periodSelected: { state: true },
@@ -195,7 +193,7 @@ export class StatementsDialog extends Component {
 	}
 
 	_clearAlerts() {
-		this.alertBannerMessage = ``;
+		this.errorMessage = ``;
 	}
 
 	_emailValueChanged(e) {
@@ -203,9 +201,9 @@ export class StatementsDialog extends Component {
 		this.confirmEmail = e.detail.confirmEmail;
 
 		if (e.detail.invalidFormat) {
-			this.alertBannerMessage = ERROR_MESSAGE.INVALID_EMAIL;
+			this.errorMessage = ERROR_MESSAGE.INVALID_EMAIL;
 		} else if (e.detail.mismatched) {
-			this.alertBannerMessage = ERROR_MESSAGE.EMAIL_MISMATCH;
+			this.errorMessage = ERROR_MESSAGE.EMAIL_MISMATCH;
 		}
 	}
 
@@ -327,10 +325,10 @@ export class StatementsDialog extends Component {
 
 	_validateEmailAddress() {
 		if (isNullorEmpty(this.email) || isNullorEmpty(this.confirmEmail)) {
-			this.alertBannerMessage = ERROR_MESSAGE.EMAIL_REQUIRED;
+			this.errorMessage = ERROR_MESSAGE.EMAIL_REQUIRED;
 		}
 
-		return isNullorEmpty(this.alertBannerMessage);
+		return isNullorEmpty(this.errorMessage);
 	}
 
 	_getSummary() {
@@ -476,9 +474,26 @@ export class StatementsDialog extends Component {
 					--theme-alert-banner-unsuccessful-red-color: #C83B37;
 					--theme-alert-banner-unsuccessful-red-background-color: #F7E2E1;
 					--theme-layout-gap-spacing: 15px;
+					width: 928px;
 				}
 				.main-cb > capitec-alert-banner[type="warning"] {
 					--theme-alert-banner-warning-font-color: #3A3A3A;
+				}
+				.alert-banner-group {
+					width: 842px;
+				}
+				.alert-banner-group > capitec-label[type="strong"] {
+					--theme-label-default-font-size: 14px;
+				}
+				.alert-banner-group > capitec-label[type="strong"] {
+					--theme-label-strong-font-size: 14px;
+					--theme-label-strong-font-weight: 600;
+				}
+				capitec-hyperlink {
+					--theme-hyperlink-font-size: 14px;
+					--theme-font-weight: 600;
+
+					text-decoration: underline;
 				}
 
 				.main-cb > capitec-label[type="subtitle"] {
@@ -562,7 +577,7 @@ export class StatementsDialog extends Component {
 					--theme-product-tile-detail-top: 20px;
 					--theme-product-tile-detail-right: 16px;
 				}
-				capitec-label[type="strong"] {
+				.view-document > capitec-label[type="strong"] {
 					line-height: 20px;
 					cursor: pointer;
 
@@ -657,37 +672,47 @@ export class StatementsDialog extends Component {
 	}
 
 	_renderAlertBanner() {
-		if (this.errorMessage) {
-			return html`
-				<capitec-alert-banner
-					data-automation-id="statements-dialog-alert-message"
-					type="unsuccessful-red">
-						<p><b>Notify:</b> ${this.errorMessage}</p>
-				</capitec-alert-banner>`;
+		switch (true) {
+			case this.errorMessage !== ``:
+				return html`
+					<capitec-alert-banner
+						data-automation-id="statements-dialog-alert-message"
+						type="unsuccessful-red">
+							<p><b>Notify:</b> ${this.errorMessage}</p>
+					</capitec-alert-banner>`;
+			case this.productSelected.category === ACCOUNT_TYPES.CREDIT:
+				return html`
+					<capitec-alert-banner
+						data-automation-id="statements-credit-alert-banner"
+						type="warning">
+						<capitec-group
+							layout="horizontal"
+							gap="none"
+							class="alert-banner-group">
+								<capitec-label type="strong" label="Notify client:"></capitec-label>
+								<capitec-label type="default"
+									label="${NOTIFICATION_MESSAGE.FEE}">
+								</capitec-label>
+								<capitec-spacer></capitec-spacer>
+								<capitec-hyperlink 
+									data-automation-id="statements-credit-view-fees"
+									label="View fees"
+									@click="${() => this.dispatchEvent(new CustomEvent(`view-fees`, {}))}">
+								</capitec-hyperlink>
+						</capitec-group>
+					</capitec-alert-banner>`;
+			case this.notifyClient && isNullorEmpty(this.errorMessage):
+				return html`
+					<capitec-alert-banner
+						data-automation-id="statements-dialog-notify-message"
+						type="info"
+						@click="${() => this.notifyClient = false}"
+						closable>
+							<p><b>Notify client:</b>${NOTIFICATION_MESSAGE.APP}</p>
+					</capitec-alert-banner>`;
+			default:
+				return html``;
 		}
-
-		if (this.productSelected.accountName === `Access Facility`) {
-			return html`
-				<capitec-alert-banner
-					type="warning">
-						<p><b>Notify client:</b> ${NOTIFICATION_MESSAGE.FLEXIBLE_SAVINGS_FEE}</p>
-				</capitec-alert-banner>
-			`;
-		}
-
-		if (this.notifyClient && isNullorEmpty(this.errorMessage)) {
-			return html`
-				<capitec-alert-banner
-					data-automation-id="statements-dialog-notify-message"
-					type="info"
-					@click="${() => this.notifyClient = false}"
-					closable>
-						<p><b>Notify client:</b>${this.notifyMessage}</p>
-				</capitec-alert-banner>
-			`;
-		}
-
-		return html``;
 	}
 
 	_renderSelectAccount() {
@@ -876,7 +901,7 @@ export class StatementsDialog extends Component {
 			<horizon-email-input
 				labelOne="${this.emailLabel}"
 				labelTwo="${this.confirmEmailLabel}"
-				?showRequiredError="${this.alertBannerMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
+				?showRequiredError="${this.errorMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
 				.callBack="${() => this._clearAlerts()}"
 				@value-changed="${(e) => this._emailValueChanged(e)}">
 			</horizon-email-input>
@@ -923,7 +948,7 @@ export class StatementsDialog extends Component {
 					data-automation-id="statements-dialog-view-document"
 					class="view-document"
 					type="default"
-					label="${formatDate(`${first - 1}/01/${second}`, `MM yyyy`)}"
+					label="${formatDate(`${first}/01/${second}`, `MM yyyy`)}"
 					subtitle="${this._getDaysinMonth(first, second)} days">
 						${this._renderViewDocumnetLink(month)}
 				</horizon-product-tile>`;
