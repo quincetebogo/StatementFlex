@@ -384,7 +384,7 @@ export class CreditAccount extends ViewBase {
 			item.currentBalance = formatCurrency(item.currentBalance);
 			item.availableCredit = formatCurrency(item.availableCredit);
 			item.creditLimit = formatCurrency(item.creditLimit);
-			item.nextRepayment = formatCurrency(item.nextRepayment);
+			item.repayAmount = formatCurrency(item.repayAmount);
 			item.accountStatusDescription = item.arrearIndicator ? `In arrears` : formatStringAsPascalCase(item.accountStatusDescription);
 
 			return item;

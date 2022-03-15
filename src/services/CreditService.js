@@ -19,14 +19,18 @@ export class CreditService extends ChannelServiceBase {
 			`serviceURIs.creditChannelServiceUrl`, 
 			`credit-v1`, 
 			`v1`,
-			null
+			() => import(`../mocks/HorizonChannelServiceMocks.js`)
 		);
 	}
 
 	// --------------
 	// PUBLIC METHODS
 	// --------------
-	creditOverview(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async creditOverview(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		if (await this.isMockEnabled(`creditOverview`)) {
+			return this.mock(`creditOverview`);
+		}
 
 		const creditOverviewRequest = {
 			"cifnumber": cifNumber
@@ -48,7 +52,11 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	creditBalance(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async creditBalance(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		if (await this.isMockEnabled(`creditBalance`)) {
+			return this.mock(`creditBalance`);
+		}
 
 		const creditBalanceRequest = {
 			"cifnumber": cifNumber
