@@ -393,6 +393,8 @@ export class StatementsDialog extends Component {
 			"account-type": this.productSelected.accountName
 		});
 
+
+
 		return true;
 	}
 

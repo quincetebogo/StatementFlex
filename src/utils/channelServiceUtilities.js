@@ -185,3 +185,14 @@ export function isWellFormedSouthAfricanID(southAfricanIDNumber) {
 	return html`${unsafeHTML(agreement)}`;
 
 }
+
+/**
+ *  Capitalize the first character of a string
+ * @export
+ * @param {string} str The string to capitalize
+ * @returns {string} A capitalized string
+ */
+export function capitalizeString(str) {
+	const result = str.replace(/\0/g, ``); // TODO: Temporary fix for telemetry issue. This must come out once the PS side problem has been addressed.
+	return `${result.charAt(0).toUpperCase()}${result.slice(1)}`;
+}
