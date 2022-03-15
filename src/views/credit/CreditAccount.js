@@ -131,9 +131,10 @@ export class CreditAccount extends ViewBase {
 		const budgetFacility = () => this._budgetFacility(selectedAccountDetails);
 		const payBudget = () => this._payBudgetAccount(selectedAccountDetails);
 
+		const accConfig = ACCOUNT_INTCAT_ENUM[selectedAccountDetails.productTypeCode];
 		const actions = {
 			'transaction-history': transactionHistory,
-			[`statements-${selectedAccountDetails.subCategory}`]: statements,
+			'statements': statements,
 			'settlement-quote': settlementQuote,
 			'paid-up-letter': paidUpLetter,
 			'settle-close': settleAndClose,
@@ -144,7 +145,7 @@ export class CreditAccount extends ViewBase {
 
 		if (actions[option]) {
 			
-			const clientNeed = `${option}-${productType.toLowerCase().replace(` `, `-`)}`;
+			const clientNeed = `${option}-${accConfig.subCategory}`;
 			 
 			await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
 			this._refreshIncidentDetails();
@@ -461,6 +462,7 @@ export class CreditAccount extends ViewBase {
 				'accountOpenDate': openDate,
 				'type': productInfo.type,
 				'category': productInfo.category,
+				'subCategory': productInfo.subCategory,
 				'icon': productInfo.icon,
 				'customIcon': productInfo.customIcon,
 				'order': productInfo.order,
