@@ -96,9 +96,9 @@ export class SettleAndCloseDisclaimerDialog extends Component {
 					padding-left: 8px;
 					height: 24px;
 					width: auto;
-					font-family: "Hind Vadodara";
-					font-size: 18px;
-					font-weight: 600;
+					--theme-label-font-family: "Hind Vadodara";
+					--theme-label-subtitle-font-size: 18px;
+					--theme-label-subtitle-font-weight: 600;
 					line-height: 24px;
 				}
 
@@ -110,8 +110,9 @@ export class SettleAndCloseDisclaimerDialog extends Component {
 
 				capitec-content-box > capitec-label {
 					width: auto;
-					font-size: 16px;
 					margin: 0px 0px 15px 0px;
+
+					--theme-label-default-font-size: 16px;
 				}
 
 				capitec-content-box > capitec-label:last-child {
