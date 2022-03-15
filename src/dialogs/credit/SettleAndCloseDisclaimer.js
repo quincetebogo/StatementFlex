@@ -5,11 +5,11 @@ import { CREDIT_TYPE } from 'app/constants/Credit';
  * A warning dialog that prompts the agent to inform they're settling and closing the selected account.
  *
  * @export
- * @class CCSstatus
+ * @class SettleAndCloseDisclaimerDialog
  * @extends {Component}
  */
 
-export class SettleAndClose extends Component {
+export class SettleAndCloseDisclaimerDialog extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -92,7 +92,7 @@ export class SettleAndClose extends Component {
 					padding-left: 15px;
 				}
 
-				capitec-label {
+				capitec-label[type="subtitle"] {
 					padding-left: 8px;
 					height: 24px;
 					width: auto;
@@ -108,13 +108,13 @@ export class SettleAndClose extends Component {
 					border-bottom: 1px solid #E1E1E1;
 				}
 
-				capitec-content-box > p {
+				capitec-content-box > capitec-label {
 					width: auto;
 					font-size: 16px;
 					margin: 0px 0px 15px 0px;
 				}
 
-				capitec-content-box > p:last-child {
+				capitec-content-box > capitec-label:last-child {
 					margin: 0px;
 				}
 
@@ -173,9 +173,9 @@ export class SettleAndClose extends Component {
 	_renderInformation() {
 		return html`
 			<capitec-content-box>
-				<p>If you settle ${this.creditType === CREDIT_TYPE.FIXED ? `` : `and close`} your ${this.productType}, the balance will be zero and the account will be close. You will not be able to transact on this account in the future. </p>
-				<p>If you wish to have this facility again, you will have to reapply subject to a credit assessment and terms and conditions.</p>
-				<p>Do you want to continue with settling and closing the credit card?</p>
+				<capitec-label label="If you settle ${this.creditType === CREDIT_TYPE.FIXED ? `` : `and close `}your ${this.productType.toLowerCase()}, the balance will be zero and the account will be closed. You will not be able to transact on this account in the future."></capitec-label>
+				<capitec-label label="If you wish to have this facility again, you will have to reapply subject to a credit assessment and terms and conditions."></capitec-label>
+				<capitec-label label="Do you want to continue with settling and closing the ${this.productType.toLowerCase()}?"></capitec-label>
 			</capitec-content-box>
 		`;
 	}
@@ -198,4 +198,4 @@ export class SettleAndClose extends Component {
 	}
 
 }
-window.customElements.define(`horizon-settle-n-close-dialog`, SettleAndClose);
+window.customElements.define(`horizon-settle-n-close-dialog`, SettleAndCloseDisclaimerDialog);

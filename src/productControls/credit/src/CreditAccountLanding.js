@@ -585,7 +585,7 @@ export class CreditAccountLanding extends Component {
 	}
 
 	_renderCreditNotAvailable(creditType) {
-		const headerText = creditType === CREDIT_TYPE.FLEXIBLE ? `flexible credit` : `fixed-term`;
+		const headerText = creditType === `flexible` ? `flexible credit` : `fixed-term`;
 
 		return html`
 			<capitec-group
