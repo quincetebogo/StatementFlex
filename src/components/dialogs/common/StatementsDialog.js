@@ -902,6 +902,8 @@ export class StatementsDialog extends Component {
 			<horizon-email-input
 				labelOne="${this.emailLabel}"
 				labelTwo="${this.confirmEmailLabel}"
+				email="${this.email}"
+				confirmEmail="${this.confirmEmail}"
 				?showRequiredError="${this.errorMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
 				.callBack="${() => this._clearAlerts()}"
 				@value-changed="${(e) => this._emailValueChanged(e)}">
