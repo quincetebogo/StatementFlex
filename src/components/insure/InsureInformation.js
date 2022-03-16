@@ -47,12 +47,12 @@ export class InsureInformation extends Component {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		
+
 		this.incomingCallDetails = this.horizonStore.getCallerInformation();
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		this.incidentRecId = this.incidentDetails.incidentRecId;
 
-		
+
 		this.index = 0;
 		this.renderMode = RENDER_MODE.DISCLAIMER;
 		this.records = [
@@ -103,7 +103,7 @@ export class InsureInformation extends Component {
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		this.callerInformation = this.horizonStore.getCallerInformation();
-		
+
 		this.verificationStatus = this.callerInformation.verificationStatus;
 
 		this._updateMiniProfile();
@@ -138,7 +138,7 @@ export class InsureInformation extends Component {
 	_updateMiniProfile() {
 		this.horizonStore.setCallerInformation(this.callerInformation);
 
-		const state = { 
+		const state = {
 			leftBarButtonConfig: {
 				hasFavourites: true,
 				subtitle: ``,
@@ -575,24 +575,18 @@ export class InsureInformation extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-button
-						class="calculate-button" 
-						type="white" 
-						label="Calculate Premium"
+					<capitec-button class="calculate-button" type="white" label="Calculate Premium"
 						@click="${() => this._calculatePremiumClick()}">
 					</capitec-button>
 				</capitec-title-bar>
 				<capitec-tab-group class="tabs">
-					<capitec-tab 
-						label="Benefits">
+					<capitec-tab label="Benefits">
 						${this._renderBenefitContent()}
 					</capitec-tab>
-					<capitec-tab 
-						label="Cover">
+					<capitec-tab label="Cover">
 						${this._renderCoverContent()}
 					</capitec-tab>
-					<capitec-tab 
-						label="Claim">
+					<capitec-tab label="Claim">
 						${this._renderClaimContent()}
 					</capitec-tab>
 				</capitec-tab-group>
@@ -717,17 +711,21 @@ export class InsureInformation extends Component {
 							<capitec-label label="Niece:" row="4" column="1"></capitec-label>
 							<capitec-label row="4" column="2" label="The female child of your brother or sister"></capitec-label>
 							<capitec-label label="Brother-in-law:" row="5" column="1"></capitec-label>
-							<capitec-label row="5" column="2" label="The male person married to the child of your parents"></capitec-label>
+							<capitec-label row="5" column="2" label="The male person married to the child of your parents">
+							</capitec-label>
 							<capitec-label label="Sister-in-law:" row="6" column="1"></capitec-label>
-							<capitec-label row="6" column="2" label="The female person married to the child of your parents"></capitec-label>
+							<capitec-label row="6" column="2" label="The female person married to the child of your parents">
+							</capitec-label>
 							<capitec-label label="Son-in-law:" row="7" column="1"></capitec-label>
 							<capitec-label row="7" column="2" label="The male person married your the child"></capitec-label>
 							<capitec-label label="Daughter-in-law:" row="8" column="1"></capitec-label>
 							<capitec-label row="8" column="2" label="The female person married your the child"></capitec-label>
 							<capitec-label label="Aunt:" row="9" column="1"></capitec-label>
-							<capitec-label row="9" column="2" label="The sister of your father or mother, or your uncle’s female spouse"></capitec-label>
+							<capitec-label row="9" column="2"
+								label="The sister of your father or mother, or your uncle’s female spouse"></capitec-label>
 							<capitec-label label="Uncle:" row="10" column="1"></capitec-label>
-							<capitec-label row="10" column="2" label="The brother of your father or mother, or your aunt’s male spouse"></capitec-label>
+							<capitec-label row="10" column="2" label="The brother of your father or mother, or your aunt’s male spouse">
+							</capitec-label>
 							<capitec-label label="First cousin:" row="11" column="1"></capitec-label>
 							<capitec-label row="11" column="2" label="The child of your aunt or uncle as defined above"></capitec-label>
 							<capitec-label label="First cousin' child:" row="12" column="1"></capitec-label>
@@ -752,21 +750,29 @@ export class InsureInformation extends Component {
 							<capitec-label label="Nephew:" row="3" column="1"></capitec-label>
 							<capitec-label row="3" column="2" label="The male child of your spouse’s brother or sister"></capitec-label>
 							<capitec-label label="Niece:" row="4" column="1"></capitec-label>
-							<capitec-label row="4" column="2" label="The female child of your spouse’s brother or sister"></capitec-label>
+							<capitec-label row="4" column="2" label="The female child of your spouse’s brother or sister">
+							</capitec-label>
 							<capitec-label label="Brother-in-law:" row="5" column="1"></capitec-label>
-							<capitec-label row="5" column="2" label="The male person married to the child of your spouse’s parents"></capitec-label>
+							<capitec-label row="5" column="2" label="The male person married to the child of your spouse’s parents">
+							</capitec-label>
 							<capitec-label label="Sister-in-law:" row="6" column="1"></capitec-label>
-							<capitec-label row="6" column="2" label="The female person married to the child of your spouse’s parents"></capitec-label>
+							<capitec-label row="6" column="2" label="The female person married to the child of your spouse’s parents">
+							</capitec-label>
 							<capitec-label label="Son-in-law:" row="7" column="1"></capitec-label>
 							<capitec-label row="7" column="2" label="The male person married your spouse’s child"></capitec-label>
 							<capitec-label label="Daughter-in-law:" row="8" column="1"></capitec-label>
 							<capitec-label row="8" column="2" label="The female person married your spouse’s child"></capitec-label>
 							<capitec-label label="Aunt:" row="9" column="1"></capitec-label>
-							<capitec-label row="9" column="2" label="The sister of your spouse’s father or mother, or your spouse’s uncle’s female spouse"></capitec-label>
+							<capitec-label row="9" column="2"
+								label="The sister of your spouse’s father or mother, or your spouse’s uncle’s female spouse">
+							</capitec-label>
 							<capitec-label label="Uncle:" row="10" column="1"></capitec-label>
-							<capitec-label row="10" column="2" label="The brother of your spouse’s father or mother, or your spouse’s aunt’s male spouse"></capitec-label>
+							<capitec-label row="10" column="2"
+								label="The brother of your spouse’s father or mother, or your spouse’s aunt’s male spouse">
+							</capitec-label>
 							<capitec-label label="First cousin:" row="11" column="1"></capitec-label>
-							<capitec-label row="11" column="2" label="The child of your spouse’s aunt or uncle as defined above"></capitec-label>
+							<capitec-label row="11" column="2" label="The child of your spouse’s aunt or uncle as defined above">
+							</capitec-label>
 							<capitec-label label="First cousin' child:" row="12" column="1"></capitec-label>
 							<capitec-label row="12" column="2" label="The child of your first cousin as defined above"></capitec-label>
 							<capitec-label label="Grandparent:" row="13" column="1"></capitec-label>
@@ -776,7 +782,8 @@ export class InsureInformation extends Component {
 							<capitec-label label="Grandchild:" row="15" column="1"></capitec-label>
 							<capitec-label row="15" column="2" label="Your spouse’s child’s child"></capitec-label>
 							<capitec-label label="Great-grandchild:" row="16" column="1"></capitec-label>
-							<capitec-label row="16" column="2" label="Greatgrandchild who is your spouse’s grandchild’s child"></capitec-label>
+							<capitec-label row="16" column="2" label="Greatgrandchild who is your spouse’s grandchild’s child">
+							</capitec-label>
 						</capitec-group>
 					</capitec-expander>
 				</capitec-expander-group>
@@ -831,8 +838,7 @@ export class InsureInformation extends Component {
 	_renderDislaimer() {
 		if (this.renderMode === RENDER_MODE.DISCLAIMER) {
 			return html`
-			<horizon-non-advisory-disclaimer
-				@click="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+			<horizon-non-advisory-disclaimer @click="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 			</horizon-non-advisory-disclaimer>`;
 		}
 	}
@@ -840,10 +846,8 @@ export class InsureInformation extends Component {
 	_renderCalculatePremium() {
 		if (this.renderMode === RENDER_MODE.CALCULATE_PREMIUM) {
 			return html`
-				<horizon-calculate-premium 
-					.incomingCallDetails="${this.incomingCallDetails}"
-					@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
-					@done="${(e) => this._premiumCalculationDone(e)}">
+				<horizon-calculate-premium .incomingCallDetails="${this.incomingCallDetails}"
+					@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}" @done="${(e) => this._premiumCalculationDone(e)}">
 				</horizon-calculate-premium>`;
 		}
 		return html``;
@@ -852,11 +856,8 @@ export class InsureInformation extends Component {
 	_renderNonClientBanner() {
 		if (this.verificationStatus === `non-client` && this.displayNotification) {
 			return html`
-				<capitec-alert-banner 
-					class="info-banner" 
-					type="info" 
-					closable @click="${() => this._onCloseClick()}">
-						All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.
+				<capitec-alert-banner class="info-banner" type="info" closable @click="${() => this._onCloseClick()}">
+					All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.
 				</capitec-alert-banner>`;
 		}
 		return html``;
@@ -865,13 +866,10 @@ export class InsureInformation extends Component {
 	_renderCoverBanner() {
 		if (this.displayCoverNotification) {
 			return html`
-				<capitec-alert-banner 
-					class="cover-banner" 
-					type="info" 
-					closable @click="${() => this._onCloseCover()}">
-						*Legal maximum child cover. The total amount payable in the event of the death of a child is restricted by
-						legislation. The restriction is
-						<br>&nbsp; applicable to the life (ID) across all insurers and their recorded policies.
+				<capitec-alert-banner class="cover-banner" type="info" closable @click="${() => this._onCloseCover()}">
+					*Legal maximum child cover. The total amount payable in the event of the death of a child is restricted by
+					legislation. The restriction is
+					<br>&nbsp; applicable to the life (ID) across all insurers and their recorded policies.
 				</capitec-alert-banner>`;
 		}
 		return html``;
@@ -880,10 +878,7 @@ export class InsureInformation extends Component {
 	_renderClaimAlert() {
 		if (this.displayClaimNotification) {
 			return html`
-				<capitec-alert-banner 
-					class="info-banner" 
-					type="info" closable 
-					@click="${() => this._onCloseClaimAlert()}">
+				<capitec-alert-banner class="info-banner" type="info" closable @click="${() => this._onCloseClaimAlert()}">
 					All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.
 				</capitec-alert-banner>`;
 		}
@@ -896,9 +891,7 @@ export class InsureInformation extends Component {
 				${this._renderUnverifiedToast()}
 				<capitec-alert-banner class="unverfied-caller-alert" type="warning">
 					Client has not been verified, so you are only able to see limited information.
-					<capitec-hyperlink 
-						label="Verify Now" 
-						@click="${() => this._verifyClientClick()}">
+					<capitec-hyperlink label="Verify Now" @click="${() => this._verifyClientClick()}">
 					</capitec-hyperlink>
 				</capitec-alert-banner>`;
 		}
@@ -919,11 +912,7 @@ export class InsureInformation extends Component {
 	_renderVerifiedToast() {
 		if (this.verificationStatus === `verified` && this.displayToast) {
 			return html`
-				<capitec-toast 
-					class="toast" 
-					type="success" 
-					header="Successful" 
-					detail="Client has been verified">
+				<capitec-toast class="toast" type="success" header="Successful" detail="Client has been verified">
 				</capitec-toast>`;
 		}
 		return html``;
@@ -932,11 +921,7 @@ export class InsureInformation extends Component {
 	_renderUnverifiedToast() {
 		if (this.renderAlertBanner === `unverified` && this.displayToast) {
 			return html`
-				<capitec-toast 
-					class="toast" 
-					type="warning" 
-					header="Not Verified" 
-					detail="Only limited information will be display">
+				<capitec-toast class="toast" type="warning" header="Not Verified" detail="Only limited information will be display">
 				</capitec-toast>
 				`;
 		}
@@ -946,12 +931,8 @@ export class InsureInformation extends Component {
 	_renderEndCallSessionDialog() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
 			return html`
-				<horizon-end-call-session 
-					.incidentDetails="${this.incidentDetails}"
-					.incomingCallDetails="${this.incomingCallDetails}"
-					endCallContext="LandingPage"
-					.isReassigned="${this.isReassigned}"
-					@cancel="${() => this._endCallCancelled()}">
+				<horizon-end-call-session .incidentDetails="${this.incidentDetails}" .incomingCallDetails="${this.incomingCallDetails}"
+					endCallContext="LandingPage" .isReassigned="${this.isReassigned}" @cancel="${() => this._endCallCancelled()}">
 				</horizon-end-call-session>`;
 		}
 		return html``;
@@ -960,8 +941,7 @@ export class InsureInformation extends Component {
 	_renderSelectAssignReason() {
 		if (this.renderMode === RENDER_MODE.SELECT_ASSIGN_REASON) {
 			return html`
-				<horizon-insure-assign-reason 
-					@on-assign-reason=${(e) => this._onAssignReasonSelected(e)}
+				<horizon-insure-assign-reason @on-assign-reason=${(e) => this._onAssignReasonSelected(e)}
 					@on-cancel=${() => this._onCancelSelectAssignReason()}>
 				</horizon-insure-assign-reason>`;
 		}
@@ -971,9 +951,7 @@ export class InsureInformation extends Component {
 	_renderAssign() {
 		if (this.renderMode === RENDER_MODE.ASSIGN) {
 			return html`
-				<horizon-assign-reason-selected 
-					.selectedReason="${this.assignReason}" 
-					@on-cancel=${() => this._onCancelAssign()}>
+				<horizon-assign-reason-selected .selectedReason="${this.assignReason}" @on-cancel=${() => this._onCancelAssign()}>
 				</horizon-assign-reason-selected>`;
 		}
 		return html``;
@@ -983,13 +961,9 @@ export class InsureInformation extends Component {
 		return this.renderMode !== RENDER_MODE.VERIFY_NOW
 			? html``
 			: html`
-				<horizon-verify-caller 
-					.incidentDetails="${this.incidentDetails}"
-					.incomingCallDetails="${this.incomingCallDetails}"
-					.callerInformation="${this.callerInformation}"
-					@cancel="${(e) => this._verificationCancelled(e)}"
-					@skip="${(e) => this._verificationSkipped(e)}"
-					@verified="${(e) => this._clientVerified(e)}">
+				<horizon-verify-caller .incidentDetails="${this.incidentDetails}" .incomingCallDetails="${this.incomingCallDetails}"
+					.callerInformation="${this.callerInformation}" @cancel="${(e) => this._verificationCancelled(e)}"
+					@skip="${(e) => this._verificationSkipped(e)}" @verified="${(e) => this._clientVerified(e)}">
 				</horizon-verify-caller>`;
 	}
 }

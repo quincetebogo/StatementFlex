@@ -1,7 +1,14 @@
 import { View, css, html } from 'platform/elements';
 import { HorizonStore } from 'app/store/HorizonStore';
 
-import 'app/components/insure/ThirdPartyOrExistingClient';
+import { RENDER_MODE } from 'app/views/common/RenderModes';
+
+import 'app/components/insure/InsurePolicyList';
+import 'app/components/insure/InsureFuneralPlanDetails';
+import 'app/components/insure/InsureClaims';
+import 'app/components/insure/InsureLodgeClaim';
+import 'app/components/insure/InsureCalculateEstimate';
+import 'app/components/insure/InsureUpdatePlan';
 
 /**
  * Implements the view for Insure verified and unverified existing clients (i.e. the client has products)
@@ -15,135 +22,109 @@ import 'app/components/insure/ThirdPartyOrExistingClient';
  */
 export class ExistingClient extends View {
 
-	// --------------
-	// INITIALISATION
-	// --------------
+	//#region INITIALISATION
 
 	constructor() {
 		super();
 
 		this.horizonStore = HorizonStore.getInstance();
-		
 		this.callerInformation = this.horizonStore.getCallerInformation();
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	// -------------------
-	// LIFECYCLE OVERRIDES
-	// -------------------
+	//#endregion
+
+	//#region LIFECYCLE OVERRIDES
 
 	connectedCallback() {
 		super.connectedCallback();
+		this._initialise();
+	}
 
-		switch (this.callerInformation.verificationStatus) {
-			case `verified`:
-				this.solutionsAvailable = [
-					{
-						"icon": `system/notes-action`,
-						"imgSRC": ``,
-						"iconSize": `default`,
-						"label": `View Plan`
-					},
-					{
-						"icon": `system/edit-action`,
-						"imgSRC": ``,
-						"iconSize": `default`,
-						"label": `Update Plan`
-					},
-					{
-						"icon": `system/cash-action`,
-						"imgSRC": ``,
-						"iconSize": `default`,
-						"label": `Pay Arrears`
-					},
-					{
-						"icon": `system/documents-action`,
-						"imgSRC": ``,
-						"iconSize": `default`,
-						"label": `How to Claim`
-					},
-					{
-						"icon": ``,
-						"imgSRC": `email-action.svg`,
-						"iconSize": `default`,
-						"label": `Email Plan`
-					},
-					{
-						"icon": `system/info-action`,
-						"imgSRC": ``,
-						"iconSize": `default`,
-						"label": `Benefits`
-					},
-					{
-						"icon": ``,
-						"imgSRC": `close-action.svg`,
-						"iconSize": `default`,
-						"label": `Cancel Plan`
-					}
-				];
-				break;
-			case `unverified`:
-				this.solutionsAvailable = [
-					{
-						"icon": `system/documents-action`,
-						"imgSRC": ``,
-						"iconSize": `default`,
-						"label": `How to Claim`
-					},
-					{
-						"icon": `system/notes-action`,
-						"imgSRC": ``,
-						"iconSize": `default`,
-						"label": `View Status`
-					}
-				];
-			break;
-			case `3rdparty`:
-					this.solutionsAvailable = [
-					{
-						"icon": `system/documents-action`,
-						"imgSRC": ``,
-						"iconSize": `default`,
-						"label": `How to Claim`
-					},
-					{
-						"icon": `system/notes-action`,
-						"imgSRC": ``,
-						"iconSize": `default`,
-						"label": `View Status`
-					}
-				];
-				break;
-			default:
-				this.solutionsAvailable = [];
+	//#endregion
+
+	//#region EVENT HANDLERS
+
+	/* Enter Sub views */
+	/**
+	 * Change renderMode to get estimate
+	 */
+	async _enterCalculateEstimate() {
+		// Telemetry Here
+		this.renderMode = RENDER_MODE.INSURE_GET_ESTIMATE;
+		this.requestUpdate();
+	}
+
+	//#endregion
+
+	//#region PRIVATE METHODS
+
+	async _initialise() {
+		this.verificationStatus = this.callerInformation.verificationStatus;
+		if (this.verificationStatus === `verified`) {
+			const clientDetails = {
+				"cifNumber": this.callerInformation.cifNumber,
+				"GetGenericData": true,
+				"NationalIDNumber": this.callerInformation.southAfricanIDNumber
+			};
 		}
 	}
 
-	// ---------
-	// RENDERING
-	// ---------
+	//#endregion
 
+	//#region RENDERING
+
+	/**
+	 * Generates the view stylesheet.
+	 *
+	 * @readonly
+	 * @static
+	 * @returns {css} CSS for the view.
+	 */
 	static get styles() {
 		return [
 			super.styles,
 			css`
-				:host{
-					width: 100%;
-					height: 100%;
-				}
+
 			`
 		];
 	}
 
-
 	_mobileTemplate() {
+		return this._webTemplate();
 	}
 
 	_webTemplate() {
 		return html`
-			<horizon-third-party-or-existing-client 
-				.solutionsAvailable="${this.solutionsAvailable}">
-			</horizon-third-party-or-existing-client>`;
+			${this._renderLandingPage()}
+		`;
 	}
+
+	_renderLandingPage() {
+		switch (this.renderMode) {
+			case RENDER_MODE.MAIN_PAGE:
+				return html`<insure-policy-list @calculateEstimate="${(e) => this._enterCalculateEstimate(e)}"
+					@viewClaims="${(e) => this._enterClaims(e)}" @updatePlan="${(e) => this._enterUpdatePlan(e)}"
+					@viewPlan="${(e) => this._enterFuneralPlanDetails(e)}">
+				</insure-policy-list>`
+			case RENDER_MODE.INSURE_GET_ESTIMATE:
+				return html`<insure-calculate-estimate @back="${(e) => this._exitCalculateEstimate(e)}"></insure-calculate-estimate>`;
+			// 			case RENDER_MODE.FUNERAL_PLAN_DETAILS:
+			// 				return html`<insure-funeral-plan-details @back="${(e) => this._exitFuneralPlanDetails(e)}"></insure-funeral-plan-details>`;
+			// 			case RENDER_MODE.CLAIMS:
+			// 				return html`<insure-claims @back="${(e) => this._exitClaims(e)}"></insure-claims>`;
+			// case RENDER_MODE.INSURE_CLAIMS:
+			// 	return html`<insure-claims></insure-claims>`;
+
+			// case RENDER_MODE.UPDATE_PLAN:
+			// 	return html`<insure-update-plan></insure-update-plan>`;
+			default:
+				return html``;
+		}
+	}
+
+	//#endregion
 }
 
 customElements.define(`horizon-existing-client`, ExistingClient);
