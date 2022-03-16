@@ -52,7 +52,9 @@ const HORIZON_ROUTES = Object.freeze({
 	SETTLEMENT_QUOTE_SUCCESS: `/success/settlement-quote`,
 	SETTLEMENT_QUOTE_FAILURE: `/error/settlement-quote`,
 	SETTLE_AND_CLOSE_SUCCESS: `/success/settle-and-close`,
-	SETTLE_AND_CLOSE_FAILURE: `/error/settle-and-close`
+	SETTLE_AND_CLOSE_FAILURE: `/error/settle-and-close`,
+	BUDGET_FACILITY_SUCCESS: `/success/budget-facility`,
+	BUDGET_FACILITY_FAILURE: `/error/budget-facility`
 });
 
 
@@ -361,6 +363,14 @@ export class HorizonRouter {
 
 	navigateToSettleAndCloseFailure() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLE_AND_CLOSE_FAILURE}`);
+	}
+
+	navigateToBudgetFacilitySuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.BUDGET_FACILITY_SUCCESS}`);
+	}
+
+	navigateToBudgetFacilityFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.BUDGET_FACILITY_FAILURE}`);
 	}
 
 	/**
@@ -861,6 +871,22 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SETTLE_AND_CLOSE_FAILURE,
 		load: () => import(`../views/credit/SettleAndCloseFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-budget-facility-success`,
+		title: `BudgetFacilitySuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.BUDGET_FACILITY_SUCCESS,
+		load: () => import(`../views/credit/BudgetFacilitySuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-budget-facility-failure`,
+		title: `BudgetFacilityFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.BUDGET_FACILITY_FAILURE,
+		load: () => import(`../views/credit/BudgetFacilityFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}
 ];

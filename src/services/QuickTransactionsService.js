@@ -257,11 +257,11 @@ export class QuickTransactionsService extends ChannelServiceBase {
 	}
 
 	getClientProducts(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const url = `/clientcare-documents-${this._version}/statements/client?CIFNumber=${request.cifNumber}` +
-					`&ProductStatus=${request.status}`;
+		const url = `/clientcare-documents-${this._version}/statements/client`;
 
-		return this.get(
+		return this.post(
 			url, 
+			request,
 			this.setToken(), 
 			`getClientProducts`, 
 			false, 
