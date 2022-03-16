@@ -25,6 +25,7 @@ import 'app/productControls/credit/src/CreditAccountLanding';
 import 'app/productControls/credit/src/CreditUnverifiedLanding';
 import 'app/productControls/credit/src/PayCreditCardBudget';
 import 'app/dialogs/credit/SettlementQuote';
+import 'app/components/dialogs/common/ViewAndEmailDocuments';
 
 
 /**
@@ -505,6 +506,7 @@ export class CreditAccount extends ViewBase {
 			"credit-type": creditType,
 			"product-type": productType
 		});
+
 	}
 
 	_settleLoan() {
@@ -657,6 +659,7 @@ export class CreditAccount extends ViewBase {
 			${this._renderSettlementQuoteDialog()}
 			${this._renderFixedStatements()}
 			${this._renderCcsModal()}
+			${this._renderSettleAndCloseEmailConfirmation()}
 		`;
 	}
 
@@ -819,6 +822,12 @@ export class CreditAccount extends ViewBase {
 			@on-okay="${() => this.showCCSmodal = !this.showCCSmodal}">
 		</horizon-ccs-status-dialog>`
 		: html``;
+	}
+
+	_renderSettleAndCloseEmailConfirmation() {
+		return html`
+			<horizon-view-and-send-document></horizon-view-and-send-document>
+		`;
 	}
 
 }
