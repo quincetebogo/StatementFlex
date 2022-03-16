@@ -103,8 +103,15 @@ export default class HorizonChannelServiceMocks {
 			return this.favouritesMocks.favouritesLandingSuccess;
 		}
 
-		// Code for a negative case could come here
-		return null;
+		const errPromise = new Promise(() => {
+			const httpError = new HttpStatusError();
+			httpError.status = 400;
+			httpError.message = `Oh no! A fake 400!`;
+	
+			throw httpError;
+		});
+
+		return errPromise;
 	}
 
 	cardLimitsLanding() {

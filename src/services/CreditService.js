@@ -55,6 +55,9 @@ export class CreditService extends ChannelServiceBase {
 	async creditBalance(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
 		if (await this.isMockEnabled(`creditBalance`)) {
+			if (errorHandler) {
+				return this.mockWithErrorHandler(`creditBalance`, errorHandler);
+			}
 			return this.mock(`creditBalance`);
 		}
 

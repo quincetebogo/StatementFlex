@@ -370,21 +370,21 @@ export class Favourites extends SavingsAccountBase {
 				isCallerVerified: this.callerInformation.verificationStatus === `verified`
 			};
 
-			const returnValues = await Promise.all([this.quickTransactionService.favouritesLanding(landingRequest), this.creditService.creditBalance(this.callerInformation.cifNumber, () => true)]);
+			const returnValues = await Promise.allSettled([this.quickTransactionService.favouritesLanding(landingRequest), this.creditService.creditBalance(this.callerInformation.cifNumber, () => true)]);
 
-			if (returnValues[0].succeeded) {
+			if (returnValues[0].status === `fulfilled` && returnValues[0].value.succeeded) {
 				this.isLoading = false;
 
-				this.landingPageInfo = returnValues[0].result;
+				this.landingPageInfo = returnValues[0].value.result;
 				
 				/* 
 				 * NOTE: This is a work around as the favourites landing does not return credit information. 
 				 * NOTE: This implementation will not include credit information in the favourites landing call fails.
 				 * TODO: Develop better solution
 				 */
-				if (returnValues[1].succeeded) {
+				if (returnValues[1].status === `fulfilled` && returnValues[1].value.succeeded) {
 					this.landingPageInfo.creditProductDescription = `Available balance`;
-					this.landingPageInfo.creditProductAmount = formatCurrency(returnValues[1].result.availableBalance);
+					this.landingPageInfo.creditProductAmount = formatCurrency(returnValues[1].value.result.availableBalance);
 				}
 			}
 		} else {
