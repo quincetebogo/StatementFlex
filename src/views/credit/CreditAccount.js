@@ -11,6 +11,7 @@ import { ViewBase } from 'app/views/common/ViewBase';
 import { creditMixin } from 'app/views/credit/CreditMixin';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
+import { testPDF } from 'app/mocks/PDFMockData'; // TODO: Remove after testing
 
 import 'app/components/common/ServiceCallErrorScreen';
 import 'app/components/credit/CreditCardDetails';
@@ -285,6 +286,24 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
+	_onSendSettleAndClosePOP(documents, email) {
+		// TODO: CS integration to send settle and close POP
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_onCancelSendSettleAndClosePOP() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_onSendSettleLoanPOP(documents, email) {
+		// TODO: CS integration to send settle and close POP
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_onCancelSendSettleLoanPOP() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -507,10 +526,14 @@ export class CreditAccount extends ViewBase {
 			"product-type": productType
 		});
 
+		// TODO: Remove after testing
+		this.renderMode = RENDER_MODE.VIEW_AND_SEND_SETTLE_AND_QUOTE_POP;
 	}
 
 	_settleLoan() {
-		// TO DO: Place holder for credit settle loan flow.
+		// TODO: Place holder for credit settle loan flow.
+		// TODO: Remove after testing
+		this.renderMode = RENDER_MODE.VIEW_AND_SEND_SETTLE_LOAN_POP;
 	}
 
 	async _budgetFacility(selectedAccountDetails) {
@@ -605,6 +628,16 @@ export class CreditAccount extends ViewBase {
 			this.horizonStore.setIncidentDetails(this.incidentDetails);
 		}
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW;
+	}
+
+	_loadSettleAndClosePOPDocument(documentId) {
+		// TODO: CS Integration to retrieve Settle and Close POP Document
+		return testPDF.content.data;
+	}
+
+	_loadSettleLoanPOPDocument(documentId) {
+		// TODO: CS Integration to retrieve Settle Loan POP Document
+		return testPDF.content.data;
 	}
 
 	// ---------
@@ -825,9 +858,41 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderSettleAndCloseEmailConfirmation() {
-		return html`
-			<horizon-view-and-send-document></horizon-view-and-send-document>
-		`;
+		const mockDocuments = [
+			{
+				title: `Credit Card`,
+				subtitle: `Settle and Close POP`
+			}
+		];
+
+		return this.renderMode === RENDER_MODE.VIEW_AND_SEND_SETTLE_AND_QUOTE_POP ? html`
+			<horizon-view-and-send-document
+				modalHeader="Settle and Close: Proof of Payment" 
+				.documents="${mockDocuments}"
+				.loadDocumentContent="${this._loadSettleAndClosePOPDocument}"
+				@send-pdf-click="${(e) => this._onSendSettleAndClosePOP(e.documents, e.email)}"
+				@cancel-send-pdf-click="${() => this._onCancelSendSettleAndClosePOP()}">
+			</horizon-view-and-send-document>
+		` : html``;
+	}
+
+	_renderSettleLoanEmailConfirmation() {
+		const mockDocuments = [
+			{
+				title: `86 Month Term Loan`,
+				subtitle: `Settle Loan POP`
+			}
+		];
+
+		return this.renderMode === RENDER_MODE.VIEW_AND_SEND_SETTLE_LOAN_POP ? html`
+			<horizon-view-and-send-document
+				modalHeader="Settle Loan: Proof of Payment" 
+				.documents="${mockDocuments}"
+				.loadDocumentContent="${this._loadSettleLoanPOPDocument}"
+				@send-pdf-click="${(e) => this._onSendSettleLoanPOP(e.documents, e.email)}"
+				@cancel-send-pdf-click="${() => this._onCancelSendSettleLoanPOP()}">
+			</horizon-view-and-send-document>
+		` : html``;
 	}
 
 }

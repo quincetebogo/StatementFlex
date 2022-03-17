@@ -1,10 +1,14 @@
 import { Component, css, html } from 'platform/elements';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components/popups/Modal';
 import 'app/components/common/HorizonEmailInput';
+import 'app/components/common/HorizonPDFViewer';
 
 /**
- * Dialog for viewing and emailing documents.
+ * Dialog for viewing and emailing documents. 
+ * 
+ * 
  * 
  * @export
  * @class ViewAndEmailDocuments
@@ -19,7 +23,16 @@ export class ViewAndEmailDocuments extends Component {
 	constructor() {
 		super();
 
-		this.modalHeader = `View and send document`;
+		this.selectedDocumentToViewIndex = null;
+		this.viewPDF = false;
+		this.modalHeader = `View and send document(s)`;
+		this.email = ``;
+		this.confirmedEmail = ``;
+		this.hasSendBeenClicked = false;
+		this.isEmailInputAddressValid = false;
+		this.encodedPDF = ``;
+		this.loadDocumentContent = null;
+		this.documents = [];
 	}
 
 	// ----------
@@ -28,7 +41,16 @@ export class ViewAndEmailDocuments extends Component {
 
 	static get properties() {
 		return {
-			modalHeader: { type: String, state: false }
+			modalHeader: { type: String, state: false },
+			documents: { type: Array, state: false },
+			selectedDocumentToViewIndex: { type: Object, state: false, attribute: false },
+			viewPDF: { type: Boolean, state: false, attribute: false },
+			email: { type: String, state: false, attribute: false },
+			confirmedEmail: { type: String, state: false, attribute: false },
+			isEmailInputAddressValid: { type: Boolean, state: false, attribute: false },
+			hasSendBeenClicked: { type: Boolean, state: false, attribute: false },
+			encodedPDF: { type: String },
+			loadDocumentContent: { type: Object }
 		};
 	}
 
@@ -44,9 +66,73 @@ export class ViewAndEmailDocuments extends Component {
 	// EVENT HANDLERS
 	// --------------
 
+	async _onViewDocumentClick(index) {
+		this.selectedDocumentToViewIndex = index;
+		this.viewPDF = true;
+		this.encodedPDF = await this.loadDocumentContent(this.documents[this.selectedDocumentToViewIndex]);
+	}
+
+	async _onNextPDFClick() {
+		this.selectedDocumentToViewIndex += this.selectedDocumentToViewIndex < this.documents.length ? 1 : 0;
+		this.encodedPDF = await this.loadDocumentContent(this.documents[this.selectedDocumentToViewIndex]);
+		this.requestUpdate();
+	}
+
+	async _onPreviousPDFClick() {
+		this.selectedDocumentToViewIndex -= this.selectedDocumentToViewIndex > 0 ? 1 : 0;
+		this.encodedPDF = await this.loadDocumentContent(this.documents[this.selectedDocumentToViewIndex]);
+		this.requestUpdate();
+	}
+
+	_onSendPDFClick(e) {
+		this.hasSendBeenClicked = true;
+
+		const isEmailInputValid = this._validateEmailAddressInput();
+
+		if (!isEmailInputValid) {
+			return;
+		}
+
+		this.dispatchEvent(new CustomEvent(`send-pdf-click`), {
+			detail: {
+				documents: this.documents,
+				email: this.confirmedEmail
+			}
+		});
+	}
+
+	_onCancelSendPDFClick(e) {
+		this.dispatchEvent(new CustomEvent(`cancel-send-pdf-click`), {});
+	}
+
+	_onEmailValueChanged(e) {
+		this.email = e.detail.email;
+		this.confirmedEmail = e.detail.confirmEmail;
+
+		if (e.detail.invalidFormat || e.detail.mismatched) {
+			this.isEmailInputAddressValid = false;
+			return;
+		}
+
+		this.isEmailInputAddressValid = true;
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_validateEmailAddressInput() {
+		if (isNullorEmpty(this.email) || isNullorEmpty(this.confirmedEmail)) {
+			return false;
+		}
+
+		return this.isEmailInputAddressValid;
+	}
+
+	_clearAlerts() {
+
+	}
+		
 
 	// ---------
 	// RENDERING
@@ -56,10 +142,34 @@ export class ViewAndEmailDocuments extends Component {
 		return [
 			super.styles,
 			css`
-				capitec-label[type="subtitle"] {
+				capitec-modal {
+					--theme-modal-header-padding-left: 24px;
+					--theme-modal-header-color: #3A3A3A;
+					--theme-modal-header-background-color: #F7F7F7;
+				}
+				capitec-label[label="View Document(s)"] {
 					line-height: 24px;
+					padding-bottom: 16px;
+					padding-top: 16px;
+				}
+				capitec-label[label="View Document"] {
+					line-height: 20px;
+					cursor: pointer;
+					--theme-label-font-color: #009DE0;
+					--theme-label-strong-font-size: 16px;
+					--theme-label-strong-font-weight: 600;
+				}
+				capitec-label[type="subtitle"] {
 					--theme-label-subtitle-font-size: 18px;
 					--theme-label-subtitle-font-weight: 600;
+				}
+				capitec-alert-banner {
+					padding-bottom: 24px;
+				}
+				capitec-alert-banner > capitec-label {
+					margin: 16px 0px 16px 0px;
+					--theme-label-font-size: 18px;
+					--theme-label-font-family: Hind Vadodara;
 				}
 				horizon-product-tile {
 					width: 100%;
@@ -80,54 +190,66 @@ export class ViewAndEmailDocuments extends Component {
 					--theme-product-tile-detail-top: 20px;
 					--theme-product-tile-detail-right: 16px;
 				}
-				capitec-label[type="strong"] {
-					line-height: 20px;
-					cursor: pointer;
-
-					--theme-label-font-color: #009DE0;
-					--theme-label-strong-font-size: 16px;
-					--theme-label-strong-font-weight: 600;
-				}
 				.seperator {
-					width: 100%;
 					border: 1px solid #E1E1E1;
-					margin-bottom: 30px;
-					margin-top: 30px;
+					width: 100%;
+				}
+				capitec-content-box {
+					height: 200px;
 				}
 			`
 		];
 	}
 
 	_webTemplate() {
-		return html`
+		return !this.viewPDF ? html`
 			<capitec-modal type="form" header="${this.modalHeader}">
 				<div slot="body">
 					<horizon-email-input
 						labelOne="Email"
 						labelTwo="Confirm Email"
-						?showRequiredError="${false}">
+						?showRequiredError="${this.hasSendBeenClicked}"
+						@value-changed="${(e) => this._onEmailValueChanged(e)}"
+						.callBack="${() => this._clearAlerts()}">
 					</horizon-email-input>
 					<hr class="seperator">
 					<capitec-label
 						label="View Document(s)"
 						type="subtitle">
 					</capitec-label>
-					<horizon-product-tile
-						class="view-document"
-						type="default"
-						label="Test Document Label"
-						subtitle="Test Document Subtitle">
-						<capitec-label
-							slot="detail"
-							type="strong"
-							label="View Document"
-							@click="${() => true}">
-						</capitec-label>
-					</horizon-product-tile>
+					<capitec-content-box layout="vertical" noPadding>
+						${this.documents.map((document, index) => this._renderDocumentTiles(document, index))}
+					</capitec-content-box>
 				</div>
-				<capitec-button slot="footer" type="secondary" label="Cancel"></capitec-button>
-				<capitec-button slot="footer" type="primary" label="Send"></capitec-button>
-			</capitec-modal>
+				<capitec-button slot="footer" type="secondary" label="Cancel" @click="${(e) => this._onCancelSendPDFClick(e)}"></capitec-button>
+				<capitec-button slot="footer" type="primary" label="Send" @click="${(e) => this._onSendPDFClick(e)}"></capitec-button>
+			</capitec-modal>`
+		: html`
+			<horizon-pdf-viewer
+				header="${this.modalHeader}"
+				encodedPDF="${this.encodedPDF}"
+				totalPages="${this.documents.length}"
+				currPage="${this.selectedDocumentToViewIndex + 1}"
+				@cancel="${() => this.viewPDF = false}"
+				@next="${() => this._onNextPDFClick()}"
+				@previous="${() => this._onPreviousPDFClick()}">
+			</horizon-pdf-viewer>`;
+	}
+
+	_renderDocumentTiles(document, index) {
+		return html`
+			<horizon-product-tile
+				class="view-document"
+				type="default"
+				label="${document.title}"
+				subtitle="${document.subtitle}">
+				<capitec-label
+					slot="detail"
+					type="strong"
+					label="View Document"
+					@click="${() => this._onViewDocumentClick(index)}">
+				</capitec-label>
+			</horizon-product-tile>
 		`;
 	}
 
