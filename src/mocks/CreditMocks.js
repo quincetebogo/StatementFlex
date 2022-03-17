@@ -1,5 +1,9 @@
 // Credit landing page mocks for the positive case.
 
+export const creditBalance = {
+	"availableBalance": 1000
+};
+
 export const creditOverview = {
 	"loanAccountSummaryList": [
 		{
@@ -48,7 +52,7 @@ export const creditOverview = {
 		{
 			"productTypeDescription": `CREDIT CARD`,
 			"productTypeCode": `101`,
-			"accountNumber": `6006841885`,
+			"accountNumber": `6001736552`,
 			"currentBalance": -5834.09,
 			"availableCredit": 0.0,
 			"creditLimit": 4000.0,

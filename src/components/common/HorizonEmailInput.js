@@ -1,6 +1,5 @@
 import { Component, css, html } from 'platform/elements';
 import { EMAIL_DOMAINS } from 'app/constants/Common';
-import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 const EMAIL_REGEX = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
 const ERROR_MESSAGE = {
@@ -56,12 +55,12 @@ export class HorizonEmailInput extends Component {
 			labelTwo: { type: String },
 			showRequiredError: { type: Boolean },
 			callBack: { type: Object },
+			email: { type: String },
+			confirmEmail: { type: String },
 
-			email: { type: String, state: true },
 			emailError: { state: true },
 			emailSuggestion: { state: true },
 
-			confirmEmail: { type: String, state: true },
 			confirmEmailError: { state: true },
 			confirmEmailSuggestion: { state: true }
 		 };
