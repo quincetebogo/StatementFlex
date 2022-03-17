@@ -169,8 +169,8 @@ export class SettleAndCloseDialog extends Component {
 					--theme-input-icon-margin-left: 16px;
 					--theme-icon-size-small: 24px;
 					--theme-layout-gap-spacing: 8px;
-					--theme-input-padding-top: 12px;
-					--theme-input-padding-bottom: 12px;
+					--theme-input-padding-top: 8px;
+					--theme-input-padding-bottom: 8px;
 
 					--horizon-label-text-height: 20px;
 					--horizon-label-text-font-size: 15px;
@@ -273,11 +273,11 @@ export class SettleAndCloseDialog extends Component {
 			<horizon-select-icon
 				data-automation-id=""
 				label="Choose account"
-				.items="${this.clientProducts}"
-				display-field="accountName"
+				display-field="availableBalance"
 				id-field="accountNumber"
 				detailsField="availableBalance"
 				detailsLabel="Available balance"
+				.items="${this.clientProducts}"
 				.value="${this.productSelected}"
 				.error="${this.hasEnoughFunds ? null : `Transfer cannot exceed available balance`}"
 				.displayRenderer="${(e) => this._renderOptions(e)}"
@@ -304,19 +304,17 @@ export class SettleAndCloseDialog extends Component {
 
 	_renderOptions(e) {
 		return html`
-			<capitec-group ?noPadding="${true}" layout="horizontal">
+			<capitec-group ?noPadding="${true}" layout="horizontal" style="height: 36px;">
 				${this._renderOptionIcon(e)}
-					<capitec-group
-						style="width: 515px"
-						?noPadding="${true}" 
-						layout="horizontal">
-							<horizon-label
-								label="${e.accountName}"
-								value="Available balance">
-							</horizon-label>
-							<capitec-spacer></capitec-spacer>
-							<capitec-label label="${e.availableBalance}"></capitec-label>
-					</capitec-group>
+				
+				<horizon-label
+					label="${e.accountName}"
+					value="Available balance">
+				</horizon-label>
+				<capitec-spacer></capitec-spacer>
+				<capitec-label
+					label="${e.availableBalance}">
+				</capitec-label>
 			</capitec-group>
 		`;
 	}
