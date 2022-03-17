@@ -78,7 +78,7 @@ export class PaidUpAccounts extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
-	_initialise() {
+	async _initialise() {
 		
 
 		const request = {

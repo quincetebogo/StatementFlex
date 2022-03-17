@@ -92,7 +92,7 @@ export class PaidUpLetter extends Component {
 
 	_initialise() {
 		this._toggleBusyFlag();
-		//TODO: flow for selected accounts to be done here
+		// TODO: flow for selected accounts to be done here
 	}
 
 	_viewPDFViewer () {
@@ -120,7 +120,7 @@ export class PaidUpLetter extends Component {
 		if (!isValid) {
 			return false;
 		}
-		//TODO: Navigation to be added once the CS is ready.
+		// TODO: Navigation to be added once the CS is ready.
 	}
 
 	_cancelClick(e) {
@@ -263,8 +263,8 @@ export class PaidUpLetter extends Component {
 	}
 
 	_renderAlertBanner() {
-		return this.alertBannerMessage ?
-		html`
+		return this.alertBannerMessage 
+		? html`
 			<capitec-alert-banner type="unsuccessful-red">
 				<capitec-group layout="horizontal">
 					<capitec-label
