@@ -102,22 +102,29 @@ export class SavingsAccountService extends ChannelServiceBase {
 	/**
 	 * Decline and Approve a debi-check mandate
 	 *
-	 * @param {string} cifNumber The Client's CIF number
-	 * @param {string} mandateReferenceNumber mandate refernece number
-	 * @param {string} debtorAccountNumber debtor account number
+	 * @param {string} cifNumber Client's cif number
+	 * @param {string} title Client's title (Mr/ Mrs)
+	 * @param {string} lastName Client's last name
+	 * @param {string} debiCheckDetails details of the selected mandate
+	 * @param {string} mandateInfo details of the selected mandate
 	 * @param {boolean} accepted true if accepted and false if declined
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	async debiCheckAuthenticate(cifNumber, mandateReferenceNumber, debtorAccountNumber, accepted, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async debiCheckAuthenticate(cifNumber, title, lastName, debiCheckDetails, mandateInfo, accepted, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		const request = {
 			cifNumber: cifNumber,
-			mandateReferenceNumber: mandateReferenceNumber,
-			debtorAccountNumber: debtorAccountNumber,
-			accepted: accepted
+			mandateReferenceNumber: debiCheckDetails.mandateReferenceNumber,
+			debtorAccountNumber: debiCheckDetails.debtorAccountNumber,
+			accepted: accepted,
+			title: title,
+			lastName: lastName,
+			collectorName: mandateInfo.collectorName,
+			instalmentAmount: mandateInfo.amount,
+			firstCollectionDate: debiCheckDetails.firstCollectionDate
 		};
 
 		const url = `/clientcare-debicheck-${this._version}/client-mandate-authenticate`;
@@ -208,8 +215,8 @@ export class SavingsAccountService extends ChannelServiceBase {
 
 	debiCheckAgreement (clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const request = {
-				title: clientInfo.title,
-				firstName: clientInfo.firstName,
+			title: clientInfo.title,
+			firstName: clientInfo.firstName,
 			surname: clientInfo.surname,
 			identificationNumber: clientInfo.identificationNumber,
 			savingsAccountNumber: clientInfo.savingsAccountNumber,
@@ -248,46 +255,31 @@ export class SavingsAccountService extends ChannelServiceBase {
 			return this.mock(`transactionHistory`, transactionHistoryRequest);
 		}
 
-		const url = `/clientcare-savingsaccount-${this._version}/client/transactions?` +
-			`CIFNumber=${transactionHistoryRequest.cifNumber}&` +
-			`AccountNumber=${transactionHistoryRequest.accountNumber}&` +
-			`AccountType=${transactionHistoryRequest.accountType}&` +
-			`StartDate=${transactionHistoryRequest.startDate}&` +
-			`EndDate=${transactionHistoryRequest.endDate}&` +
-			`StartAtIndex=${transactionHistoryRequest.startAtIndex}&` +
-			`MaxResults=${transactionHistoryRequest.maxResults}&` +
-			`MoneyType=${transactionHistoryRequest.moneyType}`;
+		const request = {
+			"cifNumber": transactionHistoryRequest.cifNumber,
+			"accountNumber": transactionHistoryRequest.accountNumber,
+			"accountType": transactionHistoryRequest.accountType,
+			"startDate": transactionHistoryRequest.startDate,
+			"endDate": transactionHistoryRequest.endDate,
+			"startAtIndex": transactionHistoryRequest.startAtIndex,
+			"maxResults": transactionHistoryRequest.maxResults,
+			"moneyType": transactionHistoryRequest.moneyType
+		};
 
-		return this.get(
-			url, 
+		const url = `/clientcare-savingsaccount-${this._version}/client/transactions`;
+
+		return this.post(
+			url,
+			request,
 			this.setToken(), 
 			`transactionHistory`, 
-			false, 
+			null, 
+			null, 
 			2000,
 			null,
 			errorHandler,
 			autoRetries
 		);
-
-		/*
-		const url = `/clientcare-savingsaccount-${this._version}/client/transactions`;
-
-		return this._post(
-			url,
-			{
-				'cifNumber': transactionHistoryRequest.cifNumber,
-				'accountNumber': transactionHistoryRequest.accountNumber,
-				'accountType': transactionHistoryRequest.accountType,
-				'startDate': transactionHistoryRequest.startDate,
-				'endDate': transactionHistoryRequest.endDate,
-				'startAtIndex': transactionHistoryRequest.startAtIndex,
-				'maxResults': transactionHistoryRequest.maxResults,
-				'moneyType': transactionHistoryRequest.moneyType
-			}, 
-			this._setToken(), 
-			`transactionHistory`, null, null, 2000
-		);
-		*/
 	}
 
 	/**
@@ -304,37 +296,27 @@ export class SavingsAccountService extends ChannelServiceBase {
 		if (await this.isMockEnabled(`savingsAccountLanding`)) {
 			return this.mock(`savingsAccountLanding`, cifNumber, nationalIDNumber, getGenericData);
 		}
+	
+		const request = {
+			"cifNumber": cifNumber,
+			"nationalIDNumber": nationalIDNumber,
+			"getGenericData": getGenericData
+		};
 
-		const url = `/clientcare-savingsaccount-${this._version}/landing?` +
-			`CifNumber=${cifNumber}&` +
-			`NationalIDNumber=${nationalIDNumber}&` +
-			`GetGenericData=${getGenericData}`;
-		
-		return this.get(
-			url, 
+		const url = `/clientcare-savingsaccount-${this._version}/landing`;
+
+		return this.post(
+			url,
+			request,
 			this.setToken(), 
-			`savingsAccountLanding`,
-			null,
-			null,
+			`savingsAccountLanding`, 
+			null, 
+			null, 
+			1000,
 			null,
 			errorHandler,
 			autoRetries
 		);
-
-		/*
-		const url = `/clientcare-savingsaccount-${this._version}/landing`;
-
-		return this._post(
-			url,
-			{
-				'cifNumber': cifNumber,
-				'nationalIDNumber': nationalIDNumber,
-				'getGenericData': getGenericData
-			},
-			this._setToken(), 
-			`savingsAccountLanding`
-		);
-		*/
 	}
 
 	/**

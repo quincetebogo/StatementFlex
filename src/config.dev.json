@@ -4,7 +4,7 @@
 		"clientInsightsUrl": "https://hzn-cs-clientinsights-v1.platform-dev.int.capinet",
 		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-dev.int.capinet"		
 	},
-	"signalRUrl": "",
+	"signalRUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},

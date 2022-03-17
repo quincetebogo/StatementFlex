@@ -24,30 +24,6 @@ export class AccessChannelService extends ChannelServiceBase {
 		);
 	}
 
-	// Access Channels Landing 
-	async accessChannelStatus(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		if (await this.isMockEnabled(`accessChannel`)) {
-			return this.mock(`accessChannel`);
-		}
-
-		const url = `/clientcare-accesschannels-${this._version}/access-channels?cif=${cifNumber}`;
-		return this.get(
-			url, 
-			this.setToken(), 
-			`accessChannelStatus`, 
-			false, 
-			1000,
-			null,
-			errorHandler,
-			autoRetries
-		);
-		
-		/*
-		const url = `/clientcare-accesschannels-${this._version}/access-channels`;
-		return this.post(url, { 'cif': cifNumber }, this._setToken(), `accessChannels`, null, null, 1000);
-		*/
-	}
-
 	async activatefullUssdMenu(cifNumber, msisdn, reason, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
