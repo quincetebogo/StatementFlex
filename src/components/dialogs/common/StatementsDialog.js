@@ -245,9 +245,8 @@ export class StatementsDialog extends Component {
 			"accountName": this.productSelected.accountName,
 			"accountType": this.productSelected.type,
 			"dateInterval": this.periodSelected,
-			}
 			"title": this.title,
-			"lastName": this.lastName
+			"lastName": this.lastName,
 			"startDate": this.fromDate === `dd mm yyyy` ? `` : this.fromDate,
 			"endDate": this.toDate === `dd mm yyyy` ? `` : this.toDate,
 			"monthInterval": this.selectedMonths // This is specifically for month period
