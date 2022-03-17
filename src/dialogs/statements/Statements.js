@@ -289,7 +289,6 @@ export class Statements extends Component {
 						fromRange = this.getDateRange(`9`);
 						break;	
 				}
-				console.log(fromRange);
 				const returnValue = await this.creditService.fixedStatement(request.accountNumber,fromRange,today,``);
 				if (returnValue.succeeded)
 				{
