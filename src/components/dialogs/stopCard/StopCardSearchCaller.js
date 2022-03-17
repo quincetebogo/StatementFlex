@@ -5,6 +5,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
+import { SEARCH_OPTIONS } from 'app/constants/SearchOptions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -174,8 +175,8 @@ export class StopCardSearchCaller extends Component {
 		this.incidentRecId = this.incidentDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
-		this._loadSearchOptions();
-
+		this.identificationMethods = SEARCH_OPTIONS;
+		
 		this.isUnverifiedNumber = true; // this.unverifiedCaller.isUnverifiedNumber;
 		this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
 		this.searchFieldText = null;
@@ -220,11 +221,6 @@ export class StopCardSearchCaller extends Component {
 				"id-data": this.searchFieldText
 			});
 			const searchClient = {
-				incomingTelephoneNumber: this.incomingTelephoneNumber,
-				voiceReferenceNumber: this.voiceReferenceNumber,
-				incidentNo: this.incidentReferenceNumber,
-				agentTelephoneNumber: this.agentTelephoneNumber,
-				ivrOption: this.ivrOption.value,
 				identificationMethod: this.identificationMethods.value,
 				searchValue: this.searchFieldText
 			};
@@ -278,13 +274,14 @@ export class StopCardSearchCaller extends Component {
 
 	_raiseOnClientIdentified(identifiedClient) {
 		const confirmedCaller = {
-			cifNumber: identifiedClient.callerInformation.cifNumber.value,
-			birthdate: identifiedClient.callerInformation.birthdate.value,
-			languagePreference: identifiedClient.callerInformation.languagePreference.value,
-			livesIn: identifiedClient.callerInformation.livesIn.value,
-			name: identifiedClient.callerInformation.name.value,
-			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber.value,
-            verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber.value,
+			cifNumber: identifiedClient.callerInformation.cifNumber,
+			birthdate: identifiedClient.callerInformation.birthdate,
+			languagePreference: identifiedClient.callerInformation.languagePreference,
+			livesIn: identifiedClient.callerInformation.livesIn,
+			name: identifiedClient.callerInformation.name,
+			title: identifiedClient.callerInformation.title,
+			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber,
+            verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber,
             firstName: identifiedClient.callerInformation.firstName,
             middleName1: identifiedClient.callerInformation.middleName1,
             middleName2: identifiedClient.callerInformation.middleName2,
@@ -301,38 +298,6 @@ export class StopCardSearchCaller extends Component {
 			}
 		}));
 	};
-
-	async _loadSearchOptions() {
-		const clientInfo = {
-			"incomingTelephoneNumber": this.incomingCallDetails.incomingTelephoneNumber,
-			"voiceReferenceNumber": this.incomingCallDetails.voiceReferenceNumber,
-			"ivrOptionCode": this.ivrOption.value,
-			"incidentReferenceNumber": this.incidentReferenceNumber,
-			"agentTelephoneNumber": this.agentTelephoneNumber
-		};
-
-		const returnValue = await this.callHandleService.searchOptions(clientInfo);
-		const options = returnValue.result;
-
-		if (returnValue.succeeded) {
-			this.identificationMethodsList = options.identificationMethods;
-			if (this.identificationMethodsList !== undefined) {
-				this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
-			}
-		} else {
-			this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
-		}
-	}
-
-	extractIdentificationMethods(identificationMethods) {
-		identificationMethods.possibleValues = identificationMethods.possibleValues.map(identificationMethod => {
-
-			Object.assign(identificationMethod, identificationMethod.value);
-			delete identificationMethod.value;
-			return identificationMethod;
-		});
-		return identificationMethods;
-	}
 
 	validateFields() {
 		const isRequiredFieldsEmpty = this.isRequiredFieldsEmpty();
@@ -491,9 +456,9 @@ export class StopCardSearchCaller extends Component {
 						error="${this.errMessage.identificationMethods}"
 						label="Choose identification method" 
 						class="id-options"
-						.items="${this.identificationMethods !== undefined ? this.identificationMethods.possibleValues : [{ displayText: `ID Number` }]}"
+						.items="${this.identificationMethods !== undefined ? this.identificationMethods : [{ displayText: `ID Number` }]}"
 						id-field="key" 
-						display-field="displayText" 
+						display-field="value" 
 						@value-changed="${(e) => this._valueChanged(e)}"
 						tabindex="5"
 						autofocus>
