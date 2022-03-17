@@ -495,7 +495,7 @@ export class CreditAccount extends ViewBase {
 		
 		this.selectedTab = creditType;
 		
-		this._settlementQuoteDialog(selectedAccountDetails);
+		this._settlementQuoteDialog([selectedAccountDetails]);
 	}
 
 	_paidUpLetter() {
