@@ -29,7 +29,7 @@ import 'app/productControls/credit/src/CreditUnverifiedLanding';
 import 'app/productControls/credit/src/PayCreditCardBudget';
 import 'app/components/dialogs/common/ViewAndEmailDocuments';
 
-/* Credit Account View
+/** Credit Account View
  * 
  * @export
  * @class CreditAccount
