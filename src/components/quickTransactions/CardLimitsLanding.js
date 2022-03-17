@@ -1,10 +1,10 @@
 import { Component, css, html } from 'platform/elements';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/HorizonExpander';
 import 'app/components/common/CardArt';
@@ -77,6 +77,7 @@ export class CardLimitsLanding extends Component {
 		this.showDiscardChangesModal = false;
 		this.showConfirmSelectionModal = false;
 		this.showVerifyCallerModal = false;
+		this.hasCardsAvailable = false;
 
 		this.hasDigitalChannels = false;
 
@@ -150,7 +151,9 @@ export class CardLimitsLanding extends Component {
 	/**
 	 *
 	 * @property {Object} cards Object contains the list of client's card
-	 * @property {String} cifNumber The client's account/cifNumber
+	 * @property {string} cifNumber The client's CIF number
+	 * @property {string} title client's title (Mr/ Mrs)
+	 * @property {string} lastName client's last name
 	 * @property {String} voiceRecordingReference The Avaya/Presence Voice Recording ID
 	 * @property {String} verificationMethod Indicated the type of verification (xds/ita)
 	 * @property {Boolean} hasDigitalChannels Indicates if the client is registered for digital channels
@@ -170,9 +173,12 @@ export class CardLimitsLanding extends Component {
 		return {
 			cards: { type: Object },
 			cifNumber: { type: String },
+			title: { type: String },
+			lastName: { type: String },
 			voiceRecordingReference: { type: String },
 			verificationMethod: { type: String },
 			hasDigitalChannels: { type: Boolean },
+			hasCardsAvailable: { type: Boolean },
 			showVerifyCallerDialog: { type: Boolean },
 			getCardLimitsAgreement: { type: Object, attribute: false },
 			getPermanentLimits: { type: Object, attribute: false },
@@ -233,7 +239,7 @@ export class CardLimitsLanding extends Component {
 				cardDetails: {
 					cardId: cardId,
 					accountId: card.primarySavingsAccountId || card.primaryCreditAccountId,
-                    customerId: this.cifNumber,
+					customerId: this.cifNumber,
 					cardExpiryYear: card.cardExpiryYear,
 					cardExpiryMonth: card.cardExpiryMonth,
 					cardSequenceNumber: card.cardSequenceNumber
@@ -255,7 +261,7 @@ export class CardLimitsLanding extends Component {
 		const result = await this.getCardLimitsAgreement(request);
 		
 		if (result) {
-			 return result;
+			return result;
 		}
 
 		return null;
@@ -272,15 +278,18 @@ export class CardLimitsLanding extends Component {
 					cardId: cardDetails.linkedCardLimits && this._updateType === `Debit` ? cardDetails.linkedCardId : cardDetails.cardId,
 					cardExpiryMonth: cardDetails.cardExpiryMonth,
 					cardExpiryYear: cardDetails.cardExpiryYear,
-					cardSequenceNumber: cardDetails.cardSequenceNumber
+					cardSequenceNumber: cardDetails.cardSequenceNumber,
+					cardDisplayName: cardDetails.cardDisplayName
 				},
 				tapToPayStatus: event.detail.tapToPayStatus ? `ON` : `OFF`,
-                customerId: this.cifNumber,
+				customerId: this.cifNumber,
 				voiceRecordingReference: this.voiceRecordingReference,
 				screenRecordingReference: ``,
 				agreementAccepted: event.detail.agreementAccepted,
 				agreementContent: event.detail.agreements.tapToPayAgreement.agreementContent,
-				scriptContent: event.detail.agreements.tapToPayAgreement.scriptContent
+				scriptContent: event.detail.agreements.tapToPayAgreement.scriptContent,
+				title: this.title,
+				lastName: this.lastName
 			};
 		}
 
@@ -339,10 +348,11 @@ export class CardLimitsLanding extends Component {
 				cardDetails: {
 					cardId: cardDetails.linkedCardLimits && this._updateType === `Debit` ? cardDetails.linkedCardId : cardDetails.cardId,
 					accountId: cardDetails.primarySavingsAccountId || cardDetails.primaryCreditAccountId,
-                    customerId: this.cifNumber,
+					customerId: this.cifNumber,
 					cardExpiryYear: cardDetails.cardExpiryYear,
 					cardExpiryMonth: cardDetails.cardExpiryMonth,
-					cardSequenceNumber: cardDetails.cardSequenceNumber
+					cardSequenceNumber: cardDetails.cardSequenceNumber,
+					cardDisplayName: cardDetails.cardDisplayName
 				},
 				permanentCashAmountLimit: limits.permanentCashAmountLimit,
 				permanentPurchaseAmountLimit: limits.permanentPurchaseAmountLimit,
@@ -357,7 +367,9 @@ export class CardLimitsLanding extends Component {
 				agreementContent: event.detail.agreements.cardLimitsAgreement.agreementContent,
 				scriptContent: event.detail.agreements.cardLimitsAgreement.scriptContent
 			},
-			tapToPayStatusChange: event.detail.tapToPayStatusChange
+			tapToPayStatusChange: event.detail.tapToPayStatusChange,
+			title: this.title,
+			lastName: this.lastName
 		};
 
 		// Don't send tapToPayDetails in the request body tap to pay details have not changed
@@ -380,6 +392,9 @@ export class CardLimitsLanding extends Component {
 	// ---------------
 
 	_initialise() {
+
+		this.hasCardsAvailable = this.cards.length > 0;
+
 		this.cards.forEach(card => {
 			if (CARD_TYPE_MAPPING[card.cardType] === CARD_TYPES.CREDIT && card.linkedCardId !== null) {
 				card.category = CARD_TYPES.DUAL;
@@ -404,7 +419,7 @@ export class CardLimitsLanding extends Component {
 			"cardDetails": {
 				"cardId": cardId,
 				"accountId": this._cardDetails.primarySavingsAccountId || this._cardDetails.primaryCreditAccountId,
-                "customerId": this.cifNumber,
+				"customerId": this.cifNumber,
 				"cardExpiryYear": this._cardDetails.cardExpiryYear,
 				"cardExpiryMonth": this._cardDetails.cardExpiryMonth,
 				"cardSequenceNumber": this._cardDetails.cardSequenceNumber
@@ -563,7 +578,7 @@ export class CardLimitsLanding extends Component {
 			super.styles,
 			css`
 				${ALERTBANNER_CSS}
-				.center-section {
+				capitec-card {
 					height: var(--horizon-panel-height, 888px);
 					width: var(--horizon-center-panel-width, 1064px);
 					--theme-card-border-radius: 5px;
@@ -608,17 +623,17 @@ export class CardLimitsLanding extends Component {
 				}
 				
 				.headerGroup > capitec-label{
-				  text-align:right;
-				  justify-content: center;
-				  padding:0px 16px;
-				  height: 32px;
-				  color: #3A3A3A;
-				  font-family: "Hind Vadodara";
-				  font-size: 14px;
-				  font-weight: 600;
-				  letter-spacing: 0;
-				  line-height: 20px;
-				  border-top: 0px;
+				text-align:right;
+				justify-content: center;
+				padding:0px 16px;
+				height: 32px;
+				color: #3A3A3A;
+				font-family: "Hind Vadodara";
+				font-size: 14px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 20px;
+				border-top: 0px;
 				}
 				.columnGroup{
 					height: 48px;
@@ -651,7 +666,7 @@ export class CardLimitsLanding extends Component {
 				
 				horizon-expander{
 					margin: 16px;
-                    width: 1030px;
+					width: 1030px;
 					height: auto;
 					animation-timing-function: linear;
 					--horizon-expander-header-padding-left: 23px;
@@ -720,13 +735,27 @@ export class CardLimitsLanding extends Component {
 					--horizon-label-value-color: #3A3A3A;
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-line-height: 20px;
-				}                
+				}
 				horizon-label[label="Card expiry date"]{
 					width: 200px;
 				}
 				.m-t-16 {
 					margin-top: 16px;
-				}`
+				}
+				capitec-image {
+					margin: 109px 406px 0px 406px;
+					width: 252px;
+					height: 182px;
+				}
+				capitec-content-box > capitec-label[type="title"] {
+					margin: 15px 0px 16px;
+					text-align: center;
+
+					--theme-label-font-color: #3A3A3A;
+					--theme-label-title-font-size: 24px;
+					--theme-label-title-font-weight: 600;
+				}
+			`
 		];
 	}
 
@@ -745,15 +774,10 @@ export class CardLimitsLanding extends Component {
 
 	_renderContent() {
 		return html`
-			<capitec-card class="center-section">
+			<capitec-card>
 				${this._renderTitleBar()}
 				<capitec-content-box>
-					${this.renderAlertBanner()}
-					<capitec-expander-group modeset="multiple" class="${this.verificationMethod === `ITA` ? `m-t-16` : ``}">
-						${this.primaryCards.length > 0 ? this._renderPrimaryCardGroup() : ``}
-						${this.virtualCards.length > 0 ? this._renderVirtualCardGroup() : ``}
-						${this.supplementaryCards.length > 0 ? this._renderSupplementaryCardGroup() : ``}
-					</capitec-expander-group>
+					${this._renderCardsLimitsContent()}
 				</capitec-content-box>
 			</capitec-card>
 		`;
@@ -770,6 +794,21 @@ export class CardLimitsLanding extends Component {
 				</capitec-icon>
 				<capitec-label label="Update Card Limits" type="title"></capitec-label>
 			</capitec-title-bar>
+		`;
+	}
+
+	_renderCardsLimitsContent() {
+		return this.hasCardsAvailable
+		? html`
+			${this.renderAlertBanner()}
+			<capitec-expander-group modeset="multiple" class="${this.verificationMethod === `ITA` ? `m-t-16` : ``}">
+				${this.primaryCards.length > 0 ? this._renderPrimaryCardGroup() : ``}
+				${this.virtualCards.length > 0 ? this._renderVirtualCardGroup() : ``}
+				${this.supplementaryCards.length > 0 ? this._renderSupplementaryCardGroup() : ``}
+			</capitec-expander-group>`
+		: html`
+			<capitec-image src="platform/illustrations/cards.svg"></capitec-image>
+			<capitec-label type="title" label="Client has no cards to fulfill this transaction"></capitec-label>
 		`;
 	}
 
@@ -910,7 +949,7 @@ export class CardLimitsLanding extends Component {
 				return html``;
 		}
 	}
-  
+
 	_renderCreditLimits(card) {
 		return html`
 			<capitec-group class="headerGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
