@@ -299,7 +299,7 @@ export class HorizonEmailInput extends Component {
 			</capitec-content-box>
 		`;
 	}
-//<hr class="seperator">
+
 	_renderEmailGroup() {
 		return html`
 			${this._renderEmail()}
