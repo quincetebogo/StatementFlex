@@ -90,7 +90,7 @@ export class ChannelServiceBase extends Service {
 	 * 
 	 * @returns {Promise<*>} The response of the Channel Service Request
 	*/
-	post(url, model, customHeaders, caller, isBinary, controller, sla, timeout, errorHandlerFunc = null, maxAttempts = DEFAULT_AUTO_RETRIES) {
+	post(url, model, customHeaders, caller, isBinary = false, controller, sla = null, timeout = null, errorHandlerFunc = null, maxAttempts = DEFAULT_AUTO_RETRIES) {
 		return this._wrapCall(
 			this._post(url, model, customHeaders, caller, isBinary, controller, sla, timeout), 
 			errorHandlerFunc, 

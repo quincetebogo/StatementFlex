@@ -75,11 +75,7 @@ export class CallHandleService extends ChannelServiceBase {
 		return this.post(
 			url,
 			{
-				'incomingTelephoneNumber': acceptCallData.incomingTelephoneNumber,
-				'voiceReferenceNumber': acceptCallData.voiceReferenceNumber,
-				'ivrOptionCode': acceptCallData.ivrOptionCode,
-				'incidentReferenceNumber': acceptCallData.incidentReferenceNumber,
-				'agentTelephoneNumber': acceptCallData.agentTelephoneNumber
+				'incomingTelephoneNumber': acceptCallData.incomingTelephoneNumber
 			},
 			this.setToken(), 
 			`acceptCall`,
@@ -100,16 +96,10 @@ export class CallHandleService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing search options and the result of the channel service call
 	 */
-	searchOptions(incomingCallData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	searchOptions(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
 			`/clientcare-card-${this._version}/search/options`, 
-			{
-				"incomingTelephoneNumber": incomingCallData.incomingTelephoneNumber,
-				"voiceReferenceNumber": incomingCallData.voiceReferenceNumber,
-				"ivrOptionCode": incomingCallData.ivrOptionCode,
-				"incidentReferenceNumber": incomingCallData.incidentReferenceNumber,
-				"agentTelephoneNumber": incomingCallData.agentTelephoneNumber
-			},
+			null,
 			this.setToken(),
 			`searchOptions`, 
 			false,
@@ -153,11 +143,6 @@ export class CallHandleService extends ChannelServiceBase {
 		return this.post(
 			url,
 			{
-				'incomingTelephoneNumber': clientInfo.incomingTelephoneNumber,
-				'voiceReferenceNumber': clientInfo.voiceReferenceNumber,
-				'ivrOptionCode': clientInfo.ivrOption,
-				'incidentReferenceNumber': clientInfo.incidentNo,
-				'agentTelephoneNumber': clientInfo.agentTelephoneNumber,
 				'searchType': {
 					'identificationMethod': parseInt(clientInfo.identificationMethod, 10),
 					'value': clientInfo.searchValue
@@ -232,33 +217,28 @@ export class CallHandleService extends ChannelServiceBase {
 		);
 	}
 
-	async digitalVerificationChannelsAvailable(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		if (await this.isMockEnabled(`digitalVerificationChannelsAvailable`)) {
-			if (Object.prototype.hasOwnProperty.call(this._mocking.digitalVerificationChannelsAvailable, `positiveCase`)) {
-				return {
-					succeeded: true,
-					result: this._mocking.digitalVerificationChannelsAvailable.positiveCase
-				};
-			}
-			return {
-				succeeded: false,
-				result: this._mocking.digitalVerificationChannelsAvailable.positiveCase
-			};
-		}
+	/**
+	 *  End call triggers automated messaging
+	 * 
+	 * @param {object} request End call request object
+	 * @param {errorHandlerCallback} errorHandler An optional error handler
+	 * @param {number} autoRetries auto retires 
+	 * @returns {Promise<ReturnValue>} An object indicating if the verification process was successful or if not, the reason for failure
+	 */
+	endCall(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const url = `/clientcare-call-${this._version}/end-call`;
 
-		return this.get(
-			`/clientcare-call-${this._version}/has-digital-verification-capability?Cif=${cifNumber}`, 
+		return this.post(
+			url,
+			request,
 			this.setToken(), 
-			`digitalVerificationChannelsAvailable`,
+			`endCall`,
 			false,
+			null,
 			null,
 			null,
 			errorHandler,
 			autoRetries
 		);
-
-		/*
-		return this.post(`/clientcare-call-${this._version}/has-digital-verification-capability`, { 'cif': cifNumber }, this._setToken(), `digitalVerificationChannelsAvailable`);
-		*/
 	}
 }
