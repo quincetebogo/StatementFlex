@@ -79,12 +79,24 @@ export class PaidUpAccounts extends Component {
 	}
 
 	_initialise() {
-		this.accountsInfo = [`Term loan (32 Months)`, `Credit`, `Access Facility`];
+		
 
-		this.cardTypes = [`All`, `Term Loan`, `Credit`, `Access Facility`];
+		const request = {
+			cifNumber: this.callerInformation.cifNumber,
+			status: `OPEN`
+		};
 
-		for (let index = 0; index < this.accountsInfo.length; index++) {
-			this.isAccountsChecked[index] = false;
+		const returnValue = await this.quickTransactionService.getClientProducts(request);
+		
+		if (returnValue.succeeded && returnValue.result.savingsProducts) {
+
+			this.accountsInfo = [`Term loan (32 Months)`, `Credit`, `Access Facility`];
+
+			this.cardTypes = [`All`, `Term Loan`, `Credit`, `Access Facility`];
+	
+			for (let index = 0; index < this.accountsInfo.length; index++) {
+				this.isAccountsChecked[index] = false;
+			}
 		}
 
 	}
@@ -285,14 +297,13 @@ export class PaidUpAccounts extends Component {
 				</capitec-title-bar>
 				<capitec-group layout="vertical" halign="left" valign="top" gap="2">
 					${this._renderAlertBanner()}
-					${this._renderpaidUpAccounts()}
+					${this._renderPaidUpAccounts()}
 				</capitec-group>
 			</capitec-card>`;
 	}
 
 	/* ${this.accountsInfo.map((item, index) => this._renderAccounts(item, index))}*/
-	_renderpaidUpAccounts() {
-		debugger;
+	_renderPaidUpAccounts() {
 		const accInfo = this.accountsInfo;
 		return html`
 			<capitec-action-bar>

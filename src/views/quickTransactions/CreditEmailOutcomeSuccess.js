@@ -8,10 +8,10 @@ import 'app/components/common/RelatedOptions';
  * Display an confirmation/success screen indicating the email has been successfully sent.
  *
  * @export
- * @class EmailSentSuccess
+ * @class CreditEmailOutcomeSuccess
  * @extends {ViewBase}
  */
-export class EmailSentSuccess extends ViewBase {
+export class CreditEmailOutcomeSuccess extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -20,9 +20,10 @@ export class EmailSentSuccess extends ViewBase {
 	constructor() {
 		super();
 
-		this.selectedAccounts = [];
+		// this.selectedAccounts = [];
 		this.emailAddress = ``;
-		this.header = `Paid-Up letter`;
+		this.header = ``;
+		this.outcomeMessage = ``;
 		this.endCallContext = `QuickTransactionSuccess`;
 	}
 
@@ -41,7 +42,7 @@ export class EmailSentSuccess extends ViewBase {
 		
 		this.screenDetails = this.horizonStore.getScreenDetails();
 
-		this.selectedAccounts = this.screenDetails && this.screenDetails.selectedAccounts;
+		// this.selectedAccounts = this.screenDetails && this.screenDetails.selectedAccounts;
 		this.emailAddress = this.screenDetails && this.screenDetails.emailAddress;
 		
 		this._updateIncidentState();
@@ -111,13 +112,13 @@ export class EmailSentSuccess extends ViewBase {
 				data-automation-id="email-sent-success-screen"
 				header="${this.header} sent" 
 				image="/images/statements/senddocuments.svg"
-				left="Send Another"
+				left="Pay Another"
 				right="Done"
 				toast="${this.header} sent"
 				@left-click=${() => this._sendAnotherClick()}
 				@right-click=${() => this._doneClick()}>
 					<section id="id-error-msg" slot="detail">
-						${this.header} was emailed to <b>${this.emailAddress}</b>.
+						${this.outcomeMessage} was emailed to <b>${this.emailAddress}</b>.
 					</section>
 			</horizon-success-screen>
 		`;
@@ -125,4 +126,4 @@ export class EmailSentSuccess extends ViewBase {
 
 }
 
-customElements.define(`horizon-email-sent-success`, EmailSentSuccess);
+customElements.define(`horizon-credit-email-outcome-success`, CreditEmailOutcomeSuccess);

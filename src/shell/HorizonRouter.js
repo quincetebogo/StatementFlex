@@ -50,7 +50,9 @@ const HORIZON_ROUTES = Object.freeze({
 	CREDIT_STATEMENTS_SUCCESS: `/success/credit-statements`,
 	CREDIT_STATEMENTS_FAILURE: `/error/credit-statements`,
 	SETTLEMENT_QUOTE_SUCCESS: `/success/settlement-quote`,
-	SETTLEMENT_QUOTE_FAILURE: `/error/settlement-quote`
+	SETTLEMENT_QUOTE_FAILURE: `/error/settlement-quote`,
+	CREDIT_EMAIL_OUTCOME_SUCCESS: `/success/credit-email`,
+	CREDIT_EMAIL_OUTCOME_FAILURE: `/error/credit-email`
 });
 
 
@@ -351,6 +353,14 @@ export class HorizonRouter {
 
 	navigateToSettlementQuoteFailure() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLEMENT_QUOTE_FAILURE}`);
+	}
+	
+	navigateToCreditEmailOutcomeSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.CREDIT_EMAIL_OUTCOME_SUCCESS}`);
+	}
+
+	navigateToCreditEmailOutomeFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.CREDIT_EMAIL_OUTCOME_FAILURE}`);
 	}
 
 	/**
@@ -836,5 +846,21 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.SETTLEMENT_QUOTE_FAILURE,
 		load: () => import(`../views/credit/SettlementQuoteFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-	}  
+	},
+	{
+		name: `horizon-credit-outcome-success`,
+		title: `CreditOutcomeSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.CREDIT_EMAIL_OUTCOME_SUCCESS,
+		load: () => import(`../views/quickTransactions/CreditEmailOutcomeSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-credit-outcome-failure`,
+		title: `CreditOutcomeFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.CREDIT_EMAIL_OUTCOME_FAILURE,
+		load: () => import(`../views/quickTransactions/CreditEmailOutcomeFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	}
 ];

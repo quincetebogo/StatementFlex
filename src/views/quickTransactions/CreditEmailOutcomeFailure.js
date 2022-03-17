@@ -8,11 +8,11 @@ import 'app/components/common/RelatedOptions';
  * Email sent failure Screen that can be displayed when channel service calls fail to send them. 
  *
  * @export
- * @class EmailSentFailure
+ * @class CreditEmailOutcomeFailure
  * @extends {ViewBase}
  */
 
- export class EmailSentFailure extends ViewBase {
+ export class CreditEmailOutcomeFailure extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -23,7 +23,8 @@ import 'app/components/common/RelatedOptions';
 
 		this.selectedAccounts = [];
 		this.emailAddress = ``;
-		this.header = `Paid-Up letter`;
+		this.header = ``;
+		this.outcomeMessage = `Proof of Payment for Settling and Closing Credit Card`;
 		this.endCallContext = `QuickTransactionsUnSuccess`;
 	}
 
@@ -114,7 +115,7 @@ import 'app/components/common/RelatedOptions';
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._tryAgain()}>
 				<section id="id-error-msg" slot="detail">
-					${this.header} was not emailed to <b>${this.emailAddress}</b>.
+					${this.outcomeMessage} was not emailed to <b>${this.emailAddress}</b>.
 				</section>
 			</horizon-error-screen>
 		`;
@@ -131,4 +132,4 @@ import 'app/components/common/RelatedOptions';
 
 }
 
-customElements.define(`horizon-email-sent-failure`, EmailSentFailure);
+customElements.define(`horizon-credit-email-outcome-failure`, CreditEmailOutcomeFailure);

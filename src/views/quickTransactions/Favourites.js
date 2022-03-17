@@ -788,7 +788,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderFeedback()}
 			${this._renderUpdateIncidentModal()}
 			${this._renderTaxCertificate()}
-			${this._renderpaidUpAccounts()}
+			${this._renderPaidUpAccounts()}
 			${this._renderSettlementQuote()}
 			${this._renderSettlementQuoteDialog()}
 			${this._renderCcsModal()}
@@ -1034,7 +1034,7 @@ export class Favourites extends SavingsAccountBase {
 		: html``;
 	}
 
-	_renderpaidUpAccounts () {
+	_renderPaidUpAccounts () {
 		return this.renderMode === RENDER_MODE.PAID_UP_ACCOUNTS
 		? html`
 		<horizon-paid-up-accounts

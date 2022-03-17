@@ -488,13 +488,11 @@ export class CreditAccount extends ViewBase {
 
 	_paidUpLetter() {
 		// TO DO: Place holder for paid up Letter flow.
-		debugger;
-		
 		if (this.ccsStatus) {
 			this.showCCSmodal = true;
 			return;
 		}
-
+		
 	}
 
 	_settleAndClose(creditType, productType) {
