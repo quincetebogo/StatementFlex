@@ -320,42 +320,42 @@ export class CreditAccountLanding extends Component {
 
 	_renderContent() {
 		return this.flexibleCreditAccounts.length > 0 || this.fixedTermCreditAccounts.length > 0
-			? html`
-				<capitec-tab-group class="tabs" selectedIndex="${this.selectedTab === CREDIT_TYPE.FIXED ? 1 : 0}">
-					<capitec-tab
-						data-automation-id="credit-account-flexible-credit-tab"
-						label="Flexible Credit">
-							${this._renderFlexibleCreditTab()}
-					</capitec-tab>
-					<capitec-tab
-						data-automation-id="credit-account-fixed-term-tab"
-						label="Fixed Term Credit">
-							${this._renderFixedTermCreditTab()}
-					</capitec-tab>
-				</capitec-tab-group>`
+		? html`
+			<capitec-tab-group class="tabs" selectedIndex="${this.selectedTab === CREDIT_TYPE.FIXED ? 1 : 0}">
+				<capitec-tab
+					data-automation-id="credit-account-flexible-credit-tab"
+					label="Flexible Credit">
+						${this._renderFlexibleCreditTab()}
+				</capitec-tab>
+				<capitec-tab
+					data-automation-id="credit-account-fixed-term-tab"
+					label="Fixed Term Credit">
+						${this._renderFixedTermCreditTab()}
+				</capitec-tab>
+			</capitec-tab-group>`
 		: html``;
 	}
 
 	_renderFlexibleCreditTab() {
 		return this.flexibleCreditAccounts.length > 0
-			? html`
-				<capitec-content-box class="accounts-box">
-					${this._renderFlexibleAccounts()}
-				</capitec-content-box>
-				
-				${this._renderFooter()}`
-			: html`
-				${this._renderCreditNotAvailable(`flexible`)}`;
+		? html`
+			<capitec-content-box class="accounts-box">
+				${this._renderFlexibleAccounts()}
+			</capitec-content-box>
+			
+			${this._renderFooter()}`
+		: html`
+			${this._renderCreditNotAvailable(`flexible`)}`;
 	}
 
 	_renderFixedTermCreditTab() {
 		return this.fixedTermCreditAccounts.length > 0
-			? html`
-				<capitec-content-box class="accounts-box">
-					${this._renderFixedTermAccounts()}
-				</capitec-content-box>
-				
-				${this._renderFooter()}`
+		? html`
+			<capitec-content-box class="accounts-box">
+				${this._renderFixedTermAccounts()}
+			</capitec-content-box>
+			
+			${this._renderFooter()}`
 		: html`
 			${this._renderCreditNotAvailable(`fixed-term`)}`;
 	}
