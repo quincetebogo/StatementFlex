@@ -158,34 +158,25 @@ export class QuickTransactionsService extends ChannelServiceBase {
 			return this.mock(`cardLimitsLanding`, cifNumber);
 		}
 
-		const url = `/clientcare-card-${this._version}/limits-landing?` +
-			`cifNumber=${cifNumber}&` +
-			`incidentRecId=${incidentRecId}`;
+		const request = {
+			"cifNumber": cifNumber,
+			"incidentRecId": incidentRecId
+		};
 
-		return this.get(
-			url, 
-			this.setToken(), 
-			`cardLimitsLanding`, 
-			false, 
+		const url = `/clientcare-card-${this._version}/limits-landing`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`cardLimitsLanding`,
+			null,
+			null,
 			1000,
 			null,
 			errorHandler,
 			autoRetries
 		);
-
-		/*
-		const url = `/clientcare-card-${this._version}/limits-landing`;
-
-		return this._post(
-			url,
-			{
-				'cifNumber': cifNumber,
-				'incidentRecId': incidentRecId
-			},
-			this._setToken(),
-			`cardLimitsLanding`, null, null, 1000
-		);
-		*/
 	}
 
 	async sendProofOfAccount(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
@@ -229,61 +220,48 @@ export class QuickTransactionsService extends ChannelServiceBase {
 			return this.mock(`tapToPay`, cifNumber);
 		}
 
-		const url = `/clientcare-card-${this._version}/tap-to-pay-landing?cifNumber=${cifNumber}&incidentRecId=${incidentRecId}`;
+		const request = {
+			"cifNumber": cifNumber,
+			"incidentRecId": incidentRecId
+		};
 
-		return this.get(
+		const url = `/clientcare-card-${this._version}/tap-to-pay-landing`;
+	
+		return this.post(
 			url, 
+			request, 
 			this.setToken(), 
 			`tapToPayLanding`, 
-			false, 
-			1000,
-			null,
-			errorHandler, 
-			autoRetries
-		);
-
-		/*
-		const url = `/clientcare-card-${this._version}/tap-to-pay-landing`;
-
-		return this._post(
-			url,
-			{
-				'cifNumber': cifNumber,
-				'incidentRecId': incidentRecId
-			},
-			this._setToken(), `tapToPayLanding`, null, null, 1000
-		);
-		*/
-	}
-
-	getClientProducts(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const url = `/clientcare-documents-${this._version}/statements/client?CIFNumber=${request.cifNumber}` +
-					`&ProductStatus=${request.status}`;
-
-		return this.get(
-			url, 
-			this.setToken(), 
-			`getClientProducts`, 
-			false, 
+			null, 
+			null, 
 			1000,
 			null,
 			errorHandler,
 			autoRetries
 		);
 
-		/*
+	}
+
+	getClientProducts(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const requestObject = {
+			"cifNumber": request.cifNumber,
+			"productStatus": request.status
+		};
+		
 		const url = `/clientcare-documents-${this._version}/statements/client`;
 
-		return this._post(
-			url,
-			{
-				'cifNumber': request.cifNumber,
-				'productStatus': request.status
-			},
-			this._setToken(), 
-			`getClientProducts`, null, null, 1000
+		return this.post(
+			url, 
+			requestObject, 
+			this.setToken(), 
+			`getClientProducts`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
 		);
-		*/
 	}
 
 	tapToPayAgreement(agreementInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
