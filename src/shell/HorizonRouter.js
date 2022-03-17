@@ -862,7 +862,7 @@ export default horizonRoutes = [
 		title: `CreditOutcomeSuccess`,
 		icon: null,
 		path: HORIZON_ROUTES.CREDIT_EMAIL_OUTCOME_SUCCESS,
-		load: () => import(`../views/quickTransactions/CreditEmailOutcomeSuccess`),
+		load: () => import(`../views/credit/CreditEmailOutcomeSuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
@@ -870,7 +870,7 @@ export default horizonRoutes = [
 		title: `CreditOutcomeFailure`,
 		icon: null,
 		path: HORIZON_ROUTES.CREDIT_EMAIL_OUTCOME_FAILURE,
-		load: () => import(`../views/quickTransactions/CreditEmailOutcomeFailure`),
+		load: () => import(`../views/credit/CreditEmailOutcomeFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
