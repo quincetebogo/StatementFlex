@@ -70,7 +70,7 @@ export class Favourites extends SavingsAccountBase {
 		this.selectedFeedback = [];
 		this.feedbackOptions = [];
 		this.updateStrackClick = false;
-		//TO DO get ccs status for client
+		// TODO: get ccs status for client
 		this.ccsStatus = true;
 		this.showCCSmodal = false;
 
@@ -370,11 +370,22 @@ export class Favourites extends SavingsAccountBase {
 				isCallerVerified: this.callerInformation.verificationStatus === `verified`
 			};
 
-			const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest);
+			const returnValues = await Promise.allSettled([this.quickTransactionService.favouritesLanding(landingRequest), this.creditService.creditBalance(this.callerInformation.cifNumber, () => true)]);
 
-			if (returnValue.succeeded) {
+			if (returnValues[0].status === `fulfilled` && returnValues[0].value.succeeded) {
 				this.isLoading = false;
-				this.landingPageInfo = returnValue.result;
+
+				this.landingPageInfo = returnValues[0].value.result;
+				
+				/* 
+				 * NOTE: This is a work around as the favourites landing does not return credit information. 
+				 * NOTE: This implementation will not include credit information in the favourites landing call fails.
+				 * TODO: Develop better solution
+				 */
+				if (returnValues[1].status === `fulfilled` && returnValues[1].value.succeeded) {
+					this.landingPageInfo.creditProductDescription = `Available balance`;
+					this.landingPageInfo.creditProductAmount = formatCurrency(returnValues[1].value.result.availableBalance);
+				}
 			}
 		} else {
 			// minimal object for the Favourites landing page component
@@ -548,7 +559,9 @@ export class Favourites extends SavingsAccountBase {
 		const screenDetails = this.horizonStore.getScreenDetails();
 
 		// TODO: CS call to get credit accounts info and diaplay appropriate values on settlement quote view screen - details are pulled from mocks now
-		
+
+		this.settlementQuoteDetails = [...creditOverview.creditCardSummaryList, ...creditOverview.accessFacilitySummaryList, ...creditOverview.loanAccountSummaryList];
+
 		this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
 			item.type = PRODUCT_TYPE[item.productTypeCode];
 			item.category = CREDIT_ACCOUNT_TYPE[item.productTypeCode];
@@ -558,6 +571,8 @@ export class Favourites extends SavingsAccountBase {
 			item.nextRepayment = item.nextRepayment ? formatCurrency(item.nextRepayment) : null;
 			item.currentBalance = formatCurrency(item.currentBalance);
 
+			return item;
+		});
 
 		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
 
@@ -566,10 +581,10 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-	_paidUpAccounts () {
+	_paidUpAccounts() {
 		// TODO: CS call to get info
 
-		if(this.ccsStatus) {
+		if (this.ccsStatus) {
 			this.showCCSmodal = true;
 			return;
 		}

@@ -113,7 +113,7 @@ import 'app/components/common/RelatedOptions';
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._tryAgain()}>
 				<section id="id-error-msg" slot="detail">
-						Settlement quote was not emailed to <b>${this.emailAddress}</b>.
+						Settlement quote ${this.selectedAccounts.length === 1 ? `for ${this.selectedAccounts[0].productTypeDescription.toLowerCase()}` : ``} was not emailed to <b>${this.emailAddress}</b>.
 				</section>
 			</horizon-error-screen>
 		`;

@@ -10,7 +10,5 @@ export const favouritesLandingSuccess =
 	"savingsPlanProductAmount": `2000.00`,
 	"insureProductDescription": `Insure product`,
 	"insureProductAmount": `3000.00`,
-	"creditProductDescription": `Credit Product`,
-	"creditProductAmount": `43000.00`,
 	"pendingMandateCount": 3
 };

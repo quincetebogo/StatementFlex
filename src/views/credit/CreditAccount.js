@@ -2,6 +2,7 @@ import { CREDIT_TYPE, FROM_ACCOUNTS_LIST, PRODUCTS } from 'app/constants/Credit'
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { css, html } from 'platform/elements';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
+import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { CreditService } from 'app/services/CreditService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
@@ -17,14 +18,14 @@ import 'app/components/credit/CreditCardDetails';
 import 'app/components/credit/AccessFacilityDetails';
 import 'app/components/credit/TermLoanDetails';
 import 'app/components/dialogs/common/CCSstatus';
-import 'app/dialogs/credit/CreditStatements';
-import 'app/dialogs/credit/FixedCreditStatements';
+import 'app/dialogs/credit/SettlementQuote';
+import 'app/dialogs/statements/Statements';
+import 'app/dialogs/credit/SettleAndCloseDisclaimer';
 import 'app/productControls/credit/src/BudgetAccounts';
 import 'app/productControls/credit/src/BudgetAccountDetails';
 import 'app/productControls/credit/src/CreditAccountLanding';
 import 'app/productControls/credit/src/CreditUnverifiedLanding';
 import 'app/productControls/credit/src/PayCreditCardBudget';
-import 'app/dialogs/credit/SettlementQuote';
 
 
 /**
@@ -35,7 +36,7 @@ import 'app/dialogs/credit/SettlementQuote';
  * @extends {CreditAccount}
  */
 export class CreditAccount extends ViewBase {
-	
+
 	// --------------
 	// INITIALISATION
 	// --------------
@@ -57,9 +58,12 @@ export class CreditAccount extends ViewBase {
 		this.flexibleCreditAccounts = [];
 		this.fixedTermCreditAccounts = []; 
 		this.creditBalance = ``;
+		this.productType = ``;
+		this.creditType = ``;
 		//ccs status of client set to true until real value retrieved from CS
 		this.ccsStatus = true;
 		this.showCCSmodal = false;
+		this.showSettleCloseModal = false;
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 
@@ -96,10 +100,11 @@ export class CreditAccount extends ViewBase {
 			flexibleCreditAccounts: { type: Array, state: true, attribute: false },
 			fixedTermCreditAccounts: { type: Array, state: true, attribute: false },
 			creditBalance: { state: true, attribute: false },
-			showCCSmodal: { type: Boolean }
+			showCCSmodal: { type: Boolean },
+			showSettleCloseModal: { type: Boolean }
 		};
 	}
-	
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -123,26 +128,27 @@ export class CreditAccount extends ViewBase {
 	async _optionClick(option, creditType, productType, selectedAccountDetails) {
 
 		const transactionHistory = () => this._transactionHistory(creditType, productType);
-		const statements = creditType === `Fixed Credit` ? () => this._getTLStatements(creditType, productType) : () => this._getStatements(creditType, productType);
+		const statements = () => this._getStatements(creditType, productType, selectedAccountDetails.productTypeCode, selectedAccountDetails.accountNumber, selectedAccountDetails.openDate);
 		const settlementQuote = () => this._settlementQuote(creditType, productType, selectedAccountDetails);
-		const settleAndClose = () => this._settleAndClose(creditType, productType);
+		const settleAndClose = () => this._settleAndClose(creditType, productType, selectedAccountDetails);
 		const paidUpLetter = () => this._paidUpLetter();
-		const settleLoan = () => this._settleLoan();
-		const budgetFacility = () => this._budgetFacility();
+		const budgetFacility = () => this._budgetFacility(selectedAccountDetails);
+		const payBudget = () => this._payBudgetAccount(selectedAccountDetails);
 
+		const accConfig = ACCOUNT_INTCAT_ENUM[selectedAccountDetails.productTypeCode];
 		const actions = {
 			'transaction-history': transactionHistory,
 			'statements': statements,
 			'settlement-quote': settlementQuote,
 			'paid-up-letter': paidUpLetter,
 			'settle-close': settleAndClose,
-			'settle-loan': settleLoan,
-			'budget-facility': budgetFacility
+			'budget-facility': budgetFacility,
+			'pay-budget': payBudget
 		};
 
 		if (actions[option]) {
 			
-			const clientNeed = `${option}-${productType.toLowerCase().replace(` `, `-`)}`;
+			const clientNeed = `${option}-${accConfig.subCategory}`;
 			 
 			await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
 			this._refreshIncidentDetails();
@@ -191,11 +197,6 @@ export class CreditAccount extends ViewBase {
 			"next-screen": TelemetryScreen.CREDIT_LANDING
 		});
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
-
-	async _viewFees() {
-		const fees = await this.configuration.getSetting(`otherSystemsURL.fees`);
-		window.open(`${fees}`);
 	}
 
 	_sendStatement() {
@@ -274,6 +275,14 @@ export class CreditAccount extends ViewBase {
 		}
 	}
 
+	_setIncidentDone() {
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -286,7 +295,7 @@ export class CreditAccount extends ViewBase {
 
 	async _initialise() {
 
-		//TO DO: get ccs status from permission endpoint
+		// TO DO: get ccs status from permission endpoint
 			// permissionResultList:[
 			// 	operationIdentifier: "ALL",
 			// 	permissionResult: "Denied",
@@ -374,7 +383,7 @@ export class CreditAccount extends ViewBase {
 			item.currentBalance = formatCurrency(item.currentBalance);
 			item.availableCredit = formatCurrency(item.availableCredit);
 			item.creditLimit = formatCurrency(item.creditLimit);
-			item.nextRepayment = formatCurrency(item.nextRepayment);
+			item.repayAmount = formatCurrency(item.repayAmount);
 			item.accountStatusDescription = item.arrearIndicator ? `In arrears` : formatStringAsPascalCase(item.accountStatusDescription);
 
 			return item;
@@ -426,16 +435,16 @@ export class CreditAccount extends ViewBase {
 			"credit-type": creditType,
 			"product-type": productType
 		});
+
+		// TO DO: Uncomment the below line to have STrack incident logging when implemented Trasnaction History
+		// when coming back from transaction history screen, set incident as done "_setIncidentDone()"".
+		// await super.createAndClassifySubsIncident();
 	}
 
-	_getTLStatements(creditType, productType, term) {
-		this.renderMode = RENDER_MODE.FIXED_STATEMENTS;
-	}
-
-	_getStatements(creditType, productType) {
+	_getStatements(creditType, productType, productCode, accNum, openDate) {
 		// TO DO: Place holder for credit statements flow.
 
-		if(this.ccsStatus) {
+		if (this.ccsStatus) {
 			this.showCCSmodal = true;
 			return;
 		}
@@ -446,11 +455,28 @@ export class CreditAccount extends ViewBase {
 			"credit-type": creditType,
 			"product-type": productType
 		});
+
+		const productInfo = ACCOUNT_INTCAT_ENUM[productCode];
+		this.clientProducts = [
+			{
+				'accountNumber': accNum,
+				'accountName': productInfo.name,
+				'accountType': productCode,
+				'accountOpenDate': openDate,
+				'type': productInfo.type,
+				'category': productInfo.category,
+				'subCategory': productInfo.subCategory,
+				'icon': productInfo.icon,
+				'customIcon': productInfo.customIcon,
+				'order': productInfo.order,
+				'choosePeriod': productInfo.choosePeriod
+			}
+		];
 		this.renderMode = RENDER_MODE.STATEMENTS;
 	}
 
 	_settlementQuote(creditType, productType, selectedAccountDetails) {
-		if(this.ccsStatus) {
+		if (this.ccsStatus) {
 			this.showCCSmodal = true;
 			return;
 		}
@@ -469,37 +495,42 @@ export class CreditAccount extends ViewBase {
 		
 		this.selectedTab = creditType;
 		
-		this._settlementQuoteDialog(selectedAccountDetails);
+		this._settlementQuoteDialog([selectedAccountDetails]);
 	}
 
 	_paidUpLetter() {
 		// TO DO: Place holder for paid up Letter flow.
 
-		if(this.ccsStatus) {
+		if (this.ccsStatus) {
 			this.showCCSmodal = true;
-			return;
+			return true;
 		}
-
 	}
 
-	_settleAndClose(creditType, productType) {
+	_settleAndClose(creditType, productType, selectedAccountDetails) {
 		// TO DO: Place holder for credit settle and close flow.
-		
+
 		this._telemetry.logEvent(CreditEvents.CREDIT_SETTLE_CLOSE_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
 			"next-screen": TelemetryScreen.CREDIT_SETTLE_CLOSE,
 			"credit-type": creditType,
 			"product-type": productType
 		});
+
+		if(this.ccsStatus) {
+			this.showCCSmodal = true;
+			return;
+		}
+
+		this.productType = selectedAccountDetails.productTypeDescription;
+		this.creditType = creditType;
+		this.showSettleCloseModal = !this.showSettleCloseModal;
 	}
 
-	_settleLoan() {
-		// TO DO: Place holder for credit settle loan flow.
-	}
+	async _budgetFacility(selectedAccountDetails) {
+		await super.createAndClassifySubsIncident();
 
-	async _budgetFacility(e) {
-		// TO DO: Place holder for budget facility flow.
-		const returnValue = await this.creditService.budgetFacility(e.detail.creditCardNumber);
+		const returnValue = await this.creditService.budgetFacility(selectedAccountDetails.accountNumber);
 		const successfullServiceResponse = returnValue.succeeded;
 
 		if (!successfullServiceResponse) {
@@ -508,7 +539,7 @@ export class CreditAccount extends ViewBase {
 		}
 
 		this.budgetFacilityAccounts = returnValue.result;
-		this.budgetFacilityAccounts.creditCardNumber = e.detail.creditCardNumber;
+		this.budgetFacilityAccounts.creditCardNumber = selectedAccountDetails.accountNumber;
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW;
 	}
 
@@ -582,6 +613,14 @@ export class CreditAccount extends ViewBase {
 		this._backToLandingPage();
 	}
 
+	_backFromPayBudgetDialog() {
+		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.incidentDetails.currentNeed = `budget-facility-credit-card`;
+			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		}
+		this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -632,8 +671,8 @@ export class CreditAccount extends ViewBase {
 			${this._renderStatements()}
 			${this._renderPayBudgetDialog()}
 			${this._renderSettlementQuoteDialog()}
-			${this._renderFixedStatements()}
 			${this._renderCcsModal()}
+			${this._renderSettleCloseModal()}
 		`;
 	}
 
@@ -678,8 +717,7 @@ export class CreditAccount extends ViewBase {
 					@option-click="${(e) => this._optionClick(e.detail.option, e.detail.creditType, e.detail.productType, e.detail.selectedAccountDetails)}"
 					@account-details="${(e) => this._accountDetails(e)}"
 					@product-enquiry="${() => this._productEnquiry()}"
-					@view-info="${() => this._viewInfo()}"
-					@view-budget-accounts="${(e) => this._budgetFacility(e)}">
+					@view-info="${() => this._viewInfo()}">
 				</capitec-pc-credit-account>`
 			: html``;
 	}
@@ -700,9 +738,9 @@ export class CreditAccount extends ViewBase {
 				<capitec-pc-budget-facility-accounts
 					.budgetFacilityAccounts="${this.budgetFacilityAccounts}"
 					
-					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
+					@back="${() => this._setIncidentDone()}"
 					@account-details="${(event) => this._budgetAccountDetails(event.detail.selectedAccountDetails)}"
-					@transfer-click="${(event) => this._payBudgetAccount(event.detail.selectedAccountDetails)}">
+					@transfer-click="${(event) => this._optionClick(`pay-budget`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, event.detail.selectedAccountDetails)}">
 				</capitec-pc-budget-facility-accounts>`
 			: html``;
 	}
@@ -716,7 +754,7 @@ export class CreditAccount extends ViewBase {
 			</capitec-pc-budget-account-details>`
 		: html``;
 	}
-	
+
 	_renderPayBudgetDialog() {
 		return this.renderMode === RENDER_MODE.PAY_BUDGET_DIALOG
 			? html`
@@ -724,10 +762,9 @@ export class CreditAccount extends ViewBase {
 					.budgetAccountDetails="${this.payBudgetAccountDetails}"
 					.clientProducts="${this.clientProducts}"
 					
-					@cancel="${() => this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW}"
+					@cancel="${() => this._backFromPayBudgetDialog()}"
 					@transfer="${() => this._transferPayBudget()}">
-				</capitec-pc-pay-budget-dialog>
-			`
+				</capitec-pc-pay-budget-dialog>`
 			: html``;
 	}
 
@@ -738,8 +775,7 @@ export class CreditAccount extends ViewBase {
 				<horizon-credit-card-details-view
 					.creditCardDetails="${this.creditCardDetails}"
 					@back="${() => this._backFromAccountDetails()}">
-				</horizon-credit-card-details-view>
-			`
+				</horizon-credit-card-details-view>`
 			: html``;
 	}
 
@@ -766,37 +802,37 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderStatements() {
-		// startDate="${DateTime.local(2021, 10).toString()}"
 		return this.renderMode === RENDER_MODE.STATEMENTS
 		? html`
-			<horizon-credit-statements-dialog
+			<horizon-statements
+				.cifNumber="${this.callerInformation.cifNumber}"
+				.clientProducts="${this.clientProducts}"
+				type="${ACCOUNT_TYPES.CREDIT}"
+				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}"
 				@cancel="${() => this._backToLandingPage()}"
-				@view-fees="${() => this._viewFees()}"
-				@send="${() => this._sendStatement()}"
-				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
-			</horizon-credit-statements-dialog>`
-		: html``;
-	}
-
-	_renderFixedStatements() {
-		return this.renderMode === RENDER_MODE.FIXED_STATEMENTS
-		? html`
-			<horizon-fixed-credit-statements-dialog
-				@cancel="${() => this._backToLandingPage()}"
-				@view-fees="${() => this._viewFees()}"
-				@send="${() => this._sendStatement()}"
-				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
-			</horizon-fixed-credit-statements-dialog>`
+				@account-selected="${(event) => this._statementsAccConfirmed(event)}">
+			</horizon-statements>`
 		: html``;
 	}
 
 	_renderCcsModal() {
 		return this.showCCSmodal
 		? html`
-		<horizon-ccs-status-dialog
-			@on-okay="${() => this.showCCSmodal = !this.showCCSmodal}">
-		</horizon-ccs-status-dialog>`
+			<horizon-ccs-status-dialog
+				@on-okay="${() => this.showCCSmodal = !this.showCCSmodal}">
+			</horizon-ccs-status-dialog>`
 		: html``;
+	}
+
+	_renderSettleCloseModal() {
+		return this.showSettleCloseModal
+		? html`
+			<horizon-settle-n-close-dialog
+				.productType="${this.productType}"
+				.creditType="${this.creditType}"
+				@cancel="${() => this.showSettleCloseModal = !this.showSettleCloseModal}">
+			</horizon-settle-n-close-dialog>`
+		: html``
 	}
 
 }

@@ -50,7 +50,9 @@ const HORIZON_ROUTES = Object.freeze({
 	CREDIT_STATEMENTS_SUCCESS: `/success/credit-statements`,
 	CREDIT_STATEMENTS_FAILURE: `/error/credit-statements`,
 	SETTLEMENT_QUOTE_SUCCESS: `/success/settlement-quote`,
-	SETTLEMENT_QUOTE_FAILURE: `/error/settlement-quote`
+	SETTLEMENT_QUOTE_FAILURE: `/error/settlement-quote`,
+	SETTLE_AND_CLOSE_SUCCESS: `/success/settle-and-close`,
+	SETTLE_AND_CLOSE_FAILURE: `/error/settle-and-close`
 });
 
 
@@ -351,6 +353,14 @@ export class HorizonRouter {
 
 	navigateToSettlementQuoteFailure() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLEMENT_QUOTE_FAILURE}`);
+	}
+
+	navigateToSettleAndCloseSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLE_AND_CLOSE_SUCCESS}`);
+	}
+
+	navigateToSettleAndCloseFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLE_AND_CLOSE_FAILURE}`);
 	}
 
 	/**
@@ -836,5 +846,21 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.SETTLEMENT_QUOTE_FAILURE,
 		load: () => import(`../views/credit/SettlementQuoteFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-	}  
+	},
+	{
+		name: `horizon-settle-and-close-success`,
+		title: `SettleAndCloseSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.SETTLE_AND_CLOSE_SUCCESS,
+		load: () => import(`../views/credit/SettleAndCloseSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-settle-and-close-failure`,
+		title: `SettleAndCloseFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.SETTLE_AND_CLOSE_FAILURE,
+		load: () => import(`../views/credit/SettleAndCloseFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	}
 ];
