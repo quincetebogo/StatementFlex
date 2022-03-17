@@ -8,6 +8,7 @@ import { QuickTransactionsService } from 'app/services/QuickTransactionsService'
 import { RENDER_MODE } from 'app/constants/Statements';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { base64ToBlobUrl } from 'app/utils/channelServiceUtilities';
+import { CreditService } from 'app/services/CreditService';
 
 import 'app/components/dialogs/common/StatementsDialog';
 
@@ -41,10 +42,11 @@ export class Statements extends Component {
 		this.navigationContext = NavigationContext.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
 		this.taxCertificateDetails = null;
-
+		this.selectedDatesList = [];
 		this._telemetryEventsImport();
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), () => true);
+		this.creditService = new CreditService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 	}
 
 	// --------------
@@ -55,6 +57,7 @@ export class Statements extends Component {
 	 * @property {string} cifNumber The client's CIF number
 	 * @property {Array} clientProducts Contains list of products that the client has.
 	 * @property {string} type Contains the type of account
+	 * @property {string} availableMonthlyStatementsList Contains all the avaliable statements a client has for a particular product type and specific account number
 	 * @readonly
 	 * @static
 	 * @memberof Statements
@@ -63,8 +66,9 @@ export class Statements extends Component {
 		return {
 			cifNumber: { type: String },
 			clientProducts: { type: Array },
+			creditOptionType: { type: String },
 			accountType: { type: String, attribute: `type` },
-
+			availableMonthlyStatementsList: {type: Array},
 			isBusy: { state: true }
 		};
 	}
@@ -112,8 +116,11 @@ export class Statements extends Component {
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-	async _next(event) {
-		switch (event.detail?.stepper) {
+	async _next(event) 
+	{
+		
+		switch (event.detail?.stepper) 
+		{
 			case RENDER_MODE.CHOOSE_ACCOUNT:
 				this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_ACCOUNT_NEXT, {
 					"account-type": event.detail.accountName
@@ -225,8 +232,117 @@ export class Statements extends Component {
 		}
 	}
 
-	async _viewCreditStatement(request) {
+	async _viewCreditStatement(request) 
+	{
 		// TODO: Credit view statement comes here
+		let dateSelected = request.month;
+		if (this.creditOptionType == `Credit card` || this.creditOptionType == `Access facility`)
+		{
+			let statementInfo = this.findStatement(dateSelected);
+			if (statementInfo!=null)
+			{
+				if (this.creditOptionType == `Credit card`)
+				{
+					const returnValue = await this.creditService.flexibleStatement(statementInfo.accountNumber,`CreditCard`,statementInfo.statementId);
+					
+					if (returnValue.succeeded)
+					{
+						let data = returnValue.result.content.data ;
+						return base64ToBlobUrl(data);
+					}else {
+						this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewPDF`, returnValue.correlationId);
+						return null;
+					}
+					
+				} else if (this.accountType==`Access facility`)
+				{
+					const returnValue = await this.creditService.flexibleStatement(statementInfo.accountNumber,`AccessFacility`,statementInfo.statementId);
+					if (returnValue.succeeded)
+					{
+						let data = returnValue.result.content.data ;
+						return base64ToBlobUrl(data);
+					}else {
+						this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewPDF`, returnValue.correlationId);
+						return null;
+					}
+				} 
+			}
+		}
+		else if (this.creditOptionType==`Term Loan`)
+		{
+			if (request.dateInterval) 
+			{
+				let today = new Date().toISOString().slice(0, 10);
+				let fromRange = ``;
+				switch(request.dateInterval)
+				{
+					case "ONE_MONTH":
+						fromRange = this.getDateRange(`1`);
+						break;
+					case "THREE_MONTH":
+						fromRange = this.getDateRange(`3`);
+						break;
+					case "SIX_MONTH":
+						fromRange = this.getDateRange(`6`);
+						break;
+					case "NINE_MONTH":
+						fromRange = this.getDateRange(`9`);
+						break;	
+				}
+				console.log(fromRange);
+				const returnValue = await this.creditService.fixedStatement(request.accountNumber,fromRange,today,``);
+				if (returnValue.succeeded)
+				{
+					let data = returnValue.result.content.data ;
+					return base64ToBlobUrl(data);
+				}else {
+					this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewPDF`, returnValue.correlationId);
+					return null;
+				}
+			}
+			const returnValue = await this.creditService.fixedStatement(request.accountNumber,request.startDate,request.endDate,``);
+			if (returnValue.succeeded)
+			{
+				let data = returnValue.result.content.data ;
+				return base64ToBlobUrl(data);
+			}else {
+				this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewPDF`, returnValue.correlationId);
+				return null;
+			}
+		}
+		return null;
+
+	}
+	_handleChannelServiceError(ex) {
+		this.errorMessage = `System error. Please try again.`;
+		this.errorCount++;
+
+		if (this.errorCount > 2) {
+			this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+			this.horizonStore.setCallerInformation(this.callerInformation);
+			this.horizonRouter.navigateToSystemError();
+		}
+		return true;
+	}
+
+	findStatement(dateSelected)
+	{
+		const dateinfo = dateSelected.split("/");
+		let i = 0;
+		let flag = false;
+		while (i < this.availableMonthlyStatementsList.length && flag ==false)
+		{
+			
+			const monthlyStatement = this.availableMonthlyStatementsList[i];
+			const statementDateArray = monthlyStatement.statementDate.split("-");
+			if (statementDateArray[0]==dateinfo[1] && statementDateArray[1]==dateinfo[0])
+			{
+				flag = true;
+				return monthlyStatement;
+			}
+			i = i+1;
+		}
+		return null;
 	}
 
 	async _sendStatement(request) {
@@ -269,7 +385,99 @@ export class Statements extends Component {
 		}
 	}
 
-	async _sendCreditStatement(request) {
+	async _sendCreditStatement(request) 
+	{
+		let flag = false;
+		if (this.creditOptionType == `Credit card` || this.creditOptionType == `Access facility`)
+		{
+			for (let i = 0; i < request.monthInterval.length; i++)
+			{
+				let dateSelected = request.monthInterval[i];
+				let statementInfo = this.findStatement(dateSelected);
+				let statementDetails = [{
+					statementId : statementInfo.statementId,
+					statementDate: statementInfo.statementDate}
+				];
+				if (this.creditOptionType == `Credit card`){
+					const returnValue = await this.creditService.flexibleStatementEmail(`CreditCard`,request.accountNumber , request.emailAddress ,statementDetails);
+					if (returnValue.succeeded) 
+					{
+						flag = true;
+					}
+				}else{
+					const returnValue = await this.creditService.flexibleStatementEmail(`AccessFacility`,request.accountNumber , request.emailAddress ,statementDetails);
+					if (returnValue.succeeded) 
+					{
+						flag = true;
+					}
+				}	
+			}
+		}else if (this.creditOptionType==`Term Loan`)
+		{
+			if (request.dateInterval) 
+			{
+				let today = new Date().toISOString().slice(0, 10);
+				let fromRange = ``;
+				switch(request.dateInterval)
+				{
+					case "ONE_MONTH":
+						fromRange = this.getDateRange(`1`);
+						break;
+					case "THREE_MONTH":
+						fromRange = this.getDateRange(`3`);
+						break;
+					case "SIX_MONTH":
+						fromRange = this.getDateRange(`6`);
+						break;
+					case "NINE_MONTH":
+						fromRange = this.getDateRange(`9`);
+						break;	
+				}
+				if (fromRange!=``)
+				{
+					const returnValue = await this.creditService.fixedStatementEmail(request.accountNumber,request.emailAddress,today,fromRange);
+					if (returnValue.succeeded) 
+					{
+						flag = true;
+					}
+				}
+				
+			}
+			else{
+				const returnValue = await this.creditService.fixedStatementEmail(request.accountNumber,request.emailAddress,request.startDate,request.endDate);
+					if (returnValue.succeeded) 
+					{
+						flag = true;
+					}
+			}
+		}
+		this._updateScreenDetails(request);
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `statements`);
+		if (flag) {
+			this.horizonRouter.navigateToCreditStatementSuccess();
+		} else {
+			this.horizonRouter.navigateToCreditStatementUnsuccess();
+		}
+
+		
+	}
+
+	getDateRange (item)
+	{
+		let currentdate = new Date();
+		
+		switch (item)
+		{
+			case "1":
+				return new Date(currentdate.setMonth(currentdate.getMonth()-1)).toISOString().slice(0, 10);
+			case "3":
+				return new Date(currentdate.setMonth(currentdate.getMonth()-3)).toISOString().slice(0, 10);
+			case "6":
+				return new Date(currentdate.setMonth(currentdate.getMonth()-6)).toISOString().slice(0, 10);
+			case "9":
+				return new Date(currentdate.setMonth(currentdate.getMonth()-9)).toISOString().slice(0, 10);
+		}
+		
 		
 	}
 
