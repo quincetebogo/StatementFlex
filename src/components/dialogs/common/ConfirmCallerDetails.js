@@ -7,6 +7,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
+import { ITAChannelService } from 'app/services/ITAChannelService';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { InsureService } from 'app/services/InsureService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -71,6 +72,7 @@ export class ConfirmCallerDetails extends Component {
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.callService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+		this.itaChannelService = new ITAChannelService(() => this._toggleBusyFlag(), () => true);
 
 		// Property initialization
 		this.confirmedCaller = null;
@@ -385,7 +387,7 @@ export class ConfirmCallerDetails extends Component {
 		// Check if the client has digital channels
 		// Disabled error handler because if this call fails we will still attempt to help the client.
 		// It will just be with XDS Security Questions
-		const returnValue = await this.callService.digitalVerificationChannelsAvailable(this.callerInformation.cifNumber, () => true);
+		const returnValue = await this.itaChannelService.digitalVerificationChannelsAvailable(this.callerInformation.cifNumber, () => true);
 
 		if (returnValue.succeeded) {
 			this.callerInformation.hasDigitalChannels = returnValue.result;

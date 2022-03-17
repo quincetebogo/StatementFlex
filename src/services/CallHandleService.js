@@ -217,39 +217,6 @@ export class CallHandleService extends ChannelServiceBase {
 		);
 	}
 
-	async digitalVerificationChannelsAvailable(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		if (await this.isMockEnabled(`digitalVerificationChannelsAvailable`)) {
-			if (Object.prototype.hasOwnProperty.call(this._mocking.digitalVerificationChannelsAvailable, `positiveCase`)) {
-				return {
-					succeeded: true,
-					result: this._mocking.digitalVerificationChannelsAvailable.positiveCase
-				};
-			}
-			return {
-				succeeded: false,
-				result: this._mocking.digitalVerificationChannelsAvailable.positiveCase
-			};
-		}
-
-		const request = {
-			"cif": cifNumber
-		  };
-
-		return this.post(
-			`/clientcare-call-${this._version}/has-digital-verification-capability`, 
-			request, 
-			this.setToken(), 
-			`digitalVerificationChannelsAvailable`, 
-			null, 
-			null, 
-			1000,
-			null,
-			errorHandler,
-			autoRetries
-		);
-		
-	}
-
 	/**
 	 *  End call triggers automated messaging
 	 * 
