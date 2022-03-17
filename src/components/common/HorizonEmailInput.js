@@ -56,12 +56,12 @@ export class HorizonEmailInput extends Component {
 			labelTwo: { type: String },
 			showRequiredError: { type: Boolean },
 			callBack: { type: Object },
+			email: { type: String },
+			confirmEmail: { type: String },
 
-			email: { type: String, state: true },
 			emailError: { state: true },
 			emailSuggestion: { state: true },
 
-			confirmEmail: { type: String, state: true },
 			confirmEmailError: { state: true },
 			confirmEmailSuggestion: { state: true }
 		 };
@@ -300,7 +300,7 @@ export class HorizonEmailInput extends Component {
 			</capitec-content-box>
 		`;
 	}
-//<hr class="seperator">
+
 	_renderEmailGroup() {
 		return html`
 			${this._renderEmail()}
