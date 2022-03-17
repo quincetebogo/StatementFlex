@@ -10,7 +10,7 @@ const SUSPEND_REASONS = {
 	STOLEN: `Stolen`,
 	LOST: `Lost`,
 	FAULTY: `Faulty`,
-	SERVICE_CANCELLATION: `Service cancellation`
+	SERVICE_CANCELLATION: `ServiceCanceled`
 };
 
 const RENDER_STEPPER_MODE = {
