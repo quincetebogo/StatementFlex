@@ -266,6 +266,7 @@ export class CreditAccountLanding extends Component {
 				.budget-banner > capitec-hyperlink {
 					--theme-hyperlink-font-size: 14px;
 					--theme-font-weight: 600;
+					--theme-hyperlink-color: #009DE0;
 				}
 				.budget-banner:hover > capitec-hyperlink {
     				text-decoration: underline;
@@ -336,9 +337,6 @@ export class CreditAccountLanding extends Component {
 	}
 
 	_renderFlexibleCreditTab() {
-		// Temporary constant which shows if client has credit products.
-		// TO DO: Later to be replaced with information received from CS call.
-		
 		return this.flexibleCreditAccounts.length > 0
 		? html`
 			<capitec-content-box class="accounts-box">
@@ -351,9 +349,6 @@ export class CreditAccountLanding extends Component {
 	}
 
 	_renderFixedTermCreditTab() {
-		// Temporary constant which shows if client has credit products.
-		// TO DO: Later to be replaced with information received from CS call.
-		
 		return this.fixedTermCreditAccounts.length > 0
 		? html`
 			<capitec-content-box class="accounts-box">
@@ -366,8 +361,6 @@ export class CreditAccountLanding extends Component {
 	}
 
 	_renderFlexibleAccounts() {
-
-		// TODO: Expanders to be rendered dynamicaly once CS data is available
 		return this.flexibleCreditAccounts.map((item, index) => html`
 			<horizon-expander
 				expandButtonAlignment="right"
@@ -463,8 +456,6 @@ export class CreditAccountLanding extends Component {
 	}
 
 	_renderFixedTermAccounts() {
-		
-		// TO DO: Expanders to be rendered dynamicaly once CS data is available
 		return this.fixedTermCreditAccounts.map((item, index) => html`
 			<horizon-expander
 				expandButtonAlignment="right"
@@ -530,57 +521,126 @@ export class CreditAccountLanding extends Component {
 	}
 
 	_renderOptionsGroup(creditType, productType, selectedAccountDetails) {
-
-		// TO DO: Hide/show respected option buttons dynamically
 		return html`
 			<capitec-title-bar
 				type="default"
 				label="Choose an option">
 			</capitec-title-bar>
 			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
-				<horizon-option-button 
-						data-automation-id="credit-account-transaction-history"
-						label="Transaction History"
-						icon="system/time-action"
-						?hidden="${false}"
-						@click="${() => this._click(`transaction-history`, creditType, productType, selectedAccountDetails)}">
-				</horizon-option-button>
-				<horizon-option-button 
-						data-automation-id="credit-account-statements"
-						label="Statements"
-						icon="system/documents-action"
-						?hidden="${false}"
-						@click="${() => this._click(`statements`, creditType, productType, selectedAccountDetails)}">
-				</horizon-option-button>
-				<horizon-option-button 
-						data-automation-id="credit-account-settlement-quote"
-						label="Settlement Quote"
-						icon="system/documents-action"
-						?hidden="${false}"
-						@click="${() => this._click(`settlement-quote`, creditType, productType, [selectedAccountDetails])}">
-				</horizon-option-button>
-				<horizon-option-button 
-						data-automation-id="credit-account-paid-up-letter"
-						label="Paid up Letter"
-						icon="system/documents-action"
-						?hidden="${true}"
-						@click="${() => this._click(`paid-up-letter`, creditType, productType, selectedAccountDetails)}">
-				</horizon-option-button>
-				<horizon-option-button 
-						data-automation-id="credit-account-settle-close"
-						label="${creditType === CREDIT_TYPE.FIXED ? `Settle Loan` : `Settle & Close`}"
-						icon="system/close-circle-action"
-						?hidden="${false}"
-						@click="${() => this._click(`settle-close`, creditType, productType, selectedAccountDetails)}">
-				</horizon-option-button>
-				<horizon-option-button
-						data-automation-id="credit-account-budget-facility"
-						label="Budget Facility"
-						icon="system/documents-action"
-						?hidden="${true}"
-						@click="${() => this._click(`budget-facility`, creditType, productType, selectedAccountDetails)}">
-				</horizon-option-button>
+				${this._renderProductSpecificOptions(productType, selectedAccountDetails)}
 			</capitec-group>
+		`;
+	}
+
+	_renderProductSpecificOptions(productType, selectedAccountDetails) {
+		switch (productType) {
+			case PRODUCTS.CREDIT_CARD:
+				return this._renderCreditCardOptions(selectedAccountDetails);
+			case PRODUCTS.ACCESS_FACILITY:
+				return this._renderAccessFacilityOptions(selectedAccountDetails);
+			case PRODUCTS.TERM_LOAN:
+				return this._renderTermLoanOptions(selectedAccountDetails);
+			default:
+				return html``;
+		}
+	}
+
+	_renderCreditCardOptions(selectedAccountDetails) {
+		return html`
+			<horizon-option-button 
+					data-automation-id="credit-account-transaction-history"
+					label="Transaction History"
+					icon="system/time-action"
+					?hidden="${true}"
+					@click="${() => this._click(`transaction-history`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD)}">
+			</horizon-option-button>
+			<horizon-option-button 
+					data-automation-id="credit-account-statements"
+					label="Statements"
+					icon="system/documents-action"
+					?hidden="${false}"
+					@click="${() => this._click(`statements`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD)}">
+			</horizon-option-button>
+			<horizon-option-button 
+					data-automation-id="credit-account-settlement-quote"
+					label="Settlement Quote"
+					icon="system/documents-action"
+					?hidden="${true}"
+					@click="${() => this._click(`settlement-quote`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, [selectedAccountDetails])}">
+			</horizon-option-button>
+			<horizon-option-button 
+					data-automation-id="credit-account-paid-up-letter"
+					label="Paid up Letter"
+					icon="system/documents-action"
+					?hidden="${true}"
+					@click="${() => this._click(`paid-up-letter`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD)}">
+			</horizon-option-button>
+			<horizon-option-button 
+					data-automation-id="credit-account-settle-close"
+					label="Settle & Close"
+					icon="system/close-circle-action"
+					?hidden="${true}"
+					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD)}">
+			</horizon-option-button>
+		`;
+	}
+
+	_renderAccessFacilityOptions(selectedAccountDetails) {
+		return html`
+			<horizon-option-button 
+					data-automation-id="credit-account-statements"
+					label="Statements"
+					icon="system/documents-action"
+					?hidden="${false}"
+					@click="${() => this._click(`statements`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.ACCESS_FACILITY)}">
+			</horizon-option-button>
+			<horizon-option-button 
+					data-automation-id="credit-account-settlement-quote"
+					label="Settlement Quote"
+					icon="system/documents-action"
+					?hidden="${true}"
+					@click="${() => this._click(`settlement-quote`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.ACCESS_FACILITY, [selectedAccountDetails])}">
+			</horizon-option-button>
+			<horizon-option-button 
+					data-automation-id="credit-account-paid-up-letter"
+					label="Paid up Letter"
+					icon="system/documents-action"
+					?hidden="${true}"
+					@click="${() => this._click(`paid-up-letter`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.ACCESS_FACILITY)}">
+			</horizon-option-button>
+		`;
+	}
+
+	_renderTermLoanOptions(selectedAccountDetails) {
+		return html`
+			<horizon-option-button 
+					data-automation-id="credit-account-statements"
+					label="Statements"
+					icon="system/documents-action"
+					?hidden="${false}"
+					@click="${() => this._click(`statements`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN)}">
+			</horizon-option-button>
+			<horizon-option-button 
+					data-automation-id="credit-account-settlement-quote"
+					label="Settlement Quote"
+					icon="system/documents-action"
+					?hidden="${true}"
+					@click="${() => this._click(`settlement-quote`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, [selectedAccountDetails])}">
+			</horizon-option-button>
+			<horizon-option-button 
+					data-automation-id="credit-account-paid-up-letter"
+					label="Paid up Letter"
+					icon="system/documents-action"
+					?hidden="${true}"
+					@click="${() => this._click(`paid-up-letter`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN)}">
+			</horizon-option-button>
+			<horizon-option-button 
+					data-automation-id="credit-account-settle-loan"
+					label="Settle Loan"
+					icon="system/close-circle-action"
+					?hidden="${true}"
+					@click="${() => this._click(`settle-loan`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN)}">
+			</horizon-option-button>
 		`;
 	}
 
