@@ -1,5 +1,4 @@
-import { Component, css, html, unsafeCSS } from 'platform/elements';
-import { CUSTOM_SELECT_STYLES } from 'app/css/HorizonSelectCustomInput';
+import { Component, css, html } from 'platform/elements';
 
 import 'app/components/common/HorizonSelectIcon';
 
@@ -165,11 +164,29 @@ export class SettleAndCloseDialog extends Component {
 					--theme-layout-gap-spacing: 12px;
 				}
 				horizon-select-icon {
+					padding-top: 16px;
 					--theme-select-options-max-height: 304px;
 					--theme-input-icon-margin-left: 16px;
 					--theme-icon-size-small: 24px;
 					--theme-layout-gap-spacing: 8px;
-					padding-top: 16px;
+					--theme-input-padding-top: 12px;
+					--theme-input-padding-bottom: 12px;
+
+					--horizon-label-text-height: 20px;
+					--horizon-label-text-font-size: 15px;
+					--horizon-label-text-font-weight: 600;
+					--horizon-label-text-line-height: 20px;
+					--horizon-label-text-color: #3A3A3A;
+
+					--horizon-label-value-height: 12px;
+					--horizon-label-value-font-size: 12px;
+					--horizon-label-value-font-weight: 500;
+					--horizon-label-value-line-height: 12px;
+					--horizon-label-value-color:#3A3A3A;
+
+					--theme-label-default-font-weight: 600;
+					--theme-label-default-font-size: 15px;
+					--theme-label-font-color: #3A3A3A;
 				}
 				.footer-class {
 					border-top: 1px solid #E1E1E1;
@@ -187,31 +204,6 @@ export class SettleAndCloseDialog extends Component {
 					--theme-button-primary-border-width: 1px;
 					--theme-button-primary-border-color: #f5f5f5;
 					--theme-button-primary-font-color: #7c7c7c;
-				}
-				.input-group {
-					height: 48px;
-					border: 1px solid #E1E1E1;
-					border-radius: 4px;
-				}
-				.input-group-error {
-					border: 1px solid #C83C37;
-				}
-				.input-label {
-					--horizon-label-text-height: 20px;
-					--horizon-label-text-font-size: 16px;
-					--horizon-label-text-font-weight: 600;
-					--horizon-label-text-line-height: 20px;
-					--horizon-label-value-height: 12px;
-					--horizon-label-value-font-size: 12px;
-					--horizon-label-value-font-weight: 500;
-					--horizon-label-value-line-height: 12px;
-					padding: 0px;
-					margin: 8px 0px 0px 48px;
-					height: 33px;
-				}
-				.input-group > capitec-label {
-					line-height: 44px;
-					margin-right: 47px;
 				}`
 		];
 	}
@@ -284,29 +276,14 @@ export class SettleAndCloseDialog extends Component {
 				.items="${this.clientProducts}"
 				display-field="accountName"
 				id-field="accountNumber"
-				?customInput=${true}
+				detailsField="availableBalance"
+				detailsLabel="Available balance"
 				.value="${this.productSelected}"
 				.error="${this.hasEnoughFunds ? null : `Transfer cannot exceed available balance`}"
 				.displayRenderer="${(e) => this._renderOptions(e)}"
 				@value-changed="${(e) => this._valueChanged(e)}">
-					<div slot="custom-input">
-						${this._renderCustomSelectInput()}
-					</div>
 			</horizon-select-icon>
 		`;
-	}
-
-	_renderCustomSelectInput() {
-		return html`
-			<capitec-group class="input-group ${this.hasEnoughFunds ? `` : `input-group-error`}" ?noPadding="${true}" layout="horizontal">
-				<horizon-label
-					class="input-label"
-					label="${this.productSelected.accountName}"
-					value="Available balance">
-				</horizon-label>
-				<capitec-spacer></capitec-spacer>
-				<capitec-label label="${this.productSelected.availableBalance}">></capitec-label>
-			</capitec-group>`;
 	}
 
 	_renderFields() {
@@ -329,17 +306,16 @@ export class SettleAndCloseDialog extends Component {
 		return html`
 			<capitec-group ?noPadding="${true}" layout="horizontal">
 				${this._renderOptionIcon(e)}
-					<capitec-group 
-						style="${unsafeCSS(CUSTOM_SELECT_STYLES.inputGroup).toString()}" 
+					<capitec-group
+						style="width: 515px"
 						?noPadding="${true}" 
 						layout="horizontal">
 							<horizon-label
-								style="${unsafeCSS(CUSTOM_SELECT_STYLES.inputLabel).toString()}" 
 								label="${e.accountName}"
 								value="Available balance">
 							</horizon-label>
 							<capitec-spacer></capitec-spacer>
-							<capitec-label style="${unsafeCSS(CUSTOM_SELECT_STYLES.inputDetails).toString()}" label="${e.availableBalance}">></capitec-label>
+							<capitec-label label="${e.availableBalance}"></capitec-label>
 					</capitec-group>
 			</capitec-group>
 		`;
@@ -354,7 +330,6 @@ export class SettleAndCloseDialog extends Component {
 				</capitec-icon>`
 			: html`
 				<capitec-image
-					style="${unsafeCSS(CUSTOM_SELECT_STYLES.inputicon).toString()}"
 					src="${e.customIcon}">
 				</capitec-image>`;
 	}
