@@ -8,8 +8,8 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { capitalizeString } from 'app/utils/channelServiceUtilities';
 import { html } from 'platform/elements';
-
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/common/StatementsDialog';
 import 'app/components/dialogs/quickTransactions/ApproveDebiCheckMandate';
@@ -117,11 +117,9 @@ export class SavingsAccountBase extends ViewBase {
 			this.clientProducts = clientProductDetails.map(item => {
 									const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType][item.interestCategory] || 
 														ACCOUNT_INTCAT_ENUM[item.accountType];
-									const accName = item.accountName.toLowerCase();
-
 									return {
 										'accountNumber': item.accountNumber,
-										'accountName': `${accName.charAt(0).toUpperCase()}${accName.slice(1)}`,
+										'accountName': capitalizeString(item.accountName),
 										'accountType': item.accountType,
 										'accountOpenDate': item.accountOpenDate,
 										'type': productInfo.type,
