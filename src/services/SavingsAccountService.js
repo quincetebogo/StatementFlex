@@ -102,22 +102,29 @@ export class SavingsAccountService extends ChannelServiceBase {
 	/**
 	 * Decline and Approve a debi-check mandate
 	 *
-	 * @param {string} cifNumber The Client's CIF number
-	 * @param {string} mandateReferenceNumber mandate refernece number
-	 * @param {string} debtorAccountNumber debtor account number
+	 * @param {string} cifNumber Client's cif number
+	 * @param {string} title Client's title (Mr/ Mrs)
+	 * @param {string} lastName Client's last name
+	 * @param {string} debiCheckDetails details of the selected mandate
+	 * @param {string} mandateInfo details of the selected mandate
 	 * @param {boolean} accepted true if accepted and false if declined
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	async debiCheckAuthenticate(cifNumber, mandateReferenceNumber, debtorAccountNumber, accepted, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async debiCheckAuthenticate(cifNumber, title, lastName, debiCheckDetails, mandateInfo, accepted, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		const request = {
 			cifNumber: cifNumber,
-			mandateReferenceNumber: mandateReferenceNumber,
-			debtorAccountNumber: debtorAccountNumber,
-			accepted: accepted
+			mandateReferenceNumber: debiCheckDetails.mandateReferenceNumber,
+			debtorAccountNumber: debiCheckDetails.debtorAccountNumber,
+			accepted: accepted,
+			title: title,
+			lastName: lastName,
+			collectorName: mandateInfo.collectorName,
+			instalmentAmount: mandateInfo.amount,
+			firstCollectionDate: debiCheckDetails.firstCollectionDate
 		};
 
 		const url = `/clientcare-debicheck-${this._version}/client-mandate-authenticate`;
@@ -208,8 +215,8 @@ export class SavingsAccountService extends ChannelServiceBase {
 
 	debiCheckAgreement (clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const request = {
-				title: clientInfo.title,
-				firstName: clientInfo.firstName,
+			title: clientInfo.title,
+			firstName: clientInfo.firstName,
 			surname: clientInfo.surname,
 			identificationNumber: clientInfo.identificationNumber,
 			savingsAccountNumber: clientInfo.savingsAccountNumber,

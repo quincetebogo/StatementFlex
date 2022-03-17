@@ -79,6 +79,9 @@ export class VerifyBySecurityQuestions extends Component {
 			incomingCallDetails: { type: Object },
 			securityQuestions: { type: Object },
 			finalAttempt: { type: Boolean },
+			cifNumber: { type: String },
+			title: { type: String },
+			lastName: { type: String },
 
 			renderMode: { state: true },
 			questionNumber: { state: true },
@@ -159,6 +162,11 @@ export class VerifyBySecurityQuestions extends Component {
 
 		this.alertBannerMessage = ``;
 		this.checked = false;
+
+		this.securityQuestions.title = this.title;
+		this.securityQuestions.lastName = this.lastName;
+		this.securityQuestions.cif = this.cifNumber;
+
 		const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, () => true);
 		const result = returnValue.result;
 		

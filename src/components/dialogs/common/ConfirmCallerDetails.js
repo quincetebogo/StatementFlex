@@ -304,13 +304,14 @@ export class ConfirmCallerDetails extends Component {
 	// PRIVATE METHODS
 	// ---------------
 	_initCallerInformation() {
-		// This is the callerInformation object that will be persisted to state.   
+		// This is the callerInformation object that will be persisted to state.
 		this.callerInformation = new CallerInformation(
 			this.confirmedCaller.cifNumber, // cif
 			this.confirmedCaller.birthdate, // birthdate
 			this.confirmedCaller.languagePreference, // languagePreference
 			this.confirmedCaller.livesIn, // livesIn
 			this.confirmedCaller.name, // name
+			this.confirmedCaller.title,
 			this.confirmedCaller.southAfricanIDNumber, // SA id
 			this.confirmedCaller.verifiedTelephoneNumber, // verified number
 			``, // nonclient firstname

@@ -87,8 +87,10 @@ export class StatementsDialog extends Component {
 	/**
 	 * @property {Array} clientProducts Contains list of products that the client has.
 	 * @property {Array} selectedOption Contains the product of which the client wants to send statement.
-	 * @property {string} cifNumber The client's CIF number
 	 * @property {string} type Contains the type of account
+	 * @property {string} cifNumber The client's CIF number
+	 * @property {string} title client's title (Mr/ Mrs)
+	 * @property {string} lastName client's last name
 	 * @readonly
 	 * @static
 	 * @memberof StatementsDialog
@@ -99,6 +101,8 @@ export class StatementsDialog extends Component {
 			selectedOption: { type: Array },
 			accountType: { type: String, attribute: `type` },
 			cifNumber: { type: String },
+			title: { type: String },
+			lastName: { type: String },
 
 			alertBannerMessage: { state: true },
 			currentStep: { state: true },
@@ -287,7 +291,9 @@ export class StatementsDialog extends Component {
 			"statementDateRange": {
 				"dateRange": {},
 				"presetInterval": `${this.periodSelected}`
-			}
+			},
+			"title": this.title,
+			"lastName": this.lastName
 		};
 
 		if (this._customDateRange) {

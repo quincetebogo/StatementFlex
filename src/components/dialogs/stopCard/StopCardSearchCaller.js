@@ -279,6 +279,7 @@ export class StopCardSearchCaller extends Component {
 			languagePreference: identifiedClient.callerInformation.languagePreference,
 			livesIn: identifiedClient.callerInformation.livesIn,
 			name: identifiedClient.callerInformation.name,
+			title: identifiedClient.callerInformation.title,
 			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber,
             verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber,
             firstName: identifiedClient.callerInformation.firstName,
