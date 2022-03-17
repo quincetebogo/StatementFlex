@@ -448,7 +448,6 @@ export class CreditAccount extends ViewBase {
 		{
 			const returnValue = await this.creditService.flexibleStatementList(accNum,`CreditCard`);
 			this.availableMonthlyStatementsList = returnValue.result.monthlyStatements;
-			//console.log(this.availableMonthlyStatementsList);
 		}
 		else if(productType==`Access Facility`)
 		{
