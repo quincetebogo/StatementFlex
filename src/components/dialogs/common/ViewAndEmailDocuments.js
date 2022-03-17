@@ -8,8 +8,6 @@ import 'app/components/common/HorizonPDFViewer';
 /**
  * Dialog for viewing and emailing documents. 
  * 
- * 
- * 
  * @export
  * @class ViewAndEmailDocuments
  * @extends Component
@@ -39,11 +37,28 @@ export class ViewAndEmailDocuments extends Component {
 	// PROPERTIES
 	// ----------
 
+	/**
+	 * Registry of all properties defined by the component.
+	 * 
+	 * @property {String} modalHeader - Text used in modal header
+	 * @property {Array} documents - Array of documents' details intended to be sent and or viewed
+	 * @property {Number} selectedDocumentToViewIndex - Index into documents array of the document selected to be viewed
+	 * @property {Boolean} viewDPF - Flag used to display PDF viewer
+	 * @property {String} email - Email added to email input field
+	 * @property {String} confirmedEmail - Email added to confirm email input field; must match email input field
+	 * @property {Boolean} isEmailInputAddressValid - Flag used to keep track of whether email input is a valid email address
+	 * @property {Boolean} hasSendBeenClicked - Flag used to keep track of whether send button was clicked and used to enabled error messages on email input
+	 * @property {String} encodedPDF - Encoded string representation of PDF to be view 
+	 * 
+	 * @callback loadDocumentContent 
+	 * @returns {encodedPDF} - Specified (by some form of ID) PDF to load
+	 * 
+	 */
 	static get properties() {
 		return {
 			modalHeader: { type: String, state: false },
 			documents: { type: Array, state: false },
-			selectedDocumentToViewIndex: { type: Object, state: false, attribute: false },
+			selectedDocumentToViewIndex: { type: Number, state: false, attribute: false },
 			viewPDF: { type: Boolean, state: false, attribute: false },
 			email: { type: String, state: false, attribute: false },
 			confirmedEmail: { type: String, state: false, attribute: false },
@@ -256,3 +271,23 @@ export class ViewAndEmailDocuments extends Component {
 }
 
 window.customElements.define(`horizon-view-and-send-document`, ViewAndEmailDocuments);
+
+/**
+ * When the send button is clicked.
+ * 
+ * @example <horizon-view-and-send-document... @send-pdf-click="${this._handler}"></horizon-view-and-send-document>
+ * 
+ * @event ViewAndEmailDocuments#send-pdf-click
+ * @type {Object}
+ * @property {Array} documents - List of documents to be sent
+ * @property {String} email - Email that the documents will be sent to
+ */
+
+/**
+ * When the send button is clicked.
+ * 
+ * @example <horizon-view-and-send-document... @cancel-send-pdf-click="${this._handler}"></horizon-view-and-send-document>
+ * 
+ * @event ViewAndEmailDocuments#cancel-send-pdf-click
+ * @type {Object} - N/A
+ */
