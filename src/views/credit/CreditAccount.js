@@ -131,6 +131,7 @@ export class CreditAccount extends ViewBase {
 		const statements = () => this._getStatements(creditType, productType, selectedAccountDetails.productTypeCode, selectedAccountDetails.accountNumber, selectedAccountDetails.openDate);
 		const settlementQuote = () => this._settlementQuote(creditType, productType, selectedAccountDetails);
 		const settleAndClose = () => this._settleAndClose(creditType, productType, selectedAccountDetails);
+		const settleLoan = () => this._settleLoan();
 		const paidUpLetter = () => this._paidUpLetter();
 		const budgetFacility = () => this._budgetFacility(selectedAccountDetails);
 		const payBudget = () => this._payBudgetAccount(selectedAccountDetails);
@@ -143,7 +144,8 @@ export class CreditAccount extends ViewBase {
 			'paid-up-letter': paidUpLetter,
 			'settle-close': settleAndClose,
 			'budget-facility': budgetFacility,
-			'pay-budget': payBudget
+			'pay-budget': payBudget,
+			'settle-loan': settleLoan
 		};
 
 		if (actions[option]) {
@@ -223,7 +225,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _payBudgetAccount(selectedAccountDetails) {
-	
+
 		const request = {
 			cifNumber: this.callerInformation.cifNumber,
 			status: `OPEN`
@@ -298,6 +300,15 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_onCancelSendSettleLoanPOP() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_onSendPayBudgetPOP(documents, email) {
+		// TODO: CS integration to send settle and close POP
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_onCancelSendPayBudgetPOP() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -534,15 +545,10 @@ export class CreditAccount extends ViewBase {
 			"credit-type": creditType,
 			"product-type": productType
 		});
-
-		// TODO: Remove after testing
-		this.renderMode = RENDER_MODE.VIEW_AND_SEND_SETTLE_AND_QUOTE_POP;
 	}
 
 	_settleLoan() {
 		// TODO: Place holder for credit settle loan flow.
-		// TODO: Remove after testing
-		this.renderMode = RENDER_MODE.VIEW_AND_SEND_SETTLE_LOAN_POP;
 
 		if (this.ccsStatus) {
 			this.showCCSmodal = true;
@@ -658,6 +664,11 @@ export class CreditAccount extends ViewBase {
 		return testPDF.content.data;
 	}
 
+	_loadPayBudgetPOPDocument(documentId) {
+		// TODO: CS Integration to retrieve Pay Budget POP Document
+		return testPDF.content.data;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -709,8 +720,10 @@ export class CreditAccount extends ViewBase {
 			${this._renderPayBudgetDialog()}
 			${this._renderSettlementQuoteDialog()}
 			${this._renderCcsModal()}
-			${this._renderSettleAndCloseEmailConfirmation()}
 			${this._renderSettleCloseModal()}
+			${this._renderSettleAndCloseEmailConfirmation()}
+			${this._renderSettleLoanEmailConfirmation()}
+			${this._renderPayBudgetEmailConfirmation()}
 		`;
 	}
 
@@ -874,10 +887,11 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderSettleAndCloseEmailConfirmation() {
+		// TODO: Remove mock once CS integration is complete
 		const mockDocuments = [
 			{
 				title: `Credit Card`,
-				subtitle: `Settle and Close POP`
+				subtitle: `Proof of transfer`
 			}
 		];
 
@@ -893,10 +907,11 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderSettleLoanEmailConfirmation() {
+		// TODO: Remove mock once CS integration is complete
 		const mockDocuments = [
 			{
 				title: `86 Month Term Loan`,
-				subtitle: `Settle Loan POP`
+				subtitle: `Proof of transfer`
 			}
 		];
 
@@ -907,6 +922,26 @@ export class CreditAccount extends ViewBase {
 				.loadDocumentContent="${this._loadSettleLoanPOPDocument}"
 				@send-pdf-click="${(e) => this._onSendSettleLoanPOP(e.documents, e.email)}"
 				@cancel-send-pdf-click="${() => this._onCancelSendSettleLoanPOP()}">
+			</horizon-view-and-send-document>
+		` : html``;
+	}
+
+	_renderPayBudgetEmailConfirmation() {
+		// TODO: Remove mock once CS integration is complete
+		const mockDocuments = [
+			{
+				title: `Budget Name`,
+				subtitle: `Proof of transfer`
+			}
+		];
+
+		return this.renderMode === RENDER_MODE.VIEW_AND_SEND_PAY_BUDGET_POP ? html`
+			<horizon-view-and-send-document
+				modalHeader="Pay Budget: Proof of Payment" 
+				.documents="${mockDocuments}"
+				.loadDocumentContent="${this._loadPayBudgetPOPDocument}"
+				@send-pdf-click="${(e) => this._onSendPayBudgetPOP(e.documents, e.email)}"
+				@cancel-send-pdf-click="${() => this._onCancelSendPayBudgetPOP()}">
 			</horizon-view-and-send-document>
 		` : html``;
 	}
