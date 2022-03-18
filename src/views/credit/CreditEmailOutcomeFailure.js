@@ -33,6 +33,18 @@ import 'app/components/common/RelatedOptions';
 	// PROPERTIES
 	// ----------
 
+	/**
+	 * @param {String} outcomeMessage outcome message to display
+	 * @param {String} header  page header to display
+	 */
+
+	 static get properties() {
+		return {
+			header: { type: String },
+			outcomeMessage: { type: String }
+		};
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------

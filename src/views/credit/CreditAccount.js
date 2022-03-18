@@ -294,7 +294,6 @@ export class CreditAccount extends ViewBase {
 	// ---------------
 
 	async _initialise() {
-
 		// TO DO: get ccs status from permission endpoint
 			// permissionResultList:[
 			// operationIdentifier: "ALL",

@@ -1,6 +1,8 @@
 import { Component, css, html } from 'platform/elements';
+import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { RENDER_MODE } from 'app/views/common/RenderModes';
 
 import 'app/components/common/HorizonPDFViewer';
 import 'app/components/common/OptionButton';
@@ -36,7 +38,7 @@ export class PaidUpAccounts extends Component {
 		this.isBusy = false;
 		this.isAccountsChecked = [];
 		this.selectedAccounts = [];
-		
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 	}
@@ -48,6 +50,7 @@ export class PaidUpAccounts extends Component {
 	/**
 	 *
 	 * @property {Object} landingPageInfo Data for the Favourites Landing Page display
+	 * @property {Array} accountsInfo Clients account info to display
 	 * @readonly
 	 * @static
 	 * @memberof FavouriteTransactions
@@ -55,6 +58,7 @@ export class PaidUpAccounts extends Component {
 	static get properties() {
 		return {
 			landingPageInfo: { type: Object },
+			accountsInfo: { type: Array },
 			isBusy: { attribute: false },
 			showPaidUpLetter: { type: Boolean, attribute: false }
 		};
@@ -66,39 +70,26 @@ export class PaidUpAccounts extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this._initialise();
 
+		this.initialize();
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
+	initialize() {
+
+		/*
+		for (let index = 0; index < this.accountsInfo.length; index++) {
+			this.isAccountsChecked[index] = false;
+		}
+		*/
+
 	}
 
-	async _initialise() {
-		
-
-		const request = {
-			cifNumber: this.callerInformation.cifNumber,
-			status: `OPEN`
-		};
-
-		const returnValue = await this.quickTransactionService.getClientProducts(request);
-		
-		if (returnValue.succeeded && returnValue.result.savingsProducts) {
-
-			this.accountsInfo = [`Term loan (32 Months)`, `Credit`, `Access Facility`];
-
-			this.cardTypes = [`All`, `Term Loan`, `Credit`, `Access Facility`];
-	
-			for (let index = 0; index < this.accountsInfo.length; index++) {
-				this.isAccountsChecked[index] = false;
-			}
-		}
-
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
 	}
 
 	_isAnySelected() {
@@ -132,6 +123,10 @@ export class PaidUpAccounts extends Component {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+
+	_errorHandler() {
+		this.horizonRouter.navigateToSystemError();
+	}
 
 	async _navigatePDF(currPage) {
         // add CS call to get encodedPDF 
@@ -278,8 +273,9 @@ export class PaidUpAccounts extends Component {
 
 	_webTemplate() {
 		return html`
+			${this._renderLoadingIndicator()}
 			${this._renderContent()}
-			${this._renderpaidUpLetter()}
+			${this._renderPaidUpLetter()}
 		`;
 	}
 
@@ -305,7 +301,7 @@ export class PaidUpAccounts extends Component {
 	/* ${this.accountsInfo.map((item, index) => this._renderAccounts(item, index))}*/
 	_renderPaidUpAccounts() {
 		const accInfo = this.accountsInfo;
-		return html`
+		return this.renderMode === RENDER_MODE.PAID_UP_ACCOUNTS ? html`
 			<capitec-action-bar>
 				<capitec-search-field label="Search loan , amount or account number" style="width: 320px;" value focussed></capitec-search-field>
 				<capitec-select 
@@ -321,7 +317,7 @@ export class PaidUpAccounts extends Component {
 					type="subtitle" 
 					label="Choose an account">
 				</capitec-label>
-				${this.accountsInfo.map((item, index) => this._renderAcountInfoTile(item, index))}
+				${this.accountsInfo.map((item, index) => this._renderAccountInfoTile(item, index))}
 			</capitec-content-box>
 
 			<capitec-button-bar>
@@ -336,10 +332,10 @@ export class PaidUpAccounts extends Component {
 				<capitec-spacer></capitec-spacer>
 				<capitec-button type="primary" class ="btnSend" label="Send Statement(s)" @click="${() => this._showPaidUpLetter()}"></capitec-button>
 			</capitec-button-bar>
-		`;
+		` : html``;
 	}
 
-	_renderAcountInfoTile (item, index) {
+	_renderAccountInfoTile (item, index) {
 		// item used to populate info below
 		return html`
 		<capitec-group class="accounts" layout="horizontal" gap="clear" valign="center">
@@ -351,8 +347,8 @@ export class PaidUpAccounts extends Component {
 						</capitec-check>
 					</capitec-group>
 						<horizon-label
-								label="${item}"
-								value="345634643">
+								label="${item.productTypeDescription}"
+								value="${item.accountNumber}">
 						</horizon-label>
 						<div class="vertical-line"></div>
 						<horizon-label
@@ -414,7 +410,7 @@ export class PaidUpAccounts extends Component {
 		this.errorMessage = ``;
 	}
 
-	_renderpaidUpLetter() {
+	_renderPaidUpLetter() {
 		return this.showPaidUpLetter 
 		? html`
 		<horizon-paid-up-letter-dialog
@@ -441,7 +437,6 @@ export class PaidUpAccounts extends Component {
 				</capitec-alert-banner>`;
 		}
 	}
-
 }
 
 customElements.define(`horizon-paid-up-accounts`, PaidUpAccounts);

@@ -1,7 +1,7 @@
-import { CREDIT_ACCOUNT_TYPE, PRODUCT_TYPE } from 'app/constants/Credit';
+import { CREDIT_ACCOUNT_TYPE, CREDIT_TYPE, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
 import { QuickTransactionEvents, STATEMENT_EVENTS } from 'app/constants/telemetry/events/QuickTransactions';
 import { css, html } from 'platform/elements';
-import { isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
+import { formatStringAsPascalCase, isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
@@ -67,6 +67,7 @@ export class Favourites extends SavingsAccountBase {
 		this.landingPageInfo = null;
 		this.curOptionEvent = null;
 		this.cards = [];
+		this.accountsInfo = [];
 		this.selectedFeedback = [];
 		this.feedbackOptions = [];
 		this.updateStrackClick = false;
@@ -581,14 +582,80 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-	_paidUpAccounts() {
+	async _paidUpAccounts() {
 		// TODO: CS call to get info
 		if (this.ccsStatus) {
 			this.showCCSmodal = true;
 			return;
 		}
 
-		this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
+		const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to retrieve client overview from credit service.`, `_initialise`, returnValue.correlationId);
+			this.renderMode = RENDER_MODE.SERVICE_UNAVAILABLE;
+			return;
+		}
+		
+		if (returnValue.succeeded && returnValue.result) {
+
+			// this.accountsInfo = [`Term loan (32 Months)`, `Credit`, `Access Facility`];
+			this.creditAccountDetails = returnValue.result;
+			this._formatCreditOverviewResponse();
+			this.accountsInfo = [...this.creditAccountDetails.creditCardSummaryList, ...this.creditAccountDetails.accessFacilitySummaryList, ...this.creditAccountDetails.loanAccountSummaryList];
+
+			this.cardTypes = [`All`, `Term Loan`, `Credit`, `Access Facility`];
+
+			this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
+		}
+		// this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
+	}
+
+	_formatCreditOverviewResponse() {
+		// TODO: Improve the formatting
+		this.creditAccountDetails.creditCardSummaryList.map(item => {
+			item.type = PRODUCTS.CREDIT_CARD;
+			item.category = CREDIT_TYPE.FLEXIBLE;
+			item.productTypeDescription = formatStringAsPascalCase(item.productTypeDescription);
+			item.currentBalance = formatCurrency(item.currentBalance);
+			item.availableCredit = formatCurrency(item.availableCredit);
+			item.creditLimit = formatCurrency(item.creditLimit);
+			item.nextRepayment = formatCurrency(item.nextRepayment);
+			item.accountStatusDescription = item.arrearIndicator ? `In arrears` : formatStringAsPascalCase(item.accountStatusDescription);
+
+			return item;
+		});
+
+		this.creditAccountDetails.accessFacilitySummaryList.map(item => {
+			item.type = PRODUCTS.ACCESS_FACILITY;
+			item.category = CREDIT_TYPE.FLEXIBLE;
+			item.productTypeDescription = formatStringAsPascalCase(item.productTypeDescription);
+			item.currentBalance = formatCurrency(item.currentBalance);
+			item.availableCredit = formatCurrency(item.availableCredit);
+			item.creditLimit = formatCurrency(item.creditLimit);
+			item.nextRepayment = formatCurrency(item.nextRepayment);
+			item.accountStatusDescription = item.arrearIndicator ? `In arrears` : formatStringAsPascalCase(item.accountStatusDescription);
+
+			return item;
+		});
+
+		this.creditAccountDetails.loanAccountSummaryList.map(item => {
+			item.type = PRODUCTS.TERM_LOAN;
+			item.category = CREDIT_TYPE.FIXED;
+			item.productTypeDescription = formatStringAsPascalCase(item.productTypeDescription);
+			item.currentBalance = formatCurrency(item.currentBalance);
+			item.availableCredit = formatCurrency(item.availableCredit);
+			item.creditLimit = formatCurrency(item.creditLimit);
+			item.repayAmount = formatCurrency(item.repayAmount);
+			item.accountStatusDescription = item.arrearIndicator ? `In arrears` : formatStringAsPascalCase(item.accountStatusDescription);
+
+			return item;
+		});
+
+		this.budgetAccountsSummary = {
+			"totalBudgetBalance": formatCurrency(this.creditAccountDetails.budgetAccountsSummary.totalBudgetBalance),
+			"totalBudgetInstallmentAmount": formatCurrency(this.creditAccountDetails.budgetAccountsSummary.totalBudgetInstallmentAmount)
+		};
 	}
 
 	_unavailableOption() {
@@ -1045,6 +1112,7 @@ export class Favourites extends SavingsAccountBase {
 		? html`
 		<horizon-paid-up-accounts
 			.landingPageInfo="${this.landingPageInfo}"
+			.accountsInfo="${this.accountsInfo}"
 			@back="${() => this._backToLandingPage()}">
 		</horizon-paid-up-accounts>`
 		: html``;
