@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+
 import 'app/components/common/CardArt';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
 
@@ -16,6 +17,7 @@ export class TapToPayLanding extends Component {
 	constructor() {
 		super();
 
+		this.hasCardsAvailable = false;
 		this.showTapToPayAgreement = false;
 		this.agreementResult = {};
 	}
@@ -46,7 +48,9 @@ export class TapToPayLanding extends Component {
 
 	/**
 	 * @property {Object} cards Object contains the list of client's cards
-	 * @property {String} cifNumber The client's account/cifNumber
+	 * @property {string} cifNumber The client's CIF number
+	 * @property {string} title client's title (Mr/ Mrs)
+	 * @property {string} lastName client's last name
 	 * @property {String} voiceRecordingReference The Avaya/Presence Voice Recording ID
 	 * @property {getAgreementsCallback} getAgreements Callback function to load agreements for displaying
 	 * @property {updateAgreementCallback} updateAgreement Callback function to update agreement
@@ -56,7 +60,10 @@ export class TapToPayLanding extends Component {
 			// Input properties
 			cards: { type: Object },
 			cifNumber: { type: String },
+			title: { type: String },
+			lastName: { type: String },
 			voiceRecordingReference: { type: String },
+			hasCardsAvailable: { type: Boolean },
 
 			getAgreements: { type: Object, attribute: false },
 			updateAgreement: { type: Object, attribute: false },
@@ -86,6 +93,9 @@ export class TapToPayLanding extends Component {
 	// ---------------
 
 	_initialise() {
+
+		this.hasCardsAvailable = this.cards.length > 0;
+
 		this.cards.forEach(card => {
 			if (card.isSupplementaryCard) {
 				card.cardDisplayName = `Supplementary ${CARD_TYPE_MAPPING[card.cardType].toLowerCase()}`;
@@ -132,7 +142,8 @@ export class TapToPayLanding extends Component {
 				cardId: this.selectedCard.cardId,
 				cardExpiryYear: this.selectedCard.cardExpiryYear,
 				cardExpiryMonth: this.selectedCard.cardExpiryMonth,
-				cardSequenceNumber: this.selectedCard.cardSequenceNumber
+				cardSequenceNumber: this.selectedCard.cardSequenceNumber,
+				cardDisplayName: this.selectedCard.cardDisplayName
 			}
 		};
 
@@ -160,7 +171,8 @@ export class TapToPayLanding extends Component {
 					cardId: this.selectedCard.cardId,
 					cardExpiryMonth: this.selectedCard.cardExpiryMonth,
 					cardExpiryYear: this.selectedCard.cardExpiryYear,
-					cardSequenceNumber: this.selectedCard.cardSequenceNumber
+					cardSequenceNumber: this.selectedCard.cardSequenceNumber,
+					cardDisplayName: this.selectedCard.cardDisplayName
 				},
 				tapToPayStatus: tapToPayStatus,
 				customerId: this.cifNumber,
@@ -176,7 +188,9 @@ export class TapToPayLanding extends Component {
 					scriptContentData: this.agreementResult.cardAgreement.scriptContent.scriptContentData,
 					documentId: this.agreementResult.cardAgreement.scriptContent.documentId,
 					scriptContentType: `HTML`
-				}
+				},
+				title: this.title,
+				lastName: this.lastName
 			}
 		};
 
@@ -199,101 +213,120 @@ export class TapToPayLanding extends Component {
 		return [
 			super.styles,
 			css`
-			capitec-card {
-				height: var(--horizon-panel-height, 888px);
-				width: var(--horizon-center-panel-width, 1064px);
-				--theme-card-border-radius: 5px;
-				--theme-card-box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
-			}
+				capitec-card {
+					height: var(--horizon-panel-height, 888px);
+					width: var(--horizon-center-panel-width, 1064px);
+					--theme-card-border-radius: 5px;
+					--theme-card-box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
+				}
 
-			.content-body {
-				width: 1064px;
-				height: 100%;
-			}
+				.content-body {
+					width: 1064px;
+					height: 100%;
+				}
 
-			.alert-banner {
-				--theme-alert-banner-height: 48px;
-				width: 1032px;
-				--theme-alert-banner-font-weight: 600;
-				--theme-alert-banner-info-background-color: #DAF2F4;
-				--theme-layout-gap-spacing: 18px;
+				.alert-banner {
+					--theme-alert-banner-height: 48px;
+					width: 1032px;
+					--theme-alert-banner-font-weight: 600;
+					--theme-alert-banner-info-background-color: #DAF2F4;
+					--theme-layout-gap-spacing: 18px;
 
-			}
+				}
 
-			capitec-alert-banner > label {
-				height: 20px;
-				width: 81px;
-				color: #08A6B5;
-				font-family: "Hind Vadodara";
-				--theme-alert-banner-font-size: 14px;
-				--theme-alert-banner-font-weight: 600;
-				letter-spacing: 0;
-				line-height: 20px;
-			  
-			}
-
-			.title-label{
-				margin: 0px 0px 8px 8px;
-				height: 32px;
-				--theme-layout-gap-spacing: 8px;
-				--theme-label-title-font-size: 24px;
-				--theme-label-title-font-family: "Hind Vadodara";
-				--theme-label-height: 32px;
-				--theme-label-width: 200px;
-				--theme-label-font-color: #3E4547;
-				--theme-label-title-font-weight: 600;
-				--theme-label-letter-spacing: 0;
-				--theme-label-line-height: 32px;
+				capitec-alert-banner > label {
+					height: 20px;
+					width: 81px;
+					color: #08A6B5;
+					font-family: "Hind Vadodara";
+					--theme-alert-banner-font-size: 14px;
+					--theme-alert-banner-font-weight: 600;
+					letter-spacing: 0;
+					line-height: 20px;
 				
-			}
+				}
 
-			.alert-banner-paragraph{
-				display: inline-block;
-				font-weight: 500;
-			}
+				.title-label{
+					margin: 0px 0px 8px 8px;
+					height: 32px;
+					--theme-layout-gap-spacing: 8px;
+					--theme-label-title-font-size: 24px;
+					--theme-label-title-font-family: "Hind Vadodara";
+					--theme-label-height: 32px;
+					--theme-label-width: 200px;
+					--theme-label-font-color: #3E4547;
+					--theme-label-title-font-weight: 600;
+					--theme-label-letter-spacing: 0;
+					--theme-label-line-height: 32px;
+					
+				}
 
-			.primary-card-label{
-				height: fit-content;
-				width: 300px;
-				--theme-label-title-font-size: 18px;
-				--theme-label-font-color: #3E4547;
-				--theme-label-title-font-family: "Hind Vadodara";
-				--theme-label-title-font-weight: 600;
-				--theme-label-letter-spacing: 40;
-				--theme-label-line-height: 24px;
-				--theme-layout-gap-spacing: 18px;
-				padding-left: 8px;
-			}
+				.alert-banner-paragraph{
+					display: inline-block;
+					font-weight: 500;
+				}
 
-			.supplementary-card-label{
-				height: fit-content;
-				font-size: 18px;
-				width: 300px;
-				--theme-label-font-color: #3E4547;
-				--theme-label-title-font-family: "Hind Vadodara";
-				--theme-label-title-font-weight: 600;
-				--theme-label-letter-spacing: 0;
-				--theme-label-line-height: 24px;
-				--theme-layout-gap-spacing: 18px;
-				padding-left: 8px;
-			}
+				.primary-card-label{
+					height: fit-content;
+					width: 300px;
+					--theme-label-title-font-size: 18px;
+					--theme-label-font-color: #3E4547;
+					--theme-label-title-font-family: "Hind Vadodara";
+					--theme-label-title-font-weight: 600;
+					--theme-label-letter-spacing: 40;
+					--theme-label-line-height: 24px;
+					--theme-layout-gap-spacing: 18px;
+					padding-left: 8px;
+				}
 
-			capitec-title-bar {
-				display: -webkit-inline-box;
-			}
+				.supplementary-card-label{
+					height: fit-content;
+					font-size: 18px;
+					width: 300px;
+					--theme-label-font-color: #3E4547;
+					--theme-label-title-font-family: "Hind Vadodara";
+					--theme-label-title-font-weight: 600;
+					--theme-label-letter-spacing: 0;
+					--theme-label-line-height: 24px;
+					--theme-layout-gap-spacing: 18px;
+					padding-left: 8px;
+				}
 
-			horizon-card-art {
-				margin-bottom: 24px;
-				--horizon-card-art-box-shadow:none!important;
-			}
+				capitec-title-bar {
+					display: -webkit-inline-box;
+				}
 
-			horizon-card-art:nth-child(n+3) {
-				--theme-layout-gap-spacing: 0px;
-			}
+				horizon-card-art {
+					margin-bottom: 24px;
+					--horizon-card-art-box-shadow:none!important;
+				}
 
-			.primary-cards {
-				--theme-layout-gap-spacing: 24px;
-			}
+				horizon-card-art:nth-child(n+3) {
+					--theme-layout-gap-spacing: 0px;
+				}
+
+				.primary-cards {
+					--theme-layout-gap-spacing: 24px;
+				}
+
+				capitec-image {
+					margin: 109px 406px 0px 406px;
+					width: 252px;
+					height: 182px;
+				}
+
+				capitec-icon {
+					cursor: pointer;
+				}
+
+				capitec-content-box > capitec-label[type="title"] {
+					margin: 15px 0px 16px;
+					text-align: center;
+
+					--theme-label-font-color: #3A3A3A;
+					--theme-label-title-font-size: 24px;
+					--theme-label-title-font-weight: 600;
+				}
 			`
 		];
 	}
@@ -323,15 +356,16 @@ export class TapToPayLanding extends Component {
 				</capitec-title-bar>
 
 				<capitec-content-box class="content-body">
-					${this._renderTapToPayBody()}
+					${this._renderTapToPayContent()}
 				</capitec-content-box>
 
 			</capitec-card>
 		`;
 	}
 
-	_renderTapToPayBody() {
-		return html`
+	_renderTapToPayContent() {
+		return this.hasCardsAvailable
+		? html`
 			<capitec-alert-banner
 				class="alert-banner"
 				type="info"
@@ -342,7 +376,10 @@ export class TapToPayLanding extends Component {
 			</capitec-alert-banner>
 
 			${this._renderPrimaryCards()}
-			${this._renderSupplementaryCards()}
+			${this._renderSupplementaryCards()}`
+		: html`
+			<capitec-image src="platform/illustrations/cards.svg"></capitec-image>
+			<capitec-label type="title" label="Client has no cards to fulfill this transaction"></capitec-label>
 		`;
 	}
 

@@ -85,6 +85,7 @@ export class StopCard extends Component {
 		this.selectedCardCount = 0;
 		this.cardsToStop = [];
 		this.isBusy = false;
+		this.hasCardsAvailable = false;
 		
 		// Recover state information
 		this.callerInformation = this.horizonStore.getCallerInformation();
@@ -109,6 +110,7 @@ export class StopCard extends Component {
 		return {
 			cards: { type: Array },
 			incomingCallDetails: { type: Object },
+			hasCardsAvailable: { type: Boolean },
 
 			selectedCardCount: { type: Number, attribute: false },
 			renderMode: { type: Number, attribute: false },
@@ -129,6 +131,9 @@ export class StopCard extends Component {
 		* Add rowIndex, selected, stopReason fields to cards array. 
 		* Logic to show/hide stop card reasons is based on rowIndex
 		*/
+
+		this.hasCardsAvailable = this.cards.length > 0;
+
 		this.addFieldsToCardsArray();
 
 		this._updateLeftBar();
@@ -387,6 +392,15 @@ export class StopCard extends Component {
 				img {
 					cursor: pointer;
 				}
+				capitec-image {
+					margin: 109px 406px 0px 406px;
+					width: 252px;
+					height: 182px;
+				}
+				.client-has-no-card {
+					margin: 15px 0px 16px;
+					--theme-label-font-color: #3A3A3A;
+				}
 			`
 		];
 	}
@@ -400,10 +414,8 @@ export class StopCard extends Component {
 				<capitec-group layout="grid" gap="none" row="auto" columns="uniform" style="width:100%;">
 			
 					${this._renderTitleBar()}
-					${this._renderNotifyClient()}
-					${this._renderCardDetails()}
-					${this._renderFooter()}
-			
+					${this._renderStopCardContent()}
+
 				</capitec-group>
 			</capitec-card>
 			${this._renderStopCardModal()}
@@ -426,6 +438,18 @@ export class StopCard extends Component {
 							type="title">
 						</capitec-label>
 			</capitec-title-bar>`;
+	}
+
+	_renderStopCardContent() {
+		return this.hasCardsAvailable
+		? html`
+			${this._renderNotifyClient()}
+			${this._renderCardDetails()}
+			${this._renderFooter()}`
+		: html`
+			<capitec-image src="platform/illustrations/cards.svg"></capitec-image>
+			<capitec-label type="title" class="client-has-no-card" label="Client has no cards to fulfill this transaction"></capitec-label>
+		`;
 	}
 
 	_renderNotifyClient() {
@@ -555,6 +579,9 @@ export class StopCard extends Component {
 		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
 			return html`
 				<horizon-stop-card-confirm
+					.cifNumber="${this.callerInformation.cifNumber}"
+					.title="${this.callerInformation.title}"
+					.lastName="${this.callerInformation.lastName}"
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.cardsToStop="${this.cardsToStop}"

@@ -9,7 +9,7 @@
  * CallerInformation records the details of the incoming caller/client. This object
  * is preserved in state for the duration of a call.
  */
-export class CallerInformation {
+ export class CallerInformation {
 
 	/**
 	 * Creates an instance of CallerInformation.
@@ -19,6 +19,7 @@ export class CallerInformation {
 	 * @param {string} languagePreference The client's language preference
 	 * @param {string} livesIn An indication of where the client lives
 	 * @param {string} name The client's full name
+	 * @param {string} title Client's title
 	 * @param {string} southAfricanIDNumber The client's South African ID number
 	 * @param {string} verifiedTelephoneNumber The client's verified number (not necessarily the incoming number)
 	 * @param {string} nonClientFirstName A third-party/non-client's first name
@@ -51,6 +52,7 @@ export class CallerInformation {
 		languagePreference,
 		livesIn,
 		name,
+		title,
 		southAfricanIDNumber,
 		verifiedTelephoneNumber,
 		nonClientFirstName,
@@ -82,6 +84,7 @@ export class CallerInformation {
 		this.languagePreference = languagePreference;
 		this.livesIn = livesIn;
 		this.name = name;
+		this.title = title;
 		this.southAfricanIDNumber = southAfricanIDNumber;
 		this.verifiedTelephoneNumber = verifiedTelephoneNumber;
 		this.nonClientFirstName = nonClientFirstName;
