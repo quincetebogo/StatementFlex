@@ -451,7 +451,7 @@ export class Statements extends Component {
 			}
 		}
 		this._updateScreenDetails(request);
-		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `statements`);
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `credit-statements`);
 		if (flag) {
 			this.horizonRouter.navigateToCreditStatementSuccess();
 		} else {
