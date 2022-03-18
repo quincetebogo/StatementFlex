@@ -29,7 +29,6 @@ export class ExistingClient extends View {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.callerInformation = this.horizonStore.getCallerInformation();
-
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -39,7 +38,7 @@ export class ExistingClient extends View {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this._initialise();
+		this._initialize();
 	}
 
 	//#endregion
@@ -60,7 +59,10 @@ export class ExistingClient extends View {
 
 	//#region PRIVATE METHODS
 
-	async _initialise() {
+	/**
+	 * Initialize View / Invoke services
+	 */
+	async _initialize() {
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		if (this.verificationStatus === `verified`) {
 			const clientDetails = {
@@ -91,25 +93,51 @@ export class ExistingClient extends View {
 		];
 	}
 
+	/**
+	 * Generates the component template for kiosk mode.
+	 *
+	 * @returns {html} The html content of the component.
+	 */
+	_kioskTemplate() {
+		return this._webTemplate();
+	}
+
+	/**
+	 * Generates the component template for mobile mode.
+	 *
+	 * @returns {html} The html content of the component.
+	 */
 	_mobileTemplate() {
 		return this._webTemplate();
 	}
 
+	/**
+	 * Generates the component template for web mode.
+	 *
+	 * @returns {html} The html content of the component.
+	 */
 	_webTemplate() {
 		return html`
 			${this._renderLandingPage()}
 		`;
 	}
 
+	/**
+	 * Main render switch for Insure views
+	 *
+	 * @returns {html} Component html based on current render mode.
+	 */
 	_renderLandingPage() {
 		switch (this.renderMode) {
 			case RENDER_MODE.MAIN_PAGE:
-				return html`<insure-policy-list @calculateEstimate="${(e) => this._enterCalculateEstimate(e)}"
+				return html`
+				<insure-policy-list @calculateEstimate="${(e) => this._enterCalculateEstimate(e)}"
 					@viewClaims="${(e) => this._enterClaims(e)}" @updatePlan="${(e) => this._enterUpdatePlan(e)}"
 					@viewPlan="${(e) => this._enterFuneralPlanDetails(e)}">
 				</insure-policy-list>`
 			case RENDER_MODE.INSURE_GET_ESTIMATE:
-				return html`<insure-calculate-estimate @back="${(e) => this._exitCalculateEstimate(e)}"></insure-calculate-estimate>`;
+				return html`
+				<insure-calculate-estimate @back="${(e) => this._exitCalculateEstimate(e)}"></insure-calculate-estimate>`;
 			// 			case RENDER_MODE.FUNERAL_PLAN_DETAILS:
 			// 				return html`<insure-funeral-plan-details @back="${(e) => this._exitFuneralPlanDetails(e)}"></insure-funeral-plan-details>`;
 			// 			case RENDER_MODE.CLAIMS:
