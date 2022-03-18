@@ -223,6 +223,8 @@ export class ViewAndEmailDocuments extends Component {
 					<horizon-email-input
 						labelOne="Email"
 						labelTwo="Confirm Email"
+						email="${this.email}"
+						confirmEmail="${this.confirmedEmail}"
 						?showRequiredError="${this.hasSendBeenClicked}"
 						@value-changed="${(e) => this._onEmailValueChanged(e)}"
 						.callBack="${() => this._clearAlerts()}">

@@ -895,7 +895,7 @@ export class CreditAccount extends ViewBase {
 			}
 		];
 
-		return this.renderMode === RENDER_MODE.VIEW_AND_SEND_SETTLE_AND_QUOTE_POP ? html`
+		return this.renderMode === RENDER_MODE.VIEW_AND_SEND_SETTLE_AND_CLOSE_POP ? html`
 			<horizon-view-and-send-document
 				modalHeader="Settle and Close: Proof of Payment" 
 				.documents="${mockDocuments}"
