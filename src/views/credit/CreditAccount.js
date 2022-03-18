@@ -483,6 +483,10 @@ export class CreditAccount extends ViewBase {
 
 	_settleAndClose(creditType, productType, selectedAccountDetails) {
 		// TO DO: Place holder for credit settle and close flow.
+		if (this.ccsStatus) {
+			this.showCCSmodal = true;
+			return;
+		}
 
 		this._telemetry.logEvent(CreditEvents.CREDIT_SETTLE_CLOSE_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
@@ -491,14 +495,10 @@ export class CreditAccount extends ViewBase {
 			"product-type": productType
 		});
 
-		if (this.ccsStatus) {
-			this.showCCSmodal = true;
-			return;
-		}
-		
-		// TO DO: This function has to be called after continue click on Disclaimer dialog
-		// This is now added here only to pass "selectedAccountDetails".
-		this._settleAndCloseChooseAccount(selectedAccountDetails);
+		this.settleAndCloseDetails = selectedAccountDetails;
+		this.productType = this.settleAndCloseDetails.productTypeDescription;
+		this.creditType = creditType;
+		this.showSettleCloseModal = !this.showSettleCloseModal;
 	}
 
 	async _budgetFacility(selectedAccountDetails) {
@@ -595,25 +595,28 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW;
 	}
 	
-	async _settleAndCloseChooseAccount(selectedAccountDetails) {
+	async _settleAndCloseChooseAccount() {
 		// TO DO: Place holder for credit settle and close flow.
-		// This function has to be called after continue click on Disclaimer dialog
 		// "this.settleAndCloseDetails" has to be formed correctly after CS implementaion.
 
 		this.clientProducts = await this._getClientProducts();
-		const balanceField = selectedAccountDetails.category === CREDIT_TYPE.FLEXIBLE ? `Available balance` : `Credit limit`;
-		const balanceFieldValue = selectedAccountDetails.category === CREDIT_TYPE.FLEXIBLE ? selectedAccountDetails.availableCredit : selectedAccountDetails.creditLimit;
+		
+		this.showSettleCloseModal = !this.showSettleCloseModal;
+
+		const balanceField = this.settleAndCloseDetails.category === CREDIT_TYPE.FLEXIBLE ? `Available balance` : `Credit limit`;
+		const balanceFieldValue = this.settleAndCloseDetails.category === CREDIT_TYPE.FLEXIBLE ? this.settleAndCloseDetails.availableCredit : this.settleAndCloseDetails.creditLimit;
 
 		this.settleAndCloseDetails = {
-			header: selectedAccountDetails.category === CREDIT_TYPE.FLEXIBLE ? `Settle And Close` : `Settle Loan`,
-			[selectedAccountDetails.productTypeDescription]: selectedAccountDetails.accountNumber,
+			header: this.settleAndCloseDetails.category === CREDIT_TYPE.FLEXIBLE ? `Settle And Close` : `Settle Loan`,
+			[this.settleAndCloseDetails.productTypeDescription]: this.settleAndCloseDetails.accountNumber,
 			[balanceField]: balanceFieldValue,
-			'Outstanding balance': selectedAccountDetails.currentBalance,
+			'Outstanding balance': this.settleAndCloseDetails.currentBalance,
 			'Interest not capitalised': `R150.00`,
 			'Expected interest and fees': `R40.00`,
 			'Settlement amount': `R491.09`
 		};
 		this.renderMode = RENDER_MODE.SETTLE_AND_CLOSE;
+	
 	}
 
 	async _getClientProducts() {
@@ -699,6 +702,7 @@ export class CreditAccount extends ViewBase {
 			${this._renderPayBudgetDialog()}
 			${this._renderSettlementQuoteDialog()}
 			${this._renderCcsModal()}
+			${this._renderSettleCloseDisclaimer()}
 			${this._renderSettleAndCloseDialog()}
 		`;
 	}
@@ -849,6 +853,18 @@ export class CreditAccount extends ViewBase {
 			<horizon-ccs-status-dialog
 				@on-okay="${() => this.showCCSmodal = !this.showCCSmodal}">
 			</horizon-ccs-status-dialog>`
+		: html``;
+	}
+
+	_renderSettleCloseDisclaimer() {
+		return this.showSettleCloseModal
+		? html`
+			<horizon-settle-n-close-disclaimer
+				.productType="${this.productType}"
+				.creditType="${this.creditType}"
+				@cancel="${() => this.showSettleCloseModal = !this.showSettleCloseModal}"
+				@continue="${() => this._settleAndCloseChooseAccount()}">
+			</horizon-settle-n-close-disclaimer>`
 		: html``;
 	}
 

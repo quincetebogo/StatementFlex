@@ -215,6 +215,7 @@ export class SettleAndCloseDialog extends Component {
 	_webTemplate() {
 		return html`
 			<capitec-modal
+				data-automation-id="settle-and-close-choose-account-modal"
 				type="form"
 				header-align="left"
 				header="${this.settleAndCloseDetails.header}">
@@ -238,14 +239,19 @@ export class SettleAndCloseDialog extends Component {
 	_renderAlertBanner() {
 		return this.hasEnoughFunds
 		? html`
-			<capitec-alert-banner type="warning">
-				<capitec-label class="alert-header" label="Notify client:"></capitec-label>
-				<capitec-label class="alert-message" label="The settlement amount on your account is only valid if you conclude this settlement transaction now."></capitec-label>
+			<capitec-alert-banner 
+				type="warning" 
+				data-automation-id="settle-and-close-notification-banner">
+					<capitec-label class="alert-header" label="Notify client:"></capitec-label>
+					<capitec-label class="alert-message" label="The settlement amount on your account is only valid if you conclude this settlement transaction now."></capitec-label>
 			</capitec-alert-banner>`
 		: html`
-			<capitec-alert-banner class="error-banner" type="unsuccessful-red">
-				<capitec-label class="alert-header" label="Notify client:"></capitec-label>
-				<capitec-label class="alert-message" label="You do not have enough funds in your account to do the transfer."></capitec-label>
+			<capitec-alert-banner 
+				data-automation-id="settle-and-close-error-banner"
+				class="error-banner" 
+				type="unsuccessful-red">
+					<capitec-label class="alert-header" label="Notify client:"></capitec-label>
+					<capitec-label class="alert-message" label="You do not have enough funds in your account to do the transfer."></capitec-label>
 			</capitec-alert-banner>
 		`;
 	}
@@ -271,7 +277,7 @@ export class SettleAndCloseDialog extends Component {
 			</capitec-label>
 			
 			<horizon-select-icon
-				data-automation-id=""
+				data-automation-id="settle-and-close-select-account"
 				label="Choose account"
 				display-field="availableBalance"
 				id-field="accountNumber"
@@ -338,14 +344,14 @@ export class SettleAndCloseDialog extends Component {
 				valign="center"
 				halign="right">
 				<capitec-button 
-					data-automation-id="pay-budget-cancel-button"
+					data-automation-id="settle-and-close-cancel-button"
 					id="id-cancel-button"
 					label="Cancel" 
 					@click="${() => this._onCancelClick()}">
 				</capitec-button>
 
 				<capitec-button 
-					data-automation-id="pay-budget-transfer-button"
+					data-automation-id="settle-and-close-confirm-transfer"
 					id="id-transfer-button" 
 					type="primary" 
 					?disabled="${!this.hasEnoughFunds}"
