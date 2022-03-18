@@ -20,6 +20,7 @@ import 'app/components/credit/TermLoanDetails';
 import 'app/components/dialogs/common/CCSstatus';
 import 'app/dialogs/credit/SettlementQuote';
 import 'app/dialogs/statements/Statements';
+import 'app/dialogs/credit/SettleAndCloseDisclaimer';
 import 'app/productControls/credit/src/BudgetAccounts';
 import 'app/productControls/credit/src/BudgetAccountDetails';
 import 'app/productControls/credit/src/CreditAccountLanding';
@@ -36,7 +37,7 @@ import 'app/dialogs/credit/SettleAndCloseDialog';
  * @extends {CreditAccount}
  */
 export class CreditAccount extends ViewBase {
-	
+
 	// --------------
 	// INITIALISATION
 	// --------------
@@ -58,9 +59,12 @@ export class CreditAccount extends ViewBase {
 		this.flexibleCreditAccounts = [];
 		this.fixedTermCreditAccounts = []; 
 		this.creditBalance = ``;
-		// ccs status of client set to true until real value retrieved from CS
-		this.ccsStatus = false;
+		this.productType = ``;
+		this.creditType = ``;
+		//ccs status of client set to true until real value retrieved from CS
+		this.ccsStatus = true;
 		this.showCCSmodal = false;
+		this.showSettleCloseModal = false;
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 
@@ -97,10 +101,11 @@ export class CreditAccount extends ViewBase {
 			flexibleCreditAccounts: { type: Array, state: true, attribute: false },
 			fixedTermCreditAccounts: { type: Array, state: true, attribute: false },
 			creditBalance: { state: true, attribute: false },
-			showCCSmodal: { type: Boolean }
+			showCCSmodal: { type: Boolean },
+			showSettleCloseModal: { type: Boolean }
 		};
 	}
-	
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -384,7 +389,7 @@ export class CreditAccount extends ViewBase {
 			item.currentBalance = formatCurrency(item.currentBalance);
 			item.availableCredit = formatCurrency(item.availableCredit);
 			item.creditLimit = formatCurrency(item.creditLimit);
-			item.nextRepayment = formatCurrency(item.nextRepayment);
+			item.repayAmount = formatCurrency(item.repayAmount);
 			item.accountStatusDescription = item.arrearIndicator ? `In arrears` : formatStringAsPascalCase(item.accountStatusDescription);
 
 			return item;
@@ -510,13 +515,18 @@ export class CreditAccount extends ViewBase {
 
 	_settleAndClose(creditType, productType, selectedAccountDetails) {
 		// TO DO: Place holder for credit settle and close flow.
-		
+
 		this._telemetry.logEvent(CreditEvents.CREDIT_SETTLE_CLOSE_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
 			"next-screen": TelemetryScreen.CREDIT_SETTLE_CLOSE,
 			"credit-type": creditType,
 			"product-type": productType
 		});
+
+		if(this.ccsStatus) {
+			this.showCCSmodal = true;
+			return;
+		}
 		
 		// TO DO: This function has to be called after continue click on Disclaimer dialog
 		// This is now added here only to pass "selectedAccountDetails".
@@ -773,7 +783,7 @@ export class CreditAccount extends ViewBase {
 			</capitec-pc-budget-account-details>`
 		: html``;
 	}
-	
+
 	_renderPayBudgetDialog() {
 		return this.renderMode === RENDER_MODE.PAY_BUDGET_DIALOG
 			? html`
@@ -783,8 +793,7 @@ export class CreditAccount extends ViewBase {
 					
 					@cancel="${() => this._backFromPayBudgetDialog()}"
 					@transfer="${() => this._transferPayBudget()}">
-				</capitec-pc-pay-budget-dialog>
-			`
+				</capitec-pc-pay-budget-dialog>`
 			: html``;
 	}
 
@@ -795,8 +804,7 @@ export class CreditAccount extends ViewBase {
 				<horizon-credit-card-details-view
 					.creditCardDetails="${this.creditCardDetails}"
 					@back="${() => this._backFromAccountDetails()}">
-				</horizon-credit-card-details-view>
-			`
+				</horizon-credit-card-details-view>`
 			: html``;
 	}
 
@@ -839,9 +847,9 @@ export class CreditAccount extends ViewBase {
 	_renderCcsModal() {
 		return this.showCCSmodal
 		? html`
-		<horizon-ccs-status-dialog
-			@on-okay="${() => this.showCCSmodal = !this.showCCSmodal}">
-		</horizon-ccs-status-dialog>`
+			<horizon-ccs-status-dialog
+				@on-okay="${() => this.showCCSmodal = !this.showCCSmodal}">
+			</horizon-ccs-status-dialog>`
 		: html``;
 	}
 

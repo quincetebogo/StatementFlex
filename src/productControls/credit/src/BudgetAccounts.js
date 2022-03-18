@@ -3,6 +3,7 @@ import { Utilities } from '@cb/platform-web-core';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 
+import 'app/components/common/NoResultsSearchScreen';
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 
@@ -101,6 +102,16 @@ import 'app/components/common/HorizonLabel';
 		}));
 	}
 
+	_displayTooltip(e) {
+		const tooltip = this.shadowRoot.getElementById(`long-budget-name-tooltip`);
+		const clientName = this.shadowRoot.getElementById(`short-budget-name-label-value`);
+
+		if (e.target.scrollWidth > e.target.offsetWidth) {
+			tooltip.style.display = `flex`;
+			clientName.style.display = `none`;
+		}
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -185,11 +196,25 @@ import 'app/components/common/HorizonLabel';
 					--horizon-label-value-line-height: 20px;
 					--horizon-label-value-color:#3A3A3A;
 				}
-				horizon-label[label="Budget name"] {
+				#budget-name-label {
 					width: 284px;
-					height: fit-content;
 					--theme-label-cursor: pointer;
-					--horizon-label-value-height: fit-content;
+					--theme-label-font-color: #3A3A3A;
+					padding: 12px 0px 12px 16px;
+					justify-content: left;
+					height: 100%;
+				}
+				.budget-name-label-value {
+					width: 284px;
+					display: inline-block;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					font-weight: 600;
+					height: 20px;
+					font-size: 16px;
+					line-height: 20px;
+					--theme-label-font-color: #3A3A3A;
 				}
 				.term-header {
 					--theme-titlebar-min-height: 32px;
@@ -228,6 +253,15 @@ import 'app/components/common/HorizonLabel';
 					width: 1px;
 					margin-left: 16px;
 					background-color: #E1E1E1;
+				}
+				capitec-tooltip {
+					display: none;
+					height: 27px;
+					--theme-tooltip-font-family: 'Hind Vadodara';
+					--theme-tooltip-font-size: 14px;
+					--theme-tooltip-line-height: 20px;
+					--theme-tooltip-border-radius: 2px;
+					--theme-layout-gap-spacing: 0px;
 				}
 			`
 		];
@@ -321,8 +355,32 @@ import 'app/components/common/HorizonLabel';
 						</capitec-title-bar>
 						${accountsList.map(budgetAccount => this._renderBudgetAccountTile(budgetAccount))}
 					</capitec-group>`
-				: html``;
+				: html`
+					<horizon-no-results-search-screen></horizon-no-results-search-screen>
+				`;
 		});
+	}
+
+	_renderBudgetNameLabel(budgetAccount) {
+		return html`
+			<capitec-group id="budget-name-label"
+				data-automation-id="budget-facility-account-name" 
+				layout="vertical"
+				@click="${() => this._accountDetails(budgetAccount)}">
+					<capitec-label
+						label="Budget Name">
+					</capitec-label>
+					<capitec-label id="short-budget-name-label-value" class="budget-name-label-value"
+						label="${formatStringAsPascalCase(budgetAccount.budgetName)}"
+						@mouseover=${(e) => this._displayTooltip(e)}>
+					</capitec-label>
+					<capitec-tooltip id="long-budget-name-tooltip" message="${formatStringAsPascalCase(budgetAccount.budgetName)}" position="bottom">
+						<capitec-label class="budget-name-label-value"
+							label="${formatStringAsPascalCase(budgetAccount.budgetName)}"
+							@mouseover=${(e) => this._displayTooltip(e)}>
+						</capitec-label>
+					</capitec-tooltip>
+			</capitec-group>`;
 	}
 
 	_renderBudgetAccountTile(budgetAccount) {
@@ -335,12 +393,7 @@ import 'app/components/common/HorizonLabel';
 					@click="${() => this._accountDetails(budgetAccount)}">
 				</capitec-icon>
 
-				<horizon-label
-					data-automation-id="budget-facility-account-name"
-					label="Budget name"
-					value="${formatStringAsPascalCase(budgetAccount.budgetName)}"
-					@click="${() => this._accountDetails(budgetAccount)}">
-				</horizon-label>
+				${this._renderBudgetNameLabel(budgetAccount)}
 
 				<div class="vertical-line"></div>
 

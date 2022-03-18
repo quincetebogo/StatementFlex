@@ -370,21 +370,21 @@ export class Favourites extends SavingsAccountBase {
 				isCallerVerified: this.callerInformation.verificationStatus === `verified`
 			};
 
-			const returnValues = await Promise.all([this.quickTransactionService.favouritesLanding(landingRequest), this.creditService.creditBalance(this.callerInformation.cifNumber)]);
+			const returnValues = await Promise.allSettled([this.quickTransactionService.favouritesLanding(landingRequest), this.creditService.creditBalance(this.callerInformation.cifNumber, () => true)]);
 
-			if (returnValues[0].succeeded) {
+			if (returnValues[0].status === `fulfilled` && returnValues[0].value.succeeded) {
 				this.isLoading = false;
 
-				this.landingPageInfo = returnValues[0].result;
+				this.landingPageInfo = returnValues[0].value.result;
 				
 				/* 
 				 * NOTE: This is a work around as the favourites landing does not return credit information. 
 				 * NOTE: This implementation will not include credit information in the favourites landing call fails.
 				 * TODO: Develop better solution
 				 */
-				if (returnValues[1].succeeded) {
+				if (returnValues[1].status === `fulfilled` && returnValues[1].value.succeeded) {
 					this.landingPageInfo.creditProductDescription = `Available balance`;
-					this.landingPageInfo.creditProductAmount = formatCurrency(returnValues[1].result.availableBalance);
+					this.landingPageInfo.creditProductAmount = formatCurrency(returnValues[1].value.result.availableBalance);
 				}
 			}
 		} else {
@@ -559,8 +559,9 @@ export class Favourites extends SavingsAccountBase {
 		const screenDetails = this.horizonStore.getScreenDetails();
 
 		// TODO: CS call to get credit accounts info and diaplay appropriate values on settlement quote view screen - details are pulled from mocks now
+
 		this.settlementQuoteDetails = [...creditOverview.creditCardSummaryList, ...creditOverview.accessFacilitySummaryList, ...creditOverview.loanAccountSummaryList];
-		
+
 		this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
 			item.type = PRODUCT_TYPE[item.productTypeCode];
 			item.category = CREDIT_ACCOUNT_TYPE[item.productTypeCode];
@@ -934,8 +935,10 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.UPDATE_CARD_LIMITS
 			? html`
 				<horizon-card-limits-landing
-				.cards="${this.cards}"
-					cifNumber="${this.callerInformation.cifNumber}"
+					.cards="${this.cards}"
+					.cifNumber="${this.callerInformation.cifNumber}"
+					.title="${this.callerInformation.title}"
+					.lastName="${this.callerInformation.lastName}"
 					voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
 					verificationMethod="${this.callerInformation.verificationMethod}"
 					?hasDigitalChannels="${this.callerInformation.hasDigitalChannels}"
@@ -957,7 +960,9 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
 			? html`
 				<horizon-proof-of-account
-					.callerInformation="${this.callerInformation}"
+					.cifNumber="${this.callerInformation.cifNumber}"
+					.title="${this.callerInformation.title}"
+					.lastName="${this.callerInformation.lastName}"
 					.landingPageInfo="${this.landingPageInfo}"
 					@cancel="${() => this._backToLandingPage()}">
 				</horizon-proof-of-account>`
@@ -1007,7 +1012,7 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE
 		? html`
 			<horizon-tax-certificate
-				cifNumber="${this.callerInformation.cifNumber}"
+				.cifNumber="${this.callerInformation.cifNumber}"
 				accountNumber="${this.landingPageInfo.accountNumber}"
 				@cancel="${() => this._backToLandingPage()}">
 			</horizon-tax-certificate>
