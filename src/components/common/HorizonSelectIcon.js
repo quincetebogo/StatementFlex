@@ -9,7 +9,7 @@ export class HorizonSelect extends Select {
 
 	constructor() {
 		super();
-		this.detailsField = null;
+
 		this.detailsLabel = ``;
 	}
 
@@ -18,6 +18,7 @@ export class HorizonSelect extends Select {
 	// --------------
 	
 	/**
+	 * @param {string} detailsLabel - Details label
 	 *
 	 * @readonly
 	 * @static
@@ -25,8 +26,10 @@ export class HorizonSelect extends Select {
 	 */
 	 static get properties() {
 		return {
-			detailsField: { type: String },
-			detailsLabel: { type: String }
+			detailsLabel: {
+				type: String,
+				attribute: `detail-label`
+			}
 		};
 	}
 

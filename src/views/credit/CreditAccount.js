@@ -61,7 +61,7 @@ export class CreditAccount extends ViewBase {
 		this.creditBalance = ``;
 		this.productType = ``;
 		this.creditType = ``;
-		//ccs status of client set to true until real value retrieved from CS
+		// ccs status of client set to true until real value retrieved from CS
 		this.ccsStatus = true;
 		this.showCCSmodal = false;
 		this.showSettleCloseModal = false;
@@ -255,38 +255,6 @@ export class CreditAccount extends ViewBase {
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
-
-	async _getClientProducts() {
-		const request = {
-			cifNumber: this.callerInformation.cifNumber,
-			status: `OPEN`
-		};
-	
-		const returnValue = await this.quickTransactionService.getClientProducts(request);
-		
-		if (returnValue.succeeded && returnValue.result.savingsProducts) {
-			
-			const clientProducts = returnValue.result.savingsProducts
-										.filter(item => FROM_ACCOUNTS_LIST.includes(item.accountType))
-										.map(item => {
-												const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType][item.interestCategory] || 
-																	ACCOUNT_INTCAT_ENUM[item.accountType];
-												
-												return {
-													'accountNumber': item.accountNumber,
-													'accountName': formatStringAsPascalCase(item.accountName),
-													'availableBalance': formatCurrency(item.availableBalance),
-													'accountType': item.accountType,
-													'icon': productInfo.icon,
-													'customIcon': productInfo.customIcon,
-													'order': productInfo.order
-												};
-											})
-										.sort((x, y) => x.order - y.order);
-
-			return clientProducts;
-		}
 	}
 
 	// --------------
@@ -523,7 +491,7 @@ export class CreditAccount extends ViewBase {
 			"product-type": productType
 		});
 
-		if(this.ccsStatus) {
+		if (this.ccsStatus) {
 			this.showCCSmodal = true;
 			return;
 		}
@@ -648,6 +616,37 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.SETTLE_AND_CLOSE;
 	}
 
+	async _getClientProducts() {
+		const request = {
+			cifNumber: this.callerInformation.cifNumber,
+			status: `OPEN`
+		};
+	
+		const returnValue = await this.quickTransactionService.getClientProducts(request);
+		
+		if (returnValue.succeeded && returnValue.result.savingsProducts) {
+			
+			const clientProducts = returnValue.result.savingsProducts
+										.filter(item => FROM_ACCOUNTS_LIST.includes(item.accountType))
+										.map(item => {
+												const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType][item.interestCategory] || 
+																	ACCOUNT_INTCAT_ENUM[item.accountType];
+												
+												return {
+													'accountNumber': item.accountNumber,
+													'accountName': formatStringAsPascalCase(item.accountName),
+													'availableBalance': formatCurrency(item.availableBalance),
+													'accountType': item.accountType,
+													'icon': productInfo.icon,
+													'customIcon': productInfo.customIcon,
+													'order': productInfo.order
+												};
+											})
+										.sort((x, y) => x.order - y.order);
+
+			return clientProducts;
+		}
+	}
 
 	// ---------
 	// RENDERING
