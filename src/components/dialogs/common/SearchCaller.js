@@ -6,6 +6,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
+import { SEARCH_OPTIONS } from 'app/constants/SearchOptions';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -228,7 +229,7 @@ export class SearchCaller extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this._loadSearchOptions();
+		this.identificationMethods = SEARCH_OPTIONS;
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 
 		this._telemetry.startSpan(IDCallerEvents.SEARCH_CLIENT, {
@@ -308,11 +309,6 @@ export class SearchCaller extends Component {
 			});
 
 			const searchClient = {
-				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
-				incidentNo: this.incidentDetails.incidentReferenceNumber,
-				agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
-				ivrOption: this.incomingCallDetails.ivrOption.value,
 				identificationMethod: this.searchType.key,
 				searchValue: this.searchValue
 			};
@@ -349,11 +345,6 @@ export class SearchCaller extends Component {
 				this.alertBannerMessage = ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY;
 			} else {
 				const searchClient = {
-					incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-					voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
-					incidentNo: this.incidentDetails.incidentReferenceNumber,
-					agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
-					ivrOption: this.incomingCallDetails.ivrOption.value,
 					identificationMethod: this.searchType.key,
 					searchValue: this.searchValue
 				};
@@ -419,8 +410,6 @@ export class SearchCaller extends Component {
 			callerDetails.nonClientRelationship = ``;
 
 			const nonClientDetails = {
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				firstName: this.nameValue,
 				surname: this.surNameValue,
 				cellPhone: this.cellPhoneNumberValue
@@ -462,39 +451,6 @@ export class SearchCaller extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	async _loadSearchOptions() {
-		const clientInfo = {
-			"incomingTelephoneNumber": this.incomingCallDetails.incomingTelephoneNumber,
-			"voiceReferenceNumber": this.incomingCallDetails.voiceReferenceNumber,
-			"ivrOptionCode": this.incomingCallDetails.ivrOption.value,
-			"incidentReferenceNumber": this.incidentDetails.incidentReferenceNumber,
-			"agentTelephoneNumber": this.incomingCallDetails.agentTelephoneNumber
-		};
-
-		const returnValue = await this.callHandleService.searchOptions(clientInfo);
-		const options = returnValue.result;
-
-		if (returnValue.succeeded) {
-			this.identificationMethodsList = options.identificationMethods;
-			if (this.identificationMethodsList !== undefined) {
-				this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
-			}
-		} else {
-			this.horizonRouter.navigateToSystemError();
-		}
-	}
-
-	extractIdentificationMethods(identificationMethods) {
-
-		identificationMethods.possibleValues = identificationMethods.possibleValues.map(identificationMethod => {
-
-			Object.assign(identificationMethod, identificationMethod.value);
-			delete identificationMethod.value;
-			return identificationMethod;
-		});
-		return identificationMethods;
-	}
 
 	_validateNonClientFields() {
 		// Trimming/ removing empty spaces around non client details
@@ -638,13 +594,14 @@ export class SearchCaller extends Component {
 
 	_raiseOnClientIdentified(identifiedClient) {
 		const confirmedCaller = {
-			cifNumber: identifiedClient.callerInformation.cifNumber.value,
-			birthdate: identifiedClient.callerInformation.birthdate.value,
-			languagePreference: identifiedClient.callerInformation.languagePreference.value,
-			livesIn: identifiedClient.callerInformation.livesIn.value,
-			name: identifiedClient.callerInformation.name.value,
-			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber.value,
-			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber.value,
+			cifNumber: identifiedClient.callerInformation.cifNumber,
+			birthdate: identifiedClient.callerInformation.birthdate,
+			languagePreference: identifiedClient.callerInformation.languagePreference,
+			livesIn: identifiedClient.callerInformation.livesIn,
+			name: identifiedClient.callerInformation.name,
+			title: identifiedClient.callerInformation.title,
+			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber,
+			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber,
             isBranchConsultant: false,
             firstName: identifiedClient.callerInformation.firstName,
             middleName1: identifiedClient.callerInformation.middleName1,
@@ -671,6 +628,7 @@ export class SearchCaller extends Component {
 			languagePreference: identifiedClient.callerInformation.languagePreference.value,
 			livesIn: identifiedClient.callerInformation.livesIn.value,
 			name: identifiedClient.callerInformation.name.value,
+			title: identifiedClient.callerInformation.title,
 			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber.value,
 			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber.value,
 			isBranchConsultant: true,
@@ -887,9 +845,9 @@ export class SearchCaller extends Component {
 								error="${this.errMessage.searchType}"
 								label="Choose identification method"
 								class="id-options" 
-								.items="${this.identificationMethods !== undefined ? this.identificationMethods.possibleValues : [{ displayText: `ID Number` }]}"
+								.items="${this.identificationMethods !== undefined ? this.identificationMethods : [{ displayText: `ID Number` }]}"
 								id-field="key" 
-								display-field="displayText"
+								display-field="value"
 								@value-changed="${(e) => this._valueChanged(e)}">
 							</capitec-select>
 						</div>

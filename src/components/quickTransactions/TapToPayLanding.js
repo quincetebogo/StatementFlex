@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+
 import 'app/components/common/CardArt';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
 
@@ -47,7 +48,9 @@ export class TapToPayLanding extends Component {
 
 	/**
 	 * @property {Object} cards Object contains the list of client's cards
-	 * @property {String} cifNumber The client's account/cifNumber
+	 * @property {string} cifNumber The client's CIF number
+	 * @property {string} title client's title (Mr/ Mrs)
+	 * @property {string} lastName client's last name
 	 * @property {String} voiceRecordingReference The Avaya/Presence Voice Recording ID
 	 * @property {getAgreementsCallback} getAgreements Callback function to load agreements for displaying
 	 * @property {updateAgreementCallback} updateAgreement Callback function to update agreement
@@ -57,6 +60,8 @@ export class TapToPayLanding extends Component {
 			// Input properties
 			cards: { type: Object },
 			cifNumber: { type: String },
+			title: { type: String },
+			lastName: { type: String },
 			voiceRecordingReference: { type: String },
 			hasCardsAvailable: { type: Boolean },
 
@@ -137,7 +142,8 @@ export class TapToPayLanding extends Component {
 				cardId: this.selectedCard.cardId,
 				cardExpiryYear: this.selectedCard.cardExpiryYear,
 				cardExpiryMonth: this.selectedCard.cardExpiryMonth,
-				cardSequenceNumber: this.selectedCard.cardSequenceNumber
+				cardSequenceNumber: this.selectedCard.cardSequenceNumber,
+				cardDisplayName: this.selectedCard.cardDisplayName
 			}
 		};
 
@@ -165,7 +171,8 @@ export class TapToPayLanding extends Component {
 					cardId: this.selectedCard.cardId,
 					cardExpiryMonth: this.selectedCard.cardExpiryMonth,
 					cardExpiryYear: this.selectedCard.cardExpiryYear,
-					cardSequenceNumber: this.selectedCard.cardSequenceNumber
+					cardSequenceNumber: this.selectedCard.cardSequenceNumber,
+					cardDisplayName: this.selectedCard.cardDisplayName
 				},
 				tapToPayStatus: tapToPayStatus,
 				customerId: this.cifNumber,
@@ -181,7 +188,9 @@ export class TapToPayLanding extends Component {
 					scriptContentData: this.agreementResult.cardAgreement.scriptContent.scriptContentData,
 					documentId: this.agreementResult.cardAgreement.scriptContent.documentId,
 					scriptContentType: `HTML`
-				}
+				},
+				title: this.title,
+				lastName: this.lastName
 			}
 		};
 

@@ -3,6 +3,7 @@ import { Component, css, html, live } from 'platform/elements';
 import { Configuration, Logger, SecurityContext } from 'platform/core';
 import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
+import { CallHandleService } from 'app/services/CallHandleService';
 import { EndCallEvents } from 'app/constants/telemetry/events/EndCall';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -75,6 +76,7 @@ export class EndCallSession extends Component {
 		this.logger = Logger.getInstance();
 		this.securityContext = SecurityContext.getInstance();
 
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._endCallErrorHandler(ex));
 		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._endCallErrorHandler(ex));
 
 		Object.assign(EndCallSession.prototype, searchOtherNeedMixin);
@@ -121,8 +123,8 @@ export class EndCallSession extends Component {
 		});
 
 		// Making end call reasons context sensitive 
-		const callerInformation = this.horizonStore.getCallerInformation() || {};
-		this.endCallReasons = END_CALL_REASON[this.endCallContext][callerInformation.verificationStatus] || END_CALL_REASON[this.endCallContext];
+		this.callerInformation = this.horizonStore.getCallerInformation() || {};
+		this.endCallReasons = END_CALL_REASON[this.endCallContext][this.callerInformation.verificationStatus] || END_CALL_REASON[this.endCallContext];
 		
 		// TODO: Evaluate why isRessagined is added to incomingCallDetails
 		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned; 
@@ -298,6 +300,8 @@ export class EndCallSession extends Component {
 	}
 
 	async _returnToCallWaitingPage() {
+		await this._endSession();
+		
 		await this._telemetry.endSpan(EndCallEvents.END_CALL, { "screen": TelemetryScreen.END_CALL });
 		await this._telemetry._endUnClosedChildSpans();
 		this._telemetry.endSpan(AcceptCallEvents.INCOMING_CALL);
@@ -512,6 +516,20 @@ export class EndCallSession extends Component {
 		}
 
 		return null;
+	}
+
+	async _endSession() {
+		if (Object.prototype.hasOwnProperty.call(this.callerInformation, `cifNumber`)) {
+			const req = {
+				endReason: this.endCallReason.key,
+				title: this.callerInformation.title,
+				lastName: this.callerInformation.lastName,
+				cif: this.callerInformation.cifNumber,
+				clientNeed: this.incomingCallDetails.ivrOptionCode
+			};
+			// We don't mind if this service call fails. This is just to send automated messaging to client
+			await this.callHandleService.endCall(req);
+		}
 	}
 
 	// ---------

@@ -37,6 +37,9 @@ export class StopCardConfirm extends Component {
 	 * @property {Object} incidentDetails Incident details
 	 * @property {Object} incomingCallDetails Incoming call information
 	 * @property {Object} cardsToStop List of cards to stop
+	 * @property {string} cifNumber The client's CIF number
+	 * @property {string} title client's title (Mr/ Mrs)
+	 * @property {string} lastName client's last name
 	 * 
 	 * @readonly
 	 * @static
@@ -47,6 +50,9 @@ export class StopCardConfirm extends Component {
 			incidentDetails: { type: Object },
 			incomingCallDetails: { type: Object },
 			cardsToStop: { type: Array },
+			cifNumber: { type: String },
+			title: { type: String },
+			lastName: { type: String },
 
 			isBusy: { attribute: false }
 		};
@@ -77,7 +83,7 @@ export class StopCardConfirm extends Component {
 			"screen": TelemetryScreen.STOP_CARD
 		});
 
-		const returnValue = await this.cardService.stopCards(this.cardsToStop, this.incomingCallDetails, this.incidentDetails);
+		const returnValue = await this.cardService.stopCards(this.cardsToStop, this.incomingCallDetails, this.incidentDetails, this.cifNumber, this.title, this.lastName);
 		const cardStopResults = returnValue.result;
 
 		if (returnValue.succeeded) {

@@ -30,23 +30,24 @@ export class ValueAddedService extends ChannelServiceBase {
 	// --------------
 
 	getValueAddedServiceStatus(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const url = `/clientcare-client-${this._version}/value-added-services?cif=${cifNumber}`;
+		const request = {
+			"cif": cifNumber
+		};
+	
+		const url = `/clientcare-client-${this._version}/value-added-services`;
 
-		return this.get(
+		return this.post(
 			url, 
+			request, 
 			this.setToken(), 
-			`getValueAddedService`,
-			null,
-			null,
+			`getValueAddedService`, 
+			null, 
+			null, 
+			2000,
 			null,
 			errorHandler,
 			autoRetries
 		);
-
-		/*
-		const url = `/clientcare-client-${this._version}/value-added-services`;
-		return this._post(url, { 'cif': cifNumber }, this._setToken(), `getValueAddedService`);
-		*/
 	}
 
 	putValueAddedServiceStatus(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
