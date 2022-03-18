@@ -234,7 +234,6 @@ export class Statements extends Component {
 
 	async _viewCreditStatement(request) 
 	{
-		// TODO: Credit view statement comes here
 		let dateSelected = request.month;
 		if (this.creditOptionType == `Credit card` || this.creditOptionType == `Access facility`)
 		{
