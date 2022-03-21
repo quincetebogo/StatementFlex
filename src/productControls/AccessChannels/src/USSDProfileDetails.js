@@ -1,5 +1,5 @@
+import { ACCESS_CHANNEL_STATUS, parseHTMLtoDOM } from './Constants';
 import { Component, css, html } from 'platform/elements';
-import { ACCESS_CHANNEL_STATUS } from './Constants';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonLabel';
@@ -14,8 +14,6 @@ export class USSDProfileDetails extends Component {
 		this.isVerifiedClient = false;
 
 		this.isBusy = false;
-		this.displaySuccessToast = false;
-		this.displayUnsuccessfulToast = false;
 		this.showCancelReasons = false;
 		this.showNotificationBanner = false;
 		this.showValidationBanner = false;
@@ -59,8 +57,6 @@ export class USSDProfileDetails extends Component {
 	 * @property {Boolean} [showSideSheet] - To toggle Side sheet component
 	 * @property {Object} [ussd] - Ussd profile details
 	 * @property {String} [ussdStatus] - Ussd profile status
-	 * @property {Boolean} [displaySuccessToast] - To hide or show the successful Toast
-	 * @property {Boolean} [displayUnsuccessfulToast] - To hide or show the unsuccessful Toast
 	 * @property {String} [showCancelReasons] - To toggle cancel reasons side sheet component
 	 * @property {Boolean} [showNotificationBanner] - To hide or show the notification banner on some action 
 	 * @property {Boolean} [showValidationBanner] - To hide or show the cancel reason validation banner on error 
@@ -87,13 +83,49 @@ export class USSDProfileDetails extends Component {
 			
 			// private properties
 			ussdStatus: { state: true },
-			displaySuccessToast: { state: true },
-			displayUnsuccessfulToast: { state: true },
 			showCancelReasons: { state: true },
 			showNotificationBanner: { state: true },
 			showValidationBanner: { state: true },
 			isBusy: { state: true }
 		};
+	}
+
+	get unblockSIMSuccessToast() {
+		return `<capitec-label label="SIM for number ${this.ussd.userRegNo} was unblocked successfully."></capitec-label>
+				<capitec-spacer></capitec-spacer>
+				<capitec-label label="${this._getFormattedDateTime(this.ussd.dateLastUpdated)}" type="subtitle"></capitec-label>`;
+	}
+
+	get unblockSIMUnSuccessToast() {
+		return `<capitec-label label="SIM for number ${this.ussd.userRegNo} was not unblocked."></capitec-label>
+				<capitec-spacer></capitec-spacer>
+				<capitec-label label="Try again"></capitec-label>`;
+	}
+
+	get cancelUSSDSuccessToast() {
+		return `<capitec-label label="USSD was cancelled."></capitec-label>
+				<capitec-spacer></capitec-spacer>
+				<capitec-label label="You will need to visit branch to reactivate USSD."></capitec-label>
+				<capitec-spacer></capitec-spacer>
+				<capitec-label label="${this._getFormattedDateTime(this.ussd.dateLastUpdated)}" type="subtitle"></capitec-label>`;
+	}
+
+	get cancelUSSDUnSuccessToast() {
+		return `<capitec-label label="USSD was not cancelled."></capitec-label>
+				<capitec-spacer></capitec-spacer>
+				<capitec-label label="Try again"></capitec-label>`;
+	}
+
+	get activateFullMenuSuccessToast() {
+		return `<capitec-label label="The full menu is active."></capitec-label>
+				<capitec-spacer></capitec-spacer>
+				<capitec-label label="${this._getFormattedDateTime(this.ussd.dateLastUpdated)}" type="subtitle"></capitec-label>`;
+	}
+
+	get activateFullMenuUnSuccessToast() {
+		return `<capitec-label label="Full USSD menu was not activated."></capitec-label>
+				<capitec-spacer></capitec-spacer>
+				<capitec-label label="Try again"></capitec-label>`;
 	}
 
 	// -------------------
@@ -135,9 +167,9 @@ export class USSDProfileDetails extends Component {
 		if (returnValue) {
 			this.ussd.isSimBlocked = false;
 
-			this._displayAndCloseSuccessToast(`SIM for number ${this.ussd.userRegNo} was unblocked successfully.`);
+			this._displayAndCloseSuccessToast(this.unblockSIMSuccessToast);
 		} else {
-			this._displayAndCloseUnsuccessfulToast(`SIM for number ${this.ussd.userRegNo} was not unblocked. Please try again.`);
+			this._displayAndCloseUnsuccessfulToast(this.unblockSIMUnSuccessToast);
 		}
 	}
 
@@ -148,10 +180,10 @@ export class USSDProfileDetails extends Component {
 			if (returnValue) {
 				this.ussdStatus = `Inactive`;
 
-				this._displayAndCloseSuccessToast(`USSD was cancelled. You will need to visit  branch to reactivate USSD`);
+				this._displayAndCloseSuccessToast(this.cancelUSSDSuccessToast);
 				this.showNotificationBanner = true;
 			} else {
-				this._displayAndCloseUnsuccessfulToast(`USSD was not cancelled. Please try again.`);
+				this._displayAndCloseUnsuccessfulToast(this.cancelUSSDUnSuccessToast);
 			}
 			
 			this.showCancelReasons = !this.showCancelReasons;
@@ -166,9 +198,9 @@ export class USSDProfileDetails extends Component {
 		const activateFullMenuUSSDSuccessful = await this.activateFullMenuUSSD();
 
 		if (activateFullMenuUSSDSuccessful) {
-			this._displayAndCloseSuccessToast(`The full menu is active.`);
+			this._displayAndCloseSuccessToast(this.activateFullMenuSuccessToast);
 		} else {
-			this._displayAndCloseUnsuccessfulToast(`Full USSD menu was not activated. Please try again.`);
+			this._displayAndCloseUnsuccessfulToast(this.activateFullMenuUnSuccessToast);
 		}
 	}
 
@@ -177,6 +209,11 @@ export class USSDProfileDetails extends Component {
 			this.cancelReason = event.currentTarget.label;
 			this.showValidationBanner = false;
 		}
+	}
+
+	_closeToast(e) {
+		const elementToast = this.shadowRoot.getElementById(e.target.id);
+		elementToast.style.display = `none`;
 	}
 
 	// ---------------
@@ -193,7 +230,7 @@ export class USSDProfileDetails extends Component {
 		} else if (this.ussd.isSimBlocked) {
 			this.showNotificationBanner = true;
 			this.bannerTitle = `SIM Blocked`;
-			this.bannerSubtitle = `SIM blocked due to SIM swop detected.`;
+			this.bannerSubtitle = `SIM blocked due to SIM swap detected.`;
 		} else if (status === `Inactive` && !this.ussd.isSimBlocked) {
 			this.showNotificationBanner = true;
 			this.bannerTitle = `Service has been cancelled.`;
@@ -205,28 +242,32 @@ export class USSDProfileDetails extends Component {
 
 	// display success toast for 3 seconds
 	_displayAndCloseSuccessToast(detail) {
-		this.displaySuccessToast = true;
 		this.successToastDetails = detail;
 
 		const elementToast = this.shadowRoot.getElementById(`ussd-success-toast`);
+		elementToast.style.display = `block`;
 		elementToast.style.animation = `slideDown 0.6s`; 
+
+		const detailLabel = elementToast.shadowRoot.querySelector(`label.detail`);
+		detailLabel.style.width = `210px`;
+		detailLabel.innerHTML = parseHTMLtoDOM(toastDetail);
 
 		window.setTimeout(() => {
 			elementToast.style.animation = `slideUp 0.6s`;
-			window.setTimeout(() => this.displaySuccessToast = false, 600);
+			window.setTimeout(() => elementToast.style.display = `none`, 600);
 		}, 3000);
 	}
 
 	_displayAndCloseUnsuccessfulToast(detail) {
-		this.displayUnsuccessfulToast = true;
 		this.unsuccessfulToastDetails = detail;
 
 		const elementToast = this.shadowRoot.getElementById(`ussd-unsuccessful-toast`);
+		detailLabel.style.width = `210px`;
 		elementToast.style.animation = `slideDown 0.6s`; 
 
 		window.setTimeout(() => {
 			elementToast.style.animation = `slideUp 0.6s`;
-			window.setTimeout(() => this.displayUnsuccessfulToast = false, 600);
+			window.setTimeout(() => elementToast.style.display = `none`, 600);
 		}, 3000);
 	}
 
@@ -243,7 +284,7 @@ export class USSDProfileDetails extends Component {
 	_formatTime(timeToFormat) {
 		const formatedDate = new Date(timeToFormat);
 		const localTime = formatedDate.toLocaleTimeString();
-		return localTime.replace(localTime.slice(-6, -2), ` `);
+		return localTime.replace(localTime.slice(-6, -2), ` `).toLowerCase();
 	}
 
 	_getFormattedDateTime(datetime) {
@@ -253,7 +294,7 @@ export class USSDProfileDetails extends Component {
 	_getUssdStatus() {
 
 		const ussdStatus = this.ussdStatus === `Inactive` ? `Cancelled` : this.ussdStatus;
-		const SIMStatus = this.ussd.isSimBlocked ? `Blocked: SIM Swop` : ``;
+		const SIMStatus = this.ussd.isSimBlocked ? `Blocked: SIM Swap` : ``;
 		const menuStatus = this.ussd.features.includes(`REDUCED_MENU`) && this.ussdStatus !== `Inactive` ? ` | Reduced menu` : ``;
 
 		return `${this.ussd.isSimBlocked ? SIMStatus : ussdStatus}${menuStatus}`;
@@ -361,8 +402,17 @@ export class USSDProfileDetails extends Component {
 			}
 			.has-digital-channels {
 				--theme-label-strong-font-weight: 600;
-				--theme-alert-banner-height: 140px;
+				--theme-alert-banner-height: 117px;
 				--theme-hyperlink-font-size: 14px;
+			}
+			.has-digital-channels > capitec-label {
+				width: 234px;
+			}
+			capitec-hyperlink {
+				--theme-hyperlink-font-size: 14px;
+				position: absolute;
+				right: 16px;
+				bottom: 16px;
 			}
 			.validate-reasons {
 				--theme-alert-banner-height: 64px;
@@ -371,15 +421,20 @@ export class USSDProfileDetails extends Component {
 				animation-timing-function: cubic-bezier(0.2, 0.8, 0.5, 1);
 				animation-fill-mode: forwards;
 
-				--theme-toast-max-width: 315px;
+				--theme-toast-min-width: 312px;
+				--theme-toast-max-width: 312px;
 				--theme-toast-height: 126px;
 				--theme-icon-size-default: 24px;
 				--theme-toast-success-color: #3a3a3a;
 				--theme-toast-detail-line-height: 22px;
 				--theme-toast-title-line-height: 22px;
+				--theme-label-subtitle-font-size: 14px;
+				--theme-label-subtitle-font-weight: 600;
+
 				padding: 12px 0px 0px 16px;
 				position: absolute;
 				z-index: 100;
+				display: none;
 			}
 			capitec-radio-group{
 				--theme-buttonbar-item-gap: 14px;
@@ -817,9 +872,8 @@ export class USSDProfileDetails extends Component {
 				id="ussd-success-toast"
 				type="success" 
 				header="Successful!"
-				detail="${this.successToastDetails} &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp ${this._getFormattedDateTime(this.ussd.dateLastUpdated)}}"
-				?hidden="${!this.displaySuccessToast}"
-				@click="${() => this.displaySuccessToast = false}"
+				detail=""
+				@click="${(e) => this._closeToast(e)}"
 				closable>
 			</capitec-toast>
 		`;
@@ -837,8 +891,7 @@ export class USSDProfileDetails extends Component {
 				type="error" 
 				header="Unsuccessful!"
 				detail="${this.unsuccessfulToastDetails}"
-				?hidden="${!this.displayUnsuccessfulToast}"
-				@click="${() => this.displayUnsuccessfulToast = false}"
+				@click="${(e) => this._closeToast(e)}"
 				closable>
 			</capitec-toast>
 		`;
