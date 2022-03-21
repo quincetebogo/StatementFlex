@@ -1,7 +1,7 @@
 import { Component, html } from 'platform/elements';
 import { EventAggregator, Logger } from 'platform/core';
 import { ClientInsightsService } from 'app/services/ClientInsightsService';
-import { Utilities } from 'platform/Utilities';
+import { INSIGHTS_DETAILS } from 'app/constants/ClientInsights';
 import { ValueAddedService } from 'app/services/ValueAddedService';
 
 import 'platform/components';
@@ -9,6 +9,7 @@ import 'app/productControls/ClientInsights/ClientInsights';
 import 'app/dialogs/valueAddedServices/ValueAddedServices';
 import 'app/dialogs/valueAddedServices/ValueAddedServicesUnavailable';
 import 'app/dialogs/valueAddedServices/VASNoClientData';
+
 export class Insights extends Component {
 
 	// --------------
@@ -138,7 +139,21 @@ export class Insights extends Component {
 		}
 		
 		if (insights.length >= 1) {
-			this.insightDetails = returnValue.result.shift();
+			this._formatInsights(insights.shift());
+		}
+	}
+
+	_formatInsights(insights) {
+		if (INSIGHTS_DETAILS[insights.parentCategoryId] && INSIGHTS_DETAILS[insights.parentCategoryId][insights.nbaId]) {
+			
+			const displayDetails = INSIGHTS_DETAILS[insights.parentCategoryId][insights.nbaId];
+
+			this.insightDetails = {
+				header: displayDetails.header,
+				image: displayDetails.image,
+				message: displayDetails.message,
+				actions: insights.actions
+			};
 		}
 	}
 
