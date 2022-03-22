@@ -106,6 +106,10 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"savingsPlanLanding": {
+			"enabled": false,
+			"positiveCase": true
+		},
 		"tapToPayLanding": {
 			"enabled": false,
 			"positiveCase": true

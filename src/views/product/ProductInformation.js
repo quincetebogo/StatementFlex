@@ -1,8 +1,8 @@
 import { Configuration, NavigationContext } from 'platform/core';
+import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { html } from 'platform/elements';
 
-import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
 
 import 'app/components/product/CnetProductInfo';
 
