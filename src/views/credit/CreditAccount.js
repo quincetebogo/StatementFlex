@@ -63,7 +63,7 @@ export class CreditAccount extends ViewBase {
 		this.productType = ``;
 		this.creditType = ``;
 		//ccs status of client set to true until real value retrieved from CS
-		this.ccsStatus = true;
+		this.ccsStatus = false;
 		this.showCCSmodal = false;
 		this.showSettleCloseModal = false;
 
@@ -349,6 +349,7 @@ export class CreditAccount extends ViewBase {
 		
 		this._performReturnToScreen();
 	}
+
 
 	_formatCreditOverviewResponse() {
 		// TODO: Improve the formatting

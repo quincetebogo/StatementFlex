@@ -235,70 +235,27 @@ export class Statements extends Component {
 	async _viewCreditStatement(request) 
 	{
 		let dateSelected = request.month;
+		var returnValue ;
 		if (this.creditOptionType == `Credit card` || this.creditOptionType == `Access facility`)
 		{
 			let statementInfo = this.findStatement(dateSelected);
-			if (statementInfo!=null)
+			returnValue = this.getflexStatement(this.creditOptionType , statementInfo);
+			if (returnValue!=null)
 			{
-				if (this.creditOptionType == `Credit card`)
-				{
-					const returnValue = await this.creditService.flexibleStatement(statementInfo.accountNumber,`CreditCard`,statementInfo.statementId);
-					
-					if (returnValue.succeeded)
-					{
-						let data = returnValue.result.content.data ;
-						return base64ToBlobUrl(data);
-					}else {
-						this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewPDF`, returnValue.correlationId);
-						return null;
-					}
-					
-				} else if (this.accountType==`Access facility`)
-				{
-					const returnValue = await this.creditService.flexibleStatement(statementInfo.accountNumber,`AccessFacility`,statementInfo.statementId);
-					if (returnValue.succeeded)
-					{
-						let data = returnValue.result.content.data ;
-						return base64ToBlobUrl(data);
-					}else {
-						this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewPDF`, returnValue.correlationId);
-						return null;
-					}
-				} 
+				return returnValue;
 			}
+			return null;
 		}
 		else if (this.creditOptionType==`Term Loan`)
-		{
+		{	
 			if (request.dateInterval) 
 			{
-				let today = new Date().toISOString().slice(0, 10);
-				let fromRange = ``;
-				switch(request.dateInterval)
-				{
-					case "ONE_MONTH":
-						fromRange = this.getDateRange(`1`);
-						break;
-					case "THREE_MONTH":
-						fromRange = this.getDateRange(`3`);
-						break;
-					case "SIX_MONTH":
-						fromRange = this.getDateRange(`6`);
-						break;
-					case "NINE_MONTH":
-						fromRange = this.getDateRange(`9`);
-						break;	
-				}
-				const returnValue = await this.creditService.fixedStatement(request.accountNumber,fromRange,today,``);
-				if (returnValue.succeeded)
-				{
-					let data = returnValue.result.content.data ;
-					return base64ToBlobUrl(data);
-				}else {
-					this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewPDF`, returnValue.correlationId);
-					return null;
-				}
+				//let today = new Date().toISOString().slice(0, 10);
+				let today = `2021-09-11`
+				let fromRange =this.getFromDateFromSetDate(request.dateInterval);
+				returnValue = await this.creditService.fixedStatement(request.accountNumber,fromRange,today,``);
 			}
-			const returnValue = await this.creditService.fixedStatement(request.accountNumber,request.startDate,request.endDate,``);
+			returnValue = await this.creditService.fixedStatement(request.accountNumber,request.startDate,request.endDate,``);
 			if (returnValue.succeeded)
 			{
 				let data = returnValue.result.content.data ;
@@ -311,6 +268,31 @@ export class Statements extends Component {
 		return null;
 
 	}
+	async getflexStatement(creditOptionType ,statementInfo )
+	{
+		if (statementInfo!=null)
+		{
+			var returnValue;
+			if (creditOptionType == `Credit card`)
+			{
+				returnValue = await this.creditService.flexibleStatement(statementInfo.accountNumber,`CreditCard`,statementInfo.statementId);
+				
+			} else if (this.accountType==`Access facility`)
+			{
+				returnValue = await this.creditService.flexibleStatement(statementInfo.accountNumber,`AccessFacility`,statementInfo.statementId);
+			} 
+			if (returnValue.succeeded)
+			{
+				let data = returnValue.result.content.data ;
+				return base64ToBlobUrl(data);
+			}else {
+				this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewPDF`, returnValue.correlationId);
+				return null;
+			}
+		}
+		return null;
+	}
+
 	_handleChannelServiceError(ex) {
 		this.errorMessage = `System error. Please try again.`;
 		this.errorCount++;
@@ -386,6 +368,7 @@ export class Statements extends Component {
 	async _sendCreditStatement(request) 
 	{
 		let flag = false;
+		var returnValue;
 		if (this.creditOptionType == `Credit card` || this.creditOptionType == `Access facility`)
 		{
 			for (let i = 0; i < request.monthInterval.length; i++)
@@ -397,60 +380,35 @@ export class Statements extends Component {
 					statementDate: statementInfo.statementDate}
 				];
 				if (this.creditOptionType == `Credit card`){
-					const returnValue = await this.creditService.flexibleStatementEmail(`CreditCard`,request.accountNumber , request.emailAddress ,statementDetails);
-					if (returnValue.succeeded) 
-					{
-						flag = true;
-					}
+					 returnValue = await this.creditService.flexibleStatementEmail(`CreditCard`,request.accountNumber , request.emailAddress ,statementDetails);
 				}else{
-					const returnValue = await this.creditService.flexibleStatementEmail(`AccessFacility`,request.accountNumber , request.emailAddress ,statementDetails);
-					if (returnValue.succeeded) 
-					{
-						flag = true;
-					}
-				}	
+					 returnValue = await this.creditService.flexibleStatementEmail(`AccessFacility`,request.accountNumber , request.emailAddress ,statementDetails);
+				}
+				if (returnValue.succeeded) 
+				{
+					flag = true;
+				}
 			}
 		}else if (this.creditOptionType==`Term Loan`)
 		{
 			if (request.dateInterval) 
 			{
 				let today = new Date().toISOString().slice(0, 10);
-				let fromRange = ``;
-				switch(request.dateInterval)
-				{
-					case "ONE_MONTH":
-						fromRange = this.getDateRange(`1`);
-						break;
-					case "THREE_MONTH":
-						fromRange = this.getDateRange(`3`);
-						break;
-					case "SIX_MONTH":
-						fromRange = this.getDateRange(`6`);
-						break;
-					case "NINE_MONTH":
-						fromRange = this.getDateRange(`9`);
-						break;	
-				}
-				if (fromRange!=``)
-				{
-					const returnValue = await this.creditService.fixedStatementEmail(request.accountNumber,request.emailAddress,today,fromRange);
-					if (returnValue.succeeded) 
-					{
-						flag = true;
-					}
-				}
-				
+				let fromRange = this.getFromDateFromSetDate(request.dateInterval);
+				returnValue = await this.creditService.fixedStatementEmail(request.accountNumber,request.emailAddress,today,fromRange);	
 			}
-			else{
-				const returnValue = await this.creditService.fixedStatementEmail(request.accountNumber,request.emailAddress,request.startDate,request.endDate);
-					if (returnValue.succeeded) 
-					{
-						flag = true;
-					}
+			else
+			{
+				returnValue = await this.creditService.fixedStatementEmail(request.accountNumber,request.emailAddress,request.startDate,request.endDate);
+			}
+
+			if (returnValue.succeeded) 
+			{
+				flag = true;
 			}
 		}
 		this._updateScreenDetails(request);
-		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `credit-statements`);
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `statements`);
 		if (flag) {
 			this.horizonRouter.navigateToCreditStatementSuccess();
 		} else {
@@ -460,10 +418,30 @@ export class Statements extends Component {
 		
 	}
 
+	getFromDateFromSetDate(interval)
+	{
+		 
+		switch(interval)
+		{
+			case "ONE_MONTH":
+				return this.getDateRange(`1`);
+				break;
+			case "THREE_MONTH":
+				return this.getDateRange(`3`);
+				break;
+			case "SIX_MONTH":
+				return this.getDateRange(`6`);
+				break;
+			case "NINE_MONTH":
+				return this.getDateRange(`9`);
+				break;	
+		}
+	}
+
 	getDateRange (item)
 	{
-		let currentdate = new Date();
-		
+		//let currentdate = new Date();
+		let currentdate = `2021-09-11`
 		switch (item)
 		{
 			case "1":
@@ -475,7 +453,6 @@ export class Statements extends Component {
 			case "9":
 				return new Date(currentdate.setMonth(currentdate.getMonth()-9)).toISOString().slice(0, 10);
 		}
-		
 		
 	}
 
