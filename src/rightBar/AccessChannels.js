@@ -192,6 +192,7 @@ export class AccessChannels extends Component {
 			this.landingInfo.app.dateLastUpdated = new Date().toISOString();
 
 			this._deepCopyStatus();
+			this._landingInfo();
 			return true;
 		}
 
@@ -257,6 +258,7 @@ export class AccessChannels extends Component {
 		this.landingInfo.ussd.status = `Inactive`;
 		this.landingInfo.ussd.dateLastUpdated = new Date().toISOString();
 		this._deepCopyStatus();
+		this._landingInfo();
 		return true;
 	}
 
@@ -275,6 +277,7 @@ export class AccessChannels extends Component {
 		this.landingInfo.ussd.dateLastUpdated = new Date().toISOString();
 
 		this._deepCopyStatus();
+		this._landingInfo();
 		return true;
 	}
 
@@ -297,6 +300,7 @@ export class AccessChannels extends Component {
 		this.landingInfo.ussd.features.splice(indexOfReducedMenu, 1);
 
 		this._deepCopyStatus();
+		this._landingInfo();
 		return true;
 	}
 
@@ -381,6 +385,7 @@ export class AccessChannels extends Component {
 		if (returnValue.succeeded) {
 			this.landingInfo.internetBanking.status = `Suspended`;
 			this.landingInfo.internetBanking.dateLastUpdated = new Date().toISOString();
+			this.landingInfo.internetBanking.statusReason = suspendReason;
 			
 			this._deepCopyStatus();
 			this._landingInfo();
@@ -408,6 +413,7 @@ export class AccessChannels extends Component {
 
 		this.landingInfo.internetBanking.dateLastUpdated = new Date().toISOString();
 		this._deepCopyStatus();
+		this._landingInfo();
 		return true;
 	}
 
@@ -667,7 +673,6 @@ export class AccessChannels extends Component {
 							<capitec-label type="default"
 								label="For added security, we will be sending a push notification to access additional transactions.">
 							</capitec-label>
-							<capitec-spacer></capitec-spacer>
 							<capitec-hyperlink
 								data-automation-id="ussd-profile-details-verify-click"
 								label="Verify Now"
