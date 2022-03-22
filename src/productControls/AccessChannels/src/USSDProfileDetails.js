@@ -22,8 +22,6 @@ export class USSDProfileDetails extends Component {
 		this.cancelReason = ``;
 		this.bannerTitle = ``;
 		this.bannerSubtitle = ``;
-		this.successToastDetails = ``;
-		this.unsuccessfulToastDetails = ``;
 		this.cellphoneNumber = ``;
 
 		// Active, Inactive, SIM Blocked Blocked, Service Unavailable - null
@@ -167,7 +165,7 @@ export class USSDProfileDetails extends Component {
 		if (returnValue) {
 			this.ussd.isSimBlocked = false;
 
-			this._displayAndCloseSuccessToast(this.unblockSIMSuccessToast);
+			this._displayAndCloseSuccessToast(this.unblockSIMSuccessToast, `unblock-sim`);
 		} else {
 			this._displayAndCloseUnsuccessfulToast(this.unblockSIMUnSuccessToast);
 		}
@@ -180,7 +178,7 @@ export class USSDProfileDetails extends Component {
 			if (returnValue) {
 				this.ussdStatus = `Inactive`;
 
-				this._displayAndCloseSuccessToast(this.cancelUSSDSuccessToast);
+				this._displayAndCloseSuccessToast(this.cancelUSSDSuccessToast, `cancel-ussd`);
 				this.showNotificationBanner = true;
 			} else {
 				this._displayAndCloseUnsuccessfulToast(this.cancelUSSDUnSuccessToast);
@@ -198,7 +196,7 @@ export class USSDProfileDetails extends Component {
 		const activateFullMenuUSSDSuccessful = await this.activateFullMenuUSSD();
 
 		if (activateFullMenuUSSDSuccessful) {
-			this._displayAndCloseSuccessToast(this.activateFullMenuSuccessToast);
+			this._displayAndCloseSuccessToast(this.activateFullMenuSuccessToast, `full-menu`);
 		} else {
 			this._displayAndCloseUnsuccessfulToast(this.activateFullMenuUnSuccessToast);
 		}
@@ -241,16 +239,16 @@ export class USSDProfileDetails extends Component {
 	}
 
 	// display success toast for 3 seconds
-	_displayAndCloseSuccessToast(detail) {
-		this.successToastDetails = detail;
+	_displayAndCloseSuccessToast(detail, action) {
 
 		const elementToast = this.shadowRoot.getElementById(`ussd-success-toast`);
 		elementToast.style.display = `block`;
-		elementToast.style.animation = `slideDown 0.6s`; 
+		elementToast.style.animation = `slideDown 0.6s`;
+		elementToast.setAttribute(`for`, action);
 
 		const detailLabel = elementToast.shadowRoot.querySelector(`label.detail`);
 		detailLabel.style.width = `210px`;
-		detailLabel.innerHTML = parseHTMLtoDOM(toastDetail);
+		detailLabel.innerHTML = parseHTMLtoDOM(detail);
 
 		window.setTimeout(() => {
 			elementToast.style.animation = `slideUp 0.6s`;
@@ -259,11 +257,14 @@ export class USSDProfileDetails extends Component {
 	}
 
 	_displayAndCloseUnsuccessfulToast(detail) {
-		this.unsuccessfulToastDetails = detail;
 
 		const elementToast = this.shadowRoot.getElementById(`ussd-unsuccessful-toast`);
-		detailLabel.style.width = `210px`;
+		elementToast.style.display = `block`;
 		elementToast.style.animation = `slideDown 0.6s`; 
+
+		const detailLabel = elementToast.shadowRoot.querySelector(`label.detail`);
+		detailLabel.style.width = `210px`;
+		detailLabel.innerHTML = parseHTMLtoDOM(detail);
 
 		window.setTimeout(() => {
 			elementToast.style.animation = `slideUp 0.6s`;
@@ -423,10 +424,10 @@ export class USSDProfileDetails extends Component {
 
 				--theme-toast-min-width: 312px;
 				--theme-toast-max-width: 312px;
-				--theme-toast-height: 126px;
+				--theme-toast-height: 106px;
 				--theme-icon-size-default: 24px;
 				--theme-toast-success-color: #3a3a3a;
-				--theme-toast-detail-line-height: 22px;
+				--theme-toast-detail-line-height: 20px;
 				--theme-toast-title-line-height: 22px;
 				--theme-label-subtitle-font-size: 14px;
 				--theme-label-subtitle-font-weight: 600;
@@ -435,6 +436,12 @@ export class USSDProfileDetails extends Component {
 				position: absolute;
 				z-index: 100;
 				display: none;
+			}
+			capitec-toast[for="unblock-sim"] {
+				--theme-toast-height: 126px;
+			}
+			capitec-toast[for="cancel-ussd"] {
+				--theme-toast-height: 166px;
 			}
 			capitec-radio-group{
 				--theme-buttonbar-item-gap: 14px;
@@ -890,7 +897,7 @@ export class USSDProfileDetails extends Component {
 				id="ussd-unsuccessful-toast"
 				type="error" 
 				header="Unsuccessful!"
-				detail="${this.unsuccessfulToastDetails}"
+				detail=""
 				@click="${(e) => this._closeToast(e)}"
 				closable>
 			</capitec-toast>
