@@ -1,7 +1,6 @@
 import { Component, html } from 'platform/elements';
-import { EventAggregator, Logger } from 'platform/core';
+import { Configuration, EventAggregator, Logger } from 'platform/core';
 import { ClientInsightsService } from 'app/services/ClientInsightsService';
-import { INSIGHTS_DETAILS } from 'app/constants/ClientInsights';
 import { ValueAddedService } from 'app/services/ValueAddedService';
 
 import 'platform/components';
@@ -25,6 +24,7 @@ export class Insights extends Component {
 		this.showVASNoClientDataModal = false;
 
 		this.eventAggregator = EventAggregator.getInstance();
+		this._configuration = Configuration.getInstance();
 		this.logger = Logger.getInstance();
 
 		this.valueAddedService = new ValueAddedService(() => this._toggleBusyFlag(), () => true);
@@ -143,10 +143,13 @@ export class Insights extends Component {
 		}
 	}
 
-	_formatInsights(insights) {
-		if (INSIGHTS_DETAILS[insights.parentCategoryId] && INSIGHTS_DETAILS[insights.parentCategoryId][insights.nbaId]) {
+	async _formatInsights(insights) {
+		
+		const insightDetails = await this._configuration.getSetting(`lbb-insight-details`);
+
+		if (insightDetails[insights.parentCategoryId] && insightDetails[insights.parentCategoryId][insights.nbaId]) {
 			
-			const displayDetails = INSIGHTS_DETAILS[insights.parentCategoryId][insights.nbaId];
+			const displayDetails = insightDetails[insights.parentCategoryId][insights.nbaId];
 
 			this.insightDetails = {
 				header: displayDetails.header,
