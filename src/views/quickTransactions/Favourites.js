@@ -64,7 +64,7 @@ export class Favourites extends SavingsAccountBase {
 		this.category = ``;
 		this.need = ``;
 		this.issue = ``;
-		this.landingPageInfo = null;
+		this.landingPageInfo = {};
 		this.curOptionEvent = null;
 		this.cards = [];
 		this.accountsInfo = [];
@@ -589,6 +589,7 @@ export class Favourites extends SavingsAccountBase {
 			return;
 		}
 
+		
 		const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber);
 
 		if (!returnValue.succeeded) {
@@ -604,11 +605,8 @@ export class Favourites extends SavingsAccountBase {
 			this._formatCreditOverviewResponse();
 			this.accountsInfo = [...this.creditAccountDetails.creditCardSummaryList, ...this.creditAccountDetails.accessFacilitySummaryList, ...this.creditAccountDetails.loanAccountSummaryList];
 
-			this.cardTypes = [`All`, `Term Loan`, `Credit`, `Access Facility`];
-
 			this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
 		}
-		// this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
 	}
 
 	_formatCreditOverviewResponse() {

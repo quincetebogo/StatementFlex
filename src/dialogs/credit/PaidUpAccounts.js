@@ -1,5 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
@@ -11,13 +10,13 @@ import 'app/dialogs/credit/PaidUpLetter';
 import 'app/components/common/HorizonProductTile'; 
 
 /**
- * This component implements the Paid Up Accounts Page for favourite landing page
- *
+ * 
  * @export
  * @class PaidUpAccounts
  * @extends {Component}
  * 
  */
+
 export class PaidUpAccounts extends Component {
 
 	// --------------
@@ -27,17 +26,19 @@ export class PaidUpAccounts extends Component {
 	constructor() {
 		super();
 
+		this.landingPageInfo = null;
+		this.accountsInfo = null;
+
+		this.showPaidUpLetter = false;
+		this.selectedAccounts = [];
+		this.isBusy = false;
+		this.accountsChecked = [];
+
 		this.checkAll = false;
 		this.isChecked = false;
-		// this.selectedAccounts = [];
-		this.showPaidUpLetter = false;
-		this.accountsInfo = [];
 		this.errorMessage = ``;
 		this.cardTypes = [];
-		this.landingPageInfo = null;
-		this.isBusy = false;
-		this.isAccountsChecked = [];
-		this.selectedAccounts = [];
+
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
@@ -47,22 +48,7 @@ export class PaidUpAccounts extends Component {
 	// PROPERTIES
 	// --------------
 
-	/**
-	 *
-	 * @property {Object} landingPageInfo Data for the Favourites Landing Page display
-	 * @property {Array} accountsInfo Clients account info to display
-	 * @readonly
-	 * @static
-	 * @memberof FavouriteTransactions
-	 */
-	static get properties() {
-		return {
-			landingPageInfo: { type: Object },
-			accountsInfo: { type: Array },
-			isBusy: { attribute: false },
-			showPaidUpLetter: { type: Boolean, attribute: false }
-		};
-	}
+	// N/A
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -71,21 +57,32 @@ export class PaidUpAccounts extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.initialize();
+		this._initialise();
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
-	initialize() {
+	_initialise() {
 
-		/*
-		for (let index = 0; index < this.accountsInfo.length; index++) {
-			this.isAccountsChecked[index] = false;
+		this.cardTypes = [`All`, `Term Loan`, `Credit`, `Access Facility`];
+
+		if (this.accountsInfo) {
+			for (let index = 0; index < this.accountsInfo.length; index++) {
+				this.accountsChecked[index] = false;
+			}
+	
+			this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
 		}
-		*/
+	}
 
+	_back() {
+		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
 	_toggleBusyFlag() {
@@ -93,8 +90,8 @@ export class PaidUpAccounts extends Component {
 	}
 
 	_isAnySelected() {
-		for (let index = 0; index < this.isAccountsChecked.length; index++) {
-			if (this.isAccountsChecked[index] === true) {
+		for (let index = 0; index < this.accountsChecked.length; index++) {
+			if (this.accountsChecked[index] === true) {
 				return true;
 			}
 		}
@@ -104,15 +101,11 @@ export class PaidUpAccounts extends Component {
 		return false;
 	}
 
-	_back() {
-		this.dispatchEvent(new CustomEvent(`back`, {}));
-	}
-
 	_showPaidUpLetter () {
 		this.selectedAccounts = [];
 		if (this._isAnySelected()) {
-			for (let index = 0; index < this.isAccountsChecked.length; index++) {
-				if (this.isAccountsChecked[index]) {
+			for (let index = 0; index < this.accountsChecked.length; index++) {
+				if (this.accountsChecked[index]) {
 					this.selectedAccounts[index] = this.accountsInfo[index];
 				}
 			}
@@ -298,9 +291,7 @@ export class PaidUpAccounts extends Component {
 			</capitec-card>`;
 	}
 
-	/* ${this.accountsInfo.map((item, index) => this._renderAccounts(item, index))}*/
 	_renderPaidUpAccounts() {
-		const accInfo = this.accountsInfo;
 		return this.renderMode === RENDER_MODE.PAID_UP_ACCOUNTS ? html`
 			<capitec-action-bar>
 				<capitec-search-field label="Search loan , amount or account number" style="width: 320px;" value focussed></capitec-search-field>
@@ -343,7 +334,7 @@ export class PaidUpAccounts extends Component {
 						<capitec-check 
 							data="${item}"
 							@value-changed=${(e) => this._checkBox(e, index)}
-							?checked="${this.isAccountsChecked[index]}">>
+							?checked="${this.accountsChecked[index]}">>
 						</capitec-check>
 					</capitec-group>
 						<horizon-label
@@ -353,15 +344,15 @@ export class PaidUpAccounts extends Component {
 						<div class="vertical-line"></div>
 						<horizon-label
 							label="Credit taken up"
-							value="R${(Math.floor(Math.random() * 99) + 50).toString()} ${(Math.floor(Math.random() * 1000) + 100).toString()}.00">
+							value="${item.creditLimit}">
 						</horizon-label>
 						<horizon-label
 							label="Installment"
-							value="R${(Math.floor(Math.random() * 10) + 1).toString()} ${(Math.floor(Math.random() * 1000) + 100).toString()}.00">
+							value="${item.repayAmount ?? item.nextRepayment}">
 						</horizon-label>
 						<horizon-label
 							label="Settlement Amount"
-							value="R${(Math.floor(Math.random() * 30) + 10).toString()} ${(Math.floor(Math.random() * 1000) + 100).toString()}.00">
+							value="${item.currentBalance}">
 						</horizon-label>
 		</capitec-group>
 		`;
@@ -370,17 +361,17 @@ export class PaidUpAccounts extends Component {
 	_checkBox(event, index) {
 		this._clearErrors();
 
-		if (this.isAccountsChecked[index] === true) {
-			this.isAccountsChecked[index] = false;
+		if (this.accountsChecked[index] === true) {
+			this.accountsChecked[index] = false;
 		} else {
-			this.isAccountsChecked[index] = true;
+			this.accountsChecked[index] = true;
 			this._clearErrors();
 		}
 
-		if (this.isAccountsChecked.every(val => val === true)) {
+		if (this.accountsChecked.every(val => val === true)) {
 			this.checkAll = false;
 			this.isChecked = true;
-		} else if (this.isAccountsChecked.every(val => val === false)) {
+		} else if (this.accountsChecked.every(val => val === false)) {
 			this.checkAll = false;
 			this.isChecked = false;
 		} else {
@@ -393,14 +384,14 @@ export class PaidUpAccounts extends Component {
 	_selectAll() {
 		this.checkAll = false;
 
-		if (this.isAccountsChecked.every(val => val === true)) {
-			for (let index = 0; index < this.isAccountsChecked.length; index++) {
-				this.isAccountsChecked[index] = false;
+		if (this.accountsChecked.every(val => val === true)) {
+			for (let index = 0; index < this.accountsChecked.length; index++) {
+				this.accountsChecked[index] = false;
 			}
 		} else {
 			this.isChecked = true;
-			for (let index = 0; index < this.isAccountsChecked.length; index++) {
-				this.isAccountsChecked[index] = true;
+			for (let index = 0; index < this.accountsChecked.length; index++) {
+				this.accountsChecked[index] = true;
 			}
 		}
 		this.requestUpdate();
