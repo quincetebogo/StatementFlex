@@ -1,7 +1,6 @@
 import { Component, html } from 'platform/elements';
 import { Configuration, EventAggregator, Logger } from 'platform/core';
 import { ClientInsightsService } from 'app/services/ClientInsightsService';
-import { INSIGHTS_DETAILS } from 'app/constants/ClientInsights';
 import { ValueAddedService } from 'app/services/ValueAddedService';
 
 import 'platform/components';
