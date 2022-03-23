@@ -52,7 +52,8 @@ const HORIZON_ROUTES = Object.freeze({
 	SETTLEMENT_QUOTE_SUCCESS: `/success/settlement-quote`,
 	SETTLEMENT_QUOTE_FAILURE: `/error/settlement-quote`,
 	SETTLE_AND_CLOSE_SUCCESS: `/success/settle-and-close`,
-	SETTLE_AND_CLOSE_FAILURE: `/error/settle-and-close`
+	SETTLE_AND_CLOSE_FAILURE: `/error/settle-and-close`,
+	SAVINGS_PLAN: `/transact/savings-plan`  
 });
 
 
@@ -268,7 +269,7 @@ export class HorizonRouter {
 		const insure = () => this.navigateToProductInfo(ivrOption);
 		const savings = () => this.navigateToSavingsAccount();
 		const credit = () => this.navigateToCreditAccount();
-		const savingsPlan = () => this.navigateToProductInfo(ivrOption);
+		const savingsPlan = () => this.navigateToSavingsPlan();
 		const liveBetterSavings = () => this.navigateToLiveBetter();
 		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
 
@@ -335,6 +336,10 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.LIVE_BETTER}`);
 	}
 
+	navigateToSavingsPlan() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_PLAN}`);
+	}
+	
 	_productLandingPagesActive() {
 		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
 	}
@@ -853,14 +858,6 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SETTLE_AND_CLOSE_SUCCESS,
 		load: () => import(`../views/credit/SettleAndCloseSuccess`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-	},
-	{
-		name: `horizon-settle-and-close-failure`,
-		title: `SettleAndCloseFailure`,
-		icon: null,
-		path: HORIZON_ROUTES.SETTLE_AND_CLOSE_FAILURE,
-		load: () => import(`../views/credit/SettleAndCloseFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}
 ];

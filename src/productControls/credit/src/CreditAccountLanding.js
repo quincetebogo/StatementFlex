@@ -566,7 +566,7 @@ export class CreditAccountLanding extends Component {
 					label="Settlement Quote"
 					icon="system/documents-action"
 					?hidden="${true}"
-					@click="${() => this._click(`settlement-quote`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, [selectedAccountDetails])}">
+					@click="${() => this._click(`settlement-quote`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-paid-up-letter"
@@ -580,7 +580,7 @@ export class CreditAccountLanding extends Component {
 					label="Settle & Close"
 					icon="system/close-circle-action"
 					?hidden="${true}"
-					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD)}">
+					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
 			</horizon-option-button>
 		`;
 	}
@@ -599,7 +599,7 @@ export class CreditAccountLanding extends Component {
 					label="Settlement Quote"
 					icon="system/documents-action"
 					?hidden="${true}"
-					@click="${() => this._click(`settlement-quote`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.ACCESS_FACILITY, [selectedAccountDetails])}">
+					@click="${() => this._click(`settlement-quote`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.ACCESS_FACILITY, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-paid-up-letter"
@@ -625,7 +625,7 @@ export class CreditAccountLanding extends Component {
 					label="Settlement Quote"
 					icon="system/documents-action"
 					?hidden="${true}"
-					@click="${() => this._click(`settlement-quote`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN)}">
+					@click="${() => this._click(`settlement-quote`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-paid-up-letter"
@@ -639,7 +639,7 @@ export class CreditAccountLanding extends Component {
 					label="Settle Loan"
 					icon="system/close-circle-action"
 					?hidden="${true}"
-					@click="${() => this._click(`settle-loan`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN)}">
+					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, selectedAccountDetails)}">
 			</horizon-option-button>
 		`;
 	}

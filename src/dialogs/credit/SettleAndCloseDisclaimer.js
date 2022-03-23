@@ -47,7 +47,7 @@ export class SettleAndCloseDisclaimerDialog extends Component {
 	}
 
 	_continueClick() {
-		// TODO: Navigation to settle and close modal should come here
+		this.dispatchEvent(new CustomEvent(`continue`));
 	}
 
 	// --------------
@@ -199,4 +199,4 @@ export class SettleAndCloseDisclaimerDialog extends Component {
 	}
 
 }
-window.customElements.define(`horizon-settle-n-close-dialog`, SettleAndCloseDisclaimerDialog);
+window.customElements.define(`horizon-settle-n-close-disclaimer`, SettleAndCloseDisclaimerDialog);
