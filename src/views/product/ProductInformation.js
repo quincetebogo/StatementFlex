@@ -1,9 +1,8 @@
-I himport { Configuration, NavigationContext } from 'platform/core';
+import { Configuration, NavigationContext } from 'platform/core';
+import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
 import { ProductInfoEvents } from 'app/constants/telemetry/events/ProductInformation';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { html } from 'platform/elements';
-
-import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
 
 import 'app/components/product/CnetProductInfo';
 

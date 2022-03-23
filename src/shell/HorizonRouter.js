@@ -269,7 +269,6 @@ export class HorizonRouter {
 		const insure = () => this.navigateToProductInfo(ivrOption);
 		const savings = () => this.navigateToSavingsAccount();
 		const credit = () => this.navigateToCreditAccount();
-		const savingsPlan = () => this.navigateToProductInfo(`SavingsPlan`);
 		const savingsPlan = () => this.navigateToSavingsPlan();
 		const liveBetterSavings = () => this.navigateToLiveBetter();
 		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
@@ -859,10 +858,6 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SETTLE_AND_CLOSE_SUCCESS,
 		load: () => import(`../views/credit/SettleAndCloseSuccess`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-	},
-	{
-		icon: null,
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}
 ];
