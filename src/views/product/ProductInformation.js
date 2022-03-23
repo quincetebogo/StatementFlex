@@ -1,4 +1,4 @@
-import { Configuration, NavigationContext } from 'platform/core';
+I himport { Configuration, NavigationContext } from 'platform/core';
 import { ProductInfoEvents } from 'app/constants/telemetry/events/ProductInformation';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { html } from 'platform/elements';
