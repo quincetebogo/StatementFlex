@@ -1,4 +1,6 @@
-import { View, css, html } from 'platform/elements';
+import { css, html } from 'platform/elements';
+import { ViewBase } from 'app/views/common/ViewBase';
+
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import { RENDER_MODE } from 'app/views/common/RenderModes';
@@ -20,7 +22,7 @@ import 'app/components/insure/InsureUpdatePlan';
  * @class ExistingClient
  * @extends {View}
  */
-export class ExistingClient extends View {
+export class ExistingClient extends ViewBase {
 
 	//#region INITIALISATION
 
@@ -31,6 +33,7 @@ export class ExistingClient extends View {
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
+
 
 	//#endregion
 
@@ -52,6 +55,14 @@ export class ExistingClient extends View {
 	async _enterCalculateEstimate() {
 		// Telemetry Here
 		this.renderMode = RENDER_MODE.INSURE_GET_ESTIMATE;
+		this.requestUpdate();
+	}
+	/**
+	 * Change renderMode to get estimate
+	 */
+	async _enterUpdatePlan() {
+		// Telemetry Here
+		this.renderMode = RENDER_MODE.UPDATE_PLAN;
 		this.requestUpdate();
 	}
 
@@ -145,8 +156,8 @@ export class ExistingClient extends View {
 			// case RENDER_MODE.INSURE_CLAIMS:
 			// 	return html`<insure-claims></insure-claims>`;
 
-			// case RENDER_MODE.UPDATE_PLAN:
-			// 	return html`<insure-update-plan></insure-update-plan>`;
+			case RENDER_MODE.UPDATE_PLAN:
+				return html`<insure-update-plan></insure-update-plan>`;
 			default:
 				return html``;
 		}

@@ -77,18 +77,11 @@ class InsureCalculateEstimate extends Component {
 	}
 
 	/**
-	 * Save estimate and move on to quote views
-	 */
-	_createQuote() {
-		console.log('Navigating to Quote');
-	}
-
-	/**
 	 * Calculate estimate via OIPA
 	 */
 	_calculate() {
 
-		// Call OIPA
+		// Call FIPS Service
 
 
 		// Cleanup
@@ -171,8 +164,8 @@ class InsureCalculateEstimate extends Component {
 			}
 			.estimate-column-left{
 				margin: 10px;
-				flex: 4 1 auto;
-				min-height: calc(100vh - 200px);
+				flex: 2 1 520px;
+				min-height: calc(100vh - 300px);
 			}
 			.estimate-column-right{
 				margin: 10px;
@@ -194,7 +187,7 @@ class InsureCalculateEstimate extends Component {
 			.card-section-heading-with-remove{
 				display: flex;
 				justify-content: space-between;
-				padding: 15px 15px 0px 15px;	
+				padding: 15px 15px 20px 15px;	
 			}
 
 			.estimate-card {
@@ -228,7 +221,7 @@ class InsureCalculateEstimate extends Component {
 			}
 			
 			.stronger{
-				font-weight: bold;
+				font-weight: bolder;
 			}
 
 			.link{
@@ -311,12 +304,11 @@ class InsureCalculateEstimate extends Component {
 			<capitec-label label="Lives Assured" type="subtitle" class="stronger">
 			</capitec-label>
 		
-			<capitec-label label="Add Beneficiary" type="subtitle" class="stronger link"
+			<capitec-label label="Add Life Assured" type="subtitle" class="stronger link"
 				@click="${() => this._showAddLifeModal()}">
 			</capitec-label>
 		</div>
 		${this.estimate.lifesAssured.map(lifeAssured => html`
-		<capitec-spacer></capitec-spacer>
 		<div class="estimate-card">
 			<div class="estimate-card-header">
 				<capitec-label label="${lifeAssured.relationship == 'MainLife' ? 'Main Life: You' : lifeAssured.relationship}"
@@ -353,21 +345,21 @@ class InsureCalculateEstimate extends Component {
 	_renderLeftColumn() {
 		return html`
 		<div class="estimate-column-left">
-			<div class="card-section-heading">
-				<capitec-label label="Total Premium" type="subtitle" class="stronger">
-				</capitec-label>
-			</div>
-			<div class="estimate-card">
-				<div style="display: flex; justify-content: space-between; padding: 20px">
-					<capitec-group layout="vertical" valign="center" halign="left" gap="none">
-						<capitec-label type="subtitle" class="" label="Total Premium">
+			<!-- <div class="card-section-heading">
+						<capitec-label label="Total Premium" type="subtitle" class="stronger">
 						</capitec-label>
-						<capitec-label type="subtitle" class="stronger" label="R25.00"></capitec-label>
-					</capitec-group>
-					<capitec-button label="Calculate" icon="generic/calculator" type="clear" icon-placement="right"
-						@click="${() => this._calculate()}"></capitec-button>
-				</div>
-			</div>
+					</div>
+					<div class="estimate-card">
+						<div style="display: flex; justify-content: space-between; padding: 20px">
+							<capitec-group layout="vertical" valign="center" halign="left" gap="none">
+								<capitec-label type="subtitle" class="" label="Total Premium">
+								</capitec-label>
+								<capitec-label type="subtitle" class="stronger" label="R25.00"></capitec-label>
+							</capitec-group>
+							<capitec-button label="Calculate" icon="generic/calculator" type="clear" icon-placement="right"
+								@click="${() => this._calculate()}"></capitec-button>
+						</div>
+					</div> -->
 		
 			${this._renderLifeCards()}
 		</div>
@@ -431,25 +423,24 @@ class InsureCalculateEstimate extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-content-box layout="vertical" halign="stretch" valign="top" gap="clear">
-			<capitec-title-bar type="insure"
-				style="margin-bottom: 0px; border-top-left-radius: 5px; border-top-right-radius: 5px;">
-				<capitec-icon size="title" icon="system/back-white" @click="${() => this._back()}" data-automation-id="????">
-				</capitec-icon>
-				<capitec-label label="Get an estimate" type="title"></capitec-label>
-				<capitec-spacer></capitec-spacer>
-				<!-- <capitec-button label="Add a life to policy" type="white" @click="${() => this._showAddLifeModal()}">
-																																																																				</capitec-button> -->
-				<capitec-button label="Save the quote" type="white" @click="${() => this._createQuote()}"
-					.disabled="${this.calculationUpToDate == false}"></capitec-button>
-			</capitec-title-bar>
-			<capitec-card style="padding: 10px;">
-				<div class="estimate-columns">
-					${this._renderLeftColumn()}
-					${this._renderRightColumn()}
-				</div>
-			</capitec-card>
-		</capitec-content-box>
+		<!-- <capitec-content-box layout="vertical" halign="stretch" valign="top" gap="clear"> -->
+		<capitec-title-bar type="insure" style="margin-bottom: 0px; border-top-left-radius: 5px; border-top-right-radius: 5px;">
+			<capitec-icon size="title" class="icon dark system" icon="system/arrow-left-white" @click="${() => this._back()}"
+				data-automation-id="????">
+			</capitec-icon>
+			<capitec-label label="Get an estimate" type="title"></capitec-label>
+			<capitec-spacer></capitec-spacer>
+			<!-- <capitec-button label="Add a life to policy" type="white" @click="${() => this._showAddLifeModal()}">
+																																																																								</capitec-button> -->
+			<capitec-button label="Calculate" type="white" @click="${() => this._calculate()}"></capitec-button>
+		</capitec-title-bar>
+		<capitec-card style="padding: 10px;">
+			<div class="estimate-columns">
+				${this._renderLeftColumn()}
+				${this._renderRightColumn()}
+			</div>
+		</capitec-card>
+		<!-- </capitec-content-box> -->
 		${this._renderAddLifeModal()}
 		`;
 	}

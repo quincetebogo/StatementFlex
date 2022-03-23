@@ -121,15 +121,15 @@ class InsurePolicyList extends Component {
 		 */
 
 		 this._policies = [
-			// {
-			// 	policyNumber: `ABC01`,
-			// 	effectiveDate: `01 Feb 2019`,
-			// 	debitOrderDate: `25 May 2019`,
-			// 	coverAmount: 35000.50,
-			// 	totalPremium: 88.50,
-			// 	status: `Active`,
-			// 	inArrears: false
-			// }
+			{
+				policyNumber: `ABC01`,
+				effectiveDate: `01 Feb 2019`,
+				debitOrderDate: `25 May 2019`,
+				coverAmount: 35000.50,
+				totalPremium: 88.50,
+				status: `Active`,
+				inArrears: false
+			}
 		];
 
 		// ,
@@ -142,40 +142,6 @@ class InsurePolicyList extends Component {
 		// 		status: `In Arrears`,
 		// 		inArrears: true
 		// 	}
-
-		this._quotesPlaceholderData = html`
-		<div style="padding: 5px">
-			Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ullamcorper neque eu tempus porta. Aliquam a elit
-			non
-			velit iaculis faucibus vel eget mauris. Etiam a rutrum arcu. Aliquam sollicitudin posuere tellus, vitae auctor diam
-			commodo at. Morbi quam ipsum, dignissim ut ipsum a, sagittis vehicula ante.
-			Aliquam pretium volutpat mauris, ac condimentum purus imperdiet ut. Fusce posuere ligula et diam congue dictum in eu
-			sapien. Morbi vitae euismod tellus, eget semper nibh. Donec magna neque, convallis eget dapibus id, dapibus sit amet
-			justo. Sed lobortis nibh at risus cursus euismod. Pellentesque vehicula ut eros ut aliquet.</div>
-		
-		<div style="padding: 5px">Duis ac diam tellus. Sed quis velit lobortis, consequat purus vel, tristique augue. Nulla a
-			magna blandit, congue
-			libero
-			suscipit, tristique odio. Suspendisse commodo orci id volutpat faucibus.
-			Duis posuere auctor dolor vel ultrices. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere
-			cubilia
-			curae; Sed urna ligula, scelerisque sit amet elit id, ullamcorper auctor odio. Fusce ultrices risus elit, ac maximus
-			sem
-			rhoncus et. Duis feugiat, leo in placerat fermentum, quam nulla tempor lorem, quis consectetur diam magna pulvinar
-			ante.
-			Sed posuere, ipsum elementum fringilla mattis, quam justo gravida tellus, a congue arcu libero at massa.
-			Aliquam ut rutrum urna. Curabitur vel neque luctus, sagittis augue ac, finibus urna. Duis varius, tellus sit amet
-			tincidunt efficitur, ligula felis tempor purus, ut faucibus libero augue vel justo.</div>
-		
-		<div style="padding: 5px">
-			Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ullamcorper neque eu tempus porta. Aliquam a elit
-			non
-			velit iaculis faucibus vel eget mauris. Etiam a rutrum arcu. Aliquam sollicitudin posuere tellus, vitae auctor diam
-			commodo at. Morbi quam ipsum, dignissim ut ipsum a, sagittis vehicula ante.
-			Aliquam pretium volutpat mauris, ac condimentum purus imperdiet ut. Fusce posuere ligula et diam congue dictum in eu
-			sapien. Morbi vitae euismod tellus, eget semper nibh. Donec magna neque, convallis eget dapibus id, dapibus sit amet
-			justo. Sed lobortis nibh at risus cursus euismod. Pellentesque vehicula ut eros ut aliquet.</div>
-		`;
 	}
 
 	// ---------------
@@ -239,32 +205,21 @@ class InsurePolicyList extends Component {
 		return html`
 			<capitec-title-bar type="insure"
 				style="margin-bottom: 0px; border-top-left-radius: 5px; border-top-right-radius: 5px;">
-				<img class="left-arrow-icon" src="/images/insure/left-arrow.svg" @click="${() => this._back()}" />
+				<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 				<capitec-label label="Insure" type="title"></capitec-label>
 				<capitec-spacer></capitec-spacer>
 				<capitec-button type="white" label="Get Estimate" @click=${(event)=>
 										this._viewCalculateEstimate(event)}>
 				</capitec-button>
 			</capitec-title-bar>
-		
-			<capitec-tab-group>
-				<capitec-tab label="Policies">
-					${this._policies.map(policyItem => html`
-					<horizon-insure-accordion
-						.cardOptions="${policyItem.inArrears === true ? POLICY_CARDS_ORDER_ARREARS : POLICY_CARDS_ORDER_DEFAULT}"
-						.policy="${policyItem}" .inArrears="${policyItem.inArrears}" @clickedRouteCard=${(event)=>
-										this._actionCardClicked(event)} @clickedViewPlan=${(event)=>
-										this._viewPlan(event)} >
-					</horizon-insure-accordion>`)}
-				</capitec-tab>
-		
-				<capitec-tab label="Quotes">
-					<div>
-						${this._quotesPlaceholderData}
-					</div>
-				</capitec-tab>
-			</capitec-tab-group>
-			<!-- ${this._renderExploreInsure()} -->
+
+			${this._policies.map(policyItem => html`
+			<horizon-insure-accordion
+				.cardOptions="${policyItem.inArrears === true ? POLICY_CARDS_ORDER_ARREARS : POLICY_CARDS_ORDER_DEFAULT}"
+				.policy="${policyItem}" .inArrears="${policyItem.inArrears}" @clickedRouteCard=${(event)=>
+								this._actionCardClicked(event)} @clickedViewPlan=${(event)=>
+								this._viewPlan(event)} >
+			</horizon-insure-accordion>`)}
 		${this._renderEmailPlanModal()}`;
 	}
 

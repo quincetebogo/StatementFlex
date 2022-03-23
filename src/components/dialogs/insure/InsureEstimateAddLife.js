@@ -329,7 +329,7 @@ class InsureEstimateAddLifeModal extends Component {
 	 */
 	_renderBody() {
 		return html`
-		<capitec-content-box style="height: 340px">
+		<capitec-content-box style="height: 370px">
 			${this.showExtendedList == false ? this._renderDefaultList() : this._renderExtendedFamilyList()}
 		</capitec-content-box>
 		`;
