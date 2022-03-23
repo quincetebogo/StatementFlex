@@ -1,8 +1,9 @@
+import { ACCOUNT_TYPE_CODE } from 'app/constants/Common';
+
 export const DEFAULTS = Object.freeze({
 	SEARCH_TEXT_LABEL: `Search loan, amount or account number`,
 	TYPE_LABEL: `Credit type`
 });
-
 
 export const CREDIT_TYPE_LIST = Object.freeze([
 'All',
@@ -22,9 +23,9 @@ export const CREDIT_TYPE = {
 };
 
 export const FROM_ACCOUNTS_LIST = [
-		// Primary savings
-		300
-	];
+	ACCOUNT_TYPE_CODE.PRIMARY_SAVINGS,
+	ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN
+];
 	
 export const CREDIT_ACCOUNT_TYPE = {
 		101: CREDIT_TYPE.FLEXIBLE, // Credit card

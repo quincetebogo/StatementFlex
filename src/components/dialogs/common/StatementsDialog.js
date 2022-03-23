@@ -634,6 +634,8 @@ export class StatementsDialog extends Component {
 					--theme-select-options-max-height: 304px;
 					--theme-input-icon-margin-left: 16px;
 					--theme-icon-size-small: 24px;
+					--theme-input-padding-top: 8px;
+					--theme-input-padding-bottom: 8px;
 				}
 			`
 		];
