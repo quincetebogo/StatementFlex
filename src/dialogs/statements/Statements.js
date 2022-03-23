@@ -236,9 +236,34 @@ export class Statements extends Component {
 	{
 		let dateSelected = request.month;
 		var returnValue ;
-		if (this.creditOptionType == `Credit card` || this.creditOptionType == `Access facility`)
+		
+
+		// const statement = {
+		// 	"cifNumber": this.cifNumber,
+		// 	"accountNumber": `${request.accountNumber}`,
+		// 	"accountType": `${request.accountType}`,
+		// 	"statementDateRange": {
+		// 		"dateRange": {},
+		// 		"presetInterval": `${request.dateInterval}`
+		// 	}
+		// };
+		// await this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_VIEW_PDF, {
+		// 	'cifNumber': statement.cifNumber,
+		// 	'accountNumber': statement.accountNumber,
+		// 	'accountType': statement.accountType,
+		// 	'dateRange': !request.startDate && !request.endDate ? `` : `${request.startDate}-${request.endDate}`,
+		// 	'statement-period': statement.statementDateRange.parseInterval
+		// });
+
+		if (this.creditOptionType == `Credit card` || this.creditOptionType == `Access facility` ||request.accountType==`FLEXIBLE_CREDIT`)
 		{
+			if (this.availableMonthlyStatementsList == null)
+			{
+				this.creditOptionType = await this.getCreditOptionType(request.accountNumber);				
+			}
+			
 			let statementInfo = this.findStatement(dateSelected);
+	
 			returnValue = this.getflexStatement(this.creditOptionType , statementInfo);
 			if (returnValue!=null)
 			{
@@ -246,12 +271,11 @@ export class Statements extends Component {
 			}
 			return null;
 		}
-		else if (this.creditOptionType==`Term Loan`)
+		else if (this.creditOptionType==`Term Loan` || request.accountType==`FIXED_TERM_CREDIT`)
 		{	
 			if (request.dateInterval) 
 			{
-				//let today = new Date().toISOString().slice(0, 10);
-				let today = `2021-09-11`
+				let today = new Date().toISOString().slice(0, 10);
 				let fromRange =this.getFromDateFromSetDate(request.dateInterval);
 				returnValue = await this.creditService.fixedStatement(request.accountNumber,fromRange,today,``);
 			}
@@ -267,6 +291,33 @@ export class Statements extends Component {
 		}
 		return null;
 
+	}
+
+	async getCreditOptionType(accountNumber)
+	{
+		let i = 0 ;
+		while (i < this.clientProducts.length)
+		{
+			if (this.clientProducts[i].accountNumber == accountNumber)
+			{
+				this.availableMonthlyStatementsList = await this.getAvailableMonthlyStatementsList(accountNumber , this.clientProducts[i].accountName)
+				return this.clientProducts[i].accountName; 
+			}
+			i++;
+		}
+	}
+	async getAvailableMonthlyStatementsList(accNum ,productType )
+	{
+		if(productType==`Credit card`)
+		{
+			const returnValue = await this.creditService.flexibleStatementList(accNum,`CreditCard`);
+			return returnValue.result.monthlyStatements;
+		}
+		else if(productType==`Access Facility`)
+		{
+			const returnValue = await this.creditService.flexibleStatementList(accNum,`AccessFacility`);
+			return returnValue.result.monthlyStatements;
+		}
 	}
 	async getflexStatement(creditOptionType ,statementInfo )
 	{
@@ -369,8 +420,13 @@ export class Statements extends Component {
 	{
 		let flag = false;
 		var returnValue;
-		if (this.creditOptionType == `Credit card` || this.creditOptionType == `Access facility`)
+		if (this.creditOptionType == `Credit card` || this.creditOptionType == `Access facility` ||request.accountType==`FLEXIBLE_CREDIT`)
 		{
+			if (this.availableMonthlyStatementsList == null)
+			{
+				this.creditOptionType = await this.getCreditOptionType(request.accountNumber);				
+			}
+			
 			for (let i = 0; i < request.monthInterval.length; i++)
 			{
 				let dateSelected = request.monthInterval[i];
@@ -389,7 +445,7 @@ export class Statements extends Component {
 					flag = true;
 				}
 			}
-		}else if (this.creditOptionType==`Term Loan`)
+		}else if (this.creditOptionType==`Term Loan` || request.accountType==`FIXED_TERM_CREDIT`)
 		{
 			if (request.dateInterval) 
 			{
