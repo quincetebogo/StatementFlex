@@ -192,7 +192,7 @@ export class ProfileAndProductSummaryBar extends Component {
 		if (this.callerInformation.verificationStatus === `verified`) {
 			this.horizonRouter.navigateToLandingPage(this.product, false);
 			return;
-		} 
+		}
 		
 		this.horizonRouter.navigateToProductInfo(this.product);
 	}
