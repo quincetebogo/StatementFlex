@@ -203,6 +203,8 @@ export function isWellFormedSouthAfricanID(southAfricanIDNumber) {
 }
 
 /**
+ * @export
+ * @param {string} value string value to be formatted
  * @param {string} format - Format, we wish to convert (dd/mm/yyyy)
  * @returns {string} formatted string value 
  */
@@ -241,7 +243,9 @@ export function formatDate(value, format) {
  * 
  * Formats strings as pascal case
  * 
+ * @export
  * @param {string} unformatedString - Unformatted string
+ * @returns {string} formatted string
  */
 export function formatStringAsPascalCase(unformatedString) {
 
@@ -254,6 +258,9 @@ export function formatStringAsPascalCase(unformatedString) {
 	return formattedString.trim();
 }
 
+/**
+ * @export
+ * @param {string} str un-capitalized string
  * @returns {string} A capitalized string
  */
 export function capitalizeString(str) {
