@@ -7,6 +7,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { capitalizeString } from 'app/utils/channelServiceUtilities';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
@@ -223,11 +224,10 @@ export class RelatedOptions extends Component {
 			this.clientProducts = clientProductDetails.map(item => {
 									const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType][item.interestCategory] || 
 														ACCOUNT_INTCAT_ENUM[item.accountType];
-									const accName = item.accountName.toLowerCase();
 
 									return {
 										'accountNumber': item.accountNumber,
-										'accountName': `${accName.charAt(0).toUpperCase()}${accName.slice(1)}`,
+										'accountName': capitalizeString(item.accountName),
 										'accountType': item.accountType,
 										'accountOpenDate': item.accountOpenDate,
 										'type': productInfo.type,
