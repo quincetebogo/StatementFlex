@@ -59,12 +59,10 @@ export class CreditAccount extends ViewBase {
 		this.flexibleCreditAccounts = [];
 		this.fixedTermCreditAccounts = []; 
 		this.creditBalance = ``;
-		this.availableMonthlyStatementsList = [];
-		this.creditOptionType = ``;
 		this.productType = ``;
 		this.creditType = ``;
 		// ccs status of client set to true until real value retrieved from CS
-		this.ccsStatus = true;
+		this.ccsStatus = false;
 		this.showCCSmodal = false;
 		this.showSettleCloseModal = false;
 
@@ -420,17 +418,6 @@ export class CreditAccount extends ViewBase {
 
 	async _getStatements(creditType, productType, productCode, accNum, openDate) {
 		// TO DO: Place holder for credit statements flow.
-		this.creditOptionType = productType;
-		if(productType==`Credit card`)
-		{
-			const returnValue = await this.creditService.flexibleStatementList(accNum,`CreditCard`);
-			this.availableMonthlyStatementsList = returnValue.result.monthlyStatements;
-		}
-		else if(productType==`Access Facility`)
-		{
-			const returnValue = await this.creditService.flexibleStatementList(accNum,`AccessFacility`);
-			this.availableMonthlyStatementsList = returnValue.result.monthlyStatements;
-		}
 
 		if (this.ccsStatus) {
 			this.showCCSmodal = true;
@@ -854,8 +841,6 @@ export class CreditAccount extends ViewBase {
 				.cifNumber="${this.callerInformation.cifNumber}"
 				.clientProducts="${this.clientProducts}"
 				type="${ACCOUNT_TYPES.CREDIT}"
-				.availableMonthlyStatementsList ="${this.availableMonthlyStatementsList}"
-				.creditOptionType ="${this.creditOptionType}"
 				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}"
 				@cancel="${() => this._backToLandingPage()}"
 				@account-selected="${(event) => this._statementsAccConfirmed(event)}">

@@ -43,6 +43,8 @@ export class Statements extends Component {
 		this._telemetry = HorizonTelemetry.instance;
 		this.taxCertificateDetails = null;
 		this.selectedDatesList = [];
+		this.availableMonthlyStatementsList = [];
+		this.creditOptionType = ``;
 		this._telemetryEventsImport();
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), () => true);
@@ -57,7 +59,6 @@ export class Statements extends Component {
 	 * @property {string} cifNumber The client's CIF number
 	 * @property {Array} clientProducts Contains list of products that the client has.
 	 * @property {string} type Contains the type of account
-	 * @property {string} availableMonthlyStatementsList Contains all the avaliable statements a client has for a particular product type and specific account number
 	 * @readonly
 	 * @static
 	 * @memberof Statements
@@ -66,9 +67,7 @@ export class Statements extends Component {
 		return {
 			cifNumber: { type: String },
 			clientProducts: { type: Array },
-			creditOptionType: { type: String },
 			accountType: { type: String, attribute: `type` },
-			availableMonthlyStatementsList: {type: Array},
 			isBusy: { state: true }
 		};
 	}
@@ -236,32 +235,12 @@ export class Statements extends Component {
 	{
 		let dateSelected = request.month;
 		var returnValue ;
-		
-
-		// const statement = {
-		// 	"cifNumber": this.cifNumber,
-		// 	"accountNumber": `${request.accountNumber}`,
-		// 	"accountType": `${request.accountType}`,
-		// 	"statementDateRange": {
-		// 		"dateRange": {},
-		// 		"presetInterval": `${request.dateInterval}`
-		// 	}
-		// };
-		// await this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_VIEW_PDF, {
-		// 	'cifNumber': statement.cifNumber,
-		// 	'accountNumber': statement.accountNumber,
-		// 	'accountType': statement.accountType,
-		// 	'dateRange': !request.startDate && !request.endDate ? `` : `${request.startDate}-${request.endDate}`,
-		// 	'statement-period': statement.statementDateRange.parseInterval
-		// });
-
-		if (this.creditOptionType == `Credit card` || this.creditOptionType == `Access facility` ||request.accountType==`FLEXIBLE_CREDIT`)
-		{
-			if (this.availableMonthlyStatementsList == null)
+		if (request.accountType===`FLEXIBLE_CREDIT`)
+		{	
+			if (this.availableMonthlyStatementsList.length==0)
 			{
-				this.creditOptionType = await this.getCreditOptionType(request.accountNumber);				
-			}
-			
+				this.creditOptionType = await this.getCreditOptionType(request.accountNumber);
+			}		
 			let statementInfo = this.findStatement(dateSelected);
 	
 			returnValue = this.getflexStatement(this.creditOptionType , statementInfo);
@@ -271,7 +250,7 @@ export class Statements extends Component {
 			}
 			return null;
 		}
-		else if (this.creditOptionType==`Term Loan` || request.accountType==`FIXED_TERM_CREDIT`)
+		else if (request.accountType === `FIXED_TERM_CREDIT`)
 		{	
 			if (request.dateInterval) 
 			{
@@ -308,12 +287,12 @@ export class Statements extends Component {
 	}
 	async getAvailableMonthlyStatementsList(accNum ,productType )
 	{
-		if(productType==`Credit card`)
+		if(productType===`Credit card`)
 		{
 			const returnValue = await this.creditService.flexibleStatementList(accNum,`CreditCard`);
 			return returnValue.result.monthlyStatements;
 		}
-		else if(productType==`Access Facility`)
+		else if(productType===`Access facility`)
 		{
 			const returnValue = await this.creditService.flexibleStatementList(accNum,`AccessFacility`);
 			return returnValue.result.monthlyStatements;
@@ -324,11 +303,11 @@ export class Statements extends Component {
 		if (statementInfo!=null)
 		{
 			var returnValue;
-			if (creditOptionType == `Credit card`)
+			if (creditOptionType === `Credit card`)
 			{
 				returnValue = await this.creditService.flexibleStatement(statementInfo.accountNumber,`CreditCard`,statementInfo.statementId);
 				
-			} else if (this.accountType==`Access facility`)
+			} else if (this.accountType===`Access facility`)
 			{
 				returnValue = await this.creditService.flexibleStatement(statementInfo.accountNumber,`AccessFacility`,statementInfo.statementId);
 			} 
@@ -420,13 +399,12 @@ export class Statements extends Component {
 	{
 		let flag = false;
 		var returnValue;
-		if (this.creditOptionType == `Credit card` || this.creditOptionType == `Access facility` ||request.accountType==`FLEXIBLE_CREDIT`)
+		if (request.accountType===`FLEXIBLE_CREDIT`)
 		{
-			if (this.availableMonthlyStatementsList == null)
+			if (this.availableMonthlyStatementsList.length==0)
 			{
-				this.creditOptionType = await this.getCreditOptionType(request.accountNumber);				
-			}
-			
+				this.creditOptionType = await this.getCreditOptionType(request.accountNumber);
+			}			
 			for (let i = 0; i < request.monthInterval.length; i++)
 			{
 				let dateSelected = request.monthInterval[i];
@@ -445,7 +423,7 @@ export class Statements extends Component {
 					flag = true;
 				}
 			}
-		}else if (this.creditOptionType==`Term Loan` || request.accountType==`FIXED_TERM_CREDIT`)
+		}else if (request.accountType === `FIXED_TERM_CREDIT`)
 		{
 			if (request.dateInterval) 
 			{
@@ -457,7 +435,6 @@ export class Statements extends Component {
 			{
 				returnValue = await this.creditService.fixedStatementEmail(request.accountNumber,request.emailAddress,request.startDate,request.endDate);
 			}
-
 			if (returnValue.succeeded) 
 			{
 				flag = true;
@@ -475,8 +452,7 @@ export class Statements extends Component {
 	}
 
 	getFromDateFromSetDate(interval)
-	{
-		 
+	{		 
 		switch(interval)
 		{
 			case "ONE_MONTH":
@@ -496,8 +472,7 @@ export class Statements extends Component {
 
 	getDateRange (item)
 	{
-		//let currentdate = new Date();
-		let currentdate = `2021-09-11`
+		let currentdate = new Date();
 		switch (item)
 		{
 			case "1":
