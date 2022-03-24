@@ -295,6 +295,8 @@ export class StatementsDialog extends Component {
 			return false;
 		}
 
+
+
 		return true;
 	}
 
