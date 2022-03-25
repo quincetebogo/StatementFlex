@@ -1,5 +1,7 @@
+
 import { HIGH_RISK_TRANSACTIONS, LOW_RISK_TRANSACTIONS } from 'app/constants/Common';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
+import { CreditService } from 'app/services/CreditService';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { NavigationContext } from 'platform/core';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
@@ -8,11 +10,11 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { capitalizeString } from 'app/utils/channelServiceUtilities';
 import { html } from 'platform/elements';
-
 import 'app/components/savingsAccount/DebiCheckMandates';
-import 'app/components/dialogs/common/StatementsDialog';
 import 'app/components/dialogs/quickTransactions/ApproveDebiCheckMandate';
+import 'app/dialogs/statements/Statements';
 
 /**
  * A sub-base class of viewbase for Favourites & Savings account landing pages 
@@ -58,6 +60,7 @@ export class SavingsAccountBase extends ViewBase {
 
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.creditService = new CreditService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// --------------
@@ -111,24 +114,28 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	async _getStatements() {
-		const clientProductDetails = await this._getClientProducts();
+		const clientSavingsProductDetails = await this._getClientProducts();
+		const clientCreditProductDetails = await this._getClientCreditProducts();
 
-		if (clientProductDetails) {
+		const clientProductDetails = [...clientSavingsProductDetails, ...clientCreditProductDetails.accessFacilitySummaryList, ...clientCreditProductDetails.creditCardSummaryList, ...clientCreditProductDetails.loanAccountSummaryList];
+
+			if (clientProductDetails) {
 			this.clientProducts = clientProductDetails.map(item => {
-									const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType][item.interestCategory] || 
-														ACCOUNT_INTCAT_ENUM[item.accountType];
-									const accName = item.accountName.toLowerCase();
+									const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType || item.productTypeCode][item.interestCategory] || 
+														ACCOUNT_INTCAT_ENUM[item.accountType || item.productTypeCode];
 
 									return {
 										'accountNumber': item.accountNumber,
-										'accountName': `${accName.charAt(0).toUpperCase()}${accName.slice(1)}`,
-										'accountType': item.accountType,
-										'accountOpenDate': item.accountOpenDate,
+										'accountName': capitalizeString(item.accountName || item.productTypeDescription),
+										'accountType': item.accountType || item.productTypeCode,
+										'accountOpenDate': item.accountOpenDate || item.openDate,
 										'type': productInfo.type,
 										'category': productInfo.category,
+										'subCategory': productInfo.subCategory,
 										'icon': productInfo.icon,
 										'customIcon': productInfo.customIcon,
-										'order': productInfo.order
+										'order': productInfo.order,
+										'choosePeriod': productInfo.choosePeriod
 									};
 								}).sort((x, y) => x.order - y.order);
 			this.renderMode = RENDER_MODE.STATEMENTS;
@@ -280,6 +287,16 @@ export class SavingsAccountBase extends ViewBase {
 		return [];
 	}
 
+	async _getClientCreditProducts(customErrHandler = null) {
+
+		const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber, customErrHandler);
+
+		if (returnValue.succeeded) {
+			return returnValue.result;
+		}
+		return [];
+	}
+
 	async _confirmAgreement(accepted) {
 		const name = this.callerInformation.name.split(` `);
 		
@@ -384,16 +401,6 @@ export class SavingsAccountBase extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_performReturnToScreen() {
-		const returnToScreen = this.horizonStore.getReturnToScreen();
-
-		if (returnToScreen && returnToScreen.optionalData) {
-			this.eventAggregator.publish(`horizon-return-to-screen`, { option: returnToScreen.optionalData });
-		}
-
-		this.horizonStore.clearReturnScreen();
-	}
-
 	async _unloadDebiCheck(eventName, screenName) {
 
 		/**
@@ -440,7 +447,7 @@ export class SavingsAccountBase extends ViewBase {
 	 * @returns {void}
 	 */
 	async _statementsAccConfirmed(event) {
-		const need = `statements-${event.detail.account}`;
+		const need = `statements-${event.detail.subCategory || event.detail.account}`;
 
 		await super._inicidentManager_(need, () => this._toggleBusyFlag());
 	}
@@ -523,7 +530,7 @@ export class SavingsAccountBase extends ViewBase {
 	_renderStatementsModal(type) {
 		return this.renderMode === RENDER_MODE.STATEMENTS
 			? html`
-				<horizon-statements-dialog
+				<horizon-statements
 					.cifNumber="${this.callerInformation.cifNumber}"
 					.title="${this.callerInformation.title}"
 					.lastName="${this.callerInformation.lastName}"
@@ -531,7 +538,7 @@ export class SavingsAccountBase extends ViewBase {
 					type="${type}"
 					@cancel="${() => this._cancelStatements()}"
 					@account-selected="${(event) => this._statementsAccConfirmed(event)}">
-				</horizon-statements-dialog>`
+				</horizon-statements>`
 			: html``;
 	}
 }

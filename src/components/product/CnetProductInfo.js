@@ -4,27 +4,27 @@ const PAGE_INFO = {
 	transact: {
 		header: `More info to come`,
 		icon: `transact-white`,
-		details: `Want to know the benefits and fees visit the Capitec website for all info and more`,
+		details: `Want to know the benefits and fees visit the Capitec website for all info and more`
 	},
 	save: {
-		header: `More info to come`,
+		header: `It's easy to move to simpler banking`,
 		icon: `save-white`,
-		details: `Want to know the benefits and fees visit the Capitec website for all info and more`,
+		details: `Visit capitecbank.co.za for more info on our Savings plans.`
 	},
 	insure: {
 		header: `More info to come`,
 		icon: `insure-white`,
-		details: `Want to know the benefits and fees visit the Capitec website for all info and more`,
+		details: `Want to know the benefits and fees visit the Capitec website for all info and more`
 	},
 	credit: {
 		header: `More info to come`,
 		icon: `credit-white`,
-		details: `Want to know the benefits and fees visit the Capitec website for all info and more`,
+		details: `Want to know the benefits and fees visit the Capitec website for all info and more`
 	},
 	liveBetter: {
 		header: `More to come soon`,
 		icon: `/images/liveBetter/liveBetter-white.svg`,
-		details: `Visit capitecbank.co.za for more info on our Live Better benefits partners, automatic savings tools and other easy ways to grow your Live Better savings account.`,
+		details: `Visit capitecbank.co.za for more info on our Live Better benefits partners, automatic savings tools and other easy ways to grow your Live Better savings account.`
 	}
 };
 

@@ -318,4 +318,36 @@ export class SavingsAccountService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+
+	/**
+	 * Get savings plan landing page information
+	 *
+	 * @param {string} cifNumber The Client's CIF number
+	 * @param {string} nationalIDNumber client's ID number
+	 * @param {string} getGenericData Includes left hand bar details
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+ 	async savingsPlanLanding (cifNumber, nationalIDNumber, getGenericData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`savingsPlanLanding`)) {
+			return this.mock(`savingsPlanLanding`, cifNumber, nationalIDNumber, getGenericData);
+		}
+
+		const url = `/clientcare-savingsaccount-${this._version}/savings-plan-landing?` +
+			`CifNumber=${cifNumber}&` +
+			`NationalIDNumber=${nationalIDNumber}&` +
+			`GetGenericData=${getGenericData}`;
+		
+		return this.get(
+			url, 
+			this.setToken(), 
+			`savingsPlanLanding`,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 }

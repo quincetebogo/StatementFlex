@@ -487,9 +487,11 @@ export class LiveBetter extends SavingsAccountBase {
 				'accountOpenDate': this.landingPageInfo.dateOpened,
 				'type': productInfo.type,
 				'category': productInfo.category,
+				'subCategory': productInfo.subCategory,
 				'icon': productInfo.icon,
 				'customIcon': productInfo.customIcon,
-				'order': productInfo.order
+				'order': productInfo.order,
+				'choosePeriod': productInfo.choosePeriod
 			}
 		];
 		this.renderMode = RENDER_MODE.STATEMENTS;
