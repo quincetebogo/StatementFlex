@@ -5,62 +5,21 @@ export const creditBalance = {
 };
 
 export const creditOverview = {
-	"loanAccountSummaryList": [
-		{
-			"productTypeDescription": `40 MONTH TERM LOAN`,
-			"productTypeCode": `4010`,
-			"accountNumber": `1657155046`,
-			"currentBalance": 81248.67,
-			"creditLimit": 70817.77,
-			"remainingMonths": 21,
-			"repayAmount": 2493.79,
-			"accountStatusDescription": `ACTIVE`,
-			"accountStatusCode": `8`,
-			"openDate": `2019-07-31T00:00:00`,
-			"lastPaymentDate": `2021-11-19T00:00:00`
-		},
-		{
-			"productTypeDescription": `12 MONTH TERM LOAN`,
-			"productTypeCode": `4010`,
-			"accountNumber": `1720318679`,
-			"currentBalance": 24966.84,
-			"creditLimit": 20000.0,
-			"remainingMonths": 1,
-			"repayAmount": 2125.35,
-			"accountStatusDescription": `ACTIVE`,
-			"accountStatusCode": `8`,
-			"openDate": `2020-07-27T00:00:00`,
-			"lastPaymentDate": `2021-08-19T00:00:00`
-		}
-	],
-	"accessFacilitySummaryList": [
-		{
-			"productTypeDescription": `ACCESS FACILITY`,
-			"productTypeCode": `6000`,
-			"accountNumber": `1633823409`,
-			"currentBalance": -10000,
-			"availableCredit": 20000,
-			"creditLimit": 30000,
-			"nextRepayment": 789.01,
-			"accountStatusDescription": `ACTIVE`,
-			"accountStatusCode": `Open`,
-			"openDate": `2022-01-06T06:51:16.483Z`,
-			"lastPaymentDate": `2022-01-06T06:51:16.483Z`
-		}
-	],
+	"loanAccountSummaryList": [],
+	"accessFacilitySummaryList": [],
 	"creditCardSummaryList": [
 		{
 			"productTypeDescription": `CREDIT CARD`,
 			"productTypeCode": `101`,
-			"accountNumber": `6001736552`,
-			"currentBalance": -5834.09,
+			"accountNumber": `6000000048`,
+			"currentBalance": -3176.66,
 			"availableCredit": 0.0,
-			"creditLimit": 4000.0,
+			"creditLimit": 60400.0,
 			"nextRepayment": 134.87,
 			"accountStatusDescription": `ACTIVE`,
 			"accountStatusCode": `0`,
-			"openDate": `2019-07-31T00:00:00`,
-			"lastPaymentDate": `2021-10-26T00:00:00`
+			"openDate": `2015-10-09T00:00:00`,
+			"lastPaymentDate": `2020-10-01T00:00:00`
 		}
 	],
 	"budgetAccountsSummary": {

@@ -416,8 +416,7 @@ export class CreditAccount extends ViewBase {
 		// await super.createAndClassifySubsIncident();
 	}
 
-	async _getStatements(creditType, productType, productCode, accNum, openDate) {
-		// TO DO: Place holder for credit statements flow.
+	_getStatements(creditType, productType, productCode, accNum, openDate) {
 
 		if (this.ccsStatus) {
 			this.showCCSmodal = true;
@@ -438,6 +437,7 @@ export class CreditAccount extends ViewBase {
 				'accountName': productInfo.name,
 				'accountType': productCode,
 				'accountOpenDate': openDate,
+				'name': productInfo.name,
 				'type': productInfo.type,
 				'category': productInfo.category,
 				'subCategory': productInfo.subCategory,

@@ -132,6 +132,7 @@ export class SavingsAccountBase extends ViewBase {
 										'accountName': `${accName.charAt(0).toUpperCase()}${accName.slice(1)}`,
 										'accountType': item.accountType || item.productTypeCode,
 										'accountOpenDate': item.accountOpenDate || item.openDate,
+										'name': productInfo.name,
 										'type': productInfo.type,
 										'category': productInfo.category,
 										'subCategory': productInfo.subCategory,

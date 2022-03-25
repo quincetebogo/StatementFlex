@@ -1,14 +1,15 @@
 import { Component, html } from 'platform/elements';
 import { Configuration, Logger, NavigationContext } from 'platform/core';
+import { RENDER_MODE, TIME_PERIOD } from 'app/constants/Statements';
 import { ACCOUNT_TYPES } from 'app/constants/Common';
+import { CreditService } from 'app/services/CreditService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { PRODUCTS } from 'app/constants/Credit';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
-import { RENDER_MODE } from 'app/constants/Statements';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { base64ToBlobUrl } from 'app/utils/channelServiceUtilities';
-import { CreditService } from 'app/services/CreditService';
 
 import 'app/components/dialogs/common/StatementsDialog';
 
@@ -41,9 +42,9 @@ export class Statements extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
-		this.taxCertificateDetails = null;
-		this.selectedDatesList = [];
-		this.availableMonthlyStatementsList = [];
+
+		this.selectedProduct = {};
+		this.availableMonthlyStatements = [];
 		this.creditOptionType = ``;
 		this._telemetryEventsImport();
 
@@ -68,7 +69,17 @@ export class Statements extends Component {
 			cifNumber: { type: String },
 			clientProducts: { type: Array },
 			accountType: { type: String, attribute: `type` },
+
 			isBusy: { state: true }
+		};
+	}
+
+	get creditDateInterval() {
+		return {
+			[TIME_PERIOD.ONE_MONTH.value]: 1,
+			[TIME_PERIOD.THREE_MONHTS.value]: 2,
+			[TIME_PERIOD.SIX_MONTHS.value]: 3,
+			[TIME_PERIOD.NINE_MONTHS.value]: 4
 		};
 	}
 
@@ -98,6 +109,9 @@ export class Statements extends Component {
 	// --------------
 
 	_statementsAccConfirmed(event) {
+		this.selectedProduct = this.clientProducts.find(item => item.accountNumber === event.detail.accountNumber);
+		this.availableMonthlyStatements = [];
+
 		this.dispatchEvent(new CustomEvent(`account-selected`, {
 			detail: {
 				account: event.detail.account,
@@ -115,11 +129,9 @@ export class Statements extends Component {
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-	async _next(event) 
-	{
+	async _next(event) {
 		
-		switch (event.detail?.stepper) 
-		{
+		switch (event.detail?.stepper) {
 			case RENDER_MODE.CHOOSE_ACCOUNT:
 				this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_ACCOUNT_NEXT, {
 					"account-type": event.detail.accountName
@@ -133,6 +145,7 @@ export class Statements extends Component {
 					"end-date": event.detail.toDate || null,
 					"month-interval": event.detail.selectedMonths
 				});
+				await this._getAvailableMonthlyStatements(); // This is specifically for flexible credit
 				break;
 			default:
 				break;
@@ -152,8 +165,8 @@ export class Statements extends Component {
 		}
 	}
 
-	_viewPDF(productType, request) {
-		switch (productType) {
+	_viewPDF(request) {
+		switch (this.selectedProduct.category) {
 			case ACCOUNT_TYPES.CREDIT:
 				return this._viewCreditStatement(request);
 			default:
@@ -187,6 +200,10 @@ export class Statements extends Component {
 	async _onLoading() {
 		await this._telemetry.startSpan(this.telemetryEvent.STATEMENTS);
 		await this._telemetry.startSpan(this.telemetryEvent.STATEMENTS_POP);
+
+		if (this.accountType) {
+			[this.selectedProduct] = this.clientProducts;
+		}
 	}
 
 	_toggleBusyFlag() {
@@ -231,95 +248,63 @@ export class Statements extends Component {
 		}
 	}
 
-	async _viewCreditStatement(request) 
-	{
-		let dateSelected = request.month;
-		var returnValue ;
-		if (request.accountType===`FLEXIBLE_CREDIT`)
-		{	
-			if (this.availableMonthlyStatementsList.length==0)
-			{
-				this.creditOptionType = await this.getCreditOptionType(request.accountNumber);
-			}		
-			let statementInfo = this.findStatement(dateSelected);
-	
-			returnValue = this.getflexStatement(this.creditOptionType , statementInfo);
-			if (returnValue!=null)
-			{
-				return returnValue;
-			}
-			return null;
-		}
-		else if (request.accountType === `FIXED_TERM_CREDIT`)
-		{	
-			if (request.dateInterval) 
-			{
-				let today = new Date().toISOString().slice(0, 10);
-				let fromRange =this.getFromDateFromSetDate(request.dateInterval);
-				returnValue = await this.creditService.fixedStatement(request.accountNumber,fromRange,today,``);
-			}
-			returnValue = await this.creditService.fixedStatement(request.accountNumber,request.startDate,request.endDate,``);
-			if (returnValue.succeeded)
-			{
-				let data = returnValue.result.content.data ;
-				return base64ToBlobUrl(data);
-			}else {
-				this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewPDF`, returnValue.correlationId);
+	async _viewCreditStatement(request) {
+
+		const type = {
+			[PRODUCTS.CREDIT_CARD]: `CreditCard`,
+			[PRODUCTS.ACCESS_FACILITY]: `AccessFacility`
+		};
+
+		if (request.accountType === `FLEXIBLE_CREDIT`) {
+		
+			const statementInfo = this.findStatement(request.month);
+			const result = await this.getflexStatement(type[this.selectedProduct.name], statementInfo);
+
+			return result;
+		} else if (request.accountType === `FIXED_TERM_CREDIT`) {
+
+			const returnValue = await this.creditService.fixedStatement(request.accountNumber, request.startDate, request.endDate, this.creditDateInterval[request.dateInterval]);
+
+			if (!returnValue.succeeded) {
+				this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewCreditStatement`, returnValue.correlationId);
 				return null;
 			}
+			return base64ToBlobUrl(returnValue.result.content.data);
 		}
 		return null;
-
 	}
 
-	async getCreditOptionType(accountNumber)
-	{
-		let i = 0 ;
-		while (i < this.clientProducts.length)
-		{
-			if (this.clientProducts[i].accountNumber == accountNumber)
-			{
-				this.availableMonthlyStatementsList = await this.getAvailableMonthlyStatementsList(accountNumber , this.clientProducts[i].accountName)
-				return this.clientProducts[i].accountName; 
+	async _getAvailableMonthlyStatements() {
+
+		if (this.availableMonthlyStatements.length === 0 && [PRODUCTS.CREDIT_CARD, PRODUCTS.ACCESS_FACILITY].includes(this.selectedProduct.name)) {
+			const type = {
+				[PRODUCTS.CREDIT_CARD]: `CreditCard`,
+				[PRODUCTS.ACCESS_FACILITY]: `AccessFacility`
+			};
+
+			const returnValue = await this.creditService.flexibleStatementList(this.selectedProduct.accountNumber, type[this.selectedProduct.name]);
+
+			if (!returnValue.succeeded) {
+				this.logger.log(`error`, `Unable to get available monthly statements for ${this.selectedProduct.name}`, `_getAvailableMonthlyStatements`, returnValue.correlationId);
+				return false;
 			}
-			i++;
+
+			this.availableMonthlyStatements = returnValue.result.monthlyStatements;
 		}
 	}
-	async getAvailableMonthlyStatementsList(accNum ,productType )
-	{
-		if(productType===`Credit card`)
-		{
-			const returnValue = await this.creditService.flexibleStatementList(accNum,`CreditCard`);
-			return returnValue.result.monthlyStatements;
+
+	async getflexStatement(type, statementInfo) {
+		if (!statementInfo?.accountNumber) {
+			return null;
 		}
-		else if(productType===`Access facility`)
-		{
-			const returnValue = await this.creditService.flexibleStatementList(accNum,`AccessFacility`);
-			return returnValue.result.monthlyStatements;
+
+		const returnValue = await this.creditService.flexibleStatement(statementInfo.accountNumber, type, statementInfo.statementId); 
+
+		if (returnValue.succeeded) {
+			return base64ToBlobUrl(returnValue.result?.content?.data);
 		}
-	}
-	async getflexStatement(creditOptionType ,statementInfo )
-	{
-		if (statementInfo!=null)
-		{
-			var returnValue;
-			if (creditOptionType === `Credit card`)
-			{
-				returnValue = await this.creditService.flexibleStatement(statementInfo.accountNumber,`CreditCard`,statementInfo.statementId);
-				
-			} else if (this.accountType===`Access facility`)
-			{
-				returnValue = await this.creditService.flexibleStatement(statementInfo.accountNumber,`AccessFacility`,statementInfo.statementId);
-			} 
-			if (returnValue.succeeded)
-			{
-				let data = returnValue.result.content.data ;
-				return base64ToBlobUrl(data);
-			}else {
-				this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewPDF`, returnValue.correlationId);
-				return null;
-			}
-		}
+		
+		this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewPDF`, returnValue.correlationId);
 		return null;
 	}
 
@@ -335,24 +320,13 @@ export class Statements extends Component {
 		return true;
 	}
 
-	findStatement(dateSelected)
-	{
-		const dateinfo = dateSelected.split("/");
-		let i = 0;
-		let flag = false;
-		while (i < this.availableMonthlyStatementsList.length && flag ==false)
-		{
-			
-			const monthlyStatement = this.availableMonthlyStatementsList[i];
-			const statementDateArray = monthlyStatement.statementDate.split("-");
-			if (statementDateArray[0]==dateinfo[1] && statementDateArray[1]==dateinfo[0])
-			{
-				flag = true;
-				return monthlyStatement;
-			}
-			i = i+1;
-		}
-		return null;
+	findStatement(monthSelected) {
+		const [month, year] = monthSelected.split(`/`);
+
+		return this.availableMonthlyStatements.find(item => {
+			const statementDate = new Date(item.statementDate);
+			return parseInt(month, 10) === statementDate.getMonth() + 1 && parseInt(year, 10) === statementDate.getFullYear();
+		});
 	}
 
 	async _sendStatement(request) {
@@ -395,96 +369,34 @@ export class Statements extends Component {
 		}
 	}
 
-	async _sendCreditStatement(request) 
-	{
-		let flag = false;
-		var returnValue;
-		if (request.accountType===`FLEXIBLE_CREDIT`)
-		{
-			if (this.availableMonthlyStatementsList.length==0)
-			{
-				this.creditOptionType = await this.getCreditOptionType(request.accountNumber);
-			}			
-			for (let i = 0; i < request.monthInterval.length; i++)
-			{
-				let dateSelected = request.monthInterval[i];
-				let statementInfo = this.findStatement(dateSelected);
-				let statementDetails = [{
-					statementId : statementInfo.statementId,
-					statementDate: statementInfo.statementDate}
-				];
-				if (this.creditOptionType == `Credit card`){
-					 returnValue = await this.creditService.flexibleStatementEmail(`CreditCard`,request.accountNumber , request.emailAddress ,statementDetails);
-				}else{
-					 returnValue = await this.creditService.flexibleStatementEmail(`AccessFacility`,request.accountNumber , request.emailAddress ,statementDetails);
-				}
-				if (returnValue.succeeded) 
-				{
-					flag = true;
-				}
-			}
-		}else if (request.accountType === `FIXED_TERM_CREDIT`)
-		{
-			if (request.dateInterval) 
-			{
-				let today = new Date().toISOString().slice(0, 10);
-				let fromRange = this.getFromDateFromSetDate(request.dateInterval);
-				returnValue = await this.creditService.fixedStatementEmail(request.accountNumber,request.emailAddress,today,fromRange);	
-			}
-			else
-			{
-				returnValue = await this.creditService.fixedStatementEmail(request.accountNumber,request.emailAddress,request.startDate,request.endDate);
-			}
-			if (returnValue.succeeded) 
-			{
-				flag = true;
-			}
+	async _sendCreditStatement(request) {
+		let returnValue;
+
+		if (request.accountType === `FLEXIBLE_CREDIT`) {
+
+			const statementDetails = request.monthInterval.map(item => this.findStatement(item))
+														  .filter(item => item);
+			statementDetails.map(item => {
+				const data = {};
+				data.statementId = item.statementId;
+				data.statementDate = item.statementDate;
+
+				return data;
+			});
+			returnValue = await this.creditService.flexibleStatementEmail(type, request.accountNumber, request.emailAddress, statementDetails);
+		} else if (request.accountType === `FIXED_TERM_CREDIT`) {
+
+			returnValue = await this.creditService.fixedStatementEmail(request.accountNumber, request.emailAddress, request.startDate, request.endDate, this.creditDateInterval[request.dateInterval]);
 		}
+
 		this._updateScreenDetails(request);
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `statements`);
-		if (flag) {
+		
+		if (returnValue?.succeeded) {
 			this.horizonRouter.navigateToCreditStatementSuccess();
 		} else {
 			this.horizonRouter.navigateToCreditStatementUnsuccess();
 		}
-
-		
-	}
-
-	getFromDateFromSetDate(interval)
-	{		 
-		switch(interval)
-		{
-			case "ONE_MONTH":
-				return this.getDateRange(`1`);
-				break;
-			case "THREE_MONTH":
-				return this.getDateRange(`3`);
-				break;
-			case "SIX_MONTH":
-				return this.getDateRange(`6`);
-				break;
-			case "NINE_MONTH":
-				return this.getDateRange(`9`);
-				break;	
-		}
-	}
-
-	getDateRange (item)
-	{
-		let currentdate = new Date();
-		switch (item)
-		{
-			case "1":
-				return new Date(currentdate.setMonth(currentdate.getMonth()-1)).toISOString().slice(0, 10);
-			case "3":
-				return new Date(currentdate.setMonth(currentdate.getMonth()-3)).toISOString().slice(0, 10);
-			case "6":
-				return new Date(currentdate.setMonth(currentdate.getMonth()-6)).toISOString().slice(0, 10);
-			case "9":
-				return new Date(currentdate.setMonth(currentdate.getMonth()-9)).toISOString().slice(0, 10);
-		}
-		
 	}
 
 	async _createIncidentOnError() {
@@ -523,7 +435,7 @@ export class Statements extends Component {
 				@cancel="${() => this._cancel()}"
 				@back="${() => this._back()}"
 				@next="${(event) => this._next(event)}"
-				.viewStatement="${(productType, request) => this._viewPDF(productType, request)}"
+				.viewStatement="${(request) => this._viewPDF(request)}"
 				.sendStatement="${(productType, request) => this._send(productType, request)}"
 				@close-pdf="${() => this._closePDF()}"
 				@account-selected="${(event) => this._statementsAccConfirmed(event)}"
@@ -538,4 +450,5 @@ export class Statements extends Component {
 			: html``;
 	}
 }
+
 customElements.define(`horizon-statements`, Statements);

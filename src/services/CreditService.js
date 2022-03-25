@@ -169,8 +169,7 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	flexibleStatementList(accountNumber,creditType, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES)
-	{
+	flexibleStatementList(accountNumber, creditType, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const flexibleStatementListRequest = {
 			"creditType": creditType,
 			"accountnumber": accountNumber
@@ -191,12 +190,11 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	flexibleStatement(accountNumber,creditType,statementId,errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES)
-	{
+	flexibleStatement(accountNumber, creditType, statementId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const flexibleStatementRequest = {
 			"creditType": creditType,
 			"statementId": statementId,
-			"accountNumber": accountNumber,
+			"accountNumber": accountNumber
 		};
 		const url = `/clientcare-credit-${this._version}/credit/flexible/statement`;
 
@@ -214,13 +212,12 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	flexibleStatementEmail (creditType,accountNumber , emailAddress ,statementDetails,errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES)
-	{
+	flexibleStatementEmail (creditType, accountNumber, emailAddress, statementDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const flexibleStatementEmailRequest = {
 			"creditType": creditType,
 			"accountNumber": accountNumber,
 			"emailAddress": emailAddress,
-			"statementDetails": statementDetails,
+			"statementDetails": statementDetails
 		};
 		const url = `/clientcare-credit-${this._version}/credit/flexible/statement/email`;
 
@@ -238,14 +235,13 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	fixedStatement(accountNumber,fromDate,toDate,setdate,errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES)
-	{
+	fixedStatement(accountNumber, fromDate, toDate, setdate, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		
 		const fixedStatementRequest = {
 			"accountNumber": accountNumber,
 			"fromDate": fromDate,
 			"toDate": toDate,
-			"setdate":setdate
+			"setdate": setdate
 		};
 
 		const url = `/clientcare-credit-${this._version}/credit/fixed/statement`;
@@ -265,15 +261,14 @@ export class CreditService extends ChannelServiceBase {
 
 	}
 
-	fixedStatementEmail(accountNumber,emailAddress,fromDate,toDate,errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES)
-	{
+	fixedStatementEmail(accountNumber, emailAddress, fromDate, toDate, setdate, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		
 		const fixedStatementEmailRequest = {
 			"accountNumber": accountNumber,
-			"emailAddress" : emailAddress,
+			"emailAddress": emailAddress,
 			"fromDate": fromDate,
 			"toDate": toDate,
-			"setDate": ``
+			"setDate": setdate
 		};
 
 		const url = `/clientcare-credit-${this._version}/credit/fixed/statement/email`;
@@ -290,7 +285,6 @@ export class CreditService extends ChannelServiceBase {
 			errorHandler,
 			autoRetries
 		);
-
 	}
 
 }
