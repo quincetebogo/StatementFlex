@@ -1,4 +1,5 @@
-import { Component, css, html, unsafeCSS } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelectIcon';
@@ -25,6 +26,7 @@ export class PayCreditCardBudget extends Component {
 		super();
 
 		this.productSelected = {};
+		this.totalAccountsBalance = 0;
 	}
 
 	// ----------
@@ -41,7 +43,8 @@ export class PayCreditCardBudget extends Component {
 		return {
 			budgetAccountDetails: { type: Object },
 			clientProducts: { type: Object },
-			productSelected: { state: true }
+			productSelected: { state: true },
+			budgetBalance: { state: true }
 		};
 	}
 
@@ -52,6 +55,7 @@ export class PayCreditCardBudget extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		[this.productSelected] = this.clientProducts;
+		this.budgetBalance = this.budgetAccountDetails.budgetBalance;
 	}
 
 	disconnectedCallback() {
@@ -72,6 +76,8 @@ export class PayCreditCardBudget extends Component {
 
 	_valueChanged(e) {
 		if (e.detail.new) {
+			this.errorMessage = ``;
+
 			this.productSelected = e.detail.new;
 			this.requestUpdate();
 		}
@@ -86,6 +92,11 @@ export class PayCreditCardBudget extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
+	_deformatCurrency(value) {
+		const amount = value.split(`R`)[1].replaceAll(` `, ``);
+		return parseFloat(amount);
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -95,23 +106,25 @@ export class PayCreditCardBudget extends Component {
 			super.styles,
 			css`
 				capitec-modal {
-					--theme-modal-form-m-l-xl-width: 500px;
-					--theme-modal-header-padding-left: 16px;
+					border-radius: 4px;
+
 					--theme-modal-header-color: #3A3A3A;
 					--theme-modal-header-background-color: #F7F7F7;
+					--theme-modal-header-padding-left: 16px;
 					--theme-modal-header-padding-top: 20px;
 					--theme-modal-header-padding-bottom: 20px;
-					--theme-modal-footer-padding: 0;
-					--theme-modal-body-padding: 0;
+					--theme-modal-footer-padding: 8px 14px 8px 0px;
 				}
+
 				div[slot="body"] {
-					height: 370px;
+					height: 530px;
+					width: 640px;
+					border-bottom: 1px solid #E1E1E1;
 				}
-				capitec-content-box {
-					--theme-layout-gap-spacing: 0px;
-					padding: 16px;
-				}
+
 				horizon-label {
+					margin: 24px 0px 27px 0px;
+
 					--horizon-label-text-height: 20px;
 					--horizon-label-text-font-size: 16px;
 					--horizon-label-text-font-weight: 600;
@@ -123,32 +136,43 @@ export class PayCreditCardBudget extends Component {
 					--horizon-label-value-font-weight: 500;
 					--horizon-label-value-line-height: 18px;
 					--horizon-label-value-color:#3A3A3A;
-
-					margin: 9px 0px 24px;
 				}
+
 				horizon-select-icon {
 					--theme-select-options-max-height: 304px;
 					--theme-input-icon-margin-left: 16px;
 					--theme-icon-size-small: 24px;
 					--theme-layout-gap-spacing: 8px;
+					--theme-input-padding-top: 8px;
+					--theme-input-padding-bottom: 8px;
+
+					--horizon-label-text-height: 20px;
+					--horizon-label-text-font-size: 15px;
+					--horizon-label-text-font-weight: 600;
+					--horizon-label-text-line-height: 20px;
+					--horizon-label-text-color: #3A3A3A;
+
+					--horizon-label-value-height: 12px;
+					--horizon-label-value-font-size: 12px;
+					--horizon-label-value-font-weight: 500;
+					--horizon-label-value-line-height: 12px;
+					--horizon-label-value-color:#3A3A3A;
+
+					--theme-label-default-font-weight: 600;
+					--theme-label-default-font-size: 15px;
+					--theme-label-font-color: #3A3A3A;
 				}
-				.transfer-from {
-					margin: 24px 0px 12px 0px;
+
+				capitec-label[type="title"] {
 					--theme-label-title-font-weight: 600;
 					--theme-label-title-font-size: 16px;
 				}
-				.footer-class {
-					border-top: 1px solid #E1E1E1;
-				}
-				.footer-class > capitec-group {
-					width: 500px;
-					padding: 8px 16px; 
-				}
+
 				capitec-button {
 					height: 48px;
 					--theme-button-font-weight: 600;
 				}
-`
+			`
 		];
 	}
 
@@ -158,25 +182,60 @@ export class PayCreditCardBudget extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-modal type="form" header-align="left" header="Transfer">
+			<capitec-modal type="free" header-align="left" header="Transfer">
 				<div slot="body">
 					<capitec-content-box
 						layout="vertical"
 						halign="stretch"
 						valign="top"
-						gap="clear"
-						?noPadding="${true}">
+						gap="clear">
 							${this._renderContent()}
 					</capitec-content-box>
 				</div>
-				<div slot="footer" class="footer-class">
+				<div slot="footer">
 					${this._renderFooter()}
 				</div>
-			</capitec-modal>`;
+			</capitec-modal>
+		`;
+	}
+
+	_getErrorMessage() {
+		if (this.budgetBalance > this.budgetAccountDetails.budgetBalance) {
+			this.errorMessage = `Max amount ${formatCurrency(this.budgetAccountDetails.budgetBalance)}`;
+		}
+		this.clientProducts.forEach(account => this.totalAccountsBalance += this._deformatCurrency(account.availableBalance));
+		if (this.budgetAccountDetails.budgetBalance > this.totalAccountsBalance) {
+			this.errorMessage = `Transafer cannot exceed available balance`;
+		}
+		if (this.budgetAccountDetails.budgetBalance > this._deformatCurrency(this.productSelected.availableBalance)) {
+			this.errorMessage = `Transafer cannot exceed available balance`;
+		}
+		if (this.budgetAccountDetails.budgetBalance) {
+
+		}
+
+		return this.errorMessage;
 	}
 
 	_renderContent() {
 		return html`
+			<capitec-label
+				type="title" 
+				label="Transfer from">
+			</capitec-label>
+
+			<horizon-select-icon
+				data-automation-id="pay-budget-choose-from-account"
+				label="Choose account"
+				display-field="availableBalance"
+				id-field="accountNumber"
+				detail-label="Available balance"
+				.items="${this.clientProducts}"
+				.value="${this.productSelected}"
+				.displayRenderer="${(e) => this._renderOptions(e)}"
+				@value-changed="${(e) => this._valueChanged(e)}"> 
+			</horizon-select-icon>
+			
 			<horizon-label
 				data-automation-id="pay-budget-name"
 				label="Budget name"
@@ -187,40 +246,36 @@ export class PayCreditCardBudget extends Component {
 				data-automation-id="pay-budget-balance"
 				label="Budget amount"
 				type="currency"
-				value="${this.budgetAccountDetails.budgetBalance}">
+				.error="${this._getErrorMessage()}"
+				value="${this.budgetBalance}"
+				@value-changed="${(e) => this._budgetValueChange(e)}">
 			</capitec-text-field>
+		`;
+	}
 
-			<capitec-label
-				class="transfer-from"
-				type="title" 
-				label="Transfer from">
-			</capitec-label>
-			
-			<horizon-select-icon
-				data-automation-id="pay-budget-choose-from-account"
-				label="Choose account"
-				.items="${this.clientProducts}"
-				display-field="accountName"
-				id-field="accountNumber"
-				.value="${this.productSelected}"
-				.displayRenderer="${(e) => this._renderOptions(e)}"
-				@value-changed="${(e) => this._valueChanged(e)}"> 
-			</horizon-select-icon>
-			`;
+	_budgetValueChange(e) {
+		this.errorMessage = ``;
+		this.budgetBalance = e.detail.new;
 	}
 
 	_renderOptions(e) {
 		return html`
-			<capitec-group ?noPadding="${true}" layout="horizontal">
+			<capitec-group ?noPadding="${true}" layout="horizontal" style="height: 36px;">
 				${this._renderOptionIcon(e)}
-				<capitec-label label="${e.accountName}"></capitec-label>
+				
+				<horizon-label
+					label="${e.accountName}"
+					value="Available balance">
+				</horizon-label>
+				<capitec-spacer></capitec-spacer>
+				<capitec-label
+					label="${e.availableBalance}">
+				</capitec-label>
 			</capitec-group>
 		`;
 	}
 
 	_renderOptionIcon(e) {
-		const iconClass = `width: 24px; height: 24px;`;
-
 		return e.icon
 			? html`
 				<capitec-icon
@@ -229,14 +284,13 @@ export class PayCreditCardBudget extends Component {
 				</capitec-icon>`
 			: html`
 				<capitec-image
-					style="${unsafeCSS(iconClass).toString()}"
 					src="${e.customIcon}">
 				</capitec-image>`;
 	}
 
 	_renderFooter() {
 		return html`
-			<capitec-group 
+			<capitec-group
 				layout="horizontal"
 				valign="center"
 				halign="right">
@@ -254,7 +308,8 @@ export class PayCreditCardBudget extends Component {
 					label="Transfer"
 					@click="${() => this._onTransferClick()}">
 				</capitec-button>
-			</capitec-group>`;
+			</capitec-group>
+		`;
 	}
 }
 
