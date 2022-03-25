@@ -9,23 +9,212 @@ import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelSe
  * @extends {ChannelServiceBase}
  */
 export class InsureService extends ChannelServiceBase {
-	// --------------
-	// INITIALISATION
-	// --------------
+
+	//#region INITIALISATION
+
 	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null) {
 		super(
-			toggleBusyFunc, 
-			defaultErrorHandlerFunc, 
-			`serviceURIs.channelServiceUrl`, 
-			`HorizonChannelService`, 
-			`v1`, 
-			() => import(`../mocks/HorizonChannelServiceMocks.js`)
+			toggleBusyFunc,
+			defaultErrorHandlerFunc,
+			`serviceURIs.insureChannelServiceUrl`,
+			`InsureChannelService`,
+			`v1`,
+			() => import(`../mocks/InsureChannelServiceMocks.js`)
+		);
+
+		this._version = `v1`;
+	}
+
+	//#endregion
+
+	//#region PUBLIC METHODS
+
+	/**
+	 * IsAlive Check for Insure
+	 *
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async alive(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const url = `/platform/healthcheck/${this._version}/alive`;
+		return this.get(
+			url,
+			this.setToken(),
+			`alive`,
+			null,
+			1000,
+			null,
+			errorHandler,
+			autoRetries
 		);
 	}
 
-	// --------------
-	// PUBLIC METHODS
-	// --------------
+	/**
+	 * Product Params for Insure Product
+	 *
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async productParams(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureProductParams`)) {
+			return this.mock(`insureProductParams`, insureProductParams);
+		}
+
+		const url = `/FuneralInsuranceProductService/product/params`;
+		return this.get(
+			url,
+			this.setToken(),
+			`productParams`,
+			null,
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Calculate Estimate / leaving no footprint on OIPA
+	 *
+	 * @param {estimateRequest} [errorHandler=null]  Request data for estimate 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async calculateEstimate(estimateRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureCalculateEstimate`)) {
+			return this.mock(`insureCalculateEstimate`);
+		}
+
+		return this.post(
+			`/FuneralInsuranceProductService/quote/estimate`,
+			estimateRequest,
+			this.setToken(),
+			`calculateEstimate`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Calculate Quote / Generate Quote
+	 *
+	 * @param {quoteRequest} [errorHandler=null]  Request data for quote 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async calculateQuote(quoteRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureCalculateQuote`)) {
+			return this.mock(`insureCalculateQuote`);
+		}
+
+		return this.post(
+			`/FuneralInsuranceProductService/quote/calc`,
+			quoteRequest,
+			this.setToken(),
+			`calculateQuote`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Retrieve quote details
+	 *
+	 * @param {quoteRequest} [errorHandler=null]  Request data for retrieve quote 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async retrieveQuoteDetails(quoteRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureRetrieveQuoteDetails`)) {
+			return this.mock(`insureRetrieveQuoteDetails`);
+		}
+
+		return this.post(
+			`/FuneralInsuranceProductService/quote/retrieve`,
+			quoteRequest,
+			this.setToken(),
+			`retrieveQuote`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Retrieve list of quotes
+	 *
+	 * @param {quoteRequest} [errorHandler=null]  Request data for retrieve quotes list 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async retrieveQuotes(quoteRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureRetrieveQuotes`)) {
+			return this.mock(`insureRetrieveQuotes`);
+		}
+
+		return this.post(
+			`/FuneralInsuranceProductService/client/quotes/retrieve`,
+			quoteRequest,
+			this.setToken(),
+			`retrieveQuotes`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Client Policy Summary / Policy list
+	 *
+	 * @param {summaryRequest} [errorHandler=null]  Request data for summary 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async clientPolicySummary(summaryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureClientPolicySummary`)) {
+			console.log('MOCKS!')
+			return this.mock(`insureClientPolicySummary`);
+		}
+
+		return this.post(
+			`/FuneralInsuranceProductService/client/summary`,
+			quoteRequest,
+			this.setToken(),
+			`summary`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	//#endregion
+
+
+	// ---- OLD // Check if can / should still use these
 
 	async hasInsuranceProducts(insuranceClientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`hasInsuranceProducts`)) {
@@ -38,10 +227,10 @@ export class InsureService extends ChannelServiceBase {
 			`IsCallerVerified=${insuranceClientInfo.isCallerVarified}`;
 
 		return this.get(
-			url, 
-			this.setToken(), 
-			`hasInsuranceProducts`, 
-			null, 
+			url,
+			this.setToken(),
+			`hasInsuranceProducts`,
+			null,
 			1000,
 			null,
 			errorHandler,
@@ -55,17 +244,17 @@ export class InsureService extends ChannelServiceBase {
 			'ivrOptionCode': incidentData.ivrOptionCode,
 			'incomingTelephoneNumber': incidentData.incomingTelephoneNumber,
 			'firstName': incidentData.firstName,
-			'surname': incidentData.surname, 
+			'surname': incidentData.surname,
 			'cellPhone': incidentData.cellPhone
 		};
 
 		return this.post(
-			`/clientcare-insure-${this._version}/addCaller/nonclient`, 
+			`/clientcare-insure-${this._version}/addCaller/nonclient`,
 			nonClientDetailsRequest,
 			this.setToken(),
-			`addNonClientDetails`, 
-			null, 
-			null, 
+			`addNonClientDetails`,
+			null,
+			null,
 			900,
 			null,
 			errorHandler,
@@ -75,16 +264,16 @@ export class InsureService extends ChannelServiceBase {
 
 	calculatePremiumDone(feedbackDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
-			`/clientcare-insure-${this._version}/CalculatePremium/done`, 
+			`/clientcare-insure-${this._version}/CalculatePremium/done`,
 			{
 				'incidentRecId': feedbackDetails.incidentRecId,
 				'feedback': feedbackDetails.feedback,
 				'updateIncident': feedbackDetails.updateIncident
 			},
 			this.setToken(),
-			`calculatePremiumDone`, 
-			null, 
-			null, 
+			`calculatePremiumDone`,
+			null,
+			null,
 			900,
 			null,
 			errorHandler,

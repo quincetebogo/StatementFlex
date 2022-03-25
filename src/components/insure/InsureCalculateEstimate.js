@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { InsureService } from 'app/services/InsureService';
 
 import 'app/components/dialogs/insure/InsureEstimateAddLife';
 
@@ -8,6 +9,7 @@ class InsureCalculateEstimate extends Component {
 
 	constructor() {
 		super();
+		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 
 		this.estimate = {};
 
@@ -21,6 +23,19 @@ class InsureCalculateEstimate extends Component {
 		this.totalPremiumOverrideInput = 25;
 
 		this._setupMainLife();
+		this.isAlive();
+	}
+
+	static get properties() {
+		return {
+			isBusy: { attribute: false },
+		};
+	}
+
+	async isAlive() {
+		console.log('Pre service');
+		let isAliveRes = await this.insureService.alive();
+		console.log('Post service: ', isAliveRes)
 	}
 
 	//#endregion
@@ -79,10 +94,21 @@ class InsureCalculateEstimate extends Component {
 	/**
 	 * Calculate estimate via OIPA
 	 */
-	_calculate() {
+	async _calculate() {
 
-		// Call FIPS Service
-
+		let calculateRequest = {
+			clientEstimateDetails: {
+				"estimateReference": '001',
+				"clientCif": "s",
+				"lastName": 'Test',
+				"firstName": 'Guy',
+				"contactEmail": 'testguy@email.com',
+				"contactNumber": '0824444444',
+			},
+			lifesAssured: this.estimate.lifesAssured
+		};
+		console.log('calculateRequest: ', calculateRequest);
+		let calculateResults = await this.insureService.calculateEstimate();
 
 		// Cleanup
 		this.totalPremiumOverrideInput = ``;
@@ -141,6 +167,23 @@ class InsureCalculateEstimate extends Component {
 		this.totalPremiumOverrideInput = e.detail.new;
 		this.calculationUpToDate = false;
 		this.requestUpdate();
+	}
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
+
+	_handleChannelServiceError(ex) {
+		this.errorMessage = `System error. Please try again.`;
+		this.errorCount++;
+
+		if (this.errorCount > 2) {
+			// this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+			// this.horizonStore.setCallerInformation(this.callerInformation);
+			// this.horizonRouter.navigateToSystemError();
+		}
+		console.log(ex)
+		return true;
 	}
 
 	//#endregion
@@ -287,7 +330,7 @@ class InsureCalculateEstimate extends Component {
 	_renderRemoveButton(lifeAssured) {
 		if (lifeAssured.relationship != "MainLife") {
 			return html`
-				<capitec-label label="Remove" type="small" class="stronger link" @click=${(e)=>
+				<capitec-label label="Remove" type="small" class="stronger link" @click=${(e) =>
 					this._removeLifeAssured(lifeAssured.rowID)}>
 				</capitec-label>
 			`;
@@ -346,20 +389,20 @@ class InsureCalculateEstimate extends Component {
 		return html`
 		<div class="estimate-column-left">
 			<!-- <div class="card-section-heading">
-						<capitec-label label="Total Premium" type="subtitle" class="stronger">
-						</capitec-label>
-					</div>
-					<div class="estimate-card">
-						<div style="display: flex; justify-content: space-between; padding: 20px">
-							<capitec-group layout="vertical" valign="center" halign="left" gap="none">
-								<capitec-label type="subtitle" class="" label="Total Premium">
-								</capitec-label>
-								<capitec-label type="subtitle" class="stronger" label="R25.00"></capitec-label>
-							</capitec-group>
-							<capitec-button label="Calculate" icon="generic/calculator" type="clear" icon-placement="right"
-								@click="${() => this._calculate()}"></capitec-button>
-						</div>
-					</div> -->
+																								<capitec-label label="Total Premium" type="subtitle" class="stronger">
+																								</capitec-label>
+																							</div>
+																							<div class="estimate-card">
+																								<div style="display: flex; justify-content: space-between; padding: 20px">
+																									<capitec-group layout="vertical" valign="center" halign="left" gap="none">
+																										<capitec-label type="subtitle" class="" label="Total Premium">
+																										</capitec-label>
+																										<capitec-label type="subtitle" class="stronger" label="R25.00"></capitec-label>
+																									</capitec-group>
+																									<capitec-button label="Calculate" icon="generic/calculator" type="clear" icon-placement="right"
+																										@click="${() => this._calculate()}"></capitec-button>
+																								</div>
+																							</div> -->
 		
 			${this._renderLifeCards()}
 		</div>
@@ -423,15 +466,16 @@ class InsureCalculateEstimate extends Component {
 	 */
 	_webTemplate() {
 		return html`
+		${this._renderLoadingIndicator()}
 		<!-- <capitec-content-box layout="vertical" halign="stretch" valign="top" gap="clear"> -->
 		<capitec-title-bar type="insure" style="margin-bottom: 0px; border-top-left-radius: 5px; border-top-right-radius: 5px;">
-			<capitec-icon size="title" class="icon dark system" icon="system/arrow-left-white" @click="${() => this._back()}"
+			<capitec-icon size="title" class="icon dark system" icon="system/arrow-left" @click="${() => this._back()}"
 				data-automation-id="????">
 			</capitec-icon>
 			<capitec-label label="Get an estimate" type="title"></capitec-label>
 			<capitec-spacer></capitec-spacer>
 			<!-- <capitec-button label="Add a life to policy" type="white" @click="${() => this._showAddLifeModal()}">
-																																																																								</capitec-button> -->
+																																																																																										</capitec-button> -->
 			<capitec-button label="Calculate" type="white" @click="${() => this._calculate()}"></capitec-button>
 		</capitec-title-bar>
 		<capitec-card style="padding: 10px;">
@@ -443,6 +487,14 @@ class InsureCalculateEstimate extends Component {
 		<!-- </capitec-content-box> -->
 		${this._renderAddLifeModal()}
 		`;
+	}
+
+	_renderLoadingIndicator() {
+		if (this.isBusy) {
+			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		};
+
+		return html``;
 	}
 
 	//#endregion
