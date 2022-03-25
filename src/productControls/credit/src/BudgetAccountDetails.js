@@ -158,7 +158,7 @@ import 'app/components/common/HorizonLabel';
 					data-automation-id="budget-account-details-title"
 					type="credit">
 						<img
-							src="src/productControls/credit/images/left-arrow.svg"
+							src="/images/liveBetter/left-arrow.svg"
 							@click="${() => this._back()}"
 							class="left-arrow"/>
 						<horizon-label

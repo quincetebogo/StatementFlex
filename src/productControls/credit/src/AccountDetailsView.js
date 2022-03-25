@@ -177,7 +177,7 @@ import 'app/components/common/HorizonLabel';
 					data-automation-id="account-details-title"
 					type="credit">
 						<capitec-image
-							src="src/productControls/credit/images/left-arrow.svg"
+							src="/images/liveBetter/left-arrow.svg"
 							@click="${() => this._back()}"
 							class="left-arrow">
 						</capitec-image>
