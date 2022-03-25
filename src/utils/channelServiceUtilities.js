@@ -259,8 +259,8 @@ export function formatStringAsPascalCase(unformatedString) {
 }
 
 /**
- * @export
- * @param {string} str un-capitalized string
+ * Uppercases the first character of the string, the rest of the string is lower cased
+ * 
  * @returns {string} A capitalized string
  */
 export function capitalizeString(str) {
