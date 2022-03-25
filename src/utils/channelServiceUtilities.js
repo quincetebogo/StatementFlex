@@ -254,6 +254,8 @@ export function formatStringAsPascalCase(unformatedString) {
 	return formattedString.trim();
 }
 
+
+/**
  * @returns {string} A capitalized string
  */
 export function capitalizeString(str) {
