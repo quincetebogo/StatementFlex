@@ -1,5 +1,5 @@
 import { css, html } from 'platform/elements';
-import { CreditEvents } from 'app/constants/telemetry/events/Credit';
+import { STATEMENT_EVENTS } from 'app/constants/telemetry/events/Credit';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
@@ -35,10 +35,10 @@ export class CreditStatementsUnsuccess extends ViewBase {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 
-		this._telemetry.startSpan(CreditEvents.CREDIT_STATEMENTS_FAILURE, {
+		await this._telemetry.startSpan(STATEMENT_EVENTS.STATEMENTS_FAILURE, {
 			"screen": TelemetryScreen.CREDIT_STATEMENTS_FAILURE
 		});
 
@@ -50,26 +50,18 @@ export class CreditStatementsUnsuccess extends ViewBase {
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 		
-	disconnectedCallback() {
+	async disconnectedCallback() {
 		super.disconnectedCallback();
 
-		this._telemetry.endSpan(CreditEvents.CREDIT_STATEMENTS_FAILURE, {
-			"screen": TelemetryScreen.CREDIT_STATEMENTS_FAILURE
-		});
-
-		this._telemetry.endSpan(CreditEvents.CREDIT_STATEMENTS, {
-			"screen": TelemetryScreen.CREDIT_STATEMENTS_FAILURE,
-			"nextScreen": TelemetryScreen.CREDIT_LANDING
-		});
-
+		await this._telemetry.endSpan(STATEMENT_EVENTS.STATEMENTS_FAILURE, {}, true, true);
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
-	_doneClick() {
-		this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_FAILURE_DONE, {
+	async _doneClick() {
+		await this._telemetry.logEvent(STATEMENT_EVENTS.STATEMENTS_FAILURE_DONE, {
 			"screen": TelemetryScreen.CREDIT_STATEMENTS_FAILURE,
 			"nextScreen": TelemetryScreen.CREDIT_LANDING
 		});
@@ -78,8 +70,8 @@ export class CreditStatementsUnsuccess extends ViewBase {
 		this.horizonRouter.navigateToCreditAccount();
 	}
 
-	_handoffClick() {
-		this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_FAILURE_TRY_AGAIN, {
+	async _handoffClick() {
+		await this._telemetry.logEvent(STATEMENT_EVENTS.STATEMENTS_FAILURE_ASSIGN, {
 			"screen": TelemetryScreen.CREDIT_STATEMENTS_FAILURE,
 			"nextScreen": TelemetryScreen.CREDIT_LANDING
 		});
