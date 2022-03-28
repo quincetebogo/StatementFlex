@@ -1,4 +1,5 @@
 import { css, html } from 'platform/elements';
+import { STATEMENT_EVENTS } from 'app/constants/telemetry/events/Credit';
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
@@ -29,10 +30,10 @@ export class CreditStatementsSuccess extends ViewBase {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 
-		this._telemetry.startSpan(CreditEvents.CREDIT_STATEMENTS_SUCCESS, {
+		await this._telemetry.startSpan(STATEMENT_EVENTS.STATEMENTS_SUCCESS, {
 			"screen": TelemetryScreen.CREDIT_STATEMENTS_SUCCESS,
 			"outcome": `Success`
 		});
@@ -45,8 +46,10 @@ export class CreditStatementsSuccess extends ViewBase {
 		this._updateIncidentState();
 	}
 
-	disconnectedCallback() {
+	async disconnectedCallback() {
 		super.disconnectedCallback();
+
+		await this._telemetry.endSpan(STATEMENT_EVENTS.STATEMENTS_SUCCESS, {}, true, true);
 	}
 
 	// --------------
@@ -54,29 +57,22 @@ export class CreditStatementsSuccess extends ViewBase {
 	// --------------
 
 	async _doneClick() {
-		await this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_SUCCESS_DONE, {
+		await this._telemetry.logEvent(STATEMENT_EVENTS.STATEMENTS_SUCCESS_DONE, {
 			"screen": TelemetryScreen.CREDIT_STATEMENTS_SUCCESS,
 			"nextScreen": TelemetryScreen.CREDIT_LANDING
 		});
-
-		await this._telemetry.endSpan(CreditEvents.CREDIT_STATEMENTS_SUCCESS, {
-			"screen": TelemetryScreen.CREDIT_STATEMENTS_SUCCESS
-		});
-
-		this._telemetry.endSpan(CreditEvents.CREDIT_STATEMENTS, {
-			"screen": TelemetryScreen.CREDIT_STATEMENTS_SUCCESS,
-			"nextScreen": TelemetryScreen.CREDIT_LANDING
-		});
+		await this._telemetry.endSpan(STATEMENT_EVENTS.STATEMENTS_SUCCESS, {}, true, true);
 		
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToCreditAccount();
 	}
 
 	async _sendAnotherClick() {
-		await this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_SUCCESS_SEND_ANOTHER, {
+		await this._telemetry.logEvent(STATEMENT_EVENTS.STATEMENTS_SEND_ANOTHER, {
 			"screen": TelemetryScreen.CREDIT_STATEMENTS_SUCCESS,
 			"nextScreen": TelemetryScreen.CREDIT_STATEMENTS
 		});
+		await this._telemetry.endSpan(STATEMENT_EVENTS.STATEMENTS_SUCCESS);
 
 		this._telemetry.endSpan(CreditEvents.CREDIT_STATEMENTS_SUCCESS, {
 			"screen": TelemetryScreen.CREDIT_STATEMENTS_SUCCESS
