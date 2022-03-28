@@ -39,3 +39,16 @@ export const PREFERRED_MSG_TIME = Object.freeze({
 	'5am-10pm': `5am-10pm`,
 	'7am-6pm': `7am-6pm`
 });
+
+/**
+ * This function parses html string to DOM
+ * 
+ * @param {string} htmlString - HTML in string
+ * @returns {string} DOM
+ */
+export const parseHTMLtoDOM = (htmlString) => {
+	const htmlParser = new DOMParser();
+	const parsedString = htmlParser.parseFromString(htmlString, `text/html`);
+
+	return parsedString.body.innerHTML;
+};

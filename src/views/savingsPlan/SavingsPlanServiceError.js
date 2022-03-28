@@ -71,6 +71,10 @@ export class SavingsPlanServiceError extends ViewBase {
 		return [
 			super.styles,
 			css`
+				.card {
+					width: 100%;
+					height: 888px;
+				}
 				.error-msg {
 					width: auto;
 					height: 60px;
@@ -83,8 +87,12 @@ export class SavingsPlanServiceError extends ViewBase {
 				}
 	
 				horizon-service-call-error-screen {
-					--horizon-service-call-error-screen-height: 100%;
-				
+					--horizon-service-call-error-screen-height: 820px;
+					--horizon-service-call-error-screen-size: 602px;
+					--theme-alert-banner-height: 48px;
+					--horizon-service-call-error-screen-img-height: 183px;
+					--horizon-service-call-error-screen-img-width: 253px;
+					--horizon-service-call-error-screen-header-margin-top: 28px;
 				}
 			`
 		];
@@ -118,10 +126,9 @@ export class SavingsPlanServiceError extends ViewBase {
 					</capitec-title-bar>
 
 					<capitec-group
-						class="content"
 						layout="vertical"
 						halign="center"
-						valign="center"
+						valign="top"
 						gap="none">
 							<horizon-service-call-error-screen
 								bannerDetail=" Savings plans are currently unavailable" 

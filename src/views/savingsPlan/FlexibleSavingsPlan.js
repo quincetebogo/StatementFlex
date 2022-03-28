@@ -35,6 +35,24 @@ export class FlexibleSavingsPlanDetails extends Component {
 	
 	connectedCallback() {
 		super.connectedCallback();
+
+		this.detailsHeader = `${this.flexibleAccountDetails.planName} - ${this.flexibleAccountDetails.accountNumber}`;
+		this.flexibleAccountDetails = {
+			'Current balance': this.flexibleAccountDetails.currentBalance,
+			'Available balance': this.flexibleAccountDetails.availableBalance,
+			'Interest rate': this.flexibleAccountDetails.interestRate,
+			[`Accrued interest ${this._getCurrentMonth()}`]: this.flexibleAccountDetails.accruedInterestCurrentMonth,
+			[`Interest earned ${this._getPreviousMonth()}`]: this.flexibleAccountDetails.accruedInterestLastMonth,
+			'Interest earned for tax year': this.flexibleAccountDetails.interestEarned,
+			'Fees last month': this.flexibleAccountDetails.feesLastMonth,
+			'Last maturity date': this.flexibleAccountDetails.maturityDate,
+			'Posting restrictions': this.flexibleAccountDetails.postingRestrictions,
+			'Outstanding authorisations': this.flexibleAccountDetails.outstandingAuthorizations,
+			'Holds': this.flexibleAccountDetails.holds,
+			'Date opened': this.flexibleAccountDetails.dateOpened,
+			'Last Update': this.flexibleAccountDetails.lastUpdate,
+			'Account status': this.flexibleAccountDetails.accountStatus
+		};
 	}
 
 	// --------------
@@ -71,11 +89,6 @@ export class FlexibleSavingsPlanDetails extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-	
-	_formatDate(date) {
-		const newdate = new Date(Date.parse(date));
-		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
-	}
 
 	_getCurrentMonth() {
 		const newdate = new Date();
@@ -124,25 +137,30 @@ export class FlexibleSavingsPlanDetails extends Component {
 					--horizon-label-value-font-weight: 500;
 					padding: 0px 16px;
 				}
-				.first-column {
-					padding: 16px;
-				}
-				.details {
-					font-weight: 800;
-					margin-top: -10px;
-					margin-bottom: 20px;
-				}
 				horizon-label[value="Open"] {
 					width: 132px;
 					--horizon-label-value-color: #70AF00;
 				}
-				.blank-space {
-					color: #FFFFFF;
-					font-weight: 800;
-					margin-top: -10px;
-					margin-bottom: 20px;
+				.details-group {
+					padding: 8px 16px;
+					--theme-layout-gap-spacing: 0px;
 				}
-			
+				.details-label {
+					height: 64px;
+					width: 342px;
+					padding: 12px 0px;
+
+					--horizon-label-text-height: 20px;
+					--horizon-label-text-font-size: 14px;
+					--horizon-label-text-font-weight: 500;
+					--horizon-label-text-line-height: 20px;
+					--horizon-label-text-color: #3A3A3A;
+
+					--horizon-label-value-height: 20px;
+					--horizon-label-value-font-size: 16px;
+					--horizon-label-value-font-weight: 600;
+					--horizon-label-value-line-height: 20px;
+					--horizon-label-value-color:#3A3A3A;}
 			`
 		];
 	}
@@ -163,7 +181,7 @@ export class FlexibleSavingsPlanDetails extends Component {
 							src="/images/liveBetter/left-arrow.svg"
 							@click="${() => this._back()}"
 							class="left-arrow"/>
-							<horizon-label class="main-title" label="Flexible Savings Plan" value="${this.flexibleAccountDetails.planName} - ${this.flexibleAccountDetails.accountNumber}"></horizon-label>
+							<horizon-label class="main-title" label="Flexible Savings Plan" value="${this.detailsHeader}"></horizon-label>
 					</capitec-title-bar>
 					 
 					${this._renderFlexibleSavingsPlan()}
@@ -173,45 +191,28 @@ export class FlexibleSavingsPlanDetails extends Component {
 	_renderFlexibleSavingsPlan() {
 		return html`
 			<capitec-group
+				class="details-group"
 				layout="horizontal"
 				gap="clear"
-				halign="stretch" 
-				valign="center">
-					<capitec-group
-						class= "first-column"
-						layout="vertical"
-						gap="clear"
-						halign="left"
-						valign="center">
-						<horizon-label label="Current balance" value="${this.flexibleAccountDetails.currentBalance}"></horizon-label>
-						<horizon-label label="Accrued interest ${this._getCurrentMonth()}" value="${this.flexibleAccountDetails.accruedInterestCurrentMonth}"></horizon-label>
-						<horizon-label label="Fees last month" value="${this.flexibleAccountDetails.feesLastMonth}"></horizon-label>
-						<horizon-label label="Posting restrictions" value="${this.flexibleAccountDetails.postingRestrictions}"></horizon-label>
-						<horizon-label label="Date opened" value="${this.flexibleAccountDetails.dateOpened}"></horizon-label>
-					</capitec-group>
-
-					<capitec-group
-						layout="vertical"
-						gap="clear"
-						halign="left"
-						valign="top"><horizon-label label="Available balance" value="${this.flexibleAccountDetails.availableBalance}"></horizon-label>
-						<horizon-label label="Interest earned ${this._getPreviousMonth()}" value="${this.flexibleAccountDetails.accruedInterestLastMonth}"></horizon-label>
-						<horizon-label label="Last maturity date" value="${this.flexibleAccountDetails.maturityDate}"></horizon-label>
-						<horizon-label label="Outstanding authorisations" value="${this.flexibleAccountDetails.outstandingAuthorizations}"></horizon-label>
-						<horizon-label label="Last Update" value="${this.flexibleAccountDetails.lastUpdate}"></horizon-label>
-					</capitec-group>
-					<capitec-group
-						layout="vertical"
-						gap="clear"
-						halign="left"
-						valign="top">
-						<horizon-label label="Interest rate" value="${this.flexibleAccountDetails.interestRate}"></horizon-label>
-						<horizon-label label="Interest earned for tax year" value="${this.flexibleAccountDetails.interestEarned}"></horizon-label>
-						<horizon-label></horizon-label>
-						<horizon-label label="Holds" value="${this.flexibleAccountDetails.holds}"></horizon-label>
-						<horizon-label label="Account status" value="${this.flexibleAccountDetails.accountStatus}"></horizon-label>
-					</capitec-group>
+				halign="left" 
+				valign="top"
+				wrap>
+					${this._renderFields()}
 			</capitec-group>`;
+	}
+
+	_renderFields() {
+		return Object.entries(this.flexibleAccountDetails).map(item => {
+			const [label, value] = item;
+
+			return html`
+				<horizon-label
+					class="details-label"
+					label="${label}"
+					value="${value}"
+					data-automation-id="flexible-savings-plan-${label.split(` `).join(`-`)}">
+				</horizon-label>`;
+		});
 	}
 }
 
