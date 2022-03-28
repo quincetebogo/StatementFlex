@@ -56,6 +56,8 @@ export class PayCreditCardBudget extends Component {
 		super.connectedCallback();
 		[this.productSelected] = this.clientProducts;
 		this.budgetBalance = this.budgetAccountDetails.budgetBalance;
+
+		this._getErrorMessage();
 	}
 
 	disconnectedCallback() {
@@ -74,14 +76,18 @@ export class PayCreditCardBudget extends Component {
 		this.dispatchEvent(new CustomEvent(`transfer`, {}));
 	}
 
-	_valueChanged(e) {
+	_accountValueChanged(e) {
 		if (e.detail.new) {
-			this.errorMessage = ``;
-
 			this.productSelected = e.detail.new;
-			this.requestUpdate();
+			this._getErrorMessage();
 		}
 	}
+
+	_budgetValueChange(e) {
+		this.budgetBalance = e.detail.new;
+		this._getErrorMessage();
+	}
+
 	// ---------------
 	// PUBLIC METHODS
 	// ---------------
@@ -95,6 +101,29 @@ export class PayCreditCardBudget extends Component {
 	_deformatCurrency(value) {
 		const amount = value.split(`R`)[1].replaceAll(` `, ``);
 		return parseFloat(amount);
+	}
+
+	_getErrorMessage() {
+		
+		this.errorMessage = ``;
+		this.bannerMessage = ``;
+
+		if (this.budgetBalance > this.budgetAccountDetails.budgetBalance) {
+			this.bannerMessage = `Transfer amount can not exceeds the badget amount.`;
+			this.errorMessage = `Max amount ${formatCurrency(this.budgetAccountDetails.budgetBalance)}`;
+			return;
+		}
+
+		const noFundsInAllAccounts = this.clientProducts.filter(account => this._deformatCurrency(account.availableBalance) > this.budgetBalance).length === 0;
+		if (noFundsInAllAccounts) {
+			this.bannerMessage = `You do not have enough fund in your account to do the transfer.`;
+			this.errorMessage = `Transafer cannot exceed available balance`;
+			return;
+		}
+
+		if (this.budgetBalance > this._deformatCurrency(this.productSelected.availableBalance)) {
+			this.errorMessage = `Transafer cannot exceed available balance`;
+		}
 	}
 
 	// ---------
@@ -172,6 +201,16 @@ export class PayCreditCardBudget extends Component {
 					height: 48px;
 					--theme-button-font-weight: 600;
 				}
+
+				capitec-alert-banner {
+					--theme-alert-banner-height: 64px;
+					--theme-alert-banner-icon-margin-left: 16px;
+					margin-bottom: 16px;
+				}
+
+				capitec-alert-banner > capitec-label[type="strong"] {
+					--theme-label-strong-font-weight: 600;
+				}
 			`
 		];
 	}
@@ -189,6 +228,7 @@ export class PayCreditCardBudget extends Component {
 						halign="stretch"
 						valign="top"
 						gap="clear">
+							${this._renderAlertBanner()}
 							${this._renderContent()}
 					</capitec-content-box>
 				</div>
@@ -199,22 +239,21 @@ export class PayCreditCardBudget extends Component {
 		`;
 	}
 
-	_getErrorMessage() {
-		if (this.budgetBalance > this.budgetAccountDetails.budgetBalance) {
-			this.errorMessage = `Max amount ${formatCurrency(this.budgetAccountDetails.budgetBalance)}`;
-		}
-		this.clientProducts.forEach(account => this.totalAccountsBalance += this._deformatCurrency(account.availableBalance));
-		if (this.budgetAccountDetails.budgetBalance > this.totalAccountsBalance) {
-			this.errorMessage = `Transafer cannot exceed available balance`;
-		}
-		if (this.budgetAccountDetails.budgetBalance > this._deformatCurrency(this.productSelected.availableBalance)) {
-			this.errorMessage = `Transafer cannot exceed available balance`;
-		}
-		if (this.budgetAccountDetails.budgetBalance) {
-
-		}
-
-		return this.errorMessage;
+	_renderAlertBanner() {
+		return this.bannerMessage 
+		? html`
+			<capitec-alert-banner
+				data-automation-id="pay-budget-alert-banner"
+				type="error">
+					<capitec-label
+						label="Notify client:"
+						type="strong">
+					</capitec-label>
+					<capitec-label
+						label="${this.bannerMessage}">
+					</capitec-label>
+			</capitec-alert-banner>`
+		: html``;
 	}
 
 	_renderContent() {
@@ -233,7 +272,7 @@ export class PayCreditCardBudget extends Component {
 				.items="${this.clientProducts}"
 				.value="${this.productSelected}"
 				.displayRenderer="${(e) => this._renderOptions(e)}"
-				@value-changed="${(e) => this._valueChanged(e)}"> 
+				@value-changed="${(e) => this._accountValueChanged(e)}"> 
 			</horizon-select-icon>
 			
 			<horizon-label
@@ -246,16 +285,11 @@ export class PayCreditCardBudget extends Component {
 				data-automation-id="pay-budget-balance"
 				label="Budget amount"
 				type="currency"
-				.error="${this._getErrorMessage()}"
+				.error="${this.errorMessage}"
 				value="${this.budgetBalance}"
 				@value-changed="${(e) => this._budgetValueChange(e)}">
 			</capitec-text-field>
 		`;
-	}
-
-	_budgetValueChange(e) {
-		this.errorMessage = ``;
-		this.budgetBalance = e.detail.new;
 	}
 
 	_renderOptions(e) {
