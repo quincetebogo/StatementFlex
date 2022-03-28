@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { deformatCurrency, formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelectIcon';
@@ -98,11 +98,6 @@ export class PayCreditCardBudget extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	_deformatCurrency(value) {
-		const amount = value.split(`R`)[1].replaceAll(` `, ``);
-		return parseFloat(amount);
-	}
-
 	_getErrorMessage() {
 		
 		this.errorMessage = ``;
@@ -114,14 +109,14 @@ export class PayCreditCardBudget extends Component {
 			return;
 		}
 
-		const noFundsInAllAccounts = this.clientProducts.filter(account => this._deformatCurrency(account.availableBalance) > this.budgetBalance).length === 0;
+		const noFundsInAllAccounts = this.clientProducts.filter(account => deformatCurrency(account.availableBalance) > this.budgetBalance).length === 0;
 		if (noFundsInAllAccounts) {
 			this.bannerMessage = `You do not have enough fund in your account to do the transfer.`;
 			this.errorMessage = `Transafer cannot exceed available balance`;
 			return;
 		}
 
-		if (this.budgetBalance > this._deformatCurrency(this.productSelected.availableBalance)) {
+		if (this.budgetBalance > deformatCurrency(this.productSelected.availableBalance)) {
 			this.errorMessage = `Transafer cannot exceed available balance`;
 		}
 	}
