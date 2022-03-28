@@ -26,7 +26,6 @@ export class PayCreditCardBudget extends Component {
 		super();
 
 		this.productSelected = {};
-		this.totalAccountsBalance = 0;
 	}
 
 	// ----------
@@ -103,12 +102,14 @@ export class PayCreditCardBudget extends Component {
 		this.errorMessage = ``;
 		this.bannerMessage = ``;
 
+		// Entered budget amount exceeds the actual outstanding budget balance
 		if (this.budgetBalance > this.budgetAccountDetails.budgetBalance) {
 			this.bannerMessage = `Transfer amount can not exceeds the badget amount.`;
 			this.errorMessage = `Max amount ${formatCurrency(this.budgetAccountDetails.budgetBalance)}`;
 			return;
 		}
 
+		// No account has enough funds to do transfer as entered amount
 		const noFundsInAllAccounts = this.clientProducts.filter(account => deformatCurrency(account.availableBalance) > this.budgetBalance).length === 0;
 		if (noFundsInAllAccounts) {
 			this.bannerMessage = `You do not have enough fund in your account to do the transfer.`;
@@ -116,6 +117,7 @@ export class PayCreditCardBudget extends Component {
 			return;
 		}
 
+		// Entered budget amount exceeds the available balance of selected account
 		if (this.budgetBalance > deformatCurrency(this.productSelected.availableBalance)) {
 			this.errorMessage = `Transafer cannot exceed available balance`;
 		}
