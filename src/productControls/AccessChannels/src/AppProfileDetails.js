@@ -1,5 +1,5 @@
+import { ACCESS_CHANNEL_STATUS, parseHTMLtoDOM } from './Constants';
 import { Component, css, html } from 'platform/elements';
-import { ACCESS_CHANNEL_STATUS } from './Constants';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonLabel';
@@ -77,6 +77,18 @@ export class AppProfileDetails extends Component {
 		};
 	}
 
+	get successToast() {
+		return `<capitec-label label="App was ${this.appDetails.status === `Active` ? `unsuspended` : `suspended`}"></capitec-label>
+				<capitec-spacer></capitec-spacer>
+				<capitec-label label="${this._getFormattedDateTime(this.appDetails.dateLastUpdated)}" type="subtitle"></capitec-label>`;
+	}
+
+	get unSuccessToast() {
+		return `<capitec-label label="App was not suspended"></capitec-label>
+				<capitec-spacer></capitec-spacer>
+				<capitec-label label="Try again"></capitec-label>`;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -119,12 +131,12 @@ export class AppProfileDetails extends Component {
 		this.showSuspendReasons = !this.showSuspendReasons;
 	
 		if (!returnValue) {
-			this._displayAndCloseToast(`app-unsuccess-toast`);
+			this._displayAndCloseToast(`app-unsuccess-toast`, this.unSuccessToast);
 			return false;
 		}
 
 		this.appDetails.status = `Suspended`;
-		this._displayAndCloseToast(`app-success-toast`);
+		this._displayAndCloseToast(`app-success-toast`, this.successToast);
 
 		this.showValidationBanner = false;
 	}
@@ -135,7 +147,7 @@ export class AppProfileDetails extends Component {
 		
 		if (returnValue) {
 			this.appDetails.status = `Active`;
-			this._displayAndCloseToast(`app-success-toast`);
+			this._displayAndCloseToast(`app-success-toast`, this.successToast);
 		}
 	}
 
@@ -150,11 +162,14 @@ export class AppProfileDetails extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	_displayAndCloseToast(elementId) {
+	_displayAndCloseToast(elementId, toastDetail) {
 
 		const elementToast = this.shadowRoot.getElementById(elementId);
 		elementToast.style.display = `block`;
 		elementToast.style.animation = `slideDown 0.6s`;
+
+		const detailLabel = elementToast.shadowRoot.querySelector(`label.detail`);
+		detailLabel.innerHTML = parseHTMLtoDOM(toastDetail);
 
 		window.setTimeout(() => {
 				elementToast.style.animation = `slideUp 0.6s`;
@@ -181,7 +196,7 @@ export class AppProfileDetails extends Component {
 	_formatTime(timeToFormat) {
 		const formatedDate = new Date(timeToFormat);
 		const localTime = formatedDate.toLocaleTimeString();
-		return localTime.replace(localTime.slice(-6, -2), ` `);
+		return localTime.replace(localTime.slice(-6, -2), ` `).toLowerCase();
 	}
 
 	_getFormattedDateTime(datetime) {
@@ -269,6 +284,9 @@ export class AppProfileDetails extends Component {
 					--theme-icon-size-default: 24px;
 					--theme-toast-success-color: #3A3A3A;
 					--theme-toast-detail-line-height: 20px;
+					--theme-label-subtitle-font-size: 14px;
+					--theme-label-subtitle-font-weight: 600;
+
 					padding: 12px 0px 0px 16px;
 					position: absolute;
 					z-index: 100;
@@ -630,9 +648,7 @@ export class AppProfileDetails extends Component {
 				id="app-success-toast"
 				type="success" 
 				header="Successful!"
-				detail="App was ${this.appDetails.status === `Active` ? `unsuspended` : `suspended`}&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp 
-						&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp 
-						&nbsp &nbsp &nbsp ${this._getFormattedDateTime(this.appDetails.dateLastUpdated)}"
+				detail=""
 				@click="${(e) => this._closeToast(e)}"
 				closable>
 					<capitec-label label="Successful!" type="strong"></capitec-label>
@@ -653,7 +669,7 @@ export class AppProfileDetails extends Component {
 				id="app-unsuccess-toast"
 				type="error" 
 				header="Unsuccessful!"
-				detail="App was not suspended &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp Try again"
+				detail=""
 				@click="${(e) => this._closeToast(e)}"
 				closable>
 					<capitec-label label="Unsuccessful!" type="strong"></capitec-label>

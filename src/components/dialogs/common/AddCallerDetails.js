@@ -185,6 +185,7 @@ export class AddCallerDetails extends Component {
 						this.callerInformation.languagePreference,
 						this.callerInformation.livesIn,
 						this.callerInformation.name,
+						this.callerInformation.title,
 						this.callerInformation.southAfricanIDNumber,
 						this.callerInformation.verifiedTelephoneNumber,
 						this.firstNameTextField,

@@ -1,3 +1,4 @@
+import { CREDIT_ACCOUNT_TYPE, PRODUCT_TYPE } from 'app/constants/Credit';
 import { QuickTransactionEvents, STATEMENT_EVENTS } from 'app/constants/telemetry/events/QuickTransactions';
 import { css, html } from 'platform/elements';
 import { isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
@@ -6,9 +7,13 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { creditMixin } from 'app/views/credit/CreditMixin';
+import { creditOverview } from 'app/mocks/CreditMocks';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
+import 'app/components/dialogs/common/CCSstatus';
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
 import 'app/components/dialogs/quickTransactions/DeclineDebiCheckMandate';
@@ -19,7 +24,10 @@ import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
 import 'app/components/dialogs/common/Feedback';
+import 'app/components/quickTransactions/SettlementQuote';
 
+import 'app/dialogs/credit/PaidUpAccounts';
+import 'app/dialogs/credit/PaidUpLetter';
 import 'app/dialogs/taxCertificates/TaxCertificates';
 
 
@@ -62,6 +70,9 @@ export class Favourites extends SavingsAccountBase {
 		this.selectedFeedback = [];
 		this.feedbackOptions = [];
 		this.updateStrackClick = false;
+		// TODO: get ccs status for client
+		this.ccsStatus = true;
+		this.showCCSmodal = false;
 
 		this._telemetry = HorizonTelemetry.instance;
 
@@ -69,6 +80,7 @@ export class Favourites extends SavingsAccountBase {
 
 		Object.assign(Favourites.prototype, tapToPayMixin);
 		Object.assign(Favourites.prototype, searchOtherNeedMixin);
+		Object.assign(Favourites.prototype, creditMixin);
 	}
 
 	// --------------
@@ -78,7 +90,8 @@ export class Favourites extends SavingsAccountBase {
 	static get properties() {
 		return {
 			isLoading: { state: true },
-			verificationToastDisplayed: { state: true }
+			verificationToastDisplayed: { state: true },
+			showCCSmodal: { type: Boolean }
 		};
 	}
 
@@ -107,6 +120,8 @@ export class Favourites extends SavingsAccountBase {
 			const taxCertificates = () => this._taxCertificates();
 			const proofOfAccount = () => this._proofOfAccount();
 			const searchOtherNeed = () => this._searchOtherNeed();
+			const settlementQuote = () => this._settlementQuote();
+			const paidUpAccounts = () => this._paidUpAccounts();
 			
 			const actions = {
 				'stop-card': stopCard,
@@ -116,7 +131,9 @@ export class Favourites extends SavingsAccountBase {
 				'statements': statements,
 				'tax-certificate': taxCertificates,
 				'proof-of-account': proofOfAccount,
-				'search-other-need': searchOtherNeed
+				'search-other-need': searchOtherNeed,
+				'settlement-quote': settlementQuote,
+				'paid-up-accounts': paidUpAccounts
 			};
 
 			if (actions[option]) {
@@ -353,11 +370,22 @@ export class Favourites extends SavingsAccountBase {
 				isCallerVerified: this.callerInformation.verificationStatus === `verified`
 			};
 
-			const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest);
+			const returnValues = await Promise.allSettled([this.quickTransactionService.favouritesLanding(landingRequest), this.creditService.creditBalance(this.callerInformation.cifNumber, () => true)]);
 
-			if (returnValue.succeeded) {
+			if (returnValues[0].status === `fulfilled` && returnValues[0].value.succeeded) {
 				this.isLoading = false;
-				this.landingPageInfo = returnValue.result;
+
+				this.landingPageInfo = returnValues[0].value.result;
+				
+				/* 
+				 * NOTE: This is a work around as the favourites landing does not return credit information. 
+				 * NOTE: This implementation will not include credit information in the favourites landing call fails.
+				 * TODO: Develop better solution
+				 */
+				if (returnValues[1].status === `fulfilled` && returnValues[1].value.succeeded) {
+					this.landingPageInfo.creditProductDescription = `Available balance`;
+					this.landingPageInfo.creditProductAmount = formatCurrency(returnValues[1].value.result.availableBalance);
+				}
 			}
 		} else {
 			// minimal object for the Favourites landing page component
@@ -527,6 +555,43 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
+	_settlementQuote() {
+		const screenDetails = this.horizonStore.getScreenDetails();
+
+		// TODO: CS call to get credit accounts info and diaplay appropriate values on settlement quote view screen - details are pulled from mocks now
+
+		this.settlementQuoteDetails = [...creditOverview.creditCardSummaryList, ...creditOverview.accessFacilitySummaryList, ...creditOverview.loanAccountSummaryList];
+
+		this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
+			item.type = PRODUCT_TYPE[item.productTypeCode];
+			item.category = CREDIT_ACCOUNT_TYPE[item.productTypeCode];
+			item.productTypeDescription = `${item.productTypeDescription.toLowerCase().charAt(0).toUpperCase()}${item.productTypeDescription.toLowerCase().slice(1)}`;
+			item.creditLimit = formatCurrency(item.creditLimit);
+			item.repayAmount = item.repayAmount ? formatCurrency(item.repayAmount) : null;
+			item.nextRepayment = item.nextRepayment ? formatCurrency(item.nextRepayment) : null;
+			item.currentBalance = formatCurrency(item.currentBalance);
+
+			return item;
+		});
+
+		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
+
+		if (screenDetails.selectedAccounts) {
+			this._settlementQuoteDialog(screenDetails.selectedAccounts);
+		}
+	}
+
+	_paidUpAccounts() {
+		// TODO: CS call to get info
+
+		if (this.ccsStatus) {
+			this.showCCSmodal = true;
+			return;
+		}
+
+		this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
+	}
+
 	_unavailableOption() {
 		this.renderMode = RENDER_MODE.ALERT_MODAL;
 	}
@@ -681,6 +746,11 @@ export class Favourites extends SavingsAccountBase {
 		super._backToLandingPage();
 	}
 
+	_backFromSettlementQuoteDialog() {
+		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
+		this.horizonStore.clearScreenDetails();
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -721,6 +791,10 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderFeedback()}
 			${this._renderUpdateIncidentModal()}
 			${this._renderTaxCertificate()}
+			${this._renderpaidUpAccounts()}
+			${this._renderSettlementQuote()}
+			${this._renderSettlementQuoteDialog()}
+			${this._renderCcsModal()}
 
 			${super._webTemplate()}
 		`;
@@ -861,8 +935,10 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.UPDATE_CARD_LIMITS
 			? html`
 				<horizon-card-limits-landing
-				.cards="${this.cards}"
-					cifNumber="${this.callerInformation.cifNumber}"
+					.cards="${this.cards}"
+					.cifNumber="${this.callerInformation.cifNumber}"
+					.title="${this.callerInformation.title}"
+					.lastName="${this.callerInformation.lastName}"
 					voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
 					verificationMethod="${this.callerInformation.verificationMethod}"
 					?hasDigitalChannels="${this.callerInformation.hasDigitalChannels}"
@@ -884,7 +960,9 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
 			? html`
 				<horizon-proof-of-account
-					.callerInformation="${this.callerInformation}"
+					.cifNumber="${this.callerInformation.cifNumber}"
+					.title="${this.callerInformation.title}"
+					.lastName="${this.callerInformation.lastName}"
 					.landingPageInfo="${this.landingPageInfo}"
 					@cancel="${() => this._backToLandingPage()}">
 				</horizon-proof-of-account>`
@@ -934,13 +1012,44 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE
 		? html`
 			<horizon-tax-certificate
-				cifNumber="${this.callerInformation.cifNumber}"
+				.cifNumber="${this.callerInformation.cifNumber}"
 				accountNumber="${this.landingPageInfo.accountNumber}"
 				@cancel="${() => this._backToLandingPage()}">
 			</horizon-tax-certificate>
 		`
 		: html``;
-	}  
+	}
+	
+	_renderSettlementQuote() {
+		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_VIEW ||
+				this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG 
+		? html`
+		<horizon-settlement-quote
+			.settlementQuoteDetails="${this.settlementQuoteDetails}"
+			@back="${() => this._backToLandingPage()}"
+			@send-quote="${(e) => this._settlementQuoteDialog(e.detail.selectedAccounts)}">
+		</horizon-settlement-quote>`
+		: html``;
+	} 
+
+	_renderCcsModal() {
+		return this.showCCSmodal
+		? html`
+			<horizon-ccs-status-dialog
+				@on-okay="${() => this.showCCSmodal = !this.showCCSmodal}">
+			</horizon-ccs-status-dialog>`
+		: html``;
+	}
+
+	_renderpaidUpAccounts () {
+		return this.renderMode === RENDER_MODE.PAID_UP_ACCOUNTS
+		? html`
+		<horizon-paid-up-accounts
+			.landingPageInfo="${this.landingPageInfo}"
+			@back="${() => this._backToLandingPage()}">
+		</horizon-paid-up-accounts>`
+		: html``;
+	}
 }
 
 customElements.define(`horizon-favourites`, Favourites);
