@@ -12,6 +12,8 @@ import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { capitalizeString } from 'app/utils/channelServiceUtilities';
 import { html } from 'platform/elements';
+import {capitalizeString} from 'app/utils/channelServiceUtilities'
+
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/quickTransactions/ApproveDebiCheckMandate';
 import 'app/dialogs/statements/Statements';
@@ -129,6 +131,7 @@ export class SavingsAccountBase extends ViewBase {
 										'accountName': capitalizeString(item.accountName || item.productTypeDescription),
 										'accountType': item.accountType || item.productTypeCode,
 										'accountOpenDate': item.accountOpenDate || item.openDate,
+										'name': productInfo.name,
 										'type': productInfo.type,
 										'category': productInfo.category,
 										'subCategory': productInfo.subCategory,
