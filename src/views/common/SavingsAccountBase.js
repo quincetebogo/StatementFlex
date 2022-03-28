@@ -10,6 +10,7 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { capitalizeString } from 'app/utils/channelServiceUtilities';
 import { html } from 'platform/elements';
 import {capitalizeString} from 'app/utils/channelServiceUtilities'
 
@@ -125,12 +126,9 @@ export class SavingsAccountBase extends ViewBase {
 									const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType || item.productTypeCode][item.interestCategory] || 
 														ACCOUNT_INTCAT_ENUM[item.accountType || item.productTypeCode];
 
-									const accountName = item.accountName || item.productTypeDescription;
-									const accName = capitalizeString(accountName);
-
 									return {
 										'accountNumber': item.accountNumber,
-										'accountName': `${accName}${accName.slice(1)}`,
+										'accountName': capitalizeString(item.accountName || item.productTypeDescription),
 										'accountType': item.accountType || item.productTypeCode,
 										'accountOpenDate': item.accountOpenDate || item.openDate,
 										'name': productInfo.name,

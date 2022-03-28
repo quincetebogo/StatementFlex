@@ -28,19 +28,13 @@ export class ITAChannelService extends ChannelServiceBase {
 	// --------------
 
 	itaVerification(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const url = `/clientcare-call-${this._version}/ita-verification`;
-
-		return this.post(
-			url,
-			{
-				"cifNumber": request.cifNumber,
-				"connectionId": request.connectionID
-			  },
-			this.setToken(),
+		const url = `/clientcare/call/${this._version}/ita-verification?CifNumber=${request.cifNumber}&ConnectionId=${request.connectionID}`;
+		return this.get(
+			url, 
+			this.setToken(), 
 			`itaVerification`,
+			false,
 			null,
-			null,
-			1000,
 			null,
 			errorHandler,
 			autoRetries
@@ -61,18 +55,14 @@ export class ITAChannelService extends ChannelServiceBase {
 			};
 		}
 
-		const url = `/clientcare-call-${this._version}/has-digital-verification-capability`; 
+		const url = `/clientcare/call/${this._version}/has-digital-verification-capability?Cif=${cifNumber}`; 
 		
-		return this.post(
+		return this.get(
 			url,
-			{
-				"cif": cifNumber
-			},
 			this.setToken(),
 			`digitalVerificationChannelsAvailable`,
+			false,
 			null,
-			null,
-			1000,
 			null,
 			errorHandler,
 			autoRetries

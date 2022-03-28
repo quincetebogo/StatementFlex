@@ -203,9 +203,8 @@ export function isWellFormedSouthAfricanID(southAfricanIDNumber) {
 }
 
 /**
- * Converts date time to specific format
- * 
- * @param {string} value - Date time in string
+ * @export
+ * @param {string} value string value to be formatted
  * @param {string} format - Format, we wish to convert (dd/mm/yyyy)
  * @returns {string} formatted string value 
  */
@@ -244,8 +243,9 @@ export function formatDate(value, format) {
  * 
  * Formats strings as pascal case
  * 
+ * @export
  * @param {string} unformatedString - Unformatted string
- * @returns {string} pascal formated string
+ * @returns {string} formatted string
  */
 export function formatStringAsPascalCase(unformatedString) {
 
@@ -257,12 +257,13 @@ export function formatStringAsPascalCase(unformatedString) {
 
 	return formattedString.trim();
 }
+
 /**
  * Uppercases the first character of the string, the rest of the string is lower cased
  * 
  * @returns {string} A capitalized string
  */
- export function capitalizeString(str) {
+export function capitalizeString(str) {
 	const result = str.replace(/\0/g, ``); // TODO: Temporary fix for telemetry issue. This must come out once the PS side problem has been addressed.
 	return `${result.charAt(0).toUpperCase()}${result.slice(1)}`;
 }

@@ -859,5 +859,13 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.SETTLE_AND_CLOSE_SUCCESS,
 		load: () => import(`../views/credit/SettleAndCloseSuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-savings-plan`,
+		title: `SavingsPlan`,
+		icon: null,
+		path: HORIZON_ROUTES.SAVINGS_PLAN,
+		load: () => import(`../views/savingsPlan/SavingsPlan`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}
 ];
