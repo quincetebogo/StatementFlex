@@ -1,4 +1,6 @@
 import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
+import { Security } from 'platform/core';
+import { v4 } from 'uuid';
 
 /**
  * Channel Service Methods for Insure related functionality
@@ -23,6 +25,15 @@ export class InsureService extends ChannelServiceBase {
 		);
 
 		this._version = `v1`;
+	}
+
+	setInsureTokens() {
+		return {
+			"X-User-Token": Security.getInstance().token,
+			"x-session-id": v4(),
+			"x-request-id": v4(),
+			"x-requester-uid": 'CP336134_17249_01_3997_16',
+		};
 	}
 
 	//#endregion
@@ -65,7 +76,7 @@ export class InsureService extends ChannelServiceBase {
 		const url = `/FuneralInsuranceProductService/product/params`;
 		return this.get(
 			url,
-			this.setToken(),
+			this.setInsureTokens(),
 			`productParams`,
 			null,
 			1000,
@@ -91,7 +102,7 @@ export class InsureService extends ChannelServiceBase {
 		return this.post(
 			`/FuneralInsuranceProductService/quote/estimate`,
 			estimateRequest,
-			this.setToken(),
+			this.setInsureTokens(),
 			`calculateEstimate`,
 			null,
 			null,
@@ -118,7 +129,7 @@ export class InsureService extends ChannelServiceBase {
 		return this.post(
 			`/FuneralInsuranceProductService/quote/calc`,
 			quoteRequest,
-			this.setToken(),
+			this.setInsureTokens(),
 			`calculateQuote`,
 			null,
 			null,
@@ -145,7 +156,7 @@ export class InsureService extends ChannelServiceBase {
 		return this.post(
 			`/FuneralInsuranceProductService/quote/retrieve`,
 			quoteRequest,
-			this.setToken(),
+			this.setInsureTokens(),
 			`retrieveQuote`,
 			null,
 			null,
@@ -172,7 +183,7 @@ export class InsureService extends ChannelServiceBase {
 		return this.post(
 			`/FuneralInsuranceProductService/client/quotes/retrieve`,
 			quoteRequest,
-			this.setToken(),
+			this.setInsureTokens(),
 			`retrieveQuotes`,
 			null,
 			null,
@@ -200,7 +211,7 @@ export class InsureService extends ChannelServiceBase {
 		return this.post(
 			`/FuneralInsuranceProductService/client/summary`,
 			quoteRequest,
-			this.setToken(),
+			this.setInsureTokens(),
 			`summary`,
 			null,
 			null,

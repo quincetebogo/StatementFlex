@@ -15,7 +15,22 @@ import { formatCurrency } from 'app/productControls/utilities/Currency';
 // import 'app/components/insure/InsureCalculateEstimate';
 // import 'app/components/insure/InsureUpdatePlan';
 
-import 'app/components/dialogs/insure/InsureEstimateAddLife';
+import 'app/components/dialogs/insure/InsureAddLifeDialog';
+
+/**
+ * @readonly
+ * @enum {object} GENDER_OPTIONS
+ */
+const GENDER_OPTIONS = [
+	{
+		code: 'Male',
+		text: `Male`
+	},
+	{
+		code: 'Female',
+		text: `Female`
+	}
+];
 
 /**
  * Implements the view for Insure verified and unverified existing clients (i.e. the client has products)
@@ -42,7 +57,10 @@ export class ExistingClient extends InsureViewBase {
 		this.showAddRelationshipDialog = false;
 		this.showEmailPlanDialog = false;
 
+		// Estimate
 		this.estimate = {};
+		this.clientEstimateDetails = {};
+		this.totalPremiumOverrideInput = '';
 	}
 
 	//#endregion
@@ -79,14 +97,17 @@ export class ExistingClient extends InsureViewBase {
 	async _initialize() {
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		if (this.verificationStatus === `verified`) {
-			const clientDetails = {
-				"cifNumber": this.callerInformation.cifNumber,
-				"GetGenericData": true,
-				"NationalIDNumber": this.callerInformation.southAfricanIDNumber
-			};
+
+			// const clientDetails = {
+			// 	"cifNumber": this.callerInformation.cifNumber,
+			// 	"GetGenericData": true,
+			// 	"NationalIDNumber": this.callerInformation.southAfricanIDNumber
+			// };
+			// console.log(JSON.stringify(this.callerInformation));
 		}
 
-		let clientPolicies = await this.retrieveClientPolicySummary();
+		// let clientPolicies = await this.retrieveClientPolicySummary();
+
 	}
 
 
@@ -105,24 +126,46 @@ export class ExistingClient extends InsureViewBase {
 			age: 0,
 			rowID: 0
 		});
-		this.estimate.totalPremium = this.ESTIMATE_DEFAULT_PREMIUM;
+		this.estimate.totalPremium = 0;
+		this.clientEstimateDetails = {
+			"estimateReference": "",
+			"clientCif": this.callerInformation.cifNumber,
+			"lastName": this.callerInformation.lastName,
+			"firstName": this.callerInformation.firstName,
+			"contactEmail": "",
+			"contactNumber": this.callerInformation.verifiedTelephoneNumber
+		}
 		this._navigateToSubView(INSURE_RENDER_MODE.ESTIMATE);
 	}
 
 	/**
-	 * Event from Add life dialog
+	 * Event from Add life dialog for Estimate
 	 */
-	_addLifeEstimate() {
+	_addLifeEstimate(e) {
+		this.estimate.lifesAssured.push({
+			relationship: e.detail.relationship,
+			coverAmount: e.detail.coverDetails.defaultCover,
+			premium: 0,
+			genderType: "Male",
+			age: 0,
+			rowID: this.estimate.lifesAssured.length + 1,
+			coverDetails: e.detail.coverDetails
+		});
 		this.showAddRelationshipDialog = false;
 	}
 
 	/**
-	 * Calculate Button event 
+	 * Calculate Button event / Calculate by life assured
 	 * @returns {object} Estimate Response
 	 */
 	async _calculateEstimate() {
-		// Build / Check Object
-		this.calculateClientEstimate()
+		this.estimate.totalPremium = 0;
+		const request = {
+			...this.estimate,
+			clientEstimateDetails: this.clientEstimateDetails
+		}
+		let estimateResponse = await this.calculateClientEstimate(request);
+		this.requestUpdate();
 	}
 
 	/**
@@ -130,8 +173,15 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {object} Estimate Response
 	 */
 	async _estimatePremiumOverrideChanged(e) {
-		// Build / Check Object
-		this.calculateClientEstimate()
+		console.log(e);
+		this.estimate.totalPremium = e.detail.new;
+		const request = {
+			...this.estimate,
+			clientEstimateDetails: this.clientEstimateDetails
+		}
+		let estimateResponse = await this.calculateClientEstimate(request);
+		this.totalPremiumOverrideInput = '';
+		this.requestUpdate();
 	}
 
 	/** General */
@@ -213,6 +263,7 @@ export class ExistingClient extends InsureViewBase {
 			.calc-card {
 				border: 1px solid #e1e1e1;
 				border-radius: 5px;
+				margin-top: 15px;
 			}
 
 			.calc-card-header{
@@ -277,7 +328,7 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			${this._renderLandingPage()}
 			${this._renderLoadingIndicator()}
-			${this._renderAddLifeAssuredDialog()}
+			${this._renderEstimateAddLifeAssuredDialog()}
 			${this._renderEmailPlanDialog()}
 		`;
 	}
@@ -329,7 +380,7 @@ export class ExistingClient extends InsureViewBase {
 			<capitec-label label="Get an estimate" type="title"></capitec-label>
 			<capitec-spacer></capitec-spacer>
 			</capitec-button>
-			<capitec-button label="Calculate" type="white" @click="${() => this._calculate()}"></capitec-button>
+			<capitec-button label="Calculate" type="white" @click="${() => this._calculateEstimate()}"></capitec-button>
 		</capitec-title-bar>
 		<capitec-card style="padding: 10px;">
 			<div class="insure-calc-columns">
@@ -346,21 +397,25 @@ export class ExistingClient extends InsureViewBase {
 	_renderLeftEstimateColumn() {
 		return html`		
 		<div class="insure-calc-column-left">
-		
-			<div class="calc-card-row">
-				<capitec-label label="Lives Assured" type="subtitle" class="stronger"></capitec-label>
-				<capitec-label label="Add Life Assured" type="subtitle" class="stronger link"
-					@click="${() => this._openAddLifeDialog()}"></capitec-label>
-			</div>
-		
-			${this.estimate.lifesAssured.map(lifeAssured => html`
+			${this.estimate.lifesAssured.map((lifeAssured, index) => html`
 			<div class="calc-card">
+		
+				${index != 0 ? html`
 				<div class="calc-card-header">
 					<capitec-label
-						label="${lifeAssured.relationship == 'MainLife' ? 'Main Life: You' : lifeAssured.relationship}"
+						label="Relationship: ${lifeAssured.relationship}"
 						type="small" class="stronger">
 					</capitec-label>
+		
+					<capitec-label label="Remove" type="small" class="stronger link">
+					</capitec-label>
 				</div>
+				` : html`
+				<div class="calc-card-header">
+					<capitec-label label="Main Life: You" type="small" class="stronger"></capitec-label>
+				</div>
+				`}
+		
 				<div class="calc-card-row">
 					<capitec-text-field label="Cover Amount" type="input" disabled style="width: 50%;"
 						value="${formatCurrency(lifeAssured.coverAmount)}">
@@ -371,10 +426,17 @@ export class ExistingClient extends InsureViewBase {
 				</div>
 				<div class="calc-card-row">
 					<capitec-text-field label="Age" type="numeric-input" style="width: 50%;"></capitec-text-field>
-					<capitec-select label="Gender" display-field="text" id-field="code" style="width: 50%"></capitec-select>
+					<capitec-select label="Gender" display-field="text" .items="${this.GENDER_OPTIONS}" id-field="code" style="width: 50%"></capitec-select>
 				</div>
 			</div>
+		
+			${index != 0 ? html`` : html`<div class="calc-card-row" style="margin-top:15px;">
+				<capitec-label label="Lives Assured" type="subtitle" class="stronger"></capitec-label>
+				<capitec-label label="Add Life Assured" type="subtitle" class="stronger link"
+					@click="${() => this._openAddLifeDialog()}"></capitec-label>
+			</div>`}
 			`)}
+			<capitec-spacer></capitec-spacer>
 		</div>
 		`
 	}
@@ -416,7 +478,7 @@ export class ExistingClient extends InsureViewBase {
 						<br>
 						<capitec-text-field label="Premium Amount" type="numeric-input"
 							@value-changed="${(e) => this._estimatePremiumOverrideChanged(e)}"
-							value="${this.totalPremiumOverrideInput}">
+							.value="${this.totalPremiumOverrideInput}">
 						</capitec-text-field>
 					</div>
 				</div>
@@ -446,12 +508,12 @@ export class ExistingClient extends InsureViewBase {
 	 * Render Dialog to add Life assured to Estimate
 	 * @return {html} Html of the dialog
 	 */
-	_renderAddLifeAssuredDialog() {
+	_renderEstimateAddLifeAssuredDialog() {
 		return this.showAddRelationshipDialog == false ? `` :
 			html`
-			<insure-estimate-add-life @addNewLife="${(e) => this._addLifeEstimate(e)}"
-				@closeModal="${(e) => this._closeAddLifeDialog(e)}" .lifesAssured="${this.estimate.lifesAssured}">
-			</insure-estimate-add-life>
+			<insure-add-life-dialog @addNewLife="${(e) => this._addLifeEstimate(e)}"
+				@closeModal="${(e) => this._closeAddLifeDialog(e)}" .currentLifesAssured="${this.estimate.lifesAssured}">
+			</insure-add-life-dialog>
 		`
 	}
 
@@ -476,7 +538,6 @@ export class ExistingClient extends InsureViewBase {
 		};
 		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
-
 
 	//#endregion
 }

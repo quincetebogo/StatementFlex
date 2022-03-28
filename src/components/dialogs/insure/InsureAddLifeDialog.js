@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 
-class InsureEstimateAddLifeModal extends Component {
+class InsureAddLifeDialog extends Component {
 
 	constructor() {
 		super();
@@ -34,12 +34,12 @@ class InsureEstimateAddLifeModal extends Component {
 	 * Apply active rules to conditionally disable radio buttons if limits are reached
 	 */
 	_setActiveRadioButtons() {
-		console.log(`Total Current Lives Assured: ${this.lifesAssured.length}`);
+		console.log(`Total Current Lives Assured: ${this.currentLifesAssured.length}`);
 
-		this.ruleTotalSpouse = this.lifesAssured.filter((life) => life.relationship === "Spouse").length;
-		this.ruleTotalChild = this.lifesAssured.filter((life) => life.relationship === "Child").length;
-		this.ruleTotalParent = this.lifesAssured.filter((life) => life.relationship === "Parent").length;
-		this.ruleTotalExtendedFamily = this.lifesAssured.filter((life) => life.relationship === "ExtendedFamily").length;
+		this.ruleTotalSpouse = this.currentLifesAssured.filter((life) => life.relationship === "Spouse").length;
+		this.ruleTotalChild = this.currentLifesAssured.filter((life) => life.relationship === "Child").length;
+		this.ruleTotalParent = this.currentLifesAssured.filter((life) => life.relationship === "Parent").length;
+		this.ruleTotalExtendedFamily = this.currentLifesAssured.filter((life) => life.relationship === "ExtendedFamily").length;
 
 		// CHeck first
 		this.selectedRelationship = ``;
@@ -118,7 +118,7 @@ class InsureEstimateAddLifeModal extends Component {
 
 	static get properties() {
 		return {
-			lifesAssured: { type: Object }
+			currentLifesAssured: { type: Object }
 		};
 	}
 
@@ -348,7 +348,7 @@ class InsureEstimateAddLifeModal extends Component {
 			
 				<capitec-button data-automation-id="stop-card-confirm-confirm" id="id-confirm-button" type="primary" label="Add"
 					@click="${() => this._onAddClick()}"
-					.disabled="${this.lifesAssured.length >= 22 || this.selectedRelationship == ``}">
+					.disabled="${this.currentLifesAssured.length >= 22 || this.selectedRelationship == ``}">
 				</capitec-button>
 			</capitec-group>
 			`;
@@ -375,4 +375,4 @@ class InsureEstimateAddLifeModal extends Component {
 	}
 }
 
-window.customElements.define(`insure-estimate-add-life`, InsureEstimateAddLifeModal);
+window.customElements.define(`insure-add-life-dialog`, InsureAddLifeDialog);

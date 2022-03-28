@@ -164,7 +164,7 @@
 			"positiveCase": true
 		},
 		"insureCalculateEstimate": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureCalculateQuote": {

@@ -22,8 +22,6 @@ export class InsureViewBase extends ViewBase {
 		this.horizonStore = HorizonStore.getInstance();
 
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
-
-		this.ESTIMATE_DEFAULT_PREMIUM = 0;
 	}
 
 	//#endregions
@@ -68,10 +66,10 @@ export class InsureViewBase extends ViewBase {
 	/**
 	 * Calculate estimate based on lives assured provided
 	 */
-	async calculateClientEstimate() {
+	async calculateClientEstimate(request) {
 		this.isBusy = true;
-		let request = {};
 		const result = await this.insureService.calculateEstimate(request, () => true);
+		console.log(result);
 		this.isBusy = false;
 		return result;
 	}
