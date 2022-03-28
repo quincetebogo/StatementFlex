@@ -334,17 +334,35 @@ export class SavingsAccountService extends ChannelServiceBase {
 			return this.mock(`savingsPlanLanding`, cifNumber, nationalIDNumber, getGenericData);
 		}
 
-		const url = `/clientcare-savingsaccount-${this._version}/savings-plan-landing?` +
-			`CifNumber=${cifNumber}&` +
-			`NationalIDNumber=${nationalIDNumber}&` +
-			`GetGenericData=${getGenericData}`;
+		const request = {
+			"cifNumber": cifNumber,
+			"nationalIDNumber": nationalIDNumber,
+			"getGenericData": getGenericData
+		};
+
+		const url = `/clientcare-savingsaccount-${this._version}/savings-plan-landing`;
 		
+		/*
 		return this.get(
 			url, 
 			this.setToken(), 
 			`savingsPlanLanding`,
 			null,
 			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+		*/
+
+		return this.post(
+			url,
+			request,
+			this.setToken(), 
+			`savingsPlanLanding`, 
+			null, 
+			null, 
+			1000,
 			null,
 			errorHandler,
 			autoRetries
