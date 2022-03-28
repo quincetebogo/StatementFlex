@@ -257,3 +257,12 @@ export function formatStringAsPascalCase(unformatedString) {
 
 	return formattedString.trim();
 }
+/**
+ * Uppercases the first character of the string, the rest of the string is lower cased
+ * 
+ * @returns {string} A capitalized string
+ */
+ export function capitalizeString(str) {
+	const result = str.replace(/\0/g, ``); // TODO: Temporary fix for telemetry issue. This must come out once the PS side problem has been addressed.
+	return `${result.charAt(0).toUpperCase()}${result.slice(1)}`;
+}

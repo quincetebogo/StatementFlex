@@ -11,6 +11,7 @@ import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { html } from 'platform/elements';
+import {capitalizeString} from 'app/utils/channelServiceUtilities'
 
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/quickTransactions/ApproveDebiCheckMandate';
@@ -125,11 +126,11 @@ export class SavingsAccountBase extends ViewBase {
 														ACCOUNT_INTCAT_ENUM[item.accountType || item.productTypeCode];
 
 									const accountName = item.accountName || item.productTypeDescription;
-									const accName = accountName.toLowerCase();
+									const accName = capitalizeString(accountName);
 
 									return {
 										'accountNumber': item.accountNumber,
-										'accountName': `${accName.charAt(0).toUpperCase()}${accName.slice(1)}`,
+										'accountName': `${accName}${accName.slice(1)}`,
 										'accountType': item.accountType || item.productTypeCode,
 										'accountOpenDate': item.accountOpenDate || item.openDate,
 										'name': productInfo.name,
