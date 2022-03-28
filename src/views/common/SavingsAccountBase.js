@@ -12,7 +12,6 @@ import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { capitalizeString } from 'app/utils/channelServiceUtilities';
 import { html } from 'platform/elements';
-import {capitalizeString} from 'app/utils/channelServiceUtilities'
 
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/quickTransactions/ApproveDebiCheckMandate';
