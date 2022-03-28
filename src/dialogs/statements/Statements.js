@@ -83,6 +83,14 @@ export class Statements extends Component {
 		};
 	}
 
+	get creditProducts() {
+		return {
+			[PRODUCTS.CREDIT_CARD]: `CreditCard`,
+			[PRODUCTS.ACCESS_FACILITY]: `AccessFacility`,
+			[PRODUCTS.TERM_LOAN]: `TermLoan`
+		};
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -250,15 +258,10 @@ export class Statements extends Component {
 
 	async _viewCreditStatement(request) {
 
-		const type = {
-			[PRODUCTS.CREDIT_CARD]: `CreditCard`,
-			[PRODUCTS.ACCESS_FACILITY]: `AccessFacility`
-		};
-
 		if (request.accountType === `FLEXIBLE_CREDIT`) {
 		
 			const statementInfo = this.findStatement(request.month);
-			const result = await this.getflexStatement(type[this.selectedProduct.name], statementInfo);
+			const result = await this.getflexStatement(this.creditProducts[this.selectedProduct.name], statementInfo);
 
 			return result;
 		} else if (request.accountType === `FIXED_TERM_CREDIT`) {
@@ -383,7 +386,7 @@ export class Statements extends Component {
 
 				return data;
 			});
-			returnValue = await this.creditService.flexibleStatementEmail(type, request.accountNumber, request.emailAddress, statementDetails);
+			returnValue = await this.creditService.flexibleStatementEmail(this.creditProducts[this.selectedProduct.name], request.accountNumber, request.emailAddress, statementDetails);
 		} else if (request.accountType === `FIXED_TERM_CREDIT`) {
 
 			returnValue = await this.creditService.fixedStatementEmail(request.accountNumber, request.emailAddress, request.startDate, request.endDate, this.creditDateInterval[request.dateInterval]);
