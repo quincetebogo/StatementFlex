@@ -140,7 +140,7 @@ import 'app/components/common/HorizonLabel';
 				}
 				horizon-label {
 					height: 64px;
-					width: 354px;
+					width: 33%;
 					padding: 12px 0px 0px 16px;
 
 					--horizon-label-text-height: 20px;
@@ -154,11 +154,11 @@ import 'app/components/common/HorizonLabel';
 					--horizon-label-value-color: #3A3A3A;
 				}
 				horizon-label[value="Active"][label="Account status"] {
-					width: 132px;
+					width: 33%;
 					--horizon-label-value-color: #70AF00;
 				}
 				horizon-label[value="In arrears"][label="Account status"] {
-					width: 132px;
+					width: 33%;
 					--horizon-label-value-color: #a5132a;
 				}
 			`

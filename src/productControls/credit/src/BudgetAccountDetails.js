@@ -124,7 +124,7 @@ import 'app/components/common/HorizonLabel';
 				}
 				horizon-label {
 					height: 64px;
-					width: 353px;
+					width: 33%;
 					padding: 12px 0px 12px 16px;
 
 					--horizon-label-text-height: 20px;
