@@ -252,7 +252,7 @@ export class StatementsDialog extends Component {
 			"monthInterval": this.selectedMonths // This is specifically for month period
 		};
 
-		await this.sendStatement(this.productSelected.category, request);
+		await this.sendStatement(request);
 	}
 
 	_valueChanged(e) {

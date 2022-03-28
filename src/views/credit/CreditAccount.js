@@ -322,7 +322,6 @@ export class CreditAccount extends ViewBase {
 		this._performReturnToScreen();
 	}
 
-
 	_formatCreditOverviewResponse() {
 		// TODO: Improve the formatting
 		this.creditAccountDetails.creditCardSummaryList.map(item => {

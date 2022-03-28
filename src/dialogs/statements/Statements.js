@@ -45,7 +45,7 @@ export class Statements extends Component {
 
 		this.selectedProduct = {};
 		this.availableMonthlyStatements = [];
-		this.creditOptionType = ``;
+
 		this._telemetryEventsImport();
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), () => true);
@@ -164,8 +164,8 @@ export class Statements extends Component {
 		this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_BACK);
 	}
 
-	_send(productType, request) {
-		switch (productType) {
+	_send(request) {
+		switch (this.selectedProduct.category) {
 			case ACCOUNT_TYPES.CREDIT:
 				return this._sendCreditStatement(request);
 			default:
@@ -280,12 +280,8 @@ export class Statements extends Component {
 	async _getAvailableMonthlyStatements() {
 
 		if (this.availableMonthlyStatements.length === 0 && [PRODUCTS.CREDIT_CARD, PRODUCTS.ACCESS_FACILITY].includes(this.selectedProduct.name)) {
-			const type = {
-				[PRODUCTS.CREDIT_CARD]: `CreditCard`,
-				[PRODUCTS.ACCESS_FACILITY]: `AccessFacility`
-			};
-
-			const returnValue = await this.creditService.flexibleStatementList(this.selectedProduct.accountNumber, type[this.selectedProduct.name]);
+			
+			const returnValue = await this.creditService.flexibleStatementList(this.selectedProduct.accountNumber, this.creditProducts[this.selectedProduct.name]);
 
 			if (!returnValue.succeeded) {
 				this.logger.log(`error`, `Unable to get available monthly statements for ${this.selectedProduct.name}`, `_getAvailableMonthlyStatements`, returnValue.correlationId);
@@ -439,7 +435,7 @@ export class Statements extends Component {
 				@back="${() => this._back()}"
 				@next="${(event) => this._next(event)}"
 				.viewStatement="${(request) => this._viewPDF(request)}"
-				.sendStatement="${(productType, request) => this._send(productType, request)}"
+				.sendStatement="${(request) => this._send(request)}"
 				@close-pdf="${() => this._closePDF()}"
 				@account-selected="${(event) => this._statementsAccConfirmed(event)}"
 				@view-fees="${() => this._viewFees()}">

@@ -254,7 +254,7 @@ export class ChannelServiceBase extends Service {
 	}
 
 	_inSdlc() {
-		return this._configuration.config.runtime.environment !== `INT`;
+		return this._configuration.config.runtime.environment !== `LOCAL`;
 	}
 	
 	/**
