@@ -207,6 +207,7 @@ export class SavingsPlanLanding extends Component {
 					--horizon-label-value-color: #3A3A3A;
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-line-height: 20px;
+					--horizon-label-max-overflow-width: 236px;
 				}
 
 				horizon-label[value="Open"],[value="OPEN"] {
@@ -221,6 +222,7 @@ export class SavingsPlanLanding extends Component {
 					--theme-label-cursor: pointer;
 				}
 				.label-account-number {
+					width: 30%;
 					--theme-label-cursor: pointer;
 					--horizon-label-value-color: #009DE0;
 				}
@@ -407,6 +409,7 @@ export class SavingsPlanLanding extends Component {
 									class="label-account-number"
 									data-automation-id="savings-plan-account-number"
 									label="${item.planName}"
+									textOverflow="ellipsis"
 									value="${item.accountNumber}"
 									@click="${() => this._click(`account-details`, SAVE_PLAN_TYPE.FLEXIBLE, item.accountNumber)}">
 								</horizon-label>
