@@ -79,7 +79,7 @@ export class SavingsPlan extends ViewBase {
 
 		this._initialise();
 
-		this._optionClick = async (option, saveType, accountNumber) => {
+		this._optionClick = (option, saveType, accountNumber) => {
 
 			const statements = () => this._getStatements(accountNumber, saveType);
 			const taxCertificates = () => this._taxCertificates(accountNumber);
