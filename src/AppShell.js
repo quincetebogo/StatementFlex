@@ -15,6 +15,8 @@ import 'platform/components/navigation/AppRouter';
 
 import 'app/components/shell/HorizonStatusBar';
 
+import 'app/components/common/AlertBanner';
+
 /**
  * Physical entry-point of the application, based on a platform-provided base class.
  */
@@ -237,6 +239,7 @@ export class AppShell extends Shell {
 		return [
 			super.styles,
 			css`
+
 				:host {
 					--horizon-screen-width: 1920px;
 					--horizon-screen-height: 1080px;
@@ -278,11 +281,11 @@ export class AppShell extends Shell {
 					background: #f4f4f4; 
 				}
 
-				.left{
+				.left {
 					width: var(--horizon-left-panel-width);
 				}
 
-				.right{
+				.right {
 					width: var(--horizon-right-panel-width);
 				}
 
@@ -291,7 +294,7 @@ export class AppShell extends Shell {
 					 * If it is generic change(i.e., applies across application) please specify here
 					 * else override in specific component/view
 					*/
-
+						
 					/* Modal popup */
 					--theme-modal-header-background-color: #4A4848;
 					--theme-modal-header-color: white;
@@ -320,7 +323,8 @@ export class AppShell extends Shell {
 					--theme-alert-banner-unsuccessful-red-font-color: #3A3A3A;
 
 					--theme-hyperlink-color:  #3A3A3A;
-				}`
+				}
+				`
 		];
 	}
 

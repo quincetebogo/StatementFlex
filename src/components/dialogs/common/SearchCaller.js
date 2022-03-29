@@ -740,7 +740,7 @@ export class SearchCaller extends Component {
 				div[slot="footer"] > capitec-group > capitec-button{
 					margin: 0px;
 				}
-				capitec-alert-banner{
+				horizon-alert-banner{
 					--theme-alert-banner-height: 48px;
 					--theme-alert-banner-icon-margin-left: 15px;
 					--theme-alert-banner-icon-margin-right: 15px;
@@ -987,11 +987,11 @@ export class SearchCaller extends Component {
 		if (this.errMessage.inBranch) {
 			return html`
 				<div>
-					<capitec-alert-banner 
+					<horizon-alert-banner 
 						data-automation-id="search-caller-in-branch-alert"
 						type="unsuccessful-red" 
 						label="Please choose an option">
-					</capitec-alert-banner>
+					</horizon-alert-banner>
 				</div>
 			`;
 		}
@@ -1001,11 +1001,11 @@ export class SearchCaller extends Component {
 	_renderAlertBanner() {
 		if (!isNullorEmpty(this.alertBannerMessage) && !this.errMessage.inBranch) {
 			return html`
-				<capitec-alert-banner 
+				<horizon-alert-banner 
 						data-automation-id="search-caller-alert-message"
 						type="unsuccessful-red">
 					${this.alertBannerMessage}
-				</capitec-alert-banner>
+				</horizon-alert-banner>
 			`;
 		}
 		return html``;

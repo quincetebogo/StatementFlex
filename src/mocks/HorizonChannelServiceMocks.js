@@ -1,4 +1,4 @@
-import { HttpStatusError } from 'platform/errors/HttpStatusError';
+import { HttpStatusError } from 'platform/core/errors/HttpStatusError';
 
 /**
  * Mocks for methods in the HorizonChannelService class

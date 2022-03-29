@@ -82,7 +82,11 @@ export class LandingPageWaitForCall extends Component {
 			<capitec-label id="waiting-text" type="title" label="Waiting for your next call..."></capitec-label>
 			<capitec-label id="please-wait-text" type="default" label="Please wait while we connect you to your next caller">
 			</capitec-label>
-			<capitec-alert-banner id="alert" type="warning"><b>Notice:</b> All calls are being recorded and logged to your employee profile</capitec-alert-banner>
+			<horizon-alert-banner 
+				id="alert" 
+				type="warning">
+				<b>Notice:</b> All calls are being recorded and logged to your employee profile
+			</horizon-alert-banner>
 			`;
 	}
 }
