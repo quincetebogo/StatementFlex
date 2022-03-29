@@ -475,6 +475,7 @@ export class SavingsPlanLanding extends Component {
 									data-automation-id="savings-plan-number"
 									class="label-account-number"
 									label="${item.planName}"
+									textOverflow="ellipsis"
 									value="${item.accountNumber}"
 									@click="${() => this._click(`account-details`, SAVE_PLAN_TYPE.FIXED_TERM, item.accountNumber)}">
 								</horizon-label>
