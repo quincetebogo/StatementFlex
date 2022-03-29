@@ -1,4 +1,4 @@
-import { CREDIT_TYPE, FROM_ACCOUNTS_LIST, PRODUCTS } from 'app/constants/Credit';
+import { ACTION_IDENTIFIER, CREDIT_TYPE, FROM_ACCOUNTS_LIST, PERMISSION_STATUS, PRODUCTS } from 'app/constants/Credit';
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { css, html } from 'platform/elements';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
@@ -63,7 +63,6 @@ export class CreditAccount extends ViewBase {
 		this.creditType = ``;
 		// ccs status of client set to true until real value retrieved from CS
 		this.ccsStatus = false;
-		this.showCCSmodal = false;
 		this.showSettleCloseModal = false;
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
@@ -101,7 +100,7 @@ export class CreditAccount extends ViewBase {
 			flexibleCreditAccounts: { type: Array, state: true, attribute: false },
 			fixedTermCreditAccounts: { type: Array, state: true, attribute: false },
 			creditBalance: { state: true, attribute: false },
-			showCCSmodal: { type: Boolean },
+			ccsStatus: { type: Boolean },
 			showSettleCloseModal: { type: Boolean }
 		};
 	}
@@ -153,7 +152,13 @@ export class CreditAccount extends ViewBase {
 			 
 			await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
 			this._refreshIncidentDetails();
-			return actions[option]();
+
+			this.ccsStatus = await this._checkCreditPermisions(option, selectedAccountDetails.accountNumber, productType);
+
+			// Perform the action only when ccs status is false
+			if (!this.ccsStatus) {
+				return actions[option]();
+			}
 		}
 	};
 
@@ -268,14 +273,6 @@ export class CreditAccount extends ViewBase {
 	// ---------------
 
 	async _initialise() {
-
-		// TO DO: get ccs status from permission endpoint
-			// permissionResultList:[
-			// operationIdentifier: "ALL",
-			// permissionResult: "Denied",
-			// declineReason: "Deceased"
-			// ]
-		// this.ccsStatus = this.quickTransactionService.permissions();
 
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		
@@ -416,11 +413,6 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_getStatements(creditType, productType, productCode, accNum, openDate) {
-
-		if (this.ccsStatus) {
-			this.showCCSmodal = true;
-			return;
-		}
 		
 		this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
@@ -450,11 +442,6 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_settlementQuote(creditType, productType, selectedAccountDetails) {
-		if (this.ccsStatus) {
-			this.showCCSmodal = true;
-			return;
-		}
-
 		this._telemetry.logEvent(CreditEvents.CREDIT_SETTLEMENT_QUOTE_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
 			"next-screen": TelemetryScreen.CREDIT_SETTLEMENT_QUOTE,
@@ -474,19 +461,10 @@ export class CreditAccount extends ViewBase {
 
 	_paidUpLetter() {
 		// TO DO: Place holder for paid up Letter flow.
-
-		if (this.ccsStatus) {
-			this.showCCSmodal = true;
-			return true;
-		}
 	}
 
 	_settleAndClose(creditType, productType, selectedAccountDetails) {
 		// TO DO: Place holder for credit settle and close flow.
-		if (this.ccsStatus) {
-			this.showCCSmodal = true;
-			return;
-		}
 
 		this._telemetry.logEvent(CreditEvents.CREDIT_SETTLE_CLOSE_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
@@ -649,6 +627,23 @@ export class CreditAccount extends ViewBase {
 
 			return clientProducts;
 		}
+	}
+
+	async _checkCreditPermisions(option, accNum, productType) {
+
+		const credProducts = {
+			[PRODUCTS.CREDIT_CARD]: `CreditCard`,
+			[PRODUCTS.ACCESS_FACILITY]: `AccessFacility`,
+			[PRODUCTS.TERM_LOAN]: `Loan`
+		};
+		const returnValue = await this.creditService.permissions(this.callerInformation.cifNumber, accNum, credProducts[productType]);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to get credit permissions.`, `_getCreditPermisions`, returnValue.correlationId);
+		}
+
+		const permission = returnValue.result.permissionsResultsList.find(item => item.operationIdentifier === ACTION_IDENTIFIER[option]);
+		return permission?.permissionResult === PERMISSION_STATUS.DENIED;
 	}
 
 	// ---------
@@ -848,10 +843,10 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderCcsModal() {
-		return this.showCCSmodal
+		return this.ccsStatus
 		? html`
 			<horizon-ccs-status-dialog
-				@on-okay="${() => this.showCCSmodal = !this.showCCSmodal}">
+				@on-okay="${() => this.ccsStatus = false}">
 			</horizon-ccs-status-dialog>`
 		: html``;
 	}
