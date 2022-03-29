@@ -26,16 +26,33 @@ export const creditMixin = {
 	},
 
 	_sendSettlementQuote(details) {
-
-		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.selectedAccounts = details.selectedAccounts.filter(item => !isNullorEmpty(item));
-		screenDetails.emailAddress = details.emailAddress;
-		this.horizonStore.setScreenDetails(screenDetails);
 		
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `settlement-quote`);
 	
 		// TO DO: CS call to send Settlement Quote sould come here
 		// Settlement Quote outcome screens to be modified as per CS outcome to handle multiple account selection
+		const outcome = [
+			{
+				"accountNumber": `6001613698`,
+				"creditType": `CreditCard`,
+				"sentStatus": true
+			},
+			{
+				"accountNumber": `1605515955`,
+				"creditType": `TermLoan`,
+				"sentStatus": true
+			}
+		];
+
+		const settlementQuoteOutcomeDetails = {
+			selectedAccounts: details.selectedAccounts.filter(item => !isNullorEmpty(item)),
+			emailAddress: details.emailAddress,
+			emailStatus: outcome
+		};
+
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.settlementQuoteOutcomeDetails = settlementQuoteOutcomeDetails;
+		this.horizonStore.setScreenDetails(screenDetails);
 
 		this.horizonRouter.navigateToSettlementQuoteSuccess();
 		// this.horizonRouter.navigateToSettlementQuoteFailure();
