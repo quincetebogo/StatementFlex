@@ -268,7 +268,7 @@ export class CreditService extends ChannelServiceBase {
 			"emailAddress": emailAddress,
 			"fromDate": fromDate,
 			"toDate": toDate,
-			"setDate": setdate
+			"setDates": setdate
 		};
 
 		const url = `/clientcare-credit-${this._version}/credit/fixed/statement/email`;
