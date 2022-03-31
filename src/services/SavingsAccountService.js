@@ -117,12 +117,12 @@ export class SavingsAccountService extends ChannelServiceBase {
 
 		const request = {
 			cifNumber: cifNumber,
-			mandateReferenceNumber: debiCheckDetails.mandateReferenceNumber,
+			mandateReferenceNumber: debiCheckDetails.mandateReferene,
 			debtorAccountNumber: debiCheckDetails.debtorAccountNumber,
 			accepted: accepted,
 			title: title,
 			lastName: lastName,
-			collectorName: mandateInfo.collectorName,
+			collectorName: mandateInfo.mandateNamme,
 			instalmentAmount: mandateInfo.amount,
 			firstCollectionDate: debiCheckDetails.firstCollectionDate
 		};
@@ -222,7 +222,7 @@ export class SavingsAccountService extends ChannelServiceBase {
 			savingsAccountNumber: clientInfo.savingsAccountNumber,
 			registerId: clientInfo.registerId,
 			mandateId: clientInfo.mandateId,
-			mandateReferenceNumber: clientInfo.mandateReferenceNumber,
+			mandateReferenceNumber: clientInfo.mandateReference,
 			cifNumber: clientInfo.cifNumber 
 		};
 		
