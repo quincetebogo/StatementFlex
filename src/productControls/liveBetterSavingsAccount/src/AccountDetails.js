@@ -301,14 +301,14 @@ const ACCOUNT_TYPE = {
 
 	_renderAlertBanner() {
 		return html`
-			<capitec-alert-banner 
+			<horizon-alert-banner 
 				type="info" 
 				class="alert-banner"
 				label="Notify Client:">
 					<p class="alert-banner-paragraph">
 						You can only fund this account with Benefits Partner cash backs and Capitec cash backs
 					</p>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
 		`;
 	}
 

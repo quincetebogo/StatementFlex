@@ -387,13 +387,13 @@ export class USSDProfileDetails extends Component {
 				--theme-check-disabled-background-color: #FFFFFF;
 				--theme-button-default-font-color: #7C7C7C;
 			}
-			capitec-alert-banner {
+			horizon-alert-banner {
 				margin: 8px 8px 0px 8px;
 				--theme-alert-banner-height: 64px;
 				--theme-alert-banner-icon-margin-left: 16px;
 				--theme-alert-banner-icon-margin-right: 16px;
 			}
-			capitec-alert-banner > p {
+			horizon-alert-banner > p {
 				margin: 0px;
 				padding-right: 32px;
 			}
@@ -843,20 +843,20 @@ export class USSDProfileDetails extends Component {
 		
 		return this.showNotificationBanner 
 			? html`
-				<capitec-alert-banner 
+				<horizon-alert-banner 
 					data-automation-id="ussd-profile-details-status-banner"
 					type="unsuccessful-red" 
 					layout="vertical">
 						<b>${this.bannerTitle}</b><br>
 						<p>${this.bannerSubtitle}</p>
-				</capitec-alert-banner>`
+				</horizon-alert-banner>`
 			: html``;
 	}
 
 	_renderValidationBanner() {
 		return this.showValidationBanner 
 		? html`
-			<capitec-alert-banner 
+			<horizon-alert-banner 
 				data-automation-id="ussd-profile-details-validation-banner"
 				class="validate-reasons"
 				type="unsuccessful-red"
@@ -864,7 +864,7 @@ export class USSDProfileDetails extends Component {
 				layout="vertical">
 					<b>Notice</b> <br>
 					<p>Please choose a reason to cancel USSD.</p>
-			</capitec-alert-banner>`
+			</horizon-alert-banner>`
 		: html``;
 	}
 

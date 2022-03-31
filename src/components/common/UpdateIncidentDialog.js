@@ -226,7 +226,7 @@ export class UpdateIncidentDialog extends Component {
 				height: 628px;
 				padding: 0;
 			}
-			capitec-alert-banner {
+			horizon-alert-banner {
 				width: 536px;
 				height: 48px;
 				color: #4A4848;
@@ -323,12 +323,12 @@ export class UpdateIncidentDialog extends Component {
 	_renderAlert() {
 		return this.showAlert
 			? html`
-				<capitec-alert-banner
+				<horizon-alert-banner
 					type="unsuccessful-red"
 					label="${this.alertBannerMessage}"
 					@click="${() => this._keyPress()}"
 					closable>
-				</capitec-alert-banner>`
+				</horizon-alert-banner>`
 			: html``;
 	}
 

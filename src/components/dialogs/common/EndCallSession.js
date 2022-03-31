@@ -625,7 +625,7 @@ export class EndCallSession extends Component {
 				--theme-button-padding-left: 12px;
 			}
 			
-			capitec-alert-banner {
+			horizon-alert-banner {
 				width: 100%;
 
 				--theme-alert-banner-icon-margin-left: 15px;
@@ -771,11 +771,11 @@ export class EndCallSession extends Component {
 	_renderAlertBanner() {
 		if (this.alertBannerMessage) {
 			return html`
-				<capitec-alert-banner 
+				<horizon-alert-banner 
 					data-automation-id="end-call-session-banner"
 					type="unsuccessful-red">
 						${this.alertBannerMessage}
-				</capitec-alert-banner>`;
+				</horizon-alert-banner>`;
 		}
 	}
 

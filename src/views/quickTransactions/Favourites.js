@@ -818,7 +818,7 @@ export class Favourites extends SavingsAccountBase {
 
 	_renderUnverifiedAlertBanner() {
 		return html`
-			<capitec-alert-banner
+			<horizon-alert-banner
 				class="verificatoin-status"
 				data-automation-id="favourite-transactions-unverified-alert-banner"
 				type="warning">
@@ -834,17 +834,17 @@ export class Favourites extends SavingsAccountBase {
 						@click="${() => super._verifyClick()}">
 					</capitec-hyperlink>
 				</capitec-group>
-			</capitec-alert-banner>`;
+			</horizon-alert-banner>`;
 	}
 
 	_renderFailedAlertBanner() {
 		return html`
-			<capitec-alert-banner
+			<horizon-alert-banner
 				class="verificatoin-status"
 				data-automation-id="favourite-transactions-failed-verification-alert-banner"
 				type="unsuccessful-red"
 				label="Notify client: I'm not able to access your account since you couldn't be verified. If it's an urgent matter please visit a branch, or you can call again after 24 hours.">
-			</capitec-alert-banner>`;
+			</horizon-alert-banner>`;
 	}
 
 	_renderVerifiedAlertBanner() {
@@ -856,7 +856,7 @@ export class Favourites extends SavingsAccountBase {
 	_renderNoDigitalHighRiskTransAlertBanner() {
 		return this.callerInformation.verificationMethod === `XDS`
 			? html`
-				<capitec-alert-banner
+				<horizon-alert-banner
 					class="verificatoin-status"
 					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
 					type="warning">
@@ -867,14 +867,14 @@ export class Favourites extends SavingsAccountBase {
 							</capitec-label>
 							<capitec-spacer></capitec-spacer>
 						</capitec-group>
-				</capitec-alert-banner>`
+				</horizon-alert-banner>`
 			: html``;
 	}
 
 	_renderHighRiskTransAlertBanner() {
 		return this.callerInformation.verificationMethod === `XDS`
 			? html`
-				<capitec-alert-banner
+				<horizon-alert-banner
 					class="verificatoin-status"
 					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
 					type="warning">
@@ -890,7 +890,7 @@ export class Favourites extends SavingsAccountBase {
 								@click="${() => super._verifyClick()}">
 							</capitec-hyperlink>
 						</capitec-group>
-				</capitec-alert-banner>`
+				</horizon-alert-banner>`
 			: html``;
 	}
 

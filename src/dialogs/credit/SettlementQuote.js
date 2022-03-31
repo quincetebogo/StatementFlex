@@ -176,7 +176,7 @@ export class SendSettlementQuote extends Component {
 					--theme-modal-header-padding-bottom: 20px;
 				}
 
-				capitec-alert-banner {
+				horizon-alert-banner {
 					--theme-alert-banner-height: 48px;
 					--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
 					--theme-alert-banner-icon-margin-left: 15px;
@@ -192,7 +192,7 @@ export class SendSettlementQuote extends Component {
 					--theme-product-tile-title-font-weight: 600;
 				}
 
-				capitec-alert-banner > capitec-group > capitec-label {
+				horizon-alert-banner > capitec-group > capitec-label {
 					margin: 16px 0px 16px 0px;
 
 					--theme-label-font-color: #3A3A3A;
@@ -200,7 +200,7 @@ export class SendSettlementQuote extends Component {
 					--theme-label-font-family: Hind Vadodara;
 				}
 
-				capitec-alert-banner > capitec-group > capitec-label[type="subtitle"] {
+				horizon-alert-banner > capitec-group > capitec-label[type="subtitle"] {
 					margin-right: 5px;
 					--theme-label-subtitle-font-size: 14px;
 					--theme-label-subtitle-font-weight: 600;
@@ -265,7 +265,7 @@ export class SendSettlementQuote extends Component {
 	_renderAlertBanner() {
 		return this.alertBannerMessage ?
 		html`
-			<capitec-alert-banner type="unsuccessful-red">
+			<horizon-alert-banner type="unsuccessful-red">
 				<capitec-group layout="horizontal">
 					<capitec-label
 						type="subtitle"
@@ -275,7 +275,7 @@ export class SendSettlementQuote extends Component {
 						label="${this.alertBannerMessage}">
 					</capitec-label>
 				</capitec-group>
-			</capitec-alert-banner>`
+			</horizon-alert-banner>`
 		: html``;
 	}
 

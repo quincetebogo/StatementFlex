@@ -593,14 +593,14 @@ export class UpdateCardLimits extends Component {
 				--theme-container-padding-right: 16px;
 				--theme-container-padding-bottom: 0px;
 			}
-			capitec-alert-banner {
+			horizon-alert-banner {
 				--theme-alert-banner-height: 48px;
 				--theme-layout-gap-spacing: 16px;
 				--theme-alert-banner-icon-margin-left: 16px;
 				--theme-alert-banner-icon-margin-right: 8px;
 				margin: 16px 16px 0px 16px;
 			}
-			capitec-alert-banner[type="warning"] {
+			horizon-alert-banner[type="warning"] {
 				margin: 14px 8px 0px 8px;
 			}
 			.agreements-banner {
@@ -874,7 +874,7 @@ export class UpdateCardLimits extends Component {
 	_renderNoDigitalHighRiskTransAlertBanner() {
 		return this.verificationMethod === `XDS` && this.renderMode === RENDER_MODE.LIMITS
 			? html`
-				<capitec-alert-banner
+				<horizon-alert-banner
 					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
 					type="warning">
 						<capitec-group layout="horizontal" class="alert-banner-group">
@@ -884,14 +884,14 @@ export class UpdateCardLimits extends Component {
 							</capitec-label>
 							<capitec-spacer></capitec-spacer>
 						</capitec-group>
-				</capitec-alert-banner>`
+				</horizon-alert-banner>`
 			: html``;
 	}
 
 	_renderHighRiskTransAlertBanner() {
 		return this.verificationMethod === `XDS` && this.cardDetails.cardDisplayType !== CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD && this.renderMode === RENDER_MODE.LIMITS
 			? html`
-				<capitec-alert-banner
+				<horizon-alert-banner
 					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
 					type="warning">
 						<capitec-group layout="horizontal" class="alert-banner-group">
@@ -906,7 +906,7 @@ export class UpdateCardLimits extends Component {
 								@click="${() => this._verifyClick()}">
 							</capitec-hyperlink>
 						</capitec-group>
-				</capitec-alert-banner>`
+				</horizon-alert-banner>`
 			: html``;
 	}
 
@@ -915,7 +915,7 @@ export class UpdateCardLimits extends Component {
 			return html``;
 		}
 		return html`
-			<capitec-alert-banner type="unsuccessful-red">
+			<horizon-alert-banner type="unsuccessful-red">
 				<capitec-group layout="horizontal" halign="left" valign="top" gap="none" class="alert-banner" data-automation-id="update-card-limits-unsuccessful-banner">
 					<capitec-label
 						label="Notify client: "
@@ -923,21 +923,21 @@ export class UpdateCardLimits extends Component {
 					</capitec-label>
 					${this._getAlertMessage()}
 				</capitec-group>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
 		`;
 	}
 
 	_renderAgreementsAlertBanner() {
 		return this.alertBannerText
 			? html`
-				<capitec-alert-banner class="agreements-banner" type="unsuccessful-red" data-automation-id="update-card-limits-agreements-unsuccessful-banner">
+				<horizon-alert-banner class="agreements-banner" type="unsuccessful-red" data-automation-id="update-card-limits-agreements-unsuccessful-banner">
 					<capitec-group layout="horizontal" halign="left" valign="top" gap="none" class="alert-banner">
 						<capitec-label
 							label="${this.alertBannerText}"
 							type="default">
 						</capitec-label>
 					</capitec-group>
-				</capitec-alert-banner>`
+				</horizon-alert-banner>`
 			: html``;
 	}
 

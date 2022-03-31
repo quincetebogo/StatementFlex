@@ -262,13 +262,13 @@ export class AppProfileDetails extends Component {
 					margin-top: 24px;
 					--theme-button-font-weight: 600;
 				}
-				capitec-alert-banner {
+				horizon-alert-banner {
 					margin: 8px 8px 0px 8px;
 					--theme-alert-banner-height: 84px;
 					--theme-alert-banner-icon-margin-left: 16px;
 					--theme-alert-banner-icon-margin-right: 16px;
 				}
-				capitec-alert-banner > p {
+				horizon-alert-banner > p {
 					margin: 0px;
     				padding-right: 33px;
 				}
@@ -501,7 +501,7 @@ export class AppProfileDetails extends Component {
 
 	_renderServiceUnavailable() {
 		return html`
-			<capitec-alert-banner
+			<horizon-alert-banner
 				data-automation-id="app-profile-details-unavailable-banner"
 				class="unavailable-alert-banner"
 				type="unsuccessful-red"
@@ -509,7 +509,7 @@ export class AppProfileDetails extends Component {
 				layout="vertical">
 				<b>Notify Client</b> <br>
 				<p>Services are currently unavailable</p>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
 			
 			<capitec-group class="service-unavilable-group" layout="vertical" halign="center" valign="center" gap="none">
 				
@@ -611,21 +611,21 @@ export class AppProfileDetails extends Component {
 		return this.appDetails.status === `Active` 
 		? html``
 		: html`
-			<capitec-alert-banner 
+			<horizon-alert-banner 
 				data-automation-id="app-profile-details-suspended-banner"
 				type="unsuccessful-red"
 				label=""
 				layout="vertical">
 				<b>App suspended</b> <br>
 				<p>You will not be able to access your app any longer.</p>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
 		`;
 	}
 
 	_renderValidationBanner() {
 		return this.appDetails.status === `Active` && this.showValidationBanner 
 		? html`
-			<capitec-alert-banner 
+			<horizon-alert-banner 
 				data-automation-id="app-profile-details-validation-banner"
 				class="validate-reasons"
 				type="unsuccessful-red"
@@ -633,7 +633,7 @@ export class AppProfileDetails extends Component {
 				layout="vertical">
 				<b>Notice</b> <br>
 				<p>Please choose a reason to suspend</p>
-			</capitec-alert-banner>`
+			</horizon-alert-banner>`
 		: html``;
 	}
 

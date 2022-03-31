@@ -431,10 +431,10 @@ export class PaidUpAccounts extends Component {
 	_renderAlertBanner() {
 		if (this.errorMessage) {
 			return html`
-				<capitec-alert-banner class="alert-banner"
+				<horizon-alert-banner class="alert-banner"
 					type="unsuccessful-red">
 						<p><b>Notify:</b> ${this.errorMessage}</p>
-				</capitec-alert-banner>`;
+				</horizon-alert-banner>`;
 		}
 	}
 

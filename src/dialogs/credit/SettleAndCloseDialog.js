@@ -123,7 +123,7 @@ export class SettleAndCloseDialog extends Component {
 					--theme-layout-gap-spacing: 4px;
 					padding: 16px;
 				}
-				capitec-alert-banner {
+				horizon-alert-banner {
 					--theme-alert-banner-height: 84px;
 					--theme-alert-banner-icon-margin-left: 16px;
 					margin-bottom: 9px;
@@ -239,20 +239,20 @@ export class SettleAndCloseDialog extends Component {
 	_renderAlertBanner() {
 		return this.hasEnoughFunds
 		? html`
-			<capitec-alert-banner 
+			<horizon-alert-banner 
 				type="warning" 
 				data-automation-id="settle-and-close-notification-banner">
 					<capitec-label class="alert-header" label="Notify client:"></capitec-label>
 					<capitec-label class="alert-message" label="The settlement amount on your account is only valid if you conclude this settlement transaction now."></capitec-label>
-			</capitec-alert-banner>`
+			</horizon-alert-banner>`
 		: html`
-			<capitec-alert-banner 
+			<horizon-alert-banner 
 				data-automation-id="settle-and-close-error-banner"
 				class="error-banner" 
 				type="unsuccessful-red">
 					<capitec-label class="alert-header" label="Notify client:"></capitec-label>
 					<capitec-label class="alert-message" label="You do not have enough funds in your account to do the transfer."></capitec-label>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
 		`;
 	}
 

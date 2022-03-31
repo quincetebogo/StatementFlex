@@ -164,21 +164,21 @@ export class ValueAddedServices extends Component {
 					--theme-modal-header-padding-left: 16px;
 				}
 
-				capitec-alert-banner[type="info"] {
+				horizon-alert-banner[type="info"] {
 					--theme-alert-banner-info-font-color: #3A3A3A;
 					--theme-alert-banner-height: 91px;
 					--theme-alert-banner-icon-margin-left: 16px;
 					--theme-alert-banner-icon-margin-right: 12px;
 				}
 
-				capitec-alert-banner[type="warning"] {
+				horizon-alert-banner[type="warning"] {
 					--theme-alert-banner-icon-margin-left: 15px;
 					--theme-alert-banner-icon-margin-right: 9px;
 					--theme-alert-banner-warning-font-color: #3A3A3A;
 					--theme-alert-banner-height: 63px;
 				}
 
-				capitec-alert-banner[type="unsuccessful-red"] {
+				horizon-alert-banner[type="unsuccessful-red"] {
 					--theme-alert-banner-height: 48px;
 					--theme-alert-banner-icon-margin-left: 15px;
 					--theme-alert-banner-icon-margin-right: 15px;
@@ -283,20 +283,20 @@ export class ValueAddedServices extends Component {
 	_renderErrorAlertBanner() {
 		return this.alertBannerMessage
 			? html`
-				<capitec-alert-banner
+				<horizon-alert-banner
 						data-automation-id="value-added-services-alert-banner"
 						type="unsuccessful-red" 
 						label="${this.alertBannerMessage}">
-				</capitec-alert-banner>`
+				</horizon-alert-banner>`
 			: html``;
 	}
 
 	_renderAlertBanner() {
 		return html`
-			<capitec-alert-banner type="info">
+			<horizon-alert-banner type="info">
 				<strong>Notify:</strong>
 				<p class="alert-message">If a client indicates they want to opt out of a specific service, the impact of their decision must be explained to them to ensure they make an informed decision.</p>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
 		`;
 	}
 
@@ -339,11 +339,11 @@ export class ValueAddedServices extends Component {
 	_renderInsightsAlert() {
 		return this.optOutInsights
 		? html`
-			<capitec-alert-banner 
+			<horizon-alert-banner 
 						data-automation-id="value-added-services-insights-alert-banner"
 						type="warning">
 				<p class="permission-alert"><strong>Notify client: We will no longer give you personalised insights to bank better by paying less in fees and earning more in interest.</strong></p>
-			</capitec-alert-banner>`
+			</horizon-alert-banner>`
 		: html``;
 	}
 
@@ -368,11 +368,11 @@ export class ValueAddedServices extends Component {
 	_renderBehavioralAlert() {
 		return this.optOutBehaviouralMarketing
 		? html`
-			<capitec-alert-banner 
+			<horizon-alert-banner 
 						data-automation-id="value-added-services-behavioral-alert-banner"
 						type="warning">
 				<p class="permission-alert"><strong>Notify client: We will no longer give you personalised information on products and services that may help you to improve your financial life.</strong></p>
-			</capitec-alert-banner>`
+			</horizon-alert-banner>`
 		: html``;
 	}
 
@@ -397,11 +397,11 @@ export class ValueAddedServices extends Component {
 	_renderPreAssessmentAlert() {
 		return this.optOutPreAssessments
 		? html`
-			<capitec-alert-banner 
+			<horizon-alert-banner 
 						data-automation-id="value-added-services-insights-alert-banner"
 						type="warning">
 				<p class="permission-alert"><strong>Notify client: We will no longer give you personalised information on increased credit offers, discounts and incentives that may save you money in order to live better.</strong></p>
-			</capitec-alert-banner>`
+			</horizon-alert-banner>`
 		: html``;
 	}
 
@@ -426,11 +426,11 @@ export class ValueAddedServices extends Component {
 	_renderAnalysisAlert() {
 		return this.optOutAnalysis
 		? html`
-			<capitec-alert-banner 
+			<horizon-alert-banner 
 						data-automation-id="value-added-services-analysis-alert-banner"
 						type="warning">
 				<p class="permission-alert"><strong>Notify client: We will no longer use your personalised information to improve our products to suit your needs and to help you to improve your financial life.</strong></p>
-			</capitec-alert-banner>`
+			</horizon-alert-banner>`
 		: html``;
 	}
 
@@ -457,11 +457,11 @@ export class ValueAddedServices extends Component {
 	_renderThirdPartyAlert() {
 		return this.optOutThirdParties
 		? html`
-			<capitec-alert-banner 
+			<horizon-alert-banner 
 						data-automation-id="value-added-services-third-party-alert-banner"
 						type="warning">
 				<p class="permission-alert"><strong>Notify client: We will no longer share your information with Third Parties or within the Capitec Group to provide you with new/improved products and services, and/or personalised offers that may help you to improve your financial life</strong></p>
-			</capitec-alert-banner>`
+			</horizon-alert-banner>`
 		: html``;
 	}
 

@@ -250,7 +250,7 @@ export class ApproveDebiCheckMandate extends Component {
 					letter-spacing: 0;
 					line-height: 20px;
 				}
-				capitec-alert-banner{
+				horizon-alert-banner{
 					font-family: "Hind Vadodara";
 					letter-spacing: 0;
 					line-height: 20px;
@@ -347,7 +347,7 @@ export class ApproveDebiCheckMandate extends Component {
 
 	_renderAgreementsAlertBanner() {
 		return html`
-			<capitec-alert-banner
+			<horizon-alert-banner
 			type="${this._checkWarning() ? `warning` : this.alertType}" 
 			data-automation-id="debi-check-agreement-alert-banner"
 			closable>
@@ -358,7 +358,7 @@ export class ApproveDebiCheckMandate extends Component {
 					</capitec-label>
 					${this._checkWarning() ? WARNING_MESSAGE : MESSAGE}
 				</capitec-group>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
 		`;
 	}
 

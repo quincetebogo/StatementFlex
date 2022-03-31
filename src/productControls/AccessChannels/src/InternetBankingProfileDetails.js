@@ -644,14 +644,14 @@ export class InternetBankingProfileDetails extends Component {
 
 				/* Multiple Devices - Suspend Reasons */
 
-				capitec-alert-banner {
+				horizon-alert-banner {
 					margin: 8px 8px 0px 8px;
 									   
 					--theme-alert-banner-icon-margin-left: 16px;
 					--theme-alert-banner-icon-margin-right: 16px;
 				}
 
-				capitec-alert-banner > capitec-hyperlink {
+				horizon-alert-banner > capitec-hyperlink {
 					margin-top: 5px;
 					position: absolute;
 					right: 16px;
@@ -663,7 +663,7 @@ export class InternetBankingProfileDetails extends Component {
 					text-decoration: underline;
 				}
 				
-				capitec-alert-banner > p {
+				horizon-alert-banner > p {
 					margin: 0px;
 					padding-right: 33px;
 					color: #3A3A3A;
@@ -1188,7 +1188,7 @@ export class InternetBankingProfileDetails extends Component {
 
 	_renderServiceUnavailable() {
 		return html`
-			<capitec-alert-banner
+			<horizon-alert-banner
 				data-automation-id="app-profile-details-unavailable-banner"
 				class="unavailable-alert-banner"
 				type="unsuccessful-red"
@@ -1196,7 +1196,7 @@ export class InternetBankingProfileDetails extends Component {
 				layout="vertical">
 				<b>Notify Client</b> <br>
 				<p>Services are currently unavailable</p>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
 			
 			<capitec-group class="service-unavilable-group" layout="vertical" halign="center" valign="center" gap="none">
 				
@@ -1305,7 +1305,7 @@ export class InternetBankingProfileDetails extends Component {
 
 	_renderTokenSuspendedNotification() {
 		return this.isTokenSuspended ? html`
-			<capitec-alert-banner
+			<horizon-alert-banner
 				type="error"
 				class="token-suspend-banner"
 				label=""
@@ -1313,21 +1313,21 @@ export class InternetBankingProfileDetails extends Component {
 				<p><b>Internet security token suspended.</b><br>To access internet banking you will need to register on the App.</p>
 				<capitec-spacer></capitec-spacer>
 				<p>Please visit a branch to request a new security token.</p>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
 		` : html``;
 	}
 
 	_renderClientNotification() {
 		return this.showNoReasonSelectedNotification ? html`
-			<capitec-alert-banner
+			<horizon-alert-banner
 				type="unsuccessful-red"
 				label=""
 				layout="vertical">
 				<p></b><b>Notice:</b></p>
 				<p>Please choose a reason to suspend.</p>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
 		` : html`
-			<capitec-alert-banner
+			<horizon-alert-banner
 				type="warning"
 				class="client-notify-banner"
 				label=""
@@ -1340,7 +1340,7 @@ export class InternetBankingProfileDetails extends Component {
 					label="View fees"
 					inline>
 				</capitec-hyperlink>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
 		`;
 	}
 }

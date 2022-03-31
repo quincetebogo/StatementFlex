@@ -201,7 +201,7 @@ export class AssignReasonSelected extends Component {
 					--theme-button-primary-border-width: 0px;
 				}
 
-				capitec-alert-banner {
+				horizon-alert-banner {
 					margin: 0px 0px 20px 0px;
 					--theme-alert-banner-info-border: 0px;
 					--theme-alert-banner-height: 48px;
@@ -233,10 +233,10 @@ export class AssignReasonSelected extends Component {
 	_renderAlertBanner() {
 		if (this.alertBannerMessage) {
 			return html`
-				<capitec-alert-banner
+				<horizon-alert-banner
 							label="${this.alertBannerMessage}"
 							type="error-trans">
-				</capitec-alert-banner>`;
+				</horizon-alert-banner>`;
 		}
 	}
 

@@ -358,16 +358,16 @@ export class MiniProfile extends Component {
 			return html``;
 		} else if (this.miniProfile.is3rdParty) {
 			return html`
-			<capitec-alert-banner 
+			<horizon-alert-banner 
 					data-automation-id="mini-profile-3rdparty-banner"
 					class="banner" 
 					type="warning">
 				<b>Client has not been verified</b>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
 			`;
 		} else if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels) {
 			return html`
-			<capitec-alert-banner
+			<horizon-alert-banner
 					class="banner" 
 					type="unsuccessful-red">
 				<capitec-group 
@@ -385,11 +385,11 @@ export class MiniProfile extends Component {
 						label="Verify now">
 					</capitec-hyperlink>
 				</capitec-group>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
 			`;
 		} else if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels && this.miniProfile.verificationAttempts.itaAttempts > 2) {
 			return html`
-			<capitec-alert-banner 
+			<horizon-alert-banner 
 					class="banner" 
 					type="unsuccessful-red">
 				<capitec-group 
@@ -400,12 +400,12 @@ export class MiniProfile extends Component {
 						label="Blocked on Remote / Mobile Banking Channels">
 					</capitec-label>
 				</capitec-group>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
 			`;
 		};
 
 		return html`
-			<capitec-alert-banner class="banner" type="warning">
+			<horizon-alert-banner class="banner" type="warning">
 				<capitec-group 
 						id="id-notify-banner-group" 
 						layout="horizontal">
@@ -421,7 +421,7 @@ export class MiniProfile extends Component {
 						label="Verify now">
 					</capitec-hyperlink>
 				</capitec-group>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
 			`;
 	}
 }

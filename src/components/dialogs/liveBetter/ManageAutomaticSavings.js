@@ -223,7 +223,7 @@ export class ManageAutomaticSavings extends Component {
 					--theme-label-default-font-weight: 600;
 					--theme-label-font-color: #ffffff;
 				}
-				capitec-alert-banner {
+				horizon-alert-banner {
 					width: 100%;
 
 					--theme-alert-banner-height: 48px;
@@ -234,10 +234,10 @@ export class ManageAutomaticSavings extends Component {
 					--theme-alert-banner-icon-margin-left: 16px;
 					--theme-alert-banner-icon-margin-right: 12px;
 				}
-				capitec-alert-banner[type="info"] {
+				horizon-alert-banner[type="info"] {
 					--theme-alert-banner-info-background-color: #DAF2F4;
 				}
-				capitec-alert-banner[type="error"] {
+				horizon-alert-banner[type="error"] {
 					--theme-alert-banner-info-background-color: rgba(165,19,42,0.15);
 				}
 				capitec-label[type="title"] {
@@ -254,7 +254,7 @@ export class ManageAutomaticSavings extends Component {
 					--theme-alert-banner-height: 40px;
 					--theme-layout-gap-spacing: 0px;
 				}
-				capitec-alert-banner > p {
+				horizon-alert-banner > p {
 					display: inline-block;
 					font-weight: 400;
 					color: #3A3A3A;
@@ -378,19 +378,19 @@ export class ManageAutomaticSavings extends Component {
 	_renderAlertBanner() {
 		return !this.errorMessage
 			? html`
-				<capitec-alert-banner
+				<horizon-alert-banner
 					data-automation-id="manage-automatic-savings-info-banner"
 					type="info">
 						<strong>Notify client:</strong>
 						<p class="alert-banner-paragraph">Your Round-up and Interest Sweep values will always be transferred from your main savings account</p>
-				</capitec-alert-banner>`
+				</horizon-alert-banner>`
 			: html`
-				<capitec-alert-banner
+				<horizon-alert-banner
 					data-automation-id="manage-automatic-savings-error-banner"
 					type="error">
 						<strong>Notify client:</strong>
 						<p class="alert-banner-paragraph">${this.errorMessage}</p>
-				</capitec-alert-banner>`;
+				</horizon-alert-banner>`;
 	}
 
 	_renderRoundUpSaveToggle() {
@@ -430,13 +430,13 @@ export class ManageAutomaticSavings extends Component {
 
 						${!this.roundUpValue && this.errorMessage
 							? html`
-								<capitec-alert-banner
+								<horizon-alert-banner
 									data-automation-id="manage-automatic-savings-error-banner"
 									class="section-alert-banner"
 									type="error">
 										<strong>Notify client:</strong>
 										<p class="alert-banner-paragraph">${ERROR_MESSAGES.ALERT_ROUNDUP_VALUE}</p>
-								</capitec-alert-banner>`
+								</horizon-alert-banner>`
 							: html``}
 
 						<capitec-radio-group 
@@ -470,13 +470,13 @@ export class ManageAutomaticSavings extends Component {
 						</capitec-title-bar>
 						${!this.roundUpAccounts.length && this.errorMessage
 							? html`
-								<capitec-alert-banner
+								<horizon-alert-banner
 									data-automation-id="manage-automatic-savings-error-banner"
 									class="section-alert-banner"
 									type="error">
 										<strong>Notify client:</strong>
 										<p class="alert-banner-paragraph">${ERROR_MESSAGES.ALERT_ROUNDUP_ACC}</p>
-								</capitec-alert-banner>`
+								</horizon-alert-banner>`
 							: html``}
 
 						${this.automaticSavingsDetails.roundUpAccounts.map(account => html`

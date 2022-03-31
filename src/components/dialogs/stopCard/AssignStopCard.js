@@ -332,12 +332,12 @@ export class AssignStopCard extends Component {
 	renderErrorAlertBanner() {
 		if (this.errorAlert) {
 			return html`
-				<capitec-alert-banner class="alert-banner" type = "unsuccessful-red"
+				<horizon-alert-banner class="alert-banner" type = "unsuccessful-red"
 					data-automation-id="assign-stop-card-error-banner"
 					label = "Select an team to Assign"
 					closable
 					style = "width: 100%;">
-				</capitec-alert-banner>
+				</horizon-alert-banner>
 			`;
 		}
 		

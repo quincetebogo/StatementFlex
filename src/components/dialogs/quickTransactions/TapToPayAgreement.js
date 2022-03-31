@@ -180,7 +180,7 @@ export class TapToPayAgreement extends Component {
 					--theme-check-border-color: #C83B37;
 				}
 
-				capitec-alert-banner {
+				horizon-alert-banner {
 					width: 776px;
 
 					--theme-alert-banner-height: 48px;
@@ -280,11 +280,11 @@ export class TapToPayAgreement extends Component {
 	_renderErrorAlertBanner() {
 		return this.alertBannerText
 			? html`
-					<capitec-alert-banner 
+					<horizon-alert-banner 
 								type="unsuccessful-red" 
 								label="${this.alertBannerText}"
 								data-automation-id="tap-to-pay-agreement-alert-banner">
-					</capitec-alert-banner>`
+					</horizon-alert-banner>`
 			: html``;
 	}
 

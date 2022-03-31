@@ -312,7 +312,7 @@ export class TaxCertificates extends Component {
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 16px;
 				}
-				.main-cb > capitec-alert-banner {
+				.main-cb > horizon-alert-banner {
 					--theme-alert-banner-height: 48px;
 					--theme-alert-banner-icon-margin-left: 16px;
 					--theme-alert-banner-icon-margin-right: 12px;
@@ -557,12 +557,12 @@ export class TaxCertificates extends Component {
 	_renderAlertBanner() {
 		return !isNullorEmpty(this.alertBannerMessage)
 			? html`
-				<capitec-alert-banner 
+				<horizon-alert-banner 
 					data-automation-id="tax-certificate-alert-banner"
 					type="unsuccessful-red" 
 					closable>
 					<p><b>Notify:</b> ${this.alertBannerMessage}</p>
-				</capitec-alert-banner>`
+				</horizon-alert-banner>`
 			: html``;
 	}
 

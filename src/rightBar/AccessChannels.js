@@ -665,7 +665,7 @@ export class AccessChannels extends Component {
 	renderVerificationAlertBanner() {
 		return this.callerInformation?.hasDigitalChannels
 			? html`
-				<capitec-alert-banner
+				<horizon-alert-banner
 					class="has-digital-channels"
 					data-automation-id="high-risk-banner"
 					type="warning">
@@ -678,9 +678,9 @@ export class AccessChannels extends Component {
 								label="Verify Now"
 								@click="${() => this._onVerifyNowClick()}">
 							</capitec-hyperlink>
-				</capitec-alert-banner>`
+				</horizon-alert-banner>`
 			: html`
-				<capitec-alert-banner
+				<horizon-alert-banner
 					class="no-digital-channels"
 					data-automation-id="high-risk-banner"
 					type="warning">
@@ -688,7 +688,7 @@ export class AccessChannels extends Component {
 							<capitec-label type="default"
 								label="For added security get the remote banking App to perform additional transactions, alternatively, visit your nearest branch.">
 							</capitec-label>
-				</capitec-alert-banner>`;
+				</horizon-alert-banner>`;
 	}
 
 }

@@ -617,17 +617,17 @@ export class ConfirmCallerDetails extends Component {
 		return this.errorMessage === ``
 			? html``
 			: html`
-				<capitec-alert-banner 
+				<horizon-alert-banner 
 					data-automation-id="confirm-caller-details-error-banner"
 					type="unsuccessful-red"
 					label=${this.errorMessage}>
-				</capitec-alert-banner>`;
+				</horizon-alert-banner>`;
 	}
 
 	_renderAlertBanner() {
 		if (!this.confirmedCaller.isBranchConsultant) {
 			return html`
-				<capitec-alert-banner 
+				<horizon-alert-banner 
 					id="id-banner-addcallerdetails" 
 					data-automation-id="confirm-caller-details-add-caller-banner"
 					type="warning">
@@ -637,16 +637,16 @@ export class ConfirmCallerDetails extends Component {
 							@click="${() => this._addCallerDetailsClick()}">
 						</capitec-hyperlink>
 					if the caller is calling on another client's behalf
-				</capitec-alert-banner>`;
+				</horizon-alert-banner>`;
 		} 
 
 		return html`
-			<capitec-alert-banner 
+			<horizon-alert-banner 
 				id="id-banner-addcallerdetails" 
 				data-automation-id="confirm-caller-details-branch-banner"
 				type="warning">
 				<p><b>Notify:</b>${branchBannerMessage}</p>
-			</capitec-alert-banner>`;
+			</horizon-alert-banner>`;
 	}
 
 	_renderConfirmedCaller() {

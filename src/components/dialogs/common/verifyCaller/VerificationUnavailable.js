@@ -18,11 +18,11 @@ export class VerificationUnavailable extends Component {
 				#notification-status-box > capitec-group {
 					--theme-layout-gap-spacing: 16px;
 				}
-				#notification-status-box > capitec-group > capitec-alert-banner {
+				#notification-status-box > capitec-group > horizon-alert-banner {
 					--theme-alert-banner-height: 48px;
 					--theme-alert-banner-info-border: none;
 				}
-				#notification-status-box > capitec-group > capitec-alert-banner[type="error"] {
+				#notification-status-box > capitec-group > horizon-alert-banner[type="error"] {
 					--theme-alert-banner-icon-margin-left: 15px;
 					--theme-alert-banner-icon-margin-right: 15px;
 					--theme-alert-banner-unsuccessful-red-border: none;
@@ -66,9 +66,9 @@ export class VerificationUnavailable extends Component {
 		return html`
 			<capitec-content-box id="notification-status-box">
 				<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
-					<capitec-alert-banner type="error">
+					<horizon-alert-banner type="error">
 						<b>Notify client : </b>We’re unable to verify you at this time.
-					</capitec-alert-banner>
+					</horizon-alert-banner>
 					<capitec-group layout="vertical" 
 						halign="center"
 						valign="top" 

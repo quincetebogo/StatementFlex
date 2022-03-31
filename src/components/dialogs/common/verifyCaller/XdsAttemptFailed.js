@@ -25,7 +25,7 @@ export class XdsAttemptFailed extends Component {
 				#notification-status-box > capitec-group {
 					--theme-layout-gap-spacing: 16px;
 				}
-				#notification-status-box > capitec-group > capitec-alert-banner {
+				#notification-status-box > capitec-group > horizon-alert-banner {
 					--theme-alert-banner-height: 48px;
 					--theme-alert-banner-info-border: none;
 				}
@@ -71,9 +71,9 @@ export class XdsAttemptFailed extends Component {
 		return html`
 		<capitec-content-box id="notification-status-box">
 			<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
-				<capitec-alert-banner type="warning">
+				<horizon-alert-banner type="warning">
 					<b>Notify client: </b>You didn't pass the security questions.
-				</capitec-alert-banner>
+				</horizon-alert-banner>
 				<capitec-group layout="vertical" 
 					halign="center"
 					valign="top" 

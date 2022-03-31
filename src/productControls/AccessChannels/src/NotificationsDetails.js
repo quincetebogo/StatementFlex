@@ -270,7 +270,7 @@ export class NotificationsDetails extends Component {
 					background-color: #F5F5F5;
 				}
 
-				capitec-alert-banner {
+				horizon-alert-banner {
 					margin: 8px 8px 0px 8px;
 
 					--theme-alert-banner-width: 328px;
@@ -279,7 +279,7 @@ export class NotificationsDetails extends Component {
 					--theme-alert-banner-icon-margin-left: 16px;
 					--theme-alert-banner-icon-margin-right: 16px;
 				}
-				capitec-alert-banner > capitec-hyperlink {
+				horizon-alert-banner > capitec-hyperlink {
 					margin-top: 5px;
 					position: absolute;
 					right: 16px;
@@ -290,7 +290,7 @@ export class NotificationsDetails extends Component {
 					--theme-hyperlink-font-size: 14px;
 					text-decoration: underline;
 				}
-				capitec-alert-banner > p {
+				horizon-alert-banner > p {
 					margin: 0px;
 					color: #3A3A3A;
 					font-family: "Hind Vadodara";
@@ -753,7 +753,7 @@ export class NotificationsDetails extends Component {
 
 	_renderClientNotification() {
 		return this.inAppMessage ? html`` : html`
-			<capitec-alert-banner
+			<horizon-alert-banner
 				type="warning"
 				class="client-notify-message-type-banner"
 				label=""
@@ -766,25 +766,25 @@ export class NotificationsDetails extends Component {
 					label="View fees"
 					inline
 				></capitec-hyperlink>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
 		`;
 	}
 
 	_renderMessageTimeUpdateClientNotification() {
 		return this.isTimeValueChanged ? html`
-			<capitec-alert-banner
+			<horizon-alert-banner
 				type="warning"
 				class="client-notify-banner"
 				label=""
 				layout="vertical">
 				<p><b>Notify client:</b><br>You will only receive notifications between ${this.messageTimeSelected}</p>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
 		` : html``;
 	}
 
 	_renderServiceUnavailable() {
 		return html`
-			<capitec-alert-banner
+			<horizon-alert-banner
 				data-automation-id="notifications-details-unavailable-banner"
 				class="unavailable-alert-banner"
 				type="unsuccessful-red"
@@ -792,7 +792,7 @@ export class NotificationsDetails extends Component {
 				layout="vertical">
 				<b>Notify Client</b> <br>
 				<p>Services are currently unavailable</p>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
 			
 			<capitec-group class="service-unavilable-group" layout="vertical" halign="center" valign="center" gap="none">
 				

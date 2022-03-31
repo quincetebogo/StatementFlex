@@ -215,7 +215,7 @@ export class StopCardSuccess extends ViewBase {
 					margin-bottom: auto;
 				}
 
-				capitec-alert-banner {
+				horizon-alert-banner {
 					margin: 16px;
 					--theme-alert-banner-height: 48px;
 				}
@@ -270,12 +270,12 @@ export class StopCardSuccess extends ViewBase {
 	_renderNotifyClient() {
 		// For some reason ?hidden boolean attribute does not want to work on the div 
 		return html`
-			<capitec-alert-banner 
+			<horizon-alert-banner 
 				data-automation-id="stop-card-success-notify-client"
 				type="info" 
 				style="visibility:${!this.displayNotification ? `visible` : `visible`}">
 					<span class="bold-text">Notice:</span> Please check if the client also needs to stop the remote banking app channels (App/USSD)
-			</capitec-alert-banner>`;
+			</horizon-alert-banner>`;
 	}
 
 	_renderGraphic() {

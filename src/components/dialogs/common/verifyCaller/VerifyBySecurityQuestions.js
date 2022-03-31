@@ -373,7 +373,7 @@ export class VerifyBySecurityQuestions extends Component {
 				--theme-button-padding-bottom: 14px;
 			}
 
-			capitec-alert-banner {
+			horizon-alert-banner {
 				margin: 16px 16px 0px 16px;
 				--theme-alert-banner-info-border: 0px;
 				--theme-alert-banner-height: 48px;
@@ -429,7 +429,7 @@ export class VerifyBySecurityQuestions extends Component {
 
 	_renderAlertBanner() {
 		if (this.alertBannerMessage) {
-			return html`<capitec-alert-banner label="${this.alertBannerMessage}" type="unsuccessful-red"></capitec-alert-banner>`;
+			return html`<horizon-alert-banner label="${this.alertBannerMessage}" type="unsuccessful-red"></horizon-alert-banner>`;
 		}
 	}
 

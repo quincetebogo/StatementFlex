@@ -383,7 +383,7 @@ export class StopCardSearchCaller extends Component {
 				#searchFieldText{
 					margin-top: 32px;
 				}
-				capitec-alert-banner{
+				horizon-alert-banner{
 					--theme-alert-banner-height: 48px;
 					--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
 					--theme-alert-banner-icon-margin-left: 15px;
@@ -484,13 +484,13 @@ export class StopCardSearchCaller extends Component {
 	renderAlertBanner() {
 		if (!isNullorEmpty(this.alertBannerMessage)) {
 			return html`
-				<capitec-alert-banner 
+				<horizon-alert-banner 
 					data-automation-id="stop-card-search-caller-alert"
 					type="error" 
 					label="${this.alertBannerMessage}" 
 					closable
 					@click="${() => this.alertBannerMessage = ``}">
-				</capitec-alert-banner>
+				</horizon-alert-banner>
 			`;
 		}
 		return html``;

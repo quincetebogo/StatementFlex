@@ -74,7 +74,7 @@ export class HowToClaim extends Component {
 				margin: 0px 0px 14px 0px;
 			}
 
-			capitec-alert-banner {
+			horizon-alert-banner {
 				width: 1032px;
 				margin: 0px 0px 24px 0px;
 				--theme-alert-banner-info-border: 0px;
@@ -177,10 +177,10 @@ export class HowToClaim extends Component {
 
 				<capitec-content-box class="content">
 
-					<capitec-alert-banner 
+					<horizon-alert-banner 
 										label="All Capitec Funeral Plan benefits are subject to terms and conditions, including limitations and exclusions." 
 										type="info">
-					</capitec-alert-banner>
+					</horizon-alert-banner>
 
 					<capitec-content-box class="inner-content">
 
