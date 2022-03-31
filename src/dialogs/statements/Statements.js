@@ -10,6 +10,7 @@ import { PRODUCTS } from 'app/constants/Credit';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { base64ToBlobUrl } from 'app/utils/channelServiceUtilities';
+import { creditMixin } from 'app/views/credit/CreditMixin';
 
 import 'app/components/dialogs/common/StatementsDialog';
 
@@ -45,11 +46,14 @@ export class Statements extends Component {
 
 		this.selectedProduct = {};
 		this.availableMonthlyStatements = [];
+		this.ccsStatus = false;
 
 		this._telemetryEventsImport();
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), () => true);
 		this.creditService = new CreditService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+
+		Object.assign(Statements.prototype, creditMixin);
 	}
 
 	// --------------
@@ -70,7 +74,8 @@ export class Statements extends Component {
 			clientProducts: { type: Array },
 			accountType: { type: String, attribute: `type` },
 
-			isBusy: { state: true }
+			isBusy: { state: true },
+			ccsStatus: { state: true }
 		};
 	}
 
@@ -116,7 +121,7 @@ export class Statements extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_statementsAccConfirmed(event) {
+	async _statementsAccConfirmed(event) {
 		this.selectedProduct = this.clientProducts.find(item => item.accountNumber === event.detail.accountNumber);
 		this.availableMonthlyStatements = [];
 
@@ -126,6 +131,15 @@ export class Statements extends Component {
 				subCategory: event.detail.subCategory
 			}
 		}));
+
+		const creditPermissions = () => this._creditCheckPermissions(event.detail.accountNumber, event.detail.name);
+		const postActions = {
+			[ACCOUNT_TYPES.CREDIT]: creditPermissions
+		};
+
+		if (postActions[event.detail.account]) {
+			await postActions[event.detail.account]();
+		}
 	}
 
 	async _cancel() {
@@ -415,6 +429,17 @@ export class Statements extends Component {
 		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
+	async _creditCheckPermissions(accNum, productType) {
+		this.ccsStatus = await this._checkCreditPermisions(`statements`, this.cifNumber, accNum, productType);
+
+		this.clientProducts = this.clientProducts.filter(item => {
+			if (item.accountNumber === accNum) {
+				item.ccsStatus = this.ccsStatus;
+			}
+			return item;
+		});
+	}
+
 	// ---------------
 	// PUBLIC METHODS
 	// ---------------
@@ -441,6 +466,7 @@ export class Statements extends Component {
 				@account-selected="${(event) => this._statementsAccConfirmed(event)}"
 				@view-fees="${() => this._viewFees()}">
 			</horizon-statements-dialog>
+			${this._renderCcsModal()}
 		`;
 	}
 
@@ -448,6 +474,15 @@ export class Statements extends Component {
 		return this.isBusy
 			? html`<capitec-loading-indicator></capitec-loading-indicator>`
 			: html``;
+	}
+
+	_renderCcsModal() {
+		return this.ccsStatus
+		? html`
+			<horizon-ccs-status-dialog
+				@on-okay="${() => this.ccsStatus = false}">
+			</horizon-ccs-status-dialog>`
+		: html``;
 	}
 }
 

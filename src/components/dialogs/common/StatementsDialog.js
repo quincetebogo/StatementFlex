@@ -261,6 +261,7 @@ export class StatementsDialog extends Component {
 			this._resetPeriodSelection();
 			this.dispatchEvent(new CustomEvent(`account-selected`, {
 				detail: {
+					name: this.productSelected.name,
 					accountNumber: this.productSelected.accountNumber,
 					account: this.productSelected.category,
 					subCategory: this.productSelected.subCategory
@@ -1003,7 +1004,8 @@ export class StatementsDialog extends Component {
 						type="primary"
 						label="Next"
 						@click="${() => this._next()}"
-						?hidden="${this.currentStep === this.STEPPER_STEPS.length - 1}">
+						?hidden="${this.currentStep === this.STEPPER_STEPS.length - 1}"
+						?disabled="${Boolean(this.productSelected?.ccsStatus)}">
 					</capitec-button>
 					<capitec-button
 						class="m-r-0"
