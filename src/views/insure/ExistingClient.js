@@ -16,6 +16,7 @@ import { formatCurrency } from 'app/productControls/utilities/Currency';
 // import 'app/components/insure/InsureUpdatePlan';
 
 import 'app/components/dialogs/insure/InsureAddLifeDialog';
+import 'app/components/common/HorizonLabel';
 
 /**
  * @readonly
@@ -56,6 +57,7 @@ export class ExistingClient extends InsureViewBase {
 
 		this.showAddRelationshipDialog = false;
 		this.showEmailPlanDialog = false;
+		this.showEACLAgreement = false;
 
 		// Estimate
 		this.estimate = {};
@@ -69,6 +71,7 @@ export class ExistingClient extends InsureViewBase {
 		return {
 			showAddRelationshipDialog: { boolean: false },
 			showEmailPlanDialog: { boolean: false },
+			showEACLAgreement: { boolean: false },
 		};
 	}
 
@@ -184,6 +187,16 @@ export class ExistingClient extends InsureViewBase {
 		this.requestUpdate();
 	}
 
+	/**Update plan */
+
+	/**
+	 * Prepare and navigate Update plan
+	 */
+	 _goToUpdatePlan() {
+		
+		this._navigateToSubView(INSURE_RENDER_MODE.UPDATE_PLAN);
+	}
+
 	/** General */
 
 	/**
@@ -297,6 +310,77 @@ export class ExistingClient extends InsureViewBase {
 				color: #00a9f1;
 				cursor: pointer;
 			}
+
+			.notif-container{
+				background: #daf2f4;
+				padding: 15px;
+				display: flex;
+				justify-content: start;
+			}
+
+			.notif-container > .content {
+				padding-left: 10px;
+			}
+
+			.notif-container > .content .title {
+				font-weight: bold;
+			}
+
+			.account-details-bar {
+				display: flex;
+				position: relative;
+			}
+
+			.account-details-bar > capitec-expander {
+				position: absolute;
+				border: 1px solid #e1e1e1;
+				border-radius: 5px;
+				--theme-container-padding-right: 0px;
+				--theme-container-padding-left: 0px;
+				--theme-container-padding-top: 0px;
+				--theme-container-padding-bottom: 0px;
+				--theme-expander-header-height: 64px;
+				--theme-expander-height: 211px;
+				--theme-expander-indicator-width: 11.5px;
+				--theme-expander-indicator-height: 6.5px;
+				--theme-expander-border: 0px;
+				box-shadow:0 3px 6px 0.25px rgba(0,0,0,0.08);
+				
+			}
+
+			.account-details-bar > capitec-group {
+				width: 93%;
+				z-index: 10;
+				padding-top: 12px;
+				padding-bottom: 12px;
+				border-right: 1px solid #dfdfdf;
+			}
+
+			.actionbar-header > horizon-label {
+				width: 200px;
+				height: 100%;
+				font-weight: 300;
+				justify-content: left;
+				padding: 0px 0px 0px 16px;
+				--horizon-label-text-height: 20px;
+				--horizon-label-text-font-size: 14px;
+				--horizon-label-text-line-height: 20px;
+				--horizon-label-value-height: 20px;
+				--horizon-label-value-font-size: 16px;
+				--horizon-label-value-line-height: 20px;
+				--horizon-label-value-color:#3A3A3A;
+			}
+
+			.actionbar-header > horizon-label[label="Cover amount (Min R5 000 - Max R100 000)"] {
+				width: 300px;
+			}
+
+			.expander-options{
+				display: flex; 
+				justify-content: space-between; 
+				padding: 20px 15px 15px 15px; 
+				gap: 10px;
+			}
 			`
 		];
 	}
@@ -330,6 +414,7 @@ export class ExistingClient extends InsureViewBase {
 			${this._renderLoadingIndicator()}
 			${this._renderEstimateAddLifeAssuredDialog()}
 			${this._renderEmailPlanDialog()}
+			${this._renderEACLAgreementDialog()}
 		`;
 	}
 
@@ -364,6 +449,8 @@ export class ExistingClient extends InsureViewBase {
 				<capitec-label label="Insure" type="title"></capitec-label>
 				<capitec-spacer></capitec-spacer>
 				<capitec-button type="white" label="Get Estimate" @click="${() => this._goToEstimate()}">
+				</capitec-button>
+				<capitec-button type="white" label="Update plan" @click="${() => this._goToUpdatePlan()}">
 				</capitec-button>
 			</capitec-title-bar>
 			`
@@ -491,8 +578,244 @@ export class ExistingClient extends InsureViewBase {
 	 * @return {html} Html of the sub view
 	 */
 	_renderUpdatePlanPage() {
-		return html`<div>Hi I am Update Plan Page</div>`
+		return html`
+		<capitec-title-bar type="insure" class="insure-title-bar">
+			<img class="action-image" src="/images/insure/left-arrow.svg" @click="${() => this._backToSummaryPage()}" />
+			<capitec-label label="Update Plan" type="title"></capitec-label>
+			<capitec-spacer></capitec-spacer>
+			<capitec-button label="Email Plan" type="white"></capitec-button>
+			<capitec-button label="Update Plan" type="white"></capitec-button>
+		</capitec-title-bar>
+		<capitec-card style="min-height: 100vh;">
+		<capitec-tab-group>
+
+			${this._renderPremiumTab()}
+			${this._renderBeneficiariesTab()}
+			${this._renderDebitOrderTab()}
+
+		</capitec-tab-group>
+		</capitec-card>`
 	}
+
+	/**
+	 * render the premium Tab of Update plan
+	 * @returns {html}
+	 * 
+	 */
+	_renderPremiumTab() {
+		return html`
+		<capitec-tab label="Premium & Cover Amount">
+		<div class = "insure-calc-columns">
+			
+			<div class = "insure-calc-column-left">
+					
+				<div class="right-card">
+					<!-- notifications -->
+						<div class="notif-container">
+							<div class="icon">
+								<capitec-icon icon="status/info-trans" size="default" ></capitec-icon>
+							</div>
+							<div class="content">
+								<label class="title">Notify:</label>
+								<label class="detail">
+									I agree to
+									<strong>Entry Ages and Child Limits</strong>
+									agreement declaration
+								</label>
+							</div>
+						</div>
+
+						<div class="notif-container">
+							<div class="icon">
+								<capitec-icon icon="status/info-trans" size="default"></capitec-icon>
+							</div>
+							<div class="content">
+								<label class="title">Notify:</label>
+								<label class="detail">
+									I agree to
+									<strong>You/your beneficiary are paid</strong>
+									agreement declaration
+								</label>
+							</div>
+						</div>
+
+					
+						<!-- main life details -->
+						<div class="calc-card-row">
+							<capitec-label label="Main Life" type="strong">
+							</capitec-label>
+						</div>
+						
+						<!-- main life expander -->
+						<div class="account-details-bar">
+							<capitec-expander label="" >
+								<div class="expander-options">
+									<capitec-select 
+										label="Title" 
+										.items="" 
+										display-field="text" 
+										id-field="code"
+										style="width: 50%" 
+										disabled>
+									</capitec-select>
+									</capitec-select>
+									<capitec-text-field
+										label="Name"
+										disabled
+										style="width: 50%">
+									</capitec-text-field>
+								</div>
+								<div class="expander-options">
+									<capitec-text-field
+										label="Surname"
+										disabled
+										style="width: 50%">
+									</capitec-text-field>
+									<capitec-text-field
+										label="Email Address"
+										disabled
+										style="width: 50%">
+									</capitec-text-field>
+								</div>
+								<div class="expander-options">
+									<capitec-text-field
+										label="Date of birth"
+										style="width: 50%"
+										disabled>
+									</capitec-text-field>
+
+									<capitec-text-field
+									label="Cover amount"
+									style="width: 50%">
+									</capitec-text-field>
+								</div>
+								<div class="expander-options">
+									<capitec-select 
+										label="Gender" 
+										.items="" 
+										display-field="text" 
+										id-field="code"
+										style="width: 50%" 
+										disabled>
+									</capitec-select>
+										<capitec-text-field
+										label="ID"
+										disabled
+										style="width: 50%">
+									</capitec-text-field>
+								</div>
+							</capitec-expander>
+							<capitec-group class= "actionbar-header" layout="horizontal" gap="none" halign="left" valign="center">
+							<horizon-label
+								label="Main Life"
+								value="name">
+							</horizon-label>
+							
+							<horizon-label
+								label="Cover amount (Min R5 000 - Max R100 000)"
+								value="amount">	
+							</horizon-label>
+							</capitec-group>
+						</div>
+						
+						<!--lives Assured  -->
+						<div class="calc-card-row" style="margin-top: 15px;">
+						<capitec-label label="Lives Assured" type="subtitle" class="stronger">
+						</capitec-label>
+						<capitec-label label="Add Life Assured" type="subtitle" class="stronger link">
+						</capitec-label>
+						</div>
+
+				</div>
+
+			</div>	
+		
+			<div class = "insure-calc-column-right"> 
+				<div class="calc-summary-card">
+					<div>
+						<!-- top -->
+						<capitec-label label="Funeral Plan" type="Strong"></capitec-label>
+						</capitec-label>
+						<capitec-spacer></capitec-spacer>
+						<capitec-label label="Total estimated monthly premium"></capitec-label>
+						<capitec-label label="R00.00" class="calc-premium-total">
+						</capitec-label>
+						<capitec-label label="Summary of estimated monthly premium:" class="stronger"></capitec-label>
+						<hr>
+
+						<!-- life list -->
+						<div class="calc-life-list">
+
+						</div>	
+					</div>	
+
+					<!-- bottom -->
+					<div>
+						<capitec-label label="Specify a premium you are willing to pay" class="stronger"></capitec-label>
+						<br>
+						<capitec-text-field label="Premium Amount" type="numeric-input">
+						</capitec-text-field>
+					</div>
+				</div>
+			</div>
+
+		</div> 
+		</capitec-tab>
+		`
+	}
+
+/**
+ * render the beneficiaries tab of Update plan
+ * @returns {html}
+ * 
+ */
+ _renderBeneficiariesTab() {
+	return html`
+		<capitec-tab label="Beneficiaries">
+			Beneficiaries
+		</capitec-tab>
+		`
+}
+
+
+/**
+ * render the Debit order tab of the Update plan
+ * @returns {html}
+ */
+ _renderDebitOrderTab() {
+	return html`
+		<capitec-tab label="Debit Order Details">
+			${this._renderYROANotification()}
+			<capitec-label type="subtitle" class="stronger" label="Collection Account" style="padding: 10px;">
+			</capitec-label>
+		</capitec-tab>
+		`
+}
+
+/**
+	 * Render notification component for 'Your responsibility & our accountability'
+	 * 
+	 * @returns {html} The html content of the component.
+	 */
+ _renderYROANotification() {
+	return html`
+		<div class="notif-container">
+			<div class="icon">
+				<capitec-icon icon="status/info-trans" size="default"></capitec-icon>
+			</div>
+			<div class="content">
+				<label class="title">Notify:</label>
+				<label class="detail">
+					I agree to
+					<strong>Your Responsibility & Our Accountability</strong>
+					agreement declaration
+				</label>
+			</div>
+		</div>
+	`
+}
+
+
 
 	/**
 	 * Render Update Plan page
@@ -524,6 +847,11 @@ export class ExistingClient extends InsureViewBase {
 	_renderEmailPlanDialog() {
 		return this.showEmailPlanDialog == false ? `` :
 			html`<div>I am the email plan dialog</div>`
+	}
+	
+	_renderEACLAgreementDialog() {
+		return this.showEACLAgreement == false ? `` :
+			html`<div>I am the EACL dialog</div>`
 	}
 
 	// ---- HELPERS
