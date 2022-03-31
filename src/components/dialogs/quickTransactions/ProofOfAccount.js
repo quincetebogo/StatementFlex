@@ -168,7 +168,7 @@ export class ProofOfAccount extends Component {
 	}
 
 	_emailValueChanged(e) {
-		this.email = e.detail.email;
+		this.idEmailAddress = e.detail.email;
 		this.confirmEmail = e.detail.confirmEmail;
 
 		if (e.detail.invalidFormat) {
@@ -183,7 +183,7 @@ export class ProofOfAccount extends Component {
 	// ---------------
 
 	_validateEmailAddress() {
-		if (this._isNullorEmpty(this.email) || this._isNullorEmpty(this.confirmEmail)) {
+		if (this._isNullorEmpty(this.idEmailAddress) || this._isNullorEmpty(this.confirmEmail)) {
 			this.alertBannerMessage = ERROR_MESSAGE.EMAIL_REQUIRED;
 		}
 
