@@ -1,4 +1,4 @@
-import { ACTION_IDENTIFIER, CREDIT_TYPE, FROM_ACCOUNTS_LIST, PERMISSION_STATUS, PRODUCTS } from 'app/constants/Credit';
+import { CREDIT_TYPE, FROM_ACCOUNTS_LIST, PRODUCTS } from 'app/constants/Credit';
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { css, html } from 'platform/elements';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
@@ -153,7 +153,7 @@ export class CreditAccount extends ViewBase {
 			await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
 			this._refreshIncidentDetails();
 
-			this.ccsStatus = await this._checkCreditPermisions(option, selectedAccountDetails.accountNumber, productType);
+			this.ccsStatus = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber, productType);
 
 			// Perform the action only when ccs status is false
 			if (!this.ccsStatus) {
@@ -629,23 +629,6 @@ export class CreditAccount extends ViewBase {
 		}
 	}
 
-	async _checkCreditPermisions(option, accNum, productType) {
-
-		const credProducts = {
-			[PRODUCTS.CREDIT_CARD]: `CreditCard`,
-			[PRODUCTS.ACCESS_FACILITY]: `AccessFacility`,
-			[PRODUCTS.TERM_LOAN]: `Loan`
-		};
-		const returnValue = await this.creditService.permissions(this.callerInformation.cifNumber, accNum, credProducts[productType]);
-
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Failed to get credit permissions.`, `_getCreditPermisions`, returnValue.correlationId);
-		}
-
-		const permission = returnValue.result.permissionsResultsList.find(item => item.operationIdentifier === ACTION_IDENTIFIER[option]);
-		return permission?.permissionResult === PERMISSION_STATUS.DENIED;
-	}
-
 	// ---------
 	// RENDERING
 	// ---------
@@ -836,18 +819,8 @@ export class CreditAccount extends ViewBase {
 				.clientProducts="${this.clientProducts}"
 				type="${ACCOUNT_TYPES.CREDIT}"
 				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}"
-				@cancel="${() => this._backToLandingPage()}"
-				@account-selected="${(event) => this._statementsAccConfirmed(event)}">
+				@cancel="${() => this._backToLandingPage()}">
 			</horizon-statements>`
-		: html``;
-	}
-
-	_renderCcsModal() {
-		return this.ccsStatus
-		? html`
-			<horizon-ccs-status-dialog
-				@on-okay="${() => this.ccsStatus = false}">
-			</horizon-ccs-status-dialog>`
 		: html``;
 	}
 
