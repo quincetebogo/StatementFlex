@@ -40,7 +40,7 @@ export const creditMixin = {
 		});
 
 		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.selectedAccounts = details.selectedAccounts;
+		screenDetails.selectedAccounts = details.selectedAccounts.filter(item => !isNullorEmpty(item));
 		screenDetails.emailAddress = details.emailAddress;
 		screenDetails.emailStatus = formatedResponse;
 		this.horizonStore.setScreenDetails(screenDetails);

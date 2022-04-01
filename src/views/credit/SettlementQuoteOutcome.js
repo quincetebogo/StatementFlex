@@ -1,7 +1,6 @@
 import { css, html } from 'platform/elements';
 import { ViewBase } from 'app/views/common/ViewBase';
 
-import 'app/components/common/SuccessScreen';
 import 'app/components/common/RelatedOptions';
 
 /**
@@ -216,13 +215,13 @@ export class SettlementQuoteOutcome extends ViewBase {
 
 	_webTemplate() {
 		return html`
-			${this._renderSuccessScreen()}
+			${this._renderOutcomeScreen()}
 
 			${super._webTemplate()}
 		`;
 	}
 
-	_renderSuccessScreen() {
+	_renderOutcomeScreen() {
 		return html`
 			<capitec-card class="card">
 				${this._renderSuccessToast()}
