@@ -5,13 +5,13 @@ import 'app/components/common/SuccessScreen';
 import 'app/components/common/RelatedOptions';
 
 /**
- * Display an confirmation/success screen indicating the settlement quote has been successfully sent.
+ * Display an outcome screen indicating the settlement quote has been successfully sent or not.
  *
  * @export
- * @class SettlementQuoteSuccess
+ * @class SettlementQuoteOutcome
  * @extends {ViewBase}
  */
-export class SettlementQuoteSuccess extends ViewBase {
+export class SettlementQuoteOutcome extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -23,6 +23,8 @@ export class SettlementQuoteSuccess extends ViewBase {
 		this.selectedAccounts = [];
 		this.emailAddress = ``;
 		this.emailStatus = [];
+		this.failedAccounts = [];
+		this.succeededAccounts = [];
 		this.displayToast = true;
 		this.endCallContext = `QuickTransactionSuccess`;
 	}
@@ -35,7 +37,7 @@ export class SettlementQuoteSuccess extends ViewBase {
 	* @property {String} [displayToast=true] Enables/Disables the toast message
 	* @readonly
 	* @static
-	* @memberof SettlementQuoteSuccess
+	* @memberof SettlementQuoteOutcome
 	*/
 	static get properties() {
 		return {
@@ -52,12 +54,15 @@ export class SettlementQuoteSuccess extends ViewBase {
 		
 		this.screenDetails = this.horizonStore.getScreenDetails();
 
-		this.emailAddress = this.screenDetails && this.screenDetails.settlementQuoteOutcomeDetails.emailAddress;
-		this.emailStatus = this.screenDetails && this.screenDetails.settlementQuoteOutcomeDetails.emailStatus;
+		this.emailAddress = this.screenDetails && this.screenDetails.emailAddress;
+		this.emailStatus = this.screenDetails && this.screenDetails.emailStatus;
+		this.failedAccounts = this.emailStatus.filter(account => !account.sentStatus).map(item => item.productTypeDescription);
+		this.succeededAccounts = this.emailStatus.filter(account => account.sentStatus).map(item => item.productTypeDescription);
+
 		this._getOutcomeDetails();
+		this._updateIncidentState();
 
 		window.setTimeout(() => this.displayToast = false, 3000);
-		// this._updateIncidentState();
 	}
 
 	disconnectedCallback() {
@@ -76,6 +81,10 @@ export class SettlementQuoteSuccess extends ViewBase {
 		this.horizonStore.clearScreenDetails();
 	}
 
+	_tryAgain() {
+		this.horizonRouter.navigateToReturnPage();
+	}
+	
 	_sendAnotherClick() {
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 		this.horizonStore.clearScreenDetails();
@@ -86,42 +95,52 @@ export class SettlementQuoteSuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
+		const completeSuccess = this.succeededAccounts.length === this.emailStatus.length;
+
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.incidentDetails.needStatus = completeSuccess ? super.HORIZON_NEED_STATUS.COMPLETED : super.HORIZON_NEED_STATUS.FAILED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	_getOutcomeDetails() {
-		const failedAccounts = this.emailStatus.filter(account => !account.sentStatus);
-		const succeededAccounts = this.emailStatus.filter(account => account.sentStatus);
-		
-		if (failedAccounts.length === this.emailStatus.length) {
+		if (this.failedAccounts.length === this.emailStatus.length) {
 			this.header = `Settlement quote not sent`;
-			this.toast = `Settlement quote for ${this._formateAccountNames(failedAccounts)} not sent`;
+			this.secondaryToast = `Settlement quote${this._formateToastDetails(this.failedAccounts)} was not sent`;
+			this.failureDetails = html`Settlement quote for <b>${this._formateAccountNames(this.failedAccounts)}</b> was not emailed to <b>${this.emailAddress}</b>`;
+			return;
 		}
-		if (failedAccounts.length > 0) {
-			this.header = `Some settlement quote/s did not send`;
-			this.toast = `Settlement quote for ${this._formateAccountNames(succeededAccounts)} was sent`;
-			this.secondaryToast = `Settlement quote for ${this._formateAccountNames(failedAccounts)} not sent`;
-	
+		if (this.failedAccounts.length > 0) {
+			this.header = `Some settlement quote(s) did not send`;
+			this.toast = `Settlement quote${this._formateToastDetails(this.succeededAccounts)} was sent`;
+			this.secondaryToast = `Settlement quote${this._formateToastDetails(this.failedAccounts)} was not sent`;
+			this.successDetail = html`Settlement quote for<b>${this._formateAccountNames(this.succeededAccounts)}</b> was emailed to <b>${this.emailAddress}</b>`;
+			this.failureDetails = html`Settlement quote for<b>${this._formateAccountNames(this.failedAccounts)}</b> was not emailed to <b>${this.emailAddress}</b>`;
+			return;
 		}
 		this.header = `Settlement quote sent`;
-		this.toast = `Settlement quote for ${this._formateAccountNames(succeededAccounts)} was sent`;
-	
+		this.toast = `Settlement quote${this._formateToastDetails(this.succeededAccounts)} was sent`;
+		this.successDetail = html`Settlement quote for <b> ${this._formateAccountNames(this.succeededAccounts)}</b> was emailed to <b>${this.emailAddress}</b>`;
+	}
+
+	_formateToastDetails(accounts) {
+		if (accounts.length === 1) {
+			return ` for ${accounts[0].toLowerCase()}`;
+		}
+		return `s`;
 	}
 
 	_formateAccountNames(accounts) {
 		if (accounts.length === 1) {
-			return `${accounts}`;
+			return `${accounts[0].toLowerCase()}`;
 		}
 
 		if (accounts.length === 2) {
-			return `${accounts.join(` and `)}`;
+			return `${accounts.join(` and `).toLowerCase()}`;
 		}
 
 		if (accounts.length > 2) {
-			const lastAccount = accounts.pop();
-			return `${accounts.join(`, `)} and ${lastAccount}`;
+			const lastAccount = accounts.slice(-1)[0];
+			return `${accounts.slice(0, -1).join(`, `).toLowerCase()} and ${lastAccount.toLowerCase()}`;
 		}
 
 		return ``;
@@ -140,48 +159,36 @@ export class SettlementQuoteSuccess extends ViewBase {
 				width: 100%;
 				height: 100%;
 			}
-
 			.card {
 				width: 100%;
 			}
-			
 			.card > capitec-group[layout="vertical"] {
 				height: 744px;
+				padding-top: 42px
 			}
-
-			#id-successful-img {
-				width: auto;
-			}
-			#id-successful-header {
-				margin-top:33px;
-				margin-bottom:23px;
+			.header {
+				margin: 33px 0px 23px 0px;
 				height: 32px;
+				--theme-label-default-font-color: #3A3A3A;
+				--theme-label-default-font-size: 24px;
+				--theme-label-default-font-weight: 600;
+			}
+			.subdetail-group{
+				margin-top: 12px;
+			}
+			.only-group {
+				margin-bottom: 20px;
+			}
+			b {
+				margin: 0px 4px;
 				color: #3A3A3A;
-				font-family: "Hind Vadodara";
-				font-size: 24px;
-				font-weight: 600;
-				letter-spacing: 0;
-				line-height: 36px;
-				text-align: center;
 			}
-
-			#id-msg-group{
-				justify-content: center;
+			.button-group {
+				margin-top: 38px;
 			}
-
-			#id-sub-detail {
-				justify-content: center;
-			}
-			
-			#id-button-group {
-				justify-content: center;
-				margin-top: 64px;
-			}
-
 			.button-left {
 				margin-right: 16px;
 			}
-
 			capitec-button {
 				--theme-button-font-size: 16px;
 				--theme-button-font-weight: 600;
@@ -190,17 +197,14 @@ export class SettlementQuoteSuccess extends ViewBase {
 				--theme-button-padding-bottom: 12.5px;
 				--theme-button-padding-right: 22px;
 			}
-			#id-success-toast {
+			capitec-toast {
 				width: 406px;
 				position: absolute;
 				top : 56px;
 				margin-left: 382px;
 			}
 			.secondary-toast {
-				width: 406px;
-				position: absolute;
 				top : 130px;
-				margin-left: 382px;
 			}
 			`
 		];
@@ -221,8 +225,8 @@ export class SettlementQuoteSuccess extends ViewBase {
 	_renderSuccessScreen() {
 		return html`
 			<capitec-card class="card">
-				${this._renderToast()}
-				${this._renderSecondaryToast()}
+				${this._renderSuccessToast()}
+				${this._renderFailureToast()}
 
 				<capitec-group
 					layout="vertical"
@@ -237,26 +241,26 @@ export class SettlementQuoteSuccess extends ViewBase {
 		`;
 	}
 
-	_renderToast() {
-		return html`
+	_renderSuccessToast() {
+		return this.toast 
+		? html`
 			<capitec-toast 
-				?hidden="${!this.displayToast}" 
-				id="id-success-toast"
+				?hidden="${!this.displayToast}"
 				type="success"
 				header="Successful"
 				detail="${this.toast}" 
 				closable
 				@click="${() => this.displayToast = false}">
-			</capitec-toast>
-		`;
+			</capitec-toast>`
+		: html``;
 	}
 
-	_renderSecondaryToast() {
+	_renderFailureToast() {
 		return this.secondaryToast
 			? html`
 				<capitec-toast 
 					?hidden="${!this.displayToast}"
-					class="secondary-toast"
+					class="${this.toast ? `secondary-toast` : ``}"
 					type="error" 
 					header="Unsuccessful" 
 					detail="${this.secondaryToast}"
@@ -268,58 +272,66 @@ export class SettlementQuoteSuccess extends ViewBase {
 
 	_renderContent() {
 		return html`
-			<img
-				id="id-successful-img"
-				src="/images/statements/senddocuments.svg"/>
+			<img src="/images/statements/senddocuments.svg"/>
 
 			<capitec-label
-				id="id-successful-header"
+				class="header"
 				label="${this.header}">
 			</capitec-label>
 
-			${this._renderDetails()}
-			${this._returnSubDetails()}
+			${this._renderSuccessDetails()}
+			${this._returnFailureDetails()}
 			${this._renderButtonGroup()}
 		`;
 	}
 
-	_renderDetails() {
-		return html`
-		<capitec-group id="id-msg-group" layout="horizontal">
+	_renderSuccessDetails() {
+		return this.successDetail 
+		? html`
+		<capitec-group class="${this.failureDetails ? `` : `only-group`}" layout="horizontal" halign="center">
 			<capitec-icon
 				size="default"
 				icon="status/success-trans">
 			</capitec-icon>
-			${this.detail}
-		</capitec-group>`;
+			${this.successDetail}
+		</capitec-group>`
+		: html``;
 	}
 
-	_returnSubDetails() {
-		return Boolean(this.subDetail)
+	_returnFailureDetails() {
+		return this.failureDetails
 		? html`
-			<capitec-group layout="horizontal">
+			<capitec-group class="subdetail-group ${this.successDetail ? `` : `only-group`}" layout="horizontal" halign="center">
 				<capitec-icon
 					size="default"
 					icon="status/error-trans">
 				</capitec-icon>
-				${this.subDetail}
+				${this.failureDetails}
 			</capitec-group>`
 		: html``;
 	}
 
 	_renderButtonGroup() {
 		return html`
-			<capitec-group id="id-button-group" layout="horizontal">
+			<capitec-group class="button-group" layout="horizontal" halign="center">
 				<capitec-button
+					label="Send Another"
+					?hidden="${this.succeededAccounts.length !== this.emailStatus.length}"
+					@click="${() => this._sendAnotherClick()}">
+				</capitec-button>
+			
+				<capitec-button
+					type="${this.succeededAccounts.length === this.emailStatus.length ? `primary` : ``}"
 					class="button-left"
 					label="Done"
 					@click="${() => this._doneClick()}">
 				</capitec-button>
-				
+
 				<capitec-button
 					type="primary"
-					label="Send Another"
-					@click="${() => this._sendAnotherClick()}">
+					label="Try Again"
+					?hidden="${this.succeededAccounts.length === this.emailStatus.length}"
+					@click="${() => this._tryAgain()}">
 				</capitec-button>
 			</capitec-group>`;
 	}
@@ -333,4 +345,4 @@ export class SettlementQuoteSuccess extends ViewBase {
 	}
 }
 
-customElements.define(`horizon-settlement-quote-success`, SettlementQuoteSuccess);
+customElements.define(`horizon-settlement-quote-outcome`, SettlementQuoteOutcome);
