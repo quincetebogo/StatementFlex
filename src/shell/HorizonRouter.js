@@ -49,7 +49,7 @@ const HORIZON_ROUTES = Object.freeze({
 	CREDIT_ACCOUNT: `/transact/credit`,
 	CREDIT_STATEMENTS_SUCCESS: `/success/credit-statements`,
 	CREDIT_STATEMENTS_FAILURE: `/error/credit-statements`,
-	SETTLEMENT_QUOTE_SUCCESS: `/outcome/settlement-quote`,
+	SETTLEMENT_QUOTE_OUTCOME: `/outcome/settlement-quote`,
 	SETTLE_AND_CLOSE_SUCCESS: `/success/settle-and-close`,
 	SETTLE_AND_CLOSE_FAILURE: `/error/settle-and-close`,
 	SAVINGS_PLAN: `/transact/savings-plan`  
@@ -351,8 +351,8 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.AUTOMATIC_SAVINGS_FAILED}`);
 	}
 	
-	navigateToSettlementQuoteOutome() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLEMENT_QUOTE_SUCCESS}`);
+	navigateToSettlementQuoteOutcome() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLEMENT_QUOTE_OUTCOME}`);
 	}
 
 	navigateToSettleAndCloseSuccess() {
@@ -835,7 +835,7 @@ export default horizonRoutes = [
 		name: `horizon-settlement-quote-outcome`,
 		title: `SettlementQuoteOutcome`,
 		icon: null,
-		path: HORIZON_ROUTES.SETTLEMENT_QUOTE_SUCCESS,
+		path: HORIZON_ROUTES.SETTLEMENT_QUOTE_OUTCOME,
 		load: () => import(`../views/credit/SettlementQuoteOutcome`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},

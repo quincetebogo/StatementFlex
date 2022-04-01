@@ -45,7 +45,7 @@ export const creditMixin = {
 		screenDetails.emailStatus = formatedResponse;
 		this.horizonStore.setScreenDetails(screenDetails);
 
-		this.horizonRouter.navigateToSettlementQuoteOutome();
+		this.horizonRouter.navigateToSettlementQuoteOutcome();
 	},
 
 	async _navigatePDF(currPage) {
