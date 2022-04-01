@@ -514,6 +514,8 @@ export class CreditAccount extends ViewBase {
 
 		this.budgetFacilityAccounts = returnValue.result;
 		this.budgetFacilityAccounts.creditCardNumber = selectedAccountDetails.accountNumber;
+		this.budgetFacilityAccounts.productTypeCode = selectedAccountDetails.productTypeCode;
+	
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW;
 	}
 
