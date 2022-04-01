@@ -283,7 +283,7 @@ import 'app/components/common/HorizonLabel';
 						type="credit">
 							<img
 								data-automation-id="budget-facility-back-button"
-								src="src/productControls/credit/images/left-arrow.svg"
+								src="/images/liveBetter/left-arrow.svg"
 								@click="${() => this._back()}"
 								class="left-arrow"/>
 							<capitec-label label="Budget Facility" type="Title"></capitec-label>

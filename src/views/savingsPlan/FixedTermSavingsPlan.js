@@ -33,6 +33,27 @@ export class FixedTermSavingsPlan extends Component {
 	
 	connectedCallback() {
 		super.connectedCallback();
+
+		this.detailsHeader = `${this.fixedTermAccountDetails.planName} - ${this.fixedTermAccountDetails.accountNumber}`;
+		this.fixedTermAccountDetails = {
+			'Current balance': this.fixedTermAccountDetails.currentBalance,
+			'Available balance': this.fixedTermAccountDetails.availableBalance,
+			'Nominal interest rate': this.fixedTermAccountDetails.nominalInterestRate,
+			'Effective interest rate': this.fixedTermAccountDetails.effectiveInterestRate,
+			[`Interest earned ${this._getCurrentMonth()}`]: this.fixedTermAccountDetails.accruedInterestCurrentMonth,
+			[`Interest earned ${this._getPreviousMonth()}`]: this.fixedTermAccountDetails.accruedInterestLastMonth,
+			'Interest earned for tax year': this.fixedTermAccountDetails.interestEarned,
+			'Date fixed': this.fixedTermAccountDetails.dateFixed,
+			'Term (months)': this.fixedTermAccountDetails.term,
+			'Maturity date': this.fixedTermAccountDetails.maturityDate,
+			'Interest option': this.fixedTermAccountDetails.interestOption,
+			'Total contributions': this.fixedTermAccountDetails.totalContributions,
+			'Available contributions': this.fixedTermAccountDetails.availableContributions,
+			'Contribution limit': this.fixedTermAccountDetails.contributionLimit,
+			'Posting restrictions': this.fixedTermAccountDetails.postingRestrictions,
+			'Last updated': this.fixedTermAccountDetails.lastUpdate,
+			'Account status': this.fixedTermAccountDetails.accountStatus
+		};
 	}
 
 	// --------------
@@ -122,23 +143,9 @@ export class FixedTermSavingsPlan extends Component {
 					--horizon-label-value-font-weight: 500;
 					padding: 0px 16px;
 				}
-				.first-column {
-					padding: 16px;
-				}
-				.details {
-					font-weight: 800;
-					margin-top: -10px;
-					margin-bottom: 20px;
-				}
 				horizon-label[value="Open"] {
 					width: 132px;
 					--horizon-label-value-color: #70AF00;
-				}
-				.blank-space {
-					color: #FFFFFF;
-					font-weight: 800;
-					margin-top: -10px;
-					margin-bottom: 20px;
 				}
 				.grid-layout {
 					width: 95%;
@@ -193,9 +200,26 @@ export class FixedTermSavingsPlan extends Component {
 					display: inline-block;
 					margin-left: 50px;
 				}
-				capitec-table > capitec-table-column {
-					border: 1px solid black;
+				.details-group {
+					padding: 8px 16px;
+					--theme-layout-gap-spacing: 0px;
 				}
+				.details-label {
+					height: 64px;
+					width: 342px;
+					padding: 12px 0px;
+
+					--horizon-label-text-height: 20px;
+					--horizon-label-text-font-size: 14px;
+					--horizon-label-text-font-weight: 500;
+					--horizon-label-text-line-height: 20px;
+					--horizon-label-text-color: #3A3A3A;
+
+					--horizon-label-value-height: 20px;
+					--horizon-label-value-font-size: 16px;
+					--horizon-label-value-font-weight: 600;
+					--horizon-label-value-line-height: 20px;
+					--horizon-label-value-color:#3A3A3A;}
 			`
 		];
 	}
@@ -216,7 +240,7 @@ export class FixedTermSavingsPlan extends Component {
 							src="/images/liveBetter/left-arrow.svg"
 							@click="${() => this._back()}"
 							class="left-arrow"/>
-							<horizon-label class="main-title" label="Fixed-term Savings Plan" value="${this.fixedTermAccountDetails.planName} - ${this.fixedTermAccountDetails.accountNumber}"></horizon-label>
+							<horizon-label class="main-title" label="Fixed-term Savings Plan" value="${this.detailsHeader}"></horizon-label>
 					</capitec-title-bar>
 
 					${this._renderFixedTermSavingsPlan()}
@@ -227,51 +251,34 @@ export class FixedTermSavingsPlan extends Component {
 	_renderFixedTermSavingsPlan() {
 		return html`
 			<capitec-group
+				class="details-group"
 				layout="horizontal"
 				gap="clear"
-				halign="stretch"
-				valign="center">
-				<capitec-group
-					class= "first-column"
-					layout="vertical"
-					gap="clear"
-					halign="left"
-					valign="center">
-					<horizon-label label="Current balance" value="${this.fixedTermAccountDetails.currentBalance}"></horizon-label>
-					<horizon-label label="Effective interest rate" value="${this.fixedTermAccountDetails.effectiveInterestRate}"></horizon-label>
-					<horizon-label label="Interest earned for tax year" value="${this.fixedTermAccountDetails.interestEarned}"></horizon-label>
-					<horizon-label label="Maturity date" value="${this.fixedTermAccountDetails.maturityDate}"></horizon-label>
-					<horizon-label label="Available contributions" value="${this.fixedTermAccountDetails.availableContributions}"></horizon-label>
-					<horizon-label label="Last updated" value="${this.fixedTermAccountDetails.lastUpdate}"></horizon-label>
-				</capitec-group>
-
-				<capitec-group
-					layout="vertical"
-					gap="clear"
-					halign="left"
-					valign="top">
-					<horizon-label label="Available balance" value="${this.fixedTermAccountDetails.availableBalance}"></horizon-label>
-					<horizon-label label="Interest earned ${this._getCurrentMonth()}" value="${this.fixedTermAccountDetails.accruedInterestCurrentMonth}"></horizon-label>
-					<horizon-label label="Date fixed" value="${this.fixedTermAccountDetails.dateFixed}"></horizon-label>
-					<horizon-label label="Interest option" value="${this.fixedTermAccountDetails.interestOption}"></horizon-label>
-					<horizon-label label="Contribution limit" value="${this.fixedTermAccountDetails.contributionLimit}"></horizon-label>
-					<horizon-label label="Account status" value="${this.fixedTermAccountDetails.accountStatus}"></horizon-label>
-				</capitec-group>
-
-				<capitec-group
-					layout="vertical"
-					gap="clear"
-					halign="left"
-					valign="top">
-					<horizon-label label="Nominal interest rate" value="${this.fixedTermAccountDetails.nominalInterestRate}"></horizon-label>
-					<horizon-label label="Interest earned ${this._getPreviousMonth()}" value="${this.fixedTermAccountDetails.accruedInterestLastMonth}"></horizon-label>
-					<horizon-label label="Term (months)" value="${this.fixedTermAccountDetails.term}"></horizon-label>
-					<horizon-label label="Total contributions" value="${this.fixedTermAccountDetails.totalContributions}"></horizon-label>
-					<horizon-label label="Posting restrictions" value="${this.fixedTermAccountDetails.postingRestrictions}"></horizon-label>
-					<horizon-label></horizon-label>
-				</capitec-group>
+				halign="left" 
+				valign="top"
+				wrap>
+				${this._renderFields()}
 			</capitec-group>
 			
+			${this._renderInterestRateTable()}`;
+	}
+	
+	_renderFields() {
+		return Object.entries(this.fixedTermAccountDetails).map(item => {
+			const [label, value] = item;
+
+			return html`
+				<horizon-label
+					class="details-label"
+					label="${label}"
+					value="${value}"
+					data-automation-id="flexible-savings-plan-${label.split(` `).join(`-`)}">
+				</horizon-label>`;
+		});
+	}
+
+	_renderInterestRateTable() {
+		return html`
 			<capitec-group class="grid-layout" layout="grid" gap="line" columns="auto" rows="auto" halign = "left">
 				<div class="interest-label" row="1" column="1" colspan="4" label="Interest Rate %" size="0.5">Interest Rate %</div>
 				<div class="term" row="2" column="1" label="Term" size="1">Term</div>

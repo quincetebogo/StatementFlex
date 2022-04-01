@@ -62,7 +62,7 @@ export class CreditAccount extends ViewBase {
 		this.productType = ``;
 		this.creditType = ``;
 		// ccs status of client set to true until real value retrieved from CS
-		this.ccsStatus = true;
+		this.ccsStatus = false;
 		this.showCCSmodal = false;
 		this.showSettleCloseModal = false;
 
@@ -416,7 +416,6 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_getStatements(creditType, productType, productCode, accNum, openDate) {
-		// TO DO: Place holder for credit statements flow.
 
 		if (this.ccsStatus) {
 			this.showCCSmodal = true;
@@ -437,6 +436,7 @@ export class CreditAccount extends ViewBase {
 				'accountName': productInfo.name,
 				'accountType': productCode,
 				'accountOpenDate': openDate,
+				'name': productInfo.name,
 				'type': productInfo.type,
 				'category': productInfo.category,
 				'subCategory': productInfo.subCategory,
