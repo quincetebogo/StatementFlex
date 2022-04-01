@@ -95,10 +95,10 @@ export class SettlementQuoteOutcome extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		const completeSuccess = this.succeededAccounts.length === this.emailStatus.length;
+		const completeFailure = this.failedAccounts.length === this.emailStatus.length;
 
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = completeSuccess ? super.HORIZON_NEED_STATUS.COMPLETED : super.HORIZON_NEED_STATUS.FAILED;
+		this.incidentDetails.needStatus = completeFailure ? super.HORIZON_NEED_STATUS.FAILED : super.HORIZON_NEED_STATUS.COMPLETED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
