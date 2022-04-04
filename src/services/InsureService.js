@@ -99,6 +99,8 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insureCalculateEstimate`);
 		}
 
+		console.log(JSON.stringify(estimateRequest))
+
 		return this.post(
 			`/FuneralInsuranceProductService/quote/estimate`,
 			estimateRequest,

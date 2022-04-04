@@ -123,7 +123,7 @@ export class ExistingClient extends InsureViewBase {
 		this.estimate.lifesAssured = [];
 		this.estimate.lifesAssured.push({
 			relationship: "MainLife",
-			coverAmount: 0,
+			coverAmount: 10000,
 			premium: 0,
 			genderType: "Male",
 			age: 0,
@@ -489,9 +489,7 @@ export class ExistingClient extends InsureViewBase {
 		
 				${index != 0 ? html`
 				<div class="calc-card-header">
-					<capitec-label
-						label="Relationship: ${lifeAssured.relationship}"
-						type="small" class="stronger">
+					<capitec-label label="Relationship: ${lifeAssured.relationship}" type="small" class="stronger">
 					</capitec-label>
 		
 					<capitec-label label="Remove" type="small" class="stronger link">
@@ -512,8 +510,11 @@ export class ExistingClient extends InsureViewBase {
 					</capitec-text-field>
 				</div>
 				<div class="calc-card-row">
-					<capitec-text-field label="Age" type="numeric-input" style="width: 50%;"></capitec-text-field>
-					<capitec-select label="Gender" display-field="text" .items="${this.GENDER_OPTIONS}" id-field="code" style="width: 50%"></capitec-select>
+					<capitec-text-field label="Age" type="numeric-input"
+						@value-changed="${(e) => this._estimateTextFieldValueChanged(e, index)}" style="width: 50%;">
+					</capitec-text-field>
+					<capitec-select label="Gender" display-field="text" .items="${this.GENDER_OPTIONS}" id-field="code"
+						style="width: 50%"></capitec-select>
 				</div>
 			</div>
 		
@@ -866,6 +867,10 @@ export class ExistingClient extends InsureViewBase {
 		};
 		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
+
+	//#endregion
+
+	//#region HELPERS
 
 	//#endregion
 }
