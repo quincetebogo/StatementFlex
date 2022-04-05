@@ -215,4 +215,50 @@ export class HorizonStore extends Store {
 	saveState(stateToSave) {
 		this.setState(stateToSave, `SAVE-STATE`);
 	}
+
+	setProductButtonState(newLandingPageInfo) {
+
+		if (!newLandingPageInfo) {
+			return;
+		}
+		
+		const updatedLandingPageInfo = {
+			savingsAccountProductDescription: newLandingPageInfo.savingsAccountProductDescription ? newLandingPageInfo.savingsAccountProductDescription : this.state.landingPageInfo?.savingsAccountProductDescription,
+			liveBetterBankingProductDescription: newLandingPageInfo.liveBetterBankingProductDescription ? newLandingPageInfo.liveBetterBankingProductDescription : this.state.landingPageInfo?.liveBetterBankingProductDescription,
+			savingsPlanProductDescription: newLandingPageInfo.savingsPlanProductDescription ? newLandingPageInfo.savingsPlanProductDescription : this.state.landingPageInfo?.savingsPlanProductDescription,
+			insureProductDescription: newLandingPageInfo.insureProductDescription ? newLandingPageInfo.insureProductDescription : this.state.landingPageInfo?.insureProductDescription,
+			creditProductDescription: newLandingPageInfo.creditProductDescription ? newLandingPageInfo.creditProductDescription : this.state.landingPageInfo?.creditProductDescription,
+			savingsAccountProductAmount: newLandingPageInfo.savingsAccountProductAmount ? newLandingPageInfo.savingsAccountProductAmount : this.state.landingPageInfo?.savingsAccountProductAmount,
+			liveBetterBankingProductAmount: newLandingPageInfo.liveBetterBankingProductAmount ? newLandingPageInfo.liveBetterBankingProductAmount : this.state.landingPageInfo?.liveBetterBankingProductAmount,
+			savingsPlanProductAmount: newLandingPageInfo.savingsPlanProductAmount ? newLandingPageInfo.savingsPlanProductAmount : this.state.landingPageInfo?.savingsPlanProductAmount,
+			insureProductAmount: newLandingPageInfo.insureProductAmount ? newLandingPageInfo.insureProductAmount : this.state.landingPageInfo?.insureProductAmount,
+			creditProductAmount: newLandingPageInfo.creditProductAmount ? newLandingPageInfo.creditProductAmount : this.state.landingPageInfo?.creditProductAmount
+		};
+		
+		this.setState({ landingPageInfo: updatedLandingPageInfo });
+		
+		const subtitle = {
+			savingsAccount: this.state.landingPageInfo.savingsAccountProductDescription,
+			liveBetterSavings: this.state.landingPageInfo.liveBetterBankingProductDescription,
+			savingsPlan: this.state.landingPageInfo.savingsPlanProductDescription,
+			insure: this.state.landingPageInfo.insureProductDescription,
+			credit: this.state.landingPageInfo.creditProductDescription
+		};
+
+		const detail = {
+			savingsAccount: this.state.landingPageInfo.savingsAccountProductAmount,
+			liveBetterSavings: this.state.landingPageInfo.liveBetterBankingProductAmount,
+			savingsPlan: this.state.landingPageInfo.savingsPlanProductAmount,
+			insure: this.state.landingPageInfo.insureProductAmount,
+			credit: this.state.landingPageInfo.creditProductAmount
+		};
+
+		const updatedLeftBarButtonConfig = {
+			hasFavourites: true,
+			subtitle: subtitle ? subtitle : ``,
+			detail: detail ? detail : ``
+		};
+
+		this.setState({ leftBarButtonConfig: updatedLeftBarButtonConfig });
+	}
 }
