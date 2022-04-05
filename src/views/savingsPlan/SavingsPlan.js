@@ -214,39 +214,9 @@ export class SavingsPlan extends ViewBase {
 		}
 
 	_updateLeftBar() {
-		let subtitle = null;
-		let detail = null;
-
-		if (this.landingPageInfo) {
-			subtitle = {
-				savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
-				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductDescription,
-				savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
-				insure: this.landingPageInfo.insureProductDescription,
-				credit: this.landingPageInfo.creditProductDescription
-			};
-
-			detail = {
-				savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
-				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductAmount,
-				savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
-				insure: this.landingPageInfo.insureProductAmount,
-				credit: this.landingPageInfo.creditProductAmount
-			};
-		}
-
 		this.horizonStore.setCallerInformation(this.callerInformation);
-
-		const state = {
-			leftBarButtonConfig: {
-				hasFavourites: true,
-				subtitle: subtitle ? subtitle : ``,
-				detail: detail ? detail : ``
-			},
-			landingPageInfo: this.landingPageInfo
-		};
-
-		this.horizonStore.saveState(state);
+		
+		this.horizonStore.setProductButtonState(this.landingPageInfo);
 	}
 
 	_performReturnToScreen() {
