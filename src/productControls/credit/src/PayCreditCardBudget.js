@@ -72,7 +72,15 @@ export class PayCreditCardBudget extends Component {
 	}
 
 	_onTransferClick() {
-		this.dispatchEvent(new CustomEvent(`transfer`, {}));
+		const transferDetails = {
+			budgetAccountNumber: this.budgetAccountDetails.budgetAccountNumber,
+			fromAccountNumber: this.productSelected.accountNumber,
+			fromAccountType: this.productSelected.accountType,
+			authorisedAmount: this.budgetBalance,
+			budgetSequenceNumber: this.budgetAccountDetails.budgetSequence
+		};
+
+		this.dispatchEvent(new CustomEvent(`transfer`, {detail: transferDetails}));
 	}
 
 	_accountValueChanged(e) {
@@ -104,7 +112,7 @@ export class PayCreditCardBudget extends Component {
 
 		// Entered budget amount exceeds the actual outstanding budget balance
 		if (this.budgetBalance > this.budgetAccountDetails.budgetBalance) {
-			this.bannerMessage = `Transfer amount can not exceeds the badget amount.`;
+			this.bannerMessage = `Transfer amount can not exceeds the budget amount.`;
 			this.errorMessage = `Max amount ${formatCurrency(this.budgetAccountDetails.budgetBalance)}`;
 			return;
 		}

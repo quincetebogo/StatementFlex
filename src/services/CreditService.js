@@ -287,4 +287,40 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
+	budgetTransferFromAccounts(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		
+		const url = `/clientcare-credit-${this._version}/credit/budgetaccount/transfer/modal`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`budgetTransferFromAccounts`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	confirmBudgetTransfer(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		
+		const url = `/clientcare-credit-${this._version}/credit/budgetaccount/transfer`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`confirmBudgetTransfer`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
 }

@@ -61,7 +61,7 @@ import 'app/components/common/HorizonLabel';
 	}
 
 	_transferClick() {
-		// TO DO: Transfer click functionality should come here.
+		this.dispatchEvent(new CustomEvent(`transfer-click`, {}));
 	}
 
 	// --------------

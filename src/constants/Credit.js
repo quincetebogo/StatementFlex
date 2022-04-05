@@ -39,3 +39,13 @@ export const PRODUCT_TYPE = {
 		4010: PRODUCTS.TERM_LOAN
 	};
 	
+export const FROM_ACCOUNTS = {
+	'Primary': {
+		icon: `product/transact`,
+		order: 1
+	},
+	'Flexible': {
+		icon: `product/save`,
+		order: 2
+	}
+}

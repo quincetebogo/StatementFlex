@@ -107,5 +107,7 @@
 	CREDIT_SETTLEMENT_QUOTE: `Credit Settlement Quote`,
 	CREDIT_SETTLE_CLOSE: `Credit Settle Close`,
 	CREDIT_STATEMENTS_SUCCESS: `Credit Statement success`,
-	CREDIT_STATEMENTS_FAILURE: `Credit Statement failure`  
+	CREDIT_STATEMENTS_FAILURE: `Credit Statement failure`,
+	CREDIT_BUDGET_ACCOUNT: `Credit Budget account view`,
+	CREDIT_BUDGET_ACCOUNT_DETAILS: `Credit Budget account details`
 };

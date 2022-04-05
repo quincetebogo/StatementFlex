@@ -1,4 +1,4 @@
-import { CREDIT_TYPE, FROM_ACCOUNTS_LIST, PRODUCTS } from 'app/constants/Credit';
+import { CREDIT_TYPE, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PRODUCTS } from 'app/constants/Credit';
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { css, html } from 'platform/elements';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
@@ -207,6 +207,13 @@ export class CreditAccount extends ViewBase {
 
 	_budgetAccountDetails(selectedAccountDetails) {
 
+		this._telemetry.logEvent(CreditEvents.BUDGET_ACCOUNT_DETAILS_VIEW, {
+			"screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT,
+			"next-screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT_DETAILS,
+			"budget-name": selectedAccountDetails.budgetName,
+			"budget-open-date": selectedAccountDetails.budgetDateTaken
+		});
+
 		this.budgetAccountDetails = {
 			budgetName: formatStringAsPascalCase(selectedAccountDetails.budgetName),
 			"Monthly repayment": formatCurrency(selectedAccountDetails.budgetInstalment),
@@ -224,13 +231,74 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _payBudgetAccount(selectedAccountDetails) {
-		this.clientProducts = await this._getClientProducts();
+
+		this._telemetry.logEvent(CreditEvents.BUDGET_DETAILS_TRANSFER_SELECT, {
+			"budget-name": selectedAccountDetails.budgetName,
+			"budget-open-date": selectedAccountDetails.budgetDateTaken
+		});
+
+		const request = {
+			"cifNumber": this.callerInformation.cifNumber,
+			"idNumber": this.callerInformation.southAfricanIDNumber,
+			"budgetAccountNumber":selectedAccountDetails.budgetAccountNumber
+		};
+
+		const returnValue = await this.creditService.budgetTransferFromAccounts(request);
+		
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to retrieve from accounts list from which budget can be trasfered.`, `_payBudgetAccount`, returnValue.correlationId);
+			return;
+		}
+		
+		if (returnValue.result?.hasCCSStatus) {
+			this.showCCSmodal = true;
+			return;
+		}
+
+		this._formateFromAccounts(returnValue.result.fromAccounts);
 		this.payBudgetAccountDetails = selectedAccountDetails;
 		this.renderMode = RENDER_MODE.PAY_BUDGET_DIALOG;
 	}
 
-	_transferPayBudget() {
-		// TO DO: This function to be used to confirm transfer pay budget.
+	_formateFromAccounts(fromAccounts) {
+		this.clientProducts = fromAccounts.map(account => {
+				return {
+					'accountNumber': account.accountNumber,
+					'accountName': formatStringAsPascalCase(account.accountName),
+					'availableBalance': formatCurrency(account.availableBalance),
+					'accountType': account.accountType,
+					'icon': FROM_ACCOUNTS[account.accountType].icon,
+					'order': FROM_ACCOUNTS[account.accountType].order
+				};
+			})
+		.sort((x, y) => x.order - y.order);
+	}
+	
+	async _transferPayBudget(transferDetails) {
+		const request = {
+			"cifNumber": this.callerInformation.cifNumber,
+			"creditCardAccountNumber": transferDetails.budgetAccountNumber,
+			"fromAccountNumber": transferDetails.fromAccountNumber,
+			"fromAccountType": transferDetails.fromAccountType,
+			"authorisedAmount": transferDetails.authorisedAmount,
+			"budgetSequenceNumber": transferDetails.budgetSequenceNumber,
+			"caseId": null,
+			"idPassportNumber": this.callerInformation.southAfricanIDNumber,
+			"firstName": this.callerInformation.firstName,
+			"surname": this.callerInformation.lastName
+		};
+
+		const returnValue = await this.creditService.confirmBudgetTransfer(request);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to pay budget amount by transfering`, `_transferPayBudget`, returnValue.correlationId);
+			return;
+		}
+
+		if (returnValue.result.success) {
+			this.documentContent = returnValue.result.documentData;
+		}
+
 	}
 
 	_confirmSettleAndClose() {
@@ -502,6 +570,11 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _budgetFacility(selectedAccountDetails) {
+		this._telemetry.logEvent(CreditEvents.CREDIT_BUDGET_FACILITY, {
+			"screen": TelemetryScreen.CREDIT_LANDING,
+			"next-screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT
+		});
+
 		await super.createAndClassifySubsIncident();
 
 		const returnValue = await this.creditService.budgetFacility(selectedAccountDetails.accountNumber);
@@ -515,6 +588,8 @@ export class CreditAccount extends ViewBase {
 		this.budgetFacilityAccounts = returnValue.result;
 		this.budgetFacilityAccounts.creditCardNumber = selectedAccountDetails.accountNumber;
 		this.budgetFacilityAccounts.productTypeCode = selectedAccountDetails.productTypeCode;
+		
+		this._telemetry.startSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {});
 	
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW;
 	}
@@ -797,7 +872,7 @@ export class CreditAccount extends ViewBase {
 					.clientProducts="${this.clientProducts}"
 					
 					@cancel="${() => this._backFromPayBudgetDialog()}"
-					@transfer="${() => this._transferPayBudget()}">
+					@transfer="${(e) => this._transferPayBudget(e.detail)}">
 				</capitec-pc-pay-budget-dialog>`
 			: html``;
 	}
