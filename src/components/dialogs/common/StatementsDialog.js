@@ -70,6 +70,8 @@ export class StatementsDialog extends Component {
 	/**
 	 * @property {Array} clientProducts Contains list of products that the client has.
 	 * @property {string} type Contains the type of account
+	 * @property {string} title client's title (Mr/ Mrs)
+	 * @property {string} lastName client's last name
 	 * @readonly
 	 * @static
 	 * @memberof StatementsDialog
@@ -79,7 +81,9 @@ export class StatementsDialog extends Component {
 			clientProducts: { type: Array },
 			accountType: { type: String, attribute: `type` },
 			viewStatement: { type: Object },
-			sendStatement: { type: Object },
+			sendStatement: { type: Object },     
+			title: { type: String },
+			lastName: { type: String },
 
 			alertBannerMessage: { state: true },
 			currentStep: { state: true },
@@ -217,7 +221,7 @@ export class StatementsDialog extends Component {
 			"month": month // This is specifically for month period
 		};
 
-		const encodedPDF = await this.viewStatement(this.productSelected.category, request);
+		const encodedPDF = await this.viewStatement(request);
 
 		if (encodedPDF) {
 			this.renderMode = RENDER_MODE.PDF;
@@ -241,12 +245,14 @@ export class StatementsDialog extends Component {
 			"accountName": this.productSelected.accountName,
 			"accountType": this.productSelected.type,
 			"dateInterval": this.periodSelected,
+			"title": this.title,
+			"lastName": this.lastName,
 			"startDate": this.fromDate === `dd mm yyyy` ? `` : this.fromDate,
 			"endDate": this.toDate === `dd mm yyyy` ? `` : this.toDate,
 			"monthInterval": this.selectedMonths // This is specifically for month period
 		};
 
-		await this.sendStatement(this.productSelected.category, request);
+		await this.sendStatement(request);
 	}
 
 	_valueChanged(e) {
@@ -257,6 +263,7 @@ export class StatementsDialog extends Component {
 			this._resetPeriodSelection();
 			this.dispatchEvent(new CustomEvent(`account-selected`, {
 				detail: {
+					accountNumber: this.productSelected.accountNumber,
 					account: this.productSelected.category,
 					subCategory: this.productSelected.subCategory
 				}
@@ -288,6 +295,8 @@ export class StatementsDialog extends Component {
 			this.errorMessage = `Choose Account`;
 			return false;
 		}
+
+
 
 		return true;
 	}
@@ -628,6 +637,8 @@ export class StatementsDialog extends Component {
 					--theme-select-options-max-height: 304px;
 					--theme-input-icon-margin-left: 16px;
 					--theme-icon-size-small: 24px;
+					--theme-input-padding-top: 8px;
+					--theme-input-padding-bottom: 8px;
 				}
 			`
 		];

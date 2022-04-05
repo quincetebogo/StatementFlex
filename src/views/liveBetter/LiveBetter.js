@@ -485,6 +485,7 @@ export class LiveBetter extends SavingsAccountBase {
 				'accountName': productInfo.name,
 				'accountType': LBB,
 				'accountOpenDate': this.landingPageInfo.dateOpened,
+				'name': productInfo.name,
 				'type': productInfo.type,
 				'category': productInfo.category,
 				'subCategory': productInfo.subCategory,

@@ -49,10 +49,12 @@ const HORIZON_ROUTES = Object.freeze({
 	CREDIT_ACCOUNT: `/transact/credit`,
 	CREDIT_STATEMENTS_SUCCESS: `/success/credit-statements`,
 	CREDIT_STATEMENTS_FAILURE: `/error/credit-statements`,
-	SETTLEMENT_QUOTE_SUCCESS: `/success/settlement-quote`,
-	SETTLEMENT_QUOTE_FAILURE: `/error/settlement-quote`,
+	SETTLEMENT_QUOTE_OUTCOME: `/outcome/settlement-quote`,
 	SETTLE_AND_CLOSE_SUCCESS: `/success/settle-and-close`,
-	SETTLE_AND_CLOSE_FAILURE: `/error/settle-and-close`
+	SETTLE_AND_CLOSE_FAILURE: `/error/settle-and-close`,
+	SAVINGS_PLAN: `/transact/savings-plan`,
+	BUDGET_FACILITY_SUCCESS: `/success/budget-facility`,
+	BUDGET_FACILITY_FAILURE: `/error/budget-facility`
 });
 
 
@@ -268,7 +270,7 @@ export class HorizonRouter {
 		const insure = () => this.navigateToProductInfo(ivrOption);
 		const savings = () => this.navigateToSavingsAccount();
 		const credit = () => this.navigateToCreditAccount();
-		const savingsPlan = () => this.navigateToProductInfo(ivrOption);
+		const savingsPlan = () => this.navigateToSavingsPlan();
 		const liveBetterSavings = () => this.navigateToLiveBetter();
 		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
 
@@ -335,6 +337,10 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.LIVE_BETTER}`);
 	}
 
+	navigateToSavingsPlan() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_PLAN}`);
+	}
+	
 	_productLandingPagesActive() {
 		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
 	}
@@ -347,12 +353,8 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.AUTOMATIC_SAVINGS_FAILED}`);
 	}
 	
-	navigateToSettlementQuoteSuccess() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLEMENT_QUOTE_SUCCESS}`);
-	}
-
-	navigateToSettlementQuoteFailure() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLEMENT_QUOTE_FAILURE}`);
+	navigateToSettlementQuoteOutcome() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLEMENT_QUOTE_OUTCOME}`);
 	}
 
 	navigateToSettleAndCloseSuccess() {
@@ -361,6 +363,14 @@ export class HorizonRouter {
 
 	navigateToSettleAndCloseFailure() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLE_AND_CLOSE_FAILURE}`);
+	}
+
+	navigateToBudgetFacilitySuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.BUDGET_FACILITY_SUCCESS}`);
+	}
+
+	navigateToBudgetFacilityFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.BUDGET_FACILITY_FAILURE}`);
 	}
 
 	/**
@@ -832,19 +842,11 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
-		name: `horizon-settlement-quote-success`,
-		title: `SettlementQuoteSuccess`,
+		name: `horizon-settlement-quote-outcome`,
+		title: `SettlementQuoteOutcome`,
 		icon: null,
-		path: HORIZON_ROUTES.SETTLEMENT_QUOTE_SUCCESS,
-		load: () => import(`../views/credit/SettlementQuoteSuccess`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-	},
-	{
-		name: `horizon-settlement-quote-failure`,
-		title: `SettlementQuoteFailure`,
-		icon: null,
-		path: HORIZON_ROUTES.SETTLEMENT_QUOTE_FAILURE,
-		load: () => import(`../views/credit/SettlementQuoteFailure`),
+		path: HORIZON_ROUTES.SETTLEMENT_QUOTE_OUTCOME,
+		load: () => import(`../views/credit/SettlementQuoteOutcome`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
@@ -856,11 +858,27 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
-		name: `horizon-settle-and-close-failure`,
-		title: `SettleAndCloseFailure`,
+		name: `horizon-savings-plan`,
+		title: `SavingsPlan`,
 		icon: null,
-		path: HORIZON_ROUTES.SETTLE_AND_CLOSE_FAILURE,
-		load: () => import(`../views/credit/SettleAndCloseFailure`),
+		path: HORIZON_ROUTES.SAVINGS_PLAN,
+		load: () => import(`../views/savingsPlan/SavingsPlan`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-budget-facility-success`,
+		title: `BudgetFacilitySuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.BUDGET_FACILITY_SUCCESS,
+		load: () => import(`../views/credit/BudgetFacilitySuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-budget-facility-failure`,
+		title: `BudgetFacilityFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.BUDGET_FACILITY_FAILURE,
+		load: () => import(`../views/credit/BudgetFacilityFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}
 ];

@@ -40,4 +40,33 @@ export class ITAChannelService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+
+	async digitalVerificationChannelsAvailable(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`digitalVerificationChannelsAvailable`)) {
+			if (Object.prototype.hasOwnProperty.call(this._mocking.digitalVerificationChannelsAvailable, `positiveCase`)) {
+				return {
+					succeeded: true,
+					result: this._mocking.digitalVerificationChannelsAvailable.positiveCase
+				};
+			}
+			return {
+				succeeded: false,
+				result: this._mocking.digitalVerificationChannelsAvailable.positiveCase
+			};
+		}
+
+		const url = `/clientcare/call/${this._version}/has-digital-verification-capability?Cif=${cifNumber}`; 
+		
+		return this.get(
+			url,
+			this.setToken(),
+			`digitalVerificationChannelsAvailable`,
+			false,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
 }

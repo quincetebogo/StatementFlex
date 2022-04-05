@@ -92,7 +92,7 @@ export class SendSettlementQuote extends Component {
 
 	_initialise() {
 		this._toggleBusyFlag();
-		//TODO: flow for selected accounts to be done here
+		// TODO: flow for selected accounts to be done here
 	}
 
 	_viewPDFViewer () {
@@ -263,8 +263,8 @@ export class SendSettlementQuote extends Component {
 	}
 
 	_renderAlertBanner() {
-		return this.alertBannerMessage ?
-		html`
+		return this.alertBannerMessage 
+		? html`
 			<capitec-alert-banner type="unsuccessful-red">
 				<capitec-group layout="horizontal">
 					<capitec-label

@@ -151,7 +151,9 @@ export class CardLimitsLanding extends Component {
 	/**
 	 *
 	 * @property {Object} cards Object contains the list of client's card
-	 * @property {String} cifNumber The client's account/cifNumber
+	 * @property {string} cifNumber The client's CIF number
+	 * @property {string} title client's title (Mr/ Mrs)
+	 * @property {string} lastName client's last name
 	 * @property {String} voiceRecordingReference The Avaya/Presence Voice Recording ID
 	 * @property {String} verificationMethod Indicated the type of verification (xds/ita)
 	 * @property {Boolean} hasDigitalChannels Indicates if the client is registered for digital channels
@@ -171,6 +173,8 @@ export class CardLimitsLanding extends Component {
 		return {
 			cards: { type: Object },
 			cifNumber: { type: String },
+			title: { type: String },
+			lastName: { type: String },
 			voiceRecordingReference: { type: String },
 			verificationMethod: { type: String },
 			hasDigitalChannels: { type: Boolean },
@@ -274,7 +278,8 @@ export class CardLimitsLanding extends Component {
 					cardId: cardDetails.linkedCardLimits && this._updateType === `Debit` ? cardDetails.linkedCardId : cardDetails.cardId,
 					cardExpiryMonth: cardDetails.cardExpiryMonth,
 					cardExpiryYear: cardDetails.cardExpiryYear,
-					cardSequenceNumber: cardDetails.cardSequenceNumber
+					cardSequenceNumber: cardDetails.cardSequenceNumber,
+					cardDisplayName: cardDetails.cardDisplayName
 				},
 				tapToPayStatus: event.detail.tapToPayStatus ? `ON` : `OFF`,
 				customerId: this.cifNumber,
@@ -282,7 +287,9 @@ export class CardLimitsLanding extends Component {
 				screenRecordingReference: ``,
 				agreementAccepted: event.detail.agreementAccepted,
 				agreementContent: event.detail.agreements.tapToPayAgreement.agreementContent,
-				scriptContent: event.detail.agreements.tapToPayAgreement.scriptContent
+				scriptContent: event.detail.agreements.tapToPayAgreement.scriptContent,
+				title: this.title,
+				lastName: this.lastName
 			};
 		}
 
@@ -344,7 +351,8 @@ export class CardLimitsLanding extends Component {
 					customerId: this.cifNumber,
 					cardExpiryYear: cardDetails.cardExpiryYear,
 					cardExpiryMonth: cardDetails.cardExpiryMonth,
-					cardSequenceNumber: cardDetails.cardSequenceNumber
+					cardSequenceNumber: cardDetails.cardSequenceNumber,
+					cardDisplayName: cardDetails.cardDisplayName
 				},
 				permanentCashAmountLimit: limits.permanentCashAmountLimit,
 				permanentPurchaseAmountLimit: limits.permanentPurchaseAmountLimit,
@@ -359,7 +367,9 @@ export class CardLimitsLanding extends Component {
 				agreementContent: event.detail.agreements.cardLimitsAgreement.agreementContent,
 				scriptContent: event.detail.agreements.cardLimitsAgreement.scriptContent
 			},
-			tapToPayStatusChange: event.detail.tapToPayStatusChange
+			tapToPayStatusChange: event.detail.tapToPayStatusChange,
+			title: this.title,
+			lastName: this.lastName
 		};
 
 		// Don't send tapToPayDetails in the request body tap to pay details have not changed

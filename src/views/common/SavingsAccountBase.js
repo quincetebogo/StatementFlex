@@ -10,6 +10,7 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { capitalizeString } from 'app/utils/channelServiceUtilities';
 import { html } from 'platform/elements';
 
 import 'app/components/savingsAccount/DebiCheckMandates';
@@ -124,14 +125,12 @@ export class SavingsAccountBase extends ViewBase {
 									const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType || item.productTypeCode][item.interestCategory] || 
 														ACCOUNT_INTCAT_ENUM[item.accountType || item.productTypeCode];
 
-									const accountName = item.accountName || item.productTypeDescription;
-									const accName = accountName.toLowerCase();
-
 									return {
 										'accountNumber': item.accountNumber,
-										'accountName': `${accName.charAt(0).toUpperCase()}${accName.slice(1)}`,
+										'accountName': capitalizeString(item.accountName || item.productTypeDescription),
 										'accountType': item.accountType || item.productTypeCode,
 										'accountOpenDate': item.accountOpenDate || item.openDate,
+										'name': productInfo.name,
 										'type': productInfo.type,
 										'category': productInfo.category,
 										'subCategory': productInfo.subCategory,
@@ -343,7 +342,14 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	async _authenticateMandate(accepted) {
-		const returnValue = await this.savingsAccountService.debiCheckAuthenticate(this.callerInformation.cifNumber, this.debiCheckDetails.mandateReference, this.debiCheckDetails.debtorAccountNumber, accepted);
+		const returnValue = await this.savingsAccountService.debiCheckAuthenticate(
+			this.callerInformation.cifNumber,
+			this.callerInformation.title,
+			this.callerInformation.lastName,
+			this.debiCheckDetails,
+			this.mandateInfo,
+			accepted
+		);
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `debi-check-viewInfo`);
 		
 		if (returnValue.succeeded) {
@@ -528,6 +534,8 @@ export class SavingsAccountBase extends ViewBase {
 			? html`
 				<horizon-statements
 					.cifNumber="${this.callerInformation.cifNumber}"
+					.title="${this.callerInformation.title}"
+					.lastName="${this.callerInformation.lastName}"
 					.clientProducts="${this.clientProducts}"
 					type="${type}"
 					@cancel="${() => this._cancelStatements()}"
