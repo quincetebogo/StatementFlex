@@ -7,7 +7,6 @@ import { v4 } from 'uuid';
  *
  * @export
  * @class InsureService
- * @deprecated - InsureService is old code that will probably be completely replaced when we finally pick up Insure
  * @extends {ChannelServiceBase}
  */
 export class InsureService extends ChannelServiceBase {
@@ -69,9 +68,9 @@ export class InsureService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
 	async productParams(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		if (await this.isMockEnabled(`insureProductParams`)) {
-			return this.mock(`insureProductParams`, insureProductParams);
-		}
+		// if (await this.isMockEnabled(`insureProductParams`)) {
+		// 	return this.mock(`insureProductParams`, insureProductParams);
+		// }
 
 		const url = `/FuneralInsuranceProductService/product/params`;
 		return this.get(
@@ -98,9 +97,6 @@ export class InsureService extends ChannelServiceBase {
 		if (await this.isMockEnabled(`insureCalculateEstimate`)) {
 			return this.mock(`insureCalculateEstimate`);
 		}
-
-		console.log(JSON.stringify(estimateRequest))
-
 		return this.post(
 			`/FuneralInsuranceProductService/quote/estimate`,
 			estimateRequest,
@@ -127,7 +123,6 @@ export class InsureService extends ChannelServiceBase {
 		if (await this.isMockEnabled(`insureCalculateQuote`)) {
 			return this.mock(`insureCalculateQuote`);
 		}
-
 		return this.post(
 			`/FuneralInsuranceProductService/quote/calc`,
 			quoteRequest,

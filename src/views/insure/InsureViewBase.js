@@ -50,7 +50,21 @@ export class InsureViewBase extends ViewBase {
 	}
 
 	//#region PUBLIC METHODS
+
 	// ---- API Actions
+
+	/**
+	 * Retrieve Insure Product Params
+	 * @returns {Object} Product Params
+	 */
+	async retrieveInsureProductParams(){
+		this.isBusy = true;
+		let request = {};
+		const resp = await this.insureService.productParams(request, () => true);
+		console.log("result: ", resp)
+		this.isBusy = false;
+		return resp;
+	}
 
 	/**
 	 * Retrieve list of client policies
@@ -65,10 +79,29 @@ export class InsureViewBase extends ViewBase {
 
 	/**
 	 * Calculate estimate based on lives assured provided
+	 * @returns {Object} Estimate response
 	 */
 	async calculateClientEstimate(request) {
 		this.isBusy = true;
-		const result = await this.insureService.calculateEstimate(request, () => true);
+		const resp = await this.insureService.calculateEstimate(request, () => true);
+		if (resp.succeeded == true && resp.result != null) {
+			this.isBusy = false;
+			return resp.result;
+		} else {
+			console.error(estimateResponse.exception);
+			this.isBusy = false;
+			// Do error message
+			return null;
+		}
+	}
+
+	/**
+	 * Calculate quote based on lives assured provided
+	 * @returns {Object} Quote response
+	 */
+	async calculateClientQuote(request) {
+		this.isBusy = true;
+		const result = await this.insureService.calculateQuote(request, () => true);
 		console.log(result);
 		this.isBusy = false;
 		return result;

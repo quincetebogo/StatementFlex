@@ -17,21 +17,7 @@ import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/dialogs/insure/InsureAddLifeDialog';
 import 'app/components/common/HorizonLabel';
-
-/**
- * @readonly
- * @enum {object} GENDER_OPTIONS
- */
-const GENDER_OPTIONS = [
-	{
-		code: 'Male',
-		text: `Male`
-	},
-	{
-		code: 'Female',
-		text: `Female`
-	}
-];
+import 'app/components/common/ServiceCallErrorScreen';
 
 /**
  * Implements the view for Insure verified and unverified existing clients (i.e. the client has products)
@@ -53,11 +39,21 @@ export class ExistingClient extends InsureViewBase {
 		this.configuration = Configuration.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.renderMode = INSURE_RENDER_MODE.POLICY_SUMMARY;
-		// this.renderMode = INSURE_RENDER_MODE.POLICY_SUMMARY;
 
 		this.showAddRelationshipDialog = false;
 		this.showEmailPlanDialog = false;
 		this.showEACLAgreement = false;
+
+		this.GENDER_OPTIONS = [
+			{
+				code: 'Male',
+				text: `Male`
+			},
+			{
+				code: 'Female',
+				text: `Female`
+			}
+		];
 
 		// Estimate
 		this.estimate = {};
@@ -100,7 +96,6 @@ export class ExistingClient extends InsureViewBase {
 	async _initialize() {
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		if (this.verificationStatus === `verified`) {
-
 			// const clientDetails = {
 			// 	"cifNumber": this.callerInformation.cifNumber,
 			// 	"GetGenericData": true,
@@ -109,6 +104,8 @@ export class ExistingClient extends InsureViewBase {
 			// console.log(JSON.stringify(this.callerInformation));
 		}
 
+		let productParamsResponse = await this.retrieveInsureProductParams();
+		console.log("productParamsResponse ", productParamsResponse);
 		// let clientPolicies = await this.retrieveClientPolicySummary();
 
 	}
@@ -119,7 +116,7 @@ export class ExistingClient extends InsureViewBase {
 	/**
 	 * Prepare and navigate Estimate
 	 */
-	_goToEstimate() {
+	async _goToEstimate() {
 		this.estimate.lifesAssured = [];
 		this.estimate.lifesAssured.push({
 			relationship: "MainLife",
@@ -142,7 +139,7 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
-	 * Event from Add life dialog for Estimate
+	 * Add Event from Add life dialog for Estimate
 	 */
 	_addLifeEstimate(e) {
 		this.estimate.lifesAssured.push({
@@ -151,11 +148,79 @@ export class ExistingClient extends InsureViewBase {
 			premium: 0,
 			genderType: "Male",
 			age: 0,
-			rowID: this.estimate.lifesAssured.length + 1,
+			rowID: this.estimate.lifesAssured.length,
 			coverDetails: e.detail.coverDetails
 		});
 		this.showAddRelationshipDialog = false;
 	}
+
+	/**
+	 * Click event from remove button on life list
+	 * @param {Object} lifeAssured clicked
+	 */
+	_estimateRemoveLifeAssured(lifeToRemove) {
+		console.log('lifeToRemove');
+		console.log(lifeToRemove);
+		this.estimate.lifesAssured.splice(lifeToRemove.rowID, 1);
+		// Reshuffle
+		for (let index = 0; index < this.estimate.lifesAssured.length; index++) {
+			this.estimate.lifesAssured[index].rowID = index;
+		}
+		this.requestUpdate();
+	}
+
+	/**
+	 * Event fired when an estimate life assured COVER AMOUNT value changes
+	 * @param {*} event 
+	 * @param {*} index 
+	 */
+	_estimateLifeCoverAmountValueChanged(event, index) {
+		if (event.detail.old != event.detail.new) {
+			this.estimate.lifesAssured[index].coverAmount = event.detail.new;
+		}
+	}
+
+	/**
+	 * Event fired when an estimate life assured AGE value changes
+	 * @param {*} event 
+	 * @param {*} index 
+	 */
+	_estimateLifeAgeValueChanged(event, index) {
+		if (event.detail.old != event.detail.new) {
+			this.estimate.lifesAssured[index].age = event.detail.new;
+		}
+	}
+
+	/**
+	 * Event fired when an estimate life assured GENDER value changes
+	 * @param {*} event 
+	 * @param {*} index 
+	 */
+	_estimateLifeGenderValueChanged(event, index) {
+		if (event.detail.old != event.detail.new) {
+			this.estimate.lifesAssured[index].genderType = event.detail.new.code;
+		}
+	}
+
+	/**
+	 * Event fired when calculate by Premium override input changed
+	 * @param {*} event 
+	 * @returns {object} Estimate Response
+	 */
+	async _estimatePremiumOverrideChanged(e) {
+		this.estimate.totalPremium = e.detail.new;
+		const request = {
+			...this.estimate,
+			clientEstimateDetails: this.clientEstimateDetails
+		}
+		let estimateResponse = await this.calculateClientEstimate(request);
+		if (estimateResponse != null) {
+			this.estimate = estimateResponse.result;
+		}
+		this.totalPremiumOverrideInput = '';
+		this.requestUpdate();
+	}
+
 
 	/**
 	 * Calculate Button event / Calculate by life assured
@@ -168,22 +233,10 @@ export class ExistingClient extends InsureViewBase {
 			clientEstimateDetails: this.clientEstimateDetails
 		}
 		let estimateResponse = await this.calculateClientEstimate(request);
-		this.requestUpdate();
-	}
-
-	/**
-	 * Calculate by Premium override input changed
-	 * @returns {object} Estimate Response
-	 */
-	async _estimatePremiumOverrideChanged(e) {
-		console.log(e);
-		this.estimate.totalPremium = e.detail.new;
-		const request = {
-			...this.estimate,
-			clientEstimateDetails: this.clientEstimateDetails
+		if (estimateResponse != '') {
+			this.estimate = estimateResponse;
 		}
-		let estimateResponse = await this.calculateClientEstimate(request);
-		this.totalPremiumOverrideInput = '';
+
 		this.requestUpdate();
 	}
 
@@ -192,8 +245,8 @@ export class ExistingClient extends InsureViewBase {
 	/**
 	 * Prepare and navigate Update plan
 	 */
-	 _goToUpdatePlan() {
-		
+	_goToUpdatePlan() {
+
 		this._navigateToSubView(INSURE_RENDER_MODE.UPDATE_PLAN);
 	}
 
@@ -415,8 +468,24 @@ export class ExistingClient extends InsureViewBase {
 			${this._renderEstimateAddLifeAssuredDialog()}
 			${this._renderEmailPlanDialog()}
 			${this._renderEACLAgreementDialog()}
+			
 		`;
 	}
+	// ${this._renderErrorScreen()}
+	// _renderErrorScreen() {
+	// 	return html`
+	// 				<horizon-service-call-error-screen data-automation-id="lbb-service-unavailable-screen"
+	// 					image="/images/insure/assign-pay-arrears.svg" header="Live Better currently unavailable" right="Find a Branch"
+	// 					bannerDetail="Live Better is currently unavailable" displayToast="true" >
+	// 					<section id="id-error-msg" slot="detail">
+	// 						<p>We are experiencing technical difficulties.<br>
+	// 							We are sorry for the inconvenience and aim to have it resolved soon.</p>
+	// 						<p><b>For any urgent matters, please visit a branch</b></p>
+	// 					</section>
+
+	// 				</horizon-service-call-error-screen>
+	// 	`
+	// }
 
 	/**
 	 * Main render switch for Insure views
@@ -492,7 +561,8 @@ export class ExistingClient extends InsureViewBase {
 					<capitec-label label="Relationship: ${lifeAssured.relationship}" type="small" class="stronger">
 					</capitec-label>
 		
-					<capitec-label label="Remove" type="small" class="stronger link">
+					<capitec-label @click="${() => this._estimateRemoveLifeAssured(lifeAssured)}" label="Remove" type="small"
+						class="stronger link">
 					</capitec-label>
 				</div>
 				` : html`
@@ -502,19 +572,21 @@ export class ExistingClient extends InsureViewBase {
 				`}
 		
 				<div class="calc-card-row">
-					<capitec-text-field label="Cover Amount" type="input" disabled style="width: 50%;"
-						value="${formatCurrency(lifeAssured.coverAmount)}">
+					<capitec-text-field label="Cover Amount" type="currency" style="width: 50%;"
+						@value-changed="${(e) => this._estimateLifeCoverAmountValueChanged(e, index)}"
+						value="${lifeAssured.coverAmount}">
 					</capitec-text-field>
-					<capitec-text-field label="Premium" type="input" disabled hint="Estimate" style="width: 50%;"
-						value="${formatCurrency(lifeAssured.premium)}">
+					<capitec-text-field label="Premium" type="currency" disabled hint="Estimate" style="width: 50%;"
+						value="${lifeAssured.premium}">
 					</capitec-text-field>
 				</div>
 				<div class="calc-card-row">
-					<capitec-text-field label="Age" type="numeric-input"
-						@value-changed="${(e) => this._estimateTextFieldValueChanged(e, index)}" style="width: 50%;">
+					<capitec-text-field label="Age" type="numeric"
+						@value-changed="${(e) => this._estimateLifeAgeValueChanged(e, index)}" style="width: 50%;">
 					</capitec-text-field>
 					<capitec-select label="Gender" display-field="text" .items="${this.GENDER_OPTIONS}" id-field="code"
-						style="width: 50%"></capitec-select>
+						style="width: 50%" @value-changed="${(e) => this._estimateLifeGenderValueChanged(e, index)}">
+					</capitec-select>
 				</div>
 			</div>
 		
@@ -588,13 +660,13 @@ export class ExistingClient extends InsureViewBase {
 			<capitec-button label="Update Plan" type="white"></capitec-button>
 		</capitec-title-bar>
 		<capitec-card style="min-height: 100vh;">
-		<capitec-tab-group>
-
-			${this._renderPremiumTab()}
-			${this._renderBeneficiariesTab()}
-			${this._renderDebitOrderTab()}
-
-		</capitec-tab-group>
+			<capitec-tab-group>
+		
+				${this._renderPremiumTab()}
+				${this._renderBeneficiariesTab()}
+				${this._renderDebitOrderTab()}
+		
+			</capitec-tab-group>
 		</capitec-card>`
 	}
 
@@ -606,15 +678,15 @@ export class ExistingClient extends InsureViewBase {
 	_renderPremiumTab() {
 		return html`
 		<capitec-tab label="Premium & Cover Amount">
-		<div class = "insure-calc-columns">
-			
-			<div class = "insure-calc-column-left">
-					
-				<div class="right-card">
-					<!-- notifications -->
+			<div class="insure-calc-columns">
+		
+				<div class="insure-calc-column-left">
+		
+					<div class="right-card">
+						<!-- notifications -->
 						<div class="notif-container">
 							<div class="icon">
-								<capitec-icon icon="status/info-trans" size="default" ></capitec-icon>
+								<capitec-icon icon="status/info-trans" size="default"></capitec-icon>
 							</div>
 							<div class="content">
 								<label class="title">Notify:</label>
@@ -625,7 +697,7 @@ export class ExistingClient extends InsureViewBase {
 								</label>
 							</div>
 						</div>
-
+		
 						<div class="notif-container">
 							<div class="icon">
 								<capitec-icon icon="status/info-trans" size="default"></capitec-icon>
@@ -639,167 +711,137 @@ export class ExistingClient extends InsureViewBase {
 								</label>
 							</div>
 						</div>
-
-					
+		
+		
 						<!-- main life details -->
 						<div class="calc-card-row">
 							<capitec-label label="Main Life" type="strong">
 							</capitec-label>
 						</div>
-						
+		
 						<!-- main life expander -->
 						<div class="account-details-bar">
-							<capitec-expander label="" >
+							<capitec-expander label="">
 								<div class="expander-options">
-									<capitec-select 
-										label="Title" 
-										.items="" 
-										display-field="text" 
-										id-field="code"
-										style="width: 50%" 
-										disabled>
+									<capitec-select label="Title" .items="" display-field="text" id-field="code"
+										style="width: 50%" disabled>
 									</capitec-select>
 									</capitec-select>
-									<capitec-text-field
-										label="Name"
-										disabled
-										style="width: 50%">
+									<capitec-text-field label="Name" disabled style="width: 50%">
 									</capitec-text-field>
 								</div>
 								<div class="expander-options">
-									<capitec-text-field
-										label="Surname"
-										disabled
-										style="width: 50%">
+									<capitec-text-field label="Surname" disabled style="width: 50%">
 									</capitec-text-field>
-									<capitec-text-field
-										label="Email Address"
-										disabled
-										style="width: 50%">
+									<capitec-text-field label="Email Address" disabled style="width: 50%">
 									</capitec-text-field>
 								</div>
 								<div class="expander-options">
-									<capitec-text-field
-										label="Date of birth"
-										style="width: 50%"
-										disabled>
+									<capitec-text-field label="Date of birth" style="width: 50%" disabled>
 									</capitec-text-field>
-
-									<capitec-text-field
-									label="Cover amount"
-									style="width: 50%">
+		
+									<capitec-text-field label="Cover amount" style="width: 50%">
 									</capitec-text-field>
 								</div>
 								<div class="expander-options">
-									<capitec-select 
-										label="Gender" 
-										.items="" 
-										display-field="text" 
-										id-field="code"
-										style="width: 50%" 
-										disabled>
+									<capitec-select label="Gender" .items="" display-field="text" id-field="code"
+										style="width: 50%" disabled>
 									</capitec-select>
-										<capitec-text-field
-										label="ID"
-										disabled
-										style="width: 50%">
+									<capitec-text-field label="ID" disabled style="width: 50%">
 									</capitec-text-field>
 								</div>
 							</capitec-expander>
-							<capitec-group class= "actionbar-header" layout="horizontal" gap="none" halign="left" valign="center">
-							<horizon-label
-								label="Main Life"
-								value="name">
-							</horizon-label>
-							
-							<horizon-label
-								label="Cover amount (Min R5 000 - Max R100 000)"
-								value="amount">	
-							</horizon-label>
+							<capitec-group class="actionbar-header" layout="horizontal" gap="none" halign="left"
+								valign="center">
+								<horizon-label label="Main Life" value="name">
+								</horizon-label>
+		
+								<horizon-label label="Cover amount (Min R5 000 - Max R100 000)" value="amount">
+								</horizon-label>
 							</capitec-group>
 						</div>
-						
+		
 						<!--lives Assured  -->
 						<div class="calc-card-row" style="margin-top: 15px;">
-						<capitec-label label="Lives Assured" type="subtitle" class="stronger">
-						</capitec-label>
-						<capitec-label label="Add Life Assured" type="subtitle" class="stronger link">
-						</capitec-label>
+							<capitec-label label="Lives Assured" type="subtitle" class="stronger">
+							</capitec-label>
+							<capitec-label label="Add Life Assured" type="subtitle" class="stronger link">
+							</capitec-label>
 						</div>
-
-				</div>
-
-			</div>	
 		
-			<div class = "insure-calc-column-right"> 
-				<div class="calc-summary-card">
-					<div>
-						<!-- top -->
-						<capitec-label label="Funeral Plan" type="Strong"></capitec-label>
-						</capitec-label>
-						<capitec-spacer></capitec-spacer>
-						<capitec-label label="Total estimated monthly premium"></capitec-label>
-						<capitec-label label="R00.00" class="calc-premium-total">
-						</capitec-label>
-						<capitec-label label="Summary of estimated monthly premium:" class="stronger"></capitec-label>
-						<hr>
-
-						<!-- life list -->
-						<div class="calc-life-list">
-
-						</div>	
-					</div>	
-
-					<!-- bottom -->
-					<div>
-						<capitec-label label="Specify a premium you are willing to pay" class="stronger"></capitec-label>
-						<br>
-						<capitec-text-field label="Premium Amount" type="numeric-input">
-						</capitec-text-field>
+					</div>
+		
+				</div>
+		
+				<div class="insure-calc-column-right">
+					<div class="calc-summary-card">
+						<div>
+							<!-- top -->
+							<capitec-label label="Funeral Plan" type="Strong"></capitec-label>
+							</capitec-label>
+							<capitec-spacer></capitec-spacer>
+							<capitec-label label="Total estimated monthly premium"></capitec-label>
+							<capitec-label label="R00.00" class="calc-premium-total">
+							</capitec-label>
+							<capitec-label label="Summary of estimated monthly premium:" class="stronger"></capitec-label>
+							<hr>
+		
+							<!-- life list -->
+							<div class="calc-life-list">
+		
+							</div>
+						</div>
+		
+						<!-- bottom -->
+						<div>
+							<capitec-label label="Specify a premium you are willing to pay" class="stronger"></capitec-label>
+							<br>
+							<capitec-text-field label="Premium Amount" type="numeric-input">
+							</capitec-text-field>
+						</div>
 					</div>
 				</div>
+		
 			</div>
-
-		</div> 
 		</capitec-tab>
 		`
 	}
 
-/**
- * render the beneficiaries tab of Update plan
- * @returns {html}
- * 
- */
- _renderBeneficiariesTab() {
-	return html`
+	/**
+	 * render the beneficiaries tab of Update plan
+	 * @returns {html}
+	 * 
+	 */
+	_renderBeneficiariesTab() {
+		return html`
 		<capitec-tab label="Beneficiaries">
 			Beneficiaries
 		</capitec-tab>
 		`
-}
+	}
 
 
-/**
- * render the Debit order tab of the Update plan
- * @returns {html}
- */
- _renderDebitOrderTab() {
-	return html`
+	/**
+	 * render the Debit order tab of the Update plan
+	 * @returns {html}
+	 */
+	_renderDebitOrderTab() {
+		return html`
 		<capitec-tab label="Debit Order Details">
 			${this._renderYROANotification()}
 			<capitec-label type="subtitle" class="stronger" label="Collection Account" style="padding: 10px;">
 			</capitec-label>
 		</capitec-tab>
 		`
-}
+	}
 
-/**
-	 * Render notification component for 'Your responsibility & our accountability'
-	 * 
-	 * @returns {html} The html content of the component.
-	 */
- _renderYROANotification() {
-	return html`
+	/**
+		 * Render notification component for 'Your responsibility & our accountability'
+		 * 
+		 * @returns {html} The html content of the component.
+		 */
+	_renderYROANotification() {
+		return html`
 		<div class="notif-container">
 			<div class="icon">
 				<capitec-icon icon="status/info-trans" size="default"></capitec-icon>
@@ -814,7 +856,7 @@ export class ExistingClient extends InsureViewBase {
 			</div>
 		</div>
 	`
-}
+	}
 
 
 
@@ -849,7 +891,7 @@ export class ExistingClient extends InsureViewBase {
 		return this.showEmailPlanDialog == false ? `` :
 			html`<div>I am the email plan dialog</div>`
 	}
-	
+
 	_renderEACLAgreementDialog() {
 		return this.showEACLAgreement == false ? `` :
 			html`<div>I am the EACL dialog</div>`
