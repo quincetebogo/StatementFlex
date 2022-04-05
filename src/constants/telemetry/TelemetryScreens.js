@@ -97,7 +97,7 @@
 	SAVINGS_PLAN_TAX_CERTIFICATE: `Savings Plan Tax Certificate`,
 	SAVINGS_PLAN_PRODUCT_ENQUIRY: `Savings Plan Product Enquiry`,
 	SAVINGS_PLAN_SAVINGS_CALCULATOR: `Savings Plan Savings Calculator`,
-  SAVINGS_PLAN_INTEREST_RATES: `Savings Plan Interest Rates`,
+	SAVINGS_PLAN_INTEREST_RATES: `Savings Plan Interest Rates`,
 
 
 	CREDIT_LANDING: `Credit Landing`,
@@ -108,6 +108,9 @@
 	CREDIT_SETTLE_CLOSE: `Credit Settle Close`,
 	CREDIT_STATEMENTS_SUCCESS: `Credit Statement success`,
 	CREDIT_STATEMENTS_FAILURE: `Credit Statement failure`,
-	CREDIT_BUDGET_ACCOUNT: `Credit Budget account view`,
-	CREDIT_BUDGET_ACCOUNT_DETAILS: `Credit Budget account details`
+	CREDIT_BUDGET_ACCOUNT: `Credit Budget facility view`,
+	CREDIT_BUDGET_ACCOUNT_DETAILS: `Credit Budget account details`,
+	CREDIT_PAY_BUDGET_MODAL: `Credit Pay Budget Modal`,
+	CREDIT_PAY_BUDGET_SUCCESS: `Credit Pay Budget success screen`,
+	CREDIT_PAY_BUDGET_FAILURE: `Credit Pay Budget failure screen`
 };

@@ -230,12 +230,28 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNT_DETAILS;
 	}
 
-	async _payBudgetAccount(selectedAccountDetails) {
-
+	_transferFromBudgetAccounts(selectedAccountDetails) {
+		
 		this._telemetry.logEvent(CreditEvents.BUDGET_DETAILS_TRANSFER_SELECT, {
 			"budget-name": selectedAccountDetails.budgetName,
 			"budget-open-date": selectedAccountDetails.budgetDateTaken
 		});
+		
+		this._optionClick(`pay-budget`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails);
+	}
+
+	_transferFromBudgetDetails() {
+		this._telemetry.logEvent(CreditEvents.BUDGET_ACCOUNT_DETAILS_TRANSFER, {
+			"screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT_DETAILS,
+			"next-screen": TelemetryScreen.CREDIT_PAY_BUDGET_MODAL
+		});
+
+		this._optionClick(`pay-budget`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails);
+	}
+
+	async _payBudgetAccount(selectedAccountDetails) {
+
+		this._telemetry.startSpan(CreditEvents.CREDIT_BUDGET_TRANSFER, {}, false);
 
 		const request = {
 			"cifNumber": this.callerInformation.cifNumber,
@@ -257,6 +273,9 @@ export class CreditAccount extends ViewBase {
 
 		this._formateFromAccounts(returnValue.result.fromAccounts);
 		this.payBudgetAccountDetails = selectedAccountDetails;
+		
+		this._telemetry.startSpan(CreditEvents.PAY_BUDGET_MODAL, {});
+
 		this.renderMode = RENDER_MODE.PAY_BUDGET_DIALOG;
 	}
 
@@ -275,6 +294,7 @@ export class CreditAccount extends ViewBase {
 	}
 	
 	async _transferPayBudget(transferDetails) {
+
 		const request = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"creditCardAccountNumber": transferDetails.budgetAccountNumber,
@@ -290,6 +310,16 @@ export class CreditAccount extends ViewBase {
 
 		const returnValue = await this.creditService.confirmBudgetTransfer(request);
 
+		this._telemetry.logEvent(CreditEvents.PAY_BUDGET_TRANSFER, {
+			"screen": TelemetryScreen.CREDIT_PAY_BUDGET_MODAL,
+			"next-screen": returnValue?.succeeded ? TelemetryScreen.CREDIT_PAY_BUDGET_SUCCESS : TelemetryScreen.CREDIT_PAY_BUDGET_FAILURE,
+			"budget-name": transferDetails.budgetName,
+			"budget-amount": transferDetails.authorisedAmount,
+			"from-account": transferDetails.fromAccountNumber
+		});
+
+		this._telemetry.endSpan(CreditEvents.PAY_BUDGET_MODAL, {});
+
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to pay budget amount by transfering`, `_transferPayBudget`, returnValue.correlationId);
 			return;
@@ -298,7 +328,6 @@ export class CreditAccount extends ViewBase {
 		if (returnValue.result.success) {
 			this.documentContent = returnValue.result.documentData;
 		}
-
 	}
 
 	_confirmSettleAndClose() {
@@ -323,6 +352,11 @@ export class CreditAccount extends ViewBase {
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_backFromBudgetAccountsView() {
+		this._telemetry.endSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {});
+		this._setIncidentDone();
 	}
 
 	// --------------
@@ -665,6 +699,13 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_backFromPayBudgetDialog() {
+		this._telemetry.logEvent(CreditEvents.PAY_BUDGET_CANCEL, {
+			"screen": TelemetryScreen.CREDIT_PAY_BUDGET_MODAL,
+			"next-screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT
+		});
+
+		this._telemetry.endSpan(CreditEvents.PAY_BUDGET_MODAL, {}, true, true);
+
 		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
 			this.incidentDetails.currentNeed = `budget-facility-credit-card`;
 			this.horizonStore.setIncidentDetails(this.incidentDetails);
@@ -726,6 +767,15 @@ export class CreditAccount extends ViewBase {
 
 			return clientProducts;
 		}
+	}
+
+	_backFromBudgetAccountDetails() {
+		this._telemetry.logEvent(CreditEvents.BUDGET_ACCOUNT_DETAILS_CLOSE, {
+			"screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT_DETAILS,
+			"next-screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT
+		});
+
+		this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW;
 	}
 
 	// ---------
@@ -847,9 +897,9 @@ export class CreditAccount extends ViewBase {
 				<capitec-pc-budget-facility-accounts
 					.budgetFacilityAccounts="${this.budgetFacilityAccounts}"
 					
-					@back="${() => this._setIncidentDone()}"
+					@back="${() => this._backFromBudgetAccountsView()}"
 					@account-details="${(event) => this._budgetAccountDetails(event.detail.selectedAccountDetails)}"
-					@transfer-click="${(event) => this._optionClick(`pay-budget`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, event.detail.selectedAccountDetails)}">
+					@transfer-click="${(event) => this._transferFromBudgetAccounts(event.detail.selectedAccountDetails)}">
 				</capitec-pc-budget-facility-accounts>`
 			: html``;
 	}
@@ -859,7 +909,8 @@ export class CreditAccount extends ViewBase {
 		? html`
 			<capitec-pc-budget-account-details
 				.accountDetails="${this.budgetAccountDetails}"
-				@back="${() => this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW}">
+				@back="${() => this._backFromBudgetAccountDetails()}"
+				@transfer-click="${() => this._transferFromBudgetDetails()}">
 			</capitec-pc-budget-account-details>`
 		: html``;
 	}
