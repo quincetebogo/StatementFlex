@@ -235,22 +235,20 @@ export class HorizonStore extends Store {
 			creditProductAmount: newLandingPageInfo.creditProductAmount ? newLandingPageInfo.creditProductAmount : this.state.landingPageInfo?.creditProductAmount
 		};
 		
-		this.setState({ landingPageInfo: updatedLandingPageInfo });
-		
 		const subtitle = {
-			savingsAccount: this.state.landingPageInfo.savingsAccountProductDescription,
-			liveBetterSavings: this.state.landingPageInfo.liveBetterBankingProductDescription,
-			savingsPlan: this.state.landingPageInfo.savingsPlanProductDescription,
-			insure: this.state.landingPageInfo.insureProductDescription,
-			credit: this.state.landingPageInfo.creditProductDescription
+			savingsAccount: updatedLandingPageInfo.savingsAccountProductDescription,
+			liveBetterSavings: updatedLandingPageInfo.liveBetterBankingProductDescription,
+			savingsPlan: updatedLandingPageInfo.savingsPlanProductDescription,
+			insure: updatedLandingPageInfo.insureProductDescription,
+			credit: updatedLandingPageInfo.creditProductDescription
 		};
 
 		const detail = {
-			savingsAccount: this.state.landingPageInfo.savingsAccountProductAmount,
-			liveBetterSavings: this.state.landingPageInfo.liveBetterBankingProductAmount,
-			savingsPlan: this.state.landingPageInfo.savingsPlanProductAmount,
-			insure: this.state.landingPageInfo.insureProductAmount,
-			credit: this.state.landingPageInfo.creditProductAmount
+			savingsAccount: updatedLandingPageInfo.savingsAccountProductAmount,
+			liveBetterSavings: updatedLandingPageInfo.liveBetterBankingProductAmount,
+			savingsPlan: updatedLandingPageInfo.savingsPlanProductAmount,
+			insure: updatedLandingPageInfo.insureProductAmount,
+			credit: updatedLandingPageInfo.creditProductAmount
 		};
 
 		const updatedLeftBarButtonConfig = {
@@ -259,6 +257,6 @@ export class HorizonStore extends Store {
 			detail: detail ? detail : ``
 		};
 
-		this.setState({ leftBarButtonConfig: updatedLeftBarButtonConfig });
+		this.setState({ leftBarButtonConfig: updatedLeftBarButtonConfig, landingPageInfo: updatedLandingPageInfo });
 	}
 }
