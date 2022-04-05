@@ -98,7 +98,7 @@ import 'app/components/common/HorizonLabel';
 
 	_transferClick(selectedBudgetAccount) {
 		selectedBudgetAccount.productTypeCode = this.budgetFacilityAccounts.productTypeCode;
-		
+
 		this.dispatchEvent(new CustomEvent(`transfer-click`, {
 			detail: { selectedAccountDetails: selectedBudgetAccount }
 		}));

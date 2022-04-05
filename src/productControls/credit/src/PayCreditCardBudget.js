@@ -308,15 +308,17 @@ export class PayCreditCardBudget extends Component {
 
 	_renderOptionIcon(e) {
 		return e.icon
-			? html`
-				<capitec-icon
-					size="small"
-					icon="${e.icon}">
-				</capitec-icon>`
-			: html`
-				<capitec-image
-					src="${e.customIcon}">
-				</capitec-image>`;
+		? html`
+			<capitec-icon
+				size="small"
+				icon="${e.icon}">
+			</capitec-icon>`
+		: html`
+			<capitec-image
+				style="${unsafeCSS(iconClass).toString()}"
+				src="${e.customIcon}">
+			</capitec-image>
+		`;
 	}
 
 	_renderFooter() {
