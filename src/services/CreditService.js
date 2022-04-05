@@ -19,14 +19,18 @@ export class CreditService extends ChannelServiceBase {
 			`serviceURIs.creditChannelServiceUrl`, 
 			`credit-v1`, 
 			`v1`,
-			null
+			() => import(`../mocks/HorizonChannelServiceMocks.js`)
 		);
 	}
 
 	// --------------
 	// PUBLIC METHODS
 	// --------------
-	creditOverview(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async creditOverview(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		if (await this.isMockEnabled(`creditOverview`)) {
+			return this.mock(`creditOverview`);
+		}
 
 		const creditOverviewRequest = {
 			"cifnumber": cifNumber
@@ -48,7 +52,14 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	creditBalance(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async creditBalance(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		if (await this.isMockEnabled(`creditBalance`)) {
+			if (errorHandler) {
+				return this.mockWithErrorHandler(`creditBalance`, errorHandler);
+			}
+			return this.mock(`creditBalance`);
+		}
 
 		const creditBalanceRequest = {
 			"cifnumber": cifNumber
@@ -157,4 +168,123 @@ export class CreditService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+
+	flexibleStatementList(accountNumber, creditType, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const flexibleStatementListRequest = {
+			"creditType": creditType,
+			"accountnumber": accountNumber
+		};
+		const url = `/clientcare-credit-${this._version}/credit/flexible/statementlist`;
+
+		return this.post(
+			url,
+			flexibleStatementListRequest,
+			this.setToken(),
+			`flexibleStatementList`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	flexibleStatement(accountNumber, creditType, statementId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const flexibleStatementRequest = {
+			"creditType": creditType,
+			"statementId": statementId,
+			"accountNumber": accountNumber
+		};
+		const url = `/clientcare-credit-${this._version}/credit/flexible/statement`;
+
+		return this.post(
+			url,
+			flexibleStatementRequest,
+			this.setToken(),
+			`flexibleStatement`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	flexibleStatementEmail (creditType, accountNumber, emailAddress, statementDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const flexibleStatementEmailRequest = {
+			"creditType": creditType,
+			"accountNumber": accountNumber,
+			"emailAddress": emailAddress,
+			"statementDetails": statementDetails
+		};
+		const url = `/clientcare-credit-${this._version}/credit/flexible/statement/email`;
+
+		return this.post(
+			url,
+			flexibleStatementEmailRequest,
+			this.setToken(),
+			`flexibleStatementEmail`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	fixedStatement(accountNumber, fromDate, toDate, setdate, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		
+		const fixedStatementRequest = {
+			"accountNumber": accountNumber,
+			"fromDate": fromDate,
+			"toDate": toDate,
+			"setdate": setdate
+		};
+
+		const url = `/clientcare-credit-${this._version}/credit/fixed/statement`;
+
+		return this.post(
+			url,
+			fixedStatementRequest,
+			this.setToken(),
+			`fixedStatement`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+
+	}
+
+	fixedStatementEmail(accountNumber, emailAddress, fromDate, toDate, setdate, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		
+		const fixedStatementEmailRequest = {
+			"accountNumber": accountNumber,
+			"emailAddress": emailAddress,
+			"fromDate": fromDate,
+			"toDate": toDate,
+			"setDate": setdate
+		};
+
+		const url = `/clientcare-credit-${this._version}/credit/fixed/statement/email`;
+
+		return this.post(
+			url,
+			fixedStatementEmailRequest,
+			this.setToken(),
+			`fixedStatementEmail`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
 }

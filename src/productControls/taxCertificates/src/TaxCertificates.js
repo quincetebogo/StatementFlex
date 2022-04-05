@@ -199,7 +199,7 @@ export class TaxCertificates extends Component {
 			this.selectedCertificates.iT3STaxCertificates.sort((l, r) => r.year - l.year);
 		}
 		
-		this.selectedCertificates = Object.fromEntries(Object.entries(this.selectedCertificates).filter(([_, item]) => item != 0));
+		this.selectedCertificates = Object.fromEntries(Object.entries(this.selectedCertificates).filter(([_, item]) => item !== 0));
 		
 		this.dispatchEvent(new CustomEvent(`next`, { 
 			detail: {
@@ -664,6 +664,8 @@ export class TaxCertificates extends Component {
 				<horizon-email-input
 					labelOne="${this.emailLabel}"
 					labelTwo="${this.confirmEmailLabel}"
+					email="${this.email}"
+					confirmEmail="${this.confirmEmail}"
 					?showRequiredError="${this.alertBannerMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
 					.callBack="${() => this._clearAlerts()}"
 					@value-changed="${(e) => this._emailValueChanged(e)}">
@@ -696,8 +698,7 @@ export class TaxCertificates extends Component {
 	}
 
 	_renderCertificateYears(item, certType) {
-		if (certType === `iT3STaxCertificates`)
-		{
+		if (certType === `iT3STaxCertificates`) {
 			return html`
 				<horizon-expander-noanime
 					id="tax-expander"
@@ -740,8 +741,7 @@ export class TaxCertificates extends Component {
 	}
 
 	_renderOnlyIt3BExpanders(item, certType) {
-		if (certType === `iT3STaxCertificates`) 
-		{
+		if (certType === `iT3STaxCertificates`) {
 			return html``;
 		}
 

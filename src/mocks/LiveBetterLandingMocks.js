@@ -335,4 +335,4 @@ export const LBBLinkedTransactionDetails = {
 			"longDescription": "client_funded_automated_savings"
 		  }
 	]
-  }
+};
