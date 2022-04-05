@@ -75,10 +75,10 @@ export class ClientInsights extends Component {
 		this.dispatchEvent(new CustomEvent(`settings-click`, {}));
 	}
 
-	async _selectResponse(replyReference) {
+	async _selectResponse(replyReference, action) {
 		this.selectedResponse = replyReference;
 		
-		const updateInsightsAction = await this.updateInsights(replyReference);
+		const updateInsightsAction = await this.updateInsights(replyReference, action);
 
 		if (updateInsightsAction) {
 			this.selectedResponse = ``;
@@ -241,7 +241,7 @@ export class ClientInsights extends Component {
 					class="${this.selectedResponse === this.insightDetails.actions[0].replyReference ? `selected-chip` : ``}"
 					label="This was useful"
 					avatar-image="/images/insights/${this.selectedResponse === this.insightDetails.actions[0].replyReference ? `thumbsUp-white` : `thumbsUp`}.svg"
-					@click="${() => this._selectResponse(this.insightDetails.actions[0].replyReference)}">
+					@click="${() => this._selectResponse(this.insightDetails.actions[0].replyReference, `Thumbs up`)}">
 				</capitec-chip>
 
 				<capitec-chip
@@ -249,7 +249,7 @@ export class ClientInsights extends Component {
 					class="${this.selectedResponse === this.insightDetails.actions[1].replyReference ? `selected-chip` : ``}"
 					label="This didn't help"
 					avatar-image="/images/insights/${this.selectedResponse === this.insightDetails.actions[1].replyReference ? `thumbsDown-white` : `thumbsDown`}.svg"
-					@click="${() => this._selectResponse(this.insightDetails.actions[1].replyReference)}">
+					@click="${() => this._selectResponse(this.insightDetails.actions[1].replyReference, `Thumbs down`)}">
 				</capitec-chip>
 
 			</capitec-group>`
