@@ -210,6 +210,9 @@ export class SettlementQuote extends Component {
 					--theme-label-title-font-size: 24px;
 					--theme-label-title-font-weight: 600;
 				}
+				capitec-icon {
+					cursor: pointer;
+				}
 				/* Filter bar styles */
 				capitec-text-field {
 					width: 337px;

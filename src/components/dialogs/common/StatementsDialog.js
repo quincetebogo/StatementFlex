@@ -221,7 +221,7 @@ export class StatementsDialog extends Component {
 			"month": month // This is specifically for month period
 		};
 
-		const encodedPDF = await this.viewStatement(this.productSelected.category, request);
+		const encodedPDF = await this.viewStatement(request);
 
 		if (encodedPDF) {
 			this.renderMode = RENDER_MODE.PDF;
@@ -252,7 +252,7 @@ export class StatementsDialog extends Component {
 			"monthInterval": this.selectedMonths // This is specifically for month period
 		};
 
-		await this.sendStatement(this.productSelected.category, request);
+		await this.sendStatement(request);
 	}
 
 	_valueChanged(e) {
@@ -263,6 +263,7 @@ export class StatementsDialog extends Component {
 			this._resetPeriodSelection();
 			this.dispatchEvent(new CustomEvent(`account-selected`, {
 				detail: {
+					accountNumber: this.productSelected.accountNumber,
 					account: this.productSelected.category,
 					subCategory: this.productSelected.subCategory
 				}
@@ -294,6 +295,8 @@ export class StatementsDialog extends Component {
 			this.errorMessage = `Choose Account`;
 			return false;
 		}
+
+
 
 		return true;
 	}
@@ -634,6 +637,8 @@ export class StatementsDialog extends Component {
 					--theme-select-options-max-height: 304px;
 					--theme-input-icon-margin-left: 16px;
 					--theme-icon-size-small: 24px;
+					--theme-input-padding-top: 8px;
+					--theme-input-padding-bottom: 8px;
 				}
 			`
 		];
