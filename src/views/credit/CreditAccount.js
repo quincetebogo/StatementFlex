@@ -876,7 +876,6 @@ export class CreditAccount extends ViewBase {
 			${this._renderPayBudgetDialog()}
 			${this._renderSettlementQuoteDialog()}
 			${this._renderCcsModal()}
-			${this._renderSettleCloseModal()}
 			${this._renderSettleAndCloseEmailConfirmation()}
 			${this._renderSettleLoanEmailConfirmation()}
 			${this._renderPayBudgetEmailConfirmation()}
@@ -1068,18 +1067,11 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderSettleLoanEmailConfirmation() {
-		// TODO: Remove mock once CS integration is complete
-		const mockDocuments = [
-			{
-				title: `86 Month Term Loan`,
-				subtitle: `Proof of transfer`
-			}
-		];
 
 		return this.renderMode === RENDER_MODE.VIEW_AND_SEND_SETTLE_LOAN_POP ? html`
 			<horizon-view-and-send-document
 				modalHeader="Settle Loan: Proof of Payment" 
-				.documents="${mockDocuments}"
+				.documents=""
 				.loadDocumentContent="${this._loadSettleLoanPOPDocument}"
 				@send-pdf-click="${(e) => this._onSendSettleLoanPOP(e.documents, e.email)}"
 				@cancel-send-pdf-click="${() => this._onCancelSendSettleLoanPOP()}">
@@ -1088,18 +1080,11 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderPayBudgetEmailConfirmation() {
-		// TODO: Remove mock once CS integration is complete
-		const mockDocuments = [
-			{
-				title: `Budget Name`,
-				subtitle: `Proof of transfer`
-			}
-		];
 
 		return this.renderMode === RENDER_MODE.VIEW_AND_SEND_PAY_BUDGET_POP ? html`
 			<horizon-view-and-send-document
-				modalHeader="Pay Budget: Proof of Payment" 
-				.documents="${mockDocuments}"
+				modalHeader="${this.sendPOPDetails.action}: Proof of Payment" 
+				.documents="${this.details}"
 				.loadDocumentContent="${this._loadPayBudgetPOPDocument}"
 				@send-pdf-click="${(e) => this._onSendPayBudgetPOP(e.documents, e.email)}"
 				@cancel-send-pdf-click="${() => this._onCancelSendPayBudgetPOP()}">

@@ -344,4 +344,25 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
+	async emailProofOfPayment(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		if (await this.isMockEnabled(`emailProofOfPayment`)) {
+			return this.mock(`emailProofOfPayment`, request);
+		}
+
+		const url = `/clientcare-credit-${this._version}credit/document/email`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`emailProofOfPayment`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 }

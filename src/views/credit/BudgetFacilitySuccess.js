@@ -1,7 +1,9 @@
 import { css, html } from 'platform/elements';
+import { CreditService } from 'app/services/CreditService';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
+import 'app/components/dialogs/common/ViewAndEmailDocuments';
 
 /**
  * Display an confirmation/success screen indicating the budget facility for the selected account has been paid successfully.
@@ -19,11 +21,20 @@ import 'app/components/common/SuccessScreen';
 	constructor() {
 		super();
 		this.budgetName = ``;
+		this.showEmailModal = false;
+
+		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 	}
 
 	// --------------
 	// PROPERTIES
 	// --------------
+
+	static get properties() {
+		return {
+			showEmailModal: { state: true }
+		};
+	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -48,7 +59,17 @@ import 'app/components/common/SuccessScreen';
 	// --------------
 
 	_sendEmailConfirmationClick() {
-		// TODO: Navigation to Send email confirmation modal should come here
+		this.popDetails = {
+			action: `Pay Budget`,
+			accountsList: [ 
+				{
+					title: this.budgetName,
+					subtitle: `Proof of transfer`
+				}
+			]
+		};
+		
+		this.showEmailModal = !this.showEmailModal;
 	}
 
 	_doneClick() {
@@ -61,6 +82,23 @@ import 'app/components/common/SuccessScreen';
 
 	_payAnotherClick() {
 		this.horizonRouter.navigateToReturnPage();
+	}
+
+	async _onSendPayBudgetPOP(event) {
+		const request = {
+			"cifNumber": this.callerInformation.cifNumber,
+			"emailAddress": event.detail.email,
+			"documentType": `CreditCardBudgetAccountSettlementLetter`,
+			"creditType": `CreditCard`,
+			"data": event.detail.documentData
+		};
+
+		const returnValue = await this.creditService.emailProofOfPayment(request);
+
+		if (returnValue.succeeded && returnValue.result.isSuccess) {
+			// TO DO: Navigation to the email success screen
+		}
+		// TO DO: Navigation to the email failure screen
 	}
 
 	// --------------
@@ -105,8 +143,9 @@ import 'app/components/common/SuccessScreen';
 
 	_webTemplate() {
 		return html`
-			${this._renderSuccessScreen()}
 			${super._webTemplate()}
+			${this._renderSuccessScreen()}
+			${this._renderViewAndSendEmail()}
 		`;
 	}
 
@@ -145,6 +184,18 @@ import 'app/components/common/SuccessScreen';
 				<span @click="${() => this._sendEmailConfirmationClick()}">Send Email Confirmation</span>
 			</section>
 		`;
+	}
+
+	_renderViewAndSendEmail() {
+		return this.showEmailModal
+		? html`
+			<horizon-view-and-send-document
+				.popDetails="${this.popDetails}"
+				.loadDocumentContent="${() => this.documentData}"
+				@send-email="${(event) => this._onSendPayBudgetPOP(event)}"
+				@cancel="${() => this.showEmailModal = !this.showEmailModal}">
+			</horizon-view-and-send-document>`
+		: html``;
 	}
 
 }

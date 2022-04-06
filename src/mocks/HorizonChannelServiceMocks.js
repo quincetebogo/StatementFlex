@@ -406,4 +406,14 @@ export default class HorizonChannelServiceMocks {
 		}
 		return null;
 	}
+
+	emailProofOfPayment() {
+		if (this._mockSettings.emailProofOfPayment.positiveCase) {
+			return {
+				"isSuccess": true,
+				"errorReasons": null
+			};
+		}
+		return null;
+	}
 }
