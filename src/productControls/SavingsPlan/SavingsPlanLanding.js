@@ -224,6 +224,14 @@ export class SavingsPlanLanding extends Component {
 					--theme-label-cursor: pointer;
 					--horizon-label-value-color: #009DE0;
 				}
+				.flexible-label {
+					width: 25%;
+					--horizon-label-max-overflow-width: 180px;
+				}
+				.fixed-label {
+					width: 20%;
+					--horizon-label-max-overflow-width: 171px;
+				}
 				.vertical-line {
 					height: 40px;
 					width: 1px;
@@ -404,9 +412,10 @@ export class SavingsPlanLanding extends Component {
 									@click="${() => this._click(`account-details`, SAVE_PLAN_TYPE.FLEXIBLE, item.accountNumber)}">
 								</capitec-icon>
 								<horizon-label
-									class="label-account-number"
+									class="label-account-number flexible-label"
 									data-automation-id="savings-plan-account-number"
 									label="${item.planName}"
+									textOverflow="ellipsis"
 									value="${item.accountNumber}"
 									@click="${() => this._click(`account-details`, SAVE_PLAN_TYPE.FLEXIBLE, item.accountNumber)}">
 								</horizon-label>
@@ -470,8 +479,9 @@ export class SavingsPlanLanding extends Component {
 								</capitec-icon>
 								<horizon-label
 									data-automation-id="savings-plan-number"
-									class="label-account-number"
+									class="label-account-number fixed-label"
 									label="${item.planName}"
+									textOverflow="ellipsis"
 									value="${item.accountNumber}"
 									@click="${() => this._click(`account-details`, SAVE_PLAN_TYPE.FIXED_TERM, item.accountNumber)}">
 								</horizon-label>
@@ -562,6 +572,7 @@ export class SavingsPlanLanding extends Component {
 							@click="${() => this._click(`product-enquiry`)}">
 					</horizon-option-button>
 					<horizon-option-button
+							display: none;
 							data-automation-id="savings-plan-savings-calculator"
 							label="Savings Calculator"
 							icon="system/track-action"

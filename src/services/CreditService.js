@@ -268,7 +268,7 @@ export class CreditService extends ChannelServiceBase {
 			"emailAddress": emailAddress,
 			"fromDate": fromDate,
 			"toDate": toDate,
-			"setDate": setdate
+			"setDates": setdate
 		};
 
 		const url = `/clientcare-credit-${this._version}/credit/fixed/statement/email`;
@@ -278,6 +278,28 @@ export class CreditService extends ChannelServiceBase {
 			fixedStatementEmailRequest,
 			this.setToken(),
 			`fixedStatementEmail`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	permissions(cifNumber, accNumber, productType, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		const url = `/clientcare-credit-${this._version}/credit/permission`;
+
+		return this.post(
+			url,
+			{
+				"accountNumber": accNumber,
+				"cifNumber": cifNumber,
+				"resourceIdentifierType": productType
+			},
+			this.setToken(),
+			`permissions`,
 			null,
 			null,
 			900,
