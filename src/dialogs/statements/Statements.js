@@ -353,8 +353,8 @@ export class Statements extends Component {
 				"dateRange": {},
 				"presetInterval": `${request.dateInterval}`
 			},
-			"title": `Mrs`,
-			"lastName": `PRETORIUS`
+			"title": request.title,
+			"lastName": request.lastName
 		};
 
 		if (request.startDate && request.endDate) {
