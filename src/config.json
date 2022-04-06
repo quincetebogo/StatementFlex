@@ -191,6 +191,14 @@
 		"creditBalance": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"budgetTransferFromAccounts": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"confirmBudgetTransfer": {
+			"enabled": true,
+			"positiveCase": false
 		}
 	}
 }

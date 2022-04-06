@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { deformatCurrency, formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelectIcon';
 
@@ -72,15 +73,19 @@ export class PayCreditCardBudget extends Component {
 	}
 
 	_onTransferClick() {
-		const transferDetails = {
-			budgetAccountNumber: this.budgetAccountDetails.budgetAccountNumber,
-			fromAccountNumber: this.productSelected.accountNumber,
-			fromAccountType: this.productSelected.accountType,
-			authorisedAmount: this.budgetBalance,
-			budgetSequenceNumber: this.budgetAccountDetails.budgetSequence
-		};
+		if (isNullorEmpty(this.bannerMessage) && isNullorEmpty(this.errorMessage)) {
+			const transferDetails = {
+				budgetName: this.budgetAccountDetails.budgetName,
+				budgetAccountNumber: this.budgetAccountDetails.budgetAccountNumber,
+				fromAccountNumber: this.productSelected.accountNumber,
+				fromAccountType: this.productSelected.accountType,
+				authorisedAmount: this.budgetBalance,
+				budgetSequenceNumber: this.budgetAccountDetails.budgetSequence,
+				productTypeCode: this.budgetAccountDetails.productTypeCode
+			};
 
-		this.dispatchEvent(new CustomEvent(`transfer`, {detail: transferDetails}));
+			this.dispatchEvent(new CustomEvent(`transfer`, {detail: transferDetails}));
+		}
 	}
 
 	_accountValueChanged(e) {
@@ -128,6 +133,10 @@ export class PayCreditCardBudget extends Component {
 		// Entered budget amount exceeds the available balance of selected account
 		if (this.budgetBalance > deformatCurrency(this.productSelected.availableBalance)) {
 			this.errorMessage = `Transafer cannot exceed available balance`;
+		}
+
+		if(isNullorEmpty(this.budgetBalance)) {
+			this.errorMessage = `Transafer amount cannot be empty`;
 		}
 	}
 

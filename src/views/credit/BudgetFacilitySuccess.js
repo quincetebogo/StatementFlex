@@ -1,6 +1,5 @@
 import { css, html } from 'platform/elements';
 import { ViewBase } from 'app/views/common/ViewBase';
-import { CREDIT_TYPE } from 'app/constants/Credit';
 
 import 'app/components/common/SuccessScreen';
 
@@ -19,29 +18,12 @@ import 'app/components/common/SuccessScreen';
 
 	constructor() {
 		super();
-
-		// TODO: Hardcoded values needs to be remvoed when wiring up navigation.
-		this.accountName = `Shoprite Pelican Park Grassy Park ZA`
-		this.productType = `credit card`;
-		this.creditCardNumber = `4000********0063`;
-		this.creditType = CREDIT_TYPE.FIXED;
-
-		this.primaryToast = `Budget facility paid`;
+		this.budgetName = ``;
 	}
 
 	// --------------
 	// PROPERTIES
 	// --------------
-
-	static get properties() {
-		return {
-
-			// TODO: To be removed when wiring up navigation.
-			accountName: { type: String },
-			creditType: { type: String },
-			productType: { type: String }
-		};
-	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -49,6 +31,12 @@ import 'app/components/common/SuccessScreen';
 
 	connectedCallback() {
 		super.connectedCallback();
+		
+		const screenDetails = this.horizonStore.getScreenDetails();
+		this.budgetName = screenDetails.budgetAccountName;
+		this.documentData = screenDetails.documentData;
+
+		this._updateIncidentState();
 	}
 
 	disconnectedCallback() {
@@ -64,11 +52,15 @@ import 'app/components/common/SuccessScreen';
 	}
 
 	_doneClick() {
+		const returnToScreen = this.horizonStore.getReturnToScreen();
+		this.horizonStore.setReturnScreen(returnToScreen.route, ``);
+
 		this.horizonRouter.navigateToCreditAccount();
+		this.horizonStore.clearScreenDetails();
 	}
 
 	_payAnotherClick() {
-
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	// --------------
@@ -78,6 +70,12 @@ import 'app/components/common/SuccessScreen';
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_updateIncidentState() {
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+	}
 
 	// ---------
 	// RENDERING
@@ -120,7 +118,7 @@ import 'app/components/common/SuccessScreen';
 				image="/images/credit/budget-facility.svg"
 				left="Pay Another"
 				right="Done"
-				toast="${this.primaryToast}"
+				toast="Budget facility paid"
 				?subContent=${true}
 				@left-click=${() => this._payAnotherClick()}
 				@right-click=${() => this._doneClick()}>
@@ -135,7 +133,7 @@ import 'app/components/common/SuccessScreen';
 			<section 
 				class="id-update-msg" 
 				slot="detail">
-					Budget facility for <strong>${this.accountName}</strong> has been paid.
+					Budget facility for <strong>${this.budgetName}</strong> has been paid.
 			</section>
 		`;
 	}

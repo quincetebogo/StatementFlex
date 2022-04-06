@@ -256,7 +256,7 @@ export class CreditAccount extends ViewBase {
 		const request = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"idNumber": this.callerInformation.southAfricanIDNumber,
-			"budgetAccountNumber":selectedAccountDetails.budgetAccountNumber
+			"budgetAccountNumber": selectedAccountDetails.budgetAccountNumber
 		};
 
 		const returnValue = await this.creditService.budgetTransferFromAccounts(request);
@@ -281,7 +281,7 @@ export class CreditAccount extends ViewBase {
 
 	_formateFromAccounts(fromAccounts) {
 		this.clientProducts = fromAccounts.map(account => {
-				return {
+				const eligibleTransferAccounts = {
 					'accountNumber': account.accountNumber,
 					'accountName': formatStringAsPascalCase(account.accountName),
 					'availableBalance': formatCurrency(account.availableBalance),
@@ -289,26 +289,14 @@ export class CreditAccount extends ViewBase {
 					'icon': FROM_ACCOUNTS[account.accountType].icon,
 					'order': FROM_ACCOUNTS[account.accountType].order
 				};
+				return eligibleTransferAccounts;
 			})
 		.sort((x, y) => x.order - y.order);
 	}
 	
 	async _transferPayBudget(transferDetails) {
 
-		const request = {
-			"cifNumber": this.callerInformation.cifNumber,
-			"creditCardAccountNumber": transferDetails.budgetAccountNumber,
-			"fromAccountNumber": transferDetails.fromAccountNumber,
-			"fromAccountType": transferDetails.fromAccountType,
-			"authorisedAmount": transferDetails.authorisedAmount,
-			"budgetSequenceNumber": transferDetails.budgetSequenceNumber,
-			"caseId": null,
-			"idPassportNumber": this.callerInformation.southAfricanIDNumber,
-			"firstName": this.callerInformation.firstName,
-			"surname": this.callerInformation.lastName
-		};
-
-		const returnValue = await this.creditService.confirmBudgetTransfer(request);
+		const returnValue = await this.creditService.confirmBudgetTransfer(transferDetails, this.callerInformation);
 
 		this._telemetry.logEvent(CreditEvents.PAY_BUDGET_TRANSFER, {
 			"screen": TelemetryScreen.CREDIT_PAY_BUDGET_MODAL,
@@ -320,14 +308,25 @@ export class CreditAccount extends ViewBase {
 
 		this._telemetry.endSpan(CreditEvents.PAY_BUDGET_MODAL, {});
 
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Failed to pay budget amount by transfering`, `_transferPayBudget`, returnValue.correlationId);
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.selectedAccounts = {
+			productTypeCode: transferDetails.productTypeCode,
+			accountNumber: transferDetails.budgetAccountNumber
+		};
+		screenDetails.budgetAccountName = transferDetails.budgetName;
+		screenDetails.documentData = returnValue?.result?.documentData;
+		screenDetails.creditType = CREDIT_TYPE.FIXED;
+		screenDetails.productType = PRODUCTS.CREDIT_CARD;
+		this.horizonStore.setScreenDetails(screenDetails);
+
+		if (returnValue.succeeded && returnValue.result) {
+			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `budget-facility`);
+			this.horizonRouter.navigateToBudgetFacilitySuccess();
 			return;
 		}
-
-		if (returnValue.result.success) {
-			this.documentContent = returnValue.result.documentData;
-		}
+		
+		this.logger.log(`error`, `Failed to pay budget amount by transfering`, `_transferPayBudget`, returnValue.correlationId);
+		this.horizonRouter.navigateToBudgetFacilityFailure();
 	}
 
 	_confirmSettleAndClose() {

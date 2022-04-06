@@ -287,8 +287,12 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	budgetTransferFromAccounts(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async budgetTransferFromAccounts(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		
+		if (await this.isMockEnabled(`budgetTransferFromAccounts`)) {
+			return this.mock(`budgetTransferFromAccounts`, request);
+		}
+
 		const url = `/clientcare-credit-${this._version}/credit/budgetaccount/transfer/modal`;
 
 		return this.post(
@@ -305,8 +309,25 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	confirmBudgetTransfer(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async confirmBudgetTransfer(transferDetails, callerInformation, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		
+		if (await this.isMockEnabled(`confirmBudgetTransfer`)) {
+			return this.mock(`confirmBudgetTransfer`, transferDetails);
+		}
+
+		const request = {
+			"cifNumber": callerInformation.cifNumber,
+			"creditCardAccountNumber": transferDetails.budgetAccountNumber,
+			"fromAccountNumber": transferDetails.fromAccountNumber,
+			"fromAccountType": transferDetails.fromAccountType,
+			"authorisedAmount": transferDetails.authorisedAmount,
+			"budgetSequenceNumber": transferDetails.budgetSequenceNumber,
+			"caseId": null,
+			"idPassportNumber": callerInformation.southAfricanIDNumber,
+			"firstName": callerInformation.firstName,
+			"surname": callerInformation.lastName
+		};
+
 		const url = `/clientcare-credit-${this._version}/credit/budgetaccount/transfer`;
 
 		return this.post(

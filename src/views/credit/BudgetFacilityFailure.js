@@ -1,6 +1,5 @@
 import { css, html } from 'platform/elements';
 import { ViewBase } from 'app/views/common/ViewBase';
-import { CREDIT_TYPE } from 'app/constants/Credit';
 
 import 'app/components/common/ErrorScreen';
 import 'app/components/common/RelatedOptions';
@@ -21,23 +20,12 @@ import 'app/components/common/RelatedOptions';
 	constructor() {
 		super();
 
-		// TODO: Hardcoded values needs to be remvoed when wiring up navigation.
-		this.budgetName = `Shoprite Pelican Park Grassy Park ZA`;
-
-		this.primaryToast = `Budget facility was not paid`;
+		this.budgetName = ``;
 	}
 
 	// --------------
 	// PROPERTIES
 	// --------------
-
-	static get properties() {
-		return {
-
-			// TODO: To be removed when wiring up navigation.
-			budgetName: { type: String }
-		};
-	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -45,6 +33,12 @@ import 'app/components/common/RelatedOptions';
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		const screenDetails = this.horizonStore.getScreenDetails();
+		this.budgetName = screenDetails?.budgetAccountName;
+
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	disconnectedCallback() {
@@ -56,7 +50,8 @@ import 'app/components/common/RelatedOptions';
 	// --------------
 
 	_doneClick() {
-		// TODO: Navigation to be wired up here.
+		this.horizonRouter.navigateToCreditAccount();
+		this.horizonStore.clearScreenDetails();
 	}
 
 	_tryAgainClick() {
@@ -103,7 +98,7 @@ import 'app/components/common/RelatedOptions';
 				image="/images/credit/budget-facility.svg"
 				left="Done"
 				right="Try Again"
-				toast="${this.primaryToast}"
+				toast="Budget facility was not paid"
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._tryAgainClick()}>
 					${this._renderDetail()}
