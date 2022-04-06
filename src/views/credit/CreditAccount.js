@@ -366,37 +366,6 @@ export class CreditAccount extends ViewBase {
 		};
 	}
 
-	_updateLeftBar() {
-		let subtitle = null;
-		let detail = null;
-
-		if (this.landingPageInfo) {
-			subtitle = {
-				savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
-				savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
-				insure: this.landingPageInfo.insureProductDescription,
-				credit: this.landingPageInfo.creditProductDescription
-			};
-
-			detail = {
-				savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
-				savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
-				insure: this.landingPageInfo.insureProductAmount,
-				credit: this.landingPageInfo.creditProductAmount
-			};
-		}
-
-		const state = {
-			leftBarButtonConfig: {
-				hasFavourites: true,
-				subtitle: subtitle ? subtitle : ``,
-				detail: detail ? detail : ``
-			}
-		};
-
-		this.horizonStore.saveState(state);
-	}
-
 	_transactionHistory(creditType, productType) {
 		// TO DO: Place holder for credit transaction history flow.
 
