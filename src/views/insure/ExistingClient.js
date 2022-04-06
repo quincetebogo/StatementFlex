@@ -8,13 +8,6 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
-// import 'app/components/insure/InsurePolicyList';
-// import 'app/components/insure/InsureFuneralPlanDetails';
-// import 'app/components/insure/InsureClaims';
-// import 'app/components/insure/InsureLodgeClaim';
-// import 'app/components/insure/InsureCalculateEstimate';
-// import 'app/components/insure/InsureUpdatePlan';
-
 import 'app/components/dialogs/insure/InsureAddLifeDialog';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/ServiceCallErrorScreen';
