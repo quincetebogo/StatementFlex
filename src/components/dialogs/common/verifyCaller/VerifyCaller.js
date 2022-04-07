@@ -26,8 +26,9 @@ import 'app/components/dialogs/common/verifyCaller/XdsUnavailable';
 
 const RENDER_MODE = Object.freeze({
 	VERIFY_CALLER: 1,
-	SECURITY_QUESTIONS: 2,
-	END_CALL: 3
+	XDS_SQ: 2,
+	END_CALL: 3,
+	KBA_SQ: 4
 });
 
 const HEADER_LABEL = `Verify Caller`;
@@ -37,6 +38,10 @@ const MAX_XDS_ATTEMPTS = 2;
 
 const ITA_TIMEOUT_SECS = 70;
 
+const AUTH_METHODS = {
+	XDS: `XDS`,
+	KBA: `KBA`
+};
 
 /**
  * The Horizon Verify Caller Details Dialog is used to verify a Capitec Client.
@@ -187,6 +192,18 @@ export class VerifyCaller extends Component {
 		this.itaTimeout = false;
 		this.itaRejected = false;
 
+		const xds = () => this._loadXDS();
+		const kba = () => this._loadKBA();
+		
+		const getQuestions = {
+			[AUTH_METHODS.XDS]: xds,
+			[AUTH_METHODS.KBA]: kba
+		};
+
+		await getQuestions[this.authMethod]();
+	}
+
+	async _loadXDS() {
 		const returnValue = await this.callHandleService.xdsQuestions(this.callerInformation.southAfricanIDNumber, () => true);
 
 		if (!returnValue.succeeded) {
@@ -228,6 +245,10 @@ export class VerifyCaller extends Component {
 		return this._handleSecurityQuestions(result);
 	}
 
+	_loadKBA() {
+		this.renderMode = RENDER_MODE.KBA_SQ;
+	}
+
 	_handleSecurityQuestions(securityQuestions) {
 		// Set this.securityQuestions for passing to the security questions dialog
 		this.securityQuestions = securityQuestions;
@@ -262,7 +283,7 @@ export class VerifyCaller extends Component {
 			});
 
 			this.logger.log(`info`, `XDS Questions retrieved, transitioning to Security Questions Dialog`, `_securityQuestionsClick`);
-			this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
+			this.renderMode = RENDER_MODE.XDS_SQ;
 			return;
 		};
 		
@@ -967,7 +988,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderSecurityQuestionsDialog() {
-		return this.renderMode === RENDER_MODE.SECURITY_QUESTIONS && this.authMethod === `XDS`
+		return this.renderMode === RENDER_MODE.XDS_SQ
 			? html`
 				<horizon-security-question 
 					.incidentDetails="${this.incidentDetails}"
@@ -1016,7 +1037,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderKBADialog() {
-		return this.renderMode === RENDER_MODE.SECURITY_QUESTIONS && this.authMethod === `KBA`
+		return this.renderMode === RENDER_MODE.KBA_SQ
 		? html`
 			<horizon-verify-kba
 				.incomingCallDetails="${this.incomingCallDetails}"
