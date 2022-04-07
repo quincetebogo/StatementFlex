@@ -101,6 +101,10 @@
 			"enabled": true,
 			"positiveCase": true
 		},
+		"verifyKBA": {
+			"enabled": true,
+			"positiveCase": false
+		},
 		"debiCheckMandates": {
 			"enabled": false,
 			"positiveCase": true

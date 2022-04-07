@@ -518,6 +518,11 @@ export class VerifyCaller extends Component {
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
+	_failedKBA() {
+		this._updateApplicationState(`failed`, `unverified`);
+		this.horizonRouter.navigateToKBAVerificationFailed();
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -1044,7 +1049,8 @@ export class VerifyCaller extends Component {
 				.incidentDetails="${this.incidentDetails}"
 				@cancel="${() => this._cancelledSecurityQuestions()}"
 				@skip="${() => this._skippedSecurityQuestions()}"
-				@verified="${() => this._verifiedViaSecurityQuestions()}">
+				@verified="${() => this._verifiedViaSecurityQuestions()}"
+				@failed="${() => this._failedKBA()}">
 			</horizon-verify-kba>`
 		: html``;
 	}

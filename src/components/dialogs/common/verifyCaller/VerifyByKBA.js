@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { CallHandleService } from 'app/services/CallHandleService';
 
 import 'app/components/common/CallerDialog';
 import 'app/components/common/MultiLineLabel';
@@ -62,6 +63,8 @@ export class VerifyByKBA extends Component {
 				"enabled": true
 			}
 		];
+
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag());
 	}
 
 	// ----------
@@ -109,8 +112,15 @@ export class VerifyByKBA extends Component {
 		this.dispatchEvent(new CustomEvent(`skip`, {}));
 	}
 
-	_verifyClick() {
-		this.dispatchEvent(new CustomEvent(`verified`, {}));
+	async _verifyClick() {
+		const returnValue = await this.callHandleService.verifyKBA({}, () => true);
+
+		if (returnValue.succeeded) {
+			this.dispatchEvent(new CustomEvent(`verified`, {}));
+			return true;
+		}
+
+		this.dispatchEvent(new CustomEvent(`failed`, {}));
 	}
 
 	_answerSelected(questionId, answer) {
@@ -124,7 +134,9 @@ export class VerifyByKBA extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	// N/A
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
 
 	// ---------------
 	// PUBLIC METHODS
@@ -212,7 +224,10 @@ export class VerifyByKBA extends Component {
 	}
 
 	_webTemplate() {
-		return html`${this._renderDialog()}`;
+		return html`
+			${this._renderDialog()}
+			${this._renderLoadingIndicator()}
+		`;
 	}
 
 	_renderDialog() {
@@ -342,6 +357,14 @@ export class VerifyByKBA extends Component {
 				</capitec-button>
 			</capitec-group>
 		`;
+	}
+
+	_renderLoadingIndicator() {
+		if (this.isBusy) {
+			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		};
+
+		return html``;
 	}
 }
 
