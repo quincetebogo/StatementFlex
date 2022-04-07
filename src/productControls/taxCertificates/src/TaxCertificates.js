@@ -27,7 +27,10 @@ const CERTIFICATE_TYPE = {
 
 const ERROR_MESSAGE = {
 	CERT_TYPE: `Please choose an option`,
-	DOCUMENT_TYPE: `Choose a period`
+	DOCUMENT_TYPE: `Choose a period`,
+	EMAIL_REQUIRED: `Complete all fields to continue`,
+	INVALID_EMAIL: `Enter a valid email address`,
+	EMAIL_MISMATCH: `Email address does not match. Enter the correct email address`
 };
 
 /**
@@ -62,8 +65,8 @@ export class TaxCertificates extends Component {
 			email: ``,
 			confirmEmail: ``
 		};
-		this.emailLabel = `Email address`;
-		this.confirmEmailLabel = `Confirm email address`;
+		this.emailLabel = `Enter email address`;
+		this.confirmEmailLabel = `Confirm email`;
 		this.selectedCertType = null;
 		this.selectedCertificates = {};
 		this.disableNext = false;
@@ -196,7 +199,7 @@ export class TaxCertificates extends Component {
 			this.selectedCertificates.iT3STaxCertificates.sort((l, r) => r.year - l.year);
 		}
 		
-		this.selectedCertificates = Object.fromEntries(Object.entries(this.selectedCertificates).filter(([_, item]) => item != 0));
+		this.selectedCertificates = Object.fromEntries(Object.entries(this.selectedCertificates).filter(([_, item]) => item !== 0));
 		
 		this.dispatchEvent(new CustomEvent(`next`, { 
 			detail: {
@@ -214,13 +217,12 @@ export class TaxCertificates extends Component {
 	_emailValueChanged(e) {
 		this.email = e.detail.email;
 		this.confirmEmail = e.detail.confirmEmail;
-	}
 
-	_validEmailAddressCheck(e) {
-		this.alertBannerMessage = ``;
-		this.errorMessage = e.detail.errorMessage;
-		this.mailClientError.email = e.detail.emailError;
-		this.mailClientError.confirmEmail = e.detail.confirmEmailError;
+		if (e.detail.invalidFormat) {
+			this.alertBannerMessage = ERROR_MESSAGE.INVALID_EMAIL;
+		} else if (e.detail.mismatched) {
+			this.alertBannerMessage = ERROR_MESSAGE.EMAIL_MISMATCH;
+		}
 	}
 
 	// ---------------
@@ -245,10 +247,10 @@ export class TaxCertificates extends Component {
 	}
 
 	_validateEmailAddress() {
-		this.mailClientError.email = isNullorEmpty(this.email) ? `Enter email address` : ``;
-		this.mailClientError.confirmEmail = isNullorEmpty(this.confirmEmail) ? `Enter email address` : ``;
+		if (isNullorEmpty(this.email) || isNullorEmpty(this.confirmEmail)) {
+			this.alertBannerMessage = ERROR_MESSAGE.EMAIL_REQUIRED;
+		}
 
-		this.alertBannerMessage = this.mailClientError.email || this.mailClientError.confirmEmail ? `Complete all fields.` : ``;
 		return isNullorEmpty(this.alertBannerMessage);
 	}
 
@@ -271,6 +273,10 @@ export class TaxCertificates extends Component {
 		}
 	}
 
+	_clearAlerts() {
+		this.alertBannerMessage = ``;
+	}
+
 	// ---------------
 	// PUBLIC METHODS
 	// ---------------
@@ -285,278 +291,242 @@ export class TaxCertificates extends Component {
 		return [
 			super.styles,
 			css`
-			bb-stepper-modal {
-				--theme-modal-header-height: 64px;
-				--theme-modal-header-font-size: 18px;
-				--theme-modal-header-padding-left: 16px;
-				--theme-modal-header-color: #3A3A3A;
-				--theme-modal-header-background-color: #F7F7F7;
-				--theme-stepper-inner-step-container-width: 324px;
-				--theme-stepper-step-title-font-style: 'Hind Vadodara SemiBold';
-				--theme-stepper-step-title-font-size: 15px;
-				--theme-stepper-step-title-max-width: 328px;
-				--theme-wizard-modal-max-width: 896px;
-				--theme-wizard-modal-max-height: 953px;
-				--theme-modal-footer-padding: 0px;
+				bb-stepper-modal {
+					--theme-modal-header-height: 64px;
+					--theme-modal-header-font-size: 18px;
+					--theme-modal-header-padding-left: 16px;
+					--theme-modal-header-color: #3A3A3A;
+					--theme-modal-header-background-color: #F7F7F7;
+					--theme-stepper-inner-step-container-width: 324px;
+					--theme-stepper-step-title-font-style: 'Hind Vadodara SemiBold';
+					--theme-stepper-step-title-font-size: 15px;
+					--theme-stepper-step-title-max-width: 328px;
+					--theme-wizard-modal-max-width: 896px;
+					--theme-wizard-modal-max-height: 953px;
+					--theme-modal-footer-padding: 0px;
+				}
+				.main-cb {
+					height: auto;
+					--theme-container-padding-left: 0px;
+					--theme-container-padding-right: 0px;
+					--theme-container-padding-top: 0px;
+					--theme-container-padding-bottom: 16px;
+				}
+				.main-cb > capitec-alert-banner {
+					--theme-alert-banner-height: 48px;
+					--theme-alert-banner-icon-margin-left: 16px;
+					--theme-alert-banner-icon-margin-right: 12px;
+					--theme-layout-gap-spacing: 20px;
+				}
+				div[slot="step"] {
+					height: 100%;
+					max-height: var(--theme-wizard-modal-max-height, 826px);
 
-			}
-			.main-cb {
-				height: auto;
-				--theme-container-padding-left: 0px;
-				--theme-container-padding-right: 0px;
-				--theme-container-padding-top: 0px;
-				--theme-container-padding-bottom: 16px;
-				
-			}
-			.main-cb > capitec-alert-banner {
-				--theme-alert-banner-height: 48px;
-				--theme-alert-banner-icon-margin-left: 16px;
-				--theme-alert-banner-icon-margin-right: 12px;
-				--theme-layout-gap-spacing: 20px;
-			}
-			div[slot="step"]{
-				height: 100%;
-				max-height: var(--theme-wizard-modal-max-height, 826px);
+					--theme-layout-gap-spacing: 0px;
+				}
+				capitec-stepper {
+					--theme-stepper-step-title-font-color: #3A3A3A;
+					--theme-font-weight: 600;
+					--theme-stepper-inner-step-container-width: 448px;
+				}
+				.taxCertTitle {
+					margin-bottom: 8px;
+				}
+				capitec-radio-group {
+					margin-top: 12px;
+					--theme-layout-gap-spacing: 12px;
+				}
+				capitec-radio-group > capitec-group {
+					margin: 0px;
+				}
+				capitec-radio {
+					--theme-label-font-weight: 500;
+					--theme-label-font-size: 16px;
+					--theme-label-font-family: "Hind Vadodara";
+					--theme-label-font-color: #3a3a3a;
+					margin-right: 32px;
+				}
+				horizon-label > .label-text {
+					font-weight: 600;
+				}
+				horizon-label > {
+					font-weight: 500;
+				}
+				.expander-header > horizon-label {
+					width: 156px;
+					height: auto;
+					font-weight: 300;
+					justify-content: left;
+					padding: 0px 0px 0px 0px;
+					--horizon-label-text-height: 20px;
+					--horizon-label-text-font-size: 16px;
+					--horizon-label-text-line-height: 20px;
+					--horizon-label-text-font-weight: 600;
+					--horizon-label-value-height: 20px;
+					--horizon-label-value-font-size: 14px;
+					--horizon-label-value-font-weight: 500;
+					--horizon-label-value-line-height: 20px;
+					--horizon-label-text-color:#3A3A3A;
+				}
+				.expander {
+					width: 50px;
+				}
+				.available-cards {
+					--theme-layout-gap-spacing: 16px;
+				}
+				.view-document-tile {
+					width: 100%;
+				}
+				capitec-label[type="strong"] {
+					line-height: 20px;
+					cursor: pointer;
 
-				--theme-layout-gap-spacing: 0px;
-			}
-			capitec-stepper {
-				--theme-stepper-step-title-font-color: #3A3A3A;
-				--theme-font-weight: 600;
-				--theme-stepper-inner-step-container-width: 448px;
-			}
-			.taxCertTitle {
-				margin-bottom: 8px;
-			}
-			capitec-radio-group {
-				margin-top: 12px;
-				--theme-layout-gap-spacing: 12px;
-			}
-			capitec-radio-group > capitec-group{
-				margin: 0px;
-			}
-			capitec-radio {
-				--theme-label-font-weight: 500;
-				--theme-label-font-size: 16px;
-				--theme-label-font-family: "Hind Vadodara";
-				--theme-label-font-color: #3a3a3a;
-				margin-right: 32px;
-			}
-			horizon-label > .label-text {
-				font-weight: 600;
-			}
-			horizon-label > {
-				font-weight: 500;
-			}
-			.expander-header > horizon-label {
-				width: 156px;
-				height: auto;
-				font-weight: 300;
-				justify-content: left;
-				padding: 0px 0px 0px 0px;
-				--horizon-label-text-height: 20px;
-				--horizon-label-text-font-size: 16px;
-				--horizon-label-text-line-height: 20px;
-				--horizon-label-text-font-weight: 600;
-				--horizon-label-value-height: 20px;
-				--horizon-label-value-font-size: 14px;
-				--horizon-label-value-font-weight: 500;
-				--horizon-label-value-line-height: 20px;
-				--horizon-label-text-color:#3A3A3A;
-			}
+					--theme-label-font-color: #009DE0;
+					--theme-label-strong-font-size: 16px;
+					--theme-label-strong-font-weight: 600;
+				}
+				capitec-label[type="title"] {
+					--theme-label-font-color: #3A3A3A;
+					--theme-label-title-font-size: 18px;
+					--theme-label-title-font-weight: 600;
+				}
+				horizon-product-tile {
+					--theme-product-tile--height: 64px;
+					--theme-product-tile-title-height: 20px;
+					--theme-product-tile-title-font-size: 16px;
+					--theme-product-tile-subtitle-height: 20px;
+					--theme-product-tile-subtitle-font-size: 16px;
+					--theme-product-tile-heading-margin-left: 16px;
+					--theme-layout-gap-spacing: 8px;
+					--theme-product-tile-title-font-weight: 600;
+				}
+				.main-cb > capitec-label[type="subtitle"] {
+					line-height: 24px;
 
-			.expander{
-				width: 50px;
-			}
+					--theme-label-subtitle-font-size: 18px;
+					--theme-label-subtitle-font-weight: 600;
+					--theme-layout-gap-spacing: 16px;
+				}
+				.pdf-viewer {
+					height: 100%;
+					width: 100%;
+					background-color: #FFFFFF;
+				}
+				.pdf-cb {
+					height: inherit;
+					padding-right: inherit;   
+					--theme-container-padding-left: 16px;
+					--theme-container-padding-top: 16px; 
+					--theme-container-padding-right: 16px;
+					--theme-container-padding-bottom: 0px
+				}
+				.footer {
+					width: var(--horizon-tax-certificate-modal-footer-width, 100%);
+					
+					--theme-container-padding-left: 16px;
+					--theme-container-padding-top: 8px;
+					--theme-container-padding-right: 16px;
+					--theme-container-padding-bottom: 8px;
+					border-top: 1px solid #E1E1E1;
+				}
+				.check-box-label {
+					width: 156px;
+					justify-content: left;
+					--horizon-label-text-height: 20px;
+					--horizon-label-text-font-size: 16px;
+					--horizon-label-text-line-height: 20px;
+					--horizon-label-text-font-weight: 600;
 
-			.tax-certificate-bar > capitec-group {
-				width: 100%;
-				z-index: 10;
-				padding-top: 12px;
-				padding-bottom: 12px;
-				border-right: 1px solid #dfdfdf;
-			}
+					--horizon-label-value-height: 20px;
+					--horizon-label-value-font-size: 14px;
+					--horizon-label-value-font-weight: 500;
+					--horizon-label-value-line-height: 20px;
 
-			.tax-certificate-bar {
-				display: flex;
-				position: relative;
-			}
-
-			.check-details {
-				margin-left: 8px; 
-			}
-
-			.available-cards {
-				--theme-layout-gap-spacing: 16px;
-			}
-
-			.view-document-tile {
-				width: 100%;
-			}
-
-			capitec-label[type="strong"] {
-				line-height: 20px;
-				cursor: pointer;
-
-				--theme-label-font-color: #009DE0;
-				--theme-label-strong-font-size: 16px;
-				--theme-label-strong-font-weight: 600;
-
-			}
-
-			capitec-label[type="title"]{
-				--theme-label-font-color: #3A3A3A;
-				--theme-label-title-font-size: 18px;
-				--theme-label-title-font-weight: 600;
-			}
-
-			horizon-product-tile {
-				--theme-product-tile--height: 64px;
-				--theme-product-tile-title-height: 20px;
-				--theme-product-tile-title-font-size: 16px;
-				--theme-product-tile-subtitle-height: 20px;
-				--theme-product-tile-subtitle-font-size: 16px;
-				--theme-product-tile-heading-margin-left: 16px;
-				--theme-layout-gap-spacing: 8px;
-				--theme-product-tile-title-font-weight: 600;
-			}
-
-			.main-cb > capitec-label[type="subtitle"] {
-				line-height: 24px;
-
-				--theme-label-subtitle-font-size: 18px;
-				--theme-label-subtitle-font-weight: 600;
-				--theme-layout-gap-spacing: 16px;
-			}
-
-			.pdf-viewer {
-				height: 100%;
-				width: 100%;
-				background-color: #FFFFFF;
-			}
-
-			.pdf-cb {
-				height: inherit;
-				padding-right: inherit;   
-				--theme-container-padding-left: 16px;
-				--theme-container-padding-top: 16px; 
-				--theme-container-padding-right: 16px;
-				--theme-container-padding-bottom: 0px
-			}
-
-			.footer {
-				width: var(--horizon-tax-certificate-modal-footer-width, 100%);
-				
-				--theme-container-padding-left: 16px;
-				--theme-container-padding-top: 8px;
-				--theme-container-padding-right: 16px;
-				--theme-container-padding-bottom: 8px;
-				border-top: 1px solid #E1E1E1;
-			}
-
-			.check-box-label {
-				width: 156px;
-				justify-content: left;
-				--horizon-label-text-height: 20px;
-				--horizon-label-text-font-size: 16px;
-				--horizon-label-text-line-height: 20px;
-				--horizon-label-text-font-weight: 600;
-
-				--horizon-label-value-height: 20px;
-				--horizon-label-value-font-size: 14px;
-				--horizon-label-value-font-weight: 500;
-				--horizon-label-value-line-height: 20px;
-
-				--horizon-label-text-color:#3A3A3A;
-			}
-			.check-details {
-				margin-left: 8px; 
-			}
-			horizon-expander-noanime{
-				--theme-layout-gap-spacing: 16px;
-				--theme-expander-indicator-width: 13px;
-				--theme-expander-header-height: 64px;
-				height: auto;
-			}
-
-			horizon-expander{
-				--theme-layout-gap-spacing: 16px;
-				--theme-expander-indicator-width: 13px;
-				--theme-expander-header-height: 64px;
-				height: auto;
-			}
-			.choose-period-header {
-				margin: 16px 0px;
-			}
-			capitec-button {
-				--theme-layout-gap-spacing: 0px;
-			}
-			.next-btn {
-				margin-left: 16px;
-			}
-			.expander-details > horizon-label {
-				padding: 12px 0px;
-				--horizon-label-value-height: 20px;
-				--horizon-label-text-height: 20px;
-				--horizon-label-value-color: #3A3A3A;
-				--horizon-label-value-font-size: 15px;
-				--horizon-label-value-font-weight: 600;
-			}
-			.expander-content {
-				padding: 14px 14px 8px 16px;
-				background-color: #F7F7F7;
-				height: auto;
-			}
-			.expander-content > capitec-label {
-				margin-bottom: 16px;
-				--theme-label-default-font-size: 14px;
-				--theme-label-default-font-weight: 600;
-				--theme-label-font-color: #3A3A3A;
-			}
-			.notify-banner {
-				margin-bottom: 7px;
-			}
-			.notify-banner > p {
-				margin: 0px;
-				font-size: 14px;
-			}
-			.notify-banner > p > b {
-				color: #08A6B5;
-			}
-			.notify-banner > capitec-icon {
-				margin-right: 7px;
-				height: 26px;
-				width: 26px
-			}
-			horizon-expander[checked] {
-				--theme-expander-background-color: rgba(0,157,224,0.1);
-			}
-
-			.seperator {
-				width: 100%;
-				border: 0.01em solid #E1E1E1;
-				margin-bottom: 30px;
-				margin-top: 30px;
-			}
-			capitec-content-box > .contnent[slot="content"] {
-				height: auto;
-			}
-			.no-results {
-				margin-top: 88px;
-			}
-			capitec-image {
-				height: 182px;
-				width: 252px;
-			}
-			.no-results > capitec-label[type="strong"] {
-				line-height: 32px;
-				--theme-label-font-color: #3A3A3A;
-				--theme-label-strong-font-size: 24px;
-				--theme-label-strong-font-weight: 600;
-			}
-			capitec-label[type="default"] {
-				--theme-label-default-font-size: 16px;
-			}
+					--horizon-label-text-color:#3A3A3A;
+				}
+				horizon-expander-noanime {
+					--theme-layout-gap-spacing: 16px;
+					--theme-expander-indicator-width: 13px;
+					--theme-expander-header-height: 64px;
+					height: auto;
+				}
+				horizon-expander {
+					--theme-layout-gap-spacing: 16px;
+					--theme-expander-indicator-width: 13px;
+					--theme-expander-header-height: 64px;
+					height: auto;
+				}
+				.choose-period-header {
+					margin: 16px 0px;
+				}
+				capitec-button {
+					--theme-layout-gap-spacing: 0px;
+				}
+				.next-btn {
+					margin-left: 16px;
+				}
+				.expander-details > horizon-label {
+					padding: 12px 0px;
+					--horizon-label-value-height: 20px;
+					--horizon-label-text-height: 20px;
+					--horizon-label-value-color: #3A3A3A;
+					--horizon-label-value-font-size: 15px;
+					--horizon-label-value-font-weight: 600;
+				}
+				.expander-content {
+					padding: 14px 14px 8px 16px;
+					background-color: #F7F7F7;
+					height: auto;
+				}
+				.expander-content > capitec-label {
+					margin-bottom: 16px;
+					--theme-label-default-font-size: 14px;
+					--theme-label-default-font-weight: 600;
+					--theme-label-font-color: #3A3A3A;
+				}
+				.notify-banner {
+					margin-bottom: 7px;
+				}
+				.notify-banner > p {
+					margin: 0px;
+					font-size: 14px;
+				}
+				.notify-banner > p > b {
+					color: #08A6B5;
+				}
+				.notify-banner > capitec-icon {
+					margin-right: 7px;
+					height: 26px;
+					width: 26px
+				}
+				horizon-expander[checked] {
+					--theme-expander-background-color: rgba(0,157,224,0.1);
+				}
+				.seperator {
+					width: 100%;
+					border: 0.01em solid #E1E1E1;
+					margin-bottom: 30px;
+					margin-top: 10px;
+				}
+				capitec-content-box > .contnent[slot="content"] {
+					height: auto;
+				}
+				.no-results {
+					margin-top: 88px;
+				}
+				capitec-image {
+					height: 182px;
+					width: 252px;
+				}
+				.no-results > capitec-label[type="strong"] {
+					line-height: 32px;
+					--theme-label-font-color: #3A3A3A;
+					--theme-label-strong-font-size: 24px;
+					--theme-label-strong-font-weight: 600;
+				}
+				capitec-label[type="default"] {
+					--theme-label-default-font-size: 16px;
+				}
 			`
 		];
 	}
@@ -585,17 +555,15 @@ export class TaxCertificates extends Component {
 	}
 
 	_renderAlertBanner() {
-		if (!isNullorEmpty(this.alertBannerMessage)) {
-			return html`
+		return !isNullorEmpty(this.alertBannerMessage)
+			? html`
 				<capitec-alert-banner 
 					data-automation-id="tax-certificate-alert-banner"
 					type="unsuccessful-red" 
 					closable>
 					<p><b>Notify:</b> ${this.alertBannerMessage}</p>
-				</capitec-alert-banner>
-			`;
-		}
-		return html``;
+				</capitec-alert-banner>`
+			: html``;
 	}
 
 	_renderContent() {
@@ -694,14 +662,13 @@ export class TaxCertificates extends Component {
 		if (this.currentStep === 1 && this.renderMode === RENDER_MODE.EMAIL) {
 			return html`
 				<horizon-email-input
-					email=${this.email}
-					confirmEmail=${this.confirmEmail}
-					@value-changed="${(e) => this._emailValueChanged(e)}"
-					@validation-update="${(e) => this._validEmailAddressCheck(e)}"
-					.labelOne="${this.emailLabel}"
-					.labelTwo="${this.confirmEmailLabel}"
-					.emailError="${this.mailClientError.email}"
-					.confirmEmailError="${this.mailClientError.confirmEmail}">
+					labelOne="${this.emailLabel}"
+					labelTwo="${this.confirmEmailLabel}"
+					email="${this.email}"
+					confirmEmail="${this.confirmEmail}"
+					?showRequiredError="${this.alertBannerMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
+					.callBack="${() => this._clearAlerts()}"
+					@value-changed="${(e) => this._emailValueChanged(e)}">
 				</horizon-email-input>
 
 				<hr class="seperator">
@@ -731,8 +698,7 @@ export class TaxCertificates extends Component {
 	}
 
 	_renderCertificateYears(item, certType) {
-		if (certType === `iT3STaxCertificates`)
-		{
+		if (certType === `iT3STaxCertificates`) {
 			return html`
 				<horizon-expander-noanime
 					id="tax-expander"
@@ -775,8 +741,7 @@ export class TaxCertificates extends Component {
 	}
 
 	_renderOnlyIt3BExpanders(item, certType) {
-		if (certType === `iT3STaxCertificates`) 
-		{
+		if (certType === `iT3STaxCertificates`) {
 			return html``;
 		}
 

@@ -12,6 +12,7 @@ import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/CardLimitsLanding';
+import 'app/dialogs/statements/Statements';
 
 const RENDER_MODE = Object.freeze({
 	MAIN_PAGE: 0,
@@ -133,6 +134,7 @@ export class RelatedOptions extends Component {
 		const taxCertificate = () => this._taxCertificate();
 		const proofOfAccount = () => this._proofOfAccount();
 		const transactionHistory = (option) => this._transactionHistory(option);
+		const paidUpAccounts = (option) => this._paidUpAccounts(option);
 
 		const actions = {
 			'stop-card': stopCard,
@@ -141,7 +143,8 @@ export class RelatedOptions extends Component {
 			'statements': statements,
 			'tax-certificate': taxCertificate,
 			'proof-of-account': proofOfAccount,
-			'transaction-history': transactionHistory
+			'transaction-history': transactionHistory,
+			'paid-up-accounts': paidUpAccounts
 		};
 
 			if (actions[item]) {
@@ -266,6 +269,11 @@ export class RelatedOptions extends Component {
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
+	_paidUpAccounts(option) {
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, option);
+		this.horizonRouter.navigateToQuickTransactionFavourites();
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -366,12 +374,12 @@ export class RelatedOptions extends Component {
 	_renderStatements() {
 		return this.renderMode === RENDER_MODE.STATEMENTS
 			? html`
-				<horizon-statements-dialog
+				<horizon-statements
 					.cifNumber="${this.callerInformation.cifNumber}"
 					.clientProducts="${this.clientProducts}"
 					type=""
 					@cancel="${() => this._backToLandingPage()}">
-				</horizon-statements-dialog>`
+				</horizon-statements>`
 			: html``;
 	}
 

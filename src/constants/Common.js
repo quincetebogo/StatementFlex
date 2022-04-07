@@ -17,6 +17,34 @@ export const HIGH_RISK_TRANSACTIONS = [`debi-check`];
 export const LOW_RISK_TRANSACTIONS = [`stop-card`, `search-other-need`];
 
 /**
+ * Transactions that doesn't even require authentication to perform
+ * 
+ * @readonly
+ * @enum {Object} EMAIL_DOMAINS
+ * 
+ */
+ export const EMAIL_DOMAINS = Object.freeze([
+	`yahoo.com`,
+	`gmail.com`,
+	`google.com`,
+	`hotmail.com`,
+	`me.com`,
+	`aol.com`,
+	`mac.com`,
+	`live.com`,
+	`comcast.com`,
+	`googlemail.com`,
+	`msn.com`,
+	`hotmail.co.uk`,
+	`yahoo.co.uk`,
+	`facebook.com`,
+	`verizon.net`,
+	`att.net`,
+	`gmz.com`,
+	`mail.com`
+]);
+
+/**
  * Account types that Transaction history component supports {@link TransactionHistory}
  * 
  * @readonly
@@ -27,4 +55,20 @@ export const LOW_RISK_TRANSACTIONS = [`stop-card`, `search-other-need`];
 	LBB: `lbb`,
 	CREDIT: `credit`,
 	SAVINGS_PLAN: `save`
+});
+
+/**
+ * Account types and their respective product codes
+ * 
+ * @readonly
+ * @enum {Object} ACCOUNT_TYPE_CODE
+ */
+ export const ACCOUNT_TYPE_CODE = Object.freeze({
+	PRIMARY_SAVINGS: 300,
+	FLEXIBLE_SAVINGS_PLAN: 200,
+	FIXED_TERM_SAVINGS_PLAN: 201,
+	LBB: 210,
+	FIXED_TERM_CREDIT: 4010,
+	FLEXIBLE_CREDIT_CARD: 101,
+	FLEXIBLE_ACCESS_FACILITY: 6000
 });
