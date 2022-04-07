@@ -101,7 +101,7 @@ export const PERIOD_TYPE = Object.freeze({
 		choosePeriod: RANGE_SELECTOR.DATE
 	},
 	4010: {
-		name: ``,
+		name: `Term Loan`,
 		type: `FIXED_TERM_CREDIT`,
 		category: `credit`,
 		subCategory: `term-loan`,

@@ -1,5 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
 
 import 'app/productControls/SavingsPlan/SavingsPlanLanding';
@@ -91,11 +90,6 @@ export class FixedTermSavingsPlan extends Component {
 	// PRIVATE METHODS
 	// ---------------
 	
-	_formatDate(date) {
-		const newdate = new Date(Date.parse(date));
-		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
-	}
-
 	_getCurrentMonth() {
 		const newdate = new Date();
 		return `${getMonthName(newdate.getMonth())}`;
@@ -206,7 +200,7 @@ export class FixedTermSavingsPlan extends Component {
 				}
 				.details-label {
 					height: 64px;
-					width: 342px;
+					width: 33%;
 					padding: 12px 0px;
 
 					--horizon-label-text-height: 20px;
