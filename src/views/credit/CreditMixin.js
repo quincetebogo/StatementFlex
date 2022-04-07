@@ -53,19 +53,26 @@ export const creditMixin = {
 	},
 
 	_sendSettlementQuote(details) {
-
-		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.selectedAccounts = details.selectedAccounts.filter(item => !isNullorEmpty(item));
-		screenDetails.emailAddress = details.emailAddress;
-		this.horizonStore.setScreenDetails(screenDetails);
 		
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `settlement-quote`);
 	
 		// TO DO: CS call to send Settlement Quote sould come here
-		// Settlement Quote outcome screens to be modified as per CS outcome to handle multiple account selection
+		// "accountsEmailStatus" - Response from the CS call  
 
-		this.horizonRouter.navigateToSettlementQuoteSuccess();
-		// this.horizonRouter.navigateToSettlementQuoteFailure();
+		const formatedResponse = accountsEmailStatus.map(item => {
+			const itemDetails = details.selectedAccounts.find(account => account.accountNumber === item.accountNumber);
+			item.productTypeDescription = itemDetails.productTypeDescription;
+
+			return item;
+		});
+
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.selectedAccounts = details.selectedAccounts.filter(item => !isNullorEmpty(item));
+		screenDetails.emailAddress = details.emailAddress;
+		screenDetails.emailStatus = formatedResponse;
+		this.horizonStore.setScreenDetails(screenDetails);
+
+		this.horizonRouter.navigateToSettlementQuoteOutcome();
 	},
 
 	async _navigatePDF(currPage) {
