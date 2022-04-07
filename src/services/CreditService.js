@@ -287,4 +287,58 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
+	async getPaidUpLetter(cifNumber, accountNumbers, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		if (await this.isMockEnabled(`getPaidUpLetter`)) {
+			return this.mock(`getPaidUpLetter`);
+		}
+
+		const getPaidUpLetterRequest = {
+			"cifnumber": cifNumber,
+			"accountNumbers": accountNumbers
+		};
+
+		const url = `/clientcare-credit-${this._version}/credit/paid-up-letter`;
+
+		return this.post(
+			url,
+			creditOverviewRequest,
+			this.setToken(),
+			`getPaidUpLetter`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async emailPaidUpLetter(cifNumber, accountNumbers, emailAddress, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		if (await this.isMockEnabled(`emailPaidUpLetter`)) {
+			return this.mock(`emailPaidUpLetter`);
+		}
+
+		const getPaidUpLetterRequest = {
+			"cifnumber": cifNumber,
+			"accountNumbers": accountNumbers,
+			"emailAddress": emailAddress
+		};
+
+		const url = `/clientcare-credit-${this._version}/credit/paid-up-letter/email`;
+
+		return this.post(
+			url,
+			creditOverviewRequest,
+			this.setToken(),
+			`emailPaidUpLetter`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 }

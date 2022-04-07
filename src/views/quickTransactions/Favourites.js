@@ -590,7 +590,7 @@ export class Favourites extends SavingsAccountBase {
 		}
 
 		
-		const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber);
+		const returnValue = await this.creditService.getPaidUpLetter(this.callerInformation.cifNumber, screenDetails.selectedAccounts);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to retrieve client overview from credit service.`, `_initialise`, returnValue.correlationId);
@@ -601,9 +601,7 @@ export class Favourites extends SavingsAccountBase {
 		if (returnValue.succeeded && returnValue.result) {
 
 			// this.accountsInfo = [`Term loan (32 Months)`, `Credit`, `Access Facility`];
-			this.creditAccountDetails = returnValue.result;
-			this._formatCreditOverviewResponse();
-			this.accountsInfo = [...this.creditAccountDetails.creditCardSummaryList, ...this.creditAccountDetails.accessFacilitySummaryList, ...this.creditAccountDetails.loanAccountSummaryList];
+			this.accountsInfo = returnValue.result;
 
 			this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
 		}
