@@ -1,12 +1,10 @@
 import { css, html } from 'platform/elements';
+import { SQFailedMixin } from 'app/views/common/SQFailedMixin';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { VerifyCallerEvents } from 'app/constants/telemetry/events/VerifyCaller';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
-
-
-const MAX_ITA_ATTEMPTS = 3;
 
 /**
  * The XDS Verification Failed screen is displayed the second time a client fails verification.
@@ -25,6 +23,8 @@ export class XdsVerificationFailed extends ViewBase {
 
 	constructor() {
 		super();
+
+		Object.assign(KbaVerificationFailed.prototype, SQFailedMixin);
 	}
 
 	// ----------
@@ -54,11 +54,7 @@ export class XdsVerificationFailed extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
-	async _clientVerified(event) {
-		await super._clientVerified(event);
-
-		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
-	}
+	// N/A
 
 	// --------------
 	// EVENT HANDLERS
@@ -70,7 +66,7 @@ export class XdsVerificationFailed extends ViewBase {
 			"next-screen": TelemetryScreen.FAVOURITES
 		}, true);
 
-		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
+		this._navigateToLP();
 	}
 
 	_verifyViaApp() {
@@ -82,27 +78,11 @@ export class XdsVerificationFailed extends ViewBase {
 		super._verifyClick();
 	}
 
-	_updateMiniProfile() {
-		this.horizonStore.setCallerInformation(this.callerInformation);
-		
-		const state = { 
-			leftBarButtonConfig: {
-				hasFavourites: true,
-				subtitle: ``,
-				detail: ``
-			}
-		};
-
-		this.horizonStore.saveState(state);
-	}
-
 	// ---------
 	// RENDERING
 	// ---------
-	_itaAvailable() {
-		// itaAttempts is 0 based and is incremented on successful initiation of an ITA request
-		return this.callerInformation.hasDigitalChannels && this.callerInformation.verificationAttempts.itaAttempts < MAX_ITA_ATTEMPTS;
-	}
+	
+	// N/A
 
 	// ---------
 	// RENDERING
@@ -133,27 +113,11 @@ export class XdsVerificationFailed extends ViewBase {
 
 	_webTemplate() {
 		return html`
-			${this._renderXdsFailureScreen()}
+			${this._renderSQFailureScreen()}
 
 			${super._webTemplate()}
 		`;
 	}
-
-	_renderXdsFailureScreen() {
-		return html`
-			<horizon-error-screen 
-				header="Verification was unsuccessful" 
-				left="Continue Unverified"
-				right="${this._itaAvailable() ? `Verify Via App/USSD` : ``}"
-				toast="Verification has failed."
-				image="/images/insure/assign-pay-arrears.svg"
-				@left-click=${() => this._continueUnverifiedClick()}
-				@right-click=${() => this._verifyViaApp()}>
-				<section id="id-error-msg" slot="detail">You can continue with limited transactions.</section>
-			</horizon-error-screen>
-		`;
-	}
-
 }
 
 customElements.define(`horizon-xds-verification-failed`, XdsVerificationFailed);
