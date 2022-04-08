@@ -325,7 +325,8 @@ export class CreditAccount extends ViewBase {
 			
 			this.horizonStore.setCallerInformation(this.callerInformation);
 
-            let returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber);
+			const accountStatus = `All`;
+            let returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber, accountStatus);
             let successfullServiceResponse = returnValue.succeeded;
 
 			if (!successfullServiceResponse) {
