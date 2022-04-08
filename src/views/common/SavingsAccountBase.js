@@ -118,9 +118,9 @@ export class SavingsAccountBase extends ViewBase {
 		const clientSavingsProductDetails = await this._getClientProducts();
 		const clientCreditProductDetails = await this._getClientCreditProducts();
 
-		const clientProductDetails = [...clientSavingsProductDetails, ...clientCreditProductDetails.accessFacilitySummaryList, ...clientCreditProductDetails.creditCardSummaryList, ...clientCreditProductDetails.loanAccountSummaryList];
+		const clientProductDetails = [...clientSavingsProductDetails, ...clientCreditProductDetails?.accessFacilitySummaryList, ...clientCreditProductDetails?.creditCardSummaryList, ...clientCreditProductDetails?.loanAccountSummaryList];
 
-			if (clientProductDetails) {
+		if (clientProductDetails) {
 			this.clientProducts = clientProductDetails.map(item => {
 									const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType || item.productTypeCode][item.interestCategory] || 
 														ACCOUNT_INTCAT_ENUM[item.accountType || item.productTypeCode];

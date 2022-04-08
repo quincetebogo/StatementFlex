@@ -90,10 +90,8 @@ export class StatementsDialog extends Component {
 			renderMode: { state: true },
 			notifyClient: { state: true },
 			periodSelected: { state: true },
-			showCalendar: { state: true },
 			fromDate: { state: true },
 			toDate: { state: true },
-			_customDateRange: { state: true },
 			errorMessage: { state: true },
 			periodType: { state: true }
 		};
@@ -170,13 +168,13 @@ export class StatementsDialog extends Component {
 
 		this.periodType = PERIOD_TYPE.STATIC;
 		this.errorMessage = ``;
+		this.fromDate = `dd mm yyyy`;
+		this.toDate = `dd mm yyyy`;
 	}
 
 	_customDateRangeSelected() {
-		this.periodSelected = ``;
 		this.calendarErrorMessage = ``;
-		this.fromDate = `dd mm yyyy`;
-		this.toDate = `dd mm yyyy`;
+		this._resetPeriodSelection();
 		this.periodType = PERIOD_TYPE.CUSTOM;
 	}
 	
@@ -263,6 +261,7 @@ export class StatementsDialog extends Component {
 			this._resetPeriodSelection();
 			this.dispatchEvent(new CustomEvent(`account-selected`, {
 				detail: {
+					name: this.productSelected.name,
 					accountNumber: this.productSelected.accountNumber,
 					account: this.productSelected.category,
 					subCategory: this.productSelected.subCategory
@@ -295,8 +294,6 @@ export class StatementsDialog extends Component {
 			this.errorMessage = `Choose Account`;
 			return false;
 		}
-
-
 
 		return true;
 	}
@@ -342,7 +339,7 @@ export class StatementsDialog extends Component {
 	}
 
 	_getSummary() {
-		if (this._customDateRange) {
+		if (this.periodType === PERIOD_TYPE.CUSTOM) {
 			const fromDate = new Date(this.fromDate);
 			const toDate = new Date(this.toDate);
 
@@ -417,8 +414,6 @@ export class StatementsDialog extends Component {
 
 	_resetPeriodSelection() {
 		this.periodSelected = ``;
-		this.showCalendar = false;
-		this._customDateRange = false;
 		this.fromDate = `dd mm yyyy`;
 		this.toDate = `dd mm yyyy`;
 	}
@@ -1009,7 +1004,8 @@ export class StatementsDialog extends Component {
 						type="primary"
 						label="Next"
 						@click="${() => this._next()}"
-						?hidden="${this.currentStep === this.STEPPER_STEPS.length - 1}">
+						?hidden="${this.currentStep === this.STEPPER_STEPS.length - 1}"
+						?disabled="${Boolean(this.productSelected?.ccsStatus)}">
 					</capitec-button>
 					<capitec-button
 						class="m-r-0"
