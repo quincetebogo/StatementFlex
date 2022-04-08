@@ -160,8 +160,8 @@ export class CreditAccount extends ViewBase {
 			await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
 			this._refreshIncidentDetails();
 
-			// this.ccsStatus = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber, productType);
-			this.ccsStatus = false;
+			this.ccsStatus = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber, productType);
+			
 			// Perform the action only when ccs status is false
 			if (!this.ccsStatus) {
 				return actions[option]();
