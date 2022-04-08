@@ -1,6 +1,8 @@
 import { Component, html } from 'platform/elements';
-import { Configuration, EventAggregator, Logger } from 'platform/core';
+import { Configuration, EventAggregator, Logger, NavigationContext } from 'platform/core';
 import { ClientInsightsService } from 'app/services/ClientInsightsService';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { NBAEvents } from 'app/constants/telemetry/events/AccessMenuBar';
 import { ValueAddedService } from 'app/services/ValueAddedService';
 
 import 'platform/components';
@@ -22,10 +24,13 @@ export class Insights extends Component {
 		this.showValueAddedServicesModal = false;
 		this.showUnavailableVASModal = false;
 		this.showVASNoClientDataModal = false;
+		this.insights = {};
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this._configuration = Configuration.getInstance();
 		this.logger = Logger.getInstance();
+		this._navigationContext = NavigationContext.getInstance();
+		this._telemetry = HorizonTelemetry.getInstance();
 
 		this.valueAddedService = new ValueAddedService(() => this._toggleBusyFlag(), () => true);
 		this.clientInsightsService = new ClientInsightsService(() => this._toggleBusyFlag(), () => true);
@@ -145,6 +150,7 @@ export class Insights extends Component {
 
 	async _formatInsights(insights) {
 		
+		this.insights = insights;
 		const insightDetails = await this._configuration.getSetting(`lbb-insight-details`);
 
 		if (insightDetails[insights.parentCategoryId] && insightDetails[insights.parentCategoryId][insights.nbaId]) {
@@ -157,10 +163,23 @@ export class Insights extends Component {
 				message: displayDetails.message,
 				actions: insights.actions
 			};
+
+			this._telemetry.logEvent(NBAEvents.LOAD, {
+				"nbaId": insights.nbaId,
+				"parentCategoryId": insights.parentCategoryId,
+				"message": displayDetails.header
+			});
 		}
 	}
 
-	async _insightsAction(replyReference) {
+	async _insightsAction(replyReference, action) {
+		this._telemetry.logEvent(NBAEvents.ACTION, {
+			"screen": this._navigationContext.current.route.title,
+			"nbaId": this.insights.nbaId,
+			"parentCategoryId": this.insights.parentCategoryId,
+			"outcome": action
+		});
+
 		const returnValue = await this.clientInsightsService.sendInsightsAction(replyReference);
 
 		if (!returnValue.succeeded) {
@@ -193,7 +212,7 @@ export class Insights extends Component {
 		return html`
 			<capitec-pc-client-insights
 				.insightDetails=${this.insightDetails}
-				.updateInsights = ${(replyReference) => this._insightsAction(replyReference)}
+				.updateInsights = ${(replyReference, action) => this._insightsAction(replyReference, action)}
 				@settings-click="${() => this._showVASModal()}">
 			</capitec-pc-client-insights>`;
 	}

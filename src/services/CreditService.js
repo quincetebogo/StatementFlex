@@ -268,7 +268,7 @@ export class CreditService extends ChannelServiceBase {
 			"emailAddress": emailAddress,
 			"fromDate": fromDate,
 			"toDate": toDate,
-			"setDate": setdate
+			"setDates": setdate
 		};
 
 		const url = `/clientcare-credit-${this._version}/credit/fixed/statement/email`;
@@ -302,9 +302,31 @@ export class CreditService extends ChannelServiceBase {
 
 		return this.post(
 			url,
-			creditOverviewRequest,
+			getPaidUpLetterRequest,
 			this.setToken(),
 			`getPaidUpLetter`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	permissions(cifNumber, accNumber, productType, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		const url = `/clientcare-credit-${this._version}/credit/permission`;
+
+		return this.post(
+			url,
+			{
+				"accountNumber": accNumber,
+				"cifNumber": cifNumber,
+				"resourceIdentifierType": productType
+			},
+			this.setToken(),
+			`permissions`,
 			null,
 			null,
 			900,
@@ -320,7 +342,7 @@ export class CreditService extends ChannelServiceBase {
 			return this.mock(`emailPaidUpLetter`);
 		}
 
-		const getPaidUpLetterRequest = {
+		const emailPaidUpLetterRequest = {
 			"cifnumber": cifNumber,
 			"accountNumbers": accountNumbers,
 			"emailAddress": emailAddress
@@ -330,7 +352,7 @@ export class CreditService extends ChannelServiceBase {
 
 		return this.post(
 			url,
-			creditOverviewRequest,
+			emailPaidUpLetterRequest,
 			this.setToken(),
 			`emailPaidUpLetter`,
 			null,
