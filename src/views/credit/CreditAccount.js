@@ -1,9 +1,9 @@
 import { CREDIT_TYPE, FROM_ACCOUNTS_LIST, PRODUCTS } from 'app/constants/Credit';
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
+import { CreditEvents, SETTLEMENT_QUOTE_EVENTS } from 'app/constants/telemetry/events/Credit';
 import { css, html } from 'platform/elements';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { ACCOUNT_TYPES } from 'app/constants/Common';
-import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { CreditService } from 'app/services/CreditService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
@@ -65,7 +65,7 @@ export class CreditAccount extends ViewBase {
 		this.ccsStatus = false;
 		this.showCCSmodal = false;
 		this.showSettleCloseModal = false;
-
+		this.settlementQuoteEvents = SETTLEMENT_QUOTE_EVENTS;
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
@@ -486,10 +486,12 @@ export class CreditAccount extends ViewBase {
 
 		this._telemetry.logEvent(CreditEvents.CREDIT_SETTLEMENT_QUOTE_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
-			"next-screen": TelemetryScreen.CREDIT_SETTLEMENT_QUOTE,
+			"next-screen": TelemetryScreen.SETTLEMENT_QUOTE_DIALOG,
 			"credit-type": creditType,
 			"product-type": productType
 		});
+
+		this._telemetry.startSpan(this.settlementQuoteEvents.SETTLEMENT_QUOTE, {});
 
 		const screenDetails = this.horizonStore.getScreenDetails();
 		screenDetails.creditType = creditType;
@@ -546,7 +548,7 @@ export class CreditAccount extends ViewBase {
 		const successfullServiceResponse = returnValue.succeeded;
 
 		if (!successfullServiceResponse) {
-			this.logger(`error`, `Failed to retrieve client credit card budget details from credit service.`, `_budgetFacility`, returnValue.correlationId);
+			this.logger.log(`error`, `Failed to retrieve client credit card budget details from credit service.`, `_budgetFacility`, returnValue.correlationId);
 			return;
 		}
 
@@ -588,7 +590,7 @@ export class CreditAccount extends ViewBase {
 		const successfullServiceResponse = returnValue.succeeded;
 
 		if (!successfullServiceResponse) {
-			this.logger(`error`, `Failed to retrieve client credit card details from credit service.`, `_getCreditCardDetails`, returnValue.correlationId);
+			this.logger.log(`error`, `Failed to retrieve client credit card details from credit service.`, `_getCreditCardDetails`, returnValue.correlationId);
 			return;
 		}
 
@@ -614,7 +616,7 @@ export class CreditAccount extends ViewBase {
 		const successfullServiceResponse = returnValue.succeeded;
 
 		if (!successfullServiceResponse) {
-			this.logger(`error`, `Failed to retrieve client loan details from credit service.`, `_getTermLoanDetails`, returnValue.correlationId);
+			this.logger.log(`error`, `Failed to retrieve client loan details from credit service.`, `_getTermLoanDetails`, returnValue.correlationId);
 			return;
 		}
 
@@ -623,6 +625,13 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_backFromSettlementQuoteDialog() {
+		this._telemetry.logEvent(this.settlementQuoteEvents.SETTLEMENT_QUOTE_CANCEL, {
+			"screen": TelemetryScreen.SETTLEMENT_QUOTE_DIALOG,
+			"next-screen": TelemetryScreen.CREDIT_LANDING
+		});
+
+		this._telemetry.endSpan(this.settlementQuoteEvents.SETTLEMENT_QUOTE_DIALOG, {}, true, true);
+
 		this.horizonStore.clearScreenDetails();
 		this._backToLandingPage();
 	}
@@ -757,7 +766,6 @@ export class CreditAccount extends ViewBase {
 			${this._renderPayBudgetDialog()}
 			${this._renderSettlementQuoteDialog()}
 			${this._renderCcsModal()}
-			${this._renderSettleCloseModal()}
 			${this._renderSettleAndCloseEmailConfirmation()}
 			${this._renderSettleLoanEmailConfirmation()}
 			${this._renderPayBudgetEmailConfirmation()}
