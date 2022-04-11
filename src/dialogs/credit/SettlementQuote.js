@@ -40,7 +40,7 @@ export class SendSettlementQuote extends Component {
 		// private variables
 		this.flag = false;
 		this.currPage = 0;
-		this.encodedPDF = ``;
+		this.encodedPDF = {};
 		this.email = ``;
 		this.confirmEmail = ``;
 		this.emailLabel = `Enter email address`;
@@ -53,13 +53,13 @@ export class SendSettlementQuote extends Component {
 
 	/**
 	 * @param {object} selectedAccounts which accounts to send quote
-	 * @param {object} encodedPDFs  Settlement quote pdfs to be viewed
+	 * @param {object} encodedPDF Settlement quote pdfs to be viewed
 	 */
 
 	static get properties() {
 		return {
 			selectedAccounts: { type: Object },
-			encodedPDFs: { type: Object },
+			encodedPDF: { type: Object },
 			navigatePDF: { type: Object },
 
 			// private properties
@@ -312,13 +312,13 @@ export class SendSettlementQuote extends Component {
 				type="default"
 				label="${item.type === PRODUCTS.TERM_LOAN ? `Term loan (${item.productTypeDescription.split(` `)[0]} months)` : item.productTypeDescription}"
 				subtitle="${item.accountNumber}">
-					${this._renderViewDocumnetLink(item)}
+					${this._renderViewDocumnetLink()}
 			</horizon-product-tile>
 		`;
 	}
 
-	_renderViewDocumnetLink(item) {
-		this.currPage = this.selectedAccounts.indexOf(item);
+	_renderViewDocumnetLink() {
+		this.currPage = this.selectedAccounts.length;
 		return html`
 			<capitec-label 
 				slot="detail"

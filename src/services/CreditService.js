@@ -309,4 +309,40 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
+	settlementQuote(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		
+		const url =`/clientcare-credit-${this._version}/credit/settlement-quote`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`settlementQuote`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+	
+	sendSettlementQuoteEmail(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		const url = `/clientcare-credit-v1/credit/settlement-quote/email`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`permission`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
 }

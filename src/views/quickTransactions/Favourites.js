@@ -526,7 +526,6 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_settlementQuote() {
-		const screenDetails = this.horizonStore.getScreenDetails();
 
 		// TODO: CS call to get credit accounts info and diaplay appropriate values on settlement quote view screen - details are pulled from mocks now
 
@@ -546,9 +545,6 @@ export class Favourites extends SavingsAccountBase {
 
 		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
 
-		if (screenDetails.selectedAccounts) {
-			this._settlementQuoteDialog(screenDetails.selectedAccounts);
-		}
 	}
 
 	_paidUpAccounts() {

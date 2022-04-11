@@ -47,40 +47,73 @@ export const creditMixin = {
 		return permission?.permissionResult === PERMISSION_STATUS.DENIED;
 	},
 
-	_settlementQuoteDialog(selectedAccounts) {
+	async _settlementQuoteDialog(selectedAccounts) {
 		this.selectedAccountDetails = selectedAccounts;
+		this.encodedPDF = await this._navigatePDF(selectedAccounts[0]);
 		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_DIALOG;
 	},
 
-	_sendSettlementQuote(details) {
+	async _sendSettlementQuote(details) {
 		
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `settlement-quote`);
-	
-		// TO DO: CS call to send Settlement Quote sould come here
-		// "accountsEmailStatus" - Response from the CS call  
 
-		const formatedResponse = accountsEmailStatus.map(item => {
-			const itemDetails = details.selectedAccounts.find(account => account.accountNumber === item.accountNumber);
-			item.productTypeDescription = itemDetails.productTypeDescription;
+		this.callerInformation = this.horizonStore.getCallerInformation();
 
-			return item;
+		const accountsList = details.selectedAccounts.map(item => {
+			const account = { 
+								'accountNumber': item.accountNumber,
+								'creditType': item.productTypeDescription.replace(` `,``)
+							};
+			return account;
 		});
 
-		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.selectedAccounts = details.selectedAccounts.filter(item => !isNullorEmpty(item));
-		screenDetails.emailAddress = details.emailAddress;
-		screenDetails.emailStatus = formatedResponse;
-		this.horizonStore.setScreenDetails(screenDetails);
+		const request = {
+			"cifNumber": this.callerInformation.cifNumber,
+			"caseId": this.caseId,
+			"emailAddress": details.emailAddress,
+			"accountList": accountsList
+		}
 
-		this.horizonRouter.navigateToSettlementQuoteOutcome();
+		const returnValue = await this.creditService.sendSettlementQuoteEmail(request)
+
+		if (returnValue.succeeded) {
+			const accountsEmailStatus = returnValue.result.sendStatusList;
+
+			const formatedResponse = accountsEmailStatus.map(item => {
+				const itemDetails = details.selectedAccounts.find(account => account.accountNumber === item.accountNumber);
+				item.productTypeDescription = itemDetails.productTypeDescription;
+
+				return item;
+			});
+
+			const screenDetails = this.horizonStore.getScreenDetails();
+			screenDetails.selectedAccounts = details.selectedAccounts.filter(item => !isNullorEmpty(item));
+			screenDetails.emailAddress = details.emailAddress;
+			screenDetails.emailStatus = formatedResponse;
+			this.horizonStore.setScreenDetails(screenDetails);
+
+			this.horizonRouter.navigateToSettlementQuoteOutcome();
+		}
 	},
 
-	async _navigatePDF(currPage) {
-		// add CS call to get encodedPDF 
-		// currPage is date currently selected
-		const returnValue = await this.quickTransactionService.viewStatement(currPage, () => this._createIncidentOnError());
+	async _navigatePDF(selectedAccounts) {
+
+		const request = {
+			"creditType": selectedAccounts.type.replace(` `, ``),
+			"accountNumber": selectedAccounts.accountNumber,
+			"cifNumber": this.callerInformation.cifNumber,
+			"caseBranchNumber": 0,
+			"idNumber": this.callerInformation.southAfricanIDNumber,
+			"firstName": this.callerInformation.firstName,
+			"surname": this.callerInformation.lastName,
+			"caseId": ""
+		};
+
+		const returnValue = await this.creditService.settlementQuote(request);
+
 		if (returnValue) {
-			return returnValue.result.statementData;
+			this.caseId = returnValue.result.caseId;
+			return returnValue.result.data;
 		}
 	},
 
@@ -88,6 +121,7 @@ export const creditMixin = {
 		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG 
 		? html`
 			<horizon-settlement-quote-dialog
+				.encodedPDF="${this.encodedPDF}"
 				.selectedAccounts="${this.selectedAccountDetails}"
 				@cancel="${() => this._backFromSettlementQuoteDialog()}"
 				@send="${(e) => this._sendSettlementQuote(e.detail)}"
