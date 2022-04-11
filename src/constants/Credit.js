@@ -63,3 +63,11 @@ export const PERMISSION_STATUS = Object.freeze({
 	GRANTED: `Granted`,
 	DENIED: `Denied`
 });
+
+export const ACCOUNT_STATUS = Object.freeze({
+	UNSPECIFIED: `Unspecified`,
+	ALL: `All`,
+	ACTIVE: `Active`,
+	CLOSED: `Closed`,
+	PAID_UP: `Paidup`
+});
