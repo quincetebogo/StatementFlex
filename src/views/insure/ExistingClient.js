@@ -18,7 +18,7 @@ import 'app/components/dialogs/insure/EACLAgreementDialog';
 
 // Other
 import 'app/components/dialogs/insure/InsureAddLifeDialog';
-import 'app/components/insure/EstimateCalculatorResults';
+import 'app/components/insure/EstimateCalculateSummary';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/ServiceCallErrorScreen';
 
@@ -689,8 +689,8 @@ export class ExistingClient extends InsureViewBase {
 	_renderRightEstimateColumn() {
 		return html`
 			<div class="insure-calc-column-right">
-				<horizon-insure-estimate-calc-results>
-				</horizon-insure-estimate-calc-results>
+				<horizon-insure-estimate-calc-summary>
+				</horizon-insure-estimate-calc-summary>
 			</div>
 		`
 	}
