@@ -314,28 +314,6 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	permissions(cifNumber, accNumber, productType, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-
-		const url = `/clientcare-credit-${this._version}/credit/permission`;
-
-		return this.post(
-			url,
-			{
-				"accountNumber": accNumber,
-				"cifNumber": cifNumber,
-				"resourceIdentifierType": productType
-			},
-			this.setToken(),
-			`permissions`,
-			null,
-			null,
-			900,
-			null,
-			errorHandler,
-			autoRetries
-		);
-	}
-
 	async emailPaidUpLetter(cifNumber, accountNumbers, emailAddress, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
 		if (await this.isMockEnabled(`emailPaidUpLetter`)) {
@@ -355,6 +333,28 @@ export class CreditService extends ChannelServiceBase {
 			emailPaidUpLetterRequest,
 			this.setToken(),
 			`emailPaidUpLetter`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	permissions(cifNumber, accNumber, productType, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		const url = `/clientcare-credit-${this._version}/credit/permission`;
+
+		return this.post(
+			url,
+			{
+				"accountNumber": accNumber,
+				"cifNumber": cifNumber,
+				"resourceIdentifierType": productType
+			},
+			this.setToken(),
+			`permissions`,
 			null,
 			null,
 			900,

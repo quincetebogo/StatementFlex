@@ -559,8 +559,8 @@ export class Favourites extends SavingsAccountBase {
 			return;
 		}
 
-		
-		const returnValue = await this.creditService.getPaidUpLetter(this.callerInformation.cifNumber, screenDetails.selectedAccounts);
+		const accountStatus = `PaidUp`;
+		const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber, accountStatus, screenDetails.selectedAccounts);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to retrieve client overview from credit service.`, `_initialise`, returnValue.correlationId);
@@ -1077,7 +1077,6 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.PAID_UP_ACCOUNTS
 		? html`
 		<horizon-paid-up-accounts
-			.landingPageInfo="${this.landingPageInfo}"
 			.accountsInfo="${this.accountsInfo}"
 			@back="${() => this._backToLandingPage()}">
 		</horizon-paid-up-accounts>`

@@ -26,7 +26,6 @@ export class PaidUpAccounts extends Component {
 	constructor() {
 		super();
 
-		this.landingPageInfo = null;
 		this.accountsInfo = null;
 
 		this.showPaidUpLetter = false;
@@ -405,7 +404,6 @@ export class PaidUpAccounts extends Component {
 		return this.showPaidUpLetter 
 		? html`
 		<horizon-paid-up-letter-dialog
-			.landingPageInfo="${this.landingPageInfo}"
 			.selectedAccounts="${this.selectedAccounts}"
 			@cancel="${() => this._showPaidUpLetter()}"
 			.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">

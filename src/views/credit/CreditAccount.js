@@ -61,6 +61,7 @@ export class CreditAccount extends ViewBase {
 		this.creditBalance = ``;
 		this.productType = ``;
 		this.creditType = ``;
+		this.selectedAccounts = [];
 		// ccs status of client set to true until real value retrieved from CS
 		this.ccsStatus = false;
 		this.showSettleCloseModal = false;
@@ -132,7 +133,7 @@ export class CreditAccount extends ViewBase {
 		const settlementQuote = () => this._settlementQuote(creditType, productType, selectedAccountDetails);
 		const settleAndClose = () => this._settleAndClose(creditType, productType, selectedAccountDetails);
 		const settleLoan = () => this._settleLoan();
-		const paidUpLetter = () => this._paidUpLetter();
+		const paidUpLetter = () => this._paidUpLetter(selectedAccountDetails);
 		const budgetFacility = () => this._budgetFacility(selectedAccountDetails);
 		const payBudget = () => this._payBudgetAccount(selectedAccountDetails);
 
@@ -464,12 +465,31 @@ export class CreditAccount extends ViewBase {
 		this._settlementQuoteDialog([selectedAccountDetails]);
 	}
 
-	_paidUpLetter() {
-		// TO DO: Place holder for paid up Letter flow.
+	async _paidUpLetter(selectedAccountDetails) {
 
 		if (this.ccsStatus) {
 			this.showCCSmodal = true;
 			return true;
+		}
+
+		// TO DO: Place holder for paid up Letter flow.
+		if (this.verificationStatus === `verified`) {
+			
+			this.horizonStore.setCallerInformation(this.callerInformation);
+
+			const accountNumbers = [];
+			accountNumbers.push(selectedAccountDetails.accountNumber);
+
+            const returnValue = await this.creditService.getPaidUpLetter(this.callerInformation.cifNumber, accountNumbers);
+
+			if (!returnValue.succeeded) {
+				this.logger.log(`error`, `Failed to retrieve client overview from credit service.`, `_initialise`, returnValue.correlationId);
+				this.renderMode = RENDER_MODE.SERVICE_UNAVAILABLE;
+				return;
+			}
+
+            this.paidUpLetterDetails = returnValue.result;
+			this.selectedAccounts.push(this.paidUpLetterDetails);
 		}
 		
 	}
@@ -722,6 +742,7 @@ export class CreditAccount extends ViewBase {
 			${this._renderPayBudgetEmailConfirmation()}
 			${this._renderSettleCloseDisclaimer()}
 			${this._renderSettleAndCloseDialog()}
+			${this._renderPaidUpLetterView()}
 		`;
 	}
 
@@ -946,6 +967,17 @@ export class CreditAccount extends ViewBase {
 				@cancel="${() => this._backToLandingPage()}"
 				@settle-and-close="${() => this._confirmSettleAndClose()}">
 			</horizon-settle-and-close-dialog>`
+		: html``;
+	}
+
+	_renderPaidUpLetterView() {
+		return this.renderMode === RENDER_MODE.PAID_UP_LETTER
+		? html`
+		<horizon-paid-up-letter-dialog
+			.selectedAccounts="${this.selectedAccounts}"
+			@cancel="${() => this._showPaidUpLetter()}"
+			.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
+		</horizon-paid-up-letter-dialog>`
 		: html``;
 	}
 }
