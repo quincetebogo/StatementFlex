@@ -54,7 +54,9 @@ const HORIZON_ROUTES = Object.freeze({
 	SETTLE_AND_CLOSE_FAILURE: `/error/settle-and-close`,
 	SAVINGS_PLAN: `/transact/savings-plan`,
 	BUDGET_FACILITY_SUCCESS: `/success/budget-facility`,
-	BUDGET_FACILITY_FAILURE: `/error/budget-facility`
+	BUDGET_FACILITY_FAILURE: `/error/budget-facility`,
+	PROOF_OF_PAYMENT_SUCCESS: `/success/proof-of-payment`,
+	PROOF_OF_PAYMENT_FAILURE: `/error/proof-of-payment`
 });
 
 
@@ -372,6 +374,15 @@ export class HorizonRouter {
 	navigateToBudgetFacilityFailure() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.BUDGET_FACILITY_FAILURE}`);
 	}
+
+	navigateProofOfPaymentSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_PAYMENT_SUCCESS}`);
+	}
+	
+	navigateProofOfPaymentFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_PAYMENT_FAILURE}`);
+	}
+
 
 	/**
 	 * Navigates to the indicated Product Info Page
@@ -879,6 +890,22 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.BUDGET_FACILITY_FAILURE,
 		load: () => import(`../views/credit/BudgetFacilityFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-proof-of-payment-success`,
+		title: `ProofOfPaymentSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.PROOF_OF_PAYMENT_SUCCESS,
+		load: () => import(`../views/credit/ProofOfPaymentSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-proof-of-payment-failure`,
+		title: `ProofOfPaymentFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.PROOF_OF_PAYMENT_FAILURE,
+		load: () => import(`../views/credit/ProofOfPaymentFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}
 ];

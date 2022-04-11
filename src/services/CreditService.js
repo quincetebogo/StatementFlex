@@ -26,16 +26,17 @@ export class CreditService extends ChannelServiceBase {
 	// --------------
 	// PUBLIC METHODS
 	// --------------
-	async creditOverview(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async creditOverview(cifNumber, accountStatus = `All`, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
 		if (await this.isMockEnabled(`creditOverview`)) {
 			return this.mock(`creditOverview`);
 		}
 
 		const creditOverviewRequest = {
-			"cifnumber": cifNumber
+			"cifnumber": cifNumber,
+			"accountStatus": accountStatus
 		};
-
+		
 		const url = `/clientcare-credit-${this._version}/credit/overview`;
 
 		return this.post(
@@ -372,7 +373,7 @@ export class CreditService extends ChannelServiceBase {
 			return this.mock(`emailProofOfPayment`, request);
 		}
 
-		const url = `/clientcare-credit-${this._version}credit/document/email`;
+		const url = `/clientcare-credit-${this._version}/credit/document/email`;
 
 		return this.post(
 			url,

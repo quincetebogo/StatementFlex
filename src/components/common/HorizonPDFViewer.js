@@ -1,8 +1,8 @@
 import { Component, css, html } from 'platform/elements';
 
-class HorizonPDFViewer extends Component{
+class HorizonPDFViewer extends Component {
 
-    constructor(){
+    constructor() {
         super();
         this.header = ``;
         this.zoom = 90;
@@ -12,14 +12,14 @@ class HorizonPDFViewer extends Component{
         this.dateSelected = ``;
     }
 
-    static get properties(){
-        return{
+    static get properties() {
+        return {
         header: { type: String },
         zoom: { type: Number },
         totalPages: { type: Number },
         currPage: { type: Number },
         encodedPDF: { type: String },
-        dateSelected: { type: String}
+        dateSelected: { type: String }
         };
     }
 
@@ -41,13 +41,13 @@ class HorizonPDFViewer extends Component{
         return `${URL.createObjectURL(blob)}#toolbar=0&scrollbar=0&navpanes=0&zoom=${this.zoom}`;
     }
 
-    _zoom(size){
-        size ==="In" ? this.zoom = this.zoom + 10 : this.zoom = this.zoom - 10;
+    _zoom(size) {
+		this.zoom = size === `In` ? this.zoom + 10 : this.zoom - 10;
         this.requestUpdate();
     }
 
     static get styles() {
-        return[
+        return [
             super.styles,
             css`
                 .modal {
@@ -112,7 +112,7 @@ class HorizonPDFViewer extends Component{
                 }
                 capitec-label[type="title"]{
                     height: 24px;
-                    width: 243px;
+                    width: var(--theme-horizon-pdf-modal-header-width, 243px);
                     font-size: 18px;
                     font-weight: 600;
                     line-height: 24px;
@@ -141,7 +141,7 @@ class HorizonPDFViewer extends Component{
         `;
     }
 
-    _renderHeader(){
+    _renderHeader() {
         return html`
         <capitec-title-bar type="default">
             <capitec-icon 
@@ -154,7 +154,7 @@ class HorizonPDFViewer extends Component{
         `;
     }
 
-    _renderBody(){
+    _renderBody() {
         return html`
             <capitec-content-box
                 class="pdf-cb"
@@ -164,7 +164,7 @@ class HorizonPDFViewer extends Component{
                     layout="horizontal"
                     valign="center">
                     ${this.currPage === 1 
-                        ? html `<capitec-spacer class="icon-spacer"></capitec-spacer>` 
+                        ? html`<capitec-spacer class="icon-spacer"></capitec-spacer>` 
                         : html`
                     <capitec-icon 
                         class="icon dark system" 
@@ -178,7 +178,7 @@ class HorizonPDFViewer extends Component{
                         type="application/pdf">
                     </object>
                     ${this.currPage === this.totalPages 
-                    ? html `<capitec-spacer class="icon-spacer"></capitec-spacer>`
+                    ? html`<capitec-spacer class="icon-spacer"></capitec-spacer>`
                     : html`
                         <capitec-icon 
                             class="icon dark system" 
@@ -191,7 +191,7 @@ class HorizonPDFViewer extends Component{
                         `;
     }
 
-    _renderFooter(){
+    _renderFooter() {
         return html`
             <capitec-button-bar>
                 <capitec-spacer></capitec-spacer>
@@ -200,14 +200,14 @@ class HorizonPDFViewer extends Component{
                         class="zoom" 
                         size="medium" 
                         icon="system/minus-action" 
-                        @click="${()=>this._zoom("Out")}">
+                        @click="${() => this._zoom(`Out`)}">
                     </capitec-icon>
                     <capitec-label label="${this.zoom + 10}%"></capitec-label>
                     <capitec-icon 
                         class="zoom" 
                         size="medium" 
                         icon="system/add-action" 
-                        @click="${()=>this._zoom("In")}">
+                        @click="${() => this._zoom(`In`)}">
                     </capitec-icon>
                 </capitec-group>
                 <capitec-spacer style="margin-left:55px;"></capitec-spacer>

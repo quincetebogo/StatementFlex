@@ -29,7 +29,7 @@ export class ViewAndEmailDocuments extends Component {
 
 		this.selectedDocumentToViewIndex = null;
 		this.viewPDF = false;
-		this.popDetails = {};
+		this.emailAccountsList = [];
 		this.email = ``;
 		this.confirmEmail = ``;
 		this.encodedPDF = ``;
@@ -43,8 +43,7 @@ export class ViewAndEmailDocuments extends Component {
 	/**
 	 * Registry of all properties defined by the component.
 	 * 
-	 * @property {Number} selectedDocumentToViewIndex - Index into documents array of the document selected to be viewed
-	 * @property {Boolean} viewDPF - Flag used to display PDF viewer
+	 * @property {Array} emailAccountsList - List of selected accounts details to send proof of payment
 	 * @property {String} encodedPDF - Encoded string representation of PDF to be view 
 	 * 
 	 * @callback loadDocumentContent 
@@ -53,7 +52,7 @@ export class ViewAndEmailDocuments extends Component {
 	 */
 	static get properties() {
 		return {
-			popDetails: { type: Object },
+			emailAccountsList: { type: Array },
 			encodedPDF: { type: String },
 			loadDocumentContent: { type: Object },
 
@@ -69,8 +68,6 @@ export class ViewAndEmailDocuments extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		this.documents = this.popDetails.accountsList;
 	}
 
 	// --------------
@@ -80,38 +77,38 @@ export class ViewAndEmailDocuments extends Component {
 	async _onViewDocumentClick(index) {
 		this.selectedDocumentToViewIndex = index;
 		this.viewPDF = true;
-		this.encodedPDF = await this.loadDocumentContent(this.documents[this.selectedDocumentToViewIndex]);
+		this.encodedPDF = await this.loadDocumentContent(this.emailAccountsList[this.selectedDocumentToViewIndex]);
 	}
 
 	async _onNextPDFClick() {
-		this.selectedDocumentToViewIndex += this.selectedDocumentToViewIndex < this.documents.length ? 1 : 0;
-		this.encodedPDF = await this.loadDocumentContent(this.documents[this.selectedDocumentToViewIndex]);
+		this.selectedDocumentToViewIndex += this.selectedDocumentToViewIndex < this.emailAccountsList.length ? 1 : 0;
+		this.encodedPDF = await this.loadDocumentContent(this.emailAccountsList[this.selectedDocumentToViewIndex]);
 		this.requestUpdate();
 	}
 
 	async _onPreviousPDFClick() {
 		this.selectedDocumentToViewIndex -= this.selectedDocumentToViewIndex > 0 ? 1 : 0;
-		this.encodedPDF = await this.loadDocumentContent(this.documents[this.selectedDocumentToViewIndex]);
+		this.encodedPDF = await this.loadDocumentContent(this.emailAccountsList[this.selectedDocumentToViewIndex]);
 		this.requestUpdate();
 	}
 
 	_onSendPDFClick(e) {
-		const isEmailInputValid = this._validateEmailAddressInput();
+		const isEmailInputValid = this._validateEmailAddress();
 
 		if (!isEmailInputValid) {
 			return;
 		}
 
-		this.dispatchEvent(new CustomEvent(`send-email`), {
+		this.dispatchEvent(new CustomEvent(`send-email`, {
 			detail: {
 				documentData: this.encodedPDF,
 				email: this.confirmEmail
 			}
-		});
+		}));
 	}
 
 	_onCancelSendPDFClick(e) {
-		this.dispatchEvent(new CustomEvent(`cancel`), {});
+		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
 	_clearAlerts() {
@@ -129,6 +126,10 @@ export class ViewAndEmailDocuments extends Component {
 		}
 	}
 
+	_closePDFViewer() {
+		this.viewPDF = false;
+		this.dispatchEvent(new CustomEvent(`close-pdf`, {}));
+	}
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -211,6 +212,9 @@ export class ViewAndEmailDocuments extends Component {
 				horizon-email-input {
 					--theme-layout-gap-spacing: 0px;
 				}
+				horizon-pdf-viewer {
+					--theme-horizon-pdf-modal-header-width: auto;
+				}
 			`
 		];
 	}
@@ -239,7 +243,7 @@ export class ViewAndEmailDocuments extends Component {
 					</capitec-label>
 					
 					<capitec-content-box layout="vertical" noPadding>
-						${this.documents.map((document, index) => this._renderDocumentTiles(document, index))}
+						${this.emailAccountsList.map((document, index) => this._renderDocumentTiles(document, index))}
 					</capitec-content-box>
 				</div>
 				<capitec-button slot="footer" type="secondary" label="Cancel" @click="${(e) => this._onCancelSendPDFClick(e)}"></capitec-button>
@@ -247,11 +251,11 @@ export class ViewAndEmailDocuments extends Component {
 			</capitec-modal>`
 		: html`
 			<horizon-pdf-viewer
-				header="${this.modalHeader}"
+				header="${`${this.emailAccountsList[this.selectedDocumentToViewIndex].title}: Proof of payment`}"
 				encodedPDF="${this.encodedPDF}"
-				totalPages="${this.popDetails.accountsList.length}"
+				totalPages="${this.emailAccountsList.length}"
 				currPage="${this.selectedDocumentToViewIndex + 1}"
-				@cancel="${() => this.viewPDF = false}"
+				@cancel="${() => this._closePDFViewer()}"
 				@next="${() => this._onNextPDFClick()}"
 				@previous="${() => this._onPreviousPDFClick()}">
 			</horizon-pdf-viewer>`;
@@ -299,19 +303,19 @@ window.customElements.define(`horizon-view-and-send-document`, ViewAndEmailDocum
 /**
  * When the send button is clicked.
  * 
- * @example <horizon-view-and-send-document... @send-pdf-click="${this._handler}"></horizon-view-and-send-document>
+ * @example <horizon-view-and-send-document... @send-email="${this._handler}"></horizon-view-and-send-document>
  * 
- * @event ViewAndEmailDocuments#send-pdf-click
+ * @event ViewAndEmailDocuments#send-email
  * @type {Object}
  * @property {Array} documents - List of documents to be sent
  * @property {String} email - Email that the documents will be sent to
  */
 
 /**
- * When the send button is clicked.
+ * When the cancel button is clicked.
  * 
- * @example <horizon-view-and-send-document... @cancel-send-pdf-click="${this._handler}"></horizon-view-and-send-document>
+ * @example <horizon-view-and-send-document... @cancel="${this._handler}"></horizon-view-and-send-document>
  * 
- * @event ViewAndEmailDocuments#cancel-send-pdf-click
+ * @event ViewAndEmailDocuments#cancel
  * @type {Object} - N/A
  */

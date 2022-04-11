@@ -115,6 +115,14 @@ import 'app/components/common/HorizonLabel';
 		}
 	}
 
+	_logTelemetryOnFilter(event) {
+		if (event.currentTarget.value) {
+			this.dispatchEvent(new CustomEvent(`telemetry-on-filter`, { detail: {
+				"searchValue": event.currentTarget.value
+			} }));
+		}
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -339,7 +347,8 @@ import 'app/components/common/HorizonLabel';
 				data-automation-id="budget-facility-search-bar"
 				label="Search for amount or transaction name" 
 				value="${this.searchText}"
-				@key-input="${(event) => this._searchValueChange(event)}">
+				@key-input="${(event) => this._searchValueChange(event)}"
+				@focusout="${(event) => this._logTelemetryOnFilter(event)}">
 			</capitec-search-field>
 		`;
 	}
@@ -424,7 +433,6 @@ import 'app/components/common/HorizonLabel';
 					data-automation-id="budget-facility-transfer-button"
 					type="clear"
 					label="Transfer"
-					?hidden=${true}
 					@click="${() => this._transferClick(budgetAccount)}">
 				</capitec-button>
 			</capitec-group>`;

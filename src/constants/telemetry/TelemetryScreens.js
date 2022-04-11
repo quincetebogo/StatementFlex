@@ -112,5 +112,9 @@
 	CREDIT_BUDGET_ACCOUNT_DETAILS: `Credit Budget account details`,
 	CREDIT_PAY_BUDGET_MODAL: `Credit Pay Budget Modal`,
 	CREDIT_PAY_BUDGET_SUCCESS: `Credit Pay Budget success screen`,
-	CREDIT_PAY_BUDGET_FAILURE: `Credit Pay Budget failure screen`
+	CREDIT_PAY_BUDGET_FAILURE: `Credit Pay Budget failure screen`,
+
+	PROOF_OF_PAYMENT_DIALOG: `Send Proof of Payment Dialog`,
+	PROOF_OF_PAYMENT_SUCCESS: `Proof of payment success`,
+	PROOF_OF_PAYMENT_FAILURE: `Proof of payment failure`
 };

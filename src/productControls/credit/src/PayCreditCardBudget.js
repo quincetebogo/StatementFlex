@@ -1,7 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { deformatCurrency, formatCurrency } from 'app/productControls/utilities/Currency';
-import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
-import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelectIcon';
 
@@ -84,7 +83,7 @@ export class PayCreditCardBudget extends Component {
 				productTypeCode: this.budgetAccountDetails.productTypeCode
 			};
 
-			this.dispatchEvent(new CustomEvent(`transfer`, {detail: transferDetails}));
+			this.dispatchEvent(new CustomEvent(`transfer`, { detail: transferDetails }));
 		}
 	}
 
@@ -135,7 +134,7 @@ export class PayCreditCardBudget extends Component {
 			this.errorMessage = `Transafer cannot exceed available balance`;
 		}
 
-		if(isNullorEmpty(this.budgetBalance)) {
+		if (isNullorEmpty(this.budgetBalance)) {
 			this.errorMessage = `Transafer amount cannot be empty`;
 		}
 	}

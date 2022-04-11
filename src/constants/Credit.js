@@ -73,4 +73,4 @@ export const FROM_ACCOUNTS = {
 		icon: `product/save`,
 		order: 2
 	}
-}
+};

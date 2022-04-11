@@ -45,7 +45,7 @@
 	PAY_BUDGET_SUCCESS_SEND_POP: `call.fulfill-need.credit.budget.transfer.success.send-proof-of-payment`,
 	PAY_BUDGET_TRANSFER_FAILURE: `call.fulfill-need.credit.budget.transfer.failure`,
 	PAY_BUDGET_TRANSFER_FAILURE_TRY_AGAIN: `call.fulfill-need.credit.budget.transfer.failure.try-again`,
-	PAY_BUDGET_TRANSFER_FAILURE_DONE: `call.fulfill-need.credit.budget.transfer.failure.done`,
+	PAY_BUDGET_TRANSFER_FAILURE_DONE: `call.fulfill-need.credit.budget.transfer.failure.done`
 };
 
 /**
@@ -76,3 +76,25 @@
 	STATEMENTS_FAILURE_DONE: `call.fulfill-need.credit.statements.failure.done`,
 	STATEMENTS_FAILURE_ASSIGN: `call.fulfill-need.credit.statements.failure.assign`
 });
+
+/**
+ * The event names to use when logging telemetry events for Proof of payment for pay budget flow
+ * This correspond to the `Action` and `eventName` columns in the Data Spec.
+ * 
+ * @readonly
+ * @enum {Object} 
+ */
+ export const BUDGET_FACILITY_POP_EVENTS = Object.freeze({
+	EMAIL_POP: `call.fulfill-need.credit.budget.transfer.proof-of-payment`,
+	POP_MODAL: `call.fulfill-need.credit.budget.transfer.proof-of-payment.pop-up`,
+	POP_CANCEL: `call.fulfill-need.credit.budget.transfer.proof-of-payment.pop-up.cancel`,
+	POP_VIEW_DOCUMENT: `call.fulfill-need.credit.budget.transfer.proof-of-payment.pop-up.view-document`,
+	POP_CLOSE_DOCUMENT: `call.fulfill-need.credit.budget.transfer.proof-of-payment.pop-up.view-document.close`,
+	POP_SEND: `call.fulfill-need.credit.budget.transfer.proof-of-payment.pop-up.send`,
+	POP_SUCCESS: `call.fulfill-need.credit.budget.transfer.proof-of-payment.success`,
+	POP_SUCCESS_DONE: `call.fulfill-need.credit.budget.transfer.proof-of-payment.success.done`,
+	POP_SUCCESS_PAY_ANOTHER: `call.fulfill-need.credit.budget.transfer.proof-of-payment.success.pay-another`,
+	POP_FAILURE: `call.fulfill-need.credit.budget.transfer.proof-of-payment.failure`,
+	POP_FAILURE_TRY_AGAIN: `call.fulfill-need.credit.budget.transfer.proof-of-payment.failure.try-again`,
+	POP_FAILURE_DONE: `call.fulfill-need.credit.budget.transfer.proof-of-payment.failure.done`
+ });

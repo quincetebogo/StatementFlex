@@ -1,4 +1,6 @@
 import { css, html } from 'platform/elements';
+import { CreditEvents } from 'app/constants/telemetry/events/Credit';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
@@ -35,7 +37,9 @@ import 'app/components/common/RelatedOptions';
 		super.connectedCallback();
 
 		const screenDetails = this.horizonStore.getScreenDetails();
-		this.budgetName = screenDetails?.budgetAccountName;
+		this.budgetName = screenDetails?.accountName;
+
+		this._telemetry.startSpan(CreditEvents.PAY_BUDGET_TRANSFER_FAILURE);
 
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
@@ -50,11 +54,25 @@ import 'app/components/common/RelatedOptions';
 	// --------------
 
 	_doneClick() {
+		this._telemetry.logEvent(CreditEvents.PAY_BUDGET_TRANSFER_FAILURE_DONE, {
+			"screen": TelemetryScreen.CREDIT_PAY_BUDGET_FAILURE,
+			"next-screen": TelemetryScreen.CREDIT_LANDING
+		});
+
+		this._telemetry.endSpan(CreditEvents.PAY_BUDGET_TRANSFER_FAILURE, {}, true, true);
+
 		this.horizonRouter.navigateToCreditAccount();
 		this.horizonStore.clearScreenDetails();
 	}
 
 	_tryAgainClick() {
+		this._telemetry.logEvent(CreditEvents.PAY_BUDGET_TRANSFER_FAILURE_TRY_AGAIN, {
+			"screen": TelemetryScreen.CREDIT_PAY_BUDGET_FAILURE,
+			"next-screen": TelemetryScreen.CREDIT_PAY_BUDGET_MODAL
+		});
+
+		this._telemetry.endSpan(CreditEvents.PAY_BUDGET_TRANSFER_FAILURE);
+
 		// TODO: Navigation to be wired up here.
 	}
 
@@ -69,13 +87,6 @@ import 'app/components/common/RelatedOptions';
 	// ---------
 	// RENDERING
 	// ---------
-
-	static get styles() {
-		return [
-			super.styles,
-			css``
-		];
-	}
 
 	_mobileTemplate() {
 		return this._webTemplate();
