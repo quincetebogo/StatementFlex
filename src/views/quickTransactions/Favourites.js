@@ -1,4 +1,4 @@
-import { CREDIT_ACCOUNT_TYPE, CREDIT_TYPE, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
+import { ACCOUNT_STATUS, CREDIT_ACCOUNT_TYPE, CREDIT_TYPE, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
 import { QuickTransactionEvents, STATEMENT_EVENTS } from 'app/constants/telemetry/events/QuickTransactions';
 import { css, html } from 'platform/elements';
 import { formatStringAsPascalCase, isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
@@ -559,8 +559,7 @@ export class Favourites extends SavingsAccountBase {
 			return;
 		}
 
-		const accountStatus = `PaidUp`;
-		const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber, accountStatus, screenDetails.selectedAccounts);
+		const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber, ACCOUNT_STATUS.PAID_UP);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to retrieve client overview from credit service.`, `_initialise`, returnValue.correlationId);
@@ -571,7 +570,14 @@ export class Favourites extends SavingsAccountBase {
 		if (returnValue.succeeded && returnValue.result) {
 
 			// this.accountsInfo = [`Term loan (32 Months)`, `Credit`, `Access Facility`];
-			this.accountsInfo = returnValue.result;
+			this.creditAccountDetails = returnValue.result;
+			this._formatCreditOverviewResponse();
+			this.accountsInfo = [...this.creditAccountDetails.creditCardSummaryList, ...this.creditAccountDetails.accessFacilitySummaryList, ...this.creditAccountDetails.loanAccountSummaryList];
+
+			if (this.accountsInfo.length === 0) {
+				this.horizonRouter.navigateToProductInfo(`Credit`);
+				return;
+			}
 
 			this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
 		}

@@ -96,6 +96,7 @@ export class PaidUpLetter extends Component {
 	}
 
 	_viewPDFViewer () {
+		this.encodedPDF = this.encodedPDFs.document.data;
 		this.flag = !this.flag;
 	}
 
@@ -310,8 +311,8 @@ export class PaidUpLetter extends Component {
 		return html`
 			<horizon-product-tile 
 				type="default"
-				label="${item}"
-				subtitle="123456789">
+				label="${item.productTypeDescription}"
+				subtitle="${item.accountNumber}">
 					${this._renderViewDocumnetLink(item)}
 			</horizon-product-tile>
 		`;
@@ -333,7 +334,7 @@ export class PaidUpLetter extends Component {
 	_viewPDF() {
 		return html`
 			<horizon-pdf-viewer
-				header="Paid Up Letter: Credit Card"
+				header="Paid Up Letter: ${this.selectedAccounts[this.currPage].productTypeDescription}"
 				encodedPDF="${this.encodedPDF}"
 				totalPages="${this.selectedAccounts.length}"
 				currPage="${this.currPage}"

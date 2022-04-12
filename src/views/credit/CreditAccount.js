@@ -20,6 +20,7 @@ import 'app/components/credit/AccessFacilityDetails';
 import 'app/components/credit/TermLoanDetails';
 import 'app/components/dialogs/common/CCSstatus';
 import 'app/dialogs/credit/SettlementQuote';
+import 'app/dialogs/credit/PaidUpLetter';
 import 'app/dialogs/statements/Statements';
 import 'app/dialogs/credit/SettleAndCloseDisclaimer';
 import 'app/productControls/credit/src/BudgetAccounts';
@@ -488,8 +489,11 @@ export class CreditAccount extends ViewBase {
 				return;
 			}
 
-            this.paidUpLetterDetails = returnValue.result;
-			this.selectedAccounts.push(this.paidUpLetterDetails);
+			this.encodedPDFs = returnValue.result;
+
+			this.selectedAccounts.push(selectedAccountDetails);
+			this.renderMode = RENDER_MODE.PAID_UP_LETTER;
+			this._renderPaidUpLetterView();
 		}
 		
 	}
@@ -974,8 +978,10 @@ export class CreditAccount extends ViewBase {
 		return this.renderMode === RENDER_MODE.PAID_UP_LETTER
 		? html`
 		<horizon-paid-up-letter-dialog
+				.landingPageInfo="${this.landingPageInfo}"
 			.selectedAccounts="${this.selectedAccounts}"
-			@cancel="${() => this._showPaidUpLetter()}"
+			.encodedPDFs="${this.encodedPDFs}"
+			@cancel="${() => this._backToLandingPage()}"
 			.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
 		</horizon-paid-up-letter-dialog>`
 		: html``;

@@ -1,5 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
+import { CreditService } from 'app/services/CreditService';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 
@@ -26,6 +28,7 @@ export class PaidUpAccounts extends Component {
 	constructor() {
 		super();
 
+		this.callerInformation = {};
 		this.accountsInfo = null;
 
 		this.showPaidUpLetter = false;
@@ -40,6 +43,8 @@ export class PaidUpAccounts extends Component {
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 
+		this.horizonStore = HorizonStore.getInstance();
+		this.creditService = new CreditService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 	}
 
@@ -56,6 +61,7 @@ export class PaidUpAccounts extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this.callerInformation = this.horizonStore.getCallerInformation();
 		this._initialise();
 	}
 
@@ -100,15 +106,32 @@ export class PaidUpAccounts extends Component {
 		return false;
 	}
 
-	_showPaidUpLetter () {
+	async _showPaidUpLetter () {
+
 		this.selectedAccounts = [];
+		const accountNumbers = [];
 		if (this._isAnySelected()) {
 			for (let index = 0; index < this.accountsChecked.length; index++) {
 				if (this.accountsChecked[index]) {
 					this.selectedAccounts[index] = this.accountsInfo[index];
+					accountNumbers.push(this.accountsInfo[index].accountNumber);
 				}
 			}
+
+            const returnValue = await this.creditService.getPaidUpLetter(this.callerInformation.cifNumber, accountNumbers);
+
+			if (!returnValue.succeeded) {
+				this.logger.log(`error`, `Failed to retrieve client paid up letter from credit service.`, `_initialise`, returnValue.correlationId);
+				this.renderMode = RENDER_MODE.SERVICE_UNAVAILABLE;
+				return;
+			}
+
+            this.encodedPDFs = returnValue.result;
+
+			// this.renderMode = RENDER_MODE.PAID_UP_LETTER;
 			this.showPaidUpLetter = !this.showPaidUpLetter;
+			this.requestUpdate();
+			this._renderPaidUpLetter();
 		}
 	}
 
@@ -129,6 +152,54 @@ export class PaidUpAccounts extends Component {
         }
     }
 
+	_checkBox(event, index) {
+		this._clearErrors();
+
+		if (this.accountsChecked[index] === true) {
+			this.accountsChecked[index] = false;
+		} else {
+			this.accountsChecked[index] = true;
+			this._clearErrors();
+		}
+
+		if (this.accountsChecked.every(val => val === true)) {
+			this.checkAll = false;
+			this.isChecked = true;
+		} else if (this.accountsChecked.every(val => val === false)) {
+			this.checkAll = false;
+			this.isChecked = false;
+		} else {
+			this.checkAll = true;
+			this.isChecked = false;
+		}
+		this.requestUpdate();
+	}
+
+	_selectAll() {
+		this.checkAll = false;
+
+		if (this.accountsChecked.every(val => val === true)) {
+			for (let index = 0; index < this.accountsChecked.length; index++) {
+				this.accountsChecked[index] = false;
+			}
+		} else {
+			this.isChecked = true;
+			for (let index = 0; index < this.accountsChecked.length; index++) {
+				this.accountsChecked[index] = true;
+			}
+		}
+		this.requestUpdate();
+	}
+
+	_clearErrors() {
+		this.errorMessage = ``;
+	}
+
+	_backToLandingPage() {
+		this.showPaidUpLetter = !this.showPaidUpLetter;
+		this.requestUpdate();
+		this._renderPaidUpLetter();
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -320,7 +391,7 @@ export class PaidUpAccounts extends Component {
 					</capitec-check>
 				</capitec-check-group>
 				<capitec-spacer></capitec-spacer>
-				<capitec-button type="primary" class ="btnSend" label="Send Statement(s)" @click="${() => this._showPaidUpLetter()}"></capitec-button>
+				<capitec-button type="primary" class ="btnSend" label="Send Paid Up Letter(s)" @click="${() => this._showPaidUpLetter()}"></capitec-button>
 			</capitec-button-bar>
 		` : html``;
 	}
@@ -349,65 +420,21 @@ export class PaidUpAccounts extends Component {
 							label="Installment"
 							value="${item.repayAmount ?? item.nextRepayment}">
 						</horizon-label>
-						<horizon-label
-							label="Settlement Amount"
-							value="${item.currentBalance}">
-						</horizon-label>
 		</capitec-group>
 		`;
 	}
 
-	_checkBox(event, index) {
-		this._clearErrors();
-
-		if (this.accountsChecked[index] === true) {
-			this.accountsChecked[index] = false;
-		} else {
-			this.accountsChecked[index] = true;
-			this._clearErrors();
-		}
-
-		if (this.accountsChecked.every(val => val === true)) {
-			this.checkAll = false;
-			this.isChecked = true;
-		} else if (this.accountsChecked.every(val => val === false)) {
-			this.checkAll = false;
-			this.isChecked = false;
-		} else {
-			this.checkAll = true;
-			this.isChecked = false;
-		}
-		this.requestUpdate();
-	}
-
-	_selectAll() {
-		this.checkAll = false;
-
-		if (this.accountsChecked.every(val => val === true)) {
-			for (let index = 0; index < this.accountsChecked.length; index++) {
-				this.accountsChecked[index] = false;
-			}
-		} else {
-			this.isChecked = true;
-			for (let index = 0; index < this.accountsChecked.length; index++) {
-				this.accountsChecked[index] = true;
-			}
-		}
-		this.requestUpdate();
-	}
-
-	_clearErrors() {
-		this.errorMessage = ``;
-	}
-
 	_renderPaidUpLetter() {
-		return this.showPaidUpLetter 
+		return this.showPaidUpLetter
 		? html`
-		<horizon-paid-up-letter-dialog
-			.selectedAccounts="${this.selectedAccounts}"
-			@cancel="${() => this._showPaidUpLetter()}"
-			.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
-		</horizon-paid-up-letter-dialog>`
+			<horizon-paid-up-letter-dialog
+				.landingPageInfo="${this.landingPageInfo}"
+				.selectedAccounts="${this.selectedAccounts}"
+				.encodedPDFs="${this.encodedPDFs}"
+				@cancel="${() => this._backToLandingPage()}"
+				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
+			</horizon-paid-up-letter-dialog>
+		`
 		: html``;
 	}
 
