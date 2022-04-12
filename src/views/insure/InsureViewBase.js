@@ -88,7 +88,7 @@ export class InsureViewBase extends ViewBase {
 			this.isBusy = false;
 			return resp.result;
 		} else {
-			console.error(estimateResponse.exception);
+			console.error(resp.exception);
 			this.isBusy = false;
 			// Do error message
 			return null;
