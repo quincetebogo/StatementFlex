@@ -95,8 +95,15 @@ export class SendSettlementQuote extends Component {
 		// TODO: flow for selected accounts to be done here
 	}
 
-	_viewPDFViewer () {
+	_viewPDFViewer (item) {
 		this.flag = !this.flag;
+
+		if (this.flag) {
+			this.dispatchEvent(new CustomEvent(`view-pdf`, { detail: {
+				"accountNumber": item.accountNumber,
+				"accountType": item.type
+			} }));
+		}
 	}
 	
 	_clearAlerts() {
@@ -325,7 +332,7 @@ export class SendSettlementQuote extends Component {
 				type="strong"
 				label="View Document"
 				class="viewDocumentLink"
-				@click="${() => this._viewPDFViewer()}">
+				@click="${() => this._viewPDFViewer(item)}">
 			</capitec-label>
 		`;
 	}
