@@ -83,6 +83,7 @@ export class SettlementQuote extends Component {
 	_filter(e) {
 		[this.listValue] = e.detail.new.split(` `);
 		this._search(e);
+		this._logTelemetryOnFilter(null, e.detail.new);
 	}
 
 	_back() {
@@ -111,18 +112,27 @@ export class SettlementQuote extends Component {
 
 	_selectAll() {
 		if (this.filteredData.every(item => item.selected)) {
-			this.selectedLabel = `Select all`;
-			this.settlementQuoteDetails.forEach(item => item.selected = false);
+			this._deselect();
 		} else {
 			this.filteredData.forEach(item => item.selected = true);
 			this.selectedLabel = `${this._numberOfAccountsSelected()} accounts selected`;
+			this.dispatchEvent(new CustomEvent(`select-all`, {}));
 		}
 	}
 
 	_deselect() {
 		this.selectedLabel = `Select all`;
 		this.filteredData.forEach(item => item.selected = false);
-		this.selectedLabel = `${this._numberOfAccountsSelected()} accounts selected`;
+		this.dispatchEvent(new CustomEvent(`deselect-all`, {}));
+	}
+
+	_logTelemetryOnFilter(searchByText = null, searchByType = null) {
+		if (searchByText || searchByType) {
+			this.dispatchEvent(new CustomEvent(`telemetry-on-filter`, { detail: {
+				"searchByText": searchByText,
+				"searchByType": searchByType 
+			} }));
+		}
 	}
 
 	// ---------------
@@ -336,6 +346,7 @@ export class SettlementQuote extends Component {
  					type="search"
  					keyboardMode="alpha-numeric"
  					@key-input="${(e) => this._search(e)}"
+					@focusout="${(e) => this._logTelemetryOnFilter(e.currentTarget.value)}"
  					@value-change="${(e) => this._search(e)}">
  				</capitec-text-field>
 				<capitec-select

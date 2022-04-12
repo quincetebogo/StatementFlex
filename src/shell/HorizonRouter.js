@@ -357,6 +357,14 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.AUTOMATIC_SAVINGS_FAILED}`);
 	}
 	
+	navigateToSettlementQuoteSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLEMENT_QUOTE_SUCCESS}`);
+	}
+
+	navigateToSettlementQuoteFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLEMENT_QUOTE_FAILURE}`);
+	}
+
 	navigateToSettlementQuoteOutcome() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLEMENT_QUOTE_OUTCOME}`);
 	}
@@ -851,6 +859,22 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.CREDIT_STATEMENTS_FAILURE,
 		load: () => import(`../views/statements/CreditStatementUnsuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-settlement-quote-success`,
+		title: `SettlementQuoteSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.SETTLEMENT_QUOTE_SUCCESS,
+		load: () => import(`../views/credit/SettlementQuoteSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-settlement-quote-failure`,
+		title: `SettlementQuoteFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.SETTLEMENT_QUOTE_FAILURE,
+		load: () => import(`../views/credit/SettlementQuoteFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
