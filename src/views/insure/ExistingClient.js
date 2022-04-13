@@ -11,6 +11,8 @@ import 'app/components/insure/InsureLanding';
 import 'app/components/insure/PolicyEstimate';
 import 'app/components/insure/UpdatePlan';
 
+import { InsureService } from 'app/services/InsureService';
+
 /**
  * Implements the view for Insure verified and unverified existing clients (i.e. the client has products)
  * This includes the view for third parties phoning in about an existing client.
@@ -30,10 +32,17 @@ export class ExistingClient extends InsureViewBase {
 		this.configuration = Configuration.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.renderMode = INSURE_RENDER_MODE.POLICY_SUMMARY;
+
+		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+
+		this.estimate = {};
+		this.productParams = {};
 	}
 
 	static get properties() {
 		return {
+			estimate: { state: true },
+			productParams: { state: true }
 		};
 	}
 
@@ -52,6 +61,32 @@ export class ExistingClient extends InsureViewBase {
 
 	//#endregion
 
+	//#region EVENT HANDLERS
+
+	/**
+	 * Calculate estimate based on lives assured provided
+	 * @returns {Object} Estimate response
+	 */
+	async _calculateClientEstimate(e) {
+		console.log("Which e");
+		console.log(e);
+		this.isBusy = true;
+		const resp = await this.insureService.calculateEstimate(e.detail, () => true);
+		console.log('resp');
+		console.log(resp);
+		if (resp.succeeded == true && resp.result != null) {
+			this.isBusy = false;
+			this.estimate = resp.result;
+		} else {
+			console.error(resp.exception);
+			this.isBusy = false;
+			// Do error message
+			return null;
+		}
+	}
+
+	//#endregion
+
 	//#region PRIVATE METHODS
 
 	/**
@@ -59,8 +94,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _initialize() {
 		this.verificationStatus = this.callerInformation.verificationStatus;
-		// let productParamsResponse = await this.retrieveInsureProductParams();
-		// console.log("productParamsResponse ", productParamsResponse);
+		this.productParams = await this.insureService.productParams({}, () => true);
 	}
 
 	//#region PRIVATE METHODS
@@ -160,7 +194,11 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderCalculateEstimatePage() {
 		return html`
-			<horizon-insure-policy-estimate @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY)}">
+			<horizon-insure-policy-estimate 
+			@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY)}" 
+			@calculate="${(e)=> this._calculateClientEstimate(e)}"
+			.estimate="${this.estimate}"
+			.productParams="${this.productParams}">
 			</horizon-insure-policy-estimate>`
 	}
 

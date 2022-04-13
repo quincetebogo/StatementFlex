@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { getCoverDetailsByParams } from 'app/utils/insureUtils';
 
 class InsureAddLifeDialog extends Component {
 
@@ -13,6 +14,13 @@ class InsureAddLifeDialog extends Component {
 		this.showExtendedList = false;
 	}
 
+	static get properties() {
+		return {
+			productParams: {state: true },
+		};
+	}
+
+
 	connectedCallback() {
 		super.connectedCallback();
 		this._setActiveRadioButtons();
@@ -26,7 +34,7 @@ class InsureAddLifeDialog extends Component {
 	_onAddClick() {
 		console.log(`Adding: ${this.selectedRelationship}`);
 
-		let coverDetails = this._getCoverDetails(this.selectedRelationship);
+		let coverDetails = getCoverDetailsByParams(this.selectedRelationship, this.productParams);
 		this.dispatchEvent(new CustomEvent(`addNewLife`, { detail: { relationship: this.selectedRelationship, coverDetails: coverDetails } }));
 	}
 

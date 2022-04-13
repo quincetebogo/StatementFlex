@@ -77,23 +77,7 @@ export class InsureViewBase extends ViewBase {
 		return result;
 	}
 
-	/**
-	 * Calculate estimate based on lives assured provided
-	 * @returns {Object} Estimate response
-	 */
-	async calculateClientEstimate(request) {
-		this.isBusy = true;
-		const resp = await this.insureService.calculateEstimate(request, () => true);
-		if (resp.succeeded == true && resp.result != null) {
-			this.isBusy = false;
-			return resp.result;
-		} else {
-			console.error(resp.exception);
-			this.isBusy = false;
-			// Do error message
-			return null;
-		}
-	}
+	
 
 	/**
 	 * Calculate quote based on lives assured provided

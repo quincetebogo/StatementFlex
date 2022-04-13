@@ -1,14 +1,9 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
-// Lookups
-import { BANK_OPTIONS, ACCOUNT_TYPES, DEBIT_ORDER_DAY_OPTIONS, GENDER_OPTIONS, TITLE_OPTIONS } from 'app/constants/InsureCommon';
+import { GENDER_OPTIONS } from 'app/constants/InsureCommon';
 
 import 'app/components/dialogs/insure/InsureAddLifeDialog';
-import 'app/components/insure/EstimateCalculateSummary';
-
-// Other
-import 'app/components/insure/EstimateCalculateSummary';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/ServiceCallErrorScreen';
 
@@ -16,21 +11,20 @@ class PolicyEstimate extends Component {
 
 	constructor() {
 		super();
-
-		// General
+		this.clientEstimateDetails = {};
 		this.showAddRelationshipDialog = false;
 
-		this.estimate = {};
-		this.clientEstimateDetails = {};
-		this.totalPremiumOverrideInput = '';
-
 		// Lookups
-		this.accountTypeOptions = ACCOUNT_TYPES;
-		this.bankOptions = BANK_OPTIONS;
-		this.debitOrderDayOptions = DEBIT_ORDER_DAY_OPTIONS;
 		this.genderOptions = GENDER_OPTIONS;
-		this.titleOptions = TITLE_OPTIONS;
+	}
 
+	static get properties() {
+		return {
+			estimate: { state: true },
+			productParams: { state: true },
+			newTotalPremium: { string: '' },
+			showAddRelationshipDialog: { state: false }
+		};
 	}
 
 	/**
@@ -114,6 +108,19 @@ class PolicyEstimate extends Component {
 				gap: 10px;
 			}
 
+			.calc-premium-total{
+				font-size: 32px;
+				font-weight: 600;
+				color: #3A3A3A;
+			}
+
+			.calc-summary-card{
+				height: 100%;
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
+			}
+
 			.action-image{
 				cursor: pointer;
 			}
@@ -141,7 +148,14 @@ class PolicyEstimate extends Component {
 			premium: 0,
 			genderType: "Male",
 			age: 0,
-			rowID: 0
+			rowID: 0,
+			coverDetails: {
+				defaultCover: 100000,
+				maxCover: 100000,
+				minCover: 5000,
+				ageMax: 64,
+				ageMin: 18,
+			}
 		});
 		this.estimate.totalPremium = 0;
 		// this.clientEstimateDetails = {
@@ -152,6 +166,7 @@ class PolicyEstimate extends Component {
 		// 	"contactEmail": "",
 		// 	"contactNumber": this.callerInformation.verifiedTelephoneNumber
 		// }
+		this.requestUpdate();
 	}
 
 	/**
@@ -183,6 +198,7 @@ class PolicyEstimate extends Component {
 		for (let index = 0; index < this.estimate.lifesAssured.length; index++) {
 			this.estimate.lifesAssured[index].rowID = index;
 		}
+		this.newTotalPremium = '';
 		this.requestUpdate();
 	}
 
@@ -194,6 +210,7 @@ class PolicyEstimate extends Component {
 	_estimateLifeCoverAmountValueChanged(event, index) {
 		if (event.detail.old != event.detail.new) {
 			this.estimate.lifesAssured[index].coverAmount = event.detail.new;
+			this.newTotalPremium = '';
 		}
 	}
 
@@ -205,6 +222,7 @@ class PolicyEstimate extends Component {
 	_estimateLifeAgeValueChanged(event, index) {
 		if (event.detail.old != event.detail.new) {
 			this.estimate.lifesAssured[index].age = event.detail.new;
+			this.newTotalPremium = '';
 		}
 	}
 
@@ -216,6 +234,7 @@ class PolicyEstimate extends Component {
 	_estimateLifeGenderValueChanged(event, index) {
 		if (event.detail.old != event.detail.new) {
 			this.estimate.lifesAssured[index].genderType = event.detail.new.code;
+			this.newTotalPremium = '';
 		}
 	}
 
@@ -224,35 +243,50 @@ class PolicyEstimate extends Component {
 	 * @param {*} event 
 	 * @returns {object} Estimate Response
 	 */
-	async _estimatePremiumOverrideChanged(e) {
-		this.estimate.totalPremium = e.detail.new;
-		const request = {
-			...this.estimate,
-			clientEstimateDetails: this.clientEstimateDetails
-		}
-		let estimateResponse = await this.calculateClientEstimate(request);
-		if (estimateResponse != null) {
-			this.estimate = estimateResponse.result;
-		}
-		this.totalPremiumOverrideInput = '';
-		this.requestUpdate();
-	}
+	async _totalPremiumChanged(e) {
+		this.newTotalPremium = e.detail.new;
 
+		// const request = {
+		// 	...this.estimate,
+		// 	clientEstimateDetails: this.clientEstimateDetails
+		// }
+		// let estimateResponse = await this.calculateClientEstimate(request);
+		// if (estimateResponse != null) {
+		// 	this.estimate = estimateResponse.result;
+		// }
+		// this.totalPremiumOverrideInput = '';
+	}
 
 	/**
 	 * Calculate Button event / Calculate by life assured
 	 * @returns {object} Estimate Response
 	 */
 	async _calculateEstimate() {
-		this.estimate.totalPremium = 0;
+		if (this.newTotalPremium != 0) {
+			console.log("Calculating by premium")
+			this.estimate.totalPremium = this.newTotalPremium
+		}
+
 		const request = {
 			...this.estimate,
-			clientEstimateDetails: this.clientEstimateDetails
+			// clientEstimateDetails: this.clientEstimateDetails
 		}
-		let estimateResponse = await this.calculateClientEstimate(request);
-		if (estimateResponse != '') {
-			this.estimate = estimateResponse;
-		}
+
+		console.log("this.estimate")
+		console.log(this.estimate);
+
+		this.dispatchEvent(new CustomEvent(`calculate`, {
+			detail: request
+		}));
+
+		// let estimateResponse = await this.calculateClientEstimate(request);
+		// if (estimateResponse != '') {
+		// 	this.estimate = estimateResponse;
+		// }'
+
+		// Reset
+		this.estimate.totalPremium = 0;
+		this.newTotalPremium = '';
 
 		this.requestUpdate();
 	}
@@ -270,6 +304,7 @@ class PolicyEstimate extends Component {
 	 * Open Add Life dialog returning select relationship
 	 */
 	_openAddLifeDialog() {
+		// Telemetry here
 		this.showAddRelationshipDialog = true;
 	}
 
@@ -280,13 +315,20 @@ class PolicyEstimate extends Component {
 	//#endregion
 
 	/**
-	 * 
+	 * Main render point for component
 	 * @returns {html}
 	 */
 	_webTemplate() {
 		return html`
 			${this._renderContent()}
+			${this._renderDialogs()}
 		`;
+	}
+
+	_renderDialogs() {
+		return html`
+			${this._renderEstimateAddLifeAssuredDialog()}
+		`
 	}
 
 	/**
@@ -336,7 +378,7 @@ class PolicyEstimate extends Component {
 				<div class="calc-card-row">
 					<capitec-text-field label="Cover Amount" type="currency" style="width: 50%;"
 						@value-changed="${(e) => this._estimateLifeCoverAmountValueChanged(e, index)}"
-						value="${lifeAssured.coverAmount}">
+						value="${lifeAssured.coverAmount}" hint="R${lifeAssured?.coverDetails?.minCover} - R${lifeAssured?.coverDetails?.maxCover}" min="${lifeAssured?.coverDetails?.minCover}" max="${lifeAssured?.coverDetails?.maxCover}">
 					</capitec-text-field>
 					<capitec-text-field label="Premium" type="currency" disabled hint="Estimate" style="width: 50%;"
 						value="${lifeAssured.premium}">
@@ -344,7 +386,8 @@ class PolicyEstimate extends Component {
 				</div>
 				<div class="calc-card-row">
 					<capitec-text-field label="Age" type="numeric"
-						@value-changed="${(e) => this._estimateLifeAgeValueChanged(e, index)}" style="width: 50%;">
+						@value-changed="${(e) => this._estimateLifeAgeValueChanged(e, index)}" style="width: 50%;"
+						hint="${lifeAssured?.coverDetails?.ageMin} - ${lifeAssured?.coverDetails?.ageMax}" min="${lifeAssured?.coverDetails?.ageMin}" max="${lifeAssured?.coverDetails?.ageMax}">
 					</capitec-text-field>
 					<capitec-select label="Gender" display-field="text" .items="${this.genderOptions}" id-field="code"
 						style="width: 50%" @value-changed="${(e) => this._estimateLifeGenderValueChanged(e, index)}">
@@ -370,8 +413,37 @@ class PolicyEstimate extends Component {
 	_renderRightEstimateColumn() {
 		return html`
 			<div class="insure-calc-column-right">
-				<horizon-insure-estimate-calc-summary>
-				</horizon-insure-estimate-calc-summary>
+				<div class="calc-summary-card">
+					<div>
+						<capitec-label label="Funeral Plan" type="Strong"></capitec-label>
+						<capitec-spacer></capitec-spacer>
+						<capitec-label label="Total estimated monthly premium"></capitec-label>
+						<capitec-label label="${formatCurrency(this.estimate.totalPremium)}" class="calc-premium-total">
+						</capitec-label>
+						<capitec-label label="Summary of estimated monthly premium:" class="stronger"></capitec-label>
+						<hr>
+			
+						${this.estimate.lifesAssured.map(life => html`
+						<div class="calc-life-list">
+							<capitec-label label="${life.relationship}"></capitec-label>
+							<capitec-label label="${formatCurrency(life.premium)}"></capitec-label>
+						</div>
+						<hr>`)}
+			
+						<div class="calc-life-list">
+							<capitec-label label="Total Premium Amount" class="stronger"></capitec-label>
+							<capitec-label label="${formatCurrency(this.estimate.totalPremium)}" class="stronger"></capitec-label>
+						</div>
+					</div>
+			
+					<div>
+						<capitec-label label="Specify a premium you are willing to pay" class="stronger"></capitec-label>
+						<br>
+						<capitec-text-field @value-change="${(e) => this._totalPremiumChanged(e)}" .value="${this.newTotalPremium}"
+							label="Premium Amount" type="currency">
+						</capitec-text-field>
+					</div>
+				</div>
 			</div>`
 	}
 
@@ -385,7 +457,8 @@ class PolicyEstimate extends Component {
 		return this.showAddRelationshipDialog == false ? `` :
 			html`
 			<insure-add-life-dialog @addNewLife="${(e) => this._addLifeEstimate(e)}"
-				@closeModal="${(e) => this._closeAddLifeDialog(e)}" .currentLifesAssured="${this.estimate.lifesAssured}">
+				@closeModal="${(e) => this._closeAddLifeDialog(e)}" .currentLifesAssured="${this.estimate.lifesAssured}"
+				.productParams="${this.productParams}">
 			</insure-add-life-dialog>`
 	}
 }

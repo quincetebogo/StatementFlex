@@ -13,7 +13,6 @@ import 'app/components/dialogs/insure/YBPAgreementDialog';
 import 'app/components/dialogs/insure/EACLAgreementDialog';
 
 // Other
-import 'app/components/insure/EstimateCalculateSummary';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/ServiceCallErrorScreen';
 

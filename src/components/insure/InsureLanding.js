@@ -9,7 +9,6 @@ class InsureClientLanding extends Component {
 	//#region PRIVATE FUNCTIONS
 
 	_goToEstimate() {
-		console.log('Going to estimate');
 		this.dispatchEvent(new CustomEvent(`navigate-to-estimate`, {
 			detail: {
 			}
