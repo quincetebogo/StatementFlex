@@ -49,7 +49,10 @@ const HORIZON_ROUTES = Object.freeze({
 	CREDIT_ACCOUNT: `/transact/credit`,
 	CREDIT_STATEMENTS_SUCCESS: `/success/credit-statements`,
 	CREDIT_STATEMENTS_FAILURE: `/error/credit-statements`,
+	SETTLEMENT_QUOTE_SUCCESS: `/success/settlement-quote`,
+	SETTLEMENT_QUOTE_FAILURE: `/error/settlement-quote`,
 	SETTLEMENT_QUOTE_OUTCOME: `/outcome/settlement-quote`,
+	EMAIL_CONFIRMATION_OUTCOME: `/outcome/email-confirmation`,
 	SETTLE_AND_CLOSE_SUCCESS: `/success/settle-and-close`,
 	SETTLE_AND_CLOSE_FAILURE: `/error/settle-and-close`,
 	SAVINGS_PLAN: `/transact/savings-plan`,
@@ -355,8 +358,20 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.AUTOMATIC_SAVINGS_FAILED}`);
 	}
 	
+	navigateToSettlementQuoteSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLEMENT_QUOTE_SUCCESS}`);
+	}
+
+	navigateToSettlementQuoteFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLEMENT_QUOTE_FAILURE}`);
+	}
+
 	navigateToSettlementQuoteOutcome() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLEMENT_QUOTE_OUTCOME}`);
+	}
+
+	navigateToEmailConfirmationOutcome() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.EMAIL_CONFIRMATION_OUTCOME}`);
 	}
 
 	navigateToSettleAndCloseSuccess() {
@@ -853,11 +868,35 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
+		name: `horizon-settlement-quote-success`,
+		title: `SettlementQuoteSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.SETTLEMENT_QUOTE_SUCCESS,
+		load: () => import(`../views/credit/SettlementQuoteSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-settlement-quote-failure`,
+		title: `SettlementQuoteFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.SETTLEMENT_QUOTE_FAILURE,
+		load: () => import(`../views/credit/SettlementQuoteFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
 		name: `horizon-settlement-quote-outcome`,
 		title: `SettlementQuoteOutcome`,
 		icon: null,
 		path: HORIZON_ROUTES.SETTLEMENT_QUOTE_OUTCOME,
 		load: () => import(`../views/credit/SettlementQuoteOutcome`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},,
+	{
+		name: `horizon-email-confirmation-outcome`,
+		title: `EmailConfirmationOutcome`,
+		icon: null,
+		path: HORIZON_ROUTES.EMAIL_CONFIRMATION_OUTCOME,
+		load: () => import(`../views/credit/EmailConfirmationOutcome`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{

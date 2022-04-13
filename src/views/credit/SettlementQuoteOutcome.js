@@ -1,4 +1,6 @@
 import { css, html } from 'platform/elements';
+import { SETTLEMENT_QUOTE_EVENTS } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/RelatedOptions';
@@ -19,7 +21,6 @@ export class SettlementQuoteOutcome extends ViewBase {
 	constructor() {
 		super();
 
-		this.selectedAccounts = [];
 		this.emailAddress = ``;
 		this.emailStatus = [];
 		this.failedAccounts = [];
@@ -57,6 +58,10 @@ export class SettlementQuoteOutcome extends ViewBase {
 		this.emailStatus = this.screenDetails && this.screenDetails.emailStatus;
 		this.failedAccounts = this.emailStatus.filter(account => !account.sentStatus).map(item => item.productTypeDescription);
 		this.succeededAccounts = this.emailStatus.filter(account => account.sentStatus).map(item => item.productTypeDescription);
+		
+		this._telemetry.startSpan(SETTLEMENT_QUOTE_EVENTS.SETTLEMENT_QUOTE_PARTIAL_SUCCESS, {
+			"settlement-quote-outcome": this.emailStatus
+		});
 
 		this._getOutcomeDetails();
 		this._updateIncidentState();
@@ -73,6 +78,13 @@ export class SettlementQuoteOutcome extends ViewBase {
 	// --------------
 
 	_doneClick() {
+		this._telemetry.logEvent(SETTLEMENT_QUOTE_EVENTS.SETTLEMENT_QUOTE_PARTIAL_SUCCESS_DONE, {
+			"screen": TelemetryScreen.SETTLEMENT_QUOTE_PARTIAL_SUCCESS,
+			"next-screen": TelemetryScreen.FAVOURITES
+		});
+
+		this._telemetry.endSpan(SETTLEMENT_QUOTE_EVENTS.SETTLEMENT_QUOTE_PARTIAL_SUCCESS, {}, true, true);
+
 		const returnToScreen = this.horizonStore.getReturnToScreen();
 		this.horizonStore.setReturnScreen(returnToScreen.route, ``);
 
@@ -81,45 +93,33 @@ export class SettlementQuoteOutcome extends ViewBase {
 	}
 
 	_tryAgain() {
+		this._telemetry.logEvent(SETTLEMENT_QUOTE_EVENTS.SETTLEMENT_QUOTE_PARTIAL_SUCCESS_TRY_AGAIN, {
+			"screen": TelemetryScreen.SETTLEMENT_QUOTE_PARTIAL_SUCCESS,
+			"next-screen": TelemetryScreen.SETTLEMENT_QUOTE_DIALOG
+		});
+
+		this._telemetry.endSpan(SETTLEMENT_QUOTE_EVENTS.SETTLEMENT_QUOTE_PARTIAL_SUCCESS);
+
 		this.horizonRouter.navigateToReturnPage();
 	}
 	
-	_sendAnotherClick() {
-		this.horizonRouter.navigateToQuickTransactionFavourites();
-		this.horizonStore.clearScreenDetails();
-	}
-
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
 	_updateIncidentState() {
-		const completeFailure = this.failedAccounts.length === this.emailStatus.length;
-
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = completeFailure ? super.HORIZON_NEED_STATUS.FAILED : super.HORIZON_NEED_STATUS.COMPLETED;
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	_getOutcomeDetails() {
-		if (this.failedAccounts.length === this.emailStatus.length) {
-			this.header = `Settlement quote not sent`;
-			this.secondaryToast = `Settlement quote${this._formateToastDetails(this.failedAccounts)} was not sent`;
-			this.failureDetails = html`Settlement quote for <b>${this._formateAccountNames(this.failedAccounts)}</b> was not emailed to <b>${this.emailAddress}</b>`;
-			return;
-		}
-		if (this.failedAccounts.length > 0) {
 			this.header = `Some settlement quote(s) did not send`;
 			this.toast = `Settlement quote${this._formateToastDetails(this.succeededAccounts)} was sent`;
 			this.secondaryToast = `Settlement quote${this._formateToastDetails(this.failedAccounts)} was not sent`;
 			this.successDetail = html`Settlement quote for<b>${this._formateAccountNames(this.succeededAccounts)}</b> was emailed to <b>${this.emailAddress}</b>`;
 			this.failureDetails = html`Settlement quote for<b>${this._formateAccountNames(this.failedAccounts)}</b> was not emailed to <b>${this.emailAddress}</b>`;
-			return;
 		}
-		this.header = `Settlement quote sent`;
-		this.toast = `Settlement quote${this._formateToastDetails(this.succeededAccounts)} was sent`;
-		this.successDetail = html`Settlement quote for <b> ${this._formateAccountNames(this.succeededAccounts)}</b> was emailed to <b>${this.emailAddress}</b>`;
-	}
 
 	_formateToastDetails(accounts) {
 		if (accounts.length === 1) {
@@ -259,7 +259,7 @@ export class SettlementQuoteOutcome extends ViewBase {
 			? html`
 				<capitec-toast 
 					?hidden="${!this.displayToast}"
-					class="${this.toast ? `secondary-toast` : ``}"
+					class="secondary-toast"
 					type="error" 
 					header="Unsuccessful" 
 					detail="${this.secondaryToast}"
@@ -287,7 +287,7 @@ export class SettlementQuoteOutcome extends ViewBase {
 	_renderSuccessDetails() {
 		return this.successDetail 
 		? html`
-		<capitec-group class="${this.failureDetails ? `` : `only-group`}" layout="horizontal" halign="center">
+		<capitec-group layout="horizontal" halign="center">
 			<capitec-icon
 				size="default"
 				icon="status/success-trans">
@@ -300,7 +300,7 @@ export class SettlementQuoteOutcome extends ViewBase {
 	_returnFailureDetails() {
 		return this.failureDetails
 		? html`
-			<capitec-group class="subdetail-group ${this.successDetail ? `` : `only-group`}" layout="horizontal" halign="center">
+			<capitec-group class="subdetail-group" layout="horizontal" halign="center">
 				<capitec-icon
 					size="default"
 					icon="status/error-trans">
@@ -314,13 +314,6 @@ export class SettlementQuoteOutcome extends ViewBase {
 		return html`
 			<capitec-group class="button-group" layout="horizontal" halign="center">
 				<capitec-button
-					label="Send Another"
-					?hidden="${this.succeededAccounts.length !== this.emailStatus.length}"
-					@click="${() => this._sendAnotherClick()}">
-				</capitec-button>
-			
-				<capitec-button
-					type="${this.succeededAccounts.length === this.emailStatus.length ? `primary` : ``}"
 					class="button-left"
 					label="Done"
 					@click="${() => this._doneClick()}">
@@ -329,7 +322,6 @@ export class SettlementQuoteOutcome extends ViewBase {
 				<capitec-button
 					type="primary"
 					label="Try Again"
-					?hidden="${this.succeededAccounts.length === this.emailStatus.length}"
 					@click="${() => this._tryAgain()}">
 				</capitec-button>
 			</capitec-group>`;

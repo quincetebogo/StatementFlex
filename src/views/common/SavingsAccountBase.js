@@ -290,8 +290,8 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	async _getClientCreditProducts(customErrHandler = null) {
-
-		const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber, customErrHandler);
+		const accountStatus = `All`;
+		const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber, accountStatus, customErrHandler);
 
 		if (returnValue.succeeded) {
 			return returnValue.result;

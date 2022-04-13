@@ -99,3 +99,21 @@
 	POP_FAILURE_TRY_AGAIN: `call.fulfill-need.credit.budget.transfer.proof-of-payment.failure.try-again`,
 	POP_FAILURE_DONE: `call.fulfill-need.credit.budget.transfer.proof-of-payment.failure.done`
  });
+});
+
+
+export const SETTLEMENT_QUOTE_EVENTS = Object.freeze({
+	SETTLEMENT_QUOTE: `call.fulfill-need.credit.settlement-quote`,
+	SETTLEMENT_QUOTE_DIALOG: `call.fulfill-need.credit.settlement-quote.pop-up`,
+	SETTLEMENT_QUOTE_CANCEL: `call.fulfill-need.credit.settlement-quote.pop-up.cancel`,
+	SETTLEMENT_QUOTE_VIEW_DOCUMENT: `call.fulfill-need.credit.settlement-quote.pop-up.view-document`,
+	SETTLEMENT_QUOTE_SEND: `call.fulfill-need.credit.settlement-quote.pop-up.send`,
+
+	SETTLEMENT_QUOTE_SUCCESS: `call.fulfill-need.credit.settlement-quote.success`,
+	SETTLEMENT_QUOTE_SUCCESS_DONE: `call.fulfill-need.credit.settlement-quote.success.done`,
+	SETTLEMENT_QUOTE_SUCCESS_SEND_ANOTHER: `call.fulfill-need.credit.settlement-quote.success.send-another`,
+
+	SETTLEMENT_QUOTE_FAILURE: `call.fulfill-need.credit.settlement-quote.failure`,
+	SETTLEMENT_QUOTE_FAILURE_TRY_AGAIN: `call.fulfill-need.credit.settlement-quote.failure.try-again`,
+	SETTLEMENT_QUOTE_FAILURE_DONE: `call.fulfill-need.credit.settlement-quote.failure.done`
+});
