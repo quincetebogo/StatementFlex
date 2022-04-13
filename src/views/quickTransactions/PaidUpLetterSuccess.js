@@ -53,7 +53,8 @@ export class PaidUpLetterSuccess extends ViewBase {
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-		this._telemetry.endSpan(CreditEvents.CREDIT_PAID_UP_LETTER_SUCCESS, {});
+
+		this._telemetry.endSpan(CreditEvents.CREDIT_PAID_UP_LETTER_SUCCESS, {}, true, true, false);
 	}
 
 	// --------------

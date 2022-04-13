@@ -53,8 +53,8 @@ import 'app/components/common/RelatedOptions';
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-
-		this._telemetry.endSpan(CreditEvents.CREDIT_PAID_UP_LETTER_FAILURE, {});
+		
+		this._telemetry.endSpan(CreditEvents.CREDIT_PAID_UP_LETTER_FAILURE, {}, true, true, false);
 	}
 
 	// --------------

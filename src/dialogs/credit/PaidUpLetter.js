@@ -120,7 +120,8 @@ export class PaidUpLetter extends Component {
 			this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_POP_UP_SEND, {
 				"screen": TelemetryScreen.CREDIT_PAID_UP_LETTER,
 				"email address": this.idConfirmEmailAddress,
-				"next-screen": null // TODO: Logic required to indicate if the next screen is succussful or unsuccessful
+				// TODO: Logic required to indicate if the next screen is succussful or unsuccessful. It can be done once CS integration is done
+				"next-screen": null 
 			});
 		}
 	}
@@ -128,8 +129,10 @@ export class PaidUpLetter extends Component {
 	_cancelClick(e) {
 		this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_POP_UP_CANCEL, {
 			"screen": TelemetryScreen.CREDIT_PAID_UP_LETTER,
-			"next-screen": null // TODO: How do we know what the next screen is? i.e. Favourites or Credit Landing?
+			// TODO: Once paid up letter can be done from credit landing add logic to determine next screen i.e. favourites or credit landing
+			"next-screen": TelemetryScreen.FAVOURITES 
 		});
+
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
