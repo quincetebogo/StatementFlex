@@ -57,10 +57,13 @@ export class PayCreditCardBudget extends Component {
 		this.budgetBalance = this.budgetAccountDetails.budgetBalance;
 
 		this._getErrorMessage();
+		this._onLoading();
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+
+		this._onUnLoading();
 	}
 
 	// --------------
@@ -137,6 +140,14 @@ export class PayCreditCardBudget extends Component {
 		if (isNullorEmpty(this.budgetBalance)) {
 			this.errorMessage = `Transafer amount cannot be empty`;
 		}
+	}
+
+	_onLoading() {
+		this.dispatchEvent(new CustomEvent(`on-loading`, {}));
+	}
+
+	_onUnLoading() {
+		this.dispatchEvent(new CustomEvent(`on-unloading`, {}));
 	}
 
 	// ---------

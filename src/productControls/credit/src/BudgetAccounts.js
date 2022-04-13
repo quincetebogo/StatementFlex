@@ -44,6 +44,14 @@ import 'app/components/common/HorizonLabel';
 		// Grouping budget accounts available based on total number of term months.
 		this.groupAccountsByTerm = Utilities.groupBy(this.budgetFacilityAccounts.creditCardBudgetList, `originalTerm`);
 		this.filteredAccounts = { ...this.groupAccountsByTerm };
+
+		this._onLoading();
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+
+		this._onUnLoading();
 	}
 
 	// --------------
@@ -115,9 +123,9 @@ import 'app/components/common/HorizonLabel';
 		}
 	}
 
-	_logTelemetryOnFilter(event) {
+	_focusOut(event) {
 		if (event.currentTarget.value) {
-			this.dispatchEvent(new CustomEvent(`telemetry-on-filter`, { detail: {
+			this.dispatchEvent(new CustomEvent(`fiter-changed`, { detail: {
 				"searchValue": event.currentTarget.value
 			} }));
 		}
@@ -133,7 +141,13 @@ import 'app/components/common/HorizonLabel';
 	// PRIVATE METHODS
 	// ---------------
 	
-	// N/A
+	_onLoading() {
+		this.dispatchEvent(new CustomEvent(`on-loading`, {}));
+	}
+
+	_onUnLoading() {
+		this.dispatchEvent(new CustomEvent(`on-unloading`, {}));
+	}
 	
 	// ---------
 	// RENDERING
@@ -348,7 +362,7 @@ import 'app/components/common/HorizonLabel';
 				label="Search for amount or transaction name" 
 				value="${this.searchText}"
 				@key-input="${(event) => this._searchValueChange(event)}"
-				@focusout="${(event) => this._logTelemetryOnFilter(event)}">
+				@focusout="${(event) => this._focusOut(event)}">
 			</capitec-search-field>
 		`;
 	}

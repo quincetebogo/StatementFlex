@@ -27,6 +27,7 @@
 
 	// Budget Details
 	CREDIT_BUDGET_DETAILS: `call.fulfill-need.credit.budget`,
+	CREDIT_BUDGET_DETAILS_BACK: `call.fulfill-need.credit.budget.back`,
 	BUDGET_DETAILS_FILTER: `call.fulfill-need.credit.budget.filter`,
 	BUDGET_DETAILS_CLEAR_FILTER: `call.fulfill-need.credit.budget.clear-filter`,
 	BUDGET_DETAILS_TRANSFER_SELECT: `call.fulfill-need.credit.budget.select.transfer`,
