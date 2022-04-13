@@ -122,6 +122,30 @@ export const creditMixin = {
 		this._telemetry.endSpan(this.settlementQuoteEvents.SETTLEMENT_QUOTE_DIALOG);
 	},
 
+	_showEmailConfirmationOutcome(details) {
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `email-confirmation`);
+
+		// TO DO: CS call to send Settlement Quote sould come here
+		// "accountsEmailStatus" - Response from the CS call  
+		const accountsEmailStatus = [{ "accountNumber": `6008554247`, "sentStatus": true }];
+
+		const formatedResponse = accountsEmailStatus.map(item => {
+			const itemDetails = details.selectedAccounts.find(account => account.accountNumber === item.accountNumber);
+			item.productTypeDescription = itemDetails.productTypeDescription;
+
+			return item;
+		});
+
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.selectedAccounts = details.selectedAccounts.filter(item => !isNullorEmpty(item));
+		screenDetails.emailAddress = details.emailAddress;
+		screenDetails.emailStatus = formatedResponse;
+		screenDetails.header = `Proof of Payment`;
+		this.horizonStore.setScreenDetails(screenDetails);
+
+		this.horizonRouter.navigateToEmailConfirmationOutcome();
+	},
+
 	async _navigatePDF(currPage) {
 		// add CS call to get encodedPDF 
 		// currPage is date currently selected

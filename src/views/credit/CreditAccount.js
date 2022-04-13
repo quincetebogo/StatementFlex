@@ -136,6 +136,11 @@ export class CreditAccount extends ViewBase {
 		const budgetFacility = () => this._budgetFacility(selectedAccountDetails);
 		const payBudget = () => this._payBudgetAccount(selectedAccountDetails);
 
+		this.selectedAccountDetails = {
+			'creditType': creditType,
+			'productType': productType,
+			'selectedAccounts': [selectedAccountDetails]
+		};
 		const accConfig = ACCOUNT_INTCAT_ENUM[selectedAccountDetails.productTypeCode];
 		const actions = {
 			'transaction-history': transactionHistory,
@@ -156,7 +161,7 @@ export class CreditAccount extends ViewBase {
 			this._refreshIncidentDetails();
 
 			this.ccsStatus = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber, productType);
-
+			
 			// Perform the action only when ccs status is false
 			if (!this.ccsStatus) {
 				return actions[option]();
@@ -264,27 +269,38 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_onSendSettleAndClosePOP(documents, email) {
+	_onSendSettleAndClosePOP(documents, emailAddress) {
 		// TODO: CS integration to send settle and close POP
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		// this.renderMode = RENDER_MODE.MAIN_PAGE;
+
+		this._navigateToEmailConfirmation(emailAddress);
 	}
 
 	_onCancelSendSettleAndClosePOP() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_onSendSettleLoanPOP(documents, email) {
+	_onSendSettleLoanPOP(documents, emailAddress) {
 		// TODO: CS integration to send settle and close POP
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		// this.renderMode = RENDER_MODE.MAIN_PAGE;
+
+		this._navigateToEmailConfirmation(emailAddress);
 	}
 
 	_onCancelSendSettleLoanPOP() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_onSendPayBudgetPOP(documents, email) {
+	_onSendPayBudgetPOP(documents, emailAddress) {
 		// TODO: CS integration to send settle and close POP
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		// this.renderMode = RENDER_MODE.MAIN_PAGE;
+
+		this._navigateToEmailConfirmation(emailAddress);
+	}
+
+	_navigateToEmailConfirmation(emailAddress) {
+		this.selectedAccountDetails.emailAddress = emailAddress;
+		this._showEmailConfirmationOutcome(this.selectedAccountDetails);
 	}
 
 	_onCancelSendPayBudgetPOP() {
@@ -309,7 +325,8 @@ export class CreditAccount extends ViewBase {
 			
 			this.horizonStore.setCallerInformation(this.callerInformation);
 
-            let returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber);
+			const accountStatus = `All`;
+            let returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber, accountStatus);
             let successfullServiceResponse = returnValue.succeeded;
 
 			if (!successfullServiceResponse) {
