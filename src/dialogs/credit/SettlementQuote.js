@@ -2,8 +2,10 @@ import { Component, css, html } from 'platform/elements';
 import { creditMixin } from 'app/views/credit/CreditMixin';
 import { CreditService } from 'app/services/CreditService';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { PRODUCTS } from 'app/constants/Credit';
+import { SETTLEMENT_QUOTE_EVENTS } from 'app/constants/telemetry/events/QuickTransactions';
 
 import 'app/components/common/HorizonEmailInput';
 import 'app/components/common/HorizonProductTile';
@@ -48,10 +50,13 @@ export class SendSettlementQuote extends Component {
 		this.confirmEmail = ``;
 		this.emailLabel = `Enter email address`;
 		this.confirmEmailLabel = `Confirm email`;
+		this.settlementQuoteEvents = SETTLEMENT_QUOTE_EVENTS;
 
+		this._telemetry = HorizonTelemetry.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
-		this.callerInformation = this.horizonStore.getCallerInformation();
 
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		
 		this.creditService = new CreditService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 
 		Object.assign(SendSettlementQuote.prototype, creditMixin);
@@ -110,7 +115,17 @@ export class SendSettlementQuote extends Component {
 
 	async _getDocument(item) {
 		this.encodedPDF = await this._getSettlementQuoteDocument(item);
-		this.encodedPDF ? this._viewPDFViewer() : ``;
+		if (this.encodedPDF) {
+
+			this._telemetry.logEvent(this.settlementQuoteEvents.SETTLEMENT_QUOTE_VIEW_DOCUMENT, {
+				"cifNumber": this.callerInformation.cifNumber,
+				"accountNumber": item.accountNumber,
+				"accountType": item.accountType
+			});
+
+			this._viewPDFViewer();
+		}
+		
 	}
 
 	_clearAlerts() {

@@ -1,5 +1,6 @@
 import { ACTION_IDENTIFIER, PERMISSION_STATUS, PRODUCTS } from 'app/constants/Credit';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { html } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -47,7 +48,10 @@ export const creditMixin = {
 		return permission?.permissionResult === PERMISSION_STATUS.DENIED;
 	},
 
-	async _settlementQuoteDialog(selectedAccounts) {
+	_settlementQuoteDialog(selectedAccounts) {
+
+		this._telemetry.startSpan(this.settlementQuoteEvents.SETTLEMENT_QUOTE_DIALOG, {});
+
 		this.selectedAccountDetails = selectedAccounts;
 
 		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_DIALOG;
@@ -119,7 +123,6 @@ export const creditMixin = {
 		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG 
 		? html`
 			<horizon-settlement-quote-dialog
-				.encodedPDF="${this.encodedPDF}"
 				.selectedAccounts="${this.selectedAccountDetails}"
 				.getSettlementQuoteDocument="${(currPage) => this._getSettlementQuoteDocument(currPage)}"
 				@cancel="${() => this._backFromSettlementQuoteDialog()}"

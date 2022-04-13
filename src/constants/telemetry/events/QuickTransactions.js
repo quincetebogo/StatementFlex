@@ -114,7 +114,15 @@ export const QuickTransactionEvents = {
 	TAX_CERTIFICATE_OUTCOME: `call.fulfill-need.tax-certificate.outcome`,
 	TAX_CERTIFICATE_OUTCOME_DONE: `call.fulfill-need.tax-certificate.outcome.done`,
 	TAX_CERTIFICATE_OUTCOME_ASSIGN: `call.fulfill-need.tax-certificate.outcome.hand-off`,
-	TAX_CERTIFICATE_FIND_BRANCH: `call.fulfill-need.tax-certificate.find-a-branch`
+	TAX_CERTIFICATE_FIND_BRANCH: `call.fulfill-need.tax-certificate.find-a-branch`,
+
+	// Settlement Quote
+	SETTLEMENT_QUOTE_SELECT: `call.fulfill-need.select.settlement-quote`,
+	SETTLEMENT_QUOTE: `call.fulfill-need.settlement-quote`,
+	SETTLEMENT_QUOTE_FILTER: `call.fulfill-need.settlement-quote.filter`,
+	SETTLEMENT_QUOTE_SELECT_ALL: `call.fulfill-need.settlement-quote.select-all`,
+	SETTLEMENT_QUOTE_DESELECT_ALL: `call.fulfill-need.settlement-quote.deselect-all`,
+	SETTLEMENT_QUOTE_SEND: `call.fulfill-need.settlement-quote.send-settlement-quote`
 
 };
 
@@ -146,4 +154,24 @@ export const STATEMENT_EVENTS = Object.freeze({
 	STATEMENTS_FAILURE: `call.fulfill-need.statements.failure`,
 	STATEMENTS_FAILURE_DONE: `call.fulfill-need.statements.failure.done`,
 	STATEMENTS_FAILURE_ASSIGN: `call.fulfill-need.statements.failure.assign`
+});
+
+export const SETTLEMENT_QUOTE_EVENTS = Object.freeze({
+	SETTLEMENT_QUOTE: `call.fulfill-need.settlement-quote`,
+	SETTLEMENT_QUOTE_DIALOG: `call.fulfill-need.settlement-quote.pop-up`,
+	SETTLEMENT_QUOTE_CANCEL: `call.fulfill-need.settlement-quote.pop-up.cancel`,
+	SETTLEMENT_QUOTE_VIEW_DOCUMENT: `call.fulfill-need.settlement-quote.pop-up.view-document`,
+	SETTLEMENT_QUOTE_SEND: `call.fulfill-need.settlement-quote.pop-up.send`,
+
+	SETTLEMENT_QUOTE_SUCCESS: `call.fulfill-need.settlement-quote.success`,
+	SETTLEMENT_QUOTE_SUCCESS_DONE: `call.fulfill-need.settlement-quote.success.done`,
+	SETTLEMENT_QUOTE_SUCCESS_SEND_ANOTHER: `call.fulfill-need.settlement-quote.success.send-another`,
+
+	SETTLEMENT_QUOTE_FAILURE: `call.fulfill-need.settlement-quote.failure`,
+	SETTLEMENT_QUOTE_FAILURE_TRY_AGAIN: `call.fulfill-need.settlement-quote.try-again`,
+	SETTLEMENT_QUOTE_FAILURE_DONE: `call.fulfill-need.settlement-quote.failure.done`,
+
+	SETTLEMENT_QUOTE_PARTIAL_SUCCESS: `call.fulfill-need.settlement-quote.partial-success`,
+	SETTLEMENT_QUOTE_PARTIAL_SUCCESS_TRY_AGAIN: `call.fulfill-need.settlement-quote.partial-success.try-again`,
+	SETTLEMENT_QUOTE_PARTIAL_SUCCESS_DONE: `call.fulfill-need.settlement-quote.partial-success.done`
 });

@@ -97,15 +97,20 @@
 	SAVINGS_PLAN_TAX_CERTIFICATE: `Savings Plan Tax Certificate`,
 	SAVINGS_PLAN_PRODUCT_ENQUIRY: `Savings Plan Product Enquiry`,
 	SAVINGS_PLAN_SAVINGS_CALCULATOR: `Savings Plan Savings Calculator`,
-  SAVINGS_PLAN_INTEREST_RATES: `Savings Plan Interest Rates`,
+	SAVINGS_PLAN_INTEREST_RATES: `Savings Plan Interest Rates`,
 
 
 	CREDIT_LANDING: `Credit Landing`,
 	CREDIT_ACCOUNT_DETAILS: `Credit Account details`,  
 	CREDIT_TRANSACTION_HISTORY: `Credit Transaction History`,
 	CREDIT_STATEMENTS: `Credit Statements`,
-	CREDIT_SETTLEMENT_QUOTE: `Credit Settlement Quote`,
+	SETTLEMENT_QUOTE_DIALOG: `Settlement Quote Dialog`,
 	CREDIT_SETTLE_CLOSE: `Credit Settle Close`,
 	CREDIT_STATEMENTS_SUCCESS: `Credit Statement success`,
-	CREDIT_STATEMENTS_FAILURE: `Credit Statement failure`  
+	CREDIT_STATEMENTS_FAILURE: `Credit Statement failure`,
+
+	SETTLEMENT_QUOTE_VIEW: `Settlement Quote Accounts view`,
+	SETTLEMENT_QUOTE_SUCCESS: `Settlement Quote Success screen`,
+	SETTLEMENT_QUOTE_FAILURE: `Settlement Quote Failure screen`,
+	SETTLEMENT_QUOTE_PARTIAL_SUCCESS: `Settlement Quote Partial Success screen`
 };
