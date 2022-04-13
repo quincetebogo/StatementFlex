@@ -1,4 +1,4 @@
-import { CREDIT_ACCOUNT_TYPE, PRODUCT_TYPE } from 'app/constants/Credit';
+import { ACCOUNT_STATUS, CREDIT_ACCOUNT_TYPE, PRODUCT_TYPE } from 'app/constants/Credit';
 import { QuickTransactionEvents, STATEMENT_EVENTS } from 'app/constants/telemetry/events/QuickTransactions';
 import { css, html } from 'platform/elements';
 import { isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
@@ -525,25 +525,29 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-	_settlementQuote() {
+	async _settlementQuote(customErrHandler = null) {
 
-		// TODO: CS call to get credit accounts info and diaplay appropriate values on settlement quote view screen - details are pulled from mocks now
+		const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber, ACCOUNT_STATUS.ALL, customErrHandler);
 
-		this.settlementQuoteDetails = [...creditOverview.creditCardSummaryList, ...creditOverview.accessFacilitySummaryList, ...creditOverview.loanAccountSummaryList];
+		if (returnValue.succeeded) {
+			const settlementQuoteResult = returnValue.result;
 
-		this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
-			item.type = PRODUCT_TYPE[item.productTypeCode];
-			item.category = CREDIT_ACCOUNT_TYPE[item.productTypeCode];
-			item.productTypeDescription = `${item.productTypeDescription.toLowerCase().charAt(0).toUpperCase()}${item.productTypeDescription.toLowerCase().slice(1)}`;
-			item.creditLimit = formatCurrency(item.creditLimit);
-			item.repayAmount = item.repayAmount ? formatCurrency(item.repayAmount) : null;
-			item.nextRepayment = item.nextRepayment ? formatCurrency(item.nextRepayment) : null;
-			item.currentBalance = formatCurrency(item.currentBalance);
+			this.settlementQuoteDetails = [...settlementQuoteResult.creditCardSummaryList, ...settlementQuoteResult.accessFacilitySummaryList, ...settlementQuoteResult.loanAccountSummaryList];
 
-			return item;
-		});
+			this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
+				item.type = PRODUCT_TYPE[item.productTypeCode];
+				item.category = CREDIT_ACCOUNT_TYPE[item.productTypeCode];
+				item.productTypeDescription = `${item.productTypeDescription.toLowerCase().charAt(0).toUpperCase()}${item.productTypeDescription.toLowerCase().slice(1)}`;
+				item.creditLimit = formatCurrency(item.creditLimit);
+				item.repayAmount = item.repayAmount ? formatCurrency(item.repayAmount) : null;
+				item.nextRepayment = item.nextRepayment ? formatCurrency(item.nextRepayment) : null;
+				item.currentBalance = formatCurrency(item.currentBalance);
+
+				return item;
+			});
 
 		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
+		}
 
 	}
 

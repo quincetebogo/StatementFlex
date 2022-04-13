@@ -408,7 +408,7 @@ export class SettlementQuote extends Component {
 				</horizon-label>
 				<horizon-label
 					label="Settlement Amount"
-					value="${item.currentBalance}">
+					value="0">
 				</horizon-label>
 			</capitec-content-box>
 		`;

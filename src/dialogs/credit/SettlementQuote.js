@@ -1,6 +1,9 @@
 import { Component, css, html } from 'platform/elements';
-import { PRODUCTS } from 'app/constants/Credit';
+import { creditMixin } from 'app/views/credit/CreditMixin';
+import { CreditService } from 'app/services/CreditService';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { PRODUCTS } from 'app/constants/Credit';
 
 import 'app/components/common/HorizonEmailInput';
 import 'app/components/common/HorizonProductTile';
@@ -40,11 +43,18 @@ export class SendSettlementQuote extends Component {
 		// private variables
 		this.flag = false;
 		this.currPage = 0;
-		this.encodedPDF = {};
+		this.encodedPDF = ``;
 		this.email = ``;
 		this.confirmEmail = ``;
 		this.emailLabel = `Enter email address`;
 		this.confirmEmailLabel = `Confirm email`;
+
+		this.horizonStore = HorizonStore.getInstance();
+		this.callerInformation = this.horizonStore.getCallerInformation();
+
+		this.creditService = new CreditService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+
+		Object.assign(SendSettlementQuote.prototype, creditMixin);
 	}
 
 	// --------------
@@ -59,8 +69,7 @@ export class SendSettlementQuote extends Component {
 	static get properties() {
 		return {
 			selectedAccounts: { type: Object },
-			encodedPDF: { type: Object },
-			navigatePDF: { type: Object },
+			encodedPDF: { type: String },
 
 			// private properties
 			isBusy: { state: true },
@@ -95,10 +104,15 @@ export class SendSettlementQuote extends Component {
 		// TODO: flow for selected accounts to be done here
 	}
 
-	_viewPDFViewer () {
+	_viewPDFViewer() {
 		this.flag = !this.flag;
 	}
-	
+
+	async _getDocument(item) {
+		this.encodedPDF = await this._getSettlementQuoteDocument(item);
+		this.encodedPDF ? this._viewPDFViewer() : ``;
+	}
+
 	_clearAlerts() {
 		this.alertBannerMessage = ``;
 	}
@@ -131,10 +145,10 @@ export class SendSettlementQuote extends Component {
 		const selectedItems = this.selectedAccounts;
 		if (step === `next`) {
 			this.currPage += this.currPage < selectedItems.length ? 1 : 0;
-			this.encodedPDF = await this.navigatePDF(selectedItems[this.currPage - 1]);
+			this.encodedPDF = await this.getSettlementQuoteDocument(selectedItems[this.currPage - 1]);
 		} else {
 			this.currPage -= this.currPage ? 1 : 0;
-			this.encodedPDF = await this.navigatePDF(selectedItems[this.currPage - 1]);
+			this.encodedPDF = await this.getSettlementQuoteDocument(selectedItems[this.currPage - 1]);
 		}
 	}
 	
@@ -148,6 +162,18 @@ export class SendSettlementQuote extends Component {
 		}
 
 		return isNullorEmpty(this.alertBannerMessage);
+	}
+
+	_handleChannelServiceError(ex) {
+		this.errorMessage = `System error. Please try again.`;
+		this.errorCount++;
+
+		if (this.errorCount > 2) {
+			this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+			this.horizonStore.setCallerInformation(this.callerInformation);
+			this.horizonRouter.navigateToSystemError();
+		}
+		return true;
 	}
 
 	// ---------------
@@ -312,20 +338,20 @@ export class SendSettlementQuote extends Component {
 				type="default"
 				label="${item.type === PRODUCTS.TERM_LOAN ? `Term loan (${item.productTypeDescription.split(` `)[0]} months)` : item.productTypeDescription}"
 				subtitle="${item.accountNumber}">
-					${this._renderViewDocumnetLink()}
+					${this._renderViewDocumnetLink(item)}
 			</horizon-product-tile>
 		`;
 	}
 
-	_renderViewDocumnetLink() {
-		this.currPage = this.selectedAccounts.length;
+	_renderViewDocumnetLink(item) {
+		this.currPage = this.selectedAccounts.indexOf(item);
 		return html`
 			<capitec-label 
 				slot="detail"
 				type="strong"
 				label="View Document"
 				class="viewDocumentLink"
-				@click="${() => this._viewPDFViewer()}">
+				@click="${() => this._getDocument(item)}">
 			</capitec-label>
 		`;
 	}

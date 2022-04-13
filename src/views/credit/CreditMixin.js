@@ -49,7 +49,7 @@ export const creditMixin = {
 
 	async _settlementQuoteDialog(selectedAccounts) {
 		this.selectedAccountDetails = selectedAccounts;
-		this.encodedPDF = await this._navigatePDF(selectedAccounts[0]);
+
 		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_DIALOG;
 	},
 
@@ -57,12 +57,10 @@ export const creditMixin = {
 		
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `settlement-quote`);
 
-		this.callerInformation = this.horizonStore.getCallerInformation();
-
 		const accountsList = details.selectedAccounts.map(item => {
 			const account = { 
 								'accountNumber': item.accountNumber,
-								'creditType': item.productTypeDescription.replace(` `,``)
+								'creditType': item.productTypeDescription.replace(` `, ``)
 							};
 			return account;
 		});
@@ -72,9 +70,9 @@ export const creditMixin = {
 			"caseId": this.caseId,
 			"emailAddress": details.emailAddress,
 			"accountList": accountsList
-		}
+		};
 
-		const returnValue = await this.creditService.sendSettlementQuoteEmail(request)
+		const returnValue = await this.creditService.sendSettlementQuoteEmail(request);
 
 		if (returnValue.succeeded) {
 			const accountsEmailStatus = returnValue.result.sendStatusList;
@@ -96,7 +94,7 @@ export const creditMixin = {
 		}
 	},
 
-	async _navigatePDF(selectedAccounts) {
+	async _getSettlementQuoteDocument(selectedAccounts) {
 
 		const request = {
 			"creditType": selectedAccounts.type.replace(` `, ``),
@@ -106,7 +104,7 @@ export const creditMixin = {
 			"idNumber": this.callerInformation.southAfricanIDNumber,
 			"firstName": this.callerInformation.firstName,
 			"surname": this.callerInformation.lastName,
-			"caseId": ""
+			"caseId": ``
 		};
 
 		const returnValue = await this.creditService.settlementQuote(request);
@@ -123,9 +121,9 @@ export const creditMixin = {
 			<horizon-settlement-quote-dialog
 				.encodedPDF="${this.encodedPDF}"
 				.selectedAccounts="${this.selectedAccountDetails}"
+				.getSettlementQuoteDocument="${(currPage) => this._getSettlementQuoteDocument(currPage)}"
 				@cancel="${() => this._backFromSettlementQuoteDialog()}"
-				@send="${(e) => this._sendSettlementQuote(e.detail)}"
-				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
+				@send="${(e) => this._sendSettlementQuote(e.detail)}">
 			</horizon-settlement-quote-dialog>`
 		: html``;
 	},
