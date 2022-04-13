@@ -98,7 +98,6 @@
 	POP_FAILURE: `call.fulfill-need.credit.budget.transfer.proof-of-payment.failure`,
 	POP_FAILURE_TRY_AGAIN: `call.fulfill-need.credit.budget.transfer.proof-of-payment.failure.try-again`,
 	POP_FAILURE_DONE: `call.fulfill-need.credit.budget.transfer.proof-of-payment.failure.done`
- });
 });
 
 

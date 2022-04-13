@@ -61,7 +61,11 @@ import 'app/components/common/HorizonLabel';
 	}
 
 	_transferClick() {
-		this.dispatchEvent(new CustomEvent(`transfer-click`, {}));
+		this.dispatchEvent(new CustomEvent(`transfer-click`, {
+			detail: {
+				budgetAccountNumber: this.accountDetails.budgetAccountNumber
+			}
+		}));
 	}
 
 	// --------------

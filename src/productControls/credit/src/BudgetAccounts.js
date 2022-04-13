@@ -83,7 +83,9 @@ import 'app/components/common/HorizonLabel';
 
 	_accountDetails(selectedBudgetAccount) {
 		this.dispatchEvent(new CustomEvent(`account-details`, {
-			detail: { selectedAccountDetails: selectedBudgetAccount }
+			detail: {
+				selectedAccountDetails: selectedBudgetAccount
+			}
 		}));
 	}
 

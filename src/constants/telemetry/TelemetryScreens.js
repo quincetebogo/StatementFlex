@@ -116,7 +116,7 @@
 
 	PROOF_OF_PAYMENT_DIALOG: `Send Proof of Payment Dialog`,
 	PROOF_OF_PAYMENT_SUCCESS: `Proof of payment success`,
-	PROOF_OF_PAYMENT_FAILURE: `Proof of payment failure`
+	PROOF_OF_PAYMENT_FAILURE: `Proof of payment failure`,
 	CREDIT_STATEMENTS_FAILURE: `Credit Statement failure`,
 
 	SETTLEMENT_QUOTE_VIEW: `Settlement Quote Accounts view`,

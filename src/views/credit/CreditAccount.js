@@ -133,23 +133,18 @@ export class CreditAccount extends ViewBase {
 		const settleAndClose = () => this._settleAndClose(creditType, productType, selectedAccountDetails);
 		const settleLoan = () => this._settleLoan();
 		const paidUpLetter = () => this._paidUpLetter();
-		const budgetFacility = () => this._budgetFacility(selectedAccountDetails);
-		const payBudget = () => this._payBudgetAccount(selectedAccountDetails);
+		const viewBudgets = () => this._viewBudgets(selectedAccountDetails);
+		const payBudget = () => this._payBudgetDialog(selectedAccountDetails);
 
-		this.selectedAccountDetails = {
-			'creditType': creditType,
-			'productType': productType,
-			'selectedAccounts': [selectedAccountDetails]
-		};
 		const accConfig = ACCOUNT_INTCAT_ENUM[selectedAccountDetails.productTypeCode];
 		const actions = {
+			'view-budgets': viewBudgets,
+			'pay-budget': payBudget,
 			'transaction-history': transactionHistory,
 			'statements': statements,
 			'settlement-quote': settlementQuote,
 			'paid-up-letter': paidUpLetter,
 			'settle-close': settleAndClose,
-			'budget-facility': budgetFacility,
-			'pay-budget': payBudget,
 			'settle-loan': settleLoan
 		};
 
@@ -217,7 +212,7 @@ export class CreditAccount extends ViewBase {
 		this.horizonRouter.navigateToCreditStatementSuccess();
 	}
 
-	_budgetAccountDetails(selectedAccountDetails) {
+	_viewBudgetDetails(selectedAccountDetails) {
 
 		this._telemetry.logEvent(CreditEvents.BUDGET_ACCOUNT_DETAILS_VIEW, {
 			"screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT,
@@ -227,6 +222,7 @@ export class CreditAccount extends ViewBase {
 		});
 
 		this.budgetAccountDetails = {
+			budgetAccountNumber: selectedAccountDetails.budgetAccountNumber,
 			budgetName: formatStringAsPascalCase(selectedAccountDetails.budgetName),
 			"Monthly repayment": formatCurrency(selectedAccountDetails.budgetInstalment),
 			"Purchase amount": formatCurrency(selectedAccountDetails.originalAmount),
@@ -242,28 +238,27 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNT_DETAILS;
 	}
 
-	_transferFromBudgetAccounts(selectedAccountDetails) {
+	_transferFromBudgetAccounts(selectedBudget) {
 		
 		this._telemetry.logEvent(CreditEvents.BUDGET_DETAILS_TRANSFER_SELECT, {
-			"budget-name": selectedAccountDetails.budgetName,
-			"budget-open-date": selectedAccountDetails.budgetDateTaken
+			"budget-name": selectedBudget.budgetName,
+			"budget-open-date": selectedBudget.budgetDateTaken
 		});
 		
-		this._optionClick(`pay-budget`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails);
+		this._optionClick(`pay-budget`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedBudget);
 	}
 
-	_transferFromBudgetDetails() {
+	_transferFromBudgetDetails(budgetAccountNo) {
 		this._telemetry.logEvent(CreditEvents.BUDGET_ACCOUNT_DETAILS_TRANSFER, {
 			"screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT_DETAILS,
 			"next-screen": TelemetryScreen.CREDIT_PAY_BUDGET_MODAL
 		});
 
-		this._optionClick(`pay-budget`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails);
+		const budgetAcc = this.budgetFacilityAccounts.creditCardBudgetList.find(item => item.budgetAccountNumber === budgetAccountNo);
+		this._optionClick(`pay-budget`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, budgetAcc);
 	}
 
-	async _payBudgetAccount(selectedAccountDetails) {
-
-		this._telemetry.startSpan(CreditEvents.CREDIT_BUDGET_TRANSFER, {});
+	async _payBudgetDialog(selectedAccountDetails) {
 
 		const request = {
 			"cifNumber": this.callerInformation.cifNumber,
@@ -274,22 +269,24 @@ export class CreditAccount extends ViewBase {
 		const returnValue = await this.creditService.budgetTransferFromAccounts(request);
 		
 		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Failed to retrieve from accounts list from which budget can be trasfered.`, `_payBudgetAccount`, returnValue.correlationId);
+			this.logger.log(`error`, `Failed to retrieve from accounts list from which budget can be trasfered.`, `_payBudgetDialog`, returnValue.correlationId);
 			return;
 		}
 		
 		if (returnValue.result?.hasCCSStatus) {
-			this.showCCSmodal = true;
+			this.ccsStatus = returnValue.result?.hasCCSStatus;
 			return;
 		}
 
-		this._formateFromAccounts(returnValue.result.fromAccounts);
+		await this._telemetry.startSpan(CreditEvents.CREDIT_BUDGET_TRANSFER, {});
+
+		this._formatFromAccounts(returnValue.result.fromAccounts);
 		this.payBudgetAccountDetails = selectedAccountDetails;
 		
 		this.renderMode = RENDER_MODE.PAY_BUDGET_DIALOG;
 	}
 
-	_formateFromAccounts(fromAccounts) {
+	_formatFromAccounts(fromAccounts) {
 		this.clientProducts = fromAccounts.map(account => {
 				const eligibleTransferAccounts = {
 					'accountNumber': account.accountNumber,
@@ -304,7 +301,7 @@ export class CreditAccount extends ViewBase {
 		.sort((x, y) => x.order - y.order);
 	}
 	
-	async _transferPayBudget(transferDetails) {
+	async _confirmPayBudget(transferDetails) {
 
 		const returnValue = await this.creditService.confirmBudgetTransfer(transferDetails, this.callerInformation);
 
@@ -333,7 +330,7 @@ export class CreditAccount extends ViewBase {
 			return;
 		}
 		
-		this.logger.log(`error`, `Failed to pay budget amount by transfering`, `_transferPayBudget`, returnValue.correlationId);
+		this.logger.log(`error`, `Failed to pay budget amount by transfering`, `_confirmPayBudget`, returnValue.correlationId);
 		this.horizonRouter.navigateToBudgetFacilityFailure();
 	}
 
@@ -565,7 +562,7 @@ export class CreditAccount extends ViewBase {
 		this.showSettleCloseModal = !this.showSettleCloseModal;
 	}
 
-	async _budgetFacility(selectedAccountDetails) {
+	async _viewBudgets(selectedAccountDetails) {
 		this._telemetry.logEvent(CreditEvents.CREDIT_BUDGET_FACILITY, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
 			"next-screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT
@@ -577,7 +574,7 @@ export class CreditAccount extends ViewBase {
 		const successfullServiceResponse = returnValue.succeeded;
 
 		if (!successfullServiceResponse) {
-			this.logger.log(`error`, `Failed to retrieve client credit card budget details from credit service.`, `_budgetFacility`, returnValue.correlationId);
+			this.logger.log(`error`, `Failed to retrieve client credit card budget details from credit service.`, `_viewBudgets`, returnValue.correlationId);
 			return;
 		}
 
@@ -871,7 +868,7 @@ export class CreditAccount extends ViewBase {
 					@on-loading="${() => this._telemetry.startSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {})}"
 					@on-unloading="${() => this._telemetry.endSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {})}"
 					@back="${() => this._backFromBudgetAccountsView()}"
-					@account-details="${(event) => this._budgetAccountDetails(event.detail.selectedAccountDetails)}"
+					@account-details="${(event) => this._viewBudgetDetails(event.detail.selectedAccountDetails)}"
 					@transfer-click="${(event) => this._transferFromBudgetAccounts(event.detail.selectedAccountDetails)}"
 					@fiter-changed="${(event) => this._filterChanged(event)}">
 				</capitec-pc-budget-facility-accounts>`
@@ -884,7 +881,7 @@ export class CreditAccount extends ViewBase {
 			<capitec-pc-budget-account-details
 				.accountDetails="${this.budgetAccountDetails}"
 				@back="${() => this._backFromBudgetAccountDetails()}"
-				@transfer-click="${() => this._transferFromBudgetDetails()}">
+				@transfer-click="${(event) => this._transferFromBudgetDetails(event.detail.budgetAccountNumber)}">
 			</capitec-pc-budget-account-details>`
 		: html``;
 	}
@@ -898,7 +895,7 @@ export class CreditAccount extends ViewBase {
 					@on-loading="${() => this._telemetry.startSpan(CreditEvents.PAY_BUDGET_MODAL, {})}"
 					@on-unloading="${() => this._telemetry.endSpan(CreditEvents.PAY_BUDGET_MODAL, {})}"
 					@cancel="${() => this._backFromPayBudgetDialog()}"
-					@transfer="${(e) => this._transferPayBudget(e.detail)}">
+					@transfer="${(e) => this._confirmPayBudget(e.detail)}">
 				</capitec-pc-pay-budget-dialog>`
 			: html``;
 	}
