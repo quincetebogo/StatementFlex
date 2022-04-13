@@ -45,7 +45,8 @@ class EstimateCalculateSummary extends Component {
 			.calc-life-list{
 				display: flex; 
 				justify-content: space-between;
-			}`
+			}
+			`
 		];
 	}
 
@@ -77,8 +78,8 @@ class EstimateCalculateSummary extends Component {
 				<div>
 					<capitec-label label="Specify a premium you are willing to pay" class="stronger"></capitec-label>
 					<br>
-					<capitec-text-field @value-change="${(e) => this._totalPremiumChanged(e)}" .value="${this.totalPremium}" label="Premium Amount"
-						type="currency">
+					<capitec-text-field @value-change="${(e) => this._totalPremiumChanged(e)}" .value="${this.totalPremium}"
+						label="Premium Amount" type="currency">
 					</capitec-text-field>
 				</div>
 			</div>
