@@ -23,17 +23,6 @@ import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 export const creditMixin = {
 
-	async initialise(type = ``) {
-		const events = {
-			[ACCOUNT_TYPES.CREDIT]: () => import(`app/constants/telemetry/events/Credit`),
-			'': () => import(`app/constants/telemetry/events/QuickTransactions`) // Default
-		};
-
-		// Fetching the telemetry events object at runtime based on product type
-		const { SETTLEMENT_QUOTE_EVENTS } = await events[type]();
-		this.settlementQuoteEvents = SETTLEMENT_QUOTE_EVENTS;
-	},
-
 	/**
 	 * This function gets the credit permission for the option selected
 	 * 
@@ -60,11 +49,16 @@ export const creditMixin = {
 		return permission?.permissionResult === PERMISSION_STATUS.DENIED;
 	},
 
-	_settlementQuoteDialog(selectedAccounts) {
+	async _settlementQuoteDialog(selectedAccounts) {
 
-		this._telemetry.startSpan(this.settlementQuoteEvents.SETTLEMENT_QUOTE_DIALOG, {});
+		await this._telemetry.startSpan(this.settlementQuoteEvents.SETTLEMENT_QUOTE_DIALOG, {});
 
 		this.selectedAccountDetails = selectedAccounts;
+
+		// This is to get the case-id for the client, without case-id we cannot send a settlement quote
+		const [first] = this.selectedAccountDetails;
+		await this._viewSettlementQuote(first);
+
 		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_DIALOG;
 	},
 

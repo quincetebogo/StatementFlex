@@ -527,7 +527,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _settlementQuote(customErrHandler = null) {
-
+		// TODO: Implement permission check
 		await this._telemetry.logEvent(QuickTransactionEvents.SETTLEMENT_QUOTE_SELECT, {
 			"screen": TelemetryScreen.FAVOURITES,
 			"next-screen": TelemetryScreen.SETTLEMENT_QUOTE_VIEW

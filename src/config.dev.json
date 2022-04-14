@@ -128,6 +128,14 @@
 		"getClientInsights": {
 			"enabled": true,
 			"positiveCase": true
+		},
+		"budgetTransferFromAccounts": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"confirmBudgetTransfer": {
+			"enabled": false,
+			"positiveCase": true
 		}
 	}
 }

@@ -108,6 +108,16 @@
 	CREDIT_SETTLE_CLOSE: `Credit Settle Close`,
 	CREDIT_STATEMENTS_SUCCESS: `Credit Statement success`,
 	CREDIT_STATEMENTS_FAILURE: `Credit Statement failure`,
+	CREDIT_BUDGET_ACCOUNT: `Credit Budget facility view`,
+	CREDIT_BUDGET_ACCOUNT_DETAILS: `Credit Budget account details`,
+	CREDIT_PAY_BUDGET_MODAL: `Credit Pay Budget Modal`,
+	CREDIT_PAY_BUDGET_SUCCESS: `Credit Pay Budget success screen`,
+	CREDIT_PAY_BUDGET_FAILURE: `Credit Pay Budget failure screen`,
+
+	PROOF_OF_PAYMENT_DIALOG: `Send Proof of Payment Dialog`,
+	PROOF_OF_PAYMENT_SUCCESS: `Proof of payment success`,
+	PROOF_OF_PAYMENT_FAILURE: `Proof of payment failure`,
+	CREDIT_STATEMENTS_FAILURE: `Credit Statement failure`,
 
 	SETTLEMENT_QUOTE_VIEW: `Settlement Quote Accounts view`,
 	SETTLEMENT_QUOTE_SUCCESS: `Settlement Quote Success screen`,

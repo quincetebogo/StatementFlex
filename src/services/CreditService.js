@@ -36,7 +36,7 @@ export class CreditService extends ChannelServiceBase {
 			"cifnumber": cifNumber,
 			"accountStatus": accountStatus
 		};
-
+		
 		const url = `/clientcare-credit-${this._version}/credit/overview`;
 
 		return this.post(
@@ -401,4 +401,82 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
+	async budgetTransferFromAccounts(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		
+		if (await this.isMockEnabled(`budgetTransferFromAccounts`)) {
+			return this.mock(`budgetTransferFromAccounts`, request);
+		}
+
+		const url = `/clientcare-credit-${this._version}/credit/budgetaccount/transfer/modal`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`budgetTransferFromAccounts`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async confirmBudgetTransfer(transferDetails, callerInformation, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		
+		if (await this.isMockEnabled(`confirmBudgetTransfer`)) {
+			return this.mock(`confirmBudgetTransfer`, transferDetails);
+		}
+
+		const request = {
+			"cifNumber": callerInformation.cifNumber,
+			"creditCardAccountNumber": transferDetails.budgetAccountNumber,
+			"fromAccountNumber": transferDetails.fromAccountNumber,
+			"fromAccountType": transferDetails.fromAccountType,
+			"authorisedAmount": transferDetails.authorisedAmount,
+			"budgetSequenceNumber": transferDetails.budgetSequenceNumber,
+			"caseId": null,
+			"idPassportNumber": callerInformation.southAfricanIDNumber,
+			"firstName": callerInformation.firstName,
+			"surname": callerInformation.lastName
+		};
+
+		const url = `/clientcare-credit-${this._version}/credit/budgetaccount/transfer`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`confirmBudgetTransfer`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async emailProofOfPayment(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		if (await this.isMockEnabled(`emailProofOfPayment`)) {
+			return this.mock(`emailProofOfPayment`, request);
+		}
+
+		const url = `/clientcare-credit-${this._version}/credit/document/email`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`emailProofOfPayment`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 }

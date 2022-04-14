@@ -78,7 +78,7 @@
 	"statements-credit-card": `SEND_STATEMENTS_CREDIT_CARD`,
 	"settlement-quote-credit-card": `SETTLEMENT_QUOTE_CREDIT_CARD`,
 	"settle-close-credit-card": `SETTLE_CLOSE_CREDIT_CARD`,
-	"budget-facility-credit-card": `VIEW_BUDGET_ACCOUNT_INFO`,
+	"view-budgets-credit-card": `VIEW_BUDGET_ACCOUNT_INFO`,
 	"pay-budget-credit-card": `PAY_BUDGET_ACCOUNTS`,
 
 	"statements-access-facility": `SEND_STATEMENTS_ACCESS_FACILITY`,

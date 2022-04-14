@@ -448,7 +448,7 @@ export class CreditAccountLanding extends Component {
 
 								<capitec-hyperlink 
 									label="View details" 
-									@click="${() => this._click(`budget-facility`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, item)}"
+									@click="${() => this._click(`view-budgets`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, item)}"
 									inline>
 								</capitec-hyperlink>
 						</capitec-title-bar>`
