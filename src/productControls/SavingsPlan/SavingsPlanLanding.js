@@ -195,7 +195,7 @@ export class SavingsPlanLanding extends Component {
 				}
 
 				horizon-label {
-					width: 158px;
+					width: 154px;
 					padding-left: 16px;
 					--theme-layout-gap-spacing: 0px;
 					--horizon-label-text-height: 20px;
@@ -389,7 +389,7 @@ export class SavingsPlanLanding extends Component {
 	}
 
 	_renderFlexibleAccounts(flexibleSavingsPlanDetails) {
-		
+
 		return flexibleSavingsPlanDetails.map((item, index) => html`
 				<horizon-expander
 					expandButtonAlignment="right"
