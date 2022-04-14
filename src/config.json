@@ -197,11 +197,11 @@
 			"positiveCase": true
 		},
 		"confirmBudgetTransfer": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"emailProofOfPayment": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		}
 	}
