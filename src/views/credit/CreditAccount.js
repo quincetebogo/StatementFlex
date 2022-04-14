@@ -134,15 +134,10 @@ export class CreditAccount extends ViewBase {
 		const settlementQuote = () => this._settlementQuote(creditType, productType, selectedAccountDetails);
 		const settleAndClose = () => this._settleAndClose(creditType, productType, selectedAccountDetails);
 		const settleLoan = () => this._settleLoan();
-<<<<<<< HEAD
 		const paidUpLetter = () => this._paidUpLetter(selectedAccountDetails);
 		const budgetFacility = () => this._budgetFacility(selectedAccountDetails);
 		const payBudget = () => this._payBudgetAccount(selectedAccountDetails);
-=======
-		const paidUpLetter = () => this._paidUpLetter();
 		const viewBudgets = () => this._viewBudgets(selectedAccountDetails);
-		const payBudget = () => this._payBudgetDialog(selectedAccountDetails);
->>>>>>> feature/credit
 
 		const accConfig = ACCOUNT_INTCAT_ENUM[selectedAccountDetails.productTypeCode];
 		const actions = {
