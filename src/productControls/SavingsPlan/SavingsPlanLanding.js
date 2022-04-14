@@ -181,7 +181,6 @@ export class SavingsPlanLanding extends Component {
 					--theme-expander-header-height: 64px;
 					--theme-expander-header-padding: 0 6px 0 0;
 					--theme-expander-indicator-width: 16px;
-					--theme-expander-indicator-width: 0px;
 				}
 				horizon-expander[expanded] {
 					box-shadow: 0 6px 10px 0.25px rgb(0 0 0 / 7%);
@@ -196,7 +195,7 @@ export class SavingsPlanLanding extends Component {
 				}
 
 				horizon-label {
-					width: 158px;
+					width: 154px;
 					padding-left: 16px;
 					--theme-layout-gap-spacing: 0px;
 					--horizon-label-text-height: 20px;
@@ -391,14 +390,10 @@ export class SavingsPlanLanding extends Component {
 
 	_renderFlexibleAccounts(flexibleSavingsPlanDetails) {
 
-		// TO DO: Expanders are diabled and cannot be expanded as they are not part of the release/220401 
-		// [.expanded="${false}", ?disabled=${true}, --theme-expander-indicator-width: 0px;]
-		// Can be not disabled/hidden for later releases
 		return flexibleSavingsPlanDetails.map((item, index) => html`
 				<horizon-expander
 					expandButtonAlignment="right"
-					.expanded="${false}"
-					?disabled=${true}>
+					.expanded="${false}">
 						<capitec-group 
 							class="expander-header"
 							slot="custom-header"
@@ -456,15 +451,11 @@ export class SavingsPlanLanding extends Component {
 
 	_renderFixedTermAccounts(fixedSavingsPlanDetails) {
 
-		// TO DO: Expanders are diabled and cannot be expanded as they are not part of the release/220401 
-		// [.expanded="${false}", ?disabled=${true}, --theme-expander-indicator-width: 0px;]
-		// Can be not disabled/hidden for later releases
 		return fixedSavingsPlanDetails.map((item, index) => html`
 				<horizon-expander
 					class="fixed-term-exp"
 					expandButtonAlignment="right"
-					.expanded="${false}"
-					?disabled=${true}>
+					.expanded="${false}">
 						<capitec-group
 							class="expander-header"
 							slot="custom-header"
@@ -521,7 +512,7 @@ export class SavingsPlanLanding extends Component {
 								halign="left"
 								valign="center">
 								<capitec-title-bar
-								class="account-deposit-type"
+									class="account-deposit-type"
 									type="default"
 									label="${item.depositeType}">
 								</capitec-title-bar>
@@ -543,14 +534,12 @@ export class SavingsPlanLanding extends Component {
 						data-automation-id="savings-plan-statements"
 						label="Statements"
 						icon="system/documents-action"
-						?hidden="${true}"
 						@click="${() => this._click(`statements-save`, saveType, accountNumber)}">
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="savings-plan-tax-certificate"
 						label="Tax Certificate"
 						icon="system/sars-action" 
-						?hidden="${true}"
 						@click="${() => this._click(`tax-certificates`, saveType, accountNumber)}">
 				</horizon-option-button>
 			</capitec-group>
