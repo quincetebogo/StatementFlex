@@ -1,4 +1,5 @@
 import { css, html } from 'platform/elements';
+import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -43,17 +44,17 @@ import 'app/components/common/RelatedOptions';
 
 		this.screenDetails = this.horizonStore.getScreenDetails();
 
-		 //REMOVE HARD CODED EMAIL IN CONSTRUCTOR ONCE NAVIGATION IS IMPLEMENTED. ADD: this.mailId =  this.screenDetails && this.screenDetails.emailAddress;
+		this._telemetry.startSpan(CreditEvents.CREDIT_PAID_UP_LETTER_FAILURE, {});
+
+		 // TODO: REMOVE HARD CODED EMAIL IN CONSTRUCTOR ONCE NAVIGATION IS IMPLEMENTED. ADD: this.mailId =  this.screenDetails && this.screenDetails.emailAddress;
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-
-		this._telemetry.endSpan(QuickTransactionEvents.PAID_UP_LETTER, {
-			"screen": TelemetryScreen.PAID_UP_LETTER_OUTCOME
-		});
+		
+		this._telemetry.endSpan(CreditEvents.CREDIT_PAID_UP_LETTER_FAILURE, {}, true, true, false);
 	}
 
 	// --------------
@@ -61,11 +62,10 @@ import 'app/components/common/RelatedOptions';
 	// --------------
 
 	_doneClick() {
-		//TODO: ADD PAID UP LETTER TELEMETRY EVENTS
-		/* this._telemetry.logEvent(QuickTransactionEvents.PAID_UP_LETTER_OUTCOME_DONE, {
-			"screen": TelemetryScreen.PAID_UP_LETTER_OUTCOME,
+		this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_FAILURE_DONE, {
+			"screen": TelemetryScreen.CREDIT_PAID_UP_LETTER_FAILURE,
 			"next-screen": TelemetryScreen.FAVOURITES
-		}); */
+		});
 
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
@@ -73,11 +73,10 @@ import 'app/components/common/RelatedOptions';
 
 	_tryAgainClick() {
 		
-		//TODO: ADD PAID UP LETTER TELEMETRY EVENTS
-		/* this._telemetry.logEvent(QuickTransactionEvents.PAID_UP_LETTER_OUTCOME_HANDOFF, {
-			"screen": TelemetryScreen.PAID_UP_LETTER_OUTCOME,
+		this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_FAILURE_ASSIGN, {
+			"screen": TelemetryScreen.CREDIT_PAID_UP_LETTER_FAILURE,
 			"next-screen": TelemetryScreen.FAVOURITES
-		}); */
+		});
 
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);

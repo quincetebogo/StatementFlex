@@ -71,16 +71,12 @@ export class PaidUpAccounts extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		
-		this._telemetry.startSpan(CreditEvents.CREDIT_PAID_UP_LETTER, {});
 
 		this._initialise();
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-
-		this._telemetry.endSpan(CreditEvents.CREDIT_PAID_UP_LETTER, {});
 	}
 
 	// ---------------
@@ -115,6 +111,8 @@ export class PaidUpAccounts extends Component {
 
 	_back() {
 		this.dispatchEvent(new CustomEvent(`back`, {}));
+		
+		this._telemetry.endSpan(CreditEvents.CREDIT_PAID_UP_LETTER, {});
 	}
 
 	_showPaidUpLetter () {

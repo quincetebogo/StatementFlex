@@ -1,4 +1,5 @@
 import { css, html } from 'platform/elements';
+import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -43,18 +44,15 @@ export class PaidUpLetterSuccess extends ViewBase {
 
 		this.screenDetails = this.horizonStore.getScreenDetails();
 
-		 //REMOVE HARD CODED EMAIL IN CONSTRUCTOR ONCE NAVIGATION IS IMPLEMENTED. ADD: this.mailId = this.screenDetails && this.screenDetails.emailAddress;
-		
+		 // TODO: REMOVE HARD CODED EMAIL IN CONSTRUCTOR ONCE NAVIGATION IS IMPLEMENTED. ADD: this.mailId = this.screenDetails && this.screenDetails.emailAddress;
+
+		this._telemetry.startSpan(CreditEvents.CREDIT_PAID_UP_LETTER_SUCCESS, {});
 		
 		this._updateIncidentState();
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-		//TODO: ADD PAID UP LETTER TELEMETRY EVENTS
-		/* this._telemetry.endSpan(QuickTransactionEvents.PAID_UP_LETTER, {
-			"screen": TelemetryScreen.PAID_UP_LETTER_OUTCOME
-		}); */
 	}
 
 	// --------------
@@ -62,22 +60,24 @@ export class PaidUpLetterSuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		//TODO: ADD PAID UP LETTER TELEMETRY EVENTS
-		/* this._telemetry.logEvent(QuickTransactionEvents.PAID_UP_LETTER_OUTCOME_DONE, {
-			"screen": TelemetryScreen.PAID_UP_LETTER_OUTCOME,
+		this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_SUCCESS_DONE, {
+			"screen": TelemetryScreen.CREDIT_PAID_UP_LETTER_SUCCESS,
 			"next-screen": TelemetryScreen.FAVOURITES
-		}); */
+		});
+
+		this._telemetry.endSpan(CreditEvents.CREDIT_PAID_UP_LETTER_SUCCESS, {}, true, true, false);
 	
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_sendAnotherClick() {
-		//TODO: ADD PAID UP LETTER TELEMETRY EVENTS
-		/* this._telemetry.logEvent(QuickTransactionEvents.PAID_UP_LETTER_OUTCOME_ANOTHER, {
-			"screen": TelemetryScreen.PAID_UP_LETTER_OUTCOME,
-			"next-screen": TelemetryScreen.FAVOURITES
-		}); */
+		this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_SUCCESS_SEND_ANOTHER, {
+			"screen": TelemetryScreen.CREDIT_PAID_UP_LETTER_SUCCESS,
+			"next-screen": TelemetryScreen.PAID_UP_LETTER_ACCOUNTS
+		});
+		
+		this._telemetry.endSpan(CreditEvents.CREDIT_PAID_UP_LETTER_SUCCESS, {});
 		
 		this.horizonRouter.navigateToReturnPage();
 	}
