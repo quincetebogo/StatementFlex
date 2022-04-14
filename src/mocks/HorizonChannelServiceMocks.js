@@ -61,8 +61,10 @@ export default class HorizonChannelServiceMocks {
 		this.liveBetterLandingMocks = await this._loadMockModule(this.liveBetterLandingMocks, `liveBetterLanding`, () => import(`../mocks/LiveBetterLandingMocks`).catch(err => logError(err)));
 		this.clientInsightsMocks = await this._loadMockModule(this.clientInsightsMocks, `getClientInsights`, () => import(`../mocks/ClientInsightsMocks`).catch(err => logError(err)));
     	this.accessChannelsMocks = await this._loadMockModule(this.accessChannelsMocks, `accessChannelLanding`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err)));    
-    	this.creditMocks = await this._loadMockModule(this.creditMocks, `creditBalance`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));      
-    	this.creditMocks = await this._loadMockModule(this.creditMocks, `creditOverview`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));   
+    	this.creditMocks = await this._loadMockModule(this.creditMocks, `creditBalance`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+    	this.creditMocks = await this._loadMockModule(this.creditMocks, `creditOverview`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+    	this.budgetFacility = await this._loadMockModule(this.budgetFacility, `budgetTransferFromAccounts`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
+    	this.budgetFacility = await this._loadMockModule(this.budgetFacility, `confirmBudgetTransfer`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
 	}
 
 	// ===============================
@@ -389,5 +391,29 @@ export default class HorizonChannelServiceMocks {
 		});
 
 		return errPromise;
+	}
+
+	budgetTransferFromAccounts() {
+		if (this._mockSettings.budgetTransferFromAccounts.positiveCase) {
+			return this.budgetFacility.payBudgetModalDetails;
+		}
+		return null;
+	}
+
+	confirmBudgetTransfer() {
+		if (this._mockSettings.confirmBudgetTransfer.positiveCase) {
+			return this.budgetFacility.budgetTransferDetails;
+		}
+		return null;
+	}
+
+	emailProofOfPayment() {
+		if (this._mockSettings.emailProofOfPayment.positiveCase) {
+			return {
+				"isSuccess": true,
+				"errorReasons": null
+			};
+		}
+		return null;
 	}
 }

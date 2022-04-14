@@ -74,3 +74,14 @@ export const ACCOUNT_STATUS = Object.freeze({
 	CLOSED: `Closed`,
 	PAID_UP: `Paidup`
 });
+	
+export const FROM_ACCOUNTS = {
+	'Primary': {
+		icon: `product/transact`,
+		order: 1
+	},
+	'Flexible': {
+		icon: `product/save`,
+		order: 2
+	}
+};

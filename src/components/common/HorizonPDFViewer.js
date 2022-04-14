@@ -1,27 +1,27 @@
 import { Component, css, html } from 'platform/elements';
 
-class HorizonPDFViewer extends Component{
+class HorizonPDFViewer extends Component {
 
-	constructor(){
-		super();
-		this.header = ``;
-		this.zoom = 90;
-		this.totalPages = 0;
-		this.currPage = 0;
-		this.encodedPDF = ``;
-		this.dateSelected = ``;
-	}
+    constructor() {
+        super();
+        this.header = ``;
+        this.zoom = 90;
+        this.totalPages = 0;
+        this.currPage = 0;
+        this.encodedPDF = ``;
+        this.dateSelected = ``;
+    }
 
-	static get properties(){
-		return{
-		header: { type: String },
-		zoom: { type: Number },
-		totalPages: { type: Number },
-		currPage: { type: Number },
-		encodedPDF: { type: String },
-		dateSelected: { type: String}
-		};
-	}
+    static get properties() {
+        return {
+        header: { type: String },
+        zoom: { type: Number },
+        totalPages: { type: Number },
+        currPage: { type: Number },
+        encodedPDF: { type: String },
+        dateSelected: { type: String }
+        };
+    }
 
 	_base64ToBlobUrl(base64Data) {
 
@@ -41,29 +41,29 @@ class HorizonPDFViewer extends Component{
 		return `${URL.createObjectURL(blob)}#toolbar=0&scrollbar=0&navpanes=0&zoom=${this.zoom}`;
 	}
 
-	_zoom(size){
-		size ==="In" ? this.zoom = this.zoom + 10 : this.zoom = this.zoom - 10;
-		this.requestUpdate();
-	}
+    _zoom(size) {
+		this.zoom = size === `In` ? this.zoom + 10 : this.zoom - 10;
+        this.requestUpdate();
+    }
 
-	static get styles() {
-		return[
-			super.styles,
-			css`
-				.modal {
-					display: flex;
-					position: fixed;
-					align-items: center;
-					justify-content: center;
-					flex-direction: column;
-					z-index: var(--theme-modal-container-z-index, 1102);
-					left: 0;
-					top: 0;
-					width: 100%;
-					height: 100%;
-					background-color: var(--theme-modal-screen-background-color, rgba(0,0,0,0.6));
-					cursor: default;
-				}
+    static get styles() {
+        return [
+            super.styles,
+            css`
+                .modal {
+                    display: flex;
+                    position: fixed;
+                    align-items: center;
+                    justify-content: center;
+                    flex-direction: column;
+                    z-index: var(--theme-modal-container-z-index, 1102);
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: var(--theme-modal-screen-background-color, rgba(0,0,0,0.6));
+                    cursor: default;
+                }
 
 				.container {
 					height: 928px;
@@ -101,31 +101,33 @@ class HorizonPDFViewer extends Component{
 					width: 26px;
 				}
 
-				capitec-label{
-					height: 20px;
-					width: 69px;
-					color: #3A3A3A;
-					font-family: "Hind Vadodara";
-					font-size: 15px;
-					letter-spacing: 0;
-					line-height: 20px;
-				}
-				capitec-label[type="title"]{
-					height: 24px;
-					width: 243px;
-					font-size: 18px;
-					font-weight: 600;
-					line-height: 24px;
-				}
-				.icon-spacer{
-					width: 48px;
-				}
-				capitec-icon {
-					cursor: pointer;
-				}
-			`
-		];
-	}
+                capitec-label{
+                    height: 20px;
+                    width: 69px;
+                    color: #3A3A3A;
+                    font-family: "Hind Vadodara";
+                    font-size: 15px;
+                    letter-spacing: 0;
+                    line-height: 20px;
+                }
+                capitec-label[type="title"]{
+                    height: 24px;
+                    width: var(--theme-horizon-pdf-modal-header-width, 243px);
+                    font-size: 18px;
+                    font-weight: 600;
+                    line-height: 24px;
+                }
+                .page-index{
+                    margin-right: 32px;
+                    width: 110px;
+                }
+
+                .icon-spacer{
+                    width: 48px;
+                }
+            `
+        ];
+    }
 
 	_webTemplate() {
 		return html`
@@ -139,76 +141,76 @@ class HorizonPDFViewer extends Component{
 		`;
 	}
 
-	_renderHeader(){
-		return html`
-		<capitec-title-bar type="default">
-			<capitec-icon 
-				size="small"
-				icon="system/arrow-left-action"
-				@click="${() => this.dispatchEvent(new CustomEvent(`cancel`, {}))}">
-			</capitec-icon>
-			<capitec-label label="${this.header} ${this.dateSelected}" type="title"></capitec-label>
-		</capitec-title-bar>
-		`;
-	}
+    _renderHeader() {
+        return html`
+        <capitec-title-bar type="default">
+            <capitec-icon 
+                size="small"
+                icon="system/arrow-left-action"
+                @click="${() => this.dispatchEvent(new CustomEvent(`cancel`, {}))}">
+            </capitec-icon>
+            <capitec-label label="${this.header} ${this.dateSelected}" type="title"></capitec-label>
+        </capitec-title-bar>
+        `;
+    }
 
-	_renderBody(){
-		return html`
-			<capitec-content-box
-				class="pdf-cb"
-				layout="vertical"
-				gap="clear">
-				<capitec-group 
-					layout="horizontal"
-					valign="center">
-					${this.currPage === 1 
-						? html `<capitec-spacer class="icon-spacer"></capitec-spacer>` 
-						: html`
-					<capitec-icon 
-						class="icon dark system" 
-						size="large" 
-						icon="system/previous"
-						@click="${() => this.dispatchEvent(new CustomEvent(`previous`, {}))}">
-					</capitec-icon>`}
-					<object
-						class="pdf-viewer"
-						data="${this._base64ToBlobUrl(this.encodedPDF)}"
-						type="application/pdf">
-					</object>
-					${this.currPage === this.totalPages 
-					? html `<capitec-spacer class="icon-spacer"></capitec-spacer>`
-					: html`
-						<capitec-icon 
-							class="icon dark system" 
-							size="large" 
-							icon="system/next"
-							@click="${() => this.dispatchEvent(new CustomEvent(`next`, {}))}">
-						</capitec-icon>`}
-				</capitec-group>
-			</capitec-content-box>
-						`;
-	}
+    _renderBody() {
+        return html`
+            <capitec-content-box
+                class="pdf-cb"
+                layout="vertical"
+                gap="clear">
+                <capitec-group 
+                    layout="horizontal"
+                    valign="center">
+                    ${this.currPage === 1 
+                        ? html`<capitec-spacer class="icon-spacer"></capitec-spacer>` 
+                        : html`
+                    <capitec-icon 
+                        class="icon dark system" 
+                        size="large" 
+                        icon="system/previous"
+                        @click="${() => this.dispatchEvent(new CustomEvent(`previous`, {}))}">
+                    </capitec-icon>`}
+                    <object
+                        class="pdf-viewer"
+                        data="${this._base64ToBlobUrl(this.encodedPDF)}"
+                        type="application/pdf">
+                    </object>
+                    ${this.currPage === this.totalPages 
+                    ? html`<capitec-spacer class="icon-spacer"></capitec-spacer>`
+                    : html`
+                        <capitec-icon 
+                            class="icon dark system" 
+                            size="large" 
+                            icon="system/next"
+                            @click="${() => this.dispatchEvent(new CustomEvent(`next`, {}))}">
+                        </capitec-icon>`}
+                </capitec-group>
+            </capitec-content-box>
+                        `;
+    }
 
-	_renderFooter(){
-		return html`
-			<capitec-button-bar>
-				<capitec-spacer></capitec-spacer>
-				<capitec-group layout="horizontal">
-					<capitec-icon
-						class="zoom" 
-						size="medium" 
-						icon="system/minus-action" 
-						@click="${()=>this._zoom("Out")}">
-					</capitec-icon>
-					<capitec-label label="${this.zoom + 10}%"></capitec-label>
-					<capitec-icon 
-						class="zoom" 
-						size="medium" 
-						icon="system/add-action" 
-						@click="${()=>this._zoom("In")}">
-					</capitec-icon>
-				</capitec-group>
-				<capitec-spacer style="margin-left:55px;"></capitec-spacer>
+    _renderFooter() {
+        return html`
+            <capitec-button-bar>
+                <capitec-spacer></capitec-spacer>
+                <capitec-group layout="horizontal">
+                    <capitec-icon 
+                        class="zoom" 
+                        size="medium" 
+                        icon="system/minus-action" 
+                        @click="${() => this._zoom(`Out`)}">
+                    </capitec-icon>
+                    <capitec-label label="${this.zoom + 10}%"></capitec-label>
+                    <capitec-icon 
+                        class="zoom" 
+                        size="medium" 
+                        icon="system/add-action" 
+                        @click="${() => this._zoom(`In`)}">
+                    </capitec-icon>
+                </capitec-group>
+                <capitec-spacer style="margin-left:55px;"></capitec-spacer>
 
 				<capitec-button type="primary" label="Close" @click="${() => this.dispatchEvent(new CustomEvent(`cancel`, {}))}"></capitec-button>
 			</capitec-button-bar>
