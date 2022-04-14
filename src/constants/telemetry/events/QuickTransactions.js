@@ -122,7 +122,8 @@ export const QuickTransactionEvents = {
 	SETTLEMENT_QUOTE_FILTER: `call.fulfill-need.settlement-quote.filter`,
 	SETTLEMENT_QUOTE_SELECT_ALL: `call.fulfill-need.settlement-quote.select-all`,
 	SETTLEMENT_QUOTE_DESELECT_ALL: `call.fulfill-need.settlement-quote.deselect-all`,
-	SETTLEMENT_QUOTE_SEND: `call.fulfill-need.settlement-quote.send-settlement-quote`
+	SETTLEMENT_QUOTE_SEND: `call.fulfill-need.settlement-quote.send-settlement-quote`,
+	SETTLEMENT_QUOTE_BACK: `call.fulfill-need.settlement-quote.back`
 
 };
 
@@ -156,8 +157,14 @@ export const STATEMENT_EVENTS = Object.freeze({
 	STATEMENTS_FAILURE_ASSIGN: `call.fulfill-need.statements.failure.assign`
 });
 
+/**
+ * The event names to use when logging telemetry events for setttlement flow from Favourites.
+ * This correspond to the `Action` and `eventName` columns in the Data Spec.
+ * 
+ * @readonly
+ * @enum {Object} SETTLEMENT_QUOTE_EVENTS
+ */
 export const SETTLEMENT_QUOTE_EVENTS = Object.freeze({
-	SETTLEMENT_QUOTE: `call.fulfill-need.settlement-quote`,
 	SETTLEMENT_QUOTE_DIALOG: `call.fulfill-need.settlement-quote.pop-up`,
 	SETTLEMENT_QUOTE_CANCEL: `call.fulfill-need.settlement-quote.pop-up.cancel`,
 	SETTLEMENT_QUOTE_VIEW_DOCUMENT: `call.fulfill-need.settlement-quote.pop-up.view-document`,

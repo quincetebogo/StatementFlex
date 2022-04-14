@@ -26,7 +26,7 @@
 };
 
 /**
- * The event names to use when logging telemetry events for statements flow from Favourites.
+ * The event names to use when logging telemetry events for statements flow from Credit.
  * This correspond to the `Action` and `eventName` columns in the Data Spec.
  * 
  * @readonly
@@ -54,7 +54,13 @@
 	STATEMENTS_FAILURE_ASSIGN: `call.fulfill-need.credit.statements.failure.assign`
 });
 
-
+/**
+ * The event names to use when logging telemetry events for setttlement flow from Credit.
+ * This correspond to the `Action` and `eventName` columns in the Data Spec.
+ * 
+ * @readonly
+ * @enum {Object} SETTLEMENT_QUOTE_EVENTS
+ */
 export const SETTLEMENT_QUOTE_EVENTS = Object.freeze({
 	SETTLEMENT_QUOTE: `call.fulfill-need.credit.settlement-quote`,
 	SETTLEMENT_QUOTE_DIALOG: `call.fulfill-need.credit.settlement-quote.pop-up`,
@@ -68,5 +74,9 @@ export const SETTLEMENT_QUOTE_EVENTS = Object.freeze({
 
 	SETTLEMENT_QUOTE_FAILURE: `call.fulfill-need.credit.settlement-quote.failure`,
 	SETTLEMENT_QUOTE_FAILURE_TRY_AGAIN: `call.fulfill-need.credit.settlement-quote.failure.try-again`,
-	SETTLEMENT_QUOTE_FAILURE_DONE: `call.fulfill-need.credit.settlement-quote.failure.done`
+	SETTLEMENT_QUOTE_FAILURE_DONE: `call.fulfill-need.credit.settlement-quote.failure.done`,
+
+	SETTLEMENT_QUOTE_PARTIAL_SUCCESS: `call.fulfill-need.credit.settlement-quote.partial-success`,
+	SETTLEMENT_QUOTE_PARTIAL_SUCCESS_TRY_AGAIN: `call.fulfill-need.credit.settlement-quote.partial-success.try-again`,
+	SETTLEMENT_QUOTE_PARTIAL_SUCCESS_DONE: `call.fulfill-need.credit.settlement-quote.partial-success.done`
 });

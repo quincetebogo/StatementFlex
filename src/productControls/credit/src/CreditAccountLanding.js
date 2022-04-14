@@ -565,7 +565,7 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-settlement-quote"
 					label="Settlement Quote"
 					icon="system/documents-action"
-					?hidden="${true}"
+					?hidden="${false}"
 					@click="${() => this._click(`settlement-quote`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
@@ -598,7 +598,7 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-settlement-quote"
 					label="Settlement Quote"
 					icon="system/documents-action"
-					?hidden="${true}"
+					?hidden="${false}"
 					@click="${() => this._click(`settlement-quote`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.ACCESS_FACILITY, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
@@ -624,7 +624,7 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-settlement-quote"
 					label="Settlement Quote"
 					icon="system/documents-action"
-					?hidden="${true}"
+					?hidden="${false}"
 					@click="${() => this._click(`settlement-quote`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
