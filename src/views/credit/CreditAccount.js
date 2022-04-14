@@ -485,34 +485,25 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _paidUpLetter(selectedAccountDetails) {
-
-		if (this.ccsStatus) {
-			this.showCCSmodal = true;
-			return true;
-		}
-
-		// TO DO: Place holder for paid up Letter flow.
-		if (this.verificationStatus === `verified`) {
 			
-			this.horizonStore.setCallerInformation(this.callerInformation);
+		this.horizonStore.setCallerInformation(this.callerInformation);
 
-			const accountNumbers = [];
-			accountNumbers.push(selectedAccountDetails.accountNumber);
+		const accountNumbers = [];
+		accountNumbers.push(selectedAccountDetails.accountNumber);
 
-            const returnValue = await this.creditService.getPaidUpLetter(this.callerInformation.cifNumber, accountNumbers);
+		const returnValue = await this.creditService.getPaidUpLetter(this.callerInformation.cifNumber, accountNumbers);
 
-			if (!returnValue.succeeded) {
-				this.logger.log(`error`, `Failed to retrieve client overview from credit service.`, `_initialise`, returnValue.correlationId);
-				this.renderMode = RENDER_MODE.SERVICE_UNAVAILABLE;
-				return;
-			}
-
-			this.encodedPDFs = returnValue.result;
-
-			this.selectedAccounts.push(selectedAccountDetails);
-			this.renderMode = RENDER_MODE.PAID_UP_LETTER;
-			this._renderPaidUpLetterView();
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to retrieve client overview from credit service.`, `_initialise`, returnValue.correlationId);
+			this.renderMode = RENDER_MODE.SERVICE_UNAVAILABLE;
+			return;
 		}
+
+		this.encodedPDFs = returnValue.result;
+
+		this.selectedAccounts.push(selectedAccountDetails);
+		this.renderMode = RENDER_MODE.PAID_UP_LETTER;
+		this._renderPaidUpLetterView();
 		
 	}
 
