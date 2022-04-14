@@ -64,6 +64,9 @@ export const PERMISSION_STATUS = Object.freeze({
 	DENIED: `Denied`
 });
 
+/**
+ * Available account statuses for input to the credit overview CS.
+ */
 export const ACCOUNT_STATUS = Object.freeze({
 	UNSPECIFIED: `Unspecified`,
 	ALL: `All`,

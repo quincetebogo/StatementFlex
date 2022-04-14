@@ -1,4 +1,6 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { PRODUCTS } from 'app/constants/Credit';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -10,6 +12,11 @@ const ERROR_MESSAGE = {
 	EMAIL_REQUIRED: `Complete all fields to continue`,
 	INVALID_EMAIL: `Enter a valid email address`,
 	EMAIL_MISMATCH: `Email address does not match. Enter the correct email address`
+};
+
+const RENDER_MODE = {
+	SETTLEMENT_QUOTE: 0,
+	PDF: 1
 };
 
 /**
@@ -33,18 +40,23 @@ export class SendSettlementQuote extends Component {
 		super();
 		
 		// private properites
-		this.isBusy = true;
+		this.isBusy = false;
 		this.alertBannerMessage = ``;
 		this.selectedAccounts = [];
 
 		// private variables
-		this.flag = false;
+		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE;
 		this.currPage = 0;
 		this.encodedPDF = ``;
 		this.email = ``;
 		this.confirmEmail = ``;
 		this.emailLabel = `Enter email address`;
 		this.confirmEmailLabel = `Confirm email`;
+
+		this._telemetry = HorizonTelemetry.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
+
+		this.callerInformation = this.horizonStore.getCallerInformation();
 	}
 
 	// --------------
@@ -53,19 +65,19 @@ export class SendSettlementQuote extends Component {
 
 	/**
 	 * @param {object} selectedAccounts which accounts to send quote
-	 * @param {object} encodedPDFs  Settlement quote pdfs to be viewed
+	 * @param {object} viewSettlementQuote Callback function to view settlement quote
 	 */
 
 	static get properties() {
 		return {
 			selectedAccounts: { type: Object },
-			encodedPDFs: { type: Object },
-			navigatePDF: { type: Object },
+			viewSettlementQuote: { type: Object },
 
 			// private properties
 			isBusy: { state: true },
-			flag: { state: true },
-			alertBannerMessage: { state: true }
+			renderMode: { state: true },
+			alertBannerMessage: { state: true },
+			encodedPDF: { state: true }
 		};
 	}
 	
@@ -75,11 +87,12 @@ export class SendSettlementQuote extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this._initialise();
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+
+		this._onUnloading();
 	}
 
 	// --------------
@@ -90,22 +103,15 @@ export class SendSettlementQuote extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
-	_initialise() {
-		this._toggleBusyFlag();
-		// TODO: flow for selected accounts to be done here
-	}
+	async _viewDocument(item) {
+		const result = await this.viewSettlementQuote(item);
 
-	_viewPDFViewer (item) {
-		this.flag = !this.flag;
-
-		if (this.flag) {
-			this.dispatchEvent(new CustomEvent(`view-pdf`, { detail: {
-				"accountNumber": item.accountNumber,
-				"accountType": item.type
-			} }));
+		if (result) {
+			this.encodedPDF = result;
+			this.renderMode = RENDER_MODE.PDF;
 		}
 	}
-	
+
 	_clearAlerts() {
 		this.alertBannerMessage = ``;
 	}
@@ -130,7 +136,7 @@ export class SendSettlementQuote extends Component {
 		this.dispatchEvent(new CustomEvent(`send`, { detail: { selectedAccounts: this.selectedAccounts, emailAddress: this.email } }));
 	}
 
-	_cancelClick(e) {
+	_cancelClick() {
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
@@ -138,10 +144,10 @@ export class SendSettlementQuote extends Component {
 		const selectedItems = this.selectedAccounts;
 		if (step === `next`) {
 			this.currPage += this.currPage < selectedItems.length ? 1 : 0;
-			this.encodedPDF = await this.navigatePDF(selectedItems[this.currPage - 1]);
+			await this._viewDocument(selectedItems[this.currPage - 1]);
 		} else {
 			this.currPage -= this.currPage ? 1 : 0;
-			this.encodedPDF = await this.navigatePDF(selectedItems[this.currPage - 1]);
+			await this._viewDocument(selectedItems[this.currPage - 1]);
 		}
 	}
 	
@@ -149,12 +155,28 @@ export class SendSettlementQuote extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
+	_onUnloading() {
+		this.dispatchEvent(new CustomEvent(`on-unloading`, {}));
+	}
+
 	_validateEmailAddress() {
 		if (isNullorEmpty(this.email) || isNullorEmpty(this.confirmEmail)) {
 			this.alertBannerMessage = ERROR_MESSAGE.EMAIL_REQUIRED;
 		}
 
 		return isNullorEmpty(this.alertBannerMessage);
+	}
+
+	_handleChannelServiceError(ex) {
+		this.errorMessage = `System error. Please try again.`;
+		this.errorCount++;
+
+		if (this.errorCount > 2) {
+			this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+			this.horizonStore.setCallerInformation(this.callerInformation);
+			this.horizonRouter.navigateToSystemError();
+		}
+		return true;
 	}
 
 	// ---------------
@@ -252,7 +274,8 @@ export class SendSettlementQuote extends Component {
 	}
 
 	_webTemplate() {
-		return this.flag ? this._viewPDF()
+		return this.renderMode === RENDER_MODE.PDF
+		? this._viewPDF()
 		: html`
 			<capitec-modal type="free" header-align="left" header="Settlement Quote">
 				<div slot="body">
@@ -332,7 +355,7 @@ export class SendSettlementQuote extends Component {
 				type="strong"
 				label="View Document"
 				class="viewDocumentLink"
-				@click="${() => this._viewPDFViewer(item)}">
+				@click="${() => this._viewDocument(item)}">
 			</capitec-label>
 		`;
 	}
@@ -344,7 +367,7 @@ export class SendSettlementQuote extends Component {
 				encodedPDF="${this.encodedPDF}"
 				totalPages="${this.selectedAccounts.length}"
 				currPage="${this.currPage}"
-				@cancel="${() => this._viewPDFViewer()}"
+				@cancel="${() => this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE}"
 				@next="${() => this._navigate(`next`)}"
 				@previous="${() => this._navigate(`previous`)}">
 			</horizon-pdf-viewer>
@@ -357,7 +380,7 @@ export class SendSettlementQuote extends Component {
 				<capitec-button
 					id="id-cancel-button"
 					label="Cancel" 
-					@click="${(e) => this._cancelClick(e)}">
+					@click="${() => this._cancelClick()}">
 				</capitec-button>
 				<capitec-button
 					id="id-send-button" 

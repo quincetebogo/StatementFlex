@@ -1,4 +1,4 @@
-import { CREDIT_TYPE, FROM_ACCOUNTS_LIST, PRODUCTS } from 'app/constants/Credit';
+import { ACCOUNT_STATUS, CREDIT_TYPE, FROM_ACCOUNTS_LIST, PRODUCTS } from 'app/constants/Credit';
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { CreditEvents, SETTLEMENT_QUOTE_EVENTS } from 'app/constants/telemetry/events/Credit';
 import { css, html } from 'platform/elements';
@@ -82,7 +82,7 @@ export class CreditAccount extends ViewBase {
 	
 	connectedCallback() {
 		super.connectedCallback();
- 
+
 		this._initialise();
 	}
 
@@ -138,6 +138,11 @@ export class CreditAccount extends ViewBase {
 		const budgetFacility = () => this._budgetFacility(selectedAccountDetails);
 		const payBudget = () => this._payBudgetAccount(selectedAccountDetails);
 
+		this.selectedAccountDetails = {
+			'creditType': creditType,
+			'productType': productType,
+			'selectedAccounts': [selectedAccountDetails]
+		};
 		const accConfig = ACCOUNT_INTCAT_ENUM[selectedAccountDetails.productTypeCode];
 		const actions = {
 			'transaction-history': transactionHistory,
@@ -153,12 +158,12 @@ export class CreditAccount extends ViewBase {
 		if (actions[option]) {
 			
 			const clientNeed = `${option}-${accConfig.subCategory}`;
-			 
+			
 			await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
 			this._refreshIncidentDetails();
 
 			this.ccsStatus = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber, productType);
-
+			
 			// Perform the action only when ccs status is false
 			if (!this.ccsStatus) {
 				return actions[option]();
@@ -266,27 +271,38 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_onSendSettleAndClosePOP(documents, email) {
+	_onSendSettleAndClosePOP(documents, emailAddress) {
 		// TODO: CS integration to send settle and close POP
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		// this.renderMode = RENDER_MODE.MAIN_PAGE;
+
+		this._navigateToEmailConfirmation(emailAddress);
 	}
 
 	_onCancelSendSettleAndClosePOP() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_onSendSettleLoanPOP(documents, email) {
+	_onSendSettleLoanPOP(documents, emailAddress) {
 		// TODO: CS integration to send settle and close POP
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		// this.renderMode = RENDER_MODE.MAIN_PAGE;
+
+		this._navigateToEmailConfirmation(emailAddress);
 	}
 
 	_onCancelSendSettleLoanPOP() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_onSendPayBudgetPOP(documents, email) {
+	_onSendPayBudgetPOP(documents, emailAddress) {
 		// TODO: CS integration to send settle and close POP
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		// this.renderMode = RENDER_MODE.MAIN_PAGE;
+
+		this._navigateToEmailConfirmation(emailAddress);
+	}
+
+	_navigateToEmailConfirmation(emailAddress) {
+		this.selectedAccountDetails.emailAddress = emailAddress;
+		this._showEmailConfirmationOutcome(this.selectedAccountDetails);
 	}
 
 	_onCancelSendPayBudgetPOP() {
@@ -318,8 +334,8 @@ export class CreditAccount extends ViewBase {
 			
 			this.horizonStore.setCallerInformation(this.callerInformation);
 
-            let returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber);
-            let successfullServiceResponse = returnValue.succeeded;
+			let returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber, ACCOUNT_STATUS.ALL);
+			let successfullServiceResponse = returnValue.succeeded;
 
 			if (!successfullServiceResponse) {
 				this.logger.log(`error`, `Failed to retrieve client overview from credit service.`, `_initialise`, returnValue.correlationId);
@@ -327,7 +343,7 @@ export class CreditAccount extends ViewBase {
 				return;
 			}
 
-            this.creditAccountDetails = returnValue.result;
+			this.creditAccountDetails = returnValue.result;
 			this._formatCreditOverviewResponse();
 			this.flexibleCreditAccounts = [...this.creditAccountDetails.creditCardSummaryList, ...this.creditAccountDetails.accessFacilitySummaryList];
 			this.fixedTermCreditAccounts = [...this.creditAccountDetails.loanAccountSummaryList];
@@ -337,14 +353,14 @@ export class CreditAccount extends ViewBase {
 				return;
 			}
 
-            returnValue = await this.creditService.creditBalance(this.callerInformation.cifNumber);
-            successfullServiceResponse = returnValue.succeeded;
+			returnValue = await this.creditService.creditBalance(this.callerInformation.cifNumber);
+			successfullServiceResponse = returnValue.succeeded;
 
-            if (!successfullServiceResponse) {
-                this.logger.log(`error`, `Failed to retrieve client creit balance from credit service.`, `_initialise`, returnValue.correlationId);
-            }
+			if (!successfullServiceResponse) {
+				this.logger.log(`error`, `Failed to retrieve client creit balance from credit service.`, `_initialise`, returnValue.correlationId);
+			}
 
-            this.creditBalance = returnValue.result;
+			this.creditBalance = returnValue.result;
 
 			this._telemetry.startSpan(CreditEvents.CREDIT, {
 				"screen": TelemetryScreen.CREDIT_LANDING,
@@ -448,15 +464,15 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.STATEMENTS;
 	}
 
-	_settlementQuote(creditType, productType, selectedAccountDetails) {
-		this._telemetry.logEvent(CreditEvents.CREDIT_SETTLEMENT_QUOTE_SELECT, {
+	async _settlementQuote(creditType, productType, selectedAccountDetails) {
+		await this._telemetry.logEvent(CreditEvents.CREDIT_SETTLEMENT_QUOTE_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
 			"next-screen": TelemetryScreen.SETTLEMENT_QUOTE_DIALOG,
 			"credit-type": creditType,
 			"product-type": productType
 		});
 
-		this._telemetry.startSpan(this.settlementQuoteEvents.SETTLEMENT_QUOTE, {});
+		await this._telemetry.startSpan(this.settlementQuoteEvents.SETTLEMENT_QUOTE, {});
 
 		const screenDetails = this.horizonStore.getScreenDetails();
 		screenDetails.creditType = creditType;
@@ -608,13 +624,8 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
 	}
 
-	_backFromSettlementQuoteDialog() {
-		this._telemetry.logEvent(this.settlementQuoteEvents.SETTLEMENT_QUOTE_CANCEL, {
-			"screen": TelemetryScreen.SETTLEMENT_QUOTE_DIALOG,
-			"next-screen": TelemetryScreen.CREDIT_LANDING
-		});
-
-		this._telemetry.endSpan(this.settlementQuoteEvents.SETTLEMENT_QUOTE_DIALOG, {}, true, true);
+	async _exitSettlementQuoteDialog() {
+		await this._telemetry.endSpan(this.settlementQuoteEvents.SETTLEMENT_QUOTE_DIALOG, {}, true);
 
 		this.horizonStore.clearScreenDetails();
 		this._backToLandingPage();
@@ -781,9 +792,9 @@ export class CreditAccount extends ViewBase {
 
 	_renderLandingPage() {
 		return this.renderMode === RENDER_MODE.MAIN_PAGE ||
-			   this.renderMode === RENDER_MODE.STATEMENTS ||
-			   this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG ||
-			   this.renderMode === RENDER_MODE.SETTLE_AND_CLOSE
+			this.renderMode === RENDER_MODE.STATEMENTS ||
+			this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG ||
+			this.renderMode === RENDER_MODE.SETTLE_AND_CLOSE
 			? html`
 				${this._renderCreditVerifiedLandingPage()}
 				${this._renderCreditUnverifiedLandingPage()}`
