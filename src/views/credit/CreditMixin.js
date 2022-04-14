@@ -1,4 +1,5 @@
 import { ACTION_IDENTIFIER, PERMISSION_STATUS, PRODUCTS } from 'app/constants/Credit';
+import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { html } from 'platform/elements';
@@ -21,6 +22,17 @@ import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
  */
 
 export const creditMixin = {
+
+	async initialise(type = ``) {
+		const events = {
+			[ACCOUNT_TYPES.CREDIT]: () => import(`app/constants/telemetry/events/Credit`),
+			'': () => import(`app/constants/telemetry/events/QuickTransactions`) // Default
+		};
+
+		// Fetching the telemetry events object at runtime based on product type
+		const { SETTLEMENT_QUOTE_EVENTS } = await events[type]();
+		this.settlementQuoteEvents = SETTLEMENT_QUOTE_EVENTS;
+	},
 
 	/**
 	 * This function gets the credit permission for the option selected
@@ -53,7 +65,6 @@ export const creditMixin = {
 		this._telemetry.startSpan(this.settlementQuoteEvents.SETTLEMENT_QUOTE_DIALOG, {});
 
 		this.selectedAccountDetails = selectedAccounts;
-
 		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_DIALOG;
 	},
 
@@ -71,38 +82,63 @@ export const creditMixin = {
 
 		const request = {
 			"cifNumber": this.callerInformation.cifNumber,
-			"caseId": this.caseId,
+			"caseId": this.caseId || ``,
 			"emailAddress": details.emailAddress,
 			"accountList": accountsList
 		};
 
-		const returnValue = await this.creditService.sendSettlementQuoteEmail(request);
+		const returnValue = await this.creditService.sendSettlementQuoteEmail(request, () => true);
 
-		if (returnValue.succeeded) {
-			const accountsEmailStatus = returnValue.result.sendStatusList;
+		const screenDetails = this.horizonStore.getScreenDetails();
 
-			const formatedResponse = accountsEmailStatus.map(item => {
-				const itemDetails = details.selectedAccounts.find(account => account.accountNumber === item.accountNumber);
-				item.productTypeDescription = itemDetails.productTypeDescription;
+		screenDetails.selectedAccounts = details.selectedAccounts.filter(item => !isNullorEmpty(item));
+		screenDetails.emailAddress = details.emailAddress;
+		
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to send settlement quote.`, `_sendSettlementQuote`, returnValue.correlationId);
 
-				return item;
-			});
-
-			const screenDetails = this.horizonStore.getScreenDetails();
-			screenDetails.selectedAccounts = details.selectedAccounts.filter(item => !isNullorEmpty(item));
-			screenDetails.emailAddress = details.emailAddress;
-			screenDetails.emailStatus = formatedResponse;
 			this.horizonStore.setScreenDetails(screenDetails);
+			this.horizonRouter.navigateToSettlementQuoteFailure();
+		}
 
-			this.horizonRouter.navigateToSettlementQuoteOutcome();
+		// Formatting data before navigating to outcome screen
+		const accountsEmailStatus = returnValue.result.sendStatusList;
+		const formatedResponse = accountsEmailStatus.map(item => {
+			const itemDetails = details.selectedAccounts.find(account => account.accountNumber === item.accountNumber);
+			item.productTypeDescription = itemDetails.productTypeDescription;
+
+			return item;
+		});
+
+		screenDetails.emailStatus = returnValue.result?.sendStatusList;
+		this.horizonStore.setScreenDetails(screenDetails);
+
+		switch (true) {
+			case returnValue.result?.sendStatusList.every(item => item.sentStatus): // If all success
+				this.horizonRouter.navigateToSettlementQuoteSuccess();
+				break;
+
+			case returnValue.result?.sendStatusList.every(item => !item.sentStatus): // If all failure
+				this.horizonRouter.navigateToSettlementQuoteFailure();
+				break;
+
+			default: // Partially success
+				this.horizonRouter.navigateToSettlementQuoteOutcome();
+				break;
 		}
 	},
 
-	async _getSettlementQuoteDocument(selectedAccounts) {
+	async _viewSettlementQuote(item) {
+
+		await this._telemetry.logEvent(this.settlementQuoteEvents.SETTLEMENT_QUOTE_VIEW_DOCUMENT, {
+			"cifNumber": this.callerInformation.cifNumber,
+			"accountNumber": item.accountNumber,
+			"accountType": item.productTypeDescription
+		});
 
 		const request = {
-			"creditType": selectedAccounts.type.replace(` `, ``),
-			"accountNumber": selectedAccounts.accountNumber,
+			"creditType": item.type.replace(` `, ``),
+			"accountNumber": item.accountNumber,
 			"cifNumber": this.callerInformation.cifNumber,
 			"caseBranchNumber": 0,
 			"idNumber": this.callerInformation.southAfricanIDNumber,
@@ -113,10 +149,19 @@ export const creditMixin = {
 
 		const returnValue = await this.creditService.settlementQuote(request);
 
-		if (returnValue) {
+		if (returnValue.succeeded) {
 			this.caseId = returnValue.result.caseId;
 			return returnValue.result.data;
 		}
+	},
+
+	async _cancelSettlementQuoteDialog() {
+		await this._telemetry.logEvent(this.settlementQuoteEvents.SETTLEMENT_QUOTE_CANCEL, {
+			"screen": TelemetryScreen.SETTLEMENT_QUOTE_DIALOG,
+			"next-screen": TelemetryScreen.CREDIT_LANDING
+		});
+
+		this._exitSettlementQuoteDialog(); // This is implemented in corresponding parent class
 	},
 
 	_renderSettlementQuoteDialog() {
@@ -124,8 +169,9 @@ export const creditMixin = {
 		? html`
 			<horizon-settlement-quote-dialog
 				.selectedAccounts="${this.selectedAccountDetails}"
-				.getSettlementQuoteDocument="${(currPage) => this._getSettlementQuoteDocument(currPage)}"
-				@cancel="${() => this._backFromSettlementQuoteDialog()}"
+				.viewSettlementQuote="${(item) => this._viewSettlementQuote(item)}"
+				@on-unloading="${() => this._telemetry.endSpan(this.settlementQuoteEvents.SETTLEMENT_QUOTE_DIALOG, {})}"
+				@cancel="${() => this._cancelSettlementQuoteDialog()}"
 				@send="${(e) => this._sendSettlementQuote(e.detail)}">
 			</horizon-settlement-quote-dialog>`
 		: html``;

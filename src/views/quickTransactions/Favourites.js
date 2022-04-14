@@ -8,7 +8,6 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { creditMixin } from 'app/views/credit/CreditMixin';
-import { creditOverview } from 'app/mocks/CreditMocks';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
@@ -358,18 +357,6 @@ export class Favourites extends SavingsAccountBase {
 		await this.getIssues(event);
 	}
 
-	_logTelemetryOnFilter(event) {
-		this._telemetry.logEvent(QuickTransactionEvents.SETTLEMENT_QUOTE_FILTER, {
-			"search-by-text": event.detail.searchByText,
-			"credit-type": event.detail.searchByType
-		});
-	}
-
-	_exitSettlementQuote() {
-		this._telemetry.endSpan(this.settlementQuoteEvents.SETTLEMENT_QUOTE);
-		this._backToLandingPage();
-	}
-
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -540,12 +527,11 @@ export class Favourites extends SavingsAccountBase {
 
 	async _settlementQuote(customErrHandler = null) {
 
-		this._telemetry.logEvent(QuickTransactionEvents.SETTLEMENT_QUOTE_SELECT, {
+		await this._telemetry.logEvent(QuickTransactionEvents.SETTLEMENT_QUOTE_SELECT, {
 			"screen": TelemetryScreen.FAVOURITES,
 			"next-screen": TelemetryScreen.SETTLEMENT_QUOTE_VIEW
 		});
 
-		const screenDetails = this.horizonStore.getScreenDetails();
 		const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber, ACCOUNT_STATUS.ALL, customErrHandler);
 
 		if (returnValue.succeeded) {
@@ -565,17 +551,10 @@ export class Favourites extends SavingsAccountBase {
 				return item;
 			});
 
-		this._telemetry.startSpan(QuickTransactionEvents.SETTLEMENT_QUOTE, {});
-
-		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
+			this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
 		}
 
-		if (screenDetails.selectedAccounts) {
-			const failedAccounts = screenDetails.emailStatus.filter(account => !account.sentStatus);
-			const settlementQuoteAccounts = failedAccounts.map(item => screenDetails.selectedAccounts.find(account => account.accountNumber === item.accountNumber));
-	
-			this._showSettlementQuoteDialog(settlementQuoteAccounts);
-		}
+		this.logger.log(`error`, `Unable to load settlement quote accounts view`, `_settlementQuote`, returnValue.correlationId);
 	}
 	
 	_showSettlementQuoteDialog(selectedAccounts) {
@@ -752,13 +731,8 @@ export class Favourites extends SavingsAccountBase {
 		super._backToLandingPage();
 	}
 
-	_backFromSettlementQuoteDialog() {
-		this._telemetry.logEvent(this.settlementQuoteEvents.SETTLEMENT_QUOTE_CANCEL, {
-			"screen": TelemetryScreen.SETTLEMENT_QUOTE_DIALOG,
-			"next-screen": TelemetryScreen.SETTLEMENT_QUOTE_VIEW
-		});
-
-		this._telemetry.endSpan(this.settlementQuoteEvents.SETTLEMENT_QUOTE_DIALOG);
+	async _exitSettlementQuoteDialog() {
+		await this._telemetry.endSpan(this.settlementQuoteEvents.SETTLEMENT_QUOTE_DIALOG, {});
 
 		this.horizonStore.clearScreenDetails();
 		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
@@ -1037,23 +1011,11 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_VIEW ||
 				this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG 
 		? html`
-		<horizon-settlement-quote
-			.settlementQuoteDetails="${this.settlementQuoteDetails}"
-			@back="${() => this._exitSettlementQuote()}"
-			@send-quote="${(e) => this._showSettlementQuoteDialog(e.detail.selectedAccounts)}"
-			@telemetry-on-filter="${(event) => this._logTelemetryOnFilter(event)}"
-			@select-all="${() => this._telemetry.logEvent(QuickTransactionEvents.SETTLEMENT_QUOTE_SELECT_ALL)}"
-			@deselect-all="${() => this._telemetry.logEvent(QuickTransactionEvents.SETTLEMENT_QUOTE_DESELECT_ALL)}">
-		</horizon-settlement-quote>`
-		: html``;
-	}
-
-	_renderCcsModal() {
-		return this.showCCSmodal
-		? html`
-			<horizon-ccs-status-dialog
-				@on-okay="${() => this.showCCSmodal = !this.showCCSmodal}">
-			</horizon-ccs-status-dialog>`
+			<horizon-settlement-quote
+				.settlementQuoteDetails="${this.settlementQuoteDetails}"
+				@back="${() => this._backToLandingPage()}"
+				@send-quote="${(e) => this._showSettlementQuoteDialog(e.detail.selectedAccounts)}">
+			</horizon-settlement-quote>`
 		: html``;
 	}
 

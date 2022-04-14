@@ -455,15 +455,15 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.STATEMENTS;
 	}
 
-	_settlementQuote(creditType, productType, selectedAccountDetails) {
-		this._telemetry.logEvent(CreditEvents.CREDIT_SETTLEMENT_QUOTE_SELECT, {
+	async _settlementQuote(creditType, productType, selectedAccountDetails) {
+		await this._telemetry.logEvent(CreditEvents.CREDIT_SETTLEMENT_QUOTE_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
 			"next-screen": TelemetryScreen.SETTLEMENT_QUOTE_DIALOG,
 			"credit-type": creditType,
 			"product-type": productType
 		});
 
-		this._telemetry.startSpan(this.settlementQuoteEvents.SETTLEMENT_QUOTE, {});
+		await this._telemetry.startSpan(this.settlementQuoteEvents.SETTLEMENT_QUOTE, {});
 
 		const screenDetails = this.horizonStore.getScreenDetails();
 		screenDetails.creditType = creditType;
@@ -587,13 +587,8 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
 	}
 
-	_backFromSettlementQuoteDialog() {
-		this._telemetry.logEvent(this.settlementQuoteEvents.SETTLEMENT_QUOTE_CANCEL, {
-			"screen": TelemetryScreen.SETTLEMENT_QUOTE_DIALOG,
-			"next-screen": TelemetryScreen.CREDIT_LANDING
-		});
-
-		this._telemetry.endSpan(this.settlementQuoteEvents.SETTLEMENT_QUOTE_DIALOG, {}, true, true);
+	async _exitSettlementQuoteDialog() {
+		await this._telemetry.endSpan(this.settlementQuoteEvents.SETTLEMENT_QUOTE_DIALOG, {}, true);
 
 		this.horizonStore.clearScreenDetails();
 		this._backToLandingPage();

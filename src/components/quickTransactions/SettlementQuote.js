@@ -1,6 +1,8 @@
 import { CREDIT_TYPE, CREDIT_TYPE_LIST, DEFAULTS, PRODUCTS } from 'app/constants/Credit';
 import { Component, css, html } from 'platform/elements';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 
 import 'app/components/common/HorizonPDFViewer';
 import 'app/components/common/OptionButton';
@@ -36,6 +38,8 @@ export class SettlementQuote extends Component {
 		this.filteredData = [];
 		this.listValue = `Credit type`;
 		this.selectedLabel = `Select all`;
+
+		this._telemetry = HorizonTelemetry.getInstance();
 	}
 
 
@@ -50,10 +54,10 @@ export class SettlementQuote extends Component {
 	 * @memberof FavouriteTransactions
 	 */
 
-
 	static get properties() {
 		return {
 			settlementQuoteDetails: { type: Array },
+
 			isBusy: { attribute: false },
 			filteredData: { type: Array },
 			listValue: { type: String },
@@ -66,10 +70,17 @@ export class SettlementQuote extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
+
+		await this._telemetry.startSpan(QuickTransactionEvents.SETTLEMENT_QUOTE, {});
 		this._initialise();
+	}
+
+	async disconnectedCallback() {
+		super.disconnectedCallback();
+
+		await this._telemetry.endSpan(QuickTransactionEvents.SETTLEMENT_QUOTE, {});
 	}
 
 	// --------------
@@ -83,16 +94,21 @@ export class SettlementQuote extends Component {
 	_filter(e) {
 		[this.listValue] = e.detail.new.split(` `);
 		this._search(e);
-		this._logTelemetryOnFilter(null, e.detail.new);
+		this._focusOutFilter(null, e.detail.new);
 	}
 
-	_back() {
+	async _back() {
+		await this._telemetry.logEvent(QuickTransactionEvents.SETTLEMENT_QUOTE_BACK, {});
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
 	_showSendDialog () {
 		this.selectedAccounts = this.settlementQuoteDetails.filter(item => item.selected);
-		this.dispatchEvent(new CustomEvent(`send-quote`, { detail: { selectedAccounts: this.selectedAccounts } }));
+		this.dispatchEvent(new CustomEvent(`send-quote`, {
+			detail: {
+				selectedAccounts: this.selectedAccounts
+			}
+		}));
 	}
 
 	_checkBox(e, accountDetails) {
@@ -107,38 +123,38 @@ export class SettlementQuote extends Component {
 		} else {
 			this.selectedLabel = `${accountsSelected} accounts selected`;
 		}
-
 	}
 
-	_selectAll() {
+	async _selectAll() {
 		if (this.filteredData.every(item => item.selected)) {
 			this._deselect();
 		} else {
+			await this._telemetry.logEvent(QuickTransactionEvents.SETTLEMENT_QUOTE_SELECT_ALL, {});
+
 			this.filteredData.forEach(item => item.selected = true);
 			this.selectedLabel = `${this._numberOfAccountsSelected()} accounts selected`;
-			this.dispatchEvent(new CustomEvent(`select-all`, {}));
 		}
 	}
 
-	_deselect() {
+	async _deselect() {
+		await this._telemetry.logEvent(QuickTransactionEvents.SETTLEMENT_QUOTE_DESELECT_ALL, {});
+
 		this.selectedLabel = `Select all`;
 		this.filteredData.forEach(item => item.selected = false);
-		this.dispatchEvent(new CustomEvent(`deselect-all`, {}));
 	}
 
-	_logTelemetryOnFilter(searchByText = null, searchByType = null) {
+	_focusOutFilter(searchByText = null, searchByType = null) {
 		if (searchByText || searchByType) {
-			this.dispatchEvent(new CustomEvent(`telemetry-on-filter`, { detail: {
-				"searchByText": searchByText,
-				"searchByType": searchByType 
-			} }));
+			this._telemetry.logEvent(QuickTransactionEvents.SETTLEMENT_QUOTE_FILTER, {
+				"search-by-text": searchByText,
+				"credit-type": searchByType
+			});
 		}
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
 
 	_initialise() {
 		this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
@@ -197,6 +213,7 @@ export class SettlementQuote extends Component {
 	// ---------
 	// RENDERING
 	// ---------
+
 	static get styles() {
 		return [
 			super.styles,
@@ -346,7 +363,7 @@ export class SettlementQuote extends Component {
  					type="search"
  					keyboardMode="alpha-numeric"
  					@key-input="${(e) => this._search(e)}"
-					@focusout="${(e) => this._logTelemetryOnFilter(e.currentTarget.value)}"
+					@focusout="${(e) => this._focusOutFilter(e.currentTarget.value)}"
  					@value-change="${(e) => this._search(e)}">
  				</capitec-text-field>
 				<capitec-select
