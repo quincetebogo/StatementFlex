@@ -53,8 +53,6 @@ export class PaidUpLetterSuccess extends ViewBase {
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-
-		this._telemetry.endSpan(CreditEvents.CREDIT_PAID_UP_LETTER_SUCCESS, {}, true, true, false);
 	}
 
 	// --------------
@@ -66,6 +64,8 @@ export class PaidUpLetterSuccess extends ViewBase {
 			"screen": TelemetryScreen.CREDIT_PAID_UP_LETTER_SUCCESS,
 			"next-screen": TelemetryScreen.FAVOURITES
 		});
+
+		this._telemetry.endSpan(CreditEvents.CREDIT_PAID_UP_LETTER_SUCCESS, {}, true, true, false);
 	
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
@@ -76,6 +76,8 @@ export class PaidUpLetterSuccess extends ViewBase {
 			"screen": TelemetryScreen.CREDIT_PAID_UP_LETTER_SUCCESS,
 			"next-screen": TelemetryScreen.PAID_UP_LETTER_ACCOUNTS
 		});
+		
+		this._telemetry.endSpan(CreditEvents.CREDIT_PAID_UP_LETTER_SUCCESS, {});
 		
 		this.horizonRouter.navigateToReturnPage();
 	}

@@ -2,6 +2,7 @@ import { CREDIT_ACCOUNT_TYPE, PRODUCT_TYPE } from 'app/constants/Credit';
 import { QuickTransactionEvents, STATEMENT_EVENTS } from 'app/constants/telemetry/events/QuickTransactions';
 import { css, html } from 'platform/elements';
 import { isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
+import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
@@ -591,6 +592,8 @@ export class Favourites extends SavingsAccountBase {
 			this.showCCSmodal = true;
 			return;
 		}
+		
+		this._telemetry.startSpan(CreditEvents.CREDIT_PAID_UP_LETTER, {});
 
 		this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
 	}

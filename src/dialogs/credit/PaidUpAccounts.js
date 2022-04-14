@@ -71,8 +71,6 @@ export class PaidUpAccounts extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		
-		this._telemetry.startSpan(CreditEvents.CREDIT_PAID_UP_LETTER, {});
 
 		this._initialise();
 	}
