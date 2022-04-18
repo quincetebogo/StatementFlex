@@ -20,6 +20,7 @@ import 'app/components/credit/AccessFacilityDetails';
 import 'app/components/credit/TermLoanDetails';
 import 'app/components/dialogs/common/CCSstatus';
 import 'app/dialogs/credit/SettlementQuote';
+import 'app/dialogs/credit/PaidUpLetter';
 import 'app/dialogs/statements/Statements';
 import 'app/dialogs/credit/SettleAndCloseDisclaimer';
 import 'app/productControls/credit/src/BudgetAccounts';
@@ -61,6 +62,7 @@ export class CreditAccount extends ViewBase {
 		this.creditBalance = ``;
 		this.productType = ``;
 		this.creditType = ``;
+		this.selectedAccounts = [];
 		// ccs status of client set to true until real value retrieved from CS
 		this.ccsStatus = false;
 		this.showSettleCloseModal = false;
@@ -132,9 +134,10 @@ export class CreditAccount extends ViewBase {
 		const settlementQuote = () => this._settlementQuote(creditType, productType, selectedAccountDetails);
 		const settleAndClose = () => this._settleAndClose(creditType, productType, selectedAccountDetails);
 		const settleLoan = () => this._settleLoan();
-		const paidUpLetter = () => this._paidUpLetter();
+		const paidUpLetter = () => this._paidUpLetter(selectedAccountDetails);
+		const budgetFacility = () => this._budgetFacility(selectedAccountDetails);
+		const payBudget = () => this._payBudgetAccount(selectedAccountDetails);
 		const viewBudgets = () => this._viewBudgets(selectedAccountDetails);
-		const payBudget = () => this._payBudgetDialog(selectedAccountDetails);
 
 		const accConfig = ACCOUNT_INTCAT_ENUM[selectedAccountDetails.productTypeCode];
 		const actions = {
@@ -375,6 +378,13 @@ export class CreditAccount extends ViewBase {
 	// ---------------
 
 	async _initialise() {
+		// TO DO: get ccs status from permission endpoint
+			// permissionResultList:[
+			// operationIdentifier: "ALL",
+			// permissionResult: "Denied",
+			// declineReason: "Deceased"
+			// ]
+		// this.ccsStatus = this.quickTransactionService.permissions();
 
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		
@@ -532,8 +542,27 @@ export class CreditAccount extends ViewBase {
 		this._settlementQuoteDialog([selectedAccountDetails]);
 	}
 
-	_paidUpLetter() {
-		// TO DO: Place holder for paid up Letter flow.
+	async _paidUpLetter(selectedAccountDetails) {
+			
+		this.horizonStore.setCallerInformation(this.callerInformation);
+
+		const accountNumbers = [];
+		accountNumbers.push(selectedAccountDetails.accountNumber);
+
+		const returnValue = await this.creditService.getPaidUpLetter(this.callerInformation.cifNumber, accountNumbers);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to retrieve client overview from credit service.`, `_initialise`, returnValue.correlationId);
+			this.renderMode = RENDER_MODE.SERVICE_UNAVAILABLE;
+			return;
+		}
+
+		this.encodedPDFs = returnValue.result;
+
+		this.selectedAccounts.push(selectedAccountDetails);
+		this.renderMode = RENDER_MODE.PAID_UP_LETTER;
+		this._renderPaidUpLetterView();
+		
 	}
 
 	_settleAndClose(creditType, productType, selectedAccountDetails) {
@@ -794,6 +823,7 @@ export class CreditAccount extends ViewBase {
 			${this._renderSettleLoanEmailConfirmation()}
 			${this._renderSettleCloseDisclaimer()}
 			${this._renderSettleAndCloseDialog()}
+			${this._renderPaidUpLetterView()}
 		`;
 	}
 
@@ -995,6 +1025,19 @@ export class CreditAccount extends ViewBase {
 				@cancel="${() => this._backToLandingPage()}"
 				@settle-and-close="${() => this._confirmSettleAndClose()}">
 			</horizon-settle-and-close-dialog>`
+		: html``;
+	}
+
+	_renderPaidUpLetterView() {
+		return this.renderMode === RENDER_MODE.PAID_UP_LETTER
+		? html`
+		<horizon-paid-up-letter-dialog
+				.landingPageInfo="${this.landingPageInfo}"
+			.selectedAccounts="${this.selectedAccounts}"
+			.encodedPDFs="${this.encodedPDFs}"
+			@cancel="${() => this._backToLandingPage()}"
+			.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
+		</horizon-paid-up-letter-dialog>`
 		: html``;
 	}
 }

@@ -92,10 +92,11 @@ export class PaidUpLetter extends Component {
 
 	_initialise() {
 		this._toggleBusyFlag();
-		//TODO: flow for selected accounts to be done here
+		// TODO: flow for selected accounts to be done here
 	}
 
 	_viewPDFViewer () {
+		this.encodedPDF = this.encodedPDFs.document.data;
 		this.flag = !this.flag;
 	}
 
@@ -120,7 +121,7 @@ export class PaidUpLetter extends Component {
 		if (!isValid) {
 			return false;
 		}
-		//TODO: Navigation to be added once the CS is ready.
+		// TODO: Navigation to be added once the CS is ready.
 	}
 
 	_cancelClick(e) {
@@ -263,8 +264,8 @@ export class PaidUpLetter extends Component {
 	}
 
 	_renderAlertBanner() {
-		return this.alertBannerMessage ?
-		html`
+		return this.alertBannerMessage 
+		? html`
 			<capitec-alert-banner type="unsuccessful-red">
 				<capitec-group layout="horizontal">
 					<capitec-label
@@ -310,8 +311,8 @@ export class PaidUpLetter extends Component {
 		return html`
 			<horizon-product-tile 
 				type="default"
-				label="${item}"
-				subtitle="123456789">
+				label="${item.productTypeDescription}"
+				subtitle="${item.accountNumber}">
 					${this._renderViewDocumnetLink(item)}
 			</horizon-product-tile>
 		`;
@@ -333,7 +334,7 @@ export class PaidUpLetter extends Component {
 	_viewPDF() {
 		return html`
 			<horizon-pdf-viewer
-				header="Paid Up Letter: Credit Card"
+				header="Paid Up Letter: ${this.selectedAccounts[this.currPage].productTypeDescription}"
 				encodedPDF="${this.encodedPDF}"
 				totalPages="${this.selectedAccounts.length}"
 				currPage="${this.currPage}"
