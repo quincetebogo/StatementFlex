@@ -272,6 +272,7 @@ export class SavingsPlan extends ViewBase {
 			item.planName = formatStringAsPascalCase(item.planName);
 			item.depositeType = `${formatStringAsPascalCase(item.planType)} ${item.interestOption === `R` ? `- Reinvest` : ``}`;
 			item.accountStatus = formatStringAsPascalCase(item.accountStatus);
+			item.postingRestrictions = `${item.postingRestrictions === `N` ? `No` : `Yes`}`;
 
 			return item;
 		});
