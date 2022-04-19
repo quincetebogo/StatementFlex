@@ -687,6 +687,13 @@ export class StatementsDialog extends Component {
 						type="unsuccessful-red">
 							<p><b>Notify:</b> ${this.errorMessage}</p>
 					</capitec-alert-banner>`;
+			case this.productSelected.category === ACCOUNT_TYPES.SAVINGS_PLAN:
+				return html`
+					<capitec-alert-banner
+						data-automation-id="statements-dialog-alert-message"
+						type="warning">
+							<p><b>Notify client:</b>${NOTIFICATION_MESSAGE.FLEXIBLE_SAVINGS_FEE}</p>
+					</capitec-alert-banner>`;
 			case this.productSelected.category === ACCOUNT_TYPES.CREDIT:
 				return html`
 					<capitec-alert-banner

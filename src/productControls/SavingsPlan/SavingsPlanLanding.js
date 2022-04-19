@@ -393,7 +393,7 @@ export class SavingsPlanLanding extends Component {
 		return flexibleSavingsPlanDetails.map((item, index) => html`
 				<horizon-expander
 					expandButtonAlignment="right"
-					.expanded="${false}">
+					.expanded="${index === 0}">
 						<capitec-group 
 							class="expander-header"
 							slot="custom-header"
@@ -455,7 +455,7 @@ export class SavingsPlanLanding extends Component {
 				<horizon-expander
 					class="fixed-term-exp"
 					expandButtonAlignment="right"
-					.expanded="${false}">
+					.expanded="${index === 0}">
 						<capitec-group
 							class="expander-header"
 							slot="custom-header"
