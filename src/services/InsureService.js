@@ -31,7 +31,7 @@ export class InsureService extends ChannelServiceBase {
 			"X-User-Token": Security.getInstance().token,
 			"x-session-id": v4(),
 			"x-request-id": v4(),
-			"x-requester-uid": 'CP336134_17249_09_3997_16',
+			"x-requester-uid": 'CP336134_17249_01_3997_16',
 		};
 	}
 
