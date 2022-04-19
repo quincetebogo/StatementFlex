@@ -704,7 +704,6 @@ export class CreditAccount extends ViewBase {
 			${this._renderPayBudgetDialog()}
 			${this._renderSettlementQuoteDialog()}
 			${this._renderCcsModal()}
-			${this._renderSettleCloseModal()}
 			${this._renderSettleAndCloseEmailConfirmation()}
 			${this._renderSettleLoanEmailConfirmation()}
 			${this._renderPayBudgetEmailConfirmation()}
