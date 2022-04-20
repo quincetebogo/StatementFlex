@@ -70,8 +70,6 @@ export class StatementsDialog extends Component {
 	/**
 	 * @property {Array} clientProducts Contains list of products that the client has.
 	 * @property {string} type Contains the type of account
-	 * @property {string} title client's title (Mr/ Mrs)
-	 * @property {string} lastName client's last name
 	 * @readonly
 	 * @static
 	 * @memberof StatementsDialog
@@ -81,9 +79,7 @@ export class StatementsDialog extends Component {
 			clientProducts: { type: Array },
 			accountType: { type: String, attribute: `type` },
 			viewStatement: { type: Object },
-			sendStatement: { type: Object },     
-			title: { type: String },
-			lastName: { type: String },
+			sendStatement: { type: Object },
 
 			alertBannerMessage: { state: true },
 			currentStep: { state: true },
@@ -243,8 +239,6 @@ export class StatementsDialog extends Component {
 			"accountName": this.productSelected.accountName,
 			"accountType": this.productSelected.type,
 			"dateInterval": this.periodSelected,
-			"title": this.title,
-			"lastName": this.lastName,
 			"startDate": this.fromDate === `dd mm yyyy` ? `` : this.fromDate,
 			"endDate": this.toDate === `dd mm yyyy` ? `` : this.toDate,
 			"monthInterval": this.selectedMonths // This is specifically for month period
