@@ -70,6 +70,7 @@ export class TaxCertificates extends Component {
 		this.selectedCertType = null;
 		this.selectedCertificates = {};
 		this.disableNext = false;
+		this.taxCertType = ``;
 	}
 
 	// --------------
@@ -85,6 +86,7 @@ export class TaxCertificates extends Component {
 			taxCertificateDetails: { type: Object },
 			getTaxCertificatePDFCallback: { type: Object },
 			getIT3BContentData: { type: Object },
+			taxCertType: { type: String },
 
 			// Private Properties
 			currentStep: { state: true },
@@ -108,6 +110,7 @@ export class TaxCertificates extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		this._initialize();
 	}
 
 	disconnectedCallback() {
@@ -228,6 +231,12 @@ export class TaxCertificates extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_initialize() {
+		if (!isNullorEmpty(this.taxCertType)) {
+			this.selectedCertType = this.taxCertType;
+		}
+	}
 
 	_selectCertificate(checkBoxDetails, certType) {
 		if (this._isInSelectedCertificates(this.selectedCertificates[certType], checkBoxDetails)) {

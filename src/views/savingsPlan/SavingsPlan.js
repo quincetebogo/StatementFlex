@@ -26,6 +26,11 @@ const SAVE_PLAN_TYPE = {
 	FIXED_TERM: `fixed-term-save-plan`
 };
 
+const TAX_TYPE = {
+	IT3B: `iT3BTaxCertificates`,
+	IT3S: `iT3STaxCertificates`
+};
+
 /**
  * Savings Plan View
  *
@@ -65,6 +70,7 @@ export class SavingsPlan extends ViewBase {
 	
 		// private properites
 		this.selectedAccountNumber = ``;
+		this.taxCertType = ``;
 
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.accountViewType = ``;
@@ -79,10 +85,10 @@ export class SavingsPlan extends ViewBase {
 
 		this._initialise();
 
-		this._optionClick = (option, saveType, accountNumber) => {
+		this._optionClick = (option, saveType, accountNumber, accountName) => {
 
 			const statements = () => this._getStatements(accountNumber, saveType);
-			const taxCertificates = () => this._taxCertificates(accountNumber);
+			const taxCertificates = () => this._taxCertificates(accountNumber, accountName);
 			const productEnquiry = () => this._productEnquiry();
 			const savingsCalculator = () => this._savingsCalculator();
 			const interestRates = () => this._interestRates();
@@ -319,12 +325,13 @@ export class SavingsPlan extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_taxCertificates(accNumber) {
-		// TO DO: Place holder for tax certificate flow.
+	_taxCertificates(accNumber, accountName) {
 		this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_TAX_CERTIFICATE_SELECT, {
 			"screen": TelemetryScreen.SAVINGS_PLAN_LANDING,
 			"next-screen": TelemetryScreen.SAVINGS_PLAN_TAX_CERTIFICATE
 		});
+
+		this.taxCertType = accountName.toLowerCase().replaceAll(` `, ``).includes(`tax-free`) ? TAX_TYPE.IT3S : TAX_TYPE.IT3B;
 		this.selectedAccountNumber = accNumber;
 		this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
 	}
@@ -422,7 +429,7 @@ export class SavingsPlan extends ViewBase {
 			<capitec-pc-savings-plan
 				.savingsPlanDetails="${this.savingsPlanDetails}"
 
-				@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.saveType, e.detail.accountNumber)}"
+				@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.saveType, e.detail.accountNumber, e.detail.accountName)}"
 				@view-info="${() => this._productEnquiry()}">
 			</capitec-pc-savings-plan>`
 		: html``;
@@ -474,6 +481,7 @@ export class SavingsPlan extends ViewBase {
 				<horizon-tax-certificate
 					cifNumber="${this.callerInformation.cifNumber}"
 					accountNumber="${this.selectedAccountNumber}"
+					type="${this.taxCertType}"
 					@cancel="${() => this._backToLandingPage()}">
 				</horizon-tax-certificate>
 			`
