@@ -78,13 +78,7 @@
 	STATEMENTS_FAILURE_ASSIGN: `call.fulfill-need.credit.statements.failure.assign`
 });
 
-/**
- * The event names to use when logging telemetry events for setttlement flow from Credit.
- * This correspond to the `Action` and `eventName` columns in the Data Spec.
- * 
- * @readonly
- * @enum {Object} SETTLEMENT_QUOTE_EVENTS
- */
+
 /**
  * The event names to use when logging telemetry events for Proof of payment for pay budget flow
  * This correspond to the `Action` and `eventName` columns in the Data Spec.
@@ -107,7 +101,13 @@
 	POP_FAILURE_DONE: `call.fulfill-need.credit.budget.transfer.proof-of-payment.failure.done`
 });
 
-
+/**
+ * The event names to use when logging telemetry events for setttlement flow from Credit.
+ * This correspond to the `Action` and `eventName` columns in the Data Spec.
+ * 
+ * @readonly
+ * @enum {Object} SETTLEMENT_QUOTE_EVENTS
+ */
 export const SETTLEMENT_QUOTE_EVENTS = Object.freeze({
 	SETTLEMENT_QUOTE: `call.fulfill-need.credit.settlement-quote`,
 	SETTLEMENT_QUOTE_DIALOG: `call.fulfill-need.credit.settlement-quote.pop-up`,

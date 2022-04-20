@@ -96,7 +96,7 @@ export class ProofOfPaymentSuccess extends ViewBase {
 		const creditNeed = this.horizonStore.getReturnToScreen().optionalData;
 		
 		const telemetryEvents = {
-			'budget-facility': BUDGET_FACILITY_POP_EVENTS,
+			'view-budgets': BUDGET_FACILITY_POP_EVENTS,
 			'settle-close': null // Load telemetry events for Settle and close prrof of payment flow 
 		};
 
