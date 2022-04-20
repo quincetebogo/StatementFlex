@@ -561,13 +561,6 @@ export class SavingsPlanLanding extends Component {
 							@click="${() => this._click(`product-enquiry`)}">
 					</horizon-option-button>
 					<horizon-option-button
-							display: none;
-							data-automation-id="savings-plan-savings-calculator"
-							label="Savings Calculator"
-							icon="system/track-action"
-							@click="${() => this._click(`savings-calculator`)}">
-					</horizon-option-button>
-					<horizon-option-button
 							data-automation-id="savings-plan-interest-rates"
 							label="Interest Rates"
 							icon="system/fees-and-interest-action"

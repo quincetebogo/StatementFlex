@@ -243,12 +243,13 @@ export class SavingsPlan extends ViewBase {
 			item.interestEarned = formatCurrency(item.interestEarned);
 			item.feesLastMonth = item.feesLastMonth ? formatCurrency(item.feesLastMonth) : `-`;
 
-			item.maturityDate = this._formatDate(item.maturityDate);
+			item.maturityDate = `-`;
 			item.dateOpened = this._formatDate(item.dateOpened);
 			item.lastUpdate = this._formatDate(item.lastUpdate);
 
 			item.planName = formatStringAsPascalCase(item.planName);
 			item.accountStatus = formatStringAsPascalCase(item.accountStatus);
+			item.postingRestrictions = `${item.postingRestrictions === `N` ? `No` : `Yes`}`;
 
 			return item;
 		});
@@ -271,6 +272,7 @@ export class SavingsPlan extends ViewBase {
 			item.planName = formatStringAsPascalCase(item.planName);
 			item.depositeType = `${formatStringAsPascalCase(item.planType)} ${item.interestOption === `R` ? `- Reinvest` : ``}`;
 			item.accountStatus = formatStringAsPascalCase(item.accountStatus);
+			item.postingRestrictions = `${item.postingRestrictions === `N` ? `No` : `Yes`}`;
 
 			return item;
 		});
