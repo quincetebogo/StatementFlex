@@ -68,15 +68,21 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {Object} Estimate response
 	 */
 	async _calculateClientEstimate(e) {
-		console.log("Which e");
-		console.log(e);
+
+		console.log("Estimate Calculate event in View ", JSON.stringify(e.detail))
+		let estimateWithCoverDetails = e.detail;
 		this.isBusy = true;
-		const resp = await this.insureService.calculateEstimate(e.detail, () => true);
-		console.log('resp');
-		console.log(resp);
+		const resp = await this.insureService.calculateEstimate(estimateWithCoverDetails, () => true);
 		if (resp.succeeded == true && resp.result != null) {
+			estimateWithCoverDetails.totalPremium = resp.result.totalPremium;
+			estimateWithCoverDetails.calculatedByPremium = resp.result.calculatedByPremium;
+			estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map(lifeWithDetails => {
+				return Object.assign(lifeWithDetails, resp.result.lifesAssured.find(respLife => {
+					return lifeWithDetails.rowID === respLife.rowID
+				}))
+			});
+			this.estimate = estimateWithCoverDetails;
 			this.isBusy = false;
-			this.estimate = resp.result;
 		} else {
 			console.error(resp.exception);
 			this.isBusy = false;
@@ -194,11 +200,9 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderCalculateEstimatePage() {
 		return html`
-			<horizon-insure-policy-estimate 
-			@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY)}" 
-			@calculate="${(e)=> this._calculateClientEstimate(e)}"
-			.estimate="${this.estimate}"
-			.productParams="${this.productParams}">
+			<horizon-insure-policy-estimate @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY)}"
+				@calculate="${(e) => this._calculateClientEstimate(e)}" .estimate="${this.estimate}"
+				.productParams="${this.productParams}">
 			</horizon-insure-policy-estimate>`
 	}
 

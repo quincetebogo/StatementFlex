@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { getCoverDetailsByParams, livesPerPolicy } from 'app/utils/insureUtils';
 
 import { GENDER_OPTIONS } from 'app/constants/InsureCommon';
 
@@ -224,6 +225,7 @@ class PolicyEstimate extends Component {
 			this.estimate.lifesAssured[index].age = event.detail.new;
 			this.newTotalPremium = '';
 		}
+		this.estimate.lifesAssured[index].coverDetails = getCoverDetailsByParams(this.estimate.lifesAssured[index].relationship, this.productParams, this.estimate.lifesAssured[index].age);
 	}
 
 	/**
@@ -272,6 +274,10 @@ class PolicyEstimate extends Component {
 			// clientEstimateDetails: this.clientEstimateDetails
 		}
 
+		// Reset
+		this.estimate.totalPremium = 0;
+		this.newTotalPremium = '';
+
 		console.log("this.estimate")
 		console.log(this.estimate);
 
@@ -284,9 +290,7 @@ class PolicyEstimate extends Component {
 		// 	this.estimate = estimateResponse;
 		// }'
 
-		// Reset
-		this.estimate.totalPremium = 0;
-		this.newTotalPremium = '';
+
 
 		this.requestUpdate();
 	}

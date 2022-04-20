@@ -79,53 +79,6 @@ class InsureAddLifeDialog extends Component {
 		this.requestUpdate();
 	}
 
-
-	/**
-	 * Get default cover details based on relationship
-	 */
-	_getCoverDetails(relationship) {
-		switch (relationship) {
-			case "Spouse":
-				return {
-					defaultCover: 100000,
-					maxCover: 100000,
-					minCover: 5000,
-					ageMax: 64,
-					ageMin: 18,
-				};
-			case "Child":
-				return {
-					defaultCover: 50000,
-					maxCover: 50000,
-					minCover: 5000,
-					ageMax: 25,
-					ageMin: 0,
-				};
-			case "Parent":
-				return {
-					defaultCover: 100000,
-					maxCover: 100000,
-					minCover: 5000,
-					ageMax: 85,
-					ageMin: 26,
-				};
-			case "ExtendedFamily":
-				return {
-					defaultCover: 100000,
-					maxCover: 100000,
-					minCover: 5000,
-					ageMax: 85,
-					ageMin: 0,
-				};
-			default:
-				return {
-					defaultCover: 5000,
-					maxCover: 5000,
-					minCover: 5000
-				};
-		}
-	}
-
 	static get properties() {
 		return {
 			currentLifesAssured: { type: Object }
