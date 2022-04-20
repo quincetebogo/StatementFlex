@@ -73,8 +73,8 @@ export class SavingsPlanLanding extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_click(selection, type, accNumber) {
-		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection, saveType: type, accountNumber: accNumber } }));
+	_click(selection, type, accNumber, accountName) {
+		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection, saveType: type, accountNumber: accNumber, accountName: accountName } }));
 	}
 
 	_viewInfo() {
@@ -443,7 +443,7 @@ export class SavingsPlanLanding extends Component {
 								gap="none"
 								halign="left"
 								valign="center">
-									${this._renderOptionsGroup(item.accountNumber, SAVE_PLAN_TYPE.FLEXIBLE)}
+									${this._renderOptionsGroup(item.accountNumber, SAVE_PLAN_TYPE.FLEXIBLE, item.planName)}
 							</capitec-group>
 						</div>
 				</horizon-expander>`);
@@ -516,14 +516,13 @@ export class SavingsPlanLanding extends Component {
 									type="default"
 									label="${item.depositeType}">
 								</capitec-title-bar>
-									${this._renderOptionsGroup(item.accountNumber, SAVE_PLAN_TYPE.FIXED_TERM)}
+									${this._renderOptionsGroup(item.accountNumber, SAVE_PLAN_TYPE.FIXED_TERM, item.planName)}
 							</capitec-group>
 						</div>
 				</horizon-expander>`);
 	}
 
-	_renderOptionsGroup(accountNumber, saveType) {
-		// TO DO: Options buttons are hidden as they are not part of release/220401
+	_renderOptionsGroup(accountNumber, saveType, planName) {
 		return html`
 			<capitec-title-bar
 				type="default"
@@ -540,7 +539,7 @@ export class SavingsPlanLanding extends Component {
 						data-automation-id="savings-plan-tax-certificate"
 						label="Tax Certificate"
 						icon="system/sars-action" 
-						@click="${() => this._click(`tax-certificates`, saveType, accountNumber)}">
+						@click="${() => this._click(`tax-certificates`, saveType, accountNumber, planName)}">
 				</horizon-option-button>
 			</capitec-group>
 		`;
