@@ -1,7 +1,7 @@
+import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE } from 'app/constants/Common';
 import { css, html } from 'platform/elements';
 import { formatStringAsPascalCase, getMonthName } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
-import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
@@ -43,18 +43,6 @@ const TAX_TYPE = {
  * 
  */
 
-const ACCOUNT_TYPE = {
-	FLEXIBLE: 200,
-	FIXED: 201,
-	MULTIPLE: 1
-};
-
-const PLAN_TYPE = {
-	NONE: `NONE`,
-	SAVINGS_PLAN: `SAVINGS PLAN`,
-	FIXED_TERM: `FIXED TERM SAVINGS PLAN`
-};
-
 export class SavingsPlan extends ViewBase {
 	
 	// --------------
@@ -90,7 +78,6 @@ export class SavingsPlan extends ViewBase {
 			const statements = () => this._getStatements(accountNumber, saveType);
 			const taxCertificates = () => this._taxCertificates(accountNumber, accountName);
 			const productEnquiry = () => this._productEnquiry();
-			const savingsCalculator = () => this._savingsCalculator();
 			const interestRates = () => this._interestRates();
 			const accountDetails = () => this._accountDetails(saveType, accountNumber);
 
@@ -98,7 +85,6 @@ export class SavingsPlan extends ViewBase {
 				'statements-save': statements,
 				'tax-certificates': taxCertificates,
 				'product-enquiry': productEnquiry,
-				'savings-calculator': savingsCalculator,
 				'interest-rates': interestRates,
 				'account-details': accountDetails
 			};
@@ -241,7 +227,7 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	_formatSavingsPlanDetails() {
-		const flexibleSavingsPlanDetails = this.savingsPlanDetails.filter(item => item.planType === PLAN_TYPE.SAVINGS_PLAN && item.accountStatus !== `CLOSED`).map(item => {
+		const flexibleSavingsPlanDetails = this.savingsPlanDetails.filter(item => item.accountType === ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN && item.accountStatus !== `CLOSED`).map(item => {
 			item.currentBalance = formatCurrency(item.currentBalance);
 			item.availableBalance = formatCurrency(item.availableBalance);
 			item.accruedInterestCurrentMonth = formatCurrency(item.accruedInterestCurrentMonth);
@@ -260,7 +246,7 @@ export class SavingsPlan extends ViewBase {
 			return item;
 		});
 
-		const fixedSavingsPlanDetails = this.savingsPlanDetails.filter(item => item.planType !== PLAN_TYPE.SAVINGS_PLAN && item.accountStatus !== `CLOSED`).map(item => {
+		const fixedSavingsPlanDetails = this.savingsPlanDetails.filter(item => item.accountType === ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN && item.accountStatus !== `CLOSED`).map(item => {
 			item.currentBalance = formatCurrency(item.currentBalance);
 			item.availableBalance = formatCurrency(item.availableBalance);
 			item.accruedInterestCurrentMonth = formatCurrency(item.accruedInterestCurrentMonth);
@@ -297,9 +283,8 @@ export class SavingsPlan extends ViewBase {
 	
 	_getStatements(accNumber) {
 		const accountDetails = this.savingsPlanDetails.find(savingsPlan => savingsPlan.accountNumber === accNumber);
-		const accountType = accountDetails.planType === PLAN_TYPE.SAVINGS_PLAN ? ACCOUNT_TYPE.FLEXIBLE : ACCOUNT_TYPE.FIXED;
 	
-		const productInfo = ACCOUNT_INTCAT_ENUM[accountType];
+		const productInfo = ACCOUNT_INTCAT_ENUM[accountDetails.accountType][accountDetails.interestCategory] || ACCOUNT_INTCAT_ENUM[accountDetails.accountType];
 		const accName = accountDetails.planName.toLowerCase();
 
 		this.clientProducts = [
@@ -338,11 +323,6 @@ export class SavingsPlan extends ViewBase {
 		this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
 	}
 	
-	async _savingsCalculator() {
-		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
-		window.open(`${globalOneUrl}/save/`);
-	}
-
 	async _interestRates() {
 		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
 		window.open(`${globalOneUrl}/save/rates-and-fees/`);

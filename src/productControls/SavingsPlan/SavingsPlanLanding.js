@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { ACCOUNT_TYPE_CODE } from 'app/constants/Common';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
@@ -16,12 +17,6 @@ import 'app/components/common/HorizonExpander';
  * @class SavingsPlanLanding
  * @extends {Component}
  */
-
- const PLAN_TYPE = {
-	NONE: `NONE`,
-	SAVINGS_PLAN: `SAVINGS PLAN`,
-	FIXED_TERM: `FIXED TERM SAVINGS PLAN`
-};
 
 const SAVE_PLAN_TYPE = {
 	FLEXIBLE: `flexible-save-plan`,
@@ -351,12 +346,12 @@ export class SavingsPlanLanding extends Component {
 				<capitec-tab
 					data-automation-id="savings-plan-flexible-tab"
 					label="Flexible Savings">
-						${this._renderFlexibleSavingsPlanTab(this.savingsPlanDetails.filter(item => item.planType === PLAN_TYPE.SAVINGS_PLAN))}
+						${this._renderFlexibleSavingsPlanTab(this.savingsPlanDetails.filter(item => item.accountType === ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN))}
 				</capitec-tab>
 				<capitec-tab
 					data-automation-id="savings-plan-fixed-term-tab"
 					label="Fixed-term Savings">
-						${this._renderFixedTermSavingsPlanTab(this.savingsPlanDetails.filter(item => item.planType !== PLAN_TYPE.SAVINGS_PLAN))}
+						${this._renderFixedTermSavingsPlanTab(this.savingsPlanDetails.filter(item => item.accountType === ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN))}
 				</capitec-tab>
 			</capitec-tab-group>`
 		: html``;
@@ -371,7 +366,7 @@ export class SavingsPlanLanding extends Component {
 			
 			${this._renderFooter()}`
 		: html`
-			${this._renderSavingsPlanNotAvailable(PLAN_TYPE.SAVINGS_PLAN)}
+			${this._renderSavingsPlanNotAvailable(ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN)}
 		`;
 	}
 
@@ -384,7 +379,7 @@ export class SavingsPlanLanding extends Component {
 			
 			${this._renderFooter()}`
 		: html`
-			${this._renderSavingsPlanNotAvailable(PLAN_TYPE.FIXED_TERM)}
+			${this._renderSavingsPlanNotAvailable(ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN)}
 		`;
 	}
 
@@ -571,7 +566,7 @@ export class SavingsPlanLanding extends Component {
 	}
 
 	_renderSavingsPlanNotAvailable(savingsPlanType) {
-		const headerText = savingsPlanType === PLAN_TYPE.SAVINGS_PLAN ? `flexible savings` : `fixed-term savings`;
+		const headerText = savingsPlanType === ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN ? `flexible savings` : `fixed-term savings`;
 
 		return html`
 			<capitec-group
