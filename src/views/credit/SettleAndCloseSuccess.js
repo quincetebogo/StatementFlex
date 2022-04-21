@@ -114,8 +114,8 @@ import 'app/components/common/SuccessScreen';
 				image="/images/credit/settle-and-close-account.svg"
 				right="Done"
 				toast="${this.primaryToast}"
-				?hasSubDetails=${this.creditType === CREDIT_TYPE.FLEXIBLE}
-				?subContent=${this.creditType === CREDIT_TYPE.FLEXIBLE}
+				?hasSubDetails=${true}
+				?subContent=${true}
 				@right-click=${() => this._doneClick()}>
 					${this._renderDetail()}
 					${this._renderSubDetail()}
