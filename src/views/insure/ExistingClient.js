@@ -10,6 +10,7 @@ import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 import 'app/components/insure/InsureLanding';
 import 'app/components/insure/PolicyEstimate';
 import 'app/components/insure/UpdatePlan';
+import 'app/components/insure/PolicySummary';
 
 import { InsureService } from 'app/services/InsureService';
 
@@ -31,7 +32,7 @@ export class ExistingClient extends InsureViewBase {
 		super();
 		this.configuration = Configuration.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.renderMode = INSURE_RENDER_MODE.POLICY_SUMMARY;
+		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
 
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 
@@ -75,7 +76,6 @@ export class ExistingClient extends InsureViewBase {
 		const resp = await this.insureService.calculateEstimate(estimateWithCoverDetails, () => true);
 		if (resp.succeeded == true && resp.result != null) {
 			estimateWithCoverDetails.totalPremium = resp.result.totalPremium;
-			// estimateWithCoverDetails.calculatedByPremium = resp.result.calculatedByPremium;
 			estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map(lifeWithDetails => {
 				return Object.assign(lifeWithDetails, resp.result.lifesAssured.find(respLife => {
 					return lifeWithDetails.rowID === respLife.rowID
@@ -119,6 +119,14 @@ export class ExistingClient extends InsureViewBase {
 	_goToPolicyEstimate() {
 		// Telemetry Here
 		this._navigateToSubView(INSURE_RENDER_MODE.ESTIMATE);
+	}
+
+	/**
+	 * Prepare and navigate Policy Summary
+	 */
+	_goToPolicySummary(){
+		// Telemetry Here
+		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY);
 	}
 	//#endregion
 
@@ -170,14 +178,14 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderLandingPage() {
 		switch (this.renderMode) {
-			case INSURE_RENDER_MODE.POLICY_SUMMARY:
-				return html`${this._renderPolicySummaryPage()}`
+			case INSURE_RENDER_MODE.CLIENT_POLICIES:
+				return html`${this._renderClientPoliciesPage()}`
 			case INSURE_RENDER_MODE.ESTIMATE:
 				return html`${this._renderCalculateEstimatePage()}`
 			case INSURE_RENDER_MODE.UPDATE_PLAN:
 				return html`${this._renderUpdatePlanPage()}`
-			case INSURE_RENDER_MODE.FUNERAL_PLAN_DETAILS:
-				return html`${this._renderFuneralPlanDetailsPage()}`
+			case INSURE_RENDER_MODE.POLICY_SUMMARY:
+				return html`${this._renderPolicySummaryPage()}`
 			default:
 				return html``;
 		}
@@ -187,10 +195,11 @@ export class ExistingClient extends InsureViewBase {
 	 * Render Landing page for Insure existing clients
 	 * @return {html} Html of the sub view
 	 */
-	_renderPolicySummaryPage() {
+	 _renderClientPoliciesPage() {
 		return html`
 			<horizon-insure-landing @navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
-				@navigate-to-update-plan="${(e) => this._goToUpdatePlan()}">
+				@navigate-to-update-plan="${(e) => this._goToUpdatePlan()}"
+				@navigate-to-policy-summary="${(e) => this._goToPolicySummary()}">
 			</horizon-insure-landing>`
 	}
 
@@ -200,7 +209,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderCalculateEstimatePage() {
 		return html`
-			<horizon-insure-policy-estimate @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY)}"
+			<horizon-insure-policy-estimate @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@calculate="${(e) => this._calculateClientEstimate(e)}" .estimate="${this.estimate}"
 				.productParams="${this.productParams}">
 			</horizon-insure-policy-estimate>`
@@ -212,16 +221,16 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderUpdatePlanPage() {
 		return html`
-			<horizon-insure-update-plan @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY)}">
+			<horizon-insure-update-plan @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-update-plan>`
 	}
 
 	/**
-	 * Render Update Plan page
+	 * Render Policy Details Plan
 	 * @return {html} Html of the sub view
 	 */
-	_renderFuneralPlanDetailsPage() {
-		return html`<div>Hi I am Funeral Plan details Page</div>`
+	_renderPolicySummaryPage() {
+		return html`<horizon-insure-policy-summary></horizon-insure-policy-summary>`
 	}
 
 	//#endregion

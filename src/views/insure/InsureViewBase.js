@@ -97,7 +97,7 @@ export class InsureViewBase extends ViewBase {
 	 * Navigate back from any view to Summary
 	 */
 	_backToSummaryPage() {
-		this.renderMode = INSURE_RENDER_MODE.POLICY_SUMMARY;
+		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
 	}
 
 	/**

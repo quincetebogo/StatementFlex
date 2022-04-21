@@ -22,6 +22,13 @@ class InsureClientLanding extends Component {
 		}));
 	}
 
+	_goToPolicySummary() {
+		this.dispatchEvent(new CustomEvent(`navigate-to-policy-summary`, {
+			detail: {
+			}
+		}));
+	}
+
 	//#endregion
 
 	/**
@@ -49,6 +56,9 @@ class InsureClientLanding extends Component {
 			</capitec-button>
 		</capitec-title-bar>`
 	}
+	// <capitec-button type="white" label="Policy Summary" @click="${() => this._goToPolicySummary()}">
+	// </capitec-button>
 }
+
 
 window.customElements.define(`horizon-insure-landing`, InsureClientLanding);
