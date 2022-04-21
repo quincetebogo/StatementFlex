@@ -129,8 +129,9 @@ export class TaxCertificatesDialog extends Component {
 			"next-screen": returnValue.succeeded ? OutcomeScreen.SUCCESS : OutcomeScreen.FAIL
 		});
 		
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `tax-certificate`);
+		
 		if (returnValue.succeeded) {
-			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `tax-certificate`);
 			this.horizonRouter.navigateToTaxCertificateSuccessful();
 			return;
 		}

@@ -534,7 +534,7 @@ export class SavingsPlanLanding extends Component {
 						data-automation-id="savings-plan-tax-certificate"
 						label="Tax Certificate"
 						icon="system/sars-action" 
-						@click="${() => this._click(`tax-certificates`, saveType, accountNumber, planName)}">
+						@click="${() => this._click(`tax-certificate`, saveType, accountNumber, planName)}">
 				</horizon-option-button>
 			</capitec-group>
 		`;
