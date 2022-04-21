@@ -788,7 +788,7 @@ export class TaxCertificates extends Component {
 	_renderExpanderRow(item, rowNum) {
 		return html`
 			<horizon-label row="${rowNum}" column="1" colspan="1" rowspan="1"
-				label="Savings Account"
+				label="${item.accountNumber.toString().startsWith(`6`) ? `Credit Account` : `Savings Account`}"
 				value="${item.accountNumber}">
 			</horizon-label>
 			<horizon-label row="${rowNum}" column="2" colspan="1" rowspan="1"
@@ -801,7 +801,7 @@ export class TaxCertificates extends Component {
 			</horizon-label>
 			<horizon-label row="${rowNum}" column="4" colspan="1" rowspan="1"
 				label="Status"
-				value="${item.accountStatus}">
+				value="${isNullorEmpty(item.accountStatus) || item.accountStatus === `UNKNOWN` ? `-` : item.accountStatus}">
 			</horizon-label>
 		`;
 	}
