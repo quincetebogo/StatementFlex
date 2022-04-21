@@ -73,7 +73,7 @@ export class SavingsPlan extends ViewBase {
 
 		this._initialise();
 
-		this._optionClick = (option, saveType, accountNumber, accountName) => {
+		this._optionClick = async (option, saveType, accountNumber, accountName) => {
 
 			const statements = () => this._getStatements(accountNumber, saveType);
 			const taxCertificates = () => this._taxCertificates(accountNumber, accountName);
@@ -83,13 +83,15 @@ export class SavingsPlan extends ViewBase {
 
 			const actions = {
 				'statements-save': statements,
-				'tax-certificates': taxCertificates,
+				'tax-certificate': taxCertificates,
 				'product-enquiry': productEnquiry,
 				'interest-rates': interestRates,
 				'account-details': accountDetails
 			};
 
 			if (actions[option]) {
+				await super._inicidentManager_(option, () => this._toggleBusyFlag());
+				this._refreshIncidentDetails();
 				return actions[option]();
 			}
 		};
