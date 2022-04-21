@@ -6,8 +6,12 @@
  * @param {*} productParams Params for Funeral Product
  * @returns {*} cover details object
  */
-export function getCoverDetailsByParams(relationship, productParams, age) {
-	console.log("getCoverDetailsByParams");
+export function getCoverDetailsByParams(relationship, productParams, age, isExtendedFamily) {
+	
+	let appliedAgeRange = {};
+	appliedAgeRange.isExtendedFamily = isExtendedFamily;
+	if (isExtendedFamily == true) relationship = 'ExtendedFamily';
+
 	let product = productParams.products.find(product => {
 		return product.parameters.id === "NBS"
 	});
@@ -15,52 +19,52 @@ export function getCoverDetailsByParams(relationship, productParams, age) {
 		return role.relationshipTypeEnum == relationship
 	});
 
-	let coverDetails = {}
-	let appliedAgeRange = {};
-
-	// Age supplied, use that to find range
 	if (age) {
 		console.log("Age supplied");
 		if (currentRole.ageRange.length == 1) {
-			console.log("Only one rule set for: ", relationship);
-
-			appliedAgeRange = currentRole.ageRange[0];
-		} else {
-			console.log("More than one rule set for: ", relationship);
-			// Has more than one and AND age given
-			appliedAgeRange.ageMin = currentRole.ageRange[0].ageMin;
-			appliedAgeRange.ageMax = currentRole.ageRange[currentRole.ageRange.length - 1].ageMax;
-
-			console.log('Life Age: ' + age);
-			// console.log('Life');
-			// Calc
-			const withinRange = currentRole.ageRange.filter(life => (age >= life.ageMin && life.ageMax <= life.addMax));
-			console.log('Element: ' + age);
 			appliedAgeRange.defaultCover = currentRole.ageRange[0].maxCoverAmount;
 			appliedAgeRange.maxCover = currentRole.ageRange[0].maxCoverAmount;
 			appliedAgeRange.minCover = currentRole.ageRange[0].minCoverAmount;
+			appliedAgeRange.minAge = currentRole.ageRange[0].minAge;
+			appliedAgeRange.maxAge = currentRole.ageRange[0].maxAge;
+		} else {
+			appliedAgeRange.minAge = currentRole.ageRange[0].minAge;
+			appliedAgeRange.maxAge = currentRole.ageRange[currentRole.ageRange.length - 1].maxAge;
+
+			const withinRange = currentRole.ageRange.filter(function(life) {
+				return age >= life.minAge && age <= life.maxAge
+			});
+			if (!withinRange) {
+				appliedAgeRange = currentRole.ageRange[0];
+			}
+
+			appliedAgeRange.defaultCover = withinRange[0].maxCoverAmount;
+			appliedAgeRange.maxCover = withinRange[0].maxCoverAmount;
+			appliedAgeRange.minCover = withinRange[0].minCoverAmount;
 		}
 	} else {
-		console.log("Age not supplied");
 		if (currentRole.ageRange.length == 1) {
-			appliedAgeRange = currentRole.ageRange[0];
+			appliedAgeRange.defaultCover = currentRole.ageRange[0].maxCoverAmount;
+			appliedAgeRange.maxCover = currentRole.ageRange[0].maxCoverAmount;
+			appliedAgeRange.minCover = currentRole.ageRange[0].minCoverAmount;
+			appliedAgeRange.minAge = currentRole.ageRange[0].minAge;
+			appliedAgeRange.maxAge = currentRole.ageRange[0].maxAge;
 		} else {
 			// Has more than one and NO age given
 			appliedAgeRange.defaultCover = currentRole.ageRange[0].maxCoverAmount;
 			appliedAgeRange.maxCover = currentRole.ageRange[0].maxCoverAmount;
 			appliedAgeRange.minCover = currentRole.ageRange[0].minCoverAmount;
-			appliedAgeRange.ageMin = currentRole.ageRange[0].ageMin;
-			appliedAgeRange.ageMax = currentRole.ageRange[currentRole.ageRange.length - 1].ageMax;
+			appliedAgeRange.minAge = currentRole.ageRange[0].minAge;
+			appliedAgeRange.maxAge = currentRole.ageRange[currentRole.ageRange.length - 1].maxAge;
 		}
 	}
-
-	// Map Back
-	coverDetails.defaultCover = appliedAgeRange.maxCoverAmount;
-	coverDetails.maxCover = appliedAgeRange.maxCoverAmount;
-	coverDetails.minCover = appliedAgeRange.minCoverAmount;
-	coverDetails.ageMax = appliedAgeRange.maxAge;
-	coverDetails.ageMin = appliedAgeRange.minAge;
-	return coverDetails;
+	// coverDetails.defaultCover = appliedAgeRange.defaultCover;
+	// coverDetails.maxCover = appliedAgeRange.maxCover;
+	// coverDetails.minCover = appliedAgeRange.minCover;
+	// coverDetails.maxAge = appliedAgeRange.maxAge;
+	// coverDetails.minAge = appliedAgeRange.minAge;
+	// console.log("Done, Mapping back: ", coverDetails)
+	return appliedAgeRange;
 }
 
 

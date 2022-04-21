@@ -36,7 +36,7 @@ class InsureAddLifeDialog extends Component {
 	 */
 	_onAddClick() {
 		console.log(`Adding: ${this.selectedRelationship}`);
-		let coverDetails = getCoverDetailsByParams(this.selectedRelationship, this.productParams);
+		let coverDetails = getCoverDetailsByParams(this.selectedRelationship, this.productParams, null, this.showExtendedList);
 		this.dispatchEvent(new CustomEvent(`addNewLife`, { detail: { relationship: this.selectedRelationship, coverDetails: coverDetails } }));
 	}
 

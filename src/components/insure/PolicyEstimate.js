@@ -145,7 +145,7 @@ class PolicyEstimate extends Component {
 		this.estimate.lifesAssured = [];
 		this.estimate.lifesAssured.push({
 			relationship: "MainLife",
-			coverAmount: 10000,
+			coverAmount: 100000,
 			premium: 0,
 			genderType: "Male",
 			age: 0,
@@ -154,8 +154,8 @@ class PolicyEstimate extends Component {
 				defaultCover: 100000,
 				maxCover: 100000,
 				minCover: 5000,
-				ageMax: 64,
-				ageMin: 18,
+				maxAge: 64,
+				minAge: 18,
 			}
 		});
 		this.estimate.totalPremium = 0;
@@ -184,7 +184,6 @@ class PolicyEstimate extends Component {
 			coverDetails: e.detail.coverDetails
 		});
 		this.showAddRelationshipDialog = false;
-		// console.log('this.estimate.lifesAssured ', this.estimate.lifesAssured)
 	}
 
 	/**
@@ -225,7 +224,8 @@ class PolicyEstimate extends Component {
 			this.estimate.lifesAssured[index].age = event.detail.new;
 			this.newTotalPremium = '';
 		}
-		this.estimate.lifesAssured[index].coverDetails = getCoverDetailsByParams(this.estimate.lifesAssured[index].relationship, this.productParams, this.estimate.lifesAssured[index].age);
+		this.estimate.lifesAssured[index].coverDetails = getCoverDetailsByParams(this.estimate.lifesAssured[index].relationship, this.productParams, this.estimate.lifesAssured[index].age, this.estimate.lifesAssured[index].coverDetails.isExtendedFamily);
+		this.requestUpdate();
 	}
 
 	/**
@@ -391,7 +391,7 @@ class PolicyEstimate extends Component {
 				<div class="calc-card-row">
 					<capitec-text-field label="Age" type="numeric"
 						@value-changed="${(e) => this._estimateLifeAgeValueChanged(e, index)}" style="width: 50%;"
-						hint="${lifeAssured?.coverDetails?.ageMin} - ${lifeAssured?.coverDetails?.ageMax}" min="${lifeAssured?.coverDetails?.ageMin}" max="${lifeAssured?.coverDetails?.ageMax}">
+						hint="${lifeAssured?.coverDetails?.minAge} - ${lifeAssured?.coverDetails?.maxAge}" min="${lifeAssured?.coverDetails?.minAge}" max="${lifeAssured?.coverDetails?.maxAge}">
 					</capitec-text-field>
 					<capitec-select label="Gender" display-field="text" .items="${this.genderOptions}" id-field="code"
 						style="width: 50%" @value-changed="${(e) => this._estimateLifeGenderValueChanged(e, index)}">

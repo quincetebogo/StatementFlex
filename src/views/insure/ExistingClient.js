@@ -75,7 +75,7 @@ export class ExistingClient extends InsureViewBase {
 		const resp = await this.insureService.calculateEstimate(estimateWithCoverDetails, () => true);
 		if (resp.succeeded == true && resp.result != null) {
 			estimateWithCoverDetails.totalPremium = resp.result.totalPremium;
-			estimateWithCoverDetails.calculatedByPremium = resp.result.calculatedByPremium;
+			// estimateWithCoverDetails.calculatedByPremium = resp.result.calculatedByPremium;
 			estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map(lifeWithDetails => {
 				return Object.assign(lifeWithDetails, resp.result.lifesAssured.find(respLife => {
 					return lifeWithDetails.rowID === respLife.rowID
