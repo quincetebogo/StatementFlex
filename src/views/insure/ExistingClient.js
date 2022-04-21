@@ -7,7 +7,7 @@ import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 
 // Pages
-import 'app/components/insure/InsureLanding';
+import 'app/components/insure/ClientPolicies';
 import 'app/components/insure/PolicyEstimate';
 import 'app/components/insure/UpdatePlan';
 import 'app/components/insure/PolicySummary';
@@ -69,7 +69,6 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {Object} Estimate response
 	 */
 	async _calculateClientEstimate(e) {
-
 		console.log("Estimate Calculate event in View ", JSON.stringify(e.detail))
 		let estimateWithCoverDetails = e.detail;
 		this.isBusy = true;
@@ -124,7 +123,7 @@ export class ExistingClient extends InsureViewBase {
 	/**
 	 * Prepare and navigate Policy Summary
 	 */
-	_goToPolicySummary(){
+	_goToPolicySummary() {
 		// Telemetry Here
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY);
 	}
@@ -195,12 +194,12 @@ export class ExistingClient extends InsureViewBase {
 	 * Render Landing page for Insure existing clients
 	 * @return {html} Html of the sub view
 	 */
-	 _renderClientPoliciesPage() {
+	_renderClientPoliciesPage() {
 		return html`
-			<horizon-insure-landing @navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
+			<horizon-insure-client-policies @navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan()}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary()}">
-			</horizon-insure-landing>`
+			</horizon-insure-client-policies>`
 	}
 
 	/**
@@ -230,7 +229,9 @@ export class ExistingClient extends InsureViewBase {
 	 * @return {html} Html of the sub view
 	 */
 	_renderPolicySummaryPage() {
-		return html`<horizon-insure-policy-summary></horizon-insure-policy-summary>`
+		return html`
+			<horizon-insure-policy-summary @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+			</horizon-insure-policy-summary>`
 	}
 
 	//#endregion

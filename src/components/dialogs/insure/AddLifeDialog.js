@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { getCoverDetailsByParams, livesPerPolicy } from 'app/utils/insureUtils';
 
-class InsureAddLifeDialog extends Component {
+class AddLifeDialog extends Component {
 
 	constructor() {
 		super();
@@ -344,4 +344,4 @@ class InsureAddLifeDialog extends Component {
 	}
 }
 
-window.customElements.define(`insure-add-life-dialog`, InsureAddLifeDialog);
+window.customElements.define(`insure-add-life-dialog`, AddLifeDialog);

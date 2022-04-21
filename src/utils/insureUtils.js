@@ -58,12 +58,6 @@ export function getCoverDetailsByParams(relationship, productParams, age, isExte
 			appliedAgeRange.maxAge = currentRole.ageRange[currentRole.ageRange.length - 1].maxAge;
 		}
 	}
-	// coverDetails.defaultCover = appliedAgeRange.defaultCover;
-	// coverDetails.maxCover = appliedAgeRange.maxCover;
-	// coverDetails.minCover = appliedAgeRange.minCover;
-	// coverDetails.maxAge = appliedAgeRange.maxAge;
-	// coverDetails.minAge = appliedAgeRange.minAge;
-	// console.log("Done, Mapping back: ", coverDetails)
 	return appliedAgeRange;
 }
 

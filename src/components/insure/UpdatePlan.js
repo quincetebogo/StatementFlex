@@ -6,7 +6,7 @@ import { BANK_OPTIONS, ACCOUNT_TYPES, DEBIT_ORDER_DAY_OPTIONS, GENDER_OPTIONS, T
 
 
 // Dialogs
-import 'app/components/dialogs/insure/InsureAddLifeDialog';
+import 'app/components/dialogs/insure/AddLifeDialog';
 import 'app/components/dialogs/insure/FCPAgreementDialog';
 import 'app/components/dialogs/insure/YROAAgreementDialog';
 import 'app/components/dialogs/insure/YBPAgreementDialog';
