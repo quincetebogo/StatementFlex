@@ -37,12 +37,14 @@ export class ExistingClient extends InsureViewBase {
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 
 		this.estimate = {};
+		this.quote = {};
 		this.productParams = {};
 	}
 
 	static get properties() {
 		return {
 			estimate: { state: true },
+			quote: {state:true},
 			productParams: { state: true }
 		};
 	}
@@ -89,6 +91,34 @@ export class ExistingClient extends InsureViewBase {
 			return null;
 		}
 	}
+
+	/**
+	 * Calculate quote based on lives assured provided
+	 * @returns {Object}
+	 */
+	async _calculateClientQuote(e) {
+
+		console.log("Quote Calculate event in View ", JSON.stringify(e.detail))
+		let quoteWithCoverDetails = e.detail;
+		this.isBusy = true;
+		const resp = await this.insureService.calculateEstimate(quoteWithCoverDetails, () => true);
+		if (resp.succeeded == true && resp.result != null) {
+			quoteWithCoverDetails.totalPremium = resp.result.totalPremium;
+			quoteWithCoverDetails.lifesAssured = quoteWithCoverDetails.lifesAssured.map(lifeWithDetails => {
+				return Object.assign(lifeWithDetails, resp.result.lifesAssured.find(respLife => {
+					return lifeWithDetails.rowID === respLife.rowID
+				}))
+			});
+			this.quote = quoteWithCoverDetails;
+			this.isBusy = false;
+		} else {
+			console.error(resp.exception);
+			this.isBusy = false;
+			// Do error message
+			return null;
+		}
+	}
+
 
 	//#endregion
 
@@ -220,7 +250,9 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderUpdatePlanPage() {
 		return html`
-			<horizon-insure-update-plan @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+			<horizon-insure-update-plan @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+			@calculate="${(e) => this._calculateClientQuote(e)}" .quote="${this.quote}"
+				.productParams="${this.productParams}">
 			</horizon-insure-update-plan>`
 	}
 
