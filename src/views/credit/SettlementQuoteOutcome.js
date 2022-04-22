@@ -1,4 +1,5 @@
 import { css, html } from 'platform/elements';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { SETTLEMENT_QUOTE_EVENTS } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
@@ -84,6 +85,7 @@ export class SettlementQuoteOutcome extends ViewBase {
 		});
 
 		this._telemetry.endSpan(SETTLEMENT_QUOTE_EVENTS.SETTLEMENT_QUOTE_PARTIAL_SUCCESS, {}, true, true);
+		this._telemetry.endSpan(QuickTransactionEvents.SETTLEMENT_QUOTE, {});
 
 		const returnToScreen = this.horizonStore.getReturnToScreen();
 		this.horizonStore.setReturnScreen(returnToScreen.route, ``);
@@ -99,6 +101,7 @@ export class SettlementQuoteOutcome extends ViewBase {
 		});
 
 		this._telemetry.endSpan(SETTLEMENT_QUOTE_EVENTS.SETTLEMENT_QUOTE_PARTIAL_SUCCESS);
+		this._telemetry.endSpan(QuickTransactionEvents.SETTLEMENT_QUOTE, {});
 
 		this.horizonRouter.navigateToReturnPage();
 	}
@@ -153,58 +156,54 @@ export class SettlementQuoteOutcome extends ViewBase {
 		return [
 			super.styles,
 			css`
-				
-			:host{
-				width: 100%;
-				height: 100%;
-			}
-			.card {
-				width: 100%;
-			}
-			.card > capitec-group[layout="vertical"] {
-				height: 744px;
-				padding-top: 42px
-			}
-			.header {
-				margin: 33px 0px 23px 0px;
-				height: 32px;
-				--theme-label-default-font-color: #3A3A3A;
-				--theme-label-default-font-size: 24px;
-				--theme-label-default-font-weight: 600;
-			}
-			.subdetail-group{
-				margin-top: 12px;
-			}
-			.only-group {
-				margin-bottom: 20px;
-			}
-			b {
-				margin: 0px 4px;
-				color: #3A3A3A;
-			}
-			.button-group {
-				margin-top: 38px;
-			}
-			.button-left {
-				margin-right: 16px;
-			}
-			capitec-button {
-				--theme-button-font-size: 16px;
-				--theme-button-font-weight: 600;
-				--theme-button-padding-left: 22px;
-				--theme-button-padding-top: 12.5px;
-				--theme-button-padding-bottom: 12.5px;
-				--theme-button-padding-right: 22px;
-			}
-			capitec-toast {
-				width: 406px;
-				position: absolute;
-				top : 56px;
-				margin-left: 382px;
-			}
-			.secondary-toast {
-				top : 130px;
-			}
+				:host {
+					width: 100%;
+					height: 100%;
+				}
+				capitec-card {
+					width: 100%;
+				}
+				capitec-card > capitec-group[layout="vertical"] {
+					height: 744px;
+					padding-top: 42px
+				}
+				.header {
+					margin: 33px 0px 23px 0px;
+					height: 32px;
+					--theme-label-default-font-color: #3A3A3A;
+					--theme-label-default-font-size: 24px;
+					--theme-label-default-font-weight: 600;
+				}
+				.subdetail-group {
+					margin-top: 12px;
+				}
+				b {
+					margin: 0px 4px;
+					color: #3A3A3A;
+				}
+				.button-group {
+					margin-top: 38px;
+				}
+				.button-left {
+					margin-right: 16px;
+				}
+				capitec-button {
+					--theme-button-font-size: 16px;
+					--theme-button-font-weight: 600;
+					--theme-button-padding-left: 22px;
+					--theme-button-padding-top: 12.5px;
+					--theme-button-padding-bottom: 12.5px;
+					--theme-button-padding-right: 22px;
+				}
+				capitec-toast {
+					width: 406px;
+					position: absolute;
+					top : 56px;
+					margin-left: 382px;
+				}
+				.secondary-toast {
+					top : 130px;
+				}
 			`
 		];
 	}

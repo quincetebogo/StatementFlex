@@ -1,4 +1,5 @@
 import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 
 /**
  * The CreditService is used to retrieve information about clients' credit products.
@@ -104,7 +105,8 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	creditCardDetails(accountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async creditCardDetails(accountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		const creditCardDetailsRequest = {
 			"accountnumber": accountNumber
@@ -126,7 +128,8 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	accessFacilityDetails(accountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async accessFacilityDetails(accountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		const accessFacilityDetailsRequest = {
 			"accountnumber": accountNumber
@@ -148,7 +151,8 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	termLoanDetails(accountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async termLoanDetails(accountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		const termLoanDetailsRequest = {
 			"accountnumber": accountNumber
@@ -213,7 +217,9 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	flexibleStatementEmail (creditType, accountNumber, emailAddress, statementDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async flexibleStatementEmail (creditType, accountNumber, emailAddress, statementDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
 		const flexibleStatementEmailRequest = {
 			"creditType": creditType,
 			"accountNumber": accountNumber,
@@ -236,8 +242,9 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	fixedStatement(accountNumber, fromDate, toDate, setdate, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		
+	async fixedStatement(accountNumber, fromDate, toDate, setdate, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
 		const fixedStatementRequest = {
 			"accountNumber": accountNumber,
 			"fromDate": fromDate,
@@ -316,6 +323,7 @@ export class CreditService extends ChannelServiceBase {
 	}
 
 	async emailPaidUpLetter(cifNumber, accountNumbers, emailAddress, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`emailPaidUpLetter`)) {
 			return this.mock(`emailPaidUpLetter`);
@@ -383,7 +391,8 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 	
-	sendSettlementQuoteEmail(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async sendSettlementQuoteEmail(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		const url = `/clientcare-credit-v1/credit/settlement-quote/email`;
 
