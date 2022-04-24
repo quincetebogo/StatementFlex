@@ -1,18 +1,13 @@
-// Core
 import { css, html } from 'platform/elements';
-import { Configuration } from 'platform/core';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
 
+import { InsureService } from 'app/services/InsureService';
 import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 
-// Pages
 import 'app/components/insure/ClientPolicies';
 import 'app/components/insure/PolicyEstimate';
 import 'app/components/insure/UpdatePlan';
 import 'app/components/insure/PolicySummary';
-
-import { InsureService } from 'app/services/InsureService';
 
 /**
  * Implements the view for Insure verified and unverified existing clients (i.e. the client has products)
@@ -30,22 +25,26 @@ export class ExistingClient extends InsureViewBase {
 
 	constructor() {
 		super();
-		this.configuration = Configuration.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
 		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
-
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
-
 		this.estimate = {};
-		this.quote = {};
-		this.productParams = {};
 	}
 
+	/**
+	 * @property {Object} clientPolicies Data & flags for all policies relating to client CIF
+	 * @property {Object} productParams Data & flags for insure product parameters
+	 * @property {Object} estimate Local object for new Estimate requests
+	 * @property {Object} quote  Local object for new Quote requests
+	 * 
+	 * @readonly
+	 * @static
+	 */
 	static get properties() {
 		return {
+			clientPolicies: { type: Object },
+			productParams: { state: true },
 			estimate: { state: true },
-			quote: {state:true},
-			productParams: { state: true }
+			quote: { state: true }
 		};
 	}
 
@@ -59,7 +58,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
-		this._initialize();
+		this._initialise();
 	}
 
 	//#endregion
@@ -67,11 +66,25 @@ export class ExistingClient extends InsureViewBase {
 	//#region EVENT HANDLERS
 
 	/**
+	 * Retrieve client policies via insure channel service
+	 * @returns {Object} Client policies 
+	 */
+	async _retrieveClientPolicies(cifNumber, idNumber) {
+		this.isBusy = true;
+		let request = {
+			cifNumber: cifNumber,
+			idNumber: idNumber,
+		}
+		const resp = await this.insureService.clientPolicies(request);
+		this.isBusy = false;
+		return resp.result;
+	}
+
+	/**
 	 * Calculate estimate based on lives assured provided
 	 * @returns {Object} Estimate response
 	 */
 	async _calculateClientEstimate(e) {
-		console.log("Estimate Calculate event in View ", JSON.stringify(e.detail))
 		let estimateWithCoverDetails = e.detail;
 		this.isBusy = true;
 		const resp = await this.insureService.calculateEstimate(estimateWithCoverDetails, () => true);
@@ -85,54 +98,41 @@ export class ExistingClient extends InsureViewBase {
 			this.estimate = estimateWithCoverDetails;
 			this.isBusy = false;
 		} else {
-			console.error(resp.exception);
 			this.isBusy = false;
 			// Do error message
 			return null;
 		}
 	}
-
-	/**
-	 * Calculate quote based on lives assured provided
-	 * @returns {Object}
-	 */
-	async _calculateClientQuote(e) {
-
-		console.log("Quote Calculate event in View ", JSON.stringify(e.detail))
-		let quoteWithCoverDetails = e.detail;
-		this.isBusy = true;
-		const resp = await this.insureService.calculateEstimate(quoteWithCoverDetails, () => true);
-		if (resp.succeeded == true && resp.result != null) {
-			quoteWithCoverDetails.totalPremium = resp.result.totalPremium;
-			quoteWithCoverDetails.lifesAssured = quoteWithCoverDetails.lifesAssured.map(lifeWithDetails => {
-				return Object.assign(lifeWithDetails, resp.result.lifesAssured.find(respLife => {
-					return lifeWithDetails.rowID === respLife.rowID
-				}))
-			});
-			this.quote = quoteWithCoverDetails;
-			this.isBusy = false;
-		} else {
-			console.error(resp.exception);
-			this.isBusy = false;
-			// Do error message
-			return null;
-		}
-	}
-
 
 	//#endregion
 
 	//#region PRIVATE METHODS
 
 	/**
-	 * Initialize Landing View / Invoke params service
+	 * Initialize Landing View / Fetch client policies for landing component
 	 */
-	async _initialize() {
+	async _initialise() {
 		this.verificationStatus = this.callerInformation.verificationStatus;
-		this.productParams = await this.insureService.productParams({}, () => true);
+		this.clientPolicies = await this._retrieveClientPolicies();
 	}
 
-	//#region PRIVATE METHODS
+	//#endregion
+
+	//#region EVENT HANDLERS
+
+	/**
+	 * Navigate so specific subview
+	 */
+	_navigateToSubView(newMode) {
+		this.renderMode = newMode;
+	}
+
+	/**
+	 * Navigate back from any view to Summary
+	 */
+	_backToSummaryPage() {
+		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
+	}
 
 	/**
 	 * Prepare and navigate Update plan
@@ -251,8 +251,7 @@ export class ExistingClient extends InsureViewBase {
 	_renderUpdatePlanPage() {
 		return html`
 			<horizon-insure-update-plan @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-			@calculate="${(e) => this._calculateClientQuote(e)}" .quote="${this.quote}"
-				.productParams="${this.productParams}">
+				@calculate="${(e) => this._calculateClientQuote(e)}" .quote="${this.quote}" .productParams="${this.productParams}">
 			</horizon-insure-update-plan>`
 	}
 
@@ -265,10 +264,6 @@ export class ExistingClient extends InsureViewBase {
 			<horizon-insure-policy-summary @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-policy-summary>`
 	}
-
-	//#endregion
-
-	//#region HELPERS
 
 	/**
 	 * Render capitec loading indicator if busy

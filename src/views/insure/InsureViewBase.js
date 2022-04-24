@@ -1,114 +1,91 @@
-import { NavigationContext } from 'platform/core';
-
-import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { ViewBase } from 'app/views/common/ViewBase';
-import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 
 import { InsureService } from 'app/services/InsureService';
 
+/**
+ * A Base class for view components to collect common functionality used within Insure product
+ * 
+ * This base class will contain the following common code
+ * 
+ *    - getting insure product parameters
+ *    - toggling isBusy support
+ *    - expose caller and agent information
+ *
+ * @export
+ * @class InsureViewBase
+ * @extends {ViewBase}
+ */
 export class InsureViewBase extends ViewBase {
 
 	//#region  INITIALISATION
 
 	constructor() {
 		super();
-
-		this.incomingCallDetails = {};
-		this.incidentRecId = ``;
-		this.landingPageInfo = {};
-		this.callerInformation = {};
-
-		this.navigationContext = NavigationContext.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
-
+		this.horizonRouter = HorizonRouter.getInstance();
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 	}
 
 	//#endregions
 
+	//#region  INITIALISATION
+
+	/**
+	 * @property {Object} productParams Data & flags for insure product parameters
+	 * @property {boolean} isBusy Toggle for busy indicator
+	 * 
+	 * @readonly
+	 * @static
+	 */
 	static get properties() {
 		return {
-			renderMode: { type: Number },
+			productParams: { type: Object },
 			isBusy: { state: true },
 		};
 	}
 
+	//endregion
+
 	//#region  LIFECYCLE OVERRIDES
 
-	connectedCallback() {
+	/**
+	 * Setup the component once added to the DOM.
+	 * Fetch caller information
+	 * Fetch insure product parameters
+	 * @returns {void}
+	 */
+	async connectedCallback() {
 		super.connectedCallback();
-		const state = this.horizonStore.recoverState();
 		this.callerInformation = this.horizonStore.getCallerInformation();
-		this.landingPageInfo = state.landingPageInfo;
-		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentRecId = this.incidentDetails.incidentRecId;
+		this.productParams = await this.retrieveInsureProductParams();
 	}
 
+	/**
+	 * Unload the component once removed from the DOM.
+	 * @returns {void}
+	 */
 	disconnectedCallback() {
 		super.disconnectedCallback();
 	}
 
-	//#region PUBLIC METHODS
-
-	// ---- API Actions
+	//#region PRIVATE METHODS
 
 	/**
-	 * Retrieve Insure Product Params
-	 * @returns {Object} Product Params
+	 * API: Retrieve Insure Product Params from Channel Service
+	 * @returns {Object} Product Params Array
 	 */
-	async retrieveInsureProductParams(){
+	async retrieveInsureProductParams() {
 		this.isBusy = true;
-		let request = {};
-		const resp = await this.insureService.productParams(request, () => true);
-		console.log("result: ", resp)
+		const resp = await this.insureService.productParams();
 		this.isBusy = false;
-		return resp;
+		return resp.result;
 	}
 
 	/**
-	 * Retrieve list of client policies
+	 * Error callback for channel services
+	 * @param {Object} ex Error from Channel Service 
+	 * @returns 
 	 */
-	async retrieveClientPolicySummary() {
-		this.isBusy = true;
-		let request = {};
-		const result = await this.insureService.clientPolicySummary(request, () => true);
-		this.isBusy = false;
-		return result;
-	}
-
-	
-
-	/**
-	 * Calculate quote based on lives assured provided
-	 * @returns {Object} Quote response
-	 */
-	async calculateClientQuote(request) {
-		this.isBusy = true;
-		const result = await this.insureService.calculateQuote(request, () => true);
-		console.log(result);
-		this.isBusy = false;
-		return result;
-	}
-
-	// ---- Navigation
-
-	/**
-	 * Navigate back from any view to Summary
-	 */
-	_backToSummaryPage() {
-		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
-	}
-
-	/**
-	 * Navigate so specific subview
-	 */
-	_navigateToSubView(newMode) {
-		this.renderMode = newMode;
-	}
-
-	//#endregion
-
 	_handleChannelServiceError(ex) {
 		this.errorMessage = `System error. Please try again.`;
 		this.errorCount++;
@@ -116,9 +93,10 @@ export class InsureViewBase extends ViewBase {
 		if (this.errorCount > 2) {
 			// this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 			// this.horizonStore.setCallerInformation(this.callerInformation);
-			// this.horizonRouter.navigateToSystemError();
+			this.horizonRouter.navigateToSystemError();
 		}
-		console.log(ex)
 		return true;
 	}
+
+	//#endregion
 }

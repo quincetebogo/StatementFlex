@@ -155,28 +155,12 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"insureClientPolicies": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"insureProductParams": {
-			"enabled": true,
-			"positiveCase": true
-		},
-		"insureClientPolicySummary": {
-			"enabled": true,
-			"positiveCase": true
-		},
-		"insureCalculateEstimate": {
 			"enabled": false,
-			"positiveCase": true
-		},
-		"insureCalculateQuote": {
-			"enabled": true,
-			"positiveCase": true
-		},
-		"insureRetrieveQuoteDetails": {
-			"enabled": true,
-			"positiveCase": true
-		},
-		"insureRetrieveQuotesList": {
-			"enabled": true,
 			"positiveCase": true
 		}
 	}

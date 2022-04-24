@@ -37,7 +37,7 @@ class PolicyEstimate extends Component {
 	/**
 	 * @property {Object} estimate Data & flags for view & estimate service request
 	 * @property {Object} productParams Data & flags for insure product parameters
-	 * @property {Number} newTotalPremium Tied to 'calculate by premium' input
+	 * @property {Number} newTotalPremium Tied to 'calculate by premium' input and used to track the override
 	 * @property {boolean} showAddLifeDialog Controls when to show the AddLife dialog
 	 * 
 	 * @readonly
@@ -170,7 +170,7 @@ class PolicyEstimate extends Component {
 	}
 
 	/**
-	 * @todo OIPA needs to fix this then we can invoke te service
+	 * @bug OIPA needs to fix this then we can invoke te service
 	 * Event fired when calculate by Premium override input changed
 	 * @param {*} event 
 	 * @returns {object} Estimate Response
@@ -325,7 +325,7 @@ class PolicyEstimate extends Component {
 
 	/**
 	 * Main render point for component
-	 * @returns {html}
+	 * @returns {html} The html content of the component.
 	 */
 	_webTemplate() {
 		return html`
@@ -336,7 +336,7 @@ class PolicyEstimate extends Component {
 
 	/**
 	 * Render dialogs for the component
-	 * @returns {html}
+	 * @returns {html} HTML for the dialogs used in the component
 	 */
 	_renderDialogs() {
 		return html`
@@ -469,8 +469,9 @@ class PolicyEstimate extends Component {
 	_renderAddLifeDialog() {
 		return this.showAddLifeDialog == false ? `` :
 			html`
-			<insure-add-life-dialog @addNewLife="${(e) => this._addLife(e)}" @closeModal="${(e) => this.showAddLifeDialog = false}"
-				.currentLifesAssured="${this.estimate.lifesAssured}" .productParams="${this.productParams}">
+			<insure-add-life-dialog @add-new-life="${(e) => this._addLife(e)}"
+				@close-modal="${(e) => this.showAddLifeDialog = false}" .currentLifesAssured="${this.estimate.lifesAssured}"
+				.productParams="${this.productParams}">
 			</insure-add-life-dialog>`
 	}
 

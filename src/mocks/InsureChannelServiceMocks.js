@@ -1,4 +1,7 @@
 
+/**
+ * Mocks for methods in the InsureChannelService class
+ */
 export default class InsureChannelServiceMocks {
 
 	/**
@@ -38,65 +41,28 @@ export default class InsureChannelServiceMocks {
 			console.log(err);
 		};
 
-		this.insureMocks = await this._loadMockModule(this.insureMocks, `insureMocks`, () => import(`../mocks/InsureMockData`).catch(err => logError(err)));
+		this.productParamsMocks = await this._loadMockModule(this.productParamsMocks, `insureProductParams`, () => import(`../mocks/insure/ProductParams`).catch(err => logError(err)));
+		this.clientPoliciesMocks = await this._loadMockModule(this.clientPoliciesMocks, `insureClientPolicies`, () => import(`../mocks/insure/ClientPolicies`).catch(err => logError(err)));
 	}
 
-	// Insure product Params
+	/**
+	 * Product parameters mock check
+	 * @returns {Object} Mock response data
+	 */
 	insureProductParams() {
 		if (this._mockSettings.insureProductParams.positiveCase) {
-			return this.insureMocks.InsureProductParams;
+			return this.productParamsMocks.InsureProductParams;
 		}
 		return null;
 	}
 
-	// Calculate Estimate
-	insureCalculateEstimate() {
-		if (this._mockSettings.insureCalculateEstimate.positiveCase) {
-			return this.insureMocks.InsureCalculateEstimate;
-		}
-		return null;
-	}
-
-	// Calculate Quote
-	insureCalculateQuote() {
-		if (this._mockSettings.insureCalculateQuote.positiveCase) {
-			return this.insureMocks.InsureCalculateQuote;
-		}
-		return null;
-	}
-
-	// Calculate Quote
-	insureRetrieveQuotesList() {
-		if (this._mockSettings.insureRetrieveQuotesList.positiveCase) {
-			return this.insureMocks.InsureRetrieveQuotesList;
-		}
-		return null;
-	}
-
-
-	// Retrieve details for a single quote
-	insureRetrieveQuoteDetails() {
-		if (this._mockSettings.insureRetrieveQuoteDetails.positiveCase) {
-			return this.insureMocks.InsureRetrieveQuoteDetails;
-		}
-		return null;
-	}
-
-	// Client Policy Summary
-	insureClientPolicySummary() {
-		if (this._mockSettings.insureClientPolicySummary.positiveCase) {
-			return [
-				{
-					policyNumber: `ABC01`,
-					effectiveDate: `01 Feb 2019`,
-					debitOrderDate: `25 May 2019`,
-					coverAmount: 35000.50,
-					totalPremium: 88.50,
-					status: `Active`,
-					inArrears: false
-				}
-			];
-			// return this.insureMocks.InsureClientPolicySummary;
+	/**
+	 * Client policies mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureClientPolicies() {
+		if (this._mockSettings.insureClientPolicies.positiveCase) {
+			return this.clientPoliciesMocks.InsureClientPolicies;
 		}
 		return null;
 	}
