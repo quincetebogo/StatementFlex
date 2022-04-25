@@ -77,13 +77,13 @@ class UpdatePlan extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
-		this._initialize();
+		this._initialise();
 	}
 
 	/**
 	 * Initialize component
 	 */
-	async _initialize() {
+	async _initialise() {
 		this.quote.lifesAssured = [];
 		this.quote.lifesAssured.push({
 			relationship: "MainLife",

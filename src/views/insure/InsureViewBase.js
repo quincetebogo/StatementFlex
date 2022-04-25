@@ -1,4 +1,5 @@
 import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import { InsureService } from 'app/services/InsureService';
@@ -23,6 +24,7 @@ export class InsureViewBase extends ViewBase {
 	constructor() {
 		super();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 	}
 
@@ -56,7 +58,6 @@ export class InsureViewBase extends ViewBase {
 	 */
 	async connectedCallback() {
 		super.connectedCallback();
-		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.productParams = await this.retrieveInsureProductParams();
 	}
 

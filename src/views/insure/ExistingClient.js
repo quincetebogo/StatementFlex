@@ -28,6 +28,10 @@ export class ExistingClient extends InsureViewBase {
 		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.estimate = {};
+
+		// Get DOB from callerInfo and convert to age for Estimate
+		// this.mainLifeAge = this.callerInformation
+		// this.mainLifeAge = this.callerInformation
 	}
 
 	/**
@@ -109,7 +113,7 @@ export class ExistingClient extends InsureViewBase {
 	//#region PRIVATE METHODS
 
 	/**
-	 * Initialize Landing View / Fetch client policies for landing component
+	 * Initialise Landing View / Fetch client policies for landing component
 	 */
 	async _initialise() {
 		this.verificationStatus = this.callerInformation.verificationStatus;

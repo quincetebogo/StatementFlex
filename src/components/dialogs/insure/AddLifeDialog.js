@@ -61,7 +61,7 @@ class AddLifeDialog extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
-		this._initialize();
+		this._initialise();
 	}
 
 	//#endregion
@@ -72,7 +72,7 @@ class AddLifeDialog extends Component {
 	 * Initialize component when loaded / Count current lives in list and set limits
 	 * Resets last selected relationship
 	 */
-	_initialize() {
+	 _initialise() {
 		this.currentTotalSpouse = this.currentLifesAssured.filter((life) => life.relationship === "Spouse").length;
 		this.currentTotalChild = this.currentLifesAssured.filter((life) => life.relationship === "Child").length;
 		this.currentTotalParent = this.currentLifesAssured.filter((life) => life.relationship === "Parent").length;

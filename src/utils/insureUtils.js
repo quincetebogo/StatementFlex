@@ -22,9 +22,9 @@ export function getCoverDetailsByParams(relationship, productParams, age, isExte
 
 	if (age) {
 		if (currentRole.ageRange.length == 1) {
-			appliedAgeRange.defaultCover = currentRole.ageRange[0].maxCoverAmount;
-			appliedAgeRange.maxCover = currentRole.ageRange[0].maxCoverAmount;
-			appliedAgeRange.minCover = currentRole.ageRange[0].minCoverAmount;
+			appliedAgeRange.defaultCover = 0;
+			appliedAgeRange.maxCoverAmount = currentRole.ageRange[0].maxCoverAmount;
+			appliedAgeRange.minCoverAmount = currentRole.ageRange[0].minCoverAmount;
 			appliedAgeRange.minAge = currentRole.ageRange[0].minAge;
 			appliedAgeRange.maxAge = currentRole.ageRange[0].maxAge;
 			appliedAgeRange.maxCoverMessage = currentRole.ageRange[0].coverAmountMessage;
@@ -38,24 +38,24 @@ export function getCoverDetailsByParams(relationship, productParams, age, isExte
 			if (!withinRange) {
 				appliedAgeRange = currentRole.ageRange[0];
 			}
-			appliedAgeRange.defaultCover = withinRange[0].maxCoverAmount;
-			appliedAgeRange.maxCover = withinRange[0].maxCoverAmount;
-			appliedAgeRange.minCover = withinRange[0].minCoverAmount;
+			appliedAgeRange.defaultCover = 0;
+			appliedAgeRange.maxCoverAmount = withinRange[0].maxCoverAmount;
+			appliedAgeRange.minCoverAmount = withinRange[0].minCoverAmount;
 			appliedAgeRange.maxCoverMessage = withinRange[0].coverAmountMessage;
 			appliedAgeRange.minCoverMessage = withinRange[0].coverAmountMinMessage;
 		}
 	} else {
 		if (currentRole.ageRange.length == 1) {
-			appliedAgeRange.defaultCover = currentRole.ageRange[0].maxCoverAmount;
-			appliedAgeRange.maxCover = currentRole.ageRange[0].maxCoverAmount;
-			appliedAgeRange.minCover = currentRole.ageRange[0].minCoverAmount;
+			appliedAgeRange.defaultCover = 0;
+			appliedAgeRange.maxCoverAmount = currentRole.ageRange[0].maxCoverAmount;
+			appliedAgeRange.minCoverAmount = currentRole.ageRange[0].minCoverAmount;
 			appliedAgeRange.minAge = currentRole.ageRange[0].minAge;
 			appliedAgeRange.maxAge = currentRole.ageRange[0].maxAge;
 			appliedAgeRange.maxCoverMessage = currentRole.ageRange[0].coverAmountMessage;
 			appliedAgeRange.minCoverMessage = currentRole.ageRange[0].coverAmountMinMessage;
 		} else {
-			appliedAgeRange.defaultCover = currentRole.ageRange[0].maxCoverAmount;
-			appliedAgeRange.maxCover = currentRole.ageRange[0].maxCoverAmount;
+			appliedAgeRange.defaultCover = 0;
+			appliedAgeRange.maxCoverAmount = currentRole.ageRange[0].maxCoverAmount;
 			appliedAgeRange.minCover = currentRole.ageRange[0].minCoverAmount;
 			appliedAgeRange.minAge = currentRole.ageRange[0].minAge;
 			appliedAgeRange.maxAge = currentRole.ageRange[currentRole.ageRange.length - 1].maxAge;
@@ -63,7 +63,13 @@ export function getCoverDetailsByParams(relationship, productParams, age, isExte
 			appliedAgeRange.minCoverMessage = currentRole.ageRange[0].coverAmountMinMessage;
 		}
 	}
+
+	// Format age message
+	currentRole.ageMessage = currentRole.ageMessage.replace("{0}", appliedAgeRange.minAge);
+	currentRole.ageMessage = currentRole.ageMessage.replace("{1}", appliedAgeRange.maxAge);
+	appliedAgeRange.coverMessage = '';
 	appliedAgeRange.ageMessage = currentRole.ageMessage;
+
 	return appliedAgeRange;
 }
 
