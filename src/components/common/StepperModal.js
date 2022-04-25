@@ -193,7 +193,7 @@ export class WizardStepperModal extends Component {
 					box-shadow: var(--theme-modal-container-box-shadow);
 					border-radius: var(--theme-modal-border-radius, 4px);
 					width: var(--theme-wizard-modal-xl-width, 80%);
-					height: var(--theme-wizard-modal-xl-height, 80%);
+					height: var(--theme-wizard-modal-xl-height, 95%);
 					max-width: var(--theme-wizard-modal-max-width, 80%);
 					max-height: var(--theme-wizard-modal-max-height, 80%);
 				}
@@ -243,15 +243,15 @@ export class WizardStepperModal extends Component {
 			unsafeCSS(`
 				@media screen and (max-width: ${window.breakpoints.xl}px) {
 					.container {
-						width: var(--theme-wizard-modal-xl-width, 80%);
-						height: var(--theme-wizard-modal-xl-height, 80%);
+						width: var(--theme-wizard-modal-xl-width, 100%);
+						height: var(--theme-wizard-modal-xl-height, 100%);
 					}
 				}
 
 				@media screen and (max-width: ${window.breakpoints.lg}px) {
 					.container {
-						width: var(--theme-wizard-modal-lg-max-width, 85%);
-						height: var(--theme-wizard-modal-lg-max-height, 85%);
+						width: var(--theme-wizard-modal-lg-max-width, 100%);
+						height: var(--theme-wizard-modal-lg-max-height, 100%);
 					}
 				}
 

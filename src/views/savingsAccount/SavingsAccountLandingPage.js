@@ -136,7 +136,9 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		
-		if (this.callerInformation.verificationStatus !== `non-client`) {
+		if (this.callerInformation.verificationStatus === `unverified`) {
+			this.horizonRouter.navigateToProductInfo(`SavingsAccount`);
+		} else {
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
 				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
@@ -146,53 +148,21 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			const returnValue = await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
 			 
 			if (returnValue.succeeded) {
-                this.landingPageInfo = returnValue.result;
+				this.landingPageInfo = returnValue.result;
 
 				// Now we can update the information on the product buttons
 				this._updateLeftBar();
 				this.endCallContext = `LandingPage`;
 				this.renderMode = RENDER_MODE.MAIN_PAGE;
 			}
-		} else {
-			// minimal object for the Favourites landing page component
-			this.landingPageInfo = { pendingMandateCount: 0 };
 		}
-
+		
 		this._loading = false;
 		this._performReturnToScreen();
 	}
 
 	_updateLeftBar() {
-		let subtitle = null;
-		let detail = null;
-
-		if (this.landingPageInfo) {
-			subtitle = {
-				savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
-				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductDescription,
-				savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
-				insure: this.landingPageInfo.insureProductDescription,
-				credit: this.landingPageInfo.creditProductDescription
-			};
-
-			detail = {
-				savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
-				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductAmount,
-				savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
-				insure: this.landingPageInfo.insureProductAmount,
-				credit: this.landingPageInfo.creditProductAmount
-			};
-		}
-
-		const state = {
-			leftBarButtonConfig: {
-				hasFavourites: true,
-				subtitle: subtitle ? subtitle : ``,
-				detail: detail ? detail : ``
-			}
-		};
-
-		this.horizonStore.saveState(state);
+		this.horizonStore.setProductButtonState(this.landingPageInfo);
 	}
 
 	_errorHandler(exception) {
@@ -278,11 +248,14 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				'accountName': productInfo.name,
 				'accountType': SAVINGS_ACCOUNT,
 				'accountOpenDate': this.landingPageInfo.accountOpenDate,
+				'name': productInfo.name,
 				'type': productInfo.type,
 				'category': productInfo.category,
+				'subCategory': productInfo.subCategory,
 				'icon': productInfo.icon,
 				'customIcon': productInfo.customIcon,
-				'order': productInfo.order
+				'order': productInfo.order,
+				'choosePeriod': productInfo.choosePeriod
 			}
 		];
 		this.renderMode = RENDER_MODE.STATEMENTS;

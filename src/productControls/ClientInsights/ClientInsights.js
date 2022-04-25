@@ -5,6 +5,7 @@ import 'platform/components';
 /**
  * Client Insights is used to display various information about the client.
  * This component is rendered on the access menu bar.
+ * As phase-I release, insights belonging to Live better are only displayed and allowed to capture clients action.
  * 
  * Event Raised
  * -------------
@@ -23,7 +24,6 @@ export class ClientInsights extends Component {
 
 	constructor() {
 		super();
-		// TODO: Placeholders in this file to be removed once the images are signed off.
 	}
 
 	// --------------
@@ -75,10 +75,10 @@ export class ClientInsights extends Component {
 		this.dispatchEvent(new CustomEvent(`settings-click`, {}));
 	}
 
-	async _selectResponse(replyReference) {
+	async _selectResponse(replyReference, action) {
 		this.selectedResponse = replyReference;
 		
-		const updateInsightsAction = await this.updateInsights(replyReference);
+		const updateInsightsAction = await this.updateInsights(replyReference, action);
 
 		if (updateInsightsAction) {
 			this.selectedResponse = ``;
@@ -121,22 +121,37 @@ export class ClientInsights extends Component {
 					--theme-icon-size-small: 24px;
 					cursor: pointer;
 				}
-				.box-image {
-					margin-top: 100px;
-				}
 				.insights-group {
 					height: 364px;
+					--theme-layout-gap-spacing: 0px;
 				}
-				.sub-text {
+				capitec-label[type="title"] {
+					--theme-label-title-font-size: 18px;
+					--theme-label-title-font-weight: 600;
+				}
+				.insights-header {
+					padding: 23px 16px;
+				}
+				.insights-image {
+					height: 152px;
+					width: 288px;
+				}
+				.no-insights-image {
+					margin-top: 82px;
+				}
+				.no-insights-text {
+					padding: 8px 0px;
+				}
+				capitec-label[type="default"] {
 					--theme-label-default-font-size: 14px;
-					padding: 16px;
-					margin-top: 0px;
-					margin-bottom: auto;
+					padding: 0px 16px;
 					text-align: center;
-					margin-top: 32px;
+					line-height: 20px;
+					margin: auto;
 				}
 				.chips-group {
-					margin-bottom: 24px;
+					margin-bottom: 10px;
+					--theme-layout-gap-spacing: 10px;
 				}
 				capitec-chip {
 					width: 140px;
@@ -186,7 +201,7 @@ export class ClientInsights extends Component {
 				</capitec-title-bar>
 
 				<capitec-group 
-						data-automation-id="client-insights-${this.scenario}"
+						data-automation-id="client-insights-details"
 						layout="vertical" 
 						halign="center" 
 						valign="top" 
@@ -203,32 +218,53 @@ export class ClientInsights extends Component {
 	_renderContent() {
 		return this.insightDetails 
 		? html`
-			<capitec-label class="sub-text" label="${this.insightDetails.message}"></capitec-label>
+			<capitec-label 
+				class="insights-header" 
+				type="title"
+				label="${this.insightDetails.header}">
+			</capitec-label>
+			
+			<capitec-image
+				class="insights-image"
+				src="${this.insightDetails.image}"
+				data-automation-id="client-insights-image">
+			</capitec-image>
+			
+			<capitec-label 
+				label="${this.insightDetails.message}">
+			</capitec-label>
 
 			<capitec-group class="chips-group" layout="horizontal" halign="center" valign="center" gap="clear">
 
 				<capitec-chip
-						data-automation-id="client-insights-left-chip"
-						class="${this.selectedResponse === this.insightDetails.actions[0].replyReference ? `selected-chip` : ``}"
-						label="${this.insightDetails.actions[0].displayName === `Thumbsup` ? `This was useful` : this.insightDetails.actions[0].displayName}"
-						avatar-image="/images/insights/${this.selectedResponse === this.insightDetails.actions[0].replyReference ? `thumbsUp-white` : `thumbsUp`}.svg"
-						@click="${() => this._selectResponse(this.insightDetails.actions[0].replyReference)}">
+					data-automation-id="client-insights-left-chip"
+					class="${this.selectedResponse === this.insightDetails.actions[0].replyReference ? `selected-chip` : ``}"
+					label="This was useful"
+					avatar-image="/images/insights/${this.selectedResponse === this.insightDetails.actions[0].replyReference ? `thumbsUp-white` : `thumbsUp`}.svg"
+					@click="${() => this._selectResponse(this.insightDetails.actions[0].replyReference, `Thumbs up`)}">
 				</capitec-chip>
 
 				<capitec-chip
-						data-automation-id="client-insights-left-chip"
-						class="${this.selectedResponse === this.insightDetails.actions[1].replyReference ? `selected-chip` : ``}"
-						label="${this.insightDetails.actions[1].displayName === `Thumbsdown` ? `This didn't help` : this.insightDetails.actions[1].displayName}"
-						avatar-image="/images/insights/${this.selectedResponse === this.insightDetails.actions[1].replyReference ? `thumbsDown-white` : `thumbsDown`}.svg"
-						@click="${() => this._selectResponse(this.insightDetails.actions[1].replyReference)}">
+					data-automation-id="client-insights-left-chip"
+					class="${this.selectedResponse === this.insightDetails.actions[1].replyReference ? `selected-chip` : ``}"
+					label="This didn't help"
+					avatar-image="/images/insights/${this.selectedResponse === this.insightDetails.actions[1].replyReference ? `thumbsDown-white` : `thumbsDown`}.svg"
+					@click="${() => this._selectResponse(this.insightDetails.actions[1].replyReference, `Thumbs down`)}">
 				</capitec-chip>
 
 			</capitec-group>`
 		: html`
 			<capitec-image
-				class="box-image"
+				class="no-insights-image"
 				src="images/landingPageImages/marketing.svg">
-			</capitec-image>`;
+			</capitec-image>
+			
+			<capitec-label
+				class="no-insights-text"
+				type="title"
+				label="No insights">
+			</capitec-label>
+		`;
 	}
 
 }

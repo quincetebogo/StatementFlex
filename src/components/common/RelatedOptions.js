@@ -7,10 +7,12 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { capitalizeString } from 'app/utils/channelServiceUtilities';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/CardLimitsLanding';
+import 'app/dialogs/statements/Statements';
 
 const RENDER_MODE = Object.freeze({
 	MAIN_PAGE: 0,
@@ -132,6 +134,7 @@ export class RelatedOptions extends Component {
 		const taxCertificate = () => this._taxCertificate();
 		const proofOfAccount = () => this._proofOfAccount();
 		const transactionHistory = (option) => this._transactionHistory(option);
+		const paidUpAccounts = (option) => this._paidUpAccounts(option);
 
 		const actions = {
 			'stop-card': stopCard,
@@ -140,7 +143,8 @@ export class RelatedOptions extends Component {
 			'statements': statements,
 			'tax-certificate': taxCertificate,
 			'proof-of-account': proofOfAccount,
-			'transaction-history': transactionHistory
+			'transaction-history': transactionHistory,
+			'paid-up-accounts': paidUpAccounts
 		};
 
 			if (actions[item]) {
@@ -220,11 +224,10 @@ export class RelatedOptions extends Component {
 			this.clientProducts = clientProductDetails.map(item => {
 									const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType][item.interestCategory] || 
 														ACCOUNT_INTCAT_ENUM[item.accountType];
-									const accName = item.accountName.toLowerCase();
 
 									return {
 										'accountNumber': item.accountNumber,
-										'accountName': `${accName.charAt(0).toUpperCase()}${accName.slice(1)}`,
+										'accountName': capitalizeString(item.accountName),
 										'accountType': item.accountType,
 										'accountOpenDate': item.accountOpenDate,
 										'type': productInfo.type,
@@ -262,6 +265,11 @@ export class RelatedOptions extends Component {
 	}
 
 	_updateCardLimits(option) {
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, option);
+		this.horizonRouter.navigateToQuickTransactionFavourites();
+	}
+
+	_paidUpAccounts(option) {
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, option);
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
@@ -366,12 +374,12 @@ export class RelatedOptions extends Component {
 	_renderStatements() {
 		return this.renderMode === RENDER_MODE.STATEMENTS
 			? html`
-				<horizon-statements-dialog
+				<horizon-statements
 					.cifNumber="${this.callerInformation.cifNumber}"
 					.clientProducts="${this.clientProducts}"
 					type=""
 					@cancel="${() => this._backToLandingPage()}">
-				</horizon-statements-dialog>`
+				</horizon-statements>`
 			: html``;
 	}
 

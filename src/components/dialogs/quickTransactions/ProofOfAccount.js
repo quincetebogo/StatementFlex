@@ -112,7 +112,7 @@ export class ProofOfAccount extends Component {
     }
 
 	async _sendClick(e) {
-		if (this._validateEmail(e)) {
+		if (this._validateEmailAddress(e)) {
 
 			this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_SEND, {
 				"screen": TelemetryScreen.PROOF_OF_ACCOUNT,
@@ -168,7 +168,7 @@ export class ProofOfAccount extends Component {
 	}
 
 	_emailValueChanged(e) {
-		this.email = e.detail.email;
+		this.idEmailAddress = e.detail.email;
 		this.confirmEmail = e.detail.confirmEmail;
 
 		if (e.detail.invalidFormat) {
@@ -183,11 +183,11 @@ export class ProofOfAccount extends Component {
 	// ---------------
 
 	_validateEmailAddress() {
-		if (isNullorEmpty(this.email) || isNullorEmpty(this.confirmEmail)) {
+		if (this._isNullorEmpty(this.idEmailAddress) || this._isNullorEmpty(this.confirmEmail)) {
 			this.alertBannerMessage = ERROR_MESSAGE.EMAIL_REQUIRED;
 		}
 
-		return isNullorEmpty(this.alertBannerMessage);
+		return this._isNullorEmpty(this.alertBannerMessage);
 	}
 
 	_onKeyPress(e) {

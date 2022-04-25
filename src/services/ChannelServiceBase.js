@@ -213,7 +213,6 @@ export class ChannelServiceBase extends Service {
 		return false;
 	}
 
-
 	/**
 	 * Functions in mock classes should be called via the mock function. The mock function
 	 * wraps the return value in a similar fashion to the get/post functions on this class.
@@ -231,6 +230,27 @@ export class ChannelServiceBase extends Service {
 		}
 
 		return this._wrapCall(this._mock[funcName](...funcArgs));
+	}
+
+	/**
+	 * Functions that override the error handling function in mock classes should be called via the mock with 
+	 * error handler function. The mock function wraps the return value in a similar fashion to the get/post 
+	 * functions on this class.
+	 * 
+	 * @param {*} funcName  The mock function name
+	 * @param {errorHandlerCallback} [errorHandlerFunc=null] An error handler to invoke should the web service call fail
+	 * @param  {...any} funcArgs Parameters for the mock function
+	 * @returns {Promise<*>} The response of the mock request
+	 */
+	mockWithErrorHandler(funcName, errorHandlerFunc = null, ...funcArgs) {
+		// Guard: If the caller forgets to check if mocks are enabled and calls this in the SDLC environment
+		// just fail outright.
+		if (this._inSdlc()) {
+			this._logger.log(`fatal`, `Cannot invoke a mock ${funcName} in an SDLC environment`, `mock`);
+			throw new Error(`Cannot invoke mock ${funcName} in an SDLC environment`);
+		}
+
+		return this._wrapCall(this._mock[funcName](...funcArgs), errorHandlerFunc);
 	}
 
 	_inSdlc() {

@@ -27,6 +27,7 @@ export class SuccessScreen extends Component {
 		this.secondaryImage = ``;
 		this.secondaryToast = ``;
 		this.hasSubDetails = false;
+		this.subContent = false;
 	}
 
 	// ----------
@@ -42,6 +43,7 @@ export class SuccessScreen extends Component {
 	* @property {String} image The image to be displayed on center of the page
 	* @property {String} secondaryToast Secondary toast details
 	* @property {String} [hasSubDetails=false] Set to true if the screen should renter sub-details
+	* @property {String} [subContent=false] Set to true if the screen should renter sub-content
 	* @readonly
 	* @static
 	* @memberof ErrorScreen
@@ -57,7 +59,7 @@ export class SuccessScreen extends Component {
 			secondaryImage: { type: String }, 
 			secondaryToast: { type: String },
 			hasSubDetails: { type: Boolean },
-			subContent: { type: String }
+			subContent: { type: Boolean }
 		};
 	}
 
@@ -144,6 +146,7 @@ export class SuccessScreen extends Component {
 				}
 
 				#id-sub-content {
+					margin-top: 24px;
 					justify-content: center;
 				}
 
@@ -315,17 +318,18 @@ export class SuccessScreen extends Component {
 	}
 
 	_renderSubDetail() {
-		return this.hasSubDetails 
-		 ? html`<capitec-group 
-		 			id="id-sub-detail" 
-					layout="horizontal">
-		 				<capitec-icon
-			 				size="default"
-			 				icon="status/success-trans">
-		 				</capitec-icon>
-		 					<slot name="sub-detail"></slot>
-					</capitec-group>`
-			: html``;
+		return this.hasSubDetails
+		? html`
+			<capitec-group 
+				id="id-sub-detail" 
+				layout="horizontal">
+				<capitec-icon
+					size="default"
+					icon="status/success-trans">
+				</capitec-icon>
+					<slot name="sub-detail"></slot>
+			</capitec-group>`
+		: html``;
 	}
 
 	_renderSubContent() {
@@ -341,24 +345,26 @@ export class SuccessScreen extends Component {
 
 	_renderLeftButton() {
 		return this.left
-			? html`<capitec-button
-						id="button-left"
-						class="center-button"
-						label="${this.left}"
-						@click="${() => this._leftClick()}">
-					</capitec-button>`
-			: html``;
+		? html`
+			<capitec-button
+				id="button-left"
+				class="center-button"
+				label="${this.left}"
+				@click="${() => this._leftClick()}">
+			</capitec-button>`
+		: html``;
 	}
 
 	_renderRightButton() {
 		return this.right
-			? html`<capitec-button
-						class="center-button"
-						type="primary"
-						label="${this.right}"
-						@click="${() => this._rightClick()}">
-					</capitec-button>`
-			: html``;
+		? html`
+			<capitec-button
+				class="center-button"
+				type="primary"
+				label="${this.right}"
+				@click="${() => this._rightClick()}">
+			</capitec-button>`
+		: html``;
 	}
 
 	_renderRelatedOptions() {

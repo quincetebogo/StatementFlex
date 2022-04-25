@@ -3,7 +3,11 @@
 		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet",
 		"clientInsightsUrl": "https://hzn-cs-clientinsights-v1.platform-dev.int.capinet",
 		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-dev.int.capinet",
+<<<<<<< HEAD
 		"insureChannelServiceUrl": "https://insurance-funeralinsurance.platform-dev.int.capinet"
+=======
+		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-dev.int.capinet"		
+>>>>>>> feature/insure
 	},
 	"signalRUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
 	"DesktopAgent": {
@@ -18,7 +22,8 @@
 		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",
 		"live-better": "https://www.capitecbank.co.za/live-better/live-better-savings-account",
 		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js",
-		"partner-benefits": "https://www.capitecbank.co.za/bank-better-live-better/articles/benefits/"
+		"partner-benefits": "https://www.capitecbank.co.za/bank-better-live-better/articles/benefits/",
+		"fees": "https://www.capitecbank.co.za/global-one/transact/fees/"
 	},
 	"LogRequestResponseModels": false,
 	"VDN": "7250",
@@ -32,6 +37,30 @@
 			"primaryNeed": "Transact"
 		}
 	],
+	"lbb-insight-details": {
+		"34": {
+			"155": {
+				"header": "Live Better alert!",
+				"image": "/images/insights/lbb-alert.png",
+				"message": "You're missing out on cash backs, automatic savings and higher interest. Do you want to activate your Live Better savings account on the app now?"
+			},
+			"134": {
+				"header": "Live Better savings",
+				"image": "/images/insights/lbb-savings.png",
+				"message": "Grow your Live Better savings! Just switch on the automatic savings tools on our app.\nCan I help you switch it on?"
+			},
+			"114": {
+				"header": "Switch on Round-up",
+				"image": "/images/insights/lbb-roundup.png",
+				"message": "You're missing out on automatic savings\nevery time you spend! Switch on Round-up and watch your Live Better savings grow\nevery time you spend."
+			},
+			"243": {
+				"header": "Switch on Interest Sweep",
+				"image": "/images/insights/lbb-interest-sweep.png",
+				"message": "Did you know you can earn more interest on your interest with Live Better savings?\nCan I help you switch on Interest Sweep on the app now?"
+			}
+		}
+	},
 	"mock": {
 		"enabled": true,
 		"acceptCall": {
@@ -71,7 +100,7 @@
 			"enabled": true,
 			"positiveCase": true
 		},
-		"itaVerification":{
+		"itaVerification": {
 			"enabled": true,
 			"positiveCase": true
 		},
@@ -107,12 +136,16 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"savingsPlanLanding": {
+			"enabled": false,
+			"positiveCase": true
+		},
 		"tapToPayLanding": {
 			"enabled": false,
 			"positiveCase": true
 		},
 		"viewStatements": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"liveBetterLanding": {
@@ -160,6 +193,14 @@
 			"positiveCase": true
 		},
 		"insureProductParams": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"creditOverview": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"creditBalance": {
 			"enabled": false,
 			"positiveCase": true
 		}

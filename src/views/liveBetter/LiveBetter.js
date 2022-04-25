@@ -383,42 +383,13 @@ export class LiveBetter extends SavingsAccountBase {
 	}
 
 	_updateLeftBar() {
-		let subtitle = null;
-		let detail = null;
-
-		if (this.landingPageInfo) {
-			subtitle = {
-				savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
-				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductDescription,
-				savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
-				insure: this.landingPageInfo.insureProductDescription,
-				credit: this.landingPageInfo.creditProductDescription
-			};
-
-			detail = {
-				savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
-				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductAmount,
-				savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
-				insure: this.landingPageInfo.insureProductAmount,
-				credit: this.landingPageInfo.creditProductAmount
-			};
-		}
-		
 		const screenDetails = this.horizonStore.getScreenDetails();
 		screenDetails.LBSADetails = this.landingPageInfo;
 		this.horizonStore.setScreenDetails(screenDetails);
 
 		this.horizonStore.setCallerInformation(this.callerInformation);
 
-		const state = {
-			leftBarButtonConfig: {
-				hasFavourites: true,
-				subtitle: subtitle ? subtitle : ``,
-				detail: detail ? detail : ``
-			}
-		};
-
-		this.horizonStore.saveState(state);
+		this.horizonStore.setProductButtonState(this.landingPageInfo);
 	}
 
 	async _transactionHistory() {
@@ -485,11 +456,14 @@ export class LiveBetter extends SavingsAccountBase {
 				'accountName': productInfo.name,
 				'accountType': LBB,
 				'accountOpenDate': this.landingPageInfo.dateOpened,
+				'name': productInfo.name,
 				'type': productInfo.type,
 				'category': productInfo.category,
+				'subCategory': productInfo.subCategory,
 				'icon': productInfo.icon,
 				'customIcon': productInfo.customIcon,
-				'order': productInfo.order
+				'order': productInfo.order,
+				'choosePeriod': productInfo.choosePeriod
 			}
 		];
 		this.renderMode = RENDER_MODE.STATEMENTS;
