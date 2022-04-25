@@ -50,8 +50,6 @@ import 'app/components/common/HorizonLabel';
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-
-		this._onUnLoading();
 	}
 
 	// --------------
@@ -145,10 +143,6 @@ import 'app/components/common/HorizonLabel';
 	
 	_onLoading() {
 		this.dispatchEvent(new CustomEvent(`on-loading`, {}));
-	}
-
-	_onUnLoading() {
-		this.dispatchEvent(new CustomEvent(`on-unloading`, {}));
 	}
 	
 	// ---------

@@ -63,7 +63,8 @@ export class ProofOfPaymentSuccess extends ViewBase {
 			"next-screen": TelemetryScreen.CREDIT_LANDING
 		});
 
-		this._telemetry.endSpan(this.popTelemetryEvents.POP_SUCCESS, {}, true, true);
+		const screenDetails = this.horizonStore.getScreenDetails();
+		this._telemetry.endSpan(screenDetails.parentSpan, {}, true, false, true);
 
 		const returnToScreen = this.horizonStore.getReturnToScreen();
 		this.horizonStore.setReturnScreen(returnToScreen.route, ``);
@@ -78,7 +79,8 @@ export class ProofOfPaymentSuccess extends ViewBase {
 			"next-screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT
 		});
 		this._telemetry.endSpan(this.popTelemetryEvents.POP_SUCCESS);
-		
+		this._telemetry.endSpan(this.popTelemetryEvents.EMAIL_POP, {}, true, true);
+
 		this.horizonRouter.navigateToReturnPage();
 	}
 
