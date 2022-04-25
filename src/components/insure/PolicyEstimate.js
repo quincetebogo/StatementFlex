@@ -1,31 +1,60 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency } from 'app/productControls/utilities/Currency';
 
+import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { getCoverDetailsByParams } from 'app/utils/insureUtils';
 import { GENDER_OPTIONS } from 'app/constants/InsureCommon';
 
-import 'app/components/dialogs/insure/InsureAddLifeDialog';
+import 'app/components/dialogs/insure/AddLifeDialog';
 import 'app/components/common/HorizonLabel';
-import 'app/components/common/ServiceCallErrorScreen';
 
+/**
+ * Insure Policy Estimate component that allows cover and premium estimations be made on the fly.
+ * Lives can be added AddLiveDialog
+ * 
+ * Events Raised 
+ * -------------
+ * navigate-back
+ * calculate
+ *  
+ * @export
+ * @class PolicyEstimate
+ * @extends {Component}
+ */
 class PolicyEstimate extends Component {
+
+	//#region INITIALISATION
 
 	constructor() {
 		super();
-		this.clientEstimateDetails = {};
-		this.showAddRelationshipDialog = false;
-
-		// Lookups
 		this.genderOptions = GENDER_OPTIONS;
+		this.showAddLifeDialog = false;
 	}
 
+	//#endregion
+
+	//#region PROPERTIES
+
+	/**
+	 * @property {Object} estimate Data & flags for view & estimate service request
+	 * @property {Object} productParams Data & flags for insure product parameters
+	 * @property {Number} newTotalPremium Tied to 'calculate by premium' input and used to track the override
+	 * @property {boolean} showAddLifeDialog Controls when to show the AddLife dialog
+	 * 
+	 * @readonly
+	 * @static
+	 */
 	static get properties() {
 		return {
 			estimate: { state: true },
 			productParams: { state: true },
-			newTotalPremium: { string: '' },
-			showAddRelationshipDialog: { state: false }
+			newTotalPremium: { number: 0 },
+			showAddLifeDialog: { state: false }
 		};
 	}
+
+	//#endregion
+
+	//#region LIFECYCLE OVERRIDES
 
 	/**
 	 * Setup the component once added to the DOM.
@@ -36,8 +65,153 @@ class PolicyEstimate extends Component {
 		this._initialize();
 	}
 
+	//#endregion
+
+	//#region EVENT HANDLERS
+
 	/**
-	 * Generates the view stylesheet.
+	 * Navigate to Landing
+	 */
+	_backToSummaryPage() {
+		this.dispatchEvent(new CustomEvent(`navigate-back`, {
+			detail: {
+			}
+		}));
+	}
+
+	/**
+	 * Calculate Button event
+	 * 1. Determine if should calculate by premium or not
+	 * 2. Dispatch event to invoke service
+	 * 3. Reset total premium values
+	 * 
+	 */
+	async _calculateEstimate() {
+		if (this.newTotalPremium != 0) this.estimate.totalPremium = this.newTotalPremium
+		let request = {
+			...this.estimate,
+		}
+		this.dispatchEvent(new CustomEvent(`calculate`, {
+			detail: request
+		}));
+		this.estimate.totalPremium = 0;
+		this.newTotalPremium = 0;
+	}
+
+
+	/**
+	 * Add Event from Add life dialog for Estimate.
+	 * Receives relationship & cover details from dialog, and sets default values for the remaining properties.
+	 * Closes dialog when finished.
+	 * @param {Event} event Contains coverDetails & relationship from Add Life dialog
+	 */
+	_addLife(event) {
+		this.estimate.lifesAssured.push({
+			relationship: event.detail.relationship,
+			coverAmount: event.detail.coverDetails.defaultCover,
+			premium: 0,
+			genderType: "Male",
+			age: 0,
+			rowID: this.estimate.lifesAssured.length,
+			coverDetails: event.detail.coverDetails
+		});
+		this.showAddLifeDialog = false;
+	}
+
+	/**
+	 * Click event from remove button on life list
+	 * @param {Object} lifeToRemove Live object at index that was clicked
+	 */
+	_removeLife(lifeToRemove) {
+		this.estimate.lifesAssured.splice(lifeToRemove.rowID, 1);
+		for (let index = 0; index < this.estimate.lifesAssured.length; index++) {
+			this.estimate.lifesAssured[index].rowID = index;
+		}
+		this.newTotalPremium = 0;
+	}
+
+	/**
+	 * Event fired when an estimate life assured COVER AMOUNT value changes
+	 * @param {event} event Contains the new value for coverAmount
+	 * @param {number} index Index of the life that changed
+	 */
+	_coverAmountChanged(event, index) {
+		if (event.detail.old != event.detail.new) {
+			this.estimate.lifesAssured[index].coverAmount = event.detail.new;
+			this.newTotalPremium = 0;
+		}
+	}
+
+	/**
+	 * Event fired when an estimate life assured AGE value changes
+	 * Captures new age value
+	 * Refresh cover details for life, supplying age
+	 * @param {event} event Contains the new value for age
+	 * @param {number} index Index of the life that changed
+	 */
+	_ageChanged(event, index) {
+		if (event.detail.old != event.detail.new) {
+			this.estimate.lifesAssured[index].age = event.detail.new;
+			this.newTotalPremium = 0;
+		}
+		this.estimate.lifesAssured[index].coverDetails = getCoverDetailsByParams(this.estimate.lifesAssured[index].relationship, this.productParams, this.estimate.lifesAssured[index].age, this.estimate.lifesAssured[index].coverDetails.isExtendedFamily);
+	}
+
+	/**
+	 * Event fired when an estimate life assured GENDER value changes
+	 * @param {event} event Contains the new value for gender
+	 * @param {number} index Index of the life that changed
+	 */
+	_genderChanged(event, index) {
+		if (event.detail.old != event.detail.new) {
+			this.estimate.lifesAssured[index].genderType = event.detail.new.code;
+			this.newTotalPremium = 0;
+		}
+	}
+
+	/**
+	 * @bug OIPA needs to fix this then we can invoke te service
+	 * Event fired when calculate by Premium override input changed
+	 * @param {*} event 
+	 * @returns {object} Estimate Response
+	 */
+	async _totalPremiumChanged(e) {
+		this.newTotalPremium = e.detail.new;
+	}
+
+	//#endregion
+
+	//#region PRIVATE FUNCTIONS
+
+	/**
+	 * Initialize component when loaded / Add default life to list for calculator and list
+	 */
+	_initialize() {
+		this.estimate.lifesAssured = [];
+		this.estimate.lifesAssured.push({
+			relationship: "MainLife",
+			coverAmount: 100000,
+			premium: 0,
+			genderType: "Male",
+			age: 0,
+			rowID: 0,
+			coverDetails: {
+				defaultCover: 100000,
+				maxCover: 100000,
+				minCover: 5000,
+				maxAge: 64,
+				minAge: 18,
+			}
+		});
+		this.estimate.totalPremium = 0;
+	}
+
+	//#endregion
+
+	//#region RENDERING
+
+	/**
+	 * Generates the component stylesheet.
 	 *
 	 * @readonly
 	 * @static
@@ -58,6 +232,10 @@ class PolicyEstimate extends Component {
 				margin-bottom: 0px; 
 				border-top-left-radius: 5px; 
 				border-top-right-radius: 5px;
+			}
+
+			#insure-calc-card{
+				padding-top: 10px;
 			}
 
 			.insure-calc-columns{
@@ -108,6 +286,14 @@ class PolicyEstimate extends Component {
 				gap: 10px;
 			}
 
+			.calc-card-row-input{
+				width: 50%;
+			}
+
+			.calc-card-row-actions{
+				margin-top: 15px;
+			}
+
 			.calc-premium-total{
 				font-size: 32px;
 				font-weight: 600;
@@ -138,185 +324,8 @@ class PolicyEstimate extends Component {
 	}
 
 	/**
-	 * Initialize component
-	 */
-	async _initialize() {
-		this.estimate.lifesAssured = [];
-		this.estimate.lifesAssured.push({
-			relationship: "MainLife",
-			coverAmount: 10000,
-			premium: 0,
-			genderType: "Male",
-			age: 0,
-			rowID: 0,
-			coverDetails: {
-				defaultCover: 100000,
-				maxCover: 100000,
-				minCover: 5000,
-				ageMax: 64,
-				ageMin: 18,
-			}
-		});
-		this.estimate.totalPremium = 0;
-		// this.clientEstimateDetails = {
-		// 	"estimateReference": "",
-		// 	"clientCif": this.callerInformation.cifNumber,
-		// 	"lastName": this.callerInformation.lastName,
-		// 	"firstName": this.callerInformation.firstName,
-		// 	"contactEmail": "",
-		// 	"contactNumber": this.callerInformation.verifiedTelephoneNumber
-		// }
-		this.requestUpdate();
-	}
-
-	/**
-	 * Add Event from Add life dialog for Estimate
-	 */
-	_addLifeEstimate(e) {
-		this.estimate.lifesAssured.push({
-			relationship: e.detail.relationship,
-			coverAmount: e.detail.coverDetails.defaultCover,
-			premium: 0,
-			genderType: "Male",
-			age: 0,
-			rowID: this.estimate.lifesAssured.length,
-			coverDetails: e.detail.coverDetails
-		});
-		this.showAddRelationshipDialog = false;
-		// console.log('this.estimate.lifesAssured ', this.estimate.lifesAssured)
-	}
-
-	/**
-	 * Click event from remove button on life list
-	 * @param {Object} lifeAssured clicked
-	 */
-	_estimateRemoveLifeAssured(lifeToRemove) {
-		console.log('lifeToRemove');
-		console.log(lifeToRemove);
-		this.estimate.lifesAssured.splice(lifeToRemove.rowID, 1);
-		// Reshuffle
-		for (let index = 0; index < this.estimate.lifesAssured.length; index++) {
-			this.estimate.lifesAssured[index].rowID = index;
-		}
-		this.newTotalPremium = '';
-		this.requestUpdate();
-	}
-
-	/**
-	 * Event fired when an estimate life assured COVER AMOUNT value changes
-	 * @param {*} event 
-	 * @param {*} index 
-	 */
-	_estimateLifeCoverAmountValueChanged(event, index) {
-		if (event.detail.old != event.detail.new) {
-			this.estimate.lifesAssured[index].coverAmount = event.detail.new;
-			this.newTotalPremium = '';
-		}
-	}
-
-	/**
-	 * Event fired when an estimate life assured AGE value changes
-	 * @param {*} event 
-	 * @param {*} index 
-	 */
-	_estimateLifeAgeValueChanged(event, index) {
-		if (event.detail.old != event.detail.new) {
-			this.estimate.lifesAssured[index].age = event.detail.new;
-			this.newTotalPremium = '';
-		}
-	}
-
-	/**
-	 * Event fired when an estimate life assured GENDER value changes
-	 * @param {*} event 
-	 * @param {*} index 
-	 */
-	_estimateLifeGenderValueChanged(event, index) {
-		if (event.detail.old != event.detail.new) {
-			this.estimate.lifesAssured[index].genderType = event.detail.new.code;
-			this.newTotalPremium = '';
-		}
-	}
-
-	/**
-	 * Event fired when calculate by Premium override input changed
-	 * @param {*} event 
-	 * @returns {object} Estimate Response
-	 */
-	async _totalPremiumChanged(e) {
-		this.newTotalPremium = e.detail.new;
-
-		// const request = {
-		// 	...this.estimate,
-		// 	clientEstimateDetails: this.clientEstimateDetails
-		// }
-		// let estimateResponse = await this.calculateClientEstimate(request);
-		// if (estimateResponse != null) {
-		// 	this.estimate = estimateResponse.result;
-		// }
-		// this.totalPremiumOverrideInput = '';
-	}
-
-	/**
-	 * Calculate Button event / Calculate by life assured
-	 * @returns {object} Estimate Response
-	 */
-	async _calculateEstimate() {
-		if (this.newTotalPremium != 0) {
-			console.log("Calculating by premium")
-			this.estimate.totalPremium = this.newTotalPremium
-		}
-
-		const request = {
-			...this.estimate,
-			// clientEstimateDetails: this.clientEstimateDetails
-		}
-
-		console.log("this.estimate")
-		console.log(this.estimate);
-
-		this.dispatchEvent(new CustomEvent(`calculate`, {
-			detail: request
-		}));
-
-		// let estimateResponse = await this.calculateClientEstimate(request);
-		// if (estimateResponse != '') {
-		// 	this.estimate = estimateResponse;
-		// }'
-
-		// Reset
-		this.estimate.totalPremium = 0;
-		this.newTotalPremium = '';
-
-		this.requestUpdate();
-	}
-
-	//#region PRIVATE FUNCTIONS
-
-	_backToSummaryPage() {
-		this.dispatchEvent(new CustomEvent(`navigate-back`, {
-			detail: {
-			}
-		}));
-	}
-
-	/**
-	 * Open Add Life dialog returning select relationship
-	 */
-	_openAddLifeDialog() {
-		// Telemetry here
-		this.showAddRelationshipDialog = true;
-	}
-
-	_closeAddLifeDialog() {
-		this.showAddRelationshipDialog = false;
-	}
-
-	//#endregion
-
-	/**
 	 * Main render point for component
-	 * @returns {html}
+	 * @returns {html} The html content of the component.
 	 */
 	_webTemplate() {
 		return html`
@@ -325,14 +334,18 @@ class PolicyEstimate extends Component {
 		`;
 	}
 
+	/**
+	 * Render dialogs for the component
+	 * @returns {html} HTML for the dialogs used in the component
+	 */
 	_renderDialogs() {
 		return html`
-			${this._renderEstimateAddLifeAssuredDialog()}
-		`
+			${this._renderAddLifeDialog()}`
 	}
 
 	/**
-	 * Render the content HTML  for the component
+	 * Render the content for the component
+* 		@return {html} Html containing title bar and column components
 	 */
 	_renderContent() {
 		return html`
@@ -343,19 +356,19 @@ class PolicyEstimate extends Component {
 			</capitec-button>
 			<capitec-button label="Calculate" type="white" @click="${() => this._calculateEstimate()}"></capitec-button>
 		</capitec-title-bar>
-		<capitec-card style="padding: 10px;">
+		<capitec-card id="insure-calc-card">
 			<div class="insure-calc-columns">
-				${this._renderLeftEstimateColumn()}
-				${this._renderRightEstimateColumn()}
+				${this._renderLeftColumn()}
+				${this._renderRightColumn()}
 			</div>
 		</capitec-card>`
 	}
 
 	/**
 	 * Render left column (Card List) for Estimate subview
-	 * @return {html} Html of the sub view
+	 * @return {html} Html of the left column, containing cards list with input fields for each life assured
 	 */
-	_renderLeftEstimateColumn() {
+	_renderLeftColumn() {
 		return html`		
 		<div class="insure-calc-column-left">
 			${this.estimate.lifesAssured.map((lifeAssured, index) => html`
@@ -365,7 +378,7 @@ class PolicyEstimate extends Component {
 					<capitec-label label="Relationship: ${lifeAssured.relationship}" type="small" class="stronger">
 					</capitec-label>
 		
-					<capitec-label @click="${() => this._estimateRemoveLifeAssured(lifeAssured)}" label="Remove" type="small"
+					<capitec-label @click="${() => this._removeLife(lifeAssured)}" label="Remove" type="small"
 						class="stronger link">
 					</capitec-label>
 				</div>
@@ -376,29 +389,31 @@ class PolicyEstimate extends Component {
 				`}
 		
 				<div class="calc-card-row">
-					<capitec-text-field label="Cover Amount" type="currency" style="width: 50%;"
-						@value-changed="${(e) => this._estimateLifeCoverAmountValueChanged(e, index)}"
-						value="${lifeAssured.coverAmount}" hint="R${lifeAssured?.coverDetails?.minCover} - R${lifeAssured?.coverDetails?.maxCover}" min="${lifeAssured?.coverDetails?.minCover}" max="${lifeAssured?.coverDetails?.maxCover}">
+					<capitec-text-field label="Cover Amount" type="currency" class="calc-card-row-input"
+						@value-changed="${(e) => this._coverAmountChanged(e, index)}" value="${lifeAssured.coverAmount}"
+						hint="R${lifeAssured?.coverDetails?.minCover} - R${lifeAssured?.coverDetails?.maxCover}"
+						min="${lifeAssured?.coverDetails?.minCover}" max="${lifeAssured?.coverDetails?.maxCover}">
 					</capitec-text-field>
-					<capitec-text-field label="Premium" type="currency" disabled hint="Estimate" style="width: 50%;"
+					<capitec-text-field label="Premium" type="currency" disabled hint="Estimate" class="calc-card-row-input"
 						value="${lifeAssured.premium}">
 					</capitec-text-field>
 				</div>
 				<div class="calc-card-row">
-					<capitec-text-field label="Age" type="numeric"
-						@value-changed="${(e) => this._estimateLifeAgeValueChanged(e, index)}" style="width: 50%;"
-						hint="${lifeAssured?.coverDetails?.ageMin} - ${lifeAssured?.coverDetails?.ageMax}" min="${lifeAssured?.coverDetails?.ageMin}" max="${lifeAssured?.coverDetails?.ageMax}">
+					<capitec-text-field label="Age" type="numeric" @value-changed="${(e) => this._ageChanged(e, index)}"
+						class="calc-card-row-input"
+						hint="${lifeAssured?.coverDetails?.minAge} - ${lifeAssured?.coverDetails?.maxAge}"
+						min="${lifeAssured?.coverDetails?.minAge}" max="${lifeAssured?.coverDetails?.maxAge}">
 					</capitec-text-field>
 					<capitec-select label="Gender" display-field="text" .items="${this.genderOptions}" id-field="code"
-						style="width: 50%" @value-changed="${(e) => this._estimateLifeGenderValueChanged(e, index)}">
+						class="calc-card-row-input" @value-changed="${(e) => this._genderChanged(e, index)}">
 					</capitec-select>
 				</div>
 			</div>
 		
-			${index != 0 ? html`` : html`<div class="calc-card-row" style="margin-top:15px;">
+			${index != 0 ? html`` : html`<div class="calc-card-row calc-card-row-actions">
 				<capitec-label label="Lives Assured" type="subtitle" class="stronger"></capitec-label>
 				<capitec-label label="Add Life Assured" type="subtitle" class="stronger link"
-					@click="${() => this._openAddLifeDialog()}"></capitec-label>
+					@click="${() => this.showAddLifeDialog = true}"></capitec-label>
 			</div>`}
 			`)}
 			<capitec-spacer></capitec-spacer>
@@ -408,9 +423,9 @@ class PolicyEstimate extends Component {
 
 	/**
 	 * Render right column (Life List & Calculation result) for Estimate subview
-	 * @return {html} Html of the sub view
+	 * @return {html} Html of the right column containing the calculation results & total premium override input
 	 */
-	_renderRightEstimateColumn() {
+	_renderRightColumn() {
 		return html`
 			<div class="insure-calc-column-right">
 				<div class="calc-summary-card">
@@ -447,20 +462,40 @@ class PolicyEstimate extends Component {
 			</div>`
 	}
 
-	/** Dialogs */
-
 	/**
 	 * Render Dialog to add Life assured to Estimate
-	 * @return {html} Html of the dialog
+	 * @return {html} Html for the dialog
 	 */
-	_renderEstimateAddLifeAssuredDialog() {
-		return this.showAddRelationshipDialog == false ? `` :
+	_renderAddLifeDialog() {
+		return this.showAddLifeDialog == false ? `` :
 			html`
-			<insure-add-life-dialog @addNewLife="${(e) => this._addLifeEstimate(e)}"
-				@closeModal="${(e) => this._closeAddLifeDialog(e)}" .currentLifesAssured="${this.estimate.lifesAssured}"
+			<insure-add-life-dialog @add-new-life="${(e) => this._addLife(e)}"
+				@close-modal="${(e) => this.showAddLifeDialog = false}" .currentLifesAssured="${this.estimate.lifesAssured}"
 				.productParams="${this.productParams}">
 			</insure-add-life-dialog>`
 	}
-}
 
+	//#endregion
+}
 window.customElements.define(`horizon-insure-policy-estimate`, PolicyEstimate);
+
+
+/**
+ * When back arrow button is clicked
+ *
+ * @example
+ * <horizon-insure-policy-estimate ... @navigate-back="${this._handler}"></horizon-insure-policy-estimate>
+ *
+ * @event PolicyEstimate#navigate-back
+ * @type {Object} - N/A
+ */
+
+/**
+ * When calculate button is clicked, send estimate calculate event to View with new estimate request
+ *
+ * @example
+ * <horizon-insure-policy-estimate ... @calculate="${this._handler}"></horizon-insure-policy-estimate>
+ *
+ * @event PolicyEstimate#calculate
+ * @type {Object} - Estimate request
+ */

@@ -1,10 +1,10 @@
 {
-  "name": "Horizon-UI",
+  "name": "Horizon-UI-2",
   "product": "BSC-Horizon",
   "group": "G_PL_HZN_DEV",
   "version": "2.5.6",
-  "alias": "horizon",
-  "release": "220301",
+  "alias": "horizon2",
+  "release": "alpha",
   "contractVersion": "v1",
   "serviceType": "Hosting",
   "resourceSize": "medium",

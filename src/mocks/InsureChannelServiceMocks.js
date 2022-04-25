@@ -1,4 +1,7 @@
 
+/**
+ * Mocks for methods in the InsureChannelService class
+ */
 export default class InsureChannelServiceMocks {
 
 	/**
@@ -38,76 +41,30 @@ export default class InsureChannelServiceMocks {
 			console.log(err);
 		};
 
-		this.productParamsMocks = await this._loadMockModule(this.productParamsMocks, `insureProductParams`, () => import(`../mocks/InsureProductParamsMockData`).catch(err => logError(err)));
-		this.calculateEstimateMocks = await this._loadMockModule(this.calculateEstimateMocks, `insureCalculateEstimate`, () => import(`../mocks/InsureCalculateEstimateMockData`).catch(err => logError(err)));
-		this.calculateQuoteMocks = await this._loadMockModule(this.calculateQuoteMocks, `insureCalculateQuote`, () => import(`../mocks/InsureCalculateQuoteMockData`).catch(err => logError(err)));
-
-		//TODO: Need to create mock data file to retrieve qutoes list
-		this.retrieveQuotesListMocks = await this._loadMockModule(this.retrieveQuotesListMocks, `insureRetrieveQuotesList`, () => import(`../mocks/InsureCalculateQuoteMockData`).catch(err => logError(err)));
-
-		//TODO: Need to create mock data file to retrieve quote details
-		this.retrieveQuoteDetailsMocks = await this._loadMockModule(this.retrieveQuoteDetailsMocks, `insureRetrieveQuoteDetails`, () => import(`../mocks/InsureCalculateQuoteMockData`).catch(err => logError(err)));
-		
 		this.policySummaryMocks = await this._loadMockModule(this.policySummaryMocks, `insureClientPolicySummary`, () => import(`../mocks/InsurePolicySummaryMockData`).catch(err => logError(err)));
 		this.transactionHistoryMocks = await this._loadMockModule(this.transactionHistoryMocks, `insurePolicyTransactionHistory`, () => import(`../mocks/InsurePolicyTransactionsMockData`).catch(err => logError(err)));
+		this.productParamsMocks = await this._loadMockModule(this.productParamsMocks, `insureProductParams`, () => import(`../mocks/insure/ProductParams`).catch(err => logError(err)));
+		this.clientPoliciesMocks = await this._loadMockModule(this.clientPoliciesMocks, `insureClientPolicies`, () => import(`../mocks/insure/ClientPolicies`).catch(err => logError(err)));
 	}
 
-	// Insure product Params
+	/**
+	 * Product parameters mock check
+	 * @returns {Object} Mock response data
+	 */
 	insureProductParams() {
 		if (this._mockSettings.insureProductParams.positiveCase) {
 			return this.productParamsMocks.InsureProductParams;
 		}
 		return null;
 	}
-
-	// Calculate Estimate
-	insureCalculateEstimate() {
-		if (this._mockSettings.insureCalculateEstimate.positiveCase) {
-			return this.calculateEstimateMocks.InsureCalculateEstimate;
-		}
-		return null;
-	}
-
-	// Calculate Quote
-	insureCalculateQuote() {
-		if (this._mockSettings.insureCalculateQuote.positiveCase) {
-			return this.calculateQuoteMocks.InsureCalculateQuote;
-		}
-		return null;
-	}
-
-	// Calculate Quote
-	insureRetrieveQuotesList() {
-		if (this._mockSettings.insureRetrieveQuotesList.positiveCase) {
-			return this.retrieveQuotesListMocks.InsureRetrieveQuotesList;
-		}
-		return null;
-	}
-
-
-	// Retrieve details for a single quote
-	insureRetrieveQuoteDetails() {
-		if (this._mockSettings.insureRetrieveQuoteDetails.positiveCase) {
-			return this.retrieveQuoteDetailsMocks.InsureRetrieveQuoteDetails;
-		}
-		return null;
-	}
-
-	// Client Policy Summary
-	insureClientPolicySummary() {
-		if (this._mockSettings.insureClientPolicySummary.positiveCase) {
-			return [
-				{
-					policyNumber: `ABC01`,
-					effectiveDate: `01 Feb 2019`,
-					debitOrderDate: `25 May 2019`,
-					coverAmount: 35000.50,
-					totalPremium: 88.50,
-					status: `Active`,
-					inArrears: false
-				}
-			];
-			// return this.insureMocks.InsureClientPolicySummary;
+	
+	/**
+	 * Client policies mock check
+	 * @returns {Object} Mock response data
+	 */
+	 insureClientPolicies() {
+		if (this._mockSettings.insureClientPolicies.positiveCase) {
+			return this.clientPoliciesMocks.InsureClientPolicies;
 		}
 		return null;
 	}
@@ -125,4 +82,5 @@ export default class InsureChannelServiceMocks {
 		// Code for a negative case could come here
 		return null;
 	}
+
 }

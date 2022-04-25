@@ -1,14 +1,10 @@
-// Core
 import { css, html } from 'platform/elements';
 
-import { Configuration } from 'platform/core';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-
+import { InsureService } from 'app/services/InsureService';
 import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 
-// Pages
-import 'app/components/insure/InsureLanding';
+import 'app/components/insure/ClientPolicies';
 import 'app/components/insure/PolicyEstimate';
 import 'app/components/insure/UpdatePlan';
 import 'app/components/insure/PolicyTransactionHistory';
@@ -43,21 +39,28 @@ export class ExistingClient extends InsureViewBase {
 
 	constructor() {
 		super();
-		this.configuration = Configuration.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
-		this.renderMode = INSURE_RENDER_MODE.POLICY_SUMMARY;
-
+		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
-
 		this.estimate = {};
 		this.productParams = {};
 		this.policyTransactionHistory = [];
 	}
 
+	/**
+	 * @property {Object} clientPolicies Data & flags for all policies relating to client CIF
+	 * @property {Object} productParams Data & flags for insure product parameters
+	 * @property {Object} estimate Local object for new Estimate requests
+	 * @property {Object} quote  Local object for new Quote requests
+	 * 
+	 * @readonly
+	 * @static
+	 */
 	static get properties() {
 		return {
+			clientPolicies: { type: Object },
+			productParams: { state: true },
 			estimate: { state: true },
-			productParams: { state: true }
+			quote: { state: true }
 		};
 	}
 
@@ -71,7 +74,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
-		this._initialize();
+		this._initialise();
 	}
 
 	//#endregion
@@ -79,21 +82,38 @@ export class ExistingClient extends InsureViewBase {
 	//#region EVENT HANDLERS
 
 	/**
+	 * Retrieve client policies via insure channel service
+	 * @returns {Object} Client policies 
+	 */
+	async _retrieveClientPolicies(cifNumber, idNumber) {
+		this.isBusy = true;
+		let request = {
+			cifNumber: cifNumber,
+			idNumber: idNumber,
+		}
+		const resp = await this.insureService.clientPolicies(request);
+		this.isBusy = false;
+		return resp.result;
+	}
+
+	/**
 	 * Calculate estimate based on lives assured provided
 	 * @returns {Object} Estimate response
 	 */
 	async _calculateClientEstimate(e) {
-		console.log("Which e");
-		console.log(e);
+		let estimateWithCoverDetails = e.detail;
 		this.isBusy = true;
-		const resp = await this.insureService.calculateEstimate(e.detail, () => true);
-		console.log('resp');
-		console.log(resp);
+		const resp = await this.insureService.calculateEstimate(estimateWithCoverDetails, () => true);
 		if (resp.succeeded == true && resp.result != null) {
+			estimateWithCoverDetails.totalPremium = resp.result.totalPremium;
+			estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map(lifeWithDetails => {
+				return Object.assign(lifeWithDetails, resp.result.lifesAssured.find(respLife => {
+					return lifeWithDetails.rowID === respLife.rowID
+				}))
+			});
+			this.estimate = estimateWithCoverDetails;
 			this.isBusy = false;
-			this.estimate = resp.result;
 		} else {
-			console.error(resp.exception);
 			this.isBusy = false;
 			// Do error message
 			return null;
@@ -105,14 +125,30 @@ export class ExistingClient extends InsureViewBase {
 	//#region PRIVATE METHODS
 
 	/**
-	 * Initialize Landing View / Invoke params service
+	 * Initialize Landing View / Fetch client policies for landing component
 	 */
-	async _initialize() {
+	async _initialise() {
 		this.verificationStatus = this.callerInformation.verificationStatus;
-		this.productParams = await this.insureService.productParams({}, () => true);
+		this.clientPolicies = await this._retrieveClientPolicies();
 	}
 
-	//#region PRIVATE METHODS
+	//#endregion
+
+	//#region EVENT HANDLERS
+
+	/**
+	 * Navigate so specific subview
+	 */
+	_navigateToSubView(newMode) {
+		this.renderMode = newMode;
+	}
+
+	/**
+	 * Navigate back from any view to Summary
+	 */
+	_backToSummaryPage() {
+		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
+	}
 
 	/**
 	 * Prepare and navigate Update plan
@@ -186,8 +222,8 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderLandingPage() {
 		switch (this.renderMode) {
-			case INSURE_RENDER_MODE.POLICY_SUMMARY:
-				return html`${this._renderPolicySummaryPage()}`
+			case INSURE_RENDER_MODE.CLIENT_POLICIES:
+				return html`${this._renderClientPoliciesPage()}`
 			case INSURE_RENDER_MODE.ESTIMATE:
 				return html`${this._renderCalculateEstimatePage()}`
 			case INSURE_RENDER_MODE.UPDATE_PLAN:
@@ -196,6 +232,8 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderFuneralPlanDetailsPage()}`
 			case INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY:
 				return html`${this._renderPolicyTransactionHistoryPage()}`
+			case INSURE_RENDER_MODE.POLICY_SUMMARY:
+				return html`${this._renderPolicySummaryPage()}`
 			default:
 				return html``;
 		}
@@ -205,12 +243,12 @@ export class ExistingClient extends InsureViewBase {
 	 * Render Landing page for Insure existing clients
 	 * @return {html} Html of the sub view
 	 */
-	_renderPolicySummaryPage() {
+	_renderClientPoliciesPage() {
 		return html`
-			<horizon-insure-landing @navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
+			<horizon-insure-client-policies @navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan()}"
-				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory()}">
-			</horizon-insure-landing>`
+				@navigate-to-policy-summary="${(e) => this._goToPolicySummary()}">
+			</horizon-insure-client-policies>`
 	}
 
 	/**
@@ -219,11 +257,9 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderCalculateEstimatePage() {
 		return html`
-			<horizon-insure-policy-estimate 
-			@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY)}" 
-			@calculate="${(e)=> this._calculateClientEstimate(e)}"
-			.estimate="${this.estimate}"
-			.productParams="${this.productParams}">
+			<horizon-insure-policy-estimate @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+				@calculate="${(e) => this._calculateClientEstimate(e)}" .estimate="${this.estimate}"
+				.productParams="${this.productParams}">
 			</horizon-insure-policy-estimate>`
 	}
 
@@ -233,16 +269,19 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderUpdatePlanPage() {
 		return html`
-			<horizon-insure-update-plan @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY)}">
+			<horizon-insure-update-plan @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+				@calculate="${(e) => this._calculateClientQuote(e)}" .quote="${this.quote}" .productParams="${this.productParams}">
 			</horizon-insure-update-plan>`
 	}
 
 	/**
-	 * Render Update Plan page
+	 * Render Policy Details Plan
 	 * @return {html} Html of the sub view
 	 */
-	_renderFuneralPlanDetailsPage() {
-		return html`<div>Hi I am Funeral Plan details Page</div>`
+	_renderPolicySummaryPage() {
+		return html`
+			<horizon-insure-policy-summary @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+			</horizon-insure-policy-summary>`
 	}
 
 	/**
