@@ -46,8 +46,8 @@ class AddLifeDialog extends Component {
 	static get properties() {
 		return {
 			currentLifesAssured: { type: Object },
-			productParams: { state: true },
-			showExtendedList: { state: false }
+			productParams: { type: Object },
+			showExtendedList: { type: Boolean, state: true }
 		};
 	}
 
@@ -72,7 +72,7 @@ class AddLifeDialog extends Component {
 	 * Initialize component when loaded / Count current lives in list and set limits
 	 * Resets last selected relationship
 	 */
-	 _initialise() {
+	_initialise() {
 		this.currentTotalSpouse = this.currentLifesAssured.filter((life) => life.relationship === "Spouse").length;
 		this.currentTotalChild = this.currentLifesAssured.filter((life) => life.relationship === "Child").length;
 		this.currentTotalParent = this.currentLifesAssured.filter((life) => life.relationship === "Parent").length;
@@ -118,7 +118,6 @@ class AddLifeDialog extends Component {
 	_showExtendedFamilyList() {
 		this.showExtendedList = true;
 		this.selectedRelationship = ``;
-		this.requestUpdate();
 	}
 
 	//#endregion

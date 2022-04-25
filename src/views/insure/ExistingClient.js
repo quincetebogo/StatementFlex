@@ -46,8 +46,8 @@ export class ExistingClient extends InsureViewBase {
 	static get properties() {
 		return {
 			clientPolicies: { type: Object },
-			productParams: { state: true },
-			estimate: { state: true },
+			productParams: { type: Object },
+			estimate: { type: Object },
 			quote: { state: true }
 		};
 	}

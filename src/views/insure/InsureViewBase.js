@@ -10,8 +10,6 @@ import { InsureService } from 'app/services/InsureService';
  * This base class will contain the following common code
  * 
  *    - getting insure product parameters
- *    - toggling isBusy support
- *    - expose caller and agent information
  *
  * @export
  * @class InsureViewBase
@@ -23,8 +21,8 @@ export class InsureViewBase extends ViewBase {
 
 	constructor() {
 		super();
-		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
+		// this.horizonRouter = HorizonRouter.getInstance();
+		// this.horizonStore = HorizonStore.getInstance();
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 	}
 
@@ -42,7 +40,7 @@ export class InsureViewBase extends ViewBase {
 	static get properties() {
 		return {
 			productParams: { type: Object },
-			isBusy: { state: true },
+			// isBusy: { state: true },
 		};
 	}
 
@@ -94,6 +92,8 @@ export class InsureViewBase extends ViewBase {
 		if (this.errorCount > 2) {
 			// this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 			// this.horizonStore.setCallerInformation(this.callerInformation);
+
+			// Generic error
 			this.horizonRouter.navigateToSystemError();
 		}
 		return true;

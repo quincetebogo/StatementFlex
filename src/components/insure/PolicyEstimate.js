@@ -47,7 +47,7 @@ class PolicyEstimate extends Component {
 	static get properties() {
 		return {
 			estimate: { state: true },
-			productParams: { state: true },
+			productParams: { type: Object },
 			newTotalPremium: { number: 0 },
 			showAddLifeDialog: { state: false },
 			canPerformEstimate: { state: false }
@@ -529,7 +529,6 @@ class PolicyEstimate extends Component {
 	//#endregion
 }
 window.customElements.define(`horizon-insure-policy-estimate`, PolicyEstimate);
-
 
 /**
  * When back arrow button is clicked
