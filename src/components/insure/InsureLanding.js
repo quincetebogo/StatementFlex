@@ -8,6 +8,13 @@ class InsureClientLanding extends Component {
 
 	//#region PRIVATE FUNCTIONS
 
+	_goToPolicyTransactionHistory() {
+		this.dispatchEvent(new CustomEvent(`navigate-to-policy-transaction-history`, {
+			detail: {
+			}
+		}));
+	}
+
 	_goToEstimate() {
 		this.dispatchEvent(new CustomEvent(`navigate-to-estimate`, {
 			detail: {
@@ -43,6 +50,8 @@ class InsureClientLanding extends Component {
 			<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 			<capitec-label label="Insure" type="title"></capitec-label>
 			<capitec-spacer></capitec-spacer>
+			<capitec-button type="white" label="Transaction History" @click="${() => this._goToPolicyTransactionHistory()}">
+			</capitec-button>
 			<capitec-button type="white" label="Get Estimate" @click="${() => this._goToEstimate()}">
 			</capitec-button>
 			<capitec-button type="white" label="Update plan" @click="${() => this._goToUpdatePlan()}">

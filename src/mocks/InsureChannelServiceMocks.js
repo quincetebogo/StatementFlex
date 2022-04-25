@@ -38,13 +38,24 @@ export default class InsureChannelServiceMocks {
 			console.log(err);
 		};
 
-		this.insureMocks = await this._loadMockModule(this.insureMocks, `insureMocks`, () => import(`../mocks/InsureMockData`).catch(err => logError(err)));
+		this.productParamsMocks = await this._loadMockModule(this.productParamsMocks, `insureProductParams`, () => import(`../mocks/InsureProductParamsMockData`).catch(err => logError(err)));
+		this.calculateEstimateMocks = await this._loadMockModule(this.calculateEstimateMocks, `insureCalculateEstimate`, () => import(`../mocks/InsureCalculateEstimateMockData`).catch(err => logError(err)));
+		this.calculateQuoteMocks = await this._loadMockModule(this.calculateQuoteMocks, `insureCalculateQuote`, () => import(`../mocks/InsureCalculateQuoteMockData`).catch(err => logError(err)));
+
+		//TODO: Need to create mock data file to retrieve qutoes list
+		this.retrieveQuotesListMocks = await this._loadMockModule(this.retrieveQuotesListMocks, `insureRetrieveQuotesList`, () => import(`../mocks/InsureCalculateQuoteMockData`).catch(err => logError(err)));
+
+		//TODO: Need to create mock data file to retrieve quote details
+		this.retrieveQuoteDetailsMocks = await this._loadMockModule(this.retrieveQuoteDetailsMocks, `insureRetrieveQuoteDetails`, () => import(`../mocks/InsureCalculateQuoteMockData`).catch(err => logError(err)));
+		
+		this.policySummaryMocks = await this._loadMockModule(this.policySummaryMocks, `insureClientPolicySummary`, () => import(`../mocks/InsurePolicySummaryMockData`).catch(err => logError(err)));
+		this.transactionHistoryMocks = await this._loadMockModule(this.transactionHistoryMocks, `insurePolicyTransactionHistory`, () => import(`../mocks/InsurePolicyTransactionsMockData`).catch(err => logError(err)));
 	}
 
 	// Insure product Params
 	insureProductParams() {
 		if (this._mockSettings.insureProductParams.positiveCase) {
-			return this.insureMocks.InsureProductParams;
+			return this.productParamsMocks.InsureProductParams;
 		}
 		return null;
 	}
@@ -52,7 +63,7 @@ export default class InsureChannelServiceMocks {
 	// Calculate Estimate
 	insureCalculateEstimate() {
 		if (this._mockSettings.insureCalculateEstimate.positiveCase) {
-			return this.insureMocks.InsureCalculateEstimate;
+			return this.calculateEstimateMocks.InsureCalculateEstimate;
 		}
 		return null;
 	}
@@ -60,7 +71,7 @@ export default class InsureChannelServiceMocks {
 	// Calculate Quote
 	insureCalculateQuote() {
 		if (this._mockSettings.insureCalculateQuote.positiveCase) {
-			return this.insureMocks.InsureCalculateQuote;
+			return this.calculateQuoteMocks.InsureCalculateQuote;
 		}
 		return null;
 	}
@@ -68,7 +79,7 @@ export default class InsureChannelServiceMocks {
 	// Calculate Quote
 	insureRetrieveQuotesList() {
 		if (this._mockSettings.insureRetrieveQuotesList.positiveCase) {
-			return this.insureMocks.InsureRetrieveQuotesList;
+			return this.retrieveQuotesListMocks.InsureRetrieveQuotesList;
 		}
 		return null;
 	}
@@ -77,7 +88,7 @@ export default class InsureChannelServiceMocks {
 	// Retrieve details for a single quote
 	insureRetrieveQuoteDetails() {
 		if (this._mockSettings.insureRetrieveQuoteDetails.positiveCase) {
-			return this.insureMocks.InsureRetrieveQuoteDetails;
+			return this.retrieveQuoteDetailsMocks.InsureRetrieveQuoteDetails;
 		}
 		return null;
 	}
@@ -98,6 +109,20 @@ export default class InsureChannelServiceMocks {
 			];
 			// return this.insureMocks.InsureClientPolicySummary;
 		}
+		return null;
+	}
+
+	//fetch mock data for policy transactions
+	policyTransactionHistory(policyTransactionHistoryRequest) {
+		if (this._mockSettings.insurePolicyTransactionHistory.positiveCase) {
+			const result = {transactions : 
+				this.transactionHistoryMocks.PolicyTransactionHistory.transactions
+				.slice(policyTransactionHistoryRequest.pageIndex
+					,policyTransactionHistoryRequest.pageIndex + policyTransactionHistoryRequest.totalPerPage)}
+			return result;
+		}
+
+		// Code for a negative case could come here
 		return null;
 	}
 }

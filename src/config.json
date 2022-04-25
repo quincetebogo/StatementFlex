@@ -178,6 +178,10 @@
 		"insureRetrieveQuotesList": {
 			"enabled": true,
 			"positiveCase": true
+		},
+		"insurePolicyTransactionHistory": {
+			"enabled": true,
+			"positiveCase": true
 		}
 	}
 }

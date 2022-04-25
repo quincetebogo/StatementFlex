@@ -1,5 +1,6 @@
 // Core
 import { css, html } from 'platform/elements';
+
 import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 
@@ -10,8 +11,21 @@ import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 import 'app/components/insure/InsureLanding';
 import 'app/components/insure/PolicyEstimate';
 import 'app/components/insure/UpdatePlan';
+import 'app/components/insure/PolicyTransactionHistory';
 
 import { InsureService } from 'app/services/InsureService';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { getMonthName } from 'app/utils/channelServiceUtilities';
+
+// ninety days in milliseconds
+const NINETY_DAYS = 7777000000;
+
+const POLICY_TRANSACTION_HISTORY = {
+	END_DATE: new Date().toISOString().substr(0, 10),
+	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
+	PAGE_INDEX: 0,
+	MAX_RESULTS: 50
+};
 
 /**
  * Implements the view for Insure verified and unverified existing clients (i.e. the client has products)
@@ -37,6 +51,7 @@ export class ExistingClient extends InsureViewBase {
 
 		this.estimate = {};
 		this.productParams = {};
+		this.policyTransactionHistory = [];
 	}
 
 	static get properties() {
@@ -114,6 +129,13 @@ export class ExistingClient extends InsureViewBase {
 		// Telemetry Here
 		this._navigateToSubView(INSURE_RENDER_MODE.ESTIMATE);
 	}
+
+	async _goToPolicyTransactionHistory() {
+		// Telemetry Here
+		await this._getPolicyTransactionHistory();
+		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY);
+	}
+
 	//#endregion
 
 	//#region RENDERING
@@ -172,6 +194,8 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderUpdatePlanPage()}`
 			case INSURE_RENDER_MODE.FUNERAL_PLAN_DETAILS:
 				return html`${this._renderFuneralPlanDetailsPage()}`
+			case INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY:
+				return html`${this._renderPolicyTransactionHistoryPage()}`
 			default:
 				return html``;
 		}
@@ -184,7 +208,8 @@ export class ExistingClient extends InsureViewBase {
 	_renderPolicySummaryPage() {
 		return html`
 			<horizon-insure-landing @navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
-				@navigate-to-update-plan="${(e) => this._goToUpdatePlan()}">
+				@navigate-to-update-plan="${(e) => this._goToUpdatePlan()}"
+				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory()}">
 			</horizon-insure-landing>`
 	}
 
@@ -218,6 +243,57 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderFuneralPlanDetailsPage() {
 		return html`<div>Hi I am Funeral Plan details Page</div>`
+	}
+
+	/**
+	 * Render Policy Transaction History Page
+	 * @returns {html} Html of the sub view 
+	 */
+	_renderPolicyTransactionHistoryPage() {
+		return this.renderMode === INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY
+			? html `<horizon-insure-policy-transaction-history 
+				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY)}"
+				.policyTransactionHistory="${this.policyTransactionHistory}"
+				.getPolicyTransactionHistory="${(startDate, endDate, pageIndex) => 
+					this._getPolicyTransactionHistory(startDate, endDate, pageIndex)}"
+				.disposeData="${() => this.policyTransactionHistory = []}"
+				@unloading="${() => this._unloadPolicyTransactionHistory()}">
+			</horizon-insure-policy-transaction-history>`
+			: html``;
+	}
+
+	async _getPolicyTransactionHistory(startDate, endDate, pageIndex) {
+		const transactionHistoryRequest = {
+			contractReference: '',
+			transactionDateType: '',
+			fromDate: startDate || POLICY_TRANSACTION_HISTORY.START_DATE,
+			toDate: endDate || POLICY_TRANSACTION_HISTORY.END_DATE,
+			pageIndex: pageIndex || POLICY_TRANSACTION_HISTORY.PAGE_INDEX,
+			totalPerPage: POLICY_TRANSACTION_HISTORY.MAX_RESULTS,
+		};
+
+		const returnValue = await this.insureService.getPolicyTransactions(transactionHistoryRequest);
+
+		if (returnValue.succeeded && returnValue.result) {
+			const formattedTrans = returnValue.result.transactions
+									.map((item) => {
+										const formatedPremiumDate = new Date(Date.parse(item.premiumDueDate));
+										const formatedDate = new Date(Date.parse(item.Date));
+										item.formatedPremiumDate = formatedPremiumDate;
+										item.formatedDate = formatedDate;
+										item.groupByPremiumDate = `${getMonthName(formatedPremiumDate.getMonth())} ${formatedPremiumDate.getFullYear()}`;
+										item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
+										item.formatedAmount = formatCurrency(item.amount);
+										return item;
+									});
+			this.policyTransactionHistory.push(...formattedTrans);
+			this.endCallContext = `PolicyTransactionHistory`;
+			this.renderMode = INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY;
+		}
+	}
+
+	_unloadPolicyTransactionHistory() {
+		this.policyTransactionHistory = [];
 	}
 
 	//#endregion
