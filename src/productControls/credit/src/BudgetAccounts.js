@@ -97,6 +97,8 @@ import 'app/components/common/HorizonLabel';
 	}
 
 	_transferClick(selectedBudgetAccount) {
+		selectedBudgetAccount.productTypeCode = this.budgetFacilityAccounts.productTypeCode;
+
 		this.dispatchEvent(new CustomEvent(`transfer-click`, {
 			detail: { selectedAccountDetails: selectedBudgetAccount }
 		}));
@@ -421,6 +423,7 @@ import 'app/components/common/HorizonLabel';
 					data-automation-id="budget-facility-transfer-button"
 					type="clear"
 					label="Transfer"
+					?hidden=${true}
 					@click="${() => this._transferClick(budgetAccount)}">
 				</capitec-button>
 			</capitec-group>`;

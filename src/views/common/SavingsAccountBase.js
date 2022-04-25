@@ -1,6 +1,6 @@
-
 import { HIGH_RISK_TRANSACTIONS, LOW_RISK_TRANSACTIONS } from 'app/constants/Common';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
+import { ACCOUNT_STATUS } from 'app/constants/Credit';
 import { CreditService } from 'app/services/CreditService';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { NavigationContext } from 'platform/core';
@@ -118,9 +118,9 @@ export class SavingsAccountBase extends ViewBase {
 		const clientSavingsProductDetails = await this._getClientProducts();
 		const clientCreditProductDetails = await this._getClientCreditProducts();
 
-		const clientProductDetails = [...clientSavingsProductDetails, ...clientCreditProductDetails.accessFacilitySummaryList, ...clientCreditProductDetails.creditCardSummaryList, ...clientCreditProductDetails.loanAccountSummaryList];
+		const clientProductDetails = [...clientSavingsProductDetails, ...clientCreditProductDetails?.accessFacilitySummaryList, ...clientCreditProductDetails?.creditCardSummaryList, ...clientCreditProductDetails?.loanAccountSummaryList];
 
-			if (clientProductDetails) {
+		if (clientProductDetails) {
 			this.clientProducts = clientProductDetails.map(item => {
 									const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType || item.productTypeCode][item.interestCategory] || 
 														ACCOUNT_INTCAT_ENUM[item.accountType || item.productTypeCode];
@@ -291,7 +291,7 @@ export class SavingsAccountBase extends ViewBase {
 
 	async _getClientCreditProducts(customErrHandler = null) {
 
-		const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber, customErrHandler);
+		const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber, ACCOUNT_STATUS.ALL, customErrHandler);
 
 		if (returnValue.succeeded) {
 			return returnValue.result;

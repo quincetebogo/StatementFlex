@@ -38,4 +38,36 @@ export const PRODUCT_TYPE = {
 		6000: PRODUCTS.ACCESS_FACILITY,
 		4010: PRODUCTS.TERM_LOAN
 	};
-	
+
+/**
+ * Need actions and operation identifier mapping to check credit permissions
+ * 
+ * @readonly
+ * @enum {Object} PERMISSION_STATUS
+ */
+export const ACTION_IDENTIFIER = Object.freeze({
+	'transaction-history': `SendViewTransactionHistory`,
+	'statements': `SendViewStatements`,
+	'settlement-quote': `SettlementQuote`,
+	'paid-up-letter': `PaidUp`,
+	'settle-close': `SettleAndClose`
+});
+
+/**
+ * Available permission statuses for credit options
+ * 
+ * @readonly
+ * @enum {Object} PERMISSION_STATUS
+ */
+export const PERMISSION_STATUS = Object.freeze({
+	GRANTED: `Granted`,
+	DENIED: `Denied`
+});
+
+export const ACCOUNT_STATUS = Object.freeze({
+	UNSPECIFIED: `Unspecified`,
+	ALL: `All`,
+	ACTIVE: `Active`,
+	CLOSED: `Closed`,
+	PAID_UP: `Paidup`
+});

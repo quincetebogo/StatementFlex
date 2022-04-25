@@ -55,8 +55,15 @@ export class MonthPeriodSelector extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_selectedMonth(item) {
-		this.selectedPredefinedMonths.push(item.key);
+	_selectedMonth(event, item) {
+
+		if (event.detail.new) {
+			this.selectedPredefinedMonths.push(item.key);
+		} else {
+			const index = this.selectedPredefinedMonths.findIndex(month => month === item.key);
+			this.selectedPredefinedMonths.splice(index, 1);
+		}
+
 		this._dispatchValueChanged();
 	}
 
@@ -64,7 +71,8 @@ export class MonthPeriodSelector extends Component {
 		this.selectedPredefinedMonths = [];
 
 		if (!this.checkedAll) {
-			this.selectedPredefinedMonths = this.lastSixMonths.map(item => item.key);
+			this.selectedPredefinedMonths = this.lastSixMonths.filter(item => !item.disabled)
+															  .map(item => item.key);
 		}
 
 		this.checkedAll = !this.checkedAll;
@@ -98,13 +106,16 @@ export class MonthPeriodSelector extends Component {
 	_initialise() {
 		for (let month = 1; month <= 6; month++) {
 			
+			const accOpenedDate = new Date(this.accountOpenDate);
 			const date = new Date();
-			date.setMonth(date.getMonth() - month);
+			const prevMonth = date.getMonth() - 1;
+			date.setMonth(prevMonth - month);
 
 			this.lastSixMonths.push({
 				index: month,
 				key: `${date.getMonth() + 1}/${date.getFullYear()}`,
-				value: `${getMonthName(date.getMonth())} ${date.getFullYear()}`
+				value: `${getMonthName(date.getMonth())} ${date.getFullYear()}`,
+				disabled: accOpenedDate > date
 			});
 		}
 
@@ -113,6 +124,10 @@ export class MonthPeriodSelector extends Component {
 														  .map(month => month.key);
 		this.selectedCustomMonths = this.value.filter(item => !this.selectedPredefinedMonths.includes(item));
 		this.checkedAll = this.lastSixMonths.every(item => this.selectedPredefinedMonths.includes(item.key));
+
+		// Determining Max month for month selector
+		const todaysDate = new Date();
+		this.maxDate = new Date(todaysDate.getFullYear(), todaysDate.getMonth(), 0).toISOString();
 	}
 
 	_getChipLable(key) {
@@ -193,7 +208,8 @@ export class MonthPeriodSelector extends Component {
 					<capitec-check
 						label="Select all"
 						?indeterminate="${this.checkedAll}"
-						@value-change="${e => this._selectAll()}">
+						@value-change="${e => this._selectAll()}"
+						?disabled="${this.lastSixMonths.every(item => item.disabled)}">
 					</capitec-check>
 			</capitec-group>
 
@@ -213,16 +229,15 @@ export class MonthPeriodSelector extends Component {
 				data-automation-id="month-period-selector"
 				expandButtonAlignment="right"
 				inputType="Checkbox"
-				@value-change="${(e) => this._selectedMonth(item)}"
+				@value-change="${(e) => this._selectedMonth(e, item)}"
 				?selected="${this.selectedPredefinedMonths.includes(item.key)}"
-				?disabled="${false}"
+				?disabled="${item.disabled}"
 				label="${item.value}">
 			</horizon-expander-noanime>`;
 	}
 
 	_renderOtherDates() {
 		// set minDate and maxDate for calendar for accountOpened and accountClosed dates
-		// minDate="${DateTime.local(2019, 7).toString()}"
 
 		return html`
 			<hr class="line">
@@ -237,6 +252,7 @@ export class MonthPeriodSelector extends Component {
 				inputType="calendar"
 				outputType="string"
 				minDate="${this.accountOpenDate.toString()}"
+				maxDate="${this.maxDate}"
 				@value-changed="${e => this._customMonthSelected(e)}">
 			</horizon-month-calendar>
 

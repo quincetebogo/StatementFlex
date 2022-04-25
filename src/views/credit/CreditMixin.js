@@ -1,3 +1,4 @@
+import { ACTION_IDENTIFIER, PERMISSION_STATUS, PRODUCTS } from 'app/constants/Credit';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { html } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -20,25 +21,58 @@ import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 export const creditMixin = {
 
+	/**
+	 * This function gets the credit permission for the option selected
+	 * 
+	 * @param {option} option need (statement/ transaction-history/ paid-up)
+	 * @param {*} accNum - account number of selected product
+	 * @param {*} productType - credit product type
+	 * @returns {boolean} True - has CCS status, False - No CCS status
+	 */
+
+	async _checkCreditPermisions(option, cifNumber, accNum, productType) {
+
+		const credProducts = {
+			[PRODUCTS.CREDIT_CARD]: `CreditCard`,
+			[PRODUCTS.ACCESS_FACILITY]: `AccessFacility`,
+			[PRODUCTS.TERM_LOAN]: `Loan`
+		};
+		const returnValue = await this.creditService.permissions(cifNumber, accNum, credProducts[productType]);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to get credit permissions.`, `_getCreditPermisions`, returnValue.correlationId);
+		}
+
+		const permission = returnValue.result.permissionsResultsList.find(item => item.operationIdentifier === ACTION_IDENTIFIER[option]);
+		return permission?.permissionResult === PERMISSION_STATUS.DENIED;
+	},
+
 	_settlementQuoteDialog(selectedAccounts) {
 		this.selectedAccountDetails = selectedAccounts;
 		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_DIALOG;
 	},
 
 	_sendSettlementQuote(details) {
-
-		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.selectedAccounts = details.selectedAccounts.filter(item => !isNullorEmpty(item));
-		screenDetails.emailAddress = details.emailAddress;
-		this.horizonStore.setScreenDetails(screenDetails);
 		
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `settlement-quote`);
 	
 		// TO DO: CS call to send Settlement Quote sould come here
-		// Settlement Quote outcome screens to be modified as per CS outcome to handle multiple account selection
+		// "accountsEmailStatus" - Response from the CS call  
 
-		this.horizonRouter.navigateToSettlementQuoteSuccess();
-		// this.horizonRouter.navigateToSettlementQuoteFailure();
+		const formatedResponse = accountsEmailStatus.map(item => {
+			const itemDetails = details.selectedAccounts.find(account => account.accountNumber === item.accountNumber);
+			item.productTypeDescription = itemDetails.productTypeDescription;
+
+			return item;
+		});
+
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.selectedAccounts = details.selectedAccounts.filter(item => !isNullorEmpty(item));
+		screenDetails.emailAddress = details.emailAddress;
+		screenDetails.emailStatus = formatedResponse;
+		this.horizonStore.setScreenDetails(screenDetails);
+
+		this.horizonRouter.navigateToSettlementQuoteOutcome();
 	},
 
 	async _navigatePDF(currPage) {
@@ -59,6 +93,15 @@ export const creditMixin = {
 				@send="${(e) => this._sendSettlementQuote(e.detail)}"
 				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
 			</horizon-settlement-quote-dialog>`
+		: html``;
+	},
+
+	_renderCcsModal() {
+		return this.ccsStatus
+		? html`
+			<horizon-ccs-status-dialog
+				@on-okay="${() => this.ccsStatus = false}">
+			</horizon-ccs-status-dialog>`
 		: html``;
 	}
 	

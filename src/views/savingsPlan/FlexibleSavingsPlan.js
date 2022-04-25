@@ -1,5 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/OptionButton';
@@ -147,7 +146,7 @@ export class FlexibleSavingsPlanDetails extends Component {
 				}
 				.details-label {
 					height: 64px;
-					width: 342px;
+					width: 33%;
 					padding: 12px 0px;
 
 					--horizon-label-text-height: 20px;
