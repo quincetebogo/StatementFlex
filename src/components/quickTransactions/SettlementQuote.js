@@ -1,6 +1,6 @@
+import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
 import { CREDIT_TYPE, CREDIT_TYPE_LIST, DEFAULTS, PRODUCTS } from 'app/constants/Credit';
 import { Component, css, html } from 'platform/elements';
-import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 
@@ -32,8 +32,6 @@ export class SettlementQuote extends Component {
 	constructor() {
 		super();
 		this.settlementQuoteDetails = {};
-		this.errorMessage = ``;
-		this.isBusy = false;
 		this.selectedAccounts = [];
 		this.filteredData = [];
 		this.listValue = `Credit type`;
@@ -41,7 +39,6 @@ export class SettlementQuote extends Component {
 
 		this._telemetry = HorizonTelemetry.getInstance();
 	}
-
 
 	// --------------
 	// PROPERTIES
@@ -79,17 +76,11 @@ export class SettlementQuote extends Component {
 
 	async disconnectedCallback() {
 		super.disconnectedCallback();
-
-		await this._telemetry.endSpan(QuickTransactionEvents.SETTLEMENT_QUOTE, {});
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-	
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
-	}
 
 	_filter(e) {
 		[this.listValue] = e.detail.new.split(` `);
@@ -219,10 +210,11 @@ export class SettlementQuote extends Component {
 			super.styles,
 			css`
 				${ALERTBANNER_CSS}
-				.card{
+				capitec-card {
 					width:100%;
 					height:var(--horizon-panel-height);
 				}
+
 				/* Title bar style */
 				capitec-title-bar {
 					border-bottom: 1px solid rgb(225, 225, 225);
@@ -240,6 +232,7 @@ export class SettlementQuote extends Component {
 				capitec-icon {
 					cursor: pointer;
 				}
+
 				/* Filter bar styles */
 				capitec-text-field {
 					width: 337px;
@@ -248,6 +241,7 @@ export class SettlementQuote extends Component {
 					--theme-input-label-font-color: #959595;
 					--theme-input-search-label-idle-margin-left: 30px;
 				}
+
 				/* main content styles */
 				.main-cb > capitec-label[type="subtitle"] {
 					line-height: 24px;
@@ -257,11 +251,7 @@ export class SettlementQuote extends Component {
 					--theme-label-subtitle-font-weight: 600;
 					--theme-layout-gap-spacing: 18px;
 				}
-				.alert-banner
-				{
-					width:100%;
-				}
-				.accounts{
+				.accounts {
 					height: 64px;
 					border: 1px solid #E1E1E1;
 					border-radius: 4px;
@@ -273,7 +263,7 @@ export class SettlementQuote extends Component {
 				capitec-group[gap="line"] > *:first-child {
 					--theme-layout-gap-spacing: 16px;
 				}
-				horizon-label{
+				horizon-label {
 					width: 184px;
 					--theme-layout-gap-spacing: 0px;
 					--horizon-label-text-height: 20px;
@@ -332,7 +322,7 @@ export class SettlementQuote extends Component {
 
 	_renderContent() {
 		return html`
-			<capitec-card class="card">
+			<capitec-card>
 				${this._renderTitleBar()}
 				${this._renderSearch()}
 				${this._renderFooter()}
@@ -440,12 +430,6 @@ export class SettlementQuote extends Component {
 				</horizon-label>
 			</capitec-content-box>
 		`;
-	}
-
-	_renderLoadingIndicator() {
-		return this.isBusy
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
-			: html``;
 	}
 
 	_renderFooter() {

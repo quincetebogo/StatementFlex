@@ -1,6 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonStore } from 'app/store/HorizonStore';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { PRODUCTS } from 'app/constants/Credit';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -40,7 +38,6 @@ export class SendSettlementQuote extends Component {
 		super();
 		
 		// private properites
-		this.isBusy = false;
 		this.alertBannerMessage = ``;
 		this.selectedAccounts = [];
 
@@ -52,11 +49,6 @@ export class SendSettlementQuote extends Component {
 		this.confirmEmail = ``;
 		this.emailLabel = `Enter email address`;
 		this.confirmEmailLabel = `Confirm email`;
-
-		this._telemetry = HorizonTelemetry.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
-
-		this.callerInformation = this.horizonStore.getCallerInformation();
 	}
 
 	// --------------
@@ -74,7 +66,6 @@ export class SendSettlementQuote extends Component {
 			viewSettlementQuote: { type: Object },
 
 			// private properties
-			isBusy: { state: true },
 			renderMode: { state: true },
 			alertBannerMessage: { state: true },
 			encodedPDF: { state: true }
@@ -98,10 +89,6 @@ export class SendSettlementQuote extends Component {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
-	}
 
 	async _viewDocument(item) {
 		const result = await this.viewSettlementQuote(item);
@@ -127,7 +114,7 @@ export class SendSettlementQuote extends Component {
 		}
 	}
 
-	_sendClick(e) {
+	_sendClick() {
 		const isValid = this._validateEmailAddress();
 
 		if (!isValid) {
@@ -165,18 +152,6 @@ export class SendSettlementQuote extends Component {
 		}
 
 		return isNullorEmpty(this.alertBannerMessage);
-	}
-
-	_handleChannelServiceError(ex) {
-		this.errorMessage = `System error. Please try again.`;
-		this.errorCount++;
-
-		if (this.errorCount > 2) {
-			this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-			this.horizonStore.setCallerInformation(this.callerInformation);
-			this.horizonRouter.navigateToSystemError();
-		}
-		return true;
 	}
 
 	// ---------------
@@ -386,16 +361,10 @@ export class SendSettlementQuote extends Component {
 					id="id-send-button" 
 					type="primary" 
 					label="Send" 
-					@click="${(e) => this._sendClick(e)}">
+					@click="${() => this._sendClick()}">
 				</capitec-button>
 			</capitec-group>
 		`;
-	}
-
-	_renderLoadingIndicator() {
-		return this.isBusy
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
-			: html``;
 	}
 }
 customElements.define(`horizon-settlement-quote-dialog`, SendSettlementQuote);

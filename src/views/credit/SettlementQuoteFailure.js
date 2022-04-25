@@ -1,4 +1,5 @@
 import { css, html } from 'platform/elements';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { SETTLEMENT_QUOTE_EVENTS as SettlementQuoteCreditEvents } from 'app/constants/telemetry/events/Credit';
 import { SETTLEMENT_QUOTE_EVENTS as SettlementQuoteFavouritesEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -15,7 +16,7 @@ import 'app/components/common/RelatedOptions';
  * @extends {ViewBase}
  */
 
- export class SettlementQuoteFailure extends ViewBase {
+export class SettlementQuoteFailure extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -72,6 +73,7 @@ import 'app/components/common/RelatedOptions';
 		});
 
 		this._telemetry.endSpan(this.telemetryEvents.SETTLEMENT_QUOTE_FAILURE, {}, true, true);
+		this._telemetry.endSpan(QuickTransactionEvents.SETTLEMENT_QUOTE, {});
 
 		const returnToScreen = this.horizonStore.getReturnToScreen();
 		this.horizonStore.setReturnScreen(returnToScreen.route, ``);
@@ -87,6 +89,7 @@ import 'app/components/common/RelatedOptions';
 		});
 
 		this._telemetry.endSpan(this.telemetryEvents.SETTLEMENT_QUOTE_FAILURE);
+		this._telemetry.endSpan(QuickTransactionEvents.SETTLEMENT_QUOTE, {});
 
 		this.horizonRouter.navigateToReturnPage();
 	}
@@ -122,9 +125,9 @@ import 'app/components/common/RelatedOptions';
 				}
 				#id-error-msg {
 					width: auto;
-                    font-weight:500;
-                    color:#3A3A3A;
-                    margin-bottom:35px;
+					font-weight:500;
+					color:#3A3A3A;
+					margin-bottom:35px;
 				}
 			`
 		];
