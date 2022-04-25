@@ -45,10 +45,10 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	static get properties() {
 		return {
-			clientPolicies: { type: Object },
-			productParams: { type: Object },
-			estimate: { type: Object },
-			quote: { state: true }
+			clientPolicies: { type: Object, state: true },
+			productParams: { type: Object, state: true },
+			estimate: { type: Object, state: true },
+			quote: { type: Object, state: true }
 		};
 	}
 

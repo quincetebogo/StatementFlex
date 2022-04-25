@@ -46,11 +46,11 @@ class PolicyEstimate extends Component {
 	 */
 	static get properties() {
 		return {
-			estimate: { state: true },
+			estimate: { type: Object },
 			productParams: { type: Object },
 			newTotalPremium: { number: 0 },
-			showAddLifeDialog: { state: false },
-			canPerformEstimate: { state: false }
+			showAddLifeDialog: { type: Boolean, state: true },
+			canPerformEstimate: { type: Boolean, state: true }
 		};
 	}
 
