@@ -87,5 +87,11 @@
 
 	"statements-term-loan": `SEND_STATEMENTS_TERM_LOAN`,
 	"settlement-quote-term-loan": `SETTLEMENT_QUOTE_TERM_LOAN`,
-	"settle-close-term-loan": `SETTLE_CLOSE_TERM_LOAN`
+	"settle-close-term-loan": `SETTLE_CLOSE_TERM_LOAN`,
+
+	"paid-up-letter-credit-card": `SEND_PAID_UP_LETTER_CREDIT_CARD`,
+	"paid-up-letter-term-loan": `SEND_PAID_UP_LETTER_TERM_LOAN`,
+	"paid-up-letter-access-facility": `SEND_PAID_UP_LETTER_ACCESS_FACILITY`,
+	"settlement-quote-multiple-accounts": `SEND_SETTLEMENT_QUOTE_MULTIPLE_ACCOUNTS`,
+	"paid-up-letter-multiple-accounts": `SEND_PAID_UP_LETTER_MULTIPLE_ACCOUNTS`
 });
