@@ -78,9 +78,9 @@ export class ProofOfPaymentSuccess extends ViewBase {
 			"screen": TelemetryScreen.PROOF_OF_PAYMENT_SUCCESS,
 			"next-screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT
 		});
-		this._telemetry.endSpan(this.popTelemetryEvents.POP_SUCCESS);
-		this._telemetry.endSpan(this.popTelemetryEvents.EMAIL_POP, {}, true, true);
-
+		
+		const screenDetails = this.horizonStore.getScreenDetails();
+		this._telemetry.closeChildSpans(screenDetails.parentSpan);
 		this.horizonRouter.navigateToReturnPage();
 	}
 

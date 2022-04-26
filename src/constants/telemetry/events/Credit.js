@@ -93,9 +93,9 @@
 	POP_VIEW_DOCUMENT: `call.fulfill-need.credit.budget.transfer.proof-of-payment.pop-up.view-document`,
 	POP_CLOSE_DOCUMENT: `call.fulfill-need.credit.budget.transfer.proof-of-payment.pop-up.view-document.close`,
 	POP_SEND: `call.fulfill-need.credit.budget.transfer.proof-of-payment.pop-up.send`,
-	POP_SUCCESS: `call.fulfill-need.credit.budget.transfer.proof-of-payment.success`,
-	POP_SUCCESS_DONE: `call.fulfill-need.credit.budget.transfer.proof-of-payment.success.done`,
-	POP_SUCCESS_PAY_ANOTHER: `call.fulfill-need.credit.budget.transfer.proof-of-payment.success.pay-another`,
+	POP_SUCCESS: `call.fulfill-need.credit.budget.transfer.proof-of-payment.pop-success`,
+	POP_SUCCESS_DONE: `call.fulfill-need.credit.budget.transfer.proof-of-payment.pop-success.done`,
+	POP_SUCCESS_PAY_ANOTHER: `call.fulfill-need.credit.budget.transfer.proof-of-payment.pop-success.pay-another`,
 	POP_FAILURE: `call.fulfill-need.credit.budget.transfer.proof-of-payment.failure`,
 	POP_FAILURE_TRY_AGAIN: `call.fulfill-need.credit.budget.transfer.proof-of-payment.failure.try-again`,
 	POP_FAILURE_DONE: `call.fulfill-need.credit.budget.transfer.proof-of-payment.failure.done`

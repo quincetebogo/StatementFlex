@@ -80,6 +80,8 @@ import 'app/components/common/HorizonLabel';
 	}
 
 	_accountDetails(selectedBudgetAccount) {
+		selectedBudgetAccount.budgetAccountNumber = this.budgetFacilityAccounts.creditCardNumber;
+	
 		this.dispatchEvent(new CustomEvent(`account-details`, {
 			detail: {
 				selectedAccountDetails: selectedBudgetAccount
