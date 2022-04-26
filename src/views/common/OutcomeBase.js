@@ -21,6 +21,18 @@ const DOCUMENT_TYPE = {
 	'settle-close-term-loan': `SettleAndCloseLetter`
 };
 
+/**
+ * A sub-base class of ViewBase for a common functionality of Proof of Payments flow.
+ * This sub-class will contain code for the common functionalities like;
+ *    - display proof of payment dialog
+ *    - handling cancel from proof of payment dialog
+ *    - view-document
+ *    - send proof of payment and navigate to outcome screen
+ *
+ * @export
+ * @class OutcomeBase
+ * @extends {ViewBase}
+ */
 export class OutcomeBase extends ViewBase {
 
 	// --------------
