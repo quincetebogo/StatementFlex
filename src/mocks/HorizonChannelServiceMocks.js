@@ -390,4 +390,12 @@ export default class HorizonChannelServiceMocks {
 
 		return errPromise;
 	}
+
+	verifyKBA() {
+		if (this._mockSettings.verifyKBA.positiveCase) {
+			return {};
+		}
+
+		return new Error(`Oh no! A fake 400!`);
+	}
 }
