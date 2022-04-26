@@ -1,7 +1,8 @@
+import { ACCOUNT_INTCAT_ENUM, ERRORS, NOTIFICATION_MESSAGE, PERIOD_TYPE, RANGE_SELECTOR, RENDER_MODE, STATEMENTS_STEPS, TIME_PERIOD } from 'app/constants/Statements';
+import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE } from 'app/constants/Common';
 import { Component, css, html, unsafeCSS } from 'platform/elements';
-import { ERRORS, NOTIFICATION_MESSAGE, PERIOD_TYPE, RANGE_SELECTOR, RENDER_MODE, STATEMENTS_STEPS, TIME_PERIOD } from 'app/constants/Statements';
+
 import { calculateDays, formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'platform/components/popups/Modal';
@@ -680,6 +681,13 @@ export class StatementsDialog extends Component {
 						data-automation-id="statements-dialog-alert-message"
 						type="unsuccessful-red">
 							<p><b>Notify:</b> ${this.errorMessage}</p>
+					</capitec-alert-banner>`;
+			case this.productSelected.type === ACCOUNT_INTCAT_ENUM[ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN].type:
+				return html`
+					<capitec-alert-banner
+						data-automation-id="statements-dialog-alert-message"
+						type="warning">
+							<p><b>Notify client:</b>${NOTIFICATION_MESSAGE.FLEXIBLE_SAVINGS_FEE}</p>
 					</capitec-alert-banner>`;
 			case this.productSelected.category === ACCOUNT_TYPES.CREDIT:
 				return html`
