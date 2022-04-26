@@ -86,12 +86,21 @@ export class ExistingClient extends InsureViewBase {
 
 	/**
 	 * Calculate estimate based on lives assured provided
+	 * Map metadata (coverDetails) back when response is received
 	 * @returns {Object} Estimate response
 	 */
 	async _calculateClientEstimate(e) {
+
+		console.log('Sending Estimate Calculate');
+		console.log(JSON.stringify(e.detail));
+
 		let estimateWithCoverDetails = e.detail;
 		this.isBusy = true;
 		const resp = await this.insureService.calculateEstimate(estimateWithCoverDetails, () => true);
+
+		console.log('Raw Response Estimate Calculate');
+		console.log(JSON.stringify(resp));
+
 		if (resp.succeeded == true && resp.result != null) {
 			estimateWithCoverDetails.totalPremium = resp.result.totalPremium;
 			estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map(lifeWithDetails => {
@@ -99,6 +108,10 @@ export class ExistingClient extends InsureViewBase {
 					return lifeWithDetails.rowID === respLife.rowID
 				}))
 			});
+
+			console.log('Done mapping back Estimate Calculate');
+			console.log(JSON.stringify(estimateWithCoverDetails));
+
 			this.estimate = estimateWithCoverDetails;
 			this.isBusy = false;
 		} else {
@@ -118,6 +131,11 @@ export class ExistingClient extends InsureViewBase {
 	async _initialise() {
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		this.clientPolicies = await this._retrieveClientPolicies();
+	}
+
+	_getMainlifeAge(){
+		let clientBirthday = this.cal
+		return 44;
 	}
 
 	//#endregion
@@ -244,7 +262,7 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-policy-estimate @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@calculate="${(e) => this._calculateClientEstimate(e)}" .estimate="${this.estimate}"
-				.productParams="${this.productParams}">
+				.productParams="${this.productParams}" .mainLifeDefaultAge="${this._getMainlifeAge()}">
 			</horizon-insure-policy-estimate>`
 	}
 

@@ -68,6 +68,7 @@ export function getCoverDetailsByParams(relationship, productParams, age, isExte
 	currentRole.ageMessage = currentRole.ageMessage.replace("{0}", appliedAgeRange.minAge);
 	currentRole.ageMessage = currentRole.ageMessage.replace("{1}", appliedAgeRange.maxAge);
 	appliedAgeRange.coverMessage = '';
+	appliedAgeRange.genderMessage = '';
 	appliedAgeRange.ageMessage = currentRole.ageMessage;
 
 	return appliedAgeRange;
