@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:src/mocks/InsurePolicySummaryMockData.js
-export const InsureClientPolicySummary = {
-========
 export const ClientPolicies = {
->>>>>>>> feature/insure-dev:src/mocks/insure/ClientPolicies.js
 	"checkInsuranceDetails": [
 		{
 			"insured": true,

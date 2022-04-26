@@ -3,13 +3,13 @@ import { css, html } from 'platform/elements';
 import { InsureService } from 'app/services/InsureService';
 import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
+import { MAX_RESULTS } from 'app/constants/PolicyTransactionHistory';
 
 import 'app/components/insure/ClientPolicies';
 import 'app/components/insure/PolicyEstimate';
 import 'app/components/insure/UpdatePlan';
 import 'app/components/insure/PolicyTransactionHistory';
 
-import { InsureService } from 'app/services/InsureService';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
 
@@ -20,7 +20,7 @@ const POLICY_TRANSACTION_HISTORY = {
 	END_DATE: new Date().toISOString().substr(0, 10),
 	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
 	PAGE_INDEX: 0,
-	MAX_RESULTS: 50
+	MAX_RESULTS: MAX_RESULTS
 };
 
 /**
@@ -120,25 +120,9 @@ export class ExistingClient extends InsureViewBase {
 		}
 	}
 
-	//#endregion
-
-	//#region PRIVATE METHODS
-
-	/**
-	 * Initialize Landing View / Fetch client policies for landing component
-	 */
-	async _initialise() {
-		this.verificationStatus = this.callerInformation.verificationStatus;
-		this.clientPolicies = await this._retrieveClientPolicies();
-	}
-
-	//#endregion
-
-	//#region EVENT HANDLERS
-
 	/**
 	 * Navigate so specific subview
-	 */
+ 	*/
 	_navigateToSubView(newMode) {
 		this.renderMode = newMode;
 	}
@@ -166,10 +150,70 @@ export class ExistingClient extends InsureViewBase {
 		this._navigateToSubView(INSURE_RENDER_MODE.ESTIMATE);
 	}
 
+	/**
+	 * Prepare and navigate to Transaction history
+	 */
 	async _goToPolicyTransactionHistory() {
 		// Telemetry Here
 		await this._getPolicyTransactionHistory();
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY);
+	}
+
+	/**
+	 * Fetch Policy Transaction History
+	 * @param {*} startDate 
+	 * @param {*} endDate 
+	 * @param {*} pageIndex 
+	 */
+	async _getPolicyTransactionHistory(startDate, endDate, pageIndex) {
+		this.isBusy = true;
+		const transactionHistoryRequest = {
+			contractReference: '',
+			transactionDateType: '',
+			fromDate: startDate || POLICY_TRANSACTION_HISTORY.START_DATE,
+			toDate: endDate || POLICY_TRANSACTION_HISTORY.END_DATE,
+			pageIndex: pageIndex || POLICY_TRANSACTION_HISTORY.PAGE_INDEX,
+			totalPerPage: POLICY_TRANSACTION_HISTORY.MAX_RESULTS,
+		};
+
+		const returnValue = await this.insureService.getPolicyTransactions(transactionHistoryRequest);
+
+		if (returnValue.succeeded && returnValue.result) {
+			const formattedTrans = returnValue.result.transactions
+									.map((item) => {
+										const formatedPremiumDate = new Date(Date.parse(item.premiumDueDate));
+										const formatedDate = new Date(Date.parse(item.Date));
+										item.formatedPremiumDate = formatedPremiumDate;
+										item.formatedDate = formatedDate;
+										item.groupByPremiumDate = `${getMonthName(formatedPremiumDate.getMonth())} ${formatedPremiumDate.getFullYear()}`;
+										item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
+										item.formatedAmount = formatCurrency(item.amount);
+										return item;
+									});
+			this.policyTransactionHistory.push(...formattedTrans);
+			this.endCallContext = `PolicyTransactionHistory`;
+			this.renderMode = INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY;
+		}
+		this.isBusy = false;
+	}
+
+	/**
+	 * Unload Policy Transactions
+	 */
+	_unloadPolicyTransactionHistory() {
+		this.policyTransactionHistory = [];
+	}
+
+	//#endregion
+
+	//#region PRIVATE METHODS
+
+	/**
+	 * Initialize Landing View / Fetch client policies for landing component
+	 */
+	async _initialise() {
+		this.verificationStatus = this.callerInformation.verificationStatus;
+		this.clientPolicies = await this._retrieveClientPolicies();
 	}
 
 	//#endregion
@@ -247,7 +291,8 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-client-policies @navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan()}"
-				@navigate-to-policy-summary="${(e) => this._goToPolicySummary()}">
+				@navigate-to-policy-summary="${(e) => this._goToPolicySummary()}"
+				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory()}">
 			</horizon-insure-client-policies>`
 	}
 
@@ -291,7 +336,7 @@ export class ExistingClient extends InsureViewBase {
 	_renderPolicyTransactionHistoryPage() {
 		return this.renderMode === INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY
 			? html `<horizon-insure-policy-transaction-history 
-				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY)}"
+				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				.policyTransactionHistory="${this.policyTransactionHistory}"
 				.getPolicyTransactionHistory="${(startDate, endDate, pageIndex) => 
 					this._getPolicyTransactionHistory(startDate, endDate, pageIndex)}"
@@ -299,40 +344,6 @@ export class ExistingClient extends InsureViewBase {
 				@unloading="${() => this._unloadPolicyTransactionHistory()}">
 			</horizon-insure-policy-transaction-history>`
 			: html``;
-	}
-
-	async _getPolicyTransactionHistory(startDate, endDate, pageIndex) {
-		const transactionHistoryRequest = {
-			contractReference: '',
-			transactionDateType: '',
-			fromDate: startDate || POLICY_TRANSACTION_HISTORY.START_DATE,
-			toDate: endDate || POLICY_TRANSACTION_HISTORY.END_DATE,
-			pageIndex: pageIndex || POLICY_TRANSACTION_HISTORY.PAGE_INDEX,
-			totalPerPage: POLICY_TRANSACTION_HISTORY.MAX_RESULTS,
-		};
-
-		const returnValue = await this.insureService.getPolicyTransactions(transactionHistoryRequest);
-
-		if (returnValue.succeeded && returnValue.result) {
-			const formattedTrans = returnValue.result.transactions
-									.map((item) => {
-										const formatedPremiumDate = new Date(Date.parse(item.premiumDueDate));
-										const formatedDate = new Date(Date.parse(item.Date));
-										item.formatedPremiumDate = formatedPremiumDate;
-										item.formatedDate = formatedDate;
-										item.groupByPremiumDate = `${getMonthName(formatedPremiumDate.getMonth())} ${formatedPremiumDate.getFullYear()}`;
-										item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
-										item.formatedAmount = formatCurrency(item.amount);
-										return item;
-									});
-			this.policyTransactionHistory.push(...formattedTrans);
-			this.endCallContext = `PolicyTransactionHistory`;
-			this.renderMode = INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY;
-		}
-	}
-
-	_unloadPolicyTransactionHistory() {
-		this.policyTransactionHistory = [];
 	}
 
 	//#endregion

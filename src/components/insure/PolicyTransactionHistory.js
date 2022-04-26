@@ -6,6 +6,8 @@ import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/PolicyTransactionHi
 import { DateTime } from 'luxon';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
+//#region  CONSTANTS
+
 const FILTER_BY = {
 	ALL: `ALL`,
 	DATE: `DATE`,
@@ -19,7 +21,27 @@ const RENDER_CHIPS = {
 
 const today = new Date();
 
+//#endregion CONSTANTS
+
+/**
+ * Policy Transaction History component that displays Policy transactions
+ * 
+ * Events Raised
+ * -------------
+ * navigate-back
+ * unloading
+ * _dateChanged
+ * _scrollToTop
+ * _filterByDateType
+ *  
+ * @export
+ * @class PolicyTransactionHistory
+ * @extends {Component}
+ */
 class PolicyTransactionHistory extends Component{
+
+	//#region INITIALIZATION
+
 	constructor()
 	{
 		super();
@@ -37,46 +59,47 @@ class PolicyTransactionHistory extends Component{
 		this.dateTypeOptions = DATE_TYPE_LIST;
 	}
 
-		// --------------
-	// PROPERTIES
-	// --------------
+	//#endregion INITIALIZATION
+
+	//#region PROPERTIES
 
 	/**
 	 * Callback for rendering transaction details used by {@link PolicyTransactionHistory}.
 	 * 
-	 * @callback RenderTranactionDetails
+	 * @callback RenderTransactionDetails
 	 * @param {Object} [item] Current item for which transaction details to be rendered
 	 * 
-	 * @returns {string} Transaction details response, expander content
+	 * @returns {html} Transaction details response, expander content
 	 */
 
 	/**
+	 * @property {String} dateLabel - Default label for Date Type dropdown
+	 * @property {String} startDate - String holds Start date of transaction/due date 
+	 * @property {String} endDate - String holds End date of transaction/due date
+	 * @property {Object} filteredData - Object holds filtered transaction data
 	 * @property {Object} policyTransactionHistory - Object holds transaction data
-	 * 
 	 * @property {Function} getPolicyTransactionHistory Callback function to fetch more data
 	 * @property {Function} disposeData Callback function to clear transaction history data variable
+	 * @property {Boolean} hideLoadMore Show/Hide Load More button
 	 * 
 	 * @readonly
 	 * @static
-	 * @memberof TransactionHistory
 	 */
-
 	static get properties() {
 		return {
-			dateLabel: { state: true },
+			dateLabel: { type: String, state: true },
 			startDate: { type: String, state: true },
 			endDate: { type: String, state: true },
-
-			filteredData: { state: true },
+			filteredData: { type: Object, state: true },
 			policyTransactionHistory: { type: Object },
 			getPolicyTransactionHistory: { type: Object },
 			disposeData: { type: Object },
-
-			hideLoadMore: { state: true },
-
+			hideLoadMore: { type: Boolean, state: true },
 			isBusy: { state: true },
 		};
 	}
+
+	//#endregion PROPERTIES
 
 	/**
 	 * Generates the component stylesheet.
@@ -287,6 +310,12 @@ class PolicyTransactionHistory extends Component{
 		];
 	}	
 
+	//#region LIFECYCLE OVERRIDES
+
+	/**
+	 * Setup the component once added to the DOM.
+	 * @returns {void}
+	 */
 	async connectedCallback() {
 		super.connectedCallback();
 
@@ -299,16 +328,30 @@ class PolicyTransactionHistory extends Component{
 			&& this.policyTransactionHistory.length % MAX_RESULTS < MAX_RESULTS;
 	}
 
+	/**
+	 * call unload event once the component removed from the DOM.
+	 * @returns {void}
+	 */
 	disconnectedCallback() {
 		super.disconnectedCallback();
 
 		this._unloading();
 	}
 
+	//#endregion LIFECYCLE OVERRIDES
+
+	//#region EVENTS
+
+	/**
+	 * unload the policy transactions
+	 */
 	_unloading() {
 		this.dispatchEvent(new CustomEvent(`unloading`));
 	}
 
+	/**
+	 * Navigate back to Policy summary page
+	 */
 	_backToSummaryPage() {
 		this.dispatchEvent(new CustomEvent(`navigate-back`, {
 			detail: {
@@ -316,12 +359,91 @@ class PolicyTransactionHistory extends Component{
 		}));
 	}
 
+	/**
+	 * filter transactions when date is changed
+	 * @param {*} e 
+	 */
+	async _dateChanged(e) {
+		let fromDate = DateTime.fromISO(e.detail.new.startDate);
+		let toDate = DateTime.fromISO(e.detail.new.endDate);
+		const currentDateTime = DateTime.local();
+
+		if (toDate.diff(fromDate, [`days`]).days > 90) {
+			
+			toDate = fromDate.plus({ days: 90 });
+			if (toDate > currentDateTime) {
+				this.startDate = fromDate;
+				this.endDate = currentDateTime;
+			} else {
+				this.startDate = fromDate;
+				this.endDate = toDate;
+				const calendar = this.shadowRoot.querySelector(`#calendarRange`);
+				if (calendar) {
+					calendar._placeholderEndDate = toDate;
+				}
+			}
+		} else if (e.detail.new.endDate === null && this.endDate === ``) {
+			this.startDate = fromDate;
+			toDate = fromDate.plus({ days: 90 });
+			if (toDate.diff(currentDateTime, [`days`]).days > 0) {
+				this.endDate = currentDateTime;
+			} else {
+				this.endDate = toDate;
+			}
+		} else if (e.detail.new.startDate === null && this.startDate === ``) {
+			this.endDate = toDate;
+			fromDate = toDate.minus({ days: 90 });
+			this.startDate = fromDate;
+		} else {
+			
+			this.startDate = fromDate;
+			this.endDate = toDate;
+		}
+
+		RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
+		
+		await this._refineSearch();
+	}
+
+	/**
+	 * scroll to top of transactions table
+	 * @param {*} e 
+	 */
+	_scrollToTop(e) {
+		const element = this.shadowRoot.getElementById(`policy-transactions-table`);
+		element.scrollTop = 0;
+	}
+
+	/**
+	 * filter transactions when date type is changed
+	 * @param {*} event 
+	 */
+	_filterByDateType(event) {
+
+		RENDER_CHIPS[FILTER_BY.DATE_TYPE] = event.detail.new.text;
+
+		this._refineSearch();
+	}
+
+	//#endregion EVENTS
+
+	//#region PRIVATE FUNCTIONS
+
+	/**
+	 * 
+	 * Entry point for rendering the component
+	 * @returns {html} The html content of the component.
+	 */
 	_webTemplate() {
 		return html`
 			${this._renderContent()}
 		`;
 	}
 
+	/**
+	 * Render content of the component
+	 * @returns {html} The html content of the header, filter, transactions table and footer.
+	 */
 	_renderContent() {
 		return html`
 		<capitec-title-bar type="insure" class="insure-title-bar">
@@ -330,18 +452,23 @@ class PolicyTransactionHistory extends Component{
 			<capitec-spacer></capitec-spacer>
 		</capitec-title-bar>
 		<capitec-card style="min-height: 100vh;">
-		<capitec-group layout="vertical" gap="line" halign="left" valign="top">
-			${this._renderActionBar()}
-			${this._renderFilterBar()}
-			<capitec-content-box class="main-view" id="transactions-table">
-				${this._renderPolicyTransactionHistory()}
-			</capitec-content-box>
+			<capitec-group layout="vertical" gap="line" halign="left" valign="top">
+				${this._renderActionBar()}
+				${this._renderFilterBar()}
+				<capitec-content-box class="main-view" id="policy-transactions-table">
+					${this._renderPolicyTransactionHistory()}
+				</capitec-content-box>
+				${this._renderFooter()}
 			</capitec-group>
 		</capitec-card>
 		${this._renderLoadingIndicator()}
 		`
 	}
 
+	/**
+	 * Render Action Bar
+	 * @returns {html} The html of the date type and date controls
+	 */
 	_renderActionBar() {
 		return html`
 			<capitec-group layout="horizontal" halign="left" valign="center" gap="clear" class="transaction-action-bar">
@@ -349,6 +476,7 @@ class PolicyTransactionHistory extends Component{
 					label="${RENDER_CHIPS[FILTER_BY.DATE_TYPE] !== `` ? `` : this.dateLabel}" 
 					class="transaction-status-select"
 					.items="${this.dateTypeOptions}"
+					@focus="${(e) => this.datelabel = ``}"
 					display-field="text"
 					id-field="code"
 					@value-change = "${(e) => this._filterByDateType(e)}"
@@ -381,6 +509,10 @@ class PolicyTransactionHistory extends Component{
 		`;
 	}
 
+	/**
+	 * Show clear/clear all filters
+	 * @returns {html} The html of Clear and Clear All filters
+	 */
 	_renderFilterBar() {
 		if (RENDER_CHIPS[FILTER_BY.DATE] !== ``) {
 			return html`
@@ -401,6 +533,10 @@ class PolicyTransactionHistory extends Component{
 		}
 	}
 
+	/**
+	 * Clear Date filter
+	 * @returns {html} Render Date chip 
+	 */
 	_renderDateChip() {
 		return !isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])
 			? html`
@@ -413,6 +549,10 @@ class PolicyTransactionHistory extends Component{
 			: html``;
 	}
 
+	/**
+	 * Clear Date Type filter
+	 * @returns {html} Render Date Type chip
+	 */
 	_renderDateTypeChip() {
 		return !isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE_TYPE])
 			? html`
@@ -425,6 +565,9 @@ class PolicyTransactionHistory extends Component{
 			: html``;
 	}
 
+	/**
+	 * Clear all filters
+	 */
 	_clearFilters() {
 		const activeFilters = this.shadowRoot.getElementById(`active-filters`);
 
@@ -437,6 +580,10 @@ class PolicyTransactionHistory extends Component{
 		this._refineSearch();
 	}
 
+	/**
+	 * Clear filter by criteria type
+	 * @param {*} type - filter type
+	 */
 	_clearFilter(type) {
 		const date = () => this._reset();
 		const dateType = () => { 
@@ -454,12 +601,18 @@ class PolicyTransactionHistory extends Component{
 		}
 	}
 
+	/**
+	 * close specified chip
+	 * @param {*} type - filter type 
+	 */
 	async _closeChip(type) {
 		this._clearFilter(type);
 		this._refineSearch();
 	}
 
-	// To set the values to default on closing the chip or clearing all the filters
+	/**
+	 * reset all filters and load transactions
+	 */
 	async _reset() {
 		if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
 			this.startDate = ``;
@@ -474,6 +627,10 @@ class PolicyTransactionHistory extends Component{
 		}
 	}
 
+	/**
+	 * Render policy transactions
+	 * @returns {html} - content of transactions
+	 */
 	_renderPolicyTransactionHistory() {
 		return this.filteredData?.length > 0 
 		? html`
@@ -491,6 +648,11 @@ class PolicyTransactionHistory extends Component{
 		`;
 	}
 
+	/**
+	 * render transaction details of each transaction
+	 * @param {*} item - transaction item
+	 * @returns 
+	 */
 	_renderTransactionDetails(item) {
 		return html`
 			<capitec-label
@@ -542,6 +704,10 @@ class PolicyTransactionHistory extends Component{
 		`;
 	}
 
+	/**
+	 * render transaction history columns
+	 * @returns {html} - table columns
+	 */
 	_renderPolicyTransHistoryColumns() {
 		return html`
 			<capitec-table-column
@@ -566,6 +732,7 @@ class PolicyTransactionHistory extends Component{
 				label="Amount"
 				field="formatedAmount"
 				type="currency">
+			</capitec-table-column>
 			<capitec-table-column
 				label="Reason"
 				field="reason">
@@ -573,6 +740,10 @@ class PolicyTransactionHistory extends Component{
 		`;
 	}
 
+	/**
+	 * Show message when there are no records
+	 * @returns {html} - message for no results
+	 */
 	_renderNoResults() {
 		return html`
 			<capitec-group
@@ -597,23 +768,45 @@ class PolicyTransactionHistory extends Component{
 		`;
 	}
 
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
+	/**
+	 * Show load more feature in the footer
+	 * @returns {html} - content of footer
+	 */
+	_renderFooter() {
+		return html`
+			<capitec-action-bar class="load-more-bar" ?hidden="${this.hideLoadMore || this.policyTransactionHistory.length === 0}">
+				<capitec-spacer></capitec-spacer>
+				<capitec-button
+					type="clear"
+					label="Load More"
+					@click = ${() => this._loadMoreTransactions()}
+					data-automation-id="policy-transaction-history-load-more">
+				</capitec-button>
+				<capitec-spacer></capitec-spacer>
+				<capitec-icon
+					class='scroll-top'
+					size="medium"
+					icon="system/arrow-up-action"
+					@click = ${(e) => this._scrollToTop(e)}
+					data-automation-id="policy-transaction-history-scroll-top">
+				</capitec-icon>
+			</capitec-action-bar>`;
 	}
 
+	/**
+	 * Show loading indicator when screen is busy
+	 * @returns {html} - loading indicator
+	 */
 	_renderLoadingIndicator() {
 		return this.isBusy
 			? html`<capitec-loading-indicator></capitec-loading-indicator>`
 			: html``;
 	}
 
-	_filterByDateType(event) {
-
-		RENDER_CHIPS[FILTER_BY.DATE_TYPE] = event.detail.new.text;
-
-		this._refineSearch();
-	}
-
+	/**
+	 * Get Predefined date ranges
+	 * @returns - {Object} - date ranges array object
+	 */
 	getPredefinedDateRanges() {
 		const last7day = new Date(today);
 		const last30day = new Date(today);
@@ -633,57 +826,20 @@ class PolicyTransactionHistory extends Component{
 		];
 	}
 
+	/**
+	 * format the give date
+	 * @param {*} date - date to be formatted 
+	 * @returns 
+	 */
 	_formatDate(date) {
 		const newdate = new Date(Date.parse(date));
 		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
 	}
 
-	_dateTypeFocussed(e) {
-		this.dateLabel = ``;
-	}
-
-	async _dateChanged(e) {
-		let fromDate = DateTime.fromISO(e.detail.new.startDate);
-		let toDate = DateTime.fromISO(e.detail.new.endDate);
-		const currentDateTime = DateTime.local();
-
-		if (toDate.diff(fromDate, [`days`]).days > 90) {
-			
-			toDate = fromDate.plus({ days: 90 });
-			if (toDate > currentDateTime) {
-				this.startDate = fromDate;
-				this.endDate = currentDateTime;
-			} else {
-				this.startDate = fromDate;
-				this.endDate = toDate;
-				const calendar = this.shadowRoot.querySelector(`#calendarRange`);
-				if (calendar) {
-					calendar._placeholderEndDate = toDate;
-				}
-			}
-		} else if (e.detail.new.endDate === null && this.endDate === ``) {
-			this.startDate = fromDate;
-			toDate = fromDate.plus({ days: 90 });
-			if (toDate.diff(currentDateTime, [`days`]).days > 0) {
-				this.endDate = currentDateTime;
-			} else {
-				this.endDate = toDate;
-			}
-		} else if (e.detail.new.startDate === null && this.startDate === ``) {
-			this.endDate = toDate;
-			fromDate = toDate.minus({ days: 90 });
-			this.startDate = fromDate;
-		} else {
-			
-			this.startDate = fromDate;
-			this.endDate = toDate;
-		}
-
-		RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
-		
-		await this._refineSearch();
-	}
-
+	/**
+	 * Get selected date range
+	 * @returns {string} - fromdate to todate
+	 */
 	_getDateRange() {
 		const fromDate = !this.startDate ? `dd mm yyyy` : this._formatDate(this.startDate);
 		const toDate = !this.endDate ? `dd mm yyyy` : this._formatDate(this.endDate);
@@ -698,6 +854,29 @@ class PolicyTransactionHistory extends Component{
 		return `${fromDate} - ${toDate}`;
 	}
 
+	/**
+	 * load more transaction when clicked on load more button
+	 */
+	async _loadMoreTransactions() {
+		const oldCount = this.policyTransactionHistory.length;
+		const startDate = this.startDate.toLocaleString().slice(0, 10);
+		const endDate = this.endDate.toLocaleString().slice(0, 10);
+
+		await this.getPolicyTransactionHistory(startDate, endDate, this.policyTransactionHistory.length);
+
+		// If the old record count and count after load more are same means no more data to populate,
+		// so hiding loadmore button
+		if (oldCount === this.policyTransactionHistory.length) {
+			this.hideLoadMore = true;
+		} else {
+			this.hideLoadMore = this.policyTransactionHistory.length % MAX_RESULTS > 0 && this.policyTransactionHistory.length % MAX_RESULTS < MAX_RESULTS;
+		}
+		this._refineSearch();
+	}
+
+	/**
+	 * filter the transactions
+	 */
 	_refineSearch() {
 
 		this.filteredData = this.policyTransactionHistory;
@@ -716,6 +895,63 @@ class PolicyTransactionHistory extends Component{
 
 		this.requestUpdate();
 	}
+
+	//#endregion PRIVATE FUNCTIONS
 }
 
 window.customElements.define(`horizon-insure-policy-transaction-history`, PolicyTransactionHistory);
+
+/**
+ * When back arrow button is clicked
+ *
+ * @example
+ * <horizon-insure-policy-transaction-history 
+			...	@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}..."
+ *
+ * @event PolicyTransactionHistory#navigate-back
+ * @type {Object} - N/A
+ */
+
+/**
+ * When page is unloaded, clear policytransactionhistory objects
+ *
+ * @example
+ * <horizon-insure-policy-transaction-history 
+			...	@unloading="${() => this._unloadPolicyTransactionHistory()}"...>
+			</horizon-insure-policy-transaction-history>
+ *
+ * @event PolicyTransactionHistory#unloading
+ * @type {Object} - N/A
+ */
+
+/**
+ * Filter the policy transactions when date is changed
+ *
+ * @example
+ * <capitec-date-time-picker
+				...	@apply-clicked="${(e) => this._dateChanged(e)}"...</capitec-date-time-picker>
+ *
+ * @event PolicyTransactionHistory#_dateChanged
+ * @type {Object} - event
+ */
+
+/**
+ * Scroll to top of the page when arrow up action image is clicked
+ *
+ * @example
+*  <capitec-icon ... @click = ${(e) => this._scrollToTop(e)} ... </capitec-icon>
+ *
+ * @event PolicyTransactionHistory#_scrollToTop
+ * @type {Object} - event
+ */
+
+/**
+ * Filter the policy transactions when date type is changed
+ *
+ * @example
+				<capitec-select
+				...	@value-change = "${(e) => this._filterByDateType(e)}" ...</capitec-select>
+ *
+ * @event PolicyTransactionHistory#_filterByDateType
+ * @type {Object} - event
+ */

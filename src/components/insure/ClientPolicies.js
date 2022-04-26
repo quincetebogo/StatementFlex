@@ -70,6 +70,16 @@ class ClientPolicies extends Component {
 		}));
 	}
 
+	/**
+	 * Fire navigate event to Policy Transaction History
+	 */
+	_goToPolicyTransactionHistory() {
+		this.dispatchEvent(new CustomEvent(`navigate-to-policy-transaction-history`, {
+			detail: {
+			}
+		}));
+	}
+
 	//#endregion
 
 	//#region RENDERING
@@ -108,6 +118,8 @@ class ClientPolicies extends Component {
 			<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 			<capitec-label label="Insure" type="title"></capitec-label>
 			<capitec-spacer></capitec-spacer>
+			<capitec-button type="white" label="Transaction History" @click="${() => this._goToPolicyTransactionHistory()}">
+			</capitec-button>
 			<capitec-button type="white" label="Get Estimate" @click="${() => this._goToEstimate()}">
 			</capitec-button>
 			<capitec-button type="white" label="Update plan" @click="${() => this._goToUpdatePlan()}">
