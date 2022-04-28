@@ -11,7 +11,7 @@ import 'app/components/common/SuccessScreen';
  * @class SettleAndCloseSuccess
  * @extends {ViewBase}
  */
- export class SettleAndCloseSuccess extends Component {
+ export class SettleAndCloseSuccess extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -46,6 +46,7 @@ import 'app/components/common/SuccessScreen';
 
 	connectedCallback() {
 		super.connectedCallback();
+		this._initialise();
 	}
 
 	disconnectedCallback() {
@@ -55,7 +56,13 @@ import 'app/components/common/SuccessScreen';
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-
+	_initialise()
+	{
+		const screenDetails = this.horizonStore.getScreenDetails();
+		this.creditType = screenDetails.settleAndCloseCreditType;
+		this.productType = screenDetails.settleAndCloseProductType;
+		console.log(screenDetails);
+	}
 	_sendEmailConfirmationClick() {
 		this.dispatchEvent(new CustomEvent(`confirm-email`));
 	}

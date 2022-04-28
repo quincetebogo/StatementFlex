@@ -390,9 +390,16 @@ export class CreditAccount extends ViewBase {
 		
 		if (flag == true)
 		{
+			const screenDetails = this.horizonStore.getScreenDetails();
+			screenDetails.settleAndCloseDocumentData = result.closureDocument.data;
+			screenDetails.settleAndCloseCreditType = ``;
+			screenDetails.settleAndCloseProductType = ``;
+			this.horizonStore.setScreenDetails(screenDetails);
+			this.horizonRouter.navigateToSettleAndCloseSuccess();
 
-			this.renderMode = RENDER_MODE.SETTLE_AND_CLOSE_SUCCESS;
-			this._renderSettleAndCloseSuccessScreen();
+			//this.renderMode = RENDER_MODE.SETTLE_AND_CLOSE_SUCCESS;
+			//this._renderSettleAndCloseSuccessScreen();
+
 		} else
 		{
 			this.horizonRouter.navigateToSettleAndCloseFailure();
