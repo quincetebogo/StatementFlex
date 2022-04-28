@@ -1,4 +1,4 @@
-import { css, html } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { CREDIT_TYPE } from 'app/constants/Credit';
 
@@ -11,7 +11,7 @@ import 'app/components/common/SuccessScreen';
  * @class SettleAndCloseSuccess
  * @extends {ViewBase}
  */
- export class SettleAndCloseSuccess extends ViewBase {
+ export class SettleAndCloseSuccess extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -21,9 +21,9 @@ import 'app/components/common/SuccessScreen';
 		super();
 
 		// TODO: Hardcoded values needs to be remvoed when wiring up navigation.
-		this.productType = `credit card`;
-		this.creditCardNumber = `4000********0063`;
-		this.creditType = CREDIT_TYPE.FIXED;
+		this.productType = ``;
+		this.creditCardNumber = ``;
+		this.creditType = ``;
 
 		this.primaryToast = this.creditType === CREDIT_TYPE.FLEXIBLE ? `Account settled and closed` : `Account Closed`;
 	}
@@ -34,12 +34,11 @@ import 'app/components/common/SuccessScreen';
 
 	static get properties() {
 		return {
-
-			// TODO: To be removed when wiring up navigation.
 			creditType: { type: String },
 			productType: { type: String }
 		};
 	}
+
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -58,7 +57,7 @@ import 'app/components/common/SuccessScreen';
 	// --------------
 
 	_sendEmailConfirmationClick() {
-		// TODO: Navigation to Send email confirmation modal should come here
+		this.dispatchEvent(new CustomEvent(`confirm-email`));
 	}
 
 	_doneClick() {
