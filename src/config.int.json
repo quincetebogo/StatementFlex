@@ -60,5 +60,6 @@
 	},
 	"mock": {
 		"enabled": false	
-	}
+	},
+	"searchClientOptionEnabled": true
 }
