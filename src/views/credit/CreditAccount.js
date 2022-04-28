@@ -1,9 +1,9 @@
 import { ACCOUNT_STATUS, CREDIT_TYPE, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PRODUCTS } from 'app/constants/Credit';
+import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE } from 'app/constants/Common';
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { CreditEvents, SETTLEMENT_QUOTE_EVENTS } from 'app/constants/telemetry/events/Credit';
 import { css, html } from 'platform/elements';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
-import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { CreditService } from 'app/services/CreditService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
@@ -63,6 +63,7 @@ export class CreditAccount extends ViewBase {
 		this.productType = ``;
 		this.creditType = ``;
 		this.selectedAccounts = [];
+		this.showPayBudgetDialog = false;
 		// ccs status of client set to true until real value retrieved from CS
 		this.ccsStatus = false;
 		this.showSettleCloseModal = false;
@@ -87,6 +88,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	disconnectedCallback() {
+		this.returnToScreen.dispose();
 		super.disconnectedCallback();
 	}
 
@@ -103,7 +105,8 @@ export class CreditAccount extends ViewBase {
 			fixedTermCreditAccounts: { type: Array, state: true, attribute: false },
 			creditBalance: { state: true, attribute: false },
 			ccsStatus: { type: Boolean },
-			showSettleCloseModal: { type: Boolean }
+			showSettleCloseModal: { type: Boolean },
+			showPayBudgetDialog: { state: false }
 		};
 	}
 
@@ -135,8 +138,7 @@ export class CreditAccount extends ViewBase {
 		const settleAndClose = () => this._settleAndClose(creditType, productType, selectedAccountDetails);
 		const settleLoan = () => this._settleLoan();
 		const paidUpLetter = () => this._paidUpLetter(selectedAccountDetails);
-		const budgetFacility = () => this._budgetFacility(selectedAccountDetails);
-		const payBudget = () => this._payBudgetAccount(selectedAccountDetails);
+		const payBudget = () => this._payBudgetDialog(selectedAccountDetails);
 		const viewBudgets = () => this._viewBudgets(selectedAccountDetails);
 
 		const accConfig = ACCOUNT_INTCAT_ENUM[selectedAccountDetails.productTypeCode];
@@ -258,6 +260,8 @@ export class CreditAccount extends ViewBase {
 		});
 
 		const budgetAcc = this.budgetFacilityAccounts.creditCardBudgetList.find(item => item.budgetAccountNumber === budgetAccountNo);
+		budgetAcc.productTypeCode = ACCOUNT_TYPE_CODE.FLEXIBLE_CREDIT_CARD;
+
 		this._optionClick(`pay-budget`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, budgetAcc);
 	}
 
@@ -286,7 +290,7 @@ export class CreditAccount extends ViewBase {
 		this._formatFromAccounts(returnValue.result.fromAccounts);
 		this.payBudgetAccountDetails = selectedAccountDetails;
 		
-		this.renderMode = RENDER_MODE.PAY_BUDGET_DIALOG;
+		this.showPayBudgetDialog = !this.showPayBudgetDialog;
 	}
 
 	_formatFromAccounts(fromAccounts) {
@@ -326,7 +330,7 @@ export class CreditAccount extends ViewBase {
 			accountNumber: transferDetails.budgetAccountNumber
 		};
 		this.horizonStore.setScreenDetails(screenDetails);
-		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `budget-facility`);
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `view-budgets`);
 
 		if (returnValue.succeeded && returnValue.result) {
 			this.horizonRouter.navigateToBudgetFacilitySuccess();
@@ -685,17 +689,20 @@ export class CreditAccount extends ViewBase {
 		this._backToLandingPage();
 	}
 
-	_backFromPayBudgetDialog() {
-		this._telemetry.logEvent(CreditEvents.PAY_BUDGET_CANCEL, {
+	async _backFromPayBudgetDialog() {
+		await this._telemetry.logEvent(CreditEvents.PAY_BUDGET_CANCEL, {
 			"screen": TelemetryScreen.CREDIT_PAY_BUDGET_MODAL,
 			"next-screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT
 		});
 
+		this._telemetry.endSpan(CreditEvents.CREDIT_BUDGET_TRANSFER, {});
+
 		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.incidentDetails.currentNeed = `budget-facility-credit-card`;
+			this.incidentDetails.currentNeed = `view-budgets-credit-card`;
 			this.horizonStore.setIncidentDetails(this.incidentDetails);
 		}
-		this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW;
+		
+		this.showPayBudgetDialog = !this.showPayBudgetDialog;
 	}
 	
 	async _settleAndCloseChooseAccount() {
@@ -765,6 +772,8 @@ export class CreditAccount extends ViewBase {
 
 	_backFromBudgetAccountsView() {
 		this._telemetry.logEvent(CreditEvents.CREDIT_BUDGET_DETAILS_BACK, {});
+		this._telemetry.endSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {});
+
 		this._backToLandingPage();
 	}
 
@@ -884,13 +893,11 @@ export class CreditAccount extends ViewBase {
 	}
 	
 	_renderBudgetFacilityAccounts() {
-		return this.renderMode === RENDER_MODE.BUDGET_ACCOUNTS_VIEW ||
-				this.renderMode === RENDER_MODE.PAY_BUDGET_DIALOG
+		return this.renderMode === RENDER_MODE.BUDGET_ACCOUNTS_VIEW
 			? html`
 				<capitec-pc-budget-facility-accounts
 					.budgetFacilityAccounts="${this.budgetFacilityAccounts}"
 					@on-loading="${() => this._telemetry.startSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {})}"
-					@on-unloading="${() => this._telemetry.endSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {})}"
 					@back="${() => this._backFromBudgetAccountsView()}"
 					@account-details="${(event) => this._viewBudgetDetails(event.detail.selectedAccountDetails)}"
 					@transfer-click="${(event) => this._transferFromBudgetAccounts(event.detail.selectedAccountDetails)}"
@@ -911,7 +918,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderPayBudgetDialog() {
-		return this.renderMode === RENDER_MODE.PAY_BUDGET_DIALOG
+		return this.showPayBudgetDialog
 			? html`
 				<capitec-pc-pay-budget-dialog
 					.budgetAccountDetails="${this.payBudgetAccountDetails}"

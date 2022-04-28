@@ -54,8 +54,6 @@ export class ProofOfPaymentFailure extends ViewBase {
 		
 	disconnectedCallback() {
 		super.disconnectedCallback();
-		
-		this._telemetry.endSpan(this.popTelemetryEvents.POP_FAILURE, {}, true, true);
 	}
 
 	// --------------
@@ -68,6 +66,9 @@ export class ProofOfPaymentFailure extends ViewBase {
 			"next-screen": TelemetryScreen.CREDIT_LANDING
 		});
 
+		const screenDetails = this.horizonStore.getScreenDetails();
+		this._telemetry.endSpan(screenDetails.parentSpan, {}, true, false, true);
+		
 		const returnToScreen = this.horizonStore.getReturnToScreen();
 		this.horizonStore.setReturnScreen(returnToScreen.route, ``);
 
@@ -89,7 +90,7 @@ export class ProofOfPaymentFailure extends ViewBase {
 		const creditNeed = this.horizonStore.getReturnToScreen().optionalData;
 		
 		const telemetryEvents = {
-			'budget-facility': BUDGET_FACILITY_POP_EVENTS,
+			'view-budgets': BUDGET_FACILITY_POP_EVENTS,
 			'settle-close': null // Load telemetry events for Settle and close prrof of payment flow 
 		};
 
