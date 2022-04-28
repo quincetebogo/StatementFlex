@@ -69,7 +69,7 @@ export const creditMixin = {
 		const accountsList = details.selectedAccounts.map(item => {
 			const account = { 
 								'accountNumber': item.accountNumber,
-								'creditType': item.productTypeDescription.replace(` `, ``)
+								'creditType': item.type.replace(` `, ``)
 							};
 			return account;
 		});
@@ -93,6 +93,7 @@ export const creditMixin = {
 
 			this.horizonStore.setScreenDetails(screenDetails);
 			this.horizonRouter.navigateToSettlementQuoteFailure();
+			return;
 		}
 
 		// Formatting data before navigating to outcome screen
@@ -104,7 +105,7 @@ export const creditMixin = {
 			return item;
 		});
 
-		screenDetails.emailStatus = returnValue.result?.sendStatusList;
+		screenDetails.emailStatus = formatedResponse;
 		this.horizonStore.setScreenDetails(screenDetails);
 
 		switch (true) {
@@ -112,7 +113,7 @@ export const creditMixin = {
 				this.horizonRouter.navigateToSettlementQuoteSuccess();
 				break;
 
-			case returnValue.result?.sendStatusList.every(item => !item.sentStatus): // If all failure
+				case returnValue.result?.sendStatusList.every(item => !item.sentStatus): // If all failure
 				this.horizonRouter.navigateToSettlementQuoteFailure();
 				break;
 

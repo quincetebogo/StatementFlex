@@ -59,7 +59,7 @@ import 'app/components/common/RelatedOptions';
 			"next-screen": TelemetryScreen.CREDIT_LANDING
 		});
 
-		this._telemetry.endSpan(CreditEvents.PAY_BUDGET_TRANSFER_FAILURE, {}, true, true);
+		this._telemetry.endSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {}, true, false, true);
 
 		this.horizonRouter.navigateToCreditAccount();
 		this.horizonStore.clearScreenDetails();

@@ -1,4 +1,5 @@
 import { css, html } from 'platform/elements';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { SETTLEMENT_QUOTE_EVENTS as SettlementQuoteCreditEvents } from 'app/constants/telemetry/events/Credit';
 import { SETTLEMENT_QUOTE_EVENTS as SettlementQuoteFavouritesEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -71,6 +72,7 @@ export class SettlementQuoteSuccess extends ViewBase {
 		});
 
 		this._telemetry.endSpan(this.telemetryEvents.SETTLEMENT_QUOTE_SUCCESS, {}, true, true);
+		this._telemetry.endSpan(QuickTransactionEvents.SETTLEMENT_QUOTE, {});
 
 		const returnToScreen = this.horizonStore.getReturnToScreen();
 		this.horizonStore.setReturnScreen(returnToScreen.route, ``);
@@ -86,6 +88,7 @@ export class SettlementQuoteSuccess extends ViewBase {
 		});
 
 		this._telemetry.endSpan(this.telemetryEvents.SETTLEMENT_QUOTE_SUCCESS);
+		this._telemetry.endSpan(QuickTransactionEvents.SETTLEMENT_QUOTE, {});
 
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 		this.horizonStore.clearScreenDetails();
@@ -126,7 +129,7 @@ export class SettlementQuoteSuccess extends ViewBase {
 		return [
 			super.styles,
 			css`
-				#id-error-msg {
+				#id-success-msg {
 					width: auto;
 				}
 			`
@@ -156,7 +159,7 @@ export class SettlementQuoteSuccess extends ViewBase {
 				toast="Settlement quote${this.succeededAccounts.length === 1 ? ` for ${this.succeededAccounts[0].toLowerCase()}` : `s`} was sent"
 				@left-click=${() => this._sendAnotherClick()}
 				@right-click=${() => this._doneClick()}>
-					<section id="id-error-msg" slot="detail">
+					<section id="id-success-msg" slot="detail">
 						Settlement quote for <b> ${this._formateAccountNames(this.succeededAccounts)}</b> was emailed to <b>${this.emailAddress}</b>.
 					</section>
 			</horizon-success-screen>

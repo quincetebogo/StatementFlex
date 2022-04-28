@@ -78,13 +78,7 @@
 	STATEMENTS_FAILURE_ASSIGN: `call.fulfill-need.credit.statements.failure.assign`
 });
 
-/**
- * The event names to use when logging telemetry events for setttlement flow from Credit.
- * This correspond to the `Action` and `eventName` columns in the Data Spec.
- * 
- * @readonly
- * @enum {Object} SETTLEMENT_QUOTE_EVENTS
- */
+
 /**
  * The event names to use when logging telemetry events for Proof of payment for pay budget flow
  * This correspond to the `Action` and `eventName` columns in the Data Spec.
@@ -99,15 +93,21 @@
 	POP_VIEW_DOCUMENT: `call.fulfill-need.credit.budget.transfer.proof-of-payment.pop-up.view-document`,
 	POP_CLOSE_DOCUMENT: `call.fulfill-need.credit.budget.transfer.proof-of-payment.pop-up.view-document.close`,
 	POP_SEND: `call.fulfill-need.credit.budget.transfer.proof-of-payment.pop-up.send`,
-	POP_SUCCESS: `call.fulfill-need.credit.budget.transfer.proof-of-payment.success`,
-	POP_SUCCESS_DONE: `call.fulfill-need.credit.budget.transfer.proof-of-payment.success.done`,
-	POP_SUCCESS_PAY_ANOTHER: `call.fulfill-need.credit.budget.transfer.proof-of-payment.success.pay-another`,
+	POP_SUCCESS: `call.fulfill-need.credit.budget.transfer.proof-of-payment.pop-success`,
+	POP_SUCCESS_DONE: `call.fulfill-need.credit.budget.transfer.proof-of-payment.pop-success.done`,
+	POP_SUCCESS_PAY_ANOTHER: `call.fulfill-need.credit.budget.transfer.proof-of-payment.pop-success.pay-another`,
 	POP_FAILURE: `call.fulfill-need.credit.budget.transfer.proof-of-payment.failure`,
 	POP_FAILURE_TRY_AGAIN: `call.fulfill-need.credit.budget.transfer.proof-of-payment.failure.try-again`,
 	POP_FAILURE_DONE: `call.fulfill-need.credit.budget.transfer.proof-of-payment.failure.done`
 });
 
-
+/**
+ * The event names to use when logging telemetry events for setttlement flow from Credit.
+ * This correspond to the `Action` and `eventName` columns in the Data Spec.
+ * 
+ * @readonly
+ * @enum {Object} SETTLEMENT_QUOTE_EVENTS
+ */
 export const SETTLEMENT_QUOTE_EVENTS = Object.freeze({
 	SETTLEMENT_QUOTE: `call.fulfill-need.credit.settlement-quote`,
 	SETTLEMENT_QUOTE_DIALOG: `call.fulfill-need.credit.settlement-quote.pop-up`,
