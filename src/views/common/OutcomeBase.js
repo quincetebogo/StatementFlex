@@ -104,28 +104,28 @@ export class OutcomeBase extends ViewBase {
 			"cifNumber": this.callerInformation.cifNumber,
 			"emailAddress": event.detail.email,
 			"documentType": DOCUMENT_TYPE[this.incidentDetails.currentNeed],
-			"creditType": formatStringAsPascalCase(screenDetails.productType),
+			"creditType": `CreditCard`,
 			"data": event.detail.documentData
 		};
 
 		screenDetails.emailAddress = event.detail.email;
 		this.horizonStore.setScreenDetails(screenDetails);
-
+		console.log(request);
 		const returnValue = await this.creditService.emailProofOfPayment(request);
 
-		this._telemetry.logEvent(this.telemetryEvents.POP_SEND, {
-			"screen": TelemetryScreen.PROOF_OF_PAYMENT_DIALOG,
-			"next-screen": returnValue.succeeded && returnValue.result?.isSuccess ? TelemetryScreen.PROOF_OF_PAYMENT_SUCCESS : TelemetryScreen.PROOF_OF_PAYMENT_FAILURE,
-			"email-address": event.detail.email
-		});
+		// this._telemetry.logEvent(this.telemetryEvents.POP_SEND, {
+		// 	"screen": TelemetryScreen.PROOF_OF_PAYMENT_DIALOG,
+		// 	"next-screen": returnValue.succeeded && returnValue.result?.isSuccess ? TelemetryScreen.PROOF_OF_PAYMENT_SUCCESS : TelemetryScreen.PROOF_OF_PAYMENT_FAILURE,
+		// 	"email-address": event.detail.email
+		// });
 
-		this._telemetry.endSpan(this.telemetryEvents.POP_MODAL);
+		// this._telemetry.endSpan(this.telemetryEvents.POP_MODAL);
 
 		if (returnValue.succeeded && returnValue.result.isSuccess) {
 			this.horizonRouter.navigateProofOfPaymentSuccess();
 			return;
 		}
-		this.horizonRouter.navigateProofOfPaymentFailure();
+		//this.horizonRouter.navigateProofOfPaymentFailure();
 	}
 
 	// --------------

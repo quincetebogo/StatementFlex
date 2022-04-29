@@ -1,8 +1,10 @@
 import { Component, css, html } from 'platform/elements';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { CREDIT_TYPE } from 'app/constants/Credit';
-
+import { creditMixin } from 'app/views/credit/CreditMixin';
 import 'app/components/common/SuccessScreen';
+import { BUDGET_FACILITY_POP_EVENTS, CreditEvents } from 'app/constants/telemetry/events/Credit';
+import { OutcomeBase } from '../common/OutcomeBase';
 
 /**
  * Display an confirmation/success screen indicating the selected account has been settle and closed successfully.
@@ -11,7 +13,7 @@ import 'app/components/common/SuccessScreen';
  * @class SettleAndCloseSuccess
  * @extends {ViewBase}
  */
- export class SettleAndCloseSuccess extends ViewBase {
+ export class SettleAndCloseSuccess extends OutcomeBase {
 
 	// --------------
 	// INITIALISATION
@@ -26,6 +28,7 @@ import 'app/components/common/SuccessScreen';
 		this.creditType = ``;
 
 		this.primaryToast = this.creditType === CREDIT_TYPE.FLEXIBLE ? `Account settled and closed` : `Account Closed`;
+		Object.assign(SettleAndCloseSuccess.prototype, creditMixin);
 	}
 
 	// --------------
@@ -64,7 +67,24 @@ import 'app/components/common/SuccessScreen';
 		console.log(screenDetails);
 	}
 	_sendEmailConfirmationClick() {
-		this.dispatchEvent(new CustomEvent(`confirm-email`));
+		//this.dispatchEvent(new CustomEvent(`confirm-email`));
+
+		//this.renderMode = RENDER_MODE.VIEW_AND_SEND_SETTLE_AND_CLOSE_POP;
+
+		//this._renderSettleAndCloseEmailConfirmation(RENDER_MODE.VIEW_AND_SEND_SETTLE_AND_CLOSE_POP);
+		const screenDetails = this.horizonStore.getScreenDetails();
+
+		const emailAccountsList = [
+			{
+				title: this.budgetName,
+				subtitle: `Proof of transfer`,
+				documentData: screenDetails.settleAndCloseDocumentData
+			}
+		];
+		
+	this._showPopDialog(emailAccountsList, BUDGET_FACILITY_POP_EVENTS, CreditEvents.CREDIT_BUDGET_DETAILS);
+		
+		
 	}
 
 	_doneClick() {
