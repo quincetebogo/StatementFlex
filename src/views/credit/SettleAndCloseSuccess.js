@@ -48,6 +48,7 @@ import { OutcomeBase } from '../common/OutcomeBase';
 	// -------------------
 
 	connectedCallback() {
+		this._initialise();
 		super.connectedCallback();
 		this._initialise();
 	}
@@ -64,24 +65,18 @@ import { OutcomeBase } from '../common/OutcomeBase';
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.creditType = screenDetails.settleAndCloseCreditType;
 		this.productType = screenDetails.settleAndCloseProductType;
-		console.log(screenDetails);
 	}
 	_sendEmailConfirmationClick() {
-		//this.dispatchEvent(new CustomEvent(`confirm-email`));
-
-		//this.renderMode = RENDER_MODE.VIEW_AND_SEND_SETTLE_AND_CLOSE_POP;
-
-		//this._renderSettleAndCloseEmailConfirmation(RENDER_MODE.VIEW_AND_SEND_SETTLE_AND_CLOSE_POP);
 		const screenDetails = this.horizonStore.getScreenDetails();
 
 		const emailAccountsList = [
 			{
-				title: this.budgetName,
-				subtitle: `Proof of transfer`,
+				title: screenDetails.settleAndCloseProductType,
+				subtitle: `Settle and Close`,
 				documentData: screenDetails.settleAndCloseDocumentData
 			}
 		];
-		
+
 	this._showPopDialog(emailAccountsList, BUDGET_FACILITY_POP_EVENTS, CreditEvents.CREDIT_BUDGET_DETAILS);
 		
 		

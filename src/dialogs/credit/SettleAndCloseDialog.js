@@ -71,8 +71,6 @@ export class SettleAndCloseDialog extends Component {
 	}
 
 	_onSettleAndCloseClick(e) {
-		console.log(e);
-		//e = this.productSelected;
 		if (this.hasEnoughFunds) {
 			this.dispatchEvent(new CustomEvent(`settle-and-close`, {
 				detail: {

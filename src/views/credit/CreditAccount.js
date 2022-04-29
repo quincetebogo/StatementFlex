@@ -362,10 +362,6 @@ export class CreditAccount extends ViewBase {
 				firstname: this.callerInformation.firstName,
 				surname: this.callerInformation.lastName
 		}
-		console.log(`this is the settle and close request`);
-		console.log(settleAndClose);
-		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.test = `testing is fun`;
 		// let returnValue = await this.creditService.settleAndClose(settleAndClose);
 		// if(returnValue.succeeded)
 		// {
@@ -391,24 +387,27 @@ export class CreditAccount extends ViewBase {
 		
 		this.settleAndCloseDocument = result.closureDocument.data;
 		let flag = true;
-		
+		console.log(this.selectedAccounts);
 		if (flag == true)
 		{
 			const screenDetails = this.horizonStore.getScreenDetails();
 			screenDetails.settleAndCloseDocumentData = result.closureDocument.data;
-			screenDetails.settleAndCloseCreditType = ``;
-			screenDetails.settleAndCloseProductType = ``;
+			screenDetails.settleAndCloseCreditOption = this.settleAndCloseCreditOption;
+			screenDetails.settleAndCloseProductType = this.settleAndCloseQuote.accountNumber;
+			screenDetails.settleAndCloseAccountNumber = this.settleAndCloseQuote.accountNumber;
+			if(this.settleAndCloseCreditOption===`CreditCard`)
+			{
+				screenDetails.settleAndCloseCreditType = `Flexible`;
+			}else{
+				screenDetails.settleAndCloseCreditType = `Fixed`;
+			}
 			this.horizonStore.setScreenDetails(screenDetails);
 			this.horizonRouter.navigateToSettleAndCloseSuccess();
-
-			//this.renderMode = RENDER_MODE.SETTLE_AND_CLOSE_SUCCESS;
-			//this._renderSettleAndCloseSuccessScreen();
 
 		} else
 		{
 			this.horizonRouter.navigateToSettleAndCloseFailure();
 		}
-		console.log(`yess we done`);
 	}
 	_getSECTransferDetails(item)
 	{

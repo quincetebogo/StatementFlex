@@ -257,7 +257,7 @@ export class SendSettlementQuote extends Component {
 					<capitec-content-box>
 						${this._renderAlertBanner()}
 						${this._renderEmailFields()}
-						${this._renderLoadingIndicator()}
+						
 					</capitec-content-box>
 				</div>
 				<div slot="footer">
