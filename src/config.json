@@ -22,6 +22,10 @@
 		"fees": "https://www.capitecbank.co.za/global-one/transact/fees/"
 	},
 	"AuthMethod": "KBA",
+	"AuthAttempts": {
+		"XDS": 2,
+		"KBA": 1
+	},
 	"LogRequestResponseModels": false,
 	"VDN": "7250",
 	"ivrMapping": [
@@ -94,7 +98,7 @@
 			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"itaVerification":{
@@ -102,8 +106,8 @@
 			"positiveCase": true
 		},
 		"verifyKBA": {
-			"enabled": true,
-			"positiveCase": false
+			"enabled": false,
+			"positiveCase": true
 		},
 		"debiCheckMandates": {
 			"enabled": false,
@@ -194,6 +198,10 @@
 			"positiveCase": true
 		},
 		"creditBalance": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"loadKBA": {
 			"enabled": false,
 			"positiveCase": true
 		}

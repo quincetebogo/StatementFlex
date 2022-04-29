@@ -854,7 +854,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderNoDigitalHighRiskTransAlertBanner() {
-		return this.callerInformation.verificationMethod === `XDS`
+		return this.callerInformation.verificationMethod === `SQ`
 			? html`
 				<capitec-alert-banner
 					class="verificatoin-status"
@@ -872,7 +872,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderHighRiskTransAlertBanner() {
-		return this.callerInformation.verificationMethod === `XDS`
+		return this.callerInformation.verificationMethod === `SQ`
 			? html`
 				<capitec-alert-banner
 					class="verificatoin-status"
