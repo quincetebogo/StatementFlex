@@ -187,7 +187,11 @@ class PolicyEstimate extends Component {
 		}
 		this.estimate.lifesAssured[index].coverDetails.coverMessage = ``;
 		this.estimate.lifesAssured[index].coverDetails.genderMessage = '';
-		this.estimate.lifesAssured[index].coverDetails = getCoverDetailsByParams(this.estimate.lifesAssured[index].relationship, this.productParams, this.estimate.lifesAssured[index].age, this.estimate.lifesAssured[index].coverDetails.isExtendedFamily);
+		this.estimate.lifesAssured[index].coverDetails = getCoverDetailsByParams(
+			this.estimate.lifesAssured[index].relationship,
+			this.productParams,
+			this.estimate.lifesAssured[index].age,
+			this.estimate.lifesAssured[index].coverDetails.isExtendedFamily);
 
 		// Age Check
 		if (this.estimate.lifesAssured[index].age >= this.estimate.lifesAssured[index].coverDetails.minAge
@@ -208,6 +212,8 @@ class PolicyEstimate extends Component {
 				.replace("{0:#,##0}", this.estimate.lifesAssured[index].coverDetails.minCoverAmount);
 			this.canPerformEstimate = false;
 		}
+
+		console.log("ALL DONE: ", JSON.stringify(this.estimate.lifesAssured))
 		this.requestUpdate();
 	}
 

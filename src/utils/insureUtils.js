@@ -9,10 +9,13 @@
  * @returns {Object} cover details object
  */
 export function getCoverDetailsByParams(relationship, productParams, age, isExtendedFamily) {
+	console.log('INcoming relationship, ' + relationship);
+	console.log('Is extended: ', isExtendedFamily);
 	let appliedAgeRange = {};
 	appliedAgeRange.isExtendedFamily = isExtendedFamily;
 	if (isExtendedFamily == true) relationship = 'ExtendedFamily';
 
+	console.log('After relationship map, ' + relationship);
 	let product = productParams.products.find(product => {
 		return product.parameters.id === "NBS"
 	});
@@ -20,7 +23,12 @@ export function getCoverDetailsByParams(relationship, productParams, age, isExte
 		return role.relationshipTypeEnum == relationship
 	});
 
+	console.log('relationship, ' + relationship);
+	console.log("currentRole")
+	console.log(JSON.stringify(currentRole));
+
 	if (age) {
+		// Only 1 age range
 		if (currentRole.ageRange.length == 1) {
 			appliedAgeRange.defaultCover = 0;
 			appliedAgeRange.maxCoverAmount = currentRole.ageRange[0].maxCoverAmount;
@@ -30,19 +38,25 @@ export function getCoverDetailsByParams(relationship, productParams, age, isExte
 			appliedAgeRange.maxCoverMessage = currentRole.ageRange[0].coverAmountMessage;
 			appliedAgeRange.minCoverMessage = currentRole.ageRange[0].coverAmountMinMessage;
 		} else {
+			console.log("Has Age - Before mapping: ", JSON.stringify(appliedAgeRange))
 			appliedAgeRange.minAge = currentRole.ageRange[0].minAge;
 			appliedAgeRange.maxAge = currentRole.ageRange[currentRole.ageRange.length - 1].maxAge;
 			const withinRange = currentRole.ageRange.filter(function(life) {
 				return age >= life.minAge && age <= life.maxAge
 			});
-			if (!withinRange) {
+			if (withinRange.length == 0) {
+				console.log("Nothing in range - age: ", age)
 				appliedAgeRange = currentRole.ageRange[0];
+			} else {
+				console.log("withinRange");
+				console.log(JSON.stringify(withinRange));
+				appliedAgeRange.defaultCover = 0;
+				appliedAgeRange.maxCoverAmount = withinRange[0].maxCoverAmount;
+				appliedAgeRange.minCoverAmount = withinRange[0].minCoverAmount;
+				appliedAgeRange.maxCoverMessage = withinRange[0].coverAmountMessage;
+				appliedAgeRange.minCoverMessage = withinRange[0].coverAmountMinMessage;
+				console.log("Has Age - After mapping: ", JSON.stringify(appliedAgeRange))
 			}
-			appliedAgeRange.defaultCover = 0;
-			appliedAgeRange.maxCoverAmount = withinRange[0].maxCoverAmount;
-			appliedAgeRange.minCoverAmount = withinRange[0].minCoverAmount;
-			appliedAgeRange.maxCoverMessage = withinRange[0].coverAmountMessage;
-			appliedAgeRange.minCoverMessage = withinRange[0].coverAmountMinMessage;
 		}
 	} else {
 		if (currentRole.ageRange.length == 1) {
@@ -56,7 +70,7 @@ export function getCoverDetailsByParams(relationship, productParams, age, isExte
 		} else {
 			appliedAgeRange.defaultCover = 0;
 			appliedAgeRange.maxCoverAmount = currentRole.ageRange[0].maxCoverAmount;
-			appliedAgeRange.minCover = currentRole.ageRange[0].minCoverAmount;
+			appliedAgeRange.minCoverAmount = currentRole.ageRange[0].minCoverAmount;
 			appliedAgeRange.minAge = currentRole.ageRange[0].minAge;
 			appliedAgeRange.maxAge = currentRole.ageRange[currentRole.ageRange.length - 1].maxAge;
 			appliedAgeRange.maxCoverMessage = currentRole.ageRange[0].coverAmountMessage;
@@ -91,4 +105,16 @@ export function livesPerPolicy(relationship, productParams) {
 		return role.relationshipTypeEnum == relationship
 	});
 	return currentRole.perPolicy;
+}
+
+/**
+ * Extract person age from date of birth string
+ * @param {String} dateOfBirth
+ * @returns {Number} age
+ */
+export function getAgeFromDOB(strBirthday) {
+	let birthday = new Date(strBirthday);
+	let ageDifMs = Date.now() - birthday.getTime();
+	let ageDate = new Date(ageDifMs);
+	return Math.abs(ageDate.getUTCFullYear() - 1970);
 }

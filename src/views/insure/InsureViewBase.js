@@ -68,9 +68,7 @@ export class InsureViewBase extends ViewBase {
 	 * @returns {Object} Product Params Array
 	 */
 	async retrieveInsureProductParams() {
-		this.isBusy = true;
 		const resp = await this.insureService.productParams();
-		this.isBusy = false;
 		return resp.result;
 	}
 
