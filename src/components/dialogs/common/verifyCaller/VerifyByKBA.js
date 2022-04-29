@@ -1,6 +1,9 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { ITAChannelService } from 'app/services/ITAChannelService';
 import { Logger } from 'platform/core';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { VerifyCallerEvents } from 'app/constants/telemetry/events/VerifyCaller';
 
 import 'app/components/common/CallerDialog';
 import 'app/components/common/MultiLineLabel';
@@ -57,6 +60,7 @@ export class VerifyByKBA extends Component {
 		this.orQus = [];
 
 		this.logger = Logger.getInstance();
+		this.telemetry = HorizonTelemetry.getInstance();
 
 		this.itaChannelService = new ITAChannelService(() => this._toggleBusyFlag(), () => true);
 	}
@@ -78,7 +82,9 @@ export class VerifyByKBA extends Component {
 			questions: { type: Object },
 
 			isBusy: { state: true },
-			renderMode: { state: true }
+			renderMode: { state: true },
+			mandatoryQus: { state: true },
+			orQus: { state: true }
 		};
 	}
 
@@ -97,33 +103,61 @@ export class VerifyByKBA extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 
+		await this.telemetry.startSpan(VerifyCallerEvents.KBA, {});
 		this._initialise();
 	}
 
-	disconnectedCallback() {
+	async disconnectedCallback() {
 		super.disconnectedCallback();
+
+		await this.telemetry.endSpan(VerifyCallerEvents.KBA, {});
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
-	_endCall() {
+	async _endCall() {
+		await this.telemetry.logEvent(VerifyCallerEvents.KBA_END_CALL, {
+			"screen": TelemetryScreen.KBA,
+			"next-screen": TelemetryScreen.END_CALL
+		});
+
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
-	_cancelClick() {
+	async _cancelClick() {
+		await this.telemetry.logEvent(VerifyCallerEvents.KBA_CANCEL, {
+			"screen": TelemetryScreen.KBA,
+			"next-screen": TelemetryScreen.CONFIRM_CALLER
+		});
+
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-	_skipClick() {
+	async _skipClick() {
+		await this.telemetry.logEvent(VerifyCallerEvents.KBA_SKIP, {
+			"screen": TelemetryScreen.KBA,
+			"next-screen": null
+		});
+
 		this.dispatchEvent(new CustomEvent(`skip`, {}));
 	}
 
 	async _verifyAnswers() {
+		const baggage = {};
+
+		this.SQs.map((item, index) => Object.assign(baggage, {
+			"screen": TelemetryScreen.KBA,
+			"next-screen": null,
+			[`Qus_${index + 1}-id`]: item.questionId,
+			[`Qus_${index + 1}-ans`]: item.selectedAnswer
+		}));
+		await this.telemetry.logEvent(VerifyCallerEvents.KBA_VERIFY, baggage);
+
 		const request = {
 			questionList: this.SQs.map(item => {
 				item.providedAnswer = item.selectedAnswer === ANSWERS.YES;
@@ -138,6 +172,11 @@ export class VerifyByKBA extends Component {
 		};
 		const returnValue = await this.itaChannelService.verifyKBA(request, () => true);
 		const result = returnValue?.result;
+
+		await this.telemetry.logEvent(VerifyCallerEvents.KBA_OUTCOME, {
+			"verification-status": result?.verificationStatus,
+			"verification-reason": result?.verificationStatusReason
+		}, baggage);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to verify KBA answers`, `_verifyAnswers`, returnValue.correlationId);

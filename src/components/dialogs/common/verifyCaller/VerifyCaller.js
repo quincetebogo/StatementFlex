@@ -207,6 +207,13 @@ export class VerifyCaller extends Component {
 	async _loadKBA() {
 		const returnValue = await this.itaChannelService.loadKBA(this.callerInformation.cifNumber, this.callerInformation.identifiedBy, () => true);
 
+		this.telemetry.logEvent(VerifyCallerEvents.SECURITY_QUESTIONS_CLICK, {
+			"screen": TelemetryScreen.VERIFY_CALLER,
+			"next-screen": TelemetryScreen.KBA,
+			"attempt": 1,
+			"outcome": !returnValue.succeeded ? `Service-failure` : `Success`
+		});
+
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unable to get KBA questions`, `_loadKBA`, returnValue.correlationId);
 			this.SQUnavailable = true;

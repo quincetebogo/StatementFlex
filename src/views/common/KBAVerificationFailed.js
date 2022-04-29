@@ -1,5 +1,8 @@
 import { css, html } from 'platform/elements';
 import { SQFailedMixin } from 'app/views/common/SQFailedMixin';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { VerifyCallerEvents } from 'app/constants/telemetry/events/VerifyCaller';
+
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
@@ -33,17 +36,17 @@ export class KbaVerificationFailed extends ViewBase {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 
-		// TODO: Telemetry start span comes here
+		await this._telemetry.startSpan(VerifyCallerEvents.KBA_VERIFICATION_FAILED);
 
 		this._updateMiniProfile();
 		this.endCallContext = `VerifyClientFailed`;
 	}
 
-	disconnectedCallback() {
-		// TODO: Telemetry end span comes here
+	async disconnectedCallback() {
+		await this._telemetry.endSpan(VerifyCallerEvents.KBA_VERIFICATION_FAILED);
 
 		super.disconnectedCallback();
 	}
@@ -59,13 +62,19 @@ export class KbaVerificationFailed extends ViewBase {
 	// --------------
 
 	_continueUnverifiedClick() {
-		// TODO: Telemetry log event comes here
+		this._telemetry.logEvent(VerifyCallerEvents.KBA_VERIFICATION_FAILED_CONTINUE_UNVERIFIED, {
+			"screen": TelemetryScreen.KBA_FAILED,
+			"next-screen": TelemetryScreen.FAVOURITES
+		}, true);
 
 		this._navigateToLP();
 	}
 
 	_verifyViaApp() {
-		// TODO: Telemetry log event comes here
+		this._telemetry.logEvent(VerifyCallerEvents.KBA_VERIFICATION_FAILED_VERIFY_VIA_APP, {
+			"screen": TelemetryScreen.KBA_FAILED,
+			"next-screen": TelemetryScreen.VERIFY_CALLER
+		}, true);
 
 		super._verifyClick();
 	}

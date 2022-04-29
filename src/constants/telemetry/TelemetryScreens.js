@@ -16,6 +16,7 @@
 	SECURITY_QUESTIONS_FAILURE: `Security Questions Failure`,
 	XDS_FAILED: `XDS Verification Failed`,
 	ITA_FAILED: `ITA Verification Failed`,
+	KBA_FAILED: `KBA Verification Failed`,
 
 	STOP_CARD: `Stop Card`,
 	STOP_CARD_OUTCOME: `Stop Card Outcome`,
@@ -97,7 +98,7 @@
 	SAVINGS_PLAN_TAX_CERTIFICATE: `Savings Plan Tax Certificate`,
 	SAVINGS_PLAN_PRODUCT_ENQUIRY: `Savings Plan Product Enquiry`,
 	SAVINGS_PLAN_SAVINGS_CALCULATOR: `Savings Plan Savings Calculator`,
-  SAVINGS_PLAN_INTEREST_RATES: `Savings Plan Interest Rates`,
+	SAVINGS_PLAN_INTEREST_RATES: `Savings Plan Interest Rates`,
 
 
 	CREDIT_LANDING: `Credit Landing`,
@@ -107,5 +108,7 @@
 	CREDIT_SETTLEMENT_QUOTE: `Credit Settlement Quote`,
 	CREDIT_SETTLE_CLOSE: `Credit Settle Close`,
 	CREDIT_STATEMENTS_SUCCESS: `Credit Statement success`,
-	CREDIT_STATEMENTS_FAILURE: `Credit Statement failure`  
+	CREDIT_STATEMENTS_FAILURE: `Credit Statement failure`,
+
+	KBA: `KBA Dialog`
 };
