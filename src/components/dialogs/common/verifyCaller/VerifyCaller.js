@@ -161,8 +161,8 @@ export class VerifyCaller extends Component {
 			await this._initiateItaVerification();
 		}
 
-		this.isLoading = false;
 		this.authMethod = await this.configuration.getSetting(`AuthMethod`);
+		this.isLoading = false;
 	}
 
 	disconnectedCallback() {
@@ -695,14 +695,14 @@ export class VerifyCaller extends Component {
 	}
 
 	_canVerifyViaSQ() {
-		return this.hasSouthAfricanID && 
-			!this._sqAttemptsExceeded() && 
-			!this.SQUnavailable && 
+		return (this.hasSouthAfricanID || this.authMethod === AUTH_METHODS.KBA) &&
+			!this._sqAttemptsExceeded() &&
+			!this.SQUnavailable &&
 			this.callerInformation.verificationMethod !== `SQ`; // Already verified via XDS/ KBA
 	}
 
 	_canOnlyVerifyBySQ() {
-		return this.hasSouthAfricanID && // Need an SA ID to be able to use XDS
+		return (this.hasSouthAfricanID || this.authMethod === AUTH_METHODS.KBA) && // Need an SA ID to be able to use XDS, but not for KBA
 			!this._isMinorClient() &&
 			!this.callerInformation.hasDigitalChannels && // App/USSD is not an option
 			(this.xdsAttempts === 0 && this.kbaAttempts === 0) && // We have not tried to verify yet
@@ -983,7 +983,7 @@ export class VerifyCaller extends Component {
 						label="Security Questions" 
 						icon="system/knowledge-action"
 						iconSize="default"
-						?hidden=${!this._canVerifyViaSQ() || this._foreignOrMinorClient()}
+						?hidden=${!this._canVerifyViaSQ() || this._isMinorClient()}
 						@click="${() => this._securityQuestionsClick()}">
 					</horizon-option-button>
 					<horizon-option-button 
