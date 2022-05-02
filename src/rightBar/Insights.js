@@ -250,7 +250,7 @@ export class Insights extends Component {
 
 	_renderLoadingIndicator() {
 		if (this.isBusy) {
-			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+			return html`<capitec-loading-indicator data-automation-id="insights-loading-indicator"></capitec-loading-indicator>`;
 		};
 
 		return html``;

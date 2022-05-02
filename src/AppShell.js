@@ -401,7 +401,7 @@ export class AppShell extends Shell {
 
 	_renderLoadingIndicator() {
 		if (this.isBusy || this.isAuthenticating) {
-			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+			return html`<capitec-loading-indicator data-automation-id="app-shell-loading-indicator"></capitec-loading-indicator>`;
 		}
 	}
 }

@@ -788,7 +788,7 @@ export class SearchCaller extends Component {
 
 	_renderLoadingIndicator() {
 		return this.isBusy 
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			? html`<capitec-loading-indicator data-automation-id="search-caller-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
 

@@ -364,7 +364,7 @@ export class SendSettlementQuote extends Component {
 
 	_renderLoadingIndicator() {
 		return this.isBusy
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			? html`<capitec-loading-indicator data-automation-id="settlement-quote-dialog-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
 }

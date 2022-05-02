@@ -576,6 +576,7 @@ export class ConfirmCallerDetails extends Component {
 			case RENDER_MODE.CONFIRM_CALLER:
 				return html`
 					<horizon-caller-dialog
+					data-automation-id="confirm-caller-details-dialog"
 						.incomingCallDetails="${this.incomingCallDetails}"
 						.incidentDetails="${this.incidentDetails}"
 						.isNeedSelectable=${true}
@@ -746,13 +747,14 @@ export class ConfirmCallerDetails extends Component {
 
 	_renderLoadingIndicator() {
 		return this.isBusy 
-			? html`<capitec-loading-indicator></capitec-loading-indicator>` 
+			? html`<capitec-loading-indicator data-automation-id="confirm-caller-loading-indicator"></capitec-loading-indicator>` 
 			: html``;
 	}
 
 	renderAddCallerDetailsModal() {
 		return html`
 			<horizon-add-caller-details
+				data-automation-id="add-caller-details-modal"
 				.callerInformation="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
@@ -764,6 +766,7 @@ export class ConfirmCallerDetails extends Component {
 	renderEndCallModal() {
 		return html`
 			<horizon-end-call-session 
+				data-automation-id="confirm-caller-details-end-call-modal"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
 				endCallContext="ConfirmClient"
@@ -774,6 +777,7 @@ export class ConfirmCallerDetails extends Component {
 	renderStopCardSearchModal() {
 		return html`
 			<horizon-stop-card-search-caller
+				data-automation-id="confirm-caller-details-stop-card-search-modal"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
 				@client-identified="${(event) => this._identifiedClient(event)}"
@@ -784,6 +788,7 @@ export class ConfirmCallerDetails extends Component {
 	renderSearchModal() {
 		return html`
 			<horizon-search-caller
+				data-automation-id="confirm-caller-details-search-caller-modal"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
 				@client-identified="${(data) => this._identifiedClient(data)}"
@@ -796,6 +801,7 @@ export class ConfirmCallerDetails extends Component {
 	renderVerifyCallerModal() {
 		return html`
 			<horizon-verify-caller
+				data-automation-id="confirm-caller-details-veirfy-caller-modal"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
 				.callerInformation="${this.callerInformation}"
