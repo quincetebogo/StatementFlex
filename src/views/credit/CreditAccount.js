@@ -362,14 +362,7 @@ export class CreditAccount extends ViewBase {
 				firstname: this.callerInformation.firstName,
 				surname: this.callerInformation.lastName
 		}
-		// let returnValue = await this.creditService.settleAndClose(settleAndClose);
-		// if(returnValue.succeeded)
-		// {
-		// 	this.horizonRouter.navigateToSettleAndCloseSuccess();
-		// } else
-		// {
-		// 	this.horizonRouter.navigateToSettleAndCloseFailure();
-		// }
+		
 		let result = 
 		{
 			"cardStop": {
@@ -672,8 +665,6 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_settleLoan() {
-		// TODO: Place holder for credit settle loan flow.
-
 		if (this.ccsStatus) {
 			this.showCCSmodal = true;
 			return;
