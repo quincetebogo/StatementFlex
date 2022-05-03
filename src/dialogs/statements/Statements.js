@@ -64,6 +64,8 @@ export class Statements extends Component {
 	 * @property {string} cifNumber The client's CIF number
 	 * @property {Array} clientProducts Contains list of products that the client has.
 	 * @property {string} type Contains the type of account
+	 * @property {string} title client's title (Mr/ Mrs)
+	 * @property {string} lastName client's last name
 	 * @readonly
 	 * @static
 	 * @memberof Statements
@@ -73,6 +75,8 @@ export class Statements extends Component {
 			cifNumber: { type: String },
 			clientProducts: { type: Array },
 			accountType: { type: String, attribute: `type` },
+			title: { type: String },
+			lastName: { type: String },
 
 			isBusy: { state: true },
 			ccsStatus: { state: true }
@@ -353,8 +357,8 @@ export class Statements extends Component {
 				"dateRange": {},
 				"presetInterval": `${request.dateInterval}`
 			},
-			"title": `Mrs`,
-			"lastName": `PRETORIUS`
+			"title": this.title,
+			"lastName": this.lastName
 		};
 
 		if (request.startDate && request.endDate) {
