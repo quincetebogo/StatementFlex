@@ -84,7 +84,24 @@ class ClientPolicies extends Component {
 	static get styles() {
 		return [
 			super.styles,
-			css``
+			css`
+			.insure-title-bar{
+				margin-bottom: 0px; 
+				border-top-left-radius: 5px; 
+				border-top-right-radius: 5px;
+			}
+
+			#temp-container{
+				min-height: 650px;
+				text-align: center;
+				padding-top: 100px;
+			}
+
+			#temp-container-label{
+				font-weight: bold;
+				font-size: 24px;
+			}
+			`
 		];
 	}
 
@@ -110,7 +127,17 @@ class ClientPolicies extends Component {
 			<capitec-spacer></capitec-spacer>
 			<capitec-button type="white" label="Get Estimate" @click="${() => this._goToEstimate()}">
 			</capitec-button>
-		</capitec-title-bar>`
+		</capitec-title-bar>
+		
+		<capitec-card id="temp-container">
+			<div>
+				<capitec-image src="platform/illustrations/beneficiaries.svg"
+					style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
+				<label id="temp-container-label">Client Policies - Coming soon to a sprint near you!</label>
+			</div>
+		</capitec-card>
+
+		`
 	}
 
 	// Not for estimate testing - reenable later

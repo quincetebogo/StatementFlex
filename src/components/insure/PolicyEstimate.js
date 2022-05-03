@@ -38,7 +38,7 @@ class PolicyEstimate extends Component {
 	/**
 	 * @property {Object} estimate Data & flags for view & estimate service request
 	 * @property {Object} productParams Data & flags for insure product parameters
-	 * @property {Number} newTotalPremium Tied to 'calculate by premium' input and used to track the override
+	 * @property {String} newTotalPremium Tied to 'calculate by premium' input and used to track the override
 	 * @property {boolean} showAddLifeDialog Controls when to show the AddLife dialog
 	 * 
 	 * @readonly
@@ -48,9 +48,10 @@ class PolicyEstimate extends Component {
 		return {
 			estimate: { type: Object },
 			productParams: { type: Object },
-			newTotalPremium: { number: 0 },
+			newTotalPremium: { type: String, state: true },
 			showAddLifeDialog: { type: Boolean, state: true },
-			canPerformEstimate: { type: Boolean, state: true }
+			canPerformEstimate: { type: Boolean, state: true },
+			mainLifeDefaultAge: { type: Number }
 		};
 	}
 
@@ -89,7 +90,11 @@ class PolicyEstimate extends Component {
 	 * 
 	 */
 	async _calculateEstimate() {
-		if (this.newTotalPremium != 0) this.estimate.totalPremium = this.newTotalPremium
+		if (this.newTotalPremium != '') {
+			this.estimate.totalPremium = this.newTotalPremium
+		} else {
+			delete this.estimate.totalPremium
+		}
 		let request = {
 			...this.estimate,
 		}
@@ -97,7 +102,7 @@ class PolicyEstimate extends Component {
 			detail: request
 		}));
 		this.estimate.totalPremium = 0;
-		this.newTotalPremium = 0;
+		this.newTotalPremium = '';
 	}
 
 
@@ -110,10 +115,10 @@ class PolicyEstimate extends Component {
 	_addLife(event) {
 		this.estimate.lifesAssured.push({
 			relationship: event.detail.relationship,
-			coverAmount: event.detail.coverDetails.defaultCover,
+			coverAmount: 0,
 			premium: 0,
 			genderType: "Male",
-			age: 0,
+			age: '',
 			rowID: this.estimate.lifesAssured.length,
 			coverDetails: event.detail.coverDetails
 		});
@@ -129,7 +134,7 @@ class PolicyEstimate extends Component {
 		for (let index = 0; index < this.estimate.lifesAssured.length; index++) {
 			this.estimate.lifesAssured[index].rowID = index;
 		}
-		this.newTotalPremium = 0;
+		this.newTotalPremium = '';
 		this.requestUpdate();
 	}
 
@@ -145,9 +150,10 @@ class PolicyEstimate extends Component {
 		this.canPerformEstimate = true;
 		if (event.detail.old != event.detail.new) {
 			this.estimate.lifesAssured[index].coverAmount = event.detail.new;
-			this.newTotalPremium = 0;
+			this.newTotalPremium = '';
 		}
 		this.estimate.lifesAssured[index].coverDetails.coverMessage = ``;
+		this.estimate.lifesAssured[index].coverDetails.genderMessage = ``;
 
 		// Over max cover check
 		if (parseInt(this.estimate.lifesAssured[index].coverAmount) > parseInt(this.estimate.lifesAssured[index].coverDetails.maxCoverAmount)) {
@@ -155,7 +161,8 @@ class PolicyEstimate extends Component {
 				.replace("{0:#,##0}", this.estimate.lifesAssured[index].coverDetails.maxCoverAmount);
 			this.canPerformEstimate = false;
 		}
-		if (parseInt(this.estimate.lifesAssured[index].coverAmount) < parseInt(this.estimate.lifesAssured[index].coverDetails.minCoverAmount)) {
+		if (parseInt(this.estimate.lifesAssured[index].coverAmount) < parseInt(this.estimate.lifesAssured[index].coverDetails.minCoverAmount) ||
+			this.estimate.lifesAssured[index].coverAmount == 0) {
 			this.estimate.lifesAssured[index].coverDetails.coverMessage = this.estimate.lifesAssured[index].coverDetails.minCoverMessage
 				.replace("{0:#,##0}", this.estimate.lifesAssured[index].coverDetails.minCoverAmount);
 			this.canPerformEstimate = false;
@@ -176,10 +183,15 @@ class PolicyEstimate extends Component {
 		this.canPerformEstimate = true;
 		if (event.detail.old != event.detail.new) {
 			this.estimate.lifesAssured[index].age = event.detail.new;
-			this.newTotalPremium = 0;
+			this.newTotalPremium = '';
 		}
 		this.estimate.lifesAssured[index].coverDetails.coverMessage = ``;
-		this.estimate.lifesAssured[index].coverDetails = getCoverDetailsByParams(this.estimate.lifesAssured[index].relationship, this.productParams, this.estimate.lifesAssured[index].age, this.estimate.lifesAssured[index].coverDetails.isExtendedFamily);
+		this.estimate.lifesAssured[index].coverDetails.genderMessage = '';
+		this.estimate.lifesAssured[index].coverDetails = getCoverDetailsByParams(
+			this.estimate.lifesAssured[index].relationship,
+			this.productParams,
+			this.estimate.lifesAssured[index].age,
+			this.estimate.lifesAssured[index].coverDetails.isExtendedFamily);
 
 		// Age Check
 		if (this.estimate.lifesAssured[index].age >= this.estimate.lifesAssured[index].coverDetails.minAge
@@ -211,8 +223,9 @@ class PolicyEstimate extends Component {
 	_genderChanged(event, index) {
 		if (event.detail.old != event.detail.new) {
 			this.estimate.lifesAssured[index].genderType = event.detail.new.code;
-			this.newTotalPremium = 0;
+			this.newTotalPremium = '';
 		}
+		this.requestUpdate();
 	}
 
 	/**
@@ -239,7 +252,7 @@ class PolicyEstimate extends Component {
 			coverAmount: 5000,
 			premium: 0,
 			genderType: "Male",
-			age: 0,
+			age: this.mainLifeDefaultAge,
 			rowID: 0,
 			coverDetails: {
 				defaultCover: 5000,
@@ -247,13 +260,15 @@ class PolicyEstimate extends Component {
 				minCoverAmount: 5000,
 				maxAge: 64,
 				minAge: 18,
-				ageMessage: "The age for main life assured must be 18 to 64",
-				coverMessage: '',
+				ageMessage: "",
+				coverMessage: "",
+				genderMessage: "",
 				maxCoverMessage: "Only cover up to {0:#,##0} on main life assured is allowed.",
 				minCoverMessage: "A minimum cover amount of {0:#,##0} is required for the main life."
 			}
 		});
 		this.estimate.totalPremium = 0;
+		this.canPerformEstimate = true;
 	}
 
 	//#endregion
@@ -451,12 +466,13 @@ class PolicyEstimate extends Component {
 				</div>
 				<div class="calc-card-row">
 					<capitec-text-field label="Age" type="numeric" @value-changed="${(e) => this._ageChanged(e, index)}"
-						class="calc-card-row-input"
+						value="${lifeAssured.age}" class="calc-card-row-input"
 						hint="${lifeAssured?.coverDetails?.minAge} - ${lifeAssured?.coverDetails?.maxAge}"
 						error="${lifeAssured.coverDetails.ageMessage}">
 					</capitec-text-field>
 					<capitec-select label="Gender" display-field="text" .items="${this.genderOptions}" id-field="code"
-						class="calc-card-row-input" @value-changed="${(e) => this._genderChanged(e, index)}">
+						class="calc-card-row-input" @value-changed="${(e) => this._genderChanged(e, index)}"
+						value="${lifeAssured.genderType}">
 					</capitec-select>
 				</div>
 			</div>

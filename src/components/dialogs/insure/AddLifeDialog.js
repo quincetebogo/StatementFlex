@@ -97,6 +97,10 @@ class AddLifeDialog extends Component {
 	 */
 	_onAddClick() {
 		let coverDetails = getCoverDetailsByParams(this.selectedRelationship, this.productParams, null, this.showExtendedList);
+
+		console.log("coverDetails")
+		console.log(JSON.stringify(coverDetails));
+
 		this.dispatchEvent(new CustomEvent(`add-new-life`, { detail: { relationship: this.selectedRelationship, coverDetails: coverDetails } }));
 		this.showExtendedList = false;
 	}

@@ -3,6 +3,7 @@ import { css, html } from 'platform/elements';
 import { InsureService } from 'app/services/InsureService';
 import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
+import { getAgeFromDOB } from 'app/utils/insureUtils';
 
 import 'app/components/insure/ClientPolicies';
 import 'app/components/insure/PolicyEstimate';
@@ -28,10 +29,6 @@ export class ExistingClient extends InsureViewBase {
 		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.estimate = {};
-
-		// Get DOB from callerInfo and convert to age for Estimate
-		// this.mainLifeAge = this.callerInformation
-		// this.mainLifeAge = this.callerInformation
 	}
 
 	/**
@@ -74,24 +71,30 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {Object} Client policies 
 	 */
 	async _retrieveClientPolicies(cifNumber, idNumber) {
-		this.isBusy = true;
 		let request = {
 			cifNumber: cifNumber,
 			idNumber: idNumber,
 		}
 		const resp = await this.insureService.clientPolicies(request);
-		this.isBusy = false;
 		return resp.result;
 	}
 
 	/**
 	 * Calculate estimate based on lives assured provided
+	 * Map metadata (coverDetails) back when response is received
 	 * @returns {Object} Estimate response
 	 */
 	async _calculateClientEstimate(e) {
+
+		console.log('Sending Estimate Calculate');
+		console.log(JSON.stringify(e.detail));
+
 		let estimateWithCoverDetails = e.detail;
-		this.isBusy = true;
 		const resp = await this.insureService.calculateEstimate(estimateWithCoverDetails, () => true);
+
+		console.log('Raw Response Estimate Calculate');
+		console.log(JSON.stringify(resp));
+
 		if (resp.succeeded == true && resp.result != null) {
 			estimateWithCoverDetails.totalPremium = resp.result.totalPremium;
 			estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map(lifeWithDetails => {
@@ -99,10 +102,12 @@ export class ExistingClient extends InsureViewBase {
 					return lifeWithDetails.rowID === respLife.rowID
 				}))
 			});
+
+			console.log('Done mapping back Estimate Calculate');
+			console.log(JSON.stringify(estimateWithCoverDetails));
+
 			this.estimate = estimateWithCoverDetails;
-			this.isBusy = false;
 		} else {
-			this.isBusy = false;
 			// Do error message
 			return null;
 		}
@@ -118,6 +123,11 @@ export class ExistingClient extends InsureViewBase {
 	async _initialise() {
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		this.clientPolicies = await this._retrieveClientPolicies();
+	}
+
+	_getMainlifeAge() {
+		let mainLifeAge = getAgeFromDOB(this.callerInformation.birthdate);
+		return mainLifeAge;
 	}
 
 	//#endregion
@@ -200,8 +210,8 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_webTemplate() {
 		return html`
-		${this._renderLandingPage()}
-		${this._renderLoadingIndicator()}`
+		${super._webTemplate()}
+		${this._renderLandingPage()}`
 	}
 
 	/**
@@ -244,7 +254,7 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-policy-estimate @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@calculate="${(e) => this._calculateClientEstimate(e)}" .estimate="${this.estimate}"
-				.productParams="${this.productParams}">
+				.productParams="${this.productParams}" .mainLifeDefaultAge="${this._getMainlifeAge()}">
 			</horizon-insure-policy-estimate>`
 	}
 
@@ -268,17 +278,5 @@ export class ExistingClient extends InsureViewBase {
 			<horizon-insure-policy-summary @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-policy-summary>`
 	}
-
-	/**
-	 * Render capitec loading indicator if busy
-	 * @returns {html} HTML of the loading indicator
-	 */
-	_renderLoadingIndicator() {
-		if (!this.isBusy) {
-			return html``;
-		};
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
-	}
-	//#endregion
 }
 customElements.define(`horizon-existing-client`, ExistingClient);
