@@ -212,8 +212,6 @@ class PolicyEstimate extends Component {
 				.replace("{0:#,##0}", this.estimate.lifesAssured[index].coverDetails.minCoverAmount);
 			this.canPerformEstimate = false;
 		}
-
-		console.log("ALL DONE: ", JSON.stringify(this.estimate.lifesAssured))
 		this.requestUpdate();
 	}
 
@@ -248,8 +246,6 @@ class PolicyEstimate extends Component {
 	 * Initialize component when loaded / Add default life to list for calculator and list
 	 */
 	_initialise() {
-		console.log('Initializing');
-		console.log(this.mainLifeDefaultAge);
 		this.estimate.lifesAssured = [];
 		this.estimate.lifesAssured.push({
 			relationship: "MainLife",
