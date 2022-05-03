@@ -448,7 +448,7 @@ export class CreditAccountLanding extends Component {
 
 								<capitec-hyperlink 
 									label="View details" 
-									@click="${() => this._click(`budget-facility`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, item)}"
+									@click="${() => this._click(`view-budgets`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, item)}"
 									inline>
 								</capitec-hyperlink>
 						</capitec-title-bar>`
@@ -559,7 +559,7 @@ export class CreditAccountLanding extends Component {
 					label="Statements"
 					icon="system/documents-action"
 					?hidden="${false}"
-					@click="${() => this._click(`statements`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD,selectedAccountDetails)}">
+					@click="${() => this._click(`statements`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-settlement-quote"
@@ -572,8 +572,8 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-paid-up-letter"
 					label="Paid up Letter"
 					icon="system/documents-action"
-					?hidden="${true}"
-					@click="${() => this._click(`paid-up-letter`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD)}">
+					?hidden="${selectedAccountDetails.accountStatusDescription !== `Closed`}"
+					@click="${() => this._click(`paid-up-letter`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-settle-close"
@@ -592,7 +592,7 @@ export class CreditAccountLanding extends Component {
 					label="Statements"
 					icon="system/documents-action"
 					?hidden="${false}"
-					@click="${() => this._click(`statements`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.ACCESS_FACILITY,selectedAccountDetails)}">
+					@click="${() => this._click(`statements`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.ACCESS_FACILITY, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-settlement-quote"
@@ -605,8 +605,8 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-paid-up-letter"
 					label="Paid up Letter"
 					icon="system/documents-action"
-					?hidden="${true}"
-					@click="${() => this._click(`paid-up-letter`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.ACCESS_FACILITY)}">
+					?hidden="${selectedAccountDetails.accountStatusDescription !== `Closed`}"
+					@click="${() => this._click(`paid-up-letter`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.ACCESS_FACILITY, selectedAccountDetails)}">
 			</horizon-option-button>
 		`;
 	}
@@ -618,7 +618,7 @@ export class CreditAccountLanding extends Component {
 					label="Statements"
 					icon="system/documents-action"
 					?hidden="${false}"
-					@click="${() => this._click(`statements`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN ,selectedAccountDetails)}">
+					@click="${() => this._click(`statements`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-settlement-quote"
@@ -631,8 +631,8 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-paid-up-letter"
 					label="Paid up Letter"
 					icon="system/documents-action"
-					?hidden="${true}"
-					@click="${() => this._click(`paid-up-letter`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN)}">
+					?hidden="${selectedAccountDetails.accountStatusDescription !== `Closed`}"
+					@click="${() => this._click(`paid-up-letter`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-settle-loan"
