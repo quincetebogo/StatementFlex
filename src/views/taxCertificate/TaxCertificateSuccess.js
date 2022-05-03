@@ -102,7 +102,7 @@ export class TaxCertificateSuccess extends ViewBase {
 			"nextScreen": TelemetryScreen.FAVOURITES
 		});
 
-		this.horizonRouter.navigateToReturnPage();
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_sendAnotherClick() {

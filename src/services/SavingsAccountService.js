@@ -341,6 +341,19 @@ export class SavingsAccountService extends ChannelServiceBase {
 		};
 
 		const url = `/clientcare-savingsaccount-${this._version}/savings-plan-landing`;
+		
+		/*
+		return this.get(
+			url, 
+			this.setToken(), 
+			`savingsPlanLanding`,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+		*/
 
 		return this.post(
 			url,

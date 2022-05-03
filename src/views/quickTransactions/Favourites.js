@@ -383,14 +383,9 @@ export class Favourites extends SavingsAccountBase {
 				 * NOTE: This implementation will not include credit information in the favourites landing call fails.
 				 * TODO: Develop better solution
 				 */
-				if (returnValues[1].status === `fulfilled` && returnValues[1].value.succeeded && returnValues[1].value.result.availableBalance !== null) {
-					if (this.callerInformation.verificationStatus === `verified`) {
-						this.landingPageInfo.creditProductDescription = `Available balance`;
-						this.landingPageInfo.creditProductAmount = formatCurrency(returnValues[1].value.result.availableBalance);
-					} else {
-						this.landingPageInfo.creditProductDescription = `Active`;
-						this.landingPageInfo.creditProductAmount = ``;
-					}
+				if (returnValues[1].status === `fulfilled` && returnValues[1].value.succeeded) {
+					this.landingPageInfo.creditProductDescription = `Available balance`;
+					this.landingPageInfo.creditProductAmount = formatCurrency(returnValues[1].value.result.availableBalance);
 				}
 			}
 		} else {

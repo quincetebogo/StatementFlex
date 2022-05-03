@@ -104,7 +104,7 @@ export class TaxCertificateFailure extends ViewBase {
 			"nextScreen": TelemetryScreen.FAVOURITES
 		});
 
-		this.horizonRouter.navigateToReturnPage();
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 	
 	_assignClick() {

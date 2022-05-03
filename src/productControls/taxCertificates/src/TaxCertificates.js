@@ -70,7 +70,6 @@ export class TaxCertificates extends Component {
 		this.selectedCertType = null;
 		this.selectedCertificates = {};
 		this.disableNext = false;
-		this.taxCertType = ``;
 	}
 
 	// --------------
@@ -86,7 +85,6 @@ export class TaxCertificates extends Component {
 			taxCertificateDetails: { type: Object },
 			getTaxCertificatePDFCallback: { type: Object },
 			getIT3BContentData: { type: Object },
-			taxCertType: { type: String },
 
 			// Private Properties
 			currentStep: { state: true },
@@ -110,7 +108,6 @@ export class TaxCertificates extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this._initialize();
 	}
 
 	disconnectedCallback() {
@@ -231,12 +228,6 @@ export class TaxCertificates extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	_initialize() {
-		if (!isNullorEmpty(this.taxCertType)) {
-			this.selectedCertType = this.taxCertType;
-		}
-	}
 
 	_selectCertificate(checkBoxDetails, certType) {
 		if (this._isInSelectedCertificates(this.selectedCertificates[certType], checkBoxDetails)) {
@@ -788,7 +779,7 @@ export class TaxCertificates extends Component {
 	_renderExpanderRow(item, rowNum) {
 		return html`
 			<horizon-label row="${rowNum}" column="1" colspan="1" rowspan="1"
-				label="${item.accountNumber.toString().startsWith(`6`) ? `Credit Account` : `Savings Account`}"
+				label="Savings Account"
 				value="${item.accountNumber}">
 			</horizon-label>
 			<horizon-label row="${rowNum}" column="2" colspan="1" rowspan="1"
@@ -801,7 +792,7 @@ export class TaxCertificates extends Component {
 			</horizon-label>
 			<horizon-label row="${rowNum}" column="4" colspan="1" rowspan="1"
 				label="Status"
-				value="${isNullorEmpty(item.accountStatus) || item.accountStatus === `UNKNOWN` ? `-` : item.accountStatus}">
+				value="${item.accountStatus}">
 			</horizon-label>
 		`;
 	}
