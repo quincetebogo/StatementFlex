@@ -110,12 +110,13 @@ class ClientPolicies extends Component {
 			<capitec-spacer></capitec-spacer>
 			<capitec-button type="white" label="Get Estimate" @click="${() => this._goToEstimate()}">
 			</capitec-button>
+			<capitec-button type="white" label="Update plan" @click="${() => this._goToUpdatePlan()}">
+			</capitec-button>
 		</capitec-title-bar>`
 	}
 
 	// Not for estimate testing - reenable later
-	// <capitec-button type="white" label="Update plan" @click="${() => this._goToUpdatePlan()}">
-	// </capitec-button>
+	
 	// <capitec-button type="white" label="Policy Summary" @click="${() => this._goToPolicySummary()}">
 	// </capitec-button>
 

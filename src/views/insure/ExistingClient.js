@@ -28,6 +28,7 @@ export class ExistingClient extends InsureViewBase {
 		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.estimate = {};
+		this.quote = {};
 
 		// Get DOB from callerInfo and convert to age for Estimate
 		// this.mainLifeAge = this.callerInformation
