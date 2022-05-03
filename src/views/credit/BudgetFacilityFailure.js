@@ -1,6 +1,7 @@
 import { css, html } from 'platform/elements';
+import { CreditEvents } from 'app/constants/telemetry/events/Credit';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
-import { CREDIT_TYPE } from 'app/constants/Credit';
 
 import 'app/components/common/ErrorScreen';
 import 'app/components/common/RelatedOptions';
@@ -21,23 +22,12 @@ import 'app/components/common/RelatedOptions';
 	constructor() {
 		super();
 
-		// TODO: Hardcoded values needs to be remvoed when wiring up navigation.
-		this.budgetName = `Shoprite Pelican Park Grassy Park ZA`;
-
-		this.primaryToast = `Budget facility was not paid`;
+		this.budgetName = ``;
 	}
 
 	// --------------
 	// PROPERTIES
 	// --------------
-
-	static get properties() {
-		return {
-
-			// TODO: To be removed when wiring up navigation.
-			budgetName: { type: String }
-		};
-	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -45,6 +35,14 @@ import 'app/components/common/RelatedOptions';
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		const screenDetails = this.horizonStore.getScreenDetails();
+		this.budgetName = screenDetails?.accountName;
+
+		this._telemetry.startSpan(CreditEvents.PAY_BUDGET_TRANSFER_FAILURE);
+
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	disconnectedCallback() {
@@ -56,10 +54,25 @@ import 'app/components/common/RelatedOptions';
 	// --------------
 
 	_doneClick() {
-		// TODO: Navigation to be wired up here.
+		this._telemetry.logEvent(CreditEvents.PAY_BUDGET_TRANSFER_FAILURE_DONE, {
+			"screen": TelemetryScreen.CREDIT_PAY_BUDGET_FAILURE,
+			"next-screen": TelemetryScreen.CREDIT_LANDING
+		});
+
+		this._telemetry.endSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {}, true, false, true);
+
+		this.horizonRouter.navigateToCreditAccount();
+		this.horizonStore.clearScreenDetails();
 	}
 
 	_tryAgainClick() {
+		this._telemetry.logEvent(CreditEvents.PAY_BUDGET_TRANSFER_FAILURE_TRY_AGAIN, {
+			"screen": TelemetryScreen.CREDIT_PAY_BUDGET_FAILURE,
+			"next-screen": TelemetryScreen.CREDIT_PAY_BUDGET_MODAL
+		});
+
+		this._telemetry.endSpan(CreditEvents.PAY_BUDGET_TRANSFER_FAILURE);
+
 		// TODO: Navigation to be wired up here.
 	}
 
@@ -74,13 +87,6 @@ import 'app/components/common/RelatedOptions';
 	// ---------
 	// RENDERING
 	// ---------
-
-	static get styles() {
-		return [
-			super.styles,
-			css``
-		];
-	}
 
 	_mobileTemplate() {
 		return this._webTemplate();
@@ -103,7 +109,7 @@ import 'app/components/common/RelatedOptions';
 				image="/images/credit/budget-facility.svg"
 				left="Done"
 				right="Try Again"
-				toast="${this.primaryToast}"
+				toast="Budget facility was not paid"
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._tryAgainClick()}>
 					${this._renderDetail()}
