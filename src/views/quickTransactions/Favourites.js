@@ -1,14 +1,13 @@
-import { CREDIT_ACCOUNT_TYPE, PRODUCT_TYPE } from 'app/constants/Credit';
-import { QuickTransactionEvents, STATEMENT_EVENTS } from 'app/constants/telemetry/events/QuickTransactions';
+import { ACCOUNT_STATUS, CREDIT_ACCOUNT_TYPE, CREDIT_TYPE, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
+import { QuickTransactionEvents, SETTLEMENT_QUOTE_EVENTS, STATEMENT_EVENTS } from 'app/constants/telemetry/events/QuickTransactions';
 import { css, html } from 'platform/elements';
-import { isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
+import { formatStringAsPascalCase, isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { creditMixin } from 'app/views/credit/CreditMixin';
-import { creditOverview } from 'app/mocks/CreditMocks';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
@@ -64,15 +63,17 @@ export class Favourites extends SavingsAccountBase {
 		this.category = ``;
 		this.need = ``;
 		this.issue = ``;
-		this.landingPageInfo = null;
+		this.landingPageInfo = {};
 		this.curOptionEvent = null;
 		this.cards = [];
+		this.accountsInfo = [];
 		this.selectedFeedback = [];
 		this.feedbackOptions = [];
 		this.updateStrackClick = false;
 		// TODO: get ccs status for client
 		this.ccsStatus = false;
 		this.showCCSmodal = false;
+		this.settlementQuoteEvents = SETTLEMENT_QUOTE_EVENTS;
 
 		this._telemetry = HorizonTelemetry.instance;
 
@@ -525,41 +526,123 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-	_settlementQuote() {
-		const screenDetails = this.horizonStore.getScreenDetails();
-
-		// TODO: CS call to get credit accounts info and diaplay appropriate values on settlement quote view screen - details are pulled from mocks now
-
-		this.settlementQuoteDetails = [...creditOverview.creditCardSummaryList, ...creditOverview.accessFacilitySummaryList, ...creditOverview.loanAccountSummaryList];
-
-		this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
-			item.type = PRODUCT_TYPE[item.productTypeCode];
-			item.category = CREDIT_ACCOUNT_TYPE[item.productTypeCode];
-			item.productTypeDescription = `${item.productTypeDescription.toLowerCase().charAt(0).toUpperCase()}${item.productTypeDescription.toLowerCase().slice(1)}`;
-			item.creditLimit = formatCurrency(item.creditLimit);
-			item.repayAmount = item.repayAmount ? formatCurrency(item.repayAmount) : null;
-			item.nextRepayment = item.nextRepayment ? formatCurrency(item.nextRepayment) : null;
-			item.currentBalance = formatCurrency(item.currentBalance);
-
-			return item;
+	async _settlementQuote(customErrHandler = null) {
+		// TODO: Implement permission check
+		await this._telemetry.logEvent(QuickTransactionEvents.SETTLEMENT_QUOTE_SELECT, {
+			"screen": TelemetryScreen.FAVOURITES,
+			"next-screen": TelemetryScreen.SETTLEMENT_QUOTE_VIEW
 		});
 
-		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
+		const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber, ACCOUNT_STATUS.ALL, customErrHandler);
 
-		if (screenDetails.selectedAccounts) {
-			this._settlementQuoteDialog(screenDetails.selectedAccounts);
+		if (returnValue.succeeded) {
+			const settlementQuoteResult = returnValue.result;
+
+			this.settlementQuoteDetails = [...settlementQuoteResult.creditCardSummaryList, ...settlementQuoteResult.accessFacilitySummaryList, ...settlementQuoteResult.loanAccountSummaryList];
+
+			this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
+				item.type = PRODUCT_TYPE[item.productTypeCode];
+				item.category = CREDIT_ACCOUNT_TYPE[item.productTypeCode];
+				item.productTypeDescription = `${item.productTypeDescription.toLowerCase().charAt(0).toUpperCase()}${item.productTypeDescription.toLowerCase().slice(1)}`;
+				item.creditLimit = formatCurrency(item.creditLimit);
+				item.repayAmount = item.repayAmount ? formatCurrency(item.repayAmount) : null;
+				item.nextRepayment = item.nextRepayment ? formatCurrency(item.nextRepayment) : null;
+				item.currentBalance = formatCurrency(item.currentBalance);
+
+				return item;
+			});
+
+			this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
 		}
+
+		this.logger.log(`error`, `Unable to load settlement quote accounts view`, `_settlementQuote`, returnValue.correlationId);
+	}
+	
+	_showSettlementQuoteDialog(selectedAccounts) {
+		this._telemetry.logEvent(QuickTransactionEvents.SETTLEMENT_QUOTE_SEND, {
+			"list-of-accounts": selectedAccounts,
+			"account-numbers": selectedAccounts.map(account => account.accountNumber)
+		});
+
+		this._settlementQuoteDialog(selectedAccounts);
 	}
 
-	_paidUpAccounts() {
+	async _paidUpAccounts() {
 		// TODO: CS call to get info
-
 		if (this.ccsStatus) {
 			this.showCCSmodal = true;
 			return;
 		}
 
-		this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
+		const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber, ACCOUNT_STATUS.PAID_UP);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to retrieve client overview from credit service.`, `_initialise`, returnValue.correlationId);
+			this.renderMode = RENDER_MODE.SERVICE_UNAVAILABLE;
+			return;
+		}
+		
+		if (returnValue.succeeded && returnValue.result) {
+
+			// this.accountsInfo = [`Term loan (32 Months)`, `Credit`, `Access Facility`];
+			this.creditAccountDetails = returnValue.result;
+			this._formatCreditOverviewResponse();
+			this.accountsInfo = [...this.creditAccountDetails.creditCardSummaryList, ...this.creditAccountDetails.accessFacilitySummaryList, ...this.creditAccountDetails.loanAccountSummaryList];
+
+			if (this.accountsInfo.length === 0) {
+				this.horizonRouter.navigateToProductInfo(`Credit`);
+				return;
+			}
+
+			this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
+		}
+	}
+
+	_formatCreditOverviewResponse() {
+		// TODO: Improve the formatting
+		this.creditAccountDetails.creditCardSummaryList.map(item => {
+			item.type = PRODUCTS.CREDIT_CARD;
+			item.category = CREDIT_TYPE.FLEXIBLE;
+			item.productTypeDescription = formatStringAsPascalCase(item.productTypeDescription);
+			item.currentBalance = formatCurrency(item.currentBalance);
+			item.availableCredit = formatCurrency(item.availableCredit);
+			item.creditLimit = formatCurrency(item.creditLimit);
+			item.nextRepayment = formatCurrency(item.nextRepayment);
+			item.accountStatusDescription = item.arrearIndicator ? `In arrears` : formatStringAsPascalCase(item.accountStatusDescription);
+
+			return item;
+		});
+
+		this.creditAccountDetails.accessFacilitySummaryList.map(item => {
+			item.type = PRODUCTS.ACCESS_FACILITY;
+			item.category = CREDIT_TYPE.FLEXIBLE;
+			item.productTypeDescription = formatStringAsPascalCase(item.productTypeDescription);
+			item.currentBalance = formatCurrency(item.currentBalance);
+			item.availableCredit = formatCurrency(item.availableCredit);
+			item.creditLimit = formatCurrency(item.creditLimit);
+			item.nextRepayment = formatCurrency(item.nextRepayment);
+			item.accountStatusDescription = item.arrearIndicator ? `In arrears` : formatStringAsPascalCase(item.accountStatusDescription);
+
+			return item;
+		});
+
+		this.creditAccountDetails.loanAccountSummaryList.map(item => {
+			item.type = PRODUCTS.TERM_LOAN;
+			item.category = CREDIT_TYPE.FIXED;
+			item.productTypeDescription = formatStringAsPascalCase(item.productTypeDescription);
+			item.currentBalance = formatCurrency(item.currentBalance);
+			item.availableCredit = formatCurrency(item.availableCredit);
+			item.creditLimit = formatCurrency(item.creditLimit);
+			item.repayAmount = formatCurrency(item.repayAmount);
+			item.accountStatusDescription = item.arrearIndicator ? `In arrears` : formatStringAsPascalCase(item.accountStatusDescription);
+
+			return item;
+		});
+
+		this.budgetAccountsSummary = {
+			"totalBudgetBalance": formatCurrency(this.creditAccountDetails.budgetAccountsSummary.totalBudgetBalance),
+			"totalBudgetInstallmentAmount": formatCurrency(this.creditAccountDetails.budgetAccountsSummary.totalBudgetInstallmentAmount)
+		};
 	}
 
 	_unavailableOption() {
@@ -716,9 +799,11 @@ export class Favourites extends SavingsAccountBase {
 		super._backToLandingPage();
 	}
 
-	_backFromSettlementQuoteDialog() {
-		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
+	async _exitSettlementQuoteDialog() {
+		await this._telemetry.endSpan(this.settlementQuoteEvents.SETTLEMENT_QUOTE_DIALOG, {});
+
 		this.horizonStore.clearScreenDetails();
+		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
 	}
 
 	// ---------
@@ -761,7 +846,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderFeedback()}
 			${this._renderUpdateIncidentModal()}
 			${this._renderTaxCertificate()}
-			${this._renderpaidUpAccounts()}
+			${this._renderPaidUpAccounts()}
 			${this._renderSettlementQuote()}
 			${this._renderSettlementQuoteDialog()}
 			${this._renderCcsModal()}
@@ -994,28 +1079,19 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_VIEW ||
 				this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG 
 		? html`
-		<horizon-settlement-quote
-			.settlementQuoteDetails="${this.settlementQuoteDetails}"
-			@back="${() => this._backToLandingPage()}"
-			@send-quote="${(e) => this._settlementQuoteDialog(e.detail.selectedAccounts)}">
-		</horizon-settlement-quote>`
-		: html``;
-	} 
-
-	_renderCcsModal() {
-		return this.showCCSmodal
-		? html`
-			<horizon-ccs-status-dialog
-				@on-okay="${() => this.showCCSmodal = !this.showCCSmodal}">
-			</horizon-ccs-status-dialog>`
+			<horizon-settlement-quote
+				.settlementQuoteDetails="${this.settlementQuoteDetails}"
+				@back="${() => this._backToLandingPage()}"
+				@send-quote="${(e) => this._showSettlementQuoteDialog(e.detail.selectedAccounts)}">
+			</horizon-settlement-quote>`
 		: html``;
 	}
 
-	_renderpaidUpAccounts () {
+	_renderPaidUpAccounts () {
 		return this.renderMode === RENDER_MODE.PAID_UP_ACCOUNTS
 		? html`
 		<horizon-paid-up-accounts
-			.landingPageInfo="${this.landingPageInfo}"
+			.accountsInfo="${this.accountsInfo}"
 			@back="${() => this._backToLandingPage()}">
 		</horizon-paid-up-accounts>`
 		: html``;

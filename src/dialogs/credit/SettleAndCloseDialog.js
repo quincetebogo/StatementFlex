@@ -54,6 +54,7 @@ export class SettleAndCloseDialog extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		[this.productSelected] = this.clientProducts;
+		console.log(this.clientProducts);
 		this.hasEnoughFunds = this._deformatCurrency(this.productSelected.availableBalance) >= this._deformatCurrency(this.settleAndCloseDetails[`Settlement amount`]);
 	}
 
@@ -69,9 +70,14 @@ export class SettleAndCloseDialog extends Component {
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-	_onSettleAndCloseClick() {
+	_onSettleAndCloseClick(e) {
 		if (this.hasEnoughFunds) {
-			this.dispatchEvent(new CustomEvent(`settle-and-close`, {}));
+			this.dispatchEvent(new CustomEvent(`settle-and-close`, {
+				detail: {
+					productSelected: e,
+					settleAndCloseDetails : this.settleAndCloseDetails				
+				}
+			}));
 		}
 	}
 
@@ -356,7 +362,7 @@ export class SettleAndCloseDialog extends Component {
 					type="primary" 
 					?disabled="${!this.hasEnoughFunds}"
 					label="${this.settleAndCloseDetails.header}"
-					@click="${() => this._onSettleAndCloseClick()}">
+					@click="${(e) => this._onSettleAndCloseClick(this.productSelected)}">
 				</capitec-button>
 			</capitec-group>`;
 	}

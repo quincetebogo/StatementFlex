@@ -19,6 +19,8 @@
 	"statements": `STATEMENTS`,
 	"tax-certificate": `TAX_CERTIFICATE`,
 	"proof-of-account": `PROOF_OF_ACCOUNT`,
+	"settlement-quote": `SETTLEMENT_QUOTE`,
+	"paid-up-accounts": `PAID_UP_LETTER`,
 
 	// Savings account
 	"transaction-history": `TRANSACTION_HISTORY`,
@@ -78,20 +80,17 @@
 	"statements-credit-card": `SEND_STATEMENTS_CREDIT_CARD`,
 	"settlement-quote-credit-card": `SETTLEMENT_QUOTE_CREDIT_CARD`,
 	"settle-close-credit-card": `SETTLE_CLOSE_CREDIT_CARD`,
-	"budget-facility-credit-card": `VIEW_BUDGET_ACCOUNT_INFO`,
+	"view-budgets-credit-card": `VIEW_BUDGET_ACCOUNT_INFO`,
+	"paid-up-letter-credit-card": `PAID_UP_LETTER_CREDITCARD`,
 	"pay-budget-credit-card": `PAY_BUDGET_ACCOUNTS`,
 
 	"statements-access-facility": `SEND_STATEMENTS_ACCESS_FACILITY`,
 	"settlement-quote-access-facility": `SETTLEMENT_QUOTE_ACCESS_FACILITY`,
+	"paid-up-letter-access-facility": `PAID_UP_LETTER_ACCESS_FACILITY`,
 	"settle-close-access-facility": `SETTLE_CLOSE_ACCESS_FACILITY`,
 
 	"statements-term-loan": `SEND_STATEMENTS_TERM_LOAN`,
 	"settlement-quote-term-loan": `SETTLEMENT_QUOTE_TERM_LOAN`,
-	"settle-close-term-loan": `SETTLE_CLOSE_TERM_LOAN`,
-
-	"paid-up-letter-credit-card": `SEND_PAID_UP_LETTER_CREDIT_CARD`,
-	"paid-up-letter-term-loan": `SEND_PAID_UP_LETTER_TERM_LOAN`,
-	"paid-up-letter-access-facility": `SEND_PAID_UP_LETTER_ACCESS_FACILITY`,
-	"settlement-quote-multiple-accounts": `SEND_SETTLEMENT_QUOTE_MULTIPLE_ACCOUNTS`,
-	"paid-up-letter-multiple-accounts": `SEND_PAID_UP_LETTER_MULTIPLE_ACCOUNTS`
+	"paid-up-letter-term-loan": `PAID_UP_LETTER_TERM_LOAN`,
+	"settle-close-term-loan": `SETTLE_CLOSE_TERM_LOAN`
 });

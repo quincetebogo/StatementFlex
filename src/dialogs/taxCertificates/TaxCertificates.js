@@ -263,7 +263,7 @@ export class TaxCertificatesDialog extends Component {
 		this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP, {
 				"screen": TelemetryScreen.TAX_CERTIFICATE
 		});
-	
+		
 		const returnValue = await this.quickTransactionService.getTaxCertificate(this.cifNumber, () => true);
 
 		if (!returnValue.succeeded) {
