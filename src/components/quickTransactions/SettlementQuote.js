@@ -1,6 +1,6 @@
-import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
 import { CREDIT_TYPE, CREDIT_TYPE_LIST, DEFAULTS, PRODUCTS } from 'app/constants/Credit';
 import { Component, css, html } from 'platform/elements';
+import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 
@@ -36,6 +36,7 @@ export class SettlementQuote extends Component {
 		this.filteredData = [];
 		this.listValue = `Credit type`;
 		this.selectedLabel = `Select all`;
+		this.showNoAccountsFound = false;
 
 		this._telemetry = HorizonTelemetry.getInstance();
 	}
@@ -148,12 +149,19 @@ export class SettlementQuote extends Component {
 	// ---------------
 
 	_initialise() {
-		this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
-			item.selected = false;
-			return item;
-		});
-
-		this.filteredData = this.settlementQuoteDetails;
+		
+		if (this.settlementQuoteDetails.length > 0) {
+			this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
+				item.selected = false;
+				return item;
+			});
+	
+			this.filteredData = this.settlementQuoteDetails;
+		} else {
+			this.showNoActiveAccounts = true;
+			this.showNoAccountsFound = true;
+			this.noAccountsMessage = `You have no active Credit products`;
+		}
 	}
 
 	_search (e) {
@@ -184,7 +192,11 @@ export class SettlementQuote extends Component {
 			this.filteredData = Array.from(new Set([...searchResult.flat()]));
 		}
 		
-
+		if (this.filteredData.length < 1) {
+			this.showNoAccountsFound = true;
+			this.showNoActiveAccounts = false;
+			this.noAccountsMessage = `No Results found`;
+		}
 	}
 	
 	// Removing currency formating for better search results
@@ -346,7 +358,8 @@ export class SettlementQuote extends Component {
 	_renderSearch() {
 		this.textValue = ``;
 		return html`
-			<capitec-title-bar>
+			<capitec-title-bar 
+				?hidden="${this.showNoActiveAccounts}">
 				<capitec-text-field
  					id="text-filter"
  					label="${DEFAULTS.SEARCH_TEXT_LABEL}"
@@ -354,16 +367,14 @@ export class SettlementQuote extends Component {
  					keyboardMode="alpha-numeric"
  					@key-input="${(e) => this._search(e)}"
 					@focusout="${(e) => this._focusOutFilter(e.currentTarget.value)}"
- 					@value-change="${(e) => this._search(e)}"
-					 ?hidden="${this.filteredData.length < 1}">
+ 					@value-change="${(e) => this._search(e)}">
  				</capitec-text-field>
 				<capitec-select
 					.items="${CREDIT_TYPE_LIST}" 
 					display-field="text"
 					filter-id="select"
 					@value-change = "${(e) => this._filter(e)}"
-					value="${this.listValue}"
-					?hidden="${this.filteredData.length < 1}">
+					value="${this.listValue}">
 				</capitec-select>
 			</capitec-title-bar>
 			<capitec-content-box class="main-cb" layout="vertical" halign="stretch" valign="top" gap="clear">
@@ -381,7 +392,7 @@ export class SettlementQuote extends Component {
 	}
 
 	_renderNoResult() {
-		return html`
+		return this.showNoAccountsFound ? html`
 			<capitec-group
 				class="no-result-group"
 				layout="vertical"
@@ -393,12 +404,12 @@ export class SettlementQuote extends Component {
 						class="document-icon"/>
 					<capitec-label
 						class="no-results"
-						label="You have no active Credit products"
+						label="${this.noAccountsMessage}"
 						type="strong">
 					</capitec-label>
 
 			</capitec-group>
-		`;
+		` : html``;
 	}
 
 	_renderAcountInfoTile (item, index) {
