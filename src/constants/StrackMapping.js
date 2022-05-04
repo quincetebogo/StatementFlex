@@ -27,7 +27,8 @@
 	"statements-transact": `STATEMENTS`,
 
 	// Savings plan
-	"statements-save": `STATEMENTS`,
+	"statements-save": `SAVINGS_PLAN_STATEMENTS`,
+	"tax-certificate-save": `SAVINGS_PLAN_TAX_CERTIFICATE`,
 
 	// LBB
 	"account-details-lbb": `ACCOUNT_INFORMATION_LBB`,
