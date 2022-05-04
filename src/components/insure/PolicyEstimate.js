@@ -414,13 +414,14 @@ class PolicyEstimate extends Component {
 	 */
 	_renderContent() {
 		return html`
-		<capitec-title-bar type="insure" class="insure-title-bar">
-			<img class="action-image" src="/images/insure/left-arrow.svg" @click="${() => this._backToSummaryPage()}" />
+		<capitec-title-bar type="insure" class="insure-title-bar" data-automation-id="insure-estimate-title-bar">
+			<img class="action-image" src="/images/insure/left-arrow.svg" @click="${() => this._backToSummaryPage()}"
+				data-automation-id="insure-estimate-back" />
 			<capitec-label label="Get an estimate" type="title"></capitec-label>
 			<capitec-spacer></capitec-spacer>
 			</capitec-button>
 			<capitec-button label="Calculate" .disabled="${this.canPerformEstimate == false}" type="white"
-				@click="${() => this._calculateEstimate()}"></capitec-button>
+				data-automation-id="insure-estimate-calculate" @click="${() => this._calculateEstimate()}"></capitec-button>
 		</capitec-title-bar>
 		<capitec-card id="insure-calc-card">
 			<div class="insure-calc-columns">
@@ -441,38 +442,42 @@ class PolicyEstimate extends Component {
 			<div class="calc-card">
 				${index != 0 ? html`
 				<div class="calc-card-header">
-					<capitec-label label="Relationship: ${lifeAssured.relationship}" type="small" class="stronger">
+					<capitec-label data-automation-id="insure-estimate-card-relationship"
+						label="Relationship: ${lifeAssured.relationship}" type="small" class="stronger">
 					</capitec-label>
 		
-					<capitec-label @click="${() => this._removeLife(lifeAssured)}" label="Remove" type="small"
-						class="stronger link">
+					<capitec-label data-automation-id="insure-estimate-card-remove"
+						@click="${() => this._removeLife(lifeAssured)}" label="Remove" type="small" class="stronger link">
 					</capitec-label>
 				</div>
 				` : html`
 				<div class="calc-card-header">
-					<capitec-label label="Main Life: You" type="small" class="stronger"></capitec-label>
+					<capitec-label data-automation-id="insure-estimate-card-relationship" label="Main Life: You" type="small"
+						class="stronger"></capitec-label>
 				</div>
 				`}
 		
 				<div class="calc-card-row">
 					<capitec-text-field label="Cover Amount" type="currency" class="calc-card-row-input"
+						data-automation-id="insure-estimate-card-cover"
 						@value-changed="${(e) => this._coverAmountChanged(e, index)}" value="${lifeAssured.coverAmount}"
 						hint="R${lifeAssured?.coverDetails?.minCoverAmount} - R${lifeAssured?.coverDetails?.maxCoverAmount}"
 						error="${lifeAssured.coverDetails.coverMessage}">
 					</capitec-text-field>
 					<capitec-text-field label="Premium" type="currency" disabled hint="Estimate" class="calc-card-row-input"
-						value="${lifeAssured.premium}">
+						data-automation-id="insure-estimate-card-premium" value="${lifeAssured.premium}">
 					</capitec-text-field>
 				</div>
 				<div class="calc-card-row">
-					<capitec-text-field label="Age" type="numeric" @value-changed="${(e) => this._ageChanged(e, index)}"
-						value="${lifeAssured.age}" class="calc-card-row-input"
+					<capitec-text-field label="Age" type="numeric" data-automation-id="insure-estimate-card-age"
+						@value-changed="${(e) => this._ageChanged(e, index)}" value="${lifeAssured.age}"
+						class="calc-card-row-input"
 						hint="${lifeAssured?.coverDetails?.minAge} - ${lifeAssured?.coverDetails?.maxAge}"
 						error="${lifeAssured.coverDetails.ageMessage}">
 					</capitec-text-field>
 					<capitec-select label="Gender" display-field="text" .items="${this.genderOptions}" id-field="code"
-						class="calc-card-row-input" @value-changed="${(e) => this._genderChanged(e, index)}"
-						value="${lifeAssured.genderType}">
+						data-automation-id="insure-estimate-card-gender" class="calc-card-row-input"
+						@value-changed="${(e) => this._genderChanged(e, index)}" value="${lifeAssured.genderType}">
 					</capitec-select>
 				</div>
 			</div>
@@ -480,7 +485,8 @@ class PolicyEstimate extends Component {
 			${index != 0 ? html`` : html`<div class="calc-card-row calc-card-row-actions">
 				<capitec-label label="Lives Assured" type="subtitle" class="stronger"></capitec-label>
 				<capitec-label label="Add Life Assured" type="subtitle" class="stronger link"
-					@click="${() => this.showAddLifeDialog = true}"></capitec-label>
+					data-automation-id="insure-estimate-add-life" @click="${() => this.showAddLifeDialog = true}">
+				</capitec-label>
 			</div>`}
 			`)}
 			<capitec-spacer></capitec-spacer>
@@ -500,29 +506,33 @@ class PolicyEstimate extends Component {
 						<capitec-label label="Funeral Plan" type="Strong"></capitec-label>
 						<capitec-spacer></capitec-spacer>
 						<capitec-label label="Total estimated monthly premium"></capitec-label>
-						<capitec-label label="${formatCurrency(this.estimate.totalPremium)}" class="calc-premium-total">
+						<capitec-label label="${formatCurrency(this.estimate.totalPremium)}" class="calc-premium-total"
+							data-automation-id="insure-estimate-heading-total-premium">
 						</capitec-label>
 						<capitec-label label="Summary of estimated monthly premium:" class="stronger"></capitec-label>
 						<hr>
 			
 						${this.estimate.lifesAssured.map(life => html`
 						<div class="calc-life-list">
-							<capitec-label label="${life.relationship}"></capitec-label>
-							<capitec-label label="${formatCurrency(life.premium)}"></capitec-label>
+							<capitec-label label="${life.relationship}" data-automation-id="insure-estimate-list-relationship">
+							</capitec-label>
+							<capitec-label label="${formatCurrency(life.premium)}"  data-automation-id="insure-estimate-list-premium"></capitec-label>
 						</div>
 						<hr>`)}
 			
 						<div class="calc-life-list">
 							<capitec-label label="Total Premium Amount" class="stronger"></capitec-label>
-							<capitec-label label="${formatCurrency(this.estimate.totalPremium)}" class="stronger"></capitec-label>
+							<capitec-label label="${formatCurrency(this.estimate.totalPremium)}" class="stronger"
+								data-automation-id="insure-estimate-list-total-premium"></capitec-label>
 						</div>
 					</div>
 			
 					<div>
 						<capitec-label label="Specify a premium you are willing to pay" class="stronger"></capitec-label>
 						<br>
-						<capitec-text-field @value-change="${(e) => this._totalPremiumChanged(e)}" .value="${this.newTotalPremium}"
-							label="Premium Amount" type="currency">
+						<capitec-text-field label="Premium Amount" type="currency"
+							data-automation-id="insure-estimate-total-premium-override"
+							@value-change="${(e) => this._totalPremiumChanged(e)}" .value="${this.newTotalPremium}">
 						</capitec-text-field>
 					</div>
 				</div>

@@ -113,8 +113,13 @@ export function livesPerPolicy(relationship, productParams) {
  * @returns {Number} age
  */
 export function getAgeFromDOB(strBirthday) {
-	let birthday = new Date(strBirthday);
-	let ageDifMs = Date.now() - birthday.getTime();
-	let ageDate = new Date(ageDifMs);
-	return Math.abs(ageDate.getUTCFullYear() - 1970);
+	if (strBirthday) {
+		let birthday = new Date(strBirthday);
+		let ageDifMs = Date.now() - birthday.getTime();
+		let ageDate = new Date(ageDifMs);
+		return Math.abs(ageDate.getUTCFullYear() - 1970);
+	}
+	else {
+		return 18;
+	}
 }

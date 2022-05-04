@@ -240,7 +240,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderClientPoliciesPage() {
 		return html`
-			<horizon-insure-client-policies @navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
+			<horizon-insure-client-policies data-automation-id="insure-client-policies-page" @navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan()}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary()}">
 			</horizon-insure-client-policies>`
@@ -252,7 +252,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderCalculateEstimatePage() {
 		return html`
-			<horizon-insure-policy-estimate @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+			<horizon-insure-policy-estimate data-automation-id="insure-estimate-page" @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@calculate="${(e) => this._calculateClientEstimate(e)}" .estimate="${this.estimate}"
 				.productParams="${this.productParams}" .mainLifeDefaultAge="${this._getMainlifeAge()}">
 			</horizon-insure-policy-estimate>`
@@ -264,7 +264,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderUpdatePlanPage() {
 		return html`
-			<horizon-insure-update-plan @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+			<horizon-insure-update-plan data-automation-id="insure-update-plan-page" @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@calculate="${(e) => this._calculateClientQuote(e)}" .quote="${this.quote}" .productParams="${this.productParams}">
 			</horizon-insure-update-plan>`
 	}
@@ -275,7 +275,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderPolicySummaryPage() {
 		return html`
-			<horizon-insure-policy-summary @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+			<horizon-insure-policy-summary data-automation-id="insure-policy-summary-page" @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-policy-summary>`
 	}
 }
