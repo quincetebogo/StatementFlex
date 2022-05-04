@@ -82,7 +82,7 @@ export class SavingsPlan extends ViewBase {
 			const accountDetails = () => this._accountDetails(saveType, accountNumber);
 
 			const actions = {
-				'statements-save': statements,
+				'statements': statements,
 				'tax-certificate': taxCertificates,
 				'product-enquiry': productEnquiry,
 				'interest-rates': interestRates,
@@ -90,7 +90,7 @@ export class SavingsPlan extends ViewBase {
 			};
 
 			if (actions[option]) {
-				await super._inicidentManager_(option, () => this._toggleBusyFlag());
+				await super._inicidentManager_(`${option}-save`, () => this._toggleBusyFlag());
 				this._refreshIncidentDetails();
 				return actions[option]();
 			}
@@ -311,6 +311,10 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	_backToLandingPage() {
+		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
+			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		}
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
