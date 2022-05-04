@@ -538,12 +538,10 @@ export class Favourites extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.SETTLEMENT_QUOTE_VIEW
 		});
 
-		const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber, ACCOUNT_STATUS.ALL, customErrHandler);
+		const returnValue = await this.creditService.settlementQuoteLanding({ "cifNumber": this.callerInformation.cifNumber }, customErrHandler);
 
 		if (returnValue.succeeded) {
-			const settlementQuoteResult = returnValue.result;
-
-			this.settlementQuoteDetails = [...settlementQuoteResult.creditCardSummaryList, ...settlementQuoteResult.accessFacilitySummaryList, ...settlementQuoteResult.loanAccountSummaryList];
+			this.settlementQuoteDetails = returnValue.result.settlementInfoList;
 
 			this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
 				item.type = PRODUCT_TYPE[item.productTypeCode];
@@ -553,6 +551,7 @@ export class Favourites extends SavingsAccountBase {
 				item.repayAmount = item.repayAmount ? formatCurrency(item.repayAmount) : null;
 				item.nextRepayment = item.nextRepayment ? formatCurrency(item.nextRepayment) : null;
 				item.currentBalance = formatCurrency(item.currentBalance);
+				item.settlementAmount = formatCurrency(item.currentSettlementAmount);
 
 				return item;
 			});
