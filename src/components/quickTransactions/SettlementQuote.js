@@ -391,7 +391,7 @@ export class SettlementQuote extends Component {
 						class="document-icon"/>
 					<capitec-label
 						class="no-results"
-						label="No results found"
+						label="You have no active Credit products"
 						type="strong">
 					</capitec-label>
 
