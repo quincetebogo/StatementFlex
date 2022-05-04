@@ -110,7 +110,6 @@ export class OutcomeBase extends ViewBase {
 
 		screenDetails.emailAddress = event.detail.email;
 		this.horizonStore.setScreenDetails(screenDetails);
-		console.log(request);
 		const returnValue = await this.creditService.emailProofOfPayment(request);
 
 		// this._telemetry.logEvent(this.telemetryEvents.POP_SEND, {
