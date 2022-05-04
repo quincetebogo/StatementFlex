@@ -394,6 +394,10 @@ export class CreditService extends ChannelServiceBase {
 	async sendSettlementQuoteEmail(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
+		if (await this.isMockEnabled(`sendSettlementQuoteEmail`)) {
+			return this.mock(`sendSettlementQuoteEmail`);
+		}
+
 		const url = `/clientcare-credit-v1/credit/settlement-quote/email`;
 
 		return this.post(

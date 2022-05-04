@@ -63,6 +63,7 @@ export default class HorizonChannelServiceMocks {
     	this.accessChannelsMocks = await this._loadMockModule(this.accessChannelsMocks, `accessChannelLanding`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err)));    
     	this.creditMocks = await this._loadMockModule(this.creditMocks, `creditBalance`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
     	this.creditMocks = await this._loadMockModule(this.creditMocks, `creditOverview`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+    	this.creditMocks = await this._loadMockModule(this.creditMocks, `sendSettlementQuoteEmail`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
     	this.budgetFacility = await this._loadMockModule(this.budgetFacility, `budgetTransferFromAccounts`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
     	this.budgetFacility = await this._loadMockModule(this.budgetFacility, `confirmBudgetTransfer`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
 	}
@@ -380,6 +381,23 @@ export default class HorizonChannelServiceMocks {
 	creditBalance() {
 		if (this._mockSettings.creditBalance.positiveCase) {
 			return this.creditMocks.creditBalance;
+		}
+
+		const errPromise = new Promise(() => {
+			const httpError = new HttpStatusError();
+			httpError.status = 400;
+			httpError.message = `Oh no! A fake 400!`;
+	
+			throw httpError;
+		});
+
+		return errPromise;
+	}
+
+	sendSettlementQuoteEmail() {
+		if (this._mockSettings.sendSettlementQuoteEmail.positiveCase) {
+			// TODO: Add postive case data
+			return [];
 		}
 
 		const errPromise = new Promise(() => {
