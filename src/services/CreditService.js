@@ -375,7 +375,7 @@ export class CreditService extends ChannelServiceBase {
 
 	settlementQuote(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		
-		const url = `/clientcare-credit-${this._version}/credit/settlement-quote`;
+		const url = `/clientcare-credit-${this._version}/credit/settlement-quote/view`;
 
 		return this.post(
 			url,
