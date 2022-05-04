@@ -74,7 +74,7 @@ export class SettlementQuote extends Component {
 		this._initialise();
 	}
 
-	async disconnectedCallback() {
+	disconnectedCallback() {
 		super.disconnectedCallback();
 	}
 
@@ -354,14 +354,16 @@ export class SettlementQuote extends Component {
  					keyboardMode="alpha-numeric"
  					@key-input="${(e) => this._search(e)}"
 					@focusout="${(e) => this._focusOutFilter(e.currentTarget.value)}"
- 					@value-change="${(e) => this._search(e)}">
+ 					@value-change="${(e) => this._search(e)}"
+					 ?hidden="${this.filteredData.length < 1}">
  				</capitec-text-field>
 				<capitec-select
 					.items="${CREDIT_TYPE_LIST}" 
 					display-field="text"
 					filter-id="select"
 					@value-change = "${(e) => this._filter(e)}"
-					value="${this.listValue}">
+					value="${this.listValue}"
+					?hidden="${this.filteredData.length < 1}">
 				</capitec-select>
 			</capitec-title-bar>
 			<capitec-content-box class="main-cb" layout="vertical" halign="stretch" valign="top" gap="clear">
