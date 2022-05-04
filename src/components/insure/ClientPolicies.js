@@ -90,7 +90,20 @@ class ClientPolicies extends Component {
 				border-top-left-radius: 5px; 
 				border-top-right-radius: 5px;
 			}
-
+			capitec-tab-group {
+				--theme-tab-tab-bar-background-color: var(--theme-type-insure-background, darkgreen);
+				--theme-tab-hover-background-color: transparent;
+				--theme-tab-selected-indicator-color: #FFFFFF;
+				--theme-tab-selected-font-color: #FFFFFF;
+				--theme-tab-indicator-border-radius: 0px;
+				--theme-tab-font-color: #FFFFFF;
+				--theme-tab-border-bottom: 0px;
+				--theme-tab-font-weight: 400;
+				--theme-container-padding-left: 0px;
+				--theme-container-padding-right: 0px;
+				--theme-container-padding-bottom: 0px;
+				--theme-tab-bar-height: 64px;
+			}
 			#temp-container{
 				min-height: 650px;
 				text-align: center;
@@ -121,23 +134,34 @@ class ClientPolicies extends Component {
 	 */
 	_renderContent() {
 		return html`
-		<capitec-title-bar type="insure" class="insure-title-bar">
-			<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
-			<capitec-label label="Insure" type="title"></capitec-label>
-			<capitec-spacer></capitec-spacer>
-			<capitec-button type="white" label="Get Estimate" @click="${() => this._goToEstimate()}">
-			</capitec-button>
-		</capitec-title-bar>
-		
-		<capitec-card id="temp-container">
-			<div>
-				<capitec-image src="platform/illustrations/beneficiaries.svg"
-					style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
-				<label id="temp-container-label">Client Policies - Coming soon to a sprint near you!</label>
-			</div>
-		</capitec-card>
+			<capitec-card 
+				data-automation-id="savings-plan-landing-screen"
+				class="card">
+				<capitec-title-bar type="insure" class="insure-title-bar">
+					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
+					<capitec-label label="Insure" type="title"></capitec-label>
+					<capitec-spacer></capitec-spacer>
+					<capitec-button type="white" label="Get Estimate" @click="${() => this._goToEstimate()}">
+					</capitec-button>
+				</capitec-title-bar>
+				${this._renderPoliciesLandingContent()}
+		</capitec-card>`
+	}
 
-		`
+	_renderPoliciesLandingContent() {
+		return html`
+			<capitec-tab-group class="tabs">
+				<capitec-tab
+					data-automation-id="insure-policies-tab"
+					label="Policies">
+					I'm inside Policies tab
+				</capitec-tab>
+				<capitec-tab
+					data-automation-id="insure-quotes-tab"
+					label="Quotes">
+					I'm inside Quotes tab
+				</capitec-tab>
+			</capitec-tab-group>`;
 	}
 
 	// Not for estimate testing - reenable later
