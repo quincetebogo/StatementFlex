@@ -393,8 +393,8 @@ export class CreditAccount extends ViewBase {
 	{
 		for (let i = 0; i < this.settleAndCloseQuote.savingAccountsList.length; i++)
 		{
-			let SavAcc = this.settleAndCloseQuote.savingAccountsList[i]
-			if (SavAcc.accountNumber == item)
+			let savAcc = this.settleAndCloseQuote.savingAccountsList[i]
+			if (savAcc.accountNumber == item)
 			{
 				return i ;
 			}
@@ -1117,17 +1117,6 @@ export class CreditAccount extends ViewBase {
 				@cancel="${() => this._backToLandingPage()}"
 				@settle-and-close="${(e) => this._confirmSettleAndClose(e)}">
 			</horizon-settle-and-close-dialog>`
-		: html``;
-	}
-	_renderSettleAndCloseSuccessScreen ()
-	{
-		return this.renderMode === RENDER_MODE.SETTLE_AND_CLOSE_SUCCESS
-		? html`
-			<horizon-settle-and-close-success
-			.creditType="${`bafana`}"
-			.productType="${`bafana`}"
-			@confirm-email="${() => this._renderSettleAndCloseEmailConfirmation()}">
-			</horizon-settle-and-close-success>`
 		: html``;
 	}
 

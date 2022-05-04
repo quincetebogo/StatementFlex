@@ -48,7 +48,6 @@ import { OutcomeBase } from '../common/OutcomeBase';
 	// -------------------
 
 	connectedCallback() {
-		this._initialise();
 		super.connectedCallback();
 		this._initialise();
 	}

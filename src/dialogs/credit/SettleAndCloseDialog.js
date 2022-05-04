@@ -70,11 +70,11 @@ export class SettleAndCloseDialog extends Component {
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-	_onSettleAndCloseClick(e) {
+	_onSettleAndCloseClick(product) {
 		if (this.hasEnoughFunds) {
 			this.dispatchEvent(new CustomEvent(`settle-and-close`, {
 				detail: {
-					productSelected: e,
+					productSelected: product,
 					settleAndCloseDetails : this.settleAndCloseDetails				
 				}
 			}));
