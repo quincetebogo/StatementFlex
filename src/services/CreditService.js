@@ -375,7 +375,7 @@ export class CreditService extends ChannelServiceBase {
 
 	settlementQuote(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		
-		const url = `/clientcare-credit-${this._version}/credit/settlement-quote`;
+		const url = `/clientcare-credit-${this._version}/credit/settlement-quote/view`;
 
 		return this.post(
 			url,
@@ -394,6 +394,10 @@ export class CreditService extends ChannelServiceBase {
 	async sendSettlementQuoteEmail(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
+		if (await this.isMockEnabled(`sendSettlementQuoteEmail`)) {
+			return this.mock(`sendSettlementQuoteEmail`);
+		}
+
 		const url = `/clientcare-credit-v1/credit/settlement-quote/email`;
 
 		return this.post(
@@ -409,6 +413,26 @@ export class CreditService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+	
+	async settlementQuoteLanding(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
+		const url = `/clientcare-credit-v1/credit/settlement-quote/landing`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`settlementQuoteLanding`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
 
 	async budgetTransferFromAccounts(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		
