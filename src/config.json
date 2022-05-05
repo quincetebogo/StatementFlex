@@ -203,6 +203,10 @@
 		"emailProofOfPayment": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"sendSettlementQuoteEmail": {
+			"enabled": false,
+			"postiveCase": false
 		}
 	}
 }

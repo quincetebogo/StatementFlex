@@ -1,6 +1,6 @@
-import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
 import { CREDIT_TYPE, CREDIT_TYPE_LIST, DEFAULTS, PRODUCTS } from 'app/constants/Credit';
 import { Component, css, html } from 'platform/elements';
+import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 
@@ -31,11 +31,13 @@ export class SettlementQuote extends Component {
 
 	constructor() {
 		super();
-		this.settlementQuoteDetails = {};
+		this.settlementQuoteDetails = [];
 		this.selectedAccounts = [];
 		this.filteredData = [];
+		this.activeProducts = [];
 		this.listValue = `Credit type`;
 		this.selectedLabel = `Select all`;
+		this.showNoAccountsFound = false;
 
 		this._telemetry = HorizonTelemetry.getInstance();
 	}
@@ -57,6 +59,7 @@ export class SettlementQuote extends Component {
 
 			isBusy: { attribute: false },
 			filteredData: { type: Array },
+			activeProducts: { type: Array },
 			listValue: { type: String },
 			selectedLabel: { type: String }
 		};
@@ -74,7 +77,7 @@ export class SettlementQuote extends Component {
 		this._initialise();
 	}
 
-	async disconnectedCallback() {
+	disconnectedCallback() {
 		super.disconnectedCallback();
 	}
 
@@ -148,12 +151,19 @@ export class SettlementQuote extends Component {
 	// ---------------
 
 	_initialise() {
-		this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
-			item.selected = false;
-			return item;
-		});
-
-		this.filteredData = this.settlementQuoteDetails;
+		this.activeProducts = this.settlementQuoteDetails;
+		if (this.activeProducts.length > 0) {
+			this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
+				item.selected = false;
+				return item;
+			});
+	
+			this.filteredData = this.settlementQuoteDetails;
+		} else {
+			this.showNoActiveAccounts = true;
+			this.showNoAccountsFound = true;
+			this.noAccountsMessage = `You have no active Credit products`;
+		}
 	}
 
 	_search (e) {
@@ -184,7 +194,11 @@ export class SettlementQuote extends Component {
 			this.filteredData = Array.from(new Set([...searchResult.flat()]));
 		}
 		
-
+		if (this.filteredData.length < 1) {
+			this.showNoAccountsFound = true;
+			this.showNoActiveAccounts = false;
+			this.noAccountsMessage = `No Results found`;
+		}
 	}
 	
 	// Removing currency formating for better search results
@@ -346,7 +360,8 @@ export class SettlementQuote extends Component {
 	_renderSearch() {
 		this.textValue = ``;
 		return html`
-			<capitec-title-bar>
+			<capitec-title-bar 
+				?hidden="${this.showNoActiveAccounts}">
 				<capitec-text-field
  					id="text-filter"
  					label="${DEFAULTS.SEARCH_TEXT_LABEL}"
@@ -379,7 +394,7 @@ export class SettlementQuote extends Component {
 	}
 
 	_renderNoResult() {
-		return html`
+		return this.showNoAccountsFound ? html`
 			<capitec-group
 				class="no-result-group"
 				layout="vertical"
@@ -391,12 +406,12 @@ export class SettlementQuote extends Component {
 						class="document-icon"/>
 					<capitec-label
 						class="no-results"
-						label="No results found"
+						label="${this.noAccountsMessage}"
 						type="strong">
 					</capitec-label>
 
 			</capitec-group>
-		`;
+		` : html``;
 	}
 
 	_renderAcountInfoTile (item, index) {
@@ -426,7 +441,7 @@ export class SettlementQuote extends Component {
 				</horizon-label>
 				<horizon-label
 					label="Settlement Amount"
-					value="0">
+					value="${item.settlementAmount}">
 				</horizon-label>
 			</capitec-content-box>
 		`;
@@ -434,7 +449,8 @@ export class SettlementQuote extends Component {
 
 	_renderFooter() {
 		return html`
-			<capitec-button-bar>
+			<capitec-button-bar
+				?hidden="${this.showNoActiveAccounts}">
 				<capitec-content-box
 					layout="horizontal"
 					halign="left" valign="center"
