@@ -449,7 +449,8 @@ export class SettlementQuote extends Component {
 
 	_renderFooter() {
 		return html`
-			<capitec-button-bar>
+			<capitec-button-bar
+				?hidden="${this.showNoActiveAccounts}">
 				<capitec-content-box
 					layout="horizontal"
 					halign="left" valign="center"
