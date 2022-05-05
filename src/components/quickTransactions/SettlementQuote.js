@@ -31,9 +31,10 @@ export class SettlementQuote extends Component {
 
 	constructor() {
 		super();
-		this.settlementQuoteDetails = {};
+		this.settlementQuoteDetails = [];
 		this.selectedAccounts = [];
 		this.filteredData = [];
+		this.activeProducts = [];
 		this.listValue = `Credit type`;
 		this.selectedLabel = `Select all`;
 		this.showNoAccountsFound = false;
@@ -58,6 +59,7 @@ export class SettlementQuote extends Component {
 
 			isBusy: { attribute: false },
 			filteredData: { type: Array },
+			activeProducts: { type: Array },
 			listValue: { type: String },
 			selectedLabel: { type: String }
 		};
@@ -149,8 +151,8 @@ export class SettlementQuote extends Component {
 	// ---------------
 
 	_initialise() {
-		
-		if (this.settlementQuoteDetails.length > 0) {
+		this.activeProducts = this.settlementQuoteDetails;
+		if (this.activeProducts.length > 0) {
 			this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
 				item.selected = false;
 				return item;
