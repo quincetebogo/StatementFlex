@@ -528,7 +528,7 @@ export class SavingsPlanLanding extends Component {
 						data-automation-id="savings-plan-statements"
 						label="Statements"
 						icon="system/documents-action"
-						@click="${() => this._click(`statements-save`, saveType, accountNumber)}">
+						@click="${() => this._click(`statements`, saveType, accountNumber)}">
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="savings-plan-tax-certificate"

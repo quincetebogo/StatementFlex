@@ -91,6 +91,23 @@ export const creditMixin = {
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to send settlement quote.`, `_sendSettlementQuote`, returnValue.correlationId);
 
+			const creditProducts = {
+				[PRODUCTS.CREDIT_CARD]: `CreditCard`,
+				[PRODUCTS.ACCESS_FACILITY]: `AccessFacility`,
+				[PRODUCTS.TERM_LOAN]: `TermLoan`
+		 	};
+
+			screenDetails.emailStatus = details.selectedAccounts.map(item => {
+				const sendStatus = {
+					accountNumber: item.accountNumber,
+					creditType: creditProducts[item.type],
+					productTypeDescription: item.productTypeDescription,
+					sentStatus: false
+				};
+
+				return sendStatus;
+			}); 
+
 			this.horizonStore.setScreenDetails(screenDetails);
 			this.horizonRouter.navigateToSettlementQuoteFailure();
 			return;

@@ -177,6 +177,7 @@ import 'app/components/common/HorizonLabel';
 							class="transfer-button"
 							data-automation-id="budget-account-details-transfer-button"
 							label="Transfer"
+							?hidden="${true}"
 							@click="${() => this._transferClick()}">
 						</capitec-button>
 				</capitec-title-bar>
