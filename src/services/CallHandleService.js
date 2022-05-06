@@ -241,4 +241,17 @@ export class CallHandleService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+
+	/**
+	 *  Verifies collected answers for security questions against KBA
+	 * 
+	 * @param {*} answers An object containing the responses/answers to the asked security questoins
+	 * @param {errorHandlerCallback} errorHandler An optional error handler
+	 * @returns {Promise<ReturnValue>} An object indicating if the verification process was successful or if not, the reason for failure
+	 */
+	 async verifyKBA(answers, errorHandler = null) {
+		if (await this.isMockEnabled(`verifyKBA`)) {
+			return this.mock(`verifyKBA`, answers);
+		}
+	}
 }
