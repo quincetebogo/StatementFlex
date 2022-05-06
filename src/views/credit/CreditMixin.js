@@ -176,6 +176,11 @@ export const creditMixin = {
 		this._exitSettlementQuoteDialog(); // This is implemented in corresponding parent class
 	},
 
+	resetCCSStatusAndReloadScreen() {
+		this.ccsStatus = false;
+		this.requestUpdate();
+	},
+
 	_renderSettlementQuoteDialog() {
 		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG 
 		? html`
@@ -193,7 +198,7 @@ export const creditMixin = {
 		return this.ccsStatus
 		? html`
 			<horizon-ccs-status-dialog
-				@on-okay="${() => this.ccsStatus = false}">
+				@on-okay="${() => this.resetCCSStatusAndReloadScreen()}">
 			</horizon-ccs-status-dialog>`
 		: html``;
 	}
