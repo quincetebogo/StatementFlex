@@ -63,6 +63,7 @@ export class TaxCertificatesDialog extends Component {
 		return {
 			cifNumber: { type: String },
 			accountNumber: { type: String },
+			taxCertType: { type: String, attribute: `type` },
 
 			// Private Properties
 			isBusy: { attribute: false }
@@ -128,8 +129,9 @@ export class TaxCertificatesDialog extends Component {
 			"next-screen": returnValue.succeeded ? OutcomeScreen.SUCCESS : OutcomeScreen.FAIL
 		});
 		
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `tax-certificate`);
+		
 		if (returnValue.succeeded) {
-			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `tax-certificate`);
 			this.horizonRouter.navigateToTaxCertificateSuccessful();
 			return;
 		}
@@ -263,7 +265,7 @@ export class TaxCertificatesDialog extends Component {
 		this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP, {
 				"screen": TelemetryScreen.TAX_CERTIFICATE
 		});
-	
+		
 		const returnValue = await this.quickTransactionService.getTaxCertificate(this.cifNumber, () => true);
 
 		if (!returnValue.succeeded) {
@@ -414,6 +416,7 @@ export class TaxCertificatesDialog extends Component {
 
 		return html`
 			<capitec-pc-tax-certificate
+				taxCertType="${this.taxCertType}"
 				.taxCertificateDetails="${this.taxCertificateDetails}"
 				.getTaxCertificatePDFCallback="${(item, type) => this._viewPDF(item, type)}"
 				.getIT3BContentData="${(selectedCertificates) => this._getIT3BContentData(selectedCertificates)}"

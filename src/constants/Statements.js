@@ -101,7 +101,7 @@ export const PERIOD_TYPE = Object.freeze({
 		choosePeriod: RANGE_SELECTOR.DATE
 	},
 	4010: {
-		name: ``,
+		name: `Term Loan`,
 		type: `FIXED_TERM_CREDIT`,
 		category: `credit`,
 		subCategory: `term-loan`,
@@ -168,7 +168,7 @@ export const NOTIFICATION_MESSAGE = Object.freeze({
 	APP: ` Did you know you can email statements from the app for free?`,
 	FEE: ` A fee will be charged for email statements`,
 	NO_FEE: ` A fee won't be charged for a fixed term savings statement`,
-	FLEXIBLE_SAVINGS_FEE: `A fee will be charged for flexible saving account statements.`
+	FLEXIBLE_SAVINGS_FEE: ` A fee will be charged for flexible saving account statements.`
 });
 
 export const ERRORS = Object.freeze({

@@ -1,4 +1,8 @@
 import { css, html } from 'platform/elements';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { SETTLEMENT_QUOTE_EVENTS as SettlementQuoteCreditEvents } from 'app/constants/telemetry/events/Credit';
+import { SETTLEMENT_QUOTE_EVENTS as SettlementQuoteFavouritesEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
@@ -20,8 +24,10 @@ export class SettlementQuoteSuccess extends ViewBase {
 	constructor() {
 		super();
 
-		this.selectedAccounts = [];
+		this.succeededAccounts = [];
 		this.emailAddress = ``;
+		this.telemetryEvents = {};
+		this.returnToScreen = ``;
 		this.endCallContext = `QuickTransactionSuccess`;
 	}
 
@@ -38,10 +44,15 @@ export class SettlementQuoteSuccess extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 		
+		this.returnToScreen = this.horizonStore.getReturnToScreen().route.title;
+		this.telemetryEvents = this.returnToScreen === `Favourites` ? SettlementQuoteFavouritesEvents : SettlementQuoteCreditEvents;
+
+		this._telemetry.startSpan(this.telemetryEvents.SETTLEMENT_QUOTE_SUCCESS);
+
 		this.screenDetails = this.horizonStore.getScreenDetails();
 
-		this.selectedAccounts = this.screenDetails && this.screenDetails.selectedAccounts;
-		this.emailAddress = this.screenDetails && this.screenDetails.emailAddress;
+		this.succeededAccounts = this.screenDetails?.emailStatus.filter(account => account.sentStatus).map(item => item.productTypeDescription);
+		this.emailAddress = this.screenDetails?.emailAddress;
 		
 		this._updateIncidentState();
 	}
@@ -55,6 +66,14 @@ export class SettlementQuoteSuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
+		this._telemetry.logEvent(this.telemetryEvents.SETTLEMENT_QUOTE_SUCCESS_DONE, {
+			"screen": TelemetryScreen.SETTLEMENT_QUOTE_SUCCESS,
+			"next-screen": this.returnToScreen === `Favourites` ? TelemetryScreen.FAVOURITES : TelemetryScreen.CREDIT_LANDING
+		});
+
+		this._telemetry.endSpan(this.telemetryEvents.SETTLEMENT_QUOTE_SUCCESS, {}, true, true);
+		this._telemetry.endSpan(QuickTransactionEvents.SETTLEMENT_QUOTE, {});
+
 		const returnToScreen = this.horizonStore.getReturnToScreen();
 		this.horizonStore.setReturnScreen(returnToScreen.route, ``);
 
@@ -63,6 +82,14 @@ export class SettlementQuoteSuccess extends ViewBase {
 	}
 
 	_sendAnotherClick() {
+		this._telemetry.logEvent(this.telemetryEvents.SETTLEMENT_QUOTE_SUCCESS_SEND_ANOTHER, {
+			"screen": TelemetryScreen.SETTLEMENT_QUOTE_SUCCESS,
+			"next-screen": TelemetryScreen.SETTLEMENT_QUOTE_VIEW
+		});
+
+		this._telemetry.endSpan(this.telemetryEvents.SETTLEMENT_QUOTE_SUCCESS);
+		this._telemetry.endSpan(QuickTransactionEvents.SETTLEMENT_QUOTE, {});
+
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 		this.horizonStore.clearScreenDetails();
 	}
@@ -77,6 +104,23 @@ export class SettlementQuoteSuccess extends ViewBase {
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
+	_formateAccountNames(accounts) {
+		if (accounts.length === 1) {
+			return `${accounts[0].toLowerCase()}`;
+		}
+
+		if (accounts.length === 2) {
+			return `${accounts.join(` and `).toLowerCase()}`;
+		}
+
+		if (accounts.length > 2) {
+			const lastAccount = accounts.slice(-1)[0];
+			return `${accounts.slice(0, -1).join(`, `).toLowerCase()} and ${lastAccount.toLowerCase()}`;
+		}
+
+		return ``;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -85,7 +129,7 @@ export class SettlementQuoteSuccess extends ViewBase {
 		return [
 			super.styles,
 			css`
-				#id-error-msg {
+				#id-success-msg {
 					width: auto;
 				}
 			`
@@ -108,15 +152,15 @@ export class SettlementQuoteSuccess extends ViewBase {
 		return html`
 			<horizon-success-screen
 				data-automation-id="settlement-quote-success-screen"
-				header="Settlement quote sent" 
+				header="Settlement quote${this.succeededAccounts.length > 1 ? `s` : ``} sent" 
 				image="/images/statements/senddocuments.svg"
 				left="Send Another"
 				right="Done"
-				toast="Settlement quote sent"
+				toast="Settlement quote${this.succeededAccounts.length === 1 ? ` for ${this.succeededAccounts[0].toLowerCase()}` : `s`} was sent"
 				@left-click=${() => this._sendAnotherClick()}
 				@right-click=${() => this._doneClick()}>
-					<section id="id-error-msg" slot="detail">
-						Settlement quote ${this.selectedAccounts.length === 1 ? `for ${this.selectedAccounts[0].productTypeDescription.toLowerCase()}` : ``} was emailed to <b>${this.emailAddress}</b>.
+					<section id="id-success-msg" slot="detail">
+						Settlement quote for <b> ${this._formateAccountNames(this.succeededAccounts)}</b> was emailed to <b>${this.emailAddress}</b>.
 					</section>
 			</horizon-success-screen>
 		`;
