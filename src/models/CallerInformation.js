@@ -45,6 +45,7 @@
 	 * @param {string} [middleName3=""] the client's fourth name
 	 * @param {string} [lastName=""] the client's surname/last name
 	 * @param {string} [initials=""] Client's initials
+	 * @param {string} [emailId=""] Client's email id
 	 */
 	constructor(
 		cifNumber,
@@ -77,7 +78,8 @@
 		middleName2 = ``,
 		middleName3 = ``,
 		lastName = ``,
-		initials = ``
+		initials = ``,
+		emailId = ``
 	) {
 		this.cifNumber = cifNumber;
 		this.birthdate = birthdate;
@@ -110,6 +112,7 @@
 		this.middleName3 = middleName3;
 		this.lastName = lastName;
 		this.initials = initials;
+		this.emailId = emailId;
 		Object.seal();
 	}
 }
