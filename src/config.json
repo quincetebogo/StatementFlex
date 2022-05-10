@@ -98,7 +98,7 @@
 			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"itaVerification":{
@@ -106,8 +106,8 @@
 			"positiveCase": true
 		},
 		"verifyKBA": {
-			"enabled": false,
-			"positiveCase": true
+			"enabled": true,
+			"positiveCase": false
 		},
 		"debiCheckMandates": {
 			"enabled": false,
@@ -200,6 +200,22 @@
 		"creditBalance": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"budgetTransferFromAccounts": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"confirmBudgetTransfer": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"emailProofOfPayment": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"sendSettlementQuoteEmail": {
+			"enabled": false,
+			"postiveCase": false
 		},
 		"loadKBA": {
 			"enabled": false,
