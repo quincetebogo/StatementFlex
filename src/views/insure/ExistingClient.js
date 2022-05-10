@@ -240,7 +240,8 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderClientPoliciesPage() {
 		return html`
-			<horizon-insure-client-policies @navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
+			<horizon-insure-client-policies .clientPolicies = "${this.clientPolicies}"
+				@navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan()}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary()}">
 			</horizon-insure-client-policies>`

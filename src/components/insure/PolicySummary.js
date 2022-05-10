@@ -72,7 +72,8 @@ class PolicySummary extends Component {
 				<capitec-label label="Funeral Plan" type="title"></capitec-label>
 				<capitec-spacer></capitec-spacer>
 				</capitec-button>
-				<capitec-button label="Calculate" type="white" @click="${() => this._calculateEstimate()}"></capitec-button>
+				<capitec-button label="Email Plan" type="white"></capitec-button>
+				<capitec-button label="Update Plan" type="white"></capitec-button>
 			</capitec-title-bar>`
 	}
 
