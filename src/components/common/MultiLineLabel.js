@@ -79,7 +79,7 @@ export class ComponentMultiLineLabel extends Component {
 				.value {
 					height: var(--horizon-multi-line-value-font-size, 12px);
 					font-size: var(--horizon-multi-line-value-font-size, 12px);
-					line-height: 12px;
+					line-height: var(--horizon-multi-line-value-line-height, 12px);
 					font-weight: var(--horizon-multi-line-value-font-weight, 400);
 					--theme-layout-gap-spacing: var(--horizon-multi-line-value-gap, 10px);
 				}

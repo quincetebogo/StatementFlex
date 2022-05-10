@@ -1,13 +1,32 @@
 import { Component, css, html } from 'platform/elements';
-import { CallHandleService } from 'app/services/CallHandleService';
+import { ITAChannelService } from 'app/services/ITAChannelService';
+import { Logger } from 'platform/core';
 
 import 'app/components/common/CallerDialog';
 import 'app/components/common/MultiLineLabel';
 
-const ANSWERS = {
+const RENDER_MODE = Object.freeze({
+	KBA: 1,
+	END_CALL: 2
+});
+
+const ANSWERS = Object.freeze({
 	YES: `Yes`,
 	NO: `No`
-};
+});
+
+const VERIFICATION_STATUS = Object.freeze({
+	VERIFIED: `VERIFIED`,
+	UNVERIFIED: `UNVERIFIED`
+});
+
+const VERIFICATION_STATUS_REASON = Object.freeze({
+	ONEWRONGANSWER: `1`,
+	TWOWRONGANSWERS: `2`,
+	THREEWRONGANSWERS: `3`,
+	FOURWRONGANSWERS: `4`,
+	UNKNOWNERROR: `-1`
+});
 
 /**
  * Verifying client via Knowledge Based Authentication (KBA)
@@ -31,57 +50,47 @@ export class VerifyByKBA extends Component {
 	constructor() {
 		super();
 
+		this.renderMode = RENDER_MODE.KBA;
 		this.isBusy = false;
+		this.SQs = [];
+		this.mandatoryQus = [];
+		this.orQus = [];
 
-		this.questions = [
-			{
-				"questionId": `1`,
-				"question": `Confirm your full name?`,
-				"answer": `Lawrence dolo wade`,
-				"providedAnswer": ``,
-				"enabled": true
-			},
-			{
-				"questionId": `2`,
-				"question": `Confirm your Capitec registered mobile number?`,
-				"answer": `083 301 8744`,
-				"providedAnswer": ``,
-				"enabled": true
-			},
-			{
-				"questionId": `3`,
-				"question": `Confirm your account number?`,
-				"answer": `*******909`,
-				"providedAnswer": ``,
-				"enabled": true
-			},
-			{
-				"questionId": `4`,
-				"question": `Confirm one of the below?`,
-				"answer": [`email: lawrencedolo@gmail.com`, `residentail address: 105, Grand Olive estate`],
-				"providedAnswer": ``,
-				"enabled": true
-			}
-		];
+		this.logger = Logger.getInstance();
 
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag());
+		this.itaChannelService = new ITAChannelService(() => this._toggleBusyFlag(), () => true);
 	}
 
 	// ----------
 	// PROPERTIES
 	// ----------
 
+	/**
+	 * @property {Object} incomingCallDetails Information on the incoming call
+	 * @property {object} incidentDetails Incident details
+	 * @property {object} questions KBA questions
+	 * 
+	 */
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
 			incidentDetails: { type: Object },
+			questions: { type: Object },
 
-			isBusy: { state: true }
+			isBusy: { state: true },
+			renderMode: { state: true }
 		};
 	}
 
 	get canVerify() {
-		return this.questions.every(item => Boolean(item.providedAnswer));
+		// Checking if all mandatory questions are answered
+		const mandatoryAnswered = this.SQs.filter(item => !item.optional)
+												.every(item => Boolean(item.selectedAnswer));
+		// Checking if atleast one of optional questions are answered
+		const optionalAnswered = this.SQs.filter(item => item.optional)
+											   .some(item => Boolean(item.selectedAnswer));
+
+		return mandatoryAnswered && optionalAnswered;
 	}
 
 	// -------------------
@@ -90,6 +99,8 @@ export class VerifyByKBA extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this._initialise();
 	}
 
 	disconnectedCallback() {
@@ -101,7 +112,7 @@ export class VerifyByKBA extends Component {
 	// --------------
 
 	_endCall() {
-
+		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
 	_cancelClick() {
@@ -112,22 +123,49 @@ export class VerifyByKBA extends Component {
 		this.dispatchEvent(new CustomEvent(`skip`, {}));
 	}
 
-	async _verifyClick() {
-		const returnValue = await this.callHandleService.verifyKBA({}, () => true);
+	async _verifyAnswers() {
+		const request = {
+			questionList: this.SQs.map(item => {
+				item.providedAnswer = item.selectedAnswer === ANSWERS.YES;
 
-		if (returnValue.succeeded) {
-			this.dispatchEvent(new CustomEvent(`verified`, {}));
+				// removing local properties
+				delete item.selectedAnswer;
+				delete item.rowNum;
+				delete item.optional;
+
+				return item;
+			})
+		};
+		const returnValue = await this.itaChannelService.verifyKBA(request, () => true);
+		const result = returnValue?.result;
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to verify KBA answers`, `_verifyAnswers`, returnValue.correlationId);
+			this.dispatchEvent(new CustomEvent(`service-failure`, {}));
 			return true;
 		}
 
-		this.dispatchEvent(new CustomEvent(`failed`, {}));
+		switch (true) {
+			case result.verificationStatus === VERIFICATION_STATUS.VERIFIED:
+				this.dispatchEvent(new CustomEvent(`verified`, {}));
+				break;
+
+			case result.verificationStatus === VERIFICATION_STATUS.UNVERIFIED:
+				this.logger.log(`info`, `Answered ${VERIFICATION_STATUS_REASON[result.verificationStatusReason]} question(s) incorrectly`, `_verifyClick`, returnValue.correlationId);
+				this.dispatchEvent(new CustomEvent(`failed`, {}));
+				break;
+
+			default:
+				this.logger.log(`warn`, `Unknown verification status to handle on verify KBA`, `_verifyClick`, returnValue.correlationId);
+				break;
+		}
 	}
 
 	_answerSelected(questionId, answer) {
-		const qusIndex = this.questions.findIndex(item => item.questionId === questionId);
-		this.questions[qusIndex].providedAnswer = answer;
+		const qusIndex = this.SQs.findIndex(item => item.questionId === questionId);
+		this.SQs[qusIndex].selectedAnswer = answer;
 
-		this.requestUpdate();
+		this._applyChanges();
 	}
 
 	// ---------------
@@ -136,6 +174,45 @@ export class VerifyByKBA extends Component {
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
+	}
+
+	_initialise() {
+		this.SQs = this.questions.map((item, index) => {
+
+			/**
+			 * When answer is empty, preselect the radio option to 'NO' and disabling the selection
+			 * Ex: if client has not provided their email id, answer will be empty for that question
+			 */
+			if (!item.answer) {
+				item.selectedAnswer = ANSWERS.NO;
+				item.enabled = false;
+			} else {
+				item.selectedAnswer = item.providedAnswer ? ANSWERS.YES : ``;
+			}
+			
+			item.rowNum = index;
+			item.optional = index + 1 > this.questions.length - 2;
+			return item;
+		});
+
+		this.mandatoryQus = this.SQs.filter(item => !item.optional);
+		this.orQus = this.SQs.filter(item => item.optional);
+	}
+
+	async _applyChanges() {
+
+		/**
+		 * Rule: Auto navigate/ trigger verify answers when
+		 * Q1 to Q3 is answered and one of optional is answered
+		 */
+		const isAllAnswered = this.mandatoryQus.every(item => Boolean(item.selectedAnswer)) &&
+						 	  this.orQus.some(item => Boolean(item.selectedAnswer));
+
+		if (isAllAnswered) {
+			await this._verifyAnswers();
+		}
+
+		this.requestUpdate();
 	}
 
 	// ---------------
@@ -193,6 +270,9 @@ export class VerifyByKBA extends Component {
 					--theme-container-padding-right: 34px;
 					--theme-container-padding-bottom: 16px;
 				}
+				.optional-qus-box {
+					--theme-layout-gap-spacing: 7px;
+				}
 				bb-multi-line-label {
 					padding-top: 4px;
 					padding-bottom: 0px;
@@ -202,7 +282,18 @@ export class VerifyByKBA extends Component {
 					--horizon-multi-line-label-font-weight: 600;
 					--horizon-multi-line-label-line-height: 16px;
 					--horizon-multi-line-value-font-size: 14px;
+					--horizon-multi-line-value-line-height: 20px;
 					--horizon-multi-line-value-gap: 6px;
+				}
+				capitec-label[label="OR"] {
+					line-height: 20px;
+					padding-left: 36px;
+
+					--theme-label-strong-font-size: 14px;
+					--theme-label-strong-font-weight: 600;
+				}
+				.hide {
+					visibility: hidden;
 				}
 				/* Footer styles */
 				capitec-group[slot="footer"] {
@@ -231,6 +322,17 @@ export class VerifyByKBA extends Component {
 	}
 
 	_renderDialog() {
+		switch (this.renderMode) {
+			case RENDER_MODE.KBA:
+				return html`${this._renderKBADialog()}`;
+			case RENDER_MODE.END_CALL:
+				return html`${this._renderEndCallModal()}`;
+			default:
+				return html``;
+		}
+	}
+
+	_renderKBADialog() {
 		return html`
 			<horizon-caller-dialog
 				.incomingCallDetails="${this.incomingCallDetails}"
@@ -289,11 +391,12 @@ export class VerifyByKBA extends Component {
 			</capitec-group>
 
 			${this._renderQuestions()}
+			${this._renderORQuestions()}
 		`;
 	}
 
 	_renderQuestions() {
-		return this.questions.map((item, index) => html`
+		return this.mandatoryQus.map(item => html`
 			<capitec-card>
 				<capitec-content-box class="question-box">
 					<capitec-group
@@ -301,11 +404,11 @@ export class VerifyByKBA extends Component {
 						halign="left"
 						valign="top"
 						gap="clear">
-							<capitec-label type="subtitle" label="Q${index + 1}"></capitec-label>
+							<capitec-label type="subtitle" label="Q${item.rowNum + 1}"></capitec-label>
 
 							<bb-multi-line-label
 								label="${item.question}"
-								.value="${item.answer}">
+								.value="${item.answer || `-`}">
 							</bb-multi-line-label>
 
 							<capitec-spacer></capitec-spacer>
@@ -315,12 +418,14 @@ export class VerifyByKBA extends Component {
 									<capitec-radio
 										label="${ANSWERS.YES}"
 										@value-change="${() => this._answerSelected(item.questionId, ANSWERS.YES)}"
-										?checked = "${item.providedAnswer === ANSWERS.YES}">
+										?checked = "${item.selectedAnswer === ANSWERS.YES}"
+										?disabled="${!item.enabled}">
 									</capitec-radio>
 									<capitec-radio
 										label="${ANSWERS.NO}"
 										@value-change="${() => this._answerSelected(item.questionId, ANSWERS.NO)}"
-										?checked = "${item.providedAnswer === ANSWERS.NO}">
+										?checked = "${item.selectedAnswer === ANSWERS.NO}"
+										?disabled="${!item.enabled}">
 									</capitec-radio>
 								</capitec-group>
 							</capitec-radio-group>
@@ -328,6 +433,60 @@ export class VerifyByKBA extends Component {
 				</capitec-content-box>
 			</capitec-card>
 		`);
+	}
+
+	_renderORQuestions() {
+		return html`
+			<capitec-card>
+				<capitec-content-box class="question-box optional-qus-box" layout="vertical" gap="clear">
+					${this.orQus.map((item, index) => html`
+						<capitec-group
+							layout="horizontal"
+							halign="left"
+							valign="top"
+							gap="clear">
+								<capitec-label
+									class="${index !== 0 ? `hide` : ``}"
+									type="subtitle"
+									label="Q${item.rowNum + 1}">
+								</capitec-label>
+
+								<bb-multi-line-label
+									label="${item.question}"
+									.value="${item.answer || `-`}">
+								</bb-multi-line-label>
+
+								<capitec-spacer></capitec-spacer>
+
+								<capitec-radio-group>
+									<capitec-group layout="horizontal" gap="clear">
+										<capitec-radio
+											label="${ANSWERS.YES}"
+											@value-change="${() => this._answerSelected(item.questionId, ANSWERS.YES)}"
+											?checked = "${item.selectedAnswer === ANSWERS.YES}"
+											?disabled="${!item.enabled}">
+										</capitec-radio>
+										<capitec-radio
+											label="${ANSWERS.NO}"
+											@value-change="${() => this._answerSelected(item.questionId, ANSWERS.NO)}"
+											?checked = "${item.selectedAnswer === ANSWERS.NO}"
+											?disabled="${!item.enabled}">
+										</capitec-radio>
+									</capitec-group>
+								</capitec-radio-group>
+						</capitec-group>
+
+						${this._renderORLabel(index + 1, this.orQus.length)}
+					`)}
+				</capitec-content-box>
+			</capitec-card>
+		`;
+	}
+
+	_renderORLabel(index, length) {
+		return index !== length
+		? html`<capitec-label label="OR" type="strong"></capitec-label>`
+		: html``;
 	}
 
 	_renderFooter() {
@@ -353,7 +512,8 @@ export class VerifyByKBA extends Component {
 					type="primary"
 					label="Verify"
 					?disabled="${!this.canVerify}"
-					@click="${() => this._verifyClick()}">
+					?hidden="${true}"
+					@click="${() => this._verifyAnswers()}">
 				</capitec-button>
 			</capitec-group>
 		`;
@@ -365,6 +525,17 @@ export class VerifyByKBA extends Component {
 		};
 
 		return html``;
+	}
+	
+	_renderEndCallModal() {
+
+		return html`
+			<horizon-end-call-session
+				.incomingCallDetails="${this.incomingCallDetails}"
+				.incidentDetails="${this.incidentDetails}"
+				endCallContext='VerifyClient${status}'
+				@cancel="${() => this.renderMode = RENDER_MODE.SECURITY_QUESTIONS}">
+			</horizon-end-call-session>`;
 	}
 }
 
