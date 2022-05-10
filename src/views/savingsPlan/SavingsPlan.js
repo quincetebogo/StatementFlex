@@ -1,7 +1,7 @@
+import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE } from 'app/constants/Common';
 import { css, html } from 'platform/elements';
 import { formatStringAsPascalCase, getMonthName } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
-import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
@@ -26,6 +26,11 @@ const SAVE_PLAN_TYPE = {
 	FIXED_TERM: `fixed-term-save-plan`
 };
 
+const TAX_TYPE = {
+	IT3B: `iT3BTaxCertificates`,
+	IT3S: `iT3STaxCertificates`
+};
+
 /**
  * Savings Plan View
  *
@@ -37,18 +42,6 @@ const SAVE_PLAN_TYPE = {
  * @extends {SavingsPlan}
  * 
  */
-
-const ACCOUNT_TYPE = {
-	FLEXIBLE: 200,
-	FIXED: 201,
-	MULTIPLE: 1
-};
-
-const PLAN_TYPE = {
-	NONE: `NONE`,
-	SAVINGS_PLAN: `SAVINGS PLAN`,
-	FIXED_TERM: `FIXED TERM SAVINGS PLAN`
-};
 
 export class SavingsPlan extends ViewBase {
 	
@@ -65,6 +58,7 @@ export class SavingsPlan extends ViewBase {
 	
 		// private properites
 		this.selectedAccountNumber = ``;
+		this.taxCertType = ``;
 
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.accountViewType = ``;
@@ -79,25 +73,25 @@ export class SavingsPlan extends ViewBase {
 
 		this._initialise();
 
-		this._optionClick = async (option, saveType, accountNumber) => {
+		this._optionClick = async (option, saveType, accountNumber, accountName) => {
 
 			const statements = () => this._getStatements(accountNumber, saveType);
-			const taxCertificates = () => this._taxCertificates(accountNumber);
+			const taxCertificates = () => this._taxCertificates(accountNumber, accountName);
 			const productEnquiry = () => this._productEnquiry();
-			const savingsCalculator = () => this._savingsCalculator();
 			const interestRates = () => this._interestRates();
 			const accountDetails = () => this._accountDetails(saveType, accountNumber);
 
 			const actions = {
-				'statements-save': statements,
-				'tax-certificates': taxCertificates,
+				'statements': statements,
+				'tax-certificate': taxCertificates,
 				'product-enquiry': productEnquiry,
-				'savings-calculator': savingsCalculator,
 				'interest-rates': interestRates,
 				'account-details': accountDetails
 			};
 
 			if (actions[option]) {
+				await super._inicidentManager_(`${option}-save`, () => this._toggleBusyFlag());
+				this._refreshIncidentDetails();
 				return actions[option]();
 			}
 		};
@@ -214,39 +208,9 @@ export class SavingsPlan extends ViewBase {
 		}
 
 	_updateLeftBar() {
-		let subtitle = null;
-		let detail = null;
-
-		if (this.landingPageInfo) {
-			subtitle = {
-				savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
-				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductDescription,
-				savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
-				insure: this.landingPageInfo.insureProductDescription,
-				credit: this.landingPageInfo.creditProductDescription
-			};
-
-			detail = {
-				savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
-				liveBetterSavings: this.landingPageInfo.liveBetterBankingProductAmount,
-				savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
-				insure: this.landingPageInfo.insureProductAmount,
-				credit: this.landingPageInfo.creditProductAmount
-			};
-		}
-
 		this.horizonStore.setCallerInformation(this.callerInformation);
-
-		const state = {
-			leftBarButtonConfig: {
-				hasFavourites: true,
-				subtitle: subtitle ? subtitle : ``,
-				detail: detail ? detail : ``
-			},
-			landingPageInfo: this.landingPageInfo
-		};
-
-		this.horizonStore.saveState(state);
+		
+		this.horizonStore.setProductButtonState(this.landingPageInfo);
 	}
 
 	_performReturnToScreen() {
@@ -265,7 +229,7 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	_formatSavingsPlanDetails() {
-		const flexibleSavingsPlanDetails = this.savingsPlanDetails.filter(item => item.planType === PLAN_TYPE.SAVINGS_PLAN && item.accountStatus !== `CLOSED`).map(item => {
+		const flexibleSavingsPlanDetails = this.savingsPlanDetails.filter(item => item.accountType === ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN && item.accountStatus !== `CLOSED`).map(item => {
 			item.currentBalance = formatCurrency(item.currentBalance);
 			item.availableBalance = formatCurrency(item.availableBalance);
 			item.accruedInterestCurrentMonth = formatCurrency(item.accruedInterestCurrentMonth);
@@ -273,17 +237,18 @@ export class SavingsPlan extends ViewBase {
 			item.interestEarned = formatCurrency(item.interestEarned);
 			item.feesLastMonth = item.feesLastMonth ? formatCurrency(item.feesLastMonth) : `-`;
 
-			item.maturityDate = this._formatDate(item.maturityDate);
+			item.maturityDate = `-`;
 			item.dateOpened = this._formatDate(item.dateOpened);
 			item.lastUpdate = this._formatDate(item.lastUpdate);
 
 			item.planName = formatStringAsPascalCase(item.planName);
 			item.accountStatus = formatStringAsPascalCase(item.accountStatus);
+			item.postingRestrictions = `${item.postingRestrictions === `N` ? `No` : `Yes`}`;
 
 			return item;
 		});
 
-		const fixedSavingsPlanDetails = this.savingsPlanDetails.filter(item => item.planType !== PLAN_TYPE.SAVINGS_PLAN && item.accountStatus !== `CLOSED`).map(item => {
+		const fixedSavingsPlanDetails = this.savingsPlanDetails.filter(item => item.accountType === ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN && item.accountStatus !== `CLOSED`).map(item => {
 			item.currentBalance = formatCurrency(item.currentBalance);
 			item.availableBalance = formatCurrency(item.availableBalance);
 			item.accruedInterestCurrentMonth = formatCurrency(item.accruedInterestCurrentMonth);
@@ -301,6 +266,7 @@ export class SavingsPlan extends ViewBase {
 			item.planName = formatStringAsPascalCase(item.planName);
 			item.depositeType = `${formatStringAsPascalCase(item.planType)} ${item.interestOption === `R` ? `- Reinvest` : ``}`;
 			item.accountStatus = formatStringAsPascalCase(item.accountStatus);
+			item.postingRestrictions = `${item.postingRestrictions === `N` ? `No` : `Yes`}`;
 
 			return item;
 		});
@@ -319,9 +285,8 @@ export class SavingsPlan extends ViewBase {
 	
 	_getStatements(accNumber) {
 		const accountDetails = this.savingsPlanDetails.find(savingsPlan => savingsPlan.accountNumber === accNumber);
-		const accountType = accountDetails.planType === PLAN_TYPE.SAVINGS_PLAN ? ACCOUNT_TYPE.FLEXIBLE : ACCOUNT_TYPE.FIXED;
 	
-		const productInfo = ACCOUNT_INTCAT_ENUM[accountType];
+		const productInfo = ACCOUNT_INTCAT_ENUM[accountDetails.accountType][accountDetails.interestCategory] || ACCOUNT_INTCAT_ENUM[accountDetails.accountType];
 		const accName = accountDetails.planName.toLowerCase();
 
 		this.clientProducts = [
@@ -346,24 +311,24 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	_backToLandingPage() {
+		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
+			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		}
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_taxCertificates(accNumber) {
-		// TO DO: Place holder for tax certificate flow.
+	_taxCertificates(accNumber, accountName) {
 		this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_TAX_CERTIFICATE_SELECT, {
 			"screen": TelemetryScreen.SAVINGS_PLAN_LANDING,
 			"next-screen": TelemetryScreen.SAVINGS_PLAN_TAX_CERTIFICATE
 		});
+
+		this.taxCertType = accountName.toLowerCase().replaceAll(` `, ``).includes(`tax-free`) ? TAX_TYPE.IT3S : TAX_TYPE.IT3B;
 		this.selectedAccountNumber = accNumber;
 		this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
 	}
 	
-	async _savingsCalculator() {
-		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
-		window.open(`${globalOneUrl}/save/`);
-	}
-
 	async _interestRates() {
 		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
 		window.open(`${globalOneUrl}/save/rates-and-fees/`);
@@ -452,7 +417,7 @@ export class SavingsPlan extends ViewBase {
 			<capitec-pc-savings-plan
 				.savingsPlanDetails="${this.savingsPlanDetails}"
 
-				@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.saveType, e.detail.accountNumber)}"
+				@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.saveType, e.detail.accountNumber, e.detail.accountName)}"
 				@view-info="${() => this._productEnquiry()}">
 			</capitec-pc-savings-plan>`
 		: html``;
@@ -504,6 +469,7 @@ export class SavingsPlan extends ViewBase {
 				<horizon-tax-certificate
 					cifNumber="${this.callerInformation.cifNumber}"
 					accountNumber="${this.selectedAccountNumber}"
+					type="${this.taxCertType}"
 					@cancel="${() => this._backToLandingPage()}">
 				</horizon-tax-certificate>
 			`

@@ -14,10 +14,11 @@ import 'app/components/common/CallerDialog';
 import 'app/components/common/ComponentCountdown';
 import 'app/components/dialogs/common/EndCallSession';
 
-import 'app/components/dialogs/common/verifyCaller/VerifyBySecurityQuestions';
 import 'app/components/dialogs/common/verifyCaller/NotRegisteredForIta';
 import 'app/components/dialogs/common/verifyCaller/PushNotificationStatus';
 import 'app/components/dialogs/common/verifyCaller/PushNotificationError';
+import 'app/components/dialogs/common/verifyCaller/VerifyByKBA';
+import 'app/components/dialogs/common/verifyCaller/VerifyBySecurityQuestions';
 import 'app/components/dialogs/common/verifyCaller/VerificationUnavailable';
 import 'app/components/dialogs/common/verifyCaller/XdsAttemptFailed';
 import 'app/components/dialogs/common/verifyCaller/XdsBlocked';
@@ -25,8 +26,9 @@ import 'app/components/dialogs/common/verifyCaller/XdsUnavailable';
 
 const RENDER_MODE = Object.freeze({
 	VERIFY_CALLER: 1,
-	SECURITY_QUESTIONS: 2,
-	END_CALL: 3
+	XDS_SQ: 2,
+	END_CALL: 3,
+	KBA_SQ: 4
 });
 
 const HEADER_LABEL = `Verify Caller`;
@@ -36,6 +38,10 @@ const MAX_XDS_ATTEMPTS = 2;
 
 const ITA_TIMEOUT_SECS = 70;
 
+const AUTH_METHODS = {
+	XDS: `XDS`,
+	KBA: `KBA`
+};
 
 /**
  * The Horizon Verify Caller Details Dialog is used to verify a Capitec Client.
@@ -155,6 +161,7 @@ export class VerifyCaller extends Component {
 		}
 
 		this.isLoading = false;
+		this.authMethod = await this.configuration.getSetting(`AuthMethod`);
 	}
 
 	disconnectedCallback() {
@@ -185,6 +192,18 @@ export class VerifyCaller extends Component {
 		this.itaTimeout = false;
 		this.itaRejected = false;
 
+		const xds = () => this._loadXDS();
+		const kba = () => this._loadKBA();
+		
+		const getQuestions = {
+			[AUTH_METHODS.XDS]: xds,
+			[AUTH_METHODS.KBA]: kba
+		};
+
+		await getQuestions[this.authMethod]();
+	}
+
+	async _loadXDS() {
 		const returnValue = await this.callHandleService.xdsQuestions(this.callerInformation.southAfricanIDNumber, () => true);
 
 		if (!returnValue.succeeded) {
@@ -226,6 +245,10 @@ export class VerifyCaller extends Component {
 		return this._handleSecurityQuestions(result);
 	}
 
+	_loadKBA() {
+		this.renderMode = RENDER_MODE.KBA_SQ;
+	}
+
 	_handleSecurityQuestions(securityQuestions) {
 		// Set this.securityQuestions for passing to the security questions dialog
 		this.securityQuestions = securityQuestions;
@@ -260,7 +283,7 @@ export class VerifyCaller extends Component {
 			});
 
 			this.logger.log(`info`, `XDS Questions retrieved, transitioning to Security Questions Dialog`, `_securityQuestionsClick`);
-			this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
+			this.renderMode = RENDER_MODE.XDS_SQ;
 			return;
 		};
 		
@@ -493,6 +516,11 @@ export class VerifyCaller extends Component {
 		// TODO: XDS end call event and what do we do if no channels available.... verify dialog end call
 
 		this.renderMode = RENDER_MODE.END_CALL;
+	}
+
+	_failedKBA() {
+		this._updateApplicationState(`failed`, `unverified`);
+		this.horizonRouter.navigateToKBAVerificationFailed();
 	}
 
 	// --------------
@@ -795,6 +823,7 @@ export class VerifyCaller extends Component {
 		return html`
 			${this._renderVerifyCallerDialog()}
 			${this._renderSecurityQuestionsDialog()}
+			${this._renderKBADialog()}
 			${this._renderEndCallModal()}
 		`;
 	}
@@ -964,9 +993,8 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderSecurityQuestionsDialog() {
-		return this.renderMode !== RENDER_MODE.SECURITY_QUESTIONS
-			? html``
-			: html`
+		return this.renderMode === RENDER_MODE.XDS_SQ
+			? html`
 				<horizon-security-question 
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
@@ -980,7 +1008,8 @@ export class VerifyCaller extends Component {
 					@verified="${() => this._verifiedViaSecurityQuestions()}"
 					@failed="${(reason) => this._failedSecurityQuestions(reason)}"
 					@service-failure="${() => this._xdsServiceFailure()}">
-				</horizon-security-question>`;
+				</horizon-security-question>`
+			: html``;
 	}
 
 	_renderEndCallModal() {
@@ -1010,6 +1039,20 @@ export class VerifyCaller extends Component {
 		};
 
 		return html``;
+	}
+
+	_renderKBADialog() {
+		return this.renderMode === RENDER_MODE.KBA_SQ
+		? html`
+			<horizon-verify-kba
+				.incomingCallDetails="${this.incomingCallDetails}"
+				.incidentDetails="${this.incidentDetails}"
+				@cancel="${() => this._cancelledSecurityQuestions()}"
+				@skip="${() => this._skippedSecurityQuestions()}"
+				@verified="${() => this._verifiedViaSecurityQuestions()}"
+				@failed="${() => this._failedKBA()}">
+			</horizon-verify-kba>`
+		: html``;
 	}
 }
 window.customElements.define(`horizon-verify-caller`, VerifyCaller);

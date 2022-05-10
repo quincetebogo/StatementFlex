@@ -21,6 +21,7 @@
 		"partner-benefits": "https://www.capitecbank.co.za/bank-better-live-better/articles/benefits/",
 		"fees": "https://www.capitecbank.co.za/global-one/transact/fees/"
 	},
+	"AuthMethod": "KBA",
 	"LogRequestResponseModels": false,
 	"VDN": "7250",
 	"ivrMapping": [
@@ -99,6 +100,10 @@
 		"itaVerification":{
 			"enabled": true,
 			"positiveCase": true
+		},
+		"verifyKBA": {
+			"enabled": true,
+			"positiveCase": false
 		},
 		"debiCheckMandates": {
 			"enabled": false,
@@ -191,6 +196,22 @@
 		"creditBalance": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"budgetTransferFromAccounts": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"confirmBudgetTransfer": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"emailProofOfPayment": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"sendSettlementQuoteEmail": {
+			"enabled": false,
+			"postiveCase": false
 		}
 	}
 }

@@ -1,7 +1,8 @@
+import { ACCOUNT_INTCAT_ENUM, ERRORS, NOTIFICATION_MESSAGE, PERIOD_TYPE, RANGE_SELECTOR, RENDER_MODE, STATEMENTS_STEPS, TIME_PERIOD } from 'app/constants/Statements';
+import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE } from 'app/constants/Common';
 import { Component, css, html, unsafeCSS } from 'platform/elements';
-import { ERRORS, NOTIFICATION_MESSAGE, PERIOD_TYPE, RANGE_SELECTOR, RENDER_MODE, STATEMENTS_STEPS, TIME_PERIOD } from 'app/constants/Statements';
+
 import { calculateDays, formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'platform/components/popups/Modal';
@@ -70,8 +71,6 @@ export class StatementsDialog extends Component {
 	/**
 	 * @property {Array} clientProducts Contains list of products that the client has.
 	 * @property {string} type Contains the type of account
-	 * @property {string} title client's title (Mr/ Mrs)
-	 * @property {string} lastName client's last name
 	 * @readonly
 	 * @static
 	 * @memberof StatementsDialog
@@ -81,19 +80,15 @@ export class StatementsDialog extends Component {
 			clientProducts: { type: Array },
 			accountType: { type: String, attribute: `type` },
 			viewStatement: { type: Object },
-			sendStatement: { type: Object },     
-			title: { type: String },
-			lastName: { type: String },
+			sendStatement: { type: Object },
 
 			alertBannerMessage: { state: true },
 			currentStep: { state: true },
 			renderMode: { state: true },
 			notifyClient: { state: true },
 			periodSelected: { state: true },
-			showCalendar: { state: true },
 			fromDate: { state: true },
 			toDate: { state: true },
-			_customDateRange: { state: true },
 			errorMessage: { state: true },
 			periodType: { state: true }
 		};
@@ -170,13 +165,13 @@ export class StatementsDialog extends Component {
 
 		this.periodType = PERIOD_TYPE.STATIC;
 		this.errorMessage = ``;
+		this.fromDate = `dd mm yyyy`;
+		this.toDate = `dd mm yyyy`;
 	}
 
 	_customDateRangeSelected() {
-		this.periodSelected = ``;
 		this.calendarErrorMessage = ``;
-		this.fromDate = `dd mm yyyy`;
-		this.toDate = `dd mm yyyy`;
+		this._resetPeriodSelection();
 		this.periodType = PERIOD_TYPE.CUSTOM;
 	}
 	
@@ -245,8 +240,6 @@ export class StatementsDialog extends Component {
 			"accountName": this.productSelected.accountName,
 			"accountType": this.productSelected.type,
 			"dateInterval": this.periodSelected,
-			"title": this.title,
-			"lastName": this.lastName,
 			"startDate": this.fromDate === `dd mm yyyy` ? `` : this.fromDate,
 			"endDate": this.toDate === `dd mm yyyy` ? `` : this.toDate,
 			"monthInterval": this.selectedMonths // This is specifically for month period
@@ -263,6 +256,7 @@ export class StatementsDialog extends Component {
 			this._resetPeriodSelection();
 			this.dispatchEvent(new CustomEvent(`account-selected`, {
 				detail: {
+					name: this.productSelected.name,
 					accountNumber: this.productSelected.accountNumber,
 					account: this.productSelected.category,
 					subCategory: this.productSelected.subCategory
@@ -295,8 +289,6 @@ export class StatementsDialog extends Component {
 			this.errorMessage = `Choose Account`;
 			return false;
 		}
-
-
 
 		return true;
 	}
@@ -342,7 +334,7 @@ export class StatementsDialog extends Component {
 	}
 
 	_getSummary() {
-		if (this._customDateRange) {
+		if (this.periodType === PERIOD_TYPE.CUSTOM) {
 			const fromDate = new Date(this.fromDate);
 			const toDate = new Date(this.toDate);
 
@@ -417,8 +409,6 @@ export class StatementsDialog extends Component {
 
 	_resetPeriodSelection() {
 		this.periodSelected = ``;
-		this.showCalendar = false;
-		this._customDateRange = false;
 		this.fromDate = `dd mm yyyy`;
 		this.toDate = `dd mm yyyy`;
 	}
@@ -691,6 +681,13 @@ export class StatementsDialog extends Component {
 						data-automation-id="statements-dialog-alert-message"
 						type="unsuccessful-red">
 							<p><b>Notify:</b> ${this.errorMessage}</p>
+					</horizon-alert-banner>`;
+			case this.productSelected.type === ACCOUNT_INTCAT_ENUM[ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN].type:
+				return html`
+					<horizon-alert-banner
+						data-automation-id="statements-dialog-alert-message"
+						type="warning">
+							<p><b>Notify client:</b>${NOTIFICATION_MESSAGE.FLEXIBLE_SAVINGS_FEE}</p>
 					</horizon-alert-banner>`;
 			case this.productSelected.category === ACCOUNT_TYPES.CREDIT:
 				return html`
@@ -1009,7 +1006,8 @@ export class StatementsDialog extends Component {
 						type="primary"
 						label="Next"
 						@click="${() => this._next()}"
-						?hidden="${this.currentStep === this.STEPPER_STEPS.length - 1}">
+						?hidden="${this.currentStep === this.STEPPER_STEPS.length - 1}"
+						?disabled="${Boolean(this.productSelected?.ccsStatus)}">
 					</capitec-button>
 					<capitec-button
 						class="m-r-0"
