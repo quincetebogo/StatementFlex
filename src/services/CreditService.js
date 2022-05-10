@@ -242,8 +242,7 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	async fixedStatement(accountNumber, fromDate, toDate, setdate, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+	fixedStatement(accountNumber, fromDate, toDate, setdate, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
 		const fixedStatementRequest = {
 			"accountNumber": accountNumber,
@@ -269,7 +268,8 @@ export class CreditService extends ChannelServiceBase {
 
 	}
 
-	fixedStatementEmail(accountNumber, emailAddress, fromDate, toDate, setdate, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async fixedStatementEmail(accountNumber, emailAddress, fromDate, toDate, setdate, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 		
 		const fixedStatementEmailRequest = {
 			"accountNumber": accountNumber,

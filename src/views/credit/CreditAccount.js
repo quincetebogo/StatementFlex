@@ -31,8 +31,6 @@ import 'app/productControls/credit/src/PayCreditCardBudget';
 import 'app/components/dialogs/common/ViewAndEmailDocuments';
 import 'app/dialogs/credit/SettleAndCloseDialog';
 
-
-
 /** Credit Account View
  * 
  * @export
