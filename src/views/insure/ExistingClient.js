@@ -3,7 +3,7 @@ import { css, html } from 'platform/elements';
 import { InsureService } from 'app/services/InsureService';
 import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
-import { getAgeFromDOB, getGenderFromIDNumber } from 'app/utils/insureUtils';
+import { getAgeFromIDNumber, getGenderFromIDNumber } from 'app/utils/insureUtils';
 
 import 'app/components/insure/ClientPolicies';
 import 'app/components/insure/PolicyEstimate';
@@ -77,10 +77,7 @@ export class ExistingClient extends InsureViewBase {
 			cifNumber: cifNumber,
 			idNumber: idNumber,
 		}
-		console.log(JSON.stringify(request));
-		console.log("_retrieveClientPolicies");
 		const resp = await this.insureService.clientPolicies(request);
-		console.log(resp);
 		return resp.result;
 	}
 
@@ -90,16 +87,8 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {Object} Estimate response
 	 */
 	async _calculateClientEstimate(e) {
-
-		console.log('Sending Estimate Calculate');
-		console.log(JSON.stringify(e.detail));
-
 		let estimateWithCoverDetails = e.detail;
 		const resp = await this.insureService.calculateEstimate(estimateWithCoverDetails, () => true);
-
-		console.log('Raw Response Estimate Calculate');
-		console.log(JSON.stringify(resp));
-
 		if (resp.succeeded == true && resp.result != null) {
 			estimateWithCoverDetails.totalPremium = resp.result.totalPremium;
 			estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map(lifeWithDetails => {
@@ -107,10 +96,6 @@ export class ExistingClient extends InsureViewBase {
 					return lifeWithDetails.rowID === respLife.rowID
 				}))
 			});
-
-			console.log('Done mapping back Estimate Calculate');
-			console.log(JSON.stringify(estimateWithCoverDetails));
-
 			this.estimate = estimateWithCoverDetails;
 		} else {
 			// Do error message
@@ -123,23 +108,29 @@ export class ExistingClient extends InsureViewBase {
 	//#region PRIVATE METHODS
 
 	/**
-	 * Initialise Landing View / Fetch client policies for landing component
+	 * Initialise Landing View 
+	 * Fetch client policies
 	 */
 	async _initialise() {
-		console.log(this.callerInformation);
 		this.clientPolicies = await this._retrieveClientPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
-
-		this.mainLifeGender = getGenderFromIDNumber(this.callerInformation.southAfricanIDNumber);
-		console.log(this.mainLifeGender);
 	}
 
 	/**
-	 * Get mani life age from birthdate
+	 * Get main life age from birthdate
 	 * @returns 
 	 */
-	_getMainlifeAge() {
-		let mainLifeAge = getAgeFromDOB(this.callerInformation.birthdate);
+	_getMainLifeAge() {
+		let mainLifeAge = getAgeFromIDNumber(this.callerInformation.southAfricanIDNumber);
 		return mainLifeAge;
+	}
+
+	/**
+	 * Get main life gender from ID
+	 * @returns 
+	 */
+	_getMainLifeGender() {
+		let mainLifeGender = getGenderFromIDNumber(this.callerInformation.southAfricanIDNumber);
+		return mainLifeGender;
 	}
 
 	//#endregion
@@ -266,8 +257,8 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-policy-estimate @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@calculate="${(e) => this._calculateClientEstimate(e)}" .estimate="${this.estimate}"
-				.productParams="${this.productParams}" .mainLifeDefaultAge="${this._getMainlifeAge()}"
-				.mainLifeDefaultGender="${this.mainLifeGender}">
+				.productParams="${this.productParams}" .mainLifeDefaultAge="${this._getMainLifeAge()}"
+				.mainLifeDefaultGender="${this._getMainLifeGender()}">
 			</horizon-insure-policy-estimate>`
 	}
 
