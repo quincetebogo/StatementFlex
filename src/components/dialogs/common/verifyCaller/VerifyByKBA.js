@@ -315,6 +315,9 @@ export class VerifyByKBA extends Component {
 				.optional-qus-box {
 					--theme-layout-gap-spacing: 7px;
 				}
+				.optional-qus-box > capitec-group:first-child {
+					margin-bottom: 12px;
+				}
 				bb-multi-line-label {
 					padding-top: 4px;
 					padding-bottom: 0px;
