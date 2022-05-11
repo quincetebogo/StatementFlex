@@ -29,6 +29,8 @@ class PolicyEstimate extends Component {
 		this.genderOptions = GENDER_OPTIONS;
 		this.showAddLifeDialog = false;
 		this.canPerformEstimate = false;
+
+
 	}
 
 	//#endregion
@@ -51,7 +53,8 @@ class PolicyEstimate extends Component {
 			newTotalPremium: { type: String, state: true },
 			showAddLifeDialog: { type: Boolean, state: true },
 			canPerformEstimate: { type: Boolean, state: true },
-			mainLifeDefaultAge: { type: Number }
+			mainLifeDefaultAge: { type: Number },
+			mainLifeDefaultGender: { type: String, state: true },
 		};
 	}
 
@@ -113,7 +116,7 @@ class PolicyEstimate extends Component {
 	 * @param {Event} event Contains coverDetails & relationship from Add Life dialog
 	 */
 	_addLife(event) {
-		this.estimate.lifesAssured.push({
+		let life = {
 			relationship: event.detail.relationship,
 			coverAmount: 0,
 			premium: 0,
@@ -121,7 +124,8 @@ class PolicyEstimate extends Component {
 			age: '',
 			rowID: this.estimate.lifesAssured.length,
 			coverDetails: event.detail.coverDetails
-		});
+		}
+		this.estimate.lifesAssured.splice(1, 0, life);
 		this.showAddLifeDialog = false;
 	}
 
@@ -251,7 +255,7 @@ class PolicyEstimate extends Component {
 			relationship: "MainLife",
 			coverAmount: 5000,
 			premium: 0,
-			genderType: "Male",
+			genderType: this.mainLifeDefaultGender,
 			age: this.mainLifeDefaultAge,
 			rowID: 0,
 			coverDetails: {

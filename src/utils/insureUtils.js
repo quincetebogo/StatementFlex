@@ -8,7 +8,7 @@
  * @param {boolean} [isExtendedFamily] optional flag to identify extended family
  * @returns {Object} cover details object
  */
-export function getCoverDetailsByParams(relationship, productParams, age, isExtendedFamily) {
+ export function getCoverDetailsByParams(relationship, productParams, age, isExtendedFamily) {
 	console.log('INcoming relationship, ' + relationship);
 	console.log('Is extended: ', isExtendedFamily);
 	let appliedAgeRange = {};
@@ -113,13 +113,18 @@ export function livesPerPolicy(relationship, productParams) {
  * @returns {Number} age
  */
 export function getAgeFromDOB(strBirthday) {
-	if (strBirthday) {
-		let birthday = new Date(strBirthday);
-		let ageDifMs = Date.now() - birthday.getTime();
-		let ageDate = new Date(ageDifMs);
-		return Math.abs(ageDate.getUTCFullYear() - 1970);
-	}
-	else {
-		return 18;
-	}
+	let birthday = new Date(strBirthday);
+	let ageDifMs = Date.now() - birthday.getTime();
+	let ageDate = new Date(ageDifMs);
+	return Math.abs(ageDate.getUTCFullYear() - 1970);
+}
+
+/**
+ * Extract person gender from id number 
+ * @param {string} southAfricanIDNumber
+ * @returns {string} gender 
+ */
+export function getGenderFromIDNumber(southAfricanIDNumber) {
+	let genderSubStr = parseInt(southAfricanIDNumber.substring(6, 10));
+	return genderSubStr >= 5000 ? 'Male' : 'Female'
 }
