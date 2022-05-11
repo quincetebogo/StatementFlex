@@ -22,6 +22,10 @@
 		"fees": "https://www.capitecbank.co.za/global-one/transact/fees/"		
 	},
 	"AuthMethod": "KBA",
+	"AuthAttempts": {
+		"XDS": 2,
+		"KBA": 1
+	},
 	"LogRequestResponseModels" : true,
 	"VDN": "7250",
 	"ivrMapping": [

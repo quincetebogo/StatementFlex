@@ -84,7 +84,7 @@ export class ComponentMultiLineLabel extends Component {
 					--theme-layout-gap-spacing: var(--horizon-multi-line-value-gap, 10px);
 				}
 				capitec-label{
-					height: 20px;
+					height: var(--horizon-multi-line-label-line-height, 20px);
 					width: auto;
 					color: #3A3A3A;
 					font-family: "Hind Vadodara";
