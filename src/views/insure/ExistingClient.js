@@ -9,6 +9,7 @@ import 'app/components/insure/ClientPolicies';
 import 'app/components/insure/PolicyEstimate';
 import 'app/components/insure/UpdatePlan';
 import 'app/components/insure/PolicySummary';
+import 'app/components/insure/PayPremiumSuccess';
 
 /**
  * Implements the view for Insure verified and unverified existing clients (i.e. the client has products)
@@ -171,6 +172,16 @@ export class ExistingClient extends InsureViewBase {
 		// Telemetry Here
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY);
 	}
+	/**
+	 * Make FIPS call and Prepare and navigate Policy Summary
+	 */
+	_payArrears(e) {
+		//call fips here
+
+		// Telemetry Here
+
+		this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
+	}
 	//#endregion
 
 	//#region RENDERING
@@ -229,6 +240,8 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderUpdatePlanPage()}`
 			case INSURE_RENDER_MODE.POLICY_SUMMARY:
 				return html`${this._renderPolicySummaryPage()}`
+			case INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS:
+				return html`${this._renderPayPremiumSuccessPage()}`
 			default:
 				return html``;
 		}
@@ -242,7 +255,8 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-client-policies @navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan()}"
-				@navigate-to-policy-summary="${(e) => this._goToPolicySummary()}">
+				@navigate-to-policy-summary="${(e) => this._goToPolicySummary()}"
+				@pay-arrears ="${(e) => this._payArrears()}">
 			</horizon-insure-client-policies>`
 	}
 
@@ -278,5 +292,16 @@ export class ExistingClient extends InsureViewBase {
 			<horizon-insure-policy-summary @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-policy-summary>`
 	}
+
+	/**
+	 * Render Pay Premium Success page
+	 * @return {html} Html of the sub view
+	 */
+	_renderPayPremiumSuccessPage() {
+		return html`
+		<horizon-pay-premium-success-page @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+		</horizon-pay-premium-success-page>
+		
+	`}
 }
 customElements.define(`horizon-existing-client`, ExistingClient);

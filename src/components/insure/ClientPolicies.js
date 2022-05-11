@@ -1,5 +1,8 @@
 import { Component, css, html } from 'platform/elements';
 
+//Dialogs
+import 'app/components/dialogs/insure/PayPremiumDialog';
+
 /**
  * Client policies component showing all the policies a client currently has on their account
  * This is the primary landing screen for client that has insurance product
@@ -20,6 +23,8 @@ class ClientPolicies extends Component {
 
 	constructor() {
 		super();
+		
+		this.showPayPremiumDialog = false;
 	}
 
 	//#endregion
@@ -32,8 +37,23 @@ class ClientPolicies extends Component {
 	 */
 	static get properties() {
 		return {
+			clientArrears: { type: Object },
+			showPayPremiumDialog: { boolean: false },
 
 		};
+	}
+
+	//#endregion
+
+	//#region LIFECYCLE OVERRIDES
+
+	/**
+	 * Setup the component once added to the DOM.
+	 * @returns {void}
+	 */
+	 connectedCallback() {
+		super.connectedCallback();
+		this._initialise();
 	}
 
 	//#endregion
@@ -69,6 +89,45 @@ class ClientPolicies extends Component {
 			}
 		}));
 	}
+
+	/**
+	 * Fire navigate event to Pay Premium Success page
+	 */
+	 _payArrears(e) {
+		this.dispatchEvent(new CustomEvent(`pay-arrears`, {
+			detail: e.detail}));
+	}
+
+	/**
+	 * Open Add Life dialog returning select relationship
+	 */
+	 _openPayPremiumDialog() {
+		this.showPayPremiumDialog = true;
+	}
+
+	_closePayPremiumDialog() {
+		this.showPayPremiumDialog = false;
+	}
+
+	/**
+	 * Initialize component
+	 */
+ 	async _initialise() {
+		this.clientArrears = {};
+		this.clientArrears.arrears = [];
+		this.clientArrears.contractReference = "CF09847678";
+		this.clientArrears.arrears.push({
+			dueDate: "2020-02-29T22:00:00.0000000+00:00",
+			amount: 100.00,
+			objectID: "24324234.43"
+		});
+		this.clientArrears.arrears.push({
+			dueDate: "2020-01-29T22:00:00.0000000+00:00",
+			amount: 50.00,
+			objectID: "24294823.43"
+		});
+		
+	 }
 
 	//#endregion
 
@@ -112,8 +171,18 @@ class ClientPolicies extends Component {
 	_webTemplate() {
 		return html`
 			${this._renderContent()}
+			${this._renderDialogs()}
 		`;
 	}
+
+	/**
+	 * Generates the component template for web mode.
+	 * @returns {html} The html content of the component.
+	 */
+	 _renderDialogs() {
+		return html`
+			${this._renderPayPremiumDialog()}
+		`}
 
 	/**
 	 * Render the content HTML for the component
@@ -126,6 +195,8 @@ class ClientPolicies extends Component {
 			<capitec-label label="Insure" type="title"></capitec-label>
 			<capitec-spacer></capitec-spacer>
 			<capitec-button type="white" label="Get Estimate" @click="${() => this._goToEstimate()}">
+			</capitec-button>
+			<capitec-button type="white" label="Pay Arrears" @click="${() => this._openPayPremiumDialog()}">
 			</capitec-button>
 		</capitec-title-bar>
 		
@@ -145,6 +216,19 @@ class ClientPolicies extends Component {
 	// </capitec-button>
 	// <capitec-button type="white" label="Policy Summary" @click="${() => this._goToPolicySummary()}">
 	// </capitec-button>
+
+	/**
+	 * Render Dialog to pay arrears
+	 * @return {html} Html of the dialog
+	 */
+	 _renderPayPremiumDialog() {
+		return this.showPayPremiumDialog == false ? `` :
+			html`
+			<pay-premium-dialog  @close-modal="${(e) => this._closePayPremiumDialog(e)}" .clientArrears = ${this.clientArrears}
+			@pay-arrears = "${(e) => this._payArrears(e)}" >	
+			</pay-premium-dialog>`
+
+	}
 
 	//#endregion
 }
