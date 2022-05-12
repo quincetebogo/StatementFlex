@@ -160,14 +160,14 @@ export class VerifyByKBA extends Component {
 
 		const request = {
 			questionList: this.SQs.map(item => {
-				item.providedAnswer = item.selectedAnswer === ANSWERS.YES;
-
-				// removing local properties
-				delete item.selectedAnswer;
-				delete item.rowNum;
-				delete item.optional;
-
-				return item;
+				const temp = {
+					"questionId": item.questionId,
+					"question": item.question,
+					"answer": item.answer,
+					"providedAnswer": item.selectedAnswer === ANSWERS.YES,
+					"enabled": item.enabled
+				};
+				return temp;
 			})
 		};
 		const returnValue = await this.itaChannelService.verifyKBA(request, () => true);
@@ -271,6 +271,9 @@ export class VerifyByKBA extends Component {
 				div[slot="body"] {
 					border-bottom: 1px solid #E1E1E1;
 				}
+				.content {
+					height: 545px;
+				}
 				capitec-content-box {
 					--theme-container-padding-left: 16px;
 					--theme-container-padding-top: 13px;
@@ -312,6 +315,9 @@ export class VerifyByKBA extends Component {
 				.optional-qus-box {
 					--theme-layout-gap-spacing: 7px;
 				}
+				.optional-qus-box > capitec-group:first-child {
+					margin-bottom: 12px;
+				}
 				bb-multi-line-label {
 					padding-top: 4px;
 					padding-bottom: 0px;
@@ -324,12 +330,17 @@ export class VerifyByKBA extends Component {
 					--horizon-multi-line-value-line-height: 20px;
 					--horizon-multi-line-value-gap: 6px;
 				}
+				bb-multi-line-label[label=""] {
+					padding-top: 8px;
+					--horizon-multi-line-label-line-height: 0px;
+				}
 				capitec-label[label="OR"] {
 					line-height: 20px;
 					padding-left: 36px;
 
 					--theme-label-strong-font-size: 14px;
 					--theme-label-strong-font-weight: 600;
+					--theme-layout-gap-spacing: 0px;
 				}
 				.hide {
 					visibility: hidden;
@@ -475,7 +486,8 @@ export class VerifyByKBA extends Component {
 	}
 
 	_renderORQuestions() {
-		return html`
+		return this.orQus.length > 0 
+		? html`
 			<capitec-card>
 				<capitec-content-box class="question-box optional-qus-box" layout="vertical" gap="clear">
 					${this.orQus.map((item, index) => html`
@@ -491,7 +503,7 @@ export class VerifyByKBA extends Component {
 								</capitec-label>
 
 								<bb-multi-line-label
-									label="${item.question}"
+									label="${index === 0 ? item.question : ``}"
 									.value="${item.answer || `-`}">
 								</bb-multi-line-label>
 
@@ -518,8 +530,8 @@ export class VerifyByKBA extends Component {
 						${this._renderORLabel(index + 1, this.orQus.length)}
 					`)}
 				</capitec-content-box>
-			</capitec-card>
-		`;
+			</capitec-card>`
+		: html``;
 	}
 
 	_renderORLabel(index, length) {
