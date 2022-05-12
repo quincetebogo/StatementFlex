@@ -364,8 +364,8 @@ class PolicyTransactionHistory extends Component{
 	 * @param {*} e 
 	 */
 	async _dateChanged(e) {
-		let fromDate = DateTime.fromISO(e.detail.new.startDate);
-		let toDate = DateTime.fromISO(e.detail.new.endDate);
+		let fromDate = DateTime.fromISO(e.detail.new.startDate === null ? e.detail.old.startDate : e.detail.new.startDate);
+		let toDate = DateTime.fromISO(e.detail.new.endDate === null ? e.detail.old.endDate : e.detail.new.endDate);
 		const currentDateTime = DateTime.local();
 
 		if (toDate.diff(fromDate, [`days`]).days > 90) {
@@ -488,8 +488,8 @@ class PolicyTransactionHistory extends Component{
 				<capitec-date-time-picker
 					id="calendarRange"
 					label = "Choose a date (up to 90 days)"
-					startDate='${this.startDate}'
-					endDate='${this.endDate}'
+					startDate="${this.startDate === `dd mm yyyy` ? `` : this.startDate}"
+					endDate="${this.endDate === `dd mm yyyy` ? `` : this.endDate}"
 					maxDate="${new Date().toString()}"
 					type="range"
 					mode="date"
@@ -882,8 +882,8 @@ class PolicyTransactionHistory extends Component{
 		this.filteredData = this.policyTransactionHistory;
 
 		if (RENDER_CHIPS[FILTER_BY.DATE]) {
-			const startDate = new Date(this.startDate);
-			const endDate = new Date(this.endDate);
+			const startDate = new Date(Date.parse(this.startDate));
+			const endDate = new Date(Date.parse(this.endDate));
 
 			if(RENDER_CHIPS[FILTER_BY.DATE_TYPE] == this.dateTypeOptions[0].text)
 				this.filteredData = this.filteredData.filter(

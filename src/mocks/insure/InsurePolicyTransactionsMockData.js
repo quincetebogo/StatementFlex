@@ -9,11 +9,11 @@
 	"transactions": [
 		{
 			"premiumDueDate": "2022-04-20T12:16:05.229Z",
-			"premium": 12000,
+			"premium": 2000,
 			"type": "Premium Date",
 			"date": "2022-04-15T12:16:05.229Z",
-			"amount": 5000,
-			"reason": "verify statement",
+			"amount": 15000,
+			"reason": "",
 			"bankDetails": {
 			  "accountName": "John Smith",
 			  "branchCode": "250655",
@@ -25,11 +25,11 @@
 		},
 		{
 			"premiumDueDate": "2022-02-18T12:16:05.229Z",
-			"premium": 9000,
+			"premium": 1500,
 			"type": "Premium Date",
 			"date": "2022-04-15T12:16:05.229Z",
 			"amount": 10000,
-			"reason": "due",
+			"reason": "",
 			"bankDetails": {
 			  "accountName": "Sophia",
 			  "branchCode": "250655",
@@ -41,11 +41,11 @@
 		},
 		{
 			"premiumDueDate": "2022-03-15T12:16:05.229Z",
-			"premium": 8000,
+			"premium": 1000,
 			"type": "Date",
 			"date": "2022-03-25T12:16:05.229Z",
 			"amount": 7500,
-			"reason": "due date is over",
+			"reason": "",
 			"bankDetails": {
 			  "accountName": "Lethabo",
 			  "branchCode": "537155",
