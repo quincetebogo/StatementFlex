@@ -62,7 +62,7 @@ export default class InsureChannelServiceMocks {
 	 */
 	insureClientPolicies() {
 		if (this._mockSettings.insureClientPolicies.positiveCase) {
-			return this.clientPoliciesMocks.InsureClientPolicies;
+			return this.clientPoliciesMocks.ClientPolicies;
 		}
 		return null;
 	}

@@ -29,8 +29,6 @@ class PolicyEstimate extends Component {
 		this.genderOptions = GENDER_OPTIONS;
 		this.showAddLifeDialog = false;
 		this.canPerformEstimate = false;
-
-
 	}
 
 	//#endregion
@@ -42,6 +40,10 @@ class PolicyEstimate extends Component {
 	 * @property {Object} productParams Data & flags for insure product parameters
 	 * @property {String} newTotalPremium Tied to 'calculate by premium' input and used to track the override
 	 * @property {boolean} showAddLifeDialog Controls when to show the AddLife dialog
+	 * @property {boolean} canPerformEstimate Check to enable calculate button
+	 * @property {boolean} mainLifeDefaultAge Main life derived age
+	 * @property {boolean} mainLifeDefaultGender Main life derived gender
+	 * @property {Number} maxAllowedCover  CheckInsurance limit for remaining cover limit
 	 * 
 	 * @readonly
 	 * @static
@@ -55,6 +57,7 @@ class PolicyEstimate extends Component {
 			canPerformEstimate: { type: Boolean, state: true },
 			mainLifeDefaultAge: { type: Number, state: true },
 			mainLifeDefaultGender: { type: String, state: true },
+			maxAllowedCover: { type: Number, state: true }
 		};
 	}
 
@@ -165,11 +168,19 @@ class PolicyEstimate extends Component {
 		this.estimate.lifesAssured[index].coverDetails.genderMessage = ``;
 
 		// Over max cover check
-		if (parseInt(this.estimate.lifesAssured[index].coverAmount) > parseInt(this.estimate.lifesAssured[index].coverDetails.maxCoverAmount)) {
+		let maxCover = 0;
+		if (index == 0) {
+			maxCover = this.maxAllowedCover;
+		} else {
+			maxCover = this.estimate.lifesAssured[index].coverDetails.maxCoverAmount;
+		}
+		if (parseInt(this.estimate.lifesAssured[index].coverAmount) > parseInt(maxCover)) {
 			this.estimate.lifesAssured[index].coverDetails.coverMessage = this.estimate.lifesAssured[index].coverDetails.maxCoverMessage
-				.replace("{0:#,##0}", this.estimate.lifesAssured[index].coverDetails.maxCoverAmount);
+				.replace("{0:#,##0}", maxCover);
 			this.canPerformEstimate = false;
 		}
+
+		// Under min cover check
 		if (parseInt(this.estimate.lifesAssured[index].coverAmount) < parseInt(this.estimate.lifesAssured[index].coverDetails.minCoverAmount) ||
 			this.estimate.lifesAssured[index].coverAmount == 0) {
 			this.estimate.lifesAssured[index].coverDetails.coverMessage = this.estimate.lifesAssured[index].coverDetails.minCoverMessage
@@ -406,6 +417,11 @@ class PolicyEstimate extends Component {
 				color: #00a9f1;
 				cursor: pointer;
 			}
+
+
+			:host > .disabledButton {
+				color: #485b65!important;
+			}
 			`
 		];
 	}
@@ -442,8 +458,9 @@ class PolicyEstimate extends Component {
 			<capitec-label label="Get an estimate" type="title"></capitec-label>
 			<capitec-spacer></capitec-spacer>
 			</capitec-button>
-			<capitec-button label="Calculate" .disabled="${this.canPerformEstimate == false}" type="white"
-				data-automation-id="insure-estimate-calculate" @click="${() => this._calculateEstimate()}"></capitec-button>
+			<capitec-button label="Calculate" class="${this.canPerformEstimate == false ? 'disabledButton' : ''}"
+				.disabled="${this.canPerformEstimate == false}" type="white" data-automation-id="insure-estimate-calculate"
+				@click="${() => this._calculateEstimate()}"></capitec-button>
 		</capitec-title-bar>
 		<capitec-card id="insure-calc-card">
 			<div class="insure-calc-columns">
@@ -461,7 +478,7 @@ class PolicyEstimate extends Component {
 		return html`		
 		<div id="insure-calc-column-left">
 			${this.estimate.lifesAssured.map((lifeAssured, index) => html`
-			<div class="calc-card" id=${index !=0 ? 'calc-card-other' : '' }>
+			<div class="calc-card" id=${index != 0 ? 'calc-card-other' : ''}>
 				${index != 0 ? html`
 				<div class="calc-card-header">
 					<capitec-label data-automation-id="insure-estimate-card-relationship"
@@ -483,7 +500,7 @@ class PolicyEstimate extends Component {
 					<capitec-text-field label="Cover Amount" type="currency" class="calc-card-row-input"
 						data-automation-id="insure-estimate-card-cover"
 						@value-changed="${(e) => this._coverAmountChanged(e, index)}" value="${lifeAssured.coverAmount}"
-						hint="R${lifeAssured?.coverDetails?.minCoverAmount} - R${lifeAssured?.coverDetails?.maxCoverAmount}"
+						hint="R${lifeAssured?.coverDetails?.minCoverAmount} - R${index == 0 ? this.maxAllowedCover : lifeAssured?.coverDetails?.maxCoverAmount}"
 						error="${lifeAssured.coverDetails.coverMessage}">
 					</capitec-text-field>
 					<capitec-text-field label="Premium" type="currency" disabled hint="Estimate" class="calc-card-row-input"
