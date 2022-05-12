@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { deformatCurrency, formatCurrency } from 'app/productControls/utilities/Currency';
-import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
+import { formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelectIcon';
 
@@ -57,10 +57,13 @@ export class PayCreditCardBudget extends Component {
 		this.budgetBalance = this.budgetAccountDetails.budgetBalance;
 
 		this._getErrorMessage();
+		this._onLoading();
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+
+		this._onUnLoading();
 	}
 
 	// --------------
@@ -72,7 +75,19 @@ export class PayCreditCardBudget extends Component {
 	}
 
 	_onTransferClick() {
-		this.dispatchEvent(new CustomEvent(`transfer`, {}));
+		if (isNullorEmpty(this.bannerMessage) && isNullorEmpty(this.errorMessage)) {
+			const transferDetails = {
+				budgetName: this.budgetAccountDetails.budgetName,
+				budgetAccountNumber: this.budgetAccountDetails.budgetAccountNumber,
+				fromAccountNumber: this.productSelected.accountNumber,
+				fromAccountType: this.productSelected.accountType,
+				authorisedAmount: this.budgetBalance,
+				budgetSequenceNumber: this.budgetAccountDetails.budgetSequence,
+				productTypeCode: this.budgetAccountDetails.productTypeCode
+			};
+
+			this.dispatchEvent(new CustomEvent(`transfer`, { detail: transferDetails }));
+		}
 	}
 
 	_accountValueChanged(e) {
@@ -104,7 +119,7 @@ export class PayCreditCardBudget extends Component {
 
 		// Entered budget amount exceeds the actual outstanding budget balance
 		if (this.budgetBalance > this.budgetAccountDetails.budgetBalance) {
-			this.bannerMessage = `Transfer amount can not exceeds the badget amount.`;
+			this.bannerMessage = `Transfer amount can not exceeds the budget amount.`;
 			this.errorMessage = `Max amount ${formatCurrency(this.budgetAccountDetails.budgetBalance)}`;
 			return;
 		}
@@ -121,6 +136,18 @@ export class PayCreditCardBudget extends Component {
 		if (this.budgetBalance > deformatCurrency(this.productSelected.availableBalance)) {
 			this.errorMessage = `Transafer cannot exceed available balance`;
 		}
+
+		if (isNullorEmpty(this.budgetBalance)) {
+			this.errorMessage = `Transafer amount cannot be empty`;
+		}
+	}
+
+	_onLoading() {
+		this.dispatchEvent(new CustomEvent(`on-loading`, {}));
+	}
+
+	_onUnLoading() {
+		this.dispatchEvent(new CustomEvent(`on-unloading`, {}));
 	}
 
 	// ---------
