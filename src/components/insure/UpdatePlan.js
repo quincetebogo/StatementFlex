@@ -731,6 +731,10 @@ class UpdatePlan extends Component {
 								<capitec-text-field label="Email Address" style="width: 50%" >
 								</capitec-text-field>
 							</div>
+							<div class="expander-options">
+								<capitec-text-field label="Cover amount" style="width: 50%">
+								</capitec-text-field>
+							</div>
 						</capitec-expander>
 						
 						`
