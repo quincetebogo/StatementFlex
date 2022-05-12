@@ -148,7 +148,7 @@ _renderAlert(){
 					closable
 					>
 				</capitec-toast>
-	
+		${window.setTimeout(() => this.showSuccessAlert= false, 2000)};
 `}
 
 	//#endregion
@@ -158,3 +158,4 @@ _renderAlert(){
 }
 
 window.customElements.define(`horizon-pay-premium-success-page`, PayPremiumSuccess);
+

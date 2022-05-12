@@ -131,4 +131,16 @@ export const DEBIT_ORDER_DAY_OPTIONS = Object.freeze([
 	{ code: '29', text: `29th of every Month` },
 	{ code: '30', text: `30th of every Month` },
 	{ code: '31', text: `31st of every Month` },
+])
+
+/**
+ * List of Accounts to pay from
+ * 
+ * @readonly
+ * @enum {Object} CLIENT_ACCOUNTS
+ */
+ export const CLIENT_ACCOUNTS = Object.freeze([
+	{ code: 'Savings', text: `Savings | R24 000.35` },
+	{ code: 'Credit', text: 'Credit' }
 ]);
+;

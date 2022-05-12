@@ -1,6 +1,11 @@
-import { Component, css, html } from 'platform/elements';
+import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatDate } from 'app/utils/channelServiceUtilities';
+import 'app/components/common/HorizonSelectIcon';
+
+// Lookups
+import { CLIENT_ACCOUNTS} from 'app/constants/InsureCommon';
+
 
 class PayPremiumDialog extends Component {
 
@@ -10,7 +15,9 @@ constructor() {
 	super();
 
 	this.checked = false;
-	this.date = "";
+	
+	// Lookups
+	this.clientAccounts = CLIENT_ACCOUNTS;
 }
 
 //#endregion
@@ -58,7 +65,10 @@ constructor() {
 		this.payArrears.fromAccount = "";
 		this.payArrears.cifNumber = "";
 
+		
 	}
+
+	
 
 	//#endregion
 
@@ -112,6 +122,8 @@ constructor() {
 
 	}
 	
+	
+
 	//#endregion
 
 
@@ -176,12 +188,12 @@ constructor() {
 	 */
 	_renderDialogBody() {
 		return html`
-		
+
 			<capitec-label type="subtitle" label="Choose payment method">
 			</capitec-label>
 			
 			<capitec-select 
-				label="Choose an account"  display-field="text" id-field="code">
+				label="Choose an account" .items="${this.clientAccounts}" display-field="text" id-field="code">
 			</capitec-select>
 			
 			<capitec-label type="subtitle" label="Arrear amount">
@@ -216,6 +228,8 @@ constructor() {
 			</capitec-group>`;
 		
 		}
+
+
 	
 
 //#endregion
