@@ -15,3 +15,15 @@
 	const currencyString = amount >= 0 ? `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}` : `- R${amount.toString().substring(1).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
 	return currencyString;
 }
+
+/**
+ * Remove formating over currency
+ *
+ * @export
+ * @param {*} value Formatted currency value (E.g R 250 000)
+ * @returns {*} currency value (E.g 250000)
+ */
+ export function deformatCurrency(value) {
+	const amount = value.split(`R`)[1].replaceAll(` `, ``);
+	return parseFloat(amount);
+}

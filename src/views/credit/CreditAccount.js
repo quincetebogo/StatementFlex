@@ -12,6 +12,7 @@ import { ViewBase } from 'app/views/common/ViewBase';
 import { creditMixin } from 'app/views/credit/CreditMixin';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
+import { testPDF } from 'app/mocks/PDFMockData'; // TODO: Remove after testing
 
 import 'app/components/common/ServiceCallErrorScreen';
 import 'app/components/credit/CreditCardDetails';
@@ -26,11 +27,10 @@ import 'app/productControls/credit/src/BudgetAccountDetails';
 import 'app/productControls/credit/src/CreditAccountLanding';
 import 'app/productControls/credit/src/CreditUnverifiedLanding';
 import 'app/productControls/credit/src/PayCreditCardBudget';
+import 'app/components/dialogs/common/ViewAndEmailDocuments';
 import 'app/dialogs/credit/SettleAndCloseDialog';
 
-
-/**
- * Credit Account View
+/** Credit Account View
  * 
  * @export
  * @class CreditAccount
@@ -131,6 +131,7 @@ export class CreditAccount extends ViewBase {
 		const statements = () => this._getStatements(creditType, productType, selectedAccountDetails.productTypeCode, selectedAccountDetails.accountNumber, selectedAccountDetails.openDate);
 		const settlementQuote = () => this._settlementQuote(creditType, productType, selectedAccountDetails);
 		const settleAndClose = () => this._settleAndClose(creditType, productType, selectedAccountDetails);
+		const settleLoan = () => this._settleLoan();
 		const paidUpLetter = () => this._paidUpLetter();
 		const budgetFacility = () => this._budgetFacility(selectedAccountDetails);
 		const payBudget = () => this._payBudgetAccount(selectedAccountDetails);
@@ -143,7 +144,8 @@ export class CreditAccount extends ViewBase {
 			'paid-up-letter': paidUpLetter,
 			'settle-close': settleAndClose,
 			'budget-facility': budgetFacility,
-			'pay-budget': payBudget
+			'pay-budget': payBudget,
+			'settle-loan': settleLoan
 		};
 
 		if (actions[option]) {
@@ -259,6 +261,33 @@ export class CreditAccount extends ViewBase {
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_onSendSettleAndClosePOP(documents, email) {
+		// TODO: CS integration to send settle and close POP
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_onCancelSendSettleAndClosePOP() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_onSendSettleLoanPOP(documents, email) {
+		// TODO: CS integration to send settle and close POP
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_onCancelSendSettleLoanPOP() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_onSendPayBudgetPOP(documents, email) {
+		// TODO: CS integration to send settle and close POP
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_onCancelSendPayBudgetPOP() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -441,6 +470,15 @@ export class CreditAccount extends ViewBase {
 			"credit-type": creditType,
 			"product-type": productType
 		});
+	}
+
+	_settleLoan() {
+		// TODO: Place holder for credit settle loan flow.
+
+		if (this.ccsStatus) {
+			this.showCCSmodal = true;
+			return;
+		}
 
 		this.settleAndCloseDetails = selectedAccountDetails;
 		this.productType = this.settleAndCloseDetails.productTypeDescription;
@@ -461,6 +499,8 @@ export class CreditAccount extends ViewBase {
 
 		this.budgetFacilityAccounts = returnValue.result;
 		this.budgetFacilityAccounts.creditCardNumber = selectedAccountDetails.accountNumber;
+		this.budgetFacilityAccounts.productTypeCode = selectedAccountDetails.productTypeCode;
+	
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW;
 	}
 
@@ -598,6 +638,21 @@ export class CreditAccount extends ViewBase {
 		}
 	}
 
+	_loadSettleAndClosePOPDocument(documentId) {
+		// TODO: CS Integration to retrieve Settle and Close POP Document
+		return testPDF.content.data;
+	}
+
+	_loadSettleLoanPOPDocument(documentId) {
+		// TODO: CS Integration to retrieve Settle Loan POP Document
+		return testPDF.content.data;
+	}
+
+	_loadPayBudgetPOPDocument(documentId) {
+		// TODO: CS Integration to retrieve Pay Budget POP Document
+		return testPDF.content.data;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -649,6 +704,9 @@ export class CreditAccount extends ViewBase {
 			${this._renderPayBudgetDialog()}
 			${this._renderSettlementQuoteDialog()}
 			${this._renderCcsModal()}
+			${this._renderSettleAndCloseEmailConfirmation()}
+			${this._renderSettleLoanEmailConfirmation()}
+			${this._renderPayBudgetEmailConfirmation()}
 			${this._renderSettleCloseDisclaimer()}
 			${this._renderSettleAndCloseDialog()}
 		`;
@@ -803,6 +861,66 @@ export class CreditAccount extends ViewBase {
 				@continue="${() => this._settleAndCloseChooseAccount()}">
 			</horizon-settle-n-close-disclaimer>`
 		: html``;
+	}
+
+	_renderSettleAndCloseEmailConfirmation() {
+		// TODO: Remove mock once CS integration is complete
+		const mockDocuments = [
+			{
+				title: `Credit Card`,
+				subtitle: `Proof of transfer`
+			}
+		];
+
+		return this.renderMode === RENDER_MODE.VIEW_AND_SEND_SETTLE_AND_CLOSE_POP ? html`
+			<horizon-view-and-send-document
+				modalHeader="Settle and Close: Proof of Payment" 
+				.documents="${mockDocuments}"
+				.loadDocumentContent="${this._loadSettleAndClosePOPDocument}"
+				@send-pdf-click="${(e) => this._onSendSettleAndClosePOP(e.documents, e.email)}"
+				@cancel-send-pdf-click="${() => this._onCancelSendSettleAndClosePOP()}">
+			</horizon-view-and-send-document>
+		` : html``;
+	}
+
+	_renderSettleLoanEmailConfirmation() {
+		// TODO: Remove mock once CS integration is complete
+		const mockDocuments = [
+			{
+				title: `86 Month Term Loan`,
+				subtitle: `Proof of transfer`
+			}
+		];
+
+		return this.renderMode === RENDER_MODE.VIEW_AND_SEND_SETTLE_LOAN_POP ? html`
+			<horizon-view-and-send-document
+				modalHeader="Settle Loan: Proof of Payment" 
+				.documents="${mockDocuments}"
+				.loadDocumentContent="${this._loadSettleLoanPOPDocument}"
+				@send-pdf-click="${(e) => this._onSendSettleLoanPOP(e.documents, e.email)}"
+				@cancel-send-pdf-click="${() => this._onCancelSendSettleLoanPOP()}">
+			</horizon-view-and-send-document>
+		` : html``;
+	}
+
+	_renderPayBudgetEmailConfirmation() {
+		// TODO: Remove mock once CS integration is complete
+		const mockDocuments = [
+			{
+				title: `Budget Name`,
+				subtitle: `Proof of transfer`
+			}
+		];
+
+		return this.renderMode === RENDER_MODE.VIEW_AND_SEND_PAY_BUDGET_POP ? html`
+			<horizon-view-and-send-document
+				modalHeader="Pay Budget: Proof of Payment" 
+				.documents="${mockDocuments}"
+				.loadDocumentContent="${this._loadPayBudgetPOPDocument}"
+				@send-pdf-click="${(e) => this._onSendPayBudgetPOP(e.documents, e.email)}"
+				@cancel-send-pdf-click="${() => this._onCancelSendPayBudgetPOP()}">
+			</horizon-view-and-send-document>
+		` : html``;
 	}
 
 	_renderSettleAndCloseDialog() {

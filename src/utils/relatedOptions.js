@@ -84,7 +84,8 @@ export const relatedOptions = {
 	'settlement-quote-credit-card': CREDIT_RO,
 	'settlement-quote-access-facility': CREDIT_RO,
 	'settlement-quote-term-loan': CREDIT_RO,
-	'settle-close-credit-card': {
+	'pay-budget-credit-card': CREDIT_RO,
+	'settle-close-credit-card':{
 		Success: [
 			`paid-up-accounts`,
 			`statements`
