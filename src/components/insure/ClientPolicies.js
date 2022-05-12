@@ -97,7 +97,7 @@ class ClientPolicies extends Component {
 	{
 		policyItem.isExpanded = true;
 
-		this._policies.forEach(item => { if (item.contractReference != policyItem.contractReference ) item["isExpanded"] = false ;})
+		this.policiesList?.forEach(item => { if (item.contractReference != policyItem.contractReference ) item["isExpanded"] = false ;})
 
 		this.requestUpdate();
 	}
@@ -211,6 +211,7 @@ class ClientPolicies extends Component {
 			}
 			horizon-expander[expanded] {
 				box-shadow: 0 6px 10px 0.25px rgb(0 0 0 / 7%);
+				display: block;
 			}
 			.expander-header > capitec-icon {
 				--theme-icon-size-default: 20px;
@@ -337,7 +338,7 @@ class ClientPolicies extends Component {
 					data-automation-id="insure-landing-quotes-tab"
 					label="Quotes">
 					<capitec-content-box  class="accounts-box">
-						Coming Soon
+						<label>Client Policies - Coming soon to a sprint near you!</label>
 					</capitec-content-box>
 					${this._renderFooter()}
 				</capitec-tab>
@@ -350,12 +351,12 @@ class ClientPolicies extends Component {
 	 */
 	_renderPolciesDetailsBar()
 	{
-		var policiesList = this.clientPolicies?.summaryDetails?.policies;
+		this.policiesList = this.clientPolicies?.summaryDetails?.policies;
 
-		return html `${ policiesList?.length > 0 ? policiesList?.map((policyItem, index) => html`
+		return html `${ this.policiesList?.length > 0 ? this.policiesList?.map((policyItem, index) => html`
 		<horizon-expander
 			expandButtonAlignment="right"
-			?expanded = "${index === 0}" 
+			?expanded = "${policyItem.isExpanded}" 
 			@expand = "${() => this._expanded(policyItem)}"
 			@collapse = "${() => this._collapsed(policyItem)}">
 				<capitec-group 
@@ -365,7 +366,7 @@ class ClientPolicies extends Component {
 					gap="clear"
 					halign="left"
 					valign="center">
-					${policyItem.arrearDetails.arrears?.length > 0 ? html`<capitec-icon class="capitec-info-icon" icon="system/info-action"
+					${policyItem.arrearDetails.outstandingAmount > 0 ? html`<capitec-icon class="capitec-info-icon" icon="system/info-action"
 						@click="${(policyItem) => this._goToPolicySummary(policyItem.contractReference)}"></capitec-icon>` 
 							: html`<span class="policy-item"></span>`}
 						<horizon-label
@@ -425,7 +426,7 @@ class ClientPolicies extends Component {
 		return html`
 			<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
 			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
-				${policyItem.arrearDetails.arrears?.length > 0 ? 
+				${policyItem.arrearDetails.outstandingAmount > 0 ? 
 					html `
 				<horizon-option-button 
 					data-automation-id="insure-policy-options-pay-arrears"
@@ -452,7 +453,7 @@ class ClientPolicies extends Component {
 					label="Email Plan" 
 					icon="system/profile-action">
 				</horizon-option-button>
-				${policyItem.arrearDetails.arrears?.length < 1 ? 
+				${policyItem.arrearDetails.outstandingAmount < 1 ? 
 					html `
 				<horizon-option-button 
 					data-automation-id="insure-policy-options-benefits"
@@ -476,10 +477,12 @@ class ClientPolicies extends Component {
 		return html`
 		<capitec-card class="action-card">
 			<capitec-overflow-menu label="More" data-automation-id = "insure-policy-more-sub-menu">
+				<div class="test">
 				<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan"></capitec-overflow-menu-item>
-				${policyItem.arrearDetails.arrears?.length > 0 ?
+				${policyItem.arrearDetails.outstandingAmount > 0 ?
 					html `<capitec-overflow-menu-item icon="system/sars-action" label="Benefits"></capitec-overflow-menu-item>`
 					: ``}
+					</div>
 			</capitec-overflow-menu>
 			<capitec-label label="More" class="label-text">
 			</capitec-label>
