@@ -58,6 +58,7 @@ export class VerifyByKBA extends Component {
 		this.SQs = [];
 		this.mandatoryQus = [];
 		this.orQus = [];
+		this._enableVerify = false;
 
 		this.logger = Logger.getInstance();
 		this.telemetry = HorizonTelemetry.getInstance();
@@ -86,17 +87,6 @@ export class VerifyByKBA extends Component {
 			mandatoryQus: { state: true },
 			orQus: { state: true }
 		};
-	}
-
-	get canVerify() {
-		// Checking if all mandatory questions are answered
-		const mandatoryAnswered = this.SQs.filter(item => !item.optional)
-												.every(item => Boolean(item.selectedAnswer));
-		// Checking if atleast one of optional questions are answered
-		const optionalAnswered = this.SQs.filter(item => item.optional)
-											   .some(item => Boolean(item.selectedAnswer));
-
-		return mandatoryAnswered && optionalAnswered;
 	}
 
 	// -------------------
@@ -241,13 +231,25 @@ export class VerifyByKBA extends Component {
 	async _applyChanges() {
 
 		/**
-		 * Rule: Auto navigate/ trigger verify answers when
-		 * Q1 to Q3 is answered and one of optional is answered
+		 * Rule 1: If one of the answers is NO, then
+		 * disable direct verification and enable verify button
 		 */
-		const isAllAnswered = this.mandatoryQus.every(item => Boolean(item.selectedAnswer)) &&
-						 	  this.orQus.some(item => Boolean(item.selectedAnswer));
+		const isNoSelected = this.mandatoryQus.some(item => item.selectedAnswer === ANSWERS.NO) ||
+							 this.orQus.some(item => item.selectedAnswer === ANSWERS.NO);
 
-		if (isAllAnswered) {
+		// Why we are OR conditioning here? Once verify button is enabled, there is no
+		// disabling back or direct verification
+		this._enableVerify = this._enableVerify || isNoSelected;
+
+		/**
+		 * Rule 2: 
+		 * Mandatory qus: all YES 
+		 * Optional 1: NO
+		 * Optional 2: YES, then do direct verification
+		 */
+		const allYes = this.mandatoryQus.every(item => item.selectedAnswer === ANSWERS.YES) &&
+		 			   this.orQus.some(item => item.selectedAnswer === ANSWERS.YES);
+		if (allYes && !this._enableVerify) {
 			await this._verifyAnswers();
 		}
 
@@ -401,6 +403,7 @@ export class VerifyByKBA extends Component {
 	_renderBody() {
 		return html`
 			<capitec-content-box
+				class="content"
 				layout="vertical"
 				halign="stretch"
 				valign="top"
@@ -562,8 +565,7 @@ export class VerifyByKBA extends Component {
 					id="id-verify-button"
 					type="primary"
 					label="Verify"
-					?disabled="${!this.canVerify}"
-					?hidden="${true}"
+					?disabled="${!this._enableVerify}"
 					@click="${() => this._verifyAnswers()}">
 				</capitec-button>
 			</capitec-group>

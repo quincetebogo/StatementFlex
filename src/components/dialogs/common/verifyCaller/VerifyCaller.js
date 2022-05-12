@@ -740,7 +740,8 @@ export class VerifyCaller extends Component {
 
 	_failedFirstXdsAttempt() {
 		return this.hasSouthAfricanID && 
-			   this.xdsAttempts === 1;
+			   this.xdsAttempts === 1 &&
+			   this.authMethod === AUTH_METHODS.XDS; // This is specific to XDS flow
 	}
 
 	_xdsAttemptsExceeded() {
@@ -750,7 +751,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_kbaAttemptsExceeded() {
-		return this.kbaAttempts >= MAX_ITA_ATTEMPTS;
+		return this.kbaAttempts >= MAX_KBA_ATTEMPTS;
 	}
 
 	_ItaAvailable() {

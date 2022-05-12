@@ -203,8 +203,8 @@ export class Favourites extends SavingsAccountBase {
 		// re-initialise the page when the verification status changes
 		// verificationStatus is on the this.callerInformation object
 		
-		if (this.callerInformation.verificationStatus !== `verified`) {
-        await this._initialise();
+		if (this.callerInformation.verificationStatus === `verified`) {
+			await this._initialise();
 		}
 	}
 
