@@ -29,6 +29,7 @@ export class ExistingClient extends InsureViewBase {
 		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.estimate = {};
+		this.policyDetails = {};
 	}
 
 	/**
@@ -45,7 +46,8 @@ export class ExistingClient extends InsureViewBase {
 			clientPolicies: { type: Object, state: true },
 			productParams: { type: Object, state: true },
 			estimate: { type: Object, state: true },
-			quote: { type: Object, state: true }
+			quote: { type: Object, state: true },
+			policyDetails: { type: Object, state: true }
 		};
 	}
 
@@ -76,6 +78,19 @@ export class ExistingClient extends InsureViewBase {
 			idNumber: idNumber,
 		}
 		const resp = await this.insureService.clientPolicies(request);
+		return resp.result;
+	}
+
+		/**
+	 * Retrieve Policy Summary via insure channel service
+	 * @returns {Object} Policy Summary Details 
+	 */
+	async _retrievePolicySummary(contractReference, cifNumber) {
+		let	request = {
+			contractReference: contractReference,
+			cifNumber: cifNumber,
+		}
+		const resp = await this.insureService.insurePolicySummary(request);
 		return resp.result;
 	}
 
@@ -123,6 +138,7 @@ export class ExistingClient extends InsureViewBase {
 	async _initialise() {
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		this.clientPolicies = await this._retrieveClientPolicies();
+		this.cifNumber = this.callerInformation.cifNumber;
 	}
 
 	_getMainlifeAge() {
@@ -167,8 +183,10 @@ export class ExistingClient extends InsureViewBase {
 	/**
 	 * Prepare and navigate Policy Summary
 	 */
-	_goToPolicySummary() {
+	async _goToPolicySummary(e) {
 		// Telemetry Here
+		this.policyDetails = await this._retrievePolicySummary(e.detail.policyContractReference
+			, this.cifNumber);
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY);
 	}
 	//#endregion
@@ -243,7 +261,7 @@ export class ExistingClient extends InsureViewBase {
 			<horizon-insure-client-policies .clientPolicies = "${this.clientPolicies}"
 				@navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan()}"
-				@navigate-to-policy-summary="${(e) => this._goToPolicySummary()}">
+				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}">
 			</horizon-insure-client-policies>`
 	}
 
@@ -276,7 +294,9 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderPolicySummaryPage() {
 		return html`
-			<horizon-insure-policy-summary @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+			<horizon-insure-policy-summary 
+				.policyDetails = "${this.policyDetails}"
+				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-policy-summary>`
 	}
 }

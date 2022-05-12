@@ -1,3 +1,9 @@
+/**
+ * ClientPolicies mock response
+ *
+ * @export
+ * @constant ClientPolicies
+ */
 export const ClientPolicies = {
 	"checkInsuranceDetails": [
 		{
