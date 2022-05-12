@@ -16,6 +16,7 @@
 	SECURITY_QUESTIONS_FAILURE: `Security Questions Failure`,
 	XDS_FAILED: `XDS Verification Failed`,
 	ITA_FAILED: `ITA Verification Failed`,
+	KBA_FAILED: `KBA Verification Failed`,
 
 	STOP_CARD: `Stop Card`,
 	STOP_CARD_OUTCOME: `Stop Card Outcome`,
@@ -97,15 +98,31 @@
 	SAVINGS_PLAN_TAX_CERTIFICATE: `Savings Plan Tax Certificate`,
 	SAVINGS_PLAN_PRODUCT_ENQUIRY: `Savings Plan Product Enquiry`,
 	SAVINGS_PLAN_SAVINGS_CALCULATOR: `Savings Plan Savings Calculator`,
-  SAVINGS_PLAN_INTEREST_RATES: `Savings Plan Interest Rates`,
+	SAVINGS_PLAN_INTEREST_RATES: `Savings Plan Interest Rates`,
 
 
 	CREDIT_LANDING: `Credit Landing`,
 	CREDIT_ACCOUNT_DETAILS: `Credit Account details`,  
 	CREDIT_TRANSACTION_HISTORY: `Credit Transaction History`,
 	CREDIT_STATEMENTS: `Credit Statements`,
-	CREDIT_SETTLEMENT_QUOTE: `Credit Settlement Quote`,
+	SETTLEMENT_QUOTE_DIALOG: `Settlement Quote Dialog`,
 	CREDIT_SETTLE_CLOSE: `Credit Settle Close`,
 	CREDIT_STATEMENTS_SUCCESS: `Credit Statement success`,
-	CREDIT_STATEMENTS_FAILURE: `Credit Statement failure`  
+	CREDIT_STATEMENTS_FAILURE: `Credit Statement failure`,
+	CREDIT_BUDGET_ACCOUNT: `Credit Budget facility view`,
+	CREDIT_BUDGET_ACCOUNT_DETAILS: `Credit Budget account details`,
+	CREDIT_PAY_BUDGET_MODAL: `Credit Pay Budget Modal`,
+	CREDIT_PAY_BUDGET_SUCCESS: `Credit Pay Budget success screen`,
+	CREDIT_PAY_BUDGET_FAILURE: `Credit Pay Budget failure screen`,
+
+	PROOF_OF_PAYMENT_DIALOG: `Send Proof of Payment Dialog`,
+	PROOF_OF_PAYMENT_SUCCESS: `Proof of payment success`,
+	PROOF_OF_PAYMENT_FAILURE: `Proof of payment failure`,
+
+	SETTLEMENT_QUOTE_VIEW: `Settlement Quote Accounts view`,
+	SETTLEMENT_QUOTE_SUCCESS: `Settlement Quote Success screen`,
+	SETTLEMENT_QUOTE_FAILURE: `Settlement Quote Failure screen`,
+	SETTLEMENT_QUOTE_PARTIAL_SUCCESS: `Settlement Quote Partial Success screen`,
+
+	KBA: `KBA Dialog`
 };

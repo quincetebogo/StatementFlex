@@ -1,4 +1,8 @@
 import { css, html } from 'platform/elements';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { SETTLEMENT_QUOTE_EVENTS as SettlementQuoteCreditEvents } from 'app/constants/telemetry/events/Credit';
+import { SETTLEMENT_QUOTE_EVENTS as SettlementQuoteFavouritesEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
@@ -12,7 +16,7 @@ import 'app/components/common/RelatedOptions';
  * @extends {ViewBase}
  */
 
- export class SettlementQuoteFailure extends ViewBase {
+export class SettlementQuoteFailure extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -21,8 +25,10 @@ import 'app/components/common/RelatedOptions';
 	constructor() {
 		super();
 
-		this.selectedAccounts = [];
+		this.failedAccounts = [];
 		this.emailAddress = ``;
+		this.telemetryEvents = {};
+		this.returnToScreen = ``;
 		this.endCallContext = `QuickTransactionsUnSuccess`;
 	}
 
@@ -37,10 +43,15 @@ import 'app/components/common/RelatedOptions';
 
 	connectedCallback() {
 		super.connectedCallback();
+		
+		this.returnToScreen = this.horizonStore.getReturnToScreen().route.title;
+		this.telemetryEvents = this.returnToScreen === `Favourites` ? SettlementQuoteFavouritesEvents : SettlementQuoteCreditEvents;
+
+		this._telemetry.startSpan(this.telemetryEvents.SETTLEMENT_QUOTE_FAILURE);
 
 		this.screenDetails = this.horizonStore.getScreenDetails();
 
-		this.selectedAccounts = this.screenDetails && this.screenDetails.selectedAccounts;
+		this.failedAccounts = this.screenDetails?.emailStatus.filter(account => !account.sentStatus).map(item => item.productTypeDescription);
 		this.emailAddress = this.screenDetails && this.screenDetails.emailAddress;
 
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
@@ -56,6 +67,14 @@ import 'app/components/common/RelatedOptions';
 	// --------------
 
 	_doneClick() {
+		this._telemetry.logEvent(this.telemetryEvents.SETTLEMENT_QUOTE_FAILURE_DONE, {
+			"screen": TelemetryScreen.SETTLEMENT_QUOTE_FAILURE,
+			"next-screen": this.returnToScreen === `Favourites` ? TelemetryScreen.FAVOURITES : TelemetryScreen.CREDIT_LANDING
+		});
+
+		this._telemetry.endSpan(this.telemetryEvents.SETTLEMENT_QUOTE_FAILURE, {}, true, true);
+		this._telemetry.endSpan(QuickTransactionEvents.SETTLEMENT_QUOTE, {});
+
 		const returnToScreen = this.horizonStore.getReturnToScreen();
 		this.horizonStore.setReturnScreen(returnToScreen.route, ``);
 
@@ -64,8 +83,34 @@ import 'app/components/common/RelatedOptions';
 	}
 
 	_tryAgain() {
+		this._telemetry.logEvent(this.telemetryEvents.SETTLEMENT_QUOTE_FAILURE_TRY_AGAIN, {
+			"screen": TelemetryScreen.SETTLEMENT_QUOTE_FAILURE,
+			"next-screen": TelemetryScreen.SETTLEMENT_QUOTE_DIALOG
+		});
+
+		this._telemetry.endSpan(this.telemetryEvents.SETTLEMENT_QUOTE_FAILURE);
+		this._telemetry.endSpan(QuickTransactionEvents.SETTLEMENT_QUOTE, {});
+
 		this.horizonRouter.navigateToReturnPage();
 	}
+
+	_formateAccountNames(accounts) {
+		if (accounts.length === 1) {
+			return `${accounts[0].toLowerCase()}`;
+		}
+
+		if (accounts.length === 2) {
+			return `${accounts.join(` and `).toLowerCase()}`;
+		}
+
+		if (accounts.length > 2) {
+			const lastAccount = accounts.slice(-1)[0];
+			return `${accounts.slice(0, -1).join(`, `).toLowerCase()} and ${lastAccount.toLowerCase()}`;
+		}
+
+		return ``;
+	}
+
 
 	// ---------
 	// RENDERING
@@ -80,9 +125,9 @@ import 'app/components/common/RelatedOptions';
 				}
 				#id-error-msg {
 					width: auto;
-                    font-weight:500;
-                    color:#3A3A3A;
-                    margin-bottom:35px;
+					font-weight:500;
+					color:#3A3A3A;
+					margin-bottom:35px;
 				}
 			`
 		];
@@ -94,26 +139,26 @@ import 'app/components/common/RelatedOptions';
 
 	_webTemplate() {
 		return html`
-			${this._renderProofOfAccountFailure()}
+			${this._renderFailureScreenContent()}
 			${this._renderRelatedOptions()}
 
 			${super._webTemplate()}
 		`;
 	}
 
-	_renderProofOfAccountFailure() {
+	_renderFailureScreenContent() {
 		return html`
 			<horizon-error-screen
 				data-automation-id="settlement-quote-failure-screen"
 				image="/images/statements/senddocuments.svg"
-				header="Settlement quote not sent" 
+				header="Settlement quote${this.failedAccounts.length > 1 ? `s` : ``} not sent" 
 				left="Done"
 				right="Try Again"
-				toast="Settlement quote not sent"
+				toast="Settlement quote${this.failedAccounts.length === 1 ? ` for ${this.failedAccounts[0].toLowerCase()}` : `s`} was not sent"
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._tryAgain()}>
 				<section id="id-error-msg" slot="detail">
-						Settlement quote ${this.selectedAccounts.length === 1 ? `for ${this.selectedAccounts[0].productTypeDescription.toLowerCase()}` : ``} was not emailed to <b>${this.emailAddress}</b>.
+					Settlement quote for <b> ${this._formateAccountNames(this.failedAccounts)}</b> was not emailed to <b>${this.emailAddress}</b>.
 				</section>
 			</horizon-error-screen>
 		`;

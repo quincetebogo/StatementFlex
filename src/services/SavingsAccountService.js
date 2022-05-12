@@ -117,12 +117,12 @@ export class SavingsAccountService extends ChannelServiceBase {
 
 		const request = {
 			cifNumber: cifNumber,
-			mandateReferenceNumber: debiCheckDetails.mandateReferenceNumber,
+			mandateReferenceNumber: debiCheckDetails.mandateReference,
 			debtorAccountNumber: debiCheckDetails.debtorAccountNumber,
 			accepted: accepted,
 			title: title,
 			lastName: lastName,
-			collectorName: mandateInfo.collectorName,
+			collectorName: mandateInfo.mandateName,
 			instalmentAmount: mandateInfo.amount,
 			firstCollectionDate: debiCheckDetails.firstCollectionDate
 		};
@@ -341,19 +341,6 @@ export class SavingsAccountService extends ChannelServiceBase {
 		};
 
 		const url = `/clientcare-savingsaccount-${this._version}/savings-plan-landing`;
-		
-		/*
-		return this.get(
-			url, 
-			this.setToken(), 
-			`savingsPlanLanding`,
-			null,
-			null,
-			null,
-			errorHandler,
-			autoRetries
-		);
-		*/
 
 		return this.post(
 			url,

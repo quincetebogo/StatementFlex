@@ -61,8 +61,12 @@ export default class HorizonChannelServiceMocks {
 		this.liveBetterLandingMocks = await this._loadMockModule(this.liveBetterLandingMocks, `liveBetterLanding`, () => import(`../mocks/LiveBetterLandingMocks`).catch(err => logError(err)));
 		this.clientInsightsMocks = await this._loadMockModule(this.clientInsightsMocks, `getClientInsights`, () => import(`../mocks/ClientInsightsMocks`).catch(err => logError(err)));
     	this.accessChannelsMocks = await this._loadMockModule(this.accessChannelsMocks, `accessChannelLanding`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err)));    
-    	this.creditMocks = await this._loadMockModule(this.creditMocks, `creditBalance`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));      
-    	this.creditMocks = await this._loadMockModule(this.creditMocks, `creditOverview`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));   
+    	this.creditMocks = await this._loadMockModule(this.creditMocks, `creditBalance`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+    	this.creditMocks = await this._loadMockModule(this.creditMocks, `creditOverview`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+    	this.creditMocks = await this._loadMockModule(this.creditMocks, `sendSettlementQuoteEmail`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+    	this.budgetFacility = await this._loadMockModule(this.budgetFacility, `budgetTransferFromAccounts`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
+    	this.budgetFacility = await this._loadMockModule(this.budgetFacility, `confirmBudgetTransfer`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
+		this.kbaMocks = await this._loadMockModule(this.kbaMocks, `loadKBA`, () => import(`../mocks/KBAMocks`).catch(err => logError(err)));
 	}
 
 	// ===============================
@@ -391,11 +395,95 @@ export default class HorizonChannelServiceMocks {
 		return errPromise;
 	}
 
-	verifyKBA() {
-		if (this._mockSettings.verifyKBA.positiveCase) {
-			return {};
+	loadKBA(identifiedBy) {
+		if (this._mockSettings.loadKBA.positiveCase) {
+
+			const questions = this.kbaMocks.questions.questionList.map(item => {
+
+				switch (true) {
+					case identifiedBy === `VERIFIEDCELLPHONENUMBER` && item.questionId === 2:
+					case identifiedBy === `ACCOUNTNUMBER` && item.questionId === 3:
+						item.providedAnswer = true;
+						item.enabled = false;
+						break;
+
+					default:
+						item.providedAnswer = false;
+						item.enabled = true;
+						break;
+				}
+
+				return item;
+			});
+
+			return {
+				"questionList": questions
+			};
 		}
 
-		return new Error(`Oh no! A fake 400!`);
+		return null;
+	}
+
+	verifyKBA(request) {
+		if (this._mockSettings.verifyKBA.positiveCase) {
+			const max = 4;
+			const correctAnswers = request?.questionList.filter(item => item.providedAnswer)
+														  .length;
+			const reason = {
+				0: `ALLCORRECTLYANSWERED`,
+				1: `ONEWRONGANSWER`,
+				2: `TWOWRONGANSWERS`,
+				3: `THREEWRONGANSWERS`,
+				4: `FOURWRONGANSWERS`
+			};
+
+			return {
+				"verificationStatus": correctAnswers >= max ? `VERIFIED` : `UNVERIFIED`,
+				"verificationStatusReason": reason[max - correctAnswers]
+			};
+		}
+
+		return null;
+	}
+
+	sendSettlementQuoteEmail() {
+		if (this._mockSettings.sendSettlementQuoteEmail.positiveCase) {
+			// TODO: Add postive case data
+			return [];
+		}
+
+		const errPromise = new Promise(() => {
+			const httpError = new HttpStatusError();
+			httpError.status = 400;
+			httpError.message = `Oh no! A fake 400!`;
+	
+			throw httpError;
+		});
+
+		return errPromise;
+	}
+
+	budgetTransferFromAccounts() {
+		if (this._mockSettings.budgetTransferFromAccounts.positiveCase) {
+			return this.budgetFacility.payBudgetModalDetails;
+		}
+		return null;
+	}
+
+	confirmBudgetTransfer() {
+		if (this._mockSettings.confirmBudgetTransfer.positiveCase) {
+			return this.budgetFacility.budgetTransferDetails;
+		}
+		return null;
+	}
+
+	emailProofOfPayment() {
+		if (this._mockSettings.emailProofOfPayment.positiveCase) {
+			return {
+				"isSuccess": true,
+				"errorReasons": null
+			};
+		}
+		return null;
 	}
 }

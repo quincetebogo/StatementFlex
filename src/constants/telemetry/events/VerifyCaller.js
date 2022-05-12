@@ -21,7 +21,7 @@
 	ITA_TIMEDOUT: `call.verify-caller.ita.timeout`,
 	ITA_CANCEL_CLICK: `call.verify-caller.ita.cancel`,
 
-	// Verify Caller by Security Question
+	// Verify Caller by Security Questions - XDS
 	VERIFY_CALLER_XDS: `call.verify-caller.xds`,
 	XDS_SKIP: `call.verify-caller.xds.skip-verification`,
 	XDS_CANCEL: `call.verify-caller.xds.cancel`,
@@ -40,5 +40,18 @@
 	// XDS failed
 	XDS_VERIFICATION_FAILED: `call.xds-failed`,
 	XDS_VERIFICATION_FAILED_CONTINUE_UNVERIFIED: `call.xds-failed.continue-unverified`,
-	XDS_VERIFICATION_FAILED_VERIFY_VIA_APP: `call.xds-failed.verify-via-app-ussd`
+	XDS_VERIFICATION_FAILED_VERIFY_VIA_APP: `call.xds-failed.verify-via-app-ussd`,
+
+	// Verify Caller by Security Questions - KBA
+	KBA: `call.verify-caller.kba`,
+	KBA_SKIP: `call.verify-caller.kba.skip-verification`,
+	KBA_CANCEL: `call.verify-caller.kba.cancel`,
+	KBA_END_CALL: `call.verify-caller.kba.end-call`,
+	KBA_VERIFY: `call.verify-caller.kba.verify`,
+	KBA_OUTCOME: `call.verify-caller.kba.outcome`,
+
+	// KBA failed
+	KBA_VERIFICATION_FAILED: `call.kba-failed`,
+	KBA_VERIFICATION_FAILED_CONTINUE_UNVERIFIED: `call.kba-failed.continue-unverified`,
+	KBA_VERIFICATION_FAILED_VERIFY_VIA_APP: `call.kba-failed.verify-via-app-ussd`
  };
