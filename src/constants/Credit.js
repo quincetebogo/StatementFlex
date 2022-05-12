@@ -63,3 +63,25 @@ export const PERMISSION_STATUS = Object.freeze({
 	GRANTED: `Granted`,
 	DENIED: `Denied`
 });
+
+/**
+ * Available account statuses for input to the credit overview CS.
+ */
+export const ACCOUNT_STATUS = Object.freeze({
+	UNSPECIFIED: `Unspecified`,
+	ALL: `All`,
+	ACTIVE: `Active`,
+	CLOSED: `Closed`,
+	PAID_UP: `Paidup`
+});
+	
+export const FROM_ACCOUNTS = {
+	'Primary': {
+		icon: `product/transact`,
+		order: 1
+	},
+	'Flexible': {
+		icon: `product/save`,
+		order: 2
+	}
+};

@@ -6,8 +6,8 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
-import { SEARCH_OPTIONS } from 'app/constants/SearchOptions';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { SEARCH_OPTIONS } from 'app/constants/SearchOptions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -608,7 +608,8 @@ export class SearchCaller extends Component {
             middleName2: identifiedClient.callerInformation.middleName2,
             middleName3: identifiedClient.callerInformation.middleName3,
             lastName: identifiedClient.callerInformation.lastName,
-            initials: identifiedClient.callerInformation.initials
+            initials: identifiedClient.callerInformation.initials,
+			identifiedBy: this.searchType.identificationType
 		};
 
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
@@ -632,7 +633,8 @@ export class SearchCaller extends Component {
 			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber,
 			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber,
 			isBranchConsultant: true,
-			isClientPresent: this.clientInBranch
+			isClientPresent: this.clientInBranch,
+			identifiedBy: this.searchType.identificationType
 		};
 
 		await this._updateIncidentBranchDetails(this.branchCode);

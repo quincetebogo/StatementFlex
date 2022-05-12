@@ -1,9 +1,11 @@
 import { Component, css, html } from 'platform/elements';
 import { Configuration, EventAggregator, Logger } from 'platform/core';
+import { AUTH_METHODS } from 'app/constants/Common';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { ITAChannelService } from 'app/services/ITAChannelService';
 import { ItaCallerVerification } from 'app/services/ItaCallerVerification';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { VerifyCallerEvents } from 'app/constants/telemetry/events/VerifyCaller';
@@ -14,10 +16,11 @@ import 'app/components/common/CallerDialog';
 import 'app/components/common/ComponentCountdown';
 import 'app/components/dialogs/common/EndCallSession';
 
-import 'app/components/dialogs/common/verifyCaller/VerifyBySecurityQuestions';
 import 'app/components/dialogs/common/verifyCaller/NotRegisteredForIta';
 import 'app/components/dialogs/common/verifyCaller/PushNotificationStatus';
 import 'app/components/dialogs/common/verifyCaller/PushNotificationError';
+import 'app/components/dialogs/common/verifyCaller/VerifyByKBA';
+import 'app/components/dialogs/common/verifyCaller/VerifyBySecurityQuestions';
 import 'app/components/dialogs/common/verifyCaller/VerificationUnavailable';
 import 'app/components/dialogs/common/verifyCaller/XdsAttemptFailed';
 import 'app/components/dialogs/common/verifyCaller/XdsBlocked';
@@ -25,17 +28,18 @@ import 'app/components/dialogs/common/verifyCaller/XdsUnavailable';
 
 const RENDER_MODE = Object.freeze({
 	VERIFY_CALLER: 1,
-	SECURITY_QUESTIONS: 2,
-	END_CALL: 3
+	XDS_SQ: 2,
+	END_CALL: 3,
+	KBA_SQ: 4
 });
 
 const HEADER_LABEL = `Verify Caller`;
 
 const MAX_ITA_ATTEMPTS = 3;
 const MAX_XDS_ATTEMPTS = 2;
+const MAX_KBA_ATTEMPTS = 1;
 
 const ITA_TIMEOUT_SECS = 70;
-
 
 /**
  * The Horizon Verify Caller Details Dialog is used to verify a Capitec Client.
@@ -64,7 +68,7 @@ export class VerifyCaller extends Component {
 		this.isBusy = false;
 		this.isLoading = true;
 
-		this.xdsUnavailable = false;
+		this.SQUnavailable = false;
 		this.xdsBlocked = false;
 
 		this.itaInProgress = false;
@@ -74,6 +78,7 @@ export class VerifyCaller extends Component {
 		this.timeLeft = ITA_TIMEOUT_SECS;
 
 		this.hasSouthAfricanID = false;
+		this.kbaQuestions = [];
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
@@ -83,6 +88,7 @@ export class VerifyCaller extends Component {
 		this.telemetry = HorizonTelemetry.getInstance();
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag());
+		this.itaChannelService = new ITAChannelService(() => this._toggleBusyFlag(), () => true);
 		this.itaService = new ItaCallerVerification(
 			(status, attempt) => this._verificationStatusCallBack(status, attempt),
 			() => this._toggleBusyFlag(), 
@@ -111,11 +117,12 @@ export class VerifyCaller extends Component {
 
 			renderMode: { state: true },
 			hasSouthAfricanID: { state: true },
-			xdsUnavailable: { state: true }, // Set when there has been a system error with XDS
+			SQUnavailable: { state: true }, // Set when there has been a system error with XDS/ KBA
 			itaInProgress: { state: true },
 			itaTimeout: { state: true },
 			itaRejected: { state: true },
 			itaSystemError: { state: true }, 
+			kbaAttempts: { state: true },
 			xdsAttempts: { state: true },
 			itaAttempts: { state: true },
 			timeLeft: { state: true },
@@ -138,11 +145,11 @@ export class VerifyCaller extends Component {
 		if (!this.callerInformation.verificationAttempts) {
 			this.callerInformation.verificationAttempts = {
 				itaAttempts: 0,
-				xdsAttempts: 0
+				sqAttempts: 0
 			};
 		}
 
-		this.xdsAttempts = this.callerInformation.verificationAttempts.xdsAttempts;
+		this.xdsAttempts = this.kbaAttempts = this.callerInformation.verificationAttempts.sqAttempts;
 		this.itaAttempts = this.callerInformation.verificationAttempts.itaAttempts;
 
 		this.hasSouthAfricanID = isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber);
@@ -154,6 +161,7 @@ export class VerifyCaller extends Component {
 			await this._initiateItaVerification();
 		}
 
+		this.authMethod = await this.configuration.getSetting(`AuthMethod`);
 		this.isLoading = false;
 	}
 
@@ -185,6 +193,38 @@ export class VerifyCaller extends Component {
 		this.itaTimeout = false;
 		this.itaRejected = false;
 
+		const xds = () => this._loadXDS();
+		const kba = () => this._loadKBA();
+		
+		const getQuestions = {
+			[AUTH_METHODS.XDS]: xds,
+			[AUTH_METHODS.KBA]: kba
+		};
+
+		await getQuestions[this.authMethod]();
+	}
+
+	async _loadKBA() {
+		const returnValue = await this.itaChannelService.loadKBA(this.callerInformation.cifNumber, this.callerInformation.identifiedBy, () => true);
+
+		this.telemetry.logEvent(VerifyCallerEvents.SECURITY_QUESTIONS_CLICK, {
+			"screen": TelemetryScreen.VERIFY_CALLER,
+			"next-screen": TelemetryScreen.KBA,
+			"attempt": 1,
+			"outcome": !returnValue.succeeded ? `Service-failure` : `Success`
+		});
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unable to get KBA questions`, `_loadKBA`, returnValue.correlationId);
+			this.SQUnavailable = true;
+			return false;
+		}
+
+		this.kbaQuestions = returnValue.result?.questionList;
+		this.renderMode = RENDER_MODE.KBA_SQ;
+	}
+
+	async _loadXDS() {
 		const returnValue = await this.callHandleService.xdsQuestions(this.callerInformation.southAfricanIDNumber, () => true);
 
 		if (!returnValue.succeeded) {
@@ -199,7 +239,7 @@ export class VerifyCaller extends Component {
 				"outcome": returnValue?.exception?.message
 			});
 	
-			this.xdsUnavailable = true;
+			this.SQUnavailable = true;
 
 			return;
 		} 
@@ -260,14 +300,14 @@ export class VerifyCaller extends Component {
 			});
 
 			this.logger.log(`info`, `XDS Questions retrieved, transitioning to Security Questions Dialog`, `_securityQuestionsClick`);
-			this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
+			this.renderMode = RENDER_MODE.XDS_SQ;
 			return;
 		};
 		
 		// There is something wrong with the response packet from XDS. Try to extract and log the error.
 		// XDS will be flagged as unavailable to the client for this session.
 		this.xdsAttempts = MAX_XDS_ATTEMPTS;
-		this.xdsUnavailable = true;
+		this.SQUnavailable = true;
 
 		const xdsMessage = securityQuestions.errorMessage ? securityQuestions.errorMessage : `System Issue: Unable to obtain security questions`;
 		this.logger.log(`error`, `XDS ERROR: ${xdsMessage}`, `_securityQuestionsClick`);
@@ -422,7 +462,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_verifiedViaSecurityQuestions() {
-		this._updateApplicationState(`verified`, `XDS`);
+		this._updateApplicationState(`verified`, `SQ`);
 		this.dispatchEvent(new CustomEvent(`verified`, { detail: { 
 				incomingCallDetails: this.incomingCallDetails,
 				callerInformation: this.callerInformation 
@@ -452,9 +492,9 @@ export class VerifyCaller extends Component {
 		this.renderMode = RENDER_MODE.VERIFY_CALLER;
 	}
 
-	_xdsServiceFailure() {
+	_sqServiceFailure() {
 		this.callerInformation.verificationStatus = `unverified`;
-		this.xdsUnavailable = true;
+		this.SQUnavailable = true;
 		this.renderMode = RENDER_MODE.VERIFY_CALLER;
 	}
 
@@ -495,6 +535,14 @@ export class VerifyCaller extends Component {
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
+	_failedKBA() {
+		this.xdsAttempts = MAX_KBA_ATTEMPTS;
+		this.xdsBlocked = true;
+
+		this._updateApplicationState(`failed`, `unverified`);
+		this.horizonRouter.navigateToKBAVerificationFailed();
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -506,7 +554,7 @@ export class VerifyCaller extends Component {
 		this.callerInformation.verificationStatus = verificationStatus;
 		this.callerInformation.verificationMethod = verificationMethod;
 
-		this.callerInformation.verificationAttempts.xdsAttempts = this.xdsAttempts;
+		this.callerInformation.verificationAttempts.sqAttempts = this.xdsAttempts;
 		this.callerInformation.verificationAttempts.itaAttempts = this.itaAttempts;
 
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
@@ -518,9 +566,9 @@ export class VerifyCaller extends Component {
 	}
 
 	_navigateToItaVerificationFailed() {
-		if (this.itaFailedCount >= MAX_ITA_ATTEMPTS && (this.callerInformation.verificationStatus === `verified` && this.callerInformation.verificationMethod === `XDS`)) {
+		if (this.itaFailedCount >= MAX_ITA_ATTEMPTS && (this.callerInformation.verificationStatus === `verified` && this.callerInformation.verificationMethod === `SQ`)) {
 
-			this._updateApplicationState(`verified`, `XDS`);
+			this._updateApplicationState(`verified`, `SQ`);
 		} else {
 			this._updateApplicationState(`failed`, `unverified`);
 			this.horizonRouter.navigateToItaVerificationFailed();
@@ -630,10 +678,14 @@ export class VerifyCaller extends Component {
 	 * */
 	_clientBlocked() {
 		const blockedOnITA = this.callerInformation.hasDigitalChannels ? this._itaAttemptsExceeded() : false;
-		const blockedOnXDS = this.hasSouthAfricanID ? this._xdsAttemptsExceeded() : false;
+		const blockedOnSQ = this.hasSouthAfricanID ? this._sqAttemptsExceeded() : false;
 
 		// If the client is blocked on both we cannot verify.
-		return blockedOnITA && blockedOnXDS;
+		return blockedOnITA && blockedOnSQ;
+	}
+
+	_sqAttemptsExceeded() {
+		return this._xdsAttemptsExceeded() || this._kbaAttemptsExceeded();
 	}
 
 	/**
@@ -646,27 +698,27 @@ export class VerifyCaller extends Component {
 	_canVerify() {
 		const canVerifyViaITA = this.callerInformation.hasDigitalChannels && !this._itaAttemptsExceeded();
 
-		return canVerifyViaITA || this._canVerifyViaXds();
+		return canVerifyViaITA || this._canVerifyViaSQ();
 	}
 
-	_canVerifyViaXds() {
-		return this.hasSouthAfricanID && 
-			!this._xdsAttemptsExceeded() && 
-			!this.xdsUnavailable && 
-			this.verificationMethod !== `XDS`; // Already verified via XDS
+	_canVerifyViaSQ() {
+		return (this.hasSouthAfricanID || this.authMethod === AUTH_METHODS.KBA) &&
+			!this._sqAttemptsExceeded() &&
+			!this.SQUnavailable &&
+			this.callerInformation.verificationMethod !== `SQ`; // Already verified via XDS/ KBA
 	}
 
-	_canOnlyVerifyByXds() {
-		return this.hasSouthAfricanID && // Need an SA ID to be able to use XDS
+	_canOnlyVerifyBySQ() {
+		return (this.hasSouthAfricanID || this.authMethod === AUTH_METHODS.KBA) && // Need an SA ID to be able to use XDS, but not for KBA
 			!this._isMinorClient() &&
 			!this.callerInformation.hasDigitalChannels && // App/USSD is not an option
-			this.xdsAttempts === 0 && // We have not tried to verify yet
-			!this.xdsUnavailable;
+			(this.xdsAttempts === 0 && this.kbaAttempts === 0) && // We have not tried to verify yet
+			!this.SQUnavailable;
 			
 	}
 
-	_showXdsUnavailable() {
-		return this.xdsUnavailable && // Can't do XDS
+	_showSQUnavailable() {
+		return this.SQUnavailable && // Can't do XDS/ KBA
 			   !this.itaInProgress && !this._pushFailed(); // And ITA is not in progress & push failed
 	}
 
@@ -684,6 +736,10 @@ export class VerifyCaller extends Component {
 		// xdsAttempts is 0 based and is incremented on attempting to retrieve security questions
 		// This is because simply retrieving security questions counts as an attempt
 		return this.xdsAttempts >= MAX_XDS_ATTEMPTS;
+	}
+
+	_kbaAttemptsExceeded() {
+		return this.kbaAttempts >= MAX_ITA_ATTEMPTS;
 	}
 
 	_ItaAvailable() {
@@ -722,8 +778,8 @@ export class VerifyCaller extends Component {
 		
 	_foreignOrMinorClient() {
 		return (!this.hasSouthAfricanID || this._isMinorClient()) && // This client may be foreign or a minor
-			this.xdsAttempts === 0 && // No XDS attempts have been made yet
-			!this.xdsUnavailable &&
+			this.xdsAttempts === 0 && this.kbaAttempts === 0 && // No XDS/ KBA attempts have been made yet
+			!this.SQUnavailable &&
 			!this.callerInformation.hasDigitalChannels; // The client does not have the app
 	}
 
@@ -795,6 +851,7 @@ export class VerifyCaller extends Component {
 		return html`
 			${this._renderVerifyCallerDialog()}
 			${this._renderSecurityQuestionsDialog()}
+			${this._renderKBADialog()}
 			${this._renderEndCallModal()}
 		`;
 	}
@@ -819,7 +876,7 @@ export class VerifyCaller extends Component {
 
 	_renderBody() {
 		// Initial main body displays (on entering the dialog for the first time)
-		if (this._canOnlyVerifyByXds()) {
+		if (this._canOnlyVerifyBySQ()) {
 			return this._renderNotRegisteredForITA();
 		}
 
@@ -831,7 +888,7 @@ export class VerifyCaller extends Component {
 			return this._renderVerificationUnavailable();
 		}
 
-		if (this._showXdsUnavailable()) {
+		if (this._showSQUnavailable()) {
 			return this._renderSecurityQuestionsUnavailable(this._ItaAvailable());
 		}
 
@@ -897,11 +954,11 @@ export class VerifyCaller extends Component {
 
 	_renderButtonBar() {
 		const showVerifyViaApp = !this.callerInformation.hasDigitalChannels || this._itaAttemptsExceeded() || 
-								 !(this._showXdsUnavailable() || this._showXDSBlocked() || this._failedFirstXdsAttempt());
+								 !(this._showSQUnavailable() || this._showXDSBlocked() || this._failedFirstXdsAttempt());
 		
 		// Only Allow ITA/USSD if the client has already verified via XDS
 		// This is for high risk transactions
-		if (this.callerInformation.verificationStatus === `verified` && this.callerInformation.verificationMethod === `XDS`) {
+		if (this.callerInformation.verificationStatus === `verified` && this.callerInformation.verificationMethod === `SQ`) {
 			
 			return html`
 				<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
@@ -933,7 +990,7 @@ export class VerifyCaller extends Component {
 						label="Security Questions" 
 						icon="system/knowledge-action"
 						iconSize="default"
-						?hidden=${!this._canVerifyViaXds() || this._foreignOrMinorClient()}
+						?hidden=${!this._canVerifyViaSQ() || this._isMinorClient()}
 						@click="${() => this._securityQuestionsClick()}">
 					</horizon-option-button>
 					<horizon-option-button 
@@ -964,9 +1021,8 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderSecurityQuestionsDialog() {
-		return this.renderMode !== RENDER_MODE.SECURITY_QUESTIONS
-			? html``
-			: html`
+		return this.renderMode === RENDER_MODE.XDS_SQ
+			? html`
 				<horizon-security-question 
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
@@ -979,8 +1035,9 @@ export class VerifyCaller extends Component {
 					@skip="${() => this._skippedSecurityQuestions()}"
 					@verified="${() => this._verifiedViaSecurityQuestions()}"
 					@failed="${(reason) => this._failedSecurityQuestions(reason)}"
-					@service-failure="${() => this._xdsServiceFailure()}">
-				</horizon-security-question>`;
+					@service-failure="${() => this._sqServiceFailure()}">
+				</horizon-security-question>`
+			: html``;
 	}
 
 	_renderEndCallModal() {
@@ -1010,6 +1067,22 @@ export class VerifyCaller extends Component {
 		};
 
 		return html``;
+	}
+
+	_renderKBADialog() {
+		return this.renderMode === RENDER_MODE.KBA_SQ
+		? html`
+			<horizon-verify-kba
+				.incomingCallDetails="${this.incomingCallDetails}"
+				.incidentDetails="${this.incidentDetails}"
+				.questions="${this.kbaQuestions}"
+				@cancel="${() => this._cancelledSecurityQuestions()}"
+				@skip="${() => this._skippedSecurityQuestions()}"
+				@verified="${() => this._verifiedViaSecurityQuestions()}"
+				@failed="${() => this._failedKBA()}"
+				@service-failure="${() => this._sqServiceFailure()}">
+			</horizon-verify-kba>`
+		: html``;
 	}
 }
 window.customElements.define(`horizon-verify-caller`, VerifyCaller);
