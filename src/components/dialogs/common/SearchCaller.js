@@ -624,14 +624,14 @@ export class SearchCaller extends Component {
 
 	async _raiseOnBranchIdentified(identifiedClient) {
 		const confirmedCaller = {
-			cifNumber: identifiedClient.callerInformation.cifNumber.value,
-			birthdate: identifiedClient.callerInformation.birthdate.value,
-			languagePreference: identifiedClient.callerInformation.languagePreference.value,
-			livesIn: identifiedClient.callerInformation.livesIn.value,
-			name: identifiedClient.callerInformation.name.value,
+			cifNumber: identifiedClient.callerInformation.cifNumber,
+			birthdate: identifiedClient.callerInformation.birthdate,
+			languagePreference: identifiedClient.callerInformation.languagePreference,
+			livesIn: identifiedClient.callerInformation.livesIn,
+			name: identifiedClient.callerInformation.name,
 			title: identifiedClient.callerInformation.title,
-			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber.value,
-			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber.value,
+			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber,
+			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber,
 			isBranchConsultant: true,
 			isClientPresent: this.clientInBranch,
 			identifiedBy: this.searchType.identificationType
