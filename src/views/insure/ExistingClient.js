@@ -3,7 +3,7 @@ import { css, html } from 'platform/elements';
 import { InsureService } from 'app/services/InsureService';
 import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
-import { getAgeFromDOB } from 'app/utils/insureUtils';
+import { getAgeFromIDNumber, getGenderFromIDNumber } from 'app/utils/insureUtils';
 
 import 'app/components/insure/ClientPolicies';
 import 'app/components/insure/PolicyEstimate';
@@ -47,7 +47,8 @@ export class ExistingClient extends InsureViewBase {
 			productParams: { type: Object, state: true },
 			estimate: { type: Object, state: true },
 			quote: { type: Object, state: true },
-			policyDetails: { type: Object, state: true }
+			policyDetails: { type: Object, state: true },
+			mainLifeGender: { type: String, state: true }
 		};
 	}
 
@@ -62,6 +63,7 @@ export class ExistingClient extends InsureViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 		this._initialise();
+
 	}
 
 	//#endregion
@@ -100,16 +102,8 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {Object} Estimate response
 	 */
 	async _calculateClientEstimate(e) {
-
-		console.log('Sending Estimate Calculate');
-		console.log(JSON.stringify(e.detail));
-
 		let estimateWithCoverDetails = e.detail;
 		const resp = await this.insureService.calculateEstimate(estimateWithCoverDetails, () => true);
-
-		console.log('Raw Response Estimate Calculate');
-		console.log(JSON.stringify(resp));
-
 		if (resp.succeeded == true && resp.result != null) {
 			estimateWithCoverDetails.totalPremium = resp.result.totalPremium;
 			estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map(lifeWithDetails => {
@@ -117,10 +111,6 @@ export class ExistingClient extends InsureViewBase {
 					return lifeWithDetails.rowID === respLife.rowID
 				}))
 			});
-
-			console.log('Done mapping back Estimate Calculate');
-			console.log(JSON.stringify(estimateWithCoverDetails));
-
 			this.estimate = estimateWithCoverDetails;
 		} else {
 			// Do error message
@@ -133,17 +123,30 @@ export class ExistingClient extends InsureViewBase {
 	//#region PRIVATE METHODS
 
 	/**
-	 * Initialise Landing View / Fetch client policies for landing component
+	 * Initialise Landing View 
+	 * Fetch client policies
 	 */
 	async _initialise() {
 		this.verificationStatus = this.callerInformation.verificationStatus;
-		this.clientPolicies = await this._retrieveClientPolicies();
-		this.cifNumber = this.callerInformation.cifNumber;
+		this.clientPolicies = await this._retrieveClientPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
 	}
 
-	_getMainlifeAge() {
-		let mainLifeAge = getAgeFromDOB(this.callerInformation.birthdate);
+	/**
+	 * Get main life age from birthdate
+	 * @returns 
+	 */
+	_getMainLifeAge() {
+		let mainLifeAge = getAgeFromIDNumber(this.callerInformation.southAfricanIDNumber);
 		return mainLifeAge;
+	}
+
+	/**
+	 * Get main life gender from ID
+	 * @returns 
+	 */
+	_getMainLifeGender() {
+		let mainLifeGender = getGenderFromIDNumber(this.callerInformation.southAfricanIDNumber);
+		return mainLifeGender;
 	}
 
 	//#endregion
@@ -186,7 +189,7 @@ export class ExistingClient extends InsureViewBase {
 	async _goToPolicySummary(e) {
 		// Telemetry Here
 		this.policyDetails = await this._retrievePolicySummary(e.detail.policyContractReference
-			, this.cifNumber);
+			, this.callerInformation.cifNumber);
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY);
 	}
 	//#endregion
@@ -273,7 +276,8 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-policy-estimate @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@calculate="${(e) => this._calculateClientEstimate(e)}" .estimate="${this.estimate}"
-				.productParams="${this.productParams}" .mainLifeDefaultAge="${this._getMainlifeAge()}">
+				.productParams="${this.productParams}" .mainLifeDefaultAge="${this._getMainLifeAge()}"
+				.mainLifeDefaultGender="${this._getMainLifeGender()}">
 			</horizon-insure-policy-estimate>`
 	}
 
