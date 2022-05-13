@@ -1,6 +1,8 @@
 import { CREDIT_TYPE, CREDIT_TYPE_LIST, DEFAULTS, PRODUCTS } from 'app/constants/Credit';
 import { Component, css, html } from 'platform/elements';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 
 import 'app/components/common/HorizonPDFViewer';
 import 'app/components/common/OptionButton';
@@ -29,15 +31,16 @@ export class SettlementQuote extends Component {
 
 	constructor() {
 		super();
-		this.settlementQuoteDetails = {};
-		this.errorMessage = ``;
-		this.isBusy = false;
+		this.settlementQuoteDetails = [];
 		this.selectedAccounts = [];
 		this.filteredData = [];
+		this.activeProducts = [];
 		this.listValue = `Credit type`;
 		this.selectedLabel = `Select all`;
-	}
+		this.showNoAccountsFound = false;
 
+		this._telemetry = HorizonTelemetry.getInstance();
+	}
 
 	// --------------
 	// PROPERTIES
@@ -50,12 +53,13 @@ export class SettlementQuote extends Component {
 	 * @memberof FavouriteTransactions
 	 */
 
-
 	static get properties() {
 		return {
 			settlementQuoteDetails: { type: Array },
+
 			isBusy: { attribute: false },
 			filteredData: { type: Array },
+			activeProducts: { type: Array },
 			listValue: { type: String },
 			selectedLabel: { type: String }
 		};
@@ -66,32 +70,39 @@ export class SettlementQuote extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
+
+		await this._telemetry.startSpan(QuickTransactionEvents.SETTLEMENT_QUOTE, {});
 		this._initialise();
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-	
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
-	}
 
 	_filter(e) {
 		[this.listValue] = e.detail.new.split(` `);
 		this._search(e);
+		this._focusOutFilter(null, e.detail.new);
 	}
 
-	_back() {
+	async _back() {
+		await this._telemetry.logEvent(QuickTransactionEvents.SETTLEMENT_QUOTE_BACK, {});
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
 	_showSendDialog () {
 		this.selectedAccounts = this.settlementQuoteDetails.filter(item => item.selected);
-		this.dispatchEvent(new CustomEvent(`send-quote`, { detail: { selectedAccounts: this.selectedAccounts } }));
+		this.dispatchEvent(new CustomEvent(`send-quote`, {
+			detail: {
+				selectedAccounts: this.selectedAccounts
+			}
+		}));
 	}
 
 	_checkBox(e, accountDetails) {
@@ -106,37 +117,53 @@ export class SettlementQuote extends Component {
 		} else {
 			this.selectedLabel = `${accountsSelected} accounts selected`;
 		}
-
 	}
 
-	_selectAll() {
+	async _selectAll() {
 		if (this.filteredData.every(item => item.selected)) {
-			this.selectedLabel = `Select all`;
-			this.settlementQuoteDetails.forEach(item => item.selected = false);
+			this._deselect();
 		} else {
+			await this._telemetry.logEvent(QuickTransactionEvents.SETTLEMENT_QUOTE_SELECT_ALL, {});
+
 			this.filteredData.forEach(item => item.selected = true);
 			this.selectedLabel = `${this._numberOfAccountsSelected()} accounts selected`;
 		}
 	}
 
-	_deselect() {
+	async _deselect() {
+		await this._telemetry.logEvent(QuickTransactionEvents.SETTLEMENT_QUOTE_DESELECT_ALL, {});
+
 		this.selectedLabel = `Select all`;
 		this.filteredData.forEach(item => item.selected = false);
-		this.selectedLabel = `${this._numberOfAccountsSelected()} accounts selected`;
+	}
+
+	_focusOutFilter(searchByText = null, searchByType = null) {
+		if (searchByText || searchByType) {
+			this._telemetry.logEvent(QuickTransactionEvents.SETTLEMENT_QUOTE_FILTER, {
+				"search-by-text": searchByText,
+				"credit-type": searchByType
+			});
+		}
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
-
 	_initialise() {
-		this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
-			item.selected = false;
-			return item;
-		});
-
-		this.filteredData = this.settlementQuoteDetails;
+		this.activeProducts = this.settlementQuoteDetails;
+		if (this.activeProducts.length > 0) {
+			this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
+				item.selected = false;
+				return item;
+			});
+	
+			this.filteredData = this.settlementQuoteDetails;
+		} else {
+			this.showNoActiveAccounts = true;
+			this.showNoAccountsFound = true;
+			this.noAccountsMessage = `You have no active Credit products`;
+		}
 	}
 
 	_search (e) {
@@ -167,7 +194,11 @@ export class SettlementQuote extends Component {
 			this.filteredData = Array.from(new Set([...searchResult.flat()]));
 		}
 		
-
+		if (this.filteredData.length < 1) {
+			this.showNoAccountsFound = true;
+			this.showNoActiveAccounts = false;
+			this.noAccountsMessage = `No Results found`;
+		}
 	}
 	
 	// Removing currency formating for better search results
@@ -187,15 +218,17 @@ export class SettlementQuote extends Component {
 	// ---------
 	// RENDERING
 	// ---------
+
 	static get styles() {
 		return [
 			super.styles,
 			css`
 				${ALERTBANNER_CSS}
-				.card{
+				capitec-card {
 					width:100%;
 					height:var(--horizon-panel-height);
 				}
+
 				/* Title bar style */
 				capitec-title-bar {
 					border-bottom: 1px solid rgb(225, 225, 225);
@@ -213,6 +246,7 @@ export class SettlementQuote extends Component {
 				capitec-icon {
 					cursor: pointer;
 				}
+
 				/* Filter bar styles */
 				capitec-text-field {
 					width: 337px;
@@ -221,6 +255,7 @@ export class SettlementQuote extends Component {
 					--theme-input-label-font-color: #959595;
 					--theme-input-search-label-idle-margin-left: 30px;
 				}
+
 				/* main content styles */
 				.main-cb > capitec-label[type="subtitle"] {
 					line-height: 24px;
@@ -230,11 +265,7 @@ export class SettlementQuote extends Component {
 					--theme-label-subtitle-font-weight: 600;
 					--theme-layout-gap-spacing: 18px;
 				}
-				.alert-banner
-				{
-					width:100%;
-				}
-				.accounts{
+				.accounts {
 					height: 64px;
 					border: 1px solid #E1E1E1;
 					border-radius: 4px;
@@ -246,7 +277,7 @@ export class SettlementQuote extends Component {
 				capitec-group[gap="line"] > *:first-child {
 					--theme-layout-gap-spacing: 16px;
 				}
-				horizon-label{
+				horizon-label {
 					width: 184px;
 					--theme-layout-gap-spacing: 0px;
 					--horizon-label-text-height: 20px;
@@ -305,7 +336,7 @@ export class SettlementQuote extends Component {
 
 	_renderContent() {
 		return html`
-			<capitec-card class="card">
+			<capitec-card>
 				${this._renderTitleBar()}
 				${this._renderSearch()}
 				${this._renderFooter()}
@@ -329,13 +360,15 @@ export class SettlementQuote extends Component {
 	_renderSearch() {
 		this.textValue = ``;
 		return html`
-			<capitec-title-bar>
+			<capitec-title-bar 
+				?hidden="${this.showNoActiveAccounts}">
 				<capitec-text-field
  					id="text-filter"
  					label="${DEFAULTS.SEARCH_TEXT_LABEL}"
  					type="search"
  					keyboardMode="alpha-numeric"
  					@key-input="${(e) => this._search(e)}"
+					@focusout="${(e) => this._focusOutFilter(e.currentTarget.value)}"
  					@value-change="${(e) => this._search(e)}">
  				</capitec-text-field>
 				<capitec-select
@@ -361,7 +394,7 @@ export class SettlementQuote extends Component {
 	}
 
 	_renderNoResult() {
-		return html`
+		return this.showNoAccountsFound ? html`
 			<capitec-group
 				class="no-result-group"
 				layout="vertical"
@@ -373,12 +406,12 @@ export class SettlementQuote extends Component {
 						class="document-icon"/>
 					<capitec-label
 						class="no-results"
-						label="No results found"
+						label="${this.noAccountsMessage}"
 						type="strong">
 					</capitec-label>
 
 			</capitec-group>
-		`;
+		` : html``;
 	}
 
 	_renderAcountInfoTile (item, index) {
@@ -408,21 +441,16 @@ export class SettlementQuote extends Component {
 				</horizon-label>
 				<horizon-label
 					label="Settlement Amount"
-					value="${item.currentBalance}">
+					value="${item.settlementAmount}">
 				</horizon-label>
 			</capitec-content-box>
 		`;
 	}
 
-	_renderLoadingIndicator() {
-		return this.isBusy
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
-			: html``;
-	}
-
 	_renderFooter() {
 		return html`
-			<capitec-button-bar>
+			<capitec-button-bar
+				?hidden="${this.showNoActiveAccounts}">
 				<capitec-content-box
 					layout="horizontal"
 					halign="left" valign="center"

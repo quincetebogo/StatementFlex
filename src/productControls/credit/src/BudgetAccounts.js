@@ -44,6 +44,12 @@ import 'app/components/common/HorizonLabel';
 		// Grouping budget accounts available based on total number of term months.
 		this.groupAccountsByTerm = Utilities.groupBy(this.budgetFacilityAccounts.creditCardBudgetList, `originalTerm`);
 		this.filteredAccounts = { ...this.groupAccountsByTerm };
+
+		this._onLoading();
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
 	}
 
 	// --------------
@@ -74,8 +80,12 @@ import 'app/components/common/HorizonLabel';
 	}
 
 	_accountDetails(selectedBudgetAccount) {
+		selectedBudgetAccount.budgetAccountNumber = this.budgetFacilityAccounts.creditCardNumber;
+	
 		this.dispatchEvent(new CustomEvent(`account-details`, {
-			detail: { selectedAccountDetails: selectedBudgetAccount }
+			detail: {
+				selectedAccountDetails: selectedBudgetAccount
+			}
 		}));
 	}
 
@@ -98,7 +108,8 @@ import 'app/components/common/HorizonLabel';
 
 	_transferClick(selectedBudgetAccount) {
 		selectedBudgetAccount.productTypeCode = this.budgetFacilityAccounts.productTypeCode;
-
+		selectedBudgetAccount.budgetAccountNumber = this.budgetFacilityAccounts.creditCardNumber;
+		
 		this.dispatchEvent(new CustomEvent(`transfer-click`, {
 			detail: { selectedAccountDetails: selectedBudgetAccount }
 		}));
@@ -114,6 +125,14 @@ import 'app/components/common/HorizonLabel';
 		}
 	}
 
+	_focusOut(event) {
+		if (event.currentTarget.value) {
+			this.dispatchEvent(new CustomEvent(`fiter-changed`, { detail: {
+				"searchValue": event.currentTarget.value
+			} }));
+		}
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -124,7 +143,9 @@ import 'app/components/common/HorizonLabel';
 	// PRIVATE METHODS
 	// ---------------
 	
-	// N/A
+	_onLoading() {
+		this.dispatchEvent(new CustomEvent(`on-loading`, {}));
+	}
 	
 	// ---------
 	// RENDERING
@@ -338,7 +359,8 @@ import 'app/components/common/HorizonLabel';
 				data-automation-id="budget-facility-search-bar"
 				label="Search for amount or transaction name" 
 				value="${this.searchText}"
-				@key-input="${(event) => this._searchValueChange(event)}">
+				@key-input="${(event) => this._searchValueChange(event)}"
+				@focusout="${(event) => this._focusOut(event)}">
 			</capitec-search-field>
 		`;
 	}
@@ -423,7 +445,7 @@ import 'app/components/common/HorizonLabel';
 					data-automation-id="budget-facility-transfer-button"
 					type="clear"
 					label="Transfer"
-					?hidden=${true}
+					?hidden="${true}"
 					@click="${() => this._transferClick(budgetAccount)}">
 				</capitec-button>
 			</capitec-group>`;
