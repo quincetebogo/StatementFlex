@@ -957,7 +957,10 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderVerificationUnavailable() {
-		return html`<horizon-verification-unavailable></horizon-verification-unavailable>`;
+		return html`
+			<horizon-verification-unavailable
+				?minorClient="${this._isMinorClient()}">
+			</horizon-verification-unavailable>`;
 	}
 
 	_renderXdsBlocked() {
