@@ -5,7 +5,7 @@
  * @enum {Object} BANK_OPTIONS
  */
 export const BANK_OPTIONS = Object.freeze([
-	{ code: 'CAPITEC', text: `CAPITEC` },
+	{ code: 'CAPITEC BANK', text: `CAPITEC BANK` },
 	{ code: '20TWENTY', text: `20TWENTY` },
 	{ code: 'ABN AMRO BANK', text: `ABN AMRO BANK` },
 	{ code: 'ABSA BANK', text: `ABSA BANK` },
