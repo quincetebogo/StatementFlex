@@ -53,13 +53,16 @@ export default class HorizonChannelServiceMocks {
 		this.securityQuestionMocks = await this._loadMockModule(this.securityQuestionMocks, `xdsQuestions`, () => import(`../mocks/SecurityQuestions`).catch(err => logError(err)));
 		this.stopCardLandingMocks = await this._loadMockModule(this.stopCardLandingMocks, `stopCardLanding`, () => import(`../mocks/StopCardMockData`).catch(err => logError(err)));
 		this.hasInsuranceProductsMock = await this._loadMockModule(this.hasInsuranceProductsMock, `hasInsuranceProducts`, () => import(`../mocks/HasInsuranceProductsMock`).catch(err => logError(err)));
-		this.transactionHistoryMocks = await this._loadMockModule(this.transactionHistoryMocks, `transactionHistory`, () => import(`../mocks/TransactionHistoryMockData`).catch(err => logError(err)));   
-		this.savingsAccountDetails = await this._loadMockModule(this.savingsAccountDetails, `savingsAccountLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
+		this.transactionHistoryMocks = await this._loadMockModule(this.transactionHistoryMocks, `transactionHistory`, () => import(`../mocks/TransactionHistoryMockData`).catch(err => logError(err)));
+		this.savingsAccountMocks = await this._loadMockModule(this.savingsAccountMocks, `savingsAccountLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));  
+		this.savingsAccountMocks = await this._loadMockModule(this.savingsAccountMocks, `savingsPlanLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
 		this.viewStatementsMock = await this._loadMockModule(this.viewStatementsMock, `viewStatements`, () => import(`../mocks/ViewStatementMock`).catch(err => logError(err)));
 		this.tapToPayMocks = await this._loadMockModule(this.tapToPayMocks, `tapToPayLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
 		this.liveBetterLandingMocks = await this._loadMockModule(this.liveBetterLandingMocks, `liveBetterLanding`, () => import(`../mocks/LiveBetterLandingMocks`).catch(err => logError(err)));
 		this.clientInsightsMocks = await this._loadMockModule(this.clientInsightsMocks, `getClientInsights`, () => import(`../mocks/ClientInsightsMocks`).catch(err => logError(err)));
-    this.accessChannelsMocks = await this._loadMockModule(this.accessChannelsMocks, `accessChannelLanding`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err)));    
+    	this.accessChannelsMocks = await this._loadMockModule(this.accessChannelsMocks, `accessChannelLanding`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err)));    
+    	this.creditMocks = await this._loadMockModule(this.creditMocks, `creditBalance`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));      
+    	this.creditMocks = await this._loadMockModule(this.creditMocks, `creditOverview`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));   
 	}
 
 	// ===============================
@@ -101,8 +104,15 @@ export default class HorizonChannelServiceMocks {
 			return this.favouritesMocks.favouritesLandingSuccess;
 		}
 
-		// Code for a negative case could come here
-		return null;
+		const errPromise = new Promise(() => {
+			const httpError = new HttpStatusError();
+			httpError.status = 400;
+			httpError.message = `Oh no! A fake 400!`;
+	
+			throw httpError;
+		});
+
+		return errPromise;
 	}
 
 	cardLimitsLanding() {
@@ -163,7 +173,16 @@ export default class HorizonChannelServiceMocks {
 
 	savingsAccountLanding(cifNumber, mandateId, registerId) {
 		if (this._mockSettings.savingsAccountLanding.positiveCase) {
-			return this.savingsAccountDetails.savingsAccountDetails;
+			return this.savingsAccountMocks.savingsAccountDetails;
+		}
+
+		// Code for a negative case could come here
+		return null;
+	}
+
+	savingsPlanLanding(cifNumber, mandateId, registerId) {
+		if (this._mockSettings.savingsPlanLanding.positiveCase) {
+			return this.savingsAccountMocks.savingsPlanDetails;
 		}
 
 		// Code for a negative case could come here
@@ -172,7 +191,7 @@ export default class HorizonChannelServiceMocks {
 
 	transactionHistory(transactionHistoryRequest) {
 		if (this._mockSettings.transactionHistory.positiveCase) {
-			const result = {transactions : this.transactionHistoryMocks.transactionHistoryMockData.transactionHistoryList.slice(transactionHistoryRequest.startAtIndex, transactionHistoryRequest.startAtIndex + transactionHistoryRequest.maxResults)}
+			const result = { transactions: this.transactionHistoryMocks.transactionHistoryMockData.transactionHistoryList.slice(transactionHistoryRequest.startAtIndex, transactionHistoryRequest.startAtIndex + transactionHistoryRequest.maxResults) };
 			return result;
 		}
 
@@ -327,6 +346,38 @@ export default class HorizonChannelServiceMocks {
 	unblockSIM() {
 		if (this._mockSettings.unblockSIM.positiveCase) {
 			return {};
+		}
+
+		const errPromise = new Promise(() => {
+			const httpError = new HttpStatusError();
+			httpError.status = 400;
+			httpError.message = `Oh no! A fake 400!`;
+	
+			throw httpError;
+		});
+
+		return errPromise;
+	}
+
+	creditOverview() {
+		if (this._mockSettings.creditOverview.positiveCase) {
+			return this.creditMocks.creditOverview;
+		}
+
+		const errPromise = new Promise(() => {
+			const httpError = new HttpStatusError();
+			httpError.status = 400;
+			httpError.message = `Oh no! A fake 400!`;
+	
+			throw httpError;
+		});
+
+		return errPromise;
+	}
+
+	creditBalance() {
+		if (this._mockSettings.creditBalance.positiveCase) {
+			return this.creditMocks.creditBalance;
 		}
 
 		const errPromise = new Promise(() => {

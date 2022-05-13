@@ -76,13 +76,14 @@ export class ServiceCallErrorScreen extends Component {
 					height: var(--horizon-service-call-error-screen-size, 750px);
 				}
 				#id-unsuccessful-img {
-          			width: auto;
+					width: var(--horizon-service-call-error-screen-img-width, auto);
+					height: var(--horizon-service-call-error-screen-img-height, auto);
 					margin-top: -50px;
 				}
 				#id-verify-unsuccessful {
 					height: 32px;
 					margin: 0px auto 0px auto;
-					margin-top: 51px;
+					margin-top: var(--horizon-service-call-error-screen-header-margin-top, 51px);
 					color: #3E4547;
 					font-family: "Hind Vadodara";
 					font-size: 24px;
@@ -118,7 +119,6 @@ export class ServiceCallErrorScreen extends Component {
 				.banner-top {
 					padding: 16px;
 					--theme-alert-banner-unsuccessful-red-font-color: #3A3A3A;
-
 				}
 			`
 		];

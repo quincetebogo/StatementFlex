@@ -230,7 +230,7 @@ export class Expander2 extends Component {
 					cursor: pointer;
 					padding: 0px;
 					border-radius:4px;
-					height: 64px;
+					height: var(--theme-expander-header-height, 64px);
 				}
 
 				:host(*.styled) > .header {

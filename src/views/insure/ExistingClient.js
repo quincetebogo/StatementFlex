@@ -4,6 +4,7 @@ import { InsureService } from 'app/services/InsureService';
 import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 import { MAX_RESULTS } from 'app/constants/PolicyTransactionHistory';
+import { getAgeFromIDNumber, getGenderFromIDNumber } from 'app/utils/insureUtils';
 
 import 'app/components/insure/ClientPolicies';
 import 'app/components/insure/PolicyEstimate';
@@ -57,10 +58,11 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	static get properties() {
 		return {
-			clientPolicies: { type: Object },
-			productParams: { state: true },
-			estimate: { state: true },
-			quote: { state: true }
+			clientPolicies: { type: Object, state: true },
+			productParams: { type: Object, state: true },
+			estimate: { type: Object, state: true },
+			quote: { type: Object, state: true },
+			mainLifeGender: { type: String, state: true }
 		};
 	}
 
@@ -75,9 +77,40 @@ export class ExistingClient extends InsureViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 		this._initialise();
+
 	}
 
-	//#endregion
+	//#endregion LIFECYCLE OVERRIDES
+
+	//#region PRIVATE METHODS
+
+	/**
+	 * Initialise Landing View 
+	 * Fetch client policies
+	 */
+	async _initialise() {
+		this.clientPolicies = await this._retrieveClientPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+	}
+
+	/**
+	 * Get main life age from birthdate
+	 * @returns 
+	 */
+	_getMainLifeAge() {
+		let mainLifeAge = getAgeFromIDNumber(this.callerInformation.southAfricanIDNumber);
+		return mainLifeAge;
+	}
+
+	/**
+	 * Get main life gender from ID
+	 * @returns 
+	 */
+	_getMainLifeGender() {
+		let mainLifeGender = getGenderFromIDNumber(this.callerInformation.southAfricanIDNumber);
+		return mainLifeGender;
+	}
+
+	//#endregion PRIVATE METHODS
 
 	//#region EVENT HANDLERS
 
@@ -86,23 +119,21 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {Object} Client policies 
 	 */
 	async _retrieveClientPolicies(cifNumber, idNumber) {
-		this.isBusy = true;
 		let request = {
 			cifNumber: cifNumber,
 			idNumber: idNumber,
 		}
 		const resp = await this.insureService.clientPolicies(request);
-		this.isBusy = false;
 		return resp.result;
 	}
 
 	/**
 	 * Calculate estimate based on lives assured provided
+	 * Map metadata (coverDetails) back when response is received
 	 * @returns {Object} Estimate response
 	 */
 	async _calculateClientEstimate(e) {
 		let estimateWithCoverDetails = e.detail;
-		this.isBusy = true;
 		const resp = await this.insureService.calculateEstimate(estimateWithCoverDetails, () => true);
 		if (resp.succeeded == true && resp.result != null) {
 			estimateWithCoverDetails.totalPremium = resp.result.totalPremium;
@@ -112,9 +143,7 @@ export class ExistingClient extends InsureViewBase {
 				}))
 			});
 			this.estimate = estimateWithCoverDetails;
-			this.isBusy = false;
 		} else {
-			this.isBusy = false;
 			// Do error message
 			return null;
 		}
@@ -185,6 +214,7 @@ export class ExistingClient extends InsureViewBase {
 										const formatedDate = new Date(Date.parse(item.Date));
 										item.formatedPremiumDate = formatedPremiumDate;
 										item.formatedDate = formatedDate;
+										item.formatedPremium = formatCurrency(item.premium);
 										item.groupByPremiumDate = `${getMonthName(formatedPremiumDate.getMonth())} ${formatedPremiumDate.getFullYear()}`;
 										item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
 										item.formatedAmount = formatCurrency(item.amount);
@@ -204,19 +234,7 @@ export class ExistingClient extends InsureViewBase {
 		this.policyTransactionHistory = [];
 	}
 
-	//#endregion
-
-	//#region PRIVATE METHODS
-
-	/**
-	 * Initialize Landing View / Fetch client policies for landing component
-	 */
-	async _initialise() {
-		this.verificationStatus = this.callerInformation.verificationStatus;
-		this.clientPolicies = await this._retrieveClientPolicies();
-	}
-
-	//#endregion
+	//#endregion EVENT HANDLERS
 
 	//#region RENDERING
 
@@ -255,8 +273,8 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_webTemplate() {
 		return html`
-		${this._renderLandingPage()}
-		${this._renderLoadingIndicator()}`
+		${super._webTemplate()}
+		${this._renderLandingPage()}`
 	}
 
 	/**
@@ -304,7 +322,8 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-policy-estimate @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@calculate="${(e) => this._calculateClientEstimate(e)}" .estimate="${this.estimate}"
-				.productParams="${this.productParams}">
+				.productParams="${this.productParams}" .mainLifeDefaultAge="${this._getMainLifeAge()}"
+				.mainLifeDefaultGender="${this._getMainLifeGender()}">
 			</horizon-insure-policy-estimate>`
 	}
 
@@ -346,7 +365,7 @@ export class ExistingClient extends InsureViewBase {
 			: html``;
 	}
 
-	//#endregion
+	//#endregion RENDERING
 
 	//#region HELPERS
 
@@ -360,6 +379,6 @@ export class ExistingClient extends InsureViewBase {
 		};
 		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
-	//#endregion
+	//#endregion HELPERS
 }
 customElements.define(`horizon-existing-client`, ExistingClient);

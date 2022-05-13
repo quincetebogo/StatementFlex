@@ -126,17 +126,6 @@ export class ProductButtonPanel extends Component {
 				?selected="${this.selectedButton === `SavingsAccount`}"
 				data-automation-id="product-button-panel-savings-account">
 			</horizon-product-tile>
-			<horizon-product-tile
-				class="product-button"
-				type="live-better"
-				label="Live Better Savings"
-				subtitle="${this.subtitle.liveBetterSavings ? this.subtitle.liveBetterSavings : DEFAULT_SUBTITLE.LIVE_BETTER_SAVINGS}"
-				detail="${this.detail.liveBetterSavings ? this.detail.liveBetterSavings : ``}"
-				icon="product/live-better"
-				@click="${() => this._productButtonClick(`LiveBetter`)}"
-				?selected="${this.selectedButton === `LiveBetter`}"
-				data-automation-id="product-button-panel-live-better">
-			</horizon-product-tile>
 			<horizon-product-tile 
 				class="product-button"
 				type="save"
@@ -150,17 +139,6 @@ export class ProductButtonPanel extends Component {
 			</horizon-product-tile>
 			<horizon-product-tile 
 				class="product-button"
-				type="insure"
-				label="Insure"
-				subtitle="${this.subtitle.insure ? this.subtitle.insure : DEFAULT_SUBTITLE.INSURE}"
-				detail="${this.detail.insure ? this.detail.insure : ``}"
-				icon="product/insure-white"
-				@click="${() => this._productButtonClick(`Insure`)}"
-				?selected="${this.selectedButton === `Insure`}"
-				data-automation-id="product-button-panel-insure">
-			</horizon-product-tile>
-			<horizon-product-tile 
-				class="product-button"
 				type="credit"
 				label="Credit"
 				subtitle="${this.subtitle.credit ? this.subtitle.credit : DEFAULT_SUBTITLE.CREDIT}"
@@ -170,6 +148,28 @@ export class ProductButtonPanel extends Component {
 				@click="${() => this._productButtonClick(`Credit`)}"
 				?selected="${this.selectedButton === `Credit`}"
 				data-automation-id="product-button-panel-credit">
+			</horizon-product-tile>
+			<horizon-product-tile 
+				class="product-button"
+				type="insure"
+				label="Insure"
+				subtitle="${this.subtitle.insure ? this.subtitle.insure : DEFAULT_SUBTITLE.INSURE}"
+				detail="${this.detail.insure ? this.detail.insure : ``}"
+				icon="product/insure-white"
+				@click="${() => this._productButtonClick(`Insure`)}"
+				?selected="${this.selectedButton === `Insure`}"
+				data-automation-id="product-button-panel-insure">
+			</horizon-product-tile>
+			<horizon-product-tile
+				class="product-button"
+				type="live-better"
+				label="Live Better Savings"
+				subtitle="${this.subtitle.liveBetterSavings ? this.subtitle.liveBetterSavings : DEFAULT_SUBTITLE.LIVE_BETTER_SAVINGS}"
+				detail="${this.detail.liveBetterSavings ? this.detail.liveBetterSavings : ``}"
+				icon="product/live-better"
+				@click="${() => this._productButtonClick(`LiveBetter`)}"
+				?selected="${this.selectedButton === `LiveBetter`}"
+				data-automation-id="product-button-panel-live-better">
 			</horizon-product-tile>
 		`;
 	}

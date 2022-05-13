@@ -82,7 +82,7 @@ export class AccessChannels extends Component {
 	_formatTime(timeToFormat) {
 		const formatedDate = new Date(timeToFormat);
 		const localTime = formatedDate.toLocaleTimeString();
-		return localTime.replace(localTime.slice(-6, -2), ` `);
+		return localTime.replace(localTime.slice(-6, -2), ` `).toLowerCase();
 	}
 
 	_getFormattedDateTime(datetime) {
@@ -112,7 +112,7 @@ export class AccessChannels extends Component {
 		}
 
 		if (type === ACCESS_CHANNELS_TYPE.USSD && this.status.ussd.isSimBlocked) {
-			return `Blocked | SIM Swop detected`;
+			return `Blocked | SIM Swap detected`;
 		}
 
 		if (type === ACCESS_CHANNELS_TYPE.USSD && this.status.ussd.features?.includes(`REDUCED_MENU`) && status !== ACCESS_CHANNEL_STATUS.INACTIVE) {

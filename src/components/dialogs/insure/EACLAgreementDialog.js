@@ -3,9 +3,6 @@ import { Component, css, html } from 'platform/elements';
 
 export class EACLAgreementDialog extends Component {
 
-	/**
-	 * Initialize
-	 */
 	constructor() {
 		super();
 	}

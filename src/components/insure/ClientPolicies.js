@@ -94,7 +94,24 @@ class ClientPolicies extends Component {
 	static get styles() {
 		return [
 			super.styles,
-			css``
+			css`
+			.insure-title-bar{
+				margin-bottom: 0px; 
+				border-top-left-radius: 5px; 
+				border-top-right-radius: 5px;
+			}
+
+			#temp-container{
+				min-height: 650px;
+				text-align: center;
+				padding-top: 100px;
+			}
+
+			#temp-container-label{
+				font-weight: bold;
+				font-size: 24px;
+			}
+			`
 		];
 	}
 
@@ -122,12 +139,24 @@ class ClientPolicies extends Component {
 			</capitec-button>
 			<capitec-button type="white" label="Get Estimate" @click="${() => this._goToEstimate()}">
 			</capitec-button>
-			<capitec-button type="white" label="Update plan" @click="${() => this._goToUpdatePlan()}">
-			</capitec-button>
-			<capitec-button type="white" label="Policy Summary" @click="${() => this._goToPolicySummary()}">
-			</capitec-button>
-		</capitec-title-bar>`
+		</capitec-title-bar>
+		
+		<capitec-card id="temp-container">
+			<div>
+				<capitec-image src="platform/illustrations/beneficiaries.svg"
+					style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
+				<label id="temp-container-label">Client Policies - Coming soon to a sprint near you!</label>
+			</div>
+		</capitec-card>
+
+		`
 	}
+
+	// Not for estimate testing - reenable later
+	// <capitec-button type="white" label="Update plan" @click="${() => this._goToUpdatePlan()}">
+	// </capitec-button>
+	// <capitec-button type="white" label="Policy Summary" @click="${() => this._goToPolicySummary()}">
+	// </capitec-button>
 
 	//#endregion
 }

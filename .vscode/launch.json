@@ -16,7 +16,6 @@
 			"env": {
 				"PATH": "${workspaceFolder}/ocwp/1.4.1/node;${env:PATH}"
 			}
-		}​​​
-
+		}
 	]
 }

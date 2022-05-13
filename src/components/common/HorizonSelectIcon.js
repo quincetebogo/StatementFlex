@@ -9,11 +9,29 @@ export class HorizonSelect extends Select {
 
 	constructor() {
 		super();
+
+		this.detailsLabel = ``;
 	}
 
 	// --------------
 	// PROPERTIES
 	// --------------
+	
+	/**
+	 * @param {string} detailsLabel - Details label
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof PayCreditCardBudget
+	 */
+	 static get properties() {
+		return {
+			detailsLabel: {
+				type: String,
+				attribute: `detail-label`
+			}
+		};
+	}
 
 	get selectedValue() {
 
@@ -66,8 +84,35 @@ export class HorizonSelect extends Select {
 
 				#inputField {
 					padding-left: calc(var(--theme-input-icon-margin-left, 0px) + var(--theme-icon-size-small, 0px) + 8px);
+					padding-top: calc(var(--theme-input-padding-top, 8px) + 3px);
+					padding-bottom: calc(var(--theme-input-padding-bottom, 8px) + 3px);
 				}
-			`
+				
+				horizon-label{
+					--horizon-label-text-height: 20px;
+					--horizon-label-text-font-size: 15px;
+					--horizon-label-text-font-weight: 600;
+					--horizon-label-text-line-height: 20px;
+					--horizon-label-text-color: #3A3A3A;
+
+					--horizon-label-value-height: 12px;
+					--horizon-label-value-font-size: 12px;
+					--horizon-label-value-font-weight: 500;
+					--horizon-label-value-line-height: 12px;
+					--horizon-label-value-color:#3A3A3A;
+					
+					height: var(--theme-custom-input-label-height, 33px);
+					left: calc(var(--theme-input-icon-margin-left, 0px) + var(--theme-icon-size-small, 0px) + 8px);
+					position: absolute;
+				}
+				.details {
+					margin-top: var(--theme-input-padding-top, 10px);
+				}
+				
+				.pull-right {
+					text-align: end;
+					--theme-input-font-weight: 600;
+				}`
 		];
 	};
 
@@ -76,14 +121,30 @@ export class HorizonSelect extends Select {
 	}
 
 	_webTemplate() {
+		
+		const selectedObj = this.items.find(item => item[this.idField] === this.value[this.idField]);
+
 		return html`
 			<div
-				class="select container ${this.mode === `inline` ? `inline` : ``} ${this.value && this.mode !== `filter` ? `completed` : ``} ${this.value && this.mode === `filter` ? `filtered` : ``} ${this.error ? `error` : ``} ${this.focussed ? `focussed` : ``} ${this.disabled ? `disabled` : ``}">
-				${this._getSelectedValueIcon()}
+				class="select container ${this.mode === `inline` ? `inline` : ``} 
+					   ${this.value && this.mode !== `filter` ? `completed` : ``}
+					   ${this.value && this.mode === `filter` ? `filtered` : ``} 
+					   ${this.error ? `error` : ``} 
+					   ${this.focussed ? `focussed` : ``} 
+					   ${this.disabled ? `disabled` : ``}">
+				${this._getSelectedValueIcon(selectedObj)}
+				${this.detailsLabel
+					? html`
+						<horizon-label
+							class="details"
+							for="inputField"
+							label="${selectedObj.accountName}"
+							value="${this.detailsLabel}">
+						</horizon-label>`
+					: html``
+				}
 				${super._renderLabel()}
-				<input id="inputField" class="field ${this.mode === `filter` ? `icon-padding` : ``}" type="text" readonly
-					value="${this.selectedValue}" tabindex="${this.disabled ? `-1` : undefined}" @click="${this._onInputClick}" />
-			
+				${this._renderInputField(selectedObj)}
 				${super._renderIcons(`web`)}
 				${super._renderOptions()}
 			
@@ -94,12 +155,34 @@ export class HorizonSelect extends Select {
 		`;
 	}
 
-	_getSelectedValueIcon() {
-		const selectedObj = this.items.find(item => item[this.idField] === this.value[this.idField]);
+	_renderInputField() {
+		return html`
+			<input
+				id="inputField"
+				class="field ${this.mode === `filter` ? `icon-padding` : ``} ${this.detailsLabel ? `pull-right` : ``}"
+				type="text"
+				readonly
+				value="${this.selectedValue}"
+				tabindex="${this.disabled ? `-1` : undefined}"
+				@click="${this._onInputClick}" />`;
+	}
+
+	_getSelectedValueIcon(selectedObj) {
 		if (selectedObj) {
 			return selectedObj.icon 
-			? html`<capitec-icon class="selected-icon" size="small" icon=${selectedObj.icon} for="inputField"></capitec-icon>`
-			: html`<img src="${selectedObj.customIcon}" class="selected-icon" for="inputField"></capitec-icon>`;
+				? html`
+					<capitec-icon
+						class="selected-icon"
+						size="small"
+						icon=${selectedObj.icon}
+						for="inputField">
+					</capitec-icon>`
+				: html`
+					<img
+						src="${selectedObj.customIcon}"
+						class="selected-icon"
+						for="inputField">
+					</capitec-icon>`;
 		}
 	}
 

@@ -1,6 +1,4 @@
-import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { ViewBase } from 'app/views/common/ViewBase';
-
 import { InsureService } from 'app/services/InsureService';
 
 /**
@@ -9,8 +7,6 @@ import { InsureService } from 'app/services/InsureService';
  * This base class will contain the following common code
  * 
  *    - getting insure product parameters
- *    - toggling isBusy support
- *    - expose caller and agent information
  *
  * @export
  * @class InsureViewBase
@@ -22,7 +18,6 @@ export class InsureViewBase extends ViewBase {
 
 	constructor() {
 		super();
-		this.horizonRouter = HorizonRouter.getInstance();
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 	}
 
@@ -39,8 +34,7 @@ export class InsureViewBase extends ViewBase {
 	 */
 	static get properties() {
 		return {
-			productParams: { type: Object },
-			isBusy: { state: true },
+			productParams: { type: Object, state: true },
 		};
 	}
 
@@ -56,7 +50,6 @@ export class InsureViewBase extends ViewBase {
 	 */
 	async connectedCallback() {
 		super.connectedCallback();
-		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.productParams = await this.retrieveInsureProductParams();
 	}
 
@@ -75,9 +68,7 @@ export class InsureViewBase extends ViewBase {
 	 * @returns {Object} Product Params Array
 	 */
 	async retrieveInsureProductParams() {
-		this.isBusy = true;
 		const resp = await this.insureService.productParams();
-		this.isBusy = false;
 		return resp.result;
 	}
 
@@ -91,8 +82,7 @@ export class InsureViewBase extends ViewBase {
 		this.errorCount++;
 
 		if (this.errorCount > 2) {
-			// this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-			// this.horizonStore.setCallerInformation(this.callerInformation);
+			// Generic error
 			this.horizonRouter.navigateToSystemError();
 		}
 		return true;

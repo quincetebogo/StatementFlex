@@ -34,6 +34,19 @@
 ]);
 
 /**
+ * List the available type of selectors
+ */
+ export const RANGE_SELECTOR = Object.freeze({
+	DATE: `date`,
+	MONTH: `month`
+});
+
+export const PERIOD_TYPE = Object.freeze({
+	STATIC: `static`,
+	CUSTOM: `custom`
+});
+
+/**
  * Account types based on interest category {@link StatementsDialog}
  * 
  * @readonly
@@ -44,38 +57,75 @@
 		name: `Savings account`,
 		type: `PRIMARY_SAVINGS`,
 		category: `transact`,
+		subCategory: ``,
 		icon: `product/transact`,
-		order: 1
+		order: 1,
+		choosePeriod: RANGE_SELECTOR.DATE
 	},
 	200: {
 		name: ``,
 		type: `FLEXIBLE_SAVINGS`,
 		category: `save`,
+		subCategory: ``,
 		icon: `product/save`,
-		order: 2
+		order: 2,
+		choosePeriod: RANGE_SELECTOR.DATE
 	},
 	201: {
 		1: {
 			name: ``,
 			type: `FIXED_TERM_MULTIPLE_DEPOSITS`,
 			category: `save`,
+			subCategory: ``,
 			icon: `product/save`,
-			order: 3
+			order: 3,
+			choosePeriod: RANGE_SELECTOR.DATE
 		},
 		2: {
 			name: ``,
 			type: `FIXED_TERM_SINGLE_DEPOSIT`,
 			category: `save`,
+			subCategory: ``,
 			icon: `product/save`,
-			order: 4
+			order: 4,
+			choosePeriod: RANGE_SELECTOR.DATE
 		}
 	},
 	210: {
 		name: `Live better savings account`,
 		type: `LBB`,
 		category: `lbb`,
+		subCategory: ``,
 		customIcon: `/images/liveBetter/live-better-icon.png`,
-		order: 5
+		order: 5,
+		choosePeriod: RANGE_SELECTOR.DATE
+	},
+	4010: {
+		name: `Term Loan`,
+		type: `FIXED_TERM_CREDIT`,
+		category: `credit`,
+		subCategory: `term-loan`,
+		icon: `product/credit`,
+		order: 6,
+		choosePeriod: RANGE_SELECTOR.DATE
+	},
+	101: {
+		name: `Credit card`,
+		type: `FLEXIBLE_CREDIT`,
+		category: `credit`,
+		subCategory: `credit-card`,
+		icon: `product/credit`,
+		order: 7,
+		choosePeriod: RANGE_SELECTOR.MONTH
+	},
+	6000: {
+		name: `Access facility`,
+		type: `FLEXIBLE_CREDIT`,
+		category: `credit`,
+		subCategory: `access-facility`,
+		icon: `product/credit`,
+		order: 8,
+		choosePeriod: RANGE_SELECTOR.MONTH
 	}
 });
 
@@ -119,4 +169,11 @@ export const NOTIFICATION_MESSAGE = Object.freeze({
 	FEE: ` A fee will be charged for email statements`,
 	NO_FEE: ` A fee won't be charged for a fixed term savings statement`,
 	FLEXIBLE_SAVINGS_FEE: `A fee will be charged for flexible saving account statements.`
+});
+
+export const ERRORS = Object.freeze({
+	SYSTEM_ERROR: `System error. Please try again`,
+	REQUIRED_PERIOD: `You must choose an option in order to continue`,
+	DATE_RANGE: `Out of range, please select the correct range up to 90 days`,
+	CALENDER_RANGE: `Date range up to 90 days only`
 });

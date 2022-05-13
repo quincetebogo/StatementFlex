@@ -56,3 +56,19 @@ export const LOW_RISK_TRANSACTIONS = [`stop-card`, `search-other-need`];
 	CREDIT: `credit`,
 	SAVINGS_PLAN: `save`
 });
+
+/**
+ * Account types and their respective product codes
+ * 
+ * @readonly
+ * @enum {Object} ACCOUNT_TYPE_CODE
+ */
+ export const ACCOUNT_TYPE_CODE = Object.freeze({
+	PRIMARY_SAVINGS: 300,
+	FLEXIBLE_SAVINGS_PLAN: 200,
+	FIXED_TERM_SAVINGS_PLAN: 201,
+	LBB: 210,
+	FIXED_TERM_CREDIT: 4010,
+	FLEXIBLE_CREDIT_CARD: 101,
+	FLEXIBLE_ACCESS_FACILITY: 6000
+});

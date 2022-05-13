@@ -57,7 +57,7 @@ export class NotRegisteredForIta extends Component {
 						<div class="notification-info">
 							<b>Verify client</b>
 							<br>
-							We need to ask you 5 security questions before accessing your account.
+							We need to ask you security questions before accessing your account.
 							<br>
 							Your answers will be checked by a third-party or credit bureau. Are you comfortable to continue?
 						</div>

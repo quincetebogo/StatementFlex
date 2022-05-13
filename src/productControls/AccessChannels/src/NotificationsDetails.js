@@ -281,6 +281,9 @@ export class NotificationsDetails extends Component {
 				}
 				capitec-alert-banner > capitec-hyperlink {
 					margin-top: 5px;
+					position: absolute;
+					right: 16px;
+					bottom: 17px;
 
 					--theme-font-weight: 600;
 					--theme-hyperlink-color: #3A3A3A;
@@ -304,7 +307,8 @@ export class NotificationsDetails extends Component {
 				}
 
 				.client-notify-message-type-banner > p {
-					height: 40px;
+					height: auto;
+					width: 204px
 				}
 
 				capitec-toast {

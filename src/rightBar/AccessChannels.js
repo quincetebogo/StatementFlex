@@ -1,10 +1,10 @@
 import { ACCESS_CHANNELS_REASONS, ACCESS_CHANNELS_TYPE, APP_STATUS, CHANNEL_TYPE } from 'app/constants/AccessChannels';
 import { Component, css, html } from 'platform/elements';
+import { EventAggregator, Logger } from 'platform/core';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { AccessChannelsEvents } from 'app/constants/telemetry/events/AccessChannels';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { Logger } from 'platform/core';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { Utilities } from 'platform/Utilities';
 import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
@@ -40,6 +40,7 @@ export class AccessChannels extends Component {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
 
 		this._telemetry = HorizonTelemetry.getInstance();
 
@@ -64,7 +65,8 @@ export class AccessChannels extends Component {
 			isBusy: { state: true },
 			status: { state: true },
 			showSideSheet: { state: true },
-			selectedAccessChannelType: { state: true }
+			selectedAccessChannelType: { state: true },
+			canPerformHighRiskActions: { state: true }
 		};
 	}
 
@@ -78,6 +80,7 @@ export class AccessChannels extends Component {
 		this.cifNumber = this.callerInformation?.cifNumber;
 		this.verifiedTelephoneNumber = this.callerInformation?.verifiedTelephoneNumber;
 		this.isVerifiedClient = this.callerInformation?.verificationStatus === `verified`;
+		this.canPerformHighRiskActions = this.isVerifiedClient && this.callerInformation.verificationMethod !== `XDS`;
 
 		this._performAction = async (need, options) => {
 
@@ -189,6 +192,7 @@ export class AccessChannels extends Component {
 			this.landingInfo.app.dateLastUpdated = new Date().toISOString();
 
 			this._deepCopyStatus();
+			this._landingInfo();
 			return true;
 		}
 
@@ -254,6 +258,7 @@ export class AccessChannels extends Component {
 		this.landingInfo.ussd.status = `Inactive`;
 		this.landingInfo.ussd.dateLastUpdated = new Date().toISOString();
 		this._deepCopyStatus();
+		this._landingInfo();
 		return true;
 	}
 
@@ -272,6 +277,7 @@ export class AccessChannels extends Component {
 		this.landingInfo.ussd.dateLastUpdated = new Date().toISOString();
 
 		this._deepCopyStatus();
+		this._landingInfo();
 		return true;
 	}
 
@@ -294,6 +300,7 @@ export class AccessChannels extends Component {
 		this.landingInfo.ussd.features.splice(indexOfReducedMenu, 1);
 
 		this._deepCopyStatus();
+		this._landingInfo();
 		return true;
 	}
 
@@ -378,6 +385,7 @@ export class AccessChannels extends Component {
 		if (returnValue.succeeded) {
 			this.landingInfo.internetBanking.status = `Suspended`;
 			this.landingInfo.internetBanking.dateLastUpdated = new Date().toISOString();
+			this.landingInfo.internetBanking.statusReason = suspendReason;
 			
 			this._deepCopyStatus();
 			this._landingInfo();
@@ -405,6 +413,7 @@ export class AccessChannels extends Component {
 
 		this.landingInfo.internetBanking.dateLastUpdated = new Date().toISOString();
 		this._deepCopyStatus();
+		this._landingInfo();
 		return true;
 	}
 
@@ -465,7 +474,14 @@ export class AccessChannels extends Component {
 	_stateChanged(state) {
 		if (state?.callerInformation) {
 			this.callerInformation = state.callerInformation;
+			
+			this.isVerifiedClient = this.callerInformation.verificationStatus === `verified`;
+			this.canPerformHighRiskActions = this.isVerifiedClient && this.callerInformation.verificationMethod !== `XDS`;
 		}
+	}
+	
+	_onVerifyNowClick() {
+		this.eventAggregator.publish(`horizon-verify-now-click`, {});
 	}
 
 	// --------------
@@ -608,11 +624,13 @@ export class AccessChannels extends Component {
 					?showSideSheet="${this.showSideSheet}"
 			        ?isVerifiedClient="${this.isVerifiedClient}"
 					cellphoneNumber="${formatPhoneNumber(this.verifiedTelephoneNumber)}"
+					?canPerformHighRiskActions="${this.canPerformHighRiskActions}"
 
 					.cancelUSSD="${cancelReason => this._performAction(`cancel-ussd`, { reason: cancelReason })}"
 					.unblockSIM="${() => this._performAction(`unblock-sim`)}"
 					.activateFullMenuUSSD="${() => this._performAction(`active-full-menu-ussd`)}"
 					.getUssdLandingDetails="${(clientInfo) => this.getUssdLandingDetails(clientInfo)}"
+					.renderVerificationAlertBanner="${() => this.renderVerificationAlertBanner()}"
 
 					@toggle-ussd-cancel-reasons="${(event) => this._toggleUssdCancelReasons(event)}"
 					@close-side-sheet="${(event) => this._showSlidingPanel(event)}">
@@ -643,5 +661,35 @@ export class AccessChannels extends Component {
 
 		return html``;
 	}
+
+	renderVerificationAlertBanner() {
+		return this.callerInformation?.hasDigitalChannels
+			? html`
+				<capitec-alert-banner
+					class="has-digital-channels"
+					data-automation-id="high-risk-banner"
+					type="warning">
+							<capitec-label type="Strong" label="Notify client:"></capitec-label>
+							<capitec-label type="default"
+								label="For added security, we will be sending a push notification to access additional transactions.">
+							</capitec-label>
+							<capitec-hyperlink
+								data-automation-id="ussd-profile-details-verify-click"
+								label="Verify Now"
+								@click="${() => this._onVerifyNowClick()}">
+							</capitec-hyperlink>
+				</capitec-alert-banner>`
+			: html`
+				<capitec-alert-banner
+					class="no-digital-channels"
+					data-automation-id="high-risk-banner"
+					type="warning">
+							<capitec-label type="Strong" label="Notify client:"></capitec-label>
+							<capitec-label type="default"
+								label="For added security get the remote banking App to perform additional transactions, alternatively, visit your nearest branch.">
+							</capitec-label>
+				</capitec-alert-banner>`;
+	}
+
 }
 window.customElements.define(`horizon-access-channels`, AccessChannels);

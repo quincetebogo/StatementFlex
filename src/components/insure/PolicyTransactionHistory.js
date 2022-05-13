@@ -717,7 +717,8 @@ class PolicyTransactionHistory extends Component{
 			</capitec-table-column>
 			<capitec-table-column
 				label="Premium"
-				field="premium">
+				field="formatedPremium"
+				type="currency">
 			</capitec-table-column>
 			<capitec-table-column
 				label="Type"

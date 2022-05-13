@@ -2,7 +2,7 @@ import { Component, css, html, live } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/EndCallSession';
-import 'app/components/Common/UpdateIncidentDialog';
+import 'app/components/common/UpdateIncidentDialog';
 
 /**
  * Search Other Need component

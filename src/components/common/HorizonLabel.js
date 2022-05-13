@@ -12,6 +12,7 @@ export class HorizonLabel extends Component {
 		this.label = ``;
 		this.value = ``;
 		this.icon = ``;
+		this.textOverflow = null;
 	}
 
 	// ----------
@@ -29,7 +30,8 @@ export class HorizonLabel extends Component {
 		return {
 			label: { type: String },
 			value: { type: String },
-			icon: { type: String }
+			icon: { type: String },
+			textOverflow: { type: String }
 		};
 	}
 
@@ -95,6 +97,19 @@ export class HorizonLabel extends Component {
 					font-weight: var(--horizon-label-value-font-weight, 600);
 					letter-spacing: 0;
 					line-height: var(--horizon-label-value-line-height, 27px);
+				}
+				.label-overflow{
+					display: inline-block;
+					white-space: nowrap;
+					overflow: hidden;
+					width: var(--horizon-label-max-overflow-width, 200px);
+					line-height: var(--horizon-label-overflow-label-line-height, 24px);
+				}
+				.ellipsis{
+					text-overflow: ellipsis;
+				}
+				.value-overflow{
+					--horizon-label-value-line-height: var(--horizon-label-overflow-value-line-height, 12px);
 				}`
 		];
 	}
@@ -105,11 +120,11 @@ export class HorizonLabel extends Component {
 				${this._renderIcon()}
 				<div class="wrapper">
 					<capitec-label
-						class="label-text"
+						class="label-text ${this.textOverflow ? `label-overflow ${this.textOverflow}` : ``}"
 						label="${this.label}">
 					</capitec-label>
 					<capitec-label 
-						class="label-value"
+						class="label-value ${this.textOverflow ? `value-overflow` : ``}"
 						label="${this.value}">
 					</capitec-label>
 				</div>

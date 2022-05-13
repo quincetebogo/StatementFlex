@@ -75,7 +75,8 @@ export class CardService extends ChannelServiceBase {
 				cardExpiryYear: card.cardExpiryYear,
 				cardExpiryMonth: card.cardExpiryMonth,
 				cardSequenceNumber: card.cardSequenceNumber,
-				reason: card.cardStopReason.key
+				reason: card.cardStopReason.key,
+				cardDisplayName : card.cardDisplayName
 			})),
 			incidentRecId: incidentDetails.incidentRecId,
 			title: title,

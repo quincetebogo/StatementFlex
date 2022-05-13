@@ -117,12 +117,12 @@ export class SavingsAccountService extends ChannelServiceBase {
 
 		const request = {
 			cifNumber: cifNumber,
-			mandateReferenceNumber: debiCheckDetails.mandateReferenceNumber,
+			mandateReferenceNumber: debiCheckDetails.mandateReference,
 			debtorAccountNumber: debiCheckDetails.debtorAccountNumber,
 			accepted: accepted,
 			title: title,
 			lastName: lastName,
-			collectorName: mandateInfo.collectorName,
+			collectorName: mandateInfo.mandateName,
 			instalmentAmount: mandateInfo.amount,
 			firstCollectionDate: debiCheckDetails.firstCollectionDate
 		};
@@ -310,6 +310,56 @@ export class SavingsAccountService extends ChannelServiceBase {
 			request,
 			this.setToken(), 
 			`savingsAccountLanding`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Get savings plan landing page information
+	 *
+	 * @param {string} cifNumber The Client's CIF number
+	 * @param {string} nationalIDNumber client's ID number
+	 * @param {string} getGenericData Includes left hand bar details
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+ 	async savingsPlanLanding (cifNumber, nationalIDNumber, getGenericData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`savingsPlanLanding`)) {
+			return this.mock(`savingsPlanLanding`, cifNumber, nationalIDNumber, getGenericData);
+		}
+
+		const request = {
+			"cifNumber": cifNumber,
+			"nationalIDNumber": nationalIDNumber,
+			"getGenericData": getGenericData
+		};
+
+		const url = `/clientcare-savingsaccount-${this._version}/savings-plan-landing`;
+		
+		/*
+		return this.get(
+			url, 
+			this.setToken(), 
+			`savingsPlanLanding`,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+		*/
+
+		return this.post(
+			url,
+			request,
+			this.setToken(), 
+			`savingsPlanLanding`, 
 			null, 
 			null, 
 			1000,
