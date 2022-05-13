@@ -1,6 +1,18 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
+/**
+ * Pay Premium Success component that displays once Arrears have been successfully paid.
+ * Displays the total Arrears amount that has been paid
+ * 
+ * Events Raised 
+ * -------------
+ * navigate-back
+ *  
+ * @export
+ * @class PayPremiumSuccess
+ * @extends {Component}
+ */
 class PayPremiumSuccess extends Component {
 
 	//#region INITIALIZE
@@ -17,6 +29,7 @@ constructor() {
 //#region PROPERTIES
 
 	/**
+	 *  @property {boolean} ShowSuccessAlert Controls when to show the Success Alert
 	 * 
 	 * @readonly
 	 * @static
@@ -31,14 +44,17 @@ constructor() {
 
 //#region PRIVATE FUNCTIONS
 
-_backToSummaryPage() {
-	this.dispatchEvent(new CustomEvent(`navigate-back`, {detail: {}}));
-}
+
 //#endregion
 
 //#region EVENT HANDLERS
 
-
+/**
+ * Navigate to Landing
+ */
+_backToSummaryPage() {
+	this.dispatchEvent(new CustomEvent(`navigate-back`, {detail: {}}));
+}
 
 //#endregion
 
@@ -104,7 +120,8 @@ _backToSummaryPage() {
 		`}
 
 	/**
-	 * Render the content HTML  for the component
+	 * Render the content HTML for the component
+	 * @returns {html}
 	 */
 	_renderContent() {
 		return html`
@@ -136,6 +153,10 @@ _backToSummaryPage() {
 		
 		`}
 
+/**
+ * Renders the Successful payment alert
+ * @returns {html}
+ */
 _renderAlert(){
 	return this.showSuccessAlert == false ? html``
 	: html`
@@ -159,3 +180,12 @@ _renderAlert(){
 
 window.customElements.define(`horizon-pay-premium-success-page`, PayPremiumSuccess);
 
+/**
+ * When back arrow button is clicked
+ *
+ * @example
+ * <horizon-pay-premium-success-page ... @navigate-back="${this._handler}"></horizon-pay-premium-success-page>
+ *
+ * @event PayPremiumSuccess#navigate-back
+ * @type {Object} - N/A
+ */

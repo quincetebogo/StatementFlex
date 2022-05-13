@@ -12,6 +12,7 @@ import 'app/components/dialogs/insure/PayPremiumDialog';
  * navigate-to-estimate
  * navigate-to-update-plan
  * navigate-to-policy-summary
+ * pay-arrears
  *  
  * @export
  * @class ClientPolicies
@@ -32,6 +33,9 @@ class ClientPolicies extends Component {
 	//#region PROPERTIES
 
 	/**
+	 * @property {Object} clientArrears Data & flags from Arrears Service
+	 * @property {boolean} showPayPremiumDialog Determines if the Pay Premium dialog should be shown
+	 * 
 	 * @readonly
 	 * @static
 	 */
@@ -99,12 +103,15 @@ class ClientPolicies extends Component {
 	}
 
 	/**
-	 * Open Add Life dialog returning select relationship
+	 * Open Pay Premium dialog returning select relationship
 	 */
 	 _openPayPremiumDialog() {
 		this.showPayPremiumDialog = true;
 	}
 
+	/**
+	 * Close Pay Premium dialog returning select relationship
+	 */
 	_closePayPremiumDialog() {
 		this.showPayPremiumDialog = false;
 	}
@@ -218,7 +225,7 @@ class ClientPolicies extends Component {
 	// </capitec-button>
 
 	/**
-	 * Render Dialog to pay arrears
+	 * Render Pay Premium Dialog 
 	 * @return {html} Html of the dialog
 	 */
 	 _renderPayPremiumDialog() {
@@ -262,5 +269,15 @@ window.customElements.define(`horizon-insure-client-policies`, ClientPolicies);
  * <horizon-insure-client-policies ... @navigate-to-policy-summary="${this._handler}"></horizon-insure-client-policies>
  *
  * @event ClientPolicies#navigate-to-policy-summary
+ * @type {Object} - N/A
+ */
+
+/**
+ * When Pay Arrears button is clicked in dialog, payArrears object is passed through
+ *
+ * @example
+ * <horizon-insure-client-policies ... @pay-arrears="${this._handler}"></horizon-insure-client-policies>
+ *
+ * @event ClientPolicies#navigate-to-estimate
  * @type {Object} - N/A
  */

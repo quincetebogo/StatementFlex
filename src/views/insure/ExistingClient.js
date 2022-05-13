@@ -172,8 +172,11 @@ export class ExistingClient extends InsureViewBase {
 		// Telemetry Here
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY);
 	}
+	
 	/**
-	 * Make FIPS call and Prepare and navigate Policy Summary
+	 * Make FIPS call and Prepare and navigate to pay premium success page
+	 * 
+	 * @param {*} e contains the payArrears object
 	 */
 	_payArrears(e) {
 		//call fips here

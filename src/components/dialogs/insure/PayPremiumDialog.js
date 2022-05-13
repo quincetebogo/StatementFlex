@@ -6,7 +6,18 @@ import 'app/components/common/HorizonSelectIcon';
 // Lookups
 import { CLIENT_ACCOUNTS} from 'app/constants/InsureCommon';
 
-
+/**
+ * Pay Premium Dialog componant will allow an account to be selected that will be used to pay the arrears as well as allow the arrears that are to be paid to be selected
+ * 
+ * Events Raised 
+ * -------------
+ * close-modal
+ * pay-arrears
+ *  
+ * @export
+ * @class PayPremiumDialog
+ * @extends {Component}
+ */
 class PayPremiumDialog extends Component {
 
 //#region INITIALIZE
@@ -25,6 +36,9 @@ constructor() {
 //#region PROPERTIES
 
 	/**
+	 * @property {Object} clientArrears Data & flags from Arrears Service
+	 * @property {Object} payArrears Data & flags for Pay Arrears service request
+	 * @property {boolean} checked Determines if an Arrear was selected
 	 * 
 	 * @readonly
 	 * @static
@@ -56,7 +70,6 @@ constructor() {
 
 	/**
 	 * Initialize component when loaded / Count current lives in list and set limits
-	 * Resets last selected relationship
 	 */
 	 _initialise() {
 		this.payArrears = {};
@@ -67,8 +80,6 @@ constructor() {
 
 		
 	}
-
-	
 
 	//#endregion
 
@@ -84,13 +95,19 @@ constructor() {
 	}
 
 	/**
-	 * Add Event, Calculate cover details parameter, emit new life object to consuming component & reset toggles 
+	 * Pay Event, emits payArrears object containg the Arrears that are to be paid & resets toggles 
 	 */
 	_onPayClick() {
 
 		this.dispatchEvent(new CustomEvent(`pay-arrears`, {detail: this.payArrears}));
 	}
 
+	/**
+	 * Event that checks if Arrears have been selected to enable the Pay button
+	 * 
+	 * @param {} outstanding Live object at index that was clicked
+	 * @param {*} e contains new value of checkbox
+	 */
 	_checkedChange(outstanding, e) {
 		
 
@@ -107,6 +124,12 @@ constructor() {
 
 	}
 
+	/**
+	 * Event that adds the selected Arrear to the payArrears Object and removes an unselected Arrear from the payArrears Object
+	 * 
+	 * @param {} selected Live object at index that was clicked
+	 * @param {*} e contains new value of checkbox
+	 */
 	_addSelected(selected, e) {
 		if (e.detail.new == true) {
 			this.payArrears.arrears.push({
@@ -238,3 +261,23 @@ constructor() {
 }
 
 window.customElements.define(`pay-premium-dialog`, PayPremiumDialog);
+
+/**
+ * Send the selected arrears and chosen account to consuming component when 'Add' is clicked
+ *
+ * @example
+ * <pay-premium-dialog ... @pay-arrears="${this._handler}"></pay-premium-dialog>
+ *
+ * @event PayPremiumDialog#pay-arrears
+ * @type {Object} - N/A
+ */
+
+/**
+ * Send close dialog event to consuming component when 'Cancel' is clicked
+ *
+ * @example
+ * <pay-premium-dialog ... @close-modal="${this._handler}"></pay-premium-dialog>
+ *
+ * @event PayPremiumDialog#close-modal
+ * @type {Object} - N/A
+ */
