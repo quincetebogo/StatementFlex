@@ -72,3 +72,16 @@ export const LOW_RISK_TRANSACTIONS = [`stop-card`, `search-other-need`];
 	FLEXIBLE_CREDIT_CARD: 101,
 	FLEXIBLE_ACCESS_FACILITY: 6000
 });
+
+/**
+ * Landing page need for Account/Balance enquiry
+ * 
+ * @readonly
+ * @enum {Object} LANDING_PAGE_NEEDS
+ */
+ export const LANDING_PAGE_NEEDS = Object.freeze({
+	SAVINGS_ACCOUNT: `savings-account`,
+	LBB: `lbb-account-enquiry`,
+	CREDIT: `credit-account-enquiry`,
+	SAVINGS_PLAN: `savings-plan-account-enquiry`
+});
