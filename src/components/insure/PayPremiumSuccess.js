@@ -140,10 +140,10 @@ _backToSummaryPage() {
 				</div>
 				 
 				<div class="button-row">
-					<capitec-button data-automation-id="" label="View Plan">
+					<capitec-button data-automation-id="insure-pay-premium-success-view-plan" label="View Plan">
 					</capitec-button>
 
-					<capitec-button class="buttons" data-automation-id="" id="id-confirm-button" type="primary" label="Done"
+					<capitec-button class="buttons" data-automation-id="insure-pay-premium-success-done" type="primary" label="Done"
 					@click= "${() => this._backToSummaryPage()}">
 					</capitec-button>
 				</div>

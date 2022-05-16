@@ -191,14 +191,14 @@ constructor() {
 	 */
 	 _webTemplate() {
 		return html`
-			<capitec-modal data-automation-id="????" type="form" class="modal-body-label" header="Pay Arrears (${this.clientArrears.contractReference})"
+			<capitec-modal data-automation-id="insure-pay-arrears-dialog" type="form" class="modal-body-label" header="Pay Arrears (${this.clientArrears.contractReference})"
 			header-align="left">
 			<div slot="body" class="modal-body">
-				<capitec-content-box layout="vertical" halign="stretch" valign="top" gap="clear">
+				<capitec-content-box layout="vertical" halign="stretch" valign="top" gap="clear" data-automation-id = "insure-pay-arrears-dialog-body">
 					${this._renderDialogBody()}
 				</capitec-content-box>
 			</div>
-			<div slot="footer">
+			<div slot="footer" data-automation-id="insure-pay-arrears-dialog-footer">
 				${this._renderDialogFooter()}
 			</div>
 			</capitec-modal>`;
@@ -216,7 +216,7 @@ constructor() {
 			</capitec-label>
 			
 			<capitec-select 
-				label="Choose an account" .items="${this.clientAccounts}" display-field="text" id-field="code">
+				label="Choose an account" .items="${this.clientAccounts}" display-field="text" id-field="code" data-automation-id="insure-pay-arrears-dialog-accounts">
 			</capitec-select>
 			
 			<capitec-label type="subtitle" label="Arrear amount">
@@ -226,7 +226,7 @@ constructor() {
 						${this.clientArrears.arrears.map((outstanding, index) => html`
 							${index != 0 || index == 0 ? html`
 								<capitec-check class="checkbox" label=" ${formatDate(outstanding.dueDate, 'MM yyyy')} | ${formatCurrency(outstanding.amount)}"
-								@value-change=" ${(e) => this._checkedChange(outstanding,e)}">
+								@value-change=" ${(e) => this._checkedChange(outstanding,e)}" data-automation-id="insure-pay-arrears-dialog-arrears">
 								</capitec-check>
 							` : html``}
 							`)}
@@ -242,11 +242,12 @@ constructor() {
 	_renderDialogFooter() {
 		return html`
 			<capitec-group layout="horizontal">
-				<capitec-button class="buttons" data-automation-id="" label="Cancel" @click="${() => this._onCancelClick()}">
+				<capitec-button class="buttons" data-automation-id="" label="Cancel" @click="${() => this._onCancelClick()}"
+				data-automation-id="insure-pay-arrears-dialog-cancel">
 				</capitec-button>
 			
 				<capitec-button class="buttons" data-automation-id="" id="id-confirm-button" type="primary" label="Pay"
-					@click="${() => this._onPayClick()}" .disabled=${this.checked == false}>
+					@click="${() => this._onPayClick()}" .disabled=${this.checked == false} data-automation-id="insure-pay-arrears-dialog-pay">
 				</capitec-button>
 			</capitec-group>`;
 		
