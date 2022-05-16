@@ -212,6 +212,7 @@ export class SendSettlementQuote extends Component {
 
 				div[slot="body"] {
 					width: 531px;
+					height: 486px;
 					border-bottom: 1px solid #E1E1E1;
 				}
 

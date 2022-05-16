@@ -298,6 +298,9 @@ export class HorizonEmailInput extends Component {
 				.hide-visibility {
 					visibility: hidden;
 				}
+				.hide {
+					display: none;
+				}
 				.domain-suggestion {
 					display: block;
 					box-sizing: content-box;
@@ -317,6 +320,12 @@ export class HorizonEmailInput extends Component {
 					--theme-input-search-icon-margin-left: 0px;
 					--theme-input-search-field-text-indent: 0px;
 					--theme-input-search-label-idle-margin-left: 0px;
+				}
+				#confirmEmail {
+					margin-bottom: 16px;
+				}
+				#confirmEmail-suggestion {
+					top: -52px;
 				}
 			`
 		];
@@ -381,9 +390,9 @@ export class HorizonEmailInput extends Component {
 
 	_renderConfirmEmail() {
 		return html`
-			<capitec-group class="header-label" layout="horizontal" halign="left" valign="center" gap="none">
+			<capitec-group class="header-label ${this.emailId === this.email && !isNullorEmpty(this.emailId) ? `hide` : ``}" layout="horizontal" halign="left" valign="center" gap="none">
 				<capitec-label
-					class="emailLabel ${this.emailId === this.email && !isNullorEmpty(this.emailId) ? `hide-visibility` : ``}"
+					class="emailLabel ${this.emailId === this.email && !isNullorEmpty(this.emailId) ? `hide` : ``}"
 					type="subtitle"
 					label="${this.labelTwo}">
 				</capitec-label>
