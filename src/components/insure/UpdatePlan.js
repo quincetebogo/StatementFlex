@@ -718,7 +718,7 @@ class UpdatePlan extends Component {
 								</capitec-text-field>
 							</div>
 							<div class="expander-options">
-								<capitec-date-time-picker type="single" mode="date" inputType="input" date="2020-02-01" outputType="string">
+								<capitec-date-time-picker label="Date of Birth" type="single" mode="date" inputType="input" date="2020-02-01" outputType="string">
 								</capitec-date-time-picker>
 		
 								<capitec-text-field label="ID" style="width: 50%">
@@ -903,7 +903,7 @@ class UpdatePlan extends Component {
 									<capitec-label label="Beneficiaries" type="strong" class="stronger">
 									</capitec-label>
 									<capitec-label label="Add Beneficiary" type="subtitle" class="stronger link"
-										@click="${() => this._openAddBeneficiariesDialog()}" >
+										@click="${() => this._openAddBeneficiariesDialog()}" disabled="${this.quote.beneficiaries.length == 2}" >
 									</capitec-label>
 								</div>
 
