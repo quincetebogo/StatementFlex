@@ -81,6 +81,9 @@ export class VerifyByKBA extends Component {
 			incomingCallDetails: { type: Object },
 			incidentDetails: { type: Object },
 			questions: { type: Object },
+			cifNumber: { type: String },
+			title: { type: String },
+			lastName: { type: String },
 
 			isBusy: { state: true },
 			renderMode: { state: true },
@@ -158,7 +161,10 @@ export class VerifyByKBA extends Component {
 					"enabled": item.enabled
 				};
 				return temp;
-			})
+			}),
+			cif: this.cifNumber,
+			title: this.title,
+			lastName: this.lastName
 		};
 		const returnValue = await this.itaChannelService.verifyKBA(request, () => true);
 		const result = returnValue?.result;
