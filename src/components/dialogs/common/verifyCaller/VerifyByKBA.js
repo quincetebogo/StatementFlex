@@ -59,6 +59,7 @@ export class VerifyByKBA extends Component {
 		this.mandatoryQus = [];
 		this.orQus = [];
 		this._enableVerify = false;
+		this._disableAutoVerify = false;
 
 		this.logger = Logger.getInstance();
 		this.telemetry = HorizonTelemetry.getInstance();
@@ -238,14 +239,15 @@ export class VerifyByKBA extends Component {
 
 		/**
 		 * Rule 1: If one of the answers is NO, then
-		 * disable direct verification and enable verify button
+		 * disable direct verification
 		 */
-		const isNoSelected = this.mandatoryQus.some(item => item.selectedAnswer === ANSWERS.NO) ||
-							 this.orQus.some(item => item.selectedAnswer === ANSWERS.NO);
+		const noInMandatoryQ = this.mandatoryQus.some(item => item.selectedAnswer === ANSWERS.NO);
+		const noInOptionaQ = this.orQus.some(item => item.selectedAnswer === ANSWERS.NO);
+		const isNoSelected = noInMandatoryQ || noInOptionaQ;
 
-		// Why we are OR conditioning here? Once verify button is enabled, there is no
-		// disabling back or direct verification
-		this._enableVerify = this._enableVerify || isNoSelected;
+		// Why we are OR conditioning here? Once auto verification is disabled, there is no
+		// enabling back
+		this._disableAutoVerify = this._disableAutoVerify || isNoSelected;
 
 		/**
 		 * Rule 2: 
@@ -255,8 +257,26 @@ export class VerifyByKBA extends Component {
 		 */
 		const allYes = this.mandatoryQus.every(item => item.selectedAnswer === ANSWERS.YES) &&
 		 			   this.orQus.some(item => item.selectedAnswer === ANSWERS.YES);
-		if (allYes && !this._enableVerify) {
+		if (allYes && !this._disableAutoVerify) {
 			await this._verifyAnswers();
+		} else {
+			this._enableVerify = this._enableVerify || allYes;
+		}
+
+		let allAnswered = false;
+		if (noInMandatoryQ) {
+			allAnswered = this.mandatoryQus.every(item => Boolean(item.selectedAnswer)) &&
+						  this.orQus.some(item => Boolean(item.selectedAnswer));
+		} else {
+			allAnswered = this.SQs.every(item => Boolean(item.selectedAnswer));
+		}
+
+		/**
+		 * Enable the verify button when auto verification is disabled and
+		 * all questions are answered (this is based on the mandatory questions answers)
+		 */
+		if (this._disableAutoVerify && allAnswered) {
+			this._enableVerify = true;
 		}
 
 		this.requestUpdate();
