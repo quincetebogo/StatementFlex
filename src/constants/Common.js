@@ -74,6 +74,17 @@ export const LOW_RISK_TRANSACTIONS = [`stop-card`, `search-other-need`];
 });
 
 /**
+ * 
+ * @readonly
+ */
+ export const LANDING_PAGE_NEEDS = Object.freeze({
+	SAVINGS_ACCOUNT: `savings-account`,
+	LBB: `lbb-account-enquiry`,
+	CREDIT: `credit-account-enquiry`,
+	SAVINGS_PLAN: `savings-plan-account-enquiry`
+});
+
+/**
  * Authentication methods in Horizon (XDS/ KBA)
  * 
  * @readonly
@@ -87,5 +98,6 @@ export const AUTH_METHODS = Object.freeze({
 export const AUTH_IDENTIFICATION_METHODS = Object.freeze({
 	SAID_PASSPORT: `IDNUMBER`,
 	ACCOUNT_NUMBER: `ACCOUNTNUMBER`,
-	CELLPHONE_NUMBER: `VERIFIEDCELLPHONENUMBER`
+	CELLPHONE_NUMBER: `VERIFIEDCELLPHONENUMBER`  
 });
+ 
