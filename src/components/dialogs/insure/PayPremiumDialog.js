@@ -1,7 +1,7 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatDate } from 'app/utils/channelServiceUtilities';
-import 'app/components/common/HorizonSelectIcon';
+import 'app/components/insure/InsureAccountSelect';
 
 // Lookups
 import { CLIENT_ACCOUNTS} from 'app/constants/InsureCommon';
@@ -211,6 +211,8 @@ constructor() {
 	 */
 	_renderDialogBody() {
 		return html`
+
+			<insure-account-select></insure-account-select>
 
 			<capitec-label type="subtitle" label="Choose payment method">
 			</capitec-label>
