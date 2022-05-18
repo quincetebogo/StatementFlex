@@ -3,6 +3,7 @@ import { css, html } from 'platform/elements';
 import { formatStringAsPascalCase, getMonthName } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { Configuration } from 'platform/core';
+import { EventAggregator } from 'platform/EventAggregator';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { SavingsPlanEvents } from 'app/constants/telemetry/events/SavingsPlan';
@@ -62,6 +63,10 @@ export class SavingsPlan extends ViewBase {
 
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.accountViewType = ``;
+		
+		this.eventAggregator = EventAggregator.getInstance();
+		
+		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option));
 	}
 
 	// -------------------
@@ -98,6 +103,7 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	disconnectedCallback() {
+		this.returnToScreen.dispose();
 		super.disconnectedCallback();
 	}
 
@@ -202,10 +208,10 @@ export class SavingsPlan extends ViewBase {
 			});
 		}
 
-			this.renderMode = RENDER_MODE.MAIN_PAGE;
-			this.endCallContext = `LandingPage`;
-			this._performReturnToScreen();
-		}
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this.endCallContext = `LandingPage`;
+		this._performReturnToScreen();
+	}
 
 	_updateLeftBar() {
 		this.horizonStore.setCallerInformation(this.callerInformation);

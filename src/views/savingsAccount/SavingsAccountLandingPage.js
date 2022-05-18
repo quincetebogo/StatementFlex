@@ -82,6 +82,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				'transaction-history': transactionHistory,
 				'debi-check-viewInfo': debiCheck,
 				'statements-transact': statements,
+				'statements': statements,
 				'more': more
 			};
 

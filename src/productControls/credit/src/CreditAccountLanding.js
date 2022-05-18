@@ -1,5 +1,6 @@
 import { CREDIT_TYPE, PRODUCTS } from 'app/constants/Credit';
 import { Component, css, html } from 'platform/elements';
+import { EventAggregator } from 'platform/EventAggregator';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
@@ -31,6 +32,9 @@ export class CreditAccountLanding extends Component {
 		this.fixedTermCreditAccounts = [];
 		this.budgetAccountsSummary = {};
 		this.selectedTab = CREDIT_TYPE.FLEXIBLE;
+		this.eventAggregator = EventAggregator.getInstance();
+
+		this.returnToScreen = this.eventAggregator.subscribe(`send-another-statement`, (e) => this._optionClickHandle(e.option));
 	}
 
 	// -------------------
@@ -39,6 +43,15 @@ export class CreditAccountLanding extends Component {
 	
 	connectedCallback() {
 		super.connectedCallback();
+
+		this._optionClickHandle = (option) => {
+			console.log(`test`);
+		};
+	}
+
+	disconnectedCallback() {
+        this.returnToScreen.dispose();
+		super.disconnectedCallback();
 	}
 
 	// --------------

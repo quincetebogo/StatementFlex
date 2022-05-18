@@ -85,6 +85,45 @@ export class CreditAccount extends ViewBase {
 		super.connectedCallback();
 
 		this._initialise();
+
+		this._optionClick = async (option, creditType, productType, selectedAccountDetails) => {
+
+			const transactionHistory = () => this._transactionHistory(creditType, productType);
+			const statements = () => this._getStatements(creditType, productType, selectedAccountDetails.productTypeCode, selectedAccountDetails.accountNumber, selectedAccountDetails.openDate);
+			const settlementQuote = () => this._settlementQuote(creditType, productType, selectedAccountDetails);
+			const settleAndClose = () => this._settleAndClose(creditType, productType, selectedAccountDetails);
+			const settleLoan = () => this._settleLoan();
+			const paidUpLetter = () => this._paidUpLetter(selectedAccountDetails);
+			const payBudget = () => this._payBudgetDialog(selectedAccountDetails);
+			const viewBudgets = () => this._viewBudgets(selectedAccountDetails);
+	
+			const accConfig = ACCOUNT_INTCAT_ENUM[selectedAccountDetails.productTypeCode];
+			const actions = {
+				'view-budgets': viewBudgets,
+				'pay-budget': payBudget,
+				'transaction-history': transactionHistory,
+				'statements': statements,
+				'settlement-quote': settlementQuote,
+				'paid-up-letter': paidUpLetter,
+				'settle-close': settleAndClose,
+				'settle-loan': settleLoan
+			};
+	
+			if (actions[option]) {
+				
+				const clientNeed = `${option}-${accConfig.subCategory}`;
+				
+				await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
+				this._refreshIncidentDetails();
+	
+				this.ccsStatus = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber || selectedAccountDetails.budgetAccountNumber, productType);
+	
+				// Perform the action only when ccs status is false
+				if (!this.ccsStatus) {
+					return actions[option]();
+				}
+			}
+		};
 	}
 
 	disconnectedCallback() {
@@ -129,45 +168,6 @@ export class CreditAccount extends ViewBase {
 		// verificationStatus is on the this.callerInformation object
 		await this._initialise();
 	}
-
-	async _optionClick(option, creditType, productType, selectedAccountDetails) {
-
-		const transactionHistory = () => this._transactionHistory(creditType, productType);
-		const statements = () => this._getStatements(creditType, productType, selectedAccountDetails.productTypeCode, selectedAccountDetails.accountNumber, selectedAccountDetails.openDate);
-		const settlementQuote = () => this._settlementQuote(creditType, productType, selectedAccountDetails);
-		const settleAndClose = () => this._settleAndClose(creditType, productType, selectedAccountDetails);
-		const settleLoan = () => this._settleLoan();
-		const paidUpLetter = () => this._paidUpLetter(selectedAccountDetails);
-		const payBudget = () => this._payBudgetDialog(selectedAccountDetails);
-		const viewBudgets = () => this._viewBudgets(selectedAccountDetails);
-
-		const accConfig = ACCOUNT_INTCAT_ENUM[selectedAccountDetails.productTypeCode];
-		const actions = {
-			'view-budgets': viewBudgets,
-			'pay-budget': payBudget,
-			'transaction-history': transactionHistory,
-			'statements': statements,
-			'settlement-quote': settlementQuote,
-			'paid-up-letter': paidUpLetter,
-			'settle-close': settleAndClose,
-			'settle-loan': settleLoan
-		};
-
-		if (actions[option]) {
-			
-			const clientNeed = `${option}-${accConfig.subCategory}`;
-			
-			await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
-			this._refreshIncidentDetails();
-
-			this.ccsStatus = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber || selectedAccountDetails.budgetAccountNumber, productType);
-
-			// Perform the action only when ccs status is false
-			if (!this.ccsStatus) {
-				return actions[option]();
-			}
-		}
-	};
 
 	_viewInfo() {
 		this._telemetry.logEvent(CreditEvents.CREDIT_VIEW_INFO, {});
@@ -775,6 +775,16 @@ export class CreditAccount extends ViewBase {
 		this._telemetry.endSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {});
 
 		this._backToLandingPage();
+	}
+
+	_performReturnToScreen() {
+		const returnToScreen = this.horizonStore.getReturnToScreen();
+
+		if (returnToScreen && returnToScreen.optionalData) {
+			this.eventAggregator.publish(`horizon-return-to-screen`, { option: returnToScreen.optionalData });
+		}
+
+		this.horizonStore.clearReturnScreen();
 	}
 
 	// ---------
