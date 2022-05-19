@@ -79,6 +79,10 @@ export class SavingsPlanLanding extends Component {
 	_viewInfo() {
 		this.dispatchEvent(new CustomEvent(`view-info`, { detail: {} }));
 	}
+	
+	_accountDetails(type, accNumber) {
+		this.dispatchEvent(new CustomEvent(`account-details`, { detail: { accountType: type, accountNumber: accNumber } }));
+	}
 
 	// --------------
 	// PUBLIC METHODS
@@ -403,7 +407,7 @@ export class SavingsPlanLanding extends Component {
 								<capitec-icon
 									data-automation-id="savings-plan-flexible-info"
 									icon="system/info-action"
-									@click="${() => this._click(`account-details`, SAVE_PLAN_TYPE.FLEXIBLE, item.accountNumber)}">
+									@click="${() => this._accountDetails(SAVE_PLAN_TYPE.FLEXIBLE, item.accountNumber)}">
 								</capitec-icon>
 								<horizon-label
 									class="label-account-number flexible-label"
@@ -411,7 +415,7 @@ export class SavingsPlanLanding extends Component {
 									label="${item.planName}"
 									textOverflow="ellipsis"
 									value="${item.accountNumber}"
-									@click="${() => this._click(`account-details`, SAVE_PLAN_TYPE.FLEXIBLE, item.accountNumber)}">
+									@click="${() => this._accountDetails(SAVE_PLAN_TYPE.FLEXIBLE, item.accountNumber)}">
 								</horizon-label>
 								<div class="vertical-line"></div>
 								<horizon-label
@@ -465,7 +469,7 @@ export class SavingsPlanLanding extends Component {
 								<capitec-icon
 									data-automation-id="savings-plan-fixed-term-info"
 									icon="system/info-action"
-									@click="${() => this._click(`account-details`, SAVE_PLAN_TYPE.FIXED_TERM, item.accountNumber)}">
+									@click="${() => this._accountDetails(SAVE_PLAN_TYPE.FIXED_TERM, item.accountNumber)}">
 								</capitec-icon>
 								<horizon-label
 									data-automation-id="savings-plan-number"
@@ -473,7 +477,7 @@ export class SavingsPlanLanding extends Component {
 									label="${item.planName}"
 									textOverflow="ellipsis"
 									value="${item.accountNumber}"
-									@click="${() => this._click(`account-details`, SAVE_PLAN_TYPE.FIXED_TERM, item.accountNumber)}">
+									@click="${() => this._accountDetails(SAVE_PLAN_TYPE.FIXED_TERM, item.accountNumber)}">
 								</horizon-label>
 								<div class="vertical-line"></div>
 								<horizon-label

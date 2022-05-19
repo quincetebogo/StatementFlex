@@ -426,5 +426,6 @@ export const RECOGNIZE_NEED_REASONS = Object.freeze([
 	 `TransactionHistory`,
 	 `DebiCheck`,
 	 `SearchOtherNeed`,
-	 `ProductEnquiry`
+	 `ProductEnquiry`,
+	 `LandingPage`
  ]);

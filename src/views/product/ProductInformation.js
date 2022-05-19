@@ -100,38 +100,45 @@ export class ProductInformation extends ViewBase {
 	// ---------
 
 	async _viewBenefits() {
-		let productUrl = '';
+		let productUrl = ``;
 
-		if(this._config.type === `liveBetter`){
-			
+		if (this._config.type === `liveBetter`) {
 			this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_VIEW_BENEFITS, {});
-
 			productUrl = await this.configuration.getSetting(`otherSystemsURL.live-better`);
 		} else {
-		  this._telemetry.logEvent(ProductInfoEvents[`VIEW_BENEFITS_${this._config.type}`], {});
-    
+			this._telemetry.logEvent(ProductInfoEvents[`VIEW_BENEFITS_${this._config.type}`], {});
+
 			const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
 			productUrl = `${globalOneUrl}${this._config.type}`;
 		}
 		
 		window.open(`${productUrl}/`);
-
-		await super.createAndClassifySubsIncident();
 		
 		this._updateIncidentState();
 	}
+
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
-	async _initialise() {
+	_navigationContextUpdate() {
 		const currRoute = this.navigationContext.current;
 		const type = currRoute.queryParams && currRoute.queryParams.type;
 		
-		this._config = CONFIG[type] || CONFIG.SavingsAccount;
+		this._config = CONFIG[type];
+	}
+
+	async _initialise() {
+		this._navigationContextUpdate();
 		
-		await super._inicidentManager_(this._config.product, () => this._toggleBusyFlag());
+		if (this._config) {
+			await super._inicidentManager_(this._config.product, () => this._toggleBusyFlag());
+			await super.createAndClassifySubsIncident(null, false);
+		} else {
+			this._config = CONFIG.SavingsAccount;
+		}
+
 		this.requestUpdate();
 	}
 

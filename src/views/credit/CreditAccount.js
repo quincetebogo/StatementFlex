@@ -1,5 +1,5 @@
 import { ACCOUNT_STATUS, CREDIT_TYPE, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PRODUCTS } from 'app/constants/Credit';
-import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE } from 'app/constants/Common';
+import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { CreditEvents, SETTLEMENT_QUOTE_EVENTS } from 'app/constants/telemetry/events/Credit';
 import { css, html } from 'platform/elements';
@@ -201,6 +201,9 @@ export class CreditAccount extends ViewBase {
 			[PRODUCTS.TERM_LOAN]: termLoan
 		};
 
+		await super._inicidentManager_(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
+		await super.createAndClassifySubsIncident(null, false);
+		
 		await creditProducts[this.accountViewType]();
 	}
 
@@ -209,7 +212,8 @@ export class CreditAccount extends ViewBase {
 			"screen": `${this.accountViewType} details`,
 			"next-screen": TelemetryScreen.CREDIT_LANDING
 		});
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+
+		this._setIncidentDone();
 	}
 
 	_sendStatement() {
@@ -424,6 +428,9 @@ export class CreditAccount extends ViewBase {
 
 			this.creditBalance = returnValue.result;
 
+			await super._inicidentManager_(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
+			await super.createAndClassifySubsIncident(null, false);
+		
 			this._telemetry.startSpan(CreditEvents.CREDIT, {
 				"screen": TelemetryScreen.CREDIT_LANDING,
 				"credit-active": true
@@ -774,7 +781,7 @@ export class CreditAccount extends ViewBase {
 		this._telemetry.logEvent(CreditEvents.CREDIT_BUDGET_DETAILS_BACK, {});
 		this._telemetry.endSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {});
 
-		this._backToLandingPage();
+		this._setIncidentDone();
 	}
 
 	_performReturnToScreen() {
