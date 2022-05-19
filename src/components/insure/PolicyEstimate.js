@@ -176,7 +176,7 @@ class PolicyEstimate extends Component {
 		}
 		if (parseInt(this.estimate.lifesAssured[index].coverAmount) > parseInt(maxCover)) {
 			this.estimate.lifesAssured[index].coverDetails.coverMessage = this.estimate.lifesAssured[index].coverDetails.maxCoverMessage
-				.replace("{0:#,##0}", maxCover);
+				.replace("{0:#,##0}", "R" + maxCover);
 			this.canPerformEstimate = false;
 		}
 
@@ -184,7 +184,7 @@ class PolicyEstimate extends Component {
 		if (parseInt(this.estimate.lifesAssured[index].coverAmount) < parseInt(this.estimate.lifesAssured[index].coverDetails.minCoverAmount) ||
 			this.estimate.lifesAssured[index].coverAmount == 0) {
 			this.estimate.lifesAssured[index].coverDetails.coverMessage = this.estimate.lifesAssured[index].coverDetails.minCoverMessage
-				.replace("{0:#,##0}", this.estimate.lifesAssured[index].coverDetails.minCoverAmount);
+				.replace("{0:#,##0}", "R" + this.estimate.lifesAssured[index].coverDetails.minCoverAmount);
 			this.canPerformEstimate = false;
 		}
 		this.requestUpdate();
@@ -225,12 +225,12 @@ class PolicyEstimate extends Component {
 		if (this.estimate.lifesAssured[index].coverAmount != '') {
 			if (parseInt(this.estimate.lifesAssured[index].coverAmount) > parseInt(this.estimate.lifesAssured[index].coverDetails.maxCoverAmount)) {
 				this.estimate.lifesAssured[index].coverDetails.coverMessage = this.estimate.lifesAssured[index].coverDetails.maxCoverMessage
-					.replace("{0:#,##0}", this.estimate.lifesAssured[index].coverDetails.maxCoverAmount);
+					.replace("{0:#,##0}", "R" + this.estimate.lifesAssured[index].coverDetails.maxCoverAmount);
 				this.canPerformEstimate = false;
 			}
 			if (parseInt(this.estimate.lifesAssured[index].coverAmount < this.estimate.lifesAssured[index].coverDetails.minCoverAmount)) {
 				this.estimate.lifesAssured[index].coverDetails.coverMessage = this.estimate.lifesAssured[index].coverDetails.minCoverMessage
-					.replace("{0:#,##0}", this.estimate.lifesAssured[index].coverDetails.minCoverAmount);
+					.replace("{0:#,##0}", "R" + this.estimate.lifesAssured[index].coverDetails.minCoverAmount);
 				this.canPerformEstimate = false;
 			}
 		}
@@ -478,7 +478,7 @@ class PolicyEstimate extends Component {
 		return html`		
 		<div id="insure-calc-column-left">
 			${this.estimate.lifesAssured.map((lifeAssured, index) => html`
-			<div class="calc-card" id=${index != 0 ? 'calc-card-other' : ''}>
+			<div class="calc-card" id=${index !=0 ? 'calc-card-other' : '' }>
 				${index != 0 ? html`
 				<div class="calc-card-header">
 					<capitec-label data-automation-id="insure-estimate-card-relationship"
@@ -509,7 +509,7 @@ class PolicyEstimate extends Component {
 				</div>
 				<div class="calc-card-row">
 					<capitec-text-field label="Age" type="numeric" data-automation-id="insure-estimate-card-age"
-						@value-changed="${(e) => this._ageChanged(e, index)}" value="${lifeAssured.age}"
+						keyboardMode="numeric" @value-changed="${(e) => this._ageChanged(e, index)}" value="${lifeAssured.age}"
 						class="calc-card-row-input"
 						hint="${lifeAssured?.coverDetails?.minAge} - ${lifeAssured?.coverDetails?.maxAge}"
 						error="${lifeAssured.coverDetails.ageMessage}"
