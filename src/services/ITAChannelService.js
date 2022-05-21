@@ -28,13 +28,9 @@ export class ITAChannelService extends ChannelServiceBase {
 	// --------------
 
 	itaVerification(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const url = `/clientcare-call-${this._version}/ita-verification`;
-		return this.post(
-			url,
-			{
-				"cifNumber": request.cifNumber,
-				"connectionId": request.connectionID
-			},
+		const url = `/clientcare/call/${this._version}/ita-verification?CifNumber=${request.cifNumber}&ConnectionId=${request.connectionID}`;
+		return this.get(
+			url, 
 			this.setToken(), 
 			`itaVerification`,
 			false,
