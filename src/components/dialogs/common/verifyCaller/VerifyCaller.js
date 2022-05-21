@@ -6,6 +6,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { ITAChannelService } from 'app/services/ITAChannelService';
+import { KbaChannelService } from 'app/services/KbaChannelService';
 import { ItaCallerVerification } from 'app/services/ItaCallerVerification';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { VerifyCallerEvents } from 'app/constants/telemetry/events/VerifyCaller';
@@ -86,6 +87,8 @@ export class VerifyCaller extends Component {
 		this.configuration = Configuration.getInstance();
 		this.logger = Logger.getInstance();
 		this.telemetry = HorizonTelemetry.getInstance();
+
+		this.kbaChannelService = new KbaChannelService(() => this._toggleBusyFlag(), () => true);
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag());
 		this.itaChannelService = new ITAChannelService(() => this._toggleBusyFlag(), () => true);
@@ -205,7 +208,7 @@ export class VerifyCaller extends Component {
 	}
 
 	async _loadKBA() {
-		const returnValue = await this.itaChannelService.loadKBA(this.callerInformation.cifNumber, this.callerInformation.identifiedBy, () => true);
+		const returnValue = await this.kbaChannelService.loadKBA(this.callerInformation.cifNumber, this.callerInformation.identifiedBy, () => true);
 
 		this.telemetry.logEvent(VerifyCallerEvents.SECURITY_QUESTIONS_CLICK, {
 			"screen": TelemetryScreen.VERIFY_CALLER,

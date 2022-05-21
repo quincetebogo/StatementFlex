@@ -167,7 +167,7 @@ export class VerifyByKBA extends Component {
 			title: this.title,
 			lastName: this.lastName
 		};
-		const returnValue = await this.itaChannelService.verifyKBA(request, () => true);
+		const returnValue = await this.kbaChannelService.verifyKBA(request, () => true);
 		const result = returnValue?.result;
 
 		await this.telemetry.logEvent(VerifyCallerEvents.KBA_OUTCOME, {
