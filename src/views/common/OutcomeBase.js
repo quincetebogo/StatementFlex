@@ -104,7 +104,7 @@ export class OutcomeBase extends ViewBase {
 			"cifNumber": this.callerInformation.cifNumber,
 			"emailAddress": event.detail.email,
 			"documentType": DOCUMENT_TYPE[this.incidentDetails.currentNeed],
-			"creditType": formatStringAsPascalCase(screenDetails.productType),
+			"creditType": formatStringAsPascalCase(screenDetails.productType).replace(` `, ``),
 			"data": event.detail.documentData
 		};
 

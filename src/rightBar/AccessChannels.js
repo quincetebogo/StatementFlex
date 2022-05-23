@@ -502,6 +502,11 @@ export class AccessChannels extends Component {
 
 		if (returnValue.succeeded) {
 			this.landingInfo = returnValue.result;
+		
+			const callerInformation = this.horizonStore.getCallerInformation();
+			callerInformation.emailId = returnValue.result?.email;
+			this.horizonStore.setCallerInformation(callerInformation);
+
 			if (this.landingInfo.msisdn?.length >= 9) {
 				this.verifiedTelephoneNumber = `0${this.landingInfo.msisdn.substr(this.landingInfo.msisdn.length - 9)}`;
 			}

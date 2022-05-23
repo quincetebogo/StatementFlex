@@ -140,6 +140,8 @@ export class HorizonEmailInput extends Component {
 			this.emailError = ``;
 			this.confirmEmailError = this.confirmEmailError === ERROR_MESSAGE.MISMATCH ? `` : this.confirmEmailError;
 			this.email = event.detail.new;
+			this.confirmEmail = this.confirmEmail === this.emailId ? `` : this.confirmEmail;
+
 			this.callBack();
 		}
 	}
@@ -323,6 +325,9 @@ export class HorizonEmailInput extends Component {
 				}
 				#confirmEmail {
 					margin-bottom: 16px;
+				}
+				#confirmEmail[error="Enter a valid email address"], #confirmEmail[error="Emails don't match"], #confirmEmail[error="Enter a valid email address i.e.email@gmail.com"] {
+					margin-bottom: 8px;
 				}
 				#confirmEmail-suggestion {
 					top: -52px;
