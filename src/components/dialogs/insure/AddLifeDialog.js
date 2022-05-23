@@ -356,6 +356,11 @@ class AddLifeDialog extends Component {
 			</capitec-group>`;
 	}
 
+	/**
+	 * Render back or cancel button depending on which view is shown (Default vs Extended Family)
+	 * 
+	 * @returns {html} The html content of the component.
+	 */
 	_renderCancelOrBackButton() {
 		if (this.showExtendedList == false) {
 			return html`
@@ -366,8 +371,7 @@ class AddLifeDialog extends Component {
 		} else {
 			return html`
 			<capitec-button label="Back" data-automation-id="insure-add-life-dialog-back" @click="${() => this._onBackClick()}">
-			</capitec-button>
-		`;
+			</capitec-button>`;
 		}
 
 	}

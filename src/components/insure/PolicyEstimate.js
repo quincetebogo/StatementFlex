@@ -130,7 +130,7 @@ class PolicyEstimate extends Component {
 		}
 
 		// Set initial error message
-		life.coverDetails.coverMessage = life.coverDetails.minCoverMessage.replace("{0:#,##0}", life.coverDetails.minCoverAmount);
+		// life.coverDetails.coverMessage = life.coverDetails.minCoverMessage.replace("{0:#,##0}", life.coverDetails.minCoverAmount);
 
 		this.estimate.lifesAssured.splice(1, 0, life);
 		this.showAddLifeDialog = false;
