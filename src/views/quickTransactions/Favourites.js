@@ -557,6 +557,16 @@ export class Favourites extends SavingsAccountBase {
 				return item;
 			});
 
+			if (this.settlementQuoteDetails.length > 0) {
+				this.ccsStatus = await this._checkCreditPermisions(`settlement-quote`, this.callerInformation.cifNumber, this.settlementQuoteDetails[0].accountNumber, this.settlementQuoteDetails[0].type);
+			
+				if (this.ccsStatus) {
+					this.showCCSmodal = true;
+					this.requestUpdate();
+					return;
+				}
+			}
+
 			this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
 		}
 
