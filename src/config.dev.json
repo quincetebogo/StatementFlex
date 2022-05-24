@@ -59,7 +59,7 @@
 		}
 	},
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"acceptCall": {
 		"enabled": false,
 			"positiveCase": true
@@ -127,6 +127,14 @@
 			"positiveCase": true
 		},
 		"getClientInsights": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureClientPolicies": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureProductParams": {
 			"enabled": true,
 			"positiveCase": true
 		}
