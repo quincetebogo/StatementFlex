@@ -3,6 +3,7 @@ import { QuickTransactionEvents, SETTLEMENT_QUOTE_EVENTS, STATEMENT_EVENTS } fro
 import { css, html } from 'platform/elements';
 import { formatStringAsPascalCase, isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
+import { getMonthName } from 'app/utils/channelServiceUtilities';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
@@ -12,6 +13,7 @@ import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
+import 'app/components/common/ServiceCallErrorScreen';
 import 'app/components/dialogs/common/CCSstatus';
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
@@ -24,11 +26,11 @@ import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
 import 'app/components/dialogs/common/Feedback';
 import 'app/components/quickTransactions/SettlementQuote';
+import 'app/components/quickTransactions/TaxCertificateLanding';
 
 import 'app/dialogs/credit/PaidUpAccounts';
 import 'app/dialogs/credit/PaidUpLetter';
 import 'app/dialogs/taxCertificates/TaxCertificates';
-
 
 const SAVINGS_ACCOUNT_TYPE = 300;
 
@@ -70,6 +72,7 @@ export class Favourites extends SavingsAccountBase {
 		this.selectedFeedback = [];
 		this.feedbackOptions = [];
 		this.updateStrackClick = false;
+		this.taxCertificateDetails = null;
 		// TODO: get ccs status for client
 		this.ccsStatus = false;
 		this.showCCSmodal = false;
@@ -359,6 +362,39 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	// ---------------
+	// PUBLIC METHODS
+	// ---------------
+
+	_formatDate(date) {
+		const newdate = new Date(Date.parse(date));
+		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+	}
+
+	_getYear() {
+		const year = new Date(this.accountOpenedDate).getFullYear();
+		return year+1;
+	}
+
+	_checkAccountOpenDate() {
+		const today = new Date();
+		const openDate = new Date(this.landingPageInfo.accountOpenedDate);
+		//28 February 2022
+		if (openDate.getFullYear() === today.getFullYear()) {
+			if (openDate.getMonth() > 2) {
+				return false;
+			}
+			if (openDate.getMonth() === 2) {
+				if (openDate.getDate > 28 ) {
+					return false;
+				}
+				return true;
+			}
+			return true; 
+		}
+		return true;
+	}
+
+	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
@@ -492,14 +528,26 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-	_taxCertificates() {
+	async _taxCertificates() {
 		// TODO: Functionality to generate tax certificate comes here
 		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_TAX_CERTIFICATE, {
 			"screen": TelemetryScreen.FAVOURITES,
 			"next-screen": TelemetryScreen.TAX_CERTIFICATE
 		});
 
-		this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
+		const returnValue = await this.quickTransactionService.getTaxCertificate(this.callerInformation.cifNumber, () => true);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unable to get load tax certificates information`, `_taxCertificates`, returnValue.correlationId);
+			this.horizonRouter.navigateToTaxCertificateServiceError();
+			return;
+		}
+
+		this.taxCertificateDetails = returnValue.result;
+		this.hasTaxCertificate = this._checkAccountOpenDate(); 
+		//this.hasTaxCertificate = this.taxCertificateDetails.iT3BTaxCertificates.length + this.taxCertificateDetails.iT3STaxCertificates.length > 0;
+
+		this.hasTaxCertificate ? this.renderMode = RENDER_MODE.TAX_CERTIFICATE : RENDER_MODE.TAX_CERTIFICATE_NOT_AVAILABLE;
 	}
 
 	async _getStatements() {
@@ -844,6 +892,17 @@ export class Favourites extends SavingsAccountBase {
 					width: 100%;
 					height: var(--horizon-panel-height, 888px);
 				}
+
+				.error-msg {
+					width: auto;
+					height: 60px;
+					font-family: "Hind Vadodara";
+					color: #3A3A3A;
+					font-size: 16px;
+					font-weight: 500;
+					letter-spacing: 0;
+					text-align: center;
+				}
 			`
 		];
 	}
@@ -860,6 +919,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderFeedback()}
 			${this._renderUpdateIncidentModal()}
 			${this._renderTaxCertificate()}
+			${this._renderTaxCertificateNotAvailable()}
 			${this._renderPaidUpAccounts()}
 			${this._renderSettlementQuote()}
 			${this._renderSettlementQuoteDialog()}
@@ -1081,11 +1141,39 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE
 		? html`
 			<horizon-tax-certificate
+				.taxCertificateDetails="${this.taxCertificateDetails}"
 				.cifNumber="${this.callerInformation.cifNumber}"
 				accountNumber="${this.landingPageInfo.accountNumber}"
 				@cancel="${() => this._backToLandingPage()}">
 			</horizon-tax-certificate>
 		`
+		: html``;
+	}
+
+	// _renderTaxCertificateNotAvailable() {
+	// 	return this.renderMode === RENDER_MODE.TAX_CERTIFICATE_NOT_AVAILABLE
+	// 	? html`
+	// 		<horizon-service-call-error-screen
+	// 			bannerDetail="You have no Tax Certificates yet"
+	// 			image="/images/tax-certificate/send-tax-certificate.svg"
+	// 			header="You have no Tax Certificates yet">
+	// 				<section
+	// 					class="error-msg"
+	// 					slot="detail">
+	// 						<p>This account was opened after <strong>${this._formatDate(this.landingPageInfo.accountOpenedDate)}</strong>. Tax details will be available after <strong>1 March ${this._getYear()}</strong>.</p>
+	// 				</section>
+	// 		</horizon-service-call-error-screen>`
+	// 	: html``;
+	// }
+
+	_renderTaxCertificateNotAvailable() {
+		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE_NOT_AVAILABLE
+		? html`
+			<horizon-tax-certificate-landing
+				.accountOpenedDate="${this.landingPageInfo.accountOpenedDate}"
+				@back="${() => this._backToLandingPage()}">
+			</horizon-tax-certificate-landing>
+			`
 		: html``;
 	}
 	

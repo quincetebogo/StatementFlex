@@ -115,6 +115,7 @@ export const QuickTransactionEvents = {
 	TAX_CERTIFICATE_OUTCOME_DONE: `call.fulfill-need.tax-certificate.outcome.done`,
 	TAX_CERTIFICATE_OUTCOME_ASSIGN: `call.fulfill-need.tax-certificate.outcome.hand-off`,
 	TAX_CERTIFICATE_FIND_BRANCH: `call.fulfill-need.tax-certificate.find-a-branch`,
+	TAX_CERTIFICATE_NOT_AVAILABLE: `call.fulfill-need.tax-certificate.not-available`,
 
 	// Settlement Quote
 	SETTLEMENT_QUOTE_SELECT: `call.fulfill-need.select.settlement-quote`,

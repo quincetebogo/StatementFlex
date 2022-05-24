@@ -63,6 +63,7 @@ export class TaxCertificatesDialog extends Component {
 		return {
 			cifNumber: { type: String },
 			accountNumber: { type: String },
+			taxCertificateDetails: { type: Object },
 			taxCertType: { type: String, attribute: `type` },
 
 			// Private Properties
@@ -77,7 +78,7 @@ export class TaxCertificatesDialog extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this._loadTaxCertificates();
+		this._initialise();
 	}
 
 	disconnectedCallback() {
@@ -257,7 +258,7 @@ export class TaxCertificatesDialog extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
-	async _loadTaxCertificates() {
+	async _initialise() {
 		await this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE
 		});
@@ -265,16 +266,6 @@ export class TaxCertificatesDialog extends Component {
 		this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP, {
 				"screen": TelemetryScreen.TAX_CERTIFICATE
 		});
-		
-		const returnValue = await this.quickTransactionService.getTaxCertificate(this.cifNumber, () => true);
-
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Unable to get load tax certificates information`, `_taxCertificates`, returnValue.correlationId);
-			this.horizonRouter.navigateToTaxCertificateServiceError();
-		}
-	
-		this.taxCertificateDetails = returnValue.result;
-		this.requestUpdate();
 	}
 
 	_saveToState(email, selectedCertificates, selectedCertType) {
