@@ -6,6 +6,7 @@
 		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-dev.int.capinet"
 	},
 	"signalRUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
+	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
@@ -20,6 +21,11 @@
 		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js",
 		"partner-benefits": "https://www.capitecbank.co.za/bank-better-live-better/articles/benefits/",
 		"fees": "https://www.capitecbank.co.za/global-one/transact/fees/"		
+	},
+	"AuthMethod": "KBA",
+	"AuthAttempts": {
+		"XDS": 2,
+		"KBA": 1
 	},
 	"LogRequestResponseModels" : true,
 	"VDN": "7250",
@@ -137,5 +143,6 @@
 			"enabled": false,
 			"positiveCase": true
 		}
-	}
+	},
+	"searchClientOptionEnabled": true
 }

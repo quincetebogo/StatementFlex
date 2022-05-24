@@ -16,6 +16,7 @@
 	SECURITY_QUESTIONS_FAILURE: `Security Questions Failure`,
 	XDS_FAILED: `XDS Verification Failed`,
 	ITA_FAILED: `ITA Verification Failed`,
+	KBA_FAILED: `KBA Verification Failed`,
 
 	STOP_CARD: `Stop Card`,
 	STOP_CARD_OUTCOME: `Stop Card Outcome`,
@@ -117,10 +118,11 @@
 	PROOF_OF_PAYMENT_DIALOG: `Send Proof of Payment Dialog`,
 	PROOF_OF_PAYMENT_SUCCESS: `Proof of payment success`,
 	PROOF_OF_PAYMENT_FAILURE: `Proof of payment failure`,
-	CREDIT_STATEMENTS_FAILURE: `Credit Statement failure`,
 
 	SETTLEMENT_QUOTE_VIEW: `Settlement Quote Accounts view`,
 	SETTLEMENT_QUOTE_SUCCESS: `Settlement Quote Success screen`,
 	SETTLEMENT_QUOTE_FAILURE: `Settlement Quote Failure screen`,
-	SETTLEMENT_QUOTE_PARTIAL_SUCCESS: `Settlement Quote Partial Success screen`
+	SETTLEMENT_QUOTE_PARTIAL_SUCCESS: `Settlement Quote Partial Success screen`,
+
+	KBA: `KBA Dialog`
 };

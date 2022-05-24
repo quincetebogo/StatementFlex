@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator } from 'platform/core';
+import { Configuration, EventAggregator } from 'platform/core';
 import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/OptionButton';
@@ -21,6 +21,8 @@ export class MiniProfile extends Component {
 	constructor() {
 		super();
 		this.miniProfile = null;
+
+		this.configuration = Configuration.getInstance();
 	}
 
 	/**
@@ -40,9 +42,13 @@ export class MiniProfile extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 		this.eventAggregator = EventAggregator.getInstance();
+
+		this.authMethod = await this.configuration.getSetting(`AuthMethod`);
+		const authAttempts = await this.configuration.getSetting(`AuthAttempts`);
+		this.maxAttempts = authAttempts[this.authMethod];
 	}
 
 	// ---------
@@ -350,9 +356,9 @@ export class MiniProfile extends Component {
 		const noBanner = this.miniProfile.isVerified || 
 							this.miniProfile.isNonClient || 
 							// eslint-disable-next-line no-extra-parens
-							(!this.miniProfile.hasDigitalChannels && this.miniProfile.verificationAttempts.xdsAttempts >= 2) ||
+							(!this.miniProfile.hasDigitalChannels && this.miniProfile.verificationAttempts.sqAttempts >= this.maxAttempts) ||
 							// eslint-disable-next-line no-extra-parens
-							(this.miniProfile.verificationAttempts.itaAttempts >= 2 && this.miniProfile.verificationAttempts.xdsAttempts >= 2);
+							(this.miniProfile.verificationAttempts.itaAttempts >= 2 && this.miniProfile.verificationAttempts.sqAttempts >= this.maxAttempts);
 
 		if (noBanner) {
 			return html``;

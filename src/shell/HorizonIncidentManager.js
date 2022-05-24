@@ -2,8 +2,10 @@ import { CAUSE_CODE_BY_REASON, CLOSE_REASONS, HORIZON_NEED_STATUS, REASON_RESOLU
 import { Component, View } from 'platform/elements';
 import { Configuration, Logger, SecurityContext } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { STRACK_MAPPING } from 'app/constants/StrackMapping';
+import { SubsequentNeedEvents } from 'app/constants/telemetry/events/SubsequentIncident';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 /**
@@ -36,6 +38,7 @@ export class HorizonIncidentManager {
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
 		this.securityContext = SecurityContext.getInstance();
+		this.telemetry = HorizonTelemetry.getInstance();
 
 		this.incidentService = new IncidentManagementService(null, () => true);
 	}
@@ -348,6 +351,12 @@ export class HorizonIncidentManager {
 		}
 		
 		this.checkIncidentStatus = false;
+		
+		await this.telemetry.logEvent(SubsequentNeedEvents.SUBSEQUENT_INCIDENT, {
+			"parent-incident-reference": incidentDetails.primaryIncidentRef,
+			"child-incident-reference": returnValue.result.incidentNumber,
+			"child-incident-rec-id": returnValue.result.incidentRecId
+		}, true);
 
 		incidentDetails.incidentReferenceNumber = returnValue.result.incidentNumber;
 		incidentDetails.incidentRecId = returnValue.result.incidentRecId;

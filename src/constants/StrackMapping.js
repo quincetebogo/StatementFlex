@@ -31,7 +31,6 @@
 	"tax-certificate-save": `SAVINGS_PLAN_TAX_CERTIFICATE`,
 
 	// LBB
-	"account-details-lbb": `ACCOUNT_INFORMATION_LBB`,
 	"transaction-history-lbb": `TRANSACTION_HISTORY_LBB`,
 	"statements-lbb": `STATEMENTS_LBB`,
 	"automatic-savings-lbb": `AUTOMATIC_SAVINGS_LBB`,
@@ -53,7 +52,6 @@
 
 	// Unkonwn references/ dynamic implementations
 	"credit-card-statements": `STATEMENTS_CC`,
-	"savings-account": `SAVINGS_ACCOUNT`,
 	"telephony-hung-up": `TELEPHONY_HUNG_UP`,
 	"telephony-call-back": `TELEPHONY_CALL_BACK`,
 	"telephony-bad-connection": `TELEPHONY_BAD_CONNECTION`,
@@ -93,5 +91,11 @@
 	"statements-term-loan": `SEND_STATEMENTS_TERM_LOAN`,
 	"settlement-quote-term-loan": `SETTLEMENT_QUOTE_TERM_LOAN`,
 	"paid-up-letter-term-loan": `PAID_UP_LETTER_TERM_LOAN`,
-	"settle-close-term-loan": `SETTLE_CLOSE_TERM_LOAN`
+	"settle-close-term-loan": `SETTLE_CLOSE_TERM_LOAN`,
+
+	// Landing page Balance/Account enquiry
+	"savings-account": `SAVINGS_ACCOUNT`,
+	"savings-plan-account-enquiry": `SAVINGS_PLAN_ACCOUNT_ENQUIRY`,
+	"credit-account-enquiry": `CREDIT_ACCOUNT_ENQUIRY`,
+	"lbb-account-enquiry": `ACCOUNT_INFORMATION_LBB`
 });
