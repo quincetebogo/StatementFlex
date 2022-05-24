@@ -46,7 +46,6 @@ export class ExistingClient extends InsureViewBase {
 			productParams: { type: Object, state: true },
 			estimate: { type: Object, state: true },
 			quote: { type: Object, state: true },
-			mainLifeGender: { type: String, state: true }
 		};
 	}
 
@@ -77,7 +76,9 @@ export class ExistingClient extends InsureViewBase {
 			cifNumber: cifNumber,
 			idNumber: idNumber,
 		}
+		console.log("_retrieveClientPolicies");
 		const resp = await this.insureService.clientPolicies(request);
+		console.log(resp);
 		return resp.result;
 	}
 
@@ -258,7 +259,8 @@ export class ExistingClient extends InsureViewBase {
 			<horizon-insure-policy-estimate @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@calculate="${(e) => this._calculateClientEstimate(e)}" .estimate="${this.estimate}"
 				.productParams="${this.productParams}" .mainLifeDefaultAge="${this._getMainLifeAge()}"
-				.mainLifeDefaultGender="${this._getMainLifeGender()}">
+				.mainLifeDefaultGender="${this._getMainLifeGender()}"
+				.maxAllowedCover="${this.clientPolicies.checkInsuranceDetails[0].maxAllowedCover}">
 			</horizon-insure-policy-estimate>`
 	}
 

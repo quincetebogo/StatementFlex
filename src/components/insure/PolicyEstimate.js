@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { getCoverDetailsByParams } from 'app/utils/insureUtils';
+import { validateEstimateRequest, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 import { GENDER_OPTIONS } from 'app/constants/InsureCommon';
 
 import 'app/components/dialogs/insure/AddLifeDialog';
@@ -28,9 +28,6 @@ class PolicyEstimate extends Component {
 		super();
 		this.genderOptions = GENDER_OPTIONS;
 		this.showAddLifeDialog = false;
-		this.canPerformEstimate = false;
-
-
 	}
 
 	//#endregion
@@ -42,6 +39,9 @@ class PolicyEstimate extends Component {
 	 * @property {Object} productParams Data & flags for insure product parameters
 	 * @property {String} newTotalPremium Tied to 'calculate by premium' input and used to track the override
 	 * @property {boolean} showAddLifeDialog Controls when to show the AddLife dialog
+	 * @property {boolean} mainLifeDefaultAge Main life derived age
+	 * @property {boolean} mainLifeDefaultGender Main life derived gender
+	 * @property {Number} maxAllowedCover  CheckInsurance limit for remaining cover limit
 	 * 
 	 * @readonly
 	 * @static
@@ -52,9 +52,9 @@ class PolicyEstimate extends Component {
 			productParams: { type: Object },
 			newTotalPremium: { type: String, state: true },
 			showAddLifeDialog: { type: Boolean, state: true },
-			canPerformEstimate: { type: Boolean, state: true },
 			mainLifeDefaultAge: { type: Number, state: true },
 			mainLifeDefaultGender: { type: String, state: true },
+			maxAllowedCover: { type: Number, state: true }
 		};
 	}
 
@@ -85,6 +85,10 @@ class PolicyEstimate extends Component {
 		}));
 	}
 
+	_validateEstimateRequest() {
+
+	}
+
 	/**
 	 * Calculate Button event
 	 * 1. Determine if should calculate by premium or not
@@ -93,6 +97,22 @@ class PolicyEstimate extends Component {
 	 * 
 	 */
 	async _calculateEstimate() {
+
+		// Validate
+		if (this.newTotalPremium != '' || !this.newTotalPremium) {
+			this.estimate.lifesAssured.forEach(life => {
+				if (!life.coverAmount || life.coverAmount == '' || life.coverAmount == 0) {
+					life.coverDetails.coverMessage = life.coverDetails.minCoverMessage.replace("{0:#,##0}", life.coverDetails.minCoverAmount);
+				}
+				if (!life.age || life.age == '') {
+					let ageMessage = `Age is required`
+					life.coverDetails.ageMessage = ageMessage;
+				}
+			});
+			this.requestUpdate();			
+			return;
+		}
+
 		if (this.newTotalPremium != '') {
 			this.estimate.totalPremium = this.newTotalPremium
 		} else {
@@ -125,13 +145,8 @@ class PolicyEstimate extends Component {
 			rowID: this.estimate.lifesAssured.length,
 			coverDetails: event.detail.coverDetails
 		}
-
-		// Set initial error message
-		life.coverDetails.coverMessage = life.coverDetails.minCoverMessage.replace("{0:#,##0}", life.coverDetails.minCoverAmount);
-
 		this.estimate.lifesAssured.splice(1, 0, life);
 		this.showAddLifeDialog = false;
-		this.canPerformEstimate = false;
 	}
 
 	/**
@@ -151,31 +166,23 @@ class PolicyEstimate extends Component {
 	 * Event fired when an estimate life assured COVER AMOUNT value changes
 	 * Captures new coverAmount value
 	 * Refresh error messages for Age & Cover amount
-	 * Toggle canPerformEstimate
 	 * @param {event} event Contains the new value for coverAmount
 	 * @param {number} index Index of the life that changed
 	 */
 	_coverAmountChanged(event, index) {
-		this.canPerformEstimate = true;
 		if (event.detail.old != event.detail.new) {
 			this.estimate.lifesAssured[index].coverAmount = event.detail.new;
 			this.newTotalPremium = '';
 		}
-		this.estimate.lifesAssured[index].coverDetails.coverMessage = ``;
-		this.estimate.lifesAssured[index].coverDetails.genderMessage = ``;
 
-		// Over max cover check
-		if (parseInt(this.estimate.lifesAssured[index].coverAmount) > parseInt(this.estimate.lifesAssured[index].coverDetails.maxCoverAmount)) {
-			this.estimate.lifesAssured[index].coverDetails.coverMessage = this.estimate.lifesAssured[index].coverDetails.maxCoverMessage
-				.replace("{0:#,##0}", this.estimate.lifesAssured[index].coverDetails.maxCoverAmount);
-			this.canPerformEstimate = false;
-		}
-		if (parseInt(this.estimate.lifesAssured[index].coverAmount) < parseInt(this.estimate.lifesAssured[index].coverDetails.minCoverAmount) ||
-			this.estimate.lifesAssured[index].coverAmount == 0) {
-			this.estimate.lifesAssured[index].coverDetails.coverMessage = this.estimate.lifesAssured[index].coverDetails.minCoverMessage
-				.replace("{0:#,##0}", this.estimate.lifesAssured[index].coverDetails.minCoverAmount);
-			this.canPerformEstimate = false;
-		}
+		this.estimate.lifesAssured[index].coverDetails = refreshRelationshipCoverDetails(
+			this.estimate.lifesAssured[index].relationship,
+			this.productParams,
+			this.estimate.lifesAssured[index].coverAmount,
+			index == 0 ? this.maxAllowedCover : 0,
+			this.estimate.lifesAssured[index].age,
+			this.estimate.lifesAssured[index].coverDetails.isExtendedFamily,
+			false);
 		this.requestUpdate();
 	}
 
@@ -184,48 +191,24 @@ class PolicyEstimate extends Component {
 	 * Captures new age value
 	 * Refresh cover details for life, supplying age
 	 * Refresh error messages for Age & Cover amount
-	 * Toggle canPerformEstimate
 	 * @param {event} event Contains the new value for age
 	 * @param {number} index Index of the life that changed
 	 */
 	_ageChanged(event, index) {
-		this.canPerformEstimate = true;
+
 		if (event.detail.old != event.detail.new) {
 			this.estimate.lifesAssured[index].age = event.detail.new;
 			this.newTotalPremium = '';
 		}
-		this.estimate.lifesAssured[index].coverDetails.coverMessage = ``;
-		this.estimate.lifesAssured[index].coverDetails.genderMessage = '';
-		this.estimate.lifesAssured[index].coverDetails = getCoverDetailsByParams(
+
+		this.estimate.lifesAssured[index].coverDetails = refreshRelationshipCoverDetails(
 			this.estimate.lifesAssured[index].relationship,
 			this.productParams,
+			this.estimate.lifesAssured[index].coverAmount,
+			index == 0 ? this.maxAllowedCover : 0,
 			this.estimate.lifesAssured[index].age,
-			this.estimate.lifesAssured[index].coverDetails.isExtendedFamily);
-
-		// Age Check
-		if (this.estimate.lifesAssured[index].age >= this.estimate.lifesAssured[index].coverDetails.minAge
-			&& this.estimate.lifesAssured[index].age <= this.estimate.lifesAssured[index].coverDetails.maxAge) {
-			this.estimate.lifesAssured[index].coverDetails.ageMessage = ``;
-		} else {
-			this.canPerformEstimate = false;
-		}
-
-		// Over max cover / under min cover checks
-		if (this.estimate.lifesAssured[index].coverAmount != '') {
-			if (parseInt(this.estimate.lifesAssured[index].coverAmount) > parseInt(this.estimate.lifesAssured[index].coverDetails.maxCoverAmount)) {
-				this.estimate.lifesAssured[index].coverDetails.coverMessage = this.estimate.lifesAssured[index].coverDetails.maxCoverMessage
-					.replace("{0:#,##0}", this.estimate.lifesAssured[index].coverDetails.maxCoverAmount);
-				this.canPerformEstimate = false;
-			}
-			if (parseInt(this.estimate.lifesAssured[index].coverAmount < this.estimate.lifesAssured[index].coverDetails.minCoverAmount)) {
-				this.estimate.lifesAssured[index].coverDetails.coverMessage = this.estimate.lifesAssured[index].coverDetails.minCoverMessage
-					.replace("{0:#,##0}", this.estimate.lifesAssured[index].coverDetails.minCoverAmount);
-				this.canPerformEstimate = false;
-			}
-		}
-		else {
-			this.estimate.lifesAssured[index].coverDetails.coverMessage = this.estimate.lifesAssured[index].coverDetails.minCoverMessage.replace("{0:#,##0}", this.estimate.lifesAssured[index].coverDetails.minCoverAmount);
-		}
+			this.estimate.lifesAssured[index].coverDetails.isExtendedFamily,
+			false);
 
 		this.requestUpdate();
 	}
@@ -284,7 +267,6 @@ class PolicyEstimate extends Component {
 			}
 		});
 		this.estimate.totalPremium = 0;
-		this.canPerformEstimate = true;
 		this.requestUpdate();
 	}
 
@@ -406,6 +388,11 @@ class PolicyEstimate extends Component {
 				color: #00a9f1;
 				cursor: pointer;
 			}
+
+
+			:host > .disabledButton {
+				color: #485b65!important;
+			}
 			`
 		];
 	}
@@ -442,8 +429,8 @@ class PolicyEstimate extends Component {
 			<capitec-label label="Get an estimate" type="title"></capitec-label>
 			<capitec-spacer></capitec-spacer>
 			</capitec-button>
-			<capitec-button label="Calculate" .disabled="${this.canPerformEstimate == false}" type="white"
-				data-automation-id="insure-estimate-calculate" @click="${() => this._calculateEstimate()}"></capitec-button>
+			<capitec-button label="Calculate" type="white" data-automation-id="insure-estimate-calculate"
+				@click="${() => this._calculateEstimate()}"></capitec-button>
 		</capitec-title-bar>
 		<capitec-card id="insure-calc-card">
 			<div class="insure-calc-columns">
@@ -461,7 +448,7 @@ class PolicyEstimate extends Component {
 		return html`		
 		<div id="insure-calc-column-left">
 			${this.estimate.lifesAssured.map((lifeAssured, index) => html`
-			<div class="calc-card" id=${index !=0 ? 'calc-card-other' : '' }>
+			<div class="calc-card" id=${index != 0 ? 'calc-card-other' : ''}>
 				${index != 0 ? html`
 				<div class="calc-card-header">
 					<capitec-label data-automation-id="insure-estimate-card-relationship"
@@ -483,7 +470,7 @@ class PolicyEstimate extends Component {
 					<capitec-text-field label="Cover Amount" type="currency" class="calc-card-row-input"
 						data-automation-id="insure-estimate-card-cover"
 						@value-changed="${(e) => this._coverAmountChanged(e, index)}" value="${lifeAssured.coverAmount}"
-						hint="R${lifeAssured?.coverDetails?.minCoverAmount} - R${lifeAssured?.coverDetails?.maxCoverAmount}"
+						hint="R${lifeAssured?.coverDetails?.minCoverAmount} - R${index == 0 ? this.maxAllowedCover : lifeAssured?.coverDetails?.maxCoverAmount}"
 						error="${lifeAssured.coverDetails.coverMessage}">
 					</capitec-text-field>
 					<capitec-text-field label="Premium" type="currency" disabled hint="Estimate" class="calc-card-row-input"
@@ -492,16 +479,15 @@ class PolicyEstimate extends Component {
 				</div>
 				<div class="calc-card-row">
 					<capitec-text-field label="Age" type="numeric" data-automation-id="insure-estimate-card-age"
-						@value-changed="${(e) => this._ageChanged(e, index)}" value="${lifeAssured.age}"
+						keyboardMode="numeric" @value-changed="${(e) => this._ageChanged(e, index)}" value="${lifeAssured.age}"
 						class="calc-card-row-input"
 						hint="${lifeAssured?.coverDetails?.minAge} - ${lifeAssured?.coverDetails?.maxAge}"
-						error="${lifeAssured.coverDetails.ageMessage}"
-						.disabled="${lifeAssured.coverDetails.mainLifeDetailsDisabled == true}">
+						error="${lifeAssured.coverDetails.ageMessage}" .disabled="${index == 0}">
 					</capitec-text-field>
 					<capitec-select label="Gender" display-field="text" .items="${this.genderOptions}" id-field="code"
 						data-automation-id="insure-estimate-card-gender" class="calc-card-row-input"
 						@value-changed="${(e) => this._genderChanged(e, index)}" value="${lifeAssured.genderType}"
-						.disabled="${lifeAssured.coverDetails.mainLifeDetailsDisabled == true}">
+						.disabled="${index == 0}">
 					</capitec-select>
 				</div>
 			</div>

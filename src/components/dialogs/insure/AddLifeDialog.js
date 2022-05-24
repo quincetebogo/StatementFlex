@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { getCoverDetailsByParams, livesPerPolicy } from 'app/utils/insureUtils';
+import { getCoverDetailsByParams, livesPerPolicy, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 
 const MAX_LIVES_PER_POLICY = 22;
 
@@ -93,10 +93,20 @@ class AddLifeDialog extends Component {
 	}
 
 	/**
+	 * Back event from dialog footer button, sets view back to main relationship
+	 */
+	_onBackClick() {
+		this.showExtendedList = false;
+	}
+
+	/**
 	 * Add Event, Calculate cover details parameter, emit new life object to consuming component & reset toggles 
 	 */
 	_onAddClick() {
-		let coverDetails = getCoverDetailsByParams(this.selectedRelationship, this.productParams, null, this.showExtendedList);
+		// let coverDetails = getCoverDetailsByParams(this.selectedRelationship, this.productParams, null, this.showExtendedList);
+
+		let coverDetails = refreshRelationshipCoverDetails(this.selectedRelationship, this.productParams, 0, 0, '', this.showExtendedList, true);
+		console.log("coverDetails: ", JSON.stringify(coverDetails))
 		this.dispatchEvent(new CustomEvent(`add-new-life`, { detail: { relationship: this.selectedRelationship, coverDetails: coverDetails } }));
 		this.showExtendedList = false;
 	}
@@ -341,15 +351,32 @@ class AddLifeDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 			<capitec-group layout="horizontal">
-				<capitec-button label="Cancel" data-automation-id="insure-add-life-dialog-cancel"
-					@click="${() => this._onCancelClick()}">
-				</capitec-button>
-			
+				${this._renderCancelOrBackButton()}
 				<capitec-button id="id-confirm-button" type="primary" label="Add" data-automation-id="insure-add-life-dialog-add"
 					@click="${() => this._onAddClick()}"
 					.disabled="${this.currentLifesAssured.length >= MAX_LIVES_PER_POLICY || this.selectedRelationship == ``}">
 				</capitec-button>
 			</capitec-group>`;
+	}
+
+	/**
+	 * Render back or cancel button depending on which view is shown (Default vs Extended Family)
+	 * 
+	 * @returns {html} The html content of the component.
+	 */
+	_renderCancelOrBackButton() {
+		if (this.showExtendedList == false) {
+			return html`
+			<capitec-button label="Cancel" data-automation-id="insure-add-life-dialog-cancel"
+				@click="${() => this._onCancelClick()}">
+			</capitec-button>
+		`;
+		} else {
+			return html`
+			<capitec-button label="Back" data-automation-id="insure-add-life-dialog-back" @click="${() => this._onBackClick()}">
+			</capitec-button>`;
+		}
+
 	}
 
 	//#endregion
