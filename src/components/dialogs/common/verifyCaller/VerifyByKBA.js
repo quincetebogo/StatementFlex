@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { ITAChannelService } from 'app/services/ITAChannelService';
+import { KbaChannelService } from 'app/services/KbaChannelService';
 import { Logger } from 'platform/core';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { VerifyCallerEvents } from 'app/constants/telemetry/events/VerifyCaller';
@@ -65,6 +66,7 @@ export class VerifyByKBA extends Component {
 		this.telemetry = HorizonTelemetry.getInstance();
 
 		this.itaChannelService = new ITAChannelService(() => this._toggleBusyFlag(), () => true);
+		this.kbaChannelService = new KbaChannelService(() => this._toggleBusyFlag(), () => true);
 	}
 
 	// ----------
@@ -167,7 +169,7 @@ export class VerifyByKBA extends Component {
 			title: this.title,
 			lastName: this.lastName
 		};
-		const returnValue = await this.itaChannelService.verifyKBA(request, () => true);
+		const returnValue = await this.kbaChannelService.verifyKBA(request, () => true);
 		const result = returnValue?.result;
 
 		await this.telemetry.logEvent(VerifyCallerEvents.KBA_OUTCOME, {
