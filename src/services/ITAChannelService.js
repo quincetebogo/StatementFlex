@@ -28,13 +28,9 @@ export class ITAChannelService extends ChannelServiceBase {
 	// --------------
 
 	itaVerification(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const url = `/clientcare-call-${this._version}/ita-verification`;
-		return this.post(
-			url,
-			{
-				"cifNumber": request.cifNumber,
-				"connectionId": request.connectionID
-			},
+		const url = `/clientcare/call/${this._version}/ita-verification?CifNumber=${request.cifNumber}&ConnectionId=${request.connectionID}`;
+		return this.get(
+			url, 
 			this.setToken(), 
 			`itaVerification`,
 			false,
@@ -59,76 +55,13 @@ export class ITAChannelService extends ChannelServiceBase {
 			};
 		}
 
-		const url = `/clientcare-call-${this._version}/has-digital-verification-capability`; 
+		const url = `/clientcare/call/${this._version}/has-digital-verification-capability?Cif=${cifNumber}`; 
 		
-		return this.post(
+		return this.get(
 			url,
-			{
-				"cif": cifNumber
-			},
 			this.setToken(),
 			`digitalVerificationChannelsAvailable`,
 			false,
-			null,
-			null,
-			errorHandler,
-			autoRetries
-		);
-	}
-
-	/**
-	 *  Verifies collected answers for security questions against KBA
-	 * 
-	 * @param {string} cifNumber Client's cif number
-	 * @param {string} identificationType Identification type used to identify client
-	 * @param {errorHandlerCallback} errorHandler An optional error handler
-	 * @param {Number} autoRetries Number of times to retry on failure
-	 * @returns {Promise<ReturnValue>} An object indicating if the verification process was successful or if not, the reason for failure
-	 */
-	 async loadKBA(cifNumber, identificationType, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		if (await this.isMockEnabled(`loadKBA`)) {
-			return this.mock(`loadKBA`, identificationType);
-		}
-
-		const url = `/clientcare-call-${this._version}/verify/kba-questions`;
-		return this.post(
-			url,
-			{
-				"cifNumber": cifNumber,
-				"identificationType": identificationType
-			},
-			this.setToken(),
-			`endCall`,
-			false,
-			null,
-			null,
-			null,
-			errorHandler,
-			autoRetries
-		);
-	}
-
-	/**
-	 *  Verifies collected answers for security questions against KBA
-	 * 
-	 * @param {*} request An object containing the responses/answers to the asked security questoins
-	 * @param {errorHandlerCallback} errorHandler An optional error handler
-	 * @param {Number} autoRetries Number of times to retry on failure
-	 * @returns {Promise<ReturnValue>} An object indicating if the verification process was successful or if not, the reason for failure
-	 */
-	 async verifyKBA(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		if (await this.isMockEnabled(`verifyKBA`)) {
-			return this.mock(`verifyKBA`, request);
-		}
-
-		const url = `/clientcare-call-${this._version}/verify/kba-answer`;
-		return this.post(
-			url,
-			request,
-			this.setToken(),
-			`endCall`,
-			false,
-			null,
 			null,
 			null,
 			errorHandler,
