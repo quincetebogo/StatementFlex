@@ -44,12 +44,12 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 
 			// Over max cover
 			if (coverAmount && coverAmount > maxAllowedCover || parseInt(coverAmount) > coverDetails.maxCoverAmount) {
-				coverDetails.coverMessage = coverDetails.maxCoverMessage.replace("R{0:#,##0}", coverDetails.maxCoverAmount);
+				coverDetails.coverMessage = coverDetails.maxCoverMessage.replace("{0:#,##0}", coverDetails.maxCoverAmount);
 			}
 
 			// Under min cover
 			if (coverAmount && parseInt(coverAmount) < parseInt(coverDetails.minCoverAmount)) {
-				coverDetails.coverMessage = coverDetails.minCoverMessage.replace("R{0:#,##0}", coverDetails.minCoverAmount);
+				coverDetails.coverMessage = coverDetails.minCoverMessage.replace("{0:#,##0}", coverDetails.minCoverAmount);
 			}
 		}
 	}
@@ -77,12 +77,12 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 
 			// Over max cover
 			if (coverAmount && parseInt(coverAmount) > coverDetails.maxCoverAmount) {
-				coverDetails.coverMessage = coverDetails.maxCoverMessage.replace("R{0:#,##0}", coverDetails.maxCoverAmount);
+				coverDetails.coverMessage = coverDetails.maxCoverMessage.replace("{0:#,##0}", coverDetails.maxCoverAmount);
 			}
 
 			// Under min cover
 			if (coverAmount && parseInt(coverAmount) < parseInt(coverDetails.minCoverAmount)) {
-				coverDetails.coverMessage = coverDetails.minCoverMessage.replace("R{0:#,##0}", coverDetails.minCoverAmount);
+				coverDetails.coverMessage = coverDetails.minCoverMessage.replace("{0:#,##0}", coverDetails.minCoverAmount);
 			}
 		}
 	}
@@ -129,12 +129,12 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 
 			// Over max cover
 			if (coverAmount && parseInt(coverAmount) > coverDetails.maxCoverAmount) {
-				coverDetails.coverMessage = coverDetails.maxCoverMessage.replace("R{0:#,##0}", coverDetails.maxCoverAmount);
+				coverDetails.coverMessage = coverDetails.maxCoverMessage.replace("{0:#,##0}", coverDetails.maxCoverAmount);
 			}
 
 			// Under min cover
 			if (coverAmount && parseInt(coverAmount) < parseInt(coverDetails.minCoverAmount)) {
-				coverDetails.coverMessage = coverDetails.minCoverMessage.replace("R{0:#,##0}", coverDetails.minCoverAmount);
+				coverDetails.coverMessage = coverDetails.minCoverMessage.replace("{0:#,##0}", coverDetails.minCoverAmount);
 			}
 		}
 	}
@@ -162,12 +162,12 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 
 			// Over max cover
 			if (coverAmount && parseInt(coverAmount) > coverDetails.maxCoverAmount) {
-				coverDetails.coverMessage = coverDetails.maxCoverMessage.replace("R{0:#,##0}", coverDetails.maxCoverAmount);
+				coverDetails.coverMessage = coverDetails.maxCoverMessage.replace("{0:#,##0}", coverDetails.maxCoverAmount);
 			}
 
 			// Under min cover
 			if (coverAmount && parseInt(coverAmount) < parseInt(coverDetails.minCoverAmount)) {
-				coverDetails.coverMessage = coverDetails.minCoverMessage.replace("R{0:#,##0}", coverDetails.minCoverAmount);
+				coverDetails.coverMessage = coverDetails.minCoverMessage.replace("{0:#,##0}", coverDetails.minCoverAmount);
 			}
 		}
 	}
@@ -214,12 +214,12 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 
 			// Over max cover
 			if (coverAmount && parseInt(coverAmount) > coverDetails.maxCoverAmount) {
-				coverDetails.coverMessage = coverDetails.maxCoverMessage.replace("R{0:#,##0}", coverDetails.maxCoverAmount);
+				coverDetails.coverMessage = coverDetails.maxCoverMessage.replace("{0:#,##0}", coverDetails.maxCoverAmount);
 			}
 
 			// Under min cover
 			if (coverAmount && parseInt(coverAmount) < parseInt(coverDetails.minCoverAmount)) {
-				coverDetails.coverMessage = coverDetails.minCoverMessage.replace("R{0:#,##0}", coverDetails.minCoverAmount);
+				coverDetails.coverMessage = coverDetails.minCoverMessage.replace("{0:#,##0}", coverDetails.minCoverAmount);
 			}
 		}
 	}
