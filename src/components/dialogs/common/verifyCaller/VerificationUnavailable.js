@@ -2,6 +2,14 @@ import { Component, css, html } from 'platform/elements';
 
 export class VerificationUnavailable extends Component {
 
+	// ----------
+	// PROPERTIES
+	// ----------
+	static get properties() {
+		return {
+			minorClient: { type: Boolean }
+		};
+	}
 
 	static get styles() {
 		return [
@@ -76,7 +84,7 @@ export class VerificationUnavailable extends Component {
 						id="notification-status-error-group">
 						<img src="/images/foreign-minorClientError.svg" class="warning-svg connection-error-svg"/>
 						<div class="foreign-client notification-info">
-							<b>Foreign / minor client</b>
+							<b>${this.minorClient ? `Minor` : `Foreign`} client</b>
 							<br>
 							Skip verification to continue with limited transactions or transfer the call to a team leader
 						</div>

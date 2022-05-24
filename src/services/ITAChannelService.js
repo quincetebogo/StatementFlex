@@ -15,7 +15,7 @@ export class ITAChannelService extends ChannelServiceBase {
 			`signalRUrl`, 
 			`HorizonITAChannelService`, 
 			`v1`, 
-			null
+			() => import(`../mocks/HorizonChannelServiceMocks.js`)
 		);
 	}
 
@@ -68,5 +68,4 @@ export class ITAChannelService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
-
 }

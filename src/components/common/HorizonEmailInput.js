@@ -1,7 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EMAIL_DOMAINS } from 'app/constants/Common';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 const EMAIL_REGEX = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
 const ERROR_MESSAGE = {

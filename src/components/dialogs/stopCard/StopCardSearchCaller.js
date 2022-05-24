@@ -287,7 +287,8 @@ export class StopCardSearchCaller extends Component {
             middleName2: identifiedClient.callerInformation.middleName2,
             middleName3: identifiedClient.callerInformation.middleName3,
             lastName: identifiedClient.callerInformation.lastName,
-            initials: identifiedClient.callerInformation.initials
+            initials: identifiedClient.callerInformation.initials,
+			identifiedBy: this.searchType.identificationType
 		};
 
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
