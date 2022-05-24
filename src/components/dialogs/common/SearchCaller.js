@@ -332,13 +332,7 @@ export class SearchCaller extends Component {
 
 
 	async _searchBranch() {
-		this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
-			"screen": TelemetryScreen.SEARCH_CLIENT,
-			"next-screen": TelemetryScreen.CONFIRM_CALLER,
-			"id-method": this.searchType.value,
-			"id-data": this.searchValue
-		});
-
+		
 		if (this._validateBranchFields() && this._validateFields()) {
 			if (this.clientInBranch === null) {
 				this.errMessage.inBranch = `Please choose an option`;
@@ -348,6 +342,16 @@ export class SearchCaller extends Component {
 					identificationMethod: this.searchType.key,
 					searchValue: this.searchValue
 				};
+
+				this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
+					"screen": TelemetryScreen.SEARCH_CLIENT,
+					"next-screen": TelemetryScreen.CONFIRM_CALLER,
+					"consultant-cp-num": this.cpNumber,
+					"branch-name": this.branchName,
+					"search-method": this.searchType.value,
+					"search-value": this.searchValue,
+					"client-present": this.clientInBranch
+				});
 
 				const returnValue = await this.callHandleService.searchCaller(searchClient);
 				const identifiedClient = returnValue.result;
