@@ -40,6 +40,8 @@ export class HorizonEmailInput extends Component {
 		this.confirmEmailError = ``;
 		this.confirmEmailSuggestion = ``;
 
+		this.registeredEmailId = ``;
+
 		this.horizonStore = HorizonStore.getInstance();
 	}
 
@@ -77,14 +79,14 @@ export class HorizonEmailInput extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		const callerInformation = this.horizonStore.getCallerInformation();
-		this.emailId = this.email = callerInformation.emailId;
+		this.registeredEmailId = this.email = callerInformation.emailId;
 
-		if (!isNullorEmpty(this.emailId)) {
+		if (Boolean(this.registeredEmailId)) {
 			if (!this._validateInput(callerInformation.emailId)) {
 				this.emailError = ERROR_MESSAGE.FORMAT; 
 			}
 
-			this._valueChanged(this.email, this.emailId, true);
+			this._valueChanged(this.email, this.registeredEmailId, true);
 		}
 	}
 
@@ -125,13 +127,13 @@ export class HorizonEmailInput extends Component {
 
 	_inputEmail(event) {
 		if (event.detail.action === `clear`) {
-			this.email = this.emailId;
+			this.email = this.registeredEmailId;
 			this.confirmEmail = ``;
 			
 			this._clearErrors();
 			this.callBack();
 
-			this._valueChanged(this.email, this.emailId, true);
+			this._valueChanged(this.email, this.registeredEmailId, true);
 			
 			return;
 		}
@@ -140,7 +142,7 @@ export class HorizonEmailInput extends Component {
 			this.emailError = ``;
 			this.confirmEmailError = this.confirmEmailError === ERROR_MESSAGE.MISMATCH ? `` : this.confirmEmailError;
 			this.email = event.detail.new;
-			this.confirmEmail = this.confirmEmail === this.emailId ? `` : this.confirmEmail;
+			this.confirmEmail = this.confirmEmail === this.registeredEmailId ? `` : this.confirmEmail;
 
 			this.callBack();
 		}
@@ -265,7 +267,7 @@ export class HorizonEmailInput extends Component {
 		this.dispatchEvent(new CustomEvent(`value-changed`, {
 			detail: {
 				email: email,
-				confirmEmail: this.emailId === email ? email : confirmEmail,
+				confirmEmail: this.registeredEmailId === email ? email : confirmEmail,
 				invalidFormat: this.emailError === ERROR_MESSAGE.FORMAT || this.confirmEmailError === ERROR_MESSAGE.FORMAT,
 				mismatched: !isMatched
 			}
@@ -383,7 +385,7 @@ export class HorizonEmailInput extends Component {
 				oncopy="return false"
 				onpaste="return false"
 				oncut="return false"
-				type="${this.emailId === this.email ? `` : `search`}"
+				type="${this.registeredEmailId === this.email ? `` : `search`}"
 				value="${this.email}"
 				error="${this.emailError}"
 				@input="${(e) => this._inputEmail(e)}"
@@ -395,9 +397,9 @@ export class HorizonEmailInput extends Component {
 
 	_renderConfirmEmail() {
 		return html`
-			<capitec-group class="header-label ${this.emailId === this.email && !isNullorEmpty(this.emailId) ? `hide` : ``}" layout="horizontal" halign="left" valign="center" gap="none">
+			<capitec-group class="header-label ${this.registeredEmailId === this.email && Boolean(this.registeredEmailId) ? `hide` : ``}" layout="horizontal" halign="left" valign="center" gap="none">
 				<capitec-label
-					class="emailLabel ${this.emailId === this.email && !isNullorEmpty(this.emailId) ? `hide` : ``}"
+					class="emailLabel ${this.registeredEmailId === this.email && Boolean(this.registeredEmailId) ? `hide` : ``}"
 					type="subtitle"
 					label="${this.labelTwo}">
 				</capitec-label>
@@ -421,7 +423,7 @@ export class HorizonEmailInput extends Component {
 				@input="${(e) => this._inputConfirmEmail(e)}"
 				@keydown="${(e) => this._keyDownTab(e)}"
 				@focusout="${(e) => this._focusOutInput(e)}"
-				?hidden="${this.emailId === this.email && !isNullorEmpty(this.emailId)}">
+				?hidden="${this.registeredEmailId === this.email && Boolean(this.registeredEmailId)}">
 			</capitec-text-field>
 			<span id="confirmEmail-suggestion" class="domain-suggestion">${this.confirmEmailSuggestion}</span>`;
 	}

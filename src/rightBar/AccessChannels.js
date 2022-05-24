@@ -504,7 +504,7 @@ export class AccessChannels extends Component {
 			this.landingInfo = returnValue.result;
 		
 			const callerInformation = this.horizonStore.getCallerInformation();
-			callerInformation.emailId = returnValue.result?.email;
+			callerInformation.emailId = returnValue.result?.email || ``;
 			this.horizonStore.setCallerInformation(callerInformation);
 
 			if (this.landingInfo.msisdn?.length >= 9) {
