@@ -202,6 +202,7 @@ export class ConfirmCallerDetails extends Component {
 		this._initCallerInformation();
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 
+		// Dispatching an event to update the confirmed caller in landing page
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
 			detail: event.detail
 		}));
@@ -214,6 +215,11 @@ export class ConfirmCallerDetails extends Component {
 		this.callerInformation.isBranchConsultant = true;
 		this._initCallerInformation();
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+
+		// Dispatching an event to update the confirmed caller in landing page
+		this.dispatchEvent(new CustomEvent(`branch-captured`, {
+			detail: event.detail
+		}));
 	}
 
 	/**
