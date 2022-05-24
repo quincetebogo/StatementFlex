@@ -6,8 +6,8 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
-import { SEARCH_OPTIONS } from 'app/constants/SearchOptions';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { SEARCH_OPTIONS } from 'app/constants/SearchOptions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -30,7 +30,7 @@ const CLIENT_TYPE = Object.freeze({
 // ToDO: Below const need to be removed, once channelService fix the issue on contract.
 // These error messages has to come from service
 const ERROR_MESSAGES = {
-    SYSTEM_ERROR: html`<b>System error:</b> Please try again later`,
+	SYSTEM_ERROR: html`<b>System error:</b> Please try again later`,
 	STRACK_ERROR: `Take note: A system error has occured. Please go to STrack to search for client.`,
 	NONCLIENT_REQUIRED_FIELDS_EMPTY: `Name and surname must be completed`,
 	REQUIRED_FIELDS_EMPTY: `All fields are required`,
@@ -608,7 +608,8 @@ export class SearchCaller extends Component {
             middleName2: identifiedClient.callerInformation.middleName2,
             middleName3: identifiedClient.callerInformation.middleName3,
             lastName: identifiedClient.callerInformation.lastName,
-            initials: identifiedClient.callerInformation.initials
+            initials: identifiedClient.callerInformation.initials,
+			identifiedBy: this.searchType.identificationType
 		};
 
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
@@ -623,15 +624,21 @@ export class SearchCaller extends Component {
 
 	async _raiseOnBranchIdentified(identifiedClient) {
 		const confirmedCaller = {
-			cifNumber: identifiedClient.callerInformation.cifNumber.value,
-			birthdate: identifiedClient.callerInformation.birthdate.value,
-			languagePreference: identifiedClient.callerInformation.languagePreference.value,
-			livesIn: identifiedClient.callerInformation.livesIn.value,
-			name: identifiedClient.callerInformation.name.value,
+			cifNumber: identifiedClient.callerInformation.cifNumber,
+			birthdate: identifiedClient.callerInformation.birthdate,
+			languagePreference: identifiedClient.callerInformation.languagePreference,
+			livesIn: identifiedClient.callerInformation.livesIn,
+			name: identifiedClient.callerInformation.name,
 			title: identifiedClient.callerInformation.title,
-			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber.value,
-			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber.value,
+			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber,
+			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber,
 			isBranchConsultant: true,
+			identifiedBy: this.searchType.identificationType,
+			firstName: identifiedClient.callerInformation.firstName,
+			middleName1: identifiedClient.callerInformation.middleName1,
+			middleName2: identifiedClient.callerInformation.middleName2,
+			middleName3: identifiedClient.callerInformation.middleName3,
+			lastName: identifiedClient.callerInformation.lastName,
 			isClientPresent: this.clientInBranch
 		};
 
@@ -934,7 +941,7 @@ export class SearchCaller extends Component {
 							@key-input="${(e) => this._getConsultant(e)}">
 						</capitec-text-field>
 					</div>
-								 <!--Branch name and consultant name to auto populate -->
+								<!--Branch name and consultant name to auto populate -->
 					<div class="branch-field-row">
 						<capitec-text-field
 							id="consultantName"

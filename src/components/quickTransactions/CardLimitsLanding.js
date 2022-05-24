@@ -155,7 +155,7 @@ export class CardLimitsLanding extends Component {
 	 * @property {string} title client's title (Mr/ Mrs)
 	 * @property {string} lastName client's last name
 	 * @property {String} voiceRecordingReference The Avaya/Presence Voice Recording ID
-	 * @property {String} verificationMethod Indicated the type of verification (xds/ita)
+	 * @property {String} verificationMethod Indicated the type of verification (SQ/ita)
 	 * @property {Boolean} hasDigitalChannels Indicates if the client is registered for digital channels
 	 * @property {Boolean} showVerifyCallerDialog Flag to know is verify caller dialog displaying?
 	 * @property {getCardLimitsAgreementsCallback} getCardLimitsAgreement Callback function to load limits agreements for displaying

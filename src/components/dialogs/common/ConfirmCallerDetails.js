@@ -331,7 +331,7 @@ export class ConfirmCallerDetails extends Component {
 			false, // hasDigitalChannels
 			{
 				itaAttempts: 0,
-				xdsAttempts: 0
+				sqAttempts: 0
 			}, 
 			this.confirmedCaller.isBranchConsultant, // isBranchConsultant
 			this.confirmedCaller.isClientPresent, // isClientPresent
@@ -341,7 +341,8 @@ export class ConfirmCallerDetails extends Component {
 			this.confirmedCaller.middleName2,
 			this.confirmedCaller.middleName3,
 			this.confirmedCaller.lastName,
-			this.confirmedCaller.initials
+			this.confirmedCaller.initials,
+			this.confirmedCaller.identifiedBy
 		);
 	}
 
