@@ -40,7 +40,7 @@ const TAX_TYPE = {
  * 
  * @export
  * @class SavingsPlan
- * @extends {SavingsPlan}
+ * @extends {ViewBase}
  * 
  */
 
@@ -66,7 +66,7 @@ export class SavingsPlan extends ViewBase {
 		
 		this.eventAggregator = EventAggregator.getInstance();
 		
-		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option));
+		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option, null, null, null, true));
 	}
 
 	// -------------------
@@ -78,9 +78,9 @@ export class SavingsPlan extends ViewBase {
 
 		this._initialise();
 
-		this._optionClick = async (option, saveType, accountNumber, accountName) => {
+		this._optionClick = async (option, saveType, accountNumber, accountName, sendAnother = false) => {
 
-			const statements = () => this._getStatements(accountNumber, saveType);
+			const statements = () => this._getStatements(accountNumber, sendAnother);
 			const taxCertificates = () => this._taxCertificates(accountNumber, accountName);
 			const productEnquiry = () => this._productEnquiry();
 			const interestRates = () => this._interestRates();
@@ -223,16 +223,6 @@ export class SavingsPlan extends ViewBase {
 		this.horizonStore.setProductButtonState(this.landingPageInfo);
 	}
 
-	_performReturnToScreen() {
-		const returnToScreen = this.horizonStore.getReturnToScreen();
-
-		if (returnToScreen && returnToScreen.optionalData) {
-			this.eventAggregator.publish(`horizon-return-to-screen`, { option: returnToScreen.optionalData });
-		}
-
-		this.horizonStore.clearReturnScreen();
-	}
-
 	_formatDate(date) {
 		const newdate = new Date(Date.parse(date));
 		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
@@ -293,7 +283,11 @@ export class SavingsPlan extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 	
-	_getStatements(accNumber) {
+	_getStatements(accNumber, sendAnother) {
+		if (sendAnother) {
+			return true;
+		}
+		
 		const accountDetails = this.savingsPlanDetails.find(savingsPlan => savingsPlan.accountNumber === accNumber);
 	
 		const productInfo = ACCOUNT_INTCAT_ENUM[accountDetails.accountType][accountDetails.interestCategory] || ACCOUNT_INTCAT_ENUM[accountDetails.accountType];

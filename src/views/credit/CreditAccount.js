@@ -35,7 +35,7 @@ import 'app/dialogs/credit/SettleAndCloseDialog';
  * 
  * @export
  * @class CreditAccount
- * @extends {CreditAccount}
+ * @extends {ViewBase}
  */
 export class CreditAccount extends ViewBase {
 
@@ -86,10 +86,10 @@ export class CreditAccount extends ViewBase {
 
 		this._initialise();
 
-		this._optionClick = async (option, creditType, productType, selectedAccountDetails) => {
+		this._optionClick = async (option, creditType, productType, selectedAccountDetails, sendAnother = false) => {
 
 			const transactionHistory = () => this._transactionHistory(creditType, productType);
-			const statements = () => this._getStatements(creditType, productType, selectedAccountDetails.productTypeCode, selectedAccountDetails.accountNumber, selectedAccountDetails.openDate);
+			const statements = () => this._getStatements(creditType, productType, selectedAccountDetails.productTypeCode, selectedAccountDetails.accountNumber, selectedAccountDetails.openDate, sendAnother);
 			const settlementQuote = () => this._settlementQuote(creditType, productType, selectedAccountDetails);
 			const settleAndClose = () => this._settleAndClose(creditType, productType, selectedAccountDetails);
 			const settleLoan = () => this._settleLoan();
@@ -357,7 +357,7 @@ export class CreditAccount extends ViewBase {
 		const screenDetails = this.horizonStore.getScreenDetails();
 		
 		if (screenDetails?.productType) {
-			this._optionClick(e.option, screenDetails?.creditType, screenDetails?.productType, screenDetails?.selectedAccounts);
+			this._optionClick(e.option, screenDetails?.creditType, screenDetails?.productType, screenDetails?.selectedAccounts, true);
 		}
 	}
 
@@ -504,7 +504,10 @@ export class CreditAccount extends ViewBase {
 		// await super.createAndClassifySubsIncident();
 	}
 
-	_getStatements(creditType, productType, productCode, accNum, openDate) {
+	_getStatements(creditType, productType, productCode, accNum, openDate, sendAnother) {
+		if (sendAnother) {
+			return true;
+		}
 		
 		this._telemetry.logEvent(CreditEvents.CREDIT_STATEMENTS_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
@@ -782,16 +785,6 @@ export class CreditAccount extends ViewBase {
 		this._telemetry.endSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {});
 
 		this._setIncidentDone();
-	}
-
-	_performReturnToScreen() {
-		const returnToScreen = this.horizonStore.getReturnToScreen();
-
-		if (returnToScreen && returnToScreen.optionalData) {
-			this.eventAggregator.publish(`horizon-return-to-screen`, { option: returnToScreen.optionalData });
-		}
-
-		this.horizonStore.clearReturnScreen();
 	}
 
 	// ---------
