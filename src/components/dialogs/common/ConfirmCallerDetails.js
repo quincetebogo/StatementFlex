@@ -201,6 +201,10 @@ export class ConfirmCallerDetails extends Component {
 		// TODO: Do we lose the added caller details if we go there first before doing a search???
 		this._initCallerInformation();
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+
+		this.dispatchEvent(new CustomEvent(`client-identified`, {
+			detail: event.detail
+		}));
 	}
 
 	_branchCaptured(event) {
