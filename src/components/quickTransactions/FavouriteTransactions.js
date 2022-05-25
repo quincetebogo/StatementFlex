@@ -318,7 +318,6 @@ export class FavouriteTransactions extends Component {
 					?disabled="${this.shouldDisable(`proof-of-account`)}">
 				</horizon-option-button>
 				<horizon-option-button
-					style="visibility:hidden"
 					data-automation-id="favourite-transactions-settlement-quote"
 					label="Settlement Quote" 
 					icon="system/documents-action" 

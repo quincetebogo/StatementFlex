@@ -3,9 +3,11 @@
 		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet",
 		"clientInsightsUrl": "https://hzn-cs-clientinsights-v1.platform-dev.int.capinet",
 		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-dev.int.capinet",		
-		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-dev.int.capinet"
+		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-dev.int.capinet",
+		"cardChannelServiceUrl": "https://horizon-cs-card-v1.platform-dev.int.capinet"
 	},
 	"signalRUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
+	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
@@ -20,6 +22,11 @@
 		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js",
 		"partner-benefits": "https://www.capitecbank.co.za/bank-better-live-better/articles/benefits/",
 		"fees": "https://www.capitecbank.co.za/global-one/transact/fees/"		
+	},
+	"AuthMethod": "KBA",
+	"AuthAttempts": {
+		"XDS": 2,
+		"KBA": 1
 	},
 	"LogRequestResponseModels" : true,
 	"VDN": "7250",
@@ -128,6 +135,15 @@
 		"getClientInsights": {
 			"enabled": true,
 			"positiveCase": true
+		},
+		"budgetTransferFromAccounts": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"confirmBudgetTransfer": {
+			"enabled": false,
+			"positiveCase": true
 		}
-	}
+	},
+	"searchClientOptionEnabled": true
 }

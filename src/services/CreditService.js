@@ -1,4 +1,5 @@
 import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 
 /**
  * The CreditService is used to retrieve information about clients' credit products.
@@ -36,7 +37,7 @@ export class CreditService extends ChannelServiceBase {
 			"cifnumber": cifNumber,
 			"accountStatus": accountStatus
 		};
-
+		
 		const url = `/clientcare-credit-${this._version}/credit/overview`;
 
 		return this.post(
@@ -104,7 +105,8 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	creditCardDetails(accountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async creditCardDetails(accountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		const creditCardDetailsRequest = {
 			"accountnumber": accountNumber
@@ -126,7 +128,8 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	accessFacilityDetails(accountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async accessFacilityDetails(accountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		const accessFacilityDetailsRequest = {
 			"accountnumber": accountNumber
@@ -148,7 +151,8 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	termLoanDetails(accountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async termLoanDetails(accountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		const termLoanDetailsRequest = {
 			"accountnumber": accountNumber
@@ -213,7 +217,9 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	flexibleStatementEmail (creditType, accountNumber, emailAddress, statementDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async flexibleStatementEmail (creditType, accountNumber, emailAddress, statementDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
 		const flexibleStatementEmailRequest = {
 			"creditType": creditType,
 			"accountNumber": accountNumber,
@@ -237,7 +243,7 @@ export class CreditService extends ChannelServiceBase {
 	}
 
 	fixedStatement(accountNumber, fromDate, toDate, setdate, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		
+
 		const fixedStatementRequest = {
 			"accountNumber": accountNumber,
 			"fromDate": fromDate,
@@ -262,7 +268,8 @@ export class CreditService extends ChannelServiceBase {
 
 	}
 
-	fixedStatementEmail(accountNumber, emailAddress, fromDate, toDate, setdate, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async fixedStatementEmail(accountNumber, emailAddress, fromDate, toDate, setdate, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 		
 		const fixedStatementEmailRequest = {
 			"accountNumber": accountNumber,
@@ -279,6 +286,62 @@ export class CreditService extends ChannelServiceBase {
 			fixedStatementEmailRequest,
 			this.setToken(),
 			`fixedStatementEmail`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async getPaidUpLetter(cifNumber, accountNumbers, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		if (await this.isMockEnabled(`getPaidUpLetter`)) {
+			return this.mock(`getPaidUpLetter`);
+		}
+
+		const getPaidUpLetterRequest = {
+			"cifnumber": cifNumber,
+			"accountNumbers": accountNumbers
+		};
+
+		const url = `/clientcare-credit-${this._version}/credit/paid-up-letter`;
+
+		return this.post(
+			url,
+			getPaidUpLetterRequest,
+			this.setToken(),
+			`getPaidUpLetter`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async emailPaidUpLetter(cifNumber, accountNumbers, emailAddress, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
+		if (await this.isMockEnabled(`emailPaidUpLetter`)) {
+			return this.mock(`emailPaidUpLetter`);
+		}
+
+		const emailPaidUpLetterRequest = {
+			"cifnumber": cifNumber,
+			"accountNumbers": accountNumbers,
+			"emailAddress": emailAddress
+		};
+
+		const url = `/clientcare-credit-${this._version}/credit/paid-up-letter/email`;
+
+		return this.post(
+			url,
+			emailPaidUpLetterRequest,
+			this.setToken(),
+			`emailPaidUpLetter`,
 			null,
 			null,
 			900,
@@ -310,4 +373,143 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
+	settlementQuote(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		
+		const url = `/clientcare-credit-${this._version}/credit/settlement-quote/view`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`settlementQuote`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+	
+	async sendSettlementQuoteEmail(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
+		if (await this.isMockEnabled(`sendSettlementQuoteEmail`)) {
+			return this.mock(`sendSettlementQuoteEmail`);
+		}
+
+		const url = `/clientcare-credit-v1/credit/settlement-quote/email`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`sendSettlementQuoteEmail`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+	
+	async settlementQuoteLanding(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
+		const url = `/clientcare-credit-v1/credit/settlement-quote/landing`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`settlementQuoteLanding`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+
+	async budgetTransferFromAccounts(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		
+		if (await this.isMockEnabled(`budgetTransferFromAccounts`)) {
+			return this.mock(`budgetTransferFromAccounts`, request);
+		}
+
+		const url = `/clientcare-credit-${this._version}/credit/budgetaccount/transfer/modal`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`budgetTransferFromAccounts`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async confirmBudgetTransfer(transferDetails, callerInformation, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		
+		if (await this.isMockEnabled(`confirmBudgetTransfer`)) {
+			return this.mock(`confirmBudgetTransfer`, transferDetails);
+		}
+
+		const request = {
+			"cifNumber": callerInformation.cifNumber,
+			"creditCardAccountNumber": transferDetails.budgetAccountNumber,
+			"fromAccountNumber": transferDetails.fromAccountNumber,
+			"fromAccountType": transferDetails.fromAccountType,
+			"authorisedAmount": transferDetails.authorisedAmount,
+			"budgetSequenceNumber": transferDetails.budgetSequenceNumber,
+			"caseId": null,
+			"idPassportNumber": callerInformation.southAfricanIDNumber,
+			"firstName": callerInformation.firstName,
+			"surname": callerInformation.lastName
+		};
+
+		const url = `/clientcare-credit-${this._version}/credit/budgetaccount/transfer`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`confirmBudgetTransfer`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async emailProofOfPayment(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		if (await this.isMockEnabled(`emailProofOfPayment`)) {
+			return this.mock(`emailProofOfPayment`, request);
+		}
+
+		const url = `/clientcare-credit-${this._version}/credit/document/email`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`emailProofOfPayment`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 }

@@ -362,8 +362,8 @@ export class DesktopAgentService {
 
 	_setValidationData() {
 		DesktopAgentService.incomingTelephoneNumberValidation = `^\\+?[0-9][0-9]{3,14}`; 
-		DesktopAgentService.voiceReferenceNumberValidation = `^[0-9]{20}`; 
-		DesktopAgentService.agentTelephoneNumberValidation = `^[0-9]*`; // 
+		DesktopAgentService.voiceReferenceNumberValidation = `^[0-9]*`; 
+		DesktopAgentService.agentTelephoneNumberValidation = `^[0-9]*`; 
 		DesktopAgentService.vdnValidation = `^[0-9]*`; 
 		DesktopAgentService.incidentReferenceNumberValidation = `^[0-9]{1,10}`; // STrack reference numbers
 		DesktopAgentService.incidentRecIdValidation = `^[a-fA-F0-9]{8}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{12}$`; // STrack rec id

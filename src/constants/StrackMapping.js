@@ -19,16 +19,18 @@
 	"statements": `STATEMENTS`,
 	"tax-certificate": `TAX_CERTIFICATE`,
 	"proof-of-account": `PROOF_OF_ACCOUNT`,
+	"settlement-quote": `SETTLEMENT_QUOTE`,
+	"paid-up-accounts": `PAID_UP_LETTER`,
 
 	// Savings account
 	"transaction-history": `TRANSACTION_HISTORY`,
 	"statements-transact": `STATEMENTS`,
 
 	// Savings plan
-	"statements-save": `STATEMENTS`,
+	"statements-save": `SAVINGS_PLAN_STATEMENTS`,
+	"tax-certificate-save": `SAVINGS_PLAN_TAX_CERTIFICATE`,
 
 	// LBB
-	"account-details-lbb": `ACCOUNT_INFORMATION_LBB`,
 	"transaction-history-lbb": `TRANSACTION_HISTORY_LBB`,
 	"statements-lbb": `STATEMENTS_LBB`,
 	"automatic-savings-lbb": `AUTOMATIC_SAVINGS_LBB`,
@@ -50,7 +52,6 @@
 
 	// Unkonwn references/ dynamic implementations
 	"credit-card-statements": `STATEMENTS_CC`,
-	"savings-account": `SAVINGS_ACCOUNT`,
 	"telephony-hung-up": `TELEPHONY_HUNG_UP`,
 	"telephony-call-back": `TELEPHONY_CALL_BACK`,
 	"telephony-bad-connection": `TELEPHONY_BAD_CONNECTION`,
@@ -78,14 +79,23 @@
 	"statements-credit-card": `SEND_STATEMENTS_CREDIT_CARD`,
 	"settlement-quote-credit-card": `SETTLEMENT_QUOTE_CREDIT_CARD`,
 	"settle-close-credit-card": `SETTLE_CLOSE_CREDIT_CARD`,
-	"budget-facility-credit-card": `VIEW_BUDGET_ACCOUNT_INFO`,
+	"view-budgets-credit-card": `VIEW_BUDGET_ACCOUNT_INFO`,
+	"paid-up-letter-credit-card": `PAID_UP_LETTER_CREDITCARD`,
 	"pay-budget-credit-card": `PAY_BUDGET_ACCOUNTS`,
 
 	"statements-access-facility": `SEND_STATEMENTS_ACCESS_FACILITY`,
 	"settlement-quote-access-facility": `SETTLEMENT_QUOTE_ACCESS_FACILITY`,
+	"paid-up-letter-access-facility": `PAID_UP_LETTER_ACCESS_FACILITY`,
 	"settle-close-access-facility": `SETTLE_CLOSE_ACCESS_FACILITY`,
 
 	"statements-term-loan": `SEND_STATEMENTS_TERM_LOAN`,
 	"settlement-quote-term-loan": `SETTLEMENT_QUOTE_TERM_LOAN`,
-	"settle-close-term-loan": `SETTLE_CLOSE_TERM_LOAN`
+	"paid-up-letter-term-loan": `PAID_UP_LETTER_TERM_LOAN`,
+	"settle-close-term-loan": `SETTLE_CLOSE_TERM_LOAN`,
+
+	// Landing page Balance/Account enquiry
+	"savings-account": `SAVINGS_ACCOUNT`,
+	"savings-plan-account-enquiry": `SAVINGS_PLAN_ACCOUNT_ENQUIRY`,
+	"credit-account-enquiry": `CREDIT_ACCOUNT_ENQUIRY`,
+	"lbb-account-enquiry": `ACCOUNT_INFORMATION_LBB`
 });

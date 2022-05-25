@@ -1,6 +1,9 @@
 import { Component, css, html } from 'platform/elements';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
-import { QuickTransactionsService }from'app/services/QuickTransactionsService';
+import { CreditService } from 'app/services/CreditService';
+import { HorizonStore } from 'app/store/HorizonStore';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { RENDER_MODE } from 'app/views/common/RenderModes';
 
 import 'app/components/common/HorizonPDFViewer';
 import 'app/components/common/OptionButton';
@@ -8,16 +11,14 @@ import 'app/components/common/StepperModal';
 import 'app/dialogs/credit/PaidUpLetter';
 import 'app/components/common/HorizonProductTile'; 
 
-
-
 /**
- * This component implements the Paid Up Accounts Page for favourite landing page
- *
  * 
  * @export
  * @class PaidUpAccounts
  * @extends {Component}
+ * 
  */
+
 export class PaidUpAccounts extends Component {
 
 	// --------------
@@ -27,19 +28,23 @@ export class PaidUpAccounts extends Component {
 	constructor() {
 		super();
 
+		this.callerInformation = {};
+		this.accountsInfo = null;
+
+		this.showPaidUpLetter = false;
+		this.selectedAccounts = [];
+		this.isBusy = false;
+		this.accountsChecked = [];
+
 		this.checkAll = false;
 		this.isChecked = false;
-		//this.selectedAccounts = [];
-		this.showPaidUpLetter = false;
-		this.accountsInfo = [];
 		this.errorMessage = ``;
 		this.cardTypes = [];
-		this.landingPageInfo = null;
-		this.isBusy = false;
-		this.isAccountsChecked = [];
-		this.selectedAccounts = [];
-		
 
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+
+		this.horizonStore = HorizonStore.getInstance();
+		this.creditService = new CreditService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 	}
 
@@ -47,20 +52,7 @@ export class PaidUpAccounts extends Component {
 	// PROPERTIES
 	// --------------
 
-	/**
-	 *
-	 * @property {Object} landingPageInfo Data for the Favourites Landing Page display
-	 * @readonly
-	 * @static
-	 * @memberof FavouriteTransactions
-	 */
-	static get properties() {
-		return {
-			landingPageInfo: { type: Object },
-			isBusy: { attribute: false },
-			showPaidUpLetter: { type: Boolean, attribute: false }
-		};
-	}
+	// N/A
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -68,60 +60,78 @@ export class PaidUpAccounts extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this._initialise();
 
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		this._initialise();
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
+	_initialise() {
+
+		this.cardTypes = [`All`, `Term Loan`, `Credit`, `Access Facility`];
+
+		if (this.accountsInfo) {
+			for (let index = 0; index < this.accountsInfo.length; index++) {
+				this.accountsChecked[index] = false;
+			}
+	
+			this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
+		}
+	}
+
+	_back() {
+		this.dispatchEvent(new CustomEvent(`back`, {}));
+	}
+
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
 
-	_initialise() {
-		this.accountsInfo = ["Term loan (32 Months)", "Credit" , "Access Facility"];
-
-		this.cardTypes = ["All","Term Loan" , "Credit" , "Access Facility"]
-		for (let index = 0; index < this.accountsInfo.length; index++)
-		 {
-			this.isAccountsChecked[index] = false;
-		}	
-
-	}
-	_isAnySelected ()
-	{
-		for (let index = 0; index < this.isAccountsChecked.length; index++) 
-		{
-			if (this.isAccountsChecked[index]===true)
-			{
+	_isAnySelected() {
+		for (let index = 0; index < this.accountsChecked.length; index++) {
+			if (this.accountsChecked[index] === true) {
 				return true;
 			}
 		}
 		this.errorMessage = `Please select an account`;
-		this._renderAlertBanner()
+		this._renderAlertBanner();
 		this.requestUpdate();
 		return false;
 	}
 
-	_back(){
-		this.dispatchEvent(new CustomEvent(`back`, {}));
-	}
+	async _showPaidUpLetter () {
 
-	_showPaidUpLetter ()
-	{
-		this.selectedAccounts =[];
-		if (this._isAnySelected())
-		{
-			for (let index = 0; index < this.isAccountsChecked.length; index++)
-			{
-				if (this.isAccountsChecked[index])
-				{
+		this.selectedAccounts = [];
+		const accountNumbers = [];
+		if (this._isAnySelected()) {
+			for (let index = 0; index < this.accountsChecked.length; index++) {
+				if (this.accountsChecked[index]) {
 					this.selectedAccounts[index] = this.accountsInfo[index];
+					accountNumbers.push(this.accountsInfo[index].accountNumber);
 				}
 			}
+
+            const returnValue = await this.creditService.getPaidUpLetter(this.callerInformation.cifNumber, accountNumbers);
+
+			if (!returnValue.succeeded) {
+				this.logger.log(`error`, `Failed to retrieve client paid up letter from credit service.`, `_initialise`, returnValue.correlationId);
+				this.renderMode = RENDER_MODE.SERVICE_UNAVAILABLE;
+				return;
+			}
+
+            this.encodedPDFs = returnValue.result;
+
+			// this.renderMode = RENDER_MODE.PAID_UP_LETTER;
 			this.showPaidUpLetter = !this.showPaidUpLetter;
+			this.requestUpdate();
+			this._renderPaidUpLetter();
 		}
 	}
 
@@ -129,15 +139,67 @@ export class PaidUpAccounts extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	async _navigatePDF(currPage){
-        //add CS call to get encodedPDF 
-        //currPage is date currently selected
+	_errorHandler() {
+		this.horizonRouter.navigateToSystemError();
+	}
+
+	async _navigatePDF(currPage) {
+        // add CS call to get encodedPDF 
+        // currPage is date currently selected
         const returnValue = await this.quickTransactionService.viewStatement(currPage, () => this._createIncidentOnError());
-        if(returnValue){
+        if (returnValue) {
            return returnValue.result.statementData;
         }
     }
 
+	_checkBox(event, index) {
+		this._clearErrors();
+
+		if (this.accountsChecked[index] === true) {
+			this.accountsChecked[index] = false;
+		} else {
+			this.accountsChecked[index] = true;
+			this._clearErrors();
+		}
+
+		if (this.accountsChecked.every(val => val === true)) {
+			this.checkAll = false;
+			this.isChecked = true;
+		} else if (this.accountsChecked.every(val => val === false)) {
+			this.checkAll = false;
+			this.isChecked = false;
+		} else {
+			this.checkAll = true;
+			this.isChecked = false;
+		}
+		this.requestUpdate();
+	}
+
+	_selectAll() {
+		this.checkAll = false;
+
+		if (this.accountsChecked.every(val => val === true)) {
+			for (let index = 0; index < this.accountsChecked.length; index++) {
+				this.accountsChecked[index] = false;
+			}
+		} else {
+			this.isChecked = true;
+			for (let index = 0; index < this.accountsChecked.length; index++) {
+				this.accountsChecked[index] = true;
+			}
+		}
+		this.requestUpdate();
+	}
+
+	_clearErrors() {
+		this.errorMessage = ``;
+	}
+
+	_backToLandingPage() {
+		this.showPaidUpLetter = !this.showPaidUpLetter;
+		this.requestUpdate();
+		this._renderPaidUpLetter();
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -274,8 +336,9 @@ export class PaidUpAccounts extends Component {
 
 	_webTemplate() {
 		return html`
+			${this._renderLoadingIndicator()}
 			${this._renderContent()}
-			${this._renderpaidUpLetter()}
+			${this._renderPaidUpLetter()}
 		`;
 	}
 
@@ -293,15 +356,13 @@ export class PaidUpAccounts extends Component {
 				</capitec-title-bar>
 				<capitec-group layout="vertical" halign="left" valign="top" gap="2">
 					${this._renderAlertBanner()}
-					${this._renderpaidUpAccounts()}
+					${this._renderPaidUpAccounts()}
 				</capitec-group>
 			</capitec-card>`;
 	}
-	/* ${this.accountsInfo.map((item, index) => this._renderAccounts(item, index))}*/
-	_renderpaidUpAccounts()
-	{
-		let accInfo = this.accountsInfo ;
-		return html `			
+
+	_renderPaidUpAccounts() {
+		return this.renderMode === RENDER_MODE.PAID_UP_ACCOUNTS ? html`
 			<capitec-action-bar>
 				<capitec-search-field label="Search loan , amount or account number" style="width: 320px;" value focussed></capitec-search-field>
 				<capitec-select 
@@ -317,7 +378,7 @@ export class PaidUpAccounts extends Component {
 					type="subtitle" 
 					label="Choose an account">
 				</capitec-label>
-				${this.accountsInfo.map((item, index) => this._renderAcountInfoTile(item, index))}
+				${this.accountsInfo.map((item, index) => this._renderAccountInfoTile(item, index))}
 			</capitec-content-box>
 
 			<capitec-button-bar>
@@ -330,97 +391,51 @@ export class PaidUpAccounts extends Component {
 					</capitec-check>
 				</capitec-check-group>
 				<capitec-spacer></capitec-spacer>
-				<capitec-button type="primary" class ="btnSend" label="Send Statement(s)" @click="${() => this._showPaidUpLetter()}"></capitec-button>				
+				<capitec-button type="primary" class ="btnSend" label="Send Paid Up Letter(s)" @click="${() => this._showPaidUpLetter()}"></capitec-button>
 			</capitec-button-bar>
-		`;
+		` : html``;
 	}
-	_renderAcountInfoTile (item,index)
-	{
+
+	_renderAccountInfoTile (item, index) {
 		// item used to populate info below
-		return html `
+		return html`
 		<capitec-group class="accounts" layout="horizontal" gap="clear" valign="center">
 					<capitec-group layout="vertical"  valign="center" gap="clear">
 						<capitec-check 
 							data="${item}"
 							@value-changed=${(e) => this._checkBox(e, index)}
-							?checked="${this.isAccountsChecked[index]}">>
+							?checked="${this.accountsChecked[index]}">>
 						</capitec-check>
 					</capitec-group>
 						<horizon-label
-								label="${item}"
-								value="345634643">
+								label="${item.productTypeDescription}"
+								value="${item.accountNumber}">
 						</horizon-label>
 						<div class="vertical-line"></div>
 						<horizon-label
 							label="Credit taken up"
-							value="R${(Math.floor(Math.random() * 99) + 50).toString()} ${(Math.floor(Math.random() * 1000) + 100).toString()}.00">
+							value="${item.creditLimit}">
 						</horizon-label>
 						<horizon-label
 							label="Installment"
-							value="R${(Math.floor(Math.random() * 10) + 1).toString()} ${(Math.floor(Math.random() * 1000) + 100).toString()}.00">
-						</horizon-label>
-						<horizon-label
-							label="Settlement Amount"
-							value="R${(Math.floor(Math.random() * 30) + 10).toString()} ${(Math.floor(Math.random() * 1000) + 100).toString()}.00">
+							value="${item.repayAmount ?? item.nextRepayment}">
 						</horizon-label>
 		</capitec-group>
 		`;
 	}
 
-	_checkBox(e,index) {
-		this._clearErrors();
-
-		if (this.isAccountsChecked[index] === true) {
-			this.isAccountsChecked[index] = false;
-		} else {
-			this.isAccountsChecked[index] = true;
-			this._clearErrors();
-		}
-
-		if (this.isAccountsChecked.every(val => val === true)) {
-			this.checkAll = false;
-			this.isChecked = true;
-		} else if (this.isAccountsChecked.every(val => val === false)) {
-			this.checkAll = false;
-			this.isChecked = false;
-		} else {
-			this.checkAll = true;
-			this.isChecked = false;
-		}
-		this.requestUpdate();
-	}
-
-	_selectAll() {
-		this.checkAll = false;
-
-		if (this.isAccountsChecked.every(val => val === true)) {
-			for (let index = 0; index < this.isAccountsChecked.length; index++) {
-				this.isAccountsChecked[index] = false;
-			}
-		} else {
-			this.isChecked = true;
-			for (let index = 0; index < this.isAccountsChecked.length; index++) {
-				this.isAccountsChecked[index] = true;
-			}
-		}
-		this.requestUpdate();
-	}
-
-	_clearErrors() {
-		this.errorMessage = ``;
-	}
-
-	_renderpaidUpLetter()
-	{
-		return this.showPaidUpLetter ? 
-		html`
-		<horizon-paid-up-letter-dialog
-			.landingPageInfo="${this.landingPageInfo}"
-			.selectedAccounts="${this.selectedAccounts}"
-			@cancel="${() => this._showPaidUpLetter()}"
-			.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
-		</horizon-paid-up-letter-dialog>`
-		: html ``;
+	_renderPaidUpLetter() {
+		return this.showPaidUpLetter
+		? html`
+			<horizon-paid-up-letter-dialog
+				.landingPageInfo="${this.landingPageInfo}"
+				.selectedAccounts="${this.selectedAccounts}"
+				.encodedPDFs="${this.encodedPDFs}"
+				@cancel="${() => this._backToLandingPage()}"
+				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
+			</horizon-paid-up-letter-dialog>
+		`
+		: html``;
 	}
 
 	_renderLoadingIndicator() {
@@ -428,6 +443,7 @@ export class PaidUpAccounts extends Component {
 			? html`<capitec-loading-indicator data-automation-id="paid-up-account-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
+
 	_renderAlertBanner() {
 		if (this.errorMessage) {
 			return html`
@@ -437,7 +453,6 @@ export class PaidUpAccounts extends Component {
 				</capitec-alert-banner>`;
 		}
 	}
-
 }
 
 customElements.define(`horizon-paid-up-accounts`, PaidUpAccounts);
