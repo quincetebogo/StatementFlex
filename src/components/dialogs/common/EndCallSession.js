@@ -68,6 +68,7 @@ export class EndCallSession extends Component {
 			subCategory: ``,
 			issue: ``
 		};
+		this.callerInfo = {};
 
 		this._configuration = Configuration.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
@@ -101,6 +102,7 @@ export class EndCallSession extends Component {
 			incidentDetails: { type: Object },
 			endCallContext: { type: String },
 			isReassigned: { type: Boolean },
+			callerInfo: { type: Object },
 
 			isBusy: { attribute: false },
 			endCallReasons: { attribute: false },
@@ -367,10 +369,61 @@ export class EndCallSession extends Component {
 		return true;
 	}
 
+	async _updateClientNonclientDetails(strackIncidentInfo, incidentDetails) {
+
+		/*
+		 * Update client details to STrack when the caller is a capitec client or 3rd party/beneficiary client.
+		 * Update details only when STrack incident has no client information
+		 * Scenario 1: When an agent ends call from confirm caller dialog
+		 * Scenario 2: when an agent ends call from Add caller details dialog
+		*/
+		if (!this.callerInfo?.isNonClient &&
+			isNullorEmpty(strackIncidentInfo.clientDetails.cif) &&
+			isNullorEmpty(strackIncidentInfo.clientDetails.southAfricanIDNumber) &&
+			Boolean(this.callerInfo?.cif)) {
+
+			const returnValue = await this.incidentManagementService.updateIncidentClientDetails(this.callerInfo.cif, incidentDetails.incidentRecId);
+		
+			if (!returnValue.succeeded) {
+				this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateSubsequentNeedClientDetails`, returnValue.correlationId);
+			}
+		}
+
+		/*
+		 * Update non-client details to STrack when the caller is a non-client or 3rd party/beneficiary client.
+		 * Update details only when STrack incident has no non-client information
+		 * Scenario 1: When an agent ends call from search caller dialog while capturing non-client details
+		 * Scenario 2: when an agent ends call from Add caller details dialog
+		*/
+		if ((this.callerInfo?.isNonClient || this.callerInfo?.is3rdParty) && 
+			isNullorEmpty(strackIncidentInfo.nonClientDetails.fullName) &&
+			Boolean(this.callerInfo?.nonClientFirstName) &&
+			Boolean(this.callerInfo?.nonClientSurName)) {
+				
+			const nonClientDetails = {
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				firstName: this.callerInfo.nonClientFirstName,
+				surname: this.callerInfo.nonClientSurName,
+				cellPhone: this.callerInfo.nonClientCellNumber
+			};
+			const returnValue = await this.incidentManagementService.updateIncidentNonClientDetails(incidentDetails.incidentRecId, nonClientDetails);
+	
+			if (!returnValue.succeeded) {
+				this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateSubsequentNeedNonClientDetails`, returnValue.correlationId);
+			}
+		}
+
+
+	}
+
 	async _classifyAndClose() {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		const needAction = STRACK_MAPPING[incidentDetails.currentNeed] || STRACK_MAPPING[this.endCallReason.mapping];
 		const strackIncidentInfo = await this._incidentStatus() || {};
+
+		await this._updateClientNonclientDetails(strackIncidentInfo, incidentDetails);
+
 		// Flag to check, if the incident is already updated outside of Horizon
 		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
 		const classification = this._getClassification();

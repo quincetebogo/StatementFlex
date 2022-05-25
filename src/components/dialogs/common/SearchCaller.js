@@ -330,7 +330,6 @@ export class SearchCaller extends Component {
 		}
 	}
 
-
 	async _searchBranch() {
 		this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
 			"screen": TelemetryScreen.SEARCH_CLIENT,
@@ -444,6 +443,15 @@ export class SearchCaller extends Component {
 			"screen": TelemetryScreen.SEARCH_CLIENT,
 			"next-screen": TelemetryScreen.END_CALL
 		});
+
+		this.callerInfo = {
+			cif: null,
+			nonClientFirstName: this.nameValue,
+			nonClientSurName: this.surNameValue,
+			nonClientCellNumber: this.cellPhoneNumberValue,
+			is3rdParty: false,
+			isNonClient: true
+		};
 
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
@@ -1053,6 +1061,7 @@ export class SearchCaller extends Component {
 			<horizon-end-call-session 
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
+				.callerInfo="${this.callerInfo}"
 				endCallContext="ConfirmClient"
 				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}">
 			</horizon-end-call-session>`;
