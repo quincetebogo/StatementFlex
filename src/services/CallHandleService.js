@@ -89,6 +89,29 @@ export class CallHandleService extends ChannelServiceBase {
 	}
 
 	/**
+	 * Retrieves the search call options to search the existing client
+	 *
+	 * @param {object} incomingCallData Information about the incoming call
+	 * @param {errorHandlerCallback} errorHandler An optional error handler
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing search options and the result of the channel service call
+	 */
+	searchOptions(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.post(
+			`/clientcare-card-${this._version}/search/options`, 
+			null,
+			this.setToken(),
+			`searchOptions`, 
+			false,
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
 	 * Retrieves the client information based on the identification method search
 	 *
 	 * @param {object} clientInfo Information about the incoming call
