@@ -74,6 +74,10 @@ export class CreditStatementsSuccess extends ViewBase {
 		});
 		await this._telemetry.endSpan(STATEMENT_EVENTS.STATEMENTS_SUCCESS);
 
+		this._telemetry.endSpan(CreditEvents.CREDIT_STATEMENTS_SUCCESS, {
+			"screen": TelemetryScreen.CREDIT_STATEMENTS_SUCCESS
+		});
+
 		this.horizonRouter.navigateToReturnPage();
 	}
 
