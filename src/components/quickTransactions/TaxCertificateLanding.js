@@ -7,12 +7,15 @@ import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 const ALERT_BANNER_MESSAGE = `You have no Tax Certificates yet`;
 
 export class TaxCertificateLanding extends Component {
+
 	// --------------
 	// INITIALISATION
 	// --------------
 
 	constructor() {
 		super();
+
+		this.isLeapYear = false;
 
 		this._telemetry = HorizonTelemetry.instance;
 	}
@@ -23,6 +26,7 @@ export class TaxCertificateLanding extends Component {
 
 	static get properties() {
 		return {
+			isLeapYear: { type: Boolean },
 			accountOpenedDate: { type: String }
 		};
 	}
@@ -33,6 +37,8 @@ export class TaxCertificateLanding extends Component {
 
 	async connectedCallback() {
 		super.connectedCallback();
+
+		this._checkForLeapYear();
 
 		await this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE_NOT_AVAILABLE, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE
@@ -57,15 +63,10 @@ export class TaxCertificateLanding extends Component {
 	// PUBLIC METHODS
 	// --------------
 
-	// _formatDate(dateToFormat) {
-	// 	const stringToDate = new Date(dateToFormat);
-	// 	const tempdate = stringToDate.toISOString().slice(0, 10);
-	// 	return tempdate;
-	// }
-
-	_formatDate(date) {
-		const newdate = new Date(Date.parse(date));
-		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+	_checkForLeapYear() {
+		const year = new Date(this.accountOpenedDate).getFullYear();
+		this.isLeapYear = ((year % 4 === 0 ) && (year % 100 != 0)) || (year % 400 === 0);
+		return;
 	}
 
 	_getYear(next) {
@@ -194,7 +195,7 @@ export class TaxCertificateLanding extends Component {
 				<capitec-image src="/images/tax-certificate/send-tax-certificate.svg"></capitec-image>
 				<capitec-label type="title" label="You have no Tax Certificates yet"></capitec-label>
 				<p>
-					Your account was opened after <strong>28 February ${this._getYear(true)}</strong>. Tax details will be available after <strong>1 March ${this._getYear(false)}</strong>
+					Your account was opened after <strong>${this.isLeapYear ? `29` : `28`} February ${this._getYear(true)}</strong>. Tax details will be available after <strong>1 March ${this._getYear(false)}</strong>
 				</p>
 			</capitec-group>
 		`;
