@@ -45,6 +45,7 @@
 	 * @param {string} [lastName=""] the client's surname/last name
 	 * @param {string} [initials=""] Client's initials
 	 * @param {string} [identifiedBy=""] Identification method used to confirm client
+	 * @param {string} [gender=""] The client's gender
 	 */
 	constructor(
 		cifNumber,
@@ -78,7 +79,8 @@
 		middleName3 = ``,
 		lastName = ``,
 		initials = ``,
-		identifiedBy = ``
+		identifiedBy = ``,
+		gender = ``
 	) {
 		this.cifNumber = cifNumber;
 		this.birthdate = birthdate;
@@ -112,6 +114,7 @@
 		this.lastName = lastName;
 		this.initials = initials;
 		this.identifiedBy = identifiedBy;
+		this.gender = gender;
 		Object.seal();
 	}
 }
