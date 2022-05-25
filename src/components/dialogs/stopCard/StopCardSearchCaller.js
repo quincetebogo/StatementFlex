@@ -122,6 +122,7 @@ export class StopCardSearchCaller extends Component {
 
 		this.isBusy = false;
 		this.alertBannerMessage = ``;
+		this.identificationMethods = { "key": ``, "value": ``, "identificationType": `` };
 	}
 
 	// ----------
@@ -175,7 +176,7 @@ export class StopCardSearchCaller extends Component {
 		this.incidentRecId = this.incidentDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
-		this.identificationMethods = SEARCH_OPTIONS;
+		this.searchOptions = SEARCH_OPTIONS;
 		
 		this.isUnverifiedNumber = true; // this.unverifiedCaller.isUnverifiedNumber;
 		this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
@@ -203,7 +204,7 @@ export class StopCardSearchCaller extends Component {
 
 	_valueChanged(e) {
 		if (typeof e.detail.new === `object`) {
-			this[e.currentTarget.id].value = e.detail.new.key;
+			this[e.currentTarget.id] = e.detail.new;
 		} else {
 			this[e.currentTarget.id] = e.detail.new;
 		}
@@ -217,11 +218,11 @@ export class StopCardSearchCaller extends Component {
 			this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
 				"screen": TelemetryScreen.SEARCH_CLIENT,
 				"next-screen": TelemetryScreen.CONFIRM_CALLER,
-				"id-method": this.identificationMethods[this.identificationMethods.value].value,
+				"id-method": this.identificationMethods.value,
 				"id-data": this.searchFieldText
 			});
 			const searchClient = {
-				identificationMethod: this.identificationMethods.value,
+				identificationMethod: this.identificationMethods.key,
 				searchValue: this.searchFieldText
 			};
 
@@ -231,8 +232,8 @@ export class StopCardSearchCaller extends Component {
 			if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
 				this._raiseOnClientIdentified(identifiedClient);
 			} else if (returnValue.succeeded && !(identifiedClient && identifiedClient.callerInformation)) {
-				this.errMessage.searchFieldText = ERROR_MESSAGES.NOT_FOUND[this.identificationMethods.value].FIELD_ERROR;
-				this.alertBannerMessage = ERROR_MESSAGES.NOT_FOUND[this.identificationMethods.value].ALERT_BANNER;
+				this.errMessage.searchFieldText = ERROR_MESSAGES.NOT_FOUND[this.identificationMethods.key].FIELD_ERROR;
+				this.alertBannerMessage = ERROR_MESSAGES.NOT_FOUND[this.identificationMethods.key].ALERT_BANNER;
 				return true;
 			} else if (this.incidentReferenceNumber === null) {
 				this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
@@ -288,7 +289,7 @@ export class StopCardSearchCaller extends Component {
             middleName3: identifiedClient.callerInformation.middleName3,
             lastName: identifiedClient.callerInformation.lastName,
             initials: identifiedClient.callerInformation.initials,
-			identifiedBy: this.identificationMethods[this.identificationMethods.value].identificationType
+			identifiedBy: this.identificationMethods.identificationType
 		};
 
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
@@ -307,9 +308,9 @@ export class StopCardSearchCaller extends Component {
 			return false;
 		}
 
-		const REGEX_PATTERN = REGEX_PATTERNS[this.identificationMethods.value].PATTERN;
-		const ERR_MESSAGE = REGEX_PATTERNS[this.identificationMethods.value].ERR_MESSAGE;
-		const ALERT_BANNER_ERR = REGEX_PATTERNS[this.identificationMethods.value].ALERT_BANNER;
+		const REGEX_PATTERN = REGEX_PATTERNS[this.identificationMethods.key].PATTERN;
+		const ERR_MESSAGE = REGEX_PATTERNS[this.identificationMethods.key].ERR_MESSAGE;
+		const ALERT_BANNER_ERR = REGEX_PATTERNS[this.identificationMethods.key].ALERT_BANNER;
 
 		if (!RegExp(REGEX_PATTERN, `g`).test(this.searchFieldText)) {
 			this.errMessage.searchFieldText = ERR_MESSAGE;
@@ -457,7 +458,7 @@ export class StopCardSearchCaller extends Component {
 						error="${this.errMessage.identificationMethods}"
 						label="Choose identification method" 
 						class="id-options"
-						.items="${this.identificationMethods !== undefined ? this.identificationMethods : [{ displayText: `ID Number` }]}"
+						.items="${this.searchOptions !== undefined ? this.searchOptions : [{ displayText: `ID Number` }]}"
 						id-field="key" 
 						display-field="value" 
 						@value-changed="${(e) => this._valueChanged(e)}"
