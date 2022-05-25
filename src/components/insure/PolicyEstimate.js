@@ -1,8 +1,9 @@
 import { Component, css, html } from 'platform/elements';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { validateEstimateRequest, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
+import { refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 import { GENDER_OPTIONS } from 'app/constants/InsureCommon';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/insure/AddLifeDialog';
 import 'app/components/common/HorizonLabel';
@@ -85,10 +86,6 @@ class PolicyEstimate extends Component {
 		}));
 	}
 
-	_validateEstimateRequest() {
-
-	}
-
 	/**
 	 * Calculate Button event
 	 * 1. Determine if should calculate by premium or not
@@ -99,12 +96,12 @@ class PolicyEstimate extends Component {
 	async _calculateEstimate() {
 
 		// Validate
-		if (this.newTotalPremium != '' || !this.newTotalPremium) {
+		if (!isNullorEmpty(this.newTotalPremium)) {
 			this.estimate.lifesAssured.forEach(life => {
 				if (!life.coverAmount || life.coverAmount == '' || life.coverAmount == 0) {
 					life.coverDetails.coverMessage = life.coverDetails.minCoverMessage.replace("{0:#,##0}", life.coverDetails.minCoverAmount);
 				}
-				if (!life.age || life.age == '') {
+				if (isNullorEmpty(life.age)) {
 					let ageMessage = `Age is required`
 					life.coverDetails.ageMessage = ageMessage;
 				}

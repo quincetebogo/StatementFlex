@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { getCoverDetailsByParams, livesPerPolicy, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
+import { livesPerPolicy, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 
 const MAX_LIVES_PER_POLICY = 22;
 
@@ -103,8 +103,6 @@ class AddLifeDialog extends Component {
 	 * Add Event, Calculate cover details parameter, emit new life object to consuming component & reset toggles 
 	 */
 	_onAddClick() {
-		// let coverDetails = getCoverDetailsByParams(this.selectedRelationship, this.productParams, null, this.showExtendedList);
-
 		let coverDetails = refreshRelationshipCoverDetails(this.selectedRelationship, this.productParams, 0, 0, '', this.showExtendedList, true);
 		console.log("coverDetails: ", JSON.stringify(coverDetails))
 		this.dispatchEvent(new CustomEvent(`add-new-life`, { detail: { relationship: this.selectedRelationship, coverDetails: coverDetails } }));

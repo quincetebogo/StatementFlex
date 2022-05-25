@@ -51,7 +51,7 @@ export default class InsureChannelServiceMocks {
 	 */
 	insureProductParams() {
 		if (this._mockSettings.insureProductParams.positiveCase) {
-			return this.productParamsMocks.InsureProductParams;
+			return this.productParamsMocks.ProductParams;
 		}
 		return null;
 	}

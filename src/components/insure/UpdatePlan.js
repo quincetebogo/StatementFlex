@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { getCoverDetailsByParams, livesPerPolicy } from 'app/utils/insureUtils';
+import { refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 
 // Lookups
 import { BANK_OPTIONS, ACCOUNT_TYPES, DEBIT_ORDER_DAY_OPTIONS, GENDER_OPTIONS, TITLE_OPTIONS } from 'app/constants/InsureCommon';
@@ -204,7 +204,16 @@ class UpdatePlan extends Component {
 			this.quote.lifesAssured[index].age = event.detail.new;
 			this.newTotalPremium = '';
 		}
-		this.quote.lifesAssured[index].coverDetails = getCoverDetailsByParams(this.quote.lifesAssured[index].relationship, this.productParams, this.quote.lifesAssured[index].age, this.quote.lifesAssured[index].coverDetails.isExtendedFamily);
+		
+		this.quote.lifesAssured[index].coverDetails = refreshRelationshipCoverDetails(
+			this.quote.lifesAssured[index].relationship,
+			this.productParams,
+			this.quote.lifesAssured[index].coverAmount,
+			index == 0 ? this.maxAllowedCover : 0,
+			this.quote.lifesAssured[index].age,
+			this.quote.lifesAssured[index].coverDetails.isExtendedFamily,
+			false);
+
 		this.requestUpdate();
 	}
 
