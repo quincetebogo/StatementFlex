@@ -72,16 +72,7 @@ export class StatementsSuccess extends ViewBase {
 		this.horizonRouter.navigateToReturnPage();
 
 		// redirect to statements modal
-
-		const selectedOption = `statements`;
-		this.dispatchEvent(new CustomEvent(`option-click`, {
-			detail: {
-				option: selectedOption,
-				saveType: this.accType,
-				accountNumber: this.accNumber,
-				stopPropagation: selectedOption !== `stop-card` && selectedOption !== `search-other-need` && this.verificationStatus !== `verified`
-			}
-		}));
+		this.dispatchEvent(new CustomEvent(`option-click`, {}));
 	}
 
 	// ---------------

@@ -378,7 +378,12 @@ export class Statements extends Component {
 
 		const returnValue = await this.quickTransactionService.sendStatement(statement);
 		this._updateScreenDetails(request);
-		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `statements`);
+
+		let optionalData = `statements`;
+		if (request.accountName === `Savings account`) {
+			optionalData = `statements-transact`;
+		}
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, optionalData);
 
 		if (returnValue.succeeded) {
 			this.horizonRouter.navigateToStatementSuccessful();

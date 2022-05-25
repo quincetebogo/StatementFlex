@@ -1,5 +1,5 @@
-import { CreditEvents, STATEMENT_EVENTS } from 'app/constants/telemetry/events/Credit';
 import { css, html } from 'platform/elements';
+import { STATEMENT_EVENTS } from 'app/constants/telemetry/events/Credit';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
@@ -74,15 +74,6 @@ export class CreditStatementsSuccess extends ViewBase {
 		await this._telemetry.endSpan(STATEMENT_EVENTS.STATEMENTS_SUCCESS);
 
 		this.horizonRouter.navigateToReturnPage();
-
-		// redirect to another statements pop screen
-		const selectedOption = `statements`;
-		this.dispatchEvent(new CustomEvent(`option-click`, {
-			detail: {
-				option: selectedOption
-			}
-		}));
-		
 	}
 
 	// ---------------
