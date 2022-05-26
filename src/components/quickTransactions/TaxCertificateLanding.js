@@ -1,5 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { getMonthName } from 'app/utils/channelServiceUtilities';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -26,8 +25,7 @@ export class TaxCertificateLanding extends Component {
 
 	static get properties() {
 		return {
-			isLeapYear: { type: Boolean },
-			accountOpenedDate: { type: String }
+			isLeapYear: { state: false }
 		};
 	}
 
@@ -64,15 +62,14 @@ export class TaxCertificateLanding extends Component {
 	// --------------
 
 	_checkForLeapYear() {
-		const year = new Date(this.accountOpenedDate).getFullYear();
+		const year = new Date().getFullYear();
 		this.isLeapYear = ((year % 4 === 0 ) && (year % 100 != 0)) || (year % 400 === 0);
 		return;
 	}
 
-	_getYear(next) {
-		const today = new Date();
-		const year = new Date(today).getFullYear();
-		return next ? year : year+1;
+	_getYear(currentYear) {
+		const year = new Date().getFullYear();
+		return currentYear ? year : year+1;
 	}
 
 	// ---------------
@@ -195,7 +192,7 @@ export class TaxCertificateLanding extends Component {
 				<capitec-image src="/images/tax-certificate/send-tax-certificate.svg"></capitec-image>
 				<capitec-label type="title" label="You have no Tax Certificates yet"></capitec-label>
 				<p>
-					Your account was opened after <strong>${this.isLeapYear ? `29` : `28`} February ${this._getYear(true)}</strong>. Tax details will be available after <strong>1 March ${this._getYear(false)}</strong>
+					Your account was opened after <strong>${this.isLeapYear ? `29` : `28`} February ${this._getYear(true)}</strong>. Tax details will be available after <strong>1 March ${this._getYear(false)}</strong>.
 				</p>
 			</capitec-group>
 		`;

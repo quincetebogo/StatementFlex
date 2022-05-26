@@ -70,6 +70,7 @@ export class Favourites extends SavingsAccountBase {
 		this.selectedFeedback = [];
 		this.feedbackOptions = [];
 		this.updateStrackClick = false;
+		this.hasTaxCertificate = false;
 		this.taxCertificateDetails = null;
 		// TODO: get ccs status for client
 		this.ccsStatus = false;
@@ -93,6 +94,7 @@ export class Favourites extends SavingsAccountBase {
 		return {
 			isLoading: { state: true },
 			verificationToastDisplayed: { state: true },
+			hasTaxCertificate: { state: false },
 			showCCSmodal: { type: Boolean }
 		};
 	}
@@ -1122,7 +1124,6 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE_NOT_AVAILABLE
 		? html`
 			<horizon-tax-certificate-landing
-				.accountOpenedDate="${this.landingPageInfo.accountOpenedDate}"
 				@back="${() => this._backToLandingPage()}">
 			</horizon-tax-certificate-landing>
 			`
