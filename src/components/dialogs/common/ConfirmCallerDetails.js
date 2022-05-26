@@ -201,6 +201,11 @@ export class ConfirmCallerDetails extends Component {
 		// TODO: Do we lose the added caller details if we go there first before doing a search???
 		this._initCallerInformation();
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+
+		// Dispatching an event to update the confirmed caller in landing page
+		this.dispatchEvent(new CustomEvent(`client-identified`, {
+			detail: event.detail
+		}));
 	}
 
 	_branchCaptured(event) {
@@ -210,6 +215,11 @@ export class ConfirmCallerDetails extends Component {
 		this.callerInformation.isBranchConsultant = true;
 		this._initCallerInformation();
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+
+		// Dispatching an event to update the confirmed caller in landing page
+		this.dispatchEvent(new CustomEvent(`branch-captured`, {
+			detail: event.detail
+		}));
 	}
 
 	/**
@@ -331,7 +341,7 @@ export class ConfirmCallerDetails extends Component {
 			false, // hasDigitalChannels
 			{
 				itaAttempts: 0,
-				xdsAttempts: 0
+				sqAttempts: 0
 			}, 
 			this.confirmedCaller.isBranchConsultant, // isBranchConsultant
 			this.confirmedCaller.isClientPresent, // isClientPresent
@@ -341,7 +351,8 @@ export class ConfirmCallerDetails extends Component {
 			this.confirmedCaller.middleName2,
 			this.confirmedCaller.middleName3,
 			this.confirmedCaller.lastName,
-			this.confirmedCaller.initials
+			this.confirmedCaller.initials,
+			this.confirmedCaller.identifiedBy
 		);
 	}
 
@@ -370,13 +381,13 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	async _checkForInsuranceProducts(southAfricanIDNumber, cifNumber, isCallerVerified) {
-		const InsuranceCientInfo = {
-			IdNumber: southAfricanIDNumber,
-			CifNumber: cifNumber,
-			isCallerVarified: isCallerVerified
+		const insuranceClientInfo = {
+			'idNumber': southAfricanIDNumber,
+			'cifNumber': cifNumber,
+			'isCallerVerified': isCallerVerified
 		};
 
-		const returnValue = await this.insureService.hasInsuranceProducts(InsuranceCientInfo);
+		const returnValue = await this.insureService.hasInsuranceProducts(insuranceClientInfo);
 
 		return returnValue.result.hasInsurance;
 	}

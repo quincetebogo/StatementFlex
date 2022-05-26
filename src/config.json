@@ -6,6 +6,7 @@
 		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-dev.int.capinet"		
 	},
 	"signalRUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
+	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
@@ -22,6 +23,10 @@
 		"fees": "https://www.capitecbank.co.za/global-one/transact/fees/"
 	},
 	"AuthMethod": "KBA",
+	"AuthAttempts": {
+		"XDS": 2,
+		"KBA": 1
+	},
 	"LogRequestResponseModels": false,
 	"VDN": "7250",
 	"ivrMapping": [
@@ -212,6 +217,11 @@
 		"sendSettlementQuoteEmail": {
 			"enabled": false,
 			"postiveCase": false
+		},
+		"loadKBA": {
+			"enabled": false,
+			"positiveCase": true
 		}
-	}
+	},
+	"searchClientOptionEnabled": true
 }

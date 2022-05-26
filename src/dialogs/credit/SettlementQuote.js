@@ -219,7 +219,7 @@ export class SendSettlementQuote extends Component {
 					width: 100%;
 					border: 1px solid #E1E1E1;
 					margin-bottom: 30px;
-					margin-top: 10px;
+					margin-top: 30px;
 				}
 
 				.document-label[type="subtitle"] {

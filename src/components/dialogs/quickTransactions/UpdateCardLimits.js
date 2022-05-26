@@ -119,7 +119,7 @@ export class UpdateCardLimits extends Component {
 	/**
 	 * 
 	 * @property {Boolean} hasDigitalChannels Indicates if the client is registered for digital channels 
-	 * @property {String} verificationMethod Indicated the type of verification (xds/ita)
+	 * @property {String} verificationMethod Indicated the type of verification (SQ/ita)
 	 * @property {Object} cardDetails Object has the card details
 	 * @property {string} limitType Flag to indicate Temporary/ Permanent
 	 * @property {string} updateType Flag to indicate Debit/ Credit
@@ -872,7 +872,7 @@ export class UpdateCardLimits extends Component {
 	}
 
 	_renderNoDigitalHighRiskTransAlertBanner() {
-		return this.verificationMethod === `XDS` && this.renderMode === RENDER_MODE.LIMITS
+		return this.verificationMethod === `SQ` && this.renderMode === RENDER_MODE.LIMITS
 			? html`
 				<horizon-alert-banner
 					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
@@ -889,7 +889,7 @@ export class UpdateCardLimits extends Component {
 	}
 
 	_renderHighRiskTransAlertBanner() {
-		return this.verificationMethod === `XDS` && this.cardDetails.cardDisplayType !== CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD && this.renderMode === RENDER_MODE.LIMITS
+		return this.verificationMethod === `SQ` && this.cardDetails.cardDisplayType !== CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD && this.renderMode === RENDER_MODE.LIMITS
 			? html`
 				<horizon-alert-banner
 					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
@@ -1084,7 +1084,7 @@ export class UpdateCardLimits extends Component {
 				value="${this._getTextFieldValue(cnpAmountLimit, limits.cnpAmountLimit)}"
 				error="${this._getFieldError(this.error[transactionType][cnpAmountLimit]) || this.tempError[cnpAmountLimit]}"
 				hint="${this._getTextFieldHint(limits.cnpAmountLimit, true)}"
-				?disabled=${this.verificationMethod === `XDS`}
+				?disabled=${this.verificationMethod === `SQ`}
 				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD}"
 				@blur="${() => this.fieldFocused = ``}"
 				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"

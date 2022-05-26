@@ -203,8 +203,8 @@ export class Favourites extends SavingsAccountBase {
 		// re-initialise the page when the verification status changes
 		// verificationStatus is on the this.callerInformation object
 		
-		if (this.callerInformation.verificationStatus !== `verified`) {
-        await this._initialise();
+		if (this.callerInformation.verificationStatus === `verified`) {
+			await this._initialise();
 		}
 	}
 
@@ -364,7 +364,7 @@ export class Favourites extends SavingsAccountBase {
 
 	async _initialise() {
 
-		if (this.callerInformation.verificationStatus !== `non-client` && isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber)) {
+		if (this.callerInformation.verificationStatus !== `non-client`) {
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
 				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
@@ -912,8 +912,8 @@ export class Favourites extends SavingsAccountBase {
 				class="verificatoin-status"
 				data-automation-id="favourite-transactions-failed-verification-alert-banner"
 				type="unsuccessful-red"
-				label="Notify client: I'm not able to access your account since you couldn't be verified. If it's an urgent matter please visit a branch, or you can call again after 24 hours.">
-			</horizon-alert-banner>`;
+				label="Notify client: I'm not able to access your account since you couldn't be verified. Can we guide you on the App? Alternatively please visit your nearest branch.">
+			</capitec-alert-banner>`;
 	}
 
 	_renderVerifiedAlertBanner() {
@@ -923,7 +923,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderNoDigitalHighRiskTransAlertBanner() {
-		return this.callerInformation.verificationMethod === `XDS`
+		return this.callerInformation.verificationMethod === `SQ`
 			? html`
 				<horizon-alert-banner
 					class="verificatoin-status"
@@ -941,7 +941,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderHighRiskTransAlertBanner() {
-		return this.callerInformation.verificationMethod === `XDS`
+		return this.callerInformation.verificationMethod === `SQ`
 			? html`
 				<horizon-alert-banner
 					class="verificatoin-status"
