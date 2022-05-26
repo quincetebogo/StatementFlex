@@ -74,9 +74,15 @@ export class Statements extends Component {
 		return {
 			cifNumber: { type: String },
 			clientProducts: { type: Array },
-			accountType: { type: String, attribute: `type` },
-			title: { type: String },
 			lastName: { type: String },
+			accountType: { 
+				type: String, 
+				attribute: `type`
+			},
+			title: { 
+				type: String,
+				attribute: `client-title`
+			},
 
 			isBusy: { state: true },
 			ccsStatus: { state: true }

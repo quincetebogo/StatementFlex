@@ -80,8 +80,11 @@ export class VerifyBySecurityQuestions extends Component {
 			securityQuestions: { type: Object },
 			finalAttempt: { type: Boolean },
 			cifNumber: { type: String },
-			title: { type: String },
 			lastName: { type: String },
+			title: {
+				type: String ,
+				attribute: `client-title`
+			},
 
 			renderMode: { state: true },
 			questionNumber: { state: true },

@@ -74,9 +74,12 @@ export class ProofOfAccount extends Component {
 		return {
 			landingPageInfo: { type: Object },
 			cifNumber: { type: String },
-			title: { type: String },
 			lastName: { type: String },
-			
+			title: { 
+				type: String,
+				attribute: `client-title`
+			},
+
 			isBusy: { attribute: false },
 			alertBannerMessage: { attribute: false },
 			emailText: { attribute: false }

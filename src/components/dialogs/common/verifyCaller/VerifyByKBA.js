@@ -85,8 +85,11 @@ export class VerifyByKBA extends Component {
 			incidentDetails: { type: Object },
 			questions: { type: Object },
 			cifNumber: { type: String },
-			title: { type: String },
 			lastName: { type: String },
+			title: { 
+				type: String,
+				attribute: `client-title`,
+			},
 
 			isBusy: { state: true },
 			renderMode: { state: true },

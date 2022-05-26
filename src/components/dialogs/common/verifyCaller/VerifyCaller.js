@@ -1035,7 +1035,7 @@ export class VerifyCaller extends Component {
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.securityQuestions="${this.securityQuestions}"
 					.cifNumber="${this.callerInformation.cifNumber}"
-					.title="${this.callerInformation.title}"
+					client-title="${this.callerInformation.title}"
 					.lastName="${this.callerInformation.lastName}"
 					?finalAttempt=${this.xdsAttempts === MAX_XDS_ATTEMPTS}
 					@cancel="${() => this._cancelledSecurityQuestions()}"
@@ -1084,7 +1084,7 @@ export class VerifyCaller extends Component {
 				.incidentDetails="${this.incidentDetails}"
 				.questions="${this.kbaQuestions}"
 				.cifNumber="${this.callerInformation.cifNumber}"
-				.title="${this.callerInformation.title}"
+				client-title="${this.callerInformation.title}"
 				.lastName="${this.callerInformation.lastName}"
 				@cancel="${() => this._cancelledSecurityQuestions()}"
 				@skip="${() => this._skippedSecurityQuestions()}"
