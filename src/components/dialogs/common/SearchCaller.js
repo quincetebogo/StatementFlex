@@ -609,7 +609,8 @@ export class SearchCaller extends Component {
             middleName3: identifiedClient.callerInformation.middleName3,
             lastName: identifiedClient.callerInformation.lastName,
             initials: identifiedClient.callerInformation.initials,
-			identifiedBy: this.searchType.identificationType
+			identifiedBy: this.searchType.identificationType,
+			gender: identifiedClient.callerInformation.gender
 		};
 
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
@@ -639,6 +640,7 @@ export class SearchCaller extends Component {
 			middleName2: identifiedClient.callerInformation.middleName2,
 			middleName3: identifiedClient.callerInformation.middleName3,
 			lastName: identifiedClient.callerInformation.lastName,
+			gender: identifiedClient.callerInformation.gender,
 			isClientPresent: this.clientInBranch
 		};
 

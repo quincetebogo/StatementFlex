@@ -55,21 +55,6 @@ export class CallHandleService extends ChannelServiceBase {
 			return this.mock(`acceptCall`, acceptCallData);
 		}
 
-		/*
-		return this.get(
-			`/clientcare-call-${this._version}/search-caller?` +
-				`incomingTelephoneNumber=${clientInfo.incomingTelephoneNumber}&` +
-				`voiceReferenceNumber=${clientInfo.voiceReferenceNumber}&` +
-				`ivrOptionCode=${clientInfo.ivrOption}&` +
-				`incidentReferenceNumber=${clientInfo.incidentNo}&` +
-				`agentTelephoneNumber=${clientInfo.agentTelephoneNumber}&` +
-				`identificationMethod=${parseInt(clientInfo.identificationMethod, 10)}&` +
-				`value=${clientInfo.searchValue}`,
-				this._setToken(),
-			`searchCaller`
-		);
-		*/
-
 		const url = `/clientcare-call-${this._version}/accept-call`;
 
 		return this.post(
@@ -120,23 +105,6 @@ export class CallHandleService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing client information and the result of the channel service call
 	 */
 	searchCaller(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-
-		/*
-		return this.get(
-			`/clientcare-call-${this._version}/search-caller?` +
-				`incomingTelephoneNumber=${clientInfo.incomingTelephoneNumber}&` +
-				`voiceReferenceNumber=${clientInfo.voiceReferenceNumber}&` +
-				`ivrOptionCode=${clientInfo.ivrOption}&` +
-				`incidentReferenceNumber=${clientInfo.incidentNo}&` +
-				`agentTelephoneNumber=${clientInfo.agentTelephoneNumber}&` +
-				`identificationMethod=${parseInt(clientInfo.identificationMethod, 10)}&` +
-				`value=${clientInfo.searchValue}`,
-				this._setToken(),
-			`searchCaller`,
-			false,
-			1000
-		);
-		*/
 		
 		const url = `/clientcare-call-${this._version}/search-caller`;
 
