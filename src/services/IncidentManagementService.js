@@ -305,10 +305,11 @@ export class IncidentManagementService extends ChannelServiceBase {
 	 * @memberof IncidentManagementService
 	 */
 	 incidentStatus(incidentRecId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const url = `/clientcare-incident-${this._version}/incident/${incidentRecId}`;
+		const url = `/clientcare-incident-${this._version}/incident`;
 	
-		return this.get(
-			url, 
+		return this.post(
+			url,
+			incidentRecId,
 			this.setToken(), 
 			`incidentStatus`,
 			null,
