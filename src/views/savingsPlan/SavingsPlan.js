@@ -2,7 +2,6 @@ import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/consta
 import { css, html } from 'platform/elements';
 import { formatStringAsPascalCase, getMonthName } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
-import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
@@ -80,12 +79,11 @@ export class SavingsPlan extends ViewBase {
 
 		this._initialise();
 
-		this._optionClick = (option, saveType, accountNumber) => {
+		this._optionClick = async (option, saveType, accountNumber, accountName) => {
 
 			const statements = () => this._getStatements(accountNumber, saveType);
-			const taxCertificates = () => this._taxCertificates(accountNumber);
+			const taxCertificates = () => this._taxCertificates(accountNumber, accountName);
 			const productEnquiry = () => this._productEnquiry();
-			const savingsCalculator = () => this._savingsCalculator();
 			const interestRates = () => this._interestRates();
 
 			const actions = {
