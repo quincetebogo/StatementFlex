@@ -364,7 +364,7 @@ export class Favourites extends SavingsAccountBase {
 
 	async _initialise() {
 
-		if (this.callerInformation.verificationStatus !== `non-client` && isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber)) {
+		if (this.callerInformation.verificationStatus !== `non-client`) {
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
 				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
