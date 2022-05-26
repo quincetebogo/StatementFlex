@@ -201,6 +201,11 @@ export class ConfirmCallerDetails extends Component {
 		// TODO: Do we lose the added caller details if we go there first before doing a search???
 		this._initCallerInformation();
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+
+		// Dispatching an event to update the confirmed caller in landing page
+		this.dispatchEvent(new CustomEvent(`client-identified`, {
+			detail: event.detail
+		}));
 	}
 
 	_branchCaptured(event) {
@@ -210,6 +215,11 @@ export class ConfirmCallerDetails extends Component {
 		this.callerInformation.isBranchConsultant = true;
 		this._initCallerInformation();
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+
+		// Dispatching an event to update the confirmed caller in landing page
+		this.dispatchEvent(new CustomEvent(`branch-captured`, {
+			detail: event.detail
+		}));
 	}
 
 	/**

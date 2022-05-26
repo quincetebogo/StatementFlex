@@ -217,7 +217,7 @@ export class StopCardSearchCaller extends Component {
 			this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
 				"screen": TelemetryScreen.SEARCH_CLIENT,
 				"next-screen": TelemetryScreen.CONFIRM_CALLER,
-				"id-method": this.identificationMethods.value,
+				"id-method": this.identificationMethods[this.identificationMethods.value].value,
 				"id-data": this.searchFieldText
 			});
 			const searchClient = {
@@ -288,7 +288,7 @@ export class StopCardSearchCaller extends Component {
             middleName3: identifiedClient.callerInformation.middleName3,
             lastName: identifiedClient.callerInformation.lastName,
             initials: identifiedClient.callerInformation.initials,
-			identifiedBy: this.searchType.identificationType
+			identifiedBy: this.identificationMethods[this.identificationMethods.value].identificationType
 		};
 
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
