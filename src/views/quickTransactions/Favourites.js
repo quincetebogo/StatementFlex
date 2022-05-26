@@ -420,9 +420,6 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_updateLeftBar() {
-		const callerInformation = this.horizonStore.getCallerInformation();
-		this.horizonStore.setCallerInformation(callerInformation);
-
 		this.horizonStore.setProductButtonState(this.landingPageInfo);
 	}
 

@@ -212,8 +212,6 @@ export class SavingsPlan extends ViewBase {
 		}
 
 	_updateLeftBar() {
-		this.horizonStore.setCallerInformation(this.callerInformation);
-		
 		this.horizonStore.setProductButtonState(this.landingPageInfo);
 	}
 
