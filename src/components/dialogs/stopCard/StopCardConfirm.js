@@ -256,7 +256,7 @@ export class StopCardConfirm extends Component {
 			return html``;
 		}
 
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		return html`<capitec-loading-indicator data-automation-id="stop-card-confirm-loading-indicator"></capitec-loading-indicator>`;
 	}
 }
 
