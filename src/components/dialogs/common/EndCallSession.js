@@ -784,7 +784,7 @@ export class EndCallSession extends Component {
 			return html``;
 		}
 
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		return html`<capitec-loading-indicator data-automation-id="end-call-session-loading-indicator"></capitec-loading-indicator>`;
 	}
 }
 
