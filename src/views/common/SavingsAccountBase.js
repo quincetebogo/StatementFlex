@@ -422,7 +422,7 @@ export class SavingsAccountBase extends ViewBase {
 		const verificationStatus = this.callerInformation.verificationStatus;
 
 		return verificationStatus === `verified`
-				? verificationMethod === `XDS` && HIGH_RISK_TRANSACTIONS.includes(need)
+				? verificationMethod === `SQ` && HIGH_RISK_TRANSACTIONS.includes(need)
 				: !LOW_RISK_TRANSACTIONS.includes(need);
 	}
 

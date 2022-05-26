@@ -20,7 +20,7 @@ export class ComponentMultiLineLabel extends Component {
 	constructor() {
 		super();
 		this.label = ``;
-		this.value = ``;
+		this.value = [];
 		this.noPadding = false;
 	}
 	
@@ -33,7 +33,7 @@ export class ComponentMultiLineLabel extends Component {
 	static get properties() {
 		return {
 			label: { type: String },
-			value: { type: String },
+			value: { type: Array },
 			noPadding: { type: Boolean, attribute: `no-padding` }
 		};
 	}
@@ -77,21 +77,22 @@ export class ComponentMultiLineLabel extends Component {
 					flex-direction: column-reverse;
 				}
 				.value {
-					height: 12px;
-					font-size: 12px;
-					line-height: 12px;
+					height: var(--horizon-multi-line-value-font-size, 12px);
+					font-size: var(--horizon-multi-line-value-font-size, 12px);
+					line-height: var(--horizon-multi-line-value-line-height, 12px);
 					font-weight: var(--horizon-multi-line-value-font-weight, 400);
+					--theme-layout-gap-spacing: var(--horizon-multi-line-value-gap, 10px);
 				}
 				capitec-label{
-					height: 20px;
+					height: var(--horizon-multi-line-label-line-height, 20px);
 					width: auto;
 					color: #3A3A3A;
 					font-family: "Hind Vadodara";
-					font-size: 14px;
+					font-size: var(--horizon-multi-line-label-font-size, 14px);
 					font-weight: var(--horizon-multi-line-label-font-weight, 400);
 					letter-spacing: 0;
 					line-height: var(--horizon-multi-line-label-line-height, 20px);
-					text-align: right;
+					text-align: var(--horizon-multi-line-label-align, right);
 				}
 			`
 		];

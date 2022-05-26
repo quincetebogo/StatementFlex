@@ -32,17 +32,20 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`hasInsuranceProducts`);
 		}
 
-		const url = `/clientcare-insure-${this._version}/landing?` +
-			`IdNumber=${insuranceClientInfo.IdNumber}&` +
-			`Cif=${insuranceClientInfo.CifNumber}&` +
-			`IsCallerVerified=${insuranceClientInfo.isCallerVarified}`;
+		const insuranceClientRequest = {
+			'idNumber': insuranceClientInfo.idNumber,
+			'cif': insuranceClientInfo.cifNumber,
+			'isCallerVerified': insuranceClientInfo.isCallerVerified
+		};
 
-		return this.get(
-			url, 
-			this.setToken(), 
-			`hasInsuranceProducts`, 
+		return this.post(
+			`/clientcare-insure-${this._version}/landing`, 
+			insuranceClientRequest,
+			this.setToken(),
+			`addNonClientDetails`, 
 			null, 
-			1000,
+			null, 
+			900,
 			null,
 			errorHandler,
 			autoRetries

@@ -217,7 +217,7 @@ export class StopCardSearchCaller extends Component {
 			this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
 				"screen": TelemetryScreen.SEARCH_CLIENT,
 				"next-screen": TelemetryScreen.CONFIRM_CALLER,
-				"id-method": this.identificationMethods.value,
+				"id-method": this.identificationMethods[this.identificationMethods.value].value,
 				"id-data": this.searchFieldText
 			});
 			const searchClient = {
@@ -287,7 +287,8 @@ export class StopCardSearchCaller extends Component {
             middleName2: identifiedClient.callerInformation.middleName2,
             middleName3: identifiedClient.callerInformation.middleName3,
             lastName: identifiedClient.callerInformation.lastName,
-            initials: identifiedClient.callerInformation.initials
+            initials: identifiedClient.callerInformation.initials,
+			identifiedBy: this.identificationMethods[this.identificationMethods.value].identificationType
 		};
 
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
@@ -434,7 +435,7 @@ export class StopCardSearchCaller extends Component {
 			return html``;
 		};
 
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		return html`<capitec-loading-indicator data-automation-id="cards-search-caller-loading-indicator"></capitec-loading-indicator>`;
 	}
 
 	renderSearchClientDetails() {

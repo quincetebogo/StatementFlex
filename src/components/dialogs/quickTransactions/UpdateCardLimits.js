@@ -119,7 +119,7 @@ export class UpdateCardLimits extends Component {
 	/**
 	 * 
 	 * @property {Boolean} hasDigitalChannels Indicates if the client is registered for digital channels 
-	 * @property {String} verificationMethod Indicated the type of verification (xds/ita)
+	 * @property {String} verificationMethod Indicated the type of verification (SQ/ita)
 	 * @property {Object} cardDetails Object has the card details
 	 * @property {string} limitType Flag to indicate Temporary/ Permanent
 	 * @property {string} updateType Flag to indicate Debit/ Credit
@@ -872,7 +872,7 @@ export class UpdateCardLimits extends Component {
 	}
 
 	_renderNoDigitalHighRiskTransAlertBanner() {
-		return this.verificationMethod === `XDS` && this.renderMode === RENDER_MODE.LIMITS
+		return this.verificationMethod === `SQ` && this.renderMode === RENDER_MODE.LIMITS
 			? html`
 				<capitec-alert-banner
 					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
@@ -889,7 +889,7 @@ export class UpdateCardLimits extends Component {
 	}
 
 	_renderHighRiskTransAlertBanner() {
-		return this.verificationMethod === `XDS` && this.cardDetails.cardDisplayType !== CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD && this.renderMode === RENDER_MODE.LIMITS
+		return this.verificationMethod === `SQ` && this.cardDetails.cardDisplayType !== CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD && this.renderMode === RENDER_MODE.LIMITS
 			? html`
 				<capitec-alert-banner
 					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
@@ -944,7 +944,7 @@ export class UpdateCardLimits extends Component {
 	_renderSetLimits() {
 		return this.renderMode === RENDER_MODE.LIMITS
 			? html`
-				<capitec-label type="title" label="${this.cardDetails.isVirtualCard ? `Virtual Limits` : this.limitLabel}" class="limitLabel"></capitec-label>
+				<capitec-label type="title" label="${this.cardDetails.isVirtualCard ? `Virtual Limits` : this.limitLabel}" class="limitLabel" data-automation-id="update-card-limits-virtual-cards"></capitec-label>
 				<capitec-group class="renderLimits" layout="horizontal" halign="left" valign="top" gap="clear">
 					<capitec-card style="display: inline">
 						${this._renderLimitsAlertBanner()}
@@ -1007,17 +1007,17 @@ export class UpdateCardLimits extends Component {
 					label="Total daily limit exposure"
 					class="dailyExTitle">
 				</capitec-label>
-				<div class="dailyLimits">
+				<div class="dailyLimits" data-automation-id="update-card-limits-daily-limits-div">
 					<div style="display: inline-block; width: 245px; height: 32px">
-						<capitec-label label="Primary card limits"></capitec-label>
+						<capitec-label label="Primary card limits" data-automation-id="update-card-limits-primary-card-limits-label"></capitec-label>
 						<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalPrimaryPermanentLimits, 0)}</b> / Temporary <b>${formatCurrency(this.totalPrimaryTemporaryLimits, 0)}</b></p>
 					</div>
 						<div style="display: inline-block; width: 245px; height: 32px">
-						<capitec-label label="Supplementary card limits"></capitec-label>
+						<capitec-label label="Supplementary card limits" data-automation-id="update-card-limits-supplementary-card-limits-label"></capitec-label>
 						<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalSuplementaryPermanentLimits, 0)}</b> / Temporary <b>${formatCurrency(this.totalSuplementaryTemporaryLimits, 0)}</b></p>
 					</div>
 					<div style="display: inline-block; width: 245px; height: 32px">
-						<capitec-label label="Total limits"></capitec-label>
+						<capitec-label label="Total limits" data-automation-id="update-card-limits-total-limits-label"></capitec-label>
 						<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalPermanentLimits, 0)}</b> / Temporary <b>${formatCurrency(this.totalTemporaryLimits, 0)}</b></p>
 					</div>
 				</div>
@@ -1084,7 +1084,7 @@ export class UpdateCardLimits extends Component {
 				value="${this._getTextFieldValue(cnpAmountLimit, limits.cnpAmountLimit)}"
 				error="${this._getFieldError(this.error[transactionType][cnpAmountLimit]) || this.tempError[cnpAmountLimit]}"
 				hint="${this._getTextFieldHint(limits.cnpAmountLimit, true)}"
-				?disabled=${this.verificationMethod === `XDS`}
+				?disabled=${this.verificationMethod === `SQ`}
 				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD}"
 				@blur="${() => this.fieldFocused = ``}"
 				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"
@@ -1096,11 +1096,13 @@ export class UpdateCardLimits extends Component {
 	_renderTapToPay() {
 		if (this.cardDetails.isContactlessCard) {
 			return html`
-			<capitec-label
+			<capitec-label 
+				data-automation-id="update-card-limits-tap-to-pay-label"
 				label="Tap to Pay"
 				class="tapToPayTitle">
 			</capitec-label>
 			<capitec-label
+				data-automation-id="update-card-limits-tap-to-pay-daily-limit-label"
 				label="Total daily No-PIN limit R1 000"
 				type="subtitle"
 				class="tapToPaySub">
@@ -1115,6 +1117,7 @@ export class UpdateCardLimits extends Component {
 					</capitec-label>
 					<capitec-spacer></capitec-spacer>
 					<capitec-label
+						data-automation-id="update-card-limits-tap-to-pay-toggle-label"
 						style="font-weight: 600"
 						label="${this._tapToPayStatus ? `On: Pending` : `Off`}"
 						type="default">
@@ -1156,6 +1159,7 @@ export class UpdateCardLimits extends Component {
 				<capitec-expander-group modeset="single">
 
 					<capitec-expander
+						data-automation-id="update-card-limits-view-agreement-expander"
 						expandbuttonalignment="left"
 						label="View Agreement">
 							<capitec-content-box
@@ -1170,6 +1174,7 @@ export class UpdateCardLimits extends Component {
 					</capitec-expander>
 
 					<capitec-expander
+						data-automation-id="update-card-limits-limits-agreemnet-expander"
 						expandbuttonalignment="left"
 						label="Update Card Limits"
 						.expanded="${this.limitsAgreementExpanded}">
@@ -1178,6 +1183,7 @@ export class UpdateCardLimits extends Component {
 
 					${_tapToPayStatusChange !== TAP_TO_PAY_STATUS.UNCHANGED ? html`
 						<capitec-expander
+							data-automation-id="update-card-limits-tap-to-pay-agreement-expander"
 							expandbuttonalignment="left"
 							label="Tap To Pay"
 							.expanded="${this.tapToPayAgreementExpanded}">
@@ -1207,6 +1213,7 @@ export class UpdateCardLimits extends Component {
 				${type === `TapToPayAgreement` ? this._renderTapToPayScript() : ``}
 				<capitec-card class="agreement-terms">
 					<capitec-check 
+						data-automation-id="update-card-limits-accepted-agreement-expander"							
 						id="accepted${type}"
 						label="Please confirm that you agree to these terms and conditions and that you are bound by them?"
 						@value-change="${(e) => this._toggleAgreementsAccept(e)}">
@@ -1300,7 +1307,7 @@ export class UpdateCardLimits extends Component {
 
 	_renderLoadingIndicator() {
 		return this.isBusy
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			? html`<capitec-loading-indicator data-automation-id="update-card-limits-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
 }

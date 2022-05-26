@@ -1,4 +1,4 @@
-import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE } from 'app/constants/Common';
+import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { css, html } from 'platform/elements';
 import { formatStringAsPascalCase, getMonthName } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
@@ -79,18 +79,16 @@ export class SavingsPlan extends ViewBase {
 			const taxCertificates = () => this._taxCertificates(accountNumber, accountName);
 			const productEnquiry = () => this._productEnquiry();
 			const interestRates = () => this._interestRates();
-			const accountDetails = () => this._accountDetails(saveType, accountNumber);
 
 			const actions = {
-				'statements-save': statements,
+				'statements': statements,
 				'tax-certificate': taxCertificates,
 				'product-enquiry': productEnquiry,
-				'interest-rates': interestRates,
-				'account-details': accountDetails
+				'interest-rates': interestRates
 			};
 
 			if (actions[option]) {
-				await super._inicidentManager_(option, () => this._toggleBusyFlag());
+				await super._inicidentManager_(`${option}-save`, () => this._toggleBusyFlag());
 				this._refreshIncidentDetails();
 				return actions[option]();
 			}
@@ -129,7 +127,7 @@ export class SavingsPlan extends ViewBase {
 		await this._initialise();
 	}
 
-	_accountDetails(type, accNumber) {
+	async _accountDetails(type, accNumber) {
 		this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_ACCOUNT_NUMBER_SELECT, {
 			"screen": TelemetryScreen.SAVINGS_PLAN_LANDING,
 			"next-screen": TelemetryScreen.SAVINGS_PLAN_ACCOUNT_DETAILS
@@ -145,6 +143,9 @@ export class SavingsPlan extends ViewBase {
 		};
 
 		if (saveProducts[this.accountViewType]) {
+			await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_PLAN, () => this._toggleBusyFlag());
+			await super.createAndClassifySubsIncident();
+			
 			return saveProducts[this.accountViewType]();
 		}
 	}
@@ -195,6 +196,9 @@ export class SavingsPlan extends ViewBase {
 					this.horizonRouter.navigateToProductInfo(`SavingsPlan`);
 					return;
 				}
+				
+				await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_PLAN, () => this._toggleBusyFlag());
+				await super.createAndClassifySubsIncident(null, false);
 			} 
 
 			this._telemetry.startSpan(SavingsPlanEvents.SAVINGS_PLAN, {
@@ -311,6 +315,10 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	_backToLandingPage() {
+		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
+			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		}
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -356,6 +364,14 @@ export class SavingsPlan extends ViewBase {
 	async _findBranch() {
 		const branchLocatorUrl = await this.configuration.getSetting(`otherSystemsURL.branch-locator`);
 		window.open(`${branchLocatorUrl}`);
+	}
+
+	_setIncidentDone() {
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	// ---------
@@ -414,7 +430,8 @@ export class SavingsPlan extends ViewBase {
 				.savingsPlanDetails="${this.savingsPlanDetails}"
 
 				@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.saveType, e.detail.accountNumber, e.detail.accountName)}"
-				@view-info="${() => this._productEnquiry()}">
+				@view-info="${() => this._productEnquiry()}"
+				@account-details="${(e) => this._accountDetails(e.detail.accountType, e.detail.accountNumber)}">
 			</capitec-pc-savings-plan>`
 		: html``;
 	}
@@ -426,7 +443,7 @@ export class SavingsPlan extends ViewBase {
 				<capitec-flexible-savings-plan-details
 					.flexibleAccountDetails="${this.flexibleAccountDetails}"
 
-					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+					@back="${() => this._setIncidentDone()}">
 				</capitec-flexible-savings-plan-details>
 			`
 			: html``;
@@ -439,7 +456,7 @@ export class SavingsPlan extends ViewBase {
 				<capitec-fixed-term-savings-plan-details
 					.fixedTermAccountDetails="${this.fixedTermAccountDetails}"
 
-					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+					@back="${() => this._setIncidentDone()}">
 				</capitec-fixed-term-savings-plan-details>`
 			: html``;
 	}
