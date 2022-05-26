@@ -140,7 +140,7 @@ export const DEBIT_ORDER_DAY_OPTIONS = Object.freeze([
  * @enum {Object} CLIENT_ACCOUNTS
  */
  export const CLIENT_ACCOUNTS = Object.freeze([
-	{ code: 'Savings', text: `Savings | R24 000.35` },
-	{ code: 'Credit', text: 'Credit' }
+	{ code: 'Savings', text: `Savings Account` },
+	{ code: 'Credit', text: 'Credit Account' }
 ]);
 ;

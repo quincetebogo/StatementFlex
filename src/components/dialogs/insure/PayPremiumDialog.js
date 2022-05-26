@@ -69,7 +69,7 @@ constructor() {
 	//#region PRIVATE METHODS
 
 	/**
-	 * Initialize component when loaded / Count current lives in list and set limits
+	 * Initialize component when loaded
 	 */
 	 _initialise() {
 		this.payArrears = {};
@@ -113,7 +113,7 @@ constructor() {
 
 		this._addSelected(outstanding, e);
 
-		console.log(this.payArrears.arrears);
+		// console.log(this.payArrears.arrears);
 
 		if (this.payArrears.arrears.length > 0) {
 			this.checked = true
@@ -212,14 +212,14 @@ constructor() {
 	_renderDialogBody() {
 		return html`
 
-			<insure-account-select></insure-account-select>
+			
 
 			<capitec-label type="subtitle" label="Choose payment method">
 			</capitec-label>
 			
-			<capitec-select 
-				label="Choose an account" .items="${this.clientAccounts}" display-field="text" id-field="code" data-automation-id="insure-pay-arrears-dialog-accounts">
-			</capitec-select>
+			<insure-account-select .items= "${this.clientAccounts}" label="Select an Account"></insure-account-select>
+
+			
 			
 			<capitec-label type="subtitle" label="Arrear amount">
 			</capitec-label>
@@ -244,11 +244,11 @@ constructor() {
 	_renderDialogFooter() {
 		return html`
 			<capitec-group layout="horizontal">
-				<capitec-button class="buttons" data-automation-id="" label="Cancel" @click="${() => this._onCancelClick()}"
+				<capitec-button class="buttons" label="Cancel" @click="${() => this._onCancelClick()}"
 				data-automation-id="insure-pay-arrears-dialog-cancel">
 				</capitec-button>
 			
-				<capitec-button class="buttons" data-automation-id="" id="id-confirm-button" type="primary" label="Pay"
+				<capitec-button class="buttons" id="id-confirm-button" type="primary" label="Pay"
 					@click="${() => this._onPayClick()}" .disabled=${this.checked == false} data-automation-id="insure-pay-arrears-dialog-pay">
 				</capitec-button>
 			</capitec-group>`;
