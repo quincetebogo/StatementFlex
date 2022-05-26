@@ -5,7 +5,8 @@
 		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform.int.capinet",
 		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform.int.capinet"
 	},
-	"signalRUrl": "https://horizon-cs-ita.platform.int.capinet",
+	"signalRUrl": "https://horizoncs-ita-v1.platform.int.capinet",
+	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform.int.capinet",
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
