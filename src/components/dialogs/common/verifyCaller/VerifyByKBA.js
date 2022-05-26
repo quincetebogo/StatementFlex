@@ -270,7 +270,8 @@ export class VerifyByKBA extends Component {
 			allAnswered = this.mandatoryQus.every(item => Boolean(item.selectedAnswer)) &&
 						  this.orQus.some(item => Boolean(item.selectedAnswer));
 		} else {
-			allAnswered = this.SQs.every(item => Boolean(item.selectedAnswer));
+			allAnswered = this.SQs.filter(item => item.enabled)
+								  .every(item => Boolean(item.selectedAnswer));
 		}
 
 		/**
