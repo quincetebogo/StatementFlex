@@ -194,6 +194,7 @@ export class SendSettlementQuote extends Component {
 					--theme-product-tile-heading-margin-left: 16px;
 					--theme-layout-gap-spacing: 8px;
 					--theme-product-tile-title-font-weight: 600;
+					--theme-product-tile-detail-top: 22px;
 				}
 
 				capitec-alert-banner > capitec-group > capitec-label {
@@ -212,15 +213,13 @@ export class SendSettlementQuote extends Component {
 
 				div[slot="body"] {
 					width: 531px;
-					height: 486px;
 					border-bottom: 1px solid #E1E1E1;
 				}
 
 				.seperator {
 					width: 100%;
 					border: 1px solid #E1E1E1;
-					margin-bottom: 30px;
-					margin-top: 10px;
+					margin: 24px 0px 30px 0px;
 				}
 
 				.document-label[type="subtitle"] {
