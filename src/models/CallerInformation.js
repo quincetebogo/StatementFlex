@@ -4,7 +4,6 @@
  * @module models/CallerInformation
  */
 
-
 /**
  * CallerInformation records the details of the incoming caller/client. This object
  * is preserved in state for the duration of a call.

@@ -371,13 +371,13 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	async _checkForInsuranceProducts(southAfricanIDNumber, cifNumber, isCallerVerified) {
-		const InsuranceCientInfo = {
-			IdNumber: southAfricanIDNumber,
-			CifNumber: cifNumber,
-			isCallerVarified: isCallerVerified
+		const insuranceClientInfo = {
+			'idNumber': southAfricanIDNumber,
+			'cifNumber': cifNumber,
+			'isCallerVerified': isCallerVerified
 		};
 
-		const returnValue = await this.insureService.hasInsuranceProducts(InsuranceCientInfo);
+		const returnValue = await this.insureService.hasInsuranceProducts(insuranceClientInfo);
 
 		return returnValue.result.hasInsurance;
 	}
