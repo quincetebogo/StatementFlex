@@ -91,6 +91,23 @@ export const creditMixin = {
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to send settlement quote.`, `_sendSettlementQuote`, returnValue.correlationId);
 
+			const creditProducts = {
+				[PRODUCTS.CREDIT_CARD]: `CreditCard`,
+				[PRODUCTS.ACCESS_FACILITY]: `AccessFacility`,
+				[PRODUCTS.TERM_LOAN]: `TermLoan`
+		 	};
+
+			screenDetails.emailStatus = details.selectedAccounts.map(item => {
+				const sendStatus = {
+					accountNumber: item.accountNumber,
+					creditType: creditProducts[item.type],
+					productTypeDescription: item.productTypeDescription,
+					sentStatus: false
+				};
+
+				return sendStatus;
+			}); 
+
 			this.horizonStore.setScreenDetails(screenDetails);
 			this.horizonRouter.navigateToSettlementQuoteFailure();
 			return;
@@ -159,6 +176,11 @@ export const creditMixin = {
 		this._exitSettlementQuoteDialog(); // This is implemented in corresponding parent class
 	},
 
+	resetCCSStatusAndReloadScreen() {
+		this.ccsStatus = false;
+		this.requestUpdate();
+	},
+
 	_renderSettlementQuoteDialog() {
 		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG 
 		? html`
@@ -176,7 +198,7 @@ export const creditMixin = {
 		return this.ccsStatus
 		? html`
 			<horizon-ccs-status-dialog
-				@on-okay="${() => this.ccsStatus = false}">
+				@on-okay="${() => this.resetCCSStatusAndReloadScreen()}">
 			</horizon-ccs-status-dialog>`
 		: html``;
 	}

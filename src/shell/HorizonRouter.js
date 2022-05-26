@@ -24,6 +24,7 @@ const HORIZON_ROUTES = Object.freeze({
 	INSURE_EXISTING_CLIENT: `/insure/existing-client`,
 	TRANSACT_FAVOURITES: `/transact/favourites`,
 	SAVINGS_ACCOUNT: `/transact/savings-account`,
+	KBA_VERIFICATION_FAILED: `/error/kba-verification`,
 	XDS_VERIFICATION_FAILED: `/error/xds-verification`,
 	ITA_VERIFICATION_FAILED: `/error/ita-verification`,
 	SYSTEM_ERROR: `/error/system-error`,
@@ -409,6 +410,10 @@ export class HorizonRouter {
 	navigateToProductInfo(type) {
 		this.router.navigateByPath(`${HORIZON_ROUTES.PRODUCT_INFO}?type=${type}`);
 	}
+
+	navigateToKBAVerificationFailed() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.KBA_VERIFICATION_FAILED}`);
+	}
 	
 	/**
 	 * Guard functions to prevent navigation to pages which the correct conditions are not met
@@ -657,6 +662,14 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.XDS_VERIFICATION_FAILED,
 		load: () => import(`../views/common/XdsVerificationFailed`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
+	},
+	{
+		name: `horizon-kba-verification-failed`,
+		title: `KbaVerificationFailed`,
+		icon: null,
+		path: HORIZON_ROUTES.KBA_VERIFICATION_FAILED,
+		load: () => import(`../views/common/KBAVerificationFailed`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
 	},
 	{

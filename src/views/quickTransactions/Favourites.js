@@ -203,8 +203,8 @@ export class Favourites extends SavingsAccountBase {
 		// re-initialise the page when the verification status changes
 		// verificationStatus is on the this.callerInformation object
 		
-		if (this.callerInformation.verificationStatus !== `verified`) {
-        await this._initialise();
+		if (this.callerInformation.verificationStatus === `verified`) {
+			await this._initialise();
 		}
 	}
 
@@ -364,7 +364,7 @@ export class Favourites extends SavingsAccountBase {
 
 	async _initialise() {
 
-		if (this.callerInformation.verificationStatus !== `non-client` && isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber)) {
+		if (this.callerInformation.verificationStatus !== `non-client`) {
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
 				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
@@ -533,12 +533,10 @@ export class Favourites extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.SETTLEMENT_QUOTE_VIEW
 		});
 
-		const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber, ACCOUNT_STATUS.ALL, customErrHandler);
+		const returnValue = await this.creditService.settlementQuoteLanding({ "cifNumber": this.callerInformation.cifNumber }, customErrHandler);
 
 		if (returnValue.succeeded) {
-			const settlementQuoteResult = returnValue.result;
-
-			this.settlementQuoteDetails = [...settlementQuoteResult.creditCardSummaryList, ...settlementQuoteResult.accessFacilitySummaryList, ...settlementQuoteResult.loanAccountSummaryList];
+			this.settlementQuoteDetails = returnValue.result.settlementInfoList;
 
 			this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
 				item.type = PRODUCT_TYPE[item.productTypeCode];
@@ -548,9 +546,20 @@ export class Favourites extends SavingsAccountBase {
 				item.repayAmount = item.repayAmount ? formatCurrency(item.repayAmount) : null;
 				item.nextRepayment = item.nextRepayment ? formatCurrency(item.nextRepayment) : null;
 				item.currentBalance = formatCurrency(item.currentBalance);
+				item.settlementAmount = formatCurrency(item.currentSettlementAmount);
 
 				return item;
 			});
+
+			if (this.settlementQuoteDetails.length > 0) {
+				this.ccsStatus = await this._checkCreditPermisions(`settlement-quote`, this.callerInformation.cifNumber, this.settlementQuoteDetails[0].accountNumber, this.settlementQuoteDetails[0].type);
+			
+				if (this.ccsStatus) {
+					this.showCCSmodal = true;
+					this.requestUpdate();
+					return;
+				}
+			}
 
 			this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
 		}
@@ -898,7 +907,7 @@ export class Favourites extends SavingsAccountBase {
 				class="verificatoin-status"
 				data-automation-id="favourite-transactions-failed-verification-alert-banner"
 				type="unsuccessful-red"
-				label="Notify client: I'm not able to access your account since you couldn't be verified. If it's an urgent matter please visit a branch, or you can call again after 24 hours.">
+				label="Notify client: I'm not able to access your account since you couldn't be verified. Can we guide you on the App? Alternatively please visit your nearest branch.">
 			</capitec-alert-banner>`;
 	}
 
@@ -909,7 +918,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderNoDigitalHighRiskTransAlertBanner() {
-		return this.callerInformation.verificationMethod === `XDS`
+		return this.callerInformation.verificationMethod === `SQ`
 			? html`
 				<capitec-alert-banner
 					class="verificatoin-status"
@@ -927,7 +936,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderHighRiskTransAlertBanner() {
-		return this.callerInformation.verificationMethod === `XDS`
+		return this.callerInformation.verificationMethod === `SQ`
 			? html`
 				<capitec-alert-banner
 					class="verificatoin-status"
