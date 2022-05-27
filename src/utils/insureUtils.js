@@ -175,17 +175,24 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 	// Extended Family (3 age ranges)
 	if (relationship == "ExtendedFamily") {
 		coverDetails.defaultCover = 0;
-		coverDetails.maxCoverAmount = currentRole.ageRange[0].maxCoverAmount;
+		coverDetails.maxCoverAmount = currentRole.ageRange[2].maxCoverAmount;
 		coverDetails.minCoverAmount = currentRole.ageRange[0].minCoverAmount;
 		coverDetails.minAge = currentRole.ageRange[0].minAge;
 		coverDetails.maxAge = currentRole.ageRange[currentRole.ageRange.length - 1].maxAge;
-		coverDetails.maxCoverMessage = currentRole.ageRange[0].coverAmountMessage;
+		coverDetails.maxCoverMessage = currentRole.ageRange[2].coverAmountMessage;
 		coverDetails.minCoverMessage = currentRole.ageRange[0].coverAmountMinMessage;
 		coverDetails.ageMessage = '';
 		coverDetails.coverMessage = '';
 
 		if (!isPristine) {
-			if (age >= 0 && age <= 5) {
+			if(age === '')
+			{
+				coverDetails.maxCoverAmount = currentRole.ageRange[2].maxCoverAmount;
+				coverDetails.minCoverAmount = currentRole.ageRange[2].minCoverAmount;
+				coverDetails.maxCoverMessage = currentRole.ageRange[2].coverAmountMessage;
+				coverDetails.minCoverMessage = currentRole.ageRange[2].coverAmountMinMessage;
+			}
+			else if (age >= 0 && age <= 5) {
 				coverDetails.maxCoverAmount = currentRole.ageRange[0].maxCoverAmount;
 				coverDetails.minCoverAmount = currentRole.ageRange[0].minCoverAmount;
 				coverDetails.minAge = currentRole.ageRange[0].minAge;
@@ -223,6 +230,7 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 			}
 		}
 	}
+
 	return coverDetails;
 }
 
