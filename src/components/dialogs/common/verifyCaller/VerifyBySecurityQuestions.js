@@ -67,6 +67,7 @@ export class VerifyBySecurityQuestions extends Component {
 	 * @property {Object} incomingCallDetails Information about the incoming call (incoming number etc.)
 	 * @property {Object} securityQuestions The security questions object retrieved from XDS
 	 * @property {Object} finalAttempt Indicates if this is the final round of security questions
+	 * @property {Object} callerInformation - information on incoming caller
 	 * 
 	 * @readonly
 	 * @static
@@ -79,9 +80,7 @@ export class VerifyBySecurityQuestions extends Component {
 			incomingCallDetails: { type: Object },
 			securityQuestions: { type: Object },
 			finalAttempt: { type: Boolean },
-			cifNumber: { type: String },
-			title: { type: String },
-			lastName: { type: String },
+			callerInformation: { type: Object },
 
 			renderMode: { state: true },
 			questionNumber: { state: true },
@@ -163,9 +162,9 @@ export class VerifyBySecurityQuestions extends Component {
 		this.alertBannerMessage = ``;
 		this.checked = false;
 
-		this.securityQuestions.title = this.title;
-		this.securityQuestions.lastName = this.lastName;
-		this.securityQuestions.cif = this.cifNumber;
+		this.securityQuestions.title = this.callerInformation.title;
+		this.securityQuestions.lastName = this.callerInformation.lastName;
+		this.securityQuestions.cif = this.callerInformation.cifNumber;
 
 		const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, () => true);
 		const result = returnValue.result;
@@ -499,6 +498,7 @@ export class VerifyBySecurityQuestions extends Component {
 			<horizon-end-call-session
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
+				.callerInformation="${this.callerInformation}"
 				endCallContext='VerifyClient${status}'
 				@cancel="${() => this.renderMode = RENDER_MODE.SECURITY_QUESTIONS}">
 			</horizon-end-call-session>`;

@@ -615,6 +615,7 @@ export class VerifyByKBA extends Component {
 			<horizon-end-call-session
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
+				.callerInformation="${this.callerInformation}"
 				endCallContext='VerifyClient${status}'
 				@cancel="${() => this.renderMode = RENDER_MODE.SECURITY_QUESTIONS}">
 			</horizon-end-call-session>`;
