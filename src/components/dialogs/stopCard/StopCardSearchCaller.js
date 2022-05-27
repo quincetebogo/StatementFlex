@@ -436,7 +436,7 @@ export class StopCardSearchCaller extends Component {
 			return html``;
 		};
 
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		return html`<capitec-loading-indicator data-automation-id="cards-search-caller-loading-indicator"></capitec-loading-indicator>`;
 	}
 
 	renderSearchClientDetails() {

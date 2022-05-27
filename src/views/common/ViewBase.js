@@ -334,6 +334,7 @@ export class ViewBase extends View {
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.isReassigned="${this.isReassigned}"
+					.callerInformation="${this.callerInformation}"
 					endCallContext=${this.endCallContext}
 					@cancel="${() => this._cancelEndCallClick()}">
 				</horizon-end-call-session>`
@@ -354,7 +355,7 @@ export class ViewBase extends View {
 
 	_renderLoadingIndicator() {
 		return this.isBusy 
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			? html`<capitec-loading-indicator data-automation-id="view-base-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
 
