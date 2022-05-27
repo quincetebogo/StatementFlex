@@ -24,11 +24,11 @@ import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
 import 'app/components/dialogs/common/Feedback';
 import 'app/components/quickTransactions/SettlementQuote';
+import 'app/components/quickTransactions/TaxCertificateLanding';
 
 import 'app/dialogs/credit/PaidUpAccounts';
 import 'app/dialogs/credit/PaidUpLetter';
 import 'app/dialogs/taxCertificates/TaxCertificates';
-
 
 const SAVINGS_ACCOUNT_TYPE = 300;
 
@@ -70,6 +70,8 @@ export class Favourites extends SavingsAccountBase {
 		this.selectedFeedback = [];
 		this.feedbackOptions = [];
 		this.updateStrackClick = false;
+		this.hasTaxCertificate = false;
+		this.taxCertificateDetails = null;
 		// TODO: get ccs status for client
 		this.ccsStatus = false;
 		this.showCCSmodal = false;
@@ -92,6 +94,7 @@ export class Favourites extends SavingsAccountBase {
 		return {
 			isLoading: { state: true },
 			verificationToastDisplayed: { state: true },
+			hasTaxCertificate: { state: false },
 			showCCSmodal: { type: Boolean }
 		};
 	}
@@ -359,6 +362,10 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	// ---------------
+	// PUBLIC METHODS
+	// ---------------
+
+	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
@@ -490,14 +497,25 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-	_taxCertificates() {
-		// TODO: Functionality to generate tax certificate comes here
+	async _taxCertificates() {
+
 		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_TAX_CERTIFICATE, {
 			"screen": TelemetryScreen.FAVOURITES,
 			"next-screen": TelemetryScreen.TAX_CERTIFICATE
 		});
 
-		this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
+		const returnValue = await this.quickTransactionService.getTaxCertificate(this.callerInformation.cifNumber, () => true);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unable to get load tax certificates information`, `_taxCertificates`, returnValue.correlationId);
+			this.horizonRouter.navigateToTaxCertificateServiceError();
+			return;
+		}
+
+		this.taxCertificateDetails = returnValue.result;
+		this.hasTaxCertificate = this.taxCertificateDetails.iT3BTaxCertificates.length + this.taxCertificateDetails.iT3STaxCertificates.length > 0;
+
+		this.renderMode = this.hasTaxCertificate ? RENDER_MODE.TAX_CERTIFICATE : RENDER_MODE.TAX_CERTIFICATE_NOT_AVAILABLE;
 	}
 
 	async _getStatements() {
@@ -842,6 +860,17 @@ export class Favourites extends SavingsAccountBase {
 					width: 100%;
 					height: var(--horizon-panel-height, 888px);
 				}
+
+				.error-msg {
+					width: auto;
+					height: 60px;
+					font-family: "Hind Vadodara";
+					color: #3A3A3A;
+					font-size: 16px;
+					font-weight: 500;
+					letter-spacing: 0;
+					text-align: center;
+				}
 			`
 		];
 	}
@@ -858,6 +887,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderFeedback()}
 			${this._renderUpdateIncidentModal()}
 			${this._renderTaxCertificate()}
+			${this._renderTaxCertificateNotAvailable()}
 			${this._renderPaidUpAccounts()}
 			${this._renderSettlementQuote()}
 			${this._renderSettlementQuoteDialog()}
@@ -1080,11 +1110,22 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE
 		? html`
 			<horizon-tax-certificate
+				.taxCertificateDetails="${this.taxCertificateDetails}"
 				.cifNumber="${this.callerInformation.cifNumber}"
 				accountNumber="${this.landingPageInfo.accountNumber}"
 				@cancel="${() => this._backToLandingPage()}">
 			</horizon-tax-certificate>
 		`
+		: html``;
+	}
+
+	_renderTaxCertificateNotAvailable() {
+		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE_NOT_AVAILABLE
+		? html`
+			<horizon-tax-certificate-landing
+				@back="${() => this._backToLandingPage()}">
+			</horizon-tax-certificate-landing>
+			`
 		: html``;
 	}
 	

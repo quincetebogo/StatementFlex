@@ -3,17 +3,19 @@ import { css, html } from 'platform/elements';
 import { formatStringAsPascalCase, getMonthName } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { Configuration } from 'platform/core';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { SavingsPlanEvents } from 'app/constants/telemetry/events/SavingsPlan';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-import { ViewBase } from '../common/ViewBase';
+import { ViewBase } from 'app/views/common/ViewBase';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/productControls/SavingsPlan/SavingsPlanLanding';
 import 'app/dialogs/taxCertificates/TaxCertificates';
-import 'app/components/dialogs/common/StatementsDialog';
 import 'app/dialogs/statements/Statements';
+import 'app/components/dialogs/common/StatementsDialog';
+import 'app/components/quickTransactions/TaxCertificateLanding';
 
 import 'app/views/savingsPlan/FlexibleSavingsPlan';
 import 'app/views/savingsPlan/FixedTermSavingsPlan';
@@ -59,8 +61,10 @@ export class SavingsPlan extends ViewBase {
 		// private properites
 		this.selectedAccountNumber = ``;
 		this.taxCertType = ``;
+		this.taxCertificateDetails = null;
 
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.accountViewType = ``;
 	}
 
@@ -320,15 +324,31 @@ export class SavingsPlan extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_taxCertificates(accNumber, accountName) {
+	async _taxCertificates(accNumber, accountName) {
 		this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_TAX_CERTIFICATE_SELECT, {
 			"screen": TelemetryScreen.SAVINGS_PLAN_LANDING,
 			"next-screen": TelemetryScreen.SAVINGS_PLAN_TAX_CERTIFICATE
 		});
 
-		this.taxCertType = accountName.toLowerCase().replaceAll(` `, ``).includes(`tax-free`) ? TAX_TYPE.IT3S : TAX_TYPE.IT3B;
-		this.selectedAccountNumber = accNumber;
-		this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
+		const returnValue = await this.quickTransactionService.getTaxCertificate(this.callerInformation.cifNumber, () => true);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unable to get load tax certificates information`, `_taxCertificates`, returnValue.correlationId);
+			this.horizonRouter.navigateToTaxCertificateServiceError();
+			return;
+		}
+
+		this.taxCertificateDetails = returnValue.result;
+		this.hasTaxCertificate = this.taxCertificateDetails.iT3BTaxCertificates.length + this.taxCertificateDetails.iT3STaxCertificates.length > 0;
+
+		if (this.hasTaxCertificate) {
+			this.taxCertType = accountName.toLowerCase().replaceAll(` `, ``).includes(`tax-free`) ? TAX_TYPE.IT3S : TAX_TYPE.IT3B;
+			this.selectedAccountNumber = accNumber;
+			this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
+			return;
+		}
+
+		this.renderMode = RENDER_MODE.TAX_CERTIFICATE_NOT_AVAILABLE;
 	}
 	
 	async _interestRates() {
@@ -408,6 +428,7 @@ export class SavingsPlan extends ViewBase {
 			${this._renderFixedTermDetailsView()}
 			${this._renderStatements()}
 			${this._renderTaxCertificate()}
+			${this._renderTaxCertificateNotAvailable()}
 		`;
 	}
 
@@ -479,6 +500,7 @@ export class SavingsPlan extends ViewBase {
 		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE
 			? html`
 				<horizon-tax-certificate
+					.taxCertificateDetails="${this.taxCertificateDetails}"
 					cifNumber="${this.callerInformation.cifNumber}"
 					accountNumber="${this.selectedAccountNumber}"
 					type="${this.taxCertType}"
@@ -486,6 +508,16 @@ export class SavingsPlan extends ViewBase {
 				</horizon-tax-certificate>
 			`
 			: html``;
+	}
+
+	_renderTaxCertificateNotAvailable() {
+		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE_NOT_AVAILABLE
+		? html`
+			<horizon-tax-certificate-landing
+				@back="${() => this._backToLandingPage()}">
+			</horizon-tax-certificate-landing>
+			`
+		: html``;
 	}
 	
 	_renderSavingsPlanUnverifiedPage() {
