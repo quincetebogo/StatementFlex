@@ -292,7 +292,7 @@ export class ConfirmCallerDetails extends Component {
 			"screen": TelemetryScreen.CONFIRM_CALLER,
 			"next-screen": TelemetryScreen.END_CALL
 		});
-		
+
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 	
@@ -781,6 +781,7 @@ export class ConfirmCallerDetails extends Component {
 				data-automation-id="confirm-caller-details-end-call-modal"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
+				.callerInformation="${this.callerInformation}"
 				endCallContext="ConfirmClient"
 				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
 			</horizon-end-call-session>`;

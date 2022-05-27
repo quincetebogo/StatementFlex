@@ -334,6 +334,7 @@ export class ViewBase extends View {
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.isReassigned="${this.isReassigned}"
+					.callerInformation="${this.callerInformation}"
 					endCallContext=${this.endCallContext}
 					@cancel="${() => this._cancelEndCallClick()}">
 				</horizon-end-call-session>`
