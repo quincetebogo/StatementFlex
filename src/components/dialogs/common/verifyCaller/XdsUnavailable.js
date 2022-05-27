@@ -72,7 +72,7 @@ export class XdsUnavailable extends Component {
 			<capitec-content-box id="notification-status-box">
 				<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
 					<capitec-alert-banner type="error">
-						<b>Notify client: </b> You've been blocked for failing the security Questions 
+						<b>Notify client: </b> You've been blocked for failing the security questions. 
 					</capitec-alert-banner>
 					<capitec-group layout="vertical" 
 						halign="center"
