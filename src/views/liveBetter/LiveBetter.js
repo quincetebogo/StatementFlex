@@ -1,8 +1,8 @@
+import { ACCOUNT_TYPES, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { EXPANDER_LABEL, LINKED_TRANSACTION, TABLE_EXPANDER_CELL } from 'app/css/Lbb-TransactionHistory';
 import { LiveBetterEvents, STATEMENT_EVENTS, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/LiveBetter';
 import { css, html, unsafeCSS } from 'platform/elements';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
-import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { LiveBetterService } from 'app/services/LiveBetterService';
@@ -201,7 +201,7 @@ export class LiveBetter extends SavingsAccountBase {
 		const partnerBenefits = () => this._partnerBenefits();
 
 		const actions = {
-			'account-details-lbb': accountDetails,
+			'lbb-account-enquiry': accountDetails,
 			'transaction-history-lbb': transactionHistory,
 			'statements-lbb': statements,
 			'automatic-savings-lbb': automaticSavings,
@@ -368,6 +368,9 @@ export class LiveBetter extends SavingsAccountBase {
 				this.landingPageInfo = returnValue.result;
 				this._updateLeftBar();
 
+				await super._inicidentManager_(LANDING_PAGE_NEEDS.LBB, () => this._toggleBusyFlag());
+				await super.createAndClassifySubsIncident(null, false);
+
 			} else if (returnValue.succeeded) {
 
 				// Navigate to Live better non-client page if a client is not registered with Live better account
@@ -386,8 +389,6 @@ export class LiveBetter extends SavingsAccountBase {
 		const screenDetails = this.horizonStore.getScreenDetails();
 		screenDetails.LBSADetails = this.landingPageInfo;
 		this.horizonStore.setScreenDetails(screenDetails);
-
-		this.horizonStore.setCallerInformation(this.callerInformation);
 
 		this.horizonStore.setProductButtonState(this.landingPageInfo);
 	}

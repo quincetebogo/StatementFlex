@@ -202,9 +202,20 @@ export class AddCallerDetails extends Component {
 						false, // presence of insurance products not yet determined
 						false, // availability of digital channels not yet determined
 						{
-							xdsAttempts: 0,
+							sqAttempts: 0,
 							itaAttempts: 0
-						}
+						},
+						this.callerInformation.isBranchConsultant,
+						false,
+						`unverified`,
+						this.callerInformation.firstName,
+						this.callerInformation.middleName1,
+						this.callerInformation.middleName2,
+						this.callerInformation.middleName3,
+						this.callerInformation.lastName,
+						this.callerInformation.initials,
+						this.callerInformation.identifiedBy, // Identification method used to confirm client
+						this.callerInformation.emailId // client's registered email ID
 					)
 				}
 			}));

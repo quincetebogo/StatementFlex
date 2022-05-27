@@ -1,4 +1,5 @@
 import { css, html } from 'platform/elements';
+import { AUTH_IDENTIFICATION_METHODS } from 'app/constants/Common';
 import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
@@ -226,6 +227,10 @@ export class LandingPage extends ViewBase {
 		// the IVR Option and whether the incoming number is recognised
 		if (!forceSearchDialog && acceptedCall.callerInformation) {
 			this.confirmedCaller = acceptedCall.callerInformation;
+
+			// Case: We got response for the incoming phone number, meaning its verified phone number
+			this.confirmedCaller.identifiedBy = AUTH_IDENTIFICATION_METHODS.CELLPHONE_NUMBER;
+			
 			this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 		} else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 			this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
@@ -278,9 +283,19 @@ export class LandingPage extends ViewBase {
 			false,
 			{
 				itaAttempts: 0,
-				xdsAttempts: 0
+				sqAttempts: 0
 			},
-			event.detail.isBranchConsultant
+			event.detail.isBranchConsultant,
+			false,
+			`unverified`,
+			``, // client's first name
+			``, // client's second name
+			``, // client's third name
+			``, // client's fourth name
+			``, // client's surname/last name
+			``, // client's initials
+			``, // Identification method used to confirm client
+			`` // client's registered email ID
 		);
 		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);
 		this.horizonStore.setCallerInformation(callerInformation);
@@ -375,6 +390,7 @@ export class LandingPage extends ViewBase {
 					.confirmedCaller="${this.confirmedCaller}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.incidentDetails="${this.incidentDetails}"
+					@client-identified="${(data) => this._clientIdentified(data)}"
 					@branch-captured="${(event) => this._branchCaptured(event)}"
 					@non-client-captured=${event => this._nonClientCaptured(event)}>
 				</horizon-confirm-caller-details>`;

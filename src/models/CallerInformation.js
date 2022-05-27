@@ -34,16 +34,18 @@
 	 * @param {boolean} isNonClient Indicates if the incoming callers is not a client
 	 * @param {boolean} [hasInsuranceProducts=false] Indicates if the incoming caller has insurance products
 	 * @param {boolean} [hasDigitalChannels=false] Indicates if the incoming caller has digital channels (APP/USSD) 
-	 * @param {Object} [verificationAttempts={ itaAttempts: 0, xdsAttempts: 0 }] The number if XDS/ITA verification attempts for this client
+	 * @param {Object} [verificationAttempts={ itaAttempts: 0, sqAttempts: 0 }] The number if SQ/ITA verification attempts for this client
 	 * @param {boolean} [isBranchConsultant=false] if the caller is a branch consultant or not
 	 * @param {boolean} [isClientPresent=false] if the client is present in branch when a consultant is phoning on their behalf
-	 * @param {"unverified"|"XDS"|"ITA"} [verificationMethod="unverified"] Indicates the method used to verify the client
+	 * @param {"unverified"|"SQ"|"ITA"} [verificationMethod="unverified"] Indicates the method used to verify the client
 	 * @param {string} [firstName=""] the client's first name
 	 * @param {string} [middleName1=""] The client's second name
 	 * @param {string} [middleName2=""] The client's third name
 	 * @param {string} [middleName3=""] the client's fourth name
 	 * @param {string} [lastName=""] the client's surname/last name
 	 * @param {string} [initials=""] Client's initials
+	 * @param {string} [identifiedBy=""] Identification method used to confirm client
+	 * @param {string} [emailId=""] Client's registered email ID
 	 */
 	constructor(
 		cifNumber,
@@ -67,7 +69,7 @@
 		isNonClient,
 		hasInsuranceProducts = false,
 		hasDigitalChannels = false,
-		verificationAttempts = { itaAttempts: 0, xdsAttempts: 0 },
+		verificationAttempts = { itaAttempts: 0, sqAttempts: 0 },
 		isBranchConsultant = false,
 		isClientPresent = false,
 		verificationMethod = `unverified`,
@@ -76,7 +78,9 @@
 		middleName2 = ``,
 		middleName3 = ``,
 		lastName = ``,
-		initials = ``
+		initials = ``,
+		identifiedBy = ``,
+		emailId = ``
 	) {
 		this.cifNumber = cifNumber;
 		this.birthdate = birthdate;
@@ -109,6 +113,8 @@
 		this.middleName3 = middleName3;
 		this.lastName = lastName;
 		this.initials = initials;
+		this.identifiedBy = identifiedBy;
+		this.emailId = emailId;
 		Object.seal();
 	}
 }

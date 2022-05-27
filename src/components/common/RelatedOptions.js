@@ -334,7 +334,7 @@ export class RelatedOptions extends Component {
 
 	_renderLoadingIndicator() {
 		return this.isBusy
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			? html`<capitec-loading-indicator data-automation-id="related-options-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
 
@@ -377,6 +377,7 @@ export class RelatedOptions extends Component {
 				<horizon-statements
 					.cifNumber="${this.callerInformation.cifNumber}"
 					.clientProducts="${this.clientProducts}"
+					registeredEmailId="${this.callerInformation.emailId}"
 					type=""
 					@cancel="${() => this._backToLandingPage()}">
 				</horizon-statements>`
@@ -387,8 +388,11 @@ export class RelatedOptions extends Component {
 		return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
 			? html`
 				<horizon-proof-of-account
-					.callerInformation="${this.callerInformation}"
+					.cifNumber="${this.callerInformation.cifNumber}"
+					.title="${this.callerInformation.title}"
+					.lastName="${this.callerInformation.lastName}"
 					.landingPageInfo="${this.landingPageInfo}"
+					registeredEmailId="${this.callerInformation.emailId}"
 					@cancel="${() => this._backToLandingPage()}">
 				</horizon-proof-of-account>`
 			: html``;

@@ -60,7 +60,10 @@ export class TapToPayLanding extends Component {
 			// Input properties
 			cards: { type: Object },
 			cifNumber: { type: String },
-			title: { type: String },
+			title: { 
+				type: String,
+				attribute:`client-title`
+			},
 			lastName: { type: String },
 			voiceRecordingReference: { type: String },
 			hasCardsAvailable: { type: Boolean },
