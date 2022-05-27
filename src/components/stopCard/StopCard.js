@@ -580,7 +580,7 @@ export class StopCard extends Component {
 			return html`
 				<horizon-stop-card-confirm
 					.cifNumber="${this.callerInformation.cifNumber}"
-					.title="${this.callerInformation.title}"
+					client-title="${this.callerInformation.title}"
 					.lastName="${this.callerInformation.lastName}"
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"

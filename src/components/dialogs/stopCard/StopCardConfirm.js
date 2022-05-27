@@ -51,8 +51,11 @@ export class StopCardConfirm extends Component {
 			incomingCallDetails: { type: Object },
 			cardsToStop: { type: Array },
 			cifNumber: { type: String },
-			title: { type: String },
 			lastName: { type: String },
+			title: { 
+				type: String,
+				attribute: `client-title`
+			},
 
 			isBusy: { attribute: false }
 		};
