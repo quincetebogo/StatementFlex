@@ -293,15 +293,6 @@ export class ConfirmCallerDetails extends Component {
 			"next-screen": TelemetryScreen.END_CALL
 		});
 
-		this.callerInfo = {
-			cif: this.confirmedCaller.cifNumber,
-			nonClientFirstName: null,
-			nonClientSurName: null,
-			nonClientCellNumber: null,
-			is3rdParty: false,
-			isNonClient: false
-		};
-
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 	
@@ -786,7 +777,7 @@ export class ConfirmCallerDetails extends Component {
 			<horizon-end-call-session 
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
-				.callerInfo="${this.callerInfo}"
+				.callerInformation="${this.callerInformation}"
 				endCallContext="ConfirmClient"
 				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
 			</horizon-end-call-session>`;

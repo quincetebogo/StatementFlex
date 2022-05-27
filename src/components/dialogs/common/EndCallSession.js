@@ -68,7 +68,7 @@ export class EndCallSession extends Component {
 			subCategory: ``,
 			issue: ``
 		};
-		this.callerInfo = {};
+		this.callerInformation = {};
 
 		this._configuration = Configuration.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
@@ -102,7 +102,7 @@ export class EndCallSession extends Component {
 			incidentDetails: { type: Object },
 			endCallContext: { type: String },
 			isReassigned: { type: Boolean },
-			callerInfo: { type: Object },
+			callerInformation: { type: Object },
 
 			isBusy: { attribute: false },
 			endCallReasons: { attribute: false },
@@ -125,7 +125,7 @@ export class EndCallSession extends Component {
 		});
 
 		// Making end call reasons context sensitive 
-		this.callerInformation = this.horizonStore.getCallerInformation() || {};
+		this.callerInformation = this.horizonStore.getCallerInformation() || this.callerInformation;
 		this.endCallReasons = END_CALL_REASON[this.endCallContext][this.callerInformation.verificationStatus] || END_CALL_REASON[this.endCallContext];
 		
 		// TODO: Evaluate why isRessagined is added to incomingCallDetails
@@ -377,12 +377,12 @@ export class EndCallSession extends Component {
 		 * Scenario 1: When an agent ends call from confirm caller dialog
 		 * Scenario 2: when an agent ends call from Add caller details dialog
 		*/
-		if (!this.callerInfo?.isNonClient &&
+		if (!this.callerInformation.isNonClient &&
+			Boolean(this.callerInformation.cifNumber) &&
 			isNullorEmpty(strackIncidentInfo.clientDetails.cif) &&
-			isNullorEmpty(strackIncidentInfo.clientDetails.southAfricanIDNumber) &&
-			Boolean(this.callerInfo?.cif)) {
+			isNullorEmpty(strackIncidentInfo.clientDetails.southAfricanIDNumber)) {
 
-			const returnValue = await this.incidentManagementService.updateIncidentClientDetails(this.callerInfo.cif, incidentDetails.incidentRecId);
+			const returnValue = await this.incidentManagementService.updateIncidentClientDetails(this.callerInformation.cifNumber, incidentDetails.incidentRecId);
 		
 			if (!returnValue.succeeded) {
 				this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateSubsequentNeedClientDetails`, returnValue.correlationId);
@@ -395,17 +395,17 @@ export class EndCallSession extends Component {
 		 * Scenario 1: When an agent ends call from search caller dialog while capturing non-client details
 		 * Scenario 2: when an agent ends call from Add caller details dialog
 		*/
-		if ((this.callerInfo?.isNonClient || this.callerInfo?.is3rdParty) && 
+		if ((this.callerInformation.isNonClient || this.callerInformation.is3rdParty) && 
 			isNullorEmpty(strackIncidentInfo.nonClientDetails.fullName) &&
-			Boolean(this.callerInfo?.nonClientFirstName) &&
-			Boolean(this.callerInfo?.nonClientSurName)) {
+			Boolean(this.callerInformation.nonClientFirstName) &&
+			Boolean(this.callerInformation.nonClientSurName)) {
 				
 			const nonClientDetails = {
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
 				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				firstName: this.callerInfo.nonClientFirstName,
-				surname: this.callerInfo.nonClientSurName,
-				cellPhone: this.callerInfo.nonClientCellNumber
+				firstName: this.callerInformation.nonClientFirstName,
+				surname: this.callerInformation.nonClientSurName,
+				cellPhone: this.callerInformation.nonClientCellPhone
 			};
 			const returnValue = await this.incidentManagementService.updateIncidentNonClientDetails(incidentDetails.incidentRecId, nonClientDetails);
 	
@@ -572,7 +572,7 @@ export class EndCallSession extends Component {
 	}
 
 	async _endSession() {
-		if (Object.prototype.hasOwnProperty.call(this.callerInformation, `cifNumber`)) {
+		if (this._isCifNumberValid(this.callerInformation)) {
 			const req = {
 				endReason: this.endCallReason.key,
 				title: this.callerInformation.title,
@@ -583,6 +583,10 @@ export class EndCallSession extends Component {
 			// We don't mind if this service call fails. This is just to send automated messaging to client
 			await this.callHandleService.endCall(req);
 		}
+	}
+
+	_isCifNumberValid(callerInformation) {
+		return Object.prototype.hasOwnProperty.call(callerInformation, `cifNumber`) && callerInformation.cifNumber;
 	}
 
 	// ---------
