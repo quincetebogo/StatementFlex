@@ -79,6 +79,7 @@ export class TaxCertificates extends Component {
 
 	/**
 	 * @property {taxCertificateDetails} taxCertificateDetails Object contains list of tax certificates
+	 * @property {string} registeredEmailId Client's registered email ID
 	 */
 
 	static get properties() {

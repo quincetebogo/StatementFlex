@@ -58,6 +58,7 @@ export class SendSettlementQuote extends Component {
 	/**
 	 * @param {object} selectedAccounts which accounts to send quote
 	 * @param {object} viewSettlementQuote Callback function to view settlement quote
+	 * @param {string} registeredEmailId Client's registered email ID
 	 */
 
 	static get properties() {

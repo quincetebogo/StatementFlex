@@ -54,6 +54,7 @@ export class PaidUpLetter extends Component {
 	/**
 	 * @param {object} selectedAccounts which accounts require paid up letter
 	 * @param {object} encodedPDFs  Paid up letter pdfs to be viewed
+	 * @param {string} registeredEmailId Client's registered email ID
 	 */
 
 	static get properties() {

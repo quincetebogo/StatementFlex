@@ -45,7 +45,7 @@
 	 * @param {string} [lastName=""] the client's surname/last name
 	 * @param {string} [initials=""] Client's initials
 	 * @param {string} [identifiedBy=""] Identification method used to confirm client
-	 * @param {string} [emailId=""] Client's email id
+	 * @param {string} [emailId=""] Client's registered email ID
 	 */
 	constructor(
 		cifNumber,

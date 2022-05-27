@@ -69,6 +69,7 @@ export class ProofOfAccount extends Component {
 	 * @property {string} cifNumber The client's CIF number
 	 * @property {string} title client's title (Mr/ Mrs)
 	 * @property {string} lastName client's last name
+	 * @property {string} registeredEmailId Client's registered email ID
 	 */
 	static get properties() {
 		return {

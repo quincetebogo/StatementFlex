@@ -45,6 +45,7 @@ export class ViewAndEmailDocuments extends Component {
 	 * 
 	 * @property {Array} emailAccountsList - List of selected accounts details to send proof of payment
 	 * @property {String} encodedPDF - Encoded string representation of PDF to be view 
+	 * @property {String} registeredEmailId Client's registered email ID
 	 * 
 	 * @callback loadDocumentContent 
 	 * @returns {encodedPDF} - Specified (by some form of ID) PDF to load

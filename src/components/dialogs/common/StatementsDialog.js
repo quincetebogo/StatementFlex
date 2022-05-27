@@ -71,6 +71,7 @@ export class StatementsDialog extends Component {
 	/**
 	 * @property {Array} clientProducts Contains list of products that the client has.
 	 * @property {string} type Contains the type of account
+	 * @property {string} registeredEmailId Client's registered email ID
 	 * @readonly
 	 * @static
 	 * @memberof StatementsDialog

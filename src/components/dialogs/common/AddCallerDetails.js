@@ -215,7 +215,7 @@ export class AddCallerDetails extends Component {
 						this.callerInformation.lastName,
 						this.callerInformation.initials,
 						this.callerInformation.identifiedBy, // Identification method used to confirm client
-						this.callerInformation.emailId // client's email id
+						this.callerInformation.emailId // client's registered email ID
 					)
 				}
 			}));

@@ -66,6 +66,7 @@ export class Statements extends Component {
 	 * @property {string} type Contains the type of account
 	 * @property {string} title client's title (Mr/ Mrs)
 	 * @property {string} lastName client's last name
+	 * @property {string} registeredEmailId Client's registered email ID
 	 * @readonly
 	 * @static
 	 * @memberof Statements

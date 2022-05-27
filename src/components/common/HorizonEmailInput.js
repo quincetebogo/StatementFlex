@@ -1,6 +1,5 @@
 import { Component, css, html } from 'platform/elements';
 import { EMAIL_DOMAINS } from 'app/constants/Common';
-import { HorizonStore } from 'app/store/HorizonStore';
 
 const EMAIL_REGEX = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
 const ERROR_MESSAGE = {
@@ -40,8 +39,6 @@ export class HorizonEmailInput extends Component {
 		this.confirmEmailSuggestion = ``;
 
 		this.registeredEmailId = ``;
-
-		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	// ----------
@@ -78,7 +75,8 @@ export class HorizonEmailInput extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-				if (Boolean(this.registeredEmailId)) {
+			
+		if (Boolean(this.registeredEmailId)) {
 			this.email = this.registeredEmailId;
 
 			if (!this._validateInput(this.registeredEmailId)) {
