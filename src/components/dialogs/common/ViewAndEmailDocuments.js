@@ -45,6 +45,7 @@ export class ViewAndEmailDocuments extends Component {
 	 * 
 	 * @property {Array} emailAccountsList - List of selected accounts details to send proof of payment
 	 * @property {String} encodedPDF - Encoded string representation of PDF to be view 
+	 * @property {String} registeredEmailId Client's registered email ID
 	 * 
 	 * @callback loadDocumentContent 
 	 * @returns {encodedPDF} - Specified (by some form of ID) PDF to load
@@ -55,6 +56,7 @@ export class ViewAndEmailDocuments extends Component {
 			emailAccountsList: { type: Array },
 			encodedPDF: { type: String },
 			loadDocumentContent: { type: Object },
+			registeredEmailId: { type: String },
 
 			selectedDocumentToViewIndex: { state: false },
 			viewPDF: { state: false },
@@ -155,8 +157,11 @@ export class ViewAndEmailDocuments extends Component {
 					--theme-modal-body-padding: 23px 16px;
 					--theme-modal-header-padding-left: 24px;
 					--theme-modal-header-color: #3A3A3A;
-					--theme-modal-footer-padding: 8px 16px;
+					--theme-modal-footer-padding: 0px;
 					--theme-modal-header-background-color: #F7F7F7;
+				}
+				div[slot="body"] {
+					height: 530px;
 				}
 				capitec-label[label="View Document(s)"] {
 					line-height: 24px;
@@ -204,7 +209,7 @@ export class ViewAndEmailDocuments extends Component {
 				}
 				.seperator {
 					border: 1px solid #E1E1E1;
-					width: 100%;
+					margin: 10px 0px 12px 0px;
 				}
 				capitec-content-box {
 					height: 200px;
@@ -214,6 +219,12 @@ export class ViewAndEmailDocuments extends Component {
 				}
 				horizon-pdf-viewer {
 					--theme-horizon-pdf-modal-header-width: auto;
+				}
+				.footer {
+					width: 640px;
+					border-radius: 4px;
+					--buttonbar-align: right;
+					--theme-buttonbar-padding: 8px 16px;
 				}
 			`
 		];
@@ -230,6 +241,7 @@ export class ViewAndEmailDocuments extends Component {
 						labelTwo="Confirm Email"
 						email="${this.email}"
 						confirmEmail="${this.confirmEmail}"
+						registeredEmailId="${this.registeredEmailId}"
 						?showRequiredError="${this.alertBannerMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
 						@value-changed="${(e) => this._emailValueChanged(e)}"
 						.callBack="${() => this._clearAlerts()}">
@@ -246,8 +258,16 @@ export class ViewAndEmailDocuments extends Component {
 						${this.emailAccountsList.map((document, index) => this._renderDocumentTiles(document, index))}
 					</capitec-content-box>
 				</div>
-				<capitec-button slot="footer" type="secondary" label="Cancel" @click="${(e) => this._onCancelSendPDFClick(e)}"></capitec-button>
-				<capitec-button slot="footer" type="primary" label="Send" @click="${(e) => this._onSendPDFClick(e)}"></capitec-button>
+				
+					<capitec-button-bar
+						class="footer"
+						slot="footer"
+						layout="horizontal"
+						gap="clear">
+						<capitec-button type="secondary" label="Cancel" @click="${(e) => this._onCancelSendPDFClick(e)}"></capitec-button>
+						<capitec-button type="primary" label="Send" @click="${(e) => this._onSendPDFClick(e)}"></capitec-button>
+					</capitec-button-bar>
+				
 			</capitec-modal>`
 		: html`
 			<horizon-pdf-viewer

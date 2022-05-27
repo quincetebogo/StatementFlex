@@ -212,8 +212,6 @@ export class SavingsPlan extends ViewBase {
 		}
 
 	_updateLeftBar() {
-		this.horizonStore.setCallerInformation(this.callerInformation);
-		
 		this.horizonStore.setProductButtonState(this.landingPageInfo);
 	}
 
@@ -469,6 +467,7 @@ export class SavingsPlan extends ViewBase {
 					client-title="${this.callerInformation.title}"
 					.lastName="${this.callerInformation.lastName}"
 					.clientProducts="${this.clientProducts}"
+					registeredEmailId="${this.callerInformation.emailId}"
 					type="${ACCOUNT_TYPES.SAVINGS_PLAN}"
 					@cancel="${() => this._backToLandingPage()}"
 					@account-selected="${(event) => this._statementsAccConfirmed(event)}">

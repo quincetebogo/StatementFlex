@@ -69,6 +69,7 @@ export class ProofOfAccount extends Component {
 	 * @property {string} cifNumber The client's CIF number
 	 * @property {string} title client's title (Mr/ Mrs)
 	 * @property {string} lastName client's last name
+	 * @property {string} registeredEmailId Client's registered email ID
 	 */
 	static get properties() {
 		return {
@@ -79,7 +80,7 @@ export class ProofOfAccount extends Component {
 				type: String,
 				attribute: `client-title`
 			},
-
+			registeredEmailId: { type: String },
 			isBusy: { attribute: false },
 			alertBannerMessage: { attribute: false },
 			emailText: { attribute: false }
@@ -245,6 +246,7 @@ export class ProofOfAccount extends Component {
 					--theme-modal-header-background-color: #F7F7F7;
 					--theme-modal-header-padding-top: 20px;
 					--theme-modal-header-padding-bottom: 20px;
+					--theme-modal-footer-padding: 0px;
 				}
 				capitec-alert-banner {
 					--theme-alert-banner-height: 48px;
@@ -299,6 +301,15 @@ export class ProofOfAccount extends Component {
 				horizon-email-input {
 					--theme-layout-gap-spacing: 0px;
 				}
+				.footer {
+					width: 563px;
+					border-radius: 4px;
+					--buttonbar-align: right;
+					--theme-buttonbar-padding: 8px 16px;
+				}
+				#id-send-button {
+					margin-left: 6px;
+				}
 			`
 		];
 	}
@@ -315,7 +326,7 @@ export class ProofOfAccount extends Component {
 				${this._renderEmailFields()}
 				${this._renderLoadingIndicator()}
 			</div>
-			<div slot="footer" class="footer-class">
+			<div slot="footer">
 				${this._renderFooter()}
 			</div>
 		</capitec-modal>
@@ -350,6 +361,7 @@ export class ProofOfAccount extends Component {
 			<horizon-email-input
 				labelOne="${this.emailLabel}"
 				labelTwo="${this.confirmEmailLabel}"
+				registeredEmailId="${this.registeredEmailId}"
 				?showRequiredError="${this.alertBannerMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
 				.callBack="${() => this._clearAlerts()}"
 				@value-changed="${(e) => this._emailValueChanged(e)}">
@@ -359,11 +371,14 @@ export class ProofOfAccount extends Component {
 
 	_renderFooter() {
 		return html`
-		<capitec-group layout="horizontal">
+		<capitec-button-bar 
+		class="footer"
+		layout="horizontal"
+		gap="clear">
 			<capitec-button
 				data-automation-id="proof-of-account-cancel"
 				id="id-cancel-button" 
-				type="clear" 
+				type="secondary" 
 				label="Cancel" 
 				@click="${(e) => this._cancelClick(e)}">
 			</capitec-button>
@@ -374,7 +389,7 @@ export class ProofOfAccount extends Component {
 				label="Send" 
 				@click="${(e) => this._sendClick(e)}">
 			</capitec-button>
-		</capitec-group>
+			</capitec-button-bar>
 		`;
 	}
 

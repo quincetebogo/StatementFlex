@@ -104,7 +104,7 @@ export class OutcomeBase extends ViewBase {
 			"cifNumber": this.callerInformation.cifNumber,
 			"emailAddress": event.detail.email,
 			"documentType": DOCUMENT_TYPE[this.incidentDetails.currentNeed],
-			"creditType": `CreditCard`,
+			"creditType": formatStringAsPascalCase(screenDetails.productType).replace(` `, ``),
 			"data": event.detail.documentData
 		};
 
@@ -169,6 +169,7 @@ export class OutcomeBase extends ViewBase {
 			<horizon-view-and-send-document
 				.emailAccountsList="${this.emailAccountsList}"
 				encodedPDF="${this.documentData}"
+				registeredEmailId="${this.callerInformation.emailId}"
 				.loadDocumentContent="${(documentDetails) => this._viewDocument(documentDetails)}"
 				@send-email="${(event) => this._sendPayBudgetPOP(event)}"
 				@cancel="${() => this._cancelEmailModal()}"

@@ -352,7 +352,8 @@ export class ConfirmCallerDetails extends Component {
 			this.confirmedCaller.middleName3,
 			this.confirmedCaller.lastName,
 			this.confirmedCaller.initials,
-			this.confirmedCaller.identifiedBy
+			this.confirmedCaller.identifiedBy,
+			`` // client's registered email ID
 		);
 	}
 

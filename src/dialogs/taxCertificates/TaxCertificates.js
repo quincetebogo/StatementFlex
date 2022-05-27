@@ -77,6 +77,8 @@ export class TaxCertificatesDialog extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		
 		this._loadTaxCertificates();
 	}
 
@@ -418,6 +420,7 @@ export class TaxCertificatesDialog extends Component {
 			<capitec-pc-tax-certificate
 				taxCertType="${this.taxCertType}"
 				.taxCertificateDetails="${this.taxCertificateDetails}"
+				registeredEmailId="${this.callerInformation.emailId}"
 				.getTaxCertificatePDFCallback="${(item, type) => this._viewPDF(item, type)}"
 				.getIT3BContentData="${(selectedCertificates) => this._getIT3BContentData(selectedCertificates)}"
 				@send="${e => this._send(e)}"

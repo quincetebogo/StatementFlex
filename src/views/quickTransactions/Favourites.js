@@ -420,8 +420,6 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_updateLeftBar() {
-		this.horizonStore.setCallerInformation(this.callerInformation);
-
 		this.horizonStore.setProductButtonState(this.landingPageInfo);
 	}
 
@@ -1033,6 +1031,7 @@ export class Favourites extends SavingsAccountBase {
 					client-title="${this.callerInformation.title}"
 					.lastName="${this.callerInformation.lastName}"
 					.landingPageInfo="${this.landingPageInfo}"
+					registeredEmailId="${this.callerInformation.emailId}"
 					@cancel="${() => this._backToLandingPage()}">
 				</horizon-proof-of-account>`
 			: html``;

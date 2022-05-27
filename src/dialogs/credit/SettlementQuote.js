@@ -58,12 +58,14 @@ export class SendSettlementQuote extends Component {
 	/**
 	 * @param {object} selectedAccounts which accounts to send quote
 	 * @param {object} viewSettlementQuote Callback function to view settlement quote
+	 * @param {string} registeredEmailId Client's registered email ID
 	 */
 
 	static get properties() {
 		return {
 			selectedAccounts: { type: Object },
 			viewSettlementQuote: { type: Object },
+			registeredEmailId: { type: String },
 
 			// private properties
 			renderMode: { state: true },
@@ -194,6 +196,7 @@ export class SendSettlementQuote extends Component {
 					--theme-product-tile-heading-margin-left: 16px;
 					--theme-layout-gap-spacing: 8px;
 					--theme-product-tile-title-font-weight: 600;
+					--theme-product-tile-detail-top: 22px;
 				}
 
 				capitec-alert-banner > capitec-group > capitec-label {
@@ -218,8 +221,7 @@ export class SendSettlementQuote extends Component {
 				.seperator {
 					width: 100%;
 					border: 1px solid #E1E1E1;
-					margin-bottom: 30px;
-					margin-top: 30px;
+					margin: 16px 0px 30px 0px;
 				}
 
 				.document-label[type="subtitle"] {
@@ -291,6 +293,7 @@ export class SendSettlementQuote extends Component {
 				labelTwo="${this.confirmEmailLabel}"
 				email="${this.email}"
 				confirmEmail="${this.confirmEmail}"
+				registeredEmailId="${this.registeredEmailId}"
 				?showRequiredError="${this.alertBannerMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
 				.callBack="${() => this._clearAlerts()}"
 				@value-changed="${(e) => this._emailValueChanged(e)}">
