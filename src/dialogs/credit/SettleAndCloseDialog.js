@@ -54,7 +54,6 @@ export class SettleAndCloseDialog extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		[this.productSelected] = this.clientProducts;
-		console.log(this.clientProducts);
 		this.hasEnoughFunds = this._deformatCurrency(this.productSelected.availableBalance) >= this._deformatCurrency(this.settleAndCloseDetails[`Settlement amount`]);
 	}
 
