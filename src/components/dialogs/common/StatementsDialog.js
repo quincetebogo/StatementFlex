@@ -81,6 +81,7 @@ export class StatementsDialog extends Component {
 			accountType: { type: String, attribute: `type` },
 			viewStatement: { type: Object },
 			sendStatement: { type: Object },
+			registeredEmailId: { type: String },
 
 			alertBannerMessage: { state: true },
 			currentStep: { state: true },
@@ -907,6 +908,7 @@ export class StatementsDialog extends Component {
 				labelTwo="${this.confirmEmailLabel}"
 				email="${this.email}"
 				confirmEmail="${this.confirmEmail}"
+				registeredEmailId="${this.registeredEmailId}"
 				?showRequiredError="${this.errorMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
 				.callBack="${() => this._clearAlerts()}"
 				@value-changed="${(e) => this._emailValueChanged(e)}">

@@ -62,6 +62,7 @@ export class HorizonEmailInput extends Component {
 			callBack: { type: Object },
 			email: { type: String },
 			confirmEmail: { type: String },
+			registeredEmailId: { type: String },
 
 			emailError: { state: true },
 			emailSuggestion: { state: true },
@@ -77,11 +78,10 @@ export class HorizonEmailInput extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		const callerInformation = this.horizonStore.getCallerInformation();
-		this.registeredEmailId = this.email = callerInformation.emailId;
+				if (Boolean(this.registeredEmailId)) {
+			this.email = this.registeredEmailId;
 
-		if (Boolean(this.registeredEmailId)) {
-			if (!this._validateInput(callerInformation.emailId)) {
+			if (!this._validateInput(this.registeredEmailId)) {
 				this.emailError = ERROR_MESSAGE.FORMAT; 
 			}
 

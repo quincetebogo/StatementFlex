@@ -55,6 +55,7 @@ export class ViewAndEmailDocuments extends Component {
 			emailAccountsList: { type: Array },
 			encodedPDF: { type: String },
 			loadDocumentContent: { type: Object },
+			registeredEmailId: { type: String },
 
 			selectedDocumentToViewIndex: { state: false },
 			viewPDF: { state: false },
@@ -239,6 +240,7 @@ export class ViewAndEmailDocuments extends Component {
 						labelTwo="Confirm Email"
 						email="${this.email}"
 						confirmEmail="${this.confirmEmail}"
+						registeredEmailId="${this.registeredEmailId}"
 						?showRequiredError="${this.alertBannerMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
 						@value-changed="${(e) => this._emailValueChanged(e)}"
 						.callBack="${() => this._clearAlerts()}">

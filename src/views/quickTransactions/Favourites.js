@@ -1031,6 +1031,7 @@ export class Favourites extends SavingsAccountBase {
 					.title="${this.callerInformation.title}"
 					.lastName="${this.callerInformation.lastName}"
 					.landingPageInfo="${this.landingPageInfo}"
+					registeredEmailId="${this.callerInformation.emailId}"
 					@cancel="${() => this._backToLandingPage()}">
 				</horizon-proof-of-account>`
 			: html``;

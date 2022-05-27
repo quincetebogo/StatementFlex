@@ -87,6 +87,7 @@ export class TaxCertificates extends Component {
 			getTaxCertificatePDFCallback: { type: Object },
 			getIT3BContentData: { type: Object },
 			taxCertType: { type: String },
+			registeredEmailId: { type: String },
 
 			// Private Properties
 			currentStep: { state: true },
@@ -675,6 +676,7 @@ export class TaxCertificates extends Component {
 					labelTwo="${this.confirmEmailLabel}"
 					email="${this.email}"
 					confirmEmail="${this.confirmEmail}"
+					registeredEmailId="${this.registeredEmailId}"
 					?showRequiredError="${this.alertBannerMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
 					.callBack="${() => this._clearAlerts()}"
 					@value-changed="${(e) => this._emailValueChanged(e)}">

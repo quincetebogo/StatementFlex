@@ -537,6 +537,7 @@ export class SavingsAccountBase extends ViewBase {
 					.title="${this.callerInformation.title}"
 					.lastName="${this.callerInformation.lastName}"
 					.clientProducts="${this.clientProducts}"
+					registeredEmailId="${this.callerInformation.emailId}"
 					type="${type}"
 					@cancel="${() => this._cancelStatements()}"
 					@account-selected="${(event) => this._statementsAccConfirmed(event)}">

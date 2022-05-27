@@ -285,7 +285,17 @@ export class LandingPage extends ViewBase {
 				itaAttempts: 0,
 				sqAttempts: 0
 			},
-			event.detail.isBranchConsultant
+			event.detail.isBranchConsultant,
+			false,
+			`unverified`,
+			``, // client's first name
+			``, // client's second name
+			``, // client's third name
+			``, // client's fourth name
+			``, // client's surname/last name
+			``, // client's initials
+			``, // Identification method used to confirm client
+			`` // client's email id
 		);
 		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);
 		this.horizonStore.setCallerInformation(callerInformation);

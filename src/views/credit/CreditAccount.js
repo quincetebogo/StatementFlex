@@ -978,6 +978,7 @@ export class CreditAccount extends ViewBase {
 				.cifNumber="${this.callerInformation.cifNumber}"
 				.clientProducts="${this.clientProducts}"
 				type="${ACCOUNT_TYPES.CREDIT}"
+				registeredEmailId="${this.callerInformation.emailId}"
 				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}"
 				@cancel="${() => this._backToLandingPage()}">
 			</horizon-statements>`
@@ -1046,9 +1047,10 @@ export class CreditAccount extends ViewBase {
 		return this.renderMode === RENDER_MODE.PAID_UP_LETTER
 		? html`
 		<horizon-paid-up-letter-dialog
-				.landingPageInfo="${this.landingPageInfo}"
+			.landingPageInfo="${this.landingPageInfo}"
 			.selectedAccounts="${this.selectedAccounts}"
 			.encodedPDFs="${this.encodedPDFs}"
+			registeredEmailId="${this.callerInformation.emailId}"
 			@cancel="${() => this._backToLandingPage()}"
 			.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
 		</horizon-paid-up-letter-dialog>`

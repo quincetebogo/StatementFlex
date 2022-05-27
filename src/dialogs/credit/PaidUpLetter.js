@@ -61,6 +61,7 @@ export class PaidUpLetter extends Component {
 			selectedAccounts: { type: Object },
 			encodedPDFs: { type: Object },
 			navigatePDF: { type: Object },
+			registeredEmailId: { type: String },
 
 			// private properties
 			isBusy: { state: true },
@@ -289,6 +290,7 @@ export class PaidUpLetter extends Component {
 				labelTwo="${this.confirmEmailLabel}"
 				email="${this.email}"
 				confirmEmail="${this.confirmEmail}"
+				registeredEmailId="${this.registeredEmailId}"
 				?showRequiredError="${this.alertBannerMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
 				.callBack="${() => this._clearAlerts()}"
 				@value-changed="${(e) => this._emailValueChanged(e)}">

@@ -76,6 +76,7 @@ export class ProofOfAccount extends Component {
 			cifNumber: { type: String },
 			title: { type: String },
 			lastName: { type: String },
+			registeredEmailId: { type: String },
 			
 			isBusy: { attribute: false },
 			alertBannerMessage: { attribute: false },
@@ -357,6 +358,7 @@ export class ProofOfAccount extends Component {
 			<horizon-email-input
 				labelOne="${this.emailLabel}"
 				labelTwo="${this.confirmEmailLabel}"
+				registeredEmailId="${this.registeredEmailId}"
 				?showRequiredError="${this.alertBannerMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
 				.callBack="${() => this._clearAlerts()}"
 				@value-changed="${(e) => this._emailValueChanged(e)}">

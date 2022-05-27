@@ -431,6 +431,7 @@ export class PaidUpAccounts extends Component {
 				.landingPageInfo="${this.landingPageInfo}"
 				.selectedAccounts="${this.selectedAccounts}"
 				.encodedPDFs="${this.encodedPDFs}"
+				registeredEmailId="${this.callerInformation.emailId}"
 				@cancel="${() => this._backToLandingPage()}"
 				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
 			</horizon-paid-up-letter-dialog>

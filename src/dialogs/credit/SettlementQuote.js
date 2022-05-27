@@ -64,6 +64,7 @@ export class SendSettlementQuote extends Component {
 		return {
 			selectedAccounts: { type: Object },
 			viewSettlementQuote: { type: Object },
+			registeredEmailId: { type: String },
 
 			// private properties
 			renderMode: { state: true },
@@ -219,7 +220,7 @@ export class SendSettlementQuote extends Component {
 				.seperator {
 					width: 100%;
 					border: 1px solid #E1E1E1;
-					margin: 24px 0px 30px 0px;
+					margin: 16px 0px 30px 0px;
 				}
 
 				.document-label[type="subtitle"] {
@@ -291,6 +292,7 @@ export class SendSettlementQuote extends Component {
 				labelTwo="${this.confirmEmailLabel}"
 				email="${this.email}"
 				confirmEmail="${this.confirmEmail}"
+				registeredEmailId="${this.registeredEmailId}"
 				?showRequiredError="${this.alertBannerMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
 				.callBack="${() => this._clearAlerts()}"
 				@value-changed="${(e) => this._emailValueChanged(e)}">

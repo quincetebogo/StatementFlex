@@ -77,6 +77,7 @@ export class Statements extends Component {
 			accountType: { type: String, attribute: `type` },
 			title: { type: String },
 			lastName: { type: String },
+			registeredEmailId: { type: String },
 
 			isBusy: { state: true },
 			ccsStatus: { state: true }
@@ -461,6 +462,7 @@ export class Statements extends Component {
 			<horizon-statements-dialog
 				.clientProducts="${this.clientProducts}"
 				type="${this.accountType}"
+				registeredEmailId="${this.registeredEmailId}"
 				@cancel="${() => this._cancel()}"
 				@back="${() => this._back()}"
 				@next="${(event) => this._next(event)}"
