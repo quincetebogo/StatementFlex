@@ -187,6 +187,7 @@ export const creditMixin = {
 			<horizon-settlement-quote-dialog
 				.selectedAccounts="${this.selectedAccountDetails}"
 				.viewSettlementQuote="${(item) => this._viewSettlementQuote(item)}"
+				registeredEmailId="${this.callerInformation.emailId}"
 				@on-unloading="${() => this._telemetry.endSpan(this.settlementQuoteEvents.SETTLEMENT_QUOTE_DIALOG, {})}"
 				@cancel="${() => this._cancelSettlementQuoteDialog()}"
 				@send="${(e) => this._sendSettlementQuote(e.detail)}">

@@ -512,4 +512,66 @@ export class CreditService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+
+	settleAndClose(settleAndCloseRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		
+		const settleAndClose = 
+		{
+				creditType: settleAndCloseRequest.creditType,
+				cifNumber: settleAndCloseRequest.cifNumber,
+				accountNumber: settleAndCloseRequest.accountNumber,
+				fromAccountNumber: settleAndCloseRequest.fromAccountNumber,
+				fromAccountType: settleAndCloseRequest.fromAccountType,
+				authorisedAmount: settleAndCloseRequest.authorisedAmount,
+				caseId: settleAndCloseRequest.caseId,
+				emailAddress: settleAndCloseRequest.emailAddress,
+				firstname: settleAndCloseRequest.firstname,
+				surname: settleAndCloseRequest.surname,
+		};
+
+		const url = `/clientcare-credit-${this._version}/credit/settle-and-close/settle`;
+
+		return this.post(
+			url,
+			settleAndClose,
+			this.setToken(),
+			`settleAndClose`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	settleAndCloseQuote(Request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		
+		const settleAndCloseQuoteRequest = 
+		{
+			
+			creditType: Request.creditType,
+			accountNumber: Request.accountNumber,
+			cifNumber: Request.cifNumber,
+			idNumber: Request.idNumber
+			
+		};
+
+		const url = `/clientcare-credit-${this._version}/credit/settle-and-close/quote`;
+
+		return this.post(
+			url,
+			settleAndCloseQuoteRequest,
+			this.setToken(),
+			`settleAndCloseQuote`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+
 }

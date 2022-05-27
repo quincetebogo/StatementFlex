@@ -54,6 +54,7 @@ export class PaidUpLetter extends Component {
 	/**
 	 * @param {object} selectedAccounts which accounts require paid up letter
 	 * @param {object} encodedPDFs  Paid up letter pdfs to be viewed
+	 * @param {string} registeredEmailId Client's registered email ID
 	 */
 
 	static get properties() {
@@ -61,6 +62,7 @@ export class PaidUpLetter extends Component {
 			selectedAccounts: { type: Object },
 			encodedPDFs: { type: Object },
 			navigatePDF: { type: Object },
+			registeredEmailId: { type: String },
 
 			// private properties
 			isBusy: { state: true },
@@ -209,6 +211,7 @@ export class PaidUpLetter extends Component {
 
 				div[slot="body"] {
 					width: 531px;
+					height: 486px;
 					border-bottom: 1px solid #E1E1E1;
 				}
 
@@ -288,6 +291,7 @@ export class PaidUpLetter extends Component {
 				labelTwo="${this.confirmEmailLabel}"
 				email="${this.email}"
 				confirmEmail="${this.confirmEmail}"
+				registeredEmailId="${this.registeredEmailId}"
 				?showRequiredError="${this.alertBannerMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
 				.callBack="${() => this._clearAlerts()}"
 				@value-changed="${(e) => this._emailValueChanged(e)}">
@@ -365,7 +369,7 @@ export class PaidUpLetter extends Component {
 
 	_renderLoadingIndicator() {
 		return this.isBusy
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			? html`<capitec-loading-indicator data-automation-id="paid-up-letter-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
 

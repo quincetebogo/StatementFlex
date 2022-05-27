@@ -104,7 +104,7 @@ export const tapToPayMixin = {
 			<horizon-tap-to-pay-landing
 				.cards="${this.cards}"
 				.cifNumber=${this.callerInformation.cifNumber}
-				.title="${this.callerInformation.title}"
+				client-title="${this.callerInformation.title}"
 				.lastName="${this.callerInformation.lastName}"
 				voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
 				.getAgreements="${agreementRequest => this._getTapToPayAgreement(agreementRequest)}"
