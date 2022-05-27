@@ -8,6 +8,8 @@ import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import 'app/components/dialogs/insure/AddLifeDialog';
 import 'app/components/common/HorizonLabel';
 
+const AGE_ERROR_MESSAGE = 'Age is not valid';
+
 /**
  * Insure Policy Estimate component that allows cover and premium estimations be made on the fly.
  * Lives can be added AddLiveDialog
@@ -94,21 +96,30 @@ class PolicyEstimate extends Component {
 	 * 
 	 */
 	async _calculateEstimate() {
+		let isValid = true;
 
 		// Validate
-		if (!isNullorEmpty(this.newTotalPremium)) {
-			this.estimate.lifesAssured.forEach(life => {
-				if (!life.coverAmount || life.coverAmount == '' || life.coverAmount == 0) {
-					life.coverDetails.coverMessage = life.coverDetails.minCoverMessage.replace("{0:#,##0}", life.coverDetails.minCoverAmount);
-				}
-				if (isNullorEmpty(life.age)) {
-					let ageMessage = `Age is required`
-					life.coverDetails.ageMessage = ageMessage;
-				}
-			});
-			this.requestUpdate();			
+		this.estimate.lifesAssured.forEach(life => {
+			if (!life.coverAmount || life.coverAmount == '' || life.coverAmount == 0) {
+				life.coverDetails.coverMessage = life.coverDetails.minCoverMessage.replace("{0:#,##0}", life.coverDetails.minCoverAmount);
+				isValid = false;
+			}
+			if (isNullorEmpty(life.age)) {
+				let ageMessage = `Age is required`
+				life.coverDetails.ageMessage = ageMessage;
+				isValid = false;
+			}
+
+			if(life.age.toString().includes('.'))
+			{
+				life.coverDetails.ageMessage = AGE_ERROR_MESSAGE;
+				isValid = false;
+			}
+		});
+		this.requestUpdate();	
+			
+		if(!isValid)
 			return;
-		}
 
 		if (this.newTotalPremium != '') {
 			this.estimate.totalPremium = this.newTotalPremium
@@ -192,7 +203,6 @@ class PolicyEstimate extends Component {
 	 * @param {number} index Index of the life that changed
 	 */
 	_ageChanged(event, index) {
-
 		if (event.detail.old != event.detail.new) {
 			this.estimate.lifesAssured[index].age = event.detail.new;
 			this.newTotalPremium = '';
@@ -206,6 +216,11 @@ class PolicyEstimate extends Component {
 			this.estimate.lifesAssured[index].age,
 			this.estimate.lifesAssured[index].coverDetails.isExtendedFamily,
 			false);
+
+		if(event.detail.new.includes('.'))
+		{
+			this.estimate.lifesAssured[index].coverDetails.ageMessage = AGE_ERROR_MESSAGE;
+		}
 
 		this.requestUpdate();
 	}
