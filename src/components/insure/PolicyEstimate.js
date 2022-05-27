@@ -116,24 +116,29 @@ class PolicyEstimate extends Component {
 				isValid = false;
 			}
 		});
-		this.requestUpdate();	
 			
 		if(!isValid)
+		{
+			this.requestUpdate();	
 			return;
-
-		if (this.newTotalPremium != '') {
-			this.estimate.totalPremium = this.newTotalPremium
-		} else {
-			delete this.estimate.totalPremium
 		}
-		let request = {
-			...this.estimate,
+		else
+		{
+			if (this.newTotalPremium != '') {
+				this.estimate.totalPremium = this.newTotalPremium
+			} else {
+				delete this.estimate.totalPremium
+			}
+			let request = {
+				...this.estimate,
+			}
+			this.dispatchEvent(new CustomEvent(`calculate`, {
+				detail: request
+			}));
+			this.estimate.totalPremium = 0;
+			this.newTotalPremium = '';
+			this.requestUpdate();	
 		}
-		this.dispatchEvent(new CustomEvent(`calculate`, {
-			detail: request
-		}));
-		this.estimate.totalPremium = 0;
-		this.newTotalPremium = '';
 	}
 
 
@@ -162,7 +167,11 @@ class PolicyEstimate extends Component {
 	 * @param {Object} lifeToRemove Live object at index that was clicked
 	 */
 	_removeLife(lifeToRemove) {
-		this.estimate.lifesAssured.splice(lifeToRemove.rowID, 1);
+		const indexOfObject = this.estimate.lifesAssured.findIndex(object => {
+			return object.rowID === lifeToRemove.rowID;
+		  });
+
+		this.estimate.lifesAssured.splice(indexOfObject, 1);
 		for (let index = 0; index < this.estimate.lifesAssured.length; index++) {
 			this.estimate.lifesAssured[index].rowID = index;
 		}
