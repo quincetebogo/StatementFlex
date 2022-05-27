@@ -390,6 +390,7 @@ export class LandingPage extends ViewBase {
 					.confirmedCaller="${this.confirmedCaller}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.incidentDetails="${this.incidentDetails}"
+					@client-identified="${(data) => this._clientIdentified(data)}"
 					@branch-captured="${(event) => this._branchCaptured(event)}"
 					@non-client-captured=${event => this._nonClientCaptured(event)}>
 				</horizon-confirm-caller-details>`;

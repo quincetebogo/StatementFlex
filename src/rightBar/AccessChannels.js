@@ -661,7 +661,7 @@ export class AccessChannels extends Component {
 
 	_renderLoadingIndicator() {
 		if (this.isBusy) {
-			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+			return html`<capitec-loading-indicator data-automation-id="access-channels-loading-indicator"></capitec-loading-indicator>`;
 		};
 
 		return html``;

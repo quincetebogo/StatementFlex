@@ -334,7 +334,7 @@ export class RelatedOptions extends Component {
 
 	_renderLoadingIndicator() {
 		return this.isBusy
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			? html`<capitec-loading-indicator data-automation-id="related-options-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
 

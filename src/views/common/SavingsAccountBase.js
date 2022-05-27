@@ -534,7 +534,7 @@ export class SavingsAccountBase extends ViewBase {
 			? html`
 				<horizon-statements
 					.cifNumber="${this.callerInformation.cifNumber}"
-					.title="${this.callerInformation.title}"
+					client-title="${this.callerInformation.title}"
 					.lastName="${this.callerInformation.lastName}"
 					.clientProducts="${this.clientProducts}"
 					registeredEmailId="${this.callerInformation.emailId}"

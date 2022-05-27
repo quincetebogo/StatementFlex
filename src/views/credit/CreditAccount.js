@@ -66,6 +66,10 @@ export class CreditAccount extends ViewBase {
 		this.showPayBudgetDialog = false;
 		// ccs status of client set to true until real value retrieved from CS
 		this.ccsStatus = false;
+		this.settleAndCloseQuote = [];
+		this.settleAndCloseCreditOption = ``;
+		this.productSelected;
+		this.settleAndCloseDocument = ``;
 		this.showSettleCloseModal = false;
 		this.settlementQuoteEvents = SETTLEMENT_QUOTE_EVENTS;
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
@@ -345,8 +349,70 @@ export class CreditAccount extends ViewBase {
 		this.horizonRouter.navigateToBudgetFacilityFailure();
 	}
 
-	_confirmSettleAndClose() {
-		// TO DO: This function to be used to confirm settle and close credit card or Loans.
+	async _confirmSettleAndClose(item) {
+		this.productSelected = item.detail.productSelected;
+		this.settleAndCloseDetails = item.detail.settleAndCloseDetails;
+		const selectedAccountIndex = this._getSECTransferDetails(item.detail.productSelected.accountNumber);
+		const settleAndClose = 
+		{
+				creditType: this.settleAndCloseCreditOption,
+				cifNumber: this.callerInformation.cifNumber,
+				accountNumber: this.settleAndCloseQuote.accountNumber,
+				fromAccountNumber: this.settleAndCloseQuote.savingAccountsList[selectedAccountIndex].accountNumber,
+				fromAccountType: this.	_getSavingsAccType(this.settleAndCloseQuote.savingAccountsList[selectedAccountIndex].accountType),
+				authorisedAmount: this.settleAndCloseQuote.settlementAmount,
+				caseId:"",
+				emailAddress: "",
+				firstname: this.callerInformation.firstName,
+				surname: this.callerInformation.lastName
+		}
+		let returnValue = await this.creditService.settleAndClose(settleAndClose);		
+		
+		if(returnValue.succeeded)
+		{
+			if(this.settleAndCloseCreditOption===`CreditCard`)
+			{
+				screenDetails.settleAndCloseCreditType = `Flexible`;
+				this.settleAndCloseDocument = returnValue.result.closureDocument.data;
+			}else{
+				screenDetails.settleAndCloseCreditType = `Fixed`;
+				this.settleAndCloseDocument = returnValue.result.transferDocument.data;
+			}
+			const screenDetails = this.horizonStore.getScreenDetails();
+			screenDetails.settleAndCloseDocumentData = result.closureDocument.data;
+			screenDetails.settleAndCloseCreditOption = this.settleAndCloseCreditOption;
+			screenDetails.settleAndCloseProductType = this.settleAndCloseQuote.accountNumber;
+			screenDetails.settleAndCloseAccountNumber = this.settleAndCloseQuote.accountNumber;
+			this.horizonStore.setScreenDetails(screenDetails);
+			this.horizonRouter.navigateToSettleAndCloseSuccess();
+
+		} else
+		{
+			this.horizonRouter.navigateToSettleAndCloseFailure();
+		}
+	}
+	_getSECTransferDetails(item)
+	{
+		for (let i = 0; i < this.settleAndCloseQuote.savingAccountsList.length; i++)
+		{
+			let savAcc = this.settleAndCloseQuote.savingAccountsList[i]
+			if (savAcc.accountNumber == item)
+			{
+				return i ;
+			}
+		}
+		
+	}
+	_getSavingsAccType(code)
+	{
+		if (code == 300)
+		{
+			return `Primary`
+		} else 
+		{
+			return `Flexible`
+		}
+			 
 	}
 
 	_errorHandler() {
@@ -577,7 +643,6 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_settleAndClose(creditType, productType, selectedAccountDetails) {
-		// TO DO: Place holder for credit settle and close flow.
 
 		this._telemetry.logEvent(CreditEvents.CREDIT_SETTLE_CLOSE_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
@@ -585,11 +650,13 @@ export class CreditAccount extends ViewBase {
 			"credit-type": creditType,
 			"product-type": productType
 		});
+		this.settleAndCloseDetails = selectedAccountDetails;
+		this.productType = this.settleAndCloseDetails.productTypeDescription;
+		this.creditType = creditType;
+		this.showSettleCloseModal = !this.showSettleCloseModal;
 	}
 
 	_settleLoan() {
-		// TODO: Place holder for credit settle loan flow.
-
 		if (this.ccsStatus) {
 			this.showCCSmodal = true;
 			return;
@@ -713,13 +780,30 @@ export class CreditAccount extends ViewBase {
 	}
 	
 	async _settleAndCloseChooseAccount() {
-		// TO DO: Place holder for credit settle and close flow.
-		// "this.settleAndCloseDetails" has to be formed correctly after CS implementaion.
 
 		this.clientProducts = await this._getClientProducts();
 		
-		this.showSettleCloseModal = !this.showSettleCloseModal;
 
+		if (this.settleAndCloseDetails.type ===`Credit card`)
+		{
+			this.settleAndCloseCreditOption = `CreditCard`;
+		}
+		else if (this.settleAndCloseDetails.type ===`Term Loan`)
+		{
+			this.settleAndCloseCreditOption = `Loan`;
+		}
+		const settleAndCloseQuoteRequest = 
+		{
+			creditType: this.settleAndCloseCreditOption,
+			accountNumber: this.settleAndCloseDetails.accountNumber,
+			cifNumber: this.callerInformation.cifNumber,
+			idNumber: this.callerInformation.southAfricanIDNumber
+		};
+		const returnValue = await this.creditService.settleAndCloseQuote(settleAndCloseQuoteRequest);
+
+		this.settleAndCloseQuote = returnValue.result;
+
+		this.showSettleCloseModal = !this.showSettleCloseModal;
 		const balanceField = this.settleAndCloseDetails.category === CREDIT_TYPE.FLEXIBLE ? `Available balance` : `Credit limit`;
 		const balanceFieldValue = this.settleAndCloseDetails.category === CREDIT_TYPE.FLEXIBLE ? this.settleAndCloseDetails.availableCredit : this.settleAndCloseDetails.creditLimit;
 
@@ -728,9 +812,9 @@ export class CreditAccount extends ViewBase {
 			[this.settleAndCloseDetails.productTypeDescription]: this.settleAndCloseDetails.accountNumber,
 			[balanceField]: balanceFieldValue,
 			'Outstanding balance': this.settleAndCloseDetails.currentBalance,
-			'Interest not capitalised': `R150.00`,
-			'Expected interest and fees': `R40.00`,
-			'Settlement amount': `R491.09`
+			'Interest not capitalised': formatCurrency(this.settleAndCloseQuote.interestNotCapatalised),
+			'Expected interest and fees': formatCurrency(this.settleAndCloseQuote.expectedInterestFees),
+			'Settlement amount': formatCurrency(this.settleAndCloseQuote.settlementAmount)
 		};
 		this.renderMode = RENDER_MODE.SETTLE_AND_CLOSE;
 	
@@ -840,6 +924,7 @@ export class CreditAccount extends ViewBase {
 			${this._renderSettleCloseDisclaimer()}
 			${this._renderSettleAndCloseDialog()}
 			${this._renderPaidUpLetterView()}
+			${this._renderSettleAndCloseSuccessScreen()}
 		`;
 	}
 
@@ -1021,8 +1106,7 @@ export class CreditAccount extends ViewBase {
 
         return this.renderMode === RENDER_MODE.VIEW_AND_SEND_SETTLE_LOAN_POP ? html`
 			<horizon-view-and-send-document
-				modalHeader="Settle Loan: Proof of Payment" 
-				.documents=""
+				modalHeader="Settle Loan: Proof of Payment" 			
 				.loadDocumentContent="${this._loadSettleLoanPOPDocument}"
 				@send-pdf-click="${(e) => this._onSendSettleLoanPOP(e.documents, e.email)}"
 				@cancel-send-pdf-click="${() => this._onCancelSendSettleLoanPOP()}">
@@ -1036,9 +1120,8 @@ export class CreditAccount extends ViewBase {
 			<horizon-settle-and-close-dialog 
 				.settleAndCloseDetails="${this.settleAndCloseDetails}"
 				.clientProducts="${this.clientProducts}"
-
 				@cancel="${() => this._backToLandingPage()}"
-				@settle-and-close="${() => this._confirmSettleAndClose()}">
+				@settle-and-close="${(e) => this._confirmSettleAndClose(e)}">
 			</horizon-settle-and-close-dialog>`
 		: html``;
 	}

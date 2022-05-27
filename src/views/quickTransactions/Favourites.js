@@ -1004,7 +1004,7 @@ export class Favourites extends SavingsAccountBase {
 				<horizon-card-limits-landing
 					.cards="${this.cards}"
 					.cifNumber="${this.callerInformation.cifNumber}"
-					.title="${this.callerInformation.title}"
+					client-title="${this.callerInformation.title}"
 					.lastName="${this.callerInformation.lastName}"
 					voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
 					verificationMethod="${this.callerInformation.verificationMethod}"
@@ -1028,7 +1028,7 @@ export class Favourites extends SavingsAccountBase {
 			? html`
 				<horizon-proof-of-account
 					.cifNumber="${this.callerInformation.cifNumber}"
-					.title="${this.callerInformation.title}"
+					client-title="${this.callerInformation.title}"
 					.lastName="${this.callerInformation.lastName}"
 					.landingPageInfo="${this.landingPageInfo}"
 					registeredEmailId="${this.callerInformation.emailId}"

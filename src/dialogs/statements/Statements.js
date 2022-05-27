@@ -75,11 +75,16 @@ export class Statements extends Component {
 		return {
 			cifNumber: { type: String },
 			clientProducts: { type: Array },
-			accountType: { type: String, attribute: `type` },
-			title: { type: String },
 			lastName: { type: String },
+			accountType: { 
+				type: String, 
+				attribute: `type`
+			},
+			title: { 
+				type: String,
+				attribute: `client-title`
+			},
 			registeredEmailId: { type: String },
-
 			isBusy: { state: true },
 			ccsStatus: { state: true }
 		};
@@ -479,7 +484,7 @@ export class Statements extends Component {
 
 	_renderLoadingIndicator() {
 		return this.isBusy
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			? html`<capitec-loading-indicator data-automation-id="statements-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
 

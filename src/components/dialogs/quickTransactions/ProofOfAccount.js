@@ -75,10 +75,12 @@ export class ProofOfAccount extends Component {
 		return {
 			landingPageInfo: { type: Object },
 			cifNumber: { type: String },
-			title: { type: String },
 			lastName: { type: String },
+			title: { 
+				type: String,
+				attribute: `client-title`
+			},
 			registeredEmailId: { type: String },
-			
 			isBusy: { attribute: false },
 			alertBannerMessage: { attribute: false },
 			emailText: { attribute: false }
@@ -393,7 +395,7 @@ export class ProofOfAccount extends Component {
 
 	_renderLoadingIndicator() {
 		return this.isBusy
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			? html`<capitec-loading-indicator data-automation-id="proof-of-account-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
 
