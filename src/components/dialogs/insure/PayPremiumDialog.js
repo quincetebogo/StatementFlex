@@ -26,7 +26,7 @@ constructor() {
 	super();
 
 	this.checked = false;
-	
+	this.amount = 0;
 	// Lookups
 	this.clientAccounts = CLIENT_ACCOUNTS;
 }
@@ -48,6 +48,7 @@ constructor() {
 			clientArrears: { type: Object },
 			payArrears: {type: Object},
 			checked: {boolean: false},
+			amount: {integer: 0}
 		};
 	}
 
@@ -62,6 +63,7 @@ constructor() {
 	 connectedCallback() {
 		super.connectedCallback();
 		this._initialise();
+		this._totalAmount();
 	}
 
 	//#endregion
@@ -77,8 +79,17 @@ constructor() {
 		this.payArrears.contractReference = "";
 		this.payArrears.fromAccount = "";
 		this.payArrears.cifNumber = "";
-
 		
+		
+	}
+
+	_totalAmount() {
+
+		for(let i = 0; i < this.payArrears.arrears; i++){
+				this.amount = this.amount + this.payArrears.arrears[i].amount
+				console.log(this.amount)
+		}
+
 	}
 
 	//#endregion
@@ -113,7 +124,7 @@ constructor() {
 
 		this._addSelected(outstanding, e);
 
-		// console.log(this.payArrears.arrears);
+		console.log(e.detail.new);
 
 		if (this.payArrears.arrears.length > 0) {
 			this.checked = true
@@ -121,6 +132,11 @@ constructor() {
 			this.checked = false;
 		}
 		
+		if (e.detail.new == true) {
+			this.amount = this.amount + outstanding.amount;
+		} else if(e.detail.new == false) {	
+			this.amount = this.amount - outstanding.amount;
+		}
 
 	}
 
@@ -136,10 +152,12 @@ constructor() {
 			dueDate: selected.dueDate,
 			amount: selected.amount,
 			objectID: selected.objectID,
-			})
+			});
+
 		} else {
 			const index = this.payArrears.arrears.map(object => object.objectID).indexOf(selected.objectID);
 			this.payArrears.arrears.splice(index, 1);
+
 		}
 		
 
@@ -220,19 +238,19 @@ constructor() {
 			<insure-account-select .items= "${this.clientAccounts}" label="Select an Account"></insure-account-select>
 
 			
+			<div style="display: flex; justify-content: space-between;">
+				<capitec-label type="subtitle" label="Arrear amount"></capitec-label>
+				<capitec-label type="subtitle" label="Amount to Pay: ${formatCurrency(this.amount)}"></capitec-label>
+			</div>
 			
-			<capitec-label type="subtitle" label="Arrear amount">
-			</capitec-label>
-
-			<capitec-check-group>
 						${this.clientArrears.arrears.map((outstanding, index) => html`
 							${index != 0 || index == 0 ? html`
-								<capitec-check class="checkbox" label=" ${formatDate(outstanding.dueDate, 'MM yyyy')} | ${formatCurrency(outstanding.amount)}"
+								<capitec-radio class="checkbox" label="${formatDate(outstanding.dueDate, 'MM yyyy')} | ${formatCurrency(outstanding.amount)}"
 								@value-change=" ${(e) => this._checkedChange(outstanding,e)}" data-automation-id="insure-pay-arrears-dialog-arrears">
-								</capitec-check>
+								</capitec-radio>
 							` : html``}
 							`)}
-			</capitec-check-group>
+			
 		`;
 		}
 

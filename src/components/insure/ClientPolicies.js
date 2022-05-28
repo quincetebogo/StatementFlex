@@ -124,13 +124,13 @@ class ClientPolicies extends Component {
 		this.clientArrears.arrears = [];
 		this.clientArrears.contractReference = "CF09847678";
 		this.clientArrears.arrears.push({
-			dueDate: "2020-02-29T22:00:00.0000000+00:00",
+			dueDate: "2020-01-29T22:00:00.0000000+00:00",
 			amount: 100.00,
 			objectID: "24324234.43"
 		});
 		this.clientArrears.arrears.push({
-			dueDate: "2020-01-29T22:00:00.0000000+00:00",
-			amount: 50.00,
+			dueDate: "2020-02-29T22:00:00.0000000+00:00",
+			amount: 100.00,
 			objectID: "24294823.43"
 		});
 		

@@ -141,6 +141,5 @@ export const DEBIT_ORDER_DAY_OPTIONS = Object.freeze([
  */
  export const CLIENT_ACCOUNTS = Object.freeze([
 	{ code: 'Savings', text: `Savings Account` },
-	{ code: 'Credit', text: 'Credit Account' }
 ]);
 ;
