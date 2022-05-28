@@ -50,7 +50,7 @@ export class InsureViewBase extends ViewBase {
 	 */
 	async connectedCallback() {
 		super.connectedCallback();
-		this.productParams = await this.retrieveInsureProductParams();
+		this.productParams = await this._retrieveInsureProductParams();
 	}
 
 	/**
@@ -67,7 +67,7 @@ export class InsureViewBase extends ViewBase {
 	 * API: Retrieve Insure Product Params from Channel Service
 	 * @returns {Object} Product Params Array
 	 */
-	async retrieveInsureProductParams() {
+	async _retrieveInsureProductParams() {
 		const resp = await this.insureService.productParams();
 		return resp.result;
 	}

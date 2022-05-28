@@ -52,7 +52,7 @@ export default class InsureChannelServiceMocks {
 	 */
 	insureProductParams() {
 		if (this._mockSettings.insureProductParams.positiveCase) {
-			return this.productParamsMocks.InsureProductParams;
+			return this.productParamsMocks.ProductParams;
 		}
 		return null;
 	}
@@ -63,7 +63,7 @@ export default class InsureChannelServiceMocks {
 	 */
 	 insureClientPolicies() {
 		if (this._mockSettings.insureClientPolicies.positiveCase) {
-			return this.clientPoliciesMocks.InsureClientPolicies;
+			return this.clientPoliciesMocks.ClientPolicies;
 		}
 		return null;
 	}
