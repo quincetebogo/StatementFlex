@@ -643,6 +643,10 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_settleAndClose(creditType, productType, selectedAccountDetails) {
+		if (this.ccsStatus) {
+			this.showCCSmodal = true;
+			return;
+		}
 
 		this._telemetry.logEvent(CreditEvents.CREDIT_SETTLE_CLOSE_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
@@ -657,7 +661,8 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_settleLoan() {
-		if (this.ccsStatus) {
+		if (this.ccsStatus) 
+		{
 			this.showCCSmodal = true;
 			return;
 		}
@@ -923,8 +928,7 @@ export class CreditAccount extends ViewBase {
 			${this._renderSettleLoanEmailConfirmation()}
 			${this._renderSettleCloseDisclaimer()}
 			${this._renderSettleAndCloseDialog()}
-			${this._renderPaidUpLetterView()}
-			${this._renderSettleAndCloseSuccessScreen()}
+			${this._renderPaidUpLetterView()}}
 		`;
 	}
 
