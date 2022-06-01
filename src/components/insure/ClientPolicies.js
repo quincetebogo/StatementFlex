@@ -120,6 +120,17 @@ class ClientPolicies extends Component {
 	 * Initialize component
 	 */
  	async _initialise() {
+		
+		this._initialiseMockData();
+		
+	 }
+
+	//#endregion
+
+	//#region PRIVATE FUNCTIONS
+	
+	_initialiseMockData(){
+
 		this.clientArrears = {};
 		this.clientArrears.arrears = [];
 		this.clientArrears.contractReference = "CF09847678";
@@ -133,8 +144,7 @@ class ClientPolicies extends Component {
 			amount: 100.00,
 			objectID: "24294823.43"
 		});
-		
-	 }
+	}
 
 	//#endregion
 
