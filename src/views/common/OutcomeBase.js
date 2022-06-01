@@ -97,11 +97,10 @@ export class OutcomeBase extends ViewBase {
 		});
 	}
 
-	async _sendPayBudgetPOP(event) {
+	async _sendCreditDocument(event) {
 		const screenDetails = this.horizonStore.getScreenDetails();
-		var request;
-		if (screenDetails.settleAndCloseCreditOption===`CreditCard`)
-		{
+		let request;
+		if (screenDetails.settleAndCloseCreditOption === `CreditCard`) {
 
 			 request = {
 				"cifNumber": this.callerInformation.cifNumber,
@@ -111,8 +110,7 @@ export class OutcomeBase extends ViewBase {
 				"data": screenDetails.settleAndCloseDocumentData
 			};
 			
-		} else if (screenDetails.settleAndCloseCreditOption===`Loan`)
-		{
+		} else if (screenDetails.settleAndCloseCreditOption === `Loan`) {
 			request = {
 				"cifNumber": this.callerInformation.cifNumber,
 				"emailAddress": event.detail.email,
@@ -121,8 +119,7 @@ export class OutcomeBase extends ViewBase {
 				"data": screenDetails.settleAndCloseDocumentData
 			};
 			
-		}
-		else{
+		} else {
 			request = {
 				"cifNumber": this.callerInformation.cifNumber,
 				"emailAddress": event.detail.email,
@@ -197,7 +194,7 @@ export class OutcomeBase extends ViewBase {
 				encodedPDF="${this.documentData}"
 				registeredEmailId="${this.callerInformation.emailId}"
 				.loadDocumentContent="${(documentDetails) => this._viewDocument(documentDetails)}"
-				@send-email="${(event) => this._sendPayBudgetPOP(event)}"
+				@send-email="${(event) => this._sendCreditDocument(event)}"
 				@cancel="${() => this._cancelEmailModal()}"
 				@close-pdf="${() => this._closePDFViewer()}">
 			</horizon-view-and-send-document>`
