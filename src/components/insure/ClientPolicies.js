@@ -232,7 +232,8 @@ class ClientPolicies extends Component {
 			}
 			.expander-header > horizon-label[label="Status"] {
 				--horizon-label-value-color: #70AF00;
-				width: 150px;
+				width: 200px;
+				text-overflow: ellipsis;
 			}
 			horizon-label {
 				width: 135px;
@@ -252,7 +253,7 @@ class ClientPolicies extends Component {
 				--horizon-label-value-color: #009DE0;
 			}
 			.fixed-label {
-				width: 23%;
+				width: 22%;
 				--horizon-label-max-overflow-width: 170px;
 			}
 			.vertical-line {
@@ -386,7 +387,7 @@ class ClientPolicies extends Component {
 						<horizon-label
 							data-automation-id="insure-policy-debit-order-date"
 							label="Debit Order Date"
-							value="${formatDate(policyItem.commencementDate, `dd mmm yyyy`)}">
+							value="${formatDate(policyItem.commencementDate, `dd mmm yyyy`) === '' ? '-' : formatDate(policyItem.commencementDate, `dd mmm yyyy`)}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-policy-cover-amount"
