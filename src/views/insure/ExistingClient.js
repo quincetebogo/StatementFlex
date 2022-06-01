@@ -9,6 +9,7 @@ import 'app/components/insure/ClientPolicies';
 import 'app/components/insure/PolicyEstimate';
 import 'app/components/insure/UpdatePlan';
 import 'app/components/insure/PolicySummary';
+import 'app/components/insure/CancelPolicySuccess';
 
 /**
  * Implements the view for Insure verified and unverified existing clients (i.e. the client has products)
@@ -175,6 +176,22 @@ export class ExistingClient extends InsureViewBase {
 		// Telemetry Here
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY);
 	}
+
+	/**
+	 * Prepare and navigate Cancel Policy Success
+	 */
+	 _goToCancelPolicySuccess() {
+		// Telemetry Here
+		this._navigateToSubView(INSURE_RENDER_MODE.CANCEL_POLICY_SUCCESS);
+	}
+
+	/**
+	 * Prepare and navigate Email Success
+	 */
+	 _goToEmailSuccess() {
+		// Telemetry Here
+		this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
+	}
 	//#endregion
 
 	//#region RENDERING
@@ -233,6 +250,10 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderUpdatePlanPage()}`
 			case INSURE_RENDER_MODE.POLICY_SUMMARY:
 				return html`${this._renderPolicySummaryPage()}`
+			case INSURE_RENDER_MODE.CANCEL_POLICY_SUCCESS:
+				return html`${this._renderCancelPolicySuccessPage()}`
+			case INSURE_RENDER_MODE.EMAIL_SUCCESS:
+				return html`${this._renderEmailSuccessPage()}`
 			default:
 				return html``;
 		}
@@ -246,7 +267,8 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-client-policies @navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan()}"
-				@navigate-to-policy-summary="${(e) => this._goToPolicySummary()}">
+				@navigate-to-policy-summary="${(e) => this._goToPolicySummary()}"
+				@navigate-to-cancel-policy-success="${(e) => this._goToCancelPolicySuccess()}">
 			</horizon-insure-client-policies>`
 	}
 
@@ -283,6 +305,25 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-policy-summary @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-policy-summary>`
+	}
+
+	/**
+	 * Render Cancel Policy Success Page
+	 * @return {html} Html of the sub view
+	 */
+	_renderCancelPolicySuccessPage() {
+		return html`
+		<horizon-insure-cancel-policy-success @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+		</horizon-insure-cancel-policy-success>
+		`
+	}
+
+	/**
+	 * Render Email Success Page
+	 * @return {html} Html of the sub view
+	 */
+	 _renderEmailSuccessPage() {
+		return html``
 	}
 }
 customElements.define(`horizon-existing-client`, ExistingClient);

@@ -132,3 +132,23 @@ export const DEBIT_ORDER_DAY_OPTIONS = Object.freeze([
 	{ code: '30', text: `30th of every Month` },
 	{ code: '31', text: `31st of every Month` },
 ]);
+
+/**
+ * List of genders Insure supports
+ * 
+ * @readonly
+ * @enum {Object} CANCELATION_REASONS
+ */
+ export const CANCELATION_REASONS = Object.freeze([
+	{ code: '1', text: `Family circumstances` },
+	{ code: '2', text: `Confidential` },
+	{ code: '3', text: `Affordability` },
+	{ code: '4', text: `Already covered` },
+	{ code: '5', text: `Better off at another provider` },
+	{ code: '6', text: `Cooling off period` },
+	{ code: '7', text: `Covered by another family member` },
+	{ code: '8', text: `Insurer cancelled policy` },
+	{ code: '9', text: `Internal Audit Compliance` },
+	{ code: '10', text: `Invalid Policy` },
+	{ code: '11', text: `Global One Savings Account is Closed` },
+]);
