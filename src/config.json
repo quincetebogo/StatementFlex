@@ -215,6 +215,10 @@
 		"creditBalance": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"insurePolicySummary": {
+			"enabled": true,
+			"positiveCase": true
 		}
 	}
 }

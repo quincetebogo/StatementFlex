@@ -115,6 +115,32 @@ export class InsureService extends ChannelServiceBase {
 		);
 	}
 
+		/**
+	 * Policy Summary / Policy Details
+	 *
+	 * @param {policyRequest} [errorHandler=null]  Request data containing contract reference & cifnumber
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async insurePolicySummary(policyRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	if (await this.isMockEnabled(`insurePolicySummary`)) {
+		return this.mock(`insurePolicySummary`);
+	}
+	return this.post(
+		`/FuneralInsuranceProductService/policy/summary`,
+		policyRequest,
+		this.setInsureTokens(),
+		`policysummary`,
+		null,
+		null,
+		900,
+		null,
+		errorHandler,
+		autoRetries
+	);
+}
+
 	/**
 	 * Calculate Estimate / leaving no footprint on OIPA
 	 *
