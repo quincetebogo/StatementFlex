@@ -9,6 +9,8 @@ import { getAgeFromIDNumber, getGenderFromIDNumber } from 'app/utils/insureUtils
 import 'app/components/insure/ClientPolicies';
 import 'app/components/insure/PolicyEstimate';
 import 'app/components/insure/UpdatePlan';
+import 'app/components/insure/PolicySummary';
+import 'app/components/insure/PayPremiumSuccess';
 import 'app/components/insure/PolicyTransactionHistory';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -211,6 +213,20 @@ export class ExistingClient extends InsureViewBase {
 			, this.callerInformation.cifNumber);
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY);
 	}
+	
+	/**
+	 * Make FIPS call and Prepare and navigate to pay premium success page
+	 * 
+	 * @param {*} e contains the payArrears object
+	 */
+	_payArrears(e) {
+		//call fips here
+
+		// Telemetry Here
+
+		this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
+	}
+	//#endregion
 
 	/**
 	 * Fetch Policy Transaction History
@@ -219,7 +235,6 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {*} pageIndex 
 	 */
 	async _getPolicyTransactionHistory(startDate, endDate, pageIndex) {
-		this.isBusy = true;
 		const transactionHistoryRequest = {
 			contractReference: '',
 			transactionDateType: '',
@@ -248,7 +263,6 @@ export class ExistingClient extends InsureViewBase {
 			this.endCallContext = `PolicyTransactionHistory`;
 			this.renderMode = INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY;
 		}
-		this.isBusy = false;
 	}
 
 	/**
@@ -320,6 +334,8 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderPolicyTransactionHistoryPage()}`
 			case INSURE_RENDER_MODE.POLICY_SUMMARY:
 				return html`${this._renderPolicySummaryPage()}`
+			case INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS:
+				return html`${this._renderPayPremiumSuccessPage()}`
 			default:
 				return html``;
 		}
@@ -334,6 +350,7 @@ export class ExistingClient extends InsureViewBase {
 			<horizon-insure-client-policies .clientPolicies = "${this.clientPolicies}"
 				@navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan()}"
+				@pay-arrears ="${(e) => this._payArrears()}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory()}">
 			</horizon-insure-client-policies>`
@@ -377,6 +394,16 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
+	 * Render Pay Premium Success page
+	 * @return {html} Html of the sub view
+	 */
+	_renderPayPremiumSuccessPage() {
+		return html`
+		<horizon-pay-premium-success-page @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+		</horizon-pay-premium-success-page>
+		
+	`}
+	/**
 	 * Render Policy Transaction History Page
 	 * @returns {html} Html of the sub view 
 	 */
@@ -395,18 +422,5 @@ export class ExistingClient extends InsureViewBase {
 
 	//#endregion RENDERING
 
-	//#region HELPERS
-
-	/**
-	 * Render capitec loading indicator if busy
-	 * @returns {html} HTML of the loading indicator
-	 */
-	_renderLoadingIndicator() {
-		if (!this.isBusy) {
-			return html``;
-		};
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
-	}
-	//#endregion HELPERS
 }
 customElements.define(`horizon-existing-client`, ExistingClient);

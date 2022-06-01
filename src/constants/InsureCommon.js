@@ -74,7 +74,7 @@ export const ACCOUNT_TYPES = Object.freeze([
  * List of people title's Insure supports
  * 
  * @readonly
- * @enum {Object} ACCOUNT_TYPES
+ * @enum {Object} TITLE_OPTIONS
  */
 export const TITLE_OPTIONS = Object.freeze([
 	{ code: 'Mr', text: `Mr` },
@@ -86,7 +86,7 @@ export const TITLE_OPTIONS = Object.freeze([
  * List of genders Insure supports
  * 
  * @readonly
- * @enum {Object} ACCOUNT_TYPES
+ * @enum {Object} GENDER_OPTIONS
  */
 export const GENDER_OPTIONS = Object.freeze([
 	{ code: 'Male', text: `Male` },
@@ -97,7 +97,7 @@ export const GENDER_OPTIONS = Object.freeze([
  * List of genders Insure supports
  * 
  * @readonly
- * @enum {Object} ACCOUNT_TYPES
+ * @enum {Object} DEBIT_ORDER_DAY_OPTIONS
  */
 export const DEBIT_ORDER_DAY_OPTIONS = Object.freeze([
 	{ code: '1', text: `1st of every Month` },
@@ -131,4 +131,15 @@ export const DEBIT_ORDER_DAY_OPTIONS = Object.freeze([
 	{ code: '29', text: `29th of every Month` },
 	{ code: '30', text: `30th of every Month` },
 	{ code: '31', text: `31st of every Month` },
+])
+
+/**
+ * List of Accounts to pay from
+ * 
+ * @readonly
+ * @enum {Object} CLIENT_ACCOUNTS
+ */
+ export const CLIENT_ACCOUNTS = Object.freeze([
+	{ code: 'Savings', text: `Savings Account` },
 ]);
+;
