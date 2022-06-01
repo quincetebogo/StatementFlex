@@ -64,10 +64,10 @@ import { OutcomeBase } from '../common/OutcomeBase';
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.creditType = screenDetails.settleAndCloseCreditType;
 		this.productType = screenDetails.settleAndCloseProductType;
+		this.creditCardNumber = screenDetails.settleAndCloseAccountNumber;
 	}
 	_sendEmailConfirmationClick() {
 		const screenDetails = this.horizonStore.getScreenDetails();
-
 		const emailAccountsList = [
 			{
 				title: screenDetails.settleAndCloseProductType,

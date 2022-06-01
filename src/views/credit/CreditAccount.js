@@ -371,18 +371,19 @@ export class CreditAccount extends ViewBase {
 		
 		if(returnValue.succeeded)
 		{
+			const screenDetails = this.horizonStore.getScreenDetails();
 			if(this.settleAndCloseCreditOption===`CreditCard`)
 			{
 				screenDetails.settleAndCloseCreditType = `Flexible`;
-				this.settleAndCloseDocument = returnValue.result.closureDocument.data;
+				this.settleAndCloseDocument = returnValue.result.documentData;
 			}else{
 				screenDetails.settleAndCloseCreditType = `Fixed`;
-				this.settleAndCloseDocument = returnValue.result.transferDocument.data;
+				this.settleAndCloseDocument = returnValue.result.documentData;;
 			}
-			const screenDetails = this.horizonStore.getScreenDetails();
-			screenDetails.settleAndCloseDocumentData = result.closureDocument.data;
+		
+			screenDetails.settleAndCloseDocumentData = this.settleAndCloseDocument
 			screenDetails.settleAndCloseCreditOption = this.settleAndCloseCreditOption;
-			screenDetails.settleAndCloseProductType = this.settleAndCloseQuote.accountNumber;
+			screenDetails.settleAndCloseProductType = this.settleAndCloseCreditOption;
 			screenDetails.settleAndCloseAccountNumber = this.settleAndCloseQuote.accountNumber;
 			this.horizonStore.setScreenDetails(screenDetails);
 			this.horizonRouter.navigateToSettleAndCloseSuccess();
