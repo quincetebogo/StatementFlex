@@ -59,10 +59,13 @@ export class ITAChannelService extends ChannelServiceBase {
 			};
 		}
 
-		const url = `/clientcare/call/${this._version}/has-digital-verification-capability?Cif=${cifNumber}`; 
+		const url = `/clientcare-call-${this._version}/has-digital-verification-capability`; 
 		
-		return this.get(
+		return this.post(
 			url,
+			{
+				"cifNumber": cifNumber
+			},
 			this.setToken(),
 			`digitalVerificationChannelsAvailable`,
 			false,
