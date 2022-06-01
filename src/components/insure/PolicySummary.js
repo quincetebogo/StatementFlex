@@ -1,4 +1,6 @@
-import { Component, html } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
+import { formatDate } from 'app/utils/channelServiceUtilities';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 /**
  * Policy summary component showing details of single policy with its role players
@@ -17,9 +19,11 @@ class PolicySummary extends Component {
 
 	constructor() {
 		super();
+
+		this.policyDetails = null;
 	}
 
-	//#endregion
+	//#endregion INITIALISATION
 
 	//#region PROPERTIES
 
@@ -29,31 +33,101 @@ class PolicySummary extends Component {
 	 */
 	static get properties() {
 		return {
-
+			policyDetails: { type: Object, state: true }
 		};
 	}
 
-	//#endregion
+	//#endregion PROPERTIES
 
-	//region EVENT HANDLERS
+	//#region EVENT HANDLERS
 
 	/**
-	 * Navigate to Landing
+	 * Navigate to Insure Landing page
 	 */
-	_backToSummaryPage() {
+	_backToClientPoliciesPage() {
 		this.dispatchEvent(new CustomEvent(`navigate-back`, {
 			detail: {
 			}
 		}));
 	}
 
-	//endregion
+	//#endregion EVENT HANDLERS
 
 	//#region RENDERING
 
 	/**
+	 * Generates the component stylesheet.
+	 *
+	 * @readonly
+	 * @static
+	 * @returns {css} CSS for the view.
+	 */
+	static get styles() {
+		return [
+			super.styles,
+			css`
+			.card{
+				width:100%;
+				height:100%;
+			}
+			.action-image{
+				cursor: pointer;
+			}
+			capitec-group > capitec-title-bar {
+				--theme-titlebar-min-height: 32px;
+				--theme-titlebar-padding: 0px 0px 0px 16px;
+				--theme-type-default-background: rgb(244, 244, 244);
+				--theme-label-title-font-size: 14px;
+				--theme-label-title-font-weight: 600;
+				width: 100%;
+				border-top: 1px solid #E1E1E1;
+				box-shadow: none!important;
+			}
+			horizon-label {
+				width: 160px;
+				padding-left: 16px;
+				--theme-layout-gap-spacing: 0px;
+				--horizon-label-text-height: 20px;
+				--horizon-label-text-color: #3A3A3A;
+				--horizon-label-text-line-height: 20px;
+				
+				--horizon-label-value-height: 20px;
+				--horizon-label-value-color: #3A3A3A;
+				--horizon-label-value-font-size: 16px;
+				--horizon-label-value-line-height: 20px;
+			}
+			.accounts-box {
+				height: auto;
+				--theme-container-padding-left: 16px;
+				--theme-container-padding-right: 16px;
+				--theme-container-padding-bottom: 16px;
+				--theme-container-padding-top: 16px;
+				--theme-layout-gap-spacing: 0px;
+			}
+			.expander-header > horizon-label[label="Status"] {
+				--horizon-label-value-color: #70AF00;
+			}
+			.vertical-line {
+				height: 40px;
+				width: 1px;
+				background-color: #E1E1E1;
+			}
+			.no-results {
+				--theme-label-strong-font-size: 24px;
+				--theme-label-strong-font-weight: 600;
+				--theme-label-font-color: #3A3A3A;
+			}
+			.no-result-group {
+				width: 1032px;
+				margin-top: 50px;
+			}
+			`
+		];
+	}
+
+	/**
 	 * Main render point for component
-	 * @returns {html}
+	 * @returns {html} The html content of the component
 	 */
 	_webTemplate() {
 		return html`
@@ -62,18 +136,236 @@ class PolicySummary extends Component {
 	}
 
 	/**
-	 * Render the content HTML for the component
-	 * @returns {html}
+	 * Render the component
+	 * @returns {html} The html content of the component
 	 */
 	_renderContent() {
 		return html`
+			<capitec-card 
+				data-automation-id="policy-summary"
+				class="card">
 			<capitec-title-bar type="insure" class="insure-title-bar">
-				<img class="action-image" src="/images/insure/left-arrow.svg" @click="${() => this._backToSummaryPage()}" />
+				<img class="action-image" src="/images/insure/left-arrow.svg" data-automation-id="policy-summary-back-to-policies"
+					 @click="${() => this._backToClientPoliciesPage()}" />
 				<capitec-label label="Funeral Plan" type="title"></capitec-label>
 				<capitec-spacer></capitec-spacer>
-				</capitec-button>
-				<capitec-button label="Calculate" type="white" @click="${() => this._calculateEstimate()}"></capitec-button>
-			</capitec-title-bar>`
+				<capitec-button label="Email Plan" type="white" data-automation-id="policy-summary-email-plan"></capitec-button>
+				<capitec-button label="Update Plan" type="white" data-automation-id="policy-summary-update-plan"></capitec-button>
+			</capitec-title-bar>
+			<capitec-group layout="vertical" halign="left" valign="top" gap="none">
+				${this._renderSections()}
+			</capitec-group>
+			</capitec-card>`;
+	}
+
+	/**
+	 * Render all sections
+	 * @returns {html} The html content of all the sections
+	 */
+	_renderSections() {
+		return html`
+			${this._renderMainLifeSection()}
+			${this._renderBeneficiariesSection()}
+			${this._renderLivesAssuredSections()}
+		`;
+	}
+
+	/**
+	 * Render Main Life section
+	 * @returns {html} The html content of Main Life section
+	 */
+	_renderMainLifeSection()
+	{
+		const sumArrears = this.policyDetails?.arrearDetails?.arrears?.reduce((accumulator, object) => {
+			return accumulator + object.amount;
+		  }, 0);
+
+		return html`
+		<capitec-title-bar
+			type="default"
+			label="Main Life">
+		</capitec-title-bar>
+
+		<capitec-content-box  class="accounts-box">
+		<horizon-expander
+		expandButtonAlignment=""
+		.expanded = "${false}"
+		?disabled=${true}>
+			<capitec-group 
+				class="expander-header"
+				slot="custom-header"
+				layout="horizontal"
+				gap="clear"
+				halign="left"
+				valign="center">
+					<horizon-label
+						class="label-account-number flexible-label"
+						data-automation-id="insure-main-life-policy-number"
+						label="Policy number"
+						value="${this.policyDetails?.contractReference}">
+					</horizon-label>
+					<div class="vertical-line"></div>
+					<horizon-label
+						data-automation-id="insure-main-life-effective-date"
+						label="Effective date"
+						value="${formatDate(this.policyDetails?.deductionDetails?.effectiveFromDate, `dd mmm yyyy`)}">
+					</horizon-label>
+					<horizon-label
+						data-automation-id="insure-main-life-cover-amount"
+						label="Cover amount"
+						value="${formatCurrency(this.policyDetails?.coverAmount)}">
+					</horizon-label>
+					<horizon-label
+						data-automation-id="insure-main-life-total-premium"
+						label="Premium"
+						value="${formatCurrency(this.policyDetails?.totalPremium)}">
+					</horizon-label>
+					<horizon-label
+						data-automation-id="insure-main-life-arrears"
+						label="Arrears"
+						value="${formatCurrency(sumArrears)}">
+					</horizon-label>
+					<horizon-label
+						data-automation-id="insure-main-life-display-status"
+						label="Status"
+						value="${this.policyDetails?.displayStatus}">
+					</horizon-label>
+			</capitec-group>
+		</horizon-expander>
+		</capitec-content-box>
+		`;
+	}
+
+	/**
+	 * Render Beneficiaries section
+	 * @returns {html} The html content of Beneficiaries section
+	 */
+	_renderBeneficiariesSection()
+	{
+		let beneficiaries = this.policyDetails?.roleplayers?.filter(item => item.beneficiary === true);
+
+		return html`
+		<capitec-title-bar
+			type="default"
+			label="Payout Beneficiaries">
+		</capitec-title-bar>
+		${ beneficiaries?.length > 0 ? beneficiaries.map((item) => html `
+			<capitec-content-box  class="accounts-box">
+			<horizon-expander
+			expandButtonAlignment=""
+			.expanded = "${false}"
+			?disabled=${true}>
+				<capitec-group 
+					class="expander-header"
+					slot="custom-header"
+					layout="horizontal"
+					gap="clear"
+					halign="left"
+					valign="center">
+						<horizon-label
+							class="label-account-number flexible-label"
+							data-automation-id="insure-beneficiaries-name"
+							label="Name & Surname"
+							value="${item.firstName + ` ` + item.surname}">
+						</horizon-label>
+						<div class="vertical-line"></div>
+						<horizon-label
+							data-automation-id="insure-beneficiaries-relationship"
+							label="Relationship"
+							value="${item.relationship}">
+						</horizon-label>
+						<horizon-label
+							data-automation-id="insure-beneficiaries-dateofbirth"
+							label="Date of birth"
+							value="${formatDate(item.dateOfBirth, `dd mmm yyyy`)}">
+						</horizon-label>
+						<horizon-label
+							data-automation-id="insure-beneficiaries-benefit-payout"
+							label="Benefit payout"
+							value="${formatCurrency(item.benefitPayout)}">
+						</horizon-label>
+				</capitec-group>
+			</horizon-expander>
+			</capitec-content-box>
+			`) : this._renderNoResults() } 
+		`;
+	}
+
+	/**
+	 * Render Lives Assured section
+	 * @returns {html} The html content of Lives Assured section
+	 */
+	_renderLivesAssuredSections()
+	{
+		let livesAssured = this.policyDetails?.roleplayers?.filter(item => item.lifeAssured === true);
+
+		return html`
+		<capitec-title-bar
+			type="default"
+			label="Lives assured (${livesAssured?.length})">
+		</capitec-title-bar>
+		${ livesAssured?.length > 0 ? livesAssured.map((item) => html `
+			<capitec-content-box  class="accounts-box">
+			<horizon-expander
+			expandButtonAlignment=""
+			.expanded = "${false}"
+			?disabled=${true}>
+				<capitec-group 
+					class="expander-header"
+					slot="custom-header"
+					layout="horizontal"
+					gap="clear"
+					halign="left"
+					valign="center">
+						<horizon-label
+							class="label-account-number flexible-label"
+							data-automation-id="insure-lives-assured-name"
+							label="Name & Surname"
+							value="${item.firstName + ` ` + item.surname}">
+						</horizon-label>
+						<div class="vertical-line"></div>
+						<horizon-label
+							data-automation-id="insure-lives-assured-relationship"
+							label="Relationship"
+							value="${item.relationship}">
+						</horizon-label>
+						<horizon-label
+							data-automation-id="insure-lives-assured-dateofbirth"
+							label="Date of birth"
+							value="${formatDate(item.dateOfBirth, `dd mmm yyyy`)}">
+						</horizon-label>
+						<horizon-label
+							data-automation-id="insure-lives-assured-benefit-payout"
+							label="Benefit payout"
+							value="${formatCurrency(item.benefitPayout)}">
+						</horizon-label>
+				</capitec-group>
+			</horizon-expander>
+			</capitec-content-box>
+		`) : this._renderNoResults() } 
+		`;
+	}
+
+	/**
+	 * Render message when no results found
+	 * @returns {html} The html content of No results
+	 */
+	_renderNoResults() {
+		return html`
+			<capitec-group
+				class="no-result-group"
+				layout="vertical"
+				halign="center"
+				valign="center"
+				gap="none">
+					<capitec-label
+						data-automation-id = "policy-summary-no-results"
+						class="no-results"
+						label="No results found"
+						type="strong">
+					</capitec-label>
+			</capitec-group>
+		`;
 	}
 
 	//#endregion
@@ -81,7 +373,7 @@ class PolicySummary extends Component {
 window.customElements.define(`horizon-insure-policy-summary`, PolicySummary);
 
 /**
- * When back arrow button is clicked
+ * When back arrow button is clicked, navigate
  *
  * @example
  * <horizon-insure-policy-summary ... @navigate-back="${this._handler}"></horizon-insure-policy-summary>
