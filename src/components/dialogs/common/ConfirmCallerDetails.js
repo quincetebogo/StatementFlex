@@ -81,6 +81,7 @@ export class ConfirmCallerDetails extends Component {
 		this.isBusy = false;
 		this.errorMessage = ``;
 		this.errorCount = 0;
+		this.isHelpDeskAgent = false;
 	}
 
 	// ----------
@@ -101,6 +102,7 @@ export class ConfirmCallerDetails extends Component {
 			confirmedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
 			incidentDetails: { type: Object },
+			isHelpDeskAgent: { type: Boolean },
 
 			isBusy: { attribute: false },
 			renderMode: { attribute: false },
@@ -154,7 +156,7 @@ export class ConfirmCallerDetails extends Component {
 		this.callerInformation = event.detail.callerInformation;
 
 		this._confirmClick();
-        }
+	}
 
 	async _confirmClick() {
             this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_CONFIRM_CLICK, {
@@ -165,7 +167,7 @@ export class ConfirmCallerDetails extends Component {
                 "confirmed-client-cif": this.callerInformation.cifNumber
             });
 
-		if (this.confirmedCaller.isClientPresent || !this.callerInformation.isBranchConsultant) {
+		if ((this.confirmedCaller.isClientPresent || !this.callerInformation.isBranchConsultant) && !this.callerInformation.isHelpDeskAgent) {
 			const stopCard = () => this._navigateToLandingPage();
 			const productEnquiry = () => this._navigateToLandingPage();
 			const transact = () => this._verifyCaller();
@@ -178,10 +180,10 @@ export class ConfirmCallerDetails extends Component {
 
 			await this._updateClientNonClientDetails();
 
-            clientNeed[this.incomingCallDetails.ivrOptionCode]();     
+            clientNeed[this.incomingCallDetails.ivrOptionCode]();
 		} else {
 			this._navigateToLandingPage();
-        }    
+		}
 	}
 
 	async _verifyCaller() {
@@ -212,7 +214,7 @@ export class ConfirmCallerDetails extends Component {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.confirmedCaller = event.detail.confirmedCaller;
 		this.incidentDetails = event.detail.incidentDetails;
-		this.callerInformation.isBranchConsultant = true;
+		this.callerInformation.isBranchConsultant = event.detail.isBranchConsultant;
 		this._initCallerInformation();
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 
@@ -292,7 +294,7 @@ export class ConfirmCallerDetails extends Component {
 			"screen": TelemetryScreen.CONFIRM_CALLER,
 			"next-screen": TelemetryScreen.END_CALL
 		});
-
+		
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 	
@@ -333,7 +335,7 @@ export class ConfirmCallerDetails extends Component {
 			``, // nonclient ID number
 			``, // nonclient relationship
 			true, // isConfirmed
-			`unverified`, // verificationStatus
+			this.confirmedCaller.isHelpDeskAgent && this.confirmedCaller.isClientVerifiedInBranch ? `verified` : `unverified`, // verificationStatus
 			false, // verificationToastDisplayed
 			false, // isThirdParty
 			false, // isNonClient
@@ -345,7 +347,7 @@ export class ConfirmCallerDetails extends Component {
 			}, 
 			this.confirmedCaller.isBranchConsultant, // isBranchConsultant
 			this.confirmedCaller.isClientPresent, // isClientPresent
-			``,
+			this.confirmedCaller.isClientVerifiedInBranch ? `ITA` : ``,
 			this.confirmedCaller.firstName,
 			this.confirmedCaller.middleName1,
 			this.confirmedCaller.middleName2,
@@ -353,7 +355,8 @@ export class ConfirmCallerDetails extends Component {
 			this.confirmedCaller.lastName,
 			this.confirmedCaller.initials,
 			this.confirmedCaller.identifiedBy,
-			`` // client's registered email ID
+			``, // client's registered email ID
+			this.confirmedCaller.isHelpDeskAgent // if the Agent is with Help desk role
 		);
 	}
 
@@ -781,7 +784,7 @@ export class ConfirmCallerDetails extends Component {
 				data-automation-id="confirm-caller-details-end-call-modal"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
-				.callerInformation="${this.callerInformation}"
+                .callerInformation="${this.callerInformation}"
 				endCallContext="ConfirmClient"
 				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
 			</horizon-end-call-session>`;
@@ -804,6 +807,7 @@ export class ConfirmCallerDetails extends Component {
 				data-automation-id="confirm-caller-details-search-caller-modal"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
+				?isHelpDeskAgent="${this.isHelpDeskAgent}"
 				@client-identified="${(data) => this._identifiedClient(data)}"
 				@non-client-captured="${data => this._nonClientCaptured(data)}"
 				@branch-captured="${(event) => this._branchCaptured(event)}"

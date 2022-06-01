@@ -1,9 +1,9 @@
+import { Configuration, SecurityContext } from 'platform/core';
 import { css, html } from 'platform/elements';
 import { AUTH_IDENTIFICATION_METHODS } from 'app/constants/Common';
 import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
-import { Configuration } from 'platform/core';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { HorizonViewManager } from 'app/shell/HorizonViewManager';
@@ -46,6 +46,7 @@ export class LandingPage extends ViewBase {
 		this.desktopAgentService = DesktopAgentService.getInstance();
 		this._configuration = Configuration.getInstance();
 		this.telemetry = HorizonTelemetry.getInstance();
+		this._securityContext = SecurityContext.getInstance();
 
 		this.initialiseService = new InitialiseService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
@@ -215,7 +216,10 @@ export class LandingPage extends ViewBase {
 
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
-
+		
+		const roles = this._securityContext.roles;
+		this.isHelpDeskAgent = roles && Array.isArray(roles) && roles.includes(`clientcare-agent`);
+		
 		const state = {
 			callStatus: `CALL-IN-PROGRESS`,
 			canCloseIncident: true
@@ -295,7 +299,8 @@ export class LandingPage extends ViewBase {
 			``, // client's surname/last name
 			``, // client's initials
 			``, // Identification method used to confirm client
-			`` // client's registered email ID
+			``, // client's registered email ID
+			false // If the agent is with HelpDesk role
 		);
 		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);
 		this.horizonStore.setCallerInformation(callerInformation);
@@ -390,6 +395,7 @@ export class LandingPage extends ViewBase {
 					.confirmedCaller="${this.confirmedCaller}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.incidentDetails="${this.incidentDetails}"
+					?isHelpDeskAgent="${this.isHelpDeskAgent}"
 					@client-identified="${(data) => this._clientIdentified(data)}"
 					@branch-captured="${(event) => this._branchCaptured(event)}"
 					@non-client-captured=${event => this._nonClientCaptured(event)}>
@@ -411,6 +417,7 @@ export class LandingPage extends ViewBase {
 				<horizon-search-caller
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.incidentDetails="${this.incidentDetails}"
+					?isHelpDeskAgent="${this.isHelpDeskAgent}"
 					@client-identified="${(event) => this._clientIdentified(event)}"
 					@non-client-captured="${event => this._nonClientCaptured(event)}"
 					@branch-captured="${(event) => this._branchCaptured(event)}"
