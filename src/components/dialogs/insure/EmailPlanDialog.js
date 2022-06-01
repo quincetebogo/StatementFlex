@@ -33,6 +33,10 @@ class EmailPlanDialog extends Component {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
+	_onSendClick() {
+		this.dispatchEvent(new CustomEvent(`send-email`, {}));
+	}
+
 	//#endregion
 
 	//#region RENDERING
@@ -113,7 +117,9 @@ class EmailPlanDialog extends Component {
 				<capitec-button slot="footer" type="secondary" label="Cancel"
 					@click="${() => this._onCancelClick()}">
 				</capitec-button>
-				<capitec-button slot="footer" type="primary" label="Send"></capitec-button>
+				<capitec-button slot="footer" type="primary" label="Send" 
+					@click="${() => this._onSendClick()}">
+				</capitec-button>
 		`}
 
 	//#endregion

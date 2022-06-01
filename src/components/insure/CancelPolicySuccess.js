@@ -115,7 +115,7 @@ class CancelPolicySuccess extends Component {
 				<div>
 					<capitec-image src="platform/illustrations/application.svg"
 						style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
-					<label id="temp-container-label">The policy has been Cancelled</label>
+					<label id="temp-container-label">The policy has been cancelled</label>
 					<capitec-label class="spacing" type="subtitle" label="You currently have 2 active policies"></capitec-label>
 					<capitec-button label="Isssue Policy" type="primary" @click="${() => this._onIssuePolicyClick()}"></capitec-button>
 				</div>

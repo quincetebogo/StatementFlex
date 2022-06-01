@@ -10,6 +10,7 @@ import 'app/components/insure/PolicyEstimate';
 import 'app/components/insure/UpdatePlan';
 import 'app/components/insure/PolicySummary';
 import 'app/components/insure/CancelPolicySuccess';
+import 'app/components/insure/EmailPlanSuccess';
 
 /**
  * Implements the view for Insure verified and unverified existing clients (i.e. the client has products)
@@ -188,7 +189,7 @@ export class ExistingClient extends InsureViewBase {
 	/**
 	 * Prepare and navigate Email Success
 	 */
-	 _goToEmailSuccess() {
+	 _goToEmailPlanSuccess() {
 		// Telemetry Here
 		this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
 	}
@@ -268,7 +269,8 @@ export class ExistingClient extends InsureViewBase {
 			<horizon-insure-client-policies @navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan()}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary()}"
-				@navigate-to-cancel-policy-success="${(e) => this._goToCancelPolicySuccess()}">
+				@navigate-to-cancel-policy-success="${(e) => this._goToCancelPolicySuccess()}"
+				@navigate-to-email-success="${(e) => this._goToEmailPlanSuccess()}">
 			</horizon-insure-client-policies>`
 	}
 
@@ -323,7 +325,12 @@ export class ExistingClient extends InsureViewBase {
 	 * @return {html} Html of the sub view
 	 */
 	 _renderEmailSuccessPage() {
-		return html``
+		return html`
+		
+			<horizon-insure-email-plan-success @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+			</horizon-insure-email-plan-success>
+
+		`
 	}
 }
 customElements.define(`horizon-existing-client`, ExistingClient);

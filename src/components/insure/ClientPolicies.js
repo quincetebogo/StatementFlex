@@ -87,6 +87,16 @@ class ClientPolicies extends Component {
 		}));
 	}
 
+	/**
+	 * Fire navigate event to Email Success
+	 */
+	 _goToEmailSuccess() {
+		this.dispatchEvent(new CustomEvent(`navigate-to-email-success`, {
+			detail: {
+			}
+		}));
+	}
+
 	_openCancelPolicy(){
 		this.showCancelPolicyDialog = true;
 	}
@@ -206,7 +216,8 @@ _renderCancelPolicyDialog(){
 _renderEmailPlanDialog(){
 		return this.showEmailPlanDialog == false ? `` 
 		: html`
-		<email-plan-dialog @close-modal="${(e) => this.showEmailPlanDialog = false}">
+		<email-plan-dialog @close-modal="${(e) => this.showEmailPlanDialog = false}"
+			@send-email="${(e) => this._goToEmailSuccess()}">
 		</email-plan-dialog>
 		`
 	}
