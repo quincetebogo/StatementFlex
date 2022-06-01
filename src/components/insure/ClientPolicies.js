@@ -128,7 +128,10 @@ class ClientPolicies extends Component {
 	//#endregion
 
 	//#region PRIVATE FUNCTIONS
-	
+
+	/**
+	 * Initialise mock data for pay Arrears
+	 */
 	_initialiseMockData(){
 
 		this.clientArrears = {};
