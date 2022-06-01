@@ -43,6 +43,8 @@ export default class InsureChannelServiceMocks {
 
 		this.productParamsMocks = await this._loadMockModule(this.productParamsMocks, `insureProductParams`, () => import(`../mocks/insure/ProductParams`).catch(err => logError(err)));
 		this.clientPoliciesMocks = await this._loadMockModule(this.clientPoliciesMocks, `insureClientPolicies`, () => import(`../mocks/insure/ClientPolicies`).catch(err => logError(err)));
+		this.transactionHistoryMocks = await this._loadMockModule(this.transactionHistoryMocks, `insurePolicyTransactionHistory`, () => import(`../mocks/insure/InsurePolicyTransactionsMockData`).catch(err => logError(err)));
+		this.policySummaryMocks = await this._loadMockModule(this.policySummaryMocks, `insurePolicySummary`, () => import(`../mocks/insure/PolicySummary`).catch(err => logError(err)));
 	}
 
 	/**
@@ -51,18 +53,47 @@ export default class InsureChannelServiceMocks {
 	 */
 	insureProductParams() {
 		if (this._mockSettings.insureProductParams.positiveCase) {
-			return this.productParamsMocks.InsureProductParams;
+			return this.productParamsMocks.ProductParams;
+		}
+		return null;
+	}
+	
+	/**
+	 * Client policies mock check
+	 * @returns {Object} Mock response data
+	 */
+	 insureClientPolicies() {
+		if (this._mockSettings.insureClientPolicies.positiveCase) {
+			return this.clientPoliciesMocks.ClientPolicies;
 		}
 		return null;
 	}
 
 	/**
-	 * Client policies mock check
+	 * fetch mock data for policy transactions
+	 * @param {*} policyTransactionHistoryRequest 
+	 * @returns {Object} Mock transactions data
+	 */
+	policyTransactionHistory(policyTransactionHistoryRequest) {
+		if (this._mockSettings.insurePolicyTransactionHistory.positiveCase) {
+			const result = {transactions : 
+				this.transactionHistoryMocks.PolicyTransactionHistory.transactions
+				.slice(policyTransactionHistoryRequest.pageIndex
+					,policyTransactionHistoryRequest.pageIndex + policyTransactionHistoryRequest.totalPerPage)}
+			return result;
+		}
+
+		// Code for a negative case could come here
+		return null;
+	}
+
+	/**
+	 * Policy summary mock check
 	 * @returns {Object} Mock response data
 	 */
-	insureClientPolicies() {
-		if (this._mockSettings.insureClientPolicies.positiveCase) {
-			return this.clientPoliciesMocks.InsureClientPolicies;
+	insurePolicySummary() {
+		if (this._mockSettings.insurePolicySummary.positiveCase) {
+			return this.policySummaryMocks.PolicySummary;
 		}
 		return null;
 	}

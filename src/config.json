@@ -189,15 +189,35 @@
 			"positiveCase": true
 		},
 		"insureProductParams": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
+		"insureCalculateQuote": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureRetrieveQuoteDetails": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureRetrieveQuotesList": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insurePolicyTransactionHistory": {
+			"enabled": true,
+			"positiveCase": true
+		},	
 		"creditOverview": {
 			"enabled": false,
 			"positiveCase": true
 		},
 		"creditBalance": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"insurePolicySummary": {
+			"enabled": true,
 			"positiveCase": true
 		}
 	}
