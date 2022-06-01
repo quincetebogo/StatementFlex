@@ -83,6 +83,16 @@ class ClientPolicies extends Component {
 	}
 
 	/**
+	 * Fire navigate event to Policy Transaction History
+	 */
+	_goToPolicyTransactionHistory() {
+		this.dispatchEvent(new CustomEvent(`navigate-to-policy-transaction-history`, {
+			detail: {
+			}
+		}));
+	}
+
+	/**
 	 * Fire navigate event to Product Enquiry
 	 */
 	_productEnquiry() {
@@ -311,12 +321,22 @@ class ClientPolicies extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
+					<capitec-button type="white" label="Transaction History" @click="${() => this._goToPolicyTransactionHistory()}">
+					</capitec-button>
 					<capitec-button type="white"  label="Get Estimate" data-automation-id="insure-landing-get-estimate"
 						@click="${() => this._goToEstimate()}">
 					</capitec-button>
 				</capitec-title-bar>
 				${this._renderPoliciesLandingContent()}
-		</capitec-card>`
+		</capitec-card>
+		<capitec-card id="temp-container">
+			<div>
+				<capitec-image src="platform/illustrations/beneficiaries.svg"
+					style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
+				<label id="temp-container-label">Client Policies - Coming soon to a sprint near you!</label>
+			</div>
+		</capitec-card>
+		`
 	}
 
 	/**
