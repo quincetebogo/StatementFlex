@@ -6,6 +6,9 @@ import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
 
+//Dialogs
+import 'app/components/dialogs/insure/PayPremiumDialog';
+
 /**
  * Client policies component showing all the policies a client currently has on their account
  * This is the primary landing screen for client that has insurance product
@@ -15,6 +18,8 @@ import 'app/components/common/HorizonExpander';
  * navigate-to-estimate
  * navigate-to-update-plan
  * navigate-to-policy-summary
+ * pay-arrears
+ *  
  * product-enquiry
  * _expanded
  * _collapsed
@@ -29,6 +34,8 @@ class ClientPolicies extends Component {
 
 	constructor() {
 		super();
+		
+		this.showPayPremiumDialog = false;
 
 		this.clientPolicies = null;
 	}
@@ -38,14 +45,33 @@ class ClientPolicies extends Component {
 	//#region PROPERTIES
 
 	/**
+	 * @property {Object} clientArrears Data & flags from Arrears Service
+	 * @property {boolean} showPayPremiumDialog Determines if the Pay Premium dialog should be shown
+	 * 
 	 * @readonly
 	 * @static
 	 */
 	static get properties() {
 		return {
+			clientArrears: { type: Object },
+			showPayPremiumDialog: { boolean: false },
+
 			clientPolicies: { type: Object, state: true },
 			policyDetails: { type: Object, state: true }
 		};
+	}
+
+	//#endregion
+
+	//#region LIFECYCLE OVERRIDES
+
+	/**
+	 * Setup the component once added to the DOM.
+	 * @returns {void}
+	 */
+	 connectedCallback() {
+		super.connectedCallback();
+		this._initialise();
 	}
 
 	//#endregion
@@ -81,6 +107,47 @@ class ClientPolicies extends Component {
 			}
 		}));
 	}
+
+	/**
+	 * Fire navigate event to Policy Transaction History
+	 */
+	_goToPolicyTransactionHistory() {
+		this.dispatchEvent(new CustomEvent(`navigate-to-policy-transaction-history`, {
+			detail: {
+			}
+		}));
+	}
+
+	/**
+	 * Fire navigate event to Pay Premium Success page
+	 */
+	 _payArrears(e) {
+		this.dispatchEvent(new CustomEvent(`pay-arrears`, {
+			detail: e.detail}));
+	}
+
+	/**
+	 * Open Pay Premium dialog returning select relationship
+	 */
+	 _openPayPremiumDialog(policyItem) {
+		 this.clientArrears = {
+			contractReference: policyItem.contractReference,
+			arrears: policyItem.arrearDetails.arrears
+			}
+		this.showPayPremiumDialog = true;
+	}
+
+	/**
+	 * Close Pay Premium dialog returning select relationship
+	 */
+	_closePayPremiumDialog() {
+		this.showPayPremiumDialog = false;
+	}
+
+	
+	//#endregion
+
+	//#region PRIVATE FUNCTIONS
 
 	/**
 	 * Fire navigate event to Product Enquiry
@@ -296,8 +363,18 @@ class ClientPolicies extends Component {
 	_webTemplate() {
 		return html`
 			${this._renderContent()}
+			${this._renderDialogs()}
 		`;
 	}
+
+	/**
+	 * Generates the component template for web mode.
+	 * @returns {html} The html content of the component.
+	 */
+	 _renderDialogs() {
+		return html`
+			${this._renderPayPremiumDialog()}
+		`}
 
 	/**
 	 * Render the content HTML for the component
@@ -312,12 +389,22 @@ class ClientPolicies extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
+					<capitec-button type="white" label="Transaction History" @click="${() => this._goToPolicyTransactionHistory()}">
+					</capitec-button>
 					<capitec-button type="white"  label="Get Estimate" data-automation-id="insure-landing-get-estimate"
 						@click="${() => this._goToEstimate()}">
 					</capitec-button>
 				</capitec-title-bar>
 				${this._renderPoliciesLandingContent()}
-		</capitec-card>`
+		</capitec-card>
+		<capitec-card id="temp-container">
+			<div>
+				<capitec-image src="platform/illustrations/beneficiaries.svg"
+					style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
+				<label id="temp-container-label">Client Policies - Coming soon to a sprint near you!</label>
+			</div>
+		</capitec-card>
+		`
 	}
 
 	/**
@@ -433,7 +520,8 @@ class ClientPolicies extends Component {
 					data-automation-id="insure-policy-options-pay-arrears"
 					class="button-margin" 
 					label="Pay Arrears" 
-					icon="status/error">
+					icon="status/error"
+					@click="${() => this._openPayPremiumDialog(policyItem)}">
 				</horizon-option-button>
 				` : ``}
 				<horizon-option-button 
@@ -541,6 +629,19 @@ class ClientPolicies extends Component {
 	// <capitec-button type="white" label="Policy Summary" @click="${() => this._goToPolicySummary()}">
 	// </capitec-button>
 
+	/**
+	 * Render Pay Premium Dialog 
+	 * @return {html} Html of the dialog
+	 */
+	 _renderPayPremiumDialog() {
+		return this.showPayPremiumDialog == false ? `` :
+			html`
+			<pay-premium-dialog  @close-modal="${(e) => this._closePayPremiumDialog(e)}" .clientArrears = ${this.clientArrears}
+			@pay-arrears = "${(e) => this._payArrears(e)}" >	
+			</pay-premium-dialog>`
+
+	}
+
 	//#endregion
 }
 
@@ -577,6 +678,12 @@ window.customElements.define(`horizon-insure-client-policies`, ClientPolicies);
  */
 
 /**
+ * When Pay Arrears button is clicked in dialog, payArrears object is passed through
+ *
+ * @example
+ * <horizon-insure-client-policies ... @pay-arrears="${this._handler}"></horizon-insure-client-policies>
+ *
+ * @event ClientPolicies#navigate-to-estimate
  * When product enquiry is clicked, navigate
  *
  * @example
