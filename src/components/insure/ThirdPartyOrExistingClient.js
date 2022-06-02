@@ -451,6 +451,7 @@ export class ThirdPartyOrExistingClient extends Component {
 				<horizon-end-call-session
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
+					.callerInformation="${this.callerInformation}"
 					endCallContext="LandingPage"
 					@cancel="{${() => this._onCancelEndCall()}}">
 				</horizon-end-call-session>`;

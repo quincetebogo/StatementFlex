@@ -68,6 +68,7 @@ export class EndCallSession extends Component {
 			subCategory: ``,
 			issue: ``
 		};
+		this.callerInformation = {};
 
 		this._configuration = Configuration.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
@@ -101,6 +102,7 @@ export class EndCallSession extends Component {
 			incidentDetails: { type: Object },
 			endCallContext: { type: String },
 			isReassigned: { type: Boolean },
+			callerInformation: { type: Object },
 
 			isBusy: { attribute: false },
 			endCallReasons: { attribute: false },
@@ -123,7 +125,7 @@ export class EndCallSession extends Component {
 		});
 
 		// Making end call reasons context sensitive 
-		this.callerInformation = this.horizonStore.getCallerInformation() || {};
+		this.callerInformation = this.horizonStore.getCallerInformation() || this.callerInformation;
 		this.endCallReasons = END_CALL_REASON[this.endCallContext][this.callerInformation.verificationStatus] || END_CALL_REASON[this.endCallContext];
 		
 		// TODO: Evaluate why isRessagined is added to incomingCallDetails
@@ -367,10 +369,61 @@ export class EndCallSession extends Component {
 		return true;
 	}
 
+	async _updateClientNonclientDetails(strackIncidentInfo, incidentDetails) {
+
+		/*
+		 * Update client details to STrack when the caller is a capitec client or 3rd party/beneficiary client.
+		 * Update details only when STrack incident has no client information
+		 * Scenario 1: When an agent ends call from confirm caller dialog
+		 * Scenario 2: when an agent ends call from Add caller details dialog
+		*/
+		if (!this.callerInformation.isNonClient &&
+			Boolean(this.callerInformation.cifNumber) &&
+			isNullorEmpty(strackIncidentInfo.clientDetails.cif) &&
+			isNullorEmpty(strackIncidentInfo.clientDetails.southAfricanIDNumber)) {
+
+			const returnValue = await this.incidentManagementService.updateIncidentClientDetails(this.callerInformation.cifNumber, incidentDetails.incidentRecId);
+		
+			if (!returnValue.succeeded) {
+				this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateSubsequentNeedClientDetails`, returnValue.correlationId);
+			}
+		}
+
+		/*
+		 * Update non-client details to STrack when the caller is a non-client or 3rd party/beneficiary client.
+		 * Update details only when STrack incident has no non-client information
+		 * Scenario 1: When an agent ends call from search caller dialog while capturing non-client details
+		 * Scenario 2: when an agent ends call from Add caller details dialog
+		*/
+		if ((this.callerInformation.isNonClient || this.callerInformation.is3rdParty) && 
+			isNullorEmpty(strackIncidentInfo.nonClientDetails.fullName) &&
+			Boolean(this.callerInformation.nonClientFirstName) &&
+			Boolean(this.callerInformation.nonClientSurName)) {
+				
+			const nonClientDetails = {
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				firstName: this.callerInformation.nonClientFirstName,
+				surname: this.callerInformation.nonClientSurName,
+				cellPhone: this.callerInformation.nonClientCellPhone
+			};
+			const returnValue = await this.incidentManagementService.updateIncidentNonClientDetails(incidentDetails.incidentRecId, nonClientDetails);
+	
+			if (!returnValue.succeeded) {
+				this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateSubsequentNeedNonClientDetails`, returnValue.correlationId);
+			}
+		}
+
+
+	}
+
 	async _classifyAndClose() {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		const needAction = STRACK_MAPPING[incidentDetails.currentNeed] || STRACK_MAPPING[this.endCallReason.mapping];
 		const strackIncidentInfo = await this._incidentStatus() || {};
+
+		await this._updateClientNonclientDetails(strackIncidentInfo, incidentDetails);
+
 		// Flag to check, if the incident is already updated outside of Horizon
 		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
 		const classification = this._getClassification();
@@ -519,7 +572,7 @@ export class EndCallSession extends Component {
 	}
 
 	async _endSession() {
-		if (Object.prototype.hasOwnProperty.call(this.callerInformation, `cifNumber`)) {
+		if (this._isCifNumberValid(this.callerInformation)) {
 			const req = {
 				endReason: this.endCallReason.key,
 				title: this.callerInformation.title,
@@ -530,6 +583,10 @@ export class EndCallSession extends Component {
 			// We don't mind if this service call fails. This is just to send automated messaging to client
 			await this.callHandleService.endCall(req);
 		}
+	}
+
+	_isCifNumberValid(callerInformation) {
+		return Object.prototype.hasOwnProperty.call(callerInformation, `cifNumber`) && callerInformation.cifNumber;
 	}
 
 	// ---------
@@ -784,7 +841,7 @@ export class EndCallSession extends Component {
 			return html``;
 		}
 
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		return html`<capitec-loading-indicator data-automation-id="end-call-session-loading-indicator"></capitec-loading-indicator>`;
 	}
 }
 

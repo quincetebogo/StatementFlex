@@ -67,6 +67,7 @@ export class VerifyBySecurityQuestions extends Component {
 	 * @property {Object} incomingCallDetails Information about the incoming call (incoming number etc.)
 	 * @property {Object} securityQuestions The security questions object retrieved from XDS
 	 * @property {Object} finalAttempt Indicates if this is the final round of security questions
+	 * @property {Object} callerInformation - information on incoming caller
 	 * 
 	 * @readonly
 	 * @static
@@ -79,9 +80,7 @@ export class VerifyBySecurityQuestions extends Component {
 			incomingCallDetails: { type: Object },
 			securityQuestions: { type: Object },
 			finalAttempt: { type: Boolean },
-			cifNumber: { type: String },
-			title: { type: String },
-			lastName: { type: String },
+			callerInformation: { type: Object },
 
 			renderMode: { state: true },
 			questionNumber: { state: true },
@@ -163,9 +162,9 @@ export class VerifyBySecurityQuestions extends Component {
 		this.alertBannerMessage = ``;
 		this.checked = false;
 
-		this.securityQuestions.title = this.title;
-		this.securityQuestions.lastName = this.lastName;
-		this.securityQuestions.cif = this.cifNumber;
+		this.securityQuestions.title = this.callerInformation.title;
+		this.securityQuestions.lastName = this.callerInformation.lastName;
+		this.securityQuestions.cif = this.callerInformation.cifNumber;
 
 		const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, () => true);
 		const result = returnValue.result;
@@ -403,7 +402,8 @@ export class VerifyBySecurityQuestions extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.SECURITY_QUESTIONS:
 				return html`
-					<horizon-caller-dialog class="main-container" 
+					<horizon-caller-dialog class="main-container"
+							data-automation-id="verify-by-sq-dialog"					 
 							.incomingCallDetails="${this.incomingCallDetails}"
 							.incidentDetails="${this.incidentDetails}"
 							.isNeedSelectable=${false} 
@@ -457,6 +457,7 @@ export class VerifyBySecurityQuestions extends Component {
 		return html`
 			<capitec-group class="footer-wrapper" layout="horizontal">
 				<capitec-button
+					data-automation-id="verify-by-sq-cancel-button"
 					id="id-cancel-button"
 					type="clear"
 					label="Cancel"
@@ -466,6 +467,7 @@ export class VerifyBySecurityQuestions extends Component {
 				<capitec-spacer></capitec-spacer>
 			
 				<capitec-button
+					data-automation-id="verify-by-sq-skip-button"
 					id="id-skip-button"
 					type="clear"
 					label="Skip Verification"
@@ -473,6 +475,7 @@ export class VerifyBySecurityQuestions extends Component {
 				</capitec-button>
 			
 				<capitec-button
+					data-automation-id="verify-by-sq-continue-button"
 					id="id-continue-button"
 					type="primary"
 					label="Continue"
@@ -481,6 +484,7 @@ export class VerifyBySecurityQuestions extends Component {
 				</capitec-button>
 			
 				<capitec-button
+					data-automation-id="verify-by-sq-verify-button"
 					id="id-verify-button"
 					type="primary"
 					label="Verify"
@@ -497,8 +501,10 @@ export class VerifyBySecurityQuestions extends Component {
 
 		return html`
 			<horizon-end-call-session
+				data-automation-id="verify-by-sq-end-call-session"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
+				.callerInformation="${this.callerInformation}"
 				endCallContext='VerifyClient${status}'
 				@cancel="${() => this.renderMode = RENDER_MODE.SECURITY_QUESTIONS}">
 			</horizon-end-call-session>`;
@@ -506,7 +512,7 @@ export class VerifyBySecurityQuestions extends Component {
 
 	_renderLoadingIndicator() {
 		return this.isBusy
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			? html`<capitec-loading-indicator data-automation-id="verify-sq-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
 }

@@ -315,7 +315,7 @@ export class CalculatePremium extends Component {
 			return html``;
 		};
 
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		return html`<capitec-loading-indicator data-automation-id="calculate-premium-loading-indicator"></capitec-loading-indicator>`;
 	}
 
 	_renderAlertBanner() {

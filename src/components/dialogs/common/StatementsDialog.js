@@ -71,6 +71,7 @@ export class StatementsDialog extends Component {
 	/**
 	 * @property {Array} clientProducts Contains list of products that the client has.
 	 * @property {string} type Contains the type of account
+	 * @property {string} registeredEmailId Client's registered email ID
 	 * @readonly
 	 * @static
 	 * @memberof StatementsDialog
@@ -81,6 +82,7 @@ export class StatementsDialog extends Component {
 			accountType: { type: String, attribute: `type` },
 			viewStatement: { type: Object },
 			sendStatement: { type: Object },
+			registeredEmailId: { type: String },
 
 			alertBannerMessage: { state: true },
 			currentStep: { state: true },
@@ -559,18 +561,14 @@ export class StatementsDialog extends Component {
 					--theme-layout-gap-spacing: 0px;
 				}
 				.footer {
-					width: var(--horizon-statements-modal-footer-width, 960px);
-					
-					--theme-container-padding-left: 16px;
-					--theme-container-padding-top: 16px;
-					--theme-container-padding-right: 16px;
-					--theme-container-padding-bottom: 16px;
+					--theme-buttonbar-padding: 8px 16px;
+					border-radius: 4px;
 				}
 				.footer > capitec-button {
 					height: 48px;
 				}
 				.m-r-0 {
-					margin-right: 0px;
+					margin-left: 6px;
 				}
 				.view-document {
 					--theme-product-tile-heading-margin-left: 16px;
@@ -596,8 +594,7 @@ export class StatementsDialog extends Component {
 				.seperator {
 					width: 928px;
 					border: 1px solid #E1E1E1;
-					margin-bottom: 30px;
-					margin-top: 30px;
+					margin: 10px 0px 30px 0px;
 				}
 				capitec-date-time-picker.calendar {
 					height: auto;
@@ -912,6 +909,7 @@ export class StatementsDialog extends Component {
 				labelTwo="${this.confirmEmailLabel}"
 				email="${this.email}"
 				confirmEmail="${this.confirmEmail}"
+				registeredEmailId="${this.registeredEmailId}"
 				?showRequiredError="${this.errorMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
 				.callBack="${() => this._clearAlerts()}"
 				@value-changed="${(e) => this._emailValueChanged(e)}">
@@ -979,12 +977,10 @@ export class StatementsDialog extends Component {
 
 	_renderFooter() {
 		return html`
-			<capitec-content-box
+			<capitec-button-bar 
 				class="footer"
 				layout="horizontal"
-				gap="clear"
-				halign="left"
-				valign="center">
+				gap="clear">
 					<capitec-button
 						data-automation-id="statements-dialog-back"
 						type="clear"
@@ -995,7 +991,7 @@ export class StatementsDialog extends Component {
 					<capitec-spacer></capitec-spacer>
 					<capitec-button
 						data-automation-id="statements-dialog-cancel"
-						type="clear"
+						type="secondary"
 						label="Cancel"
 						@click="${() => this._cancel()}"
 						?hidden="${this.renderMode === RENDER_MODE.PDF}">
@@ -1024,7 +1020,7 @@ export class StatementsDialog extends Component {
 						@click="${() => this._close()}"
 						?hidden="${this.renderMode !== RENDER_MODE.PDF}">
 					</capitec-button>
-			</capitec-content-box>
+			</capitec-button-bar>
 		`;
 	}
 

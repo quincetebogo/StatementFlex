@@ -431,6 +431,7 @@ export class PaidUpAccounts extends Component {
 				.landingPageInfo="${this.landingPageInfo}"
 				.selectedAccounts="${this.selectedAccounts}"
 				.encodedPDFs="${this.encodedPDFs}"
+				registeredEmailId="${this.callerInformation.emailId}"
 				@cancel="${() => this._backToLandingPage()}"
 				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
 			</horizon-paid-up-letter-dialog>
@@ -440,7 +441,7 @@ export class PaidUpAccounts extends Component {
 
 	_renderLoadingIndicator() {
 		return this.isBusy
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			? html`<capitec-loading-indicator data-automation-id="paid-up-account-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
 
