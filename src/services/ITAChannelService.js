@@ -40,6 +40,7 @@ export class ITAChannelService extends ChannelServiceBase {
 			false,
 			null,
 			null,
+			null,
 			errorHandler,
 			autoRetries
 		);
@@ -64,11 +65,12 @@ export class ITAChannelService extends ChannelServiceBase {
 		return this.post(
 			url,
 			{
-				"cifNumber": cifNumber
+				"cif": cifNumber
 			},
 			this.setToken(),
 			`digitalVerificationChannelsAvailable`,
 			false,
+			null,
 			null,
 			null,
 			errorHandler,
