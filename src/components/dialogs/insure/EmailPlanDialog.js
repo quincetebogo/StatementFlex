@@ -55,10 +55,15 @@ class EmailPlanDialog extends Component {
 
 			.label {
 				margin-bottom: 20px;
+				font-weight: bold;
 			}
 
 			.textField {
 				margin-bottom: 20px;
+			}
+
+			.button {
+				width: 150px;
 			}
 
 			`
@@ -71,7 +76,7 @@ class EmailPlanDialog extends Component {
 	 */
 	 _webTemplate() {
 		return html`
-			<capitec-modal type="form" header="Email Funeral Plan ()">
+			<capitec-modal type="form" header="Email Funeral Plan (CF00027650)">
 				<div slot="body">
 					${this._renderDialogBody()}
 				</div>
@@ -90,7 +95,7 @@ class EmailPlanDialog extends Component {
 		return html`
 			
 			<div class="label">
-				<capitec-label label="Enter email address" type="subtitle"></capitec-label>
+				<capitec-label label="Enter email address" type="subtitle" style="font-weight: bold;"></capitec-label>
 			</div>
 
 			<div class="textField">
@@ -98,7 +103,7 @@ class EmailPlanDialog extends Component {
 			</div>
 
 			<div class="label">
-				<capitec-label label="Confirm email" type="subtitle"></capitec-label>
+				<capitec-label label="Confirm email" type="subtitle" style="font-weight: bold;"></capitec-label>
 			</div>
 
 			<div class="textField">
@@ -114,10 +119,10 @@ class EmailPlanDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-				<capitec-button slot="footer" type="secondary" label="Cancel"
+				<capitec-button class="button" slot="footer" type="secondary" label="Cancel"
 					@click="${() => this._onCancelClick()}">
 				</capitec-button>
-				<capitec-button slot="footer" type="primary" label="Send" 
+				<capitec-button class="button" slot="footer" type="primary" label="Send" 
 					@click="${() => this._onSendClick()}">
 				</capitec-button>
 		`}

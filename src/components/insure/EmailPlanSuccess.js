@@ -28,6 +28,7 @@ class EmailPlanSuccess extends Component {
 	 */
 	 connectedCallback() {
 		super.connectedCallback();
+		window.setTimeout(() => this.showSuccessAlert = false, 2000);
 	}
 
 	//#endregion
@@ -85,9 +86,25 @@ class EmailPlanSuccess extends Component {
 			
 			.spacing { 
 				margin-bottom: 30px;
-				margin-top: 20px;
+				
 			}
 			
+			.notification {
+				width: 350px;
+				margin: auto;
+			}
+
+			.icon{
+				position: relative;
+				left: 135px;
+				top: 25px;
+			}
+			.buttons {
+				width: 150px;
+				margin-left:5px;
+				margin-right: 5px;
+			}
+
 			`
 		];
 	}
@@ -108,23 +125,25 @@ class EmailPlanSuccess extends Component {
 	 */
 	 _renderContent() {
 		return html`
-
-			${this._renderAlert()}
+			<div class="notification">
+				${this._renderAlert()}
+			</div>
 
 			<capitec-card id="temp-container">
 				<div>
 					<capitec-image src="platform/illustrations/send-documents.svg"
 						style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
 					<label id="temp-container-label">Funeral, (or quote) plan sent</label>
-					<capitec-label class="spacing" type="subtitle" label="Your funeral plan document for policy number 'CF00027650' has been emailed to something@gmail.com"></capitec-label>
-					<capitec-button label="Isssue Policy" type="secondary"></capitec-button>
-					<capitec-button label="Isssue Policy" type="primary" @click="${() => this._onDoneClick()}"></capitec-button>
+						<capitec-icon class="icon" size="medium" icon="status/success"></capitec-icon>
+						<capitec-label class="spacing" type="subtitle" label="Your funeral plan document for policy number 'CF00027650' has been emailed to something@gmail.com"></capitec-label>
+					<capitec-button class="buttons" label="View Plan" type="secondary"></capitec-button>
+					<capitec-button class="buttons" label="Done" type="primary" @click="${() => this._onDoneClick()}"></capitec-button>
 				</div>
 			</capitec-card>
 		`
 	}
 
-	/**
+/**
  * Renders the Email Sent alert
  * @returns {html}
  */
@@ -140,7 +159,7 @@ _renderAlert(){
 			@click = "${() => this.showSuccessAlert = false}"
 			closable>
 		</capitec-toast>
-		${window.setTimeout(() => this.showSuccessAlert = false, 2000)};
+
 `}
 
 	//#endregion

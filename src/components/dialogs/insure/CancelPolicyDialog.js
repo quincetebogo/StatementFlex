@@ -84,6 +84,10 @@ class CancelPolicyDialog extends Component {
 					width: 60%;
 				}
 
+				.button {
+					width: 140px;
+				}
+
 				`
 		];
 	}
@@ -94,7 +98,7 @@ class CancelPolicyDialog extends Component {
 	 */
 	 _webTemplate() {
 		return html`
-			<capitec-modal type="form" header="Cancel Funeral Cover Plan ()">
+			<capitec-modal type="form" header="Cancel Funeral Cover Plan (CF00027650)">
 				<div slot="body">
 					${this._renderDialogBody()}
 				</div>
@@ -150,13 +154,13 @@ class CancelPolicyDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-				<capitec-button slot="footer" type="secondary" label="Cancel"
+				<capitec-button class="button" slot="footer" type="secondary" label="Cancel"
 					@click="${() => this._onCancelClick()}">
 				</capitec-button>
-				<capitec-button slot="footer" type="secondary" label="Email"
+				<capitec-button class="button" slot="footer" type="secondary" label="Email"
 					@click="${() => this._onEmailClick()}">
 				</capitec-button>
-				<capitec-button slot="footer" type="primary" label="Agree"
+				<capitec-button class="button" slot="footer" type="primary" label="Agree"
 					@click="${() => this._onAgreeClick()}"></capitec-button>
 		`}
 

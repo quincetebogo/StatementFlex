@@ -14,7 +14,7 @@ class CancelPolicySuccess extends Component {
 
 	static get properties() {
 		return {
-			
+			showSuccessAlert: {type: Boolean, state: true}
 		};
 	}
 
@@ -28,6 +28,7 @@ class CancelPolicySuccess extends Component {
 	 */
 	 connectedCallback() {
 		super.connectedCallback();
+		window.setTimeout(() => this.showSuccessAlert = false, 2000);
 	}
 
 	//#endregion
@@ -87,6 +88,11 @@ class CancelPolicySuccess extends Component {
 				margin-bottom: 30px;
 				margin-top: 20px;
 			}
+
+			.notification {
+				width: 350px;
+				margin: auto;
+			}
 			
 			`
 		];
@@ -108,8 +114,9 @@ class CancelPolicySuccess extends Component {
 	 */
 	 _renderContent() {
 		return html`
-			
-			
+			<div class="notification">
+				${this._renderAlert()}
+			</div>
 
 			<capitec-card id="temp-container">
 				<div>
@@ -117,11 +124,30 @@ class CancelPolicySuccess extends Component {
 						style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
 					<label id="temp-container-label">The policy has been cancelled</label>
 					<capitec-label class="spacing" type="subtitle" label="You currently have 2 active policies"></capitec-label>
-					<capitec-button label="Isssue Policy" type="primary" @click="${() => this._onIssuePolicyClick()}"></capitec-button>
+					<capitec-button label="Issue Policy" type="primary" @click="${() => this._onIssuePolicyClick()}"></capitec-button>
 				</div>
 			</capitec-card>
 		`
 	}
+
+/**
+ * Renders the Email Sent alert
+ * @returns {html}
+ */
+_renderAlert(){
+	return this.showSuccessAlert == false ? html``
+	: html`
+		<capitec-toast
+			class="toast"
+			type="success"
+			Header="Funeral Plan Sent"
+			layout = "vertical"
+			detail = "Funeral plan was sent"
+			@click = "${() => this.showSuccessAlert = false}"
+			closable>
+		</capitec-toast>
+
+`}
 
 	//#endregion
 
