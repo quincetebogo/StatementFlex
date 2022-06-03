@@ -46,7 +46,6 @@
 	 * @param {string} [initials=""] Client's initials
 	 * @param {string} [identifiedBy=""] Identification method used to confirm client
 	 * @param {string} [emailId=""] Client's registered email ID
-	 * @param {Boolean} [isHelpDeskAgent=false] If the Agent is with Help desk role
 	 */
 	constructor(
 		cifNumber,
@@ -81,8 +80,7 @@
 		lastName = ``,
 		initials = ``,
 		identifiedBy = ``,
-		emailId = ``,
-		isHelpDeskAgent = false
+		emailId = ``
 	) {
 		this.cifNumber = cifNumber;
 		this.birthdate = birthdate;
@@ -117,7 +115,6 @@
 		this.initials = initials;
 		this.identifiedBy = identifiedBy;
 		this.emailId = emailId;
-		this.isHelpDeskAgent = isHelpDeskAgent;
 		Object.seal();
 	}
 }

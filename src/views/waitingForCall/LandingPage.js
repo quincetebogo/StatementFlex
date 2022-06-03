@@ -203,6 +203,10 @@ export class LandingPage extends ViewBase {
 	 * @memberof LandingPage
 	 */
 	_dispatchCall(acceptedCall, newCallInfo, forceSearchDialog) {
+		
+		const roles = this._securityContext.roles;
+		const isHelpDeskAgent = roles && Array.isArray(roles) && roles.includes(`clientcare`);
+
 		// Set up state for the incoming call
 		this.incomingCallDetails = new IncomingCallDetails(
 			newCallInfo.VDN,
@@ -211,14 +215,13 @@ export class LandingPage extends ViewBase {
 			false,
 			newCallInfo.voiceReferenceNumber,
 			newCallInfo.agentTelephoneNumber,
+			isHelpDeskAgent,
 			newCallInfo.ivrOptionCode
 		);
 
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 		
-		const roles = this._securityContext.roles;
-		this.isHelpDeskAgent = roles && Array.isArray(roles) && roles.includes(`clientcare-agent`);
 		
 		const state = {
 			callStatus: `CALL-IN-PROGRESS`,
@@ -299,8 +302,7 @@ export class LandingPage extends ViewBase {
 			``, // client's surname/last name
 			``, // client's initials
 			``, // Identification method used to confirm client
-			``, // client's registered email ID
-			false // If the agent is with HelpDesk role
+			`` // client's registered email ID
 		);
 		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);
 		this.horizonStore.setCallerInformation(callerInformation);
@@ -395,7 +397,6 @@ export class LandingPage extends ViewBase {
 					.confirmedCaller="${this.confirmedCaller}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.incidentDetails="${this.incidentDetails}"
-					?isHelpDeskAgent="${this.isHelpDeskAgent}"
 					@client-identified="${(data) => this._clientIdentified(data)}"
 					@branch-captured="${(event) => this._branchCaptured(event)}"
 					@non-client-captured=${event => this._nonClientCaptured(event)}>
@@ -417,7 +418,6 @@ export class LandingPage extends ViewBase {
 				<horizon-search-caller
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.incidentDetails="${this.incidentDetails}"
-					?isHelpDeskAgent="${this.isHelpDeskAgent}"
 					@client-identified="${(event) => this._clientIdentified(event)}"
 					@non-client-captured="${event => this._nonClientCaptured(event)}"
 					@branch-captured="${(event) => this._branchCaptured(event)}"

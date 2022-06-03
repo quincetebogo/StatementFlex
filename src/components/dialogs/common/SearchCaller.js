@@ -184,7 +184,6 @@ export class SearchCaller extends Component {
 		this.branchName = ``;
 		this.branchCode = ``;
 		this.clientInBranch = null;
-		this.isHelpDeskAgent = false;
 		this.isClientVerifiedInBranch = null;
 
 		this.logger = Logger.getInstance();
@@ -214,7 +213,6 @@ export class SearchCaller extends Component {
 		return {
 			incomingCallDetails: { type: Object },
 			incidentDetails: { type: Object },
-			isHelpDeskAgent: { type: Boolean },
 
 			isBusy: { attribute: false },
 			renderMode: { attribute: false },
@@ -354,7 +352,8 @@ export class SearchCaller extends Component {
 					"branch-name": this.branchName,
 					"search-method": this.searchType.value,
 					"search-value": this.searchValue,
-					"client-present": this.clientInBranch
+					"client-present": this.clientInBranch,
+					"client-verified": this.isClientVerifiedInBranch
 				});
 
 				const returnValue = await this.callHandleService.searchCaller(searchClient);
@@ -626,7 +625,8 @@ export class SearchCaller extends Component {
             middleName3: identifiedClient.callerInformation.middleName3,
             lastName: identifiedClient.callerInformation.lastName,
             initials: identifiedClient.callerInformation.initials,
-			identifiedBy: this.searchType.identificationType
+			identifiedBy: this.searchType.identificationType,
+			isClientVerifiedInBranch: this.isClientVerifiedInBranch
 		};
 
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
@@ -649,7 +649,7 @@ export class SearchCaller extends Component {
 			title: identifiedClient.callerInformation.title,
 			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber,
 			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber,
-			isBranchConsultant: !this.isHelpDeskAgent,
+			isBranchConsultant: true,
 			identifiedBy: this.searchType.identificationType,
 			firstName: identifiedClient.callerInformation.firstName,
 			middleName1: identifiedClient.callerInformation.middleName1,
@@ -657,7 +657,6 @@ export class SearchCaller extends Component {
 			middleName3: identifiedClient.callerInformation.middleName3,
 			lastName: identifiedClient.callerInformation.lastName,
 			isClientPresent: this.clientInBranch,
-			isHelpDeskAgent: this.isHelpDeskAgent,
 			isClientVerifiedInBranch: this.isClientVerifiedInBranch
 		};
 
@@ -668,7 +667,7 @@ export class SearchCaller extends Component {
 				incomingCallDetails: this.incomingCallDetails,
 				confirmedCaller: confirmedCaller,
 				incidentDetails: this.incidentDetails,
-				isBranchConsultant: !this.isHelpDeskAgent,
+				isBranchConsultant: true,
 				isClientPresent: this.clientInBranch
 			}
 		}));
@@ -712,7 +711,7 @@ export class SearchCaller extends Component {
             ``, // nonclient ID number
             ``, // nonclient relationship
             false, // isConfirmed
-            `unverified`, // verificationStatus
+			this.isClientVerifiedInBranch ? `verified` : `unverified`, // verificationStatus
             false, // verificationToastDisplayed
             false, // isThirdParty
             this.clientType === CLIENT_TYPE.NON_CLIENT, // isNonClient
@@ -724,7 +723,7 @@ export class SearchCaller extends Component {
             },
             this.clientType === CLIENT_TYPE.BRANCH, // isBranchConsultant
             this.clientInBranch, // isClientPresent
-            ``,
+            this.isClientVerifiedInBranch ? `ITA` : ``,
             ``, // firstName
             ``, // middleName1
             ``, // middleName2
@@ -732,8 +731,7 @@ export class SearchCaller extends Component {
             ``, // lastName
             ``, // initials
             ``, // identifiedBy
-			``, // client's registered email ID
-			false // If the agent is with HelpDesk role
+			`` // client's registered email ID
         );
     }
 	// ---------
@@ -1039,7 +1037,7 @@ export class SearchCaller extends Component {
 	}
 
 	_renderClientBranchInfo() {
-		return this.isHelpDeskAgent
+		return this.incomingCallDetails.isHelpDeskAgent
 		? html`
 			<capitec-radio
 				id="clientVerifiedInBranch"

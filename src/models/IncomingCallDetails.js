@@ -19,6 +19,7 @@ export class IncomingCallDetails {
 	 * @param {string} [isHandedOff] If true, the incident must be handed off (isAssigned  must be false)
 	 * @param {string} [voiceReferenceNumber=``] The reference number for the call recording
 	 * @param {string} [agentTelephoneNumber=``] The agent's extension
+	 * @param {Object} [isHelpDeskAgent=false] To check if an agent role is Helpdesk
 	 * @param {string} [ivrOptionCode=``] The IVR Option/Need
 	 * @param {Object} [ivrOption={possibleValues:[], value: ``}] The list of IVR Options/Needs and the currently selected Need
 	 */
@@ -37,6 +38,7 @@ export class IncomingCallDetails {
 		 * The agent's extension. Note this is not a full telephone number
 		 */
 		agentTelephoneNumber = ``, 
+		isHelpDeskAgent = false,
 
 		ivrOptionCode = ``, 
 		ivrOption = { 
@@ -60,6 +62,7 @@ export class IncomingCallDetails {
 		this.isHandedOff = isHandedOff;
 		this.voiceReferenceNumber = voiceReferenceNumber;
 		this.agentTelephoneNumber = agentTelephoneNumber;
+		this.isHelpDeskAgent = isHelpDeskAgent;
 
 		// The IVR Option selected in the telephony system
 		this.ivrOptionCode = ivrOptionCode;

@@ -81,7 +81,6 @@ export class ConfirmCallerDetails extends Component {
 		this.isBusy = false;
 		this.errorMessage = ``;
 		this.errorCount = 0;
-		this.isHelpDeskAgent = false;
 	}
 
 	// ----------
@@ -102,7 +101,6 @@ export class ConfirmCallerDetails extends Component {
 			confirmedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
 			incidentDetails: { type: Object },
-			isHelpDeskAgent: { type: Boolean },
 
 			isBusy: { attribute: false },
 			renderMode: { attribute: false },
@@ -159,31 +157,39 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	async _confirmClick() {
-            this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_CONFIRM_CLICK, {
-                "screen": TelemetryScreen.CONFIRM_CALLER,
-                "next-screen": this.incomingCallDetails.ivrOption.value === `StopCard` ? TelemetryScreen.STOP_CARD : TelemetryScreen.VERIFY_CALLER,
-                "confirmed-primary-need": null,
-                "confirmed-specific-need": this.incomingCallDetails.ivrOptionCode,
-                "confirmed-client-cif": this.callerInformation.cifNumber
-            });
+		this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_CONFIRM_CLICK, {
+			"screen": TelemetryScreen.CONFIRM_CALLER,
+			"next-screen": this.incomingCallDetails.ivrOption.value === `StopCard` ? TelemetryScreen.STOP_CARD : TelemetryScreen.VERIFY_CALLER,
+			"confirmed-primary-need": null,
+			"confirmed-specific-need": this.incomingCallDetails.ivrOptionCode,
+			"confirmed-client-cif": this.callerInformation.cifNumber
+		});
+		
+		await this._updateClientNonClientDetails();
 
-		if ((this.confirmedCaller.isClientPresent || !this.callerInformation.isBranchConsultant) && !this.callerInformation.isHelpDeskAgent) {
-			const stopCard = () => this._navigateToLandingPage();
-			const productEnquiry = () => this._navigateToLandingPage();
-			const transact = () => this._verifyCaller();
+		/* Navigate to Favourites landing by skipping verification flow 
+		 * Scenario 1: When branch consultant is calling in and client is not present at branch
+		 * Scenario 2: When branch consultant is calling in and an agent is with Helpdesk role
+		 */
 
-			const clientNeed = {
-				StopCard: stopCard,
-				ProductEnquiry: productEnquiry,
-				Transact: transact
-			};
-
-			await this._updateClientNonClientDetails();
-
-            clientNeed[this.incomingCallDetails.ivrOptionCode]();
-		} else {
+		if (this.callerInformation.isBranchConsultant && (this.incomingCallDetails.isHelpDeskAgent || !this.confirmedCaller.isClientPresent)) {
 			this._navigateToLandingPage();
+			return;
 		}
+		
+		// Navigation based on need selected
+		const stopCard = () => this._navigateToLandingPage();
+		const productEnquiry = () => this._navigateToLandingPage();
+		const transact = () => this._verifyCaller();
+
+		const clientNeed = {
+			StopCard: stopCard,
+			ProductEnquiry: productEnquiry,
+			Transact: transact
+		};
+
+		clientNeed[this.incomingCallDetails.ivrOptionCode]();
+
 	}
 
 	async _verifyCaller() {
@@ -214,7 +220,7 @@ export class ConfirmCallerDetails extends Component {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.confirmedCaller = event.detail.confirmedCaller;
 		this.incidentDetails = event.detail.incidentDetails;
-		this.callerInformation.isBranchConsultant = event.detail.isBranchConsultant;
+		this.callerInformation.isBranchConsultant = true;
 		this._initCallerInformation();
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 
@@ -335,7 +341,7 @@ export class ConfirmCallerDetails extends Component {
 			``, // nonclient ID number
 			``, // nonclient relationship
 			true, // isConfirmed
-			this.confirmedCaller.isHelpDeskAgent && this.confirmedCaller.isClientVerifiedInBranch ? `verified` : `unverified`, // verificationStatus
+			this.confirmedCaller.isClientVerifiedInBranch ? `verified` : `unverified`, // verificationStatus
 			false, // verificationToastDisplayed
 			false, // isThirdParty
 			false, // isNonClient
@@ -355,8 +361,7 @@ export class ConfirmCallerDetails extends Component {
 			this.confirmedCaller.lastName,
 			this.confirmedCaller.initials,
 			this.confirmedCaller.identifiedBy,
-			``, // client's registered email ID
-			this.confirmedCaller.isHelpDeskAgent // if the Agent is with Help desk role
+			`` // client's registered email ID
 		);
 	}
 
@@ -807,7 +812,6 @@ export class ConfirmCallerDetails extends Component {
 				data-automation-id="confirm-caller-details-search-caller-modal"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
-				?isHelpDeskAgent="${this.isHelpDeskAgent}"
 				@client-identified="${(data) => this._identifiedClient(data)}"
 				@non-client-captured="${data => this._nonClientCaptured(data)}"
 				@branch-captured="${(event) => this._branchCaptured(event)}"
