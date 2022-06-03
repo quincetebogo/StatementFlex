@@ -204,8 +204,10 @@ export class LandingPage extends ViewBase {
 	 */
 	_dispatchCall(acceptedCall, newCallInfo, forceSearchDialog) {
 		
+		// TO DO: roles to be checked for "Helpdesk agent" based on what token carries to UI.
+		// Needs to be updated once CS is ready to send helpdesk role in the token(`help-desk` is not the finalizes wording).
 		const roles = this._securityContext.roles;
-		const isHelpDeskAgent = roles && Array.isArray(roles) && roles.includes(`clientcare`);
+		const isHelpDeskAgent = roles && Array.isArray(roles) && roles.includes(`help-desk`);
 
 		// Set up state for the incoming call
 		this.incomingCallDetails = new IncomingCallDetails(
@@ -221,7 +223,6 @@ export class LandingPage extends ViewBase {
 
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
-		
 		
 		const state = {
 			callStatus: `CALL-IN-PROGRESS`,
