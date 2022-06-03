@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { formatDate } from 'app/utils/channelServiceUtilities';
+import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 /**
@@ -84,7 +84,7 @@ class PolicySummary extends Component {
 				box-shadow: none!important;
 			}
 			horizon-label {
-				width: 160px;
+				width: 140px;
 				padding-left: 16px;
 				--theme-layout-gap-spacing: 0px;
 				--horizon-label-text-height: 20px;
@@ -104,8 +104,13 @@ class PolicySummary extends Component {
 				--theme-container-padding-top: 16px;
 				--theme-layout-gap-spacing: 0px;
 			}
+			.fixed-label {
+				width: 175px;
+			}
 			.expander-header > horizon-label[label="Status"] {
 				--horizon-label-value-color: #70AF00;
+				width: 200px;
+				text-overflow: ellipsis;
 			}
 			.vertical-line {
 				height: 40px;
@@ -113,13 +118,13 @@ class PolicySummary extends Component {
 				background-color: #E1E1E1;
 			}
 			.no-results {
-				--theme-label-strong-font-size: 24px;
+				--theme-label-strong-font-size: 18px;
 				--theme-label-strong-font-weight: 600;
 				--theme-label-font-color: #3A3A3A;
 			}
 			.no-result-group {
 				width: 1032px;
-				margin-top: 50px;
+				margin-top: 20px;
 			}
 			`
 		];
@@ -180,6 +185,8 @@ class PolicySummary extends Component {
 			return accumulator + object.amount;
 		  }, 0);
 
+		const mainLifeDetails = this.policyDetails?.roleplayers?.filter(item => item.relationship === 'MainLife');
+
 		return html`
 		<capitec-title-bar
 			type="default"
@@ -199,7 +206,7 @@ class PolicySummary extends Component {
 				halign="left"
 				valign="center">
 					<horizon-label
-						class="label-account-number flexible-label"
+						class="fixed-label"
 						data-automation-id="insure-main-life-policy-number"
 						label="Policy number"
 						value="${this.policyDetails?.contractReference}">
@@ -208,17 +215,17 @@ class PolicySummary extends Component {
 					<horizon-label
 						data-automation-id="insure-main-life-effective-date"
 						label="Effective date"
-						value="${formatDate(this.policyDetails?.deductionDetails?.effectiveFromDate, `dd mmm yyyy`)}">
+						value="${isNullorEmpty(this.policyDetails?.deductionDetails?.effectiveFromDate) ? '-' : formatDate(this.policyDetails?.deductionDetails?.effectiveFromDate, `dd mmm yyyy`)}">
 					</horizon-label>
 					<horizon-label
 						data-automation-id="insure-main-life-cover-amount"
 						label="Cover amount"
-						value="${formatCurrency(this.policyDetails?.coverAmount)}">
+						value="${ isNullorEmpty(mainLifeDetails?.coverAmount) ? '-' : formatCurrency(mainLifeDetails?.coverAmount)}">
 					</horizon-label>
 					<horizon-label
 						data-automation-id="insure-main-life-total-premium"
 						label="Premium"
-						value="${formatCurrency(this.policyDetails?.totalPremium)}">
+						value="${ isNullorEmpty(this.policyDetails?.totalPremium) ? '-' :  formatCurrency(this.policyDetails?.totalPremium)}">
 					</horizon-label>
 					<horizon-label
 						data-automation-id="insure-main-life-arrears"
@@ -263,7 +270,7 @@ class PolicySummary extends Component {
 					halign="left"
 					valign="center">
 						<horizon-label
-							class="label-account-number flexible-label"
+							class="fixed-label"
 							data-automation-id="insure-beneficiaries-name"
 							label="Name & Surname"
 							value="${item.firstName + ` ` + item.surname}">
@@ -277,12 +284,12 @@ class PolicySummary extends Component {
 						<horizon-label
 							data-automation-id="insure-beneficiaries-dateofbirth"
 							label="Date of birth"
-							value="${formatDate(item.dateOfBirth, `dd mmm yyyy`)}">
+							value="${ formatDate(item.dateOfBirth, `dd mmm yyyy`) === '' ? '-' : formatDate(item.dateOfBirth, `dd mmm yyyy`)}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-beneficiaries-benefit-payout"
 							label="Benefit payout"
-							value="${formatCurrency(item.benefitPayout)}">
+							value="${ isNullorEmpty(item.benefitPayout) ? '-' : formatCurrency(item.benefitPayout)}">
 						</horizon-label>
 				</capitec-group>
 			</horizon-expander>
@@ -318,7 +325,7 @@ class PolicySummary extends Component {
 					halign="left"
 					valign="center">
 						<horizon-label
-							class="label-account-number flexible-label"
+							class="fixed-label"
 							data-automation-id="insure-lives-assured-name"
 							label="Name & Surname"
 							value="${item.firstName + ` ` + item.surname}">
@@ -332,7 +339,7 @@ class PolicySummary extends Component {
 						<horizon-label
 							data-automation-id="insure-lives-assured-dateofbirth"
 							label="Date of birth"
-							value="${formatDate(item.dateOfBirth, `dd mmm yyyy`)}">
+							value="${formatDate(item.dateOfBirth, `dd mmm yyyy`) === '' ? '-' : formatDate(item.dateOfBirth, `dd mmm yyyy`)}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-lives-assured-benefit-payout"

@@ -14,7 +14,7 @@ import 'app/components/insure/PayPremiumSuccess';
 import 'app/components/insure/PolicyTransactionHistory';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { getMonthName } from 'app/utils/channelServiceUtilities';
+import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 // ninety days in milliseconds
 const NINETY_DAYS = 7777000000;
@@ -43,7 +43,7 @@ export class ExistingClient extends InsureViewBase {
 	constructor() {
 		super();
 		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
-		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.estimate = {};
 		this.productParams = {};
 		this.policyTransactionHistory = [];
@@ -125,12 +125,15 @@ export class ExistingClient extends InsureViewBase {
 	async _retrieveClientPolicies(cifNumber, idNumber) {
 		let request = {
 			cifNumber: cifNumber,
-			idNumber: idNumber,
+			idNumber: idNumber
 		}
 		console.log("_retrieveClientPolicies");
 		const resp = await this.insureService.clientPolicies(request);
-		console.log(resp);
-		return resp.result;
+
+		if( isNullorEmpty(resp.result.ErrorCode))
+			return resp.result;
+		else
+			this.horizonRouter.navigateToSystemError();
 	}
 
 		/**
