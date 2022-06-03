@@ -81,7 +81,6 @@ class PayPremiumAgreementDialog extends Component {
 				.notification > capitec-toast{
 					--theme-toast-height: 80px;
 					position: relative;
-					top: var(--theme-toast-close-top, 10px);
 				}
 
 				.notification {
@@ -132,7 +131,7 @@ class PayPremiumAgreementDialog extends Component {
 			<div class="notification">
 				<capitec-toast type="info" header="Notify Client" 
 					detail="The full agreement, inclusive of the Policy Schedule, Section 484 summary. Disclosure, terms and conditions,
-					will be emailed to you and available in branch." data-automation-id="insure-pay-premium-agreement-dialog-footer" closable>
+					will be emailed to you and available in branch." data-automation-id="insure-pay-premium-agreement-dialog-notification" closable>
 				</capitec-toast>
 			</div>
 
