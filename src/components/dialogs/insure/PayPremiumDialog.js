@@ -27,6 +27,7 @@ constructor() {
 
 	this.checked = false;
 	this.amount = 0;
+	this.optionSelected = false;
 	// Lookups
 	this.clientAccounts = CLIENT_ACCOUNTS;
 }
@@ -45,10 +46,12 @@ constructor() {
 	 */
 	 static get properties() {
 		return {
-			clientArrears: { type: Object },
-			payArrears: {type: Object},
-			checked: {boolean: false},
-			amount: {integer: 0}
+			clientArrears: { type: Object, state: true },
+			payArrears: {type: Object, state: true},
+			checked: {type: Boolean, state: true},
+			amount: {type: Number, state: true},
+			optionSelected: {type: Boolean, state: true}
+
 		};
 	}
 
@@ -124,8 +127,6 @@ constructor() {
 
 		this._addSelected(outstanding, e);
 
-		console.log(e.detail.new);
-
 		if (this.payArrears.arrears.length > 0) {
 			this.checked = true
 		} else {
@@ -161,6 +162,14 @@ constructor() {
 		}
 		
 
+	}
+	/**
+	 * event that sets the value of optionSelected to the value recieved from the account select box
+	 * 
+	 * @param {*} e contains the boolean value recieved from the account select box
+	 */
+	_optionSelected(e) {
+		this.optionSelected = e.detail;
 	}
 	
 	
@@ -235,7 +244,9 @@ constructor() {
 			<capitec-label type="subtitle" label="Choose payment method">
 			</capitec-label>
 			
-			<insure-account-select .items= "${this.clientAccounts}" label="Select an Account"></insure-account-select>
+			<insure-account-select .items= "${this.clientAccounts}" label="Select an Account"
+				@option-selected="${(e) => this._optionSelected(e)}" data-automation-id="insure-pay-arrears-dialog-accounts">
+			</insure-account-select>
 
 			
 			<div style="display: flex; justify-content: space-between;">
@@ -267,7 +278,7 @@ constructor() {
 				</capitec-button>
 			
 				<capitec-button class="buttons" id="id-confirm-button" type="primary" label="Pay"
-					@click="${() => this._onPayClick()}" .disabled=${this.checked == false} data-automation-id="insure-pay-arrears-dialog-pay">
+					@click="${() => this._onPayClick()}" .disabled=${this.checked == false || this.optionSelected == false} data-automation-id="insure-pay-arrears-dialog-pay">
 				</capitec-button>
 			</capitec-group>`;
 		

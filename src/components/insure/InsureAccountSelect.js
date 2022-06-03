@@ -11,6 +11,7 @@ class InsureAccountSelect extends Component {
 		this.items = [];
 		this.displayOptions = false;
 		this.selectedIndex = null;
+		this.optionSelected = false
 	}
 
 	//#endregion
@@ -29,10 +30,11 @@ class InsureAccountSelect extends Component {
 	static get properties() {
 		return {
 
-			label: { type: String },
-			items: { type: Array },
-			displayOptions: { boolean: false },
-			selectedIndex: { integer: null }
+			label: { type: String, state: true },
+			items: { type: Array, state: true},
+			displayOptions: { type: Boolean, state: true },
+			selectedIndex: { type: Number, state: true },
+			optionSelected: {type: Boolean, state: true}
 		};
 	}
 
@@ -40,10 +42,21 @@ class InsureAccountSelect extends Component {
 
 	//#region PRIVATE METHODS
 
+	
 
 	//#endregion
 
 	//#region EVENT HANDLERS
+
+	/**
+	 * event that sets the value of optionSelected and sends it to pay premium dialog
+	 * 
+	 */
+	_optionSelected(){
+		this.optionSelected = true
+
+		this.dispatchEvent(new CustomEvent(`option-selected`, {detail: this.optionSelected}));
+	}
 
 	/**
 	 * Event that determins whether to display or hide the select options
@@ -59,22 +72,6 @@ class InsureAccountSelect extends Component {
 	}
 
 	/**
-	 * Event that determines which icon to display for the account
-	 * 
-	 * @param {*} account 
-	 * @returns 
-	 */
-	_displayIcon(account) {
-		
-		if (account == "Credit"){
-			return "product/credit";
-		} else if (account == "Savings"){
-			return "product/transact";
-		}
-
-	}
-
-	/**
 	 * Event that determines the index of the option that was selected from the options
 	 * 
 	 * @param {*} selected 
@@ -82,6 +79,9 @@ class InsureAccountSelect extends Component {
 	_indexChange(selected) {
 		this.selectedIndex = this.items.map(account => account.text).indexOf(selected);
 		this.displayOptions = false;
+		
+
+		this._optionSelected()
 	}
 
 	/**
@@ -234,10 +234,12 @@ _renderHeader() {
 		` 
 
 		: html `
+
+
 		<div class="select-header">
 		<capitec-content-box @click="${this._showAccountOptions}" layout="horizontal" valign="center" noScroll>
 			<div> 
-				<capitec-icon size="default" icon="${this._displayIcon(this.items[this.selectedIndex].code)}"></capitec-icon>
+				<capitec-icon size="default" icon="product/transact"></capitec-icon>
 			</div>
 
 			<div style="display: flex; flex-direction: column;">
@@ -275,7 +277,7 @@ _renderOptions() {
 			<div class="select-options">
 				<capitec-content-box @click="${() => this._indexChange(item.text)}" layout="horizontal" valign="center" noScroll>
 					<div> 
-						<capitec-icon size="default" icon="${this._displayIcon(item.code)}"></capitec-icon>
+						<capitec-icon size="default" icon="product/transact"></capitec-icon>
 					</div>
 					<div >
 						<capitec-label class="option-label" type="subtitle" label="${item.text}" ></capitec-label>
@@ -286,28 +288,6 @@ _renderOptions() {
 		`)
 		}
 	</div>
-
-
-		<!-- <div class="select-options">
-			
-			<capitec-content-box layout="horizontal" valign="center" noScroll>
-				<div> 
-					<capitec-icon size="default" icon="product/credit"></capitec-icon>
-				</div>
-
-				<div style="display: flex; flex-direction: column;">
-					<capitec-label class="option-label" type="subtitle" label="Credit Account" ></capitec-label>
-					<capitec-label class="option-label" type="subtitle" label="Available balance" ></capitec-label>
-				</div>
-
-				<div> 
-					<capitec-label type="subtitle" label="R24 000.50" style=" font-weight: bold;"></capitec-label>
-				</div>
-			</capitec-content-box>
-
-		</div> -->
-
-
 	`
 
 }
@@ -319,3 +299,13 @@ _renderOptions() {
 }
 
 window.customElements.define(`insure-account-select`, InsureAccountSelect);
+
+/**
+ * Send the the value of optionSelected to consuming component when an option is clicked
+ *
+ * @example
+ * <insure-account-select ... @option-selected="${this._handler}"></insure-account-select>
+ *
+ * @event InsureAccountSelect#option-selected
+ * @type {Object} - N/A
+ */
