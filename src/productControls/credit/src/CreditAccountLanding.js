@@ -79,8 +79,7 @@ export class CreditAccountLanding extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_click(selection, creditType, productType, selectedAccountDetails) 
-	{
+	_click(selection, creditType, productType, selectedAccountDetails) {
 		this.dispatchEvent(new CustomEvent(`option-click`, { 
 			detail: { option: selection, 
 						creditType: creditType, 

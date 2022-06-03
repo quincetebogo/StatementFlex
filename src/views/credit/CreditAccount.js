@@ -68,7 +68,7 @@ export class CreditAccount extends ViewBase {
 		this.ccsStatus = false;
 		this.settleAndCloseQuote = [];
 		this.settleAndCloseCreditOption = ``;
-		this.productSelected;
+		this.productSelected = ``;
 		this.settleAndCloseDocument = ``;
 		this.showSettleCloseModal = false;
 		this.settlementQuoteEvents = SETTLEMENT_QUOTE_EVENTS;
@@ -359,27 +359,28 @@ export class CreditAccount extends ViewBase {
 				cifNumber: this.callerInformation.cifNumber,
 				accountNumber: this.settleAndCloseQuote.accountNumber,
 				fromAccountNumber: this.settleAndCloseQuote.savingAccountsList[selectedAccountIndex].accountNumber,
-				fromAccountType: this.	_getSavingsAccType(this.settleAndCloseQuote.savingAccountsList[selectedAccountIndex].accountType),
+				fromAccountType: this._getSavingsAccType(this.settleAndCloseQuote.savingAccountsList[selectedAccountIndex].accountType),
 				authorisedAmount: this.settleAndCloseQuote.settlementAmount,
-				caseId:"",
-				emailAddress: "",
+				caseId: ``,
+				emailAddress: ``,
 				firstname: this.callerInformation.firstName,
 				surname: this.callerInformation.lastName,
 				idNumber: this.callerInformation.southAfricanIDNumber
-		}
-		let returnValue = await this.creditService.settleAndClose(settleAndClose);		
+		};
+
+		const returnValue = await this.creditService.settleAndClose(settleAndClose);
 		
-		if(returnValue.succeeded)
-		{
-			if(this.settleAndCloseCreditOption===`CreditCard`)
-			{
+		if (returnValue.succeeded) {
+			const screenDetails = this.horizonStore.getScreenDetails();
+
+			if (this.settleAndCloseCreditOption === `CreditCard`) {
 				screenDetails.settleAndCloseCreditType = `Flexible`;
 				this.settleAndCloseDocument = returnValue.result.closureDocument.data;
-			}else{
+			} else {
 				screenDetails.settleAndCloseCreditType = `Fixed`;
 				this.settleAndCloseDocument = returnValue.result.transferDocument.data;
 			}
-			const screenDetails = this.horizonStore.getScreenDetails();
+			
 			screenDetails.settleAndCloseDocumentData = result.closureDocument.data;
 			screenDetails.settleAndCloseCreditOption = this.settleAndCloseCreditOption;
 			screenDetails.settleAndCloseProductType = this.settleAndCloseQuote.accountNumber;
@@ -387,33 +388,27 @@ export class CreditAccount extends ViewBase {
 			this.horizonStore.setScreenDetails(screenDetails);
 			this.horizonRouter.navigateToSettleAndCloseSuccess();
 
-		} else
-		{
+		} else {
 			this.horizonRouter.navigateToSettleAndCloseFailure();
 		}
 	}
-	_getSECTransferDetails(item)
-	{
-		for (let i = 0; i < this.settleAndCloseQuote.savingAccountsList.length; i++)
-		{
-			let savAcc = this.settleAndCloseQuote.savingAccountsList[i]
-			if (savAcc.accountNumber == item)
-			{
-				return i ;
+
+	_getSECTransferDetails(item) {
+		for (let i = 0; i < this.settleAndCloseQuote.savingAccountsList.length; i++) {
+			const savAcc = this.settleAndCloseQuote.savingAccountsList[i];
+			if (savAcc.accountNumber === item) {
+				return i;
 			}
 		}
 		
 	}
-	_getSavingsAccType(code)
-	{
-		if (code == 300)
-		{
-			return `Primary`
-		} else 
-		{
-			return `Flexible`
+
+	_getSavingsAccType(code) {
+		if (code === 300) {
+			return `Primary`;
 		}
-			 
+
+		return `Flexible`; 
 	}
 
 	_errorHandler() {
@@ -665,8 +660,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_settleLoan() {
-		if (this.ccsStatus) 
-		{
+		if (this.ccsStatus) {
 			this.showCCSmodal = true;
 			return;
 		}
@@ -793,14 +787,12 @@ export class CreditAccount extends ViewBase {
 		this.clientProducts = await this._getClientProducts();
 		
 
-		if (this.settleAndCloseDetails.type ===`Credit card`)
-		{
+		if (this.settleAndCloseDetails.type === `Credit card`) {
 			this.settleAndCloseCreditOption = `CreditCard`;
-		}
-		else if (this.settleAndCloseDetails.type ===`Term Loan`)
-		{
+		} else if (this.settleAndCloseDetails.type === `Term Loan`) {
 			this.settleAndCloseCreditOption = `Loan`;
 		}
+
 		const settleAndCloseQuoteRequest = 
 		{
 			creditType: this.settleAndCloseCreditOption,
@@ -1114,7 +1106,7 @@ export class CreditAccount extends ViewBase {
 
         return this.renderMode === RENDER_MODE.VIEW_AND_SEND_SETTLE_LOAN_POP ? html`
 			<horizon-view-and-send-document
-				modalHeader="Settle Loan: Proof of Payment" 			
+				modalHeader="Settle Loan: Proof of Payment"
 				.loadDocumentContent="${this._loadSettleLoanPOPDocument}"
 				@send-pdf-click="${(e) => this._onSendSettleLoanPOP(e.documents, e.email)}"
 				@cancel-send-pdf-click="${() => this._onCancelSendSettleLoanPOP()}">
