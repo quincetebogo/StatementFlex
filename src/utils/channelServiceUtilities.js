@@ -217,6 +217,9 @@ export function formatDate(value, format) {
 	const year = dateTime.getFullYear();
 	let formattedDate = ``;
 
+	if(year === 0)
+		return formattedDate;
+
 	// cases would be extended, based on our need in future
 	switch (format) {
 		case `dd-mmm`:

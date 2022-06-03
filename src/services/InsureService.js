@@ -102,7 +102,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insureClientPolicies`);
 		}
 		return this.post(
-			`/FuneralInsuranceProductService/client/summary`,
+			`/FuneralInsuranceProductService/client/summary?WithClaims=true`,
 			clientPoliciesRequest,
 			this.setInsureTokens(),
 			`summary`,
@@ -128,7 +128,7 @@ export class InsureService extends ChannelServiceBase {
 		return this.mock(`insurePolicySummary`);
 	}
 	return this.post(
-		`/FuneralInsuranceProductService/policy/summary`,
+		`/FuneralInsuranceProductService/policy/summary?WithClaims=true`,
 		policyRequest,
 		this.setInsureTokens(),
 		`policysummary`,

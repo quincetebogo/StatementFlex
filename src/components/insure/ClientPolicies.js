@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { formatDate } from 'app/utils/channelServiceUtilities';
+import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
@@ -40,7 +40,7 @@ class ClientPolicies extends Component {
 		this.clientPolicies = null;
 	}
 
-	//#endregion
+	//#endregion INITIALISATION
 
 	//#region PROPERTIES
 
@@ -61,7 +61,7 @@ class ClientPolicies extends Component {
 		};
 	}
 
-	//#endregion
+	//#endregion PROPERTIES
 
 	//#region LIFECYCLE OVERRIDES
 
@@ -71,10 +71,9 @@ class ClientPolicies extends Component {
 	 */
 	 connectedCallback() {
 		super.connectedCallback();
-		this._initialise();
 	}
 
-	//#endregion
+	//#endregion LIFECYCLE OVERRIDES
 
 	//#region EVENT HANDLERS
 
@@ -145,7 +144,7 @@ class ClientPolicies extends Component {
 	}
 
 	
-	//#endregion
+	//#endregion EVENT HANDLERS
 
 	//#region PRIVATE FUNCTIONS
 
@@ -179,7 +178,19 @@ class ClientPolicies extends Component {
 		this.requestUpdate();
 	}	
 
-	//#endregion
+	/**
+	 * 
+	 * @param {Object} policyItem - Policy details 
+	 * Get Total cover amount of all role players
+	 */
+	_getTotalCoverAmount(policyItem)
+	{
+		return policyItem.roleplayers.reduce((accumulator, object) => {
+			return accumulator + object.coverAmount;
+		}, 0);
+	}	
+
+	//#endregion PRIVATE FUNCTIONS
 
 	//#region RENDERING
 
@@ -299,7 +310,8 @@ class ClientPolicies extends Component {
 			}
 			.expander-header > horizon-label[label="Status"] {
 				--horizon-label-value-color: #70AF00;
-				width: 150px;
+				width: 200px;
+				text-overflow: ellipsis;
 			}
 			horizon-label {
 				width: 135px;
@@ -319,7 +331,7 @@ class ClientPolicies extends Component {
 				--horizon-label-value-color: #009DE0;
 			}
 			.fixed-label {
-				width: 23%;
+				width: 22%;
 				--horizon-label-max-overflow-width: 170px;
 			}
 			.vertical-line {
@@ -330,7 +342,7 @@ class ClientPolicies extends Component {
 
 			/* No results available styles */
 			.no-results {
-				--theme-label-strong-font-size: 24px;
+				--theme-label-strong-font-size: 18px;
 				--theme-label-strong-font-weight: 600;
 				--theme-label-font-color: #3A3A3A;
 			}
@@ -395,13 +407,6 @@ class ClientPolicies extends Component {
 					</capitec-button>
 				</capitec-title-bar>
 				${this._renderPoliciesLandingContent()}
-		</capitec-card>
-		<capitec-card id="temp-container">
-			<div>
-				<capitec-image src="platform/illustrations/beneficiaries.svg"
-					style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
-				<label id="temp-container-label">Client Policies - Coming soon to a sprint near you!</label>
-			</div>
 		</capitec-card>
 		`
 	}
@@ -468,17 +473,17 @@ class ClientPolicies extends Component {
 						<horizon-label
 							data-automation-id="insure-policy-effective-date"
 							label="Effective Date"
-							value="${formatDate(policyItem.deductionDetails?.effectiveFromDate, `dd mmm yyyy`)}">
+							value="${ isNullorEmpty(policyItem.deductionDetails?.effectiveFromDate) ? '-' : formatDate(policyItem.deductionDetails?.effectiveFromDate, `dd mmm yyyy`)}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-policy-debit-order-date"
 							label="Debit Order Date"
-							value="${formatDate(policyItem.commencementDate, `dd mmm yyyy`)}">
+							value="${formatDate(policyItem.commencementDate, `dd mmm yyyy`) === '' ? '-' : formatDate(policyItem.commencementDate, `dd mmm yyyy`)}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-policy-cover-amount"
 							label="Cover Amount"
-							value="${formatCurrency(policyItem.coverAmount)}">
+							value="${formatCurrency(this._getTotalCoverAmount(policyItem))}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-policy-total-premium"
@@ -641,7 +646,7 @@ class ClientPolicies extends Component {
 
 	}
 
-	//#endregion
+	//#endregion RENDERING
 }
 
 window.customElements.define(`horizon-insure-client-policies`, ClientPolicies);
