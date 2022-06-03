@@ -2,6 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Logger } from 'platform/core';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerDetails } from 'app/models/CallerDetails';
+import { CallerInformation } from 'app/models/CallerInformation';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
@@ -330,15 +331,8 @@ export class SearchCaller extends Component {
 		}
 	}
 
-
 	async _searchBranch() {
-		this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
-			"screen": TelemetryScreen.SEARCH_CLIENT,
-			"next-screen": TelemetryScreen.CONFIRM_CALLER,
-			"id-method": this.searchType.value,
-			"id-data": this.searchValue
-		});
-
+		
 		if (this._validateBranchFields() && this._validateFields()) {
 			if (this.clientInBranch === null) {
 				this.errMessage.inBranch = `Please choose an option`;
@@ -348,6 +342,16 @@ export class SearchCaller extends Component {
 					identificationMethod: this.searchType.key,
 					searchValue: this.searchValue
 				};
+
+				this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
+					"screen": TelemetryScreen.SEARCH_CLIENT,
+					"next-screen": TelemetryScreen.CONFIRM_CALLER,
+					"consultant-cp-num": this.cpNumber,
+					"branch-name": this.branchName,
+					"search-method": this.searchType.value,
+					"search-value": this.searchValue,
+					"client-present": this.clientInBranch
+				});
 
 				const returnValue = await this.callHandleService.searchCaller(searchClient);
 				const identifiedClient = returnValue.result;
@@ -444,6 +448,8 @@ export class SearchCaller extends Component {
 			"screen": TelemetryScreen.SEARCH_CLIENT,
 			"next-screen": TelemetryScreen.END_CALL
 		});
+
+		this._initCallerInformation();
 
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
@@ -675,6 +681,46 @@ export class SearchCaller extends Component {
 		return null;
 	}
 
+	_initCallerInformation() {
+		// This is the callerInformation object that will be persisted to state when caller is confirmed.
+		this.callerInformation = new CallerInformation(
+			``, // cif
+			``, // birthdate
+			``, // languagePreference
+			``, // livesIn
+			``, // name
+			``, // title
+			``, // SA id
+			``, // verified number
+			this.nameValue, // nonclient firstname
+			this.surNameValue, // nonclient surname
+			`${this.nameValue} ${this.surNameValue}`, // nonclient fullname
+			this.cellPhoneNumberValue, // nonclient cellphone
+			``, // nonclient ID number
+			``, // nonclient relationship
+			false, // isConfirmed
+			`unverified`, // verificationStatus
+			false, // verificationToastDisplayed
+			false, // isThirdParty
+			this.clientType === CLIENT_TYPE.NON_CLIENT, // isNonClient
+			false, // hasInsuranceProducts
+			false, // hasDigitalChannels
+			{
+				itaAttempts: 0,
+				sqAttempts: 0
+			}, 
+			this.clientType === CLIENT_TYPE.BRANCH, // isBranchConsultant
+			this.clientInBranch, // isClientPresent
+			``,
+			``, // firstName
+			``, // middleName1
+			``, // middleName2
+			``, // middleName3
+			``, // lastName
+			``, // initials
+			`` // identifiedBy
+		);
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -795,7 +841,7 @@ export class SearchCaller extends Component {
 
 	_renderLoadingIndicator() {
 		return this.isBusy 
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			? html`<capitec-loading-indicator data-automation-id="search-caller-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
 
@@ -1053,6 +1099,7 @@ export class SearchCaller extends Component {
 			<horizon-end-call-session 
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
+				.callerInformation="${this.callerInformation}"
 				endCallContext="ConfirmClient"
 				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}">
 			</horizon-end-call-session>`;

@@ -949,6 +949,7 @@ export class InsureInformation extends Component {
 				<horizon-end-call-session 
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
+					.callerInformation="${this.callerInformation}"
 					endCallContext="LandingPage"
 					.isReassigned="${this.isReassigned}"
 					@cancel="${() => this._endCallCancelled()}">
