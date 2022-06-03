@@ -119,6 +119,31 @@ export class LiveBetter extends SavingsAccountBase {
 		// verificationStatus is on the this.callerInformation object
 		await this._initialise();
 
+		this._optionClick = async (option) => {
+
+			const accountDetails = () => this._accountDetails();
+			const transactionHistory = () => this._transactionHistory();
+			const statements = () => this._getStatements();
+			const automaticSavings = () => this._automaticSavings();
+			const productEnquiry = () => this._productEnquiry();
+			const partnerBenefits = () => this._partnerBenefits();
+	
+			const actions = {
+				'lbb-account-enquiry': accountDetails,
+				'transaction-history-lbb': transactionHistory,
+				'statements-lbb': statements,
+				'automatic-savings-lbb': automaticSavings,
+				'product-enquiry': productEnquiry,
+				'partner-benefits': partnerBenefits
+			};
+	
+			if (actions[option]) {
+				await super._inicidentManager_(option, () => this._toggleBusyFlag());
+				this._refreshIncidentDetails();
+				return actions[option]();
+			}
+		};
+
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -190,31 +215,6 @@ export class LiveBetter extends SavingsAccountBase {
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
-
-	async _optionClick(option) {
-
-		const accountDetails = () => this._accountDetails();
-		const transactionHistory = () => this._transactionHistory();
-		const statements = () => this._getStatements();
-		const automaticSavings = () => this._automaticSavings();
-		const productEnquiry = () => this._productEnquiry();
-		const partnerBenefits = () => this._partnerBenefits();
-
-		const actions = {
-			'lbb-account-enquiry': accountDetails,
-			'transaction-history-lbb': transactionHistory,
-			'statements-lbb': statements,
-			'automatic-savings-lbb': automaticSavings,
-			'product-enquiry': productEnquiry,
-			'partner-benefits': partnerBenefits
-		};
-
-		if (actions[option]) {
-			await super._inicidentManager_(option, () => this._toggleBusyFlag());
-			this._refreshIncidentDetails();
-			return actions[option]();
-		}
-	};
 
 	async _getMoreTransactions(request) {
 
