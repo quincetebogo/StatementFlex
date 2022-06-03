@@ -8,6 +8,8 @@ import 'app/components/common/HorizonExpander';
 
 //Dialogs
 import 'app/components/dialogs/insure/PayPremiumDialog';
+import 'app/components/dialogs/insure/PayPremiumConfirmationDialog';
+import 'app/components/dialogs/insure/PayPremiumAgreementDialog';
 
 /**
  * Client policies component showing all the policies a client currently has on their account
@@ -18,7 +20,7 @@ import 'app/components/dialogs/insure/PayPremiumDialog';
  * navigate-to-estimate
  * navigate-to-update-plan
  * navigate-to-policy-summary
- * pay-arrears
+ * navigate-to-pay-premium-success
  *  
  * product-enquiry
  * _expanded
@@ -36,6 +38,9 @@ class ClientPolicies extends Component {
 		super();
 		
 		this.showPayPremiumDialog = false;
+		this.showPayPremiumConfirmationDialog = false;
+		this.showPayPremiumAgreementDialog = false;
+		this.amountToPay = 0;
 
 		this.clientPolicies = null;
 	}
@@ -53,8 +58,12 @@ class ClientPolicies extends Component {
 	 */
 	static get properties() {
 		return {
-			clientArrears: { type: Object },
-			showPayPremiumDialog: { boolean: false },
+			clientArrears: { type: Object, state: true },
+			payArrears: {type: Object, state: true},
+			showPayPremiumDialog: { type: Boolean, state: true},
+			showPayPremiumConfirmationDialog: {type: Boolean, state: true},
+			showPayPremiumAgreementDialog: {type: Boolean, state: true},
+			amountToPay: {type: Number, state: true},
 
 			clientPolicies: { type: Object, state: true },
 			policyDetails: { type: Object, state: true }
@@ -71,7 +80,6 @@ class ClientPolicies extends Component {
 	 */
 	 connectedCallback() {
 		super.connectedCallback();
-		this._initialise();
 	}
 
 	//#endregion
@@ -121,16 +129,53 @@ class ClientPolicies extends Component {
 	/**
 	 * Fire navigate event to Pay Premium Success page
 	 */
-	 _payArrears(e) {
-		this.dispatchEvent(new CustomEvent(`pay-arrears`, {
-			detail: e.detail}));
+	_goToPayPremiumSuccess(){
+		this.dispatchEvent(new CustomEvent(`navigate-to-pay-premium-success`, {
+			detail: {
+			}
+		}));
 	}
 
 	/**
-	 * Open Pay Premium dialog returning select relationship
+	 * Close Pay Premium Dialog and Open the Pay Premium Confirmation Dialog.
+	 * 
+	 * @param {*} e contains the values pay arrears and amount to be paid
+	 */
+	 _payArrears(e) {
+			this.payArrears = e.detail.payArrears;
+			this.amountToPay = e.detail.amountToPay;
+
+			this.showPayPremiumDialog = false;
+			this.showPayPremiumConfirmationDialog = true;
+	}
+
+	/**
+	 * Open Pay Premium Agreement Dialog
+	 */
+	_openPayPremiumAgreementDialog(){
+		this.showPayPremiumConfirmationDialog = false;
+		this.showPayPremiumAgreementDialog = true;		
+	}
+
+	/**
+	 * Close Pay Premium Agreement Dialog
+	 */
+	_closePayPremiumAgreementDialog() {
+		this.showPayPremiumAgreementDialog = false;
+	}
+
+	/**
+	 * Close Pay Premium Confirmation Dialog
+	 */
+	_closePayPremiumConfirmationDialog(){
+		this.showPayPremiumConfirmationDialog = false;
+	}
+
+	/**
+	 * Open Pay Premium dialog 
 	 */
 	 _openPayPremiumDialog(policyItem) {
-		 this.clientArrears = {
+		this.clientArrears = {
 			contractReference: policyItem.contractReference,
 			arrears: policyItem.arrearDetails.arrears
 			}
@@ -138,7 +183,7 @@ class ClientPolicies extends Component {
 	}
 
 	/**
-	 * Close Pay Premium dialog returning select relationship
+	 * Close Pay Premium dialog 
 	 */
 	_closePayPremiumDialog() {
 		this.showPayPremiumDialog = false;
@@ -373,6 +418,8 @@ class ClientPolicies extends Component {
 	 _renderDialogs() {
 		return html`
 			${this._renderPayPremiumDialog()}
+			${this._renderPayPremiumConfirmationDialog()}
+			${this._renderPayPremiumAgreementDialog()}
 		`}
 
 	/**
@@ -390,18 +437,11 @@ class ClientPolicies extends Component {
 					<capitec-spacer></capitec-spacer>
 					<capitec-button type="white" label="Transaction History" @click="${() => this._goToPolicyTransactionHistory()}">
 					</capitec-button>
-					<capitec-button type="white"  label="Get Estimate" data-automation-id="insure-landing-get-estimate"
+					<capitec-button type="white" label="Get Estimate" data-automation-id="insure-landing-get-estimate"
 						@click="${() => this._goToEstimate()}">
 					</capitec-button>
 				</capitec-title-bar>
 				${this._renderPoliciesLandingContent()}
-		</capitec-card>
-		<capitec-card id="temp-container">
-			<div>
-				<capitec-image src="platform/illustrations/beneficiaries.svg"
-					style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
-				<label id="temp-container-label">Client Policies - Coming soon to a sprint near you!</label>
-			</div>
 		</capitec-card>
 		`
 	}
@@ -635,9 +675,36 @@ class ClientPolicies extends Component {
 	 _renderPayPremiumDialog() {
 		return this.showPayPremiumDialog == false ? `` :
 			html`
-			<pay-premium-dialog  @close-modal="${(e) => this._closePayPremiumDialog(e)}" .clientArrears = ${this.clientArrears}
+			<insure-pay-premium-dialog  @close-modal="${(e) => this._closePayPremiumDialog()}" .clientArrears = ${this.clientArrears}
 			@pay-arrears = "${(e) => this._payArrears(e)}" >	
-			</pay-premium-dialog>`
+			</insure-pay-premium-dialog>`
+
+	}
+
+	/**
+	 * Render Confirm Pay Premium Dialog 
+	 * @return {html} Html of the dialog
+	 */
+	 _renderPayPremiumConfirmationDialog() {
+		return this.showPayPremiumConfirmationDialog == false ? `` :
+			html`
+			<insure-pay-premium-confirmation-dialog @close-modal="${(e) => this._closePayPremiumConfirmationDialog()}" 
+			@confirm-payment="${(e) => this._openPayPremiumAgreementDialog()}"
+			.amountToPay = ${this.amountToPay}>	
+			</insure-pay-premium-confirmation-dialog>`
+
+	}
+
+	/**
+	 * Render Pay Premium Agreement Dialog 
+	 * @return {html} Html of the dialog
+	 */
+	 _renderPayPremiumAgreementDialog() {
+		return this.showPayPremiumAgreementDialog == false ? `` :
+			html`
+			<insure-pay-premium-agreement-dialog @close-modal="${(e) => this._closePayPremiumagreementDialog()}"
+			@agree="${(e) => this._goToPayPremiumSuccess()}">	
+			</insure-pay-premium-agreement-dialog>`
 
 	}
 
