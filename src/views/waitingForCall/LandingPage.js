@@ -285,7 +285,17 @@ export class LandingPage extends ViewBase {
 				itaAttempts: 0,
 				sqAttempts: 0
 			},
-			event.detail.isBranchConsultant
+			event.detail.isBranchConsultant,
+			false,
+			`unverified`,
+			``, // client's first name
+			``, // client's second name
+			``, // client's third name
+			``, // client's fourth name
+			``, // client's surname/last name
+			``, // client's initials
+			``, // Identification method used to confirm client
+			`` // client's registered email ID
 		);
 		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);
 		this.horizonStore.setCallerInformation(callerInformation);
@@ -380,6 +390,7 @@ export class LandingPage extends ViewBase {
 					.confirmedCaller="${this.confirmedCaller}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.incidentDetails="${this.incidentDetails}"
+					@client-identified="${(data) => this._clientIdentified(data)}"
 					@branch-captured="${(event) => this._branchCaptured(event)}"
 					@non-client-captured=${event => this._nonClientCaptured(event)}>
 				</horizon-confirm-caller-details>`;

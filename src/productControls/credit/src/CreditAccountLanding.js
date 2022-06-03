@@ -79,7 +79,8 @@ export class CreditAccountLanding extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_click(selection, creditType, productType, selectedAccountDetails) {
+	_click(selection, creditType, productType, selectedAccountDetails) 
+	{
 		this.dispatchEvent(new CustomEvent(`option-click`, { 
 			detail: { option: selection, 
 						creditType: creditType, 
@@ -592,7 +593,7 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-settle-close"
 					label="Settle & Close"
 					icon="system/close-circle-action"
-					?hidden="${true}"
+					?hidden="${false}"
 					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
 			</horizon-option-button>
 		`;
@@ -651,7 +652,7 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-settle-loan"
 					label="Settle Loan"
 					icon="system/close-circle-action"
-					?hidden="${true}"
+					?hidden="${false}"
 					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, selectedAccountDetails)}">
 			</horizon-option-button>
 		`;

@@ -629,7 +629,18 @@ export class VerifyCaller extends Component {
 					}
 				}));
 				break;
-	
+
+			case `system-failed`:
+				this.itaSystemError = true;
+				this.telemetry.logEvent(VerifyCallerEvents.ITA_SERVICE_FAILURE, {}, true);
+				break;
+
+			case `pin-blocked`:
+				this.itaAttempts = MAX_ITA_ATTEMPTS;
+				this._navigateToItaVerificationFailed();
+				this.logger.log(`info`, `ITA SignalR event indicated that its pin blocked, status=${status}`, `_signalRPostEventAction`);
+				break;
+		
 			default: 
 				this.logger.log(`info`, `ITA SignalR event indicated that verification was rejected, status=${status}`, `_signalRPostEventAction`);
 
@@ -865,6 +876,7 @@ export class VerifyCaller extends Component {
 			? html``
 			: html`
 				<horizon-caller-dialog
+					data-automation-id="verify-caller-dialog"					
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.incidentDetails="${this.incidentDetails}"
 					.isNeedSelectable=${false}
@@ -917,6 +929,7 @@ export class VerifyCaller extends Component {
 	_renderPushNotificationStatus() {
 		return html`
 			<horizon-push-notication-status
+				data-automation-id="verify-caller-ita-notif-status"					
 				timeLimit="${ITA_TIMEOUT_SECS}"
 				warningThreshold="${25}"
 				alertThreshold="${10}"
@@ -972,12 +985,14 @@ export class VerifyCaller extends Component {
 				<capitec-content-box id="relation-options-btn">
 					<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
 						<horizon-option-button 
+							data-automation-id="verify-caller-cancel-button"					
 							label="Cancel"
 							icon="system/close-action" 
 							iconSize="default"
 							@click="${() => this._cancelClick()}">
 						</horizon-option-button>
 						<horizon-option-button
+							data-automation-id="verify-caller-try-again-button"					
 							class="btnTryAgain"
 							label="Try Again" 
 							img-src="/images/insure/refresh.svg"
@@ -994,6 +1009,7 @@ export class VerifyCaller extends Component {
 			<capitec-content-box id="relation-options-btn">
 				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
 					<horizon-option-button 
+						data-automation-id="verify-caller-sq-button"					
 						label="Security Questions" 
 						icon="system/knowledge-action"
 						iconSize="default"
@@ -1001,12 +1017,14 @@ export class VerifyCaller extends Component {
 						@click="${() => this._securityQuestionsClick()}">
 					</horizon-option-button>
 					<horizon-option-button 
+						data-automation-id="verify-caller-skip-button"					
 						label="Skip Verification"
 						icon="system/arrow-right-action" 
 						iconSize="small"
 						@click="${() => this._skipClick()}">
 					</horizon-option-button>
 					<horizon-option-button
+						data-automation-id="verify-caller-tryagain-button"					
 						class="btnTryAgain"
 						label="Try Again"
 						img-src="/images/insure/refresh.svg"
@@ -1015,6 +1033,7 @@ export class VerifyCaller extends Component {
 						@click="${() => this._tryAgain()}">
 					</horizon-option-button>
 					<horizon-option-button
+						data-automation-id="verify-caller-ita-button"					
 						class="btnTryAgain"
 						label="Verify Via App/USSD"
 						icon="system/cellphone-action"
@@ -1031,12 +1050,11 @@ export class VerifyCaller extends Component {
 		return this.renderMode === RENDER_MODE.XDS_SQ
 			? html`
 				<horizon-security-question 
+					data-automation-id="verify-caller-sq-dialog"					
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.securityQuestions="${this.securityQuestions}"
-					.cifNumber="${this.callerInformation.cifNumber}"
-					.title="${this.callerInformation.title}"
-					.lastName="${this.callerInformation.lastName}"
+					.callerInformation="${this.callerInformation}"
 					?finalAttempt=${this.xdsAttempts === MAX_XDS_ATTEMPTS}
 					@cancel="${() => this._cancelledSecurityQuestions()}"
 					@skip="${() => this._skippedSecurityQuestions()}"
@@ -1060,8 +1078,10 @@ export class VerifyCaller extends Component {
 			? html``
 			: html`
 				<horizon-end-call-session 
+					data-automation-id="verify-caller-end-call-session"					
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.incidentDetails="${this.incidentDetails}"
+					.callerInformation="${this.callerInformation}"
 					endCallContext='VerifyClient${status}'
 					@cancel="${() => this._cancelEndCall()}"
 					@on-loading="${() => this.itaService.close()}">
@@ -1070,7 +1090,7 @@ export class VerifyCaller extends Component {
 
 	_renderLoadingIndicator() {
 		if (this.isBusy || this.isLoading) {
-			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+			return html`<capitec-loading-indicator data-automation-id="verify-caller-loading-indicator"></capitec-loading-indicator>`;
 		};
 
 		return html``;
@@ -1084,7 +1104,7 @@ export class VerifyCaller extends Component {
 				.incidentDetails="${this.incidentDetails}"
 				.questions="${this.kbaQuestions}"
 				.cifNumber="${this.callerInformation.cifNumber}"
-				.title="${this.callerInformation.title}"
+				client-title="${this.callerInformation.title}"
 				.lastName="${this.callerInformation.lastName}"
 				@cancel="${() => this._cancelledSecurityQuestions()}"
 				@skip="${() => this._skippedSecurityQuestions()}"

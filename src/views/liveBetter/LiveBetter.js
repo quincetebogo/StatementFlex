@@ -390,8 +390,6 @@ export class LiveBetter extends SavingsAccountBase {
 		screenDetails.LBSADetails = this.landingPageInfo;
 		this.horizonStore.setScreenDetails(screenDetails);
 
-		this.horizonStore.setCallerInformation(this.callerInformation);
-
 		this.horizonStore.setProductButtonState(this.landingPageInfo);
 	}
 

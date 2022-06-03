@@ -712,7 +712,7 @@ export class TransactionHistory extends Component {
 
 	_renderLoadingIndicator() {
 		return this.isBusy
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			? html`<capitec-loading-indicator data-automation-id="transaction-history-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
 
