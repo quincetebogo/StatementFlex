@@ -204,11 +204,6 @@ export class LandingPage extends ViewBase {
 	 */
 	_dispatchCall(acceptedCall, newCallInfo, forceSearchDialog) {
 		
-		// TO DO: roles to be checked for "Helpdesk agent" based on what token carries to UI.
-		// Needs to be updated once CS is ready to send helpdesk role in the token(`help-desk` is not the finalizes wording).
-		const roles = this._securityContext.roles;
-		const isHelpDeskAgent = roles && Array.isArray(roles) && roles.includes(`help-desk`);
-
 		// Set up state for the incoming call
 		this.incomingCallDetails = new IncomingCallDetails(
 			newCallInfo.VDN,
@@ -217,7 +212,6 @@ export class LandingPage extends ViewBase {
 			false,
 			newCallInfo.voiceReferenceNumber,
 			newCallInfo.agentTelephoneNumber,
-			isHelpDeskAgent,
 			newCallInfo.ivrOptionCode
 		);
 
