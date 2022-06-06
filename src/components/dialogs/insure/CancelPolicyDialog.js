@@ -114,10 +114,10 @@ class CancelPolicyDialog extends Component {
 	 _webTemplate() {
 		return html`
 			<capitec-modal type="form" header="Cancel Funeral Cover Plan (CF00027650)">
-				<div slot="body">
+				<div slot="body" data-automation-id="insure-cancel-policy-dialog-body">
 					${this._renderDialogBody()}
 				</div>
-				<div slot="footer">
+				<div slot="footer" data-automation-id="insure-cancel-policy-dialog-footer">
 					${this._renderDialogFooter()}
 				</div>
 			</capitec-modal>
@@ -133,11 +133,11 @@ class CancelPolicyDialog extends Component {
 			<div class="notification">
 				<capitec-toast type="info" header="Notify Client" 
 					detail="The full agreement, inclusive of the Policy Schedule, Section 484 summary. Disclosure, terms and conditions,
-					will be emailed to you and available in branch." closable>
+					will be emailed to you and available in branch." data-automation-id="insure-cancel-policy-dialog-notification" closable>
 				</capitec-toast>
 			</div>
 
-			<div class="select">
+			<div class="select" data-automation-id="insure-cancel-policy-dialog-cancelation-reason">
 				<capitec-select 
 					label="Cancelation Reason" 
 					.items= "${this.cancelationReasons}"
@@ -148,13 +148,13 @@ class CancelPolicyDialog extends Component {
 
 			<capitec-expander-group modeset="single">
 				<div class="expander">
-					<capitec-expander expandbuttonalignment="left" label="View Policy Schedule">
+					<capitec-expander expandbuttonalignment="left" label="View Policy Schedule" data-automation-id="insure-cancel-policy-dialog-view-policy-schedule">
 						<capitec-label label=""></capitec-label>
 					</capitec-expander>
 				</div>
 
 				<div>
-					<capitec-expander expandbuttonalignment="left" label="View Mandate">
+					<capitec-expander expandbuttonalignment="left" label="View Mandate" data-automation-id="insure-cancel-policy-dialog-view-mandate">
 						<capitec-check label="Please confirm that you agree to these terms and conditions and that you are bound by them?"></capitec-check>
 					</capitec-expander>
 				</div>
@@ -170,13 +170,17 @@ class CancelPolicyDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 				<capitec-button class="button" slot="footer" type="secondary" label="Cancel"
-					@click="${() => this._onCancelClick()}">
+					@click="${() => this._onCancelClick()}"
+					data-automation-id="insure-cancel-policy-dialog-cancel">
 				</capitec-button>
 				<capitec-button class="button" slot="footer" type="secondary" label="Email"
-					@click="${() => this._onEmailClick()}">
+					@click="${() => this._onEmailClick()}"
+					data-automation-id="insure-cancel-policy-dialog-email">
 				</capitec-button>
 				<capitec-button class="button" slot="footer" type="primary" label="Agree"
-					@click="${() => this._onAgreeClick()}"></capitec-button>
+					@click="${() => this._onAgreeClick()}"
+					data-automation-id="insure-cancel-policy-dialog-agree">
+				</capitec-button>
 		`}
 
 	//#endregion

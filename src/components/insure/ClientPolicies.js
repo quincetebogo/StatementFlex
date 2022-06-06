@@ -216,9 +216,9 @@ _renderCancelPolicyDialog(){
 _renderEmailPlanDialog(){
 		return this.showEmailPlanDialog == false ? `` 
 		: html`
-		<email-plan-dialog @close-modal="${(e) => this.showEmailPlanDialog = false}"
+		<insure-email-plan-dialog @close-modal="${(e) => this.showEmailPlanDialog = false}"
 			@send-email="${(e) => this._goToEmailSuccess()}">
-		</email-plan-dialog>
+		</insure-email-plan-dialog>
 		`
 	}
 	//#endregion

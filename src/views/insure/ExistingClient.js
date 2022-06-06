@@ -315,8 +315,8 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderCancelPolicySuccessPage() {
 		return html`
-		<horizon-insure-cancel-policy-success @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
-		</horizon-insure-cancel-policy-success>
+		<insure-cancel-policy-success @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+		</insure-cancel-policy-success>
 		`
 	}
 
@@ -327,8 +327,8 @@ export class ExistingClient extends InsureViewBase {
 	 _renderEmailSuccessPage() {
 		return html`
 		
-			<horizon-insure-email-plan-success @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
-			</horizon-insure-email-plan-success>
+			<insure-email-plan-success @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+			</insure-email-plan-success>
 
 		`
 	}

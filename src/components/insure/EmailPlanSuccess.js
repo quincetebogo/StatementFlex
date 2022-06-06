@@ -142,7 +142,7 @@ class EmailPlanSuccess extends Component {
 	 */
 	 _renderContent() {
 		return html`
-			<div class="notification">
+			<div class="notification" data-automation-id="insure-email-plan-success-alert">
 				${this._renderAlert()}
 			</div>
 
@@ -154,7 +154,9 @@ class EmailPlanSuccess extends Component {
 						<capitec-icon class="icon" size="medium" icon="status/success"></capitec-icon>
 						<capitec-label class="spacing" type="subtitle" label="Your funeral plan document for policy number 'CF00027650' has been emailed to something@gmail.com"></capitec-label>
 					<capitec-button class="buttons" label="View Plan" type="secondary"></capitec-button>
-					<capitec-button class="buttons" label="Done" type="primary" @click="${() => this._onDoneClick()}"></capitec-button>
+					<capitec-button class="buttons" label="Done" type="primary" @click="${() => this._onDoneClick()}"
+						data-automation-id="insure-email-plan-success-done">
+					</capitec-button>
 				</div>
 			</capitec-card>
 		`
@@ -184,13 +186,13 @@ _renderAlert(){
 
 
 }
-window.customElements.define(`horizon-insure-email-plan-success`, EmailPlanSuccess);
+window.customElements.define(`insure-email-plan-success`, EmailPlanSuccess);
 
 /**
  * Navigate back to client policies when 'Done' is clicked
  *
  * @example
- * <horizon-insure-email-plan-success ... @navigate-back="${this._handler}"></horizon-insure-email-plan-success>
+ * <insure-email-plan-success ... @navigate-back="${this._handler}"></insure-email-plan-success>
  *
  * @event EmailPlanSuccess#navigate-back
  * @type {Object} - N/A

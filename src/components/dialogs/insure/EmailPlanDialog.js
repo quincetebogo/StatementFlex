@@ -92,10 +92,10 @@ class EmailPlanDialog extends Component {
 	 _webTemplate() {
 		return html`
 			<capitec-modal type="form" header="Email Funeral Plan (CF00027650)">
-				<div slot="body">
+				<div slot="body" data-automation-id="insure-email-plan-dialog-body">
 					${this._renderDialogBody()}
 				</div>
-				<div slot="footer">
+				<div slot="footer" data-automation-id="insure-email-plan-dialog-footer">
 					${this._renderDialogFooter()}
 				</div>
 			</capitec-modal>
@@ -114,7 +114,9 @@ class EmailPlanDialog extends Component {
 			</div>
 
 			<div class="textField">
-				<capitec-text-field label="Email Address" value="Something@gmail.com" type="alpha-numeric"></capitec-text-field>
+				<capitec-text-field label="Email Address" value="Something@gmail.com" type="alpha-numeric"
+					data-automation-id="insure-email-plan-dialog-email-address">
+				</capitec-text-field>
 			</div>
 
 			<div class="label">
@@ -122,7 +124,9 @@ class EmailPlanDialog extends Component {
 			</div>
 
 			<div class="textField">
-				<capitec-text-field value="Confirm Email address" type="alpha-numeric"></capitec-text-field>
+				<capitec-text-field value="Confirm Email address" type="alpha-numeric"
+					data-automation-id="insure-email-plan-dialog-confirm-email">
+				</capitec-text-field>
 			</div>
 
 		`}
@@ -135,10 +139,12 @@ class EmailPlanDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 				<capitec-button class="button" slot="footer" type="secondary" label="Cancel"
-					@click="${() => this._onCancelClick()}">
+					@click="${() => this._onCancelClick()}"
+					data-automation-id="insure-email-plan-dialog-cancel">
 				</capitec-button>
 				<capitec-button class="button" slot="footer" type="primary" label="Send" 
-					@click="${() => this._onSendClick()}">
+					@click="${() => this._onSendClick()}"
+					data-automation-id="insure-email-plan-dialog-send">
 				</capitec-button>
 		`}
 
@@ -147,13 +153,13 @@ class EmailPlanDialog extends Component {
 
 }
 
-window.customElements.define(`email-plan-dialog`, EmailPlanDialog);
+window.customElements.define(`insure-email-plan-dialog`, EmailPlanDialog);
 
 /**
  * Send send email dialog event to consuming componant when cancel is clicked and navigate to email success page
  *
  * @example
- * <email-plan-dialog ... @send-email="${this._handler}"></email-plan-dialog>
+ * <insure-email-plan-dialog ... @send-email="${this._handler}"></insure-email-plan-dialog>
  *
  * @event EmailPlanDialog#send-email
  * @type {Object} - N/A
@@ -163,7 +169,7 @@ window.customElements.define(`email-plan-dialog`, EmailPlanDialog);
  * Send close dialog event to consuming component when 'Cancel' is clicked
  *
  * @example
- * <email-plan-dialog ... @close-modal="${this._handler}"></email-plan-dialog>
+ * <insure-email-plan-dialog ... @close-modal="${this._handler}"></insure-email-plan-dialog>
  *
  * @event EmailPlanDialog#close-modal
  * @type {Object} - N/A
