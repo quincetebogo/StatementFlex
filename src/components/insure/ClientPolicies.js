@@ -110,9 +110,9 @@ class ClientPolicies extends Component {
 	/**
 	 * Fire navigate event to Policy Transaction History
 	 */
-	_goToPolicyTransactionHistory() {
+	_goToPolicyTransactionHistory(contractReference) {
 		this.dispatchEvent(new CustomEvent(`navigate-to-policy-transaction-history`, {
-			detail: {
+			detail: { policyNumber: contractReference
 			}
 		}));
 	}
@@ -286,6 +286,7 @@ class ClientPolicies extends Component {
 				--theme-expander-header-height: 64px;
 				--theme-expander-header-padding: 0 6px 0 0;
 				--theme-expander-indicator-width: 16px;
+				overflow: inherit !important;
 			}
 			horizon-expander[expanded] {
 				box-shadow: 0 6px 10px 0.25px rgb(0 0 0 / 7%);
@@ -362,6 +363,9 @@ class ClientPolicies extends Component {
 			}
 			.policy-item {
 				padding-left: 30px;
+			}
+			.overflow-menu{
+				width: max-content;
 			}
 			`
 		];
@@ -570,12 +574,11 @@ class ClientPolicies extends Component {
 		return html`
 		<capitec-card class="action-card">
 			<capitec-overflow-menu label="More" data-automation-id = "insure-policy-more-sub-menu">
-				<div class="test">
+				<capitec-overflow-menu-item icon="system/transfer-action" label="Transaction history" @click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
 				<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan"></capitec-overflow-menu-item>
 				${policyItem.arrearDetails.outstandingAmount > 0 ?
 					html `<capitec-overflow-menu-item icon="system/sars-action" label="Benefits"></capitec-overflow-menu-item>`
 					: ``}
-					</div>
 			</capitec-overflow-menu>
 			<capitec-label label="More" class="label-text">
 			</capitec-label>

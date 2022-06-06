@@ -204,9 +204,9 @@ export class ExistingClient extends InsureViewBase {
 	/**
 	 * Prepare and navigate to Transaction history
 	 */
-	async _goToPolicyTransactionHistory() {
+	async _goToPolicyTransactionHistory(e) {
 		// Telemetry Here
-		await this._getPolicyTransactionHistory();
+		await this._getPolicyTransactionHistory(e.detail.policyNumber);
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY);
 	}
 	
@@ -355,7 +355,7 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan()}"
 				@pay-arrears ="${(e) => this._payArrears()}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
-				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory()}">
+				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}">
 			</horizon-insure-client-policies>`
 	}
 
