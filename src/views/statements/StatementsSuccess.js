@@ -69,24 +69,6 @@ export class StatementsSuccess extends ViewBase {
 		});
 		await this._telemetry.endSpan(this.telemetryEvent.STATEMENTS_SUCCESS);
 
-		const returnToScreen = this.horizonStore.getReturnToScreen();
-
-		let optionalData = `statements`;
-
-		switch (this.accType) {
-			case `Savings account`:
-				optionalData = `statements-transact`;
-				break;
-			case `Live better savings account`:
-				optionalData = `statements-lbb`;
-				break;
-			default:
-				optionalData = `statements`;
-				break;
-		}
-
-		this.horizonStore.setReturnScreen(returnToScreen.route, optionalData); // this.navigationContext.current.route
-		
 		this.horizonRouter.navigateToReturnPage();
 	}
 

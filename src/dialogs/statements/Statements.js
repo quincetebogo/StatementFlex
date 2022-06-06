@@ -386,7 +386,21 @@ export class Statements extends Component {
 		const returnValue = await this.quickTransactionService.sendStatement(statement);
 		this._updateScreenDetails(request);
 
-		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `statements`);
+		let optionalData = `statements`;
+
+		switch (request.accountType) {
+			case `Savings account`:
+				optionalData = `statements-transact`;
+				break;
+			case `Live better savings account`:
+				optionalData = `statements-lbb`;
+				break;
+			default:
+				optionalData = `statements`;
+				break;
+		}
+
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, optionalData);
 		
 		if (returnValue.succeeded) {
 			this.horizonRouter.navigateToStatementSuccessful();
