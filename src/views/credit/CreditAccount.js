@@ -364,7 +364,8 @@ export class CreditAccount extends ViewBase {
 				caseId:"",
 				emailAddress: "",
 				firstname: this.callerInformation.firstName,
-				surname: this.callerInformation.lastName
+				surname: this.callerInformation.lastName,
+				idNumber: this.callerInformation.southAfricanIDNumber
 		}
 		let returnValue = await this.creditService.settleAndClose(settleAndClose);		
 		
