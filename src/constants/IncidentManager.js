@@ -49,5 +49,8 @@ export const CAUSE_CODE_BY_REASON = {
 	'Abandoned Verification': `ClientFailedSecurityCheck`,
 	'Client failed verification': `ClientFailedSecurityCheck`,
 	'Follow up required': `FollowUpCall`,
-	'Need incomplete - Transaction Failed': `TransactionFailed`
+	'Need incomplete - Transaction Failed': `TransactionFailed`,
+	'Call transferred': {
+		'Fraud Engagement Transfer': `FraudTransfer`
+	}
 };
