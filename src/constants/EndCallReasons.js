@@ -1,3 +1,8 @@
+const callTransferedResoltuion = (issueType) => {
+	const returnValue = issueType === `Fraud Engagement Transfer` ? `Fraud Transfer` : ``;
+	return returnValue;
+};
+
 /**
  * The end call reasons for end call dialog.
  * 
@@ -20,6 +25,7 @@
  const PRODUCT_ENQUIRY = 9;
  const ABANDONED_VERIFICATION = 10;
 
+ let CALLTRANSFERED = {};
  let UNCOMMON_REASONS = {};
  let PRODUCT_ENQUIRY_REASONS = {};
  let UNSUCCESSFUL_REASONS = {};
@@ -43,10 +49,11 @@ export const END_CALL_REASON = Object.freeze({
 			value: `Language transfer`,
 			mapping: `language-transfer`
 		},
-		{
+		CALLTRANSFERED = {
 			key: CALL_TRANSFERED,
 			value: `Call transferred`,
-			mapping: `call-transfer`
+			mapping: `call-transfer`,
+			getResolution: callTransferedResoltuion
 		},
 		{
 			key: NEED_FULFILLED,
@@ -70,11 +77,7 @@ export const END_CALL_REASON = Object.freeze({
 			value: `Language transfer`,
 			mapping: `language-transfer`
 		},
-		{
-			key: CALL_TRANSFERED,
-			value: `Call transferred`,
-			mapping: `call-transfer`
-		},
+		CALLTRANSFERED,
 		{
 			key: NEED_INCOMPLETE,
 			value: `Need incomplete - bad connection`,
@@ -87,11 +90,7 @@ export const END_CALL_REASON = Object.freeze({
 			value: `Client failed verification`,
 			mapping: `failed-verification`
 		},
-		{
-			key: CALL_TRANSFERED,
-			value: `Call transferred`,
-			mapping: `call-transfer`
-		},
+		CALLTRANSFERED,
 		{
 			key: NEED_INCOMPLETE,
 			value: `Need incomplete - bad connection`,
@@ -114,11 +113,7 @@ export const END_CALL_REASON = Object.freeze({
 			value: `Language transfer`,
 			mapping: `language-transfer`
 		},
-		{
-			key: CALL_TRANSFERED,
-			value: `Call transferred`,
-			mapping: `call-transfer`
-		},
+		CALLTRANSFERED,
 		{
 			key: NEED_FULFILLED,
 			value: `Need fulfilled`,
@@ -152,11 +147,7 @@ export const END_CALL_REASON = Object.freeze({
 				value: `Language transfer`,
 				mapping: `language-transfer`
 			},
-			{
-				key: CALL_TRANSFERED,
-				value: `Call transferred`,
-				mapping: `call-transfer`
-			},
+			CALLTRANSFERED,
 			{
 				key: NEED_INCOMPLETE,
 				value: `Need incomplete - bad connection`,
@@ -184,11 +175,7 @@ export const END_CALL_REASON = Object.freeze({
 				value: `Language transfer`,
 				mapping: `language-transfer`
 			},
-			{
-				key: CALL_TRANSFERED,
-				value: `Call transferred`,
-				mapping: `call-transfer`
-			},
+			CALLTRANSFERED,
 			{
 				key: NEED_INCOMPLETE,
 				value: `Need incomplete - bad connection`,
@@ -216,11 +203,7 @@ export const END_CALL_REASON = Object.freeze({
 				value: `Language transfer`,
 				mapping: `language-transfer`
 			},
-			{
-				key: CALL_TRANSFERED,
-				value: `Call transferred`,
-				mapping: `call-transfer`
-			},
+			CALLTRANSFERED,
 			{
 				key: NEED_INCOMPLETE,
 				value: `Need incomplete - bad connection`,
@@ -253,11 +236,7 @@ export const END_CALL_REASON = Object.freeze({
 				value: `Language transfer`,
 				mapping: `language-transfer`
 			},
-			{
-				key: CALL_TRANSFERED,
-				value: `Call transferred`,
-				mapping: `call-transfer`
-			},
+			CALLTRANSFERED,
 			{
 				key: NEED_INCOMPLETE,
 				value: `Need incomplete - bad connection`,
@@ -281,11 +260,7 @@ export const END_CALL_REASON = Object.freeze({
 			value: `Need handed off`,
 			mapping: `transaction-history`
 		},
-		{
-			key: CALL_TRANSFERED,
-			value: `Call transferred`,
-			mapping: `call-transfer`
-		},
+		CALLTRANSFERED,
 		{
 			key: NEED_INCOMPLETE,
 			value: `Need incomplete - bad connection`,
@@ -313,11 +288,7 @@ export const END_CALL_REASON = Object.freeze({
 			value: `Need handed off`,
 			mapping: `general-product-enquiry`
 		},
-		{
-			key: CALL_TRANSFERED,
-			value: `Call transferred`,
-			mapping: `call-transfer`
-		},
+		CALLTRANSFERED,
 		{
 			key: NEED_INCOMPLETE,
 			value: `Need incomplete - bad connection`,
@@ -345,11 +316,7 @@ export const END_CALL_REASON = Object.freeze({
 			value: `Need handed off`,
 			mapping: `general-product-enquiry`
 		},
-		{
-			key: CALL_TRANSFERED,
-			value: `Call transferred`,
-			mapping: `call-transfer`
-		},
+		CALLTRANSFERED,
 		{
 			key: FOLLOW_UP,
 			value: `Follow up required`,
@@ -372,11 +339,7 @@ export const END_CALL_REASON = Object.freeze({
 			value: `Need handed off`,
 			mapping: `general-product-enquiry`
 		},
-		{
-			key: CALL_TRANSFERED,
-			value: `Call transferred`,
-			mapping: `call-transfer`
-		},
+		CALLTRANSFERED,
 		{
 			key: FOLLOW_UP,
 			value: `Follow up required`,
