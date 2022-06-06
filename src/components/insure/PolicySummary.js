@@ -215,17 +215,17 @@ class PolicySummary extends Component {
 					<horizon-label
 						data-automation-id="insure-main-life-effective-date"
 						label="Effective date"
-						value="${isNullorEmpty(this.policyDetails?.deductionDetails?.effectiveFromDate) ? '-' : formatDate(this.policyDetails?.deductionDetails?.effectiveFromDate, `dd mmm yyyy`)}">
+						value="${formatDate(this.policyDetails?.commencementDate, `dd mmm yyyy`) === '' ? '-' : formatDate(this.policyDetails?.commencementDate, `dd mmm yyyy`)}">
 					</horizon-label>
 					<horizon-label
 						data-automation-id="insure-main-life-cover-amount"
 						label="Cover amount"
-						value="${ isNullorEmpty(mainLifeDetails?.coverAmount) ? '-' : formatCurrency(mainLifeDetails?.coverAmount)}">
+						value="${ isNullorEmpty(mainLifeDetails?.coverAmount) ? formatCurrency(0) : formatCurrency(mainLifeDetails?.coverAmount)}">
 					</horizon-label>
 					<horizon-label
 						data-automation-id="insure-main-life-total-premium"
 						label="Premium"
-						value="${ isNullorEmpty(this.policyDetails?.totalPremium) ? '-' :  formatCurrency(this.policyDetails?.totalPremium)}">
+						value="${ isNullorEmpty(this.policyDetails?.totalPremium) ? formatCurrency(0) :  formatCurrency(this.policyDetails?.totalPremium)}">
 					</horizon-label>
 					<horizon-label
 						data-automation-id="insure-main-life-arrears"
@@ -289,7 +289,7 @@ class PolicySummary extends Component {
 						<horizon-label
 							data-automation-id="insure-beneficiaries-benefit-payout"
 							label="Benefit payout"
-							value="${ isNullorEmpty(item.benefitPayout) ? '-' : formatCurrency(item.benefitPayout)}">
+							value="${ isNullorEmpty(item.benefitPayout) ? formatCurrency(0) : formatCurrency(item.benefitPayout)}">
 						</horizon-label>
 				</capitec-group>
 			</horizon-expander>

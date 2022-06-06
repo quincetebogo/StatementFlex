@@ -130,10 +130,10 @@ export class ExistingClient extends InsureViewBase {
 		console.log("_retrieveClientPolicies");
 		const resp = await this.insureService.clientPolicies(request);
 
-		if( isNullorEmpty(resp.result.ErrorCode))
-			return resp.result;
-		else
-			this.horizonRouter.navigateToSystemError();
+		if(!resp.succeeded)
+			return;
+
+		return resp.result;
 	}
 
 		/**
