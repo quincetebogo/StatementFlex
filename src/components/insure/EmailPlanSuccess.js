@@ -1,5 +1,16 @@
 import { Component, css, html } from 'platform/elements';
 
+/**
+ * Email Plan success page confirms that the funeral plan document has been emailed to the specified email address
+ * 
+ * Events Raised 
+ * -------------
+ * navigate-back
+ *  
+ * @export
+ * @class EmailPlanSuccess
+ * @extends {Component}
+ */
 class EmailPlanSuccess extends Component {
 
 //#region INITIALIZE
@@ -12,6 +23,12 @@ class EmailPlanSuccess extends Component {
 
 //#region PROPERTIES
 
+	/**
+	 * @property {Boolean} showSuccessAlert determines whether to show the success alert
+	 * 
+	 * @readonly
+	 * @static
+	 */
 	static get properties() {
 		return {
 			showSuccessAlert: {type: Boolean, state: true}
@@ -168,3 +185,13 @@ _renderAlert(){
 
 }
 window.customElements.define(`horizon-insure-email-plan-success`, EmailPlanSuccess);
+
+/**
+ * Navigate back to client policies when 'Done' is clicked
+ *
+ * @example
+ * <horizon-insure-email-plan-success ... @navigate-back="${this._handler}"></horizon-insure-email-plan-success>
+ *
+ * @event EmailPlanSuccess#navigate-back
+ * @type {Object} - N/A
+ */

@@ -1,5 +1,17 @@
 import { Component, css, html } from 'platform/elements';
 
+/**
+ * Email plan dialog component will allow for an email address to be entered and confirmed
+ * 
+ * Events Raised 
+ * -------------
+ * send-email
+ * close-modal
+ *  
+ * @export
+ * @class EmailPlanDialog
+ * @extends {Component}
+ */
 class EmailPlanDialog extends Component {
 
 	//#region INITIALIZE
@@ -33,6 +45,9 @@ class EmailPlanDialog extends Component {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
+	/**
+	 * Send event from dialog footer button, closes modal & reset toggles 
+	 */
 	_onSendClick() {
 		this.dispatchEvent(new CustomEvent(`send-email`, {}));
 	}
@@ -133,3 +148,23 @@ class EmailPlanDialog extends Component {
 }
 
 window.customElements.define(`email-plan-dialog`, EmailPlanDialog);
+
+/**
+ * Send send email dialog event to consuming componant when cancel is clicked and navigate to email success page
+ *
+ * @example
+ * <email-plan-dialog ... @send-email="${this._handler}"></email-plan-dialog>
+ *
+ * @event EmailPlanDialog#send-email
+ * @type {Object} - N/A
+ */
+
+/**
+ * Send close dialog event to consuming component when 'Cancel' is clicked
+ *
+ * @example
+ * <email-plan-dialog ... @close-modal="${this._handler}"></email-plan-dialog>
+ *
+ * @event EmailPlanDialog#close-modal
+ * @type {Object} - N/A
+ */

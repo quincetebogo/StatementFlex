@@ -3,7 +3,19 @@ import { Component, css, html } from 'platform/elements';
 // Lookups
 import { CANCELATION_REASONS } from 'app/constants/InsureCommon';
 
-
+/**
+ * cancel policy dialog 
+ * 
+ * Events Raised 
+ * -------------
+ * close-modal
+ * email-plan
+ * agree
+ *  
+ * @export
+ * @class CancelPolicyDialog
+ * @extends {Component}
+ */
 class CancelPolicyDialog extends Component {
 
 	//#region INITIALIZE
@@ -39,10 +51,16 @@ class CancelPolicyDialog extends Component {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
+	/**
+	 * email event from dialog footer button, closes modal and switches to email plan dialog
+	 */
 	_onEmailClick() {
 		this.dispatchEvent(new CustomEvent(`email-plan`, {}));
 	}
 
+	/**
+	 * agree event from dialog footer button, closes modal and navigates to cancel policy success page
+	 */
 	_onAgreeClick() {
 		this.dispatchEvent(new CustomEvent(`agree`, {}));
 	}
@@ -66,7 +84,6 @@ class CancelPolicyDialog extends Component {
 				.notification > capitec-toast{
 					--theme-toast-height: 80px;
 					position: relative;
-					top: var(--theme-toast-close-top, 10px);
 				}
 
 				.notification {
@@ -75,8 +92,6 @@ class CancelPolicyDialog extends Component {
 
 				.expander{
 					margin-bottom: 20px;
-					/*border: 1px solid #e1e1e1;
-					border-radius: 5px;*/
 				}
 
 				.select{
@@ -170,3 +185,33 @@ class CancelPolicyDialog extends Component {
 }
 
 window.customElements.define(`insure-cancel-policy-dialog`, CancelPolicyDialog);
+
+/**
+ * send close modal event to the consuming componant when 'cancel' is clicked
+ *
+ * @example
+ * <insure-cancel-policy-dialog ... @close-modal="${this._handler}"></insure-cancel-policy-dialog>
+ *
+ * @event CancelPolicyDialog#close-modal
+ * @type {Object} - N/A
+ */
+
+/**
+ * send email plan event to the consuming componant when 'email' is clicked
+ *
+ * @example
+ * <insure-cancel-policy-dialog ... @email-plan="${this._handler}"></insure-cancel-policy-dialog>
+ *
+ * @event CancelPolicyDialog#email-plan
+ * @type {Object} - N/A
+ */
+
+/**
+ * send agree event to the consuming componant when 'agree is clicked' is clicked
+ *
+ * @example
+ * <insure-cancel-policy-dialog ... @agree="${this._handler}"></insure-cancel-policy-dialog>
+ *
+ * @event CancelPolicyDialog#agree
+ * @type {Object} - N/A
+ */

@@ -1,5 +1,16 @@
 import { Component, css, html } from 'platform/elements';
 
+/**
+ * Cancel policy success page shows you how many policies you still have active and allows you to navigate to issue policy
+ * 
+ * Events Raised 
+ * -------------
+ * navigate-back
+ *  
+ * @export
+ * @class CancelPolicySuccess
+ * @extends {Component}
+ */
 class CancelPolicySuccess extends Component {
 
 //#region INITIALIZE
@@ -12,6 +23,12 @@ class CancelPolicySuccess extends Component {
 
 //#region PROPERTIES
 
+	/**
+	 * @property {Boolean} showSuccessAlert determines when to show the Success alert
+	 * 
+	 * @readonly
+	 * @static
+	 */
 	static get properties() {
 		return {
 			showSuccessAlert: {type: Boolean, state: true}
@@ -155,3 +172,13 @@ _renderAlert(){
 
 }
 window.customElements.define(`horizon-insure-cancel-policy-success`, CancelPolicySuccess);
+
+/**
+ * Navigate back to client policies when 'Issue Policy' is clicked
+ *
+ * @example
+ * <horizon-insure-cancel-policy-success ... @navigate-back="${this._handler}"></horizon-insure-cancel-policy-success>
+ *
+ * @event CancelPolicySuccess#navigate-back
+ * @type {Object} - N/A
+ */
