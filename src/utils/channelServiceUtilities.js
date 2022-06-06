@@ -217,7 +217,7 @@ export function formatDate(value, format) {
 	const year = dateTime.getFullYear();
 	let formattedDate = ``;
 
-	if(year === 0)
+	if(year === 0 || isNaN(year))
 		return formattedDate;
 
 	// cases would be extended, based on our need in future

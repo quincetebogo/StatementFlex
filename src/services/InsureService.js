@@ -76,7 +76,7 @@ export class InsureService extends ChannelServiceBase {
 		if (await this.isMockEnabled(`insureProductParams`)) {
 			return this.mock(`insureProductParams`);
 		}
-		const url = `/FuneralInsuranceProductService/product/params`;
+		const url = `/horizon-insurance/product/params`;
 		return this.get(
 			url,
 			this.setInsureTokens(),
@@ -102,7 +102,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insureClientPolicies`);
 		}
 		return this.post(
-			`/FuneralInsuranceProductService/client/summary?WithClaims=true`,
+			`/horizon-insurance/client/summary?WithClaims=true`,
 			clientPoliciesRequest,
 			this.setInsureTokens(),
 			`summary`,
@@ -128,7 +128,7 @@ export class InsureService extends ChannelServiceBase {
 		return this.mock(`insurePolicySummary`);
 	}
 	return this.post(
-		`/FuneralInsuranceProductService/policy/summary?WithClaims=true`,
+		`/horizon-insurance/policy/summary?WithClaims=true`,
 		policyRequest,
 		this.setInsureTokens(),
 		`policysummary`,
@@ -151,7 +151,7 @@ export class InsureService extends ChannelServiceBase {
 	 */
 	async calculateEstimate(estimateRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
-			`/FuneralInsuranceProductService/quote/estimate`,
+			`/horizon-insurance/estimate`,
 			estimateRequest,
 			this.setInsureTokens(),
 			`calculateEstimate`,

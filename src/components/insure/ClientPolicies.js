@@ -143,7 +143,7 @@ class ClientPolicies extends Component {
 		this.showPayPremiumDialog = false;
 	}
 
-	
+
 	//#endregion EVENT HANDLERS
 
 	//#region PRIVATE FUNCTIONS
@@ -186,7 +186,7 @@ class ClientPolicies extends Component {
 	_getTotalCoverAmount(policyItem)
 	{
 		return policyItem.roleplayers.reduce((accumulator, object) => {
-			return accumulator + object.coverAmount;
+			return accumulator + (object.coverAmount ?? 0);
 		}, 0);
 	}	
 
@@ -422,7 +422,7 @@ class ClientPolicies extends Component {
 					data-automation-id="insure-landing-policies-tab"
 					label="Policies">
 					<capitec-content-box  class="accounts-box">
-							${this._renderPolciesDetailsBar()}
+							${this._renderPoliciesDetailsBar()}
 					</capitec-content-box>
 					${this._renderFooter()}
 				</capitec-tab>
@@ -441,7 +441,7 @@ class ClientPolicies extends Component {
 	 * Render List of Policies
 	 * @returns {html} The html content the list of Policies
 	 */
-	_renderPolciesDetailsBar()
+	_renderPoliciesDetailsBar()
 	{
 		this.policiesList = this.clientPolicies?.summaryDetails?.policies;
 
@@ -473,12 +473,12 @@ class ClientPolicies extends Component {
 						<horizon-label
 							data-automation-id="insure-policy-effective-date"
 							label="Effective Date"
-							value="${ isNullorEmpty(policyItem.deductionDetails?.effectiveFromDate) ? '-' : formatDate(policyItem.deductionDetails?.effectiveFromDate, `dd mmm yyyy`)}">
+							value="${ formatDate(policyItem.commencementDate, `dd mmm yyyy`) === '' ? '-' : formatDate(policyItem.commencementDate, `dd mmm yyyy`)}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-policy-debit-order-date"
 							label="Debit Order Date"
-							value="${formatDate(policyItem.commencementDate, `dd mmm yyyy`) === '' ? '-' : formatDate(policyItem.commencementDate, `dd mmm yyyy`)}">
+							value="${formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`) === '' ? '-' : formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`)}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-policy-cover-amount"
@@ -587,8 +587,8 @@ class ClientPolicies extends Component {
 	 * @returns {html} The html content of No results
 	 */
 	_renderNoResults() {
-		return html`
-			<capitec-group
+		return html `${ isNullorEmpty(this.clientPolicies) ? `` : 
+			html `<capitec-group
 				class="no-result-group"
 				layout="vertical"
 				halign="center"
@@ -600,8 +600,8 @@ class ClientPolicies extends Component {
 						label="No results found"
 						type="strong">
 					</capitec-label>
-			</capitec-group>
-		`;
+			</capitec-group>`
+		}`;
 	}
 
 	/**
