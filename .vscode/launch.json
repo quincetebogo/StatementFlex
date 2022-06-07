@@ -7,7 +7,7 @@
 		{
 			"name": "Launch Edge",
 			"request": "launch",
-			"type": "pwa-chrome",
+			"type": "pwa-msedge",
 			"url": "http://localhost:62000",
 			"webRoot": "${workspaceFolder}",
 			"preLaunchTask": "run",
