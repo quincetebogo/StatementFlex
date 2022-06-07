@@ -68,8 +68,8 @@ export class SavingsPlanLanding extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_click(selection, type, accNumber, accountName) {
-		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection, saveType: type, accountNumber: accNumber, accountName: accountName } }));
+	_click(selection, savePlanDetails, type) {
+		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection, planDetails: savePlanDetails, saveType: type} }));
 	}
 
 	_viewInfo() {
@@ -442,7 +442,7 @@ export class SavingsPlanLanding extends Component {
 								gap="none"
 								halign="left"
 								valign="center">
-									${this._renderOptionsGroup(item.accountNumber, SAVE_PLAN_TYPE.FLEXIBLE, item.planName)}
+									${this._renderOptionsGroup(item, SAVE_PLAN_TYPE.FLEXIBLE)}
 							</capitec-group>
 						</div>
 				</horizon-expander>`);
@@ -515,30 +515,36 @@ export class SavingsPlanLanding extends Component {
 									type="default"
 									label="${item.depositeType}">
 								</capitec-title-bar>
-									${this._renderOptionsGroup(item.accountNumber, SAVE_PLAN_TYPE.FIXED_TERM, item.planName)}
+									${this._renderOptionsGroup(item, SAVE_PLAN_TYPE.FIXED_TERM)}
 							</capitec-group>
 						</div>
 				</horizon-expander>`);
 	}
 
-	_renderOptionsGroup(accountNumber, saveType, planName) {
+	_renderOptionsGroup(item, saveType) {
 		return html`
 			<capitec-title-bar
 				type="default"
 				label="Choose an option">
 			</capitec-title-bar>
 			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
+				<horizon-option-button
+						data-automation-id="savings-plan-transaction-history"
+						label="Transaction History"
+						icon="system/time-action"
+						@click="${() => this._click(`transaction-history`, item, saveType)}">
+				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="savings-plan-statements"
 						label="Statements"
 						icon="system/documents-action"
-						@click="${() => this._click(`statements`, saveType, accountNumber)}">
+						@click="${() => this._click(`statements`, item, saveType)}">
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="savings-plan-tax-certificate"
 						label="Tax Certificate"
 						icon="system/sars-action" 
-						@click="${() => this._click(`tax-certificate`, saveType, accountNumber, planName)}">
+						@click="${() => this._click(`tax-certificate`, item, saveType)}">
 				</horizon-option-button>
 			</capitec-group>
 		`;

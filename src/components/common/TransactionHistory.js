@@ -29,7 +29,8 @@ const DEFAULTS = {
 
 const _importTelemetryEvents_ = {
 	[ACCOUNT_TYPES.SAVINGS_ACCOUNT]: () => import(`app/constants/telemetry/events/SavingsAccount`),
-	[ACCOUNT_TYPES.LBB]: () => import(`app/constants/telemetry/events/LiveBetter`)
+	[ACCOUNT_TYPES.LBB]: () => import(`app/constants/telemetry/events/LiveBetter`),
+	[ACCOUNT_TYPES.SAVINGS_PLAN]: () => import(`app/constants/telemetry/events/SavingsPlan`)
 };
 
 const MAX_RESULTS = 50;
@@ -59,6 +60,7 @@ export class TransactionHistory extends Component {
 
 		this.transactionHistory = [];
 		this.accountDetails = {};
+		this.savePlanDetails = {};
 
 		// private properites
 		this.isBusy = false;
@@ -112,6 +114,7 @@ export class TransactionHistory extends Component {
 		return {
 			transactionHistory: { type: Object },
 			accountDetails: { type: Object },
+			savePlanDetails: { type: Object },
 			type: { type: String },
 
 			renderTableColumns: { type: Object },
@@ -262,7 +265,7 @@ export class TransactionHistory extends Component {
 		const endDate = this.endDate.toLocaleString().slice(0, 10);
 
 		this.disposeData();
-		await this.getTransactionHistory(startDate, endDate);
+		await this.getTransactionHistory(startDate, endDate, null, this.savePlanDetails);
 
 		this.hideLoadMore = this.transactionHistory.length % MAX_RESULTS > 0 && this.transactionHistory.length % MAX_RESULTS < MAX_RESULTS;
 		this._refineSearch();
@@ -366,7 +369,7 @@ export class TransactionHistory extends Component {
 		const endDate = this.endDate.toLocaleString().slice(0, 10);
 
 		await this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_LOAD_MORE, {});
-		await this.getTransactionHistory(startDate, endDate, this.transactionHistory.length + 1);
+		await this.getTransactionHistory(startDate, endDate, this.transactionHistory.length + 1, this.savePlanDetails);
 
 		// If the old record count and count after load more are same means no more data to populate,
 		// so hiding loadmore button
@@ -512,6 +515,9 @@ export class TransactionHistory extends Component {
 				}
 				.transact {
 					background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
+				}
+				.save {
+					background: linear-gradient(90deg, #003354 0%, #00486D 100%);
 				}
 				.lbb {
 					background: no-repeat url(../images/liveBetter/Gradient1.png);

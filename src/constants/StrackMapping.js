@@ -29,6 +29,7 @@
 	// Savings plan
 	"statements-save": `SAVINGS_PLAN_STATEMENTS`,
 	"tax-certificate-save": `SAVINGS_PLAN_TAX_CERTIFICATE`,
+	"transaction-history-save": `SAVINGS_PLAN_TRANSACTION_HISTORY`,
 
 	// LBB
 	"transaction-history-lbb": `TRANSACTION_HISTORY_LBB`,

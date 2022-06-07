@@ -92,6 +92,7 @@
 
 	ACCESS_CHANNELS_NOTIFICATIONS: `Access Channels Notifications`,
 	ACCESS_CHANNELS_NOTIFICATIONS_UPDATE: `Access Channels Notifications Update`,
+
 	SAVINGS_PLAN_LANDING: `Savings Plan Landing`,
 	SAVINGS_PLAN_ACCOUNT_DETAILS: `Savings Plan Account Details`,
 	SAVINGS_PLAN_STATEMENTS: `Savings Plan Statements`,
