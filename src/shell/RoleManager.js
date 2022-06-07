@@ -28,7 +28,6 @@ import { SecurityContext } from 'platform/core';
 
 	// Indicates if an agent is with Helpdest role
 	get isHelpDeskAgent() {
-		// TO DO: `help-desk` is not the finalized wording, Needs to be updated once CS is ready to send helpdesk role in the token.
 		
 		return this.roles && this.roles.includes(`helpdesk-agent`);
 	}
