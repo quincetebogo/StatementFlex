@@ -107,6 +107,10 @@ export class Statements extends Component {
 		};
 	}
 
+	get statementAsOption() {
+		return this.accountType ? `statements-${this.accountType}` : `statements`;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -386,21 +390,7 @@ export class Statements extends Component {
 		const returnValue = await this.quickTransactionService.sendStatement(statement);
 		this._updateScreenDetails(request);
 
-		let optionalData = `statements`;
-
-		switch (request.accountType) {
-			case `Savings account`:
-				optionalData = `statements-transact`;
-				break;
-			case `Live better savings account`:
-				optionalData = `statements-lbb`;
-				break;
-			default:
-				optionalData = `statements`;
-				break;
-		}
-
-		this.horizonStore.setReturnScreen(this.navigationContext.current.route, optionalData);
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, this.statementAsOption);
 		
 		if (returnValue.succeeded) {
 			this.horizonRouter.navigateToStatementSuccessful();
