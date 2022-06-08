@@ -676,15 +676,17 @@ export class StatementsDialog extends Component {
 				return html`
 					<horizon-alert-banner
 						data-automation-id="statements-dialog-alert-message"
-						type="unsuccessful-red">
-							<p><b>Notify:</b> ${this.errorMessage}</p>
+						type="unsuccessful-red"
+						header="Notify client: "
+						label="${this.errorMessage}">
 					</horizon-alert-banner>`;
 			case this.productSelected.type === ACCOUNT_INTCAT_ENUM[ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN].type:
 				return html`
 					<horizon-alert-banner
 						data-automation-id="statements-dialog-alert-message"
-						type="warning">
-							<p><b>Notify client:</b>${NOTIFICATION_MESSAGE.FLEXIBLE_SAVINGS_FEE}</p>
+						type="warning"
+						header="Notify client: "
+						label="${NOTIFICATION_MESSAGE.FLEXIBLE_SAVINGS_FEE}">
 					</horizon-alert-banner>`;
 			case this.productSelected.category === ACCOUNT_TYPES.CREDIT:
 				return html`
@@ -713,8 +715,9 @@ export class StatementsDialog extends Component {
 						data-automation-id="statements-dialog-notify-message"
 						type="info"
 						@click="${() => this.notifyClient = false}"
-						closable>
-							<p><b>Notify client:</b>${NOTIFICATION_MESSAGE.APP}</p>
+						closable
+						header="Notify client: "
+						label="${NOTIFICATION_MESSAGE.APP}">
 					</horizon-alert-banner>`;
 			default:
 				return html``;

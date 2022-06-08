@@ -21,6 +21,10 @@ export class HorizonAlertBanner extends AlertBanner {
 		return [
 			super.styles,
 			css`
+				p {
+					margin-bottom: 0px;
+					margin-top: 0px;
+				}
 				:host {
 					--theme-alert-banner-info-font-color: #3A3A3A;
 					--theme-alert-banner-success-font-color: #3A3A3A;
@@ -30,7 +34,8 @@ export class HorizonAlertBanner extends AlertBanner {
 					--theme-alert-banner-unsuccessful-red-font-color: #3A3A3A;
 					--theme-alert-banner-width: auto;
 					--theme-toast-z-index: 1;
-					--theme-toast-box-shadow: none
+					--theme-toast-box-shadow: none;
+					--theme-toast-content-margin: 0px;
 				}`
 		];
 	}

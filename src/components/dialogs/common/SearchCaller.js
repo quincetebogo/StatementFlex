@@ -753,6 +753,7 @@ export class SearchCaller extends Component {
 				}
 				capitec-radio{
 					height:24px;
+					width: 150px;
 				}
 				.search-label{
 					height: 24px;
