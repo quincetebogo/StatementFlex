@@ -133,7 +133,7 @@ class CancelPolicyDialog extends Component {
 			<div class="notification">
 				<capitec-toast type="info" header="Notify Client" 
 					detail="The full agreement, inclusive of the Policy Schedule, Section 484 summary. Disclosure, terms and conditions,
-					will be emailed to you and available in branch." data-automation-id="insure-cancel-policy-dialog-notification" closable>
+					will be emailed to you and available in branch." data-automation-id="insure-cancel-policy-dialog-notification">
 				</capitec-toast>
 			</div>
 
@@ -155,7 +155,7 @@ class CancelPolicyDialog extends Component {
 
 				<div>
 					<capitec-expander expandbuttonalignment="left" label="View Mandate" data-automation-id="insure-cancel-policy-dialog-view-mandate">
-						<capitec-check label="Please confirm that you agree to these terms and conditions and that you are bound by them?"></capitec-check>
+						<capitec-check label="Please confirm that you agree to these terms and conditions and that you are bound by them?" checked></capitec-check>
 					</capitec-expander>
 				</div>
 			 </capitec-expander-group>
