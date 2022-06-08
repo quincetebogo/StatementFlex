@@ -303,7 +303,11 @@ export class HorizonIncidentManager {
 	 * @returns { String } - Returns "causeCode" || "causeCodeByReason" || "NormalEnquiry"
 	 */
 	 _getCauseCode(causeCode, endCallReason, manualClassification) {
-		const causeCodeByReason = CAUSE_CODE_BY_REASON[endCallReason][manualClassification.issue] || CAUSE_CODE_BY_REASON[endCallReason] || ``;
+		let causeCodeByReason = ``;
+
+		if (CAUSE_CODE_BY_REASON[endCallReason]) {
+			causeCodeByReason = CAUSE_CODE_BY_REASON[endCallReason][manualClassification.issue] || CAUSE_CODE_BY_REASON[endCallReason];
+		}
 		return causeCode || causeCodeByReason || `NormalEnquiry`;
 	}
 
