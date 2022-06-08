@@ -28,7 +28,8 @@ export class ExistingClient extends InsureViewBase {
 		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.estimate = {};
-		this.quote = {};
+		this.policySummary = {};
+		
 
 		// Get DOB from callerInfo and convert to age for Estimate
 		// this.mainLifeAge = this.callerInformation
@@ -39,7 +40,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {Object} clientPolicies Data & flags for all policies relating to client CIF
 	 * @property {Object} productParams Data & flags for insure product parameters
 	 * @property {Object} estimate Local object for new Estimate requests
-	 * @property {Object} quote  Local object for new Quote requests
+	 * @property {Object} policySummary  Local object for new Quote requests
 	 * 
 	 * @readonly
 	 * @static
@@ -49,7 +50,7 @@ export class ExistingClient extends InsureViewBase {
 			clientPolicies: { type: Object, state: true },
 			productParams: { type: Object, state: true },
 			estimate: { type: Object, state: true },
-			quote: { type: Object, state: true }
+			policySummary: { type: Object, state: true }
 		};
 	}
 
@@ -109,6 +110,22 @@ export class ExistingClient extends InsureViewBase {
 		}
 	}
 
+	/**
+	 * Retrieve policy summary via insure channel service
+	 * @returns {Object} policy summary 
+	 */
+	 async _retrievePolicySummary(cifNumber, idNumber) {
+		this.isBusy = true;
+		let request = {
+			contractReference: "TODO",
+			cifNumber: cifNumber,
+			idNumber: idNumber,
+		}
+		const resp = await this.insureService.policySummary(request);
+		this.isBusy = false;
+		return resp.result;
+	}
+
 	//#endregion
 
 	//#region PRIVATE METHODS
@@ -144,6 +161,8 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_goToUpdatePlan() {
 		// Telemetry Here
+		this.policySummary = await this._retrievePolicySummary();
+
 		this._navigateToSubView(INSURE_RENDER_MODE.UPDATE_PLAN);
 	}
 
@@ -256,7 +275,7 @@ export class ExistingClient extends InsureViewBase {
 	_renderUpdatePlanPage() {
 		return html`
 			<horizon-insure-update-plan @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-				@calculate="${(e) => this._calculateClientQuote(e)}" .quote="${this.quote}" .productParams="${this.productParams}">
+				@calculate="${(e) => this._calculateClientQuote(e)}" .quote="${this.policySummary}" .productParams="${this.productParams}">
 			</horizon-insure-update-plan>`
 	}
 

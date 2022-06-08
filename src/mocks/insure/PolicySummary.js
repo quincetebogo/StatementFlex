@@ -1,4 +1,4 @@
-export const UpdatePlan = {
+export const PolicySummary = {
 
 	"roleplayers": [
 		{

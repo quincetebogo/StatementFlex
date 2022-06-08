@@ -116,17 +116,29 @@ export class InsureService extends ChannelServiceBase {
 	}
 
 	/**
-	 * Update plan
+	 * Policy Summary 
 	 *
-	 * @param {clientPoliciesRequest} [errorHandler=null]  Request data containing cif & id numbers
+	 * @param {policySummaryRequest} [errorHandler=null]  Request data containing cif & id numbers
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	 async updatePlan(clientPoliciesRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		if (await this.isMockEnabled(`insureUpdatePlan`)) {
-			return this.mock(`insureUpdatePlan`);
+	 async policySummary(policySummaryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insurePolicySummary`)) {
+			return this.mock(`insurePolicySummary`);
 		}
+		return this.post(
+			`/FuneralInsuranceProductService/policy/summary`,
+			policySummaryRequest,
+			this.setInsureTokens(),
+			`summary`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
 		
 	}
 

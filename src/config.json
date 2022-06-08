@@ -192,7 +192,7 @@
 			"enabled": false,
 			"positiveCase": true
 		},
-		"insureUpdatePlan":{
+		"insurePolicySummary":{
 			"enabled": true,
 			"positiveCase": true
 		},
