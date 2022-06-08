@@ -1,6 +1,5 @@
 import { css, html } from 'platform/elements';
 import { STATEMENT_EVENTS } from 'app/constants/telemetry/events/Credit';
-import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
