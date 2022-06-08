@@ -72,8 +72,6 @@ class UpdatePlan extends Component {
 		this.genderOptions = GENDER_OPTIONS;
 		this.titleOptions = TITLE_OPTIONS;
 
-		this.newBeneficiary = {};
-
 	}
 
 	//#endregion
@@ -171,45 +169,9 @@ class UpdatePlan extends Component {
 	 * Click event from the beneficiary dialog to add new beficiary and close dialog
 	 */
 	_onAddBeneficiaryClick(e) {
-		
 		this._addBeneficiary(e.detail)
 		this._closeAddBeneficiariesDialog()
 	}
-
-	/**
-	 * event to add a beneficiary that is also a life assured
-	 * 
-	 * @param {*} lifeAssured 
-	 */
-	// _addBeneficiaryExistingChange(lifeAssured) {
-	// 	this.newBeneficiary= {
-	// 		name : lifeAssured.name,
-	// 		title : lifeAssured.title,
-	// 		surname :"",
-	// 		dateOfBirth: "",
-	// 		gender: lifeAssured.genderType,
-	// 		email: lifeAssured.email,
-	// 		relationship : lifeAssured.relationship,
-	// 		rowID : this.quote.beneficiaries.length,
-	// 	}
-	// }
-
-	/**
-	 * event to add a new beneficiary that is not a life assured
-	 * 
-	 * @param {*} Relationship 
-	 */
-	// _addNewBeneficiaryChange(Relationship) {
-	// 	console.log(this.quote.beneficiaries)
-
-	// 	if(!this.quote.beneficiaries){
-	// 		this.quote.beneficiaries = [];
-	// 	}
-	// 	this.newBeneficiary= {
-	// 		relationship : Relationship,
-	// 		rowID : this.quote.beneficiaries.length,
-	// 	}
-	// }
 
 	/**
 	 * Click event from remove button on beneficiary list
@@ -1256,15 +1218,6 @@ class UpdatePlan extends Component {
 	_renderRemoveLifeAssuredDialog() {
 		return this.showRemoveLifeAssuredDialog == false ? ``:
 		html`
-		<!-- <capitec-modal type="warn" header="Remove Family Member">
-			<div slot="body">
-				<p>Are you sure you want to remove 'name' from your <br>funeral plan? they will no longer be covered</p>
-			</div>
-			
-			<capitec-button slot="footer" type="clear" label="Cancel" @click="${(e) => this._closeRemoveLifeAssuredDialog(e)}"></capitec-button>
-			<capitec-button slot="footer" type="clear" label="Confirm" @click="${(e) => this._removeLifeAssured(e)}"></capitec-button>
-
-		</capitec-modal> -->
 
 		<remove-life-assured-dialog @agree-click="${(e) => this._removeLifeAssured(e)}"
 			@close-modal="${(e) => this._closeRemoveLifeAssuredDialog(e)}">
@@ -1294,43 +1247,6 @@ class UpdatePlan extends Component {
 	_renderAddBeneficiariesDialog(){
 		return this.showAddBeneficiariesDialog == false ? html`` :
 			html`
-				<!-- <capitec-modal type="alert" header="Add Beneficiary" style="--theme-modal-alert-m-l-xl-width: 840px;">
-					<div slot="body" >
-						
-						<capitec-label label="Life Assured" type="strong"></capitec-label>
-
-						<capitec-label label="Choose from clients policy members" type="default"></capitec-label>
-						<capitec-radio-group>
-							<capitec-content-box style="max-height:200px">
-								
-								${this.quote.lifesAssured.map((lifeAssured,index) => html`
-									${index != 0 ? html`
-										<div  style="border: 1px solid #e1e1e1; border-radius: 5px; padding: 10px; margin: 5px; width: 70%;">
-											<capitec-radio label="${lifeAssured.relationship}: Name" @value-changed="${() => this._addBeneficiaryExistingChange(lifeAssured)}">
-											</capitec-radio>
-										</div>
-									` : html ``}
-								`)}
-								
-							</capitec-content-box>
-
-							<div class="beneficiary-radio-row">
-							<capitec-radio label="Child" hint="Up to 8 allowed for ages 25 and younger" 
-								style="border: 1px solid #e1e1e1; border-radius: 5px; padding: 10px; margin: 5px;" @value-changed="${() => this._addNewBeneficiaryChange("Child")}">
-							</capitec-radio>
-							<capitec-radio label="Extended Family" hint="Up to 8 allowed for ages 85 and younger"
-								style="border: 1px solid #e1e1e1; border-radius: 5px; padding: 10px; margin: 5px;" @value-changed="${() => this._addNewBeneficiaryChange("Extended Family")}">
-							</capitec-radio>
-							<capitec-radio label="Parent" hint="Up to 4 allowed for ages 85 and younger"
-								style="border: 1px solid #e1e1e1; border-radius: 5px; padding: 10px; margin: 5px;" @value-changed="${() => this._addNewBeneficiaryChange("Parent")}">
-							</capitec-radio>
-							</div>
-						</capitec-radio-group>
-
-					</div>
-					<capitec-button slot="footer" type="clear" label="Cancel" @click="${() => this._closeAddBeneficiariesDialog()}"></capitec-button>
-					<capitec-button slot="footer" type="clear" label="Add" @click="${() => this._onAddBeneficiaryClick()}"></capitec-button>
-				</capitec-modal> -->
 
 				<add-beneficiary-dialog .lifesAssured="${this.quote.lifesAssured}" .beneficiaries="${this.quote.beneficiaries}"
 					@add-click="${(e) => this._onAddBeneficiaryClick(e)}"

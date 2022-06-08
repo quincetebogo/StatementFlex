@@ -43,6 +43,7 @@ export default class InsureChannelServiceMocks {
 
 		this.productParamsMocks = await this._loadMockModule(this.productParamsMocks, `insureProductParams`, () => import(`../mocks/insure/ProductParams`).catch(err => logError(err)));
 		this.clientPoliciesMocks = await this._loadMockModule(this.clientPoliciesMocks, `insureClientPolicies`, () => import(`../mocks/insure/ClientPolicies`).catch(err => logError(err)));
+		this.updatePlanMocks = await this._loadMockModule(this.updatePlanMocks, `insureUpdatePlan`, () => import(`../mocks/insure/UpdatePlan`).catch(err => logError(err)));
 	}
 
 	/**
@@ -63,6 +64,17 @@ export default class InsureChannelServiceMocks {
 	insureClientPolicies() {
 		if (this._mockSettings.insureClientPolicies.positiveCase) {
 			return this.clientPoliciesMocks.InsureClientPolicies;
+		}
+		return null;
+	}
+
+	/**
+	 * Update Plan mock check
+	 * @returns {Object} Mock response data
+	 */
+	 insureUpdatePlan() {
+		if (this._mockSettings.insureUpdatePlan.positiveCase) {
+			return this.updatePlanMocks.InsureUpdatePlan;
 		}
 		return null;
 	}

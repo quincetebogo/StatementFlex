@@ -192,6 +192,10 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"insureUpdatePlan":{
+			"enabled": true,
+			"positiveCase": true
+		},
 		"creditOverview": {
 			"enabled": false,
 			"positiveCase": true

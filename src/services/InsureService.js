@@ -116,6 +116,21 @@ export class InsureService extends ChannelServiceBase {
 	}
 
 	/**
+	 * Update plan
+	 *
+	 * @param {clientPoliciesRequest} [errorHandler=null]  Request data containing cif & id numbers
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	 async updatePlan(clientPoliciesRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureUpdatePlan`)) {
+			return this.mock(`insureUpdatePlan`);
+		}
+		
+	}
+
+	/**
 	 * Calculate Estimate / leaving no footprint on OIPA
 	 *
 	 * @param {estimateRequest} [errorHandler=null]  Request data for estimate 

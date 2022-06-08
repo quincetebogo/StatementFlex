@@ -24,8 +24,10 @@ class AddBeneficiaryDialog extends Component {
 		super();
 
 		this.lifesAssured = [];
-		this.beneficiaries = []
-		this.newbeneficiary = [];
+		this.beneficiaries = [];
+		this.newbeneficiary = {};
+
+		this.selected = false;
 	
 	}
 
@@ -45,8 +47,12 @@ class AddBeneficiaryDialog extends Component {
 	 * Add Event, Calculate cover details parameter, emit new life object to consuming component & reset toggles 
 	 */
 	_onAddClick() {
+		
+		
+		
 		console.log('In dialog agree event')
-		this.dispatchEvent(new CustomEvent(`add-click`, {detail: this.newbeneficiary}));
+		console.log(this.newBeneficiary)
+		this.dispatchEvent(new CustomEvent(`add-click`, {detail: this.newBeneficiary}));
 	}
 
 	/**
@@ -82,6 +88,10 @@ class AddBeneficiaryDialog extends Component {
 			relationship : Relationship,
 			rowID : this.beneficiaries.length,
 		}
+	}
+
+	_checkselected(){
+
 	}
 
 	//#endregion
@@ -135,7 +145,7 @@ class AddBeneficiaryDialog extends Component {
 	_renderDialogBody() {
 		return html`
 			<!-- style="max-height: 500px; overflow: scroll" -->
-			<capitec-label label="Life Assured" type="strong"></capitec-label>
+			<capitec-label label="Life Assured" type="title"></capitec-label>
 
 			<capitec-label label="Choose from clients policy members" type="default"></capitec-label>
 			<capitec-radio-group>
@@ -151,6 +161,8 @@ class AddBeneficiaryDialog extends Component {
 					`)}
 					
 				</capitec-content-box>
+
+				<capitec-label label="Add Beneficiary" type="title"></capitec-label>
 
 				<div class="beneficiary-radio-row">
 					<capitec-radio label="Child" hint="Up to 8 allowed for ages 25 and younger" 
