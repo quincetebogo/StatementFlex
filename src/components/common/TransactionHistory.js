@@ -60,7 +60,6 @@ export class TransactionHistory extends Component {
 
 		this.transactionHistory = [];
 		this.accountDetails = {};
-		this.savePlanDetails = {};
 
 		// private properites
 		this.isBusy = false;
@@ -114,7 +113,6 @@ export class TransactionHistory extends Component {
 		return {
 			transactionHistory: { type: Object },
 			accountDetails: { type: Object },
-			savePlanDetails: { type: Object },
 			type: { type: String },
 
 			renderTableColumns: { type: Object },
@@ -265,7 +263,7 @@ export class TransactionHistory extends Component {
 		const endDate = this.endDate.toLocaleString().slice(0, 10);
 
 		this.disposeData();
-		await this.getTransactionHistory(startDate, endDate, null, this.savePlanDetails);
+		await this.getTransactionHistory(startDate, endDate);
 
 		this.hideLoadMore = this.transactionHistory.length % MAX_RESULTS > 0 && this.transactionHistory.length % MAX_RESULTS < MAX_RESULTS;
 		this._refineSearch();
@@ -369,7 +367,7 @@ export class TransactionHistory extends Component {
 		const endDate = this.endDate.toLocaleString().slice(0, 10);
 
 		await this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_LOAD_MORE, {});
-		await this.getTransactionHistory(startDate, endDate, this.transactionHistory.length + 1, this.savePlanDetails);
+		await this.getTransactionHistory(startDate, endDate, this.transactionHistory.length + 1);
 
 		// If the old record count and count after load more are same means no more data to populate,
 		// so hiding loadmore button

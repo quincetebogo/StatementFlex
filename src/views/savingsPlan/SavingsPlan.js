@@ -388,14 +388,14 @@ export class SavingsPlan extends ViewBase {
 		this.savePlanDetails = savePlanDetails;
 
 		await super.createAndClassifySubsIncident();
-		await this._getTransactionHistory(null, null, null, savePlanDetails, saveType);
+		await this._getTransactionHistory();
 	}
 
-	async _getTransactionHistory(startDate, endDate, startAtIndex, savePlanDetails, saveType) {
+	async _getTransactionHistory(startDate, endDate, startAtIndex) {
 
 		const transactionHistoryRequest = {
 			cifNumber: this.callerInformation.cifNumber,
-			accountNumber: savePlanDetails.accountNumber,
+			accountNumber: this.savePlanDetails.accountNumber,
 			accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
 			startDate: startDate || TRANSACTION_HISTORY.START_DATE,
 			endDate: endDate || TRANSACTION_HISTORY.END_DATE,
@@ -423,12 +423,12 @@ export class SavingsPlan extends ViewBase {
 
 			//TODO: Form the accountDetails object based on the new CS developed for SavingsPlan
 			this.accountDetails = {
-				"Account number": savePlanDetails.accountNumber,
-				"Balance": formatCurrency(savePlanDetails.currentBalance),
-				"Available balance": formatCurrency(savePlanDetails.availableBalance),
+				"Account number": this.savePlanDetails.accountNumber,
+				"Balance": formatCurrency(this.savePlanDetails.currentBalance),
+				"Available balance": formatCurrency(this.savePlanDetails.availableBalance),
 				"Pending amount": `R1000`,//formatCurrency(this.landingPageInfo.accountPendingAmount),
-				"Interest": `${savePlanDetails.interestRate}%`,
-				"Status": savePlanDetails.accountStatus
+				"Interest": `${this.savePlanDetails.interestRate}%`,
+				"Status": this.savePlanDetails.accountStatus
 			};
 			this.endCallContext = `TransactionHistory`;
 			this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
@@ -628,11 +628,10 @@ export class SavingsPlan extends ViewBase {
 				<horizon-transaction-history
 					.transactionHistory="${this.transactionHistory}"
 					.accountDetails="${this.accountDetails}"
-					.savePlanDetails="${this.savePlanDetails}"
 					type="${ACCOUNT_TYPES.SAVINGS_PLAN}"
 					.renderTableColumns="${() => this._renderTransHistoryColumns()}"
 					.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
-					.getTransactionHistory="${(startDate, endDate, startAtIndex, savePlanDetails) => this._getTransactionHistory(startDate, endDate, startAtIndex, savePlanDetails)}"
+					.getTransactionHistory="${(startDate, endDate, startAtIndex) => this._getTransactionHistory(startDate, endDate, startAtIndex)}"
 					.disposeData="${() => this.transactionHistory = []}"
 
 					@error-handler = "${() => this._errorHandler()}"
