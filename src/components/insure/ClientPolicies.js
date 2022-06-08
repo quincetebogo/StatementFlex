@@ -404,8 +404,6 @@ class ClientPolicies extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-button type="white" label="Transaction History" @click="${() => this._goToPolicyTransactionHistory()}">
-					</capitec-button>
 					<capitec-button type="white"  label="Get Estimate" data-automation-id="insure-landing-get-estimate"
 						@click="${() => this._goToEstimate()}">
 					</capitec-button>
@@ -416,8 +414,8 @@ class ClientPolicies extends Component {
 	}
 
 	/**
-	 * Render Landing page for Policies & Quotes
-	 * @returns {html} The html content of the Policies & Quotes tabs
+	 * Render Landing page for Policies & Claims
+	 * @returns {html} The html content of the Policies & Claims tabs
 	 */
 	_renderPoliciesLandingContent() {
 		return html`
@@ -431,10 +429,10 @@ class ClientPolicies extends Component {
 					${this._renderFooter()}
 				</capitec-tab>
 				<capitec-tab
-					data-automation-id="insure-landing-quotes-tab"
-					label="Quotes">
+					data-automation-id="insure-landing-claims-tab"
+					label="Claims">
 					<capitec-content-box  class="accounts-box">
-						<label>Client Policies - Coming soon to a sprint near you!</label>
+						<label>Claims - Coming soon to a sprint near you!</label>
 					</capitec-content-box>
 					${this._renderFooter()}
 				</capitec-tab>

@@ -318,7 +318,7 @@ export class InsureService extends ChannelServiceBase {
 				return this.mock(`policyTransactionHistory`, transactionsRequest);
 			}
 			return this.post(
-				`/FuneralInsuranceProductService/policy/transactions`,
+				`/horizon-insurance/policy/transactions`,
 				transactionsRequest,
 				this.setInsureTokens(),
 				`getPolicyTransactions`,
