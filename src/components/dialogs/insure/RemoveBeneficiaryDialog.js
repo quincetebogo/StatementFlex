@@ -1,5 +1,18 @@
 import { Component, css, html } from 'platform/elements';
 
+/**
+ * remove beneficiary dialog allows one to confirm whether they would like to remove the selected beneficiary
+ * 
+ * Events Raised 
+ * -------------
+ * navigate-back
+ * agree-click
+ * 
+ *  
+ * @export
+ * @class RemoveBeneficiaryDialog
+ * @extends {Component}
+ */
 class RemoveBeneficiaryDialog extends Component {
 
 	//#region INITIALIZE
@@ -87,3 +100,23 @@ class RemoveBeneficiaryDialog extends Component {
 }
 
 window.customElements.define(`remove-beneficiary-dialog`, RemoveBeneficiaryDialog);
+
+/**
+ * send aclose modal event to consuming component when 'cancel' is clicked
+ *
+ * @example
+ * <remove-beneficiary-dialog ... @close-modal="${this._handler}"></remove-beneficiary-dialog>
+ *
+ * @event RemoveBeneficiaryDialog#close-moda
+ * @type {Object} - N/A
+ */
+
+/**
+ * send agree click event to consuming component when 'agree' is clicked
+ *
+ * @example
+ * <remove-beneficiary-dialog ... @agree-click="${this._handler}"></remove-beneficiary-dialog>
+ *
+ * @event RemoveBeneficiaryDialog#agree-click
+ * @type {Object} - N/A
+ */
