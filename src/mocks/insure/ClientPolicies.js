@@ -41,7 +41,44 @@ export const ClientPolicies = {
 						"recordID": "4924658741.288",
 						"recordIDType": "RSAID",
 						"relationship": "MainLife",
-						"coverAmount": 10000,
+						"coverAmount": 40000,
+						"premium": 100.3,
+						"age": 31,
+						"genderType": "Male",
+						"rowID": 1,
+						"validationErrors": [
+							{
+								"errorMessage": "Field cannot be empty",
+								"fieldName": "Surname",
+								"errorCode": "BANCS_TECHNICAL_FAILURE"
+							}
+						]
+					},
+					{
+						"title": "Mr",
+						"surname": "Peter",
+						"firstName": "Parker",
+						"middleName1": "",
+						"middleName2": "",
+						"idType": "RSAID",
+						"idNumber": "string",
+						"nationality": "AD",
+						"lifeAssured": true,
+						"beneficiary": false,
+						"benefitPayout": 3000,
+						"cellphone": "string",
+						"homephone": "string",
+						"workphone": "string",
+						"email": "string",
+						"dateOfBirth": "1992-04-06T22:00:00.0000000+00:00",
+						"gender": "Male",
+						"coverStartDate": "2020-02-29T22:00:00.0000000+00:00",
+						"premiumStartDate": "2020-02-29T22:00:00.0000000+00:00",
+						"coverEndDate": "2020-04-30T22:00:00.0000000+00:00",
+						"recordID": "4924658741.288",
+						"recordIDType": "RSAID",
+						"relationship": "MainLife",
+						"coverAmount": 50000,
 						"premium": 100.3,
 						"age": 31,
 						"genderType": "Male",
@@ -75,7 +112,7 @@ export const ClientPolicies = {
 						"accountType": "Bond"
 					}
 				},
-				"totalPremium": 2250.2,
+				"totalPremium": 200.2,
 				"arrearDetails": {
 					"outstandingAmount": 0,
 					"monthsOutstanding": 2,
@@ -306,7 +343,7 @@ export const ClientPolicies = {
 				],
 				"contractReference": "CF09847678",
 				"productCode": "Capitec",
-				"commencementDate": "2020-03-02T22:00:00.0000000+00:00",
+				"commencementDate": "2020-04-02T22:00:00.0000000+00:00",
 				"status": "PendingInForce",
 				"displayStatus": "Pending In Force",
 				"deductionDetails": {
@@ -324,7 +361,7 @@ export const ClientPolicies = {
 						"accountType": "Bond"
 					}
 				},
-				"totalPremium": 1800,
+				"totalPremium": 220,
 				"arrearDetails": {
 					"outstandingAmount": 376.8,
 					"monthsOutstanding": 2,
@@ -346,7 +383,7 @@ export const ClientPolicies = {
 					"previousArrearsPaymentAmount": 255.2,
 					"previousPaymentDate": "2020-01-24T22:00:00.0000000+00:00",
 					"previousPaymentAmount": 255.2,
-					"nextPaymentDate": "2020-02-24T22:00:00.0000000+00:00",
+					"nextPaymentDate": "2020-05-04T22:00:00.0000000+00:00",
 					"nextPaymentAmount": 255.2
 				},
 				"benefits": [

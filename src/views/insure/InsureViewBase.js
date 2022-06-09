@@ -69,6 +69,10 @@ export class InsureViewBase extends ViewBase {
 	 */
 	async _retrieveInsureProductParams() {
 		const resp = await this.insureService.productParams();
+
+		if(!resp.succeeded)
+			return;
+			
 		return resp.result;
 	}
 
@@ -81,10 +85,10 @@ export class InsureViewBase extends ViewBase {
 		this.errorMessage = `System error. Please try again.`;
 		this.errorCount++;
 
-		if (this.errorCount > 2) {
+		//if (this.errorCount > 2) {
 			// Generic error
 			this.horizonRouter.navigateToSystemError();
-		}
+		//}
 		return true;
 	}
 

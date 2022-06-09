@@ -76,10 +76,18 @@ export default class InsureChannelServiceMocks {
 	 */
 	policyTransactionHistory(policyTransactionHistoryRequest) {
 		if (this._mockSettings.insurePolicyTransactionHistory.positiveCase) {
-			const result = {transactions : 
-				this.transactionHistoryMocks.PolicyTransactionHistory.transactions
-				.slice(policyTransactionHistoryRequest.pageIndex
-					,policyTransactionHistoryRequest.pageIndex + policyTransactionHistoryRequest.totalPerPage)}
+
+			const result = this.transactionHistoryMocks.PolicyTransactionHistory;
+
+			if(result.contractReference !== policyTransactionHistoryRequest.contractReference)
+			{
+				let emptyResponse = {
+					contractReference: ``,
+					transactions: []
+				}
+
+				return emptyResponse;
+			}
 			return result;
 		}
 

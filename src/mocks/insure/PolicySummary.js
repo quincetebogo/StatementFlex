@@ -39,7 +39,12 @@ export const PolicySummary = {
 			"amount": 175.5,
 			"dueDate": "2022-03-08T17:35:05.191Z",
 			"objectID": ""
-		  }
+		},
+		{
+			"amount": 152.0,
+			"dueDate": "2022-04-06T17:35:05.191Z",
+			"objectID": ""
+		}
 	  ]
 	},
 	"cancellationDetails": {
@@ -49,11 +54,11 @@ export const PolicySummary = {
 	},
 	"paymentSchedule": {
 		"previousArrearsPaymentDate": "2020-01-27T22:00:00.0000000+00:00",
-		"previousArrearsPaymentAmount": 255.2,
+		"previousArrearsPaymentAmount": 250.0,
 		"previousPaymentDate": "2020-01-24T22:00:00.0000000+00:00",
 		"previousPaymentAmount": 255.2,
 		"nextPaymentDate": "2020-02-24T22:00:00.0000000+00:00",
-		"nextPaymentAmount": 255.2
+		"nextPaymentAmount": 260.4
 	},
 	"benefits": [
 	  {
@@ -206,10 +211,10 @@ export const PolicySummary = {
 		"beneficiary": true,
 		"benefitPayout": 15000,
 		"contactDetails": {
-		  "cellphone": "string",
+		  "cellphone": "061 111 1111",
 		  "homephone": "string",
 		  "workphone": "string",
-		  "email": "string"
+		  "email": "abc@gmail.com"
 		},
 		"gender": "Female",
 		"dateOfBirth": "2010-11-16T12:15:05.191Z",
@@ -230,10 +235,10 @@ export const PolicySummary = {
 		"beneficiary": true,
 		"benefitPayout": 12000,
 		"contactDetails": {
-		  "cellphone": "string",
+		  "cellphone": "",
 		  "homephone": "string",
 		  "workphone": "string",
-		  "email": "string"
+		  "email": ""
 		},
 		"gender": "Male",
 		"dateOfBirth": "2012-02-24T05:25:05.191Z",

@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { formatDate } from 'app/utils/channelServiceUtilities';
+import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
@@ -45,7 +45,7 @@ class ClientPolicies extends Component {
 		this.clientPolicies = null;
 	}
 
-	//#endregion
+	//#endregion INITIALISATION
 
 	//#region PROPERTIES
 
@@ -70,7 +70,7 @@ class ClientPolicies extends Component {
 		};
 	}
 
-	//#endregion
+	//#endregion PROPERTIES
 
 	//#region LIFECYCLE OVERRIDES
 
@@ -82,7 +82,7 @@ class ClientPolicies extends Component {
 		super.connectedCallback();
 	}
 
-	//#endregion
+	//#endregion LIFECYCLE OVERRIDES
 
 	//#region EVENT HANDLERS
 
@@ -119,9 +119,9 @@ class ClientPolicies extends Component {
 	/**
 	 * Fire navigate event to Policy Transaction History
 	 */
-	_goToPolicyTransactionHistory() {
+	_goToPolicyTransactionHistory(contractReference) {
 		this.dispatchEvent(new CustomEvent(`navigate-to-policy-transaction-history`, {
-			detail: {
+			detail: { policyNumber: contractReference
 			}
 		}));
 	}
@@ -189,8 +189,8 @@ class ClientPolicies extends Component {
 		this.showPayPremiumDialog = false;
 	}
 
-	
-	//#endregion
+
+	//#endregion EVENT HANDLERS
 
 	//#region PRIVATE FUNCTIONS
 
@@ -224,7 +224,19 @@ class ClientPolicies extends Component {
 		this.requestUpdate();
 	}	
 
-	//#endregion
+	/**
+	 * 
+	 * @param {Object} policyItem - Policy details 
+	 * Get Total cover amount of all role players
+	 */
+	_getTotalCoverAmount(policyItem)
+	{
+		return policyItem.roleplayers.reduce((accumulator, object) => {
+			return accumulator + (object.coverAmount ?? 0);
+		}, 0);
+	}	
+
+	//#endregion PRIVATE FUNCTIONS
 
 	//#region RENDERING
 
@@ -324,6 +336,7 @@ class ClientPolicies extends Component {
 			horizon-expander[expanded] {
 				box-shadow: 0 6px 10px 0.25px rgb(0 0 0 / 7%);
 				display: block;
+				--theme-overflow-menu-width: 200px !important;
 			}
 			.expander-header > capitec-icon {
 				--theme-icon-size-default: 20px;
@@ -344,7 +357,8 @@ class ClientPolicies extends Component {
 			}
 			.expander-header > horizon-label[label="Status"] {
 				--horizon-label-value-color: #70AF00;
-				width: 150px;
+				width: 200px;
+				text-overflow: ellipsis;
 			}
 			horizon-label {
 				width: 135px;
@@ -364,7 +378,7 @@ class ClientPolicies extends Component {
 				--horizon-label-value-color: #009DE0;
 			}
 			.fixed-label {
-				width: 23%;
+				width: 22%;
 				--horizon-label-max-overflow-width: 170px;
 			}
 			.vertical-line {
@@ -375,7 +389,7 @@ class ClientPolicies extends Component {
 
 			/* No results available styles */
 			.no-results {
-				--theme-label-strong-font-size: 24px;
+				--theme-label-strong-font-size: 18px;
 				--theme-label-strong-font-weight: 600;
 				--theme-label-font-color: #3A3A3A;
 			}
@@ -435,9 +449,7 @@ class ClientPolicies extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-button type="white" label="Transaction History" @click="${() => this._goToPolicyTransactionHistory()}">
-					</capitec-button>
-					<capitec-button type="white" label="Get Estimate" data-automation-id="insure-landing-get-estimate"
+					<capitec-button type="white"  label="Get Estimate" data-automation-id="insure-landing-get-estimate"
 						@click="${() => this._goToEstimate()}">
 					</capitec-button>
 				</capitec-title-bar>
@@ -447,8 +459,8 @@ class ClientPolicies extends Component {
 	}
 
 	/**
-	 * Render Landing page for Policies & Quotes
-	 * @returns {html} The html content of the Policies & Quotes tabs
+	 * Render Landing page for Policies & Claims
+	 * @returns {html} The html content of the Policies & Claims tabs
 	 */
 	_renderPoliciesLandingContent() {
 		return html`
@@ -457,15 +469,15 @@ class ClientPolicies extends Component {
 					data-automation-id="insure-landing-policies-tab"
 					label="Policies">
 					<capitec-content-box  class="accounts-box">
-							${this._renderPolciesDetailsBar()}
+							${this._renderPoliciesDetailsBar()}
 					</capitec-content-box>
 					${this._renderFooter()}
 				</capitec-tab>
 				<capitec-tab
-					data-automation-id="insure-landing-quotes-tab"
-					label="Quotes">
+					data-automation-id="insure-landing-claims-tab"
+					label="Claims">
 					<capitec-content-box  class="accounts-box">
-						<label>Client Policies - Coming soon to a sprint near you!</label>
+						<label>Claims - Coming soon to a sprint near you!</label>
 					</capitec-content-box>
 					${this._renderFooter()}
 				</capitec-tab>
@@ -476,7 +488,7 @@ class ClientPolicies extends Component {
 	 * Render List of Policies
 	 * @returns {html} The html content the list of Policies
 	 */
-	_renderPolciesDetailsBar()
+	_renderPoliciesDetailsBar()
 	{
 		this.policiesList = this.clientPolicies?.summaryDetails?.policies;
 
@@ -506,19 +518,19 @@ class ClientPolicies extends Component {
 						</horizon-label>
 						<div class="vertical-line"></div>
 						<horizon-label
-							data-automation-id="insure-policy-effective-date"
-							label="Effective Date"
-							value="${formatDate(policyItem.deductionDetails?.effectiveFromDate, `dd mmm yyyy`)}">
+							data-automation-id="insure-policy-start-date"
+							label="Start Date"
+							value="${ formatDate(policyItem.commencementDate, `dd mmm yyyy`) === '' ? '-' : formatDate(policyItem.commencementDate, `dd mmm yyyy`)}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-policy-debit-order-date"
 							label="Debit Order Date"
-							value="${formatDate(policyItem.commencementDate, `dd mmm yyyy`)}">
+							value="${formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`) === '' ? '-' : formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`)}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-policy-cover-amount"
 							label="Cover Amount"
-							value="${formatCurrency(policyItem.coverAmount)}">
+							value="${formatCurrency(this._getTotalCoverAmount(policyItem))}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-policy-total-premium"
@@ -605,12 +617,11 @@ class ClientPolicies extends Component {
 		return html`
 		<capitec-card class="action-card">
 			<capitec-overflow-menu label="More" data-automation-id = "insure-policy-more-sub-menu">
-				<div class="test">
+				<capitec-overflow-menu-item icon="system/transfer-action" label="Transaction history" @click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
 				<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan"></capitec-overflow-menu-item>
 				${policyItem.arrearDetails.outstandingAmount > 0 ?
 					html `<capitec-overflow-menu-item icon="system/sars-action" label="Benefits"></capitec-overflow-menu-item>`
 					: ``}
-					</div>
 			</capitec-overflow-menu>
 			<capitec-label label="More" class="label-text">
 			</capitec-label>
@@ -622,8 +633,8 @@ class ClientPolicies extends Component {
 	 * @returns {html} The html content of No results
 	 */
 	_renderNoResults() {
-		return html`
-			<capitec-group
+		return html `${ isNullorEmpty(this.clientPolicies) ? `` : 
+			html `<capitec-group
 				class="no-result-group"
 				layout="vertical"
 				halign="center"
@@ -635,8 +646,8 @@ class ClientPolicies extends Component {
 						label="No results found"
 						type="strong">
 					</capitec-label>
-			</capitec-group>
-		`;
+			</capitec-group>`
+		}`;
 	}
 
 	/**
@@ -708,7 +719,7 @@ class ClientPolicies extends Component {
 
 	}
 
-	//#endregion
+	//#endregion RENDERING
 }
 
 window.customElements.define(`horizon-insure-client-policies`, ClientPolicies);
