@@ -702,7 +702,7 @@ class ClientPolicies extends Component {
 	 _renderPayPremiumAgreementDialog() {
 		return this.showPayPremiumAgreementDialog == false ? `` :
 			html`
-			<insure-pay-premium-agreement-dialog @close-modal="${(e) => this._closePayPremiumagreementDialog()}"
+			<insure-pay-premium-agreement-dialog @close-modal="${(e) => this._closePayPremiumAgreementDialog()}"
 			@agree="${(e) => this._goToPayPremiumSuccess()}">	
 			</insure-pay-premium-agreement-dialog>`
 
