@@ -1,6 +1,7 @@
-import { Component, css, html } from 'platform/elements';
+import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { TABLE_EXPANDER_CELL } from 'app/css/PolicySummary';
 
 /**
  * Policy summary component showing details of single policy with its role players
@@ -76,12 +77,14 @@ class PolicySummary extends Component {
 			capitec-group > capitec-title-bar {
 				--theme-titlebar-min-height: 32px;
 				--theme-titlebar-padding: 0px 0px 0px 16px;
-				--theme-type-default-background: rgb(244, 244, 244);
 				--theme-label-title-font-size: 14px;
 				--theme-label-title-font-weight: 600;
 				width: 100%;
-				border-top: 1px solid #E1E1E1;
 				box-shadow: none!important;
+			}
+			.inner-details-title{
+				--theme-type-default-background: rgb(244, 244, 244);
+				border-top: 1px solid #E1E1E1;
 			}
 			horizon-label {
 				width: 140px;
@@ -100,9 +103,10 @@ class PolicySummary extends Component {
 				height: auto;
 				--theme-container-padding-left: 16px;
 				--theme-container-padding-right: 16px;
-				--theme-container-padding-bottom: 16px;
-				--theme-container-padding-top: 16px;
+				--theme-container-padding-bottom: 0px;
+				--theme-container-padding-top: 0px;
 				--theme-layout-gap-spacing: 0px;
+				overflow: hidden;
 			}
 			.fixed-label {
 				width: 175px;
@@ -125,6 +129,45 @@ class PolicySummary extends Component {
 			.no-result-group {
 				width: 1032px;
 				margin-top: 20px;
+			}
+			.expander-content {
+				border-left: 1px solid #E1E1E1;
+				border-bottom: 1px solid #E1E1E1;
+				border-right: 1px solid #E1E1E1;
+				border-radius: 0px 0px 4px 4px
+			}
+			.expander-content > capitec-title-bar {
+				border-top: 0px;
+			}
+			.options-group {
+				height: auto; 
+				width: auto;
+			}
+			.options-group > horizon-label {
+				width: 186px;
+				height: 80px;
+				margin-left: 16px;
+				padding: 0px;
+
+				--horizon-option-btn-text-margin-top: 3px;
+				--horizon-option-btn-icon-height: 26px;
+				--horizon-option-btn-icon-width: 26px;
+			}
+			horizon-expander {
+				margin-bottom: 16px;
+				--theme-expander-height: auto;
+				--theme-layout-gap-spacing: 0px;
+				--theme-expander-header-height: 64px;
+				--theme-expander-header-padding: 0 6px 0 0;
+				--theme-expander-indicator-width: 16px;
+			}
+			horizon-expander[expanded] {
+				box-shadow: 0 6px 10px 0.25px rgb(0 0 0 / 7%);
+				display: block;
+			}
+			.arrears{
+				--horizon-label-text-color: #C83C37 !important;
+				--horizon-label-value-color: #C83C37 !important;
 			}
 			`
 		];
@@ -171,7 +214,8 @@ class PolicySummary extends Component {
 		return html`
 			${this._renderMainLifeSection()}
 			${this._renderBeneficiariesSection()}
-			${this._renderLivesAssuredSections()}
+			${this._renderLivesAssuredSection()}
+			${this._renderBankDetailsSection()}
 		`;
 	}
 
@@ -182,7 +226,7 @@ class PolicySummary extends Component {
 	_renderMainLifeSection()
 	{
 		const sumArrears = this.policyDetails?.arrearDetails?.arrears?.reduce((accumulator, object) => {
-			return accumulator + object.amount;
+			return accumulator + (object.amount ?? 0);
 		  }, 0);
 
 		const mainLifeDetails = this.policyDetails?.roleplayers?.filter(item => item.relationship === 'MainLife');
@@ -195,9 +239,8 @@ class PolicySummary extends Component {
 
 		<capitec-content-box  class="accounts-box">
 		<horizon-expander
-		expandButtonAlignment=""
-		.expanded = "${false}"
-		?disabled=${true}>
+		expandButtonAlignment="right"
+		.expanded = "${false}">
 			<capitec-group 
 				class="expander-header"
 				slot="custom-header"
@@ -213,8 +256,8 @@ class PolicySummary extends Component {
 					</horizon-label>
 					<div class="vertical-line"></div>
 					<horizon-label
-						data-automation-id="insure-main-life-effective-date"
-						label="Effective date"
+						data-automation-id="insure-main-life-start-date"
+						label="Start date"
 						value="${formatDate(this.policyDetails?.commencementDate, `dd mmm yyyy`) === '' ? '-' : formatDate(this.policyDetails?.commencementDate, `dd mmm yyyy`)}">
 					</horizon-label>
 					<horizon-label
@@ -230,6 +273,7 @@ class PolicySummary extends Component {
 					<horizon-label
 						data-automation-id="insure-main-life-arrears"
 						label="Arrears"
+						class="${ sumArrears > 0 ? `arrears` : ``}"
 						value="${formatCurrency(sumArrears)}">
 					</horizon-label>
 					<horizon-label
@@ -238,8 +282,83 @@ class PolicySummary extends Component {
 						value="${this.policyDetails?.displayStatus}">
 					</horizon-label>
 			</capitec-group>
+			<div slot="content">
+				<capitec-group 
+					class="expander-content" 
+					layout="vertical"
+					gap="none"
+					halign="left"
+					valign="center">
+						${this._renderOptions()}
+				</capitec-group>
+			</div>
 		</horizon-expander>
 		</capitec-content-box>
+		`;
+	}
+
+		/**
+	 * Render MainLife Additional Information
+	 * @returns {html} The html content of the each MainLife Addition Information
+	 */
+	_renderOptions() {
+		const paymentSchedule = this.policyDetails?.paymentSchedule;
+		var csvOfMonths = this.policyDetails?.arrearDetails?.arrears.map((item) => { return formatDate(item.dueDate,  `dd mmm yyyy`); }).join(", ");
+
+		return html`
+			<capitec-title-bar type="default" label="Additional Information" class="inner-details-title"></capitec-title-bar>
+			<capitec-group class="options-group" layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Amount of last premium payment"
+					value = "${ isNullorEmpty(paymentSchedule?.previousPaymentAmount) ? formatCurrency(0) : formatCurrency(paymentSchedule?.previousPaymentAmount) }"
+					data-automation-id="policy-summary-last-premium-payment">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Date of last premium payment"
+					value = "${ formatDate(paymentSchedule?.previousPaymentDate, `dd mmm yyyy`) === '' ? '-' : formatDate(paymentSchedule?.previousPaymentDate, `dd mmm yyyy`)}"
+					data-automation-id="policy-summary-last-premium-date">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Next debit order amount" 
+					value = "${ isNullorEmpty(paymentSchedule?.nextPaymentAmount) ? formatCurrency(0) : formatCurrency(paymentSchedule?.nextPaymentAmount) }"
+					data-automation-id="policy-summary-next-debit-amount">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Date of next premium"
+					value = "${ formatDate(paymentSchedule?.nextPaymentDate, `dd mmm yyyy`) === '' ? '-' : formatDate(paymentSchedule?.nextPaymentDate, `dd mmm yyyy`)}"
+					data-automation-id="policy-summary-next-premium">
+				</horizon-label>
+			</capitec-group>
+			<capitec-group class="options-group" layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Amount of last arrears payment"
+					value = "${ isNullorEmpty(paymentSchedule?.previousArrearsPaymentAmount) ? formatCurrency(0) : formatCurrency(paymentSchedule?.previousArrearsPaymentAmount) }"
+					data-automation-id="policy-summary-last-arrears-payment-amount">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Date of last arrears payment"
+					value = "${ formatDate(paymentSchedule?.previousArrearsPaymentDate, `dd mmm yyyy`) === '' ? '-' : formatDate(paymentSchedule?.previousArrearsPaymentDate, `dd mmm yyyy`)}"
+					data-automation-id="policy-summary-last-arrears-payment-date">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Months outstanding" 
+					value = "${ csvOfMonths }"
+					data-automation-id="policy-summary-months-outstanding">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Mandate Status"
+					value = "N/A"
+					data-automation-id="policy-summary-mandate-status">
+				</horizon-label>
+			</capitec-group>
 		`;
 	}
 
@@ -287,6 +406,16 @@ class PolicySummary extends Component {
 							value="${ formatDate(item.dateOfBirth, `dd mmm yyyy`) === '' ? '-' : formatDate(item.dateOfBirth, `dd mmm yyyy`)}">
 						</horizon-label>
 						<horizon-label
+							data-automation-id="insure-beneficiaries-contact-number"
+							label="Contact number"
+							value="${item.contactDetails?.cellphone}">
+						</horizon-label>
+						<horizon-label
+							data-automation-id="insure-beneficiaries-email-address"
+							label="Email address"
+							value="${item.contactDetails?.email}">
+						</horizon-label>
+						<horizon-label
 							data-automation-id="insure-beneficiaries-benefit-payout"
 							label="Benefit payout"
 							value="${ isNullorEmpty(item.benefitPayout) ? formatCurrency(0) : formatCurrency(item.benefitPayout)}">
@@ -302,7 +431,7 @@ class PolicySummary extends Component {
 	 * Render Lives Assured section
 	 * @returns {html} The html content of Lives Assured section
 	 */
-	_renderLivesAssuredSections()
+	_renderLivesAssuredSection()
 	{
 		let livesAssured = this.policyDetails?.roleplayers?.filter(item => item.lifeAssured === true);
 
@@ -342,15 +471,81 @@ class PolicySummary extends Component {
 							value="${formatDate(item.dateOfBirth, `dd mmm yyyy`) === '' ? '-' : formatDate(item.dateOfBirth, `dd mmm yyyy`)}">
 						</horizon-label>
 						<horizon-label
-							data-automation-id="insure-lives-assured-benefit-payout"
-							label="Benefit payout"
-							value="${formatCurrency(item.benefitPayout)}">
+							data-automation-id="insure-lives-assured-premium"
+							label="Premium"
+							value="${isNullorEmpty(item.premium) ? formatCurrency(0) : formatCurrency(item.premium) }">
+						</horizon-label>
+						<horizon-label
+							data-automation-id="insure-lives-assured-cover-amount"
+							label="Cover amount"
+							value="${isNullorEmpty(item.coverAmount) ? formatCurrency(0) : formatCurrency(item.coverAmount) }">
 						</horizon-label>
 				</capitec-group>
 			</horizon-expander>
 			</capitec-content-box>
 		`) : this._renderNoResults() } 
 		`;
+	}
+
+	/**
+	 * Render Bank Details section
+	 * @returns {html} The html content of Bank details section 
+	 */
+	_renderBankDetailsSection(){
+		let deductionDetails = this.policyDetails?.deductionDetails;
+
+		return html`
+		<capitec-title-bar
+			type="default"
+			label="Bank details">
+		</capitec-title-bar>
+		<capitec-content-box  class="accounts-box">
+			<horizon-expander
+			expandButtonAlignment=""
+			.expanded = "${false}"
+			?disabled=${true}>
+				<capitec-group 
+					class="expander-header"
+					slot="custom-header"
+					layout="horizontal"
+					gap="clear"
+					halign="left"
+					valign="center">
+						<horizon-label
+							class="fixed-label"
+							data-automation-id="insure-bank-details-account-name"
+							label="Account name"
+							value="${deductionDetails?.bankDetails?.accountName}">
+						</horizon-label>
+						<div class="vertical-line"></div>
+						<horizon-label
+							data-automation-id="insure-bank-details-account-number"
+							label="Account number"
+							value="${deductionDetails?.bankDetails?.accountNumber}">
+						</horizon-label>
+						<horizon-label
+							data-automation-id="insure-bank-details-bank-name"
+							label="Bank"
+							value="${ deductionDetails?.bankDetails?.bank }">
+						</horizon-label>
+						<horizon-label
+							data-automation-id="insure-bank-details-branch-code"
+							label="Branch code"
+							value="${deductionDetails?.bankDetails?.branchCode}">
+						</horizon-label>
+						<horizon-label
+							data-automation-id="insure-bank-details-account-type"
+							label="Account type"
+							value="${deductionDetails?.bankDetails?.accountType}">
+						</horizon-label>
+						<horizon-label
+							data-automation-id="insure-bank-details-collection-day"
+							label="Collection day"
+							value="${ deductionDetails?.collectionDay }">
+						</horizon-label>
+				</capitec-group>
+			</horizon-expander>
+		</capitec-content-box>`;
 	}
 
 	/**

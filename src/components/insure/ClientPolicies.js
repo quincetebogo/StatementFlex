@@ -286,11 +286,11 @@ class ClientPolicies extends Component {
 				--theme-expander-header-height: 64px;
 				--theme-expander-header-padding: 0 6px 0 0;
 				--theme-expander-indicator-width: 16px;
-				overflow: inherit !important;
 			}
 			horizon-expander[expanded] {
 				box-shadow: 0 6px 10px 0.25px rgb(0 0 0 / 7%);
 				display: block;
+				--theme-overflow-menu-width: 200px !important;
 			}
 			.expander-header > capitec-icon {
 				--theme-icon-size-default: 20px;
@@ -363,9 +363,6 @@ class ClientPolicies extends Component {
 			}
 			.policy-item {
 				padding-left: 30px;
-			}
-			.overflow-menu{
-				width: max-content;
 			}
 			`
 		];
@@ -473,8 +470,8 @@ class ClientPolicies extends Component {
 						</horizon-label>
 						<div class="vertical-line"></div>
 						<horizon-label
-							data-automation-id="insure-policy-effective-date"
-							label="Effective Date"
+							data-automation-id="insure-policy-start-date"
+							label="Start Date"
 							value="${ formatDate(policyItem.commencementDate, `dd mmm yyyy`) === '' ? '-' : formatDate(policyItem.commencementDate, `dd mmm yyyy`)}">
 						</horizon-label>
 						<horizon-label
