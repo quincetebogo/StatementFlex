@@ -51,7 +51,7 @@ class PolicyTransactionHistory extends Component{
 		this.startDate = ``;
 		this.endDate = ``;
 
-		this.policyTransactionHistory = [];
+		this.policyTransactionHistory = {};
 		this.filteredData = [];
 		this.isBusy = false;
 		this.hideLoadMore = true;
@@ -306,6 +306,9 @@ class PolicyTransactionHistory extends Component{
 					width: 1062px;
 					margin-top: 130px;
 				}
+				.action-image{
+					cursor: pointer;
+				}
 			`
 		];
 	}	
@@ -321,11 +324,11 @@ class PolicyTransactionHistory extends Component{
 
 		// Making sure no baggage is carried from the previous instance.
 		RENDER_CHIPS[FILTER_BY.DATE] = ``;
-		RENDER_CHIPS[FILTER_BY.DATE_TYPE] = this.dateTypeOptions[1].text;
+		RENDER_CHIPS[FILTER_BY.DATE_TYPE] = this.dateTypeOptions[0].text;
 
-		this.filteredData = this.policyTransactionHistory;
-		this.hideLoadMore = this.policyTransactionHistory.length % MAX_RESULTS > 0 
-			&& this.policyTransactionHistory.length % MAX_RESULTS < MAX_RESULTS;
+		this.filteredData = this.policyTransactionHistory?.transactions;
+		this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 
+			&& this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
 	}
 
 	/**
@@ -502,7 +505,7 @@ class PolicyTransactionHistory extends Component{
 				<capitec-spacer></capitec-spacer>
 				<horizon-label
 					label="Contract Reference"
-					value="CFXXXX"
+					value="${this.policyTransactionHistory?.contractReference}"
 					data-automation-id="policy-contract-reference-value">
 				</horizon-label>
 			</capitec-group>
@@ -762,7 +765,7 @@ class PolicyTransactionHistory extends Component{
 						type="strong">
 					</capitec-label>
 					<capitec-label
-						label="No policy transactions made in the last 6 months"
+						label="No policy transactions made during ${isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE]) ? `Last 6 months` : RENDER_CHIPS[FILTER_BY.DATE]} "
 						type="strong">
 					</capitec-label>
 			</capitec-group>
@@ -775,7 +778,7 @@ class PolicyTransactionHistory extends Component{
 	 */
 	_renderFooter() {
 		return html`
-			<capitec-action-bar class="load-more-bar" ?hidden="${this.hideLoadMore || this.policyTransactionHistory.length === 0}">
+			<capitec-action-bar class="load-more-bar" ?hidden="${this.hideLoadMore || this.policyTransactionHistory?.transactions?.length === 0}">
 				<capitec-spacer></capitec-spacer>
 				<capitec-button
 					type="clear"
@@ -859,18 +862,19 @@ class PolicyTransactionHistory extends Component{
 	 * load more transaction when clicked on load more button
 	 */
 	async _loadMoreTransactions() {
-		const oldCount = this.policyTransactionHistory.length;
+		const oldCount = this.policyTransactionHistory?.transactions?.length;
 		const startDate = this.startDate.toLocaleString().slice(0, 10);
 		const endDate = this.endDate.toLocaleString().slice(0, 10);
 
-		await this.getPolicyTransactionHistory(startDate, endDate, this.policyTransactionHistory.length);
+		await this.getPolicyTransactionHistory(startDate, endDate, this.policyTransactionHistory?.transactions?.length);
 
 		// If the old record count and count after load more are same means no more data to populate,
 		// so hiding loadmore button
-		if (oldCount === this.policyTransactionHistory.length) {
+		if (oldCount === this.policyTransactionHistory?.transactions?.length) {
 			this.hideLoadMore = true;
 		} else {
-			this.hideLoadMore = this.policyTransactionHistory.length % MAX_RESULTS > 0 && this.policyTransactionHistory.length % MAX_RESULTS < MAX_RESULTS;
+			this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 
+				&& this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
 		}
 		this._refineSearch();
 	}
@@ -880,7 +884,7 @@ class PolicyTransactionHistory extends Component{
 	 */
 	_refineSearch() {
 
-		this.filteredData = this.policyTransactionHistory;
+		this.filteredData = this.policyTransactionHistory?.transactions;
 
 		if (RENDER_CHIPS[FILTER_BY.DATE]) {
 			const startDate = new Date(Date.parse(this.startDate));

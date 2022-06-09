@@ -46,8 +46,9 @@ export class ExistingClient extends InsureViewBase {
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.estimate = {};
 		this.productParams = {};
-		this.policyTransactionHistory = [];
+		this.policyTransactionHistory = {};
 		this.policyDetails = {};
+		this.contractReference = ``;
 	}
 
 	/**
@@ -66,7 +67,8 @@ export class ExistingClient extends InsureViewBase {
 			estimate: { type: Object, state: true },
 			quote: { type: Object, state: true },
 			policyDetails: { type: Object, state: true },
-			mainLifeGender: { type: String, state: true }
+			mainLifeGender: { type: String, state: true },
+			contractReference: { type: String, state: true }
 		};
 	}
 
@@ -204,8 +206,9 @@ export class ExistingClient extends InsureViewBase {
 	/**
 	 * Prepare and navigate to Transaction history
 	 */
-	async _goToPolicyTransactionHistory() {
+	async _goToPolicyTransactionHistory(e) {
 		// Telemetry Here
+		this.contractReference = e.detail.policyNumber;
 		await this._getPolicyTransactionHistory();
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY);
 	}
@@ -239,13 +242,15 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _getPolicyTransactionHistory(startDate, endDate, pageIndex) {
 		const transactionHistoryRequest = {
-			contractReference: '',
-			transactionDateType: '',
+			contractReference: this.contractReference,
+			transactionDateType: 'TransactionDate',
 			fromDate: startDate || POLICY_TRANSACTION_HISTORY.START_DATE,
 			toDate: endDate || POLICY_TRANSACTION_HISTORY.END_DATE,
 			pageIndex: pageIndex || POLICY_TRANSACTION_HISTORY.PAGE_INDEX,
 			totalPerPage: POLICY_TRANSACTION_HISTORY.MAX_RESULTS,
 		};
+
+		this.transactions = [];
 
 		const returnValue = await this.insureService.getPolicyTransactions(transactionHistoryRequest);
 
@@ -262,7 +267,13 @@ export class ExistingClient extends InsureViewBase {
 										item.formatedAmount = formatCurrency(item.amount);
 										return item;
 									});
-			this.policyTransactionHistory.push(...formattedTrans);
+			this.transactions.push(...formattedTrans);
+
+			this.policyTransactionHistory = {
+				contractReference: this.contractReference,
+				transactions: this.transactions 
+			}
+
 			this.endCallContext = `PolicyTransactionHistory`;
 			this.renderMode = INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY;
 		}
@@ -272,7 +283,7 @@ export class ExistingClient extends InsureViewBase {
 	 * Unload Policy Transactions
 	 */
 	_unloadPolicyTransactionHistory() {
-		this.policyTransactionHistory = [];
+		this.policyTransactionHistory = {};
 	}
 
 	//#endregion EVENT HANDLERS
@@ -355,7 +366,7 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan()}"
 				@pay-arrears ="${(e) => this._payArrears()}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
-				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory()}">
+				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}">
 			</horizon-insure-client-policies>`
 	}
 

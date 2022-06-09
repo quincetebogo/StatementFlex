@@ -32,6 +32,8 @@ export class InsureService extends ChannelServiceBase {
 	 * @returns {Object} Header entries 
 	 */
 	setInsureTokens() {
+		const test = Security.getInstance().token;
+
 		return {
 			"X-User-Token": Security.getInstance().token,
 			"x-session-id": v4(),
@@ -316,7 +318,7 @@ export class InsureService extends ChannelServiceBase {
 				return this.mock(`policyTransactionHistory`, transactionsRequest);
 			}
 			return this.post(
-				`/FuneralInsuranceProductService/policy/transactions`,
+				`/horizon-insurance/policy/transactions`,
 				transactionsRequest,
 				this.setInsureTokens(),
 				`getPolicyTransactions`,

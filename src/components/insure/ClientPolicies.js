@@ -110,9 +110,9 @@ class ClientPolicies extends Component {
 	/**
 	 * Fire navigate event to Policy Transaction History
 	 */
-	_goToPolicyTransactionHistory() {
+	_goToPolicyTransactionHistory(contractReference) {
 		this.dispatchEvent(new CustomEvent(`navigate-to-policy-transaction-history`, {
-			detail: {
+			detail: { policyNumber: contractReference
 			}
 		}));
 	}
@@ -290,6 +290,7 @@ class ClientPolicies extends Component {
 			horizon-expander[expanded] {
 				box-shadow: 0 6px 10px 0.25px rgb(0 0 0 / 7%);
 				display: block;
+				--theme-overflow-menu-width: 200px !important;
 			}
 			.expander-header > capitec-icon {
 				--theme-icon-size-default: 20px;
@@ -400,8 +401,6 @@ class ClientPolicies extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-button type="white" label="Transaction History" @click="${() => this._goToPolicyTransactionHistory()}">
-					</capitec-button>
 					<capitec-button type="white"  label="Get Estimate" data-automation-id="insure-landing-get-estimate"
 						@click="${() => this._goToEstimate()}">
 					</capitec-button>
@@ -412,8 +411,8 @@ class ClientPolicies extends Component {
 	}
 
 	/**
-	 * Render Landing page for Policies & Quotes
-	 * @returns {html} The html content of the Policies & Quotes tabs
+	 * Render Landing page for Policies & Claims
+	 * @returns {html} The html content of the Policies & Claims tabs
 	 */
 	_renderPoliciesLandingContent() {
 		return html`
@@ -427,10 +426,10 @@ class ClientPolicies extends Component {
 					${this._renderFooter()}
 				</capitec-tab>
 				<capitec-tab
-					data-automation-id="insure-landing-quotes-tab"
-					label="Quotes">
+					data-automation-id="insure-landing-claims-tab"
+					label="Claims">
 					<capitec-content-box  class="accounts-box">
-						<label>Client Policies - Coming soon to a sprint near you!</label>
+						<label>Claims - Coming soon to a sprint near you!</label>
 					</capitec-content-box>
 					${this._renderFooter()}
 				</capitec-tab>
@@ -471,8 +470,8 @@ class ClientPolicies extends Component {
 						</horizon-label>
 						<div class="vertical-line"></div>
 						<horizon-label
-							data-automation-id="insure-policy-effective-date"
-							label="Effective Date"
+							data-automation-id="insure-policy-start-date"
+							label="Start Date"
 							value="${ formatDate(policyItem.commencementDate, `dd mmm yyyy`) === '' ? '-' : formatDate(policyItem.commencementDate, `dd mmm yyyy`)}">
 						</horizon-label>
 						<horizon-label
@@ -570,12 +569,11 @@ class ClientPolicies extends Component {
 		return html`
 		<capitec-card class="action-card">
 			<capitec-overflow-menu label="More" data-automation-id = "insure-policy-more-sub-menu">
-				<div class="test">
+				<capitec-overflow-menu-item icon="system/transfer-action" label="Transaction history" @click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
 				<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan"></capitec-overflow-menu-item>
 				${policyItem.arrearDetails.outstandingAmount > 0 ?
 					html `<capitec-overflow-menu-item icon="system/sars-action" label="Benefits"></capitec-overflow-menu-item>`
 					: ``}
-					</div>
 			</capitec-overflow-menu>
 			<capitec-label label="More" class="label-text">
 			</capitec-label>

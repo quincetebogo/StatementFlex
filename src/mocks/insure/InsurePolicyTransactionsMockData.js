@@ -5,15 +5,15 @@
  * @constant PolicyTransactionHistory
  */
  export const PolicyTransactionHistory = {
-	"contractReference": "CRef12345",
+	"contractReference": "CF0123456",
 	"transactions": [
 		{
 			"premiumDueDate": "2022-04-20T12:16:05.229Z",
-			"premium": 2000,
+			"premium": 25,
 			"type": "Premium Date",
 			"date": "2022-04-15T12:16:05.229Z",
-			"amount": 15000,
-			"reason": "",
+			"amount": 25,
+			"reason": "Verify Statement",
 			"bankDetails": {
 			  "accountName": "John Smith",
 			  "branchCode": "250655",
@@ -24,11 +24,11 @@
 			}
 		},
 		{
-			"premiumDueDate": "2022-02-18T12:16:05.229Z",
-			"premium": 1500,
+			"premiumDueDate": "2022-04-18T12:16:05.229Z",
+			"premium": 30,
 			"type": "Premium Date",
 			"date": "2022-04-15T12:16:05.229Z",
-			"amount": 10000,
+			"amount": 30,
 			"reason": "",
 			"bankDetails": {
 			  "accountName": "Sophia",
@@ -41,10 +41,10 @@
 		},
 		{
 			"premiumDueDate": "2022-03-15T12:16:05.229Z",
-			"premium": 1000,
+			"premium": 22,
 			"type": "Date",
 			"date": "2022-03-25T12:16:05.229Z",
-			"amount": 7500,
+			"amount": 22,
 			"reason": "",
 			"bankDetails": {
 			  "accountName": "Lethabo",
