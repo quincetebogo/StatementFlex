@@ -21,6 +21,7 @@ export class MiniProfile extends Component {
 	constructor() {
 		super();
 		this.miniProfile = null;
+		this.isHelpDeskAgent = true;
 
 		this.configuration = Configuration.getInstance();
 	}
@@ -64,6 +65,10 @@ export class MiniProfile extends Component {
 	}
 
 	_onVerifyNowClick() {
+		this.eventAggregator.publish(`horizon-verify-now-click`, {});
+	}
+
+	_onClientBranchVerifiedClick() {
 		this.eventAggregator.publish(`horizon-verify-now-click`, {});
 	}
 
@@ -410,7 +415,26 @@ export class MiniProfile extends Component {
 			`;
 		};
 
-		return html`
+		return this.isHelpDeskAgent 
+		? html`
+			<capitec-alert-banner class="banner" type="warning">
+				<capitec-group 
+						id="id-notify-banner-group" 
+						layout="horizontal">
+					<capitec-label 
+						id="id-notify-client-warning-msg" 
+						label="Client has not been verified">
+					</capitec-label>
+					<capitec-spacer></capitec-spacer>
+					<capitec-hyperlink 
+						id="id-verify-now-warning-link" 
+						data-automation-id="mini-profile-verify"
+						@click="${() => this._onClientBranchVerifiedClick()}"
+						label="Client verified in branch">
+					</capitec-hyperlink>
+				</capitec-group>
+			</capitec-alert-banner>` 
+		: html`
 			<capitec-alert-banner class="banner" type="warning">
 				<capitec-group 
 						id="id-notify-banner-group" 
