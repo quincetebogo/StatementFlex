@@ -162,7 +162,6 @@ class UpdatePlan extends Component {
 	 */
 	_addBeneficiary(beneficiary) {
 		this.quote.beneficiaries.push(beneficiary)
-		console.log(JSON.stringify(this.beneficiaries))
 	}
 
 	/**
@@ -178,8 +177,6 @@ class UpdatePlan extends Component {
 	 * @param {Object} event
 	 */
 	_removeBeneficiary(event) {
-		console.log(event);
-		console.log("about to remove ", this.beneficiaryToRemove)
 		this.quote.beneficiaries.splice(this.beneficiaryToRemove, 1);
 		// Reshuffle
 		for (let index = 0; index < this.quote.beneficiaries.length; index++) {
@@ -196,17 +193,14 @@ class UpdatePlan extends Component {
 	 * @param {*} index 
 	 */
 	 _openRemoveBeneficiaryDialog(index) {
-		console.log(index);
 		this.showRemoveBeneficiaryDialog = true;
 		this.beneficiaryToRemove = index;
-		console.log("trying to remove ", this.beneficiaryToRemove)
 	}
 
 	/**
 	 * Close Remove Beneficiary dialog
 	 */
 	_closeRemoveBeneficiaryDialog() {
-		console.log("closing dialog");
 		this.showRemoveBeneficiaryDialog = false;
 	}
 
@@ -294,7 +288,6 @@ class UpdatePlan extends Component {
 	 */
 	 async _calculatePremium() {
 		if (this.newTotalPremium != 0) {
-			console.log("Calculating by premium")
 			this.quote.totalPremium = this.newTotalPremium
 		}
 
@@ -307,7 +300,6 @@ class UpdatePlan extends Component {
 		this.quote.totalPremium = 0;
 		this.newTotalPremium = '';
 
-		console.log(this.quote);
 
 		this.dispatchEvent(new CustomEvent(`calculate`, {
 			detail: request
@@ -329,7 +321,6 @@ class UpdatePlan extends Component {
 	 */
 	_tabChange(e) {
 		this.selectedTabIndex = e.detail.selectedIndex;
-		console.log(this.selectedTabIndex)
 	}
 
 	/**
@@ -413,7 +404,6 @@ class UpdatePlan extends Component {
 	 * Close the Add Life dialog
 	 */
 	_closeAddLifeDialog() {
-		console.log("closing");
 		this.showAddRelationshipDialog = false;
 	}
 
@@ -428,7 +418,6 @@ class UpdatePlan extends Component {
 			this.showAddBeneficiariesDialog = true;
 		}
 		
-		console.log(this.showAddBeneficiariesDialog);
 	}
 
 	/**
@@ -896,7 +885,7 @@ class UpdatePlan extends Component {
 				
 								<!-- main life expander -->
 
-								<capitec-expander  label="Main Life | Charl Walden">
+								<capitec-expander label="Main Life | Charl Walden">
 									<div class="expander-options">
 										<capitec-select label="Title" .items="${this.titleOptions}" display-field="text" id-field="code"
 											style="width: 50%" disabled>

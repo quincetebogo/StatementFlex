@@ -159,7 +159,7 @@ export class ExistingClient extends InsureViewBase {
 	/**
 	 * Prepare and navigate Update plan
 	 */
-	_goToUpdatePlan() {
+	async _goToUpdatePlan() {
 		// Telemetry Here
 		this.policySummary = await this._retrievePolicySummary();
 
