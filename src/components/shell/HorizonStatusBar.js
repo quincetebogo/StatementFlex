@@ -64,29 +64,34 @@ export class HorizonStatusBar extends Component {
 			/* STATUS BAR STYLES */
 			capitec-content-box {
 				background-color: #333;
+				height: 72px;
+				text-align: center;
 
 				--theme-container-padding-left: 24px;
 				--theme-container-padding-top: 0px;
 				--theme-container-padding-right: 24px;
 				--theme-container-padding-bottom: 0px;
 			}
-			.status-bar-group{
-				height: 72px;
-				width: 100%;
-				text-align: center;
-			}
 
 			/* STATUS */
 			.status-bar{
 				--theme-statusbar-min-height: 59px;
 				margin:0px;
+				width: auto;
 			}
 
 			/* APP VERSION */
 			.app-version {
-				padding-top: 25px;
-				--theme-label-default-font-size: 14px;
-				--theme-label-font-color: white;
+				text-align: start;
+
+				--horizon-label-text-height: 20px;
+				--horizon-label-text-color: white;
+				--horizon-label-text-font-size: 16px;
+				--horizon-label-value-height: 20px;
+				--horizon-label-value-color: white;
+				--horizon-label-value-font-size: 14px;
+				--horizon-label-value-font-weight: 500;
+				--horizon-label-value-line-height: 20px;
 			}
 
 			/* OTHER SYSTEMS LINKS */
@@ -113,52 +118,52 @@ export class HorizonStatusBar extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-content-box>
-				<capitec-group layout="grid"
-					gap="none"
-					rows="auto"
-					columns="uniform"
-					class="status-bar-group">
+			<capitec-content-box
+				layout="horizontal"
+				halign="left"
+				valign="center"
+				gap="none">
 
-						<capitec-status-bar
-							row="1" column="1"
-							class="status-bar"
-							status="${this.currentStatus}" 
-							label="${this.currentMessage}">
-						</capitec-status-bar>
-					
-						<capitec-label
-							row="1" column="2"
-							class="app-version"
-							label="v${this.appVersion}">
-						</capitec-label>
+					<capitec-status-bar
+						row="1" column="1"
+						class="status-bar"
+						status="${this.currentStatus}" 
+						label="${this.currentMessage}">
+					</capitec-status-bar>
+				
+					<horizon-label
+						row="1" column="2"
+						class="app-version"
+						label="Version"
+						value="${this.appVersion}">
+					</horizon-label>
+					<capitec-spacer></capitec-spacer>
 
-						<capitec-group 
-							layout="horizontal"
-							halign="right"
-							valign="center"
-							gap="clear"
-							row="1" column="3">
-								<div class="status-bar-icon">
-									<a href="${this.sblLink}" target="_blank" tabindex="-1">
-										<img src="/images/statusBar/SBL.svg" alt=""/>
-									</a>
-									<capitec-label class="icon-caption" label="SBL"></capitec-label>
-								</div>
-								<div class="status-bar-icon" column="2" row="1">
-									<a href="${this.cdsLink}" target="_blank" tabindex="-1">
-										<img src="/images/statusBar/CDS.svg" alt=""/>
-									</a>
-									<capitec-label class="icon-caption" label="CDS"></capitec-label>
-								</div>
-								<div class="status-bar-icon" column="3" row="1">
-									<a href="${this.cnetLink}" target="_blank" tabindex="-1">
-										<img id="image" src="/images/statusBar/C-Net.svg" alt=""/>
-									</a>
-									<capitec-label class="icon-caption" label="C-Net"></capitec-label>
-								</div>
-						</capitec-group>
-				</capitec-group>
+					<capitec-group 
+						layout="horizontal"
+						halign="right"
+						valign="center"
+						gap="clear"
+						row="1" column="3">
+							<div class="status-bar-icon">
+								<a href="${this.sblLink}" target="_blank" tabindex="-1">
+									<img src="/images/statusBar/SBL.svg" alt=""/>
+								</a>
+								<capitec-label class="icon-caption" label="SBL"></capitec-label>
+							</div>
+							<div class="status-bar-icon" column="2" row="1">
+								<a href="${this.cdsLink}" target="_blank" tabindex="-1">
+									<img src="/images/statusBar/CDS.svg" alt=""/>
+								</a>
+								<capitec-label class="icon-caption" label="CDS"></capitec-label>
+							</div>
+							<div class="status-bar-icon" column="3" row="1">
+								<a href="${this.cnetLink}" target="_blank" tabindex="-1">
+									<img id="image" src="/images/statusBar/C-Net.svg" alt=""/>
+								</a>
+								<capitec-label class="icon-caption" label="C-Net"></capitec-label>
+							</div>
+					</capitec-group>
 			</capitec-content-box>`;
 	}
 
