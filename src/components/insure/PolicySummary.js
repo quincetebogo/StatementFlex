@@ -303,7 +303,10 @@ class PolicySummary extends Component {
 	 */
 	_renderOptions() {
 		const paymentSchedule = this.policyDetails?.paymentSchedule;
-		var csvOfMonths = this.policyDetails?.arrearDetails?.arrears.map((item) => { return formatDate(item.dueDate,  `dd mmm yyyy`); }).join(", ");
+		const csvOfMonths = this.policyDetails?.arrearDetails?.arrears.map((item) => { return formatDate(item.dueDate,  `dd mmm yyyy`); }).join(", ");
+		const activeBankAccountNo = this.policyDetails?.deductionDetails?.bankDetails?.accountNumber;
+
+		const activeMandateDetails = this.policyDetails?.mandates?.filter(x => x.accountNumber === activeBankAccountNo);
 
 		return html`
 			<capitec-title-bar type="default" label="Additional Information" class="inner-details-title"></capitec-title-bar>
@@ -355,7 +358,7 @@ class PolicySummary extends Component {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Mandate Status"
-					value = "N/A"
+					value = "${ isNullorEmpty(activeMandateDetails[0]?.mandateStatus) ? `N/A` : activeMandateDetails[0]?.mandateStatus }"
 					data-automation-id="policy-summary-mandate-status">
 				</horizon-label>
 			</capitec-group>
