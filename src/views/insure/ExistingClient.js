@@ -225,7 +225,7 @@ export class ExistingClient extends InsureViewBase {
 	 * 
 	 * @param {*} e contains the payArrears object
 	 */
-	_payArrears(e) {
+	_goToPayPremiumSuccess(e) {
 		//call fips here
 
 		// Telemetry Here
@@ -364,7 +364,7 @@ export class ExistingClient extends InsureViewBase {
 			<horizon-insure-client-policies .clientPolicies = "${this.clientPolicies}"
 				@navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan()}"
-				@pay-arrears ="${(e) => this._payArrears()}"
+				@navigate-to-pay-premium-success ="${(e) => this._goToPayPremiumSuccess()}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}">
 			</horizon-insure-client-policies>`
