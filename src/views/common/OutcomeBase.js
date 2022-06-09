@@ -101,7 +101,6 @@ export class OutcomeBase extends ViewBase {
 		const screenDetails = this.horizonStore.getScreenDetails();
 		let request;
 		if (screenDetails.settleAndCloseCreditOption === `CreditCard`) {
-
 			 request = {
 				"cifNumber": this.callerInformation.cifNumber,
 				"emailAddress": event.detail.email,
