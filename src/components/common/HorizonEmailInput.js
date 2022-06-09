@@ -76,9 +76,14 @@ export class HorizonEmailInput extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 			
+		if (this.email && this.confirmEmail) {
+			this._valueChanged(this.email, this.confirmEmail, this._compareEmails());
+			return;
+		}
 		if (Boolean(this.registeredEmailId)) {
 			this.email = this.registeredEmailId;
-
+			this.confirmEmail = ``;
+			
 			if (!this._validateInput(this.registeredEmailId)) {
 				this.emailError = ERROR_MESSAGE.FORMAT; 
 			}
@@ -123,7 +128,7 @@ export class HorizonEmailInput extends Component {
 	}
 
 	_inputEmail(event) {
-		if (event.detail.action === `clear`) {
+		if (event.detail.action === `clear` || event.detail.new === this.registeredEmailId) {
 			this.email = this.registeredEmailId;
 			this.confirmEmail = ``;
 			
