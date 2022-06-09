@@ -1,7 +1,4 @@
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { ViewBase } from 'app/views/common/ViewBase';
-
 import { InsureService } from 'app/services/InsureService';
 
 /**
@@ -21,8 +18,6 @@ export class InsureViewBase extends ViewBase {
 
 	constructor() {
 		super();
-		// this.horizonRouter = HorizonRouter.getInstance();
-		// this.horizonStore = HorizonStore.getInstance();
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 	}
 
@@ -39,8 +34,7 @@ export class InsureViewBase extends ViewBase {
 	 */
 	static get properties() {
 		return {
-			productParams: { type: Object },
-			// isBusy: { state: true },
+			productParams: { type: Object, state: true },
 		};
 	}
 
@@ -56,7 +50,7 @@ export class InsureViewBase extends ViewBase {
 	 */
 	async connectedCallback() {
 		super.connectedCallback();
-		this.productParams = await this.retrieveInsureProductParams();
+		this.productParams = await this._retrieveInsureProductParams();
 	}
 
 	/**
@@ -73,10 +67,12 @@ export class InsureViewBase extends ViewBase {
 	 * API: Retrieve Insure Product Params from Channel Service
 	 * @returns {Object} Product Params Array
 	 */
-	async retrieveInsureProductParams() {
-		this.isBusy = true;
+	async _retrieveInsureProductParams() {
 		const resp = await this.insureService.productParams();
-		this.isBusy = false;
+
+		if(!resp.succeeded)
+			return;
+			
 		return resp.result;
 	}
 
@@ -89,13 +85,10 @@ export class InsureViewBase extends ViewBase {
 		this.errorMessage = `System error. Please try again.`;
 		this.errorCount++;
 
-		if (this.errorCount > 2) {
-			// this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-			// this.horizonStore.setCallerInformation(this.callerInformation);
-
+		//if (this.errorCount > 2) {
 			// Generic error
 			this.horizonRouter.navigateToSystemError();
-		}
+		//}
 		return true;
 	}
 
