@@ -1,9 +1,9 @@
-import { Configuration, SecurityContext } from 'platform/core';
 import { css, html } from 'platform/elements';
 import { AUTH_IDENTIFICATION_METHODS } from 'app/constants/Common';
 import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
+import { Configuration } from 'platform/core';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { HorizonViewManager } from 'app/shell/HorizonViewManager';
@@ -46,7 +46,6 @@ export class LandingPage extends ViewBase {
 		this.desktopAgentService = DesktopAgentService.getInstance();
 		this._configuration = Configuration.getInstance();
 		this.telemetry = HorizonTelemetry.getInstance();
-		this._securityContext = SecurityContext.getInstance();
 
 		this.initialiseService = new InitialiseService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
@@ -203,12 +202,6 @@ export class LandingPage extends ViewBase {
 	 * @memberof LandingPage
 	 */
 	_dispatchCall(acceptedCall, newCallInfo, forceSearchDialog) {
-		
-		// TO DO: roles to be checked for "Helpdesk agent" based on what token carries to UI.
-		// Needs to be updated once CS is ready to send helpdesk role in the token(`help-desk` is not the finalizes wording).
-		const roles = this._securityContext.roles;
-		const isHelpDeskAgent = roles && Array.isArray(roles) && roles.includes(`help-desk`);
-
 		// Set up state for the incoming call
 		this.incomingCallDetails = new IncomingCallDetails(
 			newCallInfo.VDN,
@@ -217,7 +210,6 @@ export class LandingPage extends ViewBase {
 			false,
 			newCallInfo.voiceReferenceNumber,
 			newCallInfo.agentTelephoneNumber,
-			isHelpDeskAgent,
 			newCallInfo.ivrOptionCode
 		);
 
