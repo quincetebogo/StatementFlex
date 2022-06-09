@@ -185,17 +185,29 @@
 			"positiveCase": true
 		},
 		"insureClientPolicies": {
-			"enabled": true,
-			"positiveCase": true
+			"enabled": false,
+			"positiveCase": false
 		},
 		"insureProductParams": {
 			"enabled": false,
-			"positiveCase": true
+			"positiveCase": false
 		},
-		"insurePolicySummary":{
+		"insureCalculateQuote": {
 			"enabled": true,
 			"positiveCase": true
 		},
+		"insureRetrieveQuoteDetails": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureRetrieveQuotesList": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insurePolicyTransactionHistory": {
+			"enabled": false,
+			"positiveCase": false
+		},	
 		"creditOverview": {
 			"enabled": false,
 			"positiveCase": true
@@ -203,6 +215,10 @@
 		"creditBalance": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"insurePolicySummary": {
+			"enabled": false,
+			"positiveCase": false
 		}
 	}
 }
