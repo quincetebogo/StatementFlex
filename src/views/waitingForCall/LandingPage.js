@@ -2,6 +2,7 @@ import { css, html } from 'platform/elements';
 import { AUTH_IDENTIFICATION_METHODS } from 'app/constants/Common';
 import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { CallHandleService } from 'app/services/CallHandleService';
+import { ClientProfileService } from 'app/services/ClientProfileService';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { Configuration } from 'platform/core';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
@@ -49,6 +50,7 @@ export class LandingPage extends ViewBase {
 
 		this.initialiseService = new InitialiseService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
+		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
 
 		this.incomingCallDetails = new IncomingCallDetails();
 		this.incidentDetails = {};
@@ -178,7 +180,7 @@ export class LandingPage extends ViewBase {
 		// telephone number. For a manually created call, we don't know the incoming telephone number.
 		if (incomingNumber !== `0` && incomingNumber !== `0000000000` && incomingNumber !== ``) {
 			// Check the incoming call to see if it is a verified or unverified number
-			const returnValue = await this.callHandleService.acceptCall(newCallInfo);
+			const returnValue = await this.clientProfileService.acceptCall(newCallInfo);
 			callerDetails = returnValue.result;
 			forceSearchDialog = !returnValue.succeeded;
 
