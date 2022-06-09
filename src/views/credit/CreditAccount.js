@@ -393,7 +393,7 @@ export class CreditAccount extends ViewBase {
 	_getSECTransferDetails(item) {
 		for (let i = 0; i < this.settleAndCloseQuote.savingAccountsList.length; i++) {
 			const savAcc = this.settleAndCloseQuote.savingAccountsList[i];
-			if (savAcc.accountNumber === item) {
+			if (savAcc.accountNumber == item) {
 				return i;
 			}
 		}
@@ -795,7 +795,6 @@ export class CreditAccount extends ViewBase {
 			idNumber: this.callerInformation.southAfricanIDNumber
 		};
 		const returnValue = await this.creditService.settleAndCloseQuote(settleAndCloseQuoteRequest);
-
 		this.settleAndCloseQuote = returnValue.result;
 
 		this.showSettleCloseModal = !this.showSettleCloseModal;
