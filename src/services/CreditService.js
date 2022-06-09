@@ -527,6 +527,7 @@ export class CreditService extends ChannelServiceBase {
 				emailAddress: settleAndCloseRequest.emailAddress,
 				firstname: settleAndCloseRequest.firstname,
 				surname: settleAndCloseRequest.surname,
+				idNumber: settleAndCloseRequest.idNumber
 		};
 
 		const url = `/clientcare-credit-${this._version}/credit/settle-and-close/settle`;
