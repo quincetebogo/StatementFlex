@@ -29,7 +29,6 @@ import 'app/components/quickTransactions/TaxCertificateLanding';
 import 'app/dialogs/credit/PaidUpAccounts';
 import 'app/dialogs/credit/PaidUpLetter';
 import 'app/dialogs/taxCertificates/TaxCertificates';
-
 const SAVINGS_ACCOUNT_TYPE = 300;
 
 const ERROR_LIST = {
@@ -553,24 +552,24 @@ export class Favourites extends SavingsAccountBase {
 			"screen": TelemetryScreen.FAVOURITES,
 			"next-screen": TelemetryScreen.SETTLEMENT_QUOTE_VIEW
 		});
-
+		
 		const returnValue = await this.creditService.settlementQuoteLanding({ "cifNumber": this.callerInformation.cifNumber }, customErrHandler);
-
-		if (returnValue.succeeded) {
-			this.settlementQuoteDetails = returnValue.result.settlementInfoList;
-
-			this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
-				item.type = PRODUCT_TYPE[item.productTypeCode];
-				item.category = CREDIT_ACCOUNT_TYPE[item.productTypeCode];
-				item.productTypeDescription = `${item.productTypeDescription.toLowerCase().charAt(0).toUpperCase()}${item.productTypeDescription.toLowerCase().slice(1)}`;
-				item.creditLimit = formatCurrency(item.creditLimit);
-				item.repayAmount = item.repayAmount ? formatCurrency(item.repayAmount) : null;
-				item.nextRepayment = item.nextRepayment ? formatCurrency(item.nextRepayment) : null;
-				item.currentBalance = formatCurrency(item.currentBalance);
-				item.settlementAmount = formatCurrency(item.currentSettlementAmount);
-
-				return item;
-			});
+			
+			if (returnValue.succeeded) {
+				this.settlementQuoteDetails = returnValue.result.settlementInfoList;
+	
+				this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
+					item.type = PRODUCT_TYPE[item.productTypeCode];
+					item.category = CREDIT_ACCOUNT_TYPE[item.productTypeCode];
+					item.productTypeDescription = `${item.productTypeDescription.toLowerCase().charAt(0).toUpperCase()}${item.productTypeDescription.toLowerCase().slice(1)}`;
+					item.creditLimit = formatCurrency(item.creditLimit);
+					item.repayAmount = item.repayAmount ? formatCurrency(item.repayAmount) : null;
+					item.nextRepayment = item.nextRepayment ? formatCurrency(item.nextRepayment) : null;
+					item.currentBalance = formatCurrency(item.currentBalance);
+					item.settlementAmount = formatCurrency(item.currentSettlementAmount);
+					item.maxSettlementAmount = item.maxSettlementAmount? formatCurrency(item.maxSettlementAmount) : formatCurrency(item.settlementAmount);
+					return item;
+				});
 
 			if (this.settlementQuoteDetails.length > 0) {
 				this.ccsStatus = await this._checkCreditPermisions(`settlement-quote`, this.callerInformation.cifNumber, this.settlementQuoteDetails[0].accountNumber, this.settlementQuoteDetails[0].type);
