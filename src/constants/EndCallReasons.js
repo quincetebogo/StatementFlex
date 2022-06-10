@@ -392,3 +392,11 @@ export const RECOGNIZE_NEED_REASONS = Object.freeze([
 	 `ProductEnquiry`,
 	 `LandingPage`
  ]);
+
+ /**
+ * Enum - For the below end call contexts, we need to recognize need when incident not classified
+ * 
+ * @readonly
+ * @enum {Object} RECOGNIZE_NEED_CONTEXTS
+ */
+export const RECOGNIZE_NEED_CONTEXTS = Object.freeze([`TransactionHistory`]);
