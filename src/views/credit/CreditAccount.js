@@ -401,7 +401,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_getSavingsAccType(code) {
-		if (code === 300) {
+		if (code == 300) {
 			return `Primary`;
 		} 
 			return `Flexible`;
