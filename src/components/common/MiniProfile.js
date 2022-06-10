@@ -1,5 +1,8 @@
 import { Component, css, html } from 'platform/elements';
 import { Configuration, EventAggregator } from 'platform/core';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
+import { RoleManager } from 'app/shell/RoleManager';
 import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/OptionButton';
@@ -21,9 +24,11 @@ export class MiniProfile extends Component {
 	constructor() {
 		super();
 		this.miniProfile = null;
-		this.isHelpDeskAgent = true;
 
+		this.roleManager = RoleManager.getInstance();
 		this.configuration = Configuration.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	/**
@@ -69,6 +74,8 @@ export class MiniProfile extends Component {
 	}
 
 	_onClientBranchVerifiedClick() {
+		this._updateApplicationState(`verified`, `SQ`);
+
 		this.eventAggregator.publish(`horizon-verify-now-click`, {});
 	}
 
@@ -124,6 +131,15 @@ export class MiniProfile extends Component {
 		];
 
 		return `${dob.getDate()} ${months[dob.getMonth()]} ${dob.getFullYear()}`;
+	}
+
+	_updateApplicationState(verificationStatus, verificationMethod) {
+		const callerInformation = this.horizonStore.getCallerInformation();
+
+		callerInformation.verificationStatus = verificationStatus;
+		callerInformation.verificationMethod = verificationMethod;
+
+		this.horizonStore.setCallerInformation(callerInformation);
 	}
 
 	// ---------
@@ -415,7 +431,7 @@ export class MiniProfile extends Component {
 			`;
 		};
 
-		return this.isHelpDeskAgent 
+		return this.roleManager.isHelpDeskAgent && !this.miniProfile.isVerified
 		? html`
 			<capitec-alert-banner class="banner" type="warning">
 				<capitec-group 

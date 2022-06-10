@@ -10,6 +10,7 @@ import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { LandingPageEvents } from 'app/constants/telemetry/events/LandingPage';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { RoleManager } from 'app/shell/RoleManager';
 
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/verifyCaller/VerifyCaller';
@@ -47,6 +48,7 @@ export class ViewBase extends View {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+		this.roleManager = RoleManager.getInstance();
 		this.logger = Logger.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
 
@@ -106,6 +108,10 @@ export class ViewBase extends View {
 		this.stateChanged = this.horizonStore.stateChangedProperties.subscribe(changes => {
 			if (changes && changes.stateChanges?.incidentDetails) {
 				this._refreshIncidentDetails();
+			}
+
+			if (changes && changes.stateChanges?.callerInformation) {
+				this._getCallerInformation();
 			}
 		});
 
@@ -201,6 +207,10 @@ export class ViewBase extends View {
 	 */
 	_refreshIncidentDetails() {
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
+	}
+
+	_getCallerInformation() {
+		this.callerInformation = this.horizonStore.getCallerInformation();
 	}
 
 	_addCallerDetails() {
