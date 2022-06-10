@@ -806,10 +806,14 @@ export class CreditAccount extends ViewBase {
 			[this.settleAndCloseDetails.productTypeDescription]: this.settleAndCloseDetails.accountNumber,
 			[balanceField]: balanceFieldValue,
 			'Outstanding balance': this.settleAndCloseDetails.currentBalance,
-			'Interest not capitalised': formatCurrency(this.settleAndCloseQuote.interestNotCapatalised),
-			'Expected interest and fees': formatCurrency(this.settleAndCloseQuote.expectedInterestFees),
 			'Settlement amount': formatCurrency(this.settleAndCloseQuote.settlementAmount)
 		};
+
+		if (this.settleAndCloseCreditOption === `CreditCard`) {
+			this.settleAndCloseDetails[`Interest not capitalised`] = formatCurrency(this.settleAndCloseQuote.interestNotCapatalised);
+			this.settleAndCloseDetails[`Expected interest and fees`] = formatCurrency(this.settleAndCloseQuote.expectedInterestFees);
+		}
+
 		this.renderMode = RENDER_MODE.SETTLE_AND_CLOSE;
 	
 	}
