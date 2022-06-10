@@ -132,7 +132,7 @@ class CancelPolicySuccess extends Component {
 						style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
 					<label id="temp-container-label">The policy has been cancelled</label>
 					<capitec-label class="spacing" type="subtitle" label="You currently have 2 active policies"></capitec-label>
-					<capitec-button label="Issue Policy" type="primary" @click="${() => this._onIssuePolicyClick()}"
+					<capitec-button label="Done" type="primary" @click="${() => this._onIssuePolicyClick()}"
 						data-automation-id="">
 					</capitec-button>
 				</div>

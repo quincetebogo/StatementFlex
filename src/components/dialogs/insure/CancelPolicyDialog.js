@@ -24,6 +24,7 @@ class CancelPolicyDialog extends Component {
 		super();
 
 		this.cancelationReasons = CANCELATION_REASONS;
+		this.selected = false;
 	}
 
 	//#endregion
@@ -32,7 +33,7 @@ class CancelPolicyDialog extends Component {
 
 	 static get properties() {
 		return {
-			
+			selected: {type: Boolean, state: true}
 		};
 	}
 
@@ -63,6 +64,13 @@ class CancelPolicyDialog extends Component {
 	 */
 	_onAgreeClick() {
 		this.dispatchEvent(new CustomEvent(`agree`, {}));
+	}
+
+	/**
+	 * Event to to change the value of selected once an option has been chosen from the cancelation select box
+	 */
+	_valueSelected(){
+		this.selected = true;
 	}
 
 	//#endregion
@@ -139,12 +147,15 @@ class CancelPolicyDialog extends Component {
 
 			<div class="select" data-automation-id="insure-cancel-policy-dialog-cancelation-reason">
 				<capitec-select 
-					label="Cancelation Reason" 
+					label="Cancellation Reason" 
 					.items= "${this.cancelationReasons}"
 					display-field="text"
-					id-field="code">
+					id-field="code"
+					@value-change = "${() => this._valueSelected()}">
 				</capitec-select>
 			</div>
+
+			${console.log(this.selected)}
 
 			<capitec-expander-group modeset="single">
 				<div class="expander">
@@ -179,7 +190,8 @@ class CancelPolicyDialog extends Component {
 				</capitec-button>
 				<capitec-button class="button" slot="footer" type="primary" label="Agree"
 					@click="${() => this._onAgreeClick()}"
-					data-automation-id="insure-cancel-policy-dialog-agree">
+					data-automation-id="insure-cancel-policy-dialog-agree"
+					.disabled="${this.selected == false}">
 				</capitec-button>
 		`}
 
