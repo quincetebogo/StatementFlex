@@ -839,6 +839,42 @@ class UpdatePlan extends Component {
 								</capitec-text-field>
 							</div>
 						</capitec-expander>
+
+
+						
+			<horizon-expander expandButtonAlignment="right">
+				<capitec-group 
+					class="expander-header"
+					slot="custom-header"
+					layout="horizontal"
+					gap="clear"
+					halign="left"
+					valign="center">
+						<horizon-label
+							class="label-policy-number fixed-label"
+							data-automation-id="insure-policy-contract-reference"
+							label="Main Life"
+							textOverflow="ellipsis"
+							value="Charl Walden">
+						</horizon-label>
+						<div class="vertical-line"></div>
+						<horizon-label
+							data-automation-id="insure-policy-start-date"
+							label="Cover Amount (Min R5 000 - Max 100 000)"
+							value="R25 000">
+						</horizon-label>
+				</capitec-group>
+				<div slot="content">
+					<capitec-group 
+						class="expander-content" 
+						layout="vertical"
+						gap="none"
+						halign="left"
+						valign="center">
+							${this._renderOptions()}
+					</capitec-group>
+				</div>
+			</horizon-expander>
 						
 			
 						
@@ -1192,6 +1228,58 @@ class UpdatePlan extends Component {
 			type="${this.agreementYBPAccepted == true ? 'success' : 'info'}" header="Header"
 			label="Notify: I agree to You/your beneficiary are paid agreement declaration">
 		</capitec-alert-banner>`
+	}
+
+	/**
+	 * Render Policy options
+	 * @param {Object} policyItem - each policy item
+	 * @returns {html} The html content of the each Policy options
+	 */
+	 _renderOptions(policyItem) {
+		return html`
+			<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
+			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
+				${policyItem.arrearDetails.outstandingAmount > 0 ? 
+					html `
+				<horizon-option-button 
+					data-automation-id="insure-policy-options-pay-arrears"
+					class="button-margin" 
+					label="Pay Arrears" 
+					icon="status/error"
+					@click="${() => this._openPayPremiumDialog(policyItem)}">
+				</horizon-option-button>
+				` : ``}
+				<horizon-option-button 
+					data-automation-id="insure-policy-options-update-plan"
+					class="button-margin" 
+					label="Update Plan" 
+					icon="system/profile-action"
+					@click="${() => this._goToUpdatePlan(policyItem.contractReference)}">
+				</horizon-option-button>
+				<horizon-option-button
+					data-automation-id="insure-policy-options-claims"
+					class="button-margin" 
+					label="Claims" 
+					icon="system/documents-action">
+				</horizon-option-button>
+				<horizon-option-button 
+					data-automation-id="insure-policy-options-email-plan"
+					class="button-margin" 
+					label="Email Plan" 
+					icon="system/profile-action">
+				</horizon-option-button>
+				${policyItem.arrearDetails.outstandingAmount < 1 ? 
+					html `
+				<horizon-option-button 
+					data-automation-id="insure-policy-options-benefits"
+					class="button-margin" 
+					label="Benefits" 
+					icon="system/sars-action">
+				</horizon-option-button>
+				` : ``}	
+				${this._renderSubMenu(policyItem)}
+			</capitec-group>
+		`;
 	}
 
 	/** DIALOGS */
