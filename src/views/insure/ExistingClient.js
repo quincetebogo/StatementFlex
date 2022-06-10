@@ -142,14 +142,14 @@ export class ExistingClient extends InsureViewBase {
 	 * Retrieve Policy Summary via insure channel service
 	 * @returns {Object} Policy Summary Details 
 	 */
-	async _retrievePolicySummary(contractReference, cifNumber) {
-		let	request = {
-			contractReference: contractReference,
-			cifNumber: cifNumber,
+		 async _retrievePolicySummary(contractReference, cifNumber) {
+			let	request = {
+				contractReference: contractReference,
+				cifNumber: cifNumber,
+			}
+			const resp = await this.insureService.insurePolicySummary(request);
+			return resp.result;
 		}
-		const resp = await this.insureService.insurePolicySummary(request);
-		return resp.result;
-	}
 
 	/**
 	 * Calculate estimate based on lives assured provided
@@ -286,6 +286,13 @@ export class ExistingClient extends InsureViewBase {
 		this.policyTransactionHistory = {};
 	}
 
+	/**
+	 * Unload Policy Transactions State
+ 	*/
+	_undoClientPolicies() {
+		this.clientPolicies?.summaryDetails?.policies?.forEach(item => { item["isExpanded"] = false; })
+	}
+
 	//#endregion EVENT HANDLERS
 
 	//#region RENDERING
@@ -403,7 +410,8 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-policy-summary 
 				.policyDetails = "${this.policyDetails}"
-				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+				@unloading="${() => this._undoClientPolicies()}">
 			</horizon-insure-policy-summary>`
 	}
 
