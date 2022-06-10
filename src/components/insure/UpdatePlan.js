@@ -18,6 +18,7 @@ import 'app/components/dialogs/insure/AddBeneficiaryDialog';
 
 // Other
 import 'app/components/common/HorizonLabel';
+import 'app/components/common/HorizonExpander';
 import 'app/components/common/ServiceCallErrorScreen';
 
 /**
@@ -592,7 +593,7 @@ class UpdatePlan extends Component {
 				z-index: 10;
 				padding-top: 12px;
 				padding-bottom: 12px;
-				border-right: 1px solid #dfdfdf;
+				/*border-right: 1px solid #dfdfdf;*/
 			}
 
 
@@ -602,6 +603,72 @@ class UpdatePlan extends Component {
 				padding: 20px 15px 15px 15px; 
 				gap: 10px;
 			}
+
+			/* Expander header and content styles */
+			horizon-expander {
+				margin-bottom: 16px;
+				--theme-expander-height: auto;
+				--theme-layout-gap-spacing: 0px;
+				--theme-expander-header-height: 64px;
+				--theme-expander-header-padding: 0 6px 0 0;
+				--theme-expander-indicator-width: 16px;
+			}
+			horizon-expander[expanded] {
+				box-shadow: 0 6px 10px 0.25px rgb(0 0 0 / 7%);
+				display: block;
+				--theme-overflow-menu-width: 200px !important;
+			}
+			.expander-header > capitec-icon {
+				--theme-icon-size-default: 20px;
+				--theme-layout-gap-spacing: 0px;
+				margin-left: 10px;
+			}
+			.expander-header > capitec-button {
+				width: 128px;
+			}
+			.expander-content {
+				border-left: 1px solid #E1E1E1;
+				border-bottom: 1px solid #E1E1E1;
+				border-right: 1px solid #E1E1E1;
+				border-radius: 0px 0px 4px 4px
+			}
+			.expander-content > capitec-title-bar {
+				border-top: 0px;
+			}
+			.expander-header > horizon-label[label="Status"] {
+				--horizon-label-value-color: #70AF00;
+				width: 200px;
+				text-overflow: ellipsis;
+			}
+			horizon-label {
+				width: 280px;
+				padding-left: 16px;
+				--theme-layout-gap-spacing: 0px;
+				--horizon-label-text-height: 20px;
+				--horizon-label-text-color: #3A3A3A;
+				--horizon-label-text-line-height: 20px;
+				
+				--horizon-label-value-height: 20px;
+				--horizon-label-value-color: #3A3A3A;
+				--horizon-label-value-font-size: 16px;
+				--horizon-label-value-line-height: 20px;
+			}
+			.label-policy-number {
+				--theme-label-cursor: pointer;
+				--horizon-label-value-color: #009DE0;
+			}
+			.fixed-label {
+				width: 65%;
+				--horizon-label-max-overflow-width: 170px;
+			}
+			.vertical-line {
+				height: 40px;
+				width: 1px;
+				background-color: #E1E1E1;
+			}
+
+			
+
 			`
 		];
 	}
@@ -963,7 +1030,7 @@ class UpdatePlan extends Component {
 									</div>
 								</capitec-expander>
 								
-								<!--Beneficiaries  -->
+								<!--Beneficiaries -->
 								<div class="calc-card-row" style="margin-top: 15px;">
 									<capitec-label label="Beneficiaries" type="strong" class="stronger">
 									</capitec-label>
@@ -1237,24 +1304,13 @@ class UpdatePlan extends Component {
 	 */
 	 _renderOptions(policyItem) {
 		return html`
-			<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
 			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
-				${policyItem.arrearDetails.outstandingAmount > 0 ? 
-					html `
-				<horizon-option-button 
-					data-automation-id="insure-policy-options-pay-arrears"
-					class="button-margin" 
-					label="Pay Arrears" 
-					icon="status/error"
-					@click="${() => this._openPayPremiumDialog(policyItem)}">
-				</horizon-option-button>
-				` : ``}
 				<horizon-option-button 
 					data-automation-id="insure-policy-options-update-plan"
 					class="button-margin" 
 					label="Update Plan" 
 					icon="system/profile-action"
-					@click="${() => this._goToUpdatePlan(policyItem.contractReference)}">
+				>
 				</horizon-option-button>
 				<horizon-option-button
 					data-automation-id="insure-policy-options-claims"
@@ -1268,16 +1324,7 @@ class UpdatePlan extends Component {
 					label="Email Plan" 
 					icon="system/profile-action">
 				</horizon-option-button>
-				${policyItem.arrearDetails.outstandingAmount < 1 ? 
-					html `
-				<horizon-option-button 
-					data-automation-id="insure-policy-options-benefits"
-					class="button-margin" 
-					label="Benefits" 
-					icon="system/sars-action">
-				</horizon-option-button>
-				` : ``}	
-				${this._renderSubMenu(policyItem)}
+				
 			</capitec-group>
 		`;
 	}
