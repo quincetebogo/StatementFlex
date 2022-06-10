@@ -1,8 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { Configuration, EventAggregator } from 'platform/core';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { RoleManager } from 'app/shell/RoleManager';
 import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/OptionButton';
@@ -24,15 +22,15 @@ export class MiniProfile extends Component {
 	constructor() {
 		super();
 		this.miniProfile = null;
+		this.isHelpDeskAgent = false;
 
-		this.roleManager = RoleManager.getInstance();
 		this.configuration = Configuration.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	/**
 	 * @property {Object} miniProfile Data and flags for updating the mini-profile panel view
+	 * @property {Boolean} [isHelpDeskAgent=false] Determines if the application user role is a Helpdesk Agent
 	 *
 	 * @readonly
 	 * @static
@@ -40,7 +38,8 @@ export class MiniProfile extends Component {
 	 */
 	static get properties() {
 		return {
-			miniProfile: { type: Object }
+			miniProfile: { type: Object },
+			isHelpDeskAgent: { type: Boolean }
 		};
 	}
 
@@ -432,7 +431,7 @@ export class MiniProfile extends Component {
 			`;
 		};
 
-		return this.roleManager.isHelpDeskAgent && !this.miniProfile.isVerified
+		return this.isHelpDeskAgent && !this.miniProfile.isVerified
 		? html`
 			<capitec-alert-banner class="banner" type="warning">
 				<capitec-group 
