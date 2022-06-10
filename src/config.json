@@ -3,7 +3,7 @@
 		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet",
 		"clientInsightsUrl": "https://hzn-cs-clientinsights-v1.platform-dev.int.capinet",
 		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-dev.int.capinet",
-		"insureChannelServiceUrl": "http://localhost:6002"
+		"insureChannelServiceUrl": "https://insurance-funeralinsurance.platform-dev.int.capinet"
 	},
 	"signalRUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
 	"DesktopAgent": {
@@ -185,8 +185,8 @@
 			"positiveCase": true
 		},
 		"insureClientPolicies": {
-			"enabled": true,
-			"positiveCase": true
+			"enabled": false,
+			"positiveCase": false
 		},
 		"insureProductParams": {
 			"enabled": false,
@@ -217,8 +217,8 @@
 			"positiveCase": true
 		},
 		"insurePolicySummary": {
-			"enabled": true,
-			"positiveCase": true
+			"enabled": false,
+			"positiveCase": false
 		}
 	}
 }

@@ -27,6 +27,7 @@ constructor() {
 
 	this.checked = false;
 	this.amount = 0;
+	this.optionSelected = false;
 	// Lookups
 	this.clientAccounts = CLIENT_ACCOUNTS;
 }
@@ -38,17 +39,21 @@ constructor() {
 	/**
 	 * @property {Object} clientArrears Data & flags from Arrears Service
 	 * @property {Object} payArrears Data & flags for Pay Arrears service request
-	 * @property {boolean} checked Determines if an Arrear was selected
+	 * @property {Boolean} checked Determines if an Arrear was selected
+	 * @property {Number} amount Total amount to be paid for arrears
+	 * @property {Boolean} optionSelected determines whether an option has been selected from the account select box
 	 * 
 	 * @readonly
 	 * @static
 	 */
 	 static get properties() {
 		return {
-			clientArrears: { type: Object },
-			payArrears: {type: Object},
-			checked: {boolean: false},
-			amount: {integer: 0}
+			clientArrears: { type: Object, state: true },
+			payArrears: {type: Object, state: true},
+			checked: {type: Boolean, state: true},
+			amount: {type: Number, state: true},
+			optionSelected: {type: Boolean, state: true}
+
 		};
 	}
 
@@ -110,7 +115,7 @@ constructor() {
 	 */
 	_onPayClick() {
 
-		this.dispatchEvent(new CustomEvent(`pay-arrears`, {detail: this.payArrears}));
+		this.dispatchEvent(new CustomEvent(`pay-arrears`, {detail:{payArrears: this.payArrears, amountToPay: this.amount} }));
 	}
 
 	/**
@@ -124,14 +129,13 @@ constructor() {
 
 		this._addSelected(outstanding, e);
 
-		console.log(e.detail.new);
-
 		if (this.payArrears.arrears.length > 0) {
 			this.checked = true
 		} else {
 			this.checked = false;
 		}
 		
+		//calculates the total amount to be paid 
 		if (e.detail.new == true) {
 			this.amount = this.amount + outstanding.amount;
 		} else if(e.detail.new == false) {	
@@ -162,12 +166,16 @@ constructor() {
 		
 
 	}
-	
-	
+	/**
+	 * event that sets the value of optionSelected to the value recieved from the account select box
+	 * 
+	 * @param {*} e contains the boolean value recieved from the account select box
+	 */
+	_optionSelected(e) {
+		this.optionSelected = e.detail;
+	}
 
 	//#endregion
-
-
 
 //#region RENDERING
 
@@ -209,14 +217,14 @@ constructor() {
 	 */
 	 _webTemplate() {
 		return html`
-			<capitec-modal data-automation-id="insure-pay-arrears-dialog" type="form" class="modal-body-label" header="Pay Arrears (${this.clientArrears.contractReference})"
+			<capitec-modal type="form" class="modal-body-label" header="Pay Arrears (${this.clientArrears.contractReference})"
 			header-align="left">
 			<div slot="body" class="modal-body">
-				<capitec-content-box layout="vertical" halign="stretch" valign="top" gap="clear" data-automation-id = "insure-pay-arrears-dialog-body">
+				<capitec-content-box layout="vertical" halign="stretch" valign="top" gap="clear" data-automation-id = "insure-pay-premium-dialog-body">
 					${this._renderDialogBody()}
 				</capitec-content-box>
 			</div>
-			<div slot="footer" data-automation-id="insure-pay-arrears-dialog-footer">
+			<div slot="footer" data-automation-id="insure-pay-premium-dialog-footer">
 				${this._renderDialogFooter()}
 			</div>
 			</capitec-modal>`;
@@ -235,7 +243,9 @@ constructor() {
 			<capitec-label type="subtitle" label="Choose payment method">
 			</capitec-label>
 			
-			<insure-account-select .items= "${this.clientAccounts}" label="Select an Account"></insure-account-select>
+			<insure-account-select .items= "${this.clientAccounts}" label="Select an Account"
+				@option-selected="${(e) => this._optionSelected(e)}" data-automation-id="insure-pay-premium-dialog-accounts">
+			</insure-account-select>
 
 			
 			<div style="display: flex; justify-content: space-between;">
@@ -246,7 +256,7 @@ constructor() {
 						${this.clientArrears.arrears.map((outstanding, index) => html`
 							${index != 0 || index == 0 ? html`
 								<capitec-radio class="checkbox" label="${formatDate(outstanding.dueDate, 'MM yyyy')} | ${formatCurrency(outstanding.amount)}"
-								@value-change=" ${(e) => this._checkedChange(outstanding,e)}" data-automation-id="insure-pay-arrears-dialog-arrears">
+								@value-change=" ${(e) => this._checkedChange(outstanding,e)}" data-automation-id="insure-pay-premium-dialog-arrears">
 								</capitec-radio>
 							` : html``}
 							`)}
@@ -263,11 +273,11 @@ constructor() {
 		return html`
 			<capitec-group layout="horizontal">
 				<capitec-button class="buttons" label="Cancel" @click="${() => this._onCancelClick()}"
-				data-automation-id="insure-pay-arrears-dialog-cancel">
+				data-automation-id="insure-pay-premium-dialog-cancel">
 				</capitec-button>
 			
 				<capitec-button class="buttons" id="id-confirm-button" type="primary" label="Pay"
-					@click="${() => this._onPayClick()}" .disabled=${this.checked == false} data-automation-id="insure-pay-arrears-dialog-pay">
+					@click="${() => this._onPayClick()}" .disabled=${this.checked == false || this.optionSelected == false} data-automation-id="insure-pay-premium-dialog-pay">
 				</capitec-button>
 			</capitec-group>`;
 		
@@ -281,7 +291,7 @@ constructor() {
 
 }
 
-window.customElements.define(`pay-premium-dialog`, PayPremiumDialog);
+window.customElements.define(`insure-pay-premium-dialog`, PayPremiumDialog);
 
 /**
  * Send the selected arrears and chosen account to consuming component when 'Add' is clicked
