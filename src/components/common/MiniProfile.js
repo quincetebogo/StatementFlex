@@ -74,7 +74,7 @@ export class MiniProfile extends Component {
 	}
 
 	_onClientBranchVerifiedClick() {
-		this._updateApplicationState(`verified`, `SQ`);
+		this._updateApplicationState(`verified`, `ITA`);
 
 		this.eventAggregator.publish(`horizon-verify-now-click`, {});
 	}
