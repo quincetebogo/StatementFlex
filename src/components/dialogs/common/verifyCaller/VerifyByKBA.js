@@ -161,10 +161,7 @@ export class VerifyByKBA extends Component {
 			questionList: this.SQs.map(item => {
 				const temp = {
 					"questionId": item.questionId,
-					"question": item.question,
-					"answer": item.answer,
-					"providedAnswer": item.selectedAnswer === ANSWERS.YES,
-					"enabled": item.enabled
+					"providedAnswer": item.selectedAnswer === ANSWERS.YES
 				};
 				return temp;
 			}),

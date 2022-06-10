@@ -631,7 +631,18 @@ export class VerifyCaller extends Component {
 					}
 				}));
 				break;
-	
+
+			case `system-failed`:
+				this.itaSystemError = true;
+				this.telemetry.logEvent(VerifyCallerEvents.ITA_SERVICE_FAILURE, {}, true);
+				break;
+
+			case `pin-blocked`:
+				this.itaAttempts = MAX_ITA_ATTEMPTS;
+				this._navigateToItaVerificationFailed();
+				this.logger.log(`info`, `ITA SignalR event indicated that its pin blocked, status=${status}`, `_signalRPostEventAction`);
+				break;
+		
 			default: 
 				this.logger.log(`info`, `ITA SignalR event indicated that verification was rejected, status=${status}`, `_signalRPostEventAction`);
 
