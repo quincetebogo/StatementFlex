@@ -99,9 +99,9 @@ class ClientPolicies extends Component {
 	/**
 	 * Fire navigate event to Update Plan
 	 */
-	_goToUpdatePlan() {
+	_goToUpdatePlan(contractReference) {
 		this.dispatchEvent(new CustomEvent(`navigate-to-update-plan`, {
-			detail: {
+			detail: { policyContractReference: contractReference
 			}
 		}));
 	}
@@ -579,7 +579,8 @@ class ClientPolicies extends Component {
 					data-automation-id="insure-policy-options-update-plan"
 					class="button-margin" 
 					label="Update Plan" 
-					icon="system/profile-action">
+					icon="system/profile-action"
+					@click="${() => this._goToUpdatePlan(policyItem.contractReference)}">
 				</horizon-option-button>
 				<horizon-option-button
 					data-automation-id="insure-policy-options-claims"
@@ -674,8 +675,7 @@ class ClientPolicies extends Component {
 	}
 
 	// Not for estimate testing - reenable later
-	// <capitec-button type="white" label="Update plan" @click="${() => this._goToUpdatePlan()}">
-	// </capitec-button>
+	
 	// <capitec-button type="white" label="Policy Summary" @click="${() => this._goToPolicySummary()}">
 	// </capitec-button>
 

@@ -105,4 +105,15 @@ export default class InsureChannelServiceMocks {
 		}
 		return null;
 	}
+
+	/**
+	 * Update Plan mock check
+	 * @returns {Object} Mock response data
+	 */
+	 insurePolicySummary() {
+		if (this._mockSettings.insurePolicySummary.positiveCase) {
+			return this.policySummaryMocks.PolicySummary;
+		}
+		return null;
+	}
 }
