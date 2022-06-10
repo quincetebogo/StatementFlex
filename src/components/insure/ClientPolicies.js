@@ -231,7 +231,7 @@ class ClientPolicies extends Component {
 	 */
 	_getTotalCoverAmount(policyItem)
 	{
-		return policyItem.roleplayers.reduce((accumulator, object) => {
+		return policyItem.roleplayers.filter(x => x.beneficiary !== true).reduce((accumulator, object) => {
 			return accumulator + (object.coverAmount ?? 0);
 		}, 0);
 	}	
@@ -410,6 +410,9 @@ class ClientPolicies extends Component {
 			.policy-item {
 				padding-left: 30px;
 			}
+			.slot-content {
+				min-height: 180px;
+			}
 			`
 		];
 	}
@@ -491,7 +494,7 @@ class ClientPolicies extends Component {
 	_renderPoliciesDetailsBar()
 	{
 		this.policiesList = this.clientPolicies?.summaryDetails?.policies;
-
+		
 		return html `${ this.policiesList?.length > 0 ? this.policiesList?.map((policyItem, index) => html`
 		<horizon-expander
 			expandButtonAlignment="right"
@@ -543,7 +546,7 @@ class ClientPolicies extends Component {
 							value="${policyItem.displayStatus}">
 						</horizon-label>
 				</capitec-group>
-				<div slot="content">
+				<div slot="content" class="slot-content">
 					<capitec-group 
 						class="expander-content" 
 						layout="vertical"

@@ -2,10 +2,10 @@
 // STYLESHEET DEFINITION
 // ---------------------
 
-const firstcolumn = `width :240px;
+const firstcolumn = `width :195px;
 					padding: 8px 0px 7.5px 0px;`;
 
-const expanderColumns = `width :256px;
+const expanderColumns = `width :150px;
 					padding: 8px 0px 7.5px 12px;`;
 
 const statusColumnContainer =

@@ -152,6 +152,10 @@ export class ExistingClient extends InsureViewBase {
 			idNumber: idNumber
 		}
 		const resp = await this.insureService.insurePolicySummary(request);
+		
+		if(!resp.succeeded)
+			return;
+
 		return resp.result;
 	}
 
@@ -292,6 +296,13 @@ export class ExistingClient extends InsureViewBase {
 		this.policyTransactionHistory = {};
 	}
 
+	/**
+	 * Unload Policy Transactions State
+ 	*/
+	_undoClientPolicies() {
+		this.clientPolicies?.summaryDetails?.policies?.forEach(item => { item["isExpanded"] = false; })
+	}
+
 	//#endregion EVENT HANDLERS
 
 	//#region RENDERING
@@ -409,7 +420,8 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-policy-summary 
 				.policyDetails = "${this.policyDetails}"
-				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+				@unloading="${() => this._undoClientPolicies()}">
 			</horizon-insure-policy-summary>`
 	}
 
