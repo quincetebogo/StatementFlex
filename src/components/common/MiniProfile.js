@@ -234,6 +234,7 @@ export class MiniProfile extends Component {
 					--theme-font-family: "Hind Vadodara SemiBold";
 					--theme-hyperlink-color: var(--theme-alert-banner-warning-font-color);
 					--theme-hyperlink-font-size: 14px;
+					text-decoration: underline;
 				}
 				#id-verify-via-app-msg {
 					font-family: "Hind Vadodara SemiBold";
