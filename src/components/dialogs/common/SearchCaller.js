@@ -627,8 +627,8 @@ export class SearchCaller extends Component {
 			middleName3: identifiedClient.callerInformation.middleName3,
 			lastName: identifiedClient.callerInformation.lastName,
 			initials: identifiedClient.callerInformation.initials,
-				  identifiedBy: this.searchType.identificationType,
-				  isClientVerifiedInBranch: this.isClientVerifiedInBranch,
+			identifiedBy: this.searchType.identificationType,
+			isClientVerifiedInBranch: this.isClientVerifiedInBranch,
 			gender: identifiedClient.callerInformation.gender
 		};
 
