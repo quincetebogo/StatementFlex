@@ -3,6 +3,7 @@ import { css, html } from 'platform/elements';
 import { formatStringAsPascalCase, getMonthName } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { Configuration } from 'platform/core';
+import { EventAggregator } from 'platform/EventAggregator';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
@@ -41,7 +42,7 @@ const TAX_TYPE = {
  * 
  * @export
  * @class SavingsPlan
- * @extends {SavingsPlan}
+ * @extends {ViewBase}
  * 
  */
 
@@ -66,6 +67,10 @@ export class SavingsPlan extends ViewBase {
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.accountViewType = ``;
+		
+		this.eventAggregator = EventAggregator.getInstance();
+		
+		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option, null, null, null, true));
 	}
 
 	// -------------------
@@ -77,9 +82,9 @@ export class SavingsPlan extends ViewBase {
 
 		this._initialise();
 
-		this._optionClick = async (option, saveType, accountNumber, accountName) => {
+		this._optionClick = async (option, saveType, accountNumber, accountName, sendAnother = false) => {
 
-			const statements = () => this._getStatements(accountNumber, saveType);
+			const statements = () => this._getStatements(accountNumber, sendAnother);
 			const taxCertificates = () => this._taxCertificates(accountNumber, accountName);
 			const productEnquiry = () => this._productEnquiry();
 			const interestRates = () => this._interestRates();
@@ -100,6 +105,7 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	disconnectedCallback() {
+		this.returnToScreen.dispose();
 		super.disconnectedCallback();
 	}
 
@@ -210,23 +216,13 @@ export class SavingsPlan extends ViewBase {
 			});
 		}
 
-			this.renderMode = RENDER_MODE.MAIN_PAGE;
-			this.endCallContext = `LandingPage`;
-			this._performReturnToScreen();
-		}
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this.endCallContext = `LandingPage`;
+		this._performReturnToScreen();
+	}
 
 	_updateLeftBar() {
 		this.horizonStore.setProductButtonState(this.landingPageInfo);
-	}
-
-	_performReturnToScreen() {
-		const returnToScreen = this.horizonStore.getReturnToScreen();
-
-		if (returnToScreen && returnToScreen.optionalData) {
-			this.eventAggregator.publish(`horizon-return-to-screen`, { option: returnToScreen.optionalData });
-		}
-
-		this.horizonStore.clearReturnScreen();
 	}
 
 	_formatDate(date) {
@@ -289,7 +285,11 @@ export class SavingsPlan extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 	
-	_getStatements(accNumber) {
+	_getStatements(accNumber, sendAnother) {
+		if (sendAnother) {
+			return true;
+		}
+		
 		const accountDetails = this.savingsPlanDetails.find(savingsPlan => savingsPlan.accountNumber === accNumber);
 	
 		const productInfo = ACCOUNT_INTCAT_ENUM[accountDetails.accountType][accountDetails.interestCategory] || ACCOUNT_INTCAT_ENUM[accountDetails.accountType];
