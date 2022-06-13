@@ -251,6 +251,7 @@ constructor() {
 				<capitec-label type="subtitle" label="Amount to Pay: ${formatCurrency(this.amount)}"></capitec-label>
 			</div>
 			
+			<!-- add each arrear selected -->
 			${this.clientArrears.arrears.map((outstanding, index) => html`
 				${index != 0 || index == 0 ? html`
 					<capitec-radio class="checkbox" label="${formatDate(outstanding.dueDate, 'MM yyyy')} | ${formatCurrency(outstanding.amount)}"
