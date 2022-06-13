@@ -238,8 +238,6 @@ constructor() {
 	_renderDialogBody() {
 		return html`
 
-			
-
 			<capitec-label type="subtitle" label="Choose payment method">
 			</capitec-label>
 			
@@ -253,16 +251,16 @@ constructor() {
 				<capitec-label type="subtitle" label="Amount to Pay: ${formatCurrency(this.amount)}"></capitec-label>
 			</div>
 			
-						${this.clientArrears.arrears.map((outstanding, index) => html`
-							${index != 0 || index == 0 ? html`
-								<capitec-radio class="checkbox" label="${formatDate(outstanding.dueDate, 'MM yyyy')} | ${formatCurrency(outstanding.amount)}"
-								@value-change=" ${(e) => this._checkedChange(outstanding,e)}" data-automation-id="insure-pay-premium-dialog-arrears">
-								</capitec-radio>
-							` : html``}
-							`)}
+			${this.clientArrears.arrears.map((outstanding, index) => html`
+				${index != 0 || index == 0 ? html`
+					<capitec-radio class="checkbox" label="${formatDate(outstanding.dueDate, 'MM yyyy')} | ${formatCurrency(outstanding.amount)}"
+					@value-change=" ${(e) => this._checkedChange(outstanding,e)}" data-automation-id="insure-pay-premium-dialog-arrears">
+					</capitec-radio>
+				` : html``}
+			`)}
 			
 		`;
-		}
+	}
 
 	/**
 	 * Render modal footer section

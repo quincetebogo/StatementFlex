@@ -701,7 +701,7 @@ class ClientPolicies extends Component {
 			html`
 			<insure-pay-premium-confirmation-dialog @close-modal="${(e) => this._closePayPremiumConfirmationDialog()}" 
 			@confirm-payment="${(e) => this._openPayPremiumAgreementDialog()}"
-			.amountToPay = ${this.amountToPay}>	
+			.amountToPay = ${this.amountToPay} .contractReference = ${this.clientArrears.contractReference}>	
 			</insure-pay-premium-confirmation-dialog>`
 
 	}
