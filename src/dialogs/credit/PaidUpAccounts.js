@@ -12,6 +12,8 @@ import 'app/dialogs/credit/PaidUpLetter';
 import 'app/components/common/HorizonProductTile'; 
 
 /**
+ * This component implements the Paid Up Accounts Page for favourite landing page
+ *
  * 
  * @export
  * @class PaidUpAccounts
@@ -29,7 +31,7 @@ export class PaidUpAccounts extends Component {
 		super();
 
 		this.callerInformation = {};
-		this.accountsInfo = null;
+		this.accountsInfo = [];
 
 		this.showPaidUpLetter = false;
 		this.selectedAccounts = [];
@@ -41,9 +43,11 @@ export class PaidUpAccounts extends Component {
 		this.errorMessage = ``;
 		this.cardTypes = [];
 
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this.searchText = ``;
+		this.searchCreditType = ``;
 
-		this.horizonStore = HorizonStore.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
+
 		this.creditService = new CreditService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 	}
@@ -74,13 +78,12 @@ export class PaidUpAccounts extends Component {
 	// ---------------
 
 	_initialise() {
-
 		this.cardTypes = [`All`, `Term Loan`, `Credit`, `Access Facility`];
 
 		if (this.accountsInfo) {
 			for (let index = 0; index < this.accountsInfo.length; index++) {
 				this.accountsChecked[index] = false;
-			}
+		}	
 	
 			this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
 		}
@@ -88,6 +91,8 @@ export class PaidUpAccounts extends Component {
 
 	_back() {
 		this.dispatchEvent(new CustomEvent(`back`, {}));
+	
+		this._telemetry.endSpan(CreditEvents.CREDIT_PAID_UP_LETTER, {});    
 	}
 
 	_toggleBusyFlag() {
@@ -132,6 +137,12 @@ export class PaidUpAccounts extends Component {
 			this.showPaidUpLetter = !this.showPaidUpLetter;
 			this.requestUpdate();
 			this._renderPaidUpLetter();
+      
+			this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_SEND, {      
+				// TODO: Uncomment when CS integration is completed
+				// "list-of-accounts": this.selectedAccounts.join(),
+				// "account-numbers": this.accountsInfo.map((item) => item.accountNumber).join()
+			});
 		}
 	}
 
@@ -151,6 +162,46 @@ export class PaidUpAccounts extends Component {
            return returnValue.result.statementData;
         }
     }
+
+	_search(event) {
+		// TODO: Add logic to serach by text; loan, account number, amount, ...
+		this.searchText = event.detail.new;
+
+		if (this.searchText === ``) {
+			this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_CLEAR_FILTER_SELECTION, {
+				"filter-type": `text`
+			});
+
+			if (this.searchCreditType === `All`) {
+				this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_CLEAR_ALL_FILTER_SELECTION, {});
+			}
+		}
+		
+		this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_FILTER_SELECTION, {
+			"search-by-text": this.searchText,
+			"credit-type": this.searchCreditType
+		});
+	}
+
+	_filter(event) {
+		// TODOL Add logic to search by credit type
+		this.searchCreditType = event.detail.new;
+
+		if (this.searchCreditType === `All`) {
+			this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_CLEAR_FILTER_SELECTION, {
+				"filter-type": `credit type`
+			});
+			
+			if (this.searchText === ``) {
+				this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_CLEAR_ALL_FILTER_SELECTION, {});
+			}
+		}
+		
+		this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_FILTER_SELECTION, {
+			"search-by-text": this.searchText,
+			"credit-type": this.searchCreditType
+		});
+	}
 
 	_checkBox(event, index) {
 		this._clearErrors();
@@ -364,12 +415,19 @@ export class PaidUpAccounts extends Component {
 	_renderPaidUpAccounts() {
 		return this.renderMode === RENDER_MODE.PAID_UP_ACCOUNTS ? html`
 			<capitec-action-bar>
-				<capitec-search-field label="Search loan , amount or account number" style="width: 320px;" value focussed></capitec-search-field>
+				<capitec-search-field 
+					label="Search loan , amount or account number" 
+					style="width: 320px;" 
+					value focussed
+					@key-input="${(e) => this._search(e)}"
+ 					@value-change="${(e) => this._search(e)}">
+				</capitec-search-field>
 				<capitec-select 
 					label="Account type" 
 					.items="${this.cardTypes}" 
 					display-field="text"
-					filter-id="select">
+					filter-id="select"
+					@value-change = "${(e) => this._filter(e)}">
 				</capitec-select>
 			</capitec-action-bar>
 
@@ -424,7 +482,7 @@ export class PaidUpAccounts extends Component {
 		`;
 	}
 
-	_renderPaidUpLetter() {
+	_renderpaidUpLetter()
 		return this.showPaidUpLetter
 		? html`
 			<horizon-paid-up-letter-dialog

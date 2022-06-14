@@ -2,6 +2,7 @@ import { ACCOUNT_STATUS, CREDIT_ACCOUNT_TYPE, CREDIT_TYPE, PRODUCTS, PRODUCT_TYP
 import { QuickTransactionEvents, SETTLEMENT_QUOTE_EVENTS, STATEMENT_EVENTS } from 'app/constants/telemetry/events/QuickTransactions';
 import { css, html } from 'platform/elements';
 import { formatStringAsPascalCase, isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
+import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
@@ -605,11 +606,18 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _paidUpAccounts() {
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_PAID_UP_LETTER, {
+			"screen": TelemetryScreen.FAVOURITES,
+			"next-screen": TelemetryScreen.PAID_UP_LETTER_ACCOUNTS
+		});
+
 		// TODO: CS call to get info
 		if (this.ccsStatus) {
 			this.showCCSmodal = true;
 			return;
 		}
+		
+		this._telemetry.startSpan(CreditEvents.CREDIT_PAID_UP_LETTER, {});
 
 		const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber, ACCOUNT_STATUS.PAID_UP);
 

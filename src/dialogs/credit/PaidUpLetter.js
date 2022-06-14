@@ -1,5 +1,8 @@
 import { Component, css, html } from 'platform/elements';
+import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 import 'app/components/common/HorizonEmailInput';
 import 'app/components/common/HorizonProductTile';
@@ -45,6 +48,8 @@ export class PaidUpLetter extends Component {
 		this.confirmEmail = ``;
 		this.emailLabel = `Enter email address`;
 		this.confirmEmailLabel = `Confirm email`;
+    
+		this._telemetry = HorizonTelemetry.instance;    
 	}
 
 	// --------------
@@ -77,11 +82,15 @@ export class PaidUpLetter extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this._telemetry.startSpan(CreditEvents.CREDIT_PAID_UP_LETTER_POP_UP, {});
+
 		this._initialise();
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+		this._telemetry.endSpan(CreditEvents.CREDIT_PAID_UP_LETTER_POP_UP, {});
 	}
 
 	// --------------
@@ -92,16 +101,22 @@ export class PaidUpLetter extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
-	_initialise() {
+	_initialise() {		
 		this._toggleBusyFlag();
 		// TODO: flow for selected accounts to be done here
 	}
-
+  
 	_viewPDFViewer () {
 		this.encodedPDF = this.encodedPDFs.document.data;
 		this.flag = !this.flag;
-	}
 
+		this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_POP_UP_VIEW_DOCUMENT, {
+			// TODO: Uncomment once CS integration is complete and real data is being retrieved.
+			// "cifNumber": item.cifNumber,
+			// "accountNumber": item.accountNumber,
+			// "accountType": item.accountType
+	}
+  
 	_clearAlerts() {
 		this.alertBannerMessage = ``;
 	}
@@ -115,6 +130,30 @@ export class PaidUpLetter extends Component {
 		} else if (e.detail.mismatched) {
 			this.alertBannerMessage = ERROR_MESSAGE.EMAIL_MISMATCH;
 		}
+	} 
+
+	async _sendClick(e) {
+		if (this._validateEmail(e)) {
+			// flow to success or unsuccessful 
+			this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_POP_UP_SEND, {
+				"screen": TelemetryScreen.CREDIT_PAID_UP_LETTER,
+				"email address": this.idConfirmEmailAddress,
+				// TODO: Logic required to indicate if the next screen is succussful or unsuccessful. It can be done once CS integration is done
+				"next-screen": null 
+			});
+		}
+	}
+
+	_cancelClick(e) {
+		this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_POP_UP_CANCEL, {
+			"screen": TelemetryScreen.CREDIT_PAID_UP_LETTER,
+			// TODO: Once paid up letter can be done from credit landing add logic to determine next screen i.e. favourites or credit landing
+			"next-screen": TelemetryScreen.FAVOURITES 
+		});
+
+		this.dispatchEvent(new CustomEvent(`cancel`, {}));
+	}
+
 	}
 
 	_sendClick() {
@@ -330,7 +369,7 @@ export class PaidUpLetter extends Component {
 				type="strong"
 				label="View Document"
 				class="viewDocumentLink"
-				@click="${() => this._viewPDFViewer()}">
+				@click="${() => this._viewPDFViewer(item)}">
 			</capitec-label>
 		`;
 	}
