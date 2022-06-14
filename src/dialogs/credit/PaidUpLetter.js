@@ -115,6 +115,7 @@ export class PaidUpLetter extends Component {
 			// "cifNumber": item.cifNumber,
 			// "accountNumber": item.accountNumber,
 			// "accountType": item.accountType
+		});
 	}
   
 	_clearAlerts() {
@@ -152,8 +153,6 @@ export class PaidUpLetter extends Component {
 		});
 
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
-	}
-
 	}
 
 	_sendClick() {

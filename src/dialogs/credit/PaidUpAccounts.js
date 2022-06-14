@@ -482,7 +482,7 @@ export class PaidUpAccounts extends Component {
 		`;
 	}
 
-	_renderpaidUpLetter()
+	_renderpaidUpLetter() {
 		return this.showPaidUpLetter
 		? html`
 			<horizon-paid-up-letter-dialog

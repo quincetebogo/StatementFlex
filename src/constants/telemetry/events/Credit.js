@@ -46,7 +46,7 @@
 	PAY_BUDGET_SUCCESS_SEND_POP: `call.fulfill-need.credit.budget.transfer.success.send-proof-of-payment`,
 	PAY_BUDGET_TRANSFER_FAILURE: `call.fulfill-need.credit.budget.transfer.failure`,
 	PAY_BUDGET_TRANSFER_FAILURE_TRY_AGAIN: `call.fulfill-need.credit.budget.transfer.failure.try-again`,
-	PAY_BUDGET_TRANSFER_FAILURE_DONE: `call.fulfill-need.credit.budget.transfer.failure.done`
+	PAY_BUDGET_TRANSFER_FAILURE_DONE: `call.fulfill-need.credit.budget.transfer.failure.done`,
 
 	CREDIT_PAID_UP_LETTER: `call.fulfill-need.paid-up-letter`,
 	CREDIT_PAID_UP_LETTER_FILTER_SELECTION: `call.fulfill-need.paid-up-letter.filter`,
