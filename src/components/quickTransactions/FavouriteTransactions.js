@@ -326,7 +326,6 @@ export class FavouriteTransactions extends Component {
 					?disabled="${this.shouldDisable(`settlement-quote`)}">
 				</horizon-option-button>
 				<horizon-option-button
-					style="visibility:hidden"
 					label="Paid up Letter" 
 					icon="system/documents-action" 
 					iconSize="default"

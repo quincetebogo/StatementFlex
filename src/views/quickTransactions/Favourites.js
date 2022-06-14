@@ -575,7 +575,7 @@ export class Favourites extends SavingsAccountBase {
 					item.nextRepayment = item.nextRepayment ? formatCurrency(item.nextRepayment) : null;
 					item.currentBalance = formatCurrency(item.currentBalance);
 					item.settlementAmount = formatCurrency(item.currentSettlementAmount);
-					item.maxSettlementAmount = item.maxSettlementAmount? formatCurrency(item.maxSettlementAmount) : formatCurrency(item.settlementAmount);
+					item.maxSettlementAmount = item.maxSettlementAmount ? formatCurrency(item.maxSettlementAmount) : formatCurrency(item.settlementAmount);
 					return item;
 				});
 
