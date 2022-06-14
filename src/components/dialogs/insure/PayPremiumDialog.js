@@ -125,7 +125,8 @@ constructor() {
 	 * @param {*} e contains new value of checkbox
 	 */
 	_checkedChange(outstanding, e) {
-		
+
+		console.log(e)
 
 		this._addSelected(outstanding, e);
 
@@ -173,6 +174,24 @@ constructor() {
 	 */
 	_optionSelected(e) {
 		this.optionSelected = e.detail;
+	}
+
+	_AddFirst(outstanding){
+		if (this.payArrears.arrears.length == 0){
+			this.payArrears.arrears.push({
+				dueDate: outstanding.dueDate,
+				amount: outstanding.amount,
+				objectID: outstanding.objectID,
+			});
+		};
+
+		this.amount = outstanding.amount;
+
+		this.checked = true
+
+		
+
+		console.log(this.payArrears.arrears)
 	}
 
 	//#endregion
@@ -251,15 +270,22 @@ constructor() {
 				<capitec-label type="subtitle" label="Amount to Pay: ${formatCurrency(this.amount)}"></capitec-label>
 			</div>
 			
-			<!-- add each arrear selected -->
-			${this.clientArrears.arrears.map((outstanding, index) => html`
-				${index != 0 || index == 0 ? html`
-					<capitec-radio class="checkbox" label="${formatDate(outstanding.dueDate, 'MM yyyy')} | ${formatCurrency(outstanding.amount)}"
-					@value-change=" ${(e) => this._checkedChange(outstanding,e)}" data-automation-id="insure-pay-premium-dialog-arrears">
-					</capitec-radio>
-				` : html``}
-			`)}
-			
+			<capitec-check-group>
+				${this.clientArrears.arrears.map((outstanding, index) => html`
+					${index != 0 ? html`
+						<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, 'MM yyyy')} | ${formatCurrency(outstanding.amount)}"
+						@value-change=" ${(e) => this._checkedChange(outstanding,e)}" data-automation-id="insure-pay-premium-dialog-arrears">
+						</capitec-check>
+					` : html`
+						
+						<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, 'MM yyyy')} | ${formatCurrency(outstanding.amount)}"
+						@value-change=" ${(e) => this._checkedChange(outstanding,e)}" data-automation-id="insure-pay-premium-dialog-arrears"
+						disabled checked>
+						</capitec-check>
+						${this._AddFirst(outstanding)}
+					`}
+				`)}
+			</capitec-check-group>
 		`;
 	}
 
