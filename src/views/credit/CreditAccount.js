@@ -369,21 +369,20 @@ export class CreditAccount extends ViewBase {
 		};
 
 		const returnValue = await this.creditService.settleAndClose(settleAndClose);
-		
 		if (returnValue.succeeded) {
 			const screenDetails = this.horizonStore.getScreenDetails();
 
 			if (this.settleAndCloseCreditOption === `CreditCard`) {
 				screenDetails.settleAndCloseCreditType = `Flexible`;
-				this.settleAndCloseDocument = returnValue.result.closureDocument.data;
+				this.settleAndCloseDocument = returnValue.result.documentData;
 			} else {
 				screenDetails.settleAndCloseCreditType = `Fixed`;
-				this.settleAndCloseDocument = returnValue.result.transferDocument.data;
+				this.settleAndCloseDocument = returnValue.result.documentData; ;
 			}
 			
-			screenDetails.settleAndCloseDocumentData = result.closureDocument.data;
+			screenDetails.settleAndCloseDocumentData = this.settleAndCloseDocument;
 			screenDetails.settleAndCloseCreditOption = this.settleAndCloseCreditOption;
-			screenDetails.settleAndCloseProductType = this.settleAndCloseQuote.accountNumber;
+			screenDetails.settleAndCloseProductType = this.settleAndCloseCreditOption;
 			screenDetails.settleAndCloseAccountNumber = this.settleAndCloseQuote.accountNumber;
 			this.horizonStore.setScreenDetails(screenDetails);
 			this.horizonRouter.navigateToSettleAndCloseSuccess();
@@ -396,7 +395,7 @@ export class CreditAccount extends ViewBase {
 	_getSECTransferDetails(item) {
 		for (let i = 0; i < this.settleAndCloseQuote.savingAccountsList.length; i++) {
 			const savAcc = this.settleAndCloseQuote.savingAccountsList[i];
-			if (savAcc.accountNumber === item) {
+			if (savAcc.accountNumber == item) {
 				return i;
 			}
 		}
@@ -404,11 +403,11 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_getSavingsAccType(code) {
-		if (code === 300) {
+		if (code == 300) {
 			return `Primary`;
-		}
-
-		return `Flexible`; 
+		} 
+		return `Flexible`;
+		
 	}
 
 	_errorHandler() {
@@ -801,7 +800,6 @@ export class CreditAccount extends ViewBase {
 			idNumber: this.callerInformation.southAfricanIDNumber
 		};
 		const returnValue = await this.creditService.settleAndCloseQuote(settleAndCloseQuoteRequest);
-
 		this.settleAndCloseQuote = returnValue.result;
 
 		this.showSettleCloseModal = !this.showSettleCloseModal;
@@ -813,10 +811,14 @@ export class CreditAccount extends ViewBase {
 			[this.settleAndCloseDetails.productTypeDescription]: this.settleAndCloseDetails.accountNumber,
 			[balanceField]: balanceFieldValue,
 			'Outstanding balance': this.settleAndCloseDetails.currentBalance,
-			'Interest not capitalised': formatCurrency(this.settleAndCloseQuote.interestNotCapatalised),
-			'Expected interest and fees': formatCurrency(this.settleAndCloseQuote.expectedInterestFees),
 			'Settlement amount': formatCurrency(this.settleAndCloseQuote.settlementAmount)
 		};
+
+		if (this.settleAndCloseCreditOption === `CreditCard`) {
+			this.settleAndCloseDetails[`Interest not capitalised`] = formatCurrency(this.settleAndCloseQuote.interestNotCapatalised);
+			this.settleAndCloseDetails[`Expected interest and fees`] = formatCurrency(this.settleAndCloseQuote.expectedInterestFees);
+		}
+
 		this.renderMode = RENDER_MODE.SETTLE_AND_CLOSE;
 	
 	}
