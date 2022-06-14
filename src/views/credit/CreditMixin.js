@@ -148,6 +148,9 @@ export const creditMixin = {
 			"accountType": item.productTypeDescription
 		});
 
+		// Adding Info level logs for PROD investigation.
+		this.logger.log(`warn`, `Forming request payload for 'credit/settlement-quote/view' end point`, `_viewSettlementQuote`);
+
 		const request = {
 			"creditType": item.type.replace(` `, ``),
 			"accountNumber": item.accountNumber,
@@ -159,12 +162,23 @@ export const creditMixin = {
 			"caseId": ``
 		};
 
-		const returnValue = await this.creditService.settlementQuote(request);
+		this.logger.log(`warn`, `Sending request to 'credit/settlement-quote/view' end point`, `_viewSettlementQuote`);
 
-		if (returnValue.succeeded) {
-			this.caseId = returnValue.result.caseId;
-			return returnValue.result.data;
+		const returnValue = await this.creditService.settlementQuote(request, (error) => this._handleSettlementQuoteError(error));
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to load settlement quote to view`, `_viewSettlementQuote`, returnValue.correlationId);
 		}
+
+		this.logger.log(`warn`, `View settlement quote CS call succeeded`, `_viewSettlementQuote`);
+
+		this.caseId = returnValue.result.caseId;
+		return returnValue.result.data;
+	},
+
+	_handleSettlementQuoteError(error) {
+		this.logger.log('error', `Failed to do settlment quote ${JSON.stringify(error)}`)
+		return false;
 	},
 
 	async _cancelSettlementQuoteDialog() {

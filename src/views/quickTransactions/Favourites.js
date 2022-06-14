@@ -79,6 +79,7 @@ export class Favourites extends SavingsAccountBase {
 		this._telemetry = HorizonTelemetry.instance;
 
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
+		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 
 		Object.assign(Favourites.prototype, tapToPayMixin);
 		Object.assign(Favourites.prototype, searchOtherNeedMixin);
@@ -155,6 +156,7 @@ export class Favourites extends SavingsAccountBase {
 
 	disconnectedCallback() {
 		this.returnToSub.dispose();
+		this.stateChangeSub.unsubscribe();
 		super.disconnectedCallback();
 	}
 
@@ -358,6 +360,12 @@ export class Favourites extends SavingsAccountBase {
 		this._updateNeedToState(event.detail.category, event.detail.need);
 		
 		await this.getIssues(event);
+	}
+
+	_stateChanged(state) {
+		if (state?.callerInformation) {
+			this.callerInformation = state.callerInformation;
+		}
 	}
 
 	// ---------------

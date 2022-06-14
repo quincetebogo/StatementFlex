@@ -1,10 +1,10 @@
+import { BUDGET_FACILITY_POP_EVENTS, CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { Component, css, html } from 'platform/elements';
-import { ViewBase } from 'app/views/common/ViewBase';
 import { CREDIT_TYPE } from 'app/constants/Credit';
+import { OutcomeBase } from '../common/OutcomeBase';
+import { ViewBase } from 'app/views/common/ViewBase';
 import { creditMixin } from 'app/views/credit/CreditMixin';
 import 'app/components/common/SuccessScreen';
-import { BUDGET_FACILITY_POP_EVENTS, CreditEvents } from 'app/constants/telemetry/events/Credit';
-import { OutcomeBase } from '../common/OutcomeBase';
 
 /**
  * Display an confirmation/success screen indicating the selected account has been settle and closed successfully.
@@ -59,15 +59,15 @@ import { OutcomeBase } from '../common/OutcomeBase';
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-	_initialise()
-	{
+	_initialise() {
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.creditType = screenDetails.settleAndCloseCreditType;
 		this.productType = screenDetails.settleAndCloseProductType;
+		this.creditCardNumber = screenDetails.settleAndCloseAccountNumber;
 	}
+
 	_sendEmailConfirmationClick() {
 		const screenDetails = this.horizonStore.getScreenDetails();
-
 		const emailAccountsList = [
 			{
 				title: screenDetails.settleAndCloseProductType,
