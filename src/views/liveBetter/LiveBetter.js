@@ -119,6 +119,31 @@ export class LiveBetter extends SavingsAccountBase {
 		// verificationStatus is on the this.callerInformation object
 		await this._initialise();
 
+		this._optionClick = async (option) => {
+
+			const accountDetails = () => this._accountDetails();
+			const transactionHistory = () => this._transactionHistory();
+			const statements = () => this._getStatements();
+			const automaticSavings = () => this._automaticSavings();
+			const productEnquiry = () => this._productEnquiry();
+			const partnerBenefits = () => this._partnerBenefits();
+	
+			const actions = {
+				'lbb-account-enquiry': accountDetails,
+				'transaction-history-lbb': transactionHistory,
+				'statements-lbb': statements,
+				'automatic-savings-lbb': automaticSavings,
+				'product-enquiry': productEnquiry,
+				'partner-benefits': partnerBenefits
+			};
+	
+			if (actions[option]) {
+				await super._inicidentManager_(option, () => this._toggleBusyFlag());
+				this._refreshIncidentDetails();
+				return actions[option]();
+			}
+		};
+
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -190,31 +215,6 @@ export class LiveBetter extends SavingsAccountBase {
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
-
-	async _optionClick(option) {
-
-		const accountDetails = () => this._accountDetails();
-		const transactionHistory = () => this._transactionHistory();
-		const statements = () => this._getStatements();
-		const automaticSavings = () => this._automaticSavings();
-		const productEnquiry = () => this._productEnquiry();
-		const partnerBenefits = () => this._partnerBenefits();
-
-		const actions = {
-			'lbb-account-enquiry': accountDetails,
-			'transaction-history-lbb': transactionHistory,
-			'statements-lbb': statements,
-			'automatic-savings-lbb': automaticSavings,
-			'product-enquiry': productEnquiry,
-			'partner-benefits': partnerBenefits
-		};
-
-		if (actions[option]) {
-			await super._inicidentManager_(option, () => this._toggleBusyFlag());
-			this._refreshIncidentDetails();
-			return actions[option]();
-		}
-	};
 
 	async _getMoreTransactions(request) {
 
@@ -328,9 +328,12 @@ export class LiveBetter extends SavingsAccountBase {
 		});
 	}
 
-	_unloadTransactionHistory() {
+	async _unloadTransactionHistory() {
 		this.endCallContext = `LandingPage`;
 		this.transactionHistory = [];
+
+		await super.classifyIncident(() => this._toggleBusyFlag());
+
 		this._setIncidentDone();
 	}
 	
@@ -399,7 +402,7 @@ export class LiveBetter extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.LIVE_BETTER_TRANSACTION_HISTORY
 		});
 
-		await super.createAndClassifySubsIncident();
+		await super.createAndClassifySubsIncident(null, false);
 		await this._getTransactionHistory();
 	}
 
@@ -550,6 +553,12 @@ export class LiveBetter extends SavingsAccountBase {
 		this.landingPageInfo = Utilities.deepCopy(this.landingPageInfo);
 	}
 
+	async _setTranHistoryDone() {
+		await super.classifyIncident(() => this._toggleBusyFlag());
+		
+		this._setIncidentDone();
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -658,7 +667,7 @@ export class LiveBetter extends SavingsAccountBase {
 					.disposeData="${() => this.transactionHistory = []}"
 
 					@error-handler = "${() => this._errorHandler()}"
-					@back="${() => this._setIncidentDone()}"
+					@back="${() => this._setTranHistoryDone()}"
 					@unloading="${() => this._unloadTransactionHistory()}">
 				</horizon-transaction-history>`
 			: html``;
