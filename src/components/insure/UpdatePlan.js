@@ -835,11 +835,10 @@ class UpdatePlan extends Component {
 		return html`
 			<div class="insure-calc-column-left">
 				<div class="left-card">
-					<capitec-expander-group modeset="single">
+					<!-- <capitec-expander-group modeset="single"> -->
 						${this.quote.lifesAssured.map((lifeAssured, index) => html`
 						${index != 0 ? html`
-
-						<!-- Life assured expander -->		
+	
 							<capitec-label label="Remove" @click="${() => this._openRemoveLifeAssuredDialog(index)}"
 								type="subtitle" class="stronger link" style="position: relative; width: fit-content; left: 613px; top: 43px;">
 							</capitec-label>
@@ -941,7 +940,6 @@ class UpdatePlan extends Component {
 						</div>
 							`}
 						`)}
-					</capitec-expander-group>
 				
 				</div>
 			
@@ -959,166 +957,158 @@ class UpdatePlan extends Component {
 	 */
 	_renderBeneficiariesTab() {
 		return html`
-		<capitec-tab label="Beneficiaries">
+			<capitec-tab label="Beneficiaries">
 
-			<div class = "insure-calc-columns">
- 		
-				<div class = "insure-calc-column-left">
-					<div class = "left-card">
-						<capitec-expander-group modeset="single">
-								<!-- Notifications -->
-								${this._renderEACLNotification()}
-								
-								<div style="margin-top:5px;"></div>
-
-								${this._renderYBPNotification()}
-								
-
-								<!-- main life details -->
-								<div class="calc-card-row">
-									<capitec-label label="Main Life" type="strong">
-									</capitec-label>
-								</div>
+				<div class = "insure-calc-columns">
 				
-								<!-- main life expander -->
+					<div class = "insure-calc-column-left">
+						<div class = "left-card">
+							
+							<!-- Notifications -->
+							${this._renderEACLNotification()}
+							
+							<div style="margin-top:5px;"></div>
 
-								<horizon-expander expandButtonAlignment="right">
+							${this._renderYBPNotification()}
+							
+
+							<!-- main life details -->
+							<div class="calc-card-row">
+								<capitec-label label="Main Life" type="strong">
+								</capitec-label>
+							</div>
+					
+							<!-- main life expander -->
+
+							<horizon-expander expandButtonAlignment="right">
+								<capitec-group 
+									class="expander-header"
+									slot="custom-header"
+									layout="horizontal"
+									gap="clear"
+									halign="left"
+									valign="center">
+										<horizon-label
+											class="fixed-label-main"
+											data-automation-id="insure-policy-contract-reference"
+											label="Main Life"
+											textOverflow="ellipsis"
+											value="Charl Walden">
+										</horizon-label>
+										<div class="vertical-line"></div>
+										<horizon-label
+											data-automation-id="insure-policy-start-date"
+											label="Cover Amount (Min R5 000 - Max 100 000)"
+											value="R25 000">
+										</horizon-label>
+								</capitec-group>
+								<div slot="content">
 									<capitec-group 
-										class="expander-header"
-										slot="custom-header"
-										layout="horizontal"
-										gap="clear"
+										class="expander-content" 
+										layout="vertical"
+										gap="none"
 										halign="left"
 										valign="center">
-											<horizon-label
-												class="fixed-label-main"
-												data-automation-id="insure-policy-contract-reference"
-												label="Main Life"
-												textOverflow="ellipsis"
-												value="Charl Walden">
-											</horizon-label>
-											<div class="vertical-line"></div>
-											<horizon-label
-												data-automation-id="insure-policy-start-date"
-												label="Cover Amount (Min R5 000 - Max 100 000)"
-												value="R25 000">
-											</horizon-label>
+											${this._renderMainLifeOptions()}
 									</capitec-group>
-									<div slot="content">
-										<capitec-group 
-											class="expander-content" 
-											layout="vertical"
-											gap="none"
-											halign="left"
-											valign="center">
-												${this._renderMainLifeOptions()}
-										</capitec-group>
-									</div>
-								</horizon-expander>
-								
-								<!--Beneficiaries -->
-								<div class="calc-card-row" style="margin-top: 15px;">
-									<capitec-label label="Beneficiaries" type="strong" class="stronger">
-									</capitec-label>
-									<capitec-label label="Add Beneficiary" type="subtitle" class="stronger link"
-										@click="${() => this._openAddBeneficiariesDialog()}" disabled="${this.quote.beneficiaries.length >= 2}" >
-									</capitec-label>
 								</div>
+							</horizon-expander>
+									
+							<!--Beneficiaries -->
+							<div class="calc-card-row" style="margin-top: 15px;">
+								<capitec-label label="Beneficiaries" type="strong" class="stronger">
+								</capitec-label>
+								<capitec-label label="Add Beneficiary" type="subtitle" class="stronger link"
+									@click="${() => this._openAddBeneficiariesDialog()}" disabled="${this.quote.beneficiaries.length >= 2}" >
+								</capitec-label>
+							</div>
 
 							${this.quote.beneficiaries.map((beneficiary, index) => html`
 								${index != 0 || index == 0 ? html`
-								<!-- Beneficiaries -->
-								<capitec-label label="Remove" @click="${() => this._openRemoveBeneficiaryDialog(index)}"
-								type="subtitle" class="stronger link" style="position: relative; width: fit-content; left: 613px; top: 43px;">
-								</capitec-label>
+									<!-- Beneficiaries -->
+									<capitec-label label="Remove" @click="${() => this._openRemoveBeneficiaryDialog(index)}"
+									type="subtitle" class="stronger link" style="position: relative; width: fit-content; left: 613px; top: 43px;">
+									</capitec-label>
 
-								<horizon-expander expandButtonAlignment="right">
-									<capitec-group 
-										class="expander-header"
-										slot="custom-header"
-										layout="horizontal"
-										gap="clear"
-										halign="left"
-										valign="center">
-											<horizon-label
-												class="fixed-label-secondary"
-												label="${beneficiary.relationship}"
-												textOverflow="ellipsis"
-												value="Name">
-											</horizon-label>
-											<div class="vertical-line"></div>
-											<horizon-label
-												label="Cover Amount (Min R5 000 - Max 100 000)"
-												value="R25 000">
-											</horizon-label>
-											<!-- <horizon-label style="width: 73px" class="remove"
-												value="Remove"
-												@click="${() => this._openRemoveLifeAssuredDialog(index)}">
-											</horizon-label> -->
-											
-									</capitec-group>
-									<div slot="content">
+									<horizon-expander expandButtonAlignment="right">
 										<capitec-group 
-											class="expander-content" 
-											layout="vertical"
-											gap="none"
+											class="expander-header"
+											slot="custom-header"
+											layout="horizontal"
+											gap="clear"
 											halign="left"
 											valign="center">
-												${this._renderBeneficiaryOptions()}
+												<horizon-label
+													class="fixed-label-secondary"
+													label="${beneficiary.relationship}"
+													textOverflow="ellipsis"
+													value="Name">
+												</horizon-label>
+												<div class="vertical-line"></div>
+												<horizon-label
+													label="Cover Amount (Min R5 000 - Max 100 000)"
+													value="R25 000">
+												</horizon-label>
+												<!-- <horizon-label style="width: 73px" class="remove"
+													value="Remove"
+													@click="${() => this._openRemoveLifeAssuredDialog(index)}">
+												</horizon-label> -->
+												
 										</capitec-group>
+										<div slot="content">
+											<capitec-group 
+												class="expander-content" 
+												layout="vertical"
+												gap="none"
+												halign="left"
+												valign="center">
+													${this._renderBeneficiaryOptions()}
+											</capitec-group>
+										</div>
+									</horizon-expander>
+
+								`
+								:html``}
+								
+							`)}
+
+						</div>
+					</div>
+
+					<div class = "insure-calc-column-right">
+						<div class = "calc-summary-card">
+							<div>
+								<!-- top -->
+								<capitec-label label="Funeral Plan" type="Strong"></capitec-label>
+								</capitec-label>
+								<capitec-spacer></capitec-spacer>
+								<capitec-label label="Total cover amount"></capitec-label>
+								<capitec-label label="R0.00" class="calc-premium-total">
+								</capitec-label>
+								<capitec-label label="Summary of payout beneficiary amount:" class="stronger"></capitec-label>
+								<hr>
+
+								<!-- Beneficiaries list -->
+								${this.quote.beneficiaries.map(beneficiary => html`
+									<div class="calc-life-list">
+										<capitec-label label="${beneficiary.relationship}"></capitec-label>
+										<capitec-label label=""></capitec-label>
 									</div>
-								</horizon-expander>
+									<hr>`)}
+									<div class="calc-life-list">
+										<capitec-label label="Total Premium Amount" class="stronger"></capitec-label>
+										<capitec-label label="R0.00" class="stronger"></capitec-label>
+									</div>
+								
+							</div>	
 
-
-
-							`
-							 :html``}
-							
-						`)}
-							
-						</capitec-expander-group>
-					
-							
-
-							
-		
+						</div>
+					</div>
+				
 				</div>
- 			</div>
 
-			<div class = "insure-calc-column-right">
-				<div class = "calc-summary-card">
-					<div>
-						<!-- top -->
-						<capitec-label label="Funeral Plan" type="Strong"></capitec-label>
-						</capitec-label>
-						<capitec-spacer></capitec-spacer>
-						<capitec-label label="Total cover amount"></capitec-label>
-						<capitec-label label="R0.00" class="calc-premium-total">
-						</capitec-label>
-						<capitec-label label="Summary of payout beneficiary amount:" class="stronger"></capitec-label>
-						<hr>
-
-						<!-- Beneficiaries list -->
-						${this.quote.beneficiaries.map(beneficiary => html`
-							<div class="calc-life-list">
-								<capitec-label label="${beneficiary.relationship}"></capitec-label>
-								<capitec-label label=""></capitec-label>
-							</div>
-							<hr>`)}
-							<div class="calc-life-list">
-								<capitec-label label="Total Premium Amount" class="stronger"></capitec-label>
-								<capitec-label label="R0.00" class="stronger"></capitec-label>
-							</div>
-						
-					</div>	
-
-				</div>
- 			</div>
-		
-		</div>
-
-		
-		</capitec-tab>
+			
+			</capitec-tab>
 		`
 	}
 
