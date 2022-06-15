@@ -43,7 +43,7 @@ export class PayCreditCardBudget extends Component {
 			budgetAccountDetails: { type: Object },
 			clientProducts: { type: Object },
 			productSelected: { state: true },
-			budgetBalance: { state: true }
+			budgetAmount: { state: true }
 		};
 	}
 
@@ -54,7 +54,7 @@ export class PayCreditCardBudget extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		[this.productSelected] = this.clientProducts;
-		this.budgetBalance = this.budgetAccountDetails.budgetBalance;
+		this.budgetAmount = this.budgetAccountDetails.settlementAmount;
 
 		this._getErrorMessage();
 		this._onLoading();
@@ -81,7 +81,7 @@ export class PayCreditCardBudget extends Component {
 				budgetAccountNumber: this.budgetAccountDetails.budgetAccountNumber,
 				fromAccountNumber: this.productSelected.accountNumber,
 				fromAccountType: this.productSelected.accountType,
-				authorisedAmount: this.budgetBalance,
+				authorisedAmount: this.budgetAmount,
 				budgetSequenceNumber: this.budgetAccountDetails.budgetSequence,
 				productTypeCode: this.budgetAccountDetails.productTypeCode
 			};
@@ -98,7 +98,7 @@ export class PayCreditCardBudget extends Component {
 	}
 
 	_budgetValueChange(e) {
-		this.budgetBalance = e.detail.new;
+		this.budgetAmount = e.detail.new;
 		this._getErrorMessage();
 	}
 
@@ -117,15 +117,15 @@ export class PayCreditCardBudget extends Component {
 		this.errorMessage = ``;
 		this.bannerMessage = ``;
 
-		// Entered budget amount exceeds the actual outstanding budget balance
-		if (this.budgetBalance > this.budgetAccountDetails.budgetBalance) {
+		// Entered budget amount exceeds the actual settlement amount
+		if (this.budgetAmount > this.budgetAccountDetails.settlementAmount) {
 			this.bannerMessage = `Transfer amount can not exceeds the budget amount.`;
-			this.errorMessage = `Max amount ${formatCurrency(this.budgetAccountDetails.budgetBalance)}`;
+			this.errorMessage = `Max amount ${formatCurrency(this.budgetAccountDetails.settlementAmount)}`;
 			return;
 		}
 
 		// No account has enough funds to do transfer as entered amount
-		const noFundsInAllAccounts = this.clientProducts.filter(account => deformatCurrency(account.availableBalance) > this.budgetBalance).length === 0;
+		const noFundsInAllAccounts = this.clientProducts.filter(account => deformatCurrency(account.availableBalance) > this.budgetAmount).length === 0;
 		if (noFundsInAllAccounts) {
 			this.bannerMessage = `You do not have enough fund in your account to do the transfer.`;
 			this.errorMessage = `Transafer cannot exceed available balance`;
@@ -133,11 +133,11 @@ export class PayCreditCardBudget extends Component {
 		}
 
 		// Entered budget amount exceeds the available balance of selected account
-		if (this.budgetBalance > deformatCurrency(this.productSelected.availableBalance)) {
+		if (this.budgetAmount > deformatCurrency(this.productSelected.availableBalance)) {
 			this.errorMessage = `Transafer cannot exceed available balance`;
 		}
 
-		if (isNullorEmpty(this.budgetBalance)) {
+		if (isNullorEmpty(this.budgetAmount)) {
 			this.errorMessage = `Transafer amount cannot be empty`;
 		}
 	}
@@ -310,7 +310,7 @@ export class PayCreditCardBudget extends Component {
 				label="Budget amount"
 				type="currency"
 				.error="${this.errorMessage}"
-				value="${this.budgetBalance}"
+				value="${this.budgetAmount}"
 				@value-changed="${(e) => this._budgetValueChange(e)}">
 			</capitec-text-field>
 		`;
