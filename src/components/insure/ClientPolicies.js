@@ -434,6 +434,7 @@ class ClientPolicies extends Component {
 			${this._renderPayPremiumDialog()}
 			${this._renderPayPremiumConfirmationDialog()}
 			${this._renderPayPremiumAgreementDialog()}
+			${this._renderError()}
 		`}
 
 	/**
@@ -717,6 +718,14 @@ class ClientPolicies extends Component {
 			@agree="${(e) => this._goToPayPremiumSuccess()}">	
 			</insure-pay-premium-agreement-dialog>`
 
+	}
+
+	_renderError(){
+		return html`
+			<insure-unknown-error-dialog></insure-unknown-error-dialog>
+			
+			`
+		
 	}
 
 	//#endregion RENDERING
