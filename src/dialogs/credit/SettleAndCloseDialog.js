@@ -74,7 +74,7 @@ export class SettleAndCloseDialog extends Component {
 			this.dispatchEvent(new CustomEvent(`settle-and-close`, {
 				detail: {
 					productSelected: product,
-					settleAndCloseDetails : this.settleAndCloseDetails				
+					settleAndCloseDetails: this.settleAndCloseDetails
 				}
 			}));
 		}
@@ -306,7 +306,7 @@ export class SettleAndCloseDialog extends Component {
 			return html`
 				<horizon-label
 					label="${label}"
-					value="${value}"
+					value="${value ?? `-`}"
 					data-automation-id="settle-and-close-${label.split(` `).join(`-`)}">
 				</horizon-label>`;
 		});

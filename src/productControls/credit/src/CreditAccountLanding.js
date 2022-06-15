@@ -583,7 +583,7 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-settle-close"
 					label="Settle & Close"
 					icon="system/close-circle-action"
-					?hidden="${false}"
+					?hidden="${true}"
 					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
 			</horizon-option-button>
 		`;
