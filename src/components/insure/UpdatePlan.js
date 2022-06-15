@@ -15,6 +15,7 @@ import 'app/components/dialogs/insure/EACLAgreementDialog';
 import 'app/components/dialogs/insure/RemoveBeneficiaryDialog';
 import 'app/components/dialogs/insure/RemoveLifeAssuredDialog';
 import 'app/components/dialogs/insure/AddBeneficiaryDialog';
+import 'app/components/dialogs/insure/UpdatePlanAgreementDialog';
 
 // Other
 import 'app/components/common/HorizonLabel';
@@ -60,6 +61,7 @@ class UpdatePlan extends Component {
 		this.showYROAAgreementDialog = false;
 		this.showRemoveLifeAssuredDialog = false;
 		this.showRemoveBeneficiaryDialog = false;
+		this.showUpdatePlanAgreementDialog = false;
 
 		this.agreementFCPAccepted = false;
 		this.agreementEACLAccepted = false;
@@ -93,6 +95,7 @@ class UpdatePlan extends Component {
 	 * @property {Boolean} showAddBeneficiariesDialog determines whether to show the add beneficiariesdialog
 	 * @property {Boolean} showRemoveLifeAssuredDialog determines whether to show the EACL agreement dialog
 	 * @property {Boolean} showRemoveBeneficiaryDialog determines whether to show the EACL agreement dialog
+	 * @property {Boolean} showUpdatePlanAgreementDialog determines whether to show the Update Plan agreement dialog
 	 * @property {Object} quote Data & flags for view & quote service request
 	 *
 	 * @readonly
@@ -113,6 +116,7 @@ class UpdatePlan extends Component {
 			showAddBeneficiariesDialog: { type: Boolean, state: true},
 			showRemoveLifeAssuredDialog: {type: Boolean, state: true},
 			showRemoveBeneficiaryDialog: {type: Boolean, state: true},
+			showUpdatePlanAgreementDialog: {type: Boolean, state: true},
 			quote: { type: Object, state: true },
 
 			newTotalPremium: { string: '' },
@@ -437,6 +441,20 @@ class UpdatePlan extends Component {
 		this.showAddBeneficiariesDialog = false;
 	}
 
+	/**
+	 * Open Add Life dialog returning select relationship
+	 */
+	 _openUpdatePlanAgreementDialog() {
+		this.showUpdatePlanAgreementDialog = true;
+	}
+
+	/**
+	 * Close the Add Life dialog
+	 */
+	_closeUpdatePlanAgreementDialog() {
+		this.showUpdatePlanAgreementDialog = false;
+	}
+
 
 	//#endregion
 
@@ -708,7 +726,8 @@ class UpdatePlan extends Component {
 		${this._renderFCPAgreementDialog()}
 		${this._renderYROAAgreementDialog()}
 		${this._renderRemoveLifeAssuredDialog()}
-		${this._renderRemoveBeneficiaryDialog()}`
+		${this._renderRemoveBeneficiaryDialog()}
+		${this._renderUpdatePLanAgreementDialog()}`
 	}
 
 	/**
@@ -727,13 +746,16 @@ class UpdatePlan extends Component {
 			`}
 
 			${this.selectedTabIndex == 0 ? html`
-				<capitec-button label="Update Plan" type="white" .disabled="${this.agreementFCPAccepted == false}">
+				<capitec-button label="Update Plan" type="white" .disabled="${this.agreementFCPAccepted == false}"
+					@click="${() => this._openUpdatePlanAgreementDialog()}">
 				</capitec-button>
 			`: this.selectedTabIndex == 1 ? html`
-				<capitec-button label="Update Plan" type="white" .disabled="${this.agreementEACLAccepted == false || this.agreementYBPAccepted == false}">
+				<capitec-button label="Update Plan" type="white" .disabled="${this.agreementEACLAccepted == false || this.agreementYBPAccepted == false}"
+				@click="${() => this._openUpdatePlanAgreementDialog()}">
 				</capitec-button>
 			`: html`
-			<capitec-button label="Update Plan" type="white" .disabled="${this.agreementYROAAccepted == false}">
+			<capitec-button label="Update Plan" type="white" .disabled="${this.agreementYROAAccepted == false}"
+				@click="${() => this._openUpdatePlanAgreementDialog()}">
 				</capitec-button>
 			`}
 			
@@ -1497,6 +1519,12 @@ class UpdatePlan extends Component {
 		return this.showYROAAgreementDialog == false ? `` : html`
 		<horizon-insure-yroa-agreement-dialog @agreementAccepted="${(e) => this._acceptYROAAgreement()}">
 		</horizon-insure-yroa-agreement-dialog>`
+	}
+
+	_renderUpdatePLanAgreementDialog() {
+		return this.showUpdatePlanAgreementDialog == false ? `` : html`
+		<insure-update-plan-agreement-dialog @close-modal="${() => this._closeUpdatePlanAgreementDialog()}">
+		</insure-update-plan-agreement-dialog>`
 	}
 
 	//#endregion
