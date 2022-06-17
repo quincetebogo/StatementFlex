@@ -128,17 +128,17 @@ export class PayCreditCardBudget extends Component {
 		const noFundsInAllAccounts = this.clientProducts.filter(account => deformatCurrency(account.availableBalance) > this.budgetAmount).length === 0;
 		if (noFundsInAllAccounts) {
 			this.bannerMessage = `You do not have enough fund in your account to do the transfer.`;
-			this.errorMessage = `Transafer cannot exceed available balance`;
+			this.errorMessage = `Transfer cannot exceed available balance`;
 			return;
 		}
 
 		// Entered budget amount exceeds the available balance of selected account
 		if (this.budgetAmount > deformatCurrency(this.productSelected.availableBalance)) {
-			this.errorMessage = `Transafer cannot exceed available balance`;
+			this.errorMessage = `Transfer cannot exceed available balance`;
 		}
 
 		if (isNullorEmpty(this.budgetAmount)) {
-			this.errorMessage = `Transafer amount cannot be empty`;
+			this.errorMessage = `Transfer amount cannot be empty`;
 		}
 	}
 
