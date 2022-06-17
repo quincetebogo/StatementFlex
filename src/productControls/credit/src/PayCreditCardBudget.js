@@ -119,7 +119,7 @@ export class PayCreditCardBudget extends Component {
 
 		// Entered budget amount exceeds the actual settlement amount
 		if (this.budgetAmount > this.budgetAccountDetails.settlementAmount) {
-			this.bannerMessage = `Transfer amount can not exceeds the budget amount.`;
+			this.bannerMessage = `Transfer amount cannot exceed the budget amount.`;
 			this.errorMessage = `Max amount ${formatCurrency(this.budgetAccountDetails.settlementAmount)}`;
 			return;
 		}
