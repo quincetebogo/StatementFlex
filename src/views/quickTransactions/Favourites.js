@@ -72,7 +72,6 @@ export class Favourites extends SavingsAccountBase {
 		this.updateStrackClick = false;
 		this.hasTaxCertificate = false;
 		this.taxCertificateDetails = null;
-		// TODO: get ccs status for client
 		this.ccsStatus = false;
 		this.showCCSmodal = false;
 		this.settlementQuoteEvents = SETTLEMENT_QUOTE_EVENTS;
@@ -228,7 +227,7 @@ export class Favourites extends SavingsAccountBase {
 
 		/**
 		 * This is supposed to happen in debicheck success screen
-		 * TODO: This should be to success screen when decline or approve is ready
+		 * TODO: This should be to success screen when decline or approve is ready (CSCEH-7746)
 		 */
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
@@ -396,7 +395,7 @@ export class Favourites extends SavingsAccountBase {
 				/* 
 				 * NOTE: This is a work around as the favourites landing does not return credit information. 
 				 * NOTE: This implementation will not include credit information in the favourites landing call fails.
-				 * TODO: Develop better solution
+				 * TODO: Develop better solution (CSCEH-7747)
 				 */
 				if (returnValues[1].status === `fulfilled` && returnValues[1].value.succeeded && returnValues[1].value.result.availableBalance !== null) {
 					if (this.callerInformation.verificationStatus === `verified`) {
@@ -543,7 +542,7 @@ export class Favourites extends SavingsAccountBase {
 		
 		// Temporary fix to get the account number using statements CS call as the account number field 
 		// for Favourites landing page(landingPageInfo) is returned as null which is required on Proof of Account screen.
-		// TODO : The function _getClientProducts() and filtering should be removed once the Account Number on landingPageInfo is received Properly.
+		// TODO : The function _getClientProducts() and filtering should be removed once the Account Number on landingPageInfo is received Properly. (CSCEH-7748)
 		const clientProductDetails = await this._getClientProducts();
 		
 		if (clientProductDetails) {
@@ -611,16 +610,10 @@ export class Favourites extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.PAID_UP_LETTER_ACCOUNTS
 		});
 
-		// TODO: CS call to get info
-		if (this.ccsStatus) {
-			this.showCCSmodal = true;
-			return;
-		}
-		
 		this._telemetry.startSpan(CreditEvents.CREDIT_PAID_UP_LETTER, {});
-
+		
 		const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber, ACCOUNT_STATUS.PAID_UP);
-
+		
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to retrieve client overview from credit service.`, `_initialise`, returnValue.correlationId);
 			this.renderMode = RENDER_MODE.SERVICE_UNAVAILABLE;
@@ -628,11 +621,17 @@ export class Favourites extends SavingsAccountBase {
 		}
 		
 		if (returnValue.succeeded && returnValue.result) {
-
-			// this.accountsInfo = [`Term loan (32 Months)`, `Credit`, `Access Facility`];
+			
 			this.creditAccountDetails = returnValue.result;
 			this._formatCreditOverviewResponse();
 			this.accountsInfo = [...this.creditAccountDetails.creditCardSummaryList, ...this.creditAccountDetails.accessFacilitySummaryList, ...this.creditAccountDetails.loanAccountSummaryList];
+
+			this.ccsStatus = await this._checkCreditPermisions(`paid-up-letter`, this.callerInformation.cifNumber, this.accountsInfo[0].accountNumber, this.accountsInfo[0].type);
+
+			if (this.ccsStatus) {
+				this.showCCSmodal = true;
+				return;
+			}
 
 			if (this.accountsInfo.length === 0) {
 				this.horizonRouter.navigateToProductInfo(`Credit`);
@@ -644,7 +643,6 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_formatCreditOverviewResponse() {
-		// TODO: Improve the formatting
 		this.creditAccountDetails.creditCardSummaryList.map(item => {
 			item.type = PRODUCTS.CREDIT_CARD;
 			item.category = CREDIT_TYPE.FLEXIBLE;

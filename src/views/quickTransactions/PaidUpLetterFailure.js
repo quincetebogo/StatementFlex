@@ -25,15 +25,23 @@ import 'app/components/common/RelatedOptions';
 	constructor() {
 		super();
 
-		this.mailId = `ivanmakatini@gmail.com`;
+		this.failedAccounts = [];
+		this.emailaddress = ``;
 		this.endCallContext = `QuickTransactionsUnSuccess`;
-		this._telemetry = HorizonTelemetry.instance;
+		this._telemetry = HorizonTelemetry.getInstance();
 	}
 
 	
 	// ----------
 	// PROPERTIES
 	// ----------
+	
+	static get properties() {
+		return {
+			emailAddress: { type: String }
+		};
+	}
+
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -42,11 +50,13 @@ import 'app/components/common/RelatedOptions';
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.screenDetails = this.horizonStore.getScreenDetails();
-
 		this._telemetry.startSpan(CreditEvents.CREDIT_PAID_UP_LETTER_FAILURE, {});
 
-		 // TODO: REMOVE HARD CODED EMAIL IN CONSTRUCTOR ONCE NAVIGATION IS IMPLEMENTED. ADD: this.mailId =  this.screenDetails && this.screenDetails.emailAddress;
+		this.screenDetails = this.horizonStore.getScreenDetails();
+
+		this.failedAccounts = this.screenDetails?.emailStatus.filter(account => !account.sentStatus).map(item => item.productTypeDescription);
+		this.emailAddress = this.screenDetails && this.screenDetails.emailAddress;
+
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
@@ -81,9 +91,27 @@ import 'app/components/common/RelatedOptions';
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 
-		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
 		this.horizonStore.clearReturnScreen();
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
+
+	_formateAccountNames(accounts) {
+		if (accounts.length === 1) {
+			return `${accounts[0].toLowerCase()}`;
+		}
+
+		if (accounts.length === 2) {
+			return `${accounts.join(` and `).toLowerCase()}`;
+		}
+
+		if (accounts.length > 2) {
+			const lastAccount = accounts.slice(-1)[0];
+			return `${accounts.slice(0, -1).join(`, `).toLowerCase()} and ${lastAccount.toLowerCase()}`;
+		}
+
+		return ``;
+	}
+
 
 	// ---------
 	// RENDERING
@@ -131,7 +159,7 @@ import 'app/components/common/RelatedOptions';
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._tryAgainClick()}>
 				<section id="id-error-msg" slot="detail">
-					Paid Up letter was not emailed to <b>${this.mailId}</b>
+					Paid Up letter(s) for <b> ${this._formateAccountNames(this.failedAccounts)}</b> was not emailed to <b>${this.emailAddress}</b>.
 				</section>
 			</horizon-error-screen>
 		`;

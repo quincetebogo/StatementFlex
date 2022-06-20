@@ -205,3 +205,5 @@ export const settlementQuoteDetails = [
 		creditType: `Flexible credit`
 	}
 ];
+
+export const emailPaidUpLetter = {};

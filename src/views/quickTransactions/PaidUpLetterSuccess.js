@@ -24,10 +24,9 @@ export class PaidUpLetterSuccess extends ViewBase {
 	constructor() {
 		super();
 
-		this.acNumber = ``;
-		this.mailId = `ivanmakatini@gmail.com`;
-		this.endCallContext = `QuickTransactionSuccess`;
-		this._telemetry = HorizonTelemetry.instance;
+		this.emailAddress = ``;
+		this.succeededAccounts = [];
+		this._telemetry = HorizonTelemetry.getInstance();
 	}
 
 
@@ -35,6 +34,12 @@ export class PaidUpLetterSuccess extends ViewBase {
 	// PROPERTIES
 	// ----------
 	
+	static get properties() {
+		return {
+			emailAddress: { type: String }
+		};
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -42,12 +47,13 @@ export class PaidUpLetterSuccess extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.screenDetails = this.horizonStore.getScreenDetails();
-
-		 // TODO: REMOVE HARD CODED EMAIL IN CONSTRUCTOR ONCE NAVIGATION IS IMPLEMENTED. ADD: this.mailId = this.screenDetails && this.screenDetails.emailAddress;
-
 		this._telemetry.startSpan(CreditEvents.CREDIT_PAID_UP_LETTER_SUCCESS, {});
 		
+		this.screenDetails = this.horizonStore.getScreenDetails();
+
+		this.succeededAccounts = this.screenDetails?.emailStatus.filter(account => account.sentStatus).map(item => item.productTypeDescription);
+		this.emailAddress = this.screenDetails?.emailAddress;
+
 		this._updateIncidentState();
 	}
 
@@ -79,7 +85,8 @@ export class PaidUpLetterSuccess extends ViewBase {
 		
 		this._telemetry.endSpan(CreditEvents.CREDIT_PAID_UP_LETTER_SUCCESS, {});
 		
-		this.horizonRouter.navigateToReturnPage();
+		this.horizonStore.clearReturnScreen();
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	// ---------------
@@ -90,6 +97,23 @@ export class PaidUpLetterSuccess extends ViewBase {
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
+	}
+	
+	_formateAccountNames(accounts) {
+		if (accounts.length === 1) {
+			return `${accounts[0].toLowerCase()}`;
+		}
+
+		if (accounts.length === 2) {
+			return `${accounts.join(` and `).toLowerCase()}`;
+		}
+
+		if (accounts.length > 2) {
+			const lastAccount = accounts.slice(-1)[0];
+			return `${accounts.slice(0, -1).join(`, `).toLowerCase()} and ${lastAccount.toLowerCase()}`;
+		}
+
+		return ``;
 	}
 
 	// ---------
@@ -131,7 +155,7 @@ export class PaidUpLetterSuccess extends ViewBase {
 				@left-click=${() => this._sendAnotherClick()}
 				@right-click=${() => this._doneClick()}>
 					<section id="id-error-msg" slot="detail">
-						Paid Up letter was emailed to <b>${this.mailId}</b>
+						Paid Up letter(s) for <b> ${this._formateAccountNames(this.succeededAccounts)}</b> was emailed to <b>${this.emailAddress}</b>
 					</section>
 			</horizon-success-screen>
 		`;

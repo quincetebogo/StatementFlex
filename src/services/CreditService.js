@@ -326,6 +326,9 @@ export class CreditService extends ChannelServiceBase {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`emailPaidUpLetter`)) {
+			if (errorHandler) {
+				return this.mockWithErrorHandler(`emailPaidUpLetter`, errorHandler);
+			}
 			return this.mock(`emailPaidUpLetter`);
 		}
 

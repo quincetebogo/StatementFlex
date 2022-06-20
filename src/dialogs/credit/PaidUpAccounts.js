@@ -1,9 +1,14 @@
 import { Component, css, html } from 'platform/elements';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
+import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { CreditService } from 'app/services/CreditService';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { PRODUCTS } from 'app/constants/Credit';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonPDFViewer';
 import 'app/components/common/OptionButton';
@@ -46,7 +51,9 @@ export class PaidUpAccounts extends Component {
 		this.searchText = ``;
 		this.searchCreditType = ``;
 
-		this._telemetry = HorizonTelemetry.instance;
+		this._telemetry = HorizonTelemetry.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 
 		this.creditService = new CreditService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
@@ -83,7 +90,7 @@ export class PaidUpAccounts extends Component {
 		if (this.accountsInfo) {
 			for (let index = 0; index < this.accountsInfo.length; index++) {
 				this.accountsChecked[index] = false;
-		}	
+		}
 	
 			this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
 		}
@@ -133,15 +140,12 @@ export class PaidUpAccounts extends Component {
 
             this.encodedPDFs = returnValue.result;
 
-			// this.renderMode = RENDER_MODE.PAID_UP_LETTER;
 			this.showPaidUpLetter = !this.showPaidUpLetter;
 			this.requestUpdate();
-			this._renderPaidUpLetter();
-      
-			this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_SEND, {      
-				// TODO: Uncomment when CS integration is completed
-				// "list-of-accounts": this.selectedAccounts.join(),
-				// "account-numbers": this.accountsInfo.map((item) => item.accountNumber).join()
+
+			this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_SEND, {
+				"list-of-accounts": this.selectedAccounts.join(),
+				"account-numbers": this.accountsInfo.map((item) => item.accountNumber).join()
 			});
 		}
 	}
@@ -155,7 +159,6 @@ export class PaidUpAccounts extends Component {
 	}
 
 	async _navigatePDF(currPage) {
-        // add CS call to get encodedPDF 
         // currPage is date currently selected
         const returnValue = await this.quickTransactionService.viewStatement(currPage, () => this._createIncidentOnError());
         if (returnValue) {
@@ -164,7 +167,6 @@ export class PaidUpAccounts extends Component {
     }
 
 	_search(event) {
-		// TODO: Add logic to serach by text; loan, account number, amount, ...
 		this.searchText = event.detail.new;
 
 		if (this.searchText === ``) {
@@ -181,10 +183,10 @@ export class PaidUpAccounts extends Component {
 			"search-by-text": this.searchText,
 			"credit-type": this.searchCreditType
 		});
+		this.requestUpdate();
 	}
 
 	_filter(event) {
-		// TODOL Add logic to search by credit type
 		this.searchCreditType = event.detail.new;
 
 		if (this.searchCreditType === `All`) {
@@ -201,6 +203,7 @@ export class PaidUpAccounts extends Component {
 			"search-by-text": this.searchText,
 			"credit-type": this.searchCreditType
 		});
+		this.requestUpdate();
 	}
 
 	_checkBox(event, index) {
@@ -249,7 +252,69 @@ export class PaidUpAccounts extends Component {
 	_backToLandingPage() {
 		this.showPaidUpLetter = !this.showPaidUpLetter;
 		this.requestUpdate();
-		this._renderPaidUpLetter();
+	}
+
+	async _sendPaidUpLetter(event) {
+
+		const creditProducts = {
+			[PRODUCTS.CREDIT_CARD]: `CreditCard`,
+			[PRODUCTS.ACCESS_FACILITY]: `AccessFacility`,
+			[PRODUCTS.TERM_LOAN]: `TermLoan`
+		 };
+
+		const nonNullSelectedAccounts = this.selectedAccounts.filter(item => !isNullorEmpty(item));
+		const selectedAccountNumbers = nonNullSelectedAccounts.map((item) => item.accountNumber);
+
+		const returnValue = await this.creditService.emailPaidUpLetter(this.callerInformation.cifNumber, selectedAccountNumbers, event.detail.emailAddress, () => true);
+
+		let sendStatusList;
+
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.selectedAccounts = nonNullSelectedAccounts;
+		screenDetails.emailAddress = event.detail.emailAddress;
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to send paid up letter.`, `_sendPaidUpLetter`, returnValue.correlationId);
+
+			sendStatusList = selectedAccountNumbers.map((accountNumber) => {
+
+				const itemDetails = nonNullSelectedAccounts.find(selectedAccount => selectedAccount.accountNumber === accountNumber);
+	
+				const sendStatus = {
+					accountNumber: accountNumber,
+					creditType: creditProducts[itemDetails.type],
+					productTypeDescription: itemDetails.productTypeDescription,
+					sentStatus: false
+				};
+	
+				return sendStatus;
+			});
+
+			screenDetails.emailStatus = sendStatusList;
+			this.horizonStore.setScreenDetails(screenDetails);
+			this.horizonRouter.navigatePaidUpLetterFailure();
+			return;
+		}
+		
+		sendStatusList = returnValue.result.sendStatusList.accountNumbers;
+
+		sendStatusList = sendStatusList.map((accountNumber) => {
+
+			const itemDetails = nonNullSelectedAccounts.find(selectedAccount => selectedAccount.accountNumber === accountNumber);
+
+			const sendStatus = {
+				accountNumber: accountNumber,
+				creditType: creditProducts[itemDetails.type],
+				productTypeDescription: itemDetails.productTypeDescription,
+				sentStatus: true
+			};
+
+			return sendStatus;
+		});
+		
+		screenDetails.emailStatus = sendStatusList;
+		this.horizonStore.setScreenDetails(screenDetails);
+		this.horizonRouter.navigatePaidUpLetterSuccess();
 	}
 	// ---------
 	// RENDERING
@@ -436,7 +501,12 @@ export class PaidUpAccounts extends Component {
 					type="subtitle" 
 					label="Choose an account">
 				</capitec-label>
-				${this.accountsInfo.map((item, index) => this._renderAccountInfoTile(item, index))}
+				${this.accountsInfo
+					.filter(item => item.productTypeDescription.includes(this.searchText) ||
+									item.accountNumber.includes(this.searchText) ||
+									item.creditLimit.includes(this.searchText))
+					.filter(item => this.searchCreditType === `All` || this.searchCreditType === `` || item.type.toUpperCase() === this.searchCreditType.toUpperCase())
+					.map((item, index) => this._renderAccountInfoTile(item, index))}
 			</capitec-content-box>
 
 			<capitec-button-bar>
@@ -482,7 +552,7 @@ export class PaidUpAccounts extends Component {
 		`;
 	}
 
-	_renderpaidUpLetter() {
+	_renderPaidUpLetter() {
 		return this.showPaidUpLetter
 		? html`
 			<horizon-paid-up-letter-dialog
@@ -491,6 +561,7 @@ export class PaidUpAccounts extends Component {
 				.encodedPDFs="${this.encodedPDFs}"
 				registeredEmailId="${this.callerInformation.emailId}"
 				@cancel="${() => this._backToLandingPage()}"
+				@send="${(e) => this._sendPaidUpLetter(e)}"
 				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
 			</horizon-paid-up-letter-dialog>
 		`

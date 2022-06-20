@@ -1,8 +1,10 @@
 import { Component, css, html } from 'platform/elements';
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
-import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { CreditService } from 'app/services/CreditService';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonEmailInput';
 import 'app/components/common/HorizonProductTile';
@@ -49,7 +51,10 @@ export class PaidUpLetter extends Component {
 		this.emailLabel = `Enter email address`;
 		this.confirmEmailLabel = `Confirm email`;
     
-		this._telemetry = HorizonTelemetry.instance;    
+		this._telemetry = HorizonTelemetry.getInstance();
+		this.callerInformation = HorizonStore.getInstance().getCallerInformation();
+
+		this.creditService = new CreditService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 	}
 
 	// --------------
@@ -101,20 +106,21 @@ export class PaidUpLetter extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
-	_initialise() {		
+	_initialise() {
 		this._toggleBusyFlag();
-		// TODO: flow for selected accounts to be done here
 	}
   
-	_viewPDFViewer () {
-		this.encodedPDF = this.encodedPDFs.document.data;
+	_viewPDFViewer (item) {
 		this.flag = !this.flag;
 
+		if (!this.flag) {
+			return;
+		}
+
 		this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_POP_UP_VIEW_DOCUMENT, {
-			// TODO: Uncomment once CS integration is complete and real data is being retrieved.
-			// "cifNumber": item.cifNumber,
-			// "accountNumber": item.accountNumber,
-			// "accountType": item.accountType
+			"cifNumber": this.callerInformation.cifNumber,
+			"accountNumber": item.accountNumber,
+			"accountType": item.type
 		});
 	}
   
@@ -133,23 +139,10 @@ export class PaidUpLetter extends Component {
 		}
 	} 
 
-	async _sendClick(e) {
-		if (this._validateEmail(e)) {
-			// flow to success or unsuccessful 
-			this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_POP_UP_SEND, {
-				"screen": TelemetryScreen.CREDIT_PAID_UP_LETTER,
-				"email address": this.idConfirmEmailAddress,
-				// TODO: Logic required to indicate if the next screen is succussful or unsuccessful. It can be done once CS integration is done
-				"next-screen": null 
-			});
-		}
-	}
-
 	_cancelClick(e) {
 		this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_POP_UP_CANCEL, {
 			"screen": TelemetryScreen.CREDIT_PAID_UP_LETTER,
-			// TODO: Once paid up letter can be done from credit landing add logic to determine next screen i.e. favourites or credit landing
-			"next-screen": TelemetryScreen.FAVOURITES 
+			"next-screen": TelemetryScreen.PAID_UP_LETTER_ACCOUNTS 
 		});
 
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
@@ -161,11 +154,18 @@ export class PaidUpLetter extends Component {
 		if (!isValid) {
 			return false;
 		}
-		// TODO: Navigation to be added once the CS is ready.
-	}
 
-	_cancelClick(e) {
-		this.dispatchEvent(new CustomEvent(`cancel`, {}));
+		this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_POP_UP_SEND, {
+			"screen": TelemetryScreen.CREDIT_PAID_UP_LETTER,
+			"email address": this.idConfirmEmailAddress,
+			"next-screen": TelemetryScreen.PAID_UP_LETTER_ACCOUNTS 
+		});
+
+		this.dispatchEvent(new CustomEvent(`send`, {
+			detail: {
+				emailAddress: this.confirmEmail
+			}
+		}));
 	}
 
 	async _navigate(step) {
@@ -380,7 +380,7 @@ export class PaidUpLetter extends Component {
 				encodedPDF="${this.encodedPDF}"
 				totalPages="${this.selectedAccounts.length}"
 				currPage="${this.currPage}"
-				@cancel="${() => this._viewPDFViewer()}"
+				@cancel="${() => this._viewPDFViewer(null)}"
 				@next="${() => this._navigate(`next`)}"
 				@previous="${() => this._navigate(`previous`)}">
 			</horizon-pdf-viewer>
