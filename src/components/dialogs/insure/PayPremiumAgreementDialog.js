@@ -49,13 +49,6 @@ class PayPremiumAgreementDialog extends Component {
 	}
 
 	/**
-	 * Email event from the dialog footer, closes modal & switches to email dialog
-	 */
-	_onEmailClick() {
-		this.dispatchEvent(new CustomEvent(`email-plan`, {}));
-	}
-
-	/**
 	 * Agree event from dialog footer, closes modal and navigates to Pay Premium Success page
 	 */
 	_onAgreeClick() {
@@ -131,23 +124,13 @@ class PayPremiumAgreementDialog extends Component {
 			<div class="notification">
 				<capitec-toast type="info" header="Notify Client" 
 					detail="The full agreement, inclusive of the Policy Schedule, Section 484 summary. Disclosure, terms and conditions,
-					will be emailed to you and available in branch." data-automation-id="insure-pay-premium-agreement-dialog-notification" closable>
+					will be emailed to you and available in branch." data-automation-id="insure-pay-premium-agreement-dialog-notification">
 				</capitec-toast>
 			</div>
 
-			<capitec-expander-group modeset="single">
-				<div class="expander">
-					<capitec-expander expandbuttonalignment="left" label="View Policy Schedule" data-automation-id="insure-pay-premium-agreement-dialog-view-policy-schedule">
-						<capitec-label label=""></capitec-label>
-					</capitec-expander>
-				</div>
-
-				<div>
-					<capitec-expander expandbuttonalignment="left" label="View Mandate" data-automation-id="insure-pay-premium-agreement-dialog-view-mandate">
-						<capitec-check label="Please confirm that you agree to these terms and conditions and that you are bound by them?"></capitec-check>
-					</capitec-expander>
-				</div>
-			 </capitec-expander-group>
+			<div>
+				<capitec-label type="subtitle" label="'Display pay Arrears Message here'"></capitec-label>
+			</div>
 
 		`}
 
@@ -161,10 +144,6 @@ class PayPremiumAgreementDialog extends Component {
 				<capitec-button class="button" slot="footer" type="secondary" label="Cancel"
 					@click="${() => this._onCancelClick()}"
 					data-automation-id="insure-pay-premium-agreement-dialog-cancel">
-				</capitec-button>
-				<capitec-button class="button" slot="footer" type="secondary" label="Email"
-					@click="${() => this._onEmailClick()}"
-					data-automation-id="insure-pay-premium-agreement-dialog-email">
 				</capitec-button>
 				<capitec-button class="button" slot="footer" type="primary" label="Agree"
 					@click="${() => this._onAgreeClick()}"
@@ -186,16 +165,6 @@ window.customElements.define(`insure-pay-premium-agreement-dialog`, PayPremiumAg
  * <insure-pay-premium-agreement-dialog ... @close-modal="${this._handler}"></insure-pay-premium-agreement-dialog>
  *
  * @event PayPremiumAgreementDialog#close-modal
- * @type {Object} - N/A
- */
-
-/**
- * Send the selected arrears and chosen account to consuming component when 'Add' is clicked
- *
- * @example
- * <insure-pay-premium-agreement-dialog ... @email-plan="${this._handler}"></insure-pay-premium-agreement-dialog>
- *
- * @event PayPremiumAgreementDialog#email-plan
  * @type {Object} - N/A
  */
 
