@@ -26,6 +26,7 @@ constructor() {
 	super();
 
 	this.checked = false;
+	this.secondCheck = false;
 	this.amount = 0;
 	this.optionSelected = false;
 	// Lookups
@@ -42,6 +43,7 @@ constructor() {
 	 * @property {Boolean} checked Determines if an Arrear was selected
 	 * @property {Number} amount Total amount to be paid for arrears
 	 * @property {Boolean} optionSelected determines whether an option has been selected from the account select box
+	 * @property {Boolean} secondCheck Determines if the second Arrear was selected
 	 * 
 	 * @readonly
 	 * @static
@@ -52,7 +54,8 @@ constructor() {
 			payArrears: {type: Object, state: true},
 			checked: {type: Boolean, state: true},
 			amount: {type: Number, state: true},
-			optionSelected: {type: Boolean, state: true}
+			optionSelected: {type: Boolean, state: true},
+			secondCheck: {type: Boolean, state: true},
 
 		};
 	}
@@ -85,7 +88,17 @@ constructor() {
 		this.payArrears.fromAccount = "";
 		this.payArrears.cifNumber = "";
 		
+		this._sortArrears()
+		this._AddFirst(this.clientArrears.arrears[0])
 		
+	}
+
+	/**
+	 * sort the Arrears from oldest to newest
+	 */
+	_sortArrears(){
+		this.clientArrears.arrears.sort((a, b) => {return (a.dueDate < b.dueDate) ? -1 : ((a.dueDate > b.dueDate) ? 1 : 0)});
+		console.log(this.clientArrears.arrears)
 	}
 
 	_totalAmount() {
@@ -135,7 +148,13 @@ constructor() {
 		} else {
 			this.checked = false;
 		}
-		
+
+		if (this.payArrears.arrears.length == 2){
+			this.secondCheck = true
+		} else if (this.payArrears.arrears.length < 2){
+			this.secondCheck = false
+		}
+
 		//calculates the total amount to be paid 
 		if (e.detail.new == true) {
 			this.amount = this.amount + outstanding.amount;
@@ -164,8 +183,6 @@ constructor() {
 			this.payArrears.arrears.splice(index, 1);
 
 		}
-		
-
 	}
 	/**
 	 * event that sets the value of optionSelected to the value recieved from the account select box
@@ -183,13 +200,13 @@ constructor() {
 				amount: outstanding.amount,
 				objectID: outstanding.objectID,
 			});
+			
+			this.amount = outstanding.amount;
 		};
 
-		this.amount = outstanding.amount;
+		
 
 		this.checked = true
-
-		
 
 		console.log(this.payArrears.arrears)
 	}
@@ -272,18 +289,22 @@ constructor() {
 			
 			<capitec-check-group>
 				${this.clientArrears.arrears.map((outstanding, index) => html`
-					${index != 0 ? html`
+					${index == 1 ? html`
 						<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, 'MM yyyy')} | ${formatCurrency(outstanding.amount)}"
-						@value-change=" ${(e) => this._checkedChange(outstanding,e)}" data-automation-id="insure-pay-premium-dialog-arrears">
+							@value-change=" ${(e) => this._checkedChange(outstanding,e)}" data-automation-id="insure-pay-premium-dialog-arrears">
 						</capitec-check>
-					` : html`
+					` : (index == 2 ? html`
+						<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, 'MM yyyy')} | ${formatCurrency(outstanding.amount)}"
+							@value-change=" ${(e) => this._checkedChange(outstanding,e)}" data-automation-id="insure-pay-premium-dialog-arrears"
+							.disabled="${this.secondCheck == false}" >
+						</capitec-check>	
+					`: html`
+						<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, 'MM yyyy')} | ${formatCurrency(outstanding.amount)}"
+							@value-change=" ${(e) => this._checkedChange(outstanding,e)}" data-automation-id="insure-pay-premium-dialog-arrears"
+							disabled checked>
+						</capitec-check>
 						
-						<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, 'MM yyyy')} | ${formatCurrency(outstanding.amount)}"
-						@value-change=" ${(e) => this._checkedChange(outstanding,e)}" data-automation-id="insure-pay-premium-dialog-arrears"
-						disabled checked>
-						</capitec-check>
-						${this._AddFirst(outstanding)}
-					`}
+					`)}
 				`)}
 			</capitec-check-group>
 		`;

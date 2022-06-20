@@ -12,6 +12,7 @@ import 'app/components/insure/UpdatePlan';
 import 'app/components/insure/PolicySummary';
 import 'app/components/insure/PayPremiumSuccess';
 import 'app/components/insure/PolicyTransactionHistory';
+import 'app/components/insure/EmailPlanSuccess';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -219,6 +220,10 @@ export class ExistingClient extends InsureViewBase {
 			, this.callerInformation.cifNumber);
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY);
 	}
+
+	_goToEmailSuccessPage(){
+		this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_PLAN_SUCCESS)
+	}
 	
 	/**
 	 * Make FIPS call and Prepare and navigate to pay premium success page
@@ -350,6 +355,8 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderPolicySummaryPage()}`
 			case INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS:
 				return html`${this._renderPayPremiumSuccessPage()}`
+			case INSURE_RENDER_MODE.EMAIL_PLAN_SUCCESS:
+				return html`${this._renderEmailPlanSuccessPage()}`
 			default:
 				return html``;
 		}
@@ -413,7 +420,8 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderPayPremiumSuccessPage() {
 		return html`
-		<horizon-pay-premium-success-page @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+		<horizon-pay-premium-success-page @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+		@navigate-to-email-success-page="${() => this._goToEmailSuccessPage()}">
 		</horizon-pay-premium-success-page>
 		
 	`}
@@ -432,6 +440,14 @@ export class ExistingClient extends InsureViewBase {
 				@unloading="${() => this._unloadPolicyTransactionHistory()}">
 			</horizon-insure-policy-transaction-history>`
 			: html``;
+	}
+
+	_renderEmailPlanSuccessPage() {
+		return html`
+		<insure-email-plan-success
+			@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+		</insure-email-plan-success>
+		`
 	}
 
 	//#endregion RENDERING

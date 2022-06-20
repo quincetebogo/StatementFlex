@@ -368,8 +368,18 @@ export const ClientPolicies = {
 					"arrears": [
 						{
 							"amount": 225.2,
-							"dueDate": "2020-02-29T22:00:00.0000000+00:00",
-							"objectID": "24324234.43"
+							"dueDate": "2022-05-10T17:35:05.191Z",
+							"objectID": "56421"
+						},
+						{
+							"amount": 175.5,
+							"dueDate": "2022-03-08T17:35:05.191Z",
+							"objectID": "64513"
+						},
+						{
+							"amount": 152.0,
+							"dueDate": "2022-04-06T17:35:05.191Z",
+							"objectID": "75118"
 						}
 					]
 				},
