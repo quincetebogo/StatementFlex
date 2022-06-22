@@ -921,7 +921,8 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderUnverifiedAlertBanner() {
-		return html`
+		return !this.roleManager.isHelpDeskAgent 
+		? html`
 			<capitec-alert-banner
 				class="verificatoin-status"
 				data-automation-id="favourite-transactions-unverified-alert-banner"
@@ -938,7 +939,8 @@ export class Favourites extends SavingsAccountBase {
 						@click="${() => super._verifyClick()}">
 					</capitec-hyperlink>
 				</capitec-group>
-			</capitec-alert-banner>`;
+			</capitec-alert-banner>`
+		: html``;
 	}
 
 	_renderFailedAlertBanner() {
@@ -958,7 +960,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderNoDigitalHighRiskTransAlertBanner() {
-		return this.callerInformation.verificationMethod === `SQ`
+		return this.callerInformation.verificationMethod === `SQ` && !this.roleManager.isHelpDeskAgent
 			? html`
 				<capitec-alert-banner
 					class="verificatoin-status"
@@ -976,7 +978,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderHighRiskTransAlertBanner() {
-		return this.callerInformation.verificationMethod === `SQ`
+		return this.callerInformation.verificationMethod === `SQ` && !this.roleManager.isHelpDeskAgent
 			? html`
 				<capitec-alert-banner
 					class="verificatoin-status"
