@@ -32,4 +32,8 @@ import { SecurityContext } from 'platform/core';
 		return this.roles && this.roles.includes(`helpdesk-agent`);
 	}
 
+	get isSearchClientEnabled() {
+		return this.roles && this.roles.includes(`HZN_SEARCH_BUTTON_ENABLED`);
+	}
+
 };
