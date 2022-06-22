@@ -1,3 +1,4 @@
+import { Configuration } from 'platform/core';
 import { SecurityContext } from 'platform/core';
 
 /**
@@ -22,6 +23,7 @@ import { SecurityContext } from 'platform/core';
 		}
 		
 		this._securityContext = SecurityContext.getInstance();
+		this._configuration = Configuration.getInstance();
 		
 		this.roles = Array.isArray(this._securityContext.roles) ? this._securityContext.roles : [];
 	}
@@ -32,8 +34,11 @@ import { SecurityContext } from 'platform/core';
 		return this.roles && this.roles.includes(`helpdesk-agent`);
 	}
 
-	get isSearchClientEnabled() {
-		return this.roles && this.roles.includes(`HZN_SEARCH_BUTTON_ENABLED`);
+	async isSearchClientEnabled() {
+		const searchSearchEnabledByConfig = await this._configuration.getSetting(`searchClientOptionEnabled`);
+		const searchClientEnabledByGroup = this.roles && this.roles.includes(`HZN_SEARCH_BUTTON_ENABLED`);
+
+		return searchSearchEnabledByConfig || searchClientEnabledByGroup;
 	}
 
 };

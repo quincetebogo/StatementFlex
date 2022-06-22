@@ -1,5 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { Configuration } from 'platform/core';
 import { EventAggregator } from 'platform/EventAggregator';
 import { RoleManager } from 'app/shell/RoleManager';
 
@@ -20,7 +19,6 @@ export class TitleBar extends Component {
 		this.employeeId = ``;
 		this.searchClientEnabled = false;
 
-		this._configuration = Configuration.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.roleManager = RoleManager.getInstance();
 
@@ -77,7 +75,7 @@ export class TitleBar extends Component {
 	// --------------
 
 	async _initialise() {
-		this.searchClientEnabled = await this._configuration.getSetting(`searchClientOptionEnabled`) || this.roleManager.isSearchClientEnabled;
+		this.searchClientEnabled = await this.roleManager.isSearchClientEnabled();
 	}
 
 	// ---------------
