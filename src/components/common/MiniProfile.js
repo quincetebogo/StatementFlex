@@ -1,6 +1,5 @@
 import { Component, css, html } from 'platform/elements';
 import { Configuration, EventAggregator } from 'platform/core';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/OptionButton';
@@ -25,7 +24,6 @@ export class MiniProfile extends Component {
 		this.isHelpDeskAgent = false;
 
 		this.configuration = Configuration.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	/**
@@ -73,9 +71,7 @@ export class MiniProfile extends Component {
 	}
 
 	_onClientBranchVerifiedClick() {
-		this._updateApplicationState(`verified`, `ITA`);
-
-		this.eventAggregator.publish(`horizon-verify-now-click`, {});
+		this.eventAggregator.publish(`horizon-verified-in-branch-click`, {});
 	}
 
 	_onVerifyViaSecurityQuestions() {
@@ -130,15 +126,6 @@ export class MiniProfile extends Component {
 		];
 
 		return `${dob.getDate()} ${months[dob.getMonth()]} ${dob.getFullYear()}`;
-	}
-
-	_updateApplicationState(verificationStatus, verificationMethod) {
-		const callerInformation = this.horizonStore.getCallerInformation();
-
-		callerInformation.verificationStatus = verificationStatus;
-		callerInformation.verificationMethod = verificationMethod;
-
-		this.horizonStore.setCallerInformation(callerInformation);
 	}
 
 	// ---------
@@ -443,8 +430,8 @@ export class MiniProfile extends Component {
 					</capitec-label>
 					<capitec-spacer></capitec-spacer>
 					<capitec-hyperlink 
-						id="id-verify-now-warning-link" 
-						data-automation-id="mini-profile-verify"
+						id="id-verified-in-branch-link" 
+						data-automation-id="mini-profile-branch-verified"
 						@click="${() => this._onClientBranchVerifiedClick()}"
 						label="Client verified in branch">
 					</capitec-hyperlink>

@@ -96,6 +96,7 @@ export class ViewBase extends View {
 	connectedCallback() {
 		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
 		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
+		this.verifyInBranchSub = this.eventAggregator.subscribe(`horizon-verified-in-branch-click`, () => this._verifiedInBranch());
 		this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._assignIncidentClick());
 		this.addCallerDetailsSub = this.eventAggregator.subscribe(`horizon-add-caller-details`, () => this._addCallerDetails());
 		this.vasToast = this.eventAggregator.subscribe(`horizon-accepted-vas`, () => this._toastVAS());
@@ -121,6 +122,7 @@ export class ViewBase extends View {
 	disconnectedCallback() {
 		this.endCallSub.dispose();
 		this.verifySub.dispose();
+		this.verifyInBranchSub.dispose();
 		this.assignSub.dispose();
 		this.addCallerDetailsSub.dispose();
 		this.vasToast.dispose();
@@ -135,6 +137,14 @@ export class ViewBase extends View {
 
 	_verifyClick() {
 		this.showVerifyCallerDialog = true;
+	}
+
+	_verifiedInBranch() {
+		this.callerInformation.verificationStatus = 'verified';
+		this.callerInformation.verificationMethod = `ITA`;
+		this.callerInformation.verificationAttempts.itaAttempts += 1;
+
+		this.horizonStore.setCallerInformation(this.callerInformation);
 	}
 
 	_skipVerification(event) {
