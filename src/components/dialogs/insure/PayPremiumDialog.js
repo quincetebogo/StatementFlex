@@ -4,7 +4,7 @@ import { formatDate } from 'app/utils/channelServiceUtilities';
 import 'app/components/insure/InsureAccountSelect';
 
 // Lookups
-import { CLIENT_ACCOUNTS} from 'app/constants/InsureCommon';
+import { CLIENT_ACCOUNTS } from 'app/constants/InsureCommon';
 
 /**
  * Pay Premium Dialog componant will allow an account to be selected that will be used to pay the arrears as well as allow the arrears that are to be paid to be selected
@@ -20,27 +20,24 @@ import { CLIENT_ACCOUNTS} from 'app/constants/InsureCommon';
  */
 class PayPremiumDialog extends Component {
 
-//#region INITIALIZE
+	//#region INITIALIZE
 
-constructor() {
-	super();
+	constructor() {
+		super();
 
-	this.checked = false;
-	this.secondCheck = false;
-	this.amount = 0;
-	this.optionSelected = false;
-	// Lookups
-	this.clientAccounts = CLIENT_ACCOUNTS;
-}
+		this.amount = 0;
+		this.optionSelected = false;
+		// Lookups
+		this.clientAccounts = CLIENT_ACCOUNTS;
+	}
 
-//#endregion
+	//#endregion
 
-//#region PROPERTIES
+	//#region PROPERTIES
 
 	/**
 	 * @property {Object} clientArrears Data & flags from Arrears Service
 	 * @property {Object} payArrears Data & flags for Pay Arrears service request
-	 * @property {Boolean} checked Determines if an Arrear was selected
 	 * @property {Number} amount Total amount to be paid for arrears
 	 * @property {Boolean} optionSelected determines whether an option has been selected from the account select box
 	 * @property {Boolean} secondCheck Determines if the second Arrear was selected
@@ -48,27 +45,24 @@ constructor() {
 	 * @readonly
 	 * @static
 	 */
-	 static get properties() {
+	static get properties() {
 		return {
 			clientArrears: { type: Object, state: true },
-			payArrears: {type: Object, state: true},
-			checked: {type: Boolean, state: true},
-			amount: {type: Number, state: true},
-			optionSelected: {type: Boolean, state: true},
-			secondCheck: {type: Boolean, state: true},
-
+			payArrears: { type: Object, state: true },
+			amount: { type: Number, state: true },
+			optionSelected: { type: Boolean, state: true },
 		};
 	}
 
-//#endregion
+	//#endregion
 
-//#region LIFECYCLE OVERRIDES
+	//#region LIFECYCLE OVERRIDES
 
 	/**
 	 * Setup the component once added to the DOM.
 	 * @returns {void}
 	 */
-	 connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
 		this._initialise();
 		this._totalAmount();
@@ -81,45 +75,79 @@ constructor() {
 	/**
 	 * Initialize component when loaded
 	 */
-	 _initialise() {
+	_initialise() {
 		this.payArrears = {};
 		this.payArrears.arrears = [];
 		this.payArrears.contractReference = "";
 		this.payArrears.fromAccount = "";
 		this.payArrears.cifNumber = "";
-		
+
 		this._sortArrears()
+
+		// Set Metadata
+		this.clientArrears.arrears.forEach(ele => {
+			ele.shouldBeChecked = false;
+			ele.shouldBeDisabled = false;
+		});
+
+		// First Entry
+		this.clientArrears.arrears[0].shouldBeChecked = true;
+		this.clientArrears.arrears[0].shouldBeDisabled = true;
+
 		this._AddFirst(this.clientArrears.arrears[0])
-		
+
+		if (this.clientArrears.arrears.length == 3) {
+			this.clientArrears.arrears[2].shouldBeDisabled = true;
+		}
+
 	}
 
 	/**
 	 * sort the Arrears from oldest to newest
 	 */
-	_sortArrears(){
-		this.clientArrears.arrears.sort((a, b) => {return (a.dueDate < b.dueDate) ? -1 : ((a.dueDate > b.dueDate) ? 1 : 0)});
+	_sortArrears() {
+		this.clientArrears.arrears.sort((a, b) => { return (a.dueDate < b.dueDate) ? -1 : ((a.dueDate > b.dueDate) ? 1 : 0) });
 		console.log(this.clientArrears.arrears)
 	}
 
+	_AddFirst(outstanding) {
+
+		// add first arrear to pay arrears
+		this.payArrears.arrears.push({
+			dueDate: outstanding.dueDate,
+			amount: outstanding.amount,
+			objectID: outstanding.objectID,
+			shouldBeChecked: outstanding.shouldBeChecked,
+			shouldBeDisabled: outstanding.shouldBeDisabled
+		});
+
+		this.amount = outstanding.amount;
+
+		console.log('Current Selected Arrears Array (1st)')
+		console.log(this.payArrears.arrears)
+	}
+/**
+ * Calculates the total amount of the arrears selected
+ */
 	_totalAmount() {
 
-		for(let i = 0; i < this.payArrears.arrears; i++){
-				this.amount = this.amount + this.payArrears.arrears[i].amount
-				console.log(this.amount)
+		for (let i = 0; i < this.payArrears.arrears; i++) {
+			this.amount = this.amount + this.payArrears.arrears[i].amount
+			console.log(this.amount)
 		}
 
 	}
 
 	//#endregion
 
-	
 
-//#region EVENT HANDLERS
+
+	//#region EVENT HANDLERS
 
 	/**
 	 * Cancel event from dialog footer button, closes modal & reset toggles 
 	 */
-	 _onCancelClick() {
+	_onCancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
@@ -128,7 +156,7 @@ constructor() {
 	 */
 	_onPayClick() {
 
-		this.dispatchEvent(new CustomEvent(`pay-arrears`, {detail:{payArrears: this.payArrears, amountToPay: this.amount} }));
+		this.dispatchEvent(new CustomEvent(`pay-arrears`, { detail: { payArrears: this.payArrears, amountToPay: this.amount } }));
 	}
 
 	/**
@@ -137,30 +165,47 @@ constructor() {
 	 * @param {} outstanding Live object at index that was clicked
 	 * @param {*} e contains new value of checkbox
 	 */
-	_checkedChange(outstanding, e) {
+	_checkedChange(outstanding, selectedIndex, e) {
+
 
 		console.log(e)
 
-		this._addSelected(outstanding, e);
 
-		if (this.payArrears.arrears.length > 0) {
-			this.checked = true
-		} else {
-			this.checked = false;
+		//sets should be checked for third arrear to true when clicked
+		if(selectedIndex == 2){
+			this.clientArrears.arrears[2].shouldBeChecked = true;
 		}
 
-		if (this.payArrears.arrears.length == 2){
-			this.secondCheck = true
-		} else if (this.payArrears.arrears.length < 2){
-			this.secondCheck = false
-		}
+		//adds selected arrear or removes deselcted arrear
+		this._addSelected(outstanding, selectedIndex, e);
 
-		//calculates the total amount to be paid 
+		// if (this.payArrears.arrears.length > 0) {
+		// 	// this.checked = true
+		// } else {
+		// 	// this.checked = false;
+		// }
+
+		// Second Month
+		// if (selectedIndex == 1) {
+		// 	this.payArrears.arrears[2].shouldBeDisabled = false;
+		// 	this.payArrears.arrears[2].shouldBeChecked = false;
+		// } else if (this.payArrears.arrears.length < 2) {
+			// this.secondCheck = false
+		// }
+
+		// Thirs month
+
+
+		//adds amount of arrear selected
 		if (e.detail.new == true) {
 			this.amount = this.amount + outstanding.amount;
-		} else if(e.detail.new == false) {	
+		} else if (e.detail.new == false) {
 			this.amount = this.amount - outstanding.amount;
 		}
+
+		console.log('Current Selected Arrears Array (Change)')
+		console.log(this.payArrears.arrears)
+		this.requestUpdate()
 
 	}
 
@@ -170,19 +215,68 @@ constructor() {
 	 * @param {} selected Live object at index that was clicked
 	 * @param {*} e contains new value of checkbox
 	 */
-	_addSelected(selected, e) {
+	_addSelected(selected, selectedIndex, e) {
+
+		console.log(e.detail)
+
 		if (e.detail.new == true) {
 			this.payArrears.arrears.push({
-			dueDate: selected.dueDate,
-			amount: selected.amount,
-			objectID: selected.objectID,
+				dueDate: selected.dueDate,
+				amount: selected.amount,
+				objectID: selected.objectID,
+				shouldBeChecked: selected.shouldBeChecked,
+				shouldBeDisabled: selected.shouldBeDisabled
 			});
-
 		} else {
 			const index = this.payArrears.arrears.map(object => object.objectID).indexOf(selected.objectID);
 			this.payArrears.arrears.splice(index, 1);
-
 		}
+
+		//second arrear check = true
+		if(e.detail.new == true && this.clientArrears.arrears.length == 3 && selectedIndex == 1){
+			this.clientArrears.arrears[2].shouldBeDisabled = false;
+		}
+
+		// second arrear check = false and third arrear check = true
+		if(e.detail.new == false && this.clientArrears.arrears.length == 3 && selectedIndex == 1 && this.clientArrears.arrears[2].shouldBeChecked == true){
+			this.clientArrears.arrears[2].shouldBeDisabled = true;
+			this.clientArrears.arrears[2].shouldBeChecked = false;
+			
+			const index = this.payArrears.arrears.map(object => object.objectID).indexOf(this.clientArrears.arrears[2].objectID);
+			console.log("value:")
+			console.log(this.clientArrears.arrears[2])
+			this.payArrears.arrears.splice(index, 1);
+
+			this.amount = this.amount - this.clientArrears.arrears[2].amount;
+
+			// this.amount = this.amount - this.clientArrears.arrears[2].amount;
+			
+			console.log("in line false check")
+		}
+
+		if(e.detail.new == false && this.clientArrears.arrears.length == 3 && selectedIndex == 1){
+			this.clientArrears.arrears[2].shouldBeDisabled = true;
+			this.clientArrears.arrears[2].shouldBeChecked = false;
+		}
+
+		// var array = this.clientArrears.arrears.filter((e) => { if(selected.)})
+
+		// find the entry that has same Obj id in looping array
+		// this.clientArrears.arrears.forEach(ele => {
+		// Checkbox
+		// if (ele.objectID == selected.objectID) {
+		// ele.shouldBeChecked = true;
+		// } else {
+		// ele.shouldBeChecked = false;
+		// }
+
+		// Disable
+
+		// });
+
+
+		// set "checked" & "disbaled" properties
+
 	}
 	/**
 	 * event that sets the value of optionSelected to the value recieved from the account select box
@@ -193,39 +287,22 @@ constructor() {
 		this.optionSelected = e.detail;
 	}
 
-	_AddFirst(outstanding){
-		if (this.payArrears.arrears.length == 0){
-			this.payArrears.arrears.push({
-				dueDate: outstanding.dueDate,
-				amount: outstanding.amount,
-				objectID: outstanding.objectID,
-			});
-			
-			this.amount = outstanding.amount;
-		};
-
-		
-
-		this.checked = true
-
-		console.log(this.payArrears.arrears)
-	}
 
 	//#endregion
 
-//#region RENDERING
+	//#region RENDERING
 
-/**
-	 * Generates the component stylesheet.
-	 *
-	 * @readonly
-	 * @static
-	 * @returns {css} CSS for the component.
-	 */
- static get styles() {
-	return [
-		super.styles,
-		css`
+	/**
+		 * Generates the component stylesheet.
+		 *
+		 * @readonly
+		 * @static
+		 * @returns {css} CSS for the component.
+		 */
+	static get styles() {
+		return [
+			super.styles,
+			css`
 		
 		.buttons{
 			width: 100px;
@@ -251,7 +328,7 @@ constructor() {
 	 * Main render point for component
 	 * @returns {html} The html content of the component.
 	 */
-	 _webTemplate() {
+	_webTemplate() {
 		return html`
 			<capitec-modal type="form" class="modal-body-label" header="Pay Arrears (${this.clientArrears.contractReference})"
 			header-align="left">
@@ -264,7 +341,7 @@ constructor() {
 				${this._renderDialogFooter()}
 			</div>
 			</capitec-modal>`;
-		}
+	}
 
 	/**
 	 * Render modal body section
@@ -291,17 +368,17 @@ constructor() {
 				${this.clientArrears.arrears.map((outstanding, index) => html`
 					${index == 1 ? html`
 						<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, 'MM yyyy')} | ${formatCurrency(outstanding.amount)}"
-							@value-change=" ${(e) => this._checkedChange(outstanding,e)}" data-automation-id="insure-pay-premium-dialog-arrears">
+							@value-change=" ${(e) => this._checkedChange(outstanding, index, e)}" data-automation-id="insure-pay-premium-dialog-arrears" >
 						</capitec-check>
 					` : (index == 2 ? html`
 						<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, 'MM yyyy')} | ${formatCurrency(outstanding.amount)}"
-							@value-change=" ${(e) => this._checkedChange(outstanding,e)}" data-automation-id="insure-pay-premium-dialog-arrears"
-							.disabled="${this.secondCheck == false}" >
+							@value-change=" ${(e) => this._checkedChange(outstanding, index, e)}" data-automation-id="insure-pay-premium-dialog-arrears"
+							.disabled="${outstanding.shouldBeDisabled == true}" .checked="${outstanding.shouldBeChecked == true}" >
 						</capitec-check>	
 					`: html`
 						<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, 'MM yyyy')} | ${formatCurrency(outstanding.amount)}"
-							@value-change=" ${(e) => this._checkedChange(outstanding,e)}" data-automation-id="insure-pay-premium-dialog-arrears"
-							disabled checked>
+							@value-change=" ${(e) => this._checkedChange(outstanding, index, e)}" data-automation-id="insure-pay-premium-dialog-arrears"
+							.disabled="${outstanding.shouldBeDisabled == true}" .checked="${outstanding.shouldBeChecked == true}">
 						</capitec-check>
 						
 					`)}
@@ -323,16 +400,16 @@ constructor() {
 				</capitec-button>
 			
 				<capitec-button class="buttons" id="id-confirm-button" type="primary" label="Pay"
-					@click="${() => this._onPayClick()}" .disabled=${this.checked == false || this.optionSelected == false} data-automation-id="insure-pay-premium-dialog-pay">
+					@click="${() => this._onPayClick()}" .disabled=${this.optionSelected == false} data-automation-id="insure-pay-premium-dialog-pay">
 				</capitec-button>
 			</capitec-group>`;
-		
-		}
+
+	}
 
 
-	
 
-//#endregion
+
+	//#endregion
 
 
 }

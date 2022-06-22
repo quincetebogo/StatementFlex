@@ -175,6 +175,28 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
+	 * Calculate estimate based on lives assured provided
+	 * Map metadata (coverDetails) back when response is received
+	 * @returns {Object} Estimate response
+	 */
+	 async _policyPolicy(e) {
+		let estimateWithCoverDetails = e.detail;
+		const resp = await this.insureService.payPolicy(estimateWithCoverDetails, () => true);
+		if (resp.succeeded == true && resp.result != null) {
+			estimateWithCoverDetails.totalPremium = resp.result.totalPremium;
+			estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map(lifeWithDetails => {
+				return Object.assign(lifeWithDetails, resp.result.lifesAssured.find(respLife => {
+					return lifeWithDetails.rowID === respLife.rowID
+				}))
+			});
+			this.estimate = estimateWithCoverDetails;
+		} else {
+			// Do error message
+			return null;
+		}
+	}
+
+	/**
 	 * Navigate so specific subview
  	*/
 	_navigateToSubView(newMode) {
