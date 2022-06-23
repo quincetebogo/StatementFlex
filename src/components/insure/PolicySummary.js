@@ -118,7 +118,7 @@ class PolicySummary extends Component {
 				--horizon-label-value-height: 20px;
 				--horizon-label-value-color: #3A3A3A;
 				--horizon-label-value-font-size: 16px;
-				--horizon-label-value-line-height: 20px;
+				--horizon-label-value-line-height: 15px
 			}
 			.accounts-box {
 				height: auto;
@@ -291,7 +291,7 @@ class PolicySummary extends Component {
 					<horizon-label
 						data-automation-id="insure-main-life-total-premium"
 						label="Premium"
-						value="${ isNullorEmpty(this.policyDetails?.totalPremium) ? formatCurrency(0) :  formatCurrency(this.policyDetails?.totalPremium)}">
+						value="${ isNullorEmpty(mainLifeDetails[0]?.premium) ? formatCurrency(0) :  formatCurrency(mainLifeDetails[0]?.premium)}">
 					</horizon-label>
 					<horizon-label
 						data-automation-id="insure-main-life-arrears"

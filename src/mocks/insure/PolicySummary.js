@@ -7,7 +7,7 @@
 export const PolicySummary = {
 	"contractReference": "CF09847678",
 	"productCode": "Capitec",
-	"commencementDate": "2022-05-10T17:35:05.190Z",
+	"commencementDate": "2020-05-10T17:35:05.190Z",
 	"status": "PendingInForce",
 	"displayStatus": "Pending In Force",
 	"deductionDetails": {
@@ -25,23 +25,23 @@ export const PolicySummary = {
 	  "effectiveFromDate": "2022-05-10T17:35:05.190Z",
 	  "effectiveToDate": "2022-05-10T17:35:05.190Z"
 	},
-	"totalPremium": 2250.2,
+	"totalPremium": 95.5,
 	"arrearDetails": {
-	  "outstandingAmount": 376.8,
-	  "monthsOutstanding": 2,
+	  "outstandingAmount": 289.5,
+	  "monthsOutstanding": 3,
 	  "arrears": [
 		{
-		  "amount": 225.2,
-		  "dueDate": "2022-05-10T17:35:05.191Z",
+		  "amount": 95.5,
+		  "dueDate": "2022-02-10T17:35:05.191Z",
 		  "objectID": ""
 		},
 		{
-			"amount": 175.5,
+			"amount": 95.5,
 			"dueDate": "2022-03-08T17:35:05.191Z",
 			"objectID": ""
 		},
 		{
-			"amount": 152.0,
+			"amount": 95.5,
 			"dueDate": "2022-04-06T17:35:05.191Z",
 			"objectID": ""
 		}
@@ -53,12 +53,12 @@ export const PolicySummary = {
 	  "reason": "Affordability"
 	},
 	"paymentSchedule": {
-		"previousArrearsPaymentDate": "2020-01-27T22:00:00.0000000+00:00",
-		"previousArrearsPaymentAmount": 250.0,
-		"previousPaymentDate": "2020-01-24T22:00:00.0000000+00:00",
-		"previousPaymentAmount": 255.2,
-		"nextPaymentDate": "2020-02-24T22:00:00.0000000+00:00",
-		"nextPaymentAmount": 260.4
+		"previousArrearsPaymentDate": "2022-01-27T22:00:00.0000000+00:00",
+		"previousArrearsPaymentAmount": 95.5,
+		"previousPaymentDate": "2022-05-24T22:00:00.0000000+00:00",
+		"previousPaymentAmount": 95.5,
+		"nextPaymentDate": "2022-06-24T22:00:00.0000000+00:00",
+		"nextPaymentAmount": 95.5
 	},
 	"benefits": [
 	  {
@@ -201,7 +201,31 @@ export const PolicySummary = {
 	"policyRule": "Standard",
 	"policyMinumumPremium": 0,
 	"roleplayers": [
-	  {
+		{
+			"title": "Mr",
+			"surname": "Motseko",
+			"firstName": "Linda",
+			"middleName": "",
+			"idNumber": "8006045095089",
+			"lifeAssured": false,
+			"beneficiary": false,
+			"benefitPayout": 15000,
+			"contactDetails": {
+				"cellphone": "061 111 1111",
+				"homephone": "string",
+				"workphone": "string",
+				"email": "abc@gmail.com"
+			},
+			"gender": "Male",
+			"dateOfBirth": "1982-04-15T12:15:05.191Z",
+			"recordID": "string",
+			"cifNumber": 0,
+			"relationship": "MainLife",
+			"coverAmount": 50000,
+			"premium": 48.5,
+			"rowID": 0
+			},
+		{
 		"title": "Mrs",
 		"surname": "Naidoo",
 		"firstName": "Thaliya",
@@ -217,7 +241,7 @@ export const PolicySummary = {
 		  "email": "abc@gmail.com"
 		},
 		"gender": "Female",
-		"dateOfBirth": "2010-11-16T12:15:05.191Z",
+		"dateOfBirth": "1989-10-11T12:15:05.191Z",
 		"recordID": "string",
 		"cifNumber": 0,
 		"relationship": "Spouse",
@@ -246,7 +270,7 @@ export const PolicySummary = {
 		"cifNumber": 0,
 		"relationship": "Child",
 		"coverAmount": 25000,
-		"premium": 25,
+		"premium": 22,
 		"rowID": 0
 	  },
 	  {
@@ -270,7 +294,7 @@ export const PolicySummary = {
 		"cifNumber": 0,
 		"relationship": "Child",
 		"coverAmount": 25000,
-		"premium": 25,
+		"premium": 22,
 		"rowID": 0
 	  }
 	]
