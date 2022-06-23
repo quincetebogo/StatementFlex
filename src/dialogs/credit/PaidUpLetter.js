@@ -1,9 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { CreditEvents } from 'app/constants/telemetry/events/Credit';
-import { CreditService } from 'app/services/CreditService';
-import { HorizonStore } from 'app/store/HorizonStore';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonEmailInput';
@@ -45,16 +40,11 @@ export class PaidUpLetter extends Component {
 		// private variables
 		this.flag = false;
 		this.currPage = 0;
-		this.encodedPDF = ``;
+		this.encodedPDFs = ``;
 		this.email = ``;
 		this.confirmEmail = ``;
 		this.emailLabel = `Enter email address`;
 		this.confirmEmailLabel = `Confirm email`;
-    
-		this._telemetry = HorizonTelemetry.getInstance();
-		this.callerInformation = HorizonStore.getInstance().getCallerInformation();
-
-		this.creditService = new CreditService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 	}
 
 	// --------------
@@ -71,7 +61,6 @@ export class PaidUpLetter extends Component {
 		return {
 			selectedAccounts: { type: Object },
 			encodedPDFs: { type: Object },
-			navigatePDF: { type: Object },
 			registeredEmailId: { type: String },
 
 			// private properties
@@ -88,14 +77,12 @@ export class PaidUpLetter extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this._telemetry.startSpan(CreditEvents.CREDIT_PAID_UP_LETTER_POP_UP, {});
-
 		this._initialise();
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-		this._telemetry.endSpan(CreditEvents.CREDIT_PAID_UP_LETTER_POP_UP, {});
+		this._onUnloading();
 	}
 
 	// --------------
@@ -116,12 +103,10 @@ export class PaidUpLetter extends Component {
 		if (!this.flag) {
 			return;
 		}
-
-		this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_POP_UP_VIEW_DOCUMENT, {
-			"cifNumber": this.callerInformation.cifNumber,
-			"accountNumber": item.accountNumber,
-			"accountType": item.type
-		});
+		this.dispatchEvent(new CustomEvent(`view-pdf`, { 
+				detail: { accountNumber: item.accountNumber, accountType: item.type }
+		}));
+		
 	}
   
 	_clearAlerts() {
@@ -140,11 +125,6 @@ export class PaidUpLetter extends Component {
 	} 
 
 	_cancelClick(e) {
-		this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_POP_UP_CANCEL, {
-			"screen": TelemetryScreen.CREDIT_PAID_UP_LETTER,
-			"next-screen": TelemetryScreen.PAID_UP_LETTER_ACCOUNTS 
-		});
-
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
@@ -155,12 +135,6 @@ export class PaidUpLetter extends Component {
 			return false;
 		}
 
-		this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_POP_UP_SEND, {
-			"screen": TelemetryScreen.CREDIT_PAID_UP_LETTER,
-			"email address": this.idConfirmEmailAddress,
-			"next-screen": TelemetryScreen.PAID_UP_LETTER_ACCOUNTS 
-		});
-
 		this.dispatchEvent(new CustomEvent(`send`, {
 			detail: {
 				emailAddress: this.confirmEmail
@@ -168,15 +142,8 @@ export class PaidUpLetter extends Component {
 		}));
 	}
 
-	async _navigate(step) {
-		const datesSelected = this.selectedAccounts;
-		if (step === `next`) {
-			this.currPage += this.currPage < datesSelected.length ? 1 : 0;
-			this.encodedPDF = await this.navigatePDF(datesSelected[this.currPage - 1]);
-		} else {
-			this.currPage -= this.currPage ? 1 : 0;
-			this.encodedPDF = await this.navigatePDF(datesSelected[this.currPage - 1]);
-		}
+	_onUnloading() {
+		this.dispatchEvent(new CustomEvent(`on-unloading`, {}));
 	}
 
 	// ---------------
@@ -231,6 +198,7 @@ export class PaidUpLetter extends Component {
 					--theme-product-tile-heading-margin-left: 16px;
 					--theme-layout-gap-spacing: 8px;
 					--theme-product-tile-title-font-weight: 600;
+					--theme-product-tile-detail-top: 22px;
 				}
 
 				capitec-alert-banner > capitec-group > capitec-label {
@@ -256,8 +224,7 @@ export class PaidUpLetter extends Component {
 				.seperator {
 					width: 100%;
 					border: 1px solid #E1E1E1;
-					margin-bottom: 30px;
-					margin-top: 10px;
+					margin: 16px 0px 30px 0px;
 				}
 
 				.document-label[type="subtitle"] {
@@ -278,6 +245,11 @@ export class PaidUpLetter extends Component {
 				horizon-email-input {
 					--theme-layout-gap-spacing: 0px;
 				}
+
+				horizon-pdf-viewer{
+					--theme-horizon-pdf-modal-header-width: auto;
+				}
+
 			`
 		];
 	}
@@ -361,7 +333,6 @@ export class PaidUpLetter extends Component {
 	}
 
 	_renderViewDocumnetLink(item) {
-		this.currPage = this.selectedAccounts.indexOf(item);
 		return html`
 			<capitec-label 
 				slot="detail"
@@ -376,13 +347,9 @@ export class PaidUpLetter extends Component {
 	_viewPDF() {
 		return html`
 			<horizon-pdf-viewer
-				header="Paid Up Letter: ${this.selectedAccounts[this.currPage].productTypeDescription}"
-				encodedPDF="${this.encodedPDF}"
-				totalPages="${this.selectedAccounts.length}"
-				currPage="${this.currPage}"
-				@cancel="${() => this._viewPDFViewer(null)}"
-				@next="${() => this._navigate(`next`)}"
-				@previous="${() => this._navigate(`previous`)}">
+				header="Paid Up Letter"
+				encodedPDF="${this.encodedPDFs}"
+				@cancel="${() => this._viewPDFViewer(null)}">
 			</horizon-pdf-viewer>
 		`;
 	}

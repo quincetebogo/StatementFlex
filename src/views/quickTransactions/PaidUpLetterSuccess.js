@@ -1,7 +1,6 @@
 import { css, html } from 'platform/elements';
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
@@ -85,8 +84,8 @@ export class PaidUpLetterSuccess extends ViewBase {
 		
 		this._telemetry.endSpan(CreditEvents.CREDIT_PAID_UP_LETTER_SUCCESS, {});
 		
-		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
+		this.horizonStore.clearScreenDetails();
 	}
 
 	// ---------------

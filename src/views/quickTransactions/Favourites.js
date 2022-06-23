@@ -625,17 +625,15 @@ export class Favourites extends SavingsAccountBase {
 			this.creditAccountDetails = returnValue.result;
 			this._formatCreditOverviewResponse();
 			this.accountsInfo = [...this.creditAccountDetails.creditCardSummaryList, ...this.creditAccountDetails.accessFacilitySummaryList, ...this.creditAccountDetails.loanAccountSummaryList];
+		
+			if (this.accountsInfo.length > 0) {
+				
+				this.ccsStatus = await this._checkCreditPermisions(`paid-up-letter`, this.callerInformation.cifNumber, this.accountsInfo[0].accountNumber, this.accountsInfo[0].type);
 
-			this.ccsStatus = await this._checkCreditPermisions(`paid-up-letter`, this.callerInformation.cifNumber, this.accountsInfo[0].accountNumber, this.accountsInfo[0].type);
-
-			if (this.ccsStatus) {
-				this.showCCSmodal = true;
-				return;
-			}
-
-			if (this.accountsInfo.length === 0) {
-				this.horizonRouter.navigateToProductInfo(`Credit`);
-				return;
+				if (this.ccsStatus) {
+					this.showCCSmodal = true;
+					return;
+				}
 			}
 
 			this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;

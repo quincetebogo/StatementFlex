@@ -50,7 +50,7 @@ export class SettlementQuote extends Component {
 	 *
 	 * @readonly
 	 * @static
-	 * @memberof FavouriteTransactions
+	 * @memberof SettlementQuote
 	 */
 
 	static get properties() {
@@ -233,7 +233,7 @@ export class SettlementQuote extends Component {
 				capitec-title-bar {
 					border-bottom: 1px solid rgb(225, 225, 225);
 					--theme-titlebar-padding: 8px 16px;
-					--theme-titlebar-shadow: 0px 0px;					
+					--theme-titlebar-shadow: 0px 0px;
 				}
 				capitec-title-bar > capitec-label {
 					height: 32px;
@@ -273,10 +273,10 @@ export class SettlementQuote extends Component {
 					--theme-container-padding-top: 11px;
 					--theme-container-padding-right: 16px;
 					--theme-container-padding-bottom: 11px;
-				}				
+				}
 				capitec-group[gap="line"] > *:first-child {
 					--theme-layout-gap-spacing: 16px;
-				}				
+				}
 				horizon-label {
 					width: 184px;
 					--theme-layout-gap-spacing: 0px;
@@ -288,7 +288,7 @@ export class SettlementQuote extends Component {
 					--horizon-label-value-color: #3A3A3A;
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-line-height: 20px;
-				}				
+				}
 				.no-result-group {
 					width: 1020px;
 					margin-top: 130px;
@@ -328,21 +328,21 @@ export class SettlementQuote extends Component {
 					--theme-type-default-background: rgb(244, 244, 244);
 					width: 100%;
 					box-shadow: none!important;
-				}				
+				}
 				.quote-header-inner{
 					font-weight: 600;
 					width: 173px;
-				}				
+				}
 				.quote-header-filler{
 					width: 602px;
-				}				
+				}
 				.accountSubTitle{
 					line-height: 24px;
 					padding-top: 0px;
 
 					--theme-label-subtitle-font-size: 18px;
 					--theme-label-subtitle-font-weight: 600;
-					--theme-layout-gap-spacing: 18px;				
+					--theme-layout-gap-spacing: 18px;
 				}`
 		];
 	}
@@ -412,9 +412,9 @@ export class SettlementQuote extends Component {
 		`;
 	}
 
-	_renderSettlementQuoteHeader(itemCount){
-		if(itemCount > 0){
-			return html `
+	_renderSettlementQuoteHeader(itemCount) {
+		if (itemCount > 0) {
+			return html`
 			<capitec-title-bar >
 				<capitec-label class="accountSubTitle" 
 					type="subtitle" 
@@ -424,11 +424,11 @@ export class SettlementQuote extends Component {
 			<capitec-title-bar class="quote-header-title" >
 				<capitec-label class="quote-header-filler" label=""></capitec-label>
 				<capitec-label class="quote-header-inner" label="Current"></capitec-label>
-				<capitec-label class="quote-header-inner" label="Max 7 Days"></capitec-label>				
-			</capitec-title-bar>`
-		}else{
-			return html ``
-		}
+				<capitec-label class="quote-header-inner" label="Max 7 Days"></capitec-label>
+			</capitec-title-bar>`;
+		} 
+		return html``;
+		
 	}
 
 	_renderNoResult() {
@@ -440,8 +440,7 @@ export class SettlementQuote extends Component {
 				valign="center"
 				gap="none">
 					<img
-						src="platform/illustrations/history.svg"
-						class="document-icon"/>
+						src="platform/illustrations/history.svg"/>
 					<capitec-label
 						class="no-results"
 						label="${this.noAccountsMessage}"
@@ -484,7 +483,7 @@ export class SettlementQuote extends Component {
 				<horizon-label
 					label="Settlement Amount"
 					value="${item.maxSettlementAmount}">
-				</horizon-label>				
+				</horizon-label>
 			</capitec-content-box>
 		`;
 	}
