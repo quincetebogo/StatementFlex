@@ -171,6 +171,85 @@ export const creditCardDetails = {
 	"waitingPeriodExpiryDate": `2022-05-06T15:18:57.074Z`
 };
 
+/**
+ * settle and close quote details mocks
+ * 
+ * @export
+ * @constant {Object} SettleAndCloseQuote
+ */
+ export const settleAndCloseQuote = {
+		"accountNumber": `1657155046`,
+		"currentBalance": 49018.14,
+		"interestNotCapatalised": 0,
+		"expectedInterestFees": 0,
+		"settlementAmount": 0.1,
+		"savingAccountsList": [
+			{
+				"accountNumber": `1295723953`,
+				"accountType": `210`,
+				"availableBalance": `5.69`,
+				"savingsPermissionStatus": `DENIED`,
+				"statusReasonList": [`HOLDS_ON_ACCOUNTS`]
+			},
+			{
+				"accountNumber": `1123799863`,
+				"accountType": `210`,
+				"availableBalance": `0`,
+				"savingsPermissionStatus": `DENIED`,
+				"statusReasonList": [`ACCOUNT_TYPE_DISALLOWS_OPERATION`]
+			},
+			{
+				"accountNumber": `1295723954`,
+				"accountType": `200`,
+				"availableBalance": `0.41`,
+				"savingsPermissionStatus": `GRANTED`,
+				"statusReasonList": null
+			}
+		]
+	};
+
+/**
+ * Credit permissions details mocks
+ * 
+ * @export
+ * @constant {Object} creditPermissions
+ */
+export const creditPermissions = 
+{
+    "permissionsResultsList": [
+        {
+            "operationIdentifier": `Settle`,
+            "permissionResult": `Granted`,
+            "declineReasons": `None`
+        },
+        {
+            "operationIdentifier": `SettleAndClose`,
+            "permissionResult": `Granted`,
+            "declineReasons": `None`
+        },
+        {
+            "operationIdentifier": `SendViewTransactionHistory`,
+            "permissionResult": `Granted`,
+            "declineReasons": `None`
+        },
+        {
+            "operationIdentifier": `SendViewStatements`,
+            "permissionResult": `Granted`,
+            "declineReasons": `None`
+        },
+        {
+            "operationIdentifier": `SettlementQuote`,
+            "permissionResult": `Granted`,
+            "declineReasons": `None`
+        },
+        {
+            "operationIdentifier": `PaidUp`,
+            "permissionResult": `Granted`,
+            "declineReasons": `None`
+        }
+    ]
+};
+
 export const settlementQuoteDetails = [
 	{
 		quoteName: `Term Loan (32 months)`,
