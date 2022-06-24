@@ -46,6 +46,7 @@
 	 * @param {string} [initials=""] Client's initials
 	 * @param {string} [identifiedBy=""] Identification method used to confirm client
 	 * @param {string} [emailId=""] Client's registered email ID
+	 * @param {string} [profilePhoto=""] Client's Profile Photo
 	 */
 	constructor(
 		cifNumber,
@@ -80,7 +81,8 @@
 		lastName = ``,
 		initials = ``,
 		identifiedBy = ``,
-		emailId = ``
+		emailId = ``,
+		profilePhoto = ``
 	) {
 		this.cifNumber = cifNumber;
 		this.birthdate = birthdate;
@@ -115,6 +117,7 @@
 		this.initials = initials;
 		this.identifiedBy = identifiedBy;
 		this.emailId = emailId;
+		this.profilePhoto = profilePhoto;
 		Object.seal();
 	}
 }
