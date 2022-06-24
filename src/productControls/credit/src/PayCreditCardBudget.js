@@ -26,6 +26,8 @@ export class PayCreditCardBudget extends Component {
 		super();
 
 		this.productSelected = {};
+		this.savStatus = false;
+		this.savingAccountsList = [];
 	}
 
 	// ----------
@@ -42,6 +44,7 @@ export class PayCreditCardBudget extends Component {
 		return {
 			budgetAccountDetails: { type: Object },
 			clientProducts: { type: Object },
+			payBudgetfromAccounts: { type: Object },
 			productSelected: { state: true },
 			budgetAmount: { state: true }
 		};
@@ -55,7 +58,7 @@ export class PayCreditCardBudget extends Component {
 		super.connectedCallback();
 		[this.productSelected] = this.clientProducts;
 		this.budgetAmount = this.budgetAccountDetails.settlementAmount;
-
+		this.savingAccountsList = this.payBudgetfromAccounts;
 		this._getErrorMessage();
 		this._onLoading();
 	}
@@ -116,6 +119,7 @@ export class PayCreditCardBudget extends Component {
 		
 		this.errorMessage = ``;
 		this.bannerMessage = ``;
+		this.savStatus = false;
 
 		// Entered budget amount exceeds the actual settlement amount
 		if (this.budgetAmount > this.budgetAccountDetails.settlementAmount) {
@@ -136,6 +140,19 @@ export class PayCreditCardBudget extends Component {
 		if (this.budgetAmount > deformatCurrency(this.productSelected.availableBalance)) {
 			this.errorMessage = `Transfer cannot exceed available balance`;
 		}
+
+		const acc = this.productSelected.accountNumber;
+			let i = 0;
+			while (i < this.savingAccountsList.length) {
+				if (acc == this.savingAccountsList[i].accountNumber && this.savingAccountsList[i].savingsPermissionStatus === `DENIED`)
+				{
+					this.bannerMessage = `The account selected cannot be used to perform this transaction`;
+					this.savStatus = true;
+					this.errorMessage = this.savingAccountsList[i].statusReasonList;
+					return;
+				}
+				i++;
+			}
 
 		if (isNullorEmpty(this.budgetAmount)) {
 			this.errorMessage = `Transfer amount cannot be empty`;
@@ -310,6 +327,7 @@ export class PayCreditCardBudget extends Component {
 				label="Budget amount"
 				type="currency"
 				.error="${this.errorMessage}"
+				?disabled="${this.savStatus}"
 				value="${this.budgetAmount}"
 				@value-changed="${(e) => this._budgetValueChange(e)}">
 			</capitec-text-field>
@@ -366,6 +384,7 @@ export class PayCreditCardBudget extends Component {
 					id="id-transfer-button" 
 					type="primary" 
 					label="Transfer"
+					?disabled="${this.savStatus}"
 					@click="${() => this._onTransferClick()}">
 				</capitec-button>
 			</capitec-group>

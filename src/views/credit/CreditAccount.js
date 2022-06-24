@@ -64,6 +64,7 @@ export class CreditAccount extends ViewBase {
 		this.creditType = ``;
 		this.selectedAccounts = [];
 		this.showPayBudgetDialog = false;
+		this.payBudgetfromAccounts = [];
 		// ccs status of client set to true until real value retrieved from CS
 		this.ccsStatus = false;
 		this.settleAndCloseQuote = [];
@@ -297,7 +298,8 @@ export class CreditAccount extends ViewBase {
 
 		this._formatFromAccounts(returnValue.result.fromAccounts);
 		this.payBudgetAccountDetails = selectedAccountDetails;
-		
+		this.payBudgetfromAccounts = returnValue.result.fromAccounts;
+
 		this.showPayBudgetDialog = !this.showPayBudgetDialog;
 	}
 
@@ -353,8 +355,7 @@ export class CreditAccount extends ViewBase {
 		this.productSelected = item.detail.productSelected;
 		this.settleAndCloseDetails = item.detail.settleAndCloseDetails;
 		const selectedAccountIndex = this._getSECTransferDetails(item.detail.productSelected.accountNumber);
-		const settleAndClose = 
-		{
+		const settleAndClose = {
 				creditType: this.settleAndCloseCreditOption,
 				cifNumber: this.callerInformation.cifNumber,
 				accountNumber: this.settleAndCloseQuote.accountNumber,
@@ -781,7 +782,6 @@ export class CreditAccount extends ViewBase {
 
 		this.clientProducts = await this._getClientProducts();
 		
-
 		if (this.settleAndCloseDetails.type === `Credit card`) {
 			this.settleAndCloseCreditOption = `CreditCard`;
 		} else if (this.settleAndCloseDetails.type === `Term Loan`) {
@@ -794,9 +794,9 @@ export class CreditAccount extends ViewBase {
 			cifNumber: this.callerInformation.cifNumber,
 			idNumber: this.callerInformation.southAfricanIDNumber
 		};
+		
 		const returnValue = await this.creditService.settleAndCloseQuote(settleAndCloseQuoteRequest);
 		this.settleAndCloseQuote = returnValue.result;
-
 		this.showSettleCloseModal = !this.showSettleCloseModal;
 		const balanceField = this.settleAndCloseDetails.category === CREDIT_TYPE.FLEXIBLE ? `Available balance` : `Credit limit`;
 		const balanceFieldValue = this.settleAndCloseDetails.category === CREDIT_TYPE.FLEXIBLE ? this.settleAndCloseDetails.availableCredit : this.settleAndCloseDetails.creditLimit;
@@ -1012,6 +1012,7 @@ export class CreditAccount extends ViewBase {
 				<capitec-pc-pay-budget-dialog
 					.budgetAccountDetails="${this.payBudgetAccountDetails}"
 					.clientProducts="${this.clientProducts}"
+					.payBudgetfromAccounts="${this.payBudgetfromAccounts}"
 					@on-loading="${() => this._telemetry.startSpan(CreditEvents.PAY_BUDGET_MODAL, {})}"
 					@on-unloading="${() => this._telemetry.endSpan(CreditEvents.PAY_BUDGET_MODAL, {})}"
 					@cancel="${() => this._backFromPayBudgetDialog()}"
@@ -1116,6 +1117,7 @@ export class CreditAccount extends ViewBase {
 		? html`
 			<horizon-settle-and-close-dialog 
 				.settleAndCloseDetails="${this.settleAndCloseDetails}"
+				.settleAndCloseQuote="${this.settleAndCloseQuote}"
 				.clientProducts="${this.clientProducts}"
 				@cancel="${() => this._backToLandingPage()}"
 				@settle-and-close="${(e) => this._confirmSettleAndClose(e)}">
