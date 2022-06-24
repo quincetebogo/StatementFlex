@@ -797,7 +797,6 @@ export class CreditAccount extends ViewBase {
 		
 		const returnValue = await this.creditService.settleAndCloseQuote(settleAndCloseQuoteRequest);
 		this.settleAndCloseQuote = returnValue.result;
-		console.log(this.settleAndCloseQuote);
 		this.showSettleCloseModal = !this.showSettleCloseModal;
 		const balanceField = this.settleAndCloseDetails.category === CREDIT_TYPE.FLEXIBLE ? `Available balance` : `Credit limit`;
 		const balanceFieldValue = this.settleAndCloseDetails.category === CREDIT_TYPE.FLEXIBLE ? this.settleAndCloseDetails.availableCredit : this.settleAndCloseDetails.creditLimit;

@@ -58,7 +58,6 @@ export class SettleAndCloseDialog extends Component {
 		super.connectedCallback();
 		[this.productSelected] = this.clientProducts;
 		this.savList = this.settleAndCloseQuote.savingAccountsList;
-		//this.hasEnoughFunds = this._deformatCurrency(this.productSelected.availableBalance) >= this._deformatCurrency(this.settleAndCloseDetails[`Settlement amount`]);
 		this._CheckSavStatus();
 		this.requestUpdate();
 	}
@@ -89,7 +88,6 @@ export class SettleAndCloseDialog extends Component {
 	_valueChanged(e) {
 		if (e.detail.new) {
 			this.productSelected = e.detail.new;
-			// this.hasEnoughFunds = this._deformatCurrency(this.productSelected.availableBalance) >= this._deformatCurrency(this.settleAndCloseDetails[`Settlement amount`]);
 			this._CheckSavStatus();
 			this.requestUpdate();
 		}
