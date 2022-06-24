@@ -391,7 +391,8 @@ export class RelatedOptions extends Component {
 					.cifNumber="${this.callerInformation.cifNumber}"
 					.title="${this.callerInformation.title}"
 					.lastName="${this.callerInformation.lastName}"
-					.landingPageInfo="${this.landingPageInfo}"
+					accountNumber="${this.landingPageInfo.accountNumber}"
+					accountOpenedDate="${this.landingPageInfo.accountOpenedDate}"
 					registeredEmailId="${this.callerInformation.emailId}"
 					@cancel="${() => this._backToLandingPage()}">
 				</horizon-proof-of-account>`
