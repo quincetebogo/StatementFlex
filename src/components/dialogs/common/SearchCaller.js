@@ -617,7 +617,8 @@ export class SearchCaller extends Component {
             middleName3: identifiedClient.callerInformation.middleName3,
             lastName: identifiedClient.callerInformation.lastName,
             initials: identifiedClient.callerInformation.initials,
-			identifiedBy: this.searchType.identificationType
+			identifiedBy: this.searchType.identificationType,
+			profilePhoto: identifiedClient.callerInformation.profilePhoto
 		};
 
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
@@ -647,7 +648,8 @@ export class SearchCaller extends Component {
 			middleName2: identifiedClient.callerInformation.middleName2,
 			middleName3: identifiedClient.callerInformation.middleName3,
 			lastName: identifiedClient.callerInformation.lastName,
-			isClientPresent: this.clientInBranch
+			isClientPresent: this.clientInBranch,
+			profilePhoto: identifiedClient.callerInformation.profilePhoto
 		};
 
 		await this._updateIncidentBranchDetails(this.branchCode);
@@ -720,7 +722,9 @@ export class SearchCaller extends Component {
 			``, // middleName3
 			``, // lastName
 			``, // initials
-			`` // identifiedBy
+			``, // identifiedBy
+			``, // email
+			`` //profile photo
 		);
 	}
 	// ---------
