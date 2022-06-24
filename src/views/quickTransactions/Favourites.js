@@ -534,24 +534,13 @@ export class Favourites extends SavingsAccountBase {
 		await super._getStatements();
 	}
 
-	async _proofOfAccount() {
+	_proofOfAccount() {
 		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_PROOF_OF_ACCOUNT, {
 			"screen": TelemetryScreen.FAVOURITES,
 			"next-screen": TelemetryScreen.PROOF_OF_ACCOUNT
 		});
 		
-		// Temporary fix to get the account number using statements CS call as the account number field 
-		// for Favourites landing page(landingPageInfo) is returned as null which is required on Proof of Account screen.
-		// TODO : The function _getClientProducts() and filtering should be removed once the Account Number on landingPageInfo is received Properly. (CSCEH-7748)
-		const clientProductDetails = await this._getClientProducts();
-		
-		if (clientProductDetails) {
-			const primarySavingsProduct = clientProductDetails.find(item => item.accountType === SAVINGS_ACCOUNT_TYPE);
-
-			this.landingPageInfo.accountNumber = primarySavingsProduct.accountNumber;
-			this.landingPageInfo.accountOpenedDate = primarySavingsProduct.accountOpenDate;
-			this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
-		}
+		this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
 	}
 
 	async _settlementQuote(customErrHandler = null) {
@@ -1071,7 +1060,8 @@ export class Favourites extends SavingsAccountBase {
 					.cifNumber="${this.callerInformation.cifNumber}"
 					client-title="${this.callerInformation.title}"
 					.lastName="${this.callerInformation.lastName}"
-					.landingPageInfo="${this.landingPageInfo}"
+					accountNumber="${this.landingPageInfo.accountNumber}"
+					accountOpenedDate="${this.landingPageInfo.accountOpenedDate}"
 					registeredEmailId="${this.callerInformation.emailId}"
 					@cancel="${() => this._backToLandingPage()}">
 				</horizon-proof-of-account>`
