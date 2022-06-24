@@ -125,6 +125,7 @@ export class PaidUpLetterSuccess extends ViewBase {
 			css`
 				#id-error-msg {
 					width: auto;
+					max-width: 600px;
 				}
 			`
 		];
@@ -154,7 +155,7 @@ export class PaidUpLetterSuccess extends ViewBase {
 				@left-click=${() => this._sendAnotherClick()}
 				@right-click=${() => this._doneClick()}>
 					<section id="id-error-msg" slot="detail">
-						Paid Up letter(s) for <b> ${this._formateAccountNames(this.succeededAccounts)}</b> was emailed to <b>${this.emailAddress}</b>
+						Paid Up letter(s) for ${this.succeededAccounts.length > 4 ? `the selected accounts are` : html`<b>${this._formateAccountNames(this.succeededAccounts)}</b> was`} emailed to <b>${this.emailAddress}</b>
 					</section>
 			</horizon-success-screen>
 		`;

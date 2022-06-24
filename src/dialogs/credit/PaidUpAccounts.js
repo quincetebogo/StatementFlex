@@ -65,7 +65,8 @@ export class PaidUpAccounts extends Component {
 	// --------------
 
 	/**
-	 *
+	 * @param {object} accountsInfo List of Paid Up Letters accounts
+	 * 
 	 * @readonly
 	 * @static
 	 * @memberof PaidUpAccounts
@@ -75,10 +76,10 @@ export class PaidUpAccounts extends Component {
 		return {
 			accountsInfo: { type: Array },
 
-			isBusy: { attribute: false },
-			filteredData: { attribute: false },
-			selectedLabel: { attribute: false },
-			showPaidUpLetter: { attribute: false }
+			isBusy: { state: true },
+			filteredData: { state: true },
+			selectedLabel: { state: true },
+			showPaidUpLetter: { state: true }
 		};
 	}
 
@@ -155,45 +156,27 @@ export class PaidUpAccounts extends Component {
 	}
 
 	_searchText(event) {
+		if (event.detail.action === `clear`) {
+			this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_TEXT_FILTER_CLEAR, {});
+		}
+
 		this.searchText = event.detail.new;
 		this._search();
-
-		// TODO: Optimise telemetry loggings. The below one is similar to that on _filter().
-		if (this.searchText === ``) {
-			this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_CLEAR_FILTER_SELECTION, {
-				"filter-type": `text`
-			});
-
-			if (this.searchCreditType === `All`) {
-				this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_CLEAR_ALL_FILTER_SELECTION, {});
-			}
-		}
-		
-		this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_FILTER_SELECTION, {
-			"search-by-text": this.searchText,
-			"credit-type": this.searchCreditType
-		});
 	}
 
 	_filter(event) {
 		this.searchCreditType = event.detail.new;
 		this._search();
+		this._focusOutFilter();
+	}
 
-		// TODO: Optimise telemetry loggings. The below one is similar to that on _searchText().
-		if (this.searchCreditType === `All`) {
-			this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_CLEAR_FILTER_SELECTION, {
-				"filter-type": `credit type`
+	_focusOutFilter() {
+		if (this.searchText || this.searchCreditType) {
+			this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_FILTER_SELECTION, {
+				"search-by-text": this.searchText,
+				"credit-type": this.searchCreditType
 			});
-			
-			if (this.searchText === ``) {
-				this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_CLEAR_ALL_FILTER_SELECTION, {});
-			}
 		}
-		
-		this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_FILTER_SELECTION, {
-			"search-by-text": this.searchText,
-			"credit-type": this.searchCreditType
-		});
 	}
 
 	_search() {
@@ -216,8 +199,6 @@ export class PaidUpAccounts extends Component {
 			
 			this.filteredData = Array.from(new Set([...searchResult.flat()]));
 		}
-
-		this.requestUpdate();
 	}
 
 	_checkBox(e, accountDetails) {
@@ -238,12 +219,16 @@ export class PaidUpAccounts extends Component {
 		if (this.filteredData.every(item => item.selected)) {
 			this._deselect();
 		} else {
+			this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_SELECT_ALL, {});
+
 			this.filteredData.forEach(item => item.selected = true);
 			this.selectedLabel = `${this._numberOfAccountsSelected()} accounts selected`;
 		}
 	}
 
 	_deselect() {
+		this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_DESELECT_ALL, {});
+
 		this.selectedLabel = `Select all`;
 		this.filteredData.forEach(item => item.selected = false);
 	}
@@ -497,7 +482,7 @@ export class PaidUpAccounts extends Component {
 					<capitec-search-field
 						label="Search loan, amount or account number"
 						@key-input="${(e) => this._searchText(e)}"
-						@value-change="${(e) => this._searchText(e)}">
+						@focusout="${(e) => this._focusOutFilter()}">
 					</capitec-search-field>
 
 					<capitec-select 
@@ -565,7 +550,7 @@ export class PaidUpAccounts extends Component {
 							src="platform/illustrations/history.svg"/>
 						<capitec-label
 							class="no-results"
-							label="You have no account to send paid up letter"
+							label="${this.accountsInfo.length > 0 ? `No Results found` : `You have no Paid Up Letters available`}"
 							type="strong">
 						</capitec-label>
 				</capitec-group>
