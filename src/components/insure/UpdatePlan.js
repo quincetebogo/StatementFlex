@@ -683,9 +683,6 @@ class UpdatePlan extends Component {
 				--horizon-label-max-overflow-width: 170px;
 			}
 
-			/*.remove {
-				--horizon-label-value-color: #009DE0;
-			}*/
 
 			.vertical-line {
 				height: 40px;
@@ -727,7 +724,7 @@ class UpdatePlan extends Component {
 		${this._renderYROAAgreementDialog()}
 		${this._renderRemoveLifeAssuredDialog()}
 		${this._renderRemoveBeneficiaryDialog()}
-		${this._renderUpdatePLanAgreementDialog()}`
+		${this._renderUpdatePlanAgreementDialog()}`
 	}
 
 	/**
@@ -862,10 +859,7 @@ class UpdatePlan extends Component {
 											label="Cover Amount (Min R5 000 - Max R100 000)"
 											value="R25 000">
 										</horizon-label>
-										<!-- <horizon-label style="width: 73px" class="remove"
-											value="Remove"
-											@click="${() => this._openRemoveLifeAssuredDialog(index)}">
-										</horizon-label> -->
+										
 										
 								</capitec-group>
 								<div slot="content">
@@ -1049,10 +1043,6 @@ class UpdatePlan extends Component {
 													label="Cover Amount (Min R5 000 - Max 100 000)"
 													value="R25 000">
 												</horizon-label>
-												<!-- <horizon-label style="width: 73px" class="remove"
-													value="Remove"
-													@click="${() => this._openRemoveLifeAssuredDialog(index)}">
-												</horizon-label> -->
 												
 										</capitec-group>
 										<div slot="content">
@@ -1511,7 +1501,10 @@ class UpdatePlan extends Component {
 		</horizon-insure-yroa-agreement-dialog>`
 	}
 
-	_renderUpdatePLanAgreementDialog() {
+	/** 
+	 * render dialog for update plan agreement
+	 */
+	_renderUpdatePlanAgreementDialog() {
 		return this.showUpdatePlanAgreementDialog == false ? `` : html`
 		<insure-update-plan-agreement-dialog @close-modal="${() => this._closeUpdatePlanAgreementDialog()}">
 		</insure-update-plan-agreement-dialog>`
