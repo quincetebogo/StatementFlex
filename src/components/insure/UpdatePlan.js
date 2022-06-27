@@ -15,9 +15,11 @@ import 'app/components/dialogs/insure/EACLAgreementDialog';
 import 'app/components/dialogs/insure/RemoveBeneficiaryDialog';
 import 'app/components/dialogs/insure/RemoveLifeAssuredDialog';
 import 'app/components/dialogs/insure/AddBeneficiaryDialog';
+import 'app/components/dialogs/insure/UpdatePlanAgreementDialog';
 
 // Other
 import 'app/components/common/HorizonLabel';
+import 'app/components/common/HorizonExpander';
 import 'app/components/common/ServiceCallErrorScreen';
 
 /**
@@ -59,6 +61,7 @@ class UpdatePlan extends Component {
 		this.showYROAAgreementDialog = false;
 		this.showRemoveLifeAssuredDialog = false;
 		this.showRemoveBeneficiaryDialog = false;
+		this.showUpdatePlanAgreementDialog = false;
 
 		this.agreementFCPAccepted = false;
 		this.agreementEACLAccepted = false;
@@ -92,6 +95,7 @@ class UpdatePlan extends Component {
 	 * @property {Boolean} showAddBeneficiariesDialog determines whether to show the add beneficiariesdialog
 	 * @property {Boolean} showRemoveLifeAssuredDialog determines whether to show the EACL agreement dialog
 	 * @property {Boolean} showRemoveBeneficiaryDialog determines whether to show the EACL agreement dialog
+	 * @property {Boolean} showUpdatePlanAgreementDialog determines whether to show the Update Plan agreement dialog
 	 * @property {Object} quote Data & flags for view & quote service request
 	 *
 	 * @readonly
@@ -112,6 +116,7 @@ class UpdatePlan extends Component {
 			showAddBeneficiariesDialog: { type: Boolean, state: true},
 			showRemoveLifeAssuredDialog: {type: Boolean, state: true},
 			showRemoveBeneficiaryDialog: {type: Boolean, state: true},
+			showUpdatePlanAgreementDialog: {type: Boolean, state: true},
 			quote: { type: Object, state: true },
 
 			newTotalPremium: { string: '' },
@@ -436,6 +441,20 @@ class UpdatePlan extends Component {
 		this.showAddBeneficiariesDialog = false;
 	}
 
+	/**
+	 * Open Add Life dialog returning select relationship
+	 */
+	 _openUpdatePlanAgreementDialog() {
+		this.showUpdatePlanAgreementDialog = true;
+	}
+
+	/**
+	 * Close the Add Life dialog
+	 */
+	_closeUpdatePlanAgreementDialog() {
+		this.showUpdatePlanAgreementDialog = false;
+	}
+
 
 	//#endregion
 
@@ -588,20 +607,91 @@ class UpdatePlan extends Component {
 			}
 
 			capitec-group {
-				width: 93%;
+				/*width: 93%;*/
 				z-index: 10;
 				padding-top: 12px;
 				padding-bottom: 12px;
-				border-right: 1px solid #dfdfdf;
+				/*border-right: 1px solid #dfdfdf;*/
 			}
 
 
 			.expander-options{
 				display: flex; 
+				width: 100%;
 				justify-content: space-between; 
 				padding: 20px 15px 15px 15px; 
 				gap: 10px;
 			}
+
+			/* Expander header and content styles */
+			horizon-expander {
+				margin-bottom: 16px;
+				--theme-expander-height: auto;
+				--theme-layout-gap-spacing: 0px;
+				--theme-expander-header-height: 64px;
+				--theme-expander-header-padding: 0 6px 0 0;
+				--theme-expander-indicator-width: 16px;
+			}
+			horizon-expander[expanded] {
+				box-shadow: 0 6px 10px 0.25px rgb(0 0 0 / 7%);
+				display: block;
+				--theme-overflow-menu-width: 200px !important;
+			}
+			.expander-header > capitec-icon {
+				--theme-icon-size-default: 20px;
+				--theme-layout-gap-spacing: 0px;
+				margin-left: 10px;
+			}
+			.expander-header > capitec-button {
+				width: 128px;
+			}
+			.expander-content {
+				border-left: 1px solid #E1E1E1;
+				border-bottom: 1px solid #E1E1E1;
+				border-right: 1px solid #E1E1E1;
+				border-radius: 0px 0px 4px 4px
+			}
+			.expander-content > capitec-title-bar {
+				border-top: 0px;
+			}
+			.expander-header > horizon-label[label="Status"] {
+				--horizon-label-value-color: #70AF00;
+				width: 200px;
+				text-overflow: ellipsis;
+			}
+			horizon-label {
+				width: 280px;
+				padding-left: 16px;
+				--theme-layout-gap-spacing: 0px;
+				--horizon-label-text-height: 20px;
+				--horizon-label-text-color: #3A3A3A;
+				--horizon-label-text-line-height: 20px;
+				
+				--horizon-label-value-height: 20px;
+				--horizon-label-value-color: #3A3A3A;
+				--horizon-label-value-font-size: 16px;
+				--horizon-label-value-line-height: 20px;
+			}
+			
+			.fixed-label-main {
+				width: 65%;
+				--horizon-label-max-overflow-width: 170px;
+			}
+
+			.fixed-label-secondary{
+				width: 65%;
+				--horizon-label-max-overflow-width: 170px;
+			}
+
+
+			.vertical-line {
+				height: 40px;
+				width: 1px;
+				background-color: #E1E1E1;
+			}
+
+			
+
 			`
 		];
 	}
@@ -633,7 +723,8 @@ class UpdatePlan extends Component {
 		${this._renderFCPAgreementDialog()}
 		${this._renderYROAAgreementDialog()}
 		${this._renderRemoveLifeAssuredDialog()}
-		${this._renderRemoveBeneficiaryDialog()}`
+		${this._renderRemoveBeneficiaryDialog()}
+		${this._renderUpdatePlanAgreementDialog()}`
 	}
 
 	/**
@@ -652,13 +743,16 @@ class UpdatePlan extends Component {
 			`}
 
 			${this.selectedTabIndex == 0 ? html`
-				<capitec-button label="Update Plan" type="white" .disabled="${this.agreementFCPAccepted == false}">
+				<capitec-button label="Update Plan" type="white" .disabled="${this.agreementFCPAccepted == false}"
+					@click="${() => this._openUpdatePlanAgreementDialog()}">
 				</capitec-button>
 			`: this.selectedTabIndex == 1 ? html`
-				<capitec-button label="Update Plan" type="white" .disabled="${this.agreementEACLAccepted == false || this.agreementYBPAccepted == false}">
+				<capitec-button label="Update Plan" type="white" .disabled="${this.agreementEACLAccepted == false || this.agreementYBPAccepted == false}"
+				@click="${() => this._openUpdatePlanAgreementDialog()}">
 				</capitec-button>
 			`: html`
-			<capitec-button label="Update Plan" type="white" .disabled="${this.agreementYROAAccepted == false}">
+			<capitec-button label="Update Plan" type="white" .disabled="${this.agreementYROAAccepted == false}"
+				@click="${() => this._openUpdatePlanAgreementDialog()}">
 				</capitec-button>
 			`}
 			
@@ -738,60 +832,48 @@ class UpdatePlan extends Component {
 		return html`
 			<div class="insure-calc-column-left">
 				<div class="left-card">
-					<capitec-expander-group modeset="single">
+					<!-- <capitec-expander-group modeset="single"> -->
 						${this.quote.lifesAssured.map((lifeAssured, index) => html`
 						${index != 0 ? html`
-
-						<!-- Life assured expander -->		
+	
 							<capitec-label label="Remove" @click="${() => this._openRemoveLifeAssuredDialog(index)}"
-								type="subtitle" class="stronger link" style="position: relative; width: fit-content; left: 613px; top: 38px;">
+								type="subtitle" class="stronger link" style="position: relative; width: fit-content; left: 613px; top: 43px;">
 							</capitec-label>
-						<capitec-expander  label="${lifeAssured.relationship} | Name">
-							
-							<div class="expander-options">
-								<capitec-select label="Title" .items="${this.titleOptions}" display-field="text" id-field="code"
-									style="width: 50%" >
-								</capitec-select>
-
-								<capitec-select label="Gender" .items="${this.genderOptions}" display-field="text"
-									id-field="code" style="width: 50%"  @value-changed="${(e) => this._lifeGenderValueChanged(e, index)}">
-								</capitec-select></div>								
-							</div>
-							<div class="expander-options">								
-								<capitec-text-field label="Name" style="width: 50%" >
-								</capitec-text-field>
-
-								<capitec-text-field label="Surname" style="width: 50%" >
-								</capitec-text-field>								
-							</div>
-							<div class="expander-options">
-								<capitec-text-field label="Middle Names" style="width: 50%" >
-								</capitec-text-field>
-		
-								<capitec-text-field label="Middle Names" style="width: 50%">
-								</capitec-text-field>
-							</div>
-							<div class="expander-options">
-								<capitec-date-time-picker label="Date of Birth" type="single" mode="date" inputType="input" 
-								date="2020-02-01" outputType="string" maxdate="${this.today}">
-								</capitec-date-time-picker>
-		
-								<capitec-text-field label="ID" style="width: 50%">
-								</capitec-text-field>
-							</div>
-							<div class="expander-options">
-								<capitec-text-field label="Cellphone number" style="width: 50%" >
-								</capitec-text-field>
-							
-								<capitec-text-field label="Email Address" style="width: 50%" >
-								</capitec-text-field>
-							</div>
-							<div class="expander-options">
-								<capitec-text-field label="Cover amount" style="width: 50%">
-								</capitec-text-field>
-							</div>
-						</capitec-expander>
 						
+							<horizon-expander expandButtonAlignment="right">
+								<capitec-group 
+									class="expander-header"
+									slot="custom-header"
+									layout="horizontal"
+									gap="clear"
+									halign="left"
+									valign="center">
+										<horizon-label
+											class="fixed-label-secondary"
+											label="${lifeAssured.relationship}"
+											textOverflow="ellipsis"
+											value="Name">
+										</horizon-label>
+										<div class="vertical-line"></div>
+										<horizon-label
+											label="Cover Amount (Min R5 000 - Max R100 000)"
+											value="R25 000">
+										</horizon-label>
+										
+										
+								</capitec-group>
+								<div slot="content">
+									<capitec-group 
+										class="expander-content" 
+										layout="vertical"
+										gap="none"
+										halign="left"
+										valign="center">
+											${this._renderLifeAssuredOptions()}
+									</capitec-group>
+								</div>
+							</horizon-expander>
+										
 						`
 						
 						: html`
@@ -805,40 +887,39 @@ class UpdatePlan extends Component {
 						</div>
 						
 						<!-- Main Life -->
-						<capitec-expander  label="Main Life | Charl Walden">
-							<div class="expander-options">
-								<capitec-select label="Title" .items="${this.titleOptions}" display-field="text" id-field="code"
-									style="width: 50%" disabled>
-								</capitec-select>
-		
-								<capitec-text-field label="Name" style="width: 50%" disabled>
-								</capitec-text-field>
+						<horizon-expander expandButtonAlignment="right">
+							<capitec-group 
+								class="expander-header"
+								slot="custom-header"
+								layout="horizontal"
+								gap="clear"
+								halign="left"
+								valign="center">
+									<horizon-label
+										class="fixed-label-main"
+										data-automation-id="insure-policy-contract-reference"
+										label="Main Life"
+										textOverflow="ellipsis"
+										value="Charl Walden">
+									</horizon-label>
+									<div class="vertical-line"></div>
+									<horizon-label
+										data-automation-id="insure-policy-start-date"
+										label="Cover Amount (Min R5 000 - Max R100 000)"
+										value="R25 000">
+									</horizon-label>
+							</capitec-group>
+							<div slot="content">
+								<capitec-group 
+									class="expander-content" 
+									layout="vertical"
+									gap="none"
+									halign="left"
+									valign="center">
+										${this._renderMainLifeOptions()}
+								</capitec-group>
 							</div>
-							<div class="expander-options">
-								<capitec-text-field label="Surname" style="width: 50%" disabled>
-								</capitec-text-field>
-		
-								<capitec-text-field label="Email Address" style="width: 50%" disabled>
-								</capitec-text-field>
-							</div>
-							<div class="expander-options">
-								<capitec-text-field label="Date of birth" style="width: 50%" disabled>
-								</capitec-text-field>
-		
-								<capitec-text-field label="Cover amount" style="width: 50%" type="currency"
-								@value-changed="${(e) => this._lifeCoverAmountValueChanged(e, index)}"
-								value="${lifeAssured.coverAmount}" hint="R${lifeAssured?.coverDetails?.minCover} - R${lifeAssured?.coverDetails?.maxCover}" min="${lifeAssured?.coverDetails?.minCover}" max="${lifeAssured?.coverDetails?.maxCover}">
-								</capitec-text-field>
-							</div>
-							<div class="expander-options">
-								<capitec-select label="Gender" .items="${this.genderOptions}" display-field="text"
-									id-field="code" style="width: 50%" disabled>
-								</capitec-select>
-		
-								<capitec-text-field label="ID" style="width: 50%" disabled>
-								</capitec-text-field>
-							</div>
-						</capitec-expander>
+						</horizon-expander>
 						
 			
 						
@@ -853,7 +934,6 @@ class UpdatePlan extends Component {
 						</div>
 							`}
 						`)}
-					</capitec-expander-group>
 				
 				</div>
 			
@@ -871,158 +951,154 @@ class UpdatePlan extends Component {
 	 */
 	_renderBeneficiariesTab() {
 		return html`
-		<capitec-tab label="Beneficiaries">
+			<capitec-tab label="Beneficiaries">
 
-			<div class = "insure-calc-columns">
- 		
-				<div class = "insure-calc-column-left">
-					<div class = "left-card">
-						<capitec-expander-group modeset="single">
-								<!-- Notifications -->
-								${this._renderEACLNotification()}
-								
-								<div style="margin-top:5px;"></div>
+				<div class = "insure-calc-columns">
+				
+					<div class = "insure-calc-column-left">
+						<div class = "left-card">
+							
+							<!-- Notifications -->
+							${this._renderEACLNotification()}
+							
+							<div style="margin-top:5px;"></div>
 
-								${this._renderYBPNotification()}
-								
+							${this._renderYBPNotification()}
+							
 
-								<!-- main life details -->
-								<div class="calc-card-row">
-									<capitec-label label="Main Life" type="strong">
-									</capitec-label>
+							<!-- main life details -->
+							<div class="calc-card-row">
+								<capitec-label label="Main Life" type="strong">
+								</capitec-label>
+							</div>
+					
+							<!-- main life expander -->
+
+							<horizon-expander expandButtonAlignment="right">
+								<capitec-group 
+									class="expander-header"
+									slot="custom-header"
+									layout="horizontal"
+									gap="clear"
+									halign="left"
+									valign="center">
+										<horizon-label
+											class="fixed-label-main"
+											data-automation-id="insure-policy-contract-reference"
+											label="Main Life"
+											textOverflow="ellipsis"
+											value="Charl Walden">
+										</horizon-label>
+										<div class="vertical-line"></div>
+										<horizon-label
+											data-automation-id="insure-policy-start-date"
+											label="Cover Amount (Min R5 000 - Max 100 000)"
+											value="R25 000">
+										</horizon-label>
+								</capitec-group>
+								<div slot="content">
+									<capitec-group 
+										class="expander-content" 
+										layout="vertical"
+										gap="none"
+										halign="left"
+										valign="center">
+											${this._renderMainLifeOptions()}
+									</capitec-group>
 								</div>
-				
-								<!-- main life expander -->
-
-								<capitec-expander label="Main Life | Charl Walden">
-									<div class="expander-options">
-										<capitec-select label="Title" .items="${this.titleOptions}" display-field="text" id-field="code"
-											style="width: 50%" disabled>
-										</capitec-select>
-				
-										<capitec-text-field label="Name" style="width: 50%" disabled>
-										</capitec-text-field>
-									</div>
-									<div class="expander-options">
-										<capitec-text-field label="Surname" style="width: 50%" disabled>
-										</capitec-text-field>
-				
-										<capitec-text-field label="Email Address" style="width: 50%" disabled>
-										</capitec-text-field>
-									</div>
-									<div class="expander-options">
-										<capitec-text-field label="Date of birth" style="width: 50%" disabled>
-										</capitec-text-field>
-				
-										<capitec-text-field label="Cover amount" style="width: 50%">
-										</capitec-text-field>
-									</div>
-									<div class="expander-options">
-										<capitec-select label="Gender" .items="${this.genderOptions}" display-field="text"
-											id-field="code" style="width: 50%" disabled>
-										</capitec-select>
-				
-										<capitec-text-field label="ID" style="width: 50%" disabled>
-										</capitec-text-field>
-									</div>
-								</capitec-expander>
-								
-								<!--Beneficiaries  -->
-								<div class="calc-card-row" style="margin-top: 15px;">
-									<capitec-label label="Beneficiaries" type="strong" class="stronger">
-									</capitec-label>
-									<capitec-label label="Add Beneficiary" type="subtitle" class="stronger link"
-										@click="${() => this._openAddBeneficiariesDialog()}" disabled="${this.quote.beneficiaries.length >= 2}" >
-									</capitec-label>
-								</div>
+							</horizon-expander>
+									
+							<!--Beneficiaries -->
+							<div class="calc-card-row" style="margin-top: 15px;">
+								<capitec-label label="Beneficiaries" type="strong" class="stronger">
+								</capitec-label>
+								<capitec-label label="Add Beneficiary" type="subtitle" class="stronger link"
+									@click="${() => this._openAddBeneficiariesDialog()}" disabled="${this.quote.beneficiaries.length >= 2}" >
+								</capitec-label>
+							</div>
 
 							${this.quote.beneficiaries.map((beneficiary, index) => html`
 								${index != 0 || index == 0 ? html`
-								<!-- Beneficiaries -->
-								<capitec-label label="Remove" @click="${() => this._openRemoveBeneficiaryDialog(index)}"
-								type="subtitle" class="stronger link" style="position: relative; width: fit-content; left: 613px; top: 38px;">
+									<!-- Beneficiaries -->
+									<capitec-label label="Remove" @click="${() => this._openRemoveBeneficiaryDialog(index)}"
+									type="subtitle" class="stronger link" style="position: relative; width: fit-content; left: 613px; top: 43px;">
+									</capitec-label>
+
+									<horizon-expander expandButtonAlignment="right">
+										<capitec-group 
+											class="expander-header"
+											slot="custom-header"
+											layout="horizontal"
+											gap="clear"
+											halign="left"
+											valign="center">
+												<horizon-label
+													class="fixed-label-secondary"
+													label="${beneficiary.relationship}"
+													textOverflow="ellipsis"
+													value="Name">
+												</horizon-label>
+												<div class="vertical-line"></div>
+												<horizon-label
+													label="Cover Amount (Min R5 000 - Max 100 000)"
+													value="R25 000">
+												</horizon-label>
+												
+										</capitec-group>
+										<div slot="content">
+											<capitec-group 
+												class="expander-content" 
+												layout="vertical"
+												gap="none"
+												halign="left"
+												valign="center">
+													${this._renderBeneficiaryOptions()}
+											</capitec-group>
+										</div>
+									</horizon-expander>
+
+								`
+								:html``}
+								
+							`)}
+
+						</div>
+					</div>
+
+					<div class = "insure-calc-column-right">
+						<div class = "calc-summary-card">
+							<div>
+								<!-- top -->
+								<capitec-label label="Funeral Plan" type="Strong"></capitec-label>
 								</capitec-label>
-								<capitec-expander  label="${beneficiary.relationship} | Name">
-								
-									<div class="expander-options">
-										<capitec-select label="Title" .items="${this.titleOptions}" display-field="text" id-field="code"
-											style="width: 50%" >
-										</capitec-select>
+								<capitec-spacer></capitec-spacer>
+								<capitec-label label="Total cover amount"></capitec-label>
+								<capitec-label label="R0.00" class="calc-premium-total">
+								</capitec-label>
+								<capitec-label label="Summary of payout beneficiary amount:" class="stronger"></capitec-label>
+								<hr>
 
-										<capitec-text-field label="Name" style="width: 50%" >
-										</capitec-text-field>
+								<!-- Beneficiaries list -->
+								${this.quote.beneficiaries.map(beneficiary => html`
+									<div class="calc-life-list">
+										<capitec-label label="${beneficiary.relationship}"></capitec-label>
+										<capitec-label label=""></capitec-label>
 									</div>
-									<div class="expander-options">
-										<capitec-text-field label="Surname" style="width: 50%" >
-										</capitec-text-field>
-
-										<capitec-date-time-picker label="Date of Birth" type="single" mode="date" 
-											inputType="input" date="2020-02-01" outputType="string" maxdate="${this.today}">
-										</capitec-date-time-picker>
-									</div>
-									<div class="expander-options">
-										<capitec-select label="Gender" .items="${this.genderOptions}" display-field="text"
-											id-field="code" style="width: 50%" >
-										</capitec-select>
-										<capitec-text-field label="Payout amount" style="width: 50%">
-										</capitec-text-field>
-									</div>
-									<div class="expander-options">
-										<capitec-text-field label="Email Address" style="width: 50%" >
-										</capitec-text-field>
-										<capitec-text-field label="Cellphone number" style="width: 50%" >
-										</capitec-text-field>	
+									<hr>`)}
+									<div class="calc-life-list">
+										<capitec-label label="Total Premium Amount" class="stronger"></capitec-label>
+										<capitec-label label="R0.00" class="stronger"></capitec-label>
 									</div>
 								
-								</capitec-expander>
-							`
-							 :html``}
-							
-						`)}
-							
-						</capitec-expander-group>
-					
-							
+							</div>	
 
-							
-		
+						</div>
+					</div>
+				
 				</div>
- 			</div>
 
-			<div class = "insure-calc-column-right">
-				<div class = "calc-summary-card">
-					<div>
-						<!-- top -->
-						<capitec-label label="Funeral Plan" type="Strong"></capitec-label>
-						</capitec-label>
-						<capitec-spacer></capitec-spacer>
-						<capitec-label label="Total cover amount"></capitec-label>
-						<capitec-label label="R0.00" class="calc-premium-total">
-						</capitec-label>
-						<capitec-label label="Summary of payout beneficiary amount:" class="stronger"></capitec-label>
-						<hr>
-
-						<!-- Beneficiaries list -->
-						${this.quote.beneficiaries.map(beneficiary => html`
-							<div class="calc-life-list">
-								<capitec-label label="${beneficiary.relationship}"></capitec-label>
-								<capitec-label label=""></capitec-label>
-							</div>
-							<hr>`)}
-							<div class="calc-life-list">
-								<capitec-label label="Total Premium Amount" class="stronger"></capitec-label>
-								<capitec-label label="R0.00" class="stronger"></capitec-label>
-							</div>
-						
-					</div>	
-
-				</div>
- 			</div>
-		
-		</div>
-
-		
-		</capitec-tab>
+			
+			</capitec-tab>
 		`
 	}
 
@@ -1194,6 +1270,136 @@ class UpdatePlan extends Component {
 		</capitec-alert-banner>`
 	}
 
+	/**
+	 * Render Main Life options
+	 * @returns {html} The html content of the Main Life Expander options
+	 */
+	 _renderMainLifeOptions() {
+		return html`
+			
+			<div class="expander-options">
+				<capitec-select label="Title" .items="${this.titleOptions}" display-field="text" id-field="code"
+					style="width: 50%" disabled>
+				</capitec-select>
+
+				<capitec-text-field label="Name" style="width: 50%" disabled>
+				</capitec-text-field>
+			</div>
+			<div class="expander-options">
+				<capitec-text-field label="Surname" style="width: 50%" disabled>
+				</capitec-text-field>
+
+				<capitec-text-field label="Email Address" style="width: 50%" disabled>
+				</capitec-text-field>
+			</div>
+			<div class="expander-options">
+				<capitec-text-field label="Date of birth" style="width: 50%" disabled>
+				</capitec-text-field>
+
+				<capitec-text-field label="Cover amount" style="width: 50%">
+				</capitec-text-field>
+			</div>
+			<div class="expander-options">
+				<capitec-select label="Gender" .items="${this.genderOptions}" display-field="text"
+					id-field="code" style="width: 50%" disabled>
+				</capitec-select>
+
+				<capitec-text-field label="ID" style="width: 50%" disabled>
+				</capitec-text-field>
+			</div>
+				
+			
+		`;
+	}
+
+	/**
+	 * Render Life Assured options
+	 * @returns {html} The html content of the Life Assured expander options
+	 */
+	 _renderLifeAssuredOptions() {
+		return html`
+			<div class="expander-options">
+				<capitec-select label="Title" .items="${this.titleOptions}" display-field="text" id-field="code"
+					style="width: 50%" >
+				</capitec-select>
+
+				<capitec-select label="Gender" .items="${this.genderOptions}" display-field="text"
+					id-field="code" style="width: 50%"  @value-changed="${(e) => this._lifeGenderValueChanged(e, index)}">
+				</capitec-select></div>								
+			</div>
+			<div class="expander-options">								
+				<capitec-text-field label="Name" style="width: 50%" >
+				</capitec-text-field>
+
+				<capitec-text-field label="Surname" style="width: 50%" >
+				</capitec-text-field>								
+			</div>
+			<div class="expander-options">
+				<capitec-text-field label="Middle Names" style="width: 50%" >
+				</capitec-text-field>
+
+				<capitec-text-field label="Middle Names" style="width: 50%">
+				</capitec-text-field>
+			</div>
+			<div class="expander-options">
+				<capitec-date-time-picker label="Date of Birth" type="single" mode="date" inputType="input" 
+				date="2020-02-01" outputType="string" maxdate="${this.today}">
+				</capitec-date-time-picker>
+
+				<capitec-text-field label="ID" style="width: 50%">
+				</capitec-text-field>
+			</div>
+			<div class="expander-options">
+				<capitec-text-field label="Cellphone number" style="width: 50%" >
+				</capitec-text-field>
+			
+				<capitec-text-field label="Email Address" style="width: 50%" >
+				</capitec-text-field>
+			</div>
+			<div class="expander-options">
+				<capitec-text-field label="Cover amount" style="width: 50%">
+				</capitec-text-field>
+			</div>
+			
+		`;
+	}
+	/**
+	 * Render Beneficiary options
+	 * @returns {html} The html content of the Beneficiary expander options
+	 */
+ _renderBeneficiaryOptions() {
+	return html`
+		<div class="expander-options">
+			<capitec-select label="Title" .items="${this.titleOptions}" display-field="text" id-field="code"
+				style="width: 50%" >
+			</capitec-select>
+
+			<capitec-text-field label="Name" style="width: 50%" >
+			</capitec-text-field>
+		</div>
+		<div class="expander-options">
+			<capitec-text-field label="Surname" style="width: 50%" >
+			</capitec-text-field>
+
+			<capitec-date-time-picker label="Date of Birth" type="single" mode="date" 
+				inputType="input" date="2020-02-01" outputType="string" maxdate="${this.today}">
+			</capitec-date-time-picker>
+		</div>
+		<div class="expander-options">
+			<capitec-select label="Gender" .items="${this.genderOptions}" display-field="text"
+				id-field="code" style="width: 50%" >
+			</capitec-select>
+			<capitec-text-field label="Payout amount" style="width: 50%">
+			</capitec-text-field>
+		</div>
+		<div class="expander-options">
+			<capitec-text-field label="Email Address" style="width: 50%" >
+			</capitec-text-field>
+			<capitec-text-field label="Cellphone number" style="width: 50%" >
+			</capitec-text-field>	
+		</div>`
+ }
+
 	/** DIALOGS */
 
 	/**
@@ -1293,6 +1499,15 @@ class UpdatePlan extends Component {
 		return this.showYROAAgreementDialog == false ? `` : html`
 		<horizon-insure-yroa-agreement-dialog @agreementAccepted="${(e) => this._acceptYROAAgreement()}">
 		</horizon-insure-yroa-agreement-dialog>`
+	}
+
+	/** 
+	 * render dialog for update plan agreement
+	 */
+	_renderUpdatePlanAgreementDialog() {
+		return this.showUpdatePlanAgreementDialog == false ? `` : html`
+		<insure-update-plan-agreement-dialog @close-modal="${() => this._closeUpdatePlanAgreementDialog()}">
+		</insure-update-plan-agreement-dialog>`
 	}
 
 	//#endregion
