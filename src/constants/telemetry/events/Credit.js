@@ -50,9 +50,10 @@
 
 	CREDIT_PAID_UP_LETTER: `call.fulfill-need.paid-up-letter`,
 	CREDIT_PAID_UP_LETTER_FILTER_SELECTION: `call.fulfill-need.paid-up-letter.filter`,
-	CREDIT_PAID_UP_LETTER_CLEAR_FILTER_SELECTION: `call.fulfill-need.paid-up-letter.clear-filter`,
-	CREDIT_PAID_UP_LETTER_CLEAR_ALL_FILTER_SELECTION: `call.fulfill-need.paid-up-letter.clear-all`,
+	CREDIT_PAID_UP_LETTER_TEXT_FILTER_CLEAR: `call.fulfill-need.paid-up-letter.text-filter-clear`,
 	CREDIT_PAID_UP_LETTER_SEND: `call.fulfill-need.paid-up-letter.send-paid-up-letter`,
+	CREDIT_PAID_UP_LETTER_SELECT_ALL: `call.fulfill-need.paid-up-letter.select-all`,
+	CREDIT_PAID_UP_LETTER_DESELECT_ALL: `call.fulfill-need.paid-up-letter.deselect-all`,
 	CREDIT_PAID_UP_LETTER_POP_UP: `call.fulfill-need.paid-up-letter.pop-up`,
 	CREDIT_PAID_UP_LETTER_POP_UP_CANCEL: `call.fulfill-need.paid-up-letter.pop-up.cancel`,
 	CREDIT_PAID_UP_LETTER_POP_UP_SEND: `call.fulfill-need.paid-up-letter.pop-up.send`,

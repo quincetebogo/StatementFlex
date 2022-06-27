@@ -1,7 +1,6 @@
 import { css, html } from 'platform/elements';
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
@@ -85,8 +84,8 @@ export class PaidUpLetterSuccess extends ViewBase {
 		
 		this._telemetry.endSpan(CreditEvents.CREDIT_PAID_UP_LETTER_SUCCESS, {});
 		
-		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
+		this.horizonStore.clearScreenDetails();
 	}
 
 	// ---------------
@@ -126,6 +125,7 @@ export class PaidUpLetterSuccess extends ViewBase {
 			css`
 				#id-error-msg {
 					width: auto;
+					max-width: 600px;
 				}
 			`
 		];
@@ -155,7 +155,7 @@ export class PaidUpLetterSuccess extends ViewBase {
 				@left-click=${() => this._sendAnotherClick()}
 				@right-click=${() => this._doneClick()}>
 					<section id="id-error-msg" slot="detail">
-						Paid Up letter(s) for <b> ${this._formateAccountNames(this.succeededAccounts)}</b> was emailed to <b>${this.emailAddress}</b>
+						Paid Up letter(s) for ${this.succeededAccounts.length > 4 ? `the selected accounts are` : html`<b>${this._formateAccountNames(this.succeededAccounts)}</b> was`} emailed to <b>${this.emailAddress}</b>
 					</section>
 			</horizon-success-screen>
 		`;
