@@ -23,7 +23,7 @@ class PolicySummary extends Component {
 
 		this.policyDetails = null;
 	}
-
+	
 	//#endregion INITIALISATION
 
 	//#region PROPERTIES
@@ -40,7 +40,28 @@ class PolicySummary extends Component {
 
 	//#endregion PROPERTIES
 
+	//#region LIFECYCLE OVERRIDES
+	
+	/**
+	 * call unload event once the component removed from the DOM.
+	 * @returns {void}
+	 */
+	disconnectedCallback() {
+		super.disconnectedCallback();
+
+		this._unloading();
+	}
+	
+	//#endregion LIFECYCLE OVERRIDES
+
 	//#region EVENT HANDLERS
+
+	/**
+	 * unload the policy transactions
+	 */
+	 _unloading() {
+		this.dispatchEvent(new CustomEvent(`unloading`));
+	}
 
 	/**
 	 * Navigate to Insure Landing page
@@ -87,7 +108,7 @@ class PolicySummary extends Component {
 				border-top: 1px solid #E1E1E1;
 			}
 			horizon-label {
-				width: 140px;
+				width: 150px;
 				padding-left: 16px;
 				--theme-layout-gap-spacing: 0px;
 				--horizon-label-text-height: 20px;
@@ -97,7 +118,7 @@ class PolicySummary extends Component {
 				--horizon-label-value-height: 20px;
 				--horizon-label-value-color: #3A3A3A;
 				--horizon-label-value-font-size: 16px;
-				--horizon-label-value-line-height: 20px;
+				--horizon-label-value-line-height: 15px
 			}
 			.accounts-box {
 				height: auto;
@@ -122,13 +143,15 @@ class PolicySummary extends Component {
 				background-color: #E1E1E1;
 			}
 			.no-results {
-				--theme-label-strong-font-size: 18px;
-				--theme-label-strong-font-weight: 600;
-				--theme-label-font-color: #3A3A3A;
+				--horizon-label-text-font-size: 18px !important;
+				--horizon-label-text-font-weight: 600 !important;
+				--horizon-label-text-color-font-color: #3A3A3A !important;
+				width: auto;
+				margin: 0px;
 			}
 			.no-result-group {
 				width: 1032px;
-				margin-top: 20px;
+				margin: 20px;
 			}
 			.expander-content {
 				border-left: 1px solid #E1E1E1;
@@ -263,12 +286,12 @@ class PolicySummary extends Component {
 					<horizon-label
 						data-automation-id="insure-main-life-cover-amount"
 						label="Cover amount"
-						value="${ isNullorEmpty(mainLifeDetails?.coverAmount) ? formatCurrency(0) : formatCurrency(mainLifeDetails?.coverAmount)}">
+						value="${ isNullorEmpty(mainLifeDetails[0]?.coverAmount) ? formatCurrency(0) : formatCurrency(mainLifeDetails[0]?.coverAmount)}">
 					</horizon-label>
 					<horizon-label
 						data-automation-id="insure-main-life-total-premium"
 						label="Premium"
-						value="${ isNullorEmpty(this.policyDetails?.totalPremium) ? formatCurrency(0) :  formatCurrency(this.policyDetails?.totalPremium)}">
+						value="${ isNullorEmpty(mainLifeDetails[0]?.premium) ? formatCurrency(0) :  formatCurrency(mainLifeDetails[0]?.premium)}">
 					</horizon-label>
 					<horizon-label
 						data-automation-id="insure-main-life-arrears"
@@ -352,13 +375,13 @@ class PolicySummary extends Component {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Months outstanding" 
-					value = "${ csvOfMonths }"
+					value = "${ isNullorEmpty(csvOfMonths) ? `None` : csvOfMonths }"
 					data-automation-id="policy-summary-months-outstanding">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Mandate Status"
-					value = "${ isNullorEmpty(activeMandateDetails[0]?.mandateStatus) ? `N/A` : activeMandateDetails[0]?.mandateStatus }"
+					value = "${ !isNullorEmpty(activeMandateDetails) && !isNullorEmpty(activeMandateDetails[0]?.mandateStatus) ? activeMandateDetails[0]?.mandateStatus : `N/A`  }"
 					data-automation-id="policy-summary-mandate-status">
 				</horizon-label>
 			</capitec-group>
@@ -411,12 +434,12 @@ class PolicySummary extends Component {
 						<horizon-label
 							data-automation-id="insure-beneficiaries-contact-number"
 							label="Contact number"
-							value="${item.contactDetails?.cellphone}">
+							value="${ isNullorEmpty(item.contactDetails?.cellphone) ? `-` : item.contactDetails?.cellphone }">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-beneficiaries-email-address"
 							label="Email address"
-							value="${item.contactDetails?.email}">
+							value="${ isNullorEmpty(item.contactDetails?.email) ? `-` : item.contactDetails?.email}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-beneficiaries-benefit-payout"
@@ -557,19 +580,27 @@ class PolicySummary extends Component {
 	 */
 	_renderNoResults() {
 		return html`
-			<capitec-group
-				class="no-result-group"
-				layout="vertical"
-				halign="center"
-				valign="center"
-				gap="none">
-					<capitec-label
-						data-automation-id = "policy-summary-no-results"
-						class="no-results"
-						label="No results found"
-						type="strong">
-					</capitec-label>
-			</capitec-group>
+			<capitec-content-box  class="accounts-box">
+				<horizon-expander
+			expandButtonAlignment=""
+			.expanded = "${false}"
+			?disabled=${true}>
+					<capitec-group
+					class="no-result-group"
+					slot="custom-header"
+					layout="horizontal"
+					gap="clear"
+					halign="left"
+					valign="center">
+							<horizon-label
+								data-automation-id = "policy-summary-no-results"
+								class="no-results"
+								label="No results found"
+								type="strong">
+							</horizon-label>
+					</capitec-group>
+				</horizon-expander>
+			</capitec-content-box>
 		`;
 	}
 
