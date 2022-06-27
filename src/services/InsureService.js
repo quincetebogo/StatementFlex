@@ -237,9 +237,9 @@ export class InsureService extends ChannelServiceBase {
 
 	
 	/**
-	 * Retrieve list of quotes
+	 * Pay clients arrears
 	 *
-	 * @param {payArrearsRequest} [errorHandler=null]  Request data for retrieve quotes list 
+	 * @param {payArrearsRequest} [errorHandler=null]  Request data to pay arrears 
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call

@@ -78,7 +78,7 @@ class PayPremiumDialog extends Component {
 	_initialise() {
 		this.payArrears = {};
 		this.payArrears.arrears = [];
-		this.payArrears.contractReference = "";
+		this.payArrears.contractReference = this.clientArrears.contractReference;
 		this.payArrears.fromAccount = "";
 		this.payArrears.cifNumber = "";
 
@@ -100,6 +100,7 @@ class PayPremiumDialog extends Component {
 			this.clientArrears.arrears[2].shouldBeDisabled = true;
 		}
 
+		console.log(this.payArrears)
 	}
 
 	/**
@@ -179,23 +180,6 @@ class PayPremiumDialog extends Component {
 		//adds selected arrear or removes deselcted arrear
 		this._addSelected(outstanding, selectedIndex, e);
 
-		// if (this.payArrears.arrears.length > 0) {
-		// 	// this.checked = true
-		// } else {
-		// 	// this.checked = false;
-		// }
-
-		// Second Month
-		// if (selectedIndex == 1) {
-		// 	this.payArrears.arrears[2].shouldBeDisabled = false;
-		// 	this.payArrears.arrears[2].shouldBeChecked = false;
-		// } else if (this.payArrears.arrears.length < 2) {
-			// this.secondCheck = false
-		// }
-
-		// Thirs month
-
-
 		//adds amount of arrear selected
 		if (e.detail.new == true) {
 			this.amount = this.amount + outstanding.amount;
@@ -219,6 +203,7 @@ class PayPremiumDialog extends Component {
 
 		console.log(e.detail)
 
+		//adds/removes selected or deselected arrear to payArrears
 		if (e.detail.new == true) {
 			this.payArrears.arrears.push({
 				dueDate: selected.dueDate,
@@ -248,34 +233,15 @@ class PayPremiumDialog extends Component {
 			this.payArrears.arrears.splice(index, 1);
 
 			this.amount = this.amount - this.clientArrears.arrears[2].amount;
-
-			// this.amount = this.amount - this.clientArrears.arrears[2].amount;
 			
 			console.log("in line false check")
 		}
 
+		// second arrear check = false
 		if(e.detail.new == false && this.clientArrears.arrears.length == 3 && selectedIndex == 1){
 			this.clientArrears.arrears[2].shouldBeDisabled = true;
 			this.clientArrears.arrears[2].shouldBeChecked = false;
 		}
-
-		// var array = this.clientArrears.arrears.filter((e) => { if(selected.)})
-
-		// find the entry that has same Obj id in looping array
-		// this.clientArrears.arrears.forEach(ele => {
-		// Checkbox
-		// if (ele.objectID == selected.objectID) {
-		// ele.shouldBeChecked = true;
-		// } else {
-		// ele.shouldBeChecked = false;
-		// }
-
-		// Disable
-
-		// });
-
-
-		// set "checked" & "disbaled" properties
 
 	}
 	/**

@@ -5,6 +5,8 @@ import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 import { MAX_RESULTS } from 'app/constants/PolicyTransactionHistory';
 import { getAgeFromIDNumber, getGenderFromIDNumber } from 'app/utils/insureUtils';
+import { SavingsAccountService } from 'app/services/SavingsAccountService';
+
 
 import 'app/components/insure/ClientPolicies';
 import 'app/components/insure/PolicyEstimate';
@@ -50,6 +52,8 @@ export class ExistingClient extends InsureViewBase {
 		this.policyTransactionHistory = {};
 		this.policyDetails = {};
 		this.contractReference = ``;
+		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
+		// this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	/**
@@ -69,7 +73,9 @@ export class ExistingClient extends InsureViewBase {
 			quote: { type: Object, state: true },
 			policyDetails: { type: Object, state: true },
 			mainLifeGender: { type: String, state: true },
-			contractReference: { type: String, state: true }
+			contractReference: { type: String, state: true },
+			savingsAccountDetails: { type: Object, state: true },
+			savingsPlanDetails: { type: Object, state: true },
 		};
 	}
 
@@ -97,6 +103,12 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _initialise() {
 		this.clientPolicies = await this._retrieveClientPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+		this.accountDetails = await this._retrieveAccountDetails();
+		// this.savingsPlanDetails = await this._retrieveSavingsPlanDetails();
+
+		console.log('savings account');
+		console.log(this.accountDetails);
+		
 	}
 
 	/**
@@ -133,24 +145,75 @@ export class ExistingClient extends InsureViewBase {
 		console.log("_retrieveClientPolicies");
 		const resp = await this.insureService.clientPolicies(request);
 
-		if(!resp.succeeded)
+		if (!resp.succeeded)
 			return;
 
 		return resp.result;
 	}
 
-		/**
-	 * Retrieve Policy Summary via insure channel service
-	 * @returns {Object} Policy Summary Details 
-	 */
+	/**
+ * Retrieve Policy Summary via insure channel service
+ * @returns {Object} Policy Summary Details 
+ */
 	async _retrievePolicySummary(contractReference, cifNumber) {
-		let	request = {
+		let request = {
 			contractReference: contractReference,
 			cifNumber: cifNumber,
 		}
 		const resp = await this.insureService.insurePolicySummary(request);
 		return resp.result;
 	}
+
+	/**
+	 * Retrieve Savings Account Details via Savings Account service
+	 * @returns {Object} Savings Account Details 
+	 */
+	async _retrieveAccountDetails() {
+		const savingsAccountData = await this.savingsAccountService.savingsAccountLanding(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, true);
+		const savingsPlanData = await this.savingsAccountService.savingsPlanLanding(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, true);
+
+		let resp = {
+			savingsAccountData: savingsAccountData.result,
+			savingsPlanData: savingsPlanData.result
+		}
+
+		// let resp = [{
+		// 	accountNumber: savingsAccountData.result.accountNumber,
+		// 	accountAvailableBalance: savingsAccountData.result.accountAvailableBalance,
+		// 	accountStatus: savingsAccountData.result.accountStatus
+		// },{
+		// 	accountNumber: savingsPlanData.result.accountNumber,
+		// 	planName: savingsPlanData.result.planName,
+		// 	accountType: savingsPlanData.result.accountType,
+		// 	accountStatus: savingsPlanData.result.accountStatus
+		// }];
+
+		//  let resp = {}
+		//  resp.savingsPlan = []
+		//  resp.savingsPlan.push({
+		// 	accountNumber: savingsPlanData.result.accountNumber,
+		// 	planName: savingsPlanData.result.planName,
+		// 	accountType: savingsPlanData.result.accountType,
+		// 	accountStatus: savingsPlanData.result.accountStatus
+		// 	});
+	
+
+		return resp;
+	}
+
+	/**
+	 * Retrieve Savings Plan Details via Savings Account service
+	 * @returns {Object} Savings Plan Details 
+	 */
+	// 	async _retrieveSavingsPlanDetails() {
+	// 		let	request = {
+	// 			cifNumber: this.callerInformation.cifNumber,
+	// 			nationalIDNumber: this.callerInformation.nationalIDNumber,
+	// 			getGenericData: true,
+	// 		}
+	// 		const resp = await this.savingsAccountService.savingsPlanLanding(request);
+	// 		return resp.result;
+	// }
 
 	/**
 	 * Calculate estimate based on lives assured provided
@@ -175,30 +238,31 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
-	 * Calculate estimate based on lives assured provided
-	 * Map metadata (coverDetails) back when response is received
+	 * Pay Arrears based on arrears provided
+	 * Map metadata back when response is received
 	 * @returns {Object} Estimate response
 	 */
-	 async _policyPolicy(e) {
-		let estimateWithCoverDetails = e.detail;
-		const resp = await this.insureService.payPolicy(estimateWithCoverDetails, () => true);
-		if (resp.succeeded == true && resp.result != null) {
-			estimateWithCoverDetails.totalPremium = resp.result.totalPremium;
-			estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map(lifeWithDetails => {
-				return Object.assign(lifeWithDetails, resp.result.lifesAssured.find(respLife => {
-					return lifeWithDetails.rowID === respLife.rowID
-				}))
-			});
-			this.estimate = estimateWithCoverDetails;
-		} else {
-			// Do error message
-			return null;
-		}
+	async _payPolicy(e) {
+		let payArrears = e.detail.payArrears;
+		payArrears.cifNumber = this.callerInformation.cifNumber;
+		payArrears.fromAccount = '65216545165'
+		console.log(payArrears)
+		const resp = await this.insureService.payPolicy(payArrears, () => true);
+		// if (resp.succeeded == true && resp.result != null) {
+
+		// } 
+		// else {
+		// 	// Do error message
+		// 	return null;
+		// }
+
+		if (!resp.succeeded)
+			return;
 	}
 
 	/**
 	 * Navigate so specific subview
- 	*/
+	  */
 	_navigateToSubView(newMode) {
 		this.renderMode = newMode;
 	}
@@ -235,7 +299,7 @@ export class ExistingClient extends InsureViewBase {
 		await this._getPolicyTransactionHistory();
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY);
 	}
-	
+
 	async _goToPolicySummary(e) {
 		// Telemetry Here
 		this.policyDetails = await this._retrievePolicySummary(e.detail.policyContractReference
@@ -243,10 +307,10 @@ export class ExistingClient extends InsureViewBase {
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY);
 	}
 
-	_goToEmailSuccessPage(){
+	_goToEmailSuccessPage() {
 		this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_PLAN_SUCCESS)
 	}
-	
+
 	/**
 	 * Make FIPS call and Prepare and navigate to pay premium success page
 	 * 
@@ -283,22 +347,22 @@ export class ExistingClient extends InsureViewBase {
 
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions
-									.map((item) => {
-										const formatedPremiumDate = new Date(Date.parse(item.premiumDueDate));
-										const formatedDate = new Date(Date.parse(item.Date));
-										item.formatedPremiumDate = formatedPremiumDate;
-										item.formatedDate = formatedDate;
-										item.formatedPremium = formatCurrency(item.premium);
-										item.groupByPremiumDate = `${getMonthName(formatedPremiumDate.getMonth())} ${formatedPremiumDate.getFullYear()}`;
-										item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
-										item.formatedAmount = formatCurrency(item.amount);
-										return item;
-									});
+				.map((item) => {
+					const formatedPremiumDate = new Date(Date.parse(item.premiumDueDate));
+					const formatedDate = new Date(Date.parse(item.Date));
+					item.formatedPremiumDate = formatedPremiumDate;
+					item.formatedDate = formatedDate;
+					item.formatedPremium = formatCurrency(item.premium);
+					item.groupByPremiumDate = `${getMonthName(formatedPremiumDate.getMonth())} ${formatedPremiumDate.getFullYear()}`;
+					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
+					item.formatedAmount = formatCurrency(item.amount);
+					return item;
+				});
 			this.transactions.push(...formattedTrans);
 
 			this.policyTransactionHistory = {
 				contractReference: this.contractReference,
-				transactions: this.transactions 
+				transactions: this.transactions
 			}
 
 			this.endCallContext = `PolicyTransactionHistory`;
@@ -390,10 +454,10 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderClientPoliciesPage() {
 		return html`
-			<horizon-insure-client-policies .clientPolicies = "${this.clientPolicies}"
+			<horizon-insure-client-policies .clientPolicies = "${this.clientPolicies}" .accountDetails = "${this.accountDetails}"
 				@navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan()}"
-				@navigate-to-pay-premium-success ="${(e) => this._goToPayPremiumSuccess()}"
+				@navigate-to-pay-premium-success ="${(e) => this._payPolicy(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}">
 			</horizon-insure-client-policies>`
@@ -453,10 +517,10 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderPolicyTransactionHistoryPage() {
 		return this.renderMode === INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY
-			? html `<horizon-insure-policy-transaction-history 
+			? html`<horizon-insure-policy-transaction-history 
 				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				.policyTransactionHistory="${this.policyTransactionHistory}"
-				.getPolicyTransactionHistory="${(startDate, endDate, pageIndex) => 
+				.getPolicyTransactionHistory="${(startDate, endDate, pageIndex) =>
 					this._getPolicyTransactionHistory(startDate, endDate, pageIndex)}"
 				.disposeData="${() => this.policyTransactionHistory = []}"
 				@unloading="${() => this._unloadPolicyTransactionHistory()}">

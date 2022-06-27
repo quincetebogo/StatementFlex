@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { formatCurrency } from '../../../utils/channelServiceUtilities';
 
 /**
  * Pay Premium Agreement Dialog componant will allow you to view the policy schedule, view the mandate and to agree 
@@ -21,6 +22,7 @@ class PayPremiumAgreementDialog extends Component {
 	constructor() {
 		super();
 
+
 	}
 
 	//#endregion
@@ -30,6 +32,9 @@ class PayPremiumAgreementDialog extends Component {
 	 static get properties() {
 		return {
 			
+			contractReference: {type: Object, state: true},
+			amountToPay: {type: Object, state: true},
+
 		};
 	}
 
@@ -104,7 +109,7 @@ class PayPremiumAgreementDialog extends Component {
 	 */
 	 _webTemplate() {
 		return html`
-			<capitec-modal type="form" header="Pay Arrears Agreement (CF00027650)">
+			<capitec-modal type="form" header="Pay Arrears Agreement (${this.contractReference4})">
 				<div slot="body" data-automation-id="insure-pay-premium-agreement-dialog-body">
 					${this._renderDialogBody()}
 				</div>
@@ -129,7 +134,10 @@ class PayPremiumAgreementDialog extends Component {
 			</div>
 
 			<div>
-				<capitec-label type="subtitle" label="'Display pay Arrears Message here'"></capitec-label>
+				<capitec-label type="subtitle" label="Declaration:
+By agreeing to pay your arrear premiums, you acknowledge and confirm that:
+•Your “Savings/ Flexible Account” can be debited with the amount of ${formatCurrency(this.amountToPay)} on “dd/mm/ccyy” ">
+				</capitec-label>
 			</div>
 
 		`}

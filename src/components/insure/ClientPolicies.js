@@ -64,6 +64,7 @@ class ClientPolicies extends Component {
 			showPayPremiumConfirmationDialog: {type: Boolean, state: true},
 			showPayPremiumAgreementDialog: {type: Boolean, state: true},
 			amountToPay: {type: Number, state: true},
+			accountDetails: { type: Object, state: true },
 
 			clientPolicies: { type: Object, state: true },
 			policyDetails: { type: Object, state: true }
@@ -131,7 +132,7 @@ class ClientPolicies extends Component {
 	 */
 	_goToPayPremiumSuccess(){
 		this.dispatchEvent(new CustomEvent(`navigate-to-pay-premium-success`, {
-			detail: {
+			detail: { payArrears: this.payArrears
 			}
 		}));
 	}
@@ -715,7 +716,7 @@ class ClientPolicies extends Component {
 		return this.showPayPremiumAgreementDialog == false ? `` :
 			html`
 			<insure-pay-premium-agreement-dialog @close-modal="${(e) => this._closePayPremiumAgreementDialog()}"
-			@agree="${(e) => this._goToPayPremiumSuccess()}">	
+			@agree="${(e) => this._goToPayPremiumSuccess()}" .amountToPay = ${this.amountToPay} .contractReference= ${this.clientArrears.contractReference}>	
 			</insure-pay-premium-agreement-dialog>`
 
 	}
