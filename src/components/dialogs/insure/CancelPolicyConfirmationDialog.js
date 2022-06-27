@@ -1,7 +1,7 @@
 
 import { Component, css, html } from 'platform/elements';
 
-export class YBPAgreementDialog extends Component {
+export class CancelPolicyConfirmationDialog extends Component {
 
 	/**
 	 * Initialize
@@ -13,7 +13,7 @@ export class YBPAgreementDialog extends Component {
 	/**
 	 * Accept terms and close dialog 
 	 */
-	_acceptAndClose() {
+	_confirmAndClose() {
 		this.dispatchEvent(new CustomEvent(`confirm`, { detail: {} }));
 	}
 
@@ -39,7 +39,9 @@ export class YBPAgreementDialog extends Component {
 	_renderDialogBody() {
 		return html`
 
-		<div> </div>
+		<div> 
+			By canceling this plan you will no longer have any benefitson this plan. Ensure you have carefully considerd the effects before continuing with the cancelation
+		</div>
 
 		`
 	}
@@ -50,8 +52,10 @@ export class YBPAgreementDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
+			<capitec-button slot="footer" type="clear" label="Back" @click="${() => this._backClick()}">
+			</capitec-button>
 			<capitec-button slot="footer" type="clear" label="Confirm" @click="${() => this._confirmAndClose()}">
 			</capitec-button>`
 	}
 }
-window.customElements.define(`horizon-insure-ybp-agreement-dialog`, YBPAgreementDialog);
+window.customElements.define(`insure-cancel-policy-confirmation-dialog`, CancelPolicyConfirmationDialog);
