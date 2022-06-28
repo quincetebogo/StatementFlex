@@ -39,13 +39,6 @@ class EmailPlanDialog extends Component {
 	//#region EVENT HANDLERS
 
 	/**
-	 * Cancel event from dialog footer button, closes modal & reset toggles 
-	 */
-	 _onCancelClick() {
-		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
-	}
-
-	/**
 	 * Send event from dialog footer button, closes modal & reset toggles 
 	 */
 	_onSendClick() {
@@ -138,10 +131,7 @@ class EmailPlanDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-				<capitec-button class="button" slot="footer" type="secondary" label="Cancel"
-					@click="${() => this._onCancelClick()}"
-					data-automation-id="insure-email-plan-dialog-cancel">
-				</capitec-button>
+				
 				<capitec-button class="button" slot="footer" type="primary" label="Send" 
 					@click="${() => this._onSendClick()}"
 					data-automation-id="insure-email-plan-dialog-send">
@@ -165,12 +155,3 @@ window.customElements.define(`insure-email-plan-dialog`, EmailPlanDialog);
  * @type {Object} - N/A
  */
 
-/**
- * Send close dialog event to consuming component when 'Cancel' is clicked
- *
- * @example
- * <insure-email-plan-dialog ... @close-modal="${this._handler}"></insure-email-plan-dialog>
- *
- * @event EmailPlanDialog#close-modal
- * @type {Object} - N/A
- */

@@ -11,6 +11,10 @@ import 'app/components/dialogs/insure/PayPremiumDialog';
 import 'app/components/dialogs/insure/PayPremiumConfirmationDialog';
 import 'app/components/dialogs/insure/PayPremiumAgreementDialog';
 
+import 'app/components/dialogs/insure/CancelPolicyDialog';
+import 'app/components/dialogs/insure/EmailPlanDialog';
+import 'app/components/dialogs/insure/CancelPolicyConfirmationDialog';
+
 /**
  * Client policies component showing all the policies a client currently has on their account
  * This is the primary landing screen for client that has insurance product
@@ -20,7 +24,7 @@ import 'app/components/dialogs/insure/PayPremiumAgreementDialog';
  * navigate-to-estimate
  * navigate-to-update-plan
  * navigate-to-policy-summary
- * navigate-to-pay-premium-success
+ * 
  *  
  * product-enquiry
  * _expanded
@@ -36,6 +40,9 @@ class ClientPolicies extends Component {
 
 	constructor() {
 		super();
+		this.showCancelPolicyDialog = false;
+		this.showEmailPlanDialog = false;
+		this.showCancelPolicyConfirmationDialog = false;
 		
 		this.showPayPremiumDialog = false;
 		this.showPayPremiumConfirmationDialog = false;
@@ -58,6 +65,9 @@ class ClientPolicies extends Component {
 	 */
 	static get properties() {
 		return {
+			showCancelPolicyDialog: {type: Boolean, state: true},
+			showEmailPlanDialog: {type: Boolean, state: true},
+			showCancelPolicyConfirmationDialog: {type: Boolean, state: true},
 			clientArrears: { type: Object, state: true },
 			payArrears: {type: Object, state: true},
 			showPayPremiumDialog: { type: Boolean, state: true},
@@ -137,6 +147,59 @@ class ClientPolicies extends Component {
 	}
 
 	/**
+	 * Fire navigate event to Cancel Policy Success
+	 */
+	 _goToCancelPolicySuccess() {
+		this.dispatchEvent(new CustomEvent(`navigate-to-cancel-policy-success`, {
+			detail: {
+			}
+		}));
+	}
+
+	/**
+	 * Fire navigate event to Email Success
+	 */
+	 _goToEmailSuccess() {
+		this.dispatchEvent(new CustomEvent(`navigate-to-email-success`, {
+			detail: {
+			}
+		}));
+	}
+
+	/**
+	 * event to open the cancel policy dialog
+	 */
+	_openCancelPolicyDialog(){
+		this.showCancelPolicyConfirmationDialog = false;
+
+		this.showCancelPolicyDialog = true;
+	}
+
+	/**
+	 * event to close the cancel policy dialog
+	 */
+	_closeCancelPolicyDialog(){
+		this.showCancelPolicyDialog = false;
+	}
+
+	/**
+	 * event to open the cancel policy confirmation dialog
+	 */
+	_openCancelPolicyConfirmationDialog(){
+		this.showCancelPolicyConfirmationDialog = true;
+	}
+
+	/**
+	 * event to close the cancel policy conirmtion dialog
+	 */
+	_closeCancelPolicyConfirmationDialog(){
+		this.showCancelPolicyConfirmationDialog = false;
+	}
+
+
+
+
+	/*
 	 * Close Pay Premium Dialog and Open the Pay Premium Confirmation Dialog.
 	 * 
 	 * @param {*} e contains the values pay arrears and amount to be paid
@@ -429,6 +492,7 @@ class ClientPolicies extends Component {
 	}
 
 	/**
+	
 	 * Generates the component template for web mode.
 	 * @returns {html} The html content of the component.
 	 */
@@ -437,6 +501,8 @@ class ClientPolicies extends Component {
 			${this._renderPayPremiumDialog()}
 			${this._renderPayPremiumConfirmationDialog()}
 			${this._renderPayPremiumAgreementDialog()}
+			${this._renderCancelPolicyDialog()}
+			${this._renderCancelPolicyConfirmationDialog()}
 		`}
 
 	/**
@@ -622,7 +688,7 @@ class ClientPolicies extends Component {
 		<capitec-card class="action-card">
 			<capitec-overflow-menu label="More" data-automation-id = "insure-policy-more-sub-menu">
 				<capitec-overflow-menu-item icon="system/transfer-action" label="Transaction history" @click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
-				<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan"></capitec-overflow-menu-item>
+				<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan" @click=" ${() => this._openCancelPolicyConfirmationDialog()}"></capitec-overflow-menu-item>
 				${policyItem.arrearDetails.outstandingAmount > 0 ?
 					html `<capitec-overflow-menu-item icon="system/sars-action" label="Benefits"></capitec-overflow-menu-item>`
 					: ``}
@@ -681,7 +747,35 @@ class ClientPolicies extends Component {
 	
 	// <capitec-button type="white" label="Policy Summary" @click="${() => this._goToPolicySummary()}">
 	// </capitec-button>
+/**
+ * Render the Cancel Policy Dialog
+ * @returns 
+ */
+_renderCancelPolicyDialog(){
+		return this.showCancelPolicyDialog == false ? `` 
+		: html`
+		<insure-cancel-policy-dialog @close-modal="${(e) => this.showCancelPolicyDialog = false}"
+		@agree="${(e) => this._goToCancelPolicySuccess()}">
+		</insure-cancel-policy-dialog>
+		`
+	}
 
+
+/**
+ * Render the Cancel Policy confirmation Dialog
+ * @returns 
+ */
+_renderCancelPolicyConfirmationDialog(){
+	return this.showCancelPolicyConfirmationDialog == false ? ``
+	:html`
+		<insure-cancel-policy-confirmation-dialog @close-modal="${this._closeCancelPolicyConfirmationDialog}"
+		@confirm="${this._openCancelPolicyDialog}">
+		</insure-cancel-policy-confirmation-dialog>
+		
+		`
+	
+}
+	//#endregion
 	/**
 	 * Render Pay Premium Dialog 
 	 * @return {html} Html of the dialog
