@@ -177,7 +177,7 @@ export const creditMixin = {
 	},
 
 	_handleSettlementQuoteError(error) {
-		this.logger.log('error', `Failed to do settlment quote ${JSON.stringify(error)}`)
+		this.logger.log(`error`, `Failed to do settlment quote ${JSON.stringify(error)}`);
 		return false;
 	},
 
