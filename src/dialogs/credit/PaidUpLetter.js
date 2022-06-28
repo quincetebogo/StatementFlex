@@ -40,7 +40,7 @@ export class PaidUpLetter extends Component {
 		// private variables
 		this.flag = false;
 		this.currPage = 0;
-		this.encodedPDF = ``;
+		this.encodedPDFs = ``;
 		this.email = ``;
 		this.confirmEmail = ``;
 		this.emailLabel = `Enter email address`;
@@ -54,13 +54,14 @@ export class PaidUpLetter extends Component {
 	/**
 	 * @param {object} selectedAccounts which accounts require paid up letter
 	 * @param {object} encodedPDFs  Paid up letter pdfs to be viewed
+	 * @param {string} registeredEmailId Client's registered email ID
 	 */
 
 	static get properties() {
 		return {
 			selectedAccounts: { type: Object },
 			encodedPDFs: { type: Object },
-			navigatePDF: { type: Object },
+			registeredEmailId: { type: String },
 
 			// private properties
 			isBusy: { state: true },
@@ -75,11 +76,13 @@ export class PaidUpLetter extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
 		this._initialise();
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+		this._onUnloading();
 	}
 
 	// --------------
@@ -92,13 +95,20 @@ export class PaidUpLetter extends Component {
 
 	_initialise() {
 		this._toggleBusyFlag();
-		//TODO: flow for selected accounts to be done here
 	}
-
-	_viewPDFViewer () {
+  
+	_viewPDFViewer (item) {
 		this.flag = !this.flag;
-	}
 
+		if (!this.flag) {
+			return;
+		}
+		this.dispatchEvent(new CustomEvent(`view-pdf`, { 
+				detail: { accountNumber: item.accountNumber, accountType: item.type }
+		}));
+		
+	}
+  
 	_clearAlerts() {
 		this.alertBannerMessage = ``;
 	}
@@ -112,6 +122,10 @@ export class PaidUpLetter extends Component {
 		} else if (e.detail.mismatched) {
 			this.alertBannerMessage = ERROR_MESSAGE.EMAIL_MISMATCH;
 		}
+	} 
+
+	_cancelClick(e) {
+		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
 	_sendClick() {
@@ -120,22 +134,16 @@ export class PaidUpLetter extends Component {
 		if (!isValid) {
 			return false;
 		}
-		//TODO: Navigation to be added once the CS is ready.
+
+		this.dispatchEvent(new CustomEvent(`send`, {
+			detail: {
+				emailAddress: this.confirmEmail
+			}
+		}));
 	}
 
-	_cancelClick(e) {
-		this.dispatchEvent(new CustomEvent(`cancel`, {}));
-	}
-
-	async _navigate(step) {
-		const datesSelected = this.selectedAccounts;
-		if (step === `next`) {
-			this.currPage += this.currPage < datesSelected.length ? 1 : 0;
-			this.encodedPDF = await this.navigatePDF(datesSelected[this.currPage - 1]);
-		} else {
-			this.currPage -= this.currPage ? 1 : 0;
-			this.encodedPDF = await this.navigatePDF(datesSelected[this.currPage - 1]);
-		}
+	_onUnloading() {
+		this.dispatchEvent(new CustomEvent(`on-unloading`, {}));
 	}
 
 	// ---------------
@@ -190,6 +198,7 @@ export class PaidUpLetter extends Component {
 					--theme-product-tile-heading-margin-left: 16px;
 					--theme-layout-gap-spacing: 8px;
 					--theme-product-tile-title-font-weight: 600;
+					--theme-product-tile-detail-top: 22px;
 				}
 
 				capitec-alert-banner > capitec-group > capitec-label {
@@ -208,14 +217,14 @@ export class PaidUpLetter extends Component {
 
 				div[slot="body"] {
 					width: 531px;
+					height: 486px;
 					border-bottom: 1px solid #E1E1E1;
 				}
 
 				.seperator {
 					width: 100%;
 					border: 1px solid #E1E1E1;
-					margin-bottom: 30px;
-					margin-top: 10px;
+					margin: 16px 0px 30px 0px;
 				}
 
 				.document-label[type="subtitle"] {
@@ -236,6 +245,11 @@ export class PaidUpLetter extends Component {
 				horizon-email-input {
 					--theme-layout-gap-spacing: 0px;
 				}
+
+				horizon-pdf-viewer{
+					--theme-horizon-pdf-modal-header-width: auto;
+				}
+
 			`
 		];
 	}
@@ -263,8 +277,8 @@ export class PaidUpLetter extends Component {
 	}
 
 	_renderAlertBanner() {
-		return this.alertBannerMessage ?
-		html`
+		return this.alertBannerMessage 
+		? html`
 			<capitec-alert-banner type="unsuccessful-red">
 				<capitec-group layout="horizontal">
 					<capitec-label
@@ -287,6 +301,7 @@ export class PaidUpLetter extends Component {
 				labelTwo="${this.confirmEmailLabel}"
 				email="${this.email}"
 				confirmEmail="${this.confirmEmail}"
+				registeredEmailId="${this.registeredEmailId}"
 				?showRequiredError="${this.alertBannerMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
 				.callBack="${() => this._clearAlerts()}"
 				@value-changed="${(e) => this._emailValueChanged(e)}">
@@ -310,22 +325,21 @@ export class PaidUpLetter extends Component {
 		return html`
 			<horizon-product-tile 
 				type="default"
-				label="${item}"
-				subtitle="123456789">
+				label="${item.productTypeDescription}"
+				subtitle="${item.accountNumber}">
 					${this._renderViewDocumnetLink(item)}
 			</horizon-product-tile>
 		`;
 	}
 
 	_renderViewDocumnetLink(item) {
-		this.currPage = this.selectedAccounts.indexOf(item);
 		return html`
 			<capitec-label 
 				slot="detail"
 				type="strong"
 				label="View Document"
 				class="viewDocumentLink"
-				@click="${() => this._viewPDFViewer()}">
+				@click="${() => this._viewPDFViewer(item)}">
 			</capitec-label>
 		`;
 	}
@@ -333,13 +347,9 @@ export class PaidUpLetter extends Component {
 	_viewPDF() {
 		return html`
 			<horizon-pdf-viewer
-				header="Paid Up Letter: Credit Card"
-				encodedPDF="${this.encodedPDF}"
-				totalPages="${this.selectedAccounts.length}"
-				currPage="${this.currPage}"
-				@cancel="${() => this._viewPDFViewer()}"
-				@next="${() => this._navigate(`next`)}"
-				@previous="${() => this._navigate(`previous`)}">
+				header="Paid Up Letter"
+				encodedPDF="${this.encodedPDFs}"
+				@cancel="${() => this._viewPDFViewer(null)}">
 			</horizon-pdf-viewer>
 		`;
 	}
@@ -364,7 +374,7 @@ export class PaidUpLetter extends Component {
 
 	_renderLoadingIndicator() {
 		return this.isBusy
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			? html`<capitec-loading-indicator data-automation-id="paid-up-letter-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
 

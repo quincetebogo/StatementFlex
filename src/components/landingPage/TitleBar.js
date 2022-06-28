@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { RoleManager } from 'app/shell/RoleManager';
 
 /**
  * The Title Bar is displayed at the top of the initial Horizon Landing Page (Call Waiting Page)
@@ -16,7 +17,11 @@ export class TitleBar extends Component {
 
 		this.fullname = ``;
 		this.employeeId = ``;
+		this.searchClientEnabled = false;
+
 		this.eventAggregator = EventAggregator.getInstance();
+		this.roleManager = RoleManager.getInstance();
+
 		this.titleBarSub = this.eventAggregator.subscribe(`horizon-update-title-bar`, (event) => this._onUpdateTitle(event));
 	}
 
@@ -34,6 +39,12 @@ export class TitleBar extends Component {
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
+
+	connectedCallback() {
+		super.connectedCallback();
+
+		this._initialise();
+	}
 
 	disconnectedCallback() {
 		this.titleBarSub.dispose();
@@ -63,6 +74,9 @@ export class TitleBar extends Component {
 	// PUBLIC METHODS
 	// --------------
 
+	async _initialise() {
+		this.searchClientEnabled = await this.roleManager.isSearchClientEnabled();
+	}
 
 	// ---------------
 	// PRIVATE METHODS
@@ -110,7 +124,8 @@ export class TitleBar extends Component {
 					size="meadium" 
 					icon="system/search"
 					@click="${() => this._searchCaller()}"
-					data-automation-id="title-bar-search">
+					data-automation-id="title-bar-search"
+					?hidden="${!this.searchClientEnabled}">
 				</capitec-icon>
 				<div class="logged-in-user">
 					<capitec-label 

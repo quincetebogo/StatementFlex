@@ -1,14 +1,14 @@
-import { CREDIT_ACCOUNT_TYPE, PRODUCT_TYPE } from 'app/constants/Credit';
-import { QuickTransactionEvents, STATEMENT_EVENTS } from 'app/constants/telemetry/events/QuickTransactions';
+import { ACCOUNT_STATUS, CREDIT_ACCOUNT_TYPE, CREDIT_TYPE, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
+import { QuickTransactionEvents, SETTLEMENT_QUOTE_EVENTS, STATEMENT_EVENTS } from 'app/constants/telemetry/events/QuickTransactions';
 import { css, html } from 'platform/elements';
-import { isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
+import { formatStringAsPascalCase, isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
+import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { creditMixin } from 'app/views/credit/CreditMixin';
-import { creditOverview } from 'app/mocks/CreditMocks';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
@@ -25,12 +25,11 @@ import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
 import 'app/components/dialogs/common/Feedback';
 import 'app/components/quickTransactions/SettlementQuote';
+import 'app/components/quickTransactions/TaxCertificateLanding';
 
 import 'app/dialogs/credit/PaidUpAccounts';
 import 'app/dialogs/credit/PaidUpLetter';
 import 'app/dialogs/taxCertificates/TaxCertificates';
-
-
 const SAVINGS_ACCOUNT_TYPE = 300;
 
 const ERROR_LIST = {
@@ -64,19 +63,23 @@ export class Favourites extends SavingsAccountBase {
 		this.category = ``;
 		this.need = ``;
 		this.issue = ``;
-		this.landingPageInfo = null;
+		this.landingPageInfo = {};
 		this.curOptionEvent = null;
 		this.cards = [];
+		this.accountsInfo = [];
 		this.selectedFeedback = [];
 		this.feedbackOptions = [];
 		this.updateStrackClick = false;
-		// TODO: get ccs status for client
+		this.hasTaxCertificate = false;
+		this.taxCertificateDetails = null;
 		this.ccsStatus = false;
 		this.showCCSmodal = false;
+		this.settlementQuoteEvents = SETTLEMENT_QUOTE_EVENTS;
 
 		this._telemetry = HorizonTelemetry.instance;
 
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
+		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 
 		Object.assign(Favourites.prototype, tapToPayMixin);
 		Object.assign(Favourites.prototype, searchOtherNeedMixin);
@@ -91,6 +94,7 @@ export class Favourites extends SavingsAccountBase {
 		return {
 			isLoading: { state: true },
 			verificationToastDisplayed: { state: true },
+			hasTaxCertificate: { state: false },
 			showCCSmodal: { type: Boolean }
 		};
 	}
@@ -152,6 +156,7 @@ export class Favourites extends SavingsAccountBase {
 
 	disconnectedCallback() {
 		this.returnToSub.dispose();
+		this.stateChangeSub.unsubscribe();
 		super.disconnectedCallback();
 	}
 
@@ -202,8 +207,8 @@ export class Favourites extends SavingsAccountBase {
 		// re-initialise the page when the verification status changes
 		// verificationStatus is on the this.callerInformation object
 		
-		if (this.callerInformation.verificationStatus !== `verified`) {
-        await this._initialise();
+		if (this.callerInformation.verificationStatus === `verified`) {
+			await this._initialise();
 		}
 	}
 
@@ -222,7 +227,7 @@ export class Favourites extends SavingsAccountBase {
 
 		/**
 		 * This is supposed to happen in debicheck success screen
-		 * TODO: This should be to success screen when decline or approve is ready
+		 * TODO: This should be to success screen when decline or approve is ready (CSCEH-7746)
 		 */
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
@@ -357,13 +362,23 @@ export class Favourites extends SavingsAccountBase {
 		await this.getIssues(event);
 	}
 
+	_stateChanged(state) {
+		if (state?.callerInformation) {
+			this.callerInformation = state.callerInformation;
+		}
+	}
+
+	// ---------------
+	// PUBLIC METHODS
+	// ---------------
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
 	async _initialise() {
 
-		if (this.callerInformation.verificationStatus !== `non-client` && isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber)) {
+		if (this.callerInformation.verificationStatus !== `non-client`) {
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
 				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
@@ -380,11 +395,16 @@ export class Favourites extends SavingsAccountBase {
 				/* 
 				 * NOTE: This is a work around as the favourites landing does not return credit information. 
 				 * NOTE: This implementation will not include credit information in the favourites landing call fails.
-				 * TODO: Develop better solution
+				 * TODO: Develop better solution (CSCEH-7747)
 				 */
-				if (returnValues[1].status === `fulfilled` && returnValues[1].value.succeeded) {
-					this.landingPageInfo.creditProductDescription = `Available balance`;
-					this.landingPageInfo.creditProductAmount = formatCurrency(returnValues[1].value.result.availableBalance);
+				if (returnValues[1].status === `fulfilled` && returnValues[1].value.succeeded && returnValues[1].value.result.availableBalance !== null) {
+					if (this.callerInformation.verificationStatus === `verified`) {
+						this.landingPageInfo.creditProductDescription = `Available balance`;
+						this.landingPageInfo.creditProductAmount = formatCurrency(returnValues[1].value.result.availableBalance);
+					} else {
+						this.landingPageInfo.creditProductDescription = `Active`;
+						this.landingPageInfo.creditProductAmount = ``;
+					}
 				}
 			}
 		} else {
@@ -414,8 +434,6 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_updateLeftBar() {
-		this.horizonStore.setCallerInformation(this.callerInformation);
-
 		this.horizonStore.setProductButtonState(this.landingPageInfo);
 	}
 
@@ -486,14 +504,25 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-	_taxCertificates() {
-		// TODO: Functionality to generate tax certificate comes here
+	async _taxCertificates() {
+
 		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_TAX_CERTIFICATE, {
 			"screen": TelemetryScreen.FAVOURITES,
 			"next-screen": TelemetryScreen.TAX_CERTIFICATE
 		});
 
-		this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
+		const returnValue = await this.quickTransactionService.getTaxCertificate(this.callerInformation.cifNumber, () => true);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unable to get load tax certificates information`, `_taxCertificates`, returnValue.correlationId);
+			this.horizonRouter.navigateToTaxCertificateServiceError();
+			return;
+		}
+
+		this.taxCertificateDetails = returnValue.result;
+		this.hasTaxCertificate = this.taxCertificateDetails.iT3BTaxCertificates.length + this.taxCertificateDetails.iT3STaxCertificates.length > 0;
+
+		this.renderMode = this.hasTaxCertificate ? RENDER_MODE.TAX_CERTIFICATE : RENDER_MODE.TAX_CERTIFICATE_NOT_AVAILABLE;
 	}
 
 	async _getStatements() {
@@ -505,61 +534,145 @@ export class Favourites extends SavingsAccountBase {
 		await super._getStatements();
 	}
 
-	async _proofOfAccount() {
+	_proofOfAccount() {
 		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_PROOF_OF_ACCOUNT, {
 			"screen": TelemetryScreen.FAVOURITES,
 			"next-screen": TelemetryScreen.PROOF_OF_ACCOUNT
 		});
 		
-		// Temporary fix to get the account number using statements CS call as the account number field 
-		// for Favourites landing page(landingPageInfo) is returned as null which is required on Proof of Account screen.
-		// TODO : The function _getClientProducts() and filtering should be removed once the Account Number on landingPageInfo is received Properly.
-		const clientProductDetails = await this._getClientProducts();
-		
-		if (clientProductDetails) {
-			const primarySavingsProduct = clientProductDetails.find(item => item.accountType === SAVINGS_ACCOUNT_TYPE);
+		this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
+	}
 
-			this.landingPageInfo.accountNumber = primarySavingsProduct.accountNumber;
-			this.landingPageInfo.accountOpenedDate = primarySavingsProduct.accountOpenDate;
-			this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
+	async _settlementQuote(customErrHandler = null) {
+		// TODO: Implement permission check
+		await this._telemetry.logEvent(QuickTransactionEvents.SETTLEMENT_QUOTE_SELECT, {
+			"screen": TelemetryScreen.FAVOURITES,
+			"next-screen": TelemetryScreen.SETTLEMENT_QUOTE_VIEW
+		});
+		
+		const returnValue = await this.creditService.settlementQuoteLanding({ "cifNumber": this.callerInformation.cifNumber }, customErrHandler);
+			
+			if (returnValue.succeeded) {
+				this.settlementQuoteDetails = returnValue.result.settlementInfoList;
+	
+				this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
+					item.type = PRODUCT_TYPE[item.productTypeCode];
+					item.category = CREDIT_ACCOUNT_TYPE[item.productTypeCode];
+					item.productTypeDescription = `${item.productTypeDescription.toLowerCase().charAt(0).toUpperCase()}${item.productTypeDescription.toLowerCase().slice(1)}`;
+					item.creditLimit = formatCurrency(item.creditLimit);
+					item.repayAmount = item.repayAmount ? formatCurrency(item.repayAmount) : null;
+					item.nextRepayment = item.nextRepayment ? formatCurrency(item.nextRepayment) : null;
+					item.currentBalance = formatCurrency(item.currentBalance);
+					item.settlementAmount = formatCurrency(item.currentSettlementAmount);
+					item.maxSettlementAmount = item.maxSettlementAmount ? formatCurrency(item.maxSettlementAmount) : formatCurrency(item.settlementAmount);
+					return item;
+				});
+
+			if (this.settlementQuoteDetails.length > 0) {
+				this.ccsStatus = await this._checkCreditPermisions(`settlement-quote`, this.callerInformation.cifNumber, this.settlementQuoteDetails[0].accountNumber, this.settlementQuoteDetails[0].type);
+			
+				if (this.ccsStatus) {
+					this.showCCSmodal = true;
+					this.requestUpdate();
+					return;
+				}
+			}
+
+			this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
+		}
+
+		this.logger.log(`error`, `Unable to load settlement quote accounts view`, `_settlementQuote`, returnValue.correlationId);
+	}
+	
+	_showSettlementQuoteDialog(selectedAccounts) {
+		this._telemetry.logEvent(QuickTransactionEvents.SETTLEMENT_QUOTE_SEND, {
+			"list-of-accounts": selectedAccounts,
+			"account-numbers": selectedAccounts.map(account => account.accountNumber)
+		});
+
+		this._settlementQuoteDialog(selectedAccounts);
+	}
+
+	async _paidUpAccounts() {
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_PAID_UP_LETTER, {
+			"screen": TelemetryScreen.FAVOURITES,
+			"next-screen": TelemetryScreen.PAID_UP_LETTER_ACCOUNTS
+		});
+
+		this._telemetry.startSpan(CreditEvents.CREDIT_PAID_UP_LETTER, {});
+		
+		const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber, ACCOUNT_STATUS.PAID_UP);
+		
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to retrieve client overview from credit service.`, `_initialise`, returnValue.correlationId);
+			this.renderMode = RENDER_MODE.SERVICE_UNAVAILABLE;
+			return;
+		}
+		
+		if (returnValue.succeeded && returnValue.result) {
+			
+			this.creditAccountDetails = returnValue.result;
+			this._formatCreditOverviewResponse();
+			this.accountsInfo = [...this.creditAccountDetails.creditCardSummaryList, ...this.creditAccountDetails.accessFacilitySummaryList, ...this.creditAccountDetails.loanAccountSummaryList];
+		
+			if (this.accountsInfo.length > 0) {
+				
+				this.ccsStatus = await this._checkCreditPermisions(`paid-up-letter`, this.callerInformation.cifNumber, this.accountsInfo[0].accountNumber, this.accountsInfo[0].type);
+
+				if (this.ccsStatus) {
+					this.showCCSmodal = true;
+					return;
+				}
+			}
+
+			this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
 		}
 	}
 
-	_settlementQuote() {
-		const screenDetails = this.horizonStore.getScreenDetails();
-
-		// TODO: CS call to get credit accounts info and diaplay appropriate values on settlement quote view screen - details are pulled from mocks now
-
-		this.settlementQuoteDetails = [...creditOverview.creditCardSummaryList, ...creditOverview.accessFacilitySummaryList, ...creditOverview.loanAccountSummaryList];
-
-		this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
-			item.type = PRODUCT_TYPE[item.productTypeCode];
-			item.category = CREDIT_ACCOUNT_TYPE[item.productTypeCode];
-			item.productTypeDescription = `${item.productTypeDescription.toLowerCase().charAt(0).toUpperCase()}${item.productTypeDescription.toLowerCase().slice(1)}`;
-			item.creditLimit = formatCurrency(item.creditLimit);
-			item.repayAmount = item.repayAmount ? formatCurrency(item.repayAmount) : null;
-			item.nextRepayment = item.nextRepayment ? formatCurrency(item.nextRepayment) : null;
+	_formatCreditOverviewResponse() {
+		this.creditAccountDetails.creditCardSummaryList.map(item => {
+			item.type = PRODUCTS.CREDIT_CARD;
+			item.category = CREDIT_TYPE.FLEXIBLE;
+			item.productTypeDescription = formatStringAsPascalCase(item.productTypeDescription);
 			item.currentBalance = formatCurrency(item.currentBalance);
+			item.availableCredit = formatCurrency(item.availableCredit);
+			item.creditLimit = formatCurrency(item.creditLimit);
+			item.nextRepayment = formatCurrency(item.nextRepayment);
+			item.accountStatusDescription = item.arrearIndicator ? `In arrears` : formatStringAsPascalCase(item.accountStatusDescription);
 
 			return item;
 		});
 
-		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
+		this.creditAccountDetails.accessFacilitySummaryList.map(item => {
+			item.type = PRODUCTS.ACCESS_FACILITY;
+			item.category = CREDIT_TYPE.FLEXIBLE;
+			item.productTypeDescription = formatStringAsPascalCase(item.productTypeDescription);
+			item.currentBalance = formatCurrency(item.currentBalance);
+			item.availableCredit = formatCurrency(item.availableCredit);
+			item.creditLimit = formatCurrency(item.creditLimit);
+			item.nextRepayment = formatCurrency(item.nextRepayment);
+			item.accountStatusDescription = item.arrearIndicator ? `In arrears` : formatStringAsPascalCase(item.accountStatusDescription);
 
-		if (screenDetails.selectedAccounts) {
-			this._settlementQuoteDialog(screenDetails.selectedAccounts);
-		}
-	}
+			return item;
+		});
 
-	_paidUpAccounts() {
-		// TODO: CS call to get info
+		this.creditAccountDetails.loanAccountSummaryList.map(item => {
+			item.type = PRODUCTS.TERM_LOAN;
+			item.category = CREDIT_TYPE.FIXED;
+			item.productTypeDescription = formatStringAsPascalCase(item.productTypeDescription);
+			item.currentBalance = formatCurrency(item.currentBalance);
+			item.availableCredit = formatCurrency(item.availableCredit);
+			item.creditLimit = formatCurrency(item.creditLimit);
+			item.repayAmount = formatCurrency(item.repayAmount);
+			item.accountStatusDescription = item.arrearIndicator ? `In arrears` : formatStringAsPascalCase(item.accountStatusDescription);
 
-		if (this.ccsStatus) {
-			this.showCCSmodal = true;
-			return;
-		}
+			return item;
+		});
 
-		this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
+		this.budgetAccountsSummary = {
+			"totalBudgetBalance": formatCurrency(this.creditAccountDetails.budgetAccountsSummary.totalBudgetBalance),
+			"totalBudgetInstallmentAmount": formatCurrency(this.creditAccountDetails.budgetAccountsSummary.totalBudgetInstallmentAmount)
+		};
 	}
 
 	_unavailableOption() {
@@ -716,9 +829,11 @@ export class Favourites extends SavingsAccountBase {
 		super._backToLandingPage();
 	}
 
-	_backFromSettlementQuoteDialog() {
-		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
+	async _exitSettlementQuoteDialog() {
+		await this._telemetry.endSpan(this.settlementQuoteEvents.SETTLEMENT_QUOTE_DIALOG, {});
+
 		this.horizonStore.clearScreenDetails();
+		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
 	}
 
 	// ---------
@@ -745,6 +860,17 @@ export class Favourites extends SavingsAccountBase {
 					width: 100%;
 					height: var(--horizon-panel-height, 888px);
 				}
+
+				.error-msg {
+					width: auto;
+					height: 60px;
+					font-family: "Hind Vadodara";
+					color: #3A3A3A;
+					font-size: 16px;
+					font-weight: 500;
+					letter-spacing: 0;
+					text-align: center;
+				}
 			`
 		];
 	}
@@ -761,7 +887,8 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderFeedback()}
 			${this._renderUpdateIncidentModal()}
 			${this._renderTaxCertificate()}
-			${this._renderpaidUpAccounts()}
+			${this._renderTaxCertificateNotAvailable()}
+			${this._renderPaidUpAccounts()}
 			${this._renderSettlementQuote()}
 			${this._renderSettlementQuoteDialog()}
 			${this._renderCcsModal()}
@@ -787,7 +914,8 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderUnverifiedAlertBanner() {
-		return html`
+		return !this.roleManager.isHelpDeskAgent 
+		? html`
 			<capitec-alert-banner
 				class="verificatoin-status"
 				data-automation-id="favourite-transactions-unverified-alert-banner"
@@ -804,7 +932,8 @@ export class Favourites extends SavingsAccountBase {
 						@click="${() => super._verifyClick()}">
 					</capitec-hyperlink>
 				</capitec-group>
-			</capitec-alert-banner>`;
+			</capitec-alert-banner>`
+		: html``;
 	}
 
 	_renderFailedAlertBanner() {
@@ -813,7 +942,7 @@ export class Favourites extends SavingsAccountBase {
 				class="verificatoin-status"
 				data-automation-id="favourite-transactions-failed-verification-alert-banner"
 				type="unsuccessful-red"
-				label="Notify client: I'm not able to access your account since you couldn't be verified. If it's an urgent matter please visit a branch, or you can call again after 24 hours.">
+				label="Notify client: I'm not able to access your account since you couldn't be verified. Can we guide you on the App? Alternatively please visit your nearest branch.">
 			</capitec-alert-banner>`;
 	}
 
@@ -824,7 +953,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderNoDigitalHighRiskTransAlertBanner() {
-		return this.callerInformation.verificationMethod === `XDS`
+		return this.callerInformation.verificationMethod === `SQ` && !this.roleManager.isHelpDeskAgent
 			? html`
 				<capitec-alert-banner
 					class="verificatoin-status"
@@ -842,7 +971,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderHighRiskTransAlertBanner() {
-		return this.callerInformation.verificationMethod === `XDS`
+		return this.callerInformation.verificationMethod === `SQ` && !this.roleManager.isHelpDeskAgent
 			? html`
 				<capitec-alert-banner
 					class="verificatoin-status"
@@ -907,7 +1036,7 @@ export class Favourites extends SavingsAccountBase {
 				<horizon-card-limits-landing
 					.cards="${this.cards}"
 					.cifNumber="${this.callerInformation.cifNumber}"
-					.title="${this.callerInformation.title}"
+					client-title="${this.callerInformation.title}"
 					.lastName="${this.callerInformation.lastName}"
 					voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
 					verificationMethod="${this.callerInformation.verificationMethod}"
@@ -931,9 +1060,11 @@ export class Favourites extends SavingsAccountBase {
 			? html`
 				<horizon-proof-of-account
 					.cifNumber="${this.callerInformation.cifNumber}"
-					.title="${this.callerInformation.title}"
+					client-title="${this.callerInformation.title}"
 					.lastName="${this.callerInformation.lastName}"
-					.landingPageInfo="${this.landingPageInfo}"
+					accountNumber="${this.landingPageInfo.accountNumber}"
+					accountOpenedDate="${this.landingPageInfo.accountOpenedDate}"
+					registeredEmailId="${this.callerInformation.emailId}"
 					@cancel="${() => this._backToLandingPage()}">
 				</horizon-proof-of-account>`
 			: html``;
@@ -982,6 +1113,7 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE
 		? html`
 			<horizon-tax-certificate
+				.taxCertificateDetails="${this.taxCertificateDetails}"
 				.cifNumber="${this.callerInformation.cifNumber}"
 				accountNumber="${this.landingPageInfo.accountNumber}"
 				@cancel="${() => this._backToLandingPage()}">
@@ -989,33 +1121,34 @@ export class Favourites extends SavingsAccountBase {
 		`
 		: html``;
 	}
+
+	_renderTaxCertificateNotAvailable() {
+		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE_NOT_AVAILABLE
+		? html`
+			<horizon-tax-certificate-landing
+				@back="${() => this._backToLandingPage()}">
+			</horizon-tax-certificate-landing>
+			`
+		: html``;
+	}
 	
 	_renderSettlementQuote() {
 		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_VIEW ||
 				this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG 
 		? html`
-		<horizon-settlement-quote
-			.settlementQuoteDetails="${this.settlementQuoteDetails}"
-			@back="${() => this._backToLandingPage()}"
-			@send-quote="${(e) => this._settlementQuoteDialog(e.detail.selectedAccounts)}">
-		</horizon-settlement-quote>`
-		: html``;
-	} 
-
-	_renderCcsModal() {
-		return this.showCCSmodal
-		? html`
-			<horizon-ccs-status-dialog
-				@on-okay="${() => this.showCCSmodal = !this.showCCSmodal}">
-			</horizon-ccs-status-dialog>`
+			<horizon-settlement-quote
+				.settlementQuoteDetails="${this.settlementQuoteDetails}"
+				@back="${() => this._backToLandingPage()}"
+				@send-quote="${(e) => this._showSettlementQuoteDialog(e.detail.selectedAccounts)}">
+			</horizon-settlement-quote>`
 		: html``;
 	}
 
-	_renderpaidUpAccounts () {
+	_renderPaidUpAccounts () {
 		return this.renderMode === RENDER_MODE.PAID_UP_ACCOUNTS
 		? html`
 		<horizon-paid-up-accounts
-			.landingPageInfo="${this.landingPageInfo}"
+			.accountsInfo="${this.accountsInfo}"
 			@back="${() => this._backToLandingPage()}">
 		</horizon-paid-up-accounts>`
 		: html``;

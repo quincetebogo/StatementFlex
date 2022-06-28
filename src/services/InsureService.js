@@ -32,6 +32,8 @@ export class InsureService extends ChannelServiceBase {
 	 * @returns {Object} Header entries 
 	 */
 	setInsureTokens() {
+		const test = Security.getInstance().token;
+
 		return {
 			"X-User-Token": Security.getInstance().token,
 			"x-session-id": v4(),
@@ -76,7 +78,7 @@ export class InsureService extends ChannelServiceBase {
 		if (await this.isMockEnabled(`insureProductParams`)) {
 			return this.mock(`insureProductParams`);
 		}
-		const url = `/FuneralInsuranceProductService/product/params`;
+		const url = `/horizon-insurance/product/params`;
 		return this.get(
 			url,
 			this.setInsureTokens(),
@@ -102,10 +104,36 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insureClientPolicies`);
 		}
 		return this.post(
-			`/FuneralInsuranceProductService/client/summary`,
+			`/horizon-insurance/client/summary?WithClaims=true`,
 			clientPoliciesRequest,
 			this.setInsureTokens(),
 			`summary`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+ * Policy Summary / Policy Details
+ *
+ * @param {policyRequest} [errorHandler=null]  Request data containing contract reference & cifnumber
+ * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+ * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+ * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+ */
+	async insurePolicySummary(policyRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insurePolicySummary`)) {
+			return this.mock(`insurePolicySummary`);
+		}
+		return this.post(
+			`/horizon-insurance/policy/summary?WithClaims=true`,
+			policyRequest,
+			this.setInsureTokens(),
+			`policysummary`,
 			null,
 			null,
 			900,
@@ -125,7 +153,7 @@ export class InsureService extends ChannelServiceBase {
 	 */
 	async calculateEstimate(estimateRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
-			`/FuneralInsuranceProductService/quote/estimate`,
+			`/horizon-insurance/estimate`,
 			estimateRequest,
 			this.setInsureTokens(),
 			`calculateEstimate`,
@@ -217,17 +245,20 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`hasInsuranceProducts`);
 		}
 
-		const url = `/clientcare-insure-${this._version}/landing?` +
-			`IdNumber=${insuranceClientInfo.IdNumber}&` +
-			`Cif=${insuranceClientInfo.CifNumber}&` +
-			`IsCallerVerified=${insuranceClientInfo.isCallerVarified}`;
+		const insuranceClientRequest = {
+			'idNumber': insuranceClientInfo.idNumber,
+			'cif': insuranceClientInfo.cifNumber,
+			'isCallerVerified': insuranceClientInfo.isCallerVerified
+		};
 
-		return this.get(
-			url,
+		return this.post(
+			`/clientcare-insure-${this._version}/landing`,
+			insuranceClientRequest,
 			this.setToken(),
-			`hasInsuranceProducts`,
+			`addNonClientDetails`,
 			null,
-			1000,
+			null,
+			900,
 			null,
 			errorHandler,
 			autoRetries
@@ -268,6 +299,32 @@ export class InsureService extends ChannelServiceBase {
 			},
 			this.setToken(),
 			`calculatePremiumDone`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+ * Get Policy Transaction History
+ *
+ * @param {transactionsRequest} [errorHandler=null]  Request data for policy transactions 
+ * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+ * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+ * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+ */
+	async getPolicyTransactions(transactionsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insurePolicyTransactionHistory`)) {
+			return this.mock(`policyTransactionHistory`, transactionsRequest);
+		}
+		return this.post(
+			`/horizon-insurance/policy/transactions`,
+			transactionsRequest,
+			this.setInsureTokens(),
+			`getPolicyTransactions`,
 			null,
 			null,
 			900,

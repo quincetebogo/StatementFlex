@@ -328,13 +328,13 @@ export class LiveBetterSavings extends Component {
 						data-automation-id="live-better-verified-account-info"
 						size="medium" 
 						icon="system/info-action"
-						@click="${() => this._click(`account-details-lbb`)}">
+						@click="${() => this._click(`lbb-account-enquiry`)}">
 					</capitec-icon>
 
 					<horizon-label
 						data-automation-id="live-better-verified-account-number"
 						label="Account number"
-						@click="${() => this._click(`account-details-lbb`)}"
+						@click="${() => this._click(`lbb-account-enquiry`)}"
 						value="${this.liveBetterAccountData.accountNumber}">
 					</horizon-label>
 

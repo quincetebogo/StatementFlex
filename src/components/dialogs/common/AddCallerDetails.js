@@ -202,9 +202,20 @@ export class AddCallerDetails extends Component {
 						false, // presence of insurance products not yet determined
 						false, // availability of digital channels not yet determined
 						{
-							xdsAttempts: 0,
+							sqAttempts: 0,
 							itaAttempts: 0
-						}
+						},
+						this.callerInformation.isBranchConsultant,
+						false,
+						`unverified`,
+						this.callerInformation.firstName,
+						this.callerInformation.middleName1,
+						this.callerInformation.middleName2,
+						this.callerInformation.middleName3,
+						this.callerInformation.lastName,
+						this.callerInformation.initials,
+						this.callerInformation.identifiedBy, // Identification method used to confirm client
+						this.callerInformation.emailId // client's registered email ID
 					)
 				}
 			}));
@@ -229,6 +240,12 @@ export class AddCallerDetails extends Component {
 			"screen": TelemetryScreen.ADD_CALLER_DETAILS,
 			"next-screen": TelemetryScreen.END_CALL
 		});
+
+        this.callerInformation.nonClientFirstName = this.firstNameTextField;
+        this.callerInformation.nonClientSurName = this.surnameTextField;
+        this.callerInformation.nonClientCellPhone = this.cellPhoneTextField;
+        this.callerInformation.is3rdParty = true;
+        this.callerInformation.isNonClient = false;
 
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
@@ -467,6 +484,7 @@ export class AddCallerDetails extends Component {
 			<horizon-end-call-session 
 				.incomingCallDetails = "${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
+                .callerInformation="${this.callerInformation}"
 				endCallContext="ConfirmClient"
 				@cancel="${() => this.renderMode = RENDER_MODE.ADD_CALLER}">
 			</horizon-end-call-session>`;

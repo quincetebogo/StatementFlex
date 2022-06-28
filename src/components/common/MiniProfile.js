@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator } from 'platform/core';
+import { Configuration, EventAggregator } from 'platform/core';
 import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/OptionButton';
@@ -21,10 +21,14 @@ export class MiniProfile extends Component {
 	constructor() {
 		super();
 		this.miniProfile = null;
+		this.isHelpDeskAgent = false;
+
+		this.configuration = Configuration.getInstance();
 	}
 
 	/**
 	 * @property {Object} miniProfile Data and flags for updating the mini-profile panel view
+	 * @property {Boolean} [isHelpDeskAgent=false] Determines if the application user role is a Helpdesk Agent
 	 *
 	 * @readonly
 	 * @static
@@ -32,7 +36,8 @@ export class MiniProfile extends Component {
 	 */
 	static get properties() {
 		return {
-			miniProfile: { type: Object }
+			miniProfile: { type: Object },
+			isHelpDeskAgent: { type: Boolean }
 		};
 	}
 
@@ -40,9 +45,13 @@ export class MiniProfile extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 		this.eventAggregator = EventAggregator.getInstance();
+
+		this.authMethod = await this.configuration.getSetting(`AuthMethod`);
+		const authAttempts = await this.configuration.getSetting(`AuthAttempts`);
+		this.maxAttempts = authAttempts[this.authMethod];
 	}
 
 	// ---------
@@ -59,6 +68,10 @@ export class MiniProfile extends Component {
 
 	_onVerifyNowClick() {
 		this.eventAggregator.publish(`horizon-verify-now-click`, {});
+	}
+
+	_onClientBranchVerifiedClick() {
+		this.eventAggregator.publish(`horizon-verified-in-branch-click`, {});
 	}
 
 	_onVerifyViaSecurityQuestions() {
@@ -207,6 +220,13 @@ export class MiniProfile extends Component {
 					--theme-font-family: "Hind Vadodara SemiBold";
 					--theme-hyperlink-color: var(--theme-alert-banner-warning-font-color);
 					--theme-hyperlink-font-size: 14px;
+					text-decoration: underline;
+				}
+				#id-verified-in-branch-link {
+					--theme-font-family: "Hind Vadodara SemiBold";
+					--theme-hyperlink-color: var(--theme-alert-banner-warning-font-color);
+					--theme-hyperlink-font-size: 14px;
+					text-decoration: underline;
 				}
 				#id-verify-via-app-msg {
 					font-family: "Hind Vadodara SemiBold";
@@ -350,9 +370,9 @@ export class MiniProfile extends Component {
 		const noBanner = this.miniProfile.isVerified || 
 							this.miniProfile.isNonClient || 
 							// eslint-disable-next-line no-extra-parens
-							(!this.miniProfile.hasDigitalChannels && this.miniProfile.verificationAttempts.xdsAttempts >= 2) ||
+							(!this.miniProfile.hasDigitalChannels && this.miniProfile.verificationAttempts.sqAttempts >= this.maxAttempts) ||
 							// eslint-disable-next-line no-extra-parens
-							(this.miniProfile.verificationAttempts.itaAttempts >= 2 && this.miniProfile.verificationAttempts.xdsAttempts >= 2);
+							(this.miniProfile.verificationAttempts.itaAttempts >= 2 && this.miniProfile.verificationAttempts.sqAttempts >= this.maxAttempts);
 
 		if (noBanner) {
 			return html``;
@@ -404,7 +424,26 @@ export class MiniProfile extends Component {
 			`;
 		};
 
-		return html`
+		return this.isHelpDeskAgent && !this.miniProfile.isVerified
+		? html`
+			<capitec-alert-banner class="banner" type="warning">
+				<capitec-group 
+						id="id-notify-banner-group" 
+						layout="horizontal">
+					<capitec-label 
+						id="id-notify-client-warning-msg" 
+						label="Client has not been verified">
+					</capitec-label>
+					<capitec-spacer></capitec-spacer>
+					<capitec-hyperlink 
+						id="id-verified-in-branch-link" 
+						data-automation-id="mini-profile-branch-verified"
+						@click="${() => this._onClientBranchVerifiedClick()}"
+						label="Client verified in branch">
+					</capitec-hyperlink>
+				</capitec-group>
+			</capitec-alert-banner>` 
+		: html`
 			<capitec-alert-banner class="banner" type="warning">
 				<capitec-group 
 						id="id-notify-banner-group" 

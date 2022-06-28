@@ -24,6 +24,7 @@ const HORIZON_ROUTES = Object.freeze({
 	INSURE_EXISTING_CLIENT: `/insure/existing-client`,
 	TRANSACT_FAVOURITES: `/transact/favourites`,
 	SAVINGS_ACCOUNT: `/transact/savings-account`,
+	KBA_VERIFICATION_FAILED: `/error/kba-verification`,
 	XDS_VERIFICATION_FAILED: `/error/xds-verification`,
 	ITA_VERIFICATION_FAILED: `/error/ita-verification`,
 	SYSTEM_ERROR: `/error/system-error`,
@@ -49,12 +50,19 @@ const HORIZON_ROUTES = Object.freeze({
 	CREDIT_ACCOUNT: `/transact/credit`,
 	CREDIT_STATEMENTS_SUCCESS: `/success/credit-statements`,
 	CREDIT_STATEMENTS_FAILURE: `/error/credit-statements`,
+	SETTLEMENT_QUOTE_SUCCESS: `/success/settlement-quote`,
+	SETTLEMENT_QUOTE_FAILURE: `/error/settlement-quote`,
 	SETTLEMENT_QUOTE_OUTCOME: `/outcome/settlement-quote`,
+	EMAIL_CONFIRMATION_OUTCOME: `/outcome/email-confirmation`,
 	SETTLE_AND_CLOSE_SUCCESS: `/success/settle-and-close`,
 	SETTLE_AND_CLOSE_FAILURE: `/error/settle-and-close`,
 	SAVINGS_PLAN: `/transact/savings-plan`,
 	BUDGET_FACILITY_SUCCESS: `/success/budget-facility`,
-	BUDGET_FACILITY_FAILURE: `/error/budget-facility`
+	BUDGET_FACILITY_FAILURE: `/error/budget-facility`,
+	PROOF_OF_PAYMENT_SUCCESS: `/success/proof-of-payment`,
+	PROOF_OF_PAYMENT_FAILURE: `/error/proof-of-payment`,
+	PAID_UP_LETTER_SUCCESS: `/success/paid-up-letter`,
+	PAID_UP_LETTER_FAILURE: `/error/paid-up-letter`
 });
 
 
@@ -353,8 +361,20 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.AUTOMATIC_SAVINGS_FAILED}`);
 	}
 	
+	navigateToSettlementQuoteSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLEMENT_QUOTE_SUCCESS}`);
+	}
+
+	navigateToSettlementQuoteFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLEMENT_QUOTE_FAILURE}`);
+	}
+
 	navigateToSettlementQuoteOutcome() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLEMENT_QUOTE_OUTCOME}`);
+	}
+
+	navigateToEmailConfirmationOutcome() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.EMAIL_CONFIRMATION_OUTCOME}`);
 	}
 
 	navigateToSettleAndCloseSuccess() {
@@ -373,6 +393,22 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.BUDGET_FACILITY_FAILURE}`);
 	}
 
+	navigateProofOfPaymentSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_PAYMENT_SUCCESS}`);
+	}
+	
+	navigateProofOfPaymentFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_PAYMENT_FAILURE}`);
+	}
+
+	navigatePaidUpLetterSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PAID_UP_LETTER_SUCCESS}`);
+	}
+
+	navigatePaidUpLetterFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PAID_UP_LETTER_FAILURE}`);
+	}
+
 	/**
 	 * Navigates to the indicated Product Info Page
 	 *
@@ -382,6 +418,10 @@ export class HorizonRouter {
 	 */
 	navigateToProductInfo(type) {
 		this.router.navigateByPath(`${HORIZON_ROUTES.PRODUCT_INFO}?type=${type}`);
+	}
+
+	navigateToKBAVerificationFailed() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.KBA_VERIFICATION_FAILED}`);
 	}
 	
 	/**
@@ -634,6 +674,14 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
 	},
 	{
+		name: `horizon-kba-verification-failed`,
+		title: `KbaVerificationFailed`,
+		icon: null,
+		path: HORIZON_ROUTES.KBA_VERIFICATION_FAILED,
+		load: () => import(`../views/common/KBAVerificationFailed`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
+	},
+	{
 		name: `horizon-ita-verification-failed`,
 		title: `ItaVerificationFailed`,
 		icon: null,
@@ -842,11 +890,35 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
+		name: `horizon-settlement-quote-success`,
+		title: `SettlementQuoteSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.SETTLEMENT_QUOTE_SUCCESS,
+		load: () => import(`../views/credit/SettlementQuoteSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-settlement-quote-failure`,
+		title: `SettlementQuoteFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.SETTLEMENT_QUOTE_FAILURE,
+		load: () => import(`../views/credit/SettlementQuoteFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
 		name: `horizon-settlement-quote-outcome`,
 		title: `SettlementQuoteOutcome`,
 		icon: null,
 		path: HORIZON_ROUTES.SETTLEMENT_QUOTE_OUTCOME,
 		load: () => import(`../views/credit/SettlementQuoteOutcome`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},,
+	{
+		name: `horizon-email-confirmation-outcome`,
+		title: `EmailConfirmationOutcome`,
+		icon: null,
+		path: HORIZON_ROUTES.EMAIL_CONFIRMATION_OUTCOME,
+		load: () => import(`../views/credit/EmailConfirmationOutcome`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
@@ -879,6 +951,38 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.BUDGET_FACILITY_FAILURE,
 		load: () => import(`../views/credit/BudgetFacilityFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-proof-of-payment-success`,
+		title: `ProofOfPaymentSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.PROOF_OF_PAYMENT_SUCCESS,
+		load: () => import(`../views/credit/ProofOfPaymentSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-proof-of-payment-failure`,
+		title: `ProofOfPaymentFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.PROOF_OF_PAYMENT_FAILURE,
+		load: () => import(`../views/credit/ProofOfPaymentFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-paid-up-letter-success`,
+		title: `PaidUpLetterSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.PAID_UP_LETTER_SUCCESS,
+		load: () => import(`../views/quickTransactions/PaidUpLetterSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-paid-up-letter-failure`,
+		title: `PaidUpLetterFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.PAID_UP_LETTER_FAILURE,
+		load: () => import(`../views/quickTransactions/PaidUpLetterFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}
 ];
