@@ -17,6 +17,8 @@ class CancelPolicySuccess extends Component {
 
 	constructor() {
 		super();
+
+		this.showEmailPlanDialog = false;
 	}
 
 //#endregion
@@ -26,7 +28,9 @@ class CancelPolicySuccess extends Component {
 	
 	static get properties() {
 		return {
-	
+			
+			showEmailPlanDialog: {type: Boolean, state: true}
+
 		};
 	}
 
@@ -53,13 +57,35 @@ class CancelPolicySuccess extends Component {
 /**
  * Navigate to Landing
  */
- _onIssuePolicyClick() {
-	this.dispatchEvent(new CustomEvent(`navigate-back`, {
+ _onEmailClick() {
+	this.dispatchEvent(new CustomEvent(`email`, {
 		detail: {
 		}
 	}));
 }
 
+/**
+ * Event to open the email plan dialog
+ */
+_openEmailPlanDialog(){
+	this.showEmailPlanDialog = true;
+}
+
+/**
+ * Event to close the email plan dialog
+ */
+_closeEmailPlanDialog(){
+	this.showEmailPlanDialog = false;
+}
+/**
+ * event to navigate to the email success page
+ */
+_goToEmailSuccess(){
+	this.dispatchEvent(new CustomEvent(`navigate-to-email-success`, {
+		detail: {
+		}
+	}));
+}
 
 //#endregion
 
@@ -116,6 +142,17 @@ class CancelPolicySuccess extends Component {
 	 _webTemplate() {
 		return html`
 			${this._renderContent()}
+			${this._renderDialogs()}
+		`
+	}
+/**
+ * Render Dialogs
+ * 
+ * @returns 
+ */
+	_renderDialogs(){
+		return html`
+		${this._renderEmailPlanDialog()}
 		`
 	}
 
@@ -132,11 +169,23 @@ class CancelPolicySuccess extends Component {
 						style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
 					<label id="temp-container-label">The policy has been cancelled</label>
 					<capitec-label class="spacing" type="subtitle" label="You currently have 2 active policies"></capitec-label>
-					<capitec-button label="Done" type="primary" @click="${() => this._onIssuePolicyClick()}"
+					<capitec-button label="Email" type="primary" @click="${() => this._openEmailPlanDialog()}"
 						data-automation-id="">
 					</capitec-button>
 				</div>
 			</capitec-card>
+		`
+	}
+	/**
+	 * Render the email plan dialog
+	 * @returns 
+	 */
+	_renderEmailPlanDialog(){
+		return this.showEmailPlanDialog == false ? `` 
+		: html`
+		<insure-email-plan-dialog @close-modal="${(e) => this.showEmailPlanDialog = false}"
+			@send-email="${(e) => this._goToEmailSuccess()}">
+		</insure-email-plan-dialog>
 		`
 	}
 

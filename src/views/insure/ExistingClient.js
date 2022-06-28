@@ -269,8 +269,7 @@ export class ExistingClient extends InsureViewBase {
 			<horizon-insure-client-policies @navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan()}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary()}"
-				@navigate-to-cancel-policy-success="${(e) => this._goToCancelPolicySuccess()}"
-				@navigate-to-email-success="${(e) => this._goToEmailPlanSuccess()}">
+				@navigate-to-cancel-policy-success="${(e) => this._goToCancelPolicySuccess()}">
 			</horizon-insure-client-policies>`
 	}
 
@@ -315,7 +314,8 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderCancelPolicySuccessPage() {
 		return html`
-		<insure-cancel-policy-success @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+		<insure-cancel-policy-success @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+			@navigate-to-email-success="${(e) => this._goToEmailPlanSuccess()}">
 		</insure-cancel-policy-success>
 		`
 	}

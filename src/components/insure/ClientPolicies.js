@@ -2,6 +2,7 @@ import { Component, css, html } from 'platform/elements';
 
 import 'app/components/dialogs/insure/CancelPolicyDialog';
 import 'app/components/dialogs/insure/EmailPlanDialog';
+import 'app/components/dialogs/insure/CancelPolicyConfirmationDialog';
 
 /**
  * Client policies component showing all the policies a client currently has on their account
@@ -26,6 +27,7 @@ class ClientPolicies extends Component {
 		super();
 		this.showCancelPolicyDialog = false;
 		this.showEmailPlanDialog = false;
+		this.showCancelPolicyConfirmationDialog = false;
 	}
 
 	//#endregion
@@ -38,8 +40,9 @@ class ClientPolicies extends Component {
 	 */
 	static get properties() {
 		return {
-			showCancelPolicyDialog: {boolean: false},
-			showEmailPlanDialog: {boolean: false},
+			showCancelPolicyDialog: {type: Boolean, state: true},
+			showEmailPlanDialog: {type: Boolean, state: true},
+			showCancelPolicyConfirmationDialog: {type: Boolean, state: true}
 		};
 	}
 
@@ -97,18 +100,34 @@ class ClientPolicies extends Component {
 		}));
 	}
 
-	_openCancelPolicy(){
+	/**
+	 * event to open the cancel policy dialog
+	 */
+	_openCancelPolicyDialog(){
+		this.showCancelPolicyConfirmationDialog = false;
+
 		this.showCancelPolicyDialog = true;
 	}
 
-	_closeCancelPolicy(){
+	/**
+	 * event to close the cancel policy dialog
+	 */
+	_closeCancelPolicyDialog(){
 		this.showCancelPolicyDialog = false;
 	}
 
-	_openEmailPlan(){
-		this.showCancelPolicyDialog = false;
-		
-		this.showEmailPlanDialog = true;
+	/**
+	 * event to open the cancel policy confirmation dialog
+	 */
+	_openCancelPolicyConfirmationDialog(){
+		this.showCancelPolicyConfirmationDialog = true;
+	}
+
+	/**
+	 * event to close the cancel policy conirmtion dialog
+	 */
+	_closeCancelPolicyConfirmationDialog(){
+		this.showCancelPolicyConfirmationDialog = false;
 	}
 
 
@@ -167,7 +186,7 @@ class ClientPolicies extends Component {
 	 _renderDialogs() {
 		return html`
 			${this._renderCancelPolicyDialog()}
-			${this._renderEmailPlanDialog()}`
+			${this._renderCancelPolicyConfirmationDialog()}`
 	}
 
 	/**
@@ -182,7 +201,7 @@ class ClientPolicies extends Component {
 			<capitec-spacer></capitec-spacer>
 			<capitec-button type="white" label="Get Estimate" @click="${() => this._goToEstimate()}">
 			</capitec-button>
-			<capitec-button type="white" label="Cancel Policy" @click="${() => this._openCancelPolicy()}">
+			<capitec-button type="white" label="Cancel Policy" @click="${() => this._openCancelPolicyConfirmationDialog()}">
 			</capitec-button>
 		</capitec-title-bar>
 		
@@ -202,25 +221,34 @@ class ClientPolicies extends Component {
 	// </capitec-button>
 	// <capitec-button type="white" label="Policy Summary" @click="${() => this._goToPolicySummary()}">
 	// </capitec-button>
-
+/**
+ * Render the Cancel Policy Dialog
+ * @returns 
+ */
 _renderCancelPolicyDialog(){
 		return this.showCancelPolicyDialog == false ? `` 
 		: html`
 		<insure-cancel-policy-dialog @close-modal="${(e) => this.showCancelPolicyDialog = false}"
-		@email-plan="${(e) => this._openEmailPlan()}"
 		@agree="${(e) => this._goToCancelPolicySuccess()}">
 		</insure-cancel-policy-dialog>
 		`
 	}
 
-_renderEmailPlanDialog(){
-		return this.showEmailPlanDialog == false ? `` 
-		: html`
-		<insure-email-plan-dialog @close-modal="${(e) => this.showEmailPlanDialog = false}"
-			@send-email="${(e) => this._goToEmailSuccess()}">
-		</insure-email-plan-dialog>
+
+/**
+ * Render the Cancel Policy confirmation Dialog
+ * @returns 
+ */
+_renderCancelPolicyConfirmationDialog(){
+	return this.showCancelPolicyConfirmationDialog == false ? ``
+	:html`
+		<insure-cancel-policy-confirmation-dialog @close-modal="${this._closeCancelPolicyConfirmationDialog}"
+		@confirm="${this._openCancelPolicyDialog}">
+		</insure-cancel-policy-confirmation-dialog>
+		
 		`
-	}
+	
+}
 	//#endregion
 }
 

@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { formatDate } from '../../../utils/channelServiceUtilities';
 
 // Lookups
 import { CANCELATION_REASONS } from 'app/constants/InsureCommon';
@@ -9,7 +10,6 @@ import { CANCELATION_REASONS } from 'app/constants/InsureCommon';
  * Events Raised 
  * -------------
  * close-modal
- * email-plan
  * agree
  *  
  * @export
@@ -25,6 +25,8 @@ class CancelPolicyDialog extends Component {
 
 		this.cancelationReasons = CANCELATION_REASONS;
 		this.selected = false;
+		this.checked = false;
+		this.cancelReason = '';
 	}
 
 	//#endregion
@@ -33,13 +35,15 @@ class CancelPolicyDialog extends Component {
 
 	 static get properties() {
 		return {
-			selected: {type: Boolean, state: true}
+			selected: {type: Boolean, state: true},
+			checked: {type: Boolean, state: true}
 		};
 	}
 
 	//#endregion
 
 	//#region PRIVATE METHODS
+	
 
 	//#endregion
 
@@ -53,24 +57,47 @@ class CancelPolicyDialog extends Component {
 	}
 
 	/**
-	 * email event from dialog footer button, closes modal and switches to email plan dialog
-	 */
-	_onEmailClick() {
-		this.dispatchEvent(new CustomEvent(`email-plan`, {}));
-	}
-
-	/**
 	 * agree event from dialog footer button, closes modal and navigates to cancel policy success page
 	 */
 	_onAgreeClick() {
-		this.dispatchEvent(new CustomEvent(`agree`, {}));
+		this.dispatchEvent(new CustomEvent(`agree`, {detail: {cancelationReason: this.cancelReason }}));
 	}
 
 	/**
-	 * Event to to change the value of selected once an option has been chosen from the cancelation select box
+	 * Event to to change the value of selected once an option has been chosen from the cancelation select box and also to cancelReason with the reason chosen
 	 */
-	_valueSelected(){
+	_valueSelected(e){
 		this.selected = true;
+
+		this.cancelReason = e.detail.new.text;
+
+
+	}
+/**
+ * Event to determine whether the checkbox has been checked or not
+ * 
+ * @param {*} e 
+ */
+	_CheckBox(e){
+		if (e.detail.new == true){
+			this.checked = true;
+		} else {
+			this.checked = false;
+		}
+
+	}
+
+	/**
+	 * Event that returns the following day's date
+	 * 
+	 * @returns 
+	 */
+	_getDate(){
+		const today = new Date()
+		const tomorrow = new Date(today)
+		tomorrow.setDate(tomorrow.getDate() + 1)
+
+		return tomorrow;
 	}
 
 	//#endregion
@@ -100,6 +127,7 @@ class CancelPolicyDialog extends Component {
 
 				.expander{
 					margin-bottom: 20px;
+					margin-top: 20px;
 				}
 
 				.select{
@@ -151,25 +179,31 @@ class CancelPolicyDialog extends Component {
 					.items= "${this.cancelationReasons}"
 					display-field="text"
 					id-field="code"
-					@value-change = "${() => this._valueSelected()}">
+					@value-change = "${(e) => this._valueSelected(e)}">
 				</capitec-select>
 			</div>
 
-			${console.log(this.selected)}
+			<div>
+				<capitec-label type="subtitle" label=" By requesting the cancellation of the policy, you acknowledge and confirm that:"></capitec-label>
+				<ul>
+				<li>The policy has been cancelled with the effective date from ${formatDate(this._getDate(), 'dd mmm yyyy')}.</li>
+				<li>All the policy benefits have been ceased and you no longer benefit from them.</li>
+				<li>Should any premiums be received on this policy, after the date of this instruction, it will be refunded to you.</li>
+				</ul>
+			</div>
 
-			<capitec-expander-group modeset="single">
-				<div class="expander">
-					<capitec-expander expandbuttonalignment="left" label="View Policy Schedule" data-automation-id="insure-cancel-policy-dialog-view-policy-schedule">
-						<capitec-label label=""></capitec-label>
-					</capitec-expander>
-				</div>
+			<div class="expander">
+				<capitec-expander expandbuttonalignment="left" label="View Cancelation Agreement" data-automation-id="insure-cancel-policy-dialog-view-policy-schedule">
+					<capitec-label label=""></capitec-label>
+				</capitec-expander>
+			</div>
 
-				<div>
-					<capitec-expander expandbuttonalignment="left" label="View Mandate" data-automation-id="insure-cancel-policy-dialog-view-mandate">
-						<capitec-check label="Please confirm that you agree to these terms and conditions and that you are bound by them?" checked></capitec-check>
-					</capitec-expander>
-				</div>
-			 </capitec-expander-group>
+			<div>
+				<capitec-check label="Please confirm that you agree to these terms and conditions and that you are bound by them." 
+					@value-change="${(e) => this._CheckBox(e)}">
+				</capitec-check>
+			</div>
+
 
 		`}
 
@@ -184,14 +218,10 @@ class CancelPolicyDialog extends Component {
 					@click="${() => this._onCancelClick()}"
 					data-automation-id="insure-cancel-policy-dialog-cancel">
 				</capitec-button>
-				<capitec-button class="button" slot="footer" type="secondary" label="Email"
-					@click="${() => this._onEmailClick()}"
-					data-automation-id="insure-cancel-policy-dialog-email">
-				</capitec-button>
 				<capitec-button class="button" slot="footer" type="primary" label="Agree"
 					@click="${() => this._onAgreeClick()}"
 					data-automation-id="insure-cancel-policy-dialog-agree"
-					.disabled="${this.selected == false}">
+					.disabled="${this.selected == false || this.checked == false}">
 				</capitec-button>
 		`}
 
@@ -209,16 +239,6 @@ window.customElements.define(`insure-cancel-policy-dialog`, CancelPolicyDialog);
  * <insure-cancel-policy-dialog ... @close-modal="${this._handler}"></insure-cancel-policy-dialog>
  *
  * @event CancelPolicyDialog#close-modal
- * @type {Object} - N/A
- */
-
-/**
- * send email plan event to the consuming componant when 'email' is clicked
- *
- * @example
- * <insure-cancel-policy-dialog ... @email-plan="${this._handler}"></insure-cancel-policy-dialog>
- *
- * @event CancelPolicyDialog#email-plan
  * @type {Object} - N/A
  */
 

@@ -11,10 +11,16 @@ export class CancelPolicyConfirmationDialog extends Component {
 	}
 
 	/**
-	 * Accept terms and close dialog 
+	 * Accept terms and navigate to cancil Policy Dialog 
 	 */
 	_confirmAndClose() {
 		this.dispatchEvent(new CustomEvent(`confirm`, { detail: {} }));
+	}
+	/**
+	 * Accept terms and close dialog 
+	 */
+	 _backClick() {
+		this.dispatchEvent(new CustomEvent(`close-modal`, { detail: {} }));
 	}
 
 	/**
@@ -40,7 +46,7 @@ export class CancelPolicyConfirmationDialog extends Component {
 		return html`
 
 		<div> 
-			By canceling this plan you will no longer have any benefitson this plan. Ensure you have carefully considerd the effects before continuing with the cancelation
+			By cancelling this plan you will no longer have any benefits on this plan. Ensure you have carefully considered the effects before continuing with the cancellation.
 		</div>
 
 		`
