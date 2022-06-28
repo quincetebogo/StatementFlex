@@ -229,8 +229,11 @@
 		"creditPermissions": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"emailPaidUpLetter": {
+			"enabled": false,
+			"positiveCase": false
 		}
-
 	},
 	"searchClientOptionEnabled": true
 }

@@ -2,6 +2,7 @@ import { ACCOUNT_STATUS, CREDIT_ACCOUNT_TYPE, CREDIT_TYPE, PRODUCTS, PRODUCT_TYP
 import { QuickTransactionEvents, SETTLEMENT_QUOTE_EVENTS, STATEMENT_EVENTS } from 'app/constants/telemetry/events/QuickTransactions';
 import { css, html } from 'platform/elements';
 import { formatStringAsPascalCase, isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
+import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
@@ -71,7 +72,6 @@ export class Favourites extends SavingsAccountBase {
 		this.updateStrackClick = false;
 		this.hasTaxCertificate = false;
 		this.taxCertificateDetails = null;
-		// TODO: get ccs status for client
 		this.ccsStatus = false;
 		this.showCCSmodal = false;
 		this.settlementQuoteEvents = SETTLEMENT_QUOTE_EVENTS;
@@ -227,7 +227,7 @@ export class Favourites extends SavingsAccountBase {
 
 		/**
 		 * This is supposed to happen in debicheck success screen
-		 * TODO: This should be to success screen when decline or approve is ready
+		 * TODO: This should be to success screen when decline or approve is ready (CSCEH-7746)
 		 */
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
@@ -395,7 +395,7 @@ export class Favourites extends SavingsAccountBase {
 				/* 
 				 * NOTE: This is a work around as the favourites landing does not return credit information. 
 				 * NOTE: This implementation will not include credit information in the favourites landing call fails.
-				 * TODO: Develop better solution
+				 * TODO: Develop better solution (CSCEH-7747)
 				 */
 				if (returnValues[1].status === `fulfilled` && returnValues[1].value.succeeded && returnValues[1].value.result.availableBalance !== null) {
 					if (this.callerInformation.verificationStatus === `verified`) {
@@ -594,14 +594,15 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _paidUpAccounts() {
-		// TODO: CS call to get info
-		if (this.ccsStatus) {
-			this.showCCSmodal = true;
-			return;
-		}
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_PAID_UP_LETTER, {
+			"screen": TelemetryScreen.FAVOURITES,
+			"next-screen": TelemetryScreen.PAID_UP_LETTER_ACCOUNTS
+		});
 
+		this._telemetry.startSpan(CreditEvents.CREDIT_PAID_UP_LETTER, {});
+		
 		const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber, ACCOUNT_STATUS.PAID_UP);
-
+		
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to retrieve client overview from credit service.`, `_initialise`, returnValue.correlationId);
 			this.renderMode = RENDER_MODE.SERVICE_UNAVAILABLE;
@@ -609,15 +610,19 @@ export class Favourites extends SavingsAccountBase {
 		}
 		
 		if (returnValue.succeeded && returnValue.result) {
-
-			// this.accountsInfo = [`Term loan (32 Months)`, `Credit`, `Access Facility`];
+			
 			this.creditAccountDetails = returnValue.result;
 			this._formatCreditOverviewResponse();
 			this.accountsInfo = [...this.creditAccountDetails.creditCardSummaryList, ...this.creditAccountDetails.accessFacilitySummaryList, ...this.creditAccountDetails.loanAccountSummaryList];
+		
+			if (this.accountsInfo.length > 0) {
+				
+				this.ccsStatus = await this._checkCreditPermisions(`paid-up-letter`, this.callerInformation.cifNumber, this.accountsInfo[0].accountNumber, this.accountsInfo[0].type);
 
-			if (this.accountsInfo.length === 0) {
-				this.horizonRouter.navigateToProductInfo(`Credit`);
-				return;
+				if (this.ccsStatus) {
+					this.showCCSmodal = true;
+					return;
+				}
 			}
 
 			this.renderMode = RENDER_MODE.PAID_UP_ACCOUNTS;
@@ -625,7 +630,6 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_formatCreditOverviewResponse() {
-		// TODO: Improve the formatting
 		this.creditAccountDetails.creditCardSummaryList.map(item => {
 			item.type = PRODUCTS.CREDIT_CARD;
 			item.category = CREDIT_TYPE.FLEXIBLE;

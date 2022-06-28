@@ -115,6 +115,16 @@ export const relatedOptions = {
 			`proof-of-account`,
 			`statements`
 		]
+	},
+	'paid-up-accounts': {
+		Success: [
+			`tax-certificate`,
+			`proof-of-account`
+		],
+		Failure: [
+			`tax-certificate`,
+			`proof-of-account`
+		]
 	}
 };
 
