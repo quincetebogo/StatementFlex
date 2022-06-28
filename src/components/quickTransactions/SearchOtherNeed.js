@@ -292,7 +292,7 @@ export class SearchOtherNeed extends Component {
 			return html``;
 		};
 
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		return html`<capitec-loading-indicator data-automation-id="search-other-needs-loading-indicator"></capitec-loading-indicator>`;
 	}
 
 	_renderOtherNeeds() {

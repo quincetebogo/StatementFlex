@@ -364,7 +364,7 @@ export class AssignStopCard extends Component {
 
 	renderLoadingIndicator() {
 		return this.isBusy
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			? html`<capitec-loading-indicator data-automation-id="assing-stop-card-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
 }

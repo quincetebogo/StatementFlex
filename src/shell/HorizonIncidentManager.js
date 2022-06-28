@@ -2,8 +2,10 @@ import { CAUSE_CODE_BY_REASON, CLOSE_REASONS, HORIZON_NEED_STATUS, REASON_RESOLU
 import { Component, View } from 'platform/elements';
 import { Configuration, Logger, SecurityContext } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { STRACK_MAPPING } from 'app/constants/StrackMapping';
+import { SubsequentNeedEvents } from 'app/constants/telemetry/events/SubsequentIncident';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 /**
@@ -36,6 +38,7 @@ export class HorizonIncidentManager {
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
 		this.securityContext = SecurityContext.getInstance();
+		this.telemetry = HorizonTelemetry.getInstance();
 
 		this.incidentService = new IncidentManagementService(null, () => true);
 	}
@@ -183,7 +186,7 @@ export class HorizonIncidentManager {
 	 * @param {Function} toggleBusyFlag - Toggle busy flag function
 	 * @returns {boolean} - true/ false, indicating close incident status
 	 */
-	 async closeIncident({ clientNeed, endCallReason = {} }, toggleBusyFlag) {
+	 async closeIncident({ clientNeed, endCallReason = {}, manualClassification = {} }, toggleBusyFlag) {
 
 		this.incidentService._toggleBusyFlag = toggleBusyFlag;
 		const incidentDetails = this.horizonStore.getIncidentDetails();
@@ -206,9 +209,9 @@ export class HorizonIncidentManager {
 			await this.classifyIncident(toggleBusyFlag);
 		}
 
-		const reason = isNullorEmpty(endCallReason.key) ? CLOSE_REASONS[incidentDetails.needStatus] : endCallReason.key;
-		const resolution = this._getResolution(incidentInfo.resolution, incidentDetails, endCallReason);
-		const causeCode = this._getCauseCode(incidentInfo.causeCode, endCallReason.value || REASON_RESOLUTIONS[reason]);
+		 const reason = isNullorEmpty(endCallReason.key) ? CLOSE_REASONS[incidentDetails.needStatus] : endCallReason.key;
+		 const resolution = this._getResolution(incidentInfo.resolution, incidentDetails, endCallReason, manualClassification);
+		 const causeCode = this._getCauseCode(incidentInfo.causeCode, endCallReason.value || REASON_RESOLUTIONS[reason], manualClassification);
 
 		const closeIncidentRequest = {
 			incidentRecId: incidentDetails.incidentRecId,
@@ -279,10 +282,16 @@ export class HorizonIncidentManager {
 		return incidentInfo.owner.toLocaleLowerCase() !== this.securityContext.username;
 	}
 
-	_getResolution(resolution, incidentDetails, endCallReason) {
+	_getResolution(incResolution, incidentDetails, endCallReason, manualClassification) {
 		const reason = CLOSE_REASONS[incidentDetails.needStatus];
+		let resolution = ``;
 
-		return resolution ? `${resolution}\n${endCallReason.value || REASON_RESOLUTIONS[reason]}` : `${endCallReason.value || REASON_RESOLUTIONS[reason]}`;
+		if (endCallReason.getResolution) {
+			resolution = endCallReason.getResolution(manualClassification.issue);
+		}
+		resolution = resolution || endCallReason.value || REASON_RESOLUTIONS[reason];
+
+		return incResolution ? `${incResolution}\n${resolution}` : `${resolution}`;
 	}
 
 	/**
@@ -290,10 +299,15 @@ export class HorizonIncidentManager {
 	 * 
 	 * @param {String} causeCode - gets value when updated cause-code on STack out side the application 
 	 * @param {String} endCallReason - hold value of selected endcall reason
+	 * @param {String} manualClassification - 3 stepper modal from end call dialog
 	 * @returns { String } - Returns "causeCode" || "causeCodeByReason" || "NormalEnquiry"
 	 */
-	 _getCauseCode(causeCode, endCallReason) {
-		const causeCodeByReason = CAUSE_CODE_BY_REASON[endCallReason] || ``;
+	 _getCauseCode(causeCode, endCallReason, manualClassification) {
+		let causeCodeByReason = ``;
+
+		if (CAUSE_CODE_BY_REASON[endCallReason]) {
+			causeCodeByReason = CAUSE_CODE_BY_REASON[endCallReason][manualClassification.issue] || CAUSE_CODE_BY_REASON[endCallReason];
+		}
 		return causeCode || causeCodeByReason || `NormalEnquiry`;
 	}
 
@@ -348,6 +362,12 @@ export class HorizonIncidentManager {
 		}
 		
 		this.checkIncidentStatus = false;
+		
+		await this.telemetry.logEvent(SubsequentNeedEvents.SUBSEQUENT_INCIDENT, {
+			"parent-incident-reference": incidentDetails.primaryIncidentRef,
+			"child-incident-reference": returnValue.result.incidentNumber,
+			"child-incident-rec-id": returnValue.result.incidentRecId
+		}, true);
 
 		incidentDetails.incidentReferenceNumber = returnValue.result.incidentNumber;
 		incidentDetails.incidentRecId = returnValue.result.incidentRecId;

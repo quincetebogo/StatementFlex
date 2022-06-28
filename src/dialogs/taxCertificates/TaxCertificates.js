@@ -63,6 +63,8 @@ export class TaxCertificatesDialog extends Component {
 		return {
 			cifNumber: { type: String },
 			accountNumber: { type: String },
+			taxCertificateDetails: { type: Object },
+			taxCertType: { type: String, attribute: `type` },
 
 			// Private Properties
 			isBusy: { attribute: false }
@@ -76,7 +78,8 @@ export class TaxCertificatesDialog extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this._loadTaxCertificates();
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		this._initialise();
 	}
 
 	disconnectedCallback() {
@@ -128,8 +131,9 @@ export class TaxCertificatesDialog extends Component {
 			"next-screen": returnValue.succeeded ? OutcomeScreen.SUCCESS : OutcomeScreen.FAIL
 		});
 		
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `tax-certificate`);
+		
 		if (returnValue.succeeded) {
-			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `tax-certificate`);
 			this.horizonRouter.navigateToTaxCertificateSuccessful();
 			return;
 		}
@@ -255,7 +259,7 @@ export class TaxCertificatesDialog extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
-	async _loadTaxCertificates() {
+	async _initialise() {
 		await this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE
 		});
@@ -263,16 +267,6 @@ export class TaxCertificatesDialog extends Component {
 		this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP, {
 				"screen": TelemetryScreen.TAX_CERTIFICATE
 		});
-	
-		const returnValue = await this.quickTransactionService.getTaxCertificate(this.cifNumber, () => true);
-
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Unable to get load tax certificates information`, `_taxCertificates`, returnValue.correlationId);
-			this.horizonRouter.navigateToTaxCertificateServiceError();
-		}
-	
-		this.taxCertificateDetails = returnValue.result;
-		this.requestUpdate();
 	}
 
 	_saveToState(email, selectedCertificates, selectedCertType) {
@@ -414,7 +408,9 @@ export class TaxCertificatesDialog extends Component {
 
 		return html`
 			<capitec-pc-tax-certificate
+				taxCertType="${this.taxCertType}"
 				.taxCertificateDetails="${this.taxCertificateDetails}"
+				registeredEmailId="${this.callerInformation.emailId}"
 				.getTaxCertificatePDFCallback="${(item, type) => this._viewPDF(item, type)}"
 				.getIT3BContentData="${(selectedCertificates) => this._getIT3BContentData(selectedCertificates)}"
 				@send="${e => this._send(e)}"
@@ -427,7 +423,7 @@ export class TaxCertificatesDialog extends Component {
 
 	_renderLoadingIndicator() {
 		return this.isBusy
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			? html`<capitec-loading-indicator data-automation-id="tax-certificate-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
 }

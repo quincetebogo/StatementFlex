@@ -36,7 +36,7 @@ export class IncomingCallDetails {
 		/**
 		 * The agent's extension. Note this is not a full telephone number
 		 */
-		agentTelephoneNumber = ``, 
+		agentTelephoneNumber = ``,
 
 		ivrOptionCode = ``, 
 		ivrOption = { 

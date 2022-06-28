@@ -5,6 +5,12 @@ import 'platform/components/popups/Modal';
 import 'app/components/common/HorizonEmailInput';
 import 'app/components/common/HorizonPDFViewer';
 
+const ERROR_MESSAGE = {
+	EMAIL_REQUIRED: `Complete all fields to continue`,
+	INVALID_EMAIL: `Enter a valid email address`,
+	EMAIL_MISMATCH: `Email address does not match. Enter the correct email address`
+};
+
 /**
  * Dialog for viewing and emailing documents. 
  * 
@@ -23,14 +29,11 @@ export class ViewAndEmailDocuments extends Component {
 
 		this.selectedDocumentToViewIndex = null;
 		this.viewPDF = false;
-		this.modalHeader = `View and send document(s)`;
+		this.emailAccountsList = [];
 		this.email = ``;
-		this.confirmedEmail = ``;
-		this.hasSendBeenClicked = false;
-		this.isEmailInputAddressValid = false;
+		this.confirmEmail = ``;
 		this.encodedPDF = ``;
-		this.loadDocumentContent = null;
-		this.documents = [];
+		this.alertBannerMessage = ``;
 	}
 
 	// ----------
@@ -40,15 +43,9 @@ export class ViewAndEmailDocuments extends Component {
 	/**
 	 * Registry of all properties defined by the component.
 	 * 
-	 * @property {String} modalHeader - Text used in modal header
-	 * @property {Array} documents - Array of documents' details intended to be sent and or viewed
-	 * @property {Number} selectedDocumentToViewIndex - Index into documents array of the document selected to be viewed
-	 * @property {Boolean} viewDPF - Flag used to display PDF viewer
-	 * @property {String} email - Email added to email input field
-	 * @property {String} confirmedEmail - Email added to confirm email input field; must match email input field
-	 * @property {Boolean} isEmailInputAddressValid - Flag used to keep track of whether email input is a valid email address
-	 * @property {Boolean} hasSendBeenClicked - Flag used to keep track of whether send button was clicked and used to enabled error messages on email input
+	 * @property {Array} emailAccountsList - List of selected accounts details to send proof of payment
 	 * @property {String} encodedPDF - Encoded string representation of PDF to be view 
+	 * @property {String} registeredEmailId Client's registered email ID
 	 * 
 	 * @callback loadDocumentContent 
 	 * @returns {encodedPDF} - Specified (by some form of ID) PDF to load
@@ -56,16 +53,14 @@ export class ViewAndEmailDocuments extends Component {
 	 */
 	static get properties() {
 		return {
-			modalHeader: { type: String, state: false },
-			documents: { type: Array, state: false },
-			selectedDocumentToViewIndex: { type: Number, state: false, attribute: false },
-			viewPDF: { type: Boolean, state: false, attribute: false },
-			email: { type: String, state: false, attribute: false },
-			confirmedEmail: { type: String, state: false, attribute: false },
-			isEmailInputAddressValid: { type: Boolean, state: false, attribute: false },
-			hasSendBeenClicked: { type: Boolean, state: false, attribute: false },
+			emailAccountsList: { type: Array },
 			encodedPDF: { type: String },
-			loadDocumentContent: { type: Object }
+			loadDocumentContent: { type: Object },
+			registeredEmailId: { type: String },
+
+			selectedDocumentToViewIndex: { state: false },
+			viewPDF: { state: false },
+			alertBannerMessage: { state: true }
 		};
 	}
 
@@ -84,70 +79,70 @@ export class ViewAndEmailDocuments extends Component {
 	async _onViewDocumentClick(index) {
 		this.selectedDocumentToViewIndex = index;
 		this.viewPDF = true;
-		this.encodedPDF = await this.loadDocumentContent(this.documents[this.selectedDocumentToViewIndex]);
+		this.encodedPDF = await this.loadDocumentContent(this.emailAccountsList[this.selectedDocumentToViewIndex]);
 	}
 
 	async _onNextPDFClick() {
-		this.selectedDocumentToViewIndex += this.selectedDocumentToViewIndex < this.documents.length ? 1 : 0;
-		this.encodedPDF = await this.loadDocumentContent(this.documents[this.selectedDocumentToViewIndex]);
+		this.selectedDocumentToViewIndex += this.selectedDocumentToViewIndex < this.emailAccountsList.length ? 1 : 0;
+		this.encodedPDF = await this.loadDocumentContent(this.emailAccountsList[this.selectedDocumentToViewIndex]);
 		this.requestUpdate();
 	}
 
 	async _onPreviousPDFClick() {
 		this.selectedDocumentToViewIndex -= this.selectedDocumentToViewIndex > 0 ? 1 : 0;
-		this.encodedPDF = await this.loadDocumentContent(this.documents[this.selectedDocumentToViewIndex]);
+		this.encodedPDF = await this.loadDocumentContent(this.emailAccountsList[this.selectedDocumentToViewIndex]);
 		this.requestUpdate();
 	}
 
 	_onSendPDFClick(e) {
-		this.hasSendBeenClicked = true;
-
-		const isEmailInputValid = this._validateEmailAddressInput();
+		const isEmailInputValid = this._validateEmailAddress();
 
 		if (!isEmailInputValid) {
 			return;
 		}
 
-		this.dispatchEvent(new CustomEvent(`send-pdf-click`), {
+		this.dispatchEvent(new CustomEvent(`send-email`, {
 			detail: {
-				documents: this.documents,
-				email: this.confirmedEmail
+				documentData: this.encodedPDF,
+				email: this.confirmEmail
 			}
-		});
+		}));
 	}
 
 	_onCancelSendPDFClick(e) {
-		this.dispatchEvent(new CustomEvent(`cancel-send-pdf-click`), {});
+		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-	_onEmailValueChanged(e) {
+	_clearAlerts() {
+		this.alertBannerMessage = ``;
+	}
+
+	_emailValueChanged(e) {
 		this.email = e.detail.email;
-		this.confirmedEmail = e.detail.confirmEmail;
+		this.confirmEmail = e.detail.confirmEmail;
 
-		if (e.detail.invalidFormat || e.detail.mismatched) {
-			this.isEmailInputAddressValid = false;
-			return;
+		if (e.detail.invalidFormat) {
+			this.alertBannerMessage = ERROR_MESSAGE.INVALID_EMAIL;
+		} else if (e.detail.mismatched) {
+			this.alertBannerMessage = ERROR_MESSAGE.EMAIL_MISMATCH;
 		}
-
-		this.isEmailInputAddressValid = true;
 	}
 
+	_closePDFViewer() {
+		this.viewPDF = false;
+		this.dispatchEvent(new CustomEvent(`close-pdf`, {}));
+	}
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
-	_validateEmailAddressInput() {
-		if (isNullorEmpty(this.email) || isNullorEmpty(this.confirmedEmail)) {
-			return false;
+	_validateEmailAddress() {
+		if (isNullorEmpty(this.email) || isNullorEmpty(this.confirmEmail)) {
+			this.alertBannerMessage = ERROR_MESSAGE.EMAIL_REQUIRED;
 		}
 
-		return this.isEmailInputAddressValid;
+		return isNullorEmpty(this.alertBannerMessage);
 	}
-
-	_clearAlerts() {
-
-	}
-		
 
 	// ---------
 	// RENDERING
@@ -158,9 +153,15 @@ export class ViewAndEmailDocuments extends Component {
 			super.styles,
 			css`
 				capitec-modal {
+					height: auto;
+					--theme-modal-body-padding: 23px 16px;
 					--theme-modal-header-padding-left: 24px;
 					--theme-modal-header-color: #3A3A3A;
+					--theme-modal-footer-padding: 0px;
 					--theme-modal-header-background-color: #F7F7F7;
+				}
+				div[slot="body"] {
+					height: 530px;
 				}
 				capitec-label[label="View Document(s)"] {
 					line-height: 24px;
@@ -204,13 +205,26 @@ export class ViewAndEmailDocuments extends Component {
 					--theme-product-tile-heading-margin-left: 16px;
 					--theme-product-tile-detail-top: 20px;
 					--theme-product-tile-detail-right: 16px;
+					--theme-product-tile-subtitle-font-size: 14px;
 				}
 				.seperator {
 					border: 1px solid #E1E1E1;
-					width: 100%;
+					margin: 10px 0px 12px 0px;
 				}
 				capitec-content-box {
 					height: 200px;
+				}
+				horizon-email-input {
+					--theme-layout-gap-spacing: 0px;
+				}
+				horizon-pdf-viewer {
+					--theme-horizon-pdf-modal-header-width: auto;
+				}
+				.footer {
+					width: 640px;
+					border-radius: 4px;
+					--buttonbar-align: right;
+					--theme-buttonbar-padding: 8px 16px;
 				}
 			`
 		];
@@ -218,40 +232,72 @@ export class ViewAndEmailDocuments extends Component {
 
 	_webTemplate() {
 		return !this.viewPDF ? html`
-			<capitec-modal type="form" header="${this.modalHeader}">
+			<capitec-modal type="form" header="Proof of Payment">
 				<div slot="body">
+					
+					${this._renderAlertBanner()}
 					<horizon-email-input
-						labelOne="Email"
+						labelOne="Enter email address"
 						labelTwo="Confirm Email"
 						email="${this.email}"
-						confirmEmail="${this.confirmedEmail}"
-						?showRequiredError="${this.hasSendBeenClicked}"
-						@value-changed="${(e) => this._onEmailValueChanged(e)}"
+						confirmEmail="${this.confirmEmail}"
+						registeredEmailId="${this.registeredEmailId}"
+						?showRequiredError="${this.alertBannerMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
+						@value-changed="${(e) => this._emailValueChanged(e)}"
 						.callBack="${() => this._clearAlerts()}">
 					</horizon-email-input>
+
 					<hr class="seperator">
+					
 					<capitec-label
 						label="View Document(s)"
 						type="subtitle">
 					</capitec-label>
+					
 					<capitec-content-box layout="vertical" noPadding>
-						${this.documents.map((document, index) => this._renderDocumentTiles(document, index))}
+						${this.emailAccountsList.map((document, index) => this._renderDocumentTiles(document, index))}
 					</capitec-content-box>
 				</div>
-				<capitec-button slot="footer" type="secondary" label="Cancel" @click="${(e) => this._onCancelSendPDFClick(e)}"></capitec-button>
-				<capitec-button slot="footer" type="primary" label="Send" @click="${(e) => this._onSendPDFClick(e)}"></capitec-button>
+				
+					<capitec-button-bar
+						class="footer"
+						slot="footer"
+						layout="horizontal"
+						gap="clear">
+						<capitec-button type="secondary" label="Cancel" @click="${(e) => this._onCancelSendPDFClick(e)}"></capitec-button>
+						<capitec-button type="primary" label="Send" @click="${(e) => this._onSendPDFClick(e)}"></capitec-button>
+					</capitec-button-bar>
+				
 			</capitec-modal>`
 		: html`
 			<horizon-pdf-viewer
-				header="${this.modalHeader}"
+				header="${`${this.emailAccountsList[this.selectedDocumentToViewIndex].title}: Proof of payment`}"
 				encodedPDF="${this.encodedPDF}"
-				totalPages="${this.documents.length}"
+				totalPages="${this.emailAccountsList.length}"
 				currPage="${this.selectedDocumentToViewIndex + 1}"
-				@cancel="${() => this.viewPDF = false}"
+				@cancel="${() => this._closePDFViewer()}"
 				@next="${() => this._onNextPDFClick()}"
 				@previous="${() => this._onPreviousPDFClick()}">
 			</horizon-pdf-viewer>`;
 	}
+
+	_renderAlertBanner() {
+		return this.alertBannerMessage 
+		? html`
+			<capitec-alert-banner type="unsuccessful-red">
+				<capitec-group layout="horizontal">
+					<capitec-label
+						type="subtitle"
+						label="Notify:">
+					</capitec-label>
+					<capitec-label
+						label="${this.alertBannerMessage}">
+					</capitec-label>
+				</capitec-group>
+			</capitec-alert-banner>`
+		: html``;
+	}
+
 
 	_renderDocumentTiles(document, index) {
 		return html`
@@ -277,19 +323,19 @@ window.customElements.define(`horizon-view-and-send-document`, ViewAndEmailDocum
 /**
  * When the send button is clicked.
  * 
- * @example <horizon-view-and-send-document... @send-pdf-click="${this._handler}"></horizon-view-and-send-document>
+ * @example <horizon-view-and-send-document... @send-email="${this._handler}"></horizon-view-and-send-document>
  * 
- * @event ViewAndEmailDocuments#send-pdf-click
+ * @event ViewAndEmailDocuments#send-email
  * @type {Object}
  * @property {Array} documents - List of documents to be sent
  * @property {String} email - Email that the documents will be sent to
  */
 
 /**
- * When the send button is clicked.
+ * When the cancel button is clicked.
  * 
- * @example <horizon-view-and-send-document... @cancel-send-pdf-click="${this._handler}"></horizon-view-and-send-document>
+ * @example <horizon-view-and-send-document... @cancel="${this._handler}"></horizon-view-and-send-document>
  * 
- * @event ViewAndEmailDocuments#cancel-send-pdf-click
+ * @event ViewAndEmailDocuments#cancel
  * @type {Object} - N/A
  */

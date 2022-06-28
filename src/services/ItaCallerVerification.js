@@ -1,3 +1,4 @@
+import { AUTH_CHANNEL_STATUS, AUTH_STATUS } from '../constants/VerifyCaller';
 import { Configuration, Logger } from 'platform/core';
 import { HorizonSignalRClient } from 'app/shell/HorizonSignalRClient';
 import { ITAChannelService } from 'app/services/ITAChannelService';
@@ -165,17 +166,37 @@ export class ItaCallerVerification {
 		throw new Error(`itaVerification channel service call failed`);
 	}
 	
-	async _signalRPostEventAction(verificationStatus) {
-		this.logger.log(`info`, `ITA verification event received. Status=${JSON.stringify(verificationStatus)}`, `_signalRPostEventAction`);
-
-		await this.close();
-
-		if (this._isVerified(verificationStatus)) {
-			this.verificationStatusCallback(`verified`);
-			return;
+	async _signalRPostEventAction(callbackRes) {
+		callbackRes = JSON.parse(callbackRes);
+		this.logger.log(`info`, `ITA verification event received. Status=${JSON.stringify(callbackRes)}`, `_signalRPostEventAction`);
+		const authStatus = callbackRes?.AuthorisationRequestStatus;
+		const [reqChannel] = callbackRes?.AuthorisationRequestChannels;
+		const channelStatus = reqChannel?.ChannelStatus;
+		switch (true) {
+			case this._isApproved(authStatus, channelStatus):
+				this.verificationStatusCallback(`verified`);
+				await this.close();
+				break;
+			
+			case this._isRejected(authStatus, channelStatus):
+				this.verificationStatusCallback(`unverified`);
+				await this.close();
+				break;
+			
+			case this._isFailed(authStatus, channelStatus):
+				this.verificationStatusCallback(`system-failed`);
+				await this.close();
+				break;
+			
+			case this._isPINBlocked(authStatus, channelStatus):
+				this.verificationStatusCallback(`pin-blocked`);
+				await this.close();
+				break;
+			
+			case this._isPending(authStatus):
+			default:
+				break;
 		}
-
-		this.verificationStatusCallback(`unverified`);
 	}
 
 	async _cleanupSignalRConnection() {
@@ -201,6 +222,25 @@ export class ItaCallerVerification {
 		this.logger.log(`info`, `ITA SignalR subscription stopped`, `_stopSignalRConnection`);
 
 		return true;
+	}
+
+	
+	_isApproved(authStatus, channelStatus) {
+		return authStatus === AUTH_STATUS.APPROVED && channelStatus === AUTH_CHANNEL_STATUS.APPROVED;
+	}
+	_isRejected(authStatus, channelStatus) {
+		return authStatus === AUTH_STATUS.DECLINED && 
+			   [AUTH_CHANNEL_STATUS.DECLINED, AUTH_CHANNEL_STATUS.CANCELLED].includes(channelStatus);
+	}
+	_isPending(authStatus) {
+		return authStatus === AUTH_STATUS.PENDING;
+	}
+	_isFailed(authStatus, channelStatus) {
+		return authStatus === AUTH_STATUS.FAILED && 
+			   [AUTH_CHANNEL_STATUS.NOT_DELIVERED, AUTH_CHANNEL_STATUS.TIMEOUT, AUTH_CHANNEL_STATUS.SYSTEM_FAILURE].includes(channelStatus);
+	}
+	_isPINBlocked(authStatus, channelStatus) {
+		return authStatus === AUTH_STATUS.FAILED && channelStatus === AUTH_CHANNEL_STATUS.AUTHENTICATION_FAILURE;
 	}
 
 	_isVerified(verificationStatus) {

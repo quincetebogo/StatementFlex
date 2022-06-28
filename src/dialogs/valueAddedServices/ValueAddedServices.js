@@ -152,7 +152,7 @@ export class ValueAddedServices extends Component {
 
 	_renderLoadingIndicator() {
 		return this.isBusy
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			? html`<capitec-loading-indicator data-automation-id="vas-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
 }
