@@ -3,9 +3,11 @@ import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { LandingPageEvents } from 'app/constants/telemetry/events/LandingPage';
 import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { RoleManager } from 'app/shell/RoleManager';
 import { SavingsAccLandingPage } from 'app/constants/telemetry/events/SavingsAccount';
 
 import 'app/components/common/MiniProfile';
@@ -54,6 +56,7 @@ export class ProfileAndProductSummaryBar extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this._telemetry = HorizonTelemetry.getInstance();
+		this.roleManager = RoleManager.getInstance();
 
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 
@@ -174,6 +177,7 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.product = event.detail.productButton;
 		await this._telemetry.logEvent(LandingPageEvents[`PRODUCT_BUTTON_${this.product}`], {});
+		this._setIncidentDone();
 
 		// Clear return to state before navigation
 		this.horizonStore.clearReturnScreen();
@@ -184,7 +188,7 @@ export class ProfileAndProductSummaryBar extends Component {
 			return;
 		}
 
-		if (this.callerInformation.verificationStatus === `unverified` && (this.product === `LiveBetter` || this.product === `SavingsPlan`)) {
+		if (this.callerInformation.verificationStatus === `unverified` && (this.product === `LiveBetter` || this.product === `SavingsPlan` || this.product === `Credit`)) {
 			this.horizonRouter.navigateToLandingPage(this.product, this.callerInformation.hasInsuranceProducts);
 			return;
 		}
@@ -238,6 +242,15 @@ export class ProfileAndProductSummaryBar extends Component {
 		}
 	}
 
+	_setIncidentDone() {
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		
+		if (Object.values(LANDING_PAGE_NEEDS).includes(incidentDetails.currentNeed)) {
+			incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+			this.horizonStore.setIncidentDetails(incidentDetails);
+		}
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -264,7 +277,8 @@ export class ProfileAndProductSummaryBar extends Component {
 		return html`
 		<section class="left-card">
 			<horizon-mini-profile 
-				.miniProfile="${this.miniProfile}">
+				.miniProfile="${this.miniProfile}"
+				.isHelpDeskAgent="${this.roleManager.isHelpDeskAgent}">
 			</horizon-mini-profile>
 			
 			${this._renderFavourites()}

@@ -85,7 +85,7 @@ export const relatedOptions = {
 	'settlement-quote-access-facility': CREDIT_RO,
 	'settlement-quote-term-loan': CREDIT_RO,
 	'pay-budget-credit-card': CREDIT_RO,
-	'settle-close-credit-card':{
+	'settle-close-credit-card': {
 		Success: [
 			`paid-up-accounts`,
 			`statements`
@@ -105,7 +105,27 @@ export const relatedOptions = {
 			`proof-of-account`
 		]
 	},
-	'statements-save': CREDIT_RO
+	'statements-save': CREDIT_RO,
+	'tax-certificate-save': {
+		Success: [
+			`proof-of-account`,
+			`statements`
+		],
+		Failure: [
+			`proof-of-account`,
+			`statements`
+		]
+	},
+	'paid-up-accounts': {
+		Success: [
+			`tax-certificate`,
+			`proof-of-account`
+		],
+		Failure: [
+			`tax-certificate`,
+			`proof-of-account`
+		]
+	}
 };
 
 /**

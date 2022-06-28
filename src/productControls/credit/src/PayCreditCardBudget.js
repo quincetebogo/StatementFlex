@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { deformatCurrency, formatCurrency } from 'app/productControls/utilities/Currency';
-import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
+import { formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelectIcon';
 
@@ -26,6 +26,8 @@ export class PayCreditCardBudget extends Component {
 		super();
 
 		this.productSelected = {};
+		this.savStatus = false;
+		this.savingAccountsList = [];
 	}
 
 	// ----------
@@ -42,8 +44,9 @@ export class PayCreditCardBudget extends Component {
 		return {
 			budgetAccountDetails: { type: Object },
 			clientProducts: { type: Object },
+			payBudgetfromAccounts: { type: Object },
 			productSelected: { state: true },
-			budgetBalance: { state: true }
+			budgetAmount: { state: true }
 		};
 	}
 
@@ -54,13 +57,16 @@ export class PayCreditCardBudget extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		[this.productSelected] = this.clientProducts;
-		this.budgetBalance = this.budgetAccountDetails.budgetBalance;
-
+		this.budgetAmount = this.budgetAccountDetails.settlementAmount;
+		this.savingAccountsList = this.payBudgetfromAccounts;
 		this._getErrorMessage();
+		this._onLoading();
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+
+		this._onUnLoading();
 	}
 
 	// --------------
@@ -72,7 +78,19 @@ export class PayCreditCardBudget extends Component {
 	}
 
 	_onTransferClick() {
-		this.dispatchEvent(new CustomEvent(`transfer`, {}));
+		if (isNullorEmpty(this.bannerMessage) && isNullorEmpty(this.errorMessage)) {
+			const transferDetails = {
+				budgetName: this.budgetAccountDetails.budgetName,
+				budgetAccountNumber: this.budgetAccountDetails.budgetAccountNumber,
+				fromAccountNumber: this.productSelected.accountNumber,
+				fromAccountType: this.productSelected.accountType,
+				authorisedAmount: this.budgetAmount,
+				budgetSequenceNumber: this.budgetAccountDetails.budgetSequence,
+				productTypeCode: this.budgetAccountDetails.productTypeCode
+			};
+
+			this.dispatchEvent(new CustomEvent(`transfer`, { detail: transferDetails }));
+		}
 	}
 
 	_accountValueChanged(e) {
@@ -83,7 +101,7 @@ export class PayCreditCardBudget extends Component {
 	}
 
 	_budgetValueChange(e) {
-		this.budgetBalance = e.detail.new;
+		this.budgetAmount = e.detail.new;
 		this._getErrorMessage();
 	}
 
@@ -101,26 +119,52 @@ export class PayCreditCardBudget extends Component {
 		
 		this.errorMessage = ``;
 		this.bannerMessage = ``;
+		this.savStatus = false;
 
-		// Entered budget amount exceeds the actual outstanding budget balance
-		if (this.budgetBalance > this.budgetAccountDetails.budgetBalance) {
-			this.bannerMessage = `Transfer amount can not exceeds the badget amount.`;
-			this.errorMessage = `Max amount ${formatCurrency(this.budgetAccountDetails.budgetBalance)}`;
+		// Entered budget amount exceeds the actual settlement amount
+		if (this.budgetAmount > this.budgetAccountDetails.settlementAmount) {
+			this.bannerMessage = `Transfer amount cannot exceed the budget amount.`;
+			this.errorMessage = `Max amount ${formatCurrency(this.budgetAccountDetails.settlementAmount)}`;
 			return;
 		}
 
 		// No account has enough funds to do transfer as entered amount
-		const noFundsInAllAccounts = this.clientProducts.filter(account => deformatCurrency(account.availableBalance) > this.budgetBalance).length === 0;
+		const noFundsInAllAccounts = this.clientProducts.filter(account => deformatCurrency(account.availableBalance) > this.budgetAmount).length === 0;
 		if (noFundsInAllAccounts) {
 			this.bannerMessage = `You do not have enough fund in your account to do the transfer.`;
-			this.errorMessage = `Transafer cannot exceed available balance`;
+			this.errorMessage = `Transfer cannot exceed available balance`;
 			return;
 		}
 
 		// Entered budget amount exceeds the available balance of selected account
-		if (this.budgetBalance > deformatCurrency(this.productSelected.availableBalance)) {
-			this.errorMessage = `Transafer cannot exceed available balance`;
+		if (this.budgetAmount > deformatCurrency(this.productSelected.availableBalance)) {
+			this.errorMessage = `Transfer cannot exceed available balance`;
 		}
+
+		const acc = this.productSelected.accountNumber;
+			let i = 0;
+			while (i < this.savingAccountsList.length) {
+				if (acc == this.savingAccountsList[i].accountNumber && this.savingAccountsList[i].savingsPermissionStatus === `DENIED`)
+				{
+					this.bannerMessage = `The account selected cannot be used to perform this transaction`;
+					this.savStatus = true;
+					this.errorMessage = this.savingAccountsList[i].statusReasonList;
+					return;
+				}
+				i++;
+			}
+
+		if (isNullorEmpty(this.budgetAmount)) {
+			this.errorMessage = `Transfer amount cannot be empty`;
+		}
+	}
+
+	_onLoading() {
+		this.dispatchEvent(new CustomEvent(`on-loading`, {}));
+	}
+
+	_onUnLoading() {
+		this.dispatchEvent(new CustomEvent(`on-unloading`, {}));
 	}
 
 	// ---------
@@ -283,7 +327,8 @@ export class PayCreditCardBudget extends Component {
 				label="Budget amount"
 				type="currency"
 				.error="${this.errorMessage}"
-				value="${this.budgetBalance}"
+				?disabled="${this.savStatus}"
+				value="${this.budgetAmount}"
 				@value-changed="${(e) => this._budgetValueChange(e)}">
 			</capitec-text-field>
 		`;
@@ -339,6 +384,7 @@ export class PayCreditCardBudget extends Component {
 					id="id-transfer-button" 
 					type="primary" 
 					label="Transfer"
+					?disabled="${this.savStatus}"
 					@click="${() => this._onTransferClick()}">
 				</capitec-button>
 			</capitec-group>

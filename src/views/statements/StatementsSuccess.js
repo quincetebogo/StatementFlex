@@ -14,7 +14,7 @@ export class StatementsSuccess extends ViewBase {
 		super();
 
 		this.mailId = ``;
-		this.acNumber = ``;
+		this.accNumber = ``;
 		this.accType = ``;
 		this.endCallContext = `QuickTransactionSuccess`;
 	}
@@ -33,7 +33,7 @@ export class StatementsSuccess extends ViewBase {
 		const screenDetails = this.horizonStore.getScreenDetails();
 
 		this.mailId = screenDetails && screenDetails.emailAddress;
-		this.acNumber = screenDetails && screenDetails.accountNumber;
+		this.accNumber = screenDetails && screenDetails.accountNumber;
 		this.accType = screenDetails && screenDetails.accountType;
 		this.telemetryEvent = screenDetails?.telemetryEvent ?? {};
 
@@ -68,7 +68,7 @@ export class StatementsSuccess extends ViewBase {
 			"screen": TelemetryScreen.STATEMENTS_OUTCOME
 		});
 		await this._telemetry.endSpan(this.telemetryEvent.STATEMENTS_SUCCESS);
-		
+
 		this.horizonRouter.navigateToReturnPage();
 	}
 
@@ -123,7 +123,7 @@ export class StatementsSuccess extends ViewBase {
 					<section 
 						id="id-error-msg" 
 						slot="detail">
-							The statement for ${this.accType} <b>${this.acNumber}</b> was emailed to <b>${this.mailId}</b>
+							The statement for ${this.accType} <b>${this.accNumber}</b> was emailed to <b>${this.mailId}</b>
 					</section>
 			</horizon-success-screen>
 		`;

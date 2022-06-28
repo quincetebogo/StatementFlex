@@ -117,31 +117,31 @@ export class InsureService extends ChannelServiceBase {
 		);
 	}
 
-		/**
-	 * Policy Summary / Policy Details
-	 *
-	 * @param {policyRequest} [errorHandler=null]  Request data containing contract reference & cifnumber
-	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 */
+	/**
+ * Policy Summary / Policy Details
+ *
+ * @param {policyRequest} [errorHandler=null]  Request data containing contract reference & cifnumber
+ * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+ * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+ * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+ */
 	async insurePolicySummary(policyRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-	if (await this.isMockEnabled(`insurePolicySummary`)) {
-		return this.mock(`insurePolicySummary`);
+		if (await this.isMockEnabled(`insurePolicySummary`)) {
+			return this.mock(`insurePolicySummary`);
+		}
+		return this.post(
+			`/horizon-insurance/policy/summary?WithClaims=true`,
+			policyRequest,
+			this.setInsureTokens(),
+			`policysummary`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
-	return this.post(
-		`/horizon-insurance/policy/summary?WithClaims=true`,
-		policyRequest,
-		this.setInsureTokens(),
-		`policysummary`,
-		null,
-		null,
-		900,
-		null,
-		errorHandler,
-		autoRetries
-	);
-}
 
 	/**
 	 * Calculate Estimate / leaving no footprint on OIPA
@@ -245,17 +245,20 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`hasInsuranceProducts`);
 		}
 
-		const url = `/clientcare-insure-${this._version}/landing?` +
-			`IdNumber=${insuranceClientInfo.IdNumber}&` +
-			`Cif=${insuranceClientInfo.CifNumber}&` +
-			`IsCallerVerified=${insuranceClientInfo.isCallerVarified}`;
+		const insuranceClientRequest = {
+			'idNumber': insuranceClientInfo.idNumber,
+			'cif': insuranceClientInfo.cifNumber,
+			'isCallerVerified': insuranceClientInfo.isCallerVerified
+		};
 
-		return this.get(
-			url,
+		return this.post(
+			`/clientcare-insure-${this._version}/landing`,
+			insuranceClientRequest,
 			this.setToken(),
-			`hasInsuranceProducts`,
+			`addNonClientDetails`,
 			null,
-			1000,
+			null,
+			900,
 			null,
 			errorHandler,
 			autoRetries
@@ -305,29 +308,29 @@ export class InsureService extends ChannelServiceBase {
 		);
 	}
 
-		/**
-	 * Get Policy Transaction History
-	 *
-	 * @param {transactionsRequest} [errorHandler=null]  Request data for policy transactions 
-	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 */
-		 async getPolicyTransactions(transactionsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-			if (await this.isMockEnabled(`insurePolicyTransactionHistory`)) {
-				return this.mock(`policyTransactionHistory`, transactionsRequest);
-			}
-			return this.post(
-				`/horizon-insurance/policy/transactions`,
-				transactionsRequest,
-				this.setInsureTokens(),
-				`getPolicyTransactions`,
-				null,
-				null,
-				900,
-				null,
-				errorHandler,
-				autoRetries
-			);
+	/**
+ * Get Policy Transaction History
+ *
+ * @param {transactionsRequest} [errorHandler=null]  Request data for policy transactions 
+ * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+ * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+ * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+ */
+	async getPolicyTransactions(transactionsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insurePolicyTransactionHistory`)) {
+			return this.mock(`policyTransactionHistory`, transactionsRequest);
 		}
+		return this.post(
+			`/horizon-insurance/policy/transactions`,
+			transactionsRequest,
+			this.setInsureTokens(),
+			`getPolicyTransactions`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 }

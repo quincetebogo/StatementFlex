@@ -1,7 +1,8 @@
+import { ACCOUNT_INTCAT_ENUM, ERRORS, NOTIFICATION_MESSAGE, PERIOD_TYPE, RANGE_SELECTOR, RENDER_MODE, STATEMENTS_STEPS, TIME_PERIOD } from 'app/constants/Statements';
+import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE } from 'app/constants/Common';
 import { Component, css, html, unsafeCSS } from 'platform/elements';
-import { ERRORS, NOTIFICATION_MESSAGE, PERIOD_TYPE, RANGE_SELECTOR, RENDER_MODE, STATEMENTS_STEPS, TIME_PERIOD } from 'app/constants/Statements';
+
 import { calculateDays, formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'platform/components/popups/Modal';
@@ -70,6 +71,7 @@ export class StatementsDialog extends Component {
 	/**
 	 * @property {Array} clientProducts Contains list of products that the client has.
 	 * @property {string} type Contains the type of account
+	 * @property {string} registeredEmailId Client's registered email ID
 	 * @readonly
 	 * @static
 	 * @memberof StatementsDialog
@@ -80,6 +82,7 @@ export class StatementsDialog extends Component {
 			accountType: { type: String, attribute: `type` },
 			viewStatement: { type: Object },
 			sendStatement: { type: Object },
+			registeredEmailId: { type: String },
 
 			alertBannerMessage: { state: true },
 			currentStep: { state: true },
@@ -558,18 +561,14 @@ export class StatementsDialog extends Component {
 					--theme-layout-gap-spacing: 0px;
 				}
 				.footer {
-					width: var(--horizon-statements-modal-footer-width, 960px);
-					
-					--theme-container-padding-left: 16px;
-					--theme-container-padding-top: 16px;
-					--theme-container-padding-right: 16px;
-					--theme-container-padding-bottom: 16px;
+					--theme-buttonbar-padding: 8px 16px;
+					border-radius: 4px;
 				}
 				.footer > capitec-button {
 					height: 48px;
 				}
 				.m-r-0 {
-					margin-right: 0px;
+					margin-left: 6px;
 				}
 				.view-document {
 					--theme-product-tile-heading-margin-left: 16px;
@@ -595,8 +594,7 @@ export class StatementsDialog extends Component {
 				.seperator {
 					width: 928px;
 					border: 1px solid #E1E1E1;
-					margin-bottom: 30px;
-					margin-top: 30px;
+					margin: 10px 0px 30px 0px;
 				}
 				capitec-date-time-picker.calendar {
 					height: auto;
@@ -680,6 +678,13 @@ export class StatementsDialog extends Component {
 						data-automation-id="statements-dialog-alert-message"
 						type="unsuccessful-red">
 							<p><b>Notify:</b> ${this.errorMessage}</p>
+					</capitec-alert-banner>`;
+			case this.productSelected.type === ACCOUNT_INTCAT_ENUM[ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN].type:
+				return html`
+					<capitec-alert-banner
+						data-automation-id="statements-dialog-alert-message"
+						type="warning">
+							<p><b>Notify client:</b>${NOTIFICATION_MESSAGE.FLEXIBLE_SAVINGS_FEE}</p>
 					</capitec-alert-banner>`;
 			case this.productSelected.category === ACCOUNT_TYPES.CREDIT:
 				return html`
@@ -904,6 +909,7 @@ export class StatementsDialog extends Component {
 				labelTwo="${this.confirmEmailLabel}"
 				email="${this.email}"
 				confirmEmail="${this.confirmEmail}"
+				registeredEmailId="${this.registeredEmailId}"
 				?showRequiredError="${this.errorMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
 				.callBack="${() => this._clearAlerts()}"
 				@value-changed="${(e) => this._emailValueChanged(e)}">
@@ -971,12 +977,10 @@ export class StatementsDialog extends Component {
 
 	_renderFooter() {
 		return html`
-			<capitec-content-box
+			<capitec-button-bar 
 				class="footer"
 				layout="horizontal"
-				gap="clear"
-				halign="left"
-				valign="center">
+				gap="clear">
 					<capitec-button
 						data-automation-id="statements-dialog-back"
 						type="clear"
@@ -987,7 +991,7 @@ export class StatementsDialog extends Component {
 					<capitec-spacer></capitec-spacer>
 					<capitec-button
 						data-automation-id="statements-dialog-cancel"
-						type="clear"
+						type="secondary"
 						label="Cancel"
 						@click="${() => this._cancel()}"
 						?hidden="${this.renderMode === RENDER_MODE.PDF}">
@@ -1016,7 +1020,7 @@ export class StatementsDialog extends Component {
 						@click="${() => this._close()}"
 						?hidden="${this.renderMode !== RENDER_MODE.PDF}">
 					</capitec-button>
-			</capitec-content-box>
+			</capitec-button-bar>
 		`;
 	}
 

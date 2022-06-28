@@ -1,8 +1,8 @@
+import { ACCOUNT_TYPES, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { STATEMENT_EVENTS, SavingsAccLandingPage, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/SavingsAccount';
 import { css, html, unsafeCSS } from 'platform/elements';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
-import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
@@ -118,13 +118,18 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	// PUBLIC METHODS
 	// --------------
 
-	_exitTransactionHistory() {
+	async _exitTransactionHistory() {
+		await super.classifyIncident(() => this._toggleBusyFlag());
+
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_unloadTransactionHistory() {
+	async _unloadTransactionHistory() {
 		this.endCallContext = `LandingPage`;
 		this.transactionHistory = [];
+
+		await super.classifyIncident(() => this._toggleBusyFlag());
+		
 		this._setIncidentDone();
 	}
 	
@@ -149,6 +154,9 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			 
 			if (returnValue.succeeded) {
 				this.landingPageInfo = returnValue.result;
+		
+				await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
+				await super.createAndClassifySubsIncident(null, false);
 
 				// Now we can update the information on the product buttons
 				this._updateLeftBar();
@@ -175,7 +183,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.TRANSACTION_HISTORY
 		});
 
-		await super.createAndClassifySubsIncident();
+		await super.createAndClassifySubsIncident(null, false);
 		await this._getTransactionHistory();
 	}
 
