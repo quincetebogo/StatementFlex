@@ -65,7 +65,8 @@ export class ProofOfAccount extends Component {
 	// --------------
 
 	/**
-	 * @param {Object} landingPageInfo Favourites landing page info
+	 * @param {Object} accountNumber Primary savings account number
+	 * @param {Object} accountOpenedDate Primary savings account open date
 	 * @property {string} cifNumber The client's CIF number
 	 * @property {string} title client's title (Mr/ Mrs)
 	 * @property {string} lastName client's last name
@@ -73,7 +74,8 @@ export class ProofOfAccount extends Component {
 	 */
 	static get properties() {
 		return {
-			landingPageInfo: { type: Object },
+			accountNumber: { type: String },
+			accountOpenedDate: { type: String },
 			cifNumber: { type: String },
 			lastName: { type: String },
 			title: { 
@@ -128,8 +130,8 @@ export class ProofOfAccount extends Component {
 
 			const clientInfo = {
 				"cifNumber": this.cifNumber,
-				"accountNumber": this.landingPageInfo.accountNumber,
-				"accountOpenedDate": this._formatDate(this.landingPageInfo.accountOpenedDate),
+				"accountNumber": this.accountNumber,
+				"accountOpenedDate": this._formatDate(this.accountOpenedDate),
 				"emailAddress": this.idEmailAddress,
 				"accountType": ACCOUNT_TYPE,
 				"title": this.title,
@@ -219,7 +221,7 @@ export class ProofOfAccount extends Component {
 		const screenDetails = this.horizonStore.getScreenDetails();
 
 		screenDetails.emailAddress = this.idEmailAddress;
-		screenDetails.accountNumber = this.landingPageInfo.accountNumber;
+		screenDetails.accountNumber = this.accountNumber;
 		
 		this.horizonStore.setScreenDetails(screenDetails);
 	}
