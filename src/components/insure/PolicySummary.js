@@ -326,7 +326,7 @@ class PolicySummary extends Component {
 	 */
 	_renderOptions() {
 		const paymentSchedule = this.policyDetails?.paymentSchedule;
-		const csvOfMonths = this.policyDetails?.arrearDetails?.arrears.map((item) => { return formatDate(item.dueDate,  `dd mmm yyyy`); }).join(", ");
+		const csvOfMonths = this.policyDetails?.arrearDetails?.arrears?.map((item) => { return formatDate(item.dueDate,  `dd mmm yyyy`); }).join(", ");
 		const activeBankAccountNo = this.policyDetails?.deductionDetails?.bankDetails?.accountNumber;
 
 		const activeMandateDetails = this.policyDetails?.mandates?.filter(x => x.accountNumber === activeBankAccountNo);

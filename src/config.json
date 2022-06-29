@@ -195,12 +195,12 @@
 			"positiveCase": true
 		},
 		"insureClientPolicies": {
-			"enabled": true,
-			"positiveCase": true
+			"enabled": false,
+			"positiveCase": false
 		},
 		"insureProductParams": {
-			"enabled": true,
-			"positiveCase": true
+			"enabled": false,
+			"positiveCase": false
 		},
 		"insureCalculateQuote": {
 			"enabled": true,
@@ -227,8 +227,8 @@
 			"positiveCase": true
 		},
 		"insurePolicySummary": {
-			"enabled":true,
-			"positiveCase": true
+			"enabled":false,
+			"positiveCase": false
 		},
 		"budgetTransferFromAccounts": {
 			"enabled": false,
