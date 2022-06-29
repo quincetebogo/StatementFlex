@@ -297,7 +297,7 @@ class PolicySummary extends Component {
 						data-automation-id="insure-main-life-arrears"
 						label="Arrears"
 						class="${ sumArrears > 0 ? `arrears` : ``}"
-						value="${formatCurrency(sumArrears)}">
+						value="${ isNullorEmpty(sumArrears) ? formatCurrency(0) : formatCurrency(sumArrears)}">
 					</horizon-label>
 					<horizon-label
 						data-automation-id="insure-main-life-display-status"
