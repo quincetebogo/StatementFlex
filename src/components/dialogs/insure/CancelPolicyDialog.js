@@ -27,6 +27,7 @@ class CancelPolicyDialog extends Component {
 		this.selected = false;
 		this.checked = false;
 		this.cancelReason = '';
+		this.contractReference = '';
 	}
 
 	//#endregion
@@ -36,7 +37,8 @@ class CancelPolicyDialog extends Component {
 	 static get properties() {
 		return {
 			selected: {type: Boolean, state: true},
-			checked: {type: Boolean, state: true}
+			checked: {type: Boolean, state: true},
+			contractReference: {type: Object, state: true}
 		};
 	}
 
@@ -149,7 +151,7 @@ class CancelPolicyDialog extends Component {
 	 */
 	 _webTemplate() {
 		return html`
-			<capitec-modal type="form" header="Cancel Funeral Cover Plan (CF00027650)">
+			<capitec-modal type="form" header="Cancel Funeral Cover Plan (${this.contractReference})">
 				<div slot="body" data-automation-id="insure-cancel-policy-dialog-body">
 					${this._renderDialogBody()}
 				</div>

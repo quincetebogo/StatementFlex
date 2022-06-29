@@ -74,6 +74,7 @@ class ClientPolicies extends Component {
 			showPayPremiumConfirmationDialog: {type: Boolean, state: true},
 			showPayPremiumAgreementDialog: {type: Boolean, state: true},
 			amountToPay: {type: Number, state: true},
+			contractRef: {type: Object, state: true},
 
 			clientPolicies: { type: Object, state: true },
 			policyDetails: { type: Object, state: true }
@@ -185,8 +186,10 @@ class ClientPolicies extends Component {
 	/**
 	 * event to open the cancel policy confirmation dialog
 	 */
-	_openCancelPolicyConfirmationDialog(){
+	_openCancelPolicyConfirmationDialog(contractReference){
 		this.showCancelPolicyConfirmationDialog = true;
+
+		this.contractRef = contractReference
 	}
 
 	/**
@@ -688,7 +691,7 @@ class ClientPolicies extends Component {
 		<capitec-card class="action-card">
 			<capitec-overflow-menu label="More" data-automation-id = "insure-policy-more-sub-menu">
 				<capitec-overflow-menu-item icon="system/transfer-action" label="Transaction history" @click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
-				<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan" @click=" ${() => this._openCancelPolicyConfirmationDialog()}"></capitec-overflow-menu-item>
+				<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan" @click=" ${() => this._openCancelPolicyConfirmationDialog(policyItem.contractReference)}"></capitec-overflow-menu-item>
 				${policyItem.arrearDetails.outstandingAmount > 0 ?
 					html `<capitec-overflow-menu-item icon="system/sars-action" label="Benefits"></capitec-overflow-menu-item>`
 					: ``}
@@ -755,7 +758,7 @@ _renderCancelPolicyDialog(){
 		return this.showCancelPolicyDialog == false ? `` 
 		: html`
 		<insure-cancel-policy-dialog @close-modal="${(e) => this.showCancelPolicyDialog = false}"
-		@agree="${(e) => this._goToCancelPolicySuccess()}">
+		@agree="${(e) => this._goToCancelPolicySuccess()}" .contractReference = ${this.contractRef}>
 		</insure-cancel-policy-dialog>
 		`
 	}
