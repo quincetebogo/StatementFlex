@@ -109,7 +109,7 @@ class PayPremiumAgreementDialog extends Component {
 	 */
 	 _webTemplate() {
 		return html`
-			<capitec-modal type="form" header="Pay Arrears Agreement (${this.contractReference4})">
+			<capitec-modal type="form" header="Pay Arrears Agreement (${this.contractReference})">
 				<div slot="body" data-automation-id="insure-pay-premium-agreement-dialog-body">
 					${this._renderDialogBody()}
 				</div>
