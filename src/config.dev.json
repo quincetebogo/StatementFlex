@@ -95,6 +95,10 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"verifyKBA": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"debiCheckMandates": {
 			"enabled": false,
 			"positiveCase": true
@@ -137,11 +141,11 @@
 			"positiveCase": true
 		},
 		"insureClientPolicies": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureProductParams": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"budgetTransferFromAccounts": {
@@ -150,6 +154,14 @@
 		},
 		"confirmBudgetTransfer": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"insurePolicyTransactionHistory": {
+			"enabled": false,
+			"positiveCase": true
+		},	
+		"insurePolicySummary": {
+			"enabled":false,
 			"positiveCase": true
 		}
 	},
