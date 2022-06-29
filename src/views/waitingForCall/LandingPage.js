@@ -217,7 +217,7 @@ export class LandingPage extends ViewBase {
 
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
-
+		
 		const state = {
 			callStatus: `CALL-IN-PROGRESS`,
 			canCloseIncident: true

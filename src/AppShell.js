@@ -136,9 +136,6 @@ export class AppShell extends Shell {
 		// Put your logic here to execute post login success,
 		// for example loading application data.
 
-
-		this.roles = this._securityContext.roles !== null && Array.isArray(this._securityContext.roles) ? this._securityContext.roles.join(`, `) : `n/a`;
-
 		this.platformVersion = await this._executionContext.platformVersion;
 		this.applicationName = await this._executionContext.applicationName;
 		this.applicationVersion = await this._executionContext.applicationVersion;
@@ -394,7 +391,8 @@ export class AppShell extends Shell {
 					currentMessage="${this.currentMessage}"
 					sblLink="${this.sblUrl}"
 					cdsLink="${this.cdsUrl}"
-					cnetLink="${this.cnetUrl}">
+					cnetLink="${this.cnetUrl}"
+					appVersion="${this.applicationVersion}">
 				</horizon-statusbar>
 			</div>`;
 	}

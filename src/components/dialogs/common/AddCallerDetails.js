@@ -242,11 +242,11 @@ export class AddCallerDetails extends Component {
 			"next-screen": TelemetryScreen.END_CALL
 		});
 
-		this.callerInformation.nonClientFirstName = this.firstNameTextField;
-		this.callerInformation.nonClientSurName = this.surnameTextField;
-		this.callerInformation.nonClientCellPhone = this.cellPhoneTextField;
-		this.callerInformation.is3rdParty = true;
-		this.callerInformation.isNonClient = false;
+        this.callerInformation.nonClientFirstName = this.firstNameTextField;
+        this.callerInformation.nonClientSurName = this.surnameTextField;
+        this.callerInformation.nonClientCellPhone = this.cellPhoneTextField;
+        this.callerInformation.is3rdParty = true;
+        this.callerInformation.isNonClient = false;
 
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
@@ -485,7 +485,7 @@ export class AddCallerDetails extends Component {
 			<horizon-end-call-session 
 				.incomingCallDetails = "${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
-				.callerInformation="${this.callerInformation}"
+                .callerInformation="${this.callerInformation}"
 				endCallContext="ConfirmClient"
 				@cancel="${() => this.renderMode = RENDER_MODE.ADD_CALLER}">
 			</horizon-end-call-session>`;

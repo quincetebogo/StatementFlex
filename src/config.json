@@ -67,11 +67,11 @@
 	"mock": {
 		"enabled": true,
 		"acceptCall": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"identifyCaller": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
@@ -109,7 +109,7 @@
 		},
 		"verifyKBA": {
 			"enabled": true,
-			"positiveCase": false
+			"positiveCase": true
 		},
 		"debiCheckMandates": {
 			"enabled": false,
@@ -222,6 +222,18 @@
 		"loadKBA": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"settleAndCloseQuote": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"creditPermissions": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"emailPaidUpLetter": {
+			"enabled": false,
+			"positiveCase": false
 		}
 	},
 	"searchClientOptionEnabled": true
