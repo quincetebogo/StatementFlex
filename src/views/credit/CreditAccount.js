@@ -394,14 +394,14 @@ export class CreditAccount extends ViewBase {
 	_getSECTransferDetails(item) {
 		for (let i = 0; i < this.settleAndCloseQuote.savingAccountsList.length; i++) {
 			const savAcc = this.settleAndCloseQuote.savingAccountsList[i];
-			if (savAcc.accountNumber === item) {
+			if (Number(savAcc.accountNumber) === item) {
 				return i;
 			}
 		}
 	}
 
 	_getSavingsAccType(code) {
-		if (code === 300) {
+		if (Number(code) === 300) {
 			return `Primary`;
 		} 
 			return `Flexible`;
