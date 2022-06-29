@@ -456,7 +456,7 @@ export class SearchCaller extends Component {
 			"next-screen": TelemetryScreen.END_CALL
 		});
 
-        this._initCallerInformation();
+		this._initCallerInformation();
 
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
@@ -622,16 +622,16 @@ export class SearchCaller extends Component {
 			title: identifiedClient.callerInformation.title,
 			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber,
 			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber,
-            isBranchConsultant: false,
-            firstName: identifiedClient.callerInformation.firstName,
-            middleName1: identifiedClient.callerInformation.middleName1,
-            middleName2: identifiedClient.callerInformation.middleName2,
-            middleName3: identifiedClient.callerInformation.middleName3,
-            lastName: identifiedClient.callerInformation.lastName,
-            initials: identifiedClient.callerInformation.initials,
-			      identifiedBy: this.searchType.identificationType,
-      			isClientVerifiedInBranch: this.isClientVerifiedInBranch,
-      			profilePhoto: identifiedClient.callerInformation.profilePhoto     
+			isBranchConsultant: false,
+			firstName: identifiedClient.callerInformation.firstName,
+			middleName1: identifiedClient.callerInformation.middleName1,
+			middleName2: identifiedClient.callerInformation.middleName2,
+			middleName3: identifiedClient.callerInformation.middleName3,
+			lastName: identifiedClient.callerInformation.lastName,
+			initials: identifiedClient.callerInformation.initials,
+				  identifiedBy: this.searchType.identificationType,
+	  			isClientVerifiedInBranch: this.isClientVerifiedInBranch,
+	  			profilePhoto: identifiedClient.callerInformation.profilePhoto     
 		};
 
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
@@ -699,46 +699,49 @@ export class SearchCaller extends Component {
 		return null;
 	}
 
-    _initCallerInformation() {
-        // This is the callerInformation object that will be persisted to state when caller is confirmed.
-        this.callerInformation = new CallerInformation(
-            ``, // cif
-            ``, // birthdate
-            ``, // languagePreference
-            ``, // livesIn
-            ``, // name
-            ``, // title
-            ``, // SA id
-            ``, // verified number
-            this.nameValue, // nonclient firstname
-            this.surNameValue, // nonclient surname
-            `${this.nameValue} ${this.surNameValue}`, // nonclient fullname
-            this.cellPhoneNumberValue, // nonclient cellphone
-            ``, // nonclient ID number
-            ``, // nonclient relationship
-            false, // isConfirmed
+	_initCallerInformation() {
+		// This is the callerInformation object that will be persisted to state when caller is confirmed.
+		this.callerInformation = new CallerInformation(
+			``, // cif
+			``, // birthdate
+			``, // languagePreference
+			``, // livesIn
+			``, // name
+			``, // title
+			``, // SA id
+			``, // verified number
+			this.nameValue, // nonclient firstname
+			this.surNameValue, // nonclient surname
+			`${this.nameValue} ${this.surNameValue}`, // nonclient fullname
+			this.cellPhoneNumberValue, // nonclient cellphone
+			``, // nonclient ID number
+			``, // nonclient relationship
+			false, // isConfirmed
 			this.isClientVerifiedInBranch ? `verified` : `unverified`, // verificationStatus
-            false, // verificationToastDisplayed
-            false, // isThirdParty
-            this.clientType === CLIENT_TYPE.NON_CLIENT, // isNonClient
-            false, // hasInsuranceProducts
-            false, // hasDigitalChannels
-            {
-                itaAttempts: 0,
-                sqAttempts: 0
-            },
-            this.clientType === CLIENT_TYPE.BRANCH, // isBranchConsultant
-            this.clientInBranch, // isClientPresent
-            this.isClientVerifiedInBranch ? `ITA` : ``,
+			false, // verificationToastDisplayed
+			false, // isThirdParty
+			this.clientType === CLIENT_TYPE.NON_CLIENT, // isNonClient
+			false, // hasInsuranceProducts
+			false, // hasDigitalChannels
+			{
+				itaAttempts: 0,
+				sqAttempts: 0
+			},
+			this.clientType === CLIENT_TYPE.BRANCH, // isBranchConsultant
+			this.clientInBranch, // isClientPresent
+			this.isClientVerifiedInBranch ? `ITA` : ``,
 			``, // firstName
 			``, // middleName1
 			``, // middleName2
 			``, // middleName3
 			``, // lastName
 			``, // initials
-			`` // identifiedBy
-        );
-    }
+			``, // identifiedBy
+			``, // validated email address
+			``, // profilePhoto
+	
+		);
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -1138,7 +1141,7 @@ export class SearchCaller extends Component {
 			<horizon-end-call-session 
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
-                .callerInformation="${this.callerInformation}"
+				.callerInformation="${this.callerInformation}"
 				endCallContext="ConfirmClient"
 				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}">
 			</horizon-end-call-session>`;
