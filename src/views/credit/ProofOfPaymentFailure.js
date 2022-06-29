@@ -83,7 +83,7 @@ export class ProofOfPaymentFailure extends ViewBase {
 		});
 		this._telemetry.endSpan(this.popTelemetryEvents.POP_FAILURE);
 		
-		// TODO: Navigation to be wired up here.
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	loadTelemetryEvents() {
