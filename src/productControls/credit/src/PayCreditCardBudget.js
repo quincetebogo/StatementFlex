@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { deformatCurrency, formatCurrency } from 'app/productControls/utilities/Currency';
+import { deformatCurrency, formatCurrency, formatTextFieldCurrency } from 'app/productControls/utilities/Currency';
 import { formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelectIcon';
@@ -328,7 +328,7 @@ export class PayCreditCardBudget extends Component {
 				type="currency"
 				.error="${this.errorMessage}"
 				?disabled="${this.savStatus}"
-				value="${this.budgetAmount}"
+				value="${formatTextFieldCurrency(this.budgetAmount)}"
 				@value-changed="${(e) => this._budgetValueChange(e)}">
 			</capitec-text-field>
 		`;
