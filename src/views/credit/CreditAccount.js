@@ -368,8 +368,8 @@ export class CreditAccount extends ViewBase {
 				idNumber: this.callerInformation.southAfricanIDNumber
 		};
 	
-		// const returnValue = await this.creditService.settleAndClose(settleAndClose);
-		const returnValue = {succeeded: false}
+		const returnValue = await this.creditService.settleAndClose(settleAndClose);
+
 		await this._settleAndCloseConfirmTelemetry(returnValue.succeeded, this.settleAndCloseQuote.savingAccountsList[selectedAccountIndex].accountNumber, this.settleAndCloseQuote.accountNumber);
 		
 		const screenDetails = this.horizonStore.getScreenDetails();
@@ -381,8 +381,8 @@ export class CreditAccount extends ViewBase {
 
 		if (returnValue.succeeded) {
 			
-			// this.settleAndCloseDocument = returnValue.result.documentData;
-			// screenDetails.settleAndCloseDocumentData = this.settleAndCloseDocument;
+			this.settleAndCloseDocument = returnValue.result.documentData;
+			screenDetails.settleAndCloseDocumentData = this.settleAndCloseDocument;
 			
 			this.horizonStore.setReturnScreen(this.navigationContext.current.route, this.incidentDetails.currentNeed);
 			this.horizonStore.setScreenDetails(screenDetails);
