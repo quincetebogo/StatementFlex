@@ -38,7 +38,8 @@ class CancelPolicyDialog extends Component {
 		return {
 			selected: {type: Boolean, state: true},
 			checked: {type: Boolean, state: true},
-			contractReference: {type: Object, state: true}
+			contractReference: {type: String, state: true},
+			cancelReason: {type: String, state: true},
 		};
 	}
 
@@ -62,7 +63,7 @@ class CancelPolicyDialog extends Component {
 	 * agree event from dialog footer button, closes modal and navigates to cancel policy success page
 	 */
 	_onAgreeClick() {
-		this.dispatchEvent(new CustomEvent(`agree`, {detail: {cancelationReason: this.cancelReason }}));
+		this.dispatchEvent(new CustomEvent(`agree`, {detail: {cancellationReason: this.cancelReason }}));
 	}
 
 	/**

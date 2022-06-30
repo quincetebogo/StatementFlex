@@ -31,7 +31,8 @@ class EmailPlanSuccess extends Component {
 	 */
 	static get properties() {
 		return {
-			showSuccessAlert: {type: Boolean, state: true}
+			showSuccessAlert: {type: Boolean, state: true},
+			contractReference: {type: String, state: true}
 		};
 	}
 
@@ -151,7 +152,7 @@ class EmailPlanSuccess extends Component {
 					<capitec-image src="platform/illustrations/application.svg"
 						style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
 					<label id="temp-container-label">The policy has been successfully cancelled</label>
-						<capitec-label class="spacing" type="subtitle" label="Your Cancellation Agreement document for policy number CF00027650 has been emailed to something@gmail.com"></capitec-label>
+						<capitec-label class="spacing" type="subtitle" label="Your Cancellation Agreement document for policy number ${this.contractReference} has been emailed to something@gmail.com"></capitec-label>
 					<capitec-button class="buttons" label="Done" type="primary" @click="${() => this._onDoneClick()}"
 						data-automation-id="insure-email-plan-success-done">
 					</capitec-button>

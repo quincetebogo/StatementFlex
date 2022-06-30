@@ -235,6 +235,52 @@ export class InsureService extends ChannelServiceBase {
 		);
 	}
 
+	/**
+	 * cancel policy
+	 *
+	 * @param {cancelPolicyRequest} [errorHandler=null]  Request data to Cancel Policy
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	 async cancelPolicy(cancelPolicyRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.post(
+			`/horizon-insurance/policy/cancel`,
+			cancelPolicyRequest,
+			this.setInsureTokens(),
+			`cancelPolicy`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * generate document 802 (Cancel Policy Agreement)
+	 *
+	 * @param {GenerateCancelAgreementRequest} [errorHandler=null]  Request data to generate Cancel Policy Agreement
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	 async cancelPolicyAgreement(GenerateCancelAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.post(
+			`/horizon-insurance/policy/cancel`,
+			GenerateCancelAgreementRequest,
+			this.setInsureTokens(),
+			`cancelPolicyAgreement`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
 	//#endregion
 
 

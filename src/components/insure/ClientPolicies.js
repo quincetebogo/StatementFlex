@@ -74,7 +74,7 @@ class ClientPolicies extends Component {
 			showPayPremiumConfirmationDialog: {type: Boolean, state: true},
 			showPayPremiumAgreementDialog: {type: Boolean, state: true},
 			amountToPay: {type: Number, state: true},
-			contractRef: {type: Object, state: true},
+			contractRef: {type: String, state: true},
 
 			clientPolicies: { type: Object, state: true },
 			policyDetails: { type: Object, state: true }
@@ -150,9 +150,9 @@ class ClientPolicies extends Component {
 	/**
 	 * Fire navigate event to Cancel Policy Success
 	 */
-	 _goToCancelPolicySuccess() {
+	 _goToCancelPolicySuccess(e) {
 		this.dispatchEvent(new CustomEvent(`navigate-to-cancel-policy-success`, {
-			detail: {
+			detail: { contractReference: this.contractRef, cancellationReason: e.detail.cancellationReason
 			}
 		}));
 	}
@@ -758,7 +758,7 @@ _renderCancelPolicyDialog(){
 		return this.showCancelPolicyDialog == false ? `` 
 		: html`
 		<insure-cancel-policy-dialog @close-modal="${(e) => this.showCancelPolicyDialog = false}"
-		@agree="${(e) => this._goToCancelPolicySuccess()}" .contractReference = ${this.contractRef}>
+		@agree="${(e) => this._goToCancelPolicySuccess(e)}" .contractReference = ${this.contractRef}>
 		</insure-cancel-policy-dialog>
 		`
 	}

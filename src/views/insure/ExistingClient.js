@@ -184,6 +184,31 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
+	 * Cancel Policy
+	 * @returns {Object} 
+	 */
+	 async _cancelPolicy(e) {
+		let cancelPolicyDetails = {};
+		cancelPolicyDetails.contractReference = e.detail.contractReference;
+		cancelPolicyDetails.cifNumber = this.callerInformation.cifNumber;
+		cancelPolicyDetails.idNumber = this.callerInformation.southAfricanIDNumber;
+		cancelPolicyDetails.cancellationReason = e.detail.cancellationReason;
+		cancelPolicyDetails.documents = [];
+		console.log(cancelPolicyDetails)
+		// cancelPolicyDetails.documents.documentCode= ;
+		// cancelPolicyDetails.documents.documentName = ;
+		// cancelPolicyDetails.documents.guid = ;
+
+		const resp = await this.insureService.cancelPolicy(cancelPolicyDetails, () => true);
+		if (resp.succeeded == true && resp.result != null) {
+			this._goToCancelPolicySuccess(e)
+		} else {
+			// Do error message
+			return null;
+		}
+	}
+
+	/**
 	 * Navigate so specific subview
  	*/
 	_navigateToSubView(newMode) {
@@ -235,8 +260,9 @@ export class ExistingClient extends InsureViewBase {
 	/**
 	 * Prepare and navigate Cancel Policy Success
 	 */
-	 _goToCancelPolicySuccess() {
+	 _goToCancelPolicySuccess(e) {
 		// Telemetry Here
+		this.contractReference = e.detail.contractReference;
 		this._navigateToSubView(INSURE_RENDER_MODE.CANCEL_POLICY_SUCCESS);
 	}
 
@@ -258,6 +284,7 @@ export class ExistingClient extends InsureViewBase {
 
 		// Telemetry Here
 
+		
 		this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
 	}
 	//#endregion
@@ -406,7 +433,7 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-pay-premium-success ="${(e) => this._goToPayPremiumSuccess()}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
-				@navigate-to-cancel-policy-success="${(e) => this._goToCancelPolicySuccess()}">
+				@navigate-to-cancel-policy-success="${(e) => this._cancelPolicy(e)}">
 			</horizon-insure-client-policies>`
 	}
 
@@ -455,7 +482,7 @@ export class ExistingClient extends InsureViewBase {
 	_renderCancelPolicySuccessPage() {
 		return html`
 		<insure-cancel-policy-success @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-			@navigate-to-email-success="${(e) => this._goToEmailPlanSuccess()}">
+			@navigate-to-email-success="${(e) => this._goToEmailPlanSuccess()}" .contractReference = ${this.contractReference}>
 		</insure-cancel-policy-success>
 		`
 	}
@@ -467,7 +494,8 @@ export class ExistingClient extends InsureViewBase {
 	 _renderEmailSuccessPage() {
 		return html`
 		
-			<insure-email-plan-success @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+			<insure-email-plan-success @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+				.contractReference = ${this.contractReference}>
 			</insure-email-plan-success>
 
 		`
