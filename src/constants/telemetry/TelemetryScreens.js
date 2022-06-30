@@ -124,5 +124,10 @@
 	SETTLEMENT_QUOTE_FAILURE: `Settlement Quote Failure screen`,
 	SETTLEMENT_QUOTE_PARTIAL_SUCCESS: `Settlement Quote Partial Success screen`,
 
-	KBA: `KBA Dialog`
+	KBA: `KBA Dialog`,
+  
+  PAID_UP_LETTER_ACCOUNTS: `Paid Up Letter Account Selection`,
+	CREDIT_PAID_UP_LETTER: `Credit Paid Up Letter Screen`,
+	CREDIT_PAID_UP_LETTER_SUCCESS: `Credit Paid Up Letter Success`,
+	CREDIT_PAID_UP_LETTER_FAILURE: `Credit Paid Up Letter Failure`
 };

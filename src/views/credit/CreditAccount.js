@@ -64,6 +64,7 @@ export class CreditAccount extends ViewBase {
 		this.creditType = ``;
 		this.selectedAccounts = [];
 		this.showPayBudgetDialog = false;
+		this.payBudgetfromAccounts = [];
 		// ccs status of client set to true until real value retrieved from CS
 		this.ccsStatus = false;
 		this.settleAndCloseQuote = [];
@@ -297,7 +298,8 @@ export class CreditAccount extends ViewBase {
 
 		this._formatFromAccounts(returnValue.result.fromAccounts);
 		this.payBudgetAccountDetails = selectedAccountDetails;
-		
+		this.payBudgetfromAccounts = returnValue.result.fromAccounts;
+
 		this.showPayBudgetDialog = !this.showPayBudgetDialog;
 	}
 
@@ -353,8 +355,7 @@ export class CreditAccount extends ViewBase {
 		this.productSelected = item.detail.productSelected;
 		this.settleAndCloseDetails = item.detail.settleAndCloseDetails;
 		const selectedAccountIndex = this._getSECTransferDetails(item.detail.productSelected.accountNumber);
-		const settleAndClose = 
-		{
+		const settleAndClose = {
 				creditType: this.settleAndCloseCreditOption,
 				cifNumber: this.callerInformation.cifNumber,
 				accountNumber: this.settleAndCloseQuote.accountNumber,
@@ -369,21 +370,20 @@ export class CreditAccount extends ViewBase {
 		};
 
 		const returnValue = await this.creditService.settleAndClose(settleAndClose);
-		
 		if (returnValue.succeeded) {
 			const screenDetails = this.horizonStore.getScreenDetails();
 
 			if (this.settleAndCloseCreditOption === `CreditCard`) {
 				screenDetails.settleAndCloseCreditType = `Flexible`;
-				this.settleAndCloseDocument = returnValue.result.closureDocument.data;
+				this.settleAndCloseDocument = returnValue.result.documentData;
 			} else {
 				screenDetails.settleAndCloseCreditType = `Fixed`;
-				this.settleAndCloseDocument = returnValue.result.transferDocument.data;
+				this.settleAndCloseDocument = returnValue.result.documentData; ;
 			}
 			
-			screenDetails.settleAndCloseDocumentData = result.closureDocument.data;
+			screenDetails.settleAndCloseDocumentData = this.settleAndCloseDocument;
 			screenDetails.settleAndCloseCreditOption = this.settleAndCloseCreditOption;
-			screenDetails.settleAndCloseProductType = this.settleAndCloseQuote.accountNumber;
+			screenDetails.settleAndCloseProductType = this.settleAndCloseCreditOption;
 			screenDetails.settleAndCloseAccountNumber = this.settleAndCloseQuote.accountNumber;
 			this.horizonStore.setScreenDetails(screenDetails);
 			this.horizonRouter.navigateToSettleAndCloseSuccess();
@@ -400,15 +400,13 @@ export class CreditAccount extends ViewBase {
 				return i;
 			}
 		}
-		
 	}
 
 	_getSavingsAccType(code) {
 		if (code === 300) {
 			return `Primary`;
-		}
-
-		return `Flexible`; 
+		} 
+		return `Flexible`;
 	}
 
 	_errorHandler() {
@@ -786,7 +784,6 @@ export class CreditAccount extends ViewBase {
 
 		this.clientProducts = await this._getClientProducts();
 		
-
 		if (this.settleAndCloseDetails.type === `Credit card`) {
 			this.settleAndCloseCreditOption = `CreditCard`;
 		} else if (this.settleAndCloseDetails.type === `Term Loan`) {
@@ -800,10 +797,9 @@ export class CreditAccount extends ViewBase {
 			cifNumber: this.callerInformation.cifNumber,
 			idNumber: this.callerInformation.southAfricanIDNumber
 		};
+		
 		const returnValue = await this.creditService.settleAndCloseQuote(settleAndCloseQuoteRequest);
-
 		this.settleAndCloseQuote = returnValue.result;
-
 		this.showSettleCloseModal = !this.showSettleCloseModal;
 		const balanceField = this.settleAndCloseDetails.category === CREDIT_TYPE.FLEXIBLE ? `Available balance` : `Credit limit`;
 		const balanceFieldValue = this.settleAndCloseDetails.category === CREDIT_TYPE.FLEXIBLE ? this.settleAndCloseDetails.availableCredit : this.settleAndCloseDetails.creditLimit;
@@ -813,10 +809,14 @@ export class CreditAccount extends ViewBase {
 			[this.settleAndCloseDetails.productTypeDescription]: this.settleAndCloseDetails.accountNumber,
 			[balanceField]: balanceFieldValue,
 			'Outstanding balance': this.settleAndCloseDetails.currentBalance,
-			'Interest not capitalised': formatCurrency(this.settleAndCloseQuote.interestNotCapatalised),
-			'Expected interest and fees': formatCurrency(this.settleAndCloseQuote.expectedInterestFees),
 			'Settlement amount': formatCurrency(this.settleAndCloseQuote.settlementAmount)
 		};
+
+		if (this.settleAndCloseCreditOption === `CreditCard`) {
+			this.settleAndCloseDetails[`Interest not capitalised`] = formatCurrency(this.settleAndCloseQuote.interestNotCapatalised);
+			this.settleAndCloseDetails[`Expected interest and fees`] = formatCurrency(this.settleAndCloseQuote.expectedInterestFees);
+		}
+
 		this.renderMode = RENDER_MODE.SETTLE_AND_CLOSE;
 	
 	}
@@ -1015,6 +1015,7 @@ export class CreditAccount extends ViewBase {
 				<capitec-pc-pay-budget-dialog
 					.budgetAccountDetails="${this.payBudgetAccountDetails}"
 					.clientProducts="${this.clientProducts}"
+					.payBudgetfromAccounts="${this.payBudgetfromAccounts}"
 					@on-loading="${() => this._telemetry.startSpan(CreditEvents.PAY_BUDGET_MODAL, {})}"
 					@on-unloading="${() => this._telemetry.endSpan(CreditEvents.PAY_BUDGET_MODAL, {})}"
 					@cancel="${() => this._backFromPayBudgetDialog()}"
@@ -1119,6 +1120,7 @@ export class CreditAccount extends ViewBase {
 		? html`
 			<horizon-settle-and-close-dialog 
 				.settleAndCloseDetails="${this.settleAndCloseDetails}"
+				.settleAndCloseQuote="${this.settleAndCloseQuote}"
 				.clientProducts="${this.clientProducts}"
 				@cancel="${() => this._backToLandingPage()}"
 				@settle-and-close="${(e) => this._confirmSettleAndClose(e)}">
