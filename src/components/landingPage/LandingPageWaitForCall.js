@@ -8,6 +8,7 @@ export class LandingPageWaitForCall extends Component {
 
 	static get properties() {
 		return {
+			desktopAgentDown: { type: Boolean }
 		};
 	}
 
@@ -24,7 +25,27 @@ export class LandingPageWaitForCall extends Component {
 				align-items: center;
 				background-color: white;
 				border-radius: none;
-				justify-content: center;
+				position: relative;
+  				flex:1;
+ 				display:flex;
+			}
+
+			.banner-top {
+				padding: 16px;
+				height: 30px;
+				--theme-alert-banner-unsuccessful-red-font-color: #3A3A3A;
+			}
+
+			.call-waiting-container {
+				position: absolute;
+ 				top: 294px;
+				border: 0px;
+				text-align: center;
+				line-height: 40px;
+				align-items: center;
+				background-color: white;
+				border-radius: none;
+				width: 100%;
 			}
 			
 			.needimage{
@@ -64,13 +85,13 @@ export class LandingPageWaitForCall extends Component {
 		];
 	}
 
-
 	render() {
 		return html`
 			<capitec-card class="call-waiting-card">
-				<div>
+				<capitec-alert-banner ?hidden="${!this.desktopAgentDown}" class = "banner-top" type="unsuccessful-red">Your Horizon desktop agent is either not installed or is not running. Please contact your Team Leader or the Support Specialist team.&nbsp;&nbsp;&nbsp;</capitec-alert-banner>
+				<capitec-card class="call-waiting-container">
 					${this.renderWaitingForCall()}
-				</div>
+				</capitec-card>
 			</capitec-card>
 
 		`;

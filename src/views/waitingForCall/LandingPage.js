@@ -57,6 +57,7 @@ export class LandingPage extends ViewBase {
 		this.searchCallSub = this.eventAggregator.subscribe(`search-caller`, (newCallInfo) => this._onSearchCaller(newCallInfo));
 		this.agentUpSub = this.eventAggregator.subscribe(`desktop-agent-up`, () => this._desktopAgentup());
 		this.eventSub = this.eventAggregator.subscribe(`prompt-start-desktopagent`, () => this._promptStartDesktopAgent());
+		this.desktopAgentDown = false;
 
 		// Subscribe to state changes. Erase state once the call status indicates that the
 		// call has ended.
@@ -77,6 +78,12 @@ export class LandingPage extends ViewBase {
 	// ----------
 	// PROPERTIES
 	// ----------
+
+	static get properties() {
+		return {
+			desktopAgentDown: { state: true }
+		};
+	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -113,15 +120,12 @@ export class LandingPage extends ViewBase {
 
 	_promptStartDesktopAgent() {
 		// The desktop agent service must be running in order to use Horizon.
-		// If it is not running display an error dialog
-		this.renderMode = RENDER_MODE.START_AGENT;
+		// If it is not running display an error banner
+		this.desktopAgentDown = true;
 	}
 
 	_desktopAgentup() {
-		if (this.renderMode === RENDER_MODE.START_AGENT) {
-			// Dismiss error dialog once the Desktop Agent is up and running
-			this.renderMode = RENDER_MODE.MAIN_PAGE;
-		}
+		this.desktopAgentDown = false;
 	}
 
 	async _onSearchCaller() {
@@ -372,14 +376,13 @@ export class LandingPage extends ViewBase {
 		${this._renderMiddleSection()}
 		${this._renderConfirmCallerDetailsDialog()}
 		${this._renderSearchDialog()}
-		${this._renderStartAgentPrompt()}
 		${super._webTemplate()}
 		`;
 	}
 
 	_renderMiddleSection() {
 		return html`
-			<horizon-landing-page-wait-for-call class="wait-for-call"></horizon-landing-page-wait-for-call>
+			<horizon-landing-page-wait-for-call ?desktopAgentDown="${this.desktopAgentDown}" class="wait-for-call"></horizon-landing-page-wait-for-call>
 		`;
 	}
 
@@ -416,16 +419,6 @@ export class LandingPage extends ViewBase {
 					@branch-captured="${(event) => this._branchCaptured(event)}"
 					@stop-card-need-selected="${(event) => this._stopCardNeedSelected(event)}">
 				</horizon-search-caller>`;
-		}
-	}
-
-	_renderStartAgentPrompt() {
-		if (this.renderMode === RENDER_MODE.START_AGENT) {
-			return html`
-				<horizon-error-404 
-					@click="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
-				</horizon-error-404>
-			`;
 		}
 	}
 }
