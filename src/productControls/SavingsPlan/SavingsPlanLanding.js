@@ -43,6 +43,10 @@ export class SavingsPlanLanding extends Component {
 		super.connectedCallback();
 	}
 
+	disconnectedCallback() {
+		super.disconnectedCallback();
+	}
+
 	// --------------
 	// PROPERTIES
 	// --------------

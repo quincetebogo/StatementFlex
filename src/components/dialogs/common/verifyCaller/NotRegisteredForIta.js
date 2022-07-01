@@ -58,9 +58,9 @@ export class NotRegisteredForIta extends Component {
 						<div class="notification-info">
 							<b>Verify client</b>
 							<br>
-							We need to ask you security questions before accessing your account.
-							<!-- <br>
-							Your answers will be checked by a third-party or credit bureau. Are you comfortable to continue? -->
+							I will now ask you a few security questions to access your account.
+							<br>
+							These questions relate to your personal profile and only you will know the correct answers.
 						</div>
 					</capitec-group>
 				</capitec-group>
