@@ -156,7 +156,7 @@ export class VerifyCaller extends Component {
 		this.itaAttempts = this.callerInformation.verificationAttempts.itaAttempts;
 
 		this.hasSouthAfricanID = isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber);
-
+		
 		if (this.callerInformation.hasDigitalChannels) {
 			await this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
 				"screen": TelemetryScreen.VERIFY_CALLER
@@ -829,6 +829,9 @@ export class VerifyCaller extends Component {
 				horizon-option-button {
 					width: 204px;
 					height: 81px;
+				}
+				horizon-option-button[label="Skip Verification"] {
+					--theme-icon-size-medium: 26px;
 				}
 
 				.btnTryAgain[disabled] {
