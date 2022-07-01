@@ -209,6 +209,21 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
+	 * Cancel Policy Agreement
+	 * @returns {Object} 
+	 */
+	 async _cancelPolicyAgreement(e) {
+
+		const resp = await this.insureService.cancelPolicyAgreement(cancelPolicyAgreementDetails, () => true);
+		if (resp.succeeded == true && resp.result != null) {
+			
+		} else {
+			// Do error message
+			return null;
+		}
+	}
+
+	/**
 	 * Navigate so specific subview
  	*/
 	_navigateToSubView(newMode) {

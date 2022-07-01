@@ -120,7 +120,7 @@ class CancelPolicyDialog extends Component {
 			css`
 
 				.notification > capitec-toast{
-					--theme-toast-height: 80px;
+					--theme-toast-height: 110px;
 					position: relative;
 				}
 
@@ -171,8 +171,10 @@ class CancelPolicyDialog extends Component {
 		return html`
 			<div class="notification">
 				<capitec-toast type="info" header="Notify Client" 
-					detail="The full agreement, inclusive of the Policy Schedule, Section 484 summary. Disclosure, terms and conditions,
-					will be emailed to you and available in branch." data-automation-id="insure-cancel-policy-dialog-notification">
+					detail="By cancelling this plan you will no longer have any benefits on this plan. Ensure you have carefully considered the effects before continuing with the cancellation.
+					The full agreement, inclusive of the Policy Schedule, Section 484 summary. Disclosure, terms and conditions,
+					will be emailed to you and available in branch."
+					data-automation-id="insure-cancel-policy-dialog-notification">
 				</capitec-toast>
 			</div>
 
