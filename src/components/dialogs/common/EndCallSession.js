@@ -1,4 +1,4 @@
-import { CALL_TRANSFERED_CLASSIFICATION, END_CALL_REASON, RECOGNIZE_NEED_REASONS } from 'app/constants/EndCallReasons';
+import { CALL_TRANSFERED_CLASSIFICATION, END_CALL_REASON, RECOGNIZE_NEED_CONTEXTS, RECOGNIZE_NEED_REASONS } from 'app/constants/EndCallReasons';
 import { Component, css, html, live } from 'platform/elements';
 import { Configuration, Logger, SecurityContext } from 'platform/core';
 import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
@@ -238,19 +238,27 @@ export class EndCallSession extends Component {
 		const incidentDetails = this.horizonStore.getIncidentDetails() || {};
 
 		// Determining if its already classified
-		const isClassified = !isNullorEmpty(this.incidentInfo.category) && !isNullorEmpty(this.incidentInfo.subCategory) && !isNullorEmpty(this.incidentInfo.issue);
+		 const isClassified = !isNullorEmpty(this.incidentInfo.category) && !isNullorEmpty(this.incidentInfo.subCategory) && !isNullorEmpty(this.incidentInfo.issue);
 		// Determining at least we know categorization to classify
 		const hasValues = !isNullorEmpty(screenDetails.category) && !isNullorEmpty(screenDetails.subCategory) && !isNullorEmpty(screenDetails.issue);
 		// Checks if the curr incident is active
 		const isIncClosed = incidentDetails.needStatus === super.HORIZON_NEED_STATUS.CLOSED;
 		// should classify as per need?
-		const classifyAsPerNeed = incidentDetails.needStatus === super.HORIZON_NEED_STATUS.INPROGRESS && STRACK_MAPPING[incidentDetails.currentNeed];
+		// And enforcing this to false when the end call context includes in Recognize need by context
+		const classifyAsPerNeed = incidentDetails.needStatus === super.HORIZON_NEED_STATUS.INPROGRESS &&
+								  STRACK_MAPPING[incidentDetails.currentNeed] &&
+								  !RECOGNIZE_NEED_CONTEXTS.includes(this.endCallContext);
 
 		// If classification is not empty, no need to populate need
-		this.understandNeed = this.understandNeed && !hasValues && !isClassified && !isIncClosed && !classifyAsPerNeed;
+		/**
+		 * If call transferred reason is selected, still popup 3 stepper dropdown
+		 * to understand if its for 'Frand transfer'
+		 */
+		this.understandNeed = (this.understandNeed && !hasValues && !isClassified && !isIncClosed && !classifyAsPerNeed) ||
+							  this.endCallReason.key === END_CALL_REASON.CALL_TRANSFERED;
 		this._setClassification(screenDetails);
 
-		if (!this.understandNeed || this.categories.length !== 0 && this.endCallReason.key !== END_CALL_REASON.CALL_TRANSFERED) {
+		if ((!this.understandNeed || this.categories.length !== 0) && this.endCallReason.key !== END_CALL_REASON.CALL_TRANSFERED) {
 			return;
 		}
 
@@ -451,14 +459,15 @@ export class EndCallSession extends Component {
 			this._returnToCallWaitingPage();
 			return;
 		}
-		await this._closeIncident(strackIncidentInfo);
+		await this._closeIncident(classification);
 	}
 
-	async _closeIncident() {
+	async _closeIncident(manualClassification) {
 		
 		const options = {
 			clientNeed: null,
-			endCallReason: this.endCallReason
+			endCallReason: this.endCallReason,
+			manualClassification: manualClassification
 		};
 
 		await super.closeIncident(options, () => this._toggleBusyFlag());
@@ -685,10 +694,8 @@ export class EndCallSession extends Component {
 			horizon-alert-banner {
 				width: 100%;
 
-				--theme-alert-banner-icon-margin-left: 15px;
-				--theme-alert-banner-icon-margin-right: 7px;
 				--theme-icon-size-default: 26px;
-				--theme-alert-banner-height: 48px;
+				--theme-toast-icon-margin: 0px 7px 0px 15px;
 			}`
 		];
 	}
@@ -830,8 +837,8 @@ export class EndCallSession extends Component {
 			return html`
 				<horizon-alert-banner 
 					data-automation-id="end-call-session-banner"
-					type="unsuccessful-red">
-						${this.alertBannerMessage}
+					type="error"
+					label="${this.alertBannerMessage}">
 				</horizon-alert-banner>`;
 		}
 	}

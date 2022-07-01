@@ -226,13 +226,11 @@ export class ManageAutomaticSavings extends Component {
 				horizon-alert-banner {
 					width: 100%;
 
-					--theme-alert-banner-height: 48px;
 					--theme-alert-banner-width: 840px;
 					--theme-alert-banner-font-weight: 600;
 					--theme-layout-gap-spacing: 20px;
 					--theme-alert-banner-info-font-color: #3A3A3A;
-					--theme-alert-banner-icon-margin-left: 16px;
-					--theme-alert-banner-icon-margin-right: 12px;
+					--theme-toast-icon-margin: 0px 12px 0px 16px;
 				}
 				horizon-alert-banner[type="info"] {
 					--theme-alert-banner-info-background-color: #DAF2F4;
@@ -380,16 +378,16 @@ export class ManageAutomaticSavings extends Component {
 			? html`
 				<horizon-alert-banner
 					data-automation-id="manage-automatic-savings-info-banner"
-					type="info">
-						<strong>Notify client:</strong>
-						<p class="alert-banner-paragraph">Your Round-up and Interest Sweep values will always be transferred from your main savings account</p>
+					type="info"
+					header="Notify client: "
+					label="Your Round-up and Interest Sweep values will always be transferred from your main savings account">
 				</horizon-alert-banner>`
 			: html`
 				<horizon-alert-banner
 					data-automation-id="manage-automatic-savings-error-banner"
-					type="error">
-						<strong>Notify client:</strong>
-						<p class="alert-banner-paragraph">${this.errorMessage}</p>
+					type="error"
+					header="Notify client: "
+					label="${this.errorMessage}">
 				</horizon-alert-banner>`;
 	}
 
@@ -433,9 +431,9 @@ export class ManageAutomaticSavings extends Component {
 								<horizon-alert-banner
 									data-automation-id="manage-automatic-savings-error-banner"
 									class="section-alert-banner"
-									type="error">
-										<strong>Notify client:</strong>
-										<p class="alert-banner-paragraph">${ERROR_MESSAGES.ALERT_ROUNDUP_VALUE}</p>
+									type="error"
+									header="Notify client: "
+									label="${ERROR_MESSAGES.ALERT_ROUNDUP_VALUE}">
 								</horizon-alert-banner>`
 							: html``}
 
@@ -473,9 +471,9 @@ export class ManageAutomaticSavings extends Component {
 								<horizon-alert-banner
 									data-automation-id="manage-automatic-savings-error-banner"
 									class="section-alert-banner"
-									type="error">
-										<strong>Notify client:</strong>
-										<p class="alert-banner-paragraph">${ERROR_MESSAGES.ALERT_ROUNDUP_ACC}</p>
+									type="error"
+									header="Notify client: "
+									label="${ERROR_MESSAGES.ALERT_ROUNDUP_ACC}">
 								</horizon-alert-banner>`
 							: html``}
 

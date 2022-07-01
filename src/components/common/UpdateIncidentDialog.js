@@ -228,7 +228,6 @@ export class UpdateIncidentDialog extends Component {
 			}
 			horizon-alert-banner {
 				width: 536px;
-				height: 48px;
 				color: #4A4848;
 				--theme-alert-banner-error-font-weight: 600px;
 				margin-bottom: 26px;
@@ -324,7 +323,7 @@ export class UpdateIncidentDialog extends Component {
 		return this.showAlert
 			? html`
 				<horizon-alert-banner
-					type="unsuccessful-red"
+					type="error"
 					label="${this.alertBannerMessage}"
 					@click="${() => this._keyPress()}"
 					closable>

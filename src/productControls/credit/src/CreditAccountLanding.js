@@ -41,6 +41,10 @@ export class CreditAccountLanding extends Component {
 		super.connectedCallback();
 	}
 
+	disconnectedCallback() {
+		super.disconnectedCallback();
+	}
+
 	// --------------
 	// PROPERTIES
 	// --------------
@@ -66,8 +70,7 @@ export class CreditAccountLanding extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_click(selection, creditType, productType, selectedAccountDetails) 
-	{
+	_click(selection, creditType, productType, selectedAccountDetails) {
 		this.dispatchEvent(new CustomEvent(`option-click`, { 
 			detail: { option: selection, 
 						creditType: creditType, 
@@ -573,7 +576,7 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-paid-up-letter"
 					label="Paid up Letter"
 					icon="system/documents-action"
-					?hidden="${selectedAccountDetails.accountStatusDescription !== `Closed`}"
+					?hidden="${true}"
 					@click="${() => this._click(`paid-up-letter`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
@@ -606,7 +609,7 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-paid-up-letter"
 					label="Paid up Letter"
 					icon="system/documents-action"
-					?hidden="${selectedAccountDetails.accountStatusDescription !== `Closed`}"
+					?hidden="${true}"
 					@click="${() => this._click(`paid-up-letter`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.ACCESS_FACILITY, selectedAccountDetails)}">
 			</horizon-option-button>
 		`;
@@ -632,7 +635,7 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-paid-up-letter"
 					label="Paid up Letter"
 					icon="system/documents-action"
-					?hidden="${selectedAccountDetails.accountStatusDescription !== `Closed`}"
+					?hidden="${true}"
 					@click="${() => this._click(`paid-up-letter`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 

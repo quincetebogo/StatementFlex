@@ -390,8 +390,7 @@ export class USSDProfileDetails extends Component {
 			horizon-alert-banner {
 				margin: 8px 8px 0px 8px;
 				--theme-alert-banner-height: 64px;
-				--theme-alert-banner-icon-margin-left: 16px;
-				--theme-alert-banner-icon-margin-right: 16px;
+				--theme-toast-icon-margin: 7px 16px 0px 16px;
 			}
 			horizon-alert-banner > p {
 				margin: 0px;
@@ -399,11 +398,11 @@ export class USSDProfileDetails extends Component {
 			}
 			.no-digital-channels {
 				--theme-label-strong-font-weight: 600;
-				--theme-alert-banner-height: 100px;
+				--theme-toast-icon-margin: 28px 16px 0px 16px;
 			}
 			.has-digital-channels {
 				--theme-label-strong-font-weight: 600;
-				--theme-alert-banner-height: 117px;
+				--theme-toast-icon-margin: 28px 16px 0px 16px;
 				--theme-hyperlink-font-size: 14px;
 			}
 			.has-digital-channels > capitec-label {
@@ -845,9 +844,9 @@ export class USSDProfileDetails extends Component {
 			? html`
 				<horizon-alert-banner 
 					data-automation-id="ussd-profile-details-status-banner"
-					type="unsuccessful-red" 
+					type="error" 
 					layout="vertical">
-						<b>${this.bannerTitle}</b><br>
+						<b>${this.bannerTitle}</b>
 						<p>${this.bannerSubtitle}</p>
 				</horizon-alert-banner>`
 			: html``;
@@ -859,11 +858,10 @@ export class USSDProfileDetails extends Component {
 			<horizon-alert-banner 
 				data-automation-id="ussd-profile-details-validation-banner"
 				class="validate-reasons"
-				type="unsuccessful-red"
-				label=""
+				type="error"
+				header="Notice"
+				label="Please choose a reason to cancel USSD."
 				layout="vertical">
-					<b>Notice</b> <br>
-					<p>Please choose a reason to cancel USSD.</p>
 			</horizon-alert-banner>`
 		: html``;
 	}

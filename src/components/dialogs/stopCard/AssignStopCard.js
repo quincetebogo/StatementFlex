@@ -332,17 +332,18 @@ export class AssignStopCard extends Component {
 	renderErrorAlertBanner() {
 		if (this.errorAlert) {
 			return html`
-				<horizon-alert-banner class="alert-banner" type = "unsuccessful-red"
+				<horizon-alert-banner
+					class="alert-banner"
+					type="error"
 					data-automation-id="assign-stop-card-error-banner"
-					label = "Select an team to Assign"
+					label="Select an team to Assign"
 					closable
-					style = "width: 100%;">
+					style="width: 100%;">
 				</horizon-alert-banner>
 			`;
 		}
 		
-			return html``;
-		
+		return html``;
 	}
 
 	renderFooter() {

@@ -7,6 +7,7 @@ import { LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { LandingPageEvents } from 'app/constants/telemetry/events/LandingPage';
 import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { RoleManager } from 'app/shell/RoleManager';
 import { SavingsAccLandingPage } from 'app/constants/telemetry/events/SavingsAccount';
 
 import 'app/components/common/MiniProfile';
@@ -55,6 +56,7 @@ export class ProfileAndProductSummaryBar extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this._telemetry = HorizonTelemetry.getInstance();
+		this.roleManager = RoleManager.getInstance();
 
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 
@@ -136,7 +138,8 @@ export class ProfileAndProductSummaryBar extends Component {
 				isNonClient: isNonClient,
 				is3rdParty: state.callerInformation.verificationStatus === `3rdparty`,
 				hasDigitalChannels: state.callerInformation.hasDigitalChannels,
-				verificationAttempts: state.callerInformation.verificationAttempts
+				verificationAttempts: state.callerInformation.verificationAttempts,
+				profilePhoto: state.callerInformation.profilePhoto
 			};
 		}
 
@@ -275,7 +278,8 @@ export class ProfileAndProductSummaryBar extends Component {
 		return html`
 		<section class="left-card">
 			<horizon-mini-profile 
-				.miniProfile="${this.miniProfile}">
+				.miniProfile="${this.miniProfile}"
+				.isHelpDeskAgent="${this.roleManager.isHelpDeskAgent}">
 			</horizon-mini-profile>
 			
 			${this._renderFavourites()}

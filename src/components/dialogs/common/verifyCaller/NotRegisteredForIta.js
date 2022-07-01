@@ -20,8 +20,7 @@ export class NotRegisteredForIta extends Component {
 					--theme-layout-gap-spacing: 16px;
 				}
 				#notification-status-box > capitec-group > horizon-alert-banner {
-					--theme-alert-banner-height: 48px;
-					--theme-alert-banner-info-border: none;
+					--theme-toast-horizontal-title-margin-right: 4px;
 				}
 				.notification-info {
 					color: #545D60;
@@ -45,8 +44,10 @@ export class NotRegisteredForIta extends Component {
 		return html`
 			<capitec-content-box id="notification-status-box">
 				<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
-					<horizon-alert-banner type="warning">
-						<b>Notify: </b>The client isn't registered for Remote Banking.
+					<horizon-alert-banner
+						type="warning"
+						header="Notify: "
+						label="The client isn't registered for Remote Banking.">
 					</horizon-alert-banner>
 					<capitec-group layout="vertical" 
 						halign="center"
@@ -57,9 +58,9 @@ export class NotRegisteredForIta extends Component {
 						<div class="notification-info">
 							<b>Verify client</b>
 							<br>
-							We need to ask you security questions before accessing your account.
-							<!-- <br>
-							Your answers will be checked by a third-party or credit bureau. Are you comfortable to continue? -->
+							I will now ask you a few security questions to access your account.
+							<br>
+							These questions relate to your personal profile and only you will know the correct answers.
 						</div>
 					</capitec-group>
 				</capitec-group>

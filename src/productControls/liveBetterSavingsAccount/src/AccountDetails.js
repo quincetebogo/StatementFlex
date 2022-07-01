@@ -148,14 +148,12 @@ const ACCOUNT_TYPE = {
 				}
 
 				.alert-banner {
-					--theme-alert-banner-height: 48px;
 					--theme-alert-banner-width: 1032px;
 					--theme-alert-banner-font-weight: 600;
 					--theme-alert-banner-info-background-color: #DAF2F4;
 					--theme-layout-gap-spacing: 16px;
 					--theme-alert-banner-info-font-color: #3A3A3A;
-					--theme-alert-banner-icon-margin-right: 12px;
-					--theme-alert-banner-icon-margin-left: 16px;
+					--theme-toast-icon-margin: 0px 12px 0px 16px;
 				}
 
 				.alert-banner-paragraph {
@@ -304,10 +302,8 @@ const ACCOUNT_TYPE = {
 			<horizon-alert-banner 
 				type="info" 
 				class="alert-banner"
-				label="Notify Client:">
-					<p class="alert-banner-paragraph">
-						You can only fund this account with Benefits Partner cash backs and Capitec cash backs
-					</p>
+				header="Notify Client: "
+				label="You can only fund this account with Benefits Partner cash backs and Capitec cash backs">
 			</horizon-alert-banner>
 		`;
 	}

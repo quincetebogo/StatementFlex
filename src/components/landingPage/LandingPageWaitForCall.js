@@ -57,8 +57,9 @@ export class LandingPageWaitForCall extends Component {
 			}
 			#alert {
 				width: 520px;
-				--theme-alert-banner-height: 48px;
 				margin-top: 10px;
+
+				--theme-toast-icon-margin: 0px 18px 0px 26px;
 			}
 			`
 		];
@@ -84,8 +85,9 @@ export class LandingPageWaitForCall extends Component {
 			</capitec-label>
 			<horizon-alert-banner 
 				id="alert" 
-				type="warning">
-				<b>Notice:</b> All calls are being recorded and logged to your employee profile
+				type="warning"
+				header="Notice: "
+				label="All calls are being recorded and logged to your employee profile">
 			</horizon-alert-banner>
 			`;
 	}

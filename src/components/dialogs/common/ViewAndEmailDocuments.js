@@ -179,10 +179,10 @@ export class ViewAndEmailDocuments extends Component {
 					--theme-label-subtitle-font-size: 18px;
 					--theme-label-subtitle-font-weight: 600;
 				}
-				capitec-alert-banner {
+				horizon-alert-banner {
 					padding-bottom: 24px;
 				}
-				capitec-alert-banner > capitec-label {
+				horizon-alert-banner > capitec-label {
 					margin: 16px 0px 16px 0px;
 					--theme-label-font-size: 18px;
 					--theme-label-font-family: Hind Vadodara;
@@ -284,17 +284,11 @@ export class ViewAndEmailDocuments extends Component {
 	_renderAlertBanner() {
 		return this.alertBannerMessage 
 		? html`
-			<capitec-alert-banner type="unsuccessful-red">
-				<capitec-group layout="horizontal">
-					<capitec-label
-						type="subtitle"
-						label="Notify:">
-					</capitec-label>
-					<capitec-label
-						label="${this.alertBannerMessage}">
-					</capitec-label>
-				</capitec-group>
-			</capitec-alert-banner>`
+			<horizon-alert-banner
+				type="error"
+				header="Notify: "
+				label="${this.alertBannerMessage}">
+			</horizon-alert-banner>`
 		: html``;
 	}
 

@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import { Configuration } from 'platform/core';
 import { EventAggregator } from 'platform/EventAggregator';
+import { RoleManager } from 'app/shell/RoleManager';
 
 /**
  * The Title Bar is displayed at the top of the initial Horizon Landing Page (Call Waiting Page)
@@ -19,8 +19,8 @@ export class TitleBar extends Component {
 		this.employeeId = ``;
 		this.searchClientEnabled = false;
 
-		this._configuration = Configuration.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
+		this.roleManager = RoleManager.getInstance();
 
 		this.titleBarSub = this.eventAggregator.subscribe(`horizon-update-title-bar`, (event) => this._onUpdateTitle(event));
 	}
@@ -75,7 +75,7 @@ export class TitleBar extends Component {
 	// --------------
 
 	async _initialise() {
-		this.searchClientEnabled = await this._configuration.getSetting(`searchClientOptionEnabled`);
+		this.searchClientEnabled = await this.roleManager.isSearchClientEnabled();
 	}
 
 	// ---------------

@@ -46,7 +46,24 @@
 	PAY_BUDGET_SUCCESS_SEND_POP: `call.fulfill-need.credit.budget.transfer.success.send-proof-of-payment`,
 	PAY_BUDGET_TRANSFER_FAILURE: `call.fulfill-need.credit.budget.transfer.failure`,
 	PAY_BUDGET_TRANSFER_FAILURE_TRY_AGAIN: `call.fulfill-need.credit.budget.transfer.failure.try-again`,
-	PAY_BUDGET_TRANSFER_FAILURE_DONE: `call.fulfill-need.credit.budget.transfer.failure.done`
+	PAY_BUDGET_TRANSFER_FAILURE_DONE: `call.fulfill-need.credit.budget.transfer.failure.done`,
+
+	CREDIT_PAID_UP_LETTER: `call.fulfill-need.paid-up-letter`,
+	CREDIT_PAID_UP_LETTER_FILTER_SELECTION: `call.fulfill-need.paid-up-letter.filter`,
+	CREDIT_PAID_UP_LETTER_TEXT_FILTER_CLEAR: `call.fulfill-need.paid-up-letter.text-filter-clear`,
+	CREDIT_PAID_UP_LETTER_SEND: `call.fulfill-need.paid-up-letter.send-paid-up-letter`,
+	CREDIT_PAID_UP_LETTER_SELECT_ALL: `call.fulfill-need.paid-up-letter.select-all`,
+	CREDIT_PAID_UP_LETTER_DESELECT_ALL: `call.fulfill-need.paid-up-letter.deselect-all`,
+	CREDIT_PAID_UP_LETTER_POP_UP: `call.fulfill-need.paid-up-letter.pop-up`,
+	CREDIT_PAID_UP_LETTER_POP_UP_CANCEL: `call.fulfill-need.paid-up-letter.pop-up.cancel`,
+	CREDIT_PAID_UP_LETTER_POP_UP_SEND: `call.fulfill-need.paid-up-letter.pop-up.send`,
+	CREDIT_PAID_UP_LETTER_POP_UP_VIEW_DOCUMENT: `call.fulfill-need.paid-up-letter.pop-up.view-document`,
+	CREDIT_PAID_UP_LETTER_SUCCESS: `call.fulfill-need.paid-up-letter.success`,
+	CREDIT_PAID_UP_LETTER_SUCCESS_DONE: `call.fulfill-need.paid-up-letter.success.done`,
+	CREDIT_PAID_UP_LETTER_SUCCESS_SEND_ANOTHER: `call.fulfill-need.paid-up-letter.success.send-another`,
+	CREDIT_PAID_UP_LETTER_FAILURE: `call.fulfill-need.paid-up-letter.failure`,
+	CREDIT_PAID_UP_LETTER_FAILURE_ASSIGN: `call.fulfill-need.paid-up-letter.failure.assign`,
+	CREDIT_PAID_UP_LETTER_FAILURE_DONE: `call.fulfill-need.paid-up-letter.failure.done`
 };
 
 /**

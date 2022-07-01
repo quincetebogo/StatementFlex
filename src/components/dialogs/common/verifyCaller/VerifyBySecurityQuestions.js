@@ -374,8 +374,6 @@ export class VerifyBySecurityQuestions extends Component {
 
 			horizon-alert-banner {
 				margin: 16px 16px 0px 16px;
-				--theme-alert-banner-info-border: 0px;
-				--theme-alert-banner-height: 48px;
 				--theme-alert-banner-font-weight: 600;
 				color: var(--theme-alert-banner-unsuccessful-red-font-color, #C83C37);
 				background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
@@ -429,7 +427,11 @@ export class VerifyBySecurityQuestions extends Component {
 
 	_renderAlertBanner() {
 		if (this.alertBannerMessage) {
-			return html`<horizon-alert-banner label="${this.alertBannerMessage}" type="unsuccessful-red"></horizon-alert-banner>`;
+			return html`
+					<horizon-alert-banner
+						label="${this.alertBannerMessage}"
+						type="error">
+					</horizon-alert-banner>`;
 		}
 	}
 

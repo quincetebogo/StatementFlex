@@ -673,7 +673,8 @@ export class AccessChannels extends Component {
 				<horizon-alert-banner
 					class="has-digital-channels"
 					data-automation-id="high-risk-banner"
-					type="warning">
+					type="warning"
+					layout="vertical">
 							<capitec-label type="Strong" label="Notify client:"></capitec-label>
 							<capitec-label type="default"
 								label="For added security, we will be sending a push notification to access additional transactions.">
@@ -688,11 +689,10 @@ export class AccessChannels extends Component {
 				<horizon-alert-banner
 					class="no-digital-channels"
 					data-automation-id="high-risk-banner"
-					type="warning">
-							<capitec-label type="Strong" label="Notify client:"></capitec-label>
-							<capitec-label type="default"
-								label="For added security get the remote banking App to perform additional transactions, alternatively, visit your nearest branch.">
-							</capitec-label>
+					type="warning"
+					header="Notify client: "
+					label="For added security get the remote banking App to perform additional transactions, alternatively, visit your nearest branch."
+					layout="vertical">
 				</horizon-alert-banner>`;
 	}
 

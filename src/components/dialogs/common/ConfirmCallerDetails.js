@@ -10,6 +10,7 @@ import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { ITAChannelService } from 'app/services/ITAChannelService';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { InsureService } from 'app/services/InsureService';
+import { RoleManager } from 'app/shell/RoleManager';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 import 'platform/components/popups/Modal';
@@ -67,6 +68,7 @@ export class ConfirmCallerDetails extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
+		this.roleManager = RoleManager.getInstance();
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
@@ -154,34 +156,42 @@ export class ConfirmCallerDetails extends Component {
 		this.callerInformation = event.detail.callerInformation;
 
 		this._confirmClick();
-        }
+	}
 
 	async _confirmClick() {
-            this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_CONFIRM_CLICK, {
-                "screen": TelemetryScreen.CONFIRM_CALLER,
-                "next-screen": this.incomingCallDetails.ivrOption.value === `StopCard` ? TelemetryScreen.STOP_CARD : TelemetryScreen.VERIFY_CALLER,
-                "confirmed-primary-need": null,
-                "confirmed-specific-need": this.incomingCallDetails.ivrOptionCode,
-                "confirmed-client-cif": this.callerInformation.cifNumber
-            });
+		this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_CONFIRM_CLICK, {
+			"screen": TelemetryScreen.CONFIRM_CALLER,
+			"next-screen": this.incomingCallDetails.ivrOption.value === `StopCard` ? TelemetryScreen.STOP_CARD : TelemetryScreen.VERIFY_CALLER,
+			"confirmed-primary-need": null,
+			"confirmed-specific-need": this.incomingCallDetails.ivrOptionCode,
+			"confirmed-client-cif": this.callerInformation.cifNumber
+		});
+		
+		await this._updateClientNonClientDetails();
 
-		if (this.confirmedCaller.isClientPresent || !this.callerInformation.isBranchConsultant) {
-			const stopCard = () => this._navigateToLandingPage();
-			const productEnquiry = () => this._navigateToLandingPage();
-			const transact = () => this._verifyCaller();
+		/* Navigate to Favourites landing by skipping verification flow 
+		 * Scenario 1: When branch consultant is calling in and client is not present at branch
+		 * Scenario 2: When branch consultant is calling in and an agent is with Helpdesk role
+		 */
 
-			const clientNeed = {
-				StopCard: stopCard,
-				ProductEnquiry: productEnquiry,
-				Transact: transact
-			};
-
-			await this._updateClientNonClientDetails();
-
-            clientNeed[this.incomingCallDetails.ivrOptionCode]();     
-		} else {
+		if (this.callerInformation.isBranchConsultant && (this.roleManager.isHelpDeskAgent || !this.confirmedCaller.isClientPresent)) {
 			this._navigateToLandingPage();
-        }    
+			return;
+		}
+		
+		// Navigation based on need selected
+		const stopCard = () => this._navigateToLandingPage();
+		const productEnquiry = () => this._navigateToLandingPage();
+		const transact = () => this._verifyCaller();
+
+		const clientNeed = {
+			StopCard: stopCard,
+			ProductEnquiry: productEnquiry,
+			Transact: transact
+		};
+
+		clientNeed[this.incomingCallDetails.ivrOptionCode]();
+
 	}
 
 	async _verifyCaller() {
@@ -292,7 +302,7 @@ export class ConfirmCallerDetails extends Component {
 			"screen": TelemetryScreen.CONFIRM_CALLER,
 			"next-screen": TelemetryScreen.END_CALL
 		});
-
+		
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 	
@@ -333,7 +343,7 @@ export class ConfirmCallerDetails extends Component {
 			``, // nonclient ID number
 			``, // nonclient relationship
 			true, // isConfirmed
-			`unverified`, // verificationStatus
+			this.confirmedCaller.isClientVerifiedInBranch ? `verified` : `unverified`, // verificationStatus
 			false, // verificationToastDisplayed
 			false, // isThirdParty
 			false, // isNonClient
@@ -345,7 +355,7 @@ export class ConfirmCallerDetails extends Component {
 			}, 
 			this.confirmedCaller.isBranchConsultant, // isBranchConsultant
 			this.confirmedCaller.isClientPresent, // isClientPresent
-			``,
+			this.confirmedCaller.isClientVerifiedInBranch ? `ITA` : ``,
 			this.confirmedCaller.firstName,
 			this.confirmedCaller.middleName1,
 			this.confirmedCaller.middleName2,
@@ -353,7 +363,8 @@ export class ConfirmCallerDetails extends Component {
 			this.confirmedCaller.lastName,
 			this.confirmedCaller.initials,
 			this.confirmedCaller.identifiedBy,
-			`` // client's registered email ID
+			``, // client's registered email ID
+			this.confirmedCaller.profilePhoto
 		);
 	}
 
@@ -504,6 +515,24 @@ export class ConfirmCallerDetails extends Component {
 			}
 		}
 	}
+
+	_base64ToBlobUrl(base64Data) {
+
+		// decode base64 string, remove space for IE compatibility
+		const binary = atob(base64Data.replace(/\s/g, ``));
+		const len = binary.length;
+		const buffer = new ArrayBuffer(len);
+		const view = new Uint8Array(buffer);
+	
+		for (let i = 0; i < len; i++) {
+			view[i] = binary.charCodeAt(i);
+		}
+	
+		// create the blob object with content-type "image/jpg"
+		const blob = new Blob([view], { type: `image/jpg` });
+
+		return `${URL.createObjectURL(blob)}`;
+	}
 	
 	// ---------
 	// RENDERING
@@ -525,9 +554,12 @@ export class ConfirmCallerDetails extends Component {
 				}
 				#id-banner-addcallerdetails{
 					--theme-alert-banner-warning-border: 1px solid rgba(228,124,40,0.1);
-					--theme-alert-banner-icon-margin-left: 16px;
+					--theme-toast-icon-margin: 0px 18px 0px 16px;
+					--theme-hyperlink-font-weight: 600;
 					--theme-layout-gap-spacing: 28px;
-					--theme-alert-banner-height: 48px;
+				}
+				#id-banner-addcallerdetails > section {
+					margin-left: 3px;
 				}
 				capitec-avatar {
 					--theme-avatar-size-large: 200px;
@@ -632,7 +664,7 @@ export class ConfirmCallerDetails extends Component {
 			: html`
 				<horizon-alert-banner 
 					data-automation-id="confirm-caller-details-error-banner"
-					type="unsuccessful-red"
+					type="error"
 					label=${this.errorMessage}>
 				</horizon-alert-banner>`;
 	}
@@ -643,13 +675,14 @@ export class ConfirmCallerDetails extends Component {
 				<horizon-alert-banner 
 					id="id-banner-addcallerdetails" 
 					data-automation-id="confirm-caller-details-add-caller-banner"
-					type="warning">
+					type="warning"
+					layout="horizontal">
 						<capitec-hyperlink 
 							label="Add Caller Details"
 							data-automation-id="confirm-caller-details-add-caller-details"
 							@click="${() => this._addCallerDetailsClick()}">
 						</capitec-hyperlink>
-					if the caller is calling on another client's behalf
+						<section>if the caller is calling on another client's behalf</section>
 				</horizon-alert-banner>`;
 		} 
 
@@ -657,68 +690,81 @@ export class ConfirmCallerDetails extends Component {
 			<horizon-alert-banner 
 				id="id-banner-addcallerdetails" 
 				data-automation-id="confirm-caller-details-branch-banner"
-				type="warning">
-				<p><b>Notify:</b>${branchBannerMessage}</p>
+				type="warning"
+				header="Notify: "
+				label="${branchBannerMessage}">
 			</horizon-alert-banner>`;
 	}
 
 	_renderConfirmedCaller() {
 		return html`
-				<capitec-group class="client-info" layout="horizontal" gap="clear">
-					<capitec-avatar 
-						shape="square"
-						icon="/images/common/avatar.svg">
-					</capitec-avatar>
-					<capitec-group id="id-caller-group" layout="grid" gap="none" columns="auto" rows="auto">
-						<capitec-label 
-							id="client-name" 
-							data-automation-id="confirm-caller-details-client-name"
+			<capitec-group class="client-info" layout="horizontal" gap="clear">
+				${this._renderClientProfileImage()}
+				<capitec-group id="id-caller-group" layout="grid" gap="none" columns="auto" rows="auto">
+					<capitec-label 
+						id="client-name" 
+						data-automation-id="confirm-caller-details-client-name"
+						type="title"
+						row="1" column="1" colspan="2"
+						label="${this.confirmedCaller.name}"
+						@mouseover="${(e) => this._displayTooltip(e)}">
+					</capitec-label>
+					<capitec-tooltip
+						id="long-name" 
+						data-automation-id="confirm-caller-details-client-name-tooltip"
+						row="1" column="1" colspan="2" 
+						message="${this.confirmedCaller.name}"
+						position="bottom">
+						<capitec-label
+							data-automation-id="confirm-caller-details-client-name-tooltip-label"
 							type="title"
-							row="1" column="1" colspan="2"
 							label="${this.confirmedCaller.name}"
 							@mouseover="${(e) => this._displayTooltip(e)}">
 						</capitec-label>
-						<capitec-tooltip
-							id="long-name" 
-							data-automation-id="confirm-caller-details-client-name-tooltip"
-							row="1" column="1" colspan="2" 
-							message="${this.confirmedCaller.name}"
-							position="bottom">
-							<capitec-label
-								data-automation-id="confirm-caller-details-client-name-tooltip-label"
-								type="title"
-								label="${this.confirmedCaller.name}"
-								@mouseover="${(e) => this._displayTooltip(e)}">
-							</capitec-label>
-						</capitec-tooltip>
-						<horizon-label class="client-info-row" row="2" column="1" 
-							data-automation-id="confirm-caller-details-id-number"
-							label="ID Number"
-							value="${this.confirmedCaller.southAfricanIDNumber}">
-						</horizon-label>
-						<horizon-label class="client-info-row" row="2" column="2" 
-							data-automation-id="confirm-caller-details-verified-phone-number"
-							label="Verified Cellphone Number"
-							value="${this._getVerifiedTelephoneNumber()}">
-						</horizon-label>
-						<horizon-label class="client-info-row" row="3" columun="1" 
-							data-automation-id="confirm-caller-details-lives-in"
-							label="Lives In" 
-							value="${this.confirmedCaller.livesIn}">
-						</horizon-label>
-						<horizon-label class="client-info-row" row="3" columun="2" 
-							data-automation-id="confirm-caller-details-language-preference"
-							label="Language Preference"
-							value="${this._getLanguagePreference()}">
-						</horizon-label>
-						<horizon-label class="client-info-row" row="4" columun="1" 
-							data-automation-id="confirm-caller-details-birthday"
-							label="Birthday"
-							value="${this._getBirthdate(this.birthdate)}" >
-						</horizon-label>
-					</capitec-group>
+					</capitec-tooltip>
+					<horizon-label class="client-info-row" row="2" column="1" 
+						data-automation-id="confirm-caller-details-id-number"
+						label="ID Number"
+						value="${this.confirmedCaller.southAfricanIDNumber}">
+					</horizon-label>
+					<horizon-label class="client-info-row" row="2" column="2" 
+						data-automation-id="confirm-caller-details-verified-phone-number"
+						label="Verified Cellphone Number"
+						value="${this._getVerifiedTelephoneNumber()}">
+					</horizon-label>
+					<horizon-label class="client-info-row" row="3" columun="1" 
+						data-automation-id="confirm-caller-details-lives-in"
+						label="Lives In" 
+						value="${this.confirmedCaller.livesIn}">
+					</horizon-label>
+					<horizon-label class="client-info-row" row="3" columun="2" 
+						data-automation-id="confirm-caller-details-language-preference"
+						label="Language Preference"
+						value="${this._getLanguagePreference()}">
+					</horizon-label>
+					<horizon-label class="client-info-row" row="4" columun="1" 
+						data-automation-id="confirm-caller-details-birthday"
+						label="Birthday"
+						value="${this._getBirthdate(this.birthdate)}" >
+					</horizon-label>
 				</capitec-group>
+			</capitec-group>
 		 `;
+	}
+
+	_renderClientProfileImage() {
+		return this.confirmedCaller.profilePhoto
+		? html`
+			<object
+					data="${this._base64ToBlobUrl(this.confirmedCaller.profilePhoto)}"
+					type="image/jpg">
+	 		</object>`
+		: html`
+			<capitec-avatar 
+					shape="square"
+					icon="/images/common/avatar.svg">
+			</capitec-avatar>
+		`;
 	}
 
 	renderFooter() {

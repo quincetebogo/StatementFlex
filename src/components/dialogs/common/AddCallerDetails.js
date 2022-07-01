@@ -215,7 +215,8 @@ export class AddCallerDetails extends Component {
 						this.callerInformation.lastName,
 						this.callerInformation.initials,
 						this.callerInformation.identifiedBy, // Identification method used to confirm client
-						this.callerInformation.emailId // client's registered email ID
+						this.callerInformation.emailId, // client's registered email ID
+						this.callerInformation.profilePhoto
 					)
 				}
 			}));
@@ -241,11 +242,11 @@ export class AddCallerDetails extends Component {
 			"next-screen": TelemetryScreen.END_CALL
 		});
 
-		this.callerInformation.nonClientFirstName = this.firstNameTextField;
-		this.callerInformation.nonClientSurName = this.surnameTextField;
-		this.callerInformation.nonClientCellPhone = this.cellPhoneTextField;
-		this.callerInformation.is3rdParty = true;
-		this.callerInformation.isNonClient = false;
+        this.callerInformation.nonClientFirstName = this.firstNameTextField;
+        this.callerInformation.nonClientSurName = this.surnameTextField;
+        this.callerInformation.nonClientCellPhone = this.cellPhoneTextField;
+        this.callerInformation.is3rdParty = true;
+        this.callerInformation.isNonClient = false;
 
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
@@ -340,10 +341,7 @@ export class AddCallerDetails extends Component {
 				}
 
 				horizon-alert-banner {
-					--theme-alert-banner-height: 48px;
 					--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
-					--theme-alert-banner-icon-margin-left: 15px;
-					--theme-alert-banner-icon-margin-right: 15px;
 					
 					margin: 14px 16px 0px 17px;
 					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
@@ -484,7 +482,7 @@ export class AddCallerDetails extends Component {
 			<horizon-end-call-session 
 				.incomingCallDetails = "${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
-				.callerInformation="${this.callerInformation}"
+                .callerInformation="${this.callerInformation}"
 				endCallContext="ConfirmClient"
 				@cancel="${() => this.renderMode = RENDER_MODE.ADD_CALLER}">
 			</horizon-end-call-session>`;

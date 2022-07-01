@@ -454,8 +454,10 @@ export class StopCard extends Component {
 
 	_renderNotifyClient() {
 		return html`
-			<horizon-alert-banner type="info">
-				<span class="bold-text">Notify client:</span> Once card has been stopped you will need to visit a branch for a new card. You can also order a new card on the app from 15 May 2021
+			<horizon-alert-banner
+				type="info"
+				header="Notify client: "
+				label="Once card has been stopped you will need to visit a branch for a new card. You can also order a new card on the app from 15 May 2021">
 			</horizon-alert-banner>`;
 	}
 
