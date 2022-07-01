@@ -72,13 +72,17 @@ class InsureAccountSelect extends Component {
 		});
 		this.selectorAccounts.savingsPlan = [];
 		for (let i = 0; i < this.accountDetails.savingsPlanData.savingsPlans.length; i++) {
-			this.selectorAccounts.savingsPlan.push({
+			if(this.accountDetails.savingsPlanData.savingsPlans[i].accountType == 200){
+				this.selectorAccounts.savingsPlan.push({
 				accountType: this.accountDetails.savingsPlanData.savingsPlans[i].accountType,
 				accountStatus: this.accountDetails.savingsPlanData.savingsPlans[i].accountStatus,
 				accountNumber: this.accountDetails.savingsPlanData.savingsPlans[i].accountNumber,
 				availableBalance: this.accountDetails.savingsPlanData.savingsPlans[i].availableBalance,
 				planName: this.accountDetails.savingsPlanData.savingsPlans[i].planName,
-			});
+				});
+
+			}
+			
 		}
 		
 		
