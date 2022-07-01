@@ -13,6 +13,7 @@ import { IncidentDetails } from 'app/models/IncidentDetails';
 import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
 import { InitialiseService } from 'app/services/InitialiseService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { RoleManager } from 'app/shell/RoleManager';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase.js';
 
@@ -60,6 +61,9 @@ export class LandingPage extends ViewBase {
 		this.agentUpSub = this.eventAggregator.subscribe(`desktop-agent-up`, () => this._desktopAgentup());
 		this.eventSub = this.eventAggregator.subscribe(`prompt-start-desktopagent`, () => this._promptStartDesktopAgent());
 		this.desktopAgentDown = false;
+		this.isAuthorised = false;
+
+		this.roleManager = RoleManager.getInstance();
 
 		// Subscribe to state changes. Erase state once the call status indicates that the
 		// call has ended.
@@ -83,7 +87,8 @@ export class LandingPage extends ViewBase {
 
 	static get properties() {
 		return {
-			desktopAgentDown: { state: true }
+			desktopAgentDown: { state: true },
+			isAuthorised: { state: true }
 		};
 	}
 
@@ -94,10 +99,16 @@ export class LandingPage extends ViewBase {
 	async connectedCallback() {
 		super.connectedCallback();
 
+		this._initialise();
+
 		await this._GetLandingPageData();
 
 		// Notify the desktop agent service that we are now on the landing page and can therefore handle an incoming call
 		this.eventAggregator.publish(`landing-page-loaded`, {});
+	}
+
+	async _initialise() {
+		this.isAuthorised = await this.roleManager.isAuthorised;
 	}
 
 	disconnectedCallback() {
@@ -385,7 +396,7 @@ export class LandingPage extends ViewBase {
 
 	_renderMiddleSection() {
 		return html`
-			<horizon-landing-page-wait-for-call ?desktopAgentDown="${this.desktopAgentDown}" class="wait-for-call"></horizon-landing-page-wait-for-call>
+			<horizon-landing-page-wait-for-call ?isAuthorised="${this.isAuthorised}" ?desktopAgentDown="${this.desktopAgentDown}" class="wait-for-call"></horizon-landing-page-wait-for-call>
 		`;
 	}
 
