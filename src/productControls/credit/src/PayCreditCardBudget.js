@@ -101,7 +101,7 @@ export class PayCreditCardBudget extends Component {
 	}
 
 	_budgetValueChange(e) {
-		this.budgetAmount = e.detail.new;
+		this.budgetAmount = e.currentTarget.value;
 		this._getErrorMessage();
 	}
 
@@ -329,7 +329,7 @@ export class PayCreditCardBudget extends Component {
 				.error="${this.errorMessage}"
 				?disabled="${this.savStatus}"
 				value="${formatTextFieldCurrency(this.budgetAmount)}"
-				@value-changed="${(e) => this._budgetValueChange(e)}">
+				@focusout="${(e) => this._budgetValueChange(e)}">
 			</capitec-text-field>
 		`;
 	}
