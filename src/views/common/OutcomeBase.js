@@ -84,7 +84,7 @@ export class OutcomeBase extends ViewBase {
 	_cancelEmailModal() {
 		this._telemetry.logEvent(this.telemetryEvents.POP_CANCEL, {
 			"screen": TelemetryScreen.PROOF_OF_PAYMENT_DIALOG,
-			"next-screen": TelemetryScreen.CREDIT_PAY_BUDGET_SUCCESS
+			"next-screen": `${this.incidentDetails.currentNeed.replaceAll(`-`, ` `)}`
 		});
 		this._telemetry.endSpan(this.telemetryEvents.POP_MODAL, {}, true, true);
 
