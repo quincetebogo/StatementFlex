@@ -34,6 +34,10 @@ import { SecurityContext } from 'platform/core';
 		return this.roles && this.roles.includes(`helpdesk-agent`);
 	}
 
+	get isAuthorised() {
+		return this.roles && (this.roles.length >= 1);
+	}
+
 	async isSearchClientEnabled() {
 		const searchClientEnabledByConfig = await this._configuration.getSetting(`searchClientOptionEnabled`);
 		const searchClientEnabledByGroup = this.roles.map(element => element.toLowerCase()).includes(`hzn_search_button_enabled`);
