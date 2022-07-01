@@ -930,6 +930,14 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
+		name: `horizon-settle-and-close-failure`,
+		title: `SettleAndCloseFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.SETTLE_AND_CLOSE_FAILURE,
+		load: () => import(`../views/credit/SettleAndCloseFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
 		name: `horizon-savings-plan`,
 		title: `SavingsPlan`,
 		icon: null,
