@@ -199,8 +199,8 @@ export class NotificationsDetails extends Component {
 					--theme-label-strong-font-weight: 600;
 					--theme-label-font-color: #3A3A3A;
 				}
-				.side-panel-header-close-icon {
-					--theme-icon-size-small: 13.5px;
+				.side-panel-close-icon {
+					--theme-icon-size-medium: 24px;
 					cursor: pointer;
 				}
 
@@ -435,7 +435,7 @@ export class NotificationsDetails extends Component {
 					<capitec-icon class="side-panel-header-icon" size="medium" icon="system/notify"></capitec-icon>
 					<capitec-label class="side-panel-header-label" type="Strong" label="Notifications"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-icon class="side-panel-header-close-icon" size="small" icon="system/close-action" @click="${() => this._closeNotificationsPanel()}"></capitec-icon>
+					<capitec-icon class="side-panel-close-icon" size="medium" icon="system/close-action" @click="${() => this._closeNotificationsPanel()}"></capitec-icon>
 				</capitec-group>
 
 				${this._renderNotificationsDetails()}
@@ -609,7 +609,7 @@ export class NotificationsDetails extends Component {
 					valign="center"
 					gap="none"><capitec-label class="side-panel-header-label" type="Strong" label="Choose preferred message type"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-icon class="side-panel-close-icon" size="small" icon="system/close-action" @click="${() => this._onCloseUpdatePanelClick()}"></capitec-icon>
+					<capitec-icon class="side-panel-close-icon" size="medium" icon="system/close-action" @click="${() => this._onCloseUpdatePanelClick()}"></capitec-icon>
 				</capitec-group>
 
 				${this._renderClientNotification()}
@@ -669,7 +669,7 @@ export class NotificationsDetails extends Component {
 					gap="none">
 					<capitec-label class="side-panel-header-label" type="Strong" label="Choose message time"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-icon class="side-panel-close-icon" size="small" icon="system/close-action" @click="${() => this._onCloseUpdatePanelClick()}"></capitec-icon>
+					<capitec-icon class="side-panel-close-icon" size="medium" icon="system/close-action" @click="${() => this._onCloseUpdatePanelClick()}"></capitec-icon>
 				</capitec-group>
 
 				${this._renderMessageTimeUpdateClientNotification()}

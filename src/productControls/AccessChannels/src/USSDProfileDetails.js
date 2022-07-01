@@ -331,7 +331,7 @@ export class USSDProfileDetails extends Component {
 				--theme-label-font-color: #3A3A3A;
 			}
 			.icon-close{
-				--theme-icon-size-small: 13.5px;
+				--theme-icon-size-medium: 24px;
 				cursor: pointer;
 			}
 			.content-box{
@@ -534,7 +534,7 @@ export class USSDProfileDetails extends Component {
 							<capitec-spacer></capitec-spacer>
 							<capitec-icon 
 								class="icon-close" 
-								size="small" 
+								size="medium" 
 								icon="system/close-action" 
 								@click="${() => this._toggleAppSlidingPanel()}">
 							</capitec-icon>
@@ -581,7 +581,7 @@ export class USSDProfileDetails extends Component {
 							<capitec-icon 
 								data-automation-id="ussd-profile-details-close-side-sheet"
 								class="icon-close" 
-								size="small" 
+								size="medium" 
 								icon="system/close-action" 
 								@click="${() => this._toggleAppSlidingPanel()}">
 							</capitec-icon>
@@ -701,7 +701,7 @@ export class USSDProfileDetails extends Component {
 							<capitec-icon 
 								data-automation-id="ussd-profile-details-cancel-reasons-side-sheet"
 								class="icon-close" 
-								size="small" 
+								size="medium" 
 								icon="system/close-action" 
 								@click="${() => this._toggleCancelUSSD()}">
 							</capitec-icon>
@@ -806,7 +806,7 @@ export class USSDProfileDetails extends Component {
 							<capitec-spacer></capitec-spacer>
 							<capitec-icon 
 								class="icon-close" 
-								size="small" 
+								size="medium" 
 								icon="system/close-action" 
 								@click="${() => this._toggleAppSlidingPanel()}">
 							</capitec-icon>

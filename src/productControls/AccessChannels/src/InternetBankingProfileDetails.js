@@ -476,14 +476,9 @@ export class InternetBankingProfileDetails extends Component {
 					--theme-label-strong-font-weight: 600;
 					--theme-label-font-color: #3A3A3A;
 				}
-				
-				.side-panel-header-close-icon {
-					--theme-icon-size-small: 13.5px;
-					cursor: pointer;
-				}
 
 				.side-panel-close-icon {
-					--theme-icon-size-small: 13.5px;
+					--theme-icon-size-medium: 24px;
 					cursor: pointer;
 				}
 
@@ -820,7 +815,7 @@ export class InternetBankingProfileDetails extends Component {
 					<capitec-icon class="side-panel-header-icon" size="medium" icon="system/access"></capitec-icon>
 					<capitec-label class="side-panel-sheet-label" type="Strong" label="Internet Banking"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-icon class="side-panel-header-close-icon" size="small" icon="system/close-action" @click="${() => this._closeInternetBankingPanel()}"></capitec-icon>
+					<capitec-icon class="side-panel-close-icon" size="medium" icon="system/close-action" @click="${() => this._closeInternetBankingPanel()}"></capitec-icon>
 				</capitec-group>
 
 				${this._renderInternetBankingDetails()}
@@ -976,7 +971,7 @@ export class InternetBankingProfileDetails extends Component {
 				<capitec-icon class="${this.renderMode === RENDER_MODE.SINGLE_TOKEN ? `side-panel-header-icon` : `side-panel-header-suspend-icon`}" size="medium" icon=${this.showNoReasonSelectedNotification ? `status/error-trans` : `status/warning-trans`}></capitec-icon>
 				<capitec-label class="side-panel-header-label" type="Strong" label="Suspend Security Token"></capitec-label>
 				<capitec-spacer></capitec-spacer>
-				<capitec-icon class="side-panel-close-icon" size="small" icon="${this.renderMode === RENDER_MODE.SINGLE_TOKEN ? `system/close-action` : `system/close`}" @click="${() => this._onCloseSuspendPanelClick()}"></capitec-icon>
+				<capitec-icon class="side-panel-close-icon" size="medium" icon="${this.renderMode === RENDER_MODE.SINGLE_TOKEN ? `system/close-action` : `system/close`}" @click="${() => this._onCloseSuspendPanelClick()}"></capitec-icon>
 			</capitec-group>
 		`;
 	}
@@ -1149,7 +1144,7 @@ export class InternetBankingProfileDetails extends Component {
 					gap="none">
 					<capitec-label class="side-panel-header-label" type="Strong" label="Reset Security Token Clock"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-icon class="side-panel-close-icon" size="small" icon="system/close-action" @click="${() => this._onCloseResetPanelClick()}"></capitec-icon>
+					<capitec-icon class="side-panel-close-icon" size="medium" icon="system/close-action" @click="${() => this._onCloseResetPanelClick()}"></capitec-icon>
 				</capitec-group>
 
 				<capitec-content-box
