@@ -206,12 +206,8 @@
 			"enabled": true,
 			"positiveCase": true
 		},
-		"insureRetrieveQuoteDetails": {
-			"enabled": true,
-			"positiveCase": true
-		},
 		"insureRetrieveQuotesList": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insurePolicyTransactionHistory": {

@@ -28,18 +28,23 @@ export class InsureService extends ChannelServiceBase {
 	}
 
 	/**
-	 * Create token to enable envoking FIPS, this will move to the channel service.
+	 * Create token to enable envoking FIPS
 	 * @returns {Object} Header entries 
 	 */
 	setInsureTokens() {
-		const test = Security.getInstance().token;
-
 		return {
 			"X-User-Token": Security.getInstance().token,
 			"x-session-id": v4(),
 			"x-request-id": v4(),
-			"x-requester-uid": 'CP336134_17249_01_3997_16',
+			"x-requester-uid": generateFIPSRequesterUID(),
 		};
+	}
+
+	/**
+	 * Generate x-requester-uid for FIPS
+	 */
+	generateFIPSRequesterUID() {
+		return 'CP336134_17249_02_3997_16';
 	}
 
 	//#endregion
@@ -118,13 +123,13 @@ export class InsureService extends ChannelServiceBase {
 	}
 
 	/**
- * Policy Summary / Policy Details
- *
- * @param {policyRequest} [errorHandler=null]  Request data containing contract reference & cifnumber
- * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
- * @param {Number} [autoRetries] The number of times the call should be retried if it fails
- * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
- */
+	 * Policy Summary / Policy Details
+	 *
+	 * @param {policyRequest} [errorHandler=null]  Request data containing contract reference & cifnumber
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
 	async insurePolicySummary(policyRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`insurePolicySummary`)) {
 			return this.mock(`insurePolicySummary`);
@@ -190,8 +195,116 @@ export class InsureService extends ChannelServiceBase {
 	}
 
 	/**
-	 * Retrieve quote details
+	 * Get Policy Transaction History
 	 *
+	 * @param {transactionsRequest} [errorHandler=null]  Request data for policy transactions 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async getPolicyTransactions(transactionsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insurePolicyTransactionHistory`)) {
+			return this.mock(`policyTransactionHistory`, transactionsRequest);
+		}
+		return this.post(
+			`/horizon-insurance/policy/transactions`,
+			transactionsRequest,
+			this.setInsureTokens(),
+			`getPolicyTransactions`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Prepares FIPS for updating a policy, ensuring we fail fast if required 
+	 *
+	 * @param {prepareUpdateRequest} [errorHandler=null]  Request data for prepare update 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async prepareUpdate(prepareUpdateRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insurePrepareUpdate`)) {
+			return this.mock(`prepareUpdate`, prepareUpdateRequest);
+		}
+		return this.post(
+			`/horizon-insurance/policy/prepareupdate`,
+			prepareUpdateRequest,
+			this.setInsureTokens(),
+			`prepareUpdate`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 *  Generates the 801 Funeral Cover Plan Agreement document
+	 *
+	 * @param {generateAgreementRequest} [errorHandler=null]  Request data for UpdateFuneralCoverPlanAgreement 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async generateUpdateFuneralCoverPlanAgreement(generateAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureGenerateUpdateFuneralCoverPlanAgreement`)) {
+			return this.mock(`updateFuneralCoverPlanAgreement`, generateAgreementRequest);
+		}
+		return this.post(
+			`/horizon-insurance/document/generate/UpdateFuneralCoverPlanAgreement`,
+			generateAgreementRequest,
+			this.setInsureTokens(),
+			`updateFuneralCoverPlanAgreement`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 *  Generates the 804 Funeral Policy Payment Agreement document
+	 *
+	 * @param {generateAgreementRequest} [errorHandler=null]  Request data for FuneralPolicyPaymentAgreement 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async generateFuneralPolicyPaymentAgreement(generateAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureGenerateFuneralPolicyPaymentAgreement`)) {
+			return this.mock(`funeralPolicyPaymentAgreement`, generateAgreementRequest);
+		}
+		return this.post(
+			`/horizon-insurance/document/generate/FuneralPolicyPaymentAgreement`,
+			generateAgreementRequest,
+			this.setInsureTokens(),
+			`funeralPolicyPaymentAgreement`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	//#endregion
+
+	//#region DEPRECATED
+
+	/**
+	 * Retrieve quote details
+	 * @deprecated No Quote for MPV - Confirm if can be removed entirely
 	 * @param {quoteRequest} [errorHandler=null]  Request data for retrieve quote 
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
@@ -214,7 +327,7 @@ export class InsureService extends ChannelServiceBase {
 
 	/**
 	 * Retrieve list of quotes
-	 *
+	 * @deprecated No Quote for MPV - Confirm if can be removed entirely
 	 * @param {quoteRequest} [errorHandler=null]  Request data for retrieve quotes list 
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
@@ -238,7 +351,7 @@ export class InsureService extends ChannelServiceBase {
 	//#endregion
 
 
-	// ---- OLD // Check if can / should still use these
+	//#region OLD // Check if can / should still use these
 
 	async hasInsuranceProducts(insuranceClientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`hasInsuranceProducts`)) {
@@ -307,30 +420,5 @@ export class InsureService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
-
-	/**
- * Get Policy Transaction History
- *
- * @param {transactionsRequest} [errorHandler=null]  Request data for policy transactions 
- * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
- * @param {Number} [autoRetries] The number of times the call should be retried if it fails
- * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
- */
-	async getPolicyTransactions(transactionsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		if (await this.isMockEnabled(`insurePolicyTransactionHistory`)) {
-			return this.mock(`policyTransactionHistory`, transactionsRequest);
-		}
-		return this.post(
-			`/horizon-insurance/policy/transactions`,
-			transactionsRequest,
-			this.setInsureTokens(),
-			`getPolicyTransactions`,
-			null,
-			null,
-			900,
-			null,
-			errorHandler,
-			autoRetries
-		);
-	}
+	// #endregion
 }

@@ -45,6 +45,11 @@ export default class InsureChannelServiceMocks {
 		this.clientPoliciesMocks = await this._loadMockModule(this.clientPoliciesMocks, `insureClientPolicies`, () => import(`../mocks/insure/ClientPolicies`).catch(err => logError(err)));
 		this.transactionHistoryMocks = await this._loadMockModule(this.transactionHistoryMocks, `insurePolicyTransactionHistory`, () => import(`../mocks/insure/InsurePolicyTransactionsMockData`).catch(err => logError(err)));
 		this.policySummaryMocks = await this._loadMockModule(this.policySummaryMocks, `insurePolicySummary`, () => import(`../mocks/insure/PolicySummary`).catch(err => logError(err)));
+
+		this.calculateQuoteMocks = await this._loadMockModule(this.calculateQuoteMocks, `insureCalculateQuote`, () => import(`../mocks/insure/QuoteCalc`).catch(err => logError(err)));
+		this.prepareUpdateMocks = await this._loadMockModule(this.prepareUpdateMocks, `insurePrepareUpdate`, () => import(`../mocks/insure/PrepareUpdate`).catch(err => logError(err)));
+		this.generateUpdateFuneralCoverPlanAgreementMocks = await this._loadMockModule(this.generateUpdateFuneralCoverPlanAgreementMocks, `insureGenerateUpdateFuneralCoverPlanAgreementMocks`, () => import(`../mocks/insure/UpdateFuneralCoverPlanAgreement`).catch(err => logError(err)));
+		this.generateFuneralPolicyPaymentAgreementMocks = await this._loadMockModule(this.generateFuneralPolicyPaymentAgreementMocks, `insureGenerateFuneralPolicyPaymentAgreementMocks`, () => import(`../mocks/insure/FuneralPolicyPaymentAgreement`).catch(err => logError(err)));
 	}
 
 	/**
@@ -57,12 +62,12 @@ export default class InsureChannelServiceMocks {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Client policies mock check
 	 * @returns {Object} Mock response data
 	 */
-	 insureClientPolicies() {
+	insureClientPolicies() {
 		if (this._mockSettings.insureClientPolicies.positiveCase) {
 			return this.clientPoliciesMocks.ClientPolicies;
 		}
@@ -79,8 +84,7 @@ export default class InsureChannelServiceMocks {
 
 			const result = this.transactionHistoryMocks.PolicyTransactionHistory;
 
-			if(result.contractReference !== policyTransactionHistoryRequest.contractReference)
-			{
+			if (result.contractReference !== policyTransactionHistoryRequest.contractReference) {
 				let emptyResponse = {
 					contractReference: ``,
 					transactions: []
@@ -107,13 +111,47 @@ export default class InsureChannelServiceMocks {
 	}
 
 	/**
-	 * Update Plan mock check
+	 * Calculate Quote mock check
 	 * @returns {Object} Mock response data
 	 */
-	 insurePolicySummary() {
-		if (this._mockSettings.insurePolicySummary.positiveCase) {
-			return this.policySummaryMocks.PolicySummary;
+	insureCalculateQuote() {
+		if (this._mockSettings.insureCalculateQuote.positiveCase) {
+			return this.calculateQuoteMocks.QuoteCalc;
 		}
 		return null;
 	}
+
+	/**
+	 * Prepare update mock check
+	 * @returns {Object} Mock response data
+	 */
+	insurePrepareUpdate() {
+		if (this._mockSettings.insurePrepareUpdate.positiveCase) {
+			return this.prepareUpdateMocks.PrepareUpdate;
+		}
+		return null;
+	}
+
+	/**
+	 * Generate 801 Agreement mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureGenerateUpdateFuneralCoverPlanAgreement() {
+		if (this._mockSettings.insureGenerateUpdateFuneralCoverPlanAgreement.positiveCase) {
+			return this.generateUpdateFuneralCoverPlanAgreementMocks.UpdateFuneralCoverPlanAgreement;
+		}
+		return null;
+	}
+
+	/**
+	 * Generate 804 Agreement mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureGenerateFuneralPolicyPaymentAgreement() {
+		if (this._mockSettings.insureGenerateFuneralPolicyPaymentAgreement.positiveCase) {
+			return this.generateFuneralPolicyPaymentAgreement.FuneralPolicyPaymentAgreement;
+		}
+		return null;
+	}
+	
 }
