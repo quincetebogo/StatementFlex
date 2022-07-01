@@ -27,6 +27,7 @@ class PayPremiumDialog extends Component {
 
 		this.amount = 0;
 		this.optionSelected = false;
+		this.displayInsufficientFunds = false;
 		// Lookups
 		this.clientAccounts = CLIENT_ACCOUNTS;
 	}
@@ -40,7 +41,6 @@ class PayPremiumDialog extends Component {
 	 * @property {Object} payArrears Data & flags for Pay Arrears service request
 	 * @property {Number} amount Total amount to be paid for arrears
 	 * @property {Boolean} optionSelected determines whether an option has been selected from the account select box
-	 * @property {Boolean} secondCheck Determines if the second Arrear was selected
 	 * 
 	 * @readonly
 	 * @static
@@ -51,6 +51,10 @@ class PayPremiumDialog extends Component {
 			payArrears: { type: Object, state: true },
 			amount: { type: Number, state: true },
 			optionSelected: { type: Boolean, state: true },
+			accountDetails: {type: Object, state: true},
+			accountNumber: {type: String, state: true},
+			accountType: {type: String, state: true},
+			displayInsufficientFunds: { type: Boolean, state: true }
 		};
 	}
 
@@ -153,11 +157,35 @@ class PayPremiumDialog extends Component {
 	}
 
 	/**
-	 * Pay Event, emits payArrears object containg the Arrears that are to be paid & resets toggles 
+	 * Pay arrears Event, emits payArrears object containg the Arrears that are to be paid as well as the total amount to be paid and the clients account number & resets toggles 
+	 */
+	_PayArrears() {
+
+		this.dispatchEvent(new CustomEvent(`pay-arrears`, { detail: { payArrears: this.payArrears, amountToPay: this.amount, fromAccount: this.accountNumber } }));
+	}
+
+	/**
+	 * pay click event that determines if there is sufficient funds in the clients chosen account to to pay the arrears
 	 */
 	_onPayClick() {
+			if(this.accountType == "Savings Account"){
+				if (this.accountDetails.savingsAccountData.accountAvailableBalance < this.amount){
+					this.optionSelected = false;
+					this.displayInsufficientFunds = true;
+				} else {
+					this._PayArrears();
+				}
+			} else {
+				const index = this.accountDetails.savingsPlanData.savingsPlans.map(object => object.accountNumber).indexOf(this.accountNumber);
 
-		this.dispatchEvent(new CustomEvent(`pay-arrears`, { detail: { payArrears: this.payArrears, amountToPay: this.amount } }));
+				if (this.accountDetails.savingsPlanData.savingsPlans[index].availableBalance < this.amount){
+					this.optionSelected = false;
+					this.displayInsufficientFunds = true;
+				} else {
+					this._PayArrears();
+				}
+
+			}
 	}
 
 	/**
@@ -250,7 +278,11 @@ class PayPremiumDialog extends Component {
 	 * @param {*} e contains the boolean value recieved from the account select box
 	 */
 	_optionSelected(e) {
-		this.optionSelected = e.detail;
+		this.optionSelected = e.detail.optionSelected;
+
+		this.accountNumber = e.detail.accountNumber;
+
+		this.accountType = e.detail.accountType;
 	}
 
 
@@ -283,6 +315,11 @@ class PayPremiumDialog extends Component {
 		.modal-body-label{
 			padding: 10px 10px 10px 10px;
 			font-weight: bold;
+		}
+		.error{
+			--theme-toast-error-color: #000000;
+			--theme-toast-height: 50px;
+
 		}
 
 		`
@@ -317,11 +354,14 @@ class PayPremiumDialog extends Component {
 	_renderDialogBody() {
 		return html`
 
+			${this._renderInsufficientFunds()}
+
 			<capitec-label type="subtitle" label="Choose payment method">
 			</capitec-label>
 			
 			<insure-account-select .items= "${this.clientAccounts}" label="Select an Account"
-				@option-selected="${(e) => this._optionSelected(e)}" data-automation-id="insure-pay-premium-dialog-accounts">
+				@option-selected="${(e) => this._optionSelected(e)}" data-automation-id="insure-pay-premium-dialog-accounts"
+				.accountDetails = ${this.accountDetails}>
 			</insure-account-select>
 
 			
@@ -370,6 +410,13 @@ class PayPremiumDialog extends Component {
 				</capitec-button>
 			</capitec-group>`;
 
+	}
+
+	_renderInsufficientFunds(){
+		return this.displayInsufficientFunds == false ? html`` :
+		html `
+			<capitec-toast class="error" type="error" header="Insufficient Funds" layout="horizontal"></capitec-toast>
+		`
 	}
 
 

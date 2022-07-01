@@ -52,6 +52,12 @@ class ClientPolicies extends Component {
 	/**
 	 * @property {Object} clientArrears Data & flags from Arrears Service
 	 * @property {boolean} showPayPremiumDialog Determines if the Pay Premium dialog should be shown
+	 * @property {Object} payArrears contains the arrears that will be paid
+	 * @property {boolean} showPayPremiumConfirmationDialog Determines if the Pay Premium Confirmation dialog should be shown
+	 * @property {boolean} showPayPremiumAgreementDialog Determines if the Pay Premium Agreement dialog should be shown
+	 * @property {Number} amountToPay contains the total arrear amount to be paid
+	 * @property {Number} fromAccount contains the account number for the account the client will be paying from
+	 * @property {Object} accountDetails contains the clients Savings Account and Savings Plan details
 	 * 
 	 * @readonly
 	 * @static
@@ -65,6 +71,7 @@ class ClientPolicies extends Component {
 			showPayPremiumAgreementDialog: {type: Boolean, state: true},
 			amountToPay: {type: Number, state: true},
 			accountDetails: { type: Object, state: true },
+			fromAccount: {type: Number, state: true},
 
 			clientPolicies: { type: Object, state: true },
 			policyDetails: { type: Object, state: true }
@@ -132,7 +139,7 @@ class ClientPolicies extends Component {
 	 */
 	_goToPayPremiumSuccess(){
 		this.dispatchEvent(new CustomEvent(`navigate-to-pay-premium-success`, {
-			detail: { payArrears: this.payArrears
+			detail: { payArrears: this.payArrears, fromAccount: this.fromAccount
 			}
 		}));
 	}
@@ -145,6 +152,7 @@ class ClientPolicies extends Component {
 	 _payArrears(e) {
 			this.payArrears = e.detail.payArrears;
 			this.amountToPay = e.detail.amountToPay;
+			this.fromAccount = e.detail.fromAccount;
 
 			this.showPayPremiumDialog = false;
 			this.showPayPremiumConfirmationDialog = true;
@@ -689,7 +697,7 @@ class ClientPolicies extends Component {
 		return this.showPayPremiumDialog == false ? `` :
 			html`
 			<insure-pay-premium-dialog  @close-modal="${(e) => this._closePayPremiumDialog()}" .clientArrears = ${this.clientArrears}
-			@pay-arrears = "${(e) => this._payArrears(e)}" >	
+				.accountDetails = ${this.accountDetails} @pay-arrears = "${(e) => this._payArrears(e)}" >	
 			</insure-pay-premium-dialog>`
 
 	}
@@ -720,7 +728,11 @@ class ClientPolicies extends Component {
 			</insure-pay-premium-agreement-dialog>`
 
 	}
-
+/**
+ * render the unknown error dialog
+ * 
+ * @returns {html} 
+ */
 	_renderError(){
 		return html`
 			<insure-unknown-error-dialog></insure-unknown-error-dialog>

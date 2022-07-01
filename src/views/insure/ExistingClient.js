@@ -74,8 +74,8 @@ export class ExistingClient extends InsureViewBase {
 			policyDetails: { type: Object, state: true },
 			mainLifeGender: { type: String, state: true },
 			contractReference: { type: String, state: true },
-			savingsAccountDetails: { type: Object, state: true },
-			savingsPlanDetails: { type: Object, state: true },
+			accountDetails: { type: Object, state: true },
+		
 		};
 	}
 
@@ -106,7 +106,7 @@ export class ExistingClient extends InsureViewBase {
 		this.accountDetails = await this._retrieveAccountDetails();
 		// this.savingsPlanDetails = await this._retrieveSavingsPlanDetails();
 
-		console.log('savings account');
+		console.log('Account Details');
 		console.log(this.accountDetails);
 		
 	}
@@ -182,10 +182,10 @@ export class ExistingClient extends InsureViewBase {
 		// 	accountAvailableBalance: savingsAccountData.result.accountAvailableBalance,
 		// 	accountStatus: savingsAccountData.result.accountStatus
 		// },{
-		// 	accountNumber: savingsPlanData.result.accountNumber,
-		// 	planName: savingsPlanData.result.planName,
-		// 	accountType: savingsPlanData.result.accountType,
-		// 	accountStatus: savingsPlanData.result.accountStatus
+		// 	accountNumber: savingsPlanData.result.savingsPlans.accountNumber,
+		// 	planName: savingsPlanData.result.savingsPlans.planName,
+		// 	accountType: savingsPlanData.result.savingsPlans.accountType,
+		// 	accountStatus: savingsPlanData.result.savingsPlans.accountStatus
 		// }];
 
 		//  let resp = {}
@@ -245,19 +245,18 @@ export class ExistingClient extends InsureViewBase {
 	async _payPolicy(e) {
 		let payArrears = e.detail.payArrears;
 		payArrears.cifNumber = this.callerInformation.cifNumber;
-		payArrears.fromAccount = '65216545165'
+		payArrears.fromAccount = e.detail.fromAccount
 		console.log(payArrears)
 		const resp = await this.insureService.payPolicy(payArrears, () => true);
-		// if (resp.succeeded == true && resp.result != null) {
+		if (resp.succeeded == true && resp.result != null) {
+			this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
+		} 
+		else {
+			// Do error message
+			return null;
+		}
 
-		// } 
-		// else {
-		// 	// Do error message
-		// 	return null;
-		// }
 
-		if (!resp.succeeded)
-			return;
 	}
 
 	/**

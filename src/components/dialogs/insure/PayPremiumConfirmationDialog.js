@@ -104,7 +104,7 @@ class PayPremiumConfirmationDialog extends Component {
 		return html`
 			
 			<div>
-				<capitec-label label="Pay ${formatCurrency(this.amountToPay)} to funeral plan number ${this.contractReference}?" type="subtitle"></capitec-label>
+				<capitec-label label="Pay ${formatCurrency(this.amountToPay)} to funeral plan number ${this.contractReference}" type="subtitle"></capitec-label>
 			</div>
 
 
