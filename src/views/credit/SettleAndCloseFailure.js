@@ -29,7 +29,7 @@ import 'app/components/common/RelatedOptions';
 
 		this.telemetryEvents = {};
 
-		this.primaryToast = this.creditType === CREDIT_TYPE.FLEXIBLE ? `Account was not settled and closed` : `Account was not settled`;
+		this.primaryToast = ``;
 	}
 
 	// -------------------
@@ -59,6 +59,7 @@ import 'app/components/common/RelatedOptions';
 		this._telemetry.endSpan(this.telemetryEvents.FAILURE, {}, true, true);
 	
 		this.horizonRouter.navigateToCreditAccount();
+		this.horizonStore.clearScreenDetails();
 	}
 
 	// --------------
@@ -74,6 +75,8 @@ import 'app/components/common/RelatedOptions';
 		this.creditType = screenDetails.settleAndCloseCreditType;
 		this.accountName = screenDetails.accountName;
 		this.creditCardNumber = screenDetails.settleAndCloseAccountNumber;
+
+		this.primaryToast = this.creditType === CREDIT_TYPE.FLEXIBLE ? `Account was not settled and closed` : `Account was not settled`;
 		this.telemetryEvents = SETTLE_AND_CLOSE[this.creditType];
 	}
 
