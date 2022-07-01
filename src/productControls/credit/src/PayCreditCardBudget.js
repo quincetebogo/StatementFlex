@@ -101,7 +101,7 @@ export class PayCreditCardBudget extends Component {
 	}
 
 	_budgetValueChange(e) {
-		this.budgetAmount = e.currentTarget.value;
+		this.budgetAmount = deformatCurrency(e.currentTarget.value);
 		this._getErrorMessage();
 	}
 
