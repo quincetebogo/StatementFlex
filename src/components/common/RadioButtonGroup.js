@@ -128,7 +128,7 @@ export class HorizonRadioButtonGroup extends Component {
 
     _webTemplate() {
         return html`
-			<capitec-radio-group>
+			<capitec-radio-group halign="stretch">
 					${this.radioButtonsAvailable.map((item) => this._renderRadioButton(item))}
 			</capitec-radio-group>
 		`;

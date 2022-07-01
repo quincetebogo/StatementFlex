@@ -245,6 +245,7 @@ export class SettlementQuote extends Component {
 				}
 				capitec-icon {
 					cursor: pointer;
+					--theme-icon-size-medium: 26px;
 				}
 
 				/* Filter bar styles */
@@ -348,7 +349,7 @@ export class SettlementQuote extends Component {
 		return html`
 			<capitec-title-bar>
 				<capitec-icon 
-					size="small"
+					size="medium"
 					icon="system/arrow-left-action"
 					@click="${() => this._back()}">
 				</capitec-icon>

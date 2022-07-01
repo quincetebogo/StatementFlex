@@ -99,6 +99,7 @@ export class TaxCertificateLanding extends Component {
 				capitec-title-bar > capitec-icon {
 					cursor: pointer;
 					margin-right: 15px;
+					--theme-icon-size-medium: 26px;
 				}
 				capitec-image {
 					margin: 109px 386px 0px 386px;
@@ -161,7 +162,7 @@ export class TaxCertificateLanding extends Component {
 			<capitec-title-bar class="title-bar">
 				<capitec-icon 
 					data-automation-id="tax-certificate-landing-back"
-					size="small"
+					size="medium"
 					icon="system/arrow-left-action"
 					@click="${() => this._back()}">
 				</capitec-icon>

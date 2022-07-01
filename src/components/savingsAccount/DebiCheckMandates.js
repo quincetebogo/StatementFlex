@@ -214,6 +214,7 @@ export class DebiCheckMandates extends Component {
 				capitec-title-bar > capitec-icon {
 					cursor: pointer;
 					margin-right: 16px;
+					--theme-icon-size-medium: 26px;
 				}
 				.debicheck-action-bar {
 					height: 64px;
@@ -353,7 +354,7 @@ export class DebiCheckMandates extends Component {
 		return html`
 			<capitec-title-bar type="default">
 				<capitec-icon 
-					size="small"
+					size="medium"
 					icon="system/arrow-left-action"
 					@click="${() => this._back()}">
 				</capitec-icon>

@@ -225,6 +225,10 @@ export class PaidUpAccounts extends Component {
 					line-height: 32px;
 					margin-left: 15px;
 				}
+				capitec-title-bar > capitec-icon {
+					cursor: pointer;
+					--theme-icon-size-medium: 26px;
+				}
 				capitec-action-bar {
 
                     border-bottom: 1px solid rgb(225, 225, 225);    
@@ -347,7 +351,7 @@ export class PaidUpAccounts extends Component {
 			<capitec-card class="center-section" >
 				<capitec-title-bar>
 					<capitec-icon 
-						size="small"
+						size="medium"
 						icon="system/arrow-left-action"
 						@click="${() => this._back()}">
 					</capitec-icon>

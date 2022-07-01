@@ -1009,7 +1009,7 @@ export class VerifyCaller extends Component {
 						data-automation-id="verify-caller-skip-button"					
 						label="Skip Verification"
 						icon="system/arrow-right-action" 
-						iconSize="small"
+						iconSize="medium"
 						@click="${() => this._skipClick()}">
 					</horizon-option-button>
 					<horizon-option-button

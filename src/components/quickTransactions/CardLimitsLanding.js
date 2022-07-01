@@ -596,6 +596,7 @@ export class CardLimitsLanding extends Component {
 				capitec-title-bar > capitec-icon {
 					cursor: pointer;
 					margin-right: 15px;
+					--theme-icon-size-medium: 26px;
 				}
 				capitec-label[type="strong"] {
 					--theme-label-strong-font-size: 14px;
@@ -791,7 +792,7 @@ export class CardLimitsLanding extends Component {
 			<capitec-title-bar class="title-bar">
 				<capitec-icon 
 					data-automation-id="card-limits-landing-back"
-					size="small"
+					size="medium"
 					icon="system/arrow-left-action"
 					@click="${() => this._back()}">
 				</capitec-icon>
