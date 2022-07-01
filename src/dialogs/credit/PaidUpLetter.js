@@ -180,10 +180,7 @@ export class PaidUpLetter extends Component {
 				}
 
 				horizon-alert-banner {
-					--theme-alert-banner-height: 48px;
 					--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
-					--theme-alert-banner-icon-margin-left: 15px;
-					--theme-alert-banner-icon-margin-right: 15px;
 				}
 
 				horizon-product-tile {
@@ -269,16 +266,10 @@ export class PaidUpLetter extends Component {
 	_renderAlertBanner() {
 		return this.alertBannerMessage 
 		? html`
-			<horizon-alert-banner type="unsuccessful-red">
-				<capitec-group layout="horizontal">
-					<capitec-label
-						type="subtitle"
-						label="Notify:">
-					</capitec-label>
-					<capitec-label
-						label="${this.alertBannerMessage}">
-					</capitec-label>
-				</capitec-group>
+			<horizon-alert-banner
+				type="error"
+				header="Notify: "
+				label="${this.alertBannerMessage}">
 			</horizon-alert-banner>`
 		: html``;
 	}

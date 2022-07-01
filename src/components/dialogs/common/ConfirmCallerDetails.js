@@ -525,9 +525,12 @@ export class ConfirmCallerDetails extends Component {
 				}
 				#id-banner-addcallerdetails{
 					--theme-alert-banner-warning-border: 1px solid rgba(228,124,40,0.1);
-					--theme-alert-banner-icon-margin-left: 16px;
+					--theme-toast-icon-margin: 0px 18px 0px 16px;
+					--theme-hyperlink-font-weight: 600;
 					--theme-layout-gap-spacing: 28px;
-					--theme-alert-banner-height: 48px;
+				}
+				#id-banner-addcallerdetails > section {
+					margin-left: 3px;
 				}
 				capitec-avatar {
 					--theme-avatar-size-large: 200px;
@@ -632,7 +635,7 @@ export class ConfirmCallerDetails extends Component {
 			: html`
 				<horizon-alert-banner 
 					data-automation-id="confirm-caller-details-error-banner"
-					type="unsuccessful-red"
+					type="error"
 					label=${this.errorMessage}>
 				</horizon-alert-banner>`;
 	}
@@ -643,13 +646,14 @@ export class ConfirmCallerDetails extends Component {
 				<horizon-alert-banner 
 					id="id-banner-addcallerdetails" 
 					data-automation-id="confirm-caller-details-add-caller-banner"
-					type="warning">
+					type="warning"
+					layout="horizontal">
 						<capitec-hyperlink 
 							label="Add Caller Details"
 							data-automation-id="confirm-caller-details-add-caller-details"
 							@click="${() => this._addCallerDetailsClick()}">
 						</capitec-hyperlink>
-					if the caller is calling on another client's behalf
+						<section>if the caller is calling on another client's behalf</section>
 				</horizon-alert-banner>`;
 		} 
 
@@ -657,8 +661,9 @@ export class ConfirmCallerDetails extends Component {
 			<horizon-alert-banner 
 				id="id-banner-addcallerdetails" 
 				data-automation-id="confirm-caller-details-branch-banner"
-				type="warning">
-				<p><b>Notify:</b>${branchBannerMessage}</p>
+				type="warning"
+				header="Notify: "
+				label="${branchBannerMessage}">
 			</horizon-alert-banner>`;
 	}
 

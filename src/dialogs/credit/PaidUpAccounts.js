@@ -448,9 +448,11 @@ export class PaidUpAccounts extends Component {
 	_renderAlertBanner() {
 		if (this.errorMessage) {
 			return html`
-				<horizon-alert-banner class="alert-banner"
-					type="unsuccessful-red">
-						<p><b>Notify:</b> ${this.errorMessage}</p>
+				<horizon-alert-banner
+					class="alert-banner"
+					type="error"
+					header="Notify: "
+					label="${this.errorMessage}">
 				</horizon-alert-banner>`;
 		}
 	}

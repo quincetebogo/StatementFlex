@@ -89,12 +89,16 @@ export class PushNotificationStatus extends Component {
 	_renderHeaderLabels() {
 		return this.timeLeft < 16 && this.timeLeft > 0
 		? html`
-			<horizon-alert-banner type="warning">
-				<b>Notify client:</b> Your time is about to run out.
+			<horizon-alert-banner
+				type="warning"
+				header="Notify client: "
+				label="Your time is about to run out.">
 			</horizon-alert-banner>`
 		: html`
-			<horizon-alert-banner type="info">
-				<b>Notify client:</b> A push notification was sent to your phone, you need to accept to continue.
+			<horizon-alert-banner
+				type="info"
+				header="Notify client: "
+				label="A push notification was sent to your phone, you need to accept to continue.">
 			</horizon-alert-banner>`;
 	}
 

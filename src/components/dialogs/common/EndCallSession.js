@@ -685,10 +685,8 @@ export class EndCallSession extends Component {
 			horizon-alert-banner {
 				width: 100%;
 
-				--theme-alert-banner-icon-margin-left: 15px;
-				--theme-alert-banner-icon-margin-right: 7px;
 				--theme-icon-size-default: 26px;
-				--theme-alert-banner-height: 48px;
+				--theme-toast-icon-margin: 0px 7px 0px 15px;
 			}`
 		];
 	}
@@ -830,8 +828,8 @@ export class EndCallSession extends Component {
 			return html`
 				<horizon-alert-banner 
 					data-automation-id="end-call-session-banner"
-					type="unsuccessful-red">
-						${this.alertBannerMessage}
+					type="error"
+					label="${this.alertBannerMessage}">
 				</horizon-alert-banner>`;
 		}
 	}

@@ -249,10 +249,7 @@ export class ProofOfAccount extends Component {
 					--theme-modal-footer-padding: 0px;
 				}
 				horizon-alert-banner {
-					--theme-alert-banner-height: 48px;
 					--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
-					--theme-alert-banner-icon-margin-left: 15px;
-					--theme-alert-banner-icon-margin-right: 15px;
 
 					margin: 16px 0px 0px 0px;
 				
@@ -336,20 +333,10 @@ export class ProofOfAccount extends Component {
 	_renderAlertBanner() {
 		if (!this._isNullorEmpty(this.alertBannerMessage)) {
 			return html`
-				<horizon-alert-banner type="unsuccessful-red">
-					<capitec-group layout="horizontal">
-						<capitec-label
-							data-automation-id="proof-of-account-notify-alert-banner"
-							type="subtitle"
-							label="Notify: "
-							class="label-err-message">
-						</capitec-label>
-						<capitec-label
-							data-automation-id="proof-of-account-alert-banner"
-							label="${this.alertBannerMessage}"
-							class="label-err-message">
-						</capitec-label>
-					</capitec-group>
+				<horizon-alert-banner
+					type="error"
+					header="Notify: "
+					label="${this.alertBannerMessage}">
 				</horizon-alert-banner>
 			`;
 		}

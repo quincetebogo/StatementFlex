@@ -31,8 +31,6 @@ export class VerificationUnavailable extends Component {
 					--theme-alert-banner-info-border: none;
 				}
 				#notification-status-box > capitec-group > horizon-alert-banner[type="error"] {
-					--theme-alert-banner-icon-margin-left: 15px;
-					--theme-alert-banner-icon-margin-right: 15px;
 					--theme-alert-banner-unsuccessful-red-border: none;
 					--theme-alert-banner-margin-bottom: 0px;
 				}
@@ -74,8 +72,10 @@ export class VerificationUnavailable extends Component {
 		return html`
 			<capitec-content-box id="notification-status-box">
 				<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
-					<horizon-alert-banner type="error">
-						<b>Notify client : </b>We’re unable to verify you at this time.
+					<horizon-alert-banner
+						type="error"
+						header="Notify client : "
+						label="We’re unable to verify you at this time.">
 					</horizon-alert-banner>
 					<capitec-group layout="vertical" 
 						halign="center"

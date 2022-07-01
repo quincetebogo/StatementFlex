@@ -33,9 +33,13 @@ export class HorizonAlertBanner extends AlertBanner {
 					--theme-alert-banner-unsuccessful-font-color: #3A3A3A;
 					--theme-alert-banner-unsuccessful-red-font-color: #3A3A3A;
 					--theme-alert-banner-width: auto;
-					--theme-toast-z-index: 1;
+					--theme-toast-z-index: 0;
 					--theme-toast-box-shadow: none;
 					--theme-toast-content-margin: 0px;
+					--theme-toast-padding: 12px 16px 12px 0px;
+					--theme-toast-content-margin-left: 0px;
+					--theme-toast-content-font-weight: 400;
+					--theme-toast-icon-margin: 0px 15px 0px 15px;
 				}`
 		];
 	}

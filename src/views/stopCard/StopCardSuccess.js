@@ -217,11 +217,6 @@ export class StopCardSuccess extends ViewBase {
 
 				horizon-alert-banner {
 					margin: 16px;
-					--theme-alert-banner-height: 48px;
-				}
-
-				.bold-text {
-					font-weight: 600;
 				}
 			`
 		];
@@ -273,8 +268,9 @@ export class StopCardSuccess extends ViewBase {
 			<horizon-alert-banner 
 				data-automation-id="stop-card-success-notify-client"
 				type="info" 
-				style="visibility:${!this.displayNotification ? `visible` : `visible`}">
-					<span class="bold-text">Notice:</span> Please check if the client also needs to stop the remote banking app channels (App/USSD)
+				style="visibility:${!this.displayNotification ? `visible` : `visible`}"
+				header="Notice: "
+				label="Please check if the client also needs to stop the remote banking app channels (App/USSD)">
 			</horizon-alert-banner>`;
 	}
 

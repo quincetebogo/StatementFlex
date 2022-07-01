@@ -939,9 +939,10 @@ export class Favourites extends SavingsAccountBase {
 			<horizon-alert-banner
 				class="verificatoin-status"
 				data-automation-id="favourite-transactions-failed-verification-alert-banner"
-				type="unsuccessful-red"
-				label="Notify client: I'm not able to access your account since you couldn't be verified. Can we guide you on the App? Alternatively please visit your nearest branch.">
-			</capitec-alert-banner>`;
+				type="error"
+				header="Notify client: "
+				label="I'm not able to access your account since you couldn't be verified. Can we guide you on the App? Alternatively please visit your nearest branch.">
+			</horizon-alert-banner>`;
 	}
 
 	_renderVerifiedAlertBanner() {
@@ -956,14 +957,9 @@ export class Favourites extends SavingsAccountBase {
 				<horizon-alert-banner
 					class="verificatoin-status"
 					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
-					type="warning">
-						<capitec-group layout="horizontal" class="alert-banner-group">
-							<capitec-label type="strong" label="Notify client:"></capitec-label>
-							<capitec-label type="default"
-								label="For added security get the remote banking App to perform additional transactions, alternatively, visit your nearest branch.">
-							</capitec-label>
-							<capitec-spacer></capitec-spacer>
-						</capitec-group>
+					type="warning"
+					header="Notify client: "
+					label="For added security get the remote banking App to perform additional transactions, alternatively, visit your nearest branch.">
 				</horizon-alert-banner>`
 			: html``;
 	}

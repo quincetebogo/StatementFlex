@@ -372,10 +372,8 @@ export class TapToPayLanding extends Component {
 			<horizon-alert-banner
 				class="alert-banner"
 				type="info"
-				label="Notify Client:">
-					<p class="alert-banner-paragraph">
-						After you switch tap to pay on, you first have to insert your card and PIN at a card machine or ATM to make it active on your card.
-					</p>
+				header="Notify Client: "
+				label="After you switch tap to pay on, you first have to insert your card and PIN at a card machine or ATM to make it active on your card.">
 			</horizon-alert-banner>
 
 			${this._renderPrimaryCards()}

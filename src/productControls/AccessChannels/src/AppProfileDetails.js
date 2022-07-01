@@ -264,9 +264,7 @@ export class AppProfileDetails extends Component {
 				}
 				horizon-alert-banner {
 					margin: 8px 8px 0px 8px;
-					--theme-alert-banner-height: 84px;
-					--theme-alert-banner-icon-margin-left: 16px;
-					--theme-alert-banner-icon-margin-right: 16px;
+					--theme-toast-icon-margin: 0px 18px 0px 16px;
 				}
 				horizon-alert-banner > p {
 					margin: 0px;
@@ -504,7 +502,7 @@ export class AppProfileDetails extends Component {
 			<horizon-alert-banner
 				data-automation-id="app-profile-details-unavailable-banner"
 				class="unavailable-alert-banner"
-				type="unsuccessful-red"
+				type="error"
 				label=""
 				layout="vertical">
 				<b>Notify Client</b> <br>
@@ -613,7 +611,7 @@ export class AppProfileDetails extends Component {
 		: html`
 			<horizon-alert-banner 
 				data-automation-id="app-profile-details-suspended-banner"
-				type="unsuccessful-red"
+				type="error"
 				label=""
 				layout="vertical">
 				<b>App suspended</b> <br>
@@ -628,7 +626,7 @@ export class AppProfileDetails extends Component {
 			<horizon-alert-banner 
 				data-automation-id="app-profile-details-validation-banner"
 				class="validate-reasons"
-				type="unsuccessful-red"
+				type="error"
 				label=""
 				layout="vertical">
 				<b>Notice</b> <br>

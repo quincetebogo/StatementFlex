@@ -646,9 +646,8 @@ export class InternetBankingProfileDetails extends Component {
 
 				horizon-alert-banner {
 					margin: 8px 8px 0px 8px;
-									   
-					--theme-alert-banner-icon-margin-left: 16px;
-					--theme-alert-banner-icon-margin-right: 16px;
+					
+					--theme-toast-icon-margin: 40px 16px 0px 16px;
 				}
 
 				horizon-alert-banner > capitec-hyperlink {
@@ -672,10 +671,15 @@ export class InternetBankingProfileDetails extends Component {
 					letter-spacing: 0;
 					line-height: 20px;
 				}
+				.choose-reason {
+					--theme-toast-icon-margin: 10px 16px 0px 16px;
+				}
+
 
 				.client-notify-banner {
 					--theme-alert-banner-height: 105px;
 					--theme-alert-banner-width: 328px;
+					--theme-toast-icon-margin: 16px 16px 0px 16px;
 				}
 				.client-notify-banner > p {
 					width: 204px;
@@ -1190,12 +1194,11 @@ export class InternetBankingProfileDetails extends Component {
 		return html`
 			<horizon-alert-banner
 				data-automation-id="app-profile-details-unavailable-banner"
-				class="unavailable-alert-banner"
-				type="unsuccessful-red"
-				label=""
+				class="choose-reason"
+				type="error"
+				header="Notify Client"
+				label="Services are currently unavailable"
 				layout="vertical">
-				<b>Notify Client</b> <br>
-				<p>Services are currently unavailable</p>
 			</horizon-alert-banner>
 			
 			<capitec-group class="service-unavilable-group" layout="vertical" halign="center" valign="center" gap="none">
@@ -1310,9 +1313,10 @@ export class InternetBankingProfileDetails extends Component {
 				class="token-suspend-banner"
 				label=""
 				layout="vertical">
-				<p><b>Internet security token suspended.</b><br>To access internet banking you will need to register on the App.</p>
-				<capitec-spacer></capitec-spacer>
-				<p>Please visit a branch to request a new security token.</p>
+					<b>Internet security token suspended.</b>
+					<p>To access internet banking you will need to register on the App.</p>
+					<capitec-spacer></capitec-spacer>
+					<p>Please visit a branch to request a new security token.</p>
 			</horizon-alert-banner>
 		` : html``;
 	}
@@ -1320,11 +1324,12 @@ export class InternetBankingProfileDetails extends Component {
 	_renderClientNotification() {
 		return this.showNoReasonSelectedNotification ? html`
 			<horizon-alert-banner
-				type="unsuccessful-red"
+				class="choose-reason"
+				type="error"
 				label=""
 				layout="vertical">
-				<p></b><b>Notice:</b></p>
-				<p>Please choose a reason to suspend.</p>
+					</b><b>Notice:</b>
+					<p>Please choose a reason to suspend.</p>
 			</horizon-alert-banner>
 		` : html`
 			<horizon-alert-banner
@@ -1332,14 +1337,15 @@ export class InternetBankingProfileDetails extends Component {
 				class="client-notify-banner"
 				label=""
 				layout="vertical">
-				<p><b>Notify client:</b><br>A fee will be charged to activate a new security token.</p>
+					<b>Notify client:</b>
+					<p>A fee will be charged to activate a new security token.</p>
 
-				<capitec-hyperlink
-					href="https://www.capitecbank.co.za/global-one/transact/fees/"
-					target="_blank"
-					label="View fees"
-					inline>
-				</capitec-hyperlink>
+					<capitec-hyperlink
+						href="https://www.capitecbank.co.za/global-one/transact/fees/"
+						target="_blank"
+						label="View fees"
+						inline>
+					</capitec-hyperlink>
 			</horizon-alert-banner>
 		`;
 	}

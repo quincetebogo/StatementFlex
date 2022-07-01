@@ -275,9 +275,7 @@ export class NotificationsDetails extends Component {
 
 					--theme-alert-banner-width: 328px;
 					--theme-layout-gap-spacing: 16px;
-									   
-					--theme-alert-banner-icon-margin-left: 16px;
-					--theme-alert-banner-icon-margin-right: 16px;
+					--theme-toast-icon-margin: 16px 16px 0px 16px;
 				}
 				horizon-alert-banner > capitec-hyperlink {
 					margin-top: 5px;
@@ -297,6 +295,9 @@ export class NotificationsDetails extends Component {
 					font-size: 14px;
 					letter-spacing: 0;
 					line-height: 20px;
+				}
+				.unavailable-alert-banner {
+					--theme-toast-icon-margin: 10px 16px 0px 16px;
 				}
 				.client-notify-banner {
 					--theme-alert-banner-height: 90px;
@@ -756,16 +757,17 @@ export class NotificationsDetails extends Component {
 			<horizon-alert-banner
 				type="warning"
 				class="client-notify-message-type-banner"
+				header=""
 				label=""
 				layout="vertical">
-				<p><b>Notify client:</b><br>You will be charged a fee per SMS update.</p>
-				
-				<capitec-hyperlink
-					href="https://www.capitecbank.co.za/global-one/transact/fees/"
-					target="_blank"
-					label="View fees"
-					inline
-				></capitec-hyperlink>
+					<b>Notify client:</b>
+					<p>You will be charged a fee per SMS update.</p>
+					<capitec-hyperlink
+						href="https://www.capitecbank.co.za/global-one/transact/fees/"
+						target="_blank"
+						label="View fees"
+						inline>
+					</capitec-hyperlink>
 			</horizon-alert-banner>
 		`;
 	}
@@ -775,9 +777,9 @@ export class NotificationsDetails extends Component {
 			<horizon-alert-banner
 				type="warning"
 				class="client-notify-banner"
-				label=""
+				header="Notify client:"
+				label="You will only receive notifications between ${this.messageTimeSelected}"
 				layout="vertical">
-				<p><b>Notify client:</b><br>You will only receive notifications between ${this.messageTimeSelected}</p>
 			</horizon-alert-banner>
 		` : html``;
 	}
@@ -787,11 +789,10 @@ export class NotificationsDetails extends Component {
 			<horizon-alert-banner
 				data-automation-id="notifications-details-unavailable-banner"
 				class="unavailable-alert-banner"
-				type="unsuccessful-red"
-				label=""
+				type="error"
+				header="Notify Client"
+				label="Services are currently unavailable"
 				layout="vertical">
-				<b>Notify Client</b> <br>
-				<p>Services are currently unavailable</p>
 			</horizon-alert-banner>
 			
 			<capitec-group class="service-unavilable-group" layout="vertical" halign="center" valign="center" gap="none">

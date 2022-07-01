@@ -238,8 +238,9 @@ export class ViewInfoDebiCheck extends Component {
 		return this.isPending
 			? html`
 				<horizon-alert-banner
-					type="warning">
-					<p><b>Notify client:</b> The DebiCheck can only be approved/declined by contacting the bank you selected for this payment</p>
+					type="warning"
+					header="Notify client: "
+					label="The DebiCheck can only be approved/declined by contacting the bank you selected for this payment">
 				</horizon-alert-banner>`
 			: html``;
 	}

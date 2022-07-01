@@ -324,9 +324,7 @@ export class TaxCertificates extends Component {
 					--theme-container-padding-bottom: 16px;
 				}
 				.main-cb > horizon-alert-banner {
-					--theme-alert-banner-height: 48px;
-					--theme-alert-banner-icon-margin-left: 16px;
-					--theme-alert-banner-icon-margin-right: 12px;
+					--theme-toast-icon-margin: 0px 12px 0px 16px;
 					--theme-layout-gap-spacing: 20px;
 				}
 				div[slot="step"] {
@@ -571,8 +569,9 @@ export class TaxCertificates extends Component {
 				<horizon-alert-banner 
 					data-automation-id="tax-certificate-alert-banner"
 					type="unsuccessful-red" 
-					closable>
-					<p><b>Notify:</b> ${this.alertBannerMessage}</p>
+					closable
+					header="Notify: "
+					label="${this.alertBannerMessage}">
 				</horizon-alert-banner>`
 			: html``;
 	}

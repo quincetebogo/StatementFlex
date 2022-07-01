@@ -210,12 +210,14 @@ import 'app/components/common/HorizonLabel';
 	}
 
 	_renderArrearsAlertBanner() {
-		return !this.accountDetails.arrears ? html``
+		return !this.accountDetails.arrears
+			? html``
 			: html`
-			<horizon-alert-banner
-					type="error">
-				<p><b>Notify:</b> ${this.accountDetails.title} is in arrears ${this.accountDetails.arrears[`Total arrears amount`]}</p>
-			</horizon-alert-banner>`;
+				<horizon-alert-banner
+					type="error"
+					header="Notify: "
+					label="${this.accountDetails.title} is in arrears ${this.accountDetails.arrears[`Total arrears amount`]}">
+				</horizon-alert-banner>`;
 	}
 
 	_renderOverview() {

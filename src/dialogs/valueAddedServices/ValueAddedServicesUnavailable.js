@@ -87,7 +87,7 @@ export class ValueAddedServiceUnavailable extends Component {
 					--theme-modal-footer-padding: 0px;
 				}
 
-				horizon-alert-banner[type="unsuccessful-red"] {
+				horizon-alert-banner[type="error"] {
 					margin-top: 16px;
 					width: 677px;
 
@@ -170,8 +170,9 @@ export class ValueAddedServiceUnavailable extends Component {
 	_renderVASUnvailable() {
 		return html`
 				<horizon-alert-banner 
-						type="unsuccessful-red">
-						<p><strong>Notify client:</strong> Value Added Services is currently unavailable</p>
+						type="error"
+						header="Notify client: "
+						label="Value Added Services is currently unavailable">
 				</horizon-alert-banner>
 
 				<img class="image" src="/images/tap-to-pay-error.svg" alt="" />

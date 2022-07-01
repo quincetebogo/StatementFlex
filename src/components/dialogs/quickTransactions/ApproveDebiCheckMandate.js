@@ -256,7 +256,6 @@ export class ApproveDebiCheckMandate extends Component {
 					line-height: 20px;
 					width: 776px;
 				
-					--theme-alert-banner-height: 48px;
 					--theme-alert-banner-font-size: 14px;
 					--theme-alert-banner-info-font-color: #3A3A3A;
 					--theme-alert-banner-warning-font-color: #3A3A3A;
@@ -348,16 +347,11 @@ export class ApproveDebiCheckMandate extends Component {
 	_renderAgreementsAlertBanner() {
 		return html`
 			<horizon-alert-banner
-			type="${this._checkWarning() ? `warning` : this.alertType}" 
-			data-automation-id="debi-check-agreement-alert-banner"
-			closable>
-				<capitec-group layout="horizontal"  valign="top" gap="none" class="alert-banner">
-					<capitec-label
-					label="Notify client: "
-					type="default">
-					</capitec-label>
-					${this._checkWarning() ? WARNING_MESSAGE : MESSAGE}
-				</capitec-group>
+				type="${this._checkWarning() ? `warning` : this.alertType}" 
+				data-automation-id="debi-check-agreement-alert-banner"
+				closable
+				header="Notify client: "
+				label="${this._checkWarning() ? WARNING_MESSAGE : MESSAGE}">
 			</horizon-alert-banner>
 		`;
 	}

@@ -594,10 +594,8 @@ export class UpdateCardLimits extends Component {
 				--theme-container-padding-bottom: 0px;
 			}
 			horizon-alert-banner {
-				--theme-alert-banner-height: 48px;
 				--theme-layout-gap-spacing: 16px;
-				--theme-alert-banner-icon-margin-left: 16px;
-				--theme-alert-banner-icon-margin-right: 8px;
+				--theme-toast-icon-margin: 0px 8px 0px 16px;
 				margin: 16px 16px 0px 16px;
 			}
 			horizon-alert-banner[type="warning"] {
@@ -876,14 +874,9 @@ export class UpdateCardLimits extends Component {
 			? html`
 				<horizon-alert-banner
 					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
-					type="warning">
-						<capitec-group layout="horizontal" class="alert-banner-group">
-							<capitec-label type="strong" label="Notify client:"></capitec-label>
-							<capitec-label type="default"
-								label="For added security get the App to update your Online limit, alternatively, visit your nearest branch.">
-							</capitec-label>
-							<capitec-spacer></capitec-spacer>
-						</capitec-group>
+					type="warning"
+					header="Notify client: "
+					label="For added security get the App to update your Online limit, alternatively, visit your nearest branch.">
 				</horizon-alert-banner>`
 			: html``;
 	}
@@ -915,14 +908,10 @@ export class UpdateCardLimits extends Component {
 			return html``;
 		}
 		return html`
-			<horizon-alert-banner type="unsuccessful-red">
-				<capitec-group layout="horizontal" halign="left" valign="top" gap="none" class="alert-banner" data-automation-id="update-card-limits-unsuccessful-banner">
-					<capitec-label
-						label="Notify client: "
-						type="default">
-					</capitec-label>
-					${this._getAlertMessage()}
-				</capitec-group>
+			<horizon-alert-banner
+				type="error"
+				header="Notify client: "
+				label="${this._getAlertMessage()}">
 			</horizon-alert-banner>
 		`;
 	}
@@ -930,13 +919,11 @@ export class UpdateCardLimits extends Component {
 	_renderAgreementsAlertBanner() {
 		return this.alertBannerText
 			? html`
-				<horizon-alert-banner class="agreements-banner" type="unsuccessful-red" data-automation-id="update-card-limits-agreements-unsuccessful-banner">
-					<capitec-group layout="horizontal" halign="left" valign="top" gap="none" class="alert-banner">
-						<capitec-label
-							label="${this.alertBannerText}"
-							type="default">
-						</capitec-label>
-					</capitec-group>
+				<horizon-alert-banner
+					class="agreements-banner"
+					type="error"
+					data-automation-id="update-card-limits-agreements-unsuccessful-banner"
+					label="${this.alertBannerText}">
 				</horizon-alert-banner>`
 			: html``;
 	}

@@ -110,7 +110,6 @@ export class Feedback extends Component {
 					--theme-label-subtitle-font-size: 18px;
 				}
 				horizon-alert-banner {
-					--theme-alert-banner-height: 48px;
 					--theme-layout-gap-spacing: 16px;
 				}
 				.label-err-message{
@@ -168,10 +167,10 @@ export class Feedback extends Component {
 		}
 		
 		return html`
-			<horizon-alert-banner type="unsuccessful-red" class="alert-banner">
-				<capitec-group layout="horizontal">
-					<capitec-label label="${this.alertBannerMessage}" class="label-err-message"></capitec-label>
-				</capitec-group>
+			<horizon-alert-banner
+				type="error"
+				class="alert-banner"
+				label="${this.alertBannerMessage}">
 			</horizon-alert-banner>`;
 	}
 

@@ -183,10 +183,8 @@ export class TapToPayAgreement extends Component {
 				horizon-alert-banner {
 					width: 776px;
 
-					--theme-alert-banner-height: 48px;
 					--theme-layout-gap-spacing: 16px;
-					--theme-alert-banner-icon-margin-left: 16px;
-					--theme-alert-banner-icon-margin-right: 8px;
+					--theme-toast-icon-margin: 0px 8px 0px 16px;
 					--theme-alert-banner-font-weight: 600;
 				}
 
@@ -281,9 +279,9 @@ export class TapToPayAgreement extends Component {
 		return this.alertBannerText
 			? html`
 					<horizon-alert-banner 
-								type="unsuccessful-red" 
-								label="${this.alertBannerText}"
-								data-automation-id="tap-to-pay-agreement-alert-banner">
+						type="error"
+						label="${this.alertBannerText}"
+						data-automation-id="tap-to-pay-agreement-alert-banner">
 					</horizon-alert-banner>`
 			: html``;
 	}

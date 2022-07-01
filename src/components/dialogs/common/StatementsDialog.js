@@ -470,19 +470,17 @@ export class StatementsDialog extends Component {
 					--theme-container-padding-bottom: 0px;
 				}
 				.main-cb > horizon-alert-banner {
-					--theme-alert-banner-height: 48px;
 					--theme-alert-banner-info-background-color: #DAF2F4;
-					--theme-alert-banner-info-color: #05829B;
-					--theme-alert-banner-unsuccessful-red-color: #C83B37;
 					--theme-alert-banner-unsuccessful-red-background-color: #F7E2E1;
 					--theme-layout-gap-spacing: 15px;
+					--theme-toast-horizontal-title-margin-right: 4px;
 					width: 928px;
 				}
 				.main-cb > horizon-alert-banner[type="warning"] {
 					--theme-alert-banner-warning-font-color: #3A3A3A;
 				}
 				.alert-banner-group {
-					width: 842px;
+					width: 772px;
 				}
 				.alert-banner-group > capitec-label[type="strong"] {
 					--theme-label-default-font-size: 14px;
@@ -676,7 +674,7 @@ export class StatementsDialog extends Component {
 				return html`
 					<horizon-alert-banner
 						data-automation-id="statements-dialog-alert-message"
-						type="unsuccessful-red"
+						type="error"
 						header="Notify client: "
 						label="${this.errorMessage}">
 					</horizon-alert-banner>`;
@@ -692,22 +690,18 @@ export class StatementsDialog extends Component {
 				return html`
 					<horizon-alert-banner
 						data-automation-id="statements-credit-alert-banner"
-						type="warning">
-						<capitec-group
-							layout="horizontal"
-							gap="none"
-							class="alert-banner-group">
-								<capitec-label type="strong" label="Notify client:"></capitec-label>
-								<capitec-label type="default"
-									label="${NOTIFICATION_MESSAGE.FEE}">
-								</capitec-label>
-								<capitec-spacer></capitec-spacer>
-								<capitec-hyperlink 
-									data-automation-id="statements-credit-view-fees"
-									label="View fees"
-									@click="${() => this.dispatchEvent(new CustomEvent(`view-fees`, {}))}">
-								</capitec-hyperlink>
-						</capitec-group>
+						type="warning"
+						header="Notify client: "
+						layout="horizontal">
+							<capitec-label type="default"
+								label="${NOTIFICATION_MESSAGE.FEE}">
+							</capitec-label>
+							<capitec-spacer></capitec-spacer>
+							<capitec-hyperlink 
+								data-automation-id="statements-credit-view-fees"
+								label="View fees"
+								@click="${() => this.dispatchEvent(new CustomEvent(`view-fees`, {}))}">
+							</capitec-hyperlink>
 					</horizon-alert-banner>`;
 			case this.notifyClient && isNullorEmpty(this.errorMessage):
 				return html`

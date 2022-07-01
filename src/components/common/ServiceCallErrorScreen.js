@@ -170,8 +170,14 @@ export class ServiceCallErrorScreen extends Component {
 	_renderBanner() {
 		return this.bannerDetail 
 		? html`
-			<horizon-alert-banner ?hidden="${!this.displayBanner}" class = "banner-top" type="unsuccessful-red"><b>Notify Client: </b>${this.bannerDetail}</horizon-alert-banner>
-		` : html``;
+			<horizon-alert-banner
+				?hidden="${!this.displayBanner}"
+				class="banner-top"
+				type="error"
+				header="Notify Client: "
+				label="${this.bannerDetail}">
+			</horizon-alert-banner>`
+		: html``;
 	}
 }
 

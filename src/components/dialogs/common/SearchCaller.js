@@ -795,9 +795,6 @@ export class SearchCaller extends Component {
 					margin: 0px;
 				}
 				horizon-alert-banner{
-					--theme-alert-banner-height: 48px;
-					--theme-alert-banner-icon-margin-left: 15px;
-					--theme-alert-banner-icon-margin-right: 15px;
 					margin: 0px 0px 16px 0px;
 				}
 				#id-label-enter-details {
@@ -1043,7 +1040,7 @@ export class SearchCaller extends Component {
 				<div>
 					<horizon-alert-banner 
 						data-automation-id="search-caller-in-branch-alert"
-						type="unsuccessful-red" 
+						type="error"
 						label="Please choose an option">
 					</horizon-alert-banner>
 				</div>
@@ -1056,9 +1053,9 @@ export class SearchCaller extends Component {
 		if (!isNullorEmpty(this.alertBannerMessage) && !this.errMessage.inBranch) {
 			return html`
 				<horizon-alert-banner 
-						data-automation-id="search-caller-alert-message"
-						type="unsuccessful-red">
-					${this.alertBannerMessage}
+					data-automation-id="search-caller-alert-message"
+					type="error"
+					label="${this.alertBannerMessage}">
 				</horizon-alert-banner>
 			`;
 		}
