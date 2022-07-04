@@ -218,7 +218,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	 async _cancelPolicyAgreement(e) {
 
-		this.cancelPolicyAgreementDetails= {}
+		this.cancelPolicyAgreementDetails = {}
 
 		cancelPolicyAgreementDetails.documentFormat = "PDF";
 		cancelPolicyAgreementDetails.saveDocumentToDocumentum = false;
