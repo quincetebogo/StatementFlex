@@ -128,6 +128,24 @@ export class MiniProfile extends Component {
 		return `${dob.getDate()} ${months[dob.getMonth()]} ${dob.getFullYear()}`;
 	}
 
+	_base64ToBlobUrl(base64Data) {
+
+		// decode base64 string, remove space for IE compatibility
+		const binary = atob(base64Data.replace(/\s/g, ``));
+		const len = binary.length;
+		const buffer = new ArrayBuffer(len);
+		const view = new Uint8Array(buffer);
+	
+		for (let i = 0; i < len; i++) {
+			view[i] = binary.charCodeAt(i);
+		}
+	
+		// create the blob object with content-type "image/jpg"
+		const blob = new Blob([view], { type: `image/jpg` });
+
+		return `${URL.createObjectURL(blob)}`;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -250,6 +268,10 @@ export class MiniProfile extends Component {
 					--theme-tooltip-line-height: 20px;
 					--theme-tooltip-border-radius: 2px;
 					--theme-layout-gap-spacing: 4px;
+				}
+				object {
+					height: 158px;
+					width: 158px;
 				}
 			`
 		];
@@ -383,38 +405,41 @@ export class MiniProfile extends Component {
 
 		if (noBanner) {
 			return html``;
-		} else if (this.miniProfile.is3rdParty) {
+		}
+		if (this.miniProfile.is3rdParty) {
 			return html`
-			<capitec-alert-banner 
-					data-automation-id="mini-profile-3rdparty-banner"
-					class="banner" 
-					type="warning">
-				<b>Client has not been verified</b>
-			</capitec-alert-banner>
+				<capitec-alert-banner 
+						data-automation-id="mini-profile-3rdparty-banner"
+						class="banner" 
+						type="warning">
+					<b>Client has not been verified</b>
+				</capitec-alert-banner>
 			`;
-		} else if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels) {
+		}
+		if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels) {
 			return html`
-			<capitec-alert-banner
-					class="banner" 
-					type="unsuccessful-red">
-				<capitec-group 
-						id="id-notify-banner-group" 
-						layout="horizontal">
-					<capitec-label
-						id="id-verify-via-app-msg" 
-						label="Verification Failed">
-					</capitec-label>
-					<capitec-spacer></capitec-spacer>
-					<capitec-hyperlink
-						id="verify-via-app-link" 
-						data-automation-id="mini-profile-verify-app"
-						@click="${() => this._onVerifyNowClick()}"
-						label="Verify now">
-					</capitec-hyperlink>
-				</capitec-group>
-			</capitec-alert-banner>
+				<capitec-alert-banner
+						class="banner" 
+						type="unsuccessful-red">
+					<capitec-group 
+							id="id-notify-banner-group" 
+							layout="horizontal">
+						<capitec-label
+							id="id-verify-via-app-msg" 
+							label="Verification Failed">
+						</capitec-label>
+						<capitec-spacer></capitec-spacer>
+						<capitec-hyperlink
+							id="verify-via-app-link" 
+							data-automation-id="mini-profile-verify-app"
+							@click="${() => this._onVerifyNowClick()}"
+							label="Verify now">
+						</capitec-hyperlink>
+					</capitec-group>
+				</capitec-alert-banner>
 			`;
-		} else if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels && this.miniProfile.verificationAttempts.itaAttempts > 2) {
+		}
+		if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels && this.miniProfile.verificationAttempts.itaAttempts > 2) {
 			return html`
 			<capitec-alert-banner 
 					class="banner" 
@@ -430,8 +455,7 @@ export class MiniProfile extends Component {
 			</capitec-alert-banner>
 			`;
 		};
-
-		return this.isHelpDeskAgent && !this.miniProfile.isVerified
+		return this.isHelpDeskAgent && !this.miniProfile.isVerified && this.miniProfile.isBranchConsultant
 		? html`
 			<capitec-alert-banner class="banner" type="warning">
 				<capitec-group 
