@@ -596,6 +596,11 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _settlementQuote(creditType, productType, selectedAccountDetails) {
+
+		if (this.ccsStatus) {
+			this.showCCSmodal = true;
+			return;
+		}
 		await this._telemetry.logEvent(CreditEvents.CREDIT_SETTLEMENT_QUOTE_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
 			"next-screen": TelemetryScreen.SETTLEMENT_QUOTE_DIALOG,
