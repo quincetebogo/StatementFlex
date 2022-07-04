@@ -691,7 +691,7 @@ class ClientPolicies extends Component {
 		<capitec-card class="action-card">
 			<capitec-overflow-menu label="More" data-automation-id = "insure-policy-more-sub-menu">
 				<capitec-overflow-menu-item icon="system/transfer-action" label="Transaction history" @click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
-				<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan" @click=" ${() => this._openCancelPolicyConfirmationDialog(policyItem.contractReference)}"></capitec-overflow-menu-item>
+				<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan" @click=" ${() => this._openCancelPolicyDialog(policyItem.contractReference)}"></capitec-overflow-menu-item>
 				${policyItem.arrearDetails.outstandingAmount > 0 ?
 					html `<capitec-overflow-menu-item icon="system/sars-action" label="Benefits"></capitec-overflow-menu-item>`
 					: ``}

@@ -74,6 +74,7 @@ export class ExistingClient extends InsureViewBase {
 			policyDetails: { type: Object, state: true },
 			mainLifeGender: { type: String, state: true },
 			contractReference: { type: String, state: true },
+			cancellationReason: {type: String, state: true},
 		};
 	}
 
@@ -188,11 +189,14 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {Object} 
 	 */
 	 async _cancelPolicy(e) {
+
+		cancellationReason = e.detail.cancellationReason;
+
 		let cancelPolicyDetails = {};
 		cancelPolicyDetails.contractReference = e.detail.contractReference;
 		cancelPolicyDetails.cifNumber = this.callerInformation.cifNumber;
 		cancelPolicyDetails.idNumber = this.callerInformation.southAfricanIDNumber;
-		cancelPolicyDetails.cancellationReason = e.detail.cancellationReason;
+		cancelPolicyDetails.cancellationReason = cancellationReason;
 		cancelPolicyDetails.documents = [];
 		console.log(cancelPolicyDetails)
 		// cancelPolicyDetails.documents.documentCode= ;
@@ -213,6 +217,46 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {Object} 
 	 */
 	 async _cancelPolicyAgreement(e) {
+
+		this.cancelPolicyAgreementDetails= {}
+
+		cancelPolicyAgreementDetails.documentFormat = "PDF";
+		cancelPolicyAgreementDetails.saveDocumentToDocumentum = false;
+		cancelPolicyAgreementDetails.returnDocumentContent = true;
+		cancelPolicyAgreementDetails.emailDocumentToClient = false;
+		cancelPolicyAgreementDetails.wetsignBarcode = false;
+
+		cancelPolicyAgreementDetails.eSignDetails = [];
+		cancelPolicyAgreementDetails.eSignDetails.consultantTimeStamp = "" ;
+		cancelPolicyAgreementDetails.eSignDetails.clientFingerPrint = "" ;
+		cancelPolicyAgreementDetails.eSignDetails.consultantFingerPrint ="";
+		cancelPolicyAgreementDetails.eSignDetails.clientTimeStamp = "";
+		cancelPolicyAgreementDetails.eSignDetails.deactSect15 = true;
+
+		cancelPolicyAgreementDetails.eSignDetails.consultantDetails = [];
+		cancelPolicyAgreementDetails.eSignDetails.consultantDetails.branchName = "";
+		cancelPolicyAgreementDetails.eSignDetails.consultantDetails.branchCity = "";
+		cancelPolicyAgreementDetails.eSignDetails.consultantDetails.userName = "";
+		cancelPolicyAgreementDetails.eSignDetails.consultantDetails.managerNumber = "";
+		cancelPolicyAgreementDetails.eSignDetails.consultantDetails.userFirstName = "";
+		cancelPolicyAgreementDetails.eSignDetails.consultantDetails.userLastName = "";
+
+		cancelPolicyAgreementDetails.clientDetails= [];
+		cancelPolicyAgreementDetails.clientDetails.cifNumber = callerInformation.cifNumber;
+		cancelPolicyAgreementDetails.clientDetails.primarySavingsAccountNumber = 0;
+		cancelPolicyAgreementDetails.clientDetails.policyContractReference = callerInformation.contractReference;
+		cancelPolicyAgreementDetails.clientDetails.firstName = callerInformation.firstName;
+		cancelPolicyAgreementDetails.clientDetails.surname = callerInformation.surname;
+		cancelPolicyAgreementDetails.clientDetails.idNumber = callerInformation.southAfricanIDNumber;
+		cancelPolicyAgreementDetails.clientDetails.dateOfBirth = callerInformation.dateOfBirth;
+
+		cancelPolicyAgreementDetails.emailDetails= [];
+		cancelPolicyAgreementDetails.emailDetails.email = "";
+
+		cancelPolicyAgreementDetails.input= [];
+			cancelPolicyAgreementDetails.input.cancellationReason = this.cancellationReason;
+		
+		console.log(cancelPolicyAgreementDetails)
 
 		const resp = await this.insureService.cancelPolicyAgreement(cancelPolicyAgreementDetails, () => true);
 		if (resp.succeeded == true && resp.result != null) {
