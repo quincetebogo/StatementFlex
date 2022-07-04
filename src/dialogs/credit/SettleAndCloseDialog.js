@@ -28,6 +28,7 @@ export class SettleAndCloseDialog extends Component {
 		this.hasEnoughFunds = false;
 		this.savList = [];
 		this.errorMessage = ``;
+		this.bannerMessage= ``;
 	}
 
 	// ----------
@@ -96,6 +97,7 @@ export class SettleAndCloseDialog extends Component {
 	_CheckSavStatus() {
 		this.hasEnoughFunds = this._deformatCurrency(this.productSelected.availableBalance) >= this._deformatCurrency(this.settleAndCloseDetails[`Settlement amount`]);
 		if (this.hasEnoughFunds === false) {
+			this.bannerMessage = `You do not have enough funds in your account to do the transfer.`;
 			this.errorMessage = `Transfer cannot exceed available balance`;
 		} else {
 			const acc = this.productSelected.accountNumber;
@@ -103,8 +105,10 @@ export class SettleAndCloseDialog extends Component {
 			while (i < this.savList.length) {
 				if (acc == this.savList[i].accountNumber && this.savList[i].savingsPermissionStatus === `DENIED`)
 				{
+					this.bannerMessage = `The account selected cannot be used to perform this transaction`;
 					this.hasEnoughFunds = false;
 					this.errorMessage = `The account selected cannot be used to perform this transaction`;
+					
 				}
 				i++;
 			}
@@ -279,9 +283,12 @@ export class SettleAndCloseDialog extends Component {
 				data-automation-id="settle-and-close-error-banner"
 				class="error-banner" 
 				type="unsuccessful-red">
-					<capitec-label class="alert-header" label="Notify client:"></capitec-label>
-					<capitec-label class="alert-message" label="You do not have enough funds in your account to do the transfer."></capitec-label>
+					<capitec-label
+						label="Notify client: ${this.bannerMessage}"
+						type="strong">
+					</capitec-label>
 			</capitec-alert-banner>
+			<capitec-alert-banner
 		`;
 	}
 
