@@ -45,7 +45,13 @@ export const creditMixin = {
 			this.logger.log(`error`, `Failed to get credit permissions.`, `_getCreditPermisions`, returnValue.correlationId);
 		}
 
-		const permission = returnValue.result.permissionsResultsList.find(item => item.operationIdentifier === ACTION_IDENTIFIER[option]);
+		let permission = returnValue.result.permissionsResultsList.find(item => item.operationIdentifier === ACTION_IDENTIFIER[option]);
+
+		if (option === `settlement-quote`) {
+			permission = returnValue.result.permissionsResultsList.find(item => item.operationIdentifier === `Settle`);
+		}
+		
+		console.log(permission);
 		return permission?.permissionResult === PERMISSION_STATUS.DENIED;
 	},
 
