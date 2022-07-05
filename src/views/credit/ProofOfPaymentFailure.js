@@ -47,9 +47,6 @@ export class ProofOfPaymentFailure extends ViewBase {
 
 		this._telemetry.startSpan(this.popTelemetryEvents.POP_FAILURE);
 
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 		
 	disconnectedCallback() {
