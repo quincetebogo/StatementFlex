@@ -40,6 +40,9 @@ import 'app/components/common/RelatedOptions';
 		super.connectedCallback();
 		this._initialise();
 		this._telemetry.startSpan(this.telemetryEvents.FAILURE);
+		
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	disconnectedCallback() {

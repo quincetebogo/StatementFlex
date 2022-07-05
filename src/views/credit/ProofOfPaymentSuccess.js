@@ -46,7 +46,6 @@ export class ProofOfPaymentSuccess extends ViewBase {
 
 		this._telemetry.startSpan(this.popTelemetryEvents.POP_SUCCESS);
 
-		this._updateIncidentState();
 	}
 
 	disconnectedCallback() {
@@ -87,12 +86,6 @@ export class ProofOfPaymentSuccess extends ViewBase {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
-	}
 
 	loadTelemetryEvents() {
 		const creditNeed = this.horizonStore.getReturnToScreen().optionalData;
