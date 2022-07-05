@@ -235,6 +235,29 @@ export class InsureService extends ChannelServiceBase {
 		);
 	}
 
+	/**
+	 * Communication History
+	 *
+	 * @param {commsHistoryRequest} [errorHandler=null]  Request data for Communication History 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	 async commsHistory(commsHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.post(
+			`/horizon-insurance/client/communicationhistory`,
+			commsHistoryRequest,
+			this.setInsureTokens(),
+			`commsHistory`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
 	//#endregion
 
 

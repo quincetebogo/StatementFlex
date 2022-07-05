@@ -1,10 +1,10 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { formatDate } from '../../../utils/channelServiceUtilities';
+import { formatDate } from 'app/utils/channelServiceUtilities';
 
 
 /**
- * 
+ * the SMS History page displays the SMS History for the chosen policy
  *  
  * @export
  * @class SMSHistory
@@ -25,7 +25,9 @@ constructor() {
 //#region PROPERTIES
 
 	/**
-	 * 
+	 * @property {String} contractReference contains the policy number
+	 * @property {String} contactNumber contains the callers verified contact number
+	 * @property {Object} commsHistory contains the communication history of the client for the policy selected
 	 * 
 	 * @readonly
 	 * @static
@@ -82,6 +84,10 @@ _backToSummaryPage() {
 			padding: 20px;
 		}
 
+		.label{
+			padding-bottom: 10px;
+		}
+
 		horizon-expander {
 			margin-bottom: 16px;
 			--theme-expander-height: auto;
@@ -132,7 +138,7 @@ _backToSummaryPage() {
 		}
 		.label-policy-number {
 			--theme-label-cursor: pointer;
-			--horizon-label-value-color: #009DE0;
+			--horizon-label-value-color: #3A3A3A;
 		}
 		.fixed-label {
 			width: 22%;
@@ -180,21 +186,29 @@ _backToSummaryPage() {
 		return html`
 		<capitec-title-bar type="insure" class="insure-title-bar">
 			<img class="action-image" src="/images/insure/left-arrow.svg" @click="${() => this._backToSummaryPage()}" />
-			<capitec-label label="SMS History" type="title"></capitec-label>
+			<capitec-label  label="SMS History" type="title"></capitec-label>
 			<capitec-spacer></capitec-spacer>
 		</capitec-title-bar>
 		
-		<capitec-card type="subtitle" class="card" >
-			<capitec-label label="SMS History"></capitec-label>
+		<capitec-card class="card" >
+			<capitec-label class="label" type="subtitle" label="SMS History"></capitec-label>
 			${ this.commsHistory.communications.map((comms) => this._renderExpander(comms) )
-
 				}
 		</capitec-card>
 		
 		`}
 
+/**
+ * renders each expander
+ * 
+ * @param {Object} comms 
+ * @returns {html} the html content for the expanders
+ */
 	_renderExpander(comms){
 		return html`
+			
+			${console.log(comms.sentAt)}
+			${console.log(formatDate(comms.sentAt, 'dd mmm yyyy'))}
 
 			<horizon-expander>
 				<capitec-group 
@@ -217,16 +231,12 @@ _backToSummaryPage() {
 						</horizon-label>
 						<horizon-label
 							label="Sent at"
-							value="${formatDate(comms.sentAt)}">
+							value="${formatDate(comms.sentAt, 'dd mmm yyyy')}, ${new Date(comms.sentAt).toLocaleTimeString('en', { timeStyle: 'short', hour12: true, timeZone: 'UTC' })}">
 						</horizon-label>
 						<horizon-label
 							label="Received at"
-							value="19 Mar 2019, 16:30">
+							value="${formatDate(comms.sentAt, 'dd mmm yyyy')}, ${new Date(comms.sentAt).toLocaleTimeString('en', { timeStyle: 'short', hour12: true, timeZone: 'UTC' })}">
 						</horizon-label>
-						<!-- <horizon-label
-							label=""
-							value="">
-						</horizon-label> -->
 						<horizon-label
 							label="Status"
 							value="${comms.status}">
@@ -239,24 +249,26 @@ _backToSummaryPage() {
 						gap="none"
 						halign="left"
 						valign="center">
-							${this._renderOptions(comms)}
+							${this._renderMessages(comms)}
 					</capitec-group>
 				</div>
 			</horizon-expander>
+
+			
 		`
 	}
 
 	/**
-	 * Render Policy options
-	 * @param {Object} policyItem - each policy item
-	 * @returns {html} The html content of the each Policy options
+	 * Render Messages options
+	 * @param {Object} comms - each Communication history item
+	 * @returns {html} The html content of each of the messages
 	 */
-	 _renderOptions(comms) {
+	 _renderMessages(comms) {
 		return html`
-			<capitec-title-bar type="default" label="Messages"></capitec-title-bar>
+			<capitec-title-bar type="default" label="Message"></capitec-title-bar>
 			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
 				<capitec-content-box style="height: auto;" >
-					<capitec-label label="Capitec: Mr Walden, your funeral policy CF86587331 has lapsed due to non payment of 3 premiums. You and your Family are no longer covered. use our app to...">
+					<capitec-label label="${comms.messageContent}">
 					</capitec-label>
 				</capitec-content-box>
 			
