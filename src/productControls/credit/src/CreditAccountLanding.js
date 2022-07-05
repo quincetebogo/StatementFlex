@@ -51,6 +51,7 @@ export class CreditAccountLanding extends Component {
 	 * @property {flexibleCreditAccounts} flexibleCreditAccounts 
 	 * @property {fixedTermCreditAccounts} fixedTermCreditAccounts 
 	 * @property {budgetAccountsSummary} budgetAccountsSummary 
+	 * @property {Object} shouldDisable Callback function, returns true or false to disable need button
 	 *
 	 */
 	 static get properties() {
@@ -58,6 +59,7 @@ export class CreditAccountLanding extends Component {
 			flexibleCreditAccounts: { type: Array },
 			fixedTermCreditAccounts: { type: Array },
 			budgetAccountsSummary: { type: Object },
+			shouldDisable: { type: Object },
 			selectedTab: { type: String }
 		};
 	}
@@ -580,7 +582,8 @@ export class CreditAccountLanding extends Component {
 					label="Settle & Close"
 					icon="system/close-circle-action"
 					?hidden="${false}"
-					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
+					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}"
+					?disabled="${this.shouldDisable(`settle-close`)}">
 			</horizon-option-button>
 		`;
 	}
@@ -639,7 +642,8 @@ export class CreditAccountLanding extends Component {
 					label="Settle Loan"
 					icon="system/close-circle-action"
 					?hidden="${false}"
-					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, selectedAccountDetails)}">
+					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, selectedAccountDetails)}"
+					?disabled="${this.shouldDisable(`settle-close`)}">
 			</horizon-option-button>
 		`;
 	}

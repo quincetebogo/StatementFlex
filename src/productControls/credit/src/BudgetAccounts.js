@@ -60,11 +60,13 @@ import 'app/components/common/HorizonLabel';
 	 * Registry of all properties defined by the component.
 	 *
 	 * @property {budgetFacilityAccounts} budgetFacilityAccounts List of Budget facility accounts and their details
+	 * @property {Object} shouldDisable Callback function, returns true or false to disable transfer button
 	 *
 	 */
 	static get properties() {
 		return {
 			budgetFacilityAccounts: { type: Object },
+			shouldDisable: { type: Object },
 
 			groupAccountsByTerm: { state: true },
 			filteredAccounts: { state: true }
@@ -271,6 +273,10 @@ import 'app/components/common/HorizonLabel';
 				.account-details-tile > capitec-button {
 					--theme-button-font-weight: 600;
 				}
+				.account-details-tile > capitec-button[disabled] {
+					--theme-button-font-weight: 500;
+					filter: grayscale(100%);
+				}
 				.vertical-line{
 					height: 48px;
 					width: 1px;
@@ -445,7 +451,8 @@ import 'app/components/common/HorizonLabel';
 					data-automation-id="budget-facility-transfer-button"
 					type="clear"
 					label="Transfer"
-					@click="${() => this._transferClick(budgetAccount)}">
+					@click="${() => this._transferClick(budgetAccount)}"
+					?disabled="${this.shouldDisable(`pay-budget`)}">
 				</capitec-button>
 			</capitec-group>`;
 	}

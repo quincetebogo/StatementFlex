@@ -41,6 +41,7 @@ import 'app/components/common/HorizonLabel';
 	/**
 	 *
 	 * @property {Object} accountDetails Data for the Account details screen from budget account
+	 * @property {Object} shouldDisable Callback function, returns true or false to disable transfer button
 	 *
 	 * @readonly
 	 * @static
@@ -48,7 +49,8 @@ import 'app/components/common/HorizonLabel';
 	 */
 	static get properties() {
 		return {
-			accountDetails: { type: Object }
+			accountDetails: { type: Object },
+			shouldDisable: { type: Object }
 		};
 	}
 
@@ -147,6 +149,9 @@ import 'app/components/common/HorizonLabel';
 					--theme-button-default-border-color: #FFFFFF;
 					--theme-button-default-font-color: #FFFFFF;
 				}
+				capitec-button[disabled] {
+					--theme-button-default-font-color: #a7a7a7;
+				}
 			`
 		];
 	}
@@ -177,7 +182,8 @@ import 'app/components/common/HorizonLabel';
 							class="transfer-button"
 							data-automation-id="budget-account-details-transfer-button"
 							label="Transfer"
-							@click="${() => this._transferClick()}">
+							@click="${() => this._transferClick()}"
+							?disabled="${this.shouldDisable(`pay-budget`)}">
 						</capitec-button>
 				</capitec-title-bar>
 

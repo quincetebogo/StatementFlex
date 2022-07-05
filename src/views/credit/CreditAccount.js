@@ -35,7 +35,7 @@ import 'app/dialogs/credit/SettleAndCloseDialog';
  * 
  * @export
  * @class CreditAccount
- * @extends {CreditAccount}
+ * @extends {ViewBase}
  */
 export class CreditAccount extends ViewBase {
 
@@ -1014,6 +1014,7 @@ export class CreditAccount extends ViewBase {
 					.flexibleCreditAccounts="${this.flexibleCreditAccounts}"
 					.fixedTermCreditAccounts="${this.fixedTermCreditAccounts}"
 					.budgetAccountsSummary="${this.budgetAccountsSummary}"
+					.shouldDisable="${need => this._shouldDisable(need)}"
 					selectedTab="${this.selectedTab}"
 					@option-click="${(e) => this._optionClick(e.detail.option, e.detail.creditType, e.detail.productType, e.detail.selectedAccountDetails)}"
 					@account-details="${(e) => this._accountDetails(e)}"
@@ -1037,6 +1038,7 @@ export class CreditAccount extends ViewBase {
 			? html`
 				<capitec-pc-budget-facility-accounts
 					.budgetFacilityAccounts="${this.budgetFacilityAccounts}"
+					.shouldDisable="${need => this._shouldDisable(need)}"
 					@on-loading="${() => this._telemetry.startSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {})}"
 					@back="${() => this._backFromBudgetAccountsView()}"
 					@account-details="${(event) => this._viewBudgetDetails(event.detail.selectedAccountDetails)}"
@@ -1051,6 +1053,7 @@ export class CreditAccount extends ViewBase {
 		? html`
 			<capitec-pc-budget-account-details
 				.accountDetails="${this.budgetAccountDetails}"
+				.shouldDisable="${need => this._shouldDisable(need)}"
 				@back="${() => this._backFromBudgetAccountDetails()}"
 				@transfer-click="${(event) => this._transferFromBudgetDetails(event.detail.budgetAccountNumber)}">
 			</capitec-pc-budget-account-details>`
