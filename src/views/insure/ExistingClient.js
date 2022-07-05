@@ -14,6 +14,9 @@ import 'app/components/insure/CancelPolicySuccess';
 import 'app/components/insure/EmailPlanSuccess';
 import 'app/components/insure/PayPremiumSuccess';
 import 'app/components/insure/PolicyTransactionHistory';
+import 'app/components/insure/SMSHistory';
+
+import { CommsHistory } from '../../mocks/insure/CommunicationHistory';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -74,6 +77,7 @@ export class ExistingClient extends InsureViewBase {
 			policyDetails: { type: Object, state: true },
 			mainLifeGender: { type: String, state: true },
 			contractReference: { type: String, state: true },
+			policyNumber: {type: String, state: true},
 		};
 	}
 
@@ -101,6 +105,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _initialise() {
 		this.clientPolicies = await this._retrieveClientPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+		console.log(this.callerInformation)
 	}
 
 	/**
@@ -253,13 +258,24 @@ export class ExistingClient extends InsureViewBase {
 	 * 
 	 * @param {*} e contains the payArrears object
 	 */
-	_goToPayPremiumSuccess(e) {
+	_goToPayPremiumSuccess() {
 		//call fips here
 
 		// Telemetry Here
 
 		this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
 	}
+
+	_goToSMSHistory(e){
+
+		this.policyNumber = e.detail.policyNumber
+		//call fips here
+
+		// Telemetry Here
+
+		this._navigateToSubView(INSURE_RENDER_MODE.SMS_HISTORY);
+	}
+
 	//#endregion
 
 	/**
@@ -389,6 +405,8 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderEmailSuccessPage()}`
 			case INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS:
 				return html`${this._renderPayPremiumSuccessPage()}`
+			case INSURE_RENDER_MODE.SMS_HISTORY:
+				return html`${this._renderSMSHistory()}`
 			default:
 				return html``;
 		}
@@ -406,7 +424,8 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-pay-premium-success ="${(e) => this._goToPayPremiumSuccess()}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
-				@navigate-to-cancel-policy-success="${(e) => this._goToCancelPolicySuccess()}">
+				@navigate-to-cancel-policy-success="${(e) => this._goToCancelPolicySuccess()}"
+				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}">
 			</horizon-insure-client-policies>`
 	}
 
@@ -497,6 +516,16 @@ export class ExistingClient extends InsureViewBase {
 				@unloading="${() => this._unloadPolicyTransactionHistory()}">
 			</horizon-insure-policy-transaction-history>`
 			: html``;
+	}
+
+	_renderSMSHistory(){
+		return html`
+		<horizon-sms-history-page @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+			.contractReference = ${this.policyNumber} .contactNumber = ${this.callerInformation.verifiedTelephoneNumber}
+			.commsHistory = ${CommsHistory}>
+		</horizon-sms-history-page>
+
+		`
 	}
 
 	//#endregion RENDERING
