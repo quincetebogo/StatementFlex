@@ -244,6 +244,10 @@ export class InsureService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
 	 async commsHistory(commsHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureCommsHistory`)) {
+			return this.mock(`insureCommsHistory`);
+		}
+		
 		return this.post(
 			`/horizon-insurance/client/communicationhistory`,
 			commsHistoryRequest,

@@ -2,6 +2,11 @@ import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatDate } from 'app/utils/channelServiceUtilities';
 
+//#region  CONSTANTS
+
+const today = new Date();
+
+//#endregion CONSTANTS
 
 /**
  * the SMS History page displays the SMS History for the chosen policy
@@ -11,6 +16,8 @@ import { formatDate } from 'app/utils/channelServiceUtilities';
  * @extends {Component}
  */
 class SMSHistory extends Component {
+
+
 
 	//#region INITIALIZE
 
@@ -54,6 +61,97 @@ constructor() {
  */
 _backToSummaryPage() {
 	this.dispatchEvent(new CustomEvent(`navigate-back`, {detail: {}}));
+}
+
+/**
+ * Get Predefined date ranges
+ * @returns - {Object} - date ranges array object
+ */
+ getPredefinedDateRanges() {
+	const last7day = new Date(today);
+	const last30day = new Date(today);
+	const last60day = new Date(today);
+	const last90day = new Date(today);
+
+	last7day.setDate(today.getDate() - 7);
+	last30day.setDate(today.getDate() - 30);
+	last60day.setDate(today.getDate() - 60);
+	last90day.setDate(today.getDate() - 90);
+
+	return [
+		{ text: `Last 7 days`, value: { startDate: last7day.toISOString(), endDate: today.toISOString() } },
+		{ text: `Last 30 days`, value: { startDate: last30day.toISOString(), endDate: today.toISOString() } },
+		{ text: `Last 60 days`, value: { startDate: last60day.toISOString(), endDate: today.toISOString() } },
+		{ text: `Last 90 days`, value: { startDate: last90day.toISOString(), endDate: today.toISOString() } }
+	];
+}
+
+/**
+	 * filter transactions when date is changed
+	 * @param {*} e 
+	 */
+ async _dateChanged(e) {
+	let fromDate = DateTime.fromISO(e.detail.new.startDate === null ? e.detail.old.startDate : e.detail.new.startDate);
+	let toDate = DateTime.fromISO(e.detail.new.endDate === null ? e.detail.old.endDate : e.detail.new.endDate);
+	const currentDateTime = DateTime.local();
+
+	if (toDate.diff(fromDate, [`days`]).days > 90) {
+		
+		toDate = fromDate.plus({ days: 90 });
+		if (toDate > currentDateTime) {
+			this.startDate = fromDate;
+			this.endDate = currentDateTime;
+		} else {
+			this.startDate = fromDate;
+			this.endDate = toDate;
+			const calendar = this.shadowRoot.querySelector(`#calendarRange`);
+			if (calendar) {
+				calendar._placeholderEndDate = toDate;
+			}
+		}
+	} else if (e.detail.new.endDate === null && this.endDate === ``) {
+		this.startDate = fromDate;
+		toDate = fromDate.plus({ days: 90 });
+		if (toDate.diff(currentDateTime, [`days`]).days > 0) {
+			this.endDate = currentDateTime;
+		} else {
+			this.endDate = toDate;
+		}
+	} else if (e.detail.new.startDate === null && this.startDate === ``) {
+		this.endDate = toDate;
+		fromDate = toDate.minus({ days: 90 });
+		this.startDate = fromDate;
+	} else {
+		
+		this.startDate = fromDate;
+		this.endDate = toDate;
+	}
+
+	// RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
+	
+	await this._refineSearch();
+}
+
+/**
+	 * filter the transactions
+	 */
+ _refineSearch() {
+
+	this.filteredData = this.commsHistory?.communications;
+
+	if (RENDER_CHIPS[FILTER_BY.DATE]) {
+		const startDate = new Date(Date.parse(this.startDate));
+		const endDate = new Date(Date.parse(this.endDate));
+
+		if(RENDER_CHIPS[FILTER_BY.DATE_TYPE] == this.dateTypeOptions[0].text)
+			this.filteredData = this.filteredData.filter(
+				item => new Date(item.date) >= startDate && new Date(item.date) <= endDate); 
+		else if(RENDER_CHIPS[FILTER_BY.DATE_TYPE] == this.dateTypeOptions[1].text)
+			this.filteredData = this.filteredData.filter(
+				item => new Date(item.premiumDueDate) >= startDate && new Date(item.premiumDueDate) <= endDate); 
+	}
+
+	this.requestUpdate();
 }
 
 //#endregion
@@ -164,6 +262,10 @@ _backToSummaryPage() {
 			border-bottom: 1px solid #E1E1E1;
 		}
 
+		.datePicker{
+			padding-bottom: 20px
+		}
+
 		`
 		];
 	}
@@ -186,14 +288,19 @@ _backToSummaryPage() {
 		return html`
 		<capitec-title-bar type="insure" class="insure-title-bar">
 			<img class="action-image" src="/images/insure/left-arrow.svg" @click="${() => this._backToSummaryPage()}" />
+			
 			<capitec-label  label="SMS History" type="title"></capitec-label>
 			<capitec-spacer></capitec-spacer>
 		</capitec-title-bar>
 		
 		<capitec-card class="card" >
+
+			<div class="datePicker">
+			${this._renderDatePicker()}
+			</div>
+
 			<capitec-label class="label" type="subtitle" label="SMS History"></capitec-label>
-			${ this.commsHistory.communications.map((comms) => this._renderExpander(comms) )
-				}
+			${ this.commsHistory.communications.map((comms) => this._renderExpander(comms) )}
 		</capitec-card>
 		
 		`}
@@ -274,6 +381,25 @@ _backToSummaryPage() {
 			
 			</capitec-group>
 		`;
+	}
+
+	_renderDatePicker(){
+		return html`
+		<capitec-date-time-picker
+					id="calendarRange"
+					label = "Choose a date (up to 90 days)"
+					startDate="${this.startDate === `dd mm yyyy` ? `` : this.startDate}"
+					endDate="${this.endDate === `dd mm yyyy` ? `` : this.endDate}"
+					maxDate="${new Date().toString()}"
+					type="range"
+					mode="date"
+					inputType="calendar"
+					outputType="string"
+					.predefinedRanges="${this.getPredefinedDateRanges()}"
+					@apply-clicked="${(e) => this._dateChanged(e)}"
+					data-automation-id="transaction-history-date-filter">
+				</capitec-date-time-picker>
+		`
 	}
 
 	//#endregion

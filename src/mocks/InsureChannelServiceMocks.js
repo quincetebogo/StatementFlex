@@ -45,6 +45,7 @@ export default class InsureChannelServiceMocks {
 		this.clientPoliciesMocks = await this._loadMockModule(this.clientPoliciesMocks, `insureClientPolicies`, () => import(`../mocks/insure/ClientPolicies`).catch(err => logError(err)));
 		this.transactionHistoryMocks = await this._loadMockModule(this.transactionHistoryMocks, `insurePolicyTransactionHistory`, () => import(`../mocks/insure/InsurePolicyTransactionsMockData`).catch(err => logError(err)));
 		this.policySummaryMocks = await this._loadMockModule(this.policySummaryMocks, `insurePolicySummary`, () => import(`../mocks/insure/PolicySummary`).catch(err => logError(err)));
+		this.commsHistoryMocks = await this._loadMockModule(this.commsHistoryMocks, `insureCommsHistory`, () => import(`../mocks/insure/CommunicationHistory`).catch(err => logError(err)));
 	}
 
 	/**
@@ -113,6 +114,17 @@ export default class InsureChannelServiceMocks {
 	 insurePolicySummary() {
 		if (this._mockSettings.insurePolicySummary.positiveCase) {
 			return this.policySummaryMocks.PolicySummary;
+		}
+		return null;
+	}
+
+	/**
+	 * communication History mock check
+	 * @returns {Object} Mock response data
+	 */
+	 insureCommsHistory() {
+		if (this._mockSettings.insureCommsHistory.positiveCase) {
+			return this.commsHistoryMocks.CommsHistory;
 		}
 		return null;
 	}

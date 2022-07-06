@@ -16,7 +16,7 @@ import 'app/components/insure/PayPremiumSuccess';
 import 'app/components/insure/PolicyTransactionHistory';
 import 'app/components/insure/SMSHistory';
 
-import { CommsHistory } from '../../mocks/insure/CommunicationHistory';
+// import { CommsHistory } from '../../mocks/insure/CommunicationHistory';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -30,6 +30,13 @@ const POLICY_TRANSACTION_HISTORY = {
 	PAGE_INDEX: 0,
 	MAX_RESULTS: MAX_RESULTS
 };
+
+const COMMUNICATION_HISTORY = {
+	END_DATE: new Date().toISOString().substr(0, 10),
+	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
+	PAGE_INDEX: 0,
+	MAX_RESULTS: MAX_RESULTS
+}
 
 /**
  * Implements the view for Insure verified and unverified existing clients (i.e. the client has products)
@@ -78,6 +85,7 @@ export class ExistingClient extends InsureViewBase {
 			mainLifeGender: { type: String, state: true },
 			contractReference: { type: String, state: true },
 			policyNumber: {type: String, state: true},
+			commsHistory: {type: Object, state: true}
 		};
 	}
 
@@ -105,6 +113,8 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _initialise() {
 		this.clientPolicies = await this._retrieveClientPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+		this.commsHistory = await this._retreiveCommsHistory()
+		console.log(this.commsHistory)
 		console.log(this.callerInformation)
 	}
 
@@ -182,6 +192,34 @@ export class ExistingClient extends InsureViewBase {
 				}))
 			});
 			this.estimate = estimateWithCoverDetails;
+		} else {
+			// Do error message
+			return null;
+		}
+	}
+
+	/**
+	 * Calculate estimate based on lives assured provided
+	 * Map metadata (coverDetails) back when response is received
+	 * @returns {Object} Estimate response
+	 */
+	 async _retreiveCommsHistory() {
+		
+		let commsHistoryDetails = {};
+		commsHistoryDetails.cifNumber = this.callerInformation.cifNumber;
+		commsHistoryDetails.filters = [];
+			commsHistoryDetails.filters.contractReference = "";
+			commsHistoryDetails.filters.contactNumber = this.callerInformation.verifiedTelephoneNumber;
+			commsHistoryDetails.filters.medium = "SMS";
+		commsHistoryDetails.fromDate = fromDate || this.COMMUNICATION_HISTORY.START_DATE;
+		commsHistoryDetails.toDate = startDate || this.COMMUNICATION_HISTORY.END_DATE;
+		commsHistoryDetails.pagniation = [];
+			commsHistoryDetails.pagniation.pageIndex = this.COMMUNICATION_HISTORY.PAGE_INDEX;
+			commsHistoryDetails.pagniation.totalPerPage = this.COMMUNICATION_HISTORY.MAX_RESULTS;
+
+		const resp = await this.insureService.commsHistory(commsHistoryDetails, () => true);
+		if (resp.succeeded == true && resp.result != null) {
+			
 		} else {
 			// Do error message
 			return null;
@@ -522,7 +560,7 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 		<horizon-sms-history-page @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 			.contractReference = ${this.policyNumber} .contactNumber = ${this.callerInformation.verifiedTelephoneNumber}
-			.commsHistory = ${CommsHistory}>
+			.commsHistory = ${this.commsHistory}>
 		</horizon-sms-history-page>
 
 		`
