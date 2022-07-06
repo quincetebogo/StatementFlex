@@ -170,8 +170,8 @@ class ClientPolicies extends Component {
 	/**
 	 * event to open the cancel policy dialog
 	 */
-	_openCancelPolicyDialog(){
-		this.showCancelPolicyConfirmationDialog = false;
+	_openCancelPolicyDialog(contractReference){
+		this.contractRef = contractReference
 
 		this.showCancelPolicyDialog = true;
 	}

@@ -190,13 +190,13 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	 async _cancelPolicy(e) {
 
-		cancellationReason = e.detail.cancellationReason;
+		this.cancellationReason = e.detail.cancellationReason;
 
 		let cancelPolicyDetails = {};
 		cancelPolicyDetails.contractReference = e.detail.contractReference;
 		cancelPolicyDetails.cifNumber = this.callerInformation.cifNumber;
 		cancelPolicyDetails.idNumber = this.callerInformation.southAfricanIDNumber;
-		cancelPolicyDetails.cancellationReason = cancellationReason;
+		cancelPolicyDetails.cancellationReason = this.cancellationReason;
 		cancelPolicyDetails.documents = [];
 		console.log(cancelPolicyDetails)
 		// cancelPolicyDetails.documents.documentCode= ;
@@ -242,13 +242,13 @@ export class ExistingClient extends InsureViewBase {
 		cancelPolicyAgreementDetails.eSignDetails.consultantDetails.userLastName = "";
 
 		cancelPolicyAgreementDetails.clientDetails= [];
-		cancelPolicyAgreementDetails.clientDetails.cifNumber = callerInformation.cifNumber;
+		cancelPolicyAgreementDetails.clientDetails.cifNumber = this.callerInformation.cifNumber;
 		cancelPolicyAgreementDetails.clientDetails.primarySavingsAccountNumber = 0;
-		cancelPolicyAgreementDetails.clientDetails.policyContractReference = callerInformation.contractReference;
-		cancelPolicyAgreementDetails.clientDetails.firstName = callerInformation.firstName;
-		cancelPolicyAgreementDetails.clientDetails.surname = callerInformation.surname;
-		cancelPolicyAgreementDetails.clientDetails.idNumber = callerInformation.southAfricanIDNumber;
-		cancelPolicyAgreementDetails.clientDetails.dateOfBirth = callerInformation.dateOfBirth;
+		cancelPolicyAgreementDetails.clientDetails.policyContractReference = this.callerInformation.contractReference;
+		cancelPolicyAgreementDetails.clientDetails.firstName = this.callerInformation.firstName;
+		cancelPolicyAgreementDetails.clientDetails.surname = this.callerInformation.surname;
+		cancelPolicyAgreementDetails.clientDetails.idNumber = this.callerInformation.southAfricanIDNumber;
+		cancelPolicyAgreementDetails.clientDetails.dateOfBirth = this.callerInformation.dateOfBirth;
 
 		cancelPolicyAgreementDetails.emailDetails= [];
 		cancelPolicyAgreementDetails.emailDetails.email = "";
