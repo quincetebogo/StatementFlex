@@ -36,7 +36,7 @@ export class InsureService extends ChannelServiceBase {
 			"X-User-Token": Security.getInstance().token,
 			"x-session-id": v4(),
 			"x-request-id": v4(),
-			"x-requester-uid": generateFIPSRequesterUID(),
+			"x-requester-uid": this.generateFIPSRequesterUID(),
 		};
 	}
 
@@ -237,6 +237,32 @@ export class InsureService extends ChannelServiceBase {
 			prepareUpdateRequest,
 			this.setInsureTokens(),
 			`prepareUpdate`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Takes in the details of the policy to be accepted and activates it and creates mandates 
+	 *
+	 * @param {policyAcceptRequest} [errorHandler=null]  Request data for policyAccept 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async policyAccept(policyAcceptRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insurePolicyAccept`)) {
+			return this.mock(`policyAccept`, policyAcceptRequest);
+		}
+		return this.post(
+			`/horizon-insurance/policy/accept`,
+			policyAcceptRequest,
+			this.setInsureTokens(),
+			`policyAccept`,
 			null,
 			null,
 			900,

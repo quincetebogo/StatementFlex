@@ -8,10 +8,10 @@ export const PolicySummary = {
 	"contractReference": "CF09847678",
 	"productCode": "Capitec",
 	"commencementDate": "2020-05-10T17:35:05.190Z",
-	"status": "PendingInForce",
-	"displayStatus": "Pending In Force",
+	"status": "InForce",
+	"displayStatus": "In Force",
 	"deductionDetails": {
-		"collectionDay": 30,
+		"collectionDay": '3',
 		"bankDetails": {
 			"accountName": "Mr John Smith",
 			"branchCode": "470010",

@@ -211,7 +211,7 @@
 			"positiveCase": true
 		},
 		"insurePolicyTransactionHistory": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": false
 		},	
 		"creditOverview": {
@@ -257,7 +257,12 @@
 		"emailPaidUpLetter": {
 			"enabled": false,
 			"positiveCase": false
+		},
+		"insureRetrieveDocContent": {
+			"enabled": true,
+			"positiveCase": false
 		}
+
 	},
 	"searchClientOptionEnabled": true
 }

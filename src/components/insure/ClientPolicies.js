@@ -10,6 +10,7 @@ import 'app/components/common/HorizonExpander';
 import 'app/components/dialogs/insure/PayPremiumDialog';
 import 'app/components/dialogs/insure/PayPremiumConfirmationDialog';
 import 'app/components/dialogs/insure/PayPremiumAgreementDialog';
+import 'app/components/dialogs/insure/LodgeClaimInfoDialog';
 
 /**
  * Client policies component showing all the policies a client currently has on their account
@@ -40,6 +41,7 @@ class ClientPolicies extends Component {
 		this.showPayPremiumDialog = false;
 		this.showPayPremiumConfirmationDialog = false;
 		this.showPayPremiumAgreementDialog = false;
+		this.showLodgeClaimInfoDialog = false;
 		this.amountToPay = 0;
 
 		this.clientPolicies = null;
@@ -63,6 +65,7 @@ class ClientPolicies extends Component {
 			showPayPremiumDialog: { type: Boolean, state: true},
 			showPayPremiumConfirmationDialog: {type: Boolean, state: true},
 			showPayPremiumAgreementDialog: {type: Boolean, state: true},
+			showLodgeClaimInfoDialog: {type: Boolean, state: true},
 			amountToPay: {type: Number, state: true},
 
 			clientPolicies: { type: Object, state: true },
@@ -188,7 +191,20 @@ class ClientPolicies extends Component {
 	_closePayPremiumDialog() {
 		this.showPayPremiumDialog = false;
 	}
+	
+	/**
+	 * Open Lodge Death Claim Info dialog 
+	 */
+	 _openLodgeClaimInfoDialog() {
+		this.showLodgeClaimInfoDialog = true;
+	}
 
+	/**
+	 * Close Lodge Death Claim Info 
+	 */
+	_closeLodgeClaimInfoDialog() {
+		this.showLodgeClaimInfoDialog = false;
+	}
 
 	//#endregion EVENT HANDLERS
 
@@ -257,12 +273,12 @@ class ClientPolicies extends Component {
 				border-top-right-radius: 5px;
 			}
 			capitec-tab-group {
-				--theme-tab-tab-bar-background-color: linear-gradient(315deg, #70838C 0%, #667F8C 47.52%, #41525B 100%);
+				/*--theme-tab-tab-bar-background-color: linear-gradient(315deg, #70838C 0%, #667F8C 47.52%, #41525B 100%);
 				--theme-tab-hover-background-color: transparent;
 				--theme-tab-selected-indicator-color: #FFFFFF;
 				--theme-tab-selected-font-color: #FFFFFF;
+				--theme-tab-font-color: #FFFFFF;*/
 				--theme-tab-indicator-border-radius: 0px;
-				--theme-tab-font-color: #FFFFFF;
 				--theme-tab-border-bottom: 0px;
 				--theme-tab-font-weight: 400;
 				--theme-container-padding-left: 0px;
@@ -437,6 +453,7 @@ class ClientPolicies extends Component {
 			${this._renderPayPremiumDialog()}
 			${this._renderPayPremiumConfirmationDialog()}
 			${this._renderPayPremiumAgreementDialog()}
+			${this._renderLodgeClaimInfoDialog()}
 		`}
 
 	/**
@@ -452,6 +469,9 @@ class ClientPolicies extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
+					<capitec-button type="white"  label="Lodge Claim" data-automation-id="insure-landing-lodge-claim"
+						@click="${() => this._openLodgeClaimInfoDialog()}">
+					</capitec-button>
 					<capitec-button type="white"  label="Get Estimate" data-automation-id="insure-landing-get-estimate"
 						@click="${() => this._goToEstimate()}">
 					</capitec-button>
@@ -467,7 +487,7 @@ class ClientPolicies extends Component {
 	 */
 	_renderPoliciesLandingContent() {
 		return html`
-			<capitec-tab-group class="tabs">
+			<capitec-tab-group>
 				<capitec-tab
 					data-automation-id="insure-landing-policies-tab"
 					label="Policies">
@@ -476,14 +496,14 @@ class ClientPolicies extends Component {
 					</capitec-content-box>
 					${this._renderFooter()}
 				</capitec-tab>
-				<capitec-tab
+				<!-- <capitec-tab
 					data-automation-id="insure-landing-claims-tab"
 					label="Claims">
 					<capitec-content-box  class="accounts-box">
 						<label>Claims - Coming soon to a sprint near you!</label>
 					</capitec-content-box>
 					${this._renderFooter()}
-				</capitec-tab>
+				</capitec-tab> -->
 			</capitec-tab-group>`;
 	}
 
@@ -578,13 +598,15 @@ class ClientPolicies extends Component {
 					@click="${() => this._openPayPremiumDialog(policyItem)}">
 				</horizon-option-button>
 				` : ``}
-				<horizon-option-button 
+				${policyItem.status == 'InForce' ? 
+					html `<horizon-option-button 
 					data-automation-id="insure-policy-options-update-plan"
 					class="button-margin" 
 					label="Update Plan" 
 					icon="system/profile-action"
 					@click="${() => this._goToUpdatePlan(policyItem.contractReference)}">
 				</horizon-option-button>
+				` : ``}
 				<horizon-option-button
 					data-automation-id="insure-policy-options-claims"
 					class="button-margin" 
@@ -720,6 +742,17 @@ class ClientPolicies extends Component {
 			@agree="${(e) => this._goToPayPremiumSuccess()}">	
 			</insure-pay-premium-agreement-dialog>`
 
+	}
+
+	/**
+	 * Render Lodge Claim Info Dialog 
+	 * @return {html} Html of the dialog
+	 */
+	_renderLodgeClaimInfoDialog() {
+		return this.showLodgeClaimInfoDialog == false ? `` :
+			html`
+			<insure-lodge-claim-info-dialog @confirm="${(e) => this._closeLodgeClaimInfoDialog()}">	
+			</insure-lodge-claim-info-dialog>`
 	}
 
 	//#endregion RENDERING

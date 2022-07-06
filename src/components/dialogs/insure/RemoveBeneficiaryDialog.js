@@ -22,18 +22,33 @@ class RemoveBeneficiaryDialog extends Component {
 	 */
 	constructor() {
 		super();
-	
+
 	}
 
 	//#endregion
 
+	//#region PROPERTIES
+
+	/**
+	 * @property {String} beneficiaryName Name of beneficiary to remove
+	 *
+	 * @readonly
+	 * @static
+	 */
+	static get properties() {
+		return {
+			beneficiaryName: { String: '', state: true },
+		};
+	}
+
+	//#endregion
 
 	//#region EVENT HANDLERS
 
 	/**
 	 * Cancel event from dialog footer button, closes modal & reset toggles 
 	 */
-	 _onCancelClick() {
+	_onCancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
@@ -41,7 +56,6 @@ class RemoveBeneficiaryDialog extends Component {
 	 * Add Event, Calculate cover details parameter, emit new life object to consuming component & reset toggles 
 	 */
 	_onAgreeClick() {
-		console.log('In dialog agree event')
 		this.dispatchEvent(new CustomEvent(`agree-click`, {}));
 	}
 
@@ -52,8 +66,8 @@ class RemoveBeneficiaryDialog extends Component {
 	/**
 	 * Generates the component template for web mode
 	 */
-	 _webTemplate() {
-		 return html `
+	_webTemplate() {
+		return html`
 		<capitec-modal type="warn" header="Remove Family Member">
 			<div slot="body">
 				<capitec-content-box class="body-box">
@@ -62,19 +76,20 @@ class RemoveBeneficiaryDialog extends Component {
 			</div>
 			<div slot="footer">
 				${this._renderDialogFooter()}
-	 		</div>
+			</div>
 		</capitec-modal>
 		`
-	 }
+	}
 
-	 /**
-	 * Render modal body section
-	 * 
-	 * @returns {html} The html content of the component.
-	 */
+	/**
+	* Render modal body section
+	* 
+	* @returns {html} The html content of the component.
+	*/
 	_renderDialogBody() {
 		return html`
-			<p>Are you sure you want to remove 'name' from your <br>funeral plan? they will no longer be covered</p>
+			<p>Are you sure you want to remove ${this.beneficiaryName} from your <br>Funeral Plan? They will no longer be covered.
+			</p>
 		`;
 	}
 
@@ -83,19 +98,19 @@ class RemoveBeneficiaryDialog extends Component {
 	 * 
 	 * @returns {html} The html content of the component.
 	 */
-	 _renderDialogFooter() {
+	_renderDialogFooter() {
 		return html`
 			<!-- <capitec-group > -->
-				<capitec-button type="clear" label="Cancel" @click="${() => this._onCancelClick()}">
-				</capitec-button>
+			<capitec-button type="clear" label="Cancel" @click="${() => this._onCancelClick()}">
+			</capitec-button>
 			
-				<capitec-button type="clear" label="Confirm" @click="${() => this._onAgreeClick()}">
-				</capitec-button>
+			<capitec-button type="clear" label="Confirm" @click="${() => this._onAgreeClick()}">
+			</capitec-button>
 			<!-- </capitec-group> -->
-			`; 
+			`;
 	}
 
-	 //#endregion
+	//#endregion
 
 }
 

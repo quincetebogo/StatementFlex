@@ -50,6 +50,8 @@ export default class InsureChannelServiceMocks {
 		this.prepareUpdateMocks = await this._loadMockModule(this.prepareUpdateMocks, `insurePrepareUpdate`, () => import(`../mocks/insure/PrepareUpdate`).catch(err => logError(err)));
 		this.generateUpdateFuneralCoverPlanAgreementMocks = await this._loadMockModule(this.generateUpdateFuneralCoverPlanAgreementMocks, `insureGenerateUpdateFuneralCoverPlanAgreementMocks`, () => import(`../mocks/insure/UpdateFuneralCoverPlanAgreement`).catch(err => logError(err)));
 		this.generateFuneralPolicyPaymentAgreementMocks = await this._loadMockModule(this.generateFuneralPolicyPaymentAgreementMocks, `insureGenerateFuneralPolicyPaymentAgreementMocks`, () => import(`../mocks/insure/FuneralPolicyPaymentAgreement`).catch(err => logError(err)));
+		
+		// this.retrieveDocContentMocks = await this._loadMockModule(this.retrieveDocContentMocks, `insureRetrieveDocContent`, () => import(`../mocks/insure/RetrieveDocContent`).catch(err => logError(err)));
 	}
 
 	/**
@@ -153,5 +155,16 @@ export default class InsureChannelServiceMocks {
 		}
 		return null;
 	}
+
+	// /**
+	//  * TEMP test doc content MOCK
+	//  * @returns {Object} Mock response data
+	//  */
+	// insureGenerateFuneralPolicyPaymentAgreement() {
+	// 	if (this._mockSettings.insureRetrieveDocContent.positiveCase) {
+	// 		return this.retrieveDocContentMocks.DocContent;
+	// 	}
+	// 	return null;
+	// }
 	
 }
