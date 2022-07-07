@@ -398,7 +398,7 @@ class ClientPolicies extends Component {
 			}
 			horizon-expander[expanded] {
 				box-shadow: 0 6px 10px 0.25px rgb(0 0 0 / 7%);
-				display: block;
+				display: contents;
 				--theme-overflow-menu-width: 200px !important;
 			}
 			.expander-header > capitec-icon {
@@ -475,6 +475,10 @@ class ClientPolicies extends Component {
 			}
 			.slot-content {
 				min-height: 180px;
+			}
+			.arrears{
+				--horizon-label-text-color: #C83C37 !important;
+				--horizon-label-value-color: #C83C37 !important;
 			}
 			`
 		];
@@ -561,7 +565,13 @@ class ClientPolicies extends Component {
 	{
 		this.policiesList = this.clientPolicies?.summaryDetails?.policies;
 		
-		return html `${ this.policiesList?.length > 0 ? this.policiesList?.map((policyItem, index) => html`
+		return html `${ this.policiesList?.length > 0 ? this.policiesList?.map((policyItem) => { 
+
+		const sumArrears = policyItem?.arrearDetails?.arrears?.reduce((accumulator, object) => {
+			return accumulator + (object.amount ?? 0);
+		}, 0);
+
+			return html`
 		<horizon-expander
 			expandButtonAlignment="right"
 			?expanded = "${policyItem.isExpanded}" 
@@ -574,9 +584,6 @@ class ClientPolicies extends Component {
 					gap="clear"
 					halign="left"
 					valign="center">
-					${policyItem.arrearDetails.outstandingAmount > 0 ? html`<capitec-icon class="capitec-info-icon" icon="system/info-action"
-						@click="${(policyItem) => this._goToPolicySummary(policyItem.contractReference)}"></capitec-icon>` 
-							: html`<span class="policy-item"></span>`}
 						<horizon-label
 							class="label-policy-number fixed-label"
 							data-automation-id="insure-policy-contract-reference"
@@ -592,19 +599,20 @@ class ClientPolicies extends Component {
 							value="${ formatDate(policyItem.commencementDate, `dd mmm yyyy`) === '' ? '-' : formatDate(policyItem.commencementDate, `dd mmm yyyy`)}">
 						</horizon-label>
 						<horizon-label
-							data-automation-id="insure-policy-debit-order-date"
-							label="Debit Order Date"
+							data-automation-id="insure-policy-next-debit-order"
+							label="Next Debit Order"
 							value="${formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`) === '' ? '-' : formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`)}">
-						</horizon-label>
-						<horizon-label
-							data-automation-id="insure-policy-cover-amount"
-							label="Cover Amount"
-							value="${formatCurrency(this._getTotalCoverAmount(policyItem))}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-policy-total-premium"
 							label="Total Premium"
-							value="${formatCurrency(policyItem.totalPremium)}">
+							value="${ isNullorEmpty(policyItem.totalPremium) ? formatCurrency(0) : formatCurrency(policyItem.totalPremium) }">
+						</horizon-label>
+						<horizon-label
+							data-automation-id="insure-policy-arrears"
+							label="Arrears"
+							class="${ sumArrears > 0 ? `arrears` : ``}"
+							value="${ isNullorEmpty(sumArrears) ? formatCurrency(0) : formatCurrency(sumArrears)}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-policy-display-status"
@@ -622,7 +630,7 @@ class ClientPolicies extends Component {
 							${this._renderOptions(policyItem)}
 					</capitec-group>
 				</div>
-		</horizon-expander>`) : this._renderNoResults() }`;
+		</horizon-expander>` }) : this._renderNoResults() }`;
 	}
 
 	/**
