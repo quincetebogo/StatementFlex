@@ -383,38 +383,41 @@ export class MiniProfile extends Component {
 
 		if (noBanner) {
 			return html``;
-		} else if (this.miniProfile.is3rdParty) {
+		}
+		if (this.miniProfile.is3rdParty) {
 			return html`
-			<capitec-alert-banner 
-					data-automation-id="mini-profile-3rdparty-banner"
-					class="banner" 
-					type="warning">
-				<b>Client has not been verified</b>
-			</capitec-alert-banner>
+				<capitec-alert-banner 
+						data-automation-id="mini-profile-3rdparty-banner"
+						class="banner" 
+						type="warning">
+					<b>Client has not been verified</b>
+				</capitec-alert-banner>
 			`;
-		} else if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels) {
+		}
+		if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels) {
 			return html`
-			<capitec-alert-banner
-					class="banner" 
-					type="unsuccessful-red">
-				<capitec-group 
-						id="id-notify-banner-group" 
-						layout="horizontal">
-					<capitec-label
-						id="id-verify-via-app-msg" 
-						label="Verification Failed">
-					</capitec-label>
-					<capitec-spacer></capitec-spacer>
-					<capitec-hyperlink
-						id="verify-via-app-link" 
-						data-automation-id="mini-profile-verify-app"
-						@click="${() => this._onVerifyNowClick()}"
-						label="Verify now">
-					</capitec-hyperlink>
-				</capitec-group>
-			</capitec-alert-banner>
+				<capitec-alert-banner
+						class="banner" 
+						type="unsuccessful-red">
+					<capitec-group 
+							id="id-notify-banner-group" 
+							layout="horizontal">
+						<capitec-label
+							id="id-verify-via-app-msg" 
+							label="Verification Failed">
+						</capitec-label>
+						<capitec-spacer></capitec-spacer>
+						<capitec-hyperlink
+							id="verify-via-app-link" 
+							data-automation-id="mini-profile-verify-app"
+							@click="${() => this._onVerifyNowClick()}"
+							label="Verify now">
+						</capitec-hyperlink>
+					</capitec-group>
+				</capitec-alert-banner>
 			`;
-		} else if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels && this.miniProfile.verificationAttempts.itaAttempts > 2) {
+		}
+		if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels && this.miniProfile.verificationAttempts.itaAttempts > 2) {
 			return html`
 			<capitec-alert-banner 
 					class="banner" 
