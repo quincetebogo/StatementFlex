@@ -1,5 +1,5 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
-import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { formatDate, isNullorEmpty, formatStringAsPascalCase, formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { TABLE_EXPANDER_CELL } from 'app/css/PolicySummary';
 
@@ -118,7 +118,8 @@ class PolicySummary extends Component {
 				--horizon-label-value-height: 20px;
 				--horizon-label-value-color: #3A3A3A;
 				--horizon-label-value-font-size: 16px;
-				--horizon-label-value-line-height: 15px
+				--horizon-label-value-line-height: 15px;
+				word-break: break-word;
 			}
 			.accounts-box {
 				height: auto;
@@ -418,7 +419,7 @@ class PolicySummary extends Component {
 							class="fixed-label"
 							data-automation-id="insure-beneficiaries-name"
 							label="Name & Surname"
-							value="${item.firstName + ` ` + item.surname}">
+							value="${ formatStringAsPascalCase(item.firstName + ` ` + item.surname) }">
 						</horizon-label>
 						<div class="vertical-line"></div>
 						<horizon-label
@@ -434,7 +435,7 @@ class PolicySummary extends Component {
 						<horizon-label
 							data-automation-id="insure-beneficiaries-contact-number"
 							label="Contact number"
-							value="${ isNullorEmpty(item.contactDetails?.cellphone) ? `-` : item.contactDetails?.cellphone }">
+							value="${ isNullorEmpty(item.contactDetails?.cellphone) ? `-` : formatPhoneNumber(item.contactDetails?.cellphone) }">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-beneficiaries-email-address"
@@ -483,7 +484,7 @@ class PolicySummary extends Component {
 							class="fixed-label"
 							data-automation-id="insure-lives-assured-name"
 							label="Name & Surname"
-							value="${item.firstName + ` ` + item.surname}">
+							value="${ formatStringAsPascalCase(item.firstName + ` ` + item.surname) }">
 						</horizon-label>
 						<div class="vertical-line"></div>
 						<horizon-label
@@ -541,7 +542,7 @@ class PolicySummary extends Component {
 							class="fixed-label"
 							data-automation-id="insure-bank-details-account-name"
 							label="Account name"
-							value="${deductionDetails?.bankDetails?.accountName}">
+							value="${ formatStringAsPascalCase(deductionDetails?.bankDetails?.accountName) }">
 						</horizon-label>
 						<div class="vertical-line"></div>
 						<horizon-label
