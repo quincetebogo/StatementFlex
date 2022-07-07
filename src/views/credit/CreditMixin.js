@@ -51,7 +51,6 @@ export const creditMixin = {
 			permission = returnValue.result.permissionsResultsList.find(item => item.operationIdentifier === `Settle`);
 		}
 		
-		console.log(permission);
 		return permission?.permissionResult === PERMISSION_STATUS.DENIED;
 	},
 
