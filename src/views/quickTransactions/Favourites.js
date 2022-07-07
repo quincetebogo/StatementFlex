@@ -13,7 +13,7 @@ import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
-import 'app/components/dialogs/common/CCSstatus';
+import 'app/components/dialogs/common/WarningDialog';
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
 import 'app/components/dialogs/quickTransactions/DeclineDebiCheckMandate';
@@ -95,7 +95,8 @@ export class Favourites extends SavingsAccountBase {
 			isLoading: { state: true },
 			verificationToastDisplayed: { state: true },
 			hasTaxCertificate: { state: false },
-			showCCSmodal: { type: Boolean }
+			showCCSmodal: { type: Boolean },
+			ccsStatus: { state: false }
 		};
 	}
 
@@ -569,8 +570,9 @@ export class Favourites extends SavingsAccountBase {
 				});
 
 			if (this.settlementQuoteDetails.length > 0) {
-				this.ccsStatus = await this._checkCreditPermisions(`settlement-quote`, this.callerInformation.cifNumber, this.settlementQuoteDetails[0].accountNumber, this.settlementQuoteDetails[0].type);
-			
+				const { ccsStatus } = await this._checkCreditPermisions(`settlement-quote`, this.callerInformation.cifNumber, this.settlementQuoteDetails[0].accountNumber, this.settlementQuoteDetails[0].type);
+				this.ccsStatus = ccsStatus;
+
 				if (this.ccsStatus) {
 					this.showCCSmodal = true;
 					this.requestUpdate();
@@ -617,7 +619,8 @@ export class Favourites extends SavingsAccountBase {
 		
 			if (this.accountsInfo.length > 0) {
 				
-				this.ccsStatus = await this._checkCreditPermisions(`paid-up-letter`, this.callerInformation.cifNumber, this.accountsInfo[0].accountNumber, this.accountsInfo[0].type);
+				const { ccsStatus } = await this._checkCreditPermisions(`paid-up-letter`, this.callerInformation.cifNumber, this.accountsInfo[0].accountNumber, this.accountsInfo[0].type);
+				this.ccsStatus = ccsStatus;
 
 				if (this.ccsStatus) {
 					this.showCCSmodal = true;
