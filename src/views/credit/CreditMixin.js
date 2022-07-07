@@ -51,7 +51,11 @@ export const creditMixin = {
 			permission = returnValue.result.permissionsResultsList.find(item => item.operationIdentifier === `Settle`);
 		}
 		
-		return permission?.permissionResult === PERMISSION_STATUS.DENIED;
+		return {
+			ccsStatus: permission?.permissionResult === PERMISSION_STATUS.DENIED,
+			permissionResult: permission?.permissionResult,
+			declineReasons: permission?.declineReasons
+		};
 	},
 
 	async _settlementQuoteDialog(selectedAccounts) {
@@ -217,9 +221,10 @@ export const creditMixin = {
 	_renderCcsModal() {
 		return this.ccsStatus
 		? html`
-			<horizon-ccs-status-dialog
+			<horizon-warn-dialog
+				content="Unable to perform this transaction as there is a CCS status on this account."
 				@on-okay="${() => this.resetCCSStatusAndReloadScreen()}">
-			</horizon-ccs-status-dialog>`
+			</horizon-warn-dialog>`
 		: html``;
 	}
 	
