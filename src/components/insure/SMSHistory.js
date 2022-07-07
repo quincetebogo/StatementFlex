@@ -1,8 +1,18 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatDate } from 'app/utils/channelServiceUtilities';
+import { DateTime } from 'luxon';
+import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 //#region  CONSTANTS
+
+const FILTER_BY = {
+	DATE: `DATE`,
+};
+
+const RENDER_CHIPS = {
+	DATE: ``,
+};
 
 const today = new Date();
 
@@ -35,6 +45,7 @@ constructor() {
 	 * @property {String} contractReference contains the policy number
 	 * @property {String} contactNumber contains the callers verified contact number
 	 * @property {Object} commsHistory contains the communication history of the client for the policy selected
+	 * @property {function} getCommsHistory
 	 * 
 	 * @readonly
 	 * @static
@@ -43,14 +54,39 @@ constructor() {
 		return {
 			contractReference: {type: String, state: true},
 			contactNumber: {type: String, state: true},
-			commsHistory: {type: Object, state: true}
+			commsHistory: {type: Object, state: true},
+			getCommsHistory: {type: Object},
+			filteredData: {type: Object}
 		};
 	}
 
 //#endregion
 
+//#region LIFECYCLE OVERRIDES
+
+	/**
+	 * Setup the component once added to the DOM.
+	 * @returns {void}
+	 */
+	 connectedCallback() {
+		super.connectedCallback();
+		this._initialise();
+
+		RENDER_CHIPS[FILTER_BY.DATE] = ``;
+		this.filteredData = this.commsHistory?.communications;
+
+	}
+
+	//#endregion
+
 //#region PRIVATE FUNCTIONS
 
+/**
+	 * Initialize component
+	 */
+ async _initialise() {
+	console.log(this.commsHistory)
+ }
 
 //#endregion
 
@@ -127,9 +163,11 @@ _backToSummaryPage() {
 		this.endDate = toDate;
 	}
 
-	// RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
+	RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
 	
 	await this._refineSearch();
+
+	await this.getCommsHistory(this.startDate, this.endDate);
 }
 
 /**
@@ -139,20 +177,90 @@ _backToSummaryPage() {
 
 	this.filteredData = this.commsHistory?.communications;
 
+
 	if (RENDER_CHIPS[FILTER_BY.DATE]) {
 		const startDate = new Date(Date.parse(this.startDate));
 		const endDate = new Date(Date.parse(this.endDate));
-
-		if(RENDER_CHIPS[FILTER_BY.DATE_TYPE] == this.dateTypeOptions[0].text)
-			this.filteredData = this.filteredData.filter(
-				item => new Date(item.date) >= startDate && new Date(item.date) <= endDate); 
-		else if(RENDER_CHIPS[FILTER_BY.DATE_TYPE] == this.dateTypeOptions[1].text)
-			this.filteredData = this.filteredData.filter(
-				item => new Date(item.premiumDueDate) >= startDate && new Date(item.premiumDueDate) <= endDate); 
+		this.filteredData = this.filteredData.filter(
+			item => new Date(item.sentAt) >= startDate && new Date(item.sentAt) <= endDate);  
 	}
 
 	this.requestUpdate();
 }
+
+/**
+	 * Get selected date range
+	 * @returns {string} - fromdate to todate
+	 */
+ _getDateRange() {
+	const fromDate = !this.startDate ? `dd mm yyyy` : this._formatDate(this.startDate);
+	const toDate = !this.endDate ? `dd mm yyyy` : this._formatDate(this.endDate);
+
+	const preDefinedRanges = this.getPredefinedDateRanges();
+	const selectedValue = preDefinedRanges.filter(item => this._formatDate(item.value.startDate) === fromDate && this._formatDate(item.value.endDate) === toDate);
+
+	if (selectedValue.length > 0) {
+		return selectedValue[0].text;
+	}
+
+	return `${fromDate} - ${toDate}`;
+}
+
+/**
+	 * format the give date
+	 * @param {*} date - date to be formatted 
+	 * @returns 
+	 */
+ _formatDate(date) {
+	const newdate = new Date(Date.parse(date));
+	return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+}
+
+/**
+	 * close specified chip
+	 * @param {*} type - filter type 
+	 */
+ async _closeChip(type) {
+	this._clearFilter(type);	
+	this._refineSearch();
+}
+
+/**
+	 * Clear filter by criteria type
+	 * @param {*} type - filter type
+	 */
+ _clearFilter(type) {
+	const date = () => this._reset();
+	
+	const resetForfilters = {
+		'DATE': date,
+	};
+
+	RENDER_CHIPS[type] = ``;
+	if (resetForfilters[type]) {
+		resetForfilters[type]();
+	}
+}
+
+
+/**
+	 * reset all filters and load transactions
+	 */
+ async _reset() {
+	if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
+		this.startDate = ``;
+		this.endDate = ``;
+
+		const calendar = this.shadowRoot.querySelector(`#calendarRange`);
+		if (calendar) {
+			calendar._placeholderEndDate = null;
+			calendar._placeholderStartDate = null;
+		}
+		await this._refineSearch();
+	}
+}
+
+
 
 //#endregion
 
@@ -266,6 +374,23 @@ _backToSummaryPage() {
 			padding-bottom: 20px
 		}
 
+		.filter-bar {
+
+			display: -webkit-inline-box;
+
+			padding-left: 0px;
+			
+		}
+		.filter-bar > capitec-label {
+			height: 20px;
+			width: 87px;
+			color: #3A3A3A;
+			font-family: "Hind Vadodara";
+			font-size: 15px;
+			font-weight: 600;
+			letter-spacing: 0;
+			line-height: 30px;
+		}
 		`
 		];
 	}
@@ -295,12 +420,19 @@ _backToSummaryPage() {
 		
 		<capitec-card class="card" >
 
+		
 			<div class="datePicker">
 			${this._renderDatePicker()}
 			</div>
 
+			<div>
+			${this._renderActiveFilters()}
+			</div>
+
 			<capitec-label class="label" type="subtitle" label="SMS History"></capitec-label>
-			${ this.commsHistory.communications.map((comms) => this._renderExpander(comms) )}
+			${ this.filteredData.map((comms) => this._renderExpander(comms) )}
+
+	
 		</capitec-card>
 		
 		`}
@@ -401,6 +533,37 @@ _backToSummaryPage() {
 				</capitec-date-time-picker>
 		`
 	}
+
+	_renderActiveFilters(){
+		if (RENDER_CHIPS[FILTER_BY.DATE] !== ``) {
+			return html`
+				<capitec-content-box
+					id="active-filters"
+					class="filter-bar"
+					data-automation-id="transaction-history-active-filters">
+						
+						<capitec-label label = "Active filters:"></capitec-label>
+							${this._renderDateChip()}
+				</capitec-content-box>
+			`;
+		}
+	}
+
+/**
+	 * Clear Date filter
+	 * @returns {html} Render Date chip 
+	 */
+ _renderDateChip() {
+	return !isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])
+		? html`
+		<capitec-chip
+			id="${FILTER_BY.DATE}"
+			label="${RENDER_CHIPS[FILTER_BY.DATE]}"
+			@remove="${() => this._closeChip(FILTER_BY.DATE)}"
+			closable>
+		</capitec-chip>`
+		: html``;
+}
 
 	//#endregion
 

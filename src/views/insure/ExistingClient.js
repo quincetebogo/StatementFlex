@@ -113,8 +113,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _initialise() {
 		this.clientPolicies = await this._retrieveClientPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
-		this.commsHistory = await this._retreiveCommsHistory()
-		console.log(this.commsHistory)
+		this.commsHistory = await this._retrieveCommsHistory();
 		console.log(this.callerInformation)
 	}
 
@@ -203,22 +202,25 @@ export class ExistingClient extends InsureViewBase {
 	 * Map metadata (coverDetails) back when response is received
 	 * @returns {Object} Estimate response
 	 */
-	 async _retreiveCommsHistory() {
+	 async _retrieveCommsHistory(startDate, endDate) {
 		
-		let commsHistoryDetails = {};
-		commsHistoryDetails.cifNumber = this.callerInformation.cifNumber;
-		commsHistoryDetails.filters = [];
-			commsHistoryDetails.filters.contractReference = "";
-			commsHistoryDetails.filters.contactNumber = this.callerInformation.verifiedTelephoneNumber;
-			commsHistoryDetails.filters.medium = "SMS";
-		commsHistoryDetails.fromDate = fromDate || this.COMMUNICATION_HISTORY.START_DATE;
-		commsHistoryDetails.toDate = startDate || this.COMMUNICATION_HISTORY.END_DATE;
-		commsHistoryDetails.pagniation = [];
-			commsHistoryDetails.pagniation.pageIndex = this.COMMUNICATION_HISTORY.PAGE_INDEX;
-			commsHistoryDetails.pagniation.totalPerPage = this.COMMUNICATION_HISTORY.MAX_RESULTS;
+		// let commsHistoryDetails = {};
+		// commsHistoryDetails.cifNumber = this.callerInformation.cifNumber;
+		// commsHistoryDetails.filters = [];
+		// 	commsHistoryDetails.filters.contractReference = "";
+		// 	commsHistoryDetails.filters.contactNumber = this.callerInformation.verifiedTelephoneNumber;
+		// 	commsHistoryDetails.filters.medium = "SMS";
+		// commsHistoryDetails.fromDate = fromDate || this.COMMUNICATION_HISTORY.START_DATE;
+		// commsHistoryDetails.toDate = startDate || this.COMMUNICATION_HISTORY.END_DATE;
+		// commsHistoryDetails.pagniation = [];
+		// 	commsHistoryDetails.pagniation.pageIndex = this.COMMUNICATION_HISTORY.PAGE_INDEX;
+		// 	commsHistoryDetails.pagniation.totalPerPage = this.COMMUNICATION_HISTORY.MAX_RESULTS;
 
-		const resp = await this.insureService.commsHistory(commsHistoryDetails, () => true);
+		const resp = await this.insureService.commsHistory({}, () => true);
 		if (resp.succeeded == true && resp.result != null) {
+			
+			console.log(resp)
+			return resp.result;
 			
 		} else {
 			// Do error message
@@ -305,8 +307,12 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	_goToSMSHistory(e){
+		
+		
 
-		this.policyNumber = e.detail.policyNumber
+		this.policyNumber = e.detail.policyNumber;
+
+		
 		//call fips here
 
 		// Telemetry Here
@@ -560,7 +566,8 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 		<horizon-sms-history-page @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 			.contractReference = ${this.policyNumber} .contactNumber = ${this.callerInformation.verifiedTelephoneNumber}
-			.commsHistory = ${this.commsHistory}>
+			.commsHistory = "${this.commsHistory}"
+			.getCommsHistory="${(startDate, endDate) => this._retrieveCommsHistory(startDate, endDate)}">
 		</horizon-sms-history-page>
 
 		`
@@ -570,3 +577,5 @@ export class ExistingClient extends InsureViewBase {
 
 }
 customElements.define(`horizon-existing-client`, ExistingClient);
+
+// 
