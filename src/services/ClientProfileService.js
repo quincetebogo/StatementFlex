@@ -85,7 +85,11 @@ export class ClientProfileService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing client information and the result of the channel service call
 	 */
-	searchCaller(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async searchCaller(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		if (await this.isMockEnabled(`searchCaller`)) {
+			return this.mock(`searchCaller`);
+		}
 
 		const url = `/clientcare-clientprofile-${this._version}/search-caller`;
 

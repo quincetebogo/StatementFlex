@@ -251,6 +251,10 @@ export class MiniProfile extends Component {
 					--theme-tooltip-border-radius: 2px;
 					--theme-layout-gap-spacing: 4px;
 				}
+				img {
+					height: 158px;
+					width: 158px;
+				}
 			`
 		];
 	}
@@ -277,11 +281,7 @@ export class MiniProfile extends Component {
 
 	_renderClientImage() {
 		return this.miniProfile.profilePhoto
-		? html`
-			<object
-					data="${this._base64ToBlobUrl(this.miniProfile.profilePhoto)}"
-					type="image/jpg">
-			</object>`
+		? html`<img src="data:image/png;base64, ${this.miniProfile.profilePhoto}"/>`
 		: html`
 			<capitec-avatar 
 					shape="square"
@@ -431,7 +431,7 @@ export class MiniProfile extends Component {
 			`;
 		};
 
-		return this.isHelpDeskAgent && !this.miniProfile.isVerified
+		return this.isHelpDeskAgent && !this.miniProfile.isVerified && this.miniProfile.isBranchConsultant
 		? html`
 			<capitec-alert-banner class="banner" type="warning">
 				<capitec-group 
