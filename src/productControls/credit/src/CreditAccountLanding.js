@@ -214,14 +214,17 @@ export class CreditAccountLanding extends Component {
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-line-height: 20px;
 				}
-
-				horizon-label[value="Active"] {
+				horizon-label[label="Status"] {
 					width: 132px;
+				}
+				horizon-label[value="Active"] {
 					--horizon-label-value-color: #70AF00;
 				}
 				horizon-label[value="In arrears"] {
-					width: 132px;
 					--horizon-label-value-color: #a5132a;
+				}
+				horizon-label[value="Marked Closure"] {
+					--horizon-label-value-color: #d4781c;
 				}
 				.label-account-number {
 					--theme-label-cursor: pointer;
