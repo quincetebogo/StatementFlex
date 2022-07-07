@@ -1,5 +1,5 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
-import { formatDate, isNullorEmpty, formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
+import { formatDate, isNullorEmpty, formatStringAsPascalCase, formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { TABLE_EXPANDER_CELL } from 'app/css/PolicySummary';
 
@@ -435,7 +435,7 @@ class PolicySummary extends Component {
 						<horizon-label
 							data-automation-id="insure-beneficiaries-contact-number"
 							label="Contact number"
-							value="${ isNullorEmpty(item.contactDetails?.cellphone) ? `-` : item.contactDetails?.cellphone }">
+							value="${ isNullorEmpty(item.contactDetails?.cellphone) ? `-` : formatPhoneNumber(item.contactDetails?.cellphone) }">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-beneficiaries-email-address"
