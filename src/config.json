@@ -213,7 +213,7 @@
 		"insurePolicyTransactionHistory": {
 			"enabled": true,
 			"positiveCase": false
-		},	
+		},
 		"creditOverview": {
 			"enabled": false,
 			"positiveCase": true
@@ -223,7 +223,7 @@
 			"positiveCase": true
 		},
 		"insurePolicySummary": {
-			"enabled":true,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"budgetTransferFromAccounts": {
@@ -261,8 +261,19 @@
 		"insureRetrieveDocContent": {
 			"enabled": true,
 			"positiveCase": false
+		},
+		"insurePrepareUpdate": {
+			"enabled": true,
+			"positiveCase": false
+		},
+		"insurePolicyAccept": {
+			"enabled": true,
+			"positiveCase": false
+		},
+		"insureGenerateAgreement": {
+			"enabled": true,
+			"positiveCase": false
 		}
-
 	},
 	"searchClientOptionEnabled": true
 }

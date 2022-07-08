@@ -50,6 +50,9 @@ export class ExistingClient extends InsureViewBase {
 		this.policyDetails = {};
 		this.estimate = {};
 		this.contractReference = ``;
+
+		// Update Plan
+		this.acceptPlanRequest = {};
 	}
 
 	/**
@@ -98,6 +101,8 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _initialise() {
 		this.clientPolicies = await this._retrieveClientPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+		console.log('callerInformation')
+		console.log(this.callerInformation)
 	}
 
 	/**
@@ -296,6 +301,305 @@ export class ExistingClient extends InsureViewBase {
 		this.clientPolicies?.summaryDetails?.policies?.forEach(item => { item["isExpanded"] = false; })
 	}
 
+	/**
+	 * Calculate quote event from Update plan, supply 
+	 * @param {*} event 
+	 */
+	async _updatePlanQuote(event) {
+
+	}
+
+	/**
+	 * Update Plan event to perform update sequence
+	 */
+	async _updatePlanPrepare(event) {
+
+		let quoteCalcRequest = {
+			"saveQuote": true,
+			"contractReference": e.detail.policy.contractReference,
+			"cifNumber": this.callerInformation.cifNumber,
+			"totalPremium": e.detail.policy.totalPremium,
+			"lifesAssured": e.detail.policy.roleplayers.filter(ele => ele.lifeAssured == true)
+		};
+
+		// Calc
+		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
+		if (calculateQuoteResp.succeeded && calculateQuoteResp.result) {
+
+			const contractReference = calculateQuoteResp.contractReference;
+			// Prepare Update
+			const prepareUpdateRequest = {
+				"quoteID": calculateQuoteResp.result.quoteNumber,
+				"beneficiaries": e.detail.policy.roleplayers.filter(ele => ele.beneficiary == true),
+				"collectionDetails": e.detail.policy.deductionDetails
+			}
+			const prepareUpdateResp = await this.insureService.prepareUpdate(prepareUpdateRequest);
+
+			if (prepareUpdateResp.succeeded && prepareUpdateResp.result) {
+
+				let agreementRequest = {
+					"documentFormat": "PDF",
+					"saveDocumentToDocumentum": true,
+					"returnDocumentContent": true,
+					"emailDocumentToClient": false,
+					"wetsignBarcode": false,
+					"clientDetails": {
+						"cifNumber": this.callerInformation.cifNumber,
+						"policyContractReference": prepareUpdateResp.result.contractReference,
+						"firstName": this.callerInformation.firstName,
+						"surname": this.callerInformation.surname,
+						"idNumber": this.callerInformation.southAfricanIDNumber,
+						"dateOfBirth": "2022-07-08T07:38:53.069Z"
+					},
+					"contractReference": prepareUpdateResp.result.contractReference
+				}
+
+				const planAgreement = await this.insureService.generateUpdateFuneralCoverPlanAgreement(prepareUpdateRequest);
+				const paymentAgrement = await this.insureService.generateFuneralPolicyPaymentAgreement(prepareUpdateRequest);
+
+
+				let resp = {
+					"contractReference": "string",
+					"productCode": "Capitec",
+					"commencementDate": "2022-07-07T20:45:07.780Z",
+					"status": "PendingInForce",
+					"displayStatus": "string",
+					"deductionDetails": {
+						"collectionDay": 0,
+						"bankDetails": {
+							"accountName": "string",
+							"branchCode": "string",
+							"accountNumber": "string",
+							"bank": "string",
+							"accountType": "Bond"
+						},
+						"collectionMethod": "EFT",
+						"mandateReferenceNumber": "string",
+						"frequency": "MONTHLY",
+						"effectiveFromDate": "2022-07-07T20:45:07.780Z",
+						"effectiveToDate": "2022-07-07T20:45:07.780Z"
+					},
+					"totalPremium": 0,
+					"arrearDetails": {
+						"outstandingAmount": 0,
+						"monthsOutstanding": 0,
+						"arrears": [
+							{
+								"amount": 0,
+								"dueDate": "2022-07-07T20:45:07.780Z",
+								"objectID": "string"
+							}
+						]
+					},
+					"cancellationDetails": {
+						"recordedCancellationDate": "2022-07-07T20:45:07.780Z",
+						"effectiveCancellationDate": "2022-07-07T20:45:07.780Z",
+						"reason": "string"
+					},
+					"paymentSchedule": {
+						"previousArrearsPaymentDate": "2022-07-07T20:45:07.780Z",
+						"previousArrearsPaymentAmount": 0,
+						"previousPaymentDate": "2022-07-07T20:45:07.780Z",
+						"previousPaymentAmount": 0,
+						"nextPaymentDate": "2022-07-07T20:45:07.780Z",
+						"nextPaymentAmount": 0
+					},
+					"benefits": [
+						{
+							"type": "NewBorn",
+							"available": true,
+							"availableDate": "2022-07-07T20:45:07.780Z"
+						}
+					],
+					"mandates": [
+						{
+							"accountName": "string",
+							"branchCode": "string",
+							"accountNumber": "string",
+							"bank": "string",
+							"accountType": "Bond",
+							"mandateType": "EFT",
+							"initialInstalmentAmount": 0,
+							"firstCollectionDate": "2022-07-07T20:45:07.780Z",
+							"numberOfDebitInstalments": 0,
+							"statusReason": "string",
+							"mandateStatus": "Inactive",
+							"mandateInitiationDate": "2022-07-07T20:45:07.780Z",
+							"mandateID": 0,
+							"lastCollectionDate": "2022-07-07T20:45:07.780Z",
+							"instalmentAmount": 0,
+							"contractReference": "string",
+							"collectionDay": 0,
+							"cifNumber": 0,
+							"idNumber": "string",
+							"instalmentOccurrence": "OOFF",
+							"messageAuthenticationCode": "string",
+							"authRequired": true,
+							"mandateReferenceNumber": "string",
+							"contactNumber": "string",
+							"voiceRecordingNumber": "string",
+							"mandateRequestTransactionIdentifier": "string"
+						}
+					],
+					"claims": [
+						{
+							"roleplayer": {
+								"title": "Mr",
+								"surname": "string",
+								"firstName": "string",
+								"middleName": "string",
+								"idNumber": "string",
+								"lifeAssured": true,
+								"beneficiary": true,
+								"benefitPayout": 0,
+								"contactDetails": {
+									"cellphone": "string",
+									"homephone": "string",
+									"workphone": "string",
+									"email": "string"
+								},
+								"gender": "Male",
+								"dateOfBirth": "2022-07-07T20:45:07.780Z",
+								"recordID": "string",
+								"cifNumber": 0,
+								"relationship": "MainLife",
+								"coverAmount": 0,
+								"premium": 0,
+								"coverStartDate": "2022-07-07T20:45:07.780Z",
+								"premiumStartDate": "2022-07-07T20:45:07.780Z",
+								"idType": "RSAID",
+								"rowID": 0
+							},
+							"claimsReference": "string",
+							"claimSettlementAmount": 0,
+							"taskReference": "string",
+							"claimIntimationDate": "2022-07-07T20:45:07.780Z",
+							"claimReceivedOnDate": "2022-07-07T20:45:07.780Z",
+							"claimIncidentDate": "2022-07-07T20:45:07.780Z",
+							"claimStatus": "string",
+							"clientClaimStatus": "string",
+							"claimType": "Other",
+							"subClaimType": "string",
+							"causeOfIncident": "string",
+							"documentsRequired": [
+								{
+									"documentCode": "string",
+									"documentName": "string",
+									"guid": "string",
+									"isMandatory": true,
+									"docStatus": "Pending"
+								}
+							],
+							"documentsReceived": [
+								{
+									"documentCode": "string",
+									"documentName": "string",
+									"guid": "string",
+									"isMandatory": true,
+									"docStatus": "Pending"
+								}
+							],
+							"paymentTransaction": [
+								{
+									"date": "string",
+									"amount": 0,
+									"bankDetails": [
+										{
+											"accountName": "string",
+											"branchCode": "string",
+											"accountNumber": "string",
+											"bank": "string",
+											"accountType": "Bond"
+										}
+									],
+									"beneficiary": {
+										"title": "Mr",
+										"surname": "string",
+										"firstName": "string",
+										"middleName": "string",
+										"idNumber": "string",
+										"lifeAssured": true,
+										"beneficiary": true,
+										"benefitPayout": 0,
+										"contactDetails": {
+											"cellphone": "string",
+											"homephone": "string",
+											"workphone": "string",
+											"email": "string"
+										},
+										"gender": "Male",
+										"dateOfBirth": "2022-07-07T20:45:07.780Z",
+										"recordID": "string",
+										"cifNumber": 0,
+										"relationship": "MainLife",
+										"coverAmount": 0,
+										"premium": 0,
+										"coverStartDate": "2022-07-07T20:45:07.780Z",
+										"premiumStartDate": "2022-07-07T20:45:07.780Z",
+										"idType": "RSAID",
+										"rowID": 0
+									},
+									"payStatus": "Authorised"
+								}
+							],
+							"incidentNumber": "string",
+							"lastComment": "string",
+							"repudiationDate": "2022-07-07T20:45:07.780Z",
+							"repudiationReason": "string"
+						}
+					],
+					"policyRule": "Standard",
+					"policyMinumumPremium": 0,
+					"canReinstate": true,
+					"roleplayers": [
+						{
+							"title": "Mr",
+							"surname": "string",
+							"firstName": "string",
+							"middleName": "string",
+							"idNumber": "string",
+							"lifeAssured": true,
+							"beneficiary": true,
+							"benefitPayout": 0,
+							"contactDetails": {
+								"cellphone": "string",
+								"homephone": "string",
+								"workphone": "string",
+								"email": "string"
+							},
+							"gender": "Male",
+							"dateOfBirth": "2022-07-07T20:45:07.780Z",
+							"recordID": "string",
+							"cifNumber": 0,
+							"relationship": "MainLife",
+							"coverAmount": 0,
+							"premium": 0,
+							"coverStartDate": "2022-07-07T20:45:07.780Z",
+							"premiumStartDate": "2022-07-07T20:45:07.780Z",
+							"idType": "RSAID",
+							"rowID": 0
+						}
+					]
+				}
+
+
+			}
+		}
+
+
+
+
+
+		this.acceptPlanRequest = {};
+
+		// quote/calc
+		// policy/prepareUpdate
+		// document/generate/UpdateFuneralCoverPlanAgreement (801)
+		// document/generate/FuneralPolicyPaymentAgreement (804)
+
+
+	}
+
 	//#endregion EVENT HANDLERS
 
 	//#region RENDERING
@@ -401,8 +705,8 @@ export class ExistingClient extends InsureViewBase {
 	_renderUpdatePlanPage() {
 		return html`
 			<horizon-insure-update-plan @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-				@calculate="${(e) => this._calculateClientQuote(e)}" .policyDetails="${this.policyDetails}"
-				.productParams="${this.productParams}">
+				@calculate-quote="${(e) => this._updatePlanQuote(e)}" @update-plan-prepare="${(e) => this._updatePlanPrepare(e)}"
+				.policyDetails="${this.policyDetails}" .productParams="${this.productParams}">
 			</horizon-insure-update-plan>`
 	}
 

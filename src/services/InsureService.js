@@ -171,28 +171,6 @@ export class InsureService extends ChannelServiceBase {
 		);
 	}
 
-	/**
-	 * Calculate Quote / Generate Quote
-	 *
-	 * @param {quoteRequest} [errorHandler=null]  Request data for quote 
-	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 */
-	async calculateQuote(quoteRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.post(
-			`/FuneralInsuranceProductService/quote/calc`,
-			quoteRequest,
-			this.setInsureTokens(),
-			`calculateQuote`,
-			null,
-			null,
-			900,
-			null,
-			errorHandler,
-			autoRetries
-		);
-	}
 
 	/**
 	 * Get Policy Transaction History
@@ -211,6 +189,33 @@ export class InsureService extends ChannelServiceBase {
 			transactionsRequest,
 			this.setInsureTokens(),
 			`getPolicyTransactions`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+
+	/**
+	 * Calculate Quote / Generate Quote
+	 *
+	 * @param {quoteRequest} [errorHandler=null]  Request data for quote 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async calculateQuote(quoteRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureCalculateQuote`)) {
+			return this.mock(`calculateQuote`, quoteRequest);
+		}
+		return this.post(
+			`/FuneralInsuranceProductService/quote/calc`,
+			quoteRequest,
+			this.setInsureTokens(),
+			`calculateQuote`,
 			null,
 			null,
 			900,
@@ -281,8 +286,8 @@ export class InsureService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
 	async generateUpdateFuneralCoverPlanAgreement(generateAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		if (await this.isMockEnabled(`insureGenerateUpdateFuneralCoverPlanAgreement`)) {
-			return this.mock(`updateFuneralCoverPlanAgreement`, generateAgreementRequest);
+		if (await this.isMockEnabled(`insureGenerateAgreement`)) {
+			return this.mock(`insureGenerateAgreement`, generateAgreementRequest);
 		}
 		return this.post(
 			`/horizon-insurance/document/generate/UpdateFuneralCoverPlanAgreement`,
@@ -307,8 +312,8 @@ export class InsureService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
 	async generateFuneralPolicyPaymentAgreement(generateAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		if (await this.isMockEnabled(`insureGenerateFuneralPolicyPaymentAgreement`)) {
-			return this.mock(`funeralPolicyPaymentAgreement`, generateAgreementRequest);
+		if (await this.isMockEnabled(`insureGenerateAgreement`)) {
+			return this.mock(`insureGenerateAgreement`, generateAgreementRequest);
 		}
 		return this.post(
 			`/horizon-insurance/document/generate/FuneralPolicyPaymentAgreement`,

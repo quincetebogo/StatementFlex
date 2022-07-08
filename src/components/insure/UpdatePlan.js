@@ -336,7 +336,7 @@ class UpdatePlan extends Component {
 		this.newTotalPremium = '';
 
 
-		this.dispatchEvent(new CustomEvent(`calculate`, {
+		this.dispatchEvent(new CustomEvent(`calculate-quote`, {
 			detail: request
 		}));
 
@@ -462,18 +462,12 @@ class UpdatePlan extends Component {
 	}
 
 	/**
-	 * Open Add Life dialog returning select relationship
-	 */
-	_openUpdatePlanAgreementDialog() {
-		this.showUpdatePlanAgreementDialog = true;
-	}
-
-	/**
 	 * Close the Add Life dialog
 	 */
 	_closeUpdatePlanAgreementDialog() {
 		this.showUpdatePlanAgreementDialog = false;
 	}
+
 
 	/**
 	 * Calculate Total Cover for all beneficiaries, including Main Life
@@ -503,6 +497,20 @@ class UpdatePlan extends Component {
 		}, 0);
 	}
 
+
+	/**
+	 * Update Plan button click event
+	 * Invoke API endpoints
+	 */
+	async _onUpdatePlan() {
+		this.dispatchEvent(new CustomEvent(`update-plan-prepare`, {
+			detail: {
+				policy: this.policyDetails,
+			}
+		}));
+		// This needs to move
+		this.showUpdatePlanAgreementDialog = true;
+	}
 
 	//#endregion
 
@@ -792,19 +800,20 @@ class UpdatePlan extends Component {
 			</capitec-button>
 		
 			<capitec-button label="Update Plan" type="white" .disabled="${this.agreementFCPAccepted == false}"
-				@click="${() => this._openUpdatePlanAgreementDialog()}">
+				@click="${() => this._onUpdatePlan()}">
 			</capitec-button>
 		
 			`: this.selectedTabIndex == 1 ? html`
 			<capitec-button label="Update Plan" type="white"
 				.disabled="${this.agreementEACLAccepted == false || this.agreementYBPAccepted == false}"
-				@click="${() => this._openUpdatePlanAgreementDialog()}">
+				@click="${() => this._onUpdatePlan()}">
 			</capitec-button>
 			`: html`
-			<capitec-button label="Update Plan" type="white" .disabled="${this.agreementYROAAccepted == false}"
-				@click="${() => this._openUpdatePlanAgreementDialog()}">
+			<capitec-button label="Update Plan" type="white" @click="${() => this._onUpdatePlan()}">
 			</capitec-button>`}
 		</capitec-title-bar>
+		
+		<!-- .disabled="${this.agreementYROAAccepted == false}" -->
 		
 		<capitec-card style="min-height: 100vh;">
 			<capitec-tab-group @tab-select="${(e) => this._tabChange(e)}">
@@ -880,7 +889,7 @@ class UpdatePlan extends Component {
 			
 					<!-- Lifes Assured list -->
 					${this.policyDetails.roleplayers.map((roleplayer, index) => html` ${roleplayer.relationship != "MainLife" &&
-			roleplayer.lifeAssured == true ? html`
+					roleplayer.lifeAssured == true ? html`
 					<capitec-label label="Remove" @click="${() => this._openRemoveLifeAssuredDialog(index)}" type="subtitle"
 						class="stronger link" style="position: relative; width: fit-content; left: 613px; top: 43px;">
 					</capitec-label>
@@ -1139,7 +1148,7 @@ class UpdatePlan extends Component {
 			
 						<!-- Beneficiaries list -->
 						${this.policyDetails.roleplayers.filter(ele => ele.beneficiary == true || ele.relationship ==
-			'MainLife').map(beneficiary => html`
+						'MainLife').map(beneficiary => html`
 						<div class="calc-life-list">
 							<capitec-label label="${beneficiary.relationship}"></capitec-label>
 							<capitec-label label="${formatCurrency(beneficiary.coverAmount)}"></capitec-label>
@@ -1446,5 +1455,15 @@ window.customElements.define(`horizon-insure-update-plan`, UpdatePlan);
  * <horizon-insure-update-plan ... @navigate-back="${this._handler}"></horizon-insure-update-plan>
  *
  * @event UpdatePlan#navigate-back
+ * @type {Object} - N/A
+ */
+
+/**
+ * Initiate Update Plan API calls
+ *
+ * @example
+ * <horizon-insure-update-plan ... @update-plan-create="${this._handler}"></horizon-insure-update-plan>
+ *
+ * @event UpdatePlan#update-plan-create
  * @type {Object} - N/A
  */
