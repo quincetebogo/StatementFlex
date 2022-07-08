@@ -320,7 +320,6 @@ export class TapToPayLanding extends Component {
 
 				capitec-icon {
 					cursor: pointer;
-					--theme-icon-size-medium: 26px;
 				}
 
 				capitec-content-box > capitec-label[type="title"] {

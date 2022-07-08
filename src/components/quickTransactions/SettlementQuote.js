@@ -245,7 +245,6 @@ export class SettlementQuote extends Component {
 				}
 				capitec-icon {
 					cursor: pointer;
-					--theme-icon-size-medium: 26px;
 				}
 
 				/* Filter bar styles */

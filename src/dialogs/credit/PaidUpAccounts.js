@@ -358,7 +358,6 @@ export class PaidUpAccounts extends Component {
 				capitec-title-bar > capitec-icon {
 					margin: 0px 16px 0px 23px;
 					cursor: pointer;
-					--theme-icon-size-medium: 26px;
 				}
 
 				/* Action and search bar styles */

@@ -843,10 +843,6 @@ export class VerifyCaller extends Component {
 					width: 204px;
 					height: 81px;
 				}
-				horizon-option-button[label="Skip Verification"] {
-					--theme-icon-size-medium: 26px;
-				}
-
 				.btnTryAgain[disabled] {
 					cursor:default;
 					pointer-events:none;

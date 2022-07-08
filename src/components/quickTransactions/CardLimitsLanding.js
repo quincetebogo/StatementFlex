@@ -596,7 +596,6 @@ export class CardLimitsLanding extends Component {
 				capitec-title-bar > capitec-icon {
 					cursor: pointer;
 					margin-right: 15px;
-					--theme-icon-size-medium: 26px;
 				}
 				capitec-label[type="strong"] {
 					--theme-label-strong-font-size: 14px;

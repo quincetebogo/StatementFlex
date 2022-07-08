@@ -99,7 +99,6 @@ export class TaxCertificateLanding extends Component {
 				capitec-title-bar > capitec-icon {
 					cursor: pointer;
 					margin-right: 15px;
-					--theme-icon-size-medium: 26px;
 				}
 				capitec-image {
 					margin: 109px 386px 0px 386px;

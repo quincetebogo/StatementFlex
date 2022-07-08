@@ -649,7 +649,6 @@ export class TransactionHistory extends Component {
 					width: 224px;
 				}
 				.scroll-top {
-					--theme-icon-size-medium: 26px;
 					padding-top: 12px;
 					cursor: pointer;
 				}

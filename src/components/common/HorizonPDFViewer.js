@@ -128,7 +128,6 @@ class HorizonPDFViewer extends Component {
 
 				capitec-title-bar > capitec-icon {
 					cursor: pointer;
-					--theme-icon-size-medium: 26px;
 				}
             `
         ];
