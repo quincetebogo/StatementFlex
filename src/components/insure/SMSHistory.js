@@ -286,7 +286,7 @@ _backToSummaryPage() {
 		}
 
 		.card{
-			min-height: 50vh;
+			height: fit-content;
 			padding: 20px;
 		}
 
