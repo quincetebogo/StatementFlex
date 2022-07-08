@@ -47,10 +47,19 @@ export const creditMixin = {
 
 		let permission = returnValue.result.permissionsResultsList.find(item => item.operationIdentifier === ACTION_IDENTIFIER[option]);
 
-		if (option === `settlement-quote`) {
+		// TODO : CSCEH-7995 : Once credit permission is update for marked closure status, we can remove the below condition.
+		if (option === `settlement-quote` || option === `pay-budget`) {
 			permission = returnValue.result.permissionsResultsList.find(item => item.operationIdentifier === `Settle`);
 		}
-		
+
+		// When the option is view-budget, we cant get it from the permissions endpoint. 
+		// So hardcoding it GRANTED always.
+		if (!permission) {
+			permission = {};
+			permission.permissionResult = PERMISSION_STATUS.GRANTED;
+			permission.declineReasons = ``;
+		}
+
 		return {
 			ccsStatus: permission?.permissionResult === PERMISSION_STATUS.DENIED,
 			permissionResult: permission?.permissionResult,
