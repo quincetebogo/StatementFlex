@@ -242,8 +242,8 @@ class PolicySummary extends Component {
 	_renderSections() {
 		return html`
 			${this._renderMainLifeSection()}
-			${this._renderBeneficiariesSection()}
 			${this._renderLivesAssuredSection()}
+			${this._renderBeneficiariesSection()}
 			${this._renderBankDetailsSection()}
 		`;
 	}
