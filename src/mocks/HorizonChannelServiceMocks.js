@@ -95,6 +95,7 @@ export default class HorizonChannelServiceMocks {
 		if (this._mockSettings.searchCaller.positiveCase) {
 			return this.callMocks.searchCaller;
 		}
+	}
 
 	xdsQuestions(clientID) {
 		if (this._mockSettings.xdsQuestions.positiveCase) {
