@@ -97,7 +97,7 @@ class UpdatePlan extends Component {
 	 * @property {Boolean} showRemoveBeneficiaryDialog determines whether to show the EACL agreement dialog
 	 * @property {Boolean} showUpdatePlanAgreementDialog determines whether to show the Update Plan agreement dialog
 	 * @property {Object} policyDetails Current Policy Summary Object
-	 *
+	 * @property {Object} updatePlanPrepare Callback function to Prepare Update	 *
 	 * @readonly
 	 * @static
 	 */
@@ -121,6 +121,9 @@ class UpdatePlan extends Component {
 			collectionDay: { type: Number, state: true },
 
 			newTotalPremium: { string: '' },
+
+			updatePlanPrepare: { type: Object, state: true },
+			tempDocContent: { type: String, state: true }
 		};
 	}
 
@@ -503,13 +506,20 @@ class UpdatePlan extends Component {
 	 * Invoke API endpoints
 	 */
 	async _onUpdatePlan() {
-		this.dispatchEvent(new CustomEvent(`update-plan-prepare`, {
-			detail: {
-				policy: this.policyDetails,
-			}
-		}));
+		// this.dispatchEvent(new CustomEvent(`update-plan-prepare`, {
+		// 	detail: {
+		// 		policy: this.policyDetails,
+		// 	}
+		// }));
+
+		console.log('About to call callback - prepareUpdate');
+		let prepareUpdateResponse = await this.updatePlanPrepare(this.policyDetails);
+		console.log('AFTER callback');
+		console.log(JSON.stringify(prepareUpdateResponse));
+		// awaint whatever
 		// This needs to move
 		this.showUpdatePlanAgreementDialog = true;
+		this.tempDocContent = prepareUpdateResponse.planAgreement.documentContent
 	}
 
 	//#endregion
@@ -1438,7 +1448,8 @@ class UpdatePlan extends Component {
 	 */
 	_renderUpdatePlanAgreementDialog() {
 		return this.showUpdatePlanAgreementDialog == false ? `` : html`
-		<insure-update-plan-agreement-dialog @close-modal="${() => this._closeUpdatePlanAgreementDialog()}">
+		<insure-update-plan-agreement-dialog @close-modal="${() => this._closeUpdatePlanAgreementDialog()}"
+			.tempDocContent="${this.tempDocContent}">
 		</insure-update-plan-agreement-dialog>`
 	}
 

@@ -264,7 +264,7 @@
 		},
 		"insurePrepareUpdate": {
 			"enabled": true,
-			"positiveCase": false
+			"positiveCase": true
 		},
 		"insurePolicyAccept": {
 			"enabled": true,
@@ -272,7 +272,7 @@
 		},
 		"insureGenerateAgreement": {
 			"enabled": true,
-			"positiveCase": false
+			"positiveCase": true
 		}
 	},
 	"searchClientOptionEnabled": true

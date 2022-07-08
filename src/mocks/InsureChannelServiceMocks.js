@@ -45,13 +45,9 @@ export default class InsureChannelServiceMocks {
 		this.clientPoliciesMocks = await this._loadMockModule(this.clientPoliciesMocks, `insureClientPolicies`, () => import(`../mocks/insure/ClientPolicies`).catch(err => logError(err)));
 		this.transactionHistoryMocks = await this._loadMockModule(this.transactionHistoryMocks, `insurePolicyTransactionHistory`, () => import(`../mocks/insure/InsurePolicyTransactionsMockData`).catch(err => logError(err)));
 		this.policySummaryMocks = await this._loadMockModule(this.policySummaryMocks, `insurePolicySummary`, () => import(`../mocks/insure/PolicySummary`).catch(err => logError(err)));
-
 		this.calculateQuoteMocks = await this._loadMockModule(this.calculateQuoteMocks, `insureCalculateQuote`, () => import(`../mocks/insure/QuoteCalc`).catch(err => logError(err)));
 		this.prepareUpdateMocks = await this._loadMockModule(this.prepareUpdateMocks, `insurePrepareUpdate`, () => import(`../mocks/insure/PrepareUpdate`).catch(err => logError(err)));
-		this.generateUpdateFuneralCoverPlanAgreementMocks = await this._loadMockModule(this.generateUpdateFuneralCoverPlanAgreementMocks, `insureGenerateUpdateFuneralCoverPlanAgreementMocks`, () => import(`../mocks/insure/UpdateFuneralCoverPlanAgreement`).catch(err => logError(err)));
-		this.generateFuneralPolicyPaymentAgreementMocks = await this._loadMockModule(this.generateFuneralPolicyPaymentAgreementMocks, `insureGenerateFuneralPolicyPaymentAgreementMocks`, () => import(`../mocks/insure/FuneralPolicyPaymentAgreement`).catch(err => logError(err)));
-		
-		// this.retrieveDocContentMocks = await this._loadMockModule(this.retrieveDocContentMocks, `insureRetrieveDocContent`, () => import(`../mocks/insure/RetrieveDocContent`).catch(err => logError(err)));
+		this.generateAgreementMocks = await this._loadMockModule(this.generateAgreementMocks, `insureGenerateAgreement`, () => import(`../mocks/insure/InsureAgreement`).catch(err => logError(err)));
 	}
 
 	/**
@@ -116,7 +112,7 @@ export default class InsureChannelServiceMocks {
 	 * Calculate Quote mock check
 	 * @returns {Object} Mock response data
 	 */
-	insureCalculateQuote() {
+	calculateQuote() {
 		if (this._mockSettings.insureCalculateQuote.positiveCase) {
 			return this.calculateQuoteMocks.QuoteCalc;
 		}
@@ -127,7 +123,7 @@ export default class InsureChannelServiceMocks {
 	 * Prepare update mock check
 	 * @returns {Object} Mock response data
 	 */
-	insurePrepareUpdate() {
+	prepareUpdate() {
 		if (this._mockSettings.insurePrepareUpdate.positiveCase) {
 			return this.prepareUpdateMocks.PrepareUpdate;
 		}
@@ -135,36 +131,13 @@ export default class InsureChannelServiceMocks {
 	}
 
 	/**
-	 * Generate 801 Agreement mock check
+	 * Generate agreement / Sample content, not specific to a Agreement
 	 * @returns {Object} Mock response data
 	 */
-	insureGenerateUpdateFuneralCoverPlanAgreement() {
-		if (this._mockSettings.insureGenerateUpdateFuneralCoverPlanAgreement.positiveCase) {
-			return this.generateUpdateFuneralCoverPlanAgreementMocks.UpdateFuneralCoverPlanAgreement;
+	generateAgreement() {
+		if (this._mockSettings.insureGenerateAgreement.positiveCase) {
+			return this.generateAgreementMocks.InsureAgreement;
 		}
 		return null;
 	}
-
-	/**
-	 * Generate 804 Agreement mock check
-	 * @returns {Object} Mock response data
-	 */
-	insureGenerateFuneralPolicyPaymentAgreement() {
-		if (this._mockSettings.insureGenerateFuneralPolicyPaymentAgreement.positiveCase) {
-			return this.generateFuneralPolicyPaymentAgreement.FuneralPolicyPaymentAgreement;
-		}
-		return null;
-	}
-
-	// /**
-	//  * TEMP test doc content MOCK
-	//  * @returns {Object} Mock response data
-	//  */
-	// insureGenerateFuneralPolicyPaymentAgreement() {
-	// 	if (this._mockSettings.insureRetrieveDocContent.positiveCase) {
-	// 		return this.retrieveDocContentMocks.DocContent;
-	// 	}
-	// 	return null;
-	// }
-	
 }

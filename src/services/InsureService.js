@@ -287,7 +287,7 @@ export class InsureService extends ChannelServiceBase {
 	 */
 	async generateUpdateFuneralCoverPlanAgreement(generateAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`insureGenerateAgreement`)) {
-			return this.mock(`insureGenerateAgreement`, generateAgreementRequest);
+			return this.mock(`generateAgreement`, generateAgreementRequest);
 		}
 		return this.post(
 			`/horizon-insurance/document/generate/UpdateFuneralCoverPlanAgreement`,
@@ -313,7 +313,7 @@ export class InsureService extends ChannelServiceBase {
 	 */
 	async generateFuneralPolicyPaymentAgreement(generateAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`insureGenerateAgreement`)) {
-			return this.mock(`insureGenerateAgreement`, generateAgreementRequest);
+			return this.mock(`generateAgreement`, generateAgreementRequest);
 		}
 		return this.post(
 			`/horizon-insurance/document/generate/FuneralPolicyPaymentAgreement`,
