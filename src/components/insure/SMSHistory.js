@@ -292,6 +292,7 @@ _backToSummaryPage() {
 
 		.label{
 			padding-bottom: 10px;
+			padding-top: 10px;
 		}
 
 		horizon-expander {
@@ -377,7 +378,8 @@ _backToSummaryPage() {
 		.filter-bar {
 
 			display: -webkit-inline-box;
-
+			border-top: 1px solid #E1E1E1;
+			border-bottom: 1px solid #E1E1E1;
 			padding-left: 0px;
 			
 		}
