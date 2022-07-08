@@ -1,4 +1,4 @@
-import { ACCOUNT_STATUS, CREDIT_TYPE, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PRODUCTS } from 'app/constants/Credit';
+import { ACCOUNT_STATUS, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { CreditEvents, SETTLEMENT_QUOTE_EVENTS, SETTLE_AND_CLOSE } from 'app/constants/telemetry/events/Credit';
@@ -18,7 +18,7 @@ import 'app/components/common/ServiceCallErrorScreen';
 import 'app/components/credit/CreditCardDetails';
 import 'app/components/credit/AccessFacilityDetails';
 import 'app/components/credit/TermLoanDetails';
-import 'app/components/dialogs/common/CCSstatus';
+import 'app/components/dialogs/common/WarningDialog';
 import 'app/dialogs/credit/SettlementQuote';
 import 'app/dialogs/credit/PaidUpLetter';
 import 'app/dialogs/statements/Statements';
@@ -73,8 +73,10 @@ export class CreditAccount extends ViewBase {
 		this.settleAndCloseDocument = ``;
 		this.showSettleCloseModal = false;
 		this.settlementQuoteEvents = SETTLEMENT_QUOTE_EVENTS;
-		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
+		this.declineReason = ``;
+		this.selectedAccountDetails = {};
 
+		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._preformAction(e));
 		
@@ -112,7 +114,8 @@ export class CreditAccount extends ViewBase {
 			creditBalance: { state: true, attribute: false },
 			ccsStatus: { type: Boolean },
 			showSettleCloseModal: { type: Boolean },
-			showPayBudgetDialog: { state: false }
+			showPayBudgetDialog: { state: false },
+			declineReason: { state: false }
 		};
 	}
 
@@ -164,10 +167,14 @@ export class CreditAccount extends ViewBase {
 			await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
 			this._refreshIncidentDetails();
 
-			this.ccsStatus = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber || selectedAccountDetails.budgetAccountNumber, productType);
+			const { permissionResult, declineReasons } = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber || selectedAccountDetails.budgetAccountNumber, productType);
+			this.ccsStatus = permissionResult === PERMISSION_STATUS.DENIED &&
+							 !DECLINE_REASONS_EXCLUSION_LIST.includes(declineReasons);
+			this.declineReason = declineReasons;
+			this.selectedAccountDetails = selectedAccountDetails;
 
-			// Perform the action only when ccs status is false
-			if (!this.ccsStatus) {
+			// Perform the action only when permission result is granted
+			if (permissionResult === PERMISSION_STATUS.GRANTED) {
 				return actions[option]();
 			}
 		}
@@ -974,6 +981,7 @@ export class CreditAccount extends ViewBase {
 			${this._renderSettleCloseDisclaimer()}
 			${this._renderSettleAndCloseDialog()}
 			${this._renderPaidUpLetterView()}
+			${this._renderPendingClosure()}
 		`;
 	}
 
@@ -1194,6 +1202,16 @@ export class CreditAccount extends ViewBase {
 			@cancel="${() => this._backToLandingPage()}"
 			.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
 		</horizon-paid-up-letter-dialog>`
+		: html``;
+	}
+
+	_renderPendingClosure() {
+		return this.declineReason === PERMISSION_DECLINE_REASONS.ACC_NOT_ACTIVE
+		? html`
+			<horizon-warn-dialog
+				content="Your ${PRODUCT_TYPE[this.selectedAccountDetails.productTypeCode].toLowerCase()} account was settled and is pending closure."
+				@on-okay="${() => this.declineReason = ``}">
+			</horizon-warn-dialog>`
 		: html``;
 	}
 }
