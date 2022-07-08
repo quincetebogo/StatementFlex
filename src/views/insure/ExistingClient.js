@@ -75,6 +75,7 @@ export class ExistingClient extends InsureViewBase {
 			mainLifeGender: { type: String, state: true },
 			contractReference: { type: String, state: true },
 			cancellationReason: {type: String, state: true},
+			cancelPolicyDocumentDetails: {type: Object, state: true},
 		};
 	}
 
@@ -199,9 +200,9 @@ export class ExistingClient extends InsureViewBase {
 		cancelPolicyDetails.cancellationReason = this.cancellationReason;
 		cancelPolicyDetails.documents = [];
 		console.log(cancelPolicyDetails)
-		// cancelPolicyDetails.documents.documentCode= ;
-		// cancelPolicyDetails.documents.documentName = ;
-		// cancelPolicyDetails.documents.guid = ;
+		// cancelPolicyDetails.documents.documentCode= "";
+		// cancelPolicyDetails.documents.documentName = "";
+		// cancelPolicyDetails.documents.guid = "";
 
 		const resp = await this.insureService.cancelPolicy(cancelPolicyDetails, () => true);
 		if (resp.succeeded == true && resp.result != null) {
@@ -218,7 +219,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	 async _cancelPolicyAgreement(e) {
 
-		this.cancelPolicyAgreementDetails = {}
+		let cancelPolicyAgreementDetails = {}
 
 		cancelPolicyAgreementDetails.documentFormat = "PDF";
 		cancelPolicyAgreementDetails.saveDocumentToDocumentum = false;
@@ -226,32 +227,17 @@ export class ExistingClient extends InsureViewBase {
 		cancelPolicyAgreementDetails.emailDocumentToClient = false;
 		cancelPolicyAgreementDetails.wetsignBarcode = false;
 
-		cancelPolicyAgreementDetails.eSignDetails = [];
-		cancelPolicyAgreementDetails.eSignDetails.consultantTimeStamp = "" ;
-		cancelPolicyAgreementDetails.eSignDetails.clientFingerPrint = "" ;
-		cancelPolicyAgreementDetails.eSignDetails.consultantFingerPrint ="";
-		cancelPolicyAgreementDetails.eSignDetails.clientTimeStamp = "";
-		cancelPolicyAgreementDetails.eSignDetails.deactSect15 = true;
-
-		cancelPolicyAgreementDetails.eSignDetails.consultantDetails = [];
-		cancelPolicyAgreementDetails.eSignDetails.consultantDetails.branchName = "";
-		cancelPolicyAgreementDetails.eSignDetails.consultantDetails.branchCity = "";
-		cancelPolicyAgreementDetails.eSignDetails.consultantDetails.userName = "";
-		cancelPolicyAgreementDetails.eSignDetails.consultantDetails.managerNumber = "";
-		cancelPolicyAgreementDetails.eSignDetails.consultantDetails.userFirstName = "";
-		cancelPolicyAgreementDetails.eSignDetails.consultantDetails.userLastName = "";
-
 		cancelPolicyAgreementDetails.clientDetails= [];
-		cancelPolicyAgreementDetails.clientDetails.cifNumber = this.callerInformation.cifNumber;
-		cancelPolicyAgreementDetails.clientDetails.primarySavingsAccountNumber = 0;
-		cancelPolicyAgreementDetails.clientDetails.policyContractReference = this.callerInformation.contractReference;
-		cancelPolicyAgreementDetails.clientDetails.firstName = this.callerInformation.firstName;
-		cancelPolicyAgreementDetails.clientDetails.surname = this.callerInformation.surname;
-		cancelPolicyAgreementDetails.clientDetails.idNumber = this.callerInformation.southAfricanIDNumber;
-		cancelPolicyAgreementDetails.clientDetails.dateOfBirth = this.callerInformation.dateOfBirth;
+			cancelPolicyAgreementDetails.clientDetails.cifNumber = this.callerInformation.cifNumber;
+			cancelPolicyAgreementDetails.clientDetails.primarySavingsAccountNumber = 0;
+			cancelPolicyAgreementDetails.clientDetails.policyContractReference = e.detail.contractRef;
+			cancelPolicyAgreementDetails.clientDetails.firstName = this.callerInformation.firstName;
+			cancelPolicyAgreementDetails.clientDetails.surname = this.callerInformation.surname;
+			cancelPolicyAgreementDetails.clientDetails.idNumber = this.callerInformation.southAfricanIDNumber;
+			cancelPolicyAgreementDetails.clientDetails.dateOfBirth = this.callerInformation.dateOfBirth;
 
 		cancelPolicyAgreementDetails.emailDetails= [];
-		cancelPolicyAgreementDetails.emailDetails.email = "";
+			cancelPolicyAgreementDetails.emailDetails.email = "";
 
 		cancelPolicyAgreementDetails.input= [];
 			cancelPolicyAgreementDetails.input.cancellationReason = this.cancellationReason;
@@ -260,7 +246,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const resp = await this.insureService.cancelPolicyAgreement(cancelPolicyAgreementDetails, () => true);
 		if (resp.succeeded == true && resp.result != null) {
-			
+			this.cancelPolicyDocumentDetails = resp.result
 		} else {
 			// Do error message
 			return null;
@@ -486,13 +472,14 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderClientPoliciesPage() {
 		return html`
-			<horizon-insure-client-policies .clientPolicies = "${this.clientPolicies}"
+			<horizon-insure-client-policies .clientPolicies = "${this.clientPolicies}" .cancelPolicyDocumentContents = "${this.cancelPolicyDocumentDetails}"
 				@navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan(e)}"
 				@navigate-to-pay-premium-success ="${(e) => this._goToPayPremiumSuccess()}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
-				@navigate-to-cancel-policy-success="${(e) => this._cancelPolicy(e)}">
+				@navigate-to-cancel-policy-success="${(e) => this._cancelPolicy(e)}"
+				@fetch-cancel-agreement="${(e) => this._cancelPolicyAgreement(e)}">
 			</horizon-insure-client-policies>`
 	}
 

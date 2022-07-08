@@ -77,7 +77,8 @@ class ClientPolicies extends Component {
 			contractRef: {type: String, state: true},
 
 			clientPolicies: { type: Object, state: true },
-			policyDetails: { type: Object, state: true }
+			policyDetails: { type: Object, state: true },
+			cancelPolicyDocumentContents: {type: Object, state: true}
 		};
 	}
 
@@ -168,11 +169,21 @@ class ClientPolicies extends Component {
 	}
 
 	/**
+	 * event to fetch Cancel Policy Agreement
+	 */
+	 _fetchCancelAgreement() {
+		this.dispatchEvent(new CustomEvent(`fetch-cancel-agreement`, {
+			detail: {contractRef: this.contractRef
+			}
+		}));
+	}
+
+	/**
 	 * event to open the cancel policy dialog
 	 */
 	_openCancelPolicyDialog(contractReference){
 		this.contractRef = contractReference
-
+		this._fetchCancelAgreement()
 		this.showCancelPolicyDialog = true;
 	}
 
@@ -758,7 +769,8 @@ _renderCancelPolicyDialog(){
 		return this.showCancelPolicyDialog == false ? `` 
 		: html`
 		<insure-cancel-policy-dialog @close-modal="${(e) => this.showCancelPolicyDialog = false}"
-		@agree="${(e) => this._goToCancelPolicySuccess(e)}" .contractReference = ${this.contractRef}>
+			@agree="${(e) => this._goToCancelPolicySuccess(e)}" .contractReference = ${this.contractRef}
+			.documentContents = "${this.cancelPolicyDocumentContents}">
 		</insure-cancel-policy-dialog>
 		`
 	}

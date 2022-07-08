@@ -34,12 +34,21 @@ class CancelPolicyDialog extends Component {
 
 	//#region PROPERTIES
 
+	/**
+	 * @property {Boolean} selected determines if a cancellation reason has been chosen
+	 * @property {Boolean} checked determines if terms and conditions have been agreed to 
+	 * @property {String} contractReference contains the contract reference
+	 * @property {String} cancelReason contains the chosen cancellation reason
+	 * @property {Object} documentContents contains the 802 document contents
+	 * 
+	 */
 	 static get properties() {
 		return {
 			selected: {type: Boolean, state: true},
 			checked: {type: Boolean, state: true},
 			contractReference: {type: String, state: true},
 			cancelReason: {type: String, state: true},
+			documentContents: {type: Object, state: true},
 		};
 	}
 
@@ -72,14 +81,14 @@ class CancelPolicyDialog extends Component {
 	_valueSelected(e){
 		this.selected = true;
 
-		this.cancelReason = e.detail.new.text;
+		this.cancelReason = e.detail.new.code;
 
 
 	}
 /**
  * Event to determine whether the checkbox has been checked or not
  * 
- * @param {*} e 
+ * @param {Boolean} e 
  */
 	_CheckBox(e){
 		if (e.detail.new == true){
