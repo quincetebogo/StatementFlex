@@ -2,14 +2,14 @@ import { Component, css, html } from 'platform/elements';
 import 'platform/components/popups/Modal';
 
 /**
- * A warning dialog that prompts the agent that a client has a CCS status on their credit account
+ * A warning dialog that prompts the agent to alert the status
  *
  * @export
- * @class CCSstatus
+ * @class WarningDialog
  * @extends {Component}
  */
 
-export class CCSstatus extends Component {
+export class WarningDialog extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -18,6 +18,20 @@ export class CCSstatus extends Component {
 	constructor() {
 		super();
 	}
+
+	// --------------
+	// PROPERTIES
+	// --------------
+
+	static get properties() {
+		return {
+			content: { state: false }
+		};
+	}
+
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
 
 	connectedCallback() {
 		super.connectedCallback();
@@ -91,7 +105,7 @@ export class CCSstatus extends Component {
 				capitec-label{
 					height: 160px;
 					width: 300px;
-					margin: 0px;	
+					margin: 0px;
 					color: #3A3A3A;
 
 					--theme-label-font-family: "Hind Vadodara";
@@ -146,7 +160,7 @@ export class CCSstatus extends Component {
 				</div>
 				<div slot="body">
 					<capitec-content-box>
-						<capitec-label label="Unable to perform this transaction as there is a CCS status on this account."></capitec-label>
+						<capitec-label label="${this.content}"></capitec-label>
 					</capitec-content-box>
 				</div>
 				<div slot="footer">
@@ -170,4 +184,4 @@ export class CCSstatus extends Component {
 			`;
 	}
 }
-window.customElements.define(`horizon-ccs-status-dialog`, CCSstatus);
+window.customElements.define(`horizon-warn-dialog`, WarningDialog);
