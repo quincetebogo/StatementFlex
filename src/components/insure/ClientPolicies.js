@@ -398,7 +398,7 @@ class ClientPolicies extends Component {
 			}
 			horizon-expander[expanded] {
 				box-shadow: 0 6px 10px 0.25px rgb(0 0 0 / 7%);
-				display: contents;
+				display: block;
 				--theme-overflow-menu-width: 200px !important;
 			}
 			.expander-header > capitec-icon {
@@ -620,7 +620,7 @@ class ClientPolicies extends Component {
 							value="${policyItem.displayStatus}">
 						</horizon-label>
 				</capitec-group>
-				<div slot="content" class="slot-content">
+				<div slot="content">
 					<capitec-group 
 						class="expander-content" 
 						layout="vertical"
@@ -695,11 +695,10 @@ class ClientPolicies extends Component {
 		return html`
 		<capitec-card class="action-card">
 			<capitec-overflow-menu label="More" data-automation-id = "insure-policy-more-sub-menu">
-				<capitec-overflow-menu-item icon="system/transfer-action" label="Transaction history" @click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
-				<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan" @click=" ${() => this._openCancelPolicyConfirmationDialog()}"></capitec-overflow-menu-item>
-				${policyItem.arrearDetails.outstandingAmount > 0 ?
-					html `<capitec-overflow-menu-item icon="system/sars-action" label="Benefits"></capitec-overflow-menu-item>`
-					: ``}
+				<div>
+					<capitec-overflow-menu-item icon="system/transfer-action" label="Transaction History" @click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
+					<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan" @click=" ${() => this._openCancelPolicyConfirmationDialog()}"></capitec-overflow-menu-item>
+				</div>
 			</capitec-overflow-menu>
 			<capitec-label label="More" class="label-text">
 			</capitec-label>
