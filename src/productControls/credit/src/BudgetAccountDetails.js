@@ -41,6 +41,7 @@ import 'app/components/common/HorizonLabel';
 	/**
 	 *
 	 * @property {Object} accountDetails Data for the Account details screen from budget account
+	 * @property {Object} isPilotUser - boolean says true/ false
 	 *
 	 * @readonly
 	 * @static
@@ -48,7 +49,8 @@ import 'app/components/common/HorizonLabel';
 	 */
 	static get properties() {
 		return {
-			accountDetails: { type: Object }
+			accountDetails: { type: Object },
+			isPilotUser: { type: Boolean }
 		};
 	}
 
@@ -177,7 +179,8 @@ import 'app/components/common/HorizonLabel';
 							class="transfer-button"
 							data-automation-id="budget-account-details-transfer-button"
 							label="Transfer"
-							@click="${() => this._transferClick()}">
+							@click="${() => this._transferClick()}"
+							?hidden="${!this.isPilotUser}">
 						</capitec-button>
 				</capitec-title-bar>
 

@@ -50,7 +50,8 @@ export class CreditAccountLanding extends Component {
 	 *
 	 * @property {flexibleCreditAccounts} flexibleCreditAccounts 
 	 * @property {fixedTermCreditAccounts} fixedTermCreditAccounts 
-	 * @property {budgetAccountsSummary} budgetAccountsSummary 
+	 * @property {budgetAccountsSummary} budgetAccountsSummary
+	 * @property {Boolean} isPilotUser - boolean says true/ false
 	 *
 	 */
 	 static get properties() {
@@ -58,6 +59,7 @@ export class CreditAccountLanding extends Component {
 			flexibleCreditAccounts: { type: Array },
 			fixedTermCreditAccounts: { type: Array },
 			budgetAccountsSummary: { type: Object },
+			isPilotUser: { type: Boolean },
 			selectedTab: { type: String }
 		};
 	}
@@ -96,7 +98,7 @@ export class CreditAccountLanding extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-	
+
 	// N/A
 	
 	// ---------
@@ -582,7 +584,7 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-settle-close"
 					label="Settle & Close"
 					icon="system/close-circle-action"
-					?hidden="${false}"
+					?hidden="${!this.isPilotUser}"
 					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
 			</horizon-option-button>
 		`;
@@ -641,7 +643,7 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-settle-loan"
 					label="Settle Loan"
 					icon="system/close-circle-action"
-					?hidden="${false}"
+					?hidden="${!this.isPilotUser}"
 					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, selectedAccountDetails)}">
 			</horizon-option-button>
 		`;

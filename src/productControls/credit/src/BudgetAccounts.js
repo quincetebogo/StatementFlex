@@ -60,11 +60,13 @@ import 'app/components/common/HorizonLabel';
 	 * Registry of all properties defined by the component.
 	 *
 	 * @property {budgetFacilityAccounts} budgetFacilityAccounts List of Budget facility accounts and their details
+	 * @property {Boolean} isPilotUser - boolean says true/ false
 	 *
 	 */
 	static get properties() {
 		return {
 			budgetFacilityAccounts: { type: Object },
+			isPilotUser: { type: Boolean },
 
 			groupAccountsByTerm: { state: true },
 			filteredAccounts: { state: true }
@@ -445,7 +447,8 @@ import 'app/components/common/HorizonLabel';
 					data-automation-id="budget-facility-transfer-button"
 					type="clear"
 					label="Transfer"
-					@click="${() => this._transferClick(budgetAccount)}">
+					@click="${() => this._transferClick(budgetAccount)}"
+					?hidden="${!this.isPilotUser}">
 				</capitec-button>
 			</capitec-group>`;
 	}
