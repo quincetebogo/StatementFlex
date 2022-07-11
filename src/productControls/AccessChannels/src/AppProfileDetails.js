@@ -233,7 +233,7 @@ export class AppProfileDetails extends Component {
 					--theme-label-font-color: #3A3A3A;
 				}
 				.icon-close{
-					--theme-icon-size-small: 13.5px;
+					--theme-icon-size-medium: 24px;
 					cursor: pointer;
 				}
 				.content-box{
@@ -389,7 +389,7 @@ export class AppProfileDetails extends Component {
 						<capitec-icon class="icon-app" size="medium" icon="system/cellphone"></capitec-icon>
 						<capitec-label class="header-label" type="Strong" label="App"></capitec-label>
 						<capitec-spacer></capitec-spacer>
-						<capitec-icon class="icon-close" size="small" icon="system/close-action" @click="${() => this._toggleAppSlidingPanel()}"></capitec-icon>
+						<capitec-icon class="icon-close" size="medium" icon="system/close-action" @click="${() => this._toggleAppSlidingPanel()}"></capitec-icon>
 					</capitec-group>
 
 					${this._renderAppDetails()}
@@ -551,7 +551,7 @@ export class AppProfileDetails extends Component {
 						<capitec-icon class="icon-warning" size="medium" icon="${this.showValidationBanner ? `status/error-trans` : `status/warning-trans`}"></capitec-icon>
 						<capitec-label class="header-label" type="Strong" label="Suspend App"></capitec-label>
 						<capitec-spacer></capitec-spacer>
-						<capitec-icon class="icon-close" size="small" icon="system/close-action" @click="${() => this._toggleSuspendReasonsSlide()}"></capitec-icon>
+						<capitec-icon class="icon-close" size="medium" icon="system/close-action" @click="${() => this._toggleSuspendReasonsSlide()}"></capitec-icon>
 					</capitec-group>
 
 					${this._renderValidationBanner()}

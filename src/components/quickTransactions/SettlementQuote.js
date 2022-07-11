@@ -371,7 +371,7 @@ export class SettlementQuote extends Component {
 		return html`
 			<capitec-title-bar>
 				<capitec-icon 
-					size="small"
+					size="medium"
 					icon="system/arrow-left-action"
 					@click="${() => this._back()}">
 				</capitec-icon>

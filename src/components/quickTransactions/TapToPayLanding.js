@@ -350,7 +350,7 @@ export class TapToPayLanding extends Component {
 			<capitec-card class="tap-to-pay-container">
 				<capitec-title-bar>
 					<capitec-icon 
-						size="small"
+						size="medium"
 						icon="system/arrow-left-action"
 						@click="${() => this._back()}"
 						data-automation-id="tap-to-pay-landing-back">

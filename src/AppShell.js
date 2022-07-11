@@ -319,7 +319,10 @@ export class AppShell extends Shell {
 					--theme-alert-banner-unsuccessful-font-color: #3A3A3A;
 					--theme-alert-banner-unsuccessful-red-font-color: #3A3A3A;
 
-					--theme-hyperlink-color:  #3A3A3A;
+					--theme-hyperlink-color: #3A3A3A;
+
+					/* capitec-icon - size="medium" */
+					--theme-icon-size-medium: 26px;
 				}
 				`
 		];

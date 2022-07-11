@@ -791,7 +791,7 @@ export class CardLimitsLanding extends Component {
 			<capitec-title-bar class="title-bar">
 				<capitec-icon 
 					data-automation-id="card-limits-landing-back"
-					size="small"
+					size="medium"
 					icon="system/arrow-left-action"
 					@click="${() => this._back()}">
 				</capitec-icon>

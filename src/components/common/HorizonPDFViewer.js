@@ -125,6 +125,10 @@ class HorizonPDFViewer extends Component {
                 .icon-spacer{
                     width: 48px;
                 }
+
+				capitec-title-bar > capitec-icon {
+					cursor: pointer;
+				}
             `
         ];
     }
@@ -145,7 +149,7 @@ class HorizonPDFViewer extends Component {
         return html`
         <capitec-title-bar type="default">
             <capitec-icon 
-                size="small"
+                size="medium"
                 icon="system/arrow-left-action"
                 @click="${() => this.dispatchEvent(new CustomEvent(`cancel`, {}))}">
             </capitec-icon>
