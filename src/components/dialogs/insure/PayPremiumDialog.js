@@ -28,8 +28,10 @@ class PayPremiumDialog extends Component {
 		this.amount = 0;
 		this.optionSelected = false;
 		this.displayInsufficientFunds = false;
+		this.insufficient = false;
 		// Lookups
 		this.clientAccounts = CLIENT_ACCOUNTS;
+
 	}
 
 	//#endregion
@@ -54,7 +56,8 @@ class PayPremiumDialog extends Component {
 			accountDetails: {type: Object, state: true},
 			accountNumber: {type: String, state: true},
 			accountType: {type: String, state: true},
-			displayInsufficientFunds: { type: Boolean, state: true }
+			displayInsufficientFunds: { type: Boolean, state: true },
+			insufficient: {type: Boolean, state: true}
 		};
 	}
 
@@ -172,6 +175,7 @@ class PayPremiumDialog extends Component {
 				if (this.accountDetails.savingsAccountData.accountAvailableBalance < this.amount){
 					this.optionSelected = false;
 					this.displayInsufficientFunds = true;
+					this.insufficient = true;
 				} else {
 					this._PayArrears();
 				}
@@ -181,6 +185,7 @@ class PayPremiumDialog extends Component {
 				if (this.accountDetails.savingsPlanData.savingsPlans[index].availableBalance < this.amount){
 					this.optionSelected = false;
 					this.displayInsufficientFunds = true;
+					this.insufficient = true;
 				} else {
 					this._PayArrears();
 				}
@@ -280,6 +285,10 @@ class PayPremiumDialog extends Component {
 	_optionSelected(e) {
 		this.optionSelected = e.detail.optionSelected;
 
+		this.displayInsufficientFunds = false;
+
+		this.insufficient = false;
+
 		this.accountNumber = e.detail.accountNumber;
 
 		this.accountType = e.detail.accountType;
@@ -361,7 +370,7 @@ class PayPremiumDialog extends Component {
 			
 			<insure-account-select .items= "${this.clientAccounts}" label="Select an Account"
 				@option-selected="${(e) => this._optionSelected(e)}" data-automation-id="insure-pay-premium-dialog-accounts"
-				.accountDetails = ${this.accountDetails}>
+				.accountDetails = ${this.accountDetails} .insufficient = "${this.insufficient}">
 			</insure-account-select>
 
 			

@@ -137,7 +137,7 @@ class PayPremiumAgreementDialog extends Component {
 			<div>
 				<capitec-label type="subtitle" label="Declaration:
 By agreeing to pay your arrear premiums, you acknowledge and confirm that:
-•Your “Savings/ Flexible Account” can be debited with the amount of ${formatCurrency(this.amountToPay)} on “${formatDate(Date(), `dd mmm yyyy`)}” ">
+•Your Savings/ Flexible Account can be debited with the amount of ${formatCurrency(this.amountToPay)} on ${formatDate(Date(), `dd mmm yyyy`)} ">
 				</capitec-label>
 			</div>
 
