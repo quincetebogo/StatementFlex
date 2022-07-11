@@ -246,7 +246,7 @@ export class InsureService extends ChannelServiceBase {
 	 */
 	 async payPolicy(payArrearsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
-			`/horizon-insurance/policy/pay`,
+			`/FuneralInsuranceProductService/policy/pay`,
 			payArrearsRequest,
 			this.setInsureTokens(),
 			`payPolicy`,
