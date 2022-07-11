@@ -79,15 +79,6 @@ export default class InsureChannelServiceMocks {
 
 			const result = this.transactionHistoryMocks.PolicyTransactionHistory;
 
-			if(result.contractReference !== policyTransactionHistoryRequest.contractReference)
-			{
-				let emptyResponse = {
-					contractReference: ``,
-					transactions: []
-				}
-
-				return emptyResponse;
-			}
 			return result;
 		}
 
@@ -100,6 +91,17 @@ export default class InsureChannelServiceMocks {
 	 * @returns {Object} Mock response data
 	 */
 	insurePolicySummary() {
+		if (this._mockSettings.insurePolicySummary.positiveCase) {
+			return this.policySummaryMocks.PolicySummary;
+		}
+		return null;
+	}
+
+	/**
+	 * Update Plan mock check
+	 * @returns {Object} Mock response data
+	 */
+	 insurePolicySummary() {
 		if (this._mockSettings.insurePolicySummary.positiveCase) {
 			return this.policySummaryMocks.PolicySummary;
 		}

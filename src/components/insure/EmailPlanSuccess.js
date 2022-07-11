@@ -175,8 +175,7 @@ _renderAlert(){
 			Header="Funeral Plan Sent"
 			layout = "vertical"
 			detail = "Funeral plan was sent"
-			@click = "${() => this.showSuccessAlert = false}"
-			closable>
+			@click = "${() => this.showSuccessAlert = false}">
 		</capitec-toast>
 
 `}

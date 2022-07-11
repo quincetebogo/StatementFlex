@@ -26,7 +26,7 @@ export const ClientPolicies = {
 						"idType": "RSAID",
 						"idNumber": "string",
 						"nationality": "AD",
-						"lifeAssured": true,
+						"lifeAssured": false,
 						"beneficiary": false,
 						"benefitPayout": 5000,
 						"cellphone": "string",
@@ -41,9 +41,9 @@ export const ClientPolicies = {
 						"recordID": "4924658741.288",
 						"recordIDType": "RSAID",
 						"relationship": "MainLife",
-						"coverAmount": 40000,
-						"premium": 100.3,
-						"age": 31,
+						"coverAmount": 50000,
+						"premium": 45.1,
+						"age": 36,
 						"genderType": "Male",
 						"rowID": 1,
 						"validationErrors": [
@@ -56,8 +56,8 @@ export const ClientPolicies = {
 					},
 					{
 						"title": "Mr",
-						"surname": "Peter",
-						"firstName": "Parker",
+						"surname": "Fritz",
+						"firstName": "Jess",
 						"middleName1": "",
 						"middleName2": "",
 						"idType": "RSAID",
@@ -77,10 +77,123 @@ export const ClientPolicies = {
 						"coverEndDate": "2020-04-30T22:00:00.0000000+00:00",
 						"recordID": "4924658741.288",
 						"recordIDType": "RSAID",
-						"relationship": "MainLife",
-						"coverAmount": 50000,
-						"premium": 100.3,
+						"relationship": "Spouse",
+						"coverAmount": 35000,
+						"premium": 32.5,
 						"age": 31,
+						"genderType": "Female",
+						"rowID": 1,
+						"validationErrors": [
+							{
+								"errorMessage": "Field cannot be empty",
+								"fieldName": "Surname",
+								"errorCode": "BANCS_TECHNICAL_FAILURE"
+							}
+						]
+					},
+					{
+						"title": "Mr",
+						"surname": "Black",
+						"firstName": "Ian",
+						"middleName1": "",
+						"middleName2": "",
+						"idType": "RSAID",
+						"idNumber": "string",
+						"nationality": "AD",
+						"lifeAssured": true,
+						"beneficiary": false,
+						"benefitPayout": 0,
+						"cellphone": "string",
+						"homephone": "string",
+						"workphone": "string",
+						"email": "string",
+						"dateOfBirth": "2009-02-24T22:00:00.0000000+00:00",
+						"gender": "Male",
+						"coverStartDate": "2020-02-29T22:00:00.0000000+00:00",
+						"premiumStartDate": "2020-02-29T22:00:00.0000000+00:00",
+						"coverEndDate": "2020-04-30T22:00:00.0000000+00:00",
+						"recordID": "4924658741.288",
+						"recordIDType": "RSAID",
+						"relationship": "Child",
+						"coverAmount": 15000,
+						"premium": 12.35,
+						"age": 13,
+						"genderType": "Male",
+						"rowID": 1,
+						"validationErrors": [
+							{
+								"errorMessage": "Field cannot be empty",
+								"fieldName": "Surname",
+								"errorCode": "BANCS_TECHNICAL_FAILURE"
+							}
+						]
+					},
+					{
+						"title": "Mrs",
+						"surname": "Taylor",
+						"firstName": "Leanne",
+						"middleName1": "",
+						"middleName2": "",
+						"idType": "RSAID",
+						"idNumber": "string",
+						"nationality": "AD",
+						"lifeAssured": false,
+						"beneficiary": true,
+						"benefitPayout": 0,
+						"contactDetails": {
+							"cellphone": "061 587 8542",
+							"homephone": "string",
+							"workphone": "string",
+							"email": "LeanneT@gmail.com"
+						  },
+						"dateOfBirth": "1992-04-14T22:00:00.0000000+00:00",
+						"gender": "Male",
+						"coverStartDate": "2020-02-29T22:00:00.0000000+00:00",
+						"premiumStartDate": "2020-02-29T22:00:00.0000000+00:00",
+						"coverEndDate": "2020-04-30T22:00:00.0000000+00:00",
+						"recordID": "4924658741.288",
+						"recordIDType": "RSAID",
+						"relationship": "Spouse",
+						"coverAmount": 25000,
+						"premium": 29.5,
+						"age": 30,
+						"genderType": "Female",
+						"rowID": 1,
+						"validationErrors": [
+							{
+								"errorMessage": "Field cannot be empty",
+								"fieldName": "Surname",
+								"errorCode": "BANCS_TECHNICAL_FAILURE"
+							}
+						]
+					},
+					{
+						"title": "Mr",
+						"surname": "Blake",
+						"firstName": "Sam",
+						"middleName1": "",
+						"middleName2": "",
+						"idType": "RSAID",
+						"idNumber": "string",
+						"nationality": "AD",
+						"lifeAssured": false,
+						"beneficiary": true,
+						"benefitPayout": 15000,
+						"cellphone": "string",
+						"homephone": "string",
+						"workphone": "string",
+						"email": "string",
+						"dateOfBirth": "2009-02-24T22:00:00.0000000+00:00",
+						"gender": "Male",
+						"coverStartDate": "2020-02-29T22:00:00.0000000+00:00",
+						"premiumStartDate": "2020-02-29T22:00:00.0000000+00:00",
+						"coverEndDate": "2020-04-30T22:00:00.0000000+00:00",
+						"recordID": "4924658741.288",
+						"recordIDType": "RSAID",
+						"relationship": "Child",
+						"coverAmount": 10000,
+						"premium": 9.85,
+						"age": 8,
 						"genderType": "Male",
 						"rowID": 1,
 						"validationErrors": [
@@ -92,7 +205,7 @@ export const ClientPolicies = {
 						]
 					}
 				],
-				"contractReference": "CF0123456",
+				"contractReference": "CF00192343",
 				"productCode": "Capitec",
 				"commencementDate": "2020-03-02T22:00:00.0000000+00:00",
 				"status": "PendingInForce",
@@ -112,10 +225,10 @@ export const ClientPolicies = {
 						"accountType": "Bond"
 					}
 				},
-				"totalPremium": 200.2,
+				"totalPremium": 120.8,
 				"arrearDetails": {
 					"outstandingAmount": 0,
-					"monthsOutstanding": 2,
+					"monthsOutstanding": 0,
 					"arrears": [
 						{
 						}
@@ -127,12 +240,12 @@ export const ClientPolicies = {
 					"reason": "Affordability"
 				},
 				"paymentSchedule": {
-					"previousArrearsPaymentDate": "2020-01-27T22:00:00.0000000+00:00",
-					"previousArrearsPaymentAmount": 255.2,
-					"previousPaymentDate": "2020-01-24T22:00:00.0000000+00:00",
-					"previousPaymentAmount": 255.2,
-					"nextPaymentDate": "2020-02-24T22:00:00.0000000+00:00",
-					"nextPaymentAmount": 255.2
+					"previousArrearsPaymentDate": "2022-01-27T22:00:00.0000000+00:00",
+					"previousArrearsPaymentAmount": 120.8,
+					"previousPaymentDate": "2022-04-04T22:00:00.0000000+00:00",
+					"previousPaymentAmount": 120.8,
+					"nextPaymentDate": "2022-05-04T22:00:00.0000000+00:00",
+					"nextPaymentAmount": 120.8
 				},
 				"benefits": [
 					{
@@ -148,7 +261,7 @@ export const ClientPolicies = {
 						"firstCollectionDate": "2022-03-24T13:22:51.820Z",
 						"numberOfDebitInstalments": 0,
 						"statusReason": "string",
-						"mandateStatus": "Inactive",
+						"mandateStatus": "Active",
 						"mandateInitiationDate": "2022-03-24T13:22:51.820Z",
 						"mandateID": 0,
 						"lastCollectionDate": "2022-03-24T13:22:51.820Z",

@@ -422,7 +422,7 @@ export class SavingsAccountBase extends ViewBase {
 		const verificationStatus = this.callerInformation.verificationStatus;
 
 		return verificationStatus === `verified`
-				? verificationMethod === `XDS` && HIGH_RISK_TRANSACTIONS.includes(need)
+				? verificationMethod === `SQ` && HIGH_RISK_TRANSACTIONS.includes(need)
 				: !LOW_RISK_TRANSACTIONS.includes(need);
 	}
 
@@ -534,9 +534,10 @@ export class SavingsAccountBase extends ViewBase {
 			? html`
 				<horizon-statements
 					.cifNumber="${this.callerInformation.cifNumber}"
-					.title="${this.callerInformation.title}"
+					client-title="${this.callerInformation.title}"
 					.lastName="${this.callerInformation.lastName}"
 					.clientProducts="${this.clientProducts}"
+					registeredEmailId="${this.callerInformation.emailId}"
 					type="${type}"
 					@cancel="${() => this._cancelStatements()}"
 					@account-selected="${(event) => this._statementsAccConfirmed(event)}">

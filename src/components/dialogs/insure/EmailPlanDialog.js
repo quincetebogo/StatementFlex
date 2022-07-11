@@ -142,6 +142,7 @@ class EmailPlanDialog extends Component {
 					@click="${() => this._onCancelClick()}"
 					data-automation-id="insure-email-plan-dialog-cancel">
 				</capitec-button>
+				
 				<capitec-button class="button" slot="footer" type="primary" label="Send" 
 					@click="${() => this._onSendClick()}"
 					data-automation-id="insure-email-plan-dialog-send">

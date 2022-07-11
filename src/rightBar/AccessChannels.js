@@ -80,7 +80,7 @@ export class AccessChannels extends Component {
 		this.cifNumber = this.callerInformation?.cifNumber;
 		this.verifiedTelephoneNumber = this.callerInformation?.verifiedTelephoneNumber;
 		this.isVerifiedClient = this.callerInformation?.verificationStatus === `verified`;
-		this.canPerformHighRiskActions = this.isVerifiedClient && this.callerInformation.verificationMethod !== `XDS`;
+		this.canPerformHighRiskActions = this.isVerifiedClient && this.callerInformation.verificationMethod !== `SQ`;
 
 		this._performAction = async (need, options) => {
 
@@ -476,7 +476,7 @@ export class AccessChannels extends Component {
 			this.callerInformation = state.callerInformation;
 			
 			this.isVerifiedClient = this.callerInformation.verificationStatus === `verified`;
-			this.canPerformHighRiskActions = this.isVerifiedClient && this.callerInformation.verificationMethod !== `XDS`;
+			this.canPerformHighRiskActions = this.isVerifiedClient && this.callerInformation.verificationMethod !== `SQ`;
 		}
 	}
 	
@@ -502,6 +502,11 @@ export class AccessChannels extends Component {
 
 		if (returnValue.succeeded) {
 			this.landingInfo = returnValue.result;
+		
+			const callerInformation = this.horizonStore.getCallerInformation();
+			callerInformation.emailId = returnValue.result?.email || ``;
+			this.horizonStore.setCallerInformation(callerInformation);
+
 			if (this.landingInfo.msisdn?.length >= 9) {
 				this.verifiedTelephoneNumber = `0${this.landingInfo.msisdn.substr(this.landingInfo.msisdn.length - 9)}`;
 			}
@@ -656,7 +661,7 @@ export class AccessChannels extends Component {
 
 	_renderLoadingIndicator() {
 		if (this.isBusy) {
-			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+			return html`<capitec-loading-indicator data-automation-id="access-channels-loading-indicator"></capitec-loading-indicator>`;
 		};
 
 		return html``;

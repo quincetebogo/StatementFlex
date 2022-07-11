@@ -1,5 +1,6 @@
 import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
 import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
+import { HorizonStore } from 'app/store/HorizonStore';
 
 /**
  * Channel Service methods for Cards related functionality
@@ -21,6 +22,8 @@ export class CardService extends ChannelServiceBase {
 			`v1`, 
 			() => import(`../mocks/HorizonChannelServiceMocks.js`)
 		);
+
+		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	// --------------
@@ -66,7 +69,7 @@ export class CardService extends ChannelServiceBase {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		let cardStopResults = [];
-		// incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails = this.horizonStore.getIncidentDetails();
 
 		const stopCardRequest = {
 			cards: cardsToStop.map((card) => ({
@@ -76,7 +79,7 @@ export class CardService extends ChannelServiceBase {
 				cardExpiryMonth: card.cardExpiryMonth,
 				cardSequenceNumber: card.cardSequenceNumber,
 				reason: card.cardStopReason.key,
-				cardDisplayName : card.cardDisplayName
+				cardDisplayName: card.cardDisplayName
 			})),
 			incidentRecId: incidentDetails.incidentRecId,
 			title: title,

@@ -168,7 +168,7 @@ export class StopCardLandingPage extends ViewBase {
 
 	_renderLoadingIndicator() {
 		return this.isBusy 
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			? html`<capitec-loading-indicator data-automation-id="stop-card-landing-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
 

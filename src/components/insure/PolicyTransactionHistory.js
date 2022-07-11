@@ -689,9 +689,7 @@ class PolicyTransactionHistory extends Component{
 					value = "${item.bankDetails.branchCode}"
 					data-automation-id="policy-transaction-history-branch-code">
 				</horizon-label>
-			</capitec-group>
-			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-			<horizon-label
+				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Account Type"
 					value = "${item.bankDetails.accountType}"
@@ -716,30 +714,38 @@ class PolicyTransactionHistory extends Component{
 			<capitec-table-column
 				label="Premium Due Date"
 				field="premiumDueDate"
-				type="date">
+				type="date"
+				size="160px">
 			</capitec-table-column>
 			<capitec-table-column
 				label="Premium"
 				field="formatedPremium"
-				type="currency">
+				type="currency"
+				size="125px">
 			</capitec-table-column>
+			<capitec-spacer></capitec-spacer>
 			<capitec-table-column
 				label="Type"
-				field="type">
+				field="type"
+				size="160px">
 			</capitec-table-column>
 			<capitec-table-column
 				label="Date"
 				field="date"
-				type="date">
+				type="date"
+				size="140px">
 			</capitec-table-column>
 			<capitec-table-column
 				label="Amount"
 				field="formatedAmount"
-				type="currency">
+				type="currency"
+				size="120px">
 			</capitec-table-column>
+			<capitec-spacer></capitec-spacer>
 			<capitec-table-column
 				label="Reason"
-				field="reason">
+				field="reason"
+				size="250px">
 			</capitec-table-column>
 		`;
 	}

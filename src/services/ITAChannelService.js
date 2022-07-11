@@ -15,7 +15,7 @@ export class ITAChannelService extends ChannelServiceBase {
 			`signalRUrl`, 
 			`HorizonITAChannelService`, 
 			`v1`, 
-			null
+			() => import(`../mocks/HorizonChannelServiceMocks.js`)
 		);
 	}
 
@@ -28,12 +28,17 @@ export class ITAChannelService extends ChannelServiceBase {
 	// --------------
 
 	itaVerification(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const url = `/clientcare/call/${this._version}/ita-verification?CifNumber=${request.cifNumber}&ConnectionId=${request.connectionID}`;
-		return this.get(
-			url, 
+		const url = `/clientcare-call-${this._version}/ita-verification`;
+		return this.post(
+			url,
+			{
+				"cifNumber": request.cifNumber,
+				"connectionId": request.connectionID
+			},
 			this.setToken(), 
 			`itaVerification`,
 			false,
+			null,
 			null,
 			null,
 			errorHandler,
@@ -55,18 +60,21 @@ export class ITAChannelService extends ChannelServiceBase {
 			};
 		}
 
-		const url = `/clientcare/call/${this._version}/has-digital-verification-capability?Cif=${cifNumber}`; 
+		const url = `/clientcare-call-${this._version}/has-digital-verification-capability`; 
 		
-		return this.get(
+		return this.post(
 			url,
+			{
+				"cif": cifNumber
+			},
 			this.setToken(),
 			`digitalVerificationChannelsAvailable`,
 			false,
+			null,
 			null,
 			null,
 			errorHandler,
 			autoRetries
 		);
 	}
-
 }

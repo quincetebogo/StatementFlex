@@ -1,19 +1,22 @@
+import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { css, html } from 'platform/elements';
 import { formatStringAsPascalCase, getMonthName } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
-import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { Configuration } from 'platform/core';
+import { EventAggregator } from 'platform/EventAggregator';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { SavingsPlanEvents } from 'app/constants/telemetry/events/SavingsPlan';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-import { ViewBase } from '../common/ViewBase';
+import { ViewBase } from 'app/views/common/ViewBase';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/productControls/SavingsPlan/SavingsPlanLanding';
 import 'app/dialogs/taxCertificates/TaxCertificates';
-import 'app/components/dialogs/common/StatementsDialog';
 import 'app/dialogs/statements/Statements';
+import 'app/components/dialogs/common/StatementsDialog';
+import 'app/components/quickTransactions/TaxCertificateLanding';
 
 import 'app/views/savingsPlan/FlexibleSavingsPlan';
 import 'app/views/savingsPlan/FixedTermSavingsPlan';
@@ -26,6 +29,11 @@ const SAVE_PLAN_TYPE = {
 	FIXED_TERM: `fixed-term-save-plan`
 };
 
+const TAX_TYPE = {
+	IT3B: `iT3BTaxCertificates`,
+	IT3S: `iT3STaxCertificates`
+};
+
 /**
  * Savings Plan View
  *
@@ -34,21 +42,9 @@ const SAVE_PLAN_TYPE = {
  * 
  * @export
  * @class SavingsPlan
- * @extends {SavingsPlan}
+ * @extends {ViewBase}
  * 
  */
-
-const ACCOUNT_TYPE = {
-	FLEXIBLE: 200,
-	FIXED: 201,
-	MULTIPLE: 1
-};
-
-const PLAN_TYPE = {
-	NONE: `NONE`,
-	SAVINGS_PLAN: `SAVINGS PLAN`,
-	FIXED_TERM: `FIXED TERM SAVINGS PLAN`
-};
 
 export class SavingsPlan extends ViewBase {
 	
@@ -65,9 +61,16 @@ export class SavingsPlan extends ViewBase {
 	
 		// private properites
 		this.selectedAccountNumber = ``;
+		this.taxCertType = ``;
+		this.taxCertificateDetails = null;
 
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.accountViewType = ``;
+		
+		this.eventAggregator = EventAggregator.getInstance();
+		
+		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option, null, null, null, true));
 	}
 
 	// -------------------
@@ -79,31 +82,30 @@ export class SavingsPlan extends ViewBase {
 
 		this._initialise();
 
-		this._optionClick = (option, saveType, accountNumber) => {
+		this._optionClick = async (option, saveType, accountNumber, accountName, sendAnother = false) => {
 
-			const statements = () => this._getStatements(accountNumber, saveType);
-			const taxCertificates = () => this._taxCertificates(accountNumber);
+			const statements = () => this._getStatements(accountNumber, sendAnother);
+			const taxCertificates = () => this._taxCertificates(accountNumber, accountName);
 			const productEnquiry = () => this._productEnquiry();
-			const savingsCalculator = () => this._savingsCalculator();
 			const interestRates = () => this._interestRates();
-			const accountDetails = () => this._accountDetails(saveType, accountNumber);
 
 			const actions = {
-				'statements-save': statements,
-				'tax-certificates': taxCertificates,
+				'statements': statements,
+				'tax-certificate': taxCertificates,
 				'product-enquiry': productEnquiry,
-				'savings-calculator': savingsCalculator,
-				'interest-rates': interestRates,
-				'account-details': accountDetails
+				'interest-rates': interestRates
 			};
 
 			if (actions[option]) {
+				await super._inicidentManager_(`${option}-save`, () => this._toggleBusyFlag());
+				this._refreshIncidentDetails();
 				return actions[option]();
 			}
 		};
 	}
 
 	disconnectedCallback() {
+		this.returnToScreen.dispose();
 		super.disconnectedCallback();
 	}
 
@@ -135,7 +137,7 @@ export class SavingsPlan extends ViewBase {
 		await this._initialise();
 	}
 
-	_accountDetails(type, accNumber) {
+	async _accountDetails(type, accNumber) {
 		this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_ACCOUNT_NUMBER_SELECT, {
 			"screen": TelemetryScreen.SAVINGS_PLAN_LANDING,
 			"next-screen": TelemetryScreen.SAVINGS_PLAN_ACCOUNT_DETAILS
@@ -151,6 +153,9 @@ export class SavingsPlan extends ViewBase {
 		};
 
 		if (saveProducts[this.accountViewType]) {
+			await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_PLAN, () => this._toggleBusyFlag());
+			await super.createAndClassifySubsIncident();
+			
 			return saveProducts[this.accountViewType]();
 		}
 	}
@@ -201,6 +206,9 @@ export class SavingsPlan extends ViewBase {
 					this.horizonRouter.navigateToProductInfo(`SavingsPlan`);
 					return;
 				}
+				
+				await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_PLAN, () => this._toggleBusyFlag());
+				await super.createAndClassifySubsIncident(null, false);
 			} 
 
 			this._telemetry.startSpan(SavingsPlanEvents.SAVINGS_PLAN, {
@@ -208,25 +216,13 @@ export class SavingsPlan extends ViewBase {
 			});
 		}
 
-			this.renderMode = RENDER_MODE.MAIN_PAGE;
-			this.endCallContext = `LandingPage`;
-			this._performReturnToScreen();
-		}
-
-	_updateLeftBar() {
-		this.horizonStore.setCallerInformation(this.callerInformation);
-		
-		this.horizonStore.setProductButtonState(this.landingPageInfo);
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this.endCallContext = `LandingPage`;
+		this._performReturnToScreen();
 	}
 
-	_performReturnToScreen() {
-		const returnToScreen = this.horizonStore.getReturnToScreen();
-
-		if (returnToScreen && returnToScreen.optionalData) {
-			this.eventAggregator.publish(`horizon-return-to-screen`, { option: returnToScreen.optionalData });
-		}
-
-		this.horizonStore.clearReturnScreen();
+	_updateLeftBar() {
+		this.horizonStore.setProductButtonState(this.landingPageInfo);
 	}
 
 	_formatDate(date) {
@@ -235,7 +231,7 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	_formatSavingsPlanDetails() {
-		const flexibleSavingsPlanDetails = this.savingsPlanDetails.filter(item => item.planType === PLAN_TYPE.SAVINGS_PLAN && item.accountStatus !== `CLOSED`).map(item => {
+		const flexibleSavingsPlanDetails = this.savingsPlanDetails.filter(item => item.accountType === ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN && item.accountStatus !== `CLOSED`).map(item => {
 			item.currentBalance = formatCurrency(item.currentBalance);
 			item.availableBalance = formatCurrency(item.availableBalance);
 			item.accruedInterestCurrentMonth = formatCurrency(item.accruedInterestCurrentMonth);
@@ -243,17 +239,18 @@ export class SavingsPlan extends ViewBase {
 			item.interestEarned = formatCurrency(item.interestEarned);
 			item.feesLastMonth = item.feesLastMonth ? formatCurrency(item.feesLastMonth) : `-`;
 
-			item.maturityDate = this._formatDate(item.maturityDate);
+			item.maturityDate = `-`;
 			item.dateOpened = this._formatDate(item.dateOpened);
 			item.lastUpdate = this._formatDate(item.lastUpdate);
 
 			item.planName = formatStringAsPascalCase(item.planName);
 			item.accountStatus = formatStringAsPascalCase(item.accountStatus);
+			item.postingRestrictions = `${item.postingRestrictions === `N` ? `No` : `Yes`}`;
 
 			return item;
 		});
 
-		const fixedSavingsPlanDetails = this.savingsPlanDetails.filter(item => item.planType !== PLAN_TYPE.SAVINGS_PLAN && item.accountStatus !== `CLOSED`).map(item => {
+		const fixedSavingsPlanDetails = this.savingsPlanDetails.filter(item => item.accountType === ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN && item.accountStatus !== `CLOSED`).map(item => {
 			item.currentBalance = formatCurrency(item.currentBalance);
 			item.availableBalance = formatCurrency(item.availableBalance);
 			item.accruedInterestCurrentMonth = formatCurrency(item.accruedInterestCurrentMonth);
@@ -271,6 +268,7 @@ export class SavingsPlan extends ViewBase {
 			item.planName = formatStringAsPascalCase(item.planName);
 			item.depositeType = `${formatStringAsPascalCase(item.planType)} ${item.interestOption === `R` ? `- Reinvest` : ``}`;
 			item.accountStatus = formatStringAsPascalCase(item.accountStatus);
+			item.postingRestrictions = `${item.postingRestrictions === `N` ? `No` : `Yes`}`;
 
 			return item;
 		});
@@ -287,11 +285,14 @@ export class SavingsPlan extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 	
-	_getStatements(accNumber) {
+	_getStatements(accNumber, sendAnother) {
+		if (sendAnother) {
+			return true;
+		}
+		
 		const accountDetails = this.savingsPlanDetails.find(savingsPlan => savingsPlan.accountNumber === accNumber);
-		const accountType = accountDetails.planType === PLAN_TYPE.SAVINGS_PLAN ? ACCOUNT_TYPE.FLEXIBLE : ACCOUNT_TYPE.FIXED;
 	
-		const productInfo = ACCOUNT_INTCAT_ENUM[accountType];
+		const productInfo = ACCOUNT_INTCAT_ENUM[accountDetails.accountType][accountDetails.interestCategory] || ACCOUNT_INTCAT_ENUM[accountDetails.accountType];
 		const accName = accountDetails.planName.toLowerCase();
 
 		this.clientProducts = [
@@ -316,24 +317,40 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	_backToLandingPage() {
+		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
+			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		}
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_taxCertificates(accNumber) {
-		// TO DO: Place holder for tax certificate flow.
+	async _taxCertificates(accNumber, accountName) {
 		this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_TAX_CERTIFICATE_SELECT, {
 			"screen": TelemetryScreen.SAVINGS_PLAN_LANDING,
 			"next-screen": TelemetryScreen.SAVINGS_PLAN_TAX_CERTIFICATE
 		});
-		this.selectedAccountNumber = accNumber;
-		this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
+
+		const returnValue = await this.quickTransactionService.getTaxCertificate(this.callerInformation.cifNumber, () => true);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unable to get load tax certificates information`, `_taxCertificates`, returnValue.correlationId);
+			this.horizonRouter.navigateToTaxCertificateServiceError();
+			return;
+		}
+
+		this.taxCertificateDetails = returnValue.result;
+		this.hasTaxCertificate = this.taxCertificateDetails.iT3BTaxCertificates.length + this.taxCertificateDetails.iT3STaxCertificates.length > 0;
+
+		if (this.hasTaxCertificate) {
+			this.taxCertType = accountName.toLowerCase().replaceAll(` `, ``).includes(`tax-free`) ? TAX_TYPE.IT3S : TAX_TYPE.IT3B;
+			this.selectedAccountNumber = accNumber;
+			this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
+			return;
+		}
+
+		this.renderMode = RENDER_MODE.TAX_CERTIFICATE_NOT_AVAILABLE;
 	}
 	
-	async _savingsCalculator() {
-		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
-		window.open(`${globalOneUrl}/save/`);
-	}
-
 	async _interestRates() {
 		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
 		window.open(`${globalOneUrl}/save/rates-and-fees/`);
@@ -365,6 +382,14 @@ export class SavingsPlan extends ViewBase {
 	async _findBranch() {
 		const branchLocatorUrl = await this.configuration.getSetting(`otherSystemsURL.branch-locator`);
 		window.open(`${branchLocatorUrl}`);
+	}
+
+	_setIncidentDone() {
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	// ---------
@@ -403,6 +428,7 @@ export class SavingsPlan extends ViewBase {
 			${this._renderFixedTermDetailsView()}
 			${this._renderStatements()}
 			${this._renderTaxCertificate()}
+			${this._renderTaxCertificateNotAvailable()}
 		`;
 	}
 
@@ -422,8 +448,9 @@ export class SavingsPlan extends ViewBase {
 			<capitec-pc-savings-plan
 				.savingsPlanDetails="${this.savingsPlanDetails}"
 
-				@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.saveType, e.detail.accountNumber)}"
-				@view-info="${() => this._productEnquiry()}">
+				@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.saveType, e.detail.accountNumber, e.detail.accountName)}"
+				@view-info="${() => this._productEnquiry()}"
+				@account-details="${(e) => this._accountDetails(e.detail.accountType, e.detail.accountNumber)}">
 			</capitec-pc-savings-plan>`
 		: html``;
 	}
@@ -435,7 +462,7 @@ export class SavingsPlan extends ViewBase {
 				<capitec-flexible-savings-plan-details
 					.flexibleAccountDetails="${this.flexibleAccountDetails}"
 
-					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+					@back="${() => this._setIncidentDone()}">
 				</capitec-flexible-savings-plan-details>
 			`
 			: html``;
@@ -448,7 +475,7 @@ export class SavingsPlan extends ViewBase {
 				<capitec-fixed-term-savings-plan-details
 					.fixedTermAccountDetails="${this.fixedTermAccountDetails}"
 
-					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+					@back="${() => this._setIncidentDone()}">
 				</capitec-fixed-term-savings-plan-details>`
 			: html``;
 	}
@@ -458,9 +485,10 @@ export class SavingsPlan extends ViewBase {
 			? html`
 				<horizon-statements
 					.cifNumber="${this.callerInformation.cifNumber}"
-					.title="${this.callerInformation.title}"
+					client-title="${this.callerInformation.title}"
 					.lastName="${this.callerInformation.lastName}"
 					.clientProducts="${this.clientProducts}"
+					registeredEmailId="${this.callerInformation.emailId}"
 					type="${ACCOUNT_TYPES.SAVINGS_PLAN}"
 					@cancel="${() => this._backToLandingPage()}"
 					@account-selected="${(event) => this._statementsAccConfirmed(event)}">
@@ -472,12 +500,24 @@ export class SavingsPlan extends ViewBase {
 		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE
 			? html`
 				<horizon-tax-certificate
+					.taxCertificateDetails="${this.taxCertificateDetails}"
 					cifNumber="${this.callerInformation.cifNumber}"
 					accountNumber="${this.selectedAccountNumber}"
+					type="${this.taxCertType}"
 					@cancel="${() => this._backToLandingPage()}">
 				</horizon-tax-certificate>
 			`
 			: html``;
+	}
+
+	_renderTaxCertificateNotAvailable() {
+		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE_NOT_AVAILABLE
+		? html`
+			<horizon-tax-certificate-landing
+				@back="${() => this._backToLandingPage()}">
+			</horizon-tax-certificate-landing>
+			`
+		: html``;
 	}
 	
 	_renderSavingsPlanUnverifiedPage() {
