@@ -1,5 +1,4 @@
-import { Configuration } from 'platform/core';
-import { SecurityContext } from 'platform/core';
+import { Configuration, SecurityContext } from 'platform/core';
 
 /**
  * Agent role details records the details related to the role of an agent using Horizon.
