@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
 import 'app/components/common/HorizonLabel';
 
 /**
@@ -39,8 +40,19 @@ import 'app/components/common/HorizonLabel';
 	// --------------
 
 	/**
+	 * @typedef {Object} renderAlertBanner Display alter banner based on verification status
+	*/
+
+	/**
+	 * @callback renderAlterBannerCallback
+	 * @returns {html}
+	*/
+
+	/**
 	 *
 	 * @property {Object} accountDetails Data for the Account details screen from budget account
+	 * @property {Object} shouldDisable Callback function, returns true or false to disable transfer button
+	 * @property {renderAlterBannerCallback} renderAlertBanner Callback function to render alter banner based on verification status & method
 	 *
 	 * @readonly
 	 * @static
@@ -48,7 +60,9 @@ import 'app/components/common/HorizonLabel';
 	 */
 	static get properties() {
 		return {
-			accountDetails: { type: Object }
+			accountDetails: { type: Object },
+			shouldDisable: { type: Object },
+			renderAlertBanner: { type: Object, attribute: false }
 		};
 	}
 
@@ -126,6 +140,13 @@ import 'app/components/common/HorizonLabel';
 					--theme-container-padding-right: 0px;
 					--theme-layout-gap-spacing: 0px;
 				}
+
+				/* Alertbanner styles */
+				${ALERTBANNER_CSS}
+				.verificatoin-status {
+					order: 2;
+				}
+				
 				horizon-label {
 					height: 64px;
 					width: 33%;
@@ -146,6 +167,9 @@ import 'app/components/common/HorizonLabel';
 					--theme-button-default-background-color: #e31515;
 					--theme-button-default-border-color: #FFFFFF;
 					--theme-button-default-font-color: #FFFFFF;
+				}
+				capitec-button[disabled] {
+					--theme-button-default-font-color: #a7a7a7;
 				}
 			`
 		];
@@ -177,10 +201,12 @@ import 'app/components/common/HorizonLabel';
 							class="transfer-button"
 							data-automation-id="budget-account-details-transfer-button"
 							label="Transfer"
-							@click="${() => this._transferClick()}">
+							@click="${() => this._transferClick()}"
+							?disabled="${this.shouldDisable(`pay-budget`)}">
 						</capitec-button>
 				</capitec-title-bar>
 
+				${this.renderAlertBanner()}
 				${this._renderAccountDetails()}
 
 			</capitec-card>

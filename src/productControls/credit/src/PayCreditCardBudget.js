@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { deformatCurrency, formatCurrency } from 'app/productControls/utilities/Currency';
+import { deformatCurrency, formatCurrency, formatTextFieldCurrency } from 'app/productControls/utilities/Currency';
 import { formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelectIcon';
@@ -101,7 +101,7 @@ export class PayCreditCardBudget extends Component {
 	}
 
 	_budgetValueChange(e) {
-		this.budgetAmount = e.detail.new;
+		this.budgetAmount = deformatCurrency(e.currentTarget.value);
 		this._getErrorMessage();
 	}
 
@@ -144,11 +144,10 @@ export class PayCreditCardBudget extends Component {
 		const acc = this.productSelected.accountNumber;
 			let i = 0;
 			while (i < this.savingAccountsList.length) {
-				if (acc == this.savingAccountsList[i].accountNumber && this.savingAccountsList[i].savingsPermissionStatus === `DENIED`)
-				{
+				if (acc == this.savingAccountsList[i].accountNumber && this.savingAccountsList[i].savingsPermissionStatus === `DENIED`) {
 					this.bannerMessage = `The account selected cannot be used to perform this transaction`;
 					this.savStatus = true;
-					this.errorMessage = this.savingAccountsList[i].statusReasonList;
+					this.errorMessage = `   `;
 					return;
 				}
 				i++;
@@ -287,11 +286,8 @@ export class PayCreditCardBudget extends Component {
 				data-automation-id="pay-budget-alert-banner"
 				type="error">
 					<capitec-label
-						label="Notify client:"
+						label="Notify client: ${this.bannerMessage}"
 						type="strong">
-					</capitec-label>
-					<capitec-label
-						label="${this.bannerMessage}">
 					</capitec-label>
 			</capitec-alert-banner>`
 		: html``;
@@ -312,6 +308,7 @@ export class PayCreditCardBudget extends Component {
 				detail-label="Available balance"
 				.items="${this.clientProducts}"
 				.value="${this.productSelected}"
+				.error="${this.errorMessage}"
 				.displayRenderer="${(e) => this._renderOptions(e)}"
 				@value-changed="${(e) => this._accountValueChanged(e)}"> 
 			</horizon-select-icon>
@@ -326,10 +323,9 @@ export class PayCreditCardBudget extends Component {
 				data-automation-id="pay-budget-balance"
 				label="Budget amount"
 				type="currency"
-				.error="${this.errorMessage}"
 				?disabled="${this.savStatus}"
-				value="${this.budgetAmount}"
-				@value-changed="${(e) => this._budgetValueChange(e)}">
+				value="${formatTextFieldCurrency(this.budgetAmount)}"
+				@focusout="${(e) => this._budgetValueChange(e)}">
 			</capitec-text-field>
 		`;
 	}
