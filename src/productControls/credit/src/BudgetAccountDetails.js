@@ -61,7 +61,7 @@ import 'app/components/common/HorizonLabel';
 		return {
 			accountDetails: { type: Object },
 			shouldDisable: { type: Object },
-			renderAlertBanner: { type: Object, attribute: false }
+			renderAlertBanner: { type: Object, attribute: false },
 			isPilotUser: { type: Boolean }      
 		};
 	}
