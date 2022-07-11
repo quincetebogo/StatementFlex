@@ -43,6 +43,11 @@ class PayPremiumDialog extends Component {
 	 * @property {Object} payArrears Data & flags for Pay Arrears service request
 	 * @property {Number} amount Total amount to be paid for arrears
 	 * @property {Boolean} optionSelected determines whether an option has been selected from the account select box
+	 * @property {Object} accountDetails contains the caller's savings and savings plan account details
+	 * @property {String} accountNumber conatins the account number of the selected account
+	 * @property {String} accountType 
+	 * @property {Boolean} displayInsufficientFunds 
+	 * @property {Boolean} insufficient 
 	 * 
 	 * @readonly
 	 * @static
@@ -424,7 +429,7 @@ class PayPremiumDialog extends Component {
 	_renderInsufficientFunds(){
 		return this.displayInsufficientFunds == false ? html`` :
 		html `
-			<capitec-toast class="error" type="error" header="Insufficient Funds" layout="horizontal"></capitec-toast>
+			<capitec-toast class="error" type="error" header="Insufficient Funds" layout="horizontal" data-automation-id="insure-pay-premium-dialog-insufficient-funds"></capitec-toast>
 		`
 	}
 

@@ -515,7 +515,7 @@ class ClientPolicies extends Component {
 					gap="clear"
 					halign="left"
 					valign="center">
-					${policyItem.arrearDetails.outstandingAmount > 0 ? html`<capitec-icon class="capitec-info-icon" icon="system/info-action"
+					${policyItem.arrearDetails?.outstandingAmount > 0 ? html`<capitec-icon class="capitec-info-icon" icon="system/info-action"
 						@click="${(policyItem) => this._goToPolicySummary(policyItem.contractReference)}"></capitec-icon>` 
 							: html`<span class="policy-item"></span>`}
 						<horizon-label
@@ -575,7 +575,7 @@ class ClientPolicies extends Component {
 		return html`
 			<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
 			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
-				${policyItem.arrearDetails.outstandingAmount > 0 ? 
+				${policyItem.arrearDetails?.outstandingAmount > 0 ? 
 					html `
 				<horizon-option-button 
 					data-automation-id="insure-policy-options-pay-arrears"
@@ -603,7 +603,7 @@ class ClientPolicies extends Component {
 					label="Email Plan" 
 					icon="system/profile-action">
 				</horizon-option-button>
-				${policyItem.arrearDetails.outstandingAmount < 1 ? 
+				${policyItem.arrearDetails?.outstandingAmount < 1 ? 
 					html `
 				<horizon-option-button 
 					data-automation-id="insure-policy-options-benefits"
@@ -629,7 +629,7 @@ class ClientPolicies extends Component {
 			<capitec-overflow-menu label="More" data-automation-id = "insure-policy-more-sub-menu">
 				<capitec-overflow-menu-item icon="system/transfer-action" label="Transaction history" @click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
 				<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan"></capitec-overflow-menu-item>
-				${policyItem.arrearDetails.outstandingAmount > 0 ?
+				${policyItem.arrearDetails?.outstandingAmount > 0 ?
 					html `<capitec-overflow-menu-item icon="system/sars-action" label="Benefits"></capitec-overflow-menu-item>`
 					: ``}
 			</capitec-overflow-menu>
