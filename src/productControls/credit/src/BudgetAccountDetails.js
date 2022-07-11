@@ -51,7 +51,6 @@ import 'app/components/common/HorizonLabel';
 	/**
 	 *
 	 * @property {Object} accountDetails Data for the Account details screen from budget account
-	 * @property {Object} shouldDisable Callback function, returns true or false to disable transfer button
 	 * @property {renderAlterBannerCallback} renderAlertBanner Callback function to render alter banner based on verification status & method
 	 *
 	 * @readonly
@@ -63,6 +62,7 @@ import 'app/components/common/HorizonLabel';
 			accountDetails: { type: Object },
 			shouldDisable: { type: Object },
 			renderAlertBanner: { type: Object, attribute: false }
+			isPilotUser: { type: Boolean }      
 		};
 	}
 
@@ -202,7 +202,8 @@ import 'app/components/common/HorizonLabel';
 							data-automation-id="budget-account-details-transfer-button"
 							label="Transfer"
 							@click="${() => this._transferClick()}"
-							?disabled="${this.shouldDisable(`pay-budget`)}">
+							?disabled="${this.shouldDisable(`pay-budget`)}"
+							?hidden="${!this.isPilotUser}">              
 						</capitec-button>
 				</capitec-title-bar>
 
