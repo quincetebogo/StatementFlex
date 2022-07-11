@@ -39,7 +39,7 @@ class CancelPolicyDialog extends Component {
 	 * @property {Boolean} checked determines if terms and conditions have been agreed to 
 	 * @property {String} contractReference contains the contract reference
 	 * @property {String} cancelReason contains the chosen cancellation reason
-	 * @property {Object} documentContents contains the 802 document contents
+	 * @property {Object} getCancelPolicyDocument Callback function to fetch Cancel Policy Agreement
 	 * 
 	 */
 	 static get properties() {
@@ -48,14 +48,34 @@ class CancelPolicyDialog extends Component {
 			checked: {type: Boolean, state: true},
 			contractReference: {type: String, state: true},
 			cancelReason: {type: String, state: true},
-			documentContents: {type: Object, state: true},
+			getCancelPolicyDocument: {type: Object, state: true},
+			cancelPolicyDocumentDetails: {type: Object, state: true},
 		};
 	}
 
 	//#endregion
 
+	//#region LIFECYCLE OVERRIDES
+
+	/**
+	 * Setup the component once added to the DOM.
+	 * @returns {void}
+	 */
+	 async connectedCallback() {
+		super.connectedCallback();
+		this._initialize();
+
+	 }
+
+
 	//#region PRIVATE METHODS
 	
+	async _initialize(){
+
+		// await this.getCancelPolicyDocument(this.contractReference);
+
+
+	}
 
 	//#endregion
 
@@ -83,8 +103,14 @@ class CancelPolicyDialog extends Component {
 
 		this.cancelReason = e.detail.new.code;
 
-
+		this._GetCancelAgreement(this.cancelReason)
+		console.log(this.cancelReason)
 	}
+
+	async _GetCancelAgreement(cancelReason){
+		await this.getCancelPolicyDocument(this.contractReference, cancelReason);
+	}
+
 /**
  * Event to determine whether the checkbox has been checked or not
  * 
@@ -209,6 +235,9 @@ class CancelPolicyDialog extends Component {
 			<div class="expander">
 				<capitec-expander expandbuttonalignment="left" label="View Cancelation Agreement" data-automation-id="insure-cancel-policy-dialog-view-policy-schedule">
 					<capitec-label label=""></capitec-label>
+
+					<img src="data:image/png;base64, ${this.cancelPolicyDocumentDetails}" alt="agreement" />
+
 				</capitec-expander>
 			</div>
 

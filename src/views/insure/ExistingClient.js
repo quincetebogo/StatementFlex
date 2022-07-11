@@ -217,7 +217,7 @@ export class ExistingClient extends InsureViewBase {
 	 * Cancel Policy Agreement
 	 * @returns {Object} 
 	 */
-	 async _cancelPolicyAgreement(e) {
+	 async _cancelPolicyAgreement(contractReference, cancelReason) {
 
 		let cancelPolicyAgreementDetails = {}
 
@@ -230,23 +230,24 @@ export class ExistingClient extends InsureViewBase {
 		cancelPolicyAgreementDetails.clientDetails= [];
 			cancelPolicyAgreementDetails.clientDetails.cifNumber = this.callerInformation.cifNumber;
 			cancelPolicyAgreementDetails.clientDetails.primarySavingsAccountNumber = 0;
-			cancelPolicyAgreementDetails.clientDetails.policyContractReference = e.detail.contractRef;
+			cancelPolicyAgreementDetails.clientDetails.policyContractReference = contractReference;
 			cancelPolicyAgreementDetails.clientDetails.firstName = this.callerInformation.firstName;
-			cancelPolicyAgreementDetails.clientDetails.surname = this.callerInformation.surname;
+			cancelPolicyAgreementDetails.clientDetails.surname = this.callerInformation.lastName;
 			cancelPolicyAgreementDetails.clientDetails.idNumber = this.callerInformation.southAfricanIDNumber;
-			cancelPolicyAgreementDetails.clientDetails.dateOfBirth = this.callerInformation.dateOfBirth;
+			cancelPolicyAgreementDetails.clientDetails.dateOfBirth = this.callerInformation.birthdate;
 
 		cancelPolicyAgreementDetails.emailDetails= [];
 			cancelPolicyAgreementDetails.emailDetails.email = "";
 
 		cancelPolicyAgreementDetails.input= [];
-			cancelPolicyAgreementDetails.input.cancellationReason = this.cancellationReason;
+			cancelPolicyAgreementDetails.input.cancellationReason = cancelReason;
 		
 		console.log(cancelPolicyAgreementDetails)
+		console.log(this.callerInformation)
 
 		const resp = await this.insureService.cancelPolicyAgreement(cancelPolicyAgreementDetails, () => true);
 		if (resp.succeeded == true && resp.result != null) {
-			this.cancelPolicyDocumentDetails = resp.result
+			this.cancelPolicyDocumentDetails = resp.result;
 		} else {
 			// Do error message
 			return null;
@@ -472,14 +473,15 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderClientPoliciesPage() {
 		return html`
-			<horizon-insure-client-policies .clientPolicies = "${this.clientPolicies}" .cancelPolicyDocumentContents = "${this.cancelPolicyDocumentDetails}"
+			<horizon-insure-client-policies .clientPolicies = "${this.clientPolicies}" .cancelPolicyDocumentDetails = "${this.cancelPolicyDocumentDetails}"
+				
 				@navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan(e)}"
 				@navigate-to-pay-premium-success ="${(e) => this._goToPayPremiumSuccess()}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
-				@navigate-to-cancel-policy-success="${(e) => this._cancelPolicy(e)}"
-				@fetch-cancel-agreement="${(e) => this._cancelPolicyAgreement(e)}">
+				@navigate-to-cancel-policy-success="${(e) => this._cancelPolicy(e)}" 
+				.getCancelPolicyDocument = "${(contractReference, cancelReason) => this._cancelPolicyAgreement(contractReference, cancelReason)}">
 			</horizon-insure-client-policies>`
 	}
 
