@@ -103,13 +103,13 @@ _closeEmailPlanDialog(){
 			super.styles,
 			css`
 			
-			#temp-container{
+			.card{
 				min-height: 650px;
 				text-align: center;
 				padding-top: 100px;
 			}
 
-			#temp-container-label{
+			.label{
 				font-weight: bold;
 				font-size: 24px;
 			}
@@ -163,14 +163,14 @@ _closeEmailPlanDialog(){
 	_renderContent() {
 		return html`
 		${this._renderAlert()}	
-		<capitec-card id="temp-container">
+		<capitec-card class="card">
 			
 			<div>
 			
 				<capitec-image src="platform/illustrations/transfer.svg"
 					style="width: 300px; margin-left: auto; margin-right: auto;">
 				</capitec-image>
-				<label id="temp-container-label">Arrears was paid</label>
+				<label class="label">Arrears was paid</label>
 				<div style= "justify-content: center;">
 					<capitec-icon size="medium" icon="status/success-trans" style="position: relative; left: 214px; top: 45px;"></capitec-icon>
 					<p>You've paid the full outstanding amount of <b>R88.00</b> towards your plan <b>CF09847678</b></p>
