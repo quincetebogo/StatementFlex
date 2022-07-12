@@ -76,7 +76,9 @@ class ClientPolicies extends Component {
 			amountToPay: {type: Number, state: true},
 
 			clientPolicies: { type: Object, state: true },
-			policyDetails: { type: Object, state: true }
+			policyDetails: { type: Object, state: true },
+
+			readOnly: {type: Boolean, state: true},
 		};
 	}
 
@@ -522,7 +524,7 @@ class ClientPolicies extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-button type="white"  label="Get Estimate" data-automation-id="insure-landing-get-estimate"
+					<capitec-button type="white" label="Get Estimate" .disabled="${this.readOnly}" data-automation-id="insure-landing-get-estimate"
 						@click="${() => this._goToEstimate()}">
 					</capitec-button>
 				</capitec-title-bar>

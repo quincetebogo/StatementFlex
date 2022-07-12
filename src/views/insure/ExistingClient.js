@@ -53,6 +53,8 @@ export class ExistingClient extends InsureViewBase {
 		this.policyTransactionHistory = {};
 		this.policyDetails = {};
 		this.contractReference = ``;
+
+		this.readOnly = false;
 	}
 
 	/**
@@ -74,6 +76,7 @@ export class ExistingClient extends InsureViewBase {
 			policyDetails: { type: Object, state: true },
 			mainLifeGender: { type: String, state: true },
 			contractReference: { type: String, state: true },
+			readOnly: {type: Boolean, state: true}
 		};
 	}
 
@@ -400,7 +403,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderClientPoliciesPage() {
 		return html`
-			<horizon-insure-client-policies .clientPolicies = "${this.clientPolicies}"
+			<horizon-insure-client-policies .clientPolicies = "${this.clientPolicies}" .readOnly = "${this.readOnly}"
 				@navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan(e)}"
 				@navigate-to-pay-premium-success ="${(e) => this._goToPayPremiumSuccess()}"
@@ -443,6 +446,7 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-policy-summary 
 				.policyDetails = "${this.policyDetails}"
+				.readOnly = "${this.readOnly}"
 				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@unloading="${() => this._undoClientPolicies()}">
 			</horizon-insure-policy-summary>`
