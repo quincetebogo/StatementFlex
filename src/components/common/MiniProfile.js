@@ -298,18 +298,11 @@ export class MiniProfile extends Component {
 	}
 
 	_renderClientImage() {
-		return this.miniProfile.profilePhoto
-		? html`
-			<object
-					data="${this._base64ToBlobUrl(this.miniProfile.profilePhoto)}"
-					type="image/jpg">
-			</object>`
-		: html`
+		return html`
 			<capitec-avatar 
-					shape="square"
-					icon="/images/common/avatar.svg">
-			</capitec-avatar>
-		`;
+				shape="square"
+				icon="/images/common/avatar.svg">
+			</capitec-avatar>`;
 	}
 
 	_renderClientPersonalInfo() {
