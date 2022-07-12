@@ -1,4 +1,4 @@
-import { CALL_TRANSFERED_CLASSIFICATION, END_CALL_REASON, RECOGNIZE_NEED_CONTEXTS, RECOGNIZE_NEED_REASONS } from 'app/constants/EndCallReasons';
+import { CALL_TRANSFERED_CLASSIFICATION, END_CALL_REASON, RECOGNIZE_NEED_REASONS } from 'app/constants/EndCallReasons';
 import { Component, css, html, live } from 'platform/elements';
 import { Configuration, Logger, SecurityContext } from 'platform/core';
 import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
@@ -244,10 +244,7 @@ export class EndCallSession extends Component {
 		// Checks if the curr incident is active
 		const isIncClosed = incidentDetails.needStatus === super.HORIZON_NEED_STATUS.CLOSED;
 		// should classify as per need?
-		// And enforcing this to false when the end call context includes in Recognize need by context
-		const classifyAsPerNeed = incidentDetails.needStatus === super.HORIZON_NEED_STATUS.INPROGRESS &&
-								  STRACK_MAPPING[incidentDetails.currentNeed] &&
-								  !RECOGNIZE_NEED_CONTEXTS.includes(this.endCallContext);
+		const classifyAsPerNeed = incidentDetails.needStatus === super.HORIZON_NEED_STATUS.INPROGRESS && STRACK_MAPPING[incidentDetails.currentNeed];
 
 		// If classification is not empty, no need to populate need
 		/**
