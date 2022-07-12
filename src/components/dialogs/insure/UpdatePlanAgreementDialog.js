@@ -29,8 +29,8 @@ class UpdatePlanAgreementDialog extends Component {
 
 	static get properties() {
 		return {
-			policyScheduleDocContent: { type: Object, state: true },
-			paymentAgreementDocContent: { type: Object, state: true },
+			planAgreementContent: { type: String, state: true },
+			paymentAgreementContent: { type: String, state: true },
 		};
 	}
 
@@ -137,7 +137,7 @@ class UpdatePlanAgreementDialog extends Component {
 			
 			
 			
-						<img src="data:image/png;base64, ${this.policyScheduleDocContent}" alt="agreement" />
+						<img src="data:image/png;base64, ${this.planAgreementContent}" alt="agreement" />
 					</capitec-expander>
 				</div>
 			
@@ -147,11 +147,10 @@ class UpdatePlanAgreementDialog extends Component {
 						<capitec-check
 							label="Please confirm that you agree to these terms and conditions and that you are bound by them?">
 						</capitec-check>
-						<img src="data:image/png;base64, ${this.paymentAgreementDocContent}" alt="agreement" />
+						<img src="data:image/png;base64, ${this.paymentAgreementContent}" alt="agreement" />
 					</capitec-expander>
 				</div>
 			</capitec-expander-group>
-
 		`}
 
 	/**

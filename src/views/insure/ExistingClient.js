@@ -391,6 +391,8 @@ export class ExistingClient extends InsureViewBase {
 
 				// Agreements success
 				if (planAgreementResp.succeeded && planAgreementResp.result && paymentAgreementResp.succeeded && paymentAgreementResp.result) {
+
+					// TMP =====
 					let agreementResp = {
 						"documentDetails": {
 							"documentCode": "ABC01",
@@ -399,11 +401,15 @@ export class ExistingClient extends InsureViewBase {
 						},
 						"documentContent": "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
 					}
+					planAgreementResp.result = agreementResp;
+					paymentAgreementResp.result = agreementResp;
+
+					// =========
 
 					// Set value for update plan properties
 					let updatePlanResult = {
-						planAgreement: agreementResp,
-						paymentAgreement: agreementResp,
+						planAgreement: planAgreementResp.result,
+						paymentAgreement: paymentAgreementResp.result,
 					}
 
 					console.log('ExistingClient, updatePlanResult');

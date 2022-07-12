@@ -96,6 +96,7 @@ class UpdatePlan extends Component {
 	 * @property {Boolean} showRemoveLifeAssuredDialog determines whether to show the EACL agreement dialog
 	 * @property {Boolean} showRemoveBeneficiaryDialog determines whether to show the EACL agreement dialog
 	 * @property {Boolean} showUpdatePlanAgreementDialog determines whether to show the Update Plan agreement dialog
+	 * @property {Boolean} showConfirmPlanUpdateDialog Show flag for Conformation dialog, to confirm Update Plan agreement
 	 * @property {Object} policyDetails Current Policy Summary Object
 	 * @property {Object} updatePlanPrepare Callback function to Prepare Update	 *
 	 * @readonly
@@ -117,6 +118,7 @@ class UpdatePlan extends Component {
 			showRemoveLifeAssuredDialog: { type: Boolean, state: true },
 			showRemoveBeneficiaryDialog: { type: Boolean, state: true },
 			showUpdatePlanAgreementDialog: { type: Boolean, state: true },
+			showConfirmPlanUpdateDialog: { type: Boolean, state: true },
 			policyDetails: { type: Object, state: true },
 			collectionDay: { type: Number, state: true },
 
@@ -519,7 +521,14 @@ class UpdatePlan extends Component {
 		// awaint whatever
 		// This needs to move
 		this.showUpdatePlanAgreementDialog = true;
-		this.tempDocContent = prepareUpdateResponse.planAgreement.documentContent
+
+		// policyScheduleDocContent
+		this.planAgreementContent = prepareUpdateResponse.planAgreement.documentContent
+		this.paymentAgreementContent = prepareUpdateResponse.paymentAgreement.documentContent
+	}
+
+	async _acceptUpdatedPlan() {
+
 	}
 
 	//#endregion
@@ -899,7 +908,7 @@ class UpdatePlan extends Component {
 			
 					<!-- Lifes Assured list -->
 					${this.policyDetails.roleplayers.map((roleplayer, index) => html` ${roleplayer.relationship != "MainLife" &&
-					roleplayer.lifeAssured == true ? html`
+			roleplayer.lifeAssured == true ? html`
 					<capitec-label label="Remove" @click="${() => this._openRemoveLifeAssuredDialog(index)}" type="subtitle"
 						class="stronger link" style="position: relative; width: fit-content; left: 613px; top: 43px;">
 					</capitec-label>
@@ -1158,7 +1167,7 @@ class UpdatePlan extends Component {
 			
 						<!-- Beneficiaries list -->
 						${this.policyDetails.roleplayers.filter(ele => ele.beneficiary == true || ele.relationship ==
-						'MainLife').map(beneficiary => html`
+			'MainLife').map(beneficiary => html`
 						<div class="calc-life-list">
 							<capitec-label label="${beneficiary.relationship}"></capitec-label>
 							<capitec-label label="${formatCurrency(beneficiary.coverAmount)}"></capitec-label>
@@ -1449,8 +1458,23 @@ class UpdatePlan extends Component {
 	_renderUpdatePlanAgreementDialog() {
 		return this.showUpdatePlanAgreementDialog == false ? `` : html`
 		<insure-update-plan-agreement-dialog @close-modal="${() => this._closeUpdatePlanAgreementDialog()}"
-			.tempDocContent="${this.tempDocContent}">
+			.planAgreementContent="${this.planAgreementContent}" .paymentAgreementContent="${this.paymentAgreementContent}"
+			@agree-click="${() => this.showConfirmPlanUpdateDialog == true}">
 		</insure-update-plan-agreement-dialog>`
+	}
+
+	/**
+	 * Render Dialog to confirm user agreement to mandates. Call back executes Accept Plan flow
+	 * 
+	 * @returns {html} html of the document
+	 */
+	_renderConfirmPlanUpdateDialog() {
+		return this.showConfirmPlanUpdateDialog == false ? `` :
+			html`
+		<confirm-accept-plan-dialog @agree-click="${(e) => this._acceptUpdatedPlan()}"
+			@close-modal="${() => this.showConfirmPlanUpdateDialog == false}">
+		</confirm-accept-plan-dialog>
+		`
 	}
 
 	//#endregion
