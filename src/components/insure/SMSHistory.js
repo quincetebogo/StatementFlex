@@ -45,7 +45,8 @@ constructor() {
 	 * @property {String} contractReference contains the policy number
 	 * @property {String} contactNumber contains the callers verified contact number
 	 * @property {Object} commsHistory contains the communication history of the client for the policy selected
-	 * @property {function} getCommsHistory
+	 * @property {function} getCommsHistory Callback function to fetch more data
+	 * @property {function} filteredData Holds the filtered communication history data
 	 * 
 	 * @readonly
 	 * @static
@@ -55,8 +56,8 @@ constructor() {
 			contractReference: {type: String, state: true},
 			contactNumber: {type: String, state: true},
 			commsHistory: {type: Object, state: true},
-			getCommsHistory: {type: Object},
-			filteredData: {type: Object}
+			getCommsHistory: {type: Object, state: true},
+			filteredData: {type: Object, state: true}
 		};
 	}
 
@@ -85,7 +86,7 @@ constructor() {
 	 * Initialize component
 	 */
  async _initialise() {
-	console.log(this.commsHistory)
+	
  }
 
 //#endregion
@@ -123,7 +124,7 @@ _backToSummaryPage() {
 }
 
 /**
-	 * filter transactions when date is changed
+	 * filter sms history when date is changed
 	 * @param {*} e 
 	 */
  async _dateChanged(e) {
@@ -171,7 +172,7 @@ _backToSummaryPage() {
 }
 
 /**
-	 * filter the transactions
+	 * filter the sms history
 	 */
  _refineSearch() {
 
@@ -182,16 +183,16 @@ _backToSummaryPage() {
 		const startDate = new Date(Date.parse(this.startDate));
 		const endDate = new Date(Date.parse(this.endDate));
 		this.filteredData = this.filteredData.filter(
-			item => new Date(item.sentAt) >= startDate && new Date(item.sentAt) <= endDate);  
+			item => new Date(item.sentAt) >= startDate && new Date(item.sentAt) <= endDate); 
 	}
 
 	this.requestUpdate();
 }
 
 /**
-	 * Get selected date range
-	 * @returns {string} - fromdate to todate
-	 */
+ * Get selected date range
+ * @returns {string} - fromdate to todate
+ */
  _getDateRange() {
 	const fromDate = !this.startDate ? `dd mm yyyy` : this._formatDate(this.startDate);
 	const toDate = !this.endDate ? `dd mm yyyy` : this._formatDate(this.endDate);
@@ -221,8 +222,10 @@ _backToSummaryPage() {
 	 * @param {*} type - filter type 
 	 */
  async _closeChip(type) {
+
 	this._clearFilter(type);	
 	this._refineSearch();
+
 }
 
 /**
@@ -447,9 +450,6 @@ _backToSummaryPage() {
  */
 	_renderExpander(comms){
 		return html`
-			
-			${console.log(comms.sentAt)}
-			${console.log(formatDate(comms.sentAt, 'dd mmm yyyy'))}
 
 			<horizon-expander>
 				<capitec-group 
@@ -517,6 +517,11 @@ _backToSummaryPage() {
 		`;
 	}
 
+	/**
+	 * renders the date picker to select a date to filter with
+	 * 
+	 * @returns 
+	 */
 	_renderDatePicker(){
 		return html`
 		<capitec-date-time-picker
@@ -536,6 +541,12 @@ _backToSummaryPage() {
 		`
 	}
 
+	/**
+	 * render the active filters bar 
+	 * 
+	 * @returns 
+	 * 
+	 */
 	_renderActiveFilters(){
 		if (RENDER_CHIPS[FILTER_BY.DATE] !== ``) {
 			return html`
