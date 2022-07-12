@@ -7,6 +7,7 @@ import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { CreditService } from 'app/services/CreditService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { RoleManager } from 'app/shell/RoleManager';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { alertBannerMixin } from 'app/views/common/AlertBannerMixin';
@@ -49,6 +50,8 @@ export class CreditAccount extends ViewBase {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.configuration = Configuration.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
+		this.roleManager = RoleManager.getInstance();
+
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		// private properites
 		this.budgetAccountDetails = null;
@@ -75,6 +78,7 @@ export class CreditAccount extends ViewBase {
 		this.settlementQuoteEvents = SETTLEMENT_QUOTE_EVENTS;
 		this.declineReason = ``;
 		this.selectedAccountDetails = {};
+		this.isPilotUser = false;
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
@@ -89,7 +93,7 @@ export class CreditAccount extends ViewBase {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 	
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 
 		this._initialise();
@@ -121,7 +125,6 @@ export class CreditAccount extends ViewBase {
 				
 				const clientNeed = `${option}-${accConfig.subCategory}`;
 				
-				await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
 				this._refreshIncidentDetails();
 	
 			const { permissionResult, declineReasons } = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber || selectedAccountDetails.budgetAccountNumber, productType);
@@ -136,6 +139,8 @@ export class CreditAccount extends ViewBase {
 				}
 			}
 		};
+    
+		this.isPilotUser = await this.roleManager.isSearchClientEnabled();    
 	}
 
 	disconnectedCallback() {
@@ -1033,6 +1038,7 @@ export class CreditAccount extends ViewBase {
 					.budgetAccountsSummary="${this.budgetAccountsSummary}"
 					.shouldDisable="${need => this._shouldDisable(need)}"
 					.renderAlertBanner="${() => this.renderAlertBanner()}"
+					.isPilotUser="${this.isPilotUser}"          
 					selectedTab="${this.selectedTab}"
 					@option-click="${(e) => this._optionClick(e.detail.option, e.detail.creditType, e.detail.productType, e.detail.selectedAccountDetails)}"
 					@account-details="${(e) => this._accountDetails(e)}"
@@ -1058,6 +1064,7 @@ export class CreditAccount extends ViewBase {
 					.budgetFacilityAccounts="${this.budgetFacilityAccounts}"
 					.shouldDisable="${need => this._shouldDisable(need)}"
 					.renderAlertBanner="${() => this.renderAlertBanner()}"
+					.isPilotUser="${this.isPilotUser}"          
 					@on-loading="${() => this._telemetry.startSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {})}"
 					@back="${() => this._backFromBudgetAccountsView()}"
 					@account-details="${(event) => this._viewBudgetDetails(event.detail.selectedAccountDetails)}"
@@ -1074,6 +1081,7 @@ export class CreditAccount extends ViewBase {
 				.accountDetails="${this.budgetAccountDetails}"
 				.shouldDisable="${need => this._shouldDisable(need)}"
 				.renderAlertBanner="${() => this.renderAlertBanner()}"
+				.isPilotUser="${this.isPilotUser}"        
 				@back="${() => this._backFromBudgetAccountDetails()}"
 				@transfer-click="${(event) => this._transferFromBudgetDetails(event.detail.budgetAccountNumber)}">
 			</capitec-pc-budget-account-details>`
