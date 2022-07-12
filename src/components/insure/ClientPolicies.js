@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { Status } from 'app/constants/InsureCommon';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
@@ -564,7 +565,10 @@ class ClientPolicies extends Component {
 	_renderPoliciesDetailsBar()
 	{
 		this.policiesList = this.clientPolicies?.summaryDetails?.policies;
-		
+
+		this.policiesList?.sort((a, b) => Status[a.status] - Status[b.status] 
+			|| (new Date(b.commencementDate) - new Date(a.commencementDate)));
+
 		return html `${ this.policiesList?.length > 0 ? this.policiesList?.map((policyItem) => { 
 
 		const sumArrears = policyItem?.arrearDetails?.arrears?.reduce((accumulator, object) => {
