@@ -328,12 +328,9 @@ export class LiveBetter extends SavingsAccountBase {
 		});
 	}
 
-	async _unloadTransactionHistory() {
+	_unloadTransactionHistory() {
 		this.endCallContext = `LandingPage`;
 		this.transactionHistory = [];
-
-		await super.classifyIncident(() => this._toggleBusyFlag());
-
 		this._setIncidentDone();
 	}
 	
@@ -402,7 +399,7 @@ export class LiveBetter extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.LIVE_BETTER_TRANSACTION_HISTORY
 		});
 
-		await super.createAndClassifySubsIncident(null, false);
+		await super.createAndClassifySubsIncident();
 		await this._getTransactionHistory();
 	}
 
@@ -553,12 +550,6 @@ export class LiveBetter extends SavingsAccountBase {
 		this.landingPageInfo = Utilities.deepCopy(this.landingPageInfo);
 	}
 
-	async _setTranHistoryDone() {
-		await super.classifyIncident(() => this._toggleBusyFlag());
-		
-		this._setIncidentDone();
-	}
-
 	// ---------
 	// RENDERING
 	// ---------
@@ -667,7 +658,7 @@ export class LiveBetter extends SavingsAccountBase {
 					.disposeData="${() => this.transactionHistory = []}"
 
 					@error-handler = "${() => this._errorHandler()}"
-					@back="${() => this._setTranHistoryDone()}"
+					@back="${() => this._setIncidentDone()}"
 					@unloading="${() => this._unloadTransactionHistory()}">
 				</horizon-transaction-history>`
 			: html``;
