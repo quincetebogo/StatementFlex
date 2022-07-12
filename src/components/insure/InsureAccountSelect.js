@@ -1,7 +1,17 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
-
+/**
+ * the account select box is populated with the callers savings account and flexible savings accounts which can then be selected to make a payment from
+ * 
+ * Events Raised 
+ * -------------
+ * option-selected
+ *  
+ * @export
+ * @class PayPremiumAgreementDialog
+ * @extends {Component}
+ */
 class InsureAccountSelect extends Component {
 
 	//#region INITIALIZE
@@ -10,7 +20,6 @@ class InsureAccountSelect extends Component {
 		super();
 
 		this.label = null;
-		this.items = [];
 		this.displayOptions = false;
 		this.selectedIndex = null;
 		this.optionSelected = false
@@ -24,10 +33,15 @@ class InsureAccountSelect extends Component {
 
 	/**
 	 * 
-	 * @property {String} label 
-	 * @property {Array} items
-	 * @property {boolean} displayOptions
-	 * @property {integer} selectedIndex
+	 * @property {String} label cantains the lable to be displayed before an account is chosen
+	 * @property {boolean} displayOptions determines whether to display the account options or not
+	 * @property {Number} selectedIndex contains the index of the account that was selected
+	 * @property {Boolean} optionSelected determines whether an account has been selected or not
+	 * @property {Object} accountDetailscontains the callers account details for savings and savings plan
+	 * @property {Object} selectorAccounts contains the callers valid accounts
+	 * @property {String} accountType indicates whether the account chosen is a savings account or a savings plan
+	 * @property {integer} selectedAccount contains the account number of the selected account
+	 * @property {integer} insufficient indicates whether the selected account has sufficient funds 
 	 * 
 	 * 
 	 */
@@ -35,7 +49,6 @@ class InsureAccountSelect extends Component {
 		return {
 
 			label: { type: String, state: true },
-			items: { type: Array, state: true},
 			displayOptions: { type: Boolean, state: true },
 			selectedIndex: { type: Number, state: true },
 			optionSelected: {type: Boolean, state: true},
@@ -153,20 +166,20 @@ class InsureAccountSelect extends Component {
 	 */
 	_chevronChange() {
 
-		if (this.displayOptions == false) {
-			return "system/chevron-down-action";
-		} else if(this.displayOptions == true){
-			return "system/chevron-up-action";
-		}
-
+		// if (this.displayOptions == false) {
+		// 	return "system/chevron-down-action";
+		// } else if(this.displayOptions == true){
+			
+		// }
+		return this.displayOptions ? "system/chevron-up-action": "system/chevron-down-action"
 	}
 
-	_setstyle(){
-		// if (this.insufficient == false)
-			
-		
-		
-		
+	/**
+	 * event that changes the style of the select box depending on if the selected account has sufficient funds
+	 * 
+	 * @returns 
+	 */
+	_setstyle(){		
 		
 		return this.insufficient ?  "select-header-insufficient" : "select-header"
 
@@ -243,8 +256,6 @@ class InsureAccountSelect extends Component {
 				}
 
 				.option-label {
-					/*position: relative;
-					left: -385px;*/
 					font-weight: bold;
 				}
 

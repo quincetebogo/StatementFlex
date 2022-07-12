@@ -29,6 +29,7 @@ class PayPremiumConfirmationDialog extends Component {
 
 	/**
 	 * @property {Object} amountToPay Total arrears amount to be paid
+	 * @property {Object} contractReference contains the contract reference
 	 * 
 	 * @readonly
 	 * @static

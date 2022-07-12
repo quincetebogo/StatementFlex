@@ -187,43 +187,10 @@ export class ExistingClient extends InsureViewBase {
 			savingsPlanData: savingsPlanData.result
 		}
 
-		// let resp = [{
-		// 	accountNumber: savingsAccountData.result.accountNumber,
-		// 	accountAvailableBalance: savingsAccountData.result.accountAvailableBalance,
-		// 	accountStatus: savingsAccountData.result.accountStatus
-		// },{
-		// 	accountNumber: savingsPlanData.result.savingsPlans.accountNumber,
-		// 	planName: savingsPlanData.result.savingsPlans.planName,
-		// 	accountType: savingsPlanData.result.savingsPlans.accountType,
-		// 	accountStatus: savingsPlanData.result.savingsPlans.accountStatus
-		// }];
-
-		//  let resp = {}
-		//  resp.savingsPlan = []
-		//  resp.savingsPlan.push({
-		// 	accountNumber: savingsPlanData.result.accountNumber,
-		// 	planName: savingsPlanData.result.planName,
-		// 	accountType: savingsPlanData.result.accountType,
-		// 	accountStatus: savingsPlanData.result.accountStatus
-		// 	});
-	
+		
 
 		return resp;
 	}
-
-	/**
-	 * Retrieve Savings Plan Details via Savings Account service
-	 * @returns {Object} Savings Plan Details 
-	 */
-	// 	async _retrieveSavingsPlanDetails() {
-	// 		let	request = {
-	// 			cifNumber: this.callerInformation.cifNumber,
-	// 			nationalIDNumber: this.callerInformation.nationalIDNumber,
-	// 			getGenericData: true,
-	// 		}
-	// 		const resp = await this.savingsAccountService.savingsPlanLanding(request);
-	// 		return resp.result;
-	// }
 
 	/**
 	 * Calculate estimate based on lives assured provided
@@ -253,7 +220,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {Object} Estimate response
 	 */
 	async _payPolicy(e) {
-		 console.log(e)
+		
 
 		let payArrears = {};
 		payArrears.contractReference = e.detail.payArrears.contractReference;
@@ -261,7 +228,6 @@ export class ExistingClient extends InsureViewBase {
 		payArrears.cifNumber = this.callerInformation.cifNumber;
 		payArrears.fromAccount = e.detail.fromAccount
 		
-		console.log(payArrears)
 		const resp = await this.insureService.payPolicy(payArrears, () => true);
 		if (resp.succeeded == true && resp.result != null) {
 			this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);

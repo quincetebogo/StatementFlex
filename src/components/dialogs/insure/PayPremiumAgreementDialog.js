@@ -30,6 +30,12 @@ class PayPremiumAgreementDialog extends Component {
 
 	//#region PROPERTIES
 
+	/**
+	 * @property {Object} contractReference contains the contract refrence
+	 * @property {Object} amountToPay total amount that will be paid
+	 * 
+	 * 
+	 */
 	 static get properties() {
 		return {
 			

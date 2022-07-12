@@ -34,6 +34,7 @@ constructor() {
 
 	/**
 	 *  @property {boolean} ShowSuccessAlert Controls when to show the Success Alert
+	 *  @property {boolean} showEmailPlanDialog Controls when to show the Email plan Dialog]
 	 * 
 	 * @readonly
 	 * @static
@@ -97,45 +98,45 @@ _closeEmailPlanDialog(){
 	 * @static
 	 * @returns {css} CSS for the component.
 	 */
- static get styles() {
-	return [
-		super.styles,
-		css`
-		
-		#temp-container{
-			min-height: 650px;
-			text-align: center;
-			padding-top: 100px;
-		}
+	static get styles() {
+		return [
+			super.styles,
+			css`
+			
+			#temp-container{
+				min-height: 650px;
+				text-align: center;
+				padding-top: 100px;
+			}
 
-		#temp-container-label{
-			font-weight: bold;
-			font-size: 24px;
-		}
+			#temp-container-label{
+				font-weight: bold;
+				font-size: 24px;
+			}
 
-		.button-row{
-			display: flex; 
-			justify-content: center;
-			padding: 10px 15px 15px 15px; 
-			gap: 10px;
-		}
-		
-		.toast {
-			position: absolute;
-			top : 70px;
-			left: 790px;
-			height: 64px;
-			width: 428px;
-			border-radius: 4px;
-			color: #70AF00;
-			z-index: 201;
-			left: calc(50.8% - 200px);
-			justify-content: center;
-			align-items: center;
-		}
+			.button-row{
+				display: flex; 
+				justify-content: center;
+				padding: 10px 15px 15px 15px; 
+				gap: 10px;
+			}
+			
+			.toast {
+				position: absolute;
+				top : 70px;
+				left: 790px;
+				height: 64px;
+				width: 428px;
+				border-radius: 4px;
+				color: #70AF00;
+				z-index: 201;
+				left: calc(50.8% - 200px);
+				justify-content: center;
+				align-items: center;
+			}
 
-		`
-		];
+			`
+			];
 	}
 
 	/**

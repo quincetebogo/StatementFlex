@@ -29,8 +29,7 @@ class PayPremiumDialog extends Component {
 		this.optionSelected = false;
 		this.displayInsufficientFunds = false;
 		this.insufficient = false;
-		// Lookups
-		this.clientAccounts = CLIENT_ACCOUNTS;
+		
 
 	}
 
@@ -45,9 +44,9 @@ class PayPremiumDialog extends Component {
 	 * @property {Boolean} optionSelected determines whether an option has been selected from the account select box
 	 * @property {Object} accountDetails contains the caller's savings and savings plan account details
 	 * @property {String} accountNumber conatins the account number of the selected account
-	 * @property {String} accountType 
-	 * @property {Boolean} displayInsufficientFunds 
-	 * @property {Boolean} insufficient 
+	 * @property {String} accountType contains the type of the selected account
+	 * @property {Boolean} displayInsufficientFunds determins whether to display the insufficient funds notification
+	 * @property {Boolean} insufficient determines whether there is sufficient funds in the selected account
 	 * 
 	 * @readonly
 	 * @static
@@ -106,13 +105,12 @@ class PayPremiumDialog extends Component {
 		this.clientArrears.arrears[0].shouldBeChecked = true;
 		this.clientArrears.arrears[0].shouldBeDisabled = true;
 
-		this._AddFirst(this.clientArrears.arrears[0])
+		this._AddFirstMonth(this.clientArrears.arrears[0])
 
 		if (this.clientArrears.arrears.length == 3) {
 			this.clientArrears.arrears[2].shouldBeDisabled = true;
 		}
 
-		console.log(this.payArrears)
 	}
 
 	/**
@@ -120,10 +118,14 @@ class PayPremiumDialog extends Component {
 	 */
 	_sortArrears() {
 		this.clientArrears.arrears.sort((a, b) => { return (a.dueDate < b.dueDate) ? -1 : ((a.dueDate > b.dueDate) ? 1 : 0) });
-		console.log(this.clientArrears.arrears)
 	}
 
-	_AddFirst(outstanding) {
+	/**
+	 * event that adds the oldest month to the pay arrears array
+	 * 
+	 * @param {*} outstanding 
+	 */
+	_AddFirstMonth(outstanding) {
 
 		// add first arrear to pay arrears
 		this.payArrears.arrears.push({
@@ -136,8 +138,6 @@ class PayPremiumDialog extends Component {
 
 		this.amount = outstanding.amount;
 
-		console.log('Current Selected Arrears Array (1st)')
-		console.log(this.payArrears.arrears)
 	}
 /**
  * Calculates the total amount of the arrears selected
@@ -146,7 +146,6 @@ class PayPremiumDialog extends Component {
 
 		for (let i = 0; i < this.payArrears.arrears; i++) {
 			this.amount = this.amount + this.payArrears.arrears[i].amount
-			console.log(this.amount)
 		}
 
 	}
@@ -173,7 +172,7 @@ class PayPremiumDialog extends Component {
 	}
 
 	/**
-	 * pay click event that determines if there is sufficient funds in the clients chosen account to to pay the arrears
+	 * pay click event that determines if there is sufficient funds in the clients chosen account to pay the arrears
 	 */
 	_onPayClick() {
 			if(this.accountType == "Savings Account"){
@@ -207,8 +206,6 @@ class PayPremiumDialog extends Component {
 	_checkedChange(outstanding, selectedIndex, e) {
 
 
-		console.log(e)
-
 
 		//sets should be checked for third arrear to true when clicked
 		if(selectedIndex == 2){
@@ -225,8 +222,6 @@ class PayPremiumDialog extends Component {
 			this.amount = this.amount - outstanding.amount;
 		}
 
-		console.log('Current Selected Arrears Array (Change)')
-		console.log(this.payArrears.arrears)
 		this.requestUpdate()
 
 	}
@@ -239,7 +234,6 @@ class PayPremiumDialog extends Component {
 	 */
 	_addSelected(selected, selectedIndex, e) {
 
-		console.log(e.detail)
 
 		//adds/removes selected or deselected arrear to payArrears
 		if (e.detail.new == true) {
@@ -266,13 +260,10 @@ class PayPremiumDialog extends Component {
 			this.clientArrears.arrears[2].shouldBeChecked = false;
 			
 			const index = this.payArrears.arrears.map(object => object.objectID).indexOf(this.clientArrears.arrears[2].objectID);
-			console.log("value:")
-			console.log(this.clientArrears.arrears[2])
 			this.payArrears.arrears.splice(index, 1);
 
 			this.amount = this.amount - this.clientArrears.arrears[2].amount;
 			
-			console.log("in line false check")
 		}
 
 		// second arrear check = false
@@ -373,7 +364,7 @@ class PayPremiumDialog extends Component {
 			<capitec-label type="subtitle" label="Choose payment method">
 			</capitec-label>
 			
-			<insure-account-select .items= "${this.clientAccounts}" label="Select an Account"
+			<insure-account-select label="Select an Account"
 				@option-selected="${(e) => this._optionSelected(e)}" data-automation-id="insure-pay-premium-dialog-accounts"
 				.accountDetails = ${this.accountDetails} .insufficient = "${this.insufficient}">
 			</insure-account-select>
