@@ -253,9 +253,14 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {Object} Estimate response
 	 */
 	async _payPolicy(e) {
-		let payArrears = e.detail.payArrears;
+		 console.log(e)
+
+		let payArrears = {};
+		payArrears.contractReference = e.detail.payArrears.contractReference;
+		payArrears.arrears = e.detail.payArrears.arrears;
 		payArrears.cifNumber = this.callerInformation.cifNumber;
 		payArrears.fromAccount = e.detail.fromAccount
+		
 		console.log(payArrears)
 		const resp = await this.insureService.payPolicy(payArrears, () => true);
 		if (resp.succeeded == true && resp.result != null) {

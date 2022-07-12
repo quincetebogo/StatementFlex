@@ -162,11 +162,14 @@ class InsureAccountSelect extends Component {
 	}
 
 	_setstyle(){
-		if (this.insufficient == false){
-			return "select-header"
-		} else {
-			return "select-header-insufficient"
-		}
+		// if (this.insufficient == false)
+			
+		
+		
+		
+		
+		return this.insufficient ?  "select-header-insufficient" : "select-header"
+
 	}
 
 	//#endregion
