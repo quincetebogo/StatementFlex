@@ -168,6 +168,16 @@ class ClientPolicies extends Component {
 	}
 
 	/**
+	 * Fire navigate to SMS History
+	 */
+	_goToSMSHistory(policyNumber){
+		this.dispatchEvent(new CustomEvent(`navigate-to-sms-history`, {
+			detail: { policyNumber: policyNumber
+			}
+		}));
+	}
+
+	/**
 	 * event to open the cancel policy dialog
 	 */
 	_openCancelPolicyDialog(){
@@ -699,10 +709,10 @@ class ClientPolicies extends Component {
 		return html`
 		<capitec-card class="action-card">
 			<capitec-overflow-menu label="More" data-automation-id = "insure-policy-more-sub-menu">
-				<div>
-					<capitec-overflow-menu-item icon="system/transfer-action" label="Transaction History" @click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
-					<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan" @click=" ${() => this._openCancelPolicyConfirmationDialog()}"></capitec-overflow-menu-item>
-				</div>
+				<capitec-overflow-menu-item icon="system/transfer-action" label="Transaction History" @click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
+				<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan" @click=" ${() => this._openCancelPolicyConfirmationDialog()}"></capitec-overflow-menu-item>
+				<capitec-overflow-menu-item icon="system/messages-action" label="SMS History" @click=" ${() => this._goToSMSHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
+				
 			</capitec-overflow-menu>
 			<capitec-label label="More" class="label-text">
 			</capitec-label>
