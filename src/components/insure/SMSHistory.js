@@ -435,7 +435,8 @@ _backToSummaryPage() {
 			</div>
 
 			<capitec-label class="label" type="subtitle" label="SMS History"></capitec-label>
-			${ this.filteredData.map((comms) => this._renderExpander(comms) )}
+
+			${this.filteredData.map((comms) => this._renderExpander(comms))}
 
 	
 		</capitec-card>
