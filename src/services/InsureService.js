@@ -78,7 +78,7 @@ export class InsureService extends ChannelServiceBase {
 		if (await this.isMockEnabled(`insureProductParams`)) {
 			return this.mock(`insureProductParams`);
 		}
-		const url = `/horizon-insurance/product/params`;
+		const url = `/FuneralInsuranceProductService/product/params`;
 		return this.get(
 			url,
 			this.setInsureTokens(),
