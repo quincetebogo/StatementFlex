@@ -233,7 +233,7 @@ class CancelPolicyDialog extends Component {
 			</div>
 
 			<div class="expander">
-				<capitec-expander expandbuttonalignment="left" label="View Cancelation Agreement" data-automation-id="insure-cancel-policy-dialog-view-policy-schedule">
+				<capitec-expander expandbuttonalignment="left" label="View Cancellation Agreement" data-automation-id="insure-cancel-policy-dialog-view-cancellation-agreement">
 					<capitec-label label=""></capitec-label>
 
 					<img src="data:image/png;base64, ${this.cancelPolicyDocumentDetails}" alt="agreement" />
