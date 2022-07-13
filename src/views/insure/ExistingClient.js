@@ -12,6 +12,7 @@ import 'app/components/insure/UpdatePlan';
 import 'app/components/insure/PolicySummary';
 import 'app/components/insure/PayPremiumSuccess';
 import 'app/components/insure/PolicyTransactionHistory';
+import 'app/components/insure/UpdatePlanSuccess';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -50,9 +51,6 @@ export class ExistingClient extends InsureViewBase {
 		this.policyDetails = {};
 		this.estimate = {};
 		this.contractReference = ``;
-
-		// Update Plan
-		this.acceptPlanRequest = {};
 	}
 
 	/**
@@ -101,8 +99,6 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _initialise() {
 		this.clientPolicies = await this._retrieveClientPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
-		console.log('callerInformation')
-		console.log(this.callerInformation)
 	}
 
 	/**
@@ -126,6 +122,45 @@ export class ExistingClient extends InsureViewBase {
 	//#endregion PRIVATE METHODS
 
 	//#region EVENT HANDLERS
+
+	/**
+	 * Navigate so specific subview
+	 * @property {String} newMode New render mode string to change renderMode to
+	  */
+	_navigateToSubView(newMode) {
+		this.renderMode = newMode;
+	}
+
+	/**
+	 * Navigate back from any view to Client Summary
+	 */
+	_backToSummaryPage() {
+		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
+	}
+
+	/**
+	 * Prepare and navigate Estimate
+	 */
+	_goToPolicyEstimate() {
+		this._navigateToSubView(INSURE_RENDER_MODE.ESTIMATE);
+	}
+
+	/**
+	 * Make FIPS call and Prepare and navigate to pay premium success page
+	 * 
+	 * @param {*} e contains the payArrears object
+	 */
+	_goToPayPremiumSuccess(e) {
+		this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
+	}
+
+	/**
+	 * Prepare and navigate Update plan
+	 */
+	async _goToUpdatePlan(e) {
+		this.policyDetails = await this._retrievePolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+		this._navigateToSubView(INSURE_RENDER_MODE.UPDATE_PLAN);
+	}
 
 	/**
 	 * Retrieve client policies via insure channel service
@@ -182,65 +217,22 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
-	 * Navigate so specific subview
-	 * @property {String} newMode New render mode string to change renderMode to
-	  */
-	_navigateToSubView(newMode) {
-		this.renderMode = newMode;
-	}
-
-	/**
-	 * Navigate back from any view to Summary
-	 */
-	_backToSummaryPage() {
-		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
-	}
-
-	/**
-	 * Prepare and navigate Update plan
-	 */
-	async _goToUpdatePlan(e) {
-		this.policyDetails = await this._retrievePolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
-		this._navigateToSubView(INSURE_RENDER_MODE.UPDATE_PLAN);
-	}
-
-	/**
-	 * Prepare and navigate Estimate
-	 */
-	_goToPolicyEstimate() {
-		this._navigateToSubView(INSURE_RENDER_MODE.ESTIMATE);
-	}
-
-	/**
 	 * Prepare and navigate to Transaction history
 	 */
 	async _goToPolicyTransactionHistory(e) {
-		// Telemetry Here
 		this.contractReference = e.detail.policyNumber;
 		await this._getPolicyTransactionHistory();
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY);
 	}
 
+	/**
+	 * Fetch latest policy details and render Policy Summary 
+	 */
 	async _goToPolicySummary(e) {
-		// Telemetry Here
 		this.policyDetails = await this._retrievePolicySummary(e.detail.policyContractReference
 			, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY);
 	}
-
-	/**
-	 * Make FIPS call and Prepare and navigate to pay premium success page
-	 * 
-	 * @param {*} e contains the payArrears object
-	 */
-	_goToPayPremiumSuccess(e) {
-		//call fips here
-
-		// Telemetry Here
-
-		this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
-	}
-	//#endregion
 
 	/**
 	 * Fetch Policy Transaction History
@@ -288,6 +280,116 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
+	 * Calculate quote event from Update plan, supply 
+	 * @param {*} event 
+	 */
+	async _updatePlanQuote(event) {
+		// TODO
+	}
+
+	/**
+	 * Update Plan callback to perform update sequence
+	 */
+	async _updatePlanPrepare(policyToUpdate) {
+		let quoteCalcRequest = {
+			"saveQuote": true,
+			"contractReference": policyToUpdate.contractReference,
+			"cifNumber": this.callerInformation.cifNumber,
+			"totalPremium": policyToUpdate.totalPremium,
+			"lifesAssured": policyToUpdate.roleplayers.filter(ele => ele.lifeAssured == true)
+		};
+		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
+		if (!calculateQuoteResp.succeeded)
+			return;
+
+		const prepareUpdateRequest = {
+			"quoteID": calculateQuoteResp.result.quoteNumber,
+			"beneficiaries": policyToUpdate.roleplayers.filter(ele => ele.beneficiary == true),
+			"collectionDetails": policyToUpdate.deductionDetails
+		}
+		const prepareUpdateResp = await this.insureService.prepareUpdate(prepareUpdateRequest);
+		if (!prepareUpdateResp.succeeded)
+			return;
+
+		let agreementRequest = {
+			"documentFormat": "PDF",
+			"saveDocumentToDocumentum": true,
+			"returnDocumentContent": true,
+			"emailDocumentToClient": false,
+			"wetsignBarcode": false,
+			"clientDetails": {
+				"cifNumber": this.callerInformation.cifNumber,
+				"policyContractReference": prepareUpdateResp.result.contractReference,
+				"firstName": this.callerInformation.firstName,
+				"surname": this.callerInformation.surname,
+				"idNumber": this.callerInformation.southAfricanIDNumber,
+				"dateOfBirth": this.callerInformation.birthdate
+			},
+			"contractReference": prepareUpdateResp.result.contractReference
+		}
+
+		const planAgreementResp = await this.insureService.generateUpdateFuneralCoverPlanAgreement(agreementRequest);
+		const paymentAgreementResp = await this.insureService.generateFuneralPolicyPaymentAgreement(agreementRequest);
+
+		if (!planAgreementResp.succeeded || !paymentAgreementResp.succeeded)
+			return;
+
+		// TMP ===== REMOVE WHEN SERVICE READY
+		let agreementResp = {
+			"documentDetails": {
+				"documentCode": "ABC01",
+				"documentName": "Test Doc",
+				"guid": "91ba047a4bd44cf3abb7ccae7a95149a"
+			},
+			"documentContent": "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
+		}
+		planAgreementResp.result = agreementResp;
+		paymentAgreementResp.result = agreementResp;
+		// =========
+
+		let preparePlanResponse = {
+			planAgreement: planAgreementResp.result,
+			paymentAgreement: paymentAgreementResp.result,
+			prepareUpdateResponse: prepareUpdateResp.result,
+		}
+		return preparePlanResponse;
+
+	}
+
+	/**
+	 * Invoke accept plan call, and redirect to success page
+	 */
+	async _updatePlanAccept(event) {
+		const documents = [
+			event.detail.prepareUpdate.paymentAgreement.documentDetails,
+			event.detail.prepareUpdate.planAgreement.documentDetails
+		]
+		const acceptPlanRequest =
+		{
+			"cifNumber": this.callerInformation.cifNumber,
+			"contractReference": event.detail.prepareUpdate.prepareUpdateResponse.contractReference,
+			"documents": documents,
+			"mandates": event.detail.prepareUpdate.prepareUpdateResponse.mandates,
+			"insureWaiverInformation": {
+				"contractReference": "string",
+				"insurersInformation": [
+					{
+						"insurer": "string",
+						"policyNumber": "string"
+					}
+				]
+			}
+		}
+
+		const acceptPlanResp = await this.insureService.policyAccept(acceptPlanRequest);
+		if (!acceptPlanResp.succeeded)
+			return;
+
+		this.renderMode = INSURE_RENDER_MODE.UPDATE_PLAN_SUCCESS;
+	}
+
+
+	/**
 	 * Unload Policy Transactions
 	 */
 	_unloadPolicyTransactionHistory() {
@@ -301,138 +403,6 @@ export class ExistingClient extends InsureViewBase {
 		this.clientPolicies?.summaryDetails?.policies?.forEach(item => { item["isExpanded"] = false; })
 	}
 
-	/**
-	 * Calculate quote event from Update plan, supply 
-	 * @param {*} event 
-	 */
-	async _updatePlanQuote(event) {
-
-	}
-
-	/**
-	 * Update Plan event to perform update sequence
-	 */
-	async _updatePlanPrepare(policyToUpdate) {
-
-		console.log('ExistingClient, used as callback!');
-		console.log(JSON.stringify(policyToUpdate));
-		// return {
-		// 	hello: "There"
-		// }
-		console.log('ExistingClient, _updatePlanPrepare');
-
-		let quoteCalcRequest = {
-			"saveQuote": true,
-			"contractReference": policyToUpdate.contractReference,
-			"cifNumber": this.callerInformation.cifNumber,
-			"totalPremium": policyToUpdate.totalPremium,
-			"lifesAssured": policyToUpdate.roleplayers.filter(ele => ele.lifeAssured == true)
-		};
-
-		console.log('ExistingClient, quoteCalcRequest');
-		console.log(JSON.stringify(quoteCalcRequest));
-
-		// Calc
-		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
-
-		console.log('ExistingClient, calculateQuoteResp');
-		console.log(JSON.stringify(calculateQuoteResp));
-
-		if (calculateQuoteResp.succeeded && calculateQuoteResp.result) {
-
-			const contractReference = calculateQuoteResp.contractReference;
-			console.log('ExistingClient, contractReference');
-			console.log(contractReference);
-
-			// Prepare Update
-			const prepareUpdateRequest = {
-				"quoteID": calculateQuoteResp.result.quoteNumber,
-				"beneficiaries": policyToUpdate.roleplayers.filter(ele => ele.beneficiary == true),
-				"collectionDetails": policyToUpdate.deductionDetails
-			}
-			console.log('ExistingClient, prepareUpdateRequest');
-			console.log(JSON.stringify(prepareUpdateRequest));
-
-			const prepareUpdateResp = await this.insureService.prepareUpdate(prepareUpdateRequest);
-
-			console.log('ExistingClient, prepareUpdateResp');
-			console.log(JSON.stringify(prepareUpdateResp));
-
-			if (prepareUpdateResp.succeeded && prepareUpdateResp.result) {
-
-				let agreementRequest = {
-					"documentFormat": "PDF",
-					"saveDocumentToDocumentum": true,
-					"returnDocumentContent": true,
-					"emailDocumentToClient": false,
-					"wetsignBarcode": false,
-					"clientDetails": {
-						"cifNumber": this.callerInformation.cifNumber,
-						"policyContractReference": prepareUpdateResp.result.contractReference,
-						"firstName": this.callerInformation.firstName,
-						"surname": this.callerInformation.surname,
-						"idNumber": this.callerInformation.southAfricanIDNumber,
-						"dateOfBirth": this.callerInformation.birthdate
-					},
-					"contractReference": prepareUpdateResp.result.contractReference
-				}
-
-				console.log('ExistingClient, agreementRequest');
-				console.log(JSON.stringify(agreementRequest));
-
-				const planAgreementResp = await this.insureService.generateUpdateFuneralCoverPlanAgreement(agreementRequest);
-				const paymentAgreementResp = await this.insureService.generateFuneralPolicyPaymentAgreement(agreementRequest);
-
-				console.log('ExistingClient, planAgreementResp');
-				console.log(JSON.stringify(planAgreementResp));
-
-				console.log('ExistingClient, paymentAgreementResp');
-				console.log(JSON.stringify(paymentAgreementResp));
-
-				// Agreements success
-				if (planAgreementResp.succeeded && planAgreementResp.result && paymentAgreementResp.succeeded && paymentAgreementResp.result) {
-
-					// TMP =====
-					let agreementResp = {
-						"documentDetails": {
-							"documentCode": "ABC01",
-							"documentName": "Test Doc",
-							"guid": "91ba047a4bd44cf3abb7ccae7a95149a"
-						},
-						"documentContent": "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
-					}
-					planAgreementResp.result = agreementResp;
-					paymentAgreementResp.result = agreementResp;
-
-					// =========
-
-					// Set value for update plan properties
-					let updatePlanResult = {
-						planAgreement: planAgreementResp.result,
-						paymentAgreement: paymentAgreementResp.result,
-					}
-
-					console.log('ExistingClient, updatePlanResult');
-					console.log(JSON.stringify(updatePlanResult));
-
-					return updatePlanResult;
-				}
-			}
-		}
-
-
-
-
-
-		// this.acceptPlanRequest = {};
-
-		// quote/calc
-		// policy/prepareUpdate
-		// document/generate/UpdateFuneralCoverPlanAgreement (801)
-		// document/generate/FuneralPolicyPaymentAgreement (804)
-
-
-	}
 
 	//#endregion EVENT HANDLERS
 
@@ -498,6 +468,8 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderPolicySummaryPage()}`
 			case INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS:
 				return html`${this._renderPayPremiumSuccessPage()}`
+			case INSURE_RENDER_MODE.UPDATE_PLAN_SUCCESS:
+				return html`${this._renderUpdatePlanSuccessPage()}`
 			default:
 				return html``;
 		}
@@ -539,9 +511,9 @@ export class ExistingClient extends InsureViewBase {
 	_renderUpdatePlanPage() {
 		return html`
 			<horizon-insure-update-plan @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-				@calculate-quote="${(e) => this._updatePlanQuote(e)}" .updatePlanPrepare="${(policyToUpdate) =>
-							this._updatePlanPrepare(policyToUpdate)}" .policyDetails="${this.policyDetails}"
-				.productParams="${this.productParams}">
+				@updatePlanAccept="${(e) => this._updatePlanAccept(e)}" @calculate-quote="${(e) => this._updatePlanQuote(e)}"
+				.updatePlanPrepare="${(policyToUpdate) => this._updatePlanPrepare(policyToUpdate)}"
+				.policyDetails="${this.policyDetails}" .productParams="${this.productParams}">
 			</horizon-insure-update-plan>`
 	}
 
@@ -568,6 +540,7 @@ export class ExistingClient extends InsureViewBase {
 		</horizon-pay-premium-success-page>
 		
 	`}
+
 	/**
 	 * Render Policy Transaction History Page
 	 * @returns {html} Html of the sub view 
@@ -582,6 +555,17 @@ export class ExistingClient extends InsureViewBase {
 	@unloading="${() => this._unloadPolicyTransactionHistory()}">
 </horizon-insure-policy-transaction-history>`
 			: html``;
+	}
+
+	/**
+	 * Render Update Plan Success page
+	 * @return {html} Html of the sub view
+	 */
+	_renderUpdatePlanSuccessPage() {
+		return html`
+		<horizon-insure-update-plan-success .policyDetails="${this.policyDetails}"
+			@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+		</horizon-insure-update-plan-success>`
 	}
 
 	//#endregion RENDERING

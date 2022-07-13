@@ -3,7 +3,8 @@
 		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet",
 		"clientInsightsUrl": "https://hzn-cs-clientinsights-v1.platform-dev.int.capinet",
 		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-dev.int.capinet",
-		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-dev.int.capinet"
+		"insureChannelServiceUrl": "https://insurance-funeralinsurance.platform-dev.int.capinet",
+		"KbaChannelServiceUrl": "https://horizon-cs-ita.platform-dev.int.capinet"
 	},
 	"signalRUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
 	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
@@ -66,11 +67,11 @@
 	"mock": {
 		"enabled": true,
 		"acceptCall": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"identifyCaller": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
@@ -103,10 +104,6 @@
 			"positiveCase": true
 		},
 		"itaVerification": {
-			"enabled": true,
-			"positiveCase": true
-		},
-		"verifyKBA": {
 			"enabled": true,
 			"positiveCase": true
 		},
@@ -206,12 +203,16 @@
 			"enabled": true,
 			"positiveCase": true
 		},
+		"insureRetrieveQuoteDetails": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"insureRetrieveQuotesList": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insurePolicyTransactionHistory": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": false
 		},
 		"creditOverview": {
@@ -258,17 +259,13 @@
 			"enabled": false,
 			"positiveCase": false
 		},
-		"insureRetrieveDocContent": {
-			"enabled": true,
-			"positiveCase": false
-		},
 		"insurePrepareUpdate": {
 			"enabled": true,
 			"positiveCase": true
 		},
 		"insurePolicyAccept": {
 			"enabled": true,
-			"positiveCase": false
+			"positiveCase": true
 		},
 		"insureGenerateAgreement": {
 			"enabled": true,

@@ -67,6 +67,7 @@ class UpdatePlan extends Component {
 		this.agreementYBPAccepted = false;
 		this.agreementYROAAccepted = false;
 
+		this.prepareUpdateResponse = {};
 
 		// Lookups
 		this.accountTypeOptions = ACCOUNT_TYPES;
@@ -515,20 +516,20 @@ class UpdatePlan extends Component {
 		// }));
 
 		console.log('About to call callback - prepareUpdate');
-		let prepareUpdateResponse = await this.updatePlanPrepare(this.policyDetails);
+		this.prepareUpdateResponse = await this.updatePlanPrepare(this.policyDetails);
 		console.log('AFTER callback');
-		console.log(JSON.stringify(prepareUpdateResponse));
+		console.log(JSON.stringify(this.prepareUpdateResponse));
 		// awaint whatever
 		// This needs to move
 		this.showUpdatePlanAgreementDialog = true;
 
 		// policyScheduleDocContent
-		this.planAgreementContent = prepareUpdateResponse.planAgreement.documentContent
-		this.paymentAgreementContent = prepareUpdateResponse.paymentAgreement.documentContent
+		this.planAgreementContent = this.prepareUpdateResponse.planAgreement.documentContent
+		this.paymentAgreementContent = this.prepareUpdateResponse.paymentAgreement.documentContent
 	}
 
 	async _acceptUpdatedPlan() {
-
+		this.dispatchEvent(new CustomEvent(`updatePlanAccept`, { detail: { prepareUpdate: this.prepareUpdateResponse } }));
 	}
 
 	//#endregion
@@ -812,24 +813,12 @@ class UpdatePlan extends Component {
 			<capitec-label label="Update Plan #${this.policyDetails.contractReference}" type="title"></capitec-label>
 			<capitec-spacer></capitec-spacer>
 		
-		
-		
 			${this.selectedTabIndex == 0 ? html`
 			<capitec-button label="Calculate" type="white" @click="${() => this._calculatePremium()}">
 			</capitec-button>
-		
-			<capitec-button label="Update Plan" type="white" .disabled="${this.agreementFCPAccepted == false}"
-				@click="${() => this._onUpdatePlan()}">
-			</capitec-button>
-		
-			`: this.selectedTabIndex == 1 ? html`
-			<capitec-button label="Update Plan" type="white"
-				.disabled="${this.agreementEACLAccepted == false || this.agreementYBPAccepted == false}"
-				@click="${() => this._onUpdatePlan()}">
-			</capitec-button>
-			`: html`
+			`: html``}
 			<capitec-button label="Update Plan" type="white" @click="${() => this._onUpdatePlan()}">
-			</capitec-button>`}
+			</capitec-button>
 		</capitec-title-bar>
 		
 		<!-- .disabled="${this.agreementYROAAccepted == false}" -->
@@ -1459,26 +1448,11 @@ class UpdatePlan extends Component {
 		return this.showUpdatePlanAgreementDialog == false ? `` : html`
 		<insure-update-plan-agreement-dialog @close-modal="${() => this._closeUpdatePlanAgreementDialog()}"
 			.planAgreementContent="${this.planAgreementContent}" .paymentAgreementContent="${this.paymentAgreementContent}"
-			@agree-click="${() => this.showConfirmPlanUpdateDialog == true}">
+			@agree-click="${() => this._acceptUpdatedPlan()}">
 		</insure-update-plan-agreement-dialog>`
 	}
 
-	/**
-	 * Render Dialog to confirm user agreement to mandates. Call back executes Accept Plan flow
-	 * 
-	 * @returns {html} html of the document
-	 */
-	_renderConfirmPlanUpdateDialog() {
-		return this.showConfirmPlanUpdateDialog == false ? `` :
-			html`
-		<confirm-accept-plan-dialog @agree-click="${(e) => this._acceptUpdatedPlan()}"
-			@close-modal="${() => this.showConfirmPlanUpdateDialog == false}">
-		</confirm-accept-plan-dialog>
-		`
-	}
-
 	//#endregion
-
 }
 
 window.customElements.define(`horizon-insure-update-plan`, UpdatePlan);

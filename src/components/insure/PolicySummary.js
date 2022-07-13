@@ -229,7 +229,6 @@ class PolicySummary extends Component {
 						data-automation-id="policy-summary-back-to-policies" @click="${() => this._backToClientPoliciesPage()}" />
 					<capitec-label label="Funeral Plan" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-button label="Email Plan" type="white" data-automation-id="policy-summary-email-plan"></capitec-button>
 					${this.policyDetails.status == 'InForce' ? html`<capitec-button label="Update Plan" type="white"
 						data-automation-id="policy-summary-update-plan"
 						@click="${() => this._goToUpdatePlan(this.policyDetails.contractReference)}"></capitec-button>` : html``}

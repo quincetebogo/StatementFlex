@@ -48,6 +48,7 @@ export default class InsureChannelServiceMocks {
 		this.calculateQuoteMocks = await this._loadMockModule(this.calculateQuoteMocks, `insureCalculateQuote`, () => import(`../mocks/insure/QuoteCalc`).catch(err => logError(err)));
 		this.prepareUpdateMocks = await this._loadMockModule(this.prepareUpdateMocks, `insurePrepareUpdate`, () => import(`../mocks/insure/PrepareUpdate`).catch(err => logError(err)));
 		this.generateAgreementMocks = await this._loadMockModule(this.generateAgreementMocks, `insureGenerateAgreement`, () => import(`../mocks/insure/InsureAgreement`).catch(err => logError(err)));
+		this.policyAcceptMocks = await this._loadMockModule(this.policyAcceptMocks, `insurePolicyAccept`, () => import(`../mocks/insure/PolicyAccept`).catch(err => logError(err)));
 	}
 
 	/**
@@ -126,6 +127,17 @@ export default class InsureChannelServiceMocks {
 	prepareUpdate() {
 		if (this._mockSettings.insurePrepareUpdate.positiveCase) {
 			return this.prepareUpdateMocks.PrepareUpdate;
+		}
+		return null;
+	}
+
+	/**
+	 * Prepare update mock check
+	 * @returns {Object} Mock response data
+	 */
+	policyAccept() {
+		if (this._mockSettings.insurePolicyAccept.positiveCase) {
+			return this.policyAcceptMocks.PolicyAccept;
 		}
 		return null;
 	}
