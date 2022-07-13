@@ -4,7 +4,7 @@
 		"clientInsightsUrl": "https://hzn-cs-clientinsights-v1.platform-dev.int.capinet",
 		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-dev.int.capinet",
 		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-dev.int.capinet",
-		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-dev.int.capinet"
+		"insureChannelServiceUrl": "https://insurance-funeralinsurance.platform-dev.int.capinet"
 	},
 	"signalRUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
 	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
@@ -95,6 +95,10 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"verifyKBA": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"debiCheckMandates": {
 			"enabled": false,
 			"positiveCase": true
@@ -137,11 +141,11 @@
 			"positiveCase": true
 		},
 		"insureClientPolicies": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureProductParams": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"budgetTransferFromAccounts": {
@@ -150,6 +154,14 @@
 		},
 		"confirmBudgetTransfer": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"insurePolicyTransactionHistory": {
+			"enabled": true,
+			"positiveCase": true
+		},	
+		"insurePolicySummary": {
+			"enabled":false,
 			"positiveCase": true
 		}
 	},

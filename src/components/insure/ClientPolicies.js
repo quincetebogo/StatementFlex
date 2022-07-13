@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { Status } from 'app/constants/InsureCommon';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
@@ -486,6 +487,10 @@ class ClientPolicies extends Component {
 			.slot-content {
 				min-height: 180px;
 			}
+			.arrears{
+				--horizon-label-text-color: #C83C37 !important;
+				--horizon-label-value-color: #C83C37 !important;
+			}
 			`
 		];
 	}
@@ -570,8 +575,17 @@ class ClientPolicies extends Component {
 	_renderPoliciesDetailsBar()
 	{
 		this.policiesList = this.clientPolicies?.summaryDetails?.policies;
-		
-		return html `${ this.policiesList?.length > 0 ? this.policiesList?.map((policyItem, index) => html`
+
+		this.policiesList?.sort((a, b) => Status[a.status] - Status[b.status] 
+			|| (new Date(b.commencementDate) - new Date(a.commencementDate)));
+
+		return html `${ this.policiesList?.length > 0 ? this.policiesList?.map((policyItem) => { 
+
+		const sumArrears = policyItem?.arrearDetails?.arrears?.reduce((accumulator, object) => {
+			return accumulator + (object.amount ?? 0);
+		}, 0);
+
+			return html`
 		<horizon-expander
 			expandButtonAlignment="right"
 			?expanded = "${policyItem.isExpanded}" 
@@ -584,9 +598,6 @@ class ClientPolicies extends Component {
 					gap="clear"
 					halign="left"
 					valign="center">
-					${policyItem.arrearDetails.outstandingAmount > 0 ? html`<capitec-icon class="capitec-info-icon" icon="system/info-action"
-						@click="${(policyItem) => this._goToPolicySummary(policyItem.contractReference)}"></capitec-icon>` 
-							: html`<span class="policy-item"></span>`}
 						<horizon-label
 							class="label-policy-number fixed-label"
 							data-automation-id="insure-policy-contract-reference"
@@ -602,19 +613,20 @@ class ClientPolicies extends Component {
 							value="${ formatDate(policyItem.commencementDate, `dd mmm yyyy`) === '' ? '-' : formatDate(policyItem.commencementDate, `dd mmm yyyy`)}">
 						</horizon-label>
 						<horizon-label
-							data-automation-id="insure-policy-debit-order-date"
-							label="Debit Order Date"
+							data-automation-id="insure-policy-next-debit-order"
+							label="Next Debit Order"
 							value="${formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`) === '' ? '-' : formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`)}">
-						</horizon-label>
-						<horizon-label
-							data-automation-id="insure-policy-cover-amount"
-							label="Cover Amount"
-							value="${formatCurrency(this._getTotalCoverAmount(policyItem))}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-policy-total-premium"
 							label="Total Premium"
-							value="${formatCurrency(policyItem.totalPremium)}">
+							value="${ isNullorEmpty(policyItem.totalPremium) ? formatCurrency(0) : formatCurrency(policyItem.totalPremium) }">
+						</horizon-label>
+						<horizon-label
+							data-automation-id="insure-policy-arrears"
+							label="Arrears"
+							class="${ sumArrears > 0 ? `arrears` : ``}"
+							value="${ isNullorEmpty(sumArrears) ? formatCurrency(0) : formatCurrency(sumArrears)}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-policy-display-status"
@@ -622,7 +634,7 @@ class ClientPolicies extends Component {
 							value="${policyItem.displayStatus}">
 						</horizon-label>
 				</capitec-group>
-				<div slot="content" class="slot-content">
+				<div slot="content">
 					<capitec-group 
 						class="expander-content" 
 						layout="vertical"
@@ -632,7 +644,7 @@ class ClientPolicies extends Component {
 							${this._renderOptions(policyItem)}
 					</capitec-group>
 				</div>
-		</horizon-expander>`) : this._renderNoResults() }`;
+		</horizon-expander>` }) : this._renderNoResults() }`;
 	}
 
 	/**
@@ -697,13 +709,10 @@ class ClientPolicies extends Component {
 		return html`
 		<capitec-card class="action-card">
 			<capitec-overflow-menu label="More" data-automation-id = "insure-policy-more-sub-menu">
-				<capitec-overflow-menu-item icon="system/transfer-action" label="Transaction history" @click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
+				<capitec-overflow-menu-item icon="system/transfer-action" label="Transaction History" @click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
 				<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan" @click=" ${() => this._openCancelPolicyConfirmationDialog()}"></capitec-overflow-menu-item>
 				<capitec-overflow-menu-item icon="system/messages-action" label="SMS History" @click=" ${() => this._goToSMSHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
 				
-				${policyItem.arrearDetails.outstandingAmount > 0 ?
-					html `<capitec-overflow-menu-item icon="system/sars-action" label="Benefits"></capitec-overflow-menu-item>`
-					: ``}
 			</capitec-overflow-menu>
 			<capitec-label label="More" class="label-text">
 			</capitec-label>

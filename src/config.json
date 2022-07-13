@@ -3,7 +3,7 @@
 		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet",
 		"clientInsightsUrl": "https://hzn-cs-clientinsights-v1.platform-dev.int.capinet",
 		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-dev.int.capinet",
-		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-dev.int.capinet"
+		"insureChannelServiceUrl": "https://insurance-funeralinsurance.platform-dev.int.capinet"
 	},
 	"signalRUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
 	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
@@ -195,12 +195,12 @@
 			"positiveCase": true
 		},
 		"insureClientPolicies": {
-			"enabled": true,
-			"positiveCase": true
+			"enabled": false,
+			"positiveCase": false
 		},
 		"insureProductParams": {
-			"enabled": true,
-			"positiveCase": true
+			"enabled": false,
+			"positiveCase": false
 		},
 		"insureCalculateQuote": {
 			"enabled": true,
@@ -215,8 +215,8 @@
 			"positiveCase": true
 		},
 		"insurePolicyTransactionHistory": {
-			"enabled": false,
-			"positiveCase": false
+			"enabled": true,
+			"positiveCase": true
 		},	
 		"creditOverview": {
 			"enabled": false,
@@ -227,8 +227,8 @@
 			"positiveCase": true
 		},
 		"insurePolicySummary": {
-			"enabled":true,
-			"positiveCase": true
+			"enabled":false,
+			"positiveCase": false
 		},
 		"insureCommsHistory":{
 			"enabled": true,

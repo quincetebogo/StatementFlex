@@ -163,4 +163,39 @@ export const DEBIT_ORDER_DAY_OPTIONS = Object.freeze([
  export const CLIENT_ACCOUNTS = Object.freeze([
 	{ code: 'Savings', text: `Savings Account` },
 ]);
-;
+
+/**
+ * List of Role Players
+ * @readonly
+ * @enum {Object} ROLE_PLAYER_RELATIONSHIP
+ */
+export const ROLE_PLAYER_RELATIONSHIP = Object.freeze({
+	MAINLIFE: `MAIN LIFE`,
+	CHILD: `CHILD`,
+	EXTENDEDFAMILY: `EXTENDED FAMILY`,
+	SPOUSE: `SPOUSE`,
+	PARENT: `PARENT`,
+	EXTENDEDCHILD: `EXTENDED CHILD`,
+	EXTENDEDSPOUSE: `EXTENDED SPOUSE`,
+	EXTENDEDPARENT: `EXTENDED PARENT`,
+	SIBLING: `SIBLING`,
+	PARENTINLAW: `PARENT IN LAW`,
+	NEPHEWNIECE: `NEWPHE NIECE`,
+	GRANDPARENT: `GRAND PARENT`,
+	GRANDCHILD: `GRAND CHILD`,
+	COUSINSCHILD: `COUSINS CHILD`,
+	AUNTUNCLE: `AUNT UNCLE`,
+	FIRSTCOUSIN: `FIRST COUSIN`,
+	GREATGRANDPARENT: `GREAT GRAND PARENT`,
+	GREATGRANDCHILD: `GREAT GRAND CHILD`,
+	BENEFICIARYONLY: `BENEFICIARY ONLY`
+});
+
+export const Status = {
+	'Active': 1,
+	'PendingInForce': 2,
+	'Cancelled': 3,
+	'Lapsed': 4,
+	'Death Out of Force': 5,
+	'Not Taken Up': 6
+};

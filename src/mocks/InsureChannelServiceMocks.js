@@ -80,15 +80,6 @@ export default class InsureChannelServiceMocks {
 
 			const result = this.transactionHistoryMocks.PolicyTransactionHistory;
 
-			if(result.contractReference !== policyTransactionHistoryRequest.contractReference)
-			{
-				let emptyResponse = {
-					contractReference: ``,
-					transactions: []
-				}
-
-				return emptyResponse;
-			}
 			return result;
 		}
 
