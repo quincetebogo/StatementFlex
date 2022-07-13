@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
-import { formatDate } from 'app/utils/channelServiceUtilities';
+import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 // Lookups
 import { BANK_OPTIONS, ACCOUNT_TYPES, DEBIT_ORDER_DAY_OPTIONS, GENDER_OPTIONS, TITLE_OPTIONS } from 'app/constants/InsureCommon';
@@ -126,7 +126,9 @@ class UpdatePlan extends Component {
 			newTotalPremium: { string: '' },
 
 			updatePlanPrepare: { type: Object, state: true },
-			tempDocContent: { type: String, state: true }
+			tempDocContent: { type: String, state: true },
+
+			canReinstate: { type: Boolean }
 		};
 	}
 
@@ -425,7 +427,8 @@ class UpdatePlan extends Component {
 
 		// this.collectionDay = this.policyDetails.deductionDetails.collectionDay;
 
-		console.log('policyDetails')
+		this.canReinstate = this.policyDetails.canReinstate; //true - for testing;
+		console.log('policyDetails');
 		console.log(this.policyDetails);
 	}
 
@@ -628,7 +631,6 @@ class UpdatePlan extends Component {
 			}
 
 			.left-card{
-				height: 100%;
 				display: flex;
 				flex-direction: column;
 			}
@@ -810,15 +812,19 @@ class UpdatePlan extends Component {
 		return html`
 		<capitec-title-bar type="insure" class="insure-title-bar">
 			<img class="action-image" src="/images/insure/left-arrow.svg" @click="${() => this._backToSummaryPage()}" />
-			<capitec-label label="Update Plan #${this.policyDetails.contractReference}" type="title"></capitec-label>
+			<capitec-label label="Update Plan ${ this.canReinstate ? `` : `#${this.policyDetails.contractReference}`}" type="title"></capitec-label>
 			<capitec-spacer></capitec-spacer>
-		
-			${this.selectedTabIndex == 0 ? html`
-			<capitec-button label="Calculate" type="white" @click="${() => this._calculatePremium()}">
-			</capitec-button>
-			`: html``}
-			<capitec-button label="Update Plan" type="white" @click="${() => this._onUpdatePlan()}">
-			</capitec-button>
+			${ this.canReinstate ? 
+				html `<capitec-button label="Reinstate" type="white" @click="${() => {}}"></capitec-button>` 
+				:
+				html `
+					${this.selectedTabIndex == 0 ? html`
+					<capitec-button label="Calculate" type="white" @click="${() => this._calculatePremium()}">
+					</capitec-button>
+					`: html``}
+					<capitec-button label="Update Plan" type="white" @click="${() => this._onUpdatePlan()}">
+					</capitec-button>
+			`}
 		</capitec-title-bar>
 		
 		<!-- .disabled="${this.agreementYROAAccepted == false}" -->
@@ -888,19 +894,28 @@ class UpdatePlan extends Component {
 			
 					<!-- Add lives Assured Button  -->
 					<div class="calc-card-row" style="margin-top: 5px;">
-						<capitec-label label="Lives Assured" type="strong" class="stronger">
-						</capitec-label>
-						<capitec-label label="Add Life Assured" type="subtitle" class="stronger link"
-							@click="${() => this._openAddLifeDialog()}">
-						</capitec-label>
+						${ this.policyDetails.roleplayers?.filter(x=> x.relationship !== `MainLife`
+							&& x.lifeAssured == true)?.length > 0
+							? html `
+							<capitec-label label="Lives Assured" type="strong" class="stronger">
+							</capitec-label>`
+						: ``}
+						${this.canReinstate ? `` : 
+							html `<capitec-label label="Add Life Assured" type="subtitle" class="stronger link"
+								@click="${() => this._openAddLifeDialog()}">
+								</capitec-label>
+						`}		
 					</div>
 			
 					<!-- Lifes Assured list -->
 					${this.policyDetails.roleplayers.map((roleplayer, index) => html` ${roleplayer.relationship != "MainLife" &&
-			roleplayer.lifeAssured == true ? html`
-					<capitec-label label="Remove" @click="${() => this._openRemoveLifeAssuredDialog(index)}" type="subtitle"
-						class="stronger link" style="position: relative; width: fit-content; left: 613px; top: 43px;">
-					</capitec-label>
+			roleplayer.lifeAssured == true ? 
+					html`
+					${ this.canReinstate ? ``	
+						: html `<capitec-label label="Remove" @click="${() => this._openRemoveLifeAssuredDialog(index)}" type="subtitle"
+							class="stronger link" style="position: relative; width: fit-content; left: 613px; top: 43px;">
+						</capitec-label>`
+					}
 			
 					<horizon-expander expandButtonAlignment="right">
 						<capitec-group class="expander-header" slot="custom-header" layout="horizontal" gap="clear" halign="left"
@@ -920,9 +935,6 @@ class UpdatePlan extends Component {
 						</div>
 					</horizon-expander>
 					` : html``}`)}
-			
-			
-			
 				</div>
 			</div>`
 	}
@@ -947,12 +959,14 @@ class UpdatePlan extends Component {
 					<hr>
 		
 					<!-- life list -->
-					${this.policyDetails.roleplayers.filter(ele => ele.lifeAssured == true).map(lifeAssured => html`
-					<div class="calc-life-list">
-						<capitec-label label="${lifeAssured.relationship}"></capitec-label>
-						<capitec-label label="${formatCurrency(lifeAssured.premium)}"></capitec-label>
-					</div>
-					<hr>`)}
+					${this.policyDetails.roleplayers.filter(ele => ele.relationship !== `MainLife`
+						&& ele.lifeAssured == true).map(lifeAssured => html`
+						<div class="calc-life-list">
+							<capitec-label label="${lifeAssured.relationship}"></capitec-label>
+							<capitec-label label="${formatCurrency(lifeAssured.premium)}"></capitec-label>
+						</div>
+						<hr>`)
+					}
 					<div class="calc-life-list">
 						<capitec-label label="Total Premium Amount" class="stronger"></capitec-label>
 						<capitec-label label="${formatCurrency(this.policyDetails.totalPremium)}" class="stronger">
@@ -965,7 +979,7 @@ class UpdatePlan extends Component {
 					<capitec-label label="Specify a premium you are willing to pay" class="stronger"></capitec-label>
 					<br>
 					<capitec-text-field @value-change="${(e) => this._totalPremiumChanged(e)}" .value="${this.newTotalPremium}"
-						label="Premium Amount" type="numeric">
+						label="Premium Amount" type="numeric" ?disabled = "${Boolean(this.canReinstate)}">
 					</capitec-text-field>
 				</div>
 			</div>
@@ -1018,39 +1032,44 @@ class UpdatePlan extends Component {
 			
 							<!--Beneficiaries -->
 							<div class="calc-card-row" style="margin-top: 15px;">
-								<capitec-label label="Beneficiaries" type="strong" class="stronger">
-								</capitec-label>
-								${this._renderAddBeneficiaryButton()}
+								${this.policyDetails?.roleplayers?.filter(x => x.beneficiary === true)?.length > 0
+									? html `
+									<capitec-label label="Beneficiaries" type="strong" class="stronger">
+									</capitec-label>`
+								 : ``}
+								${this.canReinstate ? `` :
+									this._renderAddBeneficiaryButton()
+								}
 							</div>
-			
+
 							<!-- Beneficiaries -->
-							${this.policyDetails.roleplayers.map((beneficiary, index) => html`
-							${beneficiary.beneficiary == true ? html`
-			
-							<capitec-label label="Remove" @click="${() => this._openRemoveBeneficiaryDialog(beneficiary, index)}"
-								type="subtitle" class="stronger link"
-								style="position: relative; width: fit-content; left: 613px; top: 43px;">
-							</capitec-label>
-			
-							<horizon-expander expandButtonAlignment="right">
-								<capitec-group class="expander-header" slot="custom-header" layout="horizontal" gap="clear"
-									halign="left" valign="center">
-									<horizon-label class="fixed-label-secondary" label="${beneficiary.relationship}"
-										textOverflow="ellipsis" value="${beneficiary.firstName} ${beneficiary.surname}">
-									</horizon-label>
-									<div class="vertical-line"></div>
-									<horizon-label label="Cover Amount (Min R5 000 - Max 100 000)"
-										value="${formatCurrency(beneficiary.coverAmount)}">
-									</horizon-label>
-			
-								</capitec-group>
-								<div slot="content">
-									<capitec-group class="expander-content" layout="vertical" gap="none" halign="left"
-										valign="center">
-										${this._renderBeneficiaryOptions(beneficiary)}
-									</capitec-group>
-								</div>
-							</horizon-expander>` : html``}`)}
+							${this.policyDetails.roleplayers.map((beneficiary, index) => 
+								html` ${beneficiary.beneficiary == true ? 
+									html`
+									${ this.canReinstate ? ``
+										: html	`<capitec-label label="Remove" @click="${() => this._openRemoveBeneficiaryDialog(beneficiary, index)}"
+										type="subtitle" class="stronger link"
+										style="position: relative; width: fit-content; left: 613px; top: 43px;">
+										</capitec-label>`
+									}									
+									<horizon-expander expandButtonAlignment="right">
+										<capitec-group class="expander-header" slot="custom-header" layout="horizontal" gap="clear"
+											halign="left" valign="center">
+											<horizon-label class="fixed-label-secondary" label="${beneficiary.relationship}"
+												textOverflow="ellipsis" value="${beneficiary.firstName} ${beneficiary.surname}">
+											</horizon-label>
+											<div class="vertical-line"></div>
+											<horizon-label label="Cover Amount (Min R5 000 - Max 100 000)"
+												value="${formatCurrency(beneficiary.coverAmount)}">
+											</horizon-label>
+										</capitec-group>
+										<div slot="content">
+											<capitec-group class="expander-content" layout="vertical" gap="none" halign="left"
+												valign="center">
+												${this._renderBeneficiaryOptions(beneficiary)}
+											</capitec-group>
+										</div>
+									</horizon-expander>` : html``}`)}
 						</div>
 					</div>
 					${this._renderCoverCalculator()}
@@ -1101,26 +1120,31 @@ class UpdatePlan extends Component {
 		
 							<div class="calc-card-row">
 								<capitec-select label="Bank" .items="${this.bankOptions}" display-field="text" id-field="code"
-									style="width: 50%" value="${this.policyDetails.deductionDetails.bankDetails.bank}">
+									style="width: 50%" value="${this.policyDetails.deductionDetails?.bankDetails?.bank}" 
+									?disabled = "${Boolean(this.canReinstate)}">
 								</capitec-select>
 								<capitec-text-field label="Account Number" type="numeric" style="width: 50%"
-									value="${this.policyDetails.deductionDetails.bankDetails.accountNumber}">
+									value="${this.policyDetails.deductionDetails?.bankDetails?.accountNumber}"
+									?disabled = "${Boolean(this.canReinstate)}">
 								</capitec-text-field>
 							</div>
 		
 							<div class="calc-card-row">
 								<capitec-select label="Account Type" .items="${this.accountTypeOptions}" display-field="text"
 									id-field="code" style="width: 50%"
-									value="${this.policyDetails.deductionDetails.bankDetails.accountType}">
+									value="${this.policyDetails.deductionDetails?.bankDetails?.accountType}"
+									?disabled = "${Boolean(this.canReinstate)}">
 								</capitec-select>
 								<capitec-text-field label="Branch Code" type="numeric" style="width: 50%"
-									value="${this.policyDetails.deductionDetails.bankDetails.branchCode}">
+									value="${this.policyDetails.deductionDetails.bankDetails.branchCode}"
+									?disabled = "${Boolean(this.canReinstate)}">
 								</capitec-text-field>
 							</div>
 		
 							<div class="calc-card-row">
 								<capitec-select label="Debit order day" .items="${this.debitOrderDayOptions}"
-									display-field="text" id-field="text" style="width: 50%" .value="${this.collectionDay}">
+									display-field="text" id-field="text" style="width: 50%" 
+									.value="${this.collectionDay}" ?disabled="${this.canReinstate}">
 								</capitec-select>
 							</div>
 						</div>
@@ -1245,7 +1269,8 @@ class UpdatePlan extends Component {
 					value="${formatDate(roleplayer?.dateOfBirth)}">
 				</capitec-text-field>
 			
-				<capitec-text-field label="Cover amount" style="width: 50%" type="currency" value="${roleplayer?.coverAmount}">
+				<capitec-text-field label="Cover amount" style="width: 50%" type="currency" value="${roleplayer?.coverAmount}"
+					?disabled = "${Boolean(this.canReinstate)}">
 				</capitec-text-field>
 			</div>
 			<div class="expander-options">
@@ -1267,42 +1292,53 @@ class UpdatePlan extends Component {
 		return html`
 			<div class="expander-options">
 				<capitec-select label="Title" .items="${this.titleOptions}" display-field="text" id-field="code" style="width: 50%"
-					value="${roleplayer?.title}">
+					value="${roleplayer?.title}" ?disabled="${this.canReinstate}">
 				</capitec-select>
 			
 				<capitec-select label="Gender" .items="${this.genderOptions}" display-field="text" id-field="code"
 					style="width: 50%" @value-changed="${(e) => this._lifeGenderValueChanged(e, index)}"
-					value="${roleplayer?.gender}">
+					value="${roleplayer?.gender}" ?disabled="${this.canReinstate}">
 				</capitec-select>
 			</div>
 			</div>
 			<div class="expander-options">
-				<capitec-text-field label="Name" style="width: 50%" value="${roleplayer?.firstName}">
+				<capitec-text-field label="Name" style="width: 50%" value="${roleplayer?.firstName}"
+					?disabled="${this.canReinstate}">
 				</capitec-text-field>
 			
-				<capitec-text-field label="Surname" style="width: 50%" value="${roleplayer?.surname}">
+				<capitec-text-field label="Surname" style="width: 50%" value="${roleplayer?.surname}"
+					?disabled="${this.canReinstate}">
 				</capitec-text-field>
 			</div>
 			<div class="expander-options">
-				<capitec-text-field label="Middle Names" style="width: 50%" value="${roleplayer?.middleName}">
+				<capitec-text-field label="Middle Names" style="width: 50%" value="${roleplayer?.middleName}"
+					?disabled="${this.canReinstate}">
 				</capitec-text-field>
 			
-				<capitec-text-field label="Cover amount" style="width: 50%" type="currency" value="${roleplayer?.coverAmount}">
+				<capitec-text-field label="Cover amount" style="width: 50%" type="currency" 
+					value="${roleplayer?.coverAmount}" ?disabled="${this.canReinstate}">
 				</capitec-text-field>
 			</div>
 			<div class="expander-options">
-				<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="input"
-					date="2020-02-01" outputType="string" maxdate="${this.today}">
-				</capitec-date-time-picker>
-			
-				<capitec-text-field label="ID" style="width: 50%" value="${roleplayer?.idNumber}">
+				${ this.canReinstate == true ? 
+						html `<capitec-text-field label="Date of birth" style="width: 50%" disabled
+								value="${formatDate(roleplayer?.dateOfBirth)}">
+							</capitec-text-field>`
+						:
+						html `<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="input"
+								date="${formatDate(roleplayer?.dateOfBirth)}" outputType="string" maxdate="${this.today}">
+							</capitec-date-time-picker>`
+				}
+				<capitec-text-field label="ID" style="width: 50%" value="${ isNullorEmpty(roleplayer?.idNumber) ? `-` : roleplayer?.idNumber }" ?disabled="${this.canReinstate}">
 				</capitec-text-field>
 			</div>
 			<div class="expander-options">
-				<capitec-text-field label="Cellphone number" style="width: 50%" value="${roleplayer?.contactDetails?.cellphone}">
+				<capitec-text-field label="Cellphone number" style="width: 50%" 
+					value="${ isNullorEmpty(roleplayer?.contactDetails?.cellphone) ? `-` : roleplayer?.contactDetails?.cellphone }" ?disabled="${this.canReinstate}">
 				</capitec-text-field>
 			
-				<capitec-text-field label="Email Address" style="width: 50%" value="${roleplayer?.contactDetails?.email}">
+				<capitec-text-field label="Email Address" style="width: 50%" 
+					value="${ isNullorEmpty(roleplayer?.contactDetails?.email) ? `-` : roleplayer?.contactDetails?.email }" ?disabled="${this.canReinstate}">
 				</capitec-text-field>
 			</div>
 		`;
@@ -1315,32 +1351,45 @@ class UpdatePlan extends Component {
 		return html`
 		<div class="expander-options">
 			<capitec-select label="Title" .items="${this.titleOptions}" display-field="text" id-field="code" style="width: 50%"
-				value=${roleplayer.title}>
+				value=${roleplayer.title} ?disabled="${this.canReinstate}">
 			</capitec-select>
 		
-			<capitec-text-field label="Name" style="width: 50%" value=${roleplayer.firstName}>
+			<capitec-text-field label="Name" style="width: 50%" value=${roleplayer.firstName}
+				?disabled="${this.canReinstate}">
 			</capitec-text-field>
 		</div>
 		<div class="expander-options">
-			<capitec-text-field label="Surname" style="width: 50%" value=${roleplayer.surname}>
+			<capitec-text-field label="Surname" style="width: 50%" value=${roleplayer.surname}
+				?disabled="${this.canReinstate}">
 			</capitec-text-field>
 		
-			<capitec-date-time-picker label="Date of Birth" type="single" mode="date" inputType="input"
-				date="${formatDate(roleplayer.dateOfBirth)}" outputType="string" maxdate="${this.today}"
-				value=${formatDate(roleplayer.dateOfBirth)} style="width: 50%">
-			</capitec-date-time-picker>
+			${ this.canReinstate == true ? 
+				html `<capitec-text-field label="Date of birth" style="width: 50%" disabled
+						value="${formatDate(roleplayer?.dateOfBirth)}">
+					</capitec-text-field>`
+				:
+				html `<capitec-date-time-picker label="Date of Birth" type="single" mode="date" inputType="input"
+					date="${formatDate(roleplayer.dateOfBirth)}" outputType="string" maxdate="${this.today}"
+					value=${formatDate(roleplayer.dateOfBirth)} style="width: 50%"
+					?disabled="${this.canReinstate}">
+				</capitec-date-time-picker>`
+			}
 		</div>
 		<div class="expander-options">
 			<capitec-select label="Gender" .items="${this.genderOptions}" display-field="text" id-field="code"
-				style="width: 50%" value=${roleplayer.gender}>
+				style="width: 50%" value=${roleplayer.gender}
+				?disabled="${this.canReinstate}">
 			</capitec-select>
-			<capitec-text-field label="Payout amount" style="width: 50%" value=${formatCurrency(roleplayer.benefitPayout)}>
+			<capitec-text-field label="Payout amount" style="width: 50%" 
+				value=${formatCurrency(roleplayer.benefitPayout)} ?disabled="${this.canReinstate}">
 			</capitec-text-field>
 		</div>
 		<div class="expander-options">
-			<capitec-text-field label="Email Address" style="width: 50%" value=${roleplayer.contactDetails.email}>
+			<capitec-text-field label="Email Address" style="width: 50%" 
+				value=${ isNullorEmpty(roleplayer.contactDetails?.email) ? `-` : roleplayer.contactDetails?.email }  ?disabled="${this.canReinstate}">
 			</capitec-text-field>
-			<capitec-text-field label="Cellphone number" style="width: 50%" value=${roleplayer.contactDetails.cellphone}>
+			<capitec-text-field label="Cellphone number" style="width: 50%" 
+				value=${ isNullorEmpty(roleplayer.contactDetails?.cellphone) ? `-` : roleplayer.contactDetails?.cellphone} ?disabled="${this.canReinstate}">
 			</capitec-text-field>
 		</div>`
 	}
