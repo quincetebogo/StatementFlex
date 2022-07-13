@@ -109,7 +109,7 @@
 		},
 		"verifyKBA": {
 			"enabled": true,
-			"positiveCase": false
+			"positiveCase": true
 		},
 		"debiCheckMandates": {
 			"enabled": false,
