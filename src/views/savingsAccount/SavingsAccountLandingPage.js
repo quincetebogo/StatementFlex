@@ -118,18 +118,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	// PUBLIC METHODS
 	// --------------
 
-	async _exitTransactionHistory() {
-		await super.classifyIncident(() => this._toggleBusyFlag());
-
+	_exitTransactionHistory() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	async _unloadTransactionHistory() {
+	_unloadTransactionHistory() {
 		this.endCallContext = `LandingPage`;
 		this.transactionHistory = [];
-
-		await super.classifyIncident(() => this._toggleBusyFlag());
-		
 		this._setIncidentDone();
 	}
 	
@@ -183,7 +178,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.TRANSACTION_HISTORY
 		});
 
-		await super.createAndClassifySubsIncident(null, false);
+		await super.createAndClassifySubsIncident();
 		await this._getTransactionHistory();
 	}
 

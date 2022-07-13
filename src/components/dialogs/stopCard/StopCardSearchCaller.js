@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { ClientProfileService } from 'app/services/ClientProfileService';
+import { CallHandleService } from 'app/services/CallHandleService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -118,7 +118,7 @@ export class StopCardSearchCaller extends Component {
 		this.incomingCallDetails = null;
 		this.renderMode = -1;
 
-		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
 
 		this.isBusy = false;
 		this.alertBannerMessage = ``;
@@ -226,7 +226,7 @@ export class StopCardSearchCaller extends Component {
 				searchValue: this.searchFieldText
 			};
 
-			const returnValue = await this.clientProfileService.searchCaller(searchClient);
+			const returnValue = await this.callHandleService.searchCaller(searchClient);
 			const identifiedClient = returnValue.result;
 
 			if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {

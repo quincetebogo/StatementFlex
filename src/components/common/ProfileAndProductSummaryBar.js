@@ -139,7 +139,6 @@ export class ProfileAndProductSummaryBar extends Component {
 				is3rdParty: state.callerInformation.verificationStatus === `3rdparty`,
 				hasDigitalChannels: state.callerInformation.hasDigitalChannels,
 				verificationAttempts: state.callerInformation.verificationAttempts,
-				profilePhoto: state.callerInformation.profilePhoto,
 				isBranchConsultant: state.callerInformation.isBranchConsultant
 			};
 		}
