@@ -564,11 +564,11 @@ export class ExistingClient extends InsureViewBase {
 
 	_renderSMSHistory(){
 		return html`
-		<horizon-sms-history-page @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+		<horizon-insure-sms-history-page @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 			.contractReference = ${this.policyNumber} .contactNumber = ${this.callerInformation.verifiedTelephoneNumber}
 			.commsHistory = "${this.commsHistory}"
 			.getCommsHistory="${(startDate, endDate) => this._retrieveCommsHistory(startDate, endDate)}">
-		</horizon-sms-history-page>
+		</horizon-insure-sms-history-page>
 
 		`
 	}

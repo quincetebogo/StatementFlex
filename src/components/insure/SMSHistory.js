@@ -451,7 +451,7 @@ _backToSummaryPage() {
 	_renderExpander(comms){
 		return html`
 
-			<horizon-expander>
+			<horizon-expander data-automation-id="insure-sms-history-expander">
 				<capitec-group 
 					class="expander-header"
 					slot="custom-header"
@@ -536,7 +536,7 @@ _backToSummaryPage() {
 					outputType="string"
 					.predefinedRanges="${this.getPredefinedDateRanges()}"
 					@apply-clicked="${(e) => this._dateChanged(e)}"
-					data-automation-id="transaction-history-date-filter">
+					data-automation-id="insure-sms-history-date-picker">
 				</capitec-date-time-picker>
 		`
 	}
@@ -545,18 +545,13 @@ _backToSummaryPage() {
 	 * render the active filters bar 
 	 * 
 	 * @returns 
-	 * 
 	 */
 	_renderActiveFilters(){
 		if (RENDER_CHIPS[FILTER_BY.DATE] !== ``) {
 			return html`
-				<capitec-content-box
-					id="active-filters"
-					class="filter-bar"
-					data-automation-id="transaction-history-active-filters">
-						
-						<capitec-label label = "Active filters:"></capitec-label>
-							${this._renderDateChip()}
+				<capitec-content-box id="active-filters" class="filter-bar">
+					<capitec-label label = "Active filters:"></capitec-label>
+						${this._renderDateChip()}
 				</capitec-content-box>
 			`;
 		}
@@ -573,7 +568,8 @@ _backToSummaryPage() {
 			id="${FILTER_BY.DATE}"
 			label="${RENDER_CHIPS[FILTER_BY.DATE]}"
 			@remove="${() => this._closeChip(FILTER_BY.DATE)}"
-			closable>
+			closable
+			data-automation-id="insure-sms-history-active-filter">
 		</capitec-chip>`
 		: html``;
 }
@@ -584,7 +580,7 @@ _backToSummaryPage() {
 
 }
 
-window.customElements.define(`horizon-sms-history-page`, SMSHistory);
+window.customElements.define(`horizon-insure-sms-history-page`, SMSHistory);
 
 /**
  * When back arrow button is clicked
