@@ -196,8 +196,8 @@
 			"positiveCase": true
 		},
 		"insureProductParams": {
-			"enabled": true,
-			"positiveCase": true
+			"enabled": false,
+			"positiveCase": false
 		},
 		"insureCalculateQuote": {
 			"enabled": true,
@@ -212,7 +212,7 @@
 			"positiveCase": true
 		},
 		"insurePolicyTransactionHistory": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": false
 		},
 		"creditOverview": {

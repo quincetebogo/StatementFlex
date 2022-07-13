@@ -10,6 +10,8 @@ import 'app/components/insure/ClientPolicies';
 import 'app/components/insure/PolicyEstimate';
 import 'app/components/insure/UpdatePlan';
 import 'app/components/insure/PolicySummary';
+import 'app/components/insure/CancelPolicySuccess';
+import 'app/components/insure/EmailPlanSuccess';
 import 'app/components/insure/PayPremiumSuccess';
 import 'app/components/insure/PolicyTransactionHistory';
 import 'app/components/insure/UpdatePlanSuccess';
@@ -233,6 +235,36 @@ export class ExistingClient extends InsureViewBase {
 			, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY);
 	}
+
+	/**
+	 * Prepare and navigate Cancel Policy Success
+	 */
+	 _goToCancelPolicySuccess() {
+		// Telemetry Here
+		this._navigateToSubView(INSURE_RENDER_MODE.CANCEL_POLICY_SUCCESS);
+	}
+
+	/**
+	 * Prepare and navigate Email Success
+	 */
+	 _goToEmailPlanSuccess() {
+		// Telemetry Here
+		this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
+	 }
+	 
+	/**
+	 * Make FIPS call and Prepare and navigate to pay premium success page
+	 * 
+	 * @param {*} e contains the payArrears object
+	 */
+	_goToPayPremiumSuccess(e) {
+		//call fips here
+
+		// Telemetry Here
+
+		this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
+	}
+	//#endregion
 
 	/**
 	 * Fetch Policy Transaction History
@@ -466,6 +498,10 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderPolicyTransactionHistoryPage()}`
 			case INSURE_RENDER_MODE.POLICY_SUMMARY:
 				return html`${this._renderPolicySummaryPage()}`
+			case INSURE_RENDER_MODE.CANCEL_POLICY_SUCCESS:
+				return html`${this._renderCancelPolicySuccessPage()}`
+			case INSURE_RENDER_MODE.EMAIL_SUCCESS:
+				return html`${this._renderEmailSuccessPage()}`
 			case INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS:
 				return html`${this._renderPayPremiumSuccessPage()}`
 			case INSURE_RENDER_MODE.UPDATE_PLAN_SUCCESS:
@@ -486,7 +522,8 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan(e)}"
 				@navigate-to-pay-premium-success="${(e) => this._goToPayPremiumSuccess()}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
-				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}">
+				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
+				@navigate-to-cancel-policy-success="${(e) => this._goToCancelPolicySuccess()}">
 			</horizon-insure-client-policies>`
 	}
 
@@ -530,6 +567,30 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
+	 * Render Cancel Policy Success Page
+	 * @return {html} Html of the sub view
+	 */
+	_renderCancelPolicySuccessPage() {
+		return html`
+		<insure-cancel-policy-success @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+			@navigate-to-email-success="${(e) => this._goToEmailPlanSuccess()}">
+		</insure-cancel-policy-success>
+		`
+	}
+
+	/**
+	 * Render Email Success Page
+	 * @return {html} Html of the sub view
+	 */
+	 _renderEmailSuccessPage() {
+		return html`
+		
+			<insure-email-plan-success @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+			</insure-email-plan-success>
+
+		`
+	}
+	/*
 	 * Render Pay Premium Success page
 	 * @return {html} Html of the sub view
 	 */
