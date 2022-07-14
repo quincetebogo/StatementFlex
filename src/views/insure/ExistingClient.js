@@ -160,7 +160,14 @@ export class ExistingClient extends InsureViewBase {
 	 * Prepare and navigate Update plan
 	 */
 	async _goToUpdatePlan(e) {
-		this.policyDetails = await this._retrievePolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+		if(e.detail.canReinstate)
+		{
+			this.policyDetails = await this._reinstateQuoteCalc(e.detail.policyContractReference, this.callerInformation.cifNumber);
+			this.policyDetails.canReinstate = true;
+		}
+		else
+			this.policyDetails = await this._retrievePolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+		
 		this._navigateToSubView(INSURE_RENDER_MODE.UPDATE_PLAN);
 	}
 
@@ -191,6 +198,22 @@ export class ExistingClient extends InsureViewBase {
 			idNumber: idNumber
 		}
 		const resp = await this.insureService.insurePolicySummary(request);
+		if (!resp.succeeded)
+			return;
+
+		return resp.result;
+	}
+
+		/**
+	 * Retrieve Quote number and Policy details
+	 * @returns {Object} Quote number and Policy details 
+	 */
+	async _reinstateQuoteCalc(contractReference, cifNumber) {
+		let request = {
+			contractReference: contractReference,
+			cifNumber: cifNumber
+		}
+		const resp = await this.insureService.insureReinstateQuoteCalc(request);
 		if (!resp.succeeded)
 			return;
 

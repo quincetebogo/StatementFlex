@@ -149,6 +149,32 @@ export class InsureService extends ChannelServiceBase {
 	}
 
 	/**
+	 * Reinstate Policy Quote number & details
+	 *
+	 * @param {reinstateQuoteRequest} [errorHandler=null]  Request data containing contract reference & cifnumber
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	 async insureReinstateQuoteCalc(reinstateQuoteRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureReinstateQuoteCalc`)) {
+			return this.mock(`reinstateQuoteCalc`);
+		}
+		return this.post(
+			`/FuneralInsuranceProductService/policy/reinstate`,
+			reinstateQuoteRequest,
+			this.setInsureTokens(),
+			`reinstateQuoteCalc`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
 	 * Calculate Estimate / leaving no footprint on OIPA
 	 *
 	 * @param {estimateRequest} [errorHandler=null]  Request data for estimate 

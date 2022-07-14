@@ -412,7 +412,8 @@ export const ClientPolicies = {
 					}
 				],
 				"policyRule": "Standard",
-				"policyMinumumPremium": 40
+				"policyMinumumPremium": 40,
+				"canReinstate": true
 			},
 			{
 				"roleplayers": [
@@ -811,7 +812,8 @@ export const ClientPolicies = {
 					}
 				],
 				"policyRule": "Standard",
-				"policyMinumumPremium": 40
+				"policyMinumumPremium": 40,
+				"canReinstate": false
 			},
 			{
 				"roleplayers": [
@@ -1210,7 +1212,8 @@ export const ClientPolicies = {
 					}
 				],
 				"policyRule": "Standard",
-				"policyMinumumPremium": 40
+				"policyMinumumPremium": 40,
+				"canReinstate": false
 			},
 			{
 				"roleplayers": [
@@ -1609,7 +1612,8 @@ export const ClientPolicies = {
 					}
 				],
 				"policyRule": "Standard",
-				"policyMinumumPremium": 40
+				"policyMinumumPremium": 40,
+				"canReinstate": false
 			}
 		]
 	},

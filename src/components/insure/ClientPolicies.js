@@ -113,9 +113,11 @@ class ClientPolicies extends Component {
 	/**
 	 * Fire navigate event to Update Plan
 	 */
-	_goToUpdatePlan(contractReference) {
+	_goToUpdatePlan(contractReference, canReinstate) {
 		this.dispatchEvent(new CustomEvent(`navigate-to-update-plan`, {
-			detail: { policyContractReference: contractReference
+			detail: { 
+				policyContractReference: contractReference
+				,canReinstate: canReinstate
 			}
 		}));
 	}
@@ -673,7 +675,7 @@ class ClientPolicies extends Component {
 						class="button-margin" 
 						label="Reinstate" 
 						icon="system/history-action"
-						@click="${() => this._goToUpdatePlan(policyItem.contractReference)}">
+						@click="${() => this._goToUpdatePlan(policyItem.contractReference, policyItem.canReinstate)}">
 					</horizon-option-button>
 					<horizon-option-button 
 						data-automation-id="insure-policy-options-cancelled-email-plan"

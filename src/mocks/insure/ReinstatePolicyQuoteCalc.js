@@ -7,14 +7,22 @@
  export const ReinstatePolicyQuoteCalc = {
 	"cifNumber": 264705092,
 	"quoteNumber": "QFP0000001597",
-	"bankDetails": {
-	  "accountName": "SAVINGS ACCOUNT",
-	  "branchCode": "470010",
-	  "accountNumber": "1584182332",
-	  "bank": "CAPITEC BANK",
-	  "accountType": "Savings"
+	"deductionDetails": {
+		"collectionDay": '3',
+		"bankDetails": {
+			"accountName": "SAVINGS ACCOUNT",
+			"branchCode": "470010",
+			"accountNumber": "1584182332",
+			"bank": "Capitec Bank",
+			"accountType": "Savings"
+		},
+		"collectionMethod": "EFT",
+		"mandateReferenceNumber": "",
+		"frequency": "MONTHLY",
+		"effectiveFromDate": "2022-05-10T17:35:05.190Z",
+		"effectiveToDate": "2022-05-10T17:35:05.190Z"
 	},
-	"collectionDay": 1,
+	"totalPremium": 95.5,
 	"roleplayers": [
 	  {
 		"title": "Mrs",

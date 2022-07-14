@@ -17,6 +17,7 @@ import 'app/components/dialogs/insure/RemoveBeneficiaryDialog';
 import 'app/components/dialogs/insure/RemoveLifeAssuredDialog';
 import 'app/components/dialogs/insure/AddBeneficiaryDialog';
 import 'app/components/dialogs/insure/UpdatePlanAgreementDialog';
+import 'app/components/dialogs/insure/ReinstatePolicyAgreementDialog';
 
 // Other
 import 'app/components/common/HorizonLabel';
@@ -61,6 +62,7 @@ class UpdatePlan extends Component {
 		this.showRemoveLifeAssuredDialog = false;
 		this.showRemoveBeneficiaryDialog = false;
 		this.showUpdatePlanAgreementDialog = false;
+		this.showReinstatePolicyAgreementDialog = false;
 
 		this.agreementFCPAccepted = false;
 		this.agreementEACLAccepted = false;
@@ -75,7 +77,6 @@ class UpdatePlan extends Component {
 		this.debitOrderDayOptions = DEBIT_ORDER_DAY_OPTIONS;
 		this.genderOptions = GENDER_OPTIONS;
 		this.titleOptions = TITLE_OPTIONS;
-
 	}
 
 	//#endregion
@@ -100,6 +101,8 @@ class UpdatePlan extends Component {
 	 * @property {Boolean} showConfirmPlanUpdateDialog Show flag for Conformation dialog, to confirm Update Plan agreement
 	 * @property {Object} policyDetails Current Policy Summary Object
 	 * @property {Object} updatePlanPrepare Callback function to Prepare Update	 *
+	 * @property {Boolean} canReinstate determines whether to show the Reinstate button on the title bar
+	 * @property {Boolean} showReinstatePolicyAgreementDialog determines whether to show the Reinstate Policy agreement dialog
 	 * @readonly
 	 * @static
 	 */
@@ -128,7 +131,8 @@ class UpdatePlan extends Component {
 			updatePlanPrepare: { type: Object, state: true },
 			tempDocContent: { type: String, state: true },
 
-			canReinstate: { type: Boolean }
+			canReinstate: { type: Boolean },
+			showReinstatePolicyAgreementDialog: { type: Boolean, state: true }
 		};
 	}
 
@@ -477,7 +481,6 @@ class UpdatePlan extends Component {
 		this.showUpdatePlanAgreementDialog = false;
 	}
 
-
 	/**
 	 * Calculate Total Cover for all beneficiaries, including Main Life
 	 * @returns {Number} totalCover 
@@ -533,6 +536,20 @@ class UpdatePlan extends Component {
 
 	async _acceptUpdatedPlan() {
 		this.dispatchEvent(new CustomEvent(`updatePlanAccept`, { detail: { prepareUpdate: this.prepareUpdateResponse } }));
+	}
+
+	/**
+	 * 
+	 */
+	async _onReinstatePolicyPopup() {
+		this.showReinstatePolicyAgreementDialog = true;
+	}
+
+	/**
+	 * Invoke this function when Agree button is clicked on Reinstate Policy Popup
+	 */
+	async _acceptReinstatePolicy() {
+		this.dispatchEvent(new CustomEvent(`acceptReinstatePolicy`, { detail: { } }));
 	}
 
 	//#endregion
@@ -802,7 +819,8 @@ class UpdatePlan extends Component {
 		${this._renderYROAAgreementDialog()}
 		${this._renderRemoveLifeAssuredDialog()}
 		${this._renderRemoveBeneficiaryDialog()}
-		${this._renderUpdatePlanAgreementDialog()}`
+		${this._renderUpdatePlanAgreementDialog()}
+		${this._renderReinstatePolicyAgreementDialog()}`
 	}
 
 	/**
@@ -815,7 +833,7 @@ class UpdatePlan extends Component {
 			<capitec-label label="Update Plan ${ this.canReinstate ? `` : `#${this.policyDetails.contractReference}`}" type="title"></capitec-label>
 			<capitec-spacer></capitec-spacer>
 			${ this.canReinstate ? 
-				html `<capitec-button label="Reinstate" type="white" @click="${() => {}}"></capitec-button>` 
+				html `<capitec-button label="Reinstate" type="white" @click="${() => this._onReinstatePolicyPopup() }"></capitec-button>` 
 				:
 				html `
 					${this.selectedTabIndex == 0 ? html`
@@ -1136,7 +1154,7 @@ class UpdatePlan extends Component {
 									?disabled = "${Boolean(this.canReinstate)}">
 								</capitec-select>
 								<capitec-text-field label="Branch Code" type="numeric" style="width: 50%"
-									value="${this.policyDetails.deductionDetails.bankDetails.branchCode}"
+									value="${this.policyDetails.deductionDetails?.bankDetails?.branchCode}"
 									?disabled = "${Boolean(this.canReinstate)}">
 								</capitec-text-field>
 							</div>
@@ -1499,6 +1517,16 @@ class UpdatePlan extends Component {
 			.planAgreementContent="${this.planAgreementContent}" .paymentAgreementContent="${this.paymentAgreementContent}"
 			@agree-click="${() => this._acceptUpdatedPlan()}">
 		</insure-update-plan-agreement-dialog>`
+	}
+
+	/** 
+	 * render dialog for reinstate policy agreement
+	 */
+	_renderReinstatePolicyAgreementDialog() {
+		return this.showReinstatePolicyAgreementDialog == false ? `` : html`
+		<insure-reinstate-policy-agreement-dialog @reinstate-close-modal = "${() => this.showReinstatePolicyAgreementDialog = false }"
+			@reinstate-agree-click = "${() => this._acceptReinstatePolicy()}">
+		</insure-reinstate-policy-agreement-dialog>`
 	}
 
 	//#endregion
