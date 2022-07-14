@@ -70,6 +70,10 @@
 			"enabled": true,
 			"positiveCase": true
 		},
+		"searchCaller": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"identifyCaller": {
 			"enabled": true,
 			"positiveCase": true
