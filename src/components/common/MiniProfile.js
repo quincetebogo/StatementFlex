@@ -433,6 +433,7 @@ export class MiniProfile extends Component {
 			</capitec-alert-banner>
 			`;
 		};
+
 		return this.isHelpDeskAgent && !this.miniProfile.isVerified && this.miniProfile.isBranchConsultant
 		? html`
 			<capitec-alert-banner class="banner" type="warning">
