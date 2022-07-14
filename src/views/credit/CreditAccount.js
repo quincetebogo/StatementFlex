@@ -79,6 +79,7 @@ export class CreditAccount extends ViewBase {
 		this.declineReason = ``;
 		this.selectedAccountDetails = {};
 		this.isPilotUser = false;
+		this.showPayBudgetWarning = false;
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
@@ -120,7 +121,8 @@ export class CreditAccount extends ViewBase {
 			ccsStatus: { type: Boolean },
 			showSettleCloseModal: { type: Boolean },
 			showPayBudgetDialog: { state: false },
-			declineReason: { state: false }
+			declineReason: { state: false },
+			showPayBudgetWarning: { state: false }
 		};
 	}
 
@@ -302,6 +304,15 @@ export class CreditAccount extends ViewBase {
 		
 		if (returnValue.result?.hasCCSStatus) {
 			this.ccsStatus = returnValue.result?.hasCCSStatus;
+			this.showCCSmodal = true;
+			return;
+		}
+
+		// Though we can check if credit card is in arrears without making the above CS call,
+		// we have postponed it as CCS status check should take priority over credit card in arrears.
+		const creditCardDetails = this.flexibleCreditAccounts.find(item => item.accountNumber === selectedAccountDetails.budgetAccountNumber);
+		if (creditCardDetails?.arrearIndicator) {
+			this.showPayBudgetWarning = true;
 			return;
 		}
 
@@ -987,6 +998,7 @@ export class CreditAccount extends ViewBase {
 			${this._renderSettleAndCloseDialog()}
 			${this._renderPaidUpLetterView()}
 			${this._renderPendingClosure()}
+			${this._renderPayBudgetWarning()}
 		`;
 	}
 
@@ -1219,6 +1231,16 @@ export class CreditAccount extends ViewBase {
 			<horizon-warn-dialog
 				content="Your ${PRODUCT_TYPE[this.selectedAccountDetails.productTypeCode].toLowerCase()} account was settled and is pending closure."
 				@on-okay="${() => this.declineReason = ``}">
+			</horizon-warn-dialog>`
+		: html``;
+	}
+
+	_renderPayBudgetWarning() {
+		return this.showPayBudgetWarning
+		? html`
+			<horizon-warn-dialog
+				content="Your Credit Card account is in arrears, make payment before paying your budget facility account"
+				@on-okay="${() => this.showPayBudgetWarning = !this.showPayBudgetWarning}">
 			</horizon-warn-dialog>`
 		: html``;
 	}
