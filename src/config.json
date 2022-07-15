@@ -274,6 +274,10 @@
 		"insureReinstateQuoteCalc": {
 			"enabled": true,
 			"positiveCase": true
+		},
+		"insureCreatePolicy": {
+			"enabled": true,
+			"positiveCase": true
 		}
 	},
 	"searchClientOptionEnabled": true

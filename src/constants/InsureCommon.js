@@ -199,3 +199,14 @@ export const Status = {
 	'Death Out of Force': 5,
 	'Not Taken Up': 6
 };
+
+/**
+ * List of caller pages
+ * 
+ * @readonly
+ * @enum {Object} INSURE_CALLER_PAGE
+ */
+export const INSURE_CALLER_PAGE = Object.freeze({
+	UPDATE_PLAN: 1,
+	REINSTATE_POLICY: 2,
+});

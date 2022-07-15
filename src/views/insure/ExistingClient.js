@@ -5,6 +5,7 @@ import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 import { MAX_RESULTS } from 'app/constants/PolicyTransactionHistory';
 import { getAgeFromIDNumber, getGenderFromIDNumber } from 'app/utils/insureUtils';
+import { INSURE_CALLER_PAGE } from 'app/constants/InsureCommon';
 
 import 'app/components/insure/ClientPolicies';
 import 'app/components/insure/PolicyEstimate';
@@ -15,6 +16,7 @@ import 'app/components/insure/EmailPlanSuccess';
 import 'app/components/insure/PayPremiumSuccess';
 import 'app/components/insure/PolicyTransactionHistory';
 import 'app/components/insure/UpdatePlanSuccess';
+import 'app/components/insure/SuccessPage';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -53,6 +55,8 @@ export class ExistingClient extends InsureViewBase {
 		this.policyDetails = {};
 		this.estimate = {};
 		this.contractReference = ``;
+		this.successMessage = ``;
+		this.callerPage = ``;
 	}
 
 	/**
@@ -62,6 +66,8 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {Object} estimate Local object for new Estimate requests
 	 * @property {String} mainLifeGender Gender of Main Life on policy
 	 * @property {String} contractReference Contract Reference of selected policy
+	 * @property {String} successMessage after action is done.
+	 * @property {String} callerPage from which success page is invoked.
 	 * 
 	 * @readonly
 	 * @static
@@ -74,6 +80,8 @@ export class ExistingClient extends InsureViewBase {
 			estimate: { type: Object, state: true },
 			mainLifeGender: { type: String, state: true },
 			contractReference: { type: String, state: true },
+			successMessage: { type: String },
+			callerPage: { type: String }
 		};
 	}
 
@@ -443,6 +451,107 @@ export class ExistingClient extends InsureViewBase {
 		this.renderMode = INSURE_RENDER_MODE.UPDATE_PLAN_SUCCESS;
 	}
 
+	/**
+	 * Reinstate Policy callback to create policy and get agreement documents
+	 */
+	async _initiateReinstatePolicy(policyToReinstate) {
+		let createPolicyRequest = {
+			"cifNumber": policyToReinstate.cifNumber,
+			"quoteNumber": policyToReinstate.quoteNumber,
+			"bankDetails": {
+				"accountName": policyToReinstate.deductionDetails?.bankDetails?.accountName,
+				"branchCode": policyToReinstate.deductionDetails?.bankDetails?.branchCode,
+				"accountNumber": policyToReinstate.deductionDetails?.bankDetails?.accountNumber,
+				"bank": policyToReinstate.deductionDetails?.bankDetails?.bank,
+				"accountType": policyToReinstate.deductionDetails?.bankDetails?.accountType
+			  },
+			  "collectionDay": policyToReinstate.deductionDetails?.collectionDay,
+			  "roleplayers": policyToReinstate.roleplayers
+		};
+
+		const createPolicyResponse = await this.insureService.createPolicy(createPolicyRequest);
+		if (!createPolicyResponse.succeeded)
+			return;
+
+		let agreementRequest = {
+			"documentFormat": "PDF",
+			"saveDocumentToDocumentum": true,
+			"returnDocumentContent": true,
+			"emailDocumentToClient": false,
+			"wetsignBarcode": false,
+			"clientDetails": {
+				"cifNumber": this.callerInformation.cifNumber,
+				"policyContractReference": createPolicyResponse.result.contractReference,
+				"firstName": this.callerInformation.firstName,
+				"surname": this.callerInformation.surname,
+				"idNumber": this.callerInformation.southAfricanIDNumber,
+				"dateOfBirth": this.callerInformation.birthdate
+			},
+			"contractReference": createPolicyResponse.result.contractReference
+		}
+
+		const issuePlanAgreementResponse = await this.insureService.generateUpdateFuneralCoverPlanAgreement(agreementRequest);
+		const paymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(agreementRequest);
+
+		if (!issuePlanAgreementResponse.succeeded || !paymentAgreementResponse.succeeded)
+			return;
+
+		// TMP ===== REMOVE WHEN SERVICE READY
+		let agreementResp = {
+			"documentDetails": {
+				"documentCode": "ABC01",
+				"documentName": "Test Doc",
+				"guid": "91ba047a4bd44cf3abb7ccae7a95149a"
+			},
+			"documentContent": "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
+		}
+		issuePlanAgreementResponse.result = agreementResp;
+		paymentAgreementResponse.result = agreementResp;
+		// =========
+
+		let resinstatePolicyResponse = {
+			issuePlanAgreement: issuePlanAgreementResponse.result,
+			paymentAgreement: paymentAgreementResponse.result,
+			policyResponse: createPolicyResponse.result
+		}
+		return resinstatePolicyResponse;
+	}
+
+	/**
+	 * Accept Policy Reinstate
+	 * @param {object} event - request payload for Accept Policy
+	 * @returns 
+	 */
+	async _acceptPolicy(event) {
+		const documents = [
+			event.detail.policyResponse.issuePlanAgreement.documentDetails,
+			event.detail.policyResponse.paymentAgreement.documentDetails
+		]
+		const acceptPlanRequest =
+		{
+			"cifNumber": this.callerInformation.cifNumber,
+			"contractReference": event.detail.policyResponse.policyResponse.contractReference,
+			"documents": documents,
+			"mandates": event.detail.policyResponse.policyResponse.mandates,
+			"insureWaiverInformation": {
+				"contractReference": "string",
+				"insurersInformation": [
+					{
+						"insurer": "string",
+						"policyNumber": "string"
+					}
+				]
+			}
+		}
+
+		const acceptPlanResp = await this.insureService.policyAccept(acceptPlanRequest);
+		if (!acceptPlanResp.succeeded)
+			return;
+
+		this.successMessage = `The policy ${event.detail.policyResponse.policyResponse.contractReference} has been successfully reinstated`;	
+		this.callerPage = INSURE_CALLER_PAGE.REINSTATE_POLICY;
+		this.renderMode = INSURE_RENDER_MODE.SUCCESS_PAGE;
+	}
 
 	/**
 	 * Unload Policy Transactions
@@ -529,6 +638,8 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderPayPremiumSuccessPage()}`
 			case INSURE_RENDER_MODE.UPDATE_PLAN_SUCCESS:
 				return html`${this._renderUpdatePlanSuccessPage()}`
+			case INSURE_RENDER_MODE.SUCCESS_PAGE:
+				return html`${this._renderSuccessPage()}`
 			default:
 				return html``;
 		}
@@ -573,7 +684,9 @@ export class ExistingClient extends InsureViewBase {
 			<horizon-insure-update-plan @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@updatePlanAccept="${(e) => this._updatePlanAccept(e)}" @calculate-quote="${(e) => this._updatePlanQuote(e)}"
 				.updatePlanPrepare="${(policyToUpdate) => this._updatePlanPrepare(policyToUpdate)}"
-				.policyDetails="${this.policyDetails}" .productParams="${this.productParams}">
+				.policyDetails="${this.policyDetails}" .productParams="${this.productParams}"
+				.initiateReinstatePolicy="${(policyToReinstate) => this._initiateReinstatePolicy(policyToReinstate)}"
+				@accept-policy = "${(policyToAccept) => this._acceptPolicy(policyToAccept) }">
 			</horizon-insure-update-plan>`
 	}
 
@@ -650,6 +763,18 @@ export class ExistingClient extends InsureViewBase {
 		<horizon-insure-update-plan-success .policyDetails="${this.policyDetails}"
 			@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 		</horizon-insure-update-plan-success>`
+	}
+
+	/**
+	 * Render Success Page
+	 * @returns {html} Html of the sub view 
+	 */
+	_renderSuccessPage() {
+		return html`
+		<horizon-insure-success-page .successMessage="${this.successMessage}" 
+			.callerPage = "${this.callerPage}"
+			@navigate-back="${(e) => this._navigateToSubView(e.detail.navigateBackTo)}">
+		</horizon-insure-success-page>`
 	}
 
 	//#endregion RENDERING

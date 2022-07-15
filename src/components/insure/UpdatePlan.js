@@ -70,6 +70,7 @@ class UpdatePlan extends Component {
 		this.agreementYROAAccepted = false;
 
 		this.prepareUpdateResponse = {};
+		this.createPolicyResponse = {};
 
 		// Lookups
 		this.accountTypeOptions = ACCOUNT_TYPES;
@@ -103,6 +104,7 @@ class UpdatePlan extends Component {
 	 * @property {Object} updatePlanPrepare Callback function to Prepare Update	 *
 	 * @property {Boolean} canReinstate determines whether to show the Reinstate button on the title bar
 	 * @property {Boolean} showReinstatePolicyAgreementDialog determines whether to show the Reinstate Policy agreement dialog
+	 * @property {Object} createPolicyResponse - response Payload of Create Policy
 	 * @readonly
 	 * @static
 	 */
@@ -132,7 +134,8 @@ class UpdatePlan extends Component {
 			tempDocContent: { type: String, state: true },
 
 			canReinstate: { type: Boolean },
-			showReinstatePolicyAgreementDialog: { type: Boolean, state: true }
+			showReinstatePolicyAgreementDialog: { type: Boolean, state: true },
+			createPolicyResponse: { type: Boolean, state: true }
 		};
 	}
 
@@ -539,9 +542,15 @@ class UpdatePlan extends Component {
 	}
 
 	/**
-	 * 
+	 * Show Policy Schedule and Mandate documents
 	 */
 	async _onReinstatePolicyPopup() {
+		this.createPolicyResponse = await this.initiateReinstatePolicy(this.policyDetails);
+
+		this.issuePlanAgreementContent = this.createPolicyResponse.issuePlanAgreement.documentContent;
+		this.reinstatePaymentAgreementContent = this.createPolicyResponse.paymentAgreement.documentContent;
+		this.newContractReference = this.createPolicyResponse.policyResponse.contractReference;
+
 		this.showReinstatePolicyAgreementDialog = true;
 	}
 
@@ -549,7 +558,7 @@ class UpdatePlan extends Component {
 	 * Invoke this function when Agree button is clicked on Reinstate Policy Popup
 	 */
 	async _acceptReinstatePolicy() {
-		this.dispatchEvent(new CustomEvent(`acceptReinstatePolicy`, { detail: { } }));
+		this.dispatchEvent(new CustomEvent(`accept-policy`, { detail: { policyResponse: this.createPolicyResponse } }));
 	}
 
 	//#endregion
@@ -830,7 +839,7 @@ class UpdatePlan extends Component {
 		return html`
 		<capitec-title-bar type="insure" class="insure-title-bar">
 			<img class="action-image" src="/images/insure/left-arrow.svg" @click="${() => this._backToSummaryPage()}" />
-			<capitec-label label="Update Plan ${ this.canReinstate ? `` : `#${this.policyDetails.contractReference}`}" type="title"></capitec-label>
+			<capitec-label label="Update Plan ${ this.canReinstate ? `` : `#${ this.policyDetails.contractReference }`}" type="title"></capitec-label>
 			<capitec-spacer></capitec-spacer>
 			${ this.canReinstate ? 
 				html `<capitec-button label="Reinstate" type="white" @click="${() => this._onReinstatePolicyPopup() }"></capitec-button>` 
@@ -1525,7 +1534,8 @@ class UpdatePlan extends Component {
 	_renderReinstatePolicyAgreementDialog() {
 		return this.showReinstatePolicyAgreementDialog == false ? `` : html`
 		<insure-reinstate-policy-agreement-dialog @reinstate-close-modal = "${() => this.showReinstatePolicyAgreementDialog = false }"
-			@reinstate-agree-click = "${() => this._acceptReinstatePolicy()}">
+			.issuePlanAgreementContent="${this.issuePlanAgreementContent}" .paymentAgreementContent="${this.reinstatePaymentAgreementContent}"
+			@reinstate-agree-click = "${() => this._acceptReinstatePolicy()}" .contractReference = "${this.newContractReference}">
 		</insure-reinstate-policy-agreement-dialog>`
 	}
 
@@ -1551,5 +1561,15 @@ window.customElements.define(`horizon-insure-update-plan`, UpdatePlan);
  * <horizon-insure-update-plan ... @update-plan-create="${this._handler}"></horizon-insure-update-plan>
  *
  * @event UpdatePlan#update-plan-create
+ * @type {Object} - N/A
+ */
+
+/**
+ * raise Accept Plan event when Agree button is clicked on Reinstate Popup
+ *
+ * @example
+ * <horizon-insure-update-plan ... @accept-policy="${this._handler}"></horizon-insure-update-plan>
+ *
+ * @event UpdatePlan#accept-policy
  * @type {Object} - N/A
  */
