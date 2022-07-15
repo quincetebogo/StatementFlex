@@ -63,6 +63,8 @@ export class ExistingClient extends InsureViewBase {
 		this.policyTransactionHistory = {};
 		this.policyDetails = {};
 		this.contractReference = ``;
+
+		this.readOnly = false;
 	}
 
 	/**
@@ -85,7 +87,8 @@ export class ExistingClient extends InsureViewBase {
 			mainLifeGender: { type: String, state: true },
 			contractReference: { type: String, state: true },
 			policyNumber: {type: String, state: true},
-			commsHistory: {type: Object, state: true}
+			commsHistory: {type: Object, state: true},
+			readOnly: {type: Object, state: true}
 		};
 	}
 
