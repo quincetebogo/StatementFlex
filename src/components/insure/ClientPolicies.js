@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { Status } from 'app/constants/InsureCommon';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
@@ -164,6 +165,16 @@ class ClientPolicies extends Component {
 	 _goToEmailSuccess() {
 		this.dispatchEvent(new CustomEvent(`navigate-to-email-success`, {
 			detail: {
+			}
+		}));
+	}
+
+	/**
+	 * Fire navigate to SMS History
+	 */
+	_goToSMSHistory(policyNumber){
+		this.dispatchEvent(new CustomEvent(`navigate-to-sms-history`, {
+			detail: { policyNumber: policyNumber
 			}
 		}));
 	}
@@ -569,7 +580,10 @@ class ClientPolicies extends Component {
 	_renderPoliciesDetailsBar()
 	{
 		this.policiesList = this.clientPolicies?.summaryDetails?.policies;
-		
+
+		this.policiesList?.sort((a, b) => Status[a.status] - Status[b.status] 
+			|| (new Date(b.commencementDate) - new Date(a.commencementDate)));
+
 		return html `${ this.policiesList?.length > 0 ? this.policiesList?.map((policyItem) => { 
 
 		const sumArrears = policyItem?.arrearDetails?.arrears?.reduce((accumulator, object) => {
@@ -660,9 +674,8 @@ class ClientPolicies extends Component {
 				<horizon-option-button 
 					data-automation-id="insure-policy-options-update-plan"
 					class="button-margin" 
-					icon="system/transfer-action" 
-					label="Transaction History" 
-					@click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"
+					label="Update Plan" icon="system/profile-action" @click="${() => this._goToUpdatePlan(policyItem.contractReference)}"
+					.disabled="${this.readOnly == true}"
 					>
 				</horizon-option-button>
 				<horizon-option-button
@@ -675,8 +688,10 @@ class ClientPolicies extends Component {
 				<horizon-option-button 
 					data-automation-id="insure-policy-options-email-plan"
 					class="button-margin" 
-					label="Update Plan" icon="system/profile-action" @click="${() => this._goToUpdatePlan(policyItem.contractReference)}"
-					.disabled="${this.readOnly == true}">
+					label="Email Plan" 
+					icon="system/profile-action" 
+					.disabled="${this.readOnly == true}"
+					>
 				</horizon-option-button>
 				${policyItem.arrearDetails.outstandingAmount < 1 ? 
 					html `
@@ -703,10 +718,10 @@ class ClientPolicies extends Component {
 		return html`
 		<capitec-card class="action-card">
 			<capitec-overflow-menu label="More" data-automation-id = "insure-policy-more-sub-menu">
-				<div>
-					<capitec-overflow-menu-item label="Email Plan" icon="system/profile-action" .disabled="${this.readOnly == true}"></capitec-overflow-menu-item>
-					<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan" @click=" ${() => this._openCancelPolicyConfirmationDialog()}" .disabled="${this.readOnly == true}"></capitec-overflow-menu-item>
-				</div>
+				<capitec-overflow-menu-item icon="system/transfer-action" label="Transaction History" @click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
+				<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan" @click=" ${() => this._openCancelPolicyConfirmationDialog()}"></capitec-overflow-menu-item>
+				<capitec-overflow-menu-item icon="system/messages-action" label="SMS History" @click=" ${() => this._goToSMSHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
+				
 			</capitec-overflow-menu>
 			<capitec-label label="More" class="label-text">
 			</capitec-label>

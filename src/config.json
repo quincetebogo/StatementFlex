@@ -230,6 +230,10 @@
 			"enabled":false,
 			"positiveCase": false
 		},
+		"insureCommsHistory":{
+			"enabled": true,
+			"positiveCase": true
+		},
 		"budgetTransferFromAccounts": {
 			"enabled": false,
 			"positiveCase": true

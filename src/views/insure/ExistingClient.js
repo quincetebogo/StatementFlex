@@ -14,7 +14,7 @@ import 'app/components/insure/CancelPolicySuccess';
 import 'app/components/insure/EmailPlanSuccess';
 import 'app/components/insure/PayPremiumSuccess';
 import 'app/components/insure/PolicyTransactionHistory';
-// import 'app/components/insure/SMSHistory';
+import 'app/components/insure/SMSHistory';
 
 // import { CommsHistory } from '../../mocks/insure/CommunicationHistory';
 
@@ -31,12 +31,12 @@ const POLICY_TRANSACTION_HISTORY = {
 	MAX_RESULTS: MAX_RESULTS
 };
 
-// const COMMUNICATION_HISTORY = {
-// 	END_DATE: new Date().toISOString().substr(0, 10),
-// 	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
-// 	PAGE_INDEX: 0,
-// 	MAX_RESULTS: MAX_RESULTS
-// }
+const COMMUNICATION_HISTORY = {
+	END_DATE: new Date().toISOString().substr(0, 10),
+	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
+	PAGE_INDEX: 0,
+	MAX_RESULTS: MAX_RESULTS
+}
 
 /**
  * Implements the view for Insure verified and unverified existing clients (i.e. the client has products)
@@ -116,7 +116,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _initialise() {
 		this.clientPolicies = await this._retrieveClientPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
-		// this.commsHistory = await this._retrieveCommsHistory();
+		this.commsHistory = await this._retrieveCommsHistory();
 		console.log(this.callerInformation)
 	}
 
@@ -565,16 +565,16 @@ export class ExistingClient extends InsureViewBase {
 			: html``;
 	}
 
-	// _renderSMSHistory(){
-	// 	return html`
-	// 	<horizon-insure-sms-history-page @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-	// 		.contractReference = ${this.policyNumber} .contactNumber = ${this.callerInformation.verifiedTelephoneNumber}
-	// 		.commsHistory = "${this.commsHistory}"
-	// 		.getCommsHistory="${(startDate, endDate) => this._retrieveCommsHistory(startDate, endDate)}">
-	// 	</horizon-insure-sms-history-page>
+	_renderSMSHistory(){
+		return html`
+		<horizon-insure-sms-history-page @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+			.contractReference = ${this.policyNumber} .contactNumber = ${this.callerInformation.verifiedTelephoneNumber}
+			.commsHistory = "${this.commsHistory}"
+			.getCommsHistory="${(startDate, endDate) => this._retrieveCommsHistory(startDate, endDate)}">
+		</horizon-insure-sms-history-page>
 
-	// 	`
-	// }
+		`
+	}
 
 	//#endregion RENDERING
 

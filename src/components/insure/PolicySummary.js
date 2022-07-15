@@ -2,6 +2,7 @@ import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { formatDate, isNullorEmpty, formatStringAsPascalCase, formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { TABLE_EXPANDER_CELL } from 'app/css/PolicySummary';
+import { ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
 
 /**
  * Policy summary component showing details of single policy with its role players
@@ -436,7 +437,7 @@ class PolicySummary extends Component {
 						<horizon-label
 							data-automation-id="insure-beneficiaries-relationship"
 							label="Relationship"
-							value="${item.relationship}">
+							value="${ formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[item.relationship?.toUpperCase()]) }">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-beneficiaries-dateofbirth"
@@ -503,7 +504,7 @@ class PolicySummary extends Component {
 						<horizon-label
 							data-automation-id="insure-lives-assured-relationship"
 							label="Relationship"
-							value="${item.relationship}">
+							value="${ formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[item.relationship?.toUpperCase()]) }">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-lives-assured-dateofbirth"
