@@ -73,7 +73,7 @@ import 'app/components/common/RelatedOptions';
 
 		this._telemetry.endSpan(CreditEvents.PAY_BUDGET_TRANSFER_FAILURE);
 
-		// TODO: Navigation to be wired up here.
+		this.horizonRouter.navigateToCreditAccount();
 	}
 
 	// --------------

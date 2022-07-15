@@ -1,5 +1,4 @@
-import { Configuration } from 'platform/core';
-import { SecurityContext } from 'platform/core';
+import { Configuration, SecurityContext } from 'platform/core';
 
 /**
  * Agent role details records the details related to the role of an agent using Horizon.
@@ -32,6 +31,10 @@ import { SecurityContext } from 'platform/core';
 	get isHelpDeskAgent() {
 		
 		return this.roles && this.roles.includes(`helpdesk-agent`);
+	}
+
+	get isAuthorised() {
+		return this.roles && (this.roles.length >= 1);
 	}
 
 	async isSearchClientEnabled() {
