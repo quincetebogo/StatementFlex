@@ -24,13 +24,12 @@ const POLICY_TRANSACTION_HISTORY = {
 };
 
 /**
- * Implements the view for Insure verified and unverified existing clients (i.e. the client has products)
+ * Implements the view for Insure unverified existing clients (i.e. the client has products)
  * This includes the view for third parties phoning in about an existing client.
  *
- * The view is context sensitive to the incoming callers verification status. 
  * 
  * @export
- * @class InsureUNverifiedView
+ * @class InsureUnverifiedView
  * @extends {View}
  */
 export class InsureUnverifiedView extends InsureViewBase {
@@ -52,7 +51,10 @@ constructor() {
 
 /**
  * @property {Object} clientPolicies Data & flags for all policies relating to client CIF
- * @property {Object} policySummary  Local object for new Quote requests
+ * @property {Object} policySummary Local object for new Quote requests
+ * @property {Object} policyDetails data and flags for a specific policy
+ * @property {String} contractReference contains the contract reference for the selected policy 
+ * @property {Boolean} readOnly determines if the view is in read only mode or not
  * 
  * @readonly
  * @static
@@ -305,6 +307,7 @@ static get properties() {
 	 */
 	_webTemplate() {
 		return html`
+		
 		${super._webTemplate()}
 		${this._renderLandingPage()}`
 	}

@@ -524,8 +524,11 @@ class ClientPolicies extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-button type="white" label="Get Estimate" .disabled="${this.readOnly}" data-automation-id="insure-landing-get-estimate"
-						@click="${() => this._goToEstimate()}">
+					${this.readOnly == true ? html`` : html `
+					<capitec-button type="white" label="Get Estimate" data-automation-id="insure-landing-get-estimate"
+						@click="${() => this._goToEstimate()}"></capitec-button>
+					`}
+					
 					</capitec-button>
 				</capitec-title-bar>
 				${this._renderPoliciesLandingContent()}
@@ -644,7 +647,7 @@ class ClientPolicies extends Component {
 		return html`
 			<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
 			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
-				${policyItem.arrearDetails.outstandingAmount > 0 ? 
+				${policyItem.arrearDetails.outstandingAmount > 0 && this.readOnly == false ? 
 					html `
 				<horizon-option-button 
 					data-automation-id="insure-policy-options-pay-arrears"
@@ -657,21 +660,23 @@ class ClientPolicies extends Component {
 				<horizon-option-button 
 					data-automation-id="insure-policy-options-update-plan"
 					class="button-margin" 
-					label="Update Plan" 
-					icon="system/profile-action"
-					@click="${() => this._goToUpdatePlan(policyItem.contractReference)}">
+					icon="system/transfer-action" 
+					label="Transaction History" 
+					@click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"
+					>
 				</horizon-option-button>
 				<horizon-option-button
 					data-automation-id="insure-policy-options-claims"
 					class="button-margin" 
 					label="Claims" 
-					icon="system/documents-action">
+					icon="system/documents-action"
+					.disabled="${this.readOnly == true}">
 				</horizon-option-button>
 				<horizon-option-button 
 					data-automation-id="insure-policy-options-email-plan"
 					class="button-margin" 
-					label="Email Plan" 
-					icon="system/profile-action">
+					label="Update Plan" icon="system/profile-action" @click="${() => this._goToUpdatePlan(policyItem.contractReference)}"
+					.disabled="${this.readOnly == true}">
 				</horizon-option-button>
 				${policyItem.arrearDetails.outstandingAmount < 1 ? 
 					html `
@@ -679,7 +684,8 @@ class ClientPolicies extends Component {
 					data-automation-id="insure-policy-options-benefits"
 					class="button-margin" 
 					label="Benefits" 
-					icon="system/sars-action">
+					icon="system/sars-action"
+					.disabled="${this.readOnly == true}">
 				</horizon-option-button>
 				` : ``}	
 				${this._renderSubMenu(policyItem)}
@@ -698,8 +704,8 @@ class ClientPolicies extends Component {
 		<capitec-card class="action-card">
 			<capitec-overflow-menu label="More" data-automation-id = "insure-policy-more-sub-menu">
 				<div>
-					<capitec-overflow-menu-item icon="system/transfer-action" label="Transaction History" @click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
-					<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan" @click=" ${() => this._openCancelPolicyConfirmationDialog()}"></capitec-overflow-menu-item>
+					<capitec-overflow-menu-item label="Email Plan" icon="system/profile-action" .disabled="${this.readOnly == true}"></capitec-overflow-menu-item>
+					<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan" @click=" ${() => this._openCancelPolicyConfirmationDialog()}" .disabled="${this.readOnly == true}"></capitec-overflow-menu-item>
 				</div>
 			</capitec-overflow-menu>
 			<capitec-label label="More" class="label-text">

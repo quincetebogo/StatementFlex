@@ -227,8 +227,11 @@ class PolicySummary extends Component {
 					 @click="${() => this._backToClientPoliciesPage()}" />
 				<capitec-label label="Funeral Plan" type="title"></capitec-label>
 				<capitec-spacer></capitec-spacer>
-				<capitec-button label="Email Plan" type="white" .disabled="${this.readOnly}" data-automation-id="policy-summary-email-plan"></capitec-button>
-				<capitec-button label="Update Plan" type="white" .disabled="${this.readOnly}" data-automation-id="policy-summary-update-plan"></capitec-button>
+				${this.readOnly == true ? html`` : html`
+					<capitec-button label="Email Plan" type="white" data-automation-id="policy-summary-email-plan"></capitec-button>
+					<capitec-button label="Update Plan" type="white" data-automation-id="policy-summary-update-plan"></capitec-button>
+				`}
+				
 			</capitec-title-bar>
 			<capitec-group layout="vertical" halign="left" valign="top" gap="none">
 				${this._renderSections()}

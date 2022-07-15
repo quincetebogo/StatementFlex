@@ -285,7 +285,7 @@ export class HorizonRouter {
 		const credit = () => this.navigateToCreditAccount();
 		const savingsPlan = () => this.navigateToSavingsPlan();
 		const liveBetterSavings = () => this.navigateToLiveBetter();
-		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
+		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`); 
 
 		const landingPageFunc = {
 			StopCard: stopCard,
@@ -660,6 +660,15 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.INSURE_PROSPECTIVE_CLIENT,
 		load: () => import(`../views/insure/ProspectiveClient`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-insure-unverified-client`,
+		title: `Insure`,
+		icon: null,
+		path: HORIZON_ROUTES.INSURE_UNVERIFIED_CLIENT,
+		load: () => import(`../views/insure/InsureUnverifiedClient`),
+		guard: () => true,
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
