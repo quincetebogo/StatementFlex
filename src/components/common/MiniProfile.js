@@ -281,7 +281,7 @@ export class MiniProfile extends Component {
 
 	_renderClientImage() {
 		return this.miniProfile.profilePhoto
-		? html`<img src="data:image/png;base64, ${this.miniProfile.profilePhoto}"/>`
+		? html`<img src="data:image/jpg;base64,${this.miniProfile.profilePhoto}"/>`
 		: html`
 			<capitec-avatar 
 					shape="square"

@@ -270,6 +270,8 @@ export class LandingPage extends ViewBase {
 		this.confirmedCaller = event.detail.confirmedCaller;
 		this.incidentDetails = event.detail.incidentDetails;
 		this.confirmedCaller.isBranchConsultant = event.detail.isBranchConsultant;
+		this.cpNumber = event.detail.cpNumber;
+		this.clientType = event.detail.clientType;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
@@ -407,6 +409,8 @@ export class LandingPage extends ViewBase {
 					.confirmedCaller="${this.confirmedCaller}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.incidentDetails="${this.incidentDetails}"
+					.cpNumber="${this.cpNumber}"
+					.clientType="${this.clientType}"
 					@client-identified="${(data) => this._clientIdentified(data)}"
 					@branch-captured="${(event) => this._branchCaptured(event)}"
 					@non-client-captured=${event => this._nonClientCaptured(event)}>
