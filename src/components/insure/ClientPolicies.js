@@ -79,7 +79,7 @@ class ClientPolicies extends Component {
 			clientPolicies: { type: Object, state: true },
 			policyDetails: { type: Object, state: true },
 
-			readOnly: {type: Boolean, state: true},
+			readOnlyMode: {type: Boolean, state: true},
 		};
 	}
 
@@ -535,7 +535,7 @@ class ClientPolicies extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					${this.readOnly == true ? html`` : html `
+					${this.readOnlyMode == true ? html`` : html `
 					<capitec-button type="white" label="Get Estimate" data-automation-id="insure-landing-get-estimate"
 						@click="${() => this._goToEstimate()}"></capitec-button>
 					`}
@@ -661,7 +661,7 @@ class ClientPolicies extends Component {
 		return html`
 			<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
 			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
-				${policyItem.arrearDetails.outstandingAmount > 0 && this.readOnly == false ? 
+				${policyItem.arrearDetails.outstandingAmount > 0 && this.readOnlyMode == false ? 
 					html `
 				<horizon-option-button 
 					data-automation-id="insure-policy-options-pay-arrears"
@@ -675,7 +675,7 @@ class ClientPolicies extends Component {
 					data-automation-id="insure-policy-options-update-plan"
 					class="button-margin" 
 					label="Update Plan" icon="system/profile-action" @click="${() => this._goToUpdatePlan(policyItem.contractReference)}"
-					.disabled="${this.readOnly == true}"
+					.disabled="${this.readOnlyMode}"
 					>
 				</horizon-option-button>
 				<horizon-option-button
@@ -683,14 +683,14 @@ class ClientPolicies extends Component {
 					class="button-margin" 
 					label="Claims" 
 					icon="system/documents-action"
-					.disabled="${this.readOnly == true}">
+					.disabled="${this.readOnlyMode}">
 				</horizon-option-button>
 				<horizon-option-button 
 					data-automation-id="insure-policy-options-email-plan"
 					class="button-margin" 
 					label="Email Plan" 
 					icon="system/profile-action" 
-					.disabled="${this.readOnly == true}"
+					.disabled="${this.readOnlyMode}"
 					>
 				</horizon-option-button>
 				${policyItem.arrearDetails.outstandingAmount < 1 ? 
@@ -700,7 +700,7 @@ class ClientPolicies extends Component {
 					class="button-margin" 
 					label="Benefits" 
 					icon="system/sars-action"
-					.disabled="${this.readOnly == true}">
+					.disabled="${this.readOnlyMode}">
 				</horizon-option-button>
 				` : ``}	
 				${this._renderSubMenu(policyItem)}

@@ -96,7 +96,7 @@ class PolicyTransactionHistory extends Component{
 			disposeData: { type: Object },
 			hideLoadMore: { type: Boolean, state: true },
 			isBusy: { state: true },
-			readOnly: {type: Boolean, state: true}
+			readOnlyMode: {type: Boolean, state: true}
 		};
 	}
 

@@ -36,7 +36,7 @@ class PolicySummary extends Component {
 	static get properties() {
 		return {
 			policyDetails: { type: Object, state: true },
-			readOnly: {type: Boolean, state: true}
+			readOnlyMode: {type: Boolean, state: true}
 		};
 	}
 
@@ -228,7 +228,7 @@ class PolicySummary extends Component {
 					 @click="${() => this._backToClientPoliciesPage()}" />
 				<capitec-label label="Funeral Plan" type="title"></capitec-label>
 				<capitec-spacer></capitec-spacer>
-				${this.readOnly == true ? html`` : html`
+				${this.readOnlyMode == true ? html`` : html`
 					<capitec-button label="Email Plan" type="white" data-automation-id="policy-summary-email-plan"></capitec-button>
 					<capitec-button label="Update Plan" type="white" data-automation-id="policy-summary-update-plan"></capitec-button>
 				`}

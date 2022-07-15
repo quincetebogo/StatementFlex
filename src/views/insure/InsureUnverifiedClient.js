@@ -46,7 +46,7 @@ constructor() {
 	this.policyDetails = {};
 	this.contractReference = ``;
 
-	this.readOnly = true;
+	this.readOnlyMode = true;
 }
 
 /**
@@ -54,7 +54,7 @@ constructor() {
  * @property {Object} policySummary Local object for new Quote requests
  * @property {Object} policyDetails data and flags for a specific policy
  * @property {String} contractReference contains the contract reference for the selected policy 
- * @property {Boolean} readOnly determines if the view is in read only mode or not
+ * @property {Boolean} readOnlyMode determines if the view is in read only mode or not
  * 
  * @readonly
  * @static
@@ -65,7 +65,7 @@ static get properties() {
 		policySummary: { type: Object, state: true },
 		policyDetails: { type: Object, state: true },
 		contractReference: { type: String, state: true },
-		readOnly: {type: Boolean, state: true}
+		readOnlyMode: {type: Boolean, state: true}
 	};
 }
 
@@ -338,13 +338,9 @@ static get properties() {
 	 */
 	 _renderClientPoliciesPage() {
 		return html`
-			<horizon-insure-client-policies .clientPolicies = "${this.clientPolicies}" .readOnly="${this.readOnly}"
-				@navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
-				@navigate-to-update-plan="${(e) => this._goToUpdatePlan(e)}"
-				@navigate-to-pay-premium-success ="${(e) => this._goToPayPremiumSuccess()}"
+			<horizon-insure-client-policies .clientPolicies = "${this.clientPolicies}" .readOnlyMode="${this.readOnlyMode}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
-				@navigate-to-cancel-policy-success="${(e) => this._goToCancelPolicySuccess()}"
 				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}">
 			</horizon-insure-client-policies>`
 	}
@@ -359,7 +355,7 @@ static get properties() {
 				.policyDetails = "${this.policyDetails}"
 				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@unloading="${() => this._undoClientPolicies()}"
-				.readOnly="${this.readOnly}">
+				.readOnlyMode="${this.readOnlyMode}">
 			</horizon-insure-policy-summary>`
 	}
 
@@ -376,7 +372,7 @@ static get properties() {
 					this._getPolicyTransactionHistory(startDate, endDate, pageIndex)}"
 				.disposeData="${() => this.policyTransactionHistory = []}"
 				@unloading="${() => this._unloadPolicyTransactionHistory()}"
-				.readOnly="${this.readOnly}">
+				.readOnlyMode="${this.readOnlyMode}">
 			</horizon-insure-policy-transaction-history>`
 			: html``;
 	}
@@ -387,7 +383,7 @@ static get properties() {
 	// 		.contractReference = ${this.policyNumber} .contactNumber = ${this.callerInformation.verifiedTelephoneNumber}
 	// 		.commsHistory = "${this.commsHistory}"
 	// 		.getCommsHistory="${(startDate, endDate) => this._retrieveCommsHistory(startDate, endDate)}"
-	// 		.readOnly="${this.readOnly}">
+	// 		.readOnlyMode="${this.readOnlyMode}">
 	// 	</horizon-insure-sms-history-page>
 
 	// 	`
