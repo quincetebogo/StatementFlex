@@ -22,6 +22,7 @@ const HORIZON_ROUTES = Object.freeze({
 	CARD_STOP_FAILURE_PAGE: `/card-stop/failed`,
 	INSURE_PROSPECTIVE_CLIENT: `/insure/prospective`,
 	INSURE_EXISTING_CLIENT: `/insure/existing-client`,
+	INSURE_UNVERIFIED_CLIENT: `/insure/unverified-client`,
 	TRANSACT_FAVOURITES: `/transact/favourites`,
 	SAVINGS_ACCOUNT: `/transact/savings-account`,
 	KBA_VERIFICATION_FAILED: `/error/kba-verification`,
@@ -198,6 +199,10 @@ export class HorizonRouter {
 		this.router.navigateByPath(HORIZON_ROUTES.INSURE_EXISTING_CLIENT);
 	}
 
+	navigateToInsureUnverifiedClient() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.INSURE_UNVERIFIED_CLIENT}`);
+	}
+
 	navigateToQuickTransactionFavourites() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.TRANSACT_FAVOURITES}`);
 	}
@@ -274,13 +279,13 @@ export class HorizonRouter {
 	navigateToLandingPage(ivrOption, hasInsuranceProducts) {
 		const stopCard = () => this.navigateToStopCard();
 		const transact = () => this.navigateToQuickTransactionFavourites();
-		const insure = hasInsuranceProducts ? () => this.navigateToInsureExistingClient() : () => this.navigateToInsureProspectiveClient();
+		const insure = hasInsuranceProducts ? () => this.navigateToInsureUnverifiedClient() : () => this.navigateToInsureProspectiveClient();
 		// const insure = () => this.navigateToProductInfo(`Insure`);
 		const savings = () => this.navigateToSavingsAccount();
 		const credit = () => this.navigateToCreditAccount();
 		const savingsPlan = () => this.navigateToSavingsPlan();
 		const liveBetterSavings = () => this.navigateToLiveBetter();
-		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
+		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`); 
 
 		const landingPageFunc = {
 			StopCard: stopCard,
@@ -348,7 +353,7 @@ export class HorizonRouter {
 	navigateToSavingsPlan() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_PLAN}`);
 	}
-	
+
 	_productLandingPagesActive() {
 		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
 	}
@@ -360,7 +365,7 @@ export class HorizonRouter {
 	navigateToAutomaticSavingsFailure() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.AUTOMATIC_SAVINGS_FAILED}`);
 	}
-	
+
 	navigateToSettlementQuoteSuccess() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SETTLEMENT_QUOTE_SUCCESS}`);
 	}
@@ -396,7 +401,7 @@ export class HorizonRouter {
 	navigateProofOfPaymentSuccess() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_PAYMENT_SUCCESS}`);
 	}
-	
+
 	navigateProofOfPaymentFailure() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_PAYMENT_FAILURE}`);
 	}
@@ -423,7 +428,7 @@ export class HorizonRouter {
 	navigateToKBAVerificationFailed() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.KBA_VERIFICATION_FAILED}`);
 	}
-	
+
 	/**
 	 * Guard functions to prevent navigation to pages which the correct conditions are not met
 	 *
@@ -565,7 +570,7 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	*/
-	
+
 	/*
 	{
 		name: `horizon-tax-free-savings-product`,
@@ -577,7 +582,7 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	*/
-	
+
 	{
 		name: `horizon-insure-product`,
 		title: `InsureProductView`,
@@ -636,7 +641,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.INSURE_EXISTING_CLIENT,
 		load: () => import(`../views/insure/ExistingClient`),
 		guard: () => true,
-		
+
 		/*
 		const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
 		switch (routingInfo.verificationStatus) {
@@ -655,6 +660,15 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.INSURE_PROSPECTIVE_CLIENT,
 		load: () => import(`../views/insure/ProspectiveClient`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-insure-unverified-client`,
+		title: `Insure`,
+		icon: null,
+		path: HORIZON_ROUTES.INSURE_UNVERIFIED_CLIENT,
+		load: () => import(`../views/insure/InsureUnverifiedClient`),
+		guard: () => true,
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
@@ -912,7 +926,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.SETTLEMENT_QUOTE_OUTCOME,
 		load: () => import(`../views/credit/SettlementQuoteOutcome`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-	},,
+	}, ,
 	{
 		name: `horizon-email-confirmation-outcome`,
 		title: `EmailConfirmationOutcome`,

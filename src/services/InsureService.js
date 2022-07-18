@@ -78,7 +78,7 @@ export class InsureService extends ChannelServiceBase {
 		if (await this.isMockEnabled(`insureProductParams`)) {
 			return this.mock(`insureProductParams`);
 		}
-		const url = `/horizon-insurance/product/params`;
+		const url = `/FuneralInsuranceProductService/product/params`;
 		return this.get(
 			url,
 			this.setInsureTokens(),
@@ -104,7 +104,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insureClientPolicies`);
 		}
 		return this.post(
-			`/horizon-insurance/client/summary?WithClaims=true`,
+			`/FuneralInsuranceProductService/client/summary?WithClaims=true`,
 			clientPoliciesRequest,
 			this.setInsureTokens(),
 			`summary`,
@@ -130,7 +130,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insurePolicySummary`);
 		}
 		return this.post(
-			`/horizon-insurance/policy/summary?WithClaims=true`,
+			`/FuneralInsuranceProductService/policy/summary?WithClaims=true`,
 			policyRequest,
 			this.setInsureTokens(),
 			`policysummary`,
@@ -153,7 +153,7 @@ export class InsureService extends ChannelServiceBase {
 	 */
 	async calculateEstimate(estimateRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
-			`/horizon-insurance/estimate`,
+			`/FuneralInsuranceProductService/estimate`,
 			estimateRequest,
 			this.setInsureTokens(),
 			`calculateEstimate`,
@@ -235,6 +235,36 @@ export class InsureService extends ChannelServiceBase {
 		);
 	}
 
+	
+	
+	/**
+	 * Communication History
+	 *
+	 * @param {commsHistoryRequest} [errorHandler=null]  Request data for Communication History 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	
+	 async commsHistory(commsHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureCommsHistory`)) {
+			return this.mock(`insureCommsHistory`);
+		}
+		
+		return this.post(
+			`/horizon-insurance/client/communicationhistory`,
+			commsHistoryRequest,
+			this.setInsureTokens(),
+			`commsHistory`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
 	/**
 	 * cancel policy
 	 *
@@ -259,6 +289,31 @@ export class InsureService extends ChannelServiceBase {
 	}
 
 	/**
+	
+	 * Pay clients arrears
+	 *
+	 * @param {payArrearsRequest} [errorHandler=null]  Request data to pay arrears 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	
+	 async payPolicy(payArrearsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.post(
+			`/FuneralInsuranceProductService/policy/pay`,
+			payArrearsRequest,
+			this.setInsureTokens(),
+			`payPolicy`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+	
+	 /**
 	 * generate document 802 (Cancel Policy Agreement)
 	 *
 	 * @param {GenerateCancelAgreementRequest} [errorHandler=null]  Request data to generate Cancel Policy Agreement
@@ -266,9 +321,9 @@ export class InsureService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	 async cancelPolicyAgreement(GenerateCancelAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	  async cancelPolicyAgreement(GenerateCancelAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
-			`/horizon-insurance/policy/cancel`,
+			`/FuneralInsuranceProductService/policy/cancel`,
 			GenerateCancelAgreementRequest,
 			this.setInsureTokens(),
 			`cancelPolicyAgreement`,
@@ -280,6 +335,7 @@ export class InsureService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+
 
 	//#endregion
 
@@ -367,7 +423,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`policyTransactionHistory`, transactionsRequest);
 		}
 		return this.post(
-			`/horizon-insurance/policy/transactions`,
+			`/FuneralInsuranceProductService/policy/transactions`,
 			transactionsRequest,
 			this.setInsureTokens(),
 			`getPolicyTransactions`,

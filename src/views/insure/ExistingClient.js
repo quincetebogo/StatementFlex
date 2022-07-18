@@ -5,6 +5,8 @@ import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 import { MAX_RESULTS } from 'app/constants/PolicyTransactionHistory';
 import { getAgeFromIDNumber, getGenderFromIDNumber } from 'app/utils/insureUtils';
+import { SavingsAccountService } from 'app/services/SavingsAccountService';
+
 
 import 'app/components/insure/ClientPolicies';
 import 'app/components/insure/PolicyEstimate';
@@ -14,6 +16,8 @@ import 'app/components/insure/CancelPolicySuccess';
 import 'app/components/insure/EmailPlanSuccess';
 import 'app/components/insure/PayPremiumSuccess';
 import 'app/components/insure/PolicyTransactionHistory';
+import 'app/components/insure/SMSHistory';
+import { CommsHistory } from '../../mocks/insure/CommunicationHistory';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -27,6 +31,13 @@ const POLICY_TRANSACTION_HISTORY = {
 	PAGE_INDEX: 0,
 	MAX_RESULTS: MAX_RESULTS
 };
+
+const COMMUNICATION_HISTORY = {
+	END_DATE: new Date().toISOString().substr(0, 10),
+	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
+	PAGE_INDEX: 0,
+	MAX_RESULTS: MAX_RESULTS
+}
 
 /**
  * Implements the view for Insure verified and unverified existing clients (i.e. the client has products)
@@ -53,6 +64,9 @@ export class ExistingClient extends InsureViewBase {
 		this.policyTransactionHistory = {};
 		this.policyDetails = {};
 		this.contractReference = ``;
+		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
+
+		this.readOnly = false;
 	}
 
 	/**
@@ -78,6 +92,10 @@ export class ExistingClient extends InsureViewBase {
 			contractReference: { type: String, state: true },
 			cancellationReason: {type: String, state: true},
 			cancelPolicyDocumentDetails: {type: Object, state: true},
+			accountDetails: { type: Object, state: true },		
+			policyNumber: {type: String, state: true},
+			commsHistory: {type: Object, state: true},
+			readOnly: {type: Object, state: true}
 		};
 	}
 
@@ -105,6 +123,9 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _initialise() {
 		this.clientPolicies = await this._retrieveClientPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+		this.accountDetails = await this._retrieveAccountDetails();
+		this.commsHistory = await this._retrieveCommsHistory();
+		
 	}
 
 	/**
@@ -141,7 +162,7 @@ export class ExistingClient extends InsureViewBase {
 		console.log("_retrieveClientPolicies");
 		const resp = await this.insureService.clientPolicies(request);
 
-		if(!resp.succeeded)
+		if (!resp.succeeded)
 			return;
 
 		return resp.result;
@@ -163,6 +184,24 @@ export class ExistingClient extends InsureViewBase {
 			return;
 
 		return resp.result;
+	}
+
+	/**
+	 * Retrieve Savings Account Details via Savings Account service
+	 * @returns {Object} Savings Account Details 
+	 */
+	async _retrieveAccountDetails() {
+		const savingsAccountData = await this.savingsAccountService.savingsAccountLanding(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, true);
+		const savingsPlanData = await this.savingsAccountService.savingsPlanLanding(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, true);
+
+		let resp = {
+			savingsAccountData: savingsAccountData.result,
+			savingsPlanData: savingsPlanData.result
+		}
+
+		
+
+		return resp;
 	}
 
 	/**
@@ -257,8 +296,64 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
+	 * Pay Arrears based on arrears provided
+	 * Map metadata back when response is received
+	 * @returns {Object} Estimate response
+	 */
+	async _payPolicy(e) {
+		
+
+		let payArrears = {};
+		payArrears.contractReference = e.detail.payArrears.contractReference;
+		payArrears.arrears = e.detail.payArrears.arrears;
+		payArrears.cifNumber = this.callerInformation.cifNumber;
+		payArrears.fromAccount = e.detail.fromAccount
+		
+		const resp = await this.insureService.payPolicy(payArrears, () => true);
+		if (resp.succeeded == true && resp.result != null) {
+			this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
+		} 
+		else {
+			// Do error message
+			return null;
+		}
+	}
+
+
+	/* 
+	 * Calculate estimate based on lives assured provided
+	 * Map metadata (coverDetails) back when response is received
+	 * @returns {Object} Estimate response
+	 */
+	async _retrieveCommsHistory(startDate, endDate) {
+		
+		// let commsHistoryDetails = {};
+		// commsHistoryDetails.cifNumber = this.callerInformation.cifNumber;
+		// commsHistoryDetails.filters = [];
+		// 	commsHistoryDetails.filters.contractReference = "";
+		// 	commsHistoryDetails.filters.contactNumber = this.callerInformation.verifiedTelephoneNumber;
+		// 	commsHistoryDetails.filters.medium = "SMS";
+		// commsHistoryDetails.fromDate = fromDate || this.COMMUNICATION_HISTORY.START_DATE;
+		// commsHistoryDetails.toDate = startDate || this.COMMUNICATION_HISTORY.END_DATE;
+		// commsHistoryDetails.pagniation = [];
+		// 	commsHistoryDetails.pagniation.pageIndex = this.COMMUNICATION_HISTORY.PAGE_INDEX;
+		// 	commsHistoryDetails.pagniation.totalPerPage = this.COMMUNICATION_HISTORY.MAX_RESULTS;
+
+		const resp = await this.insureService.commsHistory({}, () => true);
+		if (resp.succeeded == true && resp.result != null) {
+			
+			console.log(resp)
+			return resp.result;
+			
+		} else {
+			// Do error message
+			return null;
+		}
+	}
+
+	/**
 	 * Navigate so specific subview
- 	*/
+	  */
 	_navigateToSubView(newMode) {
 		this.renderMode = newMode;
 	}
@@ -297,12 +392,16 @@ export class ExistingClient extends InsureViewBase {
 		await this._getPolicyTransactionHistory();
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY);
 	}
-	
+
 	async _goToPolicySummary(e) {
 		// Telemetry Here
 		this.policyDetails = await this._retrievePolicySummary(e.detail.policyContractReference
 			, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY);
+	}
+
+	_goToEmailSuccessPage() {
+		this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_PLAN_SUCCESS)
 	}
 
 	/**
@@ -327,7 +426,7 @@ export class ExistingClient extends InsureViewBase {
 	 * 
 	 * @param {*} e contains the payArrears object
 	 */
-	_goToPayPremiumSuccess(e) {
+	_goToPayPremiumSuccess() {
 		//call fips here
 
 		// Telemetry Here
@@ -335,6 +434,21 @@ export class ExistingClient extends InsureViewBase {
 		
 		this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
 	}
+
+	_goToSMSHistory(e){
+		
+		
+
+		this.policyNumber = e.detail.policyNumber;
+
+		
+		//call fips here
+
+		// Telemetry Here
+
+		this._navigateToSubView(INSURE_RENDER_MODE.SMS_HISTORY);
+	}
+
 	//#endregion
 
 	/**
@@ -359,22 +473,22 @@ export class ExistingClient extends InsureViewBase {
 
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions
-									.map((item) => {
-										const formatedPremiumDate = new Date(Date.parse(item.premiumDueDate));
-										const formatedDate = new Date(Date.parse(item.Date));
-										item.formatedPremiumDate = formatedPremiumDate;
-										item.formatedDate = formatedDate;
-										item.formatedPremium = formatCurrency(item.premium);
-										item.groupByPremiumDate = `${getMonthName(formatedPremiumDate.getMonth())} ${formatedPremiumDate.getFullYear()}`;
-										item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
-										item.formatedAmount = formatCurrency(item.amount);
-										return item;
-									});
+				.map((item) => {
+					const formatedPremiumDate = new Date(Date.parse(item.premiumDueDate));
+					const formatedDate = new Date(Date.parse(item.Date));
+					item.formatedPremiumDate = formatedPremiumDate;
+					item.formatedDate = formatedDate;
+					item.formatedPremium = formatCurrency(item.premium);
+					item.groupByPremiumDate = `${getMonthName(formatedPremiumDate.getMonth())} ${formatedPremiumDate.getFullYear()}`;
+					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
+					item.formatedAmount = formatCurrency(item.amount);
+					return item;
+				});
 			this.transactions.push(...formattedTrans);
 
 			this.policyTransactionHistory = {
 				contractReference: this.contractReference,
-				transactions: this.transactions 
+				transactions: this.transactions
 			}
 
 			this.endCallContext = `PolicyTransactionHistory`;
@@ -464,6 +578,10 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderEmailSuccessPage()}`
 			case INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS:
 				return html`${this._renderPayPremiumSuccessPage()}`
+			case INSURE_RENDER_MODE.EMAIL_PLAN_SUCCESS:
+				return html`${this._renderEmailPlanSuccessPage()}`
+			case INSURE_RENDER_MODE.SMS_HISTORY:
+				return html`${this._renderSMSHistory()}`
 			default:
 				return html``;
 		}
@@ -476,13 +594,15 @@ export class ExistingClient extends InsureViewBase {
 	_renderClientPoliciesPage() {
 		return html`
 			<horizon-insure-client-policies .clientPolicies = "${this.clientPolicies}" .cancelPolicyDocumentDetails = "${this.cancelPolicyDocumentDetails}"				
+				.accountDetails = "${this.accountDetails}"
 				@navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
-				@navigate-to-update-plan="${(e) => this._goToUpdatePlan(e)}"
-				@navigate-to-pay-premium-success ="${(e) => this._goToPayPremiumSuccess()}"
+				@navigate-to-update-plan="${(e) => this._goToUpdatePlan()}"
+				@navigate-to-pay-premium-success ="${(e) => this._payPolicy(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
 				@navigate-to-cancel-policy-success="${(e) => this._cancelPolicy(e)}" 
-				.getCancelPolicyDocument = "${(contractReference, cancelReason) => this._cancelPolicyAgreement(contractReference, cancelReason)}">
+				.getCancelPolicyDocument = "${(contractReference, cancelReason) => this._cancelPolicyAgreement(contractReference, cancelReason)}"
+				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}">
 			</horizon-insure-client-policies>`
 	}
 
@@ -555,7 +675,8 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderPayPremiumSuccessPage() {
 		return html`
-		<horizon-pay-premium-success-page @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+		<horizon-pay-premium-success-page @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+		@navigate-to-email-success-page="${() => this._goToEmailSuccessPage()}">
 		</horizon-pay-premium-success-page>
 		
 	`}
@@ -565,10 +686,10 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderPolicyTransactionHistoryPage() {
 		return this.renderMode === INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY
-			? html `<horizon-insure-policy-transaction-history 
+			? html`<horizon-insure-policy-transaction-history 
 				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				.policyTransactionHistory="${this.policyTransactionHistory}"
-				.getPolicyTransactionHistory="${(startDate, endDate, pageIndex) => 
+				.getPolicyTransactionHistory="${(startDate, endDate, pageIndex) =>
 					this._getPolicyTransactionHistory(startDate, endDate, pageIndex)}"
 				.disposeData="${() => this.policyTransactionHistory = []}"
 				@unloading="${() => this._unloadPolicyTransactionHistory()}">
@@ -576,7 +697,28 @@ export class ExistingClient extends InsureViewBase {
 			: html``;
 	}
 
+	_renderEmailPlanSuccessPage() {
+		return html`
+			<insure-email-plan-success
+				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+			</insure-email-plan-success>
+		`
+	}
+	
+	_renderSMSHistory(){
+		return html`
+			<horizon-insure-sms-history-page @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+				.contractReference = ${this.policyNumber} .contactNumber = ${this.callerInformation.verifiedTelephoneNumber}
+				.commsHistory = "${this.commsHistory}"
+				.getCommsHistory="${(startDate, endDate) => this._retrieveCommsHistory(startDate, endDate)}">
+			</horizon-insure-sms-history-page>
+
+		`
+	}
+
 	//#endregion RENDERING
 
 }
 customElements.define(`horizon-existing-client`, ExistingClient);
+
+// 
