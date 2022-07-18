@@ -83,6 +83,8 @@ export class ConfirmCallerDetails extends Component {
 		this.isBusy = false;
 		this.errorMessage = ``;
 		this.errorCount = 0;
+		this.cpNumber = ``;
+		this.clientType = -1;
 	}
 
 	// ----------
@@ -104,6 +106,8 @@ export class ConfirmCallerDetails extends Component {
 			incomingCallDetails: { type: Object },
 			incidentDetails: { type: Object },
 
+			cpNumber: { attribute: false },
+			clientType: { attribute: false },
 			isBusy: { attribute: false },
 			renderMode: { attribute: false },
 			errorMessage: { attribute: false }
@@ -223,6 +227,8 @@ export class ConfirmCallerDetails extends Component {
 		this.confirmedCaller = event.detail.confirmedCaller;
 		this.incidentDetails = event.detail.incidentDetails;
 		this.callerInformation.isBranchConsultant = true;
+		this.cpNumber = event.detail.cpNumber;
+		this.clientType = event.detail.clientType;
 		this._initCallerInformation();
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 
@@ -516,24 +522,6 @@ export class ConfirmCallerDetails extends Component {
 		}
 	}
 
-	_base64ToBlobUrl(base64Data) {
-
-		// decode base64 string, remove space for IE compatibility
-		const binary = atob(base64Data.replace(/\s/g, ``));
-		const len = binary.length;
-		const buffer = new ArrayBuffer(len);
-		const view = new Uint8Array(buffer);
-	
-		for (let i = 0; i < len; i++) {
-			view[i] = binary.charCodeAt(i);
-		}
-	
-		// create the blob object with content-type "image/jpg"
-		const blob = new Blob([view], { type: `image/jpg` });
-
-		return `${URL.createObjectURL(blob)}`;
-	}
-	
 	// ---------
 	// RENDERING
 	// ---------
@@ -600,6 +588,10 @@ export class ConfirmCallerDetails extends Component {
 					--theme-tooltip-border-radius: 2px;
 					--theme-layout-gap-spacing: 0px;
 				}
+				img {
+					height: 200px;
+					width: 200px;
+				}
 			`
 		];
 	}
@@ -620,11 +612,11 @@ export class ConfirmCallerDetails extends Component {
 			case RENDER_MODE.CONFIRM_CALLER:
 				return html`
 					<horizon-caller-dialog
-					data-automation-id="confirm-caller-details-dialog"
+						data-automation-id="confirm-caller-details-dialog"
 						.incomingCallDetails="${this.incomingCallDetails}"
 						.incidentDetails="${this.incidentDetails}"
 						.isNeedSelectable=${true}
-						headerLabel="Confirm Caller"
+						headerLabel="${this.callerInformation.isBranchConsultant ? `Confirm Client` : `Confirm Caller`}"
 						@on-end-call="${() => this._onEndCall()}"
 						@on-need-changed="${(e) => this._needChanged(e)}">
 							<div slot="body">
@@ -754,11 +746,7 @@ export class ConfirmCallerDetails extends Component {
 
 	_renderClientProfileImage() {
 		return this.confirmedCaller.profilePhoto
-		? html`
-			<object
-					data="${this._base64ToBlobUrl(this.confirmedCaller.profilePhoto)}"
-					type="image/jpg">
-	 		</object>`
+		? html`<img src="data:image/jpg;base64,${this.confirmedCaller.profilePhoto}"/>`
 		: html`
 			<capitec-avatar 
 					shape="square"
@@ -850,6 +838,8 @@ export class ConfirmCallerDetails extends Component {
 				data-automation-id="confirm-caller-details-search-caller-modal"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
+				.cpNumber="${this.callerInformation.isBranchConsultant ? this.cpNumber : ``}"
+				.clientType="${this.callerInformation.isBranchConsultant ? this.clientType : ``}"
 				@client-identified="${(data) => this._identifiedClient(data)}"
 				@non-client-captured="${data => this._nonClientCaptured(data)}"
 				@branch-captured="${(event) => this._branchCaptured(event)}"

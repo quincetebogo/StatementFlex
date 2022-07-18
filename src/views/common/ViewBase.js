@@ -1,4 +1,5 @@
 import { EventAggregator, Logger } from 'platform/core';
+import { HIGH_RISK_TRANSACTIONS, LOW_RISK_TRANSACTIONS } from 'app/constants/Common';
 import { View, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { EXCEPTIONAL_ENDCALL_CONTEXTS } from 'app/constants/EndCallReasons';
@@ -291,6 +292,16 @@ export class ViewBase extends View {
 		}
 
 		this.horizonStore.clearReturnScreen();
+	}
+
+	_shouldDisable(need) {
+		// add this verification method in the verify caller component to check if the client has done ita 
+		const verificationMethod = this.callerInformation.verificationMethod;
+		const verificationStatus = this.callerInformation.verificationStatus;
+
+		return verificationStatus === `verified`
+				? verificationMethod === `SQ` && HIGH_RISK_TRANSACTIONS.includes(need)
+				: !LOW_RISK_TRANSACTIONS.includes(need);
 	}
 
 	// ---------

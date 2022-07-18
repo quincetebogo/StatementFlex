@@ -873,7 +873,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderVerifyCallerDialog() {
-		return this.renderMode !== RENDER_MODE.VERIFY_CALLER || this.roleManager.isHelpDeskAgent
+		return this.renderMode !== RENDER_MODE.VERIFY_CALLER
 			? html``
 			: html`
 				<horizon-caller-dialog
