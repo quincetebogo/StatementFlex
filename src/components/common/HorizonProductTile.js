@@ -467,7 +467,7 @@ export class HorizonProductTile extends Component {
 		return html`
 			<button 
 				class="tile ${this.type ? this.type : `transact`}${this.disabled ? ` disabled` : this.selected ? ` selected` : ``}"
-				@click="${(e) => this._tileClicked(e)}}"
+				@click="${(e) => this._tileClicked(e)}"
 				@keydown="${e => this._keyDown(e)}"
 				tabindex="${this.disabled ? `` : 0}">
 					<div class="tile-container">

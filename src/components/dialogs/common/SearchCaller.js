@@ -870,8 +870,8 @@ export class SearchCaller extends Component {
 				class="client-type-label" 
 				label="Client Type">
 			</capitec-label>
-			<capitec-radio-group>
-				<capitec-group layout="grid" rows="auto" columns="auto" gap="none">
+			<capitec-radio-group layout="horizontal">
+				
 					<capitec-radio 
 						id="capitecClient" 
 						data-automation-id="search-caller-capitec-client"
@@ -893,7 +893,7 @@ export class SearchCaller extends Component {
 						@value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
 						column="3">
 					</capitec-radio>
-				</capitec-group>
+
 			</capitec-radio-group>`;
 	}
 
@@ -1093,13 +1093,19 @@ export class SearchCaller extends Component {
 
 	_renderAlertBanner() {
 		if (!isNullorEmpty(this.alertBannerMessage) && !this.errMessage.inBranch) {
-			return html`
+			return this.alertBannerMessage instanceof Object
+			? html`
+				<horizon-alert-banner 
+					data-automation-id="search-caller-alert-message"
+					type="error">
+						${this.alertBannerMessage}
+				</horizon-alert-banner>`
+			: html`
 				<horizon-alert-banner 
 					data-automation-id="search-caller-alert-message"
 					type="error"
 					label="${this.alertBannerMessage}">
-				</horizon-alert-banner>
-			`;
+				</horizon-alert-banner>`;
 		}
 		return html``;
 	}
