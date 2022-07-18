@@ -53,6 +53,7 @@ export default class InsureChannelServiceMocks {
 		this.reinstateQuoteCalcMocks = await this._loadMockModule(this.reinstateQuoteCalcMocks, `insureReinstateQuoteCalc`, () => import(`./insure/ReinstatePolicyQuoteCalcMockData`).catch(err => logError(err)));
 		this.createPolicyMocks = await this._loadMockModule(this.createPolicyMocks, `insureCreatePolicy`, () => import(`../mocks/insure/CreatePolicyMockData`).catch(err => logError(err)));
 		this.insureEmailFuneralDocumentMocks = await this._loadMockModule(this.insureEmailFuneralDocumentMocks, `insureSendEmail`, () => import(`../mocks/insure/InsureEmailDocumentMockData`).catch(err => logError(err)));
+		this.commsHistoryMocks = await this._loadMockModule(this.commsHistoryMocks, `insureCommsHistory`, () => import(`../mocks/insure/CommunicationHistory`).catch(err => logError(err)));
 	}
 
 	/**
@@ -189,6 +190,17 @@ export default class InsureChannelServiceMocks {
 	emailFuneralDocuments() {
 		if (this._mockSettings.insureSendEmail.positiveCase) {
 			return this.insureEmailFuneralDocumentMocks.EmailDocumentMockData;
+		}
+		return null;
+	}
+
+	/**
+	 * communication History mock check
+	 * @returns {Object} Mock response data
+	 */
+	 insureCommsHistory() {
+		if (this._mockSettings.insureCommsHistory.positiveCase) {
+			return this.commsHistoryMocks.CommsHistory;
 		}
 		return null;
 	}

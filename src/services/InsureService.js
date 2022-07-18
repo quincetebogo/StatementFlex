@@ -483,6 +483,108 @@ export class InsureService extends ChannelServiceBase {
 		);
 	}
 
+	
+	
+	/**
+	 * Communication History
+	 *
+	 * @param {commsHistoryRequest} [errorHandler=null]  Request data for Communication History 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	
+	 async commsHistory(commsHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureCommsHistory`)) {
+			return this.mock(`insureCommsHistory`);
+		}
+		
+		return this.post(
+			`/horizon-insurance/client/communicationhistory`,
+			commsHistoryRequest,
+			this.setInsureTokens(),
+			`commsHistory`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * cancel policy
+	 *
+	 * @param {cancelPolicyRequest} [errorHandler=null]  Request data to Cancel Policy
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	 async cancelPolicy(cancelPolicyRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.post(
+			`/horizon-insurance/policy/cancel`,
+			cancelPolicyRequest,
+			this.setInsureTokens(),
+			`cancelPolicy`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	
+	 * Pay clients arrears
+	 *
+	 * @param {payArrearsRequest} [errorHandler=null]  Request data to pay arrears 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	
+	 async payPolicy(payArrearsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.post(
+			`/FuneralInsuranceProductService/policy/pay`,
+			payArrearsRequest,
+			this.setInsureTokens(),
+			`payPolicy`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+	
+	 /**
+	 * generate document 802 (Cancel Policy Agreement)
+	 *
+	 * @param {GenerateCancelAgreementRequest} [errorHandler=null]  Request data to generate Cancel Policy Agreement
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	  async cancelPolicyAgreement(GenerateCancelAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.post(
+			`/FuneralInsuranceProductService/policy/cancel`,
+			GenerateCancelAgreementRequest,
+			this.setInsureTokens(),
+			`cancelPolicyAgreement`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+
 	//#endregion
 
 

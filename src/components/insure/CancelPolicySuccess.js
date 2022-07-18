@@ -19,6 +19,7 @@ class CancelPolicySuccess extends Component {
 		super();
 
 		this.showEmailPlanDialog = false;
+	
 	}
 
 //#endregion
@@ -29,8 +30,8 @@ class CancelPolicySuccess extends Component {
 	static get properties() {
 		return {
 			
-			showEmailPlanDialog: {type: Boolean, state: true}
-
+			showEmailPlanDialog: {type: Boolean, state: true},
+			contractReference: {type: String, state: true}
 		};
 	}
 
@@ -82,7 +83,7 @@ _closeEmailPlanDialog(){
  */
 _goToEmailSuccess(){
 	this.dispatchEvent(new CustomEvent(`navigate-to-email-success`, {
-		detail: {
+		detail: { 
 		}
 	}));
 }
@@ -162,7 +163,6 @@ _goToEmailSuccess(){
 	 */
 	 _renderContent() {
 		return html`
-
 			<capitec-card id="temp-container">
 				<div>
 					<capitec-image src="platform/illustrations/application.svg"
@@ -184,7 +184,7 @@ _goToEmailSuccess(){
 		return this.showEmailPlanDialog == false ? `` 
 		: html`
 		<insure-email-plan-dialog @close-modal="${(e) => this.showEmailPlanDialog = false}"
-			@send-email="${(e) => this._goToEmailSuccess()}">
+			@send-email="${(e) => this._goToEmailSuccess()}" .contractReference=${this.contractReference}>
 		</insure-email-plan-dialog>
 		`
 	}
