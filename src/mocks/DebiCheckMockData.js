@@ -1,3 +1,5 @@
+import { testPDF } from 'app/mocks/PDFMockData';
+
 /**
  * DebiCheck mandates mock response
  *
@@ -182,3 +184,22 @@ export const agreement = [
         }
     }
 ];
+
+export const agreementTemplate = {
+	"code": 0,
+	"message": "Mandate agreement saved",
+	"data": {
+	  "documentId": null,
+	  "contentType": "Debicheck agreement" ,
+	  "data": testPDF.content.data
+	},
+	"residentialAddress": "RUSTENBURG",
+	"postalAddress": " 12-1-490RUSTENBURG",
+	"cellphone": "9876543212",
+	"homeNumber": "",
+	"workNumber": "",
+	"accountShortName": "BURG",
+	"cardNumber": "4000000000000061",
+	"emailAddress": "",
+	"middleName": ""
+  };

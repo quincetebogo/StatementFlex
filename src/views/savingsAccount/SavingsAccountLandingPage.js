@@ -12,7 +12,6 @@ import { getMonthName } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/TransactionHistory';
 import 'app/components/savingsAccount/SavingAccount';
-import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/common/StatementsDialog';
 
 // ninety days in milliseconds
