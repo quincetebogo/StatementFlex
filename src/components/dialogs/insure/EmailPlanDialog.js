@@ -26,7 +26,7 @@ class EmailPlanDialog extends Component {
 
 	static get properties() {
 		return {
-			
+			contractReference: {type: String, state: true}
 		};
 	}
 
@@ -91,7 +91,7 @@ class EmailPlanDialog extends Component {
 	 */
 	 _webTemplate() {
 		return html`
-			<capitec-modal type="form" header="Email Funeral Plan (CF00027650)">
+			<capitec-modal type="form" header="Email Funeral Plan (${this.contractReference})">
 				<div slot="body" data-automation-id="insure-email-plan-dialog-body">
 					${this._renderDialogBody()}
 				</div>

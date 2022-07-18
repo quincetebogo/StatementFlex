@@ -74,6 +74,8 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {Object} productParams Data & flags for insure product parameters
 	 * @property {Object} estimate Local object for new Estimate requests
 	 * @property {Object} policySummary  Local object for new Quote requests
+	 * @property {String} cancellationReason conatins the cancellation reason selected
+	 * @property {Object} cancelPolicyDocumentDetails contains the cancel policy document details
 	 * 
 	 * @readonly
 	 * @static
@@ -88,6 +90,8 @@ export class ExistingClient extends InsureViewBase {
 			policyDetails: { type: Object, state: true },
 			mainLifeGender: { type: String, state: true },
 			contractReference: { type: String, state: true },
+			cancellationReason: {type: String, state: true},
+			cancelPolicyDocumentDetails: {type: Object, state: true},
 			accountDetails: { type: Object, state: true },		
 			policyNumber: {type: String, state: true},
 			commsHistory: {type: Object, state: true},
@@ -223,6 +227,75 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
+	 * Cancel Policy
+	 * @returns {Object} 
+	 */
+	 async _cancelPolicy(e) {
+
+		this.cancellationReason = e.detail.cancellationReason;
+
+		let cancelPolicyDetails = {};
+		cancelPolicyDetails.contractReference = e.detail.contractReference;
+		cancelPolicyDetails.cifNumber = this.callerInformation.cifNumber;
+		cancelPolicyDetails.idNumber = this.callerInformation.southAfricanIDNumber;
+		cancelPolicyDetails.cancellationReason = this.cancellationReason;
+		cancelPolicyDetails.documents = [];
+		console.log(cancelPolicyDetails)
+		// cancelPolicyDetails.documents.documentCode= "";
+		// cancelPolicyDetails.documents.documentName = "";
+		// cancelPolicyDetails.documents.guid = "";
+
+		const resp = await this.insureService.cancelPolicy(cancelPolicyDetails, () => true);
+		if (resp.succeeded == true && resp.result != null) {
+			this._goToCancelPolicySuccess(e)
+		} else {
+			// Do error message
+			return null;
+		}
+	}
+
+	/**
+	 * Cancel Policy Agreement
+	 * @returns {Object} 
+	 */
+	 async _cancelPolicyAgreement(contractReference, cancelReason) {
+
+		let cancelPolicyAgreementDetails = {}
+
+		cancelPolicyAgreementDetails.documentFormat = "PDF";
+		cancelPolicyAgreementDetails.saveDocumentToDocumentum = false;
+		cancelPolicyAgreementDetails.returnDocumentContent = true;
+		cancelPolicyAgreementDetails.emailDocumentToClient = false;
+		cancelPolicyAgreementDetails.wetsignBarcode = false;
+
+		cancelPolicyAgreementDetails.clientDetails= [];
+			cancelPolicyAgreementDetails.clientDetails.cifNumber = this.callerInformation.cifNumber;
+			cancelPolicyAgreementDetails.clientDetails.primarySavingsAccountNumber = 0;
+			cancelPolicyAgreementDetails.clientDetails.policyContractReference = contractReference;
+			cancelPolicyAgreementDetails.clientDetails.firstName = this.callerInformation.firstName;
+			cancelPolicyAgreementDetails.clientDetails.surname = this.callerInformation.lastName;
+			cancelPolicyAgreementDetails.clientDetails.idNumber = this.callerInformation.southAfricanIDNumber;
+			cancelPolicyAgreementDetails.clientDetails.dateOfBirth = this.callerInformation.birthdate;
+
+		cancelPolicyAgreementDetails.emailDetails= [];
+			cancelPolicyAgreementDetails.emailDetails.email = "";
+
+		cancelPolicyAgreementDetails.input= [];
+			cancelPolicyAgreementDetails.input.cancellationReason = cancelReason;
+		
+		console.log(cancelPolicyAgreementDetails)
+		console.log(this.callerInformation)
+
+		const resp = await this.insureService.cancelPolicyAgreement(cancelPolicyAgreementDetails, () => true);
+		if (resp.succeeded == true && resp.result != null) {
+			this.cancelPolicyDocumentDetails = resp.result;
+		} else {
+			// Do error message
+			return null;
+		}
+	}
+
+	/**
 	 * Pay Arrears based on arrears provided
 	 * Map metadata back when response is received
 	 * @returns {Object} Estimate response
@@ -334,8 +407,9 @@ export class ExistingClient extends InsureViewBase {
 	/**
 	 * Prepare and navigate Cancel Policy Success
 	 */
-	 _goToCancelPolicySuccess() {
+	 _goToCancelPolicySuccess(e) {
 		// Telemetry Here
+		this.contractReference = e.detail.contractReference;
 		this._navigateToSubView(INSURE_RENDER_MODE.CANCEL_POLICY_SUCCESS);
 	}
 
@@ -357,6 +431,7 @@ export class ExistingClient extends InsureViewBase {
 
 		// Telemetry Here
 
+		
 		this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
 	}
 
@@ -518,13 +593,15 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderClientPoliciesPage() {
 		return html`
-			<horizon-insure-client-policies .clientPolicies = "${this.clientPolicies}" .accountDetails = "${this.accountDetails}"
+			<horizon-insure-client-policies .clientPolicies = "${this.clientPolicies}" .cancelPolicyDocumentDetails = "${this.cancelPolicyDocumentDetails}"				
+				.accountDetails = "${this.accountDetails}"
 				@navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan()}"
 				@navigate-to-pay-premium-success ="${(e) => this._payPolicy(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
-				@navigate-to-cancel-policy-success="${(e) => this._goToCancelPolicySuccess()}"
+				@navigate-to-cancel-policy-success="${(e) => this._cancelPolicy(e)}" 
+				.getCancelPolicyDocument = "${(contractReference, cancelReason) => this._cancelPolicyAgreement(contractReference, cancelReason)}"
 				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}">
 			</horizon-insure-client-policies>`
 	}
@@ -574,7 +651,7 @@ export class ExistingClient extends InsureViewBase {
 	_renderCancelPolicySuccessPage() {
 		return html`
 		<insure-cancel-policy-success @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-			@navigate-to-email-success="${(e) => this._goToEmailPlanSuccess()}">
+			@navigate-to-email-success="${(e) => this._goToEmailPlanSuccess()}" .contractReference = ${this.contractReference}>
 		</insure-cancel-policy-success>
 		`
 	}
@@ -586,7 +663,8 @@ export class ExistingClient extends InsureViewBase {
 	 _renderEmailSuccessPage() {
 		return html`
 		
-			<insure-email-plan-success @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+			<insure-email-plan-success @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+				.contractReference = ${this.contractReference}>
 			</insure-email-plan-success>
 
 		`

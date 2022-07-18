@@ -140,10 +140,10 @@ export const DEBIT_ORDER_DAY_OPTIONS = Object.freeze([
  * @enum {Object} CANCELATION_REASONS
  */
  export const CANCELATION_REASONS = Object.freeze([
-	{ code: '1', text: `Family circumstances` },
-	{ code: '2', text: `Confidential` },
-	{ code: '3', text: `Affordability` },
-	{ code: '4', text: `Already covered` },
+	{ code: 'Family', text: `Family circumstances` },
+	{ code: 'Confidential', text: `Confidential` },
+	{ code: 'Affordability', text: `Affordability` },
+	{ code: 'Already_Covered', text: `Already covered` },
 	{ code: '5', text: `Better off at another provider` },
 	{ code: '6', text: `Cooling off period` },
 	{ code: '7', text: `Covered by another family member` },

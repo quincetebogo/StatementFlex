@@ -60,6 +60,7 @@ class ClientPolicies extends Component {
 	/**
 	 * @property {Object} clientArrears Data & flags from Arrears Service
 	 * @property {boolean} showPayPremiumDialog Determines if the Pay Premium dialog should be shown
+	 * @property {Function} getCancelPolicyDocument
 	 * @property {Object} payArrears contains the arrears that will be paid
 	 * @property {boolean} showPayPremiumConfirmationDialog Determines if the Pay Premium Confirmation dialog should be shown
 	 * @property {boolean} showPayPremiumAgreementDialog Determines if the Pay Premium Agreement dialog should be shown
@@ -81,6 +82,9 @@ class ClientPolicies extends Component {
 			showPayPremiumConfirmationDialog: {type: Boolean, state: true},
 			showPayPremiumAgreementDialog: {type: Boolean, state: true},
 			amountToPay: {type: Number, state: true},
+			contractRef: {type: String, state: true},
+			getCancelPolicyDocument: {type: Object, state: true},
+			cancelPolicyDocumentDetails: {type: Object, state: true},
 			accountDetails: { type: Object, state: true },
 			fromAccount: {type: Number, state: true},
 
@@ -160,9 +164,10 @@ class ClientPolicies extends Component {
 	/**
 	 * Fire navigate event to Cancel Policy Success
 	 */
-	 _goToCancelPolicySuccess() {
+	 _goToCancelPolicySuccess(e) {
+		console.log(e)
 		this.dispatchEvent(new CustomEvent(`navigate-to-cancel-policy-success`, {
-			detail: {
+			detail: { contractReference: this.contractRef, cancellationReason: e.detail.cancellationReason
 			}
 		}));
 	}
@@ -178,6 +183,16 @@ class ClientPolicies extends Component {
 	}
 
 	/**
+	 * event to fetch Cancel Policy Agreement
+	 */
+	//  _fetchCancelAgreement() {
+	// 	this.dispatchEvent(new CustomEvent(`fetch-cancel-agreement`, {
+	// 		detail: {contractRef: this.contractRef
+	// 		}
+	// 	}));
+	// }
+	
+	/*
 	 * Fire navigate to SMS History
 	 */
 	_goToSMSHistory(policyNumber){
@@ -190,9 +205,9 @@ class ClientPolicies extends Component {
 	/**
 	 * event to open the cancel policy dialog
 	 */
-	_openCancelPolicyDialog(){
-		this.showCancelPolicyConfirmationDialog = false;
-
+	_openCancelPolicyDialog(contractReference){
+		this.contractRef = contractReference
+		// this._fetchCancelAgreement()
 		this.showCancelPolicyDialog = true;
 	}
 
@@ -206,8 +221,10 @@ class ClientPolicies extends Component {
 	/**
 	 * event to open the cancel policy confirmation dialog
 	 */
-	_openCancelPolicyConfirmationDialog(){
+	_openCancelPolicyConfirmationDialog(contractReference){
 		this.showCancelPolicyConfirmationDialog = true;
+
+		this.contractRef = contractReference
 	}
 
 	/**
@@ -272,6 +289,10 @@ class ClientPolicies extends Component {
 	 */
 	_closePayPremiumDialog() {
 		this.showPayPremiumDialog = false;
+	}
+
+	async _getCancelPolicyDocument(contractReference, cancelReason){
+		await this.getCancelPolicyDocument(contractReference, cancelReason)
 	}
 
 
@@ -732,7 +753,7 @@ class ClientPolicies extends Component {
 		<capitec-card class="action-card">
 			<capitec-overflow-menu label="More" data-automation-id = "insure-policy-more-sub-menu">
 				<capitec-overflow-menu-item icon="system/transfer-action" label="Transaction History" @click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
-				<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan" @click=" ${() => this._openCancelPolicyConfirmationDialog()}"></capitec-overflow-menu-item>
+				<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan" @click=" ${() => this._openCancelPolicyDialog(policyItem.contractReference)}"></capitec-overflow-menu-item>
 				<capitec-overflow-menu-item icon="system/messages-action" label="SMS History" @click=" ${() => this._goToSMSHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
 				
 			</capitec-overflow-menu>
@@ -798,7 +819,9 @@ _renderCancelPolicyDialog(){
 		return this.showCancelPolicyDialog == false ? `` 
 		: html`
 		<insure-cancel-policy-dialog @close-modal="${(e) => this.showCancelPolicyDialog = false}"
-		@agree="${(e) => this._goToCancelPolicySuccess()}">
+			@agree="${(e) => this._goToCancelPolicySuccess(e)}" .contractReference = ${this.contractRef}
+			.cancelPolicyDocumentDetails = "${this.cancelPolicyDocumentDetails}"
+			.getCancelPolicyDocument="${(contractReference, cancelReason) => this._getCancelPolicyDocument(contractReference, cancelReason)}">
 		</insure-cancel-policy-dialog>
 		`
 	}
