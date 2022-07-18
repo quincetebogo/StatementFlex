@@ -47,10 +47,12 @@ export default class InsureChannelServiceMocks {
 		this.policySummaryMocks = await this._loadMockModule(this.policySummaryMocks, `insurePolicySummary`, () => import(`../mocks/insure/PolicySummary`).catch(err => logError(err)));
 		this.calculateQuoteMocks = await this._loadMockModule(this.calculateQuoteMocks, `insureCalculateQuote`, () => import(`../mocks/insure/QuoteCalc`).catch(err => logError(err)));
 		this.prepareUpdateMocks = await this._loadMockModule(this.prepareUpdateMocks, `insurePrepareUpdate`, () => import(`../mocks/insure/PrepareUpdate`).catch(err => logError(err)));
+		this.generateIssueAgreementMocks = await this._loadMockModule(this.generateIssueAgreementMocks, `insureGenerateIssueAgreement`, () => import(`../mocks/insure/InsureAgreement`).catch(err => logError(err)));
 		this.generateAgreementMocks = await this._loadMockModule(this.generateAgreementMocks, `insureGenerateAgreement`, () => import(`../mocks/insure/InsureAgreement`).catch(err => logError(err)));
 		this.policyAcceptMocks = await this._loadMockModule(this.policyAcceptMocks, `insurePolicyAccept`, () => import(`../mocks/insure/PolicyAccept`).catch(err => logError(err)));
 		this.reinstateQuoteCalcMocks = await this._loadMockModule(this.reinstateQuoteCalcMocks, `insureReinstateQuoteCalc`, () => import(`./insure/ReinstatePolicyQuoteCalcMockData`).catch(err => logError(err)));
 		this.createPolicyMocks = await this._loadMockModule(this.createPolicyMocks, `insureCreatePolicy`, () => import(`../mocks/insure/CreatePolicyMockData`).catch(err => logError(err)));
+		this.insureEmailFuneralDocumentMocks = await this._loadMockModule(this.insureEmailFuneralDocumentMocks, `insureSendEmail`, () => import(`../mocks/insure/InsureEmailDocumentMockData`).catch(err => logError(err)));
 	}
 
 	/**
@@ -165,6 +167,28 @@ export default class InsureChannelServiceMocks {
 	generateAgreement() {
 		if (this._mockSettings.insureGenerateAgreement.positiveCase) {
 			return this.generateAgreementMocks.InsureAgreement;
+		}
+		return null;
+	}
+
+		/**
+	 * Generate Issue agreement / Sample content, not specific to a Agreement
+	 * @returns {Object} Mock response data
+	 */
+	generateIssueAgreement() {
+		if (this._mockSettings.insureGenerateIssueAgreement.positiveCase) {
+			return this.generateIssueAgreementMocks.InsureAgreement;
+		}
+		return null;
+	}
+
+	/**
+	 * Email Funeral Documents Response
+	 * @returns {Object} Mock response data
+	 */
+	emailFuneralDocuments() {
+		if (this._mockSettings.insureSendEmail.positiveCase) {
+			return this.insureEmailFuneralDocumentMocks.EmailDocumentMockData;
 		}
 		return null;
 	}

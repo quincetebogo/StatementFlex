@@ -316,7 +316,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`policyAccept`, policyAcceptRequest);
 		}
 		return this.post(
-			`/horizon-insurance/policy/accept`,
+			`/FuneralInsuranceProductService/policy/accept`,
 			policyAcceptRequest,
 			this.setInsureTokens(),
 			`policyAccept`,
@@ -330,7 +330,33 @@ export class InsureService extends ChannelServiceBase {
 	}
 
 	/**
-	 *  Generates the 801 Funeral Cover Plan Agreement document
+	 *  Generates the 801 Issue Funeral Cover Plan Agreement document
+	 *
+	 * @param {generateIssueAgreementRequest} [errorHandler=null]  Request data for IssueFuneralCoverPlanAgreement 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	 async generateIssueFuneralCoverPlanAgreement(generateIssueAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureGenerateIssueAgreement`)) {
+			return this.mock(`generateIssueAgreement`);
+		}
+		return this.post(
+			`/FuneralInsuranceProductService/document/generate/IssueFuneralCoverPlanAgreement`,
+			generateIssueAgreementRequest,
+			this.setInsureTokens(),
+			`issueFuneralCoverPlanAgreement`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 *  Generates the 801 Update Funeral Cover Plan Agreement document
 	 *
 	 * @param {generateAgreementRequest} [errorHandler=null]  Request data for UpdateFuneralCoverPlanAgreement 
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
@@ -342,7 +368,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`generateAgreement`, generateAgreementRequest);
 		}
 		return this.post(
-			`/horizon-insurance/document/generate/UpdateFuneralCoverPlanAgreement`,
+			`/FuneralInsuranceProductService/document/generate/UpdateFuneralCoverPlanAgreement`,
 			generateAgreementRequest,
 			this.setInsureTokens(),
 			`updateFuneralCoverPlanAgreement`,
@@ -368,10 +394,36 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`generateAgreement`, generateAgreementRequest);
 		}
 		return this.post(
-			`/horizon-insurance/document/generate/FuneralPolicyPaymentAgreement`,
+			`/FuneralInsuranceProductService/document/generate/FuneralPolicyPaymentAgreement`,
 			generateAgreementRequest,
 			this.setInsureTokens(),
 			`funeralPolicyPaymentAgreement`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Takes in the details of the policy to be accepted and activates it and creates mandates 
+	 *
+	 * @param {emailDocumentRequest} [errorHandler=null]  Request data for emailFuneralDocuments 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async emailFuneralDocuments(emailDocumentRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureSendEmail`)) {
+			return this.mock(`emailFuneralDocuments`, emailDocumentRequest);
+		}
+		return this.post(
+			`/FuneralInsuranceProductService/client/documents/email`,
+			emailDocumentRequest,
+			this.setInsureTokens(),
+			`emailDocumentRequest`,
 			null,
 			null,
 			900,

@@ -135,7 +135,10 @@ class UpdatePlan extends Component {
 
 			canReinstate: { type: Boolean },
 			showReinstatePolicyAgreementDialog: { type: Boolean, state: true },
-			createPolicyResponse: { type: Boolean, state: true }
+			createPolicyResponse: { type: Boolean, state: true },
+
+			issuePlanAgreementDocument: { type: Object, state: true },
+			reinstatePaymentAgreementDocument: { type: Object, state: true }
 		};
 	}
 

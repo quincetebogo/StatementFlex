@@ -11,4 +11,18 @@ export const INSURE_CSS = css`
 	capitec-button{
 		width: 150px !important;
 	}
+
+	.toast {
+		position: absolute;
+		top : 70px;
+		left: 790px;
+		height: 64px;
+		width: 428px;
+		border-radius: 4px;
+		color: #70AF00;
+		z-index: 201;
+		left: calc(50.8% - 200px);
+		justify-content: center;
+		align-items: center;
+	}
 `;

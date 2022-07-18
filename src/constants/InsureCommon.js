@@ -207,6 +207,21 @@ export const Status = {
  * @enum {Object} INSURE_CALLER_PAGE
  */
 export const INSURE_CALLER_PAGE = Object.freeze({
-	UPDATE_PLAN: 1,
-	REINSTATE_POLICY: 2,
+	CANCEL_POLICY: 1,
+	UPDATE_PLAN: 2,
+	REINSTATE_POLICY: 3,
+});
+
+/**
+ * List of document types
+ * 
+ * @readonly
+ * @enum {Object} INSURE_CALLER_PAGE
+ */
+ export const DOCUMENT_TYPE = Object.freeze({
+	ISSUE_POLICY_AGREEMENT: `IssuePolicyAgreement`,
+	UPDATE_POLICY_AGREEMENT: `UpdatePolicyAgreement`,
+	CANCEL_POLICY_AGREEMENT: `CancelPolicyAgreement`,
+	PAYMENT_MANDATE_AGREEMENT: `PaymentMandateAgreement`,
+	PAY_ARREARS_AGREEMENT: `PayArrearsAgreement`
 });

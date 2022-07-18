@@ -5,7 +5,7 @@ import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 import { MAX_RESULTS } from 'app/constants/PolicyTransactionHistory';
 import { getAgeFromIDNumber, getGenderFromIDNumber } from 'app/utils/insureUtils';
-import { INSURE_CALLER_PAGE } from 'app/constants/InsureCommon';
+import { INSURE_CALLER_PAGE, DOCUMENT_TYPE } from 'app/constants/InsureCommon';
 
 import 'app/components/insure/ClientPolicies';
 import 'app/components/insure/PolicyEstimate';
@@ -19,7 +19,10 @@ import 'app/components/insure/UpdatePlanSuccess';
 import 'app/components/insure/SuccessPage';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { getMonthName } from 'app/utils/channelServiceUtilities';
+import { EMAIL_DOCUMENT_REQUEST_PAYLOAD } from 'app/utils/insureRequestPayload';
+
+import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
 // ninety days in milliseconds
 const NINETY_DAYS = 7777000000;
@@ -57,6 +60,9 @@ export class ExistingClient extends InsureViewBase {
 		this.contractReference = ``;
 		this.successMessage = ``;
 		this.callerPage = ``;
+		this.issuePlanAgreementDocument = {};
+		this.reinstatePaymentAgreementDocument = {};
+		this.showSuccessAlert = false;
 	}
 
 	/**
@@ -68,7 +74,9 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {String} contractReference Contract Reference of selected policy
 	 * @property {String} successMessage after action is done.
 	 * @property {String} callerPage from which success page is invoked.
-	 * 
+	 * @property {String} issuePlanAgreementDocument stores issue plan agreement document object.
+	 * @property {String} reinstatePaymentAgreementDocument stores payment agreement document object.
+	 * @property {String} showSuccessAlert flag to show/hide success toast after email is sent.
 	 * @readonly
 	 * @static
 	 */
@@ -81,7 +89,10 @@ export class ExistingClient extends InsureViewBase {
 			mainLifeGender: { type: String, state: true },
 			contractReference: { type: String, state: true },
 			successMessage: { type: String },
-			callerPage: { type: String }
+			callerPage: { type: String },
+			issuePlanAgreementDocument: { type: Object, state: true },
+			reinstatePaymentAgreementDocument: { type: Object, state: true },
+			showSuccessAlert: {type: Boolean, state: true}
 		};
 	}
 
@@ -448,6 +459,9 @@ export class ExistingClient extends InsureViewBase {
 		if (!acceptPlanResp.succeeded)
 			return;
 
+		this.successMessage = `The policy ${event.detail.prepareUpdate.prepareUpdateResponse.contractReference} has been successfully updated`;	
+		this.callerPage = INSURE_CALLER_PAGE.UPDATE_PLAN;
+		this.contractReference = event.detail.policyResponse.policyResponse.contractReference;
 		this.renderMode = INSURE_RENDER_MODE.UPDATE_PLAN_SUCCESS;
 	}
 
@@ -490,7 +504,7 @@ export class ExistingClient extends InsureViewBase {
 			"contractReference": createPolicyResponse.result.contractReference
 		}
 
-		const issuePlanAgreementResponse = await this.insureService.generateUpdateFuneralCoverPlanAgreement(agreementRequest);
+		const issuePlanAgreementResponse = await this.insureService.generateIssueFuneralCoverPlanAgreement(agreementRequest);
 		const paymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(agreementRequest);
 
 		if (!issuePlanAgreementResponse.succeeded || !paymentAgreementResponse.succeeded)
@@ -508,6 +522,9 @@ export class ExistingClient extends InsureViewBase {
 		issuePlanAgreementResponse.result = agreementResp;
 		paymentAgreementResponse.result = agreementResp;
 		// =========
+
+		this.issuePlanAgreementDocument = issuePlanAgreementResponse.result;
+		this.reinstatePaymentAgreementDocument = paymentAgreementResponse.result;
 
 		let resinstatePolicyResponse = {
 			issuePlanAgreement: issuePlanAgreementResponse.result,
@@ -532,16 +549,7 @@ export class ExistingClient extends InsureViewBase {
 			"cifNumber": this.callerInformation.cifNumber,
 			"contractReference": event.detail.policyResponse.policyResponse.contractReference,
 			"documents": documents,
-			"mandates": event.detail.policyResponse.policyResponse.mandates,
-			"insureWaiverInformation": {
-				"contractReference": "string",
-				"insurersInformation": [
-					{
-						"insurer": "string",
-						"policyNumber": "string"
-					}
-				]
-			}
+			"mandates": event.detail.policyResponse.policyResponse.mandates
 		}
 
 		const acceptPlanResp = await this.insureService.policyAccept(acceptPlanRequest);
@@ -550,7 +558,43 @@ export class ExistingClient extends InsureViewBase {
 
 		this.successMessage = `The policy ${event.detail.policyResponse.policyResponse.contractReference} has been successfully reinstated`;	
 		this.callerPage = INSURE_CALLER_PAGE.REINSTATE_POLICY;
+		this.contractReference = event.detail.policyResponse.policyResponse.contractReference;
 		this.renderMode = INSURE_RENDER_MODE.SUCCESS_PAGE;
+	}
+
+	/**
+	 * Navigate so specific subview
+	 * @property {String} newMode New render mode string to change renderMode to
+	  */
+	async _sendEmail(e) {
+		EMAIL_DOCUMENT_REQUEST_PAYLOAD.email =  e.detail.detail.emailAddress;
+		EMAIL_DOCUMENT_REQUEST_PAYLOAD.cIFNumber =  this.callerInformation.cifNumber;
+		EMAIL_DOCUMENT_REQUEST_PAYLOAD.contractReference =  this.contractReference;
+		EMAIL_DOCUMENT_REQUEST_PAYLOAD.attachments = [{
+			"iD": `123`,
+			"type": DOCUMENT_TYPE.ISSUE_POLICY_AGREEMENT,
+			"guid": this.issuePlanAgreementDocument?.documentDetails?.guid,
+			"content": this.issuePlanAgreementDocument?.documentContent
+		},
+		{
+			"iD": `456`,
+			"type": DOCUMENT_TYPE.PAYMENT_MANDATE_AGREEMENT,
+			"guid": this.reinstatePaymentAgreementDocument?.documentDetails?.guid,
+			"content": this.reinstatePaymentAgreementDocument?.documentContent
+		}];
+
+		const emailResponse = await this.insureService.emailFuneralDocuments(EMAIL_DOCUMENT_REQUEST_PAYLOAD);
+		
+		if (!emailResponse.succeeded)
+			return;
+		else
+		{
+			this.showSuccessAlert = true;
+			window.setTimeout(() => this.showSuccessAlert = false, 2000);
+
+			this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
+		}
+
 	}
 
 	/**
@@ -581,7 +625,9 @@ export class ExistingClient extends InsureViewBase {
 	static get styles() {
 		return [
 			super.styles,
-			css``
+			css`
+			 ${ INSURE_CSS }
+			`
 		];
 	}
 
@@ -619,7 +665,8 @@ export class ExistingClient extends InsureViewBase {
 	_renderLandingPage() {
 		switch (this.renderMode) {
 			case INSURE_RENDER_MODE.CLIENT_POLICIES:
-				return html`${this._renderClientPoliciesPage()}`
+				return html`${this._renderAlert()}
+					${this._renderClientPoliciesPage()}`
 			case INSURE_RENDER_MODE.ESTIMATE:
 				return html`${this._renderCalculateEstimatePage()}`
 			case INSURE_RENDER_MODE.UPDATE_PLAN:
@@ -772,10 +819,29 @@ export class ExistingClient extends InsureViewBase {
 	_renderSuccessPage() {
 		return html`
 		<horizon-insure-success-page .successMessage="${this.successMessage}" 
-			.callerPage = "${this.callerPage}"
+			@send-email = "${(e) => this._sendEmail(e)}"
+			.callerPage = "${this.callerPage}" .contractReference = "${this.contractReference}"
 			@navigate-back="${(e) => this._navigateToSubView(e.detail.navigateBackTo)}">
 		</horizon-insure-success-page>`
 	}
+
+	/**
+ * Renders the Email Sent alert
+ * @returns {html}
+ */
+	_renderAlert(){
+		return this.showSuccessAlert == false ? html``
+		: html`
+			<capitec-toast
+				class="toast"
+				type="success"
+				Header="Successful"
+				layout = "vertical"
+				detail = "Email document was sent"
+				@click = "${() => this.showSuccessAlert = false}"
+				closable>
+			</capitec-toast>
+	`}
 
 	//#endregion RENDERING
 
