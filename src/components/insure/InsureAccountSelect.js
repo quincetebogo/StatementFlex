@@ -1,5 +1,17 @@
 import { Component, css, html } from 'platform/elements';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
+/**
+ * the account select box is populated with the callers savings account and flexible savings accounts which can then be selected to make a payment from
+ * 
+ * Events Raised 
+ * -------------
+ * option-selected
+ *  
+ * @export
+ * @class PayPremiumAgreementDialog
+ * @extends {Component}
+ */
 class InsureAccountSelect extends Component {
 
 	//#region INITIALIZE
@@ -8,10 +20,11 @@ class InsureAccountSelect extends Component {
 		super();
 
 		this.label = null;
-		this.items = [];
 		this.displayOptions = false;
 		this.selectedIndex = null;
 		this.optionSelected = false
+		this.selectorAccounts = {}
+		this.insufficient = false;
 	}
 
 	//#endregion
@@ -20,10 +33,15 @@ class InsureAccountSelect extends Component {
 
 	/**
 	 * 
-	 * @property {String} label 
-	 * @property {Array} items
-	 * @property {boolean} displayOptions
-	 * @property {integer} selectedIndex
+	 * @property {String} label cantains the lable to be displayed before an account is chosen
+	 * @property {boolean} displayOptions determines whether to display the account options or not
+	 * @property {Number} selectedIndex contains the index of the account that was selected
+	 * @property {Boolean} optionSelected determines whether an account has been selected or not
+	 * @property {Object} accountDetailscontains the callers account details for savings and savings plan
+	 * @property {Object} selectorAccounts contains the callers valid accounts
+	 * @property {String} accountType indicates whether the account chosen is a savings account or a savings plan
+	 * @property {integer} selectedAccount contains the account number of the selected account
+	 * @property {integer} insufficient indicates whether the selected account has sufficient funds 
 	 * 
 	 * 
 	 */
@@ -31,18 +49,64 @@ class InsureAccountSelect extends Component {
 		return {
 
 			label: { type: String, state: true },
-			items: { type: Array, state: true},
 			displayOptions: { type: Boolean, state: true },
 			selectedIndex: { type: Number, state: true },
-			optionSelected: {type: Boolean, state: true}
+			optionSelected: {type: Boolean, state: true},
+			accountDetails: {type: Object, state: true},
+			selectorAccounts: {type: Object, state: true},
+			accountType: {type: String, state: true},
+			selectedAccount: {type: String, state: true},
+			insufficient: {type: Boolean, state: true}
 		};
+	}
+
+	//#endregion
+
+	//#region LIFECYCLE OVERRIDES
+
+	/**
+	 * Setup the component once added to the DOM.
+	 * @returns {void}
+	 */
+	 connectedCallback() {
+		super.connectedCallback();
+		this._initialise();
+
 	}
 
 	//#endregion
 
 	//#region PRIVATE METHODS
 
-	
+	async _initialise() {
+		
+		this.selectorAccounts.savingsAccount = [];
+		this.selectorAccounts.savingsAccount.push({
+			accountNumber: this.accountDetails.savingsAccountData.accountNumber,
+			availableBalance: this.accountDetails.savingsAccountData.accountAvailableBalance,
+			accountStatus: this.accountDetails.savingsAccountData.accountStatus,
+		});
+		this.selectorAccounts.savingsPlan = [];
+		for (let i = 0; i < this.accountDetails.savingsPlanData.savingsPlans.length; i++) {
+			if(this.accountDetails.savingsPlanData.savingsPlans[i].accountType == 200){
+				this.selectorAccounts.savingsPlan.push({
+				accountType: this.accountDetails.savingsPlanData.savingsPlans[i].accountType,
+				accountStatus: this.accountDetails.savingsPlanData.savingsPlans[i].accountStatus,
+				accountNumber: this.accountDetails.savingsPlanData.savingsPlans[i].accountNumber,
+				availableBalance: this.accountDetails.savingsPlanData.savingsPlans[i].availableBalance,
+				planName: this.accountDetails.savingsPlanData.savingsPlans[i].planName,
+				});
+
+			}
+			
+		}
+		
+		
+		
+		console.log("selector")
+		console.log(this.selectorAccounts)
+
+	}
 
 	//#endregion
 
@@ -52,10 +116,10 @@ class InsureAccountSelect extends Component {
 	 * event that sets the value of optionSelected and sends it to pay premium dialog
 	 * 
 	 */
-	_optionSelected(){
+	_optionSelected(account){
 		this.optionSelected = true
 
-		this.dispatchEvent(new CustomEvent(`option-selected`, {detail: this.optionSelected}));
+		this.dispatchEvent(new CustomEvent(`option-selected`, {detail: {optionSelected: this.optionSelected, accountNumber: this.selectedAccount, accountType: account}}));
 	}
 
 	/**
@@ -76,12 +140,23 @@ class InsureAccountSelect extends Component {
 	 * 
 	 * @param {*} selected 
 	 */
-	_indexChange(selected) {
-		this.selectedIndex = this.items.map(account => account.text).indexOf(selected);
+	_indexChange(selected, account) {
+		
+		
+		if (account == "Savings Account"){
+			this.selectedIndex = this.selectorAccounts.savingsAccount.map(account => account.accountNumber).indexOf(selected);
+			this.selectedAccount = selected;
+		} else {
+			this.selectedIndex = this.selectorAccounts.savingsPlan.map(account => account.accountNumber).indexOf(selected);
+			this.selectedAccount = selected;
+		}
+		
+		this.accountType = account;
+
 		this.displayOptions = false;
 		
 
-		this._optionSelected()
+		this._optionSelected(account)
 	}
 
 	/**
@@ -91,11 +166,22 @@ class InsureAccountSelect extends Component {
 	 */
 	_chevronChange() {
 
-		if (this.displayOptions == false) {
-			return "system/chevron-down-action";
-		} else if(this.displayOptions == true){
-			return "system/chevron-up-action";
-		}
+		// if (this.displayOptions == false) {
+		// 	return "system/chevron-down-action";
+		// } else if(this.displayOptions == true){
+			
+		// }
+		return this.displayOptions ? "system/chevron-up-action": "system/chevron-down-action"
+	}
+
+	/**
+	 * event that changes the style of the select box depending on if the selected account has sufficient funds
+	 * 
+	 * @returns 
+	 */
+	_setstyle(){		
+		
+		return this.insufficient ?  "select-header-insufficient" : "select-header"
 
 	}
 
@@ -134,6 +220,13 @@ class InsureAccountSelect extends Component {
 
 				}
 
+				.select-header-insufficient > capitec-content-box{
+					border: 1px solid #ce1b1b;
+					border-radius: 3px;
+					height: 75px;
+					display: flex;
+					justify-content: space-between;
+				}
 
 				.select-options > capitec-content-box {
 					height: 40px;
@@ -163,8 +256,6 @@ class InsureAccountSelect extends Component {
 				}
 
 				.option-label {
-					/*position: relative;
-					left: -385px;*/
 					font-weight: bold;
 				}
 
@@ -215,48 +306,74 @@ _webTemplate() {
  */
 _renderHeader() {
 	return html`
-		${this.selectedIndex == null ? html`
+
+		
+			${this.selectedIndex == null ? html`
+				
+				<div class="default">
+					<capitec-content-box @click="${this._showAccountOptions}" layout="horizontal" valign="center" noScroll>
+						<div>
+							<capitec-label type="strong" label="${this.label}" ></capitec-label>
+						</div>
+
+						<div>
+							<capitec-icon size="8px" icon="${this.displayOptions == false ? "system/chevron-down-action" : "system/chevron-up-action"}" ></capitec-icon>
+						</div>
+
+					</capitec-content-box>
+				</div>
+
+				
+			` 
+
+			: ( this.accountType == "Savings Plan" ? html `
+
+
+				<div class="${this._setstyle()}">
+					<capitec-content-box @click="${this._showAccountOptions}" layout="horizontal" valign="center" noScroll>
+						<div> 
+							<capitec-icon size="default" icon="product/save"></capitec-icon>
+						</div>
+
+						<div style="display: flex; flex-direction: column;">
+							<capitec-label class="account-label" type="subtitle" label="${this.selectorAccounts.savingsPlan[this.selectedIndex].planName}" style="font-weight: bold;" ></capitec-label>
+							<capitec-label class="account-label" type="subtitle" label="Available balance" ></capitec-label>
+						</div>
+
+						<div> 
+							<capitec-label type="subtitle" label="${formatCurrency(this.selectorAccounts.savingsPlan[this.selectedIndex].availableBalance)}" style="left: 62px; position: relative; font-weight: bold;"></capitec-label>
+						</div>
+
+						<div>
+							<capitec-icon size="8px" icon="${this.displayOptions == false ? "system/chevron-down-action" : "system/chevron-up-action"}" ></capitec-icon>
+						</div>
+					</capitec-content-box>
+				</div>
+
+			`: html `
+
+				<div class="${this._setstyle()}">
+					<capitec-content-box @click="${this._showAccountOptions}" layout="horizontal" valign="center" noScroll>
+						<div> 
+							<capitec-icon size="default" icon="product/transact"></capitec-icon>
+						</div>
+
+						<div style="display: flex; flex-direction: column;">
+							<capitec-label class="account-label" type="subtitle" label="Savings Account" style="font-weight: bold;" ></capitec-label>
+							<capitec-label class="account-label" type="subtitle" label="Available balance" ></capitec-label>
+						</div>
+
+						<div> 
+							<capitec-label type="subtitle" label="${formatCurrency(this.selectorAccounts.savingsAccount[this.selectedIndex].availableBalance)}" style="left: 62px; position: relative; font-weight: bold;"></capitec-label>
+						</div>
+
+						<div>
+							<capitec-icon size="8px" icon="${this.displayOptions == false ? "system/chevron-down-action" : "system/chevron-up-action"}" ></capitec-icon>
+						</div>
+					</capitec-content-box>
+				</div>
 			
-			<div class="default">
-				<capitec-content-box @click="${this._showAccountOptions}" layout="horizontal" valign="center" noScroll>
-					<div>
-						<capitec-label type="strong" label="${this.label}" ></capitec-label>
-					</div>
-
-					<div>
-						<capitec-icon size="8px" icon="${this.displayOptions == false ? "system/chevron-down-action" : "system/chevron-up-action"}" ></capitec-icon>
-					</div>
-
-				</capitec-content-box>
-			</div>
-
-			
-		` 
-
-		: html `
-
-
-		<div class="select-header">
-		<capitec-content-box @click="${this._showAccountOptions}" layout="horizontal" valign="center" noScroll>
-			<div> 
-				<capitec-icon size="default" icon="product/transact"></capitec-icon>
-			</div>
-
-			<div style="display: flex; flex-direction: column;">
-				<capitec-label class="account-label" type="subtitle" label="${this.items[this.selectedIndex].text}" style="font-weight: bold;" ></capitec-label>
-				<capitec-label class="account-label" type="subtitle" label="Available balance" ></capitec-label>
-			</div>
-
-			<div> 
-				<capitec-label type="subtitle" label="R24 000.50" style="left: 62px; position: relative; font-weight: bold;"></capitec-label>
-			</div>
-
-			<div>
-				<capitec-icon size="8px" icon="${this.displayOptions == false ? "system/chevron-down-action" : "system/chevron-up-action"}" ></capitec-icon>
-			</div>
-		</capitec-content-box>
-		</div>
-		`}
+			`)}
 			
 
 	`
@@ -272,21 +389,36 @@ _renderOptions() {
 
 	 html`
 	<div class="all-options">
-		${this.items.map(item=> html`
+		${this.selectorAccounts.savingsAccount.map(item=> html`
 				
 			<div class="select-options">
-				<capitec-content-box @click="${() => this._indexChange(item.text)}" layout="horizontal" valign="center" noScroll>
+				<capitec-content-box @click="${() => this._indexChange(item.accountNumber, "Savings Account")}" layout="horizontal" valign="center" noScroll>
 					<div> 
 						<capitec-icon size="default" icon="product/transact"></capitec-icon>
 					</div>
 					<div >
-						<capitec-label class="option-label" type="subtitle" label="${item.text}" ></capitec-label>
+						<capitec-label class="option-label" type="subtitle" label="Savings Account | ${formatCurrency(item.availableBalance)}" ></capitec-label>
 					</div>
 				</capitec-content-box>
 
 			</div>
-		`)
-		}
+		`)}
+
+		${this.selectorAccounts.savingsPlan.map(item=> html`
+			
+			<div class="select-options">
+				<capitec-content-box @click="${() => this._indexChange(item.accountNumber, "Savings Plan")}" layout="horizontal" valign="center" noScroll>
+					<div> 
+						<capitec-icon size="default" icon="product/save"></capitec-icon>
+					</div>
+					<div >
+						<capitec-label class="option-label" type="subtitle" label="${item.planName} | ${formatCurrency(item.availableBalance)}" ></capitec-label>
+					</div>
+				</capitec-content-box>
+
+			</div>
+		`)}
+
 	</div>
 	`
 

@@ -235,6 +235,8 @@ export class InsureService extends ChannelServiceBase {
 		);
 	}
 
+	
+	
 	/**
 	 * Communication History
 	 *
@@ -261,6 +263,29 @@ export class InsureService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+
+	/**
+	 * Pay clients arrears
+	 *
+	 * @param {payArrearsRequest} [errorHandler=null]  Request data to pay arrears 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	 async payPolicy(payArrearsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.post(
+			`/FuneralInsuranceProductService/policy/pay`,
+			payArrearsRequest,
+			this.setInsureTokens(),
+			`payPolicy`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	 }
 
 	//#endregion
 

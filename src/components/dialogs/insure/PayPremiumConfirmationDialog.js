@@ -29,6 +29,7 @@ class PayPremiumConfirmationDialog extends Component {
 
 	/**
 	 * @property {Object} amountToPay Total arrears amount to be paid
+	 * @property {Object} contractReference contains the contract reference
 	 * 
 	 * @readonly
 	 * @static
@@ -36,8 +37,8 @@ class PayPremiumConfirmationDialog extends Component {
 	static get properties() {
 		return {
 
-			amountToPay: {type: Object, state: true}
-			
+			amountToPay: {type: Object, state: true},
+			contractReference: {type: Object, state: true}
 		};
 	}
 
@@ -104,7 +105,7 @@ class PayPremiumConfirmationDialog extends Component {
 		return html`
 			
 			<div>
-				<capitec-label label="Pay ${formatCurrency(this.amountToPay)} to funeral plan number 'CF34416'?" type="subtitle"></capitec-label>
+				<capitec-label label="Pay ${formatCurrency(this.amountToPay)} to funeral plan number ${this.contractReference}" type="subtitle"></capitec-label>
 			</div>
 
 

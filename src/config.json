@@ -195,12 +195,12 @@
 			"positiveCase": true
 		},
 		"insureClientPolicies": {
-			"enabled": false,
-			"positiveCase": false
+			"enabled": true,
+			"positiveCase": true
 		},
 		"insureProductParams": {
-			"enabled": false,
-			"positiveCase": false
+			"enabled": true,
+			"positiveCase": true
 		},
 		"insureCalculateQuote": {
 			"enabled": true,

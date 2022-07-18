@@ -60,6 +60,12 @@ class ClientPolicies extends Component {
 	/**
 	 * @property {Object} clientArrears Data & flags from Arrears Service
 	 * @property {boolean} showPayPremiumDialog Determines if the Pay Premium dialog should be shown
+	 * @property {Object} payArrears contains the arrears that will be paid
+	 * @property {boolean} showPayPremiumConfirmationDialog Determines if the Pay Premium Confirmation dialog should be shown
+	 * @property {boolean} showPayPremiumAgreementDialog Determines if the Pay Premium Agreement dialog should be shown
+	 * @property {Number} amountToPay contains the total arrear amount to be paid
+	 * @property {Number} fromAccount contains the account number for the account the client will be paying from
+	 * @property {Object} accountDetails contains the clients Savings Account and Savings Plan details
 	 * 
 	 * @readonly
 	 * @static
@@ -75,6 +81,8 @@ class ClientPolicies extends Component {
 			showPayPremiumConfirmationDialog: {type: Boolean, state: true},
 			showPayPremiumAgreementDialog: {type: Boolean, state: true},
 			amountToPay: {type: Number, state: true},
+			accountDetails: { type: Object, state: true },
+			fromAccount: {type: Number, state: true},
 
 			clientPolicies: { type: Object, state: true },
 			policyDetails: { type: Object, state: true },
@@ -144,7 +152,7 @@ class ClientPolicies extends Component {
 	 */
 	_goToPayPremiumSuccess(){
 		this.dispatchEvent(new CustomEvent(`navigate-to-pay-premium-success`, {
-			detail: {
+			detail: { payArrears: this.payArrears, fromAccount: this.fromAccount
 			}
 		}));
 	}
@@ -220,6 +228,7 @@ class ClientPolicies extends Component {
 	 _payArrears(e) {
 			this.payArrears = e.detail.payArrears;
 			this.amountToPay = e.detail.amountToPay;
+			this.fromAccount = e.detail.fromAccount;
 
 			this.showPayPremiumDialog = false;
 			this.showPayPremiumConfirmationDialog = true;
@@ -518,6 +527,7 @@ class ClientPolicies extends Component {
 			${this._renderPayPremiumDialog()}
 			${this._renderPayPremiumConfirmationDialog()}
 			${this._renderPayPremiumAgreementDialog()}
+			${this._renderError()}
 			${this._renderCancelPolicyDialog()}
 			${this._renderCancelPolicyConfirmationDialog()}
 		`}
@@ -603,6 +613,9 @@ class ClientPolicies extends Component {
 					gap="clear"
 					halign="left"
 					valign="center">
+					${policyItem.arrearDetails?.outstandingAmount > 0 ? html`<capitec-icon class="capitec-info-icon" icon="system/info-action"
+						@click="${(policyItem) => this._goToPolicySummary(policyItem.contractReference)}"></capitec-icon>` 
+							: html`<span class="policy-item"></span>`}
 						<horizon-label
 							class="label-policy-number fixed-label"
 							data-automation-id="insure-policy-contract-reference"
@@ -693,7 +706,7 @@ class ClientPolicies extends Component {
 					.disabled="${this.readOnlyMode}"
 					>
 				</horizon-option-button>
-				${policyItem.arrearDetails.outstandingAmount < 1 ? 
+				${policyItem.arrearDetails?.outstandingAmount < 1 ? 
 					html `
 				<horizon-option-button 
 					data-automation-id="insure-policy-options-benefits"
@@ -814,7 +827,7 @@ _renderCancelPolicyConfirmationDialog(){
 		return this.showPayPremiumDialog == false ? `` :
 			html`
 			<insure-pay-premium-dialog  @close-modal="${(e) => this._closePayPremiumDialog()}" .clientArrears = ${this.clientArrears}
-			@pay-arrears = "${(e) => this._payArrears(e)}" >	
+				.accountDetails = ${this.accountDetails} @pay-arrears = "${(e) => this._payArrears(e)}" >	
 			</insure-pay-premium-dialog>`
 
 	}
@@ -828,7 +841,7 @@ _renderCancelPolicyConfirmationDialog(){
 			html`
 			<insure-pay-premium-confirmation-dialog @close-modal="${(e) => this._closePayPremiumConfirmationDialog()}" 
 			@confirm-payment="${(e) => this._openPayPremiumAgreementDialog()}"
-			.amountToPay = ${this.amountToPay}>	
+			.amountToPay = ${this.amountToPay} .contractReference = ${this.clientArrears.contractReference}>	
 			</insure-pay-premium-confirmation-dialog>`
 
 	}
@@ -841,9 +854,21 @@ _renderCancelPolicyConfirmationDialog(){
 		return this.showPayPremiumAgreementDialog == false ? `` :
 			html`
 			<insure-pay-premium-agreement-dialog @close-modal="${(e) => this._closePayPremiumAgreementDialog()}"
-			@agree="${(e) => this._goToPayPremiumSuccess()}">	
+			@agree="${(e) => this._goToPayPremiumSuccess()}" .amountToPay = ${this.amountToPay} .contractReference= ${this.clientArrears.contractReference}>	
 			</insure-pay-premium-agreement-dialog>`
 
+	}
+/**
+ * render the unknown error dialog
+ * 
+ * @returns {html} 
+ */
+	_renderError(){
+		return html`
+			<insure-unknown-error-dialog></insure-unknown-error-dialog>
+			
+			`
+		
 	}
 
 	//#endregion RENDERING
