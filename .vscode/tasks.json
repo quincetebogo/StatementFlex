@@ -6,9 +6,9 @@
 		{
 			"type": "shell",
 			"label": "run",
-			"command": "C:\\Capitec\\PlatformSDKs\\CLIRuntimes\\ocwp\\runtime\\1.10.0\\cli\\ocwp",
+			"command": "ocwp/1.14.1/ocwp",
 			"args": [
-				"C:\\Capitec\\PlatformSDKs\\CLIRuntimes\\ocwp\\runtime\\1.10.0\\cli",
+				"ocwp/1.14.1",
 				"run",
 				"--port",
 				"62000"
@@ -41,9 +41,9 @@
 		{
 			"type": "shell",
 			"label": "restore",
-			"command": "C:\\Capitec\\PlatformSDKs\\CLIRuntimes\\ocwp\\runtime\\1.10.0\\cli\\ocwp",
+			"command": "ocwp/1.14.1/ocwp",
 			"args": [
-				"C:\\Capitec\\PlatformSDKs\\CLIRuntimes\\ocwp\\runtime\\1.10.0\\cli",
+				"ocwp/1.14.1",
 				"restore"
 			],
 			"isBackground": true,

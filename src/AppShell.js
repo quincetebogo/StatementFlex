@@ -365,7 +365,7 @@ export class AppShell extends Shell {
 	 *      - Any additional button/toolbars
 	 *      - Left and Right hand display components
 	 *
-	 * The View manager will also facilitate communication between view components (i.e. between the main
+	 * The View manager will also faciplatform/elementsate communication between view components (i.e. between the main
 	 * display and the left, right, and toolbar components. OK, OK! I used an Oxford comma; we can fight about that another time)
 	 * 
 	 */

@@ -7,14 +7,14 @@
 		{
 			"name": "Launch Edge",
 			"request": "launch",
-			"type": "pwa-msedge",
+			"type": "pwa-chrome",
 			"url": "http://localhost:62000",
 			"webRoot": "${workspaceFolder}",
 			"preLaunchTask": "run",
 			"sourceMaps": true,
 			"trace": true,
 			"env": {
-				"PATH": "${workspaceFolder}/ocwp/1.10.0/node;${env:PATH}"
+				"PATH": "${workspaceFolder}/ocwp/1.14.1/node;${env:PATH}"
 			}
 		}
 	]
