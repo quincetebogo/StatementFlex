@@ -60,6 +60,8 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {Object} productParams Data & flags for insure product parameters
 	 * @property {Object} estimate Local object for new Estimate requests
 	 * @property {Object} policySummary  Local object for new Quote requests
+	 * @property {String} cancellationReason conatins the cancellation reason selected
+	 * @property {Object} cancelPolicyDocumentDetails contains the cancel policy document details
 	 * 
 	 * @readonly
 	 * @static
@@ -473,8 +475,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderClientPoliciesPage() {
 		return html`
-			<horizon-insure-client-policies .clientPolicies = "${this.clientPolicies}" .cancelPolicyDocumentDetails = "${this.cancelPolicyDocumentDetails}"
-				
+			<horizon-insure-client-policies .clientPolicies = "${this.clientPolicies}" .cancelPolicyDocumentDetails = "${this.cancelPolicyDocumentDetails}"				
 				@navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan(e)}"
 				@navigate-to-pay-premium-success ="${(e) => this._goToPayPremiumSuccess()}"
