@@ -83,6 +83,8 @@ export class ConfirmCallerDetails extends Component {
 		this.isBusy = false;
 		this.errorMessage = ``;
 		this.errorCount = 0;
+		this.cpNumber = ``;
+		this.clientType = -1;
 	}
 
 	// ----------
@@ -104,6 +106,8 @@ export class ConfirmCallerDetails extends Component {
 			incomingCallDetails: { type: Object },
 			incidentDetails: { type: Object },
 
+			cpNumber: { attribute: false },
+			clientType: { attribute: false },
 			isBusy: { attribute: false },
 			renderMode: { attribute: false },
 			errorMessage: { attribute: false }
@@ -223,6 +227,8 @@ export class ConfirmCallerDetails extends Component {
 		this.confirmedCaller = event.detail.confirmedCaller;
 		this.incidentDetails = event.detail.incidentDetails;
 		this.callerInformation.isBranchConsultant = true;
+		this.cpNumber = event.detail.cpNumber;
+		this.clientType = event.detail.clientType;
 		this._initCallerInformation();
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 
@@ -602,7 +608,7 @@ export class ConfirmCallerDetails extends Component {
 						.incomingCallDetails="${this.incomingCallDetails}"
 						.incidentDetails="${this.incidentDetails}"
 						.isNeedSelectable=${true}
-						headerLabel="Confirm Caller"
+						headerLabel="${this.callerInformation.isBranchConsultant ? `Confirm Client` : `Confirm Caller`}"
 						@on-end-call="${() => this._onEndCall()}"
 						@on-need-changed="${(e) => this._needChanged(e)}">
 							<div slot="body">
@@ -814,6 +820,8 @@ export class ConfirmCallerDetails extends Component {
 				data-automation-id="confirm-caller-details-search-caller-modal"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
+				.cpNumber="${this.callerInformation.isBranchConsultant ? this.cpNumber : ``}"
+				.clientType="${this.callerInformation.isBranchConsultant ? this.clientType : ``}"
 				@client-identified="${(data) => this._identifiedClient(data)}"
 				@non-client-captured="${data => this._nonClientCaptured(data)}"
 				@branch-captured="${(event) => this._branchCaptured(event)}"
