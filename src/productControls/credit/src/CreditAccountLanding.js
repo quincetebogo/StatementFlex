@@ -133,6 +133,7 @@ export class CreditAccountLanding extends Component {
 				/* Title Bar styles */
 				capitec-title-bar {
 					--theme-titlebar-padding: 12px 16px;
+					--theme-card-border: 0px;
 					margin-bottom: 0px;
 				}
 				capitec-title-bar > capitec-label {

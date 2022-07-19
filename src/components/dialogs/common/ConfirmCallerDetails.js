@@ -591,6 +591,7 @@ export class ConfirmCallerDetails extends Component {
 				img {
 					height: 200px;
 					width: 200px;
+					--theme-layout-gap-spacing: 25px;
 				}
 			`
 		];
