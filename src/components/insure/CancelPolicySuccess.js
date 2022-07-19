@@ -1,4 +1,8 @@
 import { Component, css, html } from 'platform/elements';
+import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+import { INSURE_CALLER_PAGE } from 'app/constants/InsureCommon';
+
+import 'app/components/dialogs/insure/InsureEmailDialog';
 
 /**
  * Cancel policy success page shows you how many policies you still have active and allows you to navigate to issue policy
@@ -19,19 +23,27 @@ class CancelPolicySuccess extends Component {
 		super();
 
 		this.showEmailPlanDialog = false;
-	
+		this.contractReference = ``;
+		this.titleMessage = ``;
 	}
 
 //#endregion
 
 //#region PROPERTIES
 
-	
+	/**
+	 * @property {String} showEmailPlanDialog - Show flag for email address & send dialog
+	 * @property {String} contractReference
+	 * @property {String} titleMessage - title fo send email popup.
+	 * @readonly
+	 * @static
+	 */
 	static get properties() {
 		return {
 			
 			showEmailPlanDialog: {type: Boolean, state: true},
-			contractReference: {type: String, state: true}
+			contractReference: {type: String, state: true},
+			titleMessage: { type: String }
 		};
 	}
 
@@ -56,19 +68,11 @@ class CancelPolicySuccess extends Component {
 //#region EVENT HANDLERS
 
 /**
- * Navigate to Landing
- */
- _onEmailClick() {
-	this.dispatchEvent(new CustomEvent(`email`, {
-		detail: {
-		}
-	}));
-}
-
-/**
  * Event to open the email plan dialog
  */
 _openEmailPlanDialog(){
+	this.titleMessage = `Email Funeral Plan (${this.contractReference})`;
+
 	this.showEmailPlanDialog = true;
 }
 
@@ -78,14 +82,15 @@ _openEmailPlanDialog(){
 _closeEmailPlanDialog(){
 	this.showEmailPlanDialog = false;
 }
+
 /**
- * event to navigate to the email success page
+ * Invoke this function when Send button is clicked on Email Popup
  */
-_goToEmailSuccess(){
-	this.dispatchEvent(new CustomEvent(`navigate-to-email-success`, {
-		detail: { 
-		}
-	}));
+async _sendEmail(emailAddress) {
+	this.callerPage = INSURE_CALLER_PAGE.CANCEL_POLICY;
+
+	this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress
+			,callerPage: this.callerPage } } ));
 }
 
 //#endregion
@@ -104,6 +109,8 @@ _goToEmailSuccess(){
 			super.styles,
 			css`
 			
+			${ INSURE_CSS }
+
 			.insure-title-bar{
 				margin-bottom: 0px; 
 				border-top-left-radius: 5px; 
@@ -169,7 +176,7 @@ _goToEmailSuccess(){
 						style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
 					<label id="temp-container-label">The policy has been cancelled</label>
 					<capitec-label class="spacing" type="subtitle" label="You currently have 2 active policies"></capitec-label>
-					<capitec-button label="Email" type="primary" @click="${() => this._openEmailPlanDialog()}"
+					<capitec-button label="Email" class = "capitec-button-medium" type="primary" @click="${() => this._openEmailPlanDialog()}"
 						data-automation-id="">
 					</capitec-button>
 				</div>
@@ -183,9 +190,10 @@ _goToEmailSuccess(){
 	_renderEmailPlanDialog(){
 		return this.showEmailPlanDialog == false ? `` 
 		: html`
-		<insure-email-plan-dialog @close-modal="${(e) => this.showEmailPlanDialog = false}"
-			@send-email="${(e) => this._goToEmailSuccess()}" .contractReference=${this.contractReference}>
-		</insure-email-plan-dialog>
+			<insure-email-dialog @close-modal="${(e) => this.showEmailPlanDialog = false}"
+				@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}"
+				.contractReference = "${this.contractReference}" .titleMessage = "${ this.titleMessage }">
+			</insure-email-dialog>
 		`
 	}
 

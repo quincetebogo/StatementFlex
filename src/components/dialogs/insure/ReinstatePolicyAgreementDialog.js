@@ -100,9 +100,6 @@ class ReinstatePolicyAgreementDialog extends Component {
 					margin-bottom: 20px;
 					width: 60%;
 				}
-				.button {
-					width: 140px;
-				}
 				capitec-expander {
 					border-left: var(--theme-expander-border, 1px solid black);
 					border-right: var(--theme-expander-border, 1px solid black);
@@ -177,10 +174,10 @@ class ReinstatePolicyAgreementDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-				<capitec-button class="button" slot="footer" type="secondary" label="Cancel" @click="${() => this._onCancelClick()}"
+				<capitec-button class = "capitec-button-medium" slot="footer" type="secondary" label="Cancel" @click="${() => this._onCancelClick()}"
 					data-automation-id="insure-reinstate-policy-agreement-dialog-cancel">
 				</capitec-button>
-				<capitec-button class="button" slot="footer" type="primary" label="Agree" @click="${() => this._onAgreeClick()}"
+				<capitec-button class = "capitec-button-medium" slot="footer" type="primary" label="Agree" @click="${() => this._onAgreeClick()}"
 					data-automation-id="insure-reinstate-policy-agreement-dialog-agree">
 				</capitec-button>
 	`}

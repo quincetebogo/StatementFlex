@@ -69,6 +69,7 @@ class UpdatePlan extends Component {
 		this.agreementYBPAccepted = false;
 		this.agreementYROAAccepted = false;
 
+		this.policyDetails = {};
 		this.prepareUpdateResponse = {};
 		this.createPolicyResponse = {};
 
@@ -907,24 +908,24 @@ class UpdatePlan extends Component {
 							valign="center">
 							<horizon-label class="fixed-label-main" data-automation-id="insure-policy-contract-reference"
 								label="Main Life" textOverflow="ellipsis"
-								value="${this.policyDetails.roleplayers[0].firstName} ${this.policyDetails.roleplayers[0].surname}">
+								value="${this.policyDetails?.roleplayers[0]?.firstName} ${this.policyDetails?.roleplayers[0]?.surname}">
 							</horizon-label>
 							<div class="vertical-line"></div>
 							<horizon-label data-automation-id="insure-policy-start-date"
 								label="Cover Amount (Min R5 000 - Max R100 000)"
-								value="${formatCurrency(this.policyDetails.roleplayers[0].coverAmount)}">
+								value="${formatCurrency(this.policyDetails?.roleplayers[0]?.coverAmount)}">
 							</horizon-label>
 						</capitec-group>
 						<div slot="content">
 							<capitec-group class="expander-content" layout="vertical" gap="none" halign="left" valign="center">
-								${this._renderMainLifeOptions(this.policyDetails.roleplayers[0])}
+								${this._renderMainLifeOptions(this.policyDetails?.roleplayers[0])}
 							</capitec-group>
 						</div>
 					</horizon-expander>
 			
 					<!-- Add lives Assured Button  -->
 					<div class="calc-card-row" style="margin-top: 5px;">
-						${ this.policyDetails.roleplayers?.filter(x=> x.relationship !== `MainLife`
+						${ this.policyDetails?.roleplayers?.filter(x=> x.relationship !== `MainLife`
 							&& x.lifeAssured == true)?.length > 0
 							? html `
 							<capitec-label label="Lives Assured" type="strong" class="stronger">

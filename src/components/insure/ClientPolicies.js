@@ -656,9 +656,6 @@ class ClientPolicies extends Component {
 					gap="clear"
 					halign="left"
 					valign="center">
-					${policyItem.arrearDetails?.outstandingAmount > 0 ? html`<capitec-icon class="capitec-info-icon" icon="system/info-action"
-						@click="${(policyItem) => this._goToPolicySummary(policyItem.contractReference)}"></capitec-icon>` 
-							: html`<span class="policy-item"></span>`}
 						<horizon-label
 							class="label-policy-number fixed-label"
 							data-automation-id="insure-policy-contract-reference"

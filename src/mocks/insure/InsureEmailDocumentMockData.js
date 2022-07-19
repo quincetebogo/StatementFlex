@@ -5,5 +5,5 @@
  * @constant InsureEmailDocumentMockData
  */
  export const InsureEmailDocumentMockData = {
-	"success": true
+	"successful": true
   }

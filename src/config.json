@@ -228,8 +228,8 @@
 			"positiveCase": true
 		},
 		"insurePolicySummary": {
-			"enabled": false,
-			"positiveCase": false
+			"enabled": true,
+			"positiveCase": true
 		},
 		"insureCommsHistory":{
 			"enabled": true,
@@ -272,26 +272,30 @@
 			"positiveCase": true
 		},
 		"insurePolicyAccept": {
-			"enabled": false,
-			"positiveCase": false
+			"enabled": true,
+			"positiveCase": true
 		},
 		"insureGenerateIssueAgreement": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureGenerateAgreement": {
-			"enabled": false,
-			"positiveCase": false
+			"enabled": true,
+			"positiveCase": true
 		},
 		"insureReinstateQuoteCalc": {
-			"enabled": false,
-			"positiveCase": false
+			"enabled": true,
+			"positiveCase": true
 		},
 		"insureCreatePolicy": {
-			"enabled": false,
-			"positiveCase": false
+			"enabled": true,
+			"positiveCase": true
 		},
 		"insureSendEmail": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureCancelPolicy": {
 			"enabled": true,
 			"positiveCase": true
 		}

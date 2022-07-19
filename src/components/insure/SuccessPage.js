@@ -75,7 +75,7 @@ class SuccessPage extends Component {
 	 * Invoke this function when Send button is clicked on Email Popup
 	 */
 	 async _sendEmail(emailAddress) {
-		this.dispatchEvent(new CustomEvent(`send-email`, { detail: emailAddress } ));
+		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress } } ));
 	}
 
 	//#endregion EVENTS
@@ -176,9 +176,9 @@ class SuccessPage extends Component {
 				<capitec-label type ="subtitle" label = "${ this.successMessage }"></capitec-label>
 			</div>
 			<div id="button-row">
-				<capitec-button label="Email" @click="${() => this._onEmailClick() }">
+				<capitec-button label="Email" class = "capitec-button-medium" @click="${() => this._onEmailClick() }">
 				</capitec-button>
-				<capitec-button type="primary" label="Done" @click="${() => this._onDoneClick()}">
+				<capitec-button type="primary" class = "capitec-button-medium" label="Done" @click="${() => this._onDoneClick()}">
 				</capitec-button>
 			</div>
 		</capitec-card>

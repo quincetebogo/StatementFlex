@@ -165,6 +165,34 @@ export class ExistingClient extends InsureViewBase {
 		return mainLifeGender;
 	}
 
+	_getAgreementAttachments(sourePage, EMAIL_DOCUMENT_REQUEST_PAYLOAD)
+	{
+		if(sourePage === INSURE_CALLER_PAGE.REINSTATE_POLICY)
+		{
+			EMAIL_DOCUMENT_REQUEST_PAYLOAD.attachments = [{
+				"iD": `123`,
+				"type": DOCUMENT_TYPE.ISSUE_POLICY_AGREEMENT,
+				"guid": this.issuePlanAgreementDocument?.documentDetails?.guid,
+				"content": this.issuePlanAgreementDocument?.documentContent
+			},
+			{
+				"iD": `456`,
+				"type": DOCUMENT_TYPE.PAYMENT_MANDATE_AGREEMENT,
+				"guid": this.reinstatePaymentAgreementDocument?.documentDetails?.guid,
+				"content": this.reinstatePaymentAgreementDocument?.documentContent
+			}];
+		}
+		else if(sourePage === INSURE_CALLER_PAGE.CANCEL_POLICY)
+		{
+			EMAIL_DOCUMENT_REQUEST_PAYLOAD.attachments = [{
+				"iD": `123`,
+				"type": DOCUMENT_TYPE.CANCEL_POLICY_AGREEMENT,
+				"guid": this.cancelPolicyDocumentDetails?.documentDetails?.guid,
+				"content": this.cancelPolicyDocumentDetails?.documentContent
+			}];
+		}
+	}
+
 	//#endregion PRIVATE METHODS
 
 	//#region EVENT HANDLERS
@@ -273,8 +301,8 @@ export class ExistingClient extends InsureViewBase {
 		const savingsPlanData = await this.savingsAccountService.savingsPlanLanding(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, true);
 
 		let resp = {
-			savingsAccountData: savingsAccountData.result,
-			savingsPlanData: savingsPlanData.result
+			savingsAccountData: savingsAccountData?.result,
+			savingsPlanData: savingsPlanData?.result
 		}
 
 		
@@ -317,10 +345,6 @@ export class ExistingClient extends InsureViewBase {
 		cancelPolicyDetails.idNumber = this.callerInformation.southAfricanIDNumber;
 		cancelPolicyDetails.cancellationReason = this.cancellationReason;
 		cancelPolicyDetails.documents = [];
-		console.log(cancelPolicyDetails)
-		// cancelPolicyDetails.documents.documentCode= "";
-		// cancelPolicyDetails.documents.documentName = "";
-		// cancelPolicyDetails.documents.guid = "";
 
 		const resp = await this.insureService.cancelPolicy(cancelPolicyDetails, () => true);
 		if (resp.succeeded == true && resp.result != null) {
@@ -337,31 +361,42 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	 async _cancelPolicyAgreement(contractReference, cancelReason) {
 
-		let cancelPolicyAgreementDetails = {}
+		let dob = new Date(this.callerInformation.birthdate)
 
-		cancelPolicyAgreementDetails.documentFormat = "PDF";
-		cancelPolicyAgreementDetails.saveDocumentToDocumentum = false;
-		cancelPolicyAgreementDetails.returnDocumentContent = true;
-		cancelPolicyAgreementDetails.emailDocumentToClient = false;
-		cancelPolicyAgreementDetails.wetsignBarcode = false;
+        let cancelPolicyAgreementDetails = {
+            "documentFormat": "PDF",
 
-		cancelPolicyAgreementDetails.clientDetails= [];
-			cancelPolicyAgreementDetails.clientDetails.cifNumber = this.callerInformation.cifNumber;
-			cancelPolicyAgreementDetails.clientDetails.primarySavingsAccountNumber = 0;
-			cancelPolicyAgreementDetails.clientDetails.policyContractReference = contractReference;
-			cancelPolicyAgreementDetails.clientDetails.firstName = this.callerInformation.firstName;
-			cancelPolicyAgreementDetails.clientDetails.surname = this.callerInformation.lastName;
-			cancelPolicyAgreementDetails.clientDetails.idNumber = this.callerInformation.southAfricanIDNumber;
-			cancelPolicyAgreementDetails.clientDetails.dateOfBirth = this.callerInformation.birthdate;
+            "saveDocumentToDocumentum": false,
 
-		cancelPolicyAgreementDetails.emailDetails= [];
-			cancelPolicyAgreementDetails.emailDetails.email = "";
+            "returnDocumentContent": true,
 
-		cancelPolicyAgreementDetails.input= [];
-			cancelPolicyAgreementDetails.input.cancellationReason = cancelReason;
-		
-		console.log(cancelPolicyAgreementDetails)
-		console.log(this.callerInformation)
+            "emailDocumentToClient": false,
+
+			"wetsignBarcode": false,
+
+			"clientDetails": {
+
+                "cifNumber": parseInt(this.callerInformation.cifNumber), //363291555
+
+                "primarySavingsAccountNumber": parseInt(this.accountDetails.savingsAccountData.accountNumber), //1952898232
+
+                "policyContractReference": contractReference, //"FP00001590"
+
+                "firstName": this.callerInformation.firstName,
+
+                "surname": this.callerInformation.lastName,
+
+                "idNumber": this.callerInformation.southAfricanIDNumber, //"0011262112193"
+
+                "dateOfBirth": dob.toISOString(), //"2000-11-25T22:00:00.000Z"
+            },
+            "emailDetails": {
+                "email": "test@test.com"
+            },
+            "input": {
+                "cancellationReason": cancelReason
+            }
+        };
 
 		const resp = await this.insureService.cancelPolicyAgreement(cancelPolicyAgreementDetails, () => true);
 		if (resp.succeeded == true && resp.result != null) {
@@ -370,6 +405,8 @@ export class ExistingClient extends InsureViewBase {
 			// Do error message
 			return null;
 		}
+
+		this.requestUpdate();
 	}
 
 	/**
@@ -440,16 +477,6 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_backToSummaryPage() {
 		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
-	}
-
-	/**
-	 * Prepare and navigate Update plan
-	 */
-	async _goToUpdatePlan(e) {
-		// Telemetry Here
-		this.policySummary = await this._retrievePolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
-
-		this._navigateToSubView(INSURE_RENDER_MODE.UPDATE_PLAN);
 	}
 
 	/**
@@ -788,21 +815,15 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {String} newMode New render mode string to change renderMode to
 	  */
 	async _sendEmail(e) {
-		EMAIL_DOCUMENT_REQUEST_PAYLOAD.email =  e.detail.detail.emailAddress;
+
+		if(e.detail.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY)
+			this.callerPage = INSURE_CALLER_PAGE.CANCEL_POLICY;
+
+		EMAIL_DOCUMENT_REQUEST_PAYLOAD.email =  e.detail.emailId.detail.emailAddress;
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.cIFNumber =  this.callerInformation.cifNumber;
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.contractReference =  this.contractReference;
-		EMAIL_DOCUMENT_REQUEST_PAYLOAD.attachments = [{
-			"iD": `123`,
-			"type": DOCUMENT_TYPE.ISSUE_POLICY_AGREEMENT,
-			"guid": this.issuePlanAgreementDocument?.documentDetails?.guid,
-			"content": this.issuePlanAgreementDocument?.documentContent
-		},
-		{
-			"iD": `456`,
-			"type": DOCUMENT_TYPE.PAYMENT_MANDATE_AGREEMENT,
-			"guid": this.reinstatePaymentAgreementDocument?.documentDetails?.guid,
-			"content": this.reinstatePaymentAgreementDocument?.documentContent
-		}];
+
+		this._getAgreementAttachments(this.callerPage, EMAIL_DOCUMENT_REQUEST_PAYLOAD);
 
 		const emailResponse = await this.insureService.emailFuneralDocuments(EMAIL_DOCUMENT_REQUEST_PAYLOAD);
 		
@@ -813,7 +834,10 @@ export class ExistingClient extends InsureViewBase {
 			this.showSuccessAlert = true;
 			window.setTimeout(() => this.showSuccessAlert = false, 2000);
 
-			this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
+			if(this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY)
+				this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
+			else
+				this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES);
 		}
 
 	}
@@ -984,7 +1008,7 @@ export class ExistingClient extends InsureViewBase {
 	_renderCancelPolicySuccessPage() {
 		return html`
 		<insure-cancel-policy-success @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-			@navigate-to-email-success="${(e) => this._goToEmailPlanSuccess()}" .contractReference = ${this.contractReference}>
+			@send-email = "${(e) => this._sendEmail(e)}" .contractReference = ${this.contractReference}>
 		</insure-cancel-policy-success>
 		`
 	}

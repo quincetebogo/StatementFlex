@@ -8,8 +8,12 @@ import { css } from 'platform/elements';
  * @private
  */
 export const INSURE_CSS = css`
-	capitec-button{
+	.capitec-button-medium {
 		width: 150px !important;
+	}
+
+	.capitec-button-small {
+		width: 100px !important;
 	}
 
 	.toast {

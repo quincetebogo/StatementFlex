@@ -136,11 +136,11 @@ class InsureEmailDialog extends Component {
 	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal">
-				<capitec-button data-automation-id="stop-card-confirm-cancel" label="Cancel"
-					@click="${() => this._onCancelClick()}">
+				<capitec-button data-automation-id="stop-card-confirm-cancel" label="Cancel" 
+					class = "capitec-button-medium" @click="${() => this._onCancelClick()}">
 				</capitec-button>
 				<capitec-button data-automation-id="stop-card-confirm-confirm" id="id-confirm-button" 
-					type="primary" label="Send" @click="${() => this._onSendClick()}">
+				class = "capitec-button-medium" type="primary" label="Send" @click="${() => this._onSendClick()}">
 				</capitec-button>
 			</capitec-group>
 			`;
