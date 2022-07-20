@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
-const ERROR_MESSAGE = `Please select confirm checkbox`;
+const ERROR_MESSAGE = `Please select confirmation checkbox`;
 
 /**
  * Reinstate Policy Agreement Dialog component will allow you to view the policy schedule, 
@@ -111,6 +111,9 @@ class ReinstatePolicyAgreementDialog extends Component {
 				.alert-banner {
 					padding: 0px 0px 16px 0px;
 				}
+				.iframe-content {
+					height: 100%;
+				}
 
 				`
 		];
@@ -141,7 +144,7 @@ class ReinstatePolicyAgreementDialog extends Component {
 		return html`
 			<div class="notification">
 				<capitec-toast type="info" header="Notify Client" detail="The full agreement, inclusive of the Policy Schedule, Section 484 summary. Disclosure, terms and conditions,
-														will be emailed to you and available in branch."
+														can be emailed to you and available in branch."
 					data-automation-id="insure-reinstate-policy-agreement-dialog-notification">
 				</capitec-toast>
 			</div>
@@ -152,12 +155,12 @@ class ReinstatePolicyAgreementDialog extends Component {
 				<capitec-expander expandbuttonalignment="left" label="View Policy Schedule"
 					data-automation-id="insure-reinstate-policy-agreement-dialog-view-policy-schedule">
 					<capitec-label label=""></capitec-label>
-					<img src="data:image/png;base64, ${this.issuePlanAgreementContent}" alt="agreement" />
+					<iframe class="iframe-content" src="data:application/pdf;base64,${ this.issuePlanAgreementContent }" alt="agreement"></iframe>
 				</capitec-expander>
 		
 				<capitec-expander expandbuttonalignment="left" label="View Mandate"
 					data-automation-id="insure-reinstate-policy-agreement-dialog-view-mandate">
-					<img src="data:image/png;base64, ${this.paymentAgreementContent}" alt="agreement" />
+					<iframe class="iframe-content" src="data:application/pdf;base64,${ this.paymentAgreementContent }" alt="agreement"></iframe>
 				</capitec-expander>
 			</capitec-expander-group>
 

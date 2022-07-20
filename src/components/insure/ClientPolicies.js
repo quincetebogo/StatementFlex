@@ -634,8 +634,6 @@ class ClientPolicies extends Component {
 	{
 		this.policiesList = this.clientPolicies?.summaryDetails?.policies;
 
-		this.policiesList?.forEach(item => { item["isExpanded"] = false; });
-
 		this.policiesList?.sort((a, b) => Status[a.status] - Status[b.status] 
 			|| (new Date(b.commencementDate) - new Date(a.commencementDate)));
 

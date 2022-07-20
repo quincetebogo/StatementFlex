@@ -71,6 +71,8 @@ export class ExistingClient extends InsureViewBase {
 		this.callerPage = ``;
 		this.issuePlanAgreementDocument = {};
 		this.reinstatePaymentAgreementDocument = {};
+		this.updatePlanAgreementDocument = {};
+		this.updatePaymentAgreementDocument = {};
 		this.showSuccessAlert = false;
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 
@@ -108,6 +110,8 @@ export class ExistingClient extends InsureViewBase {
 			callerPage: { type: String },
 			issuePlanAgreementDocument: { type: Object, state: true },
 			reinstatePaymentAgreementDocument: { type: Object, state: true },
+			updatePlanAgreementDocument: { type: Object, state: true },
+			updatePaymentAgreementDocument: { type: Object, state: true },
 			showSuccessAlert: {type: Boolean, state: true},
 			cancellationReason: {type: String, state: true},
 			cancelPolicyDocumentDetails: {type: Object, state: true},
@@ -165,30 +169,59 @@ export class ExistingClient extends InsureViewBase {
 		return mainLifeGender;
 	}
 
+	/**
+	 * Get attachments for different document types
+	 * @param {*} sourePage from which send email method is invoked
+	 * @param {*} EMAIL_DOCUMENT_REQUEST_PAYLOAD - email request payload
+	 */
 	_getAgreementAttachments(sourePage, EMAIL_DOCUMENT_REQUEST_PAYLOAD)
 	{
 		if(sourePage === INSURE_CALLER_PAGE.REINSTATE_POLICY)
 		{
-			EMAIL_DOCUMENT_REQUEST_PAYLOAD.attachments = [{
-				"iD": `123`,
-				"type": DOCUMENT_TYPE.ISSUE_POLICY_AGREEMENT,
-				"guid": this.issuePlanAgreementDocument?.documentDetails?.guid,
+			EMAIL_DOCUMENT_REQUEST_PAYLOAD.documentInfo = [{
+				"documentId": `123`,
+				"documentType": DOCUMENT_TYPE.ISSUE_POLICY_AGREEMENT,
+				"documentGuid": this.issuePlanAgreementDocument?.documentDetails?.guid,
 				"content": this.issuePlanAgreementDocument?.documentContent
 			},
 			{
-				"iD": `456`,
-				"type": DOCUMENT_TYPE.PAYMENT_MANDATE_AGREEMENT,
-				"guid": this.reinstatePaymentAgreementDocument?.documentDetails?.guid,
+				"documentId": `456`,
+				"documentType": DOCUMENT_TYPE.PAYMENT_MANDATE_AGREEMENT,
+				"documentGuid": this.reinstatePaymentAgreementDocument?.documentDetails?.guid,
 				"content": this.reinstatePaymentAgreementDocument?.documentContent
+			}];
+		}
+		else if(sourePage === INSURE_CALLER_PAGE.UPDATE_PLAN)
+		{
+			EMAIL_DOCUMENT_REQUEST_PAYLOAD.documentInfo = [{
+				"documentId": `123`,
+				"documentType": DOCUMENT_TYPE.UPDATE_POLICY_AGREEMENT,
+				"documentGuid": this.updatePlanAgreementDocument?.documentDetails?.guid,
+				"content": this.updatePlanAgreementDocument?.documentContent
+			},
+			{
+				"documentId": `456`,
+				"documentType": DOCUMENT_TYPE.PAYMENT_MANDATE_AGREEMENT,
+				"documentGuid": this.updatePaymentAgreementDocument?.documentDetails?.guid,
+				"content": this.updatePaymentAgreementDocument?.documentContent
 			}];
 		}
 		else if(sourePage === INSURE_CALLER_PAGE.CANCEL_POLICY)
 		{
-			EMAIL_DOCUMENT_REQUEST_PAYLOAD.attachments = [{
-				"iD": `123`,
-				"type": DOCUMENT_TYPE.CANCEL_POLICY_AGREEMENT,
-				"guid": this.cancelPolicyDocumentDetails?.documentDetails?.guid,
+			EMAIL_DOCUMENT_REQUEST_PAYLOAD.documentInfo = [{
+				"documentId": `123`,
+				"documentType": DOCUMENT_TYPE.CANCEL_POLICY_AGREEMENT,
+				"documentGuid": this.cancelPolicyDocumentDetails?.documentDetails?.guid,
 				"content": this.cancelPolicyDocumentDetails?.documentContent
+			}];
+		}
+		else if(sourePage === INSURE_CALLER_PAGE.PAY_PREMIUM)
+		{
+			EMAIL_DOCUMENT_REQUEST_PAYLOAD.documentInfo = [{
+				"documentId": `123`,
+				"documentType": DOCUMENT_TYPE.PAY_ARREARS_AGREEMENT,
+				"documentGuid": "",
+				"content": ""
 			}];
 		}
 	}
@@ -672,6 +705,9 @@ export class ExistingClient extends InsureViewBase {
 		paymentAgreementResp.result = agreementResp;
 		// =========
 
+		this.updatePlanAgreementDocument = planAgreementResp?.result;
+		this.updatePaymentAgreementDocument = paymentAgreementResp?.result;
+
 		let preparePlanResponse = {
 			planAgreement: planAgreementResp.result,
 			paymentAgreement: paymentAgreementResp.result,
@@ -712,8 +748,8 @@ export class ExistingClient extends InsureViewBase {
 
 		this.successMessage = `The policy ${event.detail.prepareUpdate.prepareUpdateResponse.contractReference} has been successfully updated`;	
 		this.callerPage = INSURE_CALLER_PAGE.UPDATE_PLAN;
-		this.contractReference = event.detail.policyResponse.policyResponse.contractReference;
-		this.renderMode = INSURE_RENDER_MODE.UPDATE_PLAN_SUCCESS;
+		this.contractReference = event.detail.prepareUpdate.prepareUpdateResponse.contractReference;
+		this.renderMode = INSURE_RENDER_MODE.SUCCESS_PAGE;
 	}
 
 	/**
@@ -768,7 +804,7 @@ export class ExistingClient extends InsureViewBase {
 				"documentName": "Test Doc",
 				"guid": "91ba047a4bd44cf3abb7ccae7a95149a"
 			},
-			"documentContent": "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
+			"documentContent": "JVBERi0xLjcKCjEgMCBvYmogICUgZW50cnkgcG9pbnQKPDwKICAvVHlwZSAvQ2F0YWxvZwogIC9QYWdlcyAyIDAgUgo+PgplbmRvYmoKCjIgMCBvYmoKPDwKICAvVHlwZSAvUGFnZXMKICAvTWVkaWFCb3ggWyAwIDAgMjAwIDIwMCBdCiAgL0NvdW50IDEKICAvS2lkcyBbIDMgMCBSIF0KPj4KZW5kb2JqCgozIDAgb2JqCjw8CiAgL1R5cGUgL1BhZ2UKICAvUGFyZW50IDIgMCBSCiAgL1Jlc291cmNlcyA8PAogICAgL0ZvbnQgPDwKICAgICAgL0YxIDQgMCBSIAogICAgPj4KICA+PgogIC9Db250ZW50cyA1IDAgUgo+PgplbmRvYmoKCjQgMCBvYmoKPDwKICAvVHlwZSAvRm9udAogIC9TdWJ0eXBlIC9UeXBlMQogIC9CYXNlRm9udCAvVGltZXMtUm9tYW4KPj4KZW5kb2JqCgo1IDAgb2JqICAlIHBhZ2UgY29udGVudAo8PAogIC9MZW5ndGggNDQKPj4Kc3RyZWFtCkJUCjcwIDUwIFRECi9GMSAxMiBUZgooSGVsbG8sIHdvcmxkISkgVGoKRVQKZW5kc3RyZWFtCmVuZG9iagoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDEwIDAwMDAwIG4gCjAwMDAwMDAwNzkgMDAwMDAgbiAKMDAwMDAwMDE3MyAwMDAwMCBuIAowMDAwMDAwMzAxIDAwMDAwIG4gCjAwMDAwMDAzODAgMDAwMDAgbiAKdHJhaWxlcgo8PAogIC9TaXplIDYKICAvUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKNDkyCiUlRU9G"
 		}
 		issuePlanAgreementResponse.result = agreementResp;
 		paymentAgreementResponse.result = agreementResp;
@@ -951,6 +987,9 @@ export class ExistingClient extends InsureViewBase {
 	 * @return {html} Html of the sub view
 	 */
 	_renderClientPoliciesPage() {
+
+		this.clientPolicies?.summaryDetails?.policies?.forEach(item => { item["isExpanded"] = false ;})
+
 		return html`
 			<horizon-insure-client-policies .clientPolicies = "${this.clientPolicies}" .cancelPolicyDocumentDetails = "${this.cancelPolicyDocumentDetails}"				
 				.accountDetails = "${this.accountDetails}"

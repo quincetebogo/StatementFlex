@@ -68,7 +68,7 @@ class SuccessPage extends Component {
 		if(this.callerPage === INSURE_CALLER_PAGE.REINSTATE_POLICY)
 			this.dispatchEvent(new CustomEvent(`navigate-back`, { detail: { navigateBackTo: INSURE_RENDER_MODE.CLIENT_POLICIES } }));
 		else if(this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN)
-			this.dispatchEvent(new CustomEvent(`navigate-back`, { detail: { navigateBackTo: INSURE_RENDER_MODE.POLICY_SUMMARY } }));
+			this.dispatchEvent(new CustomEvent(`navigate-back`, { detail: { navigateBackTo: INSURE_RENDER_MODE.CLIENT_POLICIES } }));
 	}
 
 	/**

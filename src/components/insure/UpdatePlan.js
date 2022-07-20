@@ -2,6 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
 // Lookups
 import { BANK_OPTIONS, ACCOUNT_TYPES, DEBIT_ORDER_DAY_OPTIONS, GENDER_OPTIONS, TITLE_OPTIONS } from 'app/constants/InsureCommon';
@@ -580,6 +581,9 @@ class UpdatePlan extends Component {
 		return [
 			super.styles,
 			css`
+
+			${INSURE_CSS}
+
 			capitec-label[type="Strong"] {
 				line-height: 20px;
 				--theme-label-strong-font-size: 18px;
@@ -843,17 +847,20 @@ class UpdatePlan extends Component {
 		return html`
 		<capitec-title-bar type="insure" class="insure-title-bar">
 			<img class="action-image" src="/images/insure/left-arrow.svg" @click="${() => this._backToSummaryPage()}" />
-			<capitec-label label="Update Plan ${ this.canReinstate ? `` : `#${ this.policyDetails.contractReference }`}" type="title"></capitec-label>
+			<capitec-label label="${ this.canReinstate ? `Reinstate` : `Update Plan #${ this.policyDetails.contractReference }`}" type="title"></capitec-label>
 			<capitec-spacer></capitec-spacer>
 			${ this.canReinstate ? 
-				html `<capitec-button label="Reinstate" type="white" @click="${() => this._onReinstatePolicyPopup() }"></capitec-button>` 
+				html `<capitec-button label="Reinstate" type="white" class="capitec-button-medium"
+					@click="${() => this._onReinstatePolicyPopup() }"></capitec-button>` 
 				:
 				html `
 					${this.selectedTabIndex == 0 ? html`
-					<capitec-button label="Calculate" type="white" @click="${() => this._calculatePremium()}">
+					<capitec-button label="Calculate" type="white" class="capitec-button-medium"
+						@click="${() => this._calculatePremium()}">
 					</capitec-button>
 					`: html``}
-					<capitec-button label="Update Plan" type="white" @click="${() => this._onUpdatePlan()}">
+					<capitec-button label="Update Plan" type="white" class="capitec-button-medium"
+						@click="${() => this._onUpdatePlan()}">
 					</capitec-button>
 			`}
 		</capitec-title-bar>
@@ -1528,7 +1535,7 @@ class UpdatePlan extends Component {
 		return this.showUpdatePlanAgreementDialog == false ? `` : html`
 		<insure-update-plan-agreement-dialog @close-modal="${() => this._closeUpdatePlanAgreementDialog()}"
 			.planAgreementContent="${this.planAgreementContent}" .paymentAgreementContent="${this.paymentAgreementContent}"
-			@agree-click="${() => this._acceptUpdatedPlan()}">
+			@update-plan-agree-click="${() => this._acceptUpdatedPlan()}" .contractReference="${this.policyDetails.contractReference}">
 		</insure-update-plan-agreement-dialog>`
 	}
 

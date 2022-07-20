@@ -8,11 +8,11 @@
 	"email": ``,
 	"cIFNumber": ``,
 	"contractReference": ``,
-	"attachments": [
+	"documentInfo": [
 		{
-			"iD": ``,
-			"type": ``,
-			"guid": ``,
+			"documentId": ``,
+			"documentType": ``,
+			"documentGuid": ``,
 			"content": ``
 		}
 	]
