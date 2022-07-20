@@ -34,7 +34,7 @@ class CancelPolicySuccess extends Component {
 	/**
 	 * @property {String} showEmailPlanDialog - Show flag for email address & send dialog
 	 * @property {String} contractReference
-	 * @property {String} titleMessage - title fo send email popup.
+	 * @property {String} titleMessage - title of send email popup.
 	 * @readonly
 	 * @static
 	 */

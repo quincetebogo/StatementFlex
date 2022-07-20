@@ -64,7 +64,7 @@ class PayPremiumAgreementDialog extends Component {
 	 * Agree event from dialog footer, closes modal and navigates to Pay Premium Success page
 	 */
 	_onAgreeClick() {
-		this.dispatchEvent(new CustomEvent(`agree`, {}));
+		this.dispatchEvent(new CustomEvent(`pay-premium-agree`, {}));
 	}
 
 	//#endregion

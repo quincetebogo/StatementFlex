@@ -210,6 +210,7 @@ export const INSURE_CALLER_PAGE = Object.freeze({
 	CANCEL_POLICY: 1,
 	UPDATE_PLAN: 2,
 	REINSTATE_POLICY: 3,
+	PAY_PREMIUM: 4
 });
 
 /**

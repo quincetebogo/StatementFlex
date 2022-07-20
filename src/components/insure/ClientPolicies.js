@@ -920,7 +920,7 @@ _renderCancelPolicyConfirmationDialog(){
 		return this.showPayPremiumAgreementDialog == false ? `` :
 			html`
 			<insure-pay-premium-agreement-dialog @close-modal="${(e) => this._closePayPremiumAgreementDialog()}"
-			@agree="${(e) => this._goToPayPremiumSuccess()}" .amountToPay = ${this.amountToPay} .contractReference= ${this.clientArrears.contractReference}>	
+				@pay-premium-agree = "${(e) => this._goToPayPremiumSuccess()}" .amountToPay = ${this.amountToPay} .contractReference= ${this.clientArrears.contractReference}>	
 			</insure-pay-premium-agreement-dialog>`
 
 	}

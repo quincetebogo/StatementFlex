@@ -298,6 +298,10 @@
 		"insureCancelPolicy": {
 			"enabled": true,
 			"positiveCase": true
+		},
+		"insurePolicyPay": {
+			"enabled": true,
+			"positiveCase": true
 		}
 	},
 	"searchClientOptionEnabled": true

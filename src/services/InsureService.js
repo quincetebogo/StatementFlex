@@ -550,6 +550,9 @@ export class InsureService extends ChannelServiceBase {
 	 */
 	
 	 async payPolicy(payArrearsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insurePolicyPay`)) {
+			return this.mock(`insurePolicyPay`);
+		}
 		return this.post(
 			`/FuneralInsuranceProductService/policy/pay`,
 			payArrearsRequest,

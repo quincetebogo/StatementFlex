@@ -305,8 +305,6 @@ export class ExistingClient extends InsureViewBase {
 			savingsPlanData: savingsPlanData?.result
 		}
 
-		
-
 		return resp;
 	}
 
@@ -390,7 +388,7 @@ export class ExistingClient extends InsureViewBase {
 
                 "dateOfBirth": dob.toISOString(), //"2000-11-25T22:00:00.000Z"
             },
-            "emailDetails": {
+            "emailDetails": { 
                 "email": "test@test.com"
             },
             "input": {
@@ -415,8 +413,6 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {Object} Estimate response
 	 */
 	async _payPolicy(e) {
-		
-
 		let payArrears = {};
 		payArrears.contractReference = e.detail.payArrears.contractReference;
 		payArrears.arrears = e.detail.payArrears.arrears;
@@ -425,6 +421,13 @@ export class ExistingClient extends InsureViewBase {
 		
 		const resp = await this.insureService.payPolicy(payArrears, () => true);
 		if (resp.succeeded == true && resp.result != null) {
+			this.contractReference = e.detail.payArrears.contractReference;
+
+			const sumArrears = e.detail.payArrears.arrears?.reduce((accumulator, object) => {
+				return accumulator + (object.amount ?? 0);
+			}, 0);
+
+			this.amountToPay = sumArrears;
 			this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
 		} 
 		else {
@@ -818,6 +821,8 @@ export class ExistingClient extends InsureViewBase {
 
 		if(e.detail.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY)
 			this.callerPage = INSURE_CALLER_PAGE.CANCEL_POLICY;
+		else if(e.detail.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM)
+			this.callerPage = INSURE_CALLER_PAGE.PAY_PREMIUM;
 
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.email =  e.detail.emailId.detail.emailAddress;
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.cIFNumber =  this.callerInformation.cifNumber;
@@ -1033,7 +1038,9 @@ export class ExistingClient extends InsureViewBase {
 	_renderPayPremiumSuccessPage() {
 		return html`
 		<horizon-pay-premium-success-page @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-			@navigate-to-email-success-page="${() => this._goToEmailSuccessPage()}">
+			@navigate-to-email-success-page="${() => this._goToEmailSuccessPage()}"
+			.amountToPay = "${this.amountToPay}" .contractReference = "${this.contractReference}"
+			@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}">
 		</horizon-pay-premium-success-page>
 		
 	`}
