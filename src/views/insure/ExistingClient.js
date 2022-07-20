@@ -17,7 +17,7 @@ import 'app/components/insure/EmailPlanSuccess';
 import 'app/components/insure/PayPremiumSuccess';
 import 'app/components/insure/PolicyTransactionHistory';
 import 'app/components/insure/SMSHistory';
-import { CommsHistory } from '../../mocks/insure/CommunicationHistory';
+
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -125,7 +125,7 @@ export class ExistingClient extends InsureViewBase {
 		this.clientPolicies = await this._retrieveClientPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
 		this.accountDetails = await this._retrieveAccountDetails();
 		this.commsHistory = await this._retrieveCommsHistory();
-		
+		console.log(this.accountDetails)
 	}
 
 	/**
@@ -175,7 +175,7 @@ export class ExistingClient extends InsureViewBase {
 	async _retrievePolicySummary(contractReference, cifNumber, idNumber) {
 		let	request = {
 			contractReference: contractReference,
-			cifNumber: cifNumber,
+			cifNumber: parseInt(cifNumber),
 			idNumber: idNumber
 		}
 		const resp = await this.insureService.insurePolicySummary(request);
@@ -234,17 +234,19 @@ export class ExistingClient extends InsureViewBase {
 
 		this.cancellationReason = e.detail.cancellationReason;
 
-		let cancelPolicyDetails = {};
-		cancelPolicyDetails.contractReference = e.detail.contractReference;
-		cancelPolicyDetails.cifNumber = this.callerInformation.cifNumber;
-		cancelPolicyDetails.idNumber = this.callerInformation.southAfricanIDNumber;
-		cancelPolicyDetails.cancellationReason = this.cancellationReason;
-		cancelPolicyDetails.documents = [];
-		console.log(cancelPolicyDetails)
-		// cancelPolicyDetails.documents.documentCode= "";
-		// cancelPolicyDetails.documents.documentName = "";
-		// cancelPolicyDetails.documents.guid = "";
+		let cancelPolicyDetails = {
+			"contractReference": e.detail.contractReference,
+			"cifNumber": this.callerInformation.cifNumber,
+			"idNumber": this.callerInformation.southAfricanIDNumber,
+			"cancellationReason": this.cancellationReason,
+			"documents": {
+				"documentCode": "",
+				"documentName": "",
+				"guid": "",
+			}
 
+		};
+		console.log(cancelPolicyDetails)
 		const resp = await this.insureService.cancelPolicy(cancelPolicyDetails, () => true);
 		if (resp.succeeded == true && resp.result != null) {
 			this._goToCancelPolicySuccess(e)
@@ -260,29 +262,33 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	 async _cancelPolicyAgreement(contractReference, cancelReason) {
 
-		let cancelPolicyAgreementDetails = {}
+		let dob = new Date(this.callerInformation.birthdate)
 
-		cancelPolicyAgreementDetails.documentFormat = "PDF";
-		cancelPolicyAgreementDetails.saveDocumentToDocumentum = false;
-		cancelPolicyAgreementDetails.returnDocumentContent = true;
-		cancelPolicyAgreementDetails.emailDocumentToClient = false;
-		cancelPolicyAgreementDetails.wetsignBarcode = false;
+		let cancelPolicyAgreementDetails = {
 
-		cancelPolicyAgreementDetails.clientDetails= [];
-			cancelPolicyAgreementDetails.clientDetails.cifNumber = this.callerInformation.cifNumber;
-			cancelPolicyAgreementDetails.clientDetails.primarySavingsAccountNumber = 0;
-			cancelPolicyAgreementDetails.clientDetails.policyContractReference = contractReference;
-			cancelPolicyAgreementDetails.clientDetails.firstName = this.callerInformation.firstName;
-			cancelPolicyAgreementDetails.clientDetails.surname = this.callerInformation.lastName;
-			cancelPolicyAgreementDetails.clientDetails.idNumber = this.callerInformation.southAfricanIDNumber;
-			cancelPolicyAgreementDetails.clientDetails.dateOfBirth = this.callerInformation.birthdate;
+			"documentFormat": "PDF",
+			"saveDocumentToDocumentum": false,
+			"returnDocumentContent": true,
+			"emailDocumentToClient": false,
+			"wetsignBarcode": false,
 
-		cancelPolicyAgreementDetails.emailDetails= [];
-			cancelPolicyAgreementDetails.emailDetails.email = "";
-
-		cancelPolicyAgreementDetails.input= [];
-			cancelPolicyAgreementDetails.input.cancellationReason = cancelReason;
-		
+			"clientDetails": {
+				"cifNumber": parseInt(this.callerInformation.cifNumber),
+				"primarySavingsAccountNumber":  parseInt(this.accountDetails.savingsAccountData.accountNumber),
+				"policyContractReference": contractReference,
+				"firstName": this.callerInformation.firstName,
+				"surname": this.callerInformation.lastName,
+				"idNumber": this.callerInformation.southAfricanIDNumber,
+				"dateOfBirth": dob.toISOString(),
+			},
+			"emailDetails": {
+				"email": "test@test.com",
+			},
+			"input": {
+				"cancellationReason": cancelReason,
+			},
+			
+		}
 		console.log(cancelPolicyAgreementDetails)
 		console.log(this.callerInformation)
 
@@ -303,11 +309,12 @@ export class ExistingClient extends InsureViewBase {
 	async _payPolicy(e) {
 		
 
-		let payArrears = {};
-		payArrears.contractReference = e.detail.payArrears.contractReference;
-		payArrears.arrears = e.detail.payArrears.arrears;
-		payArrears.cifNumber = this.callerInformation.cifNumber;
-		payArrears.fromAccount = e.detail.fromAccount
+		let payArrears = {
+			"contractReference": e.detail.payArrears.contractReference,
+			"arrears": e.detail.payArrears.arrears,
+			"cifNumber": this.callerInformation.cifNumber,
+			"fromAccount": e.detail.fromAccount
+		};
 		
 		const resp = await this.insureService.payPolicy(payArrears, () => true);
 		if (resp.succeeded == true && resp.result != null) {
@@ -327,19 +334,22 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _retrieveCommsHistory(startDate, endDate) {
 		
-		// let commsHistoryDetails = {};
-		// commsHistoryDetails.cifNumber = this.callerInformation.cifNumber;
-		// commsHistoryDetails.filters = [];
-		// 	commsHistoryDetails.filters.contractReference = "";
-		// 	commsHistoryDetails.filters.contactNumber = this.callerInformation.verifiedTelephoneNumber;
-		// 	commsHistoryDetails.filters.medium = "SMS";
-		// commsHistoryDetails.fromDate = fromDate || this.COMMUNICATION_HISTORY.START_DATE;
-		// commsHistoryDetails.toDate = startDate || this.COMMUNICATION_HISTORY.END_DATE;
-		// commsHistoryDetails.pagniation = [];
-		// 	commsHistoryDetails.pagniation.pageIndex = this.COMMUNICATION_HISTORY.PAGE_INDEX;
-		// 	commsHistoryDetails.pagniation.totalPerPage = this.COMMUNICATION_HISTORY.MAX_RESULTS;
+		let commsHistoryDetails = {
+			"cifNumber": this.callerInformation.cifNumber,
+			"filters": {
+				"contractReference": "",
+				"contactNumber": this.callerInformation.verifiedTelephoneNumber,
+				"medium": "SMS",
+			},
+			"fromDate": startDate || COMMUNICATION_HISTORY.START_DATE,
+			"toDate": endDate || COMMUNICATION_HISTORY.END_DATE,
+			"pagniation": {
+				"pageIndex": COMMUNICATION_HISTORY.PAGE_INDEX,
+				"totalPerPage": COMMUNICATION_HISTORY.MAX_RESULTS,
+			}
+		};
 
-		const resp = await this.insureService.commsHistory({}, () => true);
+	const resp = await this.insureService.commsHistory(commsHistoryDetails, () => true);
 		if (resp.succeeded == true && resp.result != null) {
 			
 			console.log(resp)

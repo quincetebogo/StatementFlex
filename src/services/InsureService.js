@@ -275,7 +275,7 @@ export class InsureService extends ChannelServiceBase {
 	 */
 	 async cancelPolicy(cancelPolicyRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
-			`/horizon-insurance/policy/cancel`,
+			`/FuneralInsuranceProductService/policy/cancel`,
 			cancelPolicyRequest,
 			this.setInsureTokens(),
 			`cancelPolicy`,
@@ -323,7 +323,7 @@ export class InsureService extends ChannelServiceBase {
 	 */
 	  async cancelPolicyAgreement(GenerateCancelAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
-			`/FuneralInsuranceProductService/policy/cancel`,
+			`/FuneralInsuranceProductService/document/generate/CancelPolicyAgreement`,
 			GenerateCancelAgreementRequest,
 			this.setInsureTokens(),
 			`cancelPolicyAgreement`,

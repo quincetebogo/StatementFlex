@@ -55,15 +55,6 @@ class CancelPolicySuccess extends Component {
 
 //#region EVENT HANDLERS
 
-/**
- * Navigate to Landing
- */
- _onEmailClick() {
-	this.dispatchEvent(new CustomEvent(`email`, {
-		detail: {
-		}
-	}));
-}
 
 /**
  * Event to open the email plan dialog
