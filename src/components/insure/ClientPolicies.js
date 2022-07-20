@@ -11,6 +11,7 @@ import 'app/components/common/HorizonExpander';
 import 'app/components/dialogs/insure/PayPremiumDialog';
 import 'app/components/dialogs/insure/PayPremiumConfirmationDialog';
 import 'app/components/dialogs/insure/PayPremiumAgreementDialog';
+import 'app/components/dialogs/insure/LodgeClaimInfoDialog';
 
 import 'app/components/dialogs/insure/CancelPolicyDialog';
 import 'app/components/dialogs/insure/EmailPlanDialog';
@@ -48,6 +49,7 @@ class ClientPolicies extends Component {
 		this.showPayPremiumDialog = false;
 		this.showPayPremiumConfirmationDialog = false;
 		this.showPayPremiumAgreementDialog = false;
+		this.showLodgeClaimInfoDialog = false;
 		this.amountToPay = 0;
 
 		this.clientPolicies = null;
@@ -81,6 +83,7 @@ class ClientPolicies extends Component {
 			showPayPremiumDialog: { type: Boolean, state: true},
 			showPayPremiumConfirmationDialog: {type: Boolean, state: true},
 			showPayPremiumAgreementDialog: {type: Boolean, state: true},
+			showLodgeClaimInfoDialog: {type: Boolean, state: true},
 			amountToPay: {type: Number, state: true},
 			contractRef: {type: String, state: true},
 			getCancelPolicyDocument: {type: Object, state: true},
@@ -124,9 +127,11 @@ class ClientPolicies extends Component {
 	/**
 	 * Fire navigate event to Update Plan
 	 */
-	_goToUpdatePlan(contractReference) {
+	_goToUpdatePlan(contractReference, canReinstate) {
 		this.dispatchEvent(new CustomEvent(`navigate-to-update-plan`, {
-			detail: { policyContractReference: contractReference
+			detail: { 
+				policyContractReference: contractReference
+				,canReinstate: canReinstate
 			}
 		}));
 	}
@@ -290,7 +295,20 @@ class ClientPolicies extends Component {
 	_closePayPremiumDialog() {
 		this.showPayPremiumDialog = false;
 	}
+	
+	/**
+	 * Open Lodge Death Claim Info dialog 
+	 */
+	 _openLodgeClaimInfoDialog() {
+		this.showLodgeClaimInfoDialog = true;
+	}
 
+	/**
+	 * Close Lodge Death Claim Info 
+	 */
+	_closeLodgeClaimInfoDialog() {
+		this.showLodgeClaimInfoDialog = false;
+	}
 	async _getCancelPolicyDocument(contractReference, cancelReason){
 		await this.getCancelPolicyDocument(contractReference, cancelReason)
 	}
@@ -363,12 +381,12 @@ class ClientPolicies extends Component {
 				border-top-right-radius: 5px;
 			}
 			capitec-tab-group {
-				--theme-tab-tab-bar-background-color: linear-gradient(315deg, #70838C 0%, #667F8C 47.52%, #41525B 100%);
+				/*--theme-tab-tab-bar-background-color: linear-gradient(315deg, #70838C 0%, #667F8C 47.52%, #41525B 100%);
 				--theme-tab-hover-background-color: transparent;
 				--theme-tab-selected-indicator-color: #FFFFFF;
 				--theme-tab-selected-font-color: #FFFFFF;
+				--theme-tab-font-color: #FFFFFF;*/
 				--theme-tab-indicator-border-radius: 0px;
-				--theme-tab-font-color: #FFFFFF;
 				--theme-tab-border-bottom: 0px;
 				--theme-tab-font-weight: 400;
 				--theme-container-padding-left: 0px;
@@ -548,6 +566,7 @@ class ClientPolicies extends Component {
 			${this._renderPayPremiumDialog()}
 			${this._renderPayPremiumConfirmationDialog()}
 			${this._renderPayPremiumAgreementDialog()}
+			${this._renderLodgeClaimInfoDialog()}
 			${this._renderError()}
 			${this._renderCancelPolicyDialog()}
 			${this._renderCancelPolicyConfirmationDialog()}
@@ -566,6 +585,9 @@ class ClientPolicies extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
+					<capitec-button type="white"  label="Lodge Claim" data-automation-id="insure-landing-lodge-claim"
+						@click="${() => this._openLodgeClaimInfoDialog()}">
+					</capitec-button>
 					${this.readOnlyMode == true ? html`` : html `
 					<capitec-button type="white" label="Get Estimate" data-automation-id="insure-landing-get-estimate"
 						@click="${() => this._goToEstimate()}"></capitec-button>
@@ -584,7 +606,7 @@ class ClientPolicies extends Component {
 	 */
 	_renderPoliciesLandingContent() {
 		return html`
-			<capitec-tab-group class="tabs">
+			<capitec-tab-group>
 				<capitec-tab
 					data-automation-id="insure-landing-policies-tab"
 					label="Policies">
@@ -593,14 +615,14 @@ class ClientPolicies extends Component {
 					</capitec-content-box>
 					${this._renderFooter()}
 				</capitec-tab>
-				<capitec-tab
+				<!-- <capitec-tab
 					data-automation-id="insure-landing-claims-tab"
 					label="Claims">
 					<capitec-content-box  class="accounts-box">
 						<label>Claims - Coming soon to a sprint near you!</label>
 					</capitec-content-box>
 					${this._renderFooter()}
-				</capitec-tab>
+				</capitec-tab> -->
 			</capitec-tab-group>`;
 	}
 
@@ -611,6 +633,8 @@ class ClientPolicies extends Component {
 	_renderPoliciesDetailsBar()
 	{
 		this.policiesList = this.clientPolicies?.summaryDetails?.policies;
+
+		this.policiesList?.forEach(item => { item["isExpanded"] = false; });
 
 		this.policiesList?.sort((a, b) => Status[a.status] - Status[b.status] 
 			|| (new Date(b.commencementDate) - new Date(a.commencementDate)));
@@ -634,9 +658,6 @@ class ClientPolicies extends Component {
 					gap="clear"
 					halign="left"
 					valign="center">
-					${policyItem.arrearDetails?.outstandingAmount > 0 ? html`<capitec-icon class="capitec-info-icon" icon="system/info-action"
-						@click="${(policyItem) => this._goToPolicySummary(policyItem.contractReference)}"></capitec-icon>` 
-							: html`<span class="policy-item"></span>`}
 						<horizon-label
 							class="label-policy-number fixed-label"
 							data-automation-id="insure-policy-contract-reference"
@@ -695,48 +716,70 @@ class ClientPolicies extends Component {
 		return html`
 			<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
 			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
-				${policyItem.arrearDetails.outstandingAmount > 0 && this.readOnlyMode == false ? 
+				${ policyItem.canReinstate ? 
 					html `
-				<horizon-option-button 
-					data-automation-id="insure-policy-options-pay-arrears"
-					class="button-margin" 
-					label="Pay Arrears" 
-					icon="status/error"
-					@click="${() => this._openPayPremiumDialog(policyItem)}">
-				</horizon-option-button>
-				` : ``}
-				<horizon-option-button 
-					data-automation-id="insure-policy-options-update-plan"
-					class="button-margin" 
-					label="Update Plan" icon="system/profile-action" @click="${() => this._goToUpdatePlan(policyItem.contractReference)}"
-					.disabled="${this.readOnlyMode}"
-					>
-				</horizon-option-button>
-				<horizon-option-button
-					data-automation-id="insure-policy-options-claims"
-					class="button-margin" 
-					label="Claims" 
-					icon="system/documents-action"
-					.disabled="${this.readOnlyMode}">
-				</horizon-option-button>
-				<horizon-option-button 
-					data-automation-id="insure-policy-options-email-plan"
-					class="button-margin" 
-					label="Email Plan" 
-					icon="system/profile-action" 
-					.disabled="${this.readOnlyMode}"
-					>
-				</horizon-option-button>
-				${policyItem.arrearDetails?.outstandingAmount < 1 ? 
-					html `
-				<horizon-option-button 
-					data-automation-id="insure-policy-options-benefits"
-					class="button-margin" 
-					label="Benefits" 
-					icon="system/sars-action"
-					.disabled="${this.readOnlyMode}">
-				</horizon-option-button>
+					<horizon-option-button 
+						data-automation-id="insure-policy-options-reinstate"
+						class="button-margin" 
+						label="Reinstate" 
+						icon="system/history-action"
+						@click="${() => this._goToUpdatePlan(policyItem.contractReference, policyItem.canReinstate)}"
+						.disabled="${this.readOnlyMode}">
+					</horizon-option-button>
+					<horizon-option-button 
+						data-automation-id="insure-policy-options-email-plan"
+						class="button-margin" 
+						label="Email Plan" 
+						icon="system/profile-action"
+						.disabled="${this.readOnlyMode}">
+					</horizon-option-button>` 
+					: 
+					html `${policyItem.arrearDetails.outstandingAmount > 0 ? 
+						html `
+						<horizon-option-button 
+							data-automation-id="insure-policy-options-pay-arrears"
+							class="button-margin" 
+							label="Pay Arrears" 
+							icon="status/error"
+							@click="${() => this._openPayPremiumDialog(policyItem)}"
+							.disabled="${this.readOnlyMode}">
+						</horizon-option-button>
+					` : ``}
+					${policyItem.status == 'Active' ? 
+						html `<horizon-option-button 
+						data-automation-id="insure-policy-options-update-plan"
+						class="button-margin" 
+						label="Update Plan" 
+						icon="system/profile-action"
+						@click="${() => this._goToUpdatePlan(policyItem.contractReference)}"
+						.disabled="${this.readOnlyMode}">
+					</horizon-option-button>
+					` : ``}
+					<horizon-option-button
+						data-automation-id="insure-policy-options-claims"
+						class="button-margin" 
+						label="Claims" 
+						icon="system/documents-action"
+						.disabled="${this.readOnlyMode}">
+					</horizon-option-button>
+					<horizon-option-button 
+						data-automation-id="insure-policy-options-email-plan"
+						class="button-margin" 
+						label="Email Plan" 
+						icon="system/profile-action"
+						.disabled="${this.readOnlyMode}">
+					</horizon-option-button>
+					${policyItem.arrearDetails.outstandingAmount < 1 ? 
+						html `
+					<horizon-option-button 
+						data-automation-id="insure-policy-options-benefits"
+						class="button-margin" 
+						label="Benefits" 
+						icon="system/sars-action"
+						.disabled="${this.readOnlyMode}">
+					</horizon-option-button>
 				` : ``}	
+				`}
 				${this._renderSubMenu(policyItem)}
 			</capitec-group>
 		`;
@@ -877,7 +920,7 @@ _renderCancelPolicyConfirmationDialog(){
 		return this.showPayPremiumAgreementDialog == false ? `` :
 			html`
 			<insure-pay-premium-agreement-dialog @close-modal="${(e) => this._closePayPremiumAgreementDialog()}"
-			@agree="${(e) => this._goToPayPremiumSuccess()}" .amountToPay = ${this.amountToPay} .contractReference= ${this.clientArrears.contractReference}>	
+				@pay-premium-agree = "${(e) => this._goToPayPremiumSuccess()}" .amountToPay = ${this.amountToPay} .contractReference= ${this.clientArrears.contractReference}>	
 			</insure-pay-premium-agreement-dialog>`
 
 	}
@@ -892,6 +935,17 @@ _renderCancelPolicyConfirmationDialog(){
 			
 			`
 		
+	}
+
+	/**
+	 * Render Lodge Claim Info Dialog 
+	 * @return {html} Html of the dialog
+	 */
+	_renderLodgeClaimInfoDialog() {
+		return this.showLodgeClaimInfoDialog == false ? `` :
+			html`
+			<insure-lodge-claim-info-dialog @confirm="${(e) => this._closeLodgeClaimInfoDialog()}">	
+			</insure-lodge-claim-info-dialog>`
 	}
 
 	//#endregion RENDERING

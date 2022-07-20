@@ -163,6 +163,26 @@
 		"insurePolicySummary": {
 			"enabled":false,
 			"positiveCase": true
+		},
+		"insureReinstateQuoteCalc": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureCreatePolicy": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureSendEmail": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureCancelPolicy": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insurePolicyPay": {
+			"enabled": true,
+			"positiveCase": true
 		}
 	},
 	"searchClientOptionEnabled": true
