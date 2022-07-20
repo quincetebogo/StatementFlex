@@ -832,7 +832,13 @@ export class SearchCaller extends Component {
 					margin: 0px 0px 16px 0px;
 					--theme-label-title-font-size: 18px;
 					--theme-label-title-font-weight: 600;
-				}`
+				}
+				#id-label-enter-branch-details {
+					margin: 0px 0px 16px 0px;
+					--theme-label-title-font-size: 18px;
+					--theme-label-title-font-weight: 600;
+				}
+			`
 		];
 	}
 
@@ -1005,6 +1011,11 @@ export class SearchCaller extends Component {
 		if (this.clientType === CLIENT_TYPE.BRANCH) {
 			return html`
 				<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" class="nonClient-fields-group">
+					<capitec-label
+						id="id-label-enter-branch-details"
+						type="title"
+						label="Enter branch details">
+					</capitec-label>
 					<div class="branch-field-row">
 						<capitec-text-field
 							id="cpNumber"
