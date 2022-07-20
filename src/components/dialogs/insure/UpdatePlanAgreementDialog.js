@@ -117,9 +117,6 @@ class UpdatePlanAgreementDialog extends Component {
 				.alert-banner {
 					padding: 0px 0px 16px 0px;
 				}
-				.iframe-content {
-					height: 100%;
-				}
 				`
 		];
 	}
@@ -158,16 +155,20 @@ class UpdatePlanAgreementDialog extends Component {
 
 			<capitec-expander-group modeset="single">
 				<div class="expander">
-					<capitec-expander expandbuttonalignment="left" label="View Policy Schedule"
+					<capitec-expander expandbuttonalignment="left" label="View Policy Schedule" class="pdf-viewer"
 						data-automation-id="insure-pay-premium-agreement-dialog-view-policy-schedule">
-						<iframe class="iframe-content" src="data:application/pdf;base64,${ this.planAgreementContent }" alt="agreement"></iframe>
+						<iframe title="UpdatePlanAgreement" height = "100%" frameborder = "0"
+							src="data:application/pdf;base64,${ this.planAgreementContent }#view=fitH">
+						</iframe>
 					</capitec-expander>
 				</div>
 			
 				<div>
-					<capitec-expander expandbuttonalignment="left" label="View Mandate"
+					<capitec-expander expandbuttonalignment="left" label="View Mandate" class="pdf-viewer"
 						data-automation-id="insure-pay-premium-agreement-dialog-view-mandate">
-							<iframe class="iframe-content" src="data:application/pdf;base64,${ this.paymentAgreementContent }" alt="agreement"></iframe>
+							<iframe title="UpdatePaymentAgreement" height = "100%" frameborder = "0"
+								src="data:application/pdf;base64,${ this.paymentAgreementContent }#view=fitH">
+							</iframe>
 					</capitec-expander>
 				</div>
 			</capitec-expander-group>

@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { formatDate } from '../../../utils/channelServiceUtilities';
+import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
 // Lookups
 import { CANCELATION_REASONS } from 'app/constants/InsureCommon';
@@ -156,6 +157,8 @@ class CancelPolicyDialog extends Component {
 		return [
 			super.styles,
 			css`
+				
+				${ INSURE_CSS }
 
 				.notification > capitec-toast{
 					--theme-toast-height: 110px;
@@ -193,10 +196,6 @@ class CancelPolicyDialog extends Component {
 
 				capitec-expander > capitec-content-box {
 					padding: 0 !important;
-				}
-
-				.iframe-content {
-					height: 100%;
 				}
 				.cancel-policy-modal{
 					--theme-modal-alert-m-l-xl-width: 840px;
@@ -257,8 +256,11 @@ class CancelPolicyDialog extends Component {
 			</capitec-content-box>
 
 			<capitec-content-box class="no-padding">
-				<capitec-expander expandbuttonalignment="left" label="View Cancellation Agreement" data-automation-id="insure-cancel-policy-dialog-view-cancellation-agreement">
-					<iframe class="iframe-content" src="data:application/pdf;base64,${this.cancelPolicyDocumentDetails?.documentContent }" alt="agreement"></iframe>
+				<capitec-expander expandbuttonalignment="left" label="View Cancellation Agreement" class="pdf-viewer"
+					data-automation-id="insure-cancel-policy-dialog-view-cancellation-agreement">
+					<iframe title="CancelPolicyAgreement" height = "100%" frameborder = "0"
+						src="data:application/pdf;base64,${ this.cancelPolicyDocumentDetails?.documentContent }#view=fitH">
+					</iframe>
 				</capitec-expander>
 			</capitec-content-box>
 

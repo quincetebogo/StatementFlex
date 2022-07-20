@@ -29,4 +29,10 @@ export const INSURE_CSS = css`
 		justify-content: center;
 		align-items: center;
 	}
+	.pdf-viewer{
+		--theme-container-padding-left: 0px;
+		--theme-container-padding-right: 0px;
+		--theme-container-padding-top: 0px;
+		--theme-container-padding-bottom: 0px;
+	}
 `;

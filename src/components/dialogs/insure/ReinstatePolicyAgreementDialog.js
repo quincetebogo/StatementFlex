@@ -111,10 +111,6 @@ class ReinstatePolicyAgreementDialog extends Component {
 				.alert-banner {
 					padding: 0px 0px 16px 0px;
 				}
-				.iframe-content {
-					height: 100%;
-				}
-
 				`
 		];
 	}
@@ -151,16 +147,19 @@ class ReinstatePolicyAgreementDialog extends Component {
 			
 			${this._renderAlertBanner()}
 			
-			<capitec-expander-group modeset="single" class="expander">
-				<capitec-expander expandbuttonalignment="left" label="View Policy Schedule"
+			<capitec-expander-group modeset="single">
+				<capitec-expander expandbuttonalignment="left" label="View Policy Schedule" class="pdf-viewer"
 					data-automation-id="insure-reinstate-policy-agreement-dialog-view-policy-schedule">
-					<capitec-label label=""></capitec-label>
-					<iframe class="iframe-content" src="data:application/pdf;base64,${ this.issuePlanAgreementContent }" alt="agreement"></iframe>
+					<iframe title="ReinstateIssueAgreement" height = "100%" frameborder = "0"
+						src="data:application/pdf;base64,${ this.issuePlanAgreementContent }#view=fitH">
+					</iframe>
 				</capitec-expander>
 		
-				<capitec-expander expandbuttonalignment="left" label="View Mandate"
+				<capitec-expander expandbuttonalignment="left" label="View Mandate" class="pdf-viewer"
 					data-automation-id="insure-reinstate-policy-agreement-dialog-view-mandate">
-					<iframe class="iframe-content" src="data:application/pdf;base64,${ this.paymentAgreementContent }" alt="agreement"></iframe>
+					<iframe title="ReinstatePaymentAgreemnt" height = "100%" frameborder = "0"
+						src="data:application/pdf;base64, ${ this.paymentAgreementContent }#view=fitH">
+					</iframe>
 				</capitec-expander>
 			</capitec-expander-group>
 
