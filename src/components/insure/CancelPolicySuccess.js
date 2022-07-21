@@ -67,6 +67,7 @@ class CancelPolicySuccess extends Component {
 
 //#region EVENT HANDLERS
 
+
 /**
  * Event to open the email plan dialog
  */

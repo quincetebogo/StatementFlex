@@ -526,7 +526,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insureCancelPolicy`);
 		}
 		return this.post(
-			`/horizon-insurance/policy/cancel`,
+			`/FuneralInsuranceProductService/policy/cancel`,
 			cancelPolicyRequest,
 			this.setInsureTokens(),
 			`cancelPolicy`,
@@ -588,6 +588,30 @@ export class InsureService extends ChannelServiceBase {
 			errorHandler,
 			autoRetries
 		);
+	}
+
+	/**
+	 * generate document 809 (Cancel Policy Agreement)
+	 *
+	 * @param {GenerateArrearsPaymentInstructionRequest} [errorHandler=null]  Request data to generate Cancel Policy Agreement
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async arrearsPaymentInstruction(GenerateArrearsPaymentInstructionRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.post(
+			`/FuneralInsuranceProductService/document/generate/CapitecBankFuneralArrearsPaymentInstruction`,
+			GenerateArrearsPaymentInstructionRequest,
+			this.setInsureTokens(),
+			`arrearsPaymentInstruction`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+
 	}
 
 

@@ -41,7 +41,7 @@ class CancelPolicyDialog extends Component {
 	 * @property {Boolean} checked determines if terms and conditions have been agreed to 
 	 * @property {String} contractReference contains the contract reference
 	 * @property {String} cancelReason contains the chosen cancellation reason
-	 * @property {Object} getCancelPolicyDocument Callback function to fetch Cancel Policy Agreement
+	 * @property {Function} getCancelPolicyDocument Callback function to fetch Cancel Policy Agreement
 	 * @property {Object} cancelPolicyDocumentDetails contains the cancel policy agreement document details
 	 * 
 	 */
@@ -69,6 +69,8 @@ class CancelPolicyDialog extends Component {
 		this._initialize();
 
 	 }
+
+	 //#endregion
 
 
 	//#region PRIVATE METHODS
@@ -106,12 +108,12 @@ class CancelPolicyDialog extends Component {
 
 		this.cancelReason = e.detail.new.code;
 
-		this._GetCancelAgreement(this.cancelReason)
+		this._getCancelAgreement(this.cancelReason)
 
 		this.requestUpdate();
 	}
 
-	async _GetCancelAgreement(cancelReason){
+	async _getCancelAgreement(cancelReason){
 		await this.getCancelPolicyDocument(this.contractReference, cancelReason);
 	}
 

@@ -62,13 +62,15 @@ class ClientPolicies extends Component {
 	/**
 	 * @property {Object} clientArrears Data & flags from Arrears Service
 	 * @property {boolean} showPayPremiumDialog Determines if the Pay Premium dialog should be shown
-	 * @property {Function} getCancelPolicyDocument
+	 * @property {Function} getCancelPolicyDocument Callback function to fetch Cancel Policy Agreement
 	 * @property {Object} payArrears contains the arrears that will be paid
 	 * @property {boolean} showPayPremiumConfirmationDialog Determines if the Pay Premium Confirmation dialog should be shown
 	 * @property {boolean} showPayPremiumAgreementDialog Determines if the Pay Premium Agreement dialog should be shown
 	 * @property {Number} amountToPay contains the total arrear amount to be paid
 	 * @property {Number} fromAccount contains the account number for the account the client will be paying from
 	 * @property {Object} accountDetails contains the clients Savings Account and Savings Plan details
+	 * @property {Function} getArrearsPaymentDocument Callback function to fetch arrears payment document
+	 * @property {Object} arrearsPaymentDocumentDetails Callback function to fetch arrears payment document
 	 * 
 	 * @readonly
 	 * @static
@@ -90,6 +92,9 @@ class ClientPolicies extends Component {
 			cancelPolicyDocumentDetails: {type: Object, state: true},
 			accountDetails: { type: Object, state: true },
 			fromAccount: {type: Number, state: true},
+			getArrearsPaymentDocument: {type: Object},
+			arrearsPaymentDocumentDetails: {type: Object},
+			
 
 			clientPolicies: { type: Object, state: true },
 			policyDetails: { type: Object, state: true },
@@ -186,16 +191,6 @@ class ClientPolicies extends Component {
 			}
 		}));
 	}
-
-	/**
-	 * event to fetch Cancel Policy Agreement
-	 */
-	//  _fetchCancelAgreement() {
-	// 	this.dispatchEvent(new CustomEvent(`fetch-cancel-agreement`, {
-	// 		detail: {contractRef: this.contractRef
-	// 		}
-	// 	}));
-	// }
 	
 	/*
 	 * Fire navigate to SMS History
@@ -310,7 +305,12 @@ class ClientPolicies extends Component {
 		this.showLodgeClaimInfoDialog = false;
 	}
 	async _getCancelPolicyDocument(contractReference, cancelReason){
-		await this.getCancelPolicyDocument(contractReference, cancelReason)
+		
+		await this.getCancelPolicyDocument(contractReference, cancelReason, false)
+	}
+
+	async _getArrearsPaymentDocument(contractReference){
+		await this.getArrearsPaymentDocument(contractReference, this.payArrears, this.fromAccount, false)
 	}
 
 
@@ -924,7 +924,9 @@ _renderCancelPolicyConfirmationDialog(){
 		return this.showPayPremiumAgreementDialog == false ? `` :
 			html`
 			<insure-pay-premium-agreement-dialog @close-modal="${(e) => this._closePayPremiumAgreementDialog()}"
-				@pay-premium-agree = "${(e) => this._goToPayPremiumSuccess()}" .amountToPay = ${this.amountToPay} .contractReference= ${this.clientArrears.contractReference}>	
+				@pay-premium-agree = "${(e) => this._goToPayPremiumSuccess()}" .amountToPay = ${this.amountToPay} .contractReference= ${this.clientArrears.contractReference}
+				.getArrearsPaymentDocument="${(contractReference) => this._getArrearsPaymentDocument(contractReference)}"
+				.arrearsPaymentDocumentDetails="${this.arrearsPaymentDocumentDetails}">	
 			</insure-pay-premium-agreement-dialog>`
 
 	}
