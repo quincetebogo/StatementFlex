@@ -40,7 +40,7 @@ class CancelPolicyDialog extends Component {
 	 * @property {Boolean} checked determines if terms and conditions have been agreed to 
 	 * @property {String} contractReference contains the contract reference
 	 * @property {String} cancelReason contains the chosen cancellation reason
-	 * @property {Object} getCancelPolicyDocument Callback function to fetch Cancel Policy Agreement
+	 * @property {Function} getCancelPolicyDocument Callback function to fetch Cancel Policy Agreement
 	 * @property {Object} cancelPolicyDocumentDetails contains the cancel policy agreement document details
 	 * 
 	 */
@@ -68,6 +68,8 @@ class CancelPolicyDialog extends Component {
 		this._initialize();
 
 	 }
+
+	 //#endregion
 
 
 	//#region PRIVATE METHODS
@@ -105,12 +107,12 @@ class CancelPolicyDialog extends Component {
 
 		this.cancelReason = e.detail.new.code;
 
-		this._GetCancelAgreement(this.cancelReason)
+		this._getCancelAgreement(this.cancelReason)
 
 		this.requestUpdate();
 	}
 
-	async _GetCancelAgreement(cancelReason){
+	async _getCancelAgreement(cancelReason){
 		await this.getCancelPolicyDocument(this.contractReference, cancelReason);
 	}
 
@@ -258,7 +260,7 @@ class CancelPolicyDialog extends Component {
 
 			<capitec-content-box class="no-padding">
 				<capitec-expander expandbuttonalignment="left" label="View Cancellation Agreement" data-automation-id="insure-cancel-policy-dialog-view-cancellation-agreement">
-					<iframe class="iframe-content" src="data:application/pdf;base64,${this.cancelPolicyDocumentDetails?.documentContent }" alt="agreement"></iframe>
+					<iframe class="iframe-content" src="data:application/pdf;base64,${this.cancelPolicyDocumentDetails?.documentContent }#view=fitH" alt="agreement"></iframe>
 				</capitec-expander>
 			</capitec-content-box>
 

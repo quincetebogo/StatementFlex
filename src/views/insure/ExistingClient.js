@@ -93,6 +93,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {Object} policySummary  Local object for new Quote requests
 	 * @property {String} cancellationReason conatins the cancellation reason selected
 	 * @property {Object} cancelPolicyDocumentDetails contains the cancel policy document details
+	 * @property {Object} arrearsPaymentDocumentDetails contains the arrears payment document details
 	 * 
 	 * @readonly
 	 * @static
@@ -115,7 +116,8 @@ export class ExistingClient extends InsureViewBase {
 			accountDetails: { type: Object, state: true },		
 			policyNumber: {type: String, state: true},
 			commsHistory: {type: Object, state: true},
-			readOnly: {type: Object, state: true}
+			readOnly: {type: Object, state: true},
+			arrearsPaymentDocumentDetails: {type: Object, state: true}
 		};
 	}
 
@@ -344,16 +346,19 @@ export class ExistingClient extends InsureViewBase {
 			"idNumber": this.callerInformation.southAfricanIDNumber,
 			"cancellationReason": this.cancellationReason,
 			"documents": {
-				"documentCode": "",
-				"documentName": "",
-				"guid": "",
+				"documentCode": cancelPolicyDocumentDetails.documentDetails.documentCode,
+				"documentName": cancelPolicyDocumentDetails.documentDetails.documentName,
+				"guid": cancelPolicyDocumentDetails.documentDetails.guid,
 			}
 
 		};
 		console.log(cancelPolicyDetails)
 		const resp = await this.insureService.cancelPolicy(cancelPolicyDetails, () => true);
 		if (resp.succeeded == true && resp.result != null) {
+
+	 		this._cancelPolicyAgreement(e.detail.contractReference, e.detail.cancellationReason, true)
 			this._goToCancelPolicySuccess(e)
+		
 		} else {
 			// Do error message
 			return null;
@@ -364,14 +369,16 @@ export class ExistingClient extends InsureViewBase {
 	 * Cancel Policy Agreement
 	 * @returns {Object} 
 	 */
-	 async _cancelPolicyAgreement(contractReference, cancelReason) {
+	 async _cancelPolicyAgreement(contractReference, cancelReason, saveToDocumentum) {
+
+		this.policyNumber = contractReference
 
 		let dob = new Date(this.callerInformation.birthdate)
 
 		let cancelPolicyAgreementDetails = {
 
 			"documentFormat": "PDF",
-			"saveDocumentToDocumentum": false,
+			"saveDocumentToDocumentum": saveToDocumentum,
 			"returnDocumentContent": true,
 			"emailDocumentToClient": false,
 			"wetsignBarcode": false,
@@ -420,9 +427,12 @@ export class ExistingClient extends InsureViewBase {
 			"cifNumber": this.callerInformation.cifNumber,
 			"fromAccount": e.detail.fromAccount
 		};
+
+		console.log(payArrears)
 		
 		const resp = await this.insureService.payPolicy(payArrears, () => true);
 		if (resp.succeeded == true && resp.result != null) {
+			
 			this.contractReference = e.detail.payArrears.contractReference;
 
 			const sumArrears = e.detail.payArrears.arrears?.reduce((accumulator, object) => {
@@ -430,6 +440,8 @@ export class ExistingClient extends InsureViewBase {
 			}, 0);
 
 			this.amountToPay = sumArrears;
+
+			this._arrearsPaymentInstruction(this.contractReference, e.detail.payArrears.arrears, e.detail.fromAccount, true)
 			this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
 		} 
 		else {
@@ -852,6 +864,57 @@ export class ExistingClient extends InsureViewBase {
 
 	}
 
+	async _arrearsPaymentInstruction(contractReference, payArrears, fromAccount, saveToDocumentum){
+
+		
+		let dob = new Date(this.callerInformation.birthdate)
+
+		let arrearsPaymentInstructionDetails = {
+
+			"documentFormat": "PDF",
+			"saveDocumentToDocumentum": saveToDocumentum,
+			"returnDocumentContent": true,
+			"emailDocumentToClient": false,
+			"wetsignBarcode": false,
+
+			"clientDetails": {
+				"cifNumber": parseInt(this.callerInformation.cifNumber), //363291555
+				"primarySavingsAccountNumber":  parseInt(this.accountDetails.savingsAccountData.accountNumber), //1952898232
+				"policyContractReference": contractReference, //"FP00001590"
+				"firstName": this.callerInformation.firstName,
+				"surname": this.callerInformation.lastName,
+				"idNumber": this.callerInformation.southAfricanIDNumber, //"0011262112193"
+				"dateOfBirth": dob.toISOString(), //"2000-11-25T22:00:00.000Z"
+			},
+			"emailDetails": {
+				"email": "test@test.com",
+			},
+			"input": {
+				"policyContractReference": contractReference,
+				"payArrearsModel": {
+				  "contractReference": contractReference,
+				  "arrears": payArrears.arrears,
+				  "fromAccount": parseInt(fromAccount),
+				  "cifNumber": parseInt(this.callerInformation.cifNumber), //363291555
+				}
+			},
+			
+		}
+		
+		console.log(arrearsPaymentInstructionDetails)
+
+		const resp = await this.insureService.arrearsPaymentInstruction(arrearsPaymentInstructionDetails, () => true);
+		if (resp.succeeded == true && resp.result != null) {
+			this.arrearsPaymentDocumentDetails = resp.result;
+		} else {
+			// Do error message
+			return null;
+		}
+
+		this.requestUpdate();
+
+	}
+
 	/**
 	 * Unload Policy Transactions
 	 */
@@ -958,15 +1021,16 @@ export class ExistingClient extends InsureViewBase {
 	_renderClientPoliciesPage() {
 		return html`
 			<horizon-insure-client-policies .clientPolicies = "${this.clientPolicies}" .cancelPolicyDocumentDetails = "${this.cancelPolicyDocumentDetails}"				
-				.accountDetails = "${this.accountDetails}"
+				.accountDetails = "${this.accountDetails}" .arrearsPaymentDocumentDetails = "${this.arrearsPaymentDocumentDetails}"
 				@navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan(e)}"
 				@navigate-to-pay-premium-success ="${(e) => this._payPolicy(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
 				@navigate-to-cancel-policy-success="${(e) => this._cancelPolicy(e)}" 
-				.getCancelPolicyDocument = "${(contractReference, cancelReason) => this._cancelPolicyAgreement(contractReference, cancelReason)}"
-				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}">
+				.getCancelPolicyDocument = "${(contractReference, cancelReason, saveToDocumentum) => this._cancelPolicyAgreement(contractReference, cancelReason, saveToDocumentum)}"
+				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}"
+				.getArrearsPaymentDocument = "${(contractReference, payArrears, fromAccount, saveToDocumentum) => this._arrearsPaymentInstruction(contractReference, payArrears, fromAccount, saveToDocumentum)}">
 			</horizon-insure-client-policies>`
 	}
 
