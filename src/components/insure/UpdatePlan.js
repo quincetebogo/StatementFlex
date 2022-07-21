@@ -104,6 +104,7 @@ class UpdatePlan extends Component {
 	 * @property {Boolean} showConfirmPlanUpdateDialog Show flag for Conformation dialog, to confirm Update Plan agreement
 	 * @property {Object} policyDetails Current Policy Summary Object
 	 * @property {Object} updatePlanPrepare Callback function to Prepare Update	 *
+	 * @property {Object} updatePlanQuote Callback function to Quote Calc	 *
 	 * @property {Boolean} canReinstate determines whether to show the Reinstate button on the title bar
 	 * @property {Boolean} showReinstatePolicyAgreementDialog determines whether to show the Reinstate Policy agreement dialog
 	 * @property {Object} createPolicyResponse - response Payload of Create Policy
@@ -133,6 +134,7 @@ class UpdatePlan extends Component {
 			newTotalPremium: { string: '' },
 
 			updatePlanPrepare: { type: Object, state: true },
+			updatePlanQuote: { type: Object, state: true },
 			tempDocContent: { type: String, state: true },
 
 			canReinstate: { type: Boolean },
@@ -342,23 +344,29 @@ class UpdatePlan extends Component {
 	* @returns {object} Estimate Response
 	*/
 	async _calculatePremium() {
-		if (this.newTotalPremium != 0) {
-			this.policyDetails.totalPremium = this.newTotalPremium
-		}
 
-		const request = {
-			...this.estimate,
-			// clientEstimateDetails: this.clientEstimateDetails
-		}
-
-		// Reset
-		this.policyDetails.totalPremium = 0;
-		this.newTotalPremium = '';
+		let calcQuoteResponse = await this.updatePlanQuote(this.policyDetails);
+		this.policyDetails.totalPremium = calcQuoteResponse.totalPremium;
+		console.log(calcQuoteResponse);
 
 
-		this.dispatchEvent(new CustomEvent(`calculate-quote`, {
-			detail: request
-		}));
+		// if (this.newTotalPremium != 0) {
+		// 	this.policyDetails.totalPremium = this.newTotalPremium
+		// }
+
+		// const request = {
+		// 	...this.estimate,
+		// 	// clientEstimateDetails: this.clientEstimateDetails
+		// }
+
+		// // Reset
+		// this.policyDetails.totalPremium = 0;
+		// this.newTotalPremium = '';
+
+
+		// this.dispatchEvent(new CustomEvent(`calculate-quote`, {
+		// 	detail: request
+		// }));
 
 		// let estimateResponse = await this.calculateClientEstimate(request);
 		// if (estimateResponse != '') {
@@ -997,8 +1005,7 @@ class UpdatePlan extends Component {
 					<hr>
 		
 					<!-- life list -->
-					${this.policyDetails.roleplayers.filter(ele => ele.relationship !== `MainLife`
-						&& ele.lifeAssured == true).map(lifeAssured => html`
+					${this.policyDetails.roleplayers.filter(ele => ele.lifeAssured == true).map(lifeAssured => html`
 						<div class="calc-life-list">
 							<capitec-label label="${lifeAssured.relationship}"></capitec-label>
 							<capitec-label label="${isNullorEmpty(lifeAssured.premium) ? formatCurrency(0) : formatCurrency(lifeAssured.premium)}"></capitec-label>

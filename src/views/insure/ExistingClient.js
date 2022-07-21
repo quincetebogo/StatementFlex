@@ -705,11 +705,22 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
-	 * Calculate quote event from Update plan, supply 
-	 * @param {*} event 
+	 * Calculate quote callback from Update plan, supply 
+	 * @param {*} policyToCalc 
 	 */
-	async _updatePlanQuote(event) {
-		// TODO
+	async _updatePlanQuote(policyToCalc) {
+		let quoteCalcRequest = {
+			"saveQuote": true,
+			"contractReference": policyToCalc.contractReference,
+			"cifNumber": this.callerInformation.cifNumber,
+			"totalPremium": policyToCalc.totalPremium,
+			"lifesAssured": policyToCalc.roleplayers.filter(ele => ele.lifeAssured == true)
+		};
+		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
+		if (!calculateQuoteResp.succeeded)
+			return;
+
+		return calculateQuoteResp.result;
 	}
 
 	/**
@@ -1112,7 +1123,8 @@ ${this._renderClientPoliciesPage()}`
 	_renderUpdatePlanPage() {
 		return html`
 			<horizon-insure-update-plan @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-				@updatePlanAccept="${(e) => this._updatePlanAccept(e)}" @calculate-quote="${(e) => this._updatePlanQuote(e)}"
+				@updatePlanAccept="${(e) => this._updatePlanAccept(e)}"
+				.updatePlanQuote="${(policyToCalc) => this._updatePlanQuote(policyToCalc)}"
 				.updatePlanPrepare="${(policyToUpdate) => this._updatePlanPrepare(policyToUpdate)}"
 				.policyDetails="${this.policyDetails}" .productParams="${this.productParams}"
 				.initiateReinstatePolicy="${(policyToReinstate) => this._initiateReinstatePolicy(policyToReinstate)}"
