@@ -183,7 +183,7 @@ class PolicySummary extends Component {
 				width: auto;
 			}
 			.options-group > horizon-label {
-				width: 186px;
+				width: 250px;
 				height: 80px;
 				margin-left: 16px;
 				padding: 0px;

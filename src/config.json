@@ -3,7 +3,7 @@
 		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet",
 		"clientInsightsUrl": "https://hzn-cs-clientinsights-v1.platform-dev.int.capinet",
 		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-dev.int.capinet",
-		"insureChannelServiceUrl": "http://localhost:6001",
+		"insureChannelServiceUrl": "https://insurance-funeralinsurance.platform-dev.int.capinet",
 		"KbaChannelServiceUrl": "https://horizon-cs-ita.platform-dev.int.capinet"
 	},
 	"signalRUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
@@ -196,7 +196,7 @@
 			"positiveCase": true
 		},
 		"insureClientPolicies": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureProductParams": {
@@ -228,7 +228,7 @@
 			"positiveCase": true
 		},
 		"insurePolicySummary": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureCommsHistory":{
@@ -284,11 +284,11 @@
 			"positiveCase": true
 		},
 		"insureReinstateQuoteCalc": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureCreatePolicy": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureSendEmail": {

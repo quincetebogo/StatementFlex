@@ -22,7 +22,7 @@ import 'app/components/insure/SMSHistory';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
-import { EMAIL_DOCUMENT_REQUEST_PAYLOAD } from 'app/utils/insureRequestPayload';
+import { EMAIL_DOCUMENT_REQUEST_PAYLOAD, GENERATE_DOCUMENT_REQUEST_PAYLOAD } from 'app/utils/insureRequestPayload';
 
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
@@ -167,6 +167,53 @@ export class ExistingClient extends InsureViewBase {
 	_getMainLifeGender() {
 		let mainLifeGender = getGenderFromIDNumber(this.callerInformation.southAfricanIDNumber);
 		return mainLifeGender;
+	}
+
+	/**
+	 * Generate 801 & 804 documents for Reinstate Policy
+	 * @param {*} saveDocumentToDocumentum - true/false
+	 * @returns 
+	 */
+	async _generateDocumentsForReinstate(saveDocumentToDocumentum) {
+		let clientDetails = {
+			"cifNumber": this.callerInformation.cifNumber,
+			"policyContractReference": this.contractReference,
+			"firstName": this.callerInformation.firstName,
+			"surname": this.callerInformation.surname,
+			"idNumber": this.callerInformation.southAfricanIDNumber,
+			"dateOfBirth": this.callerInformation.birthdate
+		}
+
+		GENERATE_DOCUMENT_REQUEST_PAYLOAD.saveDocumentToDocumentum = saveDocumentToDocumentum;
+		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
+		GENERATE_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.contractReference;
+
+		console.log(JSON.stringify(GENERATE_DOCUMENT_REQUEST_PAYLOAD));
+
+		const issuePlanAgreementResponse = await this.insureService.generateIssueFuneralCoverPlanAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
+		const paymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
+
+		console.log(issuePlanAgreementResponse.result.documentContent);
+		console.log(paymentAgreementResponse.result.documentContent);
+
+		if (!issuePlanAgreementResponse.succeeded || !paymentAgreementResponse.succeeded)
+			return;
+
+		// TMP ===== REMOVE WHEN SERVICE READY
+		// let agreementResp = {
+		// 	"documentDetails": {
+		// 		"documentCode": "ABC01",
+		// 		"documentName": "Test Doc",
+		// 		"guid": "91ba047a4bd44cf3abb7ccae7a95149a"
+		// 	},
+		// 	"documentContent": "JVBERi0xLjcKCjEgMCBvYmogICUgZW50cnkgcG9pbnQKPDwKICAvVHlwZSAvQ2F0YWxvZwogIC9QYWdlcyAyIDAgUgo+PgplbmRvYmoKCjIgMCBvYmoKPDwKICAvVHlwZSAvUGFnZXMKICAvTWVkaWFCb3ggWyAwIDAgMjAwIDIwMCBdCiAgL0NvdW50IDEKICAvS2lkcyBbIDMgMCBSIF0KPj4KZW5kb2JqCgozIDAgb2JqCjw8CiAgL1R5cGUgL1BhZ2UKICAvUGFyZW50IDIgMCBSCiAgL1Jlc291cmNlcyA8PAogICAgL0ZvbnQgPDwKICAgICAgL0YxIDQgMCBSIAogICAgPj4KICA+PgogIC9Db250ZW50cyA1IDAgUgo+PgplbmRvYmoKCjQgMCBvYmoKPDwKICAvVHlwZSAvRm9udAogIC9TdWJ0eXBlIC9UeXBlMQogIC9CYXNlRm9udCAvVGltZXMtUm9tYW4KPj4KZW5kb2JqCgo1IDAgb2JqICAlIHBhZ2UgY29udGVudAo8PAogIC9MZW5ndGggNDQKPj4Kc3RyZWFtCkJUCjcwIDUwIFRECi9GMSAxMiBUZgooSGVsbG8sIHdvcmxkISkgVGoKRVQKZW5kc3RyZWFtCmVuZG9iagoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDEwIDAwMDAwIG4gCjAwMDAwMDAwNzkgMDAwMDAgbiAKMDAwMDAwMDE3MyAwMDAwMCBuIAowMDAwMDAwMzAxIDAwMDAwIG4gCjAwMDAwMDAzODAgMDAwMDAgbiAKdHJhaWxlcgo8PAogIC9TaXplIDYKICAvUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKNDkyCiUlRU9G"
+		// }
+		// issuePlanAgreementResponse.result = agreementResp;
+		// paymentAgreementResponse.result = agreementResp;
+		// =========
+
+		this.issuePlanAgreementDocument = issuePlanAgreementResponse.result;
+		this.reinstatePaymentAgreementDocument = paymentAgreementResponse.result;
 	}
 
 	/**
@@ -407,19 +454,19 @@ export class ExistingClient extends InsureViewBase {
 
 			"clientDetails": {
 
-                "cifNumber": parseInt(this.callerInformation.cifNumber), //363291555
+                "cifNumber": 363291555, //parseInt(this.callerInformation.cifNumber)
 
-                "primarySavingsAccountNumber": parseInt(this.accountDetails.savingsAccountData.accountNumber), //1952898232
+                "primarySavingsAccountNumber": 1952898232, //parseInt(this.accountDetails.savingsAccountData.accountNumber)
 
-                "policyContractReference": contractReference, //"FP00001590"
+                "policyContractReference": "FP00001590", //contractReference
 
                 "firstName": this.callerInformation.firstName,
 
                 "surname": this.callerInformation.lastName,
 
-                "idNumber": this.callerInformation.southAfricanIDNumber, //"0011262112193"
+                "idNumber": "0011262112193", //this.callerInformation.southAfricanIDNumber
 
-                "dateOfBirth": dob.toISOString(), //"2000-11-25T22:00:00.000Z"
+                "dateOfBirth": "2000-11-25T22:00:00.000Z", //dob.toISOString()
             },
             "emailDetails": { 
                 "email": "test@test.com"
@@ -774,48 +821,12 @@ export class ExistingClient extends InsureViewBase {
 		if (!createPolicyResponse.succeeded)
 			return;
 
-		let agreementRequest = {
-			"documentFormat": "PDF",
-			"saveDocumentToDocumentum": true,
-			"returnDocumentContent": true,
-			"emailDocumentToClient": false,
-			"wetsignBarcode": false,
-			"clientDetails": {
-				"cifNumber": this.callerInformation.cifNumber,
-				"policyContractReference": createPolicyResponse.result.contractReference,
-				"firstName": this.callerInformation.firstName,
-				"surname": this.callerInformation.surname,
-				"idNumber": this.callerInformation.southAfricanIDNumber,
-				"dateOfBirth": this.callerInformation.birthdate
-			},
-			"contractReference": createPolicyResponse.result.contractReference
-		}
-
-		const issuePlanAgreementResponse = await this.insureService.generateIssueFuneralCoverPlanAgreement(agreementRequest);
-		const paymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(agreementRequest);
-
-		if (!issuePlanAgreementResponse.succeeded || !paymentAgreementResponse.succeeded)
-			return;
-
-		// TMP ===== REMOVE WHEN SERVICE READY
-		let agreementResp = {
-			"documentDetails": {
-				"documentCode": "ABC01",
-				"documentName": "Test Doc",
-				"guid": "91ba047a4bd44cf3abb7ccae7a95149a"
-			},
-			"documentContent": "JVBERi0xLjcKCjEgMCBvYmogICUgZW50cnkgcG9pbnQKPDwKICAvVHlwZSAvQ2F0YWxvZwogIC9QYWdlcyAyIDAgUgo+PgplbmRvYmoKCjIgMCBvYmoKPDwKICAvVHlwZSAvUGFnZXMKICAvTWVkaWFCb3ggWyAwIDAgMjAwIDIwMCBdCiAgL0NvdW50IDEKICAvS2lkcyBbIDMgMCBSIF0KPj4KZW5kb2JqCgozIDAgb2JqCjw8CiAgL1R5cGUgL1BhZ2UKICAvUGFyZW50IDIgMCBSCiAgL1Jlc291cmNlcyA8PAogICAgL0ZvbnQgPDwKICAgICAgL0YxIDQgMCBSIAogICAgPj4KICA+PgogIC9Db250ZW50cyA1IDAgUgo+PgplbmRvYmoKCjQgMCBvYmoKPDwKICAvVHlwZSAvRm9udAogIC9TdWJ0eXBlIC9UeXBlMQogIC9CYXNlRm9udCAvVGltZXMtUm9tYW4KPj4KZW5kb2JqCgo1IDAgb2JqICAlIHBhZ2UgY29udGVudAo8PAogIC9MZW5ndGggNDQKPj4Kc3RyZWFtCkJUCjcwIDUwIFRECi9GMSAxMiBUZgooSGVsbG8sIHdvcmxkISkgVGoKRVQKZW5kc3RyZWFtCmVuZG9iagoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDEwIDAwMDAwIG4gCjAwMDAwMDAwNzkgMDAwMDAgbiAKMDAwMDAwMDE3MyAwMDAwMCBuIAowMDAwMDAwMzAxIDAwMDAwIG4gCjAwMDAwMDAzODAgMDAwMDAgbiAKdHJhaWxlcgo8PAogIC9TaXplIDYKICAvUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKNDkyCiUlRU9G"
-		}
-		issuePlanAgreementResponse.result = agreementResp;
-		paymentAgreementResponse.result = agreementResp;
-		// =========
-
-		this.issuePlanAgreementDocument = issuePlanAgreementResponse.result;
-		this.reinstatePaymentAgreementDocument = paymentAgreementResponse.result;
+		this.contractReference = createPolicyResponse.result.contractReference;
+		await this._generateDocumentsForReinstate(false);
 
 		let resinstatePolicyResponse = {
-			issuePlanAgreement: issuePlanAgreementResponse.result,
-			paymentAgreement: paymentAgreementResponse.result,
+			issuePlanAgreement: this.issuePlanAgreementDocument,
+			paymentAgreement: this.reinstatePaymentAgreementDocument,
 			policyResponse: createPolicyResponse.result
 		}
 		return resinstatePolicyResponse;
@@ -842,6 +853,10 @@ export class ExistingClient extends InsureViewBase {
 		const acceptPlanResp = await this.insureService.policyAccept(acceptPlanRequest);
 		if (!acceptPlanResp.succeeded)
 			return;
+
+		this.contractReference = event.detail.policyResponse.policyResponse.contractReference;
+
+		await this._generateDocumentsForReinstate(false);
 
 		this.successMessage = `The policy ${event.detail.policyResponse.policyResponse.contractReference} has been successfully reinstated`;	
 		this.callerPage = INSURE_CALLER_PAGE.REINSTATE_POLICY;

@@ -284,7 +284,7 @@ class ClientPolicies extends Component {
 	 _openPayPremiumDialog(policyItem) {
 		this.clientArrears = {
 			contractReference: policyItem.contractReference,
-			arrears: policyItem.arrearDetails.arrears
+			arrears: policyItem.arrearDetails?.arrears
 			}
 		this.showPayPremiumDialog = true;
 	}
@@ -480,9 +480,14 @@ class ClientPolicies extends Component {
 				border-top: 0px;
 			}
 			.expander-header > horizon-label[label="Status"] {
-				--horizon-label-value-color: #70AF00;
 				width: 200px;
 				text-overflow: ellipsis;
+			}
+			.active-status{
+				--horizon-label-value-color: #70AF00;
+			}
+			.inactive-status{
+				--horizon-label-value-color: #C83C37 !important;
 			}
 			horizon-label {
 				width: 135px;
@@ -689,6 +694,7 @@ class ClientPolicies extends Component {
 						<horizon-label
 							data-automation-id="insure-policy-display-status"
 							label="Status"
+							class = "${policyItem.status === `Active` ? `active-status` : `inactive-status` }"
 							value="${policyItem.displayStatus}">
 						</horizon-label>
 				</capitec-group>
@@ -732,7 +738,7 @@ class ClientPolicies extends Component {
 						.disabled="${this.readOnlyMode}">
 					</horizon-option-button>` 
 					: 
-					html `${policyItem.arrearDetails.outstandingAmount > 0 ? 
+					html `${policyItem.arrearDetails?.outstandingAmount > 0 ? 
 						html `
 						<horizon-option-button 
 							data-automation-id="insure-policy-options-pay-arrears"
@@ -767,7 +773,7 @@ class ClientPolicies extends Component {
 						icon="system/profile-action"
 						.disabled="${this.readOnlyMode}">
 					</horizon-option-button>
-					${policyItem.arrearDetails.outstandingAmount < 1 ? 
+					${policyItem.arrearDetails?.outstandingAmount < 1 ? 
 						html `
 					<horizon-option-button 
 						data-automation-id="insure-policy-options-benefits"

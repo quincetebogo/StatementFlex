@@ -991,7 +991,7 @@ class UpdatePlan extends Component {
 					</capitec-label>
 					<capitec-spacer></capitec-spacer>
 					<capitec-label label="Total estimated monthly premium"></capitec-label>
-					<capitec-label label="${formatCurrency(this.policyDetails.totalPremium)}" class="calc-premium-total">
+					<capitec-label label="${isNullorEmpty(this.policyDetails.totalPremium) ? formatCurrency(0) : formatCurrency(this.policyDetails.totalPremium)}" class="calc-premium-total">
 					</capitec-label>
 					<capitec-label label="Summary of estimated monthly premium:" class="stronger"></capitec-label>
 					<hr>
@@ -1001,13 +1001,13 @@ class UpdatePlan extends Component {
 						&& ele.lifeAssured == true).map(lifeAssured => html`
 						<div class="calc-life-list">
 							<capitec-label label="${lifeAssured.relationship}"></capitec-label>
-							<capitec-label label="${formatCurrency(lifeAssured.premium)}"></capitec-label>
+							<capitec-label label="${isNullorEmpty(lifeAssured.premium) ? formatCurrency(0) : formatCurrency(lifeAssured.premium)}"></capitec-label>
 						</div>
 						<hr>`)
 					}
 					<div class="calc-life-list">
 						<capitec-label label="Total Premium Amount" class="stronger"></capitec-label>
-						<capitec-label label="${formatCurrency(this.policyDetails.totalPremium)}" class="stronger">
+						<capitec-label label="${isNullorEmpty(this.policyDetails.totalPremium) ? formatCurrency(0) : formatCurrency(this.policyDetails.totalPremium)}" class="stronger">
 						</capitec-label>
 					</div>
 				</div>
