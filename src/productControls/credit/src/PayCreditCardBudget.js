@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { deformatCurrency, formatCurrency } from 'app/productControls/utilities/Currency';
+import { deformatCurrency, formatCurrency, formatTextFieldCurrency } from 'app/productControls/utilities/Currency';
 import { formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelectIcon';
@@ -26,6 +26,8 @@ export class PayCreditCardBudget extends Component {
 		super();
 
 		this.productSelected = {};
+		this.savStatus = false;
+		this.savingAccountsList = [];
 	}
 
 	// ----------
@@ -42,8 +44,9 @@ export class PayCreditCardBudget extends Component {
 		return {
 			budgetAccountDetails: { type: Object },
 			clientProducts: { type: Object },
+			payBudgetfromAccounts: { type: Object },
 			productSelected: { state: true },
-			budgetBalance: { state: true }
+			budgetAmount: { state: true }
 		};
 	}
 
@@ -54,8 +57,8 @@ export class PayCreditCardBudget extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		[this.productSelected] = this.clientProducts;
-		this.budgetBalance = this.budgetAccountDetails.budgetBalance;
-
+		this.budgetAmount = this.budgetAccountDetails.settlementAmount;
+		this.savingAccountsList = this.payBudgetfromAccounts;
 		this._getErrorMessage();
 		this._onLoading();
 	}
@@ -81,7 +84,7 @@ export class PayCreditCardBudget extends Component {
 				budgetAccountNumber: this.budgetAccountDetails.budgetAccountNumber,
 				fromAccountNumber: this.productSelected.accountNumber,
 				fromAccountType: this.productSelected.accountType,
-				authorisedAmount: this.budgetBalance,
+				authorisedAmount: this.budgetAmount,
 				budgetSequenceNumber: this.budgetAccountDetails.budgetSequence,
 				productTypeCode: this.budgetAccountDetails.productTypeCode
 			};
@@ -98,7 +101,7 @@ export class PayCreditCardBudget extends Component {
 	}
 
 	_budgetValueChange(e) {
-		this.budgetBalance = e.detail.new;
+		this.budgetAmount = deformatCurrency(e.currentTarget.value);
 		this._getErrorMessage();
 	}
 
@@ -116,29 +119,42 @@ export class PayCreditCardBudget extends Component {
 		
 		this.errorMessage = ``;
 		this.bannerMessage = ``;
+		this.savStatus = false;
 
-		// Entered budget amount exceeds the actual outstanding budget balance
-		if (this.budgetBalance > this.budgetAccountDetails.budgetBalance) {
-			this.bannerMessage = `Transfer amount can not exceeds the budget amount.`;
-			this.errorMessage = `Max amount ${formatCurrency(this.budgetAccountDetails.budgetBalance)}`;
+		// Entered budget amount exceeds the actual settlement amount
+		if (this.budgetAmount > this.budgetAccountDetails.settlementAmount) {
+			this.bannerMessage = `Transfer amount cannot exceed the budget amount.`;
+			this.errorMessage = `Max amount ${formatCurrency(this.budgetAccountDetails.settlementAmount)}`;
 			return;
 		}
 
 		// No account has enough funds to do transfer as entered amount
-		const noFundsInAllAccounts = this.clientProducts.filter(account => deformatCurrency(account.availableBalance) > this.budgetBalance).length === 0;
+		const noFundsInAllAccounts = this.clientProducts.filter(account => deformatCurrency(account.availableBalance) > this.budgetAmount).length === 0;
 		if (noFundsInAllAccounts) {
 			this.bannerMessage = `You do not have enough fund in your account to do the transfer.`;
-			this.errorMessage = `Transafer cannot exceed available balance`;
+			this.errorMessage = `Transfer cannot exceed available balance`;
 			return;
 		}
 
 		// Entered budget amount exceeds the available balance of selected account
-		if (this.budgetBalance > deformatCurrency(this.productSelected.availableBalance)) {
-			this.errorMessage = `Transafer cannot exceed available balance`;
+		if (this.budgetAmount > deformatCurrency(this.productSelected.availableBalance)) {
+			this.errorMessage = `Transfer cannot exceed available balance`;
 		}
 
-		if (isNullorEmpty(this.budgetBalance)) {
-			this.errorMessage = `Transafer amount cannot be empty`;
+		const acc = this.productSelected.accountNumber;
+			let i = 0;
+			while (i < this.savingAccountsList.length) {
+				if (acc == this.savingAccountsList[i].accountNumber && this.savingAccountsList[i].savingsPermissionStatus === `DENIED`) {
+					this.bannerMessage = `The account selected cannot be used to perform this transaction`;
+					this.savStatus = true;
+					this.errorMessage = `   `;
+					return;
+				}
+				i++;
+			}
+
+		if (isNullorEmpty(this.budgetAmount)) {
+			this.errorMessage = `Transfer amount cannot be empty`;
 		}
 	}
 
@@ -270,11 +286,8 @@ export class PayCreditCardBudget extends Component {
 				data-automation-id="pay-budget-alert-banner"
 				type="error">
 					<capitec-label
-						label="Notify client:"
+						label="Notify client: ${this.bannerMessage}"
 						type="strong">
-					</capitec-label>
-					<capitec-label
-						label="${this.bannerMessage}">
 					</capitec-label>
 			</capitec-alert-banner>`
 		: html``;
@@ -295,6 +308,7 @@ export class PayCreditCardBudget extends Component {
 				detail-label="Available balance"
 				.items="${this.clientProducts}"
 				.value="${this.productSelected}"
+				.error="${this.errorMessage}"
 				.displayRenderer="${(e) => this._renderOptions(e)}"
 				@value-changed="${(e) => this._accountValueChanged(e)}"> 
 			</horizon-select-icon>
@@ -309,9 +323,9 @@ export class PayCreditCardBudget extends Component {
 				data-automation-id="pay-budget-balance"
 				label="Budget amount"
 				type="currency"
-				.error="${this.errorMessage}"
-				value="${this.budgetBalance}"
-				@value-changed="${(e) => this._budgetValueChange(e)}">
+				?disabled="${this.savStatus}"
+				value="${formatTextFieldCurrency(this.budgetAmount)}"
+				@focusout="${(e) => this._budgetValueChange(e)}">
 			</capitec-text-field>
 		`;
 	}
@@ -366,6 +380,7 @@ export class PayCreditCardBudget extends Component {
 					id="id-transfer-button" 
 					type="primary" 
 					label="Transfer"
+					?disabled="${this.savStatus}"
 					@click="${() => this._onTransferClick()}">
 				</capitec-button>
 			</capitec-group>

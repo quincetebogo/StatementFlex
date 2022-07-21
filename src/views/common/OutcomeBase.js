@@ -84,7 +84,7 @@ export class OutcomeBase extends ViewBase {
 	_cancelEmailModal() {
 		this._telemetry.logEvent(this.telemetryEvents.POP_CANCEL, {
 			"screen": TelemetryScreen.PROOF_OF_PAYMENT_DIALOG,
-			"next-screen": TelemetryScreen.CREDIT_PAY_BUDGET_SUCCESS
+			"next-screen": `${this.incidentDetails.currentNeed.replaceAll(`-`, ` `)}`
 		});
 		this._telemetry.endSpan(this.telemetryEvents.POP_MODAL, {}, true, true);
 
@@ -97,20 +97,41 @@ export class OutcomeBase extends ViewBase {
 		});
 	}
 
-	async _sendPayBudgetPOP(event) {
+	async _sendCreditDocument(event) {
 		const screenDetails = this.horizonStore.getScreenDetails();
-
-		const request = {
-			"cifNumber": this.callerInformation.cifNumber,
-			"emailAddress": event.detail.email,
-			"documentType": DOCUMENT_TYPE[this.incidentDetails.currentNeed],
-			"creditType": formatStringAsPascalCase(screenDetails.productType),
-			"data": event.detail.documentData
-		};
+		let request;
+		if (screenDetails.settleAndCloseCreditOption === `CreditCard`) {
+			 request = {
+				"cifNumber": this.callerInformation.cifNumber,
+				"emailAddress": event.detail.email,
+				"documentType": `CreditCardSettlementLetter`,
+				"creditType": screenDetails.settleAndCloseCreditOption,
+				"data": screenDetails.settleAndCloseDocumentData
+			};
+			
+		} else if (screenDetails.settleAndCloseCreditOption === `Loan`) {
+			request = {
+				"cifNumber": this.callerInformation.cifNumber,
+				"emailAddress": event.detail.email,
+				"documentType": `TermLoanSettlementLetter`,
+				"creditType": `TermLoan`,
+				"data": screenDetails.settleAndCloseDocumentData
+			};
+			
+		} else {
+			request = {
+				"cifNumber": this.callerInformation.cifNumber,
+				"emailAddress": event.detail.email,
+				"documentType": DOCUMENT_TYPE[this.incidentDetails.currentNeed],
+				"creditType": formatStringAsPascalCase(screenDetails.productType).replace(` `, ``),
+				"data": event.detail.documentData
+			};
+			
+		}
+		 
 
 		screenDetails.emailAddress = event.detail.email;
 		this.horizonStore.setScreenDetails(screenDetails);
-
 		const returnValue = await this.creditService.emailProofOfPayment(request);
 
 		this._telemetry.logEvent(this.telemetryEvents.POP_SEND, {
@@ -170,8 +191,9 @@ export class OutcomeBase extends ViewBase {
 			<horizon-view-and-send-document
 				.emailAccountsList="${this.emailAccountsList}"
 				encodedPDF="${this.documentData}"
+				registeredEmailId="${this.callerInformation.emailId}"
 				.loadDocumentContent="${(documentDetails) => this._viewDocument(documentDetails)}"
-				@send-email="${(event) => this._sendPayBudgetPOP(event)}"
+				@send-email="${(event) => this._sendCreditDocument(event)}"
 				@cancel="${() => this._cancelEmailModal()}"
 				@close-pdf="${() => this._closePDFViewer()}">
 			</horizon-view-and-send-document>`

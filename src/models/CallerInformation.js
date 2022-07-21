@@ -4,7 +4,6 @@
  * @module models/CallerInformation
  */
 
-
 /**
  * CallerInformation records the details of the incoming caller/client. This object
  * is preserved in state for the duration of a call.
@@ -46,6 +45,7 @@
 	 * @param {string} [lastName=""] the client's surname/last name
 	 * @param {string} [initials=""] Client's initials
 	 * @param {string} [identifiedBy=""] Identification method used to confirm client
+	 * @param {string} [emailId=""] Client's registered email ID
 	 */
 	constructor(
 		cifNumber,
@@ -79,7 +79,8 @@
 		middleName3 = ``,
 		lastName = ``,
 		initials = ``,
-		identifiedBy = ``
+		identifiedBy = ``,
+		emailId = ``
 	) {
 		this.cifNumber = cifNumber;
 		this.birthdate = birthdate;
@@ -113,6 +114,7 @@
 		this.lastName = lastName;
 		this.initials = initials;
 		this.identifiedBy = identifiedBy;
+		this.emailId = emailId;
 		Object.seal();
 	}
 }

@@ -60,7 +60,9 @@ const HORIZON_ROUTES = Object.freeze({
 	BUDGET_FACILITY_SUCCESS: `/success/budget-facility`,
 	BUDGET_FACILITY_FAILURE: `/error/budget-facility`,
 	PROOF_OF_PAYMENT_SUCCESS: `/success/proof-of-payment`,
-	PROOF_OF_PAYMENT_FAILURE: `/error/proof-of-payment`
+	PROOF_OF_PAYMENT_FAILURE: `/error/proof-of-payment`,
+	PAID_UP_LETTER_SUCCESS: `/success/paid-up-letter`,
+	PAID_UP_LETTER_FAILURE: `/error/paid-up-letter`
 });
 
 
@@ -399,6 +401,13 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_PAYMENT_FAILURE}`);
 	}
 
+	navigatePaidUpLetterSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PAID_UP_LETTER_SUCCESS}`);
+	}
+
+	navigatePaidUpLetterFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PAID_UP_LETTER_FAILURE}`);
+	}
 
 	/**
 	 * Navigates to the indicated Product Info Page
@@ -921,6 +930,14 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
+		name: `horizon-settle-and-close-failure`,
+		title: `SettleAndCloseFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.SETTLE_AND_CLOSE_FAILURE,
+		load: () => import(`../views/credit/SettleAndCloseFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
 		name: `horizon-savings-plan`,
 		title: `SavingsPlan`,
 		icon: null,
@@ -958,6 +975,22 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.PROOF_OF_PAYMENT_FAILURE,
 		load: () => import(`../views/credit/ProofOfPaymentFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-paid-up-letter-success`,
+		title: `PaidUpLetterSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.PAID_UP_LETTER_SUCCESS,
+		load: () => import(`../views/quickTransactions/PaidUpLetterSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-paid-up-letter-failure`,
+		title: `PaidUpLetterFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.PAID_UP_LETTER_FAILURE,
+		load: () => import(`../views/quickTransactions/PaidUpLetterFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}
 ];

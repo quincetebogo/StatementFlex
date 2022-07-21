@@ -173,7 +173,10 @@ export class CardLimitsLanding extends Component {
 		return {
 			cards: { type: Object },
 			cifNumber: { type: String },
-			title: { type: String },
+			title: { 
+				type: String,
+				attribute: `client-title`
+			},
 			lastName: { type: String },
 			voiceRecordingReference: { type: String },
 			verificationMethod: { type: String },

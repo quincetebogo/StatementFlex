@@ -326,6 +326,9 @@ export class CreditService extends ChannelServiceBase {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`emailPaidUpLetter`)) {
+			if (errorHandler) {
+				return this.mockWithErrorHandler(`emailPaidUpLetter`, errorHandler);
+			}
 			return this.mock(`emailPaidUpLetter`);
 		}
 
@@ -351,7 +354,20 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	permissions(cifNumber, accNumber, productType, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async permissions(cifNumber, accNumber, productType, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		const request = {
+			"accountNumber": accNumber,
+			"cifNumber": cifNumber,
+			"resourceIdentifierType": productType
+		};
+
+		if (await this.isMockEnabled(`creditPermissions`)) {
+			if (errorHandler) {
+				return this.mockWithErrorHandler(`creditPermissions`, errorHandler);
+			}
+			return this.mock(`creditPermissions`, request);
+		}
 
 		const url = `/clientcare-credit-${this._version}/credit/permission`;
 
@@ -414,8 +430,7 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 	
-	async settlementQuoteLanding(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+	settlementQuoteLanding(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
 		const url = `/clientcare-credit-v1/credit/settlement-quote/landing`;
 
@@ -512,4 +527,72 @@ export class CreditService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+
+	settleAndClose(settleAndCloseRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		
+		const settleAndClose = 
+		{
+				creditType: settleAndCloseRequest.creditType,
+				cifNumber: settleAndCloseRequest.cifNumber,
+				accountNumber: settleAndCloseRequest.accountNumber,
+				fromAccountNumber: settleAndCloseRequest.fromAccountNumber,
+				fromAccountType: settleAndCloseRequest.fromAccountType,
+				authorisedAmount: settleAndCloseRequest.authorisedAmount,
+				caseId: settleAndCloseRequest.caseId,
+				emailAddress: settleAndCloseRequest.emailAddress,
+				firstname: settleAndCloseRequest.firstname,
+				surname: settleAndCloseRequest.surname,
+				idNumber: settleAndCloseRequest.idNumber
+		};
+
+		const url = `/clientcare-credit-${this._version}/credit/settle-and-close/settle`;
+
+		return this.post(
+			url,
+			settleAndClose,
+			this.setToken(),
+			`settleAndClose`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async settleAndCloseQuote(Request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const settleAndCloseQuoteRequest = {
+			creditType: Request.creditType,
+			accountNumber: Request.accountNumber,
+			cifNumber: Request.cifNumber,
+			idNumber: Request.idNumber
+			
+		};
+
+		if (await this.isMockEnabled(`settleAndCloseQuote`)) {
+			if (errorHandler) {
+				return this.mockWithErrorHandler(`settleAndCloseQuote`, errorHandler);
+			}
+			return this.mock(`settleAndCloseQuote`, settleAndCloseQuoteRequest);
+		}
+		
+
+		const url = `/clientcare-credit-${this._version}/credit/settle-and-close/quote`;
+
+		return this.post(
+			url,
+			settleAndCloseQuoteRequest,
+			this.setToken(),
+			`settleAndCloseQuote`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+
 }

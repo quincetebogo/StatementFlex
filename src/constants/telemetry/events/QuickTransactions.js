@@ -23,6 +23,7 @@ export const QuickTransactionEvents = {
 	FAVOURITES_PROOF_OF_ACCOUNT: `call.fulfill-need.select-proof-of-account`,
 	FAVOURITES_SEARCH_OTHER_NEED: `call.fulfill-need.select-other-need`,
 	FAVOURITES_END_CALL: `call.fulfill-need.end-call`,
+	FAVOURITES_PAID_UP_LETTER: `call.fulfill-need.select.paid-up-letter`,
 
 	// Stop Card
 	STOP_CARD: `call.fulfill-need.stop-card`,
@@ -115,6 +116,7 @@ export const QuickTransactionEvents = {
 	TAX_CERTIFICATE_OUTCOME_DONE: `call.fulfill-need.tax-certificate.outcome.done`,
 	TAX_CERTIFICATE_OUTCOME_ASSIGN: `call.fulfill-need.tax-certificate.outcome.hand-off`,
 	TAX_CERTIFICATE_FIND_BRANCH: `call.fulfill-need.tax-certificate.find-a-branch`,
+	TAX_CERTIFICATE_NOT_AVAILABLE: `call.fulfill-need.tax-certificate.not-available`,
 
 	// Settlement Quote
 	SETTLEMENT_QUOTE_SELECT: `call.fulfill-need.select.settlement-quote`,

@@ -1,24 +1,25 @@
-import { ACCOUNT_STATUS, CREDIT_TYPE, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PRODUCTS } from 'app/constants/Credit';
+import { ACCOUNT_STATUS, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
-import { CreditEvents, SETTLEMENT_QUOTE_EVENTS } from 'app/constants/telemetry/events/Credit';
+import { CreditEvents, SETTLEMENT_QUOTE_EVENTS, SETTLE_AND_CLOSE } from 'app/constants/telemetry/events/Credit';
 import { css, html } from 'platform/elements';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { CreditService } from 'app/services/CreditService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { RoleManager } from 'app/shell/RoleManager';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { alertBannerMixin } from 'app/views/common/AlertBannerMixin';
 import { creditMixin } from 'app/views/credit/CreditMixin';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
-import { testPDF } from 'app/mocks/PDFMockData'; // TODO: Remove after testing
 
 import 'app/components/common/ServiceCallErrorScreen';
 import 'app/components/credit/CreditCardDetails';
 import 'app/components/credit/AccessFacilityDetails';
 import 'app/components/credit/TermLoanDetails';
-import 'app/components/dialogs/common/CCSstatus';
+import 'app/components/dialogs/common/WarningDialog';
 import 'app/dialogs/credit/SettlementQuote';
 import 'app/dialogs/credit/PaidUpLetter';
 import 'app/dialogs/statements/Statements';
@@ -35,7 +36,7 @@ import 'app/dialogs/credit/SettleAndCloseDialog';
  * 
  * @export
  * @class CreditAccount
- * @extends {CreditAccount}
+ * @extends {ViewBase}
  */
 export class CreditAccount extends ViewBase {
 
@@ -49,6 +50,8 @@ export class CreditAccount extends ViewBase {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.configuration = Configuration.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
+		this.roleManager = RoleManager.getInstance();
+
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		// private properites
 		this.budgetAccountDetails = null;
@@ -64,16 +67,26 @@ export class CreditAccount extends ViewBase {
 		this.creditType = ``;
 		this.selectedAccounts = [];
 		this.showPayBudgetDialog = false;
+		this.payBudgetfromAccounts = [];
 		// ccs status of client set to true until real value retrieved from CS
 		this.ccsStatus = false;
+		this.settleAndCloseQuote = [];
+		this.settleAndCloseCreditOption = ``;
+		this.productSelected = null;
+		this.settleAndCloseDocument = ``;
 		this.showSettleCloseModal = false;
 		this.settlementQuoteEvents = SETTLEMENT_QUOTE_EVENTS;
-		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
+		this.declineReason = ``;
+		this.selectedAccountDetails = {};
+		this.isPilotUser = false;
+		this.showPayBudgetWarning = false;
 
+		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._preformAction(e));
 		
 		Object.assign(CreditAccount.prototype, creditMixin);
+		Object.assign(CreditAccount.prototype, alertBannerMixin);
 	}
 
 
@@ -81,10 +94,11 @@ export class CreditAccount extends ViewBase {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 	
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 
 		this._initialise();
+		this.isPilotUser = await this.roleManager.isSearchClientEnabled();
 	}
 
 	disconnectedCallback() {
@@ -106,7 +120,9 @@ export class CreditAccount extends ViewBase {
 			creditBalance: { state: true, attribute: false },
 			ccsStatus: { type: Boolean },
 			showSettleCloseModal: { type: Boolean },
-			showPayBudgetDialog: { state: false }
+			showPayBudgetDialog: { state: false },
+			declineReason: { state: false },
+			showPayBudgetWarning: { state: false }
 		};
 	}
 
@@ -136,7 +152,6 @@ export class CreditAccount extends ViewBase {
 		const statements = () => this._getStatements(creditType, productType, selectedAccountDetails.productTypeCode, selectedAccountDetails.accountNumber, selectedAccountDetails.openDate);
 		const settlementQuote = () => this._settlementQuote(creditType, productType, selectedAccountDetails);
 		const settleAndClose = () => this._settleAndClose(creditType, productType, selectedAccountDetails);
-		const settleLoan = () => this._settleLoan();
 		const paidUpLetter = () => this._paidUpLetter(selectedAccountDetails);
 		const payBudget = () => this._payBudgetDialog(selectedAccountDetails);
 		const viewBudgets = () => this._viewBudgets(selectedAccountDetails);
@@ -149,8 +164,7 @@ export class CreditAccount extends ViewBase {
 			'statements': statements,
 			'settlement-quote': settlementQuote,
 			'paid-up-letter': paidUpLetter,
-			'settle-close': settleAndClose,
-			'settle-loan': settleLoan
+			'settle-close': settleAndClose
 		};
 
 		if (actions[option]) {
@@ -160,10 +174,14 @@ export class CreditAccount extends ViewBase {
 			await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
 			this._refreshIncidentDetails();
 
-			this.ccsStatus = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber || selectedAccountDetails.budgetAccountNumber, productType);
+			const { permissionResult, declineReasons } = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber || selectedAccountDetails.budgetAccountNumber, productType);
+			this.ccsStatus = permissionResult === PERMISSION_STATUS.DENIED &&
+							 !DECLINE_REASONS_EXCLUSION_LIST.includes(declineReasons);
+			this.declineReason = declineReasons;
+			this.selectedAccountDetails = selectedAccountDetails;
 
-			// Perform the action only when ccs status is false
-			if (!this.ccsStatus) {
+			// Perform the action only when permission result is granted
+			if (permissionResult === PERMISSION_STATUS.GRANTED) {
 				return actions[option]();
 			}
 		}
@@ -286,6 +304,15 @@ export class CreditAccount extends ViewBase {
 		
 		if (returnValue.result?.hasCCSStatus) {
 			this.ccsStatus = returnValue.result?.hasCCSStatus;
+			this.showCCSmodal = true;
+			return;
+		}
+
+		// Though we can check if credit card is in arrears without making the above CS call,
+		// we have postponed it as CCS status check should take priority over credit card in arrears.
+		const creditCardDetails = this.flexibleCreditAccounts.find(item => item.accountNumber === selectedAccountDetails.budgetAccountNumber);
+		if (creditCardDetails?.arrearIndicator) {
+			this.showPayBudgetWarning = true;
 			return;
 		}
 
@@ -293,7 +320,8 @@ export class CreditAccount extends ViewBase {
 
 		this._formatFromAccounts(returnValue.result.fromAccounts);
 		this.payBudgetAccountDetails = selectedAccountDetails;
-		
+		this.payBudgetfromAccounts = returnValue.result.fromAccounts;
+
 		this.showPayBudgetDialog = !this.showPayBudgetDialog;
 	}
 
@@ -345,8 +373,66 @@ export class CreditAccount extends ViewBase {
 		this.horizonRouter.navigateToBudgetFacilityFailure();
 	}
 
-	_confirmSettleAndClose() {
-		// TO DO: This function to be used to confirm settle and close credit card or Loans.
+	async _confirmSettleAndClose(item) {
+		this.productSelected = item.detail.productSelected;
+		this.settleAndCloseDetails = item.detail.settleAndCloseDetails;
+		const selectedAccountIndex = this._getSECTransferDetails(item.detail.productSelected.accountNumber);
+	
+		const settleAndClose = {
+				creditType: this.settleAndCloseCreditOption,
+				cifNumber: this.callerInformation.cifNumber,
+				accountNumber: this.settleAndCloseQuote.accountNumber,
+				fromAccountNumber: this.settleAndCloseQuote.savingAccountsList[selectedAccountIndex].accountNumber,
+				fromAccountType: this._getSavingsAccType(this.settleAndCloseQuote.savingAccountsList[selectedAccountIndex].accountType),
+				authorisedAmount: this.settleAndCloseQuote.settlementAmount,
+				caseId: ``,
+				emailAddress: ``,
+				firstname: this.callerInformation.firstName,
+				surname: this.callerInformation.lastName,
+				idNumber: this.callerInformation.southAfricanIDNumber
+		};
+	
+		const returnValue = await this.creditService.settleAndClose(settleAndClose);
+
+		await this._settleAndCloseConfirmTelemetry(returnValue.succeeded, this.settleAndCloseQuote.savingAccountsList[selectedAccountIndex].accountNumber, this.settleAndCloseQuote.accountNumber);
+		
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.settleAndCloseCreditType = this.creditType;
+		screenDetails.settleAndCloseProductType = this.settleAndCloseCreditOption;
+		screenDetails.settleAndCloseCreditOption = this.settleAndCloseCreditOption;
+		screenDetails.settleAndCloseAccountNumber = this.settleAndCloseQuote.accountNumber;
+		screenDetails.accountName = Object.keys(this.settleAndCloseDetails).find(key => this.settleAndCloseDetails[key] === this.settleAndCloseQuote.accountNumber);
+
+		if (returnValue.succeeded) {
+			
+			this.settleAndCloseDocument = returnValue.result.documentData;
+			screenDetails.settleAndCloseDocumentData = this.settleAndCloseDocument;
+			
+			this.horizonStore.setReturnScreen(this.navigationContext.current.route, this.incidentDetails.currentNeed);
+			this.horizonStore.setScreenDetails(screenDetails);
+			
+			this.horizonRouter.navigateToSettleAndCloseSuccess();
+
+		} else {
+			this.horizonStore.setScreenDetails(screenDetails);
+			this.horizonRouter.navigateToSettleAndCloseFailure();
+		}
+	}
+
+	_getSECTransferDetails(item) {
+		for (let i = 0; i < this.settleAndCloseQuote.savingAccountsList.length; i++) {
+			const savAcc = this.settleAndCloseQuote.savingAccountsList[i];
+			if (Number(savAcc.accountNumber) === item) {
+				return i;
+			}
+		}
+	}
+
+	_getSavingsAccType(code) {
+		if (Number(code) === 300) {
+			return `Primary`;
+		} 
+			return `Flexible`;
 	}
 
 	_errorHandler() {
@@ -534,6 +620,11 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _settlementQuote(creditType, productType, selectedAccountDetails) {
+
+		if (this.ccsStatus) {
+			this.showCCSmodal = true;
+			return;
+		}
 		await this._telemetry.logEvent(CreditEvents.CREDIT_SETTLEMENT_QUOTE_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
 			"next-screen": TelemetryScreen.SETTLEMENT_QUOTE_DIALOG,
@@ -577,23 +668,19 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_settleAndClose(creditType, productType, selectedAccountDetails) {
-		// TO DO: Place holder for credit settle and close flow.
-
-		this._telemetry.logEvent(CreditEvents.CREDIT_SETTLE_CLOSE_SELECT, {
-			"screen": TelemetryScreen.CREDIT_LANDING,
-			"next-screen": TelemetryScreen.CREDIT_SETTLE_CLOSE,
-			"credit-type": creditType,
-			"product-type": productType
-		});
-	}
-
-	_settleLoan() {
-		// TODO: Place holder for credit settle loan flow.
-
 		if (this.ccsStatus) {
 			this.showCCSmodal = true;
 			return;
 		}
+
+		this._telemetry.logEvent(SETTLE_AND_CLOSE[creditType].NEED_SELECT, {
+			"screen": TelemetryScreen.CREDIT_LANDING,
+			"next-screen": creditType === CREDIT_TYPE.FLEXIBLE ? TelemetryScreen.CREDIT_SETTLE_CLOSE_DISCLAIMER : TelemetryScreen.CREDIT_SETTLE_LOAN_DISCLAIMER,
+			"credit-type": creditType,
+			"product-type": productType
+		});
+
+		this._telemetry.startSpan(SETTLE_AND_CLOSE[creditType].NEED, {});
 
 		this.settleAndCloseDetails = selectedAccountDetails;
 		this.productType = this.settleAndCloseDetails.productTypeDescription;
@@ -607,7 +694,7 @@ export class CreditAccount extends ViewBase {
 			"next-screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT
 		});
 
-		await super.createAndClassifySubsIncident();
+		await super.createAndClassifySubsIncident(null, false);
 
 		const returnValue = await this.creditService.budgetFacility(selectedAccountDetails.accountNumber);
 		const successfullServiceResponse = returnValue.succeeded;
@@ -713,13 +800,37 @@ export class CreditAccount extends ViewBase {
 	}
 	
 	async _settleAndCloseChooseAccount() {
-		// TO DO: Place holder for credit settle and close flow.
-		// "this.settleAndCloseDetails" has to be formed correctly after CS implementaion.
+		this._telemetry.logEvent(SETTLE_AND_CLOSE[this.creditType].DISCLAIMER_CONTINUE, {
+			"screen": this.creditType === CREDIT_TYPE.FLEXIBLE ? TelemetryScreen.CREDIT_SETTLE_CLOSE_DISCLAIMER : TelemetryScreen.CREDIT_SETTLE_LOAN_DISCLAIMER,
+			"next-screen": this.creditType === CREDIT_TYPE.FLEXIBLE ? TelemetryScreen.CREDIT_SETTLE_CLOSE : TelemetryScreen.CREDIT_SETTLE_TERM_LOAN
+		});
 
 		this.clientProducts = await this._getClientProducts();
 		
-		this.showSettleCloseModal = !this.showSettleCloseModal;
+		if (this.settleAndCloseDetails.type === `Credit card`) {
+			this.settleAndCloseCreditOption = `CreditCard`;
+		} else if (this.settleAndCloseDetails.type === `Term Loan`) {
+			this.settleAndCloseCreditOption = `Loan`;
+		}
+		const settleAndCloseQuoteRequest = 
+		{
+			creditType: this.settleAndCloseCreditOption,
+			accountNumber: this.settleAndCloseDetails.accountNumber,
+			cifNumber: this.callerInformation.cifNumber,
+			idNumber: this.callerInformation.southAfricanIDNumber
+		};
+		
+		const returnValue = await this.creditService.settleAndCloseQuote(settleAndCloseQuoteRequest);
 
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to retrieve settle and close quote.`, `_settleAndCloseChooseAccount`, returnValue.correlationId);
+			return;
+		}
+
+		this._telemetry.startSpan(SETTLE_AND_CLOSE[this.creditType].POP_UP, {});
+
+		this.settleAndCloseQuote = returnValue.result;
+		this.showSettleCloseModal = !this.showSettleCloseModal;
 		const balanceField = this.settleAndCloseDetails.category === CREDIT_TYPE.FLEXIBLE ? `Available balance` : `Credit limit`;
 		const balanceFieldValue = this.settleAndCloseDetails.category === CREDIT_TYPE.FLEXIBLE ? this.settleAndCloseDetails.availableCredit : this.settleAndCloseDetails.creditLimit;
 
@@ -728,10 +839,14 @@ export class CreditAccount extends ViewBase {
 			[this.settleAndCloseDetails.productTypeDescription]: this.settleAndCloseDetails.accountNumber,
 			[balanceField]: balanceFieldValue,
 			'Outstanding balance': this.settleAndCloseDetails.currentBalance,
-			'Interest not capitalised': `R150.00`,
-			'Expected interest and fees': `R40.00`,
-			'Settlement amount': `R491.09`
+			'Settlement amount': formatCurrency(this.settleAndCloseQuote.settlementAmount)
 		};
+
+		if (this.settleAndCloseCreditOption === `CreditCard`) {
+			this.settleAndCloseDetails[`Interest not capitalised`] = formatCurrency(this.settleAndCloseQuote.interestNotCapatalised);
+			this.settleAndCloseDetails[`Expected interest and fees`] = formatCurrency(this.settleAndCloseQuote.expectedInterestFees);
+		}
+
 		this.renderMode = RENDER_MODE.SETTLE_AND_CLOSE;
 	
 	}
@@ -782,6 +897,48 @@ export class CreditAccount extends ViewBase {
 		this._telemetry.endSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {});
 
 		this._setIncidentDone();
+	}
+	
+	async _closeSettleCloseDisclaimer() {
+		await this._telemetry.logEvent(SETTLE_AND_CLOSE[this.creditType].DISCLAIMER_CANCEL, {
+			"screen": this.creditType === CREDIT_TYPE.FLEXIBLE ? TelemetryScreen.CREDIT_SETTLE_CLOSE_DISCLAIMER : TelemetryScreen.CREDIT_SETTLE_LOAN_DISCLAIMER,
+			"next-screen": TelemetryScreen.CREDIT_LANDING
+		});
+
+		this.showSettleCloseModal = !this.showSettleCloseModal;
+
+		this._telemetry.endSpan(SETTLE_AND_CLOSE[this.creditType].NEED, {});
+	}
+
+	async _exitSettleAndCloseDialog() {
+		await this._telemetry.logEvent(SETTLE_AND_CLOSE[this.creditType].POP_UP_CANCEL, {
+			"screen": this.creditType === CREDIT_TYPE.FLEXIBLE ? TelemetryScreen.CREDIT_SETTLE_CLOSE : TelemetryScreen.CREDIT_SETTLE_TERM_LOAN,
+			"next-screen": TelemetryScreen.CREDIT_LANDING
+		});
+
+		this._telemetry.endSpan(SETTLE_AND_CLOSE[this.creditType].POP_UP, {}, true, true);
+	
+		this._backToLandingPage();
+	}
+
+	async _settleAndCloseConfirmTelemetry(isSuccess, fromAccountNumber, accountNumber) {
+		let nextScreen = ``;
+		const screen = this.creditType === CREDIT_TYPE.FLEXIBLE ? TelemetryScreen.CREDIT_SETTLE_CLOSE : TelemetryScreen.CREDIT_SETTLE_TERM_LOAN;
+
+		if (isSuccess) {
+			nextScreen = this.creditType === CREDIT_TYPE.FLEXIBLE ? TelemetryScreen.CREDIT_SETTLE_CLOSE_SUCCESS : TelemetryScreen.CREDIT_SETTLE_TERM_LOAN_SUCCESS;
+		} else {
+			nextScreen = this.creditType === CREDIT_TYPE.FLEXIBLE ? TelemetryScreen.CREDIT_SETTLE_CLOSE_FAILURE : TelemetryScreen.CREDIT_SETTLE_TERM_LOAN_FAILURE;
+		}
+
+		await this._telemetry.logEvent(SETTLE_AND_CLOSE[this.creditType].POP_UP_CONFIRM, {
+			"screen": screen,
+			"next-screen": nextScreen,
+			"account-number": fromAccountNumber,
+			"from-account-number": accountNumber
+		});
+
+		this._telemetry.endSpan(SETTLE_AND_CLOSE[this.creditType].POP_UP, {});
 	}
 
 	// ---------
@@ -840,6 +997,8 @@ export class CreditAccount extends ViewBase {
 			${this._renderSettleCloseDisclaimer()}
 			${this._renderSettleAndCloseDialog()}
 			${this._renderPaidUpLetterView()}
+			${this._renderPendingClosure()}
+			${this._renderPayBudgetWarning()}
 		`;
 	}
 
@@ -881,6 +1040,9 @@ export class CreditAccount extends ViewBase {
 					.flexibleCreditAccounts="${this.flexibleCreditAccounts}"
 					.fixedTermCreditAccounts="${this.fixedTermCreditAccounts}"
 					.budgetAccountsSummary="${this.budgetAccountsSummary}"
+					.shouldDisable="${need => this._shouldDisable(need)}"
+					.renderAlertBanner="${() => this.renderAlertBanner()}"
+					.isPilotUser="${this.isPilotUser}"          
 					selectedTab="${this.selectedTab}"
 					@option-click="${(e) => this._optionClick(e.detail.option, e.detail.creditType, e.detail.productType, e.detail.selectedAccountDetails)}"
 					@account-details="${(e) => this._accountDetails(e)}"
@@ -904,6 +1066,9 @@ export class CreditAccount extends ViewBase {
 			? html`
 				<capitec-pc-budget-facility-accounts
 					.budgetFacilityAccounts="${this.budgetFacilityAccounts}"
+					.shouldDisable="${need => this._shouldDisable(need)}"
+					.renderAlertBanner="${() => this.renderAlertBanner()}"
+					.isPilotUser="${this.isPilotUser}"          
 					@on-loading="${() => this._telemetry.startSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {})}"
 					@back="${() => this._backFromBudgetAccountsView()}"
 					@account-details="${(event) => this._viewBudgetDetails(event.detail.selectedAccountDetails)}"
@@ -918,6 +1083,9 @@ export class CreditAccount extends ViewBase {
 		? html`
 			<capitec-pc-budget-account-details
 				.accountDetails="${this.budgetAccountDetails}"
+				.shouldDisable="${need => this._shouldDisable(need)}"
+				.renderAlertBanner="${() => this.renderAlertBanner()}"
+				.isPilotUser="${this.isPilotUser}"        
 				@back="${() => this._backFromBudgetAccountDetails()}"
 				@transfer-click="${(event) => this._transferFromBudgetDetails(event.detail.budgetAccountNumber)}">
 			</capitec-pc-budget-account-details>`
@@ -930,6 +1098,7 @@ export class CreditAccount extends ViewBase {
 				<capitec-pc-pay-budget-dialog
 					.budgetAccountDetails="${this.payBudgetAccountDetails}"
 					.clientProducts="${this.clientProducts}"
+					.payBudgetfromAccounts="${this.payBudgetfromAccounts}"
 					@on-loading="${() => this._telemetry.startSpan(CreditEvents.PAY_BUDGET_MODAL, {})}"
 					@on-unloading="${() => this._telemetry.endSpan(CreditEvents.PAY_BUDGET_MODAL, {})}"
 					@cancel="${() => this._backFromPayBudgetDialog()}"
@@ -978,6 +1147,7 @@ export class CreditAccount extends ViewBase {
 				.cifNumber="${this.callerInformation.cifNumber}"
 				.clientProducts="${this.clientProducts}"
 				type="${ACCOUNT_TYPES.CREDIT}"
+				registeredEmailId="${this.callerInformation.emailId}"
 				.navigatePDF="${(currPage) => this._navigatePDF(currPage)}"
 				@cancel="${() => this._backToLandingPage()}">
 			</horizon-statements>`
@@ -990,7 +1160,7 @@ export class CreditAccount extends ViewBase {
 			<horizon-settle-n-close-disclaimer
 				.productType="${this.productType}"
 				.creditType="${this.creditType}"
-				@cancel="${() => this.showSettleCloseModal = !this.showSettleCloseModal}"
+				@cancel="${() => this._closeSettleCloseDisclaimer()}"
 				@continue="${() => this._settleAndCloseChooseAccount()}">
 			</horizon-settle-n-close-disclaimer>`
 		: html``;
@@ -1020,8 +1190,7 @@ export class CreditAccount extends ViewBase {
 
         return this.renderMode === RENDER_MODE.VIEW_AND_SEND_SETTLE_LOAN_POP ? html`
 			<horizon-view-and-send-document
-				modalHeader="Settle Loan: Proof of Payment" 
-				.documents=""
+				modalHeader="Settle Loan: Proof of Payment"
 				.loadDocumentContent="${this._loadSettleLoanPOPDocument}"
 				@send-pdf-click="${(e) => this._onSendSettleLoanPOP(e.documents, e.email)}"
 				@cancel-send-pdf-click="${() => this._onCancelSendSettleLoanPOP()}">
@@ -1034,10 +1203,10 @@ export class CreditAccount extends ViewBase {
 		? html`
 			<horizon-settle-and-close-dialog 
 				.settleAndCloseDetails="${this.settleAndCloseDetails}"
+				.settleAndCloseQuote="${this.settleAndCloseQuote}"
 				.clientProducts="${this.clientProducts}"
-
-				@cancel="${() => this._backToLandingPage()}"
-				@settle-and-close="${() => this._confirmSettleAndClose()}">
+				@cancel="${() => this._exitSettleAndCloseDialog()}"
+				@settle-and-close="${(e) => this._confirmSettleAndClose(e)}">
 			</horizon-settle-and-close-dialog>`
 		: html``;
 	}
@@ -1046,12 +1215,33 @@ export class CreditAccount extends ViewBase {
 		return this.renderMode === RENDER_MODE.PAID_UP_LETTER
 		? html`
 		<horizon-paid-up-letter-dialog
-				.landingPageInfo="${this.landingPageInfo}"
+			.landingPageInfo="${this.landingPageInfo}"
 			.selectedAccounts="${this.selectedAccounts}"
 			.encodedPDFs="${this.encodedPDFs}"
+			registeredEmailId="${this.callerInformation.emailId}"
 			@cancel="${() => this._backToLandingPage()}"
 			.navigatePDF="${(currPage) => this._navigatePDF(currPage)}">
 		</horizon-paid-up-letter-dialog>`
+		: html``;
+	}
+
+	_renderPendingClosure() {
+		return this.declineReason === PERMISSION_DECLINE_REASONS.ACC_NOT_ACTIVE
+		? html`
+			<horizon-warn-dialog
+				content="Your ${PRODUCT_TYPE[this.selectedAccountDetails.productTypeCode].toLowerCase()} account was settled and is pending closure."
+				@on-okay="${() => this.declineReason = ``}">
+			</horizon-warn-dialog>`
+		: html``;
+	}
+
+	_renderPayBudgetWarning() {
+		return this.showPayBudgetWarning
+		? html`
+			<horizon-warn-dialog
+				content="Your Credit Card account is in arrears, make payment before paying your budget facility account"
+				@on-okay="${() => this.showPayBudgetWarning = !this.showPayBudgetWarning}">
+			</horizon-warn-dialog>`
 		: html``;
 	}
 }

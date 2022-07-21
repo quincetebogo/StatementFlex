@@ -394,14 +394,15 @@ export class AppShell extends Shell {
 					currentMessage="${this.currentMessage}"
 					sblLink="${this.sblUrl}"
 					cdsLink="${this.cdsUrl}"
-					cnetLink="${this.cnetUrl}">
+					cnetLink="${this.cnetUrl}"
+					appVersion="${this.applicationVersion}">
 				</horizon-statusbar>
 			</div>`;
 	}
 
 	_renderLoadingIndicator() {
 		if (this.isBusy || this.isAuthenticating) {
-			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+			return html`<capitec-loading-indicator data-automation-id="app-shell-loading-indicator"></capitec-loading-indicator>`;
 		}
 	}
 }

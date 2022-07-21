@@ -1,4 +1,3 @@
-import { HIGH_RISK_TRANSACTIONS, LOW_RISK_TRANSACTIONS } from 'app/constants/Common';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { ACCOUNT_STATUS } from 'app/constants/Credit';
 import { CreditService } from 'app/services/CreditService';
@@ -416,16 +415,6 @@ export class SavingsAccountBase extends ViewBase {
 		 this._telemetryEndSpan(eventName, screenName);
 	}
 
-	_shouldDisable(need) {
-		// add this verification method in the verify caller component to check if the client has done ita 
-		const verificationMethod = this.callerInformation.verificationMethod;
-		const verificationStatus = this.callerInformation.verificationStatus;
-
-		return verificationStatus === `verified`
-				? verificationMethod === `SQ` && HIGH_RISK_TRANSACTIONS.includes(need)
-				: !LOW_RISK_TRANSACTIONS.includes(need);
-	}
-
 	async _getMandateDetails() {
 		const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, this.mandateId, this.registerId, () => true);
 		
@@ -534,9 +523,10 @@ export class SavingsAccountBase extends ViewBase {
 			? html`
 				<horizon-statements
 					.cifNumber="${this.callerInformation.cifNumber}"
-					.title="${this.callerInformation.title}"
+					client-title="${this.callerInformation.title}"
 					.lastName="${this.callerInformation.lastName}"
 					.clientProducts="${this.clientProducts}"
+					registeredEmailId="${this.callerInformation.emailId}"
 					type="${type}"
 					@cancel="${() => this._cancelStatements()}"
 					@account-selected="${(event) => this._statementsAccConfirmed(event)}">

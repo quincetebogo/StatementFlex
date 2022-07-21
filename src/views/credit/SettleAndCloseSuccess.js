@@ -1,7 +1,10 @@
 import { css, html } from 'platform/elements';
-import { ViewBase } from 'app/views/common/ViewBase';
 import { CREDIT_TYPE } from 'app/constants/Credit';
-
+import { OutcomeBase } from '../common/OutcomeBase';
+import { SETTLE_AND_CLOSE } from 'app/constants/telemetry/events/Credit';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { ViewBase } from 'app/views/common/ViewBase';
+import { creditMixin } from 'app/views/credit/CreditMixin';
 import 'app/components/common/SuccessScreen';
 
 /**
@@ -11,7 +14,7 @@ import 'app/components/common/SuccessScreen';
  * @class SettleAndCloseSuccess
  * @extends {ViewBase}
  */
- export class SettleAndCloseSuccess extends ViewBase {
+ export class SettleAndCloseSuccess extends OutcomeBase {
 
 	// --------------
 	// INITIALISATION
@@ -20,25 +23,14 @@ import 'app/components/common/SuccessScreen';
 	constructor() {
 		super();
 
-		// TODO: Hardcoded values needs to be remvoed when wiring up navigation.
-		this.productType = `credit card`;
-		this.creditCardNumber = `4000********0063`;
-		this.creditType = CREDIT_TYPE.FIXED;
+		this.creditCardNumber = ``;
+		this.creditType = ``;
+		this.accountName = ``;
 
-		this.primaryToast = this.creditType === CREDIT_TYPE.FLEXIBLE ? `Account settled and closed` : `Account Closed`;
-	}
-
-	// --------------
-	// PROPERTIES
-	// --------------
-
-	static get properties() {
-		return {
-
-			// TODO: To be removed when wiring up navigation.
-			creditType: { type: String },
-			productType: { type: String }
-		};
+		this.settleAndCloseTelemetryEvents = {};
+		
+		this.primaryToast = `Account Settled`;
+		Object.assign(SettleAndCloseSuccess.prototype, creditMixin);
 	}
 
 	// -------------------
@@ -47,6 +39,10 @@ import 'app/components/common/SuccessScreen';
 
 	connectedCallback() {
 		super.connectedCallback();
+		this._initialise();
+
+		this._telemetry.startSpan(this.settleAndCloseTelemetryEvents.SUCCESS);
+		this._updateIncidentState();
 	}
 
 	disconnectedCallback() {
@@ -56,12 +52,42 @@ import 'app/components/common/SuccessScreen';
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+	_initialise() {
+		const screenDetails = this.horizonStore.getScreenDetails();
+		this.creditType = screenDetails.settleAndCloseCreditType;
+		this.creditCardNumber = screenDetails.settleAndCloseAccountNumber;
+		this.accountName = screenDetails.accountName;
+		
+		this.primaryToast = this.creditType === CREDIT_TYPE.FLEXIBLE ? `Account settled and closed` : `Account settled`;
+		this.settleAndCloseTelemetryEvents = SETTLE_AND_CLOSE[this.creditType];
+	}
 
 	_sendEmailConfirmationClick() {
-		// TODO: Navigation to Send email confirmation modal should come here
+		this._telemetry.logEvent(this.settleAndCloseTelemetryEvents.SUCCESS_SEND_POP, {
+			"screen": this.creditType === CREDIT_TYPE.FLEXIBLE ? TelemetryScreen.CREDIT_SETTLE_CLOSE_SUCCESS : TelemetryScreen.CREDIT_SETTLE_TERM_LOAN_SUCCESS,
+			"next-screen": TelemetryScreen.PROOF_OF_PAYMENT_DIALOG
+		});
+		
+		const screenDetails = this.horizonStore.getScreenDetails();
+		const emailAccountsList = [
+			{
+				title: this.accountName,
+				subtitle: this.creditType === CREDIT_TYPE.FLEXIBLE ? `Settle and Close` : `Settle term loan`,
+				documentData: screenDetails.settleAndCloseDocumentData
+			}
+		];
+
+	this._showPopDialog(emailAccountsList, this.settleAndCloseTelemetryEvents.POP_EVENTS, this.settleAndCloseTelemetryEvents.NEED);
 	}
 
 	_doneClick() {
+		this._telemetry.logEvent(this.settleAndCloseTelemetryEvents.SUCCESS_DONE, {
+			"screen": this.creditType === CREDIT_TYPE.FLEXIBLE ? TelemetryScreen.CREDIT_SETTLE_CLOSE_SUCCESS : TelemetryScreen.CREDIT_SETTLE_TERM_LOAN_SUCCESS,
+			"next-screen": TelemetryScreen.CREDIT_LANDING
+		});
+
+		this._telemetry.endSpan(this.settleAndCloseTelemetryEvents.SUCCESS, {}, true, true);
+	
 		this.horizonRouter.navigateToCreditAccount();
 	}
 
@@ -73,6 +99,12 @@ import 'app/components/common/SuccessScreen';
 	// PRIVATE METHODS
 	// ---------------
 
+	_updateIncidentState() {
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+	}
+	
 	// ---------
 	// RENDERING
 	// ---------
@@ -115,7 +147,7 @@ import 'app/components/common/SuccessScreen';
 				right="Done"
 				toast="${this.primaryToast}"
 				?hasSubDetails=${this.creditType === CREDIT_TYPE.FLEXIBLE}
-				?subContent=${this.creditType === CREDIT_TYPE.FLEXIBLE}
+				?subContent=${true}
 				@right-click=${() => this._doneClick()}>
 					${this._renderDetail()}
 					${this._renderSubDetail()}
@@ -129,25 +161,26 @@ import 'app/components/common/SuccessScreen';
 			<section 
 				class="id-update-msg" 
 				slot="detail">
-					Your ${this.productType} account has been ${this.creditType === CREDIT_TYPE.FLEXIBLE ? `settled and closed.` : `closed.`}
+					Your ${this.accountName} account <strong>${this.creditCardNumber}</strong> has been ${this.creditType === CREDIT_TYPE.FLEXIBLE ? `settled and closed.` : `settled.`}
 			</section>
 		`;
 	}
 
 	_renderSubDetail() {
-		return html`
+		return this.creditType === CREDIT_TYPE.FLEXIBLE 
+		? html`
 			<section 
 				class="id-update-msg" 
 				slot="sub-detail">
-					${this.productType} <strong>${this.creditCardNumber}</strong> was stopped successfully.
-			</section>
-		`;
+					${this.accountName} was stopped successfully.
+			</section>`
+		: html``;
 	}
 
 	_renderSubContent() {
 		return html`
 			<section slot="sub-content">
-				Would you like proof of payment? 
+				<strong>Would you like proof of payment?</strong>
 				<span @click="${() => this._sendEmailConfirmationClick()}">Send Email Confirmation</span>
 			</section>
 		`;

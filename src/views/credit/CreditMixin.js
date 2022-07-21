@@ -45,8 +45,26 @@ export const creditMixin = {
 			this.logger.log(`error`, `Failed to get credit permissions.`, `_getCreditPermisions`, returnValue.correlationId);
 		}
 
-		const permission = returnValue.result.permissionsResultsList.find(item => item.operationIdentifier === ACTION_IDENTIFIER[option]);
-		return permission?.permissionResult === PERMISSION_STATUS.DENIED;
+		let permission = returnValue.result.permissionsResultsList.find(item => item.operationIdentifier === ACTION_IDENTIFIER[option]);
+
+		// TODO : CSCEH-7995 : Once credit permission is update for marked closure status, we can remove the below condition.
+		if (option === `settlement-quote` || option === `pay-budget`) {
+			permission = returnValue.result.permissionsResultsList.find(item => item.operationIdentifier === `Settle`);
+		}
+
+		// When the option is view-budget, we cant get it from the permissions endpoint. 
+		// So hardcoding it GRANTED always.
+		if (!permission) {
+			permission = {};
+			permission.permissionResult = PERMISSION_STATUS.GRANTED;
+			permission.declineReasons = ``;
+		}
+
+		return {
+			ccsStatus: permission?.permissionResult === PERMISSION_STATUS.DENIED,
+			permissionResult: permission?.permissionResult,
+			declineReasons: permission?.declineReasons
+		};
 	},
 
 	async _settlementQuoteDialog(selectedAccounts) {
@@ -148,6 +166,9 @@ export const creditMixin = {
 			"accountType": item.productTypeDescription
 		});
 
+		// Adding Info level logs for PROD investigation.
+		this.logger.log(`warn`, `Forming request payload for 'credit/settlement-quote/view' end point`, `_viewSettlementQuote`);
+
 		const request = {
 			"creditType": item.type.replace(` `, ``),
 			"accountNumber": item.accountNumber,
@@ -159,12 +180,23 @@ export const creditMixin = {
 			"caseId": ``
 		};
 
-		const returnValue = await this.creditService.settlementQuote(request);
+		this.logger.log(`warn`, `Sending request to 'credit/settlement-quote/view' end point`, `_viewSettlementQuote`);
 
-		if (returnValue.succeeded) {
-			this.caseId = returnValue.result.caseId;
-			return returnValue.result.data;
+		const returnValue = await this.creditService.settlementQuote(request, (error) => this._handleSettlementQuoteError(error));
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to load settlement quote to view`, `_viewSettlementQuote`, returnValue.correlationId);
 		}
+
+		this.logger.log(`warn`, `View settlement quote CS call succeeded`, `_viewSettlementQuote`);
+
+		this.caseId = returnValue.result.caseId;
+		return returnValue.result.data;
+	},
+
+	_handleSettlementQuoteError(error) {
+		this.logger.log(`error`, `Failed to do settlment quote ${JSON.stringify(error)}`);
+		return false;
 	},
 
 	async _cancelSettlementQuoteDialog() {
@@ -187,6 +219,7 @@ export const creditMixin = {
 			<horizon-settlement-quote-dialog
 				.selectedAccounts="${this.selectedAccountDetails}"
 				.viewSettlementQuote="${(item) => this._viewSettlementQuote(item)}"
+				registeredEmailId="${this.callerInformation.emailId}"
 				@on-unloading="${() => this._telemetry.endSpan(this.settlementQuoteEvents.SETTLEMENT_QUOTE_DIALOG, {})}"
 				@cancel="${() => this._cancelSettlementQuoteDialog()}"
 				@send="${(e) => this._sendSettlementQuote(e.detail)}">
@@ -197,9 +230,10 @@ export const creditMixin = {
 	_renderCcsModal() {
 		return this.ccsStatus
 		? html`
-			<horizon-ccs-status-dialog
+			<horizon-warn-dialog
+				content="Unable to perform this transaction as there is a CCS status on this account."
 				@on-okay="${() => this.resetCCSStatusAndReloadScreen()}">
-			</horizon-ccs-status-dialog>`
+			</horizon-warn-dialog>`
 		: html``;
 	}
 	

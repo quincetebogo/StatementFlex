@@ -66,6 +66,7 @@ export class Statements extends Component {
 	 * @property {string} type Contains the type of account
 	 * @property {string} title client's title (Mr/ Mrs)
 	 * @property {string} lastName client's last name
+	 * @property {string} registeredEmailId Client's registered email ID
 	 * @readonly
 	 * @static
 	 * @memberof Statements
@@ -74,10 +75,16 @@ export class Statements extends Component {
 		return {
 			cifNumber: { type: String },
 			clientProducts: { type: Array },
-			accountType: { type: String, attribute: `type` },
-			title: { type: String },
 			lastName: { type: String },
-
+			accountType: { 
+				type: String, 
+				attribute: `type`
+			},
+			title: { 
+				type: String,
+				attribute: `client-title`
+			},
+			registeredEmailId: { type: String },
 			isBusy: { state: true },
 			ccsStatus: { state: true }
 		};
@@ -434,7 +441,8 @@ export class Statements extends Component {
 	}
 
 	async _creditCheckPermissions(accNum, productType) {
-		this.ccsStatus = await this._checkCreditPermisions(`statements`, this.cifNumber, accNum, productType);
+		const { ccsStatus } = await this._checkCreditPermisions(`statements`, this.cifNumber, accNum, productType);
+		this.ccsStatus = ccsStatus;
 
 		this.clientProducts = this.clientProducts.filter(item => {
 			if (item.accountNumber === accNum) {
@@ -461,6 +469,7 @@ export class Statements extends Component {
 			<horizon-statements-dialog
 				.clientProducts="${this.clientProducts}"
 				type="${this.accountType}"
+				registeredEmailId="${this.registeredEmailId}"
 				@cancel="${() => this._cancel()}"
 				@back="${() => this._back()}"
 				@next="${(event) => this._next(event)}"
@@ -476,16 +485,17 @@ export class Statements extends Component {
 
 	_renderLoadingIndicator() {
 		return this.isBusy
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			? html`<capitec-loading-indicator data-automation-id="statements-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
 
 	_renderCcsModal() {
 		return this.ccsStatus
 		? html`
-			<horizon-ccs-status-dialog
+			<horizon-warn-dialog
+				content="Unable to perform this transaction as there is a CCS status on this account."
 				@on-okay="${() => this.ccsStatus = false}">
-			</horizon-ccs-status-dialog>`
+			</horizon-warn-dialog>`
 		: html``;
 	}
 }
