@@ -148,10 +148,9 @@ export class ExistingClient extends InsureViewBase {
 	 * Fetch client policies
 	 */
 	async _initialise() {
-		this.clientPolicies = await this._retrieveClientPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+		await this._retrieveClientPolicies();
 		this.accountDetails = await this._retrieveAccountDetails();
 		this.commsHistory = await this._retrieveCommsHistory();
-		console.log(this.accountDetails)
 	}
 
 	/**
@@ -276,6 +275,11 @@ export class ExistingClient extends InsureViewBase {
 		}
 	}
 
+	async _rerenderPolicies(navigateBackTo){
+		await this._retrieveClientPolicies(); 
+		this._navigateToSubView(navigateBackTo);		
+	}
+
 	//#endregion PRIVATE METHODS
 
 	//#region EVENT HANDLERS
@@ -330,16 +334,17 @@ export class ExistingClient extends InsureViewBase {
 	 * Retrieve client policies via insure channel service
 	 * @returns {Object} Client policies 
 	 */
-	async _retrieveClientPolicies(cifNumber, idNumber) {
+	async _retrieveClientPolicies() {
 		let request = {
-			cifNumber: cifNumber,
-			idNumber: idNumber
+			cifNumber: this.callerInformation.cifNumber,
+			idNumber: this.callerInformation.southAfricanIDNumber
 		}
+		
 		const resp = await this.insureService.clientPolicies(request);
 		if (!resp.succeeded)
 			return;
 
-		return resp.result;
+		this.clientPolicies = resp.result;
 	}
 
 	/**
@@ -425,11 +430,11 @@ export class ExistingClient extends InsureViewBase {
 			"cifNumber": this.callerInformation.cifNumber,
 			"idNumber": this.callerInformation.southAfricanIDNumber,
 			"cancellationReason": this.cancellationReason,
-			"documents": {
-				"documentCode": cancelPolicyDocumentDetails.documentDetails.documentCode,
-				"documentName": cancelPolicyDocumentDetails.documentDetails.documentName,
-				"guid": cancelPolicyDocumentDetails.documentDetails.guid,
-			}
+			"documents": [{
+				"documentCode": this.cancelPolicyDocumentDetails.documentDetails.documentCode,
+				"documentName": this.cancelPolicyDocumentDetails.documentDetails.documentName,
+				"guid": this.cancelPolicyDocumentDetails.documentDetails.guid,
+			}]
 
 		};
 		console.log(cancelPolicyDetails)
@@ -873,7 +878,7 @@ export class ExistingClient extends InsureViewBase {
 
 		this.contractReference = event.detail.policyResponse.policyResponse.contractReference;
 
-		await this._generateDocumentsForReinstate(false);
+		await this._generateDocumentsForReinstate(true);
 
 		this.successMessage = `The policy ${event.detail.policyResponse.policyResponse.contractReference} has been successfully reinstated`;	
 		this.callerPage = INSURE_CALLER_PAGE.REINSTATE_POLICY;
@@ -1124,7 +1129,7 @@ export class ExistingClient extends InsureViewBase {
 	_renderPolicySummaryPage() {
 		return html`
 			<horizon-insure-policy-summary .policyDetails="${this.policyDetails}"
-				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+				@navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan(e)}" @unloading="${() => this._undoClientPolicies()}">
 			</horizon-insure-policy-summary>`
 	}
@@ -1135,7 +1140,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderCancelPolicySuccessPage() {
 		return html`
-		<insure-cancel-policy-success @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+		<insure-cancel-policy-success @navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 			@send-email = "${(e) => this._sendEmail(e)}" .contractReference = ${this.contractReference}>
 		</insure-cancel-policy-success>
 		`
@@ -1160,7 +1165,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderPayPremiumSuccessPage() {
 		return html`
-		<horizon-pay-premium-success-page @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+		<horizon-pay-premium-success-page @navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 			@navigate-to-email-success-page="${() => this._goToEmailSuccessPage()}"
 			.amountToPay = "${this.amountToPay}" .contractReference = "${this.contractReference}"
 			@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}">
@@ -1175,7 +1180,7 @@ export class ExistingClient extends InsureViewBase {
 	_renderPolicyTransactionHistoryPage() {
 		return this.renderMode === INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY
 			? html`<horizon-insure-policy-transaction-history 
-				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+				@navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				.policyTransactionHistory="${this.policyTransactionHistory}"
 				.getPolicyTransactionHistory="${(startDate, endDate, pageIndex) =>
 					this._getPolicyTransactionHistory(startDate, endDate, pageIndex)}"
@@ -1205,7 +1210,7 @@ export class ExistingClient extends InsureViewBase {
 		<horizon-insure-success-page .successMessage="${this.successMessage}" 
 			@send-email = "${(e) => this._sendEmail(e)}"
 			.callerPage = "${this.callerPage}" .contractReference = "${this.contractReference}"
-			@navigate-back="${(e) => this._navigateToSubView(e.detail.navigateBackTo)}">
+			@navigate-back="${(e) => this._rerenderPolicies(e.detail.navigateBackTo)}">
 		</horizon-insure-success-page>`
 	}
 

@@ -90,7 +90,9 @@ export default class InsureChannelServiceMocks {
 
 			const result = this.transactionHistoryMocks.PolicyTransactionHistory;
 
-			return result;
+			var policyTrans = result.filter(x => x.contractReference === policyTransactionHistoryRequest.contractReference);
+
+			return policyTrans[0];
 		}
 
 		// Code for a negative case could come here
