@@ -10,6 +10,7 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { RoleManager } from 'app/shell/RoleManager';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { alertBannerMixin } from 'app/views/common/AlertBannerMixin';
 import { creditMixin } from 'app/views/credit/CreditMixin';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
@@ -35,7 +36,7 @@ import 'app/dialogs/credit/SettleAndCloseDialog';
  * 
  * @export
  * @class CreditAccount
- * @extends {CreditAccount}
+ * @extends {ViewBase}
  */
 export class CreditAccount extends ViewBase {
 
@@ -85,6 +86,7 @@ export class CreditAccount extends ViewBase {
 		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._preformAction(e));
 		
 		Object.assign(CreditAccount.prototype, creditMixin);
+		Object.assign(CreditAccount.prototype, alertBannerMixin);
 	}
 
 
@@ -1038,7 +1040,9 @@ export class CreditAccount extends ViewBase {
 					.flexibleCreditAccounts="${this.flexibleCreditAccounts}"
 					.fixedTermCreditAccounts="${this.fixedTermCreditAccounts}"
 					.budgetAccountsSummary="${this.budgetAccountsSummary}"
-					.isPilotUser="${this.isPilotUser}"
+					.shouldDisable="${need => this._shouldDisable(need)}"
+					.renderAlertBanner="${() => this.renderAlertBanner()}"
+					.isPilotUser="${this.isPilotUser}"          
 					selectedTab="${this.selectedTab}"
 					@option-click="${(e) => this._optionClick(e.detail.option, e.detail.creditType, e.detail.productType, e.detail.selectedAccountDetails)}"
 					@account-details="${(e) => this._accountDetails(e)}"
@@ -1062,7 +1066,9 @@ export class CreditAccount extends ViewBase {
 			? html`
 				<capitec-pc-budget-facility-accounts
 					.budgetFacilityAccounts="${this.budgetFacilityAccounts}"
-					.isPilotUser="${this.isPilotUser}"
+					.shouldDisable="${need => this._shouldDisable(need)}"
+					.renderAlertBanner="${() => this.renderAlertBanner()}"
+					.isPilotUser="${this.isPilotUser}"          
 					@on-loading="${() => this._telemetry.startSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {})}"
 					@back="${() => this._backFromBudgetAccountsView()}"
 					@account-details="${(event) => this._viewBudgetDetails(event.detail.selectedAccountDetails)}"
@@ -1077,7 +1083,9 @@ export class CreditAccount extends ViewBase {
 		? html`
 			<capitec-pc-budget-account-details
 				.accountDetails="${this.budgetAccountDetails}"
-				.isPilotUser="${this.isPilotUser}"
+				.shouldDisable="${need => this._shouldDisable(need)}"
+				.renderAlertBanner="${() => this.renderAlertBanner()}"
+				.isPilotUser="${this.isPilotUser}"        
 				@back="${() => this._backFromBudgetAccountDetails()}"
 				@transfer-click="${(event) => this._transferFromBudgetDetails(event.detail.budgetAccountNumber)}">
 			</capitec-pc-budget-account-details>`

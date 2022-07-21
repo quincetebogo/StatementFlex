@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
 import { Utilities } from '@cb/platform-web-core';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
@@ -57,17 +58,28 @@ import 'app/components/common/HorizonLabel';
 	// --------------
 
 	/**
+	 * @typedef {Object} renderAlertBanner Display alter banner based on verification status
+	*/
+
+	/**
+	 * @callback renderAlterBannerCallback
+	 * @returns {html}
+	*/
+
+	/**
 	 * Registry of all properties defined by the component.
 	 *
 	 * @property {budgetFacilityAccounts} budgetFacilityAccounts List of Budget facility accounts and their details
-	 * @property {Boolean} isPilotUser - boolean says true/ false
+	 * @property {renderAlterBannerCallback} renderAlertBanner Callback function to render alter banner based on verification status & method
 	 *
 	 */
 	static get properties() {
 		return {
 			budgetFacilityAccounts: { type: Object },
+			shouldDisable: { type: Object },
+			renderAlertBanner: { type: Object, attribute: false },
 			isPilotUser: { type: Boolean },
-
+      
 			groupAccountsByTerm: { state: true },
 			filteredAccounts: { state: true }
 		};
@@ -190,6 +202,13 @@ import 'app/components/common/HorizonLabel';
 					--horizon-label-text-color: #FFFFFF;
 					--horizon-label-value-color:#FFFFFF;
 				}
+				
+				/* Alert banner styles */
+				${ALERTBANNER_CSS}
+				.verificatoin-status {
+					width: 1030px;
+					margin: 16px 0px 8px 16px;
+				}
 
 				/* Search bar styles */
 				capitec-search-field {
@@ -273,6 +292,10 @@ import 'app/components/common/HorizonLabel';
 				.account-details-tile > capitec-button {
 					--theme-button-font-weight: 600;
 				}
+				.account-details-tile > capitec-button[disabled] {
+					--theme-button-font-weight: 500;
+					filter: grayscale(100%);
+				}
 				.vertical-line{
 					height: 48px;
 					width: 1px;
@@ -316,6 +339,7 @@ import 'app/components/common/HorizonLabel';
 					</capitec-title-bar>
 
 					<capitec-content-box>
+						${this.renderAlertBanner()}
 						${this._renderSearchBar()}
 						${this._renderBudgetAccounts()}
 					</capitec-content-box>
@@ -448,7 +472,8 @@ import 'app/components/common/HorizonLabel';
 					type="clear"
 					label="Transfer"
 					@click="${() => this._transferClick(budgetAccount)}"
-					?hidden="${!this.isPilotUser}">
+					?disabled="${this.shouldDisable(`pay-budget`)}"
+					?hidden="${!this.isPilotUser}">          
 				</capitec-button>
 			</capitec-group>`;
 	}
