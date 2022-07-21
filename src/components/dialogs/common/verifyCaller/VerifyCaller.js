@@ -142,7 +142,7 @@ export class VerifyCaller extends Component {
 	async connectedCallback() {
 		super.connectedCallback();
 
-		this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER, {
+		await this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER, {
 			"remote-channels-registered": this.callerInformation.hasDigitalChannels
 		});
 
@@ -170,13 +170,13 @@ export class VerifyCaller extends Component {
 		this.isLoading = false;
 	}
 
-	disconnectedCallback() {
+	async disconnectedCallback() {
 		this._itaClose();
 
 		if (this.callerInformation.hasDigitalChannels) {
-			this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
-				"screen": TelemetryScreen.VERIFY_CALLER
-			});
+			await this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
+					"screen": TelemetryScreen.VERIFY_CALLER
+				});
 		}
 
 		this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER, {
@@ -193,6 +193,13 @@ export class VerifyCaller extends Component {
 		
 		// Stop any pending ITA attempt
 		this._itaClose();
+
+		if (this.callerInformation.hasDigitalChannels) {
+			await this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
+					"screen": TelemetryScreen.VERIFY_CALLER
+				});
+		}
+
 		this.itaInProgress = false;
 		this.itaSystemError = false;
 		this.itaTimeout = false;
