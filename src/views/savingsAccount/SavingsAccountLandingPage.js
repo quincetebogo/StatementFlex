@@ -274,6 +274,14 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		super._backToLandingPage();
 	}
 
+	_formatDate(date) {
+		const newdate = new Date(Date.parse(date));
+		const formatedDate = `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+		const formatedTime = `${newdate.toTimeString().substring(0, 5)}`;
+
+		return `${formatedDate} ${formatedTime}`;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -347,7 +355,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			<capitec-table-column
 				label="Transaction Date"
 				field="transactionDate"
-				type="date"
+				.renderer="${(item, fieldName, value) => this._renderTransactionDateTime(value)}"
 				size="156px;">
 			</capitec-table-column>
 			<capitec-table-column
@@ -384,6 +392,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				<div style="${unsafeCSS(STATUS_TAG.tagContainer)} ${unsafeCSS(STATUS_TAG.tagType)}">
 					<div style="${unsafeCSS(STATUS_TAG.tagLabel).toString()}">${value}</div>
 				</div>`;
+	}
+
+	_renderTransactionDateTime(value) {
+		return html`
+			<capitec-label
+				label="${this._formatDate(value)}">
+			</capitec-label>`;
 	}
 
 	_renderTransactionDetails(item) {
@@ -490,10 +505,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		`;
 	}
 
-	_formatDate(date) {
-		const newdate = new Date(Date.parse(date));
-		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
-	}
 }
 
 customElements.define(`horizon-savings-account-landing-page`, SavingsAccountLandingPage);
