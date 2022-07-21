@@ -553,18 +553,18 @@ export class InsureService extends ChannelServiceBase {
 		if (await this.isMockEnabled(`insurePolicyPay`)) {
 			return this.mock(`insurePolicyPay`);
 		}
-		return this.post(
-			`/FuneralInsuranceProductService/policy/pay`,
-			payArrearsRequest,
-			this.setInsureTokens(),
-			`payPolicy`,
-			null,
-			null,
-			900,
-			null,
-			errorHandler,
-			autoRetries
-		);
+		// return this.post(
+		// 	`/FuneralInsuranceProductService/policy/pay`,
+		// 	payArrearsRequest,
+		// 	this.setInsureTokens(),
+		// 	`payPolicy`,
+		// 	null,
+		// 	null,
+		// 	900,
+		// 	null,
+		// 	errorHandler,
+		// 	autoRetries
+		// );
 	}
 	
 	 /**
