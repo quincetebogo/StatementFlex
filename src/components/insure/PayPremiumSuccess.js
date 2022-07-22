@@ -59,6 +59,19 @@ constructor() {
 
 //#endregion
 
+//#region LIFECYCLE OVERRIDES
+
+	/**
+	 * Setup the component once added to the DOM.
+	 * @returns {void}
+	 */
+	 connectedCallback() {
+		super.connectedCallback();
+		window.setTimeout(() => this.showSuccessAlert = false, 2000);
+	}
+
+	//#endregion
+
 //#region PRIVATE FUNCTIONS
 
 
@@ -200,7 +213,7 @@ _viewPlan(){
 				<label class="label">Arrears was paid</label>
 				<div style= "justify-content: center;">
 					<capitec-icon size="medium" icon="status/success-trans" style="position: relative; left: 214px; top: 45px;"></capitec-icon>
-					<p>You've paid the full outstanding amount of <b>${formatCurrency(this.amountToPay)}</b> towards your plan <b>${this.contractReference}</b></p>
+					<p>You've paid the outstanding amount of <b>${formatCurrency(this.amountToPay)}</b> towards your plan <b>${this.contractReference}</b></p>
 				</div>
 				 
 				<div class="button-row">
@@ -238,7 +251,6 @@ _renderAlert(){
 					layout = "horizontal"
 					@click = "${() => this.showSuccessAlert = false}">
 				</capitec-toast>
-		${window.setTimeout(() => this.showSuccessAlert= false, 2000)};
 `}
 
 _renderEmailPlanDialog(){

@@ -119,15 +119,16 @@ async _sendEmail(emailAddress) {
 				
 			}
 
-			#temp-container{
+			.container{
 				min-height: 650px;
 				text-align: center;
 				padding-top: 100px;
 			}
 
-			#temp-container-label{
+			.label{
 				font-weight: bold;
 				font-size: 24px;
+				margin-bottom: 30px;
 			}
 			
 			.spacing { 
@@ -171,15 +172,17 @@ async _sendEmail(emailAddress) {
 	 */
 	 _renderContent() {
 		return html`
-			<capitec-card id="temp-container">
+			<capitec-card class="container">
 				<div>
 					<capitec-image src="platform/illustrations/application.svg"
 						style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
-					<label id="temp-container-label">The policy has been cancelled</label>
-					<capitec-label class="spacing" type="subtitle" label="You currently have 2 active policies"></capitec-label>
-					<capitec-button label="Email" class = "capitec-button-medium" type="primary" @click="${() => this._openEmailPlanDialog()}"
-						data-automation-id="">
-					</capitec-button>
+					<capitec-label class="label" type="title" label="The policy has been cancelled"></capitec-label>
+					<!-- <capitec-label class="spacing" type="subtitle" label="You currently have 2 active policies"></capitec-label> -->
+					<div>
+						<capitec-button label="Email" class = "capitec-button-medium" type="primary" @click="${() => this._openEmailPlanDialog()}"
+							data-automation-id="">
+						</capitec-button>
+					</div>
 				</div>
 			</capitec-card>
 		`
