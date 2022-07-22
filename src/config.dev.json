@@ -164,12 +164,32 @@
 			"enabled":false,
 			"positiveCase": true
 		},
-		"insureReinstateQuoteCalc": {
+		"insureCommsHistory":{
 			"enabled": true,
 			"positiveCase": true
 		},
+		"insurePrepareUpdate": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insurePolicyAccept": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureGenerateIssueAgreement": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureGenerateAgreement": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureReinstateQuoteCalc": {
+			"enabled": false,
+			"positiveCase": true
+		},
 		"insureCreatePolicy": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureSendEmail": {
@@ -177,11 +197,11 @@
 			"positiveCase": true
 		},
 		"insureCancelPolicy": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insurePolicyPay": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		}
 	},

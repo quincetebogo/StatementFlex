@@ -204,8 +204,8 @@
 			"positiveCase": true
 		},
 		"insureCalculateQuote": {
-			"enabled": true,
-			"positiveCase": true
+			"enabled": false,
+			"positiveCase": false
 		},
 		"insureRetrieveQuoteDetails": {
 			"enabled": true,
@@ -217,7 +217,7 @@
 		},
 		"insurePolicyTransactionHistory": {
 			"enabled": true,
-			"positiveCase": false
+			"positiveCase": true
 		},
 		"creditOverview": {
 			"enabled": false,
@@ -276,11 +276,11 @@
 			"positiveCase": true
 		},
 		"insureGenerateIssueAgreement": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureGenerateAgreement": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureReinstateQuoteCalc": {
@@ -296,7 +296,7 @@
 			"positiveCase": true
 		},
 		"insureCancelPolicy": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insurePolicyPay": {

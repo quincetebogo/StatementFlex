@@ -44,7 +44,7 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 
 			// Over max cover
 			if (coverAmount && coverAmount > maxAllowedCover || parseInt(coverAmount) > coverDetails.maxCoverAmount) {
-				coverDetails.coverMessage = coverDetails.maxCoverMessage.replace("{0:#,##0}", coverDetails.maxCoverAmount);
+				coverDetails.coverMessage = coverDetails.maxCoverMessage.replace("{0:#,##0}", maxAllowedCover);
 			}
 
 			// Under min cover

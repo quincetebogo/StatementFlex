@@ -210,7 +210,7 @@ export class InsureService extends ChannelServiceBase {
 	 */
 	async calculateEstimate(estimateRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
-			`/FuneralInsuranceProductService/estimate`,
+			`/FuneralInsuranceProductService/quote/estimate`,
 			estimateRequest,
 			this.setInsureTokens(),
 			`calculateEstimate`,
