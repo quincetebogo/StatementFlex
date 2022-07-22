@@ -100,8 +100,13 @@ export class PayCreditCardBudget extends Component {
 		}
 	}
 
+	_budgetFocusOut(e) {
+		this.budgetAmount = formatTextFieldCurrency(deformatCurrency(e.currentTarget.value || 0));
+		this._getErrorMessage();
+	}
+
 	_budgetValueChange(e) {
-		this.budgetAmount = deformatCurrency(e.currentTarget.value);
+		this.budgetAmount = e.detail.new;
 		this._getErrorMessage();
 	}
 
@@ -308,7 +313,6 @@ export class PayCreditCardBudget extends Component {
 				detail-label="Available balance"
 				.items="${this.clientProducts}"
 				.value="${this.productSelected}"
-				.error="${this.errorMessage}"
 				.displayRenderer="${(e) => this._renderOptions(e)}"
 				@value-changed="${(e) => this._accountValueChanged(e)}"> 
 			</horizon-select-icon>
@@ -323,9 +327,11 @@ export class PayCreditCardBudget extends Component {
 				data-automation-id="pay-budget-balance"
 				label="Budget amount"
 				type="currency"
+				.error="${this.errorMessage}"
 				?disabled="${this.savStatus}"
-				value="${formatTextFieldCurrency(this.budgetAmount)}"
-				@focusout="${(e) => this._budgetValueChange(e)}">
+				value="${this.budgetAmount}"
+				@value-changed="${(e) => this._budgetValueChange(e)}"
+				@focusout="${(e) => this._budgetFocusOut(e)}">
 			</capitec-text-field>
 		`;
 	}
