@@ -77,7 +77,7 @@ export class XdsAttemptFailed extends Component {
 					valign="top" 
 					gap="clear"
 					id="notification-status-error-group">
-					<img src="/images/warning.svg" class="warning-svg connection-error-svg"/>
+					<img src="/images/common/warning.svg" class="warning-svg connection-error-svg"/>
 					<div class="notification-info">
 						Your first attempt was unsuccessful. <br>
 						${this.canPush 

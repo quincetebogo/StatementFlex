@@ -116,43 +116,43 @@ export class CardArt extends Component {
 		 */
 		this.cardArtComponents = {
 			DEBIT_MASTERCARD_20190608: {
-				load: () => import(`app/images/cardArt/New-DebitCard`),
+				load: () => import(`app/images/common/cardArt/New-DebitCard`),
 				type: `new`
 			},
 			DEBIT_MASTERCARD_20191118: {
-				load: () => import(`app/images/cardArt/New-DebitCard`),
+				load: () => import(`app/images/common/cardArt/New-DebitCard`),
 				type: `new`
 			},
 			MASTERCARD_CREDIT_20181101: {
-				load: () => import(`app/images/cardArt/New-CreditCard`),
+				load: () => import(`app/images/common/cardArt/New-CreditCard`),
 				type: `new`
 			},
 			MASTERCARD_CREDIT_20190605: {
-				load: () => import(`app/images/cardArt/New-CreditCard`),
+				load: () => import(`app/images/common/cardArt/New-CreditCard`),
 				type: `new`
 			},
 			DEBIT_MASTERCARD_VIRTUAL_20200701: {
-				load: () => import(`app/images/cardArt/VirtualCard`),
+				load: () => import(`app/images/common/cardArt/VirtualCard`),
 				type: `new`
 			},
 			DEBIT_MASTERCARD_20150511: {
-				load: () => import(`app/images/cardArt/Old-DebitCard`),
+				load: () => import(`app/images/common/cardArt/Old-DebitCard`),
 				type: `old`
 			},
 			DEBIT_MASTERCARD_20160406: {
-				load: () => import(`app/images/cardArt/Old-DebitCard`),
+				load: () => import(`app/images/common/cardArt/Old-DebitCard`),
 				type: `old`
 			},
 			DEBIT_MASTERCARD_20170804: {
-				load: () => import(`app/images/cardArt/Old-DebitCard`),
+				load: () => import(`app/images/common/cardArt/Old-DebitCard`),
 				type: `old`
 			},
 			DEBIT_MASTERCARD_20190102: {
-				load: () => import(`app/images/cardArt/Old-DebitCard`),
+				load: () => import(`app/images/common/cardArt/Old-DebitCard`),
 				type: `old`
 			},
 			MASTERCARD_CREDIT_20181101: {
-				load: () => import(`app/images/cardArt/Old-DebitCard`),
+				load: () => import(`app/images/common/cardArt/Old-DebitCard`),
 				type: `old`
 			}
 		};

@@ -175,7 +175,7 @@ export class ValueAddedServiceUnavailable extends Component {
 						label="Value Added Services is currently unavailable">
 				</horizon-alert-banner>
 
-				<img class="image" src="/images/tap-to-pay-error.svg" alt="" />
+				<img class="image" src="/images/common/tap-to-pay-error.svg" alt="" />
 
 				<capitec-label 
 						class="vas-header"

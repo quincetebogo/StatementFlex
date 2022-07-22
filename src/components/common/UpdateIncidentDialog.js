@@ -133,7 +133,7 @@ export class UpdateIncidentDialog extends Component {
 			this.showAlert = true;
 			this.alertBannerMessage = `You must complete all fields to update`;
 			this.errorColor = `headerError`;
-			this.iconSource = `/images/error-stroke.svg`;
+			this.iconSource = `/images/common/error-stroke.svg`;
 
 			if (isNullorEmpty(this.need)) {
 				this.needError = `Required field`;

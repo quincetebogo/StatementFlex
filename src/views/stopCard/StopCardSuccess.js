@@ -275,7 +275,7 @@ export class StopCardSuccess extends ViewBase {
 	}
 
 	_renderGraphic() {
-		return html`<img style="margin: 109px 406px 0px 406px;" width="252" height="182" src="/images/cardStop/cards.svg"/>`;
+		return html`<img style="margin: 109px 406px 0px 406px;" width="252" height="182" src="/images/stopCard/cards.svg"/>`;
 	}
 
 	_renderStoppedCards() {
