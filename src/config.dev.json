@@ -97,10 +97,22 @@
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"debiCheckDetails": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"debiCheckDecline": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"debiCheckApprove": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"debiCheckAgreement": {
 			"enabled": false,
 			"positiveCase": true
 		},

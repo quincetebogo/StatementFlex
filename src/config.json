@@ -116,22 +116,22 @@
 			"enabled": true,
 			"positiveCase": true
 		},
-    "debiCheckDetails": {
-      "enabled": false,
-      "positiveCase": true
-    },
-    "debiCheckDecline": {
-      "enabled": false,
-      "positiveCase": true
-    },
-    "debiCheckApprove": {
-      "enabled": false,
-      "positiveCase": true
-    },
-    "debiCheckAgreement": {
-      "enabled": false,
-      "positiveCase": true
-    },
+		"debiCheckDetails": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"debiCheckDecline": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"debiCheckApprove": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"debiCheckAgreement": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"cardLimits": {
 			"enabled": false,
 			"positiveCase": true
@@ -148,10 +148,10 @@
 			"enabled": false,
 			"positiveCase": false
 		},
-    "transactionHistory": {
-      "enabled": false,
-      "positiveCase": true
-    },
+		"transactionHistory": {
+			"enabled": false,
+			"positiveCase": true
+		},
 		"savingsAccountLanding": {
 			"enabled": false,
 			"positiveCase": true
