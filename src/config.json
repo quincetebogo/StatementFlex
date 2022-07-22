@@ -272,7 +272,7 @@
 			"positiveCase": true
 		},
 		"insurePolicyAccept": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureGenerateIssueAgreement": {
@@ -300,6 +300,10 @@
 			"positiveCase": true
 		},
 		"insurePolicyPay": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureUpdatePolicyAccept": {
 			"enabled": true,
 			"positiveCase": true
 		}

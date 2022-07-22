@@ -35,4 +35,10 @@ export const INSURE_CSS = css`
 		--theme-container-padding-top: 0px;
 		--theme-container-padding-bottom: 0px;
 	}
+	.active-status{
+		--horizon-label-value-color: #70AF00;
+	}
+	.inactive-status{
+		--horizon-label-value-color: #FFA500 !important;
+	}
 `;

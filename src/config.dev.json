@@ -169,7 +169,7 @@
 			"positiveCase": true
 		},
 		"insurePrepareUpdate": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insurePolicyAccept": {
@@ -202,6 +202,10 @@
 		},
 		"insurePolicyPay": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"insureUpdatePolicyAccept": {
+			"enabled": true,
 			"positiveCase": true
 		}
 	},

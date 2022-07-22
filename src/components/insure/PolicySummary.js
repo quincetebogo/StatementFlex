@@ -3,6 +3,7 @@ import { formatDate, isNullorEmpty, formatStringAsPascalCase, formatPhoneNumber 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { TABLE_EXPANDER_CELL } from 'app/css/PolicySummary';
 import { ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
+import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
 /**
  * Policy summary component showing details of single policy with its role players
@@ -101,6 +102,9 @@ class PolicySummary extends Component {
 		return [
 			super.styles,
 			css`
+
+			${INSURE_CSS}
+			
 			.card{
 				width:100%;
 				height:100%;
@@ -150,7 +154,6 @@ class PolicySummary extends Component {
 				width: 100px;
 			}
 			.expander-header > horizon-label[label="Status"] {
-				--horizon-label-value-color: #70AF00;
 				text-overflow: ellipsis;
 			}
 			.vertical-line {
@@ -312,7 +315,7 @@ class PolicySummary extends Component {
 						data-automation-id="insure-main-life-display-status"
 						label="Status"
 						value="${this.policyDetails?.displayStatus}"
-						class="column-width-100">
+						class="column-width-100 ${this.policyDetails?.status === `Active` ? `active-status` : `inactive-status` }">
 					</horizon-label>
 				</capitec-group>
 				<div slot="content">

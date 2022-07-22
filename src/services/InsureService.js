@@ -311,6 +311,32 @@ export class InsureService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
+	 async updatePolicyAccept(policyAcceptRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureUpdatePolicyAccept`)) {
+			return this.mock(`updatePolicyAccept`, policyAcceptRequest);
+		}
+		return this.post(
+			`/FuneralInsuranceProductService/policy/accept`,
+			policyAcceptRequest,
+			this.setInsureTokens(),
+			`updatePolicyAccept`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Takes in the details of the policy to be accepted and activates it and creates mandates 
+	 *
+	 * @param {policyAcceptRequest} [errorHandler=null]  Request data for policyAccept 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
 	async policyAccept(policyAcceptRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`insurePolicyAccept`)) {
 			return this.mock(`policyAccept`, policyAcceptRequest);

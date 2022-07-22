@@ -2,6 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { Status } from 'app/constants/InsureCommon';
+import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
@@ -375,6 +376,9 @@ class ClientPolicies extends Component {
 		return [
 			super.styles,
 			css`
+			
+			${INSURE_CSS}
+
 			.insure-title-bar{
 				margin-bottom: 0px; 
 				border-top-left-radius: 5px; 
@@ -482,12 +486,6 @@ class ClientPolicies extends Component {
 			.expander-header > horizon-label[label="Status"] {
 				width: 200px;
 				text-overflow: ellipsis;
-			}
-			.active-status{
-				--horizon-label-value-color: #70AF00;
-			}
-			.inactive-status{
-				--horizon-label-value-color: #FFA500 !important;
 			}
 			horizon-label {
 				width: 135px;
@@ -810,9 +808,10 @@ class ClientPolicies extends Component {
 		<capitec-card class="action-card">
 			<capitec-overflow-menu label="More" data-automation-id = "insure-policy-more-sub-menu">
 				<capitec-overflow-menu-item icon="system/transfer-action" label="Transaction History" @click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
-				<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan" @click=" ${() => this._openCancelPolicyDialog(policyItem.contractReference)}"></capitec-overflow-menu-item>
-				
-				
+				${policyItem.status === `Active` || policyItem.status === `PendingInForce` ? html ` 
+					<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan" @click=" ${() => this._openCancelPolicyDialog(policyItem.contractReference)}"></capitec-overflow-menu-item>`
+					: html ``
+				}
 			</capitec-overflow-menu>
 			<capitec-label label="More" class="label-text">
 			</capitec-label>

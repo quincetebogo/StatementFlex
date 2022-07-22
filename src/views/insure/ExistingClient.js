@@ -192,7 +192,6 @@ export class ExistingClient extends InsureViewBase {
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.contractReference;
 
-
 		const issuePlanAgreementResponse = await this.insureService.generateIssueFuneralCoverPlanAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 		const paymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 
@@ -201,22 +200,68 @@ export class ExistingClient extends InsureViewBase {
 		if (!issuePlanAgreementResponse.succeeded || !paymentAgreementResponse.succeeded)
 			return;
 
-		// TMP ===== REMOVE WHEN SERVICE READY
-		// let agreementResp = {
-		// 	"documentDetails": {
-		// 		"documentCode": "ABC01",
-		// 		"documentName": "Test Doc",
-		// 		"guid": "91ba047a4bd44cf3abb7ccae7a95149a"
-		// 	},
-		// 	"documentContent": "JVBERi0xLjcKCjEgMCBvYmogICUgZW50cnkgcG9pbnQKPDwKICAvVHlwZSAvQ2F0YWxvZwogIC9QYWdlcyAyIDAgUgo+PgplbmRvYmoKCjIgMCBvYmoKPDwKICAvVHlwZSAvUGFnZXMKICAvTWVkaWFCb3ggWyAwIDAgMjAwIDIwMCBdCiAgL0NvdW50IDEKICAvS2lkcyBbIDMgMCBSIF0KPj4KZW5kb2JqCgozIDAgb2JqCjw8CiAgL1R5cGUgL1BhZ2UKICAvUGFyZW50IDIgMCBSCiAgL1Jlc291cmNlcyA8PAogICAgL0ZvbnQgPDwKICAgICAgL0YxIDQgMCBSIAogICAgPj4KICA+PgogIC9Db250ZW50cyA1IDAgUgo+PgplbmRvYmoKCjQgMCBvYmoKPDwKICAvVHlwZSAvRm9udAogIC9TdWJ0eXBlIC9UeXBlMQogIC9CYXNlRm9udCAvVGltZXMtUm9tYW4KPj4KZW5kb2JqCgo1IDAgb2JqICAlIHBhZ2UgY29udGVudAo8PAogIC9MZW5ndGggNDQKPj4Kc3RyZWFtCkJUCjcwIDUwIFRECi9GMSAxMiBUZgooSGVsbG8sIHdvcmxkISkgVGoKRVQKZW5kc3RyZWFtCmVuZG9iagoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDEwIDAwMDAwIG4gCjAwMDAwMDAwNzkgMDAwMDAgbiAKMDAwMDAwMDE3MyAwMDAwMCBuIAowMDAwMDAwMzAxIDAwMDAwIG4gCjAwMDAwMDAzODAgMDAwMDAgbiAKdHJhaWxlcgo8PAogIC9TaXplIDYKICAvUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKNDkyCiUlRU9G"
-		// }
-		// issuePlanAgreementResponse.result = agreementResp;
-		// paymentAgreementResponse.result = agreementResp;
-		// =========
-
 		this.issuePlanAgreementDocument = issuePlanAgreementResponse.result;
 		this.reinstatePaymentAgreementDocument = paymentAgreementResponse.result;
 	}
+
+		/**
+	 * Generate 802 & 804 documents for Update Plan
+	 * @param {*} saveDocumentToDocumentum - true/false
+	 * @returns 
+	 */
+		 async _generateDocumentsForUpdatePlan(saveDocumentToDocumentum) {
+			let clientDetails = {
+				"cifNumber": this.callerInformation.cifNumber,
+				"policyContractReference": this.contractReference,
+				"firstName": this.callerInformation.firstName,
+				"surname": this.callerInformation.surname,
+				"idNumber": this.callerInformation.southAfricanIDNumber,
+				"dateOfBirth": this.callerInformation.birthdate
+			}
+	
+			GENERATE_DOCUMENT_REQUEST_PAYLOAD.saveDocumentToDocumentum = saveDocumentToDocumentum;
+			GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
+			GENERATE_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.contractReference;
+
+			//TODO: Need to remove below hard code values.
+			let docGenerateRequestPayload = {
+				"documentFormat":"PDF"
+				,"saveDocumentToDocumentum":false
+				,"returnDocumentContent":true
+				,"emailDocumentToClient":false
+				,"wetsignBarcode":false
+				,"clientDetails":{
+					"cifNumber":"363291946"
+					,"policyContractReference":"FP00001661"
+					,"firstName":"ISAACS"
+					,"idNumber":"9503067813190"
+					,"dateOfBirth":"Monday, 06 March 1995"
+				},
+				"contractReference":"FP00001661"
+			};
+
+			const updatePlanAgreementResponse = await this.insureService.generateUpdateFuneralCoverPlanAgreement(docGenerateRequestPayload);
+			const updatePaymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(docGenerateRequestPayload);
+	
+			if (!issuePlanAgreementResponse.succeeded || !paymentAgreementResponse.succeeded)
+				return;
+	
+			// TMP ===== REMOVE WHEN SERVICE READY
+			// let agreementResp = {
+			// 	"documentDetails": {
+			// 		"documentCode": "ABC01",
+			// 		"documentName": "Test Doc",
+			// 		"guid": "91ba047a4bd44cf3abb7ccae7a95149a"
+			// 	},
+			// 	"documentContent": "JVBERi0xLjcKCjEgMCBvYmogICUgZW50cnkgcG9pbnQKPDwKICAvVHlwZSAvQ2F0YWxvZwogIC9QYWdlcyAyIDAgUgo+PgplbmRvYmoKCjIgMCBvYmoKPDwKICAvVHlwZSAvUGFnZXMKICAvTWVkaWFCb3ggWyAwIDAgMjAwIDIwMCBdCiAgL0NvdW50IDEKICAvS2lkcyBbIDMgMCBSIF0KPj4KZW5kb2JqCgozIDAgb2JqCjw8CiAgL1R5cGUgL1BhZ2UKICAvUGFyZW50IDIgMCBSCiAgL1Jlc291cmNlcyA8PAogICAgL0ZvbnQgPDwKICAgICAgL0YxIDQgMCBSIAogICAgPj4KICA+PgogIC9Db250ZW50cyA1IDAgUgo+PgplbmRvYmoKCjQgMCBvYmoKPDwKICAvVHlwZSAvRm9udAogIC9TdWJ0eXBlIC9UeXBlMQogIC9CYXNlRm9udCAvVGltZXMtUm9tYW4KPj4KZW5kb2JqCgo1IDAgb2JqICAlIHBhZ2UgY29udGVudAo8PAogIC9MZW5ndGggNDQKPj4Kc3RyZWFtCkJUCjcwIDUwIFRECi9GMSAxMiBUZgooSGVsbG8sIHdvcmxkISkgVGoKRVQKZW5kc3RyZWFtCmVuZG9iagoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDEwIDAwMDAwIG4gCjAwMDAwMDAwNzkgMDAwMDAgbiAKMDAwMDAwMDE3MyAwMDAwMCBuIAowMDAwMDAwMzAxIDAwMDAwIG4gCjAwMDAwMDAzODAgMDAwMDAgbiAKdHJhaWxlcgo8PAogIC9TaXplIDYKICAvUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKNDkyCiUlRU9G"
+			// }
+			// updatePlanAgreementResponse.result = agreementResp;
+			// updatePaymentAgreementResponse.result = agreementResp;
+			// =========
+	
+			this.updatePlanAgreementDocument = updatePlanAgreementResponse.result;
+			this.updatePaymentAgreementDocument = updatePaymentAgreementResponse.result;
+		}
 
 	/**
 	 * Get attachments for different document types
@@ -747,48 +792,52 @@ export class ExistingClient extends InsureViewBase {
 		if (!prepareUpdateResp.succeeded)
 			return;
 
-		let agreementRequest = {
-			"documentFormat": "PDF",
-			"saveDocumentToDocumentum": true,
-			"returnDocumentContent": true,
-			"emailDocumentToClient": false,
-			"wetsignBarcode": false,
-			"clientDetails": {
-				"cifNumber": this.callerInformation.cifNumber,
-				"policyContractReference": prepareUpdateResp.result.contractReference,
-				"firstName": this.callerInformation.firstName,
-				"surname": this.callerInformation.surname,
-				"idNumber": this.callerInformation.southAfricanIDNumber,
-				"dateOfBirth": this.callerInformation.birthdate
-			},
-			"contractReference": prepareUpdateResp.result.contractReference
-		}
+		this.contractReference = prepareUpdateResp.result.contractReference;
 
-		const planAgreementResp = await this.insureService.generateUpdateFuneralCoverPlanAgreement(agreementRequest);
-		const paymentAgreementResp = await this.insureService.generateFuneralPolicyPaymentAgreement(agreementRequest);
+		await this._generateDocumentsForUpdatePlan(false);
 
-		if (!planAgreementResp.succeeded || !paymentAgreementResp.succeeded)
-			return;
+		// let agreementRequest = {
+		// 	"documentFormat": "PDF",
+		// 	"saveDocumentToDocumentum": true,
+		// 	"returnDocumentContent": true,
+		// 	"emailDocumentToClient": false,
+		// 	"wetsignBarcode": false,
+		// 	"clientDetails": {
+		// 		"cifNumber": this.callerInformation.cifNumber,
+		// 		"policyContractReference": prepareUpdateResp.result.contractReference,
+		// 		"firstName": this.callerInformation.firstName,
+		// 		"surname": this.callerInformation.surname,
+		// 		"idNumber": this.callerInformation.southAfricanIDNumber,
+		// 		"dateOfBirth": this.callerInformation.birthdate
+		// 	},
+		// 	"contractReference": prepareUpdateResp.result.contractReference
+		// }
 
-		// TMP ===== REMOVE WHEN SERVICE READY
-		let agreementResp = {
-			"documentDetails": {
-				"documentCode": "ABC01",
-				"documentName": "Test Doc",
-				"guid": "91ba047a4bd44cf3abb7ccae7a95149a"
-			},
-			"documentContent": "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
-		}
-		planAgreementResp.result = agreementResp;
-		paymentAgreementResp.result = agreementResp;
-		// =========
+		// const planAgreementResp = await this.insureService.generateUpdateFuneralCoverPlanAgreement(agreementRequest);
+		// const paymentAgreementResp = await this.insureService.generateFuneralPolicyPaymentAgreement(agreementRequest);
 
-		this.updatePlanAgreementDocument = planAgreementResp?.result;
-		this.updatePaymentAgreementDocument = paymentAgreementResp?.result;
+		// if (!planAgreementResp.succeeded || !paymentAgreementResp.succeeded)
+		// 	return;
+
+		// // TMP ===== REMOVE WHEN SERVICE READY
+		// let agreementResp = {
+		// 	"documentDetails": {
+		// 		"documentCode": "ABC01",
+		// 		"documentName": "Test Doc",
+		// 		"guid": "91ba047a4bd44cf3abb7ccae7a95149a"
+		// 	},
+		// 	"documentContent": "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
+		// }
+		// planAgreementResp.result = agreementResp;
+		// paymentAgreementResp.result = agreementResp;
+		// // =========
+
+		// this.updatePlanAgreementDocument = planAgreementResp?.result;
+		// this.updatePaymentAgreementDocument = paymentAgreementResp?.result;
 
 		let preparePlanResponse = {
-			planAgreement: planAgreementResp.result,
-			paymentAgreement: paymentAgreementResp.result,
+			planAgreement: this.updatePlanAgreementDocument,
+			paymentAgreement: this.updatePaymentAgreementDocument,
 			prepareUpdateResponse: prepareUpdateResp.result,
 		}
 		return preparePlanResponse;
@@ -808,23 +857,25 @@ export class ExistingClient extends InsureViewBase {
 			"cifNumber": this.callerInformation.cifNumber,
 			"contractReference": event.detail.prepareUpdate.prepareUpdateResponse.contractReference,
 			"documents": documents,
-			"mandates": event.detail.prepareUpdate.prepareUpdateResponse.mandates,
-			"insureWaiverInformation": {
-				"contractReference": "string",
-				"insurersInformation": [
-					{
-						"insurer": "string",
-						"policyNumber": "string"
-					}
-				]
-			}
+			// "mandates": event.detail.prepareUpdate.prepareUpdateResponse.mandates
+			// ,
+			// "insureWaiverInformation": {
+			// 	"contractReference": "string",
+			// 	"insurersInformation": [
+			// 		{
+			// 			"insurer": "string",
+			// 			"policyNumber": "string"
+			// 		}
+			// 	]
+			// } //TODO: Need to pass the values for mandates when service integration works.
 		}
 
-		const acceptPlanResp = await this.insureService.policyAccept(acceptPlanRequest);
+		const acceptPlanResp = await this.insureService.updatePolicyAccept(acceptPlanRequest);
 		if (!acceptPlanResp.succeeded)
 			return;
 
-		this.successMessage = `The policy ${event.detail.prepareUpdate.prepareUpdateResponse.contractReference} has been successfully updated`;
+		// this.successMessage = `The policy ${event.detail.prepareUpdate.prepareUpdateResponse.contractReference} has been successfully updated`;
+		this.successMessage = `The policy has been successfully updated`;
 		this.callerPage = INSURE_CALLER_PAGE.UPDATE_PLAN;
 		this.contractReference = event.detail.prepareUpdate.prepareUpdateResponse.contractReference;
 		this.renderMode = INSURE_RENDER_MODE.SUCCESS_PAGE;

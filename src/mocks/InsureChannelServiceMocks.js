@@ -56,6 +56,8 @@ export default class InsureChannelServiceMocks {
 		this.commsHistoryMocks = await this._loadMockModule(this.commsHistoryMocks, `insureCommsHistory`, () => import(`../mocks/insure/CommunicationHistory`).catch(err => logError(err)));
 		this.insureCancelPolicyMocks = await this._loadMockModule(this.insureCancelPolicyMocks, `insureCancelPolicy`, () => import(`../mocks/insure/CancelPolicyMockData`).catch(err => logError(err)));
 		this.insurePolicyPayMocks = await this._loadMockModule(this.insurePolicyPayMocks, `insurePolicyPay`, () => import(`../mocks/insure/CancelPolicyMockData`).catch(err => logError(err)));
+		this.updatePolicyAcceptMocks = await this._loadMockModule(this.updatePolicyAcceptMocks, `insureUpdatePolicyAccept`, () => import(`../mocks/insure/PolicyAccept`).catch(err => logError(err)));
+	
 	}
 
 	/**
@@ -161,6 +163,17 @@ export default class InsureChannelServiceMocks {
 	policyAccept() {
 		if (this._mockSettings.insurePolicyAccept.positiveCase) {
 			return this.policyAcceptMocks.PolicyAccept;
+		}
+		return null;
+	}
+
+	/**
+	 * Update Policy Accept mock check
+	 * @returns {Object} Mock response data
+	 */
+	updatePolicyAccept() {
+		if (this._mockSettings.insureUpdatePolicyAccept.positiveCase) {
+			return this.updatePolicyAcceptMocks.PolicyAccept;
 		}
 		return null;
 	}

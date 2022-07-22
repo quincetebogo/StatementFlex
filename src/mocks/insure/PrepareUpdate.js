@@ -5,10 +5,10 @@
  * @constant PrepareUpdate
  */
 export const PrepareUpdate = {
-	"contractReference": "string",
+	"contractReference": "FP00001631",
 	"productCode": "Capitec",
 	"commencementDate": "2022-06-29T09:26:47.167Z",
-	"status": "PendingInForce",
+	"status": "Active",
 	"displayStatus": "string",
 	"deductionDetails": {
 		"collectionDay": 0,
@@ -74,7 +74,7 @@ export const PrepareUpdate = {
 			"mandateID": 0,
 			"lastCollectionDate": "2022-06-29T09:26:47.167Z",
 			"instalmentAmount": 0,
-			"contractReference": "string",
+			"contractReference": "FP00001631",
 			"collectionDay": 0,
 			"cifNumber": 0,
 			"idNumber": "string",
