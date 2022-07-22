@@ -204,8 +204,8 @@
 			"positiveCase": true
 		},
 		"insureCalculateQuote": {
-			"enabled": true,
-			"positiveCase": true
+			"enabled": false,
+			"positiveCase": false
 		},
 		"insureRetrieveQuoteDetails": {
 			"enabled": true,
@@ -272,7 +272,7 @@
 			"positiveCase": true
 		},
 		"insurePolicyAccept": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureGenerateIssueAgreement": {

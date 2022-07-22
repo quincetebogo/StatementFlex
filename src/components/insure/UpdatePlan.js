@@ -53,6 +53,7 @@ class UpdatePlan extends Component {
 
 		this.selectedTabIndex = 0;
 		this.lifeAssuredToRemove;
+		this.lifeAssuredToRemoveDescription
 		this.beneficiaryToRemoveRowID;
 		this.beneficiaryToRemoveName;
 
@@ -273,6 +274,7 @@ class UpdatePlan extends Component {
 	 */
 	_openRemoveLifeAssuredDialog(index) {
 		this.showRemoveLifeAssuredDialog = true;
+		this.lifeAssuredToRemoveDescription = 'Helloooo';
 		this.lifeAssuredToRemove = index;
 	}
 
@@ -1003,6 +1005,7 @@ class UpdatePlan extends Component {
 					</capitec-label>
 					<capitec-label label="Summary of estimated monthly premium:" class="stronger"></capitec-label>
 					<hr>
+					
 		
 					<!-- life list -->
 					${this.policyDetails.roleplayers.filter(ele => ele.lifeAssured == true).map(lifeAssured => html`
@@ -1460,7 +1463,9 @@ class UpdatePlan extends Component {
 	_renderRemoveLifeAssuredDialog() {
 		return this.showRemoveLifeAssuredDialog == false ? `` :
 			html`
-		<remove-life-assured-dialog @agree-click="${(e) => this._removeLifeAssured(e)}"
+		<remove-life-assured-dialog 
+			.lifeToRemoveDescription="${this.lifeAssuredToRemoveDescription}"
+			@agree-click="${(e) => this._removeLifeAssured(e)}"
 			@close-modal="${(e) => this._closeRemoveLifeAssuredDialog(e)}">
 		</remove-life-assured-dialog>
 		`
