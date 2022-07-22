@@ -396,7 +396,7 @@ class ClientPolicies extends Component {
 			}
 			.card {
 				width: 100%;
-				height: 888px;
+				height: 850px;
 			}
 			capitec-title-bar {
 				--theme-titlebar-padding: 12px 16px;
@@ -411,7 +411,7 @@ class ClientPolicies extends Component {
 			}
 			.accounts-box {
 				width: auto;
-				height: 600px;
+				height: 500px;
 				--theme-container-padding-left: 16px;
 				--theme-container-padding-right: 16px;
 				--theme-container-padding-bottom: 16px;
@@ -487,7 +487,7 @@ class ClientPolicies extends Component {
 				--horizon-label-value-color: #70AF00;
 			}
 			.inactive-status{
-				--horizon-label-value-color: #C83C37 !important;
+				--horizon-label-value-color: #FFA500 !important;
 			}
 			horizon-label {
 				width: 135px;
@@ -543,8 +543,15 @@ class ClientPolicies extends Component {
 				min-height: 180px;
 			}
 			.arrears{
-				--horizon-label-text-color: #C83C37 !important;
 				--horizon-label-value-color: #C83C37 !important;
+			}
+			.header-label{
+				height: auto;
+				padding-left: 16px;
+			}
+			.strong-label{
+				font-size: 16px;
+				font-weight: bold;
 			}
 			`
 		];
@@ -615,6 +622,9 @@ class ClientPolicies extends Component {
 				<capitec-tab
 					data-automation-id="insure-landing-policies-tab"
 					label="Policies">
+					<capitec-content-box class="header-label">
+						<capitec-label label="Funeral Plan" class="strong-label"></capitec-label>
+					</capitec-content-box>	
 					<capitec-content-box  class="accounts-box">
 							${this._renderPoliciesDetailsBar()}
 					</capitec-content-box>

@@ -205,7 +205,6 @@ class PolicySummary extends Component {
 				display: block;
 			}
 			.arrears{
-				--horizon-label-text-color: #C83C37 !important;
 				--horizon-label-value-color: #C83C37 !important;
 			}
 			.horizon-expander-height{
