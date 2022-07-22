@@ -139,7 +139,7 @@ const ACCOUNT_TYPE = {
 					--theme-titlebar-shadow: 0px;
 					--theme-titlebar-padding: 10px 24px 6px 16px;
 					--theme-titlebar-item-gap: 0px;
-					--theme-type-primary-background: url(../images/liveBetter/LBB_bg-1092x80.png);
+					--theme-type-primary-background: url(../images/liveBetter/lbb-bg-1092x80.png);
 				}
 				
 				.left-arrow {
@@ -317,7 +317,7 @@ const ACCOUNT_TYPE = {
 			halign="left" 
 			valign="top">
 				<capitec-group class="sub-header" layout="horizontal" gap="clear" halign="left" valign="center">
-					<capitec-image src="/images/liveBetter/AccountDetails.svg"></capitec-image>
+					<capitec-image src="/images/liveBetter/account-details.svg"></capitec-image>
 					<capitec-label
 						label="Account details"
 						class="title-style"

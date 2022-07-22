@@ -210,7 +210,7 @@ export class ViewInfoDebiCheck extends Component {
 
 	_renderDebiCheckDetails() {
 		return html`
-				<img class="image" src="/images/transactions/DebiCheck-logo-Banner-1024x256.svg"/>
+				<img class="image" src="/images/debi-check/debi-check-logo-banner-1024x256.svg"/>
 				${this._renderError()}
 				<capitec-group class="group-layout" layout="grid" rows="uniform" columns="auto" row-gap="clear" >
 					<capitec-label type="subtitle" label="Ultimate Creditor Name" row="1" column="1"></capitec-label>

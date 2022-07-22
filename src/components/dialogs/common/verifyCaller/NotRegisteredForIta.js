@@ -54,7 +54,7 @@ export class NotRegisteredForIta extends Component {
 						valign="top" 
 						gap="clear"
 						id="notification-status-error-group">
-						<img src="/images/verifyCaller/verifyClient.svg" class="remote-connection-warning-svg"/>
+						<img src="/images/verifyCaller/verify-client.svg" class="remote-connection-warning-svg"/>
 						<div class="notification-info">
 							<b>Verify client</b>
 							<br>

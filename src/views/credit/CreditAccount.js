@@ -1015,7 +1015,7 @@ export class CreditAccount extends ViewBase {
 			? html`
 				<horizon-service-call-error-screen
 					bannerDetail="Credit is currently unavailable" 
-					image="/images/service-error.svg"
+					image="/images/common/service-error.svg"
 					header="Credit currently unavailable"
 					right="Find a Branch"
 					@right-click=${() => this._findBranchClick()}>

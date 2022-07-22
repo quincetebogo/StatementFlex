@@ -514,7 +514,7 @@ export class TransactionHistory extends Component {
 					background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
 				}
 				.lbb {
-					background: no-repeat url(../images/liveBetter/Gradient1.png);
+					background: no-repeat url(../images/liveBetter/gradient.png);
 				}
 				.transaction-history-title > img {
 					width: 26px;

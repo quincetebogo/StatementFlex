@@ -82,7 +82,7 @@ export class VerificationUnavailable extends Component {
 						valign="top" 
 						gap="clear"
 						id="notification-status-error-group">
-						<img src="/images/foreign-minorClientError.svg" class="warning-svg connection-error-svg"/>
+						<img src="/images/common/foreign-minor-client-error.svg" class="warning-svg connection-error-svg"/>
 						<div class="foreign-client notification-info">
 							<b>${this.minorClient ? `Minor` : `Foreign`} client</b>
 							<br>

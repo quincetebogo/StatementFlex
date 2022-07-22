@@ -119,7 +119,7 @@ export class XdsBlocked extends Component {
 						valign="top" 
 						gap="clear"
 						id="notification-status-error-group">
-						<img src="/images/errorBlocks.svg" class="warning-svg connection-error-svg"/>
+						<img src="/images/common/error-blocks.svg" class="warning-svg connection-error-svg"/>
 						<div class="notification-info failed-client">
 							You can skip to continue with limited access to transactions.
 						</div>

@@ -75,7 +75,7 @@ export class XdsUnavailable extends Component {
 						valign="top" 
 						gap="clear"
 						id="notification-status-error-group">
-						<img src="/images/errorBlocks.svg" class="warning-svg connection-error-svg"/>
+						<img src="/images/common/error-blocks.svg" class="warning-svg connection-error-svg"/>
 						<div class="notification-info failed-client">
 							<b>Security questions are currently unavailable.</b> <br>
 							${this.canPush

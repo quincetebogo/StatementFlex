@@ -211,7 +211,7 @@ export class ManageAutomaticSavings extends Component {
 					position: absolute;
 					left: -852px;
 					top: -44px;
-					background: url(/images/liveBetter/LBB_bg_64px.png);
+					background: url(/images/liveBetter/lbb-bg-64px.png);
 					--theme-label-title-font-size: 18px;
 					--theme-titlebar-padding: 20px 16px;
 					--theme-titlebar-item-gap: 0px;
@@ -345,7 +345,7 @@ export class ManageAutomaticSavings extends Component {
 			<capitec-modal type="free" header-align="left">
 				<div slot="header">
 					<capitec-title-bar data-automation-id="manage-automatic-savings-image" type="primary" class="header-gradient">
-						<capitec-image src="/images/liveBetter/Automatic-savings-white.svg"></capitec-image>
+						<capitec-image src="/images/liveBetter/automatic-savings-white.svg"></capitec-image>
 						<capitec-label label="Manage Automatic Savings"></capitec-label>
 					</capitec-title-bar>
 				</div>
