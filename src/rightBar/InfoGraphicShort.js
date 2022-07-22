@@ -20,7 +20,7 @@ export class InfoGraphicShort extends Component {
 
 	render() {
 		return html`
-			<img class="landingpage-marketing-short-img" src="/images/landingPageImages/Banner-short.png" alt="banner" />
+			<img class="landingpage-marketing-short-img" src="/images/landingPageImages/banner-short.png" alt="banner" />
 		`;
 	}
 

@@ -87,7 +87,7 @@ export class PushNotificationError extends Component {
 						gap="clear"
 						id="notification-status-group">
 						${this.itaSystemError
-						   ? html`<img src="/images/verifyCaller/connection-error.svg" class="ita-timeout-svg"/>`
+						   ? html`<img src="/images/common/connection-error.svg" class="ita-timeout-svg"/>`
 						   : html`<img src="/images/common/ita-timeout.svg" class="ita-timeout-svg"/>`
 						}
 						<capitec-label 

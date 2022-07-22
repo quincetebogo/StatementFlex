@@ -153,7 +153,7 @@ export class SettlementQuoteSuccess extends ViewBase {
 			<horizon-success-screen
 				data-automation-id="settlement-quote-success-screen"
 				header="Settlement quote${this.succeededAccounts.length > 1 ? `s` : ``} sent" 
-				image="/images/statements/senddocuments.svg"
+				image="/images/statements/send-documents.svg"
 				left="Send Another"
 				right="Done"
 				toast="Settlement quote${this.succeededAccounts.length === 1 ? ` for ${this.succeededAccounts[0].toLowerCase()}` : `s`} was sent"

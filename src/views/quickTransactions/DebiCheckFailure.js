@@ -121,7 +121,7 @@ export class DebiCheckFailure extends ViewBase {
 			<horizon-error-screen
 				data-automation-id="debi-check-failure-screen"
 				image="/images/insure/assign-pay-arrears.svg"
-				secondaryImage="/images/transactions/debiCheckLogo.svg"
+				secondaryImage="/images/debi-check/debi-check-logo.svg"
 				header="DebiCheck mandate not approved" 
 				left="Done"
 				right="Assign"
@@ -139,7 +139,7 @@ export class DebiCheckFailure extends ViewBase {
 		<horizon-error-screen
 			data-automation-id="debi-check-failure-screen"
 			image="/images/insure/assign-pay-arrears.svg"
-			secondaryImage="/images/transactions/debiCheckLogo.svg"
+			secondaryImage="/images/debi-check/debi-check-logo.svg"
 			header="DebiCheck mandate not declined" 
 			left="Done"
 			right="Assign"
