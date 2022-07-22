@@ -430,8 +430,7 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 	
-	async settlementQuoteLanding(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+	settlementQuoteLanding(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
 		const url = `/clientcare-credit-v1/credit/settlement-quote/landing`;
 

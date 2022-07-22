@@ -579,7 +579,7 @@ export class TransactionHistory extends Component {
 				}
 				.filter-bar > capitec-label {
 					height: 20px;
-					width: 87px;
+					width: auto;
 					color: #3A3A3A;
 					font-family: "Hind Vadodara";
 					font-size: 15px;
@@ -609,7 +609,7 @@ export class TransactionHistory extends Component {
 				capitec-table{
 					width: var(--horizon-center-panel-width, 1064px);
 					height: auto;
-					--theme-icon-size-default: 8px;
+					--theme-icon-size-default: 24px;
 					--theme-data-table-body-group-font-weight: 600;
 					--theme-data-table-font-size : 15px;
 					--theme-data-table-padding-left: 16px;

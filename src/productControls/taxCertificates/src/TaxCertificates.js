@@ -43,7 +43,7 @@ const ERROR_MESSAGE = {
  * email client
  * 
  * @export
- * @class TaxCertificate
+ * @class TaxCertificates
  * @extends {Component}
  */
 
@@ -112,7 +112,7 @@ export class TaxCertificates extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this._initialize();
+		this._initialise();
 	}
 
 	disconnectedCallback() {
@@ -234,7 +234,7 @@ export class TaxCertificates extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	_initialize() {
+	_initialise() {
 		if (!isNullorEmpty(this.taxCertType)) {
 			this.selectedCertType = this.taxCertType;
 		}

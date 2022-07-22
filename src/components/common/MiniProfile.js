@@ -250,6 +250,10 @@ export class MiniProfile extends Component {
 					--theme-tooltip-border-radius: 2px;
 					--theme-layout-gap-spacing: 4px;
 				}
+				img {
+					height: 158px;
+					width: 158px;
+				}
 			`
 		];
 	}
@@ -276,11 +280,7 @@ export class MiniProfile extends Component {
 
 	_renderClientImage() {
 		return this.miniProfile.profilePhoto
-		? html`
-			<object
-					data="${this._base64ToBlobUrl(this.miniProfile.profilePhoto)}"
-					type="image/jpg">
-			</object>`
+		? html`<img src="data:image/jpg;base64,${this.miniProfile.profilePhoto}"/>`
 		: html`
 			<capitec-avatar 
 					shape="square"
@@ -382,7 +382,8 @@ export class MiniProfile extends Component {
 
 		if (noBanner) {
 			return html``;
-		} else if (this.miniProfile.is3rdParty) {
+		}
+		if (this.miniProfile.is3rdParty) {
 			return html`
 			<horizon-alert-banner 
 				data-automation-id="mini-profile-3rdparty-banner"
@@ -391,7 +392,8 @@ export class MiniProfile extends Component {
 				header="Client has not been verified">
 			</horizon-alert-banner>
 			`;
-		} else if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels) {
+		}
+		if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels) {
 			return html`
 			<horizon-alert-banner
 				class="banner" 
@@ -410,7 +412,8 @@ export class MiniProfile extends Component {
 					</capitec-hyperlink>
 			</horizon-alert-banner>
 			`;
-		} else if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels && this.miniProfile.verificationAttempts.itaAttempts > 2) {
+		}
+		if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels && this.miniProfile.verificationAttempts.itaAttempts > 2) {
 			return html`
 			<horizon-alert-banner 
 				class="banner" 
@@ -420,7 +423,7 @@ export class MiniProfile extends Component {
 			`;
 		};
 
-		return this.isHelpDeskAgent && !this.miniProfile.isVerified
+		return this.isHelpDeskAgent && !this.miniProfile.isVerified && this.miniProfile.isBranchConsultant
 		? html`
 			<horizon-alert-banner
 				class="banner"
