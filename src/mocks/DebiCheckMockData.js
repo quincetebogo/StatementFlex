@@ -1,5 +1,3 @@
-import { testPDF } from 'app/mocks/PDFMockData';
-
 /**
  * DebiCheck mandates mock response
  *
@@ -191,7 +189,7 @@ export const agreementTemplate = {
 	"data": {
 	  "documentId": null,
 	  "contentType": "Debicheck agreement" ,
-	  "data": testPDF.content.data
+	  "data": ""
 	},
 	"residentialAddress": "RUSTENBURG",
 	"postalAddress": " 12-1-490RUSTENBURG",
