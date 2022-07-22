@@ -32,7 +32,8 @@ class EmailPlanSuccess extends Component {
 	static get properties() {
 		return {
 			showSuccessAlert: {type: Boolean, state: true},
-			contractReference: {type: String, state: true}
+			contractReference: {type: String, state: true},
+			confirmedEmail: {type: Object, state: true}
 		};
 	}
 
@@ -67,6 +68,15 @@ class EmailPlanSuccess extends Component {
 	}));
 }
 
+/**
+ * Navigate to policy summary
+ */
+ _onViewPlanClick() {
+	this.dispatchEvent(new CustomEvent(`navigate-to-policy-summary`, {
+		detail: { policyContractReference: this.contractReference
+		}
+	}));
+}
 
 //#endregion
 
@@ -91,18 +101,19 @@ class EmailPlanSuccess extends Component {
 				
 			}
 
-			#temp-container{
+			.container{
 				min-height: 650px;
 				text-align: center;
 				padding-top: 100px;
 			}
 
-			#temp-container-label{
+			.label{
 				font-weight: bold;
 				font-size: 24px;
 			}
 			
 			.spacing { 
+				display: inline-block;
 				margin-bottom: 30px;
 				
 			}
@@ -113,9 +124,10 @@ class EmailPlanSuccess extends Component {
 			}
 
 			.icon{
+				display: inline-block;
 				position: relative;
-				left: 135px;
-				top: 25px;
+				/*left: 135px;*/
+				top: 9px;
 			}
 			.buttons {
 				width: 150px;
@@ -147,14 +159,16 @@ class EmailPlanSuccess extends Component {
 				${this._renderAlert()}
 			</div>
 
-			<capitec-card id="temp-container">
+			<capitec-card class="container">
 				<div>
 					<capitec-image src="platform/illustrations/send-documents.svg"
 						style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
-					<label id="temp-container-label">Funeral, (or quote) plan sent</label>
+					<capitec-label class="label" type="title" label="Documentation sent"></capitec-label>
+					<div>
 						<capitec-icon class="icon" size="medium" icon="status/success"></capitec-icon>
-						<capitec-label class="spacing" type="subtitle" label="Your funeral plan document for policy number '${this.contractReference}' has been emailed to something@gmail.com"></capitec-label>
-					<capitec-button class="buttons" label="View Plan" type="secondary"></capitec-button>
+						<capitec-label class="spacing" type="subtitle" label="Your documentation for policy number '${this.contractReference}' has been emailed to ${this.confirmedEmail}"></capitec-label>
+					</div>
+					<capitec-button class="buttons" label="View Plan" type="secondary" @click="${() => this._onViewPlanClick()}"></capitec-button>
 					<capitec-button class="buttons" label="Done" type="primary" @click="${() => this._onDoneClick()}"
 						data-automation-id="insure-email-plan-success-done">
 					</capitec-button>

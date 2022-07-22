@@ -114,14 +114,16 @@ export class ExistingClient extends InsureViewBase {
 			reinstatePaymentAgreementDocument: { type: Object, state: true },
 			updatePlanAgreementDocument: { type: Object, state: true },
 			updatePaymentAgreementDocument: { type: Object, state: true },
-			showSuccessAlert: { type: Boolean, state: true },
-			cancellationReason: { type: String, state: true },
-			cancelPolicyDocumentDetails: { type: Object, state: true },
-			accountDetails: { type: Object, state: true },
-			policyNumber: { type: String, state: true },
-			commsHistory: { type: Object, state: true },
-			readOnly: { type: Object, state: true },
-			arrearsPaymentDocumentDetails: { type: Object, state: true }
+			showSuccessAlert: {type: Boolean, state: true},
+			cancellationReason: {type: String, state: true},
+			cancelPolicyDocumentDetails: {type: Object, state: true},
+			accountDetails: { type: Object, state: true },		
+			policyNumber: {type: String, state: true},
+			commsHistory: {type: Object, state: true},
+			readOnly: {type: Object, state: true},
+			arrearsPaymentDocumentDetails: {type: Object, state: true},
+			confirmedEmail: {type: Object, state: true},
+			
 		};
 	}
 
@@ -190,13 +192,11 @@ export class ExistingClient extends InsureViewBase {
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.contractReference;
 
-		console.log(JSON.stringify(GENERATE_DOCUMENT_REQUEST_PAYLOAD));
 
 		const issuePlanAgreementResponse = await this.insureService.generateIssueFuneralCoverPlanAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 		const paymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 
-		console.log(issuePlanAgreementResponse.result.documentContent);
-		console.log(paymentAgreementResponse.result.documentContent);
+
 
 		if (!issuePlanAgreementResponse.succeeded || !paymentAgreementResponse.succeeded)
 			return;
@@ -705,11 +705,22 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
-	 * Calculate quote event from Update plan, supply 
-	 * @param {*} event 
+	 * Calculate quote callback from Update plan, supply 
+	 * @param {*} policyToCalc 
 	 */
-	async _updatePlanQuote(event) {
-		// TODO
+	async _updatePlanQuote(policyToCalc) {
+		let quoteCalcRequest = {
+			"saveQuote": true,
+			"contractReference": policyToCalc.contractReference,
+			"cifNumber": this.callerInformation.cifNumber,
+			"totalPremium": policyToCalc.totalPremium,
+			"lifesAssured": policyToCalc.roleplayers.filter(ele => ele.lifeAssured == true)
+		};
+		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
+		if (!calculateQuoteResp.succeeded)
+			return;
+
+		return calculateQuoteResp.result;
 	}
 
 	/**
@@ -890,7 +901,9 @@ export class ExistingClient extends InsureViewBase {
 	  */
 	async _sendEmail(e) {
 
-		if (e.detail.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY)
+		this.confirmedEmail = e.detail.emailId.detail.emailAddress;
+
+		if(e.detail.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY)
 			this.callerPage = INSURE_CALLER_PAGE.CANCEL_POLICY;
 		else if (e.detail.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM)
 			this.callerPage = INSURE_CALLER_PAGE.PAY_PREMIUM;
@@ -909,7 +922,7 @@ export class ExistingClient extends InsureViewBase {
 			this.showSuccessAlert = true;
 			window.setTimeout(() => this.showSuccessAlert = false, 2000);
 
-			if (this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY)
+			if(this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY || this.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM)
 				this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
 			else
 				this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES);
@@ -1112,7 +1125,8 @@ ${this._renderClientPoliciesPage()}`
 	_renderUpdatePlanPage() {
 		return html`
 			<horizon-insure-update-plan @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-				@updatePlanAccept="${(e) => this._updatePlanAccept(e)}" @calculate-quote="${(e) => this._updatePlanQuote(e)}"
+				@updatePlanAccept="${(e) => this._updatePlanAccept(e)}"
+				.updatePlanQuote="${(policyToCalc) => this._updatePlanQuote(policyToCalc)}"
 				.updatePlanPrepare="${(policyToUpdate) => this._updatePlanPrepare(policyToUpdate)}"
 				.policyDetails="${this.policyDetails}" .productParams="${this.productParams}"
 				.initiateReinstatePolicy="${(policyToReinstate) => this._initiateReinstatePolicy(policyToReinstate)}"
@@ -1152,7 +1166,8 @@ ${this._renderClientPoliciesPage()}`
 		return html`
 		
 			<insure-email-plan-success @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-				.contractReference=${this.contractReference}>
+				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
+				.contractReference = ${this.contractReference} .confirmedEmail="${this.confirmedEmail}">
 			</insure-email-plan-success>
 
 		`
@@ -1166,7 +1181,8 @@ ${this._renderClientPoliciesPage()}`
 		<horizon-pay-premium-success-page @navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 			@navigate-to-email-success-page="${() => this._goToEmailSuccessPage()}"
 			.amountToPay = "${this.amountToPay}" .contractReference = "${this.contractReference}"
-			@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}">
+			@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
+			@send-email= "${(e) => this._sendEmail(e)}">
 		</horizon-pay-premium-success-page>
 		
 	`}
@@ -1225,8 +1241,11 @@ ${this._renderClientPoliciesPage()}`
 	`}
 
 	_renderEmailPlanSuccessPage() {
+		console.log(this.confirmedEmail)
 		return html`
-			<insure-email-plan-success @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+			<insure-email-plan-success
+				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+				.confirmedEmail="${this.confirmedEmail}">
 			</insure-email-plan-success>
 		`
 	}

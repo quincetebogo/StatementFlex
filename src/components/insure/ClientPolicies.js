@@ -811,7 +811,7 @@ class ClientPolicies extends Component {
 			<capitec-overflow-menu label="More" data-automation-id = "insure-policy-more-sub-menu">
 				<capitec-overflow-menu-item icon="system/transfer-action" label="Transaction History" @click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
 				<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan" @click=" ${() => this._openCancelPolicyDialog(policyItem.contractReference)}"></capitec-overflow-menu-item>
-				<capitec-overflow-menu-item icon="system/messages-action" label="SMS History" @click=" ${() => this._goToSMSHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
+				
 				
 			</capitec-overflow-menu>
 			<capitec-label label="More" class="label-text">
