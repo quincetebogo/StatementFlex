@@ -1216,7 +1216,7 @@ ${this._renderClientPoliciesPage()}`
 	_renderEmailSuccessPage() {
 		return html`
 		
-			<insure-email-plan-success @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+			<insure-email-plan-success @navigate-back="${(e) => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				.contractReference = ${this.contractReference} .confirmedEmail="${this.confirmedEmail}">
 			</insure-email-plan-success>
