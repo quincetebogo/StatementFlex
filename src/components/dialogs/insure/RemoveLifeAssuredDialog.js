@@ -85,7 +85,8 @@ class RemoveLifeAssuredDialog extends Component {
 	*/
 	_renderDialogBody() {
 		return html`
-			<p>Are you sure you want to remove ${this.lifeToRemoveDescription} from your <br>funeral plan? they will no longer be covered</p>
+			<p>Are you sure you want to remove <b>${this.lifeToRemoveDescription}</b> from your <br>Funeral Plan? They will no
+				longer be covered.</p>
 		`;
 	}
 

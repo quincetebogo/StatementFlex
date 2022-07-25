@@ -64,6 +64,7 @@ class AddBeneficiaryDialog extends Component {
 			isLifeAssured: this.isLifeAssured,
 			beneficiary: this.newBeneficiary
 		}
+		console.log("detail");
 		console.log(detail);
 		this.dispatchEvent(new CustomEvent(`add-click`, { detail: detail }));
 	}
@@ -87,7 +88,14 @@ class AddBeneficiaryDialog extends Component {
 		this.isLifeAssured = false;
 		this.newBeneficiary = {
 			relationship: relationship,
-			rowID: this.beneficiaries.length,
+			beneficiary: true,
+			title: '',
+			firstName: '',
+			surname: '',
+			gender: 'Male',
+			benefitPayout: 0,
+			coverAmount: 0,
+			recordID: 123213
 		}
 	}
 
@@ -109,7 +117,7 @@ class AddBeneficiaryDialog extends Component {
 			
 			.beneficiary-radio-row{
 				display: flex; 
-				justify-content: space-between; 
+				justify-content: space-evenly; 
 				padding: 10px 15px 15px 15px; 
 				gap: 10px;
 			}`
@@ -159,17 +167,25 @@ class AddBeneficiaryDialog extends Component {
 			
 					<div style="border: 1px solid #e1e1e1; border-radius: 5px; padding: 5px;">
 						<capitec-radio label="Child" hint="Up to 8 allowed for ages 25 and younger"
-							@value-changed="${() => this._addNewBeneficiaryChange("Child")}">
+							@value-changed="${() => this._addNewBeneficiaryChange(" Child")}">
 						</capitec-radio>
 					</div>
 					<div style="border: 1px solid #e1e1e1; border-radius: 5px; padding: 5px;">
 						<capitec-radio label="Extended Family" hint="Up to 8 allowed for ages 85 and younger"
-							@value-changed="${() => this._addNewBeneficiaryChange("Extended Family")}">
+							@value-changed="${() => this._addNewBeneficiaryChange(" Extended Family")}">
 						</capitec-radio>
 					</div>
+				</div>
+				<div class="beneficiary-radio-row">
 					<div style="border: 1px solid #e1e1e1; border-radius: 5px; padding: 5px;">
 						<capitec-radio label="Parent" hint="Up to 4 allowed for ages 85 and younger"
-							@value-changed="${() => this._addNewBeneficiaryChange("Parent")}">
+							@value-changed="${() => this._addNewBeneficiaryChange(" Parent")}">
+						</capitec-radio>
+					</div>
+			
+					<div style="border: 1px solid #e1e1e1; border-radius: 5px; padding: 5px;">
+						<capitec-radio label="Other" hint="Up to 4 allowed for ages 85 and younger"
+							@value-changed="${() => this._addNewBeneficiaryChange(" Parent")}">
 						</capitec-radio>
 					</div>
 				</div>
