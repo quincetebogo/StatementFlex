@@ -8,7 +8,7 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { getMonthName } from 'app/utils/channelServiceUtilities';
+import { formatDateTime, getMonthName } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/TransactionHistory';
 import 'app/components/savingsAccount/SavingAccount';
@@ -274,14 +274,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		super._backToLandingPage();
 	}
 
-	_formatDate(date) {
-		const newdate = new Date(Date.parse(date));
-		const formatedDate = `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
-		const formatedTime = `${newdate.toTimeString().substring(0, 5)}`;
-
-		return `${formatedDate} ${formatedTime}`;
-	}
-
 	// ---------
 	// RENDERING
 	// ---------
@@ -397,7 +389,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	_renderTransactionDateTime(value) {
 		return html`
 			<capitec-label
-				label="${this._formatDate(value)}">
+				label="${formatDateTime(value)}">
 			</capitec-label>`;
 	}
 
@@ -429,13 +421,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Posting date" 
-					value = "${this._formatDate(item.postingDate)}"
+					value = "${formatDateTime(item.postingDate)}"
 					data-automation-id="transaction-history-item-posting-date">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Processed date"
-					value = "${this._formatDate(item.processDate)}"
+					value = "${formatDateTime(item.processDate)}"
 					data-automation-id="transaction-history-item-processed-date">
 				</horizon-label>
 			</capitec-group>
