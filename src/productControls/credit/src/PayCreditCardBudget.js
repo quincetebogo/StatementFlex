@@ -102,7 +102,7 @@ export class PayCreditCardBudget extends Component {
 	}
 
 	_budgetFocusOut(e) {
-		this.budgetAmount = formatTextFieldCurrency(deformatCurrency(e.currentTarget.value || 0));
+		this.budgetAmount = formatTextFieldCurrency(deformatCurrency(e.currentTarget.value || `0`));
 		this._getErrorMessage();
 	}
 
