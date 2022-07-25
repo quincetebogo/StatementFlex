@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { v4 } from 'uuid';
 
 /**
  * 
@@ -95,7 +96,7 @@ class AddBeneficiaryDialog extends Component {
 			gender: 'Male',
 			benefitPayout: 0,
 			coverAmount: 0,
-			recordID: 123213
+			recordID: v4()
 		}
 	}
 
