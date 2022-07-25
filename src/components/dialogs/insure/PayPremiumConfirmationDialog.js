@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
 /**
  * Pay Premium Confirmation Dialog componant will allow you to confirm whether you would like to pay the required amount or not
@@ -76,6 +77,7 @@ class PayPremiumConfirmationDialog extends Component {
 		return [
 			super.styles,
 			css`
+				${INSURE_CSS}
 			`
 		];
 	}
@@ -118,11 +120,11 @@ class PayPremiumConfirmationDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-				<capitec-button slot="footer" type="secondary" label="Cancel"
+				<capitec-button slot="footer" type="secondary" label="Cancel" class="capitec-button-medium"
 					@click="${() => this._onCancelClick()}"
 					data-automation-id="insure-pay-premium-confirmation-dialog-cancel">
 				</capitec-button>
-				<capitec-button slot="footer" type="primary" label="Confirm" 
+				<capitec-button slot="footer" type="primary" label="Confirm" class="capitec-button-medium"
 					@click="${() => this._onConfirmClick()}"
 					data-automation-id="insure-pay-premium-confirmation-dialog-confirm">
 				</capitec-button>

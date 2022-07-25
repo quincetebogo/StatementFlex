@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { formatDate } from '../../../utils/channelServiceUtilities';
+import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
 // Lookups
 import { CANCELATION_REASONS } from 'app/constants/InsureCommon';
@@ -28,6 +29,7 @@ class CancelPolicyDialog extends Component {
 		this.checked = false;
 		this.cancelReason = '';
 		this.contractReference = '';
+		this.cancelPolicyDocumentDetails = {};
 	}
 
 	//#endregion
@@ -39,7 +41,7 @@ class CancelPolicyDialog extends Component {
 	 * @property {Boolean} checked determines if terms and conditions have been agreed to 
 	 * @property {String} contractReference contains the contract reference
 	 * @property {String} cancelReason contains the chosen cancellation reason
-	 * @property {Object} getCancelPolicyDocument Callback function to fetch Cancel Policy Agreement
+	 * @property {Function} getCancelPolicyDocument Callback function to fetch Cancel Policy Agreement
 	 * @property {Object} cancelPolicyDocumentDetails contains the cancel policy agreement document details
 	 * 
 	 */
@@ -67,6 +69,8 @@ class CancelPolicyDialog extends Component {
 		this._initialize();
 
 	 }
+
+	 //#endregion
 
 
 	//#region PRIVATE METHODS
@@ -104,11 +108,12 @@ class CancelPolicyDialog extends Component {
 
 		this.cancelReason = e.detail.new.code;
 
-		this._GetCancelAgreement(this.cancelReason)
-		console.log(this.cancelReason)
+		this._getCancelAgreement(this.cancelReason)
+
+		this.requestUpdate();
 	}
 
-	async _GetCancelAgreement(cancelReason){
+	async _getCancelAgreement(cancelReason){
 		await this.getCancelPolicyDocument(this.contractReference, cancelReason);
 	}
 
@@ -154,19 +159,23 @@ class CancelPolicyDialog extends Component {
 		return [
 			super.styles,
 			css`
+				
+				${ INSURE_CSS }
 
 				.notification > capitec-toast{
 					--theme-toast-height: 110px;
 					position: relative;
+					--theme-toast-max-width: 100%;
 				}
 
 				.notification {
 					margin-bottom: 30px;
+					padding: 0px;
 				}
 
-				.expander{
-					margin-bottom: 20px;
-					margin-top: 20px;
+				.no-padding{
+					padding: 0px;
+					height: 100%;
 				}
 
 				.select{
@@ -178,6 +187,21 @@ class CancelPolicyDialog extends Component {
 					width: 140px;
 				}
 
+				capitec-expander {
+					border-left: var(--theme-expander-border, 1px solid black);
+					border-right: var(--theme-expander-border, 1px solid black);
+					margin-bottom: 20px;
+				}
+				capitec-expander[expanded] {
+					border-bottom: var(--theme-expander-border, 1px solid black);
+				}
+
+				capitec-expander > capitec-content-box {
+					padding: 0 !important;
+				}
+				.cancel-policy-modal{
+					--theme-modal-alert-m-l-xl-width: 840px;
+				}
 				`
 		];
 	}
@@ -188,7 +212,7 @@ class CancelPolicyDialog extends Component {
 	 */
 	 _webTemplate() {
 		return html`
-			<capitec-modal type="form" header="Cancel Funeral Cover Plan (${this.contractReference})">
+			<capitec-modal type="alert" class="cancel-policy-modal" header="Cancel Funeral Cover Plan (${this.contractReference})">
 				<div slot="body" data-automation-id="insure-cancel-policy-dialog-body">
 					${this._renderDialogBody()}
 				</div>
@@ -205,14 +229,14 @@ class CancelPolicyDialog extends Component {
 	 */
 	 _renderDialogBody() {
 		return html`
-			<div class="notification">
+			<capitec-content-box class="notification">
 				<capitec-toast type="info" header="Notify Client" 
 					detail="By cancelling this plan you will no longer have any benefits on this plan. Ensure you have carefully considered the effects before continuing with the cancellation.
 					The full agreement, inclusive of the Policy Schedule, Section 484 summary. Disclosure, terms and conditions,
 					will be emailed to you and available in branch."
 					data-automation-id="insure-cancel-policy-dialog-notification">
 				</capitec-toast>
-			</div>
+			</capitec-content-box>
 
 			<div class="select" data-automation-id="insure-cancel-policy-dialog-cancelation-reason">
 				<capitec-select 
@@ -224,29 +248,29 @@ class CancelPolicyDialog extends Component {
 				</capitec-select>
 			</div>
 
-			<div>
+			<capitec-content-box class="no-padding">
 				<capitec-label type="subtitle" label=" By requesting the cancellation of the policy, you acknowledge and confirm that:"></capitec-label>
 				<ul>
 				<li>The policy has been cancelled with the effective date from ${formatDate(this._getDate(), 'dd mmm yyyy')}.</li>
 				<li>All the policy benefits have been ceased and you no longer benefit from them.</li>
 				<li>Should any premiums be received on this policy, after the date of this instruction, it will be refunded to you.</li>
 				</ul>
-			</div>
+			</capitec-content-box>
 
-			<div class="expander">
-				<capitec-expander expandbuttonalignment="left" label="View Cancellation Agreement" data-automation-id="insure-cancel-policy-dialog-view-cancellation-agreement">
-					<capitec-label label=""></capitec-label>
-
-					<img src="data:pdf;base64, ${this.cancelPolicyDocumentDetails}" alt="agreement" />
-
+			<capitec-content-box class="no-padding">
+				<capitec-expander expandbuttonalignment="left" label="View Cancellation Agreement" class="pdf-viewer"
+					data-automation-id="insure-cancel-policy-dialog-view-cancellation-agreement">
+					<iframe title="CancelPolicyAgreement" height = "100%" frameborder = "0"
+						src="data:application/pdf;base64,${ this.cancelPolicyDocumentDetails?.documentContent }#view=fitH">
+					</iframe>
 				</capitec-expander>
-			</div>
+			</capitec-content-box>
 
-			<div>
+			<capitec-content-box class="no-padding">
 				<capitec-check label="Please confirm that you agree to these terms and conditions and that you are bound by them." 
 					@value-change="${(e) => this._CheckBox(e)}">
 				</capitec-check>
-			</div>
+			</capitec-content-box>
 
 
 		`}

@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { v4 } from 'uuid';
 
 /**
  * 
@@ -22,24 +23,36 @@ class AddBeneficiaryDialog extends Component {
 	 */
 	constructor() {
 		super();
-
-		this.lifesAssured = [];
-		this.beneficiaries = [];
-		this.newbeneficiary = {};
-
-		this.selected = false;
-	
+		this.isLifeAssured = false;
+		this.newBeneficiary = {};
 	}
 
 	//#endregion
 
+	//#region PROPERTIES
+
+	/**
+	 * @property {Object} lifesAssured current list of lives assured
+	 *
+	 * @readonly
+	 * @static
+	 */
+	static get properties() {
+		return {
+			isLifeAssured: { type: Number, state: true },
+			lifesAssured: { type: Object, state: true },
+			beneficiaries: { type: Object, state: true },
+		};
+	}
+
+	//#endregion
 
 	//#region EVENT HANDLERS
 
 	/**
 	 * Cancel event from dialog footer button, closes modal & reset toggles 
 	 */
-	 _onCancelClick() {
+	_onCancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
@@ -47,12 +60,14 @@ class AddBeneficiaryDialog extends Component {
 	 * Add Event, Calculate cover details parameter, emit new life object to consuming component & reset toggles 
 	 */
 	_onAddClick() {
-		
-		
-		
 		console.log('In dialog agree event')
-		console.log(this.newBeneficiary)
-		this.dispatchEvent(new CustomEvent(`add-click`, {detail: this.newBeneficiary}));
+		let detail = {
+			isLifeAssured: this.isLifeAssured,
+			beneficiary: this.newBeneficiary
+		}
+		console.log("detail");
+		console.log(detail);
+		this.dispatchEvent(new CustomEvent(`add-click`, { detail: detail }));
 	}
 
 	/**
@@ -60,38 +75,29 @@ class AddBeneficiaryDialog extends Component {
 	 * 
 	 * @param {*} lifeAssured 
 	 */
-	 _addBeneficiaryExistingChange(lifeAssured) {
-		this.newBeneficiary= {
-			name : lifeAssured.name,
-			title : lifeAssured.title,
-			surname :"",
-			dateOfBirth: "",
-			gender: lifeAssured.genderType,
-			email: lifeAssured.email,
-			relationship : lifeAssured.relationship,
-			rowID : this.beneficiaries.length,
-		}
+	_addExistingBeneficiaryChange(lifeAssured) {
+		this.isLifeAssured = true;
+		this.newBeneficiary = lifeAssured;
 	}
 
 	/**
-	 * event to add a new beneficiary that is not a life assured
+	 * Event to add a new beneficiary that is not a life assured
 	 * 
 	 * @param {*} Relationship 
 	 */
-	 _addNewBeneficiaryChange(Relationship) {
-		console.log(this.beneficiaries)
-
-		if(!this.beneficiaries){
-			this.beneficiaries = [];
+	_addNewBeneficiaryChange(relationship) {
+		this.isLifeAssured = false;
+		this.newBeneficiary = {
+			relationship: relationship,
+			beneficiary: true,
+			title: '',
+			firstName: '',
+			surname: '',
+			gender: 'Male',
+			benefitPayout: 0,
+			coverAmount: 0,
+			recordID: v4()
 		}
-		this.newBeneficiary= {
-			relationship : Relationship,
-			rowID : this.beneficiaries.length,
-		}
-	}
-
-	_checkselected(){
-
 	}
 
 	//#endregion
@@ -105,75 +111,84 @@ class AddBeneficiaryDialog extends Component {
 	 * @static
 	 * @returns {css} CSS for the view.
 	 */
-	 static get styles() {
+	static get styles() {
 		return [
 			super.styles,
 			css`
 			
 			.beneficiary-radio-row{
 				display: flex; 
-				justify-content: space-between; 
+				justify-content: space-evenly; 
 				padding: 10px 15px 15px 15px; 
 				gap: 10px;
-			}
-
-			`
+			}`
 		]
 	}
 
 	/**
 	 * Generates the component template for web mode
 	 */
-	 _webTemplate() {
-		 return html `
+	_webTemplate() {
+		return html`
 		<capitec-modal type="alert" header="Add Beneficiary" style="--theme-modal-alert-m-l-xl-width: 840px;">
-			<div slot="body" >
-					${this._renderDialogBody()}
+			<div slot="body">
+				${this._renderDialogBody()}
 			</div>
 			<div slot="footer">
 				${this._renderDialogFooter()}
-	 		</div>
+			</div>
 		</capitec-modal>
 		`
-	 }
+	}
 
-	 /**
-	 * Render modal body section
-	 * 
-	 * @returns {html} The html content of the component.
-	 */
+	/**
+	* Render modal body section
+	* 
+	* @returns {html} The html content of the component.
+	*/
 	_renderDialogBody() {
 		return html`
 			<!-- style="max-height: 500px; overflow: scroll" -->
 			<capitec-label label="Life Assured" type="title"></capitec-label>
-
 			<capitec-label label="Choose from clients policy members" type="default"></capitec-label>
 			<capitec-radio-group>
 				<capitec-content-box style="max-height:200px">
-					
-					${this.lifesAssured.map((lifeAssured,index) => html`
-						${index != 0 ? html`
-							<div  style="border: 1px solid #e1e1e1; border-radius: 5px; padding: 10px; margin: 5px; width: 70%;">
-								<capitec-radio label="${lifeAssured.relationship}: Name" @value-changed="${() => this._addBeneficiaryExistingChange(lifeAssured)}">
-								</capitec-radio>
-							</div>
-						` : html ``}
+					${this.lifesAssured.map((lifeAssured, index) => html`
+					<div style="border: 1px solid #e1e1e1; border-radius: 5px; padding: 10px; width: 100%;">
+						<capitec-radio label="${lifeAssured.relationship}: ${lifeAssured.firstName} ${lifeAssured.surname}"
+							@value-changed="${() => this._addExistingBeneficiaryChange(lifeAssured)}">
+						</capitec-radio>
+					</div>
 					`)}
-					
+			
 				</capitec-content-box>
-
+			
 				<capitec-label label="Add Beneficiary" type="title"></capitec-label>
-
 				<div class="beneficiary-radio-row">
-					<capitec-radio label="Child" hint="Up to 8 allowed for ages 25 and younger" 
-						style="border: 1px solid #e1e1e1; border-radius: 5px; padding: 10px; margin: 5px;" @value-changed="${() => this._addNewBeneficiaryChange("Child")}">
-					</capitec-radio>
-					<capitec-radio label="Extended Family" hint="Up to 8 allowed for ages 85 and younger"
-						style="border: 1px solid #e1e1e1; border-radius: 5px; padding: 10px; margin: 5px;" @value-changed="${() => this._addNewBeneficiaryChange("Extended Family")}">
-					</capitec-radio>
-					<capitec-radio label="Parent" hint="Up to 4 allowed for ages 85 and younger"
-						style="border: 1px solid #e1e1e1; border-radius: 5px; padding: 10px; margin: 5px;" @value-changed="${() => this._addNewBeneficiaryChange("Parent")}">
-					</capitec-radio>
+			
+					<div style="border: 1px solid #e1e1e1; border-radius: 5px; padding: 5px;">
+						<capitec-radio label="Child" hint="Up to 8 allowed for ages 25 and younger"
+							@value-changed="${() => this._addNewBeneficiaryChange(" Child")}">
+						</capitec-radio>
+					</div>
+					<div style="border: 1px solid #e1e1e1; border-radius: 5px; padding: 5px;">
+						<capitec-radio label="Extended Family" hint="Up to 8 allowed for ages 85 and younger"
+							@value-changed="${() => this._addNewBeneficiaryChange(" Extended Family")}">
+						</capitec-radio>
+					</div>
+				</div>
+				<div class="beneficiary-radio-row">
+					<div style="border: 1px solid #e1e1e1; border-radius: 5px; padding: 5px;">
+						<capitec-radio label="Parent" hint="Up to 4 allowed for ages 85 and younger"
+							@value-changed="${() => this._addNewBeneficiaryChange(" Parent")}">
+						</capitec-radio>
+					</div>
+			
+					<div style="border: 1px solid #e1e1e1; border-radius: 5px; padding: 5px;">
+						<capitec-radio label="Other" hint="Up to 4 allowed for ages 85 and younger"
+							@value-changed="${() => this._addNewBeneficiaryChange(" Parent")}">
+						</capitec-radio>
+					</div>
 				</div>
 			</capitec-radio-group>
 		`;
@@ -184,19 +199,15 @@ class AddBeneficiaryDialog extends Component {
 	 * 
 	 * @returns {html} The html content of the component.
 	 */
-	 _renderDialogFooter() {
+	_renderDialogFooter() {
 		return html`
-			
-			<capitec-button slot="footer" type="clear" label="Cancel" @click="${() => this._onCancelClick()}">
-			</capitec-button>
-
-			<capitec-button slot="footer" type="clear" label="Add" @click="${() => this._onAddClick()}">
-			</capitec-button>
-			
-			`; 
+		<capitec-button slot="footer" type="clear" label="Cancel" @click="${() => this._onCancelClick()}">
+		</capitec-button>
+		<capitec-button slot="footer" type="clear" label="Add" @click="${() => this._onAddClick()}">
+		</capitec-button>`;
 	}
 
-	 //#endregion
+	//#endregion
 
 }
 

@@ -1,4 +1,7 @@
 import { Component, css, html } from 'platform/elements';
+import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+
+const ERROR_MESSAGE = `Please select confirmation checkbox`;
 
 /**
  * Update Plan Agreement Dialog componant will allow you to view the policy schedule, view the mandate and to agree 
@@ -10,7 +13,7 @@ import { Component, css, html } from 'platform/elements';
  * email-plan
  * agree
  *  
- * @export
+ * @export_onAgreeClick
  * @class UpdatePlanAgreementDialog
  * @extends {Component}
  */
@@ -21,15 +24,19 @@ class UpdatePlanAgreementDialog extends Component {
 	constructor() {
 		super();
 
+		this.alertBannerMessage = ``;
 	}
 
 	//#endregion
 
 	//#region PROPERTIES
 
-	 static get properties() {
+	static get properties() {
 		return {
-			
+			planAgreementContent: { type: String, state: true },
+			paymentAgreementContent: { type: String, state: true },
+			contractReference: { type: String },
+			alertBannerMessage: { attribute: false }
 		};
 	}
 
@@ -44,7 +51,7 @@ class UpdatePlanAgreementDialog extends Component {
 	/**
 	 * Cancel event from dialog footer button, closes modal & reset toggles 
 	 */
-	 _onCancelClick() {
+	_onCancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
@@ -52,7 +59,17 @@ class UpdatePlanAgreementDialog extends Component {
 	 * Agree event from dialog footer, closes modal and navigates to Pay Premium Success page
 	 */
 	_onAgreeClick() {
-		this.dispatchEvent(new CustomEvent(`agree-click`, {}));
+		const agreeCheck = this.shadowRoot.getElementById(`update-plan-agree-check`);
+
+		if(!agreeCheck.checked)
+		{
+			this.alertBannerMessage = ERROR_MESSAGE;
+		}
+		else
+		{
+			this.alertBannerMessage = ``;
+			this.dispatchEvent(new CustomEvent(`update-plan-agree-click`, {}));
+		}
 	}
 
 	//#endregion
@@ -66,34 +83,40 @@ class UpdatePlanAgreementDialog extends Component {
 	 * @static
 	 * @returns {css} CSS for the component.
 	 */
-	 static get styles() {
+	static get styles() {
 		return [
 			super.styles,
 			css`
+				${INSURE_CSS}
 
 				.notification > capitec-toast{
 					--theme-toast-height: 80px;
 					position: relative;
 				}
-
 				.notification {
 					margin-bottom: 30px;
 				}
-
+				.left-padding-0{
+					padding-left: 0px;
+				}
 				.expander{
 					margin-bottom: 20px;
-					
 				}
-
 				.select{
 					margin-bottom: 20px;
 					width: 60%;
 				}
-
-				.button {
-					width: 140px;
+				capitec-expander {
+					border-left: var(--theme-expander-border, 1px solid black);
+					border-right: var(--theme-expander-border, 1px solid black);
+					margin-bottom: 20px;
 				}
-
+				capitec-expander[expanded] {
+					border-bottom: var(--theme-expander-border, 1px solid black);
+				}
+				.alert-banner {
+					padding: 0px 0px 16px 0px;
+				}
 				`
 		];
 	}
@@ -102,9 +125,9 @@ class UpdatePlanAgreementDialog extends Component {
 	 * Main render point for component
 	 * @returns {html} The html content of the component.
 	 */
-	 _webTemplate() {
+	_webTemplate() {
 		return html`
-			<capitec-modal type="form" header="Funeral Cover Plan (CF00027650)">
+			<capitec-modal type="form" header="Funeral Cover Plan (${ this.contractReference })">
 				<div slot="body" data-automation-id="insure-pay-premium-agreement-dialog-body">
 					${this._renderDialogBody()}
 				</div>
@@ -119,29 +142,41 @@ class UpdatePlanAgreementDialog extends Component {
 	 * 
 	 * @returns {html} The html content of the component.
 	 */
-	 _renderDialogBody() {
+	_renderDialogBody() {
 		return html`
 			<div class="notification">
-				<capitec-toast type="info" header="Notify Client" 
-					detail="The full agreement, inclusive of the Policy Schedule, Section 484 summary. Disclosure, terms and conditions,
-					will be emailed to you and available in branch." data-automation-id="insure-pay-premium-agreement-dialog-notification">
+				<capitec-toast type="info" header="Notify Client" detail="The full agreement, inclusive of the Policy Schedule, Section 484 summary. Disclosure, terms and conditions,
+					can be emailed to you and available in branch."
+					data-automation-id="insure-pay-premium-agreement-dialog-notification">
 				</capitec-toast>
 			</div>
+			
+			${this._renderAlertBanner()}
 
 			<capitec-expander-group modeset="single">
 				<div class="expander">
-					<capitec-expander expandbuttonalignment="left" label="View Policy Schedule" data-automation-id="insure-pay-premium-agreement-dialog-view-policy-schedule">
-						<capitec-label label=""></capitec-label>
+					<capitec-expander expandbuttonalignment="left" label="View Policy Schedule" class="pdf-viewer"
+						data-automation-id="insure-pay-premium-agreement-dialog-view-policy-schedule">
+						<iframe title="UpdatePlanAgreement" height = "100%" frameborder = "0"
+							src="data:application/pdf;base64,${ this.planAgreementContent }#view=fitH">
+						</iframe>
 					</capitec-expander>
 				</div>
-
+			
 				<div>
-					<capitec-expander expandbuttonalignment="left" label="View Mandate" data-automation-id="insure-pay-premium-agreement-dialog-view-mandate">
-						<capitec-check label="Please confirm that you agree to these terms and conditions and that you are bound by them?"></capitec-check>
+					<capitec-expander expandbuttonalignment="left" label="View Mandate" class="pdf-viewer"
+						data-automation-id="insure-pay-premium-agreement-dialog-view-mandate">
+							<iframe title="UpdatePaymentAgreement" height = "100%" frameborder = "0"
+								src="data:application/pdf;base64,${ this.paymentAgreementContent }#view=fitH">
+							</iframe>
 					</capitec-expander>
 				</div>
-			 </capitec-expander-group>
+			</capitec-expander-group>
 
+			<capitec-content-box class="left-padding-0">
+				<capitec-check id="update-plan-agree-check" label="Please confirm that you agree to these terms and conditions and that you are bound by them?">
+				</capitec-check>
+			</capitec-content-box>
 		`}
 
 	/**
@@ -151,17 +186,32 @@ class UpdatePlanAgreementDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-				<capitec-button class="button" slot="footer" type="secondary" label="Cancel"
-					@click="${() => this._onCancelClick()}"
+				<capitec-button class="capitec-button-medium" slot="footer" type="secondary" label="Cancel" @click="${() => this._onCancelClick()}"
 					data-automation-id="insure-pay-premium-agreement-dialog-cancel">
 				</capitec-button>
-				<capitec-button class="button" slot="footer" type="primary" label="Agree"
-					@click="${() => this._onAgreeClick()}"
+				<capitec-button class="capitec-button-medium" slot="footer" type="primary" label="Agree" @click="${() => this._onAgreeClick()}"
 					data-automation-id="insure-pay-premium-agreement-dialog-agree">
 				</capitec-button>
 		`}
 
-	//#endregion
+	/**
+	 * Render Alert banner for error message.
+	 * @returns {html} The html content of the component. 
+	 */
+	 _renderAlertBanner() {
+		if (this.alertBannerMessage) {
+			return html`
+				<capitec-content-box class="alert-banner">
+					<capitec-alert-banner 
+						data-automation-id="insure-update-plan-agreement-dialog-banner"
+						type="unsuccessful-red">
+							${this.alertBannerMessage}
+					</capitec-alert-banner>
+				</capitec-content-box>`;
+		}
+	}
+
+	//#endregion RENDERING
 
 
 }

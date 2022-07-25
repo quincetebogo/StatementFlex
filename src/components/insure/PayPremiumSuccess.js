@@ -1,5 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+import { INSURE_CALLER_PAGE } from 'app/constants/InsureCommon';
 
 //Dialogs
 import 'app/components/dialogs/insure/EmailPlanDialog';
@@ -25,6 +27,9 @@ constructor() {
 
 	this.showSuccessAlert = true;
 	this.showEmailPlanDialog = false;
+	this.amountToPay = ``;
+	this.contractReference = ``;
+	this.titleMessage = ``;
 
 }
 
@@ -35,6 +40,9 @@ constructor() {
 	/**
 	 *  @property {boolean} ShowSuccessAlert Controls when to show the Success Alert
 	 *  @property {boolean} showEmailPlanDialog Controls when to show the Email plan Dialog]
+	 *  @property {Object} amountToPay amount of arrears that is paid
+	 *  @property {boolObjectean} contractReference of the policy
+	 * @property {String} titleMessage - title of send email popup.
 	 * 
 	 * @readonly
 	 * @static
@@ -43,10 +51,26 @@ constructor() {
 		return {
 			showSuccessAlert: { type: Boolean, state: true},
 			showEmailPlanDialog: {type: Boolean, state: true},
+			amountToPay: { type: Object },
+			contractReference: { type: Object },
+			titleMessage: { type: String }
 		};
 	}
 
 //#endregion
+
+//#region LIFECYCLE OVERRIDES
+
+	/**
+	 * Setup the component once added to the DOM.
+	 * @returns {void}
+	 */
+	 connectedCallback() {
+		super.connectedCallback();
+		window.setTimeout(() => this.showSuccessAlert = false, 2000);
+	}
+
+	//#endregion
 
 //#region PRIVATE FUNCTIONS
 
@@ -70,12 +94,22 @@ _goToEmailSuccess(){
 }
 
 /**
+ * Invoke this function when Send button is clicked on Email Popup
+ */
+ async _sendEmail(emailAddress) {
+	this.callerPage = INSURE_CALLER_PAGE.PAY_PREMIUM;
+
+	this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress
+			,callerPage: this.callerPage } } ));
+}
+
+/**
  * open email plan dialog event
  */
 _openEmailPlanDialog(){
+	this.titleMessage = `Email Funeral Plan (${this.contractReference})`;
 
 	this.showEmailPlanDialog = true;
-
 }
 /**
  * close email dialog event
@@ -84,6 +118,10 @@ _closeEmailPlanDialog(){
 
 	this.showEmailPlanDialog = false;
 
+}
+
+_viewPlan(){
+	this.dispatchEvent(new CustomEvent(`navigate-to-policy-summary`, { detail: { policyContractReference: this.contractReference } } ));
 }
 
 //#endregion
@@ -103,6 +141,8 @@ _closeEmailPlanDialog(){
 			super.styles,
 			css`
 			
+			${INSURE_CSS}
+
 			.card{
 				min-height: 650px;
 				text-align: center;
@@ -173,18 +213,22 @@ _closeEmailPlanDialog(){
 				<label class="label">Arrears was paid</label>
 				<div style= "justify-content: center;">
 					<capitec-icon size="medium" icon="status/success-trans" style="position: relative; left: 214px; top: 45px;"></capitec-icon>
-					<p>You've paid the full outstanding amount of <b>R88.00</b> towards your plan <b>CF09847678</b></p>
+					<p>You've paid the outstanding amount of <b>${formatCurrency(this.amountToPay)}</b> towards your plan <b>${this.contractReference}</b></p>
 				</div>
 				 
 				<div class="button-row">
-					<capitec-button data-automation-id="insure-pay-premium-success-view-plan" label="View Plan">
+					<capitec-button data-automation-id="insure-pay-premium-success-view-plan" 
+						class = "capitec-button-medium" label="View Plan" 
+						@click= "${() => this._viewPlan()}">
 					</capitec-button>
 
-					<capitec-button  label="Email" @click= "${() => this._openEmailPlanDialog()}">
+					<capitec-button  label="Email" class = "capitec-button-medium" 
+						@click= "${() => this._openEmailPlanDialog()}">
 					</capitec-button>
 
-					<capitec-button class="buttons" data-automation-id="insure-pay-premium-success-done" type="primary" label="Done"
-					@click= "${() => this._backToSummaryPage()}">
+					<capitec-button data-automation-id="insure-pay-premium-success-done" 
+						class = "capitec-button-medium" type="primary" label="Done"
+						@click= "${() => this._backToSummaryPage()}">
 					</capitec-button>
 				</div>
 			</div>
@@ -207,16 +251,15 @@ _renderAlert(){
 					layout = "horizontal"
 					@click = "${() => this.showSuccessAlert = false}">
 				</capitec-toast>
-		${window.setTimeout(() => this.showSuccessAlert= false, 2000)};
 `}
 
 _renderEmailPlanDialog(){
 	return this.showEmailPlanDialog == false ? html`` 
 	:html`
-		<insure-email-plan-dialog
-			@close-modal="${() => this._closeEmailPlanDialog()}"
-			@send-email="${() => this._goToEmailSuccess()}">
-		</insure-email-plan-dialog>
+		<insure-email-dialog @close-modal="${(e) => this.showEmailPlanDialog = false}"
+			@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}"
+			.contractReference = "${this.contractReference}" .titleMessage = "${ this.titleMessage }">
+		</insure-email-dialog>
 	`
 }
 

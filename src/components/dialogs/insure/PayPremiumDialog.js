@@ -2,6 +2,7 @@ import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatDate } from 'app/utils/channelServiceUtilities';
 import 'app/components/insure/InsureAccountSelect';
+import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
 // Lookups
 import { CLIENT_ACCOUNTS } from 'app/constants/InsureCommon';
@@ -307,25 +308,23 @@ class PayPremiumDialog extends Component {
 			super.styles,
 			css`
 		
-		.buttons{
-			width: 100px;
-		}
+			${INSURE_CSS}
 
-		.checkbox{
-			border: 1px solid #e1e1e1;
-			border-radius: 5px;
-			padding: 10px;
-		}
+			.checkbox{
+				border: 1px solid #e1e1e1;
+				border-radius: 5px;
+				padding: 10px;
+			}
 
-		.modal-body-label{
-			padding: 10px 10px 10px 10px;
-			font-weight: bold;
-		}
-		.error{
-			--theme-toast-error-color: #000000;
-			--theme-toast-height: 50px;
+			.modal-body-label{
+				padding: 10px 10px 10px 10px;
+				font-weight: bold;
+			}
+			.error{
+				--theme-toast-error-color: #000000;
+				--theme-toast-height: 50px;
 
-		}
+			}
 
 		`
 		];
@@ -406,11 +405,11 @@ class PayPremiumDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 			<capitec-group layout="horizontal">
-				<capitec-button class="buttons" label="Cancel" @click="${() => this._onCancelClick()}"
+				<capitec-button class="capitec-button-medium" label="Cancel" @click="${() => this._onCancelClick()}"
 				data-automation-id="insure-pay-premium-dialog-cancel">
 				</capitec-button>
 			
-				<capitec-button class="buttons" id="id-confirm-button" type="primary" label="Pay"
+				<capitec-button class="capitec-button-medium" id="id-confirm-button" type="primary" label="Pay"
 					@click="${() => this._onPayClick()}" .disabled=${this.optionSelected == false} data-automation-id="insure-pay-premium-dialog-pay">
 				</capitec-button>
 			</capitec-group>`;

@@ -235,7 +235,7 @@ export function formatDate(value, format) {
 			formattedDate = `${monthName} ${year}`;
 			break;
 		default:
-			formattedDate = `${date}-${month}-${year}`;
+			formattedDate = `${date}-${month + 1}-${year}`;
 			break;
 	}
 

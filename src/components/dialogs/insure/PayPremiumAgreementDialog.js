@@ -33,6 +33,8 @@ class PayPremiumAgreementDialog extends Component {
 	/**
 	 * @property {Object} contractReference contains the contract refrence
 	 * @property {Object} amountToPay total amount that will be paid
+	 * @property {Function} getArrearsPaymentDocument Callback function to fetch arrears payment document
+	 * @property {Object} arrearsPaymentDocumentDetails contains arrears payment document details
 	 * 
 	 * 
 	 */
@@ -41,13 +43,38 @@ class PayPremiumAgreementDialog extends Component {
 			
 			contractReference: {type: Object, state: true},
 			amountToPay: {type: Object, state: true},
+			getArrearsPaymentDocument: {type: Object},
+			arrearsPaymentDocumentDetails: {type: Object, state: true}
 
 		};
 	}
 
 	//#endregion
 
+	//#region LIFECYCLE OVERRIDES
+
+	/**
+	 * Setup the component once added to the DOM.
+	 * @returns {void}
+	 */
+	 async connectedCallback() {
+		super.connectedCallback();
+		this._initialize();
+
+	 }
+
+	 //#endregion
+
+
 	//#region PRIVATE METHODS
+
+	async _initialize(){
+
+		await this.getArrearsPaymentDocument(this.contractReference);
+
+
+	}
+
 
 	//#endregion
 
@@ -64,7 +91,7 @@ class PayPremiumAgreementDialog extends Component {
 	 * Agree event from dialog footer, closes modal and navigates to Pay Premium Success page
 	 */
 	_onAgreeClick() {
-		this.dispatchEvent(new CustomEvent(`agree`, {}));
+		this.dispatchEvent(new CustomEvent(`pay-premium-agree`, {}));
 	}
 
 	//#endregion
@@ -104,6 +131,28 @@ class PayPremiumAgreementDialog extends Component {
 
 				.button {
 					width: 140px;
+				}
+
+				capitec-expander {
+					border-left: var(--theme-expander-border, 1px solid black);
+					border-right: var(--theme-expander-border, 1px solid black);
+					margin-bottom: 20px;
+				}
+				capitec-expander[expanded] {
+					border-bottom: var(--theme-expander-border, 1px solid black);
+				}
+
+				capitec-expander > capitec-content-box {
+					padding: 0 !important;
+				}
+
+				.iframe-content {
+					height: 100%;
+				}
+
+				.no-padding{
+					padding: 0px;
+					height: 100%;
 				}
 
 				`
@@ -146,6 +195,12 @@ By agreeing to pay your arrear premiums, you acknowledge and confirm that:
 • Your Savings/ Flexible Account can be debited with the amount of ${formatCurrency(this.amountToPay)} on ${formatDate(Date(), `dd mmm yyyy`)} ">
 				</capitec-label>
 			</div>
+
+			<!-- <capitec-content-box class="no-padding">
+				<capitec-expander expandbuttonalignment="left" label="View Arrears Payment Intruction" data-automation-id="insure-cancel-policy-dialog-view-cancellation-agreement">
+					<iframe class="iframe-content" src="data:application/pdf;base64,${this.arrearsPaymentDocumentDetails?.documentContent }#view=fitH" alt="agreement"></iframe>
+				</capitec-expander>
+			</capitec-content-box> -->
 
 		`}
 

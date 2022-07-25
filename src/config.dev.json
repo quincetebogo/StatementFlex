@@ -163,6 +163,50 @@
 		"insurePolicySummary": {
 			"enabled":false,
 			"positiveCase": true
+		},
+		"insureCommsHistory":{
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insurePrepareUpdate": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insurePolicyAccept": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureGenerateIssueAgreement": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureGenerateAgreement": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureReinstateQuoteCalc": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureCreatePolicy": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureSendEmail": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureCancelPolicy": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insurePolicyPay": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureUpdatePolicyAccept": {
+			"enabled": true,
+			"positiveCase": true
 		}
 	},
 	"searchClientOptionEnabled": true
