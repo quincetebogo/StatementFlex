@@ -582,7 +582,6 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_transactionHistory(creditType, productType, accountDetails) {
-		// TO DO: Place holder for credit transaction history flow.
 
 		this._telemetry.logEvent(CreditEvents.CREDIT_TRANSACTION_HISTORY_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
@@ -605,6 +604,7 @@ export class CreditAccount extends ViewBase {
 		const response = await this.creditService.transactionHistory(request);
 
 		if (!response.succeeded || !response.result) {
+			this.logger.log(`error`, `Failed to retrieve credit transaction history from credit service.`, `_getTransactionHistory`, response.correlationId);
 			return;
 		}
 
