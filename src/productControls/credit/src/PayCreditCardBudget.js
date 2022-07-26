@@ -107,6 +107,7 @@ export class PayCreditCardBudget extends Component {
 	}
 
 	_budgetValueChange(e) {
+		// TO DO: CSCEH-8231: Always make sure amount on the text field is rounded of to two places of decimals.
 		if (e.detail.action === `clear`) {
 			this.budgetAmount = this.budgetAccountDetails.settlementAmount;
 			this._getErrorMessage();
