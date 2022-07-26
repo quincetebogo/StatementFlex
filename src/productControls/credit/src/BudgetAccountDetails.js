@@ -61,8 +61,7 @@ import 'app/components/common/HorizonLabel';
 		return {
 			accountDetails: { type: Object },
 			shouldDisable: { type: Object },
-			renderAlertBanner: { type: Object, attribute: false },
-			isPilotUser: { type: Boolean }      
+			renderAlertBanner: { type: Object, attribute: false }
 		};
 	}
 
@@ -203,7 +202,6 @@ import 'app/components/common/HorizonLabel';
 							label="Transfer"
 							@click="${() => this._transferClick()}"
 							?disabled="${this.shouldDisable(`pay-budget`)}"
-							?hidden="${!this.isPilotUser}">              
 						</capitec-button>
 				</capitec-title-bar>
 
