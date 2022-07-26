@@ -105,7 +105,6 @@ export class CreditAccount extends ViewBase {
 			const statements = () => this._getStatements(creditType, productType, selectedAccountDetails.productTypeCode, selectedAccountDetails.accountNumber, selectedAccountDetails.openDate, sendAnother);
 			const settlementQuote = () => this._settlementQuote(creditType, productType, selectedAccountDetails);
 			const settleAndClose = () => this._settleAndClose(creditType, productType, selectedAccountDetails);
-//			const settleLoan = () => this._settleLoan();
 			const paidUpLetter = () => this._paidUpLetter(selectedAccountDetails);
 			const payBudget = () => this._payBudgetDialog(selectedAccountDetails);
 			const viewBudgets = () => this._viewBudgets(selectedAccountDetails);
@@ -118,14 +117,14 @@ export class CreditAccount extends ViewBase {
 				'statements': statements,
 				'settlement-quote': settlementQuote,
 				'paid-up-letter': paidUpLetter,
-				'settle-close': settleAndClose,
-//				'settle-loan': settleLoan
+				'settle-close': settleAndClose
 			};
 	
 			if (actions[option]) {
 				
 				const clientNeed = `${option}-${accConfig.subCategory}`;
 				
+				await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
 				this._refreshIncidentDetails();
 	
 			const { permissionResult, declineReasons } = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber || selectedAccountDetails.budgetAccountNumber, productType);

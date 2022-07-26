@@ -3,6 +3,7 @@ import { deformatCurrency, formatCurrency, formatTextFieldCurrency } from 'app/p
 import { formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelectIcon';
+import 'app/components/common/HorizonTextField';
 
 /**
  * Pay credit card budget by selecting from which account amount can be transfered.
@@ -101,11 +102,19 @@ export class PayCreditCardBudget extends Component {
 	}
 
 	_budgetFocusOut(e) {
-		this.budgetAmount = formatTextFieldCurrency(deformatCurrency(e.currentTarget.value || 0));
+		this.budgetAmount = formatTextFieldCurrency(deformatCurrency(e.currentTarget.value || `0`));
 		this._getErrorMessage();
 	}
 
 	_budgetValueChange(e) {
+		// TO DO: CSCEH-8231: Always make sure amount on the text field is rounded of to two places of decimals.
+		if (e.detail.action === `clear`) {
+			this.budgetAmount = this.budgetAccountDetails.settlementAmount;
+			this._getErrorMessage();
+
+			return;
+		}
+
 		this.budgetAmount = e.detail.new;
 		this._getErrorMessage();
 	}
@@ -323,16 +332,17 @@ export class PayCreditCardBudget extends Component {
 				value="${formatStringAsPascalCase(this.budgetAccountDetails.budgetName)}">
 			</horizon-label>
 
-			<capitec-text-field
+			<horizon-text-field
 				data-automation-id="pay-budget-balance"
 				label="Budget amount"
 				type="currency"
+				?enableClear="${true}"
 				.error="${this.errorMessage}"
 				?disabled="${this.savStatus}"
 				value="${this.budgetAmount}"
-				@value-changed="${(e) => this._budgetValueChange(e)}"
+				@key-input="${(e) => this._budgetValueChange(e)}"
 				@focusout="${(e) => this._budgetFocusOut(e)}">
-			</capitec-text-field>
+			</horizon-text-field>
 		`;
 	}
 
