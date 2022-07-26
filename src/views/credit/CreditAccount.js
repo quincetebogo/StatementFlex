@@ -78,7 +78,6 @@ export class CreditAccount extends ViewBase {
 		this.settlementQuoteEvents = SETTLEMENT_QUOTE_EVENTS;
 		this.declineReason = ``;
 		this.selectedAccountDetails = {};
-		this.isPilotUser = false;
 		this.showPayBudgetWarning = false;
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
@@ -94,7 +93,7 @@ export class CreditAccount extends ViewBase {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 	
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
 
 		this._initialise();
@@ -127,20 +126,18 @@ export class CreditAccount extends ViewBase {
 				await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
 				this._refreshIncidentDetails();
 	
-			const { permissionResult, declineReasons } = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber || selectedAccountDetails.budgetAccountNumber, productType);
-			this.ccsStatus = permissionResult === PERMISSION_STATUS.DENIED &&
-							 !DECLINE_REASONS_EXCLUSION_LIST.includes(declineReasons);
-			this.declineReason = declineReasons;
-			this.selectedAccountDetails = selectedAccountDetails;
-	
-			// Perform the action only when permission result is granted
-			if (permissionResult === PERMISSION_STATUS.GRANTED) {
+				const { permissionResult, declineReasons } = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber || selectedAccountDetails.budgetAccountNumber, productType);
+				this.ccsStatus = permissionResult === PERMISSION_STATUS.DENIED &&
+								!DECLINE_REASONS_EXCLUSION_LIST.includes(declineReasons);
+				this.declineReason = declineReasons;
+				this.selectedAccountDetails = selectedAccountDetails;
+		
+				// Perform the action only when permission result is granted
+				if (permissionResult === PERMISSION_STATUS.GRANTED) {
 					return actions[option]();
 				}
 			}
 		};
-    
-		this.isPilotUser = await this.roleManager.isSearchClientEnabled();    
 	}
 
 	disconnectedCallback() {
@@ -1049,7 +1046,6 @@ export class CreditAccount extends ViewBase {
 					.budgetAccountsSummary="${this.budgetAccountsSummary}"
 					.shouldDisable="${need => this._shouldDisable(need)}"
 					.renderAlertBanner="${() => this.renderAlertBanner()}"
-					.isPilotUser="${this.isPilotUser}"          
 					selectedTab="${this.selectedTab}"
 					@option-click="${(e) => this._optionClick(e.detail.option, e.detail.creditType, e.detail.productType, e.detail.selectedAccountDetails)}"
 					@account-details="${(e) => this._accountDetails(e)}"
@@ -1075,7 +1071,6 @@ export class CreditAccount extends ViewBase {
 					.budgetFacilityAccounts="${this.budgetFacilityAccounts}"
 					.shouldDisable="${need => this._shouldDisable(need)}"
 					.renderAlertBanner="${() => this.renderAlertBanner()}"
-					.isPilotUser="${this.isPilotUser}"          
 					@on-loading="${() => this._telemetry.startSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {})}"
 					@back="${() => this._backFromBudgetAccountsView()}"
 					@account-details="${(event) => this._viewBudgetDetails(event.detail.selectedAccountDetails)}"
@@ -1092,7 +1087,6 @@ export class CreditAccount extends ViewBase {
 				.accountDetails="${this.budgetAccountDetails}"
 				.shouldDisable="${need => this._shouldDisable(need)}"
 				.renderAlertBanner="${() => this.renderAlertBanner()}"
-				.isPilotUser="${this.isPilotUser}"        
 				@back="${() => this._backFromBudgetAccountDetails()}"
 				@transfer-click="${(event) => this._transferFromBudgetDetails(event.detail.budgetAccountNumber)}">
 			</capitec-pc-budget-account-details>`
