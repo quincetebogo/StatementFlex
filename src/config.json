@@ -200,7 +200,7 @@
 			"positiveCase": true
 		},
 		"insureProductParams": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureCalculateQuote": {
