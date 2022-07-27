@@ -250,15 +250,18 @@ export class CreditAccount extends ViewBase {
 		this.budgetAccountDetails = {
 			budgetAccountNumber: selectedAccountDetails.budgetAccountNumber,
 			budgetName: formatStringAsPascalCase(selectedAccountDetails.budgetName),
-			"Monthly repayment": formatCurrency(selectedAccountDetails.budgetInstalment),
-			"Purchase amount": formatCurrency(selectedAccountDetails.originalAmount),
-			"Outstanding balance": formatCurrency(selectedAccountDetails.budgetBalance),
-			"Opening date": this._formatDate(selectedAccountDetails.budgetDateTaken),
-			"Interest rate": `${selectedAccountDetails.interestRate}%`,
-			"Term (months)": selectedAccountDetails.originalTerm,
-			"Payment made": formatCurrency(selectedAccountDetails.repaymentAmount),
-			"Settlement amount": formatCurrency(selectedAccountDetails.settlementAmount),
-			"Remaining term (months)": selectedAccountDetails.termRemaining
+			budgetSequence: selectedAccountDetails.budgetSequence,
+			budgetDetails: {
+				"Monthly repayment": formatCurrency(selectedAccountDetails.budgetInstalment),
+				"Purchase amount": formatCurrency(selectedAccountDetails.originalAmount),
+				"Outstanding balance": formatCurrency(selectedAccountDetails.budgetBalance),
+				"Opening date": this._formatDate(selectedAccountDetails.budgetDateTaken),
+				"Interest rate": `${selectedAccountDetails.interestRate}%`,
+				"Term (months)": selectedAccountDetails.originalTerm,
+				"Payment made": formatCurrency(selectedAccountDetails.repaymentAmount),
+				"Settlement amount": formatCurrency(selectedAccountDetails.settlementAmount),
+				"Remaining term (months)": selectedAccountDetails.termRemaining
+			}
 		};
 
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNT_DETAILS;
@@ -274,13 +277,13 @@ export class CreditAccount extends ViewBase {
 		this._optionClick(`pay-budget`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedBudget);
 	}
 
-	_transferFromBudgetDetails(budgetAccountNo) {
+	_transferFromBudgetDetails(budgetSequenceNo) {
 		this._telemetry.logEvent(CreditEvents.BUDGET_ACCOUNT_DETAILS_TRANSFER, {
 			"screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT_DETAILS,
 			"next-screen": TelemetryScreen.CREDIT_PAY_BUDGET_MODAL
 		});
 
-		const budgetAcc = this.budgetFacilityAccounts.creditCardBudgetList.find(item => item.budgetAccountNumber === budgetAccountNo);
+		const budgetAcc = this.budgetFacilityAccounts.creditCardBudgetList.find(item => item.budgetSequence === budgetSequenceNo);
 		budgetAcc.productTypeCode = ACCOUNT_TYPE_CODE.FLEXIBLE_CREDIT_CARD;
 
 		this._optionClick(`pay-budget`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, budgetAcc);
@@ -1088,7 +1091,7 @@ export class CreditAccount extends ViewBase {
 				.shouldDisable="${need => this._shouldDisable(need)}"
 				.renderAlertBanner="${() => this.renderAlertBanner()}"
 				@back="${() => this._backFromBudgetAccountDetails()}"
-				@transfer-click="${(event) => this._transferFromBudgetDetails(event.detail.budgetAccountNumber)}">
+				@transfer-click="${(event) => this._transferFromBudgetDetails(event.detail.budgetSequenceNo)}">
 			</capitec-pc-budget-account-details>`
 		: html``;
 	}
