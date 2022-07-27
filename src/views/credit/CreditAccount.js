@@ -31,6 +31,7 @@ import 'app/productControls/credit/src/CreditUnverifiedLanding';
 import 'app/productControls/credit/src/PayCreditCardBudget';
 import 'app/components/dialogs/common/ViewAndEmailDocuments';
 import 'app/dialogs/credit/SettleAndCloseDialog';
+import 'app/components/common/TransactionHistory';
 
 /** Credit Account View
  * 
@@ -593,8 +594,22 @@ export class CreditAccount extends ViewBase {
 		// TO DO: Uncomment the below line to have STrack incident logging when implemented Trasnaction History
 		// when coming back from transaction history screen, set incident as done "_setIncidentDone()"".
 		// await super.createAndClassifySubsIncident();
-		this.accountDetails = accountDetails;
+
+		//this.accountDetails = accountDetails;
+		this._setAccountDetails();
 		this._getTransactionHistory();
+		
+	}
+
+	_setAccountDetails() {
+		this.accountDetails = {
+			"Account number": this.landingPageInfo.accountNumber,
+			"Balance": formatCurrency(this.landingPageInfo.accountBalance),
+			"Available balance": formatCurrency(this.landingPageInfo.accountAvailableBalance),
+			"Pending amount": formatCurrency(this.landingPageInfo.accountPendingAmount),
+			"Interest": `${this.landingPageInfo.interestRatePercentage}%`,
+			"Status": this.landingPageInfo.accountStatus
+		};
 	}
 
 	async _getTransactionHistory(filter) {
@@ -605,14 +620,17 @@ export class CreditAccount extends ViewBase {
 			return;
 		}
 		this.transactionHistory.push(...response.result.transaction);
+		console.log(this.transactionHistory);
+		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
+
 	}
 	
 	_getTransactionHistoryRequest(filter) {
 		filter = filter ? filter : this._getDefaultTransactionHistoryFilter();
 		return {
 			"accountNumber": this.accountDetails.accountNumber,
-			"startDate": filter.startDate ,
-			"endDate": filter.endDate ,
+			"startDate": filter.startDate,
+			"endDate": filter.endDate,
 			"startAtIndex": filter.startAtIndex,
 			"maxResults": 50,
 			"moneyType": filter.moneyType
@@ -621,12 +639,67 @@ export class CreditAccount extends ViewBase {
 
 	_getDefaultTransactionHistoryFilter() {
 		const ninetyDays = 7777000000;
-		return  {
-			startDate: new Date(Date.now() - ninetyDays).toISOString().substr(0, 10),
+
+		return {
+			startDate: '2000-01-01',//new Date(Date.now() - ninetyDays).toISOString().substr(0, 10),
 			endDate: new Date().toISOString().substr(0, 10),
 			startAtIndex: 0,
 			moneyType: `BOTH`
 		}
+	}
+
+	_renderTransactionHistory() {
+		if (this.renderMode == RENDER_MODE.TRANSACTION_HISTORY) {
+
+			return html`
+			<horizon-transaction-history
+				.transactionHistory = "${this.transactionHistory}"
+				.accountDetails = "${this.accountDetails}"
+				.type = "${ACCOUNT_TYPES.CREDIT}"
+				.renderTableColumns = "${() => this._renderColumns()}"
+				.renderTransactionDetails = "${() => this._renderTransactionDetails()}"
+				.disposeData="${() => this.transactionHistory = []}"
+				
+				@error-handler = "${() => this._errorHandler()}"
+					@back="${() => this._exitTransactionHistory()}"
+					@unloading="${() => this._unloadTransactionHistory()}"
+				
+			>
+
+			</horizon-transaction-history>
+
+		`;
+		}
+
+	}
+
+	_renderColumns() {
+		return html`
+			<capitec-table-column
+				label="Test"
+				field="statementDescription"
+				type="string"
+				size="156px;">
+			</capitec-table-column>
+			`
+	}
+
+	_renderTransactionDetails() {
+		return html``;
+	}
+
+
+	async _exitTransactionHistory() {
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	async _unloadTransactionHistory() {
+		this.transactionHistory = [];
+	}
+
+	_errorHandler(exception) {
+		console.error('Error credit transaction history');
 	}
 
 	_getStatements(creditType, productType, productCode, accNum, openDate, sendAnother) {
@@ -1042,6 +1115,7 @@ export class CreditAccount extends ViewBase {
 			${this._renderPaidUpLetterView()}
 			${this._renderPendingClosure()}
 			${this._renderPayBudgetWarning()}
+			${this._renderTransactionHistory()}
 		`;
 	}
 
