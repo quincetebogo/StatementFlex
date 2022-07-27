@@ -594,14 +594,7 @@ export class CreditAccount extends ViewBase {
 		// when coming back from transaction history screen, set incident as done "_setIncidentDone()"".
 		// await super.createAndClassifySubsIncident();
 		this.accountDetails = accountDetails;
-		this._getTransactionHistory({
-			"accountNumber": "9999999999999999999999999",
-			"startDate":  "9999999999999999999999999" ,
-			"endDate": "9999999999999999999999999" ,
-			"startAtIndex": 3,
-			"maxResults": 50,
-			"moneyType":  "9999999999999999999999999"
-		});
+		this._getTransactionHistory();
 	}
 
 	async _getTransactionHistory(filter) {
@@ -613,7 +606,7 @@ export class CreditAccount extends ViewBase {
 		}
 		this.transactionHistory.push(...response.result.transaction);
 	}
-
+	
 	_getTransactionHistoryRequest(filter) {
 		filter = filter ? filter : this._getDefaultTransactionHistoryFilter();
 		return {
