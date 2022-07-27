@@ -582,8 +582,8 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-transaction-history"
 					label="Transaction History"
 					icon="system/time-action"
-					?hidden="${true}"
-					@click="${() => this._click(`transaction-history`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD)}">
+					?hidden="${false}"
+					@click="${() => this._click(`transaction-history`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-statements"
