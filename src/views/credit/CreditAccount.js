@@ -594,30 +594,28 @@ export class CreditAccount extends ViewBase {
 		// when coming back from transaction history screen, set incident as done "_setIncidentDone()"".
 		// await super.createAndClassifySubsIncident();
 		this.accountDetails = accountDetails;
-		this._getTransactionHistory();
+		this._getTransactionHistory({
+			"accountNumber": "9999999999999999999999999",
+			"startDate":  "9999999999999999999999999" ,
+			"endDate": "9999999999999999999999999" ,
+			"startAtIndex": 3,
+			"maxResults": 50,
+			"moneyType":  "9999999999999999999999999"
+		});
 	}
 
 	async _getTransactionHistory(filter) {
-
 		const request = this._getTransactionHistoryRequest(filter);
-
 		const response = await this.creditService.transactionHistory(request);
-
 		if (!response.succeeded || !response.result) {
 			this.logger.log(`error`, `Failed to retrieve credit transaction history from credit service.`, `_getTransactionHistory`, response.correlationId);
 			return;
 		}
-
 		this.transactionHistory.push(...response.result.transaction);
-
 	}
 
 	_getTransactionHistoryRequest(filter) {
-
-		if(filter == null){
-			filter = this._getDefaultTransactionHistoryFilter();
-		}
-
+		filter = filter ? filter : this._getDefaultTransactionHistoryFilter();
 		return {
 			"accountNumber": this.accountDetails.accountNumber,
 			"startDate": filter.startDate ,
@@ -626,20 +624,16 @@ export class CreditAccount extends ViewBase {
 			"maxResults": 50,
 			"moneyType": filter.moneyType
 		};
-
 	}
 
 	_getDefaultTransactionHistoryFilter() {
-
 		const ninetyDays = 7777000000;
-
 		return  {
 			startDate: new Date(Date.now() - ninetyDays).toISOString().substr(0, 10),
 			endDate: new Date().toISOString().substr(0, 10),
 			startAtIndex: 0,
 			moneyType: `BOTH`
 		}
-
 	}
 
 	_getStatements(creditType, productType, productCode, accNum, openDate, sendAnother) {
