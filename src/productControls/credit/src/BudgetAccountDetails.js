@@ -76,7 +76,7 @@ import 'app/components/common/HorizonLabel';
 	_transferClick() {
 		this.dispatchEvent(new CustomEvent(`transfer-click`, {
 			detail: {
-				budgetAccountNumber: this.accountDetails.budgetAccountNumber
+				budgetSequenceNo: this.accountDetails.budgetSequence
 			}
 		}));
 	}
@@ -201,7 +201,7 @@ import 'app/components/common/HorizonLabel';
 							data-automation-id="budget-account-details-transfer-button"
 							label="Transfer"
 							@click="${() => this._transferClick()}"
-							?disabled="${this.shouldDisable(`pay-budget`)}"
+							?disabled="${this.shouldDisable(`pay-budget`)}">
 						</capitec-button>
 				</capitec-title-bar>
 
@@ -213,10 +213,7 @@ import 'app/components/common/HorizonLabel';
 	}
 
 	_renderAccountDetails() {
-		
-		// Creates similar constant to this.accountDetails without 'budgetName'.
-		const { budgetName: _, budgetAccountNumber: __, ...accDetails } = this.accountDetails;
-		
+
 		return html`
 			<capitec-content-box
 				class="details-vertical" 
@@ -231,7 +228,7 @@ import 'app/components/common/HorizonLabel';
 						halign="left"
 						valign="top"
 						wrap>
-							${Object.entries(accDetails).map(item => {
+							${Object.entries(this.accountDetails.budgetDetails).map(item => {
 								const [key, value] = item;
 								return html`
 									<horizon-label
