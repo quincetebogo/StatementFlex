@@ -260,6 +260,9 @@ export function livesPerPolicy(relationship, productParams) {
  */
 export function getAgeFromIDNumber(southAfricanIDNumber) {
 	let birthdate = new Date(southAfricanIDNumber.substring(0, 2), southAfricanIDNumber.substring(2, 4) - 1, southAfricanIDNumber.substring(4, 6));
+	if (birthdate.getFullYear() <= (new Date().getFullYear() - 100)){
+		birthdate.setFullYear(birthdate.getFullYear() + 100)
+	}
 	let ageDifMs = Date.now() - birthdate.getTime();
 	let ageDate = new Date(ageDifMs);
 	return Math.abs(ageDate.getUTCFullYear() - 1970);

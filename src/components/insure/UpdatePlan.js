@@ -143,7 +143,10 @@ class UpdatePlan extends Component {
 			createPolicyResponse: { type: Boolean, state: true },
 
 			issuePlanAgreementDocument: { type: Object, state: true },
-			reinstatePaymentAgreementDocument: { type: Object, state: true }
+			reinstatePaymentAgreementDocument: { type: Object, state: true },
+
+			idNull: {type: Boolean, state: true},
+			dOB: {type: String, state: true}
 		};
 	}
 
@@ -688,6 +691,42 @@ class UpdatePlan extends Component {
 	 */
 	async _acceptReinstatePolicy() {
 		this.dispatchEvent(new CustomEvent(`accept-policy`, { detail: { policyResponse: this.createPolicyResponse } }));
+	}
+
+	_checkID(idNumber){
+		// let current = new Date()
+		// console.log(current.getFullYear() )
+		let birthdate = new Date(idNumber.substring(0, 2), idNumber.substring(2, 4) - 1, idNumber.substring(4, 6));
+		console.log(birthdate)
+		console.log(birthdate.toISOString())
+		if (birthdate.getFullYear() <= (new Date().getFullYear() - 100)){
+			birthdate.setFullYear(birthdate.getFullYear() + 100)
+		}
+		console.log(birthdate)
+		let ageDifMs = Date.now() - birthdate.getTime();
+		console.log(ageDifMs)
+		let ageDate = new Date(ageDifMs);
+		console.log(ageDate)
+		console.log(Math.abs(ageDate.getUTCFullYear() - 1970))
+		console.log(new Date().getFullYear()-100)		
+
+		if(isNullorEmpty(idNumber)){
+			this.idNull = true;
+			return `-`
+		} else {
+			this.idNull = false;
+			return idNumber
+		}
+	}
+
+	_setDOB(idNumber){
+		let birthdate = new Date(idNumber.substring(0, 2), idNumber.substring(2, 4) - 1, idNumber.substring(4, 6));
+
+		if (birthdate.getFullYear() <= (new Date().getFullYear() - 100)){
+			birthdate.setFullYear(birthdate.getFullYear() + 100)
+		}
+
+		this.dOB = birthdate.toISOString()
 	}
 
 	//#endregion
@@ -1494,11 +1533,13 @@ class UpdatePlan extends Component {
 							</capitec-text-field>`
 						:
 						html `<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="input"
-								date="${formatDate(roleplayer?.dateOfBirth)}" outputType="string" maxdate="${this.today}">
+								date="${this.idNull ? formatDate(roleplayer?.dateOfBirth) : this.dOB}" outputType="string" maxdate="${this.today}"
+								.disabled = "${this.idNull == false}">
 							</capitec-date-time-picker>`
 				}
-				<capitec-text-field label="ID" style="width: 50%" value="${ isNullorEmpty(roleplayer?.idNumber) ? `-` : roleplayer?.idNumber }" ?disabled="${this.canReinstate}"
-				@value-changed="${(e) => this._lifeIDValueChanged(e, roleplayer.recordID)}">
+				<capitec-text-field label="ID" style="width: 50%" value="${ this._checkID(roleplayer?.idNumber) }" ?disabled="${this.canReinstate}"
+				@value-changed="${(e) => this._lifeIDValueChanged(e, roleplayer.recordID)}"
+				@onchange = "${this._setDOB}">
 				</capitec-text-field>
 			</div>
 			<div class="expander-options">
