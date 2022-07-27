@@ -226,3 +226,11 @@ export const INSURE_CALLER_PAGE = Object.freeze({
 	PAYMENT_MANDATE_AGREEMENT: `PaymentMandateAgreement`,
 	PAY_ARREARS_AGREEMENT: `PayArrearsAgreement`
 });
+
+/**
+ * Product Id
+ * 
+ * @readonly
+ * @enum {Object} PRODUCT_ID
+ */
+ export const PRODUCT_ID = "SBL";
