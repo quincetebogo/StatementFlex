@@ -101,7 +101,7 @@ export class CreditAccount extends ViewBase {
 		this._optionClick = async (option, creditType, productType, selectedAccountDetails, sendAnother = false) => {
 
 			const transactionHistory = () => this._transactionHistory(creditType, productType);
-			const statements = () => this._getStatements(creditType, productType, selectedAccountDetails.productTypeCode, selectedAccountDetails.accountNumber, selectedAccountDetails.openDate, sendAnother);
+			const statements = () => this._getStatements(creditType, productType, selectedAccountDetails, sendAnother);
 			const settlementQuote = () => this._settlementQuote(creditType, productType, selectedAccountDetails);
 			const settleAndClose = () => this._settleAndClose(creditType, productType, selectedAccountDetails);
 			const paidUpLetter = () => this._paidUpLetter(selectedAccountDetails);
@@ -593,7 +593,7 @@ export class CreditAccount extends ViewBase {
 		// await super.createAndClassifySubsIncident();
 	}
 
-	_getStatements(creditType, productType, productCode, accNum, openDate, sendAnother) {
+	_getStatements(creditType, productType, selectedAccountDetails, sendAnother) {
 		if (sendAnother) {
 			return true;
 		}
@@ -605,13 +605,13 @@ export class CreditAccount extends ViewBase {
 			"product-type": productType
 		});
 
-		const productInfo = ACCOUNT_INTCAT_ENUM[productCode];
+		const productInfo = ACCOUNT_INTCAT_ENUM[selectedAccountDetails.productTypeCode];
 		this.clientProducts = [
 			{
-				'accountNumber': accNum,
-				'accountName': productInfo.name,
-				'accountType': productCode,
-				'accountOpenDate': openDate,
+				'accountNumber': selectedAccountDetails.accountNumber,
+				'accountName': selectedAccountDetails.productTypeDescription,
+				'accountType': selectedAccountDetails.productTypeCode,
+				'accountOpenDate': selectedAccountDetails.openDate,
 				'name': productInfo.name,
 				'type': productInfo.type,
 				'category': productInfo.category,
