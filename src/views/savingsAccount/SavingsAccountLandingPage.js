@@ -8,7 +8,7 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { formatDateTime, getMonthName } from 'app/utils/channelServiceUtilities';
+import { formatDateISO8601, formatDateTime, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/TransactionHistory';
 import 'app/components/savingsAccount/SavingAccount';
@@ -188,12 +188,16 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	}
 
 	async _getTransactionHistory(startDate, endDate, startAtIndex) {
+
+		startDate = isNullorEmpty(startDate) ? TRANSACTION_HISTORY.START_DATE : formatDateISO8601(startDate) 
+		endDate = isNullorEmpty(endDate) ? TRANSACTION_HISTORY.END_DATE: formatDateISO8601(endDate);
+
 		const transactionHistoryRequest = {
 			cifNumber: this.callerInformation.cifNumber,
 			accountNumber: this.landingPageInfo.accountNumber,
 			accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
-			startDate: startDate || TRANSACTION_HISTORY.START_DATE,
-			endDate: endDate || TRANSACTION_HISTORY.END_DATE,
+			startDate: startDate,
+			endDate: endDate,
 			startAtIndex: startAtIndex || TRANSACTION_HISTORY.START_AT_INDEX,
 			maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
 			moneyType: TRANSACTION_HISTORY.MONEY_TYPE
