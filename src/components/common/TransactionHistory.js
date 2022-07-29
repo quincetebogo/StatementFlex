@@ -260,11 +260,8 @@ export class TransactionHistory extends Component {
 	}
 
 	async _loadFilteredTransactions() {
-		const startDate = this.startDate.toLocaleString().slice(0, 10);
-		const endDate = this.endDate.toLocaleString().slice(0, 10);
-
 		this.disposeData();
-		await this.getTransactionHistory(startDate, endDate);
+		await this.getTransactionHistory(this.startDate, this.endDate);
 
 		this.hideLoadMore = this.transactionHistory.length % MAX_RESULTS > 0 && this.transactionHistory.length % MAX_RESULTS < MAX_RESULTS;
 		this._refineSearch();
@@ -416,7 +413,8 @@ export class TransactionHistory extends Component {
 		}
 
 		// Money Type filter is apllicable only on Live Better Transaction History screen in the current state of application
-		if (RENDER_CHIPS[FILTER_BY.MONEY_TYPE] && this.type === ACCOUNT_TYPES.LBB) {
+		const isLLBOrCredit = (this.type === ACCOUNT_TYPES.LBB || this.type === ACCOUNT_TYPES.CREDIT);
+		if (RENDER_CHIPS[FILTER_BY.MONEY_TYPE] && isLLBOrCredit ) {
 			const moneyType = RENDER_CHIPS[FILTER_BY.MONEY_TYPE];
 
 			if (moneyType === `Money In`) {
@@ -517,6 +515,9 @@ export class TransactionHistory extends Component {
 				}
 				.lbb {
 					background: no-repeat url(../images/liveBetter/Gradient1.png);
+				}
+				.credit {
+					background: linear-gradient(90deg, #df350b 0%, #e2380e 100%);
 				}
 				.transaction-history-title > img {
 					width: 26px;
@@ -805,19 +806,19 @@ export class TransactionHistory extends Component {
 					label="All" 
 					class="${RENDER_CHIPS[FILTER_BY.MONEY_TYPE] === `All` ? `type-selected` : `type-normal`}" 
 					@click="${(e) => this._selectedMoneyType(e)}" 
-					?hidden="${this.type !== ACCOUNT_TYPES.LBB}">
+					?hidden="${this.type !== ACCOUNT_TYPES.LBB && this.type!== ACCOUNT_TYPES.CREDIT}">
 				</capitec-chip>
 				<capitec-chip 
 					label="Money In"
 					class="${RENDER_CHIPS[FILTER_BY.MONEY_TYPE] === `Money In` ? `type-selected` : `type-normal`}" 
 					@click="${(e) => this._selectedMoneyType(e)}" 
-					?hidden="${this.type !== ACCOUNT_TYPES.LBB}">
+					?hidden="${this.type !== ACCOUNT_TYPES.LBB && this.type!== ACCOUNT_TYPES.CREDIT}">
 				</capitec-chip>
 				<capitec-chip 
 					label="Money Out" 
 					class="${RENDER_CHIPS[FILTER_BY.MONEY_TYPE] === `Money Out` ? `type-selected` : `type-normal`}" 
 					@click="${(e) => this._selectedMoneyType(e)}" 
-					?hidden="${this.type !== ACCOUNT_TYPES.LBB}">
+					?hidden="${this.type !== ACCOUNT_TYPES.LBB && this.type!== ACCOUNT_TYPES.CREDIT}">
 				</capitec-chip>
 
 			</capitec-group>

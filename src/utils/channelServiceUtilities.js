@@ -239,6 +239,18 @@ export function formatDate(value, format) {
 	return formattedDate;
 }
 
+export function formatDateISO8601(value){
+	const date = new Date(value);
+	const year = date.getFullYear();
+	let month = date.getMonth() + 1;
+	let day = date.getDate();
+
+	month = (month < 10) ? `0` + month: month;
+	day = (day < 10) ? `0`+ day: day;
+
+	return `${year}-${month}-${day}`
+}
+
 /**
  * @export
  * @param {string} date string value to be formatted

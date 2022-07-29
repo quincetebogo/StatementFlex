@@ -1,8 +1,9 @@
 import { ACCOUNT_STATUS, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
+import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { CreditEvents, SETTLEMENT_QUOTE_EVENTS, SETTLE_AND_CLOSE } from 'app/constants/telemetry/events/Credit';
-import { css, html } from 'platform/elements';
+import { css, html, unsafeCSS } from 'platform/elements';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { CreditService } from 'app/services/CreditService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
@@ -13,7 +14,7 @@ import { ViewBase } from 'app/views/common/ViewBase';
 import { alertBannerMixin } from 'app/views/common/AlertBannerMixin';
 import { creditMixin } from 'app/views/credit/CreditMixin';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
+import { formatDateISO8601, getMonthName, formatDateTime, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/ServiceCallErrorScreen';
 import 'app/components/credit/CreditCardDetails';
@@ -596,56 +597,67 @@ export class CreditAccount extends ViewBase {
 		// await super.createAndClassifySubsIncident();
 
 		//this.accountDetails = accountDetails;
-		this._setAccountDetails();
+		this._setAccountHeaderDetails(accountDetails);
 		this._getTransactionHistory();
 		
 	}
 
-	_setAccountDetails() {
+	_setAccountHeaderDetails(accountDetails) {
 		this.accountDetails = {
-			"Account number": this.landingPageInfo.accountNumber,
-			"Balance": formatCurrency(this.landingPageInfo.accountBalance),
-			"Available balance": formatCurrency(this.landingPageInfo.accountAvailableBalance),
-			"Pending amount": formatCurrency(this.landingPageInfo.accountPendingAmount),
-			"Interest": `${this.landingPageInfo.interestRatePercentage}%`,
-			"Status": this.landingPageInfo.accountStatus
+			"Credit Type": accountDetails.type,
+			"Account number": accountDetails.accountNumber,
+			"Balance": formatCurrency(accountDetails.currentBalance),
+			"Available balance": formatCurrency(accountDetails.availableCredit),
+			"Credit Limit": formatCurrency(accountDetails.creditLimit),
+			"Next repayment": formatCurrency(accountDetails.nextRepayment),
+			"Status": accountDetails.arrearIndicator ? `In arrears` : formatStringAsPascalCase(accountDetails.accountStatusDescription)
 		};
 	}
 
-	async _getTransactionHistory(filter) {
-		const request = this._getTransactionHistoryRequest(filter);
+	async _getTransactionHistory(startDate, endDate, startAtIndex) {
+		const request = this._getTransactionHistoryRequest(startDate, endDate, startAtIndex);
 		const response = await this.creditService.transactionHistory(request);
 		if (!response.succeeded || !response.result) {
 			this.logger.log(`error`, `Failed to retrieve credit transaction history from credit service.`, `_getTransactionHistory`, response.correlationId);
 			return;
 		}
-		this.transactionHistory.push(...response.result.transaction);
-		console.log(this.transactionHistory);
+		const formattedResponse = this._getFormattedResponse(response.result.transaction);
+		this.transactionHistory.push(...formattedResponse);
 		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
-
 	}
-	
-	_getTransactionHistoryRequest(filter) {
-		filter = filter ? filter : this._getDefaultTransactionHistoryFilter();
+
+	_getTransactionHistoryRequest(startDate, endDate, startAtIndex) {
+		const ninetyDays = 7777000000;
+		const defaultStartDate = new Date(Date.now() - ninetyDays).toISOString().substr(0, 10);
+		const defaultEndDate = new Date().toISOString().substr(0, 10);
+		const defaultStartIndex = 0;
+
+		startDate = isNullorEmpty(startDate) ? defaultStartDate : formatDateISO8601(startDate) 
+		endDate = isNullorEmpty(endDate) ? defaultEndDate: formatDateISO8601(endDate);
+		startAtIndex = isNullorEmpty(startAtIndex) ? defaultStartIndex : startAtIndex;
+
 		return {
-			"accountNumber": this.accountDetails.accountNumber,
-			"startDate": filter.startDate,
-			"endDate": filter.endDate,
-			"startAtIndex": filter.startAtIndex,
+			"accountNumber": this.accountDetails["Account number"],
+			"startDate": startDate,
+			"endDate": endDate,
+			"startAtIndex": startAtIndex,
 			"maxResults": 50,
-			"moneyType": filter.moneyType
+			"moneyType": "BOTH"
 		};
 	}
 
-	_getDefaultTransactionHistoryFilter() {
-		const ninetyDays = 7777000000;
+	_getFormattedResponse(transactions) {
+		return transactions.map((item) => {
+			const date = new Date(Date.parse(item.processDate));
 
-		return {
-			startDate: '2000-01-01',//new Date(Date.now() - ninetyDays).toISOString().substr(0, 10),
-			endDate: new Date().toISOString().substr(0, 10),
-			startAtIndex: 0,
-			moneyType: `BOTH`
-		}
+			item.description = item.statementDescription;
+			item.tranDate = date;
+			item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
+			item.formatedAmount = formatCurrency(item.amount);
+			item.formatedBalance = formatCurrency(item.balance);
+
+			return item;
+		});
 	}
 
 	_renderTransactionHistory() {
@@ -657,7 +669,8 @@ export class CreditAccount extends ViewBase {
 				.accountDetails = "${this.accountDetails}"
 				.type = "${ACCOUNT_TYPES.CREDIT}"
 				.renderTableColumns = "${() => this._renderColumns()}"
-				.renderTransactionDetails = "${() => this._renderTransactionDetails()}"
+				.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
+				.getTransactionHistory="${(startDate, endDate, startAtIndex) => this._getTransactionHistory(startDate, endDate, startAtIndex)}"
 				.disposeData="${() => this.transactionHistory = []}"
 				
 				@error-handler = "${() => this._errorHandler()}"
@@ -676,21 +689,137 @@ export class CreditAccount extends ViewBase {
 	_renderColumns() {
 		return html`
 			<capitec-table-column
-				label="Test"
+				label="Transaction Date"
+				field="processDate"
+				.renderer="${(item, fieldName, value) => this._renderTransactionDateTime(value)}"
+				type="date"
+				size="156px;">
+			</capitec-table-column>
+			<capitec-table-column
+				label="Description"
 				field="statementDescription"
 				type="string"
-				size="156px;">
+				size="150x;">
+			</capitec-table-column>
+			<capitec-table-column
+				label="Amount"
+				field="amount"
+				type="string"
+				size="100px;">
+			</capitec-table-column>
+			<capitec-table-column
+				label="Available Balance"
+				field="balance"
+				type="string"
+				size="140px;">
 			</capitec-table-column>
 			`
 	}
 
-	_renderTransactionDetails() {
-		return html``;
+	_renderTransactionDateTime(value) {
+		return html`
+			<capitec-label
+				label="${formatDateTime(value)}">
+			</capitec-label>`;
+	}
+
+	_renderTransactionDetails(item) {
+
+		return html`
+			<capitec-label
+				style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
+				label="Transaction details"
+				data-automation-id="credit-transaction-history-item-description">
+			</capitec-label>
+	
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Transaction type"
+					value = "${item.transactionType ? item.transactionType : `-`}"
+					data-automation-id="credit-transaction-history-item-type">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Transfer account"
+					value = "${item.transferAccount ? item.transferAccount : `-`}"
+					data-automation-id="credit-transaction-history-item-transfer-account">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Posting date" 
+					value = "${formatDateTime(item.postingDate)}"
+					data-automation-id="credit-transaction-history-item-posting-date">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Processed date"
+					value = "${formatDateTime(item.processDate)}"
+					data-automation-id="credit-transaction-history-item-processed-date">
+				</horizon-label>
+			</capitec-group>
+
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Transaction code"
+					value = "${item.transactionCode ? item.transactionCode : `-`}"
+					data-automation-id="credit-transaction-history-item-code">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Card number"
+					value = "${item.cardNumber ? item.cardNumber : `-`}"
+					data-automation-id="credit-transaction-history-item-card-number">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Card authentication type"
+					value = "${item.cardAuthType ? item.cardAuthType : `-`}"
+					data-automation-id="credit-transaction-history-item-card-auth-type">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Journal number"
+					value = "${item.journalNumber ? item.journalNumber : `-`}"
+					data-automation-id="credit-transaction-history-item-journal-number">
+				</horizon-label>
+			</capitec-group>
+
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Includes Vat"
+					value = "${item.includesVat ? `Yes` : `No`}"
+					data-automation-id="credit-transaction-history-item-includes-vat">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="External terminal ID"
+					value = "${item.externalTerminalId ? item.externalTerminalId : `-`}"
+					data-automation-id="credit-transaction-history-item-terminalID">
+				</horizon-label>
+			</capitec-group>
+
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Description"
+					value = "${item.statementDescription ? item.statementDescription : `-`}"
+					data-automation-id="credit-transaction-history-description">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Long Description"
+					value = "${item.statementDescription ? item.statementDescription : `-`}"
+					data-automation-id="credit-transaction-history-description">
+				</horizon-label>
+			</capitec-group>
+		`;
 	}
 
 
 	async _exitTransactionHistory() {
-
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
