@@ -261,10 +261,18 @@ export class TransactionHistory extends Component {
 
 	async _loadFilteredTransactions() {
 		this.disposeData();
+		this._formatDateISO();
 		await this.getTransactionHistory(this.startDate, this.endDate);
 
 		this.hideLoadMore = this.transactionHistory.length % MAX_RESULTS > 0 && this.transactionHistory.length % MAX_RESULTS < MAX_RESULTS;
 		this._refineSearch();
+	}
+
+	_formatDateISO() {
+		if(!isNullorEmpty(this.startDate) && !isNullorEmpty(this.endDate)){
+			this.startDate = formatDateISO8601(this.startDate) 
+			this.endDate = formatDateISO8601(this.endDate) 
+		}
 	}
 
 	_filterByStatus(event) {
@@ -361,11 +369,10 @@ export class TransactionHistory extends Component {
 
 	async _loadMoreTransactions() {
 		const oldCount = this.transactionHistory.length;
-		const startDate = this.startDate.toLocaleString().slice(0, 10);
-		const endDate = this.endDate.toLocaleString().slice(0, 10);
 
 		await this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_LOAD_MORE, {});
-		await this.getTransactionHistory(startDate, endDate, this.transactionHistory.length + 1);
+		this._formatDateISO();
+		await this.getTransactionHistory(this.startDate, this.endDate, this.transactionHistory.length + 1);
 
 		// If the old record count and count after load more are same means no more data to populate,
 		// so hiding loadmore button

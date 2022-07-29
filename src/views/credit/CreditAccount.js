@@ -632,15 +632,11 @@ export class CreditAccount extends ViewBase {
 		const defaultEndDate = new Date().toISOString().substr(0, 10);
 		const defaultStartIndex = 0;
 
-		startDate = isNullorEmpty(startDate) ? defaultStartDate : formatDateISO8601(startDate) 
-		endDate = isNullorEmpty(endDate) ? defaultEndDate: formatDateISO8601(endDate);
-		startAtIndex = isNullorEmpty(startAtIndex) ? defaultStartIndex : startAtIndex;
-
 		return {
 			"accountNumber": this.accountDetails["Account number"],
-			"startDate": startDate,
-			"endDate": endDate,
-			"startAtIndex": startAtIndex,
+			"startDate": startDate || defaultStartDate,
+			"endDate": endDate || defaultEndDate,
+			"startAtIndex": startAtIndex || defaultStartIndex,
 			"maxResults": 50,
 			"moneyType": "BOTH"
 		};
