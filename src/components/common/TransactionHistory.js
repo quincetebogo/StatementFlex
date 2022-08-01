@@ -30,7 +30,7 @@ const DEFAULTS = {
 const _importTelemetryEvents_ = {
 	[ACCOUNT_TYPES.SAVINGS_ACCOUNT]: () => import(`app/constants/telemetry/events/SavingsAccount`),
 	[ACCOUNT_TYPES.LBB]: () => import(`app/constants/telemetry/events/LiveBetter`),
-	//TODO add credit telemerty
+	//TODO ADD CREDIT TELEMETRY 
 	[ACCOUNT_TYPES.CREDIT]: () => import(`app/constants/telemetry/events/LiveBetter`)
 };
 
