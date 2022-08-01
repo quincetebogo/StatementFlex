@@ -1,4 +1,4 @@
-import { SecurityContext } from 'platform/core';
+import { Configuration, SecurityContext } from 'platform/core';
 
 /**
  * Agent role details records the details related to the role of an agent using Horizon.
@@ -16,13 +16,14 @@ import { SecurityContext } from 'platform/core';
 	}
 
 	constructor() {
-		
+
 		if (this.instance) {
 			return this.instance;
 		}
-		
+
 		this._securityContext = SecurityContext.getInstance();
-		
+		this._configuration = Configuration.getInstance();
+
 		this.roles = Array.isArray(this._securityContext.roles) ? this._securityContext.roles : [];
 	}
 
@@ -30,6 +31,17 @@ import { SecurityContext } from 'platform/core';
 	get isHelpDeskAgent() {
 		
 		return this.roles && this.roles.includes(`helpdesk-agent`);
+	}
+
+	get isAuthorised() {
+		return this.roles && (this.roles.length >= 1);
+	}
+
+	async isSearchClientEnabled() {
+		const searchClientEnabledByConfig = await this._configuration.getSetting(`searchClientOptionEnabled`);
+		const searchClientEnabledByGroup = this.roles.map(element => element.toLowerCase()).includes(`hzn_search_button_enabled`);
+
+		return searchClientEnabledByConfig || searchClientEnabledByGroup;
 	}
 
 };

@@ -88,7 +88,7 @@ export class VerifyByKBA extends Component {
 			lastName: { type: String },
 			title: { 
 				type: String,
-				attribute: `client-title`,
+				attribute: `client-title`
 			},
 
 			isBusy: { state: true },

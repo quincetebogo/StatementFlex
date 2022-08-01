@@ -3,6 +3,7 @@ import { EventAggregator, Logger } from 'platform/core';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerDetails } from 'app/models/CallerDetails';
 import { CallerInformation } from 'app/models/CallerInformation';
+import { ClientProfileService } from 'app/services/ClientProfileService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
@@ -197,6 +198,7 @@ export class SearchCaller extends Component {
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
 		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
+		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
 	}
 
 	// ----------
@@ -216,6 +218,8 @@ export class SearchCaller extends Component {
 			incomingCallDetails: { type: Object },
 			incidentDetails: { type: Object },
 
+			cpNumber: { attribute: false },
+			clientType: { attribute: false },
 			isBusy: { attribute: false },
 			renderMode: { attribute: false },
 			clientType: { attribute: false },
@@ -236,6 +240,10 @@ export class SearchCaller extends Component {
 		super.connectedCallback();
 		this.identificationMethods = SEARCH_OPTIONS;
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
+
+		if (this.cpNumber) {
+			this._getBranchConsultantDetails(this.cpNumber);
+		}
 
 		this._telemetry.startSpan(IDCallerEvents.SEARCH_CLIENT, {
 			"screen": TelemetryScreen.SEARCH_CLIENT
@@ -287,7 +295,14 @@ export class SearchCaller extends Component {
 
 	async _getConsultant(e) {
 		this._clearErrors(e);
+
 		const cpNumber = e.detail.new;
+		this._getBranchConsultantDetails(cpNumber);
+
+		this.cpNumber = cpNumber;
+	}
+
+	async _getBranchConsultantDetails(cpNumber) {
 		if (cpNumber.length === 6) {
 			const consultantInfo = await this._getConsultantDetails(`cp${cpNumber}`);
 			if (consultantInfo.status === `Active`) {
@@ -299,7 +314,6 @@ export class SearchCaller extends Component {
 			this.consultantName = ``;
 			this.branchName = ``;
 		}
-		this.cpNumber = cpNumber;
 	}
 
 	async _onSearchClient() {
@@ -318,7 +332,7 @@ export class SearchCaller extends Component {
 				searchValue: this.searchValue
 			};
 
-			const returnValue = await this.callHandleService.searchCaller(searchClient);
+			const returnValue = await this.clientProfileService.searchCaller(searchClient);
 			const identifiedClient = returnValue.result;
 
 			if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
@@ -358,7 +372,7 @@ export class SearchCaller extends Component {
 					"client-verified": this.isClientVerifiedInBranch
 				});
 
-				const returnValue = await this.callHandleService.searchCaller(searchClient);
+				const returnValue = await this.clientProfileService.searchCaller(searchClient);
 				const identifiedClient = returnValue.result;
 
 				if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
@@ -629,7 +643,8 @@ export class SearchCaller extends Component {
 			initials: identifiedClient.callerInformation.initials,
 			identifiedBy: this.searchType.identificationType,
 			isClientVerifiedInBranch: this.isClientVerifiedInBranch,
-			gender: identifiedClient.callerInformation.gender
+	  	profilePhoto: identifiedClient.callerInformation.profilePhoto,   
+			gender: identifiedClient.callerInformation.gender        
 		};
 
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
@@ -659,9 +674,10 @@ export class SearchCaller extends Component {
 			middleName2: identifiedClient.callerInformation.middleName2,
 			middleName3: identifiedClient.callerInformation.middleName3,
 			lastName: identifiedClient.callerInformation.lastName,
-			gender: identifiedClient.callerInformation.gender,
 			isClientPresent: this.clientInBranch,
-			isClientVerifiedInBranch: this.isClientVerifiedInBranch
+			isClientVerifiedInBranch: this.isClientVerifiedInBranch,
+			profilePhoto: identifiedClient.callerInformation.profilePhoto,
+			gender: identifiedClient.callerInformation.gender      
 		};
 
 		await this._updateIncidentBranchDetails(this.branchCode);
@@ -672,7 +688,9 @@ export class SearchCaller extends Component {
 				confirmedCaller: confirmedCaller,
 				incidentDetails: this.incidentDetails,
 				isBranchConsultant: true,
-				isClientPresent: this.clientInBranch
+				isClientPresent: this.clientInBranch,
+				cpNumber: this.cpNumber,
+				clientType: this.clientType
 			}
 		}));
 	}
@@ -730,15 +748,17 @@ export class SearchCaller extends Component {
 			this.isClientVerifiedInBranch ? `ITA` : ``,
 			``, // firstName
 			``, // middleName1
-			``, // middleName2
-			``, // middleName3
-			``, // lastName
-			``, // initials
+            ``, // firstName
+            ``, // middleName1
+            ``, // middleName2
+            ``, // middleName3
+            ``, // lastName
+            ``, // initials
 			``, // identifiedBy
-			``, // client's registered email ID
-			``, // identifiedBy
-			``  // gender      
-);
+			``, // validated email address
+			``, // profilePhoto
+	
+        );
 	}
 	// ---------
 	// RENDERING
@@ -822,7 +842,13 @@ export class SearchCaller extends Component {
 					margin: 0px 0px 16px 0px;
 					--theme-label-title-font-size: 18px;
 					--theme-label-title-font-weight: 600;
-				}`
+				}
+				#id-label-enter-branch-details {
+					margin: 0px 0px 16px 0px;
+					--theme-label-title-font-size: 18px;
+					--theme-label-title-font-weight: 600;
+				}
+			`
 		];
 	}
 
@@ -891,7 +917,8 @@ export class SearchCaller extends Component {
 						data-automation-id="search-caller-branch"
 						label="Branch" 
 						@value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
-						column="3">
+						column="3"
+						?checked="${this.clientType === CLIENT_TYPE.BRANCH}">
 					</capitec-radio>
 				</capitec-group>
 			</capitec-radio-group>`;
@@ -994,6 +1021,11 @@ export class SearchCaller extends Component {
 		if (this.clientType === CLIENT_TYPE.BRANCH) {
 			return html`
 				<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" class="nonClient-fields-group">
+					<capitec-label
+						id="id-label-enter-branch-details"
+						type="title"
+						label="Enter branch details">
+					</capitec-label>
 					<div class="branch-field-row">
 						<capitec-text-field
 							id="cpNumber"
@@ -1002,7 +1034,7 @@ export class SearchCaller extends Component {
 							type="numeric"
 							maxlength="6"
 							error="${this.errMessage.cpNumber}"
-							.value="${this.cpNumber}"
+							.value="${this.cpNumber ? this.cpNumber : ``}"
 							@key-input="${(e) => this._getConsultant(e)}">
 						</capitec-text-field>
 					</div>

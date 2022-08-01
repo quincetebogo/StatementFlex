@@ -86,6 +86,31 @@ export class LiveBetter extends SavingsAccountBase {
 	connectedCallback() {
 		super.connectedCallback();
 		this._initialise();
+		
+		this._optionClick = async (option) => {
+
+			const accountDetails = () => this._accountDetails();
+			const transactionHistory = () => this._transactionHistory();
+			const statements = () => this._getStatements();
+			const automaticSavings = () => this._automaticSavings();
+			const productEnquiry = () => this._productEnquiry();
+			const partnerBenefits = () => this._partnerBenefits();
+	
+			const actions = {
+				'lbb-account-enquiry': accountDetails,
+				'transaction-history-lbb': transactionHistory,
+				'statements-lbb': statements,
+				'automatic-savings-lbb': automaticSavings,
+				'product-enquiry': productEnquiry,
+				'partner-benefits': partnerBenefits
+			};
+	
+			if (actions[option]) {
+				await super._inicidentManager_(option, () => this._toggleBusyFlag());
+				this._refreshIncidentDetails();
+				return actions[option]();
+			}
+		};
 	}
 
 	disconnectedCallback() {
@@ -118,31 +143,6 @@ export class LiveBetter extends SavingsAccountBase {
 		// re-initialise the page when the verification status changes
 		// verificationStatus is on the this.callerInformation object
 		await this._initialise();
-
-		this._optionClick = async (option) => {
-
-			const accountDetails = () => this._accountDetails();
-			const transactionHistory = () => this._transactionHistory();
-			const statements = () => this._getStatements();
-			const automaticSavings = () => this._automaticSavings();
-			const productEnquiry = () => this._productEnquiry();
-			const partnerBenefits = () => this._partnerBenefits();
-	
-			const actions = {
-				'lbb-account-enquiry': accountDetails,
-				'transaction-history-lbb': transactionHistory,
-				'statements-lbb': statements,
-				'automatic-savings-lbb': automaticSavings,
-				'product-enquiry': productEnquiry,
-				'partner-benefits': partnerBenefits
-			};
-	
-			if (actions[option]) {
-				await super._inicidentManager_(option, () => this._toggleBusyFlag());
-				this._refreshIncidentDetails();
-				return actions[option]();
-			}
-		};
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}

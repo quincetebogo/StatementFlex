@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 import 'app/components/common/HorizonLabel';
 
 const ACCOUNT_TYPE = {
@@ -382,7 +383,7 @@ const ACCOUNT_TYPE = {
 							class="col-3"
 							data-automation-id="live-better-account-details-status"
 							label="Status" 
-							value="${this.accountDetails.accountStatus}">
+							value="${formatStringAsPascalCase(this.accountDetails.accountStatus)}">
 						</horizon-label>
 				</capitec-group>
 		</capitec-content-box>

@@ -85,3 +85,22 @@ export const FROM_ACCOUNTS = {
 		order: 2
 	}
 };
+
+/**
+ * Credit permission decline reasons
+ * 
+ * @readonly
+ * @enum {Object} PERMISSION_DECLINE_REASONS
+ */
+ export const PERMISSION_DECLINE_REASONS = Object.freeze({
+	ACC_NOT_ACTIVE: `AccountNotActive`
+});
+
+/**
+ * Decline reasons exclusion list, to set CCS false if the decline
+ * reason is one of the below
+ * 
+ * @readonly
+ * @enum {Object} DECLINE_REASONS_EXCLUSION_LIST
+ */
+export const DECLINE_REASONS_EXCLUSION_LIST = Object.freeze([PERMISSION_DECLINE_REASONS.ACC_NOT_ACTIVE]);

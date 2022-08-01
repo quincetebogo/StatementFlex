@@ -1,4 +1,3 @@
-import { HIGH_RISK_TRANSACTIONS, LOW_RISK_TRANSACTIONS } from 'app/constants/Common';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { ACCOUNT_STATUS } from 'app/constants/Credit';
 import { CreditService } from 'app/services/CreditService';
@@ -414,16 +413,6 @@ export class SavingsAccountBase extends ViewBase {
 		 this.endCallContext = `LandingPage`;
 		 this._setIncidentDone();
 		 this._telemetryEndSpan(eventName, screenName);
-	}
-
-	_shouldDisable(need) {
-		// add this verification method in the verify caller component to check if the client has done ita 
-		const verificationMethod = this.callerInformation.verificationMethod;
-		const verificationStatus = this.callerInformation.verificationStatus;
-
-		return verificationStatus === `verified`
-				? verificationMethod === `SQ` && HIGH_RISK_TRANSACTIONS.includes(need)
-				: !LOW_RISK_TRANSACTIONS.includes(need);
 	}
 
 	async _getMandateDetails() {
