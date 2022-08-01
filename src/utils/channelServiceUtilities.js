@@ -239,6 +239,14 @@ export function formatDate(value, format) {
 	return formattedDate;
 }
 
+/**
+ * ISO8601 is a international standardized date format.
+ * ISO8601 is also the standard date format used by Capitec bank for API requests
+ * 
+ * @export
+ * @param {string} value string value to be formatted
+ * @returns {string} formatted string value 
+ */
 export function formatDateISO8601(value){
 	const date = new Date(value);
 	const year = date.getFullYear();

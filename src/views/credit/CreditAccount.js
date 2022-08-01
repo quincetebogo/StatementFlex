@@ -607,7 +607,6 @@ export class CreditAccount extends ViewBase {
 		// when coming back from transaction history screen, set incident as done "_setIncidentDone()"".
 		// await super.createAndClassifySubsIncident();
 
-		//this.accountDetails = accountDetails;
 		this._setAccountHeaderDetails(accountDetails);
 		this._getTransactionHistory();
 		
@@ -642,7 +641,7 @@ export class CreditAccount extends ViewBase {
 			startDate = formatDateISO8601(startDate);
 			endDate = formatDateISO8601(endDate);
 		}
-		
+
 		return {
 			"accountNumber": this.accountDetails["Account number"],
 			"startDate": startDate || TRANSACTION_HISTORY.START_DATE,

@@ -520,7 +520,7 @@ export class TransactionHistory extends Component {
 					background: no-repeat url(../images/liveBetter/Gradient1.png);
 				}
 				.credit {
-					background: linear-gradient(90deg, #df350b 0%, #e2380e 100%);
+					background: linear-gradient(90deg, #C83C37 0%, #E61414 100%);
 				}
 				.transaction-history-title > img {
 					width: 26px;
