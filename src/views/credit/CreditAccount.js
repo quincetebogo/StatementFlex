@@ -34,6 +34,17 @@ import 'app/components/dialogs/common/ViewAndEmailDocuments';
 import 'app/dialogs/credit/SettleAndCloseDialog';
 import 'app/components/common/TransactionHistory';
 
+const NINETY_DAYS = 7777000000;
+
+const TRANSACTION_HISTORY = {
+	ACCOUNT_TYPE: `CREDIT`,
+	END_DATE: new Date().toISOString().substr(0, 10),
+	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
+	START_AT_INDEX: 0,
+	MAX_RESULTS: 50,
+	MONEY_TYPE: `BOTH`
+};
+
 /** Credit Account View
  * 
  * @export
@@ -627,18 +638,18 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_getTransactionHistoryRequest(startDate, endDate, startAtIndex) {
-		const ninetyDays = 7777000000;
-		const defaultStartDate = new Date(Date.now() - ninetyDays).toISOString().substr(0, 10);
-		const defaultEndDate = new Date().toISOString().substr(0, 10);
-		const defaultStartIndex = 0;
-
+		if(!isNullorEmpty(startDate) && !isNullorEmpty(endDate)){
+			startDate = formatDateISO8601(startDate);
+			endDate = formatDateISO8601(endDate);
+		}
+		
 		return {
 			"accountNumber": this.accountDetails["Account number"],
-			"startDate": startDate || defaultStartDate,
-			"endDate": endDate || defaultEndDate,
-			"startAtIndex": startAtIndex || defaultStartIndex,
-			"maxResults": 50,
-			"moneyType": "BOTH"
+			"startDate": startDate || TRANSACTION_HISTORY.START_DATE,
+			"endDate": endDate || TRANSACTION_HISTORY.END_DATE,
+			"startAtIndex": startAtIndex || TRANSACTION_HISTORY.START_AT_INDEX,
+			"maxResults": TRANSACTION_HISTORY.MAX_RESULTS,
+			"moneyType": TRANSACTION_HISTORY.MONEY_TYPE
 		};
 	}
 
