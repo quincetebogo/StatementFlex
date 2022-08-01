@@ -297,7 +297,8 @@ export class LandingPage extends ViewBase {
 			``, // Identification method used to confirm client
 			``, // client's registered email ID
 			``
-		);
+			`` // gender
+);
 		
 		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);
 		this.horizonStore.setCallerInformation(callerInformation);
