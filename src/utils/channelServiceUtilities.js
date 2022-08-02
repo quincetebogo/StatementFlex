@@ -113,7 +113,7 @@ export function formatPhoneNumber(value) {
  * @param {*} idNumber An ID Number
  * @returns {Boolean} Indicates if the check digit on the ID Number computes correctly
  */
-function _luhnCheck(idNumber) {
+ function _luhnCheck(idNumber) {
 	const num = idNumber.toString()
 	.split(``)
 	.reverse()
@@ -231,6 +231,13 @@ export function formatDate(value, format) {
 		case `MM yyyy`:
 			formattedDate = `${monthName} ${year}`;
 			break;
+		case `yyyy-mm-dd`:
+			let formattedMonth = month + 1 ;
+			formattedMonth = (formattedMonth < 10) ? `0` + formattedMonth: formattedMonth;
+			let day = (date < 10) ? `0`+ date: date;
+			
+			formattedDate = `${year}-${formattedMonth}-${day}`;
+			break;
 		default:
 			formattedDate = `${date}-${month}-${year}`;
 			break;
@@ -239,25 +246,8 @@ export function formatDate(value, format) {
 	return formattedDate;
 }
 
-/**
- * ISO8601 is a international standardized date format.
- * ISO8601 is also the standard date format used by Capitec bank for API requests
- * 
- * @export
- * @param {string} value string value to be formatted
- * @returns {string} formatted string value 
- */
-export function formatDateISO8601(value){
-	const date = new Date(value);
-	const year = date.getFullYear();
-	let month = date.getMonth() + 1;
-	let day = date.getDate();
 
-	month = (month < 10) ? `0` + month: month;
-	day = (day < 10) ? `0`+ day: day;
 
-	return `${year}-${month}-${day}`
-}
 
 /**
  * @export

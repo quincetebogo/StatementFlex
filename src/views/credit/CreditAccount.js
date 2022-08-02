@@ -14,7 +14,7 @@ import { ViewBase } from 'app/views/common/ViewBase';
 import { alertBannerMixin } from 'app/views/common/AlertBannerMixin';
 import { creditMixin } from 'app/views/credit/CreditMixin';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { formatDateISO8601, getMonthName, formatDateTime, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { formatDate, formatDateTime, formatStringAsPascalCase, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/ServiceCallErrorScreen';
 import 'app/components/credit/CreditCardDetails';
@@ -33,6 +33,8 @@ import 'app/productControls/credit/src/PayCreditCardBudget';
 import 'app/components/dialogs/common/ViewAndEmailDocuments';
 import 'app/dialogs/credit/SettleAndCloseDialog';
 import 'app/components/common/TransactionHistory';
+
+const ISO_8601_DATE_FORMAT = `yyyy-mm-dd`;
 
 const NINETY_DAYS = 7777000000;
 
@@ -626,20 +628,20 @@ export class CreditAccount extends ViewBase {
 
 	async _getTransactionHistory(startDate, endDate, startAtIndex) {
 		const request = this._getTransactionHistoryRequest(startDate, endDate, startAtIndex);
-		const response = await this.creditService.transactionHistory(request);
-		if (!response.succeeded || !response.result) {
-			this.logger.log(`error`, `Failed to retrieve credit transaction history from credit service.`, `_getTransactionHistory`, response.correlationId);
+		const returnValue = await this.creditService.transactionHistory(request);
+		if (!returnValue.succeeded || !returnValue.result) {
+			this.logger.log(`error`, `Failed to retrieve credit transaction history from credit service.`, `_getTransactionHistory`, returnValue.correlationId);
 			return;
 		}
-		const formattedResponse = this._getFormattedResponse(response.result.transaction);
+		const formattedResponse = this._getFormattedResponse(returnValue.result.transaction);
 		this.transactionHistory.push(...formattedResponse);
 		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 	}
 
 	_getTransactionHistoryRequest(startDate, endDate, startAtIndex) {
 		if(!isNullorEmpty(startDate) && !isNullorEmpty(endDate)){
-			startDate = formatDateISO8601(startDate);
-			endDate = formatDateISO8601(endDate);
+			startDate = formatDate(startDate, ISO_8601_DATE_FORMAT);
+			endDate = formatDate(endDate, ISO_8601_DATE_FORMAT);
 		}
 
 		return {
@@ -665,165 +667,6 @@ export class CreditAccount extends ViewBase {
 			return item;
 		});
 	}
-
-	_renderTransactionHistory() {
-		if (this.renderMode == RENDER_MODE.TRANSACTION_HISTORY) {
-
-			return html`
-			<horizon-transaction-history
-				.transactionHistory = "${this.transactionHistory}"
-				.accountDetails = "${this.accountDetails}"
-				.type = "${ACCOUNT_TYPES.CREDIT}"
-				.renderTableColumns = "${() => this._renderColumns()}"
-				.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
-				.getTransactionHistory="${(startDate, endDate, startAtIndex) => this._getTransactionHistory(startDate, endDate, startAtIndex)}"
-				.disposeData="${() => this.transactionHistory = []}"
-				
-				@error-handler = "${() => this._errorHandler()}"
-					@back="${() => this._exitTransactionHistory()}"
-					@unloading="${() => this._unloadTransactionHistory()}"
-				
-			>
-
-			</horizon-transaction-history>
-
-		`;
-		}
-
-	}
-
-	_renderColumns() {
-		return html`
-			<capitec-table-column
-				label="Transaction Date"
-				field="processDate"
-				.renderer="${(item, fieldName, value) => this._renderTransactionDateTime(value)}"
-				type="date"
-				size="156px;">
-			</capitec-table-column>
-			<capitec-table-column
-				label="Description"
-				field="statementDescription"
-				type="string"
-				size="150x;">
-			</capitec-table-column>
-			<capitec-table-column
-				label="Amount"
-				field="amount"
-				type="string"
-				size="100px;">
-			</capitec-table-column>
-			<capitec-table-column
-				label="Available Balance"
-				field="balance"
-				type="string"
-				size="140px;">
-			</capitec-table-column>
-			`
-	}
-
-	_renderTransactionDateTime(value) {
-		return html`
-			<capitec-label
-				label="${formatDateTime(value)}">
-			</capitec-label>`;
-	}
-
-	_renderTransactionDetails(item) {
-
-		return html`
-			<capitec-label
-				style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
-				label="Transaction details"
-				data-automation-id="credit-transaction-history-item-description">
-			</capitec-label>
-	
-			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Transaction type"
-					value = "${item.transactionType ? item.transactionType : `-`}"
-					data-automation-id="credit-transaction-history-item-type">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Transfer account"
-					value = "${item.transferAccount ? item.transferAccount : `-`}"
-					data-automation-id="credit-transaction-history-item-transfer-account">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Posting date" 
-					value = "${formatDateTime(item.postingDate)}"
-					data-automation-id="credit-transaction-history-item-posting-date">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Processed date"
-					value = "${formatDateTime(item.processDate)}"
-					data-automation-id="credit-transaction-history-item-processed-date">
-				</horizon-label>
-			</capitec-group>
-
-			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Transaction code"
-					value = "${item.transactionCode ? item.transactionCode : `-`}"
-					data-automation-id="credit-transaction-history-item-code">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Card number"
-					value = "${item.cardNumber ? item.cardNumber : `-`}"
-					data-automation-id="credit-transaction-history-item-card-number">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Card authentication type"
-					value = "${item.cardAuthType ? item.cardAuthType : `-`}"
-					data-automation-id="credit-transaction-history-item-card-auth-type">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Journal number"
-					value = "${item.journalNumber ? item.journalNumber : `-`}"
-					data-automation-id="credit-transaction-history-item-journal-number">
-				</horizon-label>
-			</capitec-group>
-
-			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Includes Vat"
-					value = "${item.includesVat ? `Yes` : `No`}"
-					data-automation-id="credit-transaction-history-item-includes-vat">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="External terminal ID"
-					value = "${item.externalTerminalId ? item.externalTerminalId : `-`}"
-					data-automation-id="credit-transaction-history-item-terminalID">
-				</horizon-label>
-			</capitec-group>
-
-			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Description"
-					value = "${item.statementDescription ? item.statementDescription : `-`}"
-					data-automation-id="credit-transaction-history-description">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Long Description"
-					value = "${item.statementDescription ? item.statementDescription : `-`}"
-					data-automation-id="credit-transaction-history-description">
-				</horizon-label>
-			</capitec-group>
-		`;
-	}
-
 
 	async _exitTransactionHistory() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
@@ -1496,6 +1339,166 @@ export class CreditAccount extends ViewBase {
 			</horizon-warn-dialog>`
 			: html``;
 	}
+
+	_renderTransactionHistory() {
+		if (this.renderMode === RENDER_MODE.TRANSACTION_HISTORY) {
+
+			return html`
+			<horizon-transaction-history
+				.transactionHistory = "${this.transactionHistory}"
+				.accountDetails = "${this.accountDetails}"
+				.type = "${ACCOUNT_TYPES.CREDIT}"
+				.renderTableColumns = "${() => this._renderColumns()}"
+				.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
+				.getTransactionHistory="${(startDate, endDate, startAtIndex) => this._getTransactionHistory(startDate, endDate, startAtIndex)}"
+				.disposeData="${() => this.transactionHistory = []}"
+				
+				@error-handler = "${() => this._errorHandler()}"
+					@back="${() => this._exitTransactionHistory()}"
+					@unloading="${() => this._unloadTransactionHistory()}"
+				
+			>
+
+			</horizon-transaction-history>
+
+		`;
+		}
+
+	}
+
+	_renderColumns() {
+		return html`
+			<capitec-table-column
+				label="Transaction Date"
+				field="processDate"
+				.renderer="${(item, fieldName, value) => this._renderTransactionDateTime(value)}"
+				type="date"
+				size="156px;">
+			</capitec-table-column>
+			<capitec-table-column
+				label="Description"
+				field="statementDescription"
+				type="string"
+				size="150x;">
+			</capitec-table-column>
+			<capitec-table-column
+				label="Amount"
+				field="amount"
+				type="string"
+				size="100px;">
+			</capitec-table-column>
+			<capitec-table-column
+				label="Available Balance"
+				field="balance"
+				type="string"
+				size="140px;">
+			</capitec-table-column>
+			`
+	}
+
+	_renderTransactionDateTime(value) {
+		return html`
+			<capitec-label
+				label="${formatDateTime(value)}">
+			</capitec-label>`;
+	}
+
+	_renderTransactionDetails(item) {
+
+		return html`
+			<capitec-label
+				style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
+				label="Transaction details"
+				data-automation-id="credit-transaction-history-item-description">
+			</capitec-label>
+	
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Transaction type"
+					value = "${item.transactionType ? item.transactionType : `-`}"
+					data-automation-id="credit-transaction-history-item-type">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Transfer account"
+					value = "${item.transferAccount ? item.transferAccount : `-`}"
+					data-automation-id="credit-transaction-history-item-transfer-account">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Posting date" 
+					value = "${formatDateTime(item.postingDate)}"
+					data-automation-id="credit-transaction-history-item-posting-date">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Processed date"
+					value = "${formatDateTime(item.processDate)}"
+					data-automation-id="credit-transaction-history-item-processed-date">
+				</horizon-label>
+			</capitec-group>
+
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Transaction code"
+					value = "${item.transactionCode ? item.transactionCode : `-`}"
+					data-automation-id="credit-transaction-history-item-code">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Card number"
+					value = "${item.cardNumber ? item.cardNumber : `-`}"
+					data-automation-id="credit-transaction-history-item-card-number">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Card authentication type"
+					value = "${item.cardAuthType ? item.cardAuthType : `-`}"
+					data-automation-id="credit-transaction-history-item-card-auth-type">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Journal number"
+					value = "${item.journalNumber ? item.journalNumber : `-`}"
+					data-automation-id="credit-transaction-history-item-journal-number">
+				</horizon-label>
+			</capitec-group>
+
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Includes Vat"
+					value = "${item.includesVat ? `Yes` : `No`}"
+					data-automation-id="credit-transaction-history-item-includes-vat">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="External terminal ID"
+					value = "${item.externalTerminalId ? item.externalTerminalId : `-`}"
+					data-automation-id="credit-transaction-history-item-terminalID">
+				</horizon-label>
+			</capitec-group>
+
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Description"
+					value = "${item.statementDescription ? item.statementDescription : `-`}"
+					data-automation-id="credit-transaction-history-description">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Long Description"
+					value = "${item.statementDescription ? item.statementDescription : `-`}"
+					data-automation-id="credit-transaction-history-description">
+				</horizon-label>
+			</capitec-group>
+		`;
+	}
+
+
 }
 
 customElements.define(`horizon-credit-account`, CreditAccount);
