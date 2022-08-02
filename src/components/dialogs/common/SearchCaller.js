@@ -643,7 +643,7 @@ export class SearchCaller extends Component {
 			initials: identifiedClient.callerInformation.initials,
 			identifiedBy: this.searchType.identificationType,
 			isClientVerifiedInBranch: this.isClientVerifiedInBranch,
-	  	profilePhoto: identifiedClient.callerInformation.profilePhoto,   
+	  		profilePhoto: identifiedClient.callerInformation.profilePhoto,   
 			gender: identifiedClient.callerInformation.gender        
 		};
 
@@ -739,26 +739,21 @@ export class SearchCaller extends Component {
 			this.clientType === CLIENT_TYPE.NON_CLIENT, // isNonClient
 			false, // hasInsuranceProducts
 			false, // hasDigitalChannels
-			{
-				itaAttempts: 0,
-				sqAttempts: 0
-			},
+			{ itaAttempts: 0, sqAttempts: 0 },
 			this.clientType === CLIENT_TYPE.BRANCH, // isBranchConsultant
 			this.clientInBranch, // isClientPresent
 			this.isClientVerifiedInBranch ? `ITA` : ``,
 			``, // firstName
 			``, // middleName1
-            ``, // firstName
-            ``, // middleName1
-            ``, // middleName2
-            ``, // middleName3
-            ``, // lastName
-            ``, // initials
+			``, // middleName2
+			``, // middleName3
+			``, // lastName
+			``, // initials
 			``, // identifiedBy
 			``, // validated email address
 			``, // profilePhoto
-	
-        );
+			`` // gender
+		);
 	}
 	// ---------
 	// RENDERING

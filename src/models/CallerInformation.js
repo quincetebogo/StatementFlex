@@ -46,6 +46,8 @@
 	 * @param {string} [initials=""] Client's initials
 	 * @param {string} [identifiedBy=""] Identification method used to confirm client
 	 * @param {string} [emailId=""] The Client's registered email ID
+	 * @param {string} [profilePhoto=""] The Client's photo
+	 * @param {string} [gender=""] The Client's gender
 	 */
 	constructor(
 		cifNumber,

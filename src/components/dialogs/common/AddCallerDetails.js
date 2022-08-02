@@ -201,10 +201,7 @@ export class AddCallerDetails extends Component {
 						false,
 						false, // presence of insurance products not yet determined
 						false, // availability of digital channels not yet determined
-						{
-							sqAttempts: 0,
-							itaAttempts: 0
-						},
+						{ sqAttempts: 0, itaAttempts: 0 },
 						this.callerInformation.isBranchConsultant,
 						false,
 						`unverified`,
