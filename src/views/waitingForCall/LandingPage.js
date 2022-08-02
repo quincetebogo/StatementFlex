@@ -300,10 +300,7 @@ export class LandingPage extends ViewBase {
 			true, // is non-client
 			false, // has insurance products
 			false,
-			{
-				itaAttempts: 0,
-				sqAttempts: 0
-			},
+			{ itaAttempts: 0, sqAttempts: 0 },
 			event.detail.isBranchConsultant,
 			false,
 			`unverified`,
@@ -314,9 +311,11 @@ export class LandingPage extends ViewBase {
 			``, // client's surname/last name
 			``, // client's initials
 			``, // Identification method used to confirm client
-			``, // client's registered email ID
-			`` // client's profile photo
+			``, //registered email id
+			``, // profile photo
+			`` // gender
 		);
+		
 		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);
 		this.horizonStore.setCallerInformation(callerInformation);
 
