@@ -78,7 +78,6 @@ export class CreditAccount extends ViewBase {
 		this.settlementQuoteEvents = SETTLEMENT_QUOTE_EVENTS;
 		this.declineReason = ``;
 		this.selectedAccountDetails = {};
-		this.isPilotUser = false;
 		this.showPayBudgetWarning = false;
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
@@ -94,7 +93,7 @@ export class CreditAccount extends ViewBase {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 	
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
 
 		this._initialise();
@@ -102,10 +101,9 @@ export class CreditAccount extends ViewBase {
 		this._optionClick = async (option, creditType, productType, selectedAccountDetails, sendAnother = false) => {
 
 			const transactionHistory = () => this._transactionHistory(creditType, productType);
-			const statements = () => this._getStatements(creditType, productType, selectedAccountDetails.productTypeCode, selectedAccountDetails.accountNumber, selectedAccountDetails.openDate, sendAnother);
+			const statements = () => this._getStatements(creditType, productType, selectedAccountDetails, sendAnother);
 			const settlementQuote = () => this._settlementQuote(creditType, productType, selectedAccountDetails);
 			const settleAndClose = () => this._settleAndClose(creditType, productType, selectedAccountDetails);
-//			const settleLoan = () => this._settleLoan();
 			const paidUpLetter = () => this._paidUpLetter(selectedAccountDetails);
 			const payBudget = () => this._payBudgetDialog(selectedAccountDetails);
 			const viewBudgets = () => this._viewBudgets(selectedAccountDetails);
@@ -118,30 +116,28 @@ export class CreditAccount extends ViewBase {
 				'statements': statements,
 				'settlement-quote': settlementQuote,
 				'paid-up-letter': paidUpLetter,
-				'settle-close': settleAndClose,
-//				'settle-loan': settleLoan
+				'settle-close': settleAndClose
 			};
 	
 			if (actions[option]) {
 				
 				const clientNeed = `${option}-${accConfig.subCategory}`;
 				
+				await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
 				this._refreshIncidentDetails();
 	
-			const { permissionResult, declineReasons } = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber || selectedAccountDetails.budgetAccountNumber, productType);
-			this.ccsStatus = permissionResult === PERMISSION_STATUS.DENIED &&
-							 !DECLINE_REASONS_EXCLUSION_LIST.includes(declineReasons);
-			this.declineReason = declineReasons;
-			this.selectedAccountDetails = selectedAccountDetails;
-	
-			// Perform the action only when permission result is granted
-			if (permissionResult === PERMISSION_STATUS.GRANTED) {
+				const { permissionResult, declineReasons } = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber || selectedAccountDetails.budgetAccountNumber, productType);
+				this.ccsStatus = permissionResult === PERMISSION_STATUS.DENIED &&
+								!DECLINE_REASONS_EXCLUSION_LIST.includes(declineReasons);
+				this.declineReason = declineReasons;
+				this.selectedAccountDetails = selectedAccountDetails;
+		
+				// Perform the action only when permission result is granted
+				if (permissionResult === PERMISSION_STATUS.GRANTED) {
 					return actions[option]();
 				}
 			}
 		};
-    
-		this.isPilotUser = await this.roleManager.isSearchClientEnabled();    
 	}
 
 	disconnectedCallback() {
@@ -254,15 +250,18 @@ export class CreditAccount extends ViewBase {
 		this.budgetAccountDetails = {
 			budgetAccountNumber: selectedAccountDetails.budgetAccountNumber,
 			budgetName: formatStringAsPascalCase(selectedAccountDetails.budgetName),
-			"Monthly repayment": formatCurrency(selectedAccountDetails.budgetInstalment),
-			"Purchase amount": formatCurrency(selectedAccountDetails.originalAmount),
-			"Outstanding balance": formatCurrency(selectedAccountDetails.budgetBalance),
-			"Opening date": this._formatDate(selectedAccountDetails.budgetDateTaken),
-			"Interest rate": `${selectedAccountDetails.interestRate}%`,
-			"Term (months)": selectedAccountDetails.originalTerm,
-			"Payment made": formatCurrency(selectedAccountDetails.repaymentAmount),
-			"Settlement amount": formatCurrency(selectedAccountDetails.settlementAmount),
-			"Remaining term (months)": selectedAccountDetails.termRemaining
+			budgetSequence: selectedAccountDetails.budgetSequence,
+			budgetDetails: {
+				"Monthly repayment": formatCurrency(selectedAccountDetails.budgetInstalment),
+				"Purchase amount": formatCurrency(selectedAccountDetails.originalAmount),
+				"Outstanding balance": formatCurrency(selectedAccountDetails.budgetBalance),
+				"Opening date": this._formatDate(selectedAccountDetails.budgetDateTaken),
+				"Interest rate": `${selectedAccountDetails.interestRate}%`,
+				"Term (months)": selectedAccountDetails.originalTerm,
+				"Payment made": formatCurrency(selectedAccountDetails.repaymentAmount),
+				"Settlement amount": formatCurrency(selectedAccountDetails.settlementAmount),
+				"Remaining term (months)": selectedAccountDetails.termRemaining
+			}
 		};
 
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNT_DETAILS;
@@ -278,13 +277,13 @@ export class CreditAccount extends ViewBase {
 		this._optionClick(`pay-budget`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedBudget);
 	}
 
-	_transferFromBudgetDetails(budgetAccountNo) {
+	_transferFromBudgetDetails(budgetSequenceNo) {
 		this._telemetry.logEvent(CreditEvents.BUDGET_ACCOUNT_DETAILS_TRANSFER, {
 			"screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT_DETAILS,
 			"next-screen": TelemetryScreen.CREDIT_PAY_BUDGET_MODAL
 		});
 
-		const budgetAcc = this.budgetFacilityAccounts.creditCardBudgetList.find(item => item.budgetAccountNumber === budgetAccountNo);
+		const budgetAcc = this.budgetFacilityAccounts.creditCardBudgetList.find(item => item.budgetSequence === budgetSequenceNo);
 		budgetAcc.productTypeCode = ACCOUNT_TYPE_CODE.FLEXIBLE_CREDIT_CARD;
 
 		this._optionClick(`pay-budget`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, budgetAcc);
@@ -594,7 +593,7 @@ export class CreditAccount extends ViewBase {
 		// await super.createAndClassifySubsIncident();
 	}
 
-	_getStatements(creditType, productType, productCode, accNum, openDate, sendAnother) {
+	_getStatements(creditType, productType, selectedAccountDetails, sendAnother) {
 		if (sendAnother) {
 			return true;
 		}
@@ -606,13 +605,13 @@ export class CreditAccount extends ViewBase {
 			"product-type": productType
 		});
 
-		const productInfo = ACCOUNT_INTCAT_ENUM[productCode];
+		const productInfo = ACCOUNT_INTCAT_ENUM[selectedAccountDetails.productTypeCode];
 		this.clientProducts = [
 			{
-				'accountNumber': accNum,
-				'accountName': productInfo.name,
-				'accountType': productCode,
-				'accountOpenDate': openDate,
+				'accountNumber': selectedAccountDetails.accountNumber,
+				'accountName': selectedAccountDetails.productTypeDescription,
+				'accountType': selectedAccountDetails.productTypeCode,
+				'accountOpenDate': selectedAccountDetails.openDate,
 				'name': productInfo.name,
 				'type': productInfo.type,
 				'category': productInfo.category,
@@ -1050,7 +1049,6 @@ export class CreditAccount extends ViewBase {
 					.budgetAccountsSummary="${this.budgetAccountsSummary}"
 					.shouldDisable="${need => this._shouldDisable(need)}"
 					.renderAlertBanner="${() => this.renderAlertBanner()}"
-					.isPilotUser="${this.isPilotUser}"          
 					selectedTab="${this.selectedTab}"
 					@option-click="${(e) => this._optionClick(e.detail.option, e.detail.creditType, e.detail.productType, e.detail.selectedAccountDetails)}"
 					@account-details="${(e) => this._accountDetails(e)}"
@@ -1076,7 +1074,6 @@ export class CreditAccount extends ViewBase {
 					.budgetFacilityAccounts="${this.budgetFacilityAccounts}"
 					.shouldDisable="${need => this._shouldDisable(need)}"
 					.renderAlertBanner="${() => this.renderAlertBanner()}"
-					.isPilotUser="${this.isPilotUser}"          
 					@on-loading="${() => this._telemetry.startSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {})}"
 					@back="${() => this._backFromBudgetAccountsView()}"
 					@account-details="${(event) => this._viewBudgetDetails(event.detail.selectedAccountDetails)}"
@@ -1093,9 +1090,8 @@ export class CreditAccount extends ViewBase {
 				.accountDetails="${this.budgetAccountDetails}"
 				.shouldDisable="${need => this._shouldDisable(need)}"
 				.renderAlertBanner="${() => this.renderAlertBanner()}"
-				.isPilotUser="${this.isPilotUser}"        
 				@back="${() => this._backFromBudgetAccountDetails()}"
-				@transfer-click="${(event) => this._transferFromBudgetDetails(event.detail.budgetAccountNumber)}">
+				@transfer-click="${(event) => this._transferFromBudgetDetails(event.detail.budgetSequenceNo)}">
 			</capitec-pc-budget-account-details>`
 		: html``;
 	}
