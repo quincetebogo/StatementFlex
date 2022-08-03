@@ -4,6 +4,7 @@
 		"clientInsightsUrl": "https://hzn-cs-clientinsights-v1.platform-dev.int.capinet",
 		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-dev.int.capinet",
 		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-dev.int.capinet",
+		"clientProfileServiceUrl": "https://csc-clientprofile.platform-dev.int.capinet",
 		"savingsPlanChannelServiceUrl": "https://csc-cs-save.platform-dev.int.capinet"
 	},
 	"signalRUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
@@ -67,11 +68,15 @@
 	"mock": {
 		"enabled": true,
 		"acceptCall": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"searchCaller": {
 			"enabled": false,
 			"positiveCase": true
 		},
 		"identifyCaller": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
@@ -104,12 +109,12 @@
 			"positiveCase": true
 		},
 		"itaVerification":{
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"verifyKBA": {
 			"enabled": true,
-			"positiveCase": false
+			"positiveCase": true
 		},
 		"debiCheckMandates": {
 			"enabled": false,
@@ -226,6 +231,18 @@
 		"loadKBA": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"settleAndCloseQuote": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"creditPermissions": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"emailPaidUpLetter": {
+			"enabled": false,
+			"positiveCase": false
 		}
 	},
 	"searchClientOptionEnabled": true

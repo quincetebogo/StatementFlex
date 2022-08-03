@@ -1,5 +1,6 @@
 import { CREDIT_TYPE, PRODUCTS } from 'app/constants/Credit';
 import { Component, css, html } from 'platform/elements';
+import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
@@ -50,11 +51,21 @@ export class CreditAccountLanding extends Component {
 	// --------------
 
 	/**
+	 * @typedef {Object} renderAlertBanner Display alter banner based on verification status
+	*/
+
+	/**
+	 * @callback renderAlterBannerCallback
+	 * @returns {html}
+	*/
+
+	/**
 	 * Registry of all properties defined by the component.
 	 *
 	 * @property {flexibleCreditAccounts} flexibleCreditAccounts 
 	 * @property {fixedTermCreditAccounts} fixedTermCreditAccounts 
-	 * @property {budgetAccountsSummary} budgetAccountsSummary 
+	 * @property {budgetAccountsSummary} budgetAccountsSummary
+	 * @property {renderAlterBannerCallback} renderAlertBanner Callback function to render alter banner based on verification status & method
 	 *
 	 */
 	 static get properties() {
@@ -62,6 +73,8 @@ export class CreditAccountLanding extends Component {
 			flexibleCreditAccounts: { type: Array },
 			fixedTermCreditAccounts: { type: Array },
 			budgetAccountsSummary: { type: Object },
+			shouldDisable: { type: Object },
+			renderAlertBanner: { type: Object, attribute: false },
 			selectedTab: { type: String }
 		};
 	}
@@ -100,7 +113,7 @@ export class CreditAccountLanding extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-	
+
 	// N/A
 	
 	// ---------
@@ -152,6 +165,14 @@ export class CreditAccountLanding extends Component {
 					--theme-container-padding-bottom: 16px;
 					--theme-container-padding-top: 0px;
 					--theme-layout-gap-spacing: 0px;
+				}
+
+				/* Alert banner styles */
+				${ALERTBANNER_CSS}
+				.verificatoin-status {
+					width: 1030px;
+					margin: 0px;
+					margin-bottom: 16px;
 				}
 
 				/* Option button styles */
@@ -218,14 +239,17 @@ export class CreditAccountLanding extends Component {
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-line-height: 20px;
 				}
-
-				horizon-label[value="Active"] {
+				horizon-label[label="Status"] {
 					width: 132px;
+				}
+				horizon-label[value="Active"] {
 					--horizon-label-value-color: #70AF00;
 				}
 				horizon-label[value="In arrears"] {
-					width: 132px;
 					--horizon-label-value-color: #a5132a;
+				}
+				horizon-label[value="Marked Closure"] {
+					--horizon-label-value-color: #d4781c;
 				}
 				.label-account-number {
 					--theme-label-cursor: pointer;
@@ -344,6 +368,7 @@ export class CreditAccountLanding extends Component {
 		return this.flexibleCreditAccounts.length > 0
 		? html`
 			<capitec-content-box class="accounts-box">
+				${this.renderAlertBanner()}
 				${this._renderFlexibleAccounts()}
 			</capitec-content-box>
 			
@@ -356,6 +381,7 @@ export class CreditAccountLanding extends Component {
 		return this.fixedTermCreditAccounts.length > 0
 		? html`
 			<capitec-content-box class="accounts-box">
+				${this.renderAlertBanner()}
 				${this._renderFixedTermAccounts()}
 			</capitec-content-box>
 			
@@ -576,15 +602,15 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-paid-up-letter"
 					label="Paid up Letter"
 					icon="system/documents-action"
-					?hidden="${selectedAccountDetails.accountStatusDescription !== `Closed`}"
+					?hidden="${true}"
 					@click="${() => this._click(`paid-up-letter`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-settle-close"
 					label="Settle & Close"
 					icon="system/close-circle-action"
-					?hidden="${false}"
-					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
+					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}"
+					?disabled="${this.shouldDisable(`settle-close`)}">
 			</horizon-option-button>
 		`;
 	}
@@ -609,7 +635,7 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-paid-up-letter"
 					label="Paid up Letter"
 					icon="system/documents-action"
-					?hidden="${selectedAccountDetails.accountStatusDescription !== `Closed`}"
+					?hidden="${true}"
 					@click="${() => this._click(`paid-up-letter`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.ACCESS_FACILITY, selectedAccountDetails)}">
 			</horizon-option-button>
 		`;
@@ -635,15 +661,15 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-paid-up-letter"
 					label="Paid up Letter"
 					icon="system/documents-action"
-					?hidden="${selectedAccountDetails.accountStatusDescription !== `Closed`}"
+					?hidden="${true}"
 					@click="${() => this._click(`paid-up-letter`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-settle-loan"
 					label="Settle Loan"
 					icon="system/close-circle-action"
-					?hidden="${false}"
-					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, selectedAccountDetails)}">
+					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, selectedAccountDetails)}"
+					?disabled="${this.shouldDisable(`settle-close`)}">
 			</horizon-option-button>
 		`;
 	}

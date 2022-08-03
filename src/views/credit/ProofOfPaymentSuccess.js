@@ -1,4 +1,4 @@
-import { BUDGET_FACILITY_POP_EVENTS, CreditEvents } from 'app/constants/telemetry/events/Credit';
+import { BUDGET_FACILITY_POP_EVENTS, SETTLE_AND_CLOSE_CREDIT_CARD_POP_EVENTS, SETTLE_AND_CLOSE_TERM_LOAN_POP_EVENTS } from 'app/constants/telemetry/events/Credit';
 import { css, html } from 'platform/elements';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
@@ -42,11 +42,10 @@ export class ProofOfPaymentSuccess extends ViewBase {
 		this.loadTelemetryEvents();
 
 		this.mailId = screenDetails && screenDetails.emailAddress;
-		this.accountName = screenDetails && screenDetails.accountName;
+		this.accountName = screenDetails && (screenDetails.accountName || screenDetails.settleAndCloseProductType); 
 
 		this._telemetry.startSpan(this.popTelemetryEvents.POP_SUCCESS);
 
-		this._updateIncidentState();
 	}
 
 	disconnectedCallback() {
@@ -88,18 +87,13 @@ export class ProofOfPaymentSuccess extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
-	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
-	}
-
 	loadTelemetryEvents() {
 		const creditNeed = this.horizonStore.getReturnToScreen().optionalData;
 		
 		const telemetryEvents = {
 			'view-budgets': BUDGET_FACILITY_POP_EVENTS,
-			'settle-close': null // Load telemetry events for Settle and close prrof of payment flow 
+			'settle-close-credit-card': SETTLE_AND_CLOSE_CREDIT_CARD_POP_EVENTS,
+			'settle-close-term-loan': SETTLE_AND_CLOSE_TERM_LOAN_POP_EVENTS
 		};
 
 		this.popTelemetryEvents = telemetryEvents[creditNeed];
@@ -138,7 +132,7 @@ export class ProofOfPaymentSuccess extends ViewBase {
 				data-automation-id="proof-of-payment-success"
 				header="Proof of payment sent"
 				image="/images/statements/senddocuments.svg"
-				left="Pay Another"
+				left="${this.incidentDetails.currentNeed === `pay-budget-credit-card` ? `Pay Another` : ``}"
 				right="Done"
 				toast="Proof of payment sent"
 				@left-click=${() => this._payAnotherClick()}

@@ -6,8 +6,9 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { ITAChannelService } from 'app/services/ITAChannelService';
-import { KbaChannelService } from 'app/services/KbaChannelService';
 import { ItaCallerVerification } from 'app/services/ItaCallerVerification';
+import { KbaChannelService } from 'app/services/KbaChannelService';
+import { RoleManager } from 'app/shell/RoleManager';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { VerifyCallerEvents } from 'app/constants/telemetry/events/VerifyCaller';
 import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
@@ -87,6 +88,7 @@ export class VerifyCaller extends Component {
 		this.configuration = Configuration.getInstance();
 		this.logger = Logger.getInstance();
 		this.telemetry = HorizonTelemetry.getInstance();
+		this.roleManager = RoleManager.getInstance();
 
 		this.kbaChannelService = new KbaChannelService(() => this._toggleBusyFlag(), () => true);
 
@@ -140,7 +142,7 @@ export class VerifyCaller extends Component {
 	async connectedCallback() {
 		super.connectedCallback();
 
-		this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER, {
+		await this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER, {
 			"remote-channels-registered": this.callerInformation.hasDigitalChannels
 		});
 
@@ -168,13 +170,13 @@ export class VerifyCaller extends Component {
 		this.isLoading = false;
 	}
 
-	disconnectedCallback() {
+	async disconnectedCallback() {
 		this._itaClose();
 
 		if (this.callerInformation.hasDigitalChannels) {
-			this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
-				"screen": TelemetryScreen.VERIFY_CALLER
-			});
+			await this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
+					"screen": TelemetryScreen.VERIFY_CALLER
+				});
 		}
 
 		this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER, {
@@ -191,6 +193,13 @@ export class VerifyCaller extends Component {
 		
 		// Stop any pending ITA attempt
 		this._itaClose();
+
+		if (this.callerInformation.hasDigitalChannels) {
+			await this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
+					"screen": TelemetryScreen.VERIFY_CALLER
+				});
+		}
+
 		this.itaInProgress = false;
 		this.itaSystemError = false;
 		this.itaTimeout = false;
@@ -876,7 +885,7 @@ export class VerifyCaller extends Component {
 			? html``
 			: html`
 				<horizon-caller-dialog
-					data-automation-id="verify-caller-dialog"					
+					data-automation-id="verify-caller-dialog"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.incidentDetails="${this.incidentDetails}"
 					.isNeedSelectable=${false}
@@ -929,7 +938,7 @@ export class VerifyCaller extends Component {
 	_renderPushNotificationStatus() {
 		return html`
 			<horizon-push-notication-status
-				data-automation-id="verify-caller-ita-notif-status"					
+				data-automation-id="verify-caller-ita-notif-status"
 				timeLimit="${ITA_TIMEOUT_SECS}"
 				warningThreshold="${25}"
 				alertThreshold="${10}"
@@ -985,14 +994,14 @@ export class VerifyCaller extends Component {
 				<capitec-content-box id="relation-options-btn">
 					<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
 						<horizon-option-button 
-							data-automation-id="verify-caller-cancel-button"					
+							data-automation-id="verify-caller-cancel-button"
 							label="Cancel"
 							icon="system/close-action" 
 							iconSize="default"
 							@click="${() => this._cancelClick()}">
 						</horizon-option-button>
 						<horizon-option-button
-							data-automation-id="verify-caller-try-again-button"					
+							data-automation-id="verify-caller-try-again-button"
 							class="btnTryAgain"
 							label="Try Again" 
 							img-src="/images/insure/refresh.svg"
@@ -1009,7 +1018,7 @@ export class VerifyCaller extends Component {
 			<capitec-content-box id="relation-options-btn">
 				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
 					<horizon-option-button 
-						data-automation-id="verify-caller-sq-button"					
+						data-automation-id="verify-caller-sq-button"
 						label="Security Questions" 
 						icon="system/knowledge-action"
 						iconSize="default"
@@ -1017,14 +1026,14 @@ export class VerifyCaller extends Component {
 						@click="${() => this._securityQuestionsClick()}">
 					</horizon-option-button>
 					<horizon-option-button 
-						data-automation-id="verify-caller-skip-button"					
+						data-automation-id="verify-caller-skip-button"
 						label="Skip Verification"
 						icon="system/arrow-right-action" 
 						iconSize="small"
 						@click="${() => this._skipClick()}">
 					</horizon-option-button>
 					<horizon-option-button
-						data-automation-id="verify-caller-tryagain-button"					
+						data-automation-id="verify-caller-tryagain-button"
 						class="btnTryAgain"
 						label="Try Again"
 						img-src="/images/insure/refresh.svg"
@@ -1033,7 +1042,7 @@ export class VerifyCaller extends Component {
 						@click="${() => this._tryAgain()}">
 					</horizon-option-button>
 					<horizon-option-button
-						data-automation-id="verify-caller-ita-button"					
+						data-automation-id="verify-caller-ita-button"
 						class="btnTryAgain"
 						label="Verify Via App/USSD"
 						icon="system/cellphone-action"
@@ -1050,7 +1059,7 @@ export class VerifyCaller extends Component {
 		return this.renderMode === RENDER_MODE.XDS_SQ
 			? html`
 				<horizon-security-question 
-					data-automation-id="verify-caller-sq-dialog"					
+					data-automation-id="verify-caller-sq-dialog"
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.securityQuestions="${this.securityQuestions}"
@@ -1078,7 +1087,7 @@ export class VerifyCaller extends Component {
 			? html``
 			: html`
 				<horizon-end-call-session 
-					data-automation-id="verify-caller-end-call-session"					
+					data-automation-id="verify-caller-end-call-session"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.incidentDetails="${this.incidentDetails}"
 					.callerInformation="${this.callerInformation}"

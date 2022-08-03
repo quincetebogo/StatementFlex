@@ -1,4 +1,5 @@
 import { EventAggregator, Logger } from 'platform/core';
+import { HIGH_RISK_TRANSACTIONS, LOW_RISK_TRANSACTIONS } from 'app/constants/Common';
 import { View, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { EXCEPTIONAL_ENDCALL_CONTEXTS } from 'app/constants/EndCallReasons';
@@ -10,6 +11,7 @@ import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { LandingPageEvents } from 'app/constants/telemetry/events/LandingPage';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { RoleManager } from 'app/shell/RoleManager';
 
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/verifyCaller/VerifyCaller';
@@ -47,6 +49,7 @@ export class ViewBase extends View {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+		this.roleManager = RoleManager.getInstance();
 		this.logger = Logger.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
 
@@ -94,6 +97,7 @@ export class ViewBase extends View {
 	connectedCallback() {
 		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
 		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
+		this.verifyInBranchSub = this.eventAggregator.subscribe(`horizon-verified-in-branch-click`, () => this._verifiedInBranch());
 		this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._assignIncidentClick());
 		this.addCallerDetailsSub = this.eventAggregator.subscribe(`horizon-add-caller-details`, () => this._addCallerDetails());
 		this.vasToast = this.eventAggregator.subscribe(`horizon-accepted-vas`, () => this._toastVAS());
@@ -107,6 +111,10 @@ export class ViewBase extends View {
 			if (changes && changes.stateChanges?.incidentDetails) {
 				this._refreshIncidentDetails();
 			}
+
+			if (changes && changes.stateChanges?.callerInformation) {
+				this._getCallerInformation();
+			}
 		});
 
 		super.connectedCallback();
@@ -115,6 +123,7 @@ export class ViewBase extends View {
 	disconnectedCallback() {
 		this.endCallSub.dispose();
 		this.verifySub.dispose();
+		this.verifyInBranchSub.dispose();
 		this.assignSub.dispose();
 		this.addCallerDetailsSub.dispose();
 		this.vasToast.dispose();
@@ -129,6 +138,14 @@ export class ViewBase extends View {
 
 	_verifyClick() {
 		this.showVerifyCallerDialog = true;
+	}
+
+	_verifiedInBranch() {
+		this.callerInformation.verificationStatus = 'verified';
+		this.callerInformation.verificationMethod = `ITA`;
+		this.callerInformation.verificationAttempts.itaAttempts += 1;
+
+		this.horizonStore.setCallerInformation(this.callerInformation);
 	}
 
 	_skipVerification(event) {
@@ -203,6 +220,10 @@ export class ViewBase extends View {
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
 	}
 
+	_getCallerInformation() {
+		this.callerInformation = this.horizonStore.getCallerInformation();
+	}
+
 	_addCallerDetails() {
 		this._telemetry.logEvent(LandingPageEvents.ADD_CALLER_DETAILS, {});
 		this._telemetry.startSpan(IDCallerEvents.IDENTIFY_CALLER, {});
@@ -271,6 +292,16 @@ export class ViewBase extends View {
 		}
 
 		this.horizonStore.clearReturnScreen();
+	}
+
+	_shouldDisable(need) {
+		// add this verification method in the verify caller component to check if the client has done ita 
+		const verificationMethod = this.callerInformation.verificationMethod;
+		const verificationStatus = this.callerInformation.verificationStatus;
+
+		return verificationStatus === `verified`
+				? verificationMethod === `SQ` && HIGH_RISK_TRANSACTIONS.includes(need)
+				: !LOW_RISK_TRANSACTIONS.includes(need);
 	}
 
 	// ---------

@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { CallHandleService } from 'app/services/CallHandleService';
+import { ClientProfileService } from 'app/services/ClientProfileService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -118,7 +118,7 @@ export class StopCardSearchCaller extends Component {
 		this.incomingCallDetails = null;
 		this.renderMode = -1;
 
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
+		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
 
 		this.isBusy = false;
 		this.alertBannerMessage = ``;
@@ -226,7 +226,7 @@ export class StopCardSearchCaller extends Component {
 				searchValue: this.searchFieldText
 			};
 
-			const returnValue = await this.callHandleService.searchCaller(searchClient);
+			const returnValue = await this.clientProfileService.searchCaller(searchClient);
 			const identifiedClient = returnValue.result;
 
 			if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
@@ -282,13 +282,14 @@ export class StopCardSearchCaller extends Component {
 			name: identifiedClient.callerInformation.name,
 			title: identifiedClient.callerInformation.title,
 			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber,
-            verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber,
-            firstName: identifiedClient.callerInformation.firstName,
-            middleName1: identifiedClient.callerInformation.middleName1,
-            middleName2: identifiedClient.callerInformation.middleName2,
-            middleName3: identifiedClient.callerInformation.middleName3,
-            lastName: identifiedClient.callerInformation.lastName,
-            initials: identifiedClient.callerInformation.initials,
+			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber,
+			firstName: identifiedClient.callerInformation.firstName,
+			middleName1: identifiedClient.callerInformation.middleName1,
+			middleName2: identifiedClient.callerInformation.middleName2,
+			middleName3: identifiedClient.callerInformation.middleName3,
+			lastName: identifiedClient.callerInformation.lastName,
+			initials: identifiedClient.callerInformation.initials,
+			gender: identifiedClient.callerInformation.gender,
 			identifiedBy: this.identificationMethods.identificationType
 		};
 

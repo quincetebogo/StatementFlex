@@ -107,7 +107,15 @@
 	CREDIT_TRANSACTION_HISTORY: `Credit Transaction History`,
 	CREDIT_STATEMENTS: `Credit Statements`,
 	SETTLEMENT_QUOTE_DIALOG: `Settlement Quote Dialog`,
-	CREDIT_SETTLE_CLOSE: `Credit Settle Close`,
+	CREDIT_SETTLE_CLOSE_DISCLAIMER: `Settle and close credit card disclaimer`,
+	CREDIT_SETTLE_LOAN_DISCLAIMER: `Settle and close term loan disclaimer`,
+	CREDIT_SETTLE_CLOSE: `Settle and Close Credit card  `,
+	CREDIT_SETTLE_TERM_LOAN: `Settle and close term loan`,
+	CREDIT_SETTLE_CLOSE_SUCCESS: `Settle and Close credit card success`,
+	CREDIT_SETTLE_CLOSE_FAILURE: `Settle and Close credit card failure`,
+	CREDIT_SETTLE_TERM_LOAN_SUCCESS: `Settle and close term loan success`,
+	CREDIT_SETTLE_TERM_LOAN_FAILURE: `Settle and close term loan failure`,
+	
 	CREDIT_STATEMENTS_SUCCESS: `Credit Statement success`,
 	CREDIT_STATEMENTS_FAILURE: `Credit Statement failure`,
 	CREDIT_BUDGET_ACCOUNT: `Credit Budget facility view`,
@@ -125,5 +133,10 @@
 	SETTLEMENT_QUOTE_FAILURE: `Settlement Quote Failure screen`,
 	SETTLEMENT_QUOTE_PARTIAL_SUCCESS: `Settlement Quote Partial Success screen`,
 
-	KBA: `KBA Dialog`
+	KBA: `KBA Dialog`,
+  
+  PAID_UP_LETTER_ACCOUNTS: `Paid Up Letter Account Selection`,
+	CREDIT_PAID_UP_LETTER: `Credit Paid Up Letter Screen`,
+	CREDIT_PAID_UP_LETTER_SUCCESS: `Credit Paid Up Letter Success`,
+	CREDIT_PAID_UP_LETTER_FAILURE: `Credit Paid Up Letter Failure`
 };

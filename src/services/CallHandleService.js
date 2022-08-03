@@ -42,53 +42,6 @@ export class CallHandleService extends ChannelServiceBase {
 	 */
 
 	/**
-	 * Determines if the caller is phoning from a verified number. 
-	 * 
-	 * @param {object} acceptCallData Information about the incoming call
-	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 * @memberof CallHandleService
-	 */
-	async acceptCall(acceptCallData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		if (await this.isMockEnabled(`acceptCall`)) {
-			return this.mock(`acceptCall`, acceptCallData);
-		}
-
-		/*
-		return this.get(
-			`/clientcare-call-${this._version}/search-caller?` +
-				`incomingTelephoneNumber=${clientInfo.incomingTelephoneNumber}&` +
-				`voiceReferenceNumber=${clientInfo.voiceReferenceNumber}&` +
-				`ivrOptionCode=${clientInfo.ivrOption}&` +
-				`incidentReferenceNumber=${clientInfo.incidentNo}&` +
-				`agentTelephoneNumber=${clientInfo.agentTelephoneNumber}&` +
-				`identificationMethod=${parseInt(clientInfo.identificationMethod, 10)}&` +
-				`value=${clientInfo.searchValue}`,
-				this._setToken(),
-			`searchCaller`
-		);
-		*/
-
-		const url = `/clientcare-call-${this._version}/accept-call`;
-
-		return this.post(
-			url,
-			{
-				'incomingTelephoneNumber': acceptCallData.incomingTelephoneNumber
-			},
-			this.setToken(), 
-			`acceptCall`,
-			false,
-			null,
-			null,
-			null,
-			errorHandler,
-			autoRetries
-		);
-	}
-
-	/**
 	 * Retrieves the search call options to search the existing client
 	 * 
 	 * @param {object} incomingCallData Information about the incoming call
@@ -104,54 +57,6 @@ export class CallHandleService extends ChannelServiceBase {
 			this.setToken(),
 			`searchOptions`, 
 			false,
-			null, 
-			1000,
-			null,
-			errorHandler,
-			autoRetries
-		);
-	}
-
-	/**
-	 * Retrieves the client information based on the identification method search
-	 *
-	 * @param {object} clientInfo Information about the incoming call
-	 * @param {errorHandlerCallback} errorHandler An optional error handler
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing client information and the result of the channel service call
-	 */
-	searchCaller(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-
-		/*
-		return this.get(
-			`/clientcare-call-${this._version}/search-caller?` +
-				`incomingTelephoneNumber=${clientInfo.incomingTelephoneNumber}&` +
-				`voiceReferenceNumber=${clientInfo.voiceReferenceNumber}&` +
-				`ivrOptionCode=${clientInfo.ivrOption}&` +
-				`incidentReferenceNumber=${clientInfo.incidentNo}&` +
-				`agentTelephoneNumber=${clientInfo.agentTelephoneNumber}&` +
-				`identificationMethod=${parseInt(clientInfo.identificationMethod, 10)}&` +
-				`value=${clientInfo.searchValue}`,
-				this._setToken(),
-			`searchCaller`,
-			false,
-			1000
-		);
-		*/
-		
-		const url = `/clientcare-call-${this._version}/search-caller`;
-
-		return this.post(
-			url,
-			{
-				'searchType': {
-					'identificationMethod': parseInt(clientInfo.identificationMethod, 10),
-					'value': clientInfo.searchValue
-				}
-			},
-			this.setToken(), 
-			`searchCaller`, 
-			null, 
 			null, 
 			1000,
 			null,
