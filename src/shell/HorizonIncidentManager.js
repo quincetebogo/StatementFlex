@@ -189,6 +189,8 @@ export class HorizonIncidentManager {
 	 async closeIncident({ clientNeed, endCallReason = {}, manualClassification = {} }, toggleBusyFlag) {
 
 		this.incidentService._toggleBusyFlag = toggleBusyFlag;
+		manualClassification = manualClassification || {};
+		
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 
 		if (!incidentDetails.incidentReferenceNumber || incidentDetails.incidentReferenceNumber === `0`) {
