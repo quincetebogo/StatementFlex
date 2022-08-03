@@ -238,16 +238,6 @@ export class SavingsPlan extends ViewBase {
 		this.horizonStore.setProductButtonState(this.landingPageInfo);
 	}
 
-	_performReturnToScreen() {
-		const returnToScreen = this.horizonStore.getReturnToScreen();
-
-		if (returnToScreen && returnToScreen.optionalData) {
-			this.eventAggregator.publish(`horizon-return-to-screen`, { option: returnToScreen.optionalData });
-		}
-
-		this.horizonStore.clearReturnScreen();
-	}
-
 	_errorHandler(exception) {
 		this.horizonRouter.navigateToSystemError();
 		return true;
