@@ -1,13 +1,14 @@
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
-import { formatStringAsPascalCase, getMonthName } from 'app/utils/channelServiceUtilities';
+import { formatStringAsPascalCase, getMonthName, formatDateWithTime } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { Configuration } from 'platform/core';
 import { EventAggregator } from 'platform/EventAggregator';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
+import { SavingsPlanService } from 'app/services/SavingsPlanService';
 import { SavingsPlanEvents, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/SavingsPlan';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
@@ -38,9 +39,7 @@ const TAX_TYPE = {
 
 const NINETY_DAYS = 7777000000;
 
-//TODO: Transaction History needs be formed as per Savings plan type (FLEXIBLE_SAVINGS, FIXED_TERM_MULTIPLE_DEPOSITS, FIXED_TERM_SINGLE_DEPOSIT)
 const TRANSACTION_HISTORY = {
-	ACCOUNT_TYPE: `FLEXIBLE_SAVINGS`,
 	END_DATE: new Date().toISOString().substr(0, 10),
 	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
 	START_AT_INDEX: 0,
@@ -80,6 +79,7 @@ export class SavingsPlan extends ViewBase {
 		this.transactionHistory = [];
 
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.savingsPlanService = new SavingsPlanService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.accountViewType = ``;
 		
@@ -404,9 +404,7 @@ export class SavingsPlan extends ViewBase {
 	async _getTransactionHistory(startDate, endDate, startAtIndex) {
 
 		const transactionHistoryRequest = {
-			cifNumber: this.callerInformation.cifNumber,
 			accountNumber: this.savePlanDetails.accountNumber,
-			accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
 			startDate: startDate || TRANSACTION_HISTORY.START_DATE,
 			endDate: endDate || TRANSACTION_HISTORY.END_DATE,
 			startAtIndex: startAtIndex || TRANSACTION_HISTORY.START_AT_INDEX,
@@ -414,14 +412,14 @@ export class SavingsPlan extends ViewBase {
 			moneyType: TRANSACTION_HISTORY.MONEY_TYPE
 		};
 
-		//TODO : New CS for SavingsPlan needs to be called here.
-		const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
+		const returnValue = await this.savingsPlanService.savingsPlanTransactionHistory(transactionHistoryRequest);
 
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions
 									.map((item) => {
 										const date = new Date(Date.parse(item.transactionDate));
 							
+										item.description = item.statementDescription;
 										item.tranDate = date;
 										item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
 										item.formatedAmount = formatCurrency(item.amount);
@@ -431,12 +429,10 @@ export class SavingsPlan extends ViewBase {
 									});
 			this.transactionHistory.push(...formattedTrans);
 
-			//TODO: Form the accountDetails object based on the new CS developed for SavingsPlan
 			this.accountDetails = {
 				"Account number": this.savePlanDetails.accountNumber,
 				"Balance": formatCurrency(this.savePlanDetails.currentBalance),
 				"Available balance": formatCurrency(this.savePlanDetails.availableBalance),
-				"Pending amount": `R1000`,//formatCurrency(this.landingPageInfo.accountPendingAmount),
 				"Interest": `${this.savePlanDetails.interestRate}%`,
 				"Status": this.savePlanDetails.accountStatus
 			};
@@ -656,7 +652,7 @@ export class SavingsPlan extends ViewBase {
 			<capitec-table-column
 				label="Transaction Date"
 				field="transactionDate"
-				type="date"
+				.renderer="${(item, fieldName, value) => this._renderTransactionDateTime(value)}"
 				size="156px;">
 			</capitec-table-column>
 			<capitec-table-column
@@ -665,13 +661,7 @@ export class SavingsPlan extends ViewBase {
 				size="410px;">
 			</capitec-table-column>
 			<capitec-table-column
-				label="Transaction Status"
-				field="transactionStatus"
-				size="144px;"
-				.renderer="${(item, fieldName, value) => this._renderTransactionStatus(value)}">
-			</capitec-table-column>
-			<capitec-table-column
-				label="Amount"
+				label="Amount (R)"
 				field="formatedAmount"
 				size="158px;"
 				type="currency">
@@ -686,13 +676,11 @@ export class SavingsPlan extends ViewBase {
 		`;
 	}
 
-	_renderTransactionStatus(value) {
-		return value === `Processed`
-			? html``
-			: html`
-				<div style="${unsafeCSS(STATUS_TAG.tagContainer)} ${unsafeCSS(STATUS_TAG.tagType)}">
-					<div style="${unsafeCSS(STATUS_TAG.tagLabel).toString()}">${value}</div>
-				</div>`;
+	_renderTransactionDateTime(value) {
+		return html`
+			<capitec-label
+				label="${formatDateWithTime(value)}">
+			</capitec-label>`;
 	}
 
 	_renderTransactionDetails(item) {
@@ -710,18 +698,6 @@ export class SavingsPlan extends ViewBase {
 			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Transaction type"
-					value = "${item.transactionType ? item.transactionType : `-`}"
-					data-automation-id="transaction-history-item-type">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Transfer account"
-					value = "${item.transferAccount ? item.transferAccount : `-`}"
-					data-automation-id="transaction-history-item-transfer-account">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Posting date" 
 					value = "${this._formatDate(item.postingDate)}"
 					data-automation-id="transaction-history-item-posting-date">
@@ -731,15 +707,6 @@ export class SavingsPlan extends ViewBase {
 					label="Processed date"
 					value = "${this._formatDate(item.processDate)}"
 					data-automation-id="transaction-history-item-processed-date">
-				</horizon-label>
-			</capitec-group>
-
-			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Transaction code"
-					value = "${item.transactionCode ? item.transactionCode : `-`}"
-					data-automation-id="transaction-history-item-code">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
@@ -753,17 +720,17 @@ export class SavingsPlan extends ViewBase {
 					value = "${item.cardAuthType ? item.cardAuthType : `-`}"
 					data-automation-id="transaction-history-item-card-auth-type">
 				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Journal number"
-					value = "${item.journalNumber ? item.journalNumber : `-`}"
-					data-automation-id="transaction-history-item-journal-number">
-				</horizon-label>
 			</capitec-group>
 
 			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Journal number"
+					value = "${item.journalNumber ? item.journalNumber : `-`}"
+					data-automation-id="transaction-history-item-journal-number">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Includes Vat"
 					value = "${item.includesVat ? `Yes` : `No`}"
 					data-automation-id="transaction-history-item-includes-vat">
@@ -776,6 +743,15 @@ export class SavingsPlan extends ViewBase {
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Spend group"
+					value = "${item.spendGroup ? item.spendGroup : `-`}"
+					data-automation-id="transaction-history-item-spend-group">
+				</horizon-label>
+			</capitec-group>
+
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Cash back"
 					value = "${item.cashback ? item.cashback : `-`}"
 					data-automation-id="transaction-history-item-cashback">
@@ -786,11 +762,8 @@ export class SavingsPlan extends ViewBase {
 					value = "${item.branch ? item.branch : `-`}"
 					data-automation-id="transaction-history-item-branch">
 				</horizon-label>
-			</capitec-group>
-
-			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
 				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Teller"
 					value = "${item.teller ? item.teller : `-`}"
 					data-automation-id="transaction-history-item-teller">
@@ -798,7 +771,6 @@ export class SavingsPlan extends ViewBase {
 			</capitec-group>
 		`;
 	}
-
 }
 
 customElements.define(`horizon-savings-plan`, SavingsPlan);

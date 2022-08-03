@@ -267,3 +267,10 @@ export function capitalizeString(str) {
 	const result = str.replace(/\0/g, ``); // TODO: Temporary fix for telemetry issue. This must come out once the PS side problem has been addressed.
 	return `${result.charAt(0).toUpperCase()}${result.slice(1)}`;
 }
+
+export function formatDateWithTime(date) {
+	const newdate = new Date(Date.parse(date));
+	const formattedDate = `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+	const formattedTime = `${newdate.toTimeString().substring(0, 5)}`;
+	return `${formattedDate} ${formattedTime}`;
+}

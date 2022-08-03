@@ -36,9 +36,15 @@ const _importTelemetryEvents_ = {
 const MAX_RESULTS = 50;
 const today = new Date();
 
+const FILTERS_SET = {
+	[ACCOUNT_TYPES.SAVINGS_ACCOUNT]: new Set([FILTER_BY.TEXT, FILTER_BY.DATE, FILTER_BY.STATUS]),
+	[ACCOUNT_TYPES.LBB]: new Set([FILTER_BY.TEXT, FILTER_BY.DATE, FILTER_BY.MONEY_TYPE]),
+	[ACCOUNT_TYPES.SAVINGS_PLAN]: new Set([FILTER_BY.TEXT, FILTER_BY.DATE, FILTER_BY.MONEY_TYPE])
+};
+
 /**
  * Transaction History, common component to display list of transactions happened in client's'
- * account (Savng account/ LBB).
+ * account (Savings account / LBB / Savings plan / Credit).
  *
  * Events Raised
  * -------------
@@ -408,14 +414,14 @@ export class TransactionHistory extends Component {
 		}
 
 		// Status filter is apllicable only on Savings Account Transaction History screen in the current state of application
-		if (RENDER_CHIPS[FILTER_BY.STATUS] && this.type === ACCOUNT_TYPES.SAVINGS_ACCOUNT) {
+		if (RENDER_CHIPS[FILTER_BY.STATUS]) {
 			const status = RENDER_CHIPS[FILTER_BY.STATUS];
 
 			this.filteredData = this.filteredData.filter(item => item.transactionStatus === status);
 		}
 
 		// Money Type filter is apllicable only on Live Better Transaction History screen in the current state of application
-		if (RENDER_CHIPS[FILTER_BY.MONEY_TYPE] && this.type === ACCOUNT_TYPES.LBB) {
+		if (RENDER_CHIPS[FILTER_BY.MONEY_TYPE]) {
 			const moneyType = RENDER_CHIPS[FILTER_BY.MONEY_TYPE];
 
 			if (moneyType === `Money In`) {
@@ -688,6 +694,9 @@ export class TransactionHistory extends Component {
 					width: 1062px;
 					margin-top: 130px;
 				}
+				capitec-image {
+					cursor: pointer;
+				}
 			`
 		];
 	}
@@ -799,7 +808,7 @@ export class TransactionHistory extends Component {
 					@value-change = "${(e) => this._filterByStatus(e)}"
 					value = ${RENDER_CHIPS[FILTER_BY.STATUS]}
 					hint=""
-					?hidden="${this.type !== ACCOUNT_TYPES.SAVINGS_ACCOUNT}"
+					?hidden="${!FILTERS_SET[this.type].has(FILTER_BY.STATUS)}"
 					data-automation-id="transaction-status-filter">
 				</capitec-select>
 				
@@ -807,19 +816,19 @@ export class TransactionHistory extends Component {
 					label="All" 
 					class="${RENDER_CHIPS[FILTER_BY.MONEY_TYPE] === `All` ? `type-selected` : `type-normal`}" 
 					@click="${(e) => this._selectedMoneyType(e)}" 
-					?hidden="${this.type !== ACCOUNT_TYPES.LBB}">
+					?hidden="${!FILTERS_SET[this.type].has(FILTER_BY.MONEY_TYPE)}">
 				</capitec-chip>
 				<capitec-chip 
 					label="Money In"
 					class="${RENDER_CHIPS[FILTER_BY.MONEY_TYPE] === `Money In` ? `type-selected` : `type-normal`}" 
 					@click="${(e) => this._selectedMoneyType(e)}" 
-					?hidden="${this.type !== ACCOUNT_TYPES.LBB}">
+					?hidden="${!FILTERS_SET[this.type].has(FILTER_BY.MONEY_TYPE)}">
 				</capitec-chip>
 				<capitec-chip 
 					label="Money Out" 
 					class="${RENDER_CHIPS[FILTER_BY.MONEY_TYPE] === `Money Out` ? `type-selected` : `type-normal`}" 
 					@click="${(e) => this._selectedMoneyType(e)}" 
-					?hidden="${this.type !== ACCOUNT_TYPES.LBB}">
+					?hidden="${!FILTERS_SET[this.type].has(FILTER_BY.MONEY_TYPE)}">
 				</capitec-chip>
 
 			</capitec-group>

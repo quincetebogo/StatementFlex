@@ -3,7 +3,8 @@
 		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet",
 		"clientInsightsUrl": "https://hzn-cs-clientinsights-v1.platform-dev.int.capinet",
 		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-dev.int.capinet",
-		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-dev.int.capinet"		
+		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-dev.int.capinet",
+		"savingsPlanChannelServiceUrl": "https://csc-cs-save.platform-dev.int.capinet"
 	},
 	"signalRUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
 	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
@@ -135,6 +136,10 @@
 			"positiveCase": false
 		},
 		"transactionHistory": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"savingsPlanTransactionHistory": {
 			"enabled": false,
 			"positiveCase": true
 		},
