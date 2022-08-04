@@ -26,7 +26,8 @@ export const alertBannerMixin = {
 	},
 
 	_renderUnverifiedAlertBanner() {
-		return html`
+		return !this.roleManager.isHelpDeskAgent 
+		? html`
 			<capitec-alert-banner
 				class="verificatoin-status"
 				data-automation-id="favourite-transactions-unverified-alert-banner"
@@ -43,7 +44,8 @@ export const alertBannerMixin = {
 						@click="${() => this._verifyClick()}">
 					</capitec-hyperlink>
 				</capitec-group>
-			</capitec-alert-banner>`;
+			</capitec-alert-banner>`
+		: html``;
 	},
 
 	_renderFailedAlertBanner() {

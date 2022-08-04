@@ -107,6 +107,10 @@ export class Statements extends Component {
 		};
 	}
 
+	get statementAsOption() {
+		return this.accountType ? `statements-${this.accountType}` : `statements`;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -385,8 +389,9 @@ export class Statements extends Component {
 
 		const returnValue = await this.quickTransactionService.sendStatement(statement);
 		this._updateScreenDetails(request);
-		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `statements`);
 
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, this.statementAsOption);
+		
 		if (returnValue.succeeded) {
 			this.horizonRouter.navigateToStatementSuccessful();
 		} else {

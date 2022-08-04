@@ -1,6 +1,5 @@
 import { css, html } from 'platform/elements';
 import { STATEMENT_EVENTS } from 'app/constants/telemetry/events/Credit';
-import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
@@ -17,6 +16,7 @@ export class CreditStatementsSuccess extends ViewBase {
 
 		this.mailId = ``;
 		this.acNumber = ``;
+		this.accountName = ``;
 		this.endCallContext = `QuickTransactionSuccess`;
 	}
 
@@ -42,6 +42,7 @@ export class CreditStatementsSuccess extends ViewBase {
 
 		this.mailId = screenDetails && screenDetails.emailAddress;
 		this.acNumber = screenDetails && screenDetails.accountNumber;
+		this.accountName = screenDetails && screenDetails.accountType;
 
 		this._updateIncidentState();
 	}
@@ -128,7 +129,7 @@ export class CreditStatementsSuccess extends ViewBase {
 					<section 
 						id="id-error-msg" 
 						slot="detail">
-							The statement for credit card account <b>${this.acNumber}</b> was emailed to <b>${this.mailId}</b>
+							The statement for <b>${this.accountName}</b> account <b>${this.acNumber}</b> was emailed to <b>${this.mailId}</b>
 					</section>
 			</horizon-success-screen>
 		`;
