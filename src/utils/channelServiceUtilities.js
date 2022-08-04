@@ -231,12 +231,32 @@ export function formatDate(value, format) {
 		case `MM yyyy`:
 			formattedDate = `${monthName} ${year}`;
 			break;
+		case `yyyy-mm-dd`:
+			let formattedMonth = month + 1 ;
+			formattedMonth = (formattedMonth < 10) ? `0` + formattedMonth: formattedMonth;
+			let day = (date < 10) ? `0`+ date: date;
+			
+			formattedDate = `${year}-${formattedMonth}-${day}`;
+			break;
 		default:
 			formattedDate = `${date}-${month}-${year}`;
 			break;
 	}
 
 	return formattedDate;
+}
+
+/**
+ * @export
+ * @param {string} date string value to be formatted
+ * @returns {string} formatted string value 
+ */
+ export function formatDateTime(date) {
+	const newdate = new Date(Date.parse(date));
+	const formatedDate = `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+	const formatedTime = `${newdate.toTimeString().substring(0, 5)}`;
+
+	return `${formatedDate} ${formatedTime}`;
 }
 
 /**
@@ -266,11 +286,4 @@ export function formatStringAsPascalCase(unformatedString) {
 export function capitalizeString(str) {
 	const result = str.replace(/\0/g, ``); // TODO: Temporary fix for telemetry issue. This must come out once the PS side problem has been addressed.
 	return `${result.charAt(0).toUpperCase()}${result.slice(1)}`;
-}
-
-export function formatDateWithTime(date) {
-	const newdate = new Date(Date.parse(date));
-	const formattedDate = `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
-	const formattedTime = `${newdate.toTimeString().substring(0, 5)}`;
-	return `${formattedDate} ${formattedTime}`;
 }

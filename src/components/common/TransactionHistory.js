@@ -782,7 +782,8 @@ export class TransactionHistory extends Component {
 					@focus="${(e) => this.searchTextLabel = ``}"
 					@blur="${(e) => this._searchTextBlur(e)}"
 					value="${RENDER_CHIPS[FILTER_BY.TEXT]}"
-					data-automation-id="transaction-history-text-filter">
+					data-automation-id="transaction-history-text-filter"
+					?hidden="${!FILTERS_SET[this.type].has(FILTER_BY.TEXT)}">
 				</capitec-text-field>
 
 				<capitec-date-time-picker
@@ -797,7 +798,8 @@ export class TransactionHistory extends Component {
 					outputType="string"
 					.predefinedRanges="${this.getPredefinedDateRanges()}"
 					@apply-clicked="${(e) => this._dateChanged(e)}"
-					data-automation-id="transaction-history-date-filter">
+					data-automation-id="transaction-history-date-filter"
+					?hidden="${!FILTERS_SET[this.type].has(FILTER_BY.DATE)}">
 				</capitec-date-time-picker>
 
 				<capitec-select

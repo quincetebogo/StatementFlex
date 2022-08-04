@@ -1,7 +1,7 @@
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
-import { formatStringAsPascalCase, getMonthName, formatDateWithTime } from 'app/utils/channelServiceUtilities';
+import { formatStringAsPascalCase, getMonthName, formatDateTime, formatDate } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { Configuration } from 'platform/core';
 import { EventAggregator } from 'platform/EventAggregator';
@@ -38,6 +38,8 @@ const TAX_TYPE = {
 };
 
 const NINETY_DAYS = 7777000000;
+
+const ISO_8601_DATE_FORMAT = `yyyy-mm-dd`;
 
 const TRANSACTION_HISTORY = {
 	END_DATE: new Date().toISOString().substr(0, 10),
@@ -387,7 +389,7 @@ export class SavingsPlan extends ViewBase {
 
 		this.savePlanDetails = savePlanDetails;
 
-		await super.createAndClassifySubsIncident();
+		await super.createAndClassifySubsIncident(null, false);
 		await this._getTransactionHistory();
 	}
 
@@ -395,8 +397,8 @@ export class SavingsPlan extends ViewBase {
 
 		const transactionHistoryRequest = {
 			accountNumber: this.savePlanDetails.accountNumber,
-			startDate: startDate || TRANSACTION_HISTORY.START_DATE,
-			endDate: endDate || TRANSACTION_HISTORY.END_DATE,
+			startDate: formatDate(startDate || TRANSACTION_HISTORY.START_DATE, ISO_8601_DATE_FORMAT),
+			endDate: formatDate(endDate || TRANSACTION_HISTORY.END_DATE, ISO_8601_DATE_FORMAT),
 			startAtIndex: startAtIndex || TRANSACTION_HISTORY.START_AT_INDEX,
 			maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
 			moneyType: TRANSACTION_HISTORY.MONEY_TYPE
@@ -669,7 +671,7 @@ export class SavingsPlan extends ViewBase {
 	_renderTransactionDateTime(value) {
 		return html`
 			<capitec-label
-				label="${formatDateWithTime(value)}">
+				label="${formatDateTime(value)}">
 			</capitec-label>`;
 	}
 
@@ -689,13 +691,13 @@ export class SavingsPlan extends ViewBase {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Posting date" 
-					value = "${this._formatDate(item.postingDate)}"
+					value = "${formatDateTime(item.postingDate)}"
 					data-automation-id="transaction-history-item-posting-date">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Processed date"
-					value = "${this._formatDate(item.processDate)}"
+					value = "${formatDateTime(item.processDate)}"
 					data-automation-id="transaction-history-item-processed-date">
 				</horizon-label>
 				<horizon-label
