@@ -14,7 +14,7 @@ import { ViewBase } from 'app/views/common/ViewBase';
 import { alertBannerMixin } from 'app/views/common/AlertBannerMixin';
 import { creditMixin } from 'app/views/credit/CreditMixin';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { formatDate, formatDateTime, formatStringAsPascalCase, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { formatDate, formatStringAsPascalCase, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/ServiceCallErrorScreen';
 import 'app/components/credit/CreditCardDetails';
@@ -35,6 +35,8 @@ import 'app/dialogs/credit/SettleAndCloseDialog';
 import 'app/components/common/TransactionHistory';
 
 const ISO_8601_DATE_FORMAT = `yyyy-mm-dd`;
+
+const DATE_TIME_FORMAT = `dd mmm yyy hh:mm:ss`;
 
 const NINETY_DAYS = 7777000000;
 
@@ -642,7 +644,7 @@ export class CreditAccount extends ViewBase {
 			startDate = formatDate(startDate, ISO_8601_DATE_FORMAT);
 			endDate = formatDate(endDate, ISO_8601_DATE_FORMAT);
 		}
-
+		
 		return {
 			"accountNumber": this.accountDetails["Account number"],
 			"startDate": startDate || TRANSACTION_HISTORY.START_DATE,
@@ -1395,7 +1397,7 @@ export class CreditAccount extends ViewBase {
 	_renderTransactionDateTime(value) {
 		return html`
 			<capitec-label
-				label="${formatDateTime(value)}">
+				label="${formatDate(value, DATE_TIME_FORMAT)}">
 			</capitec-label>`;
 	}
 
@@ -1424,13 +1426,13 @@ export class CreditAccount extends ViewBase {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Posting date" 
-					value = "${formatDateTime(item.postingDate)}"
+					value = "${formatDate(item.postingDate, DATE_TIME_FORMAT)}"
 					data-automation-id="credit-transaction-history-item-posting-date">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Processed date"
-					value = "${formatDateTime(item.processDate)}"
+					value = "${formatDate(item.processDate, DATE_TIME_FORMAT)}"
 					data-automation-id="credit-transaction-history-item-processed-date">
 				</horizon-label>
 			</capitec-group>

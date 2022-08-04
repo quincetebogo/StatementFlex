@@ -215,6 +215,8 @@ export function formatDate(value, format) {
 	const month = dateTime.getMonth();
 	const monthName = getMonthName(month);
 	const year = dateTime.getFullYear();
+	const time = dateTime.toTimeString().substring(0, 5);
+
 	let formattedDate = ``;
 
 	// cases would be extended, based on our need in future
@@ -232,11 +234,12 @@ export function formatDate(value, format) {
 			formattedDate = `${monthName} ${year}`;
 			break;
 		case `yyyy-mm-dd`:
-			let formattedMonth = month + 1 ;
-			formattedMonth = (formattedMonth < 10) ? `0` + formattedMonth: formattedMonth;
-			let day = (date < 10) ? `0`+ date: date;
-			
+			let formattedMonth = String(month+1).padStart(2, '0');
+			let day = String(date).padStart(2, '0');
 			formattedDate = `${year}-${formattedMonth}-${day}`;
+			break;
+		case `dd mmm yyy hh:mm:ss`:
+			formattedDate = `${date} ${monthName} ${year} ${time}`
 			break;
 		default:
 			formattedDate = `${date}-${month}-${year}`;
@@ -244,22 +247,6 @@ export function formatDate(value, format) {
 	}
 
 	return formattedDate;
-}
-
-
-
-
-/**
- * @export
- * @param {string} date string value to be formatted
- * @returns {string} formatted string value 
- */
-export function formatDateTime(date) {
-	const newdate = new Date(Date.parse(date));
-	const formatedDate = `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
-	const formatedTime = `${newdate.toTimeString().substring(0, 5)}`;
-
-	return `${formatedDate} ${formatedTime}`;
 }
 
 /**

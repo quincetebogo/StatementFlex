@@ -8,13 +8,14 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { formatDateTime, getMonthName } from 'app/utils/channelServiceUtilities';
+import { formatDate, getMonthName } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/TransactionHistory';
 import 'app/components/savingsAccount/SavingAccount';
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/common/StatementsDialog';
 
+const DATE_TIME_FORMAT = `dd mmm yyy hh:mm:ss`;
 // ninety days in milliseconds
 const NINETY_DAYS = 7777000000;
 const SAVINGS_ACCOUNT = 300;
@@ -389,7 +390,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	_renderTransactionDateTime(value) {
 		return html`
 			<capitec-label
-				label="${formatDateTime(value)}">
+				label="${formatDate(value, DATE_TIME_FORMAT)}">
 			</capitec-label>`;
 	}
 
@@ -421,13 +422,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Posting date" 
-					value = "${formatDateTime(item.postingDate)}"
+					value = "${formatDate(item.postingDate, DATE_TIME_FORMAT)}"
 					data-automation-id="transaction-history-item-posting-date">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Processed date"
-					value = "${formatDateTime(item.processDate)}"
+					value = "${formatDate(item.processDate, DATE_TIME_FORMAT)}"
 					data-automation-id="transaction-history-item-processed-date">
 				</horizon-label>
 			</capitec-group>
