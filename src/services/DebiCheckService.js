@@ -153,16 +153,16 @@ export class DebiCheckService extends ChannelServiceBase {
 	/**
 	 * Confirm agreement of decline/approve debi-check mandate
 	 *
-	 * @param {Object} mandateInfo Information about the mandate and account holder
+	 * @param {Object} request Information about the mandate and account holder
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	async debiCheckApprove (mandateInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async debiCheckApprove (request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`debiCheckApprove`)) {
-			return this.mock(`debiCheckApprove`, mandateInfo);
+			return this.mock(`debiCheckApprove`, request);
 		}
 
 		const url = `/clientcare-debicheck-${this._version}/mandate-approve`;
