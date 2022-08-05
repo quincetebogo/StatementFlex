@@ -110,12 +110,11 @@ export class DebiCheckService extends ChannelServiceBase {
 	 * @param {string} lastName Client's last name
 	 * @param {string} debiCheckDetails details of the selected mandate
 	 * @param {string} mandateInfo details of the selected mandate
-	 * @param {boolean} accepted true if accepted and false if declined
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	async debiCheckDecline(cifNumber, title, lastName, debiCheckDetails, mandateInfo, accepted, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async debiCheckDecline(cifNumber, title, lastName, debiCheckDetails, mandateInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`debiCheckDecline`)) {
@@ -126,7 +125,6 @@ export class DebiCheckService extends ChannelServiceBase {
 			cifNumber: cifNumber,
 			mandateReferenceNumber: debiCheckDetails.mandateReference,
 			debtorAccountNumber: debiCheckDetails.debtorAccountNumber,
-			accepted: accepted,
 			title: title,
 			lastName: lastName,
 			collectorName: mandateInfo.mandateName,

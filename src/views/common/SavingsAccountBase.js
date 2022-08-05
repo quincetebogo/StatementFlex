@@ -214,17 +214,17 @@ export class SavingsAccountBase extends ViewBase {
 		this.renderMode = RENDER_MODE.DEBI_CHECK_VIEW_INFO;
 	}
 
-	async _declineDebiCheckMandate(event) {
+    async _declineDebiCheckMandate(event) {
 		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_DECLINE_MANDATE_CONFIRM, {
 			"screen": TelemetryScreen.DECLINE_DEBICHECK,
 			"next-screen": TelemetryScreen.DEBICHECK_OUTCOME
 		});
 
-		await this._authenticateMandate(false);
+		await this._authenticateMandate();
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
 
-	async _approveDebiCheckMandate(event) {
+    async _approveDebiCheckMandate(event) {
 		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
 			"screen": TelemetryScreen.APPROVE_DEBICHECK,
 			"next-screen": TelemetryScreen.DEBICHECK_OUTCOME
@@ -344,14 +344,13 @@ export class SavingsAccountBase extends ViewBase {
 		}
 	}
 
-	async _authenticateMandate(accepted) {
+	async _authenticateMandate() {
 		const returnValue = await this.debiCheckService.debiCheckDecline(
 			this.callerInformation.cifNumber,
 			this.callerInformation.title,
 			this.callerInformation.lastName,
 			this.debiCheckDetails,
-			this.mandateInfo,
-			accepted
+			this.mandateInfo
 		);
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `debi-check-viewInfo`);
 		

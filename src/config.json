@@ -113,23 +113,23 @@
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"debiCheckDetails": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"debiCheckDecline": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"debiCheckApprove": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"debiCheckAgreement": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"cardLimits": {

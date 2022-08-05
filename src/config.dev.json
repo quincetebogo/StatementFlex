@@ -97,7 +97,7 @@
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"debiCheckDetails": {
