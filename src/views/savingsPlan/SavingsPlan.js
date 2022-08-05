@@ -298,7 +298,7 @@ export class SavingsPlan extends ViewBase {
 		this.clientProducts = [
 			{
 				'accountNumber': accountDetails.accountNumber,
-				'accountName': `${accName.charAt(0).toUpperCase()}${accName.slice(1)}`,
+				'accountName': `${accName.charAt(0).toUpperCase()}${accName.slice(1)} account`,
 				'accountType': accountDetails.planType,
 				'accountOpenDate': accountDetails.accountOpenDate,
 				'type': productInfo.type,

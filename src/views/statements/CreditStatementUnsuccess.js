@@ -24,6 +24,7 @@ export class CreditStatementsUnsuccess extends ViewBase {
 
 		this.mailId = ``;
 		this.acNumber = ``;
+		this.accountName = ``;
 		this.endCallContext = `QuickTransactionsUnSuccess`;
 	}
 
@@ -47,6 +48,7 @@ export class CreditStatementsUnsuccess extends ViewBase {
 		
 		this.mailId = this.screenDetails && this.screenDetails.emailAddress;
 		this.acNumber = this.screenDetails && this.screenDetails.accountNumber;
+		this.accountName = this.screenDetails && this.screenDetails.accountType;
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
@@ -133,7 +135,7 @@ export class CreditStatementsUnsuccess extends ViewBase {
 					<section 
 						id="id-error-msg" 
 						slot="detail">
-							The statement for credit card account <b>${this.acNumber}</b> was not emailed to <b>${this.mailId}</b>
+							The statement for <b>${this.accountName}</b> account <b>${this.acNumber}</b> was not emailed to <b>${this.mailId}</b>
 					</section>
 			</horizon-error-screen>
 		`;
