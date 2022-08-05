@@ -492,7 +492,7 @@ export class CreditService extends ChannelServiceBase {
 			"firstName": callerInformation.firstName,
 			"surname": callerInformation.lastName,
 			"title": callerInformation.title,
-			"budgetTitle": '' 
+			"budgetTitle": transferDetails.budgetName
 		};
 
 		const url = `/clientcare-credit-${this._version}/credit/budgetaccount/transfer`;
