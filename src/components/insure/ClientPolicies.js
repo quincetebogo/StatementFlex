@@ -588,6 +588,7 @@ class ClientPolicies extends Component {
 	 */
 	_renderContent() {
 		return html`
+		${console.log(this.clientPolicies)}
 			<capitec-card 
 				data-automation-id="insure-landing-screen"
 				class="card">
@@ -757,7 +758,7 @@ class ClientPolicies extends Component {
 							.disabled="${this.readOnlyMode}">
 						</horizon-option-button>
 					` : ``}
-					${policyItem.status == 'Active' ? 
+					${policyItem.status == 'Active' || policyItem.status == 'PendingInForce'? 
 						html `<horizon-option-button 
 						data-automation-id="insure-policy-options-update-plan"
 						class="button-margin" 

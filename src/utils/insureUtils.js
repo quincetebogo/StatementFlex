@@ -15,7 +15,7 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 	if (isExtendedFamily == true) relationship = 'ExtendedFamily';
 
 	let product = productParams.products.find(product => {
-		return product.parameters.id === "NBS"
+		return product.parameters.id === "SBL"
 	});
 	let currentRole = product.parameters.rolePlayers.roleList.role.find(role => {
 		return role.relationshipTypeEnum == relationship
@@ -245,7 +245,7 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
  */
 export function livesPerPolicy(relationship, productParams) {
 	let product = productParams.products.find(product => {
-		return product.parameters.id === `NBS`
+		return product.parameters.id === `SBL`
 	});
 	let currentRole = product.parameters.rolePlayers.roleList.role.find(role => {
 		return role.relationshipTypeEnum == relationship
@@ -276,4 +276,28 @@ export function getAgeFromIDNumber(southAfricanIDNumber) {
 export function getGenderFromIDNumber(southAfricanIDNumber) {
 	let genderSubStr = parseInt(southAfricanIDNumber.substring(6, 10));
 	return genderSubStr >= 5000 ? 'Male' : 'Female'
+}
+
+export function checkPolicyRules(ruleType, productParams, field, relationship) {
+	// console.log(ruleType)
+	// console.log(field)
+	// console.log(relationship)
+	// console.log(productParams)
+	
+	let product = productParams.products.find(product => {
+		return product.parameters.id === `SBL`
+	});
+	// console.log(product)
+	
+	let currentRuleType = product.parameters.rulesParams.find(rule => {
+		return rule.ruleType === ruleType
+	});
+	console.log(currentRuleType)
+	
+	let relationshipRule = currentRuleType.peopleRulesList.find(role => {
+		return role.type === relationship
+	});
+	// console.log(relationshipRule[field])
+
+	return relationshipRule[field]
 }

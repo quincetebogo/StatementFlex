@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
+import { refreshRelationshipCoverDetails, checkPolicyRules} from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
@@ -81,6 +81,8 @@ class UpdatePlan extends Component {
 		this.debitOrderDayOptions = DEBIT_ORDER_DAY_OPTIONS;
 		this.genderOptions = GENDER_OPTIONS;
 		this.titleOptions = TITLE_OPTIONS;
+
+		
 	}
 
 	//#endregion
@@ -398,9 +400,21 @@ class UpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if(rolePlayer.recordID === recordId) {
 					this.policyDetails.roleplayers[index].idNumber = event.detail.new;
+					if(this.policyDetails.roleplayers[index].idNumber.length == 13){
+						let dateOfBirth = this._setDOB(this.policyDetails.roleplayers[index].idNumber)
+						console.log("1st")
+						console.log(dateOfBirth)
+						if(!isNullorEmpty(dateOfBirth)){
+							this.policyDetails.roleplayers[index].dateOfBirth = dateOfBirth;
+							console.log("2nd")
+							console.log(this.policyDetails.roleplayers[index].dateOfBirth)
+						}
+					}
 				}
 			});
 		}
+		this.requestUpdate()
+		
 	}
 
 	/**
@@ -696,37 +710,64 @@ class UpdatePlan extends Component {
 	_checkID(idNumber){
 		// let current = new Date()
 		// console.log(current.getFullYear() )
-		let birthdate = new Date(idNumber.substring(0, 2), idNumber.substring(2, 4) - 1, idNumber.substring(4, 6));
-		console.log(birthdate)
-		console.log(birthdate.toISOString())
-		if (birthdate.getFullYear() <= (new Date().getFullYear() - 100)){
-			birthdate.setFullYear(birthdate.getFullYear() + 100)
-		}
-		console.log(birthdate)
-		let ageDifMs = Date.now() - birthdate.getTime();
-		console.log(ageDifMs)
-		let ageDate = new Date(ageDifMs);
-		console.log(ageDate)
-		console.log(Math.abs(ageDate.getUTCFullYear() - 1970))
-		console.log(new Date().getFullYear()-100)		
+		// let birthdate = new Date(idNumber.substring(0, 2), idNumber.substring(2, 4) - 1, idNumber.substring(4, 6));
+		// console.log(birthdate)
+		// console.log(birthdate.toISOString())
+		// if (birthdate.getFullYear() <= (new Date().getFullYear() - 100)){
+		// 	birthdate.setFullYear(birthdate.getFullYear() + 100)
+		// }
+		// console.log(birthdate)
+		// let ageDifMs = Date.now() - birthdate.getTime();
+		// console.log(ageDifMs)
+		// let ageDate = new Date(ageDifMs);
+		// console.log(ageDate)
+		// console.log(Math.abs(ageDate.getUTCFullYear() - 1970))
+		// console.log(new Date().getFullYear()-100)		
 
-		if(isNullorEmpty(idNumber)){
+		if(isNullorEmpty(idNumber) || idNumber.length != 13){
 			this.idNull = true;
 			return `-`
 		} else {
+			console.log(idNumber)
 			this.idNull = false;
 			return idNumber
 		}
 	}
 
+
 	_setDOB(idNumber){
 		let birthdate = new Date(idNumber.substring(0, 2), idNumber.substring(2, 4) - 1, idNumber.substring(4, 6));
-
+		
 		if (birthdate.getFullYear() <= (new Date().getFullYear() - 100)){
 			birthdate.setFullYear(birthdate.getFullYear() + 100)
 		}
 
-		this.dOB = birthdate.toISOString()
+		return birthdate.toISOString()
+		
+		
+	}
+
+	_policyRuleAllowsChange(field, relationship){
+		return checkPolicyRules(this.policyDetails.policyRule, this.productParams, field, relationship)
+		
+	}
+
+	_canAddLife(){
+		let product = this.productParams.products.find(product => {
+			return product.parameters.id === `SBL`
+		});
+		console.log(product)
+		
+		let currentRuleType = product.parameters.rulesParams.find(rule => {
+			return rule.ruleType === this.policyDetails.policyRule
+		});
+
+		console.log("currentRuleType")
+		console.log(currentRuleType)
+		console.log(currentRuleType.addNewLives)
+
+		return currentRuleType.addNewLives
+		
 	}
 
 	//#endregion
@@ -979,6 +1020,7 @@ class UpdatePlan extends Component {
 	 * @returns {html}
 	 */
 	_webTemplate() {
+		console.log(this.productParams)
 		return html`
 			${this._renderContent()}
 			${this._renderDialogs()}
@@ -1101,9 +1143,9 @@ class UpdatePlan extends Component {
 							<capitec-label label="Lives Assured" type="strong" class="stronger">
 							</capitec-label>`
 						: ``}
-						${this.canReinstate ? `` : 
+						${this.canReinstate || !this._canAddLife() ? `` : 
 							html `<capitec-label label="Add Life Assured" type="subtitle" class="stronger link"
-								@click="${() => this._openAddLifeDialog()}">
+								@click="${() => this._openAddLifeDialog()}" disabled>
 								</capitec-label>
 						`}		
 					</div>
@@ -1113,9 +1155,10 @@ class UpdatePlan extends Component {
 			roleplayer.lifeAssured == true ? 
 					html`
 					${ this.canReinstate ? ``	
-						: html `<capitec-label label="Remove" @click="${() => this._openRemoveLifeAssuredDialog(roleplayer, index)}" type="subtitle"
-							class="stronger link" style="position: relative; width: fit-content; left: 613px; top: 43px;">
-						</capitec-label>`
+						: (this.policyDetails.policyRule != "Standard" ? html ``
+						:html `<capitec-label label="Remove" @click="${() => this._openRemoveLifeAssuredDialog(roleplayer, index)}" type="subtitle"
+							class="stronger link" style="position: relative; width: fit-content; left: 613px; top: 43px;"></capitec-label>` 
+							)
 					}
 			
 					<horizon-expander expandButtonAlignment="right">
@@ -1471,7 +1514,7 @@ class UpdatePlan extends Component {
 				</capitec-text-field>
 			
 				<capitec-text-field label="Cover amount" style="width: 50%" type="currency" value="${roleplayer?.coverAmount}"
-					?disabled = "${Boolean(this.canReinstate)}"
+					?disabled = "${Boolean(this.canReinstate) || !this._policyRuleAllowsChange("editLifeAssuredValues", roleplayer.relationship)}"
 					@value-changed="${(e) => this._lifeCoverAmountValueChanged(e, roleplayer.recordID)}">
 				</capitec-text-field>
 			</div>
@@ -1494,62 +1537,69 @@ class UpdatePlan extends Component {
 		return html`
 			<div class="expander-options">
 				<capitec-select label="Title" .items="${this.titleOptions}" display-field="text" id-field="code" style="width: 50%"
-					value="${roleplayer?.title}" ?disabled="${this.canReinstate}"
+					value="${roleplayer?.title}" ?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editTitle", roleplayer.relationship)}"
 					@value-changed="${(e) => this._lifeTitleValueChanged(e, roleplayer.recordID)}">
 				</capitec-select>
 			
 				<capitec-select label="Gender" .items="${this.genderOptions}" display-field="text" id-field="code"
 					style="width: 50%" @value-changed="${(e) => this._lifeGenderValueChanged(e, roleplayer.recordID)}"
-					value="${roleplayer?.gender}" ?disabled="${this.canReinstate}">
+					value="${roleplayer?.gender}" ?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editGender", roleplayer.relationship)}">
 				</capitec-select>
 			</div>
 			</div>
 			<div class="expander-options">
 				<capitec-text-field label="Name" style="width: 50%" value="${roleplayer?.firstName}"
-					?disabled="${this.canReinstate}"
+					?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editFirstName", roleplayer.relationship)}"
 					@value-changed="${(e) => this._lifeNameValueChanged(e, roleplayer.recordID)}">
 				</capitec-text-field>
 			
 				<capitec-text-field label="Surname" style="width: 50%" value="${roleplayer?.surname}"
-					?disabled="${this.canReinstate}"
+					?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editSurname", roleplayer.relationship)}"
 					@value-changed="${(e) => this._lifeSurnameValueChanged(e, roleplayer.recordID)}">
 				</capitec-text-field>
 			</div>
 			<div class="expander-options">
 				<capitec-text-field label="Middle Names" style="width: 50%" value="${isNullorEmpty(roleplayer?.middleName) ? '' : roleplayer?.middleName}"
-					?disabled="${this.canReinstate}"
+					?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editMiddleName1", roleplayer.relationship)}"
 					@value-changed="${(e) => this._lifeMiddleNameValueChanged(e, roleplayer.recordID)}">
 				</capitec-text-field>
 			
 				<capitec-text-field label="Cover amount" style="width: 50%" type="currency" 
-					value="${roleplayer?.coverAmount}" ?disabled="${this.canReinstate}" 
+					value="${roleplayer?.coverAmount}" ?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editLifeAssuredValues", roleplayer.relationship)}" 
 					@value-changed="${(e) => this._lifeCoverAmountValueChanged(e, roleplayer.recordID)}">
 				</capitec-text-field>
 			</div>
 			<div class="expander-options">
-				${ this.canReinstate == true ? 
+				${ this.canReinstate == true || !this._policyRuleAllowsChange("editDateOfBirth", roleplayer.relationship) ? 
 						html `<capitec-text-field label="Date of birth" style="width: 50%" disabled
 								value="${formatDate(roleplayer?.dateOfBirth)}">
 							</capitec-text-field>`
-						:
-						html `<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="input"
-								date="${this.idNull ? formatDate(roleplayer?.dateOfBirth) : this.dOB}" outputType="string" maxdate="${this.today}"
-								.disabled = "${this.idNull == false}">
-							</capitec-date-time-picker>`
+						:(isNullorEmpty(roleplayer?.idNumber) || roleplayer?.idNumber.length != 13 ? html`
+							<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="input"
+								date="${roleplayer?.dateOfBirth}" outputType="string" maxdate="${this.today}">
+							</capitec-date-time-picker>` 
+						: html`
+							<capitec-text-field label="Date of birth" style="width: 50%" disabled
+								value="${formatDate(roleplayer?.dateOfBirth)}">
+							</capitec-text-field>`
+						)
+						
 				}
-				<capitec-text-field label="ID" style="width: 50%" value="${ this._checkID(roleplayer?.idNumber) }" ?disabled="${this.canReinstate}"
-				@value-changed="${(e) => this._lifeIDValueChanged(e, roleplayer.recordID)}"
-				@onchange = "${this._setDOB}">
+				<capitec-text-field label="ID" style="width: 50%" value="${isNullorEmpty(roleplayer?.idNumber) ? '-' : roleplayer?.idNumber}" 
+					?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editIDNumber", roleplayer.relationship) || this.policyDetails.policyRule != "Standard" }"
+					@value-changed="${(e) => this._lifeIDValueChanged(e, roleplayer.recordID)}">
 				</capitec-text-field>
 			</div>
 			<div class="expander-options">
 				<capitec-text-field label="Cellphone number" style="width: 50%" 
-					value="${ isNullorEmpty(roleplayer?.contactDetails?.cellphone) ? `` : roleplayer?.contactDetails?.cellphone }" ?disabled="${this.canReinstate}"
+					value="${ isNullorEmpty(roleplayer?.contactDetails?.cellphone) ? `` : roleplayer?.contactDetails?.cellphone }" 
+					?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editContactDetails", roleplayer.relationship)}"
 					@value-changed="${(e) => this._lifeCellphoneValueChanged(e, roleplayer.recordID)}">
 				</capitec-text-field>
 			
 				<capitec-text-field label="Email Address" style="width: 50%" 
-					value="${ isNullorEmpty(roleplayer?.contactDetails?.email) ? `` : roleplayer?.contactDetails?.email }" ?disabled="${this.canReinstate}"
+					value="${ isNullorEmpty(roleplayer?.contactDetails?.email) ? `` : roleplayer?.contactDetails?.email }" 
+					?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editContactDetails", roleplayer.relationship)}"
 					@value-changed="${(e) => this._lifeEmailValueChanged(e, roleplayer.recordID)}">
 				</capitec-text-field>
 			</div>
@@ -1563,19 +1613,19 @@ class UpdatePlan extends Component {
 		return html`
 		<div class="expander-options">
 			<capitec-select label="Title" .items="${this.titleOptions}" display-field="text" id-field="code" style="width: 50%"
-				value=${roleplayer.title} ?disabled="${this.canReinstate}">
+				value=${roleplayer.title} ?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editTitle", roleplayer.relationship)}">
 			</capitec-select>
 		
 			<capitec-text-field label="Name" style="width: 50%" value=${roleplayer.firstName}
-				?disabled="${this.canReinstate}">
+				?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editFirstName", roleplayer.relationship)}">
 			</capitec-text-field>
 		</div>
 		<div class="expander-options">
 			<capitec-text-field label="Surname" style="width: 50%" value=${roleplayer.surname}
-				?disabled="${this.canReinstate}">
+				?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editSurname", roleplayer.relationship)}">
 			</capitec-text-field>
 		
-			${ this.canReinstate == true ? 
+			${ this.canReinstate == true || !this._policyRuleAllowsChange("editDateOfBirth", roleplayer.relationship) ? 
 				html `<capitec-text-field label="Date of birth" style="width: 50%" disabled
 						value="${formatDate(roleplayer?.dateOfBirth)}">
 					</capitec-text-field>`
@@ -1590,19 +1640,19 @@ class UpdatePlan extends Component {
 		<div class="expander-options">
 			<capitec-select label="Gender" .items="${this.genderOptions}" display-field="text" id-field="code"
 				style="width: 50%" value=${roleplayer.gender}
-				?disabled="${this.canReinstate}">
+				?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editGender", roleplayer.relationship)}">
 			</capitec-select>
 			<capitec-text-field type="currency" label="Payout amount" style="width: 50%" 
-				value=${roleplayer?.benefitPayout} ?disabled="${this.canReinstate}"
+				value=${roleplayer?.benefitPayout} ?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editBeneficiaryValues", roleplayer.relationship)}"
 				@value-changed="${(e) => this._beneficiaryPayoutValueChanged(e, roleplayer.recordID)}">
 			</capitec-text-field>
 		</div>
 		<div class="expander-options">
 			<capitec-text-field label="Email Address" style="width: 50%" 
-				value=${ isNullorEmpty(roleplayer.contactDetails?.email) ? `` : roleplayer.contactDetails?.email }  ?disabled="${this.canReinstate}">
+				value=${ isNullorEmpty(roleplayer.contactDetails?.email) ? `` : roleplayer.contactDetails?.email }  ?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editContactDetails", roleplayer.relationship)}">
 			</capitec-text-field>
 			<capitec-text-field label="Cellphone number" style="width: 50%" 
-				value=${ isNullorEmpty(roleplayer.contactDetails?.cellphone) ? `` : roleplayer.contactDetails?.cellphone} ?disabled="${this.canReinstate}">
+				value=${ isNullorEmpty(roleplayer.contactDetails?.cellphone) ? `` : roleplayer.contactDetails?.cellphone} ?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editContactDetails", roleplayer.relationship)}">
 			</capitec-text-field>
 		</div>`
 	}
