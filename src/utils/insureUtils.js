@@ -278,16 +278,21 @@ export function getGenderFromIDNumber(southAfricanIDNumber) {
 	return genderSubStr >= 5000 ? 'Male' : 'Female'
 }
 
+/**
+ * Check the Policy rules for the Life based on the ruleType
+ * 
+ * @param {String} ruleType 
+ * @param {String} productParams 
+ * @param {String} field 
+ * @param {String}} relationship 
+ * @returns 
+ */
 export function checkPolicyRules(ruleType, productParams, field, relationship) {
-	// console.log(ruleType)
-	// console.log(field)
-	// console.log(relationship)
-	// console.log(productParams)
+	
 	
 	let product = productParams.products.find(product => {
 		return product.parameters.id === `SBL`
 	});
-	// console.log(product)
 	
 	let currentRuleType = product.parameters.rulesParams.find(rule => {
 		return rule.ruleType === ruleType
@@ -297,7 +302,6 @@ export function checkPolicyRules(ruleType, productParams, field, relationship) {
 	let relationshipRule = currentRuleType.peopleRulesList.find(role => {
 		return role.type === relationship
 	});
-	// console.log(relationshipRule[field])
 
 	return relationshipRule[field]
 }

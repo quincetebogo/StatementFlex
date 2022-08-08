@@ -707,34 +707,12 @@ class UpdatePlan extends Component {
 		this.dispatchEvent(new CustomEvent(`accept-policy`, { detail: { policyResponse: this.createPolicyResponse } }));
 	}
 
-	_checkID(idNumber){
-		// let current = new Date()
-		// console.log(current.getFullYear() )
-		// let birthdate = new Date(idNumber.substring(0, 2), idNumber.substring(2, 4) - 1, idNumber.substring(4, 6));
-		// console.log(birthdate)
-		// console.log(birthdate.toISOString())
-		// if (birthdate.getFullYear() <= (new Date().getFullYear() - 100)){
-		// 	birthdate.setFullYear(birthdate.getFullYear() + 100)
-		// }
-		// console.log(birthdate)
-		// let ageDifMs = Date.now() - birthdate.getTime();
-		// console.log(ageDifMs)
-		// let ageDate = new Date(ageDifMs);
-		// console.log(ageDate)
-		// console.log(Math.abs(ageDate.getUTCFullYear() - 1970))
-		// console.log(new Date().getFullYear()-100)		
-
-		if(isNullorEmpty(idNumber) || idNumber.length != 13){
-			this.idNull = true;
-			return `-`
-		} else {
-			console.log(idNumber)
-			this.idNull = false;
-			return idNumber
-		}
-	}
-
-
+	/**
+	 * Get date of birth from ID number
+	 * 
+	 * @param {*} idNumber 
+	 * @returns 
+	 */
 	_setDOB(idNumber){
 		let birthdate = new Date(idNumber.substring(0, 2), idNumber.substring(2, 4) - 1, idNumber.substring(4, 6));
 		
@@ -747,11 +725,23 @@ class UpdatePlan extends Component {
 		
 	}
 
+	/**
+	 * Check Policy rules to see if field may be edited or not
+	 * 
+	 * @param {*} field 
+	 * @param {*} relationship 
+	 * @returns 
+	 */
 	_policyRuleAllowsChange(field, relationship){
 		return checkPolicyRules(this.policyDetails.policyRule, this.productParams, field, relationship)
 		
 	}
 
+	/**
+	 * check the policy rules to see if a life assured can be added or not
+	 * 
+	 * @returns 
+	 */
 	_canAddLife(){
 		let product = this.productParams.products.find(product => {
 			return product.parameters.id === `SBL`
@@ -1157,8 +1147,8 @@ class UpdatePlan extends Component {
 					${ this.canReinstate ? ``	
 						: (this.policyDetails.policyRule != "Standard" ? html ``
 						:html `<capitec-label label="Remove" @click="${() => this._openRemoveLifeAssuredDialog(roleplayer, index)}" type="subtitle"
-							class="stronger link" style="position: relative; width: fit-content; left: 613px; top: 43px;"></capitec-label>` 
-							)
+							class="stronger link" style="position: relative; width: fit-content; left: 613px; top: 43px;"></capitec-label>
+						`)
 					}
 			
 					<horizon-expander expandButtonAlignment="right">

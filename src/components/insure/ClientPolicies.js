@@ -305,11 +305,21 @@ class ClientPolicies extends Component {
 	_closeLodgeClaimInfoDialog() {
 		this.showLodgeClaimInfoDialog = false;
 	}
+	/**
+	 * get the Cancel Policy Agreement Document
+	 * 
+	 * @param {*} contractReference 
+	 * @param {*} cancelReason 
+	 */
 	async _getCancelPolicyDocument(contractReference, cancelReason){
 		
 		await this.getCancelPolicyDocument(contractReference, cancelReason, false)
 	}
 
+	/**
+	 * get the Arrears Payment Agreement Document
+	 * @param {*} contractReference 
+	 */
 	async _getArrearsPaymentDocument(contractReference){
 		await this.getArrearsPaymentDocument(contractReference, this.payArrears, this.fromAccount, false)
 	}
