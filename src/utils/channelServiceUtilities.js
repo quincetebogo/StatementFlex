@@ -113,7 +113,7 @@ export function formatPhoneNumber(value) {
  * @param {*} idNumber An ID Number
  * @returns {Boolean} Indicates if the check digit on the ID Number computes correctly
  */
-function _luhnCheck(idNumber) {
+ function _luhnCheck(idNumber) {
 	const num = idNumber.toString()
 	.split(``)
 	.reverse()
@@ -215,6 +215,8 @@ export function formatDate(value, format) {
 	const month = dateTime.getMonth();
 	const monthName = getMonthName(month);
 	const year = dateTime.getFullYear();
+	const time = dateTime.toTimeString().substring(0, 5);
+
 	let formattedDate = ``;
 
 	// cases would be extended, based on our need in future
@@ -232,11 +234,12 @@ export function formatDate(value, format) {
 			formattedDate = `${monthName} ${year}`;
 			break;
 		case `yyyy-mm-dd`:
-			let formattedMonth = month + 1 ;
-			formattedMonth = (formattedMonth < 10) ? `0` + formattedMonth: formattedMonth;
-			let day = (date < 10) ? `0`+ date: date;
-			
+			let formattedMonth = String(month+1).padStart(2, '0');
+			let day = String(date).padStart(2, '0');
 			formattedDate = `${year}-${formattedMonth}-${day}`;
+			break;
+		case `dd mmm yyy hh:mm:ss`:
+			formattedDate = `${date} ${monthName} ${year} ${time}`
 			break;
 		default:
 			formattedDate = `${date}-${month}-${year}`;

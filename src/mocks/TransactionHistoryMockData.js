@@ -4,7 +4,7 @@
  * @export
  * @constant transactionHistoryMockData
  */
-
+ 
 export const transactionHistoryMockData = {
 
 	"transactionHistoryList": [

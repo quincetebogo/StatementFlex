@@ -30,6 +30,8 @@ const DEFAULTS = {
 const _importTelemetryEvents_ = {
 	[ACCOUNT_TYPES.SAVINGS_ACCOUNT]: () => import(`app/constants/telemetry/events/SavingsAccount`),
 	[ACCOUNT_TYPES.LBB]: () => import(`app/constants/telemetry/events/LiveBetter`),
+	//TODO ADD CREDIT TELEMETRY. TICKET NUMBER: CSCEH-7863
+	[ACCOUNT_TYPES.CREDIT]: () => import(`app/constants/telemetry/events/LiveBetter`),
 	[ACCOUNT_TYPES.SAVINGS_PLAN]: () => import(`app/constants/telemetry/events/SavingsPlan`)
 };
 
@@ -39,6 +41,7 @@ const today = new Date();
 const FILTERS_SET = {
 	[ACCOUNT_TYPES.SAVINGS_ACCOUNT]: new Set([FILTER_BY.TEXT, FILTER_BY.DATE, FILTER_BY.STATUS]),
 	[ACCOUNT_TYPES.LBB]: new Set([FILTER_BY.TEXT, FILTER_BY.DATE, FILTER_BY.MONEY_TYPE]),
+	[ACCOUNT_TYPES.CREDIT]: new Set([FILTER_BY.TEXT, FILTER_BY.DATE, FILTER_BY.MONEY_TYPE]),
 	[ACCOUNT_TYPES.SAVINGS_PLAN]: new Set([FILTER_BY.TEXT, FILTER_BY.DATE, FILTER_BY.MONEY_TYPE])
 };
 
@@ -413,15 +416,13 @@ export class TransactionHistory extends Component {
 			this.filteredData = this.filteredData.filter(item => item.tranDate >= startDate && item.tranDate <= endDate); 
 		}
 
-		// Status filter is apllicable only on Savings Account Transaction History screen in the current state of application
 		if (RENDER_CHIPS[FILTER_BY.STATUS]) {
 			const status = RENDER_CHIPS[FILTER_BY.STATUS];
 
 			this.filteredData = this.filteredData.filter(item => item.transactionStatus === status);
 		}
 
-		// Money Type filter is apllicable only on Live Better Transaction History screen in the current state of application
-		if (RENDER_CHIPS[FILTER_BY.MONEY_TYPE]) {
+		if (RENDER_CHIPS[FILTER_BY.MONEY_TYPE] ) {
 			const moneyType = RENDER_CHIPS[FILTER_BY.MONEY_TYPE];
 
 			if (moneyType === `Money In`) {
@@ -525,6 +526,9 @@ export class TransactionHistory extends Component {
 				}
 				.lbb {
 					background: no-repeat url(../images/liveBetter/Gradient1.png);
+				}
+				.credit {
+					background: linear-gradient(90deg, #C83C37 0%, #E61414 100%);
 				}
 				.transaction-history-title > img {
 					width: 26px;
@@ -784,6 +788,7 @@ export class TransactionHistory extends Component {
 					value="${RENDER_CHIPS[FILTER_BY.TEXT]}"
 					data-automation-id="transaction-history-text-filter"
 					?hidden="${!FILTERS_SET[this.type].has(FILTER_BY.TEXT)}">
+					
 				</capitec-text-field>
 
 				<capitec-date-time-picker
