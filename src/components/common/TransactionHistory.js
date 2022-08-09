@@ -30,7 +30,7 @@ const DEFAULTS = {
 const _importTelemetryEvents_ = {
 	[ACCOUNT_TYPES.SAVINGS_ACCOUNT]: () => import(`app/constants/telemetry/events/SavingsAccount`),
 	[ACCOUNT_TYPES.LBB]: () => import(`app/constants/telemetry/events/LiveBetter`),
-	//TODO ADD CREDIT TELEMETRY. TICKET NUMBER: CSCEH-7863
+	// TODO: ADD CREDIT TELEMETRY. TICKET NUMBER: CSCEH-7863
 	[ACCOUNT_TYPES.CREDIT]: () => import(`app/constants/telemetry/events/LiveBetter`),
 	[ACCOUNT_TYPES.SAVINGS_PLAN]: () => import(`app/constants/telemetry/events/SavingsPlan`)
 };
@@ -422,7 +422,7 @@ export class TransactionHistory extends Component {
 			this.filteredData = this.filteredData.filter(item => item.transactionStatus === status);
 		}
 
-		if (RENDER_CHIPS[FILTER_BY.MONEY_TYPE] ) {
+		if (RENDER_CHIPS[FILTER_BY.MONEY_TYPE]) {
 			const moneyType = RENDER_CHIPS[FILTER_BY.MONEY_TYPE];
 
 			if (moneyType === `Money In`) {

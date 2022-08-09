@@ -1,7 +1,8 @@
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
+import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
+import { SavingsPlanEvents, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/SavingsPlan';
 import { css, html, unsafeCSS } from 'platform/elements';
-import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
-import { formatStringAsPascalCase, getMonthName, formatDateTime, formatDate } from 'app/utils/channelServiceUtilities';
+import { formatDate, formatDateTime, formatStringAsPascalCase, getMonthName } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { Configuration } from 'platform/core';
 import { EventAggregator } from 'platform/EventAggregator';
@@ -9,7 +10,6 @@ import { QuickTransactionsService } from 'app/services/QuickTransactionsService'
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { SavingsPlanService } from 'app/services/SavingsPlanService';
-import { SavingsPlanEvents, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/SavingsPlan';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -105,15 +105,14 @@ export class SavingsPlan extends ViewBase {
 			const taxCertificates = () => this._taxCertificates(savePlanDetails.accountNumber, savePlanDetails.accountName);
 			const productEnquiry = () => this._productEnquiry();
 			const interestRates = () => this._interestRates();
-			const transactionHistory = () => this._transactionHistory(savePlanDetails, saveType);
+			const transactionHistory = () => this._transactionHistory(savePlanDetails);
 
 			const actions = {
 				'statements': statements,
 				'tax-certificate': taxCertificates,
 				'product-enquiry': productEnquiry,
 				'interest-rates': interestRates,
-				'transaction-history': transactionHistory,
-				
+				'transaction-history': transactionHistory
 			};
 
 			if (actions[option]) {
@@ -381,11 +380,11 @@ export class SavingsPlan extends ViewBase {
 		window.open(`${globalOneUrl}/save/rates-and-fees/`);
 	}
 
-	async _transactionHistory(savePlanDetails, saveType) {
+	async _transactionHistory(savePlanDetails) {
 		await this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_TRANSACTION_HISTORY, {
 			"screen": TelemetryScreen.SAVINGS_PLAN_LANDING,
-			"next-screen": TelemetryScreen.TRANSACTION_HISTORY
-		})
+			"next-screen": TelemetryScreen.SAVINGS_PLAN_TRANSACTION_HISTORY
+		});
 
 		this.savePlanDetails = savePlanDetails;
 
@@ -676,9 +675,7 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	_renderTransactionDetails(item) {
-		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_INFO, {
-			'journal-no': item.journalNumber
-		});
+		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_INFO, {});
 
 		return html`
 			<capitec-label
