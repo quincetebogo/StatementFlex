@@ -30,7 +30,6 @@ const DEFAULTS = {
 const _importTelemetryEvents_ = {
 	[ACCOUNT_TYPES.SAVINGS_ACCOUNT]: () => import(`app/constants/telemetry/events/SavingsAccount`),
 	[ACCOUNT_TYPES.LBB]: () => import(`app/constants/telemetry/events/LiveBetter`),
-	// TODO: ADD CREDIT TELEMETRY. TICKET NUMBER: CSCEH-7863
 	[ACCOUNT_TYPES.CREDIT]: () => import(`app/constants/telemetry/events/Credit`)
 };
 
