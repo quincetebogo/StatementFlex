@@ -463,6 +463,37 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
+	 * Print estimate based on lives assured provided
+	 * Map metadata (coverDetails) back when response is received
+	 * @returns {Object} Estimate response
+	 */
+	async _printEstimate(e) {
+		await this._calculateClientEstimate(e);
+
+		let clientDetails = {
+			"cifNumber": this.callerInformation.cifNumber,
+			"policyContractReference": this.contractReference,
+			"firstName": this.callerInformation.firstName,
+			"surname": this.callerInformation.surname,
+			"idNumber": this.callerInformation.southAfricanIDNumber,
+			"dateOfBirth": this.callerInformation.birthdate
+		}
+
+		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
+
+		GENERATE_DOCUMENT_REQUEST_PAYLOAD.input = this.estimate
+
+		console.log(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
+
+		//const result = await this.insureService.generateEstimatePrintout(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
+
+		// if(!result.succeeded)
+		// 	return;
+
+		return this.estimate;
+	}
+
+	/**
 	 * Cancel Policy
 	 * @returns {Object} 
 	 */
@@ -1163,8 +1194,10 @@ ${this._renderClientPoliciesPage()}`
 		return html`
 			<horizon-insure-policy-estimate @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@calculate="${(e) => this._calculateClientEstimate(e)}" .estimate="${this.estimate}"
+				.printEstimate="${(e) => this._printEstimate(e)}" 
+				.printEstimateResponse = "${this.printEstimateResponse}"
 				.productParams="${this.productParams}" .mainLifeDefaultAge="${this._getMainLifeAge()}"
-				.mainLifeDefaultGender="${this._getMainLifeGender()}"
+				.mainLifeDefaultGender="${this._getMainLifeGender()}" @print-estimate ="${(e) => this._printClientEstimate(e)}"
 				.maxAllowedCover="${this.clientPolicies.checkInsuranceDetails[0].maxAllowedCover}">
 			</horizon-insure-policy-estimate>`
 	}

@@ -223,6 +223,32 @@ export class InsureService extends ChannelServiceBase {
 		);
 	}
 
+	/**
+	 *  Generate Document 904 Estimate printout
+	 *
+	 * @param {generateEstimateDocRequest} [errorHandler=null]  Request data for Estimate printout 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	 async generateEstimatePrintout(generateEstimateDocRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		// if (await this.isMockEnabled(`insureEstimatePrintout`)) {
+		// 	return this.mock(`generateIssueAgreement`);
+		// }
+		return this.post(
+			`/FuneralInsuranceProductService/document/generate/Estimateprintout`,
+			generateEstimateDocRequest,
+			this.setInsureTokens(),
+			`insureEstimatePrintout`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
 
 	/**
 	 * Get Policy Transaction History
