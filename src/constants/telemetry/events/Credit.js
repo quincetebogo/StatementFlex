@@ -226,3 +226,25 @@ export const SETTLE_AND_CLOSE = Object.freeze({
 		FAILURE_DONE: `call.fulfill-need.credit.settle-and-close-term-loan.failure.done`,
 		POP_EVENTS: SETTLE_AND_CLOSE_TERM_LOAN_POP_EVENTS }
 });
+
+
+/**
+ * Credit Transaction History events 
+ *
+ * @export
+ * @param {*} creditType type of credit product (Credit card/ Access facility/ Term loan)
+ * @returns {*} set of transaction history telemetry events dynamically for given credit type
+ */
+ export const TRANSACTION_ENQUIRY_EVENTS = (creditType) => {
+	const productType = creditType.toLowerCase().replace(` `, `-`);
+
+	return { TRANSACTION_HISTORY: `call.fulfill-need.credit.${productType}-transaction-history`,
+		TRANSACTION_HISTORY_FILTER: `call.fulfill-need.credit.${productType}-transaction-history.filter`,
+		TRANSACTION_HISTORY_CLEAR_ALL: `call.fulfill-need.credit.${productType}-transaction-history.filter.clear-all`,
+		TRANSACTION_HISTORY_CLEAR_FILTER: `call.fulfill-need.credit.${productType}-transaction-history.filter.clear`,
+		TRANSACTION_HISTORY_INFO: `call.fulfill-need.credit.${productType}-transaction-history.view-info`,
+		TRANSACTION_HISTORY_BACK: `call.fulfill-need.credit.${productType}-transaction-history.back`,
+		TRANSACTION_HISTORY_VIEW_LINKED_TRANSACTIONS: `call.fulfill-need.credit.${productType}-transaction-history.linked-transaction-view`,
+		TRANSACTION_HISTORY_LOAD_MORE: `call.fulfill-need.credit.${productType}-transaction-history.load-more`,
+		TRANSACTION_HISTORY_SCROLL_TOP: `call.fulfill-need.credit.${productType}-transaction-history.scroll-to-top` };
+ };
