@@ -8,7 +8,7 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { getMonthName } from 'app/utils/channelServiceUtilities';
+import { formatDate, getMonthName } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/TransactionHistory';
 import 'app/components/savingsAccount/SavingAccount';
@@ -16,6 +16,7 @@ import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/common/StatementsDialog';
 import 'app/components/savingsAccount/MainSavingsAccountDetails';
 
+const DATE_TIME_FORMAT = `dd mmm yyy hh:mm:ss`;
 // ninety days in milliseconds
 const NINETY_DAYS = 7777000000;
 const SAVINGS_ACCOUNT = 300;
@@ -381,7 +382,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			<capitec-table-column
 				label="Transaction Date"
 				field="transactionDate"
-				type="date"
+				.renderer="${(item, fieldName, value) => this._renderTransactionDateTime(value)}"
 				size="156px;">
 			</capitec-table-column>
 			<capitec-table-column
@@ -420,6 +421,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				</div>`;
 	}
 
+	_renderTransactionDateTime(value) {
+		return html`
+			<capitec-label
+				label="${formatDate(value, DATE_TIME_FORMAT)}">
+			</capitec-label>`;
+	}
+
 	_renderTransactionDetails(item) {
 		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_INFO, {
 			'journal-no': item.journalNumber
@@ -448,13 +456,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Posting date" 
-					value = "${this._formatDate(item.postingDate)}"
+					value = "${formatDate(item.postingDate, DATE_TIME_FORMAT)}"
 					data-automation-id="transaction-history-item-posting-date">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Processed date"
-					value = "${this._formatDate(item.processDate)}"
+					value = "${formatDate(item.processDate, DATE_TIME_FORMAT)}"
 					data-automation-id="transaction-history-item-processed-date">
 				</horizon-label>
 			</capitec-group>
@@ -528,6 +536,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		const newdate = new Date(Date.parse(date));
 		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
 	}
+	
 	_renderSavingsAccountDetails(){
 		return this.renderMode === RENDER_MODE.SAVINGS_ACCOUNT_DETAILS
 		? html`
