@@ -14,6 +14,7 @@ import 'app/components/common/TransactionHistory';
 import 'app/components/savingsAccount/SavingAccount';
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/common/StatementsDialog';
+import 'app/components/savingsAccount/MainSavingsAccountDetails';
 
 // ninety days in milliseconds
 const NINETY_DAYS = 7777000000;
@@ -54,7 +55,8 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		this.transactionHistory = [];
 		this.accountDetails = null;
 		this.clientProducts = null;
-	
+		// this.savingsAccountDetails = [];
+		this.savingsDetails = {};
 		// private properites
 		this._loading = true;
 		
@@ -274,6 +276,36 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		super._backToLandingPage();
 	}
 
+	_getCurrentMonth() {
+		const newdate = new Date();
+		return `${getMonthName(newdate.getMonth())}`;
+	}
+
+	_getPreviousMonth() {
+		const newdate = new Date();
+		return `${getMonthName(newdate.getMonth() - 1)}`;
+	}
+
+	_accountDetails(savingsLandingDetails){
+		this.savingsDetails ={
+			"accountNumber" : savingsLandingDetails.accountNumber,
+			"Current balance": savingsLandingDetails.accountAvailableBalance === 0 ? '-' : formatCurrency(savingsLandingDetails.accountAvailableBalance),
+			"Available balance": savingsLandingDetails.accountAvailableBalance === 0 ? '-' : formatCurrency(savingsLandingDetails.accountAvailableBalance),
+			"Interest rate": `${savingsLandingDetails.interestRatePercentage}%`,
+			[`Accured interest ${this._getCurrentMonth()}`] : savingsLandingDetails.accruedInterestCurrentMonth,
+			[`Accured interest ${this._getPreviousMonth()}`] : savingsLandingDetails.accruedInterestLastMonth,
+			"Interest earned tax year" : savingsLandingDetails.interestEarned,
+			"Posting restrictions": savingsLandingDetails.postingRestrictions === `N` ? `No` : `Yes`,
+			"Pending amount": savingsLandingDetails.accountPendingAmount === 0 ? '-':formatCurrency(savingsLandingDetails.accountPendingAmount),
+			"Amount on hold": savingsLandingDetails.holds === 0 ? '-' : formatCurrency(savingsLandingDetails.holds),
+			"Date opened" : savingsLandingDetails.accountOpenDate ? this._formatDate(savingsLandingDetails.accountOpenDate) : '-',
+			"Last updated" : savingsLandingDetails.lastUpdate ? this._formatDate(savingsLandingDetails.lastUpdate) : '-',
+			"Account status": savingsLandingDetails.accountStatus === 'Open' ? 'Active' : 'Closed'
+		}
+		this.renderMode = RENDER_MODE.SAVINGS_ACCOUNT_DETAILS;
+		//await super.createAndClassifySubsIncident();
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -305,6 +337,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		return html`
 			${this._renderSavingsLandingPage()}
 			${this._renderTransactionHistory()}
+			${this._renderSavingsAccountDetails()}
 			${super._webTemplate(ACCOUNT_TYPES.SAVINGS_ACCOUNT)}
 		`;
 	}
@@ -318,7 +351,8 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 					.landingPageInfo = "${this.landingPageInfo}"
 					.shouldDisable="${need => this._shouldDisable(need)}"
 					@option-click="${(event) => this._optionClick(event.detail.option)}"
-					@savings-enquiry="${(event) => this._productEnquiry(event, `transact`)}">
+					@savings-enquiry="${(event) => this._productEnquiry(event, `transact`)}"
+					@account-details="${() => this._accountDetails(this.landingPageInfo)}">
 				</horizon-savings-account>`
 			: html``;
 	}
@@ -494,6 +528,16 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		const newdate = new Date(Date.parse(date));
 		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
 	}
+	_renderSavingsAccountDetails(){
+		return this.renderMode === RENDER_MODE.SAVINGS_ACCOUNT_DETAILS
+		? html`
+			<horizon-savings-account-details
+				.savingsAccountDetails = "${this.savingsDetails}"
+				@back="${() => this._setIncidentDone()}">
+			</horizon-savings-account-details>`
+		:html``;
+	}
+	
 }
 
 customElements.define(`horizon-savings-account-landing-page`, SavingsAccountLandingPage);
