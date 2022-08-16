@@ -151,7 +151,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				getGenericData: true
 			};
 
-			const returnValue = await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
+			const returnValue = await this.savingsService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
 			 
 			if (returnValue.succeeded) {
 				this.landingPageInfo = returnValue.result;
@@ -200,7 +200,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			moneyType: TRANSACTION_HISTORY.MONEY_TYPE
 		};
 
-		const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
+		const returnValue = await this.savingsService.savingsAccountTransactionHistory(transactionHistoryRequest);
 
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions

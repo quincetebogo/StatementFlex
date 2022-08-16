@@ -9,6 +9,7 @@ import { CreditService } from 'app/services/CreditService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { RoleManager } from 'app/shell/RoleManager';
+import { SavingsService } from 'app/services/SavingsService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { alertBannerMixin } from 'app/views/common/AlertBannerMixin';
@@ -101,6 +102,7 @@ export class CreditAccount extends ViewBase {
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
+		this.savingsService = new SavingsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._preformAction(e));
 
 		Object.assign(CreditAccount.prototype, creditMixin);
@@ -952,7 +954,7 @@ export class CreditAccount extends ViewBase {
 			status: `OPEN`
 		};
 
-		const returnValue = await this.quickTransactionService.getClientProducts(request);
+		const returnValue = await this.savingsService.getClientProducts(request);
 
 		if (returnValue.succeeded && returnValue.result.savingsProducts) {
 

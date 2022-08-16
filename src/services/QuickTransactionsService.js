@@ -52,46 +52,6 @@ export class QuickTransactionsService extends ChannelServiceBase {
 		);
 	}
 
-	async sendStatement(statement, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
-
-		const url = `/clientcare-documents-${this._version}/statements/send-statement`;
-		
-		return this.post(
-			url, 
-			statement, 
-			this.setToken(), 
-			`sendStatement`, 
-			null, 
-			null, 
-			2000,
-			null,
-			errorHandler,
-			autoRetries
-		);
-	}
-
-	async viewStatement(statement, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		if (await this.isMockEnabled(`viewStatements`)) {
-			return this.mock(`viewStatements`);
-		}
-
-		const url = `/clientcare-documents-${this._version}/statements/view-statement`;
-
-		return this.post(
-			url, 
-			statement, 
-			this.setToken(), 
-			`viewStatement`, 
-			null, 
-			null, 
-			2000,
-			null,
-			errorHandler,
-			autoRetries
-		);
-	}
-
 	getTaxCertificate(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const request = {
 			"cif": cifNumber
@@ -179,42 +139,6 @@ export class QuickTransactionsService extends ChannelServiceBase {
 		);
 	}
 
-	async sendProofOfAccount(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
-
-		const url = `/clientcare-documents-${this._version}/statements/send-proof-of-account`;
-
-		return this.post(
-			url,
-			clientInfo,
-			this.setToken(),
-			`sendProofOfAccount`,
-			null,
-			null,
-			2000,
-			null,
-			errorHandler,
-			autoRetries
-		);
-	}
-
-	viewProofOfAccount(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const url = `/clientcare-documents-${this._version}/statements/view-proof-of-account`;
-
-		return this.post(
-			url, 
-			clientInfo, 
-			this.setToken(), 
-			`viewProofOfAccount`, 
-			null, 
-			null, 
-			2000,
-			null,
-			errorHandler,
-			autoRetries
-		);
-	}
-	
 	async tapToPayLanding(cifNumber, incidentRecId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`tapToPayLanding`)) {
 			return this.mock(`tapToPay`, cifNumber);
@@ -240,28 +164,6 @@ export class QuickTransactionsService extends ChannelServiceBase {
 			autoRetries
 		);
 
-	}
-
-	getClientProducts(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const requestObject = {
-			"cifNumber": request.cifNumber,
-			"productStatus": request.status
-		};
-		
-		const url = `/clientcare-documents-${this._version}/statements/client`;
-
-		return this.post(
-			url, 
-			requestObject, 
-			this.setToken(), 
-			`getClientProducts`, 
-			null, 
-			null, 
-			1000,
-			null,
-			errorHandler,
-			autoRetries
-		);
 	}
 
 	tapToPayAgreement(agreementInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
