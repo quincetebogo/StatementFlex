@@ -386,6 +386,9 @@ export class SavingsPlan extends ViewBase {
 			"next-screen": TelemetryScreen.SAVINGS_PLAN_TRANSACTION_HISTORY
 		});
 
+		// Updating current need to be specific to Save Type ie; Flexible or fixed term to classify an incident based on type.
+		const need = savePlanDetails.accountType === ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN ? `flexible-save-transaction-history` : `fixed-save-transaction-history`;
+		await super._inicidentManager_(need, () => this._toggleBusyFlag());
 		this.savePlanDetails = savePlanDetails;
 
 		await super.createAndClassifySubsIncident(null, false);
@@ -463,9 +466,18 @@ export class SavingsPlan extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_unloadTransactionHistory() {
+	async _unloadTransactionHistory() {
 		this.endCallContext = `LandingPage`;
 		this.transactionHistory = [];
+		
+		await super.classifyIncident(() => this._toggleBusyFlag());
+
+		this._setIncidentDone();
+	}
+
+	async _setTranHistoryDone() {
+		await super.classifyIncident(() => this._toggleBusyFlag());
+		
 		this._setIncidentDone();
 	}
 
@@ -632,7 +644,7 @@ export class SavingsPlan extends ViewBase {
 					.disposeData="${() => this.transactionHistory = []}"
 
 					@error-handler = "${() => this._errorHandler()}"
-					@back="${() => this._setIncidentDone()}"
+					@back="${() => this._setTranHistoryDone()}"
 					@unloading="${() => this._unloadTransactionHistory()}">
 				</horizon-transaction-history>`
 			: html``;
