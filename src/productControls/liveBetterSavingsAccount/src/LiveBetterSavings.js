@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
@@ -385,7 +386,7 @@ export class LiveBetterSavings extends Component {
 					<horizon-label
 						data-automation-id="live-better-verified-status"
 						label="Status"
-						value="${this.liveBetterAccountData.accountStatus}">
+						value="${formatStringAsPascalCase(this.liveBetterAccountData.accountStatus)}">
 					</horizon-label>
 					
 					<capitec-group class="icon-chevron" @click="${() => this._toggleExpander()}" layout="vertical" gap="none" halign="center" valign="center">

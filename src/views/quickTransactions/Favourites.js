@@ -224,19 +224,6 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-	_debiCheckToMainPage() {
-
-		/**
-		 * This is supposed to happen in debicheck success screen
-		 * TODO: This should be to success screen when decline or approve is ready (CSCEH-7746)
-		 */
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(incidentDetails);
-
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
-
 	_searchOtherNeedDone() {
 		this._refreshIncidentDetails();
 	

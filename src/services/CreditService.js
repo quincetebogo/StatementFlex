@@ -9,16 +9,16 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
  * @extends {ChannelServiceBase}
  */
 export class CreditService extends ChannelServiceBase {
-	
+
 	// --------------
 	// INITIALISATION
 	// --------------
 	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null) {
 		super(
-			toggleBusyFunc, 
-			defaultErrorHandlerFunc, 
-			`serviceURIs.creditChannelServiceUrl`, 
-			`credit-v1`, 
+			toggleBusyFunc,
+			defaultErrorHandlerFunc,
+			`serviceURIs.creditChannelServiceUrl`,
+			`credit-v1`,
 			`v1`,
 			() => import(`../mocks/HorizonChannelServiceMocks.js`)
 		);
@@ -37,7 +37,7 @@ export class CreditService extends ChannelServiceBase {
 			"cifnumber": cifNumber,
 			"accountStatus": accountStatus
 		};
-		
+
 		const url = `/clientcare-credit-${this._version}/credit/overview`;
 
 		return this.post(
@@ -217,7 +217,7 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	async flexibleStatementEmail (creditType, accountNumber, emailAddress, statementDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async flexibleStatementEmail(creditType, accountNumber, emailAddress, statementDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		const flexibleStatementEmailRequest = {
@@ -270,7 +270,7 @@ export class CreditService extends ChannelServiceBase {
 
 	async fixedStatementEmail(accountNumber, emailAddress, fromDate, toDate, setdate, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
-		
+
 		const fixedStatementEmailRequest = {
 			"accountNumber": accountNumber,
 			"emailAddress": emailAddress,
@@ -390,7 +390,7 @@ export class CreditService extends ChannelServiceBase {
 	}
 
 	settlementQuote(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		
+
 		const url = `/clientcare-credit-${this._version}/credit/settlement-quote/view`;
 
 		return this.post(
@@ -406,7 +406,7 @@ export class CreditService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
-	
+
 	async sendSettlementQuoteEmail(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
@@ -429,7 +429,7 @@ export class CreditService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
-	
+
 	settlementQuoteLanding(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
 		const url = `/clientcare-credit-v1/credit/settlement-quote/landing`;
@@ -450,7 +450,7 @@ export class CreditService extends ChannelServiceBase {
 
 
 	async budgetTransferFromAccounts(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		
+
 		if (await this.isMockEnabled(`budgetTransferFromAccounts`)) {
 			return this.mock(`budgetTransferFromAccounts`, request);
 		}
@@ -472,7 +472,7 @@ export class CreditService extends ChannelServiceBase {
 	}
 
 	async confirmBudgetTransfer(transferDetails, callerInformation, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		
+
 		if (await this.isMockEnabled(`confirmBudgetTransfer`)) {
 			return this.mock(`confirmBudgetTransfer`, transferDetails);
 		}
@@ -529,20 +529,20 @@ export class CreditService extends ChannelServiceBase {
 	}
 
 	settleAndClose(settleAndCloseRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		
-		const settleAndClose = 
+
+		const settleAndClose =
 		{
-				creditType: settleAndCloseRequest.creditType,
-				cifNumber: settleAndCloseRequest.cifNumber,
-				accountNumber: settleAndCloseRequest.accountNumber,
-				fromAccountNumber: settleAndCloseRequest.fromAccountNumber,
-				fromAccountType: settleAndCloseRequest.fromAccountType,
-				authorisedAmount: settleAndCloseRequest.authorisedAmount,
-				caseId: settleAndCloseRequest.caseId,
-				emailAddress: settleAndCloseRequest.emailAddress,
-				firstname: settleAndCloseRequest.firstname,
-				surname: settleAndCloseRequest.surname,
-				idNumber: settleAndCloseRequest.idNumber
+			creditType: settleAndCloseRequest.creditType,
+			cifNumber: settleAndCloseRequest.cifNumber,
+			accountNumber: settleAndCloseRequest.accountNumber,
+			fromAccountNumber: settleAndCloseRequest.fromAccountNumber,
+			fromAccountType: settleAndCloseRequest.fromAccountType,
+			authorisedAmount: settleAndCloseRequest.authorisedAmount,
+			caseId: settleAndCloseRequest.caseId,
+			emailAddress: settleAndCloseRequest.emailAddress,
+			firstname: settleAndCloseRequest.firstname,
+			surname: settleAndCloseRequest.surname,
+			idNumber: settleAndCloseRequest.idNumber
 		};
 
 		const url = `/clientcare-credit-${this._version}/credit/settle-and-close/settle`;
@@ -567,7 +567,7 @@ export class CreditService extends ChannelServiceBase {
 			accountNumber: Request.accountNumber,
 			cifNumber: Request.cifNumber,
 			idNumber: Request.idNumber
-			
+
 		};
 
 		if (await this.isMockEnabled(`settleAndCloseQuote`)) {
@@ -576,7 +576,7 @@ export class CreditService extends ChannelServiceBase {
 			}
 			return this.mock(`settleAndCloseQuote`, settleAndCloseQuoteRequest);
 		}
-		
+
 
 		const url = `/clientcare-credit-${this._version}/credit/settle-and-close/quote`;
 
@@ -585,6 +585,23 @@ export class CreditService extends ChannelServiceBase {
 			settleAndCloseQuoteRequest,
 			this.setToken(),
 			`settleAndCloseQuote`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	 transactionHistory(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const url = `/clientcare-credit-${this._version}/credit/transaction-history`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`transactionHistory`,
 			null,
 			null,
 			900,

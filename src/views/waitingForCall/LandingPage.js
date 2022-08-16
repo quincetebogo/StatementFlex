@@ -270,6 +270,8 @@ export class LandingPage extends ViewBase {
 		this.confirmedCaller = event.detail.confirmedCaller;
 		this.incidentDetails = event.detail.incidentDetails;
 		this.confirmedCaller.isBranchConsultant = event.detail.isBranchConsultant;
+		this.cpNumber = event.detail.cpNumber;
+		this.clientType = event.detail.clientType;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
@@ -298,10 +300,7 @@ export class LandingPage extends ViewBase {
 			true, // is non-client
 			false, // has insurance products
 			false,
-			{
-				itaAttempts: 0,
-				sqAttempts: 0
-			},
+			{ itaAttempts: 0, sqAttempts: 0 },
 			event.detail.isBranchConsultant,
 			false,
 			`unverified`,
@@ -312,9 +311,11 @@ export class LandingPage extends ViewBase {
 			``, // client's surname/last name
 			``, // client's initials
 			``, // Identification method used to confirm client
-			``, // client's registered email ID
-			`` // client's profile photo
+			``, //registered email id
+			``, // profile photo
+			`` // gender
 		);
+		
 		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);
 		this.horizonStore.setCallerInformation(callerInformation);
 
@@ -407,6 +408,8 @@ export class LandingPage extends ViewBase {
 					.confirmedCaller="${this.confirmedCaller}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.incidentDetails="${this.incidentDetails}"
+					.cpNumber="${this.cpNumber}"
+					.clientType="${this.clientType}"
 					@client-identified="${(data) => this._clientIdentified(data)}"
 					@branch-captured="${(event) => this._branchCaptured(event)}"
 					@non-client-captured=${event => this._nonClientCaptured(event)}>

@@ -71,6 +71,10 @@
 			"enabled": true,
 			"positiveCase": true
 		},
+		"searchCaller": {
+			"enabled": false,
+			"positiveCase": true
+		},
 		"identifyCaller": {
 			"enabled": true,
 			"positiveCase": true
@@ -105,7 +109,7 @@
 			"positiveCase": true
 		},
 		"itaVerification":{
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"verifyKBA": {

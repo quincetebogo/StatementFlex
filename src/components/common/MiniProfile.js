@@ -128,24 +128,6 @@ export class MiniProfile extends Component {
 		return `${dob.getDate()} ${months[dob.getMonth()]} ${dob.getFullYear()}`;
 	}
 
-	_base64ToBlobUrl(base64Data) {
-
-		// decode base64 string, remove space for IE compatibility
-		const binary = atob(base64Data.replace(/\s/g, ``));
-		const len = binary.length;
-		const buffer = new ArrayBuffer(len);
-		const view = new Uint8Array(buffer);
-	
-		for (let i = 0; i < len; i++) {
-			view[i] = binary.charCodeAt(i);
-		}
-	
-		// create the blob object with content-type "image/jpg"
-		const blob = new Blob([view], { type: `image/jpg` });
-
-		return `${URL.createObjectURL(blob)}`;
-	}
-
 	// ---------
 	// RENDERING
 	// ---------
@@ -269,7 +251,7 @@ export class MiniProfile extends Component {
 					--theme-tooltip-border-radius: 2px;
 					--theme-layout-gap-spacing: 4px;
 				}
-				object {
+				img {
 					height: 158px;
 					width: 158px;
 				}
@@ -299,11 +281,7 @@ export class MiniProfile extends Component {
 
 	_renderClientImage() {
 		return this.miniProfile.profilePhoto
-		? html`
-			<object
-					data="${this._base64ToBlobUrl(this.miniProfile.profilePhoto)}"
-					type="image/jpg">
-			</object>`
+		? html`<img src="data:image/jpg;base64,${this.miniProfile.profilePhoto}"/>`
 		: html`
 			<capitec-avatar 
 					shape="square"
@@ -455,6 +433,7 @@ export class MiniProfile extends Component {
 			</capitec-alert-banner>
 			`;
 		};
+
 		return this.isHelpDeskAgent && !this.miniProfile.isVerified && this.miniProfile.isBranchConsultant
 		? html`
 			<capitec-alert-banner class="banner" type="warning">

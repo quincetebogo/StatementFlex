@@ -43,6 +43,7 @@ export default class HorizonChannelServiceMocks {
 		};
 		
 		this.callMocks = await this._loadMockModule(this.callMocks, `acceptCall`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
+		this.callMocks = await this._loadMockModule(this.callMocks, `searchCaller`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
 		this.favouritesMocks = await this._loadMockModule(this.favouritesMocks, `favouritesLanding`, () => import(`../mocks/QuickTransactionMocks`).catch(err => logError(err)));
 		this.cardLimitsMocks = await this._loadMockModule(this.cardLimitsMocks, `cardLimitsLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
 		this.cardLimitsMocks = await this._loadMockModule(this.cardLimitsMocks, `getTemporaryLimits`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
@@ -89,6 +90,12 @@ export default class HorizonChannelServiceMocks {
 
 		// Code for a negative case could come here
 		return null;
+	}
+
+	searchCaller() {
+		if (this._mockSettings.searchCaller.positiveCase) {
+			return this.callMocks.searchCaller;
+		}
 	}
 
 	xdsQuestions(clientID) {
