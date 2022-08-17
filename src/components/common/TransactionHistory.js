@@ -340,12 +340,6 @@ export class TransactionHistory extends Component {
 
 	async _initialise() {
 		this.telemetryEvent = {};
-		
-		// Fetching the telemetry events object at runtime based on product type
-		const { TRANSACTION_ENQUIRY_EVENTS } = await _importTelemetryEvents_[this.type]();
-
-		this.telemetryEvent = TRANSACTION_ENQUIRY_EVENTS;
-
 		this.get90DaysAfter = (date) => {
 			const result = new Date(date);
 			result.setDate(result.getDate() + 90);
@@ -357,6 +351,11 @@ export class TransactionHistory extends Component {
 			result.setDate(result.getDate() - 90);
 			return result.toISOString();
 		};
+		
+		// Fetching the telemetry events object at runtime based on product type
+		const { TRANSACTION_ENQUIRY_EVENTS } = await _importTelemetryEvents_[this.type]();
+
+		this.telemetryEvent = TRANSACTION_ENQUIRY_EVENTS;
 	}
 
 	// To set the values to default on closing the chip or clearing all the filters
