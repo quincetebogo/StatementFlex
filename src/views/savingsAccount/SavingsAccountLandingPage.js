@@ -290,7 +290,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	_accountDetails(savingsLandingDetails){
 		this.savingsDetails ={
 			"accountNumber" : savingsLandingDetails.accountNumber,
-			"Current balance": savingsLandingDetails.accountAvailableBalance === 0 ? '-' : formatCurrency(savingsLandingDetails.accountAvailableBalance),
+			"Current balance": savingsLandingDetails.accountBalance === 0 ? '-' : formatCurrency(savingsLandingDetails.accountBalance),
 			"Available balance": savingsLandingDetails.accountAvailableBalance === 0 ? '-' : formatCurrency(savingsLandingDetails.accountAvailableBalance),
 			"Interest rate": `${savingsLandingDetails.interestRatePercentage}%`,
 			[`Accured interest ${this._getCurrentMonth()}`] : savingsLandingDetails.accruedInterestCurrentMonth,
