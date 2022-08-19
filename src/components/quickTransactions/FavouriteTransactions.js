@@ -211,11 +211,11 @@ export class FavouriteTransactions extends Component {
 			default:
 				return html`
 					${this.renderAlertBanner()}
-							${this._renderTransactSection()}
-							${this._renderCardsSection()}
-							${this._renderDocumentsSections()}
-							${this._renderSearchOtherNeed()}
-					`;
+					${this._renderTransactSection()}
+					${this._renderCardsSection()}
+					${this._renderDocumentsSections()}
+					${this._renderSearchOtherNeed()}
+				`;
 		}
 	}
 
@@ -251,6 +251,12 @@ export class FavouriteTransactions extends Component {
 						label="DebiCheck"
 						@click="${() => this._optionSelectedClick(`debi-check-viewInfo`)}"
 						?disabled="${this.shouldDisable(`debi-check`)}">
+					</horizon-option-button>
+					<horizon-option-button
+						data-automation-id="favourites-transaction-send-cash"
+						icon="system/send-cash-action"
+						label="Send Cash"
+						@click="${() => this._optionSelectedClick(`send-cash`)}">
 					</horizon-option-button>
 				</capitec-button-bar>
 		`;
