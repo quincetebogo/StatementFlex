@@ -57,7 +57,7 @@ export class HorizonWidgetHost extends ViewBase {
 	// --------------
 
 	
-	_handleInitialiseMessage(e) {
+	_handleInitializeMessage(e) {
 		const mapVerificationMethods = { itaAttempts: `ITA`, sqAttempts: `KBA` };
 		const verificationMethods = [];
 		let verificationCount = 0;
@@ -151,7 +151,7 @@ export class HorizonWidgetHost extends ViewBase {
 			${super._webTemplate()}
 			<!-- Display the widget at location "./widget.html". This will typically be a link to the widget, e.g. "https://my-widget.platform-dev.int.capinet/widget.html" -->
 			<capitec-widget id="widget1" src="${this.widgetDetails.alias}" class="widget" 
-				@initialise="${this._handleInitialiseMessage}" 
+				@initialize="${this._handleInitializeMessage}" 
 				@get-client-profile="${this._handleGetClientProfileInfoMessage}" 
 				@loading-complete="${this._handleLoadingCompleteMessage}">
 			</capitec-widget>
