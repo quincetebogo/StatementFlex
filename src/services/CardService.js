@@ -18,7 +18,7 @@ export class CardService extends ChannelServiceBase {
 			toggleBusyFunc, 
 			defaultErrorHandlerFunc, 
 			`serviceURIs.cardServiceUrl`, 
-			`HorizonChannelService`, 
+			`CardService`, 
 			`v1`, 
 			() => import(`../mocks/HorizonChannelServiceMocks.js`)
 		);
