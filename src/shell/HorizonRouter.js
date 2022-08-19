@@ -62,7 +62,8 @@ const HORIZON_ROUTES = Object.freeze({
 	PROOF_OF_PAYMENT_SUCCESS: `/success/proof-of-payment`,
 	PROOF_OF_PAYMENT_FAILURE: `/error/proof-of-payment`,
 	PAID_UP_LETTER_SUCCESS: `/success/paid-up-letter`,
-	PAID_UP_LETTER_FAILURE: `/error/paid-up-letter`
+	PAID_UP_LETTER_FAILURE: `/error/paid-up-letter`,
+	WIDGET_HOST: `/widget`
 });
 
 
@@ -408,6 +409,11 @@ export class HorizonRouter {
 	navigatePaidUpLetterFailure() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.PAID_UP_LETTER_FAILURE}`);
 	}
+
+	navigateToWidget(widgetName) {
+		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST}/${widgetName}`);
+	}
+
 
 	/**
 	 * Navigates to the indicated Product Info Page
@@ -991,6 +997,14 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.PAID_UP_LETTER_FAILURE,
 		load: () => import(`../views/quickTransactions/PaidUpLetterFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-widget-host`,
+		title: `HorizonWidgetHost`,
+		icon: null,
+		path: `${HORIZON_ROUTES.WIDGET_HOST}/:name`,
+		load: () => import(`../views/common/HorizonWidgetHost`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}
 ];

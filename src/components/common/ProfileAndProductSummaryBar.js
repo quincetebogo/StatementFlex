@@ -175,9 +175,17 @@ export class ProfileAndProductSummaryBar extends Component {
 	};
 
 	async _productButtonClick(event) {
-		await this._clearPrevProductSpans(this.product, event.detail.productButton);
+		
+		// TODO: To be removed once widget navigation is complete
+		if (event.detail.productButton === `WidgetTemplate`) {
+			this.horizonRouter.navigateToWidget(event.detail.productButton);
+			return;
+		}
 
+		await this._clearPrevProductSpans(this.product, event.detail.productButton);
+		
 		this.product = event.detail.productButton;
+
 		await this._telemetry.logEvent(LandingPageEvents[`PRODUCT_BUTTON_${this.product}`], {});
 		this._setIncidentDone();
 
