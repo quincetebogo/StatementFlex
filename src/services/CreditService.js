@@ -322,7 +322,7 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	async emailPaidUpLetter(cifNumber, accountNumbers, emailAddress, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async emailPaidUpLetter(cifNumber, accountNumbers, emailAddress, title, lastName, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`emailPaidUpLetter`)) {
@@ -335,7 +335,10 @@ export class CreditService extends ChannelServiceBase {
 		const emailPaidUpLetterRequest = {
 			"cifnumber": cifNumber,
 			"accountNumbers": accountNumbers,
-			"emailAddress": emailAddress
+			"emailAddress": emailAddress,
+			"title": title,
+			"surname": lastName,
+			"documentType": `credit Paid Up letter`
 		};
 
 		const url = `/clientcare-credit-${this._version}/credit/paid-up-letter/email`;
@@ -487,7 +490,9 @@ export class CreditService extends ChannelServiceBase {
 			"caseId": null,
 			"idPassportNumber": callerInformation.southAfricanIDNumber,
 			"firstName": callerInformation.firstName,
-			"surname": callerInformation.lastName
+			"surname": callerInformation.lastName,
+			"title": callerInformation.title,
+			"budgetTitle": transferDetails.budgetName
 		};
 
 		const url = `/clientcare-credit-${this._version}/credit/budgetaccount/transfer`;
@@ -532,17 +537,18 @@ export class CreditService extends ChannelServiceBase {
 
 		const settleAndClose =
 		{
-			creditType: settleAndCloseRequest.creditType,
-			cifNumber: settleAndCloseRequest.cifNumber,
-			accountNumber: settleAndCloseRequest.accountNumber,
-			fromAccountNumber: settleAndCloseRequest.fromAccountNumber,
-			fromAccountType: settleAndCloseRequest.fromAccountType,
-			authorisedAmount: settleAndCloseRequest.authorisedAmount,
-			caseId: settleAndCloseRequest.caseId,
-			emailAddress: settleAndCloseRequest.emailAddress,
-			firstname: settleAndCloseRequest.firstname,
-			surname: settleAndCloseRequest.surname,
-			idNumber: settleAndCloseRequest.idNumber
+				creditType: settleAndCloseRequest.creditType,
+				cifNumber: settleAndCloseRequest.cifNumber,
+				accountNumber: settleAndCloseRequest.accountNumber,
+				fromAccountNumber: settleAndCloseRequest.fromAccountNumber,
+				fromAccountType: settleAndCloseRequest.fromAccountType,
+				authorisedAmount: settleAndCloseRequest.authorisedAmount,
+				caseId: settleAndCloseRequest.caseId,
+				emailAddress: settleAndCloseRequest.emailAddress,
+				firstname: settleAndCloseRequest.firstname,
+				surname: settleAndCloseRequest.surname,
+				idNumber: settleAndCloseRequest.idNumber,
+				title: settleAndCloseRequest.title 
 		};
 
 		const url = `/clientcare-credit-${this._version}/credit/settle-and-close/settle`;
