@@ -85,11 +85,13 @@
 	"paid-up-letter-credit-card": `PAID_UP_LETTER_CREDITCARD`,
 	"pay-budget-credit-card": `PAY_BUDGET_ACCOUNTS`,
 
+	"transaction-history-access-facility": `TRANSACTION_HISTORY_ACCESS_FACILITY`,
 	"statements-access-facility": `SEND_STATEMENTS_ACCESS_FACILITY`,
 	"settlement-quote-access-facility": `SETTLEMENT_QUOTE_ACCESS_FACILITY`,
 	"paid-up-letter-access-facility": `PAID_UP_LETTER_ACCESS_FACILITY`,
 	"settle-close-access-facility": `SETTLE_CLOSE_ACCESS_FACILITY`,
 
+	"transaction-history-term-loan": `TRANSACTION_HISTORY_TERM_LOAN`,
 	"statements-term-loan": `SEND_STATEMENTS_TERM_LOAN`,
 	"settlement-quote-term-loan": `SETTLEMENT_QUOTE_TERM_LOAN`,
 	"paid-up-letter-term-loan": `PAID_UP_LETTER_TERM_LOAN`,

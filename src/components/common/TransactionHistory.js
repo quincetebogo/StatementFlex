@@ -220,7 +220,22 @@ export class TransactionHistory extends Component {
 	}
 
 	async _dateChanged(e) {
-		let fromDate = DateTime.fromISO(e.detail.new.startDate);
+
+		/**
+		 * 1. When dates are not selected on the date time picker, new value dispatched would be null.
+		 *    In such case, data refresh can be skipped.
+		 * 2. Sometimes start date/ end date could be null when one of its not selected, for which
+		 *    either before 90 days or after 90 days set accordingly.
+		 */
+		if (!e.detail.new.startDate && !e.detail.new.endDate) {
+			return false;
+		} else if (!e.detail.new.endDate) {
+			e.detail.new.endDate = e.detail.old.endDate || this.get90DaysAfter(e.detail.new.startDate);
+		} else if (!e.detail.new.startDate) {
+			e.detail.new.startDate = e.detail.old.startDate || this.get90DaysBefore(e.detail.new.endDate);
+		}
+
+		const fromDate = DateTime.fromISO(e.detail.new.startDate);
 		let toDate = DateTime.fromISO(e.detail.new.endDate);
 		const currentDateTime = DateTime.local();
 
@@ -238,20 +253,7 @@ export class TransactionHistory extends Component {
 					calendar._placeholderEndDate = toDate;
 				}
 			}
-		} else if (e.detail.new.endDate === null && this.endDate === ``) {
-			this.startDate = fromDate;
-			toDate = fromDate.plus({ days: 90 });
-			if (toDate.diff(currentDateTime, [`days`]).days > 0) {
-				this.endDate = currentDateTime;
-			} else {
-				this.endDate = toDate;
-			}
-		} else if (e.detail.new.startDate === null && this.startDate === ``) {
-			this.endDate = toDate;
-			fromDate = toDate.minus({ days: 90 });
-			this.startDate = fromDate;
 		} else {
-			
 			this.startDate = fromDate;
 			this.endDate = toDate;
 		}
@@ -348,6 +350,17 @@ export class TransactionHistory extends Component {
 
 	async _initialise() {
 		this.telemetryEvent = {};
+		this.get90DaysAfter = (date) => {
+			const result = new Date(date);
+			result.setDate(result.getDate() + 90);
+
+			return result > today ? today.toISOString() : result.toISOString();
+		};
+		this.get90DaysBefore = (date) => {
+			const result = new Date(date);
+			result.setDate(result.getDate() - 90);
+			return result.toISOString();
+		};
 		
 		// Fetching the telemetry events object at runtime based on product type
 		const { TRANSACTION_ENQUIRY_EVENTS } = await _importTelemetryEvents_[this.type]();

@@ -1,9 +1,10 @@
 import { ACCOUNT_STATUS, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
-import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { CreditEvents, SETTLEMENT_QUOTE_EVENTS, SETTLE_AND_CLOSE } from 'app/constants/telemetry/events/Credit';
+import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { css, html, unsafeCSS } from 'platform/elements';
+import { formatDate, formatStringAsPascalCase, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { CreditService } from 'app/services/CreditService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
@@ -14,7 +15,6 @@ import { ViewBase } from 'app/views/common/ViewBase';
 import { alertBannerMixin } from 'app/views/common/AlertBannerMixin';
 import { creditMixin } from 'app/views/credit/CreditMixin';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { formatDate, formatStringAsPascalCase, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/ServiceCallErrorScreen';
 import 'app/components/credit/CreditCardDetails';
@@ -597,7 +597,7 @@ export class CreditAccount extends ViewBase {
 		};
 	}
 
-	_transactionHistory(creditType, productType, accountDetails) {
+	async _transactionHistory(creditType, productType, accountDetails) {
 
 		this._telemetry.logEvent(CreditEvents.CREDIT_TRANSACTION_HISTORY_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
@@ -606,9 +606,7 @@ export class CreditAccount extends ViewBase {
 			"product-type": productType
 		});
 
-		// TO DO: Uncomment the below line to have STrack incident logging when implemented Trasnaction History
-		// when coming back from transaction history screen, set incident as done "_setIncidentDone()"".
-		// await super.createAndClassifySubsIncident();
+		await super.createAndClassifySubsIncident(null, false);
 
 		this._setAccountHeaderDetails(accountDetails);
 		this._getTransactionHistory();
@@ -636,17 +634,18 @@ export class CreditAccount extends ViewBase {
 		}
 		const formattedResponse = this._getFormattedResponse(returnValue.result.transaction);
 		this.transactionHistory.push(...formattedResponse);
+		this.endCallContext = `TransactionHistory`;
 		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 	}
 
 	_getTransactionHistoryRequest(startDate, endDate, startAtIndex) {
-		if(!isNullorEmpty(startDate) && !isNullorEmpty(endDate)){
+		if (!isNullorEmpty(startDate) && !isNullorEmpty(endDate)) {
 			startDate = formatDate(startDate, ISO_8601_DATE_FORMAT);
 			endDate = formatDate(endDate, ISO_8601_DATE_FORMAT);
 		}
 		
 		return {
-			"accountNumber": this.accountDetails["Account number"],
+			"accountNumber": this.accountDetails[`Account number`],
 			"startDate": startDate || TRANSACTION_HISTORY.START_DATE,
 			"endDate": endDate || TRANSACTION_HISTORY.END_DATE,
 			"startAtIndex": startAtIndex || TRANSACTION_HISTORY.START_AT_INDEX,
@@ -670,15 +669,17 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _exitTransactionHistory() {
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		await super.classifyIncident(() => this._toggleBusyFlag());
+		this._setIncidentDone();
 	}
 
 	async _unloadTransactionHistory() {
+		this.endCallContext = `LandingPage`;
 		this.transactionHistory = [];
-	}
 
-	_errorHandler(exception) {
-		console.error('Error credit transaction history');
+		await super.classifyIncident(() => this._toggleBusyFlag());
+
+		this._setIncidentDone();
 	}
 
 	_getStatements(creditType, productType, selectedAccountDetails, sendAnother) {
@@ -1381,17 +1382,17 @@ export class CreditAccount extends ViewBase {
 			</capitec-table-column>
 			<capitec-table-column
 				label="Amount"
-				field="amount"
+				field="formatedAmount"
 				type="string"
 				size="100px;">
 			</capitec-table-column>
 			<capitec-table-column
 				label="Available Balance"
-				field="balance"
+				field="formatedBalance"
 				type="string"
 				size="140px;">
 			</capitec-table-column>
-			`
+			`;
 	}
 
 	_renderTransactionDateTime(value) {

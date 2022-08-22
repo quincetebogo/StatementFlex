@@ -17,8 +17,8 @@ export class CardService extends ChannelServiceBase {
 		super(
 			toggleBusyFunc, 
 			defaultErrorHandlerFunc, 
-			`serviceURIs.channelServiceUrl`, 
-			`HorizonChannelService`, 
+			`serviceURIs.cardServiceUrl`, 
+			`CardService`, 
 			`v1`, 
 			() => import(`../mocks/HorizonChannelServiceMocks.js`)
 		);
@@ -161,6 +161,189 @@ export class CardService extends ChannelServiceBase {
 			900,
 			null,
 			errorHandler, autoRetries
+		);
+	}
+
+	async cardLimitsLanding(cifNumber, incidentRecId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`cardLimitsLanding`)) {
+			return this.mock(`cardLimitsLanding`, cifNumber);
+		}
+
+		const request = {
+			"cifNumber": cifNumber,
+			"incidentRecId": incidentRecId
+		};
+
+		const url = `/clientcare-card-${this._version}/limits-landing`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`cardLimitsLanding`,
+			null,
+			null,
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async tapToPayLanding(cifNumber, incidentRecId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`tapToPayLanding`)) {
+			return this.mock(`tapToPay`, cifNumber);
+		}
+
+		const request = {
+			"cifNumber": cifNumber,
+			"incidentRecId": incidentRecId
+		};
+
+		const url = `/clientcare-card-${this._version}/tap-to-pay-landing`;
+	
+		return this.post(
+			url, 
+			request, 
+			this.setToken(), 
+			`tapToPayLanding`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	tapToPayAgreement(agreementInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const url = `/clientcare-card-${this._version}/tap-to-pay-agreement`;
+
+		return this.post(
+			url, 
+			agreementInfo, 
+			this.setToken(), 
+			`tapToPayAgreement`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async updateTapToPay(acceptTapToPay, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
+		const url = `/clientcare-card-${this._version}/tap-to-pay`;
+
+		return this.post(
+			url, 
+			acceptTapToPay, 
+			this.setToken(), 
+			`updateTapToPay`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async getCardLimitsAgreement(cardDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`getCardLimitsAgreement`)) {
+			return this.mock(`getCardLimitsAgreement`, cardDetails);
+		}
+
+		return this.post(
+			`/clientcare-card-${this._version}/limits-agreement`, 
+			cardDetails, 
+			this.setToken(), 
+			`getCardLimitsAgreement`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async updatePermanentLimits(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
+		const url = `/clientcare-card-${this._version}/permanent-limits`;
+
+		return this.put(
+			url, 
+			request, 
+			this.setToken(), 
+			`updatePermanentLimits`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async updateTemporaryLimits(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
+		const url = `/clientcare-card-${this._version}/temporary-limits`;
+
+		return this.put(
+			url, 
+			request, 
+			this.setToken(), 
+			`updateTemporaryLimits`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	getPermanentLimits(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const url = `/clientcare-card-${this._version}/permanent-limits`;
+
+		return this.post(
+			url, 
+			request, 
+			this.setToken(), 
+			`getPermanentLimits`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async getTemporaryLimits(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`getTemporaryLimits`)) {
+			return this.mock(`getTemporaryLimits`, request);
+		}
+
+		const url = `/clientcare-card-${this._version}/temporary-limits`;
+
+		return this.post(
+			url, 
+			request, 
+			this.setToken(), 
+			`getTemporaryLimits`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
 		);
 	}
 }

@@ -96,7 +96,10 @@ export const creditMixin = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"caseId": this.caseId || ``,
 			"emailAddress": details.emailAddress,
-			"accountList": accountsList
+			"accountList": accountsList,
+			"title": this.callerInformation.title,
+			"surname": this.callerInformation.lastName,
+			"documentType": `Credit Settlement Quote`
 		};
 
 		const returnValue = await this.creditService.sendSettlementQuoteEmail(request, () => true);
