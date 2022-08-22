@@ -12,7 +12,6 @@ import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/TransactionHistory';
 import 'app/components/savingsAccount/SavingAccount';
-import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/common/StatementsDialog';
 
 const DATE_TIME_FORMAT = `dd mmm yyy hh:mm:ss`;

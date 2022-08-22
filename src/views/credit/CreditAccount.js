@@ -597,7 +597,7 @@ export class CreditAccount extends ViewBase {
 		};
 	}
 
-	_transactionHistory(creditType, productType, accountDetails) {
+	async _transactionHistory(creditType, productType, accountDetails) {
 
 		this._telemetry.logEvent(CreditEvents.CREDIT_TRANSACTION_HISTORY_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
@@ -607,9 +607,7 @@ export class CreditAccount extends ViewBase {
 		});
 
 		this.productType = productType;
-		// TO DO: Uncomment the below line to have STrack incident logging when implemented Trasnaction History
-		// when coming back from transaction history screen, set incident as done "_setIncidentDone()"".
-		// await super.createAndClassifySubsIncident();
+	    await super.createAndClassifySubsIncident(null, false);
 
 		this._setAccountHeaderDetails(accountDetails);
 		this._getTransactionHistory();
@@ -635,9 +633,8 @@ export class CreditAccount extends ViewBase {
 			this.logger.log(`error`, `Failed to retrieve credit transaction history from credit service.`, `_getTransactionHistory`, returnValue.correlationId);
 			return;
 		}
-		const formattedResponse = this._getFormattedResponse(returnValue.result.transaction);
+		const formattedResponse = this._getFormattedResponse(returnValue.result.transactions);
 		this.transactionHistory.push(...formattedResponse);
-		
 		this.endCallContext = `TransactionHistory`;
 		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 	}
@@ -672,12 +669,18 @@ export class CreditAccount extends ViewBase {
 		});
 	}
 
-	_exitTransactionHistory() {
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	async _exitTransactionHistory() {
+		await super.classifyIncident(() => this._toggleBusyFlag());
+		this._setIncidentDone();
 	}
 
-	_unloadTransactionHistory() {
+	async _unloadTransactionHistory() {
+		this.endCallContext = `LandingPage`;
 		this.transactionHistory = [];
+
+		await super.classifyIncident(() => this._toggleBusyFlag());
+
+		this._setIncidentDone();
 	}
 
 	_getStatements(creditType, productType, selectedAccountDetails, sendAnother) {
@@ -1379,13 +1382,13 @@ export class CreditAccount extends ViewBase {
 			</capitec-table-column>
 			<capitec-table-column
 				label="Amount"
-				field="amount"
+				field="formatedAmount"
 				type="string"
 				size="100px;">
 			</capitec-table-column>
 			<capitec-table-column
 				label="Available Balance"
-				field="balance"
+				field="formatedBalance"
 				type="string"
 				size="140px;">
 			</capitec-table-column>

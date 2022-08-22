@@ -1,6 +1,7 @@
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { ACCOUNT_STATUS } from 'app/constants/Credit';
 import { CreditService } from 'app/services/CreditService';
+import { DebiCheckService } from 'app/services/DebiCheckService';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { NavigationContext } from 'platform/core';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
@@ -14,6 +15,8 @@ import { html } from 'platform/elements';
 
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/quickTransactions/ApproveDebiCheckMandate';
+import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
+import 'app/components/dialogs/quickTransactions/DeclineDebiCheckMandate';
 import 'app/dialogs/statements/Statements';
 
 /**
@@ -57,10 +60,11 @@ export class SavingsAccountBase extends ViewBase {
 		this.navigationContext = NavigationContext.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 
-
+		
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.debiCheckService = new DebiCheckService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// --------------
@@ -96,7 +100,7 @@ export class SavingsAccountBase extends ViewBase {
 			nextScreen: TelemetryScreen.DEBICHECK
 		});
 
-		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber, () => true);
+		const returnValue = await this.debiCheckService.debiCheckMandates(this.callerInformation.cifNumber, () => true);
 
 		if (returnValue.succeeded) {
 			// landingPageInfo returns null sometimes - go get account number from ClientProducts
@@ -210,17 +214,17 @@ export class SavingsAccountBase extends ViewBase {
 		this.renderMode = RENDER_MODE.DEBI_CHECK_VIEW_INFO;
 	}
 
-	async _declineDebiCheckMandate(event) {
+    async _declineDebiCheckMandate(event) {
 		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_DECLINE_MANDATE_CONFIRM, {
 			"screen": TelemetryScreen.DECLINE_DEBICHECK,
 			"next-screen": TelemetryScreen.DEBICHECK_OUTCOME
 		});
 
-		await this._authenticateMandate(false);
+		await this._authenticateMandate();
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
 
-	async _approveDebiCheckMandate(event) {
+    async _approveDebiCheckMandate(event) {
 		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
 			"screen": TelemetryScreen.APPROVE_DEBICHECK,
 			"next-screen": TelemetryScreen.DEBICHECK_OUTCOME
@@ -330,7 +334,7 @@ export class SavingsAccountBase extends ViewBase {
 			documentId: this.clientDetails.data.documentId
 		};
 
-		const returnValue = await this.savingsAccountService.debiCheckConfirmAgreement(agreementInfo);
+		const returnValue = await this.debiCheckService.debiCheckApprove(agreementInfo);
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `debi-check-viewInfo`);
 
 		if (returnValue.succeeded) {
@@ -340,14 +344,13 @@ export class SavingsAccountBase extends ViewBase {
 		}
 	}
 
-	async _authenticateMandate(accepted) {
-		const returnValue = await this.savingsAccountService.debiCheckAuthenticate(
+	async _authenticateMandate() {
+		const returnValue = await this.debiCheckService.debiCheckDecline(
 			this.callerInformation.cifNumber,
 			this.callerInformation.title,
 			this.callerInformation.lastName,
 			this.debiCheckDetails,
-			this.mandateInfo,
-			accepted
+			this.mandateInfo
 		);
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `debi-check-viewInfo`);
 		
@@ -373,7 +376,7 @@ export class SavingsAccountBase extends ViewBase {
 			cifNumber: this.callerInformation.cifNumber
 		};
 
-		const returnValue = await this.savingsAccountService.debiCheckAgreement(agreementRequest, () => true);
+		const returnValue = await this.debiCheckService.debiCheckAgreement(agreementRequest, () => true);
 
 		if (returnValue.succeeded && returnValue.result) {
 			this.clientDetails = returnValue.result;
@@ -416,7 +419,7 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	async _getMandateDetails() {
-		const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, this.mandateId, this.registerId, () => true);
+		const returnValue = await this.debiCheckService.debiCheckDetails(this.callerInformation.cifNumber, this.mandateId, this.registerId, () => true);
 		
 		if (!returnValue.succeeded || !returnValue.result) {
 			this.logger.log(`error`, `Unable to load debi check mandate details`, `_getMandateDetails`, returnValue.correlationId);
