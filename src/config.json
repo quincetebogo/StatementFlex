@@ -109,10 +109,10 @@
 			"enabled": true,
 			"positiveCase": true
 		},
-		"itaVerification":{
-			"enabled": false,
-			"positiveCase": true
-		},
+    "itaVerification": {
+      "enabled": false,
+      "positiveCase": true
+    },
 		"verifyKBA": {
 			"enabled": true,
 			"positiveCase": true
@@ -153,10 +153,10 @@
 			"enabled": false,
 			"positiveCase": false
 		},
-		"transactionHistory": {
-			"enabled": false,
-			"positiveCase": true
-		},
+    "transactionHistory": {
+      "enabled": false,
+      "positiveCase": true
+    },
 		"savingsAccountLanding": {
 			"enabled": false,
 			"positiveCase": true
@@ -213,14 +213,14 @@
 			"enabled": false,
 			"positiveCase": true
 		},
-		"creditOverview": {
-			"enabled": false,
-			"positiveCase": true
-		},
-		"creditBalance": {
-			"enabled": false,
-			"positiveCase": true
-		},
+    "creditOverview": {
+      "enabled": false,
+      "positiveCase": true
+    },
+    "creditBalance": {
+      "enabled": false,
+      "positiveCase": true
+    },
 		"budgetTransferFromAccounts": {
 			"enabled": false,
 			"positiveCase": true
@@ -245,10 +245,10 @@
 			"enabled": false,
 			"positiveCase": true
 		},
-		"creditPermissions": {
-			"enabled": false,
-			"positiveCase": true
-		},
+    "creditPermissions": {
+      "enabled": false,
+      "positiveCase": true
+    },
 		"emailPaidUpLetter": {
 			"enabled": false,
 			"positiveCase": false

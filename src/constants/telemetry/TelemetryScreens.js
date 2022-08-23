@@ -102,8 +102,7 @@
 
 
 	CREDIT_LANDING: `Credit Landing`,
-	CREDIT_ACCOUNT_DETAILS: `Credit Account details`,  
-	CREDIT_TRANSACTION_HISTORY: `Credit Transaction History`,
+	CREDIT_ACCOUNT_DETAILS: `Credit Account details`,
 	CREDIT_STATEMENTS: `Credit Statements`,
 	SETTLEMENT_QUOTE_DIALOG: `Settlement Quote Dialog`,
 	CREDIT_SETTLE_CLOSE_DISCLAIMER: `Settle and close credit card disclaimer`,
