@@ -2,7 +2,7 @@ import { Component, css, html } from 'platform/elements';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
-import { GENDER_OPTIONS } from 'app/constants/InsureCommon';
+import { GENDER_OPTIONS, INSURE_CALLER_PAGE } from 'app/constants/InsureCommon';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
@@ -10,6 +10,7 @@ import 'app/components/dialogs/insure/AddLifeDialog';
 import 'app/components/common/HorizonLabel';
 import 'app/components/dialogs/insure/PrintEstimateAgreementDialog';
 import 'app/components/dialogs/insure/InsureEmailDialog';
+import { INSURE_RENDER_MODE } from '../../views/insure/InsureRenderModes';
 
 const AGE_ERROR_MESSAGE = 'Age is not valid';
 
@@ -54,8 +55,8 @@ class PolicyEstimate extends Component {
 	 * @property {boolean} mainLifeDefaultGender Main life derived gender
 	 * @property {Number} maxAllowedCover  CheckInsurance limit for remaining cover limit
 	 * @property {string} printEstimateDocumentContent - document content of Estimate
-	 * @property {boolean} showPrintEstimateDialog Controls when to show the Print Estimate dialog
-	 * @property {String} showEmailPlanDialog - Show flag for email address & send dialog
+	 * @property {boolean} showPrintEstimateDialog Controls when to show the Email Estimate dialog
+	 * @property {boolean} showEmailPlanDialog - Show flag for email address & send dialog
 	 * @property {String} titleMessage - title fo send email popup.
 	 * 
 	 * @readonly
@@ -156,7 +157,7 @@ class PolicyEstimate extends Component {
 			else
 			{	
  				const printEstimateResponse = await this.printEstimate({detail: request});
-				this.printEstimateDocumentContent = printEstimateResponse?.documentContent;
+				this.printEstimateDocumentContent = printEstimateResponse?.result?.documentContent;
 
 				this.showPrintEstimateDialog = true;
 			}
@@ -284,10 +285,11 @@ class PolicyEstimate extends Component {
 	}
 
 	/**
-	 * Invoke this function when Agree button is clicked on Print Estimate Popup
+	 * Invoke this function when Agree button is clicked on Email Estimate Popup
 	 */
 	async _acceptPrintEstimate() {
 		this.titleMessage = `Email Funeral Plan Estimate`;
+		this.showPrintEstimateDialog = false;
 		this.showEmailPlanDialog = true;
 	}
 
@@ -295,7 +297,9 @@ class PolicyEstimate extends Component {
 	 * Invoke this function when Send button is clicked on Email Popup
 	 */
 	async _sendEmail(emailAddress) {
-		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress } } ));
+		this.showEmailPlanDialog = false;
+		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress
+			,callerPage: INSURE_CALLER_PAGE.ESTIMATE } } ));
 	}
 
 	//#endregion
@@ -480,7 +484,8 @@ class PolicyEstimate extends Component {
 	_renderDialogs() {
 		return html`
 			${this._renderAddLifeDialog()}
-			${this._renderPrintEstimateDialog()}`
+			${this._renderPrintEstimateDialog()}
+			${this._renderInsureEmailDialog()}`
 	}
 
 	/**
@@ -495,9 +500,9 @@ class PolicyEstimate extends Component {
 			<capitec-label label="Get an estimate" type="title"></capitec-label>
 			<capitec-spacer></capitec-spacer>
 			</capitec-button>
-			<capitec-button label="Print Estimate" class="capitec-button-medium" type="white" data-automation-id="insure-estimate-calculate"
+			<capitec-button label="Email Estimate" class="capitec-button-large" type="white" data-automation-id="insure-estimate-calculate"
 				@click="${() => this._calculateEstimate(0)}"></capitec-button>
-			<capitec-button label="Calculate" class="capitec-button-medium" type="white" data-automation-id="insure-estimate-calculate"
+			<capitec-button label="Calculate" class="capitec-button-large" type="white" data-automation-id="insure-estimate-calculate"
 				@click="${() => this._calculateEstimate(1)}"></capitec-button>
 		</capitec-title-bar>
 		<capitec-card id="insure-calc-card">
@@ -638,7 +643,7 @@ class PolicyEstimate extends Component {
 	_renderPrintEstimateDialog() {
 		return this.showPrintEstimateDialog == false ? `` :
 			html`
-			<print-estimate-agreement-dialog @print-estimate-close-modal = "${() => this.showPrintEstimateAgreementDialog = false }"
+			<print-estimate-agreement-dialog @print-estimate-close-modal = "${() => this.showPrintEstimateDialog = false }"
 				.printEstimateAgreementContent="${this.printEstimateDocumentContent}"
 				@print-estimate-agree-click = "${() => this._acceptPrintEstimate() }">
 			</print-estimate-agreement-dialog>`

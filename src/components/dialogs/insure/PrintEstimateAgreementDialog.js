@@ -4,7 +4,7 @@ import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 const ERROR_MESSAGE = `Please select confirmation checkbox`;
 
 /**
- * Print Estimate Agreement Dialog component will allow you to view the Estimate detail, 
+ * Email Estimate Agreement Dialog component will allow you to view the Estimate detail, 
  * and to agree to Send the Estimate details
  * 
  * Events Raised 
@@ -119,7 +119,7 @@ class PrintEstimateAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-			<capitec-modal type="form" header="Print Estimate Agreement">
+			<capitec-modal type="form" header="Email Estimate Agreement">
 				<div slot="body" data-automation-id="insure-print-estimate-dialog-body">
 					${this._renderDialogBody()}
 				</div>
