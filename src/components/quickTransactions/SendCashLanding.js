@@ -1,11 +1,11 @@
 import { Component, css, html } from 'platform/elements';
-import { SendCashLandingMocks } from 'app/mocks/SendCashMocks';
+import { DateTime } from 'luxon';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { SendCashLandingMocks } from 'app/mocks/SendCashMocks';
 
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
-import { DateTime } from 'luxon';
 
 const today = new Date();
 const DATE_FORMAT = `dd mmm yyyy`;
@@ -29,7 +29,7 @@ const RENDER_CHIPS = {
 };
 
 /**
- * This component implements the update card limits for Quick Transactions
+ * This component shows the send cash landing page.
  *
  * Events Raised 
  * -------------
@@ -56,7 +56,6 @@ export class SendCashLanding extends Component {
 		this.filteredSendCashDetails = [];
 
 		this.searchTextLabel = DEFAULTS.SEARCH_TEXT_LABEL;
-		this.statuslabel = DEFAULTS.STATUS_LABEL;
 	}
 
 	// --------------
@@ -82,6 +81,10 @@ export class SendCashLanding extends Component {
 
 		this.sendCashDetails = SendCashLandingMocks.sendCashSummaryList;
 		this.filteredSendCashDetails = this.sendCashDetails;
+
+		RENDER_CHIPS[FILTER_BY.TEXT] = ``;
+		RENDER_CHIPS[FILTER_BY.DATE] = ``;
+		RENDER_CHIPS[FILTER_BY.STATUS] = `All`;
 	}
 
 	disconnectedCallback() {
@@ -193,15 +196,12 @@ export class SendCashLanding extends Component {
 		// Assigning the raw data before performing the filter
 		this.filteredSendCashDetails = this.sendCashDetails;
 
+		// Filtering while search on the text bar.
 		if (RENDER_CHIPS[FILTER_BY.TEXT]) {
 			const searchText = RENDER_CHIPS[FILTER_BY.TEXT].split(` `);
 
 			const searchTextResult = searchText.map(key => {
 				if (key !== ``) {
-					// if (key.startsWith(`-`)) {
-					// 	return this.filteredSendCashDetails.filter(item => parseFloat(item.amountSent).toFixed(2).startsWith(key));
-					// }
-
 					return this.filteredSendCashDetails.filter(item => item.voucherNumber.toString().includes(key) ||
 																	   item.amountSent.toString().startsWith(key) ||
 																	   item.fromAccount.toString().startsWith(key));
@@ -212,6 +212,7 @@ export class SendCashLanding extends Component {
 			console.log(this.filteredSendCashDetails);
 		}
 
+		// Filtering by date.
 		if (RENDER_CHIPS[FILTER_BY.DATE]) {
 			const startDate = new Date(Date.parse(this.startDate));
 			const endDate = new Date(Date.parse(this.endDate));
@@ -223,6 +224,7 @@ export class SendCashLanding extends Component {
 			console.log(this.filteredSendCashDetails);
 		}
 
+		// Filtering by status.
 		if (RENDER_CHIPS[FILTER_BY.STATUS]) {
 			const status = RENDER_CHIPS[FILTER_BY.STATUS];
 
@@ -250,14 +252,10 @@ export class SendCashLanding extends Component {
 	_clearFilter(type) {
 		const text = () => this._clearTextFilter();
 		const date = () => this._reset();
-		const status = () => { 
-			this.statuslabel = DEFAULTS.STATUS_LABEL; 
-		};
 		
 		const resetForfilters = {
 			'DATE': date,
-			'TEXT': text,
-			'STATUS': status
+			'TEXT': text
 		};
 
 		RENDER_CHIPS[type] = ``;
@@ -314,19 +312,21 @@ export class SendCashLanding extends Component {
 					--theme-card-border-radius: 5px;
 					--theme-card-box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
 				}
-
 				capitec-title-bar {
 					--theme-label-title-font-size: 24px;
 					--theme-label-title-font-weight: 600;
 					--theme-titlebar-shadow: none;
 					--theme-titlebar-border: 1px solid #E1E1E1;
 				}
+				capitec-title-bar > capitec-icon {
+					cursor: pointer;
+				}
 				capitec-content-box {
 					--theme-container-padding-top: 8px;
+					--theme-container-padding-right: 0px;
 				}
 				.transaction-action-bar {
 					height: 64px;
-					--horizon-center-panel-width: 130px;
 				}
 				.transaction-action-bar > capitec-text-field {
 					height: 48px;
@@ -338,12 +338,6 @@ export class SendCashLanding extends Component {
 					--theme-input-clear-icon-height: 0px;
 					--theme-input-clear-icon-width: 0px;
 				}
-				.transaction-action-bar > capitec-chip {
-					--theme-layout-gap-spacing: 5px;
-					--theme-chip-label-padding-left: 11px;
-					--theme-chip-label-padding-right: 11px;
-					--theme-chip-label-line-height: 19px;
-				}
 				.transaction-action-bar > capitec-date-time-picker {
 					height: 48px;
 					--theme-layout-gap-spacing: 5px;
@@ -351,6 +345,12 @@ export class SendCashLanding extends Component {
 					--theme-date-time-picker-medium-select-min-width: 160px;
 					--theme-date-time-picker-range-calendar-min-width: 160px;
 					--theme-date-time-picker-host-max-width: 160px;
+				}
+				.transaction-action-bar > capitec-chip {
+					--theme-layout-gap-spacing: 5px;
+					--theme-chip-label-padding-left: 11px;
+					--theme-chip-label-padding-right: 11px;
+					--theme-chip-label-line-height: 19px;
 				}
 				.type-normal {
 					--theme-chip-label-color: #3A3A3A;
@@ -362,36 +362,29 @@ export class SendCashLanding extends Component {
 					--theme-chip-font-weight: 600;
 				}
 				/* Chip Bar Styles */
-				.filter-bar {
+				capitec-action-bar {
+					--theme-actionbar-shadow: none;
 					--theme-actionbar-min-height: 48px;
 					--theme-actionbar-padding: 8px 0px 8px 16px;
 				}
-				.filter-bar > capitec-label {
-					height: 20px;
-					width: 87px;
-					color: #3A3A3A;
-					font-family: "Hind Vadodara";
+				capitec-action-bar > capitec-label {
 					font-size: 15px;
 					font-weight: 600;
-					letter-spacing: 0;
 					line-height: 30px;
 				}
-				.filter-bar > capitec-button {
-					height: 40px;
+				capitec-action-bar > capitec-button {
 					margin: 0px;
 
 					--theme-button-font-size : 14px;
 					--theme-button-line-height: 10px;
-					--theme-button-font-weight: 600;
 				}
-				.expander-header > capitec-icon {
-					--theme-icon-size-default: 20px;
-					--theme-layout-gap-spacing: 0px;
-					margin-left: 16px;
+				horizon-expander {
+					height: auto;
+					width: 1030px;
+					--theme-expander-header-height: 64px;
 				}
-
 				horizon-label {
-					width: 158px;
+					width: 150px;
 
 					--theme-layout-gap-spacing: 0px;
 					--horizon-label-text-height: 20px;
@@ -412,27 +405,11 @@ export class SendCashLanding extends Component {
 				horizon-label[value="Redemption Authorised"] {
 					--horizon-label-value-color: #D4781C;
 				}
-				.date-created-label {
-					width: 150px;
-				}
-				.voucher-number-label {
-					width: 150px;
-				}
-				.amount-sent-label {
-					width: 150px;
-				}
-				.from-account-label {
-					width: 150px;
-				}
 				.sent-from-label {
 					width: 130px;
 				}
 				.status-label {
 					width: 204px;
-				}
-				horizon-expander {
-					height: auto;
-					--theme-expander-header-height: 64px;
 				}
 				.expander-content {
 					height: auto;
@@ -440,15 +417,6 @@ export class SendCashLanding extends Component {
 					border-bottom: 1px solid #E1E1E1;
 					border-right: 1px solid #E1E1E1;
 					border-radius: 0px 0px 4px 4px
-				}
-				capitec-table {
-					--theme-data-table-header-background-color: #FFFFFF;
-
-					--theme-data-table-padding-left: 15px;
-					--theme-data-table-padding-right: 15px;
-				}
-				capitec-action-bar {
-					--theme-actionbar-shadow: none;
 				}
 				.no-result-group {
 					width: 1062px;
@@ -458,6 +426,18 @@ export class SendCashLanding extends Component {
 					--theme-label-strong-font-size: 24px;
 					--theme-label-strong-font-weight: 600;
 					--theme-label-font-color: #3A3A3A;
+				}
+				capitec-group[layout="grid"] {
+					padding-left: 16px;
+					padding-top: 20px;
+					padding-bottom: 16px;
+				}
+				capitec-group[layout="grid"] > capitec-label {
+					width: 150px;
+					height: 25px;
+				}
+				.headerRow {
+					--theme-label-default-font-weight: 600;
 				}
 			`
 		]
@@ -507,7 +487,7 @@ export class SendCashLanding extends Component {
 					@focus="${(e) => this.searchTextLabel = ``}"
 					@blur="${(e) => this._searchTextBlur(e)}"
 					value="${RENDER_CHIPS[FILTER_BY.TEXT]}"
-					data-automation-id="transaction-history-text-filter">
+					data-automation-id="send-cash-landing-text-filter">
 				</capitec-text-field>
 
 				<capitec-date-time-picker
@@ -522,12 +502,12 @@ export class SendCashLanding extends Component {
 					outputType="string"
 					.predefinedRanges="${this.getPredefinedDateRanges()}"
 					@apply-clicked="${(e) => this._dateChanged(e)}"
-					data-automation-id="transaction-history-date-filter">
+					data-automation-id="send-cash-landing-date-filter">
 				</capitec-date-time-picker>
 
 				<capitec-chip 
 					label="All" 
-					class="${RENDER_CHIPS[FILTER_BY.STATUS] === `All` ? `type-selected` : `type-normal`}" 
+					class="${RENDER_CHIPS[FILTER_BY.STATUS] !== `All` ? `type-normal` : `type-selected`}" 
 					@click="${(e) => this._selectedStatusType(e)}">
 				</capitec-chip>
 				<capitec-chip 
@@ -555,21 +535,19 @@ export class SendCashLanding extends Component {
 	}
 
 	_renderFilterBar() {
-		if (RENDER_CHIPS[FILTER_BY.TEXT] !== `` || RENDER_CHIPS[FILTER_BY.DATE] !== `` || RENDER_CHIPS[FILTER_BY.STATUS] !== ``) {
+		if (RENDER_CHIPS[FILTER_BY.TEXT] !== `` || RENDER_CHIPS[FILTER_BY.DATE] !== ``) {
 			return html`
 				<capitec-action-bar
 					id="active-filters"
-					class="filter-bar"
-					data-automation-id="transaction-history-active-filters">
-						<capitec-label label = "Active filters:"></capitec-label>
+					data-automation-id="send-cash-landing-active-filters">
+						<capitec-label label="Active filters:"></capitec-label>
 							${this._renderTextChip()}
 							${this._renderDateChip()}
-							${this._renderStatusChip()}
 						<capitec-button
 							type="clear"
 							label="Clear All"
 							@click = "${() => this._clearFilters()}"
-							data-automation-id="transaction-history-clear-active-filters">
+							data-automation-id="send-cash-landing-clear-active-filters">
 						</capitec-button>
 				</capitec-action-bar>
 			`;
@@ -600,67 +578,48 @@ export class SendCashLanding extends Component {
 			: html``;
 	}
 
-	_renderStatusChip() {
-		return !isNullorEmpty(RENDER_CHIPS[FILTER_BY.STATUS])
-			? html`
-				<capitec-chip
-					id="${FILTER_BY.STATUS}"
-					label="${RENDER_CHIPS[FILTER_BY.STATUS]}"
-					@remove="${() => this._closeChip(FILTER_BY.STATUS)}"
-					closable>
-				</capitec-chip>`
-			: html``;
-	}
-
 	_renderContent() {
 
 		return this.filteredSendCashDetails.length > 0 
 			? this._renderSendCashContent()
 			: this._renderNoResults();
 	}
-			
+
 	_renderSendCashContent() {
 		return this.filteredSendCashDetails.map((item) => html`
 			<horizon-expander expandButtonAlignment="right">
 					<capitec-group
-						class="expander-header"
 						slot="custom-header"
 						layout="horizontal"
 						gap="clear"
 						halign="left"
 						valign="center">
-							<horizon-label 
-								data-automation-id="credit-account-access-facility"
+							<horizon-label
 								class="date-created-label"
 								label="Date Created"
 								value="${item.dateCreated}">
 							</horizon-label>
 							<horizon-label
-								data-automation-id="credit-account-balance"
 								class="voucher-number-label"
 								label="Voucher Number"
 								value="${item.voucherNumber}">
 							</horizon-label>
 							<horizon-label
-								data-automation-id="credit-account-available-balance"
 								class="amount-sent-label"
 								label="Amount Sent"
 								value="${formatCurrency(item.amountSent)}">
 							</horizon-label>
 							<horizon-label
-								data-automation-id="credit-account-credit-limit"
 								class="from-account-label"
 								label="From Account"
 								value="${item.fromAccount}">
 							</horizon-label>
 							<horizon-label
-								data-automation-id="credit-account-next-instalment"
 								class="sent-from-label"
 								label="Sent From"
 								value="${item.sentFrom}">
 							</horizon-label>
 							<horizon-label
-								data-automation-id="credit-account-status"
 								class="status-label"
 								label="Status"
 								value="${item.status}">
@@ -700,76 +659,27 @@ export class SendCashLanding extends Component {
 		`;
 	}
 
-	// <capitec-label
-	// 					label="No transactions made in the last 6 months"
-	// 					type="strong">
-	// 				</capitec-label>
 	_renderAdditionalDetails(item) {
 		return html`
-			<capitec-table
-				.items="${item.addDetails}"
-				displayMode="Full"
-				?fixed = "${true}"
-				data-automation-id="transaction-history-table">
-					${this._renderTableColumns(item)}
-			</capitec-table>
+			<capitec-group layout="grid" gap="none" columns="5" rows="${item.addDetails.length}">
+				<capitec-label class="headerRow" label="Date" row="1" column="1"></capitec-label>
+				<capitec-label class="headerRow" label="Event Amount" row="1" column="2"></capitec-label>
+				<capitec-label class="headerRow" label="Remaining Amount" row="1" column="3"></capitec-label>
+				<capitec-label class="headerRow" label="Action" row="1" column="4"></capitec-label>
+				<capitec-label class="headerRow" label="Action description" row="1" column="5"></capitec-label>
+
+				${item.addDetails.map((element, index) => this._renderGridInfo(element, index + 2))}
+			</capitec-group>
 		`;
 	}
-	//.expandRenderer="${(item) => this._renderTransactionDetails(item)}"
-	// _renderTransactionDetails(item) {	
-	// 	return html`	
-	// 		<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-	// 			<capitec-label
-	// 				label="${item.addDetails.date}"
-	// 				data-automation-id="transaction-history-item-type">
-	// 			</capitec-label>
-	// 			<capitec-label
-	// 				label="${item.addDetails.eventAmount}"
-	// 				data-automation-id="transaction-history-item-transfer-account">
-	// 			</capitec-label>
-	// 			<capitec-label
-	// 				label= "${item.addDetails.remAmount}"
-	// 				data-automation-id="transaction-history-item-posting-date">
-	// 			</capitec-label>
-	// 			<capitec-label
-	// 				label="${item.addDetails.action}"
-	// 				data-automation-id="transaction-history-item-processed-date">
-	// 			</capitec-label>
-	// 			<capitec-label
-	// 				label="${item.addDetails.actionDescription}"
-	// 				data-automation-id="transaction-history-item-processed-date">
-	// 			</capitec-label>
-	// 		</capitec-group>
-	// 	`;
-	// }
 
-	_renderTableColumns() {
+	_renderGridInfo(element, index) {
 		return html`
-			<capitec-table-column
-				label="Date"
-				field="date"
-				size="130px;">
-			</capitec-table-column>
-			<capitec-table-column
-				label="Event Amount"
-				field="eventAmount"
-				size="130px;">
-			</capitec-table-column>
-			<capitec-table-column
-				label="Remaining Amount"
-				field="remAmount"
-				size="130px;">
-			</capitec-table-column>
-			<capitec-table-column
-				label="Action"
-				field="action"
-				size="130px;">
-			</capitec-table-column>
-			<capitec-table-column
-				label="Action description"
-				field="actionDescription"
-				size="275px;">
-			</capitec-table-column>
+			<capitec-label label="${element.date}" row="${index}" column="1"></capitec-label>
+			<capitec-label label="${element.eventAmount}" row="${index}" column="2"></capitec-label>
+			<capitec-label label="${element.remAmount}" row="${index}" column="3"></capitec-label>
+			<capitec-label label="${element.action}" row="${index}" column="4"></capitec-label>
+			<capitec-label label="${element.actionDescription}" row="${index}" column="5"></capitec-label>
 		`;
 	}
 }

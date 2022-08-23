@@ -9,10 +9,31 @@ export const SendCashLandingMocks = {
 			"status": "Redeemable",
 			"addDetails": [
 				{
+					"date": "2022-07-07 03:31",
+					"eventAmount": 355.00,
+					"remAmount": 355.00,
+					"action": "Creation",
+					"actionDescription": "-"
+				},
+				{
 					"date": "2022-07-06 02:31",
 					"eventAmount": 255.00,
 					"remAmount": 255.00,
-					"action": "Creation authorisation",
+					"action": "Redeemable",
+					"actionDescription": "-"
+				},
+				{
+					"date": "2022-07-08 04:31",
+					"eventAmount": 455.00,
+					"remAmount": 455.00,
+					"action": "Redeemed",
+					"actionDescription": "-"
+				},
+				{
+					"date": "2022-07-10 06:51",
+					"eventAmount": 555.00,
+					"remAmount": 555.00,
+					"action": "Held",
 					"actionDescription": "-"
 				}
 			]
@@ -30,6 +51,13 @@ export const SendCashLandingMocks = {
 					"eventAmount": 255.00,
 					"remAmount": 255.00,
 					"action": "Creation authorisation",
+					"actionDescription": "-"
+				},
+				{
+					"date": "2022-02-17 05:45",
+					"eventAmount": 222.00,
+					"remAmount": 222.00,
+					"action": "Authorise",
 					"actionDescription": "-"
 				}
 			]
