@@ -57,7 +57,7 @@ export default class InsureChannelServiceMocks {
 		this.insureCancelPolicyMocks = await this._loadMockModule(this.insureCancelPolicyMocks, `insureCancelPolicy`, () => import(`../mocks/insure/CancelPolicyMockData`).catch(err => logError(err)));
 		this.insurePolicyPayMocks = await this._loadMockModule(this.insurePolicyPayMocks, `insurePolicyPay`, () => import(`../mocks/insure/CancelPolicyMockData`).catch(err => logError(err)));
 		this.updatePolicyAcceptMocks = await this._loadMockModule(this.updatePolicyAcceptMocks, `insureUpdatePolicyAccept`, () => import(`../mocks/insure/PolicyAccept`).catch(err => logError(err)));
-	
+		// this.estimatePrintoutMocks = await this._loadMockModule(this.estimatePrintoutMocks, `insureUpdatePolicyAccept`, () => import(`../mocks/insure/PolicyAccept`).catch(err => logError(err)));
 	}
 
 	/**

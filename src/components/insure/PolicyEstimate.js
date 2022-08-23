@@ -2,11 +2,15 @@ import { Component, css, html } from 'platform/elements';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
-import { GENDER_OPTIONS } from 'app/constants/InsureCommon';
+import { GENDER_OPTIONS, INSURE_CALLER_PAGE } from 'app/constants/InsureCommon';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
 import 'app/components/dialogs/insure/AddLifeDialog';
 import 'app/components/common/HorizonLabel';
+import 'app/components/dialogs/insure/PrintEstimateAgreementDialog';
+import 'app/components/dialogs/insure/InsureEmailDialog';
+import { INSURE_RENDER_MODE } from '../../views/insure/InsureRenderModes';
 
 const AGE_ERROR_MESSAGE = 'Age is not valid';
 
@@ -31,6 +35,11 @@ class PolicyEstimate extends Component {
 		super();
 		this.genderOptions = GENDER_OPTIONS;
 		this.showAddLifeDialog = false;
+
+		this.printEstimateDocumentContent = ``;
+		this.showPrintEstimateDialog = false;
+		this.showEmailPlanDialog = false;
+		this.titleMessage = ``;
 	}
 
 	//#endregion
@@ -45,6 +54,10 @@ class PolicyEstimate extends Component {
 	 * @property {boolean} mainLifeDefaultAge Main life derived age
 	 * @property {boolean} mainLifeDefaultGender Main life derived gender
 	 * @property {Number} maxAllowedCover  CheckInsurance limit for remaining cover limit
+	 * @property {string} printEstimateDocumentContent - document content of Estimate
+	 * @property {boolean} showPrintEstimateDialog Controls when to show the Email Estimate dialog
+	 * @property {boolean} showEmailPlanDialog - Show flag for email address & send dialog
+	 * @property {String} titleMessage - title fo send email popup.
 	 * 
 	 * @readonly
 	 * @static
@@ -57,7 +70,11 @@ class PolicyEstimate extends Component {
 			showAddLifeDialog: { type: Boolean, state: true },
 			mainLifeDefaultAge: { type: Number, state: true },
 			mainLifeDefaultGender: { type: String, state: true },
-			maxAllowedCover: { type: Number, state: true }
+			maxAllowedCover: { type: Number, state: true },
+			printEstimateDocumentContent: { type: String, state: true },
+			showPrintEstimateDialog: { type: Boolean, state: true },
+			showEmailPlanDialog: { type: Boolean, state: true },
+			titleMessage: { type: String }
 		};
 	}
 
@@ -95,7 +112,7 @@ class PolicyEstimate extends Component {
 	 * 3. Reset total premium values
 	 * 
 	 */
-	async _calculateEstimate() {
+	async _calculateEstimate(printOrCalculate) {
 		let isValid = true;
 
 		// Validate
@@ -132,11 +149,24 @@ class PolicyEstimate extends Component {
 			let request = {
 				...this.estimate,
 			}
-			this.dispatchEvent(new CustomEvent(`calculate`, {
-				detail: request
-			}));
-			this.estimate.totalPremium = 0;
-			this.newTotalPremium = '';
+
+			if(printOrCalculate == 1)
+			{
+				this.dispatchEvent(new CustomEvent('calculate', {
+					detail: request
+				}));
+
+				this.estimate.totalPremium = 0;
+				this.newTotalPremium = '';
+			}
+			else
+			{	
+ 				const printEstimateResponse = await this.printEstimate({detail: request});
+				this.printEstimateDocumentContent = printEstimateResponse?.result?.documentContent;
+
+				this.showPrintEstimateDialog = true;
+			}
+
 			this.requestUpdate();	
 		}
 	}
@@ -257,6 +287,24 @@ class PolicyEstimate extends Component {
 		this.newTotalPremium = e.detail.new;
 	}
 
+	/**
+	 * Invoke this function when Agree button is clicked on Email Estimate Popup
+	 */
+	async _acceptPrintEstimate() {
+		this.titleMessage = `Email Funeral Plan Estimate`;
+		this.showPrintEstimateDialog = false;
+		this.showEmailPlanDialog = true;
+	}
+
+	/**
+	 * Invoke this function when Send button is clicked on Email Popup
+	 */
+	async _sendEmail(emailAddress) {
+		this.showEmailPlanDialog = false;
+		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress
+			,callerPage: INSURE_CALLER_PAGE.ESTIMATE } } ));
+	}
+
 	//#endregion
 
 	//#region PRIVATE FUNCTIONS
@@ -306,6 +354,9 @@ class PolicyEstimate extends Component {
 		return [
 			super.styles,
 			css`
+
+			${INSURE_CSS}
+
 			capitec-label[type="Strong"] {
 				line-height: 20px;
 				--theme-label-strong-font-size: 18px;
@@ -435,7 +486,9 @@ class PolicyEstimate extends Component {
 	 */
 	_renderDialogs() {
 		return html`
-			${this._renderAddLifeDialog()}`
+			${this._renderAddLifeDialog()}
+			${this._renderPrintEstimateDialog()}
+			${this._renderInsureEmailDialog()}`
 	}
 
 	/**
@@ -450,8 +503,10 @@ class PolicyEstimate extends Component {
 			<capitec-label label="Get an estimate" type="title"></capitec-label>
 			<capitec-spacer></capitec-spacer>
 			</capitec-button>
-			<capitec-button label="Calculate" type="white" data-automation-id="insure-estimate-calculate"
-				@click="${() => this._calculateEstimate()}"></capitec-button>
+			<capitec-button label="Email Estimate" class="capitec-button-large" type="white" data-automation-id="insure-estimate-calculate"
+				@click="${() => this._calculateEstimate(0)}"></capitec-button>
+			<capitec-button label="Calculate" class="capitec-button-large" type="white" data-automation-id="insure-estimate-calculate"
+				@click="${() => this._calculateEstimate(1)}"></capitec-button>
 		</capitec-title-bar>
 		<capitec-card id="insure-calc-card">
 			<div class="insure-calc-columns">
@@ -582,6 +637,31 @@ class PolicyEstimate extends Component {
 				@close-modal="${(e) => this.showAddLifeDialog = false}" .currentLifesAssured="${this.estimate.lifesAssured}"
 				.productParams="${this.productParams}">
 			</insure-add-life-dialog>`
+	}
+
+		/**
+	 * Render Dialog to add Life assured to Estimate
+	 * @return {html} Html for the dialog
+	 */
+	_renderPrintEstimateDialog() {
+		return this.showPrintEstimateDialog == false ? `` :
+			html`
+			<print-estimate-agreement-dialog @print-estimate-close-modal = "${() => this.showPrintEstimateDialog = false }"
+				.printEstimateAgreementContent="${this.printEstimateDocumentContent}"
+				@print-estimate-agree-click = "${() => this._acceptPrintEstimate() }">
+			</print-estimate-agreement-dialog>`
+	}
+
+	/** 
+	 * Render dialog for confirming email address then sending
+	 */
+	_renderInsureEmailDialog() {
+		return this.showEmailPlanDialog == false ? `` :
+			html`
+				<insure-email-dialog @close-modal="${(e) => this.showEmailPlanDialog = false}"
+					@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}"
+					.titleMessage = "${ this.titleMessage }">
+				</insure-email-dialog>`
 	}
 
 	//#endregion

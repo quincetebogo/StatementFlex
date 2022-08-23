@@ -306,6 +306,10 @@
 		"insureUpdatePolicyAccept": {
 			"enabled": true,
 			"positiveCase": true
+		},
+		"insureEstimatePrintout": {
+			"enabled": false,
+			"positiveCase": true
 		}
 	},
 	"searchClientOptionEnabled": true

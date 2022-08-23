@@ -595,11 +595,11 @@ class ClientPolicies extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-button type="white"  label="Lodge Claim" data-automation-id="insure-landing-lodge-claim"
+					<capitec-button type="white" class="capitec-button-medium"  label="Lodge Claim" data-automation-id="insure-landing-lodge-claim"
 						@click="${() => this._openLodgeClaimInfoDialog()}">
 					</capitec-button>
 					${this.readOnlyMode == true ? html`` : html `
-					<capitec-button type="white" label="Get Estimate" data-automation-id="insure-landing-get-estimate"
+					<capitec-button type="white" class="capitec-button-medium" label="Get Estimate" data-automation-id="insure-landing-get-estimate"
 						@click="${() => this._goToEstimate()}"></capitec-button>
 					`}
 					
