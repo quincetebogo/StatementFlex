@@ -151,9 +151,14 @@ class PolicyEstimate extends Component {
 			}
 
 			if(printOrCalculate == 1)
+			{
 				this.dispatchEvent(new CustomEvent('calculate', {
 					detail: request
 				}));
+
+				this.estimate.totalPremium = 0;
+				this.newTotalPremium = '';
+			}
 			else
 			{	
  				const printEstimateResponse = await this.printEstimate({detail: request});
@@ -162,8 +167,6 @@ class PolicyEstimate extends Component {
 				this.showPrintEstimateDialog = true;
 			}
 
-			this.estimate.totalPremium = 0;
-			this.newTotalPremium = '';
 			this.requestUpdate();	
 		}
 	}
