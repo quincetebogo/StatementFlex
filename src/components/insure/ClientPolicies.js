@@ -445,7 +445,7 @@ class ClientPolicies extends Component {
 				width: auto;
 			}
 			.options-group > horizon-option-button {
-				width: 186px;
+				width: 184px;
 				height: 80px;
 				margin-left: 16px;
 				padding: 0px;
@@ -724,6 +724,8 @@ class ClientPolicies extends Component {
 
 	_showSubMenu(policyItem)
 	{
+		policyItem.showSubMenu = false;
+
 		let count = 0;
 
 		if(policyItem.canReinstate){
@@ -749,7 +751,7 @@ class ClientPolicies extends Component {
 			count += 1;
 
 		if(count > 5)
-			this.showSubMenu = false;
+			policyItem.showSubMenu = true;
 	}
 
 	/**
@@ -824,8 +826,9 @@ class ClientPolicies extends Component {
 						label="Benefits" 
 						icon="system/sars-action"
 						.disabled="${this.readOnlyMode}">
-					</horizon-option-button>
-					${ this.showSubMenu ? `` : html `
+					</horizon-option-button>` 
+					: ``}	
+					${ policyItem.showSubMenu ? `` : html `
 						<horizon-option-button 
 							data-automation-id="insure-policy-options-transaction-history"
 							class="button-margin" 
@@ -847,9 +850,8 @@ class ClientPolicies extends Component {
 							: ``
 						}
 					` }
-				` : ``}	
 				`}
-				${ this.showSubMenu ? this._renderSubMenu(policyItem) : ``}
+				${ policyItem.showSubMenu ? this._renderSubMenu(policyItem) : ``}
 			</capitec-group>
 		`;
 	}
