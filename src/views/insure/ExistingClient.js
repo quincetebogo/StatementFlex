@@ -358,7 +358,8 @@ export class ExistingClient extends InsureViewBase {
 	async _goToUpdatePlan(e) {
 		if (e.detail.canReinstate) {
 			this.policyDetails = await this._reinstateQuoteCalc(e.detail.policyContractReference, this.callerInformation.cifNumber);
-			this.policyDetails.canReinstate = true;
+			if(this.policyDetails != null)
+					this.policyDetails.canReinstate = true;
 		}
 		else
 			this.policyDetails = await this._retrievePolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
