@@ -615,6 +615,12 @@ export class CreditAccountLanding extends Component {
 	_renderAccessFacilityOptions(selectedAccountDetails) {
 		return html`
 			<horizon-option-button 
+					data-automation-id="credit-account-transaction-history"
+					label="Transaction History"
+					icon="system/time-action"
+					@click="${() => this._click(`transaction-history`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.ACCESS_FACILITY, selectedAccountDetails)}">
+			</horizon-option-button>
+			<horizon-option-button 
 					data-automation-id="credit-account-statements"
 					label="Statements"
 					icon="system/documents-action"
@@ -638,6 +644,12 @@ export class CreditAccountLanding extends Component {
 
 	_renderTermLoanOptions(selectedAccountDetails) {
 		return html`
+			<horizon-option-button 
+					data-automation-id="credit-account-transaction-history"
+					label="Transaction History"
+					icon="system/time-action"
+					@click="${() => this._click(`transaction-history`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, selectedAccountDetails)}">
+			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-statements"
 					label="Statements"

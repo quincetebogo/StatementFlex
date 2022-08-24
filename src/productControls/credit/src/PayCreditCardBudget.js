@@ -102,20 +102,18 @@ export class PayCreditCardBudget extends Component {
 	}
 
 	_budgetFocusOut(e) {
-		this.budgetAmount = formatTextFieldCurrency(deformatCurrency(e.currentTarget.value || `0`));
+		this.budgetAmount = parseFloat(e.currentTarget.value || `0`).toFixed(2);
 		this._getErrorMessage();
 	}
 
 	_budgetValueChange(e) {
-		// TO DO: CSCEH-8231: Always make sure amount on the text field is rounded of to two places of decimals.
 		if (e.detail.action === `clear`) {
 			this.budgetAmount = this.budgetAccountDetails.settlementAmount;
 			this._getErrorMessage();
-
 			return;
 		}
 
-		this.budgetAmount = e.detail.new;
+		this.budgetAmount = e.detail.new || 0;
 		this._getErrorMessage();
 	}
 
@@ -136,14 +134,14 @@ export class PayCreditCardBudget extends Component {
 		this.savStatus = false;
 
 		// Entered budget amount exceeds the actual settlement amount
-		if (this.budgetAmount > this.budgetAccountDetails.settlementAmount) {
+		if (parseFloat(this.budgetAmount) > parseFloat(this.budgetAccountDetails.settlementAmount)) {
 			this.bannerMessage = `Transfer amount cannot exceed the budget amount.`;
 			this.errorMessage = `Max amount ${formatCurrency(this.budgetAccountDetails.settlementAmount)}`;
 			return;
 		}
 
 		// No account has enough funds to do transfer as entered amount
-		const noFundsInAllAccounts = this.clientProducts.filter(account => deformatCurrency(account.availableBalance) > this.budgetAmount).length === 0;
+		const noFundsInAllAccounts = this.clientProducts.filter(account => deformatCurrency(account.availableBalance) > parseFloat(this.budgetAmount)).length === 0;
 		if (noFundsInAllAccounts) {
 			this.bannerMessage = `You do not have enough fund in your account to do the transfer.`;
 			this.errorMessage = `Transfer cannot exceed available balance`;
@@ -151,7 +149,7 @@ export class PayCreditCardBudget extends Component {
 		}
 
 		// Entered budget amount exceeds the available balance of selected account
-		if (this.budgetAmount > deformatCurrency(this.productSelected.availableBalance)) {
+		if (parseFloat(this.budgetAmount) > deformatCurrency(this.productSelected.availableBalance)) {
 			this.errorMessage = `Transfer cannot exceed available balance`;
 		}
 
