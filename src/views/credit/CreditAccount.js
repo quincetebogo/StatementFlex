@@ -1,7 +1,7 @@
 import { ACCOUNT_STATUS, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
-import { CreditEvents, SETTLEMENT_QUOTE_EVENTS, SETTLE_AND_CLOSE } from 'app/constants/telemetry/events/Credit';
+import { CreditEvents, SETTLEMENT_QUOTE_EVENTS, SETTLE_AND_CLOSE, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/Credit';
 import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { css, html, unsafeCSS } from 'platform/elements';
 import { formatDate, formatStringAsPascalCase, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -601,12 +601,13 @@ export class CreditAccount extends ViewBase {
 
 		this._telemetry.logEvent(CreditEvents.CREDIT_TRANSACTION_HISTORY_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
-			"next-screen": TelemetryScreen.CREDIT_TRANSACTION_HISTORY,
+			"next-screen": `${productType} Transaction History`,
 			"credit-type": creditType,
 			"product-type": productType
 		});
 
-		await super.createAndClassifySubsIncident(null, false);
+		this.productType = productType;
+	    await super.createAndClassifySubsIncident(null, false);
 
 		this._setAccountHeaderDetails(accountDetails);
 		this._getTransactionHistory();
@@ -632,7 +633,7 @@ export class CreditAccount extends ViewBase {
 			this.logger.log(`error`, `Failed to retrieve credit transaction history from credit service.`, `_getTransactionHistory`, returnValue.correlationId);
 			return;
 		}
-		const formattedResponse = this._getFormattedResponse(returnValue.result.transaction);
+		const formattedResponse = this._getFormattedResponse(returnValue.result.transactions);
 		this.transactionHistory.push(...formattedResponse);
 		this.endCallContext = `TransactionHistory`;
 		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
@@ -1351,12 +1352,11 @@ export class CreditAccount extends ViewBase {
 				.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
 				.getTransactionHistory="${(startDate, endDate, startAtIndex) => this._getTransactionHistory(startDate, endDate, startAtIndex)}"
 				.disposeData="${() => this.transactionHistory = []}"
+				.product="${this.productType}"
 				
 				@error-handler = "${() => this._errorHandler()}"
-					@back="${() => this._exitTransactionHistory()}"
-					@unloading="${() => this._unloadTransactionHistory()}"
-				
-			>
+				@back="${() => this._exitTransactionHistory()}"
+				@unloading="${() => this._unloadTransactionHistory()}">
 
 			</horizon-transaction-history>
 
@@ -1403,6 +1403,8 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderTransactionDetails(item) {
+		const telemetryEvents = TRANSACTION_ENQUIRY_EVENTS(this.productType);
+		this._telemetry.logEvent(telemetryEvents.TRANSACTION_HISTORY_INFO, {});
 
 		return html`
 			<capitec-label
@@ -1415,13 +1417,13 @@ export class CreditAccount extends ViewBase {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Transaction type"
-					value = "${item.transactionType ? item.transactionType : `-`}"
+					value = "${item.transactionType || `-`}"
 					data-automation-id="credit-transaction-history-item-type">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Transfer account"
-					value = "${item.transferAccount ? item.transferAccount : `-`}"
+					value = "${item.transferAccount || `-`}"
 					data-automation-id="credit-transaction-history-item-transfer-account">
 				</horizon-label>
 				<horizon-label
@@ -1442,25 +1444,25 @@ export class CreditAccount extends ViewBase {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Transaction code"
-					value = "${item.transactionCode ? item.transactionCode : `-`}"
+					value = "${item.transactionCode || `-`}"
 					data-automation-id="credit-transaction-history-item-code">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Card number"
-					value = "${item.cardNumber ? item.cardNumber : `-`}"
+					value = "${item.cardNumber || `-`}"
 					data-automation-id="credit-transaction-history-item-card-number">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Card authentication type"
-					value = "${item.cardAuthType ? item.cardAuthType : `-`}"
+					value = "${item.cardAuthType || `-`}"
 					data-automation-id="credit-transaction-history-item-card-auth-type">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Journal number"
-					value = "${item.journalNumber ? item.journalNumber : `-`}"
+					value = "${item.journalNumber || `-`}"
 					data-automation-id="credit-transaction-history-item-journal-number">
 				</horizon-label>
 			</capitec-group>
@@ -1475,7 +1477,7 @@ export class CreditAccount extends ViewBase {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="External terminal ID"
-					value = "${item.externalTerminalId ? item.externalTerminalId : `-`}"
+					value = "${item.externalTerminalId || `-`}"
 					data-automation-id="credit-transaction-history-item-terminalID">
 				</horizon-label>
 			</capitec-group>
@@ -1484,13 +1486,13 @@ export class CreditAccount extends ViewBase {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Description"
-					value = "${item.statementDescription ? item.statementDescription : `-`}"
+					value = "${item.statementDescription || `-`}"
 					data-automation-id="credit-transaction-history-description">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Long Description"
-					value = "${item.statementDescription ? item.statementDescription : `-`}"
+					value = "${item.statementDescription || `-`}"
 					data-automation-id="credit-transaction-history-description">
 				</horizon-label>
 			</capitec-group>

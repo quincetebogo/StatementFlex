@@ -110,7 +110,7 @@
 			"enabled": true,
 			"positiveCase": true
 		},
-		"itaVerification":{
+		"itaVerification": {
 			"enabled": false,
 			"positiveCase": true
 		},
@@ -197,11 +197,11 @@
 		"accessChannel": {
 			"enabled": false,
 			"positiveCase": true
-		},		
+		},
 		"accessChannelUssdLanding": {
 			"enabled": false,
 			"positiveCase": true
-		},		
+		},
 		"accessChannelResetSecurityTokenClock": {
 			"enabled": false,
 			"positiveCase": true

@@ -30,7 +30,6 @@ const DEFAULTS = {
 const _importTelemetryEvents_ = {
 	[ACCOUNT_TYPES.SAVINGS_ACCOUNT]: () => import(`app/constants/telemetry/events/SavingsAccount`),
 	[ACCOUNT_TYPES.LBB]: () => import(`app/constants/telemetry/events/LiveBetter`),
-	// TODO: ADD CREDIT TELEMETRY. TICKET NUMBER: CSCEH-7863
 	[ACCOUNT_TYPES.CREDIT]: () => import(`app/constants/telemetry/events/LiveBetter`),
 	[ACCOUNT_TYPES.SAVINGS_PLAN]: () => import(`app/constants/telemetry/events/SavingsPlan`)
 };
@@ -76,6 +75,7 @@ export class TransactionHistory extends Component {
 
 		this.startDate = ``;
 		this.endDate = ``;
+		this.product = ``;
 
 		this.filteredData = [];
 		this.searchTextLabel = DEFAULTS.SEARCH_TEXT_LABEL;
@@ -107,6 +107,7 @@ export class TransactionHistory extends Component {
 	 * @property {Object} transactionHistory - Object holds transaction data
 	 * @property {Object} accountDetails - Account details (Account number, balance, etc..)
 	 * @property {String} type - Type of account (savings/ lbb/ credit)
+	 * @property {String} product - Type of product under account type ( Credit card/ Access facility/ Term loan/ etc...)
 	 * 
 	 * @property {Object} renderTableColumns - Callback function to render account sepecific columns
 	 * @property {Object} renderTransactionDetails - Callback function to render account sepecific transaction information
@@ -123,6 +124,7 @@ export class TransactionHistory extends Component {
 			transactionHistory: { type: Object },
 			accountDetails: { type: Object },
 			type: { type: String },
+			product: { type: String },
 
 			renderTableColumns: { type: Object },
 			renderTransactionDetails: { type: Object },
@@ -364,6 +366,11 @@ export class TransactionHistory extends Component {
 		
 		// Fetching the telemetry events object at runtime based on product type
 		const { TRANSACTION_ENQUIRY_EVENTS } = await _importTelemetryEvents_[this.type]();
+
+		if (TRANSACTION_ENQUIRY_EVENTS instanceof Function) {
+			this.telemetryEvent = TRANSACTION_ENQUIRY_EVENTS(this.product);
+			return;
+		}
 
 		this.telemetryEvent = TRANSACTION_ENQUIRY_EVENTS;
 	}
