@@ -17,11 +17,9 @@ import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 import 'app/components/dialogs/common/WarningDialog';
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
-import 'app/components/dialogs/quickTransactions/DeclineDebiCheckMandate';
 import 'app/components/quickTransactions/FavouriteTransactions';
 import 'app/components/quickTransactions/CardLimitsLanding';
 import 'app/components/quickTransactions/SearchOtherNeed';
-import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
 import 'app/components/dialogs/common/Feedback';
@@ -226,19 +224,6 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-	_debiCheckToMainPage() {
-
-		/**
-		 * This is supposed to happen in debicheck success screen
-		 * TODO: This should be to success screen when decline or approve is ready (CSCEH-7746)
-		 */
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(incidentDetails);
-
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
-
 	_searchOtherNeedDone() {
 		this._refreshIncidentDetails();
 	
@@ -252,7 +237,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _getPermanentLimits(request) {
-		const returnValue = await this.quickTransactionService.getPermanentLimits(request, () => true);
+		const returnValue = await this.cardService.getPermanentLimits(request, () => true);
 
 		if (returnValue.succeeded) {
 			return returnValue.result;
@@ -267,7 +252,7 @@ export class Favourites extends SavingsAccountBase {
 	
 		updateRequest.cardLimits = this._limitsRandsToCents(updateRequest.cardLimits);
 
-		const returnValue = await this.quickTransactionService.updatePermanentLimits(updateRequest, () => true);
+		const returnValue = await this.cardService.updatePermanentLimits(updateRequest, () => true);
 
 		if (returnValue.succeeded) {
 			return true;
@@ -280,7 +265,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _getTemporaryLimits(request) {
-		const returnValue = await this.quickTransactionService.getTemporaryLimits(request, () => true);
+		const returnValue = await this.cardService.getTemporaryLimits(request, () => true);
 
 		if (returnValue.succeeded) {
 			return returnValue.result;
@@ -296,7 +281,7 @@ export class Favourites extends SavingsAccountBase {
 		
 		updateRequest.cardLimits = this._limitsRandsToCents(updateRequest.cardLimits);
 
-		const returnValue = await this.quickTransactionService.updateTemporaryLimits(updateRequest, () => true);
+		const returnValue = await this.cardService.updateTemporaryLimits(updateRequest, () => true);
 
 		if (returnValue.succeeded) {
 			return true;
@@ -311,7 +296,7 @@ export class Favourites extends SavingsAccountBase {
 
 		agreementRequest.cardDetails = this._limitsRandsToCents(agreementRequest.cardDetails);
 
-		const returnValue = await this.quickTransactionService.getCardLimitsAgreement(agreementRequest, () => this._createIncidentOnError());
+		const returnValue = await this.cardService.getCardLimitsAgreement(agreementRequest, () => this._createIncidentOnError());
 		
 		if (returnValue.succeeded) {
 			return returnValue.result;
@@ -481,7 +466,7 @@ export class Favourites extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.CARD_LIMITS_LANDING
 		});
 
-		const returnValue = await this.quickTransactionService.cardLimitsLanding(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
+		const returnValue = await this.cardService.cardLimitsLanding(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
 			
 		if (returnValue.succeeded) {
 			this.cards = returnValue.result.cards;

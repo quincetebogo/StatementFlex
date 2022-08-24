@@ -13,8 +13,7 @@ import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { Utilities } from 'platform/Utilities';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { getMonthName } from 'app/utils/channelServiceUtilities';
-
+import { formatDate, getMonthName } from 'app/utils/channelServiceUtilities';
 
 import 'app/productControls/liveBetterSavingsAccount/src/LiveBetterSavings';
 import 'app/productControls/liveBetterSavingsAccount/src/AccountDetails';
@@ -24,6 +23,10 @@ import 'app/components/liveBetter/LiveBetterUnverifiedPage';
 import 'app/components/dialogs/liveBetter/ManageAutomaticSavings';
 import 'app/components/dialogs/common/StatementsDialog';
 import 'app/components/dialogs/liveBetter/LBBTransactionDetails';
+
+const ISO_8601_DATE_FORMAT = `yyyy-mm-dd`;
+
+const DATE_TIME_FORMAT = `dd mmm yyy hh:mm:ss`;
 
 const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE: `LBB`,
@@ -86,6 +89,31 @@ export class LiveBetter extends SavingsAccountBase {
 	connectedCallback() {
 		super.connectedCallback();
 		this._initialise();
+		
+		this._optionClick = async (option) => {
+
+			const accountDetails = () => this._accountDetails();
+			const transactionHistory = () => this._transactionHistory();
+			const statements = () => this._getStatements();
+			const automaticSavings = () => this._automaticSavings();
+			const productEnquiry = () => this._productEnquiry();
+			const partnerBenefits = () => this._partnerBenefits();
+	
+			const actions = {
+				'lbb-account-enquiry': accountDetails,
+				'transaction-history-lbb': transactionHistory,
+				'statements-lbb': statements,
+				'automatic-savings-lbb': automaticSavings,
+				'product-enquiry': productEnquiry,
+				'partner-benefits': partnerBenefits
+			};
+	
+			if (actions[option]) {
+				await super._inicidentManager_(option, () => this._toggleBusyFlag());
+				this._refreshIncidentDetails();
+				return actions[option]();
+			}
+		};
 	}
 
 	disconnectedCallback() {
@@ -118,31 +146,6 @@ export class LiveBetter extends SavingsAccountBase {
 		// re-initialise the page when the verification status changes
 		// verificationStatus is on the this.callerInformation object
 		await this._initialise();
-
-		this._optionClick = async (option) => {
-
-			const accountDetails = () => this._accountDetails();
-			const transactionHistory = () => this._transactionHistory();
-			const statements = () => this._getStatements();
-			const automaticSavings = () => this._automaticSavings();
-			const productEnquiry = () => this._productEnquiry();
-			const partnerBenefits = () => this._partnerBenefits();
-	
-			const actions = {
-				'lbb-account-enquiry': accountDetails,
-				'transaction-history-lbb': transactionHistory,
-				'statements-lbb': statements,
-				'automatic-savings-lbb': automaticSavings,
-				'product-enquiry': productEnquiry,
-				'partner-benefits': partnerBenefits
-			};
-	
-			if (actions[option]) {
-				await super._inicidentManager_(option, () => this._toggleBusyFlag());
-				this._refreshIncidentDetails();
-				return actions[option]();
-			}
-		};
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
@@ -411,8 +414,8 @@ export class LiveBetter extends SavingsAccountBase {
 			cifNumber: this.callerInformation.cifNumber,
 			accountNumber: this.landingPageInfo.accountNumber,
 			accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
-			startDate: startDate || TRANSACTION_HISTORY.START_DATE,
-			endDate: endDate || TRANSACTION_HISTORY.END_DATE,
+			startDate: formatDate(startDate || TRANSACTION_HISTORY.START_DATE, ISO_8601_DATE_FORMAT),
+			endDate: formatDate(endDate || TRANSACTION_HISTORY.END_DATE, ISO_8601_DATE_FORMAT),
 			startAtIndex: startAtIndex || TRANSACTION_HISTORY.START_AT_INDEX,
 			maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
 			moneyType: TRANSACTION_HISTORY.MONEY_TYPE
@@ -508,13 +511,7 @@ export class LiveBetter extends SavingsAccountBase {
 		this.logger.log(`error`, `Unable to retrieve client's products`, `_getClientProducts`, returnValue.correlationId);
 		return [];
 	}
-	
-	// Formating date in the form 'DD MMM YYYY'
-	_formatDate(date) {
-		const newdate = new Date(Date.parse(date));
-		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
-	}
-	
+
 	// Tooltip is displayed by hovering on description only when description field is too long and is partially hidden
 	_displayTooltip(e) {
 
@@ -679,7 +676,7 @@ export class LiveBetter extends SavingsAccountBase {
 				data-automation-id="transaction-history-transactionDate"
 				label="Transaction Date"
 				field="transactionDate"
-				type="date"
+				.renderer="${(item, fieldName, value) => this._renderTransactionDateTime(value)}"
 				size="177px;">
 			</capitec-table-column>
 			<capitec-table-column
@@ -712,6 +709,13 @@ export class LiveBetter extends SavingsAccountBase {
 				align ="right">
 			</capitec-table-column>
 		`;
+	}
+
+	_renderTransactionDateTime(value) {
+		return html`
+			<capitec-label
+				label="${formatDate(value, DATE_TIME_FORMAT)}">
+			</capitec-label>`;
 	}
 
 	_renderDescriptionColumn(item, fieldName, fieldValue) {
@@ -764,7 +768,7 @@ export class LiveBetter extends SavingsAccountBase {
 					<horizon-label
 						style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns).toString()} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell).toString()}" 
 						label="Posting date"
-						value = "${this._formatDate(item.postingDate)}"
+						value = "${formatDate(item.postingDate, DATE_TIME_FORMAT)}"
 						data-automation-id="transaction-history-item-posting-date">
 					</horizon-label>
 				</capitec-group>
@@ -855,7 +859,7 @@ export class LiveBetter extends SavingsAccountBase {
 						<horizon-label
 							style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns).toString()} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell).toString()}" 
 							label="Transaction Date"
-							value = "${this._formatDate(item.transactionDate)}"
+							value = "${this.formatDate(item.transactionDate, DATE_TIME_FORMAT)}"
 							data-automation-id="transaction-history-linked-transation-date"">
 						</horizon-label>
 						<horizon-label

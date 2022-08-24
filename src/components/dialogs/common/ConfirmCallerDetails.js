@@ -355,10 +355,7 @@ export class ConfirmCallerDetails extends Component {
 			false, // isNonClient
 			false, // hasInsuranceProducts
 			false, // hasDigitalChannels
-			{
-				itaAttempts: 0,
-				sqAttempts: 0
-			}, 
+			{ itaAttempts: 0, sqAttempts: 0 }, 
 			this.confirmedCaller.isBranchConsultant, // isBranchConsultant
 			this.confirmedCaller.isClientPresent, // isClientPresent
 			this.confirmedCaller.isClientVerifiedInBranch ? `ITA` : ``,
@@ -370,7 +367,8 @@ export class ConfirmCallerDetails extends Component {
 			this.confirmedCaller.initials,
 			this.confirmedCaller.identifiedBy,
 			``, // client's registered email ID
-			this.confirmedCaller.profilePhoto
+			this.confirmedCaller.profilePhoto,
+			this.confirmedCaller.gender      
 		);
 	}
 

@@ -75,7 +75,6 @@ export class CreditAccountLanding extends Component {
 			budgetAccountsSummary: { type: Object },
 			shouldDisable: { type: Object },
 			renderAlertBanner: { type: Object, attribute: false },
-			isPilotUser: { type: Boolean },      
 			selectedTab: { type: String }
 		};
 	}
@@ -583,21 +582,18 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-transaction-history"
 					label="Transaction History"
 					icon="system/time-action"
-					?hidden="${true}"
-					@click="${() => this._click(`transaction-history`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD)}">
+					@click="${() => this._click(`transaction-history`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-statements"
 					label="Statements"
 					icon="system/documents-action"
-					?hidden="${false}"
 					@click="${() => this._click(`statements`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-settlement-quote"
 					label="Settlement Quote"
 					icon="system/documents-action"
-					?hidden="${false}"
 					@click="${() => this._click(`settlement-quote`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
@@ -611,7 +607,6 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-settle-close"
 					label="Settle & Close"
 					icon="system/close-circle-action"
-					?hidden="${!this.isPilotUser}"
 					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}"
 					?disabled="${this.shouldDisable(`settle-close`)}">
 			</horizon-option-button>
@@ -621,17 +616,21 @@ export class CreditAccountLanding extends Component {
 	_renderAccessFacilityOptions(selectedAccountDetails) {
 		return html`
 			<horizon-option-button 
+					data-automation-id="credit-account-transaction-history"
+					label="Transaction History"
+					icon="system/time-action"
+					@click="${() => this._click(`transaction-history`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.ACCESS_FACILITY, selectedAccountDetails)}">
+			</horizon-option-button>
+			<horizon-option-button 
 					data-automation-id="credit-account-statements"
 					label="Statements"
 					icon="system/documents-action"
-					?hidden="${false}"
 					@click="${() => this._click(`statements`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.ACCESS_FACILITY, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-settlement-quote"
 					label="Settlement Quote"
 					icon="system/documents-action"
-					?hidden="${false}"
 					@click="${() => this._click(`settlement-quote`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.ACCESS_FACILITY, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
@@ -647,17 +646,21 @@ export class CreditAccountLanding extends Component {
 	_renderTermLoanOptions(selectedAccountDetails) {
 		return html`
 			<horizon-option-button 
+					data-automation-id="credit-account-transaction-history"
+					label="Transaction History"
+					icon="system/time-action"
+					@click="${() => this._click(`transaction-history`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, selectedAccountDetails)}">
+			</horizon-option-button>
+			<horizon-option-button 
 					data-automation-id="credit-account-statements"
 					label="Statements"
 					icon="system/documents-action"
-					?hidden="${false}"
 					@click="${() => this._click(`statements`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-settlement-quote"
 					label="Settlement Quote"
 					icon="system/documents-action"
-					?hidden="${false}"
 					@click="${() => this._click(`settlement-quote`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
@@ -671,7 +674,6 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-settle-loan"
 					label="Settle Loan"
 					icon="system/close-circle-action"
-					?hidden="${!this.isPilotUser}"
 					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, selectedAccountDetails)}"
 					?disabled="${this.shouldDisable(`settle-close`)}">
 			</horizon-option-button>

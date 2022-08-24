@@ -65,10 +65,8 @@ export class XdsUnavailable extends Component {
 		return html`
 			<capitec-content-box id="notification-status-box">
 				<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
-					<horizon-alert-banner
-						type="error"
-						header="Notify client: "
-						label="A system error has occured..">
+					<horizon-alert-banner type="error">          
+						<b>Notify client: </b> You've been blocked for failing the security questions. 
 					</horizon-alert-banner>
 					<capitec-group layout="vertical" 
 						halign="center"

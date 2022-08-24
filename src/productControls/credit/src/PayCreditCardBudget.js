@@ -3,6 +3,7 @@ import { deformatCurrency, formatCurrency, formatTextFieldCurrency } from 'app/p
 import { formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelectIcon';
+import 'app/components/common/HorizonTextField';
 
 /**
  * Pay credit card budget by selecting from which account amount can be transfered.
@@ -100,8 +101,19 @@ export class PayCreditCardBudget extends Component {
 		}
 	}
 
+	_budgetFocusOut(e) {
+		this.budgetAmount = parseFloat(e.currentTarget.value || `0`).toFixed(2);
+		this._getErrorMessage();
+	}
+
 	_budgetValueChange(e) {
-		this.budgetAmount = deformatCurrency(e.currentTarget.value);
+		if (e.detail.action === `clear`) {
+			this.budgetAmount = this.budgetAccountDetails.settlementAmount;
+			this._getErrorMessage();
+			return;
+		}
+
+		this.budgetAmount = e.detail.new || 0;
 		this._getErrorMessage();
 	}
 
@@ -122,14 +134,14 @@ export class PayCreditCardBudget extends Component {
 		this.savStatus = false;
 
 		// Entered budget amount exceeds the actual settlement amount
-		if (this.budgetAmount > this.budgetAccountDetails.settlementAmount) {
+		if (parseFloat(this.budgetAmount) > parseFloat(this.budgetAccountDetails.settlementAmount)) {
 			this.bannerMessage = `Transfer amount cannot exceed the budget amount.`;
 			this.errorMessage = `Max amount ${formatCurrency(this.budgetAccountDetails.settlementAmount)}`;
 			return;
 		}
 
 		// No account has enough funds to do transfer as entered amount
-		const noFundsInAllAccounts = this.clientProducts.filter(account => deformatCurrency(account.availableBalance) > this.budgetAmount).length === 0;
+		const noFundsInAllAccounts = this.clientProducts.filter(account => deformatCurrency(account.availableBalance) > parseFloat(this.budgetAmount)).length === 0;
 		if (noFundsInAllAccounts) {
 			this.bannerMessage = `You do not have enough fund in your account to do the transfer.`;
 			this.errorMessage = `Transfer cannot exceed available balance`;
@@ -137,7 +149,7 @@ export class PayCreditCardBudget extends Component {
 		}
 
 		// Entered budget amount exceeds the available balance of selected account
-		if (this.budgetAmount > deformatCurrency(this.productSelected.availableBalance)) {
+		if (parseFloat(this.budgetAmount) > deformatCurrency(this.productSelected.availableBalance)) {
 			this.errorMessage = `Transfer cannot exceed available balance`;
 		}
 
@@ -308,7 +320,6 @@ export class PayCreditCardBudget extends Component {
 				detail-label="Available balance"
 				.items="${this.clientProducts}"
 				.value="${this.productSelected}"
-				.error="${this.errorMessage}"
 				.displayRenderer="${(e) => this._renderOptions(e)}"
 				@value-changed="${(e) => this._accountValueChanged(e)}"> 
 			</horizon-select-icon>
@@ -319,14 +330,17 @@ export class PayCreditCardBudget extends Component {
 				value="${formatStringAsPascalCase(this.budgetAccountDetails.budgetName)}">
 			</horizon-label>
 
-			<capitec-text-field
+			<horizon-text-field
 				data-automation-id="pay-budget-balance"
 				label="Budget amount"
 				type="currency"
+				?enableClear="${true}"
+				.error="${this.errorMessage}"
 				?disabled="${this.savStatus}"
-				value="${formatTextFieldCurrency(this.budgetAmount)}"
-				@focusout="${(e) => this._budgetValueChange(e)}">
-			</capitec-text-field>
+				value="${this.budgetAmount}"
+				@key-input="${(e) => this._budgetValueChange(e)}"
+				@focusout="${(e) => this._budgetFocusOut(e)}">
+			</horizon-text-field>
 		`;
 	}
 

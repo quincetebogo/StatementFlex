@@ -29,11 +29,18 @@ const DEFAULTS = {
 
 const _importTelemetryEvents_ = {
 	[ACCOUNT_TYPES.SAVINGS_ACCOUNT]: () => import(`app/constants/telemetry/events/SavingsAccount`),
-	[ACCOUNT_TYPES.LBB]: () => import(`app/constants/telemetry/events/LiveBetter`)
+	[ACCOUNT_TYPES.LBB]: () => import(`app/constants/telemetry/events/LiveBetter`),
+	[ACCOUNT_TYPES.CREDIT]: () => import(`app/constants/telemetry/events/Credit`)
 };
 
 const MAX_RESULTS = 50;
 const today = new Date();
+
+const FILTERS_SET = {
+	[ACCOUNT_TYPES.SAVINGS_ACCOUNT]: new Set([FILTER_BY.TEXT, FILTER_BY.DATE, FILTER_BY.STATUS]),
+	[ACCOUNT_TYPES.LBB]: new Set([FILTER_BY.TEXT, FILTER_BY.DATE, FILTER_BY.MONEY_TYPE]),
+	[ACCOUNT_TYPES.CREDIT]: new Set([FILTER_BY.TEXT, FILTER_BY.DATE, FILTER_BY.MONEY_TYPE])
+};
 
 /**
  * Transaction History, common component to display list of transactions happened in client's'
@@ -66,6 +73,7 @@ export class TransactionHistory extends Component {
 
 		this.startDate = ``;
 		this.endDate = ``;
+		this.product = ``;
 
 		this.filteredData = [];
 		this.searchTextLabel = DEFAULTS.SEARCH_TEXT_LABEL;
@@ -97,6 +105,7 @@ export class TransactionHistory extends Component {
 	 * @property {Object} transactionHistory - Object holds transaction data
 	 * @property {Object} accountDetails - Account details (Account number, balance, etc..)
 	 * @property {String} type - Type of account (savings/ lbb/ credit)
+	 * @property {String} product - Type of product under account type ( Credit card/ Access facility/ Term loan/ etc...)
 	 * 
 	 * @property {Object} renderTableColumns - Callback function to render account sepecific columns
 	 * @property {Object} renderTransactionDetails - Callback function to render account sepecific transaction information
@@ -113,6 +122,7 @@ export class TransactionHistory extends Component {
 			transactionHistory: { type: Object },
 			accountDetails: { type: Object },
 			type: { type: String },
+			product: { type: String },
 
 			renderTableColumns: { type: Object },
 			renderTransactionDetails: { type: Object },
@@ -210,7 +220,22 @@ export class TransactionHistory extends Component {
 	}
 
 	async _dateChanged(e) {
-		let fromDate = DateTime.fromISO(e.detail.new.startDate);
+
+		/**
+		 * 1. When dates are not selected on the date time picker, new value dispatched would be null.
+		 *    In such case, data refresh can be skipped.
+		 * 2. Sometimes start date/ end date could be null when one of its not selected, for which
+		 *    either before 90 days or after 90 days set accordingly.
+		 */
+		if (!e.detail.new.startDate && !e.detail.new.endDate) {
+			return false;
+		} else if (!e.detail.new.endDate) {
+			e.detail.new.endDate = e.detail.old.endDate || this.get90DaysAfter(e.detail.new.startDate);
+		} else if (!e.detail.new.startDate) {
+			e.detail.new.startDate = e.detail.old.startDate || this.get90DaysBefore(e.detail.new.endDate);
+		}
+
+		const fromDate = DateTime.fromISO(e.detail.new.startDate);
 		let toDate = DateTime.fromISO(e.detail.new.endDate);
 		const currentDateTime = DateTime.local();
 
@@ -228,20 +253,7 @@ export class TransactionHistory extends Component {
 					calendar._placeholderEndDate = toDate;
 				}
 			}
-		} else if (e.detail.new.endDate === null && this.endDate === ``) {
-			this.startDate = fromDate;
-			toDate = fromDate.plus({ days: 90 });
-			if (toDate.diff(currentDateTime, [`days`]).days > 0) {
-				this.endDate = currentDateTime;
-			} else {
-				this.endDate = toDate;
-			}
-		} else if (e.detail.new.startDate === null && this.startDate === ``) {
-			this.endDate = toDate;
-			fromDate = toDate.minus({ days: 90 });
-			this.startDate = fromDate;
 		} else {
-			
 			this.startDate = fromDate;
 			this.endDate = toDate;
 		}
@@ -338,9 +350,25 @@ export class TransactionHistory extends Component {
 
 	async _initialise() {
 		this.telemetryEvent = {};
+		this.get90DaysAfter = (date) => {
+			const result = new Date(date);
+			result.setDate(result.getDate() + 90);
+
+			return result > today ? today.toISOString() : result.toISOString();
+		};
+		this.get90DaysBefore = (date) => {
+			const result = new Date(date);
+			result.setDate(result.getDate() - 90);
+			return result.toISOString();
+		};
 		
 		// Fetching the telemetry events object at runtime based on product type
 		const { TRANSACTION_ENQUIRY_EVENTS } = await _importTelemetryEvents_[this.type]();
+
+		if (TRANSACTION_ENQUIRY_EVENTS instanceof Function) {
+			this.telemetryEvent = TRANSACTION_ENQUIRY_EVENTS(this.product);
+			return;
+		}
 
 		this.telemetryEvent = TRANSACTION_ENQUIRY_EVENTS;
 	}
@@ -406,15 +434,13 @@ export class TransactionHistory extends Component {
 			this.filteredData = this.filteredData.filter(item => item.tranDate >= startDate && item.tranDate <= endDate); 
 		}
 
-		// Status filter is apllicable only on Savings Account Transaction History screen in the current state of application
-		if (RENDER_CHIPS[FILTER_BY.STATUS] && this.type === ACCOUNT_TYPES.SAVINGS_ACCOUNT) {
+		if (RENDER_CHIPS[FILTER_BY.STATUS]) {
 			const status = RENDER_CHIPS[FILTER_BY.STATUS];
 
 			this.filteredData = this.filteredData.filter(item => item.transactionStatus === status);
 		}
 
-		// Money Type filter is apllicable only on Live Better Transaction History screen in the current state of application
-		if (RENDER_CHIPS[FILTER_BY.MONEY_TYPE] && this.type === ACCOUNT_TYPES.LBB) {
+		if (RENDER_CHIPS[FILTER_BY.MONEY_TYPE]) {
 			const moneyType = RENDER_CHIPS[FILTER_BY.MONEY_TYPE];
 
 			if (moneyType === `Money In`) {
@@ -515,6 +541,9 @@ export class TransactionHistory extends Component {
 				}
 				.lbb {
 					background: no-repeat url(../images/liveBetter/gradient.png);
+				}
+				.credit {
+					background: linear-gradient(90deg, #C83C37 0%, #E61414 100%);
 				}
 				.transaction-history-title > img {
 					width: 26px;
@@ -768,7 +797,9 @@ export class TransactionHistory extends Component {
 					@focus="${(e) => this.searchTextLabel = ``}"
 					@blur="${(e) => this._searchTextBlur(e)}"
 					value="${RENDER_CHIPS[FILTER_BY.TEXT]}"
-					data-automation-id="transaction-history-text-filter">
+					data-automation-id="transaction-history-text-filter"
+					?hidden="${!FILTERS_SET[this.type].has(FILTER_BY.TEXT)}">
+					
 				</capitec-text-field>
 
 				<capitec-date-time-picker
@@ -783,7 +814,9 @@ export class TransactionHistory extends Component {
 					outputType="string"
 					.predefinedRanges="${this.getPredefinedDateRanges()}"
 					@apply-clicked="${(e) => this._dateChanged(e)}"
-					data-automation-id="transaction-history-date-filter">
+					data-automation-id="transaction-history-date-filter"
+					?hidden="${!FILTERS_SET[this.type].has(FILTER_BY.DATE)}"
+					>
 				</capitec-date-time-picker>
 
 				<capitec-select
@@ -794,7 +827,7 @@ export class TransactionHistory extends Component {
 					@value-change = "${(e) => this._filterByStatus(e)}"
 					value = ${RENDER_CHIPS[FILTER_BY.STATUS]}
 					hint=""
-					?hidden="${this.type !== ACCOUNT_TYPES.SAVINGS_ACCOUNT}"
+					?hidden="${!FILTERS_SET[this.type].has(FILTER_BY.STATUS)}"
 					data-automation-id="transaction-status-filter">
 				</capitec-select>
 				
@@ -802,19 +835,22 @@ export class TransactionHistory extends Component {
 					label="All" 
 					class="${RENDER_CHIPS[FILTER_BY.MONEY_TYPE] === `All` ? `type-selected` : `type-normal`}" 
 					@click="${(e) => this._selectedMoneyType(e)}" 
-					?hidden="${this.type !== ACCOUNT_TYPES.LBB}">
+					?hidden="${!FILTERS_SET[this.type].has(FILTER_BY.MONEY_TYPE)}"
+					>
 				</capitec-chip>
 				<capitec-chip 
 					label="Money In"
 					class="${RENDER_CHIPS[FILTER_BY.MONEY_TYPE] === `Money In` ? `type-selected` : `type-normal`}" 
-					@click="${(e) => this._selectedMoneyType(e)}" 
-					?hidden="${this.type !== ACCOUNT_TYPES.LBB}">
+					@click="${(e) => this._selectedMoneyType(e)}"
+					?hidden="${!FILTERS_SET[this.type].has(FILTER_BY.MONEY_TYPE)}"
+					>
 				</capitec-chip>
 				<capitec-chip 
 					label="Money Out" 
 					class="${RENDER_CHIPS[FILTER_BY.MONEY_TYPE] === `Money Out` ? `type-selected` : `type-normal`}" 
-					@click="${(e) => this._selectedMoneyType(e)}" 
-					?hidden="${this.type !== ACCOUNT_TYPES.LBB}">
+					@click="${(e) => this._selectedMoneyType(e)}"
+					?hidden="${!FILTERS_SET[this.type].has(FILTER_BY.MONEY_TYPE)}"
+					>
 				</capitec-chip>
 
 			</capitec-group>

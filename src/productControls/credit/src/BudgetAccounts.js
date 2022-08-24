@@ -78,7 +78,6 @@ import 'app/components/common/HorizonLabel';
 			budgetFacilityAccounts: { type: Object },
 			shouldDisable: { type: Object },
 			renderAlertBanner: { type: Object, attribute: false },
-			isPilotUser: { type: Boolean },
       
 			groupAccountsByTerm: { state: true },
 			filteredAccounts: { state: true }
@@ -473,7 +472,6 @@ import 'app/components/common/HorizonLabel';
 					label="Transfer"
 					@click="${() => this._transferClick(budgetAccount)}"
 					?disabled="${this.shouldDisable(`pay-budget`)}"
-					?hidden="${!this.isPilotUser}">          
 				</capitec-button>
 			</capitec-group>`;
 	}

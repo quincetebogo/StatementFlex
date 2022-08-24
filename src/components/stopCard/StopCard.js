@@ -272,27 +272,6 @@ export class StopCard extends Component {
 
 	_updateLeftBar() {
 		this.horizonStore.setCallerInformation(this.callerInformation);
-
-		this.eventAggregator.publish(
-			`horizon-update-left-hand-bar`,
-			{
-				hasFavourites: true,
-				subtitle: {
-					savingsAccount: ``,
-					liveBetterSavings: ``,
-					savingsPlan: ``,
-					insure: ``,
-					credit: ``
-				},
-				detail: {
-					savingsAccount: ``,
-					liveBetterSavings: ``,
-					savingsPlan: ``,
-					insure: ``,
-					credit: ``
-				}
-			}
-		);
 	}
 	
 	// ---------
