@@ -54,6 +54,7 @@ class ClientPolicies extends Component {
 		this.amountToPay = 0;
 
 		this.clientPolicies = null;
+		this.showSubMenu = true;
 	}
 
 	//#endregion INITIALISATION
@@ -72,6 +73,7 @@ class ClientPolicies extends Component {
 	 * @property {Object} accountDetails contains the clients Savings Account and Savings Plan details
 	 * @property {Function} getArrearsPaymentDocument Callback function to fetch arrears payment document
 	 * @property {Object} arrearsPaymentDocumentDetails Callback function to fetch arrears payment document
+	 * @property {boolean} showSubMenu Determines if the sub menu to be shown or not
 	 * 
 	 * @readonly
 	 * @static
@@ -101,6 +103,7 @@ class ClientPolicies extends Component {
 			policyDetails: { type: Object, state: true },
 
 			readOnlyMode: {type: Boolean, state: true},
+			showSubMenu: {type: Boolean, state: true},
 		};
 	}
 
@@ -719,12 +722,44 @@ class ClientPolicies extends Component {
 		</horizon-expander>` }) : this._renderNoResults() }`;
 	}
 
+	_showSubMenu(policyItem)
+	{
+		let count = 0;
+
+		if(policyItem.canReinstate){
+			count += 2;
+		}
+		else
+		{
+			if(policyItem.arrearDetails?.outstandingAmount > 0) 
+				count += 1;
+
+			if(policyItem.status == 'Active')
+				count += 1;
+			
+			count += 2;
+
+			if(policyItem.arrearDetails?.outstandingAmount < 1)
+				count += 1;
+		}
+
+		if(policyItem.status != 'Cancelled' && policyItem.status != 'Lapsed')
+			count += 2;
+		else
+			count += 1;
+
+		if(count > 5)
+			this.showSubMenu = false;
+	}
+
 	/**
 	 * Render Policy options
 	 * @param {Object} policyItem - each policy item
 	 * @returns {html} The html content of the each Policy options
 	 */
 	_renderOptions(policyItem) {
+		this._showSubMenu(policyItem);
+
 		return html`
 			<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
 			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
@@ -790,9 +825,31 @@ class ClientPolicies extends Component {
 						icon="system/sars-action"
 						.disabled="${this.readOnlyMode}">
 					</horizon-option-button>
+					${ this.showSubMenu ? `` : html `
+						<horizon-option-button 
+							data-automation-id="insure-policy-options-transaction-history"
+							class="button-margin" 
+							@click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"
+							label="Transaction History" 
+							icon="system/transfer-action"
+							.disabled="${this.readOnlyMode}">
+						</horizon-option-button>
+						${policyItem.status != 'Cancelled' && policyItem.status != 'Lapsed' ? 
+							html `
+							<horizon-option-button 
+								data-automation-id="insure-policy-options-cancel-plan"
+								class="button-margin" 
+								@click="${() => this._openCancelPolicyDialog(policyItem.contractReference)}"
+								label="Cancel Plan" 
+								icon="system/delete-action"
+								.disabled="${this.readOnlyMode}">
+							</horizon-option-button>` 
+							: ``
+						}
+					` }
 				` : ``}	
 				`}
-				${this._renderSubMenu(policyItem)}
+				${ this.showSubMenu ? this._renderSubMenu(policyItem) : ``}
 			</capitec-group>
 		`;
 	}
