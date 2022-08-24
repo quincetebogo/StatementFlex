@@ -211,7 +211,7 @@ export class ManageAutomaticSavings extends Component {
 					position: absolute;
 					left: -852px;
 					top: -44px;
-					background: url(/images/liveBetter/LBB_bg_64px.png);
+					background: url(/images/liveBetter/lbb-bg-64px.png);
 					--theme-label-title-font-size: 18px;
 					--theme-titlebar-padding: 20px 16px;
 					--theme-titlebar-item-gap: 0px;
@@ -223,21 +223,19 @@ export class ManageAutomaticSavings extends Component {
 					--theme-label-default-font-weight: 600;
 					--theme-label-font-color: #ffffff;
 				}
-				capitec-alert-banner {
+				horizon-alert-banner {
 					width: 100%;
 
-					--theme-alert-banner-height: 48px;
 					--theme-alert-banner-width: 840px;
 					--theme-alert-banner-font-weight: 600;
 					--theme-layout-gap-spacing: 20px;
 					--theme-alert-banner-info-font-color: #3A3A3A;
-					--theme-alert-banner-icon-margin-left: 16px;
-					--theme-alert-banner-icon-margin-right: 12px;
+					--theme-toast-icon-margin: 0px 12px 0px 16px;
 				}
-				capitec-alert-banner[type="info"] {
+				horizon-alert-banner[type="info"] {
 					--theme-alert-banner-info-background-color: #DAF2F4;
 				}
-				capitec-alert-banner[type="error"] {
+				horizon-alert-banner[type="error"] {
 					--theme-alert-banner-info-background-color: rgba(165,19,42,0.15);
 				}
 				capitec-label[type="title"] {
@@ -254,7 +252,7 @@ export class ManageAutomaticSavings extends Component {
 					--theme-alert-banner-height: 40px;
 					--theme-layout-gap-spacing: 0px;
 				}
-				capitec-alert-banner > p {
+				horizon-alert-banner > p {
 					display: inline-block;
 					font-weight: 400;
 					color: #3A3A3A;
@@ -347,7 +345,7 @@ export class ManageAutomaticSavings extends Component {
 			<capitec-modal type="free" header-align="left">
 				<div slot="header">
 					<capitec-title-bar data-automation-id="manage-automatic-savings-image" type="primary" class="header-gradient">
-						<capitec-image src="/images/liveBetter/Automatic-savings-white.svg"></capitec-image>
+						<capitec-image src="/images/liveBetter/automatic-savings-white.svg"></capitec-image>
 						<capitec-label label="Manage Automatic Savings"></capitec-label>
 					</capitec-title-bar>
 				</div>
@@ -378,19 +376,19 @@ export class ManageAutomaticSavings extends Component {
 	_renderAlertBanner() {
 		return !this.errorMessage
 			? html`
-				<capitec-alert-banner
+				<horizon-alert-banner
 					data-automation-id="manage-automatic-savings-info-banner"
-					type="info">
-						<strong>Notify client:</strong>
-						<p class="alert-banner-paragraph">Your Round-up and Interest Sweep values will always be transferred from your main savings account</p>
-				</capitec-alert-banner>`
+					type="info"
+					header="Notify client: "
+					label="Your Round-up and Interest Sweep values will always be transferred from your main savings account">
+				</horizon-alert-banner>`
 			: html`
-				<capitec-alert-banner
+				<horizon-alert-banner
 					data-automation-id="manage-automatic-savings-error-banner"
-					type="error">
-						<strong>Notify client:</strong>
-						<p class="alert-banner-paragraph">${this.errorMessage}</p>
-				</capitec-alert-banner>`;
+					type="error"
+					header="Notify client: "
+					label="${this.errorMessage}">
+				</horizon-alert-banner>`;
 	}
 
 	_renderRoundUpSaveToggle() {
@@ -430,13 +428,13 @@ export class ManageAutomaticSavings extends Component {
 
 						${!this.roundUpValue && this.errorMessage
 							? html`
-								<capitec-alert-banner
+								<horizon-alert-banner
 									data-automation-id="manage-automatic-savings-error-banner"
 									class="section-alert-banner"
-									type="error">
-										<strong>Notify client:</strong>
-										<p class="alert-banner-paragraph">${ERROR_MESSAGES.ALERT_ROUNDUP_VALUE}</p>
-								</capitec-alert-banner>`
+									type="error"
+									header="Notify client: "
+									label="${ERROR_MESSAGES.ALERT_ROUNDUP_VALUE}">
+								</horizon-alert-banner>`
 							: html``}
 
 						<capitec-radio-group 
@@ -470,13 +468,13 @@ export class ManageAutomaticSavings extends Component {
 						</capitec-title-bar>
 						${!this.roundUpAccounts.length && this.errorMessage
 							? html`
-								<capitec-alert-banner
+								<horizon-alert-banner
 									data-automation-id="manage-automatic-savings-error-banner"
 									class="section-alert-banner"
-									type="error">
-										<strong>Notify client:</strong>
-										<p class="alert-banner-paragraph">${ERROR_MESSAGES.ALERT_ROUNDUP_ACC}</p>
-								</capitec-alert-banner>`
+									type="error"
+									header="Notify client: "
+									label="${ERROR_MESSAGES.ALERT_ROUNDUP_ACC}">
+								</horizon-alert-banner>`
 							: html``}
 
 						${this.automaticSavingsDetails.roundUpAccounts.map(account => html`

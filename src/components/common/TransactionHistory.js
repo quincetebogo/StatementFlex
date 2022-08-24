@@ -540,7 +540,7 @@ export class TransactionHistory extends Component {
 					background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
 				}
 				.lbb {
-					background: no-repeat url(../images/liveBetter/Gradient1.png);
+					background: no-repeat url(../images/liveBetter/gradient.png);
 				}
 				.credit {
 					background: linear-gradient(90deg, #C83C37 0%, #E61414 100%);
@@ -608,7 +608,7 @@ export class TransactionHistory extends Component {
 				}
 				.filter-bar > capitec-label {
 					height: 20px;
-					width: 87px;
+					width: auto;
 					color: #3A3A3A;
 					font-family: "Hind Vadodara";
 					font-size: 15px;
@@ -638,7 +638,7 @@ export class TransactionHistory extends Component {
 				capitec-table{
 					width: var(--horizon-center-panel-width, 1064px);
 					height: auto;
-					--theme-icon-size-default: 8px;
+					--theme-icon-size-default: 24px;
 					--theme-data-table-body-group-font-weight: 600;
 					--theme-data-table-font-size : 15px;
 					--theme-data-table-padding-left: 16px;
@@ -678,7 +678,6 @@ export class TransactionHistory extends Component {
 					width: 224px;
 				}
 				.scroll-top {
-					--theme-icon-size-medium: 26px;
 					padding-top: 12px;
 					cursor: pointer;
 				}

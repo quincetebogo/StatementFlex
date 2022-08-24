@@ -358,6 +358,7 @@ export class PaidUpAccounts extends Component {
 				}
 				capitec-title-bar > capitec-icon {
 					margin: 0px 16px 0px 23px;
+					cursor: pointer;
 				}
 
 				/* Action and search bar styles */
@@ -461,7 +462,7 @@ export class PaidUpAccounts extends Component {
 			<capitec-card class="center-section" >
 				<capitec-title-bar>
 					<capitec-icon 
-						size="small"
+						size="medium"
 						icon="system/arrow-left-action"
 						@click="${() => this._back()}">
 					</capitec-icon>

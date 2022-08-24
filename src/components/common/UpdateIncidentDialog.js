@@ -133,7 +133,7 @@ export class UpdateIncidentDialog extends Component {
 			this.showAlert = true;
 			this.alertBannerMessage = `You must complete all fields to update`;
 			this.errorColor = `headerError`;
-			this.iconSource = `/images/error-stroke.svg`;
+			this.iconSource = `/images/common/error-stroke.svg`;
 
 			if (isNullorEmpty(this.need)) {
 				this.needError = `Required field`;
@@ -226,9 +226,8 @@ export class UpdateIncidentDialog extends Component {
 				height: 628px;
 				padding: 0;
 			}
-			capitec-alert-banner {
+			horizon-alert-banner {
 				width: 536px;
-				height: 48px;
 				color: #4A4848;
 				--theme-alert-banner-error-font-weight: 600px;
 				margin-bottom: 26px;
@@ -323,12 +322,12 @@ export class UpdateIncidentDialog extends Component {
 	_renderAlert() {
 		return this.showAlert
 			? html`
-				<capitec-alert-banner
-					type="unsuccessful-red"
+				<horizon-alert-banner
+					type="error"
 					label="${this.alertBannerMessage}"
 					@click="${() => this._keyPress()}"
 					closable>
-				</capitec-alert-banner>`
+				</horizon-alert-banner>`
 			: html``;
 	}
 

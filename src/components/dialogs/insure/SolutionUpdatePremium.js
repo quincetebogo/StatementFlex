@@ -304,7 +304,7 @@ export class UpdatePremium extends Component {
 					padding-left: 20px;
 				}
 
-				capitec-alert-banner {
+				horizon-alert-banner {
 					width: 662px;
 					margin: 0px 0px 15px 0px;
 					--theme-alert-banner-info-border: 0px;
@@ -336,10 +336,10 @@ export class UpdatePremium extends Component {
 	_renderAlertBanner() {
 		if (this.alertBannerType === `info`) {
 			return html`
-			<capitec-alert-banner label="${this.alertBannerMessage}" type="${this.alertBannerType}"></capitec-alert-banner>`;
+			<horizon-alert-banner label="${this.alertBannerMessage}" type="${this.alertBannerType}"></horizon-alert-banner>`;
 		} else if (this.alertBannerType === `error`) {
 			return html`
-			<capitec-alert-banner class="alert-banner-error" label="${this.alertBannerMessage}" type="${this.alertBannerType}"></capitec-alert-banner>`;
+			<horizon-alert-banner class="alert-banner-error" label="${this.alertBannerMessage}" type="${this.alertBannerType}"></horizon-alert-banner>`;
 		}
 	}
 

@@ -161,7 +161,7 @@ export class TaxCertificateLanding extends Component {
 			<capitec-title-bar class="title-bar">
 				<capitec-icon 
 					data-automation-id="tax-certificate-landing-back"
-					size="small"
+					size="medium"
 					icon="system/arrow-left-action"
 					@click="${() => this._back()}">
 				</capitec-icon>

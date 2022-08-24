@@ -467,7 +467,7 @@ export class HorizonProductTile extends Component {
 		return html`
 			<button 
 				class="tile ${this.type ? this.type : `transact`}${this.disabled ? ` disabled` : this.selected ? ` selected` : ``}"
-				@click="${(e) => this._tileClicked(e)}}"
+				@click="${(e) => this._tileClicked(e)}"
 				@keydown="${e => this._keyDown(e)}"
 				tabindex="${this.disabled ? `` : 0}">
 					<div class="tile-container">
@@ -510,7 +510,7 @@ export class HorizonProductTile extends Component {
 		if (this.type === `live-better`) {
 			return html`
 				<div class="product ${this.type ? this.type : `transact`}">
-					<img alt="liveBetter" src="images/Mask.png" style="object-fit: fill">
+					<img alt="liveBetter" src="images/common/mask.png" style="object-fit: fill">
 				</div>
 			`
 		}

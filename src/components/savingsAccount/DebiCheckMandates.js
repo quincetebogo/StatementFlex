@@ -353,7 +353,7 @@ export class DebiCheckMandates extends Component {
 		return html`
 			<capitec-title-bar type="default">
 				<capitec-icon 
-					size="small"
+					size="medium"
 					icon="system/arrow-left-action"
 					@click="${() => this._back()}">
 				</capitec-icon>

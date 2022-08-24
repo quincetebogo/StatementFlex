@@ -112,7 +112,7 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 			<horizon-success-screen 
 				data-automation-id="card-limit-update-success-screen"
 				header="${this.limitType} card limits updated" 
-				image="/images/cards-successful-limit-update.svg"
+				image="/images/updateCardLimits/cards-successful-limit-update.svg"
 				left="Update Card Limits"
 				right="Done"
 				toast="${this.limitType} card limit updated."

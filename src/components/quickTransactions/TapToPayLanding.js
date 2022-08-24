@@ -237,7 +237,7 @@ export class TapToPayLanding extends Component {
 
 				}
 
-				capitec-alert-banner > label {
+				horizon-alert-banner > label {
 					height: 20px;
 					width: 81px;
 					color: #08A6B5;
@@ -350,7 +350,7 @@ export class TapToPayLanding extends Component {
 			<capitec-card class="tap-to-pay-container">
 				<capitec-title-bar>
 					<capitec-icon 
-						size="small"
+						size="medium"
 						icon="system/arrow-left-action"
 						@click="${() => this._back()}"
 						data-automation-id="tap-to-pay-landing-back">
@@ -369,14 +369,12 @@ export class TapToPayLanding extends Component {
 	_renderTapToPayContent() {
 		return this.hasCardsAvailable
 		? html`
-			<capitec-alert-banner
+			<horizon-alert-banner
 				class="alert-banner"
 				type="info"
-				label="Notify Client:">
-					<p class="alert-banner-paragraph">
-						After you switch tap to pay on, you first have to insert your card and PIN at a card machine or ATM to make it active on your card.
-					</p>
-			</capitec-alert-banner>
+				header="Notify Client: "
+				label="After you switch tap to pay on, you first have to insert your card and PIN at a card machine or ATM to make it active on your card.">
+			</horizon-alert-banner>
 
 			${this._renderPrimaryCards()}
 			${this._renderSupplementaryCards()}`

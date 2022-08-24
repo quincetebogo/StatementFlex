@@ -112,6 +112,7 @@ export class SavingsPlanLanding extends Component {
 				capitec-title-bar {
 					--theme-titlebar-padding: 12px 16px;
 					margin-bottom: 0px;
+					border-bottom-width: 0px;
 				}
 				capitec-title-bar > capitec-label {
 					--theme-label-title-font-size: 22px;
@@ -183,7 +184,6 @@ export class SavingsPlanLanding extends Component {
 					--theme-layout-gap-spacing: 0px;
 					--theme-expander-header-height: 64px;
 					--theme-expander-header-padding: 0 6px 0 0;
-					--theme-expander-indicator-width: 16px;
 				}
 				horizon-expander[expanded] {
 					box-shadow: 0 6px 10px 0.25px rgb(0 0 0 / 7%);
@@ -291,8 +291,7 @@ export class SavingsPlanLanding extends Component {
 					--theme-container-padding-bottom: 0px;
 					--theme-expander-header-height: 64px;
 					--theme-expander-height: 211px;
-					--theme-expander-indicator-width: 11.5px;
-                    --theme-expander-indicator-height: 6.5px;
+					--theme-expander-header-padding: 10px 13px;
 					box-shadow:0 3px 6px 0.25px rgba(0,0,0,0.08);
 				}
 				.account-details-bar > capitec-group {

@@ -352,7 +352,7 @@ export function frameCardArt(card) {
 				</defs>
 				<g id="04-Layout/2)-Card/2)-Bank-card-widget/0)-items/1)-New---Debit-Card" stroke="none" stroke-width="1"
 					fill="none" fill-rule="evenodd">
-					<g id="cards-/-black_front_debit" transform="translate(1.000000, 0.500000)">
+					<g id="cards-/-black-front-debit" transform="translate(1.000000, 0.500000)">
 						<g id="Group-2">
 							<g id="credit-card-front-black">
 								<mask id="mask-4" fill="white">
