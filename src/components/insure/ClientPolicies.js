@@ -722,6 +722,10 @@ class ClientPolicies extends Component {
 		</horizon-expander>` }) : this._renderNoResults() }`;
 	}
 
+	/**
+	 * Determine to show sub menu or not
+	 * @param {object} policyItem - each policy item 
+	 */
 	_showSubMenu(policyItem)
 	{
 		policyItem.showSubMenu = false;
