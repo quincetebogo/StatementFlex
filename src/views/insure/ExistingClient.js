@@ -546,7 +546,7 @@ export class ExistingClient extends InsureViewBase {
 	/**
 	 * Pay Arrears based on arrears provided
 	 * Map metadata back when response is received
-	 * @returns {Object} Estimate response
+	 * @returns {Object} 
 	 */
 	async _payPolicy(e) {
 		let payArrears = {
@@ -579,10 +579,11 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 
-	/* 
-	 * Calculate estimate based on lives assured provided
-	 * Map metadata (coverDetails) back when response is received
-	 * @returns {Object} Estimate response
+	/**
+	 * retrieve the Communication(SMS) History
+	 * @param {*} startDate 
+	 * @param {*} endDate 
+	 * @returns 
 	 */
 	async _retrieveCommsHistory(startDate, endDate) {
 
@@ -651,10 +652,6 @@ export class ExistingClient extends InsureViewBase {
 		this.policyDetails = await this._retrievePolicySummary(e.detail.policyContractReference
 			, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY);
-	}
-
-	_goToEmailSuccessPage() {
-		this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_PLAN_SUCCESS)
 	}
 
 	/**
@@ -981,6 +978,15 @@ export class ExistingClient extends InsureViewBase {
 
 	}
 
+	/**
+	 * Get the Arrears Payment Instruction document
+	 * 
+	 * @param {*} contractReference 
+	 * @param {*} payArrears 
+	 * @param {*} fromAccount 
+	 * @param {*} saveToDocumentum 
+	 * @returns 
+	 */
 	async _arrearsPaymentInstruction(contractReference, payArrears, fromAccount, saveToDocumentum) {
 
 
@@ -1122,8 +1128,6 @@ ${this._renderClientPoliciesPage()}`
 				return html`${this._renderUpdatePlanSuccessPage()}`
 			case INSURE_RENDER_MODE.SUCCESS_PAGE:
 				return html`${this._renderSuccessPage()}`
-			case INSURE_RENDER_MODE.EMAIL_PLAN_SUCCESS:
-				return html`${this._renderEmailPlanSuccessPage()}`
 			case INSURE_RENDER_MODE.SMS_HISTORY:
 				return html`${this._renderSMSHistory()}`
 			default:
@@ -1203,9 +1207,9 @@ ${this._renderClientPoliciesPage()}`
 	 */
 	_renderCancelPolicySuccessPage() {
 		return html`
-		<insure-cancel-policy-success @navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-			@send-email = "${(e) => this._sendEmail(e)}" .contractReference = ${this.contractReference}>
-		</insure-cancel-policy-success>
+			<insure-cancel-policy-success @navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+				@send-email = "${(e) => this._sendEmail(e)}" .contractReference = ${this.contractReference}>
+			</insure-cancel-policy-success>
 		`
 	}
 
@@ -1215,7 +1219,6 @@ ${this._renderClientPoliciesPage()}`
 	 */
 	_renderEmailSuccessPage() {
 		return html`
-		
 			<insure-email-plan-success @navigate-back="${(e) => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				.contractReference = ${this.contractReference} .confirmedEmail="${this.confirmedEmail}">
@@ -1229,12 +1232,11 @@ ${this._renderClientPoliciesPage()}`
 	 */
 	_renderPayPremiumSuccessPage() {
 		return html`
-		<horizon-pay-premium-success-page @navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-			@navigate-to-email-success-page="${() => this._goToEmailSuccessPage()}"
-			.amountToPay = "${this.amountToPay}" .contractReference = "${this.contractReference}"
-			@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
-			@send-email= "${(e) => this._sendEmail(e)}">
-		</horizon-pay-premium-success-page>
+			<horizon-pay-premium-success-page @navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+				.amountToPay = "${this.amountToPay}" .contractReference = "${this.contractReference}"
+				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
+				@send-email= "${(e) => this._sendEmail(e)}">
+			</horizon-pay-premium-success-page>
 		
 	`}
 
@@ -1249,9 +1251,9 @@ ${this._renderClientPoliciesPage()}`
 				.policyTransactionHistory="${this.policyTransactionHistory}"
 				.getPolicyTransactionHistory="${(startDate, endDate, pageIndex) =>
 					this._getPolicyTransactionHistory(startDate, endDate, pageIndex)}"
-	.disposeData="${() => this.policyTransactionHistory = []}"
-	@unloading="${() => this._unloadPolicyTransactionHistory()}">
-</horizon-insure-policy-transaction-history>`
+				.disposeData="${() => this.policyTransactionHistory = []}"
+				@unloading="${() => this._unloadPolicyTransactionHistory()}">
+			</horizon-insure-policy-transaction-history>`
 			: html``;
 	}
 
@@ -1261,9 +1263,9 @@ ${this._renderClientPoliciesPage()}`
 	 */
 	_renderUpdatePlanSuccessPage() {
 		return html`
-		<horizon-insure-update-plan-success .policyDetails="${this.policyDetails}"
-			@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
-		</horizon-insure-update-plan-success>`
+			<horizon-insure-update-plan-success .policyDetails="${this.policyDetails}"
+				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+			</horizon-insure-update-plan-success>`
 	}
 
 	/**
@@ -1272,11 +1274,11 @@ ${this._renderClientPoliciesPage()}`
 	 */
 	_renderSuccessPage() {
 		return html`
-		<horizon-insure-success-page .successMessage="${this.successMessage}" 
-			@send-email = "${(e) => this._sendEmail(e)}"
-			.callerPage = "${this.callerPage}" .contractReference = "${this.contractReference}"
-			@navigate-back="${(e) => this._rerenderPolicies(e.detail.navigateBackTo)}">
-		</horizon-insure-success-page>`
+			<horizon-insure-success-page .successMessage="${this.successMessage}" 
+				@send-email = "${(e) => this._sendEmail(e)}"
+				.callerPage = "${this.callerPage}" .contractReference = "${this.contractReference}"
+				@navigate-back="${(e) => this._rerenderPolicies(e.detail.navigateBackTo)}">
+			</horizon-insure-success-page>`
 	}
 
 	/**
@@ -1286,10 +1288,10 @@ ${this._renderClientPoliciesPage()}`
 	_renderAlert() {
 		return this.showSuccessAlert == false ? html``
 			: html`
-			<capitec-toast class="toast" type="success" Header="Successful" layout="vertical" detail="Email document was sent"
-				@click="${() => this.showSuccessAlert = false}" closable>
-			</capitec-toast>
-	`}
+				<capitec-toast class="toast" type="success" Header="Successful" layout="vertical" detail="Email document was sent"
+					@click="${() => this.showSuccessAlert = false}" closable>
+				</capitec-toast>
+			`}
 
 	_renderEmailPlanSuccessPage() {
 		console.log(this.confirmedEmail)
@@ -1301,6 +1303,11 @@ ${this._renderClientPoliciesPage()}`
 		`
 	}
 
+	/**
+	 * Renders the Communication/SMS history page
+	 * 
+	 * @returns {html}
+	 */
 	_renderSMSHistory() {
 		return html`
 			<horizon-insure-sms-history-page @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
@@ -1314,5 +1321,3 @@ ${this._renderClientPoliciesPage()}`
 
 }
 customElements.define(`horizon-existing-client`, ExistingClient);
-
-// 

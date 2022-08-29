@@ -5,7 +5,7 @@
  * @enum {Object} BANK_OPTIONS
  */
 export const BANK_OPTIONS = Object.freeze([
-	{ code: 'CAPITEC BANK', text: `CAPITEC BANK`, branchCode: '' },
+	{ code: 'CAPITEC BANK', text: `CAPITEC BANK`, branchCode: '470010' },
 	{ code: '20TWENTY', text: `20TWENTY`, branchCode: '730020' },
 	{ code: 'ABN AMRO BANK', text: `ABN AMRO BANK`, branchCode: '740000' },
 	{ code: 'ABSA BANK', text: `ABSA BANK`, branchCode: '632005' },
@@ -39,23 +39,23 @@ export const BANK_OPTIONS = Object.freeze([
 	{ code: 'NEDBANK BOND OR LOAN ACCOUNTS', text: `NEDBANK BOND OR LOAN ACCOUNTS`, branchCode: '170305' },
 	{ code: 'RAND MERCHANT BANK', text: `RAND MERCHANT BANK`, branchCode: '255050' },
 	{ code: 'UBANK', text: `UBANK`, branchCode: '431010' },
-	{ code: 'HABIB OVERSEAS BANK', text: `HABIB OVERSEAS BANK`, branchCode: '0' },
-	{ code: 'FBC FIDELITY BANK', text: `FBC FIDELITY BANK`, branchCode: '0' },
-	{ code: 'ITHALA ABSA', text: `ITHALA ABSA`, branchCode: '0' },
-	{ code: 'HBZ BANK', text: `HBZ BANK`, branchCode: '0' },
-	{ code: 'NEDBANK SWAZILAND', text: `NEDBANK SWAZILAND`, branchCode: '0' },
-	{ code: 'NEDBANK LESOTHO', text: `NEDBANK LESOTHO`, branchCode: '0' },
-	{ code: 'STANDARD CHARTERED BANK', text: `STANDARD CHARTERED BANK`, branchCode: '0' },
-	{ code: 'NEDBANK NAMIBIA', text: `NEDBANK NAMIBIA`, branchCode: '0' },
-	{ code: 'STANDARD BANK LESOTHO', text: `STANDARD BANK LESOTHO`, branchCode: '0' },
-	{ code: 'STANDARD BANK SWAZILAND', text: `STANDARD BANK SWAZILAND`, branchCode: '0' },
+	{ code: 'HABIB OVERSEAS BANK', text: `HABIB OVERSEAS BANK`, branchCode: '' },
+	{ code: 'FBC FIDELITY BANK', text: `FBC FIDELITY BANK`, branchCode: '' },
+	{ code: 'ITHALA ABSA', text: `ITHALA ABSA`, branchCode: '' },
+	{ code: 'HBZ BANK', text: `HBZ BANK`, branchCode: '' },
+	{ code: 'NEDBANK SWAZILAND', text: `NEDBANK SWAZILAND`, branchCode: '' },
+	{ code: 'NEDBANK LESOTHO', text: `NEDBANK LESOTHO`, branchCode: '' },
+	{ code: 'STANDARD CHARTERED BANK', text: `STANDARD CHARTERED BANK`, branchCode: '' },
+	{ code: 'NEDBANK NAMIBIA', text: `NEDBANK NAMIBIA`, branchCode: '' },
+	{ code: 'STANDARD BANK LESOTHO', text: `STANDARD BANK LESOTHO`, branchCode: '' },
+	{ code: 'STANDARD BANK SWAZILAND', text: `STANDARD BANK SWAZILAND`, branchCode: '' },
 	{ code: 'SA BANK OF ATHENS', text: `SA BANK OF ATHENS`, branchCode: '410105' },
-	{ code: 'NEDBANK LTD INC BOE BANK', text: `NEDBANK LTD INC BOE BANK`, branchCode: '0' },
+	{ code: 'NEDBANK LTD INC BOE BANK', text: `NEDBANK LTD INC BOE BANK`, branchCode: '' },
 	{ code: 'MERCANTILE BANK', text: `MERCANTILE BANK`, branchCode: '450105' },
-	{ code: 'SA RESERVE BANK', text: `SA RESERVE BANK`, branchCode: '0' },
+	{ code: 'SA RESERVE BANK', text: `SA RESERVE BANK`, branchCode: '' },
 	{ code: 'TYMEDIGITAL BY CBSA', text: `TYMEDIGITAL BY CBSA`, branchCode: '678910' },
 	{ code: 'DISCOVERY BANK', text: `DISCOVERY BANK`, branchCode: '679000' },
-	{ code: 'BANK WINDHOEK', text: `BANK WINDHOEK`, branchCode: '0' },
+	{ code: 'BANK WINDHOEK', text: `BANK WINDHOEK`, branchCode: '' },
 ]);
 
 /**
@@ -67,7 +67,6 @@ export const BANK_OPTIONS = Object.freeze([
 export const ACCOUNT_TYPES = Object.freeze([
 	{ code: 'Savings', text: `Savings` },
 	{ code: 'Cheque', text: `Cheque` },
-	{ code: 'Current', text: `Current` }
 ]);
 
 /**
@@ -79,7 +78,12 @@ export const ACCOUNT_TYPES = Object.freeze([
 export const TITLE_OPTIONS = Object.freeze([
 	{ code: 'Mr', text: `Mr` },
 	{ code: 'Mrs', text: `Mrs` },
-	{ code: 'Ms', text: `Ms` }
+	{ code: 'Ms', text: `Ms` },
+	{ code: 'Miss', text: `Miss` },
+	{ code: 'Dr', text: `Dr` },
+	{ code: 'Sir', text: `Sir` },
+	{ code: 'Lady', text: `Lady` },
+	{ code: 'Prof', text: `Prof` },
 ]);
 
 /**

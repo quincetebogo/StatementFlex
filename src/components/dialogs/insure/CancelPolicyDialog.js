@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { formatDate } from '../../../utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+import { dateFormat} from 'app/utils/insureUtils'
 
 // Lookups
 import { CANCELATION_REASONS } from 'app/constants/InsureCommon';
@@ -76,10 +77,7 @@ class CancelPolicyDialog extends Component {
 	//#region PRIVATE METHODS
 	
 	async _initialize(){
-
-		// await this.getCancelPolicyDocument(this.contractReference);
-
-
+		
 	}
 
 	//#endregion
@@ -231,9 +229,7 @@ class CancelPolicyDialog extends Component {
 		return html`
 			<capitec-content-box class="notification">
 				<capitec-toast type="info" header="Notify Client" 
-					detail="By cancelling this plan you will no longer have any benefits on this plan. Ensure you have carefully considered the effects before continuing with the cancellation.
-					The full agreement, inclusive of the Policy Schedule, Section 484 summary. Disclosure, terms and conditions,
-					will be emailed to you and available in branch."
+					detail="The full agreement, inclusive of the Policy Schedule, Section 484 summary. Disclosure, terms and conditions, will be emailed to you and available in branch."
 					data-automation-id="insure-cancel-policy-dialog-notification">
 				</capitec-toast>
 			</capitec-content-box>
@@ -251,7 +247,7 @@ class CancelPolicyDialog extends Component {
 			<capitec-content-box class="no-padding">
 				<capitec-label type="subtitle" label=" By requesting the cancellation of the policy, you acknowledge and confirm that:"></capitec-label>
 				<ul>
-				<li>The policy has been cancelled with the effective date from ${formatDate(this._getDate(), 'dd mmm yyyy')}.</li>
+				<li>The policy has been cancelled with the effective date from ${dateFormat(this._getDate())}.</li>
 				<li>All the policy benefits have been ceased and you no longer benefit from them.</li>
 				<li>Should any premiums be received on this policy, after the date of this instruction, it will be refunded to you.</li>
 				</ul>

@@ -1,6 +1,8 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from '../../../utils/channelServiceUtilities';
 import { formatDate } from 'app/utils/channelServiceUtilities';
+import { dateFormat} from 'app/utils/insureUtils'
+
 
 /**
  * Pay Premium Agreement Dialog componant will allow you to view the policy schedule, view the mandate and to agree 
@@ -192,7 +194,7 @@ class PayPremiumAgreementDialog extends Component {
 			<div>
 				<capitec-label type="subtitle" label="Declaration:
 By agreeing to pay your arrear premiums, you acknowledge and confirm that:
-• Your Savings/ Flexible Account can be debited with the amount of ${formatCurrency(this.amountToPay)} on ${formatDate(Date(), `dd mmm yyyy`)} ">
+• Your Savings/ Flexible Account can be debited with the amount of ${formatCurrency(this.amountToPay)} on ${dateFormat(Date())} ">
 				</capitec-label>
 			</div>
 

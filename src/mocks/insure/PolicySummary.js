@@ -247,7 +247,7 @@ export const PolicySummary = {
 			"relationship": "Spouse",
 			"coverAmount": 25000,
 			"premium": 25,
-			"rowID": 0
+			"rowID": 1
 		},
 		{
 			"title": "Mr",
@@ -271,7 +271,7 @@ export const PolicySummary = {
 			"relationship": "Child",
 			"coverAmount": 25000,
 			"premium": 22,
-			"rowID": 0
+			"rowID": 2
 		},
 		{
 			"title": "Mr",
@@ -295,7 +295,7 @@ export const PolicySummary = {
 			"relationship": "Child",
 			"coverAmount": 25000,
 			"premium": 22,
-			"rowID": 0
+			"rowID": 3
 		}
 	]
 };

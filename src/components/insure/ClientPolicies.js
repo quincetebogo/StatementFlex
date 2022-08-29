@@ -598,7 +598,6 @@ class ClientPolicies extends Component {
 	 */
 	_renderContent() {
 		return html`
-		${console.log(this.clientPolicies)}
 			<capitec-card 
 				data-automation-id="insure-landing-screen"
 				class="card">
@@ -928,8 +927,8 @@ _renderCancelPolicyConfirmationDialog(){
 		return this.showPayPremiumConfirmationDialog == false ? `` :
 			html`
 			<insure-pay-premium-confirmation-dialog @close-modal="${(e) => this._closePayPremiumConfirmationDialog()}" 
-			@confirm-payment="${(e) => this._openPayPremiumAgreementDialog()}"
-			.amountToPay = ${this.amountToPay} .contractReference = ${this.clientArrears.contractReference}>	
+				@confirm-payment="${(e) => this._openPayPremiumAgreementDialog()}"
+				.amountToPay = ${this.amountToPay} .contractReference = ${this.clientArrears.contractReference}>	
 			</insure-pay-premium-confirmation-dialog>`
 
 	}
