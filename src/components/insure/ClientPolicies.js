@@ -335,11 +335,23 @@ class ClientPolicies extends Component {
 	 */
 	_expanded(policyItem)
 	{
+		const isExpanded = this.policiesList?.some(x => x.contractReference != policyItem.contractReference 
+			&& x.isExpanded === true);
+
 		policyItem.isExpanded = true;
 
 		this.policiesList?.forEach(item => { if (item.contractReference != policyItem.contractReference ) item["isExpanded"] = false ;})
 
 		this.requestUpdate();
+
+		const parentElement = this.shadowRoot.getElementById(`client-policies-box`);
+
+		const childElement = this.shadowRoot.getElementById(`horizon-expander-`+ policyItem.contractReference);
+
+		if(isExpanded)
+			parentElement.scrollTop = childElement.offsetTop - 445;
+		else
+			parentElement.scrollTop = childElement.offsetTop - 380;
 	}
 
 	/**
@@ -626,7 +638,7 @@ class ClientPolicies extends Component {
 					<capitec-content-box class="header-label">
 						<capitec-label label="Funeral Plan" class="strong-label"></capitec-label>
 					</capitec-content-box>	
-					<capitec-content-box  class="accounts-box">
+					<capitec-content-box  id="client-policies-box" class="accounts-box">
 							${this._renderPoliciesDetailsBar()}
 					</capitec-content-box>
 					${this._renderFooter()}
@@ -662,6 +674,7 @@ class ClientPolicies extends Component {
 			return html`
 		<horizon-expander
 			expandButtonAlignment="right"
+			id="horizon-expander-${policyItem.contractReference}"
 			?expanded = "${policyItem.isExpanded}" 
 			@expand = "${() => this._expanded(policyItem)}"
 			@collapse = "${() => this._collapsed(policyItem)}">
