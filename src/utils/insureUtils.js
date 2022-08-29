@@ -260,9 +260,11 @@ export function livesPerPolicy(relationship, productParams) {
  */
 export function getAgeFromIDNumber(southAfricanIDNumber) {
 	let birthdate = new Date(southAfricanIDNumber.substring(0, 2), southAfricanIDNumber.substring(2, 4) - 1, southAfricanIDNumber.substring(4, 6));
+	
 	if (birthdate.getFullYear() <= (new Date().getFullYear() - 100)){
 		birthdate.setFullYear(birthdate.getFullYear() + 100)
 	}
+	
 	let ageDifMs = Date.now() - birthdate.getTime();
 	let ageDate = new Date(ageDifMs);
 	return Math.abs(ageDate.getUTCFullYear() - 1970);
@@ -289,19 +291,60 @@ export function getGenderFromIDNumber(southAfricanIDNumber) {
  */
 export function checkPolicyRules(ruleType, productParams, field, relationship) {
 	
-	
-	let product = productParams.products.find(product => {
-		return product.parameters.id === `SBL`
-	});
-	
-	let currentRuleType = product.parameters.rulesParams.find(rule => {
-		return rule.ruleType === ruleType
-	});
-	console.log(currentRuleType)
-	
-	let relationshipRule = currentRuleType.peopleRulesList.find(role => {
-		return role.type === relationship
-	});
+	if (relationship == "Unknown" || relationship == "MainLife" || relationship == "Spouse" || relationship == "Parent" || relationship == "Child"){
+		
+		let product = productParams.products.find(product => {
+			return product.parameters.id === `SBL`
+		});
+		
+		let currentRuleType = product.parameters.rulesParams.find(rule => {
+			return rule.ruleType === ruleType
+		});
 
-	return relationshipRule[field]
+		let relationshipRule = currentRuleType.peopleRulesList.find(role => {
+			return role.type === relationship
+		});
+
+		return relationshipRule[field]
+
+	} else { 
+
+		let product = productParams.products.find(product => {
+			return product.parameters.id === `SBL`
+		});
+		
+		let currentRuleType = product.parameters.rulesParams.find(rule => {
+			return rule.ruleType === ruleType
+		});
+
+		let relationshipRule = currentRuleType.peopleRulesList.find(role => {
+			return role.type === "ExtendedFamily"
+		});
+
+		return relationshipRule[field]
+
+	}
+
+}
+/**
+ * returns date in format dd/mm/yyyy
+ * 
+ * @param {*} value 
+ * @returns 
+ */
+export function dateFormat(value){
+	
+	const dateTime = new Date(value);
+	const date = dateTime.getDate();
+	const month = dateTime.getMonth();
+	const year = dateTime.getFullYear();
+	let formattedDate = ``;
+
+	if(year === 0 || isNaN(year)){
+		return formattedDate;
+	}
+	
+	formattedDate = formattedDate = `${('0' + date).slice(-2)}/${('0' + (month + 1)).slice(-2)}/${year}`;
+
+	return formattedDate
 }
