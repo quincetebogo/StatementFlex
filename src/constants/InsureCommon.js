@@ -197,7 +197,7 @@ export const Status = {
 	'Cancelled': 3,
 	'Lapsed': 4,
 	'Death Out of Force': 5,
-	'Not Taken Up': 6
+	'NotTakenUp': 6
 };
 
 /**
