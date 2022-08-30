@@ -274,6 +274,11 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		super._backToLandingPage();
 	}
 
+	_formatDate(date) {
+		const newdate = new Date(Date.parse(date));
+		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
