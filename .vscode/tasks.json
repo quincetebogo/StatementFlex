@@ -6,9 +6,9 @@
 		{
 			"type": "shell",
 			"label": "run",
-			"command": "C:\\Capitec\\PlatformSDKs\\CLIRuntimes\\ocwp\\runtime\\1.4.1\\cli\\ocwp",
+			"command": "ocwp/1.14.1/ocwp",
 			"args": [
-				"C:\\Capitec\\PlatformSDKs\\CLIRuntimes\\ocwp\\runtime\\1.4.1\\cli",
+				"ocwp/1.14.1",
 				"run",
 				"--port",
 				"62000"
@@ -36,6 +36,19 @@
 					"beginsPattern": "Compiling\\.\\.\\.",
 					"endsPattern": "Compiled successfully\\."
 				}
+			}
+		},
+		{
+			"type": "shell",
+			"label": "restore",
+			"command": "ocwp/1.14.1/ocwp",
+			"args": [
+				"ocwp/1.14.1",
+				"restore"
+			],
+			"isBackground": true,
+			"runOptions": {
+				"runOn": "folderOpen"
 			}
 		}
 	]

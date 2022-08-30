@@ -849,12 +849,12 @@ export class InsureInformation extends Component {
 	_renderNonClientBanner() {
 		if (this.verificationStatus === `non-client` && this.displayNotification) {
 			return html`
-				<capitec-alert-banner 
+				<horizon-alert-banner 
 					class="info-banner" 
 					type="info" 
 					closable @click="${() => this._onCloseClick()}">
 						All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.
-				</capitec-alert-banner>`;
+				</horizon-alert-banner>`;
 		}
 		return html``;
 	}
@@ -862,14 +862,14 @@ export class InsureInformation extends Component {
 	_renderCoverBanner() {
 		if (this.displayCoverNotification) {
 			return html`
-				<capitec-alert-banner 
+				<horizon-alert-banner 
 					class="cover-banner" 
 					type="info" 
 					closable @click="${() => this._onCloseCover()}">
 						*Legal maximum child cover. The total amount payable in the event of the death of a child is restricted by
 						legislation. The restriction is
 						<br>&nbsp; applicable to the life (ID) across all insurers and their recorded policies.
-				</capitec-alert-banner>`;
+				</horizon-alert-banner>`;
 		}
 		return html``;
 	}
@@ -877,12 +877,12 @@ export class InsureInformation extends Component {
 	_renderClaimAlert() {
 		if (this.displayClaimNotification) {
 			return html`
-				<capitec-alert-banner 
+				<horizon-alert-banner 
 					class="info-banner" 
 					type="info" closable 
 					@click="${() => this._onCloseClaimAlert()}">
 					All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.
-				</capitec-alert-banner>`;
+				</horizon-alert-banner>`;
 		}
 		return html``;
 	}
@@ -891,13 +891,13 @@ export class InsureInformation extends Component {
 		if (this.verificationStatus === `unverified` && this.displayNotification) {
 			return html`
 				${this._renderUnverifiedToast()}
-				<capitec-alert-banner class="unverfied-caller-alert" type="warning">
+				<horizon-alert-banner class="unverfied-caller-alert" type="warning">
 					Client has not been verified, so you are only able to see limited information.
 					<capitec-hyperlink 
 						label="Verify Now" 
 						@click="${() => this._verifyClientClick()}">
 					</capitec-hyperlink>
-				</capitec-alert-banner>`;
+				</horizon-alert-banner>`;
 		}
 		return html``;
 	}
@@ -906,9 +906,9 @@ export class InsureInformation extends Component {
 		if (this.verificationStatus === `verified` && this.displayNotification) {
 			return html`
 				${this._renderVerifiedToast()}
-				<capitec-alert-banner class="info-banner" type="info" closable @click="${() => this._onCloseClick()}">
+				<horizon-alert-banner class="info-banner" type="info" closable @click="${() => this._onCloseClick()}">
 					All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.
-				</capitec-alert-banner>`;
+				</horizon-alert-banner>`;
 		}
 		return html``;
 	}

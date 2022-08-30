@@ -89,7 +89,7 @@ export class HorizonTextField extends TextField {
 				: ``
 			}
 
-			${this.type === `currency`
+			${this.type === `currency` && !this.disabled
 				? html`
 					<div class="search-clear-icon ${this.clearVisible === true ? `clearShow` : `clearHide`}" id="clear" @click="${(e) => this._clear()}">
 						<img class="clear-icon" src="./platform/icons/status/unsuccessful-blue.svg">

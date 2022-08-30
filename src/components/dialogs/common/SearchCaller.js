@@ -787,6 +787,7 @@ export class SearchCaller extends Component {
 				}
 				capitec-radio{
 					height:24px;
+					width: 150px;
 				}
 				.search-label{
 					height: 24px;
@@ -827,10 +828,7 @@ export class SearchCaller extends Component {
 				div[slot="footer"] > capitec-group > capitec-button{
 					margin: 0px;
 				}
-				capitec-alert-banner{
-					--theme-alert-banner-height: 48px;
-					--theme-alert-banner-icon-margin-left: 15px;
-					--theme-alert-banner-icon-margin-right: 15px;
+				horizon-alert-banner{
 					margin: 0px 0px 16px 0px;
 				}
 				#id-label-enter-details {
@@ -891,8 +889,8 @@ export class SearchCaller extends Component {
 				class="client-type-label" 
 				label="Client Type">
 			</capitec-label>
-			<capitec-radio-group>
-				<capitec-group layout="grid" rows="auto" columns="auto" gap="none">
+			<capitec-radio-group layout="horizontal">
+				
 					<capitec-radio 
 						id="capitecClient" 
 						data-automation-id="search-caller-capitec-client"
@@ -915,7 +913,7 @@ export class SearchCaller extends Component {
 						column="3"
 						?checked="${this.clientType === CLIENT_TYPE.BRANCH}">
 					</capitec-radio>
-				</capitec-group>
+
 			</capitec-radio-group>`;
 	}
 
@@ -1107,11 +1105,11 @@ export class SearchCaller extends Component {
 		if (this.errMessage.inBranch) {
 			return html`
 				<div>
-					<capitec-alert-banner 
+					<horizon-alert-banner 
 						data-automation-id="search-caller-in-branch-alert"
-						type="unsuccessful-red" 
+						type="error"
 						label="Please choose an option">
-					</capitec-alert-banner>
+					</horizon-alert-banner>
 				</div>
 			`;
 		}
@@ -1120,13 +1118,19 @@ export class SearchCaller extends Component {
 
 	_renderAlertBanner() {
 		if (!isNullorEmpty(this.alertBannerMessage) && !this.errMessage.inBranch) {
-			return html`
-				<capitec-alert-banner 
-						data-automation-id="search-caller-alert-message"
-						type="unsuccessful-red">
-					${this.alertBannerMessage}
-				</capitec-alert-banner>
-			`;
+			return this.alertBannerMessage instanceof Object
+			? html`
+				<horizon-alert-banner 
+					data-automation-id="search-caller-alert-message"
+					type="error">
+						${this.alertBannerMessage}
+				</horizon-alert-banner>`
+			: html`
+				<horizon-alert-banner 
+					data-automation-id="search-caller-alert-message"
+					type="error"
+					label="${this.alertBannerMessage}">
+				</horizon-alert-banner>`;
 		}
 		return html``;
 	}

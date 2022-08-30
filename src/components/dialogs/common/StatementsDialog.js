@@ -469,20 +469,18 @@ export class StatementsDialog extends Component {
 					--theme-container-padding-right: 16px;
 					--theme-container-padding-bottom: 0px;
 				}
-				.main-cb > capitec-alert-banner {
-					--theme-alert-banner-height: 48px;
+				.main-cb > horizon-alert-banner {
 					--theme-alert-banner-info-background-color: #DAF2F4;
-					--theme-alert-banner-info-color: #05829B;
-					--theme-alert-banner-unsuccessful-red-color: #C83B37;
 					--theme-alert-banner-unsuccessful-red-background-color: #F7E2E1;
 					--theme-layout-gap-spacing: 15px;
+					--theme-toast-horizontal-title-margin-right: 4px;
 					width: 928px;
 				}
-				.main-cb > capitec-alert-banner[type="warning"] {
+				.main-cb > horizon-alert-banner[type="warning"] {
 					--theme-alert-banner-warning-font-color: #3A3A3A;
 				}
 				.alert-banner-group {
-					width: 842px;
+					width: 772px;
 				}
 				.alert-banner-group > capitec-label[type="strong"] {
 					--theme-label-default-font-size: 14px;
@@ -674,48 +672,47 @@ export class StatementsDialog extends Component {
 		switch (true) {
 			case this.errorMessage !== ``:
 				return html`
-					<capitec-alert-banner
+					<horizon-alert-banner
 						data-automation-id="statements-dialog-alert-message"
-						type="unsuccessful-red">
-							<p><b>Notify:</b> ${this.errorMessage}</p>
-					</capitec-alert-banner>`;
+						type="error"
+						header="Notify client: "
+						label="${this.errorMessage}">
+					</horizon-alert-banner>`;
 			case this.productSelected.type === ACCOUNT_INTCAT_ENUM[ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN].type:
 				return html`
-					<capitec-alert-banner
+					<horizon-alert-banner
 						data-automation-id="statements-dialog-alert-message"
-						type="warning">
-							<p><b>Notify client:</b>${NOTIFICATION_MESSAGE.FLEXIBLE_SAVINGS_FEE}</p>
-					</capitec-alert-banner>`;
+						type="warning"
+						header="Notify client: "
+						label="${NOTIFICATION_MESSAGE.FLEXIBLE_SAVINGS_FEE}">
+					</horizon-alert-banner>`;
 			case this.productSelected.category === ACCOUNT_TYPES.CREDIT:
 				return html`
-					<capitec-alert-banner
+					<horizon-alert-banner
 						data-automation-id="statements-credit-alert-banner"
-						type="warning">
-						<capitec-group
-							layout="horizontal"
-							gap="none"
-							class="alert-banner-group">
-								<capitec-label type="strong" label="Notify client:"></capitec-label>
-								<capitec-label type="default"
-									label="${NOTIFICATION_MESSAGE.FEE}">
-								</capitec-label>
-								<capitec-spacer></capitec-spacer>
-								<capitec-hyperlink 
-									data-automation-id="statements-credit-view-fees"
-									label="View fees"
-									@click="${() => this.dispatchEvent(new CustomEvent(`view-fees`, {}))}">
-								</capitec-hyperlink>
-						</capitec-group>
-					</capitec-alert-banner>`;
+						type="warning"
+						header="Notify client: "
+						layout="horizontal">
+							<capitec-label type="default"
+								label="${NOTIFICATION_MESSAGE.FEE}">
+							</capitec-label>
+							<capitec-spacer></capitec-spacer>
+							<capitec-hyperlink 
+								data-automation-id="statements-credit-view-fees"
+								label="View fees"
+								@click="${() => this.dispatchEvent(new CustomEvent(`view-fees`, {}))}">
+							</capitec-hyperlink>
+					</horizon-alert-banner>`;
 			case this.notifyClient && isNullorEmpty(this.errorMessage):
 				return html`
-					<capitec-alert-banner
+					<horizon-alert-banner
 						data-automation-id="statements-dialog-notify-message"
 						type="info"
 						@click="${() => this.notifyClient = false}"
-						closable>
-							<p><b>Notify client:</b>${NOTIFICATION_MESSAGE.APP}</p>
-					</capitec-alert-banner>`;
+						closable
+						header="Notify client: "
+						label="${NOTIFICATION_MESSAGE.APP}">
+					</horizon-alert-banner>`;
 			default:
 				return html``;
 		}

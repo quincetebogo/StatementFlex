@@ -25,10 +25,6 @@ export class XdsAttemptFailed extends Component {
 				#notification-status-box > capitec-group {
 					--theme-layout-gap-spacing: 16px;
 				}
-				#notification-status-box > capitec-group > capitec-alert-banner {
-					--theme-alert-banner-height: 48px;
-					--theme-alert-banner-info-border: none;
-				}
 				#notification-status-group > capitec-label {
 					line-height: 24px;
 					margin: 0;
@@ -71,15 +67,17 @@ export class XdsAttemptFailed extends Component {
 		return html`
 		<capitec-content-box id="notification-status-box">
 			<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
-				<capitec-alert-banner type="warning">
-					<b>Notify client: </b>You didn't pass the security questions.
-				</capitec-alert-banner>
+				<horizon-alert-banner
+					type="warning"
+					header="Notify client: "
+					label="You didn't pass the security questions.">
+				</horizon-alert-banner>
 				<capitec-group layout="vertical" 
 					halign="center"
 					valign="top" 
 					gap="clear"
 					id="notification-status-error-group">
-					<img src="/images/warning.svg" class="warning-svg connection-error-svg"/>
+					<img src="/images/common/warning.svg" class="warning-svg connection-error-svg"/>
 					<div class="notification-info">
 						Your first attempt was unsuccessful. <br>
 						${this.canPush 

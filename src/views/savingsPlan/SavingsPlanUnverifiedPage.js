@@ -89,7 +89,7 @@ export class SavingsPlanUnverifiedPage extends Component {
 				.savings-plan-title {
 					--theme-titlebar-shadow: 0px;
 					--theme-titlebar-padding: 12px 16px;
-					--theme-type-primary-background: url(/images/liveBetter/LBB_bg-1092x64.png);
+					--theme-type-primary-background: url(/images/liveBetter/lbb-bg-1092x64.png);
 				}
 				capitec-group > img {
 					height: 182px;

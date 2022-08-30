@@ -1,9 +1,10 @@
 import { ACCOUNT_STATUS, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
-import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
-import { CreditEvents, SETTLEMENT_QUOTE_EVENTS, SETTLE_AND_CLOSE } from 'app/constants/telemetry/events/Credit';
+import { CreditEvents, SETTLEMENT_QUOTE_EVENTS, SETTLE_AND_CLOSE, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/Credit';
+import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { css, html, unsafeCSS } from 'platform/elements';
+import { formatDate, formatStringAsPascalCase, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { CreditService } from 'app/services/CreditService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
@@ -15,7 +16,6 @@ import { ViewBase } from 'app/views/common/ViewBase';
 import { alertBannerMixin } from 'app/views/common/AlertBannerMixin';
 import { creditMixin } from 'app/views/credit/CreditMixin';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { formatDate, formatStringAsPascalCase, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/ServiceCallErrorScreen';
 import 'app/components/credit/CreditCardDetails';
@@ -599,18 +599,17 @@ export class CreditAccount extends ViewBase {
 		};
 	}
 
-	_transactionHistory(creditType, productType, accountDetails) {
+	async _transactionHistory(creditType, productType, accountDetails) {
 
 		this._telemetry.logEvent(CreditEvents.CREDIT_TRANSACTION_HISTORY_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
-			"next-screen": TelemetryScreen.CREDIT_TRANSACTION_HISTORY,
+			"next-screen": `${productType} Transaction History`,
 			"credit-type": creditType,
 			"product-type": productType
 		});
 
-		// TO DO: Uncomment the below line to have STrack incident logging when implemented Trasnaction History
-		// when coming back from transaction history screen, set incident as done "_setIncidentDone()"".
-		// await super.createAndClassifySubsIncident();
+		this.productType = productType;
+	    await super.createAndClassifySubsIncident(null, false);
 
 		this._setAccountHeaderDetails(accountDetails);
 		this._getTransactionHistory();
@@ -636,19 +635,20 @@ export class CreditAccount extends ViewBase {
 			this.logger.log(`error`, `Failed to retrieve credit transaction history from credit service.`, `_getTransactionHistory`, returnValue.correlationId);
 			return;
 		}
-		const formattedResponse = this._getFormattedResponse(returnValue.result.transaction);
+		const formattedResponse = this._getFormattedResponse(returnValue.result.transactions);
 		this.transactionHistory.push(...formattedResponse);
+		this.endCallContext = `TransactionHistory`;
 		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 	}
 
 	_getTransactionHistoryRequest(startDate, endDate, startAtIndex) {
-		if(!isNullorEmpty(startDate) && !isNullorEmpty(endDate)){
+		if (!isNullorEmpty(startDate) && !isNullorEmpty(endDate)) {
 			startDate = formatDate(startDate, ISO_8601_DATE_FORMAT);
 			endDate = formatDate(endDate, ISO_8601_DATE_FORMAT);
 		}
 		
 		return {
-			"accountNumber": this.accountDetails["Account number"],
+			"accountNumber": this.accountDetails[`Account number`],
 			"startDate": startDate || TRANSACTION_HISTORY.START_DATE,
 			"endDate": endDate || TRANSACTION_HISTORY.END_DATE,
 			"startAtIndex": startAtIndex || TRANSACTION_HISTORY.START_AT_INDEX,
@@ -672,15 +672,17 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _exitTransactionHistory() {
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		await super.classifyIncident(() => this._toggleBusyFlag());
+		this._setIncidentDone();
 	}
 
 	async _unloadTransactionHistory() {
+		this.endCallContext = `LandingPage`;
 		this.transactionHistory = [];
-	}
 
-	_errorHandler(exception) {
-		console.error('Error credit transaction history');
+		await super.classifyIncident(() => this._toggleBusyFlag());
+
+		this._setIncidentDone();
 	}
 
 	_getStatements(creditType, productType, selectedAccountDetails, sendAnother) {
@@ -1105,7 +1107,7 @@ export class CreditAccount extends ViewBase {
 			? html`
 				<horizon-service-call-error-screen
 					bannerDetail="Credit is currently unavailable" 
-					image="/images/service-error.svg"
+					image="/images/common/service-error.svg"
 					header="Credit currently unavailable"
 					right="Find a Branch"
 					@right-click=${() => this._findBranchClick()}>
@@ -1352,12 +1354,11 @@ export class CreditAccount extends ViewBase {
 				.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
 				.getTransactionHistory="${(startDate, endDate, startAtIndex) => this._getTransactionHistory(startDate, endDate, startAtIndex)}"
 				.disposeData="${() => this.transactionHistory = []}"
+				.product="${this.productType}"
 				
 				@error-handler = "${() => this._errorHandler()}"
-					@back="${() => this._exitTransactionHistory()}"
-					@unloading="${() => this._unloadTransactionHistory()}"
-				
-			>
+				@back="${() => this._exitTransactionHistory()}"
+				@unloading="${() => this._unloadTransactionHistory()}">
 
 			</horizon-transaction-history>
 
@@ -1383,17 +1384,17 @@ export class CreditAccount extends ViewBase {
 			</capitec-table-column>
 			<capitec-table-column
 				label="Amount"
-				field="amount"
+				field="formatedAmount"
 				type="string"
 				size="100px;">
 			</capitec-table-column>
 			<capitec-table-column
 				label="Available Balance"
-				field="balance"
+				field="formatedBalance"
 				type="string"
 				size="140px;">
 			</capitec-table-column>
-			`
+			`;
 	}
 
 	_renderTransactionDateTime(value) {
@@ -1404,6 +1405,8 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderTransactionDetails(item) {
+		const telemetryEvents = TRANSACTION_ENQUIRY_EVENTS(this.productType);
+		this._telemetry.logEvent(telemetryEvents.TRANSACTION_HISTORY_INFO, {});
 
 		return html`
 			<capitec-label
@@ -1416,13 +1419,13 @@ export class CreditAccount extends ViewBase {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Transaction type"
-					value = "${item.transactionType ? item.transactionType : `-`}"
+					value = "${item.transactionType || `-`}"
 					data-automation-id="credit-transaction-history-item-type">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Transfer account"
-					value = "${item.transferAccount ? item.transferAccount : `-`}"
+					value = "${item.transferAccount || `-`}"
 					data-automation-id="credit-transaction-history-item-transfer-account">
 				</horizon-label>
 				<horizon-label
@@ -1443,25 +1446,25 @@ export class CreditAccount extends ViewBase {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Transaction code"
-					value = "${item.transactionCode ? item.transactionCode : `-`}"
+					value = "${item.transactionCode || `-`}"
 					data-automation-id="credit-transaction-history-item-code">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Card number"
-					value = "${item.cardNumber ? item.cardNumber : `-`}"
+					value = "${item.cardNumber || `-`}"
 					data-automation-id="credit-transaction-history-item-card-number">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Card authentication type"
-					value = "${item.cardAuthType ? item.cardAuthType : `-`}"
+					value = "${item.cardAuthType || `-`}"
 					data-automation-id="credit-transaction-history-item-card-auth-type">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Journal number"
-					value = "${item.journalNumber ? item.journalNumber : `-`}"
+					value = "${item.journalNumber || `-`}"
 					data-automation-id="credit-transaction-history-item-journal-number">
 				</horizon-label>
 			</capitec-group>
@@ -1476,7 +1479,7 @@ export class CreditAccount extends ViewBase {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="External terminal ID"
-					value = "${item.externalTerminalId ? item.externalTerminalId : `-`}"
+					value = "${item.externalTerminalId || `-`}"
 					data-automation-id="credit-transaction-history-item-terminalID">
 				</horizon-label>
 			</capitec-group>
@@ -1485,13 +1488,13 @@ export class CreditAccount extends ViewBase {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Description"
-					value = "${item.statementDescription ? item.statementDescription : `-`}"
+					value = "${item.statementDescription || `-`}"
 					data-automation-id="credit-transaction-history-description">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Long Description"
-					value = "${item.statementDescription ? item.statementDescription : `-`}"
+					value = "${item.statementDescription || `-`}"
 					data-automation-id="credit-transaction-history-description">
 				</horizon-label>
 			</capitec-group>

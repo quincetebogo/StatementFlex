@@ -150,7 +150,7 @@ export class SettlementQuoteFailure extends ViewBase {
 		return html`
 			<horizon-error-screen
 				data-automation-id="settlement-quote-failure-screen"
-				image="/images/statements/senddocuments.svg"
+				image="/images/statements/send-documents.svg"
 				header="Settlement quote${this.failedAccounts.length > 1 ? `s` : ``} not sent" 
 				left="Done"
 				right="Try Again"

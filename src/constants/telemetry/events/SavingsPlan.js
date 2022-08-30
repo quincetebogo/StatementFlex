@@ -69,3 +69,14 @@ SAVINGS_PLAN_TAX_CERTIFICATE_CLICKED: `call.fulfill-need.savings-plan-tax-certif
 	STATEMENTS_FAILURE_DONE: `call.fulfill-need.savings-plan.statements.failure.done`,
 	STATEMENTS_FAILURE_ASSIGN: `call.fulfill-need.savings-plan.statements.failure.try-again`
 });
+
+export const TRANSACTION_ENQUIRY_EVENTS = Object.freeze({
+	TRANSACTION_HISTORY: `call.fulfill-need.savings-plan.transaction-history`,
+	TRANSACTION_HISTORY_FILTER: `call.fulfill-need.savings-plan.transaction-history.filter`,
+	TRANSACTION_HISTORY_CLEAR_ALL: `call.fulfill-need.savings-plan.transaction-history.filter.clear-all`,
+	TRANSACTION_HISTORY_CLEAR_FILTER: `call.fulfill-need.savings-plan.transaction-history.filter.clear`,
+	TRANSACTION_HISTORY_INFO: `call.fulfill-need.savings-plan.transaction-history.view-info`,
+	TRANSACTION_HISTORY_BACK: `call.fulfill-need.savings-plan.transaction-history.back`,
+	TRANSACTION_HISTORY_LOAD_MORE: `call.fulfill-need.savings-plan.transaction-history.load-more`,
+	TRANSACTION_HISTORY_SCROLL_TOP: `call.fulfill-need.savings-plan.transaction-history.scroll-to-top`
+ });

@@ -6,7 +6,8 @@
 		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-int.int.capinet",
 		"clientProfileServiceUrl": "https://csc-clientprofile.platform-int.int.capinet",
 		"debiCheckServiceUrl": "https://csc-debicheck.platform-int.int.capinet",
-		"savingsChannelServiceUrl": "https://csc-cs-save.platform-int.int.capinet"
+		"cardServiceUrl": "https://horizon-cs-card-v1.platform-int.int.capinet",
+		"savingsPlanChannelServiceUrl": "https://csc-cs-save.platform-int.int.capinet"
 	},
 	"signalRUrl": "https://horizon-cs-ita.platform-int.int.capinet",
 	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform-int.int.capinet",

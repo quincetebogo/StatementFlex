@@ -89,7 +89,7 @@ export class LiveBetterUnverifiedPage extends Component {
 				capitec-title-bar {
 					--theme-titlebar-shadow: 0px;
 					--theme-titlebar-padding: 12px 16px;
-					--theme-type-primary-background: url(/images/liveBetter/LBB_bg-1092x64.png);
+					--theme-type-primary-background: url(/images/liveBetter/lbb-bg-1092x64.png);
 				}
 				capitec-group > img {
 					height: 182px;
@@ -173,7 +173,7 @@ export class LiveBetterUnverifiedPage extends Component {
 					<capitec-title-bar
 						data-automation-id="live-better-unverified-title"
 						type="primary">
-							<img src='/images/liveBetter/liveBetter-white.svg'/>
+							<img src='/images/liveBetter/live-better-white.svg'/>
 							<capitec-label
 								label="Live Better Savings Account"
 								type="title">

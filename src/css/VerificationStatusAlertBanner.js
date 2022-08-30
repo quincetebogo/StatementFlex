@@ -9,9 +9,7 @@ import { css } from 'platform/elements';
  */
 export const ALERTBANNER_CSS = css`
 	.verificatoin-status {
-		--theme-alert-banner-height: 48px;
-		--theme-alert-banner-icon-margin-left: 15px;
-		--theme-alert-banner-icon-margin-right: 7px;
+		--theme-toast-icon-margin: 0px 7px 0px 15px;
 		--theme-alert-banner-warning-border: none;
 		--theme-alert-banner-unsuccessful-red-border: none;
 		width: 1032px;

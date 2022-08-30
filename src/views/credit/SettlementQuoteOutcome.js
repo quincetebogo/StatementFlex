@@ -270,7 +270,7 @@ export class SettlementQuoteOutcome extends ViewBase {
 
 	_renderContent() {
 		return html`
-			<img src="/images/statements/senddocuments.svg"/>
+			<img src="/images/statements/send-documents.svg"/>
 
 			<capitec-label
 				class="header"
