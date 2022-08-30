@@ -1,8 +1,8 @@
 import { Component, css, html } from 'platform/elements';
-import { DateTime } from 'luxon';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { DateTime } from 'luxon';
 import { SendCashLandingMocks } from 'app/mocks/SendCashMocks';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
@@ -20,7 +20,7 @@ const FILTER_BY = {
 	ALL: `ALL`,
 	TEXT: `TEXT`,
 	DATE: `DATE`,
-	STATUS: `STATUS`,
+	STATUS: `STATUS`
 };
 
 const RENDER_CHIPS = {
@@ -135,13 +135,13 @@ export class SendCashLanding extends Component {
 		];
 	}
 
-	async _dateChanged(e) {
+	_dateChanged(e) {
 		let fromDate = DateTime.fromISO(e.detail.new.startDate);
 		let toDate = DateTime.fromISO(e.detail.new.endDate);
 		const currentDateTime = DateTime.local();
 
 		if (toDate.diff(fromDate, [`days`]).days > 30) {
-			toDate = fromDate.plus({days:30});
+			toDate = fromDate.plus({ days: 30 });
 			if (toDate > currentDateTime) {
 				this.startDate = fromDate;
 				this.endDate = currentDateTime;
@@ -153,15 +153,15 @@ export class SendCashLanding extends Component {
 					calendar._placeholderEndDate = toDate;
 				}
 			}
-		} else if (e.detail.new.endDate === null && this.endDate === ``) {
+		} else if (e.detail.new.endDate === null || this.endDate === ``) {
 			this.startDate = fromDate;
-			toDate = fromDate.plus({days:30});
-			if (toDate.diff(currentDateTime,[`days`]).days > 0) {
+			toDate = fromDate.plus({ days: 30 });
+			if (toDate.diff(currentDateTime, [`days`]).days > 0) {
 				this.endDate = currentDateTime;
 			} else {
 				this.endDate = toDate;
 			}
-		} else if (e.detail.new.startDate === null && this.startDate === ``) {
+		} else if (e.detail.new.startDate === null || this.startDate === ``) {
 			this.endDate = toDate;
 			fromDate = toDate.minus({ days: 90 });
 			this.startDate = fromDate;
@@ -212,7 +212,6 @@ export class SendCashLanding extends Component {
 				return [];
 			});
 			this.filteredSendCashDetails = Array.from(new Set([...searchTextResult.flat()]));
-			console.log(this.filteredSendCashDetails);
 		}
 
 		// Filtering by date.
@@ -224,7 +223,6 @@ export class SendCashLanding extends Component {
 				const date = new Date(Date.parse(item.dateCreated)); 
 				return date >= startDate && date <= endDate; 
 			});
-			console.log(this.filteredSendCashDetails);
 		}
 
 		// Filtering by status.
@@ -274,7 +272,7 @@ export class SendCashLanding extends Component {
 		searchTextField.clearVisible = false;
 	}
 
-	async _reset() {
+	_reset() {
 		if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
 			this.startDate = ``;
 			this.endDate = ``;
@@ -288,7 +286,7 @@ export class SendCashLanding extends Component {
 		}
 	}
 
-	async _closeChip(type) {
+	_closeChip(type) {
 		this._clearFilter(type);
 		this._refineSearch();
 	}
@@ -466,7 +464,7 @@ export class SendCashLanding extends Component {
 					--theme-button-padding-left: 24px;
 				}
 			`
-		]
+		];
 	}
 
 	_mobileTemplate() {
