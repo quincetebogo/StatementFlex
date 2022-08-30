@@ -293,7 +293,7 @@ export class SearchCaller extends Component {
 		this._clearErrors(e);
 	}
 
-	async _getConsultant(e) {
+	_getConsultant(e) {
 		this._clearErrors(e);
 
 		const cpNumber = e.detail.new;
