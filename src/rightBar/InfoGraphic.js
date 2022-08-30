@@ -20,7 +20,7 @@ export class InfoGraphic extends Component {
 
 	render() {
 		return html`
-			<img class="landingpage-marketing-img" src="/images/landingPageImages/banner.png" alt="banner" />
+			<img class="landingpage-marketing-img" src="/images/landingPageImages/Banner.png" alt="banner" />
 		`;
 	}
 
