@@ -1,4 +1,4 @@
-import { DEFAULT_AUTO_RETRIES, ServiceBase } from 'app/services/ServiceBase';
+import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
 import { SecurityContext } from 'platform/SecurityContext';
 
 const STRACK_URGENCY = `Medium`;
@@ -11,30 +11,26 @@ const STARCK_SOURCE = `RealConnect`;
  *
  * @export
  * @class IncidentManagementService
- * @extends {ServiceBase}
+ * @extends {ChannelServiceBase}
  */
-export class IncidentManagementService extends ServiceBase {
+export class IncidentManagementService extends ChannelServiceBase {
 	// --------------
 	// INITIALISATION
 	// --------------
-	constructor(toggleBusyFunc, errorHandler = null) {
-		super(toggleBusyFunc, errorHandler);
+	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null) {
+		super(
+			toggleBusyFunc, 
+			defaultErrorHandlerFunc, 
+			`serviceURIs.channelServiceUrl`, 
+			`HorizonChannelService`, 
+			`v1`,
+			null
+		);
 	}
 
 	// --------------
 	// PUBLIC METHODS
 	// --------------
-
-	/**
-	 * @callback errorHandlerCallback
-	 * @param {object} exception - The exception from the failing service call
-	 */
-
-	 /**
-	  * @typedef {Object} ReturnValue
-	  * @property {boolean} succeeded - Indicates if the service call succeeded
-	  * @property {object} result - The result of the service call if succeeded is true
-	  */
 
 	/**
 	 * Creates a new incident. 
@@ -74,7 +70,20 @@ export class IncidentManagementService extends ServiceBase {
 			"primaryNeedIncidentRecId": incidentData.primaryIncidentRecID || ``
 		};
 
-		return this.wrapCall(this.channelService.createIncident(createIncidentRequest), `createIncident`, errorHandler, autoRetries);
+		const url = `/clientcare-incident-${this._version}/create-incident`;
+	
+		return this.post(
+			url, 
+			createIncidentRequest, 
+			this.setToken(), 
+			`createIncident`, 
+			null, 
+			null, 
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
 
 	/**
@@ -82,13 +91,29 @@ export class IncidentManagementService extends ServiceBase {
 	 *
 	 * @param {String} cifNumber The client's CIF number
 	 * @param {String} incidentRecId STrack incident record ID against which the client details will get recorded
-	 * @param {initialiseCallback} [errorHandler=null] An optional error handler 
+	 * @param {errorHandlerCallback} [errorHandler=null] An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} A promise for an object containing a success flag and the result of the channel service call
 	 * @memberof IncidentManagementService
 	 */
 	 updateIncidentClientDetails(cifNumber, incidentRecId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.updateIncidentClientDetails(cifNumber, incidentRecId), `updateIncidentClientDetails`, errorHandler, autoRetries);
+		const request = {
+			incidentRecId: incidentRecId,
+			cif: cifNumber
+		};
+	
+		return this.post(
+			`/clientcare-incident-${this._version}/UpdateIncidentClientDetails`, 
+			request, 
+			this.setToken(), 
+			`updateIncidentClientDetails`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
 
 	/**
@@ -96,13 +121,26 @@ export class IncidentManagementService extends ServiceBase {
 	 *
 	 * @param {String} incidentRecId STrack incident record ID against which the client details will get recorded
 	 * @param {String} nonClientDetails Non client details
-	 * @param {initialiseCallback} [errorHandler=null] An optional error handler 
+	 * @param {errorHandlerCallback} [errorHandler=null] An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} A promise for an object containing a success flag and the result of the channel service call
 	 * @memberof IncidentManagementService
 	 */
 	 updateIncidentNonClientDetails(incidentRecId, nonClientDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.updateIncidentNonClientDetails(incidentRecId, nonClientDetails), `updateIncidentNonClientDetails`, errorHandler, autoRetries);
+		nonClientDetails.incidentRecId = incidentRecId;
+	
+		return this.post(
+			`/clientcare-incident-${this._version}/addcaller/nonclient`, 
+			nonClientDetails, 
+			this.setToken(), 
+			`updateIncidentNonClientDetails`, 
+			null, 
+			null, 
+			900,
+			null,
+			errorHandler, 
+			autoRetries
+		);
 	}
 
 	/**
@@ -115,7 +153,24 @@ export class IncidentManagementService extends ServiceBase {
 	 * @memberof IncidentManagementService
 	 */
 	 otherNeedCategories(orgUnit, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.otherNeedCategories(orgUnit), `otherNeedCategories`, errorHandler, autoRetries);
+		const request = {
+			"orgUnit": encodeURIComponent(orgUnit)
+		};
+
+		const url = `/clientcare-incident-${this._version}/categories`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(), 
+			`otherNeedCategories`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
 
 	/**
@@ -129,7 +184,25 @@ export class IncidentManagementService extends ServiceBase {
 	 * @memberof IncidentManagementService
 	 */
 	 otherNeedSpecificNeed(orgUnit, category, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-	return this.wrapCall(this.channelService.otherNeedSpecificNeed(orgUnit, category), `otherNeedSpecificNeed`, errorHandler, autoRetries);
+		const request = {
+			"orgUnit": encodeURIComponent(orgUnit),
+			"categoryName": encodeURIComponent(category)
+		};
+
+		const url = `/clientcare-incident-${this._version}/need`;
+		
+		return this.post(
+			url,
+			request,
+			this.setToken(), 
+			`otherNeedSpecificNeed`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
 
 	/**
@@ -144,8 +217,27 @@ export class IncidentManagementService extends ServiceBase {
 	 * @memberof IncidentManagementService
 	 */
 	 otherNeedIssueType(orgUnit, category, need, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.otherNeedIssueType(orgUnit, category, need), `otherNeedIssueType`, errorHandler, autoRetries);
-		}
+		const request = {
+			"orgUnit": encodeURIComponent(orgUnit),
+			"categoryName": encodeURIComponent(category),
+			"need": encodeURIComponent(need)
+		};
+
+		const url = `/clientcare-incident-${this._version}/issue`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(), 
+			`otherNeedIssueType`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 
 	/**
 	 * Closing current incident.
@@ -157,7 +249,24 @@ export class IncidentManagementService extends ServiceBase {
 	 * @memberof IncidentManagementService
 	 */
 	 closeIncident(closeIncidentRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.closeIncident(closeIncidentRequest), `closeIncident`, errorHandler, autoRetries);
+		const url = `/clientcare-incident-${this._version}/close-incident?` +
+			`IncidentRecId=${closeIncidentRequest.incidentRecId}&` +
+			`Reason=${closeIncidentRequest.reason}&` +
+			`Resolution=${closeIncidentRequest.resolution}&` +
+			`CauseCode=${closeIncidentRequest.causeCode}`;
+	
+		return this.put(
+			url, 
+			null, 
+			this.setToken(), 
+			`closeIncident`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
 
 	/**
@@ -170,7 +279,20 @@ export class IncidentManagementService extends ServiceBase {
 	 * @memberof IncidentManagementService
 	 */
 	classifyIncident(classifyIncidentRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.classifyIncident(classifyIncidentRequest), `classifyIncident`, errorHandler, autoRetries);
+		const url = `/clientcare-incident-${this._version}/classification`;
+	
+		return this.post(
+			url, 
+			classifyIncidentRequest, 
+			this.setToken(), 
+			`classifyIncident`, 
+			null, 
+			null, 
+			900,
+			null,
+			errorHandler, 
+			autoRetries
+		);
 	}
 
 	/**
@@ -183,6 +305,82 @@ export class IncidentManagementService extends ServiceBase {
 	 * @memberof IncidentManagementService
 	 */
 	 incidentStatus(incidentRecId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.incidentStatus(incidentRecId), `incidentStatus`, errorHandler, autoRetries);
+		const url = `/clientcare-incident-${this._version}/incident`;
+
+		const request = {
+			"incidentRecId": incidentRecId
+		};
+	
+		return this.post(
+			url,
+			request,
+			this.setToken(), 
+			`incidentStatus`,
+			null,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	* Adding branch details for consultant phoning on behalf of client
+    * @param {object} branchDetails IncidentRecID & BranchCode to classify branch
+	* @param {errorHandlerCallback} [errorHandler=null] and optional error handler
+	* @param {Number} [autoRetries] The amount of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	* @memberof IncidentManagementService
+	*/
+	UpdateIncidentBranchDetailsRequest(incidentRecID, branchCode, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const branchDetails = {
+			incidentRecId: incidentRecID,
+			branchCode: branchCode
+		};
+
+		const url = `/clientcare-incident-${this._version}/UpdateIncidentBranchDetails`;
+
+		return this.post(
+			url, 
+			branchDetails, 
+			this.setToken(), 
+			`UpdateIncidentBranchDetailsRequest`,
+			null,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Retrieving consultant information
+	 * @param {String} cpNumber The CP number of the consultant phoning on behalf of a client
+	 * @param {errorHandlerCallback} [errorHandler=null] and optional error handler
+	 * @param {Number} [autoRetries] The amount of times the call should be retried if it fails
+	 * @returns { Consultant<ReturnValue> } An object of the consultant information
+	 * @memberof IncidentManagementService
+	 */
+	GetConsultantInformation(cpNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const request = {
+			"userID": cpNumber
+		};
+
+		const url = `/clientcare-incident-${this._version}/user-details`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`GetConsultantInformation`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
 }

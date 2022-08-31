@@ -5,7 +5,7 @@ import 'app/components/common/OptionButton';
 import 'app/components/common/SuccessScreen';
 
 /**
- * Display an confirmation/success screen indicating the selected debicheck mandate have been successfully declined.
+ * Display an confirmation/success screen indicating the selected debicheck mandate have been successfully declined/approved.
  *
  * @export
  * @class DebiCheckSuccess
@@ -19,21 +19,25 @@ export class DebiCheckSuccess extends ViewBase {
 
 	constructor() {
 		super();
-
+		this.isApproved = ``;
 		this.mandateId = ``;
+		this.endCallContext = `QuickTransactionSuccess`;
 	}
 
 
 	// ----------
 	// PROPERTIES
 	// ----------
-	
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
 	connectedCallback() {
 		super.connectedCallback();
+		const screenDetails = this.horizonStore.getScreenDetails();
+		this.isApproved = screenDetails.isApproved;
+		this.mandateId = screenDetails.mandateId;
 	}
 
 	disconnectedCallback() {
@@ -88,24 +92,41 @@ export class DebiCheckSuccess extends ViewBase {
 	}
 
 	_renderSuccessScreen() {
-		return html`
+		if (this.isApproved) {
+			return html`
 			<horizon-success-screen 
 				header="DebiCheck mandate approved"
-				image="/images/transactions/debiCheckMandate.svg"
-				secondaryImage="/images/transactions/debiCheckLogo.svg"
-				left="Done"
-				right="DebiCheck Mandates"
+				image="/images/debi-check/debi-check-mandate.svg"
+				secondaryImage="/images/debi-check/debi-check-logo.svg"
+				left="DebiCheck Mandates"
+				right="Done"
+				toast="DebiCheck mandate approved."
+				@left-click=${() => this._debiCheckMandatesClick()}
+				@right-click=${() => this._doneClick()}>
+					<section 
+						id="id-error-msg" 
+						slot="detail">DebiCheck mandate for <b>${this.mandateId}</b> has been approved.
+					</section>
+			</horizon-success-screen>
+		`;
+		};
+
+		return html`
+			<horizon-success-screen 
+				header="DebiCheck mandate declined"
+				image="/images/debi-check/debi-check-mandate.svg"
+				secondaryImage="/images/debi-check/debi-check-logo.svg"
+				left="DebiCheck Mandates"
+				right="Done"
 				toast="DebiCheck mandate declined."
-				@left-click=${() => this._doneClick()}
-				@right-click=${() => this._debiCheckMandatesClick()}>
+				@left-click=${() => this._debiCheckMandatesClick()}
+				@right-click=${() => this._doneClick()}>
 					<section 
 						id="id-error-msg" 
 						slot="detail">DebiCheck mandate for <b>${this.mandateId}</b> has been declined.
 					</section>
-			</horizon-success-screen>
-		`;
+			</horizon-success-screen>`;
 	}
-
 }
 
 customElements.define(`horizon-debi-check-success`, DebiCheckSuccess);

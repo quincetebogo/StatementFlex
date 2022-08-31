@@ -1,8 +1,16 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://horizoncs-v1.platform.int.capinet"
+		"channelServiceUrl": "https://horizoncs-v1.platform.int.capinet",
+		"clientInsightsUrl": "https://cec-insights.platform.int.capinet",
+		"accessChannelServiceUrl": "https://cec-ac.platform.int.capinet",
+		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform.int.capinet",
+		"clientProfileServiceUrl": "https://csc-clientprofile.platform.int.capinet",
+		"debiCheckServiceUrl": "https://csc-debicheck.platform.int.capinet",
+		"cardServiceUrl": "https://horizon-cs-card-v1.platform.int.capinet",
+		"savingsPlanChannelServiceUrl": "https://csc-cs-save.platform-int.capinet"
 	},
-	"signalRUrl": "https://horizoncs-ita-v1.platform.int.capinet",
+	"signalRUrl": "https://horizon-cs-ita.platform.int.capinet",
+	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform.int.capinet",
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
@@ -10,43 +18,57 @@
 		"sbl": "http://standardbancslinkv3.int.capinet:8080/",
 		"cds": "https://clientdocsearch.int.capinet:51443/",
 		"cnet": "http://c-net.int.capinet:51001/Pages/default.aspx",
-		"strack": "http://strack8-clientaccess.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
-		"global-one": "https://www.capitecbank.co.za/global-one/"
+		"strack": "https://strack.capitecbank.co.za/HEAT?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
+		"global-one": "https://www.capitecbank.co.za/global-one/",
+		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",
+		"live-better": "https://www.capitecbank.co.za/live-better/live-better-savings-account",	
+		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js",
+		"partner-benefits": "https://www.capitecbank.co.za/bank-better-live-better/articles/benefits/",
+		"fees": "https://www.capitecbank.co.za/global-one/transact/fees/"		
 	},
-	"VDN":"7253",
+	"AuthMethod": "KBA",
+	"AuthAttempts": {
+		"XDS": 2,
+		"KBA": 1
+	},
 	"LogRequestResponseModels" : false,
+	"VDN":"7250",
 	"ivrMapping": [
 		{
 			"option": "7251",
 			"primaryNeed": "StopCard"
 		},
 		{
-			"option": "7253",
+			"option": "7250",
 			"primaryNeed": "Transact"
-		},
-		{
-			"option": "8251",
-			"primaryNeed": "ProductEnquiry"
-		},
-		{
-			"option": "8252",
-			"primaryNeed": "ProductEnquiry"
 		}
 	],
-	"ivrActionMapping": {
-		"debi-check": "DEBI_CHECK",
-		"stop-card": "STOP_CARD",
-		"update-card-limits": "UPDATE_CARD_LIMITS",
-		"tap-to-pay": "TAP_TO_PAY",
-		"statements": "STATEMENTS",
-		"proof-of-account": "PROOF_OF_ACCOUNT",
-		"tax-certificate": "TAX_CERTIFICATE",
-		"transaction-history": "TRANSACTION_HISTORY",
-		"savings-product-info": "PRODUCT_ENQUIRY_SAVINGS",
-		"insure-product-info": "PRODUCT_ENQUIRY_INSURE",
-		"credit-product-info": "PRODUCT_ENQUIRY_CREDIT"
+	"lbb-insight-details": {
+		"103": {
+			"102": {
+				"header": "Live Better alert!",
+				"image": "/images/insights/lbb-alert.png",
+				"message": "You're missing out on cash backs, automatic savings and higher interest. Do you want to activate your Live Better savings account on the app now?"
+			},
+			"103": {
+				"header": "Live Better savings",
+				"image": "/images/insights/lbb-savings.png",
+				"message": "Grow your Live Better savings! Just switch on the automatic savings tools on our app.\nCan I help you switch it on?"
+			},
+			"104": {
+				"header": "Switch on Round-up",
+				"image": "/images/insights/lbb-roundup.png",
+				"message": "You're missing out on automatic savings\nevery time you spend! Switch on Round-up and watch your Live Better savings grow\nevery time you spend."
+			},
+			"105": {
+				"header": "Switch on Interest Sweep",
+				"image": "/images/insights/lbb-interest-sweep.png",
+				"message": "Did you know you can earn more interest on your interest with Live Better savings?\nCan I help you switch on Interest Sweep on the app now?"
+			}
+		}
 	},
 	"mock": {
 		"enabled": false
-	}
+	},
+	"searchClientOptionEnabled": false
 }

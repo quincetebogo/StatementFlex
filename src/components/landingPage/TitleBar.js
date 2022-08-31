@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { RoleManager } from 'app/shell/RoleManager';
 
 /**
  * The Title Bar is displayed at the top of the initial Horizon Landing Page (Call Waiting Page)
@@ -16,7 +17,11 @@ export class TitleBar extends Component {
 
 		this.fullname = ``;
 		this.employeeId = ``;
+		this.searchClientEnabled = false;
+
 		this.eventAggregator = EventAggregator.getInstance();
+		this.roleManager = RoleManager.getInstance();
+
 		this.titleBarSub = this.eventAggregator.subscribe(`horizon-update-title-bar`, (event) => this._onUpdateTitle(event));
 	}
 
@@ -34,6 +39,12 @@ export class TitleBar extends Component {
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
+
+	connectedCallback() {
+		super.connectedCallback();
+
+		this._initialise();
+	}
 
 	disconnectedCallback() {
 		this.titleBarSub.dispose();
@@ -63,6 +74,9 @@ export class TitleBar extends Component {
 	// PUBLIC METHODS
 	// --------------
 
+	async _initialise() {
+		this.searchClientEnabled = await this.roleManager.isSearchClientEnabled();
+	}
 
 	// ---------------
 	// PRIVATE METHODS
@@ -72,28 +86,28 @@ export class TitleBar extends Component {
 	// RENDERING
 	// ---------
 	static get styles() {
-
 		return [
 			super.styles,
 			css`
-					.title-bar{
-						width: 100%;
-						height: 72px;
-						background-color: #ffffff;
-						box-shadow: 0 1px 3px 0 rgba(0,0,0,0.2);
-						grid-template-columns: 1fr;
-						grid-row-gap: 8px;
-					}
-
-					.branding-logo-white{
-						height: 32px;
-						width: 193px;
-					}
-
-					.logged-in-user{
-						color: #003652;
-					}
-				}`
+				.title-bar{
+					width: 100%;
+					height: 72px;
+					background-color: #ffffff;
+					box-shadow: 0 1px 3px 0 rgba(0,0,0,0.2);
+					grid-template-columns: 1fr;
+					grid-row-gap: 8px;
+				}
+				.branding-logo-white{
+					height: 32px;
+					width: 172px;
+				}
+				.logged-in-user{
+					color: #003652;
+				}
+				capitec-icon[icon="system/search"] {
+					cursor: pointer;
+				}
+			`
 		];
 	}
 
@@ -108,9 +122,10 @@ export class TitleBar extends Component {
 				<capitec-group layout="horizontal" gap="line" halign="right" valign="center">
 				<capitec-icon 
 					size="meadium" 
-					icon="system/search" 
+					icon="system/search"
 					@click="${() => this._searchCaller()}"
-					data-automation-id="title-bar-search">
+					data-automation-id="title-bar-search"
+					?hidden="${!this.searchClientEnabled}">
 				</capitec-icon>
 				<div class="logged-in-user">
 					<capitec-label 

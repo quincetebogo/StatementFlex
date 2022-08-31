@@ -7,6 +7,12 @@
 			"client": "Horizon"
 		},
 		"csp": {
+			"script-src": [
+				"https://casper-widget.platform-dev.int.capinet",
+				"https://casper-widget.platform-int.int.capinet",
+				"https://casper-widget.platform-qa.int.capinet",
+				"https://casper-widget.platform.int.capinet"
+			],
 			"connect-src": [
 				"http://localhost:8889"
 			],
@@ -20,5 +26,13 @@
 			]
 		}
 	},
-	"app": "standalone"
+	"app": "standalone",
+	"design": {
+		"breakpoints": {
+			"lg": "1920",
+			"md": "1920",
+			"xs": "1920",
+			"sm": "1920"
+		}
+	}
 }

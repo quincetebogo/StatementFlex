@@ -4,8 +4,8 @@ import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 import 'platform/components/inputs/Select';
 import 'platform/components/popups/AlertBanner';
@@ -271,7 +271,8 @@ export class AssignStopCard extends Component {
 			<capitec-modal 
 				type="free" 
 				header="Assign Stop Card" 
-				header-align="left">
+				header-align="left"
+				data-automation-id="assign-stop-card-dialog">
 					<div slot="body">
 						${this.renderBody()}
 					</div>
@@ -291,6 +292,7 @@ export class AssignStopCard extends Component {
 			
 			<capitec-select 
 				id="select-team"
+				data-automation-id="assign-stop-card-select-team"
 				class="team-options"
   				label="Choose a team (Required)"
 				.items="${this.teamItems}" 
@@ -312,36 +314,48 @@ export class AssignStopCard extends Component {
 
 		// if even number begining of line
 		if (index / 2 === 0 && index + 1 < cards.length) {
-			return html`<p class="failed-cards">${cards[index].cardDisplayName} <span class="bold-text">${cards[index].maskedCardNumber}</span> and ${cards[index + 1].cardDisplayName} <span class="bold-text">${cards[index + 1].maskedCardNumber}</span></p>`;
+			return html`<p 
+							class="failed-cards"
+							data-automation-id="assign-stop-card-failed-cards">
+								${cards[index].cardDisplayName} <span class="bold-text">${cards[index].maskedCardNumber}</span> and ${cards[index + 1].cardDisplayName} <span class="bold-text">${cards[index + 1].maskedCardNumber}</span>
+						</p>`;
 		} else if (index / 2 === 0 && index + 1 >= cards.length) {
 			// If odd number, second on line
-			return html`<p class="failed-cards">${cards[index].cardDisplayName} <span class="bold-text">${cards[index].maskedCardNumber}</span></p>`;
+			return html`<p 
+							class="failed-cards"
+							data-automation-id="assign-stop-card-failed-cards">
+								${cards[index].cardDisplayName} <span class="bold-text">${cards[index].maskedCardNumber}</span>
+						</p>`;
 		}
 	}
 
 	renderErrorAlertBanner() {
 		if (this.errorAlert) {
 			return html`
-				<capitec-alert-banner class="alert-banner" type = "unsuccessful-red"
-					label = "Select an team to Assign"
+				<horizon-alert-banner
+					class="alert-banner"
+					type="error"
+					data-automation-id="assign-stop-card-error-banner"
+					label="Select an team to Assign"
 					closable
-					style = "width: 100%;">
-				</capitec-alert-banner>
+					style="width: 100%;">
+				</horizon-alert-banner>
 			`;
 		}
 		
-			return html``;
-		
+		return html``;
 	}
 
 	renderFooter() {
 		return html`
 			<capitec-button class="cancel-button"
+				data-automation-id="assign-stop-card-error-cancel"
 				type = "clear"
 				label = "Cancel"
 				@click="${() => this._onCancelClick()}" >
 			</capitec-button >
 			<capitec-button class="assign-button"
+				data-automation-id="assign-stop-card-error-assign"
 				type="primary"
 				label="Assign"
 				@click="${(e) => this._onAssignClick(e)}" >
@@ -350,13 +364,9 @@ export class AssignStopCard extends Component {
 	}
 
 	renderLoadingIndicator() {
-		if (!this.isBusy) {
-			return html``;
-		}
-
-		return html`
-            <capitec-loading-indicator></capitec-loading-indicator>
-        `;
+		return this.isBusy
+			? html`<capitec-loading-indicator data-automation-id="assing-stop-card-loading-indicator"></capitec-loading-indicator>`
+			: html``;
 	}
 }
 

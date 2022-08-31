@@ -2,6 +2,7 @@ import { Component, css, html, live } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/EndCallSession';
+import 'app/components/common/UpdateIncidentDialog';
 
 /**
  * Search Other Need component
@@ -9,7 +10,14 @@ import 'app/components/dialogs/common/EndCallSession';
  * Events Raised
  * -------------
  * back
- * done
+ * get-sub-categories
+ * get-issues
+ * issue-changed
+ * 
+ * loading
+ * unloading
+ * launch-strack
+ * update-strack
  * 
  * @export
  * @class SearchOtherNeed
@@ -27,7 +35,6 @@ export class SearchOtherNeed extends Component {
 
 		// Private properties
 		this.isBusy = false;
-		this.renderMode = -1;
 
 		// Private Variables
 		this.category = ``;
@@ -89,9 +96,8 @@ export class SearchOtherNeed extends Component {
 
 	_back() {
 		// initate back to favourite transactions page (on back arrow)
-		this.dispatchEvent(new CustomEvent(`back`, {}));
+		this.dispatchEvent(new CustomEvent(`back`, { detail: { category: this.category, need: this.need, issue: this.issue, postAction: this } }));
 	}
-	
 
 	_categoryChanged(e) {
 		if (e.detail.new !== null) {
@@ -117,6 +123,8 @@ export class SearchOtherNeed extends Component {
 	_issueChanged(e) {
 		this.issue = e.currentTarget.value.issue;
 		this.solution = this.issues.find(item => item.issue === this.issue).solution;
+
+		this.dispatchEvent(new CustomEvent(`issue-changed`, { detail: { category: this.category, need: this.need, issue: this.issue } }));
 	}
 
 	// ---------------
@@ -128,11 +136,23 @@ export class SearchOtherNeed extends Component {
 	}
 
 	_unloading() {
-		this.dispatchEvent(new CustomEvent(`unloading`));
+		this.dispatchEvent(new CustomEvent(`unloading`, {}));
 	}
 
 	_launchStrack() {
 		this.dispatchEvent(new CustomEvent(`launch-strack`, { detail: { category: this.category, need: this.need, issue: this.issue } }));
+	}
+
+	_updateStrack() {
+		this.dispatchEvent(new CustomEvent(`update-strack`, { detail: { category: this.category, need: this.need, issue: this.issue, postAction: this } }));
+	}
+
+	// Refresh screen once incident details are updated to Strack
+	_refreshScreen() {
+		this.category = ``;
+		this.need = ``;
+		this.issue = ``;
+		this.solution = ``;
 	}
 
 	// ---------
@@ -166,6 +186,7 @@ export class SearchOtherNeed extends Component {
 				capitec-title-bar > capitec-icon {
 					cursor: pointer;
 					margin-right: 15px;
+					--theme-icon-size-medium: 24px;
 				}
 				capitec-group > capitec-title-bar {
 					--theme-titlebar-min-height: 33px;
@@ -193,6 +214,9 @@ export class SearchOtherNeed extends Component {
 					height: 49px;
 					width: 333px;
 					--theme-input-label-font-color: #969B9D;
+				}
+				.otherneed-action-bar > capitec-select[label="Choose issue type"] {
+					width: 323px;
 				}
 				#id-button-group {
 					justify-content: right;
@@ -234,8 +258,20 @@ export class SearchOtherNeed extends Component {
 					--theme-label-strong-font-weight: 600;
 					--theme-label-strong-font-color: #3A3A3A;
 				}
-				.strack-button {
+				.button-group {
 					padding-right: 16px;
+					--theme-layout-gap-spacing: 16px;
+				}
+				capitec-button {
+					--theme-button-padding-left: 16px;
+					--theme-button-padding-right: 16px;
+					--theme-button-font-weight: 600;
+				}
+				.update-strack {
+					width: 151px;
+				}
+				.launch-strack {
+					width: 140px;
 				}
 			`
 		];
@@ -257,7 +293,7 @@ export class SearchOtherNeed extends Component {
 			return html``;
 		};
 
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		return html`<capitec-loading-indicator data-automation-id="search-other-needs-loading-indicator"></capitec-loading-indicator>`;
 	}
 
 	_renderOtherNeeds() {
@@ -284,7 +320,8 @@ export class SearchOtherNeed extends Component {
 		return html`
 			<capitec-title-bar type="default">
 				<capitec-icon
-					size="small"
+					data-automation-id="search-other-need-back-to-favourites"
+					size="medium"
 					icon="system/arrow-left-action"
 					@click="${() => this._back()}">
 				</capitec-icon>
@@ -300,6 +337,7 @@ export class SearchOtherNeed extends Component {
 		return html`
 			<capitec-action-bar class="otherneed-action-bar">
 				<capitec-select
+					data-automation-id="search-other-need-action-bar-category"
 					label="Search client need"
 					.items="${this.categories}"
 					display-field="category"
@@ -311,6 +349,7 @@ export class SearchOtherNeed extends Component {
 				</capitec-select>
 
 				<capitec-select
+					data-automation-id="search-other-need-action-bar-need"
 					label="Choose specific need"
 					.items="${this.needs}"
 					display-field="need"
@@ -322,6 +361,7 @@ export class SearchOtherNeed extends Component {
 				</capitec-select>
 				
 				<capitec-select
+					data-automation-id="search-other-need-action-bar-issue"
 					label="Choose issue type"
 					.items="${this.issues}"
 					display-field="issue"
@@ -345,15 +385,23 @@ export class SearchOtherNeed extends Component {
 
 				<capitec-content-box>
 					<capitec-label
+						data-automation-id="search-other-need-solution"
 						class="solution-heading"
 						type="default"
 						label="${this.solution}">
 					</capitec-label>
 				</capitec-content-box>
 				
-				<capitec-group layout="vertical" gap="line" halign="right" valign="bottom">
+				<capitec-group class="button-group" layout="horizontal" gap="clear" halign="right" valign="center">
 					<capitec-button
-						class="strack-button"
+						data-automation-id="search-other-need-update-strack"
+						class="update-strack"
+						label="Update STrack"
+						@click="${() => this._updateStrack()}">
+					</capitec-button>
+					<capitec-button
+						data-automation-id="search-other-need-launch-strack"
+						class="launch-strack"
 						type="primary"
 						label="Launch STrack"
 						@click="${() => this._launchStrack()}">
@@ -390,3 +438,97 @@ export class SearchOtherNeed extends Component {
 }
 
 customElements.define(`horizon-search-other-need`, SearchOtherNeed);
+
+
+/**
+ * When back button on the title bar is clicked
+ *
+ * @example
+ * <horizon-search-other-need ... @back="${this._handler}"></horizon-search-other-need>
+ *
+ * @event SearchOtherNeed#back
+ * @type {Object} - N/A
+ */
+
+/**
+ * When category is selected/changed from a dropdown
+ *
+ * @example
+ * <horizon-search-other-need ... @get-sub-categories="${this._handler}"></horizon-search-other-need>
+ *
+ * @event SearchOtherNeed#get-sub-categories
+ * @property {Object} detail - Contains information on the clicked item
+ * @property {String} detail.category - The selected Category
+ */
+
+/**
+ * When Sub-category is selected/changed from a dropdown
+ *
+ * @example
+ * <horizon-search-other-need ... @get-issues="${this._handler}"></horizon-search-other-need>
+ *
+ * @event SearchOtherNeed#get-issues 
+ * @property {Object} detail - Contains information on the clicked item
+ * @property {String} detail.category - The selected Category
+ * @property {String} detail.need - The selected Need
+ */
+
+/**
+ * When issue is selected/changed from a dropdown
+ *
+ * @example
+ * <horizon-search-other-need ... @issue-changed="${this._handler}"></horizon-search-other-need>
+ *
+ * @event SearchOtherNeed#issue-changed 
+ * @property {Object} detail - Contains information on the clicked item
+ * @property {String} detail.category - The selected Category
+ * @property {String} detail.need - The selected Need
+ * @property {String} detail.issue - The selected Issue
+ */
+
+/**
+ * When screen starts loading 
+ *
+ * @example
+ * <horizon-search-other-need ... @loading="${this._handler}"></horizon-search-other-need>
+ *
+ * @event SearchOtherNeed#loading 
+ * @type {Object} - N/A
+ */
+
+/**
+ * When screen starts unloading ( disconnected callback)
+ *
+ * @example
+ * <horizon-search-other-need ... @unloading="${this._handler}"></horizon-search-other-need>
+ *
+ * @event SearchOtherNeed#unloading 
+ * @type {Object} - N/A
+ */
+
+/**
+ * When Launch-Strack button is clicked
+ *
+ * @example
+ * <horizon-search-other-need ... @launch-strack="${this._handler}"></horizon-search-other-need>
+ *
+ * @event SearchOtherNeed#launch-strack 
+ * @property {Object} detail - Contains information on the clicked item
+ * @property {String} detail.category - The selected Category
+ * @property {String} detail.need - The selected Need
+ * @property {String} detail.issue - The selected Issue
+ */
+
+/**
+ * When Update-Strack button is clicked
+ *
+ * @example
+ * <horizon-search-other-need ... @update-strack="${this._handler}"></horizon-search-other-need>
+ *
+ * @event SearchOtherNeed#update-strack
+ * @property {Object} detail - Contains information on the clicked item
+ * @property {String} detail.category - The selected Category
+ * @property {String} detail.need - The selected Need
+ * @property {String} detail.issue - The selected Issue
+ * @property {String} detail.postAction - postAction to refresh the screen
+ */

@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import 'platform/components/popups/Modal';
 
 /**
@@ -186,12 +186,14 @@ export class DiscardChanges extends Component {
 		return html`
 			<capitec-group layout="horizontal">
 				<capitec-button 
+						data-automation-id="discard-changes-cancel"
 						id="id-cancel-button"
 						label="Cancel" 
 						@click="${() => this._onCancelClick()}">
 				</capitec-button>
 
 				<capitec-button 
+						data-automation-id="discard-changes-discard"
 						id="id-discard-button" 
 						type="primary" 
 						label="Discard" 

@@ -115,7 +115,7 @@ export class DeclineDebiCheckMandate extends Component {
 				}
 
 				div[slot="body"] {
-					width: 375px;
+					width: 376px;
 					height: 198px;
 				}
 

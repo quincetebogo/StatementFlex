@@ -52,6 +52,7 @@ export class SavingsAccountProduct extends ProductPageBase {
 	_webTemplate() {
 		return html`
 			<horizon-cnet-product-info 
+				data-automation-id="savings-account-product"
 				viewType="transact" 
 				viewHeader="Savings Account"
 				@view-benefits="${() => this._viewBenefits(`transact`)}">

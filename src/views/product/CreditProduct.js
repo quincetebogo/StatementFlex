@@ -52,6 +52,7 @@ export class CreditProduct extends ProductPageBase {
 	_webTemplate() {
 		return html`
 			<horizon-cnet-product-info 
+				data-automation-id="credit-product"
 				viewType="credit" 
 				viewHeader="Credit"
 				@view-benefits="${() => this._viewBenefits(`credit`)}">

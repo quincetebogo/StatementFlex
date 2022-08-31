@@ -35,6 +35,7 @@ export class SystemError extends ViewBase {
 		super.connectedCallback();
 		await super.createAndClassifySubsIncident();
 
+		this.endCallContext = `SystemError`;
 		this._updateIncidentState();
 	}
 
@@ -49,9 +50,9 @@ export class SystemError extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-		this.horizonStore.setIncidentDetails(incidentDetails);
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	// ---------
@@ -69,8 +70,9 @@ export class SystemError extends ViewBase {
 				#id-error-msg {
 					width: 329px;
 				}
-				horizon--error-screen {
+				horizon-error-screen {
 					--horizon-error-screen-size: 912px;
+					--horizon-error-screen-height: 888px;
 				}
 			`
 		];
@@ -90,7 +92,7 @@ export class SystemError extends ViewBase {
 
 	_renderSystemError() {
 		return html`
-			<horizon--error-screen 
+			<horizon-error-screen 
 				header="System Error" 
 				left=""
 				right="Assign"
@@ -98,7 +100,7 @@ export class SystemError extends ViewBase {
 				image="/images/insure/assign-pay-arrears.svg"
 				@right-click=${() => super._assignIncidentClick()}>
 				<section id="id-error-msg" slot="detail"><b>Notify client:</b> There is an issue with the system</section>
-			</horizon--error-screen>`;
+			</horizon-error-screen>`;
 	}
 
 }

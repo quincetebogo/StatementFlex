@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 const CARD_TYPE_MAPPING = {
 	DEBIT_MASTERCARD: `Debit MasterCard`,
@@ -97,7 +97,7 @@ export class TapToPayAgreement extends Component {
 	}
 
 	_validateCheckBox() {
-		this.tapToPayInfo.acceptedTapToPay ? this.alertBannerText = `` : this.alertBannerText = `Please confirm agreement to the terms and conditions`;
+		this.alertBannerText = this.tapToPayInfo.acceptedTapToPay ? `` : `Please confirm agreement to the terms and conditions`;
 		return this.tapToPayInfo.acceptedTapToPay;
 	}
 
@@ -162,6 +162,11 @@ export class TapToPayAgreement extends Component {
 				capitec-expander-group > capitec-expander[label="View Agreement"]{
 					--theme-expander-height: 621px;
 				}
+				
+				capitec-expander[expanded] {
+					--theme-expander-background-color: #F7F7F7;
+					box-shadow: 0px 6px 10px 0.25px rgba(0,0,0,0.07);
+				}
 
 				capitec-check {
 					padding-left: 16px;
@@ -175,13 +180,11 @@ export class TapToPayAgreement extends Component {
 					--theme-check-border-color: #C83B37;
 				}
 
-				capitec-alert-banner {
+				horizon-alert-banner {
 					width: 776px;
 
-					--theme-alert-banner-height: 48px;
 					--theme-layout-gap-spacing: 16px;
-					--theme-alert-banner-icon-margin-left: 16px;
-					--theme-alert-banner-icon-margin-right: 8px;
+					--theme-toast-icon-margin: 0px 8px 0px 16px;
 					--theme-alert-banner-font-weight: 600;
 				}
 
@@ -274,7 +277,12 @@ export class TapToPayAgreement extends Component {
 
 	_renderErrorAlertBanner() {
 		return this.alertBannerText
-			? html`<capitec-alert-banner type="unsuccessful-red" label="${this.alertBannerText}"></capitec-alert-banner>`
+			? html`
+					<horizon-alert-banner 
+						type="error"
+						label="${this.alertBannerText}"
+						data-automation-id="tap-to-pay-agreement-alert-banner">
+					</horizon-alert-banner>`
 			: html``;
 	}
 
@@ -301,15 +309,27 @@ export class TapToPayAgreement extends Component {
 
 	_renderViewContent() {
 		return html`
-			<capitec-content-box class="expander-cb" halign="left" valign="top" gap="none">
-			<object class="agreement-viewer" data="data:text/html;base64,${this.tapToPayAgreement}" type="text/html">
-			</object>
+			<capitec-content-box 
+					data-automation-id="tap-to-pay-agreement-pdf-viewer" 
+					class="expander-cb" 
+					halign="left" 
+					valign="top" 
+					gap="none">
+
+				<object 
+					class="agreement-viewer" 
+					data="data:text/html;base64,${this.tapToPayAgreement}" 
+					type="text/html">
+				</object>
 			</capitec-content-box>`;
 	}
 
 	_renderTapToPayAgreement() {
 		return html`
-			<capitec-content-box class="expander-cb">
+			<capitec-content-box 
+					class="expander-cb"
+					data-automation-id="tap-to-pay-agreement-terms-and-conditions">
+
 				<div class="terms-and-conditions">
 					You acknowledge and agree that you understand and accept the terms and conditions of enabling Tap to Pay on your <strong>${CARD_TYPE_MAPPING[this.selectedCard.cardType]}</strong>, as well as your rights as a client as confirmed on this call with you. 
 				</div>
@@ -326,6 +346,7 @@ export class TapToPayAgreement extends Component {
 				<capitec-card class="accept-terms-and-conditions">
 					<capitec-check 
 						id="acceptedTapToPay"
+						data-automation-id="tap-to-pay-agreement-check"
 						class=${this.alertBannerText ? `check-not-agreed` : ``}
 						label="Please confirm that you agree to these terms and conditions and that you are bound by them?"
 						@value-change="${(e) => this._toggleAgreementsAccept(e)}">
@@ -341,6 +362,7 @@ export class TapToPayAgreement extends Component {
 			<capitec-group layout="horizontal" halign="left" valign="center" gap="clear">
 
 				<capitec-button
+					data-automation-id="tap-to-pay-agreement-cancel"
 					class="back-btn"
 					type="clear" 
 					label="Cancel"
@@ -348,6 +370,7 @@ export class TapToPayAgreement extends Component {
 				</capitec-button>
 
 				<capitec-button
+					data-automation-id="tap-to-pay-agreement-agree"
 					class="next-btn"
 					type="primary" 
 					label="Agree"

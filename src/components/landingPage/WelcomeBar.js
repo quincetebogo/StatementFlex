@@ -69,6 +69,9 @@ export class LandingPageWelcome extends Component {
 			case `SavingsAccount`:
 				this.router.navigateToSavingsAccountProduct();
 				break;
+			case `LiveBetter`:
+				this.router.navigateToLiveBetterProduct();
+				break;
 			case `SavingsPlan`:
 				this.router.navigateToSavingsPlanProduct();
 				break;

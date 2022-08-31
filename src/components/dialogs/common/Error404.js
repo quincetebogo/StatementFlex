@@ -94,7 +94,7 @@ export class Error404 extends Component {
 
 	_renderErrorMessage() {
 		return html`
-		<img class="image" src="/images/error.svg" alt="" />
+		<img class="image" src="/images/common/error.svg" alt="" />
 		<capitec-label id="error-label" label="Error 404" type="strong"></capitec-label>
 		<capitec-label id="error-message" label="There seems to be an issue please be patient"></capitec-label>
 		<capitec-button id="try-again-button" type="primary" label="Try Again" @click="${() => this._onTryAgain()}">

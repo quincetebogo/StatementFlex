@@ -27,6 +27,7 @@ export class HorizonStatusBar extends Component {
 	 * @property {String} [sblLink] URL to SBL Application
 	 * @property {String} [cdsLink] URL to CDS Application
 	 * @property {String} [cnetLink] URL to CNET Website
+	 * @property {String} [appVersion] Horizon's current running version
 	 * 
 	 * @readonly
 	 * @static
@@ -38,7 +39,8 @@ export class HorizonStatusBar extends Component {
 			currentMessage: { type: String },
 			sblLink: { type: String },
 			cdsLink: { type: String },
-			cnetLink: { type: String }
+			cnetLink: { type: String },
+			appVersion: { type: String }
 		};
 	}
 
@@ -59,10 +61,40 @@ export class HorizonStatusBar extends Component {
 		return [
 			super.styles,
 			css`
-			img{
-				margin-left: 14px;
+			/* STATUS BAR STYLES */
+			capitec-content-box {
+				background-color: #333;
+				height: 72px;
+				text-align: center;
+
+				--theme-container-padding-left: 24px;
+				--theme-container-padding-top: 0px;
+				--theme-container-padding-right: 24px;
+				--theme-container-padding-bottom: 0px;
 			}
-		
+
+			/* STATUS */
+			.status-bar{
+				--theme-statusbar-min-height: 59px;
+				margin:0px;
+				width: auto;
+			}
+
+			/* APP VERSION */
+			.app-version {
+				text-align: start;
+
+				--horizon-label-text-height: 20px;
+				--horizon-label-text-color: white;
+				--horizon-label-text-font-size: 16px;
+				--horizon-label-value-height: 20px;
+				--horizon-label-value-color: white;
+				--horizon-label-value-font-size: 14px;
+				--horizon-label-value-font-weight: 500;
+				--horizon-label-value-line-height: 20px;
+			}
+
+			/* OTHER SYSTEMS LINKS */
 			.icon-caption{
 				height: 15px;
 				color: #FFFFFF;
@@ -73,33 +105,12 @@ export class HorizonStatusBar extends Component {
 				line-height: 16px;
 				text-align: center;
 			}
-
-			.status-bar-group{
-				display: flex;
-				flex-direction: row;
-				background-color: #333;
-				column-count: 2;
-				height: 72px;
-				margin: 0px;
-				width: 100%;
-			}
-
-			.status-bar{
-				--theme-statusbar-min-height: 59px;
-				margin:0px;
-				width: 1716px;
-			}
-
 			.status-bar-icon{
 				float: right;
-				width: 33.3%;
+				width: 68px;
 				height: 60px;
 				margin: 0px;
 				align-content: center;
-			}
-			
-			.status-bar-icon-group{
-				width: 204px;
 			}
 		}`
 	];
@@ -107,32 +118,53 @@ export class HorizonStatusBar extends Component {
 
 	_webTemplate() {
 		return html`
-			<div class="status-bar-group">
-				<capitec-status-bar class="status-bar" 
-					status="${this.currentStatus}" 
-					label="${this.currentMessage}">
-				</capitec-status-bar>
-				<capitec-group class="status-bar-icon-group" layout="horizontal" halign="right" valign="center" gap="clear">
-				<div class="status-bar-icon" column="1" row="1">
-					<a href="${this.sblLink}" target="_blank" tabindex="-1">
-						<img src="/images/statusBar/SBL.svg" alt=""/>
-					</a>
-					<capitec-label class="icon-caption" label="SBL"></capitec-label>
-				</div>
-				<div class="status-bar-icon" column="2" row="1">
-					<a href="${this.cdsLink}" target="_blank" tabindex="-1">
-						<img src="/images/statusBar/CDS.svg" alt=""/>
-					</a>
-					<capitec-label class="icon-caption" label="CDS"></capitec-label>
-				</div>
-				<div class="status-bar-icon" column="3" row="1">
-					<a href="${this.cnetLink}" target="_blank" tabindex="-1">
-						<img id="image" src="/images/statusBar/C-Net.svg" alt=""/>
-					</a>
-					<capitec-label class="icon-caption" label="C-Net"></capitec-label>
-				</div>
-				</capitec-group>
-			</div>`;
+			<capitec-content-box
+				layout="horizontal"
+				halign="left"
+				valign="center"
+				gap="none">
+
+					<capitec-status-bar
+						row="1" column="1"
+						class="status-bar"
+						status="${this.currentStatus}" 
+						label="${this.currentMessage}">
+					</capitec-status-bar>
+				
+					<horizon-label
+						row="1" column="2"
+						class="app-version"
+						label="Version"
+						value="${this.appVersion}">
+					</horizon-label>
+					<capitec-spacer></capitec-spacer>
+
+					<capitec-group 
+						layout="horizontal"
+						halign="right"
+						valign="center"
+						gap="clear"
+						row="1" column="3">
+							<div class="status-bar-icon">
+								<a href="${this.sblLink}" target="_blank" tabindex="-1">
+									<img src="/images/statusBar/SBL.svg" alt=""/>
+								</a>
+								<capitec-label class="icon-caption" label="SBL"></capitec-label>
+							</div>
+							<div class="status-bar-icon" column="2" row="1">
+								<a href="${this.cdsLink}" target="_blank" tabindex="-1">
+									<img src="/images/statusBar/CDS.svg" alt=""/>
+								</a>
+								<capitec-label class="icon-caption" label="CDS"></capitec-label>
+							</div>
+							<div class="status-bar-icon" column="3" row="1">
+								<a href="${this.cnetLink}" target="_blank" tabindex="-1">
+									<img id="image" src="/images/statusBar/C-Net.svg" alt=""/>
+								</a>
+								<capitec-label class="icon-caption" label="C-Net"></capitec-label>
+							</div>
+					</capitec-group>
+			</capitec-content-box>`;
 	}
 
 	_mobileTemplate() {

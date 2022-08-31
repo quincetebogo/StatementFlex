@@ -15,6 +15,8 @@ import 'platform/components/navigation/AppRouter';
 
 import 'app/components/shell/HorizonStatusBar';
 
+import 'app/components/common/AlertBanner';
+
 /**
  * Physical entry-point of the application, based on a platform-provided base class.
  */
@@ -108,6 +110,8 @@ export class AppShell extends Shell {
 
 	connectedCallback() {
 		super.connectedCallback();
+		
+		this._casperScript(); 
 
 		this.horizonIncidentManager.initialise();
 		// Subscribe to store.
@@ -133,9 +137,6 @@ export class AppShell extends Shell {
 
 		// Put your logic here to execute post login success,
 		// for example loading application data.
-
-
-		this.roles = this._securityContext.roles !== null && Array.isArray(this._securityContext.roles) ? this._securityContext.roles.join(`, `) : `n/a`;
 
 		this.platformVersion = await this._executionContext.platformVersion;
 		this.applicationName = await this._executionContext.applicationName;
@@ -197,11 +198,27 @@ export class AppShell extends Shell {
 	_stateChanged() {
 		const callerInfo = HorizonStore.getInstance().getCallerInformation();
 		
-		if (callerInfo && callerInfo.verificationStatus === `verified` && this.currentView == HORIZON_VIEW_SET.UNVERIFIED_PAGES) {
+		if (callerInfo && callerInfo.verificationStatus === `verified` && this.currentView === HORIZON_VIEW_SET.UNVERIFIED_PAGES) {
 			this.horizonViewManager.transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
 			this.currentView = this.horizonViewManager.getCurrentView();
 		}
 	};
+
+	async _casperScript() {
+		const body = document.body || document.getElementsByTagName(`body`)[0];
+		const casper = document.getElementById(`CASPerScript`);
+
+		if (!casper) {
+			const script = document.createElement(`script`);
+			
+			script.src = await this._configuration.getSetting(`otherSystemsURL.CASPer`);
+			script.setAttribute(`type`, `text/javascript`);
+			script.setAttribute(`id`, `CASPerScript`);
+			script.setAttribute(`title`, `CASPer Widget`);
+
+			body.appendChild(script);
+		}
+	  }
 
 	// ---------
 	// RENDERING
@@ -219,6 +236,7 @@ export class AppShell extends Shell {
 		return [
 			super.styles,
 			css`
+
 				:host {
 					--horizon-screen-width: 1920px;
 					--horizon-screen-height: 1080px;
@@ -227,6 +245,10 @@ export class AppShell extends Shell {
 					--horizon-right-panel-width: 320px;
 					--horizon-panel-height: 888px;
 					--horizon-toast-top: 68px;
+					--horizon-modal-width: 696px;
+					--horizon-end-call-button-margin-right: 16px;
+					--horizon-end-call-button-margin-top: 8px;
+					--horizon-status-bar-icon-group-right-margin: 80px;
 				}
 
 				.screen-size {
@@ -256,11 +278,11 @@ export class AppShell extends Shell {
 					background: #f4f4f4; 
 				}
 
-				.left{
+				.left {
 					width: var(--horizon-left-panel-width);
 				}
 
-				.right{
+				.right {
 					width: var(--horizon-right-panel-width);
 				}
 
@@ -269,13 +291,14 @@ export class AppShell extends Shell {
 					 * If it is generic change(i.e., applies across application) please specify here
 					 * else override in specific component/view
 					*/
-
+						
 					/* Modal popup */
 					--theme-modal-header-background-color: #4A4848;
 					--theme-modal-header-color: white;
 					--theme-modal-header-font-size: 18px;
 					--theme-modal-header-font-weight: 600;
 					--theme-modal-header-padding-left: 16px;
+					--theme-modal-header-padding-right: 16px;
 
 					/* StatusBar */
 					--theme-statusbar-min-height: 72px;
@@ -287,7 +310,21 @@ export class AppShell extends Shell {
 					--theme-product-tile-title-font-size: 18px;
 					--theme-product-tile-subtitle-height: 23px;
 					--theme-product-tile-subtitle-font-size: 15px;
-				}`
+
+					/* Banner text should now be black - set it here until the platform does*/
+					--theme-alert-banner-info-font-color: #3A3A3A;
+					--theme-alert-banner-success-font-color: #3A3A3A;
+					--theme-alert-banner-warning-font-color: #3A3A3A;
+					--theme-alert-banner-error-font-color: #3A3A3A;
+					--theme-alert-banner-unsuccessful-font-color: #3A3A3A;
+					--theme-alert-banner-unsuccessful-red-font-color: #3A3A3A;
+
+					--theme-hyperlink-color: #3A3A3A;
+
+					/* capitec-icon - size="medium" */
+					--theme-icon-size-medium: 26px;
+				}
+				`
 		];
 	}
 
@@ -301,14 +338,14 @@ export class AppShell extends Shell {
 			${this._renderLoadingIndicator()}
 			${this._renderLoginFailed()}
 			${this._renderAuthenticating()}
-       		${this._renderContent()}
-        `;
+	   		${this._renderContent()}
+		`;
 	}
 
 	_mobileTemplate() {
 	}
 
-    _renderLoginFailed() {
+	_renderLoginFailed() {
 		if (!this.isAuthenticating && !this._security.isAuthenticated) {
 			return html`Login Failed`;
 		}
@@ -328,7 +365,7 @@ export class AppShell extends Shell {
 	 *      - Any additional button/toolbars
 	 *      - Left and Right hand display components
 	 *
-	 * The View manager will also facilitate communication between view components (i.e. between the main
+	 * The View manager will also faciplatform/elementsate communication between view components (i.e. between the main
 	 * display and the left, right, and toolbar components. OK, OK! I used an Oxford comma; we can fight about that another time)
 	 * 
 	 */
@@ -337,36 +374,39 @@ export class AppShell extends Shell {
 			return ``;
 		}
 
-		return html`         
-				<div class="screen-size">
-					${this.horizonViewManager.renderTopBar(this.currentView)}
+		return html`
+			<div class="screen-size">
+				${this.horizonViewManager.renderTopBar(this.currentView)}
 
-                	<capitec-content-box class="screen-content" nopadding>
-						<div class="grid-container">
-							<div class="left">
-							    ${this.horizonViewManager.renderLeftBar(this.currentView)}
-							</div>
-							<div class="middle">
-								<capitec-app-router></capitec-app-router>
-							</div>
-							<div class="right">
-								${this.horizonViewManager.renderRightBar(this.currentView)}
-							</div>
+				<capitec-content-box class="screen-content" nopadding>
+					
+					<div class="grid-container">
+						<div class="left">
+							${this.horizonViewManager.renderLeftBar(this.currentView)}
 						</div>
-					</capitec-content-box>
-					<horizon-statusbar 
-						currentStatus="${this.currentStatus}" 
-						currentMessage="${this.currentMessage}"
-						sblLink="${this.sblUrl}"
-						cdsLink="${this.cdsUrl}"
-						cnetLink="${this.cnetUrl}">
-					</horizon-statusbar>
-				</div>`;
+						<div class="middle">
+							<capitec-app-router></capitec-app-router>
+						</div>
+						<div class="right">
+							${this.horizonViewManager.renderRightBar(this.currentView)}
+						</div>
+					</div>
+				</capitec-content-box>
+				
+				<horizon-statusbar 
+					currentStatus="${this.currentStatus}" 
+					currentMessage="${this.currentMessage}"
+					sblLink="${this.sblUrl}"
+					cdsLink="${this.cdsUrl}"
+					cnetLink="${this.cnetUrl}"
+					appVersion="${this.applicationVersion}">
+				</horizon-statusbar>
+			</div>`;
 	}
 
 	_renderLoadingIndicator() {
 		if (this.isBusy || this.isAuthenticating) {
-			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+			return html`<capitec-loading-indicator data-automation-id="app-shell-loading-indicator"></capitec-loading-indicator>`;
 		}
 	}
 }

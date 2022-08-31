@@ -35,6 +35,22 @@ export const CLOSE_REASONS = {
  */
 export const REASON_RESOLUTIONS = {
 	'NeedFulfilled': `Need Fulfilled`,
-	'NeedIncomplete': `Need Incomplete`,
-	'ClientAssigned': `Client Assigned`
+	'NeedIncomplete': `Need incomplete - Transaction Failed`,
+	'ClientAssigned': `Need assigned`
+};
+
+/**
+ * Mapping cause code based on end call reason selected.
+ * 
+ * @readonly
+ * @enum {object} CAUSE_CODE_BY_REASON
+ */
+export const CAUSE_CODE_BY_REASON = {
+	'Abandoned Verification': `ClientFailedSecurityCheck`,
+	'Client failed verification': `ClientFailedSecurityCheck`,
+	'Follow up required': `FollowUpCall`,
+	'Need incomplete - Transaction Failed': `TransactionFailed`,
+	'Call transferred': {
+		'Fraud Engagement Transfer': `FraudTransfer`
+	}
 };

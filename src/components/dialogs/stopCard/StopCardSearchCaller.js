@@ -1,12 +1,13 @@
 import { Component, css, html } from 'platform/elements';
-import { CallHandleService } from 'app/services/CallHandleService';
+import { ClientProfileService } from 'app/services/ClientProfileService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { IDCallerEvents } from 'app/constants/Telemetry/Events/IdentifyCaller';
+import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
+import { SEARCH_OPTIONS } from 'app/constants/SearchOptions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 
 import 'app/components/dialogs/common/ConfirmCallerDetails';
 import 'app/components/common/HorizonSelect';
@@ -52,16 +53,16 @@ const ERROR_MESSAGES = {
 	}
 };
 
-// ToDO: Below const need to be removed, once channelService fix the issue on contract.
 const REGEX_PATTERNS = {
 	0: {
-        PATTERN: /^(^[MDAT]([0-9]{8})|[0-9]{13})$/,
+		PATTERN: /^(^[MDAT]([0-9]{8})|[0-9]{13})$/,
 		ERR_MESSAGE: `An ID Number must be 13 digits long, a passport number must be 9 characters`,
 		ALERT_BANNER: `Incorrect ID/Passport number`
 	},
 	1: {
-		PATTERN: /^/,
-		ERR_MESSAGE: ``
+		PATTERN: /^\S+$/,
+		FIELD_ERROR: `Incorrect Passport number`,
+		ALERT_BANNER: `Incorrect Passport number`
 	},
 	2: {
 		PATTERN: /^[0-9]{10}$/,
@@ -117,10 +118,11 @@ export class StopCardSearchCaller extends Component {
 		this.incomingCallDetails = null;
 		this.renderMode = -1;
 
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
+		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
 
 		this.isBusy = false;
 		this.alertBannerMessage = ``;
+		this.identificationMethods = { "key": ``, "value": ``, "identificationType": `` };
 	}
 
 	// ----------
@@ -174,8 +176,8 @@ export class StopCardSearchCaller extends Component {
 		this.incidentRecId = this.incidentDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
-		this._loadSearchOptions();
-
+		this.searchOptions = SEARCH_OPTIONS;
+		
 		this.isUnverifiedNumber = true; // this.unverifiedCaller.isUnverifiedNumber;
 		this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
 		this.searchFieldText = null;
@@ -202,7 +204,7 @@ export class StopCardSearchCaller extends Component {
 
 	_valueChanged(e) {
 		if (typeof e.detail.new === `object`) {
-			this[e.currentTarget.id].value = e.detail.new.key;
+			this[e.currentTarget.id] = e.detail.new;
 		} else {
 			this[e.currentTarget.id] = e.detail.new;
 		}
@@ -211,34 +213,27 @@ export class StopCardSearchCaller extends Component {
 
 	async _onSearchClick(e) {
 
-		this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
-			"screen": TelemetryScreen.SEARCH_CLIENT,
-			"next-screen": TelemetryScreen.CONFIRM_CALLER,
-			"id-method": this.identificationMethods.value,
-			"id-data": this.searchFieldText
-		});
-
 		if (this.validateFields()) {
 			console.log(`service call`);
-
+			this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
+				"screen": TelemetryScreen.SEARCH_CLIENT,
+				"next-screen": TelemetryScreen.CONFIRM_CALLER,
+				"id-method": this.identificationMethods.value,
+				"id-data": this.searchFieldText
+			});
 			const searchClient = {
-				incomingTelephoneNumber: this.incomingTelephoneNumber,
-				voiceReferenceNumber: this.voiceReferenceNumber,
-				incidentNo: this.incidentReferenceNumber,
-				agentTelephoneNumber: this.agentTelephoneNumber,
-				ivrOption: this.ivrOption.value,
-				identificationMethod: this.identificationMethods.value,
+				identificationMethod: this.identificationMethods.key,
 				searchValue: this.searchFieldText
 			};
 
-			const returnValue = await this.callHandleService.searchCaller(searchClient);
+			const returnValue = await this.clientProfileService.searchCaller(searchClient);
 			const identifiedClient = returnValue.result;
 
 			if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
 				this._raiseOnClientIdentified(identifiedClient);
 			} else if (returnValue.succeeded && !(identifiedClient && identifiedClient.callerInformation)) {
-				this.errMessage.searchFieldText = ERROR_MESSAGES.NOT_FOUND[this.identificationMethods.value].FIELD_ERROR;
-				this.alertBannerMessage = ERROR_MESSAGES.NOT_FOUND[this.identificationMethods.value].ALERT_BANNER;
+				this.errMessage.searchFieldText = ERROR_MESSAGES.NOT_FOUND[this.identificationMethods.key].FIELD_ERROR;
+				this.alertBannerMessage = ERROR_MESSAGES.NOT_FOUND[this.identificationMethods.key].ALERT_BANNER;
 				return true;
 			} else if (this.incidentReferenceNumber === null) {
 				this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
@@ -280,13 +275,22 @@ export class StopCardSearchCaller extends Component {
 
 	_raiseOnClientIdentified(identifiedClient) {
 		const confirmedCaller = {
-			cifNumber: identifiedClient.callerInformation.cifNumber.value,
-			birthdate: identifiedClient.callerInformation.birthdate.value,
-			languagePreference: identifiedClient.callerInformation.languagePreference.value,
-			livesIn: identifiedClient.callerInformation.livesIn.value,
-			name: identifiedClient.callerInformation.name.value,
-			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber.value,
-			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber.value
+			cifNumber: identifiedClient.callerInformation.cifNumber,
+			birthdate: identifiedClient.callerInformation.birthdate,
+			languagePreference: identifiedClient.callerInformation.languagePreference,
+			livesIn: identifiedClient.callerInformation.livesIn,
+			name: identifiedClient.callerInformation.name,
+			title: identifiedClient.callerInformation.title,
+			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber,
+			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber,
+			firstName: identifiedClient.callerInformation.firstName,
+			middleName1: identifiedClient.callerInformation.middleName1,
+			middleName2: identifiedClient.callerInformation.middleName2,
+			middleName3: identifiedClient.callerInformation.middleName3,
+			lastName: identifiedClient.callerInformation.lastName,
+			initials: identifiedClient.callerInformation.initials,
+			gender: identifiedClient.callerInformation.gender,
+			identifiedBy: this.identificationMethods.identificationType
 		};
 
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
@@ -298,38 +302,6 @@ export class StopCardSearchCaller extends Component {
 		}));
 	};
 
-	async _loadSearchOptions() {
-		const clientInfo = {
-			"incomingTelephoneNumber": this.incomingCallDetails.incomingTelephoneNumber,
-			"voiceReferenceNumber": this.incomingCallDetails.voiceReferenceNumber,
-			"ivrOptionCode": this.ivrOption.value,
-			"incidentReferenceNumber": this.incidentReferenceNumber,
-			"agentTelephoneNumber": this.agentTelephoneNumber
-		};
-
-		const returnValue = await this.callHandleService.searchOptions(clientInfo);
-		const options = returnValue.result;
-
-		if (returnValue.succeeded) {
-			this.identificationMethodsList = options.identificationMethods;
-			if (this.identificationMethodsList !== undefined) {
-				this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
-			}
-		} else {
-			this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
-		}
-	}
-
-	extractIdentificationMethods(identificationMethods) {
-		identificationMethods.possibleValues = identificationMethods.possibleValues.map(identificationMethod => {
-
-			Object.assign(identificationMethod, identificationMethod.value);
-			delete identificationMethod.value;
-			return identificationMethod;
-		});
-		return identificationMethods;
-	}
-
 	validateFields() {
 		const isRequiredFieldsEmpty = this.isRequiredFieldsEmpty();
 		if (isRequiredFieldsEmpty) {
@@ -337,9 +309,9 @@ export class StopCardSearchCaller extends Component {
 			return false;
 		}
 
-		const REGEX_PATTERN = REGEX_PATTERNS[this.identificationMethods.value].PATTERN;
-		const ERR_MESSAGE = REGEX_PATTERNS[this.identificationMethods.value].ERR_MESSAGE;
-		const ALERT_BANNER_ERR = REGEX_PATTERNS[this.identificationMethods.value].ALERT_BANNER;
+		const REGEX_PATTERN = REGEX_PATTERNS[this.identificationMethods.key].PATTERN;
+		const ERR_MESSAGE = REGEX_PATTERNS[this.identificationMethods.key].ERR_MESSAGE;
+		const ALERT_BANNER_ERR = REGEX_PATTERNS[this.identificationMethods.key].ALERT_BANNER;
 
 		if (!RegExp(REGEX_PATTERN, `g`).test(this.searchFieldText)) {
 			this.errMessage.searchFieldText = ERR_MESSAGE;
@@ -414,11 +386,8 @@ export class StopCardSearchCaller extends Component {
 				#searchFieldText{
 					margin-top: 32px;
 				}
-				capitec-alert-banner{
-					--theme-alert-banner-height: 48px;
+				horizon-alert-banner{
 					--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
-					--theme-alert-banner-icon-margin-left: 15px;
-					--theme-alert-banner-icon-margin-right: 15px;
 					
 					margin: 20px 0px 0px 0px;
 					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
@@ -439,10 +408,11 @@ export class StopCardSearchCaller extends Component {
 			case RENDER_MODE.STOP_CARD_SEARCH:
 				return html`
 					<horizon-caller-dialog
+						data-automation-id="stop-card-search-caller-dialog"
 						.incomingCallDetails="${this.incomingCallDetails}"
 						.incidentDetails="${this.incidentDetails}"
 						.isNeedSelectable=${true}
-						.headerLabel="${HEADER_LABEL}"
+						headerLabel="${HEADER_LABEL}"
 						@on-end-call="${() => this._onEndCall()}"
 						@on-need-changed="${(event) => this._onNeedChanged(event)}">
 						<div slot="body" class="main">
@@ -464,7 +434,7 @@ export class StopCardSearchCaller extends Component {
 			return html``;
 		};
 
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		return html`<capitec-loading-indicator data-automation-id="cards-search-caller-loading-indicator"></capitec-loading-indicator>`;
 	}
 
 	renderSearchClientDetails() {
@@ -482,18 +452,20 @@ export class StopCardSearchCaller extends Component {
 							class="search-fields ${this.alertBannerMessage ? `override-margin-top` : ``}">
 					<capitec-select 
 						id="identificationMethods" 
+						data-automation-id="stop-card-search-caller-identification-methods"
 						error="${this.errMessage.identificationMethods}"
 						label="Choose identification method" 
 						class="id-options"
-						.items="${this.identificationMethods !== undefined ? this.identificationMethods.possibleValues : [{ displayText: `ID Number` }]}"
+						.items="${this.searchOptions !== undefined ? this.searchOptions : [{ displayText: `ID Number` }]}"
 						id-field="key" 
-						display-field="displayText" 
+						display-field="value" 
 						@value-changed="${(e) => this._valueChanged(e)}"
 						tabindex="5"
 						autofocus>
 					</capitec-select>
 					<capitec-text-field 
 						id="searchFieldText" 
+						data-automation-id="stop-card-search-caller-value"
 						type="search" 
 						keyboardMode="numeric" 
 						label="Search"
@@ -510,15 +482,15 @@ export class StopCardSearchCaller extends Component {
 	}
 
 	renderAlertBanner() {
-
 		if (!isNullorEmpty(this.alertBannerMessage)) {
 			return html`
-				<capitec-alert-banner 
+				<horizon-alert-banner 
+					data-automation-id="stop-card-search-caller-alert"
 					type="error" 
 					label="${this.alertBannerMessage}" 
 					closable
 					@click="${() => this.alertBannerMessage = ``}">
-				</capitec-alert-banner>
+				</horizon-alert-banner>
 			`;
 		}
 		return html``;
@@ -529,6 +501,7 @@ export class StopCardSearchCaller extends Component {
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
 				<capitec-button 
 					id="id-search-button" 
+					data-automation-id="stop-card-search-search-client"
 					type="primary" 
 					@click="${(e) => this._onSearchClick(e)}"
 					label="Search Client"

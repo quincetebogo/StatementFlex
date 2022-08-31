@@ -22,7 +22,7 @@ export class ErrorScreen extends Component {
 		this.toast = ``;
 		this.displayToast = true;
 		this.image = null;
-		this.subDetail = ``;
+		this.hasSubDetails = ``;
 		this.secondaryToast = ``;
 	}
 
@@ -45,7 +45,7 @@ export class ErrorScreen extends Component {
 	* @property {String} right The text for the right hand button
 	* @property {String} [toast] The text for the tost message
 	* @property {String} [displayToast=true] Enables/Disables the toast message
-	* @property {String} [subDetail] Sub detail
+	* @property {String} [hasSubDetails=false] Indicates if the sub-detail line should be displayed
 	* @property {String} [secondaryToast] Secondary toast details
 	* @readonly
 	* @static
@@ -59,7 +59,7 @@ export class ErrorScreen extends Component {
 			toast: { type: String },
 			displayToast: { type: Boolean },
 			image: { type: String },
-			subDetail: { type: String },
+			hasSubDetails: { type: Boolean },
 			secondaryToast: { type: String }
 		};
 	}
@@ -78,7 +78,7 @@ export class ErrorScreen extends Component {
 					height: 100%;
 				}
 				.card {
-					height: var(--horizon-error-screen-height, 768px);
+					height: var(--horizon-error-screen-height, 744px);
 					width: var(--horizon-center-panel-width, 1064px);
 				}
 				#id-verify-unsuccessful {
@@ -92,7 +92,7 @@ export class ErrorScreen extends Component {
 					height: var(--horizon-error-screen-size, 768px);
 				}
 				#id-unsuccessful-img {
-          			width: auto;
+					width: auto;
 				}
 				#id-verify-unsuccessful {
 					height: 32px;
@@ -114,52 +114,32 @@ export class ErrorScreen extends Component {
 					justify-content: center;
 					margin-top: 13px;
 				}
-				#id-visit-branch-msg{
-					height: 24px;
-					width: 543px;
-					color: #545D60;
-					font-family: "Hind Vadodara";
-					font-size: 16px;
-					letter-spacing: 0;
-					line-height: 24px;
-					text-align: center;
-				}
 				#id-button-group {
 					justify-content: center;
 					margin-top: 35px;
 				}
 				.button{
 					height: 48px;
-					--theme-button-font-weight: 600;
 					--theme-button-font-size: 16px;
-					--theme-button-font-family: "Hind Vadodara";
+					--theme-button-font-family: "Hind Vadodara SemiBold";
 					--theme-button-padding-top: 13px;
 					--theme-button-padding-bottom: 13px;
 				}
-				#button-left {
-					margin-right: 16px;
-				}
-
-				.center-button {
-					--theme-button-font-size: 16px;
-					--theme-button-font-weight: 600;
-					--theme-button-padding-left: 22px;
-					--theme-button-padding-top: 12.5px;
-					--theme-button-padding-bottom: 12.5px;
-					--theme-button-padding-right: 22px;
-				}
 				#id-error-toast {
+					--theme-toast-error-color: #3A3A3A;
+					width: 432px;
 					position: absolute;
 					top : var(--toast-top, 56px);
 					margin-left: var(--toast-margin-left, 382px);
+					width : var(--toast-width, 365px)
 				}
-
 				.secondary-toast {
+					--theme-toast-error-color: #3A3A3A;
+					width: 432px;
 					position: absolute;
 					top : var(--toast-top, 130px);
 					margin-left: var(--toast-margin-left, 382px);
 				}
-				
 				slot[name=detail]::slotted(*){
 					height: 26px;
 					color: #545D60;
@@ -206,7 +186,7 @@ export class ErrorScreen extends Component {
 					?hidden="${!this.displayToast}"
 					id="id-error-toast"
 					type="error" 
-					header="Unsuccesful" 
+					header="Unsuccessful" 
 					detail="${this.toast}" 
 					closable 
 					@click="${() => this.displayToast = false}">
@@ -250,7 +230,7 @@ export class ErrorScreen extends Component {
 					?hidden="${!this.displayToast}"
 					class="secondary-toast"
 					type="error" 
-					header="Unsuccesful" 
+					header="Unsuccessful" 
 					detail="${this.secondaryToast}"
 					closable 
 					@click="${() => this.displayToast = false}">
@@ -259,7 +239,7 @@ export class ErrorScreen extends Component {
 	}
 
 	_renderSubTitle() {
-		return this.subDetail
+		return this.hasSubDetails
 			? html`
 				<capitec-group id = "id-sub-detail" layout="horizontal">
 					<capitec-icon size="default" icon="status/error-trans"></capitec-icon>
@@ -269,4 +249,4 @@ export class ErrorScreen extends Component {
 	}
 }
 
-customElements.define(`horizon--error-screen`, ErrorScreen);
+customElements.define(`horizon-error-screen`, ErrorScreen);

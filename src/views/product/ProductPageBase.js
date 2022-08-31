@@ -53,8 +53,16 @@ export class ProductPageBase extends View {
 	 * @memberof ProductPageBase
 	 */
 	async _viewBenefits(viewType) {
-		const globalOneUrl = await this._configuration.getSetting(`otherSystemsURL.global-one`);
-		window.open(`${globalOneUrl}${viewType}/`);
+		let productUrl = '';
+
+		if( viewType === `liveBetter`){
+			productUrl = await this._configuration.getSetting(`otherSystemsURL.live-better`);
+		} else {
+			const globalOneUrl = await this._configuration.getSetting(`otherSystemsURL.global-one`);
+			productUrl = `${globalOneUrl}${viewType}`;
+		}
+		
+		window.open(`${productUrl}/`);
 	}
 
 	/**

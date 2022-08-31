@@ -1,7 +1,7 @@
 import { css, html } from 'platform/elements';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 // import 'app/components/dialogs/insure/AssignReasonDialog';
@@ -41,6 +41,7 @@ export class StopCardFailure extends ViewBase {
 		this.isReassigned = false;
 		this.showHandoffModal = false;
 		this.failedCards = [];
+		this.endCallContext = `QuickTransactionsUnSuccess`;
 
 		this._telemetry = HorizonTelemetry.instance;
 	}
@@ -177,9 +178,9 @@ export class StopCardFailure extends ViewBase {
 	}
 
 	_updateIncidentState() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-		this.horizonStore.setIncidentDetails(incidentDetails);
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	/**
@@ -387,6 +388,7 @@ export class StopCardFailure extends ViewBase {
 		if (this.displayNotification) {
 			return html`
 			<capitec-toast 
+				data-automation-id="stop-card-failure-toast"
 				class="failure-toast" 
 				type="error" 
 				header="Unsuccessful" 
@@ -400,12 +402,17 @@ export class StopCardFailure extends ViewBase {
 	}
 
 	_renderGraphic() {
-		return html`<img class="card-image" src="/images/cardStop/network-error.svg"/>`;
+		return html`<img class="card-image" src="/images/stopCard/network-error.svg"/>`;
 	}
 
 	_renderStoppedCards() {
 		return html`
-			<capitec-group layout="vertical" halign="center" valign="center" gap="clear">
+			<capitec-group 
+				data-automation-id="stop-card-failure-stopped-cards"
+				layout="vertical" 
+				halign="center" 
+				valign="center" 
+				gap="clear">
 				${this.stoppedCards.map((card) => this._renderCardStatus(card))}
 			</capitec-group>
 		`;
@@ -423,7 +430,8 @@ export class StopCardFailure extends ViewBase {
 		return html`
 			<div class="card-status-success">
 				<capitec-icon size="medium" icon="status/success-trans"></capitec-icon>
-				<p class="card-status-text">
+				<p data-automation-id="stop-card-failure-success-card"
+					class="card-status-text">
 					${card.cardDisplayName.split(`_`).map(w => w[0].toUpperCase() + w.substr(1).toLowerCase()).join(` `)} <b>${card.maskedCardNumber}</b> was stopped successfully
 				</p>
 
@@ -435,7 +443,8 @@ export class StopCardFailure extends ViewBase {
 		return html`
 			<div class="card-status-error">
 				<capitec-icon size="medium" icon="status/error-trans"></capitec-icon>
-				<p class="card-status-text">
+				<p data-automation-id="stop-card-failure-fail-card"
+					class="card-status-text">
 					Unable to stop ${card.cardDisplayName.split(`_`).map(w => w[0].toUpperCase() + w.substr(1).toLowerCase()).join(` `)} <b>${card.maskedCardNumber}</b> 
 				</p>
 			</div>
@@ -445,14 +454,18 @@ export class StopCardFailure extends ViewBase {
 	_renderFooter() {
 		return html`
 			<capitec-group class="button-bar" layout="horizontal" gap="clear" halign="right" valign="center">
-				<capitec-button class="button-assign"
-								label="Assign"
-								@click="${() => this._onAssign()}">
+				<capitec-button
+					data-automation-id="stop-card-failure-assign"
+					class="button-assign"
+					label="Assign"
+					@click="${() => this._onAssign()}">
 				</capitec-button>
-				<capitec-button class="button-tryAgain"
-								type="primary"
-								@click="${() => this._onTryAgain()}"
-								label="Try Again">
+				<capitec-button
+					data-automation-id="stop-card-failure-try-again"
+					class="button-tryAgain"
+					type="primary"
+					@click="${() => this._onTryAgain()}"
+					label="Try Again">
 				</capitec-button>
 			</capitec-group>
 		`;
@@ -462,6 +475,7 @@ export class StopCardFailure extends ViewBase {
 		return this.showHandoffModal
 		? html`
 				<horizon-assign-stop-card
+					data-automation-id="stop-card-failure-assign-dialog"
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails=${this.incomingCallDetails}
 					.cards=${this.failedCards}
@@ -475,6 +489,7 @@ export class StopCardFailure extends ViewBase {
 		if (this.renderDialog === RENDER_DIALOG.ASSIGN_REASON) {
 			return html`
 				<horizon-insure-assign-reason 
+					data-automation-id="stop-card-failure-assign-reason"
 					@on-assign-reason=${(e) => this._onAssignReasonSelected(e)}
 					@on-cancel="${() => this.renderDialog = -1}">
 				</horizon-insure-assign-reason>
@@ -486,6 +501,7 @@ export class StopCardFailure extends ViewBase {
 	_renderAssignReasonSelected() {
 		if (this.renderDialog === RENDER_DIALOG.ASSIGN_REASON_SELECTED) {
 			return html`<horizon-assign-reason-selected
+						data-automation-id="stop-card-failure-assign-selected"
 						.selectedReason="${this.assignReason}"
 						@on-cancel="${() => this.renderDialog = -1}"
 						@team-selected="${(e) => this._onHandOff(e)}">
@@ -495,7 +511,7 @@ export class StopCardFailure extends ViewBase {
 	}
 
 	_renderGraphicInProgress() {
-		return html`<img class="card-image-inprogress" src="/images/cardStop/in-progress.svg"/>`;
+		return html`<img class="card-image-inprogress" src="/images/stopCard/in-progress.svg"/>`;
 	}
 }
 

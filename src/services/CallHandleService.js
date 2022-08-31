@@ -1,57 +1,35 @@
-import { DEFAULT_AUTO_RETRIES, ServiceBase } from 'app/services/ServiceBase';
-import { HorizonITAChannelService } from 'app/services/HorizonITAChannelService';
+import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
 
 /**
- * CallHandleService is used to start the tracking of a call against an incident. It is also
- * used to close off the tracking of a call against an incident.
+ * The call handling service contains service calls that start off the flow for 
+ * an incoming phone call. The service alls are around searching and verifying 
+ * a caller
  *
  * @export
  * @class CallHandleService
- * @extends {ServiceBase}
+ * @extends {ChannelServiceBase}
  */
-export class CallHandleService extends ServiceBase {
+export class CallHandleService extends ChannelServiceBase {
 
 	// --------------
 	// INITIALISATION
 	// --------------
-	constructor(toggleBusyFunc, errorHandler = null) {
-		super(toggleBusyFunc, errorHandler);
-
-		this.itaService = HorizonITAChannelService.getInstance();
+	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null) {
+		super(
+			toggleBusyFunc, 
+			defaultErrorHandlerFunc, 
+			`serviceURIs.channelServiceUrl`, 
+			`HorizonChannelService`, 
+			`v1`, 
+			() => import(`../mocks/HorizonChannelServiceMocks.js`)
+		);
 	}
 
 	// ------------------------------------------
 	// Utility Methods - not part of API Contract
 	// ------------------------------------------
 
-	/**
-	 * A utility method to determine if the return type from acceptCall represents a 
-	 * confirmed caller
-	 * 
-	 * @param { object } acceptedCall An object returned from acceptCall()
-	 * @returns {boolean} Returns true if acceptedCall parameter is a confirmed caller object 
-	 */
-	isConfirmedCaller(acceptedCall) {
-		if (acceptedCall === null || acceptedCall === undefined) {
-			return false;
-		}
-		return acceptedCall.addCallerDetailsButton !== undefined;
-	}
-
-	/**
-	 * A utility method to determine if the return type from acceptCall represents an 
-	 * unverified caller
-	 * 
-	 * @param { object } acceptedCall An object returned from acceptCall()
-	 * @returns {boolean} Returns true if acceptedCall parameter is an unverified caller object 
-	 */
-	isUnverifiedCaller(acceptedCall) {
-		if (acceptedCall === null || acceptedCall === undefined) {
-			return false;
-		}
-		return !this.isConfirmedCaller(acceptedCall);
-	}
-
+	
 	/**
 	 * @callback errorHandlerCallback
 	 * @param {object} exception - The exception from the failing service call
@@ -64,40 +42,27 @@ export class CallHandleService extends ServiceBase {
 	 */
 
 	/**
-	 * Determines if the caller is phoning from a verified number. 
-	 * 
-	 * @param {object} acceptCallData Information about the incoming call
-	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 * @memberof CallHandleService
-	 */
-	acceptCall(acceptCallData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.acceptCall(acceptCallData), `acceptCall`, errorHandler, autoRetries);
-	}
-
-	/**
 	 * Retrieves the search call options to search the existing client
-	 *
+	 * 
 	 * @param {object} incomingCallData Information about the incoming call
 	 * @param {errorHandlerCallback} errorHandler An optional error handler
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * 
 	 * @returns {Promise<ReturnValue>} An object containing search options and the result of the channel service call
 	 */
-	searchOptions(incomingCallData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.searchOptions(incomingCallData), `searchOptions`, errorHandler, autoRetries);
-	}
-
-	/**
-	 * Retrieves the client information based on the identification method search
-	 *
-	 * @param {object} clientInfo Information about the incoming call
-	 * @param {errorHandlerCallback} errorHandler An optional error handler
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing client information and the result of the channel service call
-	 */
-	searchCaller(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.searchCaller(clientInfo), `searchCaller`, errorHandler, autoRetries);
+	searchOptions(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.post(
+			`/clientcare-card-${this._version}/search/options`, 
+			null,
+			this.setToken(),
+			`searchOptions`, 
+			false,
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
 
 	/**
@@ -105,30 +70,81 @@ export class CallHandleService extends ServiceBase {
 	 * 
 	 * @param {string} clientID client identification number
 	 * @param {errorHandlerCallback} errorHandler An optional error handler
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing list of security questions & answers and the result of the channel service call
 	 */
-	xdsQuestions(clientID, errorHandler = null, autoRetries = 1) {
-		return this.wrapCall(this.channelService.xdsQuestions(clientID), `xdsQuestions`, errorHandler, autoRetries);
+	async xdsQuestions(clientID, errorHandler = null) {
+		if (await this.isMockEnabled(`xdsQuestions`)) {
+			if (this._mocking.xdsQuestions.substituteIdOnly && this._mocking.xdsQuestions.substituteIdOnly !== ``) {
+				clientID = this._mocking.xdsQuestions.substituteIdOnly;
+			} else {
+				return this.mock(`xdsQuestions`, clientID);
+			}
+		}
+
+		// return this.get(`/clientcare-call-${this._version}/xds-questions?clientID=${clientID}`, this._setToken(), `xdsQuestions`, false, 3000);
+
+		return this.post(
+			`/clientcare-call-${this._version}/load-xds-questions`, 
+			{ 'clientID': clientID }, 
+			this.setToken(), 
+			`xdsQuestions`, 
+			null, 
+			null, 
+			3000,
+			null,
+			errorHandler,
+			1
+		);
 	}
 
 	/**
 	 *  Verifies collected answers for security questions against XDS
 	 * 
-	 * @param {*} response An object containing the responses/answers to the asked security questoins
+	 * @param {*} answers An object containing the responses/answers to the asked security questoins
 	 * @param {errorHandlerCallback} errorHandler An optional error handler
-	 * @param {Number} autoRetries The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object indicating if the verification process was successful or if not, the reason for failure
 	 */
-	verifySecurityQuestions(response, errorHandler = null, autoRetries = 1) {
-		return this.wrapCall(this.channelService.verifySecurityQuestions(response), `verifySecurityQuetsions`, errorHandler, autoRetries);
+	 async verifySecurityQuestions(answers, errorHandler = null) {
+		if (await this.isMockEnabled(`verifySecurityQuestions`)) {
+			return this.mock(`verifySecurityQuestions`, answers);
+		}
+
+		return this.post(
+			`/clientcare-call-${this._version}/xds-questions`, 
+			answers, 
+			this.setToken(), 
+			`verifySecurityQuestions`, 
+			null, 
+			null, 
+			3000,
+			null,
+			errorHandler,
+			1
+		);
 	}
 
-	itaVerification(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.itaService.itaVerification(request), `itaVerification`, errorHandler, autoRetries);
-	}
+	/**
+	 *  End call triggers automated messaging
+	 * 
+	 * @param {object} request End call request object
+	 * @param {errorHandlerCallback} errorHandler An optional error handler
+	 * @param {number} autoRetries auto retires 
+	 * @returns {Promise<ReturnValue>} An object indicating if the verification process was successful or if not, the reason for failure
+	 */
+	endCall(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const url = `/clientcare-call-${this._version}/end-call`;
 
-	digitalVerificationChannelsAvailable(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.digitalVerificationChannelsAvailable(cifNumber), `digitalVerificationChannelsAvailable`, errorHandler, autoRetries);
+		return this.post(
+			url,
+			request,
+			this.setToken(), 
+			`endCall`,
+			false,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
 }

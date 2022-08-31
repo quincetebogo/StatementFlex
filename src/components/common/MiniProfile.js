@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator } from 'platform/core';
+import { Configuration, EventAggregator } from 'platform/core';
 import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/OptionButton';
@@ -21,10 +21,14 @@ export class MiniProfile extends Component {
 	constructor() {
 		super();
 		this.miniProfile = null;
+		this.isHelpDeskAgent = false;
+
+		this.configuration = Configuration.getInstance();
 	}
 
 	/**
 	 * @property {Object} miniProfile Data and flags for updating the mini-profile panel view
+	 * @property {Boolean} [isHelpDeskAgent=false] Determines if the application user role is a Helpdesk Agent
 	 *
 	 * @readonly
 	 * @static
@@ -32,7 +36,8 @@ export class MiniProfile extends Component {
 	 */
 	static get properties() {
 		return {
-			miniProfile: { type: Object }
+			miniProfile: { type: Object },
+			isHelpDeskAgent: { type: Boolean }
 		};
 	}
 
@@ -40,9 +45,13 @@ export class MiniProfile extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 		this.eventAggregator = EventAggregator.getInstance();
+
+		this.authMethod = await this.configuration.getSetting(`AuthMethod`);
+		const authAttempts = await this.configuration.getSetting(`AuthAttempts`);
+		this.maxAttempts = authAttempts[this.authMethod];
 	}
 
 	// ---------
@@ -61,6 +70,10 @@ export class MiniProfile extends Component {
 		this.eventAggregator.publish(`horizon-verify-now-click`, {});
 	}
 
+	_onClientBranchVerifiedClick() {
+		this.eventAggregator.publish(`horizon-verified-in-branch-click`, {});
+	}
+
 	_onVerifyViaSecurityQuestions() {
 		this.eventAggregator.publish(`horizon-verify-via-security-questions`, {});
 	}
@@ -70,7 +83,7 @@ export class MiniProfile extends Component {
 		const tooltip = this.shadowRoot.getElementById(`long-name`);
 		const clientName = this.shadowRoot.getElementById(`client-name`);
 
-		if(e.target.scrollWidth > e.target.offsetWidth) {
+		if (e.target.scrollWidth > e.target.offsetWidth) {
 			tooltip.style.display = `flex`;
 			clientName.style.display = `none`;
 		}
@@ -185,8 +198,7 @@ export class MiniProfile extends Component {
 				}
 				.banner{
 					--theme-alert-banner-height: 48px;
-					--theme-alert-banner-icon-margin-left: 15px;
-					--theme-alert-banner-icon-margin-right: 7px;
+					--theme-toast-icon-margin: 0px 7px 0px 15px;
 					--theme-alert-banner-warning-border: none;
 					--theme-alert-banner-unsuccessful-red-border: none;
 					--theme-alert-banner-info-border: none;
@@ -199,27 +211,36 @@ export class MiniProfile extends Component {
 					width: 380px;
 				}
 				#id-notify-client-warning-msg {
-					color: #D4781C;
-					font-family: "Hind Vadodara";
-					font-size: 15px;
+					font-family: "Hind Vadodara SemiBold";
+					font-size: 14px;
 					letter-spacing: 0;
 				}
 				#id-verify-now-warning-link {
-					--theme-hyperlink-color: #D4781C;
-					--theme-font-family: "Hind Vadodara";
-					--theme-font-weight: 600;
+					--theme-font-family: "Hind Vadodara SemiBold";
+					--theme-hyperlink-color: var(--theme-alert-banner-warning-font-color);
+					--theme-hyperlink-font-size: 14px;
+					text-decoration: underline;
+				}
+				#id-verified-in-branch-link {
+					--theme-font-family: "Hind Vadodara SemiBold";
+					--theme-hyperlink-color: var(--theme-alert-banner-warning-font-color);
+					--theme-hyperlink-font-size: 14px;
+					text-decoration: underline;
 				}
 				#id-verify-via-app-msg {
-					color:#C83C37;
-					font-family: "Hind Vadodara";
-					font-size: 15px;
+					font-family: "Hind Vadodara SemiBold";
+					font-size: 14px;
+					letter-spacing: 0;
+				}
+				#id-verify-via-app-failed-msg {
+					font-family: "Hind Vadodara SemiBold";
+					font-size: 14px;
+					font-weight: 600;
 					letter-spacing: 0;
 				}
 				#verify-via-app-link{
-					--theme-hyperlink-color:#C83C37;
-					--theme-font-family: "Hind Vadodara";
-					--theme-font-weight: 600;
-					text-decoration: underline;
+					--theme-hyperlink-font-size: 14px;
+					--theme-font-family: "Hind Vadodara SemiBold";
 				}
 				capitec-tooltip {
 					display: none;
@@ -228,6 +249,10 @@ export class MiniProfile extends Component {
 					--theme-tooltip-line-height: 20px;
 					--theme-tooltip-border-radius: 2px;
 					--theme-layout-gap-spacing: 4px;
+				}
+				img {
+					height: 158px;
+					width: 158px;
 				}
 			`
 		];
@@ -238,7 +263,8 @@ export class MiniProfile extends Component {
 			? html``
 			: html`
 			<capitec-card class="hello-card">
-				<capitec-content-box class="profile-cb"
+				<capitec-content-box 
+					class="profile-cb"
 					layout="horizontal"
 					halign="left"
 					valign="top"
@@ -253,11 +279,14 @@ export class MiniProfile extends Component {
 	}
 
 	_renderClientImage() {
-		return html`
+		return this.miniProfile.profilePhoto
+		? html`<img src="data:image/jpg;base64,${this.miniProfile.profilePhoto}"/>`
+		: html`
 			<capitec-avatar 
-				shape="square"
-				icon="/images/common/avatar.svg">
-			</capitec-avatar>`;
+					shape="square"
+					icon="/images/common/avatar.svg">
+			</capitec-avatar>
+		`;
 	}
 
 	_renderClientPersonalInfo() {
@@ -267,28 +296,38 @@ export class MiniProfile extends Component {
 				halign="left"
 				valign="top"
 				gap="clear">
-					<capitec-label id="client-name" class="client-name"
+					<capitec-label 
+						id="client-name" 
+						data-automation-id="mini-profile-client-name"
+						class="client-name"
 						label="${this.miniProfile.name}"
 						@mouseover="${(e) => this._displayTooltip(e)}"
 						type="title">
 					</capitec-label>
-					<capitec-tooltip id="long-name" message="${this.miniProfile.name}" position="bottom">
-						<capitec-label class="client-name"
+					<capitec-tooltip 
+							id="long-name" 
+							data-automation-id="mini-profile-tooltip-client-name"
+							message="${this.miniProfile.name}" 
+							position="bottom">
+						<capitec-label 
+							data-automation-id="mini-profile-tooltip-label-client-name"
+							class="client-name"
 							label="${this.miniProfile.name}"
 							type="title">
 						</capitec-label>
 					</capitec-tooltip>
-					${this._renderInfo(`ID Number`, this._replaceEmptyValue(this.miniProfile.idNumber))}
-					${this._renderInfo(`Contact Number`, formatPhoneNumber(this.miniProfile.phoneNumber))}
-					${this._renderInfo(`Lives In`, this._replaceEmptyValue(this.miniProfile.livesIn))}
-					${this._renderInfo(`Language Preference`, this._getLanguagePreference(this.miniProfile.languagePreference))}
-					${this._renderInfo(`Birthday`, this._formatBirthDate(this.miniProfile.birthday))}
+					${this._renderInfo(`ID Number`, this._replaceEmptyValue(this.miniProfile.idNumber), `id-number`)}
+					${this._renderInfo(`Contact Number`, formatPhoneNumber(this.miniProfile.phoneNumber), `telephone`)}
+					${this._renderInfo(`Lives In`, this._replaceEmptyValue(this.miniProfile.livesIn), `lives-in`)}
+					${this._renderInfo(`Language Preference`, this._getLanguagePreference(this.miniProfile.languagePreference), `language`)}
+					${this._renderInfo(`Birthday`, this._formatBirthDate(this.miniProfile.birthday), `birthdate`)}
 			</capitec-group>`;
 	}
 
-	_renderInfo(key, value) {
+	_renderInfo(key, value, automationId) {
 		return html`
-			<capitec-group class="info-rowGroup"
+			<capitec-group 
+				class="info-rowGroup"
 				layout="horizontal"
 				halign="left"
 				valign="center"
@@ -298,6 +337,7 @@ export class MiniProfile extends Component {
 						type="default">
 					</capitec-label>
 					<capitec-label
+						data-automation-id="mini-profile-${automationId}"
 						label="${value}"
 						type="strong">
 					</capitec-label>
@@ -314,6 +354,7 @@ export class MiniProfile extends Component {
 		return html`
 			<capitec-content-box class="client-wrapper-cb" layout="horizontal" halign="left" valign="top" gap="clear">
 				<horizon-option-button
+					data-automation-id="mini-profile-view-profile"
 					label="View Profile"
 					icon="system/profile-action"
 					iconSize="default"
@@ -321,6 +362,7 @@ export class MiniProfile extends Component {
 				</horizon-option-button>
 		
 				<horizon-option-button
+					data-automation-id="mini-profile-view-documents"
 					label="Document"
 					icon="system/documents-action"
 					iconSize="default"
@@ -334,42 +376,84 @@ export class MiniProfile extends Component {
 		const noBanner = this.miniProfile.isVerified || 
 							this.miniProfile.isNonClient || 
 							// eslint-disable-next-line no-extra-parens
-							(!this.miniProfile.hasDigitalChannels && this.miniProfile.verificationAttempts.xdsAttempts >= 2) ||
+							(!this.miniProfile.hasDigitalChannels && this.miniProfile.verificationAttempts.sqAttempts >= this.maxAttempts) ||
 							// eslint-disable-next-line no-extra-parens
-							(this.miniProfile.verificationAttempts.itaAttempts >= 2 && this.miniProfile.verificationAttempts.xdsAttempts >= 2);
+							(this.miniProfile.verificationAttempts.itaAttempts >= 2 && this.miniProfile.verificationAttempts.sqAttempts >= this.maxAttempts);
 
 		if (noBanner) {
 			return html``;
-		} else if (this.miniProfile.is3rdParty) {
+		}
+		if (this.miniProfile.is3rdParty) {
 			return html`
-			<capitec-alert-banner class="banner" type="warning">
-				Client has not been verified
-			</capitec-alert-banner>
+			<horizon-alert-banner 
+				data-automation-id="mini-profile-3rdparty-banner"
+				class="banner" 
+				type="warning"
+				header="Client has not been verified">
+			</horizon-alert-banner>
 			`;
-		} else if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels) {
+		}
+		if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels) {
 			return html`
-			<capitec-alert-banner class="banner" type="unsuccessful-red">
-				<capitec-group id="id-notify-banner-group" layout="horizontal">
-					<capitec-label id="id-verify-via-app-msg" label="Verification Unsuccessful"></capitec-label>
+			<horizon-alert-banner
+				class="banner" 
+				type="error"
+				layout="horizontal">
+					<capitec-label
+						id="id-verify-via-app-msg" 
+						label="Verification Failed">
+					</capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-hyperlink id="verify-via-app-link" @click="${() => this._onVerifyNowClick()}"
-						label="Verify Now">
+					<capitec-hyperlink
+						id="verify-via-app-link" 
+						data-automation-id="mini-profile-verify-app"
+						@click="${() => this._onVerifyNowClick()}"
+						label="Verify now">
 					</capitec-hyperlink>
-				</capitec-group>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
+			`;
+		}
+		if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels && this.miniProfile.verificationAttempts.itaAttempts > 2) {
+			return html`
+			<horizon-alert-banner 
+				class="banner" 
+				type="error"
+				header="Blocked on Remote / Mobile Banking Channels">
+			</horizon-alert-banner>
 			`;
 		};
 
-		return html`
-			<capitec-alert-banner class="banner" type="warning">
-				<capitec-group id="id-notify-banner-group" layout="horizontal">
-					<capitec-label id="id-notify-client-warning-msg" label="Client has not been verified"></capitec-label>
+		return this.isHelpDeskAgent && !this.miniProfile.isVerified && this.miniProfile.isBranchConsultant
+		? html`
+			<horizon-alert-banner
+				class="banner"
+				type="warning"
+				layout="horizontal">
+					<capitec-label 
+						id="id-notify-client-warning-msg" 
+						label="Client has not been verified">
+					</capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-hyperlink id="id-verify-now-warning-link" @click="${() => this._onVerifyNowClick()}"
-						label="Verify Now">
+					<capitec-hyperlink 
+						id="id-verified-in-branch-link" 
+						data-automation-id="mini-profile-branch-verified"
+						@click="${() => this._onClientBranchVerifiedClick()}"
+						label="Client verified in branch">
 					</capitec-hyperlink>
-				</capitec-group>
-			</capitec-alert-banner>
+			</horizon-alert-banner>` 
+		: html`
+			<horizon-alert-banner
+				class="banner"
+				type="warning"
+				header="Client has not been verified">
+					<capitec-spacer></capitec-spacer>
+					<capitec-hyperlink 
+						id="id-verify-now-warning-link" 
+						data-automation-id="mini-profile-verify"
+						@click="${() => this._onVerifyNowClick()}"
+						label="Verify now">
+					</capitec-hyperlink>
+			</horizon-alert-banner>
 			`;
 	}
 }

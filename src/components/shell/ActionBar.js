@@ -200,7 +200,7 @@ export class HorizonActionBar extends Component {
 						data-automation-id="action-bar-clientNeed">
 					</horizon-label>
 					<div class="vertical-line"></div>
-					<img class="end-call-icon" src="/images/incoming-call.svg"/>
+					<img class="end-call-icon" src="/images/shell/incoming-call.svg"/>
 					<horizon-label
 						label="Incoming call" 
 						value="${this.isUnverifiedNumber ? `Private Number` : formatPhoneNumber(this.phoneNumber)}"
@@ -215,7 +215,7 @@ export class HorizonActionBar extends Component {
 									@click="${() => this._onAssign()}"
 									data-automation-id="action-bar-assign-button">
 					</capitec-button>
-					<div class="vertical-line" ?hidden= ${true}></div>
+					<div class="vertical-line" ?hidden="${true}"></div>
 					<capitec-button type="clear" 
 									label="Handoff"
 									?hidden="${this.isHidden}"
@@ -232,7 +232,7 @@ export class HorizonActionBar extends Component {
 					<capitec-button label="End Call" 
 									@click="${() => this._endCallSession()}"
 									data-automation-id="action-bar-end-call">
-						<img class="end-call-icon" src="/images/hangup.svg"/>
+						<img class="end-call-icon" src="/images/common/hangup.svg"/>
 					</capitec-button>
 				</capitec-group>
 			</capitec-title-bar>

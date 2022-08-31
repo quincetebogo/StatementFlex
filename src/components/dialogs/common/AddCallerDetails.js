@@ -4,8 +4,8 @@ import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { IDCallerEvents } from 'app/constants/Telemetry/Events/IdentifyCaller';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components/popups/Modal';
@@ -22,6 +22,7 @@ const HEADER_LABEL = `Add Caller Details`;
 
 const ERROR_MESSAGE = {
 	REQUIRED_FIELDS_EMPTY: `Please enter all required fields before you continue`,
+	REQUIRED_FIELD_HINT: `This is a required field`,
 	INVALID_CELLPHONE_NUMBER: `Cellphone number must be 10 digits`,
 	INVALID_FIRSTNAME: `Only alpha characters and hyphen allowed`,
 	INVALID_SURNAME: `Only alpha characters and hyphen allowed`
@@ -41,6 +42,14 @@ const REGEX_SURNAME = {
 	PATTERN: /^[A-Za-z\s-]+$/,
 	ERR_MESSAGE: `Name and surname must be completed`
 };
+
+const POSSIBLE_RELATIONSHIPS = [ 
+	{ key: 0, value: `Spouse` },
+	{ key: 1, value: `Sibling` },
+	{ key: 2, value: `Child` },
+	{ key: 3, value: `Friend` },
+	{ key: 4, value: `Other` }
+];
 
 
 /**
@@ -65,23 +74,29 @@ export class AddCallerDetails extends Component {
 	// --------------
 
 	constructor() {
-
 		super();
 
 		RegExp();
 
-		this.confirmedCaller = null;
 		this.incomingCallDetails = null;
-		this.addCallerDialog = null;
 		this.renderMode = RENDER_MODE.ADD_CALLER;
-
+		this.surnameError = ``;
+		this.cellphoneError = ``;
 		this.validationFailed = false;
 		this.alertBannerMessage = ``;
-
+		this.firstNameError = ``;
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-		this._telemetry = HorizonTelemetry.instance;
+		this.telemetry = HorizonTelemetry.getInstance();
+
+		this.nonClientRelationship = ``;
+
+		this.ErrorMessageFields = {
+			firstNameTextField: ``,
+			surnameTextField: ``,
+			cellPhoneTextField: ``
+		};
 	}
 
 	// ----------
@@ -89,10 +104,9 @@ export class AddCallerDetails extends Component {
 	// ----------
 
 	/**
-	 * @property {Object} confirmedCaller - Caller info for verified client.
 	 * @property {Object} incomingCallDetails - Incoming call information
 	 * @property {Object} incidentDetails Incident details
-	 * @property {Object} addCallerDialog - model from addCallerDetails Channel service call for loading this dialog
+	 * @property {Object} callerInformation - information on incoming caller
 	 *
 	 * @readonly
 	 * @static
@@ -100,13 +114,12 @@ export class AddCallerDetails extends Component {
 	 */
 	static get properties() {
 		return {
-			confirmedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
 			incidentDetails: { type: Object },
-			addCallerDialog: { type: Object },
-
+			callerInformation: { type: Object },
 			renderMode: { attribute: false },
-			validationFailed: { attribute: false }
+			validationFailed: { attribute: false },
+			nonClientRelationship: { attribute: false }
 		};
 	}
 
@@ -117,31 +130,23 @@ export class AddCallerDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		
-		this._telemetry.startSpan(IDCallerEvents.ADD_CALLER, {
+		this.telemetry.startSpan(IDCallerEvents.ADD_CALLER, {
 			"screen": TelemetryScreen.ADD_CALLER_DETAILS
 		});
 
 		// Short hand references for reaching into the incoming addCallerDialog model
-		this.ivrOption = this.addCallerDialog.ivrOption;
+		this.ivrOption = this.incomingCallDetails.ivrOption;
 
-		this.incomingTelephoneNumber = this.addCallerDialog.incomingTelephoneNumber;
-
-		this.nonClientInformation = this.addCallerDialog.nonClientInformation;
-		this.firstNameTextField = this.nonClientInformation.firstNameTextField;
-		this.surnameTextField = this.nonClientInformation.surnameTextField;
-		this.cellPhoneTextField = this.nonClientInformation.cellPhoneTextField;
-		this.nonClientRelationship = this.nonClientInformation.nonClientRelationship;
-		this.nonClientRelationship.value = ``; // Initialise the value. The contract returns the label here.
-
-		this.endCallSessionButton = this.addCallerDialog.endCallSessionButton;
-		this.confirmButton = this.addCallerDialog.confirmButton;
-		this.backButton = this.addCallerDialog.backButton;
+		this.firstNameTextField = this.callerInformation.nonClientFirstName;
+		this.surnameTextField = this.callerInformation.nonClientSurName;
+		this.cellPhoneTextField = this.callerInformation.nonClientCellPhone;
+		this.nonClientRelationship = this.callerInformation.nonClientRelationship;
 
 		this.renderMode = RENDER_MODE.ADD_CALLER;
 	}
 
 	disconnectedCallback() {
-		this._telemetry.endSpan(IDCallerEvents.ADD_CALLER, {
+		this.telemetry.endSpan(IDCallerEvents.ADD_CALLER, {
 			"screen": TelemetryScreen.ADD_CALLER_DETAILS
 		});
 	}
@@ -151,30 +156,23 @@ export class AddCallerDetails extends Component {
 	// --------------
 
 	_keyPress(e) {
+		// Clear the error string
 		if (e.detail.new !== ``) {
-			this[e.currentTarget.id].errorMessage = ``;
-		}
-		this.validationFailed = false;
-		this.requestUpdate();
-	}
+			e.currentTarget.error = ``;
 
-	_valueChanged(e) {
-		if (typeof e.detail.new === `object`) {
-			this[e.currentTarget.id].value = e.detail.new.value;
-		} else {
-			this[e.currentTarget.id].value = e.detail.new;
+			this.ErrorMessageFields[e.currentTarget.id] = ``;
 		}
 		this.validationFailed = false;
 	}
 
 	_confirmClick() {
-		this._telemetry.logEvent(IDCallerEvents.ADD_CALLER_CONFIRM_CLICK, {
+		this.telemetry.logEvent(IDCallerEvents.ADD_CALLER_CONFIRM_CLICK, {
 			"screen": TelemetryScreen.ADD_CALLER_DETAILS,
 			"next-screen": null,
-			"name": this.firstNameTextField.value,
-			"surname": this.surnameTextField.value,
-			"relation": this.nonClientRelationship.value,
-			"telephone": this.cellPhoneTextField.value
+			"name": this.callerInformation.nonClientFirstName,
+			"surname": this.callerInformation.nonClientSurName,
+			"relation": this.callerInformation.nonClientRelationship,
+			"telephone": this.callerInformation.nonClientCellPhone
 		});
 
 		if (!this._validateData()) {
@@ -182,26 +180,41 @@ export class AddCallerDetails extends Component {
 				detail: {
 					incomingCallDetails: this.incomingCallDetails,
 					callerInformation: new CallerInformation(
-						this.confirmedCaller.cifNumber,
-						this.confirmedCaller.birthdate,
-						this.confirmedCaller.languagePreference,
-						this.confirmedCaller.livesIn,
-						this.confirmedCaller.name,
-						this.confirmedCaller.southAfricanIDNumber,
-						this.confirmedCaller.verifiedTelephoneNumber,
-						this.firstNameTextField.value,
-						this.surnameTextField.value,
-						`${this.firstNameTextField.value} ${this.surnameTextField.value}`,
-						this.cellPhoneTextField.value,
+						this.callerInformation.cifNumber,
+						this.callerInformation.birthdate,
+						this.callerInformation.languagePreference,
+						this.callerInformation.livesIn,
+						this.callerInformation.name,
+						this.callerInformation.title,
+						this.callerInformation.southAfricanIDNumber,
+						this.callerInformation.verifiedTelephoneNumber,
+						this.firstNameTextField,
+						this.surnameTextField,
+						`${this.firstNameTextField} ${this.surnameTextField}`,
+						this.cellPhoneTextField,
 						``,
-						this.nonClientRelationship.value,
+						this.nonClientRelationship,
 						true,
-						this.confirmedCaller.verificationStatus || `unverified`,
+						this.callerInformation.verificationStatus || `unverified`,
 						false,
 						true,
 						false,
 						false, // presence of insurance products not yet determined
-						false // availability of digital channels not yet determined
+						false, // availability of digital channels not yet determined
+						{ sqAttempts: 0, itaAttempts: 0 },
+						this.callerInformation.isBranchConsultant,
+						false,
+						`unverified`,
+						this.callerInformation.firstName,
+						this.callerInformation.middleName1,
+						this.callerInformation.middleName2,
+						this.callerInformation.middleName3,
+						this.callerInformation.lastName,
+						this.callerInformation.initials,
+						this.callerInformation.identifiedBy, // Identification method used to confirm client
+						this.callerInformation.emailId, // client's registered email ID
+						this.callerInformation.profilePhoto,
+						this.callerInformation.gender            
 					)
 				}
 			}));
@@ -209,7 +222,7 @@ export class AddCallerDetails extends Component {
 	}
 
 	_backClick() {
-		this._telemetry.logEvent(IDCallerEvents.ADD_CALLER_CANCEL_CLICK, {
+		this.telemetry.logEvent(IDCallerEvents.ADD_CALLER_CANCEL_CLICK, {
 			"screen": TelemetryScreen.ADD_CALLER_DETAILS,
 			"next-screen": TelemetryScreen.CONFIRM_CALLER
 		});
@@ -222,10 +235,16 @@ export class AddCallerDetails extends Component {
 	};
 
 	_endCall() {
-		this._telemetry.logEvent(IDCallerEvents.ADD_CALLER_END_CALL_CLICK, {
+		this.telemetry.logEvent(IDCallerEvents.ADD_CALLER_END_CALL_CLICK, {
 			"screen": TelemetryScreen.ADD_CALLER_DETAILS,
 			"next-screen": TelemetryScreen.END_CALL
 		});
+
+        this.callerInformation.nonClientFirstName = this.firstNameTextField;
+        this.callerInformation.nonClientSurName = this.surnameTextField;
+        this.callerInformation.nonClientCellPhone = this.cellPhoneTextField;
+        this.callerInformation.is3rdParty = true;
+        this.callerInformation.isNonClient = false;
 
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
@@ -241,46 +260,34 @@ export class AddCallerDetails extends Component {
 	// ---------------
 
 	_validateData() {
-		for (const key in this.nonClientInformation) {
-			if (Object.prototype.hasOwnProperty.call(this.nonClientInformation, key)) {
-				const field = this.nonClientInformation[key];
-				// When the field is required and it doesn't have any value - assigning error message
-				if (field.required && !field.value) {
-					this[key].errorMessage = field.inputValidationOption.validationFailedMessage;
-					this.validationFailed = true;
-					this.alertBannerMessage = ERROR_MESSAGE.REQUIRED_FIELDS_EMPTY;
-				}
-			}
-		}
+		if (isNullorEmpty(this.firstNameTextField)) {
+			// When the field is required and it doesn't have any value - assigning error message
+			this.validationFailed = true;
+			this.firstNameError = ERROR_MESSAGE.REQUIRED_FIELD_HINT;
+			this.alertBannerMessage = ERROR_MESSAGE.REQUIRED_FIELDS_EMPTY;
+		} else if (!RegExp(REGEX_NAME.PATTERN, `g`).test(this.firstNameTextField)) {
+			this.firstNameError = ERROR_MESSAGE.INVALID_FIRSTNAME;
+			this.validationFailed = true;
+			this.alertBannerMessage = REGEX_NAME.ERR_MESSAGE;
+		};
 
-		if (!isNullorEmpty(this.cellPhoneTextField.value) &&
-			!RegExp(REGEX_CELLPHONE.PATTERN, `g`).test(this.cellPhoneTextField.value)) {
-			this.cellPhoneTextField.errorMessage = ERROR_MESSAGE.INVALID_CELLPHONE_NUMBER;
+		if (isNullorEmpty(this.surnameTextField)) {
+			this.validationFailed = true;
+			this.surnameError = ERROR_MESSAGE.REQUIRED_FIELD_HINT;
+			this.alertBannerMessage = ERROR_MESSAGE.REQUIRED_FIELDS_EMPTY;
+		} else if (!RegExp(REGEX_SURNAME.PATTERN, `g`).test(this.surnameTextField)) {
+			this.surnameError = ERROR_MESSAGE.INVALID_SURNAME;
+			this.validationFailed = true;
+			this.alertBannerMessage = REGEX_NAME.ERR_MESSAGE;
+		};
+
+		if (!isNullorEmpty(this.cellPhoneTextField) && !RegExp(REGEX_CELLPHONE.PATTERN, `g`).test(this.cellPhoneTextField)) {
+			this.cellphoneError = ERROR_MESSAGE.INVALID_CELLPHONE_NUMBER;
 			this.validationFailed = true;
 			this.alertBannerMessage = REGEX_CELLPHONE.ERR_MESSAGE;
-
 		}
 
-		if (!RegExp(REGEX_NAME.PATTERN, `g`).test(this.firstNameTextField.value)) {
-			this.firstNameTextField.errorMessage = ERROR_MESSAGE.INVALID_FIRSTNAME;
-			this.validationFailed = true;
-			this.alertBannerMessage = REGEX_NAME.ERR_MESSAGE;
-		};
-
-		if (!RegExp(REGEX_SURNAME.PATTERN, `g`).test(this.surnameTextField.value)) {
-			this.surnameTextField.errorMessage = ERROR_MESSAGE.INVALID_SURNAME;
-			this.validationFailed = true;
-			this.alertBannerMessage = REGEX_NAME.ERR_MESSAGE;
-		};
-
 		return this.validationFailed;
-	}
-
-	/*
-	 * Temporary method to return error message
-	 */
-	_getErrorMessage(field) {
-		return field && field.errorMessage ? field.errorMessage : ``;
 	}
 
 	// ---------
@@ -331,11 +338,8 @@ export class AddCallerDetails extends Component {
 					--theme-button-padding-left: 12px;
 				}
 
-				capitec-alert-banner {
-					--theme-alert-banner-height: 48px;
+				horizon-alert-banner {
 					--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
-					--theme-alert-banner-icon-margin-left: 15px;
-					--theme-alert-banner-icon-margin-right: 15px;
 					
 					margin: 14px 16px 0px 17px;
 					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
@@ -355,14 +359,15 @@ export class AddCallerDetails extends Component {
 						.incomingCallDetails="${this.incomingCallDetails}"
 						.incidentDetails="${this.incidentDetails}"
 						.isNeedSelectable=${false}
-						.headerLabel="${HEADER_LABEL}" 
+						headerLabel="${HEADER_LABEL}" 
 						@on-end-call="${() => this._endCall()}">
 							<div slot="body" class="main">
 								${this._renderErrorMessage()}
 								${this._renderAddCallerDetails()}
+								${this._renderCallerDetails()}
 							</div>
 							<div slot="footer">
-								${this._renderFooter()}
+							${this._renderFooter()}
 							</div>
 					</horizon-caller-dialog>`;
 			case RENDER_MODE.END_CALL:
@@ -374,10 +379,11 @@ export class AddCallerDetails extends Component {
 	_renderErrorMessage() {
 		if (this.validationFailed) {
 			return html`
-				<capitec-alert-banner
-								type="error"
-								label="${this.alertBannerMessage}">
-				</capitec-alert-banner>`;
+				<horizon-alert-banner
+					data-automation-id="add-caller-details-alert-banner"
+					label="${this.alertBannerMessage}"
+					type="error">
+				</horizon-alert-banner>`;
 		}
 		return html``;
 	}
@@ -385,77 +391,99 @@ export class AddCallerDetails extends Component {
 	_renderAddCallerDetails() {
 		return html`
 			<content-box class="body-group" layout="vertical" gap="none" halign="stretch" valign="top" noScroll>
-				<capitec-label id="id-label-enter-details" type="title" label="Enter details below:"></capitec-label>
+				<capitec-label 
+					id="id-label-enter-details" 
+					type="title" 
+					label="Enter details below:">
+				</capitec-label>
 				<div class="group-field-row">
-					<capitec-text-field label="Name"
-										id="firstNameTextField"
-										value="${this.firstNameTextField.value}"
-										error="${this._getErrorMessage(this.firstNameTextField)}"
-										tabindex="1"
-										@value-changed="${(e) => this._valueChanged(e)}" 
-										@key-input="${(e) => this._keyPress(e)}">
-					</capitec-text-field>
-				</div>
-				<div class="group-field-row">
-					<capitec-text-field label="Surname"
-										id="surnameTextField"
-										value="${this.surnameTextField.value}"
-										error="${this._getErrorMessage(this.surnameTextField)}"
-										tabindex="2"
-										@value-changed="${(e) => this._valueChanged(e)}"
-										@key-input="${(e) => this._keyPress(e)}">
-					</capitec-text-field>
-				</div>
-				<div class="group-field-row">
-					<capitec-text-field type="number"
-										id="cellPhoneTextField"
-										value="${this.cellPhoneTextField.value}"
-										error="${this._getErrorMessage(this.cellPhoneTextField)}"
-										label="Cellphone Number (Optional)"
-										tabindex="3"
-										@key-input="${(e) => this._keyPress(e)}"
-										@value-changed="${(e) => this._valueChanged(e)}">
-					</capitec-text-field><br>
-				</div>
-				<div class="group-field-row">
-					<capitec-select id="nonClientRelationship"
-                                    label="Choose relationship type (Optional)"
-						            value="${this.nonClientRelationship.value}"
-                                    .items="${this.nonClientRelationship.possibleValues}"
-						            @value-changed="${(e) => this._valueChanged(e)}"
-                                    tabindex="4"
-						            id-field="key"
-                                    display-field="value">
+					<capitec-select
+						id="nonClientRelationship"
+						data-automation-id="add-caller-details-non-client-relationship"
+						label="Choose relationship type (Optional)"
+						value="${this.nonClientRelationship}"
+						tabindex="1"
+						.items="${POSSIBLE_RELATIONSHIPS}"
+						id-field="key"
+						display-field="value"
+						@value-changed="${(e) => this.nonClientRelationship = e.detail.new.value}">
 					</capitec-select>
 				</div>
 			</content-box>`;
 	}
 
+	_renderCallerDetails() {
+		return html`
+			<div class="group-field-row">
+				<capitec-text-field 
+					id="firstNameTextField"
+					data-automation-id="add-caller-details-first-name"
+					label="Name"
+					value="${this.firstNameTextField}"
+					tabindex="2"
+					error="${this.firstNameError}"
+					@value-changed="${(e) => this.firstNameTextField = e.detail.new}"
+					@key-input="${(e) => this._keyPress(e)}">
+				</capitec-text-field>
+			</div>
+			<div class="group-field-row">
+				<capitec-text-field 
+					id="surnameTextField"
+					data-automation-id="add-caller-details-surname"
+					label="Surname"
+					value="${this.surnameTextField}"
+					tabindex="3"
+					error="${this.surnameError}"
+					@value-changed="${(e) => this.surnameTextField = e.detail.new}"
+					@key-input="${(e) => this._keyPress(e)}">
+				</capitec-text-field>
+			</div>
+			<div class="group-field-row">
+				<capitec-text-field 
+					id="cellPhoneTextField"
+					data-automation-id="add-caller-details-cellphone"
+					type="numeric"
+					label="Cellphone Number (Optional)"
+					value="${this.cellPhoneTextField}"
+					tabindex="4"
+					error="${this.cellphoneError}"
+					@value-changed="${(e) => this.cellPhoneTextField = e.detail.new}"
+					@key-input="${(e) => this._keyPress(e)}">
+				</capitec-text-field><br>
+			</div>`;
+	}
+
 	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<capitec-button id="id-back-button"
-								type="clear"
-								label="Cancel"
-								tabindex="6"
-								@click="${(e) => this._backClick()}">
+				<capitec-button 
+					id="id-back-button"
+					data-automation-id="add-caller-details-cancel"
+					type="clear"
+					label="Cancel"
+					tabindex="6"
+					@click="${(e) => this._backClick()}">
 				</capitec-button>
-				<capitec-button id="id-confirm-button"
-								type="primary"
-								label="Confirm"
-								tabindex="5"
-								@click="${() => this._confirmClick()}">
+				<capitec-button 
+					id="id-confirm-button"
+					data-automation-id="add-caller-details-confirm"
+					type="primary"
+					label="Confirm"
+					tabindex="5"
+					@click="${() => this._confirmClick()}">
 				</capitec-button>
 			</capitec-group>`;
 	}
 
 	_renderEndCallModal() {
-		return html`<horizon-end-call-session 
-						.incomingCallDetails = "${this.incomingCallDetails}"
-						.incidentDetails="${this.incidentDetails}"
-						endCallContext="ConfirmClient"
-						@cancel="${() => this.renderMode = RENDER_MODE.ADD_CALLER}">
-					</horizon-end-call-session>`;
+		return html`
+			<horizon-end-call-session 
+				.incomingCallDetails = "${this.incomingCallDetails}"
+				.incidentDetails="${this.incidentDetails}"
+                .callerInformation="${this.callerInformation}"
+				endCallContext="ConfirmClient"
+				@cancel="${() => this.renderMode = RENDER_MODE.ADD_CALLER}">
+			</horizon-end-call-session>`;
 	}
 }
 

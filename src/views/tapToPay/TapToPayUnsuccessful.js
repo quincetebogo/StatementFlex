@@ -1,7 +1,7 @@
 import { css, html } from 'platform/elements';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
@@ -18,7 +18,7 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 	constructor() {
 		super();
-
+		this.endCallContext = `QuickTransactionsUnSuccess`;
 		this._telemetry = HorizonTelemetry.instance;
 	}
 
@@ -94,9 +94,9 @@ export class TapToPayUnsuccessful extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(incidentDetails);
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	// ---------
@@ -108,9 +108,6 @@ export class TapToPayUnsuccessful extends ViewBase {
 			css`
 				#id-update-msg{
 					width: auto;
-				}
-				horizon-success-screen {
-					--horizon-button-group-margin-top: 28px;
 				}
 			`
 		];
@@ -131,13 +128,13 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 	_renderTapToPayFailure() {
 		return html`
-			<horizon--error-screen 
+			<horizon-error-screen 
+				data-automation-id="tap-to-pay-unsuccessful"
 				header="Tap to pay not activated" 
-				image="/images/tap-to-pay-error.svg"
+				image="/images/common/tap-to-pay-error.svg"
 				left="Done"
 				right="Assign"
 				toast="Tap to pay not activated."
-				sub_detail="true"
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._handoffClick()}>
 					<section
@@ -145,7 +142,7 @@ export class TapToPayUnsuccessful extends ViewBase {
 						slot="detail">
 						Tap to Pay for ${this.cardType} card ${this.card} was not activated.
 					</section>
-			</horizon--error-screen >
+			</horizon-error-screen >
 		`;
 	}
 

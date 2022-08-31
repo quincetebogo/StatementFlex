@@ -1,14 +1,18 @@
 {
-  "name": "Horizon-UI-2",
+  "name": "Horizon-UI",
   "product": "BSC-Horizon",
   "group": "G_PL_HZN_DEV",
-  "version": "1.4.6",
-  "alias": "horizon2",
-  "release": "CLIRel",
+  "version": "2.12.5",
+  "alias": "horizon",
+  "release": "220701",
   "contractVersion": "v1",
   "serviceType": "Hosting",
-  "resourceSize": "small",
-  "redundancySize": "small",
+  "resourceSize": "medium",
+  "redundancySize": "custom",
+  "redundancySizes": {
+    "NP": 3,
+    "PROD": 5
+  },
   "port": 6001,
   "client": {
     "clientName": "Platform",
@@ -23,6 +27,7 @@
   ],
   "environmentVariables": [
     "LogLevel",
+    "MetricsLogLevel",
     "DatabusSourceSystem",
     "DatabusResponsibleTeam",
     "TelemetryApiKeySecretName",

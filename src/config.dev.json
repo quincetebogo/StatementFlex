@@ -1,8 +1,16 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://horizoncs-dev-v1.platform-dev.int.capinet"
+		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet",
+		"clientInsightsUrl": "https://cec-insights.platform-dev.int.capinet",
+		"accessChannelServiceUrl": "https://cec-ac.platform-dev.int.capinet",
+		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-dev.int.capinet",
+		"clientProfileServiceUrl": "https://csc-clientprofile.platform-dev.int.capinet",
+		"debiCheckServiceUrl": "https://csc-debicheck.platform-dev.int.capinet",
+		"cardServiceUrl": "https://horizon-cs-card-v1.platform-dev.int.capinet",
+		"savingsPlanChannelServiceUrl": "https://csc-cs-save.platform-dev.int.capinet"
 	},
-	"signalRUrl": "",
+	"signalRUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
+	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
@@ -10,41 +18,54 @@
 		"sbl": "http://SBLDEV01.int.capinet:8102/",
 		"cds": "https://clientdocsearchdev.int.capinet:51443/",
 		"cnet": "http://c-net.int.capinet:51001/Pages/default.aspx",
-		"strack": "http://strackdevnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
-		"global-one": "https://www.capitecbank.co.za/global-one/"
+		"strack": "https://strack-dev.capitecbank.co.za/HEAT?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
+		"global-one": "https://www.capitecbank.co.za/global-one/",
+		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",
+		"live-better": "https://www.capitecbank.co.za/live-better/live-better-savings-account",	
+		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js",
+		"partner-benefits": "https://www.capitecbank.co.za/bank-better-live-better/articles/benefits/",
+		"fees": "https://www.capitecbank.co.za/global-one/transact/fees/"		
 	},
-	"VDN":"7253",
+	"AuthMethod": "KBA",
+	"AuthAttempts": {
+		"XDS": 2,
+		"KBA": 1
+	},
 	"LogRequestResponseModels" : true,
+	"VDN": "7250",
 	"ivrMapping": [
 		{
 			"option": "7251",
 			"primaryNeed": "StopCard"
 		},
 		{
-			"option": "7253",
+			"option": "7250",
 			"primaryNeed": "Transact"
-		},
-		{
-			"option": "8251",
-			"primaryNeed": "ProductEnquiry"
-		},
-		{
-			"option": "8252",
-			"primaryNeed": "ProductEnquiry"
 		}
 	],
-	"ivrActionMapping": {
-		"debi-check": "DEBI_CHECK",
-		"stop-card": "STOP_CARD",
-		"update-card-limits": "UPDATE_CARD_LIMITS",
-		"tap-to-pay": "TAP_TO_PAY",
-		"statements": "STATEMENTS",
-		"proof-of-account": "PROOF_OF_ACCOUNT",
-		"tax-certificate": "TAX_CERTIFICATE",
-		"transaction-history": "TRANSACTION_HISTORY",
-		"savings-product-info": "PRODUCT_ENQUIRY_SAVINGS",
-		"insure-product-info": "PRODUCT_ENQUIRY_INSURE",
-		"credit-product-info": "PRODUCT_ENQUIRY_CREDIT"
+	"lbb-insight-details": {
+		"34": {
+			"155": {
+				"header": "Live Better alert!",
+				"image": "/images/insights/lbb-alert.png",
+				"message": "You're missing out on cash backs, automatic savings and higher interest. Do you want to activate your Live Better savings account on the app now?"
+			},
+			"134": {
+				"header": "Live Better savings",
+				"image": "/images/insights/lbb-savings.png",
+				"message": "Grow your Live Better savings! Just switch on the automatic savings tools on our app.\nCan I help you switch it on?"
+			},
+			"114": {
+				"header": "Switch on Round-up",
+				"image": "/images/insights/lbb-roundup.png",
+				"message": "You're missing out on automatic savings\nevery time you spend! Switch on Round-up and watch your Live Better savings grow\nevery time you spend."
+			},
+			"243": {
+				"header": "Switch on Interest Sweep",
+				"image": "/images/insights/lbb-interest-sweep.png",
+				"message": "Did you know you can earn more interest on your interest with Live Better savings?\nCan I help you switch on Interest Sweep on the app now?"
+			}
+		}
 	},
 	"mock": {
 		"enabled": false,
@@ -85,6 +106,18 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"debiCheckDecline": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"debiCheckApprove": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"debiCheckAgreement": {
+			"enabled": false,
+			"positiveCase": true
+		},
 		"cardLimits": {
 			"enabled": false,
 			"positiveCase": true
@@ -102,6 +135,10 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"savingsPlanTransactionHistory": {
+			"enabled": false,
+			"positiveCase": true
+		},
 		"savingsAccountLanding": {
 			"enabled": false,
 			"positiveCase": true
@@ -113,6 +150,19 @@
 		"viewStatements": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"getClientInsights": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"budgetTransferFromAccounts": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"confirmBudgetTransfer": {
+			"enabled": false,
+			"positiveCase": true
 		}
-	}
+	},
+	"searchClientOptionEnabled": true
 }

@@ -193,7 +193,7 @@ export class WizardStepperModal extends Component {
 					box-shadow: var(--theme-modal-container-box-shadow);
 					border-radius: var(--theme-modal-border-radius, 4px);
 					width: var(--theme-wizard-modal-xl-width, 80%);
-					height: var(--theme-wizard-modal-xl-height, 80%);
+					height: var(--theme-wizard-modal-xl-height, 95%);
 					max-width: var(--theme-wizard-modal-max-width, 80%);
 					max-height: var(--theme-wizard-modal-max-height, 80%);
 				}
@@ -202,13 +202,15 @@ export class WizardStepperModal extends Component {
 					display: flex;
 					align-items: center;
 					color: var(--theme-modal-header-color,#4E6066);
-					background-color: var(--theme-modal-header-background-color, #F7F7F7);
+					background: var(--theme-modal-header-background, #F7F7F7);
 					font-family: var(--theme-font-family);
 					font-size: var(--theme-modal-header-font-size, 20px);
 					font-weight: var(--theme-modal-header-font-weight, 500);
 					padding: var(--theme-wizard-modal-header-padding, 20px 16px);
 					border-radius: var(--theme-modal-border-radius, 4px);
 					position: relative;
+					border-bottom-left-radius: 0px;
+					border-bottom-right-radius: 0px;
 				}
 
 				.body {
@@ -241,15 +243,15 @@ export class WizardStepperModal extends Component {
 			unsafeCSS(`
 				@media screen and (max-width: ${window.breakpoints.xl}px) {
 					.container {
-						width: var(--theme-wizard-modal-xl-width, 80%);
-						height: var(--theme-wizard-modal-xl-height, 80%);
+						width: var(--theme-wizard-modal-xl-width, 100%);
+						height: var(--theme-wizard-modal-xl-height, 100%);
 					}
 				}
 
 				@media screen and (max-width: ${window.breakpoints.lg}px) {
 					.container {
-						width: var(--theme-wizard-modal-lg-max-width, 85%);
-						height: var(--theme-wizard-modal-lg-max-height, 85%);
+						width: var(--theme-wizard-modal-lg-max-width, 100%);
+						height: var(--theme-wizard-modal-lg-max-height, 100%);
 					}
 				}
 
@@ -298,12 +300,14 @@ export class WizardStepperModal extends Component {
 			<div class="modal" role="dialog" aria-modal="true">
 				<div class="container">
 					<slot name="header">
-						<div class="header">
+						<div class="header"
+							data-automation-id="bb-stepper-heading">
 							${this.header}
 							${this.showEditButton 
 								? html`
 									<capitec-spacer></capitec-spacer>
 									<capitec-hyperlink
+										data-automation-id="bb-stepper-edit-click"
 										label="Edit"
 										@click="${() => this.dispatchEvent(new CustomEvent(`edit-button-click`))}"
 										class="default-size">
@@ -316,6 +320,7 @@ export class WizardStepperModal extends Component {
 						<slot name="override">
 							<div class="stepper-container">
 								<capitec-stepper
+									data-automation-id="bb-stepper-active-step"
 									layout="horizontal"
 									.steps=${this.steps}
 									active-step-number=${this.currentActiveStep + 1}>

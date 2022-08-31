@@ -1,8 +1,8 @@
-import { SecurityContext, Telemetry } from 'platform/core';
-// import { TelemetryMock } from 'app/mocks/Telemetry';
+import { SecurityContext, Telemetry, Utilities } from 'platform/core';
 import { TelemetryStore } from 'app/store/TelemetryStore';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { v4 } from 'uuid';
+
 
 /*
  * Horizon Telemetry
@@ -35,18 +35,154 @@ export const OutcomeScreen = {
  * using the platform capability.
  *
  * @export
- * @class TelemetryService
+ * @class HorizonTelemetry
  * @extends Telemetry
  */
 export class HorizonTelemetry extends Telemetry {
 	// TODO: add logic to close all child spans when parent span gets closed. Log a warning if this happens.
 	
+
+	// TODO: OVERRIDE TO ALLOW OLD TELEMETRY CONTRACT. THIS MUST BE REMOVED AS SOON AS WE CAN GO TO THE NEW CONTRACT
+	_validateTelemetryEventParams(params) {
+		if (!params) {
+			throw new Error(`"params" not provided`);
+		}
+
+		if (!params.traceId) {
+            throw new Error(`"params.traceId" not provided`);
+		}
+
+		if (!params.eventName) {
+			throw new Error(`"params.eventName" not provided`);
+		}
+
+		if (!params.eventType) {
+			throw new Error(`"params.eventType" not provided`);
+		}
+
+		if (params.eventType !== `system` && params.eventType !== `person`) {
+			throw new Error(`"params.eventType" invalid`);
+		}
+
+		if (!params.eventOriginator) {
+			throw new Error(`"params.eventOriginator" not provided`);
+		}
+
+		if (!params.tags) {
+			throw new Error(`"params.tags" not provided`);
+		}
+
+		if (!Array.isArray(params.tags)) {
+            throw new Error(`"params.tags" invalid`);
+        }
+
+        if (params.baggage && !Array.isArray(params.baggage)) {
+            throw new Error(`"params.baggage" invalid`);
+        }
+
+		return true;
+	}
+
+	// TODO: OVERRIDE TO ALLOW OLD TELEMETRY CONTRACT. THIS MUST BE REMOVED AS SOON AS WE CAN GO TO THE NEW CONTRACT
+	_validateSpanStartParams(params, requireSpanId = false) {
+		if (!params) {
+            throw new Error(`"params" not provided`);
+        }
+
+        if (!params.traceId) {
+            throw new Error(`"params.traceId" not provided`);
+        }
+
+        if (!params.eventName) {
+            throw new Error(`"params.eventName" not provided`);
+        }
+
+        if (!params.eventType) {
+            throw new Error(`"params.eventType" not provided`);
+        }
+
+        if (params.eventType !== `system` && params.eventType !== `person`) {
+            throw new Error(`"params.eventType" invalid`);
+        }
+
+        if (!params.eventOriginator) {
+            throw new Error(`"params.eventOriginator" not provided`);
+        }
+
+        if (!params.tags) {
+            throw new Error(`"params.tags" not provided`);
+        }
+
+        if (!Array.isArray(params.tags)) {
+            throw new Error(`"params.tags" invalid`);
+        }
+
+        if (params.baggage && !Array.isArray(params.baggage)) {
+            throw new Error(`"params.baggage" invalid`);
+        }
+
+		return true;
+	}
+
+	// TODO: OVERRIDE TO ALLOW OLD TELEMETRY CONTRACT. THIS MUST BE REMOVED AS SOON AS WE CAN GO TO THE NEW CONTRACT
+	_validateSpanEndParams(params) {
+		if (!params) {
+            throw new Error(`"params" not provided`);
+        }
+
+        if (!params.spanId) {
+            throw new Error(`"params.spanId" not provided`);
+        }
+
+        if (!params.eventName) {
+            throw new Error(`"params.eventName" not provided`);
+        }
+
+        if (!params.eventType) {
+            throw new Error(`"params.eventType" not provided`);
+        }
+
+        if (params.eventType !== `system` && params.eventType !== `person`) {
+            throw new Error(`"params.eventType" invalid`);
+        }
+
+        if (!params.eventOriginator) {
+            throw new Error(`"params.eventOriginator" not provided`);
+        }
+
+        if (!params.tags) {
+            throw new Error(`"params.tags" not provided`);
+        }
+
+        if (!Array.isArray(params.tags)) {
+            throw new Error(`"params.tags" invalid`);
+        }
+
+        if (params.baggage && !Array.isArray(params.baggage)) {
+            throw new Error(`"params.baggage" invalid`);
+        }
+
+		return true;
+	}
+
 	// #region INITIALISATION
 	// --------------
 	// INITIALISATION
 	// --------------
+
+	/**
+	 * @deprecated Use getInstance() as is standard through the platform/Horizon
+	 */
 	static get instance() {
 		return this._instance || (this._instance = new HorizonTelemetry());
+	}
+
+	/**
+	 * @static
+	 * @returns {HorizonTelemetry} Singleton
+	 */
+	static getInstance() {
+		return this.instance;
 	}
 
 	constructor() {
@@ -118,9 +254,10 @@ export class HorizonTelemetry extends Telemetry {
 	 * 
 	 * @param {string} eventName Event name to start a span
 	 * @param {object} baggage Options, this generally holds details of event
-	 * @returns {void}
+	 * @param {boolean} systemTriggered Flag to determin telemetry event type
+	 * @returns {Promise<void>} A Promise for starting a telemetry span
 	 */
-	async startSpan(eventName, baggage = null) {
+	async startSpan(eventName, baggage = null, systemTriggered = true) {
 
 		/**
 		 * Extracting eventName(call.id-caller.confimr-caller) into events array(['call', 'id-caller', 'confirm-caller'])
@@ -129,6 +266,7 @@ export class HorizonTelemetry extends Telemetry {
 		const events = this._extractTags(eventName);
 		const currentSpan = events[events.length - 1];
 		const currentSpanID = this._getSpanID(currentSpan);
+		const eventType = systemTriggered ? TelemetryEventType.SYSTEM : TelemetryEventType.PERSON;
 
 		// If the specific span got intialized already, do nothing and return
 		if (currentSpanID) {
@@ -138,8 +276,8 @@ export class HorizonTelemetry extends Telemetry {
 		const spanID = await super.spanStart({
 			baggage: this._formatBaggageDetails(baggage || []),
 			eventName: `horizon.${eventName}.start-span`,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
-			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(eventType),
+			eventType: eventType,
 			parentSpan: this._getParentSpanID(eventName),
 			tags: this._extractTags(`horizon.${eventName}.start-span`),
 			traceId: this.traceId
@@ -159,9 +297,12 @@ export class HorizonTelemetry extends Telemetry {
 	 * 
 	 * @param {string} eventName Event name to start a span
 	 * @param {object} baggage Options, this generally holds details of event
-	 * @returns {void}
+	 * @param {boolean} systemTriggered Flag to determin telemetry event type
+	 * @param {boolean} closeParentSpan Flag tells to close parent span or not
+	 * @param {boolean} closeChildSpans Flag tells to close its child spans or not
+	 * @returns {Promise<void>} A promise to end the telemetry span
 	 */
-	async endSpan(eventName, baggage = null) {
+	async endSpan(eventName, baggage = null, systemTriggered = true, closeParentSpan = false, closeChildSpans = false) {
 
 		/**
 		 * Extracting eventName(call.id-caller) into events array(['call', 'id-caller'])
@@ -170,13 +311,19 @@ export class HorizonTelemetry extends Telemetry {
 		const events = this._extractTags(eventName);
 		const currentSpan = events[events.length - 1];
 		const spanId = this._getSpanID(currentSpan);
+		const eventType = systemTriggered ? TelemetryEventType.SYSTEM : TelemetryEventType.PERSON;
 
 		if (this.traceId && spanId) {
+
+			if (closeChildSpans) {
+				await this.closeChildSpans(eventName);
+			}
+
 			await super.spanEnd({
 				baggage: this._formatBaggageDetails(baggage || []),
 				eventName: `horizon.${eventName}.end-span`,
-				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
-				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(eventType),
+				eventType: eventType,
 				parentSpan: null,
 				spanId: spanId,
 				tags: this._extractTags(`horizon.${eventName}.end-span`),
@@ -185,6 +332,11 @@ export class HorizonTelemetry extends Telemetry {
 	
 			// disposing current span node reference
 			this._deleteFromActiveSpanTree(currentSpan);
+
+			if (closeParentSpan) {
+				events.pop();
+				this.endSpan(events.join(`.`));
+			}
 		} else {
 			// TODO: Log that there was a telemetry failure (missing trace ID or span ID)
 		}
@@ -195,9 +347,10 @@ export class HorizonTelemetry extends Telemetry {
 	 * 
 	 * @param {string} eventName Event name to start a span
 	 * @param {object} baggage Options, this generally holds details of event
-	 * @returns {void}
+	 * @param {boolean} systemTriggered Flag to determin telemetry event type
+	 * @returns {Promise<void>} A promise for logging the event
 	 */
-	async logEvent(eventName, baggage = null) {
+	async logEvent(eventName, baggage = null, systemTriggered = false) {
 
 		/**
 		 * Extracting eventName(call.incident-created) into events array(['call', 'incident-created'])
@@ -205,18 +358,44 @@ export class HorizonTelemetry extends Telemetry {
 		 */
 		const events = this._extractTags(eventName);
 		const currentSpan = this._getCurrentSpanofEvent(events);
+		const eventType = systemTriggered ? TelemetryEventType.SYSTEM : TelemetryEventType.PERSON;
 
 		await super.event({
 			baggage: this._formatBaggageDetails(baggage || []),
 			eventName: `horizon.${eventName}`,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
-			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(eventType),
+			eventType: eventType,
 			parentSpan: null,
 			spanId: this._getSpanID(currentSpan),
 			tags: this._extractTags(`horizon.${eventName}`),
 			traceId: this.traceId
 		});
 		// event, thus no new span reference to update
+	}
+
+	/**
+	 * Closes all the child spans of an event
+	 * 
+	 * @param {*} parentEvent The parent event.
+	 * @returns {Promise<void>} A promise to class all child spans of the parent event
+	 */
+	async closeChildSpans(parentEvent) {
+
+		if (!parentEvent) {
+			return;
+		}
+
+		const childSpans = this.activeSpanTree.filter(obj => obj.event.startsWith(parentEvent) && obj.event !== parentEvent);
+
+		await childSpans.reduceRight(async (promise, span) => {
+			// This line will wait for the last async function to finish.
+			// The first iteration uses an already resolved Promise
+			// so, it will immediately continue.
+			await promise;
+			await this.endSpan(span.event, {
+				"info": `Closing span, as commanded by parent span`
+			});
+		}, Promise.resolve());
 	}
 
 	// #endregion PUBLIC METHODS
@@ -229,7 +408,7 @@ export class HorizonTelemetry extends Telemetry {
 
 	_initialise() {
 		const telemetryDetails = this.telemetryStore.getTelemetryDetails();
-		const _activeSpans = (telemetryDetails && telemetryDetails.activeSpanTree) || [];
+		const _activeSpans = telemetryDetails?.activeSpanTree ?? [];
 
 		this.activeSpanTree = [..._activeSpans, ...this.activeSpanTree];
 	}
@@ -316,7 +495,20 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns {Array} Baggage array
 	 */
 	_formatBaggageDetails(baggage) {
-		return Object.entries(baggage).map(item => ({ "key": item[0], "value": item[1] }));
+		return Object.entries(baggage).map(item => ({ "key": item[0], "value": this_trimBaggage(item[1]) }));
+  }
+		/**
+	 * trims baggage
+	 * 
+	 * @param {object} item Object holds baggage item
+	 * @returns {string} baggage item
+	 */
+	_trimBaggage(item) {
+		if (item && !Utilities.isString(item)) {
+			return String(JSON.stringify(item).trim());
+		}
+
+		return String(item?.trim() ?? ``);
 	}
 
 	/**

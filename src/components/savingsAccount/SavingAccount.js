@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency } from 'app/utils/channelServiceUtilities';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
@@ -43,6 +43,7 @@ export class SavingsAccount extends Component {
 	/**
 	 *
 	 * @property {Object} landingPageInfo Data for the Savings Account Landing Page display
+	 * @property {Object} shouldDisable Callback function, returns true or false to disable need button
 	 *
 	 * @readonly
 	 * @static
@@ -50,7 +51,8 @@ export class SavingsAccount extends Component {
 	 */
 	static get properties() {
 		return {
-			landingPageInfo: { type: Object }
+			landingPageInfo: { type: Object },
+			shouldDisable: { type: Object }
 		};
 	}
 	
@@ -126,9 +128,8 @@ export class SavingsAccount extends Component {
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 0px;
 					--theme-expander-header-height: 64px;
-					--theme-expander-height: 210px;
-					--theme-expander-indicator-width: 11.5px;
-                    --theme-expander-indicator-height: 6.5px;
+					--theme-expander-header-padding: 10px 13px;
+					--theme-expander-height: 211px;
 					box-shadow:0 3px 6px 0.25px rgba(0,0,0,0.08);
 				}
 				.account-details-bar > capitec-group {
@@ -269,7 +270,7 @@ export class SavingsAccount extends Component {
 	}
 
 	_renderOptions() {
-		const pendingMandates = (this.landingPageInfo && this.landingPageInfo.pendingMandateCount) || ``;
+		const pendingMandates = this.landingPageInfo?.pendingMandateCount ?? ``;
 		return html`
 			<capitec-group class= "" layout="vertical" gap="none" halign="left" valign="center">
 
@@ -279,20 +280,23 @@ export class SavingsAccount extends Component {
 						class="button-margin" 
 						label="Transaction History" 
 						icon="system/time-action"
-						@click="${() => this._optionSelectedClick(`transaction-history`)}">
+						@click="${() => this._optionSelectedClick(`transaction-history`)}"
+						?disabled="${this.shouldDisable(`transaction-history`)}">
 					</horizon-option-button>
 					<horizon-option-button
 					    badgeText="${pendingMandates}"
 						class="button-margin" 
 						label="DebiCheck" 
 						icon="system/debit-order-action"
-						@click="${() => this._optionSelectedClick(`debi-check`)}">
+						@click="${() => this._optionSelectedClick(`debi-check-viewInfo`)}"
+						?disabled="${this.shouldDisable(`debi-check`)}">
 					</horizon-option-button>
 					<horizon-option-button 
 						class="button-margin" 
 						label="Statements" 
 						icon="system/documents-action"
-						@click="${() => this._optionSelectedClick(`statements`)}">
+						@click="${() => this._optionSelectedClick(`statements-transact`)}"
+						?disabled="${this.shouldDisable(`statements`)}">
 					</horizon-option-button>
 					<horizon-option-button 
 						class="button-margin button-more"

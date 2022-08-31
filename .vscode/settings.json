@@ -26,11 +26,16 @@
 	// Exclude platform-specific files from the user's project.
 	"files.exclude": {
 		"jsconfig.json": true,
-		"src/types.d.ts": true,
-		"ocwp": true
+		"ocwp": true,
+		"tsconfig.json": true,
+		"npm.cmd": true,
+		"node.cmd": true,
+		"npm": true,
+		"node": true,
+		".npmrc": true
 	},
-	"eslint.nodePath": "./ocwp/1.4.1/node_modules",
-	"eslint.runtime": "./ocwp/1.4.1/node/node.exe",
+	"eslint.nodePath": "./ocwp/1.14.1/node_modules",
+	"eslint.runtime": "./ocwp/1.14.1/node_bin/node.exe",
 	"eslint.options": {
 		"configFile": "./.eslintrc.json"
 	},
@@ -45,5 +50,7 @@
 		"repos",
 		"ucid"
 	],
-	"eslint.enable": true
+	"eslint.enable": true,
+	"eslint.format.enable": true,
+	"eslint.debug": true
 }

@@ -27,7 +27,13 @@ export class EndCallCauseCode {
 		this.causeCode = new Map();
 
 		this.causeCode.set(`VerifyClient`, {
-			"Need incomplete, bad connection": `ClientFailedSecurityCheck`
+			"Need incomplete, bad connection": `NormalEnquiry`
+		});
+		this.causeCode.set(`VerifyClient`, {
+			"Client failed verification": `ClientFailedSecurityCheck`
+		});
+		this.causeCode.set(`LandingPage`, {
+			"Client failed verification": `ClientFailedSecurityCheck`
 		});
 		this.causeCode.set(`StopCard`, {
 			"Need fulfilled": `NormalEnquiry`
@@ -47,7 +53,11 @@ export class EndCallCauseCode {
 
 		const toDoActionByContext = {
 			VerifyClient: verifyClient,
-			LandingPage: landingPage
+			LandingPage: landingPage,
+			TransactionHistory: landingPage,
+			QuickTransactionSuccess: landingPage,
+			QuickTransactionsUnSuccess: landingPage,
+			QuickTransactionsInProgress: landingPage
 		};
 
 		if (toDoActionByContext[context]) {
@@ -64,9 +74,7 @@ export class EndCallCauseCode {
 		const failedVerificationCount = this._getFailedVerificationCount();
 		
 		if (this.causeCode.has(context)) {
-			// When client verification fails, irrespective of any end call reason cause code
-			// should be ClientFailedSecurityCheck
-			return failedVerificationCount > 0 ? FAILED_VERIFICATION_CAUSECODE : DEFAULT_CAUSECODE;
+			return this.causeCode.get(context)[reasonCode] || DEFAULT_CAUSECODE;
 		}
 		return DEFAULT_CAUSECODE; // Default cause code
 	}

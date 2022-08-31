@@ -1,10 +1,10 @@
 import { Configuration, EventAggregator, Logger, NavigationContext, Security, SecurityContext } from 'platform/core';
 import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
-import { AcceptCallEvents } from 'app/constants/Telemetry/Events/AcceptCall';
+import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { NewCallEvent } from 'app/models//NewCallEvent';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { validate } from 'app/utils/channelServiceUtilities';
 
 /**
@@ -136,7 +136,7 @@ export class DesktopAgentService {
 			newCallEvent.incomingTelephoneNumber = validate(eventData.IncomingTelephoneNumber, DesktopAgentService.incomingTelephoneNumberValidation);
 
 			if (newCallEvent.incomingTelephoneNumber === 0) {
-				if (this.incomingTelephoneNumber !== `anonymous`) {
+				if (eventData.IncomingTelephoneNumber.toLowerCase() !== `anonymous`) {
 					this._logger.log(`warn`, `Incoming number does not match validation rule: ${eventData.IncomingTelephoneNumber}`);
 				}
 				newCallEvent.incomingTelephoneNumber = `0000000000`;
@@ -362,8 +362,8 @@ export class DesktopAgentService {
 
 	_setValidationData() {
 		DesktopAgentService.incomingTelephoneNumberValidation = `^\\+?[0-9][0-9]{3,14}`; 
-		DesktopAgentService.voiceReferenceNumberValidation = `^[0-9]{20}`; 
-		DesktopAgentService.agentTelephoneNumberValidation = `^[0-9]*`; // 
+		DesktopAgentService.voiceReferenceNumberValidation = `^[0-9]*`; 
+		DesktopAgentService.agentTelephoneNumberValidation = `^[0-9]*`; 
 		DesktopAgentService.vdnValidation = `^[0-9]*`; 
 		DesktopAgentService.incidentReferenceNumberValidation = `^[0-9]{1,10}`; // STrack reference numbers
 		DesktopAgentService.incidentRecIdValidation = `^[a-fA-F0-9]{8}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{12}$`; // STrack rec id

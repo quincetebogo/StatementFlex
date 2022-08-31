@@ -83,10 +83,10 @@ export class HorizonViewManager {
 				load: () => import(`../components/landingPage/WelcomeBar`)
 			},
 			{
-				load: () => import(`../components/landingPage/LandingPageMarketing`)
+				load: () => import(`../rightBar/RightBarLayout`)
 			},
 			{
-				load: () => import(`../components/common/AccessMenuBar`)
+				load: () => import(`../rightBar/RightBarLayout`)
 			},
 			{
 				load: () => import(`../components/common/ProfileAndProductSummaryBar`)
@@ -132,13 +132,13 @@ export class HorizonViewManager {
 	}
 
 	renderRightBar(viewSet) {
-        if (viewSet.has(LAYOUT_COMPONENT.MARKETING_BAR)) {
-            return html`<landingpage-marketing></landingpage-marketing>`;        
-		} else if (viewSet.has(LAYOUT_COMPONENT.ACCESS_BAR)) {
-			return html`<access-component></access-component>`;
+		let layout = `info-graphic`;
+
+		if (viewSet.has(LAYOUT_COMPONENT.ACCESS_BAR)) {
+			layout = `insights--and-access-channels`;
 		}
 
-		return html``;
+		return html`<horizon-right-bar-layout layout=${layout}></horizon-right-bar-layout>`;
 	}
 
 	// Used from the Landing Page & Product Pages to update the toolbar and the 

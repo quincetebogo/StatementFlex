@@ -3,8 +3,8 @@ import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 /**
  * Displays the list of cards that will be stopped and prompts for confirmation.
@@ -37,6 +37,9 @@ export class StopCardConfirm extends Component {
 	 * @property {Object} incidentDetails Incident details
 	 * @property {Object} incomingCallDetails Incoming call information
 	 * @property {Object} cardsToStop List of cards to stop
+	 * @property {string} cifNumber The client's CIF number
+	 * @property {string} title client's title (Mr/ Mrs)
+	 * @property {string} lastName client's last name
 	 * 
 	 * @readonly
 	 * @static
@@ -47,6 +50,12 @@ export class StopCardConfirm extends Component {
 			incidentDetails: { type: Object },
 			incomingCallDetails: { type: Object },
 			cardsToStop: { type: Array },
+			cifNumber: { type: String },
+			lastName: { type: String },
+			title: { 
+				type: String,
+				attribute: `client-title`
+			},
 
 			isBusy: { attribute: false }
 		};
@@ -77,7 +86,7 @@ export class StopCardConfirm extends Component {
 			"screen": TelemetryScreen.STOP_CARD
 		});
 
-		const returnValue = await this.cardService.stopCards(this.cardsToStop, this.incomingCallDetails, this.incidentDetails);
+		const returnValue = await this.cardService.stopCards(this.cardsToStop, this.incomingCallDetails, this.incidentDetails, this.cifNumber, this.title, this.lastName);
 		const cardStopResults = returnValue.result;
 
 		if (returnValue.succeeded) {
@@ -180,7 +189,8 @@ export class StopCardConfirm extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-modal 
+			<capitec-modal
+				data-automation-id="stop-card-confirm-dialog"
 				type="free" 
 				header="Stop Card" 
 				header-align="left">
@@ -198,10 +208,10 @@ export class StopCardConfirm extends Component {
 	_renderConfirmStopCard() {
 		this.firstLine = true;
 		return html`
-		<capitec-group class="dialogSize" layout="vertical" gap="none">
-			<p class="first-line">Are you sure you want to stop:</p>
-			${this.cardsToStop.map((line, index, cards) => this._renderLine(line, index, cards))}
-		</capitec-group>
+			<capitec-group class="dialogSize" layout="vertical" gap="none">
+				<p data-automation-id="stop-card-confirm-card-message" class="first-line">Are you sure you want to stop:</p>
+				${this.cardsToStop.map((line, index, cards) => this._renderLine(line, index, cards))}
+			</capitec-group>
 		`;
 	}
 
@@ -210,8 +220,8 @@ export class StopCardConfirm extends Component {
 		this.firstLine = false;
 
 		return html`
-		<p class="${classes}">${line.cardDisplayName.split(`_`).map(w => w[0].toUpperCase() + w.substr(1).toLowerCase()).join(` `)} <span class="bold-text">${line.maskedCardNumber}</span></p>
-		<p class="left-margin">Reason: <span class="bold-text">${line.cardStopReason.value}</span></p>
+		<p data-automation-id="stop-card-confirm-cards" class="${classes}">${line.cardDisplayName.split(`_`).map(w => w[0].toUpperCase() + w.substr(1).toLowerCase()).join(` `)} <span class="bold-text">${line.maskedCardNumber}</span></p>
+		<p data-automation-id="stop-card-confirm-stop-reason" class="left-margin">Reason: <span class="bold-text">${line.cardStopReason.value}</span></p>
 		${this._renderGreyLine(index, cards)}
 		`;
 	}
@@ -220,7 +230,6 @@ export class StopCardConfirm extends Component {
 		if (index < cards.length - 1) {
 			return html`<div class="line"></div>`;
 		}
-
 		return html``;
 	}
 
@@ -228,14 +237,14 @@ export class StopCardConfirm extends Component {
 		return html`
 			<capitec-group layout="horizontal">
 				<capitec-button 
+					data-automation-id="stop-card-confirm-cancel"
 					type="clear" 
-					label="Cancel" 
-					@click="${() => {
-				this._onCancelClick();
-			}}">
+					label="Cancel"
+					@click="${() => this._onCancelClick()}">
 				</capitec-button>
 			
 				<capitec-button 
+					data-automation-id="stop-card-confirm-confirm"
 					id="id-confirm-button" 
 					type="primary" 
 					label="Confirm"
@@ -250,7 +259,7 @@ export class StopCardConfirm extends Component {
 			return html``;
 		}
 
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		return html`<capitec-loading-indicator data-automation-id="stop-card-confirm-loading-indicator"></capitec-loading-indicator>`;
 	}
 }
 

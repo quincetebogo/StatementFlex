@@ -25,8 +25,9 @@ export class SuccessScreen extends Component {
 		this.displayToast = true;
 		this.image = null;
 		this.secondaryImage = ``;
-		this.subDetail = ``;
 		this.secondaryToast = ``;
+		this.hasSubDetails = false;
+		this.subContent = false;
 	}
 
 	// ----------
@@ -41,6 +42,8 @@ export class SuccessScreen extends Component {
 	* @property {String} [displayToast=true] Enables/Disables the toast message
 	* @property {String} image The image to be displayed on center of the page
 	* @property {String} secondaryToast Secondary toast details
+	* @property {String} [hasSubDetails=false] Set to true if the screen should renter sub-details
+	* @property {String} [subContent=false] Set to true if the screen should renter sub-content
 	* @readonly
 	* @static
 	* @memberof ErrorScreen
@@ -54,8 +57,9 @@ export class SuccessScreen extends Component {
 			displayToast: { type: Boolean },
 			image: { type: String },
 			secondaryImage: { type: String }, 
-			subDetail: { type: String },
-			secondaryToast: { type: String }
+			secondaryToast: { type: String },
+			hasSubDetails: { type: Boolean },
+			subContent: { type: Boolean }
 		};
 	}
 
@@ -141,6 +145,11 @@ export class SuccessScreen extends Component {
 					justify-content: center;
 				}
 
+				#id-sub-content {
+					margin-top: 24px;
+					justify-content: center;
+				}
+
 				#id-button-group {
 					justify-content: center;
 					margin-top: var(--horizon-button-group-margin-top, 64px);
@@ -197,7 +206,7 @@ export class SuccessScreen extends Component {
 				
 				slot[name=detail]::slotted(*){
 					height: 24px;
-					width: 543px;
+					width: var(--theme-slot-detail-width , 543px);
 					color: #3E4547;
 					font-family: "Hind Vadodara";
 					font-size: 16px;
@@ -263,7 +272,7 @@ export class SuccessScreen extends Component {
 					?hidden="${!this.displayToast}"
 					class="secondary-toast"
 					type="success" 
-					header="Succesful" 
+					header="Successful" 
 					detail="${this.secondaryToast}"
 					closable 
 					@click="${() => this.displayToast = false}">
@@ -297,6 +306,10 @@ export class SuccessScreen extends Component {
 				${this._renderSubDetail()}
 			</capitec-group>
 
+			<capitec-group layout="horizontal">
+				${this._renderSubContent()}
+			</capitec-group>
+
 			<capitec-group id="id-button-group" layout="horizontal">
 				${this._renderLeftButton()}
 				${this._renderRightButton()}
@@ -305,37 +318,53 @@ export class SuccessScreen extends Component {
 	}
 
 	_renderSubDetail() {
-		return this.subDetail
-			? html`<capitec-group id="id-sub-detail" layout="horizontal">
-						<capitec-icon
-							size="default"
-							icon="status/success-trans">
-						</capitec-icon>
-						<slot name="sub-detail"></slot>
-					</capitec-group>`
-			: html``;
+		return this.hasSubDetails
+		? html`
+			<capitec-group 
+				id="id-sub-detail" 
+				layout="horizontal">
+				<capitec-icon
+					size="default"
+					icon="status/success-trans">
+				</capitec-icon>
+					<slot name="sub-detail"></slot>
+			</capitec-group>`
+		: html``;
+	}
+
+	_renderSubContent() {
+		return this.subContent
+		? html`
+			<capitec-group 
+					id="id-sub-content" 
+					layout="horizontal">
+				<slot name="sub-content"></slot>
+	 		</capitec-group>`
+		: html``;
 	}
 
 	_renderLeftButton() {
 		return this.left
-			? html`<capitec-button
-						id="button-left"
-						class="center-button"
-						label="${this.left}"
-						@click="${() => this._leftClick()}">
-					</capitec-button>`
-			: html``;
+		? html`
+			<capitec-button
+				id="button-left"
+				class="center-button"
+				label="${this.left}"
+				@click="${() => this._leftClick()}">
+			</capitec-button>`
+		: html``;
 	}
 
 	_renderRightButton() {
 		return this.right
-			? html`<capitec-button
-						class="center-button"
-						type="primary"
-						label="${this.right}"
-						@click="${() => this._rightClick()}">
-					</capitec-button>`
-			: html``;
+		? html`
+			<capitec-button
+				class="center-button"
+				type="primary"
+				label="${this.right}"
+				@click="${() => this._rightClick()}">
+			</capitec-button>`
+		: html``;
 	}
 
 	_renderRelatedOptions() {

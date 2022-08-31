@@ -1,6 +1,6 @@
 import { css, html } from 'platform/elements';
-import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
@@ -17,6 +17,7 @@ export class TapToPaySuccess extends ViewBase {
 		this.tapToPayStatus = ``;
 		this.maskedCardNumber = ``;
 		this.cardType = ``;
+		this.endCallContext = `QuickTransactionSuccess`;
 	}
 
 	// --------------
@@ -79,9 +80,9 @@ export class TapToPaySuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(incidentDetails);
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	// ---------
@@ -120,14 +121,14 @@ export class TapToPaySuccess extends ViewBase {
 	_renderTapToPaySuccess() {
 		return html`
 			<horizon-success-screen 
+				data-automation-id="tap-to-pay-success"
 				header="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}"
 				image="/images/cards-successful-tap-to-pay.svg"
-				left="Done"
-				right="Tap to Pay"
+				left="Tap to Pay"
+				right="Done"
 				toast="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}"
-				sub_detail="true"
-				@left-click=${() => this._doneClick()}
-				@right-click=${() => this._tapToPayClick()}>
+				@left-click=${() => this._tapToPayClick()}
+				@right-click=${() => this._doneClick()}>
 					<section 
 						id="id-update-msg" 
 						slot="detail">

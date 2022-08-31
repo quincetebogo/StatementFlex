@@ -1,26 +1,55 @@
-import { DEFAULT_AUTO_RETRIES, ServiceBase } from 'app/services/ServiceBase';
+import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
 
 /**
  * Channel Service Methods for Insure related functionality
  *
  * @export
  * @class InsureService
- * @extends {ServiceBase}
+ * @deprecated - InsureService is old code that will probably be completely replaced when we finally pick up Insure
+ * @extends {ChannelServiceBase}
  */
-export class InsureService extends ServiceBase {
+export class InsureService extends ChannelServiceBase {
 	// --------------
 	// INITIALISATION
 	// --------------
-	constructor(toggleBusyFunc, errorHandler = null) {
-		super(toggleBusyFunc, errorHandler);
+	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null) {
+		super(
+			toggleBusyFunc, 
+			defaultErrorHandlerFunc, 
+			`serviceURIs.channelServiceUrl`, 
+			`HorizonChannelService`, 
+			`v1`, 
+			() => import(`../mocks/HorizonChannelServiceMocks.js`)
+		);
 	}
 
 	// --------------
 	// PUBLIC METHODS
 	// --------------
 
-	hasInsuranceProducts(insuranceClientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.hasInsuranceProducts(insuranceClientInfo), `hasInsuranceProducts`, errorHandler, autoRetries);
+	async hasInsuranceProducts(insuranceClientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`hasInsuranceProducts`)) {
+			return this.mock(`hasInsuranceProducts`);
+		}
+
+		const insuranceClientRequest = {
+			'idNumber': insuranceClientInfo.idNumber,
+			'cif': insuranceClientInfo.cifNumber,
+			'isCallerVerified': insuranceClientInfo.isCallerVerified
+		};
+
+		return this.post(
+			`/clientcare-insure-${this._version}/landing`, 
+			insuranceClientRequest,
+			this.setToken(),
+			`addNonClientDetails`, 
+			null, 
+			null, 
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
 
 	addNonClientDetails(incidentData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
@@ -33,15 +62,36 @@ export class InsureService extends ServiceBase {
 			'cellPhone': incidentData.cellPhone
 		};
 
-		return this.wrapCall(this.channelService.addNonClientDetails(nonClientDetailsRequest), `addNonClientDetails`, errorHandler, autoRetries);
+		return this.post(
+			`/clientcare-insure-${this._version}/addCaller/nonclient`, 
+			nonClientDetailsRequest,
+			this.setToken(),
+			`addNonClientDetails`, 
+			null, 
+			null, 
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
 
 	calculatePremiumDone(feedbackDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.calculatePremiumDone(feedbackDetails), `calculatePremiumDone`, errorHandler, autoRetries);
+		return this.post(
+			`/clientcare-insure-${this._version}/CalculatePremium/done`, 
+			{
+				'incidentRecId': feedbackDetails.incidentRecId,
+				'feedback': feedbackDetails.feedback,
+				'updateIncident': feedbackDetails.updateIncident
+			},
+			this.setToken(),
+			`calculatePremiumDone`, 
+			null, 
+			null, 
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
-
-	InsureProducts(clientDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.InsureProducts(clientDetails), `InsureProducts`, errorHandler, autoRetries);
-	}
-
 }

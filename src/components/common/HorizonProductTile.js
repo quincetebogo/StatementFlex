@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency } from 'app/utils/channelServiceUtilities';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 /**
  * A control that displays product info.
@@ -42,6 +42,7 @@ export class HorizonProductTile extends Component {
 		this.detailIcon = false;
 		this.icon = ``;
         this.selected = false;
+		this.disabled = false;
 	}
 
 	/**
@@ -66,7 +67,8 @@ export class HorizonProductTile extends Component {
 			navigational: { type: Boolean },
 			detailIcon: { type: Boolean },
 			icon: { type: String },
-            selected: { type: Boolean }
+            selected: { type: Boolean },
+			disabled: { type: Boolean }
         };
 	}
 
@@ -91,6 +93,7 @@ export class HorizonProductTile extends Component {
 		// Prevent the event from bubbling up.
 		event.stopPropagation();
 	}
+
 	/**
 	 * Handles component key down events.
 	 * 
@@ -196,7 +199,11 @@ export class HorizonProductTile extends Component {
 					border: var(--theme-product-tile-focus-transact-border, 1.5px solid #009DE0);
 					box-shadow: var(--theme-product-tile-focus-shadow, 0 3px 6px 0 rgba(0,0,0,0.15));
 				}
-				
+				.tile.radio-button.disabled {
+					border: var(--theme-product-tile-disabled-radio-button-border, 1px solid #E1E1E1);
+					box-shadow: var(--theme-product-tile-disabled-shadow, none);
+					cursor: default;
+				}
 				.tile.transact:hover {
 					border: var(--theme-product-tile-hover-transact-border, 1px solid #009DE0);
 					box-shadow: var(--theme-product-tile-hover-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
@@ -221,6 +228,15 @@ export class HorizonProductTile extends Component {
 				}
 				.tile.credit:focus, .tile.credit.selected{
 					border: var(--theme-product-tile-focus-credit-border, 2px solid #C83C37);
+					box-shadow: var(--theme-product-tile-focus-shadow, 0 3px 6px 0 rgba(0,0,0,0.15));
+				}
+
+				.tile.live-better:hover {
+					border: var(--theme-product-tile-hover-live-better-border, 1px solid #1629DA);
+					box-shadow: var(--theme-product-tile-hover-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
+				}
+				.tile.live-better:focus, .tile.live-better.selected{
+					border: var(--theme-product-tile-focus-live-better-border, 2px solid #1629DA);
 					box-shadow: var(--theme-product-tile-focus-shadow, 0 3px 6px 0 rgba(0,0,0,0.15));
 				}
 
@@ -268,6 +284,10 @@ export class HorizonProductTile extends Component {
 					background-color: var(--theme-product-tile-insure-colour, #5D737E);
 				}
 
+				 .product.live-better {
+				 	background-color: var(--theme-product-tile-live-better-colour, #FFFFFF);
+				 }
+
 				.heading {
 					margin-left: var(--theme-product-tile-heading-margin-left, 20px);
 					margin-top: var(--theme-product-tile-heading-margin-top, 8px);
@@ -308,6 +328,10 @@ export class HorizonProductTile extends Component {
 
 				.title.insure {
 					color: var(--theme-product-tile-insure-colour, #5D737E);
+				}
+
+				.title.live-better {
+					color: var(--theme-product-tile-live-better-colour, #1629DA);
 				}
 
 				.subtitle {
@@ -406,14 +430,14 @@ export class HorizonProductTile extends Component {
 				}
 
 				.radio-container.checked:hover > #content {
-					background-color: var(--theme-radio-checked-background-color, #0096DA);					
+					background-color: var(--theme-radio-checked-background-color, #0096DA);
 				}
 				/* DISABLED STATE STYLES */
 
 				.radio-container.disabled > #content {
 					cursor: default;
-					border-color: var(--theme-radio-disabled-border-color, #DEDEDE);
-					background-color: var(--theme-radio-disabled-background-color, #DEDEDE);
+					border-color: var(--theme-radio-disabled-border-color, #E1E1E1);
+					background-color: var(--theme-radio-disabled-background-color, #F7F7F7);
 				}
 
 				.radio-container.disabled:hover > #content {
@@ -442,8 +466,8 @@ export class HorizonProductTile extends Component {
 
 		return html`
 			<button 
-				class="tile ${this.type ? this.type : `transact`}${this.selected ? ` selected` : ``}"
-				@click="${(e)=> this._tileClicked(e)}}"
+				class="tile ${this.type ? this.type : `transact`}${this.disabled ? ` disabled` : this.selected ? ` selected` : ``}"
+				@click="${(e) => this._tileClicked(e)}"
 				@keydown="${e => this._keyDown(e)}"
 				tabindex="${this.disabled ? `` : 0}">
 					<div class="tile-container">
@@ -470,7 +494,7 @@ export class HorizonProductTile extends Component {
 					${this.selected ? html`<div class="indicator"></div>` : ``}
 				</div>
 			</div>
-		`
+		`;
 	}
 
 	_renderProduct() {        
@@ -481,6 +505,14 @@ export class HorizonProductTile extends Component {
 					${this._renderRadioIcon()}
 				</div>
 			`;
+		}
+
+		if (this.type === `live-better`) {
+			return html`
+				<div class="product ${this.type ? this.type : `transact`}">
+					<img alt="liveBetter" src="images/common/mask.png" style="object-fit: fill">
+				</div>
+			`
 		}
 
 		return html`

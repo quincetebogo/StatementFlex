@@ -1,3 +1,6 @@
+let STATEMENTS_RO = {};
+let CREDIT_RO = {};
+
 /**
  * Related options list: Mapping based on need and the context of success/ failure
  * Related options common component imports this const to determine the options at runtime
@@ -6,7 +9,15 @@
  * @constant relatedOptions
  */
 export const relatedOptions = {
-	'debi-check': {
+	'debi-check-viewInfo': {
+		Success: [`transaction-history`],
+		Failure: [`transaction-history`]
+	},
+	'debi-check-approve': {
+		Success: [`transaction-history`],
+		Failure: [`transaction-history`]
+	},
+	'debi-check-decline': {
 		Success: [`transaction-history`],
 		Failure: [`transaction-history`]
 	},
@@ -34,10 +45,11 @@ export const relatedOptions = {
 			`stop-card`
 		]
 	},
-	'statements': {
+	'statements-transact': STATEMENTS_RO = {
 		Success: [`proof-of-account`],
 		Failure: [`proof-of-account`]
 	},
+	'statements-lbb': STATEMENTS_RO,
 	'proof-of-account': {
 		Success: [`statements`],
 		Failure: [`statements`]
@@ -46,6 +58,68 @@ export const relatedOptions = {
 		Success: [
 			`proof-of-account`,
 			`statements`
+		],
+		Failure: [
+			`proof-of-account`,
+			`statements`
+		]
+	},
+	'automatic-savings-lbb': {
+		Success: [`statements`],
+		Failure: [`statements`]
+	},
+	"statements-credit-card": CREDIT_RO = {
+		Success: [
+			`tax-certificate`,
+			`proof-of-account`
+		],
+		Failure: [
+			`tax-certificate`,
+			`proof-of-account`
+		]
+	},
+	'statements-access-facility': CREDIT_RO,
+	'statements-term-loan': CREDIT_RO,
+	'settlement-quote': CREDIT_RO,
+	'settlement-quote-credit-card': CREDIT_RO,
+	'settlement-quote-access-facility': CREDIT_RO,
+	'settlement-quote-term-loan': CREDIT_RO,
+	'pay-budget-credit-card': CREDIT_RO,
+	'settle-close-credit-card': {
+		Success: [
+			`paid-up-accounts`,
+			`statements`
+		],
+		Failure: [
+			`tax-certificate`,
+			`proof-of-account`
+		]
+	},
+	'settle-close-term-loan': {
+		Success: [
+			`paid-up-accounts`,
+			`statements`
+		],
+		Failure: [
+			`tax-certificate`,
+			`proof-of-account`
+		]
+	},
+	'statements-save': CREDIT_RO,
+	'tax-certificate-save': {
+		Success: [
+			`proof-of-account`,
+			`statements`
+		],
+		Failure: [
+			`proof-of-account`,
+			`statements`
+		]
+	},
+	'paid-up-accounts': {
+		Success: [
+			`tax-certificate`,
+			`proof-of-account`
 		],
 		Failure: [
 			`tax-certificate`,
@@ -88,5 +162,9 @@ export const optionsConfig = {
 	'transaction-history': {
 		label: `Transaction History`,
 		src: `system/time-action`
+	},
+	'paid-up-accounts': {
+		label: `Paid up Letter`,
+		src: `system/documents-action`
 	}
 };

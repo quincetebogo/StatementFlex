@@ -1,14 +1,12 @@
 import { HorizonTelemetry, OutcomeScreen } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
-import { TelemetryStore } from 'app/store/TelemetryStore';
+import { css, html } from 'platform/elements';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
-import { html } from 'platform/elements';
 
 import 'platform/components/buttons/Button';
 import 'app/components/stopCard/StopCard';
-import 'app/components/common/AccessMenuBar';
-import 'app/components/common/ProfileAndProductSummaryBar';
 
 /**
  * The Stop Card Landing Page. This view is currently based on the v1 Stop Card designs and will be completely redone
@@ -28,17 +26,23 @@ export class StopCardLandingPage extends ViewBase {
 		super();
 
 		this.isBusy = false;
-
+		
 		this.screenDetails = this.horizonStore.getScreenDetails();
 		this.cards = this.screenDetails && this.screenDetails.cards;
-
+		
 		this._telemetry = HorizonTelemetry.instance;
+		this.displayToast = false;
 	}
 
 	// --------------
 	// PROPERTIES
 	// --------------
-
+	static get properties() {
+		return {
+			displayToast: { attribute: false }
+		};
+	}
+	
 	// ------------------
 	// LIFCYCLE OVERRIDES
 	// ------------------
@@ -46,6 +50,8 @@ export class StopCardLandingPage extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 		super._inicidentManager_(`stop-card`, () => this._toggleBusyFlag());
+
+		this._initialize();
 
 		this._telemetry.startSpan(QuickTransactionEvents.FULFILL_NEED, { 
 			"screen": TelemetryScreen.STOP_CARD
@@ -59,6 +65,24 @@ export class StopCardLandingPage extends ViewBase {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+
+	_clientVerified(event) {
+		super._clientVerified(event);
+
+		// Toggle the toast message 
+		this.displayToast = true;
+		window.setTimeout(() => this._toggleToastDisplay(), 3000);
+
+		// Prevent the toast from being displayed when we go to the Favourites landing page
+		// because we are now verified
+		this.callerInformation = event.detail.callerInformation;
+		this.callerInformation.verificationToastDisplayed = true;
+
+		// Update state with information from verification dialog
+		this.horizonStore.setCallerInformation(this.callerInformation);
+		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
 
 	_stoppedCards(event) {
 		const stoppedCardsFailed = event.detail.stoppedCards.some(cards => !cards.cardStopped);
@@ -75,7 +99,7 @@ export class StopCardLandingPage extends ViewBase {
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME, { 
 			"screen": TelemetryScreen.STOP_CARD_OUTCOME,
 			"next-screen": stoppedCardsFailed ? OutcomeScreen.FAIL : OutcomeScreen.SUCCESS
-		});
+		}, true);
 
 		if (stoppedCardsFailed) {
 			this.horizonRouter.navigateToStopCardFailed();
@@ -88,13 +112,47 @@ export class StopCardLandingPage extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
+	_initialize() {
+		const state = this.horizonStore.recoverState();
+		this.landingPageInfo = state.landingPageInfo;
+		this._updateLeftBar();
+	}
+
+	_updateLeftBar() {
+		this.horizonStore.setProductButtonState(this.landingPageInfo);
+	}
+
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
+	}
+
+	_toggleToastDisplay() {
+		this.displayToast = false;
 	}
 
 	// ---------
 	// RENDERING
 	// ---------
+
+	static get styles() {
+		return [
+			super.styles,
+			css`
+				#verifyToast {
+					position: absolute;
+					top : 70px;
+					left: 790px;
+					height: 64px;
+					width: 428px;
+					border-radius: 4px;
+					color: #70AF00;
+					z-index: 201;
+					left: calc(50.8% - 200px);
+					justify-content: center;
+					align-items: center;
+				}`
+		];
+	}
 
 	_mobileTemplate() {
 		return this._webTemplate();
@@ -103,7 +161,7 @@ export class StopCardLandingPage extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._renderStopCardComponent()}
-
+			${this._renderVerifiedToast()}
 			${super._webTemplate()}
 		`;
 	}
@@ -111,6 +169,7 @@ export class StopCardLandingPage extends ViewBase {
 	_renderStopCardComponent() {
 		return html`
 			<horizon-stop-card
+				data-automation-id="stop-card-landing-page"
 				.cards="${this.cards || []}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				@cards-stopped="${(event) => this._stoppedCards(event)}">
@@ -121,8 +180,23 @@ export class StopCardLandingPage extends ViewBase {
 
 	_renderLoadingIndicator() {
 		return this.isBusy 
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			? html`<capitec-loading-indicator data-automation-id="stop-card-landing-loading-indicator"></capitec-loading-indicator>`
 			: html``;
+	}
+
+	_renderVerifiedToast() {
+		if (this.displayToast) {
+			return html`
+				<capitec-toast
+					data-automation-id="stop-card-verified-toast"
+					id="verifyToast"
+					type="success"
+					header="Successful"
+					detail="Thank you, you have been verified."
+					closable>
+				</capitec-toast>`;
+		}
+		return html``;
 	}
 }
 

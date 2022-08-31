@@ -1,6 +1,7 @@
 import { css, html } from 'platform/elements';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
+import { SQFailedMixin } from 'app/views/common/SQFailedMixin';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { VerifyCallerEvents } from 'app/constants/telemetry/events/VerifyCaller';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
@@ -22,6 +23,8 @@ export class XdsVerificationFailed extends ViewBase {
 
 	constructor() {
 		super();
+
+		Object.assign(KbaVerificationFailed.prototype, SQFailedMixin);
 	}
 
 	// ----------
@@ -35,30 +38,51 @@ export class XdsVerificationFailed extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this._telemetry.startSpan(VerifyCallerEvents.XDS_VERIFICATION_FAILED);
+
 		this._updateMiniProfile();
+		this.endCallContext = `VerifyClientFailed`;
 	}
+
+	disconnectedCallback() {
+		this._telemetry.endSpan(VerifyCallerEvents.XDS_VERIFICATION_FAILED);
+
+		super.disconnectedCallback();
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	// N/A
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
 	_continueUnverifiedClick() {
-		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
+		this._telemetry.logEvent(VerifyCallerEvents.XDS_VERIFICATION_FAILED_CONTINUE_UNVERIFIED, {
+			"screen": TelemetryScreen.XDS_FAILED,
+			"next-screen": TelemetryScreen.FAVOURITES
+		}, true);
+
+		this._navigateToLP();
 	}
 
-	_updateMiniProfile() {
-		this.horizonStore.setCallerInformation(this.callerInformation);
-		
-		const state = { 
-			leftBarButtonConfig: {
-				hasFavourites: true,
-				subtitle: ``,
-				detail: ``
-			}
-		};
+	_verifyViaApp() {
+		this._telemetry.logEvent(VerifyCallerEvents.XDS_VERIFICATION_FAILED_VERIFY_VIA_APP, {
+			"screen": TelemetryScreen.XDS_FAILED,
+			"next-screen": TelemetryScreen.VERIFY_CALLER
+		}, true);
 
-		this.horizonStore.saveState(state);
+		super._verifyClick();
 	}
+
+	// ---------
+	// RENDERING
+	// ---------
+	
+	// N/A
 
 	// ---------
 	// RENDERING
@@ -73,9 +97,10 @@ export class XdsVerificationFailed extends ViewBase {
 					height: 100%;
 				}
 				#id-error-msg {
-					width: 550px;
+					width: auto;
 				}
-				horizon--error-screen {
+				horizon-error-screen {
+					--horizon-error-screen-height: 876px;
 					--horizon-error-screen-size: 889px;
 				}
 			`
@@ -88,27 +113,11 @@ export class XdsVerificationFailed extends ViewBase {
 
 	_webTemplate() {
 		return html`
-			${this._renderXdsFailureScreen()}
+			${this._renderSQFailureScreen()}
 
 			${super._webTemplate()}
 		`;
 	}
-
-	_renderXdsFailureScreen() {
-		return html`
-			<horizon--error-screen 
-				header="Verification was unsuccessful" 
-				left="Continue Unverified"
-				right="${this.callerInformation.hasDigitalChannels ? `Verify Via Banking App` : ``}"
-				toast="Your Verification has failed."
-				image="/images/insure/assign-pay-arrears.svg"
-				@left-click=${() => this._continueUnverifiedClick()}
-				@right-click=${() => super._verifyClick()}>
-				<section id="id-error-msg" slot="detail">If it's an urgent matter, please visit a branch or you can call again after 24 hours.</section>
-			</horizon--error-screen>
-		`;
-	}
-
 }
 
 customElements.define(`horizon-xds-verification-failed`, XdsVerificationFailed);

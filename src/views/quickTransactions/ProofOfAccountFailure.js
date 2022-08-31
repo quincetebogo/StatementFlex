@@ -1,7 +1,7 @@
 import { css, html } from 'platform/elements';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
@@ -26,7 +26,7 @@ import 'app/components/common/RelatedOptions';
 
 		this.mailId = ``;
 		this.acNumber = ``;
-
+		this.endCallContext = `QuickTransactionsUnSuccess`;
 		this._telemetry = HorizonTelemetry.instance;
 	}
 
@@ -93,7 +93,7 @@ import 'app/components/common/RelatedOptions';
 		return [
 			super.styles,
 			css`
-				horizon--error-screen {
+				horizon-error-screen {
 					--horizon-error-screen-height:768px;
 				}
 				#id-error-msg {
@@ -121,7 +121,8 @@ import 'app/components/common/RelatedOptions';
 
 	_renderProofOfAccountFailure() {
 		return html`
-			<horizon--error-screen
+			<horizon-error-screen
+				data-automation-id="proof-of-account-failure-screen"
 				image="/images/insure/assign-pay-arrears.svg"
 				header="Proof of account not sent" 
 				left="Done"
@@ -132,13 +133,14 @@ import 'app/components/common/RelatedOptions';
 				<section id="id-error-msg" slot="detail">
 					Your proof of account document for account <b>${this.acNumber}</b> was not emailed to <b>${this.mailId}</b>
 				</section>
-			</horizon--error-screen>
+			</horizon-error-screen>
 		`;
 	}
 
 	_renderRelatedOptions() {
 		return html`
 			<horizon-related-options
+			data-automation-id="proof-of-account-failure-related-options"
 				context = "Failure">
 			</horizon-related-options>
 		`;

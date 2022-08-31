@@ -1,7 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
-import { HORIZON_CALLER_DIALOG_HEADER_CSS } from 'app/css/HorizonModalHeader';
 
 import 'app/components/common/CallerInfoBar';
 
@@ -95,21 +94,51 @@ export class CallerDialog extends Component {
 			css`
 
 			${CALLERINFOBAR_CSS}
-			${HORIZON_CALLER_DIALOG_HEADER_CSS}
 
 			capitec-modal {
 				height: auto;
-				width: 690px;
-				--theme-modal-header-padding-top: 32px;
-				--theme-modal-header-padding-bottom: 32px;
-				--theme-modal-header-padding-right: 31px;
-				--theme-modal-header-padding-left: 31px;
+				width: var(--horizon-modal-width, 690px);
+
+				--theme-modal-header-padding-top: 20px;
+				--theme-modal-header-padding-bottom: 20px; 
+
+				--theme-modal-slot-header-right: 20px;
 				--theme-modal-footer-padding: var(--horizon-modal-footer-padding, 7px 16px 9px 0px);
-				
+                --theme-modal-body-box-shadow: #664e60;
+                --theme-modal-header-border-radius: 4px 4px 0px 0px;
+                --theme-modal-body-border-radius: 4px 4px 4px 4px;
+			}
+
+			#id-end-call-button {
+				/* Position button in the top right corder of the dialog */
+				position: absolute;
+				top: -44px;
+				right: -20px;
+
+				/* Set button margin to offset from top left as appropriate. (easy to calculate now) */
+				margin-top: var(--horizon-end-call-button-margin-top, 8px);
+				margin-right: var(--horizon-end-call-button-margin-right, --theme-modal-header-padding-right, 16px); 
+
+				height: 48px;
+				width: 130px;
+
+				--theme-button-default-background-color: #FF2B25;
+				--theme-button-default-border-color: #FF2B25;
+				--theme-button-default-font-color: rgb(255, 255, 255);
+				--theme-button-default-background-tapped-color: #FF2B25;
+
+				--theme-button-padding-top: 12px;
+				--theme-button-padding-bottom: 12px;
+				--theme-button-padding-right: 16px;
+				--theme-button-padding-left: 16px;
+			}
+
+			.end-call-icon{
+				margin-left: 14px;
 			}
 
 			div[slot="body"] {
-				width: 690px;
+				width: var(--horizon-modal-width, 690px);
 				height: auto;
 			}
 
@@ -130,17 +159,17 @@ export class CallerDialog extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-modal type="free" header-align="left">
-				<capitec-group slot="header" layout="horizontal" halign="left" valign="center" gap="none" id="modalHeader">
-					<capitec-label type="title" label="${this.headerLabel}"></capitec-label>
-					<capitec-spacer></capitec-spacer>
-					<capitec-button
-						style="visibility:${!this.displayButton ? `hidden` : `visible`}" 
-						label="End Call"
-						@click="${() => this._onEndCall()}">
-							<img class="end-call-icon" src="/images/hangup.svg"/>
-					</capitec-button>
-				</capitec-group>
+			<capitec-modal type="free" header-align="left" header="${this.headerLabel}">
+				<capitec-button
+					slot="header"
+					id="id-end-call-button"
+					data-automation-id="caller-dialog-end-call"
+					style="visibility:${!this.displayButton ? `hidden` : `visible`}" 
+					label="End Call"
+					@click="${() => this._onEndCall()}">
+					<img class="end-call-icon" src="/images/common/hangup.svg"/>
+				</capitec-button>
+
 				<div slot="body">
 					${this._renderCallInformation()}
 					<slot name="body"></slot>

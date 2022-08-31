@@ -1,17 +1,20 @@
 import { css, html } from 'platform/elements';
-import { AcceptCallEvents } from 'app/constants/Telemetry/Events/AcceptCall';
+import { AUTH_IDENTIFICATION_METHODS } from 'app/constants/common';
+import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
+import { ClientProfileService } from 'app/services/ClientProfileService';
 import { Configuration } from 'platform/core';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { HorizonViewManager } from 'app/shell/HorizonViewManager';
-import { IDCallerEvents } from 'app/constants/Telemetry/Events/IdentifyCaller';
+import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { IncidentDetails } from 'app/models/IncidentDetails';
 import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
 import { InitialiseService } from 'app/services/InitialiseService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { RoleManager } from 'app/shell/RoleManager';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase.js';
 
 import 'platform/components/buttons/Button';
@@ -44,10 +47,11 @@ export class LandingPage extends ViewBase {
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
 		this._configuration = Configuration.getInstance();
-		this._telemetry = HorizonTelemetry.instance;
+		this.telemetry = HorizonTelemetry.getInstance();
 
 		this.initialiseService = new InitialiseService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
+		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
 
 		this.incomingCallDetails = new IncomingCallDetails();
 		this.incidentDetails = {};
@@ -56,6 +60,10 @@ export class LandingPage extends ViewBase {
 		this.searchCallSub = this.eventAggregator.subscribe(`search-caller`, (newCallInfo) => this._onSearchCaller(newCallInfo));
 		this.agentUpSub = this.eventAggregator.subscribe(`desktop-agent-up`, () => this._desktopAgentup());
 		this.eventSub = this.eventAggregator.subscribe(`prompt-start-desktopagent`, () => this._promptStartDesktopAgent());
+		this.desktopAgentDown = false;
+		this.isAuthorised = false;
+
+		this.roleManager = RoleManager.getInstance();
 
 		// Subscribe to state changes. Erase state once the call status indicates that the
 		// call has ended.
@@ -77,6 +85,13 @@ export class LandingPage extends ViewBase {
 	// PROPERTIES
 	// ----------
 
+	static get properties() {
+		return {
+			desktopAgentDown: { state: true },
+			isAuthorised: { state: true }
+		};
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -84,16 +99,22 @@ export class LandingPage extends ViewBase {
 	async connectedCallback() {
 		super.connectedCallback();
 
+		this._initialise();
+
 		await this._GetLandingPageData();
 
 		// Notify the desktop agent service that we are now on the landing page and can therefore handle an incoming call
 		this.eventAggregator.publish(`landing-page-loaded`, {});
 	}
 
+	async _initialise() {
+		this.isAuthorised = await this.roleManager.isAuthorised;
+	}
+
 	disconnectedCallback() {
 		// Telemetry
 		// TODO: This should probably move since this point will also mark the end of the caller verification.
-		this._telemetry.endSpan(IDCallerEvents.IDENTIFY_CALLER);
+		this.telemetry.endSpan(IDCallerEvents.IDENTIFY_CALLER);
 		// TODO: Fulfill need span should start here
 
 		// Cleanup all event aggregator and state management subscriptions;
@@ -112,15 +133,12 @@ export class LandingPage extends ViewBase {
 
 	_promptStartDesktopAgent() {
 		// The desktop agent service must be running in order to use Horizon.
-		// If it is not running display an error dialog
-		this.renderMode = RENDER_MODE.START_AGENT;
+		// If it is not running display an error banner
+		this.desktopAgentDown = true;
 	}
 
 	_desktopAgentup() {
-		if (this.renderMode === RENDER_MODE.START_AGENT) {
-			// Dismiss error dialog once the Desktop Agent is up and running
-			this.renderMode = RENDER_MODE.MAIN_PAGE;
-		}
+		this.desktopAgentDown = false;
 	}
 
 	async _onSearchCaller() {
@@ -152,10 +170,10 @@ export class LandingPage extends ViewBase {
 		 }
 
 		if (incident) {
-			await this._telemetry.logEvent(AcceptCallEvents.INCIDENT_CREATED, {
+			await this.telemetry.logEvent(AcceptCallEvents.INCIDENT_CREATED, {
 				"incident-reference": incident.incidentNumber,
 				"incident-rec-id": incident.incidentRecId
-			});
+			}, true);
 		}
 	
 		return incident;
@@ -170,14 +188,14 @@ export class LandingPage extends ViewBase {
 		newCallInfo.incidentRecId = this.incidentDetails.incidentRecId;
 
 		// Telemetry
-		this._telemetry.startSpan(IDCallerEvents.IDENTIFY_CALLER);
+		this.telemetry.startSpan(IDCallerEvents.IDENTIFY_CALLER);
 
 		// If the incoming call was manually created (by pressing the search button on the agent's action bar)
 		// then we don't invoke acceptCall as this method tries to identify the incoming caller based the incoming
 		// telephone number. For a manually created call, we don't know the incoming telephone number.
 		if (incomingNumber !== `0` && incomingNumber !== `0000000000` && incomingNumber !== ``) {
 			// Check the incoming call to see if it is a verified or unverified number
-			const returnValue = await this.callHandleService.acceptCall(newCallInfo);
+			const returnValue = await this.clientProfileService.acceptCall(newCallInfo);
 			callerDetails = returnValue.result;
 			forceSearchDialog = !returnValue.succeeded;
 
@@ -202,7 +220,6 @@ export class LandingPage extends ViewBase {
 	 */
 	_dispatchCall(acceptedCall, newCallInfo, forceSearchDialog) {
 		// Set up state for the incoming call
-		this.callStatus = `CALL-IN-PROGRESS`;
 		this.incomingCallDetails = new IncomingCallDetails(
 			newCallInfo.VDN,
 			newCallInfo.incomingTelephoneNumber,
@@ -215,9 +232,9 @@ export class LandingPage extends ViewBase {
 
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
-
+		
 		const state = {
-			callStatus: this.callStatus,
+			callStatus: `CALL-IN-PROGRESS`,
 			canCloseIncident: true
 		};
 
@@ -227,6 +244,10 @@ export class LandingPage extends ViewBase {
 		// the IVR Option and whether the incoming number is recognised
 		if (!forceSearchDialog && acceptedCall.callerInformation) {
 			this.confirmedCaller = acceptedCall.callerInformation;
+
+			// Case: We got response for the incoming phone number, meaning its verified phone number
+			this.confirmedCaller.identifiedBy = AUTH_IDENTIFICATION_METHODS.CELLPHONE_NUMBER;
+			
 			this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 		} else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 			this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
@@ -240,7 +261,17 @@ export class LandingPage extends ViewBase {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.confirmedCaller = event.detail.confirmedCaller;
 		this.incidentDetails = event.detail.incidentDetails;
+		this.confirmedCaller.isBranchConsultant = event.detail.isBranchConsultant;
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+	}
 
+	_branchCaptured(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.confirmedCaller = event.detail.confirmedCaller;
+		this.incidentDetails = event.detail.incidentDetails;
+		this.confirmedCaller.isBranchConsultant = event.detail.isBranchConsultant;
+		this.cpNumber = event.detail.cpNumber;
+		this.clientType = event.detail.clientType;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
@@ -253,6 +284,7 @@ export class LandingPage extends ViewBase {
 			``, // Language Preference
 			``, // Lives In
 			``, // Name 
+			``, // Title
 			``, // South African ID  Number
 			``, // Verified Number
 			event.detail.nonClient.firstName,
@@ -263,21 +295,31 @@ export class LandingPage extends ViewBase {
 			``, // Non client relationship
 			false, // is Confirmed Client
 			`non-client`, // Verification Status
+			false, // verification toast
+			false, // is 3rd party
+			true, // is non-client
+			false, // has insurance products
 			false,
+			{ itaAttempts: 0, sqAttempts: 0 },
+			event.detail.isBranchConsultant,
 			false,
-			true,
-			false,
-			false
+			`unverified`,
+			``, // client's first name
+			``, // client's second name
+			``, // client's third name
+			``, // client's fourth name
+			``, // client's surname/last name
+			``, // client's initials
+			``, // Identification method used to confirm client
+			``, //registered email id
+			``, // profile photo
+			`` // gender
 		);
-
+		
 		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);
 		this.horizonStore.setCallerInformation(callerInformation);
 
-		if (callerInformation.verificationStatus === `non-client`) {
-			this.horizonRouter.navigateToProductInfo(`SavingsAccount`);
-		} else {
-			this.horizonRouter.navigateToLandingPage(event.detail.incomingCallDetails.ivrOption.value, callerInformation.hasInsuranceProducts);
-		}
+		this.horizonRouter.navigateToLandingPage(event.detail.incomingCallDetails.ivrOption.value, callerInformation.hasInsuranceProducts);
 	}
 
 	_otherNeedSelected(event) {
@@ -349,14 +391,13 @@ export class LandingPage extends ViewBase {
 		${this._renderMiddleSection()}
 		${this._renderConfirmCallerDetailsDialog()}
 		${this._renderSearchDialog()}
-		${this._renderStartAgentPrompt()}
 		${super._webTemplate()}
 		`;
 	}
 
 	_renderMiddleSection() {
 		return html`
-			<horizon-landing-page-wait-for-call class="wait-for-call"></horizon-landing-page-wait-for-call>
+			<horizon-landing-page-wait-for-call ?isAuthorised="${this.isAuthorised}" ?desktopAgentDown="${this.desktopAgentDown}" class="wait-for-call"></horizon-landing-page-wait-for-call>
 		`;
 	}
 
@@ -367,6 +408,10 @@ export class LandingPage extends ViewBase {
 					.confirmedCaller="${this.confirmedCaller}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.incidentDetails="${this.incidentDetails}"
+					.cpNumber="${this.cpNumber}"
+					.clientType="${this.clientType}"
+					@client-identified="${(data) => this._clientIdentified(data)}"
+					@branch-captured="${(event) => this._branchCaptured(event)}"
 					@non-client-captured=${event => this._nonClientCaptured(event)}>
 				</horizon-confirm-caller-details>`;
 		}
@@ -388,18 +433,9 @@ export class LandingPage extends ViewBase {
 					.incidentDetails="${this.incidentDetails}"
 					@client-identified="${(event) => this._clientIdentified(event)}"
 					@non-client-captured="${event => this._nonClientCaptured(event)}"
+					@branch-captured="${(event) => this._branchCaptured(event)}"
 					@stop-card-need-selected="${(event) => this._stopCardNeedSelected(event)}">
 				</horizon-search-caller>`;
-		}
-	}
-
-	_renderStartAgentPrompt() {
-		if (this.renderMode === RENDER_MODE.START_AGENT) {
-			return html`
-				<horizon-error-404 
-					@click="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
-				</horizon-error-404>
-			`;
 		}
 	}
 }
