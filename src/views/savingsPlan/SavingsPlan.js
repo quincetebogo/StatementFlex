@@ -8,8 +8,7 @@ import { Configuration } from 'platform/core';
 import { EventAggregator } from 'platform/EventAggregator';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
-import { SavingsAccountService } from 'app/services/SavingsAccountService';
-import { SavingsPlanService } from 'app/services/SavingsPlanService';
+import { SavingsService } from 'app/services/SavingsService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -80,8 +79,7 @@ export class SavingsPlan extends ViewBase {
 		this.taxCertificateDetails = null;
 		this.transactionHistory = [];
 
-		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.savingsPlanService = new SavingsPlanService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.savingsService = new SavingsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.accountViewType = ``;
 		
@@ -201,7 +199,7 @@ export class SavingsPlan extends ViewBase {
 				getGenericData: true
 			};
 
-			const returnValue = await this.savingsAccountService.savingsPlanLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
+			const returnValue = await this.savingsService.savingsPlanLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
 			 
 			if (!returnValue.succeeded) {
 				this.logger.log(`error`, `Failed to retrieve client Savings plan details from service.`, `_initialise`, returnValue.correlationId);
