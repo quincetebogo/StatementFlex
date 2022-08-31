@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { refreshRelationshipCoverDetails, checkPolicyRules} from 'app/utils/insureUtils';
+import { refreshRelationshipCoverDetails, checkPolicyRules } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
@@ -82,7 +82,7 @@ class UpdatePlan extends Component {
 		this.genderOptions = GENDER_OPTIONS;
 		this.titleOptions = TITLE_OPTIONS;
 
-		
+
 	}
 
 	//#endregion
@@ -147,7 +147,7 @@ class UpdatePlan extends Component {
 			issuePlanAgreementDocument: { type: Object, state: true },
 			reinstatePaymentAgreementDocument: { type: Object, state: true },
 
-			dOB: {type: String, state: true}
+			dOB: { type: String, state: true }
 		};
 	}
 
@@ -228,12 +228,12 @@ class UpdatePlan extends Component {
 		for (let index = 0; index < this.policyDetails.roleplayers.length; index++) {
 			if (this.policyDetails.roleplayers[index].rowID == this.beneficiaryToRemoveRowID) {
 				this.policyDetails.roleplayers[index].beneficiary = false;
-				
+
 				console.log('removing beneficiary')
 				console.log(this.policyDetails.roleplayers[index].firstName)
 
 				//remove roleplayer from roleplayers if not a life assured
-				if(this.policyDetails.roleplayers[index].lifeAssured == false){
+				if (this.policyDetails.roleplayers[index].lifeAssured == false) {
 					this.policyDetails.roleplayers.splice(index, 1);
 				}
 				console.log(this.policyDetails.roleplayers)
@@ -286,12 +286,12 @@ class UpdatePlan extends Component {
 	 */
 	_openRemoveLifeAssuredDialog(roleplayer, index) {
 		this.showRemoveLifeAssuredDialog = true;
-		if(!roleplayer.firstName){
+		if (!roleplayer.firstName) {
 			this.lifeAssuredToRemoveDescription = roleplayer.relationship;
-		}else{
+		} else {
 			this.lifeAssuredToRemoveDescription = roleplayer.firstName + ' ' + roleplayer.surname;
 		}
-		
+
 		this.lifeAssuredToRemove = index;
 	}
 
@@ -312,7 +312,7 @@ class UpdatePlan extends Component {
 	_lifeCoverAmountValueChanged(event, recordId) {
 		if (event.detail.old != event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
-				if(rolePlayer.recordID === recordId) {
+				if (rolePlayer.recordID === recordId) {
 					this.policyDetails.roleplayers[index].coverAmount = event.detail.new;
 					this.newTotalPremium = '';
 				}
@@ -329,7 +329,7 @@ class UpdatePlan extends Component {
 	_lifeTitleValueChanged(event, recordId) {
 		if (event.detail.old != event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
-				if(rolePlayer.recordID === recordId) {
+				if (rolePlayer.recordID === recordId) {
 					this.policyDetails.roleplayers[index].title = event.detail.new.code;
 				}
 			});
@@ -344,7 +344,7 @@ class UpdatePlan extends Component {
 	_lifeGenderValueChanged(event, recordId) {
 		if (event.detail.old != event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
-				if(rolePlayer.recordID === recordId) {
+				if (rolePlayer.recordID === recordId) {
 					this.policyDetails.roleplayers[index].genderType = event.detail.new.code;
 				}
 			});
@@ -356,26 +356,26 @@ class UpdatePlan extends Component {
 	 * @param {*} event 
 	 * @param {*} recordId 
 	 */
-	 _lifeNameValueChanged(event, recordId) {
+	_lifeNameValueChanged(event, recordId) {
 		if (event.detail.old != event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
-				if(rolePlayer.recordID === recordId) {
+				if (rolePlayer.recordID === recordId) {
 					this.policyDetails.roleplayers[index].firstName = event.detail.new;
 				}
 			});
 		}
 	}
 
-	
+
 	/**
 	 * Event fired when a life assured SURNAME value changes
 	 * @param {*} event 
 	 * @param {*} recordId 
 	 */
-	 _lifeSurnameValueChanged(event, recordId) {
+	_lifeSurnameValueChanged(event, recordId) {
 		if (event.detail.old != event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
-				if(rolePlayer.recordID === recordId) {
+				if (rolePlayer.recordID === recordId) {
 					this.policyDetails.roleplayers[index].surname = event.detail.new;
 				}
 			});
@@ -387,10 +387,10 @@ class UpdatePlan extends Component {
 	 * @param {*} event 
 	 * @param {*} recordId 
 	 */
-	 _lifeMiddleNameValueChanged(event, recordId) {
+	_lifeMiddleNameValueChanged(event, recordId) {
 		if (event.detail.old != event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
-				if(rolePlayer.recordID === recordId) {
+				if (rolePlayer.recordID === recordId) {
 					this.policyDetails.roleplayers[index].middleName = event.detail.new;
 				}
 			});
@@ -405,13 +405,13 @@ class UpdatePlan extends Component {
 	_lifeIDValueChanged(event, recordId) {
 		if (event.detail.old != event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
-				if(rolePlayer.recordID === recordId) {
+				if (rolePlayer.recordID === recordId) {
 					this.policyDetails.roleplayers[index].idNumber = event.detail.new;
-					if(this.policyDetails.roleplayers[index].idNumber.length == 13){
+					if (this.policyDetails.roleplayers[index].idNumber.length == 13) {
 						let dateOfBirth = this._setDOB(this.policyDetails.roleplayers[index].idNumber)
 						console.log("1st")
 						console.log(dateOfBirth)
-						if(!isNullorEmpty(dateOfBirth)){
+						if (!isNullorEmpty(dateOfBirth)) {
 							this.policyDetails.roleplayers[index].dateOfBirth = dateOfBirth;
 							console.log("2nd")
 							console.log(this.policyDetails.roleplayers[index].dateOfBirth)
@@ -421,7 +421,7 @@ class UpdatePlan extends Component {
 			});
 		}
 		this.requestUpdate()
-		
+
 	}
 
 	/**
@@ -429,10 +429,10 @@ class UpdatePlan extends Component {
 	 * @param {*} event 
 	 * @param {*} recordId 
 	 */
-	 _lifeCellphoneValueChanged(event, recordId) {
+	_lifeCellphoneValueChanged(event, recordId) {
 		if (event.detail.old != event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
-				if(rolePlayer.recordID === recordId) {
+				if (rolePlayer.recordID === recordId) {
 					this.policyDetails.roleplayers[index].contactDetails.cellphone = event.detail.new;
 				}
 			});
@@ -447,7 +447,7 @@ class UpdatePlan extends Component {
 	_lifeEmailValueChanged(event, recordId) {
 		if (event.detail.old != event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
-				if(rolePlayer.recordID === recordId) {
+				if (rolePlayer.recordID === recordId) {
 					this.policyDetails.roleplayers[index].contactDetails.email = event.detail.new;
 				}
 			});
@@ -457,28 +457,44 @@ class UpdatePlan extends Component {
 	/**Beneficiary Change events */
 	_beneficiaryPayoutValueChanged(event, recordId) {
 		console.log(event);
+
 		if (event.detail.old != event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
-				if(rolePlayer.recordID === recordId) {
-					console.log('Record found: ', recordId)
+				if (rolePlayer.recordID === recordId) {
+					// console.log('Record found: ', recordId)
 					this.policyDetails.roleplayers[index].benefitPayout = event.detail.new;
-					console.log(this.policyDetails.roleplayers[index].benefitPayout)
+					// console.log(this.policyDetails.roleplayers[index].benefitPayout)
+					console.log(this._isPayoutAmountValid())
+
+					let payoutAmountsMatch = this._isPayoutAmountValid();
+					if(payoutAmountsMatch === false){
+						this.policyDetails.roleplayers[index].benefitPayoutErrorMessage = "Does not match"
+					}else{
+
+						for (let index = 0; index < this.policyDetails.roleplayers.length; index++) {
+							if(this.policyDetails.roleplayers[index].beneficiary == true){
+								this.policyDetails.roleplayers[index].benefitPayoutErrorMessage = "";
+							}
+						}
+					}
+					this.requestUpdate();
 				}
 			});
 		}
 
-		this.requestUpdate();
+		
 	}
 
 	/** Debit order details events */
 
-	_getBank(){
+	/** change format of the bank returned to match the format of banks in the list */
+	_getBank() {
 
 		let bank = this.bankOptions.find(bank => {
 			return bank.code === this.policyDetails.deductionDetails?.bankDetails?.bank.toUpperCase()
 		});
 		// console.log(bank)
-		
+
 		return bank.text
 
 	}
@@ -488,7 +504,7 @@ class UpdatePlan extends Component {
 	 * 
 	 * @param {*} e 
 	 */
-	_selectedBankChange(e){
+	_selectedBankChange(e) {
 		// console.log(e)
 
 		if (e.detail.old != e.detail.new) {
@@ -500,17 +516,17 @@ class UpdatePlan extends Component {
 	}
 
 	/**
-	 * 
+	 * change format of the collection day value returned to match the format of the collection day list
 	 * 
 	 * @returns 
 	 */
-	_getCollectionDay(){
+	_getCollectionDay() {
 
 		let day = this.debitOrderDayOptions.find(day => {
 			return day.code == this.collectionDay
 		});
 		// console.log(day)
-		
+
 		return day.text
 
 	}
@@ -520,7 +536,7 @@ class UpdatePlan extends Component {
 	 * 
 	 * @param {*} e 
 	 */
-	_debitOrderDayChange(e){
+	_debitOrderDayChange(e) {
 
 		if (e.detail.old != e.detail.new) {
 			this.policyDetails.deductionDetails.collectionDay = e.detail.new.code
@@ -533,7 +549,7 @@ class UpdatePlan extends Component {
 	 * 
 	 * @param {*} e 
 	 */
-	_branchCodeChange(e){
+	_branchCodeChange(e) {
 
 		// console.log(e)
 
@@ -548,7 +564,7 @@ class UpdatePlan extends Component {
 	 * 
 	 * @param {*} e 
 	 */
-	_accountNumberChange(e){
+	_accountNumberChange(e) {
 		if (e.detail.old != e.detail.new) {
 			this.policyDetails.deductionDetails.bankDetails.accountNumber = e.detail.new
 		}
@@ -804,16 +820,16 @@ class UpdatePlan extends Component {
 	 * @param {*} idNumber 
 	 * @returns 
 	 */
-	_setDOB(idNumber){
+	_setDOB(idNumber) {
 		let birthdate = new Date(idNumber.substring(0, 2), idNumber.substring(2, 4) - 1, idNumber.substring(4, 6));
-		
-		if (birthdate.getFullYear() <= (new Date().getFullYear() - 100)){
+
+		if (birthdate.getFullYear() <= (new Date().getFullYear() - 100)) {
 			birthdate.setFullYear(birthdate.getFullYear() + 100)
 		}
 
 		return birthdate.toISOString()
-		
-		
+
+
 	}
 
 	/**
@@ -823,9 +839,9 @@ class UpdatePlan extends Component {
 	 * @param {*} relationship 
 	 * @returns 
 	 */
-	_policyRuleAllowsChange(field, relationship){
+	_policyRuleAllowsChange(field, relationship) {
 		return checkPolicyRules(this.policyDetails.policyRule, this.productParams, field, relationship)
-		
+
 	}
 
 	/**
@@ -833,12 +849,12 @@ class UpdatePlan extends Component {
 	 * 
 	 * @returns 
 	 */
-	_canAddLife(){
+	_canAddLife() {
 		let product = this.productParams.products.find(product => {
 			return product.parameters.id === `SBL`
 		});
 		console.log(product)
-		
+
 		let currentRuleType = product.parameters.rulesParams.find(rule => {
 			return rule.ruleType === this.policyDetails.policyRule
 		});
@@ -848,7 +864,7 @@ class UpdatePlan extends Component {
 		console.log(currentRuleType.addNewLives)
 
 		return currentRuleType.addNewLives
-		
+
 	}
 
 	/**
@@ -857,33 +873,39 @@ class UpdatePlan extends Component {
 	 * @param {*} roleplayer 
 	 * @returns 
 	 */
-	_checkBeneficiaryDobRule(roleplayer){
+	_checkBeneficiaryDobRule(roleplayer) {
 
-		if(roleplayer.lifeAssured == false){
+		if (roleplayer.lifeAssured == false) {
 			return true
 		} else {
 			return this._policyRuleAllowsChange("editDateOfBirth", roleplayer.relationship)
 		}
 
 	}
-/**
- * 	 check that the beneficiary payout amounts add up to the mainlife cover amount 
- */	//TODO detrmine when to do check
-	_checkPayoutAmount(){
+	/**
+	 * 	 check that the beneficiary payout amounts add up to the mainlife cover amount 
+	 */	
+	_isPayoutAmountValid() {
 
 		let totalPayout = 0;
 
-		let beneficiaries = this.policyDetails.roleplayers.find(beneficiaries => {
+		let beneficiaries = this.policyDetails.roleplayers.filter(beneficiaries => {
+			console.log("Found one")
 			return beneficiaries.beneficiary === true
 		});
-
+		console.log(beneficiaries.length)
 		for (let index = 0; index < beneficiaries.length; index++) {
-			totalPayout += beneficiaries.benefitPayout
+			console.log("Adding")
+			console.log("parseFloat(beneficiaries[index].benefitPayout)", parseFloat(beneficiaries[index].benefitPayout))
+			totalPayout += parseFloat(beneficiaries[index].benefitPayout)
 		}
-		
-			if (this.policyDetails.roleplayers[0].coverAmount == totalPayout ){
-					
-			} 
+		console.log("total Payout: " + totalPayout)
+		console.log("main cover amount: " + this.policyDetails.roleplayers[0].coverAmount)
+		if (this.policyDetails.roleplayers[0].coverAmount === totalPayout) {
+			return true
+		}
+
+		return false
 	}
 
 	//#endregion
@@ -1173,13 +1195,13 @@ class UpdatePlan extends Component {
 		return html`
 		<capitec-title-bar type="insure" class="insure-title-bar">
 			<img class="action-image" src="/images/insure/left-arrow.svg" @click="${() => this._backToSummaryPage()}" />
-			<capitec-label label="${ this.canReinstate ? `Reinstate` : `Update Plan #${ this.policyDetails.contractReference }`}" type="title"></capitec-label>
+			<capitec-label label="${this.canReinstate ? `Reinstate` : `Update Plan #${this.policyDetails.contractReference}`}" type="title"></capitec-label>
 			<capitec-spacer></capitec-spacer>
-			${ this.canReinstate ? 
-				html `<capitec-button label="Reinstate" type="white" class="capitec-button-medium"
-					@click="${() => this._onReinstatePolicyPopup() }"></capitec-button>` 
+			${this.canReinstate ?
+				html`<capitec-button label="Reinstate" type="white" class="capitec-button-medium"
+					@click="${() => this._onReinstatePolicyPopup()}"></capitec-button>`
 				:
-				html `
+				html`
 					${this.selectedTabIndex == 0 ? html`
 					<capitec-button label="Calculate" type="white" class="capitec-button-medium"
 						@click="${() => this._calculatePremium()}">
@@ -1258,14 +1280,14 @@ class UpdatePlan extends Component {
 			
 					<!-- Add lives Assured Button  -->
 					<div class="calc-card-row" style="margin-top: 5px;">
-						${ this.policyDetails?.roleplayers?.filter(x=> x.relationship !== `MainLife`
-							&& x.lifeAssured == true)?.length > 0
-							? html `
+						${this.policyDetails?.roleplayers?.filter(x => x.relationship !== `MainLife`
+			&& x.lifeAssured == true)?.length > 0
+				? html`
 							<capitec-label label="Lives Assured" type="strong" class="stronger">
 							</capitec-label>`
-						: ``}
-						${this.canReinstate || !this._canAddLife() ? `` : 
-							html `<capitec-label label="Add Life Assured" type="subtitle" class="stronger link"
+				: ``}
+						${this.canReinstate || !this._canAddLife() ? `` :
+				html`<capitec-label label="Add Life Assured" type="subtitle" class="stronger link"
 								@click="${() => this._openAddLifeDialog()}" disabled>
 								</capitec-label>
 						`}		
@@ -1273,14 +1295,14 @@ class UpdatePlan extends Component {
 			
 					<!-- Lifes Assured list -->
 					${this.policyDetails.roleplayers.map((roleplayer, index) => html` ${roleplayer.relationship != "MainLife" &&
-			roleplayer.lifeAssured == true ? 
+					roleplayer.lifeAssured == true ?
 					html`
-					${ this.canReinstate ? ``	
-						: (this.policyDetails.policyRule != "Standard" ? html ``
-						:html `<capitec-label label="Remove" @click="${() => this._openRemoveLifeAssuredDialog(roleplayer, index)}" type="subtitle"
+					${this.canReinstate ? ``
+							: (this.policyDetails.policyRule != "Standard" ? html``
+								: html`<capitec-label label="Remove" @click="${() => this._openRemoveLifeAssuredDialog(roleplayer, index)}" type="subtitle"
 							class="stronger link" style="position: relative; width: fit-content; left: 613px; top: 43px;"></capitec-label>
 						`)
-					}
+						}
 			
 					<horizon-expander expandButtonAlignment="right">
 						<capitec-group class="expander-header" slot="custom-header" layout="horizontal" gap="clear" halign="left"
@@ -1331,7 +1353,7 @@ class UpdatePlan extends Component {
 							<capitec-label label="${isNullorEmpty(lifeAssured.premium) ? formatCurrency(0) : formatCurrency(lifeAssured.premium)}"></capitec-label>
 						</div>
 						<hr>`)
-					}
+			}
 					<div class="calc-life-list">
 						<capitec-label label="Total Premium Amount" class="stronger"></capitec-label>
 						<capitec-label label="${isNullorEmpty(this.policyDetails.totalPremium) ? formatCurrency(0) : formatCurrency(this.policyDetails.totalPremium)}" class="stronger">
@@ -1398,25 +1420,25 @@ class UpdatePlan extends Component {
 							<!--Beneficiaries -->
 							<div class="calc-card-row" style="margin-top: 15px;">
 								${this.policyDetails?.roleplayers?.filter(x => x.beneficiary === true)?.length > 0
-									? html `
+				? html`
 									<capitec-label label="Beneficiaries" type="strong" class="stronger">
 									</capitec-label>`
-								 : ``}
+				: ``}
 								${this.canReinstate ? `` :
-									this._renderAddBeneficiaryButton()
-								}
+				this._renderAddBeneficiaryButton()
+			}
 							</div>
 
 							<!-- Beneficiaries -->
-							${this.policyDetails.roleplayers.map((beneficiary, index) => 
-								html` ${beneficiary.beneficiary == true ? 
-									html`
-									${ this.canReinstate ? ``
-										: html	`<capitec-label label="Remove" @click="${() => this._openRemoveBeneficiaryDialog(beneficiary, index)}"
+							${this.policyDetails.roleplayers.map((beneficiary, index) =>
+				html` ${beneficiary.beneficiary == true ?
+					html`
+									${this.canReinstate ? ``
+							: html`<capitec-label label="Remove" @click="${() => this._openRemoveBeneficiaryDialog(beneficiary, index)}"
 										type="subtitle" class="stronger link"
 										style="position: relative; width: fit-content; left: 613px; top: 43px;">
 										</capitec-label>`
-									}									
+						}									
 									<horizon-expander expandButtonAlignment="right">
 										<capitec-group class="expander-header" slot="custom-header" layout="horizontal" gap="clear"
 											halign="left" valign="center">
@@ -1549,7 +1571,7 @@ class UpdatePlan extends Component {
 			
 						<!-- Beneficiaries list -->
 						${this.policyDetails.roleplayers.filter(ele => ele.beneficiary == true || ele.relationship ==
-							'MainLife').map(beneficiary => html`
+			'MainLife').map(beneficiary => html`
 						<div class="calc-life-list">
 							<capitec-label label="${beneficiary.relationship}"></capitec-label>
 							<capitec-label label="${formatCurrency(beneficiary.coverAmount)}"></capitec-label>
@@ -1695,35 +1717,35 @@ class UpdatePlan extends Component {
 				</capitec-text-field>
 			</div>
 			<div class="expander-options">
-				${ this.canReinstate == true || !this._policyRuleAllowsChange("editDateOfBirth", roleplayer.relationship) ? 
-						html `<capitec-text-field label="Date of birth" style="width: 50%" disabled
+				${this.canReinstate == true || !this._policyRuleAllowsChange("editDateOfBirth", roleplayer.relationship) ?
+				html`<capitec-text-field label="Date of birth" style="width: 50%" disabled
 								value="${formatDate(roleplayer?.dateOfBirth)}">
 							</capitec-text-field>`
-						:(isNullorEmpty(roleplayer?.idNumber) || roleplayer?.idNumber.length != 13 ? html`
+				: (isNullorEmpty(roleplayer?.idNumber) || roleplayer?.idNumber.length != 13 ? html`
 							<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="input"
 								date="${roleplayer?.dateOfBirth}" outputType="string" maxdate="${this.today}">
-							</capitec-date-time-picker>` 
-						: html`
+							</capitec-date-time-picker>`
+					: html`
 							<capitec-text-field label="Date of birth" style="width: 50%" disabled
 								value="${formatDate(roleplayer?.dateOfBirth)}">
 							</capitec-text-field>`
-						)
-						
-				}
+				)
+
+			}
 				<capitec-text-field label="ID" style="width: 50%" value="${isNullorEmpty(roleplayer?.idNumber) ? '' : roleplayer?.idNumber}" 
-					?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editIDNumber", roleplayer.relationship) || this.policyDetails.policyRule != "Standard" }"
+					?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editIDNumber", roleplayer.relationship) || this.policyDetails.policyRule != "Standard"}"
 					@value-changed="${(e) => this._lifeIDValueChanged(e, roleplayer.recordID)}">
 				</capitec-text-field>
 			</div>
 			<div class="expander-options">
 				<capitec-text-field label="Cellphone number" style="width: 50%" 
-					value="${ isNullorEmpty(roleplayer?.contactDetails?.cellphone) ? `` : roleplayer?.contactDetails?.cellphone }" 
+					value="${isNullorEmpty(roleplayer?.contactDetails?.cellphone) ? `` : roleplayer?.contactDetails?.cellphone}" 
 					?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editContactDetails", roleplayer.relationship)}"
 					@value-changed="${(e) => this._lifeCellphoneValueChanged(e, roleplayer.recordID)}">
 				</capitec-text-field>
 			
 				<capitec-text-field label="Email Address" style="width: 50%" 
-					value="${ isNullorEmpty(roleplayer?.contactDetails?.email) ? `` : roleplayer?.contactDetails?.email }" 
+					value="${isNullorEmpty(roleplayer?.contactDetails?.email) ? `` : roleplayer?.contactDetails?.email}" 
 					?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editContactDetails", roleplayer.relationship)}"
 					@value-changed="${(e) => this._lifeEmailValueChanged(e, roleplayer.recordID)}">
 				</capitec-text-field>
@@ -1753,12 +1775,12 @@ class UpdatePlan extends Component {
 				@value-changed= "${(e) => this._lifeSurnameValueChanged(e, roleplayer.recordID)}">
 			</capitec-text-field>
 		
-			${ this.canReinstate == true || !this._checkBeneficiaryDobRule(roleplayer) ? 
-				html `<capitec-text-field label="Date of birth" style="width: 50%" disabled
+			${this.canReinstate == true || !this._checkBeneficiaryDobRule(roleplayer) ?
+				html`<capitec-text-field label="Date of birth" style="width: 50%" disabled
 						value="${formatDate(roleplayer?.dateOfBirth)}">
 					</capitec-text-field>`
 				:
-				html `<capitec-date-time-picker label="Date of Birth" type="single" mode="date" inputType="input"
+				html`<capitec-date-time-picker label="Date of Birth" type="single" mode="date" inputType="input"
 					date="${roleplayer.dateOfBirth}" outputType="string" maxdate="${this.today}"
 					value=${formatDate(roleplayer.dateOfBirth)} style="width: 50%"
 					?disabled="${this.canReinstate}">
@@ -1772,18 +1794,19 @@ class UpdatePlan extends Component {
 				@value-changed="${(e) => this._lifeGenderValueChanged(e, roleplayer.recordID)}">
 			</capitec-select>
 			<capitec-text-field type="currency" label="Payout amount" style="width: 50%" 
-				value=${roleplayer?.benefitPayout} ?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editBeneficiaryValues", roleplayer.relationship)}"
-				@value-changed="${(e) => this._beneficiaryPayoutValueChanged(e, roleplayer.recordID)}">
+				value=${roleplayer?.benefitPayout <= 0 ? '' : roleplayer?.benefitPayout} ?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editBeneficiaryValues", roleplayer.relationship)}"
+				@value-changed="${(e) => this._beneficiaryPayoutValueChanged(e, roleplayer.recordID)}"
+				error="${roleplayer?.benefitPayoutErrorMessage == undefined ? '' : roleplayer?.benefitPayoutErrorMessage}">
 			</capitec-text-field>
 		</div>
 		<div class="expander-options">
 			<capitec-text-field label="Email Address" style="width: 50%" 
-				value=${ isNullorEmpty(roleplayer.contactDetails?.email) ? `` : roleplayer.contactDetails?.email } 
+				value=${isNullorEmpty(roleplayer.contactDetails?.email) ? `` : roleplayer.contactDetails?.email} 
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editContactDetails", roleplayer.relationship)}"
 				@value-changed= "${(e) => this._lifeEmailValueChanged(e, roleplayer.recordID)}">
 			</capitec-text-field>
 			<capitec-text-field label="Cellphone number" style="width: 50%" 
-				value=${ isNullorEmpty(roleplayer.contactDetails?.cellphone) ? `` : roleplayer.contactDetails?.cellphone} 
+				value=${isNullorEmpty(roleplayer.contactDetails?.cellphone) ? `` : roleplayer.contactDetails?.cellphone} 
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editContactDetails", roleplayer.relationship)}"
 				@value-changed= "${(e) => this._lifeCellphoneValueChanged(e, roleplayer.recordID)}">
 			</capitec-text-field>
@@ -1904,7 +1927,7 @@ class UpdatePlan extends Component {
 	 */
 	_renderReinstatePolicyAgreementDialog() {
 		return this.showReinstatePolicyAgreementDialog == false ? `` : html`
-		<insure-reinstate-policy-agreement-dialog @reinstate-close-modal = "${() => this.showReinstatePolicyAgreementDialog = false }"
+		<insure-reinstate-policy-agreement-dialog @reinstate-close-modal = "${() => this.showReinstatePolicyAgreementDialog = false}"
 			.issuePlanAgreementContent="${this.issuePlanAgreementContent}" .paymentAgreementContent="${this.reinstatePaymentAgreementContent}"
 			@reinstate-agree-click = "${() => this._acceptReinstatePolicy()}" .contractReference = "${this.newContractReference}">
 		</insure-reinstate-policy-agreement-dialog>`
