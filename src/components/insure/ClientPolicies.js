@@ -811,7 +811,7 @@ class ClientPolicies extends Component {
 							.disabled="${this.readOnlyMode}">
 						</horizon-option-button>
 					` : ``}
-					${policyItem.status == 'Active' ? 
+					${policyItem.status == 'Active' || policyItem.status == 'PendingInForce' ? 
 						html `<horizon-option-button 
 						data-automation-id="insure-policy-options-update-plan"
 						class="button-margin" 
@@ -854,7 +854,7 @@ class ClientPolicies extends Component {
 							icon="system/transfer-action"
 							.disabled="${this.readOnlyMode}">
 						</horizon-option-button>
-						${policyItem.status != 'Cancelled' && policyItem.status != 'Lapsed' ? 
+						${policyItem.status != 'Cancelled' && policyItem.status != 'Lapsed' && policyItem.status != 'NotTakenUp' ? 
 							html `
 							<horizon-option-button 
 								data-automation-id="insure-policy-options-cancel-plan"
