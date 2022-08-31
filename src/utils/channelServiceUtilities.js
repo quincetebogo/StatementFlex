@@ -250,6 +250,19 @@ export function formatDate(value, format) {
 }
 
 /**
+ * @export
+ * @param {string} date string value to be formatted
+ * @returns {string} formatted string value 
+ */
+ export function formatDateTime(date) {
+	const newdate = new Date(Date.parse(date));
+	const formatedDate = `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+	const formatedTime = `${newdate.toTimeString().substring(0, 5)}`;
+
+	return `${formatedDate} ${formatedTime}`;
+}
+
+/**
  * 
  * Formats strings as pascal case
  * 

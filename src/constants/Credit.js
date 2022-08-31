@@ -1,4 +1,4 @@
-import { ACCOUNT_TYPE_CODE } from 'app/constants/Common';
+import { ACCOUNT_TYPE_CODE } from 'app/constants/common';
 
 export const DEFAULTS = Object.freeze({
 	SEARCH_TEXT_LABEL: `Search loan, amount or account number`,
