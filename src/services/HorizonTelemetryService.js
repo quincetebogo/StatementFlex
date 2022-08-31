@@ -495,10 +495,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns {Array} Baggage array
 	 */
 	_formatBaggageDetails(baggage) {
-		// return Object.entries(baggage).map(item => ({ "key": item[0], "value": this._trimBaggage(item[1]) }));
-		return Object.entries(baggage).map(item => ({ [item[0]]: this._trimBaggage(item[1]) }));
-	}
-
+		return Object.entries(baggage).map(item => ({ "key": item[0], "value": this_trimBaggage(item[1]) }));
+  }
 		/**
 	 * trims baggage
 	 * 
