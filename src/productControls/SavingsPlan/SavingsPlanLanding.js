@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { ACCOUNT_TYPE_CODE } from 'app/constants/Common';
+import { ACCOUNT_TYPE_CODE } from 'app/constants/common';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';

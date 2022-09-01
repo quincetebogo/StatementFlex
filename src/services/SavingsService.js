@@ -19,8 +19,8 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 		super(
 			toggleBusyFunc, 
 			defaultErrorHandlerFunc, 
-			`serviceURIs.savingsChannelServiceUrl`, 
-			`HorizonChannelService`, 
+			`serviceURIs.savingsPlanChannelServiceUrl`, 
+			`SavingsChannelService`, 
 			`v1`, 
 			() => import(`../mocks/HorizonChannelServiceMocks.js`)
 		);
@@ -41,6 +41,8 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 	// --------------
 	// PUBLIC METHODS
 	// --------------
+
+	
 
 	/**
 	 * Get savings account landing page information

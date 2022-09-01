@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { ACCOUNT_TYPES } from 'app/constants/Common';
+import { ACCOUNT_TYPES } from 'app/constants/common';
 import { DateTime } from 'luxon';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { TRANSACTION_STATUS_LIST } from 'app/constants/TransactionHistory';
