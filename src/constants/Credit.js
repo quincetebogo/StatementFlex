@@ -6,9 +6,9 @@ export const DEFAULTS = Object.freeze({
 });
 
 export const CREDIT_TYPE_LIST = Object.freeze([
-'All',
-'Fixed credit',
-'Flexible credit'
+`All`,
+`Fixed credit`,
+`Flexible credit`
 ]);
 
 export const PRODUCTS = {

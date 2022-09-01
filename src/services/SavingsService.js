@@ -42,8 +42,6 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 	// PUBLIC METHODS
 	// --------------
 
-	
-
 	/**
 	 * Get savings account landing page information
 	 *

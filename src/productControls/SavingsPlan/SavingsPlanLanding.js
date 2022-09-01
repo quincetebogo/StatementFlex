@@ -73,11 +73,11 @@ export class SavingsPlanLanding extends Component {
 	// --------------
 
 	_click(selection, savePlanDetails, type) {
-		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection, planDetails: savePlanDetails, saveType: type} }));
+		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection, planDetails: savePlanDetails, saveType: type } }));
 	}
 
 	_viewInfo() {
-		this.dispatchEvent(new CustomEvent(`view-info`, { detail: {} }));
+		this.dispatchEvent(new CustomEvent(`view-info`, { detail: { } }));
 	}
 	
 	_accountDetails(type, accNumber) {

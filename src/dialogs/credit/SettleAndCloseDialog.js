@@ -28,7 +28,7 @@ export class SettleAndCloseDialog extends Component {
 		this.hasEnoughFunds = false;
 		this.savList = [];
 		this.errorMessage = ``;
-		this.bannerMessage= ``;
+		this.bannerMessage = ``;
 	}
 
 	// ----------
@@ -103,8 +103,7 @@ export class SettleAndCloseDialog extends Component {
 			const acc = this.productSelected.accountNumber;
 			let i = 0;
 			while (i < this.savList.length) {
-				if (acc == this.savList[i].accountNumber && this.savList[i].savingsPermissionStatus === `DENIED`)
-				{
+				if (acc == this.savList[i].accountNumber && this.savList[i].savingsPermissionStatus === `DENIED`) {
 					this.bannerMessage = `The account selected cannot be used to perform this transaction`;
 					this.hasEnoughFunds = false;
 					this.errorMessage = `The account selected cannot be used to perform this transaction`;

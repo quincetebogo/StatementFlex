@@ -38,6 +38,7 @@ export class SettlementQuote extends Component {
 		this.listValue = `Credit type`;
 		this.selectedLabel = `Select all`;
 		this.showNoAccountsFound = false;
+		this.noAccountsMessage = ``;
 
 		this._telemetry = HorizonTelemetry.getInstance();
 	}
