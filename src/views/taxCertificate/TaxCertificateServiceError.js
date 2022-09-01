@@ -56,7 +56,7 @@ export class TaxCertificateServiceError extends ViewBase {
 		this.horizonStore.setScreenDetails({ taxCertificate: null });
 		this.horizonStore.clearReturnScreen();
 
-		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.FAILED);
+		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
 
 	// --------------

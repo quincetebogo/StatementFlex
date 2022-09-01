@@ -38,7 +38,6 @@ export class StopCardFailure extends ViewBase {
 		this.displayNotification = true;
 		this.renderDialog = -1;
 		this.retry = 0;
-		this.isReassigned = false;
 		this.showHandoffModal = false;
 		this.failedCards = [];
 		this.endCallContext = `QuickTransactionsUnSuccess`;
@@ -68,8 +67,6 @@ export class StopCardFailure extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 		this.renderMode = RENDER_MODE.CARD_STOP_FAILURE;
-
-		this.isReassigned = this.horizonStore.getIsIncidentReassigned();
 		
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.stoppedCards = screenDetails && screenDetails.stoppedCards;
@@ -149,8 +146,7 @@ export class StopCardFailure extends ViewBase {
 
 	_onHandOff(e) {
 		// On return from the Stop Card Assign dialog, mark the incident as assigned
-        this.isReassigned = true;
-		this.horizonStore.setIsIncidentReassigned(this.isReassigned);
+		this.horizonIncidentManager.isReassigned = true;
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
@@ -182,7 +178,7 @@ export class StopCardFailure extends ViewBase {
 	}
 
 	_updateIncidentState() {
-		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.FAILED);
+		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
 
 	/**

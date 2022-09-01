@@ -50,7 +50,7 @@ export class CreditStatementsUnsuccess extends ViewBase {
 		this.acNumber = this.screenDetails && this.screenDetails.accountNumber;
 		this.accountName = this.screenDetails && this.screenDetails.accountType;
 
-		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.FAILED);
+		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
 		
 	async disconnectedCallback() {
@@ -79,7 +79,7 @@ export class CreditStatementsUnsuccess extends ViewBase {
 			"nextScreen": TelemetryScreen.CREDIT_LANDING
 		});
 
-		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.ASSIGNED);
+		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
 		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.getCurrentIncident().incidentRecId);
 		this.horizonStore.clearReturnScreen();
 	}

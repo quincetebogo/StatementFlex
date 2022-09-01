@@ -100,7 +100,7 @@ import 'app/components/common/SuccessScreen';
 	// ---------------
 
 	_updateIncidentState() {
-		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.COMPLETED);
+		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
 	
 	// ---------

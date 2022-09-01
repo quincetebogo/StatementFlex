@@ -228,7 +228,6 @@ export class LandingPage extends ViewBase {
 		
 		const state = {
 			callStatus: `CALL-IN-PROGRESS`,
-			canCloseIncident: true
 		};
 
 		this.horizonStore.saveState(state);

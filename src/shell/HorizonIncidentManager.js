@@ -62,6 +62,42 @@ export class HorizonIncidentManager {
 	// --------------
 
 	/**
+	 * Sets up a new primary incident and persists it to state.
+	 * 
+	 * @param {object} incident A new primary incident
+	 * @param {string} initialNeed The initial need
+	 * 
+	 * @returns {object} The primary incident object
+	 */
+		setNewPrimaryIncident(incident, initialNeed) {
+		this.incidentDetails = new IncidentDetails(
+			incident ? incident.incidentNumber : `0`,
+			incident ? incident.incidentRecId : `0`,
+			incident ? incident.incidentNumber : `0`,
+			``,
+			initialNeed,
+			``
+		);
+
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+
+		return this.getPrimaryIncident();
+	}
+
+	/**
+	 * Gets the Primary Incident (i.e. the initial incident created to which all other incidents are linked)
+	 * 
+	 * @returns {object} An object containing the primary incident
+	 */
+	getPrimaryIncident() {
+		return { 
+			incidentReferenceNumber: this.incidentDetails.primaryIncidentRef,
+			incidentRecId: this.incidentDetails.primaryIncidentRecID,
+			toString: () => this.primaryIncidentRef
+		};
+	}
+	
+	/**
 	 * Gets the current incident 
 	 * 
 	 * @returns {object} An object containing the current incident
@@ -78,7 +114,7 @@ export class HorizonIncidentManager {
 	 * 
 	 * @returns {string} A value indicating the state (progress) of the current incident
 	 */
-	getIncidentState() {
+	get IncidentState() {
 		return this.incidentDetails.needStatus;
 	}
 
@@ -86,12 +122,10 @@ export class HorizonIncidentManager {
 	 * Updates the state of the current incident
 	 * 
 	 * @param {'InProgress'|'Completed'|'Assigned'|'Failed'|'Not Started'|'Closed'} incidentState A value indicating the state of the current incident.
-	 * @returns {undefined}
 	 */
-	setIncidentState(incidentState) {
+	set IncidentState(incidentState) {
 		this.incidentDetails.needStatus = incidentState;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
-		return incidentState;
 	}
 
 	/**
@@ -133,44 +167,14 @@ export class HorizonIncidentManager {
 	 * Indicates if the incident has been re-assigned
 	 * @returns {bool} True if the incident has been re=assigned.
 	 */
-	isReassigned() {
+	get isReassigned() {
 		return this.incidentDetails.isReassigned;
 	}
 
-	/**
-	 * Sets up a new primary incident and persists it to state.
-	 * 
-	 * @param {object} incident A new primary incident
-	 * @param {string} initialNeed The initial need
-	 * 
-	 * @returns {object} The primary incident object
-	 */
-	setNewPrimaryIncident(incident, initialNeed) {
-		this.incidentDetails = new IncidentDetails(
-			incident ? incident.incidentNumber : `0`,
-			incident ? incident.incidentRecId : `0`,
-			incident ? incident.incidentNumber : `0`,
-			``,
-			initialNeed,
-			``
-		);
-
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
-
-		return this.getPrimaryIncident();
-	}
-
-	/**
-	 * Gets the Primary Incident (i.e. the initial incident created to which all other incidents are linked)
-	 * 
-	 * @returns {object} An object containing the primary incident
-	 */
-	getPrimaryIncident() {
-		return { 
-			incidentReferenceNumber: this.incidentDetails.primaryIncidentRef,
-			incidentRecId: this.incidentDetails.primaryIncidentRecID,
-			toString: () => this.primaryIncidentRef
-		};
+	set isReassigned(isReassigned) {
+		this.incidentDetails.isReassigned = isReassigned;
+		this.horizonStore.setIsIncidentReassigned(isReassigned);
+		return this.incidentDetails.isReassigned;
 	}
 
 	/**
@@ -204,7 +208,7 @@ export class HorizonIncidentManager {
 		const horizonIncidentManager = HorizonIncidentManager.getInstance();
 
 		const currentNeed = horizonIncidentManager.getCurrentNeed();
-		const incidentState = horizonIncidentManager.getIncidentState();
+		const incidentState = horizonIncidentManager.IncidentState;
 
 		/**
 		 * Checkpoint 1:
@@ -216,7 +220,7 @@ export class HorizonIncidentManager {
 
 		const finalStates = [HORIZON_NEED_STATUS.CLOSED, HORIZON_NEED_STATUS.COMPLETED, HORIZON_NEED_STATUS.ASSIGNED, HORIZON_NEED_STATUS.FAILED];
 		if (clientNeed === currentNeed && !finalStates.includes(incidentState)) {
-			this.horizonIncidentManager.setIncidentState(HORIZON_NEED_STATUS.INPROGRESS);
+			horizonIncidentManager.IncidentState = HORIZON_NEED_STATUS.INPROGRESS;
 			return true;
 		}
 
@@ -230,8 +234,8 @@ export class HorizonIncidentManager {
 			(incidentState === HORIZON_NEED_STATUS.INPROGRESS ||
 				incidentState === HORIZON_NEED_STATUS.NOT_STARTED)) {
 				
-				this.horizonIncidentManager.setCurrentNeed(clientNeed);
-				this.horizonIncidentManager.setIncidentState(HORIZON_NEED_STATUS.INPROGRESS);
+				horizonIncidentManager.setCurrentNeed(clientNeed);
+				horizonIncidentManager.IncidentState = HORIZON_NEED_STATUS.INPROGRESS;
 				return true;
 		}
 
@@ -282,7 +286,7 @@ export class HorizonIncidentManager {
 	 * @returns {Promise<void>} A promise to create and classify a sub-incident
 	 */
 	 async createAndClassifySubsIncident(toggleBusyFlag, incidentCategorization = null, classify = true) {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
+		const incidentDetails = this.getIncidentDetails();
 
 		this.incidentService._toggleBusyFlag = toggleBusyFlag;
 
@@ -325,7 +329,7 @@ export class HorizonIncidentManager {
 		this.incidentService._toggleBusyFlag = toggleBusyFlag;
 		manualClassification = manualClassification || {};
 		
-		const incidentDetails = this.horizonStore.getIncidentDetails();
+		const incidentDetails = this.getIncidentDetails();
 
 		if (!incidentDetails.incidentReferenceNumber || incidentDetails.incidentReferenceNumber === `0`) {
 			this.logger.log(`warning`, `Incident manager: Trying to close incident when ref no is 0 or empty. Current need: ${incidentDetails.currentNeed} previous need: ${incidentDetails.previousNeed}`, `closeIncident`, null);
@@ -375,7 +379,7 @@ export class HorizonIncidentManager {
 	 * @returns {void}
 	 */
 	 async classifyIncident(toggleBusyFlag, incidentCategorization) {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
+		const incidentDetails = this.getIncidentDetails();
 		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		let canClassify = !this.checkIncidentStatus;
 
@@ -456,17 +460,19 @@ export class HorizonIncidentManager {
 	}
 
 	_updateIncidentState(clientNeed) {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
+		const incidentDetails = this.getIncidentDetails();
 		
-		const curIncidentDetails = {
-			incidentReferenceNumber: `0`,
-			incidentRecId: `0`,
-			primaryIncidentRef: incidentDetails.primaryIncidentRef,
-			primaryIncidentRecID: incidentDetails.primaryIncidentRecID || incidentDetails.incidentRecId,
-			previousNeed: incidentDetails.currentNeed,
-			currentNeed: clientNeed,
-			needStatus: `InProgress`
-		};
+		const curIncidentDetails = new IncidentDetails(
+			`0`,
+			`0`,
+			this.incidentDetails.primaryIncidentRef,
+			incidentDetails.primaryIncidentRecID || incidentDetails.incidentRecId,
+			clientNeed,
+			incidentDetails.currentNeed,
+			`InProgress`,
+			``,
+			false
+		);
 
 		this.horizonStore.setIncidentDetails(curIncidentDetails);
 	}
@@ -485,7 +491,7 @@ export class HorizonIncidentManager {
 		const callerInfo = this.horizonStore.getCallerInformation();
 		const callDetails = this.horizonStore.getIncomingCallDetails();
 		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		const incidentDetails = this.horizonStore.getIncidentDetails();
+		const incidentDetails = this.getIncidentDetails();
 		
 		const createIncidentRequest = {
 			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
@@ -533,7 +539,7 @@ export class HorizonIncidentManager {
 	 * @returns {void}
 	 */
 	async _updateSubsequentNeedClientDetails(callDetails, callerInfo) {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
+		const incidentDetails = this.getIncidentDetails();
 
 		if (incidentDetails.incidentRecId === `` || incidentDetails.incidentRecId === `0`) {
 			this.logger.log(`error`, `There is no incident available against which to record the client details`, `_updateSubsequentNeedClientDetails`);
@@ -558,7 +564,7 @@ export class HorizonIncidentManager {
 	 * @returns {void}
 	 */
 	async _updateSubsequentNeedNonClientDetails(callDetails, callerInfo) {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
+		const incidentDetails = this.getIncidentDetails();
 
 		if (incidentDetails.incidentRecId === `` || incidentDetails.incidentRecId === `0`) {
 			this.logger.log(`error`, `There is no incident available against which to record the client details`, `_updateSubsequentNeedNonClientDetails`);

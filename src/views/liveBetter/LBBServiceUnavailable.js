@@ -46,7 +46,7 @@ import 'app/components/common/RelatedOptions';
 
 		this.screenDetails = this.horizonStore.getScreenDetails();
 
-		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.FAILED);
+		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
 
 	disconnectedCallback() {

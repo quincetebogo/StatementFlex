@@ -89,6 +89,9 @@ export class HorizonStore extends Store {
 	}
 
 	/**
+	 * Retrieves a flag indicating if the incident has been reassigned
+	 * 
+	 * @returns {boolean} true if the incident has been reassigned
 	 * @deprecated Use the HorizonIncidentManager class instead
 	 */
 	getIsIncidentReassigned() {
@@ -100,6 +103,10 @@ export class HorizonStore extends Store {
 	}
 
 	/**
+	 * Sets a flag indicating if the incident has been reassigned or not
+	 * 
+	 * @param {boolean} isReassigned Set to true if the incident has been reassigned
+	 * @returns {undefined} true if the incident has been reassigned
 	 * @deprecated Use the HorizonIncidentManager class instead
 	 */
 	setIsIncidentReassigned(isReassigned) {

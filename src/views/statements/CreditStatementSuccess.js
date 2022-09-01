@@ -83,7 +83,7 @@ export class CreditStatementsSuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.COMPLETED)
+		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.COMPLETED
 	}
 
 	// ---------

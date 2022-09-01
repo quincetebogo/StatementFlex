@@ -56,7 +56,7 @@ import 'app/components/common/RelatedOptions';
 		this.failedAccounts = this.screenDetails?.emailStatus.filter(account => !account.sentStatus).map(item => item.productTypeDescription);
 		this.emailAddress = this.screenDetails && this.screenDetails.emailAddress;
 
-		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.FAILED);
+		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
 
 	disconnectedCallback() {
@@ -86,7 +86,7 @@ import 'app/components/common/RelatedOptions';
 			"next-screen": TelemetryScreen.FAVOURITES
 		});
 
-		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.ASSIGNED);
+		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
 
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();

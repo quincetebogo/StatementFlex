@@ -117,7 +117,7 @@ export class AssignStopCard extends Component {
 			const returnValue = await this.cardService.assign(assignRequest);
 
 			if (returnValue.succeeded) {
-				this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.ASSIGNED);
+				this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
 				this.dispatchEvent(new CustomEvent(`on-handoff`, {
 					detail: {}
 				}));

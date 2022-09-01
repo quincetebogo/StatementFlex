@@ -69,7 +69,7 @@ export class DebiCheckFailure extends ViewBase {
 		//    "next-screen": TelemetryScreen.FAVOURITES
 		//});
 
-		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.ASSIGNED);
+		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
 
 		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.getCurrentIncident().incidentRecId);
 		this.horizonStore.clearReturnScreen();

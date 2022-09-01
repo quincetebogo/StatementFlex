@@ -68,7 +68,7 @@ export class AutomaticSavingsFailure extends ViewBase {
 			"next-screen": TelemetryScreen.LIVE_BETTER
 		});
 
-		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.ASSIGNED);
+		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
 
 		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.getCurrentIncident().incidentRecId);
 		this.horizonStore.clearReturnScreen();
@@ -79,7 +79,7 @@ export class AutomaticSavingsFailure extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.FAILED);
+		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
 	// ---------
 	// RENDERING

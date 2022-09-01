@@ -87,12 +87,12 @@ export class ProductInformation extends ViewBase {
 
 		super.disconnectedCallback();
 
-		const incidentState = this.horizonIncidentManager.getIncidentState();
+		const incidentState = this.horizonIncidentManager.IncidentState();
 
 		// Rule: When unloading any of the product info screen, if the current active incident is not completed/ closed
 		// which means we haven't started it, so manually setting it to Not strated status
 		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED && incidentState !== super.HORIZON_NEED_STATUS.CLOSED) {
-			this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.NOT_STARTED);
+			this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
 		}
 	}
 
@@ -148,7 +148,7 @@ export class ProductInformation extends ViewBase {
 	}
 
 	_updateIncidentState() {
-		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.COMPLETED);
+		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
 
 	// ---------

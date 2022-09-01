@@ -60,7 +60,6 @@ export class ViewBase extends View {
 
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		this.isReassigned = this.horizonStore.getIsIncidentReassigned();
 		this.isBusy = false;
 		this.endCallContext = `LandingPage`;
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
@@ -174,7 +173,7 @@ export class ViewBase extends View {
 	_endCallClick() {
 		this._telemetry.logEvent(LandingPageEvents.END_CALL, {});
 		this.showEndCall = !this.showEndCall;
-		this.endCallContext = this.horizonIncidentManager.getIncidentState() === HORIZON_NEED_STATUS.INPROGRESS && !EXCEPTIONAL_ENDCALL_CONTEXTS.includes(this.endCallContext)
+		this.endCallContext = this.horizonIncidentManager.IncidentState() === HORIZON_NEED_STATUS.INPROGRESS && !EXCEPTIONAL_ENDCALL_CONTEXTS.includes(this.endCallContext)
 								? `QuickTransactionsInProgress`
 								: this.endCallContext;
 	}
@@ -292,8 +291,12 @@ export class ViewBase extends View {
 				: !LOW_RISK_TRANSACTIONS.includes(need);
 	}
 
-	getIncidentDetails() {
+	_getIncidentDetails() {
 		return this.horizonIncidentManager.getIncidentDetails();
+	}
+
+	_isIncidentReassigned() {
+		return this.horizonIncidentManager.isReassigned;
 	}
 
 	// ---------
@@ -340,7 +343,7 @@ export class ViewBase extends View {
 		return this.showVerifyCallerDialog 
 			? html`
 				<horizon-verify-caller
-					.incidentDetails="${this.getIncidentDetails()}"
+					.incidentDetails="${this._getIncidentDetails()}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
 					@skip="${(e) => this._skipVerification(e)}"
@@ -354,9 +357,9 @@ export class ViewBase extends View {
 		return this.showEndCall
 			? html`
 				<horizon-end-call-session
-					.incidentDetails="${this.getIncidentDetails()}"
+					.incidentDetails="${this._getIncidentDetails()}"
 					.incomingCallDetails="${this.incomingCallDetails}"
-					.isReassigned="${this.isReassigned}"
+					.isReassigned="${this._isIncidentReassigned()}"
 					.callerInformation="${this.callerInformation}"
 					endCallContext=${this.endCallContext}
 					@cancel="${() => this._cancelEndCallClick()}">
@@ -369,7 +372,7 @@ export class ViewBase extends View {
 			<horizon-add-caller-details
 				.callerInformation="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.getIncidentDetails()}"
+				.incidentDetails="${this.this._isIncidentReassigned()}"
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
 				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
 			</horizon-add-caller-details>`

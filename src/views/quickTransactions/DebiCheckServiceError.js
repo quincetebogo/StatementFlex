@@ -53,7 +53,7 @@ export class DebiCheckServiceError extends ViewBase {
 		this.horizonStore.setScreenDetails({});
 		this.horizonStore.clearReturnScreen();
 
-		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.FAILED);
+		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
 
 	// --------------

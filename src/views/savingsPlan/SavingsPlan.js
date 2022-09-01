@@ -337,7 +337,7 @@ export class SavingsPlan extends ViewBase {
 		const incidentState = this.horizonIncidentManager.getCurrentIncidentState();
 
 		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.NOT_STARTED);
+			this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
 		}
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
@@ -459,7 +459,7 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	_setIncidentDone() {
-		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.COMPLETED);
+		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}

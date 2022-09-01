@@ -130,9 +130,6 @@ export class EndCallSession extends Component {
 		this.callerInformation = this.horizonStore.getCallerInformation() || this.callerInformation;
 		this.endCallReasons = END_CALL_REASON[this.endCallContext][this.callerInformation.verificationStatus] || END_CALL_REASON[this.endCallContext];
 		
-		// TODO: Evaluate why isRessagined is added to incomingCallDetails
-		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned; 
-
 		// Subsequent incident might be created, so retrieving refNo & recID always from state
 		this.incidentRefNumber = this.incidentDetails.incidentReferenceNumber;
 		this.incidentRecId = this.incidentDetails.incidentRecId;
@@ -235,7 +232,7 @@ export class EndCallSession extends Component {
 
 	async _prepopulateNeed() {
 		const screenDetails = this.horizonStore.getScreenDetails() || {};
-		const incidentState = this.horizonIncidentManager.getIncidentState();
+		const incidentState = this.horizonIncidentManager.IncidentState();
 		const currentNeed = this.horizonIncidentManager.getCurrentNeed();
 
 		// Determining if its already classified
@@ -300,7 +297,7 @@ export class EndCallSession extends Component {
 	}
 
 	_setDefaultValues() {
-		const incidentState = this.horizonIncidentManager.getIncidentState();
+		const incidentState = this.horizonIncidentManager.IncidentState();
 		const feedback = this.horizonIncidentManager.getFeedback();
 
 		if (incidentState !== super.HORIZON_NEED_STATUS.CLOSED) {
@@ -341,7 +338,7 @@ export class EndCallSession extends Component {
 	 * @returns {Boolean} True / False
 	 */
 	_preventCloseOfIncident() {
-		const incidentState = this.horizonIncidentManager.getIncidentState();
+		const incidentState = this.horizonIncidentManager.IncidentState();
 
 		if (this.isReassigned) {
 			this.logger.log(`warn`, `Incident ${this.incidentRefNumber} assigned or handed off. The call will be ended without closing the incident.`);
@@ -517,6 +514,7 @@ export class EndCallSession extends Component {
 		
 		if (incidentInfo) {
 			this.isReassigned = this.isReassigned || (incidentInfo.owner.toLocaleLowerCase() !== this.securityContext.username);
+			this.horizonIncidentManager.isReassigned = this.isReassigned;
 		}
 
 		if (this._selectedAssignOnSuccessfulyStoppedCards()) {

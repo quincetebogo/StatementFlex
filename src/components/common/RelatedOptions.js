@@ -160,10 +160,10 @@ export class RelatedOptions extends Component {
 	}
 
 	_backToLandingPage() {
-		const incidentState = this.horizonIncidentManager.getIncidentState();
+		const incidentState = this.horizonIncidentManager.IncidentState();
 		
 		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.NOT_STARTED);
+			this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
 		}
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;

@@ -209,7 +209,7 @@ export class LiveBetter extends SavingsAccountBase {
 	}
 
 	_setIncidentDone() {
-		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.COMPLETED);
+		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}

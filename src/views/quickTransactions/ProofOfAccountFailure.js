@@ -46,7 +46,7 @@ import 'app/components/common/RelatedOptions';
 
 		this.mailId = this.screenDetails && this.screenDetails.emailAddress;
 		this.acNumber = this.screenDetails && this.screenDetails.accountNumber;
-		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.FAILED);
+		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
 
 	disconnectedCallback() {
@@ -78,7 +78,7 @@ import 'app/components/common/RelatedOptions';
 		});
 
 
-		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.ASSIGNED);
+		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
 		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
 
 		this.horizonRouter.navigateToStrack(incidentRecId);

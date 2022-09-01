@@ -471,7 +471,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_setIncidentDone() {
-		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.COMPLETED);
+		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -824,9 +824,9 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_backToLandingPage() {
-		const incidentState = this.horizonIncidentManager.getIncidentState();
+		const incidentState = this.horizonIncidentManager.IncidentState();
 		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.NOT_STARTED);
+			this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
 		}
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
@@ -885,7 +885,7 @@ export class CreditAccount extends ViewBase {
 
 		this._telemetry.endSpan(CreditEvents.CREDIT_BUDGET_TRANSFER, {});
 
-		const incidentState = this.horizonIncidentManager.getIncidentState();
+		const incidentState = this.horizonIncidentManager.IncidentState();
 		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
 			this.horizonIncidentManager.setCurrentNeed(`view-budgets-credit-card`);
 		}
