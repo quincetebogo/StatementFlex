@@ -4,7 +4,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { NavigationContext } from 'platform/core';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
-import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { SavingsService } from 'app/services/SavingsService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 const ACCOUNT_TYPE = `PRIMARY_SAVINGS`;
@@ -42,7 +42,7 @@ export class ProofOfAccount extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
 
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.savingsService = new SavingsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
 		// private properites
 		this.isBusy = false;
@@ -137,7 +137,7 @@ export class ProofOfAccount extends Component {
 				"title": this.title,
 				"lastName": this.lastName
 			};
-			const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
+			const returnValue = await this.savingsService.sendProofOfAccount(clientInfo);
 
 			this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME, {
 				"screen": TelemetryScreen.PROOF_OF_ACCOUNT,

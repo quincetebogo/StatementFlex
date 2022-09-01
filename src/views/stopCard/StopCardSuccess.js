@@ -51,7 +51,7 @@ export class StopCardSuccess extends ViewBase {
 		super.connectedCallback();
 		
 		const screenDetails = this.horizonStore.getScreenDetails();
-		this.stoppedCards = (screenDetails && screenDetails.stoppedCards) || [];
+		this.stoppedCards = screenDetails?.stoppedCards || [];
 
 		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
 		this._updateIncidentState();

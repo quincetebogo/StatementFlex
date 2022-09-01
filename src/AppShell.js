@@ -75,7 +75,7 @@ export class AppShell extends Shell {
 		this.channelServiceUrl = document.location.origin;
 		this.platformVersion = null;
 		this.applicationName = null;
-		this.applicationVersion = null;
+		this.applicationVersion = ``;
 		this.currentStatus = `success`;
 		this.currentMessage = ``;
 

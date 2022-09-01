@@ -1,5 +1,5 @@
 import { EventAggregator, Logger } from 'platform/core';
-import { HIGH_RISK_TRANSACTIONS, LOW_RISK_TRANSACTIONS } from 'app/constants/Common';
+import { HIGH_RISK_TRANSACTIONS, LOW_RISK_TRANSACTIONS } from 'app/constants/common';
 import { View, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { EXCEPTIONAL_ENDCALL_CONTEXTS } from 'app/constants/EndCallReasons';

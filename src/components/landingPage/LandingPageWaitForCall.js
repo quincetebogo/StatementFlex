@@ -123,8 +123,8 @@ export class LandingPageWaitForCall extends Component {
 
 	renderErrorBanners() {
 		return html`
-			<capitec-alert-banner class="banner-top ${this.desktopAgentDown ? "" : "display-none"}" type="unsuccessful-red">Your Horizon desktop agent is either not installed or is not running. Please contact your Team Leader or the Support Specialist team.&nbsp;&nbsp;&nbsp;</capitec-alert-banner>
-			<capitec-alert-banner class="banner-top ${this.isAuthorised ? "display-none" : ""}" type="unsuccessful-red">You are not authorized to use this application. Please contact your Team Leader or User Access Administration to get access.&nbsp;&nbsp;&nbsp;</capitec-alert-banner>
+			<capitec-alert-banner class="banner-top ${this.desktopAgentDown ? `` : `display-none`}" type="unsuccessful-red">Your Horizon desktop agent is either not installed or is not running. Please contact your Team Leader or the Support Specialist team.&nbsp;&nbsp;&nbsp;</capitec-alert-banner>
+			<capitec-alert-banner class="banner-top ${this.isAuthorised ? `display-none` : ``}" type="unsuccessful-red">You are not authorized to use this application. Please contact your Team Leader or User Access Administration to get access.&nbsp;&nbsp;&nbsp;</capitec-alert-banner>
 		`;
 	}
 }

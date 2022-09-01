@@ -441,8 +441,12 @@ export class HorizonIncidentManager {
 	 _getCauseCode(causeCode, endCallReason, manualClassification) {
 		let causeCodeByReason = ``;
 
+		const getFromValObj = (reason) => CAUSE_CODE_BY_REASON[reason][manualClassification.issue] || ``;
+
 		if (CAUSE_CODE_BY_REASON[endCallReason]) {
-			causeCodeByReason = CAUSE_CODE_BY_REASON[endCallReason][manualClassification.issue] || CAUSE_CODE_BY_REASON[endCallReason];
+			causeCodeByReason = typeof CAUSE_CODE_BY_REASON[endCallReason] === `object`
+								? getFromValObj(endCallReason)
+								: CAUSE_CODE_BY_REASON[endCallReason];
 		}
 		return causeCode || causeCodeByReason || `NormalEnquiry`;
 	}

@@ -29,6 +29,8 @@
 	// Savings plan
 	"statements-save": `SAVINGS_PLAN_STATEMENTS`,
 	"tax-certificate-save": `SAVINGS_PLAN_TAX_CERTIFICATE`,
+	"flexible-save-transaction-history": `FLEXIBLE_SAVE_TRANSACTION_HISTORY`,
+	"fixed-save-transaction-history": `FIXED_SAVE_TRANSACTION_HISTORY`,
 
 	// LBB
 	"transaction-history-lbb": `TRANSACTION_HISTORY_LBB`,
