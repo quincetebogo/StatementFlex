@@ -4,6 +4,7 @@ import { View, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { EXCEPTIONAL_ENDCALL_CONTEXTS } from 'app/constants/EndCallReasons';
 import { HORIZON_NEED_STATUS } from 'app/constants/IncidentManager';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
@@ -47,6 +48,7 @@ export class ViewBase extends View {
 		super();
 
 		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.roleManager = RoleManager.getInstance();
@@ -58,7 +60,6 @@ export class ViewBase extends View {
 
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		this.isReassigned = this.horizonStore.getIsIncidentReassigned();
 		this.isBusy = false;
 		this.endCallContext = `LandingPage`;
@@ -76,17 +77,16 @@ export class ViewBase extends View {
 
 	static get properties() {
 		return {
-			callerInformation: { attribute: false },
-			incomingCallDetails: { attribute: false },
-			incidentDetails: { attribute: false },
-			verificationStatus: { attribute: false },
+			callerInformation: { state: true },
+			incomingCallDetails: { state: true },
+			verificationStatus: { state: true },
 
-			renderMode: { attribute: false },
-			isBusy: { attribute: false },
-			showEndCall: { attribute: false },
-			showAddCallerDetails: { attribute: false },
-			showVerifyCallerDialog: { attribute: false },
-			displayVASToast: { attribute: false }
+			renderMode: { state: true },
+			isBusy: { state: true },
+			showEndCall: { state: true },
+			showAddCallerDetails: { state: true },
+			showVerifyCallerDialog: { state: true },
+			displayVASToast: { state: true }
 		};
 	}
 
@@ -108,10 +108,6 @@ export class ViewBase extends View {
 		 * is not reflected here.
 		 */
 		this.stateChanged = this.horizonStore.stateChangedProperties.subscribe(changes => {
-			if (changes && changes.stateChanges?.incidentDetails) {
-				this._refreshIncidentDetails();
-			}
-
 			if (changes && changes.stateChanges?.callerInformation) {
 				this._getCallerInformation();
 			}
@@ -141,7 +137,7 @@ export class ViewBase extends View {
 	}
 
 	_verifiedInBranch() {
-		this.callerInformation.verificationStatus = 'verified';
+		this.callerInformation.verificationStatus = `verified`;
 		this.callerInformation.verificationMethod = `ITA`;
 		this.callerInformation.verificationAttempts.itaAttempts += 1;
 
@@ -172,13 +168,13 @@ export class ViewBase extends View {
 	}
 
 	_assignIncidentClick() {
-		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
+		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.getCurrentIncident().incidentRecId);
 	}
 
 	_endCallClick() {
 		this._telemetry.logEvent(LandingPageEvents.END_CALL, {});
 		this.showEndCall = !this.showEndCall;
-		this.endCallContext = this.incidentDetails.needStatus === HORIZON_NEED_STATUS.INPROGRESS && !EXCEPTIONAL_ENDCALL_CONTEXTS.includes(this.endCallContext)
+		this.endCallContext = this.horizonIncidentManager.getIncidentState() === HORIZON_NEED_STATUS.INPROGRESS && !EXCEPTIONAL_ENDCALL_CONTEXTS.includes(this.endCallContext)
 								? `QuickTransactionsInProgress`
 								: this.endCallContext;
 	}
@@ -210,16 +206,6 @@ export class ViewBase extends View {
 	// PRIVATE METHODS
 	// ---------------
 
-	/**
-	 * Necessary to refresh the incident details object, when a primary incident is closed
-	 * and subsequent incident is opened
-	 * 
-	 * @returns {void}
-	 */
-	_refreshIncidentDetails() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-	}
-
 	_getCallerInformation() {
 		this.callerInformation = this.horizonStore.getCallerInformation();
 	}
@@ -243,7 +229,9 @@ export class ViewBase extends View {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
 
-		if (this.incidentDetails.incidentRecId && this.incidentDetails.incidentRecId !== ``) {
+		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
+
+		if (incidentRecId && incidentRecId !== ``) {
 			const nonClientDetails = {
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
 				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
@@ -251,7 +239,7 @@ export class ViewBase extends View {
 				surname: this.callerInformation.nonClientSurName,
 				cellPhone: this.callerInformation.nonClientCellPhone
 			};
-			const returnValue = await this.incidentManagementService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
+			const returnValue = await this.incidentManagementService.updateIncidentNonClientDetails(incidentRecId, nonClientDetails);
 
 			if (returnValue.succeeded) {
 				this.horizonStore.setCallerInformation(this.callerInformation);
@@ -304,6 +292,10 @@ export class ViewBase extends View {
 				: !LOW_RISK_TRANSACTIONS.includes(need);
 	}
 
+	getIncidentDetails() {
+		return this.horizonIncidentManager.getIncidentDetails();
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -348,7 +340,7 @@ export class ViewBase extends View {
 		return this.showVerifyCallerDialog 
 			? html`
 				<horizon-verify-caller
-					.incidentDetails="${this.incidentDetails}"
+					.incidentDetails="${this.getIncidentDetails()}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
 					@skip="${(e) => this._skipVerification(e)}"
@@ -362,7 +354,7 @@ export class ViewBase extends View {
 		return this.showEndCall
 			? html`
 				<horizon-end-call-session
-					.incidentDetails="${this.incidentDetails}"
+					.incidentDetails="${this.getIncidentDetails()}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.isReassigned="${this.isReassigned}"
 					.callerInformation="${this.callerInformation}"
@@ -377,7 +369,7 @@ export class ViewBase extends View {
 			<horizon-add-caller-details
 				.callerInformation="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.incidentDetails}"
+				.incidentDetails="${this.getIncidentDetails()}"
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
 				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
 			</horizon-add-caller-details>`

@@ -143,7 +143,6 @@ export class CreditAccount extends ViewBase {
 				const clientNeed = `${option}-${accConfig.subCategory}`;
 				
 				await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
-				this._refreshIncidentDetails();
 	
 				const { permissionResult, declineReasons } = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber || selectedAccountDetails.budgetAccountNumber, productType);
 				this.ccsStatus = permissionResult === PERMISSION_STATUS.DENIED &&
@@ -430,7 +429,7 @@ export class CreditAccount extends ViewBase {
 
 			screenDetails.settleAndCloseDocumentData = this.settleAndCloseDocument;
 
-			this.horizonStore.setReturnScreen(this.navigationContext.current.route, this.incidentDetails.currentNeed);
+			this.horizonStore.setReturnScreen(this.navigationContext.current.route, this.horizonIncidentManager.getCurrentNeed());
 			this.horizonStore.setScreenDetails(screenDetails);
 
 			this.horizonRouter.navigateToSettleAndCloseSuccess();
@@ -470,10 +469,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_setIncidentDone() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
-
+		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.COMPLETED);
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -826,9 +822,9 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_backToLandingPage() {
-		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
-			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		const incidentState = this.horizonIncidentManager.getIncidentState();
+		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.NOT_STARTED);
 		}
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
@@ -887,9 +883,9 @@ export class CreditAccount extends ViewBase {
 
 		this._telemetry.endSpan(CreditEvents.CREDIT_BUDGET_TRANSFER, {});
 
-		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.incidentDetails.currentNeed = `view-budgets-credit-card`;
-			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		const incidentState = this.horizonIncidentManager.getIncidentState();
+		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.horizonIncidentManager.setCurrentNeed(`view-budgets-credit-card`);
 		}
 
 		this.showPayBudgetDialog = !this.showPayBudgetDialog;

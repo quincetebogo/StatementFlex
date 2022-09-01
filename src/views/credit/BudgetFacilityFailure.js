@@ -41,8 +41,7 @@ import 'app/components/common/RelatedOptions';
 
 		this._telemetry.startSpan(CreditEvents.PAY_BUDGET_TRANSFER_FAILURE);
 
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.FAILED);
 	}
 
 	disconnectedCallback() {

@@ -1,6 +1,6 @@
 import { View, css, html } from 'platform/elements';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/ErrorScreen';
 
@@ -21,7 +21,7 @@ export class InitialSystemError extends View {
 		super();
 		
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
+		this.horizonIncidenManager = HorizonIncidentManager.getInstance();
 	}
 
 	// ----------
@@ -35,8 +35,7 @@ export class InitialSystemError extends View {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentRecId = this.incidentDetails.incidentRecId;
+		this.incidentRecId = this.horizonIncidenManager.getCurrentIncident().incidentRecId();
 	}
 
 	// --------------

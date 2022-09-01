@@ -26,6 +26,7 @@ export class EmailConfirmationOutcome extends ViewBase {
 		this.succeededAccounts = [];
 		this.displayToast = true;
 		this.endCallContext = `QuickTransactionSuccess`;
+		this.header = ``;
 	}
 
 	// ----------
@@ -97,10 +98,7 @@ export class EmailConfirmationOutcome extends ViewBase {
 
 	_updateIncidentState() {
 		const completeFailure = this.failedAccounts.length === this.emailStatus.length;
-
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = completeFailure ? super.HORIZON_NEED_STATUS.FAILED : super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.setIncidentState(completeFailure ? super.HORIZON_NEED_STATUS.FAILED : super.HORIZON_NEED_STATUS.COMPLETED);
 	}
 
 	_getOutcomeDetails() {

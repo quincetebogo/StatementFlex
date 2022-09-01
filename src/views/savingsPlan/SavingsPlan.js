@@ -57,7 +57,6 @@ export class SavingsPlan extends ViewBase {
 
 		this.savingsPlanDetails = [];
 		this.configuration = Configuration.getInstance();
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	
 		// private properites
 		this.selectedAccountNumber = ``;
@@ -80,6 +79,8 @@ export class SavingsPlan extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		
 		this._initialise();
 
 		this._optionClick = async (option, saveType, accountNumber, accountName, sendAnother = false) => {
@@ -98,7 +99,6 @@ export class SavingsPlan extends ViewBase {
 
 			if (actions[option]) {
 				await super._inicidentManager_(`${option}-save`, () => this._toggleBusyFlag());
-				this._refreshIncidentDetails();
 				return actions[option]();
 			}
 		};
@@ -317,10 +317,12 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	_backToLandingPage() {
-		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
-			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		const incidentState = this.horizonIncidentManager.getCurrentIncidentState();
+
+		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.NOT_STARTED);
 		}
+
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -385,9 +387,7 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	_setIncidentDone() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.COMPLETED);
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}

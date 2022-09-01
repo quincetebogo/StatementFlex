@@ -5,6 +5,7 @@ import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { EndCallEvents } from 'app/constants/telemetry/events/EndCall';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
@@ -74,6 +75,7 @@ export class EndCallSession extends Component {
 		this._telemetry = HorizonTelemetry.instance;
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 		this.logger = Logger.getInstance();
 		this.securityContext = SecurityContext.getInstance();
 
@@ -131,11 +133,9 @@ export class EndCallSession extends Component {
 		// TODO: Evaluate why isRessagined is added to incomingCallDetails
 		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned; 
 
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-
 		// Subsequent incident might be created, so retrieving refNo & recID always from state
-		this.incidentRefNumber = incidentDetails.incidentReferenceNumber || this.incidentDetails.incidentReferenceNumber;
-		this.incidentRecId = incidentDetails.incidentRecId || this.incidentDetails.incidentRecId;
+		this.incidentRefNumber = this.incidentDetails.incidentReferenceNumber;
+		this.incidentRecId = this.incidentDetails.incidentRecId;
 
 		this._setDefaultValues();
 		this.incidentInfo = await this._incidentStatus() || {};
@@ -179,10 +179,10 @@ export class EndCallSession extends Component {
 				"next-screen": TelemetryScreen.WAIT_FOR_CALL
 			});
 
-			const incidentDetails = this.horizonStore.getIncidentDetails();
+			const currentIncident = this.horizonIncidentManager.getCurrentIncident();
 
 			// Ignoring the abandon or not started need action
-			if (!incidentDetails.incidentReferenceNumber || incidentDetails.incidentReferenceNumber === `0`) {
+			if (!currentIncident.incidentReferenceNumber || currentIncident.incidentReferenceNumber === `0`) {
 				this._returnToCallWaitingPage();
 			} else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 				this._stopCardEndCall();
@@ -235,18 +235,19 @@ export class EndCallSession extends Component {
 
 	async _prepopulateNeed() {
 		const screenDetails = this.horizonStore.getScreenDetails() || {};
-		const incidentDetails = this.horizonStore.getIncidentDetails() || {};
+		const incidentState = this.horizonIncidentManager.getIncidentState();
+		const currentNeed = this.horizonIncidentManager.getCurrentNeed();
 
 		// Determining if its already classified
 		 const isClassified = !isNullorEmpty(this.incidentInfo.category) && !isNullorEmpty(this.incidentInfo.subCategory) && !isNullorEmpty(this.incidentInfo.issue);
 		// Determining at least we know categorization to classify
 		const hasValues = !isNullorEmpty(screenDetails.category) && !isNullorEmpty(screenDetails.subCategory) && !isNullorEmpty(screenDetails.issue);
 		// Checks if the curr incident is active
-		const isIncClosed = incidentDetails.needStatus === super.HORIZON_NEED_STATUS.CLOSED;
+		const isIncClosed = incidentState === super.HORIZON_NEED_STATUS.CLOSED;
 		// should classify as per need?
 		// And enforcing this to false when the end call context includes in Recognize need by context
-		const classifyAsPerNeed = incidentDetails.needStatus === super.HORIZON_NEED_STATUS.INPROGRESS &&
-								  STRACK_MAPPING[incidentDetails.currentNeed] &&
+		const classifyAsPerNeed = incidentState === super.HORIZON_NEED_STATUS.INPROGRESS &&
+								  STRACK_MAPPING[currentNeed] &&
 								  !RECOGNIZE_NEED_CONTEXTS.includes(this.endCallContext);
 
 		// If classification is not empty, no need to populate need
@@ -299,13 +300,14 @@ export class EndCallSession extends Component {
 	}
 
 	_setDefaultValues() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		const feedback = incidentDetails.feedback;
+		const incidentState = this.horizonIncidentManager.getIncidentState();
+		const feedback = this.horizonIncidentManager.getFeedback();
 
-		if (incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.CLOSED) {
+		if (incidentState !== super.HORIZON_NEED_STATUS.CLOSED) {
 			this.endCallReason = {};
 			return;
 		}
+
 		this.endCallReason = this.endCallReasons.find(reason => reason.key === feedback);
 	}
 
@@ -339,13 +341,13 @@ export class EndCallSession extends Component {
 	 * @returns {Boolean} True / False
 	 */
 	_preventCloseOfIncident() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
+		const incidentState = this.horizonIncidentManager.getIncidentState();
 
 		if (this.isReassigned) {
 			this.logger.log(`warn`, `Incident ${this.incidentRefNumber} assigned or handed off. The call will be ended without closing the incident.`);
 			// Don't close the incident if it has been reassigned or handed off
 			return true; 
-		} else if (incidentDetails.needStatus === super.HORIZON_NEED_STATUS.CLOSED) {
+		} else if (incidentState === super.HORIZON_NEED_STATUS.CLOSED) {
 			this.logger.log(`info`, `Incident ${this.incidentRefNumber} already marked as closed. No further close action required.`);
 			// Incident might be closed for search other need, no need to close again
 			return true;
@@ -426,11 +428,11 @@ export class EndCallSession extends Component {
 	}
 
 	async _classifyAndClose() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		const needAction = STRACK_MAPPING[incidentDetails.currentNeed] || STRACK_MAPPING[this.endCallReason.mapping];
+		const currentNeed = this.horizonIncidentManager.getCurrentNeed();
+		const needAction = STRACK_MAPPING[currentNeed] || STRACK_MAPPING[this.endCallReason.mapping];
 		const strackIncidentInfo = await this._incidentStatus() || {};
 
-		await this._updateClientNonclientDetails(strackIncidentInfo, incidentDetails);
+		await this._updateClientNonclientDetails(strackIncidentInfo, this.incidentDetails);
 
 		// Flag to check, if the incident is already updated outside of Horizon
 		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);

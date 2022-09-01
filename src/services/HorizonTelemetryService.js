@@ -506,11 +506,15 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns {string} baggage item
 	 */
 	_trimBaggage(item) {
-		if (item && !Utilities.isString(item)) {
-			return String(JSON.stringify(item).trim());
+		if (item === null || item === undefined || item === NaN) {
+			return ``;
 		}
 
-		return String(item?.trim() ?? ``);
+		if (Utilities.isString()) {
+			return String(item.trim());
+		}
+		
+		return String(JSON.stringify(item).trim());
 	}
 
 	/**

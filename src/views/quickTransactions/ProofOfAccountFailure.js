@@ -46,8 +46,7 @@ import 'app/components/common/RelatedOptions';
 
 		this.mailId = this.screenDetails && this.screenDetails.emailAddress;
 		this.acNumber = this.screenDetails && this.screenDetails.accountNumber;
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.FAILED);
 	}
 
 	disconnectedCallback() {
@@ -78,10 +77,11 @@ import 'app/components/common/RelatedOptions';
 			"next-screen": TelemetryScreen.FAVOURITES
 		});
 
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
 
-		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
+		this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.ASSIGNED);
+		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
+
+		this.horizonRouter.navigateToStrack(incidentRecId);
 		this.horizonStore.clearReturnScreen();
 	}
 

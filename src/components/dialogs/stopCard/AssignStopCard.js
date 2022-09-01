@@ -1,8 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
-import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -35,10 +34,9 @@ export class AssignStopCard extends Component {
 		this.errorAlert = false;
 		this.errorMessage = ``; // "Please select a team to assign";
 
-		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
-		this._telemetry = HorizonTelemetry.instance;
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
+		this._telemetry = HorizonTelemetry.getInstance();
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._assignErrorHandler(ex));
 		
@@ -119,11 +117,7 @@ export class AssignStopCard extends Component {
 			const returnValue = await this.cardService.assign(assignRequest);
 
 			if (returnValue.succeeded) {
-				const incidentDetails = this.horizonStore.getIncidentDetails();
-				
-				incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
-				this.horizonStore.setIncidentDetails(incidentDetails);
-				
+				this.horizonIncidentManager.setIncidentState(super.HORIZON_NEED_STATUS.ASSIGNED);
 				this.dispatchEvent(new CustomEvent(`on-handoff`, {
 					detail: {}
 				}));
