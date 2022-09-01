@@ -141,7 +141,7 @@ export class ViewBase extends View {
 	}
 
 	_verifiedInBranch() {
-		this.callerInformation.verificationStatus = 'verified';
+		this.callerInformation.verificationStatus = `verified`;
 		this.callerInformation.verificationMethod = `ITA`;
 		this.callerInformation.verificationAttempts.itaAttempts += 1;
 

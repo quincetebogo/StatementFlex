@@ -62,7 +62,7 @@ export class TapToPayLanding extends Component {
 			cifNumber: { type: String },
 			title: { 
 				type: String,
-				attribute:`client-title`
+				attribute: `client-title`
 			},
 			lastName: { type: String },
 			voiceRecordingReference: { type: String },
@@ -415,7 +415,7 @@ export class TapToPayLanding extends Component {
 				id="primaryCard-widget-${index}"
 				data-automation-id="tap-to-pay-landing-${automationId}"
 				.card="${card}"
-				disable-hover="${true}"
+				?disable-hover="${true}"
 				context="tap-to-pay"
 				.tapToPayStatus="${card.isContactlessActivated}"
 				@toggle-agreement="${(event) => this._toggleTapToPayClick(event)}">
@@ -452,7 +452,7 @@ export class TapToPayLanding extends Component {
 				id="supplementaryCard-widget-${index}"
 				data-automation-id="tap-to-pay-landing-${automationId}"
 				.card="${card}"
-				disable-hover="${true}"
+				?disable-hover="${true}"
 				context="tap-to-pay"
 				.tapToPayStatus="${card.isContactlessActivated}"
 				@toggle-agreement="${(event) => this._toggleTapToPayClick(event)}">
