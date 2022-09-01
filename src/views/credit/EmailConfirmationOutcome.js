@@ -26,6 +26,7 @@ export class EmailConfirmationOutcome extends ViewBase {
 		this.succeededAccounts = [];
 		this.displayToast = true;
 		this.endCallContext = `QuickTransactionSuccess`;
+		this.header = ``;
 	}
 
 	// ----------

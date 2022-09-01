@@ -92,14 +92,15 @@
 
 	ACCESS_CHANNELS_NOTIFICATIONS: `Access Channels Notifications`,
 	ACCESS_CHANNELS_NOTIFICATIONS_UPDATE: `Access Channels Notifications Update`,
+
 	SAVINGS_PLAN_LANDING: `Savings Plan Landing`,
 	SAVINGS_PLAN_ACCOUNT_DETAILS: `Savings Plan Account Details`,
+	SAVINGS_PLAN_TRANSACTION_HISTORY: `Savings Plan Transaction History`,
 	SAVINGS_PLAN_STATEMENTS: `Savings Plan Statements`,
 	SAVINGS_PLAN_TAX_CERTIFICATE: `Savings Plan Tax Certificate`,
 	SAVINGS_PLAN_PRODUCT_ENQUIRY: `Savings Plan Product Enquiry`,
 	SAVINGS_PLAN_SAVINGS_CALCULATOR: `Savings Plan Savings Calculator`,
 	SAVINGS_PLAN_INTEREST_RATES: `Savings Plan Interest Rates`,
-
 
 	CREDIT_LANDING: `Credit Landing`,
 	CREDIT_ACCOUNT_DETAILS: `Credit Account details`,

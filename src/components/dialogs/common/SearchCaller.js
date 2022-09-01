@@ -33,7 +33,7 @@ const CLIENT_TYPE = Object.freeze({
 // ToDO: Below const need to be removed, once channelService fix the issue on contract.
 // These error messages has to come from service
 const ERROR_MESSAGES = {
-	SYSTEM_ERROR: html`<b>System error:</b> Please try again later`,
+	SYSTEM_ERROR: html`<b>System error:&ensp;</b>Please try again later`,
 	STRACK_ERROR: `Take note: A system error has occured. Please go to STrack to search for client.`,
 	NONCLIENT_REQUIRED_FIELDS_EMPTY: `Name and surname must be completed`,
 	REQUIRED_FIELDS_EMPTY: `All fields are required`,
@@ -293,7 +293,7 @@ export class SearchCaller extends Component {
 		this._clearErrors(e);
 	}
 
-	async _getConsultant(e) {
+	_getConsultant(e) {
 		this._clearErrors(e);
 
 		const cpNumber = e.detail.new;
@@ -840,6 +840,9 @@ export class SearchCaller extends Component {
 					margin: 0px 0px 16px 0px;
 					--theme-label-title-font-size: 18px;
 					--theme-label-title-font-weight: 600;
+				}
+				capitec-radio[label="Client verified in branch"] {
+					width: 200px;
 				}
 			`
 		];

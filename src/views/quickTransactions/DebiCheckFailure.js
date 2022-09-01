@@ -7,7 +7,6 @@ import { ViewBase } from 'app/views/common/ViewBase';
 import 'app/components/common/OptionButton';
 import 'app/components/common/ErrorScreen';
 import 'app/components/common/RelatedOptions';
-import { ScreenDetails } from '../../models/ScreenDetails';
 
 /**
  * Display a failure screen indicating the selected debicheck mandate have been unsuccessful when trying to decline/approve.

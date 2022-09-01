@@ -38,9 +38,9 @@ export function formatTextFieldCurrency(value, fractionDigits = 2) {
  * @returns {*} currency value (E.g 250000)
  */
  export function deformatCurrency(value) {
-	let splitValues = value.split(`R`);
+	const splitValues = value.split(`R`);
 
-	if(splitValues.length > 1) {
+	if (splitValues.length > 1) {
 		return parseFloat(splitValues[1].replaceAll(` `, ``));
 	}
 

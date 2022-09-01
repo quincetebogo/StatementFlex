@@ -5,7 +5,7 @@
  * @readonly
  * @enum {String} EndCallEvents
  */
- export const EndCallEvents = {	
+ export const EndCallEvents = {
 	END_CALL: `call.end-call`,
 	END_CALL_CONFIRM: `call.end-call.confirm`,
 	END_CALL_CANCEL: `call.end-call.cancel`

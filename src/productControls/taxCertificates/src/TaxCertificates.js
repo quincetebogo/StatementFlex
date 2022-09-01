@@ -71,6 +71,7 @@ export class TaxCertificates extends Component {
 		this.selectedCertificates = {};
 		this.disableNext = false;
 		this.taxCertType = ``;
+		this.alertBannerMessage = ``;
 	}
 
 	// --------------
