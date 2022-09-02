@@ -130,9 +130,10 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {string} eventName Event name to start a span
 	 * @param {object} baggage Options, this generally holds details of event
 	 * @param {boolean} systemTriggered Flag to determin telemetry event type
+	 * @param {string} originatingSystem Name of system triggering start span
 	 * @returns {Promise<void>} A Promise for starting a telemetry span
 	 */
-	async startSpan(eventName, baggage = null, systemTriggered = true) {
+	async startSpan(eventName, baggage = null, systemTriggered = true, originatingSystem = null) {
 
 		/**
 		 * Extracting eventName(call.id-caller.confimr-caller) into events array(['call', 'id-caller', 'confirm-caller'])
@@ -151,7 +152,7 @@ export class HorizonTelemetry extends Telemetry {
 		const spanID = await super.spanStart({
 			baggage: this._formatBaggageDetails(baggage || []),
 			eventName: `horizon.${eventName}.start-span`,
-			eventOriginator: this._eventOriginator(eventType),
+			eventOriginator: this._eventOriginator(eventType, originatingSystem),
 			eventType: eventType,
 			parentSpan: this._getParentSpanID(eventName),
 			tags: this._extractTags(`horizon.${eventName}.start-span`),
@@ -175,9 +176,10 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {boolean} systemTriggered Flag to determin telemetry event type
 	 * @param {boolean} closeParentSpan Flag tells to close parent span or not
 	 * @param {boolean} closeChildSpans Flag tells to close its child spans or not
+	 * @param {string} originatingSystem Name of system triggering end span
 	 * @returns {Promise<void>} A promise to end the telemetry span
 	 */
-	async endSpan(eventName, baggage = null, systemTriggered = true, closeParentSpan = false, closeChildSpans = false) {
+	async endSpan(eventName, baggage = null, systemTriggered = true, closeParentSpan = false, closeChildSpans = false, originatingSystem = null) {
 
 		/**
 		 * Extracting eventName(call.id-caller) into events array(['call', 'id-caller'])
@@ -191,13 +193,13 @@ export class HorizonTelemetry extends Telemetry {
 		if (this.traceId && spanId) {
 
 			if (closeChildSpans) {
-				await this.closeChildSpans(eventName);
+				await this.closeChildSpans(eventName, originatingSystem);
 			}
 
 			await super.spanEnd({
 				baggage: this._formatBaggageDetails(baggage || []),
 				eventName: `horizon.${eventName}.end-span`,
-				eventOriginator: this._eventOriginator(eventType),
+				eventOriginator: this._eventOriginator(eventType, originatingSystem),
 				eventType: eventType,
 				parentSpan: null,
 				spanId: spanId,
@@ -223,9 +225,10 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {string} eventName Event name to start a span
 	 * @param {object} baggage Options, this generally holds details of event
 	 * @param {boolean} systemTriggered Flag to determin telemetry event type
+	 * @param {string} originatingSystem Name of system triggering start span
 	 * @returns {Promise<void>} A promise for logging the event
 	 */
-	async logEvent(eventName, baggage = null, systemTriggered = false) {
+	async logEvent(eventName, baggage = null, systemTriggered = false, originatingSystem = null) {
 
 		/**
 		 * Extracting eventName(call.incident-created) into events array(['call', 'incident-created'])
@@ -238,7 +241,7 @@ export class HorizonTelemetry extends Telemetry {
 		await super.event({
 			baggage: this._formatBaggageDetails(baggage || []),
 			eventName: `horizon.${eventName}`,
-			eventOriginator: this._eventOriginator(eventType),
+			eventOriginator: this._eventOriginator(eventType, originatingSystem),
 			eventType: eventType,
 			parentSpan: null,
 			spanId: this._getSpanID(currentSpan),
@@ -252,9 +255,10 @@ export class HorizonTelemetry extends Telemetry {
 	 * Closes all the child spans of an event
 	 * 
 	 * @param {*} parentEvent The parent event.
+	 * @param {string} originatingSystem Name of system triggering start span
 	 * @returns {Promise<void>} A promise to class all child spans of the parent event
 	 */
-	async closeChildSpans(parentEvent) {
+	async closeChildSpans(parentEvent, originatingSystem = null) {
 
 		if (!parentEvent) {
 			return;
@@ -269,7 +273,7 @@ export class HorizonTelemetry extends Telemetry {
 			await promise;
 			await this.endSpan(span.event, {
 				"info": `Closing span, as commanded by parent span`
-			});
+			}, true, false, false, originatingSystem);
 		}, Promise.resolve());
 	}
 
@@ -298,10 +302,10 @@ export class HorizonTelemetry extends Telemetry {
 		return eventName && eventName.split(`.`);
 	}
 
-	_eventOriginator(eventType) {
+	_eventOriginator(eventType, originatingSystem = null) {
 		switch (eventType) {
 			case TelemetryEventType.SYSTEM: 
-				return `horizon-ui`;
+				return originatingSystem ?? `horizon-ui`;
 
 			case TelemetryEventType.PERSON:
 				return SecurityContext.getInstance().username;

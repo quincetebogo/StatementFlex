@@ -105,6 +105,27 @@ export class HorizonWidgetHost extends ViewBase {
 		window.showToastTimed(`success`, `top`, `Success`, `Widget Loaded Successful`, 3000, true, null, `vertical`, null);
 	}
 	
+
+	_handleTelemetryNewTraceIdMessage(e) {
+		this._telemetry.newTrace(e.detail.content.traceId);
+	}
+
+	_handleTelemetryStartSpanMessage(e) {
+		this._telemetry.startSpan(e.detail.content.eventName, e.detail.content.baggage, e.detail.content.systemTriggered, e.detail.content.originatingSystem);
+	}
+
+	_handleTelemetryEndSpanMessage(e) {
+		this._telemetry.endSpan(e.detail.content.eventName, e.detail.content.baggage, e.detail.content.systemTriggered, e.detail.content.closeParentSpan, e.detail.content.closeChildSpans, e.detail.content.originatingSystem);
+	}
+
+	_handleTelemetryLogEventMessage(e) {
+		this._telemetry.logEvent(e.detail.content.eventName, e.detail.content.baggage, e.detail.content.systemTriggered, e.detail.content.originatingSystem);
+	}
+
+	_handleTelemetryCloseChildSpansMessage(e) {
+		this._telemetry.closeChildSpans(e.detail.content.parentEvent, e.detail.content.originatingSystem);
+	}
+	
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -153,7 +174,12 @@ export class HorizonWidgetHost extends ViewBase {
 			<capitec-widget id="widget1" src="${this.widgetDetails.alias}" class="widget" 
 				@initialize="${this._handleInitializeMessage}" 
 				@get-client-profile="${this._handleGetClientProfileInfoMessage}" 
-				@loading-complete="${this._handleLoadingCompleteMessage}">
+				@loading-complete="${this._handleLoadingCompleteMessage}"
+				@telemetry-new-trace-id="${this._handleTelemetryNewTraceIdMessage}"
+				@telemetry-start-span="${this._handleTelemetryStartSpanMessage}"
+				@telemetry-end-span="${this._handleTelemetryEndSpanMessage}"
+				@telemetry-log-event="${this._handleTelemetryLogEventMessage}"
+				@telemetry-close-child-spans="${this._handleTelemetryCloseChildSpansMessage}">
 			</capitec-widget>
 		`;
 	}
