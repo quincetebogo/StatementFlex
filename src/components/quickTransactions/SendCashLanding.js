@@ -6,6 +6,7 @@ import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
+import 'app/components/dialogs/common/ConfirmPlaceHold';
 
 const today = new Date();
 const DATE_FORMAT = `dd mmm yyyy`;
@@ -27,6 +28,8 @@ const RENDER_CHIPS = {
 	DATE: ``,
 	STATUS: ``
 };
+
+const HOLD_RESTRICTION_SET = new Set([`Redeemable`, `Partial Redeemed`]);
 
 /**
  * This component shows the send cash landing page.
@@ -52,6 +55,7 @@ export class SendCashLanding extends Component {
 		this.startDate = ``;
 		this.endDate = ``;
 
+		this.showConfirmPlaceHoldModal = false;
 		this.sendCashDetails = [];
 		this.filteredSendCashDetails = [];
 
@@ -68,7 +72,8 @@ export class SendCashLanding extends Component {
 			filteredSendCashDetails: { state: true },
 			startDate: { type: String, state: true },
 			endDate: { type: String, state: true },
-			searchTextLabel: { state: true }
+			searchTextLabel: { state: true },
+			showConfirmPlaceHoldModal: { state: true }
 		};
 	}
 
@@ -288,6 +293,10 @@ export class SendCashLanding extends Component {
 		this._refineSearch();
 	}
 
+	_onPlaceHoldClick() {
+		this.dispatchEvent(new CustomEvent(`on-place-hold`, {}));
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -428,7 +437,7 @@ export class SendCashLanding extends Component {
 				capitec-group[layout="grid"] {
 					padding-left: 16px;
 					padding-top: 20px;
-					padding-bottom: 16px;
+					padding-bottom: 30px;
 				}
 				capitec-group[layout="grid"] > capitec-label {
 					width: 150px;
@@ -436,6 +445,21 @@ export class SendCashLanding extends Component {
 				}
 				.headerRow {
 					--theme-label-default-font-weight: 600;
+				}
+				.footer {
+					width: 1029px;
+					border-top: 1px solid #E1E1E1;
+					--theme-container-padding-top: 8px;
+					--theme-container-padding-bottom: 8px;
+					--theme-container-padding-left: 0px;
+					--theme-container-padding-right: 14px;
+				}
+				.footer > capitec-button {
+					border-radius: 5px;
+					--theme-button-padding-top: 14px;
+					--theme-button-padding-right: 24px;
+					--theme-button-padding-bottom: 14px;
+					--theme-button-padding-left: 24px;
 				}
 			`
 		];
@@ -452,7 +476,7 @@ export class SendCashLanding extends Component {
 				<capitec-content-box>
 					${this._renderActionBar()}
 					${this._renderFilterBar()}
-					${this._renderContent()}
+					${this._renderVouchers()}
 				</capitec-content-box>
 			</capitec-card>
 		`;
@@ -576,14 +600,13 @@ export class SendCashLanding extends Component {
 			: html``;
 	}
 
-	_renderContent() {
-
+	_renderVouchers() {
 		return this.filteredSendCashDetails.length > 0 
-			? this._renderSendCashContent()
+			? this._renderVoucherDetails()
 			: this._renderNoResults();
 	}
 
-	_renderSendCashContent() {
+	_renderVoucherDetails() {
 		return this.filteredSendCashDetails.map((item) => html`
 			<horizon-expander expandButtonAlignment="right">
 					<capitec-group
@@ -668,6 +691,8 @@ export class SendCashLanding extends Component {
 
 				${item.addDetails.map((element, index) => this._renderGridInfo(element, index + 2))}
 			</capitec-group>
+
+			${this._renderFooter(item)}
 		`;
 	}
 
@@ -680,6 +705,22 @@ export class SendCashLanding extends Component {
 			<capitec-label label="${element.actionDescription}" row="${index}" column="5"></capitec-label>
 		`;
 	}
+
+	_renderFooter(item) {
+		if (HOLD_RESTRICTION_SET.has(item.status)) {
+			return html`
+				<capitec-content-box layout="horizontal" halign="right" valign="center" gap="clear" class="footer">
+					<capitec-button
+							type="primary" 
+							label="Place hold" 
+							?hidden="${!HOLD_RESTRICTION_SET.has(item.status)}"
+							@click="${() => this._onPlaceHoldClick()}">
+					</capitec-button>
+				</capitec-content-box>
+			`;
+		}
+	}
+
 }
 
 customElements.define(`horizon-send-cash-landing`, SendCashLanding);

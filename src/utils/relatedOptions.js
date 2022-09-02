@@ -125,6 +125,16 @@ export const relatedOptions = {
 			`tax-certificate`,
 			`proof-of-account`
 		]
+	},
+	'send-cash': {
+		Success: [
+			`transaction-history`,
+			`statements`
+		],
+		Failure: [
+			`transaction-history`,
+			`statements`
+		]
 	}
 };
 
