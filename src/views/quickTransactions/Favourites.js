@@ -74,8 +74,10 @@ export class Favourites extends SavingsAccountBase {
 		this.taxCertificateDetails = null;
 		this.ccsStatus = false;
 		this.showCCSmodal = false;
-		this.onHoldSuccess = true;
 		this.settlementQuoteEvents = SETTLEMENT_QUOTE_EVENTS;
+
+		// TODO: CSCEH-8448: The below variable needs to be removed while integrating UI with CS.
+		this.onHoldSuccess = true;
 
 		this._telemetry = HorizonTelemetry.instance;
 
@@ -170,7 +172,7 @@ export class Favourites extends SavingsAccountBase {
 	// --------------
 
 	_showConfirmPlaceHoldModal() {
-		this.renderMode = RENDER_MODE.PLACE_HOLD_MODAL; // this.showConfirmPlaceHoldModal = !this.showConfirmPlaceHoldModal;
+		this.renderMode = RENDER_MODE.PLACE_HOLD_MODAL;
 	}
 
 	_onConfirmPlaceHold(event) {
