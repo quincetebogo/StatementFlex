@@ -74,6 +74,7 @@ export class Favourites extends SavingsAccountBase {
 		this.taxCertificateDetails = null;
 		this.ccsStatus = false;
 		this.showCCSmodal = false;
+		this.onHoldSuccess = true;
 		this.settlementQuoteEvents = SETTLEMENT_QUOTE_EVENTS;
 
 		this._telemetry = HorizonTelemetry.instance;
@@ -167,6 +168,29 @@ export class Favourites extends SavingsAccountBase {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+
+	_showConfirmPlaceHoldModal() {
+		this.renderMode = RENDER_MODE.PLACE_HOLD_MODAL; // this.showConfirmPlaceHoldModal = !this.showConfirmPlaceHoldModal;
+	}
+
+	_onConfirmPlaceHold(event) {
+		// TODO: CSCEH-8448 - The navigation needs to happen on the response of the CS.
+		this._saveToState(event.detail.selectedReason);
+
+		if (this.onHoldSuccess) {
+			this.horizonRouter.navigateToSendCashSuccess();
+			return;
+		} else {
+			this.horizonRouter.navigateToSendCashFailure();
+			return;
+		}
+	}
+
+	_saveToState(selectedReason) {
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.sendCashSelectedReason = selectedReason.value;
+		this.horizonStore.setScreenDetails(screenDetails);
+	}
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
@@ -890,6 +914,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderSettlementQuoteDialog()}
 			${this._renderCcsModal()}
 			${this._renderSendCash()}
+			${this._renderConfirmPlaceHoldModal()}
 
 			${super._webTemplate()}
 		`;
@@ -1057,12 +1082,23 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderSendCash() {
-		return this.renderMode === RENDER_MODE.SEND_CASH
+		return this.renderMode === RENDER_MODE.SEND_CASH || this.renderMode === RENDER_MODE.PLACE_HOLD_MODAL
 			? html`
 				<horizon-send-cash-landing
+					@on-place-hold="${() => this._showConfirmPlaceHoldModal()}"
 					@back="${() => this._backToLandingPage()}">
 				</horizon-send-cash-landing>`
 			: html``;
+	}
+
+	_renderConfirmPlaceHoldModal() {
+		return this.renderMode === RENDER_MODE.PLACE_HOLD_MODAL
+		? html`
+			<horizon-confirm-place-hold
+				@on-confirm="${(e) => this._onConfirmPlaceHold(e)}"
+				@cancel="${() => this.renderMode = RENDER_MODE.SEND_CASH}">
+			</horizon-confirm-place-hold>`
+		: html``;
 	}
 }
 

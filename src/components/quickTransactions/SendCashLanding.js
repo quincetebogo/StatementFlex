@@ -29,6 +29,8 @@ const RENDER_CHIPS = {
 	STATUS: ``
 };
 
+const HOLD_RESTRICTION_SET = new Set([`Redeemable`, `Partial Redeemed`]);
+
 /**
  * This component shows the send cash landing page.
  *
@@ -292,11 +294,7 @@ export class SendCashLanding extends Component {
 	}
 
 	_onPlaceHoldClick() {
-		this.showConfirmPlaceHoldModal = !this.showConfirmPlaceHoldModal;
-	}
-
-	_onCancel() {
-		this.showConfirmPlaceHoldModal = !this.showConfirmPlaceHoldModal;
+		this.dispatchEvent(new CustomEvent(`on-place-hold`, {}));
 	}
 
 	// --------------
@@ -472,13 +470,6 @@ export class SendCashLanding extends Component {
 	}
 
 	_webTemplate() {
-		return html`
-			${this._renderSendCashContent()}
-			${this._renderConfirmPlaceHoldModal()}
-		`;
-	}
-
-	_renderSendCashContent() {
 		return html`
 			<capitec-card>
 				${this._renderTitleBar()}
@@ -716,26 +707,20 @@ export class SendCashLanding extends Component {
 	}
 
 	_renderFooter(item) {
-		return html`
-			<capitec-content-box layout="horizontal" halign="right" valign="center" gap="clear" class="footer">
-				<capitec-button
-						type="primary" 
-						label="Place hold" 
-						?disabled="${item.status === `On hold`}"
-						@click="${() => this._onPlaceHoldClick()}">
-				</capitec-button>
-			</capitec-content-box>
-		`;
+		if (HOLD_RESTRICTION_SET.has(item.status)) {
+			return html`
+				<capitec-content-box layout="horizontal" halign="right" valign="center" gap="clear" class="footer">
+					<capitec-button
+							type="primary" 
+							label="Place hold" 
+							?hidden="${!HOLD_RESTRICTION_SET.has(item.status)}"
+							@click="${() => this._onPlaceHoldClick()}">
+					</capitec-button>
+				</capitec-content-box>
+			`;
+		}
 	}
 
-	_renderConfirmPlaceHoldModal() {
-		return this.showConfirmPlaceHoldModal 
-		? html`
-			<horizon-confirm-place-hold
-				@cancel="${() => this._onCancel()}">
-			</horizon-confirm-place-hold>`
-		: html``;
-	}
 }
 
 customElements.define(`horizon-send-cash-landing`, SendCashLanding);

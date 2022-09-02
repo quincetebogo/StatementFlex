@@ -1,7 +1,13 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+
+const HOLD_REASON = [
+	{ key: "1", value: "Smishing (Mobile USSD/App Banking Fraud)" },
+	{ key: "2", value: "Unauthorised transaction (Lost Device, Stolen, Robbed)" },
+	{ key: "3", value: "SendCash Friendly fraud (Civil Matter)" },
+	{ key: "4", value: "Client Request (Civil Matter)" },
+	{ key: "5", value: "Phising/Vishing sms/Call" }
+];
 
 export class ConfirmPlaceHold extends Component {
 
@@ -12,19 +18,9 @@ export class ConfirmPlaceHold extends Component {
 	constructor() {
 		super();
 
-		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
-
 		// TODO: CSCEH-8448 - Remove the below variables - They are used as UI is not integrated with CS.
 		this.onHoldSuccess = true;
 		this.selectedReason = ``;
-		this.reasonObject = [
-			{ key: "1", value: "Smishing (Mobile USSD/App Banking Fraud)" },
-			{ key: "2", value: "Unauthorised transaction (Lost Device, Stolen, Robbed)" },
-			{ key: "3", value: "SendCash Friendly fraud (Civil Matter)" },
-			{ key: "4", value: "Client Request (Civil Matter)" },
-			{ key: "5", value: "Phising/Vishing sms/Call" }
-		];
 	}
 
 	// --------------
@@ -33,7 +29,6 @@ export class ConfirmPlaceHold extends Component {
 
 	/**
 	 * @property {String} selectedReason The value selected as the reason for placing the voucher on hold.
-	 * @property {Object} reasonObject Holds the list of reasons.
 	 * @property {Boolean} onHoldSuccess Flag to indicate if the navigation should be to success or failure screen.
 	 * @readonly
 	 * @static
@@ -43,7 +38,6 @@ export class ConfirmPlaceHold extends Component {
 	static get properties() {
 		return {
 			selectedReason: { type: String },
-			reasonObject: { type: Object },
 			onHoldSuccess: { type: Boolean }
 		};
 	}
@@ -70,8 +64,12 @@ export class ConfirmPlaceHold extends Component {
 
 	_confirmClick() {
 		// TODO: CSCEH-8448 - The navigation needs to happen on the response of the CS.
-		this._saveToState(this.selectedReason);
-		this.onHoldSuccess ? this.horizonRouter.navigateToSendCashSuccess() : this.horizonRouter.navigateToSendCashFailure();
+
+		this.dispatchEvent(new CustomEvent(`on-confirm`, { 
+			detail: {
+				selectedReason: this.selectedReason
+			}
+		}));
 	}
 
 	// --------------
@@ -81,12 +79,6 @@ export class ConfirmPlaceHold extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	_saveToState(selectedReason) {
-		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.sendCashSelectedReason = selectedReason.value;
-		this.horizonStore.setScreenDetails(screenDetails);
-	}
 
 	// ---------
 	// RENDERING
@@ -114,6 +106,9 @@ export class ConfirmPlaceHold extends Component {
 				}
 				capitec-content-box {
 					--theme-layout-gap-spacing: 15px;
+				}
+				capitec-select {
+					--theme-input-font-weight: 600;
 				}
 			`
 		];
@@ -148,7 +143,7 @@ export class ConfirmPlaceHold extends Component {
 
 				<capitec-select 
 					label="Choose reason" 
-					.items="${this.reasonObject}" 
+					.items="${HOLD_REASON}" 
 					display-field="value"
 					id-field="key"
 					hint="Please select a reason from the dropdown options."
