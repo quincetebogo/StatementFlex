@@ -199,8 +199,8 @@ export class NotificationsDetails extends Component {
 					--theme-label-strong-font-weight: 600;
 					--theme-label-font-color: #3A3A3A;
 				}
-				.side-panel-header-close-icon {
-					--theme-icon-size-small: 13.5px;
+				.side-panel-close-icon {
+					--theme-icon-size-medium: 24px;
 					cursor: pointer;
 				}
 
@@ -270,16 +270,14 @@ export class NotificationsDetails extends Component {
 					background-color: #F5F5F5;
 				}
 
-				capitec-alert-banner {
+				horizon-alert-banner {
 					margin: 8px 8px 0px 8px;
 
 					--theme-alert-banner-width: 328px;
 					--theme-layout-gap-spacing: 16px;
-									   
-					--theme-alert-banner-icon-margin-left: 16px;
-					--theme-alert-banner-icon-margin-right: 16px;
+					--theme-toast-icon-margin: 16px 16px 0px 16px;
 				}
-				capitec-alert-banner > capitec-hyperlink {
+				horizon-alert-banner > capitec-hyperlink {
 					margin-top: 5px;
 					position: absolute;
 					right: 16px;
@@ -290,13 +288,16 @@ export class NotificationsDetails extends Component {
 					--theme-hyperlink-font-size: 14px;
 					text-decoration: underline;
 				}
-				capitec-alert-banner > p {
+				horizon-alert-banner > p {
 					margin: 0px;
 					color: #3A3A3A;
 					font-family: "Hind Vadodara";
 					font-size: 14px;
 					letter-spacing: 0;
 					line-height: 20px;
+				}
+				.unavailable-alert-banner {
+					--theme-toast-icon-margin: 10px 16px 0px 16px;
 				}
 				.client-notify-banner {
 					--theme-alert-banner-height: 90px;
@@ -435,7 +436,7 @@ export class NotificationsDetails extends Component {
 					<capitec-icon class="side-panel-header-icon" size="medium" icon="system/notify"></capitec-icon>
 					<capitec-label class="side-panel-header-label" type="Strong" label="Notifications"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-icon class="side-panel-header-close-icon" size="small" icon="system/close-action" @click="${() => this._closeNotificationsPanel()}"></capitec-icon>
+					<capitec-icon class="side-panel-close-icon" size="medium" icon="system/close-action" @click="${() => this._closeNotificationsPanel()}"></capitec-icon>
 				</capitec-group>
 
 				${this._renderNotificationsDetails()}
@@ -609,7 +610,7 @@ export class NotificationsDetails extends Component {
 					valign="center"
 					gap="none"><capitec-label class="side-panel-header-label" type="Strong" label="Choose preferred message type"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-icon class="side-panel-close-icon" size="small" icon="system/close-action" @click="${() => this._onCloseUpdatePanelClick()}"></capitec-icon>
+					<capitec-icon class="side-panel-close-icon" size="medium" icon="system/close-action" @click="${() => this._onCloseUpdatePanelClick()}"></capitec-icon>
 				</capitec-group>
 
 				${this._renderClientNotification()}
@@ -669,7 +670,7 @@ export class NotificationsDetails extends Component {
 					gap="none">
 					<capitec-label class="side-panel-header-label" type="Strong" label="Choose message time"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-icon class="side-panel-close-icon" size="small" icon="system/close-action" @click="${() => this._onCloseUpdatePanelClick()}"></capitec-icon>
+					<capitec-icon class="side-panel-close-icon" size="medium" icon="system/close-action" @click="${() => this._onCloseUpdatePanelClick()}"></capitec-icon>
 				</capitec-group>
 
 				${this._renderMessageTimeUpdateClientNotification()}
@@ -753,46 +754,46 @@ export class NotificationsDetails extends Component {
 
 	_renderClientNotification() {
 		return this.inAppMessage ? html`` : html`
-			<capitec-alert-banner
+			<horizon-alert-banner
 				type="warning"
 				class="client-notify-message-type-banner"
+				header=""
 				label=""
 				layout="vertical">
-				<p><b>Notify client:</b><br>You will be charged a fee per SMS update.</p>
-				
-				<capitec-hyperlink
-					href="https://www.capitecbank.co.za/global-one/transact/fees/"
-					target="_blank"
-					label="View fees"
-					inline
-				></capitec-hyperlink>
-			</capitec-alert-banner>
+					<b>Notify client:</b>
+					<p>You will be charged a fee per SMS update.</p>
+					<capitec-hyperlink
+						href="https://www.capitecbank.co.za/global-one/transact/fees/"
+						target="_blank"
+						label="View fees"
+						inline>
+					</capitec-hyperlink>
+			</horizon-alert-banner>
 		`;
 	}
 
 	_renderMessageTimeUpdateClientNotification() {
 		return this.isTimeValueChanged ? html`
-			<capitec-alert-banner
+			<horizon-alert-banner
 				type="warning"
 				class="client-notify-banner"
-				label=""
+				header="Notify client:"
+				label="You will only receive notifications between ${this.messageTimeSelected}"
 				layout="vertical">
-				<p><b>Notify client:</b><br>You will only receive notifications between ${this.messageTimeSelected}</p>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
 		` : html``;
 	}
 
 	_renderServiceUnavailable() {
 		return html`
-			<capitec-alert-banner
+			<horizon-alert-banner
 				data-automation-id="notifications-details-unavailable-banner"
 				class="unavailable-alert-banner"
-				type="unsuccessful-red"
-				label=""
+				type="error"
+				header="Notify Client"
+				label="Services are currently unavailable"
 				layout="vertical">
-				<b>Notify Client</b> <br>
-				<p>Services are currently unavailable</p>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
 			
 			<capitec-group class="service-unavilable-group" layout="vertical" halign="center" valign="center" gap="none">
 				

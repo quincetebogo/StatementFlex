@@ -28,7 +28,7 @@ export const alertBannerMixin = {
 	_renderUnverifiedAlertBanner() {
 		return !this.roleManager.isHelpDeskAgent 
 		? html`
-			<capitec-alert-banner
+			<horizon-alert-banner
 				class="verificatoin-status"
 				data-automation-id="favourite-transactions-unverified-alert-banner"
 				type="warning">
@@ -44,18 +44,18 @@ export const alertBannerMixin = {
 						@click="${() => this._verifyClick()}">
 					</capitec-hyperlink>
 				</capitec-group>
-			</capitec-alert-banner>`
+			</horizon-alert-banner>`
 		: html``;
 	},
 
 	_renderFailedAlertBanner() {
 		return html`
-			<capitec-alert-banner
+			<horizon-alert-banner
 				class="verificatoin-status"
 				data-automation-id="favourite-transactions-failed-verification-alert-banner"
 				type="unsuccessful-red"
 				label="Notify client: I'm not able to access your account since you couldn't be verified. Can we guide you on the App? Alternatively please visit your nearest branch.">
-			</capitec-alert-banner>`;
+			</horizon-alert-banner>`;
 	},
 
 	_renderVerifiedAlertBanner() {
@@ -67,7 +67,7 @@ export const alertBannerMixin = {
 	_renderNoDigitalHighRiskTransAlertBanner() {
 		return this.callerInformation.verificationMethod === `SQ`
 			? html`
-				<capitec-alert-banner
+				<horizon-alert-banner
 					class="verificatoin-status"
 					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
 					type="warning">
@@ -78,14 +78,14 @@ export const alertBannerMixin = {
 							</capitec-label>
 							<capitec-spacer></capitec-spacer>
 						</capitec-group>
-				</capitec-alert-banner>`
+				</horizon-alert-banner>`
 			: html``;
 	},
 
 	_renderHighRiskTransAlertBanner() {
 		return this.callerInformation.verificationMethod === `SQ`
 			? html`
-				<capitec-alert-banner
+				<horizon-alert-banner
 					class="verificatoin-status"
 					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
 					type="warning">
@@ -101,7 +101,7 @@ export const alertBannerMixin = {
 								@click="${() => this._verifyClick()}">
 							</capitec-hyperlink>
 						</capitec-group>
-				</capitec-alert-banner>`
+				</horizon-alert-banner>`
 			: html``;
 	}
 };

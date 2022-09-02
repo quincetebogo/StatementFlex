@@ -672,7 +672,7 @@ export class CardLimitsLanding extends Component {
 					width: 1030px;
 					height: auto;
 					animation-timing-function: linear;
-					--horizon-expander-header-padding-left: 23px;
+					--horizon-expander-header-padding-left: 7px;
 				}
 				.border-debit{
 					--theme-expander-border-left: 4px solid #009DE0;
@@ -705,6 +705,7 @@ export class CardLimitsLanding extends Component {
 				}
 				.limits-group{
 					height: auto;
+					overflow: hidden;
 					--theme-layout-gap-spacing: 0px;
 				}
 				capitec-label[label="Update"] {
@@ -791,7 +792,7 @@ export class CardLimitsLanding extends Component {
 			<capitec-title-bar class="title-bar">
 				<capitec-icon 
 					data-automation-id="card-limits-landing-back"
-					size="small"
+					size="medium"
 					icon="system/arrow-left-action"
 					@click="${() => this._back()}">
 				</capitec-icon>
@@ -895,7 +896,7 @@ export class CardLimitsLanding extends Component {
 		return html`
 			<capitec-group slot="custom-header" layout="horizontal" gap="clear" halign="left" valign="center">
 				<div class="header-icon">
-					<img src="/images/cardArt/black_front_${expanderHeaders[0] === `Debit MasterCard` ? `debit` : `credit`}_40px height.svg">
+					<img src="/images/common/cardArt/black-front-${expanderHeaders[0] === `Debit MasterCard` ? `debit` : `credit`}-40px-height.svg">
 				</div> 
 				${expanderHeaders.map((heading, index) => this._renderHeaderLabel(heading, index, expanderSubtitle))}
 			</capitec-group>

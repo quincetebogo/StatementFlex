@@ -1,4 +1,4 @@
-import { ACCOUNT_TYPE_CODE } from 'app/constants/Common';
+import { ACCOUNT_TYPE_CODE } from 'app/constants/common';
 
 export const DEFAULTS = Object.freeze({
 	SEARCH_TEXT_LABEL: `Search loan, amount or account number`,
@@ -6,9 +6,9 @@ export const DEFAULTS = Object.freeze({
 });
 
 export const CREDIT_TYPE_LIST = Object.freeze([
-'All',
-'Fixed credit',
-'Flexible credit'
+`All`,
+`Fixed credit`,
+`Flexible credit`
 ]);
 
 export const PRODUCTS = {

@@ -306,11 +306,11 @@ export class HorizonSelect extends Component {
 					@click="${(e) => this._togglePopup(e)}">
 				</capitec-icon>
 			</div>
-			${this.renderOptions()}
+			${this._renderOptions()}
 		`;
 	}
 
-	renderOptions() {
+	_renderOptions() {
 		if (!this.items || !this.popup) {
 			return;
 		}

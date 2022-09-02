@@ -1,6 +1,5 @@
 import { Configuration, Logger, Security, Service } from 'platform/core';
-import { HttpStatusError } from 'platform/errors/HttpStatusError';
-import { isFunction } from 'util';
+import { HttpStatusError } from 'platform/core/errors/HttpStatusError';
 import { v4 } from 'uuid';
 
 export const DEFAULT_AUTO_RETRIES = 3;

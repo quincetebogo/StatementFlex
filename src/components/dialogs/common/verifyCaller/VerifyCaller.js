@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { Configuration, EventAggregator, Logger } from 'platform/core';
-import { AUTH_METHODS } from 'app/constants/Common';
+import { AUTH_METHODS } from 'app/constants/common';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -158,7 +158,7 @@ export class VerifyCaller extends Component {
 		this.itaAttempts = this.callerInformation.verificationAttempts.itaAttempts;
 
 		this.hasSouthAfricanID = isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber);
-
+		
 		if (this.callerInformation.hasDigitalChannels) {
 			await this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
 				"screen": TelemetryScreen.VERIFY_CALLER
@@ -850,7 +850,6 @@ export class VerifyCaller extends Component {
 					width: 204px;
 					height: 81px;
 				}
-
 				.btnTryAgain[disabled] {
 					cursor:default;
 					pointer-events:none;
@@ -1029,7 +1028,7 @@ export class VerifyCaller extends Component {
 						data-automation-id="verify-caller-skip-button"
 						label="Skip Verification"
 						icon="system/arrow-right-action" 
-						iconSize="small"
+						iconSize="medium"
 						@click="${() => this._skipClick()}">
 					</horizon-option-button>
 					<horizon-option-button

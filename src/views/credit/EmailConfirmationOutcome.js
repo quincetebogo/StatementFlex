@@ -26,6 +26,7 @@ export class EmailConfirmationOutcome extends ViewBase {
 		this.succeededAccounts = [];
 		this.displayToast = true;
 		this.endCallContext = `QuickTransactionSuccess`;
+		this.header = ``;
 	}
 
 	// ----------
@@ -273,7 +274,7 @@ export class EmailConfirmationOutcome extends ViewBase {
 
 	_renderContent() {
 		return html`
-			<img src="/images/statements/senddocuments.svg"/>
+			<img src="/images/statements/send-documents.svg"/>
 
 			<capitec-label
 				class="header"
