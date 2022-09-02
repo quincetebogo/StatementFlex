@@ -19,6 +19,7 @@ import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
 import 'app/components/quickTransactions/FavouriteTransactions';
 import 'app/components/quickTransactions/CardLimitsLanding';
+import 'app/components/quickTransactions/SendCashLanding';
 import 'app/components/quickTransactions/SearchOtherNeed';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
@@ -127,6 +128,7 @@ export class Favourites extends SavingsAccountBase {
 			const searchOtherNeed = () => this._searchOtherNeed();
 			const settlementQuote = () => this._settlementQuote();
 			const paidUpAccounts = () => this._paidUpAccounts();
+			const sendCash = () => this._sendCash();
 			
 			const actions = {
 				'stop-card': stopCard,
@@ -138,7 +140,8 @@ export class Favourites extends SavingsAccountBase {
 				'proof-of-account': proofOfAccount,
 				'search-other-need': searchOtherNeed,
 				'settlement-quote': settlementQuote,
-				'paid-up-accounts': paidUpAccounts
+				'paid-up-accounts': paidUpAccounts,
+				'send-cash': sendCash
 			};
 
 			if (actions[option]) {
@@ -619,6 +622,10 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
+	_sendCash() {
+		this.renderMode = RENDER_MODE.SEND_CASH;
+	}
+
 	_formatCreditOverviewResponse() {
 		this.creditAccountDetails.creditCardSummaryList.map(item => {
 			item.type = PRODUCTS.CREDIT_CARD;
@@ -882,6 +889,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderSettlementQuote()}
 			${this._renderSettlementQuoteDialog()}
 			${this._renderCcsModal()}
+			${this._renderSendCash()}
 
 			${super._webTemplate()}
 		`;
@@ -1046,6 +1054,15 @@ export class Favourites extends SavingsAccountBase {
 			@back="${() => this._backToLandingPage()}">
 		</horizon-paid-up-accounts>`
 		: html``;
+	}
+
+	_renderSendCash() {
+		return this.renderMode === RENDER_MODE.SEND_CASH
+			? html`
+				<horizon-send-cash-landing
+					@back="${() => this._backToLandingPage()}">
+				</horizon-send-cash-landing>`
+			: html``;
 	}
 }
 
