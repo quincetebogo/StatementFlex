@@ -1,5 +1,5 @@
 import { ACCOUNT_STATUS, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
-import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/common';
+import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { CreditEvents, SETTLEMENT_QUOTE_EVENTS, SETTLE_AND_CLOSE, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/Credit';
 import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
@@ -471,7 +471,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_setIncidentDone() {
-		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -824,9 +824,9 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_backToLandingPage() {
-		const incidentState = this.horizonIncidentManager.IncidentState();
+		const incidentState = this.horizonIncidentManager.incidentState;
 		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
 		}
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
@@ -885,7 +885,7 @@ export class CreditAccount extends ViewBase {
 
 		this._telemetry.endSpan(CreditEvents.CREDIT_BUDGET_TRANSFER, {});
 
-		const incidentState = this.horizonIncidentManager.IncidentState();
+		const incidentState = this.horizonIncidentManager.incidentState;
 		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
 			this.horizonIncidentManager.setCurrentNeed(`view-budgets-credit-card`);
 		}

@@ -98,7 +98,7 @@ export class EmailConfirmationOutcome extends ViewBase {
 
 	_updateIncidentState() {
 		const completeFailure = this.failedAccounts.length === this.emailStatus.length;
-		this.horizonIncidentManager.IncidentState = completeFailure ? super.HORIZON_NEED_STATUS.FAILED : super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonIncidentManager.incidentState = completeFailure ? super.HORIZON_NEED_STATUS.FAILED : super.HORIZON_NEED_STATUS.COMPLETED;
 	}
 
 	_getOutcomeDetails() {

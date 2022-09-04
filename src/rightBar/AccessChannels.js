@@ -537,7 +537,7 @@ export class AccessChannels extends Component {
 	}
 
 	_updateIncidentState(state) {
-		this.horizonIncidentManager.IncidentState = state;
+		this.horizonIncidentManager.incidentState = state;
 	}
 
 	// ---------

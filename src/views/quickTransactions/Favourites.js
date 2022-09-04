@@ -188,7 +188,7 @@ export class Favourites extends SavingsAccountBase {
 		
 		if (isSuccess) {
 			// Navigate to favourites landing page
-			this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.CLOSED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.CLOSED;
 			this.horizonIncidentManager.setFeedback(selectedOption.key);
 			this._updateNeedToState();
 			this._searchOtherNeedDone();

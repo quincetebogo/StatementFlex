@@ -98,7 +98,7 @@ export class SettlementQuoteSuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
 
 	_formateAccountNames(accounts) {

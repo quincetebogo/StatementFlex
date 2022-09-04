@@ -232,7 +232,7 @@ export class EndCallSession extends Component {
 
 	async _prepopulateNeed() {
 		const screenDetails = this.horizonStore.getScreenDetails() || {};
-		const incidentState = this.horizonIncidentManager.IncidentState();
+		const incidentState = this.horizonIncidentManager.incidentState;
 		const currentNeed = this.horizonIncidentManager.getCurrentNeed();
 
 		// Determining if its already classified
@@ -297,7 +297,7 @@ export class EndCallSession extends Component {
 	}
 
 	_setDefaultValues() {
-		const incidentState = this.horizonIncidentManager.IncidentState();
+		const incidentState = this.horizonIncidentManager.incidentState;
 		const feedback = this.horizonIncidentManager.getFeedback();
 
 		if (incidentState !== super.HORIZON_NEED_STATUS.CLOSED) {
@@ -338,7 +338,7 @@ export class EndCallSession extends Component {
 	 * @returns {Boolean} True / False
 	 */
 	_preventCloseOfIncident() {
-		const incidentState = this.horizonIncidentManager.IncidentState();
+		const incidentState = this.horizonIncidentManager.incidentState;
 
 		if (this.isReassigned) {
 			this.logger.log(`warn`, `Incident ${this.incidentRefNumber} assigned or handed off. The call will be ended without closing the incident.`);

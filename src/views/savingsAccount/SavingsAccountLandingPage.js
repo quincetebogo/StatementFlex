@@ -1,4 +1,4 @@
-import { ACCOUNT_TYPES, LANDING_PAGE_NEEDS } from 'app/constants/common';
+import { ACCOUNT_TYPES, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { STATEMENT_EVENTS, SavingsAccLandingPage, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/SavingsAccount';
 import { css, html, unsafeCSS } from 'platform/elements';

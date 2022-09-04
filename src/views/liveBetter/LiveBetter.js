@@ -1,4 +1,4 @@
-import { ACCOUNT_TYPES, LANDING_PAGE_NEEDS } from 'app/constants/common';
+import { ACCOUNT_TYPES, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { EXPANDER_LABEL, LINKED_TRANSACTION, TABLE_EXPANDER_CELL } from 'app/css/Lbb-TransactionHistory';
 import { LiveBetterEvents, STATEMENT_EVENTS, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/LiveBetter';
 import { css, html, unsafeCSS } from 'platform/elements';
@@ -209,7 +209,7 @@ export class LiveBetter extends SavingsAccountBase {
 	}
 
 	_setIncidentDone() {
-		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}

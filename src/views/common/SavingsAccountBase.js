@@ -384,14 +384,14 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	_setIncidentNotstarted() {
-		const incidentState = this.horizonIncidentManager.IncidentState();
+		const incidentState = this.horizonIncidentManager.incidentState;
 		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
 		}
 	}
 
 	_setIncidentDone() {
-		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 

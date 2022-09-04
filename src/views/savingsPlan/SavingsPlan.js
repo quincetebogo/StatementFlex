@@ -1,4 +1,4 @@
-import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/common';
+import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { SavingsPlanEvents, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/SavingsPlan';
 import { css, html, unsafeCSS } from 'platform/elements';
@@ -337,7 +337,7 @@ export class SavingsPlan extends ViewBase {
 		const incidentState = this.horizonIncidentManager.getCurrentIncidentState();
 
 		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
 		}
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
@@ -459,7 +459,7 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	_setIncidentDone() {
-		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}

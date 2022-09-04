@@ -41,7 +41,7 @@ import 'app/components/common/RelatedOptions';
 		this._initialise();
 		this._telemetry.startSpan(this.telemetryEvents.FAILURE);
 
-		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
 
 	disconnectedCallback() {

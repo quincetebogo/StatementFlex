@@ -44,7 +44,7 @@ export class TapToPayUnsuccessful extends ViewBase {
 		this.card = screenDetails.tapToPayDetails.cardMaskedNumber;
 		this.cardType = screenDetails.tapToPayDetails.cardType === `DEBIT_MASTERCARD` ? `debit` : `credit`;
 
-		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
 
 	disconnectedCallback() {
@@ -77,7 +77,7 @@ export class TapToPayUnsuccessful extends ViewBase {
 			"next-screen": null
 		});
 
-		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
 
 		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.getCurrentIncident().incidentRecId);
 		
@@ -93,7 +93,7 @@ export class TapToPayUnsuccessful extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
 
 	// ---------

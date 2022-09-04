@@ -46,7 +46,7 @@ export class StatementsFailure extends ViewBase {
 		this.accType = this.screenDetails && this.screenDetails.accountType;
 		this.telemetryEvent = this.screenDetails?.telemetryEvent ?? {};
 
-		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 
 		await this._telemetry.startSpan(this.telemetryEvent.STATEMENTS_FAILURE);
 
@@ -77,7 +77,7 @@ export class StatementsFailure extends ViewBase {
 			"screen": TelemetryScreen.STATEMENTS_OUTCOME
 		});
 
-		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
 
 		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.getCurrentIncident().incidentRecId);
 	}

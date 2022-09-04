@@ -53,7 +53,7 @@ export class SettlementQuoteFailure extends ViewBase {
 		this.failedAccounts = this.screenDetails?.emailStatus.filter(account => !account.sentStatus).map(item => item.productTypeDescription);
 		this.emailAddress = this.screenDetails && this.screenDetails.emailAddress;
 
-		this.horizonIncidentManager.IncidentState = HORIZON_NEED_STATUS.FAILED;
+		this.horizonIncidentManager.incidentState = HORIZON_NEED_STATUS.FAILED;
 	}
 
 	disconnectedCallback() {

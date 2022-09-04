@@ -1,5 +1,5 @@
 import { EventAggregator, Logger } from 'platform/core';
-import { HIGH_RISK_TRANSACTIONS, LOW_RISK_TRANSACTIONS } from 'app/constants/common';
+import { HIGH_RISK_TRANSACTIONS, LOW_RISK_TRANSACTIONS } from 'app/constants/Common';
 import { View, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { EXCEPTIONAL_ENDCALL_CONTEXTS } from 'app/constants/EndCallReasons';
@@ -173,7 +173,7 @@ export class ViewBase extends View {
 	_endCallClick() {
 		this._telemetry.logEvent(LandingPageEvents.END_CALL, {});
 		this.showEndCall = !this.showEndCall;
-		this.endCallContext = this.horizonIncidentManager.IncidentState() === HORIZON_NEED_STATUS.INPROGRESS && !EXCEPTIONAL_ENDCALL_CONTEXTS.includes(this.endCallContext)
+		this.endCallContext = this.horizonIncidentManager.incidentState === HORIZON_NEED_STATUS.INPROGRESS && !EXCEPTIONAL_ENDCALL_CONTEXTS.includes(this.endCallContext)
 								? `QuickTransactionsInProgress`
 								: this.endCallContext;
 	}

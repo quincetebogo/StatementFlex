@@ -114,7 +114,7 @@ export class HorizonIncidentManager {
 	 * 
 	 * @returns {string} A value indicating the state (progress) of the current incident
 	 */
-	get IncidentState() {
+	get incidentState() {
 		return this.incidentDetails.needStatus;
 	}
 
@@ -123,7 +123,7 @@ export class HorizonIncidentManager {
 	 * 
 	 * @param {'InProgress'|'Completed'|'Assigned'|'Failed'|'Not Started'|'Closed'} incidentState A value indicating the state of the current incident.
 	 */
-	set IncidentState(incidentState) {
+	set incidentState(incidentState) {
 		this.incidentDetails.needStatus = incidentState;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
@@ -208,7 +208,7 @@ export class HorizonIncidentManager {
 		const horizonIncidentManager = HorizonIncidentManager.getInstance();
 
 		const currentNeed = horizonIncidentManager.getCurrentNeed();
-		const incidentState = horizonIncidentManager.IncidentState;
+		const incidentState = horizonIncidentManager.incidentState;
 
 		/**
 		 * Checkpoint 1:
@@ -220,7 +220,7 @@ export class HorizonIncidentManager {
 
 		const finalStates = [HORIZON_NEED_STATUS.CLOSED, HORIZON_NEED_STATUS.COMPLETED, HORIZON_NEED_STATUS.ASSIGNED, HORIZON_NEED_STATUS.FAILED];
 		if (clientNeed === currentNeed && !finalStates.includes(incidentState)) {
-			horizonIncidentManager.IncidentState = HORIZON_NEED_STATUS.INPROGRESS;
+			horizonIncidentManager.incidentState = HORIZON_NEED_STATUS.INPROGRESS;
 			return true;
 		}
 
@@ -235,7 +235,7 @@ export class HorizonIncidentManager {
 				incidentState === HORIZON_NEED_STATUS.NOT_STARTED)) {
 				
 				horizonIncidentManager.setCurrentNeed(clientNeed);
-				horizonIncidentManager.IncidentState = HORIZON_NEED_STATUS.INPROGRESS;
+				horizonIncidentManager.incidentState = HORIZON_NEED_STATUS.INPROGRESS;
 				return true;
 		}
 

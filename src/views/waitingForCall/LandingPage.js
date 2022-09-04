@@ -1,5 +1,5 @@
 import { css, html } from 'platform/elements';
-import { AUTH_IDENTIFICATION_METHODS } from 'app/constants/common';
+import { AUTH_IDENTIFICATION_METHODS } from 'app/constants/Common';
 import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
@@ -9,12 +9,10 @@ import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
-import { IncidentDetails } from 'app/models/IncidentDetails';
 import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
 import { InitialiseService } from 'app/services/InitialiseService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { RoleManager } from 'app/shell/RoleManager';
-import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase.js';
 
 import 'platform/components/buttons/Button';
@@ -25,7 +23,6 @@ import 'app/components/dialogs/common/ConfirmCallerDetails';
 import 'app/components/dialogs/common/SearchCaller';
 import 'app/components/dialogs/stopCard/StopCardSearchCaller';
 import 'app/components/dialogs/stopCard/AssignStopCard';
-import { HorizonIncidentManager } from '../../shell/HorizonIncidentManager';
 
 /**
  * The Horizon Landing/Startup Page that is presented when starting the Horizon User Interface.

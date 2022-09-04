@@ -82,7 +82,7 @@ export class TaxCertificateFailure extends ViewBase {
 			this.secondaryToast = ``;
 		}
 
-		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
 
 	disconnectedCallback() {
@@ -112,7 +112,7 @@ export class TaxCertificateFailure extends ViewBase {
 		"next-screen": null
 		});
 
-		this.horizonIncidentManager.IncidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
 
 		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.getCurrentIncident().incidentRecId);
 	}
