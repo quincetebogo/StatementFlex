@@ -419,7 +419,7 @@ class PayPremiumDialog extends Component {
 	_renderInsufficientFunds(){
 		return this.displayInsufficientFunds == false ? html`` :
 		html `
-			<capitec-toast class="error" type="error" header="Insufficient Funds" layout="horizontal" data-automation-id="insure-pay-premium-dialog-insufficient-funds"></capitec-toast>
+			<capitec-toast class="error" type="error" header="Insufficient Funds: Payment cannot exceed available balance" layout="horizontal" data-automation-id="insure-pay-premium-dialog-insufficient-funds"></capitec-toast>
 		`
 	}
 
