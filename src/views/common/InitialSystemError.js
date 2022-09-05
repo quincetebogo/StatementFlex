@@ -35,7 +35,7 @@ export class InitialSystemError extends View {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.incidentRecId = this.horizonIncidenManager.getCurrentIncident().incidentRecId();
+		this.incidentRecId = this.horizonIncidenManager.getCurrentIncident().incidentRecId;
 	}
 
 	// --------------

@@ -460,7 +460,7 @@ export class Favourites extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.CARD_LIMITS_LANDING
 		});
 
-		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId();
+		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
 
 		const returnValue = await this.cardService.cardLimitsLanding(this.callerInformation.cifNumber, incidentRecId);
 			

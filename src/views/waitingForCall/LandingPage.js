@@ -45,7 +45,6 @@ export class LandingPage extends ViewBase {
 		this.desktopAgentService = DesktopAgentService.getInstance();
 		this._configuration = Configuration.getInstance();
 		this.telemetry = HorizonTelemetry.getInstance();
-		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 
 		this.initialiseService = new InitialiseService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
