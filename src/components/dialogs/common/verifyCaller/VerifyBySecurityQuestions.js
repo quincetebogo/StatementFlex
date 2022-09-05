@@ -401,7 +401,7 @@ export class VerifyBySecurityQuestions extends Component {
 			case RENDER_MODE.SECURITY_QUESTIONS:
 				return html`
 					<horizon-caller-dialog class="main-container"
-							data-automation-id="verify-by-sq-dialog"					 
+							data-automation-id="verify-by-sq-dialog"
 							.incomingCallDetails="${this.incomingCallDetails}"
 							.incidentDetails="${this.incidentDetails}"
 							.isNeedSelectable=${false} 

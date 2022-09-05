@@ -509,12 +509,11 @@ export class HorizonTelemetry extends Telemetry {
 			return ``;
 		}
 
-		console.log(`Telemetry Item Type: ${typeof item}`);
 
 		if (Utilities.isString(item)) {
 			return String(item.trim());
 		}
-
+		
 		return String(JSON.stringify(item).trim());
 		
 	}

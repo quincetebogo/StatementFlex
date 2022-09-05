@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Logger } from 'platform/core';
 import { CardService } from 'app/services/CardService';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
@@ -74,9 +75,9 @@ export class StopCard extends Component {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.logger = Logger.getInstance();
-		this._telemetry = HorizonTelemetry.instance;
+		this._telemetry = HorizonTelemetry.getInstance();
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 
-		// this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 
@@ -90,8 +91,6 @@ export class StopCard extends Component {
 		// Recover state information
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.isReassigned = this.horizonStore.getIsIncidentReassigned();
 	}
 
 	// ----------
@@ -272,6 +271,10 @@ export class StopCard extends Component {
 
 	_updateLeftBar() {
 		this.horizonStore.setCallerInformation(this.callerInformation);
+	}
+
+	_getIncidentDetails() {
+		return this.horizonIncidentManager.getIncidentDetails();
 	}
 	
 	// ---------
@@ -563,7 +566,7 @@ export class StopCard extends Component {
 					.cifNumber="${this.callerInformation.cifNumber}"
 					client-title="${this.callerInformation.title}"
 					.lastName="${this.callerInformation.lastName}"
-					.incidentDetails="${this.incidentDetails}"
+					.incidentDetails="${this._getIncidentDetails()}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.cardsToStop="${this.cardsToStop}"
 					@on-confirm="${(event) => this._confirmedStoppingCardsClick(event)}"

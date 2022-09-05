@@ -106,7 +106,6 @@ export class Favourites extends SavingsAccountBase {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this.incidentRecId = this.incidentDetails.incidentRecId;
 		this.feedbackOptions = FEEDBACK_OPTIONS;
 		
 
@@ -143,7 +142,6 @@ export class Favourites extends SavingsAccountBase {
 
 			if (actions[option]) {
 				await super._inicidentManager_(option, () => this._toggleBusyFlag());
-				this._refreshIncidentDetails();
 				return actions[option]();
 			}
 
@@ -190,11 +188,8 @@ export class Favourites extends SavingsAccountBase {
 		
 		if (isSuccess) {
 			// Navigate to favourites landing page
-			const incidentDetails = this.horizonStore.getIncidentDetails();
-		
-			incidentDetails.needStatus = super.HORIZON_NEED_STATUS.CLOSED;
-			incidentDetails.feedback = selectedOption.key;
-			this.horizonStore.setIncidentDetails(incidentDetails);
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.CLOSED;
+			this.horizonIncidentManager.setFeedback(selectedOption.key);
 			this._updateNeedToState();
 			this._searchOtherNeedDone();
 		} else {
@@ -225,7 +220,6 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_searchOtherNeedDone() {
-		this._refreshIncidentDetails();
 	
 		if (this.updateStrackClick) {
 			this.postAction._refreshScreen();
@@ -333,8 +327,8 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _getSubCategories(event) {
-		
-		if (this.incidentDetails.incidentRecId === `0`) {
+		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
+		if (incidentRecId === `0`) {
 			await super.createAndClassifySubsIncident();
 		}
 		
@@ -443,7 +437,7 @@ export class Favourites extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.STOP_CARD
 		});
 
-		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.incidentDetails);
+		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.horizonIncidentManager.getIncidentDetails());
 
 		if (returnValue.succeeded) {
 
@@ -466,7 +460,9 @@ export class Favourites extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.CARD_LIMITS_LANDING
 		});
 
-		const returnValue = await this.cardService.cardLimitsLanding(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
+		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
+
+		const returnValue = await this.cardService.cardLimitsLanding(this.callerInformation.cifNumber, incidentRecId);
 			
 		if (returnValue.succeeded) {
 			this.cards = returnValue.result.cards;
@@ -689,15 +685,15 @@ export class Favourites extends SavingsAccountBase {
 	async _unLoadingOtherNeeds() {
 		this._telemetryEndSpan(QuickTransactionEvents.SEARCH_OTHER_NEED, TelemetryScreen.SEARCH_OTHER_NEED);
 
-		const incidentDetails = this.horizonStore.getIncidentDetails() || {};
+		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
 
-		if (isNullorEmpty(incidentDetails.incidentRecId) || incidentDetails.incidentRecId === `0`) {
+		if (isNullorEmpty(incidentRecId) || incidentRecId === `0`) {
 			this.renderMode = RENDER_MODE.MAIN_PAGE;
 			return true;
 		}
 
 		const screenDetails = this.horizonStore.getScreenDetails();
-		const incidentInfo = await this.incidentStatus(this.incidentDetails.incidentRecId) || {};
+		const incidentInfo = await this.incidentStatus(incidentRecId) || {};
 
 		// Determining if its already classified
 		const isClassified = !isNullorEmpty(incidentInfo.category) && !isNullorEmpty(incidentInfo.subCategory) && !isNullorEmpty(incidentInfo.issue);
@@ -739,8 +735,10 @@ export class Favourites extends SavingsAccountBase {
 			"issue-type": event.detail.issue
 		});
 		await this._classifyIncident(event);
+
+		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
 	
-		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
+		this.horizonRouter.navigateToStrack(incidentRecId);
 		this.renderMode = RENDER_MODE.FEEDBACK;
 	}
 

@@ -3,6 +3,7 @@ import { EventAggregator, Logger } from 'platform/core';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { CardService } from 'app/services/CardService';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
@@ -69,6 +70,7 @@ export class ConfirmCallerDetails extends Component {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
 		this.roleManager = RoleManager.getInstance();
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
@@ -209,7 +211,6 @@ export class ConfirmCallerDetails extends Component {
 		// the results of the search
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.confirmedCaller = event.detail.confirmedCaller;
-		this.incidentDetails = event.detail.incidentDetails;
 		this.confirmedCaller.isBranchConsultant = false;
 
 		// TODO: Do we lose the added caller details if we go there first before doing a search???
@@ -225,7 +226,6 @@ export class ConfirmCallerDetails extends Component {
 	_branchCaptured(event) {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.confirmedCaller = event.detail.confirmedCaller;
-		this.incidentDetails = event.detail.incidentDetails;
 		this.callerInformation.isBranchConsultant = true;
 		this.cpNumber = event.detail.cpNumber;
 		this.clientType = event.detail.clientType;
@@ -252,23 +252,22 @@ export class ConfirmCallerDetails extends Component {
 
 	_otherNeedSelected(event) {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
-		this.incidentDetails = event.detail.incidentDetails;
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 	}
 
 	_stopCardNeedSelected(event) {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
-		this.incidentDetails = event.detail.incidentDetails;
 		this.renderMode = RENDER_MODE.STOP_CARD_SEARCH_CALLER;
 	}
 
 	_needChanged(event) {
-		this.confirmedCaller.ivrOptionCode = event.detail.new;
-		this.incomingCallDetails.ivrOption.value = event.detail.new;
-		this.incomingCallDetails.ivrOptionCode = event.detail.new;
+		const ivrOptionCode = event.detail.new;
 
-		this.incidentDetails.currentNeed = this.incomingCallDetails.ivrOptionCode;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.confirmedCaller.ivrOptionCode = ivrOptionCode;
+		this.incomingCallDetails.ivrOption.value = ivrOptionCode;
+		this.incomingCallDetails.ivrOptionCode = ivrOptionCode;
+
+		this.horizonIncidentManager.setCurrentNeed(ivrOptionCode);
 	}
 
 	_searchClick() {
@@ -381,7 +380,7 @@ export class ConfirmCallerDetails extends Component {
 
 		if (this.incomingCallDetails.ivrOption.value === `StopCard`) {
 			
-			const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.incidentDetails);
+			const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.horizonIncidentManager.getIncidentDetails());
 
 			if (!returnValue.succeeded) {
 				// The error handler will take over. We don't need to do anything more in this routine
@@ -428,7 +427,6 @@ export class ConfirmCallerDetails extends Component {
 		}
 		
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
 		this.horizonStore.setCallerInformation(this.callerInformation);
 
 		return flagsSet;
@@ -489,8 +487,9 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	async _updateClientNonClientDetails() {
+		const currentIncident = this.horizonIncidentManager.getCurrentIncident();
 
-		if (!this.incidentDetails.incidentRecId || this.incidentDetails.incidentRecId === `0`) {
+		if (!currentIncident.incidentRecId || currentIncident.incidentRecId === `0`) {
 			this.logger.log(`error`, `There is no incident available against which to record the client/ non-client details`, `_updateClientNonClientDetails`);
 			return;
 		}

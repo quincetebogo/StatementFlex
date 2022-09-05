@@ -3,6 +3,7 @@ import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Logger } from 'platform/core';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { AccessChannelsEvents } from 'app/constants/telemetry/events/AccessChannels';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -39,6 +40,7 @@ export class AccessChannels extends Component {
 		this.landingInfo = {};
 
 		this.horizonStore = HorizonStore.getInstance();
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 		this.logger = Logger.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 
@@ -534,10 +536,8 @@ export class AccessChannels extends Component {
 		this.landingInfo = Utilities.deepCopy(this.landingInfo);
 	}
 
-	_updateIncidentState(status) {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = status;
-		this.horizonStore.setIncidentDetails(incidentDetails);
+	_updateIncidentState(state) {
+		this.horizonIncidentManager.incidentState = state;
 	}
 
 	// ---------

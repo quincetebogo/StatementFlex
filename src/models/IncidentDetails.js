@@ -18,6 +18,7 @@
 	 * @param {string} [previousNeed = ``] Previous need [Stopcard/ Debicheck/ Statements etc..], when switching to subsequent need
 	 * @param {status} [needStatus = `InProgress`] Status of need *Internal purpose* [InProgress/ Completed/ Assigned]
 	 * @param {string} [feedback = ``] Feedback of incident (need fulfilled/ assigned/ handed-off)
+	 * @param {boolean} [isReassigned = false] A flag indicating if the incident has been re-assigned
 	 * @memberof IncidentDetails
 	 */
 
@@ -29,7 +30,8 @@
 		currentNeed = ``,
 		previousNeed = ``,
 		needStatus = `Not Started`,
-		feedback = ``
+		feedback = ``,
+		isReassigned = false
 	) {
 		this.incidentReferenceNumber = incidentReferenceNumber;
 		this.incidentRecId = incidentRecId;
@@ -39,5 +41,6 @@
 		this.previousNeed = previousNeed;
 		this.needStatus = needStatus;
 		this.feedback = feedback;
+		this.isReassigned = isReassigned;
 	}
 };
