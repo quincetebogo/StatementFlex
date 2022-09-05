@@ -28,17 +28,6 @@ import 'app/components/common/RelatedOptions';
 	// PROPERTIES
 	// --------------
 
-	/**
-	 * Registry of all properties defined by the component.
-	 * 
-	 * @readonly
-	 * @static
-	 * @memberof SendCashFailure
-	 */
-	 static get properties() {
-		return {};
-	}
-
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------

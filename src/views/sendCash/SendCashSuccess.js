@@ -33,18 +33,6 @@ import 'app/components/common/SuccessScreen';
 	// PROPERTIES
 	// --------------
 
-	/**
-	 * @property {String} selectedReason The value selected as the reason for placing the voucher on hold.
-	 * @readonly
-	 * @static
-	 * @memberof SendCashSuccess
-	 */
-	 static get properties() {
-		return {
-			selectedReason: { type: String }
-		};
-	}
-
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
