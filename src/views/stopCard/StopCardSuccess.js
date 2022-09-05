@@ -74,7 +74,7 @@ export class StopCardSuccess extends ViewBase {
 	}
 
 	_updateIncidentState() {
-		this.horizonIncidentManager.setIncidentDetails(super.HORIZON_NEED_STATUS.COMPLETED);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}  
 
 	_doneClick() {
