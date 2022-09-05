@@ -334,6 +334,7 @@ class UpdatePlan extends Component {
 				}
 			});
 		}
+		this.requestUpdate()
 	}
 
 	/**
@@ -364,6 +365,7 @@ class UpdatePlan extends Component {
 				}
 			});
 		}
+		this.requestUpdate()
 	}
 
 
@@ -380,6 +382,7 @@ class UpdatePlan extends Component {
 				}
 			});
 		}
+		this.requestUpdate()
 	}
 
 	/**
@@ -908,6 +911,18 @@ class UpdatePlan extends Component {
 		return false
 	}
 
+	_lifeDobValueChange(e, recordID){
+		
+		if (e.detail.old != e.detail.new) {
+			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
+				if (rolePlayer.recordID === recordID) {
+					this.policyDetails.roleplayers[index].dateOfBirth = e.detail.new.date;
+				}
+			});
+		}
+		this.requestUpdate();
+	}
+
 	//#endregion
 
 	//#region RENDERING
@@ -1405,7 +1420,7 @@ class UpdatePlan extends Component {
 									</horizon-label>
 									<div class="vertical-line"></div>
 									<horizon-label data-automation-id="insure-policy-start-date"
-										label="Cover Amount (Min R5 000 - Max 100 000)"
+										label="Cover Amount (Min R5 000 - Max R100 000)"
 										value="${formatCurrency(this.policyDetails.roleplayers[0].coverAmount)}">
 									</horizon-label>
 								</capitec-group>
@@ -1446,8 +1461,8 @@ class UpdatePlan extends Component {
 												textOverflow="ellipsis" value="${beneficiary.firstName} ${beneficiary.surname}">
 											</horizon-label>
 											<div class="vertical-line"></div>
-											<horizon-label label="Cover Amount (Min R5 000 - Max 100 000)"
-												value="${formatCurrency(beneficiary?.coverAmount)}">
+											<horizon-label label="Payout Amount (Max ${formatCurrency(this.policyDetails.roleplayers[0].coverAmount, 0)})"
+												value="${formatCurrency(beneficiary?.benefitPayout)}">
 											</horizon-label>
 										</capitec-group>
 										<div slot="content">
@@ -1783,6 +1798,7 @@ class UpdatePlan extends Component {
 				html`<capitec-date-time-picker label="Date of Birth" type="single" mode="date" inputType="input"
 					date="${roleplayer.dateOfBirth}" outputType="string" maxdate="${this.today}"
 					value=${formatDate(roleplayer.dateOfBirth)} style="width: 50%"
+					@value-changed="${(e) => this._lifeDobValueChange(e, roleplayer.recordID)}"
 					?disabled="${this.canReinstate}">
 				</capitec-date-time-picker>`
 			}
@@ -1805,7 +1821,7 @@ class UpdatePlan extends Component {
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editContactDetails", roleplayer.relationship)}"
 				@value-changed= "${(e) => this._lifeEmailValueChanged(e, roleplayer.recordID)}">
 			</capitec-text-field>
-			<capitec-text-field label="Cellphone number" style="width: 50%" 
+			<capitec-text-field label="Cellphone number" style="width: 50%" type="numeric" maxlength="10"
 				value=${isNullorEmpty(roleplayer.contactDetails?.cellphone) ? `` : roleplayer.contactDetails?.cellphone} 
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange("editContactDetails", roleplayer.relationship)}"
 				@value-changed= "${(e) => this._lifeCellphoneValueChanged(e, roleplayer.recordID)}">
