@@ -342,6 +342,7 @@ export class CreditAccount extends ViewBase {
 
 		this._formatFromAccounts(returnValue.result.fromAccounts);
 		this.payBudgetAccountDetails = selectedAccountDetails;
+		this.payBudgetAccountDetails.settlementAmount = parseFloat(this.payBudgetAccountDetails.settlementAmount).toFixed(2);
 		this.payBudgetfromAccounts = returnValue.result.fromAccounts;
 
 		this.showPayBudgetDialog = !this.showPayBudgetDialog;
