@@ -74,7 +74,6 @@ export class ExistingClient extends InsureViewBase {
 		this.reinstatePaymentAgreementDocument = {};
 		this.updatePlanAgreementDocument = {};
 		this.updatePaymentAgreementDocument = {};
-		this.showSuccessAlert = false;
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 
 		this.readOnly = false;
@@ -91,7 +90,6 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {String} callerPage from which success page is invoked.
 	 * @property {String} issuePlanAgreementDocument stores issue plan agreement document object.
 	 * @property {String} reinstatePaymentAgreementDocument stores payment agreement document object.
-	 * @property {String} showSuccessAlert flag to show/hide success toast after email is sent.
 	 * @property {Object} policySummary  Local object for new Quote requests
 	 * @property {String} cancellationReason conatins the cancellation reason selected
 	 * @property {Object} cancelPolicyDocumentDetails contains the cancel policy document details
@@ -114,7 +112,6 @@ export class ExistingClient extends InsureViewBase {
 			reinstatePaymentAgreementDocument: { type: Object, state: true },
 			updatePlanAgreementDocument: { type: Object, state: true },
 			updatePaymentAgreementDocument: { type: Object, state: true },
-			showSuccessAlert: {type: Boolean, state: true},
 			cancellationReason: {type: String, state: true},
 			cancelPolicyDocumentDetails: {type: Object, state: true},
 			accountDetails: { type: Object, state: true },		
@@ -361,7 +358,8 @@ export class ExistingClient extends InsureViewBase {
 	async _goToUpdatePlan(e) {
 		if (e.detail.canReinstate) {
 			this.policyDetails = await this._reinstateQuoteCalc(e.detail.policyContractReference, this.callerInformation.cifNumber);
-			this.policyDetails.canReinstate = true;
+			if(this.policyDetails != null)
+					this.policyDetails.canReinstate = true;
 		}
 		else
 			this.policyDetails = await this._retrievePolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
@@ -460,6 +458,35 @@ export class ExistingClient extends InsureViewBase {
 		} else {
 			return null;
 		}
+	}
+
+	/**
+	 * Print estimate based on lives assured provided
+	 * Map metadata (coverDetails) back when response is received
+	 * @returns {Object} Estimate response
+	 */
+	async _printEstimate(e) {
+		await this._calculateClientEstimate(e);
+
+		let clientDetails = {
+			"cifNumber": this.callerInformation.cifNumber,
+			"policyContractReference": this.contractReference,
+			"firstName": this.callerInformation.firstName,
+			"surname": this.callerInformation.surname,
+			"idNumber": this.callerInformation.southAfricanIDNumber,
+			"dateOfBirth": this.callerInformation.birthdate
+		}
+
+		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
+
+		GENERATE_DOCUMENT_REQUEST_PAYLOAD.input = this.estimate
+
+		const result = await this.insureService.generateEstimatePrintout(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
+
+		if(!result.succeeded)
+			return;
+
+		return result;
 	}
 
 	/**
@@ -955,6 +982,8 @@ export class ExistingClient extends InsureViewBase {
 			this.callerPage = INSURE_CALLER_PAGE.CANCEL_POLICY;
 		else if (e.detail.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM)
 			this.callerPage = INSURE_CALLER_PAGE.PAY_PREMIUM;
+		else if (e.detail.callerPage === INSURE_CALLER_PAGE.ESTIMATE)
+			this.callerPage = INSURE_CALLER_PAGE.ESTIMATE;
 
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.email = e.detail.emailId.detail.emailAddress;
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.cIFNumber = this.callerInformation.cifNumber;
@@ -967,11 +996,12 @@ export class ExistingClient extends InsureViewBase {
 		if (!emailResponse.succeeded)
 			return;
 		else {
-			this.showSuccessAlert = true;
-			window.setTimeout(() => this.showSuccessAlert = false, 2000);
+			window.showToastTimed(`success`, `top`, `Success`, `Email document was sent`, 3000, true);
 
 			if(this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY || this.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM)
 				this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
+			else if(this.callerPage === INSURE_CALLER_PAGE.ESTIMATE)
+				this._navigateToSubView(INSURE_RENDER_MODE.ESTIMATE);
 			else
 				this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES);
 		}
@@ -1106,8 +1136,7 @@ export class ExistingClient extends InsureViewBase {
 	_renderLandingPage() {
 		switch (this.renderMode) {
 			case INSURE_RENDER_MODE.CLIENT_POLICIES:
-				return html`${this._renderAlert()}
-${this._renderClientPoliciesPage()}`
+				return html`${this._renderClientPoliciesPage()}`
 			case INSURE_RENDER_MODE.ESTIMATE:
 				return html`${this._renderCalculateEstimatePage()}`
 			case INSURE_RENDER_MODE.UPDATE_PLAN:
@@ -1167,8 +1196,9 @@ ${this._renderClientPoliciesPage()}`
 		return html`
 			<horizon-insure-policy-estimate @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@calculate="${(e) => this._calculateClientEstimate(e)}" .estimate="${this.estimate}"
+				.printEstimate="${(e) => this._printEstimate(e)}" @send-email = "${(e) => this._sendEmail(e)}"
 				.productParams="${this.productParams}" .mainLifeDefaultAge="${this._getMainLifeAge()}"
-				.mainLifeDefaultGender="${this._getMainLifeGender()}"
+				.mainLifeDefaultGender="${this._getMainLifeGender()}" @print-estimate ="${(e) => this._printClientEstimate(e)}"
 				.maxAllowedCover="${this.clientPolicies.checkInsuranceDetails[0].maxAllowedCover}">
 			</horizon-insure-policy-estimate>`
 	}

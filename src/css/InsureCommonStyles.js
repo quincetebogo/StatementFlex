@@ -16,6 +16,14 @@ export const INSURE_CSS = css`
 		width: 100px !important;
 	}
 
+	.capitec-button-large {
+		width: 175px !important;
+	}
+
+	.capitec-button-x-large {
+		width: 200px !important;
+	}
+
 	.toast {
 		position: absolute;
 		top : 70px;

@@ -201,7 +201,7 @@ export const Status = {
 	'Cancelled': 3,
 	'Lapsed': 4,
 	'Death Out of Force': 5,
-	'Not Taken Up': 6
+	'NotTakenUp': 6
 };
 
 /**
@@ -214,7 +214,8 @@ export const INSURE_CALLER_PAGE = Object.freeze({
 	CANCEL_POLICY: 1,
 	UPDATE_PLAN: 2,
 	REINSTATE_POLICY: 3,
-	PAY_PREMIUM: 4
+	PAY_PREMIUM: 4,
+	ESTIMATE: 5
 });
 
 /**
@@ -230,3 +231,11 @@ export const INSURE_CALLER_PAGE = Object.freeze({
 	PAYMENT_MANDATE_AGREEMENT: `PaymentMandateAgreement`,
 	PAY_ARREARS_AGREEMENT: `PayArrearsAgreement`
 });
+
+/**
+ * Product Id
+ * 
+ * @readonly
+ * @enum {Object} PRODUCT_ID
+ */
+ export const PRODUCT_ID = "SBL";

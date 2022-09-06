@@ -125,7 +125,7 @@ class PolicySummary extends Component {
 				border-top: 1px solid #E1E1E1;
 			}
 			horizon-label {
-				width: 150px;
+				width: 140px;
 				padding-left: 16px;
 				--theme-layout-gap-spacing: 0px;
 				--horizon-label-text-height: 20px;
@@ -149,9 +149,6 @@ class PolicySummary extends Component {
 			}
 			.column-width-200 {
 				width: 200px;
-			}
-			.column-width-100 {
-				width: 100px;
 			}
 			.expander-header > horizon-label[label="Status"] {
 				text-overflow: ellipsis;
@@ -194,6 +191,9 @@ class PolicySummary extends Component {
 				--horizon-option-btn-text-margin-top: 3px;
 				--horizon-option-btn-icon-height: 26px;
 				--horizon-option-btn-icon-width: 26px;
+			}
+			.options-group.first-row{
+				margin-top: 25px;
 			}
 			horizon-expander {
 				margin-bottom: 16px;
@@ -308,14 +308,14 @@ class PolicySummary extends Component {
 					<horizon-label
 						data-automation-id="insure-main-life-arrears"
 						label="Arrears"
-						class="${ sumArrears > 0 ? `arrears column-width-200` : ``}"
+						class="${ sumArrears > 0 ? `arrears` : ``}"
 						value="${ isNullorEmpty(sumArrears) ? formatCurrency(0) : formatCurrency(sumArrears)}">
 					</horizon-label>
 					<horizon-label
 						data-automation-id="insure-main-life-display-status"
 						label="Status"
 						value="${this.policyDetails?.displayStatus}"
-						class="column-width-100 ${this.policyDetails?.status === `Active` ? `active-status` : `inactive-status` }">
+						class="column-width-200 ${this.policyDetails?.status === `Active` ? `active-status` : `inactive-status` }">
 					</horizon-label>
 				</capitec-group>
 				<div slot="content">
@@ -341,51 +341,37 @@ class PolicySummary extends Component {
 
 		return html`
 			<capitec-title-bar type="default" label="Additional Information" class="inner-details-title"></capitec-title-bar>
-			<capitec-group class="options-group" layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label style="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-					label="Amount of last premium payment"
+			<capitec-group class="options-group first-row" layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label label="Amount of last premium payment"
 					value="${isNullorEmpty(paymentSchedule?.previousPaymentAmount) ? formatCurrency(0) : formatCurrency(paymentSchedule?.previousPaymentAmount)}"
 					data-automation-id="policy-summary-last-premium-payment">
 				</horizon-label>
-				<horizon-label
-					style="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-					label="Date of last premium payment"
+				<horizon-label label="Date of last premium payment"
 					value="${formatDate(paymentSchedule?.previousPaymentDate, `dd mmm yyyy`) === '' ? '-' : formatDate(paymentSchedule?.previousPaymentDate, `dd mmm yyyy`)}"
 					data-automation-id="policy-summary-last-premium-date">
 				</horizon-label>
-				<horizon-label
-					style="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-					label="Next debit order amount"
+				<horizon-label label="Next debit order amount"
 					value="${isNullorEmpty(paymentSchedule?.nextPaymentAmount) ? formatCurrency(0) : formatCurrency(paymentSchedule?.nextPaymentAmount)}"
 					data-automation-id="policy-summary-next-debit-amount">
 				</horizon-label>
-				<horizon-label
-					style="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-					label="Date of next premium"
+				<horizon-label label="Date of next premium"
 					value="${formatDate(paymentSchedule?.nextPaymentDate, `dd mmm yyyy`) === '' ? '-' : formatDate(paymentSchedule?.nextPaymentDate, `dd mmm yyyy`)}"
 					data-automation-id="policy-summary-next-premium">
 				</horizon-label>
 			</capitec-group>
 			<capitec-group class="options-group" layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label style="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-					label="Amount of last arrears payment"
+				<horizon-label label="Amount of last arrears payment"
 					value="${isNullorEmpty(paymentSchedule?.previousArrearsPaymentAmount) ? formatCurrency(0) : formatCurrency(paymentSchedule?.previousArrearsPaymentAmount)}"
 					data-automation-id="policy-summary-last-arrears-payment-amount">
 				</horizon-label>
-				<horizon-label
-					style="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-					label="Date of last arrears payment"
+				<horizon-label label="Date of last arrears payment"
 					value="${formatDate(paymentSchedule?.previousArrearsPaymentDate, `dd mmm yyyy`) === '' ? '-' : formatDate(paymentSchedule?.previousArrearsPaymentDate, `dd mmm yyyy`)}"
 					data-automation-id="policy-summary-last-arrears-payment-date">
 				</horizon-label>
-				<horizon-label
-					style="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-					label="Months outstanding" value="${isNullorEmpty(csvOfMonths) ? `None` : csvOfMonths}"
+				<horizon-label label="Months outstanding" value="${isNullorEmpty(csvOfMonths) ? `None` : csvOfMonths}"
 					data-automation-id="policy-summary-months-outstanding">
 				</horizon-label>
-				<horizon-label
-					style="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-					label="Mandate Status"
+				<horizon-label label="Mandate Status"
 					value="${!isNullorEmpty(activeMandateDetails) && !isNullorEmpty(activeMandateDetails[0]?.mandateStatus) ? activeMandateDetails[0]?.mandateStatus : `N/A`}"
 					data-automation-id="policy-summary-mandate-status">
 				</horizon-label>

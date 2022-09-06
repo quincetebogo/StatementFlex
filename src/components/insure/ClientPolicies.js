@@ -54,6 +54,7 @@ class ClientPolicies extends Component {
 		this.amountToPay = 0;
 
 		this.clientPolicies = null;
+		this.showSubMenu = true;
 	}
 
 	//#endregion INITIALISATION
@@ -72,6 +73,7 @@ class ClientPolicies extends Component {
 	 * @property {Object} accountDetails contains the clients Savings Account and Savings Plan details
 	 * @property {Function} getArrearsPaymentDocument Callback function to fetch arrears payment document
 	 * @property {Object} arrearsPaymentDocumentDetails Callback function to fetch arrears payment document
+	 * @property {boolean} showSubMenu Determines if the sub menu to be shown or not
 	 * 
 	 * @readonly
 	 * @static
@@ -101,6 +103,7 @@ class ClientPolicies extends Component {
 			policyDetails: { type: Object, state: true },
 
 			readOnlyMode: {type: Boolean, state: true},
+			showSubMenu: {type: Boolean, state: true},
 		};
 	}
 
@@ -342,11 +345,23 @@ class ClientPolicies extends Component {
 	 */
 	_expanded(policyItem)
 	{
+		const isExpanded = this.policiesList?.some(x => x.contractReference != policyItem.contractReference 
+			&& x.isExpanded === true);
+
 		policyItem.isExpanded = true;
 
 		this.policiesList?.forEach(item => { if (item.contractReference != policyItem.contractReference ) item["isExpanded"] = false ;})
 
 		this.requestUpdate();
+
+		const parentElement = this.shadowRoot.getElementById(`client-policies-box`);
+
+		const childElement = this.shadowRoot.getElementById(`horizon-expander-`+ policyItem.contractReference);
+
+		if(isExpanded)
+			parentElement.scrollTop = childElement.offsetTop - 445;
+		else
+			parentElement.scrollTop = childElement.offsetTop - 380;
 	}
 
 	/**
@@ -452,7 +467,7 @@ class ClientPolicies extends Component {
 				width: auto;
 			}
 			.options-group > horizon-option-button {
-				width: 186px;
+				width: 184px;
 				height: 80px;
 				margin-left: 16px;
 				padding: 0px;
@@ -605,11 +620,11 @@ class ClientPolicies extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-button type="white"  label="Lodge Claim" data-automation-id="insure-landing-lodge-claim"
+					<capitec-button type="white" class="capitec-button-medium"  label="Lodge Claim" data-automation-id="insure-landing-lodge-claim"
 						@click="${() => this._openLodgeClaimInfoDialog()}">
 					</capitec-button>
 					${this.readOnlyMode == true ? html`` : html `
-					<capitec-button type="white" label="Get Estimate" data-automation-id="insure-landing-get-estimate"
+					<capitec-button type="white" class="capitec-button-medium" label="Get Estimate" data-automation-id="insure-landing-get-estimate"
 						@click="${() => this._goToEstimate()}"></capitec-button>
 					`}
 					
@@ -633,7 +648,7 @@ class ClientPolicies extends Component {
 					<capitec-content-box class="header-label">
 						<capitec-label label="Funeral Plan" class="strong-label"></capitec-label>
 					</capitec-content-box>	
-					<capitec-content-box  class="accounts-box">
+					<capitec-content-box  id="client-policies-box" class="accounts-box">
 							${this._renderPoliciesDetailsBar()}
 					</capitec-content-box>
 					${this._renderFooter()}
@@ -669,6 +684,7 @@ class ClientPolicies extends Component {
 			return html`
 		<horizon-expander
 			expandButtonAlignment="right"
+			id="horizon-expander-${policyItem.contractReference}"
 			?expanded = "${policyItem.isExpanded}" 
 			@expand = "${() => this._expanded(policyItem)}"
 			@collapse = "${() => this._collapsed(policyItem)}">
@@ -730,11 +746,49 @@ class ClientPolicies extends Component {
 	}
 
 	/**
+	 * Determine to show sub menu or not
+	 * @param {object} policyItem - each policy item 
+	 */
+	_showSubMenu(policyItem)
+	{
+		policyItem.showSubMenu = false;
+
+		let count = 0;
+
+		if(policyItem.canReinstate){
+			count += 2;
+		}
+		else
+		{
+			if(policyItem.arrearDetails?.outstandingAmount > 0) 
+				count += 1;
+
+			if(policyItem.status == 'Active')
+				count += 1;
+			
+			count += 2;
+
+			if(policyItem.arrearDetails?.outstandingAmount < 1)
+				count += 1;
+		}
+
+		if(policyItem.status != 'Cancelled' && policyItem.status != 'Lapsed')
+			count += 2;
+		else
+			count += 1;
+
+		if(count > 5)
+			policyItem.showSubMenu = true;
+	}
+
+	/**
 	 * Render Policy options
 	 * @param {Object} policyItem - each policy item
 	 * @returns {html} The html content of the each Policy options
 	 */
 	_renderOptions(policyItem) {
+		this._showSubMenu(policyItem);
+
 		return html`
 			<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
 			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
@@ -799,10 +853,32 @@ class ClientPolicies extends Component {
 						label="Benefits" 
 						icon="system/sars-action"
 						.disabled="${this.readOnlyMode}">
-					</horizon-option-button>
-				` : ``}	
+					</horizon-option-button>` 
+					: ``}	
+					${ policyItem.showSubMenu ? `` : html `
+						<horizon-option-button 
+							data-automation-id="insure-policy-options-transaction-history"
+							class="button-margin" 
+							@click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"
+							label="Transaction History" 
+							icon="system/transfer-action"
+							.disabled="${this.readOnlyMode}">
+						</horizon-option-button>
+						${policyItem.status != 'Cancelled' && policyItem.status != 'Lapsed' && policyItem.status != 'NotTakenUp' ? 
+							html `
+							<horizon-option-button 
+								data-automation-id="insure-policy-options-cancel-plan"
+								class="button-margin" 
+								@click="${() => this._openCancelPolicyDialog(policyItem.contractReference)}"
+								label="Cancel Plan" 
+								icon="system/delete-action"
+								.disabled="${this.readOnlyMode}">
+							</horizon-option-button>` 
+							: ``
+						}
+					` }
 				`}
-				${this._renderSubMenu(policyItem)}
+				${ policyItem.showSubMenu ? this._renderSubMenu(policyItem) : ``}
 			</capitec-group>
 		`;
 	}

@@ -1,3 +1,4 @@
+import { PRODUCT_ID } from 'app/constants/InsureCommon';
 
 /**
  * Calculate cover details metadata for ui controls based on relationship & Insure product params
@@ -15,7 +16,7 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 	if (isExtendedFamily == true) relationship = 'ExtendedFamily';
 
 	let product = productParams.products.find(product => {
-		return product.parameters.id === "SBL"
+		return product.parameters.id === PRODUCT_ID;
 	});
 	let currentRole = product.parameters.rolePlayers.roleList.role.find(role => {
 		return role.relationshipTypeEnum == relationship
@@ -245,7 +246,7 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
  */
 export function livesPerPolicy(relationship, productParams) {
 	let product = productParams.products.find(product => {
-		return product.parameters.id === `SBL`
+		return product.parameters.id === PRODUCT_ID;
 	});
 	let currentRole = product.parameters.rolePlayers.roleList.role.find(role => {
 		return role.relationshipTypeEnum == relationship
@@ -294,7 +295,7 @@ export function checkPolicyRules(ruleType, productParams, field, relationship) {
 	if (relationship == "Unknown" || relationship == "MainLife" || relationship == "Spouse" || relationship == "Parent" || relationship == "Child"){
 		
 		let product = productParams.products.find(product => {
-			return product.parameters.id === `SBL`
+			return product.parameters.id === PRODUCT_ID;
 		});
 		
 		let currentRuleType = product.parameters.rulesParams.find(rule => {
@@ -310,7 +311,7 @@ export function checkPolicyRules(ruleType, productParams, field, relationship) {
 	} else { 
 
 		let product = productParams.products.find(product => {
-			return product.parameters.id === `SBL`
+			return product.parameters.id === PRODUCT_ID;
 		});
 		
 		let currentRuleType = product.parameters.rulesParams.find(rule => {

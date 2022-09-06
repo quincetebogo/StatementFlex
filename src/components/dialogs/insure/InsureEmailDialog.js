@@ -22,7 +22,6 @@ class InsureEmailDialog extends Component {
 		this.email = ``;
 		this.confirmEmail = ``;
 		this.alertBannerMessage = ``;
-		this.contractReference = ``;
 		this.titleMessage = ``;
 	}
 
@@ -32,7 +31,6 @@ class InsureEmailDialog extends Component {
 	 * @property {String} email - email address to be sent.
 	 * @property {String} confirmEmail - confirm email address.
 	 * @property {String} alertBannerMessage error message when required fields are not provided.
-	 * @property {String} contractReference.
 	 * @property {String} titleMessage - title fo send email popup.
 	 * @static
 	 */
@@ -41,7 +39,6 @@ class InsureEmailDialog extends Component {
 			email: { type: String, state: true },
 			confirmEmail: { type: String, state: true },
 			alertBannerMessage: { type: String },
-			contractReference: { type: String },
 			titleMessage: { type: String }
 		};
 	}
