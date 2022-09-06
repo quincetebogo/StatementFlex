@@ -8,6 +8,7 @@ import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTran
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
+import { SendCashService } from 'app/services/SendCashService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { capitalizeString } from 'app/utils/channelServiceUtilities';
@@ -60,7 +61,7 @@ export class SavingsAccountBase extends ViewBase {
 		this.navigationContext = NavigationContext.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 
-		
+		this.sendCashService = new SendCashService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));

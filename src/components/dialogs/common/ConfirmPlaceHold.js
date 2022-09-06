@@ -2,11 +2,11 @@ import { Component, css, html } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 const HOLD_REASON = [
-	{ key: "1", value: "Smishing (Mobile USSD/App Banking Fraud)" },
-	{ key: "2", value: "Unauthorised transaction (Lost Device, Stolen, Robbed)" },
-	{ key: "3", value: "SendCash Friendly fraud (Civil Matter)" },
-	{ key: "4", value: "Client Request (Civil Matter)" },
-	{ key: "5", value: "Phising/Vishing sms/Call" }
+	{ key: `1`, value: `Smishing (Mobile USSD/App Banking Fraud)` },
+	{ key: `2`, value: `Unauthorised transaction (Lost Device, Stolen, Robbed)` },
+	{ key: `3`, value: `SendCash Friendly fraud (Civil Matter)` },
+	{ key: `4`, value: `Client Request (Civil Matter)` },
+	{ key: `5`, value: `Phising/Vishing sms/Call` }
 ];
 
 export class ConfirmPlaceHold extends Component {
@@ -67,6 +67,7 @@ export class ConfirmPlaceHold extends Component {
 
 		this.dispatchEvent(new CustomEvent(`on-confirm`, { 
 			detail: {
+				voucherDetails: this.voucherDetails,
 				selectedReason: this.selectedReason
 			}
 		}));

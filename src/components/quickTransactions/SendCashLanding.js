@@ -56,8 +56,7 @@ export class SendCashLanding extends Component {
 		this.endDate = ``;
 
 		this.showConfirmPlaceHoldModal = false;
-		this.sendCashDetails = [];
-		this.filteredSendCashDetails = [];
+		this.filteredSendCashVouchers = [];
 
 		this.searchTextLabel = DEFAULTS.SEARCH_TEXT_LABEL;
 	}
@@ -68,8 +67,7 @@ export class SendCashLanding extends Component {
 
 	static get properties() {
 		return {
-			sendCashDetails: { state: true },
-			filteredSendCashDetails: { state: true },
+			filteredSendCashVouchers: { state: true },
 			startDate: { type: String, state: true },
 			endDate: { type: String, state: true },
 			searchTextLabel: { state: true },
@@ -84,8 +82,7 @@ export class SendCashLanding extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.sendCashDetails = SendCashLandingMocks.sendCashSummaryList;
-		this.filteredSendCashDetails = this.sendCashDetails;
+		this.filteredSendCashVouchers = this.sendCashVouchers;
 
 		RENDER_CHIPS[FILTER_BY.TEXT] = ``;
 		RENDER_CHIPS[FILTER_BY.DATE] = ``;
@@ -199,7 +196,7 @@ export class SendCashLanding extends Component {
 
 	_refineSearch() {
 		// Assigning the raw data before performing the filter
-		this.filteredSendCashDetails = this.sendCashDetails;
+		this.filteredSendCashVouchers = this.sendCashVouchers;
 
 		// Filtering while search on the text bar.
 		if (RENDER_CHIPS[FILTER_BY.TEXT]) {
@@ -207,13 +204,13 @@ export class SendCashLanding extends Component {
 
 			const searchTextResult = searchText.map(key => {
 				if (key !== ``) {
-					return this.filteredSendCashDetails.filter(item => item.voucherNumber.toString().includes(key) ||
-																	   item.amountSent.toString().startsWith(key) ||
-																	   item.fromAccount.toString().startsWith(key));
+					return this.filteredSendCashVouchers.filter(item => item.voucherNumber.toString().includes(key) ||
+																		item.amount.toString().startsWith(key) ||
+																		item.sourceAccount.toString().startsWith(key));
 				}
 				return [];
 			});
-			this.filteredSendCashDetails = Array.from(new Set([...searchTextResult.flat()]));
+			this.filteredSendCashVouchers = Array.from(new Set([...searchTextResult.flat()]));
 		}
 
 		// Filtering by date.
@@ -221,7 +218,7 @@ export class SendCashLanding extends Component {
 			const startDate = new Date(Date.parse(this.startDate));
 			const endDate = new Date(Date.parse(this.endDate));
 
-			this.filteredSendCashDetails = this.filteredSendCashDetails.filter(item => {
+			this.filteredSendCashVouchers = this.filteredSendCashVouchers.filter(item => {
 				const date = new Date(Date.parse(item.dateCreated)); 
 				return date >= startDate && date <= endDate; 
 			});
@@ -232,9 +229,9 @@ export class SendCashLanding extends Component {
 			const status = RENDER_CHIPS[FILTER_BY.STATUS];
 
 			if (status === `All`) {
-				return this.filteredSendCashDetails;
+				return this.filteredSendCashVouchers;
 			}
-			this.filteredSendCashDetails = this.filteredSendCashDetails.filter(item => item.status === status);
+			this.filteredSendCashVouchers = this.filteredSendCashVouchers.filter(item => item.voucherStatus === status);
 		}
 
 		this.requestUpdate();
@@ -293,8 +290,8 @@ export class SendCashLanding extends Component {
 		this._refineSearch();
 	}
 
-	_onPlaceHoldClick() {
-		this.dispatchEvent(new CustomEvent(`on-place-hold`, {}));
+	_onPlaceHoldClick(item) {
+		this.dispatchEvent(new CustomEvent(`on-place-hold`, { detail: item.voucherNumber }));
 	}
 
 	// --------------
@@ -439,11 +436,12 @@ export class SendCashLanding extends Component {
 					padding-top: 20px;
 					padding-bottom: 30px;
 				}
-				capitec-group[layout="grid"] > capitec-label {
-					width: 150px;
-					height: 25px;
-				}
 				.headerRow {
+					width: 150px;
+					--theme-label-default-font-weight: 600;
+				}
+				.actionRow {
+					width: 130px;
 					--theme-label-default-font-weight: 600;
 				}
 				.footer {
@@ -460,6 +458,10 @@ export class SendCashLanding extends Component {
 					--theme-button-padding-right: 24px;
 					--theme-button-padding-bottom: 14px;
 					--theme-button-padding-left: 24px;
+				}
+				capitec-label[label="Payout from merchant"] {
+					padding-left: 16px;
+					--theme-label-default-font-weight: 600;
 				}
 			`
 		];
@@ -601,13 +603,13 @@ export class SendCashLanding extends Component {
 	}
 
 	_renderVouchers() {
-		return this.filteredSendCashDetails.length > 0 
+		return this.filteredSendCashVouchers.length > 0 
 			? this._renderVoucherDetails()
 			: this._renderNoResults();
 	}
 
 	_renderVoucherDetails() {
-		return this.filteredSendCashDetails.map((item) => html`
+		return this.filteredSendCashVouchers.map((item) => html`
 			<horizon-expander expandButtonAlignment="right">
 					<capitec-group
 						slot="custom-header"
@@ -618,7 +620,7 @@ export class SendCashLanding extends Component {
 							<horizon-label
 								class="date-created-label"
 								label="Date Created"
-								value="${item.dateCreated}">
+								value="${item.datetimeCreated}">
 							</horizon-label>
 							<horizon-label
 								class="voucher-number-label"
@@ -628,22 +630,22 @@ export class SendCashLanding extends Component {
 							<horizon-label
 								class="amount-sent-label"
 								label="Amount Sent"
-								value="${formatCurrency(item.amountSent)}">
+								value="${formatCurrency(item.amount)}">
 							</horizon-label>
 							<horizon-label
 								class="from-account-label"
 								label="From Account"
-								value="${item.fromAccount}">
+								value="${item.sourceAccount}">
 							</horizon-label>
 							<horizon-label
 								class="sent-from-label"
 								label="Sent From"
-								value="${item.sentFrom}">
+								value="${item.sourceSystem}">
 							</horizon-label>
 							<horizon-label
 								class="status-label"
 								label="Status"
-								value="${item.status}">
+								value="${item.voucherStatus}">
 							</horizon-label>
 					</capitec-group>
 					<div slot="content">
@@ -682,39 +684,67 @@ export class SendCashLanding extends Component {
 
 	_renderAdditionalDetails(item) {
 		return html`
-			<capitec-group layout="grid" gap="none" columns="5" rows="${item.addDetails.length}">
+			<capitec-group layout="grid" gap="none" columns="5" rows="${item.statusChange.length}">
 				<capitec-label class="headerRow" label="Date" row="1" column="1"></capitec-label>
 				<capitec-label class="headerRow" label="Event Amount" row="1" column="2"></capitec-label>
 				<capitec-label class="headerRow" label="Remaining Amount" row="1" column="3"></capitec-label>
 				<capitec-label class="headerRow" label="Action" row="1" column="4"></capitec-label>
 				<capitec-label class="headerRow" label="Action description" row="1" column="5"></capitec-label>
 
-				${item.addDetails.map((element, index) => this._renderGridInfo(element, index + 2))}
+				${item.statusChange.map((element, index) => this._renderVoucherInfo(element, index + 2))}
+
+			</capitec-group>
+
+			<capitec-label label="Payout from merchant"></capitec-label>
+
+			<capitec-group layout="grid" gap="none" columns="5" rows="${item.merchantStatusList.length}">
+				<capitec-label class="headerRow" label="Date" row="1" column="1"></capitec-label>
+				<capitec-label class="headerRow" label="Status" row="1" column="2"></capitec-label>
+				<capitec-label class="headerRow" label="City" row="1" column="3"></capitec-label>
+				<capitec-label class="headerRow" label="Merchant Name" row="1" column="4"></capitec-label>
+				<capitec-label class="actionRow" label="Merchant ID" row="1" column="5"></capitec-label>
+				<capitec-label class="actionRow" label="Amount" row="1" column="6"></capitec-label>
+				<capitec-label class="actionRow" label="Country" row="1" column="7"></capitec-label>
+
+				${item.merchantStatusList.map((element, index) => this._renderMerchantInfo(element, index + 2))}
+
 			</capitec-group>
 
 			${this._renderFooter(item)}
 		`;
 	}
 
-	_renderGridInfo(element, index) {
+	_renderVoucherInfo(element, index) {
 		return html`
-			<capitec-label label="${element.date}" row="${index}" column="1"></capitec-label>
+			<capitec-label label="${element.changeDateTime}" row="${index}" column="1"></capitec-label>
 			<capitec-label label="${element.eventAmount}" row="${index}" column="2"></capitec-label>
-			<capitec-label label="${element.remAmount}" row="${index}" column="3"></capitec-label>
+			<capitec-label label="${element.remainingOrderAmount}" row="${index}" column="3"></capitec-label>
 			<capitec-label label="${element.action}" row="${index}" column="4"></capitec-label>
 			<capitec-label label="${element.actionDescription}" row="${index}" column="5"></capitec-label>
 		`;
 	}
 
+	_renderMerchantInfo(element, index) {
+		return html`
+			<capitec-label label="${element.merchantTimeStamp}" row="${index}" column="1"></capitec-label>
+			<capitec-label label="${element.merchantStatus}" row="${index}" column="2"></capitec-label>
+			<capitec-label label="${element.city}" row="${index}" column="3"></capitec-label>
+			<capitec-label label="${element.merchantName}" row="${index}" column="4"></capitec-label>
+			<capitec-label label="${element.merchantId}" row="${index}" column="5"></capitec-label>
+			<capitec-label label="${element.merchantAmount}" row="${index}" column="6"></capitec-label>
+			<capitec-label label="${element.country}" row="${index}" column="7"></capitec-label>
+		`;
+	}
+
 	_renderFooter(item) {
-		if (HOLD_RESTRICTION_SET.has(item.status)) {
+		if (HOLD_RESTRICTION_SET.has(item.voucherStatus)) {
 			return html`
 				<capitec-content-box layout="horizontal" halign="right" valign="center" gap="clear" class="footer">
 					<capitec-button
 							type="primary" 
-							label="Place hold" 
-							?hidden="${!HOLD_RESTRICTION_SET.has(item.status)}"
-							@click="${() => this._onPlaceHoldClick()}">
+							label="Place hold"
+							?hidden="${!HOLD_RESTRICTION_SET.has(item.voucherStatus)}"
+							@click="${() => this._onPlaceHoldClick(item)}">
 					</capitec-button>
 				</capitec-content-box>
 			`;

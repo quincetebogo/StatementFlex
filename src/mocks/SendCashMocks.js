@@ -1,134 +1,158 @@
 export const SendCashLandingMocks = {
-	"sendCashSummaryList": [
+	"TransactionHistoryResponseListModel": [
 		{
-			"dateCreated": "2022-07-06 02:31",
-			"voucherNumber" : "******1234",
-			"amountSent": 500.00,
-			"fromAccount": 52101789106,
-			"sentFrom": "APP",
-			"status": "Redeemable",
-			"addDetails": [
+			"datetimeCreated": `2022-07-06 02:31`,
+			"voucherNumber": `******1234`,
+			"amount": 500.00,
+			"sourceAccount": `52101789106`,
+			"sourceSystem": `USSD`,
+			"voucherStatus": `Redeemed`,
+			"statusChange": [
 				{
-					"date": "2022-07-07 03:31",
+					"changeDateTime": `2022-07-06 02:31`,
 					"eventAmount": 355.00,
-					"remAmount": 355.00,
-					"action": "Creation",
-					"actionDescription": "-"
+					"remainingOrderAmount": 355.00,
+					"action": `Creation`,
+					"actionDescription": `-`
+				}
+			],
+			"merchantStatusList": [
+				{
+					"merchantStatus": `Redeemed`,
+					"merchantTimeStamp": `2022-07-06 02:31`,
+					"merchantName": `Chekers`,
+					"merchantId": `1212`,
+					"merchantAmount": 200.00,
+					"city": `Cape Town`,
+					"country": `RSA`
+				}
+			]
+		},
+		{
+			"datetimeCreated": `2022-02-12 12:41`,
+			"voucherNumber": `******5678`,
+			"amount": 50.00,
+			"sourceAccount": `52101789105`,
+			"sourceSystem": `APP`,
+			"voucherStatus": `Redeemable`,
+			"statusChange": [
+				{
+					"changeDateTime": `2022-02-12 12:41`,
+					"eventAmount": 355.00,
+					"remainingOrderAmount": 355.00,
+					"action": `Redeemable`,
+					"actionDescription": `-`
 				},
 				{
-					"date": "2022-07-06 02:31",
-					"eventAmount": 255.00,
-					"remAmount": 255.00,
-					"action": "Redeemable",
-					"actionDescription": "-"
+					"changeDateTime": `2022-02-14 02:01`,
+					"eventAmount": 25.00,
+					"remainingOrderAmount": 35.00,
+					"action": `Redeemable`,
+					"actionDescription": `-`
+				}
+			],
+			"merchantStatusList": [
+				{
+					"merchantStatus": `Redeemed`,
+					"merchantTimeStamp": `2022-07-06 02:31`,
+					"merchantName": `Mlpinos`,
+					"merchantId": `1213`,
+					"merchantAmount": 20.00,
+					"city": `Bangalore`,
+					"country": `India`
+				}
+			]
+		},
+		{
+			"datetimeCreated": `2022-05-22 04:53`,
+			"voucherNumber": `******9012`,
+			"amount": 154.00,
+			"sourceAccount": `52101789107`,
+			"sourceSystem": `APP`,
+			"voucherStatus": `On hold`,
+			"statusChange": [
+				{
+					"changeDateTime": `2022-05-22 04:53`,
+					"eventAmount": 542.00,
+					"remainingOrderAmount": 425.00,
+					"action": `On hold`,
+					"actionDescription": `-`
 				},
 				{
-					"date": "2022-07-08 04:31",
-					"eventAmount": 455.00,
-					"remAmount": 455.00,
-					"action": "Redeemed",
-					"actionDescription": "-"
-				},
+					"changeDateTime": `2022-05-24 00:41`,
+					"eventAmount": 745.00,
+					"remainingOrderAmount": 235.00,
+					"action": `Redeemable`,
+					"actionDescription": `-`
+				}
+			],
+			"merchantStatusList": [
 				{
-					"date": "2022-07-10 06:51",
-					"eventAmount": 555.00,
-					"remAmount": 555.00,
-					"action": "Held",
-					"actionDescription": "-"
+					"merchantStatus": `Redeemed`,
+					"merchantTimeStamp": `2022-07-06 02:31`,
+					"merchantName": `Holly`,
+					"merchantId": `1214`,
+					"merchantAmount": 80.00,
+					"city": `Johannesburg`,
+					"country": `RSA`
 				}
 			]
 		},
 		{
-			"dateCreated": "2022-08-13 07:34",
-			"voucherNumber" : "******5678",
-			"amountSent": 100.00,
-			"fromAccount": 12101789107,
-			"sentFrom": "APP",
-			"status": "Redeemable",
-			"addDetails": [
+			"datetimeCreated": `2022-01-02 01:03`,
+			"voucherNumber": `******3456`,
+			"amount": 159.00,
+			"sourceAccount": `52101789108`,
+			"sourceSystem": `USSD`,
+			"voucherStatus": `Redemption Authorised`,
+			"statusChange": [
 				{
-					"date": "2022-07-06 02:31",
-					"eventAmount": 255.00,
-					"remAmount": 255.00,
-					"action": "Creation authorisation",
-					"actionDescription": "-"
-				},
+					"changeDateTime": `2022-01-02 01:03`,
+					"eventAmount": 8912.00,
+					"remainingOrderAmount": 8000.00,
+					"action": `Redemption Authorised`,
+					"actionDescription": `-`
+				}
+			],
+			"merchantStatusList": [
 				{
-					"date": "2022-02-17 05:45",
-					"eventAmount": 222.00,
-					"remAmount": 222.00,
-					"action": "Authorise",
-					"actionDescription": "-"
+					"merchantStatus": `Redeemption Authorised`,
+					"merchantTimeStamp": `2022-07-06 02:31`,
+					"merchantName": `Molly`,
+					"merchantId": `1215`,
+					"merchantAmount": 800.00,
+					"city": `Chennai`,
+					"country": `India`
 				}
 			]
 		},
 		{
-			"dateCreated": "2022-08-30 12:50",
-			"voucherNumber" : "******9012",
-			"amountSent": 200.00,
-			"fromAccount": 12101789108,
-			"sentFrom": "APP",
-			"status": "Redeemed",
-			"addDetails": [
+			"datetimeCreated": `2022-12-05 05:35`,
+			"voucherNumber": `******5421`,
+			"amount": 159.00,
+			"sourceAccount": `80198710125`,
+			"sourceSystem": `APP`,
+			"voucherStatus": `Redemption Authorised`,
+			"statusChange": [
 				{
-					"date": "2022-07-06 02:31",
-					"eventAmount": 255.00,
-					"remAmount": 255.00,
-					"action": "Creation authorisation",
-					"actionDescription": "-"
+					"changeDateTime": `2022-01-02 01:03`,
+					"eventAmount": 92.00,
+					"remainingOrderAmount": 75.00,
+					"action": `Redemption Authorised`,
+					"actionDescription": `-`
 				}
-			]
-		},
-		{
-			"dateCreated": "2022-08-16 12:50",
-			"voucherNumber" : "******3456",
-			"amountSent": 50.00,
-			"fromAccount": 12101789109,
-			"sentFrom": "APP",
-			"status": "Partial Redeemed",
-			"addDetails": [
+			],
+			"merchantStatusList": [
 				{
-					"date": "2022-07-06 02:31",
-					"eventAmount": 255.00,
-					"remAmount": 255.00,
-					"action": "Creation authorisation",
-					"actionDescription": "-"
-				}
-			]
-		},
-		{
-			"dateCreated": "2022-07-28 15:48",
-			"voucherNumber" : "******7890",
-			"amountSent": 452.00,
-			"fromAccount": 12101789110,
-			"sentFrom": "APP",
-			"status": "On hold",
-			"addDetails": [
-				{
-					"date": "2022-07-06 02:31",
-					"eventAmount": 255.00,
-					"remAmount": 255.00,
-					"action": "Creation authorisation",
-					"actionDescription": "-"
-				}
-			]
-		},
-		{
-			"dateCreated": "2022-11-05 23:48",
-			"voucherNumber" : "******5959",
-			"amountSent": 49.00,
-			"fromAccount": 12101789111,
-			"sentFrom": "APP",
-			"status": "Redemption Authorised",
-			"addDetails": [
-				{
-					"date": "2022-07-06 02:31",
-					"eventAmount": 255.00,
-					"remAmount": 255.00,
-					"action": "Creation authorisation",
-					"actionDescription": "-"
+					"merchantStatus": `Redeemption Authorised`,
+					"merchantTimeStamp": `2022-07-06 02:31`,
+					"merchantName": `Striff`,
+					"merchantId": `1218`,
+					"merchantAmount": 410.00,
+					"city": `Chennai`,
+					"country": `India`
 				}
 			]
 		}
 	]
-}
+};

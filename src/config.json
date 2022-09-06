@@ -6,7 +6,8 @@
 		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-dev.int.capinet",
 		"clientProfileServiceUrl": "https://csc-clientprofile.platform-dev.int.capinet",
 		"debiCheckServiceUrl": "https://csc-debicheck.platform-dev.int.capinet",
-		"cardServiceUrl": "https://horizon-cs-card-v1.platform-dev.int.capinet"
+		"cardServiceUrl": "https://horizon-cs-card-v1.platform-dev.int.capinet",
+		"sendCashServiceUrl": "https://cec-cs-sendcash.platform-dev.int.capinet"
 	},
 	"signalRUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
 	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
@@ -109,10 +110,10 @@
 			"enabled": true,
 			"positiveCase": true
 		},
-    "itaVerification": {
-      "enabled": false,
-      "positiveCase": true
-    },
+		"itaVerification": {
+			"enabled": false,
+			"positiveCase": true
+		},
 		"verifyKBA": {
 			"enabled": true,
 			"positiveCase": true
@@ -153,10 +154,10 @@
 			"enabled": false,
 			"positiveCase": false
 		},
-    "transactionHistory": {
-      "enabled": false,
-      "positiveCase": true
-    },
+		"transactionHistory": {
+			"enabled": false,
+			"positiveCase": true
+		},
 		"savingsAccountLanding": {
 			"enabled": false,
 			"positiveCase": true
@@ -213,14 +214,14 @@
 			"enabled": false,
 			"positiveCase": true
 		},
-    "creditOverview": {
-      "enabled": false,
-      "positiveCase": true
-    },
-    "creditBalance": {
-      "enabled": false,
-      "positiveCase": true
-    },
+		"creditOverview": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"creditBalance": {
+			"enabled": false,
+			"positiveCase": true
+		},
 		"budgetTransferFromAccounts": {
 			"enabled": false,
 			"positiveCase": true
@@ -245,13 +246,17 @@
 			"enabled": false,
 			"positiveCase": true
 		},
-    "creditPermissions": {
-      "enabled": false,
-      "positiveCase": true
-    },
+		"creditPermissions": {
+			"enabled": false,
+			"positiveCase": true
+		},
 		"emailPaidUpLetter": {
 			"enabled": false,
 			"positiveCase": false
+		},
+		"sendCashVouchers": {
+			"enabled": true,
+			"positiveCase" : true
 		}
 	},
 	"searchClientOptionEnabled": true
