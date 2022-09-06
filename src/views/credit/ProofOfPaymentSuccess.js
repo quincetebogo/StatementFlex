@@ -99,6 +99,11 @@ export class ProofOfPaymentSuccess extends ViewBase {
 		this.popTelemetryEvents = telemetryEvents[creditNeed];
 	}
 
+	_leftButtonText() {
+		currentNeed = this.horizonIncidentManager.getCurrentNeed();
+		return currentNeed === `pay-budget-credit-card` ? `Pay Another` : ``;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -131,8 +136,8 @@ export class ProofOfPaymentSuccess extends ViewBase {
 			<horizon-success-screen 
 				data-automation-id="proof-of-payment-success"
 				header="Proof of payment sent"
-				image="/images/statements/senddocuments.svg"
-				left="${this.incidentDetails.currentNeed === `pay-budget-credit-card` ? `Pay Another` : ``}"
+				image="/images/statements/send-documents.svg"
+				left="${this._leftButtonText()}"
 				right="Done"
 				toast="Proof of payment sent"
 				@left-click=${() => this._payAnotherClick()}

@@ -61,7 +61,7 @@ export class ClientProfileService extends ChannelServiceBase {
 		const acceptCallRequest = {
 			'incomingTelephoneNumber': acceptCallData.incomingTelephoneNumber,
 			'capitecChannel': `Horizon`
-		}
+		};
 
 		return this.post(
 			url,
@@ -99,7 +99,7 @@ export class ClientProfileService extends ChannelServiceBase {
 				'value': clientInfo.searchValue
 			},
 			'capitecChannel': `Horizon`
-		}
+		};
 
 		return this.post(
 			url,

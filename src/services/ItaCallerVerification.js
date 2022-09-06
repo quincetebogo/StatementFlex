@@ -228,17 +228,21 @@ export class ItaCallerVerification {
 	_isApproved(authStatus, channelStatus) {
 		return authStatus === AUTH_STATUS.APPROVED && channelStatus === AUTH_CHANNEL_STATUS.APPROVED;
 	}
+
 	_isRejected(authStatus, channelStatus) {
 		return authStatus === AUTH_STATUS.DECLINED && 
 			   [AUTH_CHANNEL_STATUS.DECLINED, AUTH_CHANNEL_STATUS.CANCELLED].includes(channelStatus);
 	}
+
 	_isPending(authStatus) {
 		return authStatus === AUTH_STATUS.PENDING;
 	}
+
 	_isFailed(authStatus, channelStatus) {
 		return authStatus === AUTH_STATUS.FAILED && 
 			   [AUTH_CHANNEL_STATUS.NOT_DELIVERED, AUTH_CHANNEL_STATUS.TIMEOUT, AUTH_CHANNEL_STATUS.SYSTEM_FAILURE].includes(channelStatus);
 	}
+	
 	_isPINBlocked(authStatus, channelStatus) {
 		return authStatus === AUTH_STATUS.FAILED && channelStatus === AUTH_CHANNEL_STATUS.AUTHENTICATION_FAILURE;
 	}

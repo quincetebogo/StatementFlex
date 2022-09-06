@@ -180,13 +180,11 @@ export class TapToPayAgreement extends Component {
 					--theme-check-border-color: #C83B37;
 				}
 
-				capitec-alert-banner {
+				horizon-alert-banner {
 					width: 776px;
 
-					--theme-alert-banner-height: 48px;
 					--theme-layout-gap-spacing: 16px;
-					--theme-alert-banner-icon-margin-left: 16px;
-					--theme-alert-banner-icon-margin-right: 8px;
+					--theme-toast-icon-margin: 0px 8px 0px 16px;
 					--theme-alert-banner-font-weight: 600;
 				}
 
@@ -280,11 +278,11 @@ export class TapToPayAgreement extends Component {
 	_renderErrorAlertBanner() {
 		return this.alertBannerText
 			? html`
-					<capitec-alert-banner 
-								type="unsuccessful-red" 
-								label="${this.alertBannerText}"
-								data-automation-id="tap-to-pay-agreement-alert-banner">
-					</capitec-alert-banner>`
+					<horizon-alert-banner 
+						type="error"
+						label="${this.alertBannerText}"
+						data-automation-id="tap-to-pay-agreement-alert-banner">
+					</horizon-alert-banner>`
 			: html``;
 	}
 

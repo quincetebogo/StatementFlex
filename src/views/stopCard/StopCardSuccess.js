@@ -51,7 +51,7 @@ export class StopCardSuccess extends ViewBase {
 		super.connectedCallback();
 		
 		const screenDetails = this.horizonStore.getScreenDetails();
-		this.stoppedCards = (screenDetails && screenDetails.stoppedCards) || [];
+		this.stoppedCards = screenDetails?.stoppedCards || [];
 
 		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
 		this._updateIncidentState();
@@ -74,9 +74,7 @@ export class StopCardSuccess extends ViewBase {
 	}
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}  
 
 	_doneClick() {
@@ -99,7 +97,7 @@ export class StopCardSuccess extends ViewBase {
 			"next-screen": TelemetryScreen.STOP_CARD
 		});
 
-		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.incidentDetails, (ex) => this._stopCardErrorHandler());
+		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.horizonIncidentManager.getIncidentDetails(), (ex) => this._stopCardErrorHandler());
 
 		if (returnValue.succeeded) {
 			const screenDetails = this.horizonStore.getScreenDetails();
@@ -215,13 +213,8 @@ export class StopCardSuccess extends ViewBase {
 					margin-bottom: auto;
 				}
 
-				capitec-alert-banner {
+				horizon-alert-banner {
 					margin: 16px;
-					--theme-alert-banner-height: 48px;
-				}
-
-				.bold-text {
-					font-weight: 600;
 				}
 			`
 		];
@@ -270,16 +263,17 @@ export class StopCardSuccess extends ViewBase {
 	_renderNotifyClient() {
 		// For some reason ?hidden boolean attribute does not want to work on the div 
 		return html`
-			<capitec-alert-banner 
+			<horizon-alert-banner 
 				data-automation-id="stop-card-success-notify-client"
 				type="info" 
-				style="visibility:${!this.displayNotification ? `visible` : `visible`}">
-					<span class="bold-text">Notice:</span> Please check if the client also needs to stop the remote banking app channels (App/USSD)
-			</capitec-alert-banner>`;
+				style="visibility:${!this.displayNotification ? `visible` : `visible`}"
+				header="Notice: "
+				label="Please check if the client also needs to stop the remote banking app channels (App/USSD)">
+			</horizon-alert-banner>`;
 	}
 
 	_renderGraphic() {
-		return html`<img style="margin: 109px 406px 0px 406px;" width="252" height="182" src="/images/cardStop/cards.svg"/>`;
+		return html`<img style="margin: 109px 406px 0px 406px;" width="252" height="182" src="/images/stopCard/cards.svg"/>`;
 	}
 
 	_renderStoppedCards() {

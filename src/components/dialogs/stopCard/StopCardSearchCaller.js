@@ -1,8 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { ClientProfileService } from 'app/services/ClientProfileService';
-import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { SEARCH_OPTIONS } from 'app/constants/SearchOptions';
@@ -103,10 +102,9 @@ export class StopCardSearchCaller extends Component {
 	constructor() {
 		super();
 
-		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
-		this._telemetry = HorizonTelemetry.instance;
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
+		this._telemetry = HorizonTelemetry.getInstance();
 
 		RegExp();
 
@@ -247,8 +245,7 @@ export class StopCardSearchCaller extends Component {
 		this.ivrOption.value = e.detail.new;
 		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 
-		this.incidentDetails.currentNeed = this.incomingCallDetails.ivrOptionCode;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.setCurrentNeed(this.incomingCallDetails.ivrOptionCode);
 
 		if (this.ivrOption.value !== `StopCard`) {
 			this.dispatchEvent(new CustomEvent(`other-need-selected`, {
@@ -282,13 +279,14 @@ export class StopCardSearchCaller extends Component {
 			name: identifiedClient.callerInformation.name,
 			title: identifiedClient.callerInformation.title,
 			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber,
-            verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber,
-            firstName: identifiedClient.callerInformation.firstName,
-            middleName1: identifiedClient.callerInformation.middleName1,
-            middleName2: identifiedClient.callerInformation.middleName2,
-            middleName3: identifiedClient.callerInformation.middleName3,
-            lastName: identifiedClient.callerInformation.lastName,
-            initials: identifiedClient.callerInformation.initials,
+			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber,
+			firstName: identifiedClient.callerInformation.firstName,
+			middleName1: identifiedClient.callerInformation.middleName1,
+			middleName2: identifiedClient.callerInformation.middleName2,
+			middleName3: identifiedClient.callerInformation.middleName3,
+			lastName: identifiedClient.callerInformation.lastName,
+			initials: identifiedClient.callerInformation.initials,
+			gender: identifiedClient.callerInformation.gender,
 			identifiedBy: this.identificationMethods.identificationType
 		};
 
@@ -385,11 +383,8 @@ export class StopCardSearchCaller extends Component {
 				#searchFieldText{
 					margin-top: 32px;
 				}
-				capitec-alert-banner{
-					--theme-alert-banner-height: 48px;
+				horizon-alert-banner{
 					--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
-					--theme-alert-banner-icon-margin-left: 15px;
-					--theme-alert-banner-icon-margin-right: 15px;
 					
 					margin: 20px 0px 0px 0px;
 					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
@@ -486,13 +481,13 @@ export class StopCardSearchCaller extends Component {
 	renderAlertBanner() {
 		if (!isNullorEmpty(this.alertBannerMessage)) {
 			return html`
-				<capitec-alert-banner 
+				<horizon-alert-banner 
 					data-automation-id="stop-card-search-caller-alert"
 					type="error" 
 					label="${this.alertBannerMessage}" 
 					closable
 					@click="${() => this.alertBannerMessage = ``}">
-				</capitec-alert-banner>
+				</horizon-alert-banner>
 			`;
 		}
 		return html``;

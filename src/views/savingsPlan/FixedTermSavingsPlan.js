@@ -24,6 +24,7 @@ export class FixedTermSavingsPlan extends Component {
 		super();
 
 		this.fixedTermAccountDetails = null;
+		this.detailsHeader = ``;
 	}
 
 	// -------------------

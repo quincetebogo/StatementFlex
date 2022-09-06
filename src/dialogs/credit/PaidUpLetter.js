@@ -184,11 +184,8 @@ export class PaidUpLetter extends Component {
 					--theme-modal-header-padding-bottom: 20px;
 				}
 
-				capitec-alert-banner {
-					--theme-alert-banner-height: 48px;
+				horizon-alert-banner {
 					--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
-					--theme-alert-banner-icon-margin-left: 15px;
-					--theme-alert-banner-icon-margin-right: 15px;
 				}
 
 				horizon-product-tile {
@@ -201,7 +198,7 @@ export class PaidUpLetter extends Component {
 					--theme-product-tile-detail-top: 22px;
 				}
 
-				capitec-alert-banner > capitec-group > capitec-label {
+				horizon-alert-banner > capitec-group > capitec-label {
 					margin: 16px 0px 16px 0px;
 
 					--theme-label-font-color: #3A3A3A;
@@ -209,7 +206,7 @@ export class PaidUpLetter extends Component {
 					--theme-label-font-family: Hind Vadodara;
 				}
 
-				capitec-alert-banner > capitec-group > capitec-label[type="subtitle"] {
+				horizon-alert-banner > capitec-group > capitec-label[type="subtitle"] {
 					margin-right: 5px;
 					--theme-label-subtitle-font-size: 14px;
 					--theme-label-subtitle-font-weight: 600;
@@ -279,17 +276,11 @@ export class PaidUpLetter extends Component {
 	_renderAlertBanner() {
 		return this.alertBannerMessage 
 		? html`
-			<capitec-alert-banner type="unsuccessful-red">
-				<capitec-group layout="horizontal">
-					<capitec-label
-						type="subtitle"
-						label="Notify:">
-					</capitec-label>
-					<capitec-label
-						label="${this.alertBannerMessage}">
-					</capitec-label>
-				</capitec-group>
-			</capitec-alert-banner>`
+			<horizon-alert-banner
+				type="error"
+				header="Notify: "
+				label="${this.alertBannerMessage}">
+			</horizon-alert-banner>`
 		: html``;
 	}
 

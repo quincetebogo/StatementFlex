@@ -15,6 +15,8 @@ import 'platform/components/navigation/AppRouter';
 
 import 'app/components/shell/HorizonStatusBar';
 
+import 'app/components/common/AlertBanner';
+
 /**
  * Physical entry-point of the application, based on a platform-provided base class.
  */
@@ -73,7 +75,7 @@ export class AppShell extends Shell {
 		this.channelServiceUrl = document.location.origin;
 		this.platformVersion = null;
 		this.applicationName = null;
-		this.applicationVersion = null;
+		this.applicationVersion = ``;
 		this.currentStatus = `success`;
 		this.currentMessage = ``;
 
@@ -234,6 +236,7 @@ export class AppShell extends Shell {
 		return [
 			super.styles,
 			css`
+
 				:host {
 					--horizon-screen-width: 1920px;
 					--horizon-screen-height: 1080px;
@@ -275,11 +278,11 @@ export class AppShell extends Shell {
 					background: #f4f4f4; 
 				}
 
-				.left{
+				.left {
 					width: var(--horizon-left-panel-width);
 				}
 
-				.right{
+				.right {
 					width: var(--horizon-right-panel-width);
 				}
 
@@ -288,7 +291,7 @@ export class AppShell extends Shell {
 					 * If it is generic change(i.e., applies across application) please specify here
 					 * else override in specific component/view
 					*/
-
+						
 					/* Modal popup */
 					--theme-modal-header-background-color: #4A4848;
 					--theme-modal-header-color: white;
@@ -316,8 +319,12 @@ export class AppShell extends Shell {
 					--theme-alert-banner-unsuccessful-font-color: #3A3A3A;
 					--theme-alert-banner-unsuccessful-red-font-color: #3A3A3A;
 
-					--theme-hyperlink-color:  #3A3A3A;
-				}`
+					--theme-hyperlink-color: #3A3A3A;
+
+					/* capitec-icon - size="medium" */
+					--theme-icon-size-medium: 26px;
+				}
+				`
 		];
 	}
 
@@ -358,7 +365,7 @@ export class AppShell extends Shell {
 	 *      - Any additional button/toolbars
 	 *      - Left and Right hand display components
 	 *
-	 * The View manager will also facilitate communication between view components (i.e. between the main
+	 * The View manager will also faciplatform/elementsate communication between view components (i.e. between the main
 	 * display and the left, right, and toolbar components. OK, OK! I used an Oxford comma; we can fight about that another time)
 	 * 
 	 */

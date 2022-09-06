@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
@@ -129,7 +130,7 @@ export class LiveBetterSavings extends Component {
 				/* Title Bar styles */
 				capitec-title-bar {
 					--theme-titlebar-padding: 12px 16px;
-					--theme-type-primary-background: url(../images/liveBetter/LBB_bg-1092x64.png);
+					--theme-type-primary-background: url(../images/liveBetter/lbb-bg-1092x64.png);
 				}
 				capitec-title-bar > capitec-label {
 					--theme-label-title-font-size: 24px;
@@ -296,7 +297,7 @@ export class LiveBetterSavings extends Component {
 					<capitec-title-bar 
 						data-automation-id="live-better-verified-title"
 						type="primary">
-							<img src='/images/liveBetter/liveBetter-white.svg'/>
+							<img src='/images/liveBetter/live-better-white.svg'/>
 							<capitec-label label="Live Better Savings Account" type="Title"></capitec-label>
 					</capitec-title-bar>
 
@@ -385,7 +386,7 @@ export class LiveBetterSavings extends Component {
 					<horizon-label
 						data-automation-id="live-better-verified-status"
 						label="Status"
-						value="${this.liveBetterAccountData.accountStatus}">
+						value="${formatStringAsPascalCase(this.liveBetterAccountData.accountStatus)}">
 					</horizon-label>
 					
 					<capitec-group class="icon-chevron" @click="${() => this._toggleExpander()}" layout="vertical" gap="none" halign="center" valign="center">

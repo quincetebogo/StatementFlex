@@ -69,7 +69,7 @@ const tableHeaderLabel = `height: 48px;
 					font-family: "Hind Vadodara";
 					font-weight: 600;`;
 
-const headings ={
+const headings = {
 					transactionDate: `width: 147px; `,
 					description: `width: 408px;`,
 					transactionStatus: `width: 212px;`,

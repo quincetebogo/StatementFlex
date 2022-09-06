@@ -95,28 +95,74 @@
 		"hasCCSStatus": false,
 		"fromAccounts": [
 			{
-				"accountName": "LESEDI",
-				"accountNumber": 1627883957,
-				"availableBalance": 17796.27,
-				"accountType": "Flexible"
-			},
-			{
-				"accountName": "LESEDI",
-				"accountNumber": 1627883892,
+				"accountName": "Collin Spaar",
+				"accountNumber": 1587175299,
 				"availableBalance": 0.0,
-				"accountType": "Flexible"
+				"accountType": "Flexible",
+				"savingsPermissionStatus": "DENIED",
+				"statusReasonList": [
+					"Account Closed"
+				]
 			},
 			{
-				"accountName": "LERATO",
-				"accountNumber": 1324023285,
-				"availableBalance": 0.02,
-				"accountType": "Flexible"
+				"accountName": "Nuwe huis belegging",
+				"accountNumber": 1441481646,
+				"availableBalance": 0.0,
+				"accountType": "Flexible",
+				"savingsPermissionStatus": "DENIED",
+				"statusReasonList": [
+					"INSUFFICIENT_FUNDS_IN_ACCOUNT"
+				]
+			},
+			{
+				"accountName": "Spaargeld",
+				"accountNumber": 1441481379,
+				"availableBalance": 0.0,
+				"accountType": "Flexible",
+				"savingsPermissionStatus": "DENIED",
+				"statusReasonList": [
+					"INSUFFICIENT_FUNDS_IN_ACCOUNT"
+				]
+			},
+			{
+				"accountName": "Elleny Raffle",
+				"accountNumber": 1441481271,
+				"availableBalance": 0.0,
+				"accountType": "Flexible",
+				"savingsPermissionStatus": "DENIED",
+				"statusReasonList": [
+					"INSUFFICIENT_FUNDS_IN_ACCOUNT"
+				]
+			},
+			{
+				"accountName": "KARA",
+				"accountNumber": 1187446945,
+				"availableBalance": 0.0,
+				"accountType": "Flexible",
+				"savingsPermissionStatus": "DENIED",
+				"statusReasonList": [
+					"Account Closed"
+				]
+			},
+			{
+				"accountName": "MINKE",
+				"accountNumber": 1187446309,
+				"availableBalance": 0.0,
+				"accountType": "Flexible",
+				"savingsPermissionStatus": "DENIED",
+				"statusReasonList": [
+					"Account Closed"
+				]
 			},
 			{
 				"accountName": "SAVINGS ACCOUNT",
-				"accountNumber": 1290405563,
-				"availableBalance": 87003.38,
-				"accountType": "Primary"
+				"accountNumber": 1187442826,
+				"availableBalance": 5033.53,
+				"accountType": "Primary",
+				"savingsPermissionStatus": "GRANTED",
+				"statusReasonList": [
+					"HOLDS_ON_ACCOUNT"
+				]
 			}
 		]
 	};

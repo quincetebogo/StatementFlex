@@ -1,5 +1,4 @@
 import { ACTION_IDENTIFIER, PERMISSION_STATUS, PRODUCTS } from 'app/constants/Credit';
-import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { html } from 'platform/elements';
@@ -96,7 +95,10 @@ export const creditMixin = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"caseId": this.caseId || ``,
 			"emailAddress": details.emailAddress,
-			"accountList": accountsList
+			"accountList": accountsList,
+			"title": this.callerInformation.title,
+			"surname": this.callerInformation.lastName,
+			"documentType": `Credit Settlement Quote`
 		};
 
 		const returnValue = await this.creditService.sendSettlementQuoteEmail(request, () => true);

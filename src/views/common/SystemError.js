@@ -50,9 +50,7 @@ export class SystemError extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
 
 	// ---------
@@ -72,6 +70,7 @@ export class SystemError extends ViewBase {
 				}
 				horizon-error-screen {
 					--horizon-error-screen-size: 912px;
+					--horizon-error-screen-height: 888px;
 				}
 			`
 		];

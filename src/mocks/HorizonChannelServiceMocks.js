@@ -1,4 +1,4 @@
-import { HttpStatusError } from 'platform/errors/HttpStatusError';
+import { HttpStatusError } from 'platform/core/errors/HttpStatusError';
 
 /**
  * Mocks for methods in the HorizonChannelService class
@@ -41,7 +41,7 @@ export default class HorizonChannelServiceMocks {
 		const logError = (err) => {
 			console.log(err);
 		};
-
+		
 		this.callMocks = await this._loadMockModule(this.callMocks, `acceptCall`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
 		this.callMocks = await this._loadMockModule(this.callMocks, `searchCaller`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
 		this.favouritesMocks = await this._loadMockModule(this.favouritesMocks, `favouritesLanding`, () => import(`../mocks/QuickTransactionMocks`).catch(err => logError(err)));
@@ -50,11 +50,13 @@ export default class HorizonChannelServiceMocks {
 		this.cardLimitsMocks = await this._loadMockModule(this.cardLimitsMocks, `getCardLimitsAgreement`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
 		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckMandates`, () => import(`../mocks/DebiCheckMockData`).catch(err => logError(err)));
 		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckDetails`, () => import(`../mocks/DebiCheckMockData`).catch(err => logError(err)));
-        this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckConfirmAgreement`, () => import(`../mocks/DebiCheckMockData`).catch(err => logError(err)));
+        this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckApprove`, () => import(`../mocks/DebiCheckMockData`).catch(err => logError(err)));
+		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckAgreement`, () => import(`../mocks/DebiCheckMockData`).catch(err => logError(err)));
 		this.securityQuestionMocks = await this._loadMockModule(this.securityQuestionMocks, `xdsQuestions`, () => import(`../mocks/SecurityQuestions`).catch(err => logError(err)));
 		this.stopCardLandingMocks = await this._loadMockModule(this.stopCardLandingMocks, `stopCardLanding`, () => import(`../mocks/StopCardMockData`).catch(err => logError(err)));
 		this.hasInsuranceProductsMock = await this._loadMockModule(this.hasInsuranceProductsMock, `hasInsuranceProducts`, () => import(`../mocks/HasInsuranceProductsMock`).catch(err => logError(err)));
 		this.transactionHistoryMocks = await this._loadMockModule(this.transactionHistoryMocks, `transactionHistory`, () => import(`../mocks/TransactionHistoryMockData`).catch(err => logError(err)));
+		this.transactionHistoryMocks = await this._loadMockModule(this.transactionHistoryMocks, `savingsPlanTransactionHistory`, () => import(`../mocks/TransactionHistoryMockData`).catch(err => logError(err)));
 		this.savingsAccountMocks = await this._loadMockModule(this.savingsAccountMocks, `savingsAccountLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));  
 		this.savingsAccountMocks = await this._loadMockModule(this.savingsAccountMocks, `savingsPlanLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
 		this.viewStatementsMock = await this._loadMockModule(this.viewStatementsMock, `viewStatements`, () => import(`../mocks/ViewStatementMock`).catch(err => logError(err)));
@@ -176,14 +178,32 @@ export default class HorizonChannelServiceMocks {
 		return null;
     }
 
-    debiCheckConfirmAgreement(mandateInfo) {
-        if (this._mockSettings.debiCheckConfirmAgreement.positiveCase) {
+    debiCheckApprove(mandateInfo) {
+        if (this._mockSettings.debiCheckApprove.positiveCase) {
             return this.mandatesMocks.agreement;
 		}
 
 		// Code for a negative case could come here
 		return null;
     }
+
+	debiCheckDecline() {
+		if (this._mockSettings.debiCheckDecline.positiveCase) {
+            return true;
+		}
+
+		// Code for a negative case could come here
+		return null;
+	}
+
+	debiCheckAgreement(clientInfo) {
+		if (this._mockSettings.debiCheckAgreement.positiveCase) {
+            return this.mandatesMocks.agreementTemplate;
+		}
+
+		// Code for a negative case could come here
+		return null;
+	}
 
 	savingsAccountLanding(cifNumber, mandateId, registerId) {
 		if (this._mockSettings.savingsAccountLanding.positiveCase) {
@@ -211,6 +231,12 @@ export default class HorizonChannelServiceMocks {
 
 		// Code for a negative case could come here
 		return null;
+	}
+
+	savingsPlanTransactionHistory() {
+		if(this._mockSettings.savingsPlanTransactionHistory.positiveCase) {
+			return this.transactionHistoryMocks.savingsPlanTransactionHistory;
+		}
 	}
 
 	stopCardLanding() {

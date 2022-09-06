@@ -99,7 +99,7 @@ export class TitleBar extends Component {
 				}
 				.branding-logo-white{
 					height: 32px;
-					width: 193px;
+					width: 172px;
 				}
 				.logged-in-user{
 					color: #003652;

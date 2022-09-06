@@ -1,14 +1,14 @@
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator, Logger } from 'platform/core';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerDetails } from 'app/models/CallerDetails';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { ClientProfileService } from 'app/services/ClientProfileService';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { Logger } from 'platform/core';
 import { RoleManager } from 'app/shell/RoleManager';
 import { SEARCH_OPTIONS } from 'app/constants/SearchOptions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -33,7 +33,7 @@ const CLIENT_TYPE = Object.freeze({
 // ToDO: Below const need to be removed, once channelService fix the issue on contract.
 // These error messages has to come from service
 const ERROR_MESSAGES = {
-	SYSTEM_ERROR: html`<b>System error:</b> Please try again later`,
+	SYSTEM_ERROR: html`<b>System error:&ensp;</b>Please try again later`,
 	STRACK_ERROR: `Take note: A system error has occured. Please go to STrack to search for client.`,
 	NONCLIENT_REQUIRED_FIELDS_EMPTY: `Name and surname must be completed`,
 	REQUIRED_FIELDS_EMPTY: `All fields are required`,
@@ -190,15 +190,14 @@ export class SearchCaller extends Component {
 
 		this.logger = Logger.getInstance();
 
-		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
-		this._telemetry = HorizonTelemetry.instance;
+		this._telemetry = HorizonTelemetry.getInstance();
 		this.roleManager = RoleManager.getInstance();
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
 		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
 		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 	}
 
 	// ----------
@@ -297,7 +296,7 @@ export class SearchCaller extends Component {
 		this._clearErrors(e);
 
 		const cpNumber = e.detail.new;
-		this._getBranchConsultantDetails(cpNumber);
+		await this._getBranchConsultantDetails(cpNumber);
 
 		this.cpNumber = cpNumber;
 	}
@@ -391,11 +390,12 @@ export class SearchCaller extends Component {
 	}
 
 	_needChanged(e) {
-		this.incomingCallDetails.ivrOptionCode = e.detail.new;
-		this.incomingCallDetails.ivrOption.value = e.detail.new;
+		const ivrOptionCode = e.detail.new;
 
-		this.incidentDetails.currentNeed = this.incomingCallDetails.ivrOptionCode;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.incomingCallDetails.ivrOptionCode = ivrOptionCode;
+		this.incomingCallDetails.ivrOption.value = ivrOptionCode;
+
+		this.incidentDetails.currentNeed = this.horizonIncidentManager.setCurrentNeed(ivrOptionCode);
 
 		// Stop Card has it's own specialized search dialog. We raise this 
 		// event to give the caller the change to switch to that dialog.
@@ -641,9 +641,10 @@ export class SearchCaller extends Component {
 			middleName3: identifiedClient.callerInformation.middleName3,
 			lastName: identifiedClient.callerInformation.lastName,
 			initials: identifiedClient.callerInformation.initials,
-				  identifiedBy: this.searchType.identificationType,
-	  			isClientVerifiedInBranch: this.isClientVerifiedInBranch,
-	  			profilePhoto: identifiedClient.callerInformation.profilePhoto     
+			identifiedBy: this.searchType.identificationType,
+			isClientVerifiedInBranch: this.isClientVerifiedInBranch,
+	  		profilePhoto: identifiedClient.callerInformation.profilePhoto,   
+			gender: identifiedClient.callerInformation.gender        
 		};
 
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
@@ -675,7 +676,8 @@ export class SearchCaller extends Component {
 			lastName: identifiedClient.callerInformation.lastName,
 			isClientPresent: this.clientInBranch,
 			isClientVerifiedInBranch: this.isClientVerifiedInBranch,
-			profilePhoto: identifiedClient.callerInformation.profilePhoto      
+			profilePhoto: identifiedClient.callerInformation.profilePhoto,
+			gender: identifiedClient.callerInformation.gender      
 		};
 
 		await this._updateIncidentBranchDetails(this.branchCode);
@@ -737,10 +739,7 @@ export class SearchCaller extends Component {
 			this.clientType === CLIENT_TYPE.NON_CLIENT, // isNonClient
 			false, // hasInsuranceProducts
 			false, // hasDigitalChannels
-			{
-				itaAttempts: 0,
-				sqAttempts: 0
-			},
+			{ itaAttempts: 0, sqAttempts: 0 },
 			this.clientType === CLIENT_TYPE.BRANCH, // isBranchConsultant
 			this.clientInBranch, // isClientPresent
 			this.isClientVerifiedInBranch ? `ITA` : ``,
@@ -753,7 +752,7 @@ export class SearchCaller extends Component {
 			``, // identifiedBy
 			``, // validated email address
 			``, // profilePhoto
-	
+			`` // gender
 		);
 	}
 	// ---------
@@ -788,6 +787,7 @@ export class SearchCaller extends Component {
 				}
 				capitec-radio{
 					height:24px;
+					width: 150px;
 				}
 				.search-label{
 					height: 24px;
@@ -828,17 +828,23 @@ export class SearchCaller extends Component {
 				div[slot="footer"] > capitec-group > capitec-button{
 					margin: 0px;
 				}
-				capitec-alert-banner{
-					--theme-alert-banner-height: 48px;
-					--theme-alert-banner-icon-margin-left: 15px;
-					--theme-alert-banner-icon-margin-right: 15px;
+				horizon-alert-banner{
 					margin: 0px 0px 16px 0px;
 				}
 				#id-label-enter-details {
 					margin: 0px 0px 16px 0px;
 					--theme-label-title-font-size: 18px;
 					--theme-label-title-font-weight: 600;
-				}`
+				}
+				#id-label-enter-branch-details {
+					margin: 0px 0px 16px 0px;
+					--theme-label-title-font-size: 18px;
+					--theme-label-title-font-weight: 600;
+				}
+				capitec-radio[label="Client verified in branch"] {
+					width: 200px;
+				}
+			`
 		];
 	}
 
@@ -886,8 +892,8 @@ export class SearchCaller extends Component {
 				class="client-type-label" 
 				label="Client Type">
 			</capitec-label>
-			<capitec-radio-group>
-				<capitec-group layout="grid" rows="auto" columns="auto" gap="none">
+			<capitec-radio-group layout="horizontal">
+				
 					<capitec-radio 
 						id="capitecClient" 
 						data-automation-id="search-caller-capitec-client"
@@ -910,7 +916,7 @@ export class SearchCaller extends Component {
 						column="3"
 						?checked="${this.clientType === CLIENT_TYPE.BRANCH}">
 					</capitec-radio>
-				</capitec-group>
+
 			</capitec-radio-group>`;
 	}
 
@@ -1011,6 +1017,11 @@ export class SearchCaller extends Component {
 		if (this.clientType === CLIENT_TYPE.BRANCH) {
 			return html`
 				<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" class="nonClient-fields-group">
+					<capitec-label
+						id="id-label-enter-branch-details"
+						type="title"
+						label="Enter branch details">
+					</capitec-label>
 					<div class="branch-field-row">
 						<capitec-text-field
 							id="cpNumber"
@@ -1097,11 +1108,11 @@ export class SearchCaller extends Component {
 		if (this.errMessage.inBranch) {
 			return html`
 				<div>
-					<capitec-alert-banner 
+					<horizon-alert-banner 
 						data-automation-id="search-caller-in-branch-alert"
-						type="unsuccessful-red" 
+						type="error"
 						label="Please choose an option">
-					</capitec-alert-banner>
+					</horizon-alert-banner>
 				</div>
 			`;
 		}
@@ -1110,13 +1121,19 @@ export class SearchCaller extends Component {
 
 	_renderAlertBanner() {
 		if (!isNullorEmpty(this.alertBannerMessage) && !this.errMessage.inBranch) {
-			return html`
-				<capitec-alert-banner 
-						data-automation-id="search-caller-alert-message"
-						type="unsuccessful-red">
-					${this.alertBannerMessage}
-				</capitec-alert-banner>
-			`;
+			return this.alertBannerMessage instanceof Object
+			? html`
+				<horizon-alert-banner 
+					data-automation-id="search-caller-alert-message"
+					type="error">
+						${this.alertBannerMessage}
+				</horizon-alert-banner>`
+			: html`
+				<horizon-alert-banner 
+					data-automation-id="search-caller-alert-message"
+					type="error"
+					label="${this.alertBannerMessage}">
+				</horizon-alert-banner>`;
 		}
 		return html``;
 	}
