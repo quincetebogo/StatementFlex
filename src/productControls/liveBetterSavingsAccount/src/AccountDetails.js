@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 import 'app/components/common/HorizonLabel';
 
 const ACCOUNT_TYPE = {
@@ -139,7 +140,7 @@ const ACCOUNT_TYPE = {
 					--theme-titlebar-shadow: 0px;
 					--theme-titlebar-padding: 10px 24px 6px 16px;
 					--theme-titlebar-item-gap: 0px;
-					--theme-type-primary-background: url(../images/liveBetter/LBB_bg-1092x80.png);
+					--theme-type-primary-background: url(../images/liveBetter/lbb-bg-1092x80.png);
 				}
 				
 				.left-arrow {
@@ -148,14 +149,12 @@ const ACCOUNT_TYPE = {
 				}
 
 				.alert-banner {
-					--theme-alert-banner-height: 48px;
 					--theme-alert-banner-width: 1032px;
 					--theme-alert-banner-font-weight: 600;
 					--theme-alert-banner-info-background-color: #DAF2F4;
 					--theme-layout-gap-spacing: 16px;
 					--theme-alert-banner-info-font-color: #3A3A3A;
-					--theme-alert-banner-icon-margin-right: 12px;
-					--theme-alert-banner-icon-margin-left: 16px;
+					--theme-toast-icon-margin: 0px 12px 0px 16px;
 				}
 
 				.alert-banner-paragraph {
@@ -301,14 +300,12 @@ const ACCOUNT_TYPE = {
 
 	_renderAlertBanner() {
 		return html`
-			<capitec-alert-banner 
+			<horizon-alert-banner 
 				type="info" 
 				class="alert-banner"
-				label="Notify Client:">
-					<p class="alert-banner-paragraph">
-						You can only fund this account with Benefits Partner cash backs and Capitec cash backs
-					</p>
-			</capitec-alert-banner>
+				header="Notify Client: "
+				label="You can only fund this account with Benefits Partner cash backs and Capitec cash backs">
+			</horizon-alert-banner>
 		`;
 	}
 
@@ -321,7 +318,7 @@ const ACCOUNT_TYPE = {
 			halign="left" 
 			valign="top">
 				<capitec-group class="sub-header" layout="horizontal" gap="clear" halign="left" valign="center">
-					<capitec-image src="/images/liveBetter/AccountDetails.svg"></capitec-image>
+					<capitec-image src="/images/liveBetter/account-details.svg"></capitec-image>
 					<capitec-label
 						label="Account details"
 						class="title-style"
@@ -382,7 +379,7 @@ const ACCOUNT_TYPE = {
 							class="col-3"
 							data-automation-id="live-better-account-details-status"
 							label="Status" 
-							value="${this.accountDetails.accountStatus}">
+							value="${formatStringAsPascalCase(this.accountDetails.accountStatus)}">
 						</horizon-label>
 				</capitec-group>
 		</capitec-content-box>

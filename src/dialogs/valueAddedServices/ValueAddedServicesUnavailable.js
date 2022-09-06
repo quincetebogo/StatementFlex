@@ -87,7 +87,7 @@ export class ValueAddedServiceUnavailable extends Component {
 					--theme-modal-footer-padding: 0px;
 				}
 
-				capitec-alert-banner[type="unsuccessful-red"] {
+				horizon-alert-banner[type="error"] {
 					margin-top: 16px;
 					width: 677px;
 
@@ -169,12 +169,13 @@ export class ValueAddedServiceUnavailable extends Component {
 
 	_renderVASUnvailable() {
 		return html`
-				<capitec-alert-banner 
-						type="unsuccessful-red">
-						<p><strong>Notify client:</strong> Value Added Services is currently unavailable</p>
-				</capitec-alert-banner>
+				<horizon-alert-banner 
+						type="error"
+						header="Notify client: "
+						label="Value Added Services is currently unavailable">
+				</horizon-alert-banner>
 
-				<img class="image" src="/images/tap-to-pay-error.svg" alt="" />
+				<img class="image" src="/images/common/tap-to-pay-error.svg" alt="" />
 
 				<capitec-label 
 						class="vas-header"

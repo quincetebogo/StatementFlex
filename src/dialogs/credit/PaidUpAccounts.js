@@ -259,7 +259,13 @@ export class PaidUpAccounts extends Component {
 		const nonNullSelectedAccounts = this.selectedAccounts.filter(item => !isNullorEmpty(item));
 		const selectedAccountNumbers = nonNullSelectedAccounts.map((item) => item.accountNumber);
 
-		const returnValue = await this.creditService.emailPaidUpLetter(this.callerInformation.cifNumber, selectedAccountNumbers, event.detail.emailAddress, () => true);
+		const returnValue = await this.creditService.emailPaidUpLetter(
+			this.callerInformation.cifNumber, 
+			selectedAccountNumbers, 
+			event.detail.emailAddress, 
+			this.callerInformation.title,
+			this.callerInformation.lastName, () => true
+		);
 
 		let sendStatusList;
 
@@ -357,6 +363,7 @@ export class PaidUpAccounts extends Component {
 				}
 				capitec-title-bar > capitec-icon {
 					margin: 0px 16px 0px 23px;
+					cursor: pointer;
 				}
 
 				/* Action and search bar styles */
@@ -460,7 +467,7 @@ export class PaidUpAccounts extends Component {
 			<capitec-card class="center-section" >
 				<capitec-title-bar>
 					<capitec-icon 
-						size="small"
+						size="medium"
 						icon="system/arrow-left-action"
 						@click="${() => this._back()}">
 					</capitec-icon>

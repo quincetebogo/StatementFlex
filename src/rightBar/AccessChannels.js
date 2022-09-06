@@ -3,6 +3,7 @@ import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Logger } from 'platform/core';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { AccessChannelsEvents } from 'app/constants/telemetry/events/AccessChannels';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -39,6 +40,7 @@ export class AccessChannels extends Component {
 		this.landingInfo = {};
 
 		this.horizonStore = HorizonStore.getInstance();
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 		this.logger = Logger.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 
@@ -534,10 +536,8 @@ export class AccessChannels extends Component {
 		this.landingInfo = Utilities.deepCopy(this.landingInfo);
 	}
 
-	_updateIncidentState(status) {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = status;
-		this.horizonStore.setIncidentDetails(incidentDetails);
+	_updateIncidentState(state) {
+		this.horizonIncidentManager.incidentState = state;
 	}
 
 	// ---------
@@ -670,10 +670,11 @@ export class AccessChannels extends Component {
 	renderVerificationAlertBanner() {
 		return this.callerInformation?.hasDigitalChannels
 			? html`
-				<capitec-alert-banner
+				<horizon-alert-banner
 					class="has-digital-channels"
 					data-automation-id="high-risk-banner"
-					type="warning">
+					type="warning"
+					layout="vertical">
 							<capitec-label type="Strong" label="Notify client:"></capitec-label>
 							<capitec-label type="default"
 								label="For added security, we will be sending a push notification to access additional transactions.">
@@ -683,17 +684,16 @@ export class AccessChannels extends Component {
 								label="Verify Now"
 								@click="${() => this._onVerifyNowClick()}">
 							</capitec-hyperlink>
-				</capitec-alert-banner>`
+				</horizon-alert-banner>`
 			: html`
-				<capitec-alert-banner
+				<horizon-alert-banner
 					class="no-digital-channels"
 					data-automation-id="high-risk-banner"
-					type="warning">
-							<capitec-label type="Strong" label="Notify client:"></capitec-label>
-							<capitec-label type="default"
-								label="For added security get the remote banking App to perform additional transactions, alternatively, visit your nearest branch.">
-							</capitec-label>
-				</capitec-alert-banner>`;
+					type="warning"
+					header="Notify client: "
+					label="For added security get the remote banking App to perform additional transactions, alternatively, visit your nearest branch."
+					layout="vertical">
+				</horizon-alert-banner>`;
 	}
 
 }

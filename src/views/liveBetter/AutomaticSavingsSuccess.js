@@ -80,9 +80,7 @@ export class AutomaticSavingsSuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
 
 	// ---------
@@ -122,7 +120,7 @@ export class AutomaticSavingsSuccess extends ViewBase {
 			<horizon-success-screen
 				data-automation-id="automatic-savings-success-screen"
 				header="Automatic savings updated" 
-				image="/images/liveBetterSavings/automatic-savings.svg"
+				image="/images/liveBetter/automatic-savings-outcome.svg"
 				left="Manage Automatic Savings"
 				right="Done"
 				toast="Automatic savings successfully updated"

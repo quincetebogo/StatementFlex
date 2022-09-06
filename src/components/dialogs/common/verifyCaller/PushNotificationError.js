@@ -28,13 +28,10 @@ export class PushNotificationError extends Component {
 				#notification-status-box > capitec-group {
 					--theme-layout-gap-spacing: 16px;
 				}
-				#notification-status-box > capitec-group > capitec-alert-banner {
-					--theme-alert-banner-height: 48px;
-					--theme-alert-banner-info-border: none;
+				#notification-status-box > capitec-group > horizon-alert-banner {
+					--theme-toast-horizontal-title-margin-right: 4px;
 				}
-				#notification-status-box > capitec-group > capitec-alert-banner[type="error"] {
-					--theme-alert-banner-icon-margin-left: 15px;
-					--theme-alert-banner-icon-margin-right: 15px;
+				#notification-status-box > capitec-group > horizon-alert-banner[type="error"] {
 					--theme-alert-banner-unsuccessful-red-border: none;
 					--theme-alert-banner-margin-bottom: 0px;
 				}
@@ -79,17 +76,18 @@ export class PushNotificationError extends Component {
 					halign="stretch" 
 					valign="top" 
 					gap="clear">
-					<capitec-alert-banner 
-						type="${bannerType}">
-						<b>Notify client:</b> ${message} 
-					</capitec-alert-banner>
+					<horizon-alert-banner 
+						type="${bannerType}"
+						header="Notify: "
+						label="${message}">
+					</horizon-alert-banner>
 					<capitec-group layout="vertical"
 						halign="center"
 						valign="top"
 						gap="clear"
 						id="notification-status-group">
 						${this.itaSystemError
-						   ? html`<img src="/images/verifyCaller/connection-error.svg" class="ita-timeout-svg"/>`
+						   ? html`<img src="/images/common/connection-error.svg" class="ita-timeout-svg"/>`
 						   : html`<img src="/images/common/ita-timeout.svg" class="ita-timeout-svg"/>`
 						}
 						<capitec-label 
