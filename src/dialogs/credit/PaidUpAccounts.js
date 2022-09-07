@@ -259,8 +259,13 @@ export class PaidUpAccounts extends Component {
 		const nonNullSelectedAccounts = this.selectedAccounts.filter(item => !isNullorEmpty(item));
 		const selectedAccountNumbers = nonNullSelectedAccounts.map((item) => item.accountNumber);
 
-		const returnValue = await this.creditService.emailPaidUpLetter(this.callerInformation.cifNumber, selectedAccountNumbers, event.detail.emailAddress, this.callerInformation.title,
-			this.callerInformation.lastName, () => true);
+		const returnValue = await this.creditService.emailPaidUpLetter(
+			this.callerInformation.cifNumber, 
+			selectedAccountNumbers, 
+			event.detail.emailAddress, 
+			this.callerInformation.title,
+			this.callerInformation.lastName, () => true
+		);
 
 		let sendStatusList;
 

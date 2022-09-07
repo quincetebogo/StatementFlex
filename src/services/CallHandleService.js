@@ -44,7 +44,6 @@ export class CallHandleService extends ChannelServiceBase {
 	/**
 	 * Retrieves the search call options to search the existing client
 	 * 
-	 * @param {object} incomingCallData Information about the incoming call
 	 * @param {errorHandlerCallback} errorHandler An optional error handler
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * 

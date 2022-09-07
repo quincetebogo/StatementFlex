@@ -5,9 +5,8 @@ import { DebiCheckService } from 'app/services/DebiCheckService';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { NavigationContext } from 'platform/core';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
-import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
-import { SavingsAccountService } from 'app/services/SavingsAccountService';
+import { SavingsService } from 'app/services/SavingsService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { capitalizeString } from 'app/utils/channelServiceUtilities';
@@ -60,10 +59,8 @@ export class SavingsAccountBase extends ViewBase {
 		this.navigationContext = NavigationContext.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 
-		
-		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.savingsService = new SavingsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.debiCheckService = new DebiCheckService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
@@ -279,7 +276,7 @@ export class SavingsAccountBase extends ViewBase {
 			cifNumber: this.callerInformation.cifNumber,
 			status: `OPEN`
 		};
-		const returnValue = await this.quickTransactionService.getClientProducts(request, customErrHandler);
+		const returnValue = await this.savingsService.getClientProducts(request, customErrHandler);
 
 		if (returnValue.succeeded) {
 

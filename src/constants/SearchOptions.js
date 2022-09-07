@@ -1,4 +1,4 @@
-import { AUTH_IDENTIFICATION_METHODS } from 'app/constants/Common';
+import { AUTH_IDENTIFICATION_METHODS } from 'app/constants/common';
 
 /**
  * Search Options

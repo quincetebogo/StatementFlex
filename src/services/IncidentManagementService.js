@@ -327,7 +327,8 @@ export class IncidentManagementService extends ChannelServiceBase {
 
 	/**
 	* Adding branch details for consultant phoning on behalf of client
-    * @param {object} branchDetails IncidentRecID & BranchCode to classify branch
+	* @param {string} incidentRecID Record IF of the current incident
+    * @param {string} branchCode BranchCode to classify branch
 	* @param {errorHandlerCallback} [errorHandler=null] and optional error handler
 	* @param {Number} [autoRetries] The amount of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call

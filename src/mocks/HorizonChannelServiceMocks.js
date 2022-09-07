@@ -56,6 +56,7 @@ export default class HorizonChannelServiceMocks {
 		this.stopCardLandingMocks = await this._loadMockModule(this.stopCardLandingMocks, `stopCardLanding`, () => import(`../mocks/StopCardMockData`).catch(err => logError(err)));
 		this.hasInsuranceProductsMock = await this._loadMockModule(this.hasInsuranceProductsMock, `hasInsuranceProducts`, () => import(`../mocks/HasInsuranceProductsMock`).catch(err => logError(err)));
 		this.transactionHistoryMocks = await this._loadMockModule(this.transactionHistoryMocks, `transactionHistory`, () => import(`../mocks/TransactionHistoryMockData`).catch(err => logError(err)));
+		this.transactionHistoryMocks = await this._loadMockModule(this.transactionHistoryMocks, `savingsPlanTransactionHistory`, () => import(`../mocks/TransactionHistoryMockData`).catch(err => logError(err)));
 		this.savingsAccountMocks = await this._loadMockModule(this.savingsAccountMocks, `savingsAccountLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));  
 		this.savingsAccountMocks = await this._loadMockModule(this.savingsAccountMocks, `savingsPlanLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
 		this.viewStatementsMock = await this._loadMockModule(this.viewStatementsMock, `viewStatements`, () => import(`../mocks/ViewStatementMock`).catch(err => logError(err)));
@@ -230,6 +231,12 @@ export default class HorizonChannelServiceMocks {
 
 		// Code for a negative case could come here
 		return null;
+	}
+
+	savingsPlanTransactionHistory() {
+		if(this._mockSettings.savingsPlanTransactionHistory.positiveCase) {
+			return this.transactionHistoryMocks.savingsPlanTransactionHistory;
+		}
 	}
 
 	stopCardLanding() {
