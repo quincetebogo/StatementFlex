@@ -1,13 +1,13 @@
 import { Component, html } from 'platform/elements';
 import { Configuration, Logger, NavigationContext } from 'platform/core';
 import { RENDER_MODE, TIME_PERIOD } from 'app/constants/Statements';
-import { ACCOUNT_TYPES } from 'app/constants/Common';
+import { ACCOUNT_TYPES } from 'app/constants/common';
 import { CreditService } from 'app/services/CreditService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { PRODUCTS } from 'app/constants/Credit';
-import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { SavingsService } from 'app/services/SavingsService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { base64ToBlobUrl } from 'app/utils/channelServiceUtilities';
 import { creditMixin } from 'app/views/credit/CreditMixin';
@@ -50,7 +50,7 @@ export class Statements extends Component {
 
 		this._telemetryEventsImport();
 
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), () => true);
+		this.savingsService = new SavingsService(() => this._toggleBusyFlag(), () => this._handleChannelServiceError());
 		this.creditService = new CreditService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 
 		Object.assign(Statements.prototype, creditMixin);
@@ -274,7 +274,7 @@ export class Statements extends Component {
 			'statement-period': statement.statementDateRange.parseInterval
 		});
 
-		const returnValue = await this.quickTransactionService.viewStatement(statement, () => this._createIncidentOnError());
+		const returnValue = await this.savingsService.viewStatement(statement, () => this._createIncidentOnError());
 		
 		if (returnValue.succeeded) {
 			return base64ToBlobUrl(returnValue.result.statementData);
@@ -387,7 +387,7 @@ export class Statements extends Component {
 			'next-screen': TelemetryScreen.STATEMENTS_OUTCOME
 		});
 
-		const returnValue = await this.quickTransactionService.sendStatement(statement);
+		const returnValue = await this.savingsService.sendStatement(statement);
 		this._updateScreenDetails(request);
 
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, this.statementAsOption);

@@ -8,3 +8,10 @@ ocwp
 **.orig
 package.json
 package-lock.json
+tsconfig.json
+node_modules
+npm.cmd
+node.cmd
+npm
+node
+.npmrc

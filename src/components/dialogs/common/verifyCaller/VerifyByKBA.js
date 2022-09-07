@@ -311,16 +311,10 @@ export class VerifyByKBA extends Component {
 					--theme-container-padding-right: 16px;
 				}
 				/* Alert banner styles */
-				capitec-alert-banner {
-					--theme-alert-banner-height: 48px;
+				horizon-alert-banner {
 					--theme-layout-gap-spacing: 24px;
-					--theme-alert-banner-icon-margin-left: 16px;
-					--theme-alert-banner-icon-margin-right: 12px;
+					--theme-toast-icon-margin: 0px 12px 0px 16px;
 					--theme-label-default-font-size: 14px;
-				}
-				.alert-banner-group > capitec-label[type="strong"] {
-					--theme-label-strong-font-size: 14px;
-					--theme-label-strong-font-weight: 600;
 				}
 				/* Content header styles */
 				.header-group {
@@ -445,17 +439,12 @@ export class VerifyByKBA extends Component {
 
 	_renderAlertBanner() {
 		return html`
-			<capitec-alert-banner
+			<horizon-alert-banner
 				data-automation-id="kba-alert-banner"
-				type="warning">
-					<capitec-group layout="horizontal" class="alert-banner-group" gap="none">
-						<capitec-label type="strong" label="Note: "></capitec-label>
-						<capitec-label type="default"
-							label="Client must answer all questions correctly to pass authentication.">
-						</capitec-label>
-						<capitec-spacer></capitec-spacer>
-					</capitec-group>
-			</capitec-alert-banner>
+				type="warning"
+				header="Note: "
+				label="Client must answer all questions correctly to pass authentication.">
+			</horizon-alert-banner>
 		`;
 	}
 

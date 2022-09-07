@@ -1,10 +1,9 @@
-import { Component, css, html } from 'platform/elements';
+import { Component, classMap, css, html, styleMap } from 'platform/elements';
 import { DateTime, Interval } from 'luxon';
 import { InputLayouts } from 'platform/components/input-layouts';
-import { classMap } from 'lit-html/directives/class-map';
 import { debounceTime } from 'rxjs/operators';
 import { fromEvent } from 'rxjs';
-import { styleMap } from 'lit-html/directives/style-map';
+
 import 'platform/components/inputs/Calendar';
 import 'platform/components/buttons/Button';
 import 'platform/components/inputs/Select';

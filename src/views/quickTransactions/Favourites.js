@@ -5,6 +5,7 @@ import { formatStringAsPascalCase, isNullorEmpty, isWellFormedSouthAfricanID } f
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -79,6 +80,7 @@ export class Favourites extends SavingsAccountBase {
 
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), () => true);
 
 		Object.assign(Favourites.prototype, tapToPayMixin);
 		Object.assign(Favourites.prototype, searchOtherNeedMixin);
@@ -237,7 +239,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _getPermanentLimits(request) {
-		const returnValue = await this.quickTransactionService.getPermanentLimits(request, () => true);
+		const returnValue = await this.cardService.getPermanentLimits(request, () => true);
 
 		if (returnValue.succeeded) {
 			return returnValue.result;
@@ -252,7 +254,7 @@ export class Favourites extends SavingsAccountBase {
 	
 		updateRequest.cardLimits = this._limitsRandsToCents(updateRequest.cardLimits);
 
-		const returnValue = await this.quickTransactionService.updatePermanentLimits(updateRequest, () => true);
+		const returnValue = await this.cardService.updatePermanentLimits(updateRequest, () => true);
 
 		if (returnValue.succeeded) {
 			return true;
@@ -265,7 +267,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _getTemporaryLimits(request) {
-		const returnValue = await this.quickTransactionService.getTemporaryLimits(request, () => true);
+		const returnValue = await this.cardService.getTemporaryLimits(request, () => true);
 
 		if (returnValue.succeeded) {
 			return returnValue.result;
@@ -281,7 +283,7 @@ export class Favourites extends SavingsAccountBase {
 		
 		updateRequest.cardLimits = this._limitsRandsToCents(updateRequest.cardLimits);
 
-		const returnValue = await this.quickTransactionService.updateTemporaryLimits(updateRequest, () => true);
+		const returnValue = await this.cardService.updateTemporaryLimits(updateRequest, () => true);
 
 		if (returnValue.succeeded) {
 			return true;
@@ -296,7 +298,7 @@ export class Favourites extends SavingsAccountBase {
 
 		agreementRequest.cardDetails = this._limitsRandsToCents(agreementRequest.cardDetails);
 
-		const returnValue = await this.quickTransactionService.getCardLimitsAgreement(agreementRequest, () => this._createIncidentOnError());
+		const returnValue = await this.cardService.getCardLimitsAgreement(agreementRequest, () => this._createIncidentOnError());
 		
 		if (returnValue.succeeded) {
 			return returnValue.result;
@@ -466,7 +468,7 @@ export class Favourites extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.CARD_LIMITS_LANDING
 		});
 
-		const returnValue = await this.quickTransactionService.cardLimitsLanding(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
+		const returnValue = await this.cardService.cardLimitsLanding(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
 			
 		if (returnValue.succeeded) {
 			this.cards = returnValue.result.cards;

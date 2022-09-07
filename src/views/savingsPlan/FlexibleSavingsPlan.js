@@ -26,6 +26,7 @@ export class FlexibleSavingsPlanDetails extends Component {
 		super();
 
 		this.flexibleAccountDetails = null;
+		this.detailsHeader = ``;
 	}
 
 	// -------------------

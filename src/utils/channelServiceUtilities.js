@@ -21,6 +21,7 @@ import { html, unsafeHTML } from 'platform/elements';
 	const currencyString = amount >= 0 ? `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}` : `- R${amount.toString().substring(1).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
 	return currencyString;
 }
+
 /**
  * Indicates if a string value is null, undefined or empty
  *
@@ -234,12 +235,12 @@ export function formatDate(value, format) {
 			formattedDate = `${monthName} ${year}`;
 			break;
 		case `yyyy-mm-dd`:
-			let formattedMonth = String(month+1).padStart(2, '0');
-			let day = String(date).padStart(2, '0');
+			const formattedMonth = String(month + 1).padStart(2, `0`);
+			const day = String(date).padStart(2, `0`);
 			formattedDate = `${year}-${formattedMonth}-${day}`;
 			break;
 		case `dd mmm yyy hh:mm:ss`:
-			formattedDate = `${date} ${monthName} ${year} ${time}`
+			formattedDate = `${date} ${monthName} ${year} ${time}`;
 			break;
 		default:
 			formattedDate = `${date}-${month}-${year}`;
@@ -247,6 +248,19 @@ export function formatDate(value, format) {
 	}
 
 	return formattedDate;
+}
+
+/**
+ * @export
+ * @param {string} date string value to be formatted
+ * @returns {string} formatted string value 
+ */
+ export function formatDateTime(date) {
+	const newdate = new Date(Date.parse(date));
+	const formatedDate = `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+	const formatedTime = `${newdate.toTimeString().substring(0, 5)}`;
+
+	return `${formatedDate} ${formatedTime}`;
 }
 
 /**
@@ -271,7 +285,8 @@ export function formatStringAsPascalCase(unformatedString) {
 /**
  * Uppercases the first character of the string, the rest of the string is lower cased
  * 
- * @returns {string} A capitalized string
+ * @param {string} str A string to capitalize
+ * @returns {string} stA capitalized string
  */
 export function capitalizeString(str) {
 	const result = str.replace(/\0/g, ``); // TODO: Temporary fix for telemetry issue. This must come out once the PS side problem has been addressed.

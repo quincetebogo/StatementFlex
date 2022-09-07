@@ -121,7 +121,7 @@ export class DebiCheckServiceError extends ViewBase {
 		return html`
 			<horizon-service-call-error-screen
 				bannerDetail="DebiCheck is currently unavailable" 
-				image="/images/service-error.svg"
+				image="/images/common/service-error.svg"
 				header="DebiCheck currently unavailable"
 				right="Find a Branch"
 				@right-click=${() => this._findBranchClick()}>
