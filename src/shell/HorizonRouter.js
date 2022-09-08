@@ -856,11 +856,11 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
-		name: `horizon-live-better`,
+		name: `horizon-livebetter-widget-host`,
 		title: `LiveBetter`,
 		icon: null,
 		path: HORIZON_ROUTES.LIVE_BETTER,
-		load: () => import(`../views/liveBetter/LiveBetter`),
+		load: () => import(`../views/common/LiveBetterHost`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
