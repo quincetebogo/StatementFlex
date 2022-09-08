@@ -175,7 +175,7 @@
 			"positiveCase": true
 		},
 		"viewStatements": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"liveBetterLanding": {
