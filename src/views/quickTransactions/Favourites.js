@@ -54,7 +54,7 @@ export class Favourites extends SavingsAccountBase {
 
 		this.agreementResult = ``;
 		// private properites
-		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
+	
 
 		this.isLoading = true;
 
@@ -108,6 +108,7 @@ export class Favourites extends SavingsAccountBase {
 
 	connectedCallback() {
 		super.connectedCallback();
+		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
 		this.feedbackOptions = FEEDBACK_OPTIONS;
 		
 
