@@ -1,7 +1,8 @@
-import { BUDGET_FACILITY_POP_EVENTS, CreditEvents } from 'app/constants/telemetry/events/Credit';
-import { Component, css, html } from 'platform/elements';
+import { css, html } from 'platform/elements';
 import { CREDIT_TYPE } from 'app/constants/Credit';
 import { OutcomeBase } from '../common/OutcomeBase';
+import { SETTLE_AND_CLOSE } from 'app/constants/telemetry/events/Credit';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { creditMixin } from 'app/views/credit/CreditMixin';
 import 'app/components/common/SuccessScreen';
@@ -22,26 +23,15 @@ import 'app/components/common/SuccessScreen';
 	constructor() {
 		super();
 
-		// TODO: Hardcoded values needs to be remvoed when wiring up navigation.
-		this.productType = ``;
 		this.creditCardNumber = ``;
 		this.creditType = ``;
+		this.accountName = ``;
 
-		this.primaryToast = this.creditType === CREDIT_TYPE.FLEXIBLE ? `Account settled and closed` : `Account Closed`;
+		this.settleAndCloseTelemetryEvents = {};
+		
+		this.primaryToast = `Account Settled`;
 		Object.assign(SettleAndCloseSuccess.prototype, creditMixin);
 	}
-
-	// --------------
-	// PROPERTIES
-	// --------------
-
-	static get properties() {
-		return {
-			creditType: { type: String },
-			productType: { type: String }
-		};
-	}
-
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -50,6 +40,9 @@ import 'app/components/common/SuccessScreen';
 	connectedCallback() {
 		super.connectedCallback();
 		this._initialise();
+
+		this._telemetry.startSpan(this.settleAndCloseTelemetryEvents.SUCCESS);
+		this._updateIncidentState();
 	}
 
 	disconnectedCallback() {
@@ -62,26 +55,39 @@ import 'app/components/common/SuccessScreen';
 	_initialise() {
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.creditType = screenDetails.settleAndCloseCreditType;
-		this.productType = screenDetails.settleAndCloseProductType;
 		this.creditCardNumber = screenDetails.settleAndCloseAccountNumber;
+		this.accountName = screenDetails.accountName;
+		
+		this.primaryToast = this.creditType === CREDIT_TYPE.FLEXIBLE ? `Account settled and closed` : `Account settled`;
+		this.settleAndCloseTelemetryEvents = SETTLE_AND_CLOSE[this.creditType];
 	}
 
 	_sendEmailConfirmationClick() {
+		this._telemetry.logEvent(this.settleAndCloseTelemetryEvents.SUCCESS_SEND_POP, {
+			"screen": this.creditType === CREDIT_TYPE.FLEXIBLE ? TelemetryScreen.CREDIT_SETTLE_CLOSE_SUCCESS : TelemetryScreen.CREDIT_SETTLE_TERM_LOAN_SUCCESS,
+			"next-screen": TelemetryScreen.PROOF_OF_PAYMENT_DIALOG
+		});
+		
 		const screenDetails = this.horizonStore.getScreenDetails();
 		const emailAccountsList = [
 			{
-				title: screenDetails.settleAndCloseProductType,
-				subtitle: `Settle and Close`,
+				title: this.accountName,
+				subtitle: this.creditType === CREDIT_TYPE.FLEXIBLE ? `Settle and Close` : `Settle term loan`,
 				documentData: screenDetails.settleAndCloseDocumentData
 			}
 		];
 
-	this._showPopDialog(emailAccountsList, BUDGET_FACILITY_POP_EVENTS, CreditEvents.CREDIT_BUDGET_DETAILS);
-		
-		
+	this._showPopDialog(emailAccountsList, this.settleAndCloseTelemetryEvents.POP_EVENTS, this.settleAndCloseTelemetryEvents.NEED);
 	}
 
 	_doneClick() {
+		this._telemetry.logEvent(this.settleAndCloseTelemetryEvents.SUCCESS_DONE, {
+			"screen": this.creditType === CREDIT_TYPE.FLEXIBLE ? TelemetryScreen.CREDIT_SETTLE_CLOSE_SUCCESS : TelemetryScreen.CREDIT_SETTLE_TERM_LOAN_SUCCESS,
+			"next-screen": TelemetryScreen.CREDIT_LANDING
+		});
+
+		this._telemetry.endSpan(this.settleAndCloseTelemetryEvents.SUCCESS, {}, true, true);
+	
 		this.horizonRouter.navigateToCreditAccount();
 	}
 
@@ -93,6 +99,10 @@ import 'app/components/common/SuccessScreen';
 	// PRIVATE METHODS
 	// ---------------
 
+	_updateIncidentState() {
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+	}
+	
 	// ---------
 	// RENDERING
 	// ---------
@@ -134,7 +144,7 @@ import 'app/components/common/SuccessScreen';
 				image="/images/credit/settle-and-close-account.svg"
 				right="Done"
 				toast="${this.primaryToast}"
-				?hasSubDetails=${true}
+				?hasSubDetails=${this.creditType === CREDIT_TYPE.FLEXIBLE}
 				?subContent=${true}
 				@right-click=${() => this._doneClick()}>
 					${this._renderDetail()}
@@ -149,25 +159,26 @@ import 'app/components/common/SuccessScreen';
 			<section 
 				class="id-update-msg" 
 				slot="detail">
-					Your ${this.productType} account has been ${this.creditType === CREDIT_TYPE.FLEXIBLE ? `settled and closed.` : `closed.`}
+					Your ${this.accountName} account <strong>${this.creditCardNumber}</strong> has been ${this.creditType === CREDIT_TYPE.FLEXIBLE ? `settled and closed.` : `settled.`}
 			</section>
 		`;
 	}
 
 	_renderSubDetail() {
-		return html`
+		return this.creditType === CREDIT_TYPE.FLEXIBLE 
+		? html`
 			<section 
 				class="id-update-msg" 
 				slot="sub-detail">
-					${this.productType} <strong>${this.creditCardNumber}</strong> was stopped successfully.
-			</section>
-		`;
+					${this.accountName} was stopped successfully.
+			</section>`
+		: html``;
 	}
 
 	_renderSubContent() {
 		return html`
 			<section slot="sub-content">
-				Would you like proof of payment? 
+				<strong>Would you like proof of payment?</strong>
 				<span @click="${() => this._sendEmailConfirmationClick()}">Send Email Confirmation</span>
 			</section>
 		`;

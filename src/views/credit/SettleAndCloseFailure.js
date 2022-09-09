@@ -1,6 +1,8 @@
-import { css, html } from 'platform/elements';
-import { ViewBase } from 'app/views/common/ViewBase';
 import { CREDIT_TYPE } from 'app/constants/Credit';
+import { SETTLE_AND_CLOSE } from 'app/constants/telemetry/events/Credit';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { ViewBase } from 'app/views/common/ViewBase';
+import { html } from 'platform/elements';
 
 import 'app/components/common/ErrorScreen';
 import 'app/components/common/RelatedOptions';
@@ -21,23 +23,13 @@ import 'app/components/common/RelatedOptions';
 	constructor() {
 		super();
 
-		// TODO: Hardcoded values needs to be remvoed when wiring up navigation.
-		this.productType = `credit card`;
-		this.creditType = CREDIT_TYPE.FLEXIBLE;
+		this.creditCardNumber = ``;
+		this.creditType = ``;
+		this.accountName = ``;
 
-		this.primaryToast = this.creditType === CREDIT_TYPE.FLEXIBLE ? `Account was not settled and closed` : `Account was not closed`;
-	}
+		this.telemetryEvents = {};
 
-	// --------------
-	// PROPERTIES
-	// --------------
-
-	static get properties() {
-		return {
-
-			// TODO: To be removed when wiring up navigation.
-			creditType: { type: String },
-		};
+		this.primaryToast = ``;
 	}
 
 	// -------------------
@@ -46,6 +38,10 @@ import 'app/components/common/RelatedOptions';
 
 	connectedCallback() {
 		super.connectedCallback();
+		this._initialise();
+		this._telemetry.startSpan(this.telemetryEvents.FAILURE);
+
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
 
 	disconnectedCallback() {
@@ -56,12 +52,16 @@ import 'app/components/common/RelatedOptions';
 	// EVENT HANDLERS
 	// --------------
 
-	_doneClick() {
-		this.horizonRouter.navigateToQuickTransactionFavourites();
-	}
+	_doneClick(event) {
+		this._telemetry.logEvent(event, {
+			"screen": this.creditType === CREDIT_TYPE.FLEXIBLE ? TelemetryScreen.CREDIT_SETTLE_CLOSE_FAILURE : TelemetryScreen.CREDIT_SETTLE_TERM_LOAN_FAILURE,
+			"next-screen": TelemetryScreen.CREDIT_LANDING
+		});
 
-	_tryAgainClick() {
-		// TODO: Navigation to be wired up here.
+		this._telemetry.endSpan(this.telemetryEvents.FAILURE, {}, true, true);
+	
+		this.horizonRouter.navigateToCreditAccount();
+		this.horizonStore.clearScreenDetails();
 	}
 
 	// --------------
@@ -72,16 +72,19 @@ import 'app/components/common/RelatedOptions';
 	// PRIVATE METHODS
 	// ---------------
 
+	_initialise() {
+		const screenDetails = this.horizonStore.getScreenDetails();
+		this.creditType = screenDetails.settleAndCloseCreditType;
+		this.accountName = screenDetails.accountName;
+		this.creditCardNumber = screenDetails.settleAndCloseAccountNumber;
+
+		this.primaryToast = this.creditType === CREDIT_TYPE.FLEXIBLE ? `Account was not settled and closed` : `Account was not settled`;
+		this.telemetryEvents = SETTLE_AND_CLOSE[this.creditType];
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
-
-	static get styles() {
-		return [
-			super.styles,
-			css``
-		];
-	}
 
 	_mobileTemplate() {
 		return this._webTemplate();
@@ -100,13 +103,13 @@ import 'app/components/common/RelatedOptions';
 		return html`
 			<horizon-error-screen
 				data-automation-id="settle-and-close-failure-screen"
-				header="${this.creditType === CREDIT_TYPE.FLEXIBLE ? `Account was not settled and closed` : `Account was not closed`}"
+				header="${this.creditType === CREDIT_TYPE.FLEXIBLE ? `Account was not settled and closed` : `Account was not settled`}"
 				image="/images/credit/settle-and-close-account.svg"
 				left="Done"
 				right="Try Again"
 				toast="${this.primaryToast}"
-				@left-click=${() => this._doneClick()}
-				@right-click=${() => this._tryAgainClick()}>
+				@left-click=${() => this._doneClick(this.telemetryEvents.FAILURE_DONE)}
+				@right-click=${() => this._doneClick(this.telemetryEvents.FAILURE_TRY_AGAIN)}>
 					${this._renderDetail()}
 			</horizon-error-screen>
 		`;
@@ -116,7 +119,7 @@ import 'app/components/common/RelatedOptions';
 		return html`
 			<section 
 				slot="detail">
-					Your ${this.productType} account was not ${this.creditType === CREDIT_TYPE.FLEXIBLE ? `settled and closed.` : `closed`}
+					Your ${this.accountName} account was not ${this.creditType === CREDIT_TYPE.FLEXIBLE ? `settled and closed.` : `settled`}
 			</section>
 		`;
 	}

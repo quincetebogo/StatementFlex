@@ -3,10 +3,11 @@ import { EventAggregator, Logger, NavigationContext } from 'platform/core';
 import { optionsConfig, relatedOptions } from 'app/utils/relatedOptions';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { CardService } from 'app/services/CardService';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { SavingsService } from 'app/services/SavingsService';
 import { capitalizeString } from 'app/utils/channelServiceUtilities';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
@@ -60,7 +61,7 @@ export class RelatedOptions extends Component {
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-navigate-related-option`, (e) => this._navigateToOption(e.option));
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.savingsService = new SavingsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
 		Object.assign(RelatedOptions.prototype, tapToPayMixin);
 	}
@@ -92,11 +93,10 @@ export class RelatedOptions extends Component {
 
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 		this.landingPageInfo = state.landingPageInfo;
 
-		const currNeed = this.incidentDetails.currentNeed;
-		this.options = relatedOptions[currNeed][this.context];
+		this.options = relatedOptions[this.horizonIncidentManager.getCurrentNeed()][this.context];
 	}
 
 	disconnectedCallback() {
@@ -149,7 +149,6 @@ export class RelatedOptions extends Component {
 
 			if (actions[item]) {
 				await super._inicidentManager_(item, () => this._toggleBusyFlag());
-				this._refreshIncidentDetails();
 				return actions[item](item);
 			}
 
@@ -161,11 +160,12 @@ export class RelatedOptions extends Component {
 	}
 
 	_backToLandingPage() {
+		const incidentState = this.horizonIncidentManager.incidentState;
 		
-		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
-			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
 		}
+
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -177,10 +177,6 @@ export class RelatedOptions extends Component {
 		return this.callerInformation && this.callerInformation.verificationStatus === `verified`;
 	}
 
-	_refreshIncidentDetails() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-	}
-
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
@@ -190,7 +186,7 @@ export class RelatedOptions extends Component {
 			cifNumber: this.callerInformation.cifNumber,
 			status: `OPEN`
 		};
-		const returnValue = await this.quickTransactionService.getClientProducts(request);
+		const returnValue = await this.savingsService.getClientProducts(request);
 
 		if (returnValue.succeeded) {
 			return returnValue.result.savingsProducts;
@@ -200,7 +196,7 @@ export class RelatedOptions extends Component {
 
 	async _stopCard() {
 
-		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.incidentDetails);
+		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.horizonIncidentManager.getCurrentIncident());
 
 		if (returnValue.succeeded) {
 

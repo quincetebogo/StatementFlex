@@ -4,7 +4,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { NavigationContext } from 'platform/core';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
-import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { SavingsService } from 'app/services/SavingsService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 const ACCOUNT_TYPE = `PRIMARY_SAVINGS`;
@@ -42,7 +42,7 @@ export class ProofOfAccount extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
 
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.savingsService = new SavingsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
 		// private properites
 		this.isBusy = false;
@@ -137,7 +137,7 @@ export class ProofOfAccount extends Component {
 				"title": this.title,
 				"lastName": this.lastName
 			};
-			const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
+			const returnValue = await this.savingsService.sendProofOfAccount(clientInfo);
 
 			this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME, {
 				"screen": TelemetryScreen.PROOF_OF_ACCOUNT,
@@ -250,11 +250,8 @@ export class ProofOfAccount extends Component {
 					--theme-modal-header-padding-bottom: 20px;
 					--theme-modal-footer-padding: 0px;
 				}
-				capitec-alert-banner {
-					--theme-alert-banner-height: 48px;
+				horizon-alert-banner {
 					--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
-					--theme-alert-banner-icon-margin-left: 15px;
-					--theme-alert-banner-icon-margin-right: 15px;
 
 					margin: 16px 0px 0px 0px;
 				
@@ -338,21 +335,11 @@ export class ProofOfAccount extends Component {
 	_renderAlertBanner() {
 		if (!this._isNullorEmpty(this.alertBannerMessage)) {
 			return html`
-				<capitec-alert-banner type="unsuccessful-red">
-					<capitec-group layout="horizontal">
-						<capitec-label
-							data-automation-id="proof-of-account-notify-alert-banner"
-							type="subtitle"
-							label="Notify: "
-							class="label-err-message">
-						</capitec-label>
-						<capitec-label
-							data-automation-id="proof-of-account-alert-banner"
-							label="${this.alertBannerMessage}"
-							class="label-err-message">
-						</capitec-label>
-					</capitec-group>
-				</capitec-alert-banner>
+				<horizon-alert-banner
+					type="error"
+					header="Notify: "
+					label="${this.alertBannerMessage}">
+				</horizon-alert-banner>
 			`;
 		}
 		return html``;

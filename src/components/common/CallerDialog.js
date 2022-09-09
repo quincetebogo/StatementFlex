@@ -167,7 +167,7 @@ export class CallerDialog extends Component {
 					style="visibility:${!this.displayButton ? `hidden` : `visible`}" 
 					label="End Call"
 					@click="${() => this._onEndCall()}">
-					<img class="end-call-icon" src="/images/hangup.svg"/>
+					<img class="end-call-icon" src="/images/common/hangup.svg"/>
 				</capitec-button>
 
 				<div slot="body">

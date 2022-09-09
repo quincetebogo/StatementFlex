@@ -103,10 +103,10 @@ export class HorizonSelect extends Select {
 					
 					height: var(--theme-custom-input-label-height, 33px);
 					left: calc(var(--theme-input-icon-margin-left, 0px) + var(--theme-icon-size-small, 0px) + 8px);
-					position: absolute;
 				}
 				.details {
 					margin-top: var(--theme-input-padding-top, 10px);
+					position: absolute;
 				}
 				
 				.pull-right {

@@ -1,13 +1,14 @@
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator, Logger } from 'platform/core';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerDetails } from 'app/models/CallerDetails';
 import { CallerInformation } from 'app/models/CallerInformation';
+import { ClientProfileService } from 'app/services/ClientProfileService';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { Logger } from 'platform/core';
 import { RoleManager } from 'app/shell/RoleManager';
 import { SEARCH_OPTIONS } from 'app/constants/SearchOptions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -32,7 +33,7 @@ const CLIENT_TYPE = Object.freeze({
 // ToDO: Below const need to be removed, once channelService fix the issue on contract.
 // These error messages has to come from service
 const ERROR_MESSAGES = {
-	SYSTEM_ERROR: html`<b>System error:</b> Please try again later`,
+	SYSTEM_ERROR: html`<b>System error:&ensp;</b>Please try again later`,
 	STRACK_ERROR: `Take note: A system error has occured. Please go to STrack to search for client.`,
 	NONCLIENT_REQUIRED_FIELDS_EMPTY: `Name and surname must be completed`,
 	REQUIRED_FIELDS_EMPTY: `All fields are required`,
@@ -189,14 +190,14 @@ export class SearchCaller extends Component {
 
 		this.logger = Logger.getInstance();
 
-		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
-		this._telemetry = HorizonTelemetry.instance;
+		this._telemetry = HorizonTelemetry.getInstance();
 		this.roleManager = RoleManager.getInstance();
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
 		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
+		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 	}
 
 	// ----------
@@ -216,6 +217,8 @@ export class SearchCaller extends Component {
 			incomingCallDetails: { type: Object },
 			incidentDetails: { type: Object },
 
+			cpNumber: { attribute: false },
+			clientType: { attribute: false },
 			isBusy: { attribute: false },
 			renderMode: { attribute: false },
 			clientType: { attribute: false },
@@ -236,6 +239,10 @@ export class SearchCaller extends Component {
 		super.connectedCallback();
 		this.identificationMethods = SEARCH_OPTIONS;
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
+
+		if (this.cpNumber) {
+			this._getBranchConsultantDetails(this.cpNumber);
+		}
 
 		this._telemetry.startSpan(IDCallerEvents.SEARCH_CLIENT, {
 			"screen": TelemetryScreen.SEARCH_CLIENT
@@ -287,7 +294,14 @@ export class SearchCaller extends Component {
 
 	async _getConsultant(e) {
 		this._clearErrors(e);
+
 		const cpNumber = e.detail.new;
+		await this._getBranchConsultantDetails(cpNumber);
+
+		this.cpNumber = cpNumber;
+	}
+
+	async _getBranchConsultantDetails(cpNumber) {
 		if (cpNumber.length === 6) {
 			const consultantInfo = await this._getConsultantDetails(`cp${cpNumber}`);
 			if (consultantInfo.status === `Active`) {
@@ -299,7 +313,6 @@ export class SearchCaller extends Component {
 			this.consultantName = ``;
 			this.branchName = ``;
 		}
-		this.cpNumber = cpNumber;
 	}
 
 	async _onSearchClient() {
@@ -318,7 +331,7 @@ export class SearchCaller extends Component {
 				searchValue: this.searchValue
 			};
 
-			const returnValue = await this.callHandleService.searchCaller(searchClient);
+			const returnValue = await this.clientProfileService.searchCaller(searchClient);
 			const identifiedClient = returnValue.result;
 
 			if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
@@ -358,7 +371,7 @@ export class SearchCaller extends Component {
 					"client-verified": this.isClientVerifiedInBranch
 				});
 
-				const returnValue = await this.callHandleService.searchCaller(searchClient);
+				const returnValue = await this.clientProfileService.searchCaller(searchClient);
 				const identifiedClient = returnValue.result;
 
 				if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
@@ -377,11 +390,12 @@ export class SearchCaller extends Component {
 	}
 
 	_needChanged(e) {
-		this.incomingCallDetails.ivrOptionCode = e.detail.new;
-		this.incomingCallDetails.ivrOption.value = e.detail.new;
+		const ivrOptionCode = e.detail.new;
 
-		this.incidentDetails.currentNeed = this.incomingCallDetails.ivrOptionCode;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.incomingCallDetails.ivrOptionCode = ivrOptionCode;
+		this.incomingCallDetails.ivrOption.value = ivrOptionCode;
+
+		this.incidentDetails.currentNeed = this.horizonIncidentManager.setCurrentNeed(ivrOptionCode);
 
 		// Stop Card has it's own specialized search dialog. We raise this 
 		// event to give the caller the change to switch to that dialog.
@@ -454,7 +468,7 @@ export class SearchCaller extends Component {
 			"next-screen": TelemetryScreen.END_CALL
 		});
 
-        this._initCallerInformation();
+		this._initCallerInformation();
 
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
@@ -620,15 +634,17 @@ export class SearchCaller extends Component {
 			title: identifiedClient.callerInformation.title,
 			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber,
 			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber,
-            isBranchConsultant: false,
-            firstName: identifiedClient.callerInformation.firstName,
-            middleName1: identifiedClient.callerInformation.middleName1,
-            middleName2: identifiedClient.callerInformation.middleName2,
-            middleName3: identifiedClient.callerInformation.middleName3,
-            lastName: identifiedClient.callerInformation.lastName,
-            initials: identifiedClient.callerInformation.initials,
+			isBranchConsultant: false,
+			firstName: identifiedClient.callerInformation.firstName,
+			middleName1: identifiedClient.callerInformation.middleName1,
+			middleName2: identifiedClient.callerInformation.middleName2,
+			middleName3: identifiedClient.callerInformation.middleName3,
+			lastName: identifiedClient.callerInformation.lastName,
+			initials: identifiedClient.callerInformation.initials,
 			identifiedBy: this.searchType.identificationType,
-			isClientVerifiedInBranch: this.isClientVerifiedInBranch
+			isClientVerifiedInBranch: this.isClientVerifiedInBranch,
+	  		profilePhoto: identifiedClient.callerInformation.profilePhoto,   
+			gender: identifiedClient.callerInformation.gender        
 		};
 
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
@@ -659,7 +675,9 @@ export class SearchCaller extends Component {
 			middleName3: identifiedClient.callerInformation.middleName3,
 			lastName: identifiedClient.callerInformation.lastName,
 			isClientPresent: this.clientInBranch,
-			isClientVerifiedInBranch: this.isClientVerifiedInBranch
+			isClientVerifiedInBranch: this.isClientVerifiedInBranch,
+			profilePhoto: identifiedClient.callerInformation.profilePhoto,
+			gender: identifiedClient.callerInformation.gender      
 		};
 
 		await this._updateIncidentBranchDetails(this.branchCode);
@@ -670,7 +688,9 @@ export class SearchCaller extends Component {
 				confirmedCaller: confirmedCaller,
 				incidentDetails: this.incidentDetails,
 				isBranchConsultant: true,
-				isClientPresent: this.clientInBranch
+				isClientPresent: this.clientInBranch,
+				cpNumber: this.cpNumber,
+				clientType: this.clientType
 			}
 		}));
 	}
@@ -695,47 +715,46 @@ export class SearchCaller extends Component {
 		return null;
 	}
 
-    _initCallerInformation() {
-        // This is the callerInformation object that will be persisted to state when caller is confirmed.
-        this.callerInformation = new CallerInformation(
-            ``, // cif
-            ``, // birthdate
-            ``, // languagePreference
-            ``, // livesIn
-            ``, // name
-            ``, // title
-            ``, // SA id
-            ``, // verified number
-            this.nameValue, // nonclient firstname
-            this.surNameValue, // nonclient surname
-            `${this.nameValue} ${this.surNameValue}`, // nonclient fullname
-            this.cellPhoneNumberValue, // nonclient cellphone
-            ``, // nonclient ID number
-            ``, // nonclient relationship
-            false, // isConfirmed
+	_initCallerInformation() {
+		// This is the callerInformation object that will be persisted to state when caller is confirmed.
+		this.callerInformation = new CallerInformation(
+			``, // cif
+			``, // birthdate
+			``, // languagePreference
+			``, // livesIn
+			``, // name
+			``, // title
+			``, // SA id
+			``, // verified number
+			this.nameValue, // nonclient firstname
+			this.surNameValue, // nonclient surname
+			`${this.nameValue} ${this.surNameValue}`, // nonclient fullname
+			this.cellPhoneNumberValue, // nonclient cellphone
+			``, // nonclient ID number
+			``, // nonclient relationship
+			false, // isConfirmed
 			this.isClientVerifiedInBranch ? `verified` : `unverified`, // verificationStatus
-            false, // verificationToastDisplayed
-            false, // isThirdParty
-            this.clientType === CLIENT_TYPE.NON_CLIENT, // isNonClient
-            false, // hasInsuranceProducts
-            false, // hasDigitalChannels
-            {
-                itaAttempts: 0,
-                sqAttempts: 0
-            },
-            this.clientType === CLIENT_TYPE.BRANCH, // isBranchConsultant
-            this.clientInBranch, // isClientPresent
-            this.isClientVerifiedInBranch ? `ITA` : ``,
-            ``, // firstName
-            ``, // middleName1
-            ``, // middleName2
-            ``, // middleName3
-            ``, // lastName
-            ``, // initials
-            ``, // identifiedBy
-			`` // client's registered email ID
-        );
-    }
+			false, // verificationToastDisplayed
+			false, // isThirdParty
+			this.clientType === CLIENT_TYPE.NON_CLIENT, // isNonClient
+			false, // hasInsuranceProducts
+			false, // hasDigitalChannels
+			{ itaAttempts: 0, sqAttempts: 0 },
+			this.clientType === CLIENT_TYPE.BRANCH, // isBranchConsultant
+			this.clientInBranch, // isClientPresent
+			this.isClientVerifiedInBranch ? `ITA` : ``,
+			``, // firstName
+			``, // middleName1
+			``, // middleName2
+			``, // middleName3
+			``, // lastName
+			``, // initials
+			``, // identifiedBy
+			``, // validated email address
+			``, // profilePhoto
+			`` // gender
+		);
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -768,6 +787,7 @@ export class SearchCaller extends Component {
 				}
 				capitec-radio{
 					height:24px;
+					width: 150px;
 				}
 				.search-label{
 					height: 24px;
@@ -808,17 +828,23 @@ export class SearchCaller extends Component {
 				div[slot="footer"] > capitec-group > capitec-button{
 					margin: 0px;
 				}
-				capitec-alert-banner{
-					--theme-alert-banner-height: 48px;
-					--theme-alert-banner-icon-margin-left: 15px;
-					--theme-alert-banner-icon-margin-right: 15px;
+				horizon-alert-banner{
 					margin: 0px 0px 16px 0px;
 				}
 				#id-label-enter-details {
 					margin: 0px 0px 16px 0px;
 					--theme-label-title-font-size: 18px;
 					--theme-label-title-font-weight: 600;
-				}`
+				}
+				#id-label-enter-branch-details {
+					margin: 0px 0px 16px 0px;
+					--theme-label-title-font-size: 18px;
+					--theme-label-title-font-weight: 600;
+				}
+				capitec-radio[label="Client verified in branch"] {
+					width: 200px;
+				}
+			`
 		];
 	}
 
@@ -866,8 +892,8 @@ export class SearchCaller extends Component {
 				class="client-type-label" 
 				label="Client Type">
 			</capitec-label>
-			<capitec-radio-group>
-				<capitec-group layout="grid" rows="auto" columns="auto" gap="none">
+			<capitec-radio-group layout="horizontal">
+				
 					<capitec-radio 
 						id="capitecClient" 
 						data-automation-id="search-caller-capitec-client"
@@ -887,9 +913,10 @@ export class SearchCaller extends Component {
 						data-automation-id="search-caller-branch"
 						label="Branch" 
 						@value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
-						column="3">
+						column="3"
+						?checked="${this.clientType === CLIENT_TYPE.BRANCH}">
 					</capitec-radio>
-				</capitec-group>
+
 			</capitec-radio-group>`;
 	}
 
@@ -990,6 +1017,11 @@ export class SearchCaller extends Component {
 		if (this.clientType === CLIENT_TYPE.BRANCH) {
 			return html`
 				<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" class="nonClient-fields-group">
+					<capitec-label
+						id="id-label-enter-branch-details"
+						type="title"
+						label="Enter branch details">
+					</capitec-label>
 					<div class="branch-field-row">
 						<capitec-text-field
 							id="cpNumber"
@@ -998,7 +1030,7 @@ export class SearchCaller extends Component {
 							type="numeric"
 							maxlength="6"
 							error="${this.errMessage.cpNumber}"
-							.value="${this.cpNumber}"
+							.value="${this.cpNumber ? this.cpNumber : ``}"
 							@key-input="${(e) => this._getConsultant(e)}">
 						</capitec-text-field>
 					</div>
@@ -1076,11 +1108,11 @@ export class SearchCaller extends Component {
 		if (this.errMessage.inBranch) {
 			return html`
 				<div>
-					<capitec-alert-banner 
+					<horizon-alert-banner 
 						data-automation-id="search-caller-in-branch-alert"
-						type="unsuccessful-red" 
+						type="error"
 						label="Please choose an option">
-					</capitec-alert-banner>
+					</horizon-alert-banner>
 				</div>
 			`;
 		}
@@ -1089,13 +1121,19 @@ export class SearchCaller extends Component {
 
 	_renderAlertBanner() {
 		if (!isNullorEmpty(this.alertBannerMessage) && !this.errMessage.inBranch) {
-			return html`
-				<capitec-alert-banner 
-						data-automation-id="search-caller-alert-message"
-						type="unsuccessful-red">
-					${this.alertBannerMessage}
-				</capitec-alert-banner>
-			`;
+			return this.alertBannerMessage instanceof Object
+			? html`
+				<horizon-alert-banner 
+					data-automation-id="search-caller-alert-message"
+					type="error">
+						${this.alertBannerMessage}
+				</horizon-alert-banner>`
+			: html`
+				<horizon-alert-banner 
+					data-automation-id="search-caller-alert-message"
+					type="error"
+					label="${this.alertBannerMessage}">
+				</horizon-alert-banner>`;
 		}
 		return html``;
 	}
@@ -1135,7 +1173,7 @@ export class SearchCaller extends Component {
 			<horizon-end-call-session 
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
-                .callerInformation="${this.callerInformation}"
+				.callerInformation="${this.callerInformation}"
 				endCallContext="ConfirmClient"
 				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}">
 			</horizon-end-call-session>`;

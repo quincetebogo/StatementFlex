@@ -1,7 +1,6 @@
+import { QuickTransactionEvents, SETTLEMENT_QUOTE_EVENTS as SettlementQuoteFavouritesEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { css, html } from 'platform/elements';
-import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { SETTLEMENT_QUOTE_EVENTS as SettlementQuoteCreditEvents } from 'app/constants/telemetry/events/Credit';
-import { SETTLEMENT_QUOTE_EVENTS as SettlementQuoteFavouritesEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
@@ -54,8 +53,7 @@ export class SettlementQuoteFailure extends ViewBase {
 		this.failedAccounts = this.screenDetails?.emailStatus.filter(account => !account.sentStatus).map(item => item.productTypeDescription);
 		this.emailAddress = this.screenDetails && this.screenDetails.emailAddress;
 
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = HORIZON_NEED_STATUS.FAILED;
 	}
 
 	disconnectedCallback() {
@@ -150,7 +148,7 @@ export class SettlementQuoteFailure extends ViewBase {
 		return html`
 			<horizon-error-screen
 				data-automation-id="settlement-quote-failure-screen"
-				image="/images/statements/senddocuments.svg"
+				image="/images/statements/send-documents.svg"
 				header="Settlement quote${this.failedAccounts.length > 1 ? `s` : ``} not sent" 
 				left="Done"
 				right="Try Again"

@@ -6,7 +6,7 @@ import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 import { MAX_RESULTS } from 'app/constants/PolicyTransactionHistory';
 import { getAgeFromIDNumber, getGenderFromIDNumber } from 'app/utils/insureUtils';
 import { INSURE_CALLER_PAGE, DOCUMENT_TYPE } from 'app/constants/InsureCommon';
-import { SavingsAccountService } from 'app/services/SavingsAccountService';
+import { SavingsService } from 'app/services/SavingsService';
 
 import 'app/components/insure/ClientPolicies';
 import 'app/components/insure/PolicyEstimate';
@@ -74,7 +74,7 @@ export class ExistingClient extends InsureViewBase {
 		this.reinstatePaymentAgreementDocument = {};
 		this.updatePlanAgreementDocument = {};
 		this.updatePaymentAgreementDocument = {};
-		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
+		this.savingsAccountService = new SavingsService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 
 		this.readOnly = false;
 	}
@@ -112,15 +112,15 @@ export class ExistingClient extends InsureViewBase {
 			reinstatePaymentAgreementDocument: { type: Object, state: true },
 			updatePlanAgreementDocument: { type: Object, state: true },
 			updatePaymentAgreementDocument: { type: Object, state: true },
-			cancellationReason: {type: String, state: true},
-			cancelPolicyDocumentDetails: {type: Object, state: true},
-			accountDetails: { type: Object, state: true },		
-			policyNumber: {type: String, state: true},
-			commsHistory: {type: Object, state: true},
-			readOnly: {type: Object, state: true},
-			arrearsPaymentDocumentDetails: {type: Object, state: true},
-			confirmedEmail: {type: Object, state: true},
-			
+			cancellationReason: { type: String, state: true },
+			cancelPolicyDocumentDetails: { type: Object, state: true },
+			accountDetails: { type: Object, state: true },
+			policyNumber: { type: String, state: true },
+			commsHistory: { type: Object, state: true },
+			readOnly: { type: Object, state: true },
+			arrearsPaymentDocumentDetails: { type: Object, state: true },
+			confirmedEmail: { type: Object, state: true },
+
 		};
 	}
 
@@ -201,64 +201,64 @@ export class ExistingClient extends InsureViewBase {
 		this.reinstatePaymentAgreementDocument = paymentAgreementResponse.result;
 	}
 
-		/**
-	 * Generate 802 & 804 documents for Update Plan
-	 * @param {*} saveDocumentToDocumentum - true/false
-	 * @returns 
-	 */
-		 async _generateDocumentsForUpdatePlan(saveDocumentToDocumentum) {
-			let clientDetails = {
-				"cifNumber": this.callerInformation.cifNumber,
-				"policyContractReference": this.contractReference,
-				"firstName": this.callerInformation.firstName,
-				"surname": this.callerInformation.surname,
-				"idNumber": this.callerInformation.southAfricanIDNumber,
-				"dateOfBirth": this.callerInformation.birthdate
-			}
-	
-			GENERATE_DOCUMENT_REQUEST_PAYLOAD.saveDocumentToDocumentum = saveDocumentToDocumentum;
-			GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
-			GENERATE_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.contractReference;
-
-			//TODO: Need to remove below hard code values.
-			let docGenerateRequestPayload = {
-				"documentFormat":"PDF"
-				,"saveDocumentToDocumentum":false
-				,"returnDocumentContent":true
-				,"emailDocumentToClient":false
-				,"wetsignBarcode":false
-				,"clientDetails":{
-					"cifNumber":"363291946"
-					,"policyContractReference":"FP00001661"
-					,"firstName":"ISAACS"
-					,"idNumber":"9503067813190"
-					,"dateOfBirth":"Monday, 06 March 1995"
-				},
-				"contractReference":"FP00001661"
-			};
-
-			const updatePlanAgreementResponse = await this.insureService.generateUpdateFuneralCoverPlanAgreement(docGenerateRequestPayload);
-			const updatePaymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(docGenerateRequestPayload);
-	
-			if (!issuePlanAgreementResponse.succeeded || !paymentAgreementResponse.succeeded)
-				return;
-	
-			// TMP ===== REMOVE WHEN SERVICE READY
-			// let agreementResp = {
-			// 	"documentDetails": {
-			// 		"documentCode": "ABC01",
-			// 		"documentName": "Test Doc",
-			// 		"guid": "91ba047a4bd44cf3abb7ccae7a95149a"
-			// 	},
-			// 	"documentContent": "JVBERi0xLjcKCjEgMCBvYmogICUgZW50cnkgcG9pbnQKPDwKICAvVHlwZSAvQ2F0YWxvZwogIC9QYWdlcyAyIDAgUgo+PgplbmRvYmoKCjIgMCBvYmoKPDwKICAvVHlwZSAvUGFnZXMKICAvTWVkaWFCb3ggWyAwIDAgMjAwIDIwMCBdCiAgL0NvdW50IDEKICAvS2lkcyBbIDMgMCBSIF0KPj4KZW5kb2JqCgozIDAgb2JqCjw8CiAgL1R5cGUgL1BhZ2UKICAvUGFyZW50IDIgMCBSCiAgL1Jlc291cmNlcyA8PAogICAgL0ZvbnQgPDwKICAgICAgL0YxIDQgMCBSIAogICAgPj4KICA+PgogIC9Db250ZW50cyA1IDAgUgo+PgplbmRvYmoKCjQgMCBvYmoKPDwKICAvVHlwZSAvRm9udAogIC9TdWJ0eXBlIC9UeXBlMQogIC9CYXNlRm9udCAvVGltZXMtUm9tYW4KPj4KZW5kb2JqCgo1IDAgb2JqICAlIHBhZ2UgY29udGVudAo8PAogIC9MZW5ndGggNDQKPj4Kc3RyZWFtCkJUCjcwIDUwIFRECi9GMSAxMiBUZgooSGVsbG8sIHdvcmxkISkgVGoKRVQKZW5kc3RyZWFtCmVuZG9iagoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDEwIDAwMDAwIG4gCjAwMDAwMDAwNzkgMDAwMDAgbiAKMDAwMDAwMDE3MyAwMDAwMCBuIAowMDAwMDAwMzAxIDAwMDAwIG4gCjAwMDAwMDAzODAgMDAwMDAgbiAKdHJhaWxlcgo8PAogIC9TaXplIDYKICAvUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKNDkyCiUlRU9G"
-			// }
-			// updatePlanAgreementResponse.result = agreementResp;
-			// updatePaymentAgreementResponse.result = agreementResp;
-			// =========
-	
-			this.updatePlanAgreementDocument = updatePlanAgreementResponse.result;
-			this.updatePaymentAgreementDocument = updatePaymentAgreementResponse.result;
+	/**
+ * Generate 802 & 804 documents for Update Plan
+ * @param {*} saveDocumentToDocumentum - true/false
+ * @returns 
+ */
+	async _generateDocumentsForUpdatePlan(saveDocumentToDocumentum) {
+		let clientDetails = {
+			"cifNumber": this.callerInformation.cifNumber,
+			"policyContractReference": this.contractReference,
+			"firstName": this.callerInformation.firstName,
+			"surname": this.callerInformation.surname,
+			"idNumber": this.callerInformation.southAfricanIDNumber,
+			"dateOfBirth": this.callerInformation.birthdate
 		}
+
+		GENERATE_DOCUMENT_REQUEST_PAYLOAD.saveDocumentToDocumentum = saveDocumentToDocumentum;
+		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
+		GENERATE_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.contractReference;
+
+		//TODO: Need to remove below hard code values.
+		let docGenerateRequestPayload = {
+			"documentFormat": "PDF"
+			, "saveDocumentToDocumentum": false
+			, "returnDocumentContent": true
+			, "emailDocumentToClient": false
+			, "wetsignBarcode": false
+			, "clientDetails": {
+				"cifNumber": "363291946"
+				, "policyContractReference": "FP00001661"
+				, "firstName": "ISAACS"
+				, "idNumber": "9503067813190"
+				, "dateOfBirth": "Monday, 06 March 1995"
+			},
+			"contractReference": "FP00001661"
+		};
+
+		const updatePlanAgreementResponse = await this.insureService.generateUpdateFuneralCoverPlanAgreement(docGenerateRequestPayload);
+		const updatePaymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(docGenerateRequestPayload);
+
+		if (!issuePlanAgreementResponse.succeeded || !paymentAgreementResponse.succeeded)
+			return;
+
+		// TMP ===== REMOVE WHEN SERVICE READY
+		// let agreementResp = {
+		// 	"documentDetails": {
+		// 		"documentCode": "ABC01",
+		// 		"documentName": "Test Doc",
+		// 		"guid": "91ba047a4bd44cf3abb7ccae7a95149a"
+		// 	},
+		// 	"documentContent": "JVBERi0xLjcKCjEgMCBvYmogICUgZW50cnkgcG9pbnQKPDwKICAvVHlwZSAvQ2F0YWxvZwogIC9QYWdlcyAyIDAgUgo+PgplbmRvYmoKCjIgMCBvYmoKPDwKICAvVHlwZSAvUGFnZXMKICAvTWVkaWFCb3ggWyAwIDAgMjAwIDIwMCBdCiAgL0NvdW50IDEKICAvS2lkcyBbIDMgMCBSIF0KPj4KZW5kb2JqCgozIDAgb2JqCjw8CiAgL1R5cGUgL1BhZ2UKICAvUGFyZW50IDIgMCBSCiAgL1Jlc291cmNlcyA8PAogICAgL0ZvbnQgPDwKICAgICAgL0YxIDQgMCBSIAogICAgPj4KICA+PgogIC9Db250ZW50cyA1IDAgUgo+PgplbmRvYmoKCjQgMCBvYmoKPDwKICAvVHlwZSAvRm9udAogIC9TdWJ0eXBlIC9UeXBlMQogIC9CYXNlRm9udCAvVGltZXMtUm9tYW4KPj4KZW5kb2JqCgo1IDAgb2JqICAlIHBhZ2UgY29udGVudAo8PAogIC9MZW5ndGggNDQKPj4Kc3RyZWFtCkJUCjcwIDUwIFRECi9GMSAxMiBUZgooSGVsbG8sIHdvcmxkISkgVGoKRVQKZW5kc3RyZWFtCmVuZG9iagoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDEwIDAwMDAwIG4gCjAwMDAwMDAwNzkgMDAwMDAgbiAKMDAwMDAwMDE3MyAwMDAwMCBuIAowMDAwMDAwMzAxIDAwMDAwIG4gCjAwMDAwMDAzODAgMDAwMDAgbiAKdHJhaWxlcgo8PAogIC9TaXplIDYKICAvUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKNDkyCiUlRU9G"
+		// }
+		// updatePlanAgreementResponse.result = agreementResp;
+		// updatePaymentAgreementResponse.result = agreementResp;
+		// =========
+
+		this.updatePlanAgreementDocument = updatePlanAgreementResponse.result;
+		this.updatePaymentAgreementDocument = updatePaymentAgreementResponse.result;
+	}
 
 	/**
 	 * Get attachments for different document types
@@ -312,9 +312,9 @@ export class ExistingClient extends InsureViewBase {
 		}
 	}
 
-	async _rerenderPolicies(navigateBackTo){
-		await this._retrieveClientPolicies(); 
-		this._navigateToSubView(navigateBackTo);		
+	async _rerenderPolicies(navigateBackTo) {
+		await this._retrieveClientPolicies();
+		this._navigateToSubView(navigateBackTo);
 	}
 
 	//#endregion PRIVATE METHODS
@@ -358,8 +358,8 @@ export class ExistingClient extends InsureViewBase {
 	async _goToUpdatePlan(e) {
 		if (e.detail.canReinstate) {
 			this.policyDetails = await this._reinstateQuoteCalc(e.detail.policyContractReference, this.callerInformation.cifNumber);
-			if(this.policyDetails != null)
-					this.policyDetails.canReinstate = true;
+			if (this.policyDetails != null)
+				this.policyDetails.canReinstate = true;
 		}
 		else
 			this.policyDetails = await this._retrievePolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
@@ -376,7 +376,7 @@ export class ExistingClient extends InsureViewBase {
 			cifNumber: this.callerInformation.cifNumber,
 			idNumber: this.callerInformation.southAfricanIDNumber
 		}
-		
+
 		const resp = await this.insureService.clientPolicies(request);
 		if (!resp.succeeded)
 			return;
@@ -483,7 +483,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const result = await this.insureService.generateEstimatePrintout(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 
-		if(!result.succeeded)
+		if (!result.succeeded)
 			return;
 
 		return result;
@@ -981,7 +981,7 @@ export class ExistingClient extends InsureViewBase {
 
 		this.confirmedEmail = e.detail.emailId.detail.emailAddress;
 
-		if(e.detail.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY)
+		if (e.detail.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY)
 			this.callerPage = INSURE_CALLER_PAGE.CANCEL_POLICY;
 		else if (e.detail.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM)
 			this.callerPage = INSURE_CALLER_PAGE.PAY_PREMIUM;
@@ -1001,9 +1001,9 @@ export class ExistingClient extends InsureViewBase {
 		else {
 			window.showToastTimed(`success`, `top`, `Success`, `Email document was sent`, 3000, true);
 
-			if(this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY || this.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM)
+			if (this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY || this.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM)
 				this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
-			else if(this.callerPage === INSURE_CALLER_PAGE.ESTIMATE)
+			else if (this.callerPage === INSURE_CALLER_PAGE.ESTIMATE)
 				this._navigateToSubView(INSURE_RENDER_MODE.ESTIMATE);
 			else
 				this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES);

@@ -186,6 +186,7 @@ export class SearchOtherNeed extends Component {
 				capitec-title-bar > capitec-icon {
 					cursor: pointer;
 					margin-right: 15px;
+					--theme-icon-size-medium: 24px;
 				}
 				capitec-group > capitec-title-bar {
 					--theme-titlebar-min-height: 33px;
@@ -320,7 +321,7 @@ export class SearchOtherNeed extends Component {
 			<capitec-title-bar type="default">
 				<capitec-icon
 					data-automation-id="search-other-need-back-to-favourites"
-					size="small"
+					size="medium"
 					icon="system/arrow-left-action"
 					@click="${() => this._back()}">
 				</capitec-icon>

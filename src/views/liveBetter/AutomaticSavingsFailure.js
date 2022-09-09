@@ -68,10 +68,9 @@ export class AutomaticSavingsFailure extends ViewBase {
 			"next-screen": TelemetryScreen.LIVE_BETTER
 		});
 
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
 
-		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
+		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.getCurrentIncident().incidentRecId);
 		this.horizonStore.clearReturnScreen();
 	}
 
@@ -80,9 +79,7 @@ export class AutomaticSavingsFailure extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
 	// ---------
 	// RENDERING
@@ -123,7 +120,7 @@ export class AutomaticSavingsFailure extends ViewBase {
 			<horizon-error-screen
 				data-automation-id="automatic-savings-failure-screen"
 				id="id-error-toast"
-				image="/images/liveBetterSavings/automatic-savings.svg"
+				image="/images/liveBetter/automatic-savings-outcome.svg"
 				header="Automatic savings update unsuccessful" 
 				left="Done"
 				right="Assign"

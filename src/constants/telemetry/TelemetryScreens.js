@@ -92,21 +92,29 @@
 
 	ACCESS_CHANNELS_NOTIFICATIONS: `Access Channels Notifications`,
 	ACCESS_CHANNELS_NOTIFICATIONS_UPDATE: `Access Channels Notifications Update`,
+
 	SAVINGS_PLAN_LANDING: `Savings Plan Landing`,
 	SAVINGS_PLAN_ACCOUNT_DETAILS: `Savings Plan Account Details`,
+	SAVINGS_PLAN_TRANSACTION_HISTORY: `Savings Plan Transaction History`,
 	SAVINGS_PLAN_STATEMENTS: `Savings Plan Statements`,
 	SAVINGS_PLAN_TAX_CERTIFICATE: `Savings Plan Tax Certificate`,
 	SAVINGS_PLAN_PRODUCT_ENQUIRY: `Savings Plan Product Enquiry`,
 	SAVINGS_PLAN_SAVINGS_CALCULATOR: `Savings Plan Savings Calculator`,
 	SAVINGS_PLAN_INTEREST_RATES: `Savings Plan Interest Rates`,
 
-
 	CREDIT_LANDING: `Credit Landing`,
-	CREDIT_ACCOUNT_DETAILS: `Credit Account details`,  
-	CREDIT_TRANSACTION_HISTORY: `Credit Transaction History`,
+	CREDIT_ACCOUNT_DETAILS: `Credit Account details`,
 	CREDIT_STATEMENTS: `Credit Statements`,
 	SETTLEMENT_QUOTE_DIALOG: `Settlement Quote Dialog`,
-	CREDIT_SETTLE_CLOSE: `Credit Settle Close`,
+	CREDIT_SETTLE_CLOSE_DISCLAIMER: `Settle and close credit card disclaimer`,
+	CREDIT_SETTLE_LOAN_DISCLAIMER: `Settle and close term loan disclaimer`,
+	CREDIT_SETTLE_CLOSE: `Settle and Close Credit card  `,
+	CREDIT_SETTLE_TERM_LOAN: `Settle and close term loan`,
+	CREDIT_SETTLE_CLOSE_SUCCESS: `Settle and Close credit card success`,
+	CREDIT_SETTLE_CLOSE_FAILURE: `Settle and Close credit card failure`,
+	CREDIT_SETTLE_TERM_LOAN_SUCCESS: `Settle and close term loan success`,
+	CREDIT_SETTLE_TERM_LOAN_FAILURE: `Settle and close term loan failure`,
+	
 	CREDIT_STATEMENTS_SUCCESS: `Credit Statement success`,
 	CREDIT_STATEMENTS_FAILURE: `Credit Statement failure`,
 	CREDIT_BUDGET_ACCOUNT: `Credit Budget facility view`,

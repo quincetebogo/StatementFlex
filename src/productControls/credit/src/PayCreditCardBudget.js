@@ -1,8 +1,9 @@
 import { Component, css, html } from 'platform/elements';
-import { deformatCurrency, formatCurrency } from 'app/productControls/utilities/Currency';
+import { deformatCurrency, formatCurrency, formatTextFieldCurrency } from 'app/productControls/utilities/Currency';
 import { formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelectIcon';
+import 'app/components/common/HorizonTextField';
 
 /**
  * Pay credit card budget by selecting from which account amount can be transfered.
@@ -100,8 +101,19 @@ export class PayCreditCardBudget extends Component {
 		}
 	}
 
+	_budgetFocusOut(e) {
+		this.budgetAmount = parseFloat(e.currentTarget.value || `0`).toFixed(2);
+		this._getErrorMessage();
+	}
+
 	_budgetValueChange(e) {
-		this.budgetAmount = e.detail.new;
+		if (e.detail.action === `clear`) {
+			this.budgetAmount = this.budgetAccountDetails.settlementAmount;
+			this._getErrorMessage();
+			return;
+		}
+
+		this.budgetAmount = e.detail.new || 0;
 		this._getErrorMessage();
 	}
 
@@ -122,14 +134,14 @@ export class PayCreditCardBudget extends Component {
 		this.savStatus = false;
 
 		// Entered budget amount exceeds the actual settlement amount
-		if (this.budgetAmount > this.budgetAccountDetails.settlementAmount) {
+		if (parseFloat(this.budgetAmount) > parseFloat(this.budgetAccountDetails.settlementAmount)) {
 			this.bannerMessage = `Transfer amount cannot exceed the budget amount.`;
 			this.errorMessage = `Max amount ${formatCurrency(this.budgetAccountDetails.settlementAmount)}`;
 			return;
 		}
 
 		// No account has enough funds to do transfer as entered amount
-		const noFundsInAllAccounts = this.clientProducts.filter(account => deformatCurrency(account.availableBalance) > this.budgetAmount).length === 0;
+		const noFundsInAllAccounts = this.clientProducts.filter(account => deformatCurrency(account.availableBalance) > parseFloat(this.budgetAmount)).length === 0;
 		if (noFundsInAllAccounts) {
 			this.bannerMessage = `You do not have enough fund in your account to do the transfer.`;
 			this.errorMessage = `Transfer cannot exceed available balance`;
@@ -137,18 +149,17 @@ export class PayCreditCardBudget extends Component {
 		}
 
 		// Entered budget amount exceeds the available balance of selected account
-		if (this.budgetAmount > deformatCurrency(this.productSelected.availableBalance)) {
+		if (parseFloat(this.budgetAmount) > deformatCurrency(this.productSelected.availableBalance)) {
 			this.errorMessage = `Transfer cannot exceed available balance`;
 		}
 
 		const acc = this.productSelected.accountNumber;
 			let i = 0;
 			while (i < this.savingAccountsList.length) {
-				if (acc == this.savingAccountsList[i].accountNumber && this.savingAccountsList[i].savingsPermissionStatus === `DENIED`)
-				{
+				if (acc == this.savingAccountsList[i].accountNumber && this.savingAccountsList[i].savingsPermissionStatus === `DENIED`) {
 					this.bannerMessage = `The account selected cannot be used to perform this transaction`;
 					this.savStatus = true;
-					this.errorMessage = this.savingAccountsList[i].statusReasonList;
+					this.errorMessage = `   `;
 					return;
 				}
 				i++;
@@ -287,11 +298,8 @@ export class PayCreditCardBudget extends Component {
 				data-automation-id="pay-budget-alert-banner"
 				type="error">
 					<capitec-label
-						label="Notify client:"
+						label="Notify client: ${this.bannerMessage}"
 						type="strong">
-					</capitec-label>
-					<capitec-label
-						label="${this.bannerMessage}">
 					</capitec-label>
 			</capitec-alert-banner>`
 		: html``;
@@ -322,15 +330,17 @@ export class PayCreditCardBudget extends Component {
 				value="${formatStringAsPascalCase(this.budgetAccountDetails.budgetName)}">
 			</horizon-label>
 
-			<capitec-text-field
+			<horizon-text-field
 				data-automation-id="pay-budget-balance"
 				label="Budget amount"
 				type="currency"
+				?enableClear="${true}"
 				.error="${this.errorMessage}"
 				?disabled="${this.savStatus}"
 				value="${this.budgetAmount}"
-				@value-changed="${(e) => this._budgetValueChange(e)}">
-			</capitec-text-field>
+				@key-input="${(e) => this._budgetValueChange(e)}"
+				@focusout="${(e) => this._budgetFocusOut(e)}">
+			</horizon-text-field>
 		`;
 	}
 

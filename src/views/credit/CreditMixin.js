@@ -1,5 +1,4 @@
 import { ACTION_IDENTIFIER, PERMISSION_STATUS, PRODUCTS } from 'app/constants/Credit';
-import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { html } from 'platform/elements';
@@ -45,8 +44,26 @@ export const creditMixin = {
 			this.logger.log(`error`, `Failed to get credit permissions.`, `_getCreditPermisions`, returnValue.correlationId);
 		}
 
-		const permission = returnValue.result.permissionsResultsList.find(item => item.operationIdentifier === ACTION_IDENTIFIER[option]);
-		return permission?.permissionResult === PERMISSION_STATUS.DENIED;
+		let permission = returnValue.result.permissionsResultsList.find(item => item.operationIdentifier === ACTION_IDENTIFIER[option]);
+
+		// TODO : CSCEH-7995 : Once credit permission is update for marked closure status, we can remove the below condition.
+		if (option === `settlement-quote` || option === `pay-budget`) {
+			permission = returnValue.result.permissionsResultsList.find(item => item.operationIdentifier === `Settle`);
+		}
+
+		// When the option is view-budget, we cant get it from the permissions endpoint. 
+		// So hardcoding it GRANTED always.
+		if (!permission) {
+			permission = {};
+			permission.permissionResult = PERMISSION_STATUS.GRANTED;
+			permission.declineReasons = ``;
+		}
+
+		return {
+			ccsStatus: permission?.permissionResult === PERMISSION_STATUS.DENIED,
+			permissionResult: permission?.permissionResult,
+			declineReasons: permission?.declineReasons
+		};
 	},
 
 	async _settlementQuoteDialog(selectedAccounts) {
@@ -78,7 +95,10 @@ export const creditMixin = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"caseId": this.caseId || ``,
 			"emailAddress": details.emailAddress,
-			"accountList": accountsList
+			"accountList": accountsList,
+			"title": this.callerInformation.title,
+			"surname": this.callerInformation.lastName,
+			"documentType": `Credit Settlement Quote`
 		};
 
 		const returnValue = await this.creditService.sendSettlementQuoteEmail(request, () => true);
@@ -212,9 +232,10 @@ export const creditMixin = {
 	_renderCcsModal() {
 		return this.ccsStatus
 		? html`
-			<horizon-ccs-status-dialog
+			<horizon-warn-dialog
+				content="Unable to perform this transaction as there is a CCS status on this account."
 				@on-okay="${() => this.resetCCSStatusAndReloadScreen()}">
-			</horizon-ccs-status-dialog>`
+			</horizon-warn-dialog>`
 		: html``;
 	}
 	

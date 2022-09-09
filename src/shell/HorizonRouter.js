@@ -654,14 +654,14 @@ export default horizonRoutes = [
 		*/
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
-	{
-		name: `horizon-prospective-client`,
-		title: `Insure`,
-		icon: null,
-		path: HORIZON_ROUTES.INSURE_PROSPECTIVE_CLIENT,
-		load: () => import(`../views/insure/ProspectiveClient`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-	},
+	// {
+	// 	name: `horizon-prospective-client`,
+	// 	title: `Insure`,
+	// 	icon: null,
+	// 	path: HORIZON_ROUTES.INSURE_PROSPECTIVE_CLIENT,
+	// 	load: () => import(`../views/insure/ProspectiveClient`),
+	// 	onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	// },
 	{
 		name: `horizon-insure-unverified-client`,
 		title: `Insure`,
@@ -941,6 +941,14 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SETTLE_AND_CLOSE_SUCCESS,
 		load: () => import(`../views/credit/SettleAndCloseSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-settle-and-close-failure`,
+		title: `SettleAndCloseFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.SETTLE_AND_CLOSE_FAILURE,
+		load: () => import(`../views/credit/SettleAndCloseFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{

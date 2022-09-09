@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
@@ -138,7 +139,9 @@ export class ProfileAndProductSummaryBar extends Component {
 				isNonClient: isNonClient,
 				is3rdParty: state.callerInformation.verificationStatus === `3rdparty`,
 				hasDigitalChannels: state.callerInformation.hasDigitalChannels,
-				verificationAttempts: state.callerInformation.verificationAttempts
+				verificationAttempts: state.callerInformation.verificationAttempts,
+				profilePhoto: state.callerInformation.profilePhoto,
+				isBranchConsultant: state.callerInformation.isBranchConsultant
 			};
 		}
 
@@ -243,11 +246,10 @@ export class ProfileAndProductSummaryBar extends Component {
 	}
 
 	_setIncidentDone() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
+		const incidentManager = HorizonIncidentManager.getInstance();
 		
-		if (Object.values(LANDING_PAGE_NEEDS).includes(incidentDetails.currentNeed)) {
-			incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-			this.horizonStore.setIncidentDetails(incidentDetails);
+		if (Object.values(LANDING_PAGE_NEEDS).includes(incidentManager.incidentState)) {
+			incidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 		}
 	}
 

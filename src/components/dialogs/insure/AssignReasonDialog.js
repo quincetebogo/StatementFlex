@@ -124,10 +124,8 @@ export class AssignReasonDialog extends Component {
 				--theme-modal-footer-padding: 12px 12px 12px 16px;
 			}
 
-			capitec-alert-banner {
+			horizon-alert-banner {
 				margin: 0px 0px 15px 0px;
-				--theme-alert-banner-info-border: 0px;
-				--theme-alert-banner-height: 48px;
 				--theme-alert-banner-font-weight: 500;
 				color: var(--theme-alert-banner-unsuccessful-red-font-color, #C83C37);
 				background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
@@ -153,10 +151,10 @@ export class AssignReasonDialog extends Component {
 	_renderAlertBanner() {
 		if (this.alertBannerMessage) {
 			return html`
-				<capitec-alert-banner
-						label="${this.alertBannerMessage}"
-						type="error-trans">
-				</capitec-alert-banner>
+				<horizon-alert-banner
+					label="${this.alertBannerMessage}"
+					type="error-trans">
+				</horizon-alert-banner>
 			`;
 		}
 	}

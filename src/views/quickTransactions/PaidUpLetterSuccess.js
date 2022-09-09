@@ -93,9 +93,7 @@ export class PaidUpLetterSuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
 	
 	_formateAccountNames(accounts) {
@@ -148,7 +146,7 @@ export class PaidUpLetterSuccess extends ViewBase {
 			<horizon-success-screen
 				data-automation-id="paid-up-letter-success-screen"
 				header="Paid Up letter sent" 
-				image="/images/statements/senddocuments.svg"
+				image="/images/statements/send-documents.svg"
 				left="Send Another"
 				right="Done"
 				toast="Paid Up letter sent"

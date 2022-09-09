@@ -1,9 +1,13 @@
 {
 	"serviceURIs": {
 		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet",
-		"clientInsightsUrl": "https://hzn-cs-clientinsights-v1.platform-dev.int.capinet",
-		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-dev.int.capinet",
+		"clientInsightsUrl": "https://cec-insights.platform-dev.int.capinet",
+		"accessChannelServiceUrl": "https://cec-ac.platform-dev.int.capinet",
 		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-dev.int.capinet",
+		"clientProfileServiceUrl": "https://csc-clientprofile.platform-dev.int.capinet",
+		"debiCheckServiceUrl": "https://csc-debicheck.platform-dev.int.capinet",
+		"cardServiceUrl": "https://horizon-cs-card-v1.platform-dev.int.capinet",
+		"savingsPlanChannelServiceUrl": "https://csc-cs-save.platform-dev.int.capinet",
 		"insureChannelServiceUrl": "https://insurance-funeralinsurance.platform-dev.int.capinet"
 	},
 	"signalRUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
@@ -107,6 +111,18 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"debiCheckDecline": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"debiCheckApprove": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"debiCheckAgreement": {
+			"enabled": false,
+			"positiveCase": true
+		},
 		"cardLimits": {
 			"enabled": false,
 			"positiveCase": true
@@ -121,6 +137,10 @@
 			"positiveCase": true
 		},
 		"transactionHistory": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"savingsPlanTransactionHistory": {
 			"enabled": false,
 			"positiveCase": true
 		},

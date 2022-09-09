@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 import 'platform/components/layouts/Group';
@@ -27,10 +28,10 @@ export class HorizonActionBar extends Component {
 		this.hideAddCallerDetails = false;
 
 		this.horizonStore = HorizonStore.getInstance();
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 		
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
 
 		this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
 	}
@@ -75,7 +76,7 @@ export class HorizonActionBar extends Component {
 
 	_stateChanged(state) {
 		if (state) {
-			this.referenceNo = state && state.incidentDetails && state.incidentDetails.primaryIncidentRef;
+			this.referenceNo = this.horizonIncidentManager.getPrimaryIncident.toString();
 			this.phoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 			this.clientNeed = this._getNeedDisplayValue(this.incomingCallDetails.ivrOptionCode);
 			this.isUnverifiedNumber = typeof this.isUnverifiedNumber === `undefined` ? false : this.isUnverifiedNumber;
@@ -200,7 +201,7 @@ export class HorizonActionBar extends Component {
 						data-automation-id="action-bar-clientNeed">
 					</horizon-label>
 					<div class="vertical-line"></div>
-					<img class="end-call-icon" src="/images/incoming-call.svg"/>
+					<img class="end-call-icon" src="/images/shell/incoming-call.svg"/>
 					<horizon-label
 						label="Incoming call" 
 						value="${this.isUnverifiedNumber ? `Private Number` : formatPhoneNumber(this.phoneNumber)}"
@@ -232,7 +233,7 @@ export class HorizonActionBar extends Component {
 					<capitec-button label="End Call" 
 									@click="${() => this._endCallSession()}"
 									data-automation-id="action-bar-end-call">
-						<img class="end-call-icon" src="/images/hangup.svg"/>
+						<img class="end-call-icon" src="/images/common/hangup.svg"/>
 					</capitec-button>
 				</capitec-group>
 			</capitec-title-bar>
