@@ -198,11 +198,11 @@ By agreeing to pay your arrear premiums, you acknowledge and confirm that:
 				</capitec-label>
 			</div>
 
-			<!-- <capitec-content-box class="no-padding">
+			<capitec-content-box class="no-padding">
 				<capitec-expander expandbuttonalignment="left" label="View Arrears Payment Intruction" data-automation-id="insure-cancel-policy-dialog-view-cancellation-agreement">
 					<iframe class="iframe-content" src="data:application/pdf;base64,${this.arrearsPaymentDocumentDetails?.documentContent }#view=fitH" alt="agreement"></iframe>
 				</capitec-expander>
-			</capitec-content-box> -->
+			</capitec-content-box>
 
 		`}
 
