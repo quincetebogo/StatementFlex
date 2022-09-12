@@ -14,7 +14,7 @@ import { formatCurrency } from 'app/productControls/utilities/Currency';
  */
 class InsureAccountSelect extends Component {
 
-	//#region INITIALIZE
+	// #region INITIALIZE
 
 	constructor() {
 		super();
@@ -22,14 +22,14 @@ class InsureAccountSelect extends Component {
 		this.label = null;
 		this.displayOptions = false;
 		this.selectedIndex = null;
-		this.optionSelected = false
-		this.selectorAccounts = {}
+		this.optionSelected = false;
+		this.selectorAccounts = {};
 		this.insufficient = false;
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region PROPERTIES
+	// #region PROPERTIES
 
 	/**
 	 * 
@@ -51,18 +51,18 @@ class InsureAccountSelect extends Component {
 			label: { type: String, state: true },
 			displayOptions: { type: Boolean, state: true },
 			selectedIndex: { type: Number, state: true },
-			optionSelected: {type: Boolean, state: true},
-			accountDetails: {type: Object, state: true},
-			selectorAccounts: {type: Object, state: true},
-			accountType: {type: String, state: true},
-			selectedAccount: {type: String, state: true},
-			insufficient: {type: Boolean, state: true}
+			optionSelected: { type: Boolean, state: true },
+			accountDetails: { type: Object, state: true },
+			selectorAccounts: { type: Object, state: true },
+			accountType: { type: String, state: true },
+			selectedAccount: { type: String, state: true },
+			insufficient: { type: Boolean, state: true }
 		};
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region LIFECYCLE OVERRIDES
+	// #region LIFECYCLE OVERRIDES
 
 	/**
 	 * Setup the component once added to the DOM.
@@ -74,59 +74,60 @@ class InsureAccountSelect extends Component {
 
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region PRIVATE METHODS
+	// #region PRIVATE METHODS
 
-	async _initialise() {
+	_initialise() {
 		
 		this.selectorAccounts.savingsAccount = [];
 		this.selectorAccounts.savingsAccount.push({
 			accountNumber: this.accountDetails.savingsAccountData.accountNumber,
 			availableBalance: this.accountDetails.savingsAccountData.accountAvailableBalance,
-			accountStatus: this.accountDetails.savingsAccountData.accountStatus,
+			accountStatus: this.accountDetails.savingsAccountData.accountStatus
 		});
 		this.selectorAccounts.savingsPlan = [];
 		for (let i = 0; i < this.accountDetails.savingsPlanData.savingsPlans.length; i++) {
-			if(this.accountDetails.savingsPlanData.savingsPlans[i].accountType == 200){
+			if (this.accountDetails.savingsPlanData.savingsPlans[i].accountType === 200) {
 				this.selectorAccounts.savingsPlan.push({
 				accountType: this.accountDetails.savingsPlanData.savingsPlans[i].accountType,
 				accountStatus: this.accountDetails.savingsPlanData.savingsPlans[i].accountStatus,
 				accountNumber: this.accountDetails.savingsPlanData.savingsPlans[i].accountNumber,
 				availableBalance: this.accountDetails.savingsPlanData.savingsPlans[i].availableBalance,
-				planName: this.accountDetails.savingsPlanData.savingsPlans[i].planName,
+				planName: this.accountDetails.savingsPlanData.savingsPlans[i].planName
 				});
 
 			}
 			
 		}
 		
-		
-		
-		console.log("selector")
-		console.log(this.selectorAccounts)
+
+		console.log(`selector`);
+		console.log(this.selectorAccounts);
 
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region EVENT HANDLERS
+	// #region EVENT HANDLERS
 
 	/**
 	 * event that sets the value of optionSelected and sends it to pay premium dialog
-	 * 
+	 * @param {*} account acount
+	 * @returns {null} null
 	 */
-	_optionSelected(account){
-		this.optionSelected = true
+	_optionSelected(account) {
+		this.optionSelected = true;
 
-		this.dispatchEvent(new CustomEvent(`option-selected`, {detail: {optionSelected: this.optionSelected, accountNumber: this.selectedAccount, accountType: account}}));
+		this.dispatchEvent(new CustomEvent(`option-selected`, { detail: { optionSelected: this.optionSelected, accountNumber: this.selectedAccount, accountType: account } }));
 	}
 
 	/**
 	 * Event that determins whether to display or hide the select options
+	 * @returns {null} null
 	 */
-	_showAccountOptions(){
-		if (this.displayOptions == false) {
+	_showAccountOptions() {
+		if (this.displayOptions === false) {
 			
 			this.displayOptions = true;
 		} else {
@@ -138,16 +139,18 @@ class InsureAccountSelect extends Component {
 	/**
 	 * Event that determines the index of the option that was selected from the options
 	 * 
-	 * @param {*} selected 
+	 * @param {*} selected selected
+	 * @param {*} account account
+	 * @returns {null} null
 	 */
 	_indexChange(selected, account) {
 		
 		
-		if (account == "Savings Account"){
-			this.selectedIndex = this.selectorAccounts.savingsAccount.map(account => account.accountNumber).indexOf(selected);
+		if (account === `Savings Account`) {
+			this.selectedIndex = this.selectorAccounts.savingsAccount.map(accounts => accounts.accountNumber).indexOf(selected);
 			this.selectedAccount = selected;
 		} else {
-			this.selectedIndex = this.selectorAccounts.savingsPlan.map(account => account.accountNumber).indexOf(selected);
+			this.selectedIndex = this.selectorAccounts.savingsPlan.map(accounts => accounts.accountNumber).indexOf(selected);
 			this.selectedAccount = selected;
 		}
 		
@@ -156,39 +159,39 @@ class InsureAccountSelect extends Component {
 		this.displayOptions = false;
 		
 
-		this._optionSelected(account)
+		this._optionSelected(account);
 	}
 
 	/**
 	 * Event that flips the chevron depending on whether the select box is open or closed
 	 * 
-	 * @returns 
+	 * @returns {null} null
 	 */
 	_chevronChange() {
 
 		// if (this.displayOptions == false) {
-		// 	return "system/chevron-down-action";
+		// return "system/chevron-down-action";
 		// } else if(this.displayOptions == true){
 			
 		// }
-		return this.displayOptions ? "system/chevron-up-action": "system/chevron-down-action"
+		return this.displayOptions ? `system/chevron-up-action` : `system/chevron-down-action`;
 	}
 
 	/**
 	 * event that changes the style of the select box depending on if the selected account has sufficient funds
 	 * 
-	 * @returns 
+	 * @returns {null} null
 	 */
-	_setstyle(){		
+	_setstyle() {
 		
-		return this.insufficient ?  "select-header-insufficient" : "select-header"
+		return this.insufficient ? `select-header-insufficient` : `select-header`;
 
 	}
 
-	//#endregion
+	// #endregion
 
 
-	//#region RENDERING
+	// #region RENDERING
 
 	/**
 	 * Generates the component stylesheet.
@@ -288,14 +291,14 @@ class InsureAccountSelect extends Component {
 	 */
 _webTemplate() {
 	return html`
-		<div >	
+		<div >
 			${this._renderHeader()}
 		</div>
 		<div>
 			${this._renderOptions()}
 		</div>
 
-	`
+	`;
 
 	}
 
@@ -376,23 +379,22 @@ _renderHeader() {
 			`)}
 			
 
-	`
+	`;
 }
 
 /**
  * Render the Select box options
  * 
- * @returns The html content of the component.
+ * @returns {html} The html content of the component.
  */
 _renderOptions() {
-	return this.displayOptions == false ? html`` :
-
-	 html`
+	return this.displayOptions === false ? html`` 
+	: html`
 	<div class="all-options">
-		${this.selectorAccounts.savingsAccount.map(item=> html`
+		${this.selectorAccounts.savingsAccount.map(item => html`
 				
 			<div class="select-options">
-				<capitec-content-box @click="${() => this._indexChange(item.accountNumber, "Savings Account")}" layout="horizontal" valign="center" noScroll>
+				<capitec-content-box @click="${() => this._indexChange(item.accountNumber, `Savings Account`)}" layout="horizontal" valign="center" noScroll>
 					<div> 
 						<capitec-icon size="default" icon="product/transact"></capitec-icon>
 					</div>
@@ -404,10 +406,10 @@ _renderOptions() {
 			</div>
 		`)}
 
-		${this.selectorAccounts.savingsPlan.map(item=> html`
+		${this.selectorAccounts.savingsPlan.map(item => html`
 			
 			<div class="select-options">
-				<capitec-content-box @click="${() => this._indexChange(item.accountNumber, "Savings Plan")}" layout="horizontal" valign="center" noScroll>
+				<capitec-content-box @click="${() => this._indexChange(item.accountNumber, `Savings Plan`)}" layout="horizontal" valign="center" noScroll>
 					<div> 
 						<capitec-icon size="default" icon="product/save"></capitec-icon>
 					</div>
@@ -420,12 +422,12 @@ _renderOptions() {
 		`)}
 
 	</div>
-	`
+	`;
 
 }
 
 
-	//#endregion
+	// #endregion
 
 	
 }

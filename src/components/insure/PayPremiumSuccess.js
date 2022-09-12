@@ -1,9 +1,9 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { INSURE_CALLER_PAGE } from 'app/constants/InsureCommon';
+import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
-//Dialogs
+// Dialogs
 import 'app/components/dialogs/insure/EmailPlanDialog';
 
 /**
@@ -20,7 +20,7 @@ import 'app/components/dialogs/insure/EmailPlanDialog';
  */
 class PayPremiumSuccess extends Component {
 
-	//#region INITIALIZE
+	// #region INITIALIZE
 
 constructor() {
 	super();
@@ -33,9 +33,9 @@ constructor() {
 
 }
 
-//#endregion
+// #endregion
 
-//#region PROPERTIES
+// #region PROPERTIES
 
 	/**
 	 *  @property {boolean} ShowSuccessAlert Controls when to show the Success Alert
@@ -49,17 +49,17 @@ constructor() {
 	 */
 	 static get properties() {
 		return {
-			showSuccessAlert: { type: Boolean, state: true},
-			showEmailPlanDialog: {type: Boolean, state: true},
+			showSuccessAlert: { type: Boolean, state: true },
+			showEmailPlanDialog: { type: Boolean, state: true },
 			amountToPay: { type: Object },
 			contractReference: { type: Object },
 			titleMessage: { type: String }
 		};
 	}
 
-//#endregion
+// #endregion
 
-//#region LIFECYCLE OVERRIDES
+// #region LIFECYCLE OVERRIDES
 
 	/**
 	 * Setup the component once added to the DOM.
@@ -70,64 +70,70 @@ constructor() {
 		window.setTimeout(() => this.showSuccessAlert = false, 2000);
 	}
 
-	//#endregion
+	// #endregion
 
-//#region PRIVATE FUNCTIONS
+// #region PRIVATE FUNCTIONS
 
 
-//#endregion
+// #endregion
 
-//#region EVENT HANDLERS
+// #region EVENT HANDLERS
 
 /**
  * Navigate to Landing
+ * @returns {null} null
  */
 _backToSummaryPage() {
-	this.dispatchEvent(new CustomEvent(`navigate-back`, {detail: {}}));
+	this.dispatchEvent(new CustomEvent(`navigate-back`, { detail: {} }));
 }
 
 /**
  * navigate to the Email Success page
+ * @returns {null} null
  */
-_goToEmailSuccess(){
-	this.dispatchEvent(new CustomEvent(`navigate-to-email-success-page`, {detail: {}}));
+_goToEmailSuccess() {
+	this.dispatchEvent(new CustomEvent(`navigate-to-email-success-page`, { detail: {} }));
 }
 
 /**
  * Invoke this function when Send button is clicked on Email Popup
+ * @param {*} emailAddress email address
+ * @returns {null} null
  */
- async _sendEmail(emailAddress) {
+ _sendEmail(emailAddress) {
 	this.callerPage = INSURE_CALLER_PAGE.PAY_PREMIUM;
 
-	this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress
-			,callerPage: this.callerPage } } ));
+	this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: this.callerPage } }));
 }
 
 /**
  * open email plan dialog event
+ * @returns {null} null
  */
-_openEmailPlanDialog(){
+_openEmailPlanDialog() {
 	this.titleMessage = `Email Funeral Plan (${this.contractReference})`;
 
 	this.showEmailPlanDialog = true;
 }
+
 /**
  * close email dialog event
+ * @returns {null} null
  */
-_closeEmailPlanDialog(){
+_closeEmailPlanDialog() {
 
 	this.showEmailPlanDialog = false;
 
 }
 
-_viewPlan(){
-	this.dispatchEvent(new CustomEvent(`navigate-to-policy-summary`, { detail: { policyContractReference: this.contractReference } } ));
+_viewPlan() {
+	this.dispatchEvent(new CustomEvent(`navigate-to-policy-summary`, { detail: { policyContractReference: this.contractReference } }));
 }
 
-//#endregion
+// #endregion
 
 
-//#region RENDERING
+// #region RENDERING
 
 /**
 	 * Generates the component stylesheet.
@@ -188,21 +194,22 @@ _viewPlan(){
 			${this._renderContent()}
 			${this._renderDialogs()}
 			
-		`}
+		`;
+	}
 
-	_renderDialogs(){
+	_renderDialogs() {
 		return html`
 			${this._renderEmailPlanDialog()}
-		`
+		`;
 	}
 
 	/**
 	 * Render the content HTML for the component
-	 * @returns {html}
+	 * @returns {html} html content
 	 */
 	_renderContent() {
 		return html`
-		${this._renderAlert()}	
+		${this._renderAlert()}
 		<capitec-card class="card">
 			
 			<div>
@@ -235,14 +242,15 @@ _viewPlan(){
 
 		</capitec-card>
 		
-		`}
+		`;
+	}
 
 /**
  * Renders the Successful payment alert
- * @returns {html}
+ * @returns {html} html content
  */
-_renderAlert(){
-	return this.showSuccessAlert == false ? html``
+_renderAlert() {
+	return this.showSuccessAlert === false ? html``
 	: html`
 		<capitec-toast
 					class="toast"
@@ -251,21 +259,20 @@ _renderAlert(){
 					layout = "horizontal"
 					@click = "${() => this.showSuccessAlert = false}">
 				</capitec-toast>
-`}
-
-_renderEmailPlanDialog(){
-	return this.showEmailPlanDialog == false ? html`` 
-	:html`
-		<insure-email-dialog @close-modal="${(e) => this.showEmailPlanDialog = false}"
-			@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}"
-			.contractReference = "${this.contractReference}" .titleMessage = "${ this.titleMessage }">
-		</insure-email-dialog>
-	`
+	`;
 }
 
-	//#endregion
+_renderEmailPlanDialog() {
+	return this.showEmailPlanDialog === false ? html`` 
+	: html`
+		<insure-email-dialog @close-modal="${(e) => this.showEmailPlanDialog = false}"
+			@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}"
+			.contractReference = "${this.contractReference}" .titleMessage = "${this.titleMessage}">
+		</insure-email-dialog>
+	`;
+}
 
-
+	// #endregion
 
 }
 

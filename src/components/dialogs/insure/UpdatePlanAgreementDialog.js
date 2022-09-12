@@ -19,7 +19,7 @@ const ERROR_MESSAGE = `Please select confirmation checkbox`;
  */
 class UpdatePlanAgreementDialog extends Component {
 
-	//#region INITIALIZE
+	// #region INITIALIZE
 
 	constructor() {
 		super();
@@ -27,9 +27,9 @@ class UpdatePlanAgreementDialog extends Component {
 		this.alertBannerMessage = ``;
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region PROPERTIES
+	// #region PROPERTIES
 
 	static get properties() {
 		return {
@@ -40,16 +40,17 @@ class UpdatePlanAgreementDialog extends Component {
 		};
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region PRIVATE METHODS
+	// #region PRIVATE METHODS
 
-	//#endregion
+	// #endregion
 
-	//#region EVENT HANDLERS
+	// #region EVENT HANDLERS
 
 	/**
 	 * Cancel event from dialog footer button, closes modal & reset toggles 
+	 * @returns {null} null
 	 */
 	_onCancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
@@ -57,24 +58,22 @@ class UpdatePlanAgreementDialog extends Component {
 
 	/**
 	 * Agree event from dialog footer, closes modal and navigates to Pay Premium Success page
+	 * @returns {null} null
 	 */
 	_onAgreeClick() {
 		const agreeCheck = this.shadowRoot.getElementById(`update-plan-agree-check`);
 
-		if(!agreeCheck.checked)
-		{
+		if (!agreeCheck.checked) {
 			this.alertBannerMessage = ERROR_MESSAGE;
-		}
-		else
-		{
+		} else {
 			this.alertBannerMessage = ``;
 			this.dispatchEvent(new CustomEvent(`update-plan-agree-click`, {}));
 		}
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region RENDERING
+	// #region RENDERING
 
 	/**
 	 * Generates the component stylesheet.
@@ -127,7 +126,7 @@ class UpdatePlanAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-			<capitec-modal type="form" header="Funeral Cover Plan (${ this.contractReference })">
+			<capitec-modal type="form" header="Funeral Cover Plan (${this.contractReference})">
 				<div slot="body" data-automation-id="insure-pay-premium-agreement-dialog-body">
 					${this._renderDialogBody()}
 				</div>
@@ -135,7 +134,8 @@ class UpdatePlanAgreementDialog extends Component {
 					${this._renderDialogFooter()}
 				</div>
 			</capitec-modal>
-		`}
+		`;
+	}
 
 	/**
 	 * Render modal body section
@@ -158,7 +158,7 @@ class UpdatePlanAgreementDialog extends Component {
 					<capitec-expander expandbuttonalignment="left" label="View Policy Schedule" class="pdf-viewer"
 						data-automation-id="insure-pay-premium-agreement-dialog-view-policy-schedule">
 						<iframe title="UpdatePlanAgreement" height = "100%" frameborder = "0"
-							src="data:application/pdf;base64,${ this.planAgreementContent }#view=fitH">
+							src="data:application/pdf;base64,${this.planAgreementContent}#view=fitH">
 						</iframe>
 					</capitec-expander>
 				</div>
@@ -167,7 +167,7 @@ class UpdatePlanAgreementDialog extends Component {
 					<capitec-expander expandbuttonalignment="left" label="View Mandate" class="pdf-viewer"
 						data-automation-id="insure-pay-premium-agreement-dialog-view-mandate">
 							<iframe title="UpdatePaymentAgreement" height = "100%" frameborder = "0"
-								src="data:application/pdf;base64,${ this.paymentAgreementContent }#view=fitH">
+								src="data:application/pdf;base64,${this.paymentAgreementContent}#view=fitH">
 							</iframe>
 					</capitec-expander>
 				</div>
@@ -177,7 +177,8 @@ class UpdatePlanAgreementDialog extends Component {
 				<capitec-check id="update-plan-agree-check" label="Please confirm that you agree to these terms and conditions and that you are bound by them?">
 				</capitec-check>
 			</capitec-content-box>
-		`}
+		`;
+	}
 
 	/**
 	 * Render modal footer section
@@ -192,7 +193,8 @@ class UpdatePlanAgreementDialog extends Component {
 				<capitec-button class="capitec-button-medium" slot="footer" type="primary" label="Agree" @click="${() => this._onAgreeClick()}"
 					data-automation-id="insure-pay-premium-agreement-dialog-agree">
 				</capitec-button>
-		`}
+		`;
+	}
 
 	/**
 	 * Render Alert banner for error message.
@@ -211,7 +213,7 @@ class UpdatePlanAgreementDialog extends Component {
 		}
 	}
 
-	//#endregion RENDERING
+	// #endregion RENDERING
 
 
 }

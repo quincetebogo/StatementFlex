@@ -15,7 +15,7 @@ import { Component, css, html } from 'platform/elements';
  */
 class RemoveLifeAssuredDialog extends Component {
 
-	//#region INITIALIZE
+	// #region INITIALIZE
 
 	/**
 	 * Initialize
@@ -25,7 +25,7 @@ class RemoveLifeAssuredDialog extends Component {
 
 	}
 
-	//#endregion
+	// #endregion
 
 	/**
 	 * @property {Number} lifeToRemoveDescription 
@@ -39,10 +39,11 @@ class RemoveLifeAssuredDialog extends Component {
 	}
 
 
-	//#region EVENT HANDLERS
+	// #region EVENT HANDLERS
 
 	/**
 	 * Cancel event from dialog footer button, closes modal & reset toggles 
+	 * @returns {null} null
 	 */
 	_onCancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
@@ -50,18 +51,20 @@ class RemoveLifeAssuredDialog extends Component {
 
 	/**
 	 * Add Event, Calculate cover details parameter, emit new life object to consuming component & reset toggles 
+	 * @returns {null} null
 	 */
 	_onAgreeClick() {
-		console.log('In dialog agree event')
+		console.log(`In dialog agree event`);
 		this.dispatchEvent(new CustomEvent(`agree-click`, {}));
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region RENDERING
+	// #region RENDERING
 
 	/**
 	 * Generates the component template for web mode
+	 * @returns {null} null
 	 */
 	_webTemplate() {
 		return html`
@@ -75,7 +78,7 @@ class RemoveLifeAssuredDialog extends Component {
 				${this._renderDialogFooter()}
 			</div>
 		</capitec-modal>
-		`
+		`;
 	}
 
 	/**
@@ -107,7 +110,7 @@ class RemoveLifeAssuredDialog extends Component {
 			`;
 	}
 
-	//#endregion
+	// #endregion
 
 }
 
