@@ -84,16 +84,13 @@ export default class InsureChannelServiceMocks {
 
 	/**
 	 * fetch mock data for policy transactions
-	 * @param {*} policyTransactionHistoryRequest 
+	 * @param {Object} policyTransactionHistoryRequest request payload 
 	 * @returns {Object} Mock transactions data
 	 */
 	policyTransactionHistory(policyTransactionHistoryRequest) {
 		if (this._mockSettings.insurePolicyTransactionHistory.positiveCase) {
-
 			const result = this.transactionHistoryMocks.PolicyTransactionHistory;
-
-			var policyTrans = result.filter(x => x.contractReference === policyTransactionHistoryRequest.contractReference);
-
+			const policyTrans = result.filter(x => x.contractReference === policyTransactionHistoryRequest.contractReference);
 			return policyTrans[0];
 		}
 
@@ -127,7 +124,7 @@ export default class InsureChannelServiceMocks {
 	 * Create Policy Mock data
 	 * @returns {Object} Mock response data
 	 */
-	createPolicy(){
+	createPolicy() {
 		if (this._mockSettings.insureCreatePolicy.positiveCase) {
 			return this.createPolicyMocks.CreatePolicyMockData;
 		}

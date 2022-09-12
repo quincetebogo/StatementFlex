@@ -22,20 +22,19 @@ class PayPremiumSuccess extends Component {
 
 	// #region INITIALIZE
 
-constructor() {
-	super();
+	constructor() {
+		super();
 
-	this.showSuccessAlert = true;
-	this.showEmailPlanDialog = false;
-	this.amountToPay = ``;
-	this.contractReference = ``;
-	this.titleMessage = ``;
+		this.showSuccessAlert = true;
+		this.showEmailPlanDialog = false;
+		this.amountToPay = ``;
+		this.contractReference = ``;
+		this.titleMessage = ``;
+	}
 
-}
+	// #endregion
 
-// #endregion
-
-// #region PROPERTIES
+	// #region PROPERTIES
 
 	/**
 	 *  @property {boolean} ShowSuccessAlert Controls when to show the Success Alert
@@ -57,9 +56,9 @@ constructor() {
 		};
 	}
 
-// #endregion
+	// #endregion
 
-// #region LIFECYCLE OVERRIDES
+	// #region LIFECYCLE OVERRIDES
 
 	/**
 	 * Setup the component once added to the DOM.

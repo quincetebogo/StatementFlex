@@ -139,24 +139,23 @@ class PolicyEstimate extends Component {
 			
 		if (!isValid) {
 			this.requestUpdate();
-			return;
 		} else {
-			if (this.newTotalPremium != '') {
-				this.estimate.totalPremium = this.newTotalPremium
+			if (this.newTotalPremium !== ``) {
+				this.estimate.totalPremium = this.newTotalPremium;
 			} else {
-				delete this.estimate.totalPremium
+				delete this.estimate.totalPremium;
 			}
-			let request = {
-				...this.estimate,
-			}
+			const request = {
+				...this.estimate
+			};
 
-			if (printOrCalculate == 1) {
-				this.dispatchEvent(new CustomEvent('calculate', { detail: request }));
+			if (printOrCalculate === 1) {
+				this.dispatchEvent(new CustomEvent(`calculate`, { detail: request }));
 
 				this.estimate.totalPremium = 0;
-				this.newTotalPremium = '';
-			} else {	
- 				const printEstimateResponse = await this.printEstimate({detail: request});
+				this.newTotalPremium = ``;
+			} else {
+ 				const printEstimateResponse = await this.printEstimate({ detail: request });
 				this.printEstimateDocumentContent = printEstimateResponse?.result?.documentContent;
 
 				this.showPrintEstimateDialog = true;
@@ -194,7 +193,7 @@ class PolicyEstimate extends Component {
 	 * @returns {null} null
 	 */
 	_removeLife(lifeToRemove) {
-		const indexOfObject = this.estimate.lifesAssured.findIndex(object => { return object.rowID === lifeToRemove.rowID; });
+		const indexOfObject = this.estimate.lifesAssured.findIndex(object => object.rowID === lifeToRemove.rowID);
 
 		this.estimate.lifesAssured.splice(indexOfObject, 1);
 		for (let index = 0; index < this.estimate.lifesAssured.length; index++) {
@@ -282,7 +281,7 @@ class PolicyEstimate extends Component {
 	 * @param {*} e e
 	 * @returns {object} Estimate Response
 	 */
-	async _totalPremiumChanged(e) {
+	_totalPremiumChanged(e) {
 		this.newTotalPremium = e.detail.new;
 	}
 
@@ -290,7 +289,7 @@ class PolicyEstimate extends Component {
 	 * Invoke this function when Agree button is clicked on Email Estimate Popup
 	 * @returns {null} null
 	 */
-	async _acceptPrintEstimate() {
+	_acceptPrintEstimate() {
 		this.titleMessage = `Email Funeral Plan Estimate`;
 		this.showPrintEstimateDialog = false;
 		this.showEmailPlanDialog = true;
@@ -301,7 +300,7 @@ class PolicyEstimate extends Component {
 	 * @param {*} emailAddress email address
 	 * @returns {null} null
 	 */
-	async _sendEmail(emailAddress) {
+	_sendEmail(emailAddress) {
 		this.showEmailPlanDialog = false;
 		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.ESTIMATE } }));
 	}
@@ -334,7 +333,7 @@ class PolicyEstimate extends Component {
 				genderMessage: ``,
 				maxCoverMessage: `Only cover up to {0:#,##0} on main life assured is allowed.`,
 				minCoverMessage: `A minimum cover amount of {0:#,##0} is required for the main life.`,
-				mainLifeDetailsDisabled: this.mainLifeDefaultAge === 0 ? false : true
+				mainLifeDetailsDisabled: this.mainLifeDefaultAge !== 0
 			}
 		});
 		this.estimate.totalPremium = 0;
@@ -408,12 +407,9 @@ class PolicyEstimate extends Component {
 				margin-top: 15px;
 			}
 
-			
-
 			.calc-card-header{
 				display: flex;
 				justify-content: space-between;
-
 				border-bottom: 1px solid #e1e1e1;
 				border-top-right-radius: 5px;
 				border-top-left-radius: 5px;

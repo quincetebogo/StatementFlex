@@ -119,7 +119,14 @@ class PayPremiumDialog extends Component {
 	 * @returns {null} null
 	 */
 	_sortArrears() {
-		this.clientArrears.arrears.sort((a, b) => { return (a.dueDate < b.dueDate) ? -1 : ((a.dueDate > b.dueDate) ? 1 : 0) });
+		this.clientArrears.arrears = this.clientArrears.arrears.sort((a, b) => {
+			if (a.dueDate < b.dueDate) {
+				return -1;
+			} else if (a.dueDate > b.dueDate) {
+				return 1;
+			}
+			return 0;
+		}); 
 	}
 
 	/**
@@ -385,22 +392,24 @@ class PayPremiumDialog extends Component {
 			
 			<capitec-check-group>
 				${this.clientArrears.arrears.map((outstanding, index) => html`
-					${index == 1 ? html`
-						<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, 'MM yyyy')} | ${formatCurrency(outstanding.amount)}"
+
+					${index === 1 ? html`
+					<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, `MM yyyy`)} | ${formatCurrency(outstanding.amount)}"
 							@value-change=" ${(e) => this._checkedChange(outstanding, index, e)}" data-automation-id="insure-pay-premium-dialog-arrears" >
 						</capitec-check>
-					` : (index == 2 ? html`
-						<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, 'MM yyyy')} | ${formatCurrency(outstanding.amount)}"
+					` : html``}
+					${index === 2 ? html`
+					<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, `MM yyyy`)} | ${formatCurrency(outstanding.amount)}"
 							@value-change=" ${(e) => this._checkedChange(outstanding, index, e)}" data-automation-id="insure-pay-premium-dialog-arrears"
-							.disabled="${outstanding.shouldBeDisabled == true}" .checked="${outstanding.shouldBeChecked == true}" >
-						</capitec-check>	
-					`: html`
-						<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, 'MM yyyy')} | ${formatCurrency(outstanding.amount)}"
-							@value-change=" ${(e) => this._checkedChange(outstanding, index, e)}" data-automation-id="insure-pay-premium-dialog-arrears"
-							.disabled="${outstanding.shouldBeDisabled == true}" .checked="${outstanding.shouldBeChecked == true}">
+							.disabled="${outstanding.shouldBeDisabled === true}" .checked="${outstanding.shouldBeChecked === true}" >
 						</capitec-check>
-						
-					`)}
+					` : html``}
+					${index !== 1 && index !== 2 ? html`
+					<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, `MM yyyy`)} | ${formatCurrency(outstanding.amount)}"
+							@value-change=" ${(e) => this._checkedChange(outstanding, index, e)}" data-automation-id="insure-pay-premium-dialog-arrears"
+							.disabled="${outstanding.shouldBeDisabled === true}" .checked="${outstanding.shouldBeChecked === true}">
+						</capitec-check>
+					` : html``}
 				`)}
 			</capitec-check-group>
 		`;

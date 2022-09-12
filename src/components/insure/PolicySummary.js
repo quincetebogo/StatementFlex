@@ -275,8 +275,7 @@ class PolicySummary extends Component {
 	 * @returns {html} The html content of Main Life section
 	 */
 	_renderMainLifeSection() {
-		const sumArrears = this.policyDetails?.arrearDetails?.arrears?.reduce((accumulator, object) => { return accumulator + (object.amount ?? 0); }, 0);
-
+		const sumArrears = this.policyDetails?.arrearDetails?.arrears?.reduce((accumulator, object) => accumulator + (object.amount ?? 0), 0);
 		const mainLifeDetails = this.policyDetails?.roleplayers?.filter(item => item.relationship === `MainLife`);
 
 		return html`
@@ -339,7 +338,7 @@ class PolicySummary extends Component {
  */
 	_renderOptions() {
 		const paymentSchedule = this.policyDetails?.paymentSchedule;
-		const csvOfMonths = this.policyDetails?.arrearDetails?.arrears?.map((item) => { return formatDate(item.dueDate,  `dd mmm yyyy`); }).join(`, `);
+		const csvOfMonths = this.policyDetails?.arrearDetails?.arrears?.map((item) => formatDate(item.dueDate, `dd mmm yyyy`)).join(`, `);
 		const activeBankAccountNo = this.policyDetails?.deductionDetails?.bankDetails?.accountNumber;
 
 		const activeMandateDetails = this.policyDetails?.mandates?.filter(x => x.accountNumber === activeBankAccountNo);
@@ -412,7 +411,7 @@ class PolicySummary extends Component {
 							class="column-width-200"
 							data-automation-id="insure-beneficiaries-name"
 							label="Name & Surname"
-							value="${formatStringAsPascalCase(item.firstName + ` ` + item.surname)}">
+							value="${formatStringAsPascalCase(`${item.firstName} ${item.surname}`)}">
 						</horizon-label>
 						<div class="vertical-line"></div>
 						<horizon-label
@@ -476,7 +475,7 @@ class PolicySummary extends Component {
 							class="column-width-200"
 							data-automation-id="insure-lives-assured-name"
 							label="Name & Surname"
-							value="${formatStringAsPascalCase(item.firstName + ` ` + item.surname)}">
+							value="${formatStringAsPascalCase(`${item.firstName} ${item.surname}`)}">
 						</horizon-label>
 						<div class="vertical-line"></div>
 						<horizon-label

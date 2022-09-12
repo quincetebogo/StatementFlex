@@ -5,25 +5,25 @@
  * @constant PrepareUpdate
  */
 export const PrepareUpdate = {
-	"contractReference": "FP00001631",
-	"productCode": "Capitec",
-	"commencementDate": "2022-06-29T09:26:47.167Z",
-	"status": "Active",
-	"displayStatus": "string",
+	"contractReference": `FP00001631`,
+	"productCode": `Capitec`,
+	"commencementDate": `2022-06-29T09:26:47.167Z`,
+	"status": `Active`,
+	"displayStatus": `string`,
 	"deductionDetails": {
 		"collectionDay": 0,
 		"bankDetails": {
-			"accountName": "string",
-			"branchCode": "string",
-			"accountNumber": "string",
-			"bank": "string",
-			"accountType": "Bond"
+			"accountName": `string`,
+			"branchCode": `string`,
+			"accountNumber": `string`,
+			"bank": `string`,
+			"accountType": `Bond`
 		},
-		"collectionMethod": "EFT",
-		"mandateReferenceNumber": "string",
-		"frequency": "MONTHLY",
-		"effectiveFromDate": "2022-06-29T09:26:47.167Z",
-		"effectiveToDate": "2022-06-29T09:26:47.167Z"
+		"collectionMethod": `EFT`,
+		"mandateReferenceNumber": `string`,
+		"frequency": `MONTHLY`,
+		"effectiveFromDate": `2022-06-29T09:26:47.167Z`,
+		"effectiveToDate": `2022-06-29T09:26:47.167Z`
 	},
 	"totalPremium": 0,
 	"arrearDetails": {
@@ -32,197 +32,197 @@ export const PrepareUpdate = {
 		"arrears": [
 			{
 				"amount": 0,
-				"dueDate": "2022-06-29T09:26:47.167Z",
-				"objectID": "string"
+				"dueDate": `2022-06-29T09:26:47.167Z`,
+				"objectID": `string`
 			}
 		]
 	},
 	"cancellationDetails": {
-		"recordedCancellationDate": "2022-06-29T09:26:47.167Z",
-		"effectiveCancellationDate": "2022-06-29T09:26:47.167Z",
-		"reason": "string"
+		"recordedCancellationDate": `2022-06-29T09:26:47.167Z`,
+		"effectiveCancellationDate": `2022-06-29T09:26:47.167Z`,
+		"reason": `string`
 	},
 	"paymentSchedule": {
-		"previousArrearsPaymentDate": "2022-06-29T09:26:47.167Z",
+		"previousArrearsPaymentDate": `2022-06-29T09:26:47.167Z`,
 		"previousArrearsPaymentAmount": 0,
-		"previousPaymentDate": "2022-06-29T09:26:47.167Z",
+		"previousPaymentDate": `2022-06-29T09:26:47.167Z`,
 		"previousPaymentAmount": 0,
-		"nextPaymentDate": "2022-06-29T09:26:47.167Z",
+		"nextPaymentDate": `2022-06-29T09:26:47.167Z`,
 		"nextPaymentAmount": 0
 	},
 	"benefits": [
 		{
-			"type": "NewBorn",
+			"type": `NewBorn`,
 			"available": true,
-			"availableDate": "2022-06-29T09:26:47.167Z"
+			"availableDate": `2022-06-29T09:26:47.167Z`
 		}
 	],
 	"mandates": [
 		{
-			"accountName": "string",
-			"branchCode": "string",
-			"accountNumber": "string",
-			"bank": "string",
-			"accountType": "Bond",
-			"mandateType": "EFT",
+			"accountName": `string`,
+			"branchCode": `string`,
+			"accountNumber": `string`,
+			"bank": `string`,
+			"accountType": `Bond`,
+			"mandateType": `EFT`,
 			"initialInstalmentAmount": 0,
-			"firstCollectionDate": "2022-06-29T09:26:47.167Z",
+			"firstCollectionDate": `2022-06-29T09:26:47.167Z`,
 			"numberOfDebitInstalments": 0,
-			"statusReason": "string",
-			"mandateStatus": "Inactive",
-			"mandateInitiationDate": "2022-06-29T09:26:47.167Z",
+			"statusReason": `string`,
+			"mandateStatus": `Inactive`,
+			"mandateInitiationDate": `2022-06-29T09:26:47.167Z`,
 			"mandateID": 0,
-			"lastCollectionDate": "2022-06-29T09:26:47.167Z",
+			"lastCollectionDate": `2022-06-29T09:26:47.167Z`,
 			"instalmentAmount": 0,
-			"contractReference": "FP00001631",
+			"contractReference": `FP00001631`,
 			"collectionDay": 0,
 			"cifNumber": 0,
-			"idNumber": "string",
-			"instalmentOccurrence": "OOFF",
-			"messageAuthenticationCode": "string",
+			"idNumber": `string`,
+			"instalmentOccurrence": `OOFF`,
+			"messageAuthenticationCode": `string`,
 			"authRequired": true,
-			"mandateReferenceNumber": "string",
-			"contactNumber": "string",
-			"voiceRecordingNumber": "string",
-			"mandateRequestTransactionIdentifier": "string"
+			"mandateReferenceNumber": `string`,
+			"contactNumber": `string`,
+			"voiceRecordingNumber": `string`,
+			"mandateRequestTransactionIdentifier": `string`
 		}
 	],
 	"claims": [
 		{
 			"roleplayer": {
-				"title": "Mr",
-				"surname": "string",
-				"firstName": "string",
-				"middleName": "string",
-				"idNumber": "string",
+				"title": `Mr`,
+				"surname": `string`,
+				"firstName": `string`,
+				"middleName": `string`,
+				"idNumber": `string`,
 				"lifeAssured": true,
 				"beneficiary": true,
 				"benefitPayout": 0,
 				"contactDetails": {
-					"cellphone": "string",
-					"homephone": "string",
-					"workphone": "string",
-					"email": "string"
+					"cellphone": `string`,
+					"homephone": `string`,
+					"workphone": `string`,
+					"email": `string`
 				},
-				"gender": "Male",
-				"dateOfBirth": "2022-06-29T09:26:47.167Z",
-				"recordID": "string",
+				"gender": `Male`,
+				"dateOfBirth": `2022-06-29T09:26:47.167Z`,
+				"recordID": `string`,
 				"cifNumber": 0,
-				"relationship": "MainLife",
+				"relationship": `MainLife`,
 				"coverAmount": 0,
 				"premium": 0,
-				"coverStartDate": "2022-06-29T09:26:47.167Z",
-				"premiumStartDate": "2022-06-29T09:26:47.167Z",
-				"idType": "RSAID",
+				"coverStartDate": `2022-06-29T09:26:47.167Z`,
+				"premiumStartDate": `2022-06-29T09:26:47.167Z`,
+				"idType": `RSAID`,
 				"rowID": 0
 			},
-			"claimsReference": "string",
+			"claimsReference": `string`,
 			"claimSettlementAmount": 0,
-			"taskReference": "string",
-			"claimIntimationDate": "2022-06-29T09:26:47.167Z",
-			"claimReceivedOnDate": "2022-06-29T09:26:47.167Z",
-			"claimIncidentDate": "2022-06-29T09:26:47.167Z",
-			"claimStatus": "string",
-			"clientClaimStatus": "string",
-			"claimType": "Other",
-			"subClaimType": "string",
-			"causeOfIncident": "string",
+			"taskReference": `string`,
+			"claimIntimationDate": `2022-06-29T09:26:47.167Z`,
+			"claimReceivedOnDate": `2022-06-29T09:26:47.167Z`,
+			"claimIncidentDate": `2022-06-29T09:26:47.167Z`,
+			"claimStatus": `string`,
+			"clientClaimStatus": `string`,
+			"claimType": `Other`,
+			"subClaimType": `string`,
+			"causeOfIncident": `string`,
 			"documentsRequired": [
 				{
-					"documentCode": "string",
-					"documentName": "string",
-					"guid": "string",
+					"documentCode": `string`,
+					"documentName": `string`,
+					"guid": `string`,
 					"isMandatory": true,
-					"docStatus": "Pending"
+					"docStatus": `Pending`
 				}
 			],
 			"documentsReceived": [
 				{
-					"documentCode": "string",
-					"documentName": "string",
-					"guid": "string",
+					"documentCode": `string`,
+					"documentName": `string`,
+					"guid": `string`,
 					"isMandatory": true,
-					"docStatus": "Pending"
+					"docStatus": `Pending`
 				}
 			],
 			"paymentTransaction": [
 				{
-					"date": "string",
+					"date": `string`,
 					"amount": 0,
 					"bankDetails": [
 						{
-							"accountName": "string",
-							"branchCode": "string",
-							"accountNumber": "string",
-							"bank": "string",
-							"accountType": "Bond"
+							"accountName": `string`,
+							"branchCode": `string`,
+							"accountNumber": `string`,
+							"bank": `string`,
+							"accountType": `Bond`
 						}
 					],
 					"beneficiary": {
-						"title": "Mr",
-						"surname": "string",
-						"firstName": "string",
-						"middleName": "string",
-						"idNumber": "string",
+						"title": `Mr`,
+						"surname": `string`,
+						"firstName": `string`,
+						"middleName": `string`,
+						"idNumber": `string`,
 						"lifeAssured": true,
 						"beneficiary": true,
 						"benefitPayout": 0,
 						"contactDetails": {
-							"cellphone": "string",
-							"homephone": "string",
-							"workphone": "string",
-							"email": "string"
+							"cellphone": `string`,
+							"homephone": `string`,
+							"workphone": `string`,
+							"email": `string`
 						},
-						"gender": "Male",
-						"dateOfBirth": "2022-06-29T09:26:47.167Z",
-						"recordID": "string",
+						"gender": `Male`,
+						"dateOfBirth": `2022-06-29T09:26:47.167Z`,
+						"recordID": `string`,
 						"cifNumber": 0,
-						"relationship": "MainLife",
+						"relationship": `MainLife`,
 						"coverAmount": 0,
 						"premium": 0,
-						"coverStartDate": "2022-06-29T09:26:47.167Z",
-						"premiumStartDate": "2022-06-29T09:26:47.167Z",
-						"idType": "RSAID",
+						"coverStartDate": `2022-06-29T09:26:47.167Z`,
+						"premiumStartDate": `2022-06-29T09:26:47.167Z`,
+						"idType": `RSAID`,
 						"rowID": 0
 					},
-					"payStatus": "Authorised"
+					"payStatus": `Authorised`
 				}
 			],
-			"incidentNumber": "string",
-			"lastComment": "string",
-			"repudiationDate": "2022-06-29T09:26:47.167Z",
-			"repudiationReason": "string"
+			"incidentNumber": `string`,
+			"lastComment": `string`,
+			"repudiationDate": `2022-06-29T09:26:47.167Z`,
+			"repudiationReason": `string`
 		}
 	],
-	"policyRule": "Standard",
+	"policyRule": `Standard`,
 	"policyMinumumPremium": 0,
 	"roleplayers": [
 		{
-			"title": "Mr",
-			"surname": "string",
-			"firstName": "string",
-			"middleName": "string",
-			"idNumber": "string",
+			"title": `Mr`,
+			"surname": `string`,
+			"firstName": `string`,
+			"middleName": `string`,
+			"idNumber": `string`,
 			"lifeAssured": true,
 			"beneficiary": true,
 			"benefitPayout": 0,
 			"contactDetails": {
-				"cellphone": "string",
-				"homephone": "string",
-				"workphone": "string",
-				"email": "string"
+				"cellphone": `string`,
+				"homephone": `string`,
+				"workphone": `string`,
+				"email": `string`
 			},
-			"gender": "Male",
-			"dateOfBirth": "2022-06-29T09:26:47.167Z",
-			"recordID": "string",
+			"gender": `Male`,
+			"dateOfBirth": `2022-06-29T09:26:47.167Z`,
+			"recordID": `string`,
 			"cifNumber": 0,
-			"relationship": "MainLife",
+			"relationship": `MainLife`,
 			"coverAmount": 0,
 			"premium": 0,
-			"coverStartDate": "2022-06-29T09:26:47.167Z",
-			"premiumStartDate": "2022-06-29T09:26:47.167Z",
-			"idType": "RSAID",
+			"coverStartDate": `2022-06-29T09:26:47.167Z`,
+			"premiumStartDate": `2022-06-29T09:26:47.167Z`,
+			"idType": `RSAID`,
 			"rowID": 0
 		}
 	]
-}
+};

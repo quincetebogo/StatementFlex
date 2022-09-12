@@ -352,18 +352,22 @@ class ClientPolicies extends Component {
 	 * @returns {null} null
 	 */
 	_expanded(policyItem) {
-		const isExpanded = this.policiesList?.some(x => x.contractReference !== policyItem.contractReference 
-			&& x.isExpanded === true);
+		const isExpanded = this.policiesList?.some(x => x.contractReference !== policyItem.contractReference && 
+			x.isExpanded === true);
 
 		policyItem.isExpanded = true;
 
-		this.policiesList?.forEach(item => { if (item.contractReference != policyItem.contractReference ) item["isExpanded"] = false ;})
+		this.policiesList = this.policiesList?.forEach(item => { 
+			if (item.contractReference !== policyItem.contractReference) {
+				item.isExpanded = false;
+			}
+		});
 
 		this.requestUpdate();
 
 		const parentElement = this.shadowRoot.getElementById(`client-policies-box`);
 
-		const childElement = this.shadowRoot.getElementById(`horizon-expander-` + policyItem.contractReference);
+		const childElement = this.shadowRoot.getElementById(`horizon-expander-${policyItem.contractReference}`);
 
 		if (isExpanded) {
 			parentElement.scrollTop = childElement.offsetTop - 445;
@@ -389,7 +393,7 @@ class ClientPolicies extends Component {
 	 * @returns {null} null
 	 */
 	_getTotalCoverAmount(policyItem) {
-		return policyItem.roleplayers.filter(x => x.beneficiary !== true).reduce((accumulator, object) => { return accumulator + (object.coverAmount ?? 0); }, 0);
+		return policyItem.roleplayers.filter(x => x.beneficiary !== true).reduce((accumulator, object) => accumulator + (object.coverAmount ?? 0), 0);
 	}
 
 	// #endregion PRIVATE FUNCTIONS
@@ -678,11 +682,11 @@ class ClientPolicies extends Component {
 	_renderPoliciesDetailsBar() {
 		this.policiesList = this.clientPolicies?.summaryDetails?.policies;
 
-		this.policiesList?.sort((a, b) => Status[a.status] - Status[b.status] || (new Date(b.commencementDate) - new Date(a.commencementDate)));
+		this.policiesList = this.policiesList?.sort((a, b) => Status[a.status] - Status[b.status] || new Date(b.commencementDate) - new Date(a.commencementDate));
 
 		return html`${this.policiesList?.length > 0 ? this.policiesList?.map((policyItem) => { 
 
-		const sumArrears = policyItem?.arrearDetails?.arrears?.reduce((accumulator, object) => { return accumulator + (object.amount ?? 0); }, 0);
+		const sumArrears = policyItem?.arrearDetails?.arrears?.reduce((accumulator, object) => accumulator + (object.amount ?? 0), 0);
 
 			return html`
 		<horizon-expander
