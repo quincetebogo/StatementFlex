@@ -10,16 +10,16 @@ import { Component, css, html } from 'platform/elements';
  */
 class UpdatePlanSuccess extends Component {
 
-	//#region INITIALISATION
+	// #region INITIALISATION
 
 	constructor() {
 		super();
 		this.showEmailPlanDialog = false;
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region PROPERTIES
+	// #region PROPERTIES
 
 	/**
 	 * @property {String} policyNumber Contract reference of policy that got updated
@@ -30,23 +30,24 @@ class UpdatePlanSuccess extends Component {
 	static get properties() {
 		return {
 			policyDetails: { type: Object, state: true },
-			showEmailPlanDialog: { type: Boolean, state: true },
+			showEmailPlanDialog: { type: Boolean, state: true }
 		};
 	}
-	//#endregion
+	// #endregion
 
-	//#region EVENTS
+	// #region EVENTS
 
 	/**
 	 * Navigate to Client Landing
+	 * @return {null} null
 	 */
 	_backToSummaryPage() {
 		this.dispatchEvent(new CustomEvent(`navigate-back`, { detail: {} }));
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region RENDERING
+	// #region RENDERING
 
 	/**
 	 * Generates the view stylesheet.
@@ -118,11 +119,12 @@ class UpdatePlanSuccess extends Component {
 		return html`
 			${this._renderContent()}
 			${this._renderDialogs()}
-		`
+		`;
 	}
 
 	/**
 	 * Render the content HTML for the component
+	 * @return {null} null
 	 */
 	_renderContent() {
 		return html`
@@ -145,7 +147,7 @@ class UpdatePlanSuccess extends Component {
 				</capitec-button>
 			</div>
 		</capitec-card>
-		`
+		`;
 	}
 
 	/**
@@ -155,21 +157,22 @@ class UpdatePlanSuccess extends Component {
 	_renderDialogs() {
 		return html`
 			${this._renderInsureEmailDialog()}
-		`
+		`;
 	}
 
 	/** 
 	 * Render dialog for confirming email address then sending
+	 * @return {null} null
 	 */
 	_renderInsureEmailDialog() {
-		return this.showEmailPlanDialog == false ? `` :
-			html`
+		return this.showEmailPlanDialog === false ? `` 
+		: html`
 				GENERIC EMAIL POPUP HERE @Kishore
-			`
+			`;
 	}
 
 
-	//#endregion
+	// #endregion
 
 }
 
