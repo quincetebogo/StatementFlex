@@ -338,11 +338,8 @@ export class AddCallerDetails extends Component {
 					--theme-button-padding-left: 12px;
 				}
 
-				capitec-alert-banner {
-					--theme-alert-banner-height: 48px;
+				horizon-alert-banner {
 					--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
-					--theme-alert-banner-icon-margin-left: 15px;
-					--theme-alert-banner-icon-margin-right: 15px;
 					
 					margin: 14px 16px 0px 17px;
 					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
@@ -382,11 +379,11 @@ export class AddCallerDetails extends Component {
 	_renderErrorMessage() {
 		if (this.validationFailed) {
 			return html`
-				<capitec-alert-banner
+				<horizon-alert-banner
 					data-automation-id="add-caller-details-alert-banner"
 					label="${this.alertBannerMessage}"
 					type="error">
-				</capitec-alert-banner>`;
+				</horizon-alert-banner>`;
 		}
 		return html``;
 	}

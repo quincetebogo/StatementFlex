@@ -132,6 +132,7 @@ export class CreditAccountLanding extends Component {
 				/* Title Bar styles */
 				capitec-title-bar {
 					--theme-titlebar-padding: 12px 16px;
+					--theme-card-border: 0px;
 					margin-bottom: 0px;
 				}
 				capitec-title-bar > capitec-label {
@@ -615,6 +616,12 @@ export class CreditAccountLanding extends Component {
 	_renderAccessFacilityOptions(selectedAccountDetails) {
 		return html`
 			<horizon-option-button 
+					data-automation-id="credit-account-transaction-history"
+					label="Transaction History"
+					icon="system/time-action"
+					@click="${() => this._click(`transaction-history`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.ACCESS_FACILITY, selectedAccountDetails)}">
+			</horizon-option-button>
+			<horizon-option-button 
 					data-automation-id="credit-account-statements"
 					label="Statements"
 					icon="system/documents-action"
@@ -638,6 +645,12 @@ export class CreditAccountLanding extends Component {
 
 	_renderTermLoanOptions(selectedAccountDetails) {
 		return html`
+			<horizon-option-button 
+					data-automation-id="credit-account-transaction-history"
+					label="Transaction History"
+					icon="system/time-action"
+					@click="${() => this._click(`transaction-history`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, selectedAccountDetails)}">
+			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-statements"
 					label="Statements"

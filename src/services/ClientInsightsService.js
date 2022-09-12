@@ -18,7 +18,7 @@ export class ClientInsightsService extends ChannelServiceBase {
 			toggleBusyFunc,
 			defaultErrorHandlerFunc,
 			`serviceURIs.clientInsightsUrl`,
-			`HorizonChannelService`,
+			`ClientInsightsChannelService`,
 			`v1`,
 			() => import(`../mocks/HorizonChannelServiceMocks.js`)
 		);

@@ -63,13 +63,12 @@ export class TaxCertificateLanding extends Component {
 
 	_checkForLeapYear() {
 		const year = new Date().getFullYear();
-		this.isLeapYear = ((year % 4 === 0 ) && (year % 100 != 0)) || (year % 400 === 0);
-		return;
+		this.isLeapYear = ((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0);
 	}
 
 	_getYear(currentYear) {
 		const year = new Date().getFullYear();
-		return currentYear ? year : year+1;
+		return currentYear ? year : year + 1;
 	}
 
 	// ---------------
@@ -135,7 +134,7 @@ export class TaxCertificateLanding extends Component {
 					letter-spacing: 0;
 				}
 			`
-		]
+		];
 	}
 
 	_webTemplate() {
@@ -161,7 +160,7 @@ export class TaxCertificateLanding extends Component {
 			<capitec-title-bar class="title-bar">
 				<capitec-icon 
 					data-automation-id="tax-certificate-landing-back"
-					size="small"
+					size="medium"
 					icon="system/arrow-left-action"
 					@click="${() => this._back()}">
 				</capitec-icon>

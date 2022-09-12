@@ -26,5 +26,13 @@
 			]
 		}
 	},
-	"app": "standalone"
+	"app": "standalone",
+	"design": {
+		"breakpoints": {
+			"lg": "1920",
+			"md": "1920",
+			"xs": "1920",
+			"sm": "1920"
+		}
+	}
 }

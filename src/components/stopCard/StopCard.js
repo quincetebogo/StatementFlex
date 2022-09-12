@@ -363,7 +363,7 @@ export class StopCard extends Component {
 					font-weight: 600;
 					letter-spacing: 0;
 				}
-				capitec-alert-banner {
+				horizon-alert-banner {
 					width: 1032px;
 					height: 48px;
 					margin: 16px 16px 16px 16px;
@@ -433,9 +433,11 @@ export class StopCard extends Component {
 
 	_renderNotifyClient() {
 		return html`
-			<capitec-alert-banner type="info">
-				<span class="bold-text">Notify client:</span> Once card has been stopped you will need to visit a branch for a new card. You can also order a new card on the app from 15 May 2021
-			</capitec-alert-banner>`;
+			<horizon-alert-banner
+				type="info"
+				header="Notify client: "
+				label="Once card has been stopped you will need to visit a branch for a new card. You can also order a new card on the app from 15 May 2021">
+			</horizon-alert-banner>`;
 	}
 
 	_renderCardDetails() {

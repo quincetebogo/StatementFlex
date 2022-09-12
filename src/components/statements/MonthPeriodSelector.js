@@ -17,6 +17,7 @@ export class MonthPeriodSelector extends Component {
 		this.selectedPredefinedMonths = [];
 		this.selectedCustomMonths = [];
 		this.checkedAll = false;
+		this.maxDate = ``;
 	}
 
 	// ----------

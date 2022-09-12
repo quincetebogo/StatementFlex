@@ -124,7 +124,7 @@ export class TaxCertificateServiceError extends ViewBase {
 		return html`
 			<horizon-service-call-error-screen
 				bannerDetail=" Tax certificates are currently not available" 
-				image="/images/service-error.svg"
+				image="/images/common/service-error.svg"
 				header="Tax certificates are currently not available"
 				right="Find a Branch"
 				@right-click=${() => this._findBranchClick()}>
