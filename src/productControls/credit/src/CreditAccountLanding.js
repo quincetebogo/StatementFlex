@@ -619,7 +619,7 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-transaction-history"
 					label="Transaction History"
 					icon="system/time-action"
-					hidden="${true}"
+					?hidden="${true}"
 					@click="${() => this._click(`transaction-history`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.ACCESS_FACILITY, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
@@ -650,7 +650,7 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-transaction-history"
 					label="Transaction History"
 					icon="system/time-action"
-					hidden="${true}"
+					?hidden="${true}"
 					@click="${() => this._click(`transaction-history`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, selectedAccountDetails)}">
 			</horizon-option-button>
 			<horizon-option-button 
