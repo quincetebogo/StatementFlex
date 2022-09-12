@@ -753,7 +753,7 @@ class ClientPolicies extends Component {
 			if(policyItem.arrearDetails?.outstandingAmount > 0) 
 				count += 1;
 
-			if(policyItem.status == 'Active')
+			if(policyItem.status == 'Active' || policyItem.status == 'PendingInForce')
 				count += 1;
 			
 			count += 2;
