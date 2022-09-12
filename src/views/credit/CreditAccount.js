@@ -636,7 +636,7 @@ export class CreditAccount extends ViewBase {
 			this.logger.log(`error`, `Failed to retrieve credit transaction history from credit service.`, `_getTransactionHistory`, returnValue.correlationId);
 			return;
 		}
-		const formattedResponse = this._getFormattedResponse(returnValue.result.transactions);
+		const formattedResponse = this._getFormattedResponse(returnValue.result.transaction);
 		this.transactionHistory.push(...formattedResponse);
 		this.endCallContext = `TransactionHistory`;
 		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
