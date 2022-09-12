@@ -1,9 +1,11 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
-import { formatDate, isNullorEmpty, formatStringAsPascalCase, formatPhoneNumber } from 'app/utils/channelServiceUtilities';
-import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { TABLE_EXPANDER_CELL } from 'app/css/PolicySummary';
-import { ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
+import { formatDate, formatPhoneNumber, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+import { TABLE_EXPANDER_CELL } from 'app/css/PolicySummary';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
+// eslint-disable-next-line sort-imports
+import { ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
+
 
 /**
  * Policy summary component showing details of single policy with its role players
@@ -18,7 +20,7 @@ import { INSURE_CSS } from 'app/css/InsureCommonStyles';
  */
 class PolicySummary extends Component {
 
-	//#region INITIALISATION
+	// #region INITIALISATION
 
 	constructor() {
 		super();
@@ -26,9 +28,9 @@ class PolicySummary extends Component {
 		this.policyDetails = null;
 	}
 
-	//#endregion INITIALISATION
+	// #endregion INITIALISATION
 
-	//#region PROPERTIES
+	// #region PROPERTIES
 
 	/**
 	 * @readonly
@@ -37,13 +39,13 @@ class PolicySummary extends Component {
 	static get properties() {
 		return {
 			policyDetails: { type: Object, state: true },
-			readOnlyMode: {type: Boolean, state: true}
+			readOnlyMode: { type: Boolean, state: true }
 		};
 	}
 
-	//#endregion PROPERTIES
+	// #endregion PROPERTIES
 
-	//#region LIFECYCLE OVERRIDES
+	// #region LIFECYCLE OVERRIDES
 
 	/**
 	 * call unload event once the component removed from the DOM.
@@ -55,12 +57,13 @@ class PolicySummary extends Component {
 		this._unloading();
 	}
 
-	//#endregion LIFECYCLE OVERRIDES
+	// #endregion LIFECYCLE OVERRIDES
 
-	//#region EVENT HANDLERS
+	// #region EVENT HANDLERS
 
 	/**
 	 * unload the policy transactions
+	 * @returns {null} null
 	 */
 	_unloading() {
 		this.dispatchEvent(new CustomEvent(`unloading`));
@@ -68,6 +71,7 @@ class PolicySummary extends Component {
 
 	/**
 	 * Navigate to Insure Landing page
+	 * @returns {null} null
 	 */
 	_backToClientPoliciesPage() {
 		this.dispatchEvent(new CustomEvent(`navigate-back`, {
@@ -78,6 +82,8 @@ class PolicySummary extends Component {
 
 	/**
 	 * Fire navigate event to Update Plan
+	 * @param {*} contractReference contract reference
+	 * @returns {null} null
 	 */
 	_goToUpdatePlan(contractReference) {
 		this.dispatchEvent(new CustomEvent(`navigate-to-update-plan`, {
@@ -87,9 +93,9 @@ class PolicySummary extends Component {
 		}));
 	}
 
-	//#endregion EVENT HANDLERS
+	// #endregion EVENT HANDLERS
 
-	//#region RENDERING
+	// #region RENDERING
 
 	/**
 	 * Generates the component stylesheet.
@@ -239,10 +245,11 @@ class PolicySummary extends Component {
 						data-automation-id="policy-summary-back-to-policies" @click="${() => this._backToClientPoliciesPage()}" />
 					<capitec-label label="Funeral Plan" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					${(this.policyDetails.status == 'InForce' || this.policyDetails.status == 'Active')
-						&& this.readOnlyMode == false ? html`<capitec-button label="Update Plan" type="white"
+					${(this.policyDetails.status === `InForce` || this.policyDetails.status === `Active`) && this.readOnlyMode === false 
+					? html`<capitec-button label="Update Plan" type="white"
 						data-automation-id="policy-summary-update-plan"
-						@click="${() => this._goToUpdatePlan(this.policyDetails.contractReference)}"></capitec-button>` : html``}
+						@click="${() => this._goToUpdatePlan(this.policyDetails.contractReference)}"></capitec-button>` 
+					: html``}
 				</capitec-title-bar>
 				<capitec-group layout="vertical" halign="left" valign="top" gap="none">
 					${this._renderSections()}
@@ -268,11 +275,9 @@ class PolicySummary extends Component {
 	 * @returns {html} The html content of Main Life section
 	 */
 	_renderMainLifeSection() {
-		const sumArrears = this.policyDetails?.arrearDetails?.arrears?.reduce((accumulator, object) => {
-			return accumulator + (object.amount ?? 0);
-		}, 0);
+		const sumArrears = this.policyDetails?.arrearDetails?.arrears?.reduce((accumulator, object) => { return accumulator + (object.amount ?? 0); }, 0);
 
-		const mainLifeDetails = this.policyDetails?.roleplayers?.filter(item => item.relationship === 'MainLife');
+		const mainLifeDetails = this.policyDetails?.roleplayers?.filter(item => item.relationship === `MainLife`);
 
 		return html`
 		<capitec-title-bar type="default" label="Main Life">
@@ -297,7 +302,7 @@ class PolicySummary extends Component {
 					</horizon-label>
 					<div class="vertical-line"></div>
 					<horizon-label data-automation-id="insure-main-life-start-date" label="Start date"
-						value="${formatDate(this.policyDetails?.commencementDate, `dd mmm yyyy`) === '' ? '-' : formatDate(this.policyDetails?.commencementDate, `dd mmm yyyy`)}">
+						value="${formatDate(this.policyDetails?.commencementDate, `dd mmm yyyy`) === `` ? `-` : formatDate(this.policyDetails?.commencementDate, `dd mmm yyyy`)}">
 					</horizon-label>
 					<horizon-label data-automation-id="insure-main-life-cover-amount" label="Cover amount"
 						value="${isNullorEmpty(mainLifeDetails[0]?.coverAmount) ? formatCurrency(0) : formatCurrency(mainLifeDetails[0]?.coverAmount)}">
@@ -308,14 +313,14 @@ class PolicySummary extends Component {
 					<horizon-label
 						data-automation-id="insure-main-life-arrears"
 						label="Arrears"
-						class="${ sumArrears > 0 ? `arrears` : ``}"
-						value="${ isNullorEmpty(sumArrears) ? formatCurrency(0) : formatCurrency(sumArrears)}">
+						class="${sumArrears > 0 ? `arrears` : ``}"
+						value="${isNullorEmpty(sumArrears) ? formatCurrency(0) : formatCurrency(sumArrears)}">
 					</horizon-label>
 					<horizon-label
 						data-automation-id="insure-main-life-display-status"
 						label="Status"
 						value="${this.policyDetails?.displayStatus}"
-						class="column-width-200 ${this.policyDetails?.status === `Active` ? `active-status` : `inactive-status` }">
+						class="column-width-200 ${this.policyDetails?.status === `Active` ? `active-status` : `inactive-status`}">
 					</horizon-label>
 				</capitec-group>
 				<div slot="content">
@@ -334,7 +339,7 @@ class PolicySummary extends Component {
  */
 	_renderOptions() {
 		const paymentSchedule = this.policyDetails?.paymentSchedule;
-		const csvOfMonths = this.policyDetails?.arrearDetails?.arrears?.map((item) => { return formatDate(item.dueDate,  `dd mmm yyyy`); }).join(", ");
+		const csvOfMonths = this.policyDetails?.arrearDetails?.arrears?.map((item) => { return formatDate(item.dueDate,  `dd mmm yyyy`); }).join(`, `);
 		const activeBankAccountNo = this.policyDetails?.deductionDetails?.bankDetails?.accountNumber;
 
 		const activeMandateDetails = this.policyDetails?.mandates?.filter(x => x.accountNumber === activeBankAccountNo);
@@ -347,7 +352,7 @@ class PolicySummary extends Component {
 					data-automation-id="policy-summary-last-premium-payment">
 				</horizon-label>
 				<horizon-label label="Date of last premium payment"
-					value="${formatDate(paymentSchedule?.previousPaymentDate, `dd mmm yyyy`) === '' ? '-' : formatDate(paymentSchedule?.previousPaymentDate, `dd mmm yyyy`)}"
+					value="${formatDate(paymentSchedule?.previousPaymentDate, `dd mmm yyyy`) === `` ? `-` : formatDate(paymentSchedule?.previousPaymentDate, `dd mmm yyyy`)}"
 					data-automation-id="policy-summary-last-premium-date">
 				</horizon-label>
 				<horizon-label label="Next debit order amount"
@@ -355,7 +360,7 @@ class PolicySummary extends Component {
 					data-automation-id="policy-summary-next-debit-amount">
 				</horizon-label>
 				<horizon-label label="Date of next premium"
-					value="${formatDate(paymentSchedule?.nextPaymentDate, `dd mmm yyyy`) === '' ? '-' : formatDate(paymentSchedule?.nextPaymentDate, `dd mmm yyyy`)}"
+					value="${formatDate(paymentSchedule?.nextPaymentDate, `dd mmm yyyy`) === `` ? `-` : formatDate(paymentSchedule?.nextPaymentDate, `dd mmm yyyy`)}"
 					data-automation-id="policy-summary-next-premium">
 				</horizon-label>
 			</capitec-group>
@@ -365,7 +370,7 @@ class PolicySummary extends Component {
 					data-automation-id="policy-summary-last-arrears-payment-amount">
 				</horizon-label>
 				<horizon-label label="Date of last arrears payment"
-					value="${formatDate(paymentSchedule?.previousArrearsPaymentDate, `dd mmm yyyy`) === '' ? '-' : formatDate(paymentSchedule?.previousArrearsPaymentDate, `dd mmm yyyy`)}"
+					value="${formatDate(paymentSchedule?.previousArrearsPaymentDate, `dd mmm yyyy`) === `` ? `-` : formatDate(paymentSchedule?.previousArrearsPaymentDate, `dd mmm yyyy`)}"
 					data-automation-id="policy-summary-last-arrears-payment-date">
 				</horizon-label>
 				<horizon-label label="Months outstanding" value="${isNullorEmpty(csvOfMonths) ? `None` : csvOfMonths}"
@@ -384,12 +389,12 @@ class PolicySummary extends Component {
 	 * @returns {html} The html content of Beneficiaries section
 	 */
 	_renderBeneficiariesSection() {
-		let beneficiaries = this.policyDetails?.roleplayers?.filter(item => item.beneficiary === true);
+		const beneficiaries = this.policyDetails?.roleplayers?.filter(item => item.beneficiary === true);
 
 		return html`
 		<capitec-title-bar type="default" label="Payout Beneficiaries">
 		</capitec-title-bar>
-		${ beneficiaries?.length > 0 ? beneficiaries.map((item) => html `
+		${beneficiaries?.length > 0 ? beneficiaries.map((item) => html`
 			<capitec-content-box  class="accounts-box">
 			<horizon-expander
 			expandButtonAlignment=""
@@ -407,34 +412,34 @@ class PolicySummary extends Component {
 							class="column-width-200"
 							data-automation-id="insure-beneficiaries-name"
 							label="Name & Surname"
-							value="${ formatStringAsPascalCase(item.firstName + ` ` + item.surname) }">
+							value="${formatStringAsPascalCase(item.firstName + ` ` + item.surname)}">
 						</horizon-label>
 						<div class="vertical-line"></div>
 						<horizon-label
 							data-automation-id="insure-beneficiaries-relationship"
 							label="Relationship"
-							value="${ formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[item.relationship?.toUpperCase()]) }">
+							value="${formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[item.relationship?.toUpperCase()])}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-beneficiaries-dateofbirth"
 							label="Date of birth"
-							value="${ formatDate(item.dateOfBirth, `dd mmm yyyy`) === '' ? '-' : formatDate(item.dateOfBirth, `dd mmm yyyy`)}">
+							value="${formatDate(item.dateOfBirth, `dd mmm yyyy`) === `` ? `-` : formatDate(item.dateOfBirth, `dd mmm yyyy`)}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-beneficiaries-contact-number"
 							label="Contact number"
-							value="${ isNullorEmpty(item.contactDetails?.cellphone) ? `-` : formatPhoneNumber(item.contactDetails?.cellphone) }">
+							value="${isNullorEmpty(item.contactDetails?.cellphone) ? `-` : formatPhoneNumber(item.contactDetails?.cellphone)}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-beneficiaries-email-address"
 							label="Email address"
-							value="${ isNullorEmpty(item.contactDetails?.email) ? `-` : item.contactDetails?.email}"
+							value="${isNullorEmpty(item.contactDetails?.email) ? `-` : item.contactDetails?.email}"
 							class="column-width-200">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-beneficiaries-benefit-payout"
 							label="Benefit payout"
-							value="${ isNullorEmpty(item.benefitPayout) ? formatCurrency(0) : formatCurrency(item.benefitPayout)}">
+							value="${isNullorEmpty(item.benefitPayout) ? formatCurrency(0) : formatCurrency(item.benefitPayout)}">
 						</horizon-label>
 				</capitec-group>
 			</horizon-expander>
@@ -448,12 +453,12 @@ class PolicySummary extends Component {
 	 * @returns {html} The html content of Lives Assured section
 	 */
 	_renderLivesAssuredSection() {
-		let livesAssured = this.policyDetails?.roleplayers?.filter(item => item.lifeAssured === true);
+		const livesAssured = this.policyDetails?.roleplayers?.filter(item => item.lifeAssured === true);
 
 		return html`
 		<capitec-title-bar type="default" label="Lives assured (${livesAssured?.length})">
 		</capitec-title-bar>
-		${ livesAssured?.length > 0 ? livesAssured.map((item) => html `
+		${livesAssured?.length > 0 ? livesAssured.map((item) => html`
 			<capitec-content-box  class="accounts-box">
 			<horizon-expander
 			expandButtonAlignment=""
@@ -471,28 +476,28 @@ class PolicySummary extends Component {
 							class="column-width-200"
 							data-automation-id="insure-lives-assured-name"
 							label="Name & Surname"
-							value="${ formatStringAsPascalCase(item.firstName + ` ` + item.surname) }">
+							value="${formatStringAsPascalCase(item.firstName + ` ` + item.surname)}">
 						</horizon-label>
 						<div class="vertical-line"></div>
 						<horizon-label
 							data-automation-id="insure-lives-assured-relationship"
 							label="Relationship"
-							value="${ formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[item.relationship?.toUpperCase()]) }">
+							value="${formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[item.relationship?.toUpperCase()])}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-lives-assured-dateofbirth"
 							label="Date of birth"
-							value="${formatDate(item.dateOfBirth, `dd mmm yyyy`) === '' ? '-' : formatDate(item.dateOfBirth, `dd mmm yyyy`)}">
+							value="${formatDate(item.dateOfBirth, `dd mmm yyyy`) === `` ? `-` : formatDate(item.dateOfBirth, `dd mmm yyyy`)}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-lives-assured-premium"
 							label="Premium"
-							value="${isNullorEmpty(item.premium) ? formatCurrency(0) : formatCurrency(item.premium) }">
+							value="${isNullorEmpty(item.premium) ? formatCurrency(0) : formatCurrency(item.premium)}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-lives-assured-cover-amount"
 							label="Cover amount"
-							value="${isNullorEmpty(item.coverAmount) ? formatCurrency(0) : formatCurrency(item.coverAmount) }">
+							value="${isNullorEmpty(item.coverAmount) ? formatCurrency(0) : formatCurrency(item.coverAmount)}">
 						</horizon-label>
 				</capitec-group>
 			</horizon-expander>
@@ -506,7 +511,7 @@ class PolicySummary extends Component {
 	 * @returns {html} The html content of Bank details section 
 	 */
 	_renderBankDetailsSection() {
-		let deductionDetails = this.policyDetails?.deductionDetails;
+		const deductionDetails = this.policyDetails?.deductionDetails;
 
 		return html`
 		<capitec-title-bar type="default" label="Bank details">
@@ -528,7 +533,7 @@ class PolicySummary extends Component {
 							class="column-width-200"
 							data-automation-id="insure-bank-details-account-name"
 							label="Account name"
-							value="${ formatStringAsPascalCase(deductionDetails?.bankDetails?.accountName) }">
+							value="${formatStringAsPascalCase(deductionDetails?.bankDetails?.accountName)}">
 						</horizon-label>
 						<div class="vertical-line"></div>
 						<horizon-label
@@ -539,7 +544,7 @@ class PolicySummary extends Component {
 						<horizon-label
 							data-automation-id="insure-bank-details-bank-name"
 							label="Bank"
-							value="${ deductionDetails?.bankDetails?.bank }">
+							value="${deductionDetails?.bankDetails?.bank}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-bank-details-branch-code"
@@ -555,7 +560,7 @@ class PolicySummary extends Component {
 						<horizon-label
 							data-automation-id="insure-bank-details-collection-day"
 							label="Collection day"
-							value="${ deductionDetails?.collectionDay }">
+							value="${deductionDetails?.collectionDay}">
 						</horizon-label>
 				</capitec-group>
 			</horizon-expander>
@@ -581,7 +586,7 @@ class PolicySummary extends Component {
 		`;
 	}
 
-	//#endregion
+	// #endregion
 }
 window.customElements.define(`horizon-insure-policy-summary`, PolicySummary);
 

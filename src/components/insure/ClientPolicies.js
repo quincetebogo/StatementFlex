@@ -611,7 +611,8 @@ class ClientPolicies extends Component {
 			${this._renderError()}
 			${this._renderCancelPolicyDialog()}
 			${this._renderCancelPolicyConfirmationDialog()}
-		`}
+		`;
+	}
 
 	/**
 	 * Render the content HTML for the component
