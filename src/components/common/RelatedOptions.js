@@ -275,6 +275,7 @@ export class RelatedOptions extends Component {
 		 * So we make a explicit call to get client products and filter out savings account product
 		 */
 		await this._getSavingsAccountDetails();
+		this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
 	}
 
 	_transactionHistory(option) {
