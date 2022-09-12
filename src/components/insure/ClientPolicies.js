@@ -754,7 +754,7 @@ class ClientPolicies extends Component {
 	}
 
 	/**
-	 * Determine to show sub menu or not
+	 * Determine show sub menu or not
 	 * @param {object} policyItem - each policy item 
 	 * @returns {null} null
 	 */
