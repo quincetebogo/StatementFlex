@@ -13,15 +13,15 @@ import { Component, css, html } from 'platform/elements';
  */
 class EmailPlanSuccess extends Component {
 
-//#region INITIALIZE
+// #region INITIALIZE
 
 	constructor() {
 		super();
 	}
 
-//#endregion
+// #endregion
 
-//#region PROPERTIES
+// #region PROPERTIES
 
 	/**
 	 * @property {Boolean} showSuccessAlert determines whether to show the success alert
@@ -31,15 +31,15 @@ class EmailPlanSuccess extends Component {
 	 */
 	static get properties() {
 		return {
-			showSuccessAlert: {type: Boolean, state: true},
-			contractReference: {type: String, state: true},
-			confirmedEmail: {type: Object, state: true}
+			showSuccessAlert: { type: Boolean, state: true },
+			contractReference: { type: String, state: true },
+			confirmedEmail: { type: Object, state: true }
 		};
 	}
 
-//#endregion
+// #endregion
 
-//#region LIFECYCLE OVERRIDES
+// #region LIFECYCLE OVERRIDES
 
 	/**
 	 * Setup the component once added to the DOM.
@@ -50,16 +50,17 @@ class EmailPlanSuccess extends Component {
 		window.setTimeout(() => this.showSuccessAlert = false, 2000);
 	}
 
-	//#endregion
+	// #endregion
 
-//#region PRIVATE METHODS
+// #region PRIVATE METHODS
 
-//#endregion
+// #endregion
 
-//#region EVENT HANDLERS
+// #region EVENT HANDLERS
 
 /**
  * Navigate to Landing
+ * @returns {null} null
  */
  _onDoneClick() {
 	this.dispatchEvent(new CustomEvent(`navigate-back`, {
@@ -70,17 +71,17 @@ class EmailPlanSuccess extends Component {
 
 /**
  * Navigate to policy summary
+ * @returns {null} null
  */
  _onViewPlanClick() {
 	this.dispatchEvent(new CustomEvent(`navigate-to-policy-summary`, {
-		detail: { policyContractReference: this.contractReference
-		}
+		detail: { policyContractReference: this.contractReference }
 	}));
 }
 
-//#endregion
+// #endregion
 
-//#region RENDERING
+// #region RENDERING
 
 	/**
 	 * Generates the component stylesheet.
@@ -146,12 +147,12 @@ class EmailPlanSuccess extends Component {
 	 _webTemplate() {
 		return html`
 			${this._renderContent()}
-		`
+		`;
 	}
 
 	/**
 	 * Render the content HTML for the component
-	 * @returns {html}
+	 * @returns {html} html content
 	 */
 	 _renderContent() {
 		return html`
@@ -174,15 +175,15 @@ class EmailPlanSuccess extends Component {
 					</capitec-button>
 				</div>
 			</capitec-card>
-		`
+		`;
 	}
 
 /**
  * Renders the Email Sent alert
- * @returns {html}
+ * @returns {html} html content
  */
-_renderAlert(){
-	return this.showSuccessAlert == false ? html``
+_renderAlert() {
+	return this.showSuccessAlert === false ? html``
 	: html`
 		<capitec-toast
 			class="toast"
@@ -193,11 +194,10 @@ _renderAlert(){
 			@click = "${() => this.showSuccessAlert = false}">
 		</capitec-toast>
 
-`}
+	`;
+}
 
-	//#endregion
-
-
+	// #endregion
 
 }
 window.customElements.define(`insure-email-plan-success`, EmailPlanSuccess);

@@ -14,32 +14,33 @@ import { Component, css, html } from 'platform/elements';
  */
 class EmailPlanDialog extends Component {
 
-	//#region INITIALIZE
+	// #region INITIALIZE
 
 	constructor() {
 		super();
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region PROPERTIES
+	// #region PROPERTIES
 
 	static get properties() {
 		return {
-			contractReference: {type: String, state: true}
+			contractReference: { type: String, state: true }
 		};
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region PRIVATE METHODS
+	// #region PRIVATE METHODS
 
-	//#endregion
+	// #endregion
 
-	//#region EVENT HANDLERS
+	// #region EVENT HANDLERS
 
 	/**
 	 * Cancel event from dialog footer button, closes modal & reset toggles 
+	 * @returns {null} null
 	 */
 	 _onCancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
@@ -47,14 +48,15 @@ class EmailPlanDialog extends Component {
 
 	/**
 	 * Send event from dialog footer button, closes modal & reset toggles 
+	 * @returns {null} null
 	 */
 	_onSendClick() {
 		this.dispatchEvent(new CustomEvent(`send-email`, {}));
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region RENDERING
+	// #region RENDERING
 
 	/**
 	 * Generates the component stylesheet.
@@ -99,7 +101,8 @@ class EmailPlanDialog extends Component {
 					${this._renderDialogFooter()}
 				</div>
 			</capitec-modal>
-		`}
+		`;
+	}
 
 	/**
 	 * Render modal body section
@@ -129,7 +132,8 @@ class EmailPlanDialog extends Component {
 				</capitec-text-field>
 			</div>
 
-		`}
+		`;
+	}
 
 	/**
 	 * Render modal footer section
@@ -147,9 +151,10 @@ class EmailPlanDialog extends Component {
 					@click="${() => this._onSendClick()}"
 					data-automation-id="insure-email-plan-dialog-send">
 				</capitec-button>
-		`}
+		`;
+	}
 
-	//#endregion
+	// #endregion
 
 
 }

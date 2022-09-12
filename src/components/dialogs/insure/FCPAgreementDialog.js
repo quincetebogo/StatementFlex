@@ -12,6 +12,7 @@ export class FCPAgreementDialog extends Component {
 
 	/**
 	 * Accept terms and close dialog 
+	 * @returns {null} null
 	 */
 	_acceptAndClose() {
 		this.dispatchEvent(new CustomEvent(`agreementAccepted`, { detail: { accepted: true } }));
@@ -19,6 +20,7 @@ export class FCPAgreementDialog extends Component {
 
 	/**
 	 * Generates the component template for web mode
+	 * @returns {null} null
 	 */
 	_webTemplate() {
 		return html`
@@ -29,7 +31,7 @@ export class FCPAgreementDialog extends Component {
 				</capitec-content-box>
 			</div>
 			${this._renderDialogFooter()}
-		</capitec-modal>`
+		</capitec-modal>`;
 	}
 
 	/**
@@ -57,8 +59,8 @@ export class FCPAgreementDialog extends Component {
 				the
 				date of the last premium received by Us. </li>
 			<li>You as the policyholder dies and the Death Premium Waiver benefit ends; </li>
-			<li>Fraud is confirmed.
-		</ul>`
+			<li>Fraud is confirmed.</li>
+		</ul>`;
 	}
 
 	/**
@@ -68,7 +70,7 @@ export class FCPAgreementDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 			<capitec-button slot="footer" type="clear" label="Accept" @click="${() => this._acceptAndClose()}">
-			</capitec-button>`
+			</capitec-button>`;
 	}
 }
 window.customElements.define(`horizon-insure-fcp-agreement-dialog`, FCPAgreementDialog);

@@ -12,6 +12,7 @@ export class YBPAgreementDialog extends Component {
 
 	/**
 	 * Accept terms and close dialog 
+	 * @returns {null} null
 	 */
 	_acceptAndClose() {
 		this.dispatchEvent(new CustomEvent(`agreementAccepted`, { detail: { accepted: true } }));
@@ -19,6 +20,7 @@ export class YBPAgreementDialog extends Component {
 
 	/**
 	 * Generates the component template for web mode
+	 * @returns {null} null
 	 */
 	_webTemplate() {
 		return html`
@@ -29,7 +31,7 @@ export class YBPAgreementDialog extends Component {
 				</capitec-content-box>
 			</div>
 			${this._renderDialogFooter()}
-		</capitec-modal>`
+		</capitec-modal>`;
 	}
 
 	/**
@@ -55,7 +57,7 @@ export class YBPAgreementDialog extends Component {
 		</ul>
 		<strong>Burial Repatriation:</strong> We will transport the deceased to the funeral home of the claimant’s
 		choice from within the Republic of South Africa, Namibia, Zimbabwe, Botswana, Swaziland, Lesotho and Mozambique
-		to the closest place of burial anywhere in South Africa.`
+		to the closest place of burial anywhere in South Africa.`;
 	}
 
 	/**
@@ -65,7 +67,7 @@ export class YBPAgreementDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 			<capitec-button slot="footer" type="clear" label="Accept" @click="${() => this._acceptAndClose()}">
-			</capitec-button>`
+			</capitec-button>`;
 	}
 }
 window.customElements.define(`horizon-insure-ybp-agreement-dialog`, YBPAgreementDialog);

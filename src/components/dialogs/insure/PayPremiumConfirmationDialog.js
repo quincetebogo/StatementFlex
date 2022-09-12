@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
+
 
 /**
  * Pay Premium Confirmation Dialog componant will allow you to confirm whether you would like to pay the required amount or not
@@ -16,7 +17,7 @@ import { INSURE_CSS } from 'app/css/InsureCommonStyles';
  */
 class PayPremiumConfirmationDialog extends Component {
 
-	//#region INITIALIZE
+	// #region INITIALIZE
 
 	constructor() {
 		super();
@@ -24,9 +25,9 @@ class PayPremiumConfirmationDialog extends Component {
 
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region PROPERTIES
+	// #region PROPERTIES
 
 	/**
 	 * @property {Object} amountToPay Total arrears amount to be paid
@@ -38,21 +39,22 @@ class PayPremiumConfirmationDialog extends Component {
 	static get properties() {
 		return {
 
-			amountToPay: {type: Object, state: true},
-			contractReference: {type: Object, state: true}
+			amountToPay: { type: Object, state: true },
+			contractReference: { type: Object, state: true }
 		};
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region PRIVATE METHODS
+	// #region PRIVATE METHODS
 
-	//#endregion
+	// #endregion
 
-	//#region EVENT HANDLERS
+	// #region EVENT HANDLERS
 
 	/**
 	 * Cancel event from dialog footer button, closes modal & reset toggles 
+	 * @returns {null} null
 	 */
 	 _onCancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
@@ -62,9 +64,9 @@ class PayPremiumConfirmationDialog extends Component {
 		this.dispatchEvent(new CustomEvent(`confirm-payment`, {}));
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region RENDERING
+	// #region RENDERING
 
 	/**
 	 * Generates the component stylesheet.
@@ -96,7 +98,8 @@ class PayPremiumConfirmationDialog extends Component {
 					${this._renderDialogFooter()}
 				</div>
 			</capitec-modal>
-		`}
+		`;
+	}
 
 	/**
 	 * Render modal body section
@@ -111,7 +114,8 @@ class PayPremiumConfirmationDialog extends Component {
 			</div>
 
 
-		`}
+		`;
+	}
 
 	/**
 	 * Render modal footer section
@@ -128,9 +132,10 @@ class PayPremiumConfirmationDialog extends Component {
 					@click="${() => this._onConfirmClick()}"
 					data-automation-id="insure-pay-premium-confirmation-dialog-confirm">
 				</capitec-button>
-		`}
+		`;
+	}
 
-	//#endregion
+	// #endregion
 
 
 }

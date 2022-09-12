@@ -9,6 +9,7 @@ export class EACLAgreementDialog extends Component {
 
 	/**
 	 * Accept terms and close dialog 
+	 * @returns {null} null
 	 */
 	_acceptAndClose() {
 		this.dispatchEvent(new CustomEvent(`agreementAccepted`, { detail: { accepted: true } }));
@@ -16,6 +17,7 @@ export class EACLAgreementDialog extends Component {
 
 	/**
 	 * Generates the component template for web mode
+	 * @returns {null} null
 	 */
 	_webTemplate() {
 		return html`
@@ -26,7 +28,7 @@ export class EACLAgreementDialog extends Component {
 				</capitec-content-box>
 			</div>
 			${this._renderDialogFooter()}
-		</capitec-modal>`
+		</capitec-modal>`;
 	}
 
 	/**
@@ -41,7 +43,7 @@ export class EACLAgreementDialog extends Component {
 				and cover. Once on the plan, there are no age restrictions; </li>
 			<li>By law the total amount that can be paid out for a child’s death is limited. These limits apply across
 				all our plans, benefit types and bind Insurers.</li>
-		</ul>`
+		</ul>`;
 	}
 
 	/**
@@ -51,7 +53,7 @@ export class EACLAgreementDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 			<capitec-button slot="footer" type="clear" label="Accept" @click="${() => this._acceptAndClose()}">
-			</capitec-button>`
+			</capitec-button>`;
 	}
 }
 window.customElements.define(`horizon-insure-eacl-agreement-dialog`, EACLAgreementDialog);
