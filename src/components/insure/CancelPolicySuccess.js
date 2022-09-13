@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
-import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { INSURE_CALLER_PAGE } from 'app/constants/InsureCommon';
+import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+
 
 import 'app/components/dialogs/insure/InsureEmailDialog';
 
@@ -17,7 +18,7 @@ import 'app/components/dialogs/insure/InsureEmailDialog';
  */
 class CancelPolicySuccess extends Component {
 
-//#region INITIALIZE
+// #region INITIALIZE
 
 	constructor() {
 		super();
@@ -27,9 +28,9 @@ class CancelPolicySuccess extends Component {
 		this.titleMessage = ``;
 	}
 
-//#endregion
+// #endregion
 
-//#region PROPERTIES
+// #region PROPERTIES
 
 	/**
 	 * @property {String} showEmailPlanDialog - Show flag for email address & send dialog
@@ -41,15 +42,15 @@ class CancelPolicySuccess extends Component {
 	static get properties() {
 		return {
 			
-			showEmailPlanDialog: {type: Boolean, state: true},
-			contractReference: {type: String, state: true},
+			showEmailPlanDialog: { type: Boolean, state: true },
+			contractReference: { type: String, state: true },
 			titleMessage: { type: String }
 		};
 	}
 
-//#endregion
+// #endregion
 
-//#region LIFECYCLE OVERRIDES
+// #region LIFECYCLE OVERRIDES
 
 	/**
 	 * Setup the component once added to the DOM.
@@ -59,19 +60,20 @@ class CancelPolicySuccess extends Component {
 		super.connectedCallback();
 	}
 
-	//#endregion
+	// #endregion
 
-//#region PRIVATE METHODS
+// #region PRIVATE METHODS
 
-//#endregion
+// #endregion
 
-//#region EVENT HANDLERS
+// #region EVENT HANDLERS
 
 
 /**
  * Event to open the email plan dialog
+ * @returns {null} null
  */
-_openEmailPlanDialog(){
+_openEmailPlanDialog() {
 	this.titleMessage = `Email Funeral Plan (${this.contractReference})`;
 
 	this.showEmailPlanDialog = true;
@@ -79,24 +81,27 @@ _openEmailPlanDialog(){
 
 /**
  * Event to close the email plan dialog
+ * @returns {null} null
  */
-_closeEmailPlanDialog(){
+_closeEmailPlanDialog() {
 	this.showEmailPlanDialog = false;
 }
 
 /**
  * Invoke this function when Send button is clicked on Email Popup
+ * 
+ * @param {*} emailAddress email address
+ * @returns {null} null
  */
-async _sendEmail(emailAddress) {
+_sendEmail(emailAddress) {
 	this.callerPage = INSURE_CALLER_PAGE.CANCEL_POLICY;
 
-	this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress
-			,callerPage: this.callerPage } } ));
+	this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: this.callerPage } }));
 }
 
-//#endregion
+// #endregion
 
-//#region RENDERING
+// #region RENDERING
 
 	/**
 	 * Generates the component stylesheet.
@@ -110,7 +115,7 @@ async _sendEmail(emailAddress) {
 			super.styles,
 			css`
 			
-			${ INSURE_CSS }
+			${INSURE_CSS}
 
 			.insure-title-bar{
 				margin-bottom: 0px; 
@@ -153,22 +158,23 @@ async _sendEmail(emailAddress) {
 		return html`
 			${this._renderContent()}
 			${this._renderDialogs()}
-		`
+		`;
 	}
+
 /**
  * Render Dialogs
  * 
- * @returns 
+ * @returns {null} null
  */
-	_renderDialogs(){
+	_renderDialogs() {
 		return html`
 		${this._renderEmailPlanDialog()}
-		`
+		`;
 	}
 
 	/**
 	 * Render the content HTML for the component
-	 * @returns {html}
+	 * @returns {html} html content
 	 */
 	 _renderContent() {
 		return html`
@@ -185,25 +191,24 @@ async _sendEmail(emailAddress) {
 					</div>
 				</div>
 			</capitec-card>
-		`
+		`;
 	}
+
 	/**
 	 * Render the email plan dialog
-	 * @returns 
+	 * @returns {null} null 
 	 */
-	_renderEmailPlanDialog(){
-		return this.showEmailPlanDialog == false ? `` 
+	_renderEmailPlanDialog() {
+		return this.showEmailPlanDialog === false ? `` 
 		: html`
 			<insure-email-dialog @close-modal="${(e) => this.showEmailPlanDialog = false}"
 				@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}"
-				.contractReference = "${this.contractReference}" .titleMessage = "${ this.titleMessage }">
+				.contractReference = "${this.contractReference}" .titleMessage = "${this.titleMessage}">
 			</insure-email-dialog>
-		`
+		`;
 	}
 
-	//#endregion
-
-
+	// #endregion
 
 }
 window.customElements.define(`insure-cancel-policy-success`, CancelPolicySuccess);

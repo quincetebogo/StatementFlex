@@ -13,34 +13,35 @@ import { Component, css, html } from 'platform/elements';
  */
 class LodgeClaimInfoDialog extends Component {
 
-	//#region INITIALIZE
+	// #region INITIALIZE
 
 	constructor() {
 		super();
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region PROPERTIES
+	// #region PROPERTIES
 
 	static get properties() {
 		return {};
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region EVENT HANDLERS
+	// #region EVENT HANDLERS
 
 	/**
 	 * Confirm event from dialog footer, closes modal, no navigation or actions
+	 * @returns {null} null
 	 */
 	_onConfirmClick() {
 		this.dispatchEvent(new CustomEvent(`confirm`, {}));
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region RENDERING
+	// #region RENDERING
 
 	/**
 	 * Generates the component stylesheet.
@@ -123,7 +124,8 @@ class LodgeClaimInfoDialog extends Component {
 					${this._renderDialogFooter()}
 				</div>
 			</capitec-modal>
-		`}
+		`;
+	}
 
 	/**
 	 * Render modal body section
@@ -204,7 +206,8 @@ class LodgeClaimInfoDialog extends Component {
 				</li>
 			</ul>
 		</capitec-content-box>
-		`}
+		`;
+	}
 
 	/**
 	 * Render modal footer section
@@ -216,9 +219,10 @@ class LodgeClaimInfoDialog extends Component {
 			<capitec-button class="button" slot="footer" type="primary" label="Done" @click="${() => this._onConfirmClick()}"
 				data-automation-id="insure-lodge-claim-info-dialog-agree">
 			</capitec-button>
-		`}
+		`;
+		}
 
-	//#endregion
+	// #endregion
 }
 
 window.customElements.define(`insure-lodge-claim-info-dialog`, LodgeClaimInfoDialog);

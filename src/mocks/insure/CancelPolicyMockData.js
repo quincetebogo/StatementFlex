@@ -4,6 +4,6 @@
  * @export
  * @constant InsureCancelPolicyMockData
  */
- export const InsureCancelPolicyMockData = {
+export const InsureCancelPolicyMockData = {
 	"successful": true
-  }
+};

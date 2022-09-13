@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { INSURE_CALLER_PAGE } from 'app/constants/InsureCommon';
-import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 import 'app/components/dialogs/insure/InsureEmailDialog';
 
 /**
@@ -14,7 +14,7 @@ import 'app/components/dialogs/insure/InsureEmailDialog';
  */
 class SuccessPage extends Component {
 
-	//#region INITIALISATION
+	// #region INITIALISATION
 
 	constructor() {
 		super();
@@ -26,9 +26,9 @@ class SuccessPage extends Component {
 		this.titleMessage = ``;
 	}
 
-	//#endregion INITIALISATION
+	// #endregion INITIALISATION
 
-	//#region PROPERTIES
+	// #region PROPERTIES
 
 	/**
 	 * @property {String} successMessage - Success message after action is done.
@@ -48,39 +48,44 @@ class SuccessPage extends Component {
 			titleMessage: { type: String }
 		};
 	}
-	//#endregion PROPERTIES
+	// #endregion PROPERTIES
 
-	//#region EVENTS
+	// #region EVENTS
 
-	_onEmailClick(){
+	_onEmailClick() {
 		this.showEmailPlanDialog = true;
 
-		if(this.callerPage === INSURE_CALLER_PAGE.REINSTATE_POLICY)
+		if (this.callerPage === INSURE_CALLER_PAGE.REINSTATE_POLICY) {
 			this.titleMessage = `Email Funeral Plan (${this.contractReference})`;
-		else if(this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN)
+		} else if (this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN) {
 			this.titleMessage = `Email Funeral Plan (${this.contractReference})`;
+		}
 	}
 	
 	/**
 	 * Navigate back to Landing Page
+	 * @return {null} null
 	 */
 	_onDoneClick() {
-		if(this.callerPage === INSURE_CALLER_PAGE.REINSTATE_POLICY)
+		if (this.callerPage === INSURE_CALLER_PAGE.REINSTATE_POLICY) {
 			this.dispatchEvent(new CustomEvent(`navigate-back`, { detail: { navigateBackTo: INSURE_RENDER_MODE.CLIENT_POLICIES } }));
-		else if(this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN)
+		} else if (this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN) {
 			this.dispatchEvent(new CustomEvent(`navigate-back`, { detail: { navigateBackTo: INSURE_RENDER_MODE.CLIENT_POLICIES } }));
+		}
 	}
 
 	/**
 	 * Invoke this function when Send button is clicked on Email Popup
+	 * @param {*} emailAddress email address
+	 * @return {null} null
 	 */
-	 async _sendEmail(emailAddress) {
-		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress } } ));
+	 _sendEmail(emailAddress) {
+		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress } }));
 	}
 
-	//#endregion EVENTS
+	// #endregion EVENTS
 
-	//#region RENDERING
+	// #region RENDERING
 
 	/**
 	 * Generates the view stylesheet.
@@ -159,11 +164,12 @@ class SuccessPage extends Component {
 		return html`
 			${this._renderContent()}
 			${this._renderDialogs()}
-		`
+		`;
 	}
 
 	/**
 	 * Render the content HTML for the component
+	 * @return {null} null
 	 */
 	_renderContent() {
 		return html`
@@ -173,16 +179,16 @@ class SuccessPage extends Component {
 			<div id="message-row">
 				<capitec-icon size="medium" icon="status/success-trans">
 				</capitec-icon>
-				<capitec-label type ="subtitle" label = "${ this.successMessage }"></capitec-label>
+				<capitec-label type ="subtitle" label = "${this.successMessage}"></capitec-label>
 			</div>
 			<div id="button-row">
-				<capitec-button label="Email" class = "capitec-button-medium" @click="${() => this._onEmailClick() }">
+				<capitec-button label="Email" class = "capitec-button-medium" @click="${() => this._onEmailClick()}">
 				</capitec-button>
 				<capitec-button type="primary" class = "capitec-button-medium" label="Done" @click="${() => this._onDoneClick()}">
 				</capitec-button>
 			</div>
 		</capitec-card>
-		`
+		`;
 	}
 
 	/**
@@ -192,22 +198,23 @@ class SuccessPage extends Component {
 	_renderDialogs() {
 		return html`
 			${this._renderInsureEmailDialog()}
-		`
+		`;
 	}
 
 	/** 
 	 * Render dialog for confirming email address then sending
+	 * @return {null} null
 	 */
 	_renderInsureEmailDialog() {
-		return this.showEmailPlanDialog == false ? `` :
-			html`
+		return this.showEmailPlanDialog === false ? `` 
+		: html`
 				<insure-email-dialog @close-modal="${(e) => this.showEmailPlanDialog = false}"
 					@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}"
-					.contractReference = "${this.contractReference}" .titleMessage = "${ this.titleMessage }">
-				</insure-email-dialog>`
+					.contractReference = "${this.contractReference}" .titleMessage = "${this.titleMessage}">
+				</insure-email-dialog>`;
 	}
 
-	//#endregion RENDERING
+	// #endregion RENDERING
 }
 
 window.customElements.define(`horizon-insure-success-page`, SuccessPage);

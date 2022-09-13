@@ -1,12 +1,13 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
-
-import 'app/components/common/HorizonLabel';
 import { DATE_TYPE_LIST, DEFAULTS, MAX_RESULTS } from 'app/constants/PolicyTransactionHistory';
 import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/PolicyTransactionHistory';
-import { DateTime } from 'luxon';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { DateTime } from 'luxon';
 
-//#region  CONSTANTS
+
+import 'app/components/common/HorizonLabel';
+
+// #region  CONSTANTS
 
 const FILTER_BY = {
 	ALL: `ALL`,
@@ -21,7 +22,7 @@ const RENDER_CHIPS = {
 
 const today = new Date();
 
-//#endregion CONSTANTS
+// #endregion CONSTANTS
 
 /**
  * Policy Transaction History component that displays Policy transactions
@@ -38,12 +39,11 @@ const today = new Date();
  * @class PolicyTransactionHistory
  * @extends {Component}
  */
-class PolicyTransactionHistory extends Component{
+class PolicyTransactionHistory extends Component {
 
-	//#region INITIALIZATION
+	// #region INITIALIZATION
 
-	constructor()
-	{
+	constructor() {
 		super();
 
 		this.dateLabel = DEFAULTS.DATE_LABEL;
@@ -59,9 +59,9 @@ class PolicyTransactionHistory extends Component{
 		this.dateTypeOptions = DATE_TYPE_LIST;
 	}
 
-	//#endregion INITIALIZATION
+	// #endregion INITIALIZATION
 
-	//#region PROPERTIES
+	// #region PROPERTIES
 
 	/**
 	 * Callback for rendering transaction details used by {@link PolicyTransactionHistory}.
@@ -96,11 +96,11 @@ class PolicyTransactionHistory extends Component{
 			disposeData: { type: Object },
 			hideLoadMore: { type: Boolean, state: true },
 			isBusy: { state: true },
-			readOnlyMode: {type: Boolean, state: true}
+			readOnlyMode: { type: Boolean, state: true }
 		};
 	}
 
-	//#endregion PROPERTIES
+	// #endregion PROPERTIES
 
 	/**
 	 * Generates the component stylesheet.
@@ -312,15 +312,15 @@ class PolicyTransactionHistory extends Component{
 				}
 			`
 		];
-	}	
+	}
 
-	//#region LIFECYCLE OVERRIDES
+	// #region LIFECYCLE OVERRIDES
 
 	/**
 	 * Setup the component once added to the DOM.
 	 * @returns {void}
 	 */
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
 
 		// Making sure no baggage is carried from the previous instance.
@@ -328,8 +328,7 @@ class PolicyTransactionHistory extends Component{
 		RENDER_CHIPS[FILTER_BY.DATE_TYPE] = this.dateTypeOptions[0].text;
 
 		this.filteredData = this.policyTransactionHistory?.transactions;
-		this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 
-			&& this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
+		this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
 	}
 
 	/**
@@ -342,12 +341,13 @@ class PolicyTransactionHistory extends Component{
 		this._unloading();
 	}
 
-	//#endregion LIFECYCLE OVERRIDES
+	// #endregion LIFECYCLE OVERRIDES
 
-	//#region EVENTS
+	// #region EVENTS
 
 	/**
 	 * unload the policy transactions
+	 * @return {null} null
 	 */
 	_unloading() {
 		this.dispatchEvent(new CustomEvent(`unloading`));
@@ -355,6 +355,7 @@ class PolicyTransactionHistory extends Component{
 
 	/**
 	 * Navigate back to Policy summary page
+	 * @return {null} null
 	 */
 	_backToSummaryPage() {
 		this.dispatchEvent(new CustomEvent(`navigate-back`, {
@@ -365,7 +366,8 @@ class PolicyTransactionHistory extends Component{
 
 	/**
 	 * filter transactions when date is changed
-	 * @param {*} e 
+	 * @param {*} e e
+	 * @return {null} null
 	 */
 	async _dateChanged(e) {
 		let fromDate = DateTime.fromISO(e.detail.new.startDate === null ? e.detail.old.startDate : e.detail.new.startDate);
@@ -411,7 +413,8 @@ class PolicyTransactionHistory extends Component{
 
 	/**
 	 * scroll to top of transactions table
-	 * @param {*} e 
+	 * @param {*} e e
+	 * @return {null} null
 	 */
 	_scrollToTop(e) {
 		const element = this.shadowRoot.getElementById(`policy-transactions-table`);
@@ -420,7 +423,8 @@ class PolicyTransactionHistory extends Component{
 
 	/**
 	 * filter transactions when date type is changed
-	 * @param {*} event 
+	 * @param {*} event event
+	 * @return {null} null
 	 */
 	_filterByDateType(event) {
 
@@ -429,9 +433,9 @@ class PolicyTransactionHistory extends Component{
 		this._refineSearch();
 	}
 
-	//#endregion EVENTS
+	// #endregion EVENTS
 
-	//#region PRIVATE FUNCTIONS
+	// #region PRIVATE FUNCTIONS
 
 	/**
 	 * 
@@ -466,7 +470,7 @@ class PolicyTransactionHistory extends Component{
 			</capitec-group>
 		</capitec-card>
 		${this._renderLoadingIndicator()}
-		`
+		`;
 	}
 
 	/**
@@ -571,6 +575,7 @@ class PolicyTransactionHistory extends Component{
 
 	/**
 	 * Clear all filters
+	 * @return {null} null
 	 */
 	_clearFilters() {
 		const activeFilters = this.shadowRoot.getElementById(`active-filters`);
@@ -587,6 +592,7 @@ class PolicyTransactionHistory extends Component{
 	/**
 	 * Clear filter by criteria type
 	 * @param {*} type - filter type
+	 * @return {null} null
 	 */
 	_clearFilter(type) {
 		const date = () => this._reset();
@@ -608,14 +614,16 @@ class PolicyTransactionHistory extends Component{
 	/**
 	 * close specified chip
 	 * @param {*} type - filter type 
+	 * @return {null} null
 	 */
-	async _closeChip(type) {
+	 _closeChip(type) {
 		this._clearFilter(type);
 		this._refineSearch();
 	}
 
 	/**
 	 * reset all filters and load transactions
+	 * @return {null} null
 	 */
 	async _reset() {
 		if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
@@ -655,7 +663,7 @@ class PolicyTransactionHistory extends Component{
 	/**
 	 * render transaction details of each transaction
 	 * @param {*} item - transaction item
-	 * @returns 
+	 * @return {null} null
 	 */
 	_renderTransactionDetails(item) {
 		return html`
@@ -816,7 +824,7 @@ class PolicyTransactionHistory extends Component{
 
 	/**
 	 * Get Predefined date ranges
-	 * @returns - {Object} - date ranges array object
+	 * @return {null} null
 	 */
 	getPredefinedDateRanges() {
 		const last7day = new Date(today);
@@ -840,7 +848,7 @@ class PolicyTransactionHistory extends Component{
 	/**
 	 * format the give date
 	 * @param {*} date - date to be formatted 
-	 * @returns 
+	 * @return {null} null
 	 */
 	_formatDate(date) {
 		const newdate = new Date(Date.parse(date));
@@ -867,6 +875,7 @@ class PolicyTransactionHistory extends Component{
 
 	/**
 	 * load more transaction when clicked on load more button
+	 * @return {null} null
 	 */
 	async _loadMoreTransactions() {
 		const oldCount = this.policyTransactionHistory?.transactions?.length;
@@ -880,14 +889,14 @@ class PolicyTransactionHistory extends Component{
 		if (oldCount === this.policyTransactionHistory?.transactions?.length) {
 			this.hideLoadMore = true;
 		} else {
-			this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 
-				&& this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
+			this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
 		}
 		this._refineSearch();
 	}
 
 	/**
 	 * filter the transactions
+	 * @return {null} null
 	 */
 	_refineSearch() {
 
@@ -897,18 +906,17 @@ class PolicyTransactionHistory extends Component{
 			const startDate = new Date(Date.parse(this.startDate));
 			const endDate = new Date(Date.parse(this.endDate));
 
-			if(RENDER_CHIPS[FILTER_BY.DATE_TYPE] == this.dateTypeOptions[0].text)
-				this.filteredData = this.filteredData.filter(
-					item => new Date(item.date) >= startDate && new Date(item.date) <= endDate); 
-			else if(RENDER_CHIPS[FILTER_BY.DATE_TYPE] == this.dateTypeOptions[1].text)
-				this.filteredData = this.filteredData.filter(
-					item => new Date(item.premiumDueDate) >= startDate && new Date(item.premiumDueDate) <= endDate); 
+			if (RENDER_CHIPS[FILTER_BY.DATE_TYPE] === this.dateTypeOptions[0].text) {
+				this.filteredData = this.filteredData.filter(item => new Date(item.date) >= startDate && new Date(item.date) <= endDate); 
+				} else if (RENDER_CHIPS[FILTER_BY.DATE_TYPE] === this.dateTypeOptions[1].text) {
+				this.filteredData = this.filteredData.filter(item => new Date(item.premiumDueDate) >= startDate && new Date(item.premiumDueDate) <= endDate); 
+				}
 		}
 
 		this.requestUpdate();
 	}
 
-	//#endregion PRIVATE FUNCTIONS
+	// #endregion PRIVATE FUNCTIONS
 }
 
 window.customElements.define(`horizon-insure-policy-transaction-history`, PolicyTransactionHistory);
@@ -918,7 +926,7 @@ window.customElements.define(`horizon-insure-policy-transaction-history`, Policy
  *
  * @example
  * <horizon-insure-policy-transaction-history 
-			...	@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}..."
+			...@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}..."
  *
  * @event PolicyTransactionHistory#navigate-back
  * @type {Object} - N/A
@@ -929,7 +937,7 @@ window.customElements.define(`horizon-insure-policy-transaction-history`, Policy
  *
  * @example
  * <horizon-insure-policy-transaction-history 
-			...	@unloading="${() => this._unloadPolicyTransactionHistory()}"...>
+			...@unloading="${() => this._unloadPolicyTransactionHistory()}"...>
 			</horizon-insure-policy-transaction-history>
  *
  * @event PolicyTransactionHistory#unloading
@@ -941,7 +949,7 @@ window.customElements.define(`horizon-insure-policy-transaction-history`, Policy
  *
  * @example
  * <capitec-date-time-picker
-				...	@apply-clicked="${(e) => this._dateChanged(e)}"...</capitec-date-time-picker>
+				...@apply-clicked="${(e) => this._dateChanged(e)}"...</capitec-date-time-picker>
  *
  * @event PolicyTransactionHistory#_dateChanged
  * @type {Object} - event
@@ -962,7 +970,7 @@ window.customElements.define(`horizon-insure-policy-transaction-history`, Policy
  *
  * @example
 				<capitec-select
-				...	@value-change = "${(e) => this._filterByDateType(e)}" ...</capitec-select>
+				...@value-change = "${(e) => this._filterByDateType(e)}" ...</capitec-select>
  *
  * @event PolicyTransactionHistory#_filterByDateType
  * @type {Object} - event

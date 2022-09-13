@@ -161,7 +161,7 @@ class InsureAccordion extends Component {
 	}
 
 	_onClickActionCard(actionCard) {
-		this.dispatchEvent(new CustomEvent(`clickedRouteCard`,{detail:{route:actionCard.route}}));
+		this.dispatchEvent(new CustomEvent(`clickedRouteCard`, { detail: { route: actionCard.route } }));
 	}
 
 	// ---------

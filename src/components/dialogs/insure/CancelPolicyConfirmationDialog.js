@@ -12,12 +12,15 @@ export class CancelPolicyConfirmationDialog extends Component {
 
 	/**
 	 * Accept terms and navigate to cancil Policy Dialog 
+	 * @returns {null} null
 	 */
 	_confirmAndClose() {
 		this.dispatchEvent(new CustomEvent(`confirm`, { detail: {} }));
 	}
+
 	/**
 	 * Accept terms and close dialog 
+	 * @returns {null} null
 	 */
 	 _backClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, { detail: {} }));
@@ -25,6 +28,7 @@ export class CancelPolicyConfirmationDialog extends Component {
 
 	/**
 	 * Generates the component template for web mode
+	 * @returns {null} null
 	 */
 	_webTemplate() {
 		return html`
@@ -35,7 +39,7 @@ export class CancelPolicyConfirmationDialog extends Component {
 				</capitec-content-box>
 			</div>
 			${this._renderDialogFooter()}
-		</capitec-modal>`
+		</capitec-modal>`;
 	}
 
 	/**
@@ -49,7 +53,7 @@ export class CancelPolicyConfirmationDialog extends Component {
 			By cancelling this plan you will no longer have any benefits on this plan. Ensure you have carefully considered the effects before continuing with the cancellation.
 		</div>
 
-		`
+		`;
 	}
 
 	/**
@@ -61,7 +65,7 @@ export class CancelPolicyConfirmationDialog extends Component {
 			<capitec-button slot="footer" type="clear" label="Back" @click="${() => this._backClick()}">
 			</capitec-button>
 			<capitec-button slot="footer" type="clear" label="Confirm" @click="${() => this._confirmAndClose()}">
-			</capitec-button>`
+			</capitec-button>`;
 	}
 }
 window.customElements.define(`insure-cancel-policy-confirmation-dialog`, CancelPolicyConfirmationDialog);

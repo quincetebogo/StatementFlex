@@ -12,6 +12,7 @@ export class YROAAgreementDialog extends Component {
 
 	/**
 	 * Accept terms and close dialog 
+	 * @returns {null} null
 	 */
 	_acceptAndClose() {
 		this.dispatchEvent(new CustomEvent(`agreementAccepted`, { detail: { accepted: true } }));
@@ -19,6 +20,7 @@ export class YROAAgreementDialog extends Component {
 
 	/**
 	 * Generates the component template for web mode
+	 * @returns {null} null
 	 */
 	_webTemplate() {
 		return html`
@@ -29,7 +31,7 @@ export class YROAAgreementDialog extends Component {
 				</capitec-content-box>
 			</div>
 			${this._renderDialogFooter()}
-		</capitec-modal>`
+		</capitec-modal>`;
 	}
 
 	/**
@@ -56,7 +58,7 @@ export class YROAAgreementDialog extends Component {
 		<p>You will find their contact details in your Funeral Cover Plan Agreement. </p>
 		<p>We may unilaterally change the terms, provisions and conditions of the Funeral Cover Plan by giving you at
 			least 31 days’ written notice. </p>
-		`
+		`;
 	}
 
 	/**
@@ -66,7 +68,7 @@ export class YROAAgreementDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 			<capitec-button slot="footer" type="clear" label="Accept" @click="${() => this._acceptAndClose()}">
-			</capitec-button>`
+			</capitec-button>`;
 	}
 }
 window.customElements.define(`horizon-insure-yroa-agreement-dialog`, YROAAgreementDialog);

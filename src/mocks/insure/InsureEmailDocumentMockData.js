@@ -6,4 +6,4 @@
  */
  export const InsureEmailDocumentMockData = {
 	"successful": true
-  }
+  };
