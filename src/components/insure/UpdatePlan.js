@@ -1454,18 +1454,6 @@ class UpdatePlan extends Component {
 	}
 
 	/**
-	 * Render notification component for 'Capitec Funeral Plan'
-	 * @returns {html}
-	 */
-	renderCapitecFuneralPlanNotification() {
-		return html`
-		<capitec-alert-banner class="clickable" @click="${() => this.showCFPAgreementDialog = true}"
-			type="${this.agreementCFPAccepted == true ? 'success' : 'info'}" header="Header"
-			label="Notify: I agree to Capitec Funeral Plan agreement declaration">
-		</capitec-alert-banner>`
-	}
-
-	/**
 	 * Render notification component for 'Entry Ages and Child Limits'
 	 * @returns {html} html content
 	 */
