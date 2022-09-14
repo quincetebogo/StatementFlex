@@ -53,7 +53,7 @@ export class CFPAgreementDialog extends Component {
 	 * @returns {html} Agreement Copy
 	 */
 	_renderDialogBody() {
-		return html `${ this.productCode = INSURE_PRODUCT_CODE.CAPITEC ? html` <strong>Capitec:</strong>
+		return html `${ this.productCode == INSURE_PRODUCT_CODE.CAPITEC ? html` <strong>Capitec:</strong>
 		<ul>
 			<li>is a licensed financial services provider;</li>
 			<li>earns a commission of 3.5% from the Insurer;</li>
@@ -73,7 +73,7 @@ export class CFPAgreementDialog extends Component {
 		</ul>
 		` 
 		: 
-			this.productCode = INSURE_PRODUCT_CODE.CAPITEC_SANLAM ? html` <strong>Capitec:</strong>
+			this.productCode == INSURE_PRODUCT_CODE.CAPITEC_SANLAM ? html` <strong>Capitec:</strong>
 			<ul>
 				<li>is a licensed financial services provider;</li>
 				<li>earns a commission of 3.25% from the Insurer;</li>
