@@ -233,3 +233,14 @@ export const INSURE_CALLER_PAGE = Object.freeze({
  * @enum {Object} PRODUCT_ID
  */
  export const PRODUCT_ID = `SBL`;
+
+ /**
+ * Product types
+ * 
+ * @readonly
+ * @enum {Object} INSURE_PRODUCT_CODE
+ */
+  export const INSURE_PRODUCT_CODE = Object.freeze({
+	CAPITEC: `Capitec`,
+	CAPITEC_SANLAM: `CapitecSanlam`
+});
