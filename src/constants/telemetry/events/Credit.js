@@ -18,7 +18,6 @@
 	CREDIT_STATEMENTS_SELECT: `call.fulfill-need.credit.select.statements`,
 	CREDIT_SETTLEMENT_QUOTE_SELECT: `call.fulfill-need.credit.select.settlement-quote`,
 	CREDIT_BUDGET_FACILITY: `call.fulfill-need.credit.view-budget`,
-	CREDIT_SETTLE_CLOSE_SELECT: `call.fulfill-need.credit.select.settle-and-close`,
 
 	CREDIT_STATEMENTS_VIEW_FEES: `call.fulfill-need.credit.statements.pop-up.view-fees`,
 	CREDIT_STATEMENTS_NEXT: `call.fulfill-need.credit.statements.pop-up.next`,
@@ -64,7 +63,7 @@
 	CREDIT_PAID_UP_LETTER_FAILURE: `call.fulfill-need.paid-up-letter.failure`,
 	CREDIT_PAID_UP_LETTER_FAILURE_ASSIGN: `call.fulfill-need.paid-up-letter.failure.assign`,
 	CREDIT_PAID_UP_LETTER_FAILURE_DONE: `call.fulfill-need.paid-up-letter.failure.done`
-};
+	};
 
 /**
  * The event names to use when logging telemetry events for statements flow from Credit.
@@ -144,3 +143,108 @@ export const SETTLEMENT_QUOTE_EVENTS = Object.freeze({
 	SETTLEMENT_QUOTE_PARTIAL_SUCCESS_TRY_AGAIN: `call.fulfill-need.credit.settlement-quote.partial-success.try-again`,
 	SETTLEMENT_QUOTE_PARTIAL_SUCCESS_DONE: `call.fulfill-need.credit.settlement-quote.partial-success.done`
 });
+
+/**
+ * The event names to use when logging telemetry events for settle and close credit card flow from Credit.
+ * This correspond to the `Action` and `eventName` columns in the Data Spec.
+ * 
+ * @readonly
+ * @enum {Object} SETTLE_AND_CLOSE_CREDIT_CARD_POP_EVENTS
+ */
+export const SETTLE_AND_CLOSE_CREDIT_CARD_POP_EVENTS = Object.freeze({
+	EMAIL_POP: `call.fulfill-need.credit.settle-and-close-credit-card.proof-of-payment`,
+	POP_MODAL: `call.fulfill-need.credit.settle-and-close-credit-card.proof-of-payment.pop-up`,
+	POP_CANCEL: `call.fulfill-need.credit.settle-and-close-credit-card.proof-of-payment.pop-up.cancel`,
+	POP_VIEW_DOCUMENT: `call.fulfill-need.credit.settle-and-close-credit-card.proof-of-payment.pop-up.view-document`,
+	POP_CLOSE_DOCUMENT: `call.fulfill-need.credit.settle-and-close-credit-card.proof-of-payment.pop-up.view-document.close`,
+	POP_SEND: `call.fulfill-need.credit.settle-and-close-credit-card.proof-of-payment.pop-up.send`,
+	POP_SUCCESS: `call.fulfill-need.credit.settle-and-close-credit-card.proof-of-payment.pop-success`,
+	POP_SUCCESS_DONE: `call.fulfill-need.credit.settle-and-close-credit-card.proof-of-payment.pop-success.done`,
+	POP_SUCCESS_PAY_ANOTHER: `call.fulfill-need.credit.settle-and-close-credit-card.proof-of-payment.pop-success.pay-another`,
+	POP_FAILURE: `call.fulfill-need.credit.settle-and-close-credit-card.proof-of-payment.failure`,
+	POP_FAILURE_TRY_AGAIN: `call.fulfill-need.credit.settle-and-close-credit-card.proof-of-payment.failure.try-again`,
+	POP_FAILURE_DONE: `call.fulfill-need.credit.settle-and-close-credit-card.proof-of-payment.failure.done`
+});
+
+/**
+ * The event names to use when logging telemetry events for settle and close term loan flow from Credit.
+ * This correspond to the `Action` and `eventName` columns in the Data Spec.
+ * 
+ * @readonly
+ * @enum {Object} SETTLE_AND_CLOSE_TERM_LOAN_POP_EVENTS
+ */
+export const SETTLE_AND_CLOSE_TERM_LOAN_POP_EVENTS = Object.freeze({
+	EMAIL_POP: `call.fulfill-need.credit.settle-and-close-term-loan.proof-of-payment`,
+	POP_MODAL: `call.fulfill-need.credit.settle-and-close-term-loan.proof-of-payment.pop-up`,
+	POP_CANCEL: `call.fulfill-need.credit.settle-and-close-term-loan.proof-of-payment.pop-up.cancel`,
+	POP_VIEW_DOCUMENT: `call.fulfill-need.credit.settle-and-close-term-loan.proof-of-payment.pop-up.view-document`,
+	POP_CLOSE_DOCUMENT: `call.fulfill-need.credit.settle-and-close-term-loan.proof-of-payment.pop-up.view-document.close`,
+	POP_SEND: `call.fulfill-need.credit.settle-and-close-term-loan.proof-of-payment.pop-up.send`,
+	POP_SUCCESS: `call.fulfill-need.credit.settle-and-close-term-loan.proof-of-payment.pop-success`,
+	POP_SUCCESS_DONE: `call.fulfill-need.credit.settle-and-close-term-loan.proof-of-payment.pop-success.done`,
+	POP_SUCCESS_PAY_ANOTHER: `call.fulfill-need.credit.settle-and-close-term-loan.proof-of-payment.pop-success.pay-another`,
+	POP_FAILURE: `call.fulfill-need.credit.settle-and-close-term-loan.proof-of-payment.failure`,
+	POP_FAILURE_TRY_AGAIN: `call.fulfill-need.credit.settle-and-close-term-loan.proof-of-payment.failure.try-again`,
+	POP_FAILURE_DONE: `call.fulfill-need.credit.settle-and-close-term-loan.proof-of-payment.failure.done`
+});
+
+/**
+ * The event names to use when logging telemetry events for settle and close flow from Credit.
+ * This correspond to the `Action` and `eventName` columns in the Data Spec.
+ * 
+ * @readonly
+ * @enum {Object} SETTLE_AND_CLOSE
+ */
+export const SETTLE_AND_CLOSE = Object.freeze({
+	'Flexible': { NEED_SELECT: `call.fulfill-need.credit.select.settle-and-close`,
+		NEED: `call.fulfill-need.credit.settle-and-close-credit-card`,
+		DISCLAIMER_CANCEL: `call.fulfill-need.credit.settle-and-close-credit-card.disclaimer.cancel`,
+		DISCLAIMER_CONTINUE: `call.fulfill-need.credit.settle-and-close-credit-card.disclaimer.continue`,
+		POP_UP: `call.fulfill-need.credit.settle-and-close-credit-card.pop-up`,
+		POP_UP_CANCEL: `call.fulfill-need.credit.settle-and-close-credit-card.pop-up.cancel`,
+		POP_UP_CONFIRM: `call.fulfill-need.credit.settle-and-close-credit-card.pop-up.settle-and-close`,
+		SUCCESS: `call.fulfill-need.credit.settle-and-close-credit-card.success`,
+		SUCCESS_DONE: `call.fulfill-need.credit.settle-and-close-credit-card.success.done`,
+		SUCCESS_SEND_POP: `call.fulfill-need.credit.settle-and-close-credit-card.success.send-proof-of-payment`,
+		FAILURE: `call.fulfill-need.credit.settle-and-close-credit-card.failure`,
+		FAILURE_TRY_AGAIN: `call.fulfill-need.credit.settle-and-close-credit-card.failure.try-again`,
+		FAILURE_DONE: `call.fulfill-need.credit.settle-and-close-credit-card.failure.done`,
+		POP_EVENTS: SETTLE_AND_CLOSE_CREDIT_CARD_POP_EVENTS },
+
+	'Fixed': { NEED_SELECT: `call.fulfill-need.credit.select.settle-and-close-term-loan`,
+		NEED: `call.fulfill-need.credit.settle-and-close-term-loan`,
+		DISCLAIMER_CANCEL: `call.fulfill-need.credit.settle-and-close-term-loan.disclaimer.cancel`,
+		DISCLAIMER_CONTINUE: `call.fulfill-need.credit.settle-and-close-term-loan.disclaimer.continue`,
+		POP_UP: `call.fulfill-need.credit.settle-and-close-term-loan.pop-up`,
+		POP_UP_CANCEL: `call.fulfill-need.credit.settle-and-close-term-loan.pop-up.cancel`,
+		POP_UP_CONFIRM: `call.fulfill-need.credit.settle-and-close-term-loan.pop-up.settle-and-close`,
+		SUCCESS: `call.fulfill-need.credit.settle-and-close-term-loan.success`,
+		SUCCESS_DONE: `call.fulfill-need.credit.settle-and-close-term-loan.success.done`,
+		SUCCESS_SEND_POP: `call.fulfill-need.credit.settle-and-close-term-loan.success.send-proof-of-payment`,
+		FAILURE: `call.fulfill-need.credit.settle-and-close-term-loan.failure`,
+		FAILURE_TRY_AGAIN: `call.fulfill-need.credit.settle-and-close-term-loan.failure.try-again`,
+		FAILURE_DONE: `call.fulfill-need.credit.settle-and-close-term-loan.failure.done`,
+		POP_EVENTS: SETTLE_AND_CLOSE_TERM_LOAN_POP_EVENTS }
+});
+
+
+/**
+ * Credit Transaction History events 
+ *
+ * @export
+ * @param {*} creditType type of credit product (Credit card/ Access facility/ Term loan)
+ * @returns {*} set of transaction history telemetry events dynamically for given credit type
+ */
+ export const TRANSACTION_ENQUIRY_EVENTS = (creditType) => {
+	const productType = creditType.toLowerCase().replace(` `, `-`);
+
+	return { TRANSACTION_HISTORY: `call.fulfill-need.credit.${productType}-transaction-history`,
+		TRANSACTION_HISTORY_FILTER: `call.fulfill-need.credit.${productType}-transaction-history.filter`,
+		TRANSACTION_HISTORY_CLEAR_ALL: `call.fulfill-need.credit.${productType}-transaction-history.filter.clear-all`,
+		TRANSACTION_HISTORY_CLEAR_FILTER: `call.fulfill-need.credit.${productType}-transaction-history.filter.clear`,
+		TRANSACTION_HISTORY_INFO: `call.fulfill-need.credit.${productType}-transaction-history.view-info`,
+		TRANSACTION_HISTORY_BACK: `call.fulfill-need.credit.${productType}-transaction-history.back`,
+		TRANSACTION_HISTORY_VIEW_LINKED_TRANSACTIONS: `call.fulfill-need.credit.${productType}-transaction-history.linked-transaction-view`,
+		TRANSACTION_HISTORY_LOAD_MORE: `call.fulfill-need.credit.${productType}-transaction-history.load-more`,
+		TRANSACTION_HISTORY_SCROLL_TOP: `call.fulfill-need.credit.${productType}-transaction-history.scroll-to-top` };
+ };

@@ -198,8 +198,7 @@ export class MiniProfile extends Component {
 				}
 				.banner{
 					--theme-alert-banner-height: 48px;
-					--theme-alert-banner-icon-margin-left: 15px;
-					--theme-alert-banner-icon-margin-right: 7px;
+					--theme-toast-icon-margin: 0px 7px 0px 15px;
 					--theme-alert-banner-warning-border: none;
 					--theme-alert-banner-unsuccessful-red-border: none;
 					--theme-alert-banner-info-border: none;
@@ -251,6 +250,10 @@ export class MiniProfile extends Component {
 					--theme-tooltip-border-radius: 2px;
 					--theme-layout-gap-spacing: 4px;
 				}
+				img {
+					height: 158px;
+					width: 158px;
+				}
 			`
 		];
 	}
@@ -276,11 +279,14 @@ export class MiniProfile extends Component {
 	}
 
 	_renderClientImage() {
-		return html`
+		return this.miniProfile.profilePhoto
+		? html`<img src="data:image/jpg;base64,${this.miniProfile.profilePhoto}"/>`
+		: html`
 			<capitec-avatar 
-				shape="square"
-				icon="/images/common/avatar.svg">
-			</capitec-avatar>`;
+					shape="square"
+					icon="/images/common/avatar.svg">
+			</capitec-avatar>
+		`;
 	}
 
 	_renderClientPersonalInfo() {
@@ -376,23 +382,23 @@ export class MiniProfile extends Component {
 
 		if (noBanner) {
 			return html``;
-		} else if (this.miniProfile.is3rdParty) {
+		}
+		if (this.miniProfile.is3rdParty) {
 			return html`
-			<capitec-alert-banner 
-					data-automation-id="mini-profile-3rdparty-banner"
-					class="banner" 
-					type="warning">
-				<b>Client has not been verified</b>
-			</capitec-alert-banner>
+			<horizon-alert-banner 
+				data-automation-id="mini-profile-3rdparty-banner"
+				class="banner" 
+				type="warning"
+				header="Client has not been verified">
+			</horizon-alert-banner>
 			`;
-		} else if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels) {
+		}
+		if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels) {
 			return html`
-			<capitec-alert-banner
-					class="banner" 
-					type="unsuccessful-red">
-				<capitec-group 
-						id="id-notify-banner-group" 
-						layout="horizontal">
+			<horizon-alert-banner
+				class="banner" 
+				type="error"
+				layout="horizontal">
 					<capitec-label
 						id="id-verify-via-app-msg" 
 						label="Verification Failed">
@@ -404,32 +410,25 @@ export class MiniProfile extends Component {
 						@click="${() => this._onVerifyNowClick()}"
 						label="Verify now">
 					</capitec-hyperlink>
-				</capitec-group>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
 			`;
-		} else if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels && this.miniProfile.verificationAttempts.itaAttempts > 2) {
+		}
+		if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels && this.miniProfile.verificationAttempts.itaAttempts > 2) {
 			return html`
-			<capitec-alert-banner 
-					class="banner" 
-					type="unsuccessful-red">
-				<capitec-group 
-						id="id-notify-banner-group" 
-						layout="horizontal">
-					<capitec-label 
-						id="id-verify-via-app-failed-msg" 
-						label="Blocked on Remote / Mobile Banking Channels">
-					</capitec-label>
-				</capitec-group>
-			</capitec-alert-banner>
+			<horizon-alert-banner 
+				class="banner" 
+				type="error"
+				header="Blocked on Remote / Mobile Banking Channels">
+			</horizon-alert-banner>
 			`;
 		};
 
-		return this.isHelpDeskAgent && !this.miniProfile.isVerified
+		return this.isHelpDeskAgent && !this.miniProfile.isVerified && this.miniProfile.isBranchConsultant
 		? html`
-			<capitec-alert-banner class="banner" type="warning">
-				<capitec-group 
-						id="id-notify-banner-group" 
-						layout="horizontal">
+			<horizon-alert-banner
+				class="banner"
+				type="warning"
+				layout="horizontal">
 					<capitec-label 
 						id="id-notify-client-warning-msg" 
 						label="Client has not been verified">
@@ -441,17 +440,12 @@ export class MiniProfile extends Component {
 						@click="${() => this._onClientBranchVerifiedClick()}"
 						label="Client verified in branch">
 					</capitec-hyperlink>
-				</capitec-group>
-			</capitec-alert-banner>` 
+			</horizon-alert-banner>` 
 		: html`
-			<capitec-alert-banner class="banner" type="warning">
-				<capitec-group 
-						id="id-notify-banner-group" 
-						layout="horizontal">
-					<capitec-label 
-						id="id-notify-client-warning-msg" 
-						label="Client has not been verified">
-					</capitec-label>
+			<horizon-alert-banner
+				class="banner"
+				type="warning"
+				header="Client has not been verified">
 					<capitec-spacer></capitec-spacer>
 					<capitec-hyperlink 
 						id="id-verify-now-warning-link" 
@@ -459,8 +453,7 @@ export class MiniProfile extends Component {
 						@click="${() => this._onVerifyNowClick()}"
 						label="Verify now">
 					</capitec-hyperlink>
-				</capitec-group>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
 			`;
 	}
 }

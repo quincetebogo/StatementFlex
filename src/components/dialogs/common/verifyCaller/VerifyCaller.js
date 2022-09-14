@@ -142,7 +142,7 @@ export class VerifyCaller extends Component {
 	async connectedCallback() {
 		super.connectedCallback();
 
-		this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER, {
+		await this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER, {
 			"remote-channels-registered": this.callerInformation.hasDigitalChannels
 		});
 
@@ -158,7 +158,7 @@ export class VerifyCaller extends Component {
 		this.itaAttempts = this.callerInformation.verificationAttempts.itaAttempts;
 
 		this.hasSouthAfricanID = isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber);
-
+		
 		if (this.callerInformation.hasDigitalChannels) {
 			await this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
 				"screen": TelemetryScreen.VERIFY_CALLER
@@ -170,13 +170,13 @@ export class VerifyCaller extends Component {
 		this.isLoading = false;
 	}
 
-	disconnectedCallback() {
+	async disconnectedCallback() {
 		this._itaClose();
 
 		if (this.callerInformation.hasDigitalChannels) {
-			this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
-				"screen": TelemetryScreen.VERIFY_CALLER
-			});
+			await this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
+					"screen": TelemetryScreen.VERIFY_CALLER
+				});
 		}
 
 		this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER, {
@@ -193,6 +193,13 @@ export class VerifyCaller extends Component {
 		
 		// Stop any pending ITA attempt
 		this._itaClose();
+
+		if (this.callerInformation.hasDigitalChannels) {
+			await this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
+					"screen": TelemetryScreen.VERIFY_CALLER
+				});
+		}
+
 		this.itaInProgress = false;
 		this.itaSystemError = false;
 		this.itaTimeout = false;
@@ -843,7 +850,6 @@ export class VerifyCaller extends Component {
 					width: 204px;
 					height: 81px;
 				}
-
 				.btnTryAgain[disabled] {
 					cursor:default;
 					pointer-events:none;
@@ -874,7 +880,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderVerifyCallerDialog() {
-		return this.renderMode !== RENDER_MODE.VERIFY_CALLER || this.roleManager.isHelpDeskAgent
+		return this.renderMode !== RENDER_MODE.VERIFY_CALLER
 			? html``
 			: html`
 				<horizon-caller-dialog
@@ -1022,7 +1028,7 @@ export class VerifyCaller extends Component {
 						data-automation-id="verify-caller-skip-button"
 						label="Skip Verification"
 						icon="system/arrow-right-action" 
-						iconSize="small"
+						iconSize="medium"
 						@click="${() => this._skipClick()}">
 					</horizon-option-button>
 					<horizon-option-button

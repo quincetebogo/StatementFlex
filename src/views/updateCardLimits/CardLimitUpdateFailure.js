@@ -18,7 +18,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 		this.maskedCardNumber = ``;
 		this.limitExpiryDate = ``;
 		this.istapToPayUnChanged = false;
-		this.incidentRecId = this.incidentDetails.incidentRecId;
+		this.incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
 		this.tapToPayStatus = ``;
 		this.endCallContext = `QuickTransactionsUnSuccess`;
 	}
@@ -79,9 +79,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
 
 	// ---------
@@ -125,7 +123,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 				right="Assign"
 				toast="${this.limitType} card limit updated."
 				secondaryToast="${this.istapToPayUnChanged ? `` : `Tap to pay not updated`}"
-				image="/images/cards-unsuccesful-limit-update.svg"
+				image="/images/updateCardsLimits/cards-unsuccesful-limit-update.svg"
 				?hasSubDetails="${!this.istapToPayUnChanged}"
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._onHandoff()}>

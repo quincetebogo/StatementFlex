@@ -1,5 +1,5 @@
+import { BUDGET_FACILITY_POP_EVENTS, SETTLE_AND_CLOSE_CREDIT_CARD_POP_EVENTS, SETTLE_AND_CLOSE_TERM_LOAN_POP_EVENTS } from 'app/constants/telemetry/events/Credit';
 import { css, html } from 'platform/elements';
-import { BUDGET_FACILITY_POP_EVENTS } from 'app/constants/telemetry/events/Credit';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
@@ -41,15 +41,12 @@ export class ProofOfPaymentFailure extends ViewBase {
 
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.mailId = screenDetails && screenDetails.emailAddress;
-		this.accountName = screenDetails && screenDetails.accountName;
+		this.accountName = screenDetails && (screenDetails.accountName || screenDetails.settleAndCloseProductType);
 
 		this.loadTelemetryEvents();
 
 		this._telemetry.startSpan(this.popTelemetryEvents.POP_FAILURE);
 
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 		
 	disconnectedCallback() {
@@ -61,8 +58,10 @@ export class ProofOfPaymentFailure extends ViewBase {
 	// --------------
 
 	async _doneClick() {
+		const currentNeed = this.horizonIncidentManager.getCurrentNeed();
+
 		await this._telemetry.logEvent(this.popTelemetryEvents.POP_FAILURE_DONE, {
-			"screen": TelemetryScreen.CREDIT_PAY_BUDGET_FAILURE,
+			"screen": `${currentNeed.replaceAll(`-`, ` `)} Failure`,
 			"next-screen": TelemetryScreen.CREDIT_LANDING
 		});
 
@@ -77,13 +76,17 @@ export class ProofOfPaymentFailure extends ViewBase {
 	}
 
 	async _tryAgainClick() {
+		const currentNeed = this.horizonIncidentManager.getCurrentNeed();
+
 		await this._telemetry.logEvent(this.popTelemetryEvents.POP_FAILURE_TRY_AGAIN, {
-			"screen": TelemetryScreen.CREDIT_PAY_BUDGET_FAILURE,
-			"next-screen": TelemetryScreen.CREDIT_PAY_BUDGET_MODAL
+			"screen": `${currentNeed.replaceAll(`-`, ` `)} Failure`,
+			"next-screen": `${currentNeed.replaceAll(`-`, ` `)} dialog`
 		});
-		this._telemetry.endSpan(this.popTelemetryEvents.POP_FAILURE);
+
+		const screenDetails = this.horizonStore.getScreenDetails();
+		this._telemetry.endSpan(screenDetails.parentSpan, {}, true, false, true);
 		
-		// TODO: Navigation to be wired up here.
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	loadTelemetryEvents() {
@@ -91,7 +94,8 @@ export class ProofOfPaymentFailure extends ViewBase {
 		
 		const telemetryEvents = {
 			'view-budgets': BUDGET_FACILITY_POP_EVENTS,
-			'settle-close': null // Load telemetry events for Settle and close prrof of payment flow 
+			'settle-close-credit-card': SETTLE_AND_CLOSE_CREDIT_CARD_POP_EVENTS,
+			'settle-close-term-loan': SETTLE_AND_CLOSE_TERM_LOAN_POP_EVENTS
 		};
 
 		this.popTelemetryEvents = telemetryEvents[creditNeed];

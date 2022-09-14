@@ -1,7 +1,6 @@
 import { Component, css, html } from 'platform/elements';
+import { dateFormat } from 'app/utils/insureUtils';
 import { formatCurrency } from '../../../utils/channelServiceUtilities';
-import { formatDate } from 'app/utils/channelServiceUtilities';
-import { dateFormat} from 'app/utils/insureUtils'
 
 
 /**
@@ -20,7 +19,7 @@ import { dateFormat} from 'app/utils/insureUtils'
  */
 class PayPremiumAgreementDialog extends Component {
 
-	//#region INITIALIZE
+	// #region INITIALIZE
 
 	constructor() {
 		super();
@@ -28,9 +27,9 @@ class PayPremiumAgreementDialog extends Component {
 
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region PROPERTIES
+	// #region PROPERTIES
 
 	/**
 	 * @property {Object} contractReference contains the contract refrence
@@ -43,34 +42,34 @@ class PayPremiumAgreementDialog extends Component {
 	 static get properties() {
 		return {
 			
-			contractReference: {type: Object, state: true},
-			amountToPay: {type: Object, state: true},
-			getArrearsPaymentDocument: {type: Object},
-			arrearsPaymentDocumentDetails: {type: Object, state: true}
+			contractReference: { type: Object, state: true },
+			amountToPay: { type: Object, state: true },
+			getArrearsPaymentDocument: { type: Object },
+			arrearsPaymentDocumentDetails: { type: Object, state: true }
 
 		};
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region LIFECYCLE OVERRIDES
+	// #region LIFECYCLE OVERRIDES
 
 	/**
 	 * Setup the component once added to the DOM.
 	 * @returns {void}
 	 */
-	 async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
 		this._initialize();
 
 	 }
 
-	 //#endregion
+	 // #endregion
 
 
-	//#region PRIVATE METHODS
+	// #region PRIVATE METHODS
 
-	async _initialize(){
+	async _initialize() {
 
 		await this.getArrearsPaymentDocument(this.contractReference);
 
@@ -78,12 +77,13 @@ class PayPremiumAgreementDialog extends Component {
 	}
 
 
-	//#endregion
+	// #endregion
 
-	//#region EVENT HANDLERS
+	// #region EVENT HANDLERS
 
 	/**
 	 * Cancel event from dialog footer button, closes modal & reset toggles 
+	 * @returns {null} null
 	 */
 	 _onCancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
@@ -91,14 +91,15 @@ class PayPremiumAgreementDialog extends Component {
 
 	/**
 	 * Agree event from dialog footer, closes modal and navigates to Pay Premium Success page
+	 * @returns {null} null
 	 */
 	_onAgreeClick() {
 		this.dispatchEvent(new CustomEvent(`pay-premium-agree`, {}));
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region RENDERING
+	// #region RENDERING
 
 	/**
 	 * Generates the component stylesheet.
@@ -175,7 +176,8 @@ class PayPremiumAgreementDialog extends Component {
 					${this._renderDialogFooter()}
 				</div>
 			</capitec-modal>
-		`}
+		`;
+	}
 
 	/**
 	 * Render modal body section
@@ -200,11 +202,12 @@ By agreeing to pay your arrear premiums, you acknowledge and confirm that:
 
 			<capitec-content-box class="no-padding">
 				<capitec-expander expandbuttonalignment="left" label="View Arrears Payment Intruction" data-automation-id="insure-cancel-policy-dialog-view-cancellation-agreement">
-					<iframe class="iframe-content" src="data:application/pdf;base64,${this.arrearsPaymentDocumentDetails?.documentContent }#view=fitH" alt="agreement"></iframe>
+					<iframe class="iframe-content" src="data:application/pdf;base64,${this.arrearsPaymentDocumentDetails?.documentContent}#view=fitH" alt="agreement"></iframe>
 				</capitec-expander>
 			</capitec-content-box>
 
-		`}
+		`;
+	}
 
 	/**
 	 * Render modal footer section
@@ -221,9 +224,10 @@ By agreeing to pay your arrear premiums, you acknowledge and confirm that:
 					@click="${() => this._onAgreeClick()}"
 					data-automation-id="insure-pay-premium-agreement-dialog-agree">
 				</capitec-button>
-		`}
+		`;
+	}
 
-	//#endregion
+	// #endregion
 
 
 }

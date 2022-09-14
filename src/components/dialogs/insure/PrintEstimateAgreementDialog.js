@@ -18,7 +18,7 @@ const ERROR_MESSAGE = `Please select confirmation checkbox`;
  */
 class PrintEstimateAgreementDialog extends Component {
 
-	//#region INITIALIZE
+	// #region INITIALIZE
 
 	constructor() {
 		super();
@@ -26,23 +26,24 @@ class PrintEstimateAgreementDialog extends Component {
 		this.alertBannerMessage = ``;
 	}
 
-	//#endregion INITIALIZE
+	// #endregion INITIALIZE
 
-	//#region PROPERTIES
+	// #region PROPERTIES
 
 	static get properties() {
 		return {
 			printEstimateAgreementContent: { type: String },
-			alertBannerMessage: { attribute: false },
+			alertBannerMessage: { attribute: false }
 		};
 	}
 
-	//#endregion PROPERTIES
+	// #endregion PROPERTIES
 
-	//#region EVENT HANDLERS
+	// #region EVENT HANDLERS
 
 	/**
 	 * Cancel event from dialog footer button, closes modal & reset toggles 
+	 * @returns {null} null
 	 */
 	_onCancelClick() {
 		this.dispatchEvent(new CustomEvent(`print-estimate-close-modal`, {}));
@@ -50,24 +51,22 @@ class PrintEstimateAgreementDialog extends Component {
 
 	/**
 	 * Agree event from dialog footer, closes modal and navigates to Pay Premium Success page
+	 * @returns {null} null
 	 */
 	_onAgreeClick() {
 		const agreeCheck = this.shadowRoot.getElementById(`print-estimate-agree-check`);
 
-		if(!agreeCheck.checked)
-		{
+		if (!agreeCheck.checked) {
 			this.alertBannerMessage = ERROR_MESSAGE;
-		}
-		else
-		{
+		} else {
 			this.alertBannerMessage = ``;
 			this.dispatchEvent(new CustomEvent(`print-estimate-agree-click`, {}));
 		}
 	}
 
-	//#endregion EVENT HANDLERS
+	// #endregion EVENT HANDLERS
 
-	//#region RENDERING
+	// #region RENDERING
 
 	/**
 	 * Generates the component stylesheet.
@@ -127,7 +126,8 @@ class PrintEstimateAgreementDialog extends Component {
 					${this._renderDialogFooter()}
 				</div>
 			</capitec-modal>
-		`}
+		`;
+	}
 
 	/**
 	 * Render modal body section
@@ -149,7 +149,7 @@ class PrintEstimateAgreementDialog extends Component {
 				<capitec-expander expandbuttonalignment="left" label="View Estimate" class="pdf-viewer"
 					data-automation-id="insure-print-estimate-agreement-dialog-view-estimate">
 					<iframe title="PrintEstimateAgreemnt" height = "100%" frameborder = "0"
-						src="data:application/pdf;base64, ${ this.printEstimateAgreementContent }#view=fitH">
+						src="data:application/pdf;base64, ${this.printEstimateAgreementContent}#view=fitH">
 					</iframe>
 				</capitec-expander>
 			</capitec-expander-group>
@@ -158,7 +158,8 @@ class PrintEstimateAgreementDialog extends Component {
 				<capitec-check id="print-estimate-agree-check" label="Please confirm that you agree to these terms and conditions and that you are bound by them?">
 				</capitec-check>
 			</capitec-content-box>
-	`}
+		`;
+	}
 
 	/**
 	 * Render modal footer section
@@ -173,7 +174,8 @@ class PrintEstimateAgreementDialog extends Component {
 				<capitec-button class = "capitec-button-medium" slot="footer" type="primary" label="Agree" @click="${() => this._onAgreeClick()}"
 					data-automation-id="print-estimate-agreement-dialog-agree">
 				</capitec-button>
-	`}
+		`;
+	}
 
 	/**
 	 * Render Alert banner for error message.
@@ -192,7 +194,7 @@ class PrintEstimateAgreementDialog extends Component {
 		}
 	}
 
-	//#endregion RENDERING
+	// #endregion RENDERING
 }
 
 window.customElements.define(`print-estimate-agreement-dialog`, PrintEstimateAgreementDialog);

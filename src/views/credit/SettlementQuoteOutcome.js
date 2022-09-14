@@ -1,6 +1,5 @@
+import { QuickTransactionEvents, SETTLEMENT_QUOTE_EVENTS } from 'app/constants/telemetry/events/QuickTransactions';
 import { css, html } from 'platform/elements';
-import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
-import { SETTLEMENT_QUOTE_EVENTS } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
@@ -28,6 +27,7 @@ export class SettlementQuoteOutcome extends ViewBase {
 		this.succeededAccounts = [];
 		this.displayToast = true;
 		this.endCallContext = `QuickTransactionSuccess`;
+		this.header = ``;
 	}
 
 	// ----------
@@ -111,9 +111,7 @@ export class SettlementQuoteOutcome extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
 
 	_getOutcomeDetails() {
@@ -270,7 +268,7 @@ export class SettlementQuoteOutcome extends ViewBase {
 
 	_renderContent() {
 		return html`
-			<img src="/images/statements/senddocuments.svg"/>
+			<img src="/images/statements/send-documents.svg"/>
 
 			<capitec-label
 				class="header"

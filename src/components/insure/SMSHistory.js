@@ -1,22 +1,21 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { formatDate } from 'app/utils/channelServiceUtilities';
+import { formatDate, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { DateTime } from 'luxon';
-import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
-//#region  CONSTANTS
+// #region  CONSTANTS
 
 const FILTER_BY = {
-	DATE: `DATE`,
+	DATE: `DATE`
 };
 
 const RENDER_CHIPS = {
-	DATE: ``,
+	DATE: ``
 };
 
 const today = new Date();
 
-//#endregion CONSTANTS
+// #endregion CONSTANTS
 
 /**
  * the SMS History page displays the SMS History for the chosen policy
@@ -27,19 +26,16 @@ const today = new Date();
  */
 class SMSHistory extends Component {
 
-
-
-	//#region INITIALIZE
+	// #region INITIALIZE
 
 constructor() {
 	super();
 
-
 }
 
-//#endregion
+// #endregion
 
-//#region PROPERTIES
+// #region PROPERTIES
 
 	/**
 	 * @property {String} contractReference contains the policy number
@@ -53,17 +49,17 @@ constructor() {
 	 */
 	 static get properties() {
 		return {
-			contractReference: {type: String, state: true},
-			contactNumber: {type: String, state: true},
-			commsHistory: {type: Object, state: true},
-			getCommsHistory: {type: Object, state: true},
-			filteredData: {type: Object, state: true}
+			contractReference: { type: String, state: true },
+			contactNumber: { type: String, state: true },
+			commsHistory: { type: Object, state: true },
+			getCommsHistory: { type: Object, state: true },
+			filteredData: { type: Object, state: true }
 		};
 	}
 
-//#endregion
+// #endregion
 
-//#region LIFECYCLE OVERRIDES
+// #region LIFECYCLE OVERRIDES
 
 	/**
 	 * Setup the component once added to the DOM.
@@ -78,31 +74,33 @@ constructor() {
 
 	}
 
-	//#endregion
+	// #endregion
 
-//#region PRIVATE FUNCTIONS
+// #region PRIVATE FUNCTIONS
 
 /**
 	 * Initialize component
+	 * @return {null} null
 	 */
  async _initialise() {
 	
  }
 
-//#endregion
+// #endregion
 
-//#region EVENT HANDLERS
+// #region EVENT HANDLERS
 
 /**
  * Navigate to Landing
+ * @return {null} null
  */
 _backToSummaryPage() {
-	this.dispatchEvent(new CustomEvent(`navigate-back`, {detail: {}}));
+	this.dispatchEvent(new CustomEvent(`navigate-back`, { detail: {} }));
 }
 
 /**
  * Get Predefined date ranges
- * @returns - {Object} - date ranges array object
+ * @return {null} null
  */
  getPredefinedDateRanges() {
 	const last7day = new Date(today);
@@ -125,7 +123,8 @@ _backToSummaryPage() {
 
 /**
 	 * filter sms history when date is changed
-	 * @param {*} e 
+	 * @param {*} e e
+	 * @return {null} null
 	 */
  async _dateChanged(e) {
 	let fromDate = DateTime.fromISO(e.detail.new.startDate === null ? e.detail.old.startDate : e.detail.new.startDate);
@@ -171,8 +170,9 @@ _backToSummaryPage() {
 	await this.getCommsHistory(this.startDate, this.endDate);
 }
 
-/**
+	/**
 	 * filter the sms history
+	 * @return {null} null
 	 */
  _refineSearch() {
 
@@ -182,8 +182,7 @@ _backToSummaryPage() {
 	if (RENDER_CHIPS[FILTER_BY.DATE]) {
 		const startDate = new Date(Date.parse(this.startDate));
 		const endDate = new Date(Date.parse(this.endDate));
-		this.filteredData = this.filteredData.filter(
-			item => new Date(item.sentAt) >= startDate && new Date(item.sentAt) <= endDate); 
+		this.filteredData = this.filteredData.filter(item => new Date(item.sentAt) >= startDate && new Date(item.sentAt) <= endDate); 
 	}
 
 	this.requestUpdate();
@@ -210,33 +209,34 @@ _backToSummaryPage() {
 /**
 	 * format the give date
 	 * @param {*} date - date to be formatted 
-	 * @returns 
+	 * @return {null} null
 	 */
  _formatDate(date) {
 	const newdate = new Date(Date.parse(date));
 	return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
 }
 
-/**
+	/**
 	 * close specified chip
 	 * @param {*} type - filter type 
+	 * @return {null} null
 	 */
- async _closeChip(type) {
+	_closeChip(type) {
 
-	this._clearFilter(type);	
-	this._refineSearch();
+		this._clearFilter(type);
+		this._refineSearch();
+	}
 
-}
-
-/**
+	/**
 	 * Clear filter by criteria type
 	 * @param {*} type - filter type
+	 * @return {null} null
 	 */
  _clearFilter(type) {
 	const date = () => this._reset();
 	
 	const resetForfilters = {
-		'DATE': date,
+		'DATE': date
 	};
 
 	RENDER_CHIPS[type] = ``;
@@ -246,8 +246,9 @@ _backToSummaryPage() {
 }
 
 
-/**
+	/**
 	 * reset all filters and load transactions
+	 * @return {null} null
 	 */
  async _reset() {
 	if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
@@ -263,12 +264,10 @@ _backToSummaryPage() {
 	}
 }
 
+// #endregion
 
 
-//#endregion
-
-
-//#region RENDERING
+// #region RENDERING
 
 /**
 	 * Generates the component stylesheet.
@@ -408,11 +407,12 @@ _backToSummaryPage() {
 		return html`
 			${this._renderContent()}
 			
-		`}
+		`;
+	}
 
 	/**
 	 * Render the content HTML for the component
-	 * @returns {html}
+	 * @return {null} null
 	 */
 	_renderContent() {
 		return html`
@@ -441,15 +441,16 @@ _backToSummaryPage() {
 	
 		</capitec-card>
 		
-		`}
+		`;
+	}
 
 /**
  * renders each expander
  * 
- * @param {Object} comms 
+ * @param {Object} comms comms
  * @returns {html} the html content for the expanders
  */
-	_renderExpander(comms){
+	_renderExpander(comms) {
 		return html`
 
 			<horizon-expander data-automation-id="insure-sms-history-expander">
@@ -473,11 +474,11 @@ _backToSummaryPage() {
 						</horizon-label>
 						<horizon-label
 							label="Sent at"
-							value="${formatDate(comms.sentAt, 'dd mmm yyyy')}, ${new Date(comms.sentAt).toLocaleTimeString('en', { timeStyle: 'short', hour12: true, timeZone: 'UTC' })}">
+							value="${formatDate(comms.sentAt, `dd mmm yyyy`)}, ${new Date(comms.sentAt).toLocaleTimeString(`en`, { timeStyle: `short`, hour12: true, timeZone: `UTC` })}">
 						</horizon-label>
 						<horizon-label
 							label="Received at"
-							value="${formatDate(comms.sentAt, 'dd mmm yyyy')}, ${new Date(comms.sentAt).toLocaleTimeString('en', { timeStyle: 'short', hour12: true, timeZone: 'UTC' })}">
+							value="${formatDate(comms.sentAt, `dd mmm yyyy`)}, ${new Date(comms.sentAt).toLocaleTimeString(`en`, { timeStyle: `short`, hour12: true, timeZone: `UTC` })}">
 						</horizon-label>
 						<horizon-label
 							label="Status"
@@ -497,7 +498,7 @@ _backToSummaryPage() {
 			</horizon-expander>
 
 			
-		`
+		`;
 	}
 
 	/**
@@ -521,9 +522,9 @@ _backToSummaryPage() {
 	/**
 	 * renders the date picker to select a date to filter with
 	 * 
-	 * @returns 
+	 * @return {null} null
 	 */
-	_renderDatePicker(){
+	_renderDatePicker() {
 		return html`
 		<capitec-date-time-picker
 					id="calendarRange"
@@ -539,15 +540,15 @@ _backToSummaryPage() {
 					@apply-clicked="${(e) => this._dateChanged(e)}"
 					data-automation-id="insure-sms-history-date-picker">
 				</capitec-date-time-picker>
-		`
+		`;
 	}
 
 	/**
 	 * render the active filters bar 
 	 * 
-	 * @returns 
+	 * @return {null} null
 	 */
-	_renderActiveFilters(){
+	_renderActiveFilters() {
 		if (RENDER_CHIPS[FILTER_BY.DATE] !== ``) {
 			return html`
 				<capitec-content-box id="active-filters" class="filter-bar">
@@ -575,9 +576,7 @@ _backToSummaryPage() {
 		: html``;
 }
 
-	//#endregion
-
-
+	// #endregion
 
 }
 

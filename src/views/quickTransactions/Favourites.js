@@ -5,22 +5,22 @@ import { formatStringAsPascalCase, isNullorEmpty, isWellFormedSouthAfricanID } f
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { alertBannerMixin } from 'app/views/common/AlertBannerMixin';
 import { creditMixin } from 'app/views/credit/CreditMixin';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
-import 'app/components/dialogs/common/CCSstatus';
+import 'app/components/dialogs/common/WarningDialog';
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
-import 'app/components/dialogs/quickTransactions/DeclineDebiCheckMandate';
 import 'app/components/quickTransactions/FavouriteTransactions';
 import 'app/components/quickTransactions/CardLimitsLanding';
 import 'app/components/quickTransactions/SearchOtherNeed';
-import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
 import 'app/components/dialogs/common/Feedback';
@@ -80,10 +80,12 @@ export class Favourites extends SavingsAccountBase {
 
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), () => true);
 
 		Object.assign(Favourites.prototype, tapToPayMixin);
 		Object.assign(Favourites.prototype, searchOtherNeedMixin);
 		Object.assign(Favourites.prototype, creditMixin);
+		Object.assign(Favourites.prototype, alertBannerMixin);
 	}
 
 	// --------------
@@ -95,7 +97,8 @@ export class Favourites extends SavingsAccountBase {
 			isLoading: { state: true },
 			verificationToastDisplayed: { state: true },
 			hasTaxCertificate: { state: false },
-			showCCSmodal: { type: Boolean }
+			showCCSmodal: { type: Boolean },
+			ccsStatus: { state: false }
 		};
 	}
 
@@ -105,7 +108,6 @@ export class Favourites extends SavingsAccountBase {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this.incidentRecId = this.incidentDetails.incidentRecId;
 		this.feedbackOptions = FEEDBACK_OPTIONS;
 		
 
@@ -142,7 +144,6 @@ export class Favourites extends SavingsAccountBase {
 
 			if (actions[option]) {
 				await super._inicidentManager_(option, () => this._toggleBusyFlag());
-				this._refreshIncidentDetails();
 				return actions[option]();
 			}
 
@@ -189,11 +190,8 @@ export class Favourites extends SavingsAccountBase {
 		
 		if (isSuccess) {
 			// Navigate to favourites landing page
-			const incidentDetails = this.horizonStore.getIncidentDetails();
-		
-			incidentDetails.needStatus = super.HORIZON_NEED_STATUS.CLOSED;
-			incidentDetails.feedback = selectedOption.key;
-			this.horizonStore.setIncidentDetails(incidentDetails);
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.CLOSED;
+			this.horizonIncidentManager.setFeedback(selectedOption.key);
 			this._updateNeedToState();
 			this._searchOtherNeedDone();
 		} else {
@@ -223,21 +221,7 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-	_debiCheckToMainPage() {
-
-		/**
-		 * This is supposed to happen in debicheck success screen
-		 * TODO: This should be to success screen when decline or approve is ready (CSCEH-7746)
-		 */
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(incidentDetails);
-
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
-
 	_searchOtherNeedDone() {
-		this._refreshIncidentDetails();
 	
 		if (this.updateStrackClick) {
 			this.postAction._refreshScreen();
@@ -249,7 +233,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _getPermanentLimits(request) {
-		const returnValue = await this.quickTransactionService.getPermanentLimits(request, () => true);
+		const returnValue = await this.cardService.getPermanentLimits(request, () => true);
 
 		if (returnValue.succeeded) {
 			return returnValue.result;
@@ -264,7 +248,7 @@ export class Favourites extends SavingsAccountBase {
 	
 		updateRequest.cardLimits = this._limitsRandsToCents(updateRequest.cardLimits);
 
-		const returnValue = await this.quickTransactionService.updatePermanentLimits(updateRequest, () => true);
+		const returnValue = await this.cardService.updatePermanentLimits(updateRequest, () => true);
 
 		if (returnValue.succeeded) {
 			return true;
@@ -277,7 +261,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _getTemporaryLimits(request) {
-		const returnValue = await this.quickTransactionService.getTemporaryLimits(request, () => true);
+		const returnValue = await this.cardService.getTemporaryLimits(request, () => true);
 
 		if (returnValue.succeeded) {
 			return returnValue.result;
@@ -293,7 +277,7 @@ export class Favourites extends SavingsAccountBase {
 		
 		updateRequest.cardLimits = this._limitsRandsToCents(updateRequest.cardLimits);
 
-		const returnValue = await this.quickTransactionService.updateTemporaryLimits(updateRequest, () => true);
+		const returnValue = await this.cardService.updateTemporaryLimits(updateRequest, () => true);
 
 		if (returnValue.succeeded) {
 			return true;
@@ -308,7 +292,7 @@ export class Favourites extends SavingsAccountBase {
 
 		agreementRequest.cardDetails = this._limitsRandsToCents(agreementRequest.cardDetails);
 
-		const returnValue = await this.quickTransactionService.getCardLimitsAgreement(agreementRequest, () => this._createIncidentOnError());
+		const returnValue = await this.cardService.getCardLimitsAgreement(agreementRequest, () => this._createIncidentOnError());
 		
 		if (returnValue.succeeded) {
 			return returnValue.result;
@@ -345,8 +329,8 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _getSubCategories(event) {
-		
-		if (this.incidentDetails.incidentRecId === `0`) {
+		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
+		if (incidentRecId === `0`) {
 			await super.createAndClassifySubsIncident();
 		}
 		
@@ -455,7 +439,7 @@ export class Favourites extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.STOP_CARD
 		});
 
-		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.incidentDetails);
+		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.horizonIncidentManager.getIncidentDetails());
 
 		if (returnValue.succeeded) {
 
@@ -478,7 +462,9 @@ export class Favourites extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.CARD_LIMITS_LANDING
 		});
 
-		const returnValue = await this.quickTransactionService.cardLimitsLanding(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
+		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
+
+		const returnValue = await this.cardService.cardLimitsLanding(this.callerInformation.cifNumber, incidentRecId);
 			
 		if (returnValue.succeeded) {
 			this.cards = returnValue.result.cards;
@@ -569,8 +555,9 @@ export class Favourites extends SavingsAccountBase {
 				});
 
 			if (this.settlementQuoteDetails.length > 0) {
-				this.ccsStatus = await this._checkCreditPermisions(`settlement-quote`, this.callerInformation.cifNumber, this.settlementQuoteDetails[0].accountNumber, this.settlementQuoteDetails[0].type);
-			
+				const { ccsStatus } = await this._checkCreditPermisions(`settlement-quote`, this.callerInformation.cifNumber, this.settlementQuoteDetails[0].accountNumber, this.settlementQuoteDetails[0].type);
+				this.ccsStatus = ccsStatus;
+
 				if (this.ccsStatus) {
 					this.showCCSmodal = true;
 					this.requestUpdate();
@@ -617,7 +604,8 @@ export class Favourites extends SavingsAccountBase {
 		
 			if (this.accountsInfo.length > 0) {
 				
-				this.ccsStatus = await this._checkCreditPermisions(`paid-up-letter`, this.callerInformation.cifNumber, this.accountsInfo[0].accountNumber, this.accountsInfo[0].type);
+				const { ccsStatus } = await this._checkCreditPermisions(`paid-up-letter`, this.callerInformation.cifNumber, this.accountsInfo[0].accountNumber, this.accountsInfo[0].type);
+				this.ccsStatus = ccsStatus;
 
 				if (this.ccsStatus) {
 					this.showCCSmodal = true;
@@ -699,15 +687,15 @@ export class Favourites extends SavingsAccountBase {
 	async _unLoadingOtherNeeds() {
 		this._telemetryEndSpan(QuickTransactionEvents.SEARCH_OTHER_NEED, TelemetryScreen.SEARCH_OTHER_NEED);
 
-		const incidentDetails = this.horizonStore.getIncidentDetails() || {};
+		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
 
-		if (isNullorEmpty(incidentDetails.incidentRecId) || incidentDetails.incidentRecId === `0`) {
+		if (isNullorEmpty(incidentRecId) || incidentRecId === `0`) {
 			this.renderMode = RENDER_MODE.MAIN_PAGE;
 			return true;
 		}
 
 		const screenDetails = this.horizonStore.getScreenDetails();
-		const incidentInfo = await this.incidentStatus(this.incidentDetails.incidentRecId) || {};
+		const incidentInfo = await this.incidentStatus(incidentRecId) || {};
 
 		// Determining if its already classified
 		const isClassified = !isNullorEmpty(incidentInfo.category) && !isNullorEmpty(incidentInfo.subCategory) && !isNullorEmpty(incidentInfo.issue);
@@ -749,8 +737,10 @@ export class Favourites extends SavingsAccountBase {
 			"issue-type": event.detail.issue
 		});
 		await this._classifyIncident(event);
+
+		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
 	
-		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
+		this.horizonRouter.navigateToStrack(incidentRecId);
 		this.renderMode = RENDER_MODE.FEEDBACK;
 	}
 
@@ -895,102 +885,6 @@ export class Favourites extends SavingsAccountBase {
 
 			${super._webTemplate()}
 		`;
-	}
-
-	renderAlertBanner() {
-		const unverified = () => this._renderUnverifiedAlertBanner();
-		const failed = () => this._renderFailedAlertBanner();
-		const verified = () => this._renderVerifiedAlertBanner();
-
-		const verificationStatuses = {
-			'unverified': unverified,
-			'failed': failed,
-			'verified': verified
-		};
-
-		if (verificationStatuses[this.verificationStatus]) {
-			return verificationStatuses[this.verificationStatus]();
-		}
-	}
-
-	_renderUnverifiedAlertBanner() {
-		return !this.roleManager.isHelpDeskAgent 
-		? html`
-			<capitec-alert-banner
-				class="verificatoin-status"
-				data-automation-id="favourite-transactions-unverified-alert-banner"
-				type="warning">
-				<capitec-group layout="horizontal" class="alert-banner-group">
-					<capitec-label type="strong" label="Notify client:"></capitec-label>
-					<capitec-label type="default"
-						label="For added security we will need to go through verification to proceed with additional transactions.">
-					</capitec-label>
-					<capitec-spacer></capitec-spacer>
-					<capitec-hyperlink 
-						data-automation-id="favourite-transactions-verify"
-						label="Verify Now"
-						@click="${() => super._verifyClick()}">
-					</capitec-hyperlink>
-				</capitec-group>
-			</capitec-alert-banner>`
-		: html``;
-	}
-
-	_renderFailedAlertBanner() {
-		return html`
-			<capitec-alert-banner
-				class="verificatoin-status"
-				data-automation-id="favourite-transactions-failed-verification-alert-banner"
-				type="unsuccessful-red"
-				label="Notify client: I'm not able to access your account since you couldn't be verified. Can we guide you on the App? Alternatively please visit your nearest branch.">
-			</capitec-alert-banner>`;
-	}
-
-	_renderVerifiedAlertBanner() {
-		return !this.callerInformation.hasDigitalChannels
-			? this._renderNoDigitalHighRiskTransAlertBanner()
-			: this._renderHighRiskTransAlertBanner();
-	}
-
-	_renderNoDigitalHighRiskTransAlertBanner() {
-		return this.callerInformation.verificationMethod === `SQ` && !this.roleManager.isHelpDeskAgent
-			? html`
-				<capitec-alert-banner
-					class="verificatoin-status"
-					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
-					type="warning">
-						<capitec-group layout="horizontal" class="alert-banner-group">
-							<capitec-label type="strong" label="Notify client:"></capitec-label>
-							<capitec-label type="default"
-								label="For added security get the remote banking App to perform additional transactions, alternatively, visit your nearest branch.">
-							</capitec-label>
-							<capitec-spacer></capitec-spacer>
-						</capitec-group>
-				</capitec-alert-banner>`
-			: html``;
-	}
-
-	_renderHighRiskTransAlertBanner() {
-		return this.callerInformation.verificationMethod === `SQ` && !this.roleManager.isHelpDeskAgent
-			? html`
-				<capitec-alert-banner
-					class="verificatoin-status"
-					data-automation-id="favourite-transactions-high-risk-trans-alert-banner"
-					type="warning">
-						<capitec-group layout="horizontal" class="alert-banner-group">
-							<capitec-label type="strong" label="Notify client:"></capitec-label>
-							<capitec-label type="default"
-								label="For added security, we will be sending a push notification to access additional transactions.">
-							</capitec-label>
-							<capitec-spacer></capitec-spacer>
-							<capitec-hyperlink
-								data-automation-id="high-risk-transactions-verify"
-								label="Verify Now"
-								@click="${() => super._verifyClick()}">
-							</capitec-hyperlink>
-						</capitec-group>
-				</capitec-alert-banner>`
-			: html``;
 	}
 
 	_renderFavouritesLandingPage() {

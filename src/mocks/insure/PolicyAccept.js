@@ -5,5 +5,5 @@
  * @constant PolicyAccept
  */
 export const PolicyAccept = {
-	"contractReference": "ABC"
-}
+	"contractReference": `ABC`
+};

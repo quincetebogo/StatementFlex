@@ -43,9 +43,8 @@ export class TapToPayUnsuccessful extends ViewBase {
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.card = screenDetails.tapToPayDetails.cardMaskedNumber;
 		this.cardType = screenDetails.tapToPayDetails.cardType === `DEBIT_MASTERCARD` ? `debit` : `credit`;
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-		
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
 
 	disconnectedCallback() {
@@ -78,10 +77,10 @@ export class TapToPayUnsuccessful extends ViewBase {
 			"next-screen": null
 		});
 
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
 
-		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
+		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.getCurrentIncident().incidentRecId);
+		
 		this.horizonStore.clearReturnScreen();
 	}
 
@@ -94,9 +93,7 @@ export class TapToPayUnsuccessful extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
 
 	// ---------
@@ -131,7 +128,7 @@ export class TapToPayUnsuccessful extends ViewBase {
 			<horizon-error-screen 
 				data-automation-id="tap-to-pay-unsuccessful"
 				header="Tap to pay not activated" 
-				image="/images/tap-to-pay-error.svg"
+				image="/images/common/tap-to-pay-error.svg"
 				left="Done"
 				right="Assign"
 				toast="Tap to pay not activated."

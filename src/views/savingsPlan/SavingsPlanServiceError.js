@@ -132,7 +132,7 @@ export class SavingsPlanServiceError extends ViewBase {
 						gap="none">
 							<horizon-service-call-error-screen
 								bannerDetail=" Savings plans are currently unavailable" 
-								image="/images/service-error.svg"
+								image="/images/common/service-error.svg"
 								header="Savings plans are currently unavailable"
 								right="Find a Branch"
 								@right-click=${() => this._findBranchClick()}>

@@ -56,8 +56,7 @@ export class TaxCertificateServiceError extends ViewBase {
 		this.horizonStore.setScreenDetails({ taxCertificate: null });
 		this.horizonStore.clearReturnScreen();
 
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
 
 	// --------------
@@ -124,7 +123,7 @@ export class TaxCertificateServiceError extends ViewBase {
 		return html`
 			<horizon-service-call-error-screen
 				bannerDetail=" Tax certificates are currently not available" 
-				image="/images/service-error.svg"
+				image="/images/common/service-error.svg"
 				header="Tax certificates are currently not available"
 				right="Find a Branch"
 				@right-click=${() => this._findBranchClick()}>

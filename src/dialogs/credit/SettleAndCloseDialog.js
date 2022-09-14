@@ -28,6 +28,7 @@ export class SettleAndCloseDialog extends Component {
 		this.hasEnoughFunds = false;
 		this.savList = [];
 		this.errorMessage = ``;
+		this.bannerMessage = ``;
 	}
 
 	// ----------
@@ -96,15 +97,17 @@ export class SettleAndCloseDialog extends Component {
 	_CheckSavStatus() {
 		this.hasEnoughFunds = this._deformatCurrency(this.productSelected.availableBalance) >= this._deformatCurrency(this.settleAndCloseDetails[`Settlement amount`]);
 		if (this.hasEnoughFunds === false) {
+			this.bannerMessage = `You do not have enough funds in your account to do the transfer.`;
 			this.errorMessage = `Transfer cannot exceed available balance`;
 		} else {
 			const acc = this.productSelected.accountNumber;
 			let i = 0;
 			while (i < this.savList.length) {
-				if (acc == this.savList[i].accountNumber && this.savList[i].savingsPermissionStatus === `DENIED`)
-				{
+				if (acc == this.savList[i].accountNumber && this.savList[i].savingsPermissionStatus === `DENIED`) {
+					this.bannerMessage = `The account selected cannot be used to perform this transaction`;
 					this.hasEnoughFunds = false;
 					this.errorMessage = `The account selected cannot be used to perform this transaction`;
+					
 				}
 				i++;
 			}
@@ -152,9 +155,8 @@ export class SettleAndCloseDialog extends Component {
 					--theme-layout-gap-spacing: 4px;
 					padding: 16px;
 				}
-				capitec-alert-banner {
-					--theme-alert-banner-height: 84px;
-					--theme-alert-banner-icon-margin-left: 16px;
+				horizon-alert-banner {
+					--theme-toast-icon-margin: 0px 18px 0px 16px;
 					margin-bottom: 9px;
 				}
 				.error-banner {
@@ -268,20 +270,20 @@ export class SettleAndCloseDialog extends Component {
 	_renderAlertBanner() {
 		return this.hasEnoughFunds
 		? html`
-			<capitec-alert-banner 
+			<horizon-alert-banner 
 				type="warning" 
-				data-automation-id="settle-and-close-notification-banner">
-					<capitec-label class="alert-header" label="Notify client:"></capitec-label>
-					<capitec-label class="alert-message" label="The settlement amount on your account is only valid if you conclude this settlement transaction now."></capitec-label>
-			</capitec-alert-banner>`
+				data-automation-id="settle-and-close-notification-banner"
+				header="Notify client: "
+				label="The settlement amount on your account is only valid if you conclude this settlement transaction now.">
+			</horizon-alert-banner>`
 		: html`
-			<capitec-alert-banner 
+			<horizon-alert-banner 
 				data-automation-id="settle-and-close-error-banner"
 				class="error-banner" 
-				type="unsuccessful-red">
-					<capitec-label class="alert-header" label="Notify client:"></capitec-label>
-					<capitec-label class="alert-message" label="You do not have enough funds in your account to do the transfer."></capitec-label>
-			</capitec-alert-banner>
+				type="error"
+				header="Notify client: "
+				label="${this.bannerMessage}">
+			</horizon-alert-banner>
 		`;
 	}
 

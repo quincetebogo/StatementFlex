@@ -1,10 +1,10 @@
 import { Component, css, html } from 'platform/elements';
-import { formatDate } from '../../../utils/channelServiceUtilities';
+import { CANCELATION_REASONS } from 'app/constants/InsureCommon';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
-import { dateFormat} from 'app/utils/insureUtils'
+import { dateFormat } from 'app/utils/insureUtils';
 
 // Lookups
-import { CANCELATION_REASONS } from 'app/constants/InsureCommon';
+
 
 /**
  * cancel policy dialog 
@@ -20,7 +20,7 @@ import { CANCELATION_REASONS } from 'app/constants/InsureCommon';
  */
 class CancelPolicyDialog extends Component {
 
-	//#region INITIALIZE
+	// #region INITIALIZE
 
 	constructor() {
 		super();
@@ -28,14 +28,14 @@ class CancelPolicyDialog extends Component {
 		this.cancelationReasons = CANCELATION_REASONS;
 		this.selected = false;
 		this.checked = false;
-		this.cancelReason = '';
-		this.contractReference = '';
+		this.cancelReason = ``;
+		this.contractReference = ``;
 		this.cancelPolicyDocumentDetails = {};
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region PROPERTIES
+	// #region PROPERTIES
 
 	/**
 	 * @property {Boolean} selected determines if a cancellation reason has been chosen
@@ -48,44 +48,41 @@ class CancelPolicyDialog extends Component {
 	 */
 	 static get properties() {
 		return {
-			selected: {type: Boolean, state: true},
-			checked: {type: Boolean, state: true},
-			contractReference: {type: String, state: true},
-			cancelReason: {type: String, state: true},
-			getCancelPolicyDocument: {type: Object, state: true},
-			cancelPolicyDocumentDetails: {type: Object, state: true},
+			selected: { type: Boolean, state: true },
+			checked: { type: Boolean, state: true },
+			contractReference: { type: String, state: true },
+			cancelReason: { type: String, state: true },
+			getCancelPolicyDocument: { type: Object, state: true },
+			cancelPolicyDocumentDetails: { type: Object, state: true }
 		};
 	}
 
-	//#endregion
+	//  #endregion
 
-	//#region LIFECYCLE OVERRIDES
+	//  #region LIFECYCLE OVERRIDES
 
 	/**
 	 * Setup the component once added to the DOM.
 	 * @returns {void}
 	 */
-	 async connectedCallback() {
+	 connectedCallback() {
 		super.connectedCallback();
-		this._initialize();
 
 	 }
 
-	 //#endregion
+	 //  #endregion
 
 
-	//#region PRIVATE METHODS
-	
-	async _initialize(){
-		
-	}
+	//  #region PRIVATE METHODS
 
-	//#endregion
+	//  #endregion
 
-	//#region EVENT HANDLERS
+	//  #region EVENT HANDLERS
 
 	/**
 	 * Cancel event from dialog footer button, closes modal & reset toggles 
+	 * 
+	 * @returns {null} null
 	 */
 	 _onCancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
@@ -93,35 +90,41 @@ class CancelPolicyDialog extends Component {
 
 	/**
 	 * agree event from dialog footer button, closes modal and navigates to cancel policy success page
+	 * 
+	 * @returns {null} null
 	 */
 	_onAgreeClick() {
-		this.dispatchEvent(new CustomEvent(`agree`, {detail: {cancellationReason: this.cancelReason }}));
+		this.dispatchEvent(new CustomEvent(`agree`, { detail: { cancellationReason: this.cancelReason } }));
 	}
 
 	/**
 	 * Event to to change the value of selected once an option has been chosen from the cancelation select box and also to cancelReason with the reason chosen
+	 * @param {*} e 
+	 * @returns {null} null
 	 */
-	_valueSelected(e){
+
+	_valueSelected(e) {
 		this.selected = true;
 
 		this.cancelReason = e.detail.new.code;
 
-		this._getCancelAgreement(this.cancelReason)
+		this._getCancelAgreement(this.cancelReason);
 
 		this.requestUpdate();
 	}
 
-	async _getCancelAgreement(cancelReason){
+	async _getCancelAgreement(cancelReason) {
 		await this.getCancelPolicyDocument(this.contractReference, cancelReason);
 	}
 
 /**
  * Event to determine whether the checkbox has been checked or not
  * 
- * @param {Boolean} e 
+ * @param {*} e param
+ * @returns {null} null
  */
-	_CheckBox(e){
-		if (e.detail.new == true){
+	_CheckBox(e) {
+		if (e.detail.new === true) {
 			this.checked = true;
 		} else {
 			this.checked = false;
@@ -132,19 +135,19 @@ class CancelPolicyDialog extends Component {
 	/**
 	 * Event that returns the following day's date
 	 * 
-	 * @returns 
+	 * @returns {null} null
 	 */
-	_getDate(){
-		const today = new Date()
-		const tomorrow = new Date(today)
-		tomorrow.setDate(tomorrow.getDate() + 1)
+	_getDate() {
+		const today = new Date();
+		const tomorrow = new Date(today);
+		tomorrow.setDate(tomorrow.getDate() + 1);
 
 		return tomorrow;
 	}
 
-	//#endregion
+	//  #endregion
 
-	//#region RENDERING
+	//  #region RENDERING
 
 	/**
 	 * Generates the component stylesheet.
@@ -158,7 +161,7 @@ class CancelPolicyDialog extends Component {
 			super.styles,
 			css`
 				
-				${ INSURE_CSS }
+				${INSURE_CSS}
 
 				.notification > capitec-toast{
 					--theme-toast-height: 110px;
@@ -218,7 +221,8 @@ class CancelPolicyDialog extends Component {
 					${this._renderDialogFooter()}
 				</div>
 			</capitec-modal>
-		`}
+		`;
+	}
 
 	/**
 	 * Render modal body section
@@ -257,7 +261,7 @@ class CancelPolicyDialog extends Component {
 				<capitec-expander expandbuttonalignment="left" label="View Cancellation Agreement" class="pdf-viewer"
 					data-automation-id="insure-cancel-policy-dialog-view-cancellation-agreement">
 					<iframe title="CancelPolicyAgreement" height = "100%" frameborder = "0"
-						src="data:application/pdf;base64,${ this.cancelPolicyDocumentDetails?.documentContent }#view=fitH">
+						src="data:application/pdf;base64,${this.cancelPolicyDocumentDetails?.documentContent}#view=fitH">
 					</iframe>
 				</capitec-expander>
 			</capitec-content-box>
@@ -269,7 +273,8 @@ class CancelPolicyDialog extends Component {
 			</capitec-content-box>
 
 
-		`}
+		`;
+	}
 
 	/**
 	 * Render modal footer section
@@ -285,11 +290,12 @@ class CancelPolicyDialog extends Component {
 				<capitec-button class="button" slot="footer" type="primary" label="Agree"
 					@click="${() => this._onAgreeClick()}"
 					data-automation-id="insure-cancel-policy-dialog-agree"
-					.disabled="${this.selected == false || this.checked == false}">
+					.disabled="${this.selected === false || this.checked === false}">
 				</capitec-button>
-		`}
+		`;
+	}
 
-	//#endregion
+	//  #endregion
 
 
 }

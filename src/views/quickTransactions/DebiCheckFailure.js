@@ -7,7 +7,6 @@ import { ViewBase } from 'app/views/common/ViewBase';
 import 'app/components/common/OptionButton';
 import 'app/components/common/ErrorScreen';
 import 'app/components/common/RelatedOptions';
-import { ScreenDetails } from '../../models/ScreenDetails';
 
 /**
  * Display a failure screen indicating the selected debicheck mandate have been unsuccessful when trying to decline/approve.
@@ -70,10 +69,9 @@ export class DebiCheckFailure extends ViewBase {
 		//    "next-screen": TelemetryScreen.FAVOURITES
 		//});
 
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
 
-		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
+		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.getCurrentIncident().incidentRecId);
 		this.horizonStore.clearReturnScreen();
 	}
 
@@ -121,7 +119,7 @@ export class DebiCheckFailure extends ViewBase {
 			<horizon-error-screen
 				data-automation-id="debi-check-failure-screen"
 				image="/images/insure/assign-pay-arrears.svg"
-				secondaryImage="/images/transactions/debiCheckLogo.svg"
+				secondaryImage="/images/debi-check/debi-check-logo.svg"
 				header="DebiCheck mandate not approved" 
 				left="Done"
 				right="Assign"
@@ -139,7 +137,7 @@ export class DebiCheckFailure extends ViewBase {
 		<horizon-error-screen
 			data-automation-id="debi-check-failure-screen"
 			image="/images/insure/assign-pay-arrears.svg"
-			secondaryImage="/images/transactions/debiCheckLogo.svg"
+			secondaryImage="/images/debi-check/debi-check-logo.svg"
 			header="DebiCheck mandate not declined" 
 			left="Done"
 			right="Assign"

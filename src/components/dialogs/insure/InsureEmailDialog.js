@@ -1,7 +1,8 @@
 import { Component, css, html } from 'platform/elements';
+import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import 'app/components/common/HorizonEmailInput';
-import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+
 
 const ERROR_MESSAGE = {
 	EMAIL_REQUIRED: `Complete all fields to continue`,
@@ -14,7 +15,7 @@ const ERROR_MESSAGE = {
  */
 class InsureEmailDialog extends Component {
 
-	//#region INITIALISATION
+	// #region INITIALISATION
 
 	constructor() {
 		super();
@@ -25,7 +26,7 @@ class InsureEmailDialog extends Component {
 		this.titleMessage = ``;
 	}
 
-	//#region PROPERTIES
+	// #region PROPERTIES
 
 	/**
 	 * @property {String} email - email address to be sent.
@@ -43,11 +44,11 @@ class InsureEmailDialog extends Component {
 		};
 	}
 
-	//#endregion PROPERTIES
+	// #endregion PROPERTIES
 
-	//#endregion INITIALISATION
+	// #endregion INITIALISATION
 
-	//#region EVENTS
+	// #region EVENTS
 
 	_onCancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
@@ -78,9 +79,9 @@ class InsureEmailDialog extends Component {
 		}
 	}
 
-	//#endregion EVENTS
+	// #endregion EVENTS
 
-	//#region PRIVATE METHODS	
+	// #region PRIVATE METHODS
 	
 	_validateEmailAddress() {
 		if (isNullorEmpty(this.email) || isNullorEmpty(this.confirmEmail)) {
@@ -89,9 +90,9 @@ class InsureEmailDialog extends Component {
 		return isNullorEmpty(this.alertBannerMessage);
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region RENDERING
+	// #region RENDERING
 
 	static get styles() {
 		return [
@@ -163,7 +164,7 @@ class InsureEmailDialog extends Component {
 	_webTemplate() {
 		return html`
 		<capitec-modal data-automation-id="insure-email-modal" type="form" style="font-weight: bold;" 
-			header="${ this.titleMessage }" header-align="left">
+			header="${this.titleMessage}" header-align="left">
 			<div slot="body" class="insure-email-modal-body">
 				${this._renderBody()}
 			</div>
@@ -173,7 +174,7 @@ class InsureEmailDialog extends Component {
 		</capitec-modal>`;
 	}
 
-	//#endregion RENDERING
+	// #endregion RENDERING
 }
 
 window.customElements.define(`insure-email-dialog`, InsureEmailDialog);

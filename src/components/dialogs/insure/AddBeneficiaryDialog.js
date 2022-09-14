@@ -16,7 +16,7 @@ import { v4 } from 'uuid';
  */
 class AddBeneficiaryDialog extends Component {
 
-	//#region INITIALIZE
+	// #region INITIALIZE
 
 	/**
 	 * Initialize
@@ -27,9 +27,9 @@ class AddBeneficiaryDialog extends Component {
 		this.newBeneficiary = {};
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region PROPERTIES
+	// #region PROPERTIES
 
 	/**
 	 * @property {Object} lifesAssured current list of lives assured
@@ -41,73 +41,62 @@ class AddBeneficiaryDialog extends Component {
 		return {
 			isLifeAssured: { type: Number, state: true },
 			lifesAssured: { type: Object, state: true },
-			beneficiaries: { type: Object, state: true },
+			beneficiaries: { type: Object, state: true }
 		};
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region EVENT HANDLERS
+	// #region EVENT HANDLERS
 
-	/**
-	 * Cancel event from dialog footer button, closes modal & reset toggles 
-	 */
+	
+	// Cancel event from dialog footer button, closes modal & reset toggles 
 	_onCancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
-	/**
-	 * Add Event, Calculate cover details parameter, emit new life object to consuming component & reset toggles 
-	 */
+	// Add Event, Calculate cover details parameter, emit new life object to consuming component & reset toggles 
 	_onAddClick() {
-		console.log('In dialog agree event')
-		let detail = {
+		console.log(`In dialog agree event`);
+		const detail = {
 			isLifeAssured: this.isLifeAssured,
 			beneficiary: this.newBeneficiary
-		}
-		console.log("detail");
+		};
+		console.log(`detail`);
 		console.log(detail);
 		this.dispatchEvent(new CustomEvent(`add-click`, { detail: detail }));
 	}
 
-	/**
-	 * event to add a beneficiary that is also a life assured
-	 * 
-	 * @param {*} lifeAssured 
-	 */
+	 // event to add a beneficiary that is also a life assured0
 	_addExistingBeneficiaryChange(lifeAssured) {
 
-		console.log("lifeAssured details")
-		console.log(lifeAssured)
+		console.log(`lifeAssured details`);
+		console.log(lifeAssured);
 		this.isLifeAssured = true;
 		lifeAssured.beneficiary = true;
 		this.newBeneficiary = lifeAssured;
 	}
 
-	/**
-	 * Event to add a new beneficiary that is not a life assured
-	 * 
-	 * @param {*} Relationship 
-	 */
+	// Event to add a new beneficiary that is not a life assured
 	_addNewBeneficiaryChange(relationship) {
 		this.isLifeAssured = false;
 		this.newBeneficiary = {
 			relationship: relationship,
 			beneficiary: true,
 			lifeAssured: false,
-			title: '',
-			firstName: '',
-			surname: '',
-			gender: 'Male',
+			title: ``,
+			firstName: ``,
+			surname: ``,
+			gender: `Male`,
 			benefitPayout: 0,
 			coverAmount: 0,
 			recordID: v4()
-		}
+		};
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region RENDERING
+	// #region RENDERING
 
 	/**
 	 * Generates the view stylesheet.
@@ -122,7 +111,7 @@ class AddBeneficiaryDialog extends Component {
 			css`
 			
 			.beneficiary-radio-row{
-				display: flex; 				 
+				display: flex; 
 				padding: 10px 0px 15px; 
 				gap: 10px;
 			}
@@ -155,11 +144,13 @@ class AddBeneficiaryDialog extends Component {
 
 
 			`
-		]
+		];
 	}
 
 	/**
 	 * Generates the component template for web mode
+	 * 
+	 * @returns {html} html content
 	 */
 	_webTemplate() {
 		return html`
@@ -171,7 +162,7 @@ class AddBeneficiaryDialog extends Component {
 				${this._renderDialogFooter()}
 			</div>
 		</capitec-modal>
-		`
+		`;
 	}
 
 	/**
@@ -200,17 +191,17 @@ class AddBeneficiaryDialog extends Component {
 				<div class="beneficiary-radio-row">
 					<div class="add-beneficiary">
 						<capitec-radio label="Child" hint="Up to 8 allowed for ages 25 and younger"
-							@value-changed="${() => this._addNewBeneficiaryChange(" Child")}">
+							@value-changed="${() => this._addNewBeneficiaryChange(`Child`)}">
 						</capitec-radio>
 					</div>
 					<div class="add-beneficiary">
 						<capitec-radio label="Extended Family" hint="Up to 8 allowed for ages 85 and younger"
-							@value-changed="${() => this._addNewBeneficiaryChange(" Extended Family")}">
+							@value-changed="${() => this._addNewBeneficiaryChange(`Extended Family`)}">
 						</capitec-radio>
 					</div>
 					<div class="add-beneficiary">
 						<capitec-radio label="Parent" hint="Up to 4 allowed for ages 85 and younger"
-							@value-changed="${() => this._addNewBeneficiaryChange(" Parent")}">
+							@value-changed="${() => this._addNewBeneficiaryChange(`Parent`)}">
 						</capitec-radio>
 					</div>
 				</div>
@@ -219,7 +210,7 @@ class AddBeneficiaryDialog extends Component {
 				<div class="new-beneficiary-radio-row" >
 					<div class="add-new-beneficiary">
 						<capitec-radio label="Not related" hint="A friend or acquaintance"
-							@value-changed="${() => this._addNewBeneficiaryChange(" BeneficiaryOnly")}">
+							@value-changed="${() => this._addNewBeneficiaryChange(`BeneficiaryOnly`)}">
 						</capitec-radio>
 					</div>
 				</div>
@@ -241,7 +232,7 @@ class AddBeneficiaryDialog extends Component {
 		</capitec-button>`;
 	}
 
-	//#endregion
+	// #endregion
 
 }
 

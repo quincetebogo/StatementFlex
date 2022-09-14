@@ -53,8 +53,7 @@ export class DebiCheckServiceError extends ViewBase {
 		this.horizonStore.setScreenDetails({});
 		this.horizonStore.clearReturnScreen();
 
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
 
 	// --------------
@@ -121,7 +120,7 @@ export class DebiCheckServiceError extends ViewBase {
 		return html`
 			<horizon-service-call-error-screen
 				bannerDetail="DebiCheck is currently unavailable" 
-				image="/images/service-error.svg"
+				image="/images/common/service-error.svg"
 				header="DebiCheck currently unavailable"
 				right="Find a Branch"
 				@right-click=${() => this._findBranchClick()}>

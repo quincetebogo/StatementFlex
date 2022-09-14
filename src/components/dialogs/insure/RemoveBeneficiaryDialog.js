@@ -15,7 +15,7 @@ import { Component, css, html } from 'platform/elements';
  */
 class RemoveBeneficiaryDialog extends Component {
 
-	//#region INITIALIZE
+	// #region INITIALIZE
 
 	/**
 	 * Initialize
@@ -25,9 +25,9 @@ class RemoveBeneficiaryDialog extends Component {
 
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region PROPERTIES
+	// #region PROPERTIES
 
 	/**
 	 * @property {String} beneficiaryName Name of beneficiary to remove
@@ -37,16 +37,17 @@ class RemoveBeneficiaryDialog extends Component {
 	 */
 	static get properties() {
 		return {
-			beneficiaryName: { String: '', state: true },
+			beneficiaryName: { String: ``, state: true }
 		};
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region EVENT HANDLERS
+	// #region EVENT HANDLERS
 
 	/**
 	 * Cancel event from dialog footer button, closes modal & reset toggles 
+	 * @returns {null} null
 	 */
 	_onCancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
@@ -54,17 +55,19 @@ class RemoveBeneficiaryDialog extends Component {
 
 	/**
 	 * Add Event, Calculate cover details parameter, emit new life object to consuming component & reset toggles 
+	 * @returns {null} null
 	 */
 	_onAgreeClick() {
 		this.dispatchEvent(new CustomEvent(`agree-click`, {}));
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region RENDERING
+	// #region RENDERING
 
 	/**
 	 * Generates the component template for web mode
+	 * @returns {null} null
 	 */
 	_webTemplate() {
 		return html`
@@ -78,7 +81,7 @@ class RemoveBeneficiaryDialog extends Component {
 				${this._renderDialogFooter()}
 			</div>
 		</capitec-modal>
-		`
+		`;
 	}
 
 	/**
@@ -110,7 +113,7 @@ class RemoveBeneficiaryDialog extends Component {
 			`;
 	}
 
-	//#endregion
+	// #endregion
 
 }
 

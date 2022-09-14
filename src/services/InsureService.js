@@ -1,5 +1,4 @@
 import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
-import { resolve } from 'path';
 import { Security } from 'platform/core';
 import { v4 } from 'uuid';
 
