@@ -172,6 +172,19 @@ export class RelatedOptions extends Component {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
+	/**
+	 * Function updates the need based on account selected in statements
+	 * so as to classify incident accordingly
+	 * 
+	 * @param {object} event - event raised by statements dialog
+	 * @returns {void}
+	 */
+	async _statementsAccConfirmed(event) {
+		const need = `statements-${event.detail.subCategory || event.detail.account}`;
+
+		await super._inicidentManager_(need, () => this._toggleBusyFlag());
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -237,7 +250,8 @@ export class RelatedOptions extends Component {
 										'category': productInfo.category,
 										'icon': productInfo.icon,
 										'customIcon': productInfo.customIcon,
-										'order': productInfo.order
+										'order': productInfo.order,
+										'choosePeriod': productInfo.choosePeriod
 									};
 								}).sort((x, y) => x.order - y.order);
 			this.renderMode = RENDER_MODE.STATEMENTS;
@@ -416,7 +430,8 @@ export class RelatedOptions extends Component {
 					.clientProducts="${this.clientProducts}"
 					registeredEmailId="${this.callerInformation.emailId}"
 					type=""
-					@cancel="${() => this._backToLandingPage()}">
+					@cancel="${() => this._backToLandingPage()}"
+					@account-selected="${(event) => this._statementsAccConfirmed(event)}">
 				</horizon-statements>`
 			: html``;
 	}
