@@ -1,7 +1,17 @@
+import { Logger, NavigationContext } from 'platform/core';
 import { css, html } from 'platform/elements';
-import { NavigationContext } from 'platform/core';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { WidgetRegistryService } from 'app/services/WidgetRegistryService';
+
+import 'app/components/common/ServiceCallErrorScreen';
+
+const RENDER_MODES = {
+	WIDGET: 0,
+	WIDGET_NOT_FOUND: 1,
+	UNKNOWN_WIDGET: 2
+};
+const WidgetLoaderTimeout = 8; // in secs
 
 /**
  * View to render Widgets designed for the Horizon Shell
@@ -19,9 +29,17 @@ export class HorizonWidgetHost extends ViewBase {
 
 	constructor() {
 		super();
+
+		// Private variables
+		this.renderMode = RENDER_MODES.WIDGET;
+		this._widgetID = ``;
+		this.timerInterval = null;
+		this.timePassed = 0;
 		
 		this.widgetRegistryService = new WidgetRegistryService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 
+		this.horizonRouter = HorizonRouter.getInstance();
+		this.logger = Logger.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 	}
 
@@ -46,9 +64,10 @@ export class HorizonWidgetHost extends ViewBase {
 
 	static get properties() {
 		return {
-			navigationContext: { attribute: false },
-			widgetRegistryService: { attribute: false },
-			widgetDetails: { attribute: false, type: Object }
+			navigationContext: { state: false, attribute: false },
+			widgetRegistryService: { state: false, attribute: false },
+			widgetDetails: { state: false, attribute: false, type: Object },
+			renderMode: { state: false }
 		};
 	}
 
@@ -137,11 +156,50 @@ export class HorizonWidgetHost extends ViewBase {
 	// ---------------
 
 	async _initialize() {
-		const widgetName = this.navigationContext.current.pathParams.name;
+		// const widgetName = this.navigationContext.current.pathParams.name;
 
-		const response = await this.widgetRegistryService.getWidgetById(widgetName);
+		this._widgetID = `517B7245-6669-43FE-A9B3-E88054AB8312`;
+		// 804FA25C-5508-4D08-94F7-F2598D891AD8 - Registered
+		// 517B7245-6669-43FE-A9B3-E88054AB8312 - Registered but not available
+		// BE11799D-20ED-4D15-9537-7055084FE0DF - Unknown
 
-		this.widgetDetails = response.result.widget;
+		const response = await this.widgetRegistryService.getWidgetById(this._widgetID, () => true);
+		const result = response.result;
+
+		// Service unavailable
+		if (!response.succeeded) {
+			this.logger.log(`error`, `Widget service is unavailable. Requested widgetID:${this._widgetID}`, `WidgeHost._initialize`, response.correlationId);
+			this.horizonRouter.navigateToWidgetUnavailable();
+			
+			return true;
+		}
+
+		// Widget not found
+		if (!result.widget) {
+			this.logger.log(`error`, `Requested widgetID:${this._widgetID} is not found`, `WidgeHost._initialize`, response.correlationId);
+			this.renderMode = RENDER_MODES.WIDGET_NOT_FOUND;
+
+			return true;
+		}
+
+		this.widgetDetails = result.widget;
+		// Widget details found, but if not available?
+		this._startTimer();
+	}
+
+	_startTimer() {
+		this.timerInterval = setInterval(() => {
+			this.timePassed += 1;
+			
+			if (WidgetLoaderTimeout === this.timePassed) {
+				this._widgetLoaderTimedOut();
+			}
+		}, 1000);
+	}
+
+	_widgetLoaderTimedOut() {
+		clearInterval(this.timerInterval);
+		this.renderMode = RENDER_MODES.UNKNOWN_WIDGET;
 	}
 
 	// ---------
@@ -154,6 +212,16 @@ export class HorizonWidgetHost extends ViewBase {
 			css`
 				.widget {
 					height: 100%;
+				}
+				.card{
+					width:100%;
+					height:100%;
+				}
+				horizon-service-call-error-screen {
+					--horizon-service-call-error-screen-height: 862px;
+					--horizon-service-call-error-screen-header-margin-top: 16px;
+					--horizon-service-call-error-screen-img-height: 182px;
+					--horizon-service-call-error-screen-img-width: 252px;
 				}
 			`
 		];
@@ -171,17 +239,57 @@ export class HorizonWidgetHost extends ViewBase {
 		return html`
 			${super._webTemplate()}
 			<!-- Display the widget at location "./widget.html". This will typically be a link to the widget, e.g. "https://my-widget.platform-dev.int.capinet/widget.html" -->
-			<capitec-widget id="widget1" src="${this.widgetDetails.alias}" class="widget" 
-				@initialize="${this._handleInitializeMessage}" 
-				@get-client-profile="${this._handleGetClientProfileInfoMessage}" 
-				@loading-complete="${this._handleLoadingCompleteMessage}"
-				@telemetry-new-trace-id="${this._handleTelemetryNewTraceIdMessage}"
-				@telemetry-start-span="${this._handleTelemetryStartSpanMessage}"
-				@telemetry-end-span="${this._handleTelemetryEndSpanMessage}"
-				@telemetry-log-event="${this._handleTelemetryLogEventMessage}"
-				@telemetry-close-child-spans="${this._handleTelemetryCloseChildSpansMessage}">
-			</capitec-widget>
+			<capitec-card class="card" halign="center" valign="center" gap="none">
+				${this._renderWidget()}
+				${this._renderWidgetNotFound()}
+				${this._renderUnknownWidget()}
+			</capitec-card>
 		`;
+	}
+
+	_renderWidget() {
+		return !this.widgetDetails || this.renderMode !== RENDER_MODES.WIDGET
+			? html``
+			: html`
+				<capitec-widget id="widget1" src="${this.widgetDetails.alias}" class="widget" 
+					@initialize="${this._handleInitializeMessage}" 
+					@get-client-profile="${this._handleGetClientProfileInfoMessage}" 
+					@loading-complete="${this._handleLoadingCompleteMessage}"
+					@telemetry-new-trace-id="${this._handleTelemetryNewTraceIdMessage}"
+					@telemetry-start-span="${this._handleTelemetryStartSpanMessage}"
+					@telemetry-end-span="${this._handleTelemetryEndSpanMessage}"
+					@telemetry-log-event="${this._handleTelemetryLogEventMessage}"
+					@telemetry-close-child-spans="${this._handleTelemetryCloseChildSpansMessage}">
+				</capitec-widget>`;
+	}
+
+	_renderWidgetNotFound() {
+		return this.renderMode === RENDER_MODES.WIDGET_NOT_FOUND
+		? html`
+			<horizon-service-call-error-screen
+				data-automation-id="widget-not-found-section"
+				image="/images/insure/assign-pay-arrears.svg"
+				header="Unable to fetch requested widget">
+				<section id="id-error-msg" slot="detail">
+					<p>widget: ${this._widgetID}<br>
+					Please contact Horizon support for assistance.</p>
+				</section>
+			</horizon-service-call-error-screen>`
+		: html``;
+	}
+
+	_renderUnknownWidget() {
+		return this.renderMode === RENDER_MODES.UNKNOWN_WIDGET
+		? html`
+			<horizon-service-call-error-screen
+				data-automation-id="unknown-widget-section"
+				image="/images/insure/assign-pay-arrears.svg"
+				header="Unable to load ${this.widgetDetails?.widgetName} widget">
+				<section id="id-error-msg" slot="detail">
+					<p>Please contact Horizon support for assistance.<br></p>
+				</section>
+			</horizon-service-call-error-screen>`
+		: html``;
 	}
 }
 
