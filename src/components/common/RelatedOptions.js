@@ -427,6 +427,8 @@ export class RelatedOptions extends Component {
 			? html`
 				<horizon-statements
 					.cifNumber="${this.callerInformation.cifNumber}"
+					client-title="${this.callerInformation.title}"
+					.lastName="${this.callerInformation.lastName}"
 					.clientProducts="${this.clientProducts}"
 					registeredEmailId="${this.callerInformation.emailId}"
 					type=""
