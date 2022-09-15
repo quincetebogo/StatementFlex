@@ -286,11 +286,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         return `${getMonthName(newdate.getMonth() - 1)}`;
     }
 
-    _accountDetails(savingsLandingDetails){
+    async _accountDetails(savingsLandingDetails){
         this._telemetry.logEvent(SavingsAccLandingPage.SAVINGS_ACC_INFO, {
             screen: TelemetryScreen.SAVINGS_ACCOUNT,
             nextScreen: TelemetryScreen.SAVINGS_ACCOUNT_INFO
         });
+		await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
+		await super.createAndClassifySubsIncident();
         this.savingsDetails ={
             "accountNumber" : savingsLandingDetails.accountNumber,
             "Current balance": savingsLandingDetails.accountBalance === 0 ? '-' : formatCurrency(savingsLandingDetails.accountBalance),
@@ -307,16 +309,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
             "Account status": savingsLandingDetails.accountStatus === 'Open' ? 'Active' : 'Closed'
         }
         this.renderMode = RENDER_MODE.SAVINGS_ACCOUNT_DETAILS;
-        //await super.createAndClassifySubsIncident();
     }
     _cancelAccountView() {
         this._telemetry.logEvent(SavingsAccLandingPage.SAVINGS_ACC_DETAILS_VIEW_CLOSE, {
             screen: TelemetryScreen.SAVINGS_ACCOUNT_INFO,
             nextScreen: TelemetryScreen.SAVINGS_ACCOUNT
         });
-
-        this.renderMode = RENDER_MODE.MAIN_PAGE;
-
+		this._setIncidentDone();
     }
     // ---------
     // RENDERING
