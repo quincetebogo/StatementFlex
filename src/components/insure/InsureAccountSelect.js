@@ -308,64 +308,73 @@ _webTemplate() {
 _renderHeader() {
 	return html`
 
-		${this.selectedIndex === null ? html`
-			<div class="default">
-				<capitec-content-box @click="${this._showAccountOptions}" layout="horizontal" valign="center" noScroll>
-					<div>
-						<capitec-label type="strong" label="${this.label}" ></capitec-label>
-					</div>
-					<div>
-						<capitec-icon size="8px" icon="${this.displayOptions === false ? `system/chevron-down-action` : `system/chevron-up-action`}" ></capitec-icon>
-					</div>
-				</capitec-content-box>
-			</div>
-		` : html``}
+		${this.selectedIndex === null 
+			? html`
+				<div class="default">
+					<capitec-content-box @click="${this._showAccountOptions}" layout="horizontal" valign="center" noScroll>
+						<div>
+							<capitec-label type="strong" label="${this.label}" ></capitec-label>
+						</div>
+						<div>
+							<capitec-icon size="8px" icon="${this.displayOptions === false ? `system/chevron-down-action` : `system/chevron-up-action`}" ></capitec-icon>
+						</div>
+					</capitec-content-box>
+				</div>`
+			: html``
+		}
 
-		${this.accountType === `Savings Plan` ? html`
-			<div class="${this._setstyle()}">
-				<capitec-content-box @click="${this._showAccountOptions}" layout="horizontal" valign="center" noScroll>
-					<div> 
-						<capitec-icon size="default" icon="product/save"></capitec-icon>
-					</div>
+		${this.accountType === `Savings Plan` 
+			? html`
+				<div class="${this._setstyle()}">
+					<capitec-content-box @click="${this._showAccountOptions}" layout="horizontal" valign="center" noScroll>
+						<div> 
+							<capitec-icon size="default" icon="product/save"></capitec-icon>
+						</div>
 
-					<div style="display: flex; flex-direction: column;">
-						<capitec-label class="account-label" type="subtitle" label="${this.selectorAccounts.savingsPlan[this.selectedIndex].planName}" style="font-weight: bold;" ></capitec-label>
-						<capitec-label class="account-label" type="subtitle" label="Available balance" ></capitec-label>
-					</div>
+						<div style="display: flex; flex-direction: column;">
+							<capitec-label class="account-label" type="subtitle" label="${this.selectorAccounts.savingsPlan[this.selectedIndex].planName}" style="font-weight: bold;" ></capitec-label>
+							<capitec-label class="account-label" type="subtitle" label="Available balance" ></capitec-label>
+						</div>
 
-					<div> 
-						<capitec-label type="subtitle" label="${formatCurrency(this.selectorAccounts.savingsPlan[this.selectedIndex].availableBalance)}" style="left: 62px; position: relative; font-weight: bold;"></capitec-label>
-					</div>
+						<div> 
+							<capitec-label type="subtitle" label="${formatCurrency(this.selectorAccounts.savingsPlan[this.selectedIndex].availableBalance)}" style="left: 62px; position: relative; font-weight: bold;"></capitec-label>
+						</div>
 
-					<div>
-						<capitec-icon size="8px" icon="${this.displayOptions === false ? `system/chevron-down-action` : `system/chevron-up-action`}" ></capitec-icon>
-					</div>
-				</capitec-content-box>
-			</div>
-		` : html`
-			<div class="${this._setstyle()}">
-				<capitec-content-box @click="${this._showAccountOptions}" layout="horizontal" valign="center" noScroll>
-					<div> 
-						<capitec-icon size="default" icon="product/transact"></capitec-icon>
-					</div>
+						<div>
+							<capitec-icon size="8px" icon="${this.displayOptions === false ? `system/chevron-down-action` : `system/chevron-up-action`}" ></capitec-icon>
+						</div>
+					</capitec-content-box>
+				</div>`
+			: html``
+		}
 
-					<div style="display: flex; flex-direction: column;">
-						<capitec-label class="account-label" type="subtitle" label="Savings Account" style="font-weight: bold;" ></capitec-label>
-						<capitec-label class="account-label" type="subtitle" label="Available balance" ></capitec-label>
-					</div>
+		${this.accountType !== `Savings Plan` && this.selectedIndex !== null 
+			? html`
+				<div class="${this._setstyle()}">
+					<capitec-content-box @click="${this._showAccountOptions}" layout="horizontal" valign="center" noScroll>
+						<div> 
+							<capitec-icon size="default" icon="product/transact"></capitec-icon>
+						</div>
 
-					<div> 
-						<capitec-label type="subtitle" label="${formatCurrency(this.selectorAccounts.savingsAccount[this.selectedIndex].availableBalance)}" style="left: 62px; position: relative; font-weight: bold;"></capitec-label>
-					</div>
+						<div style="display: flex; flex-direction: column;">
+							<capitec-label class="account-label" type="subtitle" label="Savings Account" style="font-weight: bold;" ></capitec-label>
+							<capitec-label class="account-label" type="subtitle" label="Available balance" ></capitec-label>
+						</div>
 
-					<div>
-						<capitec-icon size="8px" icon="${this.displayOptions === false ? `system/chevron-down-action` : `system/chevron-up-action`}" ></capitec-icon>
-					</div>
-				</capitec-content-box>
-			</div>
-		`}
+						<div> 
+							<capitec-label type="subtitle" label="${formatCurrency(this.selectorAccounts.savingsAccount[this.selectedIndex].availableBalance)}" style="left: 62px; position: relative; font-weight: bold;"></capitec-label>
+						</div>
+
+						<div>
+							<capitec-icon size="8px" icon="${this.displayOptions === false ? `system/chevron-down-action` : `system/chevron-up-action`}" ></capitec-icon>
+						</div>
+					</capitec-content-box>
+				</div>`
+			: html``
+		}
 	`;
 }
+
 
 /**
  * Render the Select box options

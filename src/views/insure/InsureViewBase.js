@@ -1,5 +1,6 @@
-import { ViewBase } from 'app/views/common/ViewBase';
 import { InsureService } from 'app/services/InsureService';
+import { ViewBase } from 'app/views/common/ViewBase';
+
 
 /**
  * A Base class for view components to collect common functionality used within Insure product
@@ -14,16 +15,16 @@ import { InsureService } from 'app/services/InsureService';
  */
 export class InsureViewBase extends ViewBase {
 
-	//#region  INITIALISATION
+	// #region  INITIALISATION
 
 	constructor() {
 		super();
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 	}
 
-	//#endregions
+	// #endregions
 
-	//#region  INITIALISATION
+	// #region  INITIALISATION
 
 	/**
 	 * @property {Object} productParams Data & flags for insure product parameters
@@ -34,13 +35,13 @@ export class InsureViewBase extends ViewBase {
 	 */
 	static get properties() {
 		return {
-			productParams: { type: Object, state: true },
+			productParams: { type: Object, state: true }
 		};
 	}
 
-	//endregion
+	// endregion
 
-	//#region  LIFECYCLE OVERRIDES
+	// #region  LIFECYCLE OVERRIDES
 
 	/**
 	 * Setup the component once added to the DOM.
@@ -61,7 +62,7 @@ export class InsureViewBase extends ViewBase {
 		super.disconnectedCallback();
 	}
 
-	//#region PRIVATE METHODS
+	// #region PRIVATE METHODS
 
 	/**
 	 * API: Retrieve Insure Product Params from Channel Service
@@ -70,8 +71,9 @@ export class InsureViewBase extends ViewBase {
 	async _retrieveInsureProductParams() {
 		const resp = await this.insureService.productParams();
 
-		if(!resp.succeeded)
+		if (!resp.succeeded) {
 			return;
+		}
 			
 		return resp.result;
 	}
@@ -79,18 +81,18 @@ export class InsureViewBase extends ViewBase {
 	/**
 	 * Error callback for channel services
 	 * @param {Object} ex Error from Channel Service 
-	 * @returns 
+	 * @returns {Boolean} boolean
 	 */
 	_handleChannelServiceError(ex) {
 		this.errorMessage = `System error. Please try again.`;
 		this.errorCount++;
 
-		//if (this.errorCount > 2) {
+		// if (this.errorCount > 2) {
 			// Generic error
 			this.horizonRouter.navigateToSystemError();
-		//}
+		// }
 		return true;
 	}
 
-	//#endregion
+	// #endregion
 }

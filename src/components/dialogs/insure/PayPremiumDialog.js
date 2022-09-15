@@ -381,7 +381,7 @@ class PayPremiumDialog extends Component {
 			
 			<insure-account-select label="Select an Account"
 				@option-selected="${(e) => this._optionSelected(e)}" data-automation-id="insure-pay-premium-dialog-accounts"
-				.accountDetails = ${this.accountDetails} .insufficient = "${this.insufficient}">
+				.accountDetails = "${this.accountDetails}" .insufficient = "${this.insufficient}">
 			</insure-account-select>
 
 			
@@ -395,18 +395,18 @@ class PayPremiumDialog extends Component {
 
 					${index === 1 ? html`
 					<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, `MM yyyy`)} | ${formatCurrency(outstanding.amount)}"
-							@value-change=" ${(e) => this._checkedChange(outstanding, index, e)}" data-automation-id="insure-pay-premium-dialog-arrears" >
+							@value-change="${(e) => this._checkedChange(outstanding, index, e)}" data-automation-id="insure-pay-premium-dialog-arrears" >
 						</capitec-check>
 					` : html``}
 					${index === 2 ? html`
 					<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, `MM yyyy`)} | ${formatCurrency(outstanding.amount)}"
-							@value-change=" ${(e) => this._checkedChange(outstanding, index, e)}" data-automation-id="insure-pay-premium-dialog-arrears"
+							@value-change="${(e) => this._checkedChange(outstanding, index, e)}" data-automation-id="insure-pay-premium-dialog-arrears"
 							.disabled="${outstanding.shouldBeDisabled === true}" .checked="${outstanding.shouldBeChecked === true}" >
 						</capitec-check>
 					` : html``}
 					${index !== 1 && index !== 2 ? html`
 					<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, `MM yyyy`)} | ${formatCurrency(outstanding.amount)}"
-							@value-change=" ${(e) => this._checkedChange(outstanding, index, e)}" data-automation-id="insure-pay-premium-dialog-arrears"
+							@value-change="${(e) => this._checkedChange(outstanding, index, e)}" data-automation-id="insure-pay-premium-dialog-arrears"
 							.disabled="${outstanding.shouldBeDisabled === true}" .checked="${outstanding.shouldBeChecked === true}">
 						</capitec-check>
 					` : html``}

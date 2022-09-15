@@ -1,10 +1,9 @@
 import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, GENDER_OPTIONS, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
+import { checkPolicyRules, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
-
 
 // Dialogs
 import 'app/components/dialogs/insure/AddLifeDialog';
@@ -552,12 +551,11 @@ class UpdatePlan extends Component {
 	/**
 	 * change format of the collection day value returned to match the format of the collection day list
 	 * 
-	 *  @returns {null} null
+	 *  @returns {*} day text
 	 */
 	_getCollectionDay() {
 
 		const day = this.debitOrderDayOptions.find(days => days.code === this.collectionDay);
-		// console.log(day)
 
 		return day.text;
 
