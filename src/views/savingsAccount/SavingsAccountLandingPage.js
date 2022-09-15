@@ -286,30 +286,34 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         return `${getMonthName(newdate.getMonth() - 1)}`;
     }
 
-    async _accountDetails(savingsLandingDetails){
+    async _accountDetails(savingsLandingDetails) {
         this._telemetry.logEvent(SavingsAccLandingPage.SAVINGS_ACC_INFO, {
             screen: TelemetryScreen.SAVINGS_ACCOUNT,
             nextScreen: TelemetryScreen.SAVINGS_ACCOUNT_INFO
         });
+
 		await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
 		await super.createAndClassifySubsIncident();
-        this.savingsDetails ={
-            "accountNumber" : savingsLandingDetails.accountNumber,
-            "Current balance": savingsLandingDetails.accountBalance === 0 ? '-' : formatCurrency(savingsLandingDetails.accountBalance),
-            "Available balance": savingsLandingDetails.accountAvailableBalance === 0 ? '-' : formatCurrency(savingsLandingDetails.accountAvailableBalance),
+
+        this.savingsDetails = {
+            "accountNumber": savingsLandingDetails.accountNumber,
+            "Current balance": savingsLandingDetails.accountBalance === 0 ? `-` : formatCurrency(savingsLandingDetails.accountBalance),
+            "Available balance": savingsLandingDetails.accountAvailableBalance === 0 ? `-` : formatCurrency(savingsLandingDetails.accountAvailableBalance),
             "Interest rate": `${savingsLandingDetails.interestRatePercentage}%`,
-            [`Accured interest ${this._getCurrentMonth()}`] : savingsLandingDetails.accruedInterestCurrentMonth,
-            [`Accured interest ${this._getPreviousMonth()}`] : savingsLandingDetails.accruedInterestLastMonth,
-            "Interest earned tax year" : savingsLandingDetails.interestEarned,
+            [`Accured interest ${this._getCurrentMonth()}`]: savingsLandingDetails.accruedInterestCurrentMonth,
+            [`Accured interest ${this._getPreviousMonth()}`]: savingsLandingDetails.accruedInterestLastMonth,
+            "Interest earned tax year": savingsLandingDetails.interestEarned,
             "Posting restrictions": savingsLandingDetails.postingRestrictions === `N` ? `No` : `Yes`,
-            "Pending amount": savingsLandingDetails.accountPendingAmount === 0 ? '-':formatCurrency(savingsLandingDetails.accountPendingAmount),
-            "Amount on hold": savingsLandingDetails.holds === 0 ? '-' : formatCurrency(savingsLandingDetails.holds),
-            "Date opened" : savingsLandingDetails.accountOpenDate ? this._formatDate(savingsLandingDetails.accountOpenDate) : '-',
-            "Last updated" : savingsLandingDetails.lastUpdate ? this._formatDate(savingsLandingDetails.lastUpdate) : '-',
-            "Account status": savingsLandingDetails.accountStatus === 'Open' ? 'Active' : 'Closed'
-        }
+            "Pending amount": savingsLandingDetails.accountPendingAmount === 0 ? `-` : formatCurrency(savingsLandingDetails.accountPendingAmount),
+            "Amount on hold": savingsLandingDetails.holds === 0 ? `-` : formatCurrency(savingsLandingDetails.holds),
+            "Date opened": savingsLandingDetails.accountOpenDate ? this._formatDate(savingsLandingDetails.accountOpenDate) : `-`,
+            "Last updated": savingsLandingDetails.lastUpdate ? this._formatDate(savingsLandingDetails.lastUpdate) : `-`,
+            "Account status": savingsLandingDetails.accountStatus === `Open` ? `Active` : `Closed`
+        };
+
         this.renderMode = RENDER_MODE.SAVINGS_ACCOUNT_DETAILS;
     }
+
     _cancelAccountView() {
         this._telemetry.logEvent(SavingsAccLandingPage.SAVINGS_ACC_DETAILS_VIEW_CLOSE, {
             screen: TelemetryScreen.SAVINGS_ACCOUNT_INFO,
@@ -317,6 +321,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         });
 		this._setIncidentDone();
     }
+
     // ---------
     // RENDERING
     // ---------
@@ -547,14 +552,14 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
     }
 
-    _renderSavingsAccountDetails(){
+    _renderSavingsAccountDetails() {
         return this.renderMode === RENDER_MODE.SAVINGS_ACCOUNT_DETAILS
             ? html`
 			<horizon-savings-account-details
 				.savingsAccountDetails = "${this.savingsDetails}"
 				@back="${() => this._cancelAccountView()}">
 			</horizon-savings-account-details>`
-            :html``;
+            : html``;
     }
 
 }
