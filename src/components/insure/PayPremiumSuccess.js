@@ -87,14 +87,6 @@ _backToSummaryPage() {
 }
 
 /**
- * navigate to the Email Success page
- * @returns {null} null
- */
-_goToEmailSuccess() {
-	this.dispatchEvent(new CustomEvent(`navigate-to-email-success-page`, { detail: {} }));
-}
-
-/**
  * Invoke this function when Send button is clicked on Email Popup
  * @param {*} emailAddress email address
  * @returns {null} null

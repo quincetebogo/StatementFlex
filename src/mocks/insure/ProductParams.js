@@ -312,7 +312,7 @@ export const ProductParams = {
 					{
 						"ruleType": `PolicyPause`,
 						"editAccountDetails": true,
-						"addNewLives": true,
+						"addNewLives": false,
 						"peopleRulesList": [
 							{
 								"editTitle": true,
@@ -522,7 +522,7 @@ export const ProductParams = {
 						"ruleEnum": `Standard`
 					}
 				],
-				"id": `NBS`
+				"id": `SBL`
 			},
 			"type": `Capitec`
 		}

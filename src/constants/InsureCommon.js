@@ -66,8 +66,7 @@ export const BANK_OPTIONS = Object.freeze([
  */
 export const ACCOUNT_TYPES = Object.freeze([
 	{ code: `Savings`, text: `Savings` },
-	{ code: `Cheque`, text: `Cheque` },
-	{ code: `Current`, text: `Current` }
+	{ code: `Cheque`, text: `Cheque` }
 ]);
 
 /**
@@ -79,7 +78,12 @@ export const ACCOUNT_TYPES = Object.freeze([
 export const TITLE_OPTIONS = Object.freeze([
 	{ code: `Mr`, text: `Mr` },
 	{ code: `Mrs`, text: `Mrs` },
-	{ code: `Ms`, text: `Ms` }
+	{ code: `Ms`, text: `Ms` },
+	{ code: `Miss`, text: `Miss` },
+	{ code: `Dr`, text: `Dr` },
+	{ code: `Sir`, text: `Sir` },
+	{ code: `Lady`, text: `Lady` },
+	{ code: `Prof`, text: `Prof` }
 ]);
 
 /**
@@ -100,37 +104,37 @@ export const GENDER_OPTIONS = Object.freeze([
  * @enum {Object} DEBIT_ORDER_DAY_OPTIONS
  */
 export const DEBIT_ORDER_DAY_OPTIONS = Object.freeze([
-	{ code: `1`, text: `1st of every Month` },
-	{ code: `2`, text: `2nd of every Month` },
-	{ code: `3`, text: `3rd of every Month` },
-	{ code: `4`, text: `4th of every Month` },
-	{ code: `5`, text: `5th of every Month` },
-	{ code: `6`, text: `6th of every Month` },
-	{ code: `7`, text: `7th of every Month` },
-	{ code: `8`, text: `8th of every Month` },
-	{ code: `9`, text: `9th of every Month` },
-	{ code: `10`, text: `10th of every Month` },
-	{ code: `11`, text: `11th of every Month` },
-	{ code: `12`, text: `12th of every Month` },
-	{ code: `13`, text: `13th of every Month` },
-	{ code: `14`, text: `14th of every Month` },
-	{ code: `15`, text: `15th of every Month` },
-	{ code: `16`, text: `16th of every Month` },
-	{ code: `17`, text: `17th of every Month` },
-	{ code: `18`, text: `18th of every Month` },
-	{ code: `19`, text: `19th of every Month` },
-	{ code: `20`, text: `20th of every Month` },
-	{ code: `21`, text: `21st of every Month` },
-	{ code: `22`, text: `22nd of every Month` },
-	{ code: `23`, text: `23rd of every Month` },
-	{ code: `24`, text: `24th of every Month` },
-	{ code: `25`, text: `25th of every Month` },
-	{ code: `26`, text: `26th of every Month` },
-	{ code: `27`, text: `27th of every Month` },
-	{ code: `28`, text: `28th of every Month` },
-	{ code: `29`, text: `29th of every Month` },
-	{ code: `30`, text: `30th of every Month` },
-	{ code: `31`, text: `31st of every Month` }
+	{ code: 1, text: `1st of every Month` },
+	{ code: 2, text: `2nd of every Month` },
+	{ code: 3, text: `3rd of every Month` },
+	{ code: 4, text: `4th of every Month` },
+	{ code: 5, text: `5th of every Month` },
+	{ code: 6, text: `6th of every Month` },
+	{ code: 7, text: `7th of every Month` },
+	{ code: 8, text: `8th of every Month` },
+	{ code: 9, text: `9th of every Month` },
+	{ code: 10, text: `10th of every Month` },
+	{ code: 11, text: `11th of every Month` },
+	{ code: 12, text: `12th of every Month` },
+	{ code: 13, text: `13th of every Month` },
+	{ code: 14, text: `14th of every Month` },
+	{ code: 15, text: `15th of every Month` },
+	{ code: 16, text: `16th of every Month` },
+	{ code: 17, text: `17th of every Month` },
+	{ code: 18, text: `18th of every Month` },
+	{ code: 19, text: `19th of every Month` },
+	{ code: 20, text: `20th of every Month` },
+	{ code: 21, text: `21st of every Month` },
+	{ code: 22, text: `22nd of every Month` },
+	{ code: 23, text: `23rd of every Month` },
+	{ code: 24, text: `24th of every Month` },
+	{ code: 25, text: `25th of every Month` },
+	{ code: 26, text: `26th of every Month` },
+	{ code: 27, text: `27th of every Month` },
+	{ code: 28, text: `28th of every Month` },
+	{ code: 29, text: `29th of every Month` },
+	{ code: 30, text: `30th of every Month` },
+	{ code: 31, text: `31st of every Month` }
 ]);
 
 /**

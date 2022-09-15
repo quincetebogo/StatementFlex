@@ -325,10 +325,23 @@ class ClientPolicies extends Component {
 		this.showLodgeClaimInfoDialog = false;
 	}
 
+	/**
+	 * get the Cancel Policy Agreement Document
+	 * 
+	 * @param {*} contractReference contractReference
+	 * @param {*} cancelReason cancelReason
+	 * @returns {null} null
+	 */
 	async _getCancelPolicyDocument(contractReference, cancelReason) {
+		
 		await this.getCancelPolicyDocument(contractReference, cancelReason, false);
 	}
 
+	/**
+	 * get the Arrears Payment Agreement Document
+	 * @param {*} contractReference contractReference
+	 * @returns {null} null
+	 */
 	async _getArrearsPaymentDocument(contractReference) {
 		await this.getArrearsPaymentDocument(contractReference, this.payArrears, this.fromAccount, false);
 	}
@@ -1012,8 +1025,8 @@ _renderCancelPolicyConfirmationDialog() {
 		return this.showPayPremiumConfirmationDialog === false ? `` 
 		: html`
 			<insure-pay-premium-confirmation-dialog @close-modal="${(e) => this._closePayPremiumConfirmationDialog()}" 
-			@confirm-payment="${(e) => this._openPayPremiumAgreementDialog()}"
-			.amountToPay = ${this.amountToPay} .contractReference = ${this.clientArrears.contractReference}>
+				@confirm-payment="${(e) => this._openPayPremiumAgreementDialog()}"
+				.amountToPay = ${this.amountToPay} .contractReference = ${this.clientArrears.contractReference}>
 			</insure-pay-premium-confirmation-dialog>`;
 
 	}

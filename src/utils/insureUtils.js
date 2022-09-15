@@ -254,6 +254,11 @@ export function livesPerPolicy(relationship, productParams) {
  */
 export function getAgeFromIDNumber(southAfricanIDNumber) {
 	const birthdate = new Date(southAfricanIDNumber.substring(0, 2), southAfricanIDNumber.substring(2, 4) - 1, southAfricanIDNumber.substring(4, 6));
+	
+	if (birthdate.getFullYear() <= new Date().getFullYear() - 100) {
+		birthdate.setFullYear(birthdate.getFullYear() + 100);
+	}
+	
 	const ageDifMs = Date.now() - birthdate.getTime();
 	const ageDate = new Date(ageDifMs);
 	return Math.abs(ageDate.getUTCFullYear() - 1970);
@@ -267,4 +272,59 @@ export function getAgeFromIDNumber(southAfricanIDNumber) {
 export function getGenderFromIDNumber(southAfricanIDNumber) {
 	const genderSubStr = parseInt(southAfricanIDNumber.substring(6, 10), 16);
 	return genderSubStr >= 5000 ? `Male` : `Female`;
+}
+
+/**
+ * Check the Policy rules for the Life based on the ruleType
+ * 
+ * @param {String} ruleType ruleType
+ * @param {String} productParams productParams
+ * @param {String} field field
+ * @param {String} relationship relationship
+ * @returns {String} string
+ */
+export function checkPolicyRules(ruleType, productParams, field, relationship) {
+	
+	if (relationship === `Unknown` || relationship === `MainLife` || relationship === `Spouse` || relationship === `Parent` || relationship === `Child`) {
+		
+		const product = productParams.products.find(products => products.parameters.id === PRODUCT_ID);
+		
+		const currentRuleType = product.parameters.rulesParams.find(rule => rule.ruleType === ruleType);
+
+		const relationshipRule = currentRuleType.peopleRulesList.find(role => role.type === relationship);
+
+		return relationshipRule[field];
+
+	}
+
+		const product = productParams.products.find(products => products.parameters.id === PRODUCT_ID);
+		
+		const currentRuleType = product.parameters.rulesParams.find(rule => rule.ruleType === ruleType);
+
+		const relationshipRule = currentRuleType.peopleRulesList.find(role => role.type === `ExtendedFamily`);
+
+		return relationshipRule[field];
+	}
+
+/**
+ * returns date in format dd/mm/yyyy
+ * 
+ * @param {*} value value
+ * @returns {*} farmatted date
+ */
+export function dateFormat(value) {
+	
+	const dateTime = new Date(value);
+	const date = dateTime.getDate();
+	const month = dateTime.getMonth();
+	const year = dateTime.getFullYear();
+	let formattedDate = ``;
+
+	if (year === 0 || isNaN(year)) {
+		return formattedDate;
+	}
+	
+	formattedDate = formattedDate = `${`0${date}`.slice(-2)}/${`0${month + 1}`.slice(-2)}/${year}`;
+
+	return formattedDate;
 }

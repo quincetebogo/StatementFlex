@@ -250,7 +250,7 @@ class AddLifeDialog extends Component {
 			</capitec-card>
 		
 			<capitec-card class="relationship-card">
-				<capitec-radio label="Child Extended" id="Child Extended"
+				<capitec-radio label="Child Extended" id="ExtendedChild"
 					data-automation-id="insure-add-life-dialog-relationship" .disabled="${this.ruleTotalExtendedFamily >= 8}"
 					hint="Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger." 
 					@value-changed="${(e) => this._relationshipSelect(e)}">
@@ -258,7 +258,7 @@ class AddLifeDialog extends Component {
 			</capitec-card>
 		
 			<capitec-card class="relationship-card">
-				<capitec-radio label="First Cousin" id="First Cousin" data-automation-id="insure-add-life-dialog-relationship"
+				<capitec-radio label="First Cousin" id="Firstcousin" data-automation-id="insure-add-life-dialog-relationship"
 					.disabled="${this.ruleTotalExtendedFamily >= 8}" 
 					hint="Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger." 
 					@value-changed="${(e) => this._relationshipSelect(e)}">
@@ -266,7 +266,7 @@ class AddLifeDialog extends Component {
 			</capitec-card>
 		
 			<capitec-card class="relationship-card">
-				<capitec-radio label="First Cousin's Child" id="First Cousin's Child"
+				<capitec-radio label="First Cousin's Child" id="Cousinschild"
 					data-automation-id="insure-add-life-dialog-relationship" .disabled="${this.ruleTotalExtendedFamily >= 8}"
 					hint="Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger." 
 					@value-changed="${(e) => this._relationshipSelect(e)}">
@@ -290,7 +290,7 @@ class AddLifeDialog extends Component {
 			</capitec-card>
 		
 			<capitec-card class="relationship-card">
-				<capitec-radio label="Nephew/Niece" id="Nephew/Niece" data-automation-id="insure-add-life-dialog-relationship"
+				<capitec-radio label="Nephew/Niece" id="NephewNiece" data-automation-id="insure-add-life-dialog-relationship"
 					.disabled="${this.ruleTotalExtendedFamily >= 8}" 
 					hint="Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
 					@value-changed="${(e) => this._relationshipSelect(e)}">
@@ -298,7 +298,7 @@ class AddLifeDialog extends Component {
 			</capitec-card>
 		
 			<capitec-card class="relationship-card">
-				<capitec-radio label="Parent Extended" id="Parent Extended"
+				<capitec-radio label="Parent Extended" id="ExtendedParent"
 					data-automation-id="insure-add-life-dialog-relationship" .disabled="${this.ruleTotalExtendedFamily >= 8}"
 					hint="Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
 					@value-changed="${(e) => this._relationshipSelect(e)}">
@@ -306,7 +306,7 @@ class AddLifeDialog extends Component {
 			</capitec-card>
 		
 			<capitec-card class="relationship-card">
-				<capitec-radio label="Parent in Law" id="Parent in Law" data-automation-id="insure-add-life-dialog-relationship"
+				<capitec-radio label="Parent in Law" id="ParentInLaw" data-automation-id="insure-add-life-dialog-relationship"
 					.disabled="${this.ruleTotalExtendedFamily >= 8}" 
 					hint="Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
 					@value-changed="${(e) => this._relationshipSelect(e)}">
@@ -322,7 +322,7 @@ class AddLifeDialog extends Component {
 			</capitec-card>
 		
 			<capitec-card class="relationship-card">
-				<capitec-radio label="Spouse Extended" id="Spouse Extended"
+				<capitec-radio label="Spouse Extended" id="ExtendedSpouse"
 					data-automation-id="insure-add-life-dialog-relationship" 
 					.disabled="${this.ruleTotalExtendedFamily >= 8}"
 					hint="Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
@@ -331,7 +331,7 @@ class AddLifeDialog extends Component {
 			</capitec-card>
 		
 			<capitec-card class="relationship-card">
-				<capitec-radio label="Great Grandparent" id="Great Grandparent"
+				<capitec-radio label="Great Grandparent" id="Greatgrandparent"
 					data-automation-id="insure-add-life-dialog-relationship" 
 					.disabled="${this.ruleTotalExtendedFamily >= 8}"
 					hint="Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
@@ -340,7 +340,7 @@ class AddLifeDialog extends Component {
 			</capitec-card>
 		
 			<capitec-card class="relationship-card">
-				<capitec-radio label="Great Grandchild" id="Great Grandchild"
+				<capitec-radio label="Great Grandchild" id="Greatgrandchild"
 					data-automation-id="insure-add-life-dialog-relationship" 
 					.disabled="${this.ruleTotalExtendedFamily >= 8}"
 					hint="Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
@@ -378,11 +378,11 @@ class AddLifeDialog extends Component {
 				@click="${() => this._onCancelClick()}">
 			</capitec-button>
 		`;
-		} else {
-			return html`
-			<capitec-button label="Back" data-automation-id="insure-add-life-dialog-back" @click="${() => this._onBackClick()}">
-			</capitec-button>`;
 		}
+		return html`
+		<capitec-button label="Back" data-automation-id="insure-add-life-dialog-back" @click="${() => this._onBackClick()}">
+		</capitec-button>`;
+		
 
 	}
 
