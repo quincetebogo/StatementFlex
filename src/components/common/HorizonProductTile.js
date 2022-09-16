@@ -512,7 +512,7 @@ export class HorizonProductTile extends Component {
 				<div class="product ${this.type ? this.type : `transact`}">
 					<img alt="liveBetter" src="images/common/mask.png" style="object-fit: fill">
 				</div>
-			`
+			`;
 		}
 
 		return html`

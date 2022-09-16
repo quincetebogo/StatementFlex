@@ -170,8 +170,7 @@ export class CnetProductInfo extends Component {
 				<capitec-icon
 					size="medium"
 					icon="product/${PAGE_INFO[this.viewType].icon}">
-				</capitec-icon>`
-			;
+				</capitec-icon>`;
 
 	}
 }

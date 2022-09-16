@@ -1,5 +1,5 @@
 import { ACCOUNT_STATUS, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
-import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
+import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/common';
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { CreditEvents, SETTLEMENT_QUOTE_EVENTS, SETTLE_AND_CLOSE, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/Credit';
 import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
@@ -10,6 +10,7 @@ import { CreditService } from 'app/services/CreditService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { RoleManager } from 'app/shell/RoleManager';
+import { SavingsService } from 'app/services/SavingsService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { alertBannerMixin } from 'app/views/common/AlertBannerMixin';
@@ -101,6 +102,7 @@ export class CreditAccount extends ViewBase {
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
+		this.savingsService = new SavingsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._preformAction(e));
 
 		Object.assign(CreditAccount.prototype, creditMixin);
@@ -341,6 +343,7 @@ export class CreditAccount extends ViewBase {
 
 		this._formatFromAccounts(returnValue.result.fromAccounts);
 		this.payBudgetAccountDetails = selectedAccountDetails;
+		this.payBudgetAccountDetails.settlementAmount = parseFloat(this.payBudgetAccountDetails.settlementAmount).toFixed(2);
 		this.payBudgetfromAccounts = returnValue.result.fromAccounts;
 
 		this.showPayBudgetDialog = !this.showPayBudgetDialog;
@@ -633,7 +636,7 @@ export class CreditAccount extends ViewBase {
 			this.logger.log(`error`, `Failed to retrieve credit transaction history from credit service.`, `_getTransactionHistory`, returnValue.correlationId);
 			return;
 		}
-		const formattedResponse = this._getFormattedResponse(returnValue.result.transactions);
+		const formattedResponse = this._getFormattedResponse(returnValue.result.transaction);
 		this.transactionHistory.push(...formattedResponse);
 		this.endCallContext = `TransactionHistory`;
 		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
@@ -954,7 +957,7 @@ export class CreditAccount extends ViewBase {
 			status: `OPEN`
 		};
 
-		const returnValue = await this.quickTransactionService.getClientProducts(request);
+		const returnValue = await this.savingsService.getClientProducts(request);
 
 		if (returnValue.succeeded && returnValue.result.savingsProducts) {
 

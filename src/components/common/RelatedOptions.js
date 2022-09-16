@@ -7,11 +7,13 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { SavingsService } from 'app/services/SavingsService';
 import { capitalizeString } from 'app/utils/channelServiceUtilities';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/CardLimitsLanding';
+import 'app/components/quickTransactions/TaxCertificateLanding';
 import 'app/dialogs/statements/Statements';
 
 const RENDER_MODE = Object.freeze({
@@ -60,7 +62,8 @@ export class RelatedOptions extends Component {
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-navigate-related-option`, (e) => this._navigateToOption(e.option));
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), () => true);
+		this.savingsService = new SavingsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
 		Object.assign(RelatedOptions.prototype, tapToPayMixin);
 	}
@@ -169,6 +172,19 @@ export class RelatedOptions extends Component {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
+	/**
+	 * Function updates the need based on account selected in statements
+	 * so as to classify incident accordingly
+	 * 
+	 * @param {object} event - event raised by statements dialog
+	 * @returns {void}
+	 */
+	async _statementsAccConfirmed(event) {
+		const need = `statements-${event.detail.subCategory || event.detail.account}`;
+
+		await super._inicidentManager_(need, () => this._toggleBusyFlag());
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -190,7 +206,7 @@ export class RelatedOptions extends Component {
 			cifNumber: this.callerInformation.cifNumber,
 			status: `OPEN`
 		};
-		const returnValue = await this.quickTransactionService.getClientProducts(request);
+		const returnValue = await this.savingsService.getClientProducts(request);
 
 		if (returnValue.succeeded) {
 			return returnValue.result.savingsProducts;
@@ -234,27 +250,46 @@ export class RelatedOptions extends Component {
 										'category': productInfo.category,
 										'icon': productInfo.icon,
 										'customIcon': productInfo.customIcon,
-										'order': productInfo.order
+										'order': productInfo.order,
+										'choosePeriod': productInfo.choosePeriod
 									};
 								}).sort((x, y) => x.order - y.order);
 			this.renderMode = RENDER_MODE.STATEMENTS;
 		}
 	}
 
-	_taxCertificate() {
-		// TODO: Functionality to generate tax certificate comes here
+	async _taxCertificate() {
+
+		/**
+		 * Similar to POA, Tax certificate is also a related option for few of the credit options
+		 * We need savings account number, opened date which will not be available under credit flow.
+		 * So we make a explicit call to get client products and filter out savings account product
+		 */
+		await this._getSavingsAccountDetails();
+
+		const returnValue = await this.quickTransactionService.getTaxCertificate(this.callerInformation.cifNumber, () => true);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unable to get load tax certificates information`, `_taxCertificates`, returnValue.correlationId);
+			this.horizonRouter.navigateToTaxCertificateServiceError();
+			return;
+		}
+
+		this.taxCertificateDetails = returnValue.result;
+		this.hasTaxCertificate = this.taxCertificateDetails.iT3BTaxCertificates.length + this.taxCertificateDetails.iT3STaxCertificates.length > 0;
+
+		this.renderMode = this.hasTaxCertificate ? RENDER_MODE.TAX_CERTIFICATE : RENDER_MODE.TAX_CERTIFICATE_NOT_AVAILABLE;
 	}
 
 	async _proofOfAccount() {
-		const clientProductDetails = await this._getClientProducts();
-		
-		if (clientProductDetails) {
-			const primarySavingsProduct = clientProductDetails.find(item => item.accountType === SAVINGS_ACCOUNT_TYPE);
 
-			this.landingPageInfo.accountNumber = primarySavingsProduct.accountNumber;
-			this.landingPageInfo.accountOpenedDate = primarySavingsProduct.accountOpenDate;
-			this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
-		}
+		/**
+		 * POA is a related option for few of the credit options
+		 * We need savings account number, opened date which will not be available under credit flow.
+		 * So we make a explicit call to get client products and filter out savings account product
+		 */
+		await this._getSavingsAccountDetails();
+		this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
 	}
 
 	_transactionHistory(option) {
@@ -272,6 +307,21 @@ export class RelatedOptions extends Component {
 	_paidUpAccounts(option) {
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, option);
 		this.horizonRouter.navigateToQuickTransactionFavourites();
+	}
+
+	_back() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	async _getSavingsAccountDetails() {
+		const clientProductDetails = await this._getClientProducts();
+		
+		if (clientProductDetails) {
+			const primarySavingsProduct = clientProductDetails.find(item => item.accountType === SAVINGS_ACCOUNT_TYPE);
+
+			this.landingPageInfo.accountNumber = primarySavingsProduct.accountNumber;
+			this.landingPageInfo.accountOpenedDate = primarySavingsProduct.accountOpenDate;
+		}
 	}
 
 	// ---------
@@ -356,6 +406,7 @@ export class RelatedOptions extends Component {
 			${this._renderStatements()}
 			${this._renderProofOfAccount()}
 			${this._renderTaxCertificate()}
+			${this._renderTaxCertificateNotAvailable()}
 		`;
 	}
 
@@ -376,10 +427,13 @@ export class RelatedOptions extends Component {
 			? html`
 				<horizon-statements
 					.cifNumber="${this.callerInformation.cifNumber}"
+					client-title="${this.callerInformation.title}"
+					.lastName="${this.callerInformation.lastName}"
 					.clientProducts="${this.clientProducts}"
 					registeredEmailId="${this.callerInformation.emailId}"
 					type=""
-					@cancel="${() => this._backToLandingPage()}">
+					@cancel="${() => this._backToLandingPage()}"
+					@account-selected="${(event) => this._statementsAccConfirmed(event)}">
 				</horizon-statements>`
 			: html``;
 	}
@@ -401,8 +455,24 @@ export class RelatedOptions extends Component {
 
 	_renderTaxCertificate() {
 		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE
-			? html``
+			? html`
+				<horizon-tax-certificate
+					.taxCertificateDetails="${this.taxCertificateDetails}"
+					.cifNumber="${this.callerInformation.cifNumber}"
+					accountNumber="${this.landingPageInfo.accountNumber}"
+					@cancel="${() => this._backToLandingPage()}">
+				</horizon-tax-certificate>`
 			: html``;
+	}
+
+	_renderTaxCertificateNotAvailable() {
+		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE_NOT_AVAILABLE
+		? html`
+			<horizon-tax-certificate-landing
+				@back="${() => this._back()}">
+			</horizon-tax-certificate-landing>
+			`
+		: html``;
 	}
 }
 

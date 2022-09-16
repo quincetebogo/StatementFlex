@@ -6,6 +6,7 @@ import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { DateTime } from 'luxon';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -84,6 +85,7 @@ export class Favourites extends SavingsAccountBase {
 
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), () => true);
 
 		Object.assign(Favourites.prototype, tapToPayMixin);
 		Object.assign(Favourites.prototype, searchOtherNeedMixin);

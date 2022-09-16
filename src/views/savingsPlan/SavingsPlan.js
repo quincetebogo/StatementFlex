@@ -1,13 +1,14 @@
-import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
-import { css, html } from 'platform/elements';
-import { formatStringAsPascalCase, getMonthName } from 'app/utils/channelServiceUtilities';
+import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/common';
+import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
+import { SavingsPlanEvents, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/SavingsPlan';
+import { css, html, unsafeCSS } from 'platform/elements';
+import { formatDate, formatDateTime, formatStringAsPascalCase, getMonthName } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { Configuration } from 'platform/core';
 import { EventAggregator } from 'platform/EventAggregator';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
-import { SavingsAccountService } from 'app/services/SavingsAccountService';
-import { SavingsPlanEvents } from 'app/constants/telemetry/events/SavingsPlan';
+import { SavingsService } from 'app/services/SavingsService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -15,6 +16,7 @@ import { formatCurrency } from 'app/productControls/utilities/Currency';
 import 'app/productControls/SavingsPlan/SavingsPlanLanding';
 import 'app/dialogs/taxCertificates/TaxCertificates';
 import 'app/dialogs/statements/Statements';
+import 'app/components/common/TransactionHistory';
 import 'app/components/dialogs/common/StatementsDialog';
 import 'app/components/quickTransactions/TaxCertificateLanding';
 
@@ -32,6 +34,18 @@ const SAVE_PLAN_TYPE = {
 const TAX_TYPE = {
 	IT3B: `iT3BTaxCertificates`,
 	IT3S: `iT3STaxCertificates`
+};
+
+const NINETY_DAYS = 7777000000;
+
+const ISO_8601_DATE_FORMAT = `yyyy-mm-dd`;
+
+const TRANSACTION_HISTORY = {
+	END_DATE: new Date().toISOString().substr(0, 10),
+	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
+	START_AT_INDEX: 0,
+	MAX_RESULTS: 50,
+	MONEY_TYPE: `BOTH`
 };
 
 /**
@@ -63,8 +77,9 @@ export class SavingsPlan extends ViewBase {
 		this.selectedAccountNumber = ``;
 		this.taxCertType = ``;
 		this.taxCertificateDetails = null;
+		this.transactionHistory = [];
 
-		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.savingsService = new SavingsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.accountViewType = ``;
 		
@@ -82,18 +97,20 @@ export class SavingsPlan extends ViewBase {
 
 		this._initialise();
 
-		this._optionClick = async (option, saveType, accountNumber, accountName, sendAnother = false) => {
+		this._optionClick = async (option, savePlanDetails, sendAnother = false) => {
 
-			const statements = () => this._getStatements(accountNumber, sendAnother);
-			const taxCertificates = () => this._taxCertificates(accountNumber, accountName);
+			const statements = () => this._getStatements(savePlanDetails.accountNumber, sendAnother);
+			const taxCertificates = () => this._taxCertificates(savePlanDetails.accountNumber, savePlanDetails.planName);
 			const productEnquiry = () => this._productEnquiry();
 			const interestRates = () => this._interestRates();
+			const transactionHistory = () => this._transactionHistory(savePlanDetails);
 
 			const actions = {
 				'statements': statements,
 				'tax-certificate': taxCertificates,
 				'product-enquiry': productEnquiry,
-				'interest-rates': interestRates
+				'interest-rates': interestRates,
+				'transaction-history': transactionHistory
 			};
 
 			if (actions[option]) {
@@ -170,11 +187,6 @@ export class SavingsPlan extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
-	_errorHandler(exception) {
-		this.horizonRouter.navigateToSystemError();
-		return true;
-	}
-
 	async _initialise() {
 
 		this.verificationStatus = this.callerInformation.verificationStatus;
@@ -187,7 +199,7 @@ export class SavingsPlan extends ViewBase {
 				getGenericData: true
 			};
 
-			const returnValue = await this.savingsAccountService.savingsPlanLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
+			const returnValue = await this.savingsService.savingsPlanLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
 			 
 			if (!returnValue.succeeded) {
 				this.logger.log(`error`, `Failed to retrieve client Savings plan details from service.`, `_initialise`, returnValue.correlationId);
@@ -223,6 +235,11 @@ export class SavingsPlan extends ViewBase {
 
 	_updateLeftBar() {
 		this.horizonStore.setProductButtonState(this.landingPageInfo);
+	}
+
+	_errorHandler(exception) {
+		this.horizonRouter.navigateToSystemError();
+		return true;
 	}
 
 	_formatDate(date) {
@@ -350,15 +367,70 @@ export class SavingsPlan extends ViewBase {
 
 		this.renderMode = RENDER_MODE.TAX_CERTIFICATE_NOT_AVAILABLE;
 	}
-	
+
+	async _productEnquiry() {
+		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
+		window.open(`${globalOneUrl}/save/`);
+	}
+
 	async _interestRates() {
 		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
 		window.open(`${globalOneUrl}/save/rates-and-fees/`);
 	}
 
-	async _productEnquiry() {
-		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
-		window.open(`${globalOneUrl}/save/`);
+	async _transactionHistory(savePlanDetails) {
+		await this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_TRANSACTION_HISTORY, {
+			"screen": TelemetryScreen.SAVINGS_PLAN_LANDING,
+			"next-screen": TelemetryScreen.SAVINGS_PLAN_TRANSACTION_HISTORY
+		});
+
+		// Updating current need to be specific to Save Type ie; Flexible or fixed term to classify an incident based on type.
+		const need = savePlanDetails.accountType === ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN ? `flexible-save-transaction-history` : `fixed-save-transaction-history`;
+		await super._inicidentManager_(need, () => this._toggleBusyFlag());
+		this.savePlanDetails = savePlanDetails;
+
+		await super.createAndClassifySubsIncident(null, false);
+		await this._getTransactionHistory();
+	}
+
+	async _getTransactionHistory(startDate, endDate, startAtIndex) {
+
+		const transactionHistoryRequest = {
+			accountNumber: this.savePlanDetails.accountNumber,
+			startDate: formatDate(startDate || TRANSACTION_HISTORY.START_DATE, ISO_8601_DATE_FORMAT),
+			endDate: formatDate(endDate || TRANSACTION_HISTORY.END_DATE, ISO_8601_DATE_FORMAT),
+			startAtIndex: startAtIndex || TRANSACTION_HISTORY.START_AT_INDEX,
+			maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
+			moneyType: TRANSACTION_HISTORY.MONEY_TYPE
+		};
+
+		const returnValue = await this.savingsService.savingsPlanTransactionHistory(transactionHistoryRequest);
+
+		if (returnValue.succeeded && returnValue.result) {
+			const formattedTrans = returnValue.result.transactions
+									.map((item) => {
+										const date = new Date(Date.parse(item.transactionDate));
+							
+										item.description = item.statementDescription;
+										item.tranDate = date;
+										item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
+										item.formatedAmount = formatCurrency(item.amount);
+										item.formatedBalance = formatCurrency(item.balance);
+							
+										return item;
+									});
+			this.transactionHistory.push(...formattedTrans);
+
+			this.accountDetails = {
+				"Account number": this.savePlanDetails.accountNumber,
+				"Balance": formatCurrency(this.savePlanDetails.currentBalance),
+				"Available balance": formatCurrency(this.savePlanDetails.availableBalance),
+				"Interest": `${this.savePlanDetails.interestRate}%`,
+				"Status": this.savePlanDetails.accountStatus
+			};
+			this.endCallContext = `TransactionHistory`;
+			this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
+		}
 	}
 
 	async _statementsAccConfirmed(event) {
@@ -390,6 +462,21 @@ export class SavingsPlan extends ViewBase {
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	async _unloadTransactionHistory() {
+		this.endCallContext = `LandingPage`;
+		this.transactionHistory = [];
+		
+		await super.classifyIncident(() => this._toggleBusyFlag());
+
+		this._setIncidentDone();
+	}
+
+	async _setTranHistoryDone() {
+		await super.classifyIncident(() => this._toggleBusyFlag());
+		
+		this._setIncidentDone();
 	}
 
 	// ---------
@@ -429,6 +516,7 @@ export class SavingsPlan extends ViewBase {
 			${this._renderStatements()}
 			${this._renderTaxCertificate()}
 			${this._renderTaxCertificateNotAvailable()}
+			${this._renderTransactionHistory()}
 		`;
 	}
 
@@ -448,11 +536,32 @@ export class SavingsPlan extends ViewBase {
 			<capitec-pc-savings-plan
 				.savingsPlanDetails="${this.savingsPlanDetails}"
 
-				@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.saveType, e.detail.accountNumber, e.detail.accountName)}"
+				@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.planDetails)}"
 				@view-info="${() => this._productEnquiry()}"
 				@account-details="${(e) => this._accountDetails(e.detail.accountType, e.detail.accountNumber)}">
 			</capitec-pc-savings-plan>`
 		: html``;
+	}
+
+	_renderSavingsPlanUnverifiedPage() {
+		return this.verificationStatus === `unverified`
+			? html`
+				<horizon-savings-plans-unverified-page
+					class="save-plan"
+					@verify-now= "${() => this._verifyClick()}"
+					@product-enquiry="${() => this._productEnquiry()}">
+				</horizon-savings-plans-unverified-page>`
+			: html``;
+	}
+
+	_renderSavingsPlanServiceError() {
+		return this.renderMode === RENDER_MODE.SERVICE_UNAVAILABLE
+			? html`
+				<horizon-savings-plans-service-error
+					class="save-plan"
+					@find-branch= "${() => this._findBranch()}">
+				</horizon-savings-plans-service-error>`
+			: html``;
 	}
 
 	_renderFlexibleDetailsView() {
@@ -519,26 +628,147 @@ export class SavingsPlan extends ViewBase {
 			`
 		: html``;
 	}
-	
-	_renderSavingsPlanUnverifiedPage() {
-		return this.verificationStatus === `unverified`
+
+	_renderTransactionHistory() {
+		return this.renderMode === RENDER_MODE.TRANSACTION_HISTORY
 			? html`
-				<horizon-savings-plans-unverified-page
-					class="save-plan"
-					@verify-now= "${() => this._verifyClick()}"
-					@product-enquiry="${() => this._productEnquiry()}">
-				</horizon-savings-plans-unverified-page>`
+				<horizon-transaction-history
+					.transactionHistory="${this.transactionHistory}"
+					.accountDetails="${this.accountDetails}"
+					type="${ACCOUNT_TYPES.SAVINGS_PLAN}"
+					.renderTableColumns="${() => this._renderTransHistoryColumns()}"
+					.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
+					.getTransactionHistory="${(startDate, endDate, startAtIndex) => this._getTransactionHistory(startDate, endDate, startAtIndex)}"
+					.disposeData="${() => this.transactionHistory = []}"
+
+					@error-handler = "${() => this._errorHandler()}"
+					@back="${() => this._setTranHistoryDone()}"
+					@unloading="${() => this._unloadTransactionHistory()}">
+				</horizon-transaction-history>`
 			: html``;
 	}
 
-	_renderSavingsPlanServiceError() {
-		return this.renderMode === RENDER_MODE.SERVICE_UNAVAILABLE
-			? html`
-				<horizon-savings-plans-service-error
-					class="save-plan"
-					@find-branch= "${() => this._findBranch()}">
-				</horizon-savings-plans-service-error>`
-			: html``;
+	_renderTransHistoryColumns() {
+		return html`
+			<capitec-table-column
+				label="Transaction Date"
+				field="transactionDate"
+				.renderer="${(item, fieldName, value) => this._renderTransactionDateTime(value)}"
+				size="156px;">
+			</capitec-table-column>
+			<capitec-table-column
+				label="Description"
+				field="description"
+				size="410px;">
+			</capitec-table-column>
+			<capitec-table-column
+				label="Amount (R)"
+				field="formatedAmount"
+				size="158px;"
+				type="currency">
+			</capitec-table-column>
+			<capitec-table-column
+				label="Balance"
+				field="formatedBalance"
+				size="130px;"
+				type="currency"
+				align ="right">
+			</capitec-table-column>
+		`;
+	}
+
+	_renderTransactionDateTime(value) {
+		return html`
+			<capitec-label
+				label="${formatDateTime(value)}">
+			</capitec-label>`;
+	}
+
+	_renderTransactionDetails(item) {
+		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_INFO, {});
+
+		return html`
+			<capitec-label
+				style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
+				label="Statement description: ${item.description}"
+				data-automation-id="transaction-history-item-description">
+			</capitec-label>
+	
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Posting date" 
+					value = "${formatDateTime(item.postingDate)}"
+					data-automation-id="transaction-history-item-posting-date">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Processed date"
+					value = "${formatDateTime(item.processDate)}"
+					data-automation-id="transaction-history-item-processed-date">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Card number"
+					value = "${item.cardNumber ? item.cardNumber : `-`}"
+					data-automation-id="transaction-history-item-card-number">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Card authentication type"
+					value = "${item.cardAuthType ? item.cardAuthType : `-`}"
+					data-automation-id="transaction-history-item-card-auth-type">
+				</horizon-label>
+			</capitec-group>
+
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Journal number"
+					value = "${item.journalNumber ? item.journalNumber : `-`}"
+					data-automation-id="transaction-history-item-journal-number">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Includes Vat"
+					value = "${item.includesVat ? `Yes` : `No`}"
+					data-automation-id="transaction-history-item-includes-vat">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="External terminal ID"
+					value = "${item.externalTerminalId ? item.externalTerminalId : `-`}"
+					data-automation-id="transaction-history-item-terminalID">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Spend group"
+					value = "${item.spendGroup ? item.spendGroup : `-`}"
+					data-automation-id="transaction-history-item-spend-group">
+				</horizon-label>
+			</capitec-group>
+
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Cash back"
+					value = "${item.cashback ? item.cashback : `-`}"
+					data-automation-id="transaction-history-item-cashback">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Branch" 
+					value = "${item.branch ? item.branch : `-`}"
+					data-automation-id="transaction-history-item-branch">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Teller"
+					value = "${item.teller ? item.teller : `-`}"
+					data-automation-id="transaction-history-item-teller">
+				</horizon-label>
+			</capitec-group>
+		`;
 	}
 }
 

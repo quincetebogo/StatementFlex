@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { Configuration, EventAggregator, Logger } from 'platform/core';
-import { AUTH_METHODS } from 'app/constants/Common';
+import { AUTH_METHODS } from 'app/constants/common';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
