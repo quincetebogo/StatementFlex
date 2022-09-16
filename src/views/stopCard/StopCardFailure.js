@@ -68,7 +68,8 @@ export class StopCardFailure extends ViewBase {
 		super.connectedCallback();
 
 		this.isReassigned = this.horizonStore.getIsIncidentReassigned();
-		
+		this.callerInformation = this.horizonStore.getCallerInformation();
+
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.stoppedCards = screenDetails && screenDetails.stoppedCards;
 		this.failedCards = this.stoppedCards.filter(cards => !cards.cardStopped);
@@ -118,7 +119,7 @@ export class StopCardFailure extends ViewBase {
 		// Toggling to InProgress
 		this.renderMode = RENDER_MODE.IN_PROGRESS;
 
-		const returnValue = await this.cardService.stopCards(this.failedCards, this.incomingCallDetails, this.incidentDetails);
+		const returnValue = await this.cardService.stopCards(this.failedCards, this.incomingCallDetails, this.incidentDetails, this.callerInformation.cifNumber, this.callerInformation.title, this.callerInformation.lastName);
 		
 		if (returnValue.succeeded) {
 			const cardStopResults = returnValue.result;
