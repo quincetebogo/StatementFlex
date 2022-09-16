@@ -3,7 +3,7 @@ import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { LANDING_PAGE_NEEDS } from 'app/constants/Common';
+import { LANDING_PAGE_NEEDS } from 'app/constants/common';
 import { LandingPageEvents } from 'app/constants/telemetry/events/LandingPage';
 import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';

@@ -6,7 +6,7 @@ import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { SavingsService } from 'app/services/SavingsService';
 import { capitalizeString } from 'app/utils/channelServiceUtilities';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
@@ -60,7 +60,7 @@ export class RelatedOptions extends Component {
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-navigate-related-option`, (e) => this._navigateToOption(e.option));
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.savingsService = new SavingsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
 		Object.assign(RelatedOptions.prototype, tapToPayMixin);
 	}
@@ -190,7 +190,7 @@ export class RelatedOptions extends Component {
 			cifNumber: this.callerInformation.cifNumber,
 			status: `OPEN`
 		};
-		const returnValue = await this.quickTransactionService.getClientProducts(request);
+		const returnValue = await this.savingsService.getClientProducts(request);
 
 		if (returnValue.succeeded) {
 			return returnValue.result.savingsProducts;

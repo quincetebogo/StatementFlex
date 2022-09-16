@@ -331,7 +331,7 @@ export class USSDProfileDetails extends Component {
 				--theme-label-font-color: #3A3A3A;
 			}
 			.icon-close{
-				--theme-icon-size-small: 13.5px;
+				--theme-icon-size-medium: 24px;
 				cursor: pointer;
 			}
 			.content-box{
@@ -387,23 +387,22 @@ export class USSDProfileDetails extends Component {
 				--theme-check-disabled-background-color: #FFFFFF;
 				--theme-button-default-font-color: #7C7C7C;
 			}
-			capitec-alert-banner {
+			horizon-alert-banner {
 				margin: 8px 8px 0px 8px;
 				--theme-alert-banner-height: 64px;
-				--theme-alert-banner-icon-margin-left: 16px;
-				--theme-alert-banner-icon-margin-right: 16px;
+				--theme-toast-icon-margin: 7px 16px 0px 16px;
 			}
-			capitec-alert-banner > p {
+			horizon-alert-banner > p {
 				margin: 0px;
 				padding-right: 32px;
 			}
 			.no-digital-channels {
 				--theme-label-strong-font-weight: 600;
-				--theme-alert-banner-height: 100px;
+				--theme-toast-icon-margin: 28px 16px 0px 16px;
 			}
 			.has-digital-channels {
 				--theme-label-strong-font-weight: 600;
-				--theme-alert-banner-height: 117px;
+				--theme-toast-icon-margin: 28px 16px 0px 16px;
 				--theme-hyperlink-font-size: 14px;
 			}
 			.has-digital-channels > capitec-label {
@@ -534,7 +533,7 @@ export class USSDProfileDetails extends Component {
 							<capitec-spacer></capitec-spacer>
 							<capitec-icon 
 								class="icon-close" 
-								size="small" 
+								size="medium" 
 								icon="system/close-action" 
 								@click="${() => this._toggleAppSlidingPanel()}">
 							</capitec-icon>
@@ -581,7 +580,7 @@ export class USSDProfileDetails extends Component {
 							<capitec-icon 
 								data-automation-id="ussd-profile-details-close-side-sheet"
 								class="icon-close" 
-								size="small" 
+								size="medium" 
 								icon="system/close-action" 
 								@click="${() => this._toggleAppSlidingPanel()}">
 							</capitec-icon>
@@ -701,7 +700,7 @@ export class USSDProfileDetails extends Component {
 							<capitec-icon 
 								data-automation-id="ussd-profile-details-cancel-reasons-side-sheet"
 								class="icon-close" 
-								size="small" 
+								size="medium" 
 								icon="system/close-action" 
 								@click="${() => this._toggleCancelUSSD()}">
 							</capitec-icon>
@@ -806,7 +805,7 @@ export class USSDProfileDetails extends Component {
 							<capitec-spacer></capitec-spacer>
 							<capitec-icon 
 								class="icon-close" 
-								size="small" 
+								size="medium" 
 								icon="system/close-action" 
 								@click="${() => this._toggleAppSlidingPanel()}">
 							</capitec-icon>
@@ -843,28 +842,27 @@ export class USSDProfileDetails extends Component {
 		
 		return this.showNotificationBanner 
 			? html`
-				<capitec-alert-banner 
+				<horizon-alert-banner 
 					data-automation-id="ussd-profile-details-status-banner"
-					type="unsuccessful-red" 
+					type="error" 
 					layout="vertical">
-						<b>${this.bannerTitle}</b><br>
+						<b>${this.bannerTitle}</b>
 						<p>${this.bannerSubtitle}</p>
-				</capitec-alert-banner>`
+				</horizon-alert-banner>`
 			: html``;
 	}
 
 	_renderValidationBanner() {
 		return this.showValidationBanner 
 		? html`
-			<capitec-alert-banner 
+			<horizon-alert-banner 
 				data-automation-id="ussd-profile-details-validation-banner"
 				class="validate-reasons"
-				type="unsuccessful-red"
-				label=""
+				type="error"
+				header="Notice"
+				label="Please choose a reason to cancel USSD."
 				layout="vertical">
-					<b>Notice</b> <br>
-					<p>Please choose a reason to cancel USSD.</p>
-			</capitec-alert-banner>`
+			</horizon-alert-banner>`
 		: html``;
 	}
 

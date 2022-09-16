@@ -1,6 +1,5 @@
+import { QuickTransactionEvents, SETTLEMENT_QUOTE_EVENTS } from 'app/constants/telemetry/events/QuickTransactions';
 import { css, html } from 'platform/elements';
-import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
-import { SETTLEMENT_QUOTE_EVENTS } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
@@ -270,7 +269,7 @@ export class SettlementQuoteOutcome extends ViewBase {
 
 	_renderContent() {
 		return html`
-			<img src="/images/statements/senddocuments.svg"/>
+			<img src="/images/statements/send-documents.svg"/>
 
 			<capitec-label
 				class="header"

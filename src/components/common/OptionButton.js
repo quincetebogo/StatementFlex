@@ -139,7 +139,7 @@ export class OptionButton extends Button {
 		return html`
 			<button
 				class="button option-button icon-${this.iconPlacement} ${this.type ? this.type : `secondary`} ${this.disabled ? `disabled` : ``}" 
-				@click="${this._buttonClicked}}" 
+				@click="${this._buttonClicked}" 
 				@keydown="${e => this._keyDown(e)}"
 				tabindex="${this.disabled ? `` : 0}">
 					${this.renderBadge()}

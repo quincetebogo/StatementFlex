@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { ACCOUNT_TYPES } from 'app/constants/Common';
+import { ACCOUNT_TYPES } from 'app/constants/common';
 import { DateTime } from 'luxon';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { TRANSACTION_STATUS_LIST } from 'app/constants/TransactionHistory';
@@ -30,8 +30,8 @@ const DEFAULTS = {
 const _importTelemetryEvents_ = {
 	[ACCOUNT_TYPES.SAVINGS_ACCOUNT]: () => import(`app/constants/telemetry/events/SavingsAccount`),
 	[ACCOUNT_TYPES.LBB]: () => import(`app/constants/telemetry/events/LiveBetter`),
-	//TODO ADD CREDIT TELEMETRY. TICKET NUMBER: CSCEH-7863
-	[ACCOUNT_TYPES.CREDIT]: () => import(`app/constants/telemetry/events/LiveBetter`)
+	[ACCOUNT_TYPES.CREDIT]: () => import(`app/constants/telemetry/events/LiveBetter`),
+	[ACCOUNT_TYPES.SAVINGS_PLAN]: () => import(`app/constants/telemetry/events/SavingsPlan`)
 };
 
 const MAX_RESULTS = 50;
@@ -40,12 +40,13 @@ const today = new Date();
 const FILTERS_SET = {
 	[ACCOUNT_TYPES.SAVINGS_ACCOUNT]: new Set([FILTER_BY.TEXT, FILTER_BY.DATE, FILTER_BY.STATUS]),
 	[ACCOUNT_TYPES.LBB]: new Set([FILTER_BY.TEXT, FILTER_BY.DATE, FILTER_BY.MONEY_TYPE]),
-	[ACCOUNT_TYPES.CREDIT]: new Set([FILTER_BY.TEXT, FILTER_BY.DATE, FILTER_BY.MONEY_TYPE])
+	[ACCOUNT_TYPES.CREDIT]: new Set([FILTER_BY.TEXT, FILTER_BY.DATE, FILTER_BY.MONEY_TYPE]),
+	[ACCOUNT_TYPES.SAVINGS_PLAN]: new Set([FILTER_BY.TEXT, FILTER_BY.DATE, FILTER_BY.MONEY_TYPE])
 };
 
 /**
  * Transaction History, common component to display list of transactions happened in client's'
- * account (Savng account/ LBB).
+ * account (Savings account / LBB / Savings plan / Credit).
  *
  * Events Raised
  * -------------
@@ -74,6 +75,7 @@ export class TransactionHistory extends Component {
 
 		this.startDate = ``;
 		this.endDate = ``;
+		this.product = ``;
 
 		this.filteredData = [];
 		this.searchTextLabel = DEFAULTS.SEARCH_TEXT_LABEL;
@@ -105,6 +107,7 @@ export class TransactionHistory extends Component {
 	 * @property {Object} transactionHistory - Object holds transaction data
 	 * @property {Object} accountDetails - Account details (Account number, balance, etc..)
 	 * @property {String} type - Type of account (savings/ lbb/ credit)
+	 * @property {String} product - Type of product under account type ( Credit card/ Access facility/ Term loan/ etc...)
 	 * 
 	 * @property {Object} renderTableColumns - Callback function to render account sepecific columns
 	 * @property {Object} renderTransactionDetails - Callback function to render account sepecific transaction information
@@ -121,6 +124,7 @@ export class TransactionHistory extends Component {
 			transactionHistory: { type: Object },
 			accountDetails: { type: Object },
 			type: { type: String },
+			product: { type: String },
 
 			renderTableColumns: { type: Object },
 			renderTransactionDetails: { type: Object },
@@ -218,7 +222,22 @@ export class TransactionHistory extends Component {
 	}
 
 	async _dateChanged(e) {
-		let fromDate = DateTime.fromISO(e.detail.new.startDate);
+
+		/**
+		 * 1. When dates are not selected on the date time picker, new value dispatched would be null.
+		 *    In such case, data refresh can be skipped.
+		 * 2. Sometimes start date/ end date could be null when one of its not selected, for which
+		 *    either before 90 days or after 90 days set accordingly.
+		 */
+		if (!e.detail.new.startDate && !e.detail.new.endDate) {
+			return false;
+		} else if (!e.detail.new.endDate) {
+			e.detail.new.endDate = e.detail.old.endDate || this.get90DaysAfter(e.detail.new.startDate);
+		} else if (!e.detail.new.startDate) {
+			e.detail.new.startDate = e.detail.old.startDate || this.get90DaysBefore(e.detail.new.endDate);
+		}
+
+		const fromDate = DateTime.fromISO(e.detail.new.startDate);
 		let toDate = DateTime.fromISO(e.detail.new.endDate);
 		const currentDateTime = DateTime.local();
 
@@ -236,20 +255,7 @@ export class TransactionHistory extends Component {
 					calendar._placeholderEndDate = toDate;
 				}
 			}
-		} else if (e.detail.new.endDate === null && this.endDate === ``) {
-			this.startDate = fromDate;
-			toDate = fromDate.plus({ days: 90 });
-			if (toDate.diff(currentDateTime, [`days`]).days > 0) {
-				this.endDate = currentDateTime;
-			} else {
-				this.endDate = toDate;
-			}
-		} else if (e.detail.new.startDate === null && this.startDate === ``) {
-			this.endDate = toDate;
-			fromDate = toDate.minus({ days: 90 });
-			this.startDate = fromDate;
 		} else {
-			
 			this.startDate = fromDate;
 			this.endDate = toDate;
 		}
@@ -346,9 +352,25 @@ export class TransactionHistory extends Component {
 
 	async _initialise() {
 		this.telemetryEvent = {};
+		this.get90DaysAfter = (date) => {
+			const result = new Date(date);
+			result.setDate(result.getDate() + 90);
+
+			return result > today ? today.toISOString() : result.toISOString();
+		};
+		this.get90DaysBefore = (date) => {
+			const result = new Date(date);
+			result.setDate(result.getDate() - 90);
+			return result.toISOString();
+		};
 		
 		// Fetching the telemetry events object at runtime based on product type
 		const { TRANSACTION_ENQUIRY_EVENTS } = await _importTelemetryEvents_[this.type]();
+
+		if (TRANSACTION_ENQUIRY_EVENTS instanceof Function) {
+			this.telemetryEvent = TRANSACTION_ENQUIRY_EVENTS(this.product);
+			return;
+		}
 
 		this.telemetryEvent = TRANSACTION_ENQUIRY_EVENTS;
 	}
@@ -420,7 +442,7 @@ export class TransactionHistory extends Component {
 			this.filteredData = this.filteredData.filter(item => item.transactionStatus === status);
 		}
 
-		if (RENDER_CHIPS[FILTER_BY.MONEY_TYPE] ) {
+		if (RENDER_CHIPS[FILTER_BY.MONEY_TYPE]) {
 			const moneyType = RENDER_CHIPS[FILTER_BY.MONEY_TYPE];
 
 			if (moneyType === `Money In`) {
@@ -519,8 +541,11 @@ export class TransactionHistory extends Component {
 				.transact {
 					background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
 				}
+				.save {
+					background: linear-gradient(90deg, #003354 0%, #00486D 100%);
+				}
 				.lbb {
-					background: no-repeat url(../images/liveBetter/Gradient1.png);
+					background: no-repeat url(../images/liveBetter/gradient.png);
 				}
 				.credit {
 					background: linear-gradient(90deg, #C83C37 0%, #E61414 100%);
@@ -588,7 +613,7 @@ export class TransactionHistory extends Component {
 				}
 				.filter-bar > capitec-label {
 					height: 20px;
-					width: 87px;
+					width: auto;
 					color: #3A3A3A;
 					font-family: "Hind Vadodara";
 					font-size: 15px;
@@ -618,7 +643,7 @@ export class TransactionHistory extends Component {
 				capitec-table{
 					width: var(--horizon-center-panel-width, 1064px);
 					height: auto;
-					--theme-icon-size-default: 8px;
+					--theme-icon-size-default: 24px;
 					--theme-data-table-body-group-font-weight: 600;
 					--theme-data-table-font-size : 15px;
 					--theme-data-table-padding-left: 16px;
@@ -658,7 +683,6 @@ export class TransactionHistory extends Component {
 					width: 224px;
 				}
 				.scroll-top {
-					--theme-icon-size-medium: 26px;
 					padding-top: 12px;
 					cursor: pointer;
 				}
@@ -692,6 +716,9 @@ export class TransactionHistory extends Component {
 				.no-result-group {
 					width: 1062px;
 					margin-top: 130px;
+				}
+				capitec-image {
+					cursor: pointer;
 				}
 			`
 		];
@@ -796,8 +823,7 @@ export class TransactionHistory extends Component {
 					.predefinedRanges="${this.getPredefinedDateRanges()}"
 					@apply-clicked="${(e) => this._dateChanged(e)}"
 					data-automation-id="transaction-history-date-filter"
-					?hidden="${!FILTERS_SET[this.type].has(FILTER_BY.DATE)}"
-					>
+					?hidden="${!FILTERS_SET[this.type].has(FILTER_BY.DATE)}">
 				</capitec-date-time-picker>
 
 				<capitec-select
@@ -816,22 +842,19 @@ export class TransactionHistory extends Component {
 					label="All" 
 					class="${RENDER_CHIPS[FILTER_BY.MONEY_TYPE] === `All` ? `type-selected` : `type-normal`}" 
 					@click="${(e) => this._selectedMoneyType(e)}" 
-					?hidden="${!FILTERS_SET[this.type].has(FILTER_BY.MONEY_TYPE)}"
-					>
+					?hidden="${!FILTERS_SET[this.type].has(FILTER_BY.MONEY_TYPE)}">
 				</capitec-chip>
 				<capitec-chip 
 					label="Money In"
 					class="${RENDER_CHIPS[FILTER_BY.MONEY_TYPE] === `Money In` ? `type-selected` : `type-normal`}" 
-					@click="${(e) => this._selectedMoneyType(e)}"
-					?hidden="${!FILTERS_SET[this.type].has(FILTER_BY.MONEY_TYPE)}"
-					>
+					@click="${(e) => this._selectedMoneyType(e)}" 
+					?hidden="${!FILTERS_SET[this.type].has(FILTER_BY.MONEY_TYPE)}">
 				</capitec-chip>
 				<capitec-chip 
 					label="Money Out" 
 					class="${RENDER_CHIPS[FILTER_BY.MONEY_TYPE] === `Money Out` ? `type-selected` : `type-normal`}" 
-					@click="${(e) => this._selectedMoneyType(e)}"
-					?hidden="${!FILTERS_SET[this.type].has(FILTER_BY.MONEY_TYPE)}"
-					>
+					@click="${(e) => this._selectedMoneyType(e)}" 
+					?hidden="${!FILTERS_SET[this.type].has(FILTER_BY.MONEY_TYPE)}">
 				</capitec-chip>
 
 			</capitec-group>

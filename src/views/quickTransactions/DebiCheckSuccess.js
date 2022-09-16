@@ -96,8 +96,8 @@ export class DebiCheckSuccess extends ViewBase {
 			return html`
 			<horizon-success-screen 
 				header="DebiCheck mandate approved"
-				image="/images/transactions/debiCheckMandate.svg"
-				secondaryImage="/images/transactions/debiCheckLogo.svg"
+				image="/images/debi-check/debi-check-mandate.svg"
+				secondaryImage="/images/debi-check/debi-check-logo.svg"
 				left="DebiCheck Mandates"
 				right="Done"
 				toast="DebiCheck mandate approved."
@@ -114,8 +114,8 @@ export class DebiCheckSuccess extends ViewBase {
 		return html`
 			<horizon-success-screen 
 				header="DebiCheck mandate declined"
-				image="/images/transactions/debiCheckMandate.svg"
-				secondaryImage="/images/transactions/debiCheckLogo.svg"
+				image="/images/debi-check/debi-check-mandate.svg"
+				secondaryImage="/images/debi-check/debi-check-logo.svg"
 				left="DebiCheck Mandates"
 				right="Done"
 				toast="DebiCheck mandate declined."

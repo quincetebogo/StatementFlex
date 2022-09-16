@@ -72,6 +72,7 @@ export class SystemError extends ViewBase {
 				}
 				horizon-error-screen {
 					--horizon-error-screen-size: 912px;
+					--horizon-error-screen-height: 888px;
 				}
 			`
 		];

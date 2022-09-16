@@ -148,7 +148,7 @@ export class PaidUpLetterSuccess extends ViewBase {
 			<horizon-success-screen
 				data-automation-id="paid-up-letter-success-screen"
 				header="Paid Up letter sent" 
-				image="/images/statements/senddocuments.svg"
+				image="/images/statements/send-documents.svg"
 				left="Send Another"
 				right="Done"
 				toast="Paid Up letter sent"
