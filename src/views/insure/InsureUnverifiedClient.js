@@ -1,3 +1,4 @@
+/* eslint-disable sort-imports */
 import { css, html } from 'platform/elements';
 
 import { InsureService } from 'app/services/InsureService';
@@ -287,7 +288,9 @@ static get properties() {
 	 * @returns {null} null
  	*/
 	_undoClientPolicies() {
-		this.clientPolicies?.summaryDetails?.policies?.forEach(item => { item.isExpanded = false; })
+		this.clientPolicies.summaryDetails.policies = this.clientPolicies?.summaryDetails?.policies?.forEach(item => { 
+			item.isExpanded = false; 
+		});
 	}
 
 	// #endregion EVENT HANDLERS

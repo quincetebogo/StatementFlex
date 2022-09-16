@@ -12,7 +12,7 @@ export class CFPAgreementDialog extends Component {
 		this.productCode = ``;
 	}
 
-	//#region PROPERTIES
+	// #region PROPERTIES
 
 	/**
 	 * @property {String} productCode - insurance product code capitec/sanlam.
@@ -24,10 +24,11 @@ export class CFPAgreementDialog extends Component {
 		};
 	}
 
-	//#endregion PROPERTIES
+	// #endregion PROPERTIES
 
 	/**
 	 * Accept terms and close dialog 
+	 * @returns {null} null
 	 */
 	_acceptAndClose() {
 		this.dispatchEvent(new CustomEvent(`agreementAccepted`, { detail: { accepted: true } }));
@@ -35,6 +36,7 @@ export class CFPAgreementDialog extends Component {
 
 	/**
 	 * Generates the component template for web mode
+	 * @returns {html} html content
 	 */
 	_webTemplate() {
 		return html`
@@ -45,7 +47,7 @@ export class CFPAgreementDialog extends Component {
 				</capitec-content-box>
 			</div>
 			${this._renderDialogFooter()}
-		</capitec-modal>`
+		</capitec-modal>`;
 	}
 
 	/**
@@ -53,7 +55,7 @@ export class CFPAgreementDialog extends Component {
 	 * @returns {html} Agreement Copy
 	 */
 	_renderDialogBody() {
-		return html `${ this.productCode = INSURE_PRODUCT_CODE.CAPITEC ? html` <strong>Capitec:</strong>
+		return html`${this.productCode = INSURE_PRODUCT_CODE.CAPITEC ? html` <strong>Capitec:</strong>
 		<ul>
 			<li>is a licensed financial services provider;</li>
 			<li>earns a commission of 3.5% from the Insurer;</li>
@@ -72,25 +74,24 @@ export class CFPAgreementDialog extends Component {
 			<li>cannot transfer the rights or obligations of a Funeral Plan to someone else.</li>
 		</ul>
 		` 
-		: 
-			this.productCode = INSURE_PRODUCT_CODE.CAPITEC_SANLAM ? html` <strong>Capitec:</strong>
-			<ul>
-				<li>is a licensed financial services provider;</li>
-				<li>earns a commission of 3.25% from the Insurer;</li>
-			</ul>
-			<p>This plan is underwritten by Centriq Life Insurance Company Limited, a licensed insurer and an Authorised Financial Services Provider</p>
-			<p>I:</p>
+		: this.productCode = INSURE_PRODUCT_CODE.CAPITEC_SANLAM ? html` <strong>Capitec:</strong>
+		<ul>
+			<li>is a licensed financial services provider;</li>
+			<li>earns a commission of 3.25% from the Insurer;</li>
+		</ul>
+		<p>This plan is underwritten by Centriq Life Insurance Company Limited, a licensed insurer and an Authorised Financial Services Provider</p>
+		<p>I:</p>
 
-			<ul>
-				<li>work for Capitec who is liable for this service;</li>
-				<li>will tell you about the Capitec Funeral Plan and your options and I cannot give you advice.</li>
-			</ul>
-			
-			<p>You:</p>
-			<ul>
-				<li>must have an active Capitec savings account to have a Funeral Plan;</li>
-				<li>cannot transfer the rights or obligations of a Funeral Plan to someone else.</li>
-			</ul>
+		<ul>
+			<li>work for Capitec who is liable for this service;</li>
+			<li>will tell you about the Capitec Funeral Plan and your options and I cannot give you advice.</li>
+		</ul>
+		
+		<p>You:</p>
+		<ul>
+			<li>must have an active Capitec savings account to have a Funeral Plan;</li>
+			<li>cannot transfer the rights or obligations of a Funeral Plan to someone else.</li>
+		</ul>
 		` : ``
 		}`;
 	}
@@ -102,7 +103,7 @@ export class CFPAgreementDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 			<capitec-button slot="footer" type="clear" label="Accept" @click="${() => this._acceptAndClose()}">
-			</capitec-button>`
+			</capitec-button>`;
 	}
 }
 window.customElements.define(`horizon-insure-cfp-agreement-dialog`, CFPAgreementDialog);

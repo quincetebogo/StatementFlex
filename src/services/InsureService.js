@@ -11,7 +11,7 @@ import { v4 } from 'uuid';
  */
 export class InsureService extends ChannelServiceBase {
 
-	//#region INITIALISATION
+	// #region INITIALISATION
 
 	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null) {
 		super(
@@ -41,14 +41,15 @@ export class InsureService extends ChannelServiceBase {
 
 	/**
 	 * Generate x-requester-uid for FIPS
+	 * @returns {null} null
 	 */
 	generateFIPSRequesterUID() {
-		return 'CP336134_17249_02_3997_16';
+		return `CP336134_17249_02_3997_16`;
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region PUBLIC METHODS
+	// #region PUBLIC METHODS
 
 	/**
 	 * IsAlive Check for Insure
@@ -57,7 +58,7 @@ export class InsureService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	async alive(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	alive(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const url = `/platform/healthcheck/${this._version}/alive`;
 		return this.get(
 			url,
@@ -207,7 +208,7 @@ export class InsureService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	async calculateEstimate(estimateRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	calculateEstimate(estimateRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
 			`/FuneralInsuranceProductService/quote/estimate`,
 			estimateRequest,
@@ -230,9 +231,9 @@ export class InsureService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	 async generateEstimatePrintout(generateEstimateDocRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	generateEstimatePrintout(generateEstimateDocRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		// if (await this.isMockEnabled(`insureEstimatePrintout`)) {
-		// 	return this.mock(`generateIssueAgreement`);
+		// return this.mock(`generateIssueAgreement`);
 		// }
 		return this.post(
 			`/FuneralInsuranceProductService/document/generate/Estimateprintout`,
@@ -484,9 +485,9 @@ export class InsureService extends ChannelServiceBase {
 		);
 	}
 
-	//#endregion
+	// #endregion
 
-	//#region DEPRECATED
+	// #region DEPRECATED
 
 	/**
 	 * Retrieve quote details
@@ -496,7 +497,7 @@ export class InsureService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	async retrieveQuoteDetails(quoteRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	retrieveQuoteDetails(quoteRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
 			`/FuneralInsuranceProductService/quote/retrieve`,
 			quoteRequest,
@@ -519,7 +520,7 @@ export class InsureService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	async retrieveQuotes(quoteRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	retrieveQuotes(quoteRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
 			`/FuneralInsuranceProductService/client/quotes/retrieve`,
 			quoteRequest,
@@ -534,7 +535,6 @@ export class InsureService extends ChannelServiceBase {
 		);
 	}
 
-	
 	
 	/**
 	 * Communication History
@@ -605,16 +605,16 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insurePolicyPay`);
 		}
 		// return this.post(
-		// 	`/FuneralInsuranceProductService/policy/pay`,
-		// 	payArrearsRequest,
-		// 	this.setInsureTokens(),
-		// 	`payPolicy`,
-		// 	null,
-		// 	null,
-		// 	900,
-		// 	null,
-		// 	errorHandler,
-		// 	autoRetries
+		// `/FuneralInsuranceProductService/policy/pay`,
+		// payArrearsRequest,
+		// this.setInsureTokens(),
+		// `payPolicy`,
+		// null,
+		// null,
+		// 900,
+		// null,
+		// errorHandler,
+		// autoRetries
 		// );
 	}
 	
@@ -626,7 +626,7 @@ export class InsureService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	  async cancelPolicyAgreement(GenerateCancelAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	cancelPolicyAgreement(GenerateCancelAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
 			`/FuneralInsuranceProductService/document/generate/CancelPolicyAgreement`,
 			GenerateCancelAgreementRequest,
@@ -649,7 +649,7 @@ export class InsureService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	async arrearsPaymentInstruction(GenerateArrearsPaymentInstructionRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	arrearsPaymentInstruction(GenerateArrearsPaymentInstructionRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
 			`/FuneralInsuranceProductService/document/generate/CapitecBankFuneralArrearsPaymentInstruction`,
 			GenerateArrearsPaymentInstructionRequest,
@@ -666,10 +666,10 @@ export class InsureService extends ChannelServiceBase {
 	}
 
 
-	//#endregion
+	// #endregion
 
 
-	//#region OLD // Check if can / should still use these
+	// #region OLD // Check if can / should still use these
 
 	async hasInsuranceProducts(insuranceClientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`hasInsuranceProducts`)) {

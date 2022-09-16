@@ -25,7 +25,7 @@
  * @enum {Object} GENERATE_DOCUMENT_REQUEST_PAYLOAD
  */
  export const GENERATE_DOCUMENT_REQUEST_PAYLOAD = {
-	"documentFormat": "PDF",
+	"documentFormat": `PDF`,
 	"saveDocumentToDocumentum": false,
 	"returnDocumentContent": true,
 	"emailDocumentToClient": false,

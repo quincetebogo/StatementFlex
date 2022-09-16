@@ -27,6 +27,7 @@ import { getMonthName } from 'app/utils/channelServiceUtilities';
 import { EMAIL_DOCUMENT_REQUEST_PAYLOAD, GENERATE_DOCUMENT_REQUEST_PAYLOAD } from 'app/utils/insureRequestPayload';
 
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+import { it } from 'node:test';
 
 // ninety days in milliseconds
 const NINETY_DAYS = 7777000000;
@@ -1228,9 +1229,19 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderClientPoliciesPage() {
 
-		this.clientPolicies?.summaryDetails?.policies?.forEach(item => {
-			item.isExpanded = false; 
-		})
+		console.log(`In render: ${JSON.stringify(this.clientPolicies)}`);
+		if (this.clientPolicies) {
+			this.clientPolicies?.summaryDetails?.policies?.forEach(item => item.isExpanded = false); 
+
+			// let index = 0;
+// 			for (const itr of this.clientPolicies?.summaryDetails?.policies) {
+// 				console.log(itr);
+// c
+// 				itr.isExpanded = false;
+				// index++;
+				// this.clientPolicies?.summaryDetails?.policies[index].isExpanded = false
+			// }
+		}
 
 		return html`
 			<horizon-insure-client-policies .clientPolicies="${this.clientPolicies}"
