@@ -63,32 +63,10 @@ export class HorizonLbbWidgetHost extends SavingsAccountBase {
 		e.detail.callback(this.callerInformation);
 	}
 
-	_handleGetClientProfileInfoMessage(e) {
-		e.detail.callback({
-			name: this.callerInformation.name,
-			title: this.callerInformation.title,
-			southAfricanIDNumber: this.callerInformation.southAfricanIDNumber,
-			verifiedTelephoneNumber: this.callerInformation.verifiedTelephoneNumber,
-			address: this.callerInformation.livesIn,
-			languagePreference: this.callerInformation.languagePreference,
-			birthdate: this.callerInformation.birthdate,
-			cifNumber: this.callerInformation.cifNumber,
-			profilePhoto: this.callerInformation.profilePhoto,
-			firstName: this.callerInformation.firstName,
-			lastName: this.callerInformation.lastName,
-			middleName1: this.callerInformation.middleName1,
-			middleName2: this.callerInformation.middleName2,
-			middleName3: this.callerInformation.middleName3,
-			initials: this.callerInformation.initials,
-			photo: `-`
-		});
-	}
-
 	_handleLoadingCompleteMessage() {
 		window.showToastTimed(`success`, `top`, `Success`, `Livebetter Loaded Successful`, 3000, true, null, `vertical`, null);
 	}
 	
-
 	_handleTelemetryNewTraceIdMessage(e) {
 		this._telemetry.newTrace(e.detail.content.traceId);
 	}
@@ -109,40 +87,6 @@ export class HorizonLbbWidgetHost extends SavingsAccountBase {
 		this._telemetry.closeChildSpans(e.detail.content.parentEvent, e.detail.content.originatingSystem);
 	}
 
-	// async _liveBetterLandingDetails(e) {
-	// 	const returnValue = await this.liveBetterService.liveBetterLanding(e.detail.content);
-
-	// 	if (returnValue.succeeded && returnValue.result) {
-	// 		e.detail.callback(returnValue.result);
-	// 	}
-	// }
-
-	async _optionClick(e) {
-		const option = e.detail.content;
-
-		const accountDetails = () => this._accountDetails();
-		const transactionHistory = () => this._transactionHistory();
-		const statements = () => this._getStatements();
-		const automaticSavings = () => this._automaticSavings();
-		const productEnquiry = () => this._productEnquiry();
-		const partnerBenefits = () => this._partnerBenefits();
-
-		const actions = {
-			'lbb-account-enquiry': accountDetails,
-			'transaction-history-lbb': transactionHistory,
-			'statements-lbb': statements,
-			'automatic-savings-lbb': automaticSavings,
-			'product-enquiry': productEnquiry,
-			'partner-benefits': partnerBenefits
-		};
-
-		if (actions[option]) {
-			await super._inicidentManager_(option, () => this._toggleBusyFlag());
-			this._refreshIncidentDetails();
-			return actions[option]();
-		}
-	};
-	
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -154,7 +98,7 @@ export class HorizonLbbWidgetHost extends SavingsAccountBase {
 	// ---------------
 
 	async _initialize() {
-		const widgetName = `LbbWidget`;
+		const widgetName = `cec-widget-lbb`;
 
 		const response = await this.widgetRegistryService.getWidgetById(widgetName);
 
@@ -191,15 +135,7 @@ export class HorizonLbbWidgetHost extends SavingsAccountBase {
 			<!-- Display the widget at location "./widget.html". This will typically be a link to the widget, e.g. "https://my-widget.platform-dev.int.capinet/widget.html" -->
 			<capitec-widget id="widget1" src="${this.widgetDetails.alias}" class="widget" 
 				@initialize="${this._handleInitializeMessage}"
-				@get-client-profile="${this._handleGetClientProfileInfoMessage}" 
-				@loading-complete="${this._handleLoadingCompleteMessage}"
-				@option-click="${this._optionClick}"
-			
-				@telemetry-new-trace-id="${this._handleTelemetryNewTraceIdMessage}"
-				@telemetry-start-span="${this._handleTelemetryStartSpanMessage}"
-				@telemetry-end-span="${this._handleTelemetryEndSpanMessage}"
-				@telemetry-log-event="${this._handleTelemetryLogEventMessage}"
-				@telemetry-close-child-spans="${this._handleTelemetryCloseChildSpansMessage}">
+				@loading-complete="${this._handleLoadingCompleteMessage}">
 			</capitec-widget>
 		`;
 	}

@@ -16,7 +16,7 @@
 	// }
 	"widget": {
 		"widgetId": `123`,
-		"widgetName": `LbbWidget`,
+		"widgetName": `cec-widget-lbb`,
 		"alias": `http://localhost:6001/widget.html`,
 		"location": `middle`,
 		"responsibleTeam": `Horizon`,
