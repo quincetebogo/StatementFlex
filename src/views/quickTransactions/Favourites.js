@@ -80,9 +80,6 @@ export class Favourites extends SavingsAccountBase {
 		this.showCCSmodal = false;
 		this.settlementQuoteEvents = SETTLEMENT_QUOTE_EVENTS;
 
-		// TODO: CSCEH-8448: The below variable needs to be removed while integrating UI with CS.
-		this.onHoldSuccess = true;
-
 		this._telemetry = HorizonTelemetry.instance;
 
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
@@ -181,12 +178,10 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _onConfirmPlaceHold(event) {
-		// TODO: CSCEH-8448 - The navigation needs to happen on the response of the CS.
-
 		const sendCashVoucherHoldRequest = {
 			cifNumber: this.callerInformation.cifNumber,
 			voucherNumber: this.voucherNumber,
-			reason: event.detail.selectedReason.value
+			reason: event.detail.selectedReason.reason
 		};
 
 		this._saveToState(event.detail.selectedReason);
@@ -672,7 +667,7 @@ export class Favourites extends SavingsAccountBase {
 		const returnValue = await this.sendCashService.getVouchers(sendCashVouchersRequest);
 
 		if (returnValue.succeeded) {
-			this.sendCashVouchers = returnValue.result.TransactionHistoryResponseListModel;
+			this.sendCashVouchers = returnValue.result;
 
 			this.renderMode = RENDER_MODE.SEND_CASH;
 		}

@@ -255,7 +255,7 @@
 			"positiveCase": false
 		},
 		"sendCashVouchers": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase" : true
 		}
 	},

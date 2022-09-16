@@ -101,7 +101,7 @@ export default class HorizonChannelServiceMocks {
 
 	sendCashVouchers() {
 		if (this._mockSettings.sendCashVouchers.positiveCase) {
-			return this.sendCashMocks.SendCashLandingMocks;
+			return this.sendCashMocks.SendCashLandingMocks.TransactionHistoryResponseListModel;
 		}
 	}
 

@@ -1,7 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { formatDate, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { DateTime } from 'luxon';
-import { SendCashLandingMocks } from 'app/mocks/SendCashMocks';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/HorizonLabel';
@@ -9,7 +8,9 @@ import 'app/components/common/HorizonExpander';
 import 'app/components/dialogs/common/ConfirmPlaceHold';
 
 const today = new Date();
+
 const DATE_FORMAT = `dd mmm yyyy`;
+const DATE_TIME_FORMAT = `dd mmm yyy hh:mm:ss`;
 
 const DEFAULTS = { 
 	SEARCH_TEXT_LABEL: `Search for amount, voucher/account no.`,
@@ -29,7 +30,7 @@ const RENDER_CHIPS = {
 	STATUS: ``
 };
 
-const HOLD_RESTRICTION_SET = new Set([`Redeemable`, `Partial Redeemed`]);
+const HOLD_RESTRICTION_SET = new Set([`REDEEMABLE`, `PARTIAL REDEEMED`]);
 
 /**
  * This component shows the send cash landing page.
@@ -86,7 +87,7 @@ export class SendCashLanding extends Component {
 
 		RENDER_CHIPS[FILTER_BY.TEXT] = ``;
 		RENDER_CHIPS[FILTER_BY.DATE] = ``;
-		RENDER_CHIPS[FILTER_BY.STATUS] = `All`;
+		RENDER_CHIPS[FILTER_BY.STATUS] = `ALL`;
 	}
 
 	disconnectedCallback() {
@@ -189,7 +190,7 @@ export class SendCashLanding extends Component {
 	}
 
 	_selectedStatusType(e) {
-		RENDER_CHIPS[FILTER_BY.STATUS] = e.target.label;
+		RENDER_CHIPS[FILTER_BY.STATUS] = e.target.label.toUpperCase();
 
 		this._refineSearch();
 	}
@@ -219,7 +220,7 @@ export class SendCashLanding extends Component {
 			const endDate = new Date(Date.parse(this.endDate));
 
 			this.filteredSendCashVouchers = this.filteredSendCashVouchers.filter(item => {
-				const date = new Date(Date.parse(item.dateCreated)); 
+				const date = new Date(Date.parse(item.datetimeCreated)); 
 				return date >= startDate && date <= endDate; 
 			});
 		}
@@ -228,7 +229,7 @@ export class SendCashLanding extends Component {
 		if (RENDER_CHIPS[FILTER_BY.STATUS]) {
 			const status = RENDER_CHIPS[FILTER_BY.STATUS];
 
-			if (status === `All`) {
+			if (status === `ALL`) {
 				return this.filteredSendCashVouchers;
 			}
 			this.filteredSendCashVouchers = this.filteredSendCashVouchers.filter(item => item.voucherStatus === status);
@@ -400,13 +401,13 @@ export class SendCashLanding extends Component {
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-line-height: 20px;
 				}
-				horizon-label[value="Redeemable"] {
+				horizon-label[value="REDEEMABLE"] {
 					--horizon-label-value-color: #70AF00;
 				}
-				horizon-label[value="On hold"] {
+				horizon-label[value="ON HOLD"] {
 					--horizon-label-value-color: #C83B37;
 				}
-				horizon-label[value="Redemption Authorised"] {
+				horizon-label[value="REDEMPTION AUTHORISED"] {
 					--horizon-label-value-color: #D4781C;
 				}
 				.sent-from-label {
@@ -531,27 +532,27 @@ export class SendCashLanding extends Component {
 
 				<capitec-chip 
 					label="All" 
-					class="${RENDER_CHIPS[FILTER_BY.STATUS] !== `All` ? `type-normal` : `type-selected`}" 
+					class="${RENDER_CHIPS[FILTER_BY.STATUS] !== `ALL` ? `type-normal` : `type-selected`}" 
 					@click="${(e) => this._selectedStatusType(e)}">
 				</capitec-chip>
 				<capitec-chip 
 					label="Redeemable"
-					class="${RENDER_CHIPS[FILTER_BY.STATUS] === `Redeemable` ? `type-selected` : `type-normal`}" 
+					class="${RENDER_CHIPS[FILTER_BY.STATUS] === `REDEEMABLE` ? `type-selected` : `type-normal`}" 
 					@click="${(e) => this._selectedStatusType(e)}">
 				</capitec-chip>
 				<capitec-chip 
 					label="Redeemed" 
-					class="${RENDER_CHIPS[FILTER_BY.STATUS] === `Redeemed` ? `type-selected` : `type-normal`}" 
+					class="${RENDER_CHIPS[FILTER_BY.STATUS] === `REDEEMED` ? `type-selected` : `type-normal`}" 
 					@click="${(e) => this._selectedStatusType(e)}">
 				</capitec-chip>
 				<capitec-chip 
 					label="On hold"
-					class="${RENDER_CHIPS[FILTER_BY.STATUS] === `On hold` ? `type-selected` : `type-normal`}" 
+					class="${RENDER_CHIPS[FILTER_BY.STATUS] === `ON HOLD` ? `type-selected` : `type-normal`}" 
 					@click="${(e) => this._selectedStatusType(e)}">
 				</capitec-chip>
 				<capitec-chip 
 					label="Redemption Authorised"
-					class="${RENDER_CHIPS[FILTER_BY.STATUS] === `Redemption Authorised` ? `type-selected` : `type-normal`}" 
+					class="${RENDER_CHIPS[FILTER_BY.STATUS] === `REDEMPTION AUTHORISED` ? `type-selected` : `type-normal`}" 
 					@click="${(e) => this._selectedStatusType(e)}">
 				</capitec-chip>
 			</capitec-group>
@@ -620,7 +621,7 @@ export class SendCashLanding extends Component {
 							<horizon-label
 								class="date-created-label"
 								label="Date Created"
-								value="${item.datetimeCreated}">
+								value="${formatDate(item.datetimeCreated, DATE_TIME_FORMAT)}">
 							</horizon-label>
 							<horizon-label
 								class="voucher-number-label"
@@ -695,6 +696,25 @@ export class SendCashLanding extends Component {
 
 			</capitec-group>
 
+			${this._renderMerchantList(item)}
+
+			${this._renderFooter(item)}
+		`;
+	}
+
+	_renderVoucherInfo(element, index) {
+		return html`
+			<capitec-label label="${formatDate(element.changeDateTime, DATE_TIME_FORMAT)}" row="${index}" column="1"></capitec-label>
+			<capitec-label label="${formatCurrency(element.eventAmount)}" row="${index}" column="2"></capitec-label>
+			<capitec-label label="${formatCurrency(element.remainingOrderAmount)}" row="${index}" column="3"></capitec-label>
+			<capitec-label label="${element.action ? formatStringAsPascalCase(element.action) : `-`}" row="${index}" column="4"></capitec-label>
+			<capitec-label label="${element.actionDescription ? formatStringAsPascalCase(element.actionDescription) : `-`}" row="${index}" column="5"></capitec-label>
+		`;
+	}
+
+	_renderMerchantList(item) {
+		return item.merchantStatusList.length > 0
+		? html`
 			<capitec-label label="Payout from merchant"></capitec-label>
 
 			<capitec-group layout="grid" gap="none" columns="5" rows="${item.merchantStatusList.length}">
@@ -708,30 +728,19 @@ export class SendCashLanding extends Component {
 
 				${item.merchantStatusList.map((element, index) => this._renderMerchantInfo(element, index + 2))}
 
-			</capitec-group>
+			</capitec-group>`
 
-			${this._renderFooter(item)}
-		`;
-	}
-
-	_renderVoucherInfo(element, index) {
-		return html`
-			<capitec-label label="${element.changeDateTime}" row="${index}" column="1"></capitec-label>
-			<capitec-label label="${element.eventAmount}" row="${index}" column="2"></capitec-label>
-			<capitec-label label="${element.remainingOrderAmount}" row="${index}" column="3"></capitec-label>
-			<capitec-label label="${element.action}" row="${index}" column="4"></capitec-label>
-			<capitec-label label="${element.actionDescription}" row="${index}" column="5"></capitec-label>
-		`;
+		: html``;
 	}
 
 	_renderMerchantInfo(element, index) {
 		return html`
-			<capitec-label label="${element.merchantTimeStamp}" row="${index}" column="1"></capitec-label>
+			<capitec-label label="${formatDate(element.merchantTimeStamp, DATE_TIME_FORMAT)}" row="${index}" column="1"></capitec-label>
 			<capitec-label label="${element.merchantStatus}" row="${index}" column="2"></capitec-label>
 			<capitec-label label="${element.city}" row="${index}" column="3"></capitec-label>
 			<capitec-label label="${element.merchantName}" row="${index}" column="4"></capitec-label>
 			<capitec-label label="${element.merchantId}" row="${index}" column="5"></capitec-label>
-			<capitec-label label="${element.merchantAmount}" row="${index}" column="6"></capitec-label>
+			<capitec-label label="${formatCurrency(element.merchantAmount)}" row="${index}" column="6"></capitec-label>
 			<capitec-label label="${element.country}" row="${index}" column="7"></capitec-label>
 		`;
 	}
