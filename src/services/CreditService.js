@@ -106,7 +106,7 @@ export class CreditService extends ChannelServiceBase {
 	}
 
 	async creditCardDetails(accountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
 		const creditCardDetailsRequest = {
 			"accountnumber": accountNumber
@@ -129,7 +129,7 @@ export class CreditService extends ChannelServiceBase {
 	}
 
 	async accessFacilityDetails(accountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
 		const accessFacilityDetailsRequest = {
 			"accountnumber": accountNumber
@@ -152,7 +152,7 @@ export class CreditService extends ChannelServiceBase {
 	}
 
 	async termLoanDetails(accountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
 		const termLoanDetailsRequest = {
 			"accountnumber": accountNumber
@@ -218,7 +218,7 @@ export class CreditService extends ChannelServiceBase {
 	}
 
 	async flexibleStatementEmail(creditType, accountNumber, emailAddress, statementDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
 		const flexibleStatementEmailRequest = {
 			"creditType": creditType,
@@ -269,7 +269,7 @@ export class CreditService extends ChannelServiceBase {
 	}
 
 	async fixedStatementEmail(accountNumber, emailAddress, fromDate, toDate, setdate, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
 		const fixedStatementEmailRequest = {
 			"accountNumber": accountNumber,
@@ -323,7 +323,7 @@ export class CreditService extends ChannelServiceBase {
 	}
 
 	async emailPaidUpLetter(cifNumber, accountNumbers, emailAddress, title, lastName, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`emailPaidUpLetter`)) {
 			if (errorHandler) {
@@ -411,7 +411,7 @@ export class CreditService extends ChannelServiceBase {
 	}
 
 	async sendSettlementQuoteEmail(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`sendSettlementQuoteEmail`)) {
 			return this.mock(`sendSettlementQuoteEmail`);

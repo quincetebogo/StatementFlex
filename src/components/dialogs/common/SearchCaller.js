@@ -340,7 +340,7 @@ export class SearchCaller extends Component {
 				const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
 				this.alertBannerMessage = errMessages.ALERT_BANNER;
 				this.errMessage.searchValue = errMessages.FIELD_ERROR;
-			} else if (this.incidentDetails.incidentReferenceNumber === null) {
+			} else if (this.incidentDetails.currentIncident === null) {
 				this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
 			} else {
 				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
@@ -380,7 +380,7 @@ export class SearchCaller extends Component {
 					const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
 					this.alertBannerMessage = errMessages.ALERT_BANNER;
 					this.errMessage.searchValue = errMessages.FIELD_ERROR;
-				} else if (this.incidentDetails.incidentReferenceNumber === null) {
+				} else if (this.incidentDetails.currentIncident === null) {
 					this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
 				} else {
 					this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
@@ -411,55 +411,60 @@ export class SearchCaller extends Component {
 	}
 
 	async _onContinue() {
-
 		this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
 			"screen": TelemetryScreen.SEARCH_CLIENT,
 			"next-screen": TelemetryScreen.PRODUCT_INFO
 		});
 
-		if (this._validateNonClientFields()) {
-			const callerDetails = new CallerDetails();
-
-			callerDetails.idNumber = ``;
-			callerDetails.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
-			callerDetails.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
-			callerDetails.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
-			callerDetails.incidentReferenceNumber = this.incidentDetails.incidentReferenceNumber;
-			callerDetails.incidentRecId = this.incidentDetails.incidentRecId;
-			callerDetails.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
-			callerDetails.nonClientFullName = `${this.nameValue} ${this.surNameValue}`;
-			callerDetails.nonClientCellPhone = `${this.cellPhoneNumberValue}`;
-			callerDetails.nonClientIDNumber = ``;
-			callerDetails.nonClientRelationship = ``;
-
-			const nonClientDetails = {
-				firstName: this.nameValue,
-				surname: this.surNameValue,
-				cellPhone: this.cellPhoneNumberValue
-			};
-
-			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
-
-			if (returnValue.succeeded) {
-				this.dispatchEvent(new CustomEvent(`non-client-captured`, {
-					detail: {
-						incomingCallDetails: this.incomingCallDetails,
-						incidentDetails: this.incidentDetails,
-						nonClient: {
-							firstName: this.nameValue,
-							surname: this.surNameValue,
-							cellphone: this.cellPhoneNumberValue
-						},
-						isBranchConsultant: false
-					}
-				}));
-			} else if (this.incomingCallDetails.incidentRecId === null) {
-				this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
-			} else {
-				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
-				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_onContinue`, returnValue.correlationId);
-			}
+		if (!this._validateNonClientFields()) {
+			return;
 		}
+
+		const callerDetails = new CallerDetails();
+
+		callerDetails.idNumber = ``;
+		callerDetails.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
+		callerDetails.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
+		callerDetails.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
+		callerDetails.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
+		callerDetails.nonClientFullName = `${this.nameValue} ${this.surNameValue}`;
+		callerDetails.nonClientCellPhone = `${this.cellPhoneNumberValue}`;
+		callerDetails.nonClientIDNumber = ``;
+		callerDetails.nonClientRelationship = ``;
+
+		const nonClientDetails = {
+			firstName: this.nameValue,
+			surname: this.surNameValue,
+			cellPhone: this.cellPhoneNumberValue
+		};
+
+		const currentIncident = this.horizonIncidentManager.currentIncident;
+
+		const returnValue = await this.incidentService.updateIncidentNonClientDetails(currentIncident, nonClientDetails);
+
+		if (!returnValue.succeeded) {
+			this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
+			this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_onContinue`, returnValue.correlationId);
+			return;
+		}
+
+		if (!currentIncident) {
+			this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
+			return;
+		}
+
+		this.dispatchEvent(new CustomEvent(`non-client-captured`, {
+			detail: {
+				incomingCallDetails: this.incomingCallDetails,
+				incidentDetails: this.incidentDetails,
+				nonClient: {
+					firstName: this.nameValue,
+					surname: this.surNameValue,
+					cellphone: this.cellPhoneNumberValue
+				},
+				isBranchConsultant: false
+			}
+		}));
 	}
 
 	_onEndCall() {
@@ -697,8 +702,8 @@ export class SearchCaller extends Component {
 
 	async _updateIncidentBranchDetails(branchCode) {
 		// on confirm click, update incident details to be branch incident and not client incident
-		const incidentRecID = this.incidentDetails.incidentRecId;
-		const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(incidentRecID, branchCode);
+		const incident = this.horizonIncidentManager.currentIncident;
+		const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(incident, branchCode);
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, ``, `_updateIncidentBranchDetails`);
 			return false;

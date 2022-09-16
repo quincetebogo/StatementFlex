@@ -102,7 +102,6 @@ export class StopCardFailure extends ViewBase {
 	}
 
 	async _onTryAgain() {
-		console.log(`cards to stop`, this.failedCards);
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_TRY_AGAIN, {
 			"screen": TelemetryScreen.STOP_CARD_OUTCOME
 		});
@@ -117,9 +116,8 @@ export class StopCardFailure extends ViewBase {
 		// Toggling to InProgress
 		this.renderMode = RENDER_MODE.IN_PROGRESS;
 
-		await this.horizonIncidentManager.createAndClassifySubsIncident(this._toggleBusyFlag);
-		const incidentDetails = this.horizonIncidentManager.getIncidentDetails();
-		const returnValue = await this.cardService.stopCards(this.failedCards, incidentDetails);
+		await this.horizonIncidentManager.createAndClassifySubIncident(this._toggleBusyFlag);
+		const returnValue = await this.cardService.stopCards(this.failedCards, this.horizonIncidentManager.currentIncident);
 		
 		if (returnValue.succeeded) {
 			const cardStopResults = returnValue.result;
@@ -174,7 +172,7 @@ export class StopCardFailure extends ViewBase {
 
 	_onAssignIncident() {
         this.renderDialog = RENDER_DIALOG.ASSIGN_REASON;
-        this.horizonRouter.navigateToStrack(this.incidentRecId);
+        this.horizonRouter.navigateToStrack(this.horizonIncidentManager.currentIncident);
 	}
 
 	_updateIncidentState() {

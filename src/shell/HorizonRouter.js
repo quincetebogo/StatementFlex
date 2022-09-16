@@ -294,12 +294,12 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_ACCOUNT}`);
 	}
 
-	navigateToStrack(incidentRecId) {
+	navigateToStrack(incident) {
 		// Clone the strackURL and update that. Don't modify the original this.strackURL as 
 		// this will break the incidentRecId replacement logic and cause the same incident
 		// to be opened every time.
 		let newUrl = this.strackURL.slice();
-		newUrl = newUrl.replace(`$incidentRecId`, incidentRecId);
+		newUrl = newUrl.replace(`$incidentRecId`, incident.incidentId);
 		window.open(newUrl);
 	}
 

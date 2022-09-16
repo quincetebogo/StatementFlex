@@ -3,7 +3,7 @@ import { SecurityContext } from 'platform/SecurityContext';
 
 const STRACK_URGENCY = `Medium`;
 const STRACK_IMPACT = `Medium`;
-const STARCK_SOURCE = `RealConnect`;
+const STRACK_SOURCE = `RealConnect`;
 
 /**
  * The IncidentManagementService is used to create an incident for recording information
@@ -42,33 +42,7 @@ export class IncidentManagementService extends ChannelServiceBase {
 	 * @memberof IncidentManagementService
 	 */
 	createIncident(incidentData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const createIncidentRequest = {
-			"ucid": incidentData.voiceReferenceNumber,
-			"cli": incidentData.incomingTelephoneNumber,
-			"clientCIF": ``,
-			"orgUnitId": ``,
-			"category": ``,
-			"subCategory": ``,
-			"issue": ``,
-			"vdn": incidentData.VDN,
-			"networkUserName": SecurityContext.getInstance().username,
-			"source": `${STARCK_SOURCE}`,
-			"impact": `${STRACK_IMPACT}`,
-			"urgency": `${STRACK_URGENCY}`,
-			"branchID": ``,
-			"summary": ``,
-			"description": ``,
-			"incidentType": ``,
-			"nonClientDetails": {
-				"fullName": ``,
-				"southAfricanIDNumber": ``,
-				"celllPhone": ``,
-				"workPhone": ``,
-				"email": ``
-			},
-			"referenceNo": ``,
-			"primaryNeedIncidentRecId": incidentData.primaryIncidentRecID || ``
-		};
+		const createIncidentRequest = this._formatIncidentRequest(incidentData);
 
 		const url = `/clientcare-incident-${this._version}/create-incident`;
 	
@@ -86,25 +60,52 @@ export class IncidentManagementService extends ChannelServiceBase {
 		);
 	}
 
+	_formatIncidentRequest(incidentData) {
+		return {
+			"ucid": incidentData.voiceReferenceNumber,
+			"cli": incidentData.incomingTelephoneNumber,
+			"clientCIF": ``,
+			"orgUnitId": ``,
+			"category": ``,
+			"subCategory": ``,
+			"issue": ``,
+			"vdn": incidentData.VDN,
+			"networkUserName": SecurityContext.getInstance().username,
+			"source": `${STRACK_SOURCE}`,
+			"impact": `${STRACK_IMPACT}`,
+			"urgency": `${STRACK_URGENCY}`,
+			"branchID": ``,
+			"summary": ``,
+			"description": ``,
+			"incidentType": ``,
+			"nonClientDetails": {
+				"fullName": ``,
+				"southAfricanIDNumber": ``,
+				"cellPhone": ``,
+				"workPhone": ``,
+				"email": ``
+			},
+			"primaryNeedIncident": incidentData.primaryIncident
+		};
+	}
+
 	/**
 	 * Record the details of a client against an incident
 	 *
 	 * @param {String} cifNumber The client's CIF number
-	 * @param {String} incidentRecId STrack incident record ID against which the client details will get recorded
+	 * @param {object} incident The Incident against which the client details will get recorded
 	 * @param {errorHandlerCallback} [errorHandler=null] An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} A promise for an object containing a success flag and the result of the channel service call
 	 * @memberof IncidentManagementService
 	 */
-	 updateIncidentClientDetails(cifNumber, incidentRecId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const request = {
-			incidentRecId: incidentRecId,
-			cif: cifNumber
-		};
-	
+	 updateIncidentClientDetails(cifNumber, incident, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
 			`/clientcare-incident-${this._version}/UpdateIncidentClientDetails`, 
-			request, 
+			{
+				incident: incident,
+				cif: cifNumber
+			}, 
 			this.setToken(), 
 			`updateIncidentClientDetails`, 
 			null, 
@@ -119,15 +120,15 @@ export class IncidentManagementService extends ChannelServiceBase {
 	/**
 	 * Record the details of a non client against an incident
 	 *
-	 * @param {String} incidentRecId STrack incident record ID against which the client details will get recorded
+	 * @param {Object} incident Incident against which the client details will get recorded
 	 * @param {String} nonClientDetails Non client details
 	 * @param {errorHandlerCallback} [errorHandler=null] An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} A promise for an object containing a success flag and the result of the channel service call
 	 * @memberof IncidentManagementService
 	 */
-	 updateIncidentNonClientDetails(incidentRecId, nonClientDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		nonClientDetails.incidentRecId = incidentRecId;
+	 updateIncidentNonClientDetails(incident, nonClientDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		nonClientDetails.incident = incident;
 	
 		return this.post(
 			`/clientcare-incident-${this._version}/addcaller/nonclient`, 
@@ -242,53 +243,65 @@ export class IncidentManagementService extends ChannelServiceBase {
 	/**
 	 * Closing current incident.
 	 *
-	 * @param {object} closeIncidentRequest The incoming all information to record against the incident
+	 * @param {object} incident The incident to close
+	 * @param {string} reason The reason for closing
+	 * @param {string} resolution The resolution of the incident
+	 * @param {string} causeCode Cause code for the incident
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 * @memberof IncidentManagementService
 	 */
-	 closeIncident(closeIncidentRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const url = `/clientcare-incident-${this._version}/close-incident?` +
-			`IncidentRecId=${closeIncidentRequest.incidentRecId}&` +
-			`Reason=${closeIncidentRequest.reason}&` +
-			`Resolution=${closeIncidentRequest.resolution}&` +
-			`CauseCode=${closeIncidentRequest.causeCode}`;
-	
+	 closeIncident(incident, reason, resolution, causeCode, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const request = _formatCloseIncidentRequest(incident, reason, resolution, causeCode);
+
 		return this.put(
 			url, 
-			null, 
+			request, 
 			this.setToken(), 
 			`closeIncident`, 
 			null, 
 			null, 
-			1000,
+			null,
 			null,
 			errorHandler,
 			autoRetries
 		);
 	}
 
+	_formatCloseIncidentRequest(incident, reason, resolution, causeCode) {
+		return {
+			incident: closeIncidentRequest.incident,
+			reason: closeIncidentRequest.reason,
+			resolution: closeIncidentRequest.resolution,
+			causeCode: closeIncidentRequest.causeCode
+		};
+	}
+
 	/**
 	 * classifying incident.
 	 *
-	 * @param {object} classifyIncidentRequest IncidentRecID & need details to classify incident
+	 * @param {object} incident The incident to classify
+	 * @param {string} [need=null] A need constant that is mapped to a classification
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 * @memberof IncidentManagementService
 	 */
-	classifyIncident(classifyIncidentRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	classifyIncident(incident, need, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const url = `/clientcare-incident-${this._version}/classification`;
 	
 		return this.post(
 			url, 
-			classifyIncidentRequest, 
+			{
+				incident: incident,
+				need: need
+			}, 
 			this.setToken(), 
 			`classifyIncident`, 
 			null, 
 			null, 
-			900,
+			null,
 			null,
 			errorHandler, 
 			autoRetries
@@ -298,22 +311,18 @@ export class IncidentManagementService extends ChannelServiceBase {
 	/**
 	 * Retrieving incident status.
 	 *
-	 * @param {object} incidentRecId IncidentRecID to get status
+	 * @param {object} incident An incident for which the current status must be retrieved
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 * @memberof IncidentManagementService
 	 */
-	 incidentStatus(incidentRecId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	 incidentStatus(incident, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const url = `/clientcare-incident-${this._version}/incident`;
-
-		const request = {
-			"incidentRecId": incidentRecId
-		};
-	
+		
 		return this.post(
 			url,
-			request,
+			incident,
 			this.setToken(), 
 			`incidentStatus`,
 			null,
@@ -327,16 +336,16 @@ export class IncidentManagementService extends ChannelServiceBase {
 
 	/**
 	* Adding branch details for consultant phoning on behalf of client
-	* @param {string} incidentRecID Record IF of the current incident
+	* @param {object} incident The current incident
     * @param {string} branchCode BranchCode to classify branch
 	* @param {errorHandlerCallback} [errorHandler=null] and optional error handler
 	* @param {Number} [autoRetries] The amount of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	* @memberof IncidentManagementService
 	*/
-	UpdateIncidentBranchDetailsRequest(incidentRecID, branchCode, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	UpdateIncidentBranchDetailsRequest(incident, branchCode, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const branchDetails = {
-			incidentRecId: incidentRecID,
+			incident: incident,
 			branchCode: branchCode
 		};
 

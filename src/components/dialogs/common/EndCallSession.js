@@ -51,8 +51,6 @@ export class EndCallSession extends Component {
 		this.isBusy = false;
 		this.isReassigned = false;
 		this.alertBannerMessage = ``;
-		this.incidentRefNumber = ``;
-		this.incidentRecId = ``;
 
 		// Private Variables
 		this.category = ``;
@@ -130,10 +128,6 @@ export class EndCallSession extends Component {
 		this.callerInformation = this.horizonStore.getCallerInformation() || this.callerInformation;
 		this.endCallReasons = END_CALL_REASON[this.endCallContext][this.callerInformation.verificationStatus] || END_CALL_REASON[this.endCallContext];
 		
-		// Subsequent incident might be created, so retrieving refNo & recID always from state
-		this.incidentRefNumber = this.incidentDetails.incidentReferenceNumber;
-		this.incidentRecId = this.incidentDetails.incidentRecId;
-
 		this._setDefaultValues();
 		this.incidentInfo = await this._incidentStatus() || {};
 		this._loading();
@@ -176,7 +170,7 @@ export class EndCallSession extends Component {
 				"next-screen": TelemetryScreen.WAIT_FOR_CALL
 			});
 
-			const currentIncident = this.horizonIncidentManager.getCurrentIncident();
+			const currentIncident = this.horizonIncidentManager.currentIncident;
 
 			// Ignoring the abandon or not started need action
 			if (!currentIncident.incidentReferenceNumber || currentIncident.incidentReferenceNumber === `0`) {
@@ -376,7 +370,7 @@ export class EndCallSession extends Component {
 		return true;
 	}
 
-	async _updateClientNonclientDetails(strackIncidentInfo, incidentDetails) {
+	async _updateClientNonclientDetails(strackIncidentInfo, currentIncident) {
 
 		/*
 		 * Update client details to STrack when the caller is a capitec client or 3rd party/beneficiary client.
@@ -389,7 +383,7 @@ export class EndCallSession extends Component {
 			isNullorEmpty(strackIncidentInfo.clientDetails.cif) &&
 			isNullorEmpty(strackIncidentInfo.clientDetails.southAfricanIDNumber)) {
 
-			const returnValue = await this.incidentManagementService.updateIncidentClientDetails(this.callerInformation.cifNumber, incidentDetails.incidentRecId);
+			const returnValue = await this.incidentManagementService.updateIncidentClientDetails(this.callerInformation.cifNumber, currentIncident);
 		
 			if (!returnValue.succeeded) {
 				this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateSubsequentNeedClientDetails`, returnValue.correlationId);
@@ -408,13 +402,11 @@ export class EndCallSession extends Component {
 			Boolean(this.callerInformation.nonClientSurName)) {
 				
 			const nonClientDetails = {
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				firstName: this.callerInformation.nonClientFirstName,
 				surname: this.callerInformation.nonClientSurName,
 				cellPhone: this.callerInformation.nonClientCellPhone
 			};
-			const returnValue = await this.incidentManagementService.updateIncidentNonClientDetails(incidentDetails.incidentRecId, nonClientDetails);
+			const returnValue = await this.incidentManagementService.updateIncidentNonClientDetails(currentIncident, nonClientDetails);
 	
 			if (!returnValue.succeeded) {
 				this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateSubsequentNeedNonClientDetails`, returnValue.correlationId);
@@ -429,7 +421,7 @@ export class EndCallSession extends Component {
 		const needAction = STRACK_MAPPING[currentNeed] || STRACK_MAPPING[this.endCallReason.mapping];
 		const strackIncidentInfo = await this._incidentStatus() || {};
 
-		await this._updateClientNonclientDetails(strackIncidentInfo, this.incidentDetails);
+		await this._updateClientNonclientDetails(strackIncidentInfo, this.horizonIncidentManager.currentIncident);
 
 		// Flag to check, if the incident is already updated outside of Horizon
 		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
@@ -437,7 +429,7 @@ export class EndCallSession extends Component {
 
 		if (!isNullorEmpty(needAction) && continueUpdate) {
 			const request = {
-				incidentRecId: this.incidentRecId,
+				incident: this.horizonIncidentManager.currentIncident,
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
 				needAction: needAction,
 				incidentCategorization: classification
@@ -476,13 +468,14 @@ export class EndCallSession extends Component {
 	}
 
 	async _incidentStatus() {
-		
-		if (isNullorEmpty(this.incidentRecId) || this.incidentRecId === `0`) {
+		const currentIncident = this.horizonIncidentManager.currentIncident;
+
+		if (!currentIncident) {
 			this.logger.log(`info`, `No active incident to get status`, `_incidentStatus`, null);
 			return null;
 		}
 
-		const returnValue = await this.incidentManagementService.incidentStatus(this.incidentRecId);
+		const returnValue = await this.incidentManagementService.incidentStatus(currentIncident);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to get incident status.`, `_incidentStatus`, returnValue.correlationId);
@@ -510,7 +503,7 @@ export class EndCallSession extends Component {
 		 * Temp solution to know, if incident is assigned at strack directly
 		 * and to fit in current stop card flow logic
 		 */
-		const incidentInfo = await this._incidentStatus(this.incidentRecId);
+		const incidentInfo = await this._incidentStatus();
 		
 		if (incidentInfo) {
 			this.isReassigned = this.isReassigned || (incidentInfo.owner.toLocaleLowerCase() !== this.securityContext.username);

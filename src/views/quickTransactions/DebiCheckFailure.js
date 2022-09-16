@@ -71,7 +71,7 @@ export class DebiCheckFailure extends ViewBase {
 
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
 
-		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.getCurrentIncident().incidentRecId);
+		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.currentIncident);
 		this.horizonStore.clearReturnScreen();
 	}
 

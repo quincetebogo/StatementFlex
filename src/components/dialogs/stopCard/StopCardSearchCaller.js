@@ -171,7 +171,6 @@ export class StopCardSearchCaller extends Component {
 		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 
 		this.incidentReferenceNumber = this.incidentDetails.incidentReferenceNumber;
-		this.incidentRecId = this.incidentDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
 		this.searchOptions = SEARCH_OPTIONS;
