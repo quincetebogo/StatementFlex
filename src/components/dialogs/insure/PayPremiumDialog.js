@@ -379,9 +379,9 @@ class PayPremiumDialog extends Component {
 			<capitec-label type="subtitle" label="Choose payment method">
 			</capitec-label>
 			
-			<insure-account-select label="Select an Account"
+			<insure-account-select 
 				@option-selected="${(e) => this._optionSelected(e)}" data-automation-id="insure-pay-premium-dialog-accounts"
-				.accountDetails = "${this.accountDetails}" .insufficient = "${this.insufficient}">
+				.accountDetails = "${this.accountDetails}" .insufficient = "${this.insufficient}" .label= "${`Select an Account`}">
 			</insure-account-select>
 
 			
