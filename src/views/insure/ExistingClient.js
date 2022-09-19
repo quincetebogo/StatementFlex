@@ -1231,7 +1231,7 @@ export class ExistingClient extends InsureViewBase {
 
 		this.clientPolicies?.summaryDetails?.policies?.forEach(item => {
 			item.isExpanded = false; 
-		})
+		});
 
 		return html`
 			<horizon-insure-client-policies .clientPolicies="${this.clientPolicies}"

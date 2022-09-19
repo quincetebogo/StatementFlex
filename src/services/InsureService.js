@@ -35,7 +35,7 @@ export class InsureService extends ChannelServiceBase {
 			"X-User-Token": Security.getInstance().token,
 			"x-session-id": v4(),
 			"x-request-id": v4(),
-			"x-requester-uid": this.generateFIPSRequesterUID(),
+			"x-requester-uid": this.generateFIPSRequesterUID()
 		};
 	}
 
