@@ -1,12 +1,12 @@
 import { Component, css, html } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
-
+ 
 const HOLD_REASON = [
-	{ key: "1", value: "Smishing (Mobile USSD/App Banking Fraud)" },
-	{ key: "2", value: "Unauthorised transaction (Lost Device, Stolen, Robbed)" },
-	{ key: "3", value: "SendCash Friendly fraud (Civil Matter)" },
-	{ key: "4", value: "Client Request (Civil Matter)" },
-	{ key: "5", value: "Phising/Vishing sms/Call" }
+	{ key: `1`, value: `Smishing (Mobile USSD/App Banking Fraud)`, reason: `SMISHING` },
+	{ key: `2`, value: `Unauthorised transaction (Lost Device, Stolen, Robbed)`, reason: `UNAUTHORIZED_TRANSACTION` },
+	{ key: `3`, value: `SendCash Friendly fraud (Civil Matter)`, reason: `FRIENDLY_FRAUD` },
+	{ key: `4`, value: `Client Request (Civil Matter)`, reason: `CLIENT_REQUEST` },
+	{ key: `5`, value: `Phising/Vishing sms/Call`, reason: `PHISING_VISHING` }
 ];
 
 export class ConfirmPlaceHold extends Component {
@@ -18,8 +18,6 @@ export class ConfirmPlaceHold extends Component {
 	constructor() {
 		super();
 
-		// TODO: CSCEH-8448 - Remove the below variables - They are used as UI is not integrated with CS.
-		this.onHoldSuccess = true;
 		this.selectedReason = ``;
 	}
 
@@ -29,7 +27,6 @@ export class ConfirmPlaceHold extends Component {
 
 	/**
 	 * @property {String} selectedReason The value selected as the reason for placing the voucher on hold.
-	 * @property {Boolean} onHoldSuccess Flag to indicate if the navigation should be to success or failure screen.
 	 * @readonly
 	 * @static
 	 * @memberof ConfirmPlaceHold
@@ -37,8 +34,7 @@ export class ConfirmPlaceHold extends Component {
 
 	static get properties() {
 		return {
-			selectedReason: { type: String },
-			onHoldSuccess: { type: Boolean }
+			selectedReason: { type: String }
 		};
 	}
 
@@ -63,8 +59,6 @@ export class ConfirmPlaceHold extends Component {
 	}
 
 	_confirmClick() {
-		// TODO: CSCEH-8448 - The navigation needs to happen on the response of the CS.
-
 		this.dispatchEvent(new CustomEvent(`on-confirm`, { 
 			detail: {
 				selectedReason: this.selectedReason
