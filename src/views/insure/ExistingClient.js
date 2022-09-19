@@ -28,6 +28,7 @@ import { EMAIL_DOCUMENT_REQUEST_PAYLOAD, GENERATE_DOCUMENT_REQUEST_PAYLOAD } fro
 
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
+
 // ninety days in milliseconds
 const NINETY_DAYS = 7777000000;
 
@@ -1135,7 +1136,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {null} null
 	  */
 	_undoClientPolicies() {
-		this.clientPolicies.summaryDetails.policies = this.clientPolicies?.summaryDetails?.policies?.forEach(item => {
+		this.clientPolicies?.summaryDetails?.policies?.forEach(item => {
 			 item.isExpanded = false; 
 		});
 	}
@@ -1226,11 +1227,11 @@ export class ExistingClient extends InsureViewBase {
 	 * Render Landing page for Insure existing clients
 	 * @return {html} Html of the sub view
 	 */
-	_renderClientPoliciesPage() {
+	 _renderClientPoliciesPage() {
 
 		this.clientPolicies?.summaryDetails?.policies?.forEach(item => {
 			item.isExpanded = false; 
-		})
+		});
 
 		return html`
 			<horizon-insure-client-policies .clientPolicies="${this.clientPolicies}"

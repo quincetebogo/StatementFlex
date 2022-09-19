@@ -313,7 +313,7 @@ _renderHeader() {
 				<div class="default">
 					<capitec-content-box @click="${this._showAccountOptions}" layout="horizontal" valign="center" noScroll>
 						<div>
-							<capitec-label type="strong" label="${this.label}" ></capitec-label>
+							<capitec-label type="strong" label=${this.label} ></capitec-label>
 						</div>
 						<div>
 							<capitec-icon size="8px" icon="${this.displayOptions === false ? `system/chevron-down-action` : `system/chevron-up-action`}" ></capitec-icon>

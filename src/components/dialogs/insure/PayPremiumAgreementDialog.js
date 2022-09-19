@@ -33,7 +33,7 @@ class PayPremiumAgreementDialog extends Component {
 
 	/**
 	 * @property {Object} contractReference contains the contract refrence
-	 * @property {Object} amountToPay total amount that will be paid
+	 * @property {Number} amountToPay total amount that will be paid
 	 * @property {Function} getArrearsPaymentDocument Callback function to fetch arrears payment document
 	 * @property {Object} arrearsPaymentDocumentDetails contains arrears payment document details
 	 * 
@@ -41,12 +41,10 @@ class PayPremiumAgreementDialog extends Component {
 	 */
 	 static get properties() {
 		return {
-			
 			contractReference: { type: Object, state: true },
-			amountToPay: { type: Object, state: true },
+			amountToPay: { type: Number, state: true },
 			getArrearsPaymentDocument: { type: Object },
 			arrearsPaymentDocumentDetails: { type: Object, state: true }
-
 		};
 	}
 
@@ -69,17 +67,20 @@ class PayPremiumAgreementDialog extends Component {
 
 	// #region PRIVATE METHODS
 
-	async _initialize() {
+	_initialize() {
 
-		await this.getArrearsPaymentDocument(this.contractReference);
-
-
+		// this._getDocument();
+		
 	}
 
 
 	// #endregion
 
 	// #region EVENT HANDLERS
+
+	/**
+	 * fetch arrears payment document
+	 * @returns {null} null
 
 	/**
 	 * Cancel event from dialog footer button, closes modal & reset toggles 

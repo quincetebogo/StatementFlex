@@ -5,8 +5,8 @@
  * @enum {Object} DATE_TYPE_LIST
  */
  export const DATE_TYPE_LIST = Object.freeze([
-	{ code: 'TransactionDate', text: `Date` },
-	{ code: 'PremiumDueDate', text: `Premium Due Date` }
+	{ code: `TransactionDate`, text: `Date` },
+	{ code: `PremiumDueDate`, text: `Premium Due Date` }
 ]);
 
 export const DEFAULTS = {
