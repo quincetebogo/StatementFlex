@@ -55,7 +55,7 @@ export class CFPAgreementDialog extends Component {
 	 * @returns {html} Agreement Copy
 	 */
 	_renderDialogBody() {
-		return html`${this.productCode = INSURE_PRODUCT_CODE.CAPITEC ? html` <strong>Capitec:</strong>
+		return html `${ this.productCode == INSURE_PRODUCT_CODE.CAPITEC ? html` <strong>Capitec:</strong>
 		<ul>
 			<li>is a licensed financial services provider;</li>
 			<li>earns a commission of 3.5% from the Insurer;</li>
@@ -74,13 +74,14 @@ export class CFPAgreementDialog extends Component {
 			<li>cannot transfer the rights or obligations of a Funeral Plan to someone else.</li>
 		</ul>
 		` 
-		: this.productCode = INSURE_PRODUCT_CODE.CAPITEC_SANLAM ? html` <strong>Capitec:</strong>
-		<ul>
-			<li>is a licensed financial services provider;</li>
-			<li>earns a commission of 3.25% from the Insurer;</li>
-		</ul>
-		<p>This plan is underwritten by Centriq Life Insurance Company Limited, a licensed insurer and an Authorised Financial Services Provider</p>
-		<p>I:</p>
+		: 
+			this.productCode == INSURE_PRODUCT_CODE.CAPITEC_SANLAM ? html` <strong>Capitec:</strong>
+			<ul>
+				<li>is a licensed financial services provider;</li>
+				<li>earns a commission of 3.25% from the Insurer;</li>
+			</ul>
+			<p>This plan is underwritten by Centriq Life Insurance Company Limited, a licensed insurer and an Authorised Financial Services Provider</p>
+			<p>I:</p>
 
 		<ul>
 			<li>work for Capitec who is liable for this service;</li>
