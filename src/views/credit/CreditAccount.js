@@ -1372,7 +1372,7 @@ export class CreditAccount extends ViewBase {
 		return html`
 			<capitec-table-column
 				label="Transaction Date"
-				field="processDate"
+				field="transactionDate"
 				.renderer="${(item, fieldName, value) => this._renderTransactionDateTime(value)}"
 				type="date"
 				size="156px;">
@@ -1420,7 +1420,7 @@ export class CreditAccount extends ViewBase {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Transaction type"
-					value = "${item.transactionType || `-`}"
+					value = "${item.spendGroup || `-`}"
 					data-automation-id="credit-transaction-history-item-type">
 				</horizon-label>
 				<horizon-label
