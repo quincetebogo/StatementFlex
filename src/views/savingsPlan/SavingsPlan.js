@@ -98,10 +98,10 @@ export class SavingsPlan extends ViewBase {
 		
 		this._initialise();
 
-		this._optionClick = async (option, savePlanDetails, saveType, sendAnother = false) => {
+		this._optionClick = async (option, savePlanDetails, sendAnother = false) => {
 
-			const statements = () => this._getStatements(savePlanDetails.accountNumber, saveType);
-			const taxCertificates = () => this._taxCertificates(savePlanDetails.accountNumber, savePlanDetails.accountName);
+			const statements = () => this._getStatements(savePlanDetails.accountNumber, sendAnother);
+			const taxCertificates = () => this._taxCertificates(savePlanDetails.accountNumber, savePlanDetails.planName);
 			const productEnquiry = () => this._productEnquiry();
 			const interestRates = () => this._interestRates();
 			const transactionHistory = () => this._transactionHistory(savePlanDetails);
@@ -536,7 +536,7 @@ export class SavingsPlan extends ViewBase {
 			<capitec-pc-savings-plan
 				.savingsPlanDetails="${this.savingsPlanDetails}"
 
-				@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.planDetails, e.detail.saveType)}"
+				@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.planDetails)}"
 				@view-info="${() => this._productEnquiry()}"
 				@account-details="${(e) => this._accountDetails(e.detail.accountType, e.detail.accountNumber)}">
 			</capitec-pc-savings-plan>`
