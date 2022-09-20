@@ -12,12 +12,10 @@ import { PRODUCT_ID } from 'app/constants/InsureCommon';
  * @returns {object} coverDetails
  */
 export function refreshRelationshipCoverDetails(relationship, productParams, coverAmount = 0, maxAllowedCover = 100000, age = 0, isExtendedFamily = false, isPristine = false) {
-	const coverDetails = {};
-	coverDetails.isExtendedFamily = isExtendedFamily;
+	const coverDetails = { isExtendedFamily: isExtendedFamily };
 	if (isExtendedFamily === true) {
-		relationship = `ExtendedFamily`; 
+		relationship = `ExtendedFamily`;
 	}
-
 	const product = productParams.products.find(item => item.parameters.id === PRODUCT_ID);
 	const currentRole = product.parameters.rolePlayers.roleList.role.find(role => role.relationshipTypeEnum === relationship);
 
@@ -30,29 +28,24 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 		coverDetails.maxAge = currentRole.ageRange[0].maxAge;
 		coverDetails.maxCoverMessage = currentRole.ageRange[0].coverAmountMessage;
 		coverDetails.minCoverMessage = currentRole.ageRange[0].coverAmountMinMessage;
-
 		coverDetails.ageMessage = ``;
 		coverDetails.coverMessage = ``;
 
 		if (!isPristine) {
 			// Invalid age
-			if (age) {
-				if (age === 0 || age % 1 !== 0 || Number.isNaN(age)) {
-					let ageMessage = currentRole.ageMessage.replace(`{0}`, appliedAgeRange.minAge);
-					ageMessage = currentRole.ageMessage.replace(`{1}`, appliedAgeRange.maxAge);
-					coverDetails.ageMessage = ageMessage;
-				}
+			if (age && (age === 0 || age % 1 !== 0 || Number.isNaN(age))) {
+				let ageMessage = currentRole.ageMessage.replace(`{0}`, appliedAgeRange.minAge);
+				ageMessage = currentRole.ageMessage.replace(`{1}`, appliedAgeRange.maxAge);
+				coverDetails.ageMessage = ageMessage;
 			}
-			
+
 			// Over max cover
-			if (coverAmount) {
-				if (coverAmount > maxAllowedCover || parseInt(coverAmount, 16) > coverDetails.maxCoverAmount) {
-					coverDetails.coverMessage = coverDetails.maxCoverMessage.replace(`{0:#,##0}`, maxAllowedCover);
-				}
+			if (coverAmount && (coverAmount > maxAllowedCover || parseInt(coverAmount, 10) > coverDetails.maxCoverAmount)) {
+				coverDetails.coverMessage = coverDetails.maxCoverMessage.replace(`{0:#,##0}`, maxAllowedCover);
 			}
-			
+
 			// Under min cover
-			if (coverAmount && parseInt(coverAmount, 16) < parseInt(coverDetails.minCoverAmount, 16)) {
+			if (coverAmount && parseInt(coverAmount, 10) < parseInt(coverDetails.minCoverAmount, 10)) {
 				coverDetails.coverMessage = coverDetails.minCoverMessage.replace(`{0:#,##0}`, coverDetails.minCoverAmount);
 			}
 		}
@@ -73,21 +66,19 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 
 		if (!isPristine) {
 			// Invalid age
-			if (age) {
-				if (age < coverDetails.minAge || age > coverDetails.maxAge || age % 1 !== 0 || Number.isNaN(age)) {
-					let ageMessage = currentRole.ageMessage.replace(`{0}`, coverDetails.minAge);
-					ageMessage = ageMessage.replace(`{1}`, coverDetails.maxAge);
-					coverDetails.ageMessage = ageMessage;
-				}
+			if (age && (age < coverDetails.minAge || age > coverDetails.maxAge || age % 1 !== 0 || Number.isNaN(age))) {
+				let ageMessage = currentRole.ageMessage.replace(`{0}`, coverDetails.minAge);
+				ageMessage = ageMessage.replace(`{1}`, coverDetails.maxAge);
+				coverDetails.ageMessage = ageMessage;
 			}
 
 			// Over max cover
-			if (coverAmount && parseInt(coverAmount, 16) > coverDetails.maxCoverAmount) {
+			if (coverAmount && parseInt(coverAmount, 10) > coverDetails.maxCoverAmount) {
 				coverDetails.coverMessage = coverDetails.maxCoverMessage.replace(`{0:#,##0}`, coverDetails.maxCoverAmount);
 			}
 
 			// Under min cover
-			if (coverAmount && parseInt(coverAmount, 16) < parseInt(coverDetails.minCoverAmount, 16)) {
+			if (coverAmount && parseInt(coverAmount, 10) < parseInt(coverDetails.minCoverAmount, 10)) {
 				coverDetails.coverMessage = coverDetails.minCoverMessage.replace(`{0:#,##0}`, coverDetails.minCoverAmount);
 			}
 		}
@@ -123,19 +114,19 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 				coverDetails.minCoverAmount = currentRole.ageRange[2].minCoverAmount;
 				coverDetails.maxCoverMessage = currentRole.ageRange[2].coverAmountMessage;
 				coverDetails.minCoverMessage = currentRole.ageRange[2].coverAmountMinMessage;
-			} else if (age < coverDetails.minAge || age > coverDetails.maxAge || age % 1 !== 0 || Number.isNaN(age)) {
-					let ageMessage = currentRole.ageMessage.replace(`{0}`, coverDetails.minAge);
-					ageMessage = ageMessage.replace(`{1}`, coverDetails.maxAge);
-					coverDetails.ageMessage = ageMessage;
-				}
+			} else if (age && (age < coverDetails.minAge || age > coverDetails.maxAge || age % 1 !== 0 || Number.isNaN(age))) {
+				let ageMessage = currentRole.ageMessage.replace(`{0}`, coverDetails.minAge);
+				ageMessage = ageMessage.replace(`{1}`, coverDetails.maxAge);
+				coverDetails.ageMessage = ageMessage;
+			}
 
 			// Over max cover
-			if (coverAmount && parseInt(coverAmount, 16) > coverDetails.maxCoverAmount) {
+			if (coverAmount && parseInt(coverAmount, 10) > coverDetails.maxCoverAmount) {
 				coverDetails.coverMessage = coverDetails.maxCoverMessage.replace(`{0:#,##0}`, coverDetails.maxCoverAmount);
 			}
 
 			// Under min cover
-			if (coverAmount && parseInt(coverAmount, 16) < parseInt(coverDetails.minCoverAmount, 16)) {
+			if (coverAmount && parseInt(coverAmount, 10) < parseInt(coverDetails.minCoverAmount, 10)) {
 				coverDetails.coverMessage = coverDetails.minCoverMessage.replace(`{0:#,##0}`, coverDetails.minCoverAmount);
 			}
 		}
@@ -156,21 +147,19 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 
 		if (!isPristine) {
 			// Invalid age
-			if (age) {
-				if (age < coverDetails.minAge || age > coverDetails.maxAge || age % 1 !== 0 || Number.isNaN(age)) {
-					let ageMessage = currentRole.ageMessage.replace(`{0}`, coverDetails.minAge);
-					ageMessage = ageMessage.replace(`{1}`, coverDetails.maxAge);
-					coverDetails.ageMessage = ageMessage;
-				}
+			if (age && (age < coverDetails.minAge || age > coverDetails.maxAge || age % 1 !== 0 || Number.isNaN(age))) {
+				let ageMessage = currentRole.ageMessage.replace(`{0}`, coverDetails.minAge);
+				ageMessage = ageMessage.replace(`{1}`, coverDetails.maxAge);
+				coverDetails.ageMessage = ageMessage;
 			}
 
 			// Over max cover
-			if (coverAmount && parseInt(coverAmount, 16) > coverDetails.maxCoverAmount) {
+			if (coverAmount && parseInt(coverAmount, 10) > coverDetails.maxCoverAmount) {
 				coverDetails.coverMessage = coverDetails.maxCoverMessage.replace(`{0:#,##0}`, coverDetails.maxCoverAmount);
 			}
 
 			// Under min cover
-			if (coverAmount && parseInt(coverAmount, 16) < parseInt(coverDetails.minCoverAmount, 16)) {
+			if (coverAmount && parseInt(coverAmount, 10) < parseInt(coverDetails.minCoverAmount, 10)) {
 				coverDetails.coverMessage = coverDetails.minCoverMessage.replace(`{0:#,##0}`, coverDetails.minCoverAmount);
 			}
 		}
@@ -212,18 +201,18 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 				coverDetails.maxCoverMessage = currentRole.ageRange[2].coverAmountMessage;
 				coverDetails.minCoverMessage = currentRole.ageRange[2].coverAmountMinMessage;
 			} else if (age < coverDetails.minAge || age > coverDetails.maxAge || age % 1 !== 0 || Number.isNaN(age)) {
-					let ageMessage = currentRole.ageMessage.replace(`{0}`, coverDetails.minAge);
-					ageMessage = ageMessage.replace(`{1}`, coverDetails.maxAge);
-					coverDetails.ageMessage = ageMessage;
-				}
+				let ageMessage = currentRole.ageMessage.replace(`{0}`, coverDetails.minAge);
+				ageMessage = ageMessage.replace(`{1}`, coverDetails.maxAge);
+				coverDetails.ageMessage = ageMessage;
+			}
 
 			// Over max cover
-			if (coverAmount && parseInt(coverAmount, 16) > coverDetails.maxCoverAmount) {
+			if (coverAmount && parseInt(coverAmount, 10) > coverDetails.maxCoverAmount) {
 				coverDetails.coverMessage = coverDetails.maxCoverMessage.replace(`{0:#,##0}`, coverDetails.maxCoverAmount);
 			}
 
 			// Under min cover
-			if (coverAmount && parseInt(coverAmount, 16) < parseInt(coverDetails.minCoverAmount, 16)) {
+			if (coverAmount && parseInt(coverAmount, 10) < parseInt(coverDetails.minCoverAmount, 10)) {
 				coverDetails.coverMessage = coverDetails.minCoverMessage.replace(`{0:#,##0}`, coverDetails.minCoverAmount);
 			}
 		}
@@ -254,11 +243,11 @@ export function livesPerPolicy(relationship, productParams) {
  */
 export function getAgeFromIDNumber(southAfricanIDNumber) {
 	const birthdate = new Date(southAfricanIDNumber.substring(0, 2), southAfricanIDNumber.substring(2, 4) - 1, southAfricanIDNumber.substring(4, 6));
-	
+
 	if (birthdate.getFullYear() <= new Date().getFullYear() - 100) {
 		birthdate.setFullYear(birthdate.getFullYear() + 100);
 	}
-	
+
 	const ageDifMs = Date.now() - birthdate.getTime();
 	const ageDate = new Date(ageDifMs);
 	return Math.abs(ageDate.getUTCFullYear() - 1970);
@@ -284,11 +273,11 @@ export function getGenderFromIDNumber(southAfricanIDNumber) {
  * @returns {String} string
  */
 export function checkPolicyRules(ruleType, productParams, field, relationship) {
-	
+
 	if (relationship === `Unknown` || relationship === `MainLife` || relationship === `Spouse` || relationship === `Parent` || relationship === `Child`) {
-		
+
 		const product = productParams.products.find(products => products.parameters.id === PRODUCT_ID);
-		
+
 		const currentRuleType = product.parameters.rulesParams.find(rule => rule.ruleType === ruleType);
 
 		const relationshipRule = currentRuleType.peopleRulesList.find(role => role.type === relationship);
@@ -297,14 +286,14 @@ export function checkPolicyRules(ruleType, productParams, field, relationship) {
 
 	}
 
-		const product = productParams.products.find(products => products.parameters.id === PRODUCT_ID);
-		
-		const currentRuleType = product.parameters.rulesParams.find(rule => rule.ruleType === ruleType);
+	const product = productParams.products.find(products => products.parameters.id === PRODUCT_ID);
 
-		const relationshipRule = currentRuleType.peopleRulesList.find(role => role.type === `ExtendedFamily`);
+	const currentRuleType = product.parameters.rulesParams.find(rule => rule.ruleType === ruleType);
 
-		return relationshipRule[field];
-	}
+	const relationshipRule = currentRuleType.peopleRulesList.find(role => role.type === `ExtendedFamily`);
+
+	return relationshipRule[field];
+}
 
 /**
  * returns date in format dd/mm/yyyy
@@ -313,7 +302,7 @@ export function checkPolicyRules(ruleType, productParams, field, relationship) {
  * @returns {*} farmatted date
  */
 export function dateFormat(value) {
-	
+
 	const dateTime = new Date(value);
 	const date = dateTime.getDate();
 	const month = dateTime.getMonth();
@@ -323,7 +312,7 @@ export function dateFormat(value) {
 	if (year === 0 || isNaN(year)) {
 		return formattedDate;
 	}
-	
+
 	formattedDate = formattedDate = `${`0${date}`.slice(-2)}/${`0${month + 1}`.slice(-2)}/${year}`;
 
 	return formattedDate;
