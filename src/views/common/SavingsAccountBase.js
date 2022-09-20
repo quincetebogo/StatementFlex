@@ -259,6 +259,8 @@ export class SavingsAccountBase extends ViewBase {
 			"next-screen": TelemetryScreen.FAVOURITES
 		});
 
+		this._telemetry.endSpan(QuickTransactionEvents.DEBICHECK);
+
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -402,7 +404,7 @@ export class SavingsAccountBase extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	async _unloadDebiCheck(eventName, screenName) {
+	async _unloadDebiCheck() {
 
 		/**
 		 * Debi check mandates are viewed but view/approve/decline is not selected.
@@ -412,7 +414,6 @@ export class SavingsAccountBase extends ViewBase {
 
 		 this.endCallContext = `LandingPage`;
 		 this._setIncidentDone();
-		 this._telemetryEndSpan(eventName, screenName);
 	}
 
 	async _getMandateDetails() {
@@ -478,7 +479,7 @@ export class SavingsAccountBase extends ViewBase {
 					@action="${(event) => this._mandateActionClick(event)}"
 					@back="${() => this._exitDebiCheck()}"
 					@loading="${() => this._telemetryStartSpan(QuickTransactionEvents.DEBICHECK, TelemetryScreen.DEBICHECK)}"
-					@unloading="${() => this._unloadDebiCheck(QuickTransactionEvents.DEBICHECK, TelemetryScreen.DEBICHECK)}">
+					@unloading="${() => this._unloadDebiCheck()}">
 				</debi-check-mandates>`
 			: html``;
 	}
