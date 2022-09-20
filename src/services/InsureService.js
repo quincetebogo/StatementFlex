@@ -99,7 +99,7 @@ export class InsureService extends ChannelServiceBase {
 	/**
 	 * Client Policy Summary / Policy list
 	 *
-	 * @param {clientPoliciesRequest} [errorHandler=null]  Request data containing cif & id numbers
+	 * @param {clientPoliciesRequest} [clientPoliciesRequest=null]  Request data containing cif & id numbers
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
@@ -125,7 +125,7 @@ export class InsureService extends ChannelServiceBase {
 	/**
 	 * Policy Summary / Policy Details
 	 *
-	 * @param {policyRequest} [errorHandler=null]  Request data containing contract reference & cifnumber
+	 * @param {policyRequest} [policyRequest=null]  Request data containing contract reference & cifnumber
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
@@ -156,7 +156,7 @@ export class InsureService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	 async insureReinstateQuoteCalc(reinstateQuoteRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async insureReinstateQuoteCalc(reinstateQuoteRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`insureReinstateQuoteCalc`)) {
 			return this.mock(`reinstateQuoteCalc`);
 		}
@@ -337,7 +337,7 @@ export class InsureService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	 async updatePolicyAccept(policyAcceptRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async updatePolicyAccept(policyAcceptRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`insureUpdatePolicyAccept`)) {
 			return this.mock(`updatePolicyAccept`, policyAcceptRequest);
 		}
@@ -389,7 +389,7 @@ export class InsureService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	 async generateIssueFuneralCoverPlanAgreement(generateIssueAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async generateIssueFuneralCoverPlanAgreement(generateIssueAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`insureGenerateIssueAgreement`)) {
 			return this.mock(`generateIssueAgreement`);
 		}
@@ -535,7 +535,7 @@ export class InsureService extends ChannelServiceBase {
 		);
 	}
 
-	
+
 	/**
 	 * Communication History
 	 *
@@ -544,12 +544,12 @@ export class InsureService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	
-	 async commsHistory(commsHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+	async commsHistory(commsHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`insureCommsHistory`)) {
 			return this.mock(`insureCommsHistory`);
 		}
-		
+
 		return this.post(
 			`/horizon-insurance/client/communicationhistory`,
 			commsHistoryRequest,
@@ -572,7 +572,7 @@ export class InsureService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	 async cancelPolicy(cancelPolicyRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async cancelPolicy(cancelPolicyRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`insureCancelPolicy`)) {
 			return this.mock(`insureCancelPolicy`);
 		}
@@ -599,8 +599,8 @@ export class InsureService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	
-	 async payPolicy(payArrearsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+	async payPolicy(payArrearsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`insurePolicyPay`)) {
 			return this.mock(`insurePolicyPay`);
 		}
@@ -617,15 +617,15 @@ export class InsureService extends ChannelServiceBase {
 		// autoRetries
 		// );
 	}
-	
-	 /**
-	 * generate document 802 (Cancel Policy Agreement)
-	 *
-	 * @param {GenerateCancelAgreementRequest} [errorHandler=null]  Request data to generate Cancel Policy Agreement
-	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 */
+
+	/**
+	* generate document 802 (Cancel Policy Agreement)
+	*
+	* @param {GenerateCancelAgreementRequest} [errorHandler=null]  Request data to generate Cancel Policy Agreement
+	* @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	* @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	* @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	*/
 	cancelPolicyAgreement(GenerateCancelAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
 			`/FuneralInsuranceProductService/document/generate/CancelPolicyAgreement`,
