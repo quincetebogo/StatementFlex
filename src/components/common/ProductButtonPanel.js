@@ -171,17 +171,6 @@ export class ProductButtonPanel extends Component {
 				?selected="${this.selectedButton === `LiveBetter`}"
 				data-automation-id="product-button-panel-live-better">
 			</horizon-product-tile>
-			<!-- TODO: Below is temporary product tile solely to access the widget template and should be removed before release  -->
-			<horizon-product-tile
-				class="product-button"
-				type="live-better"
-				label="Wigdget Template"
-				subtitle="Temporary Tile To Load Widget Template"
-				detail=""
-				icon="product/live-better"
-				@click="${() => this._productButtonClick(`WidgetTemplate`)}"
-				?selected="${this.selectedButton === `WidgetTemplate`}">
-			</horizon-product-tile>
 		`;
 	}
 }

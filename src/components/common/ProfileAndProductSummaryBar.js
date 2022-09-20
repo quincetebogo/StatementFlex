@@ -177,7 +177,7 @@ export class ProfileAndProductSummaryBar extends Component {
 	async _productButtonClick(event) {
 		
 		// TODO: To be removed once widget navigation is complete
-		if (event.detail.productButton === `WidgetTemplate`) {
+		if (event.detail.productButton === `LiveBetter`) {
 			this.horizonRouter.navigateToWidget(event.detail.productButton);
 			return;
 		}

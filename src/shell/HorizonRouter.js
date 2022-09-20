@@ -410,8 +410,8 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.PAID_UP_LETTER_FAILURE}`);
 	}
 
-	navigateToWidget(widgetName) {
-		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST}/${widgetName}`);
+	navigateToWidget(widgetId) {
+		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST}/${widgetId}`);
 	}
 
 
@@ -856,11 +856,11 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
-		name: `horizon-livebetter-widget-host`,
+		name: `horizon-live-better`,
 		title: `LiveBetter`,
 		icon: null,
 		path: HORIZON_ROUTES.LIVE_BETTER,
-		load: () => import(`../views/common/LiveBetterHost`),
+		load: () => import(`../views/liveBetter/LiveBetter`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
@@ -1003,7 +1003,7 @@ export default horizonRoutes = [
 		name: `horizon-widget-host`,
 		title: `HorizonWidgetHost`,
 		icon: null,
-		path: `${HORIZON_ROUTES.WIDGET_HOST}/:name`,
+		path: `${HORIZON_ROUTES.WIDGET_HOST}/:widgetId`,
 		load: () => import(`../views/common/HorizonWidgetHost`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}

@@ -32,7 +32,7 @@ export class HorizonWidgetHost extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this._initialize();
+		this._initializeWidget();
 	}
 
 	disconnectedCallback() {
@@ -55,7 +55,6 @@ export class HorizonWidgetHost extends ViewBase {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-
 	
 	_handleInitializeMessage(e) {
 		const mapVerificationMethods = { itaAttempts: `ITA`, sqAttempts: `KBA` };
@@ -97,7 +96,9 @@ export class HorizonWidgetHost extends ViewBase {
 			middleName2: this.callerInformation.middleName2,
 			middleName3: this.callerInformation.middleName3,
 			initials: this.callerInformation.initials,
-			photo: `-`
+			photo: `-`,
+			emailId: this.callerInformation.emailId,
+			verificationStatus: this.callerInformation.verificationStatus
 		});
 	}
 
@@ -136,10 +137,10 @@ export class HorizonWidgetHost extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
-	async _initialize() {
-		const widgetName = this.navigationContext.current.pathParams.name;
+	async _initializeWidget() {
+		const widgetId = this.navigationContext.current.pathParams.widgetId;
 
-		const response = await this.widgetRegistryService.getWidgetById(widgetName);
+		const response = await this.widgetRegistryService.getWidgetById(widgetId);
 
 		this.widgetDetails = response.result.widget;
 	}
@@ -153,7 +154,7 @@ export class HorizonWidgetHost extends ViewBase {
 			super.styles,
 			css`
 				.widget {
-					height: 100%;
+					height: 888px;
 				}
 			`
 		];
@@ -169,7 +170,14 @@ export class HorizonWidgetHost extends ViewBase {
 
 	_webTemplate() {
 		return html`
-			${super._webTemplate()}
+		${super._webTemplate()}
+		${this._renderWidget()}
+		`;
+	}
+
+	_renderWidget() {
+		return this.widgetDetails
+		? html`
 			<!-- Display the widget at location "./widget.html". This will typically be a link to the widget, e.g. "https://my-widget.platform-dev.int.capinet/widget.html" -->
 			<capitec-widget id="widget1" src="${this.widgetDetails.alias}" class="widget" 
 				@initialize="${this._handleInitializeMessage}" 
@@ -180,8 +188,8 @@ export class HorizonWidgetHost extends ViewBase {
 				@telemetry-end-span="${this._handleTelemetryEndSpanMessage}"
 				@telemetry-log-event="${this._handleTelemetryLogEventMessage}"
 				@telemetry-close-child-spans="${this._handleTelemetryCloseChildSpansMessage}">
-			</capitec-widget>
-		`;
+			</capitec-widget>`
+		: html``;
 	}
 }
 
