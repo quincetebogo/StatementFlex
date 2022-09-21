@@ -555,7 +555,7 @@ class UpdatePlan extends Component {
 	 */
 	_getCollectionDay() {
 
-		const day = this.debitOrderDayOptions.find(days => days.code === this.collectionDay);
+		const day = this.debitOrderDayOptions.find(days => days.code.toString() === this.collectionDay);
 
 		return day.text;
 
