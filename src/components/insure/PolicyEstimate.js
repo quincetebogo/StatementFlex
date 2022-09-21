@@ -136,7 +136,7 @@ class PolicyEstimate extends Component {
 				isValid = false;
 			}
 		});
-			
+
 		if (!isValid) {
 			this.requestUpdate();
 		} else {
@@ -155,7 +155,7 @@ class PolicyEstimate extends Component {
 				this.estimate.totalPremium = 0;
 				this.newTotalPremium = ``;
 			} else {
- 				const printEstimateResponse = await this.printEstimate({ detail: request });
+				const printEstimateResponse = await this.printEstimate({ detail: request });
 				this.printEstimateDocumentContent = printEstimateResponse?.result?.documentContent;
 
 				this.showPrintEstimateDialog = true;
@@ -318,7 +318,7 @@ class PolicyEstimate extends Component {
 		this.estimate.lifesAssured = [];
 		this.estimate.lifesAssured.push({
 			relationship: `MainLife`,
-			coverAmount: 5000,
+			coverAmount: this.maxAllowedCover < 5000 ? this.maxAllowedCover : 5000,
 			premium: 0,
 			genderType: this.mainLifeDefaultGender,
 			age: this.mainLifeDefaultAge,
@@ -545,7 +545,7 @@ class PolicyEstimate extends Component {
 					<capitec-text-field label="Cover Amount" type="currency" class="calc-card-row-input"
 						data-automation-id="insure-estimate-card-cover"
 						@value-changed="${(e) => this._coverAmountChanged(e, index)}" value="${lifeAssured.coverAmount}"
-						hint="R${lifeAssured?.coverDetails?.minCoverAmount} - R${index === 0 ? this.maxAllowedCover : lifeAssured?.coverDetails?.maxCoverAmount}"
+						hint="R${index === 0 && this.maxAllowedCover < 5000 ? this.maxAllowedCover : lifeAssured?.coverDetails?.minCoverAmount} - R${index === 0 ? this.maxAllowedCover : lifeAssured?.coverDetails?.maxCoverAmount}"
 						error="${lifeAssured.coverDetails.coverMessage}">
 					</capitec-text-field>
 					<capitec-text-field label="Premium" type="currency" disabled hint="Estimate" class="calc-card-row-input"
@@ -630,21 +630,21 @@ class PolicyEstimate extends Component {
 	 * @return {html} Html for the dialog
 	 */
 	_renderAddLifeDialog() {
-		return this.showAddLifeDialog === false ? `` 
-		: html`
+		return this.showAddLifeDialog === false ? ``
+			: html`
 			<insure-add-life-dialog @add-new-life="${(e) => this._addLife(e)}"
 				@close-modal="${(e) => this.showAddLifeDialog = false}" .currentLifesAssured="${this.estimate.lifesAssured}"
 				.productParams="${this.productParams}">
 			</insure-add-life-dialog>`;
 	}
 
-		/**
-	 * Render Dialog to add Life assured to Estimate
-	 * @return {html} Html for the dialog
-	 */
+	/**
+ * Render Dialog to add Life assured to Estimate
+ * @return {html} Html for the dialog
+ */
 	_renderPrintEstimateDialog() {
-		return this.showPrintEstimateDialog === false ? `` 
-		: html`
+		return this.showPrintEstimateDialog === false ? ``
+			: html`
 			<print-estimate-agreement-dialog @print-estimate-close-modal = "${() => this.showPrintEstimateDialog = false}"
 				.printEstimateAgreementContent="${this.printEstimateDocumentContent}"
 				@print-estimate-agree-click = "${() => this._acceptPrintEstimate()}">
@@ -656,8 +656,8 @@ class PolicyEstimate extends Component {
 	 * @returns {null} null
 	 */
 	_renderInsureEmailDialog() {
-		return this.showEmailPlanDialog === false ? `` 
-		: html`
+		return this.showEmailPlanDialog === false ? ``
+			: html`
 				<insure-email-dialog @close-modal="${(e) => this.showEmailPlanDialog = false}"
 					@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}"
 					.titleMessage = "${this.titleMessage}">
