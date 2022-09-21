@@ -698,13 +698,13 @@ export class SavingsPlan extends ViewBase {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Posting date" 
-					value = "${formatDateTime(item.postingDate)}"
+					value = "${formatDate(item.postingDate, `dd mmm yyyy`)}"
 					data-automation-id="transaction-history-item-posting-date">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Processed date"
-					value = "${formatDateTime(item.processDate)}"
+					value = "${formatDate(item.processDate, `dd mmm yyyy`)}"
 					data-automation-id="transaction-history-item-processed-date">
 				</horizon-label>
 				<horizon-label
