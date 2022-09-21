@@ -573,7 +573,7 @@ export class ExistingClient extends InsureViewBase {
 			"wetsignBarcode": false,
 
 			"clientDetails": {
-				"cifNumber": parseInt(this.callerInformation.cifNumber, 16), // 363291555
+				"cifNumber": this.callerInformation.cifNumber, // 363291555
 				"primarySavingsAccountNumber": parseInt(this.accountDetails.savingsAccountData.accountNumber, 16), // 1952898232
 				"policyContractReference": contractReference, // "FP00001590"
 				"firstName": this.callerInformation.firstName,
