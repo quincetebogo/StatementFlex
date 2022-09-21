@@ -26,6 +26,26 @@ export class CFPAgreementDialog extends Component {
 
 	// #endregion PROPERTIES
 
+		// #region RENDERING
+
+	/**
+	 * Generates the view stylesheet.
+	 *
+	 * @readonly
+	 * @static
+	 * @returns {css} CSS for the view.
+	 */
+	 static get styles() {
+		return [
+			super.styles,
+			css`
+				.no-margin{
+					margin-top: 0;
+				}
+			`
+		];
+	}
+
 	/**
 	 * Accept terms and close dialog 
 	 * @returns {null} null
@@ -55,46 +75,44 @@ export class CFPAgreementDialog extends Component {
 	 * @returns {html} Agreement Copy
 	 */
 	_renderDialogBody() {
-		return html `${ this.productCode == INSURE_PRODUCT_CODE.CAPITEC ? html` <strong>Capitec:</strong>
-		<ul>
-			<li>is a licensed financial services provider;</li>
-			<li>earns a commission of 3.5% from the Insurer;</li>
-		</ul>
-		<p>This plan is underwritten by Capitec Life Insurance Company Limited, a licensed insurer and an Authorised Financial Services Provider</p>
-		<p>I:</p>
+		if (this.productCode === INSURE_PRODUCT_CODE.CAPITEC) {
+			return html`<strong>Capitec:</strong>
+				<ul class="no-margin">
+					<li>is a licensed financial services provider;</li>
+					<li>earns a commission of 3.5% from the Insurer;</li>
+				</ul>
+				<p>This plan is underwritten by Capitec Life Insurance Company Limited, a licensed insurer and an Authorised Financial Services Provider</p>
+				<p><strong>I:</strong></p>
 
-		<ul>
-			<li>work for Capitec who is liable for this service;</li>
-			<li>will tell you about the Capitec Funeral Plan and your options and I cannot give you advice.</li>
-		</ul>
+				<ul class="no-margin">
+					<li>work for Capitec who is liable for this service;</li>
+					<li>will tell you about the Capitec Funeral Plan and your options and I cannot give you advice.</li>
+				</ul>
+				<p><strong>You:</strong></p>
+				<ul class="no-margin">
+					<li>must have an active Capitec savings account to have a Funeral Plan;</li>
+					<li>cannot transfer the rights or obligations of a Funeral Plan to someone else.</li>
+				</ul>`;
+		} else if (this.productCode === INSURE_PRODUCT_CODE.CAPITEC_SANLAM) {
+			return html` <strong>Capitec:</strong>
+				<ul class="no-margin">
+					<li>is a licensed financial services provider;</li>
+					<li>earns a commission of 3.25% from the Insurer;</li>
+				</ul>
+				<p>This plan is underwritten by Centriq Life Insurance Company Limited, a licensed insurer and an Authorised Financial Services Provider</p>
+				<p>I:</p>
+				<ul class="no-margin">
+					<li>work for Capitec who is liable for this service;</li>
+					<li>will tell you about the Capitec Funeral Plan and your options and I cannot give you advice.</li>
+				</ul>
+				<p>You:</p>
+				<ul class="no-margin">
+					<li>must have an active Capitec savings account to have a Funeral Plan;</li>
+					<li>cannot transfer the rights or obligations of a Funeral Plan to someone else.</li>
+				</ul>`;
+		} 
 		
-		<p>You:</p>
-		<ul>
-			<li>must have an active Capitec savings account to have a Funeral Plan;</li>
-			<li>cannot transfer the rights or obligations of a Funeral Plan to someone else.</li>
-		</ul>
-		` 
-		: 
-			this.productCode == INSURE_PRODUCT_CODE.CAPITEC_SANLAM ? html` <strong>Capitec:</strong>
-			<ul>
-				<li>is a licensed financial services provider;</li>
-				<li>earns a commission of 3.25% from the Insurer;</li>
-			</ul>
-			<p>This plan is underwritten by Centriq Life Insurance Company Limited, a licensed insurer and an Authorised Financial Services Provider</p>
-			<p>I:</p>
-
-		<ul>
-			<li>work for Capitec who is liable for this service;</li>
-			<li>will tell you about the Capitec Funeral Plan and your options and I cannot give you advice.</li>
-		</ul>
-		
-		<p>You:</p>
-		<ul>
-			<li>must have an active Capitec savings account to have a Funeral Plan;</li>
-			<li>cannot transfer the rights or obligations of a Funeral Plan to someone else.</li>
-		</ul>
-		` : ``
-		}`;
+		return html``;
 	}
 
 	/**
