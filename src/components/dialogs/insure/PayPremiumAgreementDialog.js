@@ -23,8 +23,7 @@ class PayPremiumAgreementDialog extends Component {
 
 	constructor() {
 		super();
-
-
+		console.log(`Constructor PayPremiumAgreementDialog`);
 	}
 
 	// #endregion
@@ -41,10 +40,10 @@ class PayPremiumAgreementDialog extends Component {
 	 */
 	 static get properties() {
 		return {
-			contractReference: { type: Object, state: true },
-			payAmount: { type: Number, state: true },
-			getArrearsPaymentDocument: { type: Object },
-			arrearsPaymentDocumentDetails: { type: Object, state: true }
+			// contractReference: { type: Object, state: true },
+			// payAmount: { type: Number, state: true },
+			// getArrearsPaymentDocument: { type: Object },
+			// arrearsPaymentDocumentDetails: { type: Object, state: true }
 		};
 	}
 
@@ -68,7 +67,7 @@ class PayPremiumAgreementDialog extends Component {
 	// #region PRIVATE METHODS
 
 	_initialize() {
-
+		console.log(`_initialize PayPremiumAgreementDialog`);
 		// this._getDocument();
 		
 	}
@@ -163,13 +162,14 @@ class PayPremiumAgreementDialog extends Component {
 		];
 	}
 
+
 	/**
 	 * Main render point for component
 	 * @returns {html} The html content of the component.
 	 */
 	 _webTemplate() {
 		return html`
-			<capitec-modal type="form" header="Pay Arrears Agreement (${this.contractReference})">
+			<capitec-modal type="form" header="Pay Arrears Agreement Goodbey (${this.contractReference})">
 				<div slot="body" data-automation-id="insure-pay-premium-agreement-dialog-body">
 					${this._renderDialogBody()}
 				</div>
