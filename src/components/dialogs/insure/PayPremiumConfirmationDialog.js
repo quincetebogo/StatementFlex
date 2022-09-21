@@ -30,7 +30,7 @@ class PayPremiumConfirmationDialog extends Component {
 	// #region PROPERTIES
 
 	/**
-	 * @property {Object} amountToPay Total arrears amount to be paid
+	 * @property {Number} amountToPay Total arrears amount to be paid
 	 * @property {Object} contractReference contains the contract reference
 	 * 
 	 * @readonly
@@ -39,7 +39,7 @@ class PayPremiumConfirmationDialog extends Component {
 	static get properties() {
 		return {
 
-			amountToPay: { type: Object, state: true },
+			amountToPay: { type: Number, state: true },
 			contractReference: { type: Object, state: true }
 		};
 	}

@@ -33,7 +33,7 @@ class PayPremiumAgreementDialog extends Component {
 
 	/**
 	 * @property {Object} contractReference contains the contract refrence
-	 * @property {Number} amountToPay total amount that will be paid
+	 * @property {Number} payAmount total amount that will be paid
 	 * @property {Function} getArrearsPaymentDocument Callback function to fetch arrears payment document
 	 * @property {Object} arrearsPaymentDocumentDetails contains arrears payment document details
 	 * 
@@ -42,7 +42,7 @@ class PayPremiumAgreementDialog extends Component {
 	 static get properties() {
 		return {
 			contractReference: { type: Object, state: true },
-			amountToPay: { type: Number, state: true },
+			payAmount: { type: Number, state: true },
 			getArrearsPaymentDocument: { type: Object },
 			arrearsPaymentDocumentDetails: { type: Object, state: true }
 		};
@@ -197,7 +197,7 @@ class PayPremiumAgreementDialog extends Component {
 			<div>
 				<capitec-label type="subtitle" label="Declaration:
 By agreeing to pay your arrear premiums, you acknowledge and confirm that:
-• Your Savings/ Flexible Account can be debited with the amount of ${formatCurrency(this.amountToPay)} on ${dateFormat(Date())} ">
+• Your Savings/ Flexible Account can be debited with the amount of ${formatCurrency(this.payAmount)} on ${dateFormat(Date())} ">
 				</capitec-label>
 			</div>
 
