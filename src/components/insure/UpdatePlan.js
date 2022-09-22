@@ -23,6 +23,16 @@ import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
 import 'app/components/common/ServiceCallErrorScreen';
 
+const REGEX_CELLPHONE = {
+	PATTERN: /^[0-9]{10}$/,
+	ERR_MESSAGE: `Incorrect cellphone number`
+};
+
+const REGEX_EMAIL = {
+	PATTERN: /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/,
+	ERR_MESSAGE: `Incorrect email address`
+};
+
 /**
  * Update Plan allows for the Policy to be updated. The premium and cover amount, beneficiaries and the debit order details may be updated.
  * Lives can be added via AddLifeDialog
@@ -452,6 +462,19 @@ class UpdatePlan extends Component {
 	}
 
 	/**
+	 * Event fired when value is entered 
+	 * @param {*} event keyinput event
+	 * @returns {boolean} true or false
+	 */
+	_onlyNumberKey(event) {
+        const ASCIICode = event.which ? event.which : event.keyCode;
+        if (ASCIICode > 31 && (ASCIICode < 48 || ASCIICode > 57)) {
+            return false;
+		}
+        return true;
+    }
+
+	/**
 	 * Event fired when a life assured CELLPHONE NUMBER value changes
 	 * @param {*} event event
 	 * @param {*} recordId event
@@ -462,8 +485,15 @@ class UpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.recordID === recordId) {
 					this.policyDetails.roleplayers[index].contactDetails.cellphone = event.detail.new;
+
+					if (!isNullorEmpty(event.detail.new) && !RegExp(REGEX_CELLPHONE.PATTERN, `g`).test(event.detail.new)) {
+						this.policyDetails.roleplayers[index].cellphoneNumberErrorMessage = REGEX_CELLPHONE.ERR_MESSAGE;
+					} else {
+						this.policyDetails.roleplayers[index].cellphoneNumberErrorMessage = ``;
+					}
 				}
 			});
+			this.requestUpdate();
 		}
 	}
 
@@ -478,8 +508,15 @@ class UpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.recordID === recordId) {
 					this.policyDetails.roleplayers[index].contactDetails.email = event.detail.new;
+
+					if (!isNullorEmpty(event.detail.new) && !RegExp(REGEX_EMAIL.PATTERN, `g`).test(event.detail.new)) {
+						this.policyDetails.roleplayers[index].emailAddressErrorMessage = REGEX_EMAIL.ERR_MESSAGE;
+					} else {
+						this.policyDetails.roleplayers[index].emailAddressErrorMessage = ``;
+					}
 				}
 			});
+			this.requestUpdate();
 		}
 	}
 
@@ -527,7 +564,7 @@ class UpdatePlan extends Component {
 	_getBank() {
 
 		const bank = this.bankOptions.find(banks => banks.code === this.policyDetails.deductionDetails?.bankDetails?.bank.toUpperCase());
-		return bank.text;
+		return bank?.text;
 
 	}
 
@@ -555,9 +592,9 @@ class UpdatePlan extends Component {
 	 */
 	_getCollectionDay() {
 
-		const day = this.debitOrderDayOptions.find(days => days.code.toString() === this.collectionDay);
+		const day = this.debitOrderDayOptions.find(days => days.code.toString() === this.collectionDay.toString());
 
-		return day.text;
+		return day?.text;
 
 	}
 
@@ -1463,7 +1500,7 @@ class UpdatePlan extends Component {
 							${this._renderEACLNotification()}
 							<capitec-spacer></capitec-spacer>
 							${this._renderYBPNotification()}
-			
+							<capitec-spacer></capitec-spacer>
 			
 							<!-- Main life details -->
 							<div class="calc-card-row">
@@ -1820,7 +1857,7 @@ class UpdatePlan extends Component {
 					<capitec-text-field label="Date of birth" style="width: 50%" disabled
 						value="${formatDate(roleplayer?.dateOfBirth)}">
 					</capitec-text-field>`
-				};
+				}
 					
 
 			
@@ -1830,16 +1867,19 @@ class UpdatePlan extends Component {
 				</capitec-text-field>
 			</div>
 			<div class="expander-options">
-				<capitec-text-field label="Cellphone number" style="width: 50%" 
+				<capitec-text-field label="Cellphone number" style="width: 50%" maxlength = 10
 					value="${isNullorEmpty(roleplayer?.contactDetails?.cellphone) ? `` : roleplayer?.contactDetails?.cellphone}" 
 					?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editContactDetails`, roleplayer.relationship)}"
-					@value-changed="${(e) => this._lifeCellphoneValueChanged(e, roleplayer.recordID)}">
+					@value-changed="${(e) => this._lifeCellphoneValueChanged(e, roleplayer.recordID)}"
+					@key-input="${(e) => this._onlyNumberKey(e)}" 
+					error="${roleplayer?.cellphoneNumberErrorMessage === undefined ? `` : roleplayer?.cellphoneNumberErrorMessage}">
 				</capitec-text-field>
 			
 				<capitec-text-field label="Email Address" style="width: 50%" 
 					value="${isNullorEmpty(roleplayer?.contactDetails?.email) ? `` : roleplayer?.contactDetails?.email}" 
 					?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editContactDetails`, roleplayer.relationship)}"
-					@value-changed="${(e) => this._lifeEmailValueChanged(e, roleplayer.recordID)}">
+					@value-changed="${(e) => this._lifeEmailValueChanged(e, roleplayer.recordID)}"
+					error="${roleplayer?.emailAddressErrorMessage === undefined ? `` : roleplayer?.emailAddressErrorMessage}">
 				</capitec-text-field>
 			</div>
 		`;
@@ -1899,12 +1939,15 @@ class UpdatePlan extends Component {
 			<capitec-text-field label="Email Address" style="width: 50%" 
 				value=${isNullorEmpty(roleplayer.contactDetails?.email) ? `` : roleplayer.contactDetails?.email} 
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editContactDetails`, roleplayer.relationship)}"
-				@value-changed= "${(e) => this._lifeEmailValueChanged(e, roleplayer.recordID)}">
+				@value-changed= "${(e) => this._lifeEmailValueChanged(e, roleplayer.recordID)}"
+				error="${roleplayer?.emailAddressErrorMessage === undefined ? `` : roleplayer?.emailAddressErrorMessage}">
 			</capitec-text-field>
-			<capitec-text-field label="Cellphone number" style="width: 50%" type="numeric" maxlength="10"
+			<capitec-text-field label="Cellphone number" style="width: 50%" maxlength=10 
 				value=${isNullorEmpty(roleplayer.contactDetails?.cellphone) ? `` : roleplayer.contactDetails?.cellphone} 
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editContactDetails`, roleplayer.relationship)}"
-				@value-changed= "${(e) => this._lifeCellphoneValueChanged(e, roleplayer.recordID)}">
+				@value-changed= "${(e) => this._lifeCellphoneValueChanged(e, roleplayer.recordID)}"
+				@key-input="${(e) => this._onlyNumberKey(e)}" 
+				error="${roleplayer?.cellphoneNumberErrorMessage === undefined ? `` : roleplayer?.cellphoneNumberErrorMessage}">
 			</capitec-text-field>
 		</div>`;
 	}

@@ -786,6 +786,10 @@ export class ExistingClient extends InsureViewBase {
 
 		this.transactions = [];
 
+		this.policyTransactionHistory = {
+			contractReference: this.contractReference
+		};
+
 		const returnValue = await this.insureService.getPolicyTransactions(transactionHistoryRequest);
 
 		if (returnValue.succeeded && returnValue.result) {
@@ -803,10 +807,7 @@ export class ExistingClient extends InsureViewBase {
 				});
 			this.transactions.push(...formattedTrans);
 
-			this.policyTransactionHistory = {
-				contractReference: this.contractReference,
-				transactions: this.transactions
-			};
+			this.policyTransactionHistory.transactions = this.transactions;
 
 			this.endCallContext = `PolicyTransactionHistory`;
 			this.renderMode = INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY;
