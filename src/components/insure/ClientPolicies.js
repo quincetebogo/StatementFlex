@@ -13,8 +13,6 @@ import 'app/components/dialogs/insure/PayPremiumDialog';
 import 'app/components/dialogs/insure/PayPremiumConfirmationDialog';
 import 'app/components/dialogs/insure/PayPremiumAgreementDialog';
 import 'app/components/dialogs/insure/LodgeClaimInfoDialog';
-import 'app/components/dialogs/insure/testDialog';
-
 
 import 'app/components/dialogs/insure/CancelPolicyDialog';
 import 'app/components/dialogs/insure/EmailPlanDialog';
@@ -58,7 +56,6 @@ class ClientPolicies extends Component {
 		this.clientPolicies = null;
 		this.showSubMenu = true;
 
-		this.showTestDialog = false;
 
 	}
 
@@ -110,7 +107,6 @@ class ClientPolicies extends Component {
 			readOnlyMode: { type: Boolean, state: true },
 			showSubMenu: { type: Boolean, state: true },
 
-			showTestDialog: { type: Boolean, state: true }
 			
 		};
 	}
@@ -277,15 +273,8 @@ class ClientPolicies extends Component {
 	 */
 	_openPayPremiumAgreementDialog() {
 		this.showPayPremiumConfirmationDialog = false;
-		// this.showPayPremiumAgreementDialog = true;
-		this.showTestDialog = true;
+		this.showPayPremiumAgreementDialog = true;
 		
-	}
-
-	_closeTestDialog() {
-
-		this.showTestDialog = false;
-
 	}
 
 	/**
@@ -640,7 +629,6 @@ class ClientPolicies extends Component {
 			${this._renderPayPremiumDialog()}
 			${this._renderPayPremiumConfirmationDialog()}
 			${this._renderPayPremiumAgreementDialog()}
-			${this._renderTestDialog()}
 			${this._renderLodgeClaimInfoDialog()}
 			${this._renderError()}
 			${this._renderCancelPolicyDialog()}
@@ -1062,18 +1050,6 @@ _renderCancelPolicyConfirmationDialog() {
 			</insure-pay-premium-agreement-dialog>`;
 
 	}
-
-	_renderTestDialog() {
-		return this.showTestDialog === false ? ``
-		: html`
-			<insure-test-dialog @close-modal="${(e) => this._closeTestDialog()}"
-				.payAmount = "${this.amountToPay}" .contractReference= ${this.clientArrears.contractReference}
-				.getArrearsPaymentDocument="${(contractReference) => this._getArrearsPaymentDocument(contractReference)}"
-				.arrearsPaymentDocumentDetails="${this.arrearsPaymentDocumentDetails}">
-			</insure-test-dialog>
-		`;
-	}
-
 
 /**
  * render the unknown error dialog
