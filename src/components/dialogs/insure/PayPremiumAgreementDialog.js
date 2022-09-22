@@ -23,7 +23,6 @@ class PayPremiumAgreementDialog extends Component {
 
 	constructor() {
 		super();
-		console.log(`Constructor PayPremiumAgreementDialog`);
 	}
 
 	// #endregion
@@ -67,7 +66,6 @@ class PayPremiumAgreementDialog extends Component {
 	// #region PRIVATE METHODS
 
 	_initialise() {
-		console.log(`_initialize PayPremiumAgreementDialog`);
 		// this._getDocument();
 		
 	}
