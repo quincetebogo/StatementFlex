@@ -222,7 +222,7 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
     async _approveDebiCheckMandate(event) {
-		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
+		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE_CONFIRM, {
 			"screen": TelemetryScreen.APPROVE_DEBICHECK,
 			"next-screen": TelemetryScreen.DEBICHECK_OUTCOME
 		});
