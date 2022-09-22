@@ -665,6 +665,20 @@ export class InsureService extends ChannelServiceBase {
 
 	}
 
+	/**
+	 * Claims List
+	 *
+	 * @param {claimsRequest} [claimsRequest=null]  Request data
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async claimsList(claimsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureClaims`)) {
+			return this.mock(`insureClaims`);
+		}
+	}
+
 
 	// #endregion
 

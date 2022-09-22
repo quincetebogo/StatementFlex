@@ -79,6 +79,7 @@ export class ExistingClient extends InsureViewBase {
 		this.savingsAccountService = new SavingsService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 
 		this.readOnly = false;
+		this.claims = [];
 	}
 
 	/**
@@ -155,6 +156,8 @@ export class ExistingClient extends InsureViewBase {
 		await this._retrieveClientPolicies();
 		this.accountDetails = await this._retrieveAccountDetails();
 		this.commsHistory = await this._retrieveCommsHistory();
+		this.claims = await this._retrieveClaims();
+		console.log(this.claims)
 	}
 
 	/**
@@ -458,6 +461,15 @@ export class ExistingClient extends InsureViewBase {
 		};
 
 		return resp;
+	}
+
+	/**
+	 * Retrieve Claims
+	 * @returns {Object} Claims list
+	 */
+	async _retrieveClaims() {
+		const claimsList = await this.insureService.claimsList({});
+		return claimsList;
 	}
 
 	/**

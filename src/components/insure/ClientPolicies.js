@@ -677,14 +677,13 @@ class ClientPolicies extends Component {
 					</capitec-content-box>
 					${this._renderFooter()}
 				</capitec-tab>
-				<!-- <capitec-tab
+				<capitec-tab
 					data-automation-id="insure-landing-claims-tab"
 					label="Claims">
 					<capitec-content-box  class="accounts-box">
 						<label>Claims - Coming soon to a sprint near you!</label>
 					</capitec-content-box>
-					${this._renderFooter()}
-				</capitec-tab> -->
+				</capitec-tab>
 			</capitec-tab-group>`;
 	}
 
