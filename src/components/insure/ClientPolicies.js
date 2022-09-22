@@ -55,6 +55,8 @@ class ClientPolicies extends Component {
 
 		this.clientPolicies = null;
 		this.showSubMenu = true;
+
+
 	}
 
 	// #endregion INITIALISATION
@@ -103,7 +105,9 @@ class ClientPolicies extends Component {
 			policyDetails: { type: Object, state: true },
 
 			readOnlyMode: { type: Boolean, state: true },
-			showSubMenu: { type: Boolean, state: true }
+			showSubMenu: { type: Boolean, state: true },
+
+			
 		};
 	}
 
@@ -270,6 +274,7 @@ class ClientPolicies extends Component {
 	_openPayPremiumAgreementDialog() {
 		this.showPayPremiumConfirmationDialog = false;
 		this.showPayPremiumAgreementDialog = true;
+		
 	}
 
 	/**
@@ -1026,7 +1031,7 @@ _renderCancelPolicyConfirmationDialog() {
 		: html`
 			<insure-pay-premium-confirmation-dialog @close-modal="${(e) => this._closePayPremiumConfirmationDialog()}" 
 				@confirm-payment="${(e) => this._openPayPremiumAgreementDialog()}"
-				.amountToPay = ${this.amountToPay} .contractReference = ${this.clientArrears.contractReference}>
+				.amountToPay = "${this.amountToPay}" .contractReference = ${this.clientArrears.contractReference}>
 			</insure-pay-premium-confirmation-dialog>`;
 
 	}
@@ -1039,7 +1044,7 @@ _renderCancelPolicyConfirmationDialog() {
 		return this.showPayPremiumAgreementDialog === false ? `` 
 		: html`
 			<insure-pay-premium-agreement-dialog @close-modal="${(e) => this._closePayPremiumAgreementDialog()}"
-				@pay-premium-agree = "${(e) => this._goToPayPremiumSuccess()}" .amountToPay = ${this.amountToPay} .contractReference= ${this.clientArrears.contractReference}
+				@pay-premium-agree = "${(e) => this._goToPayPremiumSuccess()}" .payAmount = "${this.amountToPay}" .contractReference= ${this.clientArrears.contractReference}
 				.getArrearsPaymentDocument="${(contractReference) => this._getArrearsPaymentDocument(contractReference)}"
 				.arrearsPaymentDocumentDetails="${this.arrearsPaymentDocumentDetails}">
 			</insure-pay-premium-agreement-dialog>`;
