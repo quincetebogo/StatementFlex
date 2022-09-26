@@ -6,6 +6,7 @@
  */
 export const BANK_OPTIONS = Object.freeze([
 	{ code: `CAPITEC BANK`, text: `CAPITEC BANK`, branchCode: `` },
+	{ code: `CAPITEC`, text: `CAPITEC BANK`, branchCode: `` },
 	{ code: `20TWENTY`, text: `20TWENTY`, branchCode: `730020` },
 	{ code: `ABN AMRO BANK`, text: `ABN AMRO BANK`, branchCode: `740000` },
 	{ code: `ABSA BANK`, text: `ABSA BANK`, branchCode: `632005` },
@@ -247,4 +248,15 @@ export const INSURE_CALLER_PAGE = Object.freeze({
   export const INSURE_PRODUCT_CODE = Object.freeze({
 	CAPITEC: `Capitec`,
 	CAPITEC_SANLAM: `CapitecSanlam`
+});
+
+ /**
+ * Transaction Status types
+ * 
+ * @readonly
+ * @enum {Object} TRANSACTION_STATUS
+ */
+  export const TRANSACTION_STATUS = Object.freeze({
+	FINANCIAL: `Financial`,
+	NONFINANCIAL: `NonFinancial`
 });
