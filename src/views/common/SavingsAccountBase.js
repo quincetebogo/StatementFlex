@@ -253,13 +253,13 @@ export class SavingsAccountBase extends ViewBase {
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
 
-	_exitDebiCheck() {
-		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_EXIT, {
+	async _exitDebiCheck() {
+		await this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_EXIT, {
 			"screen": TelemetryScreen.DEBICHECK,
 			"next-screen": TelemetryScreen.FAVOURITES
 		});
 
-		this._telemetry.endSpan(QuickTransactionEvents.DEBICHECK);
+		await this._telemetry.endSpan(QuickTransactionEvents.DEBICHECK);
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
