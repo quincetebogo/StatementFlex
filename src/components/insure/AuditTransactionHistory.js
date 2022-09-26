@@ -1,7 +1,8 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
+import { MAX_RESULTS } from 'app/constants/AuditTransactionHistory';
 
 /**
- * Audit Transaction History component that displays Policy audit transactions
+ * Audit Transaction History component that displays audit transaction history
  * 
  * 
  * @export
@@ -78,11 +79,22 @@ class AuditTransactionHistory extends Component {
 		return [
 			super.styles,
 			css`
-				.transaction-card {
+				.audit-transaction-card {
 					height: auto;
 					width: 1066px;
 					background-color: #FFFFFF;
 					box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
+				}
+				.audit-transaction-card > capitec-group:first-child {
+					--theme-layout-gap-spacing: 0px;
+				}
+				.audit-transaction-history-title {
+					width: var(--horizon-center-panel-width, 1064px);
+					border-bottom: 0px;
+					border-radius: 4px 4px 0 0;
+					padding: 11px 24px 11px 15px;
+
+					--theme-label-font-color: #FFFFFF;
 				}
 				.action-image{
 					cursor: pointer;
@@ -92,6 +104,24 @@ class AuditTransactionHistory extends Component {
 	}
 
 	// #endregion RENDER STYLES
+
+	// #region LIFECYCLE OVERRIDES
+	/**
+	 * Setup the component once added to the DOM.
+	 * @returns {void}
+	 */
+	 connectedCallback() {
+		super.connectedCallback();
+
+		// Making sure no baggage is carried from the previous instance.
+		// RENDER_CHIPS[FILTER_BY.DATE] = ``;
+		// RENDER_CHIPS[FILTER_BY.DATE_TYPE] = this.dateTypeOptions[0].text;
+
+		this.filteredData = this.auditTransactionHistory?.transactions;
+		this.hideLoadMore = this.auditTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.auditTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
+	}
+
+	// #endregion LIFECYCLE OVERRIDES
 
 	// #region EVENTS
 
@@ -114,6 +144,16 @@ class AuditTransactionHistory extends Component {
 		}));
 	}
 
+		/**
+	 * scroll to top of transactions table
+	 * @param {*} e e
+	 * @return {null} null
+	 */
+	_scrollToTop(e) {
+		const element = this.shadowRoot.getElementById(`audit-transactions-table`);
+		element.scrollTop = 0;
+	}
+
 	// #endregion EVENTS
 
 	// #region RENDERING
@@ -125,7 +165,15 @@ class AuditTransactionHistory extends Component {
 	 */
 	 _webTemplate() {
 		return html`
-			${this._renderContent()}
+			<capitec-card class="audit-transaction-card">
+				<capitec-group layout="vertical" gap="line" halign="left" valign="top">
+					${this._renderTitleBar()}
+						<capitec-content-box class="main-view" id="audit-transactions-table">
+						</capitec-content-box>
+						${this._renderFooter()}
+				</capitec-group>
+			</capitec-card>
+			${this._renderLoadingIndicator()}
 		`;
 	}
 
@@ -149,7 +197,74 @@ class AuditTransactionHistory extends Component {
 		`;
 	}
 
-	// #endregion
+	_renderTitleBar() {
+		return html`
+			<capitec-title-bar class="audit-transaction-history-title ${this.type}" type="default">
+				<capitec-image
+					alt="back"
+					src="/images/insure/left-arrow.svg"
+					@click="${() => this._backToSummaryPage()}"
+					data-automation-id="audit-transaction-history-back">
+				</capitec-image>
+				<capitec-label 
+					label="Audit Transaction History"
+					type="title">
+				</capitec-label>
+			</capitec-title-bar>
+		`;
+	}
+
+	_renderFooter() {
+		return html`
+			<capitec-action-bar class="load-more-bar" 
+				?hidden="${this.hideLoadMore || this.auditTransactionHistory.length === 0}">
+				<capitec-spacer></capitec-spacer>
+				<capitec-button
+					type="clear"
+					label="Load More"
+					@click = ${() => this._loadMoreTransactions()}
+					data-automation-id="audit-transaction-history-load-more">
+				</capitec-button>
+				<capitec-spacer></capitec-spacer>
+				<capitec-icon
+					class='scroll-top'
+					size="medium"
+					icon="system/arrow-up-action"
+					@click = ${(e) => this._scrollToTop(e)}
+					data-automation-id="audit-transaction-history-scroll-top">
+				</capitec-icon>
+			</capitec-action-bar>`;
+	}
+
+	_renderLoadingIndicator() {
+		return this.isBusy
+			? html`<capitec-loading-indicator data-automation-id="audit-transaction-history-loading-indicator"></capitec-loading-indicator>`
+			: html``;
+	}
+
+	// #endregion RENDERING
+
+	// #region PRIVATE METHODS
+
+	async _loadMoreTransactions() {
+		const oldCount = this.auditTransactionHistory?.transactions?.length;
+		const startDate = this.startDate.toLocaleString().slice(0, 10);
+		const endDate = this.endDate.toLocaleString().slice(0, 10);
+
+		await this.getAuditTransactionHistory(startDate, endDate, this.auditTransactionHistory?.transactions?.length);
+
+		// If the old record count and count after load more are same means no more data to populate,
+		// so hiding loadmore button
+		if (oldCount === this.auditTransactionHistory?.transactions?.length) {
+			this.hideLoadMore = true;
+		} else {
+			this.hideLoadMore = this.auditTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.auditTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
+		}
+		this._refineSearch();
+	}
+
+	// #endregion PRIVATE METHODS
+
 }
 
 window.customElements.define(`horizon-insure-audit-transaction-history`, AuditTransactionHistory);
