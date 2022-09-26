@@ -79,22 +79,199 @@ class AuditTransactionHistory extends Component {
 		return [
 			super.styles,
 			css`
-				.audit-transaction-card {
+				.transaction-card {
 					height: auto;
 					width: 1066px;
 					background-color: #FFFFFF;
 					box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
 				}
-				.audit-transaction-card > capitec-group:first-child {
+				.transaction-card > capitec-group:first-child {
 					--theme-layout-gap-spacing: 0px;
 				}
-				.audit-transaction-history-title {
+
+				/* Header Styles */
+				.transaction-history-title {
 					width: var(--horizon-center-panel-width, 1064px);
 					border-bottom: 0px;
 					border-radius: 4px 4px 0 0;
 					padding: 11px 24px 11px 15px;
 
 					--theme-label-font-color: #FFFFFF;
+				}
+				.transact {
+					background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
+				}
+				.lbb {
+					background: no-repeat url(../images/liveBetter/Gradient1.png);
+				}
+				.transaction-history-title > img {
+					width: 26px;
+					margin-right: 10px;
+					cursor: pointer;
+				}
+
+				/* Header Details Bar styles */
+				.actionbar-header {
+					height: 64px;
+					width: var(--horizon-center-panel-width, 1064px);
+					border-bottom: 0px;
+					padding: 11px 24px 11px 43px;
+				}
+				.actionbar-header > horizon-label {
+					width: 156px;
+					height: 100%;
+					padding: 0px 0px 0px 16px;
+				
+					--horizon-label-text-height: 20px;
+					--horizon-label-text-color: #FFFFFF;
+					--horizon-label-value-color: #FFFFFF;
+					--horizon-label-value-font-size: 16px;
+					--horizon-label-value-line-height: 20px;
+				}
+				.actionbar-header > horizon-label[label="Account Number"] {
+					width: 174px;
+				}
+				.actionbar-header > horizon-label[label="Interest"] {
+					width: 120px;
+				}
+
+				/* Filter Bar styles */
+				.transaction-action-bar {
+					height: 64px;
+					width: var(--horizon-center-panel-width, 1064px);
+					padding: 10px 10px;
+				}
+				.transaction-action-bar > capitec-text-field {
+					height: 47px;
+					width: 388px;
+					padding-left: 8px;
+				
+					--theme-label-font-color: #3A3A3A;
+					--theme-input-label-font-size: 16px;
+					--theme-layout-gap-spacing: 8px; 
+					--theme-input-clear-icon-height: 0px;
+					--theme-input-clear-icon-width: 0px;
+				}
+				.cb-datepicker {
+					height: 48px;
+					width: 201px;
+					margin-right: 8px;
+					border-radius: 5px;
+					border: 1px solid #E1E1E1;
+					cursor: pointer;
+				}
+
+				/* Chip Bar Styles */
+				.filter-bar {
+					--theme-actionbar-min-height: 48px;
+					--theme-actionbar-padding: 8px 0px 8px 16px;
+				}
+				.filter-bar > capitec-label {
+					height: 20px;
+					width: 87px;
+					color: #3A3A3A;
+					font-family: "Hind Vadodara";
+					font-size: 15px;
+					font-weight: 600;
+					letter-spacing: 0;
+					line-height: 30px;
+				}
+				.filter-bar > capitec-button {
+					height: 40px;
+					margin: 0px;
+
+					--theme-button-font-size : 14px;
+					--theme-button-line-height: 10px;
+					--theme-button-font-weight: 600;
+				}
+				
+				/* Main View Styles */
+				.main-view {
+					--theme-container-padding-left: 0px;
+					--theme-container-padding-right: 0px;
+					--theme-container-padding-top: 0px;
+					--theme-container-padding-bottom: 0px;
+					--theme-layout-gap-line-color: 0px;
+					height: 661px;
+					width: auto;
+				}
+				capitec-table{
+					width: var(--horizon-center-panel-width, 1064px);
+					height: auto;
+					--theme-icon-size-default: 8px;
+					--theme-data-table-body-group-font-weight: 600;
+					--theme-data-table-font-size : 15px;
+					--theme-data-table-padding-left: 16px;
+					--theme-data-table-body-group-color: #3A3A3A;
+					--theme-data-table-font-color: #3A3A3A;
+					--theme-data-table-padding-right: 16px;
+					--theme-data-table-padding-top: 11px;
+					--theme-data-table-padding-bottom: 11px;
+					--theme-data-table-expander-size: 12px;
+					--theme-data-table-footer-border: 0px;
+					--theme-data-table-expander-size: 24px;
+					--theme-data-table-header-font-weight: 600;
+
+				}
+
+				/* Modal Calendar Styles */
+
+				div[slot="body"] {
+					display: flex;
+				}
+
+				.load-more-bar{
+					--theme-actionbar-min-height: 48px;
+					padding-top : 0px;
+					padding-bottom: 0px; 
+					--theme-actionbar-background: #f4f4f4;
+				}
+				.transaction-status-select{
+					--theme-input-label-font-size: 16px;
+					--theme-input-padding-bottom: 13px;
+					--theme-select-options-max-height: 308px;
+					--theme-input-font-size: 16px;
+					--theme-input-label-font-color: #3A3A3A;
+					--theme-input-font-weight: 400;
+					--theme-input-icon-top: 8px;
+					line-height: 30px;
+					width: 224px;
+				}
+				.scroll-top {
+					--theme-icon-size-medium: 26px;
+					padding-top: 12px;
+					cursor: pointer;
+				}
+				capitec-date-time-picker{
+					--theme-modal-header-color: #3A3A3A;
+					--theme-modal-header-background-color: #F7F7F7;
+					--theme-date-time-picker-range-calendar-border: 0px;
+					margin-right: 8px;
+					width: 280px;
+				}
+				.transaction-action-bar > capitec-chip{
+					margin: 0px 8px;
+					--theme-chip-label-padding-left: 11px;
+					--theme-chip-label-padding-right: 11px;
+					--theme-chip-label-line-height: 19px;
+				}
+				.type-normal{
+					--theme-chip-label-color: #3A3A3A;
+					--theme-chip-background-color: #FFFFFF;
+				}
+				.type-selected{
+					--theme-chip-label-color: #FFFFFF;
+					--theme-chip-background-color: #009DE0;
+					--theme-chip-font-weight: 600;
+				}
+				.no-results {
+					--theme-label-strong-font-size: 24px;
+					--theme-label-strong-font-weight: 600;
+					--theme-label-font-color: #3A3A3A;
+				}
+				.no-result-group {
+					width: 1062px;
+					margin-top: 130px;
 				}
 				.action-image{
 					cursor: pointer;
@@ -165,7 +342,7 @@ class AuditTransactionHistory extends Component {
 	 */
 	 _webTemplate() {
 		return html`
-			<capitec-card class="audit-transaction-card">
+			<capitec-card class="transaction-card">
 				<capitec-group layout="vertical" gap="line" halign="left" valign="top">
 					${this._renderTitleBar()}
 						<capitec-content-box class="main-view" id="audit-transactions-table">
@@ -199,9 +376,10 @@ class AuditTransactionHistory extends Component {
 
 	_renderTitleBar() {
 		return html`
-			<capitec-title-bar class="audit-transaction-history-title ${this.type}" type="default">
+			<capitec-title-bar class="insure-title-bar" type="insure">
 				<capitec-image
 					alt="back"
+					class="action-image"
 					src="/images/insure/left-arrow.svg"
 					@click="${() => this._backToSummaryPage()}"
 					data-automation-id="audit-transaction-history-back">
