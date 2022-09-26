@@ -248,3 +248,14 @@ export const INSURE_CALLER_PAGE = Object.freeze({
 	CAPITEC: `Capitec`,
 	CAPITEC_SANLAM: `CapitecSanlam`
 });
+
+ /**
+ * Transaction Status types
+ * 
+ * @readonly
+ * @enum {Object} TRANSACTION_STATUS
+ */
+  export const TRANSACTION_STATUS = Object.freeze({
+	FINANCIAL: `Financial`,
+	NONFINANCIAL: `NonFinancial`
+});

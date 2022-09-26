@@ -13,6 +13,7 @@ import 'app/components/insure/PolicyTransactionHistory';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { TRANSACTION_STATUS } from 'app/constants/InsureCommon';
 
 // ninety days in milliseconds
 const NINETY_DAYS = 7777000000;
@@ -242,11 +243,18 @@ static get properties() {
 			transactionDateType: `TransactionDate`,
 			fromDate: startDate || POLICY_TRANSACTION_HISTORY.START_DATE,
 			toDate: endDate || POLICY_TRANSACTION_HISTORY.END_DATE,
-			pageIndex: pageIndex || POLICY_TRANSACTION_HISTORY.PAGE_INDEX,
-			totalPerPage: POLICY_TRANSACTION_HISTORY.MAX_RESULTS
+			transactionStatus: TRANSACTION_STATUS.FINANCIAL,
+			pagniation: {
+				pageIndex: pageIndex || POLICY_TRANSACTION_HISTORY.PAGE_INDEX,
+				totalPerPage: POLICY_TRANSACTION_HISTORY.MAX_RESULTS
+			}
 		};
 
 		this.transactions = [];
+
+		this.policyTransactionHistory = {
+			contractReference: this.contractReference
+		};
 
 		const returnValue = await this.insureService.getPolicyTransactions(transactionHistoryRequest);
 
@@ -265,10 +273,7 @@ static get properties() {
 									});
 			this.transactions.push(...formattedTrans);
 
-			this.policyTransactionHistory = {
-				contractReference: this.contractReference,
-				transactions: this.transactions 
-			};
+			this.policyTransactionHistory.transactions = this.transactions;
 
 			this.endCallContext = `PolicyTransactionHistory`;
 			this.renderMode = INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY;

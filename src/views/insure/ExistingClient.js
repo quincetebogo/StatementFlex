@@ -6,7 +6,7 @@ import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 import { MAX_RESULTS } from 'app/constants/PolicyTransactionHistory';
 import { getAgeFromIDNumber, getGenderFromIDNumber } from 'app/utils/insureUtils';
-import { INSURE_CALLER_PAGE, DOCUMENT_TYPE } from 'app/constants/InsureCommon';
+import { INSURE_CALLER_PAGE, DOCUMENT_TYPE, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
 import { SavingsService } from 'app/services/SavingsService';
 
 import 'app/components/insure/ClientPolicies';
@@ -17,6 +17,7 @@ import 'app/components/insure/CancelPolicySuccess';
 import 'app/components/insure/EmailPlanSuccess';
 import 'app/components/insure/PayPremiumSuccess';
 import 'app/components/insure/PolicyTransactionHistory';
+import 'app/components/insure/AuditTransactionHistory';
 import 'app/components/insure/UpdatePlanSuccess';
 import 'app/components/insure/SuccessPage';
 import 'app/components/insure/SMSHistory';
@@ -67,6 +68,7 @@ export class ExistingClient extends InsureViewBase {
 
 		this.productParams = {};
 		this.policyTransactionHistory = {};
+		this.auditTransactionHistory = {};
 		this.policyDetails = {};
 		this.estimate = {};
 		this.contractReference = ``;
@@ -709,6 +711,17 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
+	 * Prepare and navigate to Audit Transaction history
+	 * @param {*} e e
+	 * @returns {null} null
+	 */
+	async _goToAuditTransactionHistory(e) {
+		this.contractReference = e.detail.policyNumber;
+		await this._getAuditTransactionHistory();
+		this._navigateToSubView(INSURE_RENDER_MODE.AUDIT_TRANSACTION_HISTORY);
+	}
+
+	/**
 	 * Fetch latest policy details and render Policy Summary 
 	 * @param {*} e e
 	 * @returns {null} null
@@ -780,8 +793,11 @@ export class ExistingClient extends InsureViewBase {
 			transactionDateType: `TransactionDate`,
 			fromDate: startDate || POLICY_TRANSACTION_HISTORY.START_DATE,
 			toDate: endDate || POLICY_TRANSACTION_HISTORY.END_DATE,
-			pageIndex: pageIndex || POLICY_TRANSACTION_HISTORY.PAGE_INDEX,
-			totalPerPage: POLICY_TRANSACTION_HISTORY.MAX_RESULTS
+			transactionStatus: TRANSACTION_STATUS.FINANCIAL,
+			pagniation: {
+				pageIndex: pageIndex || POLICY_TRANSACTION_HISTORY.PAGE_INDEX,
+				totalPerPage: POLICY_TRANSACTION_HISTORY.MAX_RESULTS
+			}
 		};
 
 		this.transactions = [];
@@ -813,6 +829,17 @@ export class ExistingClient extends InsureViewBase {
 			this.renderMode = INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY;
 		}
 	}
+
+	/**
+	 * Fetch Audit Transaction History
+	 * @param {*} startDate startDate
+	 * @param {*} endDate endDate
+	 * @param {*} pageIndex pageIndex
+	 * @returns {null} null
+	 */
+	 async _getAuditTransactionHistory(startDate, endDate, pageIndex) {
+
+	 }
 
 	/**
 	 * Calculate quote callback from Update plan, supply 
@@ -1133,13 +1160,23 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
-	 * Unload Policy Transactions State
+	 * Unload Audit Transactions
+	 * @returns {null} null
+	 */
+	_unloadAuditTransactionHistory() {
+		this.auditTransactionHistory = {};
+	}
+
+	/**
+	 * Unload Policy Transactions
 	 * @returns {null} null
 	  */
 	_undoClientPolicies() {
-		this.clientPolicies?.summaryDetails?.policies?.forEach(item => {
-			 item.isExpanded = false; 
-		});
+		if (this.clientPolicies?.summaryDetails?.policies !== null) {
+			this.clientPolicies.summaryDetails.policies.forEach(item => {
+				item.isExpanded = false; 
+			});
+		}
 	}
 
 
@@ -1205,6 +1242,8 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderFuneralPlanDetailsPage()}`;
 			case INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY:
 				return html`${this._renderPolicyTransactionHistoryPage()}`;
+			case INSURE_RENDER_MODE.AUDIT_TRANSACTION_HISTORY:
+				return html`${this._renderAuditTransactionHistoryPage()}`;
 			case INSURE_RENDER_MODE.POLICY_SUMMARY:
 				return html`${this._renderPolicySummaryPage()}`;
 			case INSURE_RENDER_MODE.CANCEL_POLICY_SUCCESS:
@@ -1230,9 +1269,11 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	 _renderClientPoliciesPage() {
 
-		this.clientPolicies?.summaryDetails?.policies?.forEach(item => {
-			item.isExpanded = false; 
-		});
+		if (this.clientPolicies?.summaryDetails?.policies !== null) {
+			this.clientPolicies.summaryDetails.policies.forEach(item => {
+				item.isExpanded = false; 
+			});
+		}
 
 		return html`
 			<horizon-insure-client-policies .clientPolicies="${this.clientPolicies}"
@@ -1243,6 +1284,7 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-pay-premium-success="${(e) => this._payPolicy(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
+				@navigate-to-audit-transaction-history="${(e) => this._goToAuditTransactionHistory(e)}"
 				@navigate-to-cancel-policy-success="${(e) => this._cancelPolicy(e)}"
 				.getCancelPolicyDocument="${(contractReference, cancelReason, saveToDocumentum) => this._cancelPolicyAgreement(contractReference, cancelReason, saveToDocumentum)}"
 				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}"
@@ -1346,6 +1388,22 @@ export class ExistingClient extends InsureViewBase {
 				.disposeData="${() => this.policyTransactionHistory = []}"
 				@unloading="${() => this._unloadPolicyTransactionHistory()}">
 			</horizon-insure-policy-transaction-history>`
+			: html``;
+	}
+
+	/**
+	 * Render Audit Transaction History Page
+	 * @returns {html} Html of the sub view 
+	 */
+	_renderAuditTransactionHistoryPage() {
+		return this.renderMode === INSURE_RENDER_MODE.AUDIT_TRANSACTION_HISTORY
+			? html`<horizon-insure-audit-transaction-history 
+				@navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+				.auditTransactionHistory="${this.auditTransactionHistory}"
+				.getAuditTransactionHistory="${(startDate, endDate, pageIndex) => this._getAuditTransactionHistory(startDate, endDate, pageIndex)}"
+				.disposeData="${() => this.auditTransactionHistory = []}"
+				@unloading="${() => this._unloadAuditTransactionHistory()}">
+			</horizon-insure-audit-transaction-history>`
 			: html``;
 	}
 

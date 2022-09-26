@@ -171,6 +171,17 @@ class ClientPolicies extends Component {
 	}
 
 	/**
+	 * Fire navigate event to Audit Transaction History
+	 * @param {*} contractReference contract reference
+	 * @returns {null} null
+	 */
+	_goToAuditTransactionHistory(contractReference) {
+		this.dispatchEvent(new CustomEvent(`navigate-to-audit-transaction-history`, {
+			detail: { policyNumber: contractReference }
+		}));
+	}
+
+	/**
 	 * Fire navigate event to Pay Premium Success page
 	 * @returns {null} null
 	 */
@@ -793,8 +804,8 @@ class ClientPolicies extends Component {
 			}
 		}
 
-		if (policyItem.status !== `Cancelled` && policyItem.status !== `Lapsed`) {
-			count += 2;
+		if (policyItem.status !== `Cancelled` && policyItem.status !== `Lapsed` && policyItem.status !== `NotTakenUp`) {
+			count += 3;
 		} else {
 			count += 1;
 		}
@@ -889,6 +900,14 @@ class ClientPolicies extends Component {
 						${policyItem.status !== `Cancelled` && policyItem.status !== `Lapsed` && policyItem.status !== `NotTakenUp` 
 						? html`
 							<horizon-option-button 
+								data-automation-id="insure-policy-options-audit-transaction-history"
+								class="button-margin" 
+								@click="${() => this._goToAuditTransactionHistory(policyItem.contractReference)}"
+								label="Audit Transaction History" 
+								icon="system/transfer-action"
+								.disabled="${this.readOnlyMode}">
+							</horizon-option-button>
+							<horizon-option-button 
 								data-automation-id="insure-policy-options-cancel-plan"
 								class="button-margin" 
 								@click="${() => this._openCancelPolicyDialog(policyItem.contractReference)}"
@@ -915,7 +934,8 @@ class ClientPolicies extends Component {
 		<capitec-card class="action-card">
 			<capitec-overflow-menu label="More" data-automation-id = "insure-policy-more-sub-menu">
 				<capitec-overflow-menu-item icon="system/transfer-action" label="Transaction History" @click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
-				${policyItem.status !== `Cancelled` && policyItem.status !== `Lapsed` ? html`
+				${policyItem.status !== `Cancelled` && policyItem.status !== `Lapsed` && policyItem.status !== `NotTakenUp` ? html`
+				<capitec-overflow-menu-item icon="system/transfer-action" label="Audit Transaction History" @click="${() => this._goToAuditTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
 				<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan" @click="${() => this._openCancelPolicyDialog(policyItem.contractReference)}"></capitec-overflow-menu-item>` : html``}
 			</capitec-overflow-menu>
 			<capitec-label label="More" class="label-text">
