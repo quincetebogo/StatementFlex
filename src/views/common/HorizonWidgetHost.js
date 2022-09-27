@@ -9,7 +9,8 @@ import 'app/components/common/ServiceCallErrorScreen';
 const RENDER_MODES = {
 	WIDGET: 0,
 	WIDGET_NOT_FOUND: 1,
-	UNKNOWN_WIDGET: 2
+	UNKNOWN_WIDGET: 2,
+	DIALOG: 3
 };
 const WidgetLoaderTimeout = 8; // in secs
 
@@ -77,6 +78,8 @@ export class HorizonWidgetHost extends ViewBase {
 
 	
 	_handleInitializeMessage(e) {
+		clearInterval(this.timerInterval);
+		
 		const mapVerificationMethods = { itaAttempts: `ITA`, sqAttempts: `KBA` };
 		const verificationMethods = [];
 		let verificationCount = 0;
@@ -144,6 +147,14 @@ export class HorizonWidgetHost extends ViewBase {
 	_handleTelemetryCloseChildSpansMessage(e) {
 		this._telemetry.closeChildSpans(e.detail.content.parentEvent, e.detail.content.originatingSystem);
 	}
+
+	_handleDialogLoad() {
+		this.renderMode = RENDER_MODES.DIALOG;
+	}
+
+	_handleDialogUnLoad() {
+		this.renderMode = RENDER_MODES.WIDGET;
+	}
 	
 	// --------------
 	// PUBLIC METHODS
@@ -158,7 +169,7 @@ export class HorizonWidgetHost extends ViewBase {
 	async _initialize() {
 		// const widgetName = this.navigationContext.current.pathParams.name;
 
-		this._widgetID = `517B7245-6669-43FE-A9B3-E88054AB8312`;
+		this._widgetID = this.navigationContext.current.pathParams.name;
 		// 804FA25C-5508-4D08-94F7-F2598D891AD8 - Registered
 		// 517B7245-6669-43FE-A9B3-E88054AB8312 - Registered but not available
 		// BE11799D-20ED-4D15-9537-7055084FE0DF - Unknown
@@ -212,6 +223,7 @@ export class HorizonWidgetHost extends ViewBase {
 			css`
 				.widget {
 					height: 100%;
+					z-index: 2;
 				}
 				.card{
 					width:100%;
@@ -222,6 +234,21 @@ export class HorizonWidgetHost extends ViewBase {
 					--horizon-service-call-error-screen-header-margin-top: 16px;
 					--horizon-service-call-error-screen-img-height: 182px;
 					--horizon-service-call-error-screen-img-width: 252px;
+				}
+
+				.overlay {
+					position: fixed;
+					top: 0;
+					left: 0;
+					bottom: 0;
+					right: 0;
+
+					z-index: 1;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+
+					background-color: var(--theme-modal-screen-background-color, rgba(0,0,0,0.6));
 				}
 			`
 		];
@@ -244,22 +271,28 @@ export class HorizonWidgetHost extends ViewBase {
 				${this._renderWidgetNotFound()}
 				${this._renderUnknownWidget()}
 			</capitec-card>
+			${this._renderDialog()}
 		`;
 	}
 
 	_renderWidget() {
-		return !this.widgetDetails || this.renderMode !== RENDER_MODES.WIDGET
+		return !this.widgetDetails || (this.renderMode !== RENDER_MODES.WIDGET && this.renderMode !== RENDER_MODES.DIALOG)
 			? html``
 			: html`
-				<capitec-widget id="widget1" src="${this.widgetDetails.alias}" class="widget" 
-					@initialize="${this._handleInitializeMessage}" 
-					@get-client-profile="${this._handleGetClientProfileInfoMessage}" 
+				<capitec-widget
+					id="widget1"
+					src="${this.widgetDetails.alias}"
+					class="widget"
+					@initialize="${this._handleInitializeMessage}"
+					@get-client-profile="${this._handleGetClientProfileInfoMessage}"
 					@loading-complete="${this._handleLoadingCompleteMessage}"
 					@telemetry-new-trace-id="${this._handleTelemetryNewTraceIdMessage}"
 					@telemetry-start-span="${this._handleTelemetryStartSpanMessage}"
 					@telemetry-end-span="${this._handleTelemetryEndSpanMessage}"
 					@telemetry-log-event="${this._handleTelemetryLogEventMessage}"
-					@telemetry-close-child-spans="${this._handleTelemetryCloseChildSpansMessage}">
+					@telemetry-close-child-spans="${this._handleTelemetryCloseChildSpansMessage}"
+					@loading-dialog="${this._handleDialogLoad}"
+					@unloading-dialog="${this._handleDialogUnLoad}">
 				</capitec-widget>`;
 	}
 
@@ -291,6 +324,14 @@ export class HorizonWidgetHost extends ViewBase {
 			</horizon-service-call-error-screen>`
 		: html``;
 	}
+
+	_renderDialog() {
+		return this.renderMode === RENDER_MODES.DIALOG
+		? html`
+			<div class="overlay"></div>`
+		: html``;
+	}
+
 }
 
 customElements.define(`horizon-widget-host`, HorizonWidgetHost);
