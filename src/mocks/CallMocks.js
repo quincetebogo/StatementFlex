@@ -27,12 +27,12 @@ export const acceptCallSuccess = {
 export const searchCaller = {
 	"callerInformation": {
 		"name": "Mr LAWRENCE DOLO",
-		"southAfricanIDNumber": "9803095871081",
+		"southAfricanIDNumber": "6310123199181",
 		"verifiedTelephoneNumber": "0684058890",
 		"livesIn": "MOKOPANE",
 		"languagePreference": "ENGLISH",
 		"birthdate": "Monday, 09 March 1998",
-		"cifNumber": "289739225",
+		"cifNumber": "363291008",
 		"title": "Mr",
 		"firstName": "LAWRENCE",
 		"lastName": "DOLO",

@@ -6,6 +6,7 @@
  */
 export const Claims = [
 	{
+		open: true,
 		policyNumber: `FP23928328`,
 		policyIndex: 0,
 		accountNumber: `2142332`,
@@ -26,8 +27,9 @@ export const Claims = [
 		]
 	},
 	{
+		open: false,
 		policyNumber: `FP2399484`,
-		policyIndex: 0,
+		policyIndex: 1,
 		accountNumber: `1233432`,
 		lifeAssured: {
 			firstName: `Mr Potato`,
