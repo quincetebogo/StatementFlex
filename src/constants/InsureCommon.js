@@ -6,6 +6,7 @@
  */
 export const BANK_OPTIONS = Object.freeze([
 	{ code: `CAPITEC BANK`, text: `CAPITEC BANK`, branchCode: `` },
+	{ code: `CAPITEC`, text: `CAPITEC BANK`, branchCode: `` },
 	{ code: `20TWENTY`, text: `20TWENTY`, branchCode: `730020` },
 	{ code: `ABN AMRO BANK`, text: `ABN AMRO BANK`, branchCode: `740000` },
 	{ code: `ABSA BANK`, text: `ABSA BANK`, branchCode: `632005` },
