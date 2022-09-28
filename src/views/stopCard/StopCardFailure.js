@@ -67,7 +67,8 @@ export class StopCardFailure extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 		this.renderMode = RENDER_MODE.CARD_STOP_FAILURE;
-		
+		this.callerInformation = this.horizonStore.getCallerInformation();
+
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.stoppedCards = screenDetails && screenDetails.stoppedCards;
 		this.failedCards = this.stoppedCards.filter(cards => !cards.cardStopped);

@@ -36,17 +36,21 @@ export class DebiCheckFailure extends ViewBase {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.isApproved = screenDetails.isApproved;
 		this.mandateId = screenDetails.mandateId;
 		this.endCallContext = `QuickTransactionsUnSuccess`;
+
+		await this._telemetry.startSpan(QuickTransactionEvents.DEBICHECK_FAILURE);
 	}
 
-	disconnectedCallback() {
+	async disconnectedCallback() {
 		super.disconnectedCallback();
+
+		await this._telemetry.endSpan(QuickTransactionEvents.DEBICHECK_FAILURE, {}, true, true);
 	}
 
 	// --------------
@@ -54,20 +58,20 @@ export class DebiCheckFailure extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		//this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME_DONE, {
-		//    "screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
-		//    "next-screen": TelemetryScreen.FAVOURITES
-		//});
+		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_FAILURE_DONE, {
+			"screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
+			"next-screen": TelemetryScreen.FAVOURITES
+		});
 
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_assignClick() {
-		//this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME_HANDOFF, {
-		//    "screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
-		//    "next-screen": TelemetryScreen.FAVOURITES
-		//});
+		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_FAILURE_ASSIGN, {
+			"screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
+			"next-screen": TelemetryScreen.FAVOURITES
+		});
 
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
 
