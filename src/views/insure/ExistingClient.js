@@ -20,6 +20,7 @@ import 'app/components/insure/PolicyTransactionHistory';
 import 'app/components/insure/UpdatePlanSuccess';
 import 'app/components/insure/SuccessPage';
 import 'app/components/insure/SMSHistory';
+import 'app/components/insure/ClaimSummary';
 
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -63,6 +64,7 @@ export class ExistingClient extends InsureViewBase {
 	constructor() {
 		super();
 		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
+		// this.renderMode = INSURE_RENDER_MODE.CLAIM_SUMMARY;
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 
 		this.productParams = {};
@@ -79,6 +81,7 @@ export class ExistingClient extends InsureViewBase {
 		this.savingsAccountService = new SavingsService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 
 		this.readOnly = false;
+		this.claims = [];
 	}
 
 	/**
@@ -122,7 +125,8 @@ export class ExistingClient extends InsureViewBase {
 			readOnly: { type: Object, state: true },
 			arrearsPaymentDocumentDetails: { type: Object, state: true },
 			confirmedEmail: { type: Object, state: true },
-			renderMode: { type: Number }
+			renderMode: { type: Number },
+			claims: { type: Object, state: true }
 
 		};
 	}
@@ -155,6 +159,7 @@ export class ExistingClient extends InsureViewBase {
 		await this._retrieveClientPolicies();
 		this.accountDetails = await this._retrieveAccountDetails();
 		this.commsHistory = await this._retrieveCommsHistory();
+		this.claims = await this._retrieveClaims();
 	}
 
 	/**
@@ -305,20 +310,20 @@ export class ExistingClient extends InsureViewBase {
 		} else if (sourePage === INSURE_CALLER_PAGE.CANCEL_POLICY) {
 			emailDocumentRequestPayload.documentInfo = [
 				{
-				"documentId": `123`,
-				"documentType": DOCUMENT_TYPE.CANCEL_POLICY_AGREEMENT,
-				"documentGuid": this.cancelPolicyDocumentDetails?.documentDetails?.guid,
-				"content": this.cancelPolicyDocumentDetails?.documentContent
+					"documentId": `123`,
+					"documentType": DOCUMENT_TYPE.CANCEL_POLICY_AGREEMENT,
+					"documentGuid": this.cancelPolicyDocumentDetails?.documentDetails?.guid,
+					"content": this.cancelPolicyDocumentDetails?.documentContent
 				}
 			];
 		} else if (sourePage === INSURE_CALLER_PAGE.PAY_PREMIUM) {
 			emailDocumentRequestPayload.documentInfo = [
 				{
-				"documentId": `123`,
-				"documentType": DOCUMENT_TYPE.PAY_ARREARS_AGREEMENT,
-				"documentGuid": ``,
-				"content": ``
-			}
+					"documentId": `123`,
+					"documentType": DOCUMENT_TYPE.PAY_ARREARS_AGREEMENT,
+					"documentGuid": ``,
+					"content": ``
+				}
 			];
 		}
 	}
@@ -424,6 +429,20 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
+	 * Retrieve Claim Summary via insure channel service
+	 * @returns {Object} Claim Summary Details 
+	 */
+	async _retrieveClaimSummary() {
+		const request = {
+		};
+		const resp = await this.insureService.claimSummary(request);
+		if (!resp.succeeded) {
+			return;
+		}
+		return resp.result;
+	}
+
+	/**
 	 * Retrieve Quote number and Policy details
 	 * @returns {Object} Quote number and Policy details 
  * @returns {Object} Quote number and Policy details 
@@ -458,6 +477,15 @@ export class ExistingClient extends InsureViewBase {
 		};
 
 		return resp;
+	}
+
+	/**
+	 * Retrieve Claims
+	 * @returns {Object} Claims list
+	 */
+	async _retrieveClaims() {
+		const claimsList = await this.insureService.claimsList({});
+		return claimsList.result;
 	}
 
 	/**
@@ -531,9 +559,9 @@ export class ExistingClient extends InsureViewBase {
 			"cancellationReason": this.cancellationReason,
 			"documents": [
 				{
-				"documentCode": this.cancelPolicyDocumentDetails.documentDetails.documentCode,
-				"documentName": this.cancelPolicyDocumentDetails.documentDetails.documentName,
-				"guid": this.cancelPolicyDocumentDetails.documentDetails.guid
+					"documentCode": this.cancelPolicyDocumentDetails.documentDetails.documentCode,
+					"documentName": this.cancelPolicyDocumentDetails.documentDetails.documentName,
+					"guid": this.cancelPolicyDocumentDetails.documentDetails.guid
 				}
 			]
 
@@ -665,10 +693,10 @@ export class ExistingClient extends InsureViewBase {
 			console.log(resp);
 			return resp.result;
 
-		} 
-			// Do error message
-			return null;
-		
+		}
+		// Do error message
+		return null;
+
 	}
 
 	/**
@@ -719,6 +747,16 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
+	 * Fetch latest claim details and render Claims Summary 
+	 * @param {*} e e
+	 * @returns {null} null
+	 */
+	async _goToClaimSummary(e) {
+		this.claimSummary = await this._retrieveClaimSummary();
+		this._navigateToSubView(INSURE_RENDER_MODE.CLAIM_SUMMARY);
+	}
+
+	/**
 	 * Prepare and navigate Cancel Policy Success
 	 * @param {*} e e
 	 * @returns {null} null
@@ -737,6 +775,8 @@ export class ExistingClient extends InsureViewBase {
 		// Telemetry Here
 		this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
 	}
+
+
 
 	/**
 	 * Make FIPS call and Prepare and navigate to pay premium success page
@@ -1056,15 +1096,15 @@ export class ExistingClient extends InsureViewBase {
 		if (!emailResponse.succeeded) {
 			return;
 		}
-			window.showToastTimed(`success`, `top`, `Success`, `Email document was sent`, 3000, true);
+		window.showToastTimed(`success`, `top`, `Success`, `Email document was sent`, 3000, true);
 
-			if (this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY || this.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM) {
-				this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
-			} else if (this.callerPage === INSURE_CALLER_PAGE.ESTIMATE) {
-				this._navigateToSubView(INSURE_RENDER_MODE.ESTIMATE);
-			} else {
-				this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES);
-			}
+		if (this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY || this.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM) {
+			this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
+		} else if (this.callerPage === INSURE_CALLER_PAGE.ESTIMATE) {
+			this._navigateToSubView(INSURE_RENDER_MODE.ESTIMATE);
+		} else {
+			this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES);
+		}
 
 	}
 
@@ -1142,7 +1182,7 @@ export class ExistingClient extends InsureViewBase {
 	  */
 	_undoClientPolicies() {
 		this.clientPolicies?.summaryDetails?.policies?.forEach(item => {
-			 item.isExpanded = false; 
+			item.isExpanded = false;
 		});
 	}
 
@@ -1223,6 +1263,8 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderSuccessPage()}`;
 			case INSURE_RENDER_MODE.SMS_HISTORY:
 				return html`${this._renderSMSHistory()}`;
+			case INSURE_RENDER_MODE.CLAIM_SUMMARY:
+				return html`${this._renderClaimSummaryPage()}`;
 			default:
 				return html``;
 		}
@@ -1232,15 +1274,18 @@ export class ExistingClient extends InsureViewBase {
 	 * Render Landing page for Insure existing clients
 	 * @return {html} Html of the sub view
 	 */
-	 _renderClientPoliciesPage() {
+	_renderClientPoliciesPage() {
 
 		this.clientPolicies?.summaryDetails?.policies?.forEach(item => {
-			item.isExpanded = false; 
+			item.isExpanded = false;
 		});
 
 		return html`
-			<horizon-insure-client-policies .clientPolicies="${this.clientPolicies}"
-				.cancelPolicyDocumentDetails="${this.cancelPolicyDocumentDetails}" .accountDetails="${this.accountDetails}"
+			<horizon-insure-client-policies 
+				.clientClaims="${this.claims}"
+				.clientPolicies="${this.clientPolicies}"
+				.cancelPolicyDocumentDetails="${this.cancelPolicyDocumentDetails}" 
+				.accountDetails="${this.accountDetails}"
 				.arrearsPaymentDocumentDetails="${this.arrearsPaymentDocumentDetails}"
 				@navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan(e)}"
@@ -1248,6 +1293,7 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
 				@navigate-to-cancel-policy-success="${(e) => this._cancelPolicy(e)}"
+				@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}"
 				.getCancelPolicyDocument="${(contractReference, cancelReason, saveToDocumentum) => this._cancelPolicyAgreement(contractReference, cancelReason, saveToDocumentum)}"
 				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}"
 				.getArrearsPaymentDocument="${(contractReference, payArrears, fromAccount, saveToDocumentum) => this._arrearsPaymentInstruction(contractReference, payArrears, fromAccount, saveToDocumentum)}">
@@ -1412,6 +1458,19 @@ export class ExistingClient extends InsureViewBase {
 				.commsHistory="${this.commsHistory}"
 				.getCommsHistory="${(startDate, endDate) => this._retrieveCommsHistory(startDate, endDate)}">
 			</horizon-insure-sms-history-page>`;
+	}
+
+	/**
+	 * Renders the Claim Summary
+	 * 
+	 * @returns {html} html
+	 */
+	_renderClaimSummaryPage() {
+		return html`
+			<horizon-insure-claim-summary
+			@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+			.claimSummary="${this.claimSummary}">
+			</horizon-insure-claim-summary>`;
 	}
 
 	// #endregion RENDERING
