@@ -510,13 +510,16 @@ export class Favourites extends SavingsAccountBase {
 		if (returnValue.succeeded) {
 			this.cards = returnValue.result.cards;
 			
+			// Filter cards that has limits listed
+			this.cards = this.cards.filter(card => !isNullorEmpty(card.cardLimits));
+
 			// Convert all vaules on card limits into Rands
 			this.cards.forEach(card => {
-				Object.keys(card.cardLimits).forEach(key => {
-					if (!(isNullorEmpty(card.cardLimits[key]) || key === `tempLimitExpiryDate`)) {
-						card.cardLimits[key] /= 100;
-					}
-				});
+					Object.keys(card.cardLimits).forEach(key => {
+						if (!(isNullorEmpty(card.cardLimits[key]) || key === `tempLimitExpiryDate`)) {
+							card.cardLimits[key] /= 100;
+						}
+					});
 
 				if (card.linkedCardLimits) {
 					Object.keys(card.linkedCardLimits).forEach(key => {

@@ -76,13 +76,36 @@ const headings = {
 					amount: `width: 120px;` 
 };
 
+const expanderDescriptionText = `height: 14px;
+					color: #3A3A3A;
+					font-size: 12px;
+					line-height: 14px;`;
+
+const expanderDecriptionValue = `width: 192px;
+					color: #3A3A3A;
+					font-size: 14px;
+					font-weight: 600;
+					height: 20px;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;`;
+
+const expanderTooltip = `height: 20px;
+					--theme-tooltip-font-family: 'Hind Vadodara';
+					--theme-tooltip-font-size: 14px;
+					--theme-tooltip-line-height: 20px;
+					--theme-tooltip-border-radius: 4px;`;
+
 export const TABLE_EXPANDER_CELL = {
 	headerGroup: tableHeaderGroup,
 	headerLabel: tableHeaderLabel,
 	tableHeadings: headings,
 	firstcolumn: firstcolumn,
 	expanderColumns: expanderColumns,
-	expanderCell: expanderCell
+	expanderCell: expanderCell,
+	labelText: expanderDescriptionText,
+	labelValue: expanderDecriptionValue,
+	toolTip: expanderTooltip
 };
 
 export const STATUS_TAG = {
