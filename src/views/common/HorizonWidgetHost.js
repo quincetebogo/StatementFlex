@@ -148,7 +148,11 @@ export class HorizonWidgetHost extends ViewBase {
 		this._telemetry.closeChildSpans(e.detail.content.parentEvent, e.detail.content.originatingSystem);
 	}
 
-	_handleDialogLoad() {
+	_handleDialogLoad(e) {
+		if (e.detail.content) {
+			window.showDialog(e.detail.content);
+			return true;
+		}
 		this.renderMode = RENDER_MODES.DIALOG;
 	}
 
