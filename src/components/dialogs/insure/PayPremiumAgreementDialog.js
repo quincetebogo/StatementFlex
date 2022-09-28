@@ -23,8 +23,6 @@ class PayPremiumAgreementDialog extends Component {
 
 	constructor() {
 		super();
-
-
 	}
 
 	// #endregion
@@ -33,7 +31,7 @@ class PayPremiumAgreementDialog extends Component {
 
 	/**
 	 * @property {Object} contractReference contains the contract refrence
-	 * @property {Number} amountToPay total amount that will be paid
+	 * @property {Number} payAmount total amount that will be paid
 	 * @property {Function} getArrearsPaymentDocument Callback function to fetch arrears payment document
 	 * @property {Object} arrearsPaymentDocumentDetails contains arrears payment document details
 	 * 
@@ -42,7 +40,7 @@ class PayPremiumAgreementDialog extends Component {
 	 static get properties() {
 		return {
 			contractReference: { type: Object, state: true },
-			amountToPay: { type: Number, state: true },
+			payAmount: { type: Number, state: true },
 			getArrearsPaymentDocument: { type: Object },
 			arrearsPaymentDocumentDetails: { type: Object, state: true }
 		};
@@ -58,7 +56,7 @@ class PayPremiumAgreementDialog extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
-		this._initialize();
+		this._initialise();
 
 	 }
 
@@ -67,8 +65,7 @@ class PayPremiumAgreementDialog extends Component {
 
 	// #region PRIVATE METHODS
 
-	_initialize() {
-
+	_initialise() {
 		// this._getDocument();
 		
 	}
@@ -159,9 +156,18 @@ class PayPremiumAgreementDialog extends Component {
 					height: 100%;
 				}
 
+				.spacing{
+					margin-bottom: 20px;
+				}
+
+				.font{
+					font-weight: bolder;
+				}
+
 				`
 		];
 	}
+
 
 	/**
 	 * Main render point for component
@@ -195,14 +201,15 @@ class PayPremiumAgreementDialog extends Component {
 			</div>
 
 			<div>
-				<capitec-label type="subtitle" label="Declaration:
-By agreeing to pay your arrear premiums, you acknowledge and confirm that:
-• Your Savings/ Flexible Account can be debited with the amount of ${formatCurrency(this.amountToPay)} on ${dateFormat(Date())} ">
+				<capitec-label class="font" type="subtitle" label="Declaration">
+				</capitec-label>
+				<capitec-label class="spacing" type="strong" label="By agreeing to pay your arrear premiums, you acknowledge and confirm that:
+• Your Savings/ Flexible Account can be debited with the amount of ${formatCurrency(this.payAmount)} on ${dateFormat(Date())} ">
 				</capitec-label>
 			</div>
 
 			<capitec-content-box class="no-padding">
-				<capitec-expander expandbuttonalignment="left" label="View Arrears Payment Intruction" data-automation-id="insure-cancel-policy-dialog-view-cancellation-agreement">
+				<capitec-expander expandbuttonalignment="left" label="View Arrears Payment Instruction" data-automation-id="insure-cancel-policy-dialog-view-cancellation-agreement">
 					<iframe class="iframe-content" src="data:application/pdf;base64,${this.arrearsPaymentDocumentDetails?.documentContent}#view=fitH" alt="agreement"></iframe>
 				</capitec-expander>
 			</capitec-content-box>
