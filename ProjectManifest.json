@@ -4,7 +4,7 @@
   "group": "G_PL_HZN_DEV",
   "version": "2.13.3",
   "alias": "horizon2",
-  "release": "220902",
+  "release": "221001",
   "contractVersion": "v1",
   "serviceType": "Hosting",
   "resourceSize": "medium",
