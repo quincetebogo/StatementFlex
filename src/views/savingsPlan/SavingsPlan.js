@@ -97,10 +97,10 @@ export class SavingsPlan extends ViewBase {
 
 		this._initialise();
 
-		this._optionClick = async (option, savePlanDetails, saveType, sendAnother = false) => {
+		this._optionClick = async (option, savePlanDetails, sendAnother = false) => {
 
-			const statements = () => this._getStatements(savePlanDetails.accountNumber, saveType);
-			const taxCertificates = () => this._taxCertificates(savePlanDetails.accountNumber, savePlanDetails.accountName);
+			const statements = () => this._getStatements(savePlanDetails.accountNumber, sendAnother);
+			const taxCertificates = () => this._taxCertificates(savePlanDetails.accountNumber, savePlanDetails.planName);
 			const productEnquiry = () => this._productEnquiry();
 			const interestRates = () => this._interestRates();
 			const transactionHistory = () => this._transactionHistory(savePlanDetails);
@@ -536,7 +536,7 @@ export class SavingsPlan extends ViewBase {
 			<capitec-pc-savings-plan
 				.savingsPlanDetails="${this.savingsPlanDetails}"
 
-				@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.planDetails, e.detail.saveType)}"
+				@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.planDetails)}"
 				@view-info="${() => this._productEnquiry()}"
 				@account-details="${(e) => this._accountDetails(e.detail.accountType, e.detail.accountNumber)}">
 			</capitec-pc-savings-plan>`
@@ -698,13 +698,13 @@ export class SavingsPlan extends ViewBase {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Posting date" 
-					value = "${formatDateTime(item.postingDate)}"
+					value = "${formatDate(item.postingDate, `dd mmm yyyy`)}"
 					data-automation-id="transaction-history-item-posting-date">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Processed date"
-					value = "${formatDateTime(item.processDate)}"
+					value = "${formatDate(item.processDate, `dd mmm yyyy`)}"
 					data-automation-id="transaction-history-item-processed-date">
 				</horizon-label>
 				<horizon-label
