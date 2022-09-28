@@ -7,7 +7,7 @@
 export const ClaimSummary =
 {
 	open: true,
-	policyNumber: `FP23928328`,
+	policyNumber: `FP23928329`,
 	policyIndex: 0,
 	accountNumber: `2142332`,
 	lifeAssured: {
@@ -19,7 +19,7 @@ export const ClaimSummary =
 	claimStatus: `Claim Being Assessed`,
 	causeOfDeath: `Natural Causes`,
 	dateOfDeath: `01/01/2022`,
-	dateOfClaim: `01/01/2022`,
+	dateOfClaim: `01/05/2022`,
 	claimAmount: 100000,
 	outstandingDocs: [
 		{

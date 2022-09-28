@@ -63,8 +63,8 @@ export class ExistingClient extends InsureViewBase {
 
 	constructor() {
 		super();
-		// this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
-		this.renderMode = INSURE_RENDER_MODE.CLAIM_SUMMARY;
+		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
+		// this.renderMode = INSURE_RENDER_MODE.CLAIM_SUMMARY;
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 
 		this.productParams = {};
@@ -160,7 +160,6 @@ export class ExistingClient extends InsureViewBase {
 		this.accountDetails = await this._retrieveAccountDetails();
 		this.commsHistory = await this._retrieveCommsHistory();
 		this.claims = await this._retrieveClaims();
-		console.log(`${this.claims}`);
 	}
 
 	/**
@@ -486,7 +485,6 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _retrieveClaims() {
 		const claimsList = await this.insureService.claimsList({});
-		console.log("_retrieveClaims ", JSON.stringify(claimsList));
 		return claimsList.result;
 	}
 

@@ -32,6 +32,14 @@ class ClaimSummary extends Component {
 
 	// #endregion
 
+	/**
+	 * Setup the component once added to the DOM.
+	 * @returns {void}
+	 */
+	connectedCallback() {
+		super.connectedCallback();
+	}
+
 	// #region EVENT HANDLERS 
 
 	/**
@@ -39,10 +47,7 @@ class ClaimSummary extends Component {
 	 * @returns {null} null
 	 */
 	_backToClientPoliciesPage() {
-		this.dispatchEvent(new CustomEvent(`navigate-back`, {
-			detail: {
-			}
-		}));
+		this.dispatchEvent(new CustomEvent(`navigate-back`, {}));
 	}
 
 	// #endregion
@@ -60,8 +65,6 @@ class ClaimSummary extends Component {
 		return [
 			super.styles,
 			css`
-				${INSURE_CSS}
-
 				.insure-title-bar{
 					margin-bottom: 0px; 
 					border-top-left-radius: 5px; 
@@ -70,6 +73,17 @@ class ClaimSummary extends Component {
 
 				.action-image{
 					cursor: pointer;
+				}
+
+				.row-item{
+					flex: 0 0 250px;
+				}
+
+				.summary-row{
+					display: flex; 
+					justify-content: start; 
+					margin: 20px 10px; 
+					padding-left:20px;
 				}
 			`
 		];
@@ -81,51 +95,52 @@ class ClaimSummary extends Component {
 	 */
 	_webTemplate() {
 		return html`
-			<capitec-card data-automation-id="policy-summary">
+			<capitec-card>
 				<capitec-title-bar type="insure" class="insure-title-bar">
 					<img class="action-image" src="/images/insure/left-arrow.svg"
-						data-automation-id="policy-summary-back-to-policies" @click="${() => this._backToClientPoliciesPage()}" />
+						 @click="${() => this._backToClientPoliciesPage()}" />
 					<capitec-label label="Claim Summary" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
 				</capitec-title-bar>
 
-				<div style="display: flex; justify-content: start; margin: 20px; 10px; ">
-					<horizon-label label="Policy Number" style="flex: 0 0 250px;"
-						value="FP000012021">
+				<div class="summary-row">
+					<horizon-label label="Policy Number" class="row-item"
+						value="${this.claimSummary.policyNumber}">
 					</horizon-label>
-					<horizon-label label="Life Assured" style="flex: 0 0 250px;"
-						value="Joe Soap">
+					<horizon-label label="Life Assured" class="row-item"
+						value="${this.claimSummary.lifeAssured.firstName} ${this.claimSummary.lifeAssured.lastName}">
 					</horizon-label>
-					<horizon-label label="Claim Reference" style="flex: 0 0 250px;"
-						value="00019290">
+					<horizon-label label="Claim Reference" class="row-item"
+						value="${this.claimSummary.claimReference}">
 					</horizon-label>
-					<horizon-label label="Type Of Claim" style="flex: 0 0 250px;"
-						value="Death Claim">
-					</horizon-label>
-				</div>
-
-				<div style="display: flex; justify-content: start; margin: 20px; 10px; ">
-					<horizon-label label="Status" style="flex: 0 0 250px;"
-						value="Claim Being Assessed">
-					</horizon-label>
-					<horizon-label label="Cause of Death" style="flex: 0 0 250px;"
-						value="Natural Causes">
-					</horizon-label>
-					<horizon-label label="Date of Death" style="flex: 0 0 250px;"
-						value="03/05/2022">
-					</horizon-label>
-					<horizon-label label="Date of Claim" style="flex: 0 0 250px;"
-						value="18/05/2022">
+					<horizon-label label="Type Of Claim" class="row-item"
+						value="${this.claimSummary.claimType}">
 					</horizon-label>
 				</div>
 
-				<div style="margin: 20px; 0px;">
-					<horizon-label label="Outstanding Documents"
+				<div class="summary-row">
+					<horizon-label label="Status" class="row-item"
+						value="${this.claimSummary.claimStatus}">
+					</horizon-label>
+					<horizon-label label="Cause of Death" class="row-item"
+						value="${this.claimSummary.causeOfDeath}">
+					</horizon-label>
+					<horizon-label label="Date of Death" class="row-item"
+						value="${this.claimSummary.dateOfDeath}">
+					</horizon-label>
+					<horizon-label label="Date of Claim" class="row-item"
+						value="${this.claimSummary.dateOfClaim}">
+					</horizon-label>
+				</div>
+
+				<div>
+					<horizon-label style="padding-left: 30px;" label="Outstanding Documents"
 						value="">
 					</horizon-label>
 					<ul>
-						<li>ID document of nominated beneficiary</li>
-						<li>Bank statement of nominated beneficiary</li>
+						${this.claimSummary.outstandingDocs.map(doc => html`
+							<li>${doc.documentName}</li>
+						`)}
 					</ul>
 				</div>
 			</capitec-card>`;

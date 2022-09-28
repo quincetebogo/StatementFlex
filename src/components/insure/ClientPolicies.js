@@ -195,7 +195,6 @@ class ClientPolicies extends Component {
 	 * @returns {null} null
 	 */
 	_goToCancelPolicySuccess(e) {
-		console.log(e);
 		this.dispatchEvent(new CustomEvent(`navigate-to-cancel-policy-success`, {
 			detail: { contractReference: this.contractRef, cancellationReason: e.detail.cancellationReason }
 		}));
@@ -689,7 +688,9 @@ class ClientPolicies extends Component {
 				<capitec-tab
 					data-automation-id="insure-landing-claims-tab"
 					label="Claims">
+					<capitec-content-box  id="client-policies-box" class="accounts-box">
 						<horizon-insure-claims-list @navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}" .clientClaims="${this.clientClaims}"></horizon-insure-claims-list>
+					</capitec-content-box>
 				</capitec-tab>
 			</capitec-tab-group>`;
 	}
