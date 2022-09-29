@@ -60,7 +60,7 @@ export class CFPAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="Capitec Funeral Plan Agreement Declaration">
+		<capitec-modal type="form" header="Capitec Funeral Plan Agreement Disclosure">
 			<div slot="body">
 				<capitec-content-box class="body-box">
 					${this._renderDialogBody()}
@@ -79,9 +79,9 @@ export class CFPAgreementDialog extends Component {
 			return html`<strong>Capitec:</strong>
 				<ul class="no-margin">
 					<li>is a licensed financial services provider;</li>
-					<li>earns a commission of 3.5% from the Insurer;</li>
+					<li>earns a commission of 3.25% from the Insurer;</li>
 				</ul>
-				<p>This plan is underwritten by Capitec Life Insurance Company Limited, a licensed insurer and an Authorised Financial Services Provider</p>
+				<p>This plan is underwritten by Capitec Life Insurance Company Limited.</p>
 				<p><strong>I:</strong></p>
 
 				<ul class="no-margin">
@@ -99,7 +99,7 @@ export class CFPAgreementDialog extends Component {
 					<li>is a licensed financial services provider;</li>
 					<li>earns a commission of 3.25% from the Insurer;</li>
 				</ul>
-				<p>This plan is underwritten by Centriq Life Insurance Company Limited, a licensed insurer and an Authorised Financial Services Provider</p>
+				<p>This plan is underwritten by Centriq Life Insurance Company Limited.</p>
 				<p>I:</p>
 				<ul class="no-margin">
 					<li>work for Capitec who is liable for this service;</li>

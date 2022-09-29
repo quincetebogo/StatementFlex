@@ -1704,7 +1704,7 @@ class UpdatePlan extends Component {
 		return html`
 		<capitec-alert-banner class="clickable" @click="${() => this.showYROAAgreementDialog = true}"
 			type="${this.agreementYROAAccepted === true ? `success` : `info`}" header="Notify:"
-			label="I agree to Your Responsibility & Our Accountability agreement declaration">
+			label="I agree to Your Responsibility & Our Accountability agreement disclosure">
 		</capitec-alert-banner>`;
 	}
 
@@ -1716,7 +1716,7 @@ class UpdatePlan extends Component {
 		return html`
 		<capitec-alert-banner class="clickable" @click="${() => this.showFCPAgreementDialog = true}"
 			type="${this.agreementFCPAccepted === true ? `success` : `info`}" header="Notify:"
-			label="I agree to Funeral cover plan agreement declaration">
+			label="I agree to Funeral cover plan agreement disclosure">
 		</capitec-alert-banner>`;
 	}
 
@@ -1728,7 +1728,7 @@ class UpdatePlan extends Component {
 		return html`
 		<capitec-alert-banner class="clickable" @click="${() => this.showCFPAgreementDialog = true}"
 			type="${this.agreementCFPAccepted === true ? `success` : `info`}" header="Notify:"
-			label="I agree to Capitec Funeral Plan agreement declaration">
+			label="I agree to Capitec Funeral Plan agreement disclosure">
 		</capitec-alert-banner>`;
 	}
 
@@ -1740,7 +1740,7 @@ class UpdatePlan extends Component {
 		return html`
 		<capitec-alert-banner class="clickable" @click="${() => this.showEACLAgreementDialog = true}"
 			type="${this.agreementEACLAccepted === true ? `success` : `info`}" header="Notify:"
-			label="I agree to Entry Ages and Child Limits agreement declaration">
+			label="I agree to Entry Ages and Child Limits agreement disclosure">
 		</capitec-alert-banner>`;
 	}
 
@@ -1752,7 +1752,7 @@ class UpdatePlan extends Component {
 		return html`
 		<capitec-alert-banner class="clickable" @click="${() => this.showYBPAgreementDialog = true}"
 			type="${this.agreementYBPAccepted === true ? `success` : `info`}" header="Notify:"
-			label="I agree to You/your beneficiary are paid agreement declaration">
+			label="I agree to You/your beneficiary are paid agreement disclosure">
 		</capitec-alert-banner>`;
 	}
 
