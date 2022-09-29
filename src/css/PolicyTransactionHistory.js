@@ -217,6 +217,20 @@ export const INSURE_TRANSACTIONS_CSS = css`
 		cursor: pointer;
 	}
 
+	div[slot="body"] {
+		display: flex;
+	}
+
+	.type-normal{
+		--theme-chip-label-color: #3A3A3A;
+		--theme-chip-background-color: #FFFFFF;
+	}
+	
+	.type-selected{
+		--theme-chip-label-color: #FFFFFF;
+		--theme-chip-background-color: #009DE0;
+		--theme-chip-font-weight: 600;
+	}
 	
 	.no-results {
 		--theme-label-strong-font-size: 24px;
