@@ -57,6 +57,8 @@ export default class InsureChannelServiceMocks {
 		this.insureCancelPolicyMocks = await this._loadMockModule(this.insureCancelPolicyMocks, `insureCancelPolicy`, () => import(`../mocks/insure/CancelPolicyMockData`).catch(err => logError(err)));
 		this.insurePolicyPayMocks = await this._loadMockModule(this.insurePolicyPayMocks, `insurePolicyPay`, () => import(`../mocks/insure/CancelPolicyMockData`).catch(err => logError(err)));
 		this.updatePolicyAcceptMocks = await this._loadMockModule(this.updatePolicyAcceptMocks, `insureUpdatePolicyAccept`, () => import(`../mocks/insure/PolicyAccept`).catch(err => logError(err)));
+		this.claimsMocks = await this._loadMockModule(this.claimsMocks, `insureClaims`, () => import(`../mocks/insure/Claims`).catch(err => logError(err)));
+		this.claimSummaryMocks = await this._loadMockModule(this.claimSummaryMocks, `insureClaimSummary`, () => import(`../mocks/insure/ClaimSummary`).catch(err => logError(err)));
 		// this.estimatePrintoutMocks = await this._loadMockModule(this.estimatePrintoutMocks, `insureUpdatePolicyAccept`, () => import(`../mocks/insure/PolicyAccept`).catch(err => logError(err)));
 		this.auditTransactionHistoryMocks = await this._loadMockModule(this.auditTransactionHistoryMocks, `insureAuditTransactionHistory`, () => import(`../mocks/insure/InsureAuditTransactionsMockData`).catch(err => logError(err)));
 	}
@@ -193,6 +195,28 @@ export default class InsureChannelServiceMocks {
 	}
 
 	/**
+	 * Claims List
+	 * @returns {Object} Mock response data
+	 */
+	insureClaims() {
+		if (this._mockSettings.insureClaims.positiveCase) {
+			return this.claimsMocks.Claims;
+		}
+		return null;
+	}
+	
+	/**
+	 * Claims Summary
+	 * @returns {Object} Mock response data
+	 */
+	insureClaimSummary() {
+		if (this._mockSettings.insureClaimSummary.positiveCase) {
+			return this.claimSummaryMocks.ClaimSummary;
+		}
+		return null;
+	}
+
+	/**
 	 * Generate agreement / Sample content, not specific to a Agreement
 	 * @returns {Object} Mock response data
 	 */
@@ -203,10 +227,10 @@ export default class InsureChannelServiceMocks {
 		return null;
 	}
 
-		/**
-	 * Generate Issue agreement / Sample content, not specific to a Agreement
-	 * @returns {Object} Mock response data
-	 */
+	/**
+ * Generate Issue agreement / Sample content, not specific to a Agreement
+ * @returns {Object} Mock response data
+ */
 	generateIssueAgreement() {
 		if (this._mockSettings.insureGenerateIssueAgreement.positiveCase) {
 			return this.generateIssueAgreementMocks.InsureAgreement;
@@ -229,7 +253,7 @@ export default class InsureChannelServiceMocks {
 	 * communication History mock check
 	 * @returns {Object} Mock response data
 	 */
-	 insureCommsHistory() {
+	insureCommsHistory() {
 		if (this._mockSettings.insureCommsHistory.positiveCase) {
 			return this.commsHistoryMocks.CommsHistory;
 		}
@@ -247,10 +271,10 @@ export default class InsureChannelServiceMocks {
 		return null;
 	}
 
-		/**
-	 * Cancel Policy mock check
-	 * @returns {Object} Mock response data
-	 */
+	/**
+ * Cancel Policy mock check
+ * @returns {Object} Mock response data
+ */
 	insurePolicyPay() {
 		if (this._mockSettings.insurePolicyPay.positiveCase) {
 			return this.insurePolicyPayMocks.InsureCancelPolicyMockData;
