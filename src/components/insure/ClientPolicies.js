@@ -57,8 +57,6 @@ class ClientPolicies extends Component {
 		this.clientPolicies = null;
 		this.clientClaims = null;
 		this.showSubMenu = true;
-
-
 	}
 
 	// #endregion INITIALISATION
@@ -227,7 +225,6 @@ class ClientPolicies extends Component {
 	 */
 	_openCancelPolicyDialog(contractReference) {
 		this.contractRef = contractReference;
-		// this._fetchCancelAgreement()
 		this.showCancelPolicyDialog = true;
 	}
 
@@ -246,7 +243,6 @@ class ClientPolicies extends Component {
 	 */
 	_openCancelPolicyConfirmationDialog(contractReference) {
 		this.showCancelPolicyConfirmationDialog = true;
-
 		this.contractRef = contractReference;
 	}
 
@@ -280,7 +276,6 @@ class ClientPolicies extends Component {
 	_openPayPremiumAgreementDialog() {
 		this.showPayPremiumConfirmationDialog = false;
 		this.showPayPremiumAgreementDialog = true;
-		
 	}
 
 	/**
@@ -380,7 +375,6 @@ class ClientPolicies extends Component {
 			x.isExpanded === true);
 
 		policyItem.isExpanded = true;
-
 		this.policiesList = this.policiesList?.forEach(item => {
 			if (item.contractReference !== policyItem.contractReference) {
 				item.isExpanded = false;
@@ -388,9 +382,7 @@ class ClientPolicies extends Component {
 		});
 
 		this.requestUpdate();
-
 		const parentElement = this.shadowRoot.getElementById(`client-policies-box`);
-
 		const childElement = this.shadowRoot.getElementById(`horizon-expander-${policyItem.contractReference}`);
 
 		if (isExpanded) {
@@ -662,7 +654,6 @@ class ClientPolicies extends Component {
 					<capitec-button type="white" class="capitec-button-medium" label="Get Estimate" data-automation-id="insure-landing-get-estimate"
 						@click="${() => this._goToEstimate()}"></capitec-button>
 					`}
-					
 					</capitec-button>
 				</capitec-title-bar>
 				${this._renderPoliciesLandingContent()}
@@ -863,13 +854,6 @@ class ClientPolicies extends Component {
 						.disabled="${this.readOnlyMode}">
 					</horizon-option-button>
 					` : ``}
-					<horizon-option-button
-						data-automation-id="insure-policy-options-claims"
-						class="button-margin" 
-						label="Claims" 
-						icon="system/documents-action"
-						.disabled="${this.readOnlyMode}">
-					</horizon-option-button>
 					<horizon-option-button 
 						data-automation-id="insure-policy-options-email-plan"
 						class="button-margin" 
@@ -877,16 +861,6 @@ class ClientPolicies extends Component {
 						icon="system/profile-action"
 						.disabled="${this.readOnlyMode}">
 					</horizon-option-button>
-					${policyItem.arrearDetails?.outstandingAmount < 1
-						? html`
-					<horizon-option-button 
-						data-automation-id="insure-policy-options-benefits"
-						class="button-margin" 
-						label="Benefits" 
-						icon="system/sars-action"
-						.disabled="${this.readOnlyMode}">
-					</horizon-option-button>`
-						: ``}
 					${policyItem.showSubMenu ? `` : html`
 						<horizon-option-button 
 							data-automation-id="insure-policy-options-transaction-history"
