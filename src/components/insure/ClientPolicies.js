@@ -802,7 +802,7 @@ class ClientPolicies extends Component {
 			if (policyItem.status === `Active` || policyItem.status === `PendingInForce`) {
 				count += 1;
 			}
-			count += 2;
+			count += 1;
 
 			if (policyItem.arrearDetails?.outstandingAmount < 1) {
 				count += 1;
@@ -869,13 +869,6 @@ class ClientPolicies extends Component {
 						.disabled="${this.readOnlyMode}">
 					</horizon-option-button>
 					` : ``}
-					<horizon-option-button
-						data-automation-id="insure-policy-options-claims"
-						class="button-margin" 
-						label="Claims" 
-						icon="system/documents-action"
-						.disabled="${this.readOnlyMode}">
-					</horizon-option-button>
 					<horizon-option-button 
 						data-automation-id="insure-policy-options-email-plan"
 						class="button-margin" 

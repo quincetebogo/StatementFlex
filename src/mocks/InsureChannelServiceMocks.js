@@ -58,6 +58,7 @@ export default class InsureChannelServiceMocks {
 		this.insurePolicyPayMocks = await this._loadMockModule(this.insurePolicyPayMocks, `insurePolicyPay`, () => import(`../mocks/insure/CancelPolicyMockData`).catch(err => logError(err)));
 		this.updatePolicyAcceptMocks = await this._loadMockModule(this.updatePolicyAcceptMocks, `insureUpdatePolicyAccept`, () => import(`../mocks/insure/PolicyAccept`).catch(err => logError(err)));
 		// this.estimatePrintoutMocks = await this._loadMockModule(this.estimatePrintoutMocks, `insureUpdatePolicyAccept`, () => import(`../mocks/insure/PolicyAccept`).catch(err => logError(err)));
+		this.auditTransactionHistoryMocks = await this._loadMockModule(this.auditTransactionHistoryMocks, `insureAuditTransactionHistory`, () => import(`../mocks/insure/InsureAuditTransactionsMockData`).catch(err => logError(err)));
 	}
 
 	/**
@@ -92,6 +93,22 @@ export default class InsureChannelServiceMocks {
 			const result = this.transactionHistoryMocks.PolicyTransactionHistory;
 			const policyTrans = result.filter(x => x.contractReference === policyTransactionHistoryRequest.contractReference);
 			return policyTrans[0];
+		}
+
+		// Code for a negative case could come here
+		return null;
+	}
+
+	/**
+	 * fetch mock data for audit transactions
+	 * @param {Object} auditTransactionHistoryRequest request payload 
+	 * @returns {Object} Mock transactions data
+	*/
+	auditTransactionHistory(auditTransactionHistoryRequest) {
+		if (this._mockSettings.insureAuditTransactionHistory.positiveCase) {
+			const result = this.auditTransactionHistoryMocks.AuditTransactionHistory;
+			const auditTrans = result.filter(x => x.contractReference === auditTransactionHistoryRequest.contractReference);
+			return auditTrans[0];
 		}
 
 		// Code for a negative case could come here

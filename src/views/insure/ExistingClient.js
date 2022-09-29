@@ -4,7 +4,7 @@ import { css, html } from 'platform/elements';
 import { InsureService } from 'app/services/InsureService';
 import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
-import { MAX_RESULTS } from 'app/constants/PolicyTransactionHistory';
+import { MAX_RESULTS } from 'app/constants/InsureTransactionHistory';
 import { getAgeFromIDNumber, getGenderFromIDNumber } from 'app/utils/insureUtils';
 import { INSURE_CALLER_PAGE, DOCUMENT_TYPE, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
 import { SavingsService } from 'app/services/SavingsService';
@@ -836,10 +836,46 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {*} endDate endDate
 	 * @param {*} pageIndex pageIndex
 	 * @returns {null} null
-	 */
-	 async _getAuditTransactionHistory(startDate, endDate, pageIndex) {
+	*/
+	async _getAuditTransactionHistory(startDate, endDate, pageIndex) {
+		const transactionHistoryRequest = {
+			contractReference: this.contractReference,
+			transactionDateType: `TransactionDate`,
+			fromDate: startDate || POLICY_TRANSACTION_HISTORY.START_DATE,
+			toDate: endDate || POLICY_TRANSACTION_HISTORY.END_DATE,
+			transactionStatus: TRANSACTION_STATUS.FINANCIAL,
+			pagniation: {
+				pageIndex: pageIndex || POLICY_TRANSACTION_HISTORY.PAGE_INDEX,
+				totalPerPage: POLICY_TRANSACTION_HISTORY.MAX_RESULTS
+			}
+		};
 
-	 }
+		this.transactions = [];
+
+		this.auditTransactionHistory = {
+			contractReference: this.contractReference
+		};
+
+		const returnValue = await this.insureService.getAuditTransactions(transactionHistoryRequest);
+
+		if (returnValue.succeeded && returnValue.result) {
+			const formattedTrans = returnValue.result.transactions
+				.map((item) => {
+					const formatedChangeActionedDate = new Date(Date.parse(item.changeActionedDate));
+					const formatedEffectiveDate = new Date(Date.parse(item.effectiveDate));
+					item.formatedChangeActionedDate = formatedChangeActionedDate;
+					item.formatedEffectiveDate = formatedEffectiveDate;
+					item.groupBychangeActionedDate = `${getMonthName(formatedChangeActionedDate.getMonth())} ${formatedChangeActionedDate.getFullYear()}`;
+					return item;
+				});
+			this.transactions.push(...formattedTrans);
+
+			this.auditTransactionHistory.transactions = this.transactions;
+
+			this.endCallContext = `AuditTransactionHistory`;
+			this.renderMode = INSURE_RENDER_MODE.AUDIT_TRANSACTION_HISTORY;
+		}
+	}
 
 	/**
 	 * Calculate quote callback from Update plan, supply 
@@ -1269,7 +1305,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	 _renderClientPoliciesPage() {
 
-		if (this.clientPolicies?.summaryDetails?.policies !== null) {
+		if (this.clientPolicies?.summaryDetails?.policies !== null && this.clientPolicies?.summaryDetails?.policies !== undefined) {
 			this.clientPolicies.summaryDetails.policies.forEach(item => {
 				item.isExpanded = false; 
 			});

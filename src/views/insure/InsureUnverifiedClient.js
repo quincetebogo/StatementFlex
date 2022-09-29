@@ -4,7 +4,7 @@ import { css, html } from 'platform/elements';
 import { InsureService } from 'app/services/InsureService';
 import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
-import { MAX_RESULTS } from 'app/constants/PolicyTransactionHistory';
+import { MAX_RESULTS } from 'app/constants/InsureTransactionHistory';
 
 import 'app/components/insure/ClientPolicies';
 import 'app/components/insure/PolicySummary';

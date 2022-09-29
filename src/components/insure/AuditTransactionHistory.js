@@ -1,9 +1,21 @@
+import { ACTIVITY_TYPE, AUDIT_DATE_TYPE_LIST, DEFAULTS, FILTER_BY, MAX_RESULTS, RENDER_CHIPS } from 'app/constants/InsureTransactionHistory';
 import { Component, css, html, unsafeCSS } from 'platform/elements';
-import { MAX_RESULTS } from 'app/constants/AuditTransactionHistory';
+import { EXPANDER_LABEL, INSURE_TRANSACTIONS_CSS, TABLE_EXPANDER_CELL } from 'app/css/PolicyTransactionHistory';
+import { _getDateRange, getPredefinedDateRanges } from 'app/utils/insureUtils';
+import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { DateTime } from 'luxon';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 /**
  * Audit Transaction History component that displays audit transaction history
  * 
+ * Events Raised
+ * -------------
+ * unloading
+ * navigate-back
+ * _scrollToTop
+ * _filterByDateType
+ * _dateChanged
  * 
  * @export
  * @class AuditTransactionHistory
@@ -16,6 +28,8 @@ class AuditTransactionHistory extends Component {
 	constructor() {
 		super();
 
+		this.dateLabel = DEFAULTS.DATE_LABEL;
+
 		this.startDate = ``;
 		this.endDate = ``;
 
@@ -23,6 +37,8 @@ class AuditTransactionHistory extends Component {
 		this.filteredData = [];
 		this.isBusy = false;
 		this.hideLoadMore = true;
+
+		this.dateTypeOptions = AUDIT_DATE_TYPE_LIST;
 	}
 
 	// #endregion INITIALIZATION
@@ -45,7 +61,9 @@ class AuditTransactionHistory extends Component {
 	 * @property {Function} getAuditTransactionHistory Callback function to fetch more data
 	 * @property {Function} disposeData Callback function to clear transaction history data variable
 	 * @property {Boolean} hideLoadMore Show/Hide Load More button
-	 * 
+	 * @property {Boolean} isBusy if it is true load indicator
+	 * @property {Boolean} readOnlyMode determine to show page in readonly mode
+	 
 	 * @readonly
 	 * @static
 	 */
@@ -79,202 +97,21 @@ class AuditTransactionHistory extends Component {
 		return [
 			super.styles,
 			css`
-				.transaction-card {
-					height: auto;
-					width: 1066px;
-					background-color: #FFFFFF;
-					box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
-				}
-				.transaction-card > capitec-group:first-child {
-					--theme-layout-gap-spacing: 0px;
-				}
+				${INSURE_TRANSACTIONS_CSS}
 
-				/* Header Styles */
-				.transaction-history-title {
-					width: var(--horizon-center-panel-width, 1064px);
-					border-bottom: 0px;
-					border-radius: 4px 4px 0 0;
-					padding: 11px 24px 11px 15px;
-
+				.transact {
+					background: var(--theme-type-insure-background);
 					--theme-label-font-color: #FFFFFF;
 				}
-				.transact {
-					background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
-				}
-				.lbb {
-					background: no-repeat url(../images/liveBetter/Gradient1.png);
-				}
-				.transaction-history-title > img {
-					width: 26px;
-					margin-right: 10px;
-					cursor: pointer;
-				}
 
-				/* Header Details Bar styles */
-				.actionbar-header {
-					height: 64px;
-					width: var(--horizon-center-panel-width, 1064px);
+				.no-border-bottom {
 					border-bottom: 0px;
-					padding: 11px 24px 11px 43px;
 				}
-				.actionbar-header > horizon-label {
-					width: 156px;
-					height: 100%;
-					padding: 0px 0px 0px 16px;
-				
-					--horizon-label-text-height: 20px;
-					--horizon-label-text-color: #FFFFFF;
-					--horizon-label-value-color: #FFFFFF;
-					--horizon-label-value-font-size: 16px;
-					--horizon-label-value-line-height: 20px;
+				.margin-right-20{
+					margin-right: 20px;
 				}
-				.actionbar-header > horizon-label[label="Account Number"] {
-					width: 174px;
-				}
-				.actionbar-header > horizon-label[label="Interest"] {
-					width: 120px;
-				}
-
-				/* Filter Bar styles */
-				.transaction-action-bar {
-					height: 64px;
-					width: var(--horizon-center-panel-width, 1064px);
-					padding: 10px 10px;
-				}
-				.transaction-action-bar > capitec-text-field {
-					height: 47px;
-					width: 388px;
-					padding-left: 8px;
-				
-					--theme-label-font-color: #3A3A3A;
-					--theme-input-label-font-size: 16px;
-					--theme-layout-gap-spacing: 8px; 
-					--theme-input-clear-icon-height: 0px;
-					--theme-input-clear-icon-width: 0px;
-				}
-				.cb-datepicker {
-					height: 48px;
-					width: 201px;
-					margin-right: 8px;
-					border-radius: 5px;
-					border: 1px solid #E1E1E1;
-					cursor: pointer;
-				}
-
-				/* Chip Bar Styles */
-				.filter-bar {
-					--theme-actionbar-min-height: 48px;
-					--theme-actionbar-padding: 8px 0px 8px 16px;
-				}
-				.filter-bar > capitec-label {
-					height: 20px;
-					width: 87px;
-					color: #3A3A3A;
-					font-family: "Hind Vadodara";
-					font-size: 15px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 30px;
-				}
-				.filter-bar > capitec-button {
-					height: 40px;
-					margin: 0px;
-
-					--theme-button-font-size : 14px;
-					--theme-button-line-height: 10px;
-					--theme-button-font-weight: 600;
-				}
-				
-				/* Main View Styles */
-				.main-view {
-					--theme-container-padding-left: 0px;
-					--theme-container-padding-right: 0px;
-					--theme-container-padding-top: 0px;
-					--theme-container-padding-bottom: 0px;
-					--theme-layout-gap-line-color: 0px;
-					height: 661px;
-					width: auto;
-				}
-				capitec-table{
-					width: var(--horizon-center-panel-width, 1064px);
-					height: auto;
-					--theme-icon-size-default: 8px;
-					--theme-data-table-body-group-font-weight: 600;
-					--theme-data-table-font-size : 15px;
-					--theme-data-table-padding-left: 16px;
-					--theme-data-table-body-group-color: #3A3A3A;
-					--theme-data-table-font-color: #3A3A3A;
-					--theme-data-table-padding-right: 16px;
-					--theme-data-table-padding-top: 11px;
-					--theme-data-table-padding-bottom: 11px;
-					--theme-data-table-expander-size: 12px;
-					--theme-data-table-footer-border: 0px;
-					--theme-data-table-expander-size: 24px;
-					--theme-data-table-header-font-weight: 600;
-
-				}
-
-				/* Modal Calendar Styles */
-
-				div[slot="body"] {
-					display: flex;
-				}
-
-				.load-more-bar{
-					--theme-actionbar-min-height: 48px;
-					padding-top : 0px;
-					padding-bottom: 0px; 
-					--theme-actionbar-background: #f4f4f4;
-				}
-				.transaction-status-select{
-					--theme-input-label-font-size: 16px;
-					--theme-input-padding-bottom: 13px;
-					--theme-select-options-max-height: 308px;
-					--theme-input-font-size: 16px;
-					--theme-input-label-font-color: #3A3A3A;
-					--theme-input-font-weight: 400;
-					--theme-input-icon-top: 8px;
-					line-height: 30px;
-					width: 224px;
-				}
-				.scroll-top {
-					--theme-icon-size-medium: 26px;
-					padding-top: 12px;
-					cursor: pointer;
-				}
-				capitec-date-time-picker{
-					--theme-modal-header-color: #3A3A3A;
-					--theme-modal-header-background-color: #F7F7F7;
-					--theme-date-time-picker-range-calendar-border: 0px;
-					margin-right: 8px;
-					width: 280px;
-				}
-				.transaction-action-bar > capitec-chip{
-					margin: 0px 8px;
-					--theme-chip-label-padding-left: 11px;
-					--theme-chip-label-padding-right: 11px;
-					--theme-chip-label-line-height: 19px;
-				}
-				.type-normal{
-					--theme-chip-label-color: #3A3A3A;
-					--theme-chip-background-color: #FFFFFF;
-				}
-				.type-selected{
-					--theme-chip-label-color: #FFFFFF;
-					--theme-chip-background-color: #009DE0;
-					--theme-chip-font-weight: 600;
-				}
-				.no-results {
-					--theme-label-strong-font-size: 24px;
-					--theme-label-strong-font-weight: 600;
-					--theme-label-font-color: #3A3A3A;
-				}
-				.no-result-group {
-					width: 1062px;
-					margin-top: 130px;
-				}
-				.action-image{
-					cursor: pointer;
+				.margin-right-50 {
+					margin-right: 50px;
 				}
 			`
 		];
@@ -283,6 +120,7 @@ class AuditTransactionHistory extends Component {
 	// #endregion RENDER STYLES
 
 	// #region LIFECYCLE OVERRIDES
+
 	/**
 	 * Setup the component once added to the DOM.
 	 * @returns {void}
@@ -291,11 +129,21 @@ class AuditTransactionHistory extends Component {
 		super.connectedCallback();
 
 		// Making sure no baggage is carried from the previous instance.
-		// RENDER_CHIPS[FILTER_BY.DATE] = ``;
-		// RENDER_CHIPS[FILTER_BY.DATE_TYPE] = this.dateTypeOptions[0].text;
+		RENDER_CHIPS[FILTER_BY.DATE] = ``;
+		RENDER_CHIPS[FILTER_BY.DATE_TYPE] = this.dateTypeOptions[0].text;
 
 		this.filteredData = this.auditTransactionHistory?.transactions;
 		this.hideLoadMore = this.auditTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.auditTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
+	}
+
+	/**
+	 * call unload event once the component removed from the DOM.
+	 * @returns {void}
+	 */
+	 disconnectedCallback() {
+		super.disconnectedCallback();
+
+		this._unloading();
 	}
 
 	// #endregion LIFECYCLE OVERRIDES
@@ -321,7 +169,7 @@ class AuditTransactionHistory extends Component {
 		}));
 	}
 
-		/**
+	/**
 	 * scroll to top of transactions table
 	 * @param {*} e e
 	 * @return {null} null
@@ -329,6 +177,63 @@ class AuditTransactionHistory extends Component {
 	_scrollToTop(e) {
 		const element = this.shadowRoot.getElementById(`audit-transactions-table`);
 		element.scrollTop = 0;
+	}
+
+	/**
+	 * filter transactions when date type is changed
+	 * @param {*} event event
+	 * @return {null} null
+	 */
+	_filterByDateType(event) {
+		RENDER_CHIPS[FILTER_BY.DATE_TYPE] = event.detail.new.text;
+		this._refineSearch();
+	}
+
+	/**
+	 * filter transactions when date is changed
+	 * @param {object} e event
+	 * @return {null} null
+	*/
+	async _dateChanged(e) {
+		let fromDate = DateTime.fromISO(e.detail.new.startDate === null ? e.detail.old.startDate : e.detail.new.startDate);
+		let toDate = DateTime.fromISO(e.detail.new.endDate === null ? e.detail.old.endDate : e.detail.new.endDate);
+		const currentDateTime = DateTime.local();
+
+		if (toDate.diff(fromDate, [`days`]).days > 90) {
+			
+			toDate = fromDate.plus({ days: 90 });
+			if (toDate > currentDateTime) {
+				this.startDate = fromDate;
+				this.endDate = currentDateTime;
+			} else {
+				this.startDate = fromDate;
+				this.endDate = toDate;
+				const calendar = this.shadowRoot.querySelector(`#calendarRange`);
+				if (calendar) {
+					calendar._placeholderEndDate = toDate;
+				}
+			}
+		} else if (e.detail.new.endDate === null && this.endDate === ``) {
+			this.startDate = fromDate;
+			toDate = fromDate.plus({ days: 90 });
+			if (toDate.diff(currentDateTime, [`days`]).days > 0) {
+				this.endDate = currentDateTime;
+			} else {
+				this.endDate = toDate;
+			}
+		} else if (e.detail.new.startDate === null && this.startDate === ``) {
+			this.endDate = toDate;
+			fromDate = toDate.minus({ days: 90 });
+			this.startDate = fromDate;
+		} else {
+			
+			this.startDate = fromDate;
+			this.endDate = toDate;
+		}
+
+		RENDER_CHIPS[FILTER_BY.DATE] = _getDateRange(this.startDate, this.endDate);
+		
+		await this._refineSearch();
 	}
 
 	// #endregion EVENTS
@@ -345,9 +250,13 @@ class AuditTransactionHistory extends Component {
 			<capitec-card class="transaction-card">
 				<capitec-group layout="vertical" gap="line" halign="left" valign="top">
 					${this._renderTitleBar()}
-						<capitec-content-box class="main-view" id="audit-transactions-table">
-						</capitec-content-box>
-						${this._renderFooter()}
+					${this._renderHeaderDetailsBar()}
+					${this._renderActionBar()}
+					${this._renderFilterBar()}
+					<capitec-content-box class="main-view" id="audit-transactions-table">
+						${this._renderAuditTransactionHistory()}
+					</capitec-content-box>
+					${this._renderFooter()}
 				</capitec-group>
 			</capitec-card>
 			${this._renderLoadingIndicator()}
@@ -355,34 +264,18 @@ class AuditTransactionHistory extends Component {
 	}
 
 	/**
-	 * Render content of the component
-	 * @returns {html} The html content of the header, filter, transactions table and footer.
-	 */
-	_renderContent() {
-		return html`
-		<capitec-title-bar type="insure" class="insure-title-bar">
-			<img class="action-image" src="/images/insure/left-arrow.svg" @click="${() => this._backToSummaryPage()}" />
-			<capitec-label label="Audit Transaction History" type="title"></capitec-label>
-			<capitec-spacer></capitec-spacer>
-		</capitec-title-bar>
-		<capitec-card style="min-height: 100vh;">
-			<capitec-group layout="vertical" gap="line" halign="left" valign="top">
-				<capitec-content-box class="main-view" id="audit-transactions-table">
-				</capitec-content-box>
-			</capitec-group>
-		</capitec-card>
-		`;
-	}
-
+	 * Render Title Bar
+	 * @returns {html} The html of the title
+	*/
 	_renderTitleBar() {
 		return html`
-			<capitec-title-bar class="insure-title-bar" type="insure">
+			<capitec-title-bar class="insure-title-bar no-border-bottom" type="insure">
 				<capitec-image
 					alt="back"
 					class="action-image"
 					src="/images/insure/left-arrow.svg"
 					@click="${() => this._backToSummaryPage()}"
-					data-automation-id="audit-transaction-history-back">
+					data-automation-id="audit-transactions-back">
 				</capitec-image>
 				<capitec-label 
 					label="Audit Transaction History"
@@ -392,16 +285,709 @@ class AuditTransactionHistory extends Component {
 		`;
 	}
 
+	/**
+	 * Render Header Details Bar
+	 * @returns {html} The html of the header details - Policy Number
+	*/
+	_renderHeaderDetailsBar() {
+		return html`
+			<capitec-group
+				class= "actionbar-header transact"
+				layout="horizontal"
+				gap="none"
+				halign="left"
+				valign="center">
+					<capitec-label class = "margin-right-50" label = "Policy Number"></capitec-label>
+					<capitec-label label = "${this.auditTransactionHistory?.contractReference}"></capitec-label>
+			</capitec-group>
+		`;
+	}
+
+	/**
+	 * Render Action Bar
+	 * @returns {html} The html of the filter criteria date type and date controls
+	 */
+	 _renderActionBar() {
+		return html`
+			<capitec-group layout="horizontal" halign="left" valign="center" gap="clear" class="transaction-action-bar">
+				<capitec-select
+					label="${RENDER_CHIPS[FILTER_BY.DATE_TYPE] !== `` ? `` : this.dateLabel}" 
+					class="transaction-status-select margin-right-20"
+					.items="${this.dateTypeOptions}"
+					@focus="${(e) => this.datelabel = ``}"
+					display-field="text"
+					id-field="code"
+					@value-change = "${(e) => this._filterByDateType(e)}"
+					value = "${RENDER_CHIPS[FILTER_BY.DATE_TYPE]}"
+					hint=""
+					data-automation-id="audit-transactions-date-type-filter">
+				</capitec-select>
+
+				<capitec-date-time-picker
+					id="calendarRange"
+					label = "Choose a date (up to 90 days)"
+					startDate="${this.startDate === `dd mm yyyy` ? `` : this.startDate}"
+					endDate="${this.endDate === `dd mm yyyy` ? `` : this.endDate}"
+					maxDate="${new Date().toString()}"
+					type="range"
+					mode="date"
+					inputType="calendar"
+					outputType="string"
+					.predefinedRanges="${getPredefinedDateRanges()}"
+					@apply-clicked="${(e) => this._dateChanged(e)}"
+					data-automation-id="audit-transactions-date-filter">
+				</capitec-date-time-picker>
+			</capitec-group>
+		`;
+	}
+
+	/**
+	 * Render audit transactions
+	 * @returns {html} - content of transactions
+	*/
+	_renderAuditTransactionHistory() {
+		return this.filteredData?.length > 0 
+		? html`
+			<capitec-table
+				.items = "${this.filteredData}"
+				groupField="groupBychangeActionedDate"
+				displayMode="Full"
+				?fixed = "${true}"
+				.expandRenderer="${(item) => this._renderTransactionDetails(item)}"
+				data-automation-id="audit-transaction-history-table">
+					${this._renderAuditTransHistoryColumns()}
+			</capitec-table>`
+		: html`
+			${this._renderNoResults()}
+		`;
+	}
+
+	/**
+	 * render audit transaction history columns
+	 * @returns {html} - table columns
+	*/
+	_renderAuditTransHistoryColumns() {
+		return html`
+			<capitec-table-column
+				label="Month and Year Date Change Actioned"
+				field="changeActionedDate"
+				type="date"
+				size="200px"
+				wrap>
+			</capitec-table-column>
+			<capitec-table-column
+				label="Activity"
+				field="activityType"
+				size="200px">
+			</capitec-table-column>
+			<capitec-spacer></capitec-spacer>
+			<capitec-table-column
+				label="Effective Date"
+				field="effectiveDate"
+				type="date"
+				size="125px">
+			</capitec-table-column>
+			<capitec-spacer></capitec-spacer>
+			<capitec-table-column
+				label="Reason for Change"
+				field="reason"
+				size="350px">
+			</capitec-table-column>
+		`;
+	}
+
+		/**
+	 * render transaction details of each transaction
+	 * @param {*} item - transaction item
+	 * @return {null} null
+	 */
+	_renderTransactionDetails(item) {
+		switch (item.activityType) {
+			case ACTIVITY_TYPE.PREMIUM_CHANGE:
+				return html`${this._renderPremiumChanges(item)}`;
+			case ACTIVITY_TYPE.BANKDETAILS_CHANGES:
+				return html`${this._renderBankDetailsChanges(item)}`;
+			case ACTIVITY_TYPE.MAINLIFE_CHANGES:
+				return html`${this._renderMainLifeChanges(item)}`;
+			case ACTIVITY_TYPE.LIVESASSURED_CHANGES:
+				return html`${this._renderLivesAssuredChanges(item)}`;
+			case ACTIVITY_TYPE.BENEFICIARY_CHANGES:
+				return html`${this._renderBeneficiaryChanges(item)}`;
+			case ACTIVITY_TYPE.POLICYSTATUS_CHANGES:
+				return html`${this._renderPolicyStatusChanges(item)}`;
+			case ACTIVITY_TYPE.WAIVER_CHANGES:
+				return html`${this._renderWaiverChanges(item)}`;
+			case ACTIVITY_TYPE.CLAIMSLODGES_CHANGES:
+				return html`${this._renderClaimsLodgesChanges(item)}`;
+			default:
+				return html``;
+		}
+	}
+
+	/**
+	 * 
+	 * @param {object} item - transaction object 
+	 * @returns {html} html content of premium changes
+	 */
+	_renderPremiumChanges(item) {
+		return html`
+		<capitec-label
+			style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
+			label="Additonal Details"
+			data-automation-id="audit-transactions-premium-additional-details">
+		</capitec-label>
+
+		<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Date Requested"
+				value = "${formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`)}"
+				data-automation-id="audit-transactions-premium-requested-date">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Previous Premium"
+				value = "${isNullorEmpty(item.additionalDetails.previousPremium) ? formatCurrency(0) : formatCurrency(item.additionalDetails.previousPremium)}"
+				data-automation-id="audit-transactions-premium-previous-premium">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Effective Date" 
+				value = "${formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`)}"
+				data-automation-id="audit-transactions-premium-effective-date">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Current Premium"
+				value = "${isNullorEmpty(item.additionalDetails.currentPremium) ? formatCurrency(0) : formatCurrency(item.additionalDetails.currentPremium)}"
+				data-automation-id="audit-transactions-premium-current-premium">
+			</horizon-label>
+		</capitec-group>
+		<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Actioned By"
+				value = "${item.additionalDetails.actionedBy}"
+				data-automation-id="audit-transactions-premium-actioned-by">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Channel Applied On"
+				value = "${item.additionalDetails.channelAppliedOn}"
+				data-automation-id="audit-transactions-premium-channel-applied-on">
+			</horizon-label>
+		</capitec-group>
+	`;
+	}
+
+	/**
+	 * 
+	 * @param {object} item - transaction object 
+	 * @returns {html} html content of bank details changes
+	*/
+	_renderBankDetailsChanges(item) {
+		return html`
+		<capitec-label
+			style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
+			label="Additonal Details"
+			data-automation-id="audit-transactions-bank-additional-details">
+		</capitec-label>
+
+		<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Date Requested"
+				value = "${formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`)}"
+				data-automation-id="audit-transactions-bank-requested-date">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Effective Date" 
+				value = "${formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`)}"
+				data-automation-id="audit-transactions-bank-effective-date">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Account Name"
+				value = "${isNullorEmpty(item.additionalDetails.accountName) ? `-` : item.additionalDetails.accountName}"
+				data-automation-id="audit-transactions-account-name">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Account Number"
+				value = "${isNullorEmpty(item.additionalDetails.accountNumber) ? `-` : item.additionalDetails.accountNumber}"
+				data-automation-id="audit-transactions-account-number">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Bank"
+				value = "${isNullorEmpty(item.additionalDetails.bank) ? `-` : item.additionalDetails.bank}"
+				data-automation-id="audit-transactions-bank">
+			</horizon-label>
+		</capitec-group>
+		<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Branch Code"
+				value = "${isNullorEmpty(item.additionalDetails.branchCode) ? `-` : item.additionalDetails.branchCode}"
+				data-automation-id="audit-transactions-branch-code">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Account Type"
+				value = "${isNullorEmpty(item.additionalDetails.accountType) ? `-` : item.additionalDetails.accountType}"
+				data-automation-id="audit-transactions-account-type">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Collection Day"
+				value = "${isNullorEmpty(item.additionalDetails.collectionDay) ? `-` : item.additionalDetails.collectionDay}"
+				data-automation-id="audit-transactions-collection-day">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Actioned By"
+				value = "${item.additionalDetails.actionedBy}"
+				data-automation-id="audit-transactions-bank-actioned-by">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Channel Applied On"
+				value = "${item.additionalDetails.channelAppliedOn}"
+				data-automation-id="audit-transactions-bank-channel-applied-on">
+			</horizon-label>
+		</capitec-group>
+	`;
+	}
+
+	/**
+	 * 
+	 * @param {object} item - transaction object 
+	 * @returns {html} html content of main life changes
+	*/
+	_renderMainLifeChanges(item) {
+		return html`
+		<capitec-label
+			style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
+			label="Additonal Details"
+			data-automation-id="audit-transactions-main-life-additional-details">
+		</capitec-label>
+
+		<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Date Requested"
+				value = "${formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`)}"
+				data-automation-id="audit-transactions-main-life-requested-date">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Name & Surname"
+				value = "${isNullorEmpty(item.additionalDetails.fullName) ? `-` : item.additionalDetails.fullName}"
+				data-automation-id="audit-transactions-main-life-name">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Effective Date" 
+				value = "${formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`)}"
+				data-automation-id="audit-transactions-main-life-effective-date">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Premium"
+				value = "${isNullorEmpty(item.additionalDetails.premium) ? formatCurrency(0) : formatCurrency(item.additionalDetails.premium)}"
+				data-automation-id="audit-transactions-main-life-premium">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Cover Amount"
+				value = "${isNullorEmpty(item.additionalDetails.coverAmount) ? formatCurrency(0) : formatCurrency(item.additionalDetails.coverAmount)}"
+				data-automation-id="audit-transactions-main-life-cover-amount">
+			</horizon-label>
+		</capitec-group>
+		<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+		<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Contact Number"
+				value = "${item.additionalDetails.contactNumber}"
+				data-automation-id="audit-transactions-main-life-contact-number">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Email"
+				value = "${item.additionalDetails.email}"
+				data-automation-id="audit-transactions-main-life-email">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Actioned By"
+				value = "${item.additionalDetails.actionedBy}"
+				data-automation-id="audit-transactions-main-life-actioned-by">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Channel Applied On"
+				value = "${item.additionalDetails.channelAppliedOn}"
+				data-automation-id="audit-transactions-main-life-channel-applied-on">
+			</horizon-label>
+		</capitec-group>
+	`;
+	}
+
+	/**
+	 * 
+	 * @param {object} item - transaction object 
+	 * @returns {html} html content of lives assured changes
+	*/
+	_renderLivesAssuredChanges(item) {
+		return html`
+		<capitec-label
+			style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
+			label="Additonal Details"
+			data-automation-id="audit-transactions-lives-assured-additional-details">
+		</capitec-label>
+
+		<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+		<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Date Requested"
+				value = "${formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`)}"
+				data-automation-id="audit-transactions-lives-assured-requested-date">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Name & Surname"
+				value = "${isNullorEmpty(item.additionalDetails.fullName) ? `-` : item.additionalDetails.fullName}"
+				data-automation-id="audit-transactions-lives-assured-name">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Effective Date" 
+				value = "${formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`)}"
+				data-automation-id="audit-transactions-lives-assured-effective-date">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Relationship"
+				value = "${isNullorEmpty(item.additionalDetails.relationship) ? `-` : item.additionalDetails.relationship}"
+				data-automation-id="audit-transactions-lives-assured-relationship">
+			</horizon-label>
+		</capitec-group>
+		<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Premium"
+				value = "${isNullorEmpty(item.additionalDetails.premium) ? formatCurrency(0) : formatCurrency(item.additionalDetails.premium)}"
+				data-automation-id="audit-transactions-lives-assured-premium">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Cover Amount"
+				value = "${isNullorEmpty(item.additionalDetails.coverAmount) ? formatCurrency(0) : formatCurrency(item.additionalDetails.coverAmount)}"
+				data-automation-id="audit-transactions-lives-assured-cover-amount">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Actioned By"
+				value = "${item.additionalDetails.actionedBy}"
+				data-automation-id="audit-transactions-lives-assured-actioned-by">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Channel Applied On"
+				value = "${item.additionalDetails.channelAppliedOn}"
+				data-automation-id="audit-transactions-lives-assured-channel-applied-on">
+			</horizon-label>
+		</capitec-group>
+	`;
+	}
+
+	/**
+	 * 
+	 * @param {object} item - transaction object 
+	 * @returns {html} html content of beneficiary changes
+	*/
+	_renderBeneficiaryChanges(item) {
+		return html`
+		<capitec-label
+			style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
+			label="Additonal Details"
+			data-automation-id="audit-transactions-beneficiary-additional-details">
+		</capitec-label>
+
+		<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Date Requested"
+				value = "${formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`)}"
+				data-automation-id="audit-transactions-beneficiary-requested-date">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Name & Surname"
+				value = "${item.additionalDetails.fullName}"
+				data-automation-id="audit-transactions-beneficiary-name">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Effective Date" 
+				value = "${formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`)}"
+				data-automation-id="audit-transactions-beneficiary-effective-date">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Relationship"
+				value = "${item.additionalDetails.relationship}"
+				data-automation-id="audit-transactions-beneficiary-relationship">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Contact Number"
+				value = "${item.additionalDetails.contactNumber}"
+				data-automation-id="audit-transactions-beneficiary-contact-number">
+			</horizon-label>
+		</capitec-group>
+		<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Email"
+				value = "${item.additionalDetails.email}"
+				data-automation-id="audit-transactions-beneficiary-email">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Benefit Payout"
+				value = "${isNullorEmpty(item.additionalDetails.benefitPayout) ? formatCurrency(0) : formatCurrency(item.additionalDetails.benefitPayout)}"
+				data-automation-id="audit-transactions-beneficiary-payout">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Actioned By"
+				value = "${item.additionalDetails.actionedBy}"
+				data-automation-id="audit-transactions-beneficiary-actioned-by">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Channel Applied On"
+				value = "${item.additionalDetails.channelAppliedOn}"
+				data-automation-id="audit-transactions-beneficiary-channel-applied-on">
+			</horizon-label>
+		</capitec-group>
+	`;
+	}
+
+	/**
+	 * 
+	 * @param {object} item - transaction object 
+	 * @returns {html} html content of policy status changes
+	*/
+	_renderPolicyStatusChanges(item) {
+		return html`
+		<capitec-label
+			style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
+			label="Additonal Details"
+			data-automation-id="audit-transactions-status-additional-details">
+		</capitec-label>
+
+		<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Date Requested"
+				value = "${formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`)}"
+				data-automation-id="audit-transactions-status-requested-date">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Previous Status"
+				value = "${isNullorEmpty(item.additionalDetails.previousStatus) ? `-` : item.additionalDetails.previousStatus}"
+				data-automation-id="audit-transactions-status-previous-status">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Effective Date" 
+				value = "${formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`)}"
+				data-automation-id="audit-transactions-status-effective-date">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Current Status"
+				value = "${isNullorEmpty(item.additionalDetails.currentStatus) ? `-` : item.additionalDetails.currentStatus}"
+				data-automation-id="audit-transactions-status-current-status">
+			</horizon-label>
+		</capitec-group>
+		<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Actioned By"
+				value = "${item.additionalDetails.actionedBy}"
+				data-automation-id="audit-transactions-status-actioned-by">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Channel Applied On"
+				value = "${item.additionalDetails.channelAppliedOn}"
+				data-automation-id="audit-transactions-status-channel-applied-on">
+			</horizon-label>
+		</capitec-group>
+	`;
+	}
+
+	/**
+	 * 
+	 * @param {object} item - transaction object 
+	 * @returns {html} html content of waiver changes
+	*/
+	_renderWaiverChanges(item) {
+		return html`
+		<capitec-label
+			style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
+			label="Additonal Details"
+			data-automation-id="audit-transactions-waiver-additional-details">
+		</capitec-label>
+
+		<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Date Requested"
+				value = "${formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`)}"
+				data-automation-id="audit-transactions-waiver-requested-date">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Effective Date" 
+				value = "${formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`)}"
+				data-automation-id="audit-transactions-waiver-effective-date">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Benefit Waiver Type"
+				value = "${isNullorEmpty(item.additionalDetails.benefitWaiverType) ? `-` : item.additionalDetails.benefitWaiverType}"
+				data-automation-id="audit-transactions-waiver-type">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="End Date" 
+				value = "${formatDate(item.additionalDetails.endDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.endDate, `dd mmm yyyy`)}"
+				data-automation-id="audit-transactions-waiver-end-date">
+			</horizon-label>
+		</capitec-group>
+		<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Status"
+				value = "${isNullorEmpty(item.additionalDetails.status) ? `-` : item.additionalDetails.status}"
+				data-automation-id="audit-transactions-waiver-status">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Actioned By"
+				value = "${item.additionalDetails.actionedBy}"
+				data-automation-id="audit-transactions-waiver-actioned-by">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Channel Applied On"
+				value = "${item.additionalDetails.channelAppliedOn}"
+				data-automation-id="audit-transactions-waiver-channel-applied-on">
+			</horizon-label>
+		</capitec-group>
+	`;
+	}
+
+	/**
+	 * 
+	 * @param {object} item - transaction object 
+	 * @returns {html} html content of claims lodges changes
+	*/
+	_renderClaimsLodgesChanges(item) {
+		return html`
+		<capitec-label
+			style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
+			label="Additonal Details"
+			data-automation-id="audit-transactions-claim-additional-details">
+		</capitec-label>
+
+		<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Date Requested"
+				value = "${formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`)}"
+				data-automation-id="audit-transactions-claim-requested-date">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Case/Incident Number"
+				value = "${isNullorEmpty(item.additionalDetails.caseNumber) ? `-` : item.additionalDetails.caseNumber}"
+				data-automation-id="audit-transactions-claim-case-number">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Effective Date" 
+				value = "${formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`)}"
+				data-automation-id="audit-transactions-claim-effective-date">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Claim Status"
+				value = "${isNullorEmpty(item.additionalDetails.claimStatus) ? `-` : item.additionalDetails.claimStatus}"
+				data-automation-id="audit-transactions-claim-status">
+			</horizon-label>
+		</capitec-group>
+		<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Actioned By"
+				value = "${item.additionalDetails.actionedBy}"
+				data-automation-id="audit-transactions-claim-actioned-by">
+			</horizon-label>
+			<horizon-label
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+				label="Channel Applied On"
+				value = "${item.additionalDetails.channelAppliedOn}"
+				data-automation-id="audit-transactions-claim-channel-applied-on">
+			</horizon-label>
+		</capitec-group>
+	`;
+	}
+
+	/**
+	 * Show clear/clear all filters
+	 * @returns {html} The html of Clear and Clear All filters
+	*/
+	_renderFilterBar() {
+		if (RENDER_CHIPS[FILTER_BY.DATE] !== ``) {
+			return html`
+				<capitec-action-bar
+					id="active-filters"
+					class="filter-bar"
+					data-automation-id="audit-transactions-active-filters">
+						<capitec-label label = "Active filters:"></capitec-label>
+							${this._renderDateChip()}
+						<capitec-button
+							type="clear"
+							label="Clear All"
+							@click = "${() => this._clearFilters()}"
+							data-automation-id="audit-transactions-clear-active-filters">
+						</capitec-button>
+				</capitec-action-bar>
+			`;
+		}
+	}
+
+	/**
+	 * Show load more feature in the footer
+	 * @returns {html} - content of footer
+	*/
 	_renderFooter() {
 		return html`
 			<capitec-action-bar class="load-more-bar" 
-				?hidden="${this.hideLoadMore || this.auditTransactionHistory.length === 0}">
+				?hidden="${this.hideLoadMore || this.auditTransactionHistory?.length === 0}">
 				<capitec-spacer></capitec-spacer>
 				<capitec-button
 					type="clear"
 					label="Load More"
 					@click = ${() => this._loadMoreTransactions()}
-					data-automation-id="audit-transaction-history-load-more">
+					data-automation-id="audit-transactions-load-more">
 				</capitec-button>
 				<capitec-spacer></capitec-spacer>
 				<capitec-icon
@@ -409,15 +995,79 @@ class AuditTransactionHistory extends Component {
 					size="medium"
 					icon="system/arrow-up-action"
 					@click = ${(e) => this._scrollToTop(e)}
-					data-automation-id="audit-transaction-history-scroll-top">
+					data-automation-id="audit-transactions-scroll-top">
 				</capitec-icon>
 			</capitec-action-bar>`;
 	}
 
+	/**
+	 * load indicator if the page is busy
+	 * @returns {html} The html of loading indicator
+	 */
 	_renderLoadingIndicator() {
 		return this.isBusy
-			? html`<capitec-loading-indicator data-automation-id="audit-transaction-history-loading-indicator"></capitec-loading-indicator>`
+			? html`<capitec-loading-indicator data-automation-id="audit-transactions-loading-indicator"></capitec-loading-indicator>`
 			: html``;
+	}
+
+	/**
+	 * Clear Date filter
+	 * @returns {html} Render Date chip 
+	*/
+	_renderDateChip() {
+		return !isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])
+			? html`
+			<capitec-chip
+				id="${FILTER_BY.DATE}"
+				label="${RENDER_CHIPS[FILTER_BY.DATE]}"
+				@remove="${() => this._closeChip(FILTER_BY.DATE)}"
+				closable>
+			</capitec-chip>`
+			: html``;
+	}
+
+	/**
+	 * Clear Date Type filter
+	 * @returns {html} Render Date Type chip
+	 */
+	_renderDateTypeChip() {
+		return !isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE_TYPE])
+			? html`
+				<capitec-chip
+					id="${FILTER_BY.DATE_TYPE}"
+					label="${RENDER_CHIPS[FILTER_BY.DATE_TYPE]}"
+					@remove="${() => this._closeChip(FILTER_BY.DATE_TYPE)}"
+					closable>
+				</capitec-chip>`
+			: html``;
+	}
+
+	/**
+	 * Show message when there are no records
+	 * @returns {html} - message for no results
+	*/
+	_renderNoResults() {
+		return html`
+			<capitec-group
+				class="no-result-group"
+				layout="vertical"
+				halign="center"
+				valign="center"
+				gap="none">
+					<img
+						src="platform/illustrations/history.svg"
+						class="document-icon"/>
+					<capitec-label
+						class="no-results"
+						label="No results found"
+						type="strong">
+					</capitec-label>
+					<capitec-label
+						label="No transactions made during ${isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE]) ? `Last 6 months` : RENDER_CHIPS[FILTER_BY.DATE]} "
+						type="strong">
+					</capitec-label>
+			</capitec-group>
+		`;
 	}
 
 	// #endregion RENDERING
@@ -439,6 +1089,94 @@ class AuditTransactionHistory extends Component {
 			this.hideLoadMore = this.auditTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.auditTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
 		}
 		this._refineSearch();
+	}
+
+	/**
+	 * Clear all filters
+	 * @return {null} null
+	 */
+	_clearFilters() {
+		const activeFilters = this.shadowRoot.getElementById(`active-filters`);
+
+		Array.from(activeFilters.children)
+				.filter(field => field.localName === `capitec-chip` && !field.hidden)
+				.forEach(item => {
+					this._clearFilter(item.id);
+				});
+
+		this._refineSearch();
+	}
+
+	/**
+	 * Clear filter by criteria type
+	 * @param {*} type - filter type
+	 * @return {null} null
+	 */
+	_clearFilter(type) {
+		const date = () => this._reset();
+		const dateType = () => { 
+			this.dateLabel = DEFAULTS.DATE_LABEL; 
+		};
+		
+		const resetForfilters = {
+			'DATE': date,
+			'DATE_TYPE': dateType
+		};
+
+		RENDER_CHIPS[type] = ``;
+		if (resetForfilters[type]) {
+			resetForfilters[type]();
+		}
+	}
+
+	/**
+	 * close specified chip
+	 * @param {*} type - filter type 
+	 * @return {null} null
+	 */
+	_closeChip(type) {
+		this._clearFilter(type);
+		this._refineSearch();
+	}
+
+	/**
+	 * reset all filters and load transactions
+	 * @return {null} null
+	 */
+	async _reset() {
+		if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
+			this.startDate = ``;
+			this.endDate = ``;
+
+			const calendar = this.shadowRoot.querySelector(`#calendarRange`);
+			if (calendar) {
+				calendar._placeholderEndDate = null;
+				calendar._placeholderStartDate = null;
+			}
+			await this._refineSearch();
+		}
+	}
+
+	/**
+	 * filter the transactions
+	 * @return {null} null
+	*/
+	_refineSearch() {
+
+		this.filteredData = this.auditTransactionHistory?.transactions;
+
+		if (RENDER_CHIPS[FILTER_BY.DATE]) {
+			const startDate = new Date(Date.parse(this.startDate));
+			const endDate = new Date(Date.parse(this.endDate));
+
+			if (RENDER_CHIPS[FILTER_BY.DATE_TYPE] === this.dateTypeOptions[0].text) {
+				this.filteredData = this.filteredData?.filter(item => new Date(item.changeActionedDate) >= startDate && new Date(item.changeActionedDate) <= endDate); 
+				} else if (RENDER_CHIPS[FILTER_BY.DATE_TYPE] === this.dateTypeOptions[1].text) {
+				this.filteredData = this.filteredData?.filter(item => new Date(item.effectiveDate) >= startDate && new Date(item.effectiveDate) <= endDate); 
+				}
+		}
+
+		this.requestUpdate();
 	}
 
 	// #endregion PRIVATE METHODS
