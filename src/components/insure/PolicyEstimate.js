@@ -185,7 +185,6 @@ class PolicyEstimate extends Component {
 		};
 		this.estimate.lifesAssured.splice(1, 0, life);
 		this.showAddLifeDialog = false;
-		console.log(this.estimate.lifesAssured);
 	}
 
 	/**

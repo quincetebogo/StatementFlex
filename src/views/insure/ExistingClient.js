@@ -567,7 +567,7 @@ export class ExistingClient extends InsureViewBase {
 			]
 
 		};
-		console.log(cancelPolicyDetails);
+
 		const resp = await this.insureService.cancelPolicy(cancelPolicyDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 
@@ -645,8 +645,6 @@ export class ExistingClient extends InsureViewBase {
 			"fromAccount": e.detail.fromAccount
 		};
 
-		console.log(payArrears);
-
 		const resp = await this.insureService.payPolicy(payArrears, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 
@@ -690,10 +688,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const resp = await this.insureService.commsHistory(commsHistoryDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
-
-			console.log(resp);
 			return resp.result;
-
 		}
 		// Do error message
 		return null;
@@ -1155,8 +1150,6 @@ export class ExistingClient extends InsureViewBase {
 
 		};
 
-		console.log(arrearsPaymentInstructionDetails);
-
 		const resp = await this.insureService.arrearsPaymentInstruction(arrearsPaymentInstructionDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			this.arrearsPaymentDocumentDetails = resp.result;
@@ -1446,7 +1439,6 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	_renderEmailPlanSuccessPage() {
-		console.log(this.confirmedEmail);
 		return html`
 			<insure-email-plan-success
 				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"

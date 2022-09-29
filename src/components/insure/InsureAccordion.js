@@ -81,11 +81,9 @@ class InsureAccordion extends Component {
 
 		// Toggle the expanded state of the item.
 		if (this.expanded) {
-			console.log(`collapsing`);
 			this.collapse();
 
 		} else {
-			console.log(`expanding`);
 			this.expand();
 		}
 	}
@@ -109,8 +107,6 @@ class InsureAccordion extends Component {
 			this.removeAttribute(`collapsing`);
 			this.expanded = false;
 		}
-
-		console.log(`Animation Complete (Expanded = ${this.expanded})`);
 	}
 
 	// --------------

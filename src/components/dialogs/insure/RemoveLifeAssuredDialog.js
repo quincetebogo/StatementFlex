@@ -54,7 +54,6 @@ class RemoveLifeAssuredDialog extends Component {
 	 * @returns {null} null
 	 */
 	_onAgreeClick() {
-		console.log(`In dialog agree event`);
 		this.dispatchEvent(new CustomEvent(`agree-click`, {}));
 	}
 

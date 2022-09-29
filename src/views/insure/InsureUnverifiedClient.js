@@ -114,7 +114,7 @@ static get properties() {
 			cifNumber: cifNumber,
 			idNumber: idNumber
 		};
-		console.log(`_retrieveClientPolicies`);
+
 		const resp = await this.insureService.clientPolicies(request);
 
 		if (!resp.succeeded) {
