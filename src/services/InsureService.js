@@ -1,4 +1,5 @@
 import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
+import { InitialiseService } from 'app/services/InitialiseService';
 import { Security } from 'platform/core';
 import { v4 } from 'uuid';
 
@@ -24,10 +25,15 @@ export class InsureService extends ChannelServiceBase {
 		);
 
 		this._version = `v1`;
+		this.initialiseService = new InitialiseService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
+
+		this.employeeId = ``;
+		this._getLoggedInAgent();
 	}
 
 	/**
 	 * Create token to enable envoking FIPS
+	 * @param {String } employeeId id
 	 * @returns {Object} Header entries 
 	 */
 	setInsureTokens() {
@@ -40,11 +46,24 @@ export class InsureService extends ChannelServiceBase {
 	}
 
 	/**
+	 * Get logged in Agent Employee ID
+	 * @returns {void}
+	 */
+	async _getLoggedInAgent() {
+		let id = `XXXXXXXX`;
+		const returnValue = await this.initialiseService.initialise();
+		if (returnValue.succeeded) {
+			id = returnValue.result.loggedInAgent.employeeId;
+		}
+		this.employeeId = id;
+	}
+
+	/**
 	 * Generate x-requester-uid for FIPS
-	 * @returns {null} null
+	 * @returns {string} requesterID 
 	 */
 	generateFIPSRequesterUID() {
-		return `CP336134_17249_02_3997_16`;
+		return `${this.employeeId}_XXXXX_02_XXXX_XX`;
 	}
 
 	// #endregion
