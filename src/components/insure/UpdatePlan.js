@@ -231,9 +231,6 @@ class UpdatePlan extends Component {
 		} else {
 			this.policyDetails.roleplayers.push(e.detail.beneficiary);
 		}
-
-		// this.policyDetails.roleplayers.push(e.detail.beneficiary)
-		console.log(this.policyDetails.roleplayers);
 		this._closeAddBeneficiariesDialog();
 	}
 
@@ -247,14 +244,10 @@ class UpdatePlan extends Component {
 			if (this.policyDetails.roleplayers[index].rowID === this.beneficiaryToRemoveRowID) {
 				this.policyDetails.roleplayers[index].beneficiary = false;
 
-				console.log(`removing beneficiary`);
-				console.log(this.policyDetails.roleplayers[index].firstName);
-
 				// remove roleplayer from roleplayers if not a life assured
 				if (this.policyDetails.roleplayers[index].lifeAssured === false) {
 					this.policyDetails.roleplayers.splice(index, 1);
 				}
-				console.log(this.policyDetails.roleplayers);
 			}
 		}
 		this._closeRemoveBeneficiaryDialog();
@@ -270,9 +263,6 @@ class UpdatePlan extends Component {
 	 * 
 	 */
 	_openRemoveBeneficiaryDialog(beneficiary, index) {
-		console.log(`beneficiary `, JSON.stringify(beneficiary));
-		console.log(`index `, JSON.stringify(index));
-
 		this.showRemoveBeneficiaryDialog = true;
 		this.beneficiaryToRemoveRowID = beneficiary.rowID;
 		this.beneficiaryToRemoveName = beneficiary.firstName;
@@ -446,12 +436,8 @@ class UpdatePlan extends Component {
 					this.policyDetails.roleplayers[index].idNumber = event.detail.new;
 					if (this.policyDetails.roleplayers[index].idNumber.length === 13) {
 						const dateOfBirth = this._setDOB(this.policyDetails.roleplayers[index].idNumber);
-						console.log(`1st`);
-						console.log(dateOfBirth);
 						if (!isNullorEmpty(dateOfBirth)) {
 							this.policyDetails.roleplayers[index].dateOfBirth = dateOfBirth;
-							console.log(`2nd`);
-							console.log(this.policyDetails.roleplayers[index].dateOfBirth);
 						}
 					}
 				}
@@ -527,15 +513,11 @@ class UpdatePlan extends Component {
 	 * @return {null} null 
 	 */
 	_beneficiaryPayoutValueChanged(event, recordId) {
-		console.log(event);
-
 		if (event.detail.old !== event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.recordID === recordId) {
-					// console.log('Record found: ', recordId)
+
 					this.policyDetails.roleplayers[index].benefitPayout = event.detail.new;
-					// console.log(this.policyDetails.roleplayers[index].benefitPayout)
-					console.log(this._isPayoutAmountValid());
 
 					const payoutAmountsMatch = this._isPayoutAmountValid();
 					if (payoutAmountsMatch === false) {
@@ -575,8 +557,6 @@ class UpdatePlan extends Component {
 	 * @returns {null} null
 	 */
 	_selectedBankChange(e) {
-		// console.log(e)
-
 		if (e.detail.old !== e.detail.new) {
 			this.policyDetails.deductionDetails.bankDetails.bank = e.detail.new.code;
 			this.policyDetails.deductionDetails.bankDetails.branchCode = e.detail.new.branchCode;
@@ -619,9 +599,6 @@ class UpdatePlan extends Component {
 	 *  @returns {null} null
 	 */
 	_branchCodeChange(e) {
-
-		// console.log(e)
-
 		if (e.detail.old !== e.detail.new) {
 			this.policyDetails.deductionDetails.bankDetails.branchCode = e.detail.new;
 		}
@@ -657,32 +634,6 @@ class UpdatePlan extends Component {
 
 		const calcQuoteResponse = await this.updatePlanQuote(this.policyDetails);
 		this.policyDetails.totalPremium = calcQuoteResponse.totalPremium;
-		console.log(calcQuoteResponse);
-
-
-		// if (this.newTotalPremium != 0) {
-		// this.policyDetails.totalPremium = this.newTotalPremium
-		// }
-
-		// const request = {
-		// ...this.estimate,
-		// // clientEstimateDetails: this.clientEstimateDetails
-		// }
-
-		// // Reset
-		// this.policyDetails.totalPremium = 0;
-		// this.newTotalPremium = '';
-
-
-		// this.dispatchEvent(new CustomEvent(`calculate-quote`, {
-		// detail: request
-		// }));
-
-		// let estimateResponse = await this.calculateClientEstimate(request);
-		// if (estimateResponse != '') {
-		// this.estimate = estimateResponse;
-		// }'
-
 		this.requestUpdate();
 	}
 
@@ -770,10 +721,7 @@ class UpdatePlan extends Component {
 		// this.quote.totalPremium = 0;
 
 		this.collectionDay = this.policyDetails.deductionDetails.collectionDay;
-
 		this.canReinstate = this.policyDetails.canReinstate; // true - for testing;
-		console.log(`policyDetails`);
-		console.log(this.policyDetails);
 	}
 
 	/**
@@ -862,17 +810,8 @@ class UpdatePlan extends Component {
 	 * @return {null} null
 	 */
 	async _onUpdatePlan() {
-		// this.dispatchEvent(new CustomEvent(`update-plan-prepare`, {
-		// detail: {
-		// policy: this.policyDetails,
-		// }
-		// }));
-
-		console.log(`About to call callback - prepareUpdate`);
 		this.prepareUpdateResponse = await this.updatePlanPrepare(this.policyDetails);
-		console.log(`AFTER callback`);
-		console.log(JSON.stringify(this.prepareUpdateResponse));
-		// awaint whatever
+
 		// This needs to move
 		this.showUpdatePlanAgreementDialog = true;
 
@@ -944,16 +883,8 @@ class UpdatePlan extends Component {
 	 */
 	_canAddLife() {
 		const product = this.productParams.products.find(products => products.parameters.id === `SBL`);
-		console.log(product);
-
 		const currentRuleType = product.parameters.rulesParams.find(rule => rule.ruleType === this.policyDetails.policyRule);
-
-		console.log(`currentRuleType`);
-		console.log(currentRuleType);
-		console.log(currentRuleType.addNewLives);
-
 		return currentRuleType.addNewLives;
-
 	}
 
 	/**
@@ -978,30 +909,18 @@ class UpdatePlan extends Component {
 	 *  @returns {null} null
 	 */
 	_isPayoutAmountValid() {
-
 		let totalPayout = 0;
-
-		const beneficiaries = this.policyDetails.roleplayers.filter(beneficiary => {
-			console.log(`Found one`);
-			return beneficiary.beneficiary === true;
-		});
-		console.log(beneficiaries.length);
+		const beneficiaries = this.policyDetails.roleplayers.filter(beneficiary => beneficiary.beneficiary === true);
 		for (let index = 0; index < beneficiaries.length; index++) {
-			console.log(`Adding`);
-			console.log(`parseFloat(beneficiaries[index].benefitPayout)`, parseFloat(beneficiaries[index].benefitPayout));
 			totalPayout += parseFloat(beneficiaries[index].benefitPayout);
 		}
-		console.log(`total Payout: ${totalPayout}`);
-		console.log(`main cover amount: ${this.policyDetails.roleplayers[0].coverAmount}`);
 		if (this.policyDetails.roleplayers[0].coverAmount === totalPayout) {
 			return true;
 		}
-
 		return false;
 	}
 
 	_lifeDobValueChange(e, recordID) {
-		
 		if (e.detail.old !== e.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.recordID === recordID) {
@@ -1272,7 +1191,6 @@ class UpdatePlan extends Component {
 	 * @returns {html} html content
 	 */
 	_webTemplate() {
-		console.log(this.productParams);
 		return html`
 			${this._renderContent()}
 			${this._renderDialogs()}

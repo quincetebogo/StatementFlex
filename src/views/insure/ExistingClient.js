@@ -8,6 +8,7 @@ import { MAX_RESULTS } from 'app/constants/InsureTransactionHistory';
 import { getAgeFromIDNumber, getGenderFromIDNumber } from 'app/utils/insureUtils';
 import { INSURE_CALLER_PAGE, DOCUMENT_TYPE, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
 import { SavingsService } from 'app/services/SavingsService';
+import { Configuration } from 'platform/core';
 
 import 'app/components/insure/ClientPolicies';
 import 'app/components/insure/PolicyEstimate';
@@ -65,8 +66,8 @@ export class ExistingClient extends InsureViewBase {
 	constructor() {
 		super();
 		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
-		// this.renderMode = INSURE_RENDER_MODE.CLAIM_SUMMARY;
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
+		this.configuration = Configuration.getInstance();
 
 		this.productParams = {};
 		this.policyTransactionHistory = {};
@@ -568,7 +569,7 @@ export class ExistingClient extends InsureViewBase {
 			]
 
 		};
-		console.log(cancelPolicyDetails);
+
 		const resp = await this.insureService.cancelPolicy(cancelPolicyDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 
@@ -646,8 +647,6 @@ export class ExistingClient extends InsureViewBase {
 			"fromAccount": e.detail.fromAccount
 		};
 
-		console.log(payArrears);
-
 		const resp = await this.insureService.payPolicy(payArrears, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 
@@ -691,10 +690,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const resp = await this.insureService.commsHistory(commsHistoryDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
-
-			console.log(resp);
 			return resp.result;
-
 		}
 		// Do error message
 		return null;
@@ -1213,8 +1209,6 @@ export class ExistingClient extends InsureViewBase {
 
 		};
 
-		console.log(arrearsPaymentInstructionDetails);
-
 		const resp = await this.insureService.arrearsPaymentInstruction(arrearsPaymentInstructionDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			this.arrearsPaymentDocumentDetails = resp.result;
@@ -1255,6 +1249,13 @@ export class ExistingClient extends InsureViewBase {
 		}
 	}
 
+	/*
+	* Open insure product details on Capitec website
+	*/
+	async _productEnquiry() {
+		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
+		window.open(`${globalOneUrl}/insure/`);
+	}
 
 	// #endregion EVENT HANDLERS
 
@@ -1370,7 +1371,8 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}"
 				.getCancelPolicyDocument="${(contractReference, cancelReason, saveToDocumentum) => this._cancelPolicyAgreement(contractReference, cancelReason, saveToDocumentum)}"
 				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}"
-				.getArrearsPaymentDocument="${(contractReference, payArrears, fromAccount, saveToDocumentum) => this._arrearsPaymentInstruction(contractReference, payArrears, fromAccount, saveToDocumentum)}">
+				.getArrearsPaymentDocument="${(contractReference, payArrears, fromAccount, saveToDocumentum) => this._arrearsPaymentInstruction(contractReference, payArrears, fromAccount, saveToDocumentum)}"
+				@product-enquiry="${() => this._productEnquiry()}">
 			</horizon-insure-client-policies>`;
 	}
 
@@ -1527,7 +1529,6 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	_renderEmailPlanSuccessPage() {
-		console.log(this.confirmedEmail);
 		return html`
 			<insure-email-plan-success
 				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
