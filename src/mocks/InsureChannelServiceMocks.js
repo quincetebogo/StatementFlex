@@ -110,7 +110,14 @@ export default class InsureChannelServiceMocks {
 		if (this._mockSettings.insureAuditTransactionHistory.positiveCase) {
 			const result = this.auditTransactionHistoryMocks.AuditTransactionHistory;
 			const auditTrans = result.filter(x => x.contractReference === auditTransactionHistoryRequest.contractReference);
-			return auditTrans[0];
+				
+			// TODO: should be modified below code once integrated with service
+			if (auditTrans.length > 0) {
+				return auditTrans[0];
+			}
+
+			return result.filter(x => x.contractReference === `FP123456`)[0];
+			
 		}
 
 		// Code for a negative case could come here
