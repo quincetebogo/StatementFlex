@@ -23,7 +23,6 @@ export class InsureService extends ChannelServiceBase {
 			`v1`,
 			() => import(`../mocks/InsureChannelServiceMocks.js`)
 		);
-
 		this._version = `v1`;
 		this.initialiseService = new InitialiseService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
 
@@ -46,10 +45,11 @@ export class InsureService extends ChannelServiceBase {
 	}
 
 	/**
-	 * Get logged in Agent Employee ID
+	 * Set Logged in ID
 	 * @returns {void}
 	 */
 	async _getLoggedInAgent() {
+		// this.employeeId = await this._getAgentEmployeeId();
 		let id = `XXXXXXXX`;
 		const returnValue = await this.initialiseService.initialise();
 		if (returnValue.succeeded) {
@@ -57,7 +57,7 @@ export class InsureService extends ChannelServiceBase {
 		}
 		this.employeeId = id;
 	}
-
+	
 	/**
 	 * Generate x-requester-uid for FIPS
 	 * @returns {string} requesterID 
@@ -228,6 +228,7 @@ export class InsureService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
 	calculateEstimate(estimateRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
 		return this.post(
 			`/FuneralInsuranceProductService/quote/estimate`,
 			estimateRequest,
@@ -281,6 +282,8 @@ export class InsureService extends ChannelServiceBase {
 		if (await this.isMockEnabled(`insurePolicyTransactionHistory`)) {
 			return this.mock(`policyTransactionHistory`, transactionsRequest);
 		}
+
+		console.log('In getPolicyTransactions: After mock')
 		return this.post(
 			`/FuneralInsuranceProductService/policy/transactions`,
 			transactionsRequest,
