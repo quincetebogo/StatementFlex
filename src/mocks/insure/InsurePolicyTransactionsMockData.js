@@ -6,7 +6,7 @@
  */
  export const PolicyTransactionHistory = [
 	{
-		"contractReference": `FP00001631`,
+		"contractReference": `FP123456`,
 		"transactions": [
 			{
 				"premiumDueDate": `2022-06-18T12:16:05.229Z`,
