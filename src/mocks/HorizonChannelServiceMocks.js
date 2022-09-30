@@ -73,6 +73,7 @@ export default class HorizonChannelServiceMocks {
     	this.budgetFacility = await this._loadMockModule(this.budgetFacility, `budgetTransferFromAccounts`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
     	this.budgetFacility = await this._loadMockModule(this.budgetFacility, `confirmBudgetTransfer`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
 		this.kbaMocks = await this._loadMockModule(this.kbaMocks, `loadKBA`, () => import(`../mocks/KBAMocks`).catch(err => logError(err)));
+		this.widgetRegistryMocks = await this._loadMockModule(this.widgetRegistryMocks, `getWidgetById`, () => import(`../mocks/WidgetRegistryMocks`).catch(err => logError(err)));
 	}
 
 	// ===============================
@@ -570,5 +571,21 @@ export default class HorizonChannelServiceMocks {
 			};
 		}
 		return null;
+	}
+
+	getWidgetById() {
+		if (this._mockSettings.getWidgetById.positiveCase) {
+			return this.widgetRegistryMocks.widgetDetails;
+		}
+
+		const errPromise = new Promise(() => {
+			const httpError = new HttpStatusError();
+			httpError.status = 418;
+			httpError.message = `Short and stout!`;
+	
+			throw httpError;
+		});
+
+		return errPromise;
 	}
 }
