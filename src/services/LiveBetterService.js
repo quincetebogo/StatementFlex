@@ -16,7 +16,7 @@ export class LiveBetterService extends ChannelServiceBase {
 		super(
 			toggleBusyFunc, 
 			defaultErrorHandlerFunc, 
-			`serviceURIs.channelServiceUrl`, 
+			`serviceURIs.liveBetterServiceUrl`, 
 			`HorizonChannelService`, 
 			`v1`, 
 			() => import(`../mocks/HorizonChannelServiceMocks.js`)
