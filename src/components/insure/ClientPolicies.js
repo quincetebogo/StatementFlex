@@ -799,10 +799,6 @@ class ClientPolicies extends Component {
 				count += 1;
 			}
 			count += 1;
-
-			if (policyItem.arrearDetails?.outstandingAmount < 1) {
-				count += 1;
-			}
 		}
 
 		if (policyItem.status !== `Cancelled` && policyItem.status !== `Lapsed` && policyItem.status !== `NotTakenUp`) {
