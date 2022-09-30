@@ -51,7 +51,7 @@ export class HorizonWidgetHost extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this._initialize();
+		this._initHost();
 	}
 
 	disconnectedCallback() {
@@ -94,11 +94,11 @@ export class HorizonWidgetHost extends ViewBase {
 			verificationCount: verificationCount,
 			clientVerficationMethods: verificationMethods,
 			verificationMethod: this.callerInformation.verificationMethod,
-			incidentNumber: this.incidentDetails.primaryIncidentRef,
+			incidentNumber: this.horizonIncidentManager.currentIncident.toString(),
 			caseId: `-`,
 			logicalRecordID: `-`,
 			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-			clientNeed: this.incidentDetails.currentNeed
+			clientNeed: this.horizonIncidentManager.getCurrentNeed()
 		});
 	}
 
@@ -159,6 +159,97 @@ export class HorizonWidgetHost extends ViewBase {
 	_handleDialogUnLoad() {
 		this.renderMode = RENDER_MODES.WIDGET;
 	}
+
+	_getPrimaryIncident(e) {
+		const primaryInc = this.horizonIncidentManager.primaryIncident;
+
+		// since we can't pass a function to frame windo
+		delete primaryInc.toString;
+		e.detail.callback({
+			primaryIncident: primaryInc
+		});
+	}
+
+	_getCurrentIncident(e) {
+		const currentInc = this.horizonIncidentManager.currentIncident;
+
+		// since we can't pass a function to frame windo
+		delete currentInc.toString;
+		e.detail.callback({
+			currentIncident: currentInc
+		});
+	}
+
+	_getIncidentState(e) {
+		e.detail.callback({
+			state: this.horizonIncidentManager.incidentState
+		});
+	}
+
+	_setIncidentState(e) {
+		if (e.detail.content) {
+			this.horizonIncidentManager.incidentState = e.detail.content;
+		}
+	}
+
+	_getCurrentNeed(e) {
+		e.detail.callback({
+			currentNeed: this.horizonIncidentManager.getCurrentNeed()
+		});
+	}
+
+	_setCurrentNeed(e) {
+		if (e.detail.content) {
+			this.horizonIncidentManager.setCurrentNeed(e.detail.content);
+		}
+	}
+
+	_getFeedback() {
+		e.detail.callback({
+			feedback: this.horizonIncidentManager.getFeedback()
+		});
+	}
+
+	_setFeedback() {
+		if (e.detail.content) {
+			this.horizonIncidentManager.setFeedback(e.detail.content);
+		}
+	}
+
+	_getIncidentDetails(e) {
+		const incDetails = this.horizonIncidentManager.getIncidentDetails();
+		
+		delete incDetails?.primaryIncident.toString;
+		delete incDetails?.currentIncident.toString;
+		e.detail.callback({
+			incidentDetails: incDetails
+		});
+	}
+
+	async _handleMultipleNeed(e) {
+		await this.horizonIncidentManager._handleMultipleNeed(e.detail.clientNeed, () => this._toggleBusyFlag());
+	}
+
+	async _createAndClassifySubIncident(e) {
+		const request = e.detail.content || {};
+
+		/**
+		 * categoryNeedIssue - {object} - manual classification values
+		 * shouldClassify - {Boolean} - Flag saying should proceed with classify or don't?
+		 */
+		const { categoryNeedIssue, shouldClassify } = request;
+		await this.horizonIncidentManager.createAndClassifySubIncident(() => this._toggleBusyFlag(), categoryNeedIssue, shouldClassify);
+	}
+
+	async _classifyIncident(e) {
+		const request = e.detail.content || {};
+
+		/**
+		 * categoryNeedIssue - {object} - manual classification values
+		 */
+		const { categoryNeedIssue } = request;
+		await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag(), categoryNeedIssue);
+	}
 	
 	// --------------
 	// PUBLIC METHODS
@@ -170,7 +261,7 @@ export class HorizonWidgetHost extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
-	async _initialize() {
+	async _initHost() {
 		// const widgetName = this.navigationContext.current.pathParams.name;
 
 		this._widgetID = this.navigationContext.current.pathParams.name;
@@ -183,7 +274,7 @@ export class HorizonWidgetHost extends ViewBase {
 
 		// Service unavailable
 		if (!response.succeeded) {
-			this.logger.log(`error`, `Widget service is unavailable. Requested widgetID:${this._widgetID}`, `WidgeHost._initialize`, response.correlationId);
+			this.logger.log(`error`, `Widget service is unavailable. Requested widgetID:${this._widgetID}`, `WidgeHost._initHost`, response.correlationId);
 			this.horizonRouter.navigateToWidgetUnavailable();
 			
 			return true;
@@ -191,7 +282,7 @@ export class HorizonWidgetHost extends ViewBase {
 
 		// Widget not found
 		if (!result.widget) {
-			this.logger.log(`error`, `Requested widgetID:${this._widgetID} is not found`, `WidgeHost._initialize`, response.correlationId);
+			this.logger.log(`error`, `Requested widgetID:${this._widgetID} is not found`, `WidgeHost._initHost`, response.correlationId);
 			this.renderMode = RENDER_MODES.WIDGET_NOT_FOUND;
 
 			return true;
@@ -296,7 +387,19 @@ export class HorizonWidgetHost extends ViewBase {
 					@telemetry-log-event="${this._handleTelemetryLogEventMessage}"
 					@telemetry-close-child-spans="${this._handleTelemetryCloseChildSpansMessage}"
 					@loading-dialog="${this._handleDialogLoad}"
-					@unloading-dialog="${this._handleDialogUnLoad}">
+					@unloading-dialog="${this._handleDialogUnLoad}"
+					@getPrimaryIncident="${this._getPrimaryIncident}"
+					@getCurrentIncident="${this._getCurrentIncident}"
+					@getIncidentState="${this._getIncidentState}"
+					@setIncidentState="${this._setIncidentState}"
+					@getCurrentNeed="${this._getCurrentNeed}"
+					@setCurrentNeed="${this._setCurrentNeed}"
+					@getFeedback="${this._getFeedback}"
+					@setFeedback="${this._setFeedback}"
+					@handleMultipleNeed="${this._handleMultipleNeed}"
+					@createAndClassifySubIncident="${this._createAndClassifySubIncident}"
+					@classifyIncident="${this._classifyIncident}"
+					@getIncidentDetails="${this._getIncidentDetails}">
 				</capitec-widget>`;
 	}
 
