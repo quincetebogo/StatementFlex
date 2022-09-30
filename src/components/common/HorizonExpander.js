@@ -154,8 +154,9 @@ export class Expander extends Component {
 	 * @returns {void}
 	 */
 	_click(event) {
+		// commented out below code as overflow menu does not disappear when it is clicked.
 		// Prevent the event from bubbling up.
-		event.stopPropagation();
+		// event.stopPropagation();
 
 		// Ignore the click event if the item is disabled.
 		if (this.disabled) {
@@ -398,6 +399,7 @@ export class Expander extends Component {
 					//border-left: var(--theme-expander-border, 1px solid black);
 					//border-right: var(--theme-expander-border, 1px solid black);
 					align-content: flex-start;
+					overflow: visible;
 				}
 
 				:host(*.styled[expanded]) > .content {

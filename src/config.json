@@ -243,6 +243,10 @@
 			"enabled": true,
 			"positiveCase": true
 		},
+		"insureAuditTransactionHistory": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"creditOverview": {
 			"enabled": false,
 			"positiveCase": true
