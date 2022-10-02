@@ -62,7 +62,8 @@ const HORIZON_ROUTES = Object.freeze({
 	PAID_UP_LETTER_SUCCESS: `/success/paid-up-letter`,
 	PAID_UP_LETTER_FAILURE: `/error/paid-up-letter`,
 	SEND_CASH_SUCCESS: `/success/send-cash`,
-	SEND_CASH_FAILURE: `/error/send-cash`
+	SEND_CASH_FAILURE: `/error/send-cash`,
+	WIDGET_HOST: `/widget`  
 });
 
 
@@ -407,6 +408,10 @@ export class HorizonRouter {
 
 	navigateToSendCashFailure() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SEND_CASH_FAILURE}`);
+	}
+
+	navigateToWidget(widgetName) {
+		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST}/${widgetName}`);
 	}
 
 	/**
@@ -980,5 +985,13 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.SEND_CASH_FAILURE,
 		load: () => import(`../views/sendCash/SendCashFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-	}
+	},
+	{
+		name: `horizon-widget-host`,
+		title: `HorizonWidgetHost`,
+		icon: null,
+		path: `${HORIZON_ROUTES.WIDGET_HOST}/:name`,
+		load: () => import(`../views/common/HorizonWidgetHost`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	}  
 ];
