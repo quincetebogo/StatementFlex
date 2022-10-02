@@ -3,7 +3,7 @@
   "groupName": "G_PL_HZN_DEV",
   "projects": [
     {
-      "name": "Horizon-UI-2",
+      "name": "Horizon-UI",
       "location": ".",
       "platformType": "ocwp",
       "cliVersion": "1.14.1"
