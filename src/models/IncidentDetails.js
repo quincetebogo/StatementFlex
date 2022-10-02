@@ -10,36 +10,30 @@
 	/**
 	 * Creates an instance of IncidentDetails.
 	 * 
-	 * @param {string} [incidentReferenceNumber = ``] The STrack Incident Reference Number
-	 * @param {string} [incidentRecId = ``] The STrack Incident Reference ID
-	 * @param {string} [primaryIncidentRef = ``] Primary incident reference number
-	 * @param {string} [primaryIncidentRecID] Primary incident recID, when there is subsequent need
+	 * @param {object} [currentIncident = null] The current incident being managed
+	 * @param {object} [primaryIncident = null] The initial/primary incident to which all secondary incidents are linked
 	 * @param {string} [currentNeed = ``] Current need [Stopcard/ Debicheck/ Statements etc..]
 	 * @param {string} [previousNeed = ``] Previous need [Stopcard/ Debicheck/ Statements etc..], when switching to subsequent need
-	 * @param {status} [needStatus = `InProgress`] Status of need *Internal purpose* [InProgress/ Completed/ Assigned]
+	 * @param {status} [incidentState = `InProgress`] Status of incident *Internal purpose* [InProgress/ Completed/ Assigned]
 	 * @param {string} [feedback = ``] Feedback of incident (need fulfilled/ assigned/ handed-off)
 	 * @param {boolean} [isReassigned = false] A flag indicating if the incident has been re-assigned
 	 * @memberof IncidentDetails
 	 */
 
 	constructor(
-		incidentReferenceNumber = ``,
-		incidentRecId = ``,
-		primaryIncidentRef = ``,
-		primaryIncidentRecID = ``,
+		currentIncident = null,
+		primaryIncident = null,
 		currentNeed = ``,
 		previousNeed = ``,
-		needStatus = `Not Started`,
+		incidentState = `Not Started`,
 		feedback = ``,
 		isReassigned = false
 	) {
-		this.incidentReferenceNumber = incidentReferenceNumber;
-		this.incidentRecId = incidentRecId;
-		this.primaryIncidentRef = primaryIncidentRef;
-		this.primaryIncidentRecID = primaryIncidentRecID;
+		this.currentIncident = currentIncident;
+		this.primaryIncident = primaryIncident;
 		this.currentNeed = currentNeed;
 		this.previousNeed = previousNeed;
-		this.needStatus = needStatus;
+		this.incidentState = incidentState;
 		this.feedback = feedback;
 		this.isReassigned = isReassigned;
 	}

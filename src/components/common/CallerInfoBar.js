@@ -84,7 +84,7 @@ export class CallerInfoBar extends Component {
 		this.possibleNeedValues = this.incomingCallDetails.ivrOption.possibleValues;
 
 		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
-		this.incidentReferenceNumber = this.incidentDetails.incidentReferenceNumber;
+		this.incidentReferenceNumber = this.incidentDetails.currentIncident.toString();
 	}
 
 

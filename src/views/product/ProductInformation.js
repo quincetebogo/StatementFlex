@@ -73,7 +73,7 @@ export class ProductInformation extends ViewBase {
 		this.eventAggregator.publish(
 			`horizon-update-call_actionbar`,
 			{
-				referenceNo: this.horizonIncidentManager.getCurrentIncident().toString(),
+				referenceNo: this.horizonIncidentManager.currentIncident.toString(),
 				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
 			}
@@ -135,7 +135,7 @@ export class ProductInformation extends ViewBase {
 		
 		if (this._config) {
 			await super._inicidentManager_(this._config.product, () => this._toggleBusyFlag());
-			await super.createAndClassifySubsIncident(null, false);
+			await super.createAndClassifySubIncident(null, false);
 		} else {
 			this._config = CONFIG.SavingsAccount;
 		}

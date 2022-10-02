@@ -357,7 +357,13 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _getSubCategories(event) {
-		this._updateNeedToState(`category`, event.detail.category);
+		const currentIncident = this.horizonIncidentManager.currentIncident;
+		if (!currentIncident) {
+			await super.createAndClassifySubIncident();
+		}
+		
+		this._updateNeedToState(event.detail.category);
+		
 		await this.getSubCategories(event);
 	}
 
@@ -366,16 +372,6 @@ export class Favourites extends SavingsAccountBase {
 		await this.getIssues(event);
 	}
 
-	async _getSubCategories(event) {
-		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
-		if (incidentRecId === `0`) {
-			await super.createAndClassifySubsIncident();
-		}
-		
-		this._updateNeedToState(event.detail.category);
-		
-		await this.getSubCategories(event);
-	}
 
 	async _getIssues(event) {
 		
@@ -500,9 +496,9 @@ export class Favourites extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.CARD_LIMITS_LANDING
 		});
 
-		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
+		const currentIncident = this.horizonIncidentManager.currentIncident;
 
-		const returnValue = await this.cardService.cardLimitsLanding(this.callerInformation.cifNumber, incidentRecId);
+		const returnValue = await this.cardService.cardLimitsLanding(this.callerInformation.cifNumber, currentIncident);
 			
 		if (returnValue.succeeded) {
 			this.cards = returnValue.result.cards;
@@ -738,7 +734,7 @@ export class Favourites extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.SEARCH_OTHER_NEED
 		});
 
-		await super.createAndClassifySubsIncident();
+		await super.createAndClassifySubIncident();
 
 		this.endCallContext = `SearchOtherNeed`;
 		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
@@ -752,15 +748,15 @@ export class Favourites extends SavingsAccountBase {
 	async _unLoadingOtherNeeds() {
 		this._telemetryEndSpan(QuickTransactionEvents.SEARCH_OTHER_NEED, TelemetryScreen.SEARCH_OTHER_NEED);
 
-		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
+		const currentIncident = this.horizonIncidentManager.currentIncident;
 
-		if (isNullorEmpty(incidentRecId) || incidentRecId === `0`) {
+		if (!currentIncident) {
 			this.renderMode = RENDER_MODE.MAIN_PAGE;
 			return true;
 		}
 
 		const screenDetails = this.horizonStore.getScreenDetails();
-		const incidentInfo = await this.incidentStatus(incidentRecId) || {};
+		const incidentInfo = await this.incidentStatus(currentIncident) || {};
 
 		// Determining if its already classified
 		const isClassified = !isNullorEmpty(incidentInfo.category) && !isNullorEmpty(incidentInfo.subCategory) && !isNullorEmpty(incidentInfo.issue);
@@ -803,9 +799,10 @@ export class Favourites extends SavingsAccountBase {
 		});
 		await this._classifyIncident(event);
 
-		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
+		const currentIncident = this.horizonIncidentManager.currentIncident;
 	
-		this.horizonRouter.navigateToStrack(incidentRecId);
+		this.horizonRouter.navigateToStrack(currentIncident);
+		
 		this.renderMode = RENDER_MODE.FEEDBACK;
 	}
 
@@ -830,7 +827,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _createIncidentOnError() {
-		await super.createAndClassifySubsIncident();
+		await super.createAndClassifySubIncident();
 		return true;
 	}
 
