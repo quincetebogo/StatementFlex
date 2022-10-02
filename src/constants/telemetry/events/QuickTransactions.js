@@ -85,7 +85,6 @@ export const QuickTransactionEvents = {
 	DISCARD_CHANGES_CANCEL: `call.fulfill-need.card-limits.update-limits.discard-changes.cancel`,
 	DISCARD_CHANGES_CONFIRM: `call.fulfill-need.card-limits.update-limits.discard-changes.confirm`,
 
-	 // Satements
 	// Debi-check
 	DEBICHECK: `call.fulfill-need.debicheck`,
 	DEBICHECK_EXIT: `call.fulfill-need.debicheck.exit`,
@@ -99,8 +98,14 @@ export const QuickTransactionEvents = {
 	DEBICHECK_APPROVE_MANDATE_CONFIRM: `call.fulfill-need.debicheck.approve-mandate.confirm`,
 	DEBICHECK_FIND_BRANCH: `call.fulfill-need.debicheck.find-a-branch`,
 
-	// Yet to configure events for Debi check mandates approve and outcome screens
-	// It can be done when we implement those feature
+	// Outcome screens
+	DEBICHECK_SUCCESS: `call.fulfill-need.debicheck.success`,
+	DEBICHECK_SUCCESS_DONE: `call.fulfill-need.debicheck.success.done`,
+	DEBICHECK_SEND_ANOTHER: `call.fulfill-need.debicheck.success.send-another`,
+
+	DEBICHECK_FAILURE: `call.fulfill-need.debicheck.failure`,
+	DEBICHECK_FAILURE_DONE: `call.fulfill-need.debicheck.failure.done`,
+	DEBICHECK_FAILURE_ASSIGN: `call.fulfill-need.debicheck.failure.assign`,
 
 	// Tax certificate
 	TAX_CERTIFICATE: `call.fulfill-need.tax-certificate`,

@@ -584,6 +584,8 @@ export class ConfirmCallerDetails extends Component {
 				img {
 					height: 200px;
 					width: 200px;
+					padding: 5px;
+					border: 2px solid #E1E1E1;
 					--theme-layout-gap-spacing: 25px;
 				}
 			`

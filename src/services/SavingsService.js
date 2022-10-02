@@ -201,7 +201,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 			return this.mock(`viewStatements`);
 		}
 
-		const url = `/cec-save-${this._version}/documents/view-statements`;
+		const url = `/cec-save-${this._version}/documents/view-statement`;
 
 		return this.post(
 			url, 

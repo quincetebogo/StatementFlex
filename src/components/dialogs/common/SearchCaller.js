@@ -685,7 +685,7 @@ export class SearchCaller extends Component {
 			gender: identifiedClient.callerInformation.gender      
 		};
 
-		await this._updateIncidentBranchDetails(this.branchCode);
+		await this._updateIncidentBranchDetails(this.branchCode, `cp${this.cpNumber}`);
 
 		this.dispatchEvent(new CustomEvent(`branch-captured`, {
 			detail: {
@@ -700,10 +700,10 @@ export class SearchCaller extends Component {
 		}));
 	}
 
-	async _updateIncidentBranchDetails(branchCode) {
+	async _updateIncidentBranchDetails(branchCode, branchCallerID) {
 		// on confirm click, update incident details to be branch incident and not client incident
 		const incident = this.horizonIncidentManager.currentIncident;
-		const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(incident, branchCode);
+		const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(incident, branchCode, branchCallerId);
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, ``, `_updateIncidentBranchDetails`);
 			return false;

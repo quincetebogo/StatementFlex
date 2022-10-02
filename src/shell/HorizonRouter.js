@@ -61,6 +61,8 @@ const HORIZON_ROUTES = Object.freeze({
 	PROOF_OF_PAYMENT_FAILURE: `/error/proof-of-payment`,
 	PAID_UP_LETTER_SUCCESS: `/success/paid-up-letter`,
 	PAID_UP_LETTER_FAILURE: `/error/paid-up-letter`,
+	SEND_CASH_SUCCESS: `/success/send-cash`,
+	SEND_CASH_FAILURE: `/error/send-cash`,
 	WIDGET_HOST: `/widget`,
 	WIDGET_HOST_UNAVAILABLE: `/widget/unavailable`,
 	WIDGET_HOST_NOTFOUND: `/widget/notfound`
@@ -402,10 +404,17 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.PAID_UP_LETTER_FAILURE}`);
 	}
 
+	navigateToSendCashSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SEND_CASH_SUCCESS}`);
+	}
+
+	navigateToSendCashFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SEND_CASH_FAILURE}`);
+	}
+
 	navigateToWidget(widgetName) {
 		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST}/${widgetName}`);
 	}
-
 	navigateToWidgetUnavailable() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST_UNAVAILABLE}`);
 	}
@@ -971,6 +980,30 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
+		name: `horizon-send-cash-success`,
+		title: `SendCashSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.SEND_CASH_SUCCESS,
+		load: () => import(`../views/sendCash/SendCashSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-send-cash-failure`,
+		title: `SendCashFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.SEND_CASH_FAILURE,
+		load: () => import(`../views/sendCash/SendCashFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-widget-host`,
+		title: `HorizonWidgetHost`,
+		icon: null,
+		path: `${HORIZON_ROUTES.WIDGET_HOST}/:name`,
+		load: () => import(`../views/common/HorizonWidgetHost`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
 		name: `horizon-widget-service-unavailable`,
 		title: `WidgetServiceUnavailable`,
 		icon: null,
@@ -985,13 +1018,5 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.WIDGET_HOST_NOTFOUND,
 		load: () => import(`../views/common/WidgetNotFound`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-	},
-	{
-		name: `horizon-widget-host`,
-		title: `HorizonWidgetHost`,
-		icon: null,
-		path: `${HORIZON_ROUTES.WIDGET_HOST}/:name`,
-		load: () => import(`../views/common/HorizonWidgetHost`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-	}
+	}  
 ];
