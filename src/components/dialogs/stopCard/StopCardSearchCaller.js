@@ -1,8 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { ClientProfileService } from 'app/services/ClientProfileService';
-import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { SEARCH_OPTIONS } from 'app/constants/SearchOptions';
@@ -103,10 +102,9 @@ export class StopCardSearchCaller extends Component {
 	constructor() {
 		super();
 
-		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
-		this._telemetry = HorizonTelemetry.instance;
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
+		this._telemetry = HorizonTelemetry.getInstance();
 
 		RegExp();
 
@@ -173,7 +171,6 @@ export class StopCardSearchCaller extends Component {
 		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 
 		this.incidentReferenceNumber = this.incidentDetails.incidentReferenceNumber;
-		this.incidentRecId = this.incidentDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
 		this.searchOptions = SEARCH_OPTIONS;
@@ -247,8 +244,7 @@ export class StopCardSearchCaller extends Component {
 		this.ivrOption.value = e.detail.new;
 		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 
-		this.incidentDetails.currentNeed = this.incomingCallDetails.ivrOptionCode;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.setCurrentNeed(this.incomingCallDetails.ivrOptionCode);
 
 		if (this.ivrOption.value !== `StopCard`) {
 			this.dispatchEvent(new CustomEvent(`other-need-selected`, {

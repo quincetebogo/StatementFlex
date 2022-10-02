@@ -3,6 +3,7 @@ import { EventAggregator, Logger, NavigationContext } from 'platform/core';
 import { optionsConfig, relatedOptions } from 'app/utils/relatedOptions';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { CardService } from 'app/services/CardService';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
@@ -15,6 +16,7 @@ import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/CardLimitsLanding';
 import 'app/components/quickTransactions/TaxCertificateLanding';
 import 'app/dialogs/statements/Statements';
+import 'app/dialogs/taxCertificates/TaxCertificates';
 
 const RENDER_MODE = Object.freeze({
 	MAIN_PAGE: 0,
@@ -95,11 +97,10 @@ export class RelatedOptions extends Component {
 
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 		this.landingPageInfo = state.landingPageInfo;
 
-		const currNeed = this.incidentDetails.currentNeed;
-		this.options = relatedOptions[currNeed][this.context];
+		this.options = relatedOptions[this.horizonIncidentManager.getCurrentNeed()][this.context];
 	}
 
 	disconnectedCallback() {
@@ -152,7 +153,6 @@ export class RelatedOptions extends Component {
 
 			if (actions[item]) {
 				await super._inicidentManager_(item, () => this._toggleBusyFlag());
-				this._refreshIncidentDetails();
 				return actions[item](item);
 			}
 
@@ -164,11 +164,12 @@ export class RelatedOptions extends Component {
 	}
 
 	_backToLandingPage() {
+		const incidentState = this.horizonIncidentManager.incidentState;
 		
-		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
-			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
 		}
+
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -193,10 +194,6 @@ export class RelatedOptions extends Component {
 		return this.callerInformation && this.callerInformation.verificationStatus === `verified`;
 	}
 
-	_refreshIncidentDetails() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-	}
-
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
@@ -216,7 +213,7 @@ export class RelatedOptions extends Component {
 
 	async _stopCard() {
 
-		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.incidentDetails);
+		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.horizonIncidentManager.currentIncident);
 
 		if (returnValue.succeeded) {
 

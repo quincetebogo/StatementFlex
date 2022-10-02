@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
@@ -26,7 +27,8 @@ export class StopCardConfirm extends Component {
 		this.isBusy = false;
 
 		this.horizonRouter = HorizonRouter.getInstance();
-		this._telemetry = HorizonTelemetry.instance;
+		this._telemetry = HorizonTelemetry.getInstance();
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 	}
 
 	// ----------
@@ -86,7 +88,9 @@ export class StopCardConfirm extends Component {
 			"screen": TelemetryScreen.STOP_CARD
 		});
 
-		const returnValue = await this.cardService.stopCards(this.cardsToStop, this.incomingCallDetails, this.incidentDetails, this.cifNumber, this.title, this.lastName);
+		await this.horizonIncidentManager.createAndClassifySubIncident(this._toggleBusyFlag);
+		const currentIncident = this.horizonIncidentManager.currentIncident();
+		const returnValue = await this.cardService.stopCards(this.cardsToStop, currentIncident, this.cifNumber, this.title, this.lastName);
 		const cardStopResults = returnValue.result;
 
 		if (returnValue.succeeded) {

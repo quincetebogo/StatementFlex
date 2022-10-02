@@ -395,7 +395,7 @@ export class HorizonTelemetry extends Telemetry {
 		if (Utilities.isString(item)) {
 			return String(item.trim());
 		}
-
+		
 		return String(JSON.stringify(item).trim());
 		
 	}

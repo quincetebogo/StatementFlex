@@ -20,8 +20,6 @@ const HORIZON_ROUTES = Object.freeze({
 	CARD_STOP_PAGE: `/card-stop`,
 	CARD_STOP_SUCCESS_PAGE: `/card-stop/success`,
 	CARD_STOP_FAILURE_PAGE: `/card-stop/failed`,
-	INSURE_PROSPECTIVE_CLIENT: `/insure/prospective`,
-	INSURE_EXISTING_CLIENT: `/insure/existing-client`,
 	TRANSACT_FAVOURITES: `/transact/favourites`,
 	SAVINGS_ACCOUNT: `/transact/savings-account`,
 	KBA_VERIFICATION_FAILED: `/error/kba-verification`,
@@ -192,14 +190,6 @@ export class HorizonRouter {
 		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_FAILURE_PAGE);
 	}
 
-	navigateToInsureProspectiveClient() {
-		this.router.navigateByPath(HORIZON_ROUTES.INSURE_PROSPECTIVE_CLIENT);
-	}
-
-	navigateToInsureExistingClient() {
-		this.router.navigateByPath(HORIZON_ROUTES.INSURE_EXISTING_CLIENT);
-	}
-
 	navigateToQuickTransactionFavourites() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.TRANSACT_FAVOURITES}`);
 	}
@@ -306,12 +296,12 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_ACCOUNT}`);
 	}
 
-	navigateToStrack(incidentRecId) {
+	navigateToStrack(incident) {
 		// Clone the strackURL and update that. Don't modify the original this.strackURL as 
 		// this will break the incidentRecId replacement logic and cause the same incident
 		// to be opened every time.
 		let newUrl = this.strackURL.slice();
-		newUrl = newUrl.replace(`$incidentRecId`, incidentRecId);
+		newUrl = newUrl.replace(`$incidentRecId`, incident.incidentId);
 		window.open(newUrl);
 	}
 
@@ -638,34 +628,6 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.CARD_STOP_FAILURE_PAGE,
 		load: () => import(`../views/stopCard/StopCardFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
-	},
-	{
-		name: `horizon-existing-client`,
-		title: `Insure`,
-		icon: null,
-		path: HORIZON_ROUTES.INSURE_EXISTING_CLIENT,
-		load: () => import(`../views/insure/ExistingClient`),
-		guard: () => true,
-		
-		/*
-		const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
-		switch (routingInfo.verificationStatus) {
-			case `verified`:
-			case `unverified`:
-			case `3rdparty`:
-					return true;
-			default:
-				return false;
-		*/
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-	},
-	{
-		name: `horizon-prospective-client`,
-		title: `Insure`,
-		icon: null,
-		path: HORIZON_ROUTES.INSURE_PROSPECTIVE_CLIENT,
-		load: () => import(`../views/insure/ProspectiveClient`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
 		name: `horizon-favourites`,

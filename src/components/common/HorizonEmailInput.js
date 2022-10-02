@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { EMAIL_DOMAINS } from 'app/constants/common';
+import { EMAIL_DOMAINS } from 'app/constants/Common';
 
 const EMAIL_REGEX = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
 const ERROR_MESSAGE = {
