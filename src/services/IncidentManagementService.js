@@ -338,15 +338,17 @@ export class IncidentManagementService extends ChannelServiceBase {
 	* Adding branch details for consultant phoning on behalf of client
 	* @param {object} incident The current incident
     * @param {string} branchCode BranchCode to classify branch
+	* @param {string} branchCallerID Branch caller user id
 	* @param {errorHandlerCallback} [errorHandler=null] and optional error handler
 	* @param {Number} [autoRetries] The amount of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	* @memberof IncidentManagementService
 	*/
-	UpdateIncidentBranchDetailsRequest(incident, branchCode, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	UpdateIncidentBranchDetailsRequest(incident, branchCode, branchCallerID, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const branchDetails = {
 			incident: incident,
-			branchCode: branchCode
+			branchCode: branchCode,
+			userID: branchCallerID
 		};
 
 		const url = `/clientcare-incident-${this._version}/UpdateIncidentBranchDetails`;

@@ -60,7 +60,9 @@ const HORIZON_ROUTES = Object.freeze({
 	PROOF_OF_PAYMENT_SUCCESS: `/success/proof-of-payment`,
 	PROOF_OF_PAYMENT_FAILURE: `/error/proof-of-payment`,
 	PAID_UP_LETTER_SUCCESS: `/success/paid-up-letter`,
-	PAID_UP_LETTER_FAILURE: `/error/paid-up-letter`
+	PAID_UP_LETTER_FAILURE: `/error/paid-up-letter`,
+	SEND_CASH_SUCCESS: `/success/send-cash`,
+	SEND_CASH_FAILURE: `/error/send-cash`
 });
 
 
@@ -397,6 +399,14 @@ export class HorizonRouter {
 
 	navigatePaidUpLetterFailure() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.PAID_UP_LETTER_FAILURE}`);
+	}
+
+	navigateToSendCashSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SEND_CASH_SUCCESS}`);
+	}
+
+	navigateToSendCashFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SEND_CASH_FAILURE}`);
 	}
 
 	/**
@@ -953,6 +963,22 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.PAID_UP_LETTER_FAILURE,
 		load: () => import(`../views/quickTransactions/PaidUpLetterFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-send-cash-success`,
+		title: `SendCashSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.SEND_CASH_SUCCESS,
+		load: () => import(`../views/sendCash/SendCashSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-send-cash-failure`,
+		title: `SendCashFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.SEND_CASH_FAILURE,
+		load: () => import(`../views/sendCash/SendCashFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}
 ];
