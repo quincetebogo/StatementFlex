@@ -319,16 +319,6 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _getSubCategories(event) {
-		this._updateNeedToState(`category`, event.detail.category);
-		await this.getSubCategories(event);
-	}
-
-	async _getIssues(event) {
-		this._updateNeedToState(`subCategory`, event.detail.need);
-		await this.getIssues(event);
-	}
-
-	async _getSubCategories(event) {
 		const currentIncident = this.horizonIncidentManager.currentIncident;
 		if (!currentIncident) {
 			await super.createAndClassifySubIncident();
@@ -338,6 +328,12 @@ export class Favourites extends SavingsAccountBase {
 		
 		await this.getSubCategories(event);
 	}
+
+	async _getIssues(event) {
+		this._updateNeedToState(`subCategory`, event.detail.need);
+		await this.getIssues(event);
+	}
+
 
 	async _getIssues(event) {
 		
