@@ -24,7 +24,7 @@ export class YBPAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="You/your beneficiary are paid Agreement Declaration">
+		<capitec-modal type="form" header="You/your beneficiary are paid Agreement Disclosure">
 			<div slot="body">
 				<capitec-content-box class="body-box">
 					${this._renderDialogBody()}
