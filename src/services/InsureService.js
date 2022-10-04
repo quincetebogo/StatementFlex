@@ -151,7 +151,7 @@ export class InsureService extends ChannelServiceBase {
 	/**
 	 * Reinstate Policy Quote number & details
 	 *
-	 * @param {reinstateQuoteRequest} [errorHandler=null]  Request data containing contract reference & cifnumber
+	 * @param {reinstateQuoteRequest} [reinstateQuoteRequest=null]  Request data containing contract reference & cifnumber
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
@@ -177,7 +177,7 @@ export class InsureService extends ChannelServiceBase {
 	/**
 	 * Create Policy
 	 *
-	 * @param {createPolicyRequest} [errorHandler=null]  Request data quote number & policy details
+	 * @param {createPolicyRequest} [createPolicyRequest=null]  Request data quote number & policy details
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
@@ -203,7 +203,7 @@ export class InsureService extends ChannelServiceBase {
 	/**
 	 * Calculate Estimate / leaving no footprint on OIPA
 	 *
-	 * @param {estimateRequest} [errorHandler=null]  Request data for estimate 
+	 * @param {estimateRequest} [estimateRequest=null]  Request data for estimate 
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
@@ -226,7 +226,7 @@ export class InsureService extends ChannelServiceBase {
 	/**
 	 *  Generate Document 904 Estimate printout
 	 *
-	 * @param {generateEstimateDocRequest} [errorHandler=null]  Request data for Estimate printout 
+	 * @param {generateEstimateDocRequest} [generateEstimateDocRequest=null]  Request data for Estimate printout 
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
@@ -253,7 +253,7 @@ export class InsureService extends ChannelServiceBase {
 	/**
 	 * Get Policy Transaction History
 	 *
-	 * @param {transactionsRequest} [errorHandler=null]  Request data for policy transactions 
+	 * @param {transactionsRequest} [transactionsRequest=null]  Request data for policy transactions 
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
@@ -280,7 +280,7 @@ export class InsureService extends ChannelServiceBase {
 	/**
 	 * Calculate Quote / Generate Quote
 	 *
-	 * @param {quoteRequest} [errorHandler=null]  Request data for quote 
+	 * @param {quoteRequest} [quoteRequest=null]  Request data for quote 
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
@@ -306,7 +306,7 @@ export class InsureService extends ChannelServiceBase {
 	/**
 	 * Prepares FIPS for updating a policy, ensuring we fail fast if required 
 	 *
-	 * @param {prepareUpdateRequest} [errorHandler=null]  Request data for prepare update 
+	 * @param {prepareUpdateRequest} [prepareUpdateRequest=null]  Request data for prepare update 
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
@@ -332,7 +332,7 @@ export class InsureService extends ChannelServiceBase {
 	/**
 	 * Takes in the details of the policy to be accepted and activates it and creates mandates 
 	 *
-	 * @param {policyAcceptRequest} [errorHandler=null]  Request data for policyAccept 
+	 * @param {policyAcceptRequest} [policyAcceptRequest=null]  Request data for policyAccept 
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
@@ -358,7 +358,7 @@ export class InsureService extends ChannelServiceBase {
 	/**
 	 * Takes in the details of the policy to be accepted and activates it and creates mandates 
 	 *
-	 * @param {policyAcceptRequest} [errorHandler=null]  Request data for policyAccept 
+	 * @param {policyAcceptRequest} [policyAcceptRequest=null]  Request data for policyAccept 
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
@@ -384,7 +384,7 @@ export class InsureService extends ChannelServiceBase {
 	/**
 	 *  Generates the 801 Issue Funeral Cover Plan Agreement document
 	 *
-	 * @param {generateIssueAgreementRequest} [errorHandler=null]  Request data for IssueFuneralCoverPlanAgreement 
+	 * @param {generateIssueAgreementRequest} [generateIssueAgreementRequest=null]  Request data for IssueFuneralCoverPlanAgreement 
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
@@ -410,7 +410,7 @@ export class InsureService extends ChannelServiceBase {
 	/**
 	 *  Generates the 801 Update Funeral Cover Plan Agreement document
 	 *
-	 * @param {generateAgreementRequest} [errorHandler=null]  Request data for UpdateFuneralCoverPlanAgreement 
+	 * @param {generateAgreementRequest} [generateAgreementRequest=null]  Request data for UpdateFuneralCoverPlanAgreement 
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
@@ -436,7 +436,7 @@ export class InsureService extends ChannelServiceBase {
 	/**
 	 *  Generates the 804 Funeral Policy Payment Agreement document
 	 *
-	 * @param {generateAgreementRequest} [errorHandler=null]  Request data for FuneralPolicyPaymentAgreement 
+	 * @param {generateAgreementRequest} [generateAgreementRequest=null]  Request data for FuneralPolicyPaymentAgreement 
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
@@ -462,7 +462,7 @@ export class InsureService extends ChannelServiceBase {
 	/**
 	 * Takes in the details of the policy to be accepted and activates it and creates mandates 
 	 *
-	 * @param {emailDocumentRequest} [errorHandler=null]  Request data for emailFuneralDocuments 
+	 * @param {emailDocumentRequest} [emailDocumentRequest=null]  Request data for emailFuneralDocuments 
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
@@ -492,7 +492,7 @@ export class InsureService extends ChannelServiceBase {
 	/**
 	 * Retrieve quote details
 	 * @deprecated No Quote for MPV - Confirm if can be removed entirely
-	 * @param {quoteRequest} [errorHandler=null]  Request data for retrieve quote 
+	 * @param {quoteRequest} [quoteRequest=null]  Request data for retrieve quote 
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
@@ -515,7 +515,7 @@ export class InsureService extends ChannelServiceBase {
 	/**
 	 * Retrieve list of quotes
 	 * @deprecated No Quote for MPV - Confirm if can be removed entirely
-	 * @param {quoteRequest} [errorHandler=null]  Request data for retrieve quotes list 
+	 * @param {quoteRequest} [quoteRequest=null]  Request data for retrieve quotes list 
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
@@ -567,7 +567,7 @@ export class InsureService extends ChannelServiceBase {
 	/**
 	 * cancel policy
 	 *
-	 * @param {cancelPolicyRequest} [errorHandler=null]  Request data to Cancel Policy
+	 * @param {cancelPolicyRequest} [cancelPolicyRequest=null]  Request data to Cancel Policy
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
@@ -604,24 +604,24 @@ export class InsureService extends ChannelServiceBase {
 		if (await this.isMockEnabled(`insurePolicyPay`)) {
 			return this.mock(`insurePolicyPay`);
 		}
-		// return this.post(
-		// `/FuneralInsuranceProductService/policy/pay`,
-		// payArrearsRequest,
-		// this.setInsureTokens(),
-		// `payPolicy`,
-		// null,
-		// null,
-		// 900,
-		// null,
-		// errorHandler,
-		// autoRetries
-		// );
+		return this.post(
+		`/FuneralInsuranceProductService/policy/pay`,
+		payArrearsRequest,
+		this.setInsureTokens(),
+		`payPolicy`,
+		null,
+		null,
+		900,
+		null,
+		errorHandler,
+		autoRetries
+		);
 	}
 
 	/**
 	* generate document 802 (Cancel Policy Agreement)
 	*
-	* @param {GenerateCancelAgreementRequest} [errorHandler=null]  Request data to generate Cancel Policy Agreement
+	* @param {GenerateCancelAgreementRequest} [GenerateCancelAgreementRequest=null]  Request data to generate Cancel Policy Agreement
 	* @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	* @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	* @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
@@ -644,7 +644,7 @@ export class InsureService extends ChannelServiceBase {
 	/**
 	 * generate document 809 (Cancel Policy Agreement)
 	 *
-	 * @param {GenerateArrearsPaymentInstructionRequest} [errorHandler=null]  Request data to generate Cancel Policy Agreement
+	 * @param {GenerateArrearsPaymentInstructionRequest} [GenerateArrearsPaymentInstructionRequest=null]  Request data to generate Cancel Policy Agreement
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
