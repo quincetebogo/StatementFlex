@@ -241,19 +241,19 @@ export class ExistingClient extends InsureViewBase {
 			"emailDocumentToClient": false,
 			"wetsignBarcode": false,
 			"clientDetails": {
-				"cifNumber": `363291946`,
-				"policyContractReference": `FP00001661`,
-				"firstName": `ISAACS`,
-				"idNumber": `9503067813190`,
-				"dateOfBirth": `Monday, 06 March 1995`
+				"cifNumber": this.callerInformation.cifNumber,
+				"policyContractReference": this.contractReference,
+				"firstName": this.callerInformation.firstName,
+				"idNumber": this.callerInformation.southAfricanIDNumber,
+				"dateOfBirth": this.callerInformation.birthdate
 			},
-			"contractReference": `FP00001661`
+			"contractReference": this.contractReference
 		};
 
 		const updatePlanAgreementResponse = await this.insureService.generateUpdateFuneralCoverPlanAgreement(docGenerateRequestPayload);
 		const updatePaymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(docGenerateRequestPayload);
 
-		if (!issuePlanAgreementResponse.succeeded || !paymentAgreementResponse.succeeded) {
+		if (!updatePlanAgreementResponse.succeeded || !updatePaymentAgreementResponse.succeeded) {
 			return;
 		}
 
@@ -786,7 +786,6 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 
-
 	/**
 	 * Make FIPS call and Prepare and navigate to pay premium success page
 	 * 
@@ -953,10 +952,12 @@ export class ExistingClient extends InsureViewBase {
 		}
 
 		const prepareUpdateRequest = {
-			"quoteID": calculateQuoteResp.result.quoteNumber,
+			"contractReference": policyToUpdate.contractReference,
+			"quoteNumber": calculateQuoteResp.result.quoteNumber,
 			"beneficiaries": policyToUpdate.roleplayers.filter(ele => ele.beneficiary === true),
 			"collectionDetails": policyToUpdate.deductionDetails
 		};
+
 		const prepareUpdateResp = await this.insureService.prepareUpdate(prepareUpdateRequest);
 		if (!prepareUpdateResp.succeeded) {
 			return;
@@ -1020,6 +1021,8 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*}*
 	 */
 	async _updatePlanAccept(event) {
+		console.log(event);
+
 		const documents = [
 			event.detail.prepareUpdate.paymentAgreement.documentDetails,
 			event.detail.prepareUpdate.planAgreement.documentDetails
@@ -1028,18 +1031,18 @@ export class ExistingClient extends InsureViewBase {
 		{
 			"cifNumber": this.callerInformation.cifNumber,
 			"contractReference": event.detail.prepareUpdate.prepareUpdateResponse.contractReference,
-			"documents": documents
-			// "mandates": event.detail.prepareUpdate.prepareUpdateResponse.mandates
-			// ,
-			// "insureWaiverInformation": {
-			// "contractReference": "string",
-			// "insurersInformation": [
-			// {
-			// "insurer": "string",
-			// "policyNumber": "string"
-			// }
-			// ]
-			// } //TODO: Need to pass the values for mandates when service integration works.
+			"documents": documents,
+			"mandates": event.detail.prepareUpdate.prepareUpdateResponse.mandates,
+			"insureWaiverInformation": {
+			"contractReference": event.detail.prepareUpdate.prepareUpdateResponse.contractReference,
+			"insurersInformation": [
+			{
+			"insurer": `Capitec`, // TODO: confirm value
+			"policyNumber": event.detail.prepareUpdate.prepareUpdateResponse.contractReference
+			}
+			]
+			}
+			// TODO: Need to pass the values for mandates when service integration works.
 		};
 
 		const acceptPlanResp = await this.insureService.updatePolicyAccept(acceptPlanRequest);

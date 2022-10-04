@@ -363,7 +363,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`prepareUpdate`, prepareUpdateRequest);
 		}
 		return this.post(
-			`/horizon-insurance/policy/prepareupdate`,
+			`/FuneralInsuranceProductService/policy/prepareupdate`,
 			prepareUpdateRequest,
 			this.setInsureTokens(),
 			`prepareUpdate`,
