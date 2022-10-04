@@ -100,11 +100,6 @@ class InsureAccountSelect extends Component {
 			}
 			
 		}
-		
-
-		console.log(`selector`);
-		console.log(this.selectorAccounts);
-
 	}
 
 	// #endregion

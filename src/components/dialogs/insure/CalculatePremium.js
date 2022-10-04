@@ -135,8 +135,6 @@ export class CalculatePremium extends Component {
 				status: `error`,
 				message: `${context}: ${exception.status} - ${exception.message}`
 			};
-			console.log(exception.message);
-			console.log(exception.output);
 			this.eventAggregator.publish(`horizon-status-bar-update`, event);
 		} else {
 			const event = {

@@ -21,11 +21,12 @@
 ]);
 
 /**
- * Default values for Dates
+ * Default values
  */
 export const DEFAULTS = {
 	DATE_LABEL: `Choose date type`,
-	DATE_FORMAT: `dd mm yyyy`
+	DATE_FORMAT: `dd mm yyyy`,
+	ACTIVITY_TYPE_LABEL: `Choose activity type`
 };
 
 /**
@@ -39,7 +40,8 @@ export const MAX_RESULTS = 50;
 export const FILTER_BY = {
 	ALL: `ALL`,
 	DATE: `DATE`,
-	DATE_TYPE: `DATE_TYPE`
+	DATE_TYPE: `DATE_TYPE`,
+	ACTIVITY_TYPE: `ACTIVITY_TYPE`
 };
 
 /**
@@ -47,7 +49,8 @@ export const FILTER_BY = {
  */
 export const RENDER_CHIPS = {
 	DATE: ``,
-	DATE_TYPE: ``
+	DATE_TYPE: ``,
+	ACTIVITY_TYPE: ``
 };
 
 /**

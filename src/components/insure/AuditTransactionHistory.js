@@ -1,4 +1,4 @@
-import { ACTIVITY_TYPE, AUDIT_DATE_TYPE_LIST, DEFAULTS, FILTER_BY, MAX_RESULTS, RENDER_CHIPS } from 'app/constants/InsureTransactionHistory';
+import { ACTIVITY_TYPE, ACTIVITY_TYPE_LIST, AUDIT_DATE_TYPE_LIST, DEFAULTS, FILTER_BY, MAX_RESULTS, RENDER_CHIPS } from 'app/constants/InsureTransactionHistory';
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, INSURE_TRANSACTIONS_CSS, TABLE_EXPANDER_CELL } from 'app/css/PolicyTransactionHistory';
 import { _getDateRange, getPredefinedDateRanges } from 'app/utils/insureUtils';
@@ -29,6 +29,7 @@ class AuditTransactionHistory extends Component {
 		super();
 
 		this.dateLabel = DEFAULTS.DATE_LABEL;
+		this.activityTypeLabel = DEFAULTS.ACTIVITY_TYPE_LABEL;
 
 		this.startDate = ``;
 		this.endDate = ``;
@@ -39,6 +40,7 @@ class AuditTransactionHistory extends Component {
 		this.hideLoadMore = true;
 
 		this.dateTypeOptions = AUDIT_DATE_TYPE_LIST;
+		this.activityTypeOptions = ACTIVITY_TYPE_LIST;
 	}
 
 	// #endregion INITIALIZATION
@@ -56,6 +58,7 @@ class AuditTransactionHistory extends Component {
 	 * @property {String} dateLabel - Default label for Date Type dropdown
 	 * @property {String} startDate - String holds Start date of transaction/due date 
 	 * @property {String} endDate - String holds End date of transaction/due date
+	 * @property {String} activityTypeLabel - Default label for Activity Type dropdown
 	 * @property {Object} filteredData - Object holds filtered transaction data
 	 * @property {Object} auditTransactionHistory - Object holds transaction data
 	 * @property {Function} getAuditTransactionHistory Callback function to fetch more data
@@ -72,6 +75,7 @@ class AuditTransactionHistory extends Component {
 			dateLabel: { type: String, state: true },
 			startDate: { type: String, state: true },
 			endDate: { type: String, state: true },
+			activityTypeLabel: { type: String, state: true },
 			filteredData: { type: Object, state: true },
 			auditTransactionHistory: { type: Object },
 			getAuditTransactionHistory: { type: Object },
@@ -131,6 +135,7 @@ class AuditTransactionHistory extends Component {
 		// Making sure no baggage is carried from the previous instance.
 		RENDER_CHIPS[FILTER_BY.DATE] = ``;
 		RENDER_CHIPS[FILTER_BY.DATE_TYPE] = this.dateTypeOptions[0].text;
+		RENDER_CHIPS[FILTER_BY.ACTIVITY_TYPE] = ``; // this.activityTypeOptions[0].text;
 
 		this.filteredData = this.auditTransactionHistory?.transactions;
 		this.hideLoadMore = this.auditTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.auditTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
@@ -186,6 +191,16 @@ class AuditTransactionHistory extends Component {
 	 */
 	_filterByDateType(event) {
 		RENDER_CHIPS[FILTER_BY.DATE_TYPE] = event.detail.new.text;
+		this._refineSearch();
+	}
+
+	/**
+	 * filter transactions when activity type is changed
+	 * @param {*} event event
+	 * @return {null} null
+	*/
+	_filterByActivityType(event) {
+		RENDER_CHIPS[FILTER_BY.ACTIVITY_TYPE] = event.detail.new.text;
 		this._refineSearch();
 	}
 
@@ -337,6 +352,19 @@ class AuditTransactionHistory extends Component {
 					@apply-clicked="${(e) => this._dateChanged(e)}"
 					data-automation-id="audit-transactions-date-filter">
 				</capitec-date-time-picker>
+
+				<capitec-select
+					label="${RENDER_CHIPS[FILTER_BY.ACTIVITY_TYPE] !== `` ? `` : this.activityTypeLabel}" 
+					class="transaction-status-select margin-right-20"
+					.items="${this.activityTypeOptions}"
+					@focus="${(e) => this.activityTypeLabel = ``}"
+					display-field="text"
+					id-field="code"
+					@value-change = "${(e) => this._filterByActivityType(e)}"
+					value = "${RENDER_CHIPS[FILTER_BY.ACTIVITY_TYPE]}"
+					hint=""
+					data-automation-id="audit-transactions-activity-type-filter">
+				</capitec-select>
 			</capitec-group>
 		`;
 	}
@@ -955,7 +983,7 @@ class AuditTransactionHistory extends Component {
 	 * @returns {html} The html of Clear and Clear All filters
 	*/
 	_renderFilterBar() {
-		if (RENDER_CHIPS[FILTER_BY.DATE] !== ``) {
+		if (RENDER_CHIPS[FILTER_BY.DATE] !== `` || RENDER_CHIPS[FILTER_BY.ACTIVITY_TYPE] !== ``) {
 			return html`
 				<capitec-action-bar
 					id="active-filters"
@@ -963,6 +991,7 @@ class AuditTransactionHistory extends Component {
 					data-automation-id="audit-transactions-active-filters">
 						<capitec-label label = "Active filters:"></capitec-label>
 							${this._renderDateChip()}
+							${this._renderActivityTypeChip()}
 						<capitec-button
 							type="clear"
 							label="Clear All"
@@ -1027,16 +1056,16 @@ class AuditTransactionHistory extends Component {
 	}
 
 	/**
-	 * Clear Date Type filter
-	 * @returns {html} Render Date Type chip
+	 * Clear Activity Type filter
+	 * @returns {html} Render Activity Type chip
 	 */
-	_renderDateTypeChip() {
-		return !isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE_TYPE])
+	_renderActivityTypeChip() {
+		return !isNullorEmpty(RENDER_CHIPS[FILTER_BY.ACTIVITY_TYPE])
 			? html`
 				<capitec-chip
-					id="${FILTER_BY.DATE_TYPE}"
-					label="${RENDER_CHIPS[FILTER_BY.DATE_TYPE]}"
-					@remove="${() => this._closeChip(FILTER_BY.DATE_TYPE)}"
+					id="${FILTER_BY.ACTIVITY_TYPE}"
+					label="${RENDER_CHIPS[FILTER_BY.ACTIVITY_TYPE]}"
+					@remove="${() => this._closeChip(FILTER_BY.ACTIVITY_TYPE)}"
 					closable>
 				</capitec-chip>`
 			: html``;
@@ -1117,10 +1146,14 @@ class AuditTransactionHistory extends Component {
 		const dateType = () => { 
 			this.dateLabel = DEFAULTS.DATE_LABEL; 
 		};
+		const activityType = () => { 
+			this.activityTypeLabel = DEFAULTS.ACTIVITY_TYPE_LABEL; 
+		};
 		
 		const resetForfilters = {
 			'DATE': date,
-			'DATE_TYPE': dateType
+			'DATE_TYPE': dateType,
+			'ACTIVITY_TYPE': activityType
 		};
 
 		RENDER_CHIPS[type] = ``;
@@ -1174,6 +1207,12 @@ class AuditTransactionHistory extends Component {
 				} else if (RENDER_CHIPS[FILTER_BY.DATE_TYPE] === this.dateTypeOptions[1].text) {
 				this.filteredData = this.filteredData?.filter(item => new Date(item.effectiveDate) >= startDate && new Date(item.effectiveDate) <= endDate); 
 				}
+		}
+
+		if (RENDER_CHIPS[FILTER_BY.ACTIVITY_TYPE]) {
+			const activityType = RENDER_CHIPS[FILTER_BY.ACTIVITY_TYPE];
+
+			this.filteredData = this.filteredData?.filter(item => item.activityType === activityType);
 		}
 
 		this.requestUpdate();

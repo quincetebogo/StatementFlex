@@ -57,21 +57,15 @@ class AddBeneficiaryDialog extends Component {
 
 	// Add Event, Calculate cover details parameter, emit new life object to consuming component & reset toggles 
 	_onAddClick() {
-		console.log(`In dialog agree event`);
 		const detail = {
 			isLifeAssured: this.isLifeAssured,
 			beneficiary: this.newBeneficiary
 		};
-		console.log(`detail`);
-		console.log(detail);
 		this.dispatchEvent(new CustomEvent(`add-click`, { detail: detail }));
 	}
 
 	 // event to add a beneficiary that is also a life assured0
 	_addExistingBeneficiaryChange(lifeAssured) {
-
-		console.log(`lifeAssured details`);
-		console.log(lifeAssured);
 		this.isLifeAssured = true;
 		lifeAssured.beneficiary = true;
 		this.newBeneficiary = lifeAssured;
