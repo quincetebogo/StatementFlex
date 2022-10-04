@@ -1247,7 +1247,7 @@ export class ExistingClient extends InsureViewBase {
 	_undoClientPolicies() {
 		if (this.clientPolicies?.summaryDetails?.policies !== null) {
 			this.clientPolicies.summaryDetails.policies.forEach(item => {
-				item.isExpanded = false; 
+				item.isExpanded = false;
 			});
 		}
 	}
@@ -1353,7 +1353,7 @@ export class ExistingClient extends InsureViewBase {
 
 		if (this.clientPolicies?.summaryDetails?.policies !== null && this.clientPolicies?.summaryDetails?.policies !== undefined) {
 			this.clientPolicies.summaryDetails.policies.forEach(item => {
-				item.isExpanded = false; 
+				item.isExpanded = false;
 			});
 		}
 
@@ -1406,7 +1406,8 @@ export class ExistingClient extends InsureViewBase {
 				.updatePlanPrepare="${(policyToUpdate) => this._updatePlanPrepare(policyToUpdate)}"
 				.policyDetails="${this.policyDetails}" .productParams="${this.productParams}"
 				.initiateReinstatePolicy="${(policyToReinstate) => this._initiateReinstatePolicy(policyToReinstate)}"
-				@accept-policy="${(policyToAccept) => this._acceptPolicy(policyToAccept)}">
+				@accept-policy="${(policyToAccept) => this._acceptPolicy(policyToAccept)}"
+				.maxAllowedCover="${this.clientPolicies.checkInsuranceDetails[0].maxAllowedCover}">
 			</horizon-insure-update-plan>`;
 	}
 

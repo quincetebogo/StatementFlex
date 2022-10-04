@@ -161,7 +161,8 @@ class UpdatePlan extends Component {
 			issuePlanAgreementDocument: { type: Object, state: true },
 			reinstatePaymentAgreementDocument: { type: Object, state: true },
 
-			dOB: { type: String, state: true }
+			dOB: { type: String, state: true },
+			maxAllowedCover: { type: Number, state: true },
 		};
 	}
 
@@ -334,6 +335,19 @@ class UpdatePlan extends Component {
 					this.policyDetails.roleplayers[index].coverAmount = event.detail.new;
 					this.newTotalPremium = ``;
 				}
+
+				// Cover Details
+				this.policyDetails.roleplayers[index].coverDetails = refreshRelationshipCoverDetails(
+					this.policyDetails.roleplayers[index].relationship,
+					this.productParams,
+					this.policyDetails.roleplayers[index].coverAmount,
+					index === 0 ? this.maxAllowedCover : 0,
+					this.policyDetails.roleplayers[index].age,
+					this.policyDetails.roleplayers[index].coverDetails?.isExtendedFamily,
+					false
+				);
+
+				console.log(this.policyDetails.roleplayers[index]);
 			});
 		}
 		this.requestUpdate();
@@ -378,7 +392,7 @@ class UpdatePlan extends Component {
 	 * @param {*} recordId recordId
 	 * @return {null} null
 	 */
-	 _lifeNameValueChanged(event, recordId) {
+	_lifeNameValueChanged(event, recordId) {
 		if (event.detail.old !== event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.recordID === recordId) {
@@ -396,7 +410,7 @@ class UpdatePlan extends Component {
 	 * @param {*} recordId recordId
 	 * @return {null} null
 	 */
-	 _lifeSurnameValueChanged(event, recordId) {
+	_lifeSurnameValueChanged(event, recordId) {
 		if (event.detail.old !== event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.recordID === recordId) {
@@ -413,7 +427,7 @@ class UpdatePlan extends Component {
 	 * @param {*} recordId recordId
 	 * @return {null} null
 	 */
-	 _lifeMiddleNameValueChanged(event, recordId) {
+	_lifeMiddleNameValueChanged(event, recordId) {
 		if (event.detail.old !== event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.recordID === recordId) {
@@ -453,12 +467,12 @@ class UpdatePlan extends Component {
 	 * @returns {boolean} true or false
 	 */
 	_onlyNumberKey(event) {
-        const ASCIICode = event.which ? event.which : event.keyCode;
-        if (ASCIICode > 31 && (ASCIICode < 48 || ASCIICode > 57)) {
-            return false;
+		const ASCIICode = event.which ? event.which : event.keyCode;
+		if (ASCIICode > 31 && (ASCIICode < 48 || ASCIICode > 57)) {
+			return false;
 		}
-        return true;
-    }
+		return true;
+	}
 
 	/**
 	 * Event fired when a life assured CELLPHONE NUMBER value changes
@@ -466,7 +480,7 @@ class UpdatePlan extends Component {
 	 * @param {*} recordId event
 	 * @return {null} null
 	 */
-	 _lifeCellphoneValueChanged(event, recordId) {
+	_lifeCellphoneValueChanged(event, recordId) {
 		if (event.detail.old !== event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.recordID === recordId) {
@@ -535,7 +549,7 @@ class UpdatePlan extends Component {
 			});
 		}
 
-		
+
 	}
 
 	/** Debit order details events */
@@ -622,7 +636,7 @@ class UpdatePlan extends Component {
 	 * @param {*} e event
 	 * @returns {object} Estimate Response
 	 */
-	 _totalPremiumChanged(e) {
+	_totalPremiumChanged(e) {
 		this.newTotalPremium = e.detail.new;
 	}
 
@@ -700,7 +714,7 @@ class UpdatePlan extends Component {
 	 * Initialize component
 	 * @return {null} null
 	 */
-	 _initialise() {
+	_initialise() {
 		// this.quote.lifesAssured = [];
 		// this.quote.lifesAssured.push({
 		// relationship: "MainLife",
@@ -783,9 +797,9 @@ class UpdatePlan extends Component {
 		return this.policyDetails.roleplayers.reduce((accumulator, ele) => {
 			if (ele.beneficiary === true || ele.relationship === `MainLife`) {
 				return accumulator + parseFloat(ele.coverAmount);
-			} 
-				return accumulator;
-			
+			}
+			return accumulator;
+
 		}, 0);
 	}
 
@@ -797,9 +811,9 @@ class UpdatePlan extends Component {
 		return this.policyDetails.roleplayers.reduce((accumulator, ele) => {
 			if (ele.beneficiary === true || ele.relationship === `MainLife`) {
 				return accumulator + 1;
-			} 
-				return accumulator;
-			
+			}
+			return accumulator;
+
 		}, 0);
 	}
 
@@ -897,9 +911,9 @@ class UpdatePlan extends Component {
 
 		if (roleplayer.lifeAssured === false) {
 			return true;
-		} 
-			return this._policyRuleAllowsChange(`editDateOfBirth`, roleplayer.relationship);
-		
+		}
+		return this._policyRuleAllowsChange(`editDateOfBirth`, roleplayer.relationship);
+
 
 	}
 
@@ -1226,10 +1240,10 @@ class UpdatePlan extends Component {
 			<img class="action-image" src="/images/insure/left-arrow.svg" @click="${() => this._backToSummaryPage()}" />
 			<capitec-label label="${this.canReinstate ? `Reinstate` : `Update Plan #${this.policyDetails.contractReference}`}" type="title"></capitec-label>
 			<capitec-spacer></capitec-spacer>
-			${this.canReinstate 
-			? html`<capitec-button label="Reinstate" type="white" class="capitec-button-medium"
-					@click="${() => this._onReinstatePolicyPopup()}"></capitec-button>` 
-			: html`
+			${this.canReinstate
+				? html`<capitec-button label="Reinstate" type="white" class="capitec-button-medium"
+					@click="${() => this._onReinstatePolicyPopup()}"></capitec-button>`
+				: html`
 					${this.selectedTabIndex === 0 ? html`
 					<capitec-button label="Calculate" type="white" class="capitec-button-medium"
 						@click="${() => this._calculatePremium()}">
@@ -1299,7 +1313,7 @@ class UpdatePlan extends Component {
 							<div class="vertical-line"></div>
 							<horizon-label data-automation-id="insure-policy-start-date"
 								label="Cover Amount (Min R5 000 - Max R100 000)"
-								value="${formatCurrency(this.policyDetails?.roleplayers[0]?.coverAmount)}">
+								value="${this.policyDetails?.roleplayers[0]?.coverAmount === `` ? `R0.00` : formatCurrency(this.policyDetails?.roleplayers[0]?.coverAmount)}">
 							</horizon-label>
 						</capitec-group>
 						<div slot="content">
@@ -1312,12 +1326,12 @@ class UpdatePlan extends Component {
 					<!-- Add lives Assured Button  -->
 					<div class="calc-card-row" style="margin-top: 5px;">
 						${this.policyDetails?.roleplayers?.filter(x => x.relationship !== `MainLife` && x.lifeAssured === true)?.length > 0
-							? html`
+				? html`
 							<capitec-label label="Lives Assured" type="strong" class="stronger">
 							</capitec-label>`
-						: ``}
-						${this.canReinstate ? `` 
-						: html`<capitec-label label="Add Life Assured" type="subtitle" class="stronger link"
+				: ``}
+						${this.canReinstate ? ``
+				: html`<capitec-label label="Add Life Assured" type="subtitle" class="stronger link"
 								@click="${() => this._openAddLifeDialog()}">
 								</capitec-label>
 						`}
@@ -1325,13 +1339,13 @@ class UpdatePlan extends Component {
 			
 					<!-- Lifes Assured list -->
 					${this.policyDetails.roleplayers.map((roleplayer, index) => html` ${roleplayer.relationship !== `MainLife` &&
-			roleplayer.lifeAssured === true 
+					roleplayer.lifeAssured === true
 					? html`
 					${this.canReinstate ? ``
-						: html`<capitec-label label="Remove" @click="${() => this._openRemoveLifeAssuredDialog(roleplayer, index)}" type="subtitle"
+							: html`<capitec-label label="Remove" @click="${() => this._openRemoveLifeAssuredDialog(roleplayer, index)}" type="subtitle"
 							class="stronger link" style="position: relative; width: fit-content; left: 613px; top: 43px;">
 						</capitec-label>`
-					}
+						}
 			
 					<horizon-expander expandButtonAlignment="right">
 						<capitec-group class="expander-header" slot="custom-header" layout="horizontal" gap="clear" halign="left"
@@ -1341,7 +1355,8 @@ class UpdatePlan extends Component {
 							</horizon-label>
 							<div class="vertical-line"></div>
 							<horizon-label label="Cover Amount (Min R5 000 - Max R100 000)"
-								value="${formatCurrency(roleplayer.coverAmount)}">
+								value="${roleplayer.coverAmount === `` ? `R0.00` : formatCurrency(roleplayer.coverAmount)}">
+								
 							</horizon-label>
 						</capitec-group>
 						<div slot="content">
@@ -1449,24 +1464,24 @@ class UpdatePlan extends Component {
 							<!--Beneficiaries -->
 							<div class="calc-card-row" style="margin-top: 15px;">
 								${this.policyDetails?.roleplayers?.filter(x => x.beneficiary === true)?.length > 0
-									? html`
+				? html`
 									<capitec-label label="Beneficiaries" type="strong" class="stronger">
 									</capitec-label>`
-								 : ``}
-								${this.canReinstate ? `` 
-								: this._renderAddBeneficiaryButton()
-								}
+				: ``}
+								${this.canReinstate ? ``
+				: this._renderAddBeneficiaryButton()
+			}
 							</div>
 
 							<!-- Beneficiaries -->
-							${this.policyDetails.roleplayers.map((beneficiary, index) => html` ${beneficiary.beneficiary === true 
-									? html`
+							${this.policyDetails.roleplayers.map((beneficiary, index) => html` ${beneficiary.beneficiary === true
+				? html`
 									${this.canReinstate ? ``
-										: html`<capitec-label label="Remove" @click="${() => this._openRemoveBeneficiaryDialog(beneficiary, index)}"
+						: html`<capitec-label label="Remove" @click="${() => this._openRemoveBeneficiaryDialog(beneficiary, index)}"
 										type="subtitle" class="stronger link"
 										style="position: relative; width: fit-content; left: 613px; top: 43px;">
 										</capitec-label>`
-									}
+					}
 									<horizon-expander expandButtonAlignment="right">
 										<capitec-group class="expander-header" slot="custom-header" layout="horizontal" gap="clear"
 											halign="left" valign="center">
@@ -1505,9 +1520,9 @@ class UpdatePlan extends Component {
 					disabled="${this.policyDetails.roleplayers.filter(ele => ele.beneficiary === true).length >= 2}">
 				</capitec-label>
 			`;
-		} 
-			return html``;
-		
+		}
+		return html``;
+
 	}
 
 	/**
@@ -1701,9 +1716,13 @@ class UpdatePlan extends Component {
 					value="${formatDate(roleplayer?.dateOfBirth)}">
 				</capitec-text-field>
 			
-				<capitec-text-field label="Cover amount" style="width: 50%" type="currency" value="${roleplayer?.coverAmount}"
+				<capitec-text-field 
+					label="Cover amount" style="width: 50%" type="currency" 
+					value="${roleplayer?.coverAmount}"
+					@value-changed="${(e) => this._lifeCoverAmountValueChanged(e, roleplayer.recordID)}"
 					?disabled = "${Boolean(this.canReinstate) || !this._policyRuleAllowsChange(`editLifeAssuredValues`, roleplayer.relationship)}"
-					@value-changed="${(e) => this._lifeCoverAmountValueChanged(e, roleplayer.recordID)}">
+					hint="R${this.maxAllowedCover < 5000 ? this.maxAllowedCover : roleplayer?.coverDetails?.minCoverAmount} - R${this.maxAllowedCover}"
+					error="${roleplayer?.coverDetails?.coverMessage}">
 				</capitec-text-field>
 			</div>
 			<div class="expander-options">
@@ -1759,14 +1778,14 @@ class UpdatePlan extends Component {
 				</capitec-text-field>
 			</div>
 			<div class="expander-options">
-				${this.canReinstate === true || !this._policyRuleAllowsChange(`editDateOfBirth`, roleplayer.relationship) 
+				${this.canReinstate === true || !this._policyRuleAllowsChange(`editDateOfBirth`, roleplayer.relationship)
 				? html`
 					<capitec-text-field label="Date of birth" style="width: 50%" disabled
 						value="${formatDate(roleplayer?.dateOfBirth)}">
 					</capitec-text-field>`
 				: html``}
 
-				${isNullorEmpty(roleplayer?.idNumber) || roleplayer?.idNumber.length !== 13 
+				${isNullorEmpty(roleplayer?.idNumber) || roleplayer?.idNumber.length !== 13
 				? html`
 					<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="input"
 						date="${roleplayer?.dateOfBirth}" outputType="string" maxdate="${this.today}">
@@ -1775,7 +1794,7 @@ class UpdatePlan extends Component {
 					<capitec-text-field label="Date of birth" style="width: 50%" disabled
 						value="${formatDate(roleplayer?.dateOfBirth)}">
 					</capitec-text-field>`
-				}
+			}
 					
 
 			
@@ -1827,7 +1846,7 @@ class UpdatePlan extends Component {
 				@value-changed= "${(e) => this._lifeSurnameValueChanged(e, roleplayer.recordID)}">
 			</capitec-text-field>
 		
-			${this.canReinstate === true || !this._checkBeneficiaryDobRule(roleplayer) 
+			${this.canReinstate === true || !this._checkBeneficiaryDobRule(roleplayer)
 				? html`
 					<capitec-text-field label="Date of birth" style="width: 50%" disabled
 						value="${formatDate(roleplayer?.dateOfBirth)}">
@@ -1877,8 +1896,8 @@ class UpdatePlan extends Component {
 	 * @return {html} Html of the dialog
 	 */
 	_renderLifeAssuredDialog() {
-		return this.showAddRelationshipDialog === false ? `` 
-		: html`
+		return this.showAddRelationshipDialog === false ? ``
+			: html`
 			<insure-add-life-dialog @add-new-life="${(e) => this._addLife(e)}" @close-modal="${(e) => this._closeAddLifeDialog(e)}"
 				.currentLifesAssured="${this.policyDetails.roleplayers}" .productParams="${this.productParams}">
 			</insure-add-life-dialog>`;
@@ -1889,8 +1908,8 @@ class UpdatePlan extends Component {
 	 * @return {html} Html of the dialog
 	 */
 	_renderRemoveLifeAssuredDialog() {
-		return this.showRemoveLifeAssuredDialog === false ? `` 
-		: html`
+		return this.showRemoveLifeAssuredDialog === false ? ``
+			: html`
 		<remove-life-assured-dialog 
 			.lifeToRemoveDescription="${this.lifeAssuredToRemoveDescription}"
 			@agree-click="${(e) => this._removeLifeAssured(e)}"
@@ -1905,8 +1924,8 @@ class UpdatePlan extends Component {
 	 * @returns {html} html of the document
 	 */
 	_renderRemoveBeneficiaryDialog() {
-		return this.showRemoveBeneficiaryDialog === false ? `` 
-		: html`
+		return this.showRemoveBeneficiaryDialog === false ? ``
+			: html`
 		<remove-beneficiary-dialog @agree-click="${(e) => this._removeBeneficiary()}"
 			@close-modal="${(e) => this._closeRemoveBeneficiaryDialog(e)}" .beneficiaryName="${this.beneficiaryToRemoveName}">
 		</remove-beneficiary-dialog>
@@ -1918,8 +1937,8 @@ class UpdatePlan extends Component {
 	 * @return {html} Html of the dialog
 	 */
 	_renderAddBeneficiariesDialog() {
-		return this.showAddBeneficiariesDialog === false ? html`` 
-		: html`
+		return this.showAddBeneficiariesDialog === false ? html``
+			: html`
 		<add-beneficiary-dialog
 			.lifesAssured="${this.policyDetails.roleplayers.filter(ele => ele.lifeAssured === true && ele.beneficiary === false && ele.relationship !== `MainLife`)}"
 			.beneficiaries="${this.policyDetails.roleplayers.filter(ele => ele.beneficiary === true)}"
