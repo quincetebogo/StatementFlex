@@ -19,6 +19,14 @@ export class YBPAgreementDialog extends Component {
 	}
 
 	/**
+	 * Cancel dialog 
+	 * @returns {null} null
+	*/
+	_cancelDialog() {
+		this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { accepted: false } }));
+	}
+
+	/**
 	 * Generates the component template for web mode
 	 * @returns {null} null
 	 */
@@ -66,6 +74,8 @@ export class YBPAgreementDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
+			<capitec-button slot="footer" type="clear" label="Cancel" @click="${() => this._cancelDialog()}">
+			</capitec-button>
 			<capitec-button slot="footer" type="clear" label="Accept" @click="${() => this._acceptAndClose()}">
 			</capitec-button>`;
 	}

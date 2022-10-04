@@ -260,3 +260,17 @@ export const INSURE_CALLER_PAGE = Object.freeze({
 	FINANCIAL: `Financial`,
 	NONFINANCIAL: `NonFinancial`
 });
+
+/**
+ * List of disclosure types
+ * 
+ * @readonly
+ * @enum {Object} INSURE_DISCLOSURE_TYPE
+ */
+ export const INSURE_DISCLOSURE_TYPE = Object.freeze({
+	CFP_NOTIFICATION: 1,
+	FCP_NOTIFICATION: 2,
+	EACL_NOTIFICATION: 3,
+	YBP_NOTIFICATION: 4,
+	YROA_NOTIFICATION: 5
+});
