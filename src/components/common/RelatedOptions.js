@@ -15,6 +15,7 @@ import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/CardLimitsLanding';
 import 'app/components/quickTransactions/TaxCertificateLanding';
 import 'app/dialogs/statements/Statements';
+import 'app/dialogs/taxCertificates/TaxCertificates';
 
 const RENDER_MODE = Object.freeze({
 	MAIN_PAGE: 0,
