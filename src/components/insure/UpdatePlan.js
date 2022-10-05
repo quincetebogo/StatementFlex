@@ -1,4 +1,4 @@
-import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, GENDER_OPTIONS, TITLE_OPTIONS } from 'app/constants/InsureCommon';
+import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, GENDER_OPTIONS, TITLE_OPTIONS, INSURE_DISCLOSURE_TYPE } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
 import { checkPolicyRules, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -75,11 +75,11 @@ class UpdatePlan extends Component {
 		this.showUpdatePlanAgreementDialog = false;
 		this.showReinstatePolicyAgreementDialog = false;
 
-		this.agreementCFPAccepted = false;
-		this.agreementFCPAccepted = false;
-		this.agreementEACLAccepted = false;
-		this.agreementYBPAccepted = false;
-		this.agreementYROAAccepted = false;
+		this.agreementCFPAccepted = ``;
+		this.agreementFCPAccepted = ``;
+		this.agreementEACLAccepted = ``;
+		this.agreementYBPAccepted = ``;
+		this.agreementYROAAccepted = ``;
 
 		this.policyDetails = {};
 		this.prepareUpdateResponse = {};
@@ -106,11 +106,11 @@ class UpdatePlan extends Component {
 	 * @property {Boolean} showCFPAgreementDialog determines whether to show the CFP agreement dialog
 	 * @property {Boolean} showFCPAgreementDialog determines whether to show the FCP agreement dialog
 	 * @property {Boolean} showYROAAgreementDialog determines whether to show the YROA agreement dialog
-	 * @property {Boolean} agreementCFPAccepted determines whether the CFP agreement has been accepted
-	 * @property {Boolean} agreementFCPAccepted determines whether the FCP agreement has been accepted
-	 * @property {Boolean} agreementEACLAccepted determines whether the EACL agreement has been accepted
-	 * @property {Boolean} agreementYBPAccepted determines whether the YBP agreement has been accepted
-	 * @property {Boolean} agreementYROAAccepted determines whether the YROA agreement has been accepted
+	 * @property {String} agreementCFPAccepted determines whether the CFP agreement has been accepted
+	 * @property {String} agreementFCPAccepted determines whether the FCP agreement has been accepted
+	 * @property {String} agreementEACLAccepted determines whether the EACL agreement has been accepted
+	 * @property {String} agreementYBPAccepted determines whether the YBP agreement has been accepted
+	 * @property {String} agreementYROAAccepted determines whether the YROA agreement has been accepted
 	 * @property {Boolean} showAddRelationshipDialog determines whether to show the add relationship agreement dialog
 	 * @property {Boolean} showAddBeneficiariesDialog determines whether to show the add beneficiariesdialog
 	 * @property {Boolean} showRemoveLifeAssuredDialog determines whether to show the EACL agreement dialog
@@ -134,11 +134,11 @@ class UpdatePlan extends Component {
 			showCFPAgreementDialog: { type: Boolean, state: true },
 			showFCPAgreementDialog: { type: Boolean, state: true },
 			showYROAAgreementDialog: { type: Boolean, state: true },
-			agreementCFPAccepted: { type: Boolean, state: true },
-			agreementFCPAccepted: { type: Boolean, state: true },
-			agreementEACLAccepted: { type: Boolean, state: true },
-			agreementYBPAccepted: { type: Boolean, state: true },
-			agreementYROAAccepted: { type: Boolean, state: true },
+			agreementCFPAccepted: { type: String, state: true },
+			agreementFCPAccepted: { type: String, state: true },
+			agreementEACLAccepted: { type: String, state: true },
+			agreementYBPAccepted: { type: String, state: true },
+			agreementYROAAccepted: { type: String, state: true },
 			showAddRelationshipDialog: { type: Boolean, state: true },
 			showAddBeneficiariesDialog: { type: Boolean, state: true },
 			showRemoveLifeAssuredDialog: { type: Boolean, state: true },
@@ -666,8 +666,59 @@ class UpdatePlan extends Component {
 	 *  @returns {null} null
 	 */
 	_acceptCapitecFuneralPlanAgreement() {
-		this.agreementCFPAccepted = true;
+		this.agreementCFPAccepted = `yes`;
 		this.showCFPAgreementDialog = false;
+	}
+
+	/**
+	 * Cancel the Capitec Funeral Plan Agreement
+	 * 
+	 *  @returns {null} null
+	*/
+	_cancelCapitecFuneralPlanAgreement() {
+		this.agreementCFPAccepted = `no`;
+		this.showCFPAgreementDialog = false;
+
+		this.requestUpdate();
+	}
+
+	/**
+	 * Cancel the disclosure pop ups
+	 * @param {int} disclosureType - type of disclosure 
+	 *  @returns {null} null
+	*/
+	_cancelDisclosureDialog(disclosureType) {
+		switch (disclosureType) {
+			case INSURE_DISCLOSURE_TYPE.CFP_NOTIFICATION: { 
+				this.agreementCFPAccepted = `no`;
+				this.showCFPAgreementDialog = false;
+				break;
+			}
+			case INSURE_DISCLOSURE_TYPE.FCP_NOTIFICATION: { 
+				this.agreementFCPAccepted = `no`;
+				this.showFCPAgreementDialog = false;
+				break;
+			}
+			case INSURE_DISCLOSURE_TYPE.EACL_NOTIFICATION: { 
+				this.agreementEACLAccepted = `no`;
+				this.showEACLAgreementDialog = false;
+				break;
+			}
+			case INSURE_DISCLOSURE_TYPE.YBP_NOTIFICATION: { 
+				this.agreementYBPAccepted = `no`;
+				this.showYBPAgreementDialog = false;
+				break;
+			}
+			case INSURE_DISCLOSURE_TYPE.YROA_NOTIFICATION: { 
+				this.agreementYROAAccepted = `no`;
+				this.showYROAAgreementDialog = false;
+				break;
+			}
+			default:
+				break;
+		}
+
+		this.requestUpdate();
 	}
 
 	/**
@@ -675,7 +726,7 @@ class UpdatePlan extends Component {
 	 * @return {null} null
 	 */
 	_acceptFCPAgreement() {
-		this.agreementFCPAccepted = true;
+		this.agreementFCPAccepted = `yes`;
 		this.showFCPAgreementDialog = false;
 	}
 
@@ -684,7 +735,7 @@ class UpdatePlan extends Component {
 	 * @return {null} null
 	 */
 	_acceptEACLAgreement() {
-		this.agreementEACLAccepted = true;
+		this.agreementEACLAccepted = `yes`;
 		this.showEACLAgreementDialog = false;
 	}
 
@@ -693,7 +744,7 @@ class UpdatePlan extends Component {
 	 * @return {null} null
 	 */
 	_acceptYBPAgreement() {
-		this.agreementYBPAccepted = true;
+		this.agreementYBPAccepted = `yes`;
 		this.showYBPAgreementDialog = false;
 	}
 
@@ -702,7 +753,7 @@ class UpdatePlan extends Component {
 	 * @return {null} null
 	 */
 	_acceptYROAAgreement() {
-		this.agreementYROAAccepted = true;
+		this.agreementYROAAccepted = `yes`;
 		this.showYROAAgreementDialog = false;
 	}
 
@@ -943,6 +994,17 @@ class UpdatePlan extends Component {
 			});
 		}
 		this.requestUpdate();
+	}
+
+	_getAlertBannerType(agreementAccepted) {
+		let type = `info`;
+
+		if (agreementAccepted === `yes`) {
+			type = `success`;
+		} else if (agreementAccepted === `no`) {
+			type = `unsuccessful-red`;
+		}
+		return type;
 	}
 
 	// #endregion
@@ -1636,7 +1698,7 @@ class UpdatePlan extends Component {
 	_renderYROANotification() {
 		return html`
 		<capitec-alert-banner class="clickable" @click="${() => this.showYROAAgreementDialog = true}"
-			type="${this.agreementYROAAccepted === true ? `success` : `info`}" header="Notify:"
+			type="${this._getAlertBannerType(this.agreementYROAAccepted)}" header="Notify:"
 			label="I agree to Your Responsibility & Our Accountability agreement disclosure">
 		</capitec-alert-banner>`;
 	}
@@ -1648,7 +1710,7 @@ class UpdatePlan extends Component {
 	_renderFCPNotification() {
 		return html`
 		<capitec-alert-banner class="clickable" @click="${() => this.showFCPAgreementDialog = true}"
-			type="${this.agreementFCPAccepted === true ? `success` : `info`}" header="Notify:"
+			type="${this._getAlertBannerType(this.agreementFCPAccepted)}" header="Notify:"
 			label="I agree to Funeral cover plan agreement disclosure">
 		</capitec-alert-banner>`;
 	}
@@ -1660,7 +1722,7 @@ class UpdatePlan extends Component {
 	renderCapitecFuneralPlanNotification() {
 		return html`
 		<capitec-alert-banner class="clickable" @click="${() => this.showCFPAgreementDialog = true}"
-			type="${this.agreementCFPAccepted === true ? `success` : `info`}" header="Notify:"
+			type="${this._getAlertBannerType(this.agreementCFPAccepted)}" header="Notify:"
 			label="I agree to Capitec Funeral Plan agreement disclosure">
 		</capitec-alert-banner>`;
 	}
@@ -1672,7 +1734,7 @@ class UpdatePlan extends Component {
 	_renderEACLNotification() {
 		return html`
 		<capitec-alert-banner class="clickable" @click="${() => this.showEACLAgreementDialog = true}"
-			type="${this.agreementEACLAccepted === true ? `success` : `info`}" header="Notify:"
+			type="${this._getAlertBannerType(this.agreementEACLAccepted)}" header="Notify:"
 			label="I agree to Entry Ages and Child Limits agreement disclosure">
 		</capitec-alert-banner>`;
 	}
@@ -1684,7 +1746,7 @@ class UpdatePlan extends Component {
 	_renderYBPNotification() {
 		return html`
 		<capitec-alert-banner class="clickable" @click="${() => this.showYBPAgreementDialog = true}"
-			type="${this.agreementYBPAccepted === true ? `success` : `info`}" header="Notify:"
+			type="${this._getAlertBannerType(this.agreementYBPAccepted)}" header="Notify:"
 			label="I agree to You/your beneficiary are paid agreement disclosure">
 		</capitec-alert-banner>`;
 	}
@@ -1953,7 +2015,8 @@ class UpdatePlan extends Component {
 	 */
 	_renderEACLAgreementDialog() {
 		return this.showEACLAgreementDialog === false ? `` : html`
-		<horizon-insure-eacl-agreement-dialog @agreementAccepted="${(e) => this._acceptEACLAgreement()}">
+		<horizon-insure-eacl-agreement-dialog @agreementAccepted="${(e) => this._acceptEACLAgreement()}"
+			@close-modal="${() => this._cancelDisclosureDialog(INSURE_DISCLOSURE_TYPE.EACL_NOTIFICATION)}">
 		</horizon-insure-eacl-agreement-dialog>`;
 	}
 
@@ -1963,7 +2026,8 @@ class UpdatePlan extends Component {
 	 */
 	_renderYBPAgreementDialog() {
 		return this.showYBPAgreementDialog === false ? `` : html`
-		<horizon-insure-ybp-agreement-dialog @agreementAccepted="${(e) => this._acceptYBPAgreement()}">
+		<horizon-insure-ybp-agreement-dialog @agreementAccepted="${(e) => this._acceptYBPAgreement()}"
+			@close-modal="${() => this._cancelDisclosureDialog(INSURE_DISCLOSURE_TYPE.YBP_NOTIFICATION)}">
 		</horizon-insure-ybp-agreement-dialog>`;
 	}
 
@@ -1974,6 +2038,7 @@ class UpdatePlan extends Component {
 	_renderCFPAgreementDialog() {
 		return this.showCFPAgreementDialog === false ? `` : html`
 		<horizon-insure-cfp-agreement-dialog @agreementAccepted="${(e) => this._acceptCapitecFuneralPlanAgreement()}"
+			@close-modal="${() => this._cancelDisclosureDialog(INSURE_DISCLOSURE_TYPE.CFP_NOTIFICATION)}" 
 			.productCode = "${this.policyDetails?.productCode}">
 		</horizon-insure-cfp-agreement-dialog>`;
 	}
@@ -1984,7 +2049,8 @@ class UpdatePlan extends Component {
 	 */
 	_renderFCPAgreementDialog() {
 		return this.showFCPAgreementDialog === false ? `` : html`
-		<horizon-insure-fcp-agreement-dialog @agreementAccepted="${(e) => this._acceptFCPAgreement()}">
+		<horizon-insure-fcp-agreement-dialog @agreementAccepted="${(e) => this._acceptFCPAgreement()}"
+			@close-modal="${() => this._cancelDisclosureDialog(INSURE_DISCLOSURE_TYPE.FCP_NOTIFICATION)}">
 		</horizon-insure-fcp-agreement-dialog>`;
 	}
 
@@ -1994,7 +2060,8 @@ class UpdatePlan extends Component {
 	*/
 	_renderYROAAgreementDialog() {
 		return this.showYROAAgreementDialog === false ? `` : html`
-		<horizon-insure-yroa-agreement-dialog @agreementAccepted="${(e) => this._acceptYROAAgreement()}">
+		<horizon-insure-yroa-agreement-dialog @agreementAccepted="${(e) => this._acceptYROAAgreement()}"
+			@close-modal="${() => this._cancelDisclosureDialog(INSURE_DISCLOSURE_TYPE.YROA_NOTIFICATION)}">
 		</horizon-insure-yroa-agreement-dialog>`;
 	}
 
