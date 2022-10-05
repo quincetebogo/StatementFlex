@@ -91,6 +91,8 @@ class UpdatePlan extends Component {
 		this.debitOrderDayOptions = DEBIT_ORDER_DAY_OPTIONS;
 		this.genderOptions = GENDER_OPTIONS;
 		this.titleOptions = TITLE_OPTIONS;
+		this.accountNumErrorMsg = ``;
+		this.branchCodeErrorMsg = ``;
 
 
 	}
@@ -163,6 +165,8 @@ class UpdatePlan extends Component {
 
 			dOB: { type: String, state: true },
 			maxAllowedCover: { type: Number, state: true },
+			accountNumErrorMsg: { type: String, state: true },
+			branchCodeErrorMsg: { type: String, state: true }
 		};
 	}
 
@@ -616,6 +620,11 @@ class UpdatePlan extends Component {
 		if (e.detail.old !== e.detail.new) {
 			this.policyDetails.deductionDetails.bankDetails.branchCode = e.detail.new;
 		}
+		if (isNullorEmpty(e.detail.new)) {
+			this.branchCodeErrorMsg = `Branch code is a required field`;
+		} else {
+			this.branchCodeErrorMsg = ``;
+		}
 
 	}
 
@@ -628,6 +637,14 @@ class UpdatePlan extends Component {
 	_accountNumberChange(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.policyDetails.deductionDetails.bankDetails.accountNumber = e.detail.new;
+		}
+
+		// console.log(e.detail.new)
+
+		if (isNullorEmpty(e.detail.new)) {
+			this.accountNumErrorMsg = `Account number is a required field`;
+		} else {
+			this.accountNumErrorMsg = ``;
 		}
 	}
 
@@ -1619,7 +1636,8 @@ class UpdatePlan extends Component {
 								<capitec-text-field label="Account Number" type="numeric" style="width: 50%"
 									value="${this.policyDetails.deductionDetails?.bankDetails?.accountNumber}"
 									?disabled = "${Boolean(this.canReinstate)}"
-									@value-changed = "${(e) => this._accountNumberChange(e)}">
+									@value-changed = "${(e) => this._accountNumberChange(e)}"
+									error = "${this.accountNumErrorMsg}">
 								</capitec-text-field>
 							</div>
 		
@@ -1632,7 +1650,8 @@ class UpdatePlan extends Component {
 								<capitec-text-field label="Branch Code" type="numeric" style="width: 50%"
 									value="${this.policyDetails.deductionDetails?.bankDetails?.branchCode}"
 									?disabled = "${Boolean(this.canReinstate)}"
-									@value-changed = "${(e) => this._branchCodeChange(e)}">
+									@value-changed = "${(e) => this._branchCodeChange(e)}"
+									error = "${this.branchCodeErrorMsg}">
 								</capitec-text-field>
 							</div>
 		
