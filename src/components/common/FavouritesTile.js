@@ -285,7 +285,7 @@ export class FavouritesTile extends Component {
 					<div class="tile-container">
 						<div class="rectangle"></div>
 						<div class="product favourites">
-							<img src="/images/buttons/favourites-star.svg">
+							<img src="/images/common/buttons/favourites-star.svg">
 						</div>
 						<div class="heading">
 							<div class="title favourites">${this.label}</div>

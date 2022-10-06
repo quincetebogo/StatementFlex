@@ -1,7 +1,8 @@
-import { SecurityContext, Telemetry } from 'platform/core';
+import { SecurityContext, Telemetry, Utilities } from 'platform/core';
 import { TelemetryStore } from 'app/store/TelemetryStore';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { v4 } from 'uuid';
+
 
 /*
  * Horizon Telemetry
@@ -149,6 +150,7 @@ export class HorizonTelemetry extends Telemetry {
 		}
 
 		const spanID = await super.spanStart({
+			oldbaggage: this._formatOldBaggageDetails(baggage || []),
 			baggage: this._formatBaggageDetails(baggage || []),
 			eventName: `horizon.${eventName}.start-span`,
 			eventOriginator: this._eventOriginator(eventType),
@@ -195,6 +197,7 @@ export class HorizonTelemetry extends Telemetry {
 			}
 
 			await super.spanEnd({
+				oldbaggage: this._formatOldBaggageDetails(baggage || []),
 				baggage: this._formatBaggageDetails(baggage || []),
 				eventName: `horizon.${eventName}.end-span`,
 				eventOriginator: this._eventOriginator(eventType),
@@ -236,6 +239,7 @@ export class HorizonTelemetry extends Telemetry {
 		const eventType = systemTriggered ? TelemetryEventType.SYSTEM : TelemetryEventType.PERSON;
 
 		await super.event({
+			oldbaggage: this._formatOldBaggageDetails(baggage || []),
 			baggage: this._formatBaggageDetails(baggage || []),
 			eventName: `horizon.${eventName}`,
 			eventOriginator: this._eventOriginator(eventType),
@@ -370,20 +374,30 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns {Array} Baggage array
 	 */
 	_formatBaggageDetails(baggage) {
-		return Object.entries(baggage).map(item => ({ [item[0]]: this._trimBaggage(item[1]) }));
+		return Object.entries(baggage).map(item => ({ "key": item[0], "value": this._trimBaggage(item[1]) }));
 	}
 
-		/**
+	_formatOldBaggageDetails(baggage) {
+		return Object.entries(baggage).map(item => ({ [item[0]]: this._trimBaggage(item[1]) }));
+	}
+  
+	/**
 	 * trims baggage
 	 * 
 	 * @param {object} item Object holds baggage item
 	 * @returns {string} baggage item
 	 */
-	_trimBaggage(item) {
-		if (!!item && !Array.isArray(item)) {
-			return String(item).trim();
+	 _trimBaggage(item) {
+		if (item === null || item === undefined || item === NaN) {
+			return ``;
 		}
-		return item;
+
+		if (Utilities.isString(item)) {
+			return String(item.trim());
+		}
+
+		return String(JSON.stringify(item).trim());
+		
 	}
 
 	/**

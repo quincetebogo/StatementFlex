@@ -1,20 +1,20 @@
-import { ACCOUNT_TYPES, LANDING_PAGE_NEEDS } from 'app/constants/Common';
+import { ACCOUNT_TYPES, LANDING_PAGE_NEEDS } from 'app/constants/common';
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { STATEMENT_EVENTS, SavingsAccLandingPage, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/SavingsAccount';
 import { css, html, unsafeCSS } from 'platform/elements';
+import { formatDate, getMonthName } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { getMonthName } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/TransactionHistory';
 import 'app/components/savingsAccount/SavingAccount';
-import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/common/StatementsDialog';
 
+const DATE_TIME_FORMAT = `dd mmm yyy hh:mm:ss`;
 // ninety days in milliseconds
 const NINETY_DAYS = 7777000000;
 const SAVINGS_ACCOUNT = 300;
@@ -118,13 +118,18 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	// PUBLIC METHODS
 	// --------------
 
-	_exitTransactionHistory() {
+	async _exitTransactionHistory() {
+		await super.classifyIncident(() => this._toggleBusyFlag());
+
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_unloadTransactionHistory() {
+	async _unloadTransactionHistory() {
 		this.endCallContext = `LandingPage`;
 		this.transactionHistory = [];
+
+		await super.classifyIncident(() => this._toggleBusyFlag());
+		
 		this._setIncidentDone();
 	}
 	
@@ -145,7 +150,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				getGenericData: true
 			};
 
-			const returnValue = await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
+			const returnValue = await this.savingsService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
 			 
 			if (returnValue.succeeded) {
 				this.landingPageInfo = returnValue.result;
@@ -178,7 +183,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.TRANSACTION_HISTORY
 		});
 
-		await super.createAndClassifySubsIncident();
+		await super.createAndClassifySubsIncident(null, false);
 		await this._getTransactionHistory();
 	}
 
@@ -194,7 +199,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			moneyType: TRANSACTION_HISTORY.MONEY_TYPE
 		};
 
-		const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
+		const returnValue = await this.savingsService.savingsAccountTransactionHistory(transactionHistoryRequest);
 
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions
@@ -267,6 +272,11 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	_cancelStatements() {
 		this._telemetry.endSpan(STATEMENT_EVENTS.STATEMENTS);
 		super._backToLandingPage();
+	}
+
+	_formatDate(date) {
+		const newdate = new Date(Date.parse(date));
+		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
 	}
 
 	// ---------
@@ -342,7 +352,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			<capitec-table-column
 				label="Transaction Date"
 				field="transactionDate"
-				type="date"
+				.renderer="${(item, fieldName, value) => this._renderTransactionDateTime(value)}"
 				size="156px;">
 			</capitec-table-column>
 			<capitec-table-column
@@ -381,6 +391,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				</div>`;
 	}
 
+	_renderTransactionDateTime(value) {
+		return html`
+			<capitec-label
+				label="${formatDate(value, DATE_TIME_FORMAT)}">
+			</capitec-label>`;
+	}
+
 	_renderTransactionDetails(item) {
 		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_INFO, {
 			'journal-no': item.journalNumber
@@ -409,13 +426,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Posting date" 
-					value = "${this._formatDate(item.postingDate)}"
+					value = "${formatDate(item.postingDate, DATE_TIME_FORMAT)}"
 					data-automation-id="transaction-history-item-posting-date">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Processed date"
-					value = "${this._formatDate(item.processDate)}"
+					value = "${formatDate(item.processDate, DATE_TIME_FORMAT)}"
 					data-automation-id="transaction-history-item-processed-date">
 				</horizon-label>
 			</capitec-group>
@@ -485,10 +502,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		`;
 	}
 
-	_formatDate(date) {
-		const newdate = new Date(Date.parse(date));
-		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
-	}
 }
 
 customElements.define(`horizon-savings-account-landing-page`, SavingsAccountLandingPage);

@@ -109,8 +109,7 @@ export class Feedback extends Component {
 					--theme-label-subtitle-font-weight: 600;
 					--theme-label-subtitle-font-size: 18px;
 				}
-				capitec-alert-banner {
-					--theme-alert-banner-height: 48px;
+				horizon-alert-banner {
 					--theme-layout-gap-spacing: 16px;
 				}
 				.label-err-message{
@@ -168,11 +167,11 @@ export class Feedback extends Component {
 		}
 		
 		return html`
-			<capitec-alert-banner type="unsuccessful-red" class="alert-banner">
-				<capitec-group layout="horizontal">
-					<capitec-label label="${this.alertBannerMessage}" class="label-err-message"></capitec-label>
-				</capitec-group>
-			</capitec-alert-banner>`;
+			<horizon-alert-banner
+				type="error"
+				class="alert-banner"
+				label="${this.alertBannerMessage}">
+			</horizon-alert-banner>`;
 	}
 
 	_renderRadioButtons() {

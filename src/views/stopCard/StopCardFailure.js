@@ -402,7 +402,7 @@ export class StopCardFailure extends ViewBase {
 	}
 
 	_renderGraphic() {
-		return html`<img class="card-image" src="/images/cardStop/network-error.svg"/>`;
+		return html`<img class="card-image" src="/images/stopCard/network-error.svg"/>`;
 	}
 
 	_renderStoppedCards() {
@@ -511,7 +511,7 @@ export class StopCardFailure extends ViewBase {
 	}
 
 	_renderGraphicInProgress() {
-		return html`<img class="card-image-inprogress" src="/images/cardStop/in-progress.svg"/>`;
+		return html`<img class="card-image-inprogress" src="/images/stopCard/in-progress.svg"/>`;
 	}
 }
 

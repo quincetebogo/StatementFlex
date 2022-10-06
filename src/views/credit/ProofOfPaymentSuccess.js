@@ -131,7 +131,7 @@ export class ProofOfPaymentSuccess extends ViewBase {
 			<horizon-success-screen 
 				data-automation-id="proof-of-payment-success"
 				header="Proof of payment sent"
-				image="/images/statements/senddocuments.svg"
+				image="/images/statements/send-documents.svg"
 				left="${this.incidentDetails.currentNeed === `pay-budget-credit-card` ? `Pay Another` : ``}"
 				right="Done"
 				toast="Proof of payment sent"

@@ -195,7 +195,7 @@ export class FavouriteTransactions extends Component {
 				data-automation-id="favourite-transactions"
 				class="card">
 					<capitec-title-bar type="clear">
-						<img src="/images/transactions/fav_icon.svg">
+						<img src="/images/transactions/fav-icon.svg">
 						<capitec-label class="favourites" label="Favourites" type="title"></capitec-label>
 					</capitec-title-bar>
 					<capitec-group layout="vertical" halign="left" valign="top" gap="none">

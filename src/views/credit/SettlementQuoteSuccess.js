@@ -1,7 +1,6 @@
+import { QuickTransactionEvents, SETTLEMENT_QUOTE_EVENTS as SettlementQuoteFavouritesEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { css, html } from 'platform/elements';
-import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { SETTLEMENT_QUOTE_EVENTS as SettlementQuoteCreditEvents } from 'app/constants/telemetry/events/Credit';
-import { SETTLEMENT_QUOTE_EVENTS as SettlementQuoteFavouritesEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
@@ -153,7 +152,7 @@ export class SettlementQuoteSuccess extends ViewBase {
 			<horizon-success-screen
 				data-automation-id="settlement-quote-success-screen"
 				header="Settlement quote${this.succeededAccounts.length > 1 ? `s` : ``} sent" 
-				image="/images/statements/senddocuments.svg"
+				image="/images/statements/send-documents.svg"
 				left="Send Another"
 				right="Done"
 				toast="Settlement quote${this.succeededAccounts.length === 1 ? ` for ${this.succeededAccounts[0].toLowerCase()}` : `s`} was sent"

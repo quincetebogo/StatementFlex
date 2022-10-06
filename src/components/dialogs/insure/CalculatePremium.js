@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HttpStatusError } from 'platform/errors/HttpStatusError';
+import { HttpStatusError } from 'platform/core/errors/HttpStatusError';
 
 import { InsureService } from 'app/services/InsureService';
 
@@ -269,7 +269,7 @@ export class CalculatePremium extends Component {
 					height: 125px;
 				}
 
-				capitec-alert-banner {
+				horizon-alert-banner {
 					margin: 0px 0px 15px 0px;
 					--theme-alert-banner-info-border: 0px;
 					--theme-alert-banner-height: 48px;
@@ -321,10 +321,10 @@ export class CalculatePremium extends Component {
 	_renderAlertBanner() {
 		 if (this.alertBannerMessage !== ``) {
 			return html`
-				<capitec-alert-banner
+				<horizon-alert-banner
 									label="${this.alertBannerMessage}"
 									type="error">
-				</capitec-alert-banner>`;
+				</horizon-alert-banner>`;
 		 }
 	}
 

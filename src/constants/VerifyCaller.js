@@ -11,6 +11,7 @@
 	FAILED: 3,
 	NO_CONTACT: 4
 });
+
 /**
  * Authorisation request channel status {@link VerifyCaller}
  * 

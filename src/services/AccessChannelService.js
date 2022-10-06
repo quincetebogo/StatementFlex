@@ -18,7 +18,7 @@ export class AccessChannelService extends ChannelServiceBase {
 			toggleBusyFunc, 
 			defaultErrorHandlerFunc, 
 			`serviceURIs.accessChannelServiceUrl`, 
-			`HorizonChannelService`, 
+			`AccessChannelService`, 
 			`v1`, 
 			() => import(`../mocks/HorizonChannelServiceMocks.js`)
 		);
