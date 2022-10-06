@@ -925,10 +925,15 @@ export class ExistingClient extends InsureViewBase {
 			"totalPremium": policyToCalc.totalPremium,
 			"lifesAssured": policyToCalc.roleplayers.filter(ele => ele.lifeAssured === true)
 		};
+
+		console.log(`quoteCalcRequest :>> `, quoteCalcRequest);
+		
 		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
 		if (!calculateQuoteResp.succeeded) {
 			return;
 		}
+
+		console.log(`calculateQuoteResp :>> `, calculateQuoteResp);
 
 		return calculateQuoteResp.result;
 	}
