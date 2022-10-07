@@ -17,6 +17,7 @@ import 'app/components/dialogs/insure/RemoveLifeAssuredDialog';
 import 'app/components/dialogs/insure/AddBeneficiaryDialog';
 import 'app/components/dialogs/insure/UpdatePlanAgreementDialog';
 import 'app/components/dialogs/insure/ReinstatePolicyAgreementDialog';
+import 'app/components/dialogs/insure/InsureConfirmationDialog';
 
 // Other
 import 'app/components/common/HorizonLabel';
@@ -74,6 +75,7 @@ class UpdatePlan extends Component {
 		this.showRemoveBeneficiaryDialog = false;
 		this.showUpdatePlanAgreementDialog = false;
 		this.showReinstatePolicyAgreementDialog = false;
+		this.showValidationConfirmDialog = false;
 
 		this.agreementCFPAccepted = ``;
 		this.agreementFCPAccepted = ``;
@@ -91,7 +93,7 @@ class UpdatePlan extends Component {
 		this.debitOrderDayOptions = DEBIT_ORDER_DAY_OPTIONS;
 		this.genderOptions = GENDER_OPTIONS;
 		this.titleOptions = TITLE_OPTIONS;
-
+		this.disclosureValidationMessage = ``;
 
 	}
 
@@ -134,6 +136,8 @@ class UpdatePlan extends Component {
 			showCFPAgreementDialog: { type: Boolean, state: true },
 			showFCPAgreementDialog: { type: Boolean, state: true },
 			showYROAAgreementDialog: { type: Boolean, state: true },
+			showValidationConfirmDialog: { type: Boolean, state: true },
+			
 			agreementCFPAccepted: { type: String, state: true },
 			agreementFCPAccepted: { type: String, state: true },
 			agreementEACLAccepted: { type: String, state: true },
@@ -161,7 +165,8 @@ class UpdatePlan extends Component {
 			issuePlanAgreementDocument: { type: Object, state: true },
 			reinstatePaymentAgreementDocument: { type: Object, state: true },
 
-			dOB: { type: String, state: true }
+			dOB: { type: String, state: true },
+			disclosureValidationMessage: { type: String, state: true }
 		};
 	}
 
@@ -861,6 +866,19 @@ class UpdatePlan extends Component {
 	 * @return {null} null
 	 */
 	async _onUpdatePlan() {
+		if (!(this.agreementCFPAccepted === `true` && this.agreementCFPAccepted === `true` && 
+			this.agreementEACLAccepted === `true` && this.agreementYBPAccepted === `true` && this.agreementYROAAccepted)) {
+				this.showValidationConfirmDialog = true;
+
+				this.disclosureValidationMessage = html`<strong>Please accept the following disclosure (s):</strong>
+				<ul>
+					<li>Capitec Funeral Plan agreement</li></li>
+					<li>Funeral Cover Plan agreement</li>
+				</ul>`;
+
+				return;
+			}
+
 		this.prepareUpdateResponse = await this.updatePlanPrepare(this.policyDetails);
 
 		// This needs to move
@@ -1275,7 +1293,8 @@ class UpdatePlan extends Component {
 		${this._renderRemoveLifeAssuredDialog()}
 		${this._renderRemoveBeneficiaryDialog()}
 		${this._renderUpdatePlanAgreementDialog()}
-		${this._renderReinstatePolicyAgreementDialog()}`;
+		${this._renderReinstatePolicyAgreementDialog()}
+		${this._renderValidationConfirmDialog()}`;
 	}
 
 	/**
@@ -1683,7 +1702,7 @@ class UpdatePlan extends Component {
 	_renderYROANotification() {
 		return html`
 		<capitec-alert-banner class="clickable" @click="${() => this.showYROAAgreementDialog = true}"
-			type="${this._getAlertBannerType(this.agreementYROAAccepted)}" header="Notify:"
+			type="${this._getAlertBannerType(this.agreementYROAAccepted)}" header="Disclosure:"
 			label="I agree to Your Responsibility & Our Accountability agreement disclosure">
 		</capitec-alert-banner>`;
 	}
@@ -1695,7 +1714,7 @@ class UpdatePlan extends Component {
 	_renderFCPNotification() {
 		return html`
 		<capitec-alert-banner class="clickable" @click="${() => this.showFCPAgreementDialog = true}"
-			type="${this._getAlertBannerType(this.agreementFCPAccepted)}" header="Notify:"
+			type="${this._getAlertBannerType(this.agreementFCPAccepted)}" header="Disclosure:"
 			label="I agree to Funeral cover plan agreement disclosure">
 		</capitec-alert-banner>`;
 	}
@@ -1707,7 +1726,7 @@ class UpdatePlan extends Component {
 	renderCapitecFuneralPlanNotification() {
 		return html`
 		<capitec-alert-banner class="clickable" @click="${() => this.showCFPAgreementDialog = true}"
-			type="${this._getAlertBannerType(this.agreementCFPAccepted)}" header="Notify:"
+			type="${this._getAlertBannerType(this.agreementCFPAccepted)}" header="Disclosure:"
 			label="I agree to Capitec Funeral Plan agreement disclosure">
 		</capitec-alert-banner>`;
 	}
@@ -1719,7 +1738,7 @@ class UpdatePlan extends Component {
 	_renderEACLNotification() {
 		return html`
 		<capitec-alert-banner class="clickable" @click="${() => this.showEACLAgreementDialog = true}"
-			type="${this._getAlertBannerType(this.agreementEACLAccepted)}" header="Notify:"
+			type="${this._getAlertBannerType(this.agreementEACLAccepted)}" header="Disclosure:"
 			label="I agree to Entry Ages and Child Limits agreement disclosure">
 		</capitec-alert-banner>`;
 	}
@@ -1731,7 +1750,7 @@ class UpdatePlan extends Component {
 	_renderYBPNotification() {
 		return html`
 		<capitec-alert-banner class="clickable" @click="${() => this.showYBPAgreementDialog = true}"
-			type="${this._getAlertBannerType(this.agreementYBPAccepted)}" header="Notify:"
+			type="${this._getAlertBannerType(this.agreementYBPAccepted)}" header="Disclosure:"
 			label="I agree to You/your beneficiary are paid agreement disclosure">
 		</capitec-alert-banner>`;
 	}
@@ -2068,6 +2087,17 @@ class UpdatePlan extends Component {
 			.issuePlanAgreementContent="${this.issuePlanAgreementContent}" .paymentAgreementContent="${this.reinstatePaymentAgreementContent}"
 			@reinstate-agree-click = "${() => this._acceptReinstatePolicy()}" .contractReference = "${this.newContractReference}">
 		</insure-reinstate-policy-agreement-dialog>`;
+	}
+
+	/**
+	* Render Dialog for Validation confirmation
+	* @returns {html} html content
+	*/
+	_renderValidationConfirmDialog() {
+		return this.showValidationConfirmDialog === false ? `` : html`
+		<insure-confirmation-dialog @confirmation-click="${(e) => this.showValidationConfirmDialog = false}"
+			.confirmationMessage = "${this.disclosureValidationMessage}">
+		</insure-confirmation-dialog>`;
 	}
 
 	// #endregion
