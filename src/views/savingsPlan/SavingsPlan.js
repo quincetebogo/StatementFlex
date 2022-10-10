@@ -8,6 +8,7 @@ import { QuickTransactionsService } from 'app/services/QuickTransactionsService'
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { SavingsPlanEvents } from 'app/constants/telemetry/events/SavingsPlan';
+import { SavingsService } from 'app/services/SavingsService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -17,6 +18,8 @@ import 'app/dialogs/taxCertificates/TaxCertificates';
 import 'app/dialogs/statements/Statements';
 import 'app/components/dialogs/common/StatementsDialog';
 import 'app/components/quickTransactions/TaxCertificateLanding';
+import 'app/productControls/SavingsPlan/UnlockFTSP';
+import 'app/components/common/HorizonPDFViewer';
 
 import 'app/views/savingsPlan/FlexibleSavingsPlan';
 import 'app/views/savingsPlan/FixedTermSavingsPlan';
@@ -65,6 +68,7 @@ export class SavingsPlan extends ViewBase {
 		this.taxCertificateDetails = null;
 
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.savingsService = new SavingsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.accountViewType = ``;
 		
@@ -88,12 +92,14 @@ export class SavingsPlan extends ViewBase {
 			const taxCertificates = () => this._taxCertificates(accountNumber, accountName);
 			const productEnquiry = () => this._productEnquiry();
 			const interestRates = () => this._interestRates();
+			const unlockFtsp = () => this._unlockFtsp(accountNumber);
 
 			const actions = {
 				'statements': statements,
 				'tax-certificate': taxCertificates,
 				'product-enquiry': productEnquiry,
-				'interest-rates': interestRates
+				'interest-rates': interestRates,
+				'unlock-ftsp': unlockFtsp
 			};
 
 			if (actions[option]) {
@@ -392,6 +398,133 @@ export class SavingsPlan extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
+	async _unlockFtsp(accountNumber) {
+
+		const request = {
+			cifNumber: this.callerInformation.cifNumber,
+			unlockOptionsAccountListModel: [
+				{
+				accountNumber: accountNumber
+				}
+			]
+		};
+
+		const returnValue = await this.savingsService.ftspUnlockOptions(request);
+
+		if (returnValue.succeeded) {
+			[this.unlockOptions] = returnValue.result.unlockOptions;
+		} else {
+			this.logger.log(`error`, `Failed to retrieve unlock options for FTSP from service.`, `_unlockFtsp`, returnValue.correlationId);
+		}
+
+		// Get list of fixed term savings plan accounts as "from accounts" for unlocking or transfering funds.
+		this.unlockFromAccountsList = this.savingsPlanDetails
+								.filter(item => item.accountType === ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN)
+								.map(item => {
+										const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType][item.interestCategory] || 
+															ACCOUNT_INTCAT_ENUM[item.accountType];
+										
+										return {
+											'accountNumber': item.accountNumber,
+											'accountName': formatStringAsPascalCase(item.planName),
+											'availableBalance': formatCurrency(item.availableBalance),
+											'accountType': item.accountType,
+											'icon': productInfo.icon,
+											'order': productInfo.order
+										};
+									})
+								.sort((x, y) => x.order - y.order);
+		
+		// Get primary savings account as "to account" for unclocking or transfering FTSP funds.
+		this.unlockToAccountsList = await this._getClientProducts();
+
+		this.renderMode = RENDER_MODE.UNLOCK_FTSP;
+	}
+
+	async _getClientProducts() {
+		const request = {
+			cifNumber: this.callerInformation.cifNumber,
+			status: `OPEN`
+		};
+		const returnValue = await this.quickTransactionService.getClientProducts(request);
+
+		if (returnValue.succeeded) {
+
+			const [primarySavings] = returnValue.result.savingsProducts.filter(item => item.accountType === 300);
+			const productInfo = ACCOUNT_INTCAT_ENUM[primarySavings.accountType];
+			return [
+				{
+					'accountNumber': primarySavings.accountNumber,
+					'accountName': formatStringAsPascalCase(primarySavings.accountName),
+					'accountType': primarySavings.accountType,
+					'availableBalance': primarySavings.availableBalance,
+					'icon': productInfo.icon
+				}
+			];
+		}
+		return [];
+	}
+
+	async _getUnlockQuote(unlockType, accNumber, partialUnlockAmount) {
+	
+		const request = {
+				cifNumber: this.callerInformation.cifNumber,
+				accountNumber: accNumber,
+				partialUnlockAmount: partialUnlockAmount,
+				unlockType: unlockType,
+				channel: `HORIZON`
+			};
+
+		const returnValue = await this.savingsService.ftspUnlockQuote(request);
+
+		if (returnValue.succeeded) {
+			return returnValue.result;
+		} 
+
+		this.logger.log(`error`, `Failed to retrieve unlock options quote for the selected FTSP from service.`, `_getUnlockQuote`, returnValue.correlationId);
+
+	}
+
+	async _getUnlockAgreement(event) {
+		const request = {
+			accountNumber: event.detail.selectedAccount.accountNumber,
+			quoteReferenceNumber: event.detail.quoteRefNumber
+		};
+
+		const returnValue = await this.savingsService.ftspUnlockAgreement(request);
+		
+		if (returnValue.succeeded) {
+			this.encodedUnlockDocument = returnValue.result.agreementContent.data;
+			this.unlockFromAccountName = event.detail.selectedAccount.accountName;
+			this.renderMode = RENDER_MODE.PDF;
+		} 
+		
+		this.logger.log(`error`, `Failed to view unlock quote agreement for the selected FTSP from service.`, `_getUnlockAgreement`, returnValue.correlationId);
+
+	}
+
+	async _confirmUnlockFtsp(event) {
+		const request = {
+			"cifNumber": this.callerInformation.cifNumber,
+			"accountNumber ": event.accountNumber,
+			"quoteReferenceNumber": event.quoteRefNumber,
+			"content":
+			{
+				"data": this.encodedUnlockDocument,
+				"documentId": event.quoteRefNumber
+			}
+		};
+		
+		const returnValue = await this.savingsService.ftspUnlock(request);
+
+		if (returnValue.succeeded) {
+			// Navigate to unlock FTSP success screen
+		}
+
+		this.logger.log(`error`, `Failed to unlock the selected FTSP from service.`, `_confirmUnlockFtsp`, returnValue.correlationId);
+		// Navigate to unlock FTSP Failure screen
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -429,6 +562,8 @@ export class SavingsPlan extends ViewBase {
 			${this._renderStatements()}
 			${this._renderTaxCertificate()}
 			${this._renderTaxCertificateNotAvailable()}
+			${this._renderUnlockFTSP()}
+			${this._renderViewUnlockDocument()}
 		`;
 	}
 
@@ -539,6 +674,36 @@ export class SavingsPlan extends ViewBase {
 					@find-branch= "${() => this._findBranch()}">
 				</horizon-savings-plans-service-error>`
 			: html``;
+	}
+
+	_renderUnlockFTSP() {
+		return this.renderMode === RENDER_MODE.UNLOCK_FTSP || this.renderMode === RENDER_MODE.PDF
+		? html`
+			<capitec-pc-unlock-ftsp
+				.unlockOptions="${this.unlockOptions}"
+				.unlockFromAccountsList="${this.unlockFromAccountsList}"
+				.unlockToAccountsList="${this.unlockToAccountsList}"
+				.savingsPlanDetails="${this.savingsPlanDetails}"
+				
+				.getUnlockQuote="${(unlockType, accNumber, partialUnlockAmount) => this._getUnlockQuote(unlockType, accNumber, partialUnlockAmount)}"
+				
+				@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
+				@view-agreement="${(event) => this._getUnlockAgreement(event)}"
+				@unlock="${(event) => this._confirmUnlockFtsp(event)}">
+			</capitec-pc-unlock-ftsp>
+		`
+		: html``;
+	}
+
+	_renderViewUnlockDocument() {
+		return this.renderMode === RENDER_MODE.PDF
+		? html`
+			<horizon-pdf-viewer
+				header="Agreement: ${this.unlockFromAccountName}"
+				encodedPDF="${this.encodedUnlockDocument}"
+				@cancel="${() => this.renderMode = RENDER_MODE.UNLOCK_FTSP}">
+			</horizon-pdf-viewer>`
+		: html``;
 	}
 }
 

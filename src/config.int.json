@@ -3,7 +3,8 @@
 		"channelServiceUrl": "https://horizoncs-v1.platform-int.int.capinet",
 		"clientInsightsUrl": "https://hzn-cs-clientinsights-v1.platform-int.int.capinet",
 		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-int.int.capinet",
-		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-int.int.capinet"
+		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-int.int.capinet",
+		"savingsPlanChannelServiceUrl": "https://csc-cs-save.platform-int.int.capinet"
 	},
 	"signalRUrl": "https://horizon-cs-ita.platform-int.int.capinet",
 	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform-int.int.capinet",
