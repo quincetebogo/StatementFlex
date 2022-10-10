@@ -99,6 +99,7 @@ export class CreditAccount extends ViewBase {
 		this.showPayBudgetWarning = false;
 		this.transactionHistory = [];
 		this.accountDetails = {};
+		this.showTooltip = false;
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
@@ -181,7 +182,8 @@ export class CreditAccount extends ViewBase {
 			showSettleCloseModal: { type: Boolean },
 			showPayBudgetDialog: { state: false },
 			declineReason: { state: false },
-			showPayBudgetWarning: { state: false }
+			showPayBudgetWarning: { state: false },
+			showTooltip: { state: false }
 		};
 	}
 
@@ -632,7 +634,7 @@ export class CreditAccount extends ViewBase {
 			this.logger.log(`error`, `Failed to retrieve credit transaction history from credit service.`, `_getTransactionHistory`, returnValue.correlationId);
 			return;
 		}
-		const formattedResponse = this._getFormattedResponse(returnValue.result.transactions);
+		const formattedResponse = this._getFormattedResponse(returnValue.result.transaction);
 		this.transactionHistory.push(...formattedResponse);
 		this.endCallContext = `TransactionHistory`;
 		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
@@ -1037,6 +1039,14 @@ export class CreditAccount extends ViewBase {
 		this._telemetry.endSpan(SETTLE_AND_CLOSE[this.creditType].POP_UP, {});
 	}
 
+	// Tooltip is displayed by hovering on description only when description field is too long and is partially hidden
+	_displayTooltip(e) {
+
+		if (e.target.scrollWidth > e.target.offsetWidth) {
+			this.showTooltip = true;
+		}
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -1368,7 +1378,7 @@ export class CreditAccount extends ViewBase {
 		return html`
 			<capitec-table-column
 				label="Transaction Date"
-				field="processDate"
+				field="transactionDate"
 				.renderer="${(item, fieldName, value) => this._renderTransactionDateTime(value)}"
 				type="date"
 				size="156px;">
@@ -1416,7 +1426,7 @@ export class CreditAccount extends ViewBase {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Transaction type"
-					value = "${item.transactionType || `-`}"
+					value = "${item.spendGroup || `-`}"
 					data-automation-id="credit-transaction-history-item-type">
 				</horizon-label>
 				<horizon-label
@@ -1428,13 +1438,13 @@ export class CreditAccount extends ViewBase {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Posting date" 
-					value = "${formatDate(item.postingDate, DATE_TIME_FORMAT)}"
+					value = "${formatDate(item.postingDate, `dd mmm yyyy`)}"
 					data-automation-id="credit-transaction-history-item-posting-date">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Processed date"
-					value = "${formatDate(item.processDate, DATE_TIME_FORMAT)}"
+					value = "${formatDate(item.processDate, `dd mmm yyyy`)}"
 					data-automation-id="credit-transaction-history-item-processed-date">
 				</horizon-label>
 			</capitec-group>
@@ -1482,23 +1492,44 @@ export class CreditAccount extends ViewBase {
 			</capitec-group>
 
 			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Description"
-					value = "${item.statementDescription || `-`}"
-					data-automation-id="credit-transaction-history-description">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Long Description"
-					value = "${item.statementDescription || `-`}"
-					data-automation-id="credit-transaction-history-description">
-				</horizon-label>
+				${this._renderTooltipLabel(`Description`, item.statementDescription)}
+
+				${this._renderTooltipLabel(`Long Description`, item.statementDescription)}
 			</capitec-group>
 		`;
 	}
 
-
+	_renderTooltipLabel(name, value) {
+		return html`
+			<capitec-group 
+				data-automation-id="transaction-history-item-description"
+				style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn).toString()}"
+				layout="vertical" 
+				gap="none" 
+				halign="left" 
+				valign="center">
+					<capitec-label 
+						style="${unsafeCSS(TABLE_EXPANDER_CELL.labelText).toString()}" 
+						label="${name}">
+					</capitec-label>
+					<capitec-label 
+						style="display: ${this.showTooltip ? `none` : `block`}; ${unsafeCSS(TABLE_EXPANDER_CELL.labelValue).toString()}"
+						label="${value || `-`}"
+						@mouseover="${(e) => this._displayTooltip(e)}">
+					</capitec-label>
+					<capitec-tooltip 
+						data-automation-id="transaction-history-item-description-tooltip"
+						style="display: ${this.showTooltip ? `block` : `none`}; ${unsafeCSS(TABLE_EXPANDER_CELL.toolTip).toString()}"
+						message="${value}" 
+						@mouseout = "${() => this.showTooltip = false}"
+						position="bottom">
+						<capitec-label 
+							style="${unsafeCSS(TABLE_EXPANDER_CELL.labelValue)} display: block;" 
+							label="${value}">
+						</capitec-label>
+				</capitec-tooltip>
+			</capitec-group>`;
+	}
 }
 
 customElements.define(`horizon-credit-account`, CreditAccount);
