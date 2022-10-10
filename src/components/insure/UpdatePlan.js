@@ -539,7 +539,7 @@ class UpdatePlan extends Component {
 
 					const payoutAmountsMatch = this._isPayoutAmountValid();
 					if (payoutAmountsMatch === false) {
-						this.policyDetails.roleplayers[index].benefitPayoutErrorMessage = `Does not match`;
+						this.policyDetails.roleplayers[index].benefitPayoutErrorMessage = `Beneficiary payout amount(s) does not match total`;
 					} else {
 
 						for (let indx = 0; indx < this.policyDetails.roleplayers.length; indx++) {
@@ -687,6 +687,10 @@ class UpdatePlan extends Component {
 		this.requestUpdate();
 	}
 
+	/**
+	 * Validate required fields on update plan
+	 * @returns {Boolean} canSubmit
+	 */
 	validateUpdatePlanCalculate() {
 		let canSubmit = true;
 		this.policyDetails.roleplayers.forEach(ele => {
@@ -708,6 +712,11 @@ class UpdatePlan extends Component {
 				if (ele.benefitPayout === ``) {
 					canSubmit = false;
 				}
+			}
+
+			// Banking Details
+			if (isNullorEmpty(this.policyDetails.deductionDetails?.bankDetails?.accountNumber)) {
+				canSubmit = false;
 			}
 		});
 		return canSubmit;
@@ -1503,7 +1512,7 @@ class UpdatePlan extends Component {
 				<capitec-label label="Funeral Plan" type="Strong"></capitec-label>
 					<capitec-spacer></capitec-spacer>
 					<capitec-label label="Total premium amount"></capitec-label>
-					<capitec-label label="${formatCurrency(this.policyDetails.totalPremium)}" class="calc-premium-total">
+					<capitec-label label="${isNullorEmpty(this.policyDetails.totalPremium) ? formatCurrency(0) : formatCurrency(this.policyDetails.totalPremium)}" class="calc-premium-total">
 					</capitec-label>
 					<!-- top -->
 					<capitec-label label="Summary of estimated monthly premium:" class="stronger"></capitec-label>
@@ -1576,8 +1585,8 @@ class UpdatePlan extends Component {
 												textOverflow="ellipsis" value="${beneficiary.firstName} ${beneficiary.surname}">
 											</horizon-label>
 											<div class="vertical-line"></div>
-											<horizon-label label="Payout Amount (Max ${formatCurrency(this.policyDetails.roleplayers[0].coverAmount, 0)})"
-												value="${formatCurrency(beneficiary?.benefitPayout)}">
+											<horizon-label label="Payout Amount (Max ${this.policyDetails.roleplayers[0].coverAmount !== `` ? formatCurrency(this.policyDetails.roleplayers[0].coverAmount, 2) : formatCurrency(0)})"
+												value="${beneficiary?.benefitPayout !== `` ? formatCurrency(beneficiary?.benefitPayout) : formatCurrency(0)}">
 											</horizon-label>
 										</capitec-group>
 										<div slot="content">
@@ -1696,7 +1705,6 @@ class UpdatePlan extends Component {
 						</capitec-label>
 						<capitec-spacer></capitec-spacer>
 						<capitec-label label="Total benefit payout"></capitec-label>
-						<!-- TODO: Calc total benefit payout -->
 						<capitec-label label="${formatCurrency(this.policyDetails.roleplayers[0].coverAmount)}" class="calc-premium-total">
 						</capitec-label>
 						<capitec-label label="Summary of payout beneficiary amount:" class="stronger"></capitec-label>
@@ -1929,18 +1937,27 @@ class UpdatePlan extends Component {
 				value=${roleplayer.title} ?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editTitle`, roleplayer.relationship)}"
 				@value-changed= "${(e) => this._lifeTitleValueChanged(e, roleplayer.recordID)}">
 			</capitec-select>
-		
-			<capitec-text-field label="Name" style="width: 50%" value=${roleplayer.firstName}
-				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editFirstName`, roleplayer.relationship)}"
-				@value-changed= "${(e) => this._lifeNameValueChanged(e, roleplayer.recordID)}">
-			</capitec-text-field>
+
+			<capitec-select label="Gender" .items="${this.genderOptions}" display-field="text" id-field="code"
+				style="width: 50%" value=${roleplayer.gender}
+				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editGender`, roleplayer.relationship)}"
+				@value-changed="${(e) => this._lifeGenderValueChanged(e, roleplayer.recordID)}">
+			</capitec-select>
 		</div>
 		<div class="expander-options">
+			<capitec-text-field label="Name" style="width: 50%" value=${roleplayer.firstName}
+				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editFirstName`, roleplayer.relationship)}"
+				@value-changed= "${(e) => this._lifeNameValueChanged(e, roleplayer.recordID)}"
+				error="${roleplayer?.firstName === `` ? `First name is a required field` : ``}">
+			</capitec-text-field>
 			<capitec-text-field label="Surname" style="width: 50%" value=${roleplayer.surname}
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editSurname`, roleplayer.relationship)}"
-				@value-changed= "${(e) => this._lifeSurnameValueChanged(e, roleplayer.recordID)}">
+				@value-changed= "${(e) => this._lifeSurnameValueChanged(e, roleplayer.recordID)}"
+				error="${roleplayer?.surname === `` ? `Surname is a required field` : ``}">
 			</capitec-text-field>
-		
+	
+		</div>
+		<div class="expander-options">
 			${this.canReinstate === true || !this._checkBeneficiaryDobRule(roleplayer)
 				? html`
 					<capitec-text-field label="Date of birth" style="width: 50%" disabled
@@ -1954,19 +1971,13 @@ class UpdatePlan extends Component {
 						?disabled="${this.canReinstate}">
 					</capitec-date-time-picker>`
 			}
-		</div>
-		<div class="expander-options">
-			<capitec-select label="Gender" .items="${this.genderOptions}" display-field="text" id-field="code"
-				style="width: 50%" value=${roleplayer.gender}
-				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editGender`, roleplayer.relationship)}"
-				@value-changed="${(e) => this._lifeGenderValueChanged(e, roleplayer.recordID)}">
-			</capitec-select>
 			<capitec-text-field type="currency" label="Payout amount" style="width: 50%" 
 				value=${roleplayer?.benefitPayout <= 0 ? `` : roleplayer?.benefitPayout} ?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editBeneficiaryValues`, roleplayer.relationship)}"
 				@value-changed="${(e) => this._beneficiaryPayoutValueChanged(e, roleplayer.recordID)}"
 				error="${roleplayer?.benefitPayoutErrorMessage === undefined ? `` : roleplayer?.benefitPayoutErrorMessage}">
 			</capitec-text-field>
 		</div>
+
 		<div class="expander-options">
 			<capitec-text-field label="Email Address" style="width: 50%" 
 				value=${isNullorEmpty(roleplayer.contactDetails?.email) ? `` : roleplayer.contactDetails?.email} 
