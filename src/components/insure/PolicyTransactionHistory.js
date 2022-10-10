@@ -91,7 +91,7 @@ class PolicyTransactionHistory extends Component {
 	 * @static
 	 * @returns {css} CSS for the component.
 	 */
-	 static get styles() {
+	static get styles() {
 		return [
 			super.styles,
 			css`
@@ -188,7 +188,7 @@ class PolicyTransactionHistory extends Component {
 		const currentDateTime = DateTime.local();
 
 		if (toDate.diff(fromDate, [`days`]).days > 90) {
-			
+
 			toDate = fromDate.plus({ days: 90 });
 			if (toDate > currentDateTime) {
 				this.startDate = fromDate;
@@ -214,13 +214,13 @@ class PolicyTransactionHistory extends Component {
 			fromDate = toDate.minus({ days: 90 });
 			this.startDate = fromDate;
 		} else {
-			
+
 			this.startDate = fromDate;
 			this.endDate = toDate;
 		}
 
 		RENDER_CHIPS[FILTER_BY.DATE] = _getDateRange(this.startDate, this.endDate);
-		
+
 		await this._refineSearch();
 	}
 
@@ -394,10 +394,10 @@ class PolicyTransactionHistory extends Component {
 		const activeFilters = this.shadowRoot.getElementById(`active-filters`);
 
 		Array.from(activeFilters.children)
-			 .filter(field => field.localName === `capitec-chip` && !field.hidden)
-			 .forEach(item => {
-				 this._clearFilter(item.id);
-			 });
+			.filter(field => field.localName === `capitec-chip` && !field.hidden)
+			.forEach(item => {
+				this._clearFilter(item.id);
+			});
 
 		this._refineSearch();
 	}
@@ -409,10 +409,10 @@ class PolicyTransactionHistory extends Component {
 	 */
 	_clearFilter(type) {
 		const date = () => this._reset();
-		const dateType = () => { 
-			this.dateLabel = DEFAULTS.DATE_LABEL; 
+		const dateType = () => {
+			this.dateLabel = DEFAULTS.DATE_LABEL;
 		};
-		
+
 		const resetForfilters = {
 			'DATE': date,
 			'DATE_TYPE': dateType
@@ -429,7 +429,7 @@ class PolicyTransactionHistory extends Component {
 	 * @param {*} type - filter type 
 	 * @return {null} null
 	 */
-	 _closeChip(type) {
+	_closeChip(type) {
 		this._clearFilter(type);
 		this._refineSearch();
 	}
@@ -457,8 +457,8 @@ class PolicyTransactionHistory extends Component {
 	 * @returns {html} - content of transactions
 	 */
 	_renderPolicyTransactionHistory() {
-		return this.filteredData?.length > 0 
-		? html`
+		return this.filteredData?.length > 0
+			? html`
 			<capitec-table
 				.items = "${this.filteredData}"
 				groupField="groupByPremiumDate"
@@ -468,7 +468,7 @@ class PolicyTransactionHistory extends Component {
 				data-automation-id="transaction-history-table">
 					${this._renderPolicyTransHistoryColumns()}
 			</capitec-table>`
-		: html`
+			: html`
 			${this._renderNoResults()}
 		`;
 	}
@@ -669,10 +669,10 @@ class PolicyTransactionHistory extends Component {
 			const endDate = new Date(Date.parse(this.endDate));
 
 			if (RENDER_CHIPS[FILTER_BY.DATE_TYPE] === this.dateTypeOptions[0].text) {
-				this.filteredData = this.filteredData.filter(item => new Date(item.date) >= startDate && new Date(item.date) <= endDate); 
-				} else if (RENDER_CHIPS[FILTER_BY.DATE_TYPE] === this.dateTypeOptions[1].text) {
-				this.filteredData = this.filteredData.filter(item => new Date(item.premiumDueDate) >= startDate && new Date(item.premiumDueDate) <= endDate); 
-				}
+				this.filteredData = this.filteredData.filter(item => new Date(item.date) >= startDate && new Date(item.date) <= endDate);
+			} else if (RENDER_CHIPS[FILTER_BY.DATE_TYPE] === this.dateTypeOptions[1].text) {
+				this.filteredData = this.filteredData.filter(item => new Date(item.premiumDueDate) >= startDate && new Date(item.premiumDueDate) <= endDate);
+			}
 		}
 
 		this.requestUpdate();

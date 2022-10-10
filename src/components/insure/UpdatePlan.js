@@ -665,11 +665,52 @@ class UpdatePlan extends Component {
 	* @returns {object} Estimate Response
 	*/
 	async _calculatePremium() {
-		const calcQuoteResponse = await this.updatePlanQuote(this.policyDetails);
-		console.log(`calcQuoteResponse: `, calcQuoteResponse);
-		this.policyDetails.totalPremium = calcQuoteResponse.totalPremium;
+		const canSubmit = this.validateUpdatePlanCalculate();
 
+		if (canSubmit === true) {
+			if (this.newTotalPremium !== ``) {
+				this.policyDetails.totalPremium = this.newTotalPremium;
+			}
+
+			const calcQuoteResponse = await this.updatePlanQuote(this.policyDetails);
+			this.policyDetails.totalPremium = calcQuoteResponse.totalPremium;
+			this.policyDetails.roleplayers = calcQuoteResponse.lifesAssured;
+			this.policyDetails.quoteNumber = calcQuoteResponse.quoteNumber;
+
+			this.newTotalPremium = ``;
+		} else {
+			// Tell user about issues
+			alert(`Shit broken Yo`);
+		}
+
+		console.log(`DONE WITH CALC - FFS: `, JSON.stringify(this.policyDetails));
 		this.requestUpdate();
+	}
+
+	validateUpdatePlanCalculate() {
+		let canSubmit = true;
+		this.policyDetails.roleplayers.forEach(ele => {
+
+			// General Checks
+			if (ele.firstName === `` || ele.surname === ``) {
+				canSubmit = false;
+			}
+
+			// LA Checks
+			if (ele.lifeAssured === true) {
+				if (ele.coverAmount === `` || ele.coverAmount === `0`) {
+					canSubmit = false;
+				}
+			}
+
+			// BE Checks
+			if (ele.beneficiary === true) {
+				if (ele.benefitPayout === ``) {
+					canSubmit = false;
+				}
+			}
+		});
+		return canSubmit;
 	}
 
 	/**
@@ -1413,7 +1454,7 @@ class UpdatePlan extends Component {
 						${this.canReinstate ? ``
 				: html`<capitec-label label="Add Life Assured" type="subtitle" class="stronger link"
 								@click="${() => this._openAddLifeDialog()}">
-								</capitec-label>
+							</capitec-label>
 						`}
 					</div>
 			
@@ -1464,12 +1505,9 @@ class UpdatePlan extends Component {
 					<capitec-label label="Total premium amount"></capitec-label>
 					<capitec-label label="${formatCurrency(this.policyDetails.totalPremium)}" class="calc-premium-total">
 					</capitec-label>
-
 					<!-- top -->
-
 					<capitec-label label="Summary of estimated monthly premium:" class="stronger"></capitec-label>
 					<hr>
-					
 		
 					<!-- life list -->
 					${this.policyDetails.roleplayers.filter(ele => ele.lifeAssured === true).map(lifeAssured => html`
@@ -1477,13 +1515,7 @@ class UpdatePlan extends Component {
 							<capitec-label label="${lifeAssured.relationship}"></capitec-label>
 							<capitec-label label="${isNullorEmpty(lifeAssured.premium) ? formatCurrency(0) : formatCurrency(lifeAssured.premium)}"></capitec-label>
 						</div>
-						<hr>`)
-			}
-					<!-- <div class="calc-life-list">
-						<capitec-label label="Total Premium Amount" class="stronger"></capitec-label>
-						<capitec-label label="${isNullorEmpty(this.policyDetails.totalPremium) ? formatCurrency(0) : formatCurrency(this.policyDetails.totalPremium)}" class="stronger">
-						</capitec-label>
-					</div> -->
+					<hr>`)}
 				</div>
 		
 				<!-- bottom -->
@@ -1813,7 +1845,7 @@ class UpdatePlan extends Component {
 			</div>
 			</div>
 			<div class="expander-options">
-				<capitec-text-field label="Name" style="width: 50%" value="${roleplayer?.firstName}"
+				<capitec-text-field type="text" label="Name" style="width: 50%" value="${roleplayer?.firstName}"
 					?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editFirstName`, roleplayer.relationship)}"
 					@value-changed="${(e) => this._lifeNameValueChanged(e, roleplayer.recordID)}"
 					error="${roleplayer?.firstName === `` ? `First name is a required field` : ``}">
@@ -1821,7 +1853,8 @@ class UpdatePlan extends Component {
 			
 				<capitec-text-field label="Surname" style="width: 50%" value="${roleplayer?.surname}"
 					?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editSurname`, roleplayer.relationship)}"
-					@value-changed="${(e) => this._lifeSurnameValueChanged(e, roleplayer.recordID)}">
+					@value-changed="${(e) => this._lifeSurnameValueChanged(e, roleplayer.recordID)}"
+					error="${roleplayer?.surname === `` ? `Surname is a required field` : ``}">
 				</capitec-text-field>
 			</div>
 			<div class="expander-options">
@@ -1948,6 +1981,12 @@ class UpdatePlan extends Component {
 				@key-input="${(e) => this._onlyNumberKey(e)}" 
 				error="${roleplayer?.cellphoneNumberErrorMessage === undefined ? `` : roleplayer?.cellphoneNumberErrorMessage}">
 			</capitec-text-field>
+		</div>
+		<div class="expander-options">
+			<capitec-text-field label="ID" style="width: 50%" value="${isNullorEmpty(roleplayer?.idNumber) ? `` : roleplayer?.idNumber}" 
+				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editIDNumber`, roleplayer.relationship) || this.policyDetails.policyRule !== `Standard`}">
+			</capitec-text-field>
+		
 		</div>`;
 	}
 

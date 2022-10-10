@@ -49,7 +49,6 @@ export class InsureService extends ChannelServiceBase {
 	 * @returns {void}
 	 */
 	async _getLoggedInAgent() {
-		// this.employeeId = await this._getAgentEmployeeId();
 		let id = `XXXXXXXX`;
 		const returnValue = await this.initialiseService.initialise();
 		if (returnValue.succeeded) {

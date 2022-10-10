@@ -918,7 +918,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*} result
 	 */
 	async _updatePlanQuote(policyToCalc) {
-		const originalPolicy = policyToCalc;
+
 		const quoteCalcRequest = {
 			"saveQuote": true,
 			"contractReference": policyToCalc.contractReference,
@@ -926,17 +926,22 @@ export class ExistingClient extends InsureViewBase {
 			"totalPremium": policyToCalc.totalPremium,
 			"lifesAssured": policyToCalc.roleplayers.filter(ele => ele.lifeAssured === true)
 		};
-		console.log(`quoteCalcRequest :>> `, quoteCalcRequest);
-		
+
 		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
 		if (!calculateQuoteResp.succeeded) {
 			return;
 		}
 
-		// forEach
-		
-		console.log(`calculateQuoteResp :>> `, calculateQuoteResp);
-		return calculateQuoteResp.result;
+		// Map back to array
+		const calculatedQuote = calculateQuoteResp.result;
+		const adjustedRoleplayers = calculateQuoteResp.result.lifesAssured.map((life) => {
+			const foundPlayer = policyToCalc.roleplayers.find((ele) => ele.rowID === life.rowID);
+			life.coverDetails = foundPlayer.coverDetails;
+			return life;
+		});
+
+		calculatedQuote.lifesAssured = adjustedRoleplayers;
+		return calculatedQuote;
 	}
 
 	/**
@@ -1040,13 +1045,13 @@ export class ExistingClient extends InsureViewBase {
 			"documents": documents,
 			"mandates": event.detail.prepareUpdate.prepareUpdateResponse.mandates,
 			"insureWaiverInformation": {
-			"contractReference": event.detail.prepareUpdate.prepareUpdateResponse.contractReference,
-			"insurersInformation": [
-			{
-			"insurer": `Capitec`, // TODO: confirm value
-			"policyNumber": event.detail.prepareUpdate.prepareUpdateResponse.contractReference
-			}
-			]
+				"contractReference": event.detail.prepareUpdate.prepareUpdateResponse.contractReference,
+				"insurersInformation": [
+					{
+						"insurer": `Capitec`, // TODO: confirm value
+						"policyNumber": event.detail.prepareUpdate.prepareUpdateResponse.contractReference
+					}
+				]
 			}
 			// TODO: Need to pass the values for mandates when service integration works.
 		};
