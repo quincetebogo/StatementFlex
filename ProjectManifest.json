@@ -23,7 +23,9 @@
     "roles": null
   },
   "secrets": [
-    "telemetrydatabussecret"
+    "telemetrydatabussecret",
+    "axoncs_t_ch_password",
+    "axoncs_t_ch_username"
   ],
   "environmentVariables": [
     "LogLevel",
@@ -32,6 +34,8 @@
     "DatabusResponsibleTeam",
     "TelemetryApiKeySecretName",
     "TelemetryApiId",
-    "TelemetryApiUrl"
+    "TelemetryApiUrl",
+    "TelemetryOAuthUsernameSecretName",
+    "TelemetryOAuthPasswordSecretName"
   ]
 }

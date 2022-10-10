@@ -2,7 +2,7 @@
 	"serviceURIs": {
 		"channelServiceUrl": "https://horizoncs-v1.platform-int.int.capinet",
 		"clientInsightsUrl": "https://cec-insights.platform-int.int.capinet",
-		"accessChannelServiceUrl": "https://cec-ac.platform-int.int.capinet",
+		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-int.int.capinet",
 		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-int.int.capinet",
 		"clientProfileServiceUrl": "https://csc-clientprofile.platform-int.int.capinet",
 		"debiCheckServiceUrl": "https://csc-debicheck.platform-int.int.capinet",
