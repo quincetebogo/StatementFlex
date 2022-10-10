@@ -374,11 +374,12 @@ class AuditTransactionHistory extends Component {
 	 * @returns {html} - content of transactions
 	*/
 	_renderAuditTransactionHistory() {
+		// TODO: Need to change below code groupBychangeActionedDate once service includes change action date
 		return this.filteredData?.length > 0 
 		? html`
 			<capitec-table
 				.items = "${this.filteredData}"
-				groupField="groupBychangeActionedDate"
+				groupField="groupByDate"
 				displayMode="Full"
 				?fixed = "${true}"
 				.expandRenderer="${(item) => this._renderTransactionDetails(item)}"
@@ -395,26 +396,27 @@ class AuditTransactionHistory extends Component {
 	 * @returns {html} - table columns
 	*/
 	_renderAuditTransHistoryColumns() {
+		// TODO: Need to change below code changeActionedDate, effectiveDate once service includes it
 		return html`
 			<capitec-table-column
-				label="Month and Year Date Change Actioned"
-				field="changeActionedDate"
+				label="Month and Year Date"
+				field="date"
 				type="date"
-				size="200px"
+				size="250px"
 				wrap>
 			</capitec-table-column>
 			<capitec-table-column
-				label="Activity"
-				field="activityType"
-				size="200px">
+				label="Transaction Type"
+				field="accountType"
+				size="300px">
 			</capitec-table-column>
 			<capitec-spacer></capitec-spacer>
-			<capitec-table-column
+			<!-- <capitec-table-column
 				label="Effective Date"
 				field="effectiveDate"
 				type="date"
 				size="125px">
-			</capitec-table-column>
+			</capitec-table-column> -->
 			<capitec-spacer></capitec-spacer>
 			<capitec-table-column
 				label="Reason for Change"
@@ -430,7 +432,7 @@ class AuditTransactionHistory extends Component {
 	 * @return {null} null
 	 */
 	_renderTransactionDetails(item) {
-		switch (item.activityType) {
+		switch (item.transactionType) {
 			case ACTIVITY_TYPE.PREMIUM_CHANGE:
 				return html`${this._renderPremiumChanges(item)}`;
 			case ACTIVITY_TYPE.BANKDETAILS_CHANGES:
@@ -469,25 +471,25 @@ class AuditTransactionHistory extends Component {
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Date Requested"
-				value = "${formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`)}"
+				value = "${formatDate(item?.additionalDetails?.date, `dd mmm yyyy`) === `` ? `-` : formatDate(item?.additionalDetails?.date, `dd mmm yyyy`)}"
 				data-automation-id="audit-transactions-premium-requested-date">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Previous Premium"
-				value = "${isNullorEmpty(item.additionalDetails.previousPremium) ? formatCurrency(0) : formatCurrency(item.additionalDetails.previousPremium)}"
+				value = "${isNullorEmpty(item?.additionalDetails?.previousPremium) ? formatCurrency(0) : formatCurrency(item?.additionalDetails?.previousPremium)}"
 				data-automation-id="audit-transactions-premium-previous-premium">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Effective Date" 
-				value = "${formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`)}"
+				value = "${formatDate(item?.additionalDetails?.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item?.additionalDetails?.effectiveDate, `dd mmm yyyy`)}"
 				data-automation-id="audit-transactions-premium-effective-date">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Current Premium"
-				value = "${isNullorEmpty(item.additionalDetails.currentPremium) ? formatCurrency(0) : formatCurrency(item.additionalDetails.currentPremium)}"
+				value = "${isNullorEmpty(item?.additionalDetails?.currentPremium) ? formatCurrency(0) : formatCurrency(item?.additionalDetails?.currentPremium)}"
 				data-automation-id="audit-transactions-premium-current-premium">
 			</horizon-label>
 		</capitec-group>
@@ -495,13 +497,13 @@ class AuditTransactionHistory extends Component {
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Actioned By"
-				value = "${item.additionalDetails.actionedBy}"
+				value = "${item?.additionalDetails?.actionedBy}"
 				data-automation-id="audit-transactions-premium-actioned-by">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Channel Applied On"
-				value = "${item.additionalDetails.channelAppliedOn}"
+				value = "${item?.additionalDetails?.channelAppliedOn}"
 				data-automation-id="audit-transactions-premium-channel-applied-on">
 			</horizon-label>
 		</capitec-group>
@@ -525,31 +527,31 @@ class AuditTransactionHistory extends Component {
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Date Requested"
-				value = "${formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`)}"
+				value = "${formatDate(item?.additionalDetails?.date, `dd mmm yyyy`) === `` ? `-` : formatDate(item?.additionalDetails?.date, `dd mmm yyyy`)}"
 				data-automation-id="audit-transactions-bank-requested-date">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Effective Date" 
-				value = "${formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`)}"
+				value = "${formatDate(item?.additionalDetails?.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item?.additionalDetails?.effectiveDate, `dd mmm yyyy`)}"
 				data-automation-id="audit-transactions-bank-effective-date">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Account Name"
-				value = "${isNullorEmpty(item.additionalDetails.accountName) ? `-` : item.additionalDetails.accountName}"
+				value = "${isNullorEmpty(item?.additionalDetails?.accountName) ? `-` : item?.additionalDetails?.accountName}"
 				data-automation-id="audit-transactions-account-name">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Account Number"
-				value = "${isNullorEmpty(item.additionalDetails.accountNumber) ? `-` : item.additionalDetails.accountNumber}"
+				value = "${isNullorEmpty(item?.additionalDetails?.accountNumber) ? `-` : item?.additionalDetails?.accountNumber}"
 				data-automation-id="audit-transactions-account-number">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Bank"
-				value = "${isNullorEmpty(item.additionalDetails.bank) ? `-` : item.additionalDetails.bank}"
+				value = "${isNullorEmpty(item?.additionalDetails?.bank) ? `-` : item?.additionalDetails?.bank}"
 				data-automation-id="audit-transactions-bank">
 			</horizon-label>
 		</capitec-group>
@@ -557,31 +559,31 @@ class AuditTransactionHistory extends Component {
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Branch Code"
-				value = "${isNullorEmpty(item.additionalDetails.branchCode) ? `-` : item.additionalDetails.branchCode}"
+				value = "${isNullorEmpty(item?.additionalDetails?.branchCode) ? `-` : item?.additionalDetails?.branchCode}"
 				data-automation-id="audit-transactions-branch-code">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Account Type"
-				value = "${isNullorEmpty(item.additionalDetails.accountType) ? `-` : item.additionalDetails.accountType}"
+				value = "${isNullorEmpty(item?.additionalDetails?.accountType) ? `-` : item?.additionalDetails?.accountType}"
 				data-automation-id="audit-transactions-account-type">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Collection Day"
-				value = "${isNullorEmpty(item.additionalDetails.collectionDay) ? `-` : item.additionalDetails.collectionDay}"
+				value = "${isNullorEmpty(item?.additionalDetails?.collectionDay) ? `-` : item?.additionalDetails?.collectionDay}"
 				data-automation-id="audit-transactions-collection-day">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Actioned By"
-				value = "${item.additionalDetails.actionedBy}"
+				value = "${item?.additionalDetails?.actionedBy}"
 				data-automation-id="audit-transactions-bank-actioned-by">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Channel Applied On"
-				value = "${item.additionalDetails.channelAppliedOn}"
+				value = "${item?.additionalDetails?.channelAppliedOn}"
 				data-automation-id="audit-transactions-bank-channel-applied-on">
 			</horizon-label>
 		</capitec-group>
@@ -605,31 +607,31 @@ class AuditTransactionHistory extends Component {
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Date Requested"
-				value = "${formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`)}"
+				value = "${formatDate(item?.additionalDetails?.date, `dd mmm yyyy`) === `` ? `-` : formatDate(item?.additionalDetails?.date, `dd mmm yyyy`)}"
 				data-automation-id="audit-transactions-main-life-requested-date">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Name & Surname"
-				value = "${isNullorEmpty(item.additionalDetails.fullName) ? `-` : item.additionalDetails.fullName}"
+				value = "${isNullorEmpty(item?.additionalDetails?.fullName) ? `-` : item?.additionalDetails?.fullName}"
 				data-automation-id="audit-transactions-main-life-name">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Effective Date" 
-				value = "${formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`)}"
+				value = "${formatDate(item?.additionalDetails?.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item?.additionalDetails?.effectiveDate, `dd mmm yyyy`)}"
 				data-automation-id="audit-transactions-main-life-effective-date">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Premium"
-				value = "${isNullorEmpty(item.additionalDetails.premium) ? formatCurrency(0) : formatCurrency(item.additionalDetails.premium)}"
+				value = "${isNullorEmpty(item?.additionalDetails?.premium) ? formatCurrency(0) : formatCurrency(item?.additionalDetails?.premium)}"
 				data-automation-id="audit-transactions-main-life-premium">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Cover Amount"
-				value = "${isNullorEmpty(item.additionalDetails.coverAmount) ? formatCurrency(0) : formatCurrency(item.additionalDetails.coverAmount)}"
+				value = "${isNullorEmpty(item?.additionalDetails?.coverAmount) ? formatCurrency(0) : formatCurrency(item?.additionalDetails?.coverAmount)}"
 				data-automation-id="audit-transactions-main-life-cover-amount">
 			</horizon-label>
 		</capitec-group>
@@ -637,25 +639,25 @@ class AuditTransactionHistory extends Component {
 		<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Contact Number"
-				value = "${item.additionalDetails.contactNumber}"
+				value = "${item?.additionalDetails?.contactNumber}"
 				data-automation-id="audit-transactions-main-life-contact-number">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Email"
-				value = "${item.additionalDetails.email}"
+				value = "${item?.additionalDetails?.email}"
 				data-automation-id="audit-transactions-main-life-email">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Actioned By"
-				value = "${item.additionalDetails.actionedBy}"
+				value = "${item?.additionalDetails?.actionedBy}"
 				data-automation-id="audit-transactions-main-life-actioned-by">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Channel Applied On"
-				value = "${item.additionalDetails.channelAppliedOn}"
+				value = "${item?.additionalDetails?.channelAppliedOn}"
 				data-automation-id="audit-transactions-main-life-channel-applied-on">
 			</horizon-label>
 		</capitec-group>
@@ -679,25 +681,25 @@ class AuditTransactionHistory extends Component {
 		<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Date Requested"
-				value = "${formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`)}"
+				value = "${formatDate(item?.additionalDetails?.date, `dd mmm yyyy`) === `` ? `-` : formatDate(item?.additionalDetails?.date, `dd mmm yyyy`)}"
 				data-automation-id="audit-transactions-lives-assured-requested-date">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Name & Surname"
-				value = "${isNullorEmpty(item.additionalDetails.fullName) ? `-` : item.additionalDetails.fullName}"
+				value = "${isNullorEmpty(item?.additionalDetails?.fullName) ? `-` : item?.additionalDetails?.fullName}"
 				data-automation-id="audit-transactions-lives-assured-name">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Effective Date" 
-				value = "${formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`)}"
+				value = "${formatDate(item?.additionalDetails?.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item?.additionalDetails?.effectiveDate, `dd mmm yyyy`)}"
 				data-automation-id="audit-transactions-lives-assured-effective-date">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Relationship"
-				value = "${isNullorEmpty(item.additionalDetails.relationship) ? `-` : item.additionalDetails.relationship}"
+				value = "${isNullorEmpty(item?.additionalDetails?.relationship) ? `-` : item?.additionalDetails?.relationship}"
 				data-automation-id="audit-transactions-lives-assured-relationship">
 			</horizon-label>
 		</capitec-group>
@@ -705,25 +707,25 @@ class AuditTransactionHistory extends Component {
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Premium"
-				value = "${isNullorEmpty(item.additionalDetails.premium) ? formatCurrency(0) : formatCurrency(item.additionalDetails.premium)}"
+				value = "${isNullorEmpty(item?.additionalDetails?.premium) ? formatCurrency(0) : formatCurrency(item?.additionalDetails?.premium)}"
 				data-automation-id="audit-transactions-lives-assured-premium">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Cover Amount"
-				value = "${isNullorEmpty(item.additionalDetails.coverAmount) ? formatCurrency(0) : formatCurrency(item.additionalDetails.coverAmount)}"
+				value = "${isNullorEmpty(item?.additionalDetails?.coverAmount) ? formatCurrency(0) : formatCurrency(item?.additionalDetails?.coverAmount)}"
 				data-automation-id="audit-transactions-lives-assured-cover-amount">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Actioned By"
-				value = "${item.additionalDetails.actionedBy}"
+				value = "${item?.additionalDetails?.actionedBy}"
 				data-automation-id="audit-transactions-lives-assured-actioned-by">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Channel Applied On"
-				value = "${item.additionalDetails.channelAppliedOn}"
+				value = "${item?.additionalDetails?.channelAppliedOn}"
 				data-automation-id="audit-transactions-lives-assured-channel-applied-on">
 			</horizon-label>
 		</capitec-group>
@@ -747,31 +749,31 @@ class AuditTransactionHistory extends Component {
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Date Requested"
-				value = "${formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`)}"
+				value = "${formatDate(item?.additionalDetails?.date, `dd mmm yyyy`) === `` ? `-` : formatDate(item?.additionalDetails?.date, `dd mmm yyyy`)}"
 				data-automation-id="audit-transactions-beneficiary-requested-date">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Name & Surname"
-				value = "${item.additionalDetails.fullName}"
+				value = "${item?.additionalDetails?.fullName}"
 				data-automation-id="audit-transactions-beneficiary-name">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Effective Date" 
-				value = "${formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`)}"
+				value = "${formatDate(item?.additionalDetails?.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item?.additionalDetails?.effectiveDate, `dd mmm yyyy`)}"
 				data-automation-id="audit-transactions-beneficiary-effective-date">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Relationship"
-				value = "${item.additionalDetails.relationship}"
+				value = "${item?.additionalDetails?.relationship}"
 				data-automation-id="audit-transactions-beneficiary-relationship">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Contact Number"
-				value = "${item.additionalDetails.contactNumber}"
+				value = "${item?.additionalDetails?.contactNumber}"
 				data-automation-id="audit-transactions-beneficiary-contact-number">
 			</horizon-label>
 		</capitec-group>
@@ -779,25 +781,25 @@ class AuditTransactionHistory extends Component {
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Email"
-				value = "${item.additionalDetails.email}"
+				value = "${item?.additionalDetails?.email}"
 				data-automation-id="audit-transactions-beneficiary-email">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Benefit Payout"
-				value = "${isNullorEmpty(item.additionalDetails.benefitPayout) ? formatCurrency(0) : formatCurrency(item.additionalDetails.benefitPayout)}"
+				value = "${isNullorEmpty(item?.additionalDetails?.benefitPayout) ? formatCurrency(0) : formatCurrency(item?.additionalDetails?.benefitPayout)}"
 				data-automation-id="audit-transactions-beneficiary-payout">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Actioned By"
-				value = "${item.additionalDetails.actionedBy}"
+				value = "${item?.additionalDetails?.actionedBy}"
 				data-automation-id="audit-transactions-beneficiary-actioned-by">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fiveColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Channel Applied On"
-				value = "${item.additionalDetails.channelAppliedOn}"
+				value = "${item?.additionalDetails?.channelAppliedOn}"
 				data-automation-id="audit-transactions-beneficiary-channel-applied-on">
 			</horizon-label>
 		</capitec-group>
@@ -821,25 +823,25 @@ class AuditTransactionHistory extends Component {
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Date Requested"
-				value = "${formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`)}"
+				value = "${formatDate(item?.additionalDetails?.date, `dd mmm yyyy`) === `` ? `-` : formatDate(item?.additionalDetails?.date, `dd mmm yyyy`)}"
 				data-automation-id="audit-transactions-status-requested-date">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Previous Status"
-				value = "${isNullorEmpty(item.additionalDetails.previousStatus) ? `-` : item.additionalDetails.previousStatus}"
+				value = "${isNullorEmpty(item?.additionalDetails?.previousStatus) ? `-` : item?.additionalDetails?.previousStatus}"
 				data-automation-id="audit-transactions-status-previous-status">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Effective Date" 
-				value = "${formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`)}"
+				value = "${formatDate(item?.additionalDetails?.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item?.additionalDetails?.effectiveDate, `dd mmm yyyy`)}"
 				data-automation-id="audit-transactions-status-effective-date">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Current Status"
-				value = "${isNullorEmpty(item.additionalDetails.currentStatus) ? `-` : item.additionalDetails.currentStatus}"
+				value = "${isNullorEmpty(item?.additionalDetails?.currentStatus) ? `-` : item?.additionalDetails?.currentStatus}"
 				data-automation-id="audit-transactions-status-current-status">
 			</horizon-label>
 		</capitec-group>
@@ -847,13 +849,13 @@ class AuditTransactionHistory extends Component {
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Actioned By"
-				value = "${item.additionalDetails.actionedBy}"
+				value = "${item?.additionalDetails?.actionedBy}"
 				data-automation-id="audit-transactions-status-actioned-by">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Channel Applied On"
-				value = "${item.additionalDetails.channelAppliedOn}"
+				value = "${item?.additionalDetails?.channelAppliedOn}"
 				data-automation-id="audit-transactions-status-channel-applied-on">
 			</horizon-label>
 		</capitec-group>
@@ -877,25 +879,25 @@ class AuditTransactionHistory extends Component {
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Date Requested"
-				value = "${formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`)}"
+				value = "${formatDate(item?.additionalDetails?.date, `dd mmm yyyy`) === `` ? `-` : formatDate(item?.additionalDetails?.date, `dd mmm yyyy`)}"
 				data-automation-id="audit-transactions-waiver-requested-date">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Effective Date" 
-				value = "${formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`)}"
+				value = "${formatDate(item?.additionalDetails?.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item?.additionalDetails?.effectiveDate, `dd mmm yyyy`)}"
 				data-automation-id="audit-transactions-waiver-effective-date">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Benefit Waiver Type"
-				value = "${isNullorEmpty(item.additionalDetails.benefitWaiverType) ? `-` : item.additionalDetails.benefitWaiverType}"
+				value = "${isNullorEmpty(item?.additionalDetails?.benefitWaiverType) ? `-` : item?.additionalDetails?.benefitWaiverType}"
 				data-automation-id="audit-transactions-waiver-type">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="End Date" 
-				value = "${formatDate(item.additionalDetails.endDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.endDate, `dd mmm yyyy`)}"
+				value = "${formatDate(item?.additionalDetails?.endDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item?.additionalDetails?.endDate, `dd mmm yyyy`)}"
 				data-automation-id="audit-transactions-waiver-end-date">
 			</horizon-label>
 		</capitec-group>
@@ -903,19 +905,19 @@ class AuditTransactionHistory extends Component {
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Status"
-				value = "${isNullorEmpty(item.additionalDetails.status) ? `-` : item.additionalDetails.status}"
+				value = "${isNullorEmpty(item?.additionalDetails?.status) ? `-` : item?.additionalDetails?.status}"
 				data-automation-id="audit-transactions-waiver-status">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Actioned By"
-				value = "${item.additionalDetails.actionedBy}"
+				value = "${item?.additionalDetails?.actionedBy}"
 				data-automation-id="audit-transactions-waiver-actioned-by">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Channel Applied On"
-				value = "${item.additionalDetails.channelAppliedOn}"
+				value = "${item?.additionalDetails?.channelAppliedOn}"
 				data-automation-id="audit-transactions-waiver-channel-applied-on">
 			</horizon-label>
 		</capitec-group>
@@ -939,25 +941,25 @@ class AuditTransactionHistory extends Component {
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Date Requested"
-				value = "${formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.requestedDate, `dd mmm yyyy`)}"
+				value = "${formatDate(item?.additionalDetails?.date, `dd mmm yyyy`) === `` ? `-` : formatDate(item?.additionalDetails?.date, `dd mmm yyyy`)}"
 				data-automation-id="audit-transactions-claim-requested-date">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Case/Incident Number"
-				value = "${isNullorEmpty(item.additionalDetails.caseNumber) ? `-` : item.additionalDetails.caseNumber}"
+				value = "${isNullorEmpty(item?.additionalDetails?.caseNumber) ? `-` : item?.additionalDetails?.caseNumber}"
 				data-automation-id="audit-transactions-claim-case-number">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Effective Date" 
-				value = "${formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item.additionalDetails.effectiveDate, `dd mmm yyyy`)}"
+				value = "${formatDate(item?.additionalDetails?.effectiveDate, `dd mmm yyyy`) === `` ? `-` : formatDate(item?.additionalDetails?.effectiveDate, `dd mmm yyyy`)}"
 				data-automation-id="audit-transactions-claim-effective-date">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Claim Status"
-				value = "${isNullorEmpty(item.additionalDetails.claimStatus) ? `-` : item.additionalDetails.claimStatus}"
+				value = "${isNullorEmpty(item?.additionalDetails?.claimStatus) ? `-` : item?.additionalDetails?.claimStatus}"
 				data-automation-id="audit-transactions-claim-status">
 			</horizon-label>
 		</capitec-group>
@@ -965,13 +967,13 @@ class AuditTransactionHistory extends Component {
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Actioned By"
-				value = "${item.additionalDetails.actionedBy}"
+				value = "${item?.additionalDetails?.actionedBy}"
 				data-automation-id="audit-transactions-claim-actioned-by">
 			</horizon-label>
 			<horizon-label
 				style="${unsafeCSS(TABLE_EXPANDER_CELL.fourColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 				label="Channel Applied On"
-				value = "${item.additionalDetails.channelAppliedOn}"
+				value = "${item?.additionalDetails?.channelAppliedOn}"
 				data-automation-id="audit-transactions-claim-channel-applied-on">
 			</horizon-label>
 		</capitec-group>
@@ -1212,7 +1214,7 @@ class AuditTransactionHistory extends Component {
 		if (RENDER_CHIPS[FILTER_BY.ACTIVITY_TYPE]) {
 			const activityType = RENDER_CHIPS[FILTER_BY.ACTIVITY_TYPE];
 
-			this.filteredData = this.filteredData?.filter(item => item.activityType === activityType);
+			this.filteredData = this.filteredData?.filter(item => item.transactionType === activityType);
 		}
 
 		this.requestUpdate();

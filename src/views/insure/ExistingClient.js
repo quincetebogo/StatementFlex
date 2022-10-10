@@ -4,7 +4,7 @@ import { css, html } from 'platform/elements';
 import { InsureService } from 'app/services/InsureService';
 import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
-import { MAX_RESULTS } from 'app/constants/InsureTransactionHistory';
+import { MAX_RESULTS, AUDIT_DATE_TYPE_LIST } from 'app/constants/InsureTransactionHistory';
 import { getAgeFromIDNumber, getGenderFromIDNumber } from 'app/utils/insureUtils';
 import { INSURE_CALLER_PAGE, DOCUMENT_TYPE, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
 import { SavingsService } from 'app/services/SavingsService';
@@ -876,10 +876,10 @@ export class ExistingClient extends InsureViewBase {
 	async _getAuditTransactionHistory(startDate, endDate, pageIndex) {
 		const transactionHistoryRequest = {
 			contractReference: this.contractReference,
-			transactionDateType: `TransactionDate`,
+			transactionDateType: AUDIT_DATE_TYPE_LIST[0].code,
 			fromDate: startDate || POLICY_TRANSACTION_HISTORY.START_DATE,
 			toDate: endDate || POLICY_TRANSACTION_HISTORY.END_DATE,
-			transactionStatus: TRANSACTION_STATUS.FINANCIAL,
+			transactionStatus: TRANSACTION_STATUS.NONFINANCIAL,
 			pagniation: {
 				pageIndex: pageIndex || POLICY_TRANSACTION_HISTORY.PAGE_INDEX,
 				totalPerPage: POLICY_TRANSACTION_HISTORY.MAX_RESULTS
@@ -897,11 +897,17 @@ export class ExistingClient extends InsureViewBase {
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions
 				.map((item) => {
-					const formatedChangeActionedDate = new Date(Date.parse(item.changeActionedDate));
-					const formatedEffectiveDate = new Date(Date.parse(item.effectiveDate));
-					item.formatedChangeActionedDate = formatedChangeActionedDate;
-					item.formatedEffectiveDate = formatedEffectiveDate;
-					item.groupBychangeActionedDate = `${getMonthName(formatedChangeActionedDate.getMonth())} ${formatedChangeActionedDate.getFullYear()}`;
+					// TODO: Need to update below code once service includes in the response payload.
+					// const formatedChangeActionedDate = new Date(Date.parse(item.changeActionedDate));
+					// const formatedEffectiveDate = new Date(Date.parse(item.effectiveDate));
+					// item.formatedChangeActionedDate = formatedChangeActionedDate;
+					// item.formatedEffectiveDate = formatedEffectiveDate;
+					// item.groupBychangeActionedDate = `${getMonthName(formatedChangeActionedDate.getMonth())} ${formatedChangeActionedDate.getFullYear()}`;
+					
+					const formatedDate = new Date(Date.parse(item.date));
+					item.formatedDate = formatedDate;
+					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
+
 					return item;
 				});
 			this.transactions.push(...formattedTrans);

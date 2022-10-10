@@ -16,8 +16,8 @@
  * @enum {Object} AUDIT_DATE_TYPE_LIST
  */
  export const AUDIT_DATE_TYPE_LIST = Object.freeze([
-	{ code: `ActionedDate`, text: `Change Actioned Date` },
-	{ code: `EffectiveDate`, text: `Effective Date` }
+	{ code: `TransactionDate`, text: `Change Actioned Date` }, // TODO: Endpoint doesn't include it in request payload. code: `ActionedDate`
+	{ code: `TransactionDate`, text: `Effective Date` } // code: `EffectiveDate`
 ]);
 
 /**
@@ -82,12 +82,12 @@ export const TODAY_DATE = new Date();
  * @enum {Object} ACTIVITY_TYPE
  */
  export const ACTIVITY_TYPE = Object.freeze({
-	PREMIUM_CHANGE: `Premium Change`,
-	BANKDETAILS_CHANGES: `Bank Details Changes`,
+	PREMIUM_CHANGE: `UpdatePolicyQuote`,
+	BANKDETAILS_CHANGES: `UpdateBankDetails`,
 	MAINLIFE_CHANGES: `Main Life Changes`,
-	LIVESASSURED_CHANGES: `Lives Assured Changes`,
+	LIVESASSURED_CHANGES: `AddLife`,
 	BENEFICIARY_CHANGES: `Beneficiary Changes`,
 	POLICYSTATUS_CHANGES: `Policy Status Changes`,
-	WAIVER_CHANGES: `Waiver Changes`,
+	WAIVER_CHANGES: `AddWaiverInfo`,
 	CLAIMSLODGES_CHANGES: `Claims Lodges Changes`
 });
