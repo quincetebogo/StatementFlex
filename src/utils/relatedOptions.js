@@ -125,6 +125,16 @@ export const relatedOptions = {
 			`tax-certificate`,
 			`proof-of-account`
 		]
+	},
+	'fixed-term-savings-plan': {
+		Success: [
+			`tax-certificate`,
+			`proof-of-account`
+		],
+		Failure: [
+			`tax-certificate`,
+			`proof-of-account`
+		]
 	}
 };
 

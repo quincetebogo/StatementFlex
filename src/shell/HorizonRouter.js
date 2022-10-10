@@ -62,7 +62,9 @@ const HORIZON_ROUTES = Object.freeze({
 	PROOF_OF_PAYMENT_SUCCESS: `/success/proof-of-payment`,
 	PROOF_OF_PAYMENT_FAILURE: `/error/proof-of-payment`,
 	PAID_UP_LETTER_SUCCESS: `/success/paid-up-letter`,
-	PAID_UP_LETTER_FAILURE: `/error/paid-up-letter`
+	PAID_UP_LETTER_FAILURE: `/error/paid-up-letter`,
+	FTSP_SUCCESS: `/success/fixed-term-savings-plan`,
+	FTSP_FAILURE: `/error/fixed-term-savings-plan`
 });
 
 
@@ -407,6 +409,14 @@ export class HorizonRouter {
 
 	navigatePaidUpLetterFailure() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.PAID_UP_LETTER_FAILURE}`);
+	}
+
+	navigateFixedTermSavingsPlanSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.FTSP_SUCCESS}`);
+	}
+
+	navigateFixedTermSavingsPlanFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.FTSP_FAILURE}`);
 	}
 
 	/**
@@ -992,5 +1002,21 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.PAID_UP_LETTER_FAILURE,
 		load: () => import(`../views/quickTransactions/PaidUpLetterFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-fixed-term-savings-plan-success`,
+		title: `FixedTermSavingsPlanSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.FTSP_SUCCESS,
+		load: () => import(`../views/savingsPlan/FixedTermSavingsPlanSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-fixed-term-savings-plan-failure`,
+		title: `FixedTermSavingsPlanFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.FTSP_FAILURE,
+		load: () => import(`../views/savingsPlan/FixedTermSavingsPlanFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	}
 ];
