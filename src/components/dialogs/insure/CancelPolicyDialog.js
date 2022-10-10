@@ -27,7 +27,7 @@ class CancelPolicyDialog extends Component {
 
 		this.cancelationReasons = CANCELATION_REASONS;
 		this.selected = false;
-		this.checked = false;
+		this.errorMsg = ``;
 		this.cancelReason = ``;
 		this.contractReference = ``;
 		this.cancelPolicyDocumentDetails = {};
@@ -53,7 +53,8 @@ class CancelPolicyDialog extends Component {
 			contractReference: { type: String, state: true },
 			cancelReason: { type: String, state: true },
 			getCancelPolicyDocument: { type: Object, state: true },
-			cancelPolicyDocumentDetails: { type: Object, state: true }
+			cancelPolicyDocumentDetails: { type: Object, state: true },
+			errorMsg: { type: String, state: true }
 		};
 	}
 
@@ -105,7 +106,7 @@ class CancelPolicyDialog extends Component {
 
 	_valueSelected(e) {
 		this.selected = true;
-
+		this.errorMsg = ``;
 		this.cancelReason = e.detail.new.code;
 
 		this._getCancelAgreement(this.cancelReason);
@@ -115,21 +116,6 @@ class CancelPolicyDialog extends Component {
 
 	async _getCancelAgreement(cancelReason) {
 		await this.getCancelPolicyDocument(this.contractReference, cancelReason);
-	}
-
-/**
- * Event to determine whether the checkbox has been checked or not
- * 
- * @param {*} e param
- * @returns {null} null
- */
-	_CheckBox(e) {
-		if (e.detail.new === true) {
-			this.checked = true;
-		} else {
-			this.checked = false;
-		}
-
 	}
 
 	/**
@@ -143,6 +129,15 @@ class CancelPolicyDialog extends Component {
 		tomorrow.setDate(tomorrow.getDate() + 1);
 
 		return tomorrow;
+	}
+
+	_checkSelected() {
+
+		if (this.selected === true) {
+			this._onAgreeClick();
+		} else {
+			this.errorMsg = `Please select a cancellation reason`;
+		}
 	}
 
 	//  #endregion
@@ -231,12 +226,6 @@ class CancelPolicyDialog extends Component {
 	 */
 	 _renderDialogBody() {
 		return html`
-			<capitec-content-box class="notification">
-				<capitec-toast type="info" header="Notify Client" 
-					detail="The full agreement, inclusive of the Policy Schedule, Section 484 summary. Disclosure, terms and conditions, will be emailed to you and available in branch."
-					data-automation-id="insure-cancel-policy-dialog-notification">
-				</capitec-toast>
-			</capitec-content-box>
 
 			<div class="select" data-automation-id="insure-cancel-policy-dialog-cancelation-reason">
 				<capitec-select 
@@ -244,16 +233,18 @@ class CancelPolicyDialog extends Component {
 					.items= "${this.cancelationReasons}"
 					display-field="text"
 					id-field="code"
-					@value-change = "${(e) => this._valueSelected(e)}">
+					@value-change = "${(e) => this._valueSelected(e)}"
+					error = "${this.errorMsg}">
 				</capitec-select>
 			</div>
 
 			<capitec-content-box class="no-padding">
 				<capitec-label type="subtitle" label=" By requesting the cancellation of the policy, you acknowledge and confirm that:"></capitec-label>
 				<ul>
-				<li>The policy has been cancelled with the effective date from ${dateFormat(this._getDate())}.</li>
-				<li>All the policy benefits have been ceased and you no longer benefit from them.</li>
-				<li>Should any premiums be received on this policy, after the date of this instruction, it will be refunded to you.</li>
+				<li>You will no longer have any benefits under this policy, effective ${dateFormat(this._getDate())}.</li>
+				<li>You will be entitled to a refund of all premiums paid if you cancel this policy within 31 (thirty-one) days from the signature provided that no benefit has been paid or claimed</li>
+				<li>You will not be entitled to a refund of premiums, if you cancel this policy at anytime after the 31 (thirty-one) day period referred to above</li>
+				<li>A Waiting Period will not be applicable on the Funeral Benefit, should you take up a new Funeral Cover Plan within 2 (two) months of cancelling this policy</li>
 				</ul>
 			</capitec-content-box>
 
@@ -264,12 +255,6 @@ class CancelPolicyDialog extends Component {
 						src="data:application/pdf;base64,${this.cancelPolicyDocumentDetails?.documentContent}#view=fitH">
 					</iframe>
 				</capitec-expander>
-			</capitec-content-box>
-
-			<capitec-content-box class="no-padding">
-				<capitec-check label="Please confirm that you agree to these terms and conditions and that you are bound by them." 
-					@value-change="${(e) => this._CheckBox(e)}">
-				</capitec-check>
 			</capitec-content-box>
 
 
@@ -288,9 +273,8 @@ class CancelPolicyDialog extends Component {
 					data-automation-id="insure-cancel-policy-dialog-cancel">
 				</capitec-button>
 				<capitec-button class="button" slot="footer" type="primary" label="Agree"
-					@click="${() => this._onAgreeClick()}"
-					data-automation-id="insure-cancel-policy-dialog-agree"
-					.disabled="${this.selected === false || this.checked === false}">
+					@click="${() => this._checkSelected()}"
+					data-automation-id="insure-cancel-policy-dialog-agree">
 				</capitec-button>
 		`;
 	}

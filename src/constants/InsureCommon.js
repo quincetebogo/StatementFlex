@@ -148,14 +148,12 @@ export const DEBIT_ORDER_DAY_OPTIONS = Object.freeze([
 	{ code: `Family`, text: `Family circumstances` },
 	{ code: `Confidential`, text: `Confidential` },
 	{ code: `Affordability`, text: `Affordability` },
-	{ code: `Already_Covered`, text: `Already covered` },
-	{ code: `5`, text: `Better off at another provider` },
-	{ code: `6`, text: `Cooling off period` },
-	{ code: `7`, text: `Covered by another family member` },
-	{ code: `8`, text: `Insurer cancelled policy` },
-	{ code: `9`, text: `Internal Audit Compliance` },
-	{ code: `10`, text: `Invalid Policy` },
-	{ code: `11`, text: `Global One Savings Account is Closed` }
+	{ code: `Other_Provider`, text: `Better off at another provider` },
+	{ code: `Already_Covered`, text: `Covered by another family member` },
+	{ code: `Insurer_Cancelled`, text: `Insurer cancelled policy` },
+	{ code: `Audit`, text: `Internal Audit Compliance` },
+	{ code: `Invalid`, text: `Invalid Policy` },
+	{ code: `9`, text: `Global One Savings Account is Closed` }
 ]);
 
 
