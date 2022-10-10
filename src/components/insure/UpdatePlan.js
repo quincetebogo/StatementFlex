@@ -93,7 +93,7 @@ class UpdatePlan extends Component {
 		this.debitOrderDayOptions = DEBIT_ORDER_DAY_OPTIONS;
 		this.genderOptions = GENDER_OPTIONS;
 		this.titleOptions = TITLE_OPTIONS;
-		this.disclosureValidationMessage = ``;
+		this.disclosureValidationMessage = {};
 
 	}
 
@@ -166,7 +166,7 @@ class UpdatePlan extends Component {
 			reinstatePaymentAgreementDocument: { type: Object, state: true },
 
 			dOB: { type: String, state: true },
-			disclosureValidationMessage: { type: String, state: true }
+			disclosureValidationMessage: { type: Object, state: true }
 		};
 	}
 
@@ -866,18 +866,16 @@ class UpdatePlan extends Component {
 	 * @return {null} null
 	 */
 	async _onUpdatePlan() {
-		if (!(this.agreementCFPAccepted === `true` && this.agreementCFPAccepted === `true` && 
-			this.agreementEACLAccepted === `true` && this.agreementYBPAccepted === `true` && this.agreementYROAAccepted)) {
-				this.showValidationConfirmDialog = true;
+		if (!(this.agreementFCPAccepted === `yes` && this.agreementCFPAccepted === `yes` && 
+			this.agreementEACLAccepted === `yes` && this.agreementYBPAccepted === `yes` && 
+			this.agreementYROAAccepted === `yes`)) {
 
-				this.disclosureValidationMessage = html`<strong>Please accept the following disclosure (s):</strong>
-				<ul>
-					<li>Capitec Funeral Plan agreement</li></li>
-					<li>Funeral Cover Plan agreement</li>
-				</ul>`;
+			this.showValidationConfirmDialog = true;
 
-				return;
-			}
+			this.disclosureValidationMessage = this._generateDisclosureValidationMessage();
+
+			return;
+		}
 
 		this.prepareUpdateResponse = await this.updatePlanPrepare(this.policyDetails);
 
@@ -1009,6 +1007,22 @@ class UpdatePlan extends Component {
 			type = `unsuccessful-red`;
 		}
 		return type;
+	}
+
+	/**
+	 * Construct Validation message if all disclosures are not accepted
+	 *  
+	 * @returns {html} html content of disclosure validations 
+	*/
+	_generateDisclosureValidationMessage() {
+		return html`<strong>Please accept the following disclosure (s):</strong>
+		<ul>
+			${this.agreementFCPAccepted !== `yes` ? html`<li>Funeral Cover Plan agreement</li>` : ``}
+			${this.agreementCFPAccepted !== `yes` ? html`<li>Capitec Funeral Plan agreement</li>` : ``}
+			${this.agreementEACLAccepted !== `yes` ? html`<li>Entry Ages and Child Limits agreement</li>` : ``}
+			${this.agreementYBPAccepted !== `yes` ? html`<li>Beneficiary Paid agreement</li>` : ``}
+			${this.agreementYROAAccepted !== `yes` ? html`<li>Responsibility & Accountability agreement</li>` : ``}
+		</ul>`;
 	}
 
 	// #endregion
