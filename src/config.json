@@ -220,11 +220,11 @@
 			"positiveCase": true
 		},
 		"insureClientPolicies": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureProductParams": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureCalculateQuote": {
@@ -240,7 +240,7 @@
 			"positiveCase": true
 		},
 		"insurePolicyTransactionHistory": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureAuditTransactionHistory": {
@@ -259,7 +259,7 @@
 			"enabled": false,
 			"positiveCase": true
 		},
-		"insureCommsHistory":{
+		"insureCommsHistory": {
 			"enabled": true,
 			"positiveCase": true
 		},
@@ -296,7 +296,7 @@
 			"positiveCase": false
 		},
 		"insurePrepareUpdate": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insurePolicyAccept": {
@@ -344,6 +344,10 @@
 			"positiveCase": true
 		},
 		"insureClaimSummary": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"searchCallerAdvanced": {
 			"enabled": true,
 			"positiveCase": true
 		}

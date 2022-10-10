@@ -41,7 +41,7 @@ export default class HorizonChannelServiceMocks {
 		const logError = (err) => {
 			console.log(err);
 		};
-		
+
 		this.callMocks = await this._loadMockModule(this.callMocks, `acceptCall`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
 		this.callMocks = await this._loadMockModule(this.callMocks, `searchCaller`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
 		this.favouritesMocks = await this._loadMockModule(this.favouritesMocks, `favouritesLanding`, () => import(`../mocks/QuickTransactionMocks`).catch(err => logError(err)));
@@ -50,28 +50,28 @@ export default class HorizonChannelServiceMocks {
 		this.cardLimitsMocks = await this._loadMockModule(this.cardLimitsMocks, `getCardLimitsAgreement`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
 		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckMandates`, () => import(`../mocks/DebiCheckMockData`).catch(err => logError(err)));
 		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckDetails`, () => import(`../mocks/DebiCheckMockData`).catch(err => logError(err)));
-        this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckApprove`, () => import(`../mocks/DebiCheckMockData`).catch(err => logError(err)));
+		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckApprove`, () => import(`../mocks/DebiCheckMockData`).catch(err => logError(err)));
 		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckAgreement`, () => import(`../mocks/DebiCheckMockData`).catch(err => logError(err)));
 		this.securityQuestionMocks = await this._loadMockModule(this.securityQuestionMocks, `xdsQuestions`, () => import(`../mocks/SecurityQuestions`).catch(err => logError(err)));
 		this.stopCardLandingMocks = await this._loadMockModule(this.stopCardLandingMocks, `stopCardLanding`, () => import(`../mocks/StopCardMockData`).catch(err => logError(err)));
 		this.hasInsuranceProductsMock = await this._loadMockModule(this.hasInsuranceProductsMock, `hasInsuranceProducts`, () => import(`../mocks/HasInsuranceProductsMock`).catch(err => logError(err)));
 		this.transactionHistoryMocks = await this._loadMockModule(this.transactionHistoryMocks, `transactionHistory`, () => import(`../mocks/TransactionHistoryMockData`).catch(err => logError(err)));
 		this.transactionHistoryMocks = await this._loadMockModule(this.transactionHistoryMocks, `savingsPlanTransactionHistory`, () => import(`../mocks/TransactionHistoryMockData`).catch(err => logError(err)));
-		this.savingsAccountMocks = await this._loadMockModule(this.savingsAccountMocks, `savingsAccountLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));  
+		this.savingsAccountMocks = await this._loadMockModule(this.savingsAccountMocks, `savingsAccountLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
 		this.savingsAccountMocks = await this._loadMockModule(this.savingsAccountMocks, `savingsPlanLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
 		this.viewStatementsMock = await this._loadMockModule(this.viewStatementsMock, `viewStatements`, () => import(`../mocks/ViewStatementMock`).catch(err => logError(err)));
 		this.tapToPayMocks = await this._loadMockModule(this.tapToPayMocks, `tapToPayLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
 		this.liveBetterLandingMocks = await this._loadMockModule(this.liveBetterLandingMocks, `liveBetterLanding`, () => import(`../mocks/LiveBetterLandingMocks`).catch(err => logError(err)));
 		this.clientInsightsMocks = await this._loadMockModule(this.clientInsightsMocks, `getClientInsights`, () => import(`../mocks/ClientInsightsMocks`).catch(err => logError(err)));
-    	this.accessChannelsMocks = await this._loadMockModule(this.accessChannelsMocks, `accessChannelLanding`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err)));    
-    	this.creditMocks = await this._loadMockModule(this.creditMocks, `creditBalance`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
-    	this.creditMocks = await this._loadMockModule(this.creditMocks, `creditOverview`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
-    	this.creditMocks = await this._loadMockModule(this.creditMocks, `sendSettlementQuoteEmail`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
-		  this.creditMocks = await this._loadMockModule(this.creditMocks, `permissions`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
-		  this.creditMocks = await this._loadMockModule(this.creditMocks, `settleAndCloseQuote`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
-    	this.creditMocks = await this._loadMockModule(this.creditMocks, `emailPaidUpLetter`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
-    	this.budgetFacility = await this._loadMockModule(this.budgetFacility, `budgetTransferFromAccounts`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
-    	this.budgetFacility = await this._loadMockModule(this.budgetFacility, `confirmBudgetTransfer`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
+		this.accessChannelsMocks = await this._loadMockModule(this.accessChannelsMocks, `accessChannelLanding`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err)));
+		this.creditMocks = await this._loadMockModule(this.creditMocks, `creditBalance`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+		this.creditMocks = await this._loadMockModule(this.creditMocks, `creditOverview`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+		this.creditMocks = await this._loadMockModule(this.creditMocks, `sendSettlementQuoteEmail`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+		this.creditMocks = await this._loadMockModule(this.creditMocks, `permissions`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+		this.creditMocks = await this._loadMockModule(this.creditMocks, `settleAndCloseQuote`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+		this.creditMocks = await this._loadMockModule(this.creditMocks, `emailPaidUpLetter`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+		this.budgetFacility = await this._loadMockModule(this.budgetFacility, `budgetTransferFromAccounts`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
+		this.budgetFacility = await this._loadMockModule(this.budgetFacility, `confirmBudgetTransfer`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
 		this.kbaMocks = await this._loadMockModule(this.kbaMocks, `loadKBA`, () => import(`../mocks/KBAMocks`).catch(err => logError(err)));
 	}
 
@@ -85,7 +85,7 @@ export default class HorizonChannelServiceMocks {
 			mockResponse.ivrOptionCode = incomingCallData.ivrOptionCode;
 			mockResponse.incomingTelephoneNumber = incomingCallData.incomingTelephoneNumber;
 			mockResponse.agentTelephoneNumber = incomingCallData.agentTelephoneNumber;
-		
+
 			return mockResponse;
 		}
 
@@ -93,9 +93,17 @@ export default class HorizonChannelServiceMocks {
 		return null;
 	}
 
-	searchCaller() {
+	searchCaller(clientInfo) {
 		if (this._mockSettings.searchCaller.positiveCase) {
-			return this.callMocks.searchCaller;
+			let mockedCaller = this.callMocks.searchCaller;
+
+			if (this._mockSettings.searchCallerAdvanced.enabled) {
+				const specificMockedCaller = this.callMocks.searchCallerList.find((caller) => caller.southAfricanIDNumber === clientInfo.searchValue);
+				if (specificMockedCaller) {
+					mockedCaller = { callerInformation: specificMockedCaller };
+				}
+			}
+			return mockedCaller;
 		}
 	}
 
@@ -110,7 +118,7 @@ export default class HorizonChannelServiceMocks {
 	verifySecurityQuestions(answers) {
 		if (this._mockSettings.verifySecurityQuestions.positiveCase) {
 			return `Authenticated`;
-		} 
+		}
 
 		return `not-authenticated`;
 	}
@@ -124,7 +132,7 @@ export default class HorizonChannelServiceMocks {
 			const httpError = new HttpStatusError();
 			httpError.status = 400;
 			httpError.message = `Oh no! A fake 400!`;
-	
+
 			throw httpError;
 		});
 
@@ -176,20 +184,20 @@ export default class HorizonChannelServiceMocks {
 		}
 
 		return null;
-    }
+	}
 
-    debiCheckApprove(mandateInfo) {
-        if (this._mockSettings.debiCheckApprove.positiveCase) {
-            return this.mandatesMocks.agreement;
+	debiCheckApprove(mandateInfo) {
+		if (this._mockSettings.debiCheckApprove.positiveCase) {
+			return this.mandatesMocks.agreement;
 		}
 
 		// Code for a negative case could come here
 		return null;
-    }
+	}
 
 	debiCheckDecline() {
 		if (this._mockSettings.debiCheckDecline.positiveCase) {
-            return true;
+			return true;
 		}
 
 		// Code for a negative case could come here
@@ -198,7 +206,7 @@ export default class HorizonChannelServiceMocks {
 
 	debiCheckAgreement(clientInfo) {
 		if (this._mockSettings.debiCheckAgreement.positiveCase) {
-            return this.mandatesMocks.agreementTemplate;
+			return this.mandatesMocks.agreementTemplate;
 		}
 
 		// Code for a negative case could come here
@@ -234,7 +242,7 @@ export default class HorizonChannelServiceMocks {
 	}
 
 	savingsPlanTransactionHistory() {
-		if(this._mockSettings.savingsPlanTransactionHistory.positiveCase) {
+		if (this._mockSettings.savingsPlanTransactionHistory.positiveCase) {
 			return this.transactionHistoryMocks.savingsPlanTransactionHistory;
 		}
 	}
@@ -325,7 +333,7 @@ export default class HorizonChannelServiceMocks {
 		}
 		return null;
 	}
-    
+
 	accessChannelLanding() {
 		if (this._mockSettings.accessChannelLanding.positiveCase) {
 			return this.accessChannelsMocks.accessChannelsDetails;
@@ -343,13 +351,13 @@ export default class HorizonChannelServiceMocks {
 	suspendApp() {
 		return this._mockSettings.suspendApp.positiveCase;
 	}
-  
+
 	accessChannelResetSecurityTokenClock() {
 		if (this._mockSettings.accessChannelResetSecurityTokenClock.positiveCase) {
 			return this.accessChannelsMocks.accessChannelResetSecurityTokenClock;
 		}
 		return null;
-	}  
+	}
 
 	activatefullUssdMenu() {
 		if (this._mockSettings.activatefullUssdMenu.positiveCase) {
@@ -360,7 +368,7 @@ export default class HorizonChannelServiceMocks {
 			const httpError = new HttpStatusError();
 			httpError.status = 400;
 			httpError.message = `Oh no! A fake 400!`;
-	
+
 			throw httpError;
 		});
 
@@ -376,7 +384,7 @@ export default class HorizonChannelServiceMocks {
 			const httpError = new HttpStatusError();
 			httpError.status = 400;
 			httpError.message = `Oh no! A fake 400!`;
-	
+
 			throw httpError;
 		});
 
@@ -392,7 +400,7 @@ export default class HorizonChannelServiceMocks {
 			const httpError = new HttpStatusError();
 			httpError.status = 400;
 			httpError.message = `Oh no! A fake 400!`;
-	
+
 			throw httpError;
 		});
 
@@ -408,7 +416,7 @@ export default class HorizonChannelServiceMocks {
 			const httpError = new HttpStatusError();
 			httpError.status = 400;
 			httpError.message = `Oh no! A fake 400!`;
-	
+
 			throw httpError;
 		});
 
@@ -424,7 +432,7 @@ export default class HorizonChannelServiceMocks {
 			const httpError = new HttpStatusError();
 			httpError.status = 400;
 			httpError.message = `Oh no! A fake 400!`;
-	
+
 			throw httpError;
 		});
 
@@ -440,14 +448,14 @@ export default class HorizonChannelServiceMocks {
 			const httpError = new HttpStatusError();
 			httpError.status = 400;
 			httpError.message = `Oh no! A fake 400!`;
-	
+
 			throw httpError;
 		});
 
 		return errPromise;
 	}
 
-	settleAndCloseQuote () {
+	settleAndCloseQuote() {
 		if (this._mockSettings.settleAndCloseQuote.positiveCase) {
 			return this.creditMocks.settleAndCloseQuote;
 		}
@@ -456,14 +464,14 @@ export default class HorizonChannelServiceMocks {
 			const httpError = new HttpStatusError();
 			httpError.status = 400;
 			httpError.message = `Oh no! A fake 400!`;
-	
+
 			throw httpError;
 		});
 
 		return errPromise;
 
 	}
-  
+
 	emailPaidUpLetter() {
 		if (this._mockSettings.emailPaidUpLetter.positiveCase) {
 			return this.creditMocks.emailPaidUpLetter;
@@ -473,13 +481,13 @@ export default class HorizonChannelServiceMocks {
 			const httpError = new HttpStatusError();
 			httpError.status = 400;
 			httpError.message = `Oh no! A fake 400!`;
-	
+
 			throw httpError;
 		});
 
 		return errPromise;
 	}
-  
+
 	loadKBA(identifiedBy) {
 		if (this._mockSettings.loadKBA.positiveCase) {
 
@@ -513,7 +521,7 @@ export default class HorizonChannelServiceMocks {
 		if (this._mockSettings.verifyKBA.positiveCase) {
 			const max = 4;
 			const correctAnswers = request?.questionList.filter(item => item.providedAnswer)
-														  .length;
+				.length;
 			const reason = {
 				0: `ALLCORRECTLYANSWERED`,
 				1: `ONEWRONGANSWER`,
@@ -541,7 +549,7 @@ export default class HorizonChannelServiceMocks {
 			const httpError = new HttpStatusError();
 			httpError.status = 400;
 			httpError.message = `Oh no! A fake 400!`;
-	
+
 			throw httpError;
 		});
 
