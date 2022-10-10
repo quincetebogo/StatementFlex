@@ -283,7 +283,6 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`policyTransactionHistory`, transactionsRequest);
 		}
 
-		console.log(`In getPolicyTransactions: After mock`);
 		return this.post(
 			`/FuneralInsuranceProductService/policy/transactions`,
 			transactionsRequest,

@@ -578,6 +578,9 @@ class UpdatePlan extends Component {
 		if (e.detail.old !== e.detail.new) {
 			this.policyDetails.deductionDetails.bankDetails.bank = e.detail.new.code;
 			this.policyDetails.deductionDetails.bankDetails.branchCode = e.detail.new.branchCode;
+
+			this.policyDetails.deductionDetails.bankDetails.accountNumber = ``;
+			this.accountNumErrorMsg = `Account number is a required field`;
 		}
 
 		this.requestUpdate();
@@ -665,6 +668,7 @@ class UpdatePlan extends Component {
 		const calcQuoteResponse = await this.updatePlanQuote(this.policyDetails);
 		console.log(`calcQuoteResponse: `, calcQuoteResponse);
 		this.policyDetails.totalPremium = calcQuoteResponse.totalPremium;
+
 		this.requestUpdate();
 	}
 
@@ -1457,8 +1461,8 @@ class UpdatePlan extends Component {
 				<div>
 				<capitec-label label="Funeral Plan" type="Strong"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-label label="Total cover amount"></capitec-label>
-					<capitec-label label="${formatCurrency(this._totalCoverAmount()) === `` ? `R0.00` : formatCurrency(this._totalCoverAmount())}" class="calc-premium-total">
+					<capitec-label label="Total premium amount"></capitec-label>
+					<capitec-label label="${formatCurrency(this.policyDetails.totalPremium)}" class="calc-premium-total">
 					</capitec-label>
 
 					<!-- top -->
@@ -1475,11 +1479,11 @@ class UpdatePlan extends Component {
 						</div>
 						<hr>`)
 			}
-					<div class="calc-life-list">
+					<!-- <div class="calc-life-list">
 						<capitec-label label="Total Premium Amount" class="stronger"></capitec-label>
 						<capitec-label label="${isNullorEmpty(this.policyDetails.totalPremium) ? formatCurrency(0) : formatCurrency(this.policyDetails.totalPremium)}" class="stronger">
 						</capitec-label>
-					</div>
+					</div> -->
 				</div>
 		
 				<!-- bottom -->
@@ -1511,32 +1515,6 @@ class UpdatePlan extends Component {
 							<capitec-spacer></capitec-spacer>
 							${this._renderYBPNotification()}
 							<capitec-spacer></capitec-spacer>
-			
-							<!-- Main life details -->
-							<div class="calc-card-row">
-								<capitec-label label="Main Life" type="strong">
-								</capitec-label>
-							</div>
-							<horizon-expander expandButtonAlignment="right">
-								<capitec-group class="expander-header" slot="custom-header" layout="horizontal" gap="clear"
-									halign="left" valign="center">
-									<horizon-label class="fixed-label-main" data-automation-id="insure-policy-contract-reference"
-										label="Main Life" textOverflow="ellipsis"
-										value="${this.policyDetails.roleplayers[0].firstName} ${this.policyDetails.roleplayers[0].surname}">
-									</horizon-label>
-									<div class="vertical-line"></div>
-									<horizon-label data-automation-id="insure-policy-start-date"
-										label="Cover Amount (Min R5 000 - Max R100 000)"
-										value="${formatCurrency(this.policyDetails.roleplayers[0].coverAmount)}">
-									</horizon-label>
-								</capitec-group>
-								<div slot="content">
-									<capitec-group class="expander-content" layout="vertical" gap="none" halign="left"
-										valign="center">
-										${this._renderMainLifeOptions(this.policyDetails.roleplayers[0])}
-									</capitec-group>
-								</div>
-							</horizon-expander>
 			
 							<!--Beneficiaries -->
 							<div class="calc-card-row" style="margin-top: 15px;">

@@ -918,6 +918,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*} result
 	 */
 	async _updatePlanQuote(policyToCalc) {
+		const originalPolicy = policyToCalc;
 		const quoteCalcRequest = {
 			"saveQuote": true,
 			"contractReference": policyToCalc.contractReference,
@@ -925,7 +926,6 @@ export class ExistingClient extends InsureViewBase {
 			"totalPremium": policyToCalc.totalPremium,
 			"lifesAssured": policyToCalc.roleplayers.filter(ele => ele.lifeAssured === true)
 		};
-
 		console.log(`quoteCalcRequest :>> `, quoteCalcRequest);
 		
 		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
@@ -933,8 +933,9 @@ export class ExistingClient extends InsureViewBase {
 			return;
 		}
 
+		// forEach
+		
 		console.log(`calculateQuoteResp :>> `, calculateQuoteResp);
-
 		return calculateQuoteResp.result;
 	}
 
