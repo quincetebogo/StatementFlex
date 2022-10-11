@@ -1,22 +1,29 @@
 import { Component, css, html } from 'platform/elements';
+import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/HorizonSelectIcon';
 import 'app/components/common/HorizonProductTile'; 
 
 /**
- * Screen for Unlocking Fixed Term Savings Plans when the clients requests access to their funds they have in these accounts
+ * Screen for Full or Partial Unlocking Fixed Term Savings Plans when the clients requests.
  *
  * Events Raised
  * -------------
  * 
  * back
+ * view-agreement
+ * unlock
  * 
  * @export
  * @class UnlockFTSP
  * @extends {Component}
  */
 
+const UNLOCK_OPTIONS = {
+	FULL: `Full unlock`,
+	PARTIAL: `Partial unlock`
+};
 
  export class UnlockFTSP extends Component {
 	
@@ -30,16 +37,16 @@ import 'app/components/common/HorizonProductTile';
 		this.unlockOptions = null;
 		this.selectedFromAccount = null;
 		this.selectedToAccount = null;
-		this.selectedUnlockOption = null;
+		this.selectedAccUnlockOptions = null;
+
+		this.unlockType = null;
 		this.partialUnlockAmount = null;
-		this.unlockOptionsList = [
-			`Full unlock`,
-			`Partial unlock`
-		];
 		this.agreementAccepted = false;
 		this.showConfirmModal = false;
 		this.unlockFee = 0;
 		this.quoteRefNumber = ``;
+		this.errMessage = ``;
+		this.unlockOptionsList = [UNLOCK_OPTIONS.FULL];
 	}
 
 	// -------------------
@@ -49,9 +56,15 @@ import 'app/components/common/HorizonProductTile';
 	connectedCallback() {
 		super.connectedCallback();
 
-		[this.selectedFromAccount] = this.unlockFromAccountsList;
+		this._loadUnlockOptionsList();
+
+		// Selecting default from account as the one Unlock savings plan flow is triggered.
+		// eslint-disable-next-line eqeqeq
+		[this.selectedFromAccount] = this.unlockFromAccountsList.filter(item => item.accountNumber == this.selectedUnlockAccNumber);
+		
+		// Default to account will always be primary savings account
 		[this.selectedToAccount] = this.unlockToAccountsList;
-		this.partialUnlockAmount = this.unlockOptions.partialUnlockAmount;
+
 	}
 
 	disconnectedCallback() {
@@ -64,7 +77,15 @@ import 'app/components/common/HorizonProductTile';
 
 	/**
 	 *
+	 * @property {Object} selectedUnlockAccNumber FTSP account number from which Unlock is selected 
 	 * @property {Object} unlockOptions full/partial unlock details 
+	 * @property {Object} unlockFromAccountsList Unlock from accounts details 
+	 * @property {Object} unlockToAccountsList Unlock to accounts details 
+	 * @property {Object} savingsPlanDetails Savings plans details
+	 * 
+	  * @property {getUnlockQuoteCallback} getUnlockQuote Callback function to get unlock quote for the selected account and unlock type
+	 * @property {renderAlterBannerCallback} renderAlertBanner Callback function to render alter banner based on verification status & method
+	 * @property {shouldDisableCallback} shouldDisable Callback function to determine if particular need to be diabled based on verification status & method
 	 *
 	 * @readonly
 	 * @static
@@ -72,14 +93,18 @@ import 'app/components/common/HorizonProductTile';
 	 */
 	static get properties() {
 		return {
+			selectedUnlockAccNumber: { type: Object },
 			unlockOptions: { type: Object },
 			unlockFromAccountsList: { type: Object },
 			unlockToAccountsList: { type: Object },
 			savingsPlanDetails: { type: Object },
 
-			getUnlockQuote: { type: Object },
+			getUnlockQuote: { type: Object, attribute: false },
+			shouldDisable: { type: Object, attribute: false },
+			renderAlertBanner: { type: Object, attribute: false },
 
-			selectedUnlockOption: { state: true },
+			unlockType: { state: true },
+			selectedFromAccount: { state: true },
 			partialUnlockAmount: { state: true },
 			agreementAccepted: { state: true },
 			showConfirmModal: { state: true },
@@ -96,10 +121,12 @@ import 'app/components/common/HorizonProductTile';
 	}
 
 	async _chooseOption(e) {
-		this.selectedUnlockOption = e.detail.new;
+		this.unlockType = e.detail.new;
 		this.agreementAccepted = false;
+		this.errMessage = ``;
+		this.partialUnlockAmount = this.selectedAccUnlockOptions.partialUnlockAmount;
 
-		if (this.selectedUnlockOption === `Full unlock`) {
+		if (this.unlockType === `Full unlock`) {
 			this.partialUnlockAmount = this.selectedFromAccount.availableBalance;
 
 			const result = await this.getUnlockQuote(`Full`, this.selectedFromAccount.accountNumber, this.partialUnlockAmount);
@@ -110,10 +137,25 @@ import 'app/components/common/HorizonProductTile';
 
 	_chooseFromAccount(e) {
 		this.selectedFromAccount = e.detail.new;
+		this.selectedUnlockAccNumber = this.selectedFromAccount.accountNumber;
+
+		this._loadUnlockOptionsList();
+
+		this.unlockType = null;
+		this.agreementAccepted = false;
+		this.errMessage = ``;
+		this.partialUnlockAmount = this.selectedAccUnlockOptions.partialUnlockAmount;
 	}
 
 	async _unlockAmountChange(e) {
+		this.errMessage = ``;
 		this.partialUnlockAmount = e.detail.new;
+
+		if (this.partialUnlockAmount > this.selectedAccUnlockOptions.partialUnlockAmount) {
+			this.errMessage = `Max unlock amount ${formatCurrency(this.selectedAccUnlockOptions.partialUnlockAmount)}`;
+			return;
+		}
+
 		const result = await this.getUnlockQuote(`Partial`, this.selectedFromAccount.accountNumber, this.partialUnlockAmount);
 		this.unlockFee = result.unlockFee;
 		this.quoteRefNumber = result.quoteReferenceNumber;
@@ -138,6 +180,7 @@ import 'app/components/common/HorizonProductTile';
 	_confirmUnlock() {
 		this.dispatchEvent(new CustomEvent(`unlock`, { detail: { accountNumber: this.selectedFromAccount.accountNumber, quoteRefNumber: this.quoteRefNumber } }));
 	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -147,6 +190,19 @@ import 'app/components/common/HorizonProductTile';
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_loadUnlockOptionsList() {
+		this.unlockOptionsList = [UNLOCK_OPTIONS.FULL];
+		
+		// eslint-disable-next-line eqeqeq
+		[this.selectedAccUnlockOptions] = this.unlockOptions.filter(account => account.accountNumber == this.selectedUnlockAccNumber);
+
+		if (this.selectedAccUnlockOptions.partialUnlock) {
+			this.unlockOptionsList.push(UNLOCK_OPTIONS.PARTIAL);
+		}
+		
+		this.partialUnlockAmount = this.selectedAccUnlockOptions.partialUnlockAmount;
+	}
 
 	// ---------
 	// RENDERING
@@ -165,6 +221,14 @@ import 'app/components/common/HorizonProductTile';
 				.left-arrow {
 					cursor: pointer;
 					margin-right: 16px;
+				}
+
+				/* Alert banner styles */
+				${ALERTBANNER_CSS}
+
+				.verificatoin-status {
+					width: 1025px;
+					margin: 16px 16px 0px 16px;
 				}
 
 				/** Account selection stylings **/
@@ -207,6 +271,7 @@ import 'app/components/common/HorizonProductTile';
 					--theme-label-default-font-weight: 600;
 					--theme-label-default-font-size: 15px;
 					--theme-label-font-color: #3A3A3A;
+					--theme-input-disabled-background-color: #FFFFFF;
 				}
 				.large-select{
 					width: 1025px;
@@ -228,6 +293,7 @@ import 'app/components/common/HorizonProductTile';
 				capitec-text-field {
 					width: 501px;
 					--theme-input-hint-font-color:#009DE0;
+					--theme-input-disabled-background-color: #FFFFFF;
 				}
 				.unlock-amount {
 					margin: 24px 21px 0px 0px;
@@ -296,7 +362,7 @@ import 'app/components/common/HorizonProductTile';
 					--theme-button-line-height: 20px;
 				}
 				capitec-check {
-					margin: 0px 0px 26px 37px;
+					margin: 8px 0px 26px 37px;
 					--theme-label-font-size: 16px;
 					--theme-label-font-weight: 600;
 				}
@@ -345,6 +411,7 @@ import 'app/components/common/HorizonProductTile';
 				.confirm-cancel {
 					margin: 0px;
 				}
+				
 			`
 		];
 	}
@@ -367,6 +434,7 @@ import 'app/components/common/HorizonProductTile';
 			</capitec-title-bar>
 				
 			<capitec-content-box noPadding>
+				${this.renderAlertBanner()}
 				${this._renderAccountSelection()}
 				${this._renderDetailsSelection()}
 				${this._renderDisclosure()}
@@ -393,13 +461,13 @@ import 'app/components/common/HorizonProductTile';
 					</capitec-label>
 
 					<horizon-select-icon
-						class="${this.selectedUnlockOption !== `Partial unlock` ? `large-select` : ``}"
+						class="${this.unlockType !== `Partial unlock` ? `large-select` : ``}"
 						data-automation-id="unlock-ftsp-from-account"
 						label="Choose account"
 						display-field="availableBalance"
 						id-field="accountNumber"
 						detail-label="Available balance"
-						hint="${this.selectedUnlockOption === `Full unlock` ? `Unlock Fixed-term Savings to a Flexible Plan` : ``}"
+						hint="${this.unlockType === `Full unlock` ? `Unlock Fixed-term Savings to a Flexible Plan` : ``}"
 						.items="${this.unlockFromAccountsList}"
 						.value="${this.selectedFromAccount}"
 						.displayRenderer="${(e) => this._renderOptions(e)}"
@@ -413,7 +481,7 @@ import 'app/components/common/HorizonProductTile';
 	}
 	
 	_renderToAccount() {
-		return this.selectedUnlockOption === `Partial unlock`
+		return this.unlockType === `Partial unlock`
 		? html`
 			<capitec-group class="accounts-group" layout="vertical" halign="left" valign="center" gap="clear">
 				<capitec-label
@@ -425,6 +493,7 @@ import 'app/components/common/HorizonProductTile';
 				<horizon-select-icon
 					data-automation-id="unlock-ftsp-to-account"
 					label="Choose account"
+					class="disabled-select"
 					display-field="availableBalance"
 					id-field="accountNumber"
 					detail-label="Available balance"
@@ -485,7 +554,7 @@ import 'app/components/common/HorizonProductTile';
 					.items=${this.unlockOptionsList}
 					@value-changed="${(e) => this._chooseOption(e)}"
 					tabindex=3
-					value="${this.selectedUnlockOption}"
+					value="${this.unlockType}"
 					select-mode="single"
 					error="">
 				</capitec-select>
@@ -496,10 +565,11 @@ import 'app/components/common/HorizonProductTile';
 						data-automation-id="unlock-ftsp-partial-amount"
 						label="Enter Unlock amount"
 						type="currency"
-						hint="Max unlock amount ${formatCurrency(this.partialUnlockAmount)}"
+						hint="Max unlock amount ${formatCurrency(this.unlockType === `Full unlock` ? this.selectedFromAccount.availableBalance : this.selectedAccUnlockOptions.partialUnlockAmount)}"
+						error="${this.errMessage}"
 						value="${this.partialUnlockAmount}"
 						@key-input="${(e) => this._unlockAmountChange(e)}"
-						?disabled=${this.selectedUnlockOption === `Full unlock`}>
+						?disabled=${!this.unlockType || this.unlockType === `Full unlock`}>
 					</capitec-text-field>
 
 					<capitec-text-field
@@ -507,8 +577,7 @@ import 'app/components/common/HorizonProductTile';
 						label="Unlock fee"
 						type="currency"
 						value="${this.unlockFee}"
-						@key-input="${(e) => this._budgetValueChange(e)}"
-						?disabled=${this.selectedUnlockOption === `Full unlock`}>
+						?disabled=${true}>
 					</capitec-text-field>
 					
 				</capitec-group>
@@ -537,33 +606,33 @@ import 'app/components/common/HorizonProductTile';
 				halign="left"
 				valign="center">
 					<horizon-label
-						data-automation-id=""
+						data-automation-id="unlock-ftsp-account-name"
 						label="Account name"
 						textOverflow="ellipsis"
 						value="${accountDetails.planName}">
 					</horizon-label>
 					<horizon-label
-						data-automation-id=""
+						data-automation-id="unlock-ftsp-account-balance"
 						label="Account balance"
 						value="${accountDetails.availableBalance}">
 					</horizon-label>
 					<horizon-label
-						data-automation-id=""
-						label="Account Type"
+						data-automation-id="unlock-ftsp-account-type"
+						label="Account type"
 						value="Multiple deposit">
 					</horizon-label>
 					<horizon-label
-						data-automation-id=""
+						data-automation-id="unlock-ftsp-account-number"
 						label="Account number"
 						value="${accountDetails.accountNumber}">
 					</horizon-label>
 					<horizon-label
-						data-automation-id=""
+						data-automation-id="unlock-ftsp-account-date-fixed"
 						label="Date fixed"
-						value="${accountDetails.dateFixed}%">
+						value="${accountDetails.dateFixed}">
 					</horizon-label>
 					<horizon-label
-						data-automation-id=""
+						data-automation-id="unlock-ftsp-account-maturity-date"
 						label="Maturity date"
 						value="${accountDetails.maturityDate}">
 					</horizon-label>
@@ -571,9 +640,10 @@ import 'app/components/common/HorizonProductTile';
 	}
 
 	_renderViewAgreementBar() {
-		return Boolean(this.selectedUnlockOption)
+		return Boolean(this.unlockType)
 			? html`
 				<horizon-product-tile 
+					data-automation-id="unlock-ftsp-view-agreement"
 					type="default"
 					label="Agreement"
 					subtitle="${this.selectedFromAccount.accountName}">
@@ -597,9 +667,9 @@ import 'app/components/common/HorizonProductTile';
 			</ul>
 
 			<capitec-check
-				data-automation-id=""
-				class=""
+				data-automation-id="unlock-ftsp-accept-quote"
 				label="I accept this quote"
+				?checked=${this.agreementAccepted}
 				@value-change="${(e) => this._acceptAgreement(e)}">
 			</capitec-check>
 		`;
@@ -609,13 +679,15 @@ import 'app/components/common/HorizonProductTile';
 		return html`
 			<capitec-button-bar>
 				<capitec-button
+					data-automation-id="unlock-ftsp-back-button"
 					label="Cancel"
 					@click="${() => this._back()}">
 				</capitec-button>
 				<capitec-button 
+					data-automation-id="unlock-ftsp-unlock-button"
 					type="primary"
-					label="${this.selectedUnlockOption === `Partial unlock` ? `Transfer` : `Unlock`}"
-					?disabled="${!(this.agreementAccepted && Boolean(this.selectedUnlockOption))}"
+					label="${this.unlockType === `Partial unlock` ? `Transfer` : `Unlock`}"
+					?disabled="${this.shouldDisable(`unlock-ftsp`) || !(this.agreementAccepted && Boolean(this.unlockType)) || Boolean(this.errMessage)}"
 					@click="${() => this._unlockOrTransferPlan()}">
 				</capitec-button>
 			</capitec-button-bar>`;
@@ -624,7 +696,10 @@ import 'app/components/common/HorizonProductTile';
 	_renderConfirmModal() {
 		return this.showConfirmModal 
 		? html`
-			<capitec-modal type="free" header-align="left">
+			<capitec-modal 
+				data-automation-id="unlock-ftsp-confirm-modal"
+				type="free" 
+				header-align="left">
 				<div slot="header">
 					<span>
 						<capitec-group layout="horizontal">
@@ -635,7 +710,7 @@ import 'app/components/common/HorizonProductTile';
 				</div>
 				<div slot="body">
 					<capitec-content-box class="confirm-box">
-						${this.selectedUnlockOption === `Full unlock` 
+						${this.unlockType === `Full unlock` 
 							? html`<p>You are about to change <b>${this.selectedFromAccount.accountName} Fixed-term to a Flexible Savings Plan</b> will affect your interest rate.</p>`
 							: html`<p>You are about to make a <b>${this.partialUnlockAmount} Partial unlock</b> from ${this.selectedFromAccount.accountName} Fixed-term Savings Plan to ${this.selectedToAccount.accountName}.</p>`}
 						<p>Are you sure you want to continue?</p>
@@ -644,14 +719,16 @@ import 'app/components/common/HorizonProductTile';
 				<div slot="footer">
 					<capitec-group layout="horizontal">
 						<capitec-button 
+							data-automation-id="unlock-ftsp-confirm-cancel"
 							label="Cancel"
 							class="confirm-cancel"
 							@click="${() => this._cancelConfirmUnlock()}">
 						</capitec-button>
 
 						<capitec-button 
+							data-automation-id="unlock-ftsp-confirm-unlock"
 							type="primary"
-							label="${this.selectedUnlockOption === `Partial unlock` ? `Transfer` : `Unlock`}"
+							label="${this.unlockType === `Partial unlock` ? `Transfer` : `Unlock`}"
 							@click="${() => this._confirmUnlock()}">
 						</capitec-button>
 					</capitec-group>
@@ -670,5 +747,25 @@ import 'app/components/common/HorizonProductTile';
 	* <capitec-pc-unlock-ftsp ... @back="${this._handler}"></capitec-pc-unlock-ftsp>
 	*
 	* @event UnlockFTSP#back
+	* @type {Object} - N/A
+	*/
+
+	/**
+	* When clicked on View document button
+	*
+	* @example
+	* <capitec-pc-unlock-ftsp ... @view-agreement="${this._handler}"></capitec-pc-unlock-ftsp>
+	*
+	* @event UnlockFTSP#view-agreement
+	* @type {Object} - N/A
+	*/
+
+	/**
+	* When confirming to unlock FTSP
+	*
+	* @example
+	* <capitec-pc-unlock-ftsp ... @unlock="${this._handler}"></capitec-pc-unlock-ftsp>
+	*
+	* @event UnlockFTSP#unlock
 	* @type {Object} - N/A
 	*/

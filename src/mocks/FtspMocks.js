@@ -1,9 +1,15 @@
 export const unlockOptions = {
 		"unlockOptions": [
 			{
-				"accountNumber": `1886213117`,
+				"accountNumber": `1630196159`,
 				"fullUnlock": true,
 				"partialUnlock": true,
+				"partialUnlockAmount": 3000
+			},
+			{
+				"accountNumber": `1630196158`,
+				"fullUnlock": true,
+				"partialUnlock": false,
 				"partialUnlockAmount": 3000
 			}
 		]

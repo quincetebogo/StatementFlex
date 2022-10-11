@@ -11,6 +11,7 @@ import { SavingsPlanEvents } from 'app/constants/telemetry/events/SavingsPlan';
 import { SavingsService } from 'app/services/SavingsService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { alertBannerMixin } from 'app/views/common/AlertBannerMixin';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/productControls/SavingsPlan/SavingsPlanLanding';
@@ -75,6 +76,8 @@ export class SavingsPlan extends ViewBase {
 		this.eventAggregator = EventAggregator.getInstance();
 		
 		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option, null, null, null, true));
+	
+		Object.assign(SavingsPlan.prototype, alertBannerMixin);
 	}
 
 	// -------------------
@@ -400,25 +403,20 @@ export class SavingsPlan extends ViewBase {
 
 	async _unlockFtsp(accountNumber) {
 
-		const request = {
-			cifNumber: this.callerInformation.cifNumber,
-			unlockOptionsAccountListModel: [
-				{
-				accountNumber: accountNumber
-				}
-			]
-		};
-
-		const returnValue = await this.savingsService.ftspUnlockOptions(request);
-
-		if (returnValue.succeeded) {
-			[this.unlockOptions] = returnValue.result.unlockOptions;
-		} else {
-			this.logger.log(`error`, `Failed to retrieve unlock options for FTSP from service.`, `_unlockFtsp`, returnValue.correlationId);
-		}
-
 		// Get list of fixed term savings plan accounts as "from accounts" for unlocking or transfering funds.
-		this.unlockFromAccountsList = this.savingsPlanDetails
+		this.unlockFromAccountsList = this._getUnlockFromAccounts();
+		this.selectedUnlockAccNumber = accountNumber;
+	
+		// Get primary savings account as "to account" for unclocking or transfering FTSP funds.
+		this.unlockToAccountsList = await this._getUnlockToAccount();
+		
+		this.unlockOptions = await this._getUnlockOptions(this.unlockFromAccountsList);
+
+		this.renderMode = RENDER_MODE.UNLOCK_FTSP;
+	}
+
+	_getUnlockFromAccounts() {
+		const fromAccounts = this.savingsPlanDetails
 								.filter(item => item.accountType === ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN)
 								.map(item => {
 										const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType][item.interestCategory] || 
@@ -434,14 +432,31 @@ export class SavingsPlan extends ViewBase {
 										};
 									})
 								.sort((x, y) => x.order - y.order);
-		
-		// Get primary savings account as "to account" for unclocking or transfering FTSP funds.
-		this.unlockToAccountsList = await this._getClientProducts();
-
-		this.renderMode = RENDER_MODE.UNLOCK_FTSP;
+		return fromAccounts;
 	}
 
-	async _getClientProducts() {
+	async _getUnlockOptions() {
+	
+		const unlockOptionsAccountList = this.unlockFromAccountsList.map(account => ({
+											'accountNumber': account.accountNumber 
+											}));
+
+		const request = {
+			cifNumber: this.callerInformation.cifNumber,
+			unlockOptionsAccountListModel: [unlockOptionsAccountList]
+		};
+
+		const returnValue = await this.savingsService.ftspUnlockOptions(request);
+
+		if (returnValue.succeeded) {
+			const unlockOptions = returnValue.result.unlockOptions;
+			return unlockOptions;
+		}
+		this.logger.log(`error`, `Failed to retrieve unlock options for FTSP from service.`, `_unlockFtsp`, returnValue.correlationId);
+
+	}
+
+	async _getUnlockToAccount() {
 		const request = {
 			cifNumber: this.callerInformation.cifNumber,
 			status: `OPEN`
@@ -477,7 +492,7 @@ export class SavingsPlan extends ViewBase {
 
 		const returnValue = await this.savingsService.ftspUnlockQuote(request);
 
-		if (returnValue.succeeded) {
+		if (returnValue.succeeded && returnValue.result) {
 			return returnValue.result;
 		} 
 
@@ -493,7 +508,7 @@ export class SavingsPlan extends ViewBase {
 
 		const returnValue = await this.savingsService.ftspUnlockAgreement(request);
 		
-		if (returnValue.succeeded) {
+		if (returnValue.succeeded && returnValue.result) {
 			this.encodedUnlockDocument = returnValue.result.agreementContent.data;
 			this.unlockFromAccountName = event.detail.selectedAccount.accountName;
 			this.renderMode = RENDER_MODE.PDF;
@@ -680,13 +695,16 @@ export class SavingsPlan extends ViewBase {
 		return this.renderMode === RENDER_MODE.UNLOCK_FTSP || this.renderMode === RENDER_MODE.PDF
 		? html`
 			<capitec-pc-unlock-ftsp
+				selectedUnlockAccNumber="${this.selectedUnlockAccNumber}"
 				.unlockOptions="${this.unlockOptions}"
 				.unlockFromAccountsList="${this.unlockFromAccountsList}"
 				.unlockToAccountsList="${this.unlockToAccountsList}"
 				.savingsPlanDetails="${this.savingsPlanDetails}"
 				
 				.getUnlockQuote="${(unlockType, accNumber, partialUnlockAmount) => this._getUnlockQuote(unlockType, accNumber, partialUnlockAmount)}"
-				
+				.shouldDisable="${need => this._shouldDisable(need)}"
+				.renderAlertBanner="${() => this.renderAlertBanner()}"
+
 				@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
 				@view-agreement="${(event) => this._getUnlockAgreement(event)}"
 				@unlock="${(event) => this._confirmUnlockFtsp(event)}">
