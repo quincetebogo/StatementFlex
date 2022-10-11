@@ -135,11 +135,6 @@ class LodgeClaimInfoDialog extends Component {
 	_renderDialogBody() {
 		return html`
 		<capitec-content-box class="body-box">
-			<capitec-alert-banner
-				label="All Capitec Funeral Plan benefits are subject to terms and conditions, including limitations and exclusions."
-				type="info">
-			</capitec-alert-banner>
-		
 			<capitec-label class="bullet-heading-large" id="label" label="Ways to claim" type="subtitle"></capitec-label>
 			<capitec-group layout="vertical" gap="none" halign="left" valign="center">
 				<li class="bullet-label">Email FuneralClaims@capitecbank.co.za</li>
