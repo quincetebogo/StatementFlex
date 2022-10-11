@@ -499,16 +499,15 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _calculateClientEstimate(e) {
 		const estimateWithCoverDetails = e.detail;
+		estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map((life) => {
+			life.coverAmount = parseInt(life.coverAmount, 10);
+			life.premium = parseInt(life.premium, 10);
+			return life;
+		});
 		const resp = await this.insureService.calculateEstimate(estimateWithCoverDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			estimateWithCoverDetails.totalPremium = resp.result.totalPremium;
 			estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map(lifeWithDetails => Object.assign(lifeWithDetails, resp.result.lifesAssured.find(respLife => lifeWithDetails.rowID === respLife.rowID)));
-
-			estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map((life) => {
-				life.coverAmount = parseFloat(life.coverAmount).toFixed(2);
-				life.premium = parseFloat(life.premium).toFixed(2);
-				return life;
-			});
 			this.estimate = estimateWithCoverDetails;
 		} else {
 			return null;

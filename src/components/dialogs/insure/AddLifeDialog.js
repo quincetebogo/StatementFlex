@@ -381,7 +381,7 @@ class AddLifeDialog extends Component {
 		return html`
 		<capitec-button label="Back" data-automation-id="insure-add-life-dialog-back" @click="${() => this._onBackClick()}">
 		</capitec-button>`;
-		
+
 
 	}
 

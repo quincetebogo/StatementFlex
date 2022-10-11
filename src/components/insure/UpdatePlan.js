@@ -93,8 +93,6 @@ class UpdatePlan extends Component {
 		this.titleOptions = TITLE_OPTIONS;
 		this.accountNumErrorMsg = ``;
 		this.branchCodeErrorMsg = ``;
-
-
 	}
 
 	// #endregion
@@ -562,10 +560,8 @@ class UpdatePlan extends Component {
 	 * @returns {String} null
 	 */
 	_getBank() {
-
-		const bank = this.bankOptions.find(banks => banks.code === this.policyDetails.deductionDetails?.bankDetails?.bank.toUpperCase());
+		const bank = this.bankOptions.find(banks => banks.code === this.policyDetails.deductionDetails?.bankDetails?.bank.toUpperCase().trim());
 		return bank?.text;
-
 	}
 
 	/**
