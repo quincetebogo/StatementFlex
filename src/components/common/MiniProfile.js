@@ -253,6 +253,8 @@ export class MiniProfile extends Component {
 				img {
 					height: 158px;
 					width: 158px;
+					padding: 5px;
+					border: 2px solid #E1E1E1;
 				}
 			`
 		];
