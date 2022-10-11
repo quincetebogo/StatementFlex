@@ -161,8 +161,8 @@ export class LandingPage extends ViewBase {
 
 		if (incident) {
 			await this.telemetry.logEvent(AcceptCallEvents.INCIDENT_CREATED, {
-				"incident-reference": incident.incidentNumber,
-				"incident-rec-id": incident.incidentRecId
+				"incident-reference": incident.incidentReference,
+				"incident-rec-id": incident.incidentId
 			}, true);
 		}
 	

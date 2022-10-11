@@ -259,8 +259,6 @@
 		"emailPaidUpLetter": {
 			"enabled": false,
 			"positiveCase": false
-		},
-			"positiveCase" : true
 		}
 	},
 	"searchClientOptionEnabled": true
