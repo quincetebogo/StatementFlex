@@ -4,7 +4,7 @@ import { css, html } from 'platform/elements';
 import { InsureService } from 'app/services/InsureService';
 import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
-import { MAX_RESULTS, AUDIT_DATE_TYPE_LIST } from 'app/constants/InsureTransactionHistory';
+import { ACTIVITY_TYPE_DESCRIPTION, AUDIT_DATE_TYPE_LIST, MAX_RESULTS, NINETY_DAYS } from 'app/constants/InsureTransactionHistory';
 import { getAgeFromIDNumber, getGenderFromIDNumber } from 'app/utils/insureUtils';
 import { INSURE_CALLER_PAGE, DOCUMENT_TYPE, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
 import { SavingsService } from 'app/services/SavingsService';
@@ -26,14 +26,10 @@ import 'app/components/insure/ClaimSummary';
 
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { getMonthName } from 'app/utils/channelServiceUtilities';
+import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { EMAIL_DOCUMENT_REQUEST_PAYLOAD, GENERATE_DOCUMENT_REQUEST_PAYLOAD } from 'app/utils/insureRequestPayload';
 
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
-
-
-// ninety days in milliseconds
-const NINETY_DAYS = 7777000000;
 
 const POLICY_TRANSACTION_HISTORY = {
 	END_DATE: new Date().toISOString().substr(0, 10),
@@ -907,7 +903,7 @@ export class ExistingClient extends InsureViewBase {
 					const formatedDate = new Date(Date.parse(item.date));
 					item.formatedDate = formatedDate;
 					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
-
+					item.transactionTypeDesc = isNullorEmpty(ACTIVITY_TYPE_DESCRIPTION[item.transactionType]) ? item.transactionType : ACTIVITY_TYPE_DESCRIPTION[item.transactionType];
 					return item;
 				});
 			this.transactions.push(...formattedTrans);

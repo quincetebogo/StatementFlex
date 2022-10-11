@@ -35,6 +35,11 @@ export const DEFAULTS = {
 export const MAX_RESULTS = 50;
 
 /**
+ * date of last 90 days 
+ */
+export const NINETY_DAYS = 7777000000;
+
+/**
  * Filter by Types
  */
 export const FILTER_BY = {
@@ -65,13 +70,13 @@ export const TODAY_DATE = new Date();
  * @enum {Object} ACTIVITY_TYPE_LIST
  */
  export const ACTIVITY_TYPE_LIST = Object.freeze([
-	{ code: `PREMIUMCHANGE`, text: `Premium Change` },
-	{ code: `BANKDETAILSCHANGES`, text: `Bank Details Changes` },
+	{ code: `UpdatePolicyQuote`, text: `Premium Change` },
+	{ code: `UpdateBankDetails`, text: `Bank Details Changes` },
 	{ code: `MAINLIFECHANGES`, text: `Main Life Changes` },
-	{ code: `LIVESASSUREDCHANGES`, text: `Lives Assured Changes` },
+	{ code: `AddLife`, text: `Lives Assured Changes` },
 	{ code: `BENEFICIARYCHANGES`, text: `Beneficiary Changes` },
 	{ code: `POLICYSTATUSCHANGES`, text: `Policy Status Changes` },
-	{ code: `WAIVERCHANGES`, text: `Waiver Changes` },
+	{ code: `AddWaiverInfo`, text: `Waiver Changes` },
 	{ code: `CLAIMSLODGESCHANGES`, text: `Claims Lodges and Changes` }
 ]);
 
@@ -84,10 +89,26 @@ export const TODAY_DATE = new Date();
  export const ACTIVITY_TYPE = Object.freeze({
 	PREMIUM_CHANGE: `UpdatePolicyQuote`,
 	BANKDETAILS_CHANGES: `UpdateBankDetails`,
-	MAINLIFE_CHANGES: `Main Life Changes`,
+	MAINLIFE_CHANGES: `MainLifeChanges`,
 	LIVESASSURED_CHANGES: `AddLife`,
-	BENEFICIARY_CHANGES: `Beneficiary Changes`,
-	POLICYSTATUS_CHANGES: `Policy Status Changes`,
+	BENEFICIARY_CHANGES: `BeneficiaryChanges`,
+	POLICYSTATUS_CHANGES: `PolicyStatusChanges`,
 	WAIVER_CHANGES: `AddWaiverInfo`,
-	CLAIMSLODGES_CHANGES: `Claims Lodges Changes`
+	CLAIMSLODGES_CHANGES: `ClaimsLodgesChanges`
+});
+
+/**
+ * List of Activity Type Descriptions
+ * @readonly
+ * @enum {Object} ACTIVITY_TYPE_DESCRIPTION
+ */
+ export const ACTIVITY_TYPE_DESCRIPTION = Object.freeze({
+	UpdatePolicyQuote: `Update Policy Quote`,
+	UpdateBankDetails: `Update Bank Details`,
+	MainLifeChanges: `Main Life Changes`,
+	AddLife: `Add Life`,
+	BeneficiaryChanges: `Beneficiary Changes`,
+	PolicyStatusChanges: `Policy Status Changes`,
+	AddWaiverInfo: `Add Waiver Info`,
+	ClaimsLodgesChanges: `Claims Lodges Changes`
 });

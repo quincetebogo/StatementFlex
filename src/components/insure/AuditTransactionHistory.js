@@ -1,4 +1,4 @@
-import { ACTIVITY_TYPE, ACTIVITY_TYPE_LIST, AUDIT_DATE_TYPE_LIST, DEFAULTS, FILTER_BY, MAX_RESULTS, RENDER_CHIPS } from 'app/constants/InsureTransactionHistory';
+import { ACTIVITY_TYPE, ACTIVITY_TYPE_LIST, AUDIT_DATE_TYPE_LIST, DEFAULTS, FILTER_BY, MAX_RESULTS, NINETY_DAYS, RENDER_CHIPS } from 'app/constants/InsureTransactionHistory';
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, INSURE_TRANSACTIONS_CSS, TABLE_EXPANDER_CELL } from 'app/css/PolicyTransactionHistory';
 import { _getDateRange, getPredefinedDateRanges } from 'app/utils/insureUtils';
@@ -30,9 +30,6 @@ class AuditTransactionHistory extends Component {
 
 		this.dateLabel = DEFAULTS.DATE_LABEL;
 		this.activityTypeLabel = DEFAULTS.ACTIVITY_TYPE_LABEL;
-
-		this.startDate = ``;
-		this.endDate = ``;
 
 		this.auditTransactionHistory = {};
 		this.filteredData = [];
@@ -132,8 +129,12 @@ class AuditTransactionHistory extends Component {
 	 connectedCallback() {
 		super.connectedCallback();
 
+		this.startDate = new Date(Date.now() - NINETY_DAYS).toISOString();
+		this.endDate = new Date().toISOString();
+
+		RENDER_CHIPS[FILTER_BY.DATE] = _getDateRange(this.startDate, this.endDate);
+
 		// Making sure no baggage is carried from the previous instance.
-		RENDER_CHIPS[FILTER_BY.DATE] = ``;
 		RENDER_CHIPS[FILTER_BY.DATE_TYPE] = this.dateTypeOptions[0].text;
 		RENDER_CHIPS[FILTER_BY.ACTIVITY_TYPE] = ``; // this.activityTypeOptions[0].text;
 
@@ -201,6 +202,7 @@ class AuditTransactionHistory extends Component {
 	*/
 	_filterByActivityType(event) {
 		RENDER_CHIPS[FILTER_BY.ACTIVITY_TYPE] = event.detail.new.text;
+		this.activityTypeDesc = event.detail.new.code;
 		this._refineSearch();
 	}
 
@@ -407,7 +409,7 @@ class AuditTransactionHistory extends Component {
 			</capitec-table-column>
 			<capitec-table-column
 				label="Transaction Type"
-				field="accountType"
+				field="transactionTypeDesc"
 				size="300px">
 			</capitec-table-column>
 			<capitec-spacer></capitec-spacer>
@@ -1094,7 +1096,7 @@ class AuditTransactionHistory extends Component {
 						type="strong">
 					</capitec-label>
 					<capitec-label
-						label="No transactions made during ${isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE]) ? `Last 6 months` : RENDER_CHIPS[FILTER_BY.DATE]} "
+						label="No transactions made during ${isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE]) ? `Last 90 days` : RENDER_CHIPS[FILTER_BY.DATE]} "
 						type="strong">
 					</capitec-label>
 			</capitec-group>
@@ -1210,16 +1212,10 @@ class AuditTransactionHistory extends Component {
 			} else if (RENDER_CHIPS[FILTER_BY.DATE_TYPE] === this.dateTypeOptions[1].text) {
 				this.filteredData = this.filteredData?.filter(item => new Date(item.date) >= startDate && new Date(item.date) <= endDate); 
 			}
-
-			// if (RENDER_CHIPS[FILTER_BY.DATE_TYPE] === this.dateTypeOptions[0].text) {
-			// this.filteredData = this.filteredData?.filter(item => new Date(item.changeActionedDate) >= startDate && new Date(item.changeActionedDate) <= endDate); 
-			// } else if (RENDER_CHIPS[FILTER_BY.DATE_TYPE] === this.dateTypeOptions[1].text) {
-			// this.filteredData = this.filteredData?.filter(item => new Date(item.effectiveDate) >= startDate && new Date(item.effectiveDate) <= endDate); 
-			// }
 		}
 
 		if (RENDER_CHIPS[FILTER_BY.ACTIVITY_TYPE]) {
-			const activityType = RENDER_CHIPS[FILTER_BY.ACTIVITY_TYPE];
+			const activityType = this.activityTypeDesc;
 
 			this.filteredData = this.filteredData?.filter(item => item.transactionType === activityType);
 		}
