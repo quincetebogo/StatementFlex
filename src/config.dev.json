@@ -187,12 +187,12 @@
 		"insurePolicyTransactionHistory": {
 			"enabled": true,
 			"positiveCase": true
-		},	
+		},
 		"insurePolicySummary": {
-			"enabled":false,
+			"enabled": false,
 			"positiveCase": true
 		},
-		"insureCommsHistory":{
+		"insureCommsHistory": {
 			"enabled": true,
 			"positiveCase": true
 		},
@@ -233,6 +233,22 @@
 			"positiveCase": true
 		},
 		"insureUpdatePolicyAccept": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureEstimatePrintout": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureClaims": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureClaimSummary": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"searchCallerAdvanced": {
 			"enabled": true,
 			"positiveCase": true
 		}
