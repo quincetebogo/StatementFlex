@@ -145,7 +145,7 @@
 			"positiveCase": true
 		},
 		"insureAuditTransactionHistory": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"savingsAccountLanding": {
