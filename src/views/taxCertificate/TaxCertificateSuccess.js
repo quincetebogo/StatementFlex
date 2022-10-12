@@ -204,6 +204,8 @@ export class TaxCertificateSuccess extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._renderSuccessScreen()}
+			${this._renderRelatedOptions()}
+
 			${super._webTemplate()}
 		`;
 	}
@@ -262,6 +264,14 @@ export class TaxCertificateSuccess extends ViewBase {
 				slot="${slot}">
 					Tax free certificate for <strong>${this._taxFreeYears()}</strong> has been emailed to <strong>${this.email}</strong>
 			</section>`;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
+		`;
 	}
 }
 

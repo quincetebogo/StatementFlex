@@ -136,6 +136,7 @@ export class PaidUpLetterSuccess extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._renderSuccessScreen()}
+			${this._renderRelatedOptions()}
 
 			${super._webTemplate()}
 		`;
@@ -156,6 +157,14 @@ export class PaidUpLetterSuccess extends ViewBase {
 						Paid Up letter(s) for ${this.succeededAccounts.length > 4 ? `the selected accounts are` : html`<b>${this._formateAccountNames(this.succeededAccounts)}</b> was`} emailed to <b>${this.emailAddress}</b>
 					</section>
 			</horizon-success-screen>
+		`;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
 		`;
 	}
 

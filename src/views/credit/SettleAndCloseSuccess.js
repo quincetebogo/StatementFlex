@@ -132,6 +132,8 @@ import 'app/components/common/SuccessScreen';
 	_webTemplate() {
 		return html`
 			${this._renderSuccessScreen()}
+			${this._renderRelatedOptions()}
+
 			${super._webTemplate()}
 		`;
 	}
@@ -181,6 +183,14 @@ import 'app/components/common/SuccessScreen';
 				<strong>Would you like proof of payment?</strong>
 				<span @click="${() => this._sendEmailConfirmationClick()}">Send Email Confirmation</span>
 			</section>
+		`;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
 		`;
 	}
 

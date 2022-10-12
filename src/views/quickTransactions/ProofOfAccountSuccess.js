@@ -110,6 +110,7 @@ export class ProofOfAccountSuccess extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._renderSuccessScreen()}
+			${this._renderRelatedOptions()}
 
 			${super._webTemplate()}
 		`;
@@ -130,6 +131,14 @@ export class ProofOfAccountSuccess extends ViewBase {
 						Your proof of account document for account <b>${this.acNumber}</b> has been emailed to <b>${this.mailId}</b>.
 					</section>
 			</horizon-success-screen>
+		`;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
 		`;
 	}
 

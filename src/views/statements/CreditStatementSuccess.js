@@ -108,6 +108,7 @@ export class CreditStatementsSuccess extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._renderSuccessScreen()}
+			${this._renderRelatedOptions()}
 
 			${super._webTemplate()}
 		`;
@@ -130,6 +131,14 @@ export class CreditStatementsSuccess extends ViewBase {
 							The statement for <b>${this.accountName}</b> account <b>${this.acNumber}</b> was emailed to <b>${this.mailId}</b>
 					</section>
 			</horizon-success-screen>
+		`;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
 		`;
 	}
 }

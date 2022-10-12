@@ -100,6 +100,7 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._renderCardLimitsUpdateSuccess()}
+			${this._renderRelatedOptions()}
 
 			${super._webTemplate()}
 		`;
@@ -139,6 +140,14 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 						? html`is pending tap to pay activation. <br /> To complete activation, insert card into card machine or ATM`
 						: `is deactivated`}.
 			</section>`;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
+		`;
 	}
 }
 
