@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { CreditService } from 'app/services/CreditService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -8,8 +9,10 @@ import { LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { LandingPageEvents } from 'app/constants/telemetry/events/LandingPage';
 import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RoleManager } from 'app/shell/RoleManager';
 import { SavingsAccLandingPage } from 'app/constants/telemetry/events/SavingsAccount';
+
 
 import 'app/components/common/MiniProfile';
 import 'app/components/common/FavouritesTile';
@@ -67,6 +70,9 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.activePageTitle = ``;
 		this.product = ``;
+		
+		this.creditService = new CreditService(() => true, ex => true);
+		this.quickTransactionService = new QuickTransactionsService(() => true, () => true);
 	}
 
 	// ----------
@@ -95,6 +101,8 @@ export class ProfileAndProductSummaryBar extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this._updateClientProductInfo();
 	}
 
 	disconnectedCallback() {
@@ -224,6 +232,83 @@ export class ProfileAndProductSummaryBar extends Component {
 	// --------- 
 	// PRIVATE
 	// ---------
+
+	async _updateClientProductInfo() {
+
+		let productTilesInfo = {};
+
+		if (!this.callerInformation || this.callerInformation.verificationStatus === `non-client`) {
+			const landingRequest = {
+				cifNumber: this.callerInformation.cifNumber,
+				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
+				isCallerVerified: this.callerInformation.verificationStatus === `verified`
+			};
+	
+			const returnValues = await Promise.allSettled([this.quickTransactionService.favouritesLanding(landingRequest), this.creditService.creditBalance(this.callerInformation.cifNumber, () => true)]);
+	
+			if (returnValues[0].status === `fulfilled` && returnValues[0].value.succeeded) {
+				this.isLoading = false;
+	
+				productTilesInfo = returnValues[0].value.result;
+				
+				/* 
+				* NOTE: This is a work around as the favourites landing does not return credit information. 
+				* NOTE: This implementation will not include credit information in the favourites landing call fails.
+				* TODO: Develop better solution (CSCEH-7747)
+				*/
+				if (returnValues[1].status === `fulfilled` && returnValues[1].value.succeeded && returnValues[1].value.result.availableBalance !== null) {
+					if (this.callerInformation.verificationStatus === `verified`) {
+						productTilesInfo.creditProductDescription = `Available balance`;
+						productTilesInfo.creditProductAmount = formatCurrency(returnValues[1].value.result.availableBalance);
+					} else {
+						productTilesInfo.creditProductDescription = `Active`;
+						productTilesInfo.creditProductAmount = ``;
+					}
+				}
+			}
+		} else {
+			productTilesInfo = {
+				savingsAccountProductDescription: ``,
+				savingsPlanProductDescription: ``,
+				liveBetterBankingProductDescription: ``,
+				insureProductDescription: ``,
+				creditProductDescription: ``,
+				savingsAccountProductAmount: ``,
+				savingsPlanProductAmount: ``,
+				liveBetterBankingProductAmount: ``,
+				insureProductAmount: ``,
+				creditProductAmount: ``
+			};
+		}
+
+		this.subtitle = {
+			savingsAccount: productTilesInfo.savingsAccountProductDescription,
+			liveBetterSavings: productTilesInfo.liveBetterBankingProductDescription,
+			savingsPlan: productTilesInfo.savingsPlanProductDescription,
+			insure: productTilesInfo.insureProductDescription,
+			credit: productTilesInfo.creditProductDescription
+		};
+
+		this.detail = {
+			savingsAccount: productTilesInfo.savingsAccountProductAmount,
+			liveBetterSavings: productTilesInfo.liveBetterBankingProductAmount,
+			savingsPlan: productTilesInfo.savingsPlanProductAmount,
+			insure: productTilesInfo.insureProductAmount,
+			credit: productTilesInfo.creditProductAmount
+		};
+
+		this.hasFavourites = true;
+
+		const updatedProductButtonInfo = {
+			subtitle: this.subtitle,
+			detail: this.detail,
+			hasFavorutie: this.hasFavourites
+		};
+		
+		// Now we can update the information on the product buttons
+		this.horizonStore.setProductButtonsInfoState(updatedProductButtonInfo);
+
+	}
 
 	/**
 	 * Private function to clear all active telemetry span associated to current
