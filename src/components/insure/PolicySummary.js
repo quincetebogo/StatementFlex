@@ -275,7 +275,7 @@ class PolicySummary extends Component {
 	 * @returns {html} The html content of Main Life section
 	 */
 	_renderMainLifeSection() {
-		const sumArrears = this.policyDetails?.arrearDetails?.arrears?.reduce((accumulator, object) => accumulator + (object.amount ?? 0), 0);
+		const sumArrears = this.policyDetails?.arrearDetails?.outstandingAmount;
 		const mainLifeDetails = this.policyDetails?.roleplayers?.filter(item => item.relationship === `MainLife`);
 
 		return html`

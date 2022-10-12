@@ -725,6 +725,10 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _goToPolicyTransactionHistory(e) {
 		this.contractReference = e.detail.policyNumber;
+		this.bankName = e.detail.bankName;
+		this.accountNumber = e.detail.accountNumber;
+		this.arrearsAmount = e.detail.arrearsAmount;
+
 		await this._getPolicyTransactionHistory();
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY);
 	}
@@ -833,7 +837,10 @@ export class ExistingClient extends InsureViewBase {
 		this.transactions = [];
 
 		this.policyTransactionHistory = {
-			contractReference: this.contractReference
+			contractReference: this.contractReference,
+			bankName: this.bankName,
+			accountNumber: this.accountNumber,
+			arrearsAmount: this.arrearsAmount
 		};
 
 		const returnValue = await this.insureService.getPolicyTransactions(transactionHistoryRequest);

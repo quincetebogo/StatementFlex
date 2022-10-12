@@ -1,8 +1,9 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
-import { DATE_TYPE_LIST, DEFAULTS, FILTER_BY, MAX_RESULTS, RENDER_CHIPS } from 'app/constants/InsureTransactionHistory';
+import { DATE_TYPE_LIST, DEFAULTS, FILTER_BY, MAX_RESULTS, NINETY_DAYS, RENDER_CHIPS } from 'app/constants/InsureTransactionHistory';
 import { EXPANDER_LABEL, INSURE_TRANSACTIONS_CSS, TABLE_EXPANDER_CELL } from 'app/css/PolicyTransactionHistory';
 import { _getDateRange, getPredefinedDateRanges } from 'app/utils/insureUtils';
 import { DateTime } from 'luxon';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import 'app/components/common/HorizonLabel';
 
@@ -29,9 +30,6 @@ class PolicyTransactionHistory extends Component {
 		super();
 
 		this.dateLabel = DEFAULTS.DATE_LABEL;
-
-		this.startDate = ``;
-		this.endDate = ``;
 
 		this.policyTransactionHistory = {};
 		this.filteredData = [];
@@ -116,10 +114,6 @@ class PolicyTransactionHistory extends Component {
 					width: 120px;
 				}
 
-				.transact {
-					background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
-				}
-
 				capitec-table > capitec-icon {
 					--theme-icon-size-medium: 24px;
 				}
@@ -136,8 +130,12 @@ class PolicyTransactionHistory extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this.startDate = new Date(Date.now() - NINETY_DAYS).toISOString();
+		this.endDate = new Date().toISOString();
+
+		RENDER_CHIPS[FILTER_BY.DATE] = _getDateRange(this.startDate, this.endDate);
+
 		// Making sure no baggage is carried from the previous instance.
-		RENDER_CHIPS[FILTER_BY.DATE] = ``;
 		RENDER_CHIPS[FILTER_BY.DATE_TYPE] = this.dateTypeOptions[0].text;
 
 		this.filteredData = this.policyTransactionHistory?.transactions;
@@ -267,13 +265,10 @@ class PolicyTransactionHistory extends Component {
 	 */
 	_renderContent() {
 		return html`
-		<capitec-title-bar type="insure" class="insure-title-bar">
-			<img class="action-image" src="/images/insure/left-arrow.svg" @click="${() => this._backToSummaryPage()}" />
-			<capitec-label label="Transaction History" type="title"></capitec-label>
-			<capitec-spacer></capitec-spacer>
-		</capitec-title-bar>
-		<capitec-card style="min-height: 100vh;">
+		<capitec-card class="transaction-card">
 			<capitec-group layout="vertical" gap="line" halign="left" valign="top">
+				${this._renderTitleBar()}
+				${this._renderHeaderDetailsBar()}
 				${this._renderActionBar()}
 				${this._renderFilterBar()}
 				<capitec-content-box class="main-view" id="policy-transactions-table">
@@ -283,6 +278,60 @@ class PolicyTransactionHistory extends Component {
 			</capitec-group>
 		</capitec-card>
 		${this._renderLoadingIndicator()}
+		`;
+	}
+
+	/**
+	 * Render Title Bar
+	 * @returns {html} The html of the title
+	*/
+	_renderTitleBar() {
+		return html`
+			<capitec-title-bar class="insure-title-bar no-border-bottom" type="insure">
+				<capitec-image
+					alt="back"
+					class="action-image"
+					src="/images/insure/left-arrow.svg"
+					@click="${() => this._backToSummaryPage()}"
+					data-automation-id="transactions-back">
+				</capitec-image>
+				<capitec-label 
+					label="Transaction History"
+					type="title">
+				</capitec-label>
+			</capitec-title-bar>
+		`;
+	}
+
+	/**
+	 * Render Header Details Bar
+	 * @returns {html} The html of the header details - Policy Number
+	*/
+	_renderHeaderDetailsBar() {
+		return html`
+			<capitec-group
+				class= "actionbar-header transact"
+				layout="horizontal"
+				gap="none"
+				halign="left"
+				valign="center">
+					<horizon-label label = "Policy Number" 
+						value = "${this.policyTransactionHistory?.contractReference}" 
+						data-automation-id="transaction-header-contract-reference">
+					</horizon-label>
+					<horizon-label label = "Bank" 
+						value = "${isNullorEmpty(this.policyTransactionHistory?.bankName) ? `-` : this.policyTransactionHistory?.bankName}" 
+						data-automation-id="transaction-header-bank-name">
+					</horizon-label>
+					<horizon-label label = "Account" 
+						value = "${isNullorEmpty(this.policyTransactionHistory?.accountNumber) ? `-` : this.policyTransactionHistory?.accountNumber}" 
+						data-automation-id="transaction-header-account-number">
+					</horizon-label>
+					<horizon-label label = "Arrears Amount" 
+						value = "${isNullorEmpty(this.policyTransactionHistory?.arrearsAmount) ? formatCurrency(0) : formatCurrency(this.policyTransactionHistory?.arrearsAmount)}" 
+						data-automation-id="transaction-header-arrears-amount">
+					</horizon-label>
+			</capitec-group>
 		`;
 	}
 
@@ -320,12 +369,6 @@ class PolicyTransactionHistory extends Component {
 					@apply-clicked="${(e) => this._dateChanged(e)}"
 					data-automation-id="transaction-history-date-filter">
 				</capitec-date-time-picker>
-				<capitec-spacer></capitec-spacer>
-				<horizon-label
-					label="Contract Reference"
-					value="${this.policyTransactionHistory?.contractReference}"
-					data-automation-id="policy-contract-reference-value">
-				</horizon-label>
 			</capitec-group>
 		`;
 	}
@@ -593,7 +636,7 @@ class PolicyTransactionHistory extends Component {
 						type="strong">
 					</capitec-label>
 					<capitec-label
-						label="No policy transactions made during ${isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE]) ? `Last 6 months` : RENDER_CHIPS[FILTER_BY.DATE]} "
+						label="No policy transactions made during ${isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE]) ? `Last 90 days` : RENDER_CHIPS[FILTER_BY.DATE]} "
 						type="strong">
 					</capitec-label>
 			</capitec-group>
