@@ -253,7 +253,7 @@ class UpdatePlan extends Component {
 		for (let index = 0; index < this.policyDetails.roleplayers.length; index++) {
 			if (this.policyDetails.roleplayers[index].rowID === this.beneficiaryToRemoveRowID) {
 				this.policyDetails.roleplayers[index].beneficiary = false;
-
+				this.policyDetails.roleplayers[index].benefitPayout = 0;
 				// remove roleplayer from roleplayers if not a life assured
 				if (this.policyDetails.roleplayers[index].lifeAssured === false) {
 					this.policyDetails.roleplayers.splice(index, 1);
