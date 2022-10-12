@@ -102,7 +102,7 @@ export class ProfileAndProductSummaryBar extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this._updateClientProductInfo();
+		this._updateProductTileInfo();
 	}
 
 	disconnectedCallback() {
@@ -233,7 +233,7 @@ export class ProfileAndProductSummaryBar extends Component {
 	// PRIVATE
 	// ---------
 
-	async _updateClientProductInfo() {
+	async _updateProductTileInfo() {
 
 		let productTilesInfo = {};
 
