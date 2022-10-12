@@ -244,4 +244,11 @@ export const INSURE_TRANSACTIONS_CSS = css`
 	.action-image{
 		cursor: pointer;
 	}
+	.transact {
+		background: var(--theme-type-insure-background);
+		--theme-label-font-color: #FFFFFF;
+	}
+	.no-border-bottom {
+		border-bottom: 0px;
+	}
 `;

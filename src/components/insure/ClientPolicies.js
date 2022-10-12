@@ -170,12 +170,15 @@ class ClientPolicies extends Component {
 
 	/**
 	 * Fire navigate event to Policy Transaction History
-	 * @param {*} contractReference contract reference
+	 * @param {object} policyItem policy item details
 	 * @returns {null} null
 	 */
-	_goToPolicyTransactionHistory(contractReference) {
+	_goToPolicyTransactionHistory(policyItem) {
 		this.dispatchEvent(new CustomEvent(`navigate-to-policy-transaction-history`, {
-			detail: { policyNumber: contractReference }
+			detail: { policyNumber: policyItem.contractReference,
+				bankName: policyItem.deductionDetails?.bankDetails?.bank,
+				accountNumber: policyItem.deductionDetails?.bankDetails?.accountNumber,
+				arrearsAmount: policyItem.arrearDetails?.outstandingAmount }
 		}));
 	}
 
@@ -711,7 +714,7 @@ class ClientPolicies extends Component {
 
 		return html`${this.policiesList?.length > 0 ? this.policiesList?.map((policyItem) => {
 
-			const sumArrears = policyItem?.arrearDetails?.arrears?.reduce((accumulator, object) => accumulator + (object.amount ?? 0), 0);
+			const sumArrears = policyItem?.arrearDetails?.outstandingAmount;
 
 			return html`
 		<horizon-expander
@@ -872,7 +875,7 @@ class ClientPolicies extends Component {
 						<horizon-option-button 
 							data-automation-id="insure-policy-options-transaction-history"
 							class="button-margin" 
-							@click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"
+							@click="${() => this._goToPolicyTransactionHistory(policyItem)}"
 							label="Transaction History" 
 							icon="system/transfer-action"
 							.disabled="${this.readOnlyMode}">
@@ -913,7 +916,7 @@ class ClientPolicies extends Component {
 		return html`
 		<capitec-card class="action-card">
 			<capitec-overflow-menu label="More" data-automation-id = "insure-policy-more-sub-menu">
-				<capitec-overflow-menu-item icon="system/transfer-action" label="Transaction History" @click="${() => this._goToPolicyTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
+				<capitec-overflow-menu-item icon="system/transfer-action" label="Transaction History" @click="${() => this._goToPolicyTransactionHistory(policyItem)}"></capitec-overflow-menu-item>
 				${policyItem.status !== `Cancelled` && policyItem.status !== `Lapsed` && policyItem.status !== `NotTakenUp` ? html`
 				<capitec-overflow-menu-item icon="system/transfer-action" label="Audit Transaction History" @click="${() => this._goToAuditTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
 				<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan" @click="${() => this._openCancelPolicyDialog(policyItem.contractReference)}"></capitec-overflow-menu-item>` : html``}
