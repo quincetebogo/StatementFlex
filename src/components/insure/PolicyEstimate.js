@@ -548,7 +548,7 @@ class PolicyEstimate extends Component {
 						error="${lifeAssured.coverDetails.coverMessage}">
 					</capitec-text-field>
 					<capitec-text-field label="Premium" type="currency" disabled hint="Estimate" class="calc-card-row-input"
-						data-automation-id="insure-estimate-card-premium" value="${lifeAssured.premium}">
+						data-automation-id="insure-estimate-card-premium" value="${formatCurrency(lifeAssured.premium).replace(`R`, ``)}">
 					</capitec-text-field>
 				</div>
 				<div class="calc-card-row">
