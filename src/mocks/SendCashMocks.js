@@ -6,7 +6,7 @@ export const SendCashLandingMocks = {
 			"amount": 500.00,
 			"sourceAccount": `52101789106`,
 			"sourceSystem": `USSD`,
-			"voucherStatus": `Redeemed`,
+			"voucherStatus": `REDEEMED`,
 			"statusChange": [
 				{
 					"changeDateTime": `2022-07-06 02:31`,
@@ -34,7 +34,7 @@ export const SendCashLandingMocks = {
 			"amount": 50.00,
 			"sourceAccount": `52101789105`,
 			"sourceSystem": `APP`,
-			"voucherStatus": `Redeemable`,
+			"voucherStatus": `REDEEMABLE`,
 			"statusChange": [
 				{
 					"changeDateTime": `2022-02-12 12:41`,
@@ -68,8 +68,8 @@ export const SendCashLandingMocks = {
 			"voucherNumber": `******9012`,
 			"amount": 154.00,
 			"sourceAccount": `52101789107`,
-			"sourceSystem": `APP`,
-			"voucherStatus": `On hold`,
+			"sourceSystem": `MOBILE_APPLICATION`,
+			"voucherStatus": `ON HOLD`,
 			"statusChange": [
 				{
 					"changeDateTime": `2022-05-22 04:53`,
@@ -103,15 +103,15 @@ export const SendCashLandingMocks = {
 			"voucherNumber": `******3456`,
 			"amount": 159.00,
 			"sourceAccount": `52101789108`,
-			"sourceSystem": `USSD`,
-			"voucherStatus": `Redemption Authorised`,
+			"sourceSystem": `INTERNET_BANKING`,
+			"voucherStatus": `REDEMPTION AUTHORISED`,
 			"statusChange": [
 				{
 					"changeDateTime": `2022-01-02 01:03`,
 					"eventAmount": 8912.00,
 					"remainingOrderAmount": 8000.00,
-					"action": `Redemption Authorised`,
-					"actionDescription": `-`
+					"action": `Par Imm Redemption Reversed`,
+					"actionDescription": `Advice: Partial Reversed: Partially Dispensed R300.00`
 				}
 			],
 			"merchantStatusList": [
@@ -132,14 +132,14 @@ export const SendCashLandingMocks = {
 			"amount": 159.00,
 			"sourceAccount": `80198710125`,
 			"sourceSystem": `APP`,
-			"voucherStatus": `Redemption Authorised`,
+			"voucherStatus": `REDEMPTION AUTHORISED`,
 			"statusChange": [
 				{
 					"changeDateTime": `2022-01-02 01:03`,
 					"eventAmount": 92.00,
 					"remainingOrderAmount": 75.00,
-					"action": `Redemption Authorised`,
-					"actionDescription": `-`
+					"action": `Immediate Redemption Reversed`,
+					"actionDescription": `Roll Back: Voucher Not Dispensed`
 				}
 			],
 			"merchantStatusList": [
