@@ -125,7 +125,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 				right="Assign"
 				toast="${this.limitType} card limit updated."
 				secondaryToast="${this.istapToPayUnChanged ? `` : `Tap to pay not updated`}"
-				image="/images/cards-unsuccesful-limit-update.svg"
+				image="/images/updateCardsLimits/cards-unsuccesful-limit-update.svg"
 				?hasSubDetails="${!this.istapToPayUnChanged}"
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._onHandoff()}>

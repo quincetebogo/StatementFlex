@@ -122,7 +122,7 @@ export class AutomaticSavingsSuccess extends ViewBase {
 			<horizon-success-screen
 				data-automation-id="automatic-savings-success-screen"
 				header="Automatic savings updated" 
-				image="/images/liveBetterSavings/automatic-savings.svg"
+				image="/images/liveBetter/automatic-savings-outcome.svg"
 				left="Manage Automatic Savings"
 				right="Done"
 				toast="Automatic savings successfully updated"

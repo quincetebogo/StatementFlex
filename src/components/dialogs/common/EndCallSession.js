@@ -1,4 +1,4 @@
-import { CALL_TRANSFERED_CLASSIFICATION, END_CALL_REASON, RECOGNIZE_NEED_REASONS } from 'app/constants/EndCallReasons';
+import { CALL_TRANSFERED_CLASSIFICATION, END_CALL_REASON, RECOGNIZE_NEED_CONTEXTS, RECOGNIZE_NEED_REASONS } from 'app/constants/EndCallReasons';
 import { Component, css, html, live } from 'platform/elements';
 import { Configuration, Logger, SecurityContext } from 'platform/core';
 import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
@@ -244,7 +244,10 @@ export class EndCallSession extends Component {
 		// Checks if the curr incident is active
 		const isIncClosed = incidentDetails.needStatus === super.HORIZON_NEED_STATUS.CLOSED;
 		// should classify as per need?
-		const classifyAsPerNeed = incidentDetails.needStatus === super.HORIZON_NEED_STATUS.INPROGRESS && STRACK_MAPPING[incidentDetails.currentNeed];
+		// And enforcing this to false when the end call context includes in Recognize need by context
+		const classifyAsPerNeed = incidentDetails.needStatus === super.HORIZON_NEED_STATUS.INPROGRESS &&
+								  STRACK_MAPPING[incidentDetails.currentNeed] &&
+								  !RECOGNIZE_NEED_CONTEXTS.includes(this.endCallContext);
 
 		// If classification is not empty, no need to populate need
 		/**
@@ -688,13 +691,11 @@ export class EndCallSession extends Component {
 				--theme-button-padding-left: 12px;
 			}
 			
-			capitec-alert-banner {
+			horizon-alert-banner {
 				width: 100%;
 
-				--theme-alert-banner-icon-margin-left: 15px;
-				--theme-alert-banner-icon-margin-right: 7px;
 				--theme-icon-size-default: 26px;
-				--theme-alert-banner-height: 48px;
+				--theme-toast-icon-margin: 0px 7px 0px 15px;
 			}`
 		];
 	}
@@ -834,11 +835,11 @@ export class EndCallSession extends Component {
 	_renderAlertBanner() {
 		if (this.alertBannerMessage) {
 			return html`
-				<capitec-alert-banner 
+				<horizon-alert-banner 
 					data-automation-id="end-call-session-banner"
-					type="unsuccessful-red">
-						${this.alertBannerMessage}
-				</capitec-alert-banner>`;
+					type="error"
+					label="${this.alertBannerMessage}">
+				</horizon-alert-banner>`;
 		}
 	}
 

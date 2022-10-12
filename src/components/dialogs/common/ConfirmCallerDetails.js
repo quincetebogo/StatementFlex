@@ -355,10 +355,7 @@ export class ConfirmCallerDetails extends Component {
 			false, // isNonClient
 			false, // hasInsuranceProducts
 			false, // hasDigitalChannels
-			{
-				itaAttempts: 0,
-				sqAttempts: 0
-			}, 
+			{ itaAttempts: 0, sqAttempts: 0 }, 
 			this.confirmedCaller.isBranchConsultant, // isBranchConsultant
 			this.confirmedCaller.isClientPresent, // isClientPresent
 			this.confirmedCaller.isClientVerifiedInBranch ? `ITA` : ``,
@@ -369,7 +366,9 @@ export class ConfirmCallerDetails extends Component {
 			this.confirmedCaller.lastName,
 			this.confirmedCaller.initials,
 			this.confirmedCaller.identifiedBy,
-			`` // client's registered email ID
+			``, // client's registered email ID
+			this.confirmedCaller.profilePhoto,
+			this.confirmedCaller.gender      
 		);
 	}
 
@@ -520,7 +519,7 @@ export class ConfirmCallerDetails extends Component {
 			}
 		}
 	}
-	
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -541,9 +540,12 @@ export class ConfirmCallerDetails extends Component {
 				}
 				#id-banner-addcallerdetails{
 					--theme-alert-banner-warning-border: 1px solid rgba(228,124,40,0.1);
-					--theme-alert-banner-icon-margin-left: 16px;
+					--theme-toast-icon-margin: 0px 18px 0px 16px;
+					--theme-hyperlink-font-weight: 600;
 					--theme-layout-gap-spacing: 28px;
-					--theme-alert-banner-height: 48px;
+				}
+				#id-banner-addcallerdetails > section {
+					margin-left: 3px;
 				}
 				capitec-avatar {
 					--theme-avatar-size-large: 200px;
@@ -584,6 +586,13 @@ export class ConfirmCallerDetails extends Component {
 					--theme-tooltip-border-radius: 2px;
 					--theme-layout-gap-spacing: 0px;
 				}
+				img {
+					height: 200px;
+					width: 200px;
+					padding: 5px;
+					border: 2px solid #E1E1E1;
+					--theme-layout-gap-spacing: 25px;
+				}
 			`
 		];
 	}
@@ -604,7 +613,7 @@ export class ConfirmCallerDetails extends Component {
 			case RENDER_MODE.CONFIRM_CALLER:
 				return html`
 					<horizon-caller-dialog
-					data-automation-id="confirm-caller-details-dialog"
+						data-automation-id="confirm-caller-details-dialog"
 						.incomingCallDetails="${this.incomingCallDetails}"
 						.incidentDetails="${this.incidentDetails}"
 						.isNeedSelectable=${true}
@@ -646,95 +655,105 @@ export class ConfirmCallerDetails extends Component {
 		return this.errorMessage === ``
 			? html``
 			: html`
-				<capitec-alert-banner 
+				<horizon-alert-banner 
 					data-automation-id="confirm-caller-details-error-banner"
-					type="unsuccessful-red"
+					type="error"
 					label=${this.errorMessage}>
-				</capitec-alert-banner>`;
+				</horizon-alert-banner>`;
 	}
 
 	_renderAlertBanner() {
 		if (!this.confirmedCaller.isBranchConsultant) {
 			return html`
-				<capitec-alert-banner 
+				<horizon-alert-banner 
 					id="id-banner-addcallerdetails" 
 					data-automation-id="confirm-caller-details-add-caller-banner"
-					type="warning">
+					type="warning"
+					layout="horizontal">
 						<capitec-hyperlink 
 							label="Add Caller Details"
 							data-automation-id="confirm-caller-details-add-caller-details"
 							@click="${() => this._addCallerDetailsClick()}">
 						</capitec-hyperlink>
-					if the caller is calling on another client's behalf
-				</capitec-alert-banner>`;
+						<section>if the caller is calling on another client's behalf</section>
+				</horizon-alert-banner>`;
 		} 
 
 		return html`
-			<capitec-alert-banner 
+			<horizon-alert-banner 
 				id="id-banner-addcallerdetails" 
 				data-automation-id="confirm-caller-details-branch-banner"
-				type="warning">
-				<p><b>Notify:</b>${branchBannerMessage}</p>
-			</capitec-alert-banner>`;
+				type="warning"
+				header="Notify: "
+				label="${branchBannerMessage}">
+			</horizon-alert-banner>`;
 	}
 
 	_renderConfirmedCaller() {
 		return html`
-				<capitec-group class="client-info" layout="horizontal" gap="clear">
-					<capitec-avatar 
-						shape="square"
-						icon="/images/common/avatar.svg">
-					</capitec-avatar>
-					<capitec-group id="id-caller-group" layout="grid" gap="none" columns="auto" rows="auto">
-						<capitec-label 
-							id="client-name" 
-							data-automation-id="confirm-caller-details-client-name"
+			<capitec-group class="client-info" layout="horizontal" gap="clear">
+				${this._renderClientProfileImage()}
+				<capitec-group id="id-caller-group" layout="grid" gap="none" columns="auto" rows="auto">
+					<capitec-label 
+						id="client-name" 
+						data-automation-id="confirm-caller-details-client-name"
+						type="title"
+						row="1" column="1" colspan="2"
+						label="${this.confirmedCaller.name}"
+						@mouseover="${(e) => this._displayTooltip(e)}">
+					</capitec-label>
+					<capitec-tooltip
+						id="long-name" 
+						data-automation-id="confirm-caller-details-client-name-tooltip"
+						row="1" column="1" colspan="2" 
+						message="${this.confirmedCaller.name}"
+						position="bottom">
+						<capitec-label
+							data-automation-id="confirm-caller-details-client-name-tooltip-label"
 							type="title"
-							row="1" column="1" colspan="2"
 							label="${this.confirmedCaller.name}"
 							@mouseover="${(e) => this._displayTooltip(e)}">
 						</capitec-label>
-						<capitec-tooltip
-							id="long-name" 
-							data-automation-id="confirm-caller-details-client-name-tooltip"
-							row="1" column="1" colspan="2" 
-							message="${this.confirmedCaller.name}"
-							position="bottom">
-							<capitec-label
-								data-automation-id="confirm-caller-details-client-name-tooltip-label"
-								type="title"
-								label="${this.confirmedCaller.name}"
-								@mouseover="${(e) => this._displayTooltip(e)}">
-							</capitec-label>
-						</capitec-tooltip>
-						<horizon-label class="client-info-row" row="2" column="1" 
-							data-automation-id="confirm-caller-details-id-number"
-							label="ID Number"
-							value="${this.confirmedCaller.southAfricanIDNumber}">
-						</horizon-label>
-						<horizon-label class="client-info-row" row="2" column="2" 
-							data-automation-id="confirm-caller-details-verified-phone-number"
-							label="Verified Cellphone Number"
-							value="${this._getVerifiedTelephoneNumber()}">
-						</horizon-label>
-						<horizon-label class="client-info-row" row="3" columun="1" 
-							data-automation-id="confirm-caller-details-lives-in"
-							label="Lives In" 
-							value="${this.confirmedCaller.livesIn}">
-						</horizon-label>
-						<horizon-label class="client-info-row" row="3" columun="2" 
-							data-automation-id="confirm-caller-details-language-preference"
-							label="Language Preference"
-							value="${this._getLanguagePreference()}">
-						</horizon-label>
-						<horizon-label class="client-info-row" row="4" columun="1" 
-							data-automation-id="confirm-caller-details-birthday"
-							label="Birthday"
-							value="${this._getBirthdate(this.birthdate)}" >
-						</horizon-label>
-					</capitec-group>
+					</capitec-tooltip>
+					<horizon-label class="client-info-row" row="2" column="1" 
+						data-automation-id="confirm-caller-details-id-number"
+						label="ID Number"
+						value="${this.confirmedCaller.southAfricanIDNumber}">
+					</horizon-label>
+					<horizon-label class="client-info-row" row="2" column="2" 
+						data-automation-id="confirm-caller-details-verified-phone-number"
+						label="Verified Cellphone Number"
+						value="${this._getVerifiedTelephoneNumber()}">
+					</horizon-label>
+					<horizon-label class="client-info-row" row="3" columun="1" 
+						data-automation-id="confirm-caller-details-lives-in"
+						label="Lives In" 
+						value="${this.confirmedCaller.livesIn}">
+					</horizon-label>
+					<horizon-label class="client-info-row" row="3" columun="2" 
+						data-automation-id="confirm-caller-details-language-preference"
+						label="Language Preference"
+						value="${this._getLanguagePreference()}">
+					</horizon-label>
+					<horizon-label class="client-info-row" row="4" columun="1" 
+						data-automation-id="confirm-caller-details-birthday"
+						label="Birthday"
+						value="${this._getBirthdate(this.birthdate)}" >
+					</horizon-label>
 				</capitec-group>
+			</capitec-group>
 		 `;
+	}
+
+	_renderClientProfileImage() {
+		return this.confirmedCaller.profilePhoto
+		? html`<img src="data:image/jpg;base64,${this.confirmedCaller.profilePhoto}"/>`
+		: html`
+			<capitec-avatar 
+					shape="square"
+					icon="/images/common/avatar.svg">
+			</capitec-avatar>
+		`;
 	}
 
 	renderFooter() {

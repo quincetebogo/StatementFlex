@@ -151,11 +151,6 @@ export class Expander2 extends Component {
 	_click(event) {
 		// Prevent the event from bubbling up.
 		event.stopPropagation();
-
-		// Ignore the click event if the item is disabled.
-		if (this.disabled) {
-			return;
-		}
 	}
 
 
@@ -286,7 +281,7 @@ export class Expander2 extends Component {
 
 				:host([noanimate]) {
 					animation-duration: 0s;
-				}				
+				}
 
 				.indicator.right{
 					height: 24px;
@@ -328,8 +323,8 @@ export class Expander2 extends Component {
 				return html`
 						<capitec-check
 							class="input"
-							?checked = ${this.selected}
-							?disabled = ${this.disabled}
+							?checked = "${this.selected}"
+							?disabled = "${this.disabled}"
 							@value-changed="${(e) => this._onValueChange(e)}">
 						</capitec-check>`;
 			default:

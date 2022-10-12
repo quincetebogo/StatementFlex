@@ -19,9 +19,8 @@ export class NotRegisteredForIta extends Component {
 				#notification-status-box > capitec-group {
 					--theme-layout-gap-spacing: 16px;
 				}
-				#notification-status-box > capitec-group > capitec-alert-banner {
-					--theme-alert-banner-height: 48px;
-					--theme-alert-banner-info-border: none;
+				#notification-status-box > capitec-group > horizon-alert-banner {
+					--theme-toast-horizontal-title-margin-right: 4px;
 				}
 				.notification-info {
 					color: #545D60;
@@ -45,15 +44,17 @@ export class NotRegisteredForIta extends Component {
 		return html`
 			<capitec-content-box id="notification-status-box">
 				<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
-					<capitec-alert-banner type="warning">
-						<b>Notify: </b>The client isn't registered for Remote Banking.
-					</capitec-alert-banner>
+					<horizon-alert-banner
+						type="warning"
+						header="Notify: "
+						label="The client isn't registered for Remote Banking.">
+					</horizon-alert-banner>
 					<capitec-group layout="vertical" 
 						halign="center"
 						valign="top" 
 						gap="clear"
 						id="notification-status-error-group">
-						<img src="/images/verifyCaller/verifyClient.svg" class="remote-connection-warning-svg"/>
+						<img src="/images/verifyCaller/verify-client.svg" class="remote-connection-warning-svg"/>
 						<div class="notification-info">
 							<b>Verify client</b>
 							<br>

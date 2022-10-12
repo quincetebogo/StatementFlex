@@ -23,7 +23,7 @@ const PAGE_INFO = {
 	},
 	liveBetter: {
 		header: `More to come soon`,
-		icon: `/images/liveBetter/liveBetter-white.svg`,
+		icon: `/images/liveBetter/live-better-white.svg`,
 		details: `Visit capitecbank.co.za for more info on our Live Better benefits partners, automatic savings tools and other easy ways to grow your Live Better savings account.`
 	}
 };
@@ -82,7 +82,7 @@ export class CnetProductInfo extends Component {
 					--theme-type-primary-background: linear-gradient(315deg, #70838C 0%, #667F8C 47.52%, #41525B 100%);
 				}
 				.liveBetter {
-					--theme-type-primary-background: url(/images/liveBetter/LBB_bg-1092x64.png);
+					--theme-type-primary-background: url(/images/liveBetter/lbb-bg-1092x64.png);
 				}
 				#id-more-info {
 					margin: 43px auto 8px auto;
@@ -170,8 +170,7 @@ export class CnetProductInfo extends Component {
 				<capitec-icon
 					size="medium"
 					icon="product/${PAGE_INFO[this.viewType].icon}">
-				</capitec-icon>`
-			;
+				</capitec-icon>`;
 
 	}
 }

@@ -476,14 +476,9 @@ export class InternetBankingProfileDetails extends Component {
 					--theme-label-strong-font-weight: 600;
 					--theme-label-font-color: #3A3A3A;
 				}
-				
-				.side-panel-header-close-icon {
-					--theme-icon-size-small: 13.5px;
-					cursor: pointer;
-				}
 
 				.side-panel-close-icon {
-					--theme-icon-size-small: 13.5px;
+					--theme-icon-size-medium: 24px;
 					cursor: pointer;
 				}
 
@@ -644,14 +639,13 @@ export class InternetBankingProfileDetails extends Component {
 
 				/* Multiple Devices - Suspend Reasons */
 
-				capitec-alert-banner {
+				horizon-alert-banner {
 					margin: 8px 8px 0px 8px;
-									   
-					--theme-alert-banner-icon-margin-left: 16px;
-					--theme-alert-banner-icon-margin-right: 16px;
+					
+					--theme-toast-icon-margin: 40px 16px 0px 16px;
 				}
 
-				capitec-alert-banner > capitec-hyperlink {
+				horizon-alert-banner > capitec-hyperlink {
 					margin-top: 5px;
 					position: absolute;
 					right: 16px;
@@ -663,7 +657,7 @@ export class InternetBankingProfileDetails extends Component {
 					text-decoration: underline;
 				}
 				
-				capitec-alert-banner > p {
+				horizon-alert-banner > p {
 					margin: 0px;
 					padding-right: 33px;
 					color: #3A3A3A;
@@ -672,10 +666,15 @@ export class InternetBankingProfileDetails extends Component {
 					letter-spacing: 0;
 					line-height: 20px;
 				}
+				.choose-reason {
+					--theme-toast-icon-margin: 10px 16px 0px 16px;
+				}
+
 
 				.client-notify-banner {
 					--theme-alert-banner-height: 105px;
 					--theme-alert-banner-width: 328px;
+					--theme-toast-icon-margin: 16px 16px 0px 16px;
 				}
 				.client-notify-banner > p {
 					width: 204px;
@@ -820,7 +819,7 @@ export class InternetBankingProfileDetails extends Component {
 					<capitec-icon class="side-panel-header-icon" size="medium" icon="system/access"></capitec-icon>
 					<capitec-label class="side-panel-sheet-label" type="Strong" label="Internet Banking"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-icon class="side-panel-header-close-icon" size="small" icon="system/close-action" @click="${() => this._closeInternetBankingPanel()}"></capitec-icon>
+					<capitec-icon class="side-panel-close-icon" size="medium" icon="system/close-action" @click="${() => this._closeInternetBankingPanel()}"></capitec-icon>
 				</capitec-group>
 
 				${this._renderInternetBankingDetails()}
@@ -976,7 +975,7 @@ export class InternetBankingProfileDetails extends Component {
 				<capitec-icon class="${this.renderMode === RENDER_MODE.SINGLE_TOKEN ? `side-panel-header-icon` : `side-panel-header-suspend-icon`}" size="medium" icon=${this.showNoReasonSelectedNotification ? `status/error-trans` : `status/warning-trans`}></capitec-icon>
 				<capitec-label class="side-panel-header-label" type="Strong" label="Suspend Security Token"></capitec-label>
 				<capitec-spacer></capitec-spacer>
-				<capitec-icon class="side-panel-close-icon" size="small" icon="${this.renderMode === RENDER_MODE.SINGLE_TOKEN ? `system/close-action` : `system/close`}" @click="${() => this._onCloseSuspendPanelClick()}"></capitec-icon>
+				<capitec-icon class="side-panel-close-icon" size="medium" icon="${this.renderMode === RENDER_MODE.SINGLE_TOKEN ? `system/close-action` : `system/close`}" @click="${() => this._onCloseSuspendPanelClick()}"></capitec-icon>
 			</capitec-group>
 		`;
 	}
@@ -1149,7 +1148,7 @@ export class InternetBankingProfileDetails extends Component {
 					gap="none">
 					<capitec-label class="side-panel-header-label" type="Strong" label="Reset Security Token Clock"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-icon class="side-panel-close-icon" size="small" icon="system/close-action" @click="${() => this._onCloseResetPanelClick()}"></capitec-icon>
+					<capitec-icon class="side-panel-close-icon" size="medium" icon="system/close-action" @click="${() => this._onCloseResetPanelClick()}"></capitec-icon>
 				</capitec-group>
 
 				<capitec-content-box
@@ -1188,15 +1187,14 @@ export class InternetBankingProfileDetails extends Component {
 
 	_renderServiceUnavailable() {
 		return html`
-			<capitec-alert-banner
+			<horizon-alert-banner
 				data-automation-id="app-profile-details-unavailable-banner"
-				class="unavailable-alert-banner"
-				type="unsuccessful-red"
-				label=""
+				class="choose-reason"
+				type="error"
+				header="Notify Client"
+				label="Services are currently unavailable"
 				layout="vertical">
-				<b>Notify Client</b> <br>
-				<p>Services are currently unavailable</p>
-			</capitec-alert-banner>
+			</horizon-alert-banner>
 			
 			<capitec-group class="service-unavilable-group" layout="vertical" halign="center" valign="center" gap="none">
 				
@@ -1305,42 +1303,45 @@ export class InternetBankingProfileDetails extends Component {
 
 	_renderTokenSuspendedNotification() {
 		return this.isTokenSuspended ? html`
-			<capitec-alert-banner
+			<horizon-alert-banner
 				type="error"
 				class="token-suspend-banner"
 				label=""
 				layout="vertical">
-				<p><b>Internet security token suspended.</b><br>To access internet banking you will need to register on the App.</p>
-				<capitec-spacer></capitec-spacer>
-				<p>Please visit a branch to request a new security token.</p>
-			</capitec-alert-banner>
+					<b>Internet security token suspended.</b>
+					<p>To access internet banking you will need to register on the App.</p>
+					<capitec-spacer></capitec-spacer>
+					<p>Please visit a branch to request a new security token.</p>
+			</horizon-alert-banner>
 		` : html``;
 	}
 
 	_renderClientNotification() {
 		return this.showNoReasonSelectedNotification ? html`
-			<capitec-alert-banner
-				type="unsuccessful-red"
+			<horizon-alert-banner
+				class="choose-reason"
+				type="error"
 				label=""
 				layout="vertical">
-				<p></b><b>Notice:</b></p>
-				<p>Please choose a reason to suspend.</p>
-			</capitec-alert-banner>
+					</b><b>Notice:</b>
+					<p>Please choose a reason to suspend.</p>
+			</horizon-alert-banner>
 		` : html`
-			<capitec-alert-banner
+			<horizon-alert-banner
 				type="warning"
 				class="client-notify-banner"
 				label=""
 				layout="vertical">
-				<p><b>Notify client:</b><br>A fee will be charged to activate a new security token.</p>
+					<b>Notify client:</b>
+					<p>A fee will be charged to activate a new security token.</p>
 
-				<capitec-hyperlink
-					href="https://www.capitecbank.co.za/global-one/transact/fees/"
-					target="_blank"
-					label="View fees"
-					inline>
-				</capitec-hyperlink>
-			</capitec-alert-banner>
+					<capitec-hyperlink
+						href="https://www.capitecbank.co.za/global-one/transact/fees/"
+						target="_blank"
+						label="View fees"
+						inline>
+					</capitec-hyperlink>
+			</horizon-alert-banner>
 		`;
 	}
 }

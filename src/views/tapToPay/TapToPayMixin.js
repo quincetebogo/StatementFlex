@@ -10,20 +10,6 @@ import { html } from 'platform/elements';
  * This mixin provides the code that sets up the component. Call back functions
  * and event handlers are provided here.
  * 
- *   this.navigationContext
- *   this.logger
- *   this._telemetry
- * 
- *   this.horizonStore
- *   this.horizonRouter
- * 
-*    this.quickTransactionService
-
- *   this.renderMode 
- *   this.callerInformation
- *   this.incidentDetails
- *
- *   this.cards
  */
 export const tapToPayMixin = {
 	async _tapToPay() {
@@ -32,7 +18,7 @@ export const tapToPayMixin = {
 			"next-screen": TelemetryScreen.TAP_TO_PAY
 		});
 
-		const returnValue = await this.quickTransactionService.tapToPayLanding(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
+		const returnValue = await this.cardService.tapToPayLanding(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
 			
 		if (returnValue.succeeded) {
 			this.cards = returnValue.result.cards;
@@ -48,7 +34,7 @@ export const tapToPayMixin = {
 			"next-screen": null
 		});
 		
-		const returnValue = await this.quickTransactionService.tapToPayAgreement(agreementRequest);
+		const returnValue = await this.cardService.tapToPayAgreement(agreementRequest);
 
 		if (returnValue.succeeded) {
 			return returnValue.result;
@@ -65,7 +51,7 @@ export const tapToPayMixin = {
 			"next-screen": TelemetryScreen.TAP_TO_PAY_OUTCOME
 		});
 
-		const returnValue = await this.quickTransactionService.updateTapToPay(updateRequest, (ex) => this._tapToPayErrorHandler(ex));
+		const returnValue = await this.cardService.updateTapToPay(updateRequest, (ex) => this._tapToPayErrorHandler(ex));
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unable to update Tap To Pay Agreement`, `_updateTapToPay`, returnValue.correlationId);

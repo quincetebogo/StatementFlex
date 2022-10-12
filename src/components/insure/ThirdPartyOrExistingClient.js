@@ -252,7 +252,7 @@ export class ThirdPartyOrExistingClient extends Component {
 					margin-top: 24px;
 				}
 				
-				capitec-alert-banner {
+				horizon-alert-banner {
 					--theme-layout-gap-spacing: 0px;
 					--theme-alert-banner-height: 48px;
 					--theme-alert-banner-warning-border: none;
@@ -357,9 +357,9 @@ export class ThirdPartyOrExistingClient extends Component {
 	_render3rdPartyAlertBanner() {
 		if (this.verificationStatus === `3rdparty`) {
 			return html`
-				<capitec-alert-banner type="warning" label="Caller is a beneficiary or 3rd party - only limited information available."
+				<horizon-alert-banner type="warning" label="Caller is a beneficiary or 3rd party - only limited information available."
 					closable>
-				</capitec-alert-banner>
+				</horizon-alert-banner>
 			`;
 		}
 		return html``;
@@ -368,11 +368,11 @@ export class ThirdPartyOrExistingClient extends Component {
 	_renderUnverifiedExistingClientAlert() {
 		if (this.verificationStatus === `unverified`) {
 			return html`
-				<capitec-alert-banner type="warning">
+				<horizon-alert-banner type="warning">
 					Client has not been verified, so you are only able to see limited information.
 					<capitec-hyperlink label="Verify Now" @click="${() => this._verifyClick()}">
 					</capitec-hyperlink>
-				</capitec-alert-banner>
+				</horizon-alert-banner>
 			`;
 		}
 		return html``;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="26px" height="42px" viewBox="0 0 26 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>cards / black_front_credit_40px height</title>
+    <title>cards / black-front-credit-40px-height</title>
     <defs>
         <linearGradient x1="69.53125%" y1="0%" x2="30.46875%" y2="100%" id="linearGradient-1">
             <stop stop-color="#201F1C" offset="0%"></stop>
@@ -290,7 +290,7 @@
         <g id="01f-Update-Card-Limits---Perm-Credit-Limit" transform="translate(-749.000000, -395.000000)">
             <g id="Limits" transform="translate(572.000000, 284.000000)">
                 <g id="Card" transform="translate(118.000000, 31.000000)">
-                    <g id="cards-/-black_front_credit" transform="translate(59.000000, 81.000000)">
+                    <g id="cards-/-black-front-credit" transform="translate(59.000000, 81.000000)">
                         <g id="Group-2" transform="translate(-0.000000, 0.000000)">
                             <g id="credit-card-front-black">
                                 <mask id="mask-4" fill="white">

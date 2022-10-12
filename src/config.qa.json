@@ -1,9 +1,12 @@
 {
 	"serviceURIs": {
 		"channelServiceUrl": "https://horizoncs-v1.platform-qa.int.capinet",
-		"clientInsightsUrl": "https://hzn-cs-clientinsights-v1.platform-qa.int.capinet",
+		"clientInsightsUrl": "https://cec-insights.platform-qa.int.capinet",
 		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-qa.int.capinet",
 		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-qa.int.capinet",
+		"clientProfileServiceUrl": "https://csc-clientprofile.platform-qa.int.capinet",
+		"debiCheckServiceUrl": "https://csc-debicheck.platform-qa.int.capinet",
+		"cardServiceUrl": "https://horizon-cs-card-v1.platform-qa.int.capinet",
 		"savingsPlanChannelServiceUrl": "https://csc-cs-save.platform-qa.int.capinet"
 	},
 	"signalRUrl": "https://horizon-cs-ita.platform-qa.int.capinet",

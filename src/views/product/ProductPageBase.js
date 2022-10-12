@@ -53,9 +53,9 @@ export class ProductPageBase extends View {
 	 * @memberof ProductPageBase
 	 */
 	async _viewBenefits(viewType) {
-		let productUrl = '';
+		let productUrl = ``;
 
-		if( viewType === `liveBetter`){
+		if (viewType === `liveBetter`) {
 			productUrl = await this._configuration.getSetting(`otherSystemsURL.live-better`);
 		} else {
 			const globalOneUrl = await this._configuration.getSetting(`otherSystemsURL.global-one`);

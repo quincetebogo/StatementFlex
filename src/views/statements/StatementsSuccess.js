@@ -114,7 +114,7 @@ export class StatementsSuccess extends ViewBase {
 			<horizon-success-screen 
 				data-automation-id="statements-success"
 				header="Statement sent" 
-				image="/images/statements/senddocuments.svg"
+				image="/images/statements/send-documents.svg"
 				left="Send Another"
 				right="Done"
 				toast="Statement sent"

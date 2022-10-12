@@ -588,11 +588,17 @@ const UNLOCK_OPTIONS = {
 
 	_renderDisclosure() {
 		return html`
-			<capitec-alert-banner
-				data-automation-id="unlock-ftsp-disclosure-message"
-				type="warning">
-				<p><b>Disclosure:</b> By changing or Full unlocking a Fixed-term to a Flexible Savings Plan will affect your interest rates.</p>
-			</capitec-alert-banner>`;
+			<horizon-alert-banner
+					class="verificatoin-status"
+					data-automation-id="unlock-ftsp-disclosure-message"
+					type="warning">
+						<capitec-group layout="horizontal" class="alert-banner-group">
+							<capitec-label type="strong" label="Disclosure:"></capitec-label>
+							<capitec-label type="default"
+								label="By changing or Full unlocking a Fixed-term to a Flexible Savings Plan will affect your interest rates.">
+							</capitec-label>
+						</capitec-group>
+			</horizon-alert-banner>`;
 	}
 
 	_renderAccountDetailsBar() {
