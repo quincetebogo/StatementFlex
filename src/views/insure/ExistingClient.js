@@ -1212,8 +1212,8 @@ export class ExistingClient extends InsureViewBase {
 				"cifNumber": this.callerInformation.cifNumber, // 363291555
 				"primarySavingsAccountNumber": this.accountDetails.savingsAccountData.accountNumber, // 1952898232
 				"policyContractReference": contractReference, // "FP00001590"
-				"firstName": `DUBE`, // this.callerInformation.firstName,
-				"surname": `TDIL`, // this.callerInformation.lastName,
+				"firstName": this.callerInformation.firstName, // `DUBE`
+				"surname": this.callerInformation.lastName, // `TDIL`
 				"idNumber": this.callerInformation.southAfricanIDNumber, // "0011262112193"
 				"dateOfBirth": dob.toISOString() // "2000-11-25T22:00:00.000Z"
 			},

@@ -104,7 +104,7 @@ class ClientPolicies extends Component {
 			clientPolicies: { type: Object, state: true },
 			policyDetails: { type: Object, state: true },
 			readOnlyMode: { type: Boolean, state: true },
-			showSubMenu: { type: Boolean, state: true }
+			showSubMenu: { type: Boolean, state: true },
 
 			clientClaims: { type: Object, state: true }
 		};
