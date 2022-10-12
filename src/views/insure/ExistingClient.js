@@ -95,7 +95,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {String} issuePlanAgreementDocument stores issue plan agreement document object.
 	 * @property {String} reinstatePaymentAgreementDocument stores payment agreement document object.
 	 * @property {Object} policySummary  Local object for new Quote requests
-	 * @property {String} cancellationReason conatins the cancellation reason selected
+	 * @property {String} cancellationReason contains the cancellation reason selected
 	 * @property {Object} cancelPolicyDocumentDetails contains the cancel policy document details
 	 * @property {Object} arrearsPaymentDocumentDetails contains the arrears payment document details
 	 * 
@@ -635,6 +635,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {Object} accumulator
 	 */
 	async _payPolicy(e) {
+
 		const payArrears = {
 			"contractReference": e.detail.payArrears.contractReference,
 			"arrears": e.detail.payArrears.arrears,
@@ -1079,7 +1080,7 @@ export class ExistingClient extends InsureViewBase {
 	/**
 	 * Reinstate Policy callback to create policy and get agreement documents
 	 * @param {*} policyToReinstate policyToReinstate
-	 * @returns {*} resinstatePolicyResponse
+	 * @returns {*} reinstatePolicyResponse
 	 */
 	async _initiateReinstatePolicy(policyToReinstate) {
 		const createPolicyRequest = {
@@ -1208,11 +1209,11 @@ export class ExistingClient extends InsureViewBase {
 			"wetsignBarcode": false,
 
 			"clientDetails": {
-				"cifNumber": parseInt(this.callerInformation.cifNumber, 16), // 363291555
-				"primarySavingsAccountNumber": parseInt(this.accountDetails.savingsAccountData.accountNumber, 16), // 1952898232
+				"cifNumber": this.callerInformation.cifNumber, // 363291555
+				"primarySavingsAccountNumber": this.accountDetails.savingsAccountData.accountNumber, // 1952898232
 				"policyContractReference": contractReference, // "FP00001590"
-				"firstName": this.callerInformation.firstName,
-				"surname": this.callerInformation.lastName,
+				"firstName": this.callerInformation.firstName, // `DUBE`
+				"surname": this.callerInformation.lastName, // `TDIL`
 				"idNumber": this.callerInformation.southAfricanIDNumber, // "0011262112193"
 				"dateOfBirth": dob.toISOString() // "2000-11-25T22:00:00.000Z"
 			},
@@ -1224,8 +1225,8 @@ export class ExistingClient extends InsureViewBase {
 				"payArrearsModel": {
 					"contractReference": contractReference,
 					"arrears": payArrears.arrears,
-					"fromAccount": parseInt(fromAccount, 16),
-					"cifNumber": parseInt(this.callerInformation.cifNumber, 16) // 363291555
+					"fromAccount": fromAccount,
+					"cifNumber": this.callerInformation.cifNumber // 363291555
 				}
 			}
 
@@ -1448,7 +1449,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderCancelPolicySuccessPage() {
 		return html`
-			<insure-cancel-policy-success @navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+			<insure-cancel-policy-success @navigate-to-summary="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@send-email = "${(e) => this._sendEmail(e)}" .contractReference = ${this.contractReference}>
 			</insure-cancel-policy-success>
 		`;

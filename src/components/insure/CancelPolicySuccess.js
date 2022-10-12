@@ -99,6 +99,13 @@ _sendEmail(emailAddress) {
 	this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: this.callerPage } }));
 }
 
+_navigateToSummary() { 
+	this.dispatchEvent(new CustomEvent(`navigate-to-summary`, {
+		detail: {
+		}
+	}));
+}
+
 // #endregion
 
 // #region RENDERING
@@ -145,6 +152,13 @@ _sendEmail(emailAddress) {
 				width: 350px;
 				margin: auto;
 			}
+
+			.button-row{
+				display: flex; 
+				justify-content: center;
+				padding: 10px 15px 15px 15px; 
+				gap: 10px;
+			}
 			
 			`
 		];
@@ -183,8 +197,10 @@ _sendEmail(emailAddress) {
 					<capitec-image src="platform/illustrations/application.svg"
 						style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
 					<capitec-label class="label" type="title" label="The policy has been cancelled"></capitec-label>
-					<!-- <capitec-label class="spacing" type="subtitle" label="You currently have 2 active policies"></capitec-label> -->
-					<div>
+					<div class="button-row">
+						<capitec-button label="Done" class = "capitec-button-medium" type="primary" @click="${() => this._goToSummary()}"
+							data-automation-id="">
+						</capitec-button>
 						<capitec-button label="Email" class = "capitec-button-medium" type="primary" @click="${() => this._openEmailPlanDialog()}"
 							data-automation-id="">
 						</capitec-button>
