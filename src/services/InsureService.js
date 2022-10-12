@@ -309,7 +309,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`auditTransactionHistory`, transactionsRequest);
 		}
 		return this.post(
-			`/FuneralInsuranceProductService/audit/transactions`,
+			`/FuneralInsuranceProductService/policy/transactions`,
 			transactionsRequest,
 			this.setInsureTokens(),
 			`getAuditTransactions`,

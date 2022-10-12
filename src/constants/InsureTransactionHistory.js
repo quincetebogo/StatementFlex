@@ -16,8 +16,8 @@
  * @enum {Object} AUDIT_DATE_TYPE_LIST
  */
  export const AUDIT_DATE_TYPE_LIST = Object.freeze([
-	{ code: `ActionedDate`, text: `Change Actioned Date` },
-	{ code: `EffectiveDate`, text: `Effective Date` }
+	{ code: `TransactionDate`, text: `Change Actioned Date` }, // TODO: Endpoint doesn't include it in request payload. code: `ActionedDate`
+	{ code: `TransactionDate`, text: `Effective Date` } // code: `EffectiveDate`
 ]);
 
 /**
@@ -33,6 +33,11 @@ export const DEFAULTS = {
  * Max no of Results
  */
 export const MAX_RESULTS = 50;
+
+/**
+ * date of last 90 days 
+ */
+export const NINETY_DAYS = 7777000000;
 
 /**
  * Filter by Types
@@ -65,13 +70,13 @@ export const TODAY_DATE = new Date();
  * @enum {Object} ACTIVITY_TYPE_LIST
  */
  export const ACTIVITY_TYPE_LIST = Object.freeze([
-	{ code: `PREMIUMCHANGE`, text: `Premium Change` },
-	{ code: `BANKDETAILSCHANGES`, text: `Bank Details Changes` },
+	{ code: `UpdatePolicyQuote`, text: `Premium Change` },
+	{ code: `UpdateBankDetails`, text: `Bank Details Changes` },
 	{ code: `MAINLIFECHANGES`, text: `Main Life Changes` },
-	{ code: `LIVESASSUREDCHANGES`, text: `Lives Assured Changes` },
+	{ code: `AddLife`, text: `Lives Assured Changes` },
 	{ code: `BENEFICIARYCHANGES`, text: `Beneficiary Changes` },
 	{ code: `POLICYSTATUSCHANGES`, text: `Policy Status Changes` },
-	{ code: `WAIVERCHANGES`, text: `Waiver Changes` },
+	{ code: `AddWaiverInfo`, text: `Waiver Changes` },
 	{ code: `CLAIMSLODGESCHANGES`, text: `Claims Lodges and Changes` }
 ]);
 
@@ -82,12 +87,28 @@ export const TODAY_DATE = new Date();
  * @enum {Object} ACTIVITY_TYPE
  */
  export const ACTIVITY_TYPE = Object.freeze({
-	PREMIUM_CHANGE: `Premium Change`,
-	BANKDETAILS_CHANGES: `Bank Details Changes`,
-	MAINLIFE_CHANGES: `Main Life Changes`,
-	LIVESASSURED_CHANGES: `Lives Assured Changes`,
-	BENEFICIARY_CHANGES: `Beneficiary Changes`,
-	POLICYSTATUS_CHANGES: `Policy Status Changes`,
-	WAIVER_CHANGES: `Waiver Changes`,
-	CLAIMSLODGES_CHANGES: `Claims Lodges Changes`
+	PREMIUM_CHANGE: `UpdatePolicyQuote`,
+	BANKDETAILS_CHANGES: `UpdateBankDetails`,
+	MAINLIFE_CHANGES: `MainLifeChanges`,
+	LIVESASSURED_CHANGES: `AddLife`,
+	BENEFICIARY_CHANGES: `BeneficiaryChanges`,
+	POLICYSTATUS_CHANGES: `PolicyStatusChanges`,
+	WAIVER_CHANGES: `AddWaiverInfo`,
+	CLAIMSLODGES_CHANGES: `ClaimsLodgesChanges`
+});
+
+/**
+ * List of Activity Type Descriptions
+ * @readonly
+ * @enum {Object} ACTIVITY_TYPE_DESCRIPTION
+ */
+ export const ACTIVITY_TYPE_DESCRIPTION = Object.freeze({
+	UpdatePolicyQuote: `Update Policy Quote`,
+	UpdateBankDetails: `Update Bank Details`,
+	MainLifeChanges: `Main Life Changes`,
+	AddLife: `Add Life`,
+	BeneficiaryChanges: `Beneficiary Changes`,
+	PolicyStatusChanges: `Policy Status Changes`,
+	AddWaiverInfo: `Add Waiver Info`,
+	ClaimsLodgesChanges: `Claims Lodges Changes`
 });
