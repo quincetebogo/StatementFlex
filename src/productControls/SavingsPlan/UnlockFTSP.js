@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
+import { deformatCurrency, formatCurrency } from 'app/productControls/utilities/Currency';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
-import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelectIcon';
 import 'app/components/common/HorizonProductTile'; 
@@ -120,19 +121,17 @@ const UNLOCK_OPTIONS = {
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
-	async _chooseOption(e) {
+	_chooseOption(e) {
 		this.unlockType = e.detail.new;
 		this.agreementAccepted = false;
 		this.errMessage = ``;
 		this.partialUnlockAmount = this.selectedAccUnlockOptions.partialUnlockAmount;
 
-		if (this.unlockType === `Full unlock`) {
-			this.partialUnlockAmount = this.selectedFromAccount.availableBalance;
-
-			const result = await this.getUnlockQuote(`Full`, this.selectedFromAccount.accountNumber, this.partialUnlockAmount);
-			this.unlockFee = result.unlockFee;
-			this.quoteRefNumber = result.quoteReferenceNumber;
+		if (this.unlockType === UNLOCK_OPTIONS.FULL) {
+			this.partialUnlockAmount = deformatCurrency(this.selectedFromAccount.availableBalance);
 		}
+
+		this._getUnlockQuoteDetails();
 	}
 
 	_chooseFromAccount(e) {
@@ -147,7 +146,7 @@ const UNLOCK_OPTIONS = {
 		this.partialUnlockAmount = this.selectedAccUnlockOptions.partialUnlockAmount;
 	}
 
-	async _unlockAmountChange(e) {
+	_unlockAmountChange(e) {
 		this.errMessage = ``;
 		this.partialUnlockAmount = e.detail.new;
 
@@ -155,10 +154,7 @@ const UNLOCK_OPTIONS = {
 			this.errMessage = `Max unlock amount ${formatCurrency(this.selectedAccUnlockOptions.partialUnlockAmount)}`;
 			return;
 		}
-
-		const result = await this.getUnlockQuote(`Partial`, this.selectedFromAccount.accountNumber, this.partialUnlockAmount);
-		this.unlockFee = result.unlockFee;
-		this.quoteRefNumber = result.quoteReferenceNumber;
+		this._getUnlockQuoteDetails();
 	}
 
 	_viewAgreement() {
@@ -202,6 +198,12 @@ const UNLOCK_OPTIONS = {
 		}
 		
 		this.partialUnlockAmount = this.selectedAccUnlockOptions.partialUnlockAmount;
+	}
+
+	async _getUnlockQuoteDetails() {
+		const result = await this.getUnlockQuote(this.unlockType, this.selectedFromAccount.accountNumber, this.partialUnlockAmount);
+		this.unlockFee = result.unlockFee;
+		this.quoteRefNumber = result.quoteReferenceNumber;
 	}
 
 	// ---------
@@ -653,7 +655,7 @@ const UNLOCK_OPTIONS = {
 	}
 
 	_renderViewAgreementBar() {
-		return Boolean(this.unlockType)
+		return Boolean(this.unlockType) && !isNullorEmpty(this.quoteRefNumber)
 			? html`
 				<horizon-product-tile 
 					data-automation-id="unlock-ftsp-view-agreement"
@@ -724,7 +726,7 @@ const UNLOCK_OPTIONS = {
 				<div slot="body">
 					<capitec-content-box class="confirm-box">
 						${this.unlockType === `Full unlock` 
-							? html`<p>You are about to change <b>${this.selectedFromAccount.accountName} Fixed-term to a Flexible Savings Plan</b> will affect your interest rate.</p>`
+							? html`<p>You are about to change <b>${this.selectedFromAccount.accountName} Fixed-term to a Flexible Savings Plan</b> which will affect your interest rate.</p>`
 							: html`<p>You are about to make a <b>${this.partialUnlockAmount} Partial unlock</b> from ${this.selectedFromAccount.accountName} Fixed-term Savings Plan to ${this.selectedToAccount.accountName}.</p>`}
 						<p>Are you sure you want to continue?</p>
 					</capitec-content-box>

@@ -12,7 +12,7 @@ import { SavingsService } from 'app/services/SavingsService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { alertBannerMixin } from 'app/views/common/AlertBannerMixin';
-import { deformatCurrency, formatCurrency } from 'app/productControls/utilities/Currency';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/productControls/SavingsPlan/SavingsPlanLanding';
 import 'app/dialogs/taxCertificates/TaxCertificates';
@@ -534,8 +534,13 @@ export class SavingsPlan extends ViewBase {
 		const returnValue = await this.savingsService.ftspUnlockOptions(request);
 
 		if (returnValue.succeeded) {
-			const unlockOptions = returnValue.result.unlockOptions;
-			return unlockOptions;
+			const unlockOptionsInCents = returnValue.result.unlockOptions;
+			
+			const unlockOptionsInRands = unlockOptionsInCents.map(item => {
+				item.partialUnlockAmount /= 100; // Convert cents to rands
+				return item;
+			});
+			return unlockOptionsInRands;
 		}
 		this.logger.log(`error`, `Failed to retrieve unlock options for FTSP from service.`, `_unlockFtsp`, returnValue.correlationId);
 
@@ -557,7 +562,7 @@ export class SavingsPlan extends ViewBase {
 					'accountNumber': primarySavings.accountNumber,
 					'accountName': formatStringAsPascalCase(primarySavings.accountName),
 					'accountType': primarySavings.accountType,
-					'availableBalance': primarySavings.availableBalance,
+					'availableBalance': formatCurrency(primarySavings.availableBalance),
 					'icon': productInfo.icon
 				}
 			];
@@ -566,19 +571,23 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	async _getUnlockQuote(unlockType, accNumber, partialUnlockAmount) {
-	
+
 		const request = {
 				cifNumber: this.callerInformation.cifNumber,
 				accountNumber: accNumber,
-				partialUnlockAmount: deformatCurrency(partialUnlockAmount),
-				unlockType: unlockType,
+				partialUnlockAmount: Number(partialUnlockAmount * 100), // Convert rands to cents
+				unlockType: unlockType.split(` `)[0],
 				channel: `HORIZON`
 			};
 
 		const returnValue = await this.savingsService.ftspUnlockQuote(request);
 
 		if (returnValue.succeeded && returnValue.result) {
-			return returnValue.result;
+			const quoteDetails = returnValue.result;
+
+			// Convert cents to rands
+			quoteDetails.unlockFee = Number(quoteDetails.unlockFee) / 100;
+			return quoteDetails;
 		} 
 
 		this.logger.log(`error`, `Failed to retrieve unlock options quote for the selected FTSP from service.`, `_getUnlockQuote`, returnValue.correlationId);
@@ -643,6 +652,9 @@ export class SavingsPlan extends ViewBase {
 			.save-plan{
 				width: 100%;
 				height: var(--horizon-panel-height, 888px);
+			}
+			horizon-pdf-viewer {
+				--theme-horizon-pdf-modal-header-width: auto;
 			}
 			`
 		];
