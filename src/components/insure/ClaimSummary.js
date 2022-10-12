@@ -85,6 +85,19 @@ class ClaimSummary extends Component {
 					margin: 20px 10px; 
 					padding-left:20px;
 				}
+
+				.doc-container{
+					padding-left: 30px;
+				}
+
+				.doc-container > .label-text{
+					font-weight: 500;
+				}
+
+				.doc-item{
+					color: #003652;
+					font-weight: bold;
+				}
 			`
 		];
 	}
@@ -133,13 +146,12 @@ class ClaimSummary extends Component {
 					</horizon-label>
 				</div>
 
-				<div>
-					<horizon-label style="padding-left: 30px;" label="Outstanding Documents"
-						value="">
-					</horizon-label>
+				<div class="doc-container">
+					<capitec-label class="label-text" label="Outstanding Documents" type="default">
+					</capitec-label>
 					<ul>
 						${this.claimSummary.outstandingDocs.map(doc => html`
-							<li>${doc.documentName}</li>
+							<li class="doc-item">${doc.documentName}</li>
 						`)}
 					</ul>
 				</div>
