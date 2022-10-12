@@ -49,7 +49,6 @@ export class InsureService extends ChannelServiceBase {
 	 * @returns {void}
 	 */
 	async _getLoggedInAgent() {
-		// this.employeeId = await this._getAgentEmployeeId();
 		let id = `XXXXXXXX`;
 		const returnValue = await this.initialiseService.initialise();
 		if (returnValue.succeeded) {
@@ -283,7 +282,6 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`policyTransactionHistory`, transactionsRequest);
 		}
 
-		console.log('In getPolicyTransactions: After mock')
 		return this.post(
 			`/FuneralInsuranceProductService/policy/transactions`,
 			transactionsRequest,
@@ -363,7 +361,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`prepareUpdate`, prepareUpdateRequest);
 		}
 		return this.post(
-			`/horizon-insurance/policy/prepareupdate`,
+			`/FuneralInsuranceProductService/policy/prepareupdate`,
 			prepareUpdateRequest,
 			this.setInsureTokens(),
 			`prepareUpdate`,

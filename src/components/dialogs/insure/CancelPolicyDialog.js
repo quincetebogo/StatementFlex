@@ -46,7 +46,7 @@ class CancelPolicyDialog extends Component {
 	 * @property {Object} cancelPolicyDocumentDetails contains the cancel policy agreement document details
 	 * 
 	 */
-	 static get properties() {
+	static get properties() {
 		return {
 			selected: { type: Boolean, state: true },
 			checked: { type: Boolean, state: true },
@@ -66,12 +66,12 @@ class CancelPolicyDialog extends Component {
 	 * Setup the component once added to the DOM.
 	 * @returns {void}
 	 */
-	 connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
 
-	 }
+	}
 
-	 //  #endregion
+	//  #endregion
 
 
 	//  #region PRIVATE METHODS
@@ -85,7 +85,7 @@ class CancelPolicyDialog extends Component {
 	 * 
 	 * @returns {null} null
 	 */
-	 _onCancelClick() {
+	_onCancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
@@ -151,7 +151,7 @@ class CancelPolicyDialog extends Component {
 	 * @static
 	 * @returns {css} CSS for the component.
 	 */
-	 static get styles() {
+	static get styles() {
 		return [
 			super.styles,
 			css`
@@ -206,7 +206,7 @@ class CancelPolicyDialog extends Component {
 	 * Main render point for component
 	 * @returns {html} The html content of the component.
 	 */
-	 _webTemplate() {
+	_webTemplate() {
 		return html`
 			<capitec-modal type="alert" class="cancel-policy-modal" header="Cancel Funeral Cover Plan (${this.contractReference})">
 				<div slot="body" data-automation-id="insure-cancel-policy-dialog-body">
@@ -224,7 +224,7 @@ class CancelPolicyDialog extends Component {
 	 * 
 	 * @returns {html} The html content of the component.
 	 */
-	 _renderDialogBody() {
+	_renderDialogBody() {
 		return html`
 
 			<div class="select" data-automation-id="insure-cancel-policy-dialog-cancelation-reason">
@@ -251,9 +251,15 @@ class CancelPolicyDialog extends Component {
 			<capitec-content-box class="no-padding">
 				<capitec-expander expandbuttonalignment="left" label="View Cancellation Agreement" class="pdf-viewer"
 					data-automation-id="insure-cancel-policy-dialog-view-cancellation-agreement">
-					<iframe title="CancelPolicyAgreement" height = "100%" frameborder = "0"
-						src="data:application/pdf;base64,${this.cancelPolicyDocumentDetails?.documentContent}#view=fitH">
-					</iframe>
+					${this.cancelPolicyDocumentDetails === undefined ? html`
+						<div style="width: 100%; text-align: center; padding-top: 100px; font-weight: bold;">
+							<capitec-label type="subtitle" label="Select a cancellation reason to generate agreement document"></capitec-label>
+						</div>
+					` : html`
+						<iframe title="CancelPolicyAgreement" height = "100%" frameborder = "0"
+							src="data:application/pdf;base64,${this.cancelPolicyDocumentDetails?.documentContent}#view=fitH">
+						</iframe>
+					`}
 				</capitec-expander>
 			</capitec-content-box>
 

@@ -51,10 +51,7 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 				coverDetails.coverMessage = coverDetails.minCoverMessage.replace(`{0:#,##0}`, coverDetails.minCoverAmount);
 			}
 		}
-	}
-
-	// Spouse
-	if (relationship === `Spouse`) {
+	} else if (relationship === `Spouse`) {
 		coverDetails.defaultCover = 0;
 		coverDetails.maxCoverAmount = currentRole.ageRange[0].maxCoverAmount;
 		coverDetails.minCoverAmount = currentRole.ageRange[0].minCoverAmount;
@@ -84,10 +81,7 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 				coverDetails.coverMessage = coverDetails.minCoverMessage.replace(`{0:#,##0}`, coverDetails.minCoverAmount);
 			}
 		}
-	}
-
-	// Child (3 age ranges)
-	if (relationship === `Child`) {
+	} else if (relationship === `Child`) {
 		coverDetails.defaultCover = 0;
 		coverDetails.maxCoverAmount = currentRole.ageRange[0].maxCoverAmount;
 		coverDetails.minCoverAmount = currentRole.ageRange[0].minCoverAmount;
@@ -132,10 +126,7 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 				coverDetails.coverMessage = coverDetails.minCoverMessage.replace(`{0:#,##0}`, coverDetails.minCoverAmount);
 			}
 		}
-	}
-
-	// Parent
-	if (relationship === `Parent`) {
+	} else if (relationship === `Parent`) {
 		coverDetails.defaultCover = 0;
 		coverDetails.maxCoverAmount = currentRole.ageRange[0].maxCoverAmount;
 		coverDetails.minCoverAmount = currentRole.ageRange[0].minCoverAmount;
@@ -165,10 +156,7 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 				coverDetails.coverMessage = coverDetails.minCoverMessage.replace(`{0:#,##0}`, coverDetails.minCoverAmount);
 			}
 		}
-	}
-
-	// Extended Family (3 age ranges)
-	if (relationship === `ExtendedFamily`) {
+	} else {
 		coverDetails.defaultCover = 0;
 		coverDetails.maxCoverAmount = currentRole.ageRange[2].maxCoverAmount;
 		coverDetails.minCoverAmount = currentRole.ageRange[0].minCoverAmount;
@@ -222,7 +210,6 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 
 	return coverDetails;
 }
-
 
 /**
  * Find perPolicy limit for supplied relationship
