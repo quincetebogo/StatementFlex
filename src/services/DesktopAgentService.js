@@ -296,8 +296,8 @@ export class DesktopAgentService {
 
 			const isHelpDeskAgent = RoleManager.getInstance().isHelpDeskAgent;
 			const vdn = isHelpDeskAgent 
-				? await this._configuration.getSetting(`ClientCareVDN`)
-				: await this._configuration.getSetting(`HelpDeskVDN`);
+				? await this._configuration.getSetting(`HelpDeskVDN`)
+				: await this._configuration.getSetting(`ClientCareVDN`);
 
 			newCallEvent.incomingTelephoneNumber = `0000000000`; // incoming telephone number
 			newCallEvent.voiceReferenceNumber = this._generateVoiceReference();
