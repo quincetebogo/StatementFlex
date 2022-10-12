@@ -281,6 +281,11 @@ export class HorizonStore extends Store {
 		this.setState({ leftBarButtonConfig: updatedLeftBarButtonConfig, landingPageInfo: updatedLandingPageInfo });
 	}
 
+	/**
+	 * 
+	 * @param {Object} newLandingPageInfo - Landing page info
+	 * @return {void}
+	 */
 	setLandingInfoPageState(newLandingPageInfo) {
 		
 		if (!newLandingPageInfo) {
@@ -303,7 +308,12 @@ export class HorizonStore extends Store {
 		this.setState({ landingPageInfo: updatedLandingPageInfo });
 	}
 
-	setProductButtonsInfoState(updatedProductButtonInfo) {
+	/**
+	 * Used to update the left bar product tile info in state.
+	 * @param {Object} updatedProductButtonInfo - Updated subtitles and details for left bar product tiles
+	 * @return {void}
+	 */
+	setLeftBarProductTilesInfoState(updatedProductButtonInfo) {
 		this.setState({ leftBarButtonConfig: updatedProductButtonInfo });
 	}
 }

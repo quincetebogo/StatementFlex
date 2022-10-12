@@ -306,7 +306,7 @@ export class ProfileAndProductSummaryBar extends Component {
 		};
 		
 		// Now we can update the information on the product buttons
-		this.horizonStore.setProductButtonsInfoState(updatedProductButtonInfo);
+		this.horizonStore.setLeftBarProductTilesInfoState(updatedProductButtonInfo);
 
 	}
 
