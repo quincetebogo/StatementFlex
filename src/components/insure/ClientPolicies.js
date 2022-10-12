@@ -363,6 +363,15 @@ class ClientPolicies extends Component {
 		await this.getArrearsPaymentDocument(contractReference, this.payArrears, this.fromAccount, false);
 	}
 
+	/**
+	 * Event for closing cancel dialog, reset document state 
+	 * @returns {void}
+	 */
+	_closeCancelPolicyDialog() {
+		this.showCancelPolicyDialog = false;
+		this.cancelPolicyDocumentDetails = undefined;
+	}
+
 
 	// #endregion EVENT HANDLERS
 
@@ -979,7 +988,7 @@ class ClientPolicies extends Component {
 	_renderCancelPolicyDialog() {
 		return this.showCancelPolicyDialog === false ? ``
 			: html`
-		<insure-cancel-policy-dialog @close-modal="${(e) => this.showCancelPolicyDialog = false}"
+		<insure-cancel-policy-dialog @close-modal="${(e) => this._closeCancelPolicyDialog()}"
 			@agree="${(e) => this._goToCancelPolicySuccess(e)}" .contractReference = ${this.contractRef}
 			.cancelPolicyDocumentDetails = "${this.cancelPolicyDocumentDetails}"
 			.getCancelPolicyDocument="${(contractReference, cancelReason) => this._getCancelPolicyDocument(contractReference, cancelReason)}">
