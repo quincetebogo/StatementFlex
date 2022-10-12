@@ -108,7 +108,6 @@ class AddLifeDialog extends Component {
 	 */
 	_onAddClick() {
 		const coverDetails = refreshRelationshipCoverDetails(this.selectedRelationship, this.productParams, 0, 0, ``, this.showExtendedList, true);
-		console.log(`coverDetails: `, JSON.stringify(coverDetails));
 		this.dispatchEvent(new CustomEvent(`add-new-life`, { detail: { relationship: this.selectedRelationship, coverDetails: coverDetails } }));
 		this.showExtendedList = false;
 	}
@@ -382,7 +381,7 @@ class AddLifeDialog extends Component {
 		return html`
 		<capitec-button label="Back" data-automation-id="insure-add-life-dialog-back" @click="${() => this._onBackClick()}">
 		</capitec-button>`;
-		
+
 
 	}
 

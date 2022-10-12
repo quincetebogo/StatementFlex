@@ -1,4 +1,5 @@
 import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
+import { InitialiseService } from 'app/services/InitialiseService';
 import { Security } from 'platform/core';
 import { v4 } from 'uuid';
 
@@ -22,12 +23,16 @@ export class InsureService extends ChannelServiceBase {
 			`v1`,
 			() => import(`../mocks/InsureChannelServiceMocks.js`)
 		);
-
 		this._version = `v1`;
+		this.initialiseService = new InitialiseService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
+
+		this.employeeId = ``;
+		this._getLoggedInAgent();
 	}
 
 	/**
 	 * Create token to enable envoking FIPS
+	 * @param {String } employeeId id
 	 * @returns {Object} Header entries 
 	 */
 	setInsureTokens() {
@@ -40,11 +45,24 @@ export class InsureService extends ChannelServiceBase {
 	}
 
 	/**
+	 * Set Logged in ID
+	 * @returns {void}
+	 */
+	async _getLoggedInAgent() {
+		let id = `XXXXXXXX`;
+		const returnValue = await this.initialiseService.initialise();
+		if (returnValue.succeeded) {
+			id = returnValue.result.loggedInAgent.employeeId;
+		}
+		this.employeeId = id;
+	}
+	
+	/**
 	 * Generate x-requester-uid for FIPS
-	 * @returns {null} null
+	 * @returns {string} requesterID 
 	 */
 	generateFIPSRequesterUID() {
-		return `CP336134_17249_02_3997_16`;
+		return `${this.employeeId}_XXXXX_02_XXXX_XX`;
 	}
 
 	// #endregion
@@ -209,6 +227,7 @@ export class InsureService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
 	calculateEstimate(estimateRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
 		return this.post(
 			`/FuneralInsuranceProductService/quote/estimate`,
 			estimateRequest,
@@ -262,8 +281,9 @@ export class InsureService extends ChannelServiceBase {
 		if (await this.isMockEnabled(`insurePolicyTransactionHistory`)) {
 			return this.mock(`policyTransactionHistory`, transactionsRequest);
 		}
+
 		return this.post(
-			`/horizon-insurance/policy/transactions`,
+			`/FuneralInsuranceProductService/policy/transactions`,
 			transactionsRequest,
 			this.setInsureTokens(),
 			`getPolicyTransactions`,
@@ -276,6 +296,31 @@ export class InsureService extends ChannelServiceBase {
 		);
 	}
 
+	/**
+	 * Get Audit Transaction History
+	 *
+	 * @param {transactionsRequest} [errorHandler=null]  Request data for policy transactions 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	*/
+	async getAuditTransactions(transactionsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureAuditTransactionHistory`)) {
+			return this.mock(`auditTransactionHistory`, transactionsRequest);
+		}
+		return this.post(
+			`/FuneralInsuranceProductService/policy/transactions`,
+			transactionsRequest,
+			this.setInsureTokens(),
+			`getAuditTransactions`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 
 	/**
 	 * Calculate Quote / Generate Quote
@@ -316,7 +361,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`prepareUpdate`, prepareUpdateRequest);
 		}
 		return this.post(
-			`/horizon-insurance/policy/prepareupdate`,
+			`/FuneralInsuranceProductService/policy/prepareupdate`,
 			prepareUpdateRequest,
 			this.setInsureTokens(),
 			`prepareUpdate`,
@@ -663,6 +708,34 @@ export class InsureService extends ChannelServiceBase {
 			autoRetries
 		);
 
+	}
+
+	/**
+	 * Claims List
+	 *
+	 * @param {claimsRequest} [claimsRequest=null]  Request data
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async claimsList(claimsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureClaims`)) {
+			return this.mock(`insureClaims`);
+		}
+	}
+
+	/**
+	 * Claims Summary
+	 *
+	 * @param {claimsRequest} [claimsRequest=null]  Request data
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async claimSummary(claimsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureClaimSummary`)) {
+			return this.mock(`insureClaimSummary`);
+		}
 	}
 
 

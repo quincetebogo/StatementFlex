@@ -196,7 +196,6 @@ export class InsureInformation extends Component {
 	}
 
 	_onCancelAssign() {
-		console.log(`Cancel assign received`);
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 

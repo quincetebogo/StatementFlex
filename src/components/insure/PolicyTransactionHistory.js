@@ -1,28 +1,11 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
-import { DATE_TYPE_LIST, DEFAULTS, MAX_RESULTS } from 'app/constants/PolicyTransactionHistory';
-import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/PolicyTransactionHistory';
-import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { DATE_TYPE_LIST, DEFAULTS, FILTER_BY, MAX_RESULTS, NINETY_DAYS, RENDER_CHIPS } from 'app/constants/InsureTransactionHistory';
+import { EXPANDER_LABEL, INSURE_TRANSACTIONS_CSS, TABLE_EXPANDER_CELL } from 'app/css/PolicyTransactionHistory';
+import { _getDateRange, getPredefinedDateRanges } from 'app/utils/insureUtils';
 import { DateTime } from 'luxon';
-
-
+import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import 'app/components/common/HorizonLabel';
-
-// #region  CONSTANTS
-
-const FILTER_BY = {
-	ALL: `ALL`,
-	DATE: `DATE`,
-	DATE_TYPE: `DATE_TYPE`
-};
-
-const RENDER_CHIPS = {
-	DATE: ``,
-	DATE_TYPE: ``
-};
-
-const today = new Date();
-
-// #endregion CONSTANTS
 
 /**
  * Policy Transaction History component that displays Policy transactions
@@ -47,9 +30,6 @@ class PolicyTransactionHistory extends Component {
 		super();
 
 		this.dateLabel = DEFAULTS.DATE_LABEL;
-
-		this.startDate = ``;
-		this.endDate = ``;
 
 		this.policyTransactionHistory = {};
 		this.filteredData = [];
@@ -109,48 +89,13 @@ class PolicyTransactionHistory extends Component {
 	 * @static
 	 * @returns {css} CSS for the component.
 	 */
-	 static get styles() {
+	static get styles() {
 		return [
 			super.styles,
 			css`
-				.transaction-card {
-					height: auto;
-					width: 1066px;
-					background-color: #FFFFFF;
-					box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
-				}
-				.transaction-card > capitec-group:first-child {
-					--theme-layout-gap-spacing: 0px;
-				}
-
-				/* Header Styles */
-				.transaction-history-title {
-					width: var(--horizon-center-panel-width, 1064px);
-					border-bottom: 0px;
-					border-radius: 4px 4px 0 0;
-					padding: 11px 24px 11px 15px;
-
-					--theme-label-font-color: #FFFFFF;
-				}
-				.transact {
-					background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
-				}
-				.lbb {
-					background: no-repeat url(../images/liveBetter/Gradient1.png);
-				}
-				.transaction-history-title > img {
-					width: 26px;
-					margin-right: 10px;
-					cursor: pointer;
-				}
+				${INSURE_TRANSACTIONS_CSS}
 
 				/* Header Details Bar styles */
-				.actionbar-header {
-					height: 64px;
-					width: var(--horizon-center-panel-width, 1064px);
-					border-bottom: 0px;
-					padding: 11px 24px 11px 43px;
-				}
 				.actionbar-header > horizon-label {
 					width: 156px;
 					height: 100%;
@@ -169,146 +114,8 @@ class PolicyTransactionHistory extends Component {
 					width: 120px;
 				}
 
-				/* Filter Bar styles */
-				.transaction-action-bar {
-					height: 64px;
-					width: var(--horizon-center-panel-width, 1064px);
-					padding: 10px 10px;
-				}
-				.transaction-action-bar > capitec-text-field {
-					height: 47px;
-					width: 388px;
-					padding-left: 8px;
-				
-					--theme-label-font-color: #3A3A3A;
-					--theme-input-label-font-size: 16px;
-					--theme-layout-gap-spacing: 8px; 
-					--theme-input-clear-icon-height: 0px;
-					--theme-input-clear-icon-width: 0px;
-				}
-				.cb-datepicker {
-					height: 48px;
-					width: 201px;
-					margin-right: 8px;
-					border-radius: 5px;
-					border: 1px solid #E1E1E1;
-					cursor: pointer;
-				}
-
-				/* Chip Bar Styles */
-				.filter-bar {
-					--theme-actionbar-min-height: 48px;
-					--theme-actionbar-padding: 8px 0px 8px 16px;
-				}
-				.filter-bar > capitec-label {
-					height: 20px;
-					width: 87px;
-					color: #3A3A3A;
-					font-family: "Hind Vadodara";
-					font-size: 15px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 30px;
-				}
-				.filter-bar > capitec-button {
-					height: 40px;
-					margin: 0px;
-
-					--theme-button-font-size : 14px;
-					--theme-button-line-height: 10px;
-					--theme-button-font-weight: 600;
-				}
-				
-				/* Main View Styles */
-				.main-view {
-					--theme-container-padding-left: 0px;
-					--theme-container-padding-right: 0px;
-					--theme-container-padding-top: 0px;
-					--theme-container-padding-bottom: 0px;
-					--theme-layout-gap-line-color: 0px;
-					height: 661px;
-					width: auto;
-				}
-				capitec-table{
-					width: var(--horizon-center-panel-width, 1064px);
-					height: auto;
-					--theme-icon-size-default: 8px;
-					--theme-data-table-body-group-font-weight: 600;
-					--theme-data-table-font-size : 15px;
-					--theme-data-table-padding-left: 16px;
-					--theme-data-table-body-group-color: #3A3A3A;
-					--theme-data-table-font-color: #3A3A3A;
-					--theme-data-table-padding-right: 16px;
-					--theme-data-table-padding-top: 11px;
-					--theme-data-table-padding-bottom: 11px;
-					--theme-data-table-expander-size: 12px;
-					--theme-data-table-footer-border: 0px;
-					--theme-data-table-expander-size: 24px;
-					--theme-data-table-header-font-weight: 600;
-
-				}
-
-				/* Modal Calendar Styles */
-
-				div[slot="body"] {
-					display: flex;
-				}
-
-				.load-more-bar{
-					--theme-actionbar-min-height: 48px;
-					padding-top : 0px;
-					padding-bottom: 0px; 
-					--theme-actionbar-background: #f4f4f4;
-				}
-				.transaction-status-select{
-					--theme-input-label-font-size: 16px;
-					--theme-input-padding-bottom: 13px;
-					--theme-select-options-max-height: 308px;
-					--theme-input-font-size: 16px;
-					--theme-input-label-font-color: #3A3A3A;
-					--theme-input-font-weight: 400;
-					--theme-input-icon-top: 8px;
-					line-height: 30px;
-					width: 224px;
-				}
-				.scroll-top {
-					--theme-icon-size-medium: 26px;
-					padding-top: 12px;
-					cursor: pointer;
-				}
-				capitec-date-time-picker{
-					--theme-modal-header-color: #3A3A3A;
-					--theme-modal-header-background-color: #F7F7F7;
-					--theme-date-time-picker-range-calendar-border: 0px;
-					margin-right: 8px;
-					width: 280px;
-				}
-				.transaction-action-bar > capitec-chip{
-					margin: 0px 8px;
-					--theme-chip-label-padding-left: 11px;
-					--theme-chip-label-padding-right: 11px;
-					--theme-chip-label-line-height: 19px;
-				}
-				.type-normal{
-					--theme-chip-label-color: #3A3A3A;
-					--theme-chip-background-color: #FFFFFF;
-				}
-				.type-selected{
-					--theme-chip-label-color: #FFFFFF;
-					--theme-chip-background-color: #009DE0;
-					--theme-chip-font-weight: 600;
-				}
-				.no-results {
-					--theme-label-strong-font-size: 24px;
-					--theme-label-strong-font-weight: 600;
-					--theme-label-font-color: #3A3A3A;
-				}
-				.no-result-group {
-					width: 1062px;
-					margin-top: 130px;
-				}
-				.action-image{
-					cursor: pointer;
+				capitec-table > capitec-icon {
+					--theme-icon-size-medium: 24px;
 				}
 			`
 		];
@@ -323,8 +130,12 @@ class PolicyTransactionHistory extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this.startDate = new Date(Date.now() - NINETY_DAYS).toISOString();
+		this.endDate = new Date().toISOString();
+
+		RENDER_CHIPS[FILTER_BY.DATE] = _getDateRange(this.startDate, this.endDate);
+
 		// Making sure no baggage is carried from the previous instance.
-		RENDER_CHIPS[FILTER_BY.DATE] = ``;
 		RENDER_CHIPS[FILTER_BY.DATE_TYPE] = this.dateTypeOptions[0].text;
 
 		this.filteredData = this.policyTransactionHistory?.transactions;
@@ -375,7 +186,7 @@ class PolicyTransactionHistory extends Component {
 		const currentDateTime = DateTime.local();
 
 		if (toDate.diff(fromDate, [`days`]).days > 90) {
-			
+
 			toDate = fromDate.plus({ days: 90 });
 			if (toDate > currentDateTime) {
 				this.startDate = fromDate;
@@ -401,13 +212,13 @@ class PolicyTransactionHistory extends Component {
 			fromDate = toDate.minus({ days: 90 });
 			this.startDate = fromDate;
 		} else {
-			
+
 			this.startDate = fromDate;
 			this.endDate = toDate;
 		}
 
-		RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
-		
+		RENDER_CHIPS[FILTER_BY.DATE] = _getDateRange(this.startDate, this.endDate);
+
 		await this._refineSearch();
 	}
 
@@ -454,13 +265,10 @@ class PolicyTransactionHistory extends Component {
 	 */
 	_renderContent() {
 		return html`
-		<capitec-title-bar type="insure" class="insure-title-bar">
-			<img class="action-image" src="/images/insure/left-arrow.svg" @click="${() => this._backToSummaryPage()}" />
-			<capitec-label label="Transaction History" type="title"></capitec-label>
-			<capitec-spacer></capitec-spacer>
-		</capitec-title-bar>
-		<capitec-card style="min-height: 100vh;">
+		<capitec-card class="transaction-card">
 			<capitec-group layout="vertical" gap="line" halign="left" valign="top">
+				${this._renderTitleBar()}
+				${this._renderHeaderDetailsBar()}
 				${this._renderActionBar()}
 				${this._renderFilterBar()}
 				<capitec-content-box class="main-view" id="policy-transactions-table">
@@ -470,6 +278,60 @@ class PolicyTransactionHistory extends Component {
 			</capitec-group>
 		</capitec-card>
 		${this._renderLoadingIndicator()}
+		`;
+	}
+
+	/**
+	 * Render Title Bar
+	 * @returns {html} The html of the title
+	*/
+	_renderTitleBar() {
+		return html`
+			<capitec-title-bar class="insure-title-bar no-border-bottom" type="insure">
+				<capitec-image
+					alt="back"
+					class="action-image"
+					src="/images/insure/left-arrow.svg"
+					@click="${() => this._backToSummaryPage()}"
+					data-automation-id="transactions-back">
+				</capitec-image>
+				<capitec-label 
+					label="Transaction History"
+					type="title">
+				</capitec-label>
+			</capitec-title-bar>
+		`;
+	}
+
+	/**
+	 * Render Header Details Bar
+	 * @returns {html} The html of the header details - Policy Number
+	*/
+	_renderHeaderDetailsBar() {
+		return html`
+			<capitec-group
+				class= "actionbar-header transact"
+				layout="horizontal"
+				gap="none"
+				halign="left"
+				valign="center">
+					<horizon-label label = "Policy Number" 
+						value = "${this.policyTransactionHistory?.contractReference}" 
+						data-automation-id="transaction-header-contract-reference">
+					</horizon-label>
+					<horizon-label label = "Bank" 
+						value = "${isNullorEmpty(this.policyTransactionHistory?.bankName) ? `-` : this.policyTransactionHistory?.bankName}" 
+						data-automation-id="transaction-header-bank-name">
+					</horizon-label>
+					<horizon-label label = "Account" 
+						value = "${isNullorEmpty(this.policyTransactionHistory?.accountNumber) ? `-` : this.policyTransactionHistory?.accountNumber}" 
+						data-automation-id="transaction-header-account-number">
+					</horizon-label>
+					<horizon-label label = "Arrears Amount" 
+						value = "${isNullorEmpty(this.policyTransactionHistory?.arrearsAmount) ? formatCurrency(0) : formatCurrency(this.policyTransactionHistory?.arrearsAmount)}" 
+						data-automation-id="transaction-header-arrears-amount">
+					</horizon-label>
+			</capitec-group>
 		`;
 	}
 
@@ -503,16 +365,10 @@ class PolicyTransactionHistory extends Component {
 					mode="date"
 					inputType="calendar"
 					outputType="string"
-					.predefinedRanges="${this.getPredefinedDateRanges()}"
+					.predefinedRanges="${getPredefinedDateRanges()}"
 					@apply-clicked="${(e) => this._dateChanged(e)}"
 					data-automation-id="transaction-history-date-filter">
 				</capitec-date-time-picker>
-				<capitec-spacer></capitec-spacer>
-				<horizon-label
-					label="Contract Reference"
-					value="${this.policyTransactionHistory?.contractReference}"
-					data-automation-id="policy-contract-reference-value">
-				</horizon-label>
 			</capitec-group>
 		`;
 	}
@@ -581,10 +437,10 @@ class PolicyTransactionHistory extends Component {
 		const activeFilters = this.shadowRoot.getElementById(`active-filters`);
 
 		Array.from(activeFilters.children)
-			 .filter(field => field.localName === `capitec-chip` && !field.hidden)
-			 .forEach(item => {
-				 this._clearFilter(item.id);
-			 });
+			.filter(field => field.localName === `capitec-chip` && !field.hidden)
+			.forEach(item => {
+				this._clearFilter(item.id);
+			});
 
 		this._refineSearch();
 	}
@@ -596,10 +452,10 @@ class PolicyTransactionHistory extends Component {
 	 */
 	_clearFilter(type) {
 		const date = () => this._reset();
-		const dateType = () => { 
-			this.dateLabel = DEFAULTS.DATE_LABEL; 
+		const dateType = () => {
+			this.dateLabel = DEFAULTS.DATE_LABEL;
 		};
-		
+
 		const resetForfilters = {
 			'DATE': date,
 			'DATE_TYPE': dateType
@@ -616,7 +472,7 @@ class PolicyTransactionHistory extends Component {
 	 * @param {*} type - filter type 
 	 * @return {null} null
 	 */
-	 _closeChip(type) {
+	_closeChip(type) {
 		this._clearFilter(type);
 		this._refineSearch();
 	}
@@ -644,8 +500,8 @@ class PolicyTransactionHistory extends Component {
 	 * @returns {html} - content of transactions
 	 */
 	_renderPolicyTransactionHistory() {
-		return this.filteredData?.length > 0 
-		? html`
+		return this.filteredData?.length > 0
+			? html`
 			<capitec-table
 				.items = "${this.filteredData}"
 				groupField="groupByPremiumDate"
@@ -655,7 +511,7 @@ class PolicyTransactionHistory extends Component {
 				data-automation-id="transaction-history-table">
 					${this._renderPolicyTransHistoryColumns()}
 			</capitec-table>`
-		: html`
+			: html`
 			${this._renderNoResults()}
 		`;
 	}
@@ -735,7 +591,7 @@ class PolicyTransactionHistory extends Component {
 			<capitec-spacer></capitec-spacer>
 			<capitec-table-column
 				label="Type"
-				field="type"
+				field="accountType"
 				size="160px">
 			</capitec-table-column>
 			<capitec-table-column
@@ -780,7 +636,7 @@ class PolicyTransactionHistory extends Component {
 						type="strong">
 					</capitec-label>
 					<capitec-label
-						label="No policy transactions made during ${isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE]) ? `Last 6 months` : RENDER_CHIPS[FILTER_BY.DATE]} "
+						label="No policy transactions made during ${isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE]) ? `Last 90 days` : RENDER_CHIPS[FILTER_BY.DATE]} "
 						type="strong">
 					</capitec-label>
 			</capitec-group>
@@ -823,57 +679,6 @@ class PolicyTransactionHistory extends Component {
 	}
 
 	/**
-	 * Get Predefined date ranges
-	 * @return {null} null
-	 */
-	getPredefinedDateRanges() {
-		const last7day = new Date(today);
-		const last30day = new Date(today);
-		const last60day = new Date(today);
-		const last90day = new Date(today);
-
-		last7day.setDate(today.getDate() - 7);
-		last30day.setDate(today.getDate() - 30);
-		last60day.setDate(today.getDate() - 60);
-		last90day.setDate(today.getDate() - 90);
-
-		return [
-			{ text: `Last 7 days`, value: { startDate: last7day.toISOString(), endDate: today.toISOString() } },
-			{ text: `Last 30 days`, value: { startDate: last30day.toISOString(), endDate: today.toISOString() } },
-			{ text: `Last 60 days`, value: { startDate: last60day.toISOString(), endDate: today.toISOString() } },
-			{ text: `Last 90 days`, value: { startDate: last90day.toISOString(), endDate: today.toISOString() } }
-		];
-	}
-
-	/**
-	 * format the give date
-	 * @param {*} date - date to be formatted 
-	 * @return {null} null
-	 */
-	_formatDate(date) {
-		const newdate = new Date(Date.parse(date));
-		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
-	}
-
-	/**
-	 * Get selected date range
-	 * @returns {string} - fromdate to todate
-	 */
-	_getDateRange() {
-		const fromDate = !this.startDate ? `dd mm yyyy` : this._formatDate(this.startDate);
-		const toDate = !this.endDate ? `dd mm yyyy` : this._formatDate(this.endDate);
-
-		const preDefinedRanges = this.getPredefinedDateRanges();
-		const selectedValue = preDefinedRanges.filter(item => this._formatDate(item.value.startDate) === fromDate && this._formatDate(item.value.endDate) === toDate);
-
-		if (selectedValue.length > 0) {
-			return selectedValue[0].text;
-		}
-	
-		return `${fromDate} - ${toDate}`;
-	}
-
-	/**
 	 * load more transaction when clicked on load more button
 	 * @return {null} null
 	 */
@@ -907,10 +712,10 @@ class PolicyTransactionHistory extends Component {
 			const endDate = new Date(Date.parse(this.endDate));
 
 			if (RENDER_CHIPS[FILTER_BY.DATE_TYPE] === this.dateTypeOptions[0].text) {
-				this.filteredData = this.filteredData.filter(item => new Date(item.date) >= startDate && new Date(item.date) <= endDate); 
-				} else if (RENDER_CHIPS[FILTER_BY.DATE_TYPE] === this.dateTypeOptions[1].text) {
-				this.filteredData = this.filteredData.filter(item => new Date(item.premiumDueDate) >= startDate && new Date(item.premiumDueDate) <= endDate); 
-				}
+				this.filteredData = this.filteredData.filter(item => new Date(item.date) >= startDate && new Date(item.date) <= endDate);
+			} else if (RENDER_CHIPS[FILTER_BY.DATE_TYPE] === this.dateTypeOptions[1].text) {
+				this.filteredData = this.filteredData.filter(item => new Date(item.premiumDueDate) >= startDate && new Date(item.premiumDueDate) <= endDate);
+			}
 		}
 
 		this.requestUpdate();

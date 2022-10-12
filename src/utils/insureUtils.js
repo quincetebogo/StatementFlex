@@ -1,4 +1,6 @@
 import { PRODUCT_ID } from 'app/constants/InsureCommon';
+import { TODAY_DATE } from 'app/constants/InsureTransactionHistory';
+import { getMonthName } from 'app/utils/channelServiceUtilities';
 
 /**
  * Calculate cover details metadata for ui controls based on relationship & Insure product params
@@ -49,10 +51,7 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 				coverDetails.coverMessage = coverDetails.minCoverMessage.replace(`{0:#,##0}`, coverDetails.minCoverAmount);
 			}
 		}
-	}
-
-	// Spouse
-	if (relationship === `Spouse`) {
+	} else if (relationship === `Spouse`) {
 		coverDetails.defaultCover = 0;
 		coverDetails.maxCoverAmount = currentRole.ageRange[0].maxCoverAmount;
 		coverDetails.minCoverAmount = currentRole.ageRange[0].minCoverAmount;
@@ -82,10 +81,7 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 				coverDetails.coverMessage = coverDetails.minCoverMessage.replace(`{0:#,##0}`, coverDetails.minCoverAmount);
 			}
 		}
-	}
-
-	// Child (3 age ranges)
-	if (relationship === `Child`) {
+	} else if (relationship === `Child`) {
 		coverDetails.defaultCover = 0;
 		coverDetails.maxCoverAmount = currentRole.ageRange[0].maxCoverAmount;
 		coverDetails.minCoverAmount = currentRole.ageRange[0].minCoverAmount;
@@ -130,10 +126,7 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 				coverDetails.coverMessage = coverDetails.minCoverMessage.replace(`{0:#,##0}`, coverDetails.minCoverAmount);
 			}
 		}
-	}
-
-	// Parent
-	if (relationship === `Parent`) {
+	} else if (relationship === `Parent`) {
 		coverDetails.defaultCover = 0;
 		coverDetails.maxCoverAmount = currentRole.ageRange[0].maxCoverAmount;
 		coverDetails.minCoverAmount = currentRole.ageRange[0].minCoverAmount;
@@ -163,10 +156,7 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 				coverDetails.coverMessage = coverDetails.minCoverMessage.replace(`{0:#,##0}`, coverDetails.minCoverAmount);
 			}
 		}
-	}
-
-	// Extended Family (3 age ranges)
-	if (relationship === `ExtendedFamily`) {
+	} else {
 		coverDetails.defaultCover = 0;
 		coverDetails.maxCoverAmount = currentRole.ageRange[2].maxCoverAmount;
 		coverDetails.minCoverAmount = currentRole.ageRange[0].minCoverAmount;
@@ -220,7 +210,6 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 
 	return coverDetails;
 }
-
 
 /**
  * Find perPolicy limit for supplied relationship
@@ -316,4 +305,58 @@ export function dateFormat(value) {
 	formattedDate = formattedDate = `${`0${date}`.slice(-2)}/${`0${month + 1}`.slice(-2)}/${year}`;
 
 	return formattedDate;
+}
+
+/**
+ * Get Predefined date ranges
+ * @return {null} null
+*/
+export function getPredefinedDateRanges() {
+
+	const last7day = new Date(TODAY_DATE);
+	const last30day = new Date(TODAY_DATE);
+	const last60day = new Date(TODAY_DATE);
+	const last90day = new Date(TODAY_DATE);
+
+	last7day.setDate(TODAY_DATE.getDate() - 7);
+	last30day.setDate(TODAY_DATE.getDate() - 30);
+	last60day.setDate(TODAY_DATE.getDate() - 60);
+	last90day.setDate(TODAY_DATE.getDate() - 90);
+
+	return [
+		{ text: `Last 7 days`, value: { startDate: last7day.toISOString(), endDate: TODAY_DATE.toISOString() } },
+		{ text: `Last 30 days`, value: { startDate: last30day.toISOString(), endDate: TODAY_DATE.toISOString() } },
+		{ text: `Last 60 days`, value: { startDate: last60day.toISOString(), endDate: TODAY_DATE.toISOString() } },
+		{ text: `Last 90 days`, value: { startDate: last90day.toISOString(), endDate: TODAY_DATE.toISOString() } }
+	];
+}
+
+/**
+ * format the give date
+ * @param {date} date - date to be formatted 
+ * @return {null} null
+ */
+function _formatDateToddmmyyyy(date) {
+	const newdate = new Date(Date.parse(date));
+	return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+}
+
+/**
+ * Get selected date range
+ * @param {date} startDate The start date of date range.
+ * @param {date} endDate The end date of date range.
+ * @returns {string} - fromdate to todate
+ */
+export function _getDateRange(startDate, endDate) {
+	const fromDate = !startDate ? `dd mm yyyy` : _formatDateToddmmyyyy(startDate);
+	const toDate = !endDate ? `dd mm yyyy` : _formatDateToddmmyyyy(endDate);
+
+	const preDefinedRanges = getPredefinedDateRanges();
+	const selectedValue = preDefinedRanges.filter(item => _formatDateToddmmyyyy(item.value.startDate) === fromDate && _formatDateToddmmyyyy(item.value.endDate) === toDate);
+
+	if (selectedValue.length > 0) {
+		return selectedValue[0].text;
+	}
+
+	return `${fromDate} - ${toDate}`;
 }

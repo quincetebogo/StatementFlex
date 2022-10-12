@@ -16,12 +16,20 @@ export class EACLAgreementDialog extends Component {
 	}
 
 	/**
+	 * Cancel dialog 
+	 * @returns {null} null
+	*/
+	_cancelDialog() {
+		this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { accepted: false } }));
+	}
+
+	/**
 	 * Generates the component template for web mode
 	 * @returns {null} null
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="You/your beneficiary are paid Agreement Declaration">
+		<capitec-modal type="form" header="You/your beneficiary are paid Agreement Disclosure">
 			<div slot="body">
 				<capitec-content-box class="body-box">
 					${this._renderDialogBody()}
@@ -52,6 +60,8 @@ export class EACLAgreementDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
+			<capitec-button slot="footer" type="clear" label="Cancel" @click="${() => this._cancelDialog()}">
+			</capitec-button>
 			<capitec-button slot="footer" type="clear" label="Accept" @click="${() => this._acceptAndClose()}">
 			</capitec-button>`;
 	}

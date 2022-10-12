@@ -2,7 +2,7 @@
   "name": "Horizon-UI-2",
   "product": "BSC-Horizon",
   "group": "G_PL_HZN_DEV",
-  "version": "2.13.7",
+  "version": "2.13.28",
   "alias": "horizon2",
   "release": "221001",
   "contractVersion": "v1",
@@ -23,7 +23,9 @@
     "roles": null
   },
   "secrets": [
-    "telemetrydatabussecret"
+    "telemetrydatabussecret",
+    "axoncs_t_ch_password",
+    "axoncs_t_ch_username"
   ],
   "environmentVariables": [
     "LogLevel",
@@ -32,6 +34,8 @@
     "DatabusResponsibleTeam",
     "TelemetryApiKeySecretName",
     "TelemetryApiId",
-    "TelemetryApiUrl"
+    "TelemetryApiUrl",
+    "TelemetryOAuthUsernameSecretName",
+    "TelemetryOAuthPasswordSecretName"
   ]
 }

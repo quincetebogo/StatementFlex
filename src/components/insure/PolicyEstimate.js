@@ -1,9 +1,9 @@
 import { Component, css, html } from 'platform/elements';
-import { GENDER_OPTIONS, INSURE_CALLER_PAGE } from 'app/constants/InsureCommon';
+import { GENDER_OPTIONS, INSURE_CALLER_PAGE, ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
+import { formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { INSURE_RENDER_MODE } from '../../views/insure/InsureRenderModes';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 
 import 'app/components/dialogs/insure/AddLifeDialog';
@@ -185,7 +185,6 @@ class PolicyEstimate extends Component {
 		};
 		this.estimate.lifesAssured.splice(1, 0, life);
 		this.showAddLifeDialog = false;
-		console.log(this.estimate.lifesAssured);
 	}
 
 	/**
@@ -527,7 +526,7 @@ class PolicyEstimate extends Component {
 				${index !== 0 ? html`
 				<div class="calc-card-header">
 					<capitec-label data-automation-id="insure-estimate-card-relationship"
-						label="Relationship: ${lifeAssured.relationship}" type="small" class="stronger">
+						label="Relationship: ${formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[lifeAssured.relationship?.toUpperCase()])}" type="small" class="stronger">
 					</capitec-label>
 		
 					<capitec-label data-automation-id="insure-estimate-card-remove"
@@ -549,7 +548,7 @@ class PolicyEstimate extends Component {
 						error="${lifeAssured.coverDetails.coverMessage}">
 					</capitec-text-field>
 					<capitec-text-field label="Premium" type="currency" disabled hint="Estimate" class="calc-card-row-input"
-						data-automation-id="insure-estimate-card-premium" value="${lifeAssured.premium}">
+						data-automation-id="insure-estimate-card-premium" value="${formatCurrency(lifeAssured.premium).replace(`R`, ``)}">
 					</capitec-text-field>
 				</div>
 				<div class="calc-card-row">
@@ -599,7 +598,7 @@ class PolicyEstimate extends Component {
 			
 						${this.estimate.lifesAssured.map(life => html`
 						<div class="calc-life-list">
-							<capitec-label label="${life.relationship}" data-automation-id="insure-estimate-list-relationship">
+							<capitec-label label="${formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[life.relationship?.toUpperCase()])}" data-automation-id="insure-estimate-list-relationship">
 							</capitec-label>
 							<capitec-label label="${formatCurrency(life.premium)}"
 								data-automation-id="insure-estimate-list-premium"></capitec-label>

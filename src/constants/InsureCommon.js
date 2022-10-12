@@ -5,7 +5,8 @@
  * @enum {Object} BANK_OPTIONS
  */
 export const BANK_OPTIONS = Object.freeze([
-	{ code: `CAPITEC BANK`, text: `CAPITEC BANK`, branchCode: `` },
+	{ code: `CAPITEC BANK`, text: `CAPITEC BANK`, branchCode: `470010` },
+	{ code: `CAPITEC`, text: `CAPITEC BANK`, branchCode: `470010` },
 	{ code: `20TWENTY`, text: `20TWENTY`, branchCode: `730020` },
 	{ code: `ABN AMRO BANK`, text: `ABN AMRO BANK`, branchCode: `740000` },
 	{ code: `ABSA BANK`, text: `ABSA BANK`, branchCode: `632005` },
@@ -147,14 +148,12 @@ export const DEBIT_ORDER_DAY_OPTIONS = Object.freeze([
 	{ code: `Family`, text: `Family circumstances` },
 	{ code: `Confidential`, text: `Confidential` },
 	{ code: `Affordability`, text: `Affordability` },
-	{ code: `Already_Covered`, text: `Already covered` },
 	{ code: `Other_Provider`, text: `Better off at another provider` },
-	{ code: `Cooling_Off`, text: `Cooling off period` },
-	{ code: `7`, text: `Covered by another family member` },
+	{ code: `Already_Covered`, text: `Covered by another family member` },
 	{ code: `Insurer_Cancelled`, text: `Insurer cancelled policy` },
 	{ code: `Audit`, text: `Internal Audit Compliance` },
 	{ code: `Invalid`, text: `Invalid Policy` },
-	{ code: `11`, text: `Global One Savings Account is Closed` }
+	{ code: `9`, text: `Global One Savings Account is Closed` }
 ]);
 
 
@@ -247,4 +246,29 @@ export const INSURE_CALLER_PAGE = Object.freeze({
   export const INSURE_PRODUCT_CODE = Object.freeze({
 	CAPITEC: `Capitec`,
 	CAPITEC_SANLAM: `CapitecSanlam`
+});
+
+ /**
+ * Transaction Status types
+ * 
+ * @readonly
+ * @enum {Object} TRANSACTION_STATUS
+ */
+  export const TRANSACTION_STATUS = Object.freeze({
+	FINANCIAL: `Financial`,
+	NONFINANCIAL: `NonFinancial`
+});
+
+/**
+ * List of disclosure types
+ * 
+ * @readonly
+ * @enum {Object} INSURE_DISCLOSURE_TYPE
+ */
+ export const INSURE_DISCLOSURE_TYPE = Object.freeze({
+	CFP_NOTIFICATION: 1,
+	FCP_NOTIFICATION: 2,
+	EACL_NOTIFICATION: 3,
+	YBP_NOTIFICATION: 4,
+	YROA_NOTIFICATION: 5
 });
