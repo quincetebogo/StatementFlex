@@ -96,7 +96,7 @@ import 'app/components/common/RelatedOptions';
 		return html`
 			<horizon-error-screen
 				header="Send Cash Hold Unsuccessful" 
-				image="/images/cards-unsuccesful-limit-update.svg"
+				image="/images/updateCardLimits/cards-unsuccesful-limit-update.svg"
 				left="Done"
 				right="Assign"
 				toast="${this.primaryToast}"

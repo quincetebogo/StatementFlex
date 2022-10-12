@@ -69,10 +69,11 @@ export class SendCashLanding extends Component {
 	static get properties() {
 		return {
 			filteredSendCashVouchers: { state: true },
-			startDate: { type: String, state: true },
-			endDate: { type: String, state: true },
 			searchTextLabel: { state: true },
-			showConfirmPlaceHoldModal: { state: true }
+			showConfirmPlaceHoldModal: { state: true },
+
+			startDate: { type: String, state: true },
+			endDate: { type: String, state: true }
 		};
 	}
 
@@ -295,6 +296,17 @@ export class SendCashLanding extends Component {
 		this.dispatchEvent(new CustomEvent(`on-place-hold`, { detail: item.voucherNumber }));
 	}
 
+	_displayTooltip(e) {
+
+		const tooltip = this.shadowRoot.getElementById(`tooltip-action`);
+		const actionLabel = this.shadowRoot.getElementById(`action-label`);
+
+		if (e.target.scrollWidth > e.target.offsetWidth) {
+			tooltip.style.display = `flex`;
+			actionLabel.style.display = `none`;
+		}
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -387,9 +399,10 @@ export class SendCashLanding extends Component {
 					height: auto;
 					width: 1030px;
 					--theme-expander-header-height: 64px;
+					--theme-expander-indicator-right-margin: 0px;
 				}
 				horizon-label {
-					width: 150px;
+					width: 145px;
 
 					--theme-layout-gap-spacing: 0px;
 					--horizon-label-text-height: 20px;
@@ -411,10 +424,10 @@ export class SendCashLanding extends Component {
 					--horizon-label-value-color: #D4781C;
 				}
 				.sent-from-label {
-					width: 130px;
+					width: 170px;
 				}
 				.status-label {
-					width: 204px;
+					width: 195px;
 				}
 				.expander-content {
 					height: auto;
@@ -438,12 +451,19 @@ export class SendCashLanding extends Component {
 					padding-bottom: 30px;
 				}
 				.headerRow {
-					width: 150px;
+					width: 145px;
 					--theme-label-default-font-weight: 600;
 				}
 				.actionRow {
 					width: 130px;
 					--theme-label-default-font-weight: 600;
+				}
+				.detailsRow {
+					width: 135px;
+					margin-right: 10px;
+				}
+				.actionDesc {
+					width: 430px;
 				}
 				.footer {
 					width: 1029px;
@@ -463,6 +483,13 @@ export class SendCashLanding extends Component {
 				capitec-label[label="Payout from merchant"] {
 					padding-left: 16px;
 					--theme-label-default-font-weight: 600;
+				}
+				.tooltip {
+					display: inline-block;
+					width: 135px; 
+					white-space: nowrap; 
+					overflow: hidden;
+					text-overflow: ellipsis; 
 				}
 			`
 		];
@@ -641,7 +668,7 @@ export class SendCashLanding extends Component {
 							<horizon-label
 								class="sent-from-label"
 								label="Sent From"
-								value="${item.sourceSystem}">
+								value="${item.sourceSystem.replace(`_`, ` `)}">
 							</horizon-label>
 							<horizon-label
 								class="status-label"
@@ -704,11 +731,32 @@ export class SendCashLanding extends Component {
 
 	_renderVoucherInfo(element, index) {
 		return html`
-			<capitec-label label="${formatDate(element.changeDateTime, DATE_TIME_FORMAT)}" row="${index}" column="1"></capitec-label>
-			<capitec-label label="${formatCurrency(element.eventAmount)}" row="${index}" column="2"></capitec-label>
-			<capitec-label label="${formatCurrency(element.remainingOrderAmount)}" row="${index}" column="3"></capitec-label>
-			<capitec-label label="${element.action ? formatStringAsPascalCase(element.action) : `-`}" row="${index}" column="4"></capitec-label>
-			<capitec-label label="${element.actionDescription ? formatStringAsPascalCase(element.actionDescription) : `-`}" row="${index}" column="5"></capitec-label>
+			<capitec-label class="detailsRow" label="${formatDate(element.changeDateTime, DATE_TIME_FORMAT)}" row="${index}" column="1"></capitec-label>
+			<capitec-label class="detailsRow" label="${formatCurrency(element.eventAmount)}" row="${index}" column="2"></capitec-label>
+			<capitec-label class="detailsRow" label="${formatCurrency(element.remainingOrderAmount)}" row="${index}" column="3"></capitec-label>
+
+			<capitec-label 
+				id="action-label"
+				class="detailsRow tooltip"
+				label="${element.action ? formatStringAsPascalCase(element.action) : `-`}"
+				@mouseover="${(e) => this._displayTooltip(e)}"
+				row="${index}" 
+				column="4">
+			</capitec-label>
+			<capitec-tooltip
+						id="tooltip-action"
+						message="${element.action ? formatStringAsPascalCase(element.action) : `-`}"
+						position="bottom"
+						row="${index}" 
+						column="4"
+						width="200px">
+				<capitec-label 
+						class="tooltip" 
+						label="${element.action ? formatStringAsPascalCase(element.action) : `-`}">
+				</capitec-label>
+			</capitec-tooltip>
+
+			<capitec-label class="actionDesc" label="${element.actionDescription ? formatStringAsPascalCase(element.actionDescription) : `-`}" row="${index}" column="5"></capitec-label>
 		`;
 	}
 
