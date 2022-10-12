@@ -69,7 +69,7 @@ export class HorizonIncidentManager {
 	 * 
 	 * @returns {object} The primary incident object
 	 */
-		setNewPrimaryIncident(incident, initialNeed) {
+	setNewPrimaryIncident(incident, initialNeed) {
 		this.incidentDetails = new IncidentDetails(
 			incident, // current Incident
 			incident, // primary incident
@@ -94,7 +94,7 @@ export class HorizonIncidentManager {
 		return { 
 			...this.incidentDetails.primaryIncident,
 			toString: function toString () { 
-				return this.incidentNumber;
+				return this.incidentReference;
 			}
 		};
 	}
@@ -112,7 +112,7 @@ export class HorizonIncidentManager {
 			return {
 				...this.incidentDetails.currentIncident,
 				toString: function toString () { 
-					return this.incidentNumber;
+					return this.incidentReference;
 			}
 		};
 	};
@@ -197,13 +197,13 @@ export class HorizonIncidentManager {
 			primaryIncident: {
 				...this.incidentDetails.primaryIncident,
 				toString: function toString () { 
-					return this.incidentNumber;
+					return this.incidentReference;
 				}
 			},
 			currentIncident: {
 				...this.incidentDetails.currentIncident,
 				toString: function toString () { 
-					return this.incidentNumber;
+					return this.incidentReference;
 				}
 			}
 		};
@@ -341,7 +341,7 @@ export class HorizonIncidentManager {
 
 
 	_validIncident (incident) {
-		return !incident && Object.keys(incident).length !== 0;
+		return Boolean(incident) && Object.keys(incident).length !== 0;
 	}
 
 	/**

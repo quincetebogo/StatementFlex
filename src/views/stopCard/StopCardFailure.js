@@ -473,8 +473,6 @@ export class StopCardFailure extends ViewBase {
 		? html`
 				<horizon-assign-stop-card
 					data-automation-id="stop-card-failure-assign-dialog"
-					.incidentDetails="${this.horizonIncidentManager.getIncidentDetails()}"
-					.incomingCallDetails=${this.incomingCallDetails}
 					.cards=${this.failedCards}
 					@on-cancel="${() => this.showHandoffModal = !this.showHandoffModal}"
 					@on-handoff="${(e) => this._onHandOff(e)}">

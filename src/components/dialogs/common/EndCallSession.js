@@ -89,7 +89,6 @@ export class EndCallSession extends Component {
 
 	/**
 	 * @property {Object} incomingCallDetails Incoming call information
-	 * @property {Object} incidentDetails Incident details
 	 * @property {String} endCallContext Determines the options presented. Value is ConfirmClient, VerifyClient or LandingPage
 	 * @property {Boolean} isReassigned Flag to indicate of the incident has been assigned or not (Unused by v1.0 of the channel service)
 	 * @readonly
@@ -99,7 +98,6 @@ export class EndCallSession extends Component {
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
-			incidentDetails: { type: Object },
 			endCallContext: { type: String },
 			isReassigned: { type: Boolean },
 			callerInformation: { type: Object },
@@ -426,10 +424,11 @@ export class EndCallSession extends Component {
 		// Flag to check, if the incident is already updated outside of Horizon
 		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
 		const classification = this._getClassification();
+		const incident = this.horizonIncidentManager.currentIncident;
 
 		if (!isNullorEmpty(needAction) && continueUpdate) {
 			const request = {
-				incident: this.horizonIncidentManager.currentIncident,
+				incident: incident,
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
 				needAction: needAction,
 				incidentCategorization: classification
@@ -442,7 +441,7 @@ export class EndCallSession extends Component {
 		} 
 		
 		if (!continueUpdate) {
-			this.logger.log(`info`, `Incident:${incidentDetails.incidentReferenceNumber} has been already categorized at STrack.`, `_classifyAndClose`);
+			this.logger.log(`info`, `Incident:${incident.toString()} has been already categorized at STrack.`, `_classifyAndClose`);
 		}
 
 		if (this._preventCloseOfIncident()) {
@@ -701,7 +700,7 @@ export class EndCallSession extends Component {
 			<horizon-caller-dialog
 				data-automation-id="end-call-session-dialog"
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.incidentDetails}"
+				incidentRefNumber="${this.horizonIncidentManager.currentIncident.toString()}"
 				.isNeedSelectable=${false}
 						headerLabel="${HEADER_LABEL}" 
 				.displayButton="${false}">

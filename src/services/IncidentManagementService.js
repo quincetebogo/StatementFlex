@@ -21,7 +21,7 @@ export class IncidentManagementService extends ChannelServiceBase {
 		super(
 			toggleBusyFunc, 
 			defaultErrorHandlerFunc, 
-			`serviceURIs.channelServiceUrl`, 
+			`serviceURIs.incidentServiceUrl`, 
 			`HorizonChannelService`, 
 			`v1`,
 			null
@@ -322,7 +322,9 @@ export class IncidentManagementService extends ChannelServiceBase {
 		
 		return this.post(
 			url,
-			incident,
+			{
+				incident: incident
+			},
 			this.setToken(), 
 			`incidentStatus`,
 			null,
