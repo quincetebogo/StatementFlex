@@ -149,11 +149,11 @@
 			"positiveCase": true
 		},
 		"savingsAccountLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"savingsPlanLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"tapToPayLanding": {
@@ -185,7 +185,7 @@
 			"positiveCase": true
 		},
 		"insurePolicyTransactionHistory": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insurePolicySummary": {
@@ -197,7 +197,7 @@
 			"positiveCase": true
 		},
 		"insurePrepareUpdate": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insurePolicyAccept": {
