@@ -12,7 +12,7 @@ import { SavingsService } from 'app/services/SavingsService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { alertBannerMixin } from 'app/views/common/AlertBannerMixin';
-import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { deformatCurrency, formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/productControls/SavingsPlan/SavingsPlanLanding';
 import 'app/dialogs/taxCertificates/TaxCertificates';
@@ -510,7 +510,7 @@ export class SavingsPlan extends ViewBase {
 										return {
 											'accountNumber': item.accountNumber,
 											'accountName': formatStringAsPascalCase(item.planName),
-											'availableBalance': formatCurrency(item.availableBalance),
+											'availableBalance': formatCurrency(item.currentBalance),
 											'accountType': item.accountType,
 											'icon': productInfo.icon,
 											'order': productInfo.order
@@ -528,7 +528,7 @@ export class SavingsPlan extends ViewBase {
 
 		const request = {
 			cifNumber: this.callerInformation.cifNumber,
-			unlockOptionsAccountListModel: [unlockOptionsAccountList]
+			unlockOptionsAccountListModel: unlockOptionsAccountList
 		};
 
 		const returnValue = await this.savingsService.ftspUnlockOptions(request);
@@ -570,7 +570,7 @@ export class SavingsPlan extends ViewBase {
 		const request = {
 				cifNumber: this.callerInformation.cifNumber,
 				accountNumber: accNumber,
-				partialUnlockAmount: partialUnlockAmount,
+				partialUnlockAmount: deformatCurrency(partialUnlockAmount),
 				unlockType: unlockType,
 				channel: `HORIZON`
 			};

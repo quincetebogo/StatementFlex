@@ -222,7 +222,14 @@ const UNLOCK_OPTIONS = {
 					cursor: pointer;
 					margin-right: 16px;
 				}
-
+				.outer-box {
+					width: 1072px;
+				}
+				.inner-box {
+					width: 1058px;
+					height: auto;
+					min-height: 754px;
+				}
 				/* Alert banner styles */
 				${ALERTBANNER_CSS}
 
@@ -333,7 +340,7 @@ const UNLOCK_OPTIONS = {
 					--theme-label-title-font-weight: 600;
 				}
 				.list-items {
-					margin: 22px 16px auto 37px;
+					margin: 8px 16px auto 37px;
 					padding-inline-start: 32px;
 				}
 				horizon-product-tile {
@@ -411,7 +418,6 @@ const UNLOCK_OPTIONS = {
 				.confirm-cancel {
 					margin: 0px;
 				}
-				
 			`
 		];
 	}
@@ -426,24 +432,25 @@ const UNLOCK_OPTIONS = {
 			<capitec-title-bar>
 				<capitec-icon 
 					class="left-arrow"
-					size="small"
+					size="medium"
 					icon="system/arrow-left-action"
 					@click="${() => this._back()}">
 				</capitec-icon>
 				<capitec-label label="Unlock Savings Plans" type="title"></capitec-label>
 			</capitec-title-bar>
+			<capitec-content-box class="outer-box" noPadding>
 				
-			<capitec-content-box noPadding>
 				${this.renderAlertBanner()}
-				${this._renderAccountSelection()}
-				${this._renderDetailsSelection()}
-				${this._renderDisclosure()}
-				${this._renderAccountDetailsBar()}
-				${this._renderViewAgreementBar()}
-				${this._renderAgreementInformation()}
-				${this._renderConfirmModal()}
+				<capitec-content-box class="inner-box" noPadding>
+					${this._renderAccountSelection()}
+					${this._renderDetailsSelection()}
+					${this._renderDisclosure()}
+					${this._renderAccountDetailsBar()}
+					${this._renderViewAgreementBar()}
+					${this._renderAgreementInformation()}
+					${this._renderConfirmModal()}
+				</capitec-content-box>
 			</capitec-content-box>
-
 			${this._renderFooter()}
 
 			</capitec-card>
