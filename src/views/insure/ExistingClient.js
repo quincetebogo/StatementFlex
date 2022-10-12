@@ -237,19 +237,19 @@ export class ExistingClient extends InsureViewBase {
 			"emailDocumentToClient": false,
 			"wetsignBarcode": false,
 			"clientDetails": {
-				"cifNumber": `363291946`,
-				"policyContractReference": `FP00001661`,
-				"firstName": `ISAACS`,
-				"idNumber": `9503067813190`,
-				"dateOfBirth": `Monday, 06 March 1995`
+				"cifNumber": this.callerInformation.cifNumber,
+				"policyContractReference": this.contractReference,
+				"firstName": this.callerInformation.firstName,
+				"idNumber": this.callerInformation.southAfricanIDNumber,
+				"dateOfBirth": this.callerInformation.birthdate
 			},
-			"contractReference": `FP00001661`
+			"contractReference": this.contractReference
 		};
 
 		const updatePlanAgreementResponse = await this.insureService.generateUpdateFuneralCoverPlanAgreement(docGenerateRequestPayload);
 		const updatePaymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(docGenerateRequestPayload);
 
-		if (!issuePlanAgreementResponse.succeeded || !paymentAgreementResponse.succeeded) {
+		if (!updatePlanAgreementResponse.succeeded || !updatePaymentAgreementResponse.succeeded) {
 			return;
 		}
 
@@ -495,16 +495,15 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _calculateClientEstimate(e) {
 		const estimateWithCoverDetails = e.detail;
+		estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map((life) => {
+			life.coverAmount = parseInt(life.coverAmount, 10);
+			life.premium = parseInt(life.premium, 10);
+			return life;
+		});
 		const resp = await this.insureService.calculateEstimate(estimateWithCoverDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			estimateWithCoverDetails.totalPremium = resp.result.totalPremium;
 			estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map(lifeWithDetails => Object.assign(lifeWithDetails, resp.result.lifesAssured.find(respLife => lifeWithDetails.rowID === respLife.rowID)));
-
-			estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map((life) => {
-				life.coverAmount = parseFloat(life.coverAmount).toFixed(2);
-				life.premium = parseFloat(life.premium).toFixed(2);
-				return life;
-			});
 			this.estimate = estimateWithCoverDetails;
 		} else {
 			return null;
@@ -782,7 +781,6 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 
-
 	/**
 	 * Make FIPS call and Prepare and navigate to pay premium success page
 	 * 
@@ -921,6 +919,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*} result
 	 */
 	async _updatePlanQuote(policyToCalc) {
+
 		const quoteCalcRequest = {
 			"saveQuote": true,
 			"contractReference": policyToCalc.contractReference,
@@ -928,12 +927,22 @@ export class ExistingClient extends InsureViewBase {
 			"totalPremium": policyToCalc.totalPremium,
 			"lifesAssured": policyToCalc.roleplayers.filter(ele => ele.lifeAssured === true)
 		};
+
 		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
 		if (!calculateQuoteResp.succeeded) {
 			return;
 		}
 
-		return calculateQuoteResp.result;
+		// Map back to array
+		const calculatedQuote = calculateQuoteResp.result;
+		const adjustedRoleplayers = calculateQuoteResp.result.lifesAssured.map((life) => {
+			const foundPlayer = policyToCalc.roleplayers.find((ele) => ele.rowID === life.rowID);
+			life.coverDetails = foundPlayer.coverDetails;
+			return life;
+		});
+
+		calculatedQuote.lifesAssured = adjustedRoleplayers;
+		return calculatedQuote;
 	}
 
 	/**
@@ -955,10 +964,12 @@ export class ExistingClient extends InsureViewBase {
 		}
 
 		const prepareUpdateRequest = {
-			"quoteID": calculateQuoteResp.result.quoteNumber,
+			"contractReference": policyToUpdate.contractReference,
+			"quoteNumber": calculateQuoteResp.result.quoteNumber,
 			"beneficiaries": policyToUpdate.roleplayers.filter(ele => ele.beneficiary === true),
 			"collectionDetails": policyToUpdate.deductionDetails
 		};
+
 		const prepareUpdateResp = await this.insureService.prepareUpdate(prepareUpdateRequest);
 		if (!prepareUpdateResp.succeeded) {
 			return;
@@ -1022,6 +1033,8 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*}*
 	 */
 	async _updatePlanAccept(event) {
+		console.log(event);
+
 		const documents = [
 			event.detail.prepareUpdate.paymentAgreement.documentDetails,
 			event.detail.prepareUpdate.planAgreement.documentDetails
@@ -1030,18 +1043,18 @@ export class ExistingClient extends InsureViewBase {
 		{
 			"cifNumber": this.callerInformation.cifNumber,
 			"contractReference": event.detail.prepareUpdate.prepareUpdateResponse.contractReference,
-			"documents": documents
-			// "mandates": event.detail.prepareUpdate.prepareUpdateResponse.mandates
-			// ,
-			// "insureWaiverInformation": {
-			// "contractReference": "string",
-			// "insurersInformation": [
-			// {
-			// "insurer": "string",
-			// "policyNumber": "string"
-			// }
-			// ]
-			// } //TODO: Need to pass the values for mandates when service integration works.
+			"documents": documents,
+			"mandates": event.detail.prepareUpdate.prepareUpdateResponse.mandates,
+			"insureWaiverInformation": {
+				"contractReference": event.detail.prepareUpdate.prepareUpdateResponse.contractReference,
+				"insurersInformation": [
+					{
+						"insurer": `Capitec`, // TODO: confirm value
+						"policyNumber": event.detail.prepareUpdate.prepareUpdateResponse.contractReference
+					}
+				]
+			}
+			// TODO: Need to pass the values for mandates when service integration works.
 		};
 
 		const acceptPlanResp = await this.insureService.updatePolicyAccept(acceptPlanRequest);
@@ -1246,7 +1259,7 @@ export class ExistingClient extends InsureViewBase {
 	_undoClientPolicies() {
 		if (this.clientPolicies?.summaryDetails?.policies !== null) {
 			this.clientPolicies.summaryDetails.policies.forEach(item => {
-				item.isExpanded = false; 
+				item.isExpanded = false;
 			});
 		}
 	}
@@ -1352,7 +1365,7 @@ export class ExistingClient extends InsureViewBase {
 
 		if (this.clientPolicies?.summaryDetails?.policies !== null && this.clientPolicies?.summaryDetails?.policies !== undefined) {
 			this.clientPolicies.summaryDetails.policies.forEach(item => {
-				item.isExpanded = false; 
+				item.isExpanded = false;
 			});
 		}
 
@@ -1405,7 +1418,8 @@ export class ExistingClient extends InsureViewBase {
 				.updatePlanPrepare="${(policyToUpdate) => this._updatePlanPrepare(policyToUpdate)}"
 				.policyDetails="${this.policyDetails}" .productParams="${this.productParams}"
 				.initiateReinstatePolicy="${(policyToReinstate) => this._initiateReinstatePolicy(policyToReinstate)}"
-				@accept-policy="${(policyToAccept) => this._acceptPolicy(policyToAccept)}">
+				@accept-policy="${(policyToAccept) => this._acceptPolicy(policyToAccept)}"
+				.maxAllowedCover="${this.clientPolicies.checkInsuranceDetails[0].maxAllowedCover}">
 			</horizon-insure-update-plan>`;
 	}
 
