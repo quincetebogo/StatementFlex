@@ -51,7 +51,9 @@ export class StopCardLandingPage extends ViewBase {
 		super.connectedCallback();
 		super._inicidentManager_(`stop-card`, () => this._toggleBusyFlag());
 
-		this._initialize();
+		const state = this.horizonStore.recoverState();
+		this.landingPageInfo = state.landingPageInfo;
+		this._updateLeftBar();
 
 		this._telemetry.startSpan(QuickTransactionEvents.FULFILL_NEED, { 
 			"screen": TelemetryScreen.STOP_CARD
@@ -111,12 +113,6 @@ export class StopCardLandingPage extends ViewBase {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	_initialize() {
-		const state = this.horizonStore.recoverState();
-		this.landingPageInfo = state.landingPageInfo;
-		this._updateLeftBar();
-	}
 
 	_updateLeftBar() {
 		this.horizonStore.setProductButtonState(this.landingPageInfo);
