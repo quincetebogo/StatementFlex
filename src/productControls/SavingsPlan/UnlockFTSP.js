@@ -44,6 +44,9 @@ const UNLOCK_OPTIONS = {
 		this.partialUnlockAmount = null;
 		this.agreementAccepted = false;
 		this.showConfirmModal = false;
+		this.hasDigitalChannels = false;
+		this.isHelpDeskAgent = false;
+
 		this.unlockFee = 0;
 		this.quoteRefNumber = ``;
 		this.errMessage = ``;
@@ -83,6 +86,9 @@ const UNLOCK_OPTIONS = {
 	 * @property {Object} unlockFromAccountsList Unlock from accounts details 
 	 * @property {Object} unlockToAccountsList Unlock to accounts details 
 	 * @property {Object} savingsPlanDetails Savings plans details
+	 * @property {String} verificationMethod Indicated the type of verification (SQ/ita)
+	 * @property {Boolean} hasDigitalChannels Indicates if the client is registered for digital channels
+	 * @property {Boolean} isHelpDeskAgent Indicates if the an agent is with Help desk role
 	 * 
 	  * @property {getUnlockQuoteCallback} getUnlockQuote Callback function to get unlock quote for the selected account and unlock type
 	 * @property {renderAlterBannerCallback} renderAlertBanner Callback function to render alter banner based on verification status & method
@@ -99,6 +105,9 @@ const UNLOCK_OPTIONS = {
 			unlockFromAccountsList: { type: Object },
 			unlockToAccountsList: { type: Object },
 			savingsPlanDetails: { type: Object },
+			verificationMethod: { type: String },
+			hasDigitalChannels: { type: Boolean },
+			isHelpDeskAgent: { type: Boolean },
 
 			getUnlockQuote: { type: Object, attribute: false },
 			shouldDisable: { type: Object, attribute: false },
@@ -176,6 +185,11 @@ const UNLOCK_OPTIONS = {
 	_confirmUnlock() {
 		this.dispatchEvent(new CustomEvent(`unlock`, { detail: { accountNumber: this.selectedFromAccount.accountNumber, quoteRefNumber: this.quoteRefNumber } }));
 	}
+	
+	_verifyClick() {
+		this.dispatchEvent(new CustomEvent(`verify-now`, {}));
+	}
+
 
 	// --------------
 	// PUBLIC METHODS
@@ -218,7 +232,7 @@ const UNLOCK_OPTIONS = {
 					height: 888px;
 				}
 				capitec-title-bar {
-					--theme-titlebar-padding: 16px;
+					--theme-titlebar-padding: 15px;
 				}
 				.left-arrow {
 					cursor: pointer;
@@ -239,10 +253,15 @@ const UNLOCK_OPTIONS = {
 					width: 1025px;
 					margin: 16px 16px 0px 16px;
 				}
-
+				.alert-banner-group {
+					line-height: 24px;
+				}
+				.alert-banner-group > capitec-label[type="default"] {
+					--theme-layout-gap-spacing: 4px;
+				}
 				/** Account selection stylings **/
 				.select-group {
-					height: 143px;
+					height: 132px;
 					--theme-layout-gap-spacing: 16px;
 					margin-bottom: 0px;
 					padding: 16px 16px 0px 16px;
@@ -291,7 +310,7 @@ const UNLOCK_OPTIONS = {
 					--theme-input-font-weight: 600;
 				}
 				.details-group {
-					padding: 22px 16px;
+					padding: 16px;
 					margin-bottom: 0px;
 					background-color: #F9F9F9;
 					--theme-layout-gap-spacing: 16px;
@@ -305,7 +324,7 @@ const UNLOCK_OPTIONS = {
 					--theme-input-disabled-background-color: #FFFFFF;
 				}
 				.unlock-amount {
-					margin: 24px 21px 0px 0px;
+					margin: 16px 21px 0px 0px;
 				}
 				.unlock-fee {
 					margin-top: 4px;
@@ -371,7 +390,7 @@ const UNLOCK_OPTIONS = {
 					--theme-button-line-height: 20px;
 				}
 				capitec-check {
-					margin: 8px 0px 26px 37px;
+					margin: 8px 0px 22px 37px;
 					--theme-label-font-size: 16px;
 					--theme-label-font-weight: 600;
 				}
@@ -441,12 +460,10 @@ const UNLOCK_OPTIONS = {
 				<capitec-label label="Unlock Savings Plans" type="title"></capitec-label>
 			</capitec-title-bar>
 			<capitec-content-box class="outer-box" noPadding>
-				
-				${this.renderAlertBanner()}
 				<capitec-content-box class="inner-box" noPadding>
+					${this._renderBanner()}
 					${this._renderAccountSelection()}
 					${this._renderDetailsSelection()}
-					${this._renderDisclosure()}
 					${this._renderAccountDetailsBar()}
 					${this._renderViewAgreementBar()}
 					${this._renderAgreementInformation()}
@@ -457,6 +474,75 @@ const UNLOCK_OPTIONS = {
 
 			</capitec-card>
 		`;
+	}
+
+	_renderBanner() {
+		return !this.isHelpDeskAgent && this.verificationMethod === `SQ`
+		? html`${this._renderITABanner()}`
+		: html`${this._renderMaxLimitBanner()}`;
+	}
+
+	_renderITABanner() {
+		return this.hasDigitalChannels
+		? html`${this._renderHighRiskTransAlertBanner()}`
+		: html`${this._renderNoDigitalChannelsBanner()}`;
+	}
+
+	_renderMaxLimitBanner() {
+		return html`
+			<horizon-alert-banner
+					class="verificatoin-status"
+					data-automation-id="unlock-ftsp-disclosure-message"
+					type="warning">
+						<capitec-group layout="horizontal" class="alert-banner-group">
+							<capitec-label type="strong" label="Notify client:"></capitec-label>
+							<capitec-label type="default"
+								label=" To limit risk and protect your money I can only unlock">
+							</capitec-label>
+							<capitec-label type="strong" label="R50 000.00"></capitec-label>
+							<capitec-label type="default"
+								label=" from your savings. Please visit a branch to unlock a greater amount.">
+							</capitec-label>
+						</capitec-group>
+			</horizon-alert-banner>`;
+	}
+
+	_renderNoDigitalChannelsBanner() {
+		return html`
+			<horizon-alert-banner
+					class="verificatoin-status"
+					data-automation-id="unlock-ftsp-disclosure-message"
+					type="warning">
+						<capitec-group layout="horizontal" class="alert-banner-group">
+							<capitec-label type="strong" label="Notify client:"></capitec-label>
+							<capitec-label type="default"
+								label="For added security get the App to update your Online limit, alternatively, visit your nearest branch.">
+							</capitec-label>
+						</capitec-group>
+			</horizon-alert-banner>`;
+	}
+
+	_renderHighRiskTransAlertBanner() {
+		return html`
+			<horizon-alert-banner
+					class="verificatoin-status"
+					data-automation-id="unlock-ftsp-disclosure-message"
+					type="warning">
+						<capitec-group layout="horizontal" class="alert-banner-group">
+							<capitec-label type="strong" label="Inform client:"></capitec-label>
+							<capitec-label type="default"
+								label=" We need to send you a verification push notification to unlock your Fixed-term Savings plan. Would you like to proceed?">
+							</capitec-label>
+
+							<capitec-spacer></capitec-spacer>
+
+							<capitec-hyperlink
+								data-automation-id="high-risk-transactions-verify"
+								label="Verify Now"
+								@click="${() => this._verifyClick()}">
+							</capitec-hyperlink>
+						</capitec-group>
+			</horizon-alert-banner>`;
 	}
 
 	_renderAccountSelection() {
@@ -595,21 +681,6 @@ const UNLOCK_OPTIONS = {
 		`;
 	}
 
-	_renderDisclosure() {
-		return html`
-			<horizon-alert-banner
-					class="verificatoin-status"
-					data-automation-id="unlock-ftsp-disclosure-message"
-					type="warning">
-						<capitec-group layout="horizontal" class="alert-banner-group">
-							<capitec-label type="strong" label="Disclosure:"></capitec-label>
-							<capitec-label type="default"
-								label="By changing or Full unlocking a Fixed-term to a Flexible Savings Plan will affect your interest rates.">
-							</capitec-label>
-						</capitec-group>
-			</horizon-alert-banner>`;
-	}
-
 	_renderAccountDetailsBar() {
 		const accountDetails = this.savingsPlanDetails.find(account => account.accountNumber === this.selectedFromAccount.accountNumber);
 
@@ -655,7 +726,7 @@ const UNLOCK_OPTIONS = {
 	}
 
 	_renderViewAgreementBar() {
-		return Boolean(this.unlockType) && !isNullorEmpty(this.quoteRefNumber)
+		return Boolean(this.quoteRefNumber) && !this.shouldDisable(`unlock-ftsp`)
 			? html`
 				<horizon-product-tile 
 					data-automation-id="unlock-ftsp-view-agreement"
@@ -676,15 +747,17 @@ const UNLOCK_OPTIONS = {
 	_renderAgreementInformation() {
 		return html`
 			<ul class="list-items">
-				<li>The Flexible savings agreement is in addition/supplementary to the Savings Account Agreement, the terms of which are still binding</li>
-				<li>Any calculations and potential interest are examples only, and not binding on Capitec</li>
-				<li>You may choose to change a Flexible Savings Account into a Fixed-term Savings Account</li>
+				<li><capitec-label type="default" label="We will charge you a penalty fee for unlocking before the agreed maturity date"></capitec-label></li>
+				<li><capitec-label type="default" label="The penalty fee does not reduce the interest you've earned"></capitec-label></li>
+				<li><capitec-label type="default" label="You may still be liable to pay income tax to SARS on the interest you've earned"></capitec-label></li>
+				<li><capitec-label type="default" label="The unlock criteria may change at any time and will be determined at our sole discretion"></capitec-label></li>
 			</ul>
 
 			<capitec-check
 				data-automation-id="unlock-ftsp-accept-quote"
-				label="I accept this quote"
+				label="I accept the unlock penalty fee"
 				?checked=${this.agreementAccepted}
+				?disabled="${isNullorEmpty(this.unlockType) || isNullorEmpty(this.quoteRefNumber) || this.shouldDisable(`unlock-ftsp`)}"
 				@value-change="${(e) => this._acceptAgreement(e)}">
 			</capitec-check>
 		`;

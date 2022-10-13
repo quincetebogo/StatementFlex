@@ -8,6 +8,7 @@ import { Configuration } from 'platform/core';
 import { EventAggregator } from 'platform/EventAggregator';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { RoleManager } from 'app/shell/RoleManager';
 import { SavingsService } from 'app/services/SavingsService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
@@ -74,6 +75,7 @@ export class SavingsPlan extends ViewBase {
 
 		this.savingsPlanDetails = [];
 		this.configuration = Configuration.getInstance();
+		this.roleManager = RoleManager.getInstance();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	
 		// private properites
@@ -546,28 +548,28 @@ export class SavingsPlan extends ViewBase {
 
 	}
 
-	async _getUnlockToAccount() {
-		const request = {
-			cifNumber: this.callerInformation.cifNumber,
-			status: `OPEN`
-		};
-		const returnValue = await this.savingsService.getClientProducts(request);
+    async _getUnlockToAccount() {
+        const request = {
+            cifNumber: this.callerInformation.cifNumber,
+            status: `OPEN`
+        };
+        const returnValue = await this.savingsService.getClientProducts(request);
 
-		if (returnValue.succeeded) {
+        if (returnValue.succeeded) {
 
-			const [primarySavings] = returnValue.result.savingsProducts.filter(item => item.accountType === 300);
-			const productInfo = ACCOUNT_INTCAT_ENUM[primarySavings.accountType];
-			return [
-				{
-					'accountNumber': primarySavings.accountNumber,
-					'accountName': formatStringAsPascalCase(primarySavings.accountName),
-					'accountType': primarySavings.accountType,
-					'availableBalance': formatCurrency(primarySavings.availableBalance),
-					'icon': productInfo.icon
-				}
-			];
-		}
-		return [];
+            const [primarySavings] = returnValue.result.savingsProducts.filter(item => item.accountType === 300);
+            const productInfo = ACCOUNT_INTCAT_ENUM[primarySavings.accountType];
+            return [
+                {
+                    'accountNumber': primarySavings.accountNumber,
+                    'accountName': formatStringAsPascalCase(primarySavings.accountName),
+                    'accountType': primarySavings.accountType,
+                    'availableBalance': formatCurrency(primarySavings.availableBalance),
+                    'icon': productInfo.icon
+                }
+            ];
+        }
+        return [];
 	}
 
 	async _getUnlockQuote(unlockType, accNumber, partialUnlockAmount) {
@@ -940,6 +942,10 @@ export class SavingsPlan extends ViewBase {
 				.unlockFromAccountsList="${this.unlockFromAccountsList}"
 				.unlockToAccountsList="${this.unlockToAccountsList}"
 				.savingsPlanDetails="${this.savingsPlanDetails}"
+
+				verificationMethod="${this.callerInformation.verificationMethod}"
+				?hasDigitalChannels="${this.callerInformation.hasDigitalChannels}"
+				?isHelpDeskAgent="${this.roleManager.isHelpDeskAgent}"
 				
 				.getUnlockQuote="${(unlockType, accNumber, partialUnlockAmount) => this._getUnlockQuote(unlockType, accNumber, partialUnlockAmount)}"
 				.shouldDisable="${need => this._shouldDisable(need)}"
@@ -947,7 +953,8 @@ export class SavingsPlan extends ViewBase {
 
 				@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
 				@view-agreement="${(event) => this._getUnlockAgreement(event)}"
-				@unlock="${(event) => this._confirmUnlockFtsp(event)}">
+				@unlock="${(event) => this._confirmUnlockFtsp(event)}"
+				@verify-now="${() => this._verifyClick()}">
 			</capitec-pc-unlock-ftsp>
 		`
 		: html``;
