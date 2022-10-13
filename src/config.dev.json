@@ -33,7 +33,7 @@
 	},
 	"LogRequestResponseModels" : true,
 	"ClientCareVDN": "7250",
-	"HelpDeskVDN": "7283",
+	"HelpDeskVDN": "7287",
 	"ivrMapping": [
 		{
 			"option": "7251",
