@@ -34,7 +34,8 @@
 		"KBA": 1
 	},
 	"LogRequestResponseModels" : false,
-	"VDN":"7250",
+	"ClientCareVDN": "7250",
+	"HelpDeskVDN": "7287",
 	"ivrMapping": [
 		{
 			"option": "7251",
