@@ -16,6 +16,7 @@ import 'app/components/dialogs/common/StatementsDialog';
 import 'app/components/savingsAccount/MainSavingsAccountDetails';
 
 const DATE_TIME_FORMAT = `dd mmm yyy hh:mm:ss`;
+const DATE_ONLY = `dd mmm yyyy`;
 // ninety days in milliseconds
 const NINETY_DAYS = 7777000000;
 const SAVINGS_ACCOUNT = 300;
@@ -459,7 +460,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Transaction type"
-					value = "${item.transactionType ? item.transactionType : `-`}"
+					value = "${item.transTypeDesc ? item.transTypeDesc : `-`}"
 					data-automation-id="transaction-history-item-type">
 				</horizon-label>
 				<horizon-label
@@ -471,13 +472,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Posting date" 
-					value = "${formatDate(item.postingDate, DATE_TIME_FORMAT)}"
+					value = "${formatDate(item.postingDate, DATE_ONLY)}"
 					data-automation-id="transaction-history-item-posting-date">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Processed date"
-					value = "${formatDate(item.processDate, DATE_TIME_FORMAT)}"
+					value = "${formatDate(item.processDate, DATE_ONLY)}"
 					data-automation-id="transaction-history-item-processed-date">
 				</horizon-label>
 			</capitec-group>
