@@ -92,7 +92,7 @@ export class FixedTermSavingsPlanFailure extends ViewBase {
 	_renderFixedTermFailureScreen() {
 		return html`
 			<horizon-error-screen
-				data-automation-id="fixed-term-savings-plan-failure-screen"
+				data-automation-id="unlock-fixed-term-savings-plan-failure-screen"
 				image="/images/savings/UnlockSavings.svg"
 				header="${this.partialUnlock ? `Partial` : `Full`} fixed-term unlock unsuccessful"
 				left="Done"
@@ -112,11 +112,11 @@ export class FixedTermSavingsPlanFailure extends ViewBase {
 	_renderRelatedOptions() {
 		return html`
 			<horizon-related-options
-				data-automation-id="fixed-term-savings-plan-failure-related-options"
+				data-automation-id="unlock-fixed-term-savings-plan-failure-related-options"
 				context = "Failure">
 			</horizon-related-options>
 		`;
 	}
 }
 
-customElements.define(`horizon-fixed-term-savings-plan-failure`, FixedTermSavingsPlanFailure);
+customElements.define(`horizon-unlock-fixed-term-savings-plan-failure`, FixedTermSavingsPlanFailure);

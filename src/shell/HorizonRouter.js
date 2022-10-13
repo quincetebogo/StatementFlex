@@ -63,8 +63,8 @@ const HORIZON_ROUTES = Object.freeze({
 	PROOF_OF_PAYMENT_FAILURE: `/error/proof-of-payment`,
 	PAID_UP_LETTER_SUCCESS: `/success/paid-up-letter`,
 	PAID_UP_LETTER_FAILURE: `/error/paid-up-letter`,
-	FTSP_SUCCESS: `/success/fixed-term-savings-plan`,
-	FTSP_FAILURE: `/error/fixed-term-savings-plan`
+	UNLOCK_FTSP_SUCCESS: `/success/fixed-term-savings-plan`,
+	UNLOCK_FTSP_FAILURE: `/error/fixed-term-savings-plan`
 });
 
 
@@ -411,12 +411,12 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.PAID_UP_LETTER_FAILURE}`);
 	}
 
-	navigateFixedTermSavingsPlanSuccess() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.FTSP_SUCCESS}`);
+	navigateToUnlockFixedTermSavingsPlanSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.UNLOCK_FTSP_SUCCESS}`);
 	}
 
-	navigateFixedTermSavingsPlanFailure() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.FTSP_FAILURE}`);
+	navigateToUnlockFixedTermSavingsPlanFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.UNLOCK_FTSP_FAILURE}`);
 	}
 
 	/**
@@ -1004,19 +1004,19 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
-		name: `horizon-fixed-term-savings-plan-success`,
+		name: `horizon-unlock-fixed-term-savings-plan-success`,
 		title: `FixedTermSavingsPlanSuccess`,
 		icon: null,
-		path: HORIZON_ROUTES.FTSP_SUCCESS,
-		load: () => import(`../views/savingsPlan/FixedTermSavingsPlanSuccess`),
+		path: HORIZON_ROUTES.UNLOCK_FTSP_SUCCESS,
+		load: () => import(`../views/savingsPlan/UnlockFixedTermSavingsPlanSuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
-		name: `horizon-fixed-term-savings-plan-failure`,
+		name: `horizon-unlock-fixed-term-savings-plan-failure`,
 		title: `FixedTermSavingsPlanFailure`,
 		icon: null,
-		path: HORIZON_ROUTES.FTSP_FAILURE,
-		load: () => import(`../views/savingsPlan/FixedTermSavingsPlanFailure`),
+		path: HORIZON_ROUTES.UNLOCK_FTSP_FAILURE,
+		load: () => import(`../views/savingsPlan/UnlockFixedTermSavingsPlanFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	}
 ];

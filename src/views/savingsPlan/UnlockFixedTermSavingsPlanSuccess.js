@@ -89,7 +89,7 @@ export class FixedTermSavingsPlanSuccess extends ViewBase {
 	_renderFixedTermSavingsPlanSuccess() {
 		return html`
 			<horizon-success-screen 
-				data-automation-id="fixed-term-savings-plan-success-screen"
+				data-automation-id="unlock-fixed-term-savings-plan-success-screen"
 				header="${this.partialUnlock ? `Partial` : `Full`} Fixed-term unlocked"
 				image="/images/savings/UnlockSavings.svg"
 				right="Done"
@@ -105,4 +105,4 @@ export class FixedTermSavingsPlanSuccess extends ViewBase {
 	}
 }
 
-customElements.define(`horizon-fixed-term-savings-plan-success`, FixedTermSavingsPlanSuccess);
+customElements.define(`horizon-unlock-fixed-term-savings-plan-success`, FixedTermSavingsPlanSuccess);
