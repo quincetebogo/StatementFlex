@@ -241,7 +241,7 @@ export class CreditAccount extends ViewBase {
 		};
 
 		await super._inicidentManager_(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
-		await super.createAndClassifySubsIncident(null, false);
+		await super.createAndClassifySubIncident(null, false);
 
 		await creditProducts[this.accountViewType]();
 	}
@@ -538,7 +538,7 @@ export class CreditAccount extends ViewBase {
 			this.creditBalance = returnValue.result;
 
 			await super._inicidentManager_(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
-			await super.createAndClassifySubsIncident(null, false);
+			await super.createAndClassifySubIncident(null, false);
 
 			this._telemetry.startSpan(CreditEvents.CREDIT, {
 				"screen": TelemetryScreen.CREDIT_LANDING,
@@ -608,7 +608,7 @@ export class CreditAccount extends ViewBase {
 		});
 
 		this.productType = productType;
-	    await super.createAndClassifySubsIncident(null, false);
+	    await super.createAndClassifySubIncident(null, false);
 
 		this._setAccountHeaderDetails(accountDetails);
 		this._getTransactionHistory();
@@ -791,7 +791,7 @@ export class CreditAccount extends ViewBase {
 			"next-screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT
 		});
 
-		await super.createAndClassifySubsIncident(null, false);
+		await super.createAndClassifySubIncident(null, false);
 
 		const returnValue = await this.creditService.budgetFacility(selectedAccountDetails.accountNumber);
 		const successfullServiceResponse = returnValue.succeeded;

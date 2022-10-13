@@ -74,7 +74,7 @@ export class AssignStopCard extends Component {
 
 		const cardsAndIncident = {
 			cardIds: this.cards.map(card => card.cardNumber),
-			incidentRecId: this.incidentDetails.incidentRecId
+			incident: this.horizonIncidentManager.currentIncident
 		};
 
 		this.cardService.assignTeams(cardsAndIncident)
@@ -110,7 +110,7 @@ export class AssignStopCard extends Component {
 			const assignRequest =
 			{
 				"cardIds": this.cards.map(card => card.cardNumber),
-				"incidentRecId": this.incidentDetails.incidentRecId,
+				"incident": this.horizonIncidentManager.currentIncident,
 				"team": this.team.value
 			};
 

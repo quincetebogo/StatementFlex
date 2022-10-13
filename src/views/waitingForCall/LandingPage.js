@@ -174,8 +174,7 @@ export class LandingPage extends ViewBase {
 		let callerDetails = null;
 		let forceSearchDialog = true;
 
-		newCallInfo.incidentReferenceNumber = primaryIncident.incidentReferenceNumber;
-		newCallInfo.incidentRecId = primaryIncident.incidentRecId;
+		newCallInfo.primaryIncident = primaryIncident;
 
 		// Telemetry
 		this.telemetry.startSpan(IDCallerEvents.IDENTIFY_CALLER);

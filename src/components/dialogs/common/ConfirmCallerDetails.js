@@ -10,7 +10,6 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { ITAChannelService } from 'app/services/ITAChannelService';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
-import { InsureService } from 'app/services/InsureService';
 import { RoleManager } from 'app/shell/RoleManager';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
@@ -73,7 +72,6 @@ export class ConfirmCallerDetails extends Component {
 		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
-		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.callService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.itaChannelService = new ITAChannelService(() => this._toggleBusyFlag(), () => true);
@@ -395,17 +393,17 @@ export class ConfirmCallerDetails extends Component {
 		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
 	}
 
-	async _checkForInsuranceProducts(southAfricanIDNumber, cifNumber, isCallerVerified) {
-		const insuranceClientInfo = {
-			'idNumber': southAfricanIDNumber,
-			'cifNumber': cifNumber,
-			'isCallerVerified': isCallerVerified
-		};
+	// async _checkForInsuranceProducts(southAfricanIDNumber, cifNumber, isCallerVerified) {
+	// 	const insuranceClientInfo = {
+	// 		'idNumber': southAfricanIDNumber,
+	// 		'cifNumber': cifNumber,
+	// 		'isCallerVerified': isCallerVerified
+	// 	};
 
-		const returnValue = await this.insureService.hasInsuranceProducts(insuranceClientInfo);
+	// 	const returnValue = await this.insureService.hasInsuranceProducts(insuranceClientInfo);
 
-		return returnValue.result.hasInsurance;
-	}
+	// 	return returnValue.result.hasInsurance;
+	// }
 
 	async _setAvailabilityFlags() {
 		let flagsSet = false;
@@ -487,15 +485,15 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	async _updateClientNonClientDetails() {
-		const currentIncident = this.horizonIncidentManager.getCurrentIncident();
+		const currentIncident = this.horizonIncidentManager.currentIncident;
 
-		if (!currentIncident.incidentRecId || currentIncident.incidentRecId === `0`) {
+		if (!currentIncident) {
 			this.logger.log(`error`, `There is no incident available against which to record the client/ non-client details`, `_updateClientNonClientDetails`);
 			return;
 		}
 
 		// Updating client details to Incident at Strack
-		let returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
+		let returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, currentIncident);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateClientNonClientDetails`, returnValue.correlationId);
@@ -504,14 +502,12 @@ export class ConfirmCallerDetails extends Component {
 		// Updating non-client details to Incident at Strack
 		if (this.callerInformation.is3rdParty) {
 			const nonClientDetails = {
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				firstName: this.callerInformation.nonClientFirstName,
 				surname: this.callerInformation.nonClientSurName,
 				cellPhone: this.callerInformation.nonClientCellPhone
 			};
 
-			returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
+			returnValue = await this.incidentService.updateIncidentNonClientDetails(currentIncident, nonClientDetails);
 
 			if (!returnValue.succeeded) {
 				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_updateClientNonClientDetails`, returnValue.correlationId);

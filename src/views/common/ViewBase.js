@@ -167,7 +167,7 @@ export class ViewBase extends View {
 	}
 
 	_assignIncidentClick() {
-		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.getCurrentIncident().incidentRecId);
+		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.currentIncident);
 	}
 
 	_endCallClick() {
@@ -228,27 +228,28 @@ export class ViewBase extends View {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
 
-		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
+		const currentIncident = this.horizonIncidentManager.currentIncident;
 
-		if (incidentRecId && incidentRecId !== ``) {
-			const nonClientDetails = {
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				firstName: this.callerInformation.nonClientFirstName,
-				surname: this.callerInformation.nonClientSurName,
-				cellPhone: this.callerInformation.nonClientCellPhone
-			};
-			const returnValue = await this.incidentManagementService.updateIncidentNonClientDetails(incidentRecId, nonClientDetails);
-
-			if (returnValue.succeeded) {
-				this.horizonStore.setCallerInformation(this.callerInformation);
-				this.showAddCallerDetails = !this.showAddCallerDetails;
-			} else {
-				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_addCallerDetailsConfirmed`, returnValue.correlationId);
-			}
-		} else {
+		if (!currentIncident) {
 			this.logger.log(`error`, `There is no incident available against which to record then non-client details`, `_addCallerDetailsConfirmed`);
+			return;
 		}
+
+		const nonClientDetails = {
+			firstName: this.callerInformation.nonClientFirstName,
+			surname: this.callerInformation.nonClientSurName,
+			cellPhone: this.callerInformation.nonClientCellPhone
+		};
+
+		const returnValue = await this.incidentManagementService.updateIncidentNonClientDetails(currentIncident, nonClientDetails);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_addCallerDetailsConfirmed`, returnValue.correlationId);
+			return;
+		}
+
+		this.horizonStore.setCallerInformation(this.callerInformation);
+		this.showAddCallerDetails = !this.showAddCallerDetails;
 	}
 
 	_telemetryStartSpan(eventName, screenName) {
@@ -267,8 +268,8 @@ export class ViewBase extends View {
 	// PUBLIC METHODS
 	// --------------
 
-	async createAndClassifySubsIncident(incidentCategorization, classify) {
-		await super.createAndClassifySubsIncident(() => this._toggleBusyFlag(), incidentCategorization, classify);
+	async createAndClassifySubIncident(incidentCategorization, classify) {
+		await super.createAndClassifySubIncident(() => this._toggleBusyFlag(), incidentCategorization, classify);
 	}
 
 	_performReturnToScreen() {

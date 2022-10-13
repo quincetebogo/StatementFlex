@@ -171,7 +171,7 @@ export class SavingsPlan extends ViewBase {
 
 		if (saveProducts[this.accountViewType]) {
 			await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_PLAN, () => this._toggleBusyFlag());
-			await super.createAndClassifySubsIncident();
+			await super.createAndClassifySubIncident();
 			
 			return saveProducts[this.accountViewType]();
 		}
@@ -220,7 +220,7 @@ export class SavingsPlan extends ViewBase {
 				}
 				
 				await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_PLAN, () => this._toggleBusyFlag());
-				await super.createAndClassifySubsIncident(null, false);
+				await super.createAndClassifySubIncident(null, false);
 			} 
 
 			this._telemetry.startSpan(SavingsPlanEvents.SAVINGS_PLAN, {
@@ -334,7 +334,7 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	_backToLandingPage() {
-		const incidentState = this.horizonIncidentManager.getCurrentIncidentState();
+		const incidentState = this.horizonIncidentManager.incidentState;
 
 		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
@@ -391,7 +391,7 @@ export class SavingsPlan extends ViewBase {
 		await super._inicidentManager_(need, () => this._toggleBusyFlag());
 		this.savePlanDetails = savePlanDetails;
 
-		await super.createAndClassifySubsIncident(null, false);
+		await super.createAndClassifySubIncident(null, false);
 		await this._getTransactionHistory();
 	}
 

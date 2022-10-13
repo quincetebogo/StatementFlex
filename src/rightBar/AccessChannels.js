@@ -147,7 +147,7 @@ export class AccessChannels extends Component {
 			this._telemetry.endSpan(AccessChannelsEvents[`ACCESS_CHANNELS_${CHANNEL_TYPE[this.selectedAccessChannelType]}`]);
 
 			if (this.landingInfo && this.landingInfo[event.detail.tileClicked]) {
-				await super.createAndClassifySubsIncident(() => this._toggleBusyFlag());
+				await super.createAndClassifySubIncident(() => this._toggleBusyFlag());
 				this._updateIncidentState(super.HORIZON_NEED_STATUS.COMPLETED);
 			} else {
 				this._updateIncidentState(super.HORIZON_NEED_STATUS.NOT_STARTED);

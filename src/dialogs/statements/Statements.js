@@ -430,7 +430,7 @@ export class Statements extends Component {
 	}
 
 	async _createIncidentOnError() {
-		await super.createAndClassifySubsIncident(() => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident(() => this._toggleBusyFlag());
 		return true;
 	}
 

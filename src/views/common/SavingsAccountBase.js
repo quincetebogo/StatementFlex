@@ -203,7 +203,7 @@ export class SavingsAccountBase extends ViewBase {
 			"screen": TelemetryScreen.DEBICHECK,
 			"next-screen": TelemetryScreen.VIEWINFO
 		});
-		await super.createAndClassifySubsIncident();
+		await super.createAndClassifySubIncident();
 
 		this.isPending = event.detail.isPending;
 		this.renderMode = RENDER_MODE.DEBI_CHECK_VIEW_INFO;
