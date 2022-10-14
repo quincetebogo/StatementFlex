@@ -118,7 +118,8 @@ const UNLOCK_OPTIONS = {
 			partialUnlockAmount: { state: true },
 			agreementAccepted: { state: true },
 			showConfirmModal: { state: true },
-			unlockFee: { state: true }
+			unlockFee: { state: true },
+			quoteRefNumber: { state: true }
 		};
 	}
 
