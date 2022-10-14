@@ -7,7 +7,9 @@
 		"clientProfileServiceUrl": "https://csc-clientprofile.platform.int.capinet",
 		"debiCheckServiceUrl": "https://csc-debicheck.platform.int.capinet",
 		"cardServiceUrl": "https://horizon-cs-card-v1.platform.int.capinet",
-		"savingsPlanChannelServiceUrl": "https://csc-cs-save.platform.int.capinet"
+		"savingsPlanChannelServiceUrl": "https://csc-cs-save.platform-int.capinet",
+		"sendCashServiceUrl": "https://cec-cs-sendcash.platform.int.capinet",
+		"liveBetterServiceUrl": "https://cec-cs-lbb.platform.int.capinet"
 	},
 	"signalRUrl": "https://horizon-cs-ita.platform.int.capinet",
 	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform.int.capinet",

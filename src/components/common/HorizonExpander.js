@@ -469,7 +469,7 @@ export class Expander extends Component {
 				.indicator.right{
 					height: 24px;
 					width: 24px;
-					margin: 20px;
+					margin: var(--theme-expander-indicator-right-margin, 20px);
 				}
 
 				.input {
