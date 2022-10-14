@@ -134,7 +134,7 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {string} originatingSystem Name of system triggering start span
 	 * @returns {Promise<void>} A Promise for starting a telemetry span
 	 */
-	async startSpan(eventName, baggage = null, systemTriggered = true, originatingSystem = null) {
+	async startSpan(eventName, baggage = null, systemTriggered = true) {
 
 		/**
 		 * Extracting eventName(call.id-caller.confimr-caller) into events array(['call', 'id-caller', 'confirm-caller'])
@@ -154,7 +154,7 @@ export class HorizonTelemetry extends Telemetry {
 			oldbaggage: this._formatOldBaggageDetails(baggage || []),
 			baggage: this._formatBaggageDetails(baggage || []),
 			eventName: `horizon.${eventName}.start-span`,
-			eventOriginator: this._eventOriginator(eventType, originatingSystem),
+			eventOriginator: this._eventOriginator(eventType),
 			eventType: eventType,
 			parentSpan: this._getParentSpanID(eventName),
 			tags: this._extractTags(`horizon.${eventName}.start-span`),
@@ -181,7 +181,7 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {string} originatingSystem Name of system triggering end span
 	 * @returns {Promise<void>} A promise to end the telemetry span
 	 */
-	async endSpan(eventName, baggage = null, systemTriggered = true, closeParentSpan = false, closeChildSpans = false, originatingSystem = null) {
+	async endSpan(eventName, baggage = null, systemTriggered = true, closeParentSpan = false, closeChildSpans = false) {
 
 		/**
 		 * Extracting eventName(call.id-caller) into events array(['call', 'id-caller'])
@@ -195,14 +195,14 @@ export class HorizonTelemetry extends Telemetry {
 		if (this.traceId && spanId) {
 
 			if (closeChildSpans) {
-				await this.closeChildSpans(eventName, originatingSystem);
+				await this.closeChildSpans(eventName, baggage?.widget);
 			}
 
 			await super.spanEnd({
 				oldbaggage: this._formatOldBaggageDetails(baggage || []),
 				baggage: this._formatBaggageDetails(baggage || []),
 				eventName: `horizon.${eventName}.end-span`,
-				eventOriginator: this._eventOriginator(eventType, originatingSystem),
+				eventOriginator: this._eventOriginator(eventType),
 				eventType: eventType,
 				parentSpan: null,
 				spanId: spanId,
@@ -231,7 +231,7 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {string} originatingSystem Name of system triggering start span
 	 * @returns {Promise<void>} A promise for logging the event
 	 */
-	async logEvent(eventName, baggage = null, systemTriggered = false, originatingSystem = null) {
+	async logEvent(eventName, baggage = null, systemTriggered = false) {
 
 		/**
 		 * Extracting eventName(call.incident-created) into events array(['call', 'incident-created'])
@@ -245,7 +245,7 @@ export class HorizonTelemetry extends Telemetry {
 			oldbaggage: this._formatOldBaggageDetails(baggage || []),
 			baggage: this._formatBaggageDetails(baggage || []),
 			eventName: `horizon.${eventName}`,
-			eventOriginator: this._eventOriginator(eventType, originatingSystem),
+			eventOriginator: this._eventOriginator(eventType),
 			eventType: eventType,
 			parentSpan: null,
 			spanId: this._getSpanID(currentSpan),
@@ -268,6 +268,13 @@ export class HorizonTelemetry extends Telemetry {
 			return;
 		}
 
+		const baggage = originatingSystem 
+			? { "info": `Closing span, as commanded by parent span` }
+			: {
+				"info": `Closing span, as commanded by parent span`,
+				"widget": originatingSystem
+			};
+
 		const childSpans = this.activeSpanTree.filter(obj => obj.event.startsWith(parentEvent) && obj.event !== parentEvent);
 
 		await childSpans.reduceRight(async (promise, span) => {
@@ -275,9 +282,7 @@ export class HorizonTelemetry extends Telemetry {
 			// The first iteration uses an already resolved Promise
 			// so, it will immediately continue.
 			await promise;
-			await this.endSpan(span.event, {
-				"info": `Closing span, as commanded by parent span`
-			}, true, false, false, originatingSystem);
+			await this.endSpan(span.event, baggage, true, false, false);
 		}, Promise.resolve());
 	}
 
@@ -306,10 +311,10 @@ export class HorizonTelemetry extends Telemetry {
 		return eventName && eventName.split(`.`);
 	}
 
-	_eventOriginator(eventType, originatingSystem = null) {
+	_eventOriginator(eventType) {
 		switch (eventType) {
 			case TelemetryEventType.SYSTEM: 
-				return originatingSystem ?? `horizon-ui`;
+				return `horizon-ui`;
 
 			case TelemetryEventType.PERSON:
 				return SecurityContext.getInstance().username;
