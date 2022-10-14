@@ -32,6 +32,11 @@ export class FixedTermSavingsPlanFailure extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this.screenDetails = this.horizonStore.getScreenDetails();
+
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	disconnectedCallback() {
@@ -43,11 +48,14 @@ export class FixedTermSavingsPlanFailure extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		// TODO: Navigation needs to be wired up.
+		this.horizonStore.clearScreenDetails();
+		this.horizonStore.clearReturnScreen();
+		
+		this.horizonRouter.navigateToSavingsPlan();
 	}
 
 	_tryAgain() {
-		// TODO: Navigation needs to be wired up.
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	// --------------
@@ -94,16 +102,16 @@ export class FixedTermSavingsPlanFailure extends ViewBase {
 			<horizon-error-screen
 				data-automation-id="unlock-fixed-term-savings-plan-failure-screen"
 				image="/images/savings/UnlockSavings.svg"
-				header="${this.partialUnlock ? `Partial` : `Full`} fixed-term unlock unsuccessful"
+				header="${this.screenDetails.unlockType} fixed-term unlock unsuccessful"
 				left="Done"
 				right="Try Again"
-				toast="${this.partialUnlock ? `Partial` : `Full`} Fixed-term unlock unsuccessful"
+				toast="Unlock unsuccessful"
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._tryAgain()}>
 					<section id="id-error-msg" slot="detail">
-					${this.partialUnlock
-							? `${this.amount} Partial transfer from ${this.accountName} to Main savings account was unsuccessful.`
-							: `Fixed-term savings plan for ${this.accountName} has not been unlocked.`}
+					${this.screenDetails.unlockType === `Partial`
+							? `${formatCurrency(this.screenDetails.unlockAmount)} Partial transfer from ${this.screenDetails.unlockAccountName} to Main savings account was unsuccessful.`
+							: `Fixed-term savings plan for ${this.screenDetails.unlockAccountName} has not been unlocked.`}
 					</section>
 			</horizon-error-screen>
 		`;

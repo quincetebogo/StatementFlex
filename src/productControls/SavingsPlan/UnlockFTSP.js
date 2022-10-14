@@ -183,7 +183,11 @@ const UNLOCK_OPTIONS = {
 	}
 	
 	_confirmUnlock() {
-		this.dispatchEvent(new CustomEvent(`unlock`, { detail: { accountNumber: this.selectedFromAccount.accountNumber, quoteRefNumber: this.quoteRefNumber } }));
+		this.dispatchEvent(new CustomEvent(`unlock`, { detail: 
+			{ selectedFromAccount: this.selectedFromAccount, 
+				unlockAmount: this.partialUnlockAmount,
+				unlockType: this.unlockType,
+				quoteRefNumber: this.quoteRefNumber } }));
 	}
 	
 	_verifyClick() {
@@ -531,7 +535,7 @@ const UNLOCK_OPTIONS = {
 						<capitec-group layout="horizontal" class="alert-banner-group">
 							<capitec-label type="strong" label="Inform client:"></capitec-label>
 							<capitec-label type="default"
-								label=" We need to send you a verification push notification to unlock your Fixed-term Savings plan. Would you like to proceed?">
+								label=" We need to send you a verification push notification to unlock your Fixed-term Savings Plan. Would you like to proceed?">
 							</capitec-label>
 
 							<capitec-spacer></capitec-spacer>
@@ -800,7 +804,7 @@ const UNLOCK_OPTIONS = {
 					<capitec-content-box class="confirm-box">
 						${this.unlockType === `Full unlock` 
 							? html`<p>You are about to change <b>${this.selectedFromAccount.accountName} Fixed-term to a Flexible Savings Plan</b> which will affect your interest rate.</p>`
-							: html`<p>You are about to make a <b>${this.partialUnlockAmount} Partial unlock</b> from ${this.selectedFromAccount.accountName} Fixed-term Savings Plan to ${this.selectedToAccount.accountName}.</p>`}
+							: html`<p>You are about to make a <b>${formatCurrency(this.partialUnlockAmount)} Partial unlock</b> from ${this.selectedFromAccount.accountName} Fixed-term Savings Plan to ${this.selectedToAccount.accountName}.</p>`}
 						<p>Are you sure you want to continue?</p>
 					</capitec-content-box>
 				</div>

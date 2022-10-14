@@ -368,13 +368,15 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 
 	async ftspUnlock(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		
-	    if (await this.isMockEnabled(`ftspUnlock`)) {
-	        return this.mock(`ftspUnlock`);
-	    }
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
-	    const url = `/cec-save-${this._version}/savings-plan/unlock`;
+		if (await this.isMockEnabled(`ftspUnlock`)) {
+			return this.mock(`ftspUnlock`);
+		}
 
-	    return this.post(
+		const url = `/cec-save-${this._version}/savings-plan/unlock`;
+
+		return this.post(
 			url, 
 			request, 
 			this.setToken(), 

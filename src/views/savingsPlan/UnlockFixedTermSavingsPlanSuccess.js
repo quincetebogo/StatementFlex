@@ -12,12 +12,6 @@ export class FixedTermSavingsPlanSuccess extends ViewBase {
 
 	constructor() {
 		super();
-
-		// TODO: Remove the hardcoded values when wiring up the navigation.
-		this.amount = formatCurrency(`7500`);
-		this.partialUnlock = false;
-		this.accountName = `My dream car`;
-
 		this.endCallContext = `QuickTransactionSuccess`;
 	}
 
@@ -31,6 +25,9 @@ export class FixedTermSavingsPlanSuccess extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this.screenDetails = this.horizonStore.getScreenDetails();
+		this._updateIncidentState();
 	}
 
 	disconnectedCallback() {
@@ -42,7 +39,10 @@ export class FixedTermSavingsPlanSuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		// TODO: Navigation needs to be wired up.
+		this.horizonStore.clearScreenDetails();
+		this.horizonStore.clearReturnScreen();
+		
+		this.horizonRouter.navigateToSavingsPlan();
 	}
 	
 	// --------------
@@ -52,7 +52,13 @@ export class FixedTermSavingsPlanSuccess extends ViewBase {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-	
+
+	_updateIncidentState() {
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -90,15 +96,15 @@ export class FixedTermSavingsPlanSuccess extends ViewBase {
 		return html`
 			<horizon-success-screen 
 				data-automation-id="unlock-fixed-term-savings-plan-success-screen"
-				header="${this.partialUnlock ? `Partial` : `Full`} Fixed-term unlocked"
+				header="${this.screenDetails.unlockType} Fixed-term unlocked"
 				image="/images/savings/UnlockSavings.svg"
 				right="Done"
-				toast="${this.partialUnlock ? `Partial` : `Full`} Fixed-term unlocked"
+				toast="Unlock complete"
 				@right-click=${() => this._doneClick()}>
 					<section id="id-success-msg" slot="detail">
-						${this.partialUnlock
-							? `${this.amount} Partial transfer from ${this.accountName} has been transfered to Main savings account.`
-							: `Fixed-term savings plan for ${this.accountName} has been unlocked.`}
+						${this.screenDetails.unlockType === `Partial`
+							? `${formatCurrency(this.screenDetails.unlockAmount)} Partial transfer from ${this.screenDetails.unlockAccountName} has been transfered to Main savings account was unsuccessful.`
+							: `Fixed-term savings plan for ${this.screenDetails.unlockAccountName} has been unlocked.`}
 					</section>
 			</horizon-success-screen>
 		`;

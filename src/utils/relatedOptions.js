@@ -126,16 +126,8 @@ export const relatedOptions = {
 			`proof-of-account`
 		]
 	},
-	'fixed-term-savings-plan': {
-		Success: [
-			`tax-certificate`,
-			`proof-of-account`
-		],
-		Failure: [
-			`tax-certificate`,
-			`proof-of-account`
-		]
-	}
+	'full-ftsp-unlock': CREDIT_RO,
+	'partial-ftsp-unlock': CREDIT_RO
 };
 
 /**
