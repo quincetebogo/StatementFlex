@@ -233,7 +233,7 @@ export class SendCashLanding extends Component {
 			if (status === `ALL`) {
 				return this.filteredSendCashVouchers;
 			}
-			this.filteredSendCashVouchers = this.filteredSendCashVouchers.filter(item => item.voucherStatus === status);
+			this.filteredSendCashVouchers = this.filteredSendCashVouchers.filter(item => item.voucherStatus.replace(`_`, ` `) === status);
 		}
 
 		this.requestUpdate();
@@ -673,7 +673,7 @@ export class SendCashLanding extends Component {
 							<horizon-label
 								class="status-label"
 								label="Status"
-								value="${item.voucherStatus}">
+								value="${item.voucherStatus.replace(`_`, ` `)}">
 							</horizon-label>
 					</capitec-group>
 					<div slot="content">
