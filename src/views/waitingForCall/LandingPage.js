@@ -153,7 +153,7 @@ export class LandingPage extends ViewBase {
 
 	async _createIncident(newCallInfo) {
 		 const returnValue = await this.incidentManagementService.createIncident(newCallInfo, (ex) => this._landingPageErrorHandler(ex));
-		 const incident = returnValue.result;
+		 const incident = returnValue.result.incident;
 
 		 if (!returnValue.succeeded || !incident) {
 		 	this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `_createIncident`, returnValue.correlationId);
