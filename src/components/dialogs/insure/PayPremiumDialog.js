@@ -29,7 +29,9 @@ class PayPremiumDialog extends Component {
 		this.optionSelected = false;
 		this.displayInsufficientFunds = false;
 		this.insufficient = false;
-		
+		this.checked = 0;
+		this.displayArrearNotSelected = false;
+		this.displayAccountNotSelected = false;
 
 	}
 
@@ -61,7 +63,10 @@ class PayPremiumDialog extends Component {
 			accountNumber: { type: String, state: true },
 			accountType: { type: String, state: true },
 			displayInsufficientFunds: { type: Boolean, state: true },
-			insufficient: { type: Boolean, state: true }
+			insufficient: { type: Boolean, state: true },
+			checked: { type: Number, state: true },
+			displayAccountNotSelected: { type: Boolean, state: true },
+			displayArrearNotSelected: { type: Boolean, state: true }
 		};
 	}
 
@@ -93,24 +98,8 @@ class PayPremiumDialog extends Component {
 		this.payArrears.contractReference = this.clientArrears.contractReference;
 		this.payArrears.fromAccount = ``;
 		this.payArrears.cifNumber = ``;
-
+		
 		this._sortArrears();
-
-		// Set Metadata
-		this.clientArrears.arrears.forEach(ele => {
-			ele.shouldBeChecked = false;
-			ele.shouldBeDisabled = false;
-		});
-
-		// First Entry
-		this.clientArrears.arrears[0].shouldBeChecked = true;
-		this.clientArrears.arrears[0].shouldBeDisabled = true;
-
-		this._AddFirstMonth(this.clientArrears.arrears[0]);
-
-		if (this.clientArrears.arrears.length === 3) {
-			this.clientArrears.arrears[2].shouldBeDisabled = true;
-		}
 
 	}
 
@@ -129,26 +118,6 @@ class PayPremiumDialog extends Component {
 		}); 
 	}
 
-	/**
-	 * event that adds the oldest month to the pay arrears array
-	 * 
-	 * @param {*} outstanding outstanding
-	 * @returns {null} null
-	 */
-	_AddFirstMonth(outstanding) {
-
-		// add first arrear to pay arrears
-		this.payArrears.arrears.push({
-			dueDate: outstanding.dueDate,
-			amount: outstanding.amount,
-			objectID: outstanding.objectID,
-			shouldBeChecked: outstanding.shouldBeChecked,
-			shouldBeDisabled: outstanding.shouldBeDisabled
-		});
-
-		this.amount = outstanding.amount;
-
-	}
 
 	/**
 	 * Calculates the total amount of the arrears selected
@@ -189,21 +158,29 @@ class PayPremiumDialog extends Component {
 	 */
 	_onPayClick() {
 			if (this.accountType === `Savings Account`) {
-				if (this.accountDetails.savingsAccountData.accountAvailableBalance < this.amount) {
+				if (this.accountDetails.savingsAccountData?.accountAvailableBalance < this.amount) {
 					this.optionSelected = false;
 					this.displayInsufficientFunds = true;
 					this.insufficient = true;
+				} else if (this.optionSelected === false) {
+					console.log(`not selected`);
+					this.displayAccountNotSelected = true;
 				} else {
+					console.log(`in savings account`);
 					this._PayArrears();
 				}
 			} else {
 				const index = this.accountDetails.savingsPlanData.savingsPlans.map(object => object.accountNumber).indexOf(this.accountNumber);
 
-				if (this.accountDetails.savingsPlanData.savingsPlans[index].availableBalance < this.amount) {
+				if (this.accountDetails.savingsPlanData.savingsPlans[index]?.availableBalance < this.amount) {
 					this.optionSelected = false;
 					this.displayInsufficientFunds = true;
 					this.insufficient = true;
+				} else if (this.optionSelected === false) {
+					console.log(`not selected`);
+					this.displayAccountNotSelected = true;
 				} else {
+					console.log(`in savings savings plan`);
 					this._PayArrears();
 				}
 
@@ -219,19 +196,18 @@ class PayPremiumDialog extends Component {
 	 */
 	_checkedChange(outstanding, selectedIndex, e) {
 
-		// sets should be checked for third arrear to true when clicked
-		if (selectedIndex === 2) {
-			this.clientArrears.arrears[2].shouldBeChecked = true;
-		}
-
 		// adds selected arrear or removes deselcted arrear
 		this._addSelected(outstanding, selectedIndex, e);
+
 
 		// adds amount of arrear selected
 		if (e.detail.new === true) {
 			this.amount += outstanding.amount;
+			this.checked += 1;
+			this.displayArrearNotSelected = false;
 		} else if (e.detail.new === false) {
 			this.amount -= outstanding.amount;
+			this.checked -= 1;
 		}
 
 		this.requestUpdate();
@@ -264,29 +240,6 @@ class PayPremiumDialog extends Component {
 			this.payArrears.arrears.splice(index, 1);
 		}
 
-		// second arrear check = true
-		if (e.detail.new === true && this.clientArrears.arrears.length === 3 && selectedIndex === 1) {
-			this.clientArrears.arrears[2].shouldBeDisabled = false;
-		}
-
-		// second arrear check = false and third arrear check = true
-		if (e.detail.new === false && this.clientArrears.arrears.length === 3 && selectedIndex === 1 && this.clientArrears.arrears[2].shouldBeChecked === true) {
-			this.clientArrears.arrears[2].shouldBeDisabled = true;
-			this.clientArrears.arrears[2].shouldBeChecked = false;
-			
-			const index = this.payArrears.arrears.map(object => object.objectID).indexOf(this.clientArrears.arrears[2].objectID);
-			this.payArrears.arrears.splice(index, 1);
-
-			this.amount -= this.clientArrears.arrears[2].amount;
-			
-		}
-
-		// second arrear check = false
-		if (e.detail.new === false && this.clientArrears.arrears.length === 3 && selectedIndex === 1) {
-			this.clientArrears.arrears[2].shouldBeDisabled = true;
-			this.clientArrears.arrears[2].shouldBeChecked = false;
-		}
-
 	}
 
 	/**
@@ -302,9 +255,23 @@ class PayPremiumDialog extends Component {
 
 		this.insufficient = false;
 
+		this.displayAccountNotSelected = false;
+
 		this.accountNumber = e.detail.accountNumber;
 
 		this.accountType = e.detail.accountType;
+	}
+
+	_validateCheck() {
+
+		if (this.checked === 0) { 
+			this.displayArrearNotSelected = true;
+		} else {
+			this._onPayClick();
+		}
+
+		this.requestUpdate();
+
 	}
 
 
@@ -375,6 +342,8 @@ class PayPremiumDialog extends Component {
 		return html`
 
 			${this._renderInsufficientFunds()}
+			${this._renderArrearNotSelected()}
+			${this._renderAccountNotSelected()}
 
 			<capitec-label type="subtitle" label="Choose payment method">
 			</capitec-label>
@@ -393,23 +362,15 @@ class PayPremiumDialog extends Component {
 			<capitec-check-group>
 				${this.clientArrears.arrears.map((outstanding, index) => html`
 
-					${index === 1 ? html`
-					<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, `MM yyyy`)} | ${formatCurrency(outstanding.amount)}"
+					${index === 0 ? html`
+						<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, `MM yyyy`)} | ${formatCurrency(outstanding.amount)}"
 							@value-change="${(e) => this._checkedChange(outstanding, index, e)}" data-automation-id="insure-pay-premium-dialog-arrears" >
 						</capitec-check>
-					` : html``}
-					${index === 2 ? html`
-					<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, `MM yyyy`)} | ${formatCurrency(outstanding.amount)}"
-							@value-change="${(e) => this._checkedChange(outstanding, index, e)}" data-automation-id="insure-pay-premium-dialog-arrears"
-							.disabled="${outstanding.shouldBeDisabled === true}" .checked="${outstanding.shouldBeChecked === true}" >
+					` : html`
+						<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, `MM yyyy`)} | ${formatCurrency(outstanding.amount)}"
+							@value-change="${(e) => this._checkedChange(outstanding, index, e)}" data-automation-id="insure-pay-premium-dialog-arrears">
 						</capitec-check>
-					` : html``}
-					${index !== 1 && index !== 2 ? html`
-					<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, `MM yyyy`)} | ${formatCurrency(outstanding.amount)}"
-							@value-change="${(e) => this._checkedChange(outstanding, index, e)}" data-automation-id="insure-pay-premium-dialog-arrears"
-							.disabled="${outstanding.shouldBeDisabled === true}" .checked="${outstanding.shouldBeChecked === true}">
-						</capitec-check>
-					` : html``}
+						`}
 				`)}
 			</capitec-check-group>
 		`;
@@ -428,7 +389,7 @@ class PayPremiumDialog extends Component {
 				</capitec-button>
 			
 				<capitec-button class="capitec-button-medium" id="id-confirm-button" type="primary" label="Pay"
-					@click="${() => this._onPayClick()}" .disabled=${this.optionSelected === false} data-automation-id="insure-pay-premium-dialog-pay">
+					@click="${() => this._validateCheck()}" data-automation-id="insure-pay-premium-dialog-pay">
 				</capitec-button>
 			</capitec-group>`;
 
@@ -438,6 +399,20 @@ class PayPremiumDialog extends Component {
 		return this.displayInsufficientFunds === false ? html`` 
 		: html`
 			<capitec-toast class="error" type="error" header="Insufficient Funds: Payment cannot exceed available balance" layout="horizontal" data-automation-id="insure-pay-premium-dialog-insufficient-funds"></capitec-toast>
+		`;
+	}
+
+	_renderArrearNotSelected() {
+		return this.displayArrearNotSelected === false ? html`` 
+		: html`
+			<capitec-toast class="error" type="error" header="Arrears not selected: Please select an arrear to pay" layout="horizontal" data-automation-id="insure-pay-premium-dialog-insufficient-funds"></capitec-toast>
+		`;
+	}
+
+	_renderAccountNotSelected() {
+		return this.displayAccountNotSelected === false ? html`` 
+		: html`
+			<capitec-toast class="error" type="error" header="Account not selected: Please select an account to pay from" layout="horizontal" data-automation-id="insure-pay-premium-dialog-insufficient-funds"></capitec-toast>
 		`;
 	}
 

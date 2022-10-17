@@ -141,7 +141,6 @@ export class ExistingClient extends InsureViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 		this._initialise();
-
 	}
 
 	// #endregion LIFECYCLE OVERRIDES
@@ -159,6 +158,8 @@ export class ExistingClient extends InsureViewBase {
 		this.accountDetails = await this._retrieveAccountDetails();
 		this.commsHistory = await this._retrieveCommsHistory();
 		this.claims = await this._retrieveClaims();
+
+		console.log(this.callerInformation);
 	}
 
 	/**
@@ -470,6 +471,11 @@ export class ExistingClient extends InsureViewBase {
 		const savingsAccountData = await this.savingsAccountService.savingsAccountLanding(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, true);
 		const savingsPlanData = await this.savingsAccountService.savingsPlanLanding(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, true);
 
+		console.log(`savings account:`);
+		console.log(savingsAccountData);
+		console.log(`saving plan:`);
+		console.log(savingsPlanData);
+
 		const resp = {
 			savingsAccountData: savingsAccountData?.result,
 			savingsPlanData: savingsPlanData?.result
@@ -600,7 +606,7 @@ export class ExistingClient extends InsureViewBase {
 
 			"clientDetails": {
 				"cifNumber": this.callerInformation.cifNumber, // 363291555
-				"primarySavingsAccountNumber": parseInt(this.accountDetails.savingsAccountData.accountNumber, 16), // 1952898232
+				"primarySavingsAccountNumber": this.accountDetails.savingsAccountData.accountNumber,
 				"policyContractReference": contractReference, // "FP00001590"
 				"firstName": this.callerInformation.firstName,
 				"surname": this.callerInformation.lastName,
@@ -1201,8 +1207,8 @@ export class ExistingClient extends InsureViewBase {
 			"wetsignBarcode": false,
 
 			"clientDetails": {
-				"cifNumber": parseInt(this.callerInformation.cifNumber, 16), // 363291555
-				"primarySavingsAccountNumber": parseInt(this.accountDetails.savingsAccountData.accountNumber, 16), // 1952898232
+				"cifNumber": this.callerInformation.cifNumber,
+				"primarySavingsAccountNumber": this.accountDetails.savingsAccountData.accountNumber,
 				"policyContractReference": contractReference, // "FP00001590"
 				"firstName": this.callerInformation.firstName,
 				"surname": this.callerInformation.lastName,
@@ -1217,8 +1223,8 @@ export class ExistingClient extends InsureViewBase {
 				"payArrearsModel": {
 					"contractReference": contractReference,
 					"arrears": payArrears.arrears,
-					"fromAccount": parseInt(fromAccount, 16),
-					"cifNumber": parseInt(this.callerInformation.cifNumber, 16) // 363291555
+					"fromAccount": fromAccount,
+					"cifNumber": this.callerInformation.cifNumber,
 				}
 			}
 
