@@ -568,7 +568,7 @@ export class ExistingClient extends InsureViewBase {
 		const resp = await this.insureService.cancelPolicy(cancelPolicyDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 
-			this._cancelPolicyAgreement(e.detail.contractReference, e.detail.cancellationReason, true);
+			this._getCancelPolicyDocument(e.detail.contractReference, e.detail.cancellationReason, true);
 			this._goToCancelPolicySuccess(e);
 
 		} else {
@@ -584,7 +584,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {*} saveToDocumentum saveToDocumentum
 	 * @returns {*} * 
 	 */
-	async _cancelPolicyAgreement(contractReference, cancelReason, saveToDocumentum) {
+	async _getCancelPolicyDocument(contractReference, cancelReason, saveToDocumentum) {
 
 		this.policyNumber = contractReference;
 
@@ -652,7 +652,7 @@ export class ExistingClient extends InsureViewBase {
 
 			this.amountToPay = sumArrears;
 
-			this._arrearsPaymentInstruction(this.contractReference, e.detail.payArrears.arrears, e.detail.fromAccount, true);
+			this._getArrearsPaymentDocument(this.contractReference, e.detail.payArrears.arrears, e.detail.fromAccount, true);
 			this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
 		} else {
 			// Do error message
@@ -905,7 +905,7 @@ export class ExistingClient extends InsureViewBase {
 					// item.formatedChangeActionedDate = formatedChangeActionedDate;
 					// item.formatedEffectiveDate = formatedEffectiveDate;
 					// item.groupBychangeActionedDate = `${getMonthName(formatedChangeActionedDate.getMonth())} ${formatedChangeActionedDate.getFullYear()}`;
-					
+
 					const formatedDate = new Date(Date.parse(item.date));
 					item.formatedDate = formatedDate;
 					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
@@ -1195,7 +1195,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {*} saveToDocumentum saveToDocumentum
 	 * @returns {null} null
 	 */
-	async _arrearsPaymentInstruction(contractReference, payArrears, fromAccount, saveToDocumentum) {
+	async _getArrearsPaymentDocument(contractReference, payArrears, fromAccount, saveToDocumentum) {
 
 
 		const dob = new Date(this.callerInformation.birthdate);
@@ -1246,7 +1246,7 @@ export class ExistingClient extends InsureViewBase {
 
 	/**
 	 * Unload Policy Transactions
-	 * @returns {null} null
+	 * @returns {void}
 	 */
 	_unloadPolicyTransactionHistory() {
 		this.policyTransactionHistory = {};
@@ -1254,7 +1254,7 @@ export class ExistingClient extends InsureViewBase {
 
 	/**
 	 * Unload Audit Transactions
-	 * @returns {null} null
+	 * @returns {void}
 	 */
 	_unloadAuditTransactionHistory() {
 		this.auditTransactionHistory = {};
@@ -1262,9 +1262,9 @@ export class ExistingClient extends InsureViewBase {
 
 	/**
 	 * Unload Policy Transactions
-	 * @returns {null} null
+	 * @returns {void}
 	  */
-	_undoClientPolicies() {
+	_unloadClientPolicies() {
 		if (this.clientPolicies?.summaryDetails?.policies !== null) {
 			this.clientPolicies.summaryDetails.policies.forEach(item => {
 				item.isExpanded = false;
@@ -1327,7 +1327,6 @@ export class ExistingClient extends InsureViewBase {
 
 	/**
 	 * Main render switch for Insure views
-	 *
 	 * @returns {html} Component html based on current render mode.
 	 */
 	_renderLandingPage() {
@@ -1366,11 +1365,11 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
-	 * Render Landing page for Insure existing clients
+	 * Render Landing page for Insure Client Summary
+	 * Collapse all expanders
 	 * @return {html} Html of the sub view
 	 */
 	_renderClientPoliciesPage() {
-
 		if (this.clientPolicies?.summaryDetails?.policies !== null && this.clientPolicies?.summaryDetails?.policies !== undefined) {
 			this.clientPolicies.summaryDetails.policies.forEach(item => {
 				item.isExpanded = false;
@@ -1384,18 +1383,18 @@ export class ExistingClient extends InsureViewBase {
 				.cancelPolicyDocumentDetails="${this.cancelPolicyDocumentDetails}" 
 				.accountDetails="${this.accountDetails}"
 				.arrearsPaymentDocumentDetails="${this.arrearsPaymentDocumentDetails}"
-				@navigate-to-estimate="${(e) => this._goToPolicyEstimate()}"
+				.getCancelPolicyDocument="${(contractReference, cancelReason, saveToDocumentum) => this._getCancelPolicyDocument(contractReference, cancelReason, saveToDocumentum)}"
+				.getArrearsPaymentDocument="${(contractReference, payArrears, fromAccount, saveToDocumentum) => this._getArrearsPaymentDocument(contractReference, payArrears, fromAccount, saveToDocumentum)}"
+				@product-enquiry="${() => this._productEnquiry()}"
+				@pay-policy="${(e) => this._payPolicy(e)}"
+				@cancel-policy="${(e) => this._cancelPolicy(e)}"
+				@navigate-to-estimate="${() => this._goToPolicyEstimate()}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan(e)}"
-				@navigate-to-pay-premium-success="${(e) => this._payPolicy(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
-				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
-				@navigate-to-audit-transaction-history="${(e) => this._goToAuditTransactionHistory(e)}"
-				@navigate-to-cancel-policy-success="${(e) => this._cancelPolicy(e)}"
 				@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}"
-				.getCancelPolicyDocument="${(contractReference, cancelReason, saveToDocumentum) => this._cancelPolicyAgreement(contractReference, cancelReason, saveToDocumentum)}"
+				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
 				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}"
-				.getArrearsPaymentDocument="${(contractReference, payArrears, fromAccount, saveToDocumentum) => this._arrearsPaymentInstruction(contractReference, payArrears, fromAccount, saveToDocumentum)}"
-				@product-enquiry="${() => this._productEnquiry()}">
+				@navigate-to-audit-transaction-history="${(e) => this._goToAuditTransactionHistory(e)}">
 			</horizon-insure-client-policies>`;
 	}
 
@@ -1439,7 +1438,7 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-policy-summary .policyDetails="${this.policyDetails}"
 				@navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-				@navigate-to-update-plan="${(e) => this._goToUpdatePlan(e)}" @unloading="${() => this._undoClientPolicies()}">
+				@navigate-to-update-plan="${(e) => this._goToUpdatePlan(e)}" @unloading="${() => this._unloadClientPolicies()}">
 			</horizon-insure-policy-summary>`;
 	}
 
