@@ -40,7 +40,8 @@ class PayPremiumConfirmationDialog extends Component {
 		return {
 
 			amountToPay: { type: Number, state: true },
-			contractReference: { type: Object, state: true }
+			contractReference: { type: Object, state: true },
+			fromAccount: { type: String, state: true }
 		};
 	}
 
@@ -110,7 +111,7 @@ class PayPremiumConfirmationDialog extends Component {
 		return html`
 			
 			<div>
-				<capitec-label label="Pay ${formatCurrency(this.amountToPay)} to funeral plan number ${this.contractReference}" type="subtitle"></capitec-label>
+				<capitec-label label="Pay ${formatCurrency(this.amountToPay)} to funeral plan ${this.contractReference} from savings account ${this.fromAccount}" type="subtitle"></capitec-label>
 			</div>
 
 

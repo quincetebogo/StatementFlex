@@ -66,7 +66,7 @@ class PayPremiumAgreementDialog extends Component {
 	// #region PRIVATE METHODS
 
 	_initialise() {
-		// this._getDocument();
+		this._getDocument();
 		
 	}
 
@@ -93,6 +93,12 @@ class PayPremiumAgreementDialog extends Component {
 	 */
 	_onAgreeClick() {
 		this.dispatchEvent(new CustomEvent(`pay-premium-agree`, {}));
+	}
+
+	async _getDocument() {
+
+		await this.getArrearsPaymentDocument(this.contractReference);
+
 	}
 
 	// #endregion
