@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { ClientPoliciesEvents } from 'app/constants/telemetry/events/Insure';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { Status } from 'app/constants/InsureCommon';
@@ -53,7 +54,7 @@ class ClientPolicies extends Component {
 		this.clientPolicies = null;
 		this.clientClaims = null;
 		this.amountToPay = 0;
-		
+
 		this.showSubMenu = true;
 		this.showCancelPolicyDialog = false;
 		this.showEmailPlanDialog = false;
@@ -64,6 +65,7 @@ class ClientPolicies extends Component {
 		this.showLodgeClaimInfoDialog = false;
 
 		this._telemetry = HorizonTelemetry.getInstance();
+		this.telemetryEvents = {};
 	}
 
 	// #endregion INITIALISATION
@@ -112,10 +114,10 @@ class ClientPolicies extends Component {
 			contractReferenceToCancel: { type: String, state: true },
 			getCancelPolicyDocument: { type: Object, state: true },
 			cancelPolicyDocumentDetails: { type: Object, state: true },
-			
+
 			readOnlyMode: { type: Boolean, state: true },
 			showSubMenu: { type: Boolean, state: true },
-			
+
 			showCancelPolicyDialog: { type: Boolean, state: true },
 			showEmailPlanDialog: { type: Boolean, state: true },
 			showCancelPolicyConfirmationDialog: { type: Boolean, state: true },
@@ -136,7 +138,12 @@ class ClientPolicies extends Component {
 	 */
 	async connectedCallback() {
 		super.connectedCallback();
-		await this._telemetry.startSpan(this.telemetryEvent.TRANSACTION_HISTORY, {});
+		this.telemetryEvents = ClientPoliciesEvents;
+		await this._telemetry.startSpan(this.telemetryEvents.CLIENT_POLICIES, {});
+	}
+
+	async disconnectedCallback() {
+		await this._telemetry.endSpan(this.telemetryEvents.CLIENT_POLICIES, {});
 	}
 
 	// #endregion LIFECYCLE OVERRIDES
@@ -148,7 +155,7 @@ class ClientPolicies extends Component {
 	 * @returns {void}
 	 */
 	_goToEstimate() {
-		this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_SCROLL_TOP, {});
+		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_GET_ESTIMATE, {});
 		this.dispatchEvent(new CustomEvent(`navigate-to-estimate`));
 	}
 
@@ -158,6 +165,7 @@ class ClientPolicies extends Component {
 	 * @returns {void}
 	 */
 	_goToClaimSummary(e) {
+		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_CLAIM_DETAILS, {});
 		this.dispatchEvent(new CustomEvent(`navigate-to-claim-summary`, { detail: e.detail }));
 	}
 
@@ -168,6 +176,7 @@ class ClientPolicies extends Component {
 	 * @returns {void}
 	 */
 	_goToUpdatePlan(contractReference, canReinstate) {
+		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_UPDATE_PLAN, {});
 		this.dispatchEvent(new CustomEvent(`navigate-to-update-plan`, {
 			detail: {
 				policyContractReference: contractReference, canReinstate: canReinstate
@@ -181,6 +190,7 @@ class ClientPolicies extends Component {
 	 * @returns {void}
 	 */
 	_goToPolicySummary(contractReference) {
+		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_POLICY_DETAILS, {});
 		this.dispatchEvent(new CustomEvent(`navigate-to-policy-summary`, {
 			detail: { policyContractReference: contractReference }
 		}));
@@ -192,6 +202,7 @@ class ClientPolicies extends Component {
 	 * @returns {void}
 	 */
 	_goToPolicyTransactionHistory(policyItem) {
+		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_TRANSACTION_HISTORY, {});
 		this.dispatchEvent(new CustomEvent(`navigate-to-policy-transaction-history`, {
 			detail: {
 				policyNumber: policyItem.contractReference,
@@ -208,6 +219,7 @@ class ClientPolicies extends Component {
 	 * @returns {void}
 	 */
 	_goToAuditTransactionHistory(contractReference) {
+		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_AUDIT_TRANSACTION_HISTORY, {});
 		this.dispatchEvent(new CustomEvent(`navigate-to-audit-transaction-history`, {
 			detail: { policyNumber: contractReference }
 		}));
@@ -247,6 +259,7 @@ class ClientPolicies extends Component {
 	 * @returns {void} 
 	 */
 	_openCancelPolicyDialog(contractReference) {
+		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_CANCEL_POLICY, {});
 		this.contractReferenceToCancel = contractReference;
 		this.showCancelPolicyDialog = true;
 	}
@@ -291,6 +304,7 @@ class ClientPolicies extends Component {
 	 * @returns {void}
 	 */
 	_openPayPremiumDialog(policyItem) {
+		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_PAY_POLICY, {});
 		this.clientArrears = {
 			contractReference: policyItem.contractReference,
 			arrears: policyItem.arrearDetails?.arrears
@@ -443,11 +457,6 @@ class ClientPolicies extends Component {
 				border-top-right-radius: 5px;
 			}
 			capitec-tab-group {
-				/*--theme-tab-tab-bar-background-color: linear-gradient(315deg, #70838C 0%, #667F8C 47.52%, #41525B 100%);
-				--theme-tab-hover-background-color: transparent;
-				--theme-tab-selected-indicator-color: #FFFFFF;
-				--theme-tab-selected-font-color: #FFFFFF;
-				--theme-tab-font-color: #FFFFFF;*/
 				--theme-tab-indicator-border-radius: 0px;
 				--theme-tab-border-bottom: 0px;
 				--theme-tab-font-weight: 400;
