@@ -1412,7 +1412,6 @@ export class ExistingClient extends InsureViewBase {
 				.mainLifeDefaultGender="${this._getMainLifeGender()}"
 				.maxAllowedCover="${this.clientPolicies.checkInsuranceDetails[0].maxAllowedCover}"
 				@calculate="${(e) => this._calculateClientEstimate(e)}"
-				@print-estimate ="${(e) => this._printClientEstimate(e)}"
 				@send-email = "${(e) => this._sendEmail(e)}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-policy-estimate>`;

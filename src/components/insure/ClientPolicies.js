@@ -84,7 +84,7 @@ class ClientPolicies extends Component {
 	 * @property {String} contractReferenceToCancel Selected contract reference for cancel action
 	 * @property {Function} getCancelPolicyDocument Callback function to fetch Cancel Policy Agreement
 	 * @property {Object} cancelPolicyDocumentDetails cancel document
-	 * @property {Object} readOnlyMode toggle to disable actions based on rules
+	 * @property {boolean} readOnlyMode toggle to disable actions based on rules
 	 * @property {boolean} showSubMenu Determines if the sub menu to be shown or not
 	 * @property {boolean} showCancelPolicyDialog Determines if the Cancel Policy dialog should be shown
 	 * @property {boolean} showEmailPlanDialog Determines if the Email Plan dialog should be shown
@@ -116,7 +116,6 @@ class ClientPolicies extends Component {
 
 			readOnlyMode: { type: Boolean, state: true },
 			showSubMenu: { type: Boolean, state: true },
-
 			showCancelPolicyDialog: { type: Boolean, state: true },
 			showEmailPlanDialog: { type: Boolean, state: true },
 			showCancelPolicyConfirmationDialog: { type: Boolean, state: true },
