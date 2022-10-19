@@ -1,8 +1,9 @@
 import { Component, css, html } from 'platform/elements';
 import { GENDER_OPTIONS, INSURE_CALLER_PAGE, ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
 import { formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
-import { INSURE_RENDER_MODE } from '../../views/insure/InsureRenderModes';
+import { PolicyEstimateEvents } from 'app/constants/telemetry/events/Insure';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 
@@ -20,8 +21,10 @@ const AGE_ERROR_MESSAGE = `Age is not valid`;
  * 
  * Events Raised 
  * -------------
- * navigate-back
+ * 
  * calculate
+ * send-email
+ * navigate-back 
  *  
  * @export
  * @class PolicyEstimate
@@ -34,12 +37,15 @@ class PolicyEstimate extends Component {
 	constructor() {
 		super();
 		this.genderOptions = GENDER_OPTIONS;
-		this.showAddLifeDialog = false;
 
+		this.titleMessage = ``;
 		this.printEstimateDocumentContent = ``;
+		this.showAddLifeDialog = false;
 		this.showPrintEstimateDialog = false;
 		this.showEmailPlanDialog = false;
-		this.titleMessage = ``;
+
+		this._telemetry = HorizonTelemetry.getInstance();
+		this.telemetryEvents = {};
 	}
 
 	//  #endregion

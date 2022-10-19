@@ -1,11 +1,12 @@
 /**
  * The event names to use when logging Insure telemetry events.
  * This correspond to the `Action` and `eventName` columns in the Data Spec.
- * 
- * @readonly
- * @enum {String} ClientPoliciesEvents
  */
 
+/**
+* @readonly
+* @enum {String} ClientPoliciesEvents
+*/
 export const ClientPoliciesEvents = {
 	CLIENT_POLICIES: `call.fulfill-need.insure.client-policies`,
 	CLIENT_POLICIES_GET_ESTIMATE: `call.fulfill-need.insure.client-policies?`,
@@ -17,5 +18,16 @@ export const ClientPoliciesEvents = {
 	CLIENT_POLICIES_CANCEL_POLICY: `call.fulfill-need.insure.client-policies?`,
 	CLIENT_POLICIES_TRANSACTION_HISTORY: `call.fulfill-need.insure.client-policies?`,
 	CLIENT_POLICIES_AUDIT_TRANSACTION_HISTORY: `call.fulfill-need.insure.client-policies?`,
-	CLIENT_POLICIES_REINSTATE_PLAN: `call.fulfill-need.insure.client-policies?`
+	CLIENT_POLICIES_REINSTATE_PLAN: `call.fulfill-need.insure.client-policies?`,
+	CLIENT_POLICIES_SMS_HISTORY: `call.fulfill-need.insure.client-policies?`
+};
+
+
+/**
+* @readonly
+* @enum {String} PolicyEstimateEvents
+*/
+export const PolicyEstimateEvents = {
+	ESTIMATE_CALCULATE: `call.fulfill-need.insure.estimate`,
+	ESTIMATE_CALCULATE: `call.fulfill-need.insure.estimate`
 };

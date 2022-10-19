@@ -1404,12 +1404,17 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderCalculateEstimatePage() {
 		return html`
-			<horizon-insure-policy-estimate @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-				@calculate="${(e) => this._calculateClientEstimate(e)}" .estimate="${this.estimate}"
-				.printEstimate="${(e) => this._printEstimate(e)}" @send-email = "${(e) => this._sendEmail(e)}"
-				.productParams="${this.productParams}" .mainLifeDefaultAge="${this._getMainLifeAge()}"
-				.mainLifeDefaultGender="${this._getMainLifeGender()}" @print-estimate ="${(e) => this._printClientEstimate(e)}"
-				.maxAllowedCover="${this.clientPolicies.checkInsuranceDetails[0].maxAllowedCover}">
+			<horizon-insure-policy-estimate 
+				.estimate="${this.estimate}"
+				.printEstimate="${(e) => this._printEstimate(e)}" 
+				.productParams="${this.productParams}" 
+				.mainLifeDefaultAge="${this._getMainLifeAge()}"
+				.mainLifeDefaultGender="${this._getMainLifeGender()}"
+				.maxAllowedCover="${this.clientPolicies.checkInsuranceDetails[0].maxAllowedCover}"
+				@calculate="${(e) => this._calculateClientEstimate(e)}"
+				@print-estimate ="${(e) => this._printClientEstimate(e)}"
+				@send-email = "${(e) => this._sendEmail(e)}"
+				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-policy-estimate>`;
 	}
 

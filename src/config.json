@@ -220,11 +220,11 @@
 			"positiveCase": true
 		},
 		"insureClientPolicies": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureProductParams": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureCalculateQuote": {
@@ -308,7 +308,7 @@
 			"positiveCase": true
 		},
 		"insureGenerateAgreement": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureReinstateQuoteCalc": {
@@ -324,7 +324,7 @@
 			"positiveCase": true
 		},
 		"insureCancelPolicy": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insurePolicyPay": {

@@ -16,7 +16,6 @@ import 'app/components/dialogs/insure/PayPremiumAgreementDialog';
 import 'app/components/dialogs/insure/LodgeClaimInfoDialog';
 import 'app/components/dialogs/insure/CancelPolicyDialog';
 import 'app/components/dialogs/insure/EmailPlanDialog';
-import 'app/components/dialogs/insure/CancelPolicyConfirmationDialog';
 
 import 'app/components/insure/ClaimsList';
 
@@ -250,6 +249,7 @@ class ClientPolicies extends Component {
 	 * Fire navigate to SMS History
 	 */
 	_goToSMSHistory(policyNumber) {
+		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_SMS_HISTORY, {});
 		this.dispatchEvent(new CustomEvent(`navigate-to-sms-history`, { detail: { policyNumber: policyNumber } }));
 	}
 
@@ -262,16 +262,6 @@ class ClientPolicies extends Component {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_CANCEL_POLICY, {});
 		this.contractReferenceToCancel = contractReference;
 		this.showCancelPolicyDialog = true;
-	}
-
-	/**
-	 * event to open the cancel policy confirmation dialog
-	 * @param {string} contractReference contract reference
-	 * @returns {void}
-	 */
-	_openCancelPolicyConfirmationDialog(contractReference) {
-		this.contractReferenceToCancel = contractReference;
-		this.showCancelPolicyConfirmationDialog = true;
 	}
 
 	/**
@@ -646,7 +636,6 @@ class ClientPolicies extends Component {
 			${this._renderLodgeClaimInfoDialog()}
 			${this._renderError()}
 			${this._renderCancelPolicyDialog()}
-			${this._renderCancelPolicyConfirmationDialog()}
 		`;
 	}
 
@@ -952,21 +941,6 @@ class ClientPolicies extends Component {
 			@agree="${(e) => this._cancelPolicyAgree(e)}" >
 		</insure-cancel-policy-dialog>`;
 	}
-
-
-	/**
-	 * Render the Cancel Policy confirmation Dialog
-	 * @returns {html} html content
-	 */
-	_renderCancelPolicyConfirmationDialog() {
-		return this.showCancelPolicyConfirmationDialog === false ? ``
-			: html`
-		<insure-cancel-policy-confirmation-dialog 
-			@close-modal="${() => this.showCancelPolicyConfirmationDialog = false}"
-			@confirm="${this._openCancelPolicyDialog}">
-		</insure-cancel-policy-confirmation-dialog>`;
-	}
-
 
 	/**
 	 * Render Pay Premium Dialog 
