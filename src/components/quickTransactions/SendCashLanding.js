@@ -414,14 +414,17 @@ export class SendCashLanding extends Component {
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-line-height: 20px;
 				}
-				horizon-label[value="REDEEMABLE"] {
+				horizon-label[value="Redeemable"] {
 					--horizon-label-value-color: #70AF00;
 				}
-				horizon-label[value="ON HOLD"] {
+				horizon-label[value="On Hold"] {
 					--horizon-label-value-color: #C83B37;
 				}
-				horizon-label[value="REDEMPTION AUTHORISED"] {
+				horizon-label[value="Redemption Authorised"] {
 					--horizon-label-value-color: #D4781C;
+				}
+				horizon-label[value="Partial Redeemed"] {
+					--horizon-label-value-color: #909090;
 				}
 				.sent-from-label {
 					width: 170px;
@@ -673,7 +676,7 @@ export class SendCashLanding extends Component {
 							<horizon-label
 								class="status-label"
 								label="Status"
-								value="${item.voucherStatus}">
+								value="${formatStringAsPascalCase(item.voucherStatus)}">
 							</horizon-label>
 					</capitec-group>
 					<div slot="content">
