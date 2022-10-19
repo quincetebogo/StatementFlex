@@ -78,6 +78,10 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"searchCaller": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"favouritesLanding": {
 			"enabled": false,
 			"positiveCase": true
@@ -100,6 +104,10 @@
 			"positiveCase": true
 		},
 		"verifyKBA": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"loadKBA": {
 			"enabled": true,
 			"positiveCase": true
 		},

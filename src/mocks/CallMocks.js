@@ -130,5 +130,56 @@ export const searchCallerList =
 			"middleName3": ``,
 			"initials": `M`,
 			"profilePhoto": ``
-		}
+		},
+		{
+            "name": `Mr EMIHLE TEST`,
+            "southAfricanIDNumber": `8002122984667`,
+            "verifiedTelephoneNumber": `0711111111`,
+            "livesIn": `MOKOPANE`,
+            "languagePreference": `ENGLISH`,
+            "birthdate": `Monday, 15 January 1989`,
+            "cifNumber": `370770498`,
+            "title": `Mr`,
+            "firstName": `Demo`,
+            "lastName": `Client`,
+            "middleName1": ``,
+            "middleName2": ``,
+            "middleName3": ``,
+            "initials": `D`,
+            "profilePhoto": ``
+        },
+		{
+            "name": `Mr Sam John`,
+            "southAfricanIDNumber": `6310177144182`,
+            "verifiedTelephoneNumber": `0711111111`,
+            "livesIn": `MOKOPANE`,
+            "languagePreference": `ENGLISH`,
+            "birthdate": `Monday, 17 October 1963`,
+            "cifNumber": `371050707`,
+            "title": `Mr`,
+            "firstName": `Demo`,
+            "lastName": `Client`,
+            "middleName1": ``,
+            "middleName2": ``,
+            "middleName3": ``,
+            "initials": `D`,
+            "profilePhoto": ``
+        },
+		{
+            "name": `Mr Sam John`,
+            "southAfricanIDNumber": `6705139764185`,
+            "verifiedTelephoneNumber": `872906220`,
+            "livesIn": `MOKOPANE`,
+            "languagePreference": `ENGLISH`,
+            "birthdate": `Monday, 13 May 1967`,
+            "cifNumber": `371051134`,
+            "title": `Mr`,
+            "firstName": `Demo`,
+            "lastName": `Client`,
+            "middleName1": ``,
+            "middleName2": ``,
+            "middleName3": ``,
+            "initials": `D`,
+            "profilePhoto": ``
+        }
 	];
