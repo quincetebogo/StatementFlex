@@ -1504,10 +1504,14 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderTooltipLabel(name, value) {
+		let stylings = TABLE_EXPANDER_CELL.firstcolumn;
+		if (name === `Long Description`) {
+			stylings = TABLE_EXPANDER_CELL.expanderColumns;
+		}
 		return html`
 			<capitec-group 
 				data-automation-id="transaction-history-item-description"
-				style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn).toString()}"
+				style="${unsafeCSS(stylings).toString()}"
 				layout="vertical" 
 				gap="none" 
 				halign="left" 
