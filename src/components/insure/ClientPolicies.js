@@ -141,6 +141,7 @@ class ClientPolicies extends Component {
 	}
 
 	async disconnectedCallback() {
+		super.disconnectedCallback();
 		await this._telemetry.endSpan(this.telemetryEvents.CLIENT_POLICIES, {});
 	}
 

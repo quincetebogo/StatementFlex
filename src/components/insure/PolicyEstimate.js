@@ -99,6 +99,7 @@ class PolicyEstimate extends Component {
 	}
 
 	async disconnectedCallback() {
+		super.disconnectedCallback();
 		await this._telemetry.endSpan(this.telemetryEvents.ESTIMATE, {});
 	}
 
@@ -121,15 +122,14 @@ class PolicyEstimate extends Component {
 	 * 3. Reset total premium values
 	 * 
 	 * @param {number} printOrCalculate print or calculate
-	 * @returns {null} null
-	 * 
+	 * @returns {void}
 	 */
 	async _calculateEstimate(printOrCalculate) {
 		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_REMOVE_LIVE, {
 			"screen": TelemetryScreen.INSURE_ESTIMATE,
 			"next-screen": null
 		});
-		
+
 		let isValid = true;
 
 		// Validate
@@ -179,7 +179,7 @@ class PolicyEstimate extends Component {
 	 * Receives relationship & cover details from dialog, and sets default values for the remaining properties.
 	 * Closes dialog when finished.
 	 * @param {Event} event Contains coverDetails & relationship from Add Life dialog
-	 * @return {null} null
+	 * @return {void}
 	 */
 	_addLife(event) {
 		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_ADD_LIFE_DIALOG, {
@@ -203,7 +203,7 @@ class PolicyEstimate extends Component {
 	/**
 	 * Click event from remove button on life list
 	 * @param {Object} lifeToRemove Live object at index that was clicked
-	 * @returns {null} null
+	 * @returns {void}
 	 */
 	_removeLife(lifeToRemove) {
 		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_REMOVE_LIVE, {
@@ -226,7 +226,7 @@ class PolicyEstimate extends Component {
 	 * Refresh error messages for Age & Cover amount
 	 * @param {event} event Contains the new value for coverAmount
 	 * @param {number} index Index of the life that changed
-	 * @returns {null} null
+	 * @returns {void}
 	 */
 	_coverAmountChanged(event, index) {
 		if (event.detail.old !== event.detail.new) {
@@ -253,7 +253,7 @@ class PolicyEstimate extends Component {
 	 * Refresh error messages for Age & Cover amount
 	 * @param {event} event Contains the new value for age
 	 * @param {number} index Index of the life that changed
-	 * @returns {null} null
+	 * @returns {void}
 	 */
 	_ageChanged(event, index) {
 		if (event.detail.old !== event.detail.new) {
@@ -282,7 +282,7 @@ class PolicyEstimate extends Component {
 	 * Event fired when an estimate life assured GENDER value changes
 	 * @param {event} event Contains the new value for gender
 	 * @param {number} index Index of the life that changed
-	 * @returns {null} null
+	 * @returns {void}
 	 */
 	_genderChanged(event, index) {
 		if (event.detail.old !== event.detail.new) {
@@ -294,31 +294,30 @@ class PolicyEstimate extends Component {
 
 	/**
 	 * Event fired when calculate by Premium override input changed
-	 * @param {*} e e
+	 * @param {event} event premium changed event
 	 * @returns {object} Estimate Response
 	 */
-	_totalPremiumChanged(e) {
-		this.newTotalPremium = e.detail.new;
+	_totalPremiumChanged(event) {
+		this.newTotalPremium = event.detail.new;
 	}
 
 	/**
 	 * Invoke this function when Agree button is clicked on Email Estimate Popup
-	 * @returns {null} null
+	 * @returns {void}
 	 */
 	_acceptPrintEstimate() {
 		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_PRINT, {
 			"screen": TelemetryScreen.INSURE_ESTIMATE,
 			"next-screen": null
 		});
-
 		this.showPrintEstimateDialog = false;
 		this.showEmailPlanDialog = true;
 	}
 
 	/**
 	 * Invoke this function when Send button is clicked on Email Popup
-	 * @param {*} emailAddress email address
-	 * @returns {null} null
+	 * @param {string} emailAddress email address
+	 * @returns {void}
 	 */
 	_sendEmail(emailAddress) {
 		this.showEmailPlanDialog = false;
@@ -331,7 +330,7 @@ class PolicyEstimate extends Component {
 
 	/**
 	 * Initialize component when loaded / Add default life to list for calculator and list
-	 * @returns {null} null
+	 * @returns {void}
 	 */
 	_initialise() {
 		this.estimate.lifesAssured = [];
@@ -541,7 +540,7 @@ class PolicyEstimate extends Component {
 	_renderLeftColumn() {
 		return html`
 		<div id="insure-calc-column-left">
-			${this.estimate.lifesAssured.map((lifeAssured, index) => html`
+			${this.estimate.lifesAssured?.map((lifeAssured, index) => html`
 			<div class="calc-card" id=${index !== 0 ? `calc-card-other` : ``}>
 				${index !== 0 ? html`
 				<div class="calc-card-header">
@@ -617,7 +616,7 @@ class PolicyEstimate extends Component {
 						<capitec-label label="Summary of estimated monthly premium:" class="stronger"></capitec-label>
 						<hr>
 			
-						${this.estimate.lifesAssured.map(life => html`
+						${this.estimate.lifesAssured?.map(life => html`
 						<div class="calc-life-list">
 							<capitec-label label="${formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[life.relationship?.toUpperCase()])}" data-automation-id="insure-estimate-list-relationship">
 							</capitec-label>
@@ -676,7 +675,7 @@ class PolicyEstimate extends Component {
 
 	/** 
 	 * Render dialog for confirming email address then sending
-	 * @returns {null} null
+	 * @returns {void}
 	 */
 	_renderInsureEmailDialog() {
 		return this.showEmailPlanDialog === false ? ``
