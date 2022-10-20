@@ -125,7 +125,7 @@ class PolicyEstimate extends Component {
 	 * 
 	 */
 	async _calculateEstimate(printOrCalculate) {
-		this.telemetry.logEvent(telemetryEvents.ESTIMATE_CALCULATE, {
+		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_REMOVE_LIVE, {
 			"screen": TelemetryScreen.INSURE_ESTIMATE,
 			"next-screen": null
 		});
@@ -182,7 +182,7 @@ class PolicyEstimate extends Component {
 	 * @return {null} null
 	 */
 	_addLife(event) {
-		this.telemetry.logEvent(telemetryEvents.ESTIMATE_ADD_LIFE_DIALOG, {
+		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_ADD_LIFE_DIALOG, {
 			"screen": TelemetryScreen.INSURE_ESTIMATE,
 			"next-screen": null
 		});
@@ -206,8 +206,12 @@ class PolicyEstimate extends Component {
 	 * @returns {null} null
 	 */
 	_removeLife(lifeToRemove) {
-		const indexOfObject = this.estimate.lifesAssured.findIndex(object => object.rowID === lifeToRemove.rowID);
+		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_REMOVE_LIVE, {
+			"screen": TelemetryScreen.INSURE_ESTIMATE,
+			"next-screen": null
+		});
 
+		const indexOfObject = this.estimate.lifesAssured.findIndex(object => object.rowID === lifeToRemove.rowID);
 		this.estimate.lifesAssured.splice(indexOfObject, 1);
 		for (let index = 0; index < this.estimate.lifesAssured.length; index++) {
 			this.estimate.lifesAssured[index].rowID = index;
@@ -302,6 +306,11 @@ class PolicyEstimate extends Component {
 	 * @returns {null} null
 	 */
 	_acceptPrintEstimate() {
+		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_PRINT, {
+			"screen": TelemetryScreen.INSURE_ESTIMATE,
+			"next-screen": null
+		});
+
 		this.showPrintEstimateDialog = false;
 		this.showEmailPlanDialog = true;
 	}

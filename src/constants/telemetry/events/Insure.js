@@ -32,4 +32,5 @@ export const PolicyEstimateEvents = {
 	ESTIMATE_CALCULATE: `call.fulfill-need.insure.estimate`,
 	ESTIMATE_PRINT: `call.fulfill-need.insure.estimate`,
 	ESTIMATE_ADD_LIFE_DIALOG: `call.fulfill-need.insure.estimate`,
+	ESTIMATE_REMOVE_LIVE: `call.fulfill-need.insure.estimate`
 };
