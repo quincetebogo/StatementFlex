@@ -1,8 +1,10 @@
 import { Component, css, html } from 'platform/elements';
 import { GENDER_OPTIONS, INSURE_CALLER_PAGE, ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
 import { formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
-import { INSURE_RENDER_MODE } from '../../views/insure/InsureRenderModes';
+import { PolicyEstimateEvents } from 'app/constants/telemetry/events/Insure';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 
@@ -11,17 +13,19 @@ import 'app/components/common/HorizonLabel';
 import 'app/components/dialogs/insure/PrintEstimateAgreementDialog';
 import 'app/components/dialogs/insure/InsureEmailDialog';
 
-
 const AGE_ERROR_MESSAGE = `Age is not valid`;
+const AGE_REQUIRED_MESSAGE = `Age is required`;
 
 /**
  * Insure Policy Estimate component that allows cover and premium estimations be made on the fly.
- * Lives can be added AddLiveDialog
+ * Lives can be added AddLifeAssuredDialog
  * 
  * Events Raised 
  * -------------
- * navigate-back
+ * 
  * calculate
+ * send-email
+ * navigate-back 
  *  
  * @export
  * @class PolicyEstimate
@@ -33,13 +37,15 @@ class PolicyEstimate extends Component {
 
 	constructor() {
 		super();
-		this.genderOptions = GENDER_OPTIONS;
-		this.showAddLifeDialog = false;
-
 		this.printEstimateDocumentContent = ``;
+		this.genderOptions = GENDER_OPTIONS;
+
+		this.showAddLifeDialog = false;
 		this.showPrintEstimateDialog = false;
 		this.showEmailPlanDialog = false;
-		this.titleMessage = ``;
+
+		this._telemetry = HorizonTelemetry.getInstance();
+		this.telemetryEvents = {};
 	}
 
 	//  #endregion
@@ -50,14 +56,13 @@ class PolicyEstimate extends Component {
 	 * @property {Object} estimate Data & flags for view & estimate service request
 	 * @property {Object} productParams Data & flags for insure product parameters
 	 * @property {String} newTotalPremium Tied to 'calculate by premium' input and used to track the override
-	 * @property {boolean} showAddLifeDialog Controls when to show the AddLife dialog
-	 * @property {boolean} mainLifeDefaultAge Main life derived age
-	 * @property {boolean} mainLifeDefaultGender Main life derived gender
+	 * @property {Object} printEstimateDocumentContent - document content of Estimate
+	 * @property {Number} mainLifeDefaultAge Main life derived age
+	 * @property {String} mainLifeDefaultGender Main life derived gender
 	 * @property {Number} maxAllowedCover  CheckInsurance limit for remaining cover limit
-	 * @property {string} printEstimateDocumentContent - document content of Estimate
+	 * @property {boolean} showAddLifeDialog Controls when to show the AddLife dialog
 	 * @property {boolean} showPrintEstimateDialog Controls when to show the Email Estimate dialog
 	 * @property {boolean} showEmailPlanDialog - Show flag for email address & send dialog
-	 * @property {String} titleMessage - title fo send email popup.
 	 * 
 	 * @readonly
 	 * @static
@@ -67,14 +72,13 @@ class PolicyEstimate extends Component {
 			estimate: { type: Object, state: true },
 			productParams: { type: Object },
 			newTotalPremium: { type: String, state: true },
-			showAddLifeDialog: { type: Boolean, state: true },
+			printEstimateDocumentContent: { type: Object, state: true },
 			mainLifeDefaultAge: { type: Number, state: true },
 			mainLifeDefaultGender: { type: String, state: true },
 			maxAllowedCover: { type: Number, state: true },
-			printEstimateDocumentContent: { type: String, state: true },
+			showAddLifeDialog: { type: Boolean, state: true },
 			showPrintEstimateDialog: { type: Boolean, state: true },
-			showEmailPlanDialog: { type: Boolean, state: true },
-			titleMessage: { type: String }
+			showEmailPlanDialog: { type: Boolean, state: true }
 		};
 	}
 
@@ -86,9 +90,17 @@ class PolicyEstimate extends Component {
 	 * Setup the component once added to the DOM.
 	 * @returns {void}
 	 */
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
+		this.telemetryEvents = PolicyEstimateEvents;
+		await this._telemetry.startSpan(this.telemetryEvents.ESTIMATE, {});
+
 		this._initialise();
+	}
+
+	async disconnectedCallback() {
+		super.disconnectedCallback();
+		await this._telemetry.endSpan(this.telemetryEvents.ESTIMATE, {});
 	}
 
 	//  #endregion
@@ -97,13 +109,10 @@ class PolicyEstimate extends Component {
 
 	/**
 	 * Navigate to Landing
-	 * @returns {null} null
+	 * @returns {void} 
 	 */
 	_backToSummaryPage() {
-		this.dispatchEvent(new CustomEvent(`navigate-back`, {
-			detail: {
-			}
-		}));
+		this.dispatchEvent(new CustomEvent(`navigate-back`));
 	}
 
 	/**
@@ -112,11 +121,15 @@ class PolicyEstimate extends Component {
 	 * 2. Dispatch event to invoke service
 	 * 3. Reset total premium values
 	 * 
-	 * @param {*} printOrCalculate print or calculate
-	 * @returns {null} null
-	 * 
+	 * @param {number} printOrCalculate print or calculate
+	 * @returns {void}
 	 */
 	async _calculateEstimate(printOrCalculate) {
+		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_REMOVE_LIVE, {
+			"screen": TelemetryScreen.INSURE_ESTIMATE,
+			"next-screen": null
+		});
+
 		let isValid = true;
 
 		// Validate
@@ -126,11 +139,9 @@ class PolicyEstimate extends Component {
 				isValid = false;
 			}
 			if (isNullorEmpty(life.age)) {
-				const ageMessage = `Age is required`;
-				life.coverDetails.ageMessage = ageMessage;
+				life.coverDetails.ageMessage = AGE_REQUIRED_MESSAGE;
 				isValid = false;
 			}
-
 			if (life.age.toString().includes(`.`)) {
 				life.coverDetails.ageMessage = AGE_ERROR_MESSAGE;
 				isValid = false;
@@ -151,16 +162,13 @@ class PolicyEstimate extends Component {
 
 			if (printOrCalculate === 1) {
 				this.dispatchEvent(new CustomEvent(`calculate`, { detail: request }));
-
 				this.estimate.totalPremium = 0;
 				this.newTotalPremium = ``;
 			} else {
 				const printEstimateResponse = await this.printEstimate({ detail: request });
 				this.printEstimateDocumentContent = printEstimateResponse?.result?.documentContent;
-
 				this.showPrintEstimateDialog = true;
 			}
-
 			this.requestUpdate();
 		}
 	}
@@ -171,9 +179,14 @@ class PolicyEstimate extends Component {
 	 * Receives relationship & cover details from dialog, and sets default values for the remaining properties.
 	 * Closes dialog when finished.
 	 * @param {Event} event Contains coverDetails & relationship from Add Life dialog
-	 * @return {null} null
+	 * @return {void}
 	 */
 	_addLife(event) {
+		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_ADD_LIFE_DIALOG, {
+			"screen": TelemetryScreen.INSURE_ESTIMATE,
+			"next-screen": null
+		});
+
 		const life = {
 			relationship: event.detail.relationship,
 			coverAmount: ``,
@@ -190,11 +203,15 @@ class PolicyEstimate extends Component {
 	/**
 	 * Click event from remove button on life list
 	 * @param {Object} lifeToRemove Live object at index that was clicked
-	 * @returns {null} null
+	 * @returns {void}
 	 */
 	_removeLife(lifeToRemove) {
-		const indexOfObject = this.estimate.lifesAssured.findIndex(object => object.rowID === lifeToRemove.rowID);
+		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_REMOVE_LIVE, {
+			"screen": TelemetryScreen.INSURE_ESTIMATE,
+			"next-screen": null
+		});
 
+		const indexOfObject = this.estimate.lifesAssured.findIndex(object => object.rowID === lifeToRemove.rowID);
 		this.estimate.lifesAssured.splice(indexOfObject, 1);
 		for (let index = 0; index < this.estimate.lifesAssured.length; index++) {
 			this.estimate.lifesAssured[index].rowID = index;
@@ -209,7 +226,7 @@ class PolicyEstimate extends Component {
 	 * Refresh error messages for Age & Cover amount
 	 * @param {event} event Contains the new value for coverAmount
 	 * @param {number} index Index of the life that changed
-	 * @returns {null} null
+	 * @returns {void}
 	 */
 	_coverAmountChanged(event, index) {
 		if (event.detail.old !== event.detail.new) {
@@ -236,7 +253,7 @@ class PolicyEstimate extends Component {
 	 * Refresh error messages for Age & Cover amount
 	 * @param {event} event Contains the new value for age
 	 * @param {number} index Index of the life that changed
-	 * @returns {null} null
+	 * @returns {void}
 	 */
 	_ageChanged(event, index) {
 		if (event.detail.old !== event.detail.new) {
@@ -265,7 +282,7 @@ class PolicyEstimate extends Component {
 	 * Event fired when an estimate life assured GENDER value changes
 	 * @param {event} event Contains the new value for gender
 	 * @param {number} index Index of the life that changed
-	 * @returns {null} null
+	 * @returns {void}
 	 */
 	_genderChanged(event, index) {
 		if (event.detail.old !== event.detail.new) {
@@ -276,29 +293,31 @@ class PolicyEstimate extends Component {
 	}
 
 	/**
-	 * @bug OIPA needs to fix this then we can invoke te service
 	 * Event fired when calculate by Premium override input changed
-	 * @param {*} e e
+	 * @param {event} event premium changed event
 	 * @returns {object} Estimate Response
 	 */
-	_totalPremiumChanged(e) {
-		this.newTotalPremium = e.detail.new;
+	_totalPremiumChanged(event) {
+		this.newTotalPremium = event.detail.new;
 	}
 
 	/**
 	 * Invoke this function when Agree button is clicked on Email Estimate Popup
-	 * @returns {null} null
+	 * @returns {void}
 	 */
 	_acceptPrintEstimate() {
-		this.titleMessage = `Email Funeral Plan Estimate`;
+		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_PRINT, {
+			"screen": TelemetryScreen.INSURE_ESTIMATE,
+			"next-screen": null
+		});
 		this.showPrintEstimateDialog = false;
 		this.showEmailPlanDialog = true;
 	}
 
 	/**
 	 * Invoke this function when Send button is clicked on Email Popup
-	 * @param {*} emailAddress email address
-	 * @returns {null} null
+	 * @param {string} emailAddress email address
+	 * @returns {void}
 	 */
 	_sendEmail(emailAddress) {
 		console.log(`Sending Email - 1`);
@@ -312,7 +331,7 @@ class PolicyEstimate extends Component {
 
 	/**
 	 * Initialize component when loaded / Add default life to list for calculator and list
-	 * @returns {null} null
+	 * @returns {void}
 	 */
 	_initialise() {
 		this.estimate.lifesAssured = [];
@@ -522,7 +541,7 @@ class PolicyEstimate extends Component {
 	_renderLeftColumn() {
 		return html`
 		<div id="insure-calc-column-left">
-			${this.estimate.lifesAssured.map((lifeAssured, index) => html`
+			${this.estimate.lifesAssured?.map((lifeAssured, index) => html`
 			<div class="calc-card" id=${index !== 0 ? `calc-card-other` : ``}>
 				${index !== 0 ? html`
 				<div class="calc-card-header">
@@ -598,7 +617,7 @@ class PolicyEstimate extends Component {
 						<capitec-label label="Summary of estimated monthly premium:" class="stronger"></capitec-label>
 						<hr>
 			
-						${this.estimate.lifesAssured.map(life => html`
+						${this.estimate.lifesAssured?.map(life => html`
 						<div class="calc-life-list">
 							<capitec-label label="${formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[life.relationship?.toUpperCase()])}" data-automation-id="insure-estimate-list-relationship">
 							</capitec-label>
@@ -633,9 +652,11 @@ class PolicyEstimate extends Component {
 	_renderAddLifeDialog() {
 		return this.showAddLifeDialog === false ? ``
 			: html`
-			<insure-add-life-dialog @add-new-life="${(e) => this._addLife(e)}"
-				@close-modal="${(e) => this.showAddLifeDialog = false}" .currentLifesAssured="${this.estimate.lifesAssured}"
-				.productParams="${this.productParams}">
+			<insure-add-life-dialog 
+				.currentLifesAssured="${this.estimate.lifesAssured}"
+				.productParams="${this.productParams}"
+				@add-new-life="${(e) => this._addLife(e)}"
+				@close-modal="${() => this.showAddLifeDialog = false}" >
 			</insure-add-life-dialog>`;
 	}
 
@@ -646,23 +667,25 @@ class PolicyEstimate extends Component {
 	_renderPrintEstimateDialog() {
 		return this.showPrintEstimateDialog === false ? ``
 			: html`
-			<print-estimate-agreement-dialog @print-estimate-close-modal = "${() => this.showPrintEstimateDialog = false}"
+			<print-estimate-agreement-dialog 
 				.printEstimateAgreementContent="${this.printEstimateDocumentContent}"
+				@print-estimate-close-modal = "${() => this.showPrintEstimateDialog = false}"
 				@print-estimate-agree-click = "${() => this._acceptPrintEstimate()}">
 			</print-estimate-agreement-dialog>`;
 	}
 
 	/** 
 	 * Render dialog for confirming email address then sending
-	 * @returns {null} null
+	 * @returns {void}
 	 */
 	_renderInsureEmailDialog() {
 		return this.showEmailPlanDialog === false ? ``
 			: html`
-				<insure-email-dialog @close-modal="${(e) => this.showEmailPlanDialog = false}"
-					@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}"
-					.titleMessage = "${this.titleMessage}">
-				</insure-email-dialog>`;
+			<insure-email-dialog 
+				.titleMessage = "${`Email Funeral Plan Estimate`}"
+				@close-modal="${() => this.showEmailPlanDialog = false}"
+				@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}">
+			</insure-email-dialog>`;
 	}
 
 	//  #endregion
@@ -687,4 +710,14 @@ window.customElements.define(`horizon-insure-policy-estimate`, PolicyEstimate);
  *
  * @event PolicyEstimate#calculate
  * @type {Object} - Estimate request
+ */
+
+/**
+ * Send / Print Estimate event
+ *
+ * @example
+ * <horizon-insure-policy-estimate ... @send-email="${this._handler}"></horizon-insure-policy-estimate>
+ *
+ * @event PolicyEstimate#send-email
+ * @type {Object} - Email Request
  */
