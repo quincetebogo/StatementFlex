@@ -75,7 +75,7 @@
 			"positiveCase": true
 		},
 		"searchCaller": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"identifyCaller": {
@@ -320,7 +320,7 @@
 			"positiveCase": true
 		},
 		"insureSendEmail": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureCancelPolicy": {

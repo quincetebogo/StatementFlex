@@ -301,6 +301,7 @@ class PolicyEstimate extends Component {
 	 * @returns {null} null
 	 */
 	_sendEmail(emailAddress) {
+		console.log(`Sending Email - 1`);
 		this.showEmailPlanDialog = false;
 		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.ESTIMATE } }));
 	}

@@ -6,7 +6,7 @@
  */
  export const EMAIL_DOCUMENT_REQUEST_PAYLOAD = {
 	"email": ``,
-	"cIFNumber": ``,
+	"cifNumber": ``,
 	"contractReference": ``,
 	"documentInfo": [
 		{
