@@ -1,14 +1,17 @@
-/* eslint-disable sort-imports */
-import { css, html } from 'platform/elements';
 
+import { ACTIVITY_TYPE_DESCRIPTION, AUDIT_DATE_TYPE_LIST, MAX_RESULTS, NINETY_DAYS } from 'app/constants/InsureTransactionHistory';
+import { DOCUMENT_TYPE, INSURE_CALLER_PAGE, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
+import { EMAIL_DOCUMENT_REQUEST_PAYLOAD, GENERATE_DOCUMENT_REQUEST_PAYLOAD } from 'app/utils/insureRequestPayload';
+import { css, html } from 'platform/elements';
+import { getAgeFromIDNumber, getGenderFromIDNumber } from 'app/utils/insureUtils';
+import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { Configuration } from 'platform/core';
+import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 import { InsureService } from 'app/services/InsureService';
 import { InsureViewBase } from 'app/views/insure/InsureViewBase';
-import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
-import { ACTIVITY_TYPE_DESCRIPTION, AUDIT_DATE_TYPE_LIST, MAX_RESULTS, NINETY_DAYS } from 'app/constants/InsureTransactionHistory';
-import { getAgeFromIDNumber, getGenderFromIDNumber } from 'app/utils/insureUtils';
-import { INSURE_CALLER_PAGE, DOCUMENT_TYPE, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
 import { SavingsService } from 'app/services/SavingsService';
-import { Configuration } from 'platform/core';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/insure/ClientPolicies';
 import 'app/components/insure/PolicyEstimate';
@@ -23,13 +26,6 @@ import 'app/components/insure/UpdatePlanSuccess';
 import 'app/components/insure/SuccessPage';
 import 'app/components/insure/SMSHistory';
 import 'app/components/insure/ClaimSummary';
-
-
-import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { EMAIL_DOCUMENT_REQUEST_PAYLOAD, GENERATE_DOCUMENT_REQUEST_PAYLOAD } from 'app/utils/insureRequestPayload';
-
-import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
 const POLICY_TRANSACTION_HISTORY = {
 	END_DATE: new Date().toISOString().substr(0, 10),
@@ -63,6 +59,7 @@ export class ExistingClient extends InsureViewBase {
 		super();
 		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
+		this.savingsAccountService = new SavingsService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.configuration = Configuration.getInstance();
 
 		this.productParams = {};
@@ -70,6 +67,8 @@ export class ExistingClient extends InsureViewBase {
 		this.auditTransactionHistory = {};
 		this.policyDetails = {};
 		this.estimate = {};
+		this.claims = [];
+		
 		this.contractReference = ``;
 		this.successMessage = ``;
 		this.callerPage = ``;
@@ -77,10 +76,8 @@ export class ExistingClient extends InsureViewBase {
 		this.reinstatePaymentAgreementDocument = {};
 		this.updatePlanAgreementDocument = {};
 		this.updatePaymentAgreementDocument = {};
-		this.savingsAccountService = new SavingsService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 
 		this.readOnly = false;
-		this.claims = [];
 	}
 
 	/**
