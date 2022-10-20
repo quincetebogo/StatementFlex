@@ -536,6 +536,7 @@ class PolicyEstimate extends Component {
 			<div class="calc-card" id=${index !== 0 ? `calc-card-other` : ``}>
 				${index !== 0 ? html`
 				<div class="calc-card-header">
+					
 					<capitec-label data-automation-id="insure-estimate-card-relationship"
 						label="Relationship: ${formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[lifeAssured.relationship?.toUpperCase()])}" type="small" class="stronger">
 					</capitec-label>
