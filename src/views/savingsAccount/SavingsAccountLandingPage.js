@@ -402,7 +402,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			</capitec-table-column>
 			<capitec-table-column
 				label="Description"
-				field="description"
+				field="transTypeDesc"
 				size="410px;">
 			</capitec-table-column>
 			<capitec-table-column
@@ -451,7 +451,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         return html`
 			<capitec-label
 				style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
-				label="Statement description: ${item.description}"
+				label="Statement description: ${item.statementDescription}"
 				data-automation-id="transaction-history-item-description">
 			</capitec-label>
 	
