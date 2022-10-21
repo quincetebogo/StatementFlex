@@ -18,6 +18,7 @@ import 'app/components/dialogs/insure/AddBeneficiaryDialog';
 import 'app/components/dialogs/insure/UpdatePlanAgreementDialog';
 import 'app/components/dialogs/insure/ReinstatePolicyAgreementDialog';
 import 'app/components/dialogs/insure/InsureConfirmationDialog';
+import 'app/components/dialogs/insure/UpdateValidationDialog';
 
 // Other
 import 'app/components/common/HorizonLabel';
@@ -96,6 +97,7 @@ class UpdatePlan extends Component {
 		this.accountNumErrorMsg = ``;
 		this.branchCodeErrorMsg = ``;
 		this.disclosureValidationMessage = {};
+		this.showUpdateValidationDialog = false;
 
 	}
 
@@ -171,7 +173,8 @@ class UpdatePlan extends Component {
 			maxAllowedCover: { type: Number, state: true },
 			accountNumErrorMsg: { type: String, state: true },
 			branchCodeErrorMsg: { type: String, state: true },
-			disclosureValidationMessage: { type: Object, state: true }
+			disclosureValidationMessage: { type: Object, state: true },
+			showUpdateValidationDialog: { type: Boolean, state: true }
 		};
 	}
 
@@ -373,6 +376,16 @@ class UpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.recordID === recordId) {
 					this.policyDetails.roleplayers[index].title = event.detail.new.code;
+					
+					if (rolePlayer.beneficiary === true) {
+						if (!isNullorEmpty(rolePlayer.title)) {
+							rolePlayer.coverDetails.titleErrorMessage = ``;
+						}
+					} else if (rolePlayer.lifeAssured === true) {
+						if (!isNullorEmpty(rolePlayer.title)) {
+							rolePlayer.coverDetails.titleErrorMessageLA = ``;
+						}
+					}
 				}
 			});
 		}
@@ -390,6 +403,12 @@ class UpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.recordID === recordId) {
 					this.policyDetails.roleplayers[index].genderType = event.detail.new.code;
+					
+					if (rolePlayer.lifeAssured === true) {
+						if (!isNullorEmpty(rolePlayer.gender)) {
+							rolePlayer.coverDetails.genderErrorMessageLA = ``;
+						}
+					}
 				}
 			});
 		}
@@ -406,6 +425,13 @@ class UpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.recordID === recordId) {
 					this.policyDetails.roleplayers[index].firstName = event.detail.new;
+
+					if (isNullorEmpty(event.detail.new)) {
+						rolePlayer.coverDetails.firstNameErrorMessage = `First name is a required field`;
+					} else {
+						rolePlayer.coverDetails.firstNameErrorMessage = ``;
+					}
+
 				}
 			});
 		}
@@ -424,6 +450,13 @@ class UpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.recordID === recordId) {
 					this.policyDetails.roleplayers[index].surname = event.detail.new;
+
+					if (isNullorEmpty(event.detail.new)) {
+						rolePlayer.coverDetails.surnameErrorMessage = `Surname is a required field`;
+					} else {
+						rolePlayer.coverDetails.surnameErrorMessage = ``;
+					}
+
 				}
 			});
 		}
@@ -458,6 +491,28 @@ class UpdatePlan extends Component {
 				if (rolePlayer.recordID === recordId) {
 					this.policyDetails.roleplayers[index].idNumber = event.detail.new;
 					if (this.policyDetails.roleplayers[index].idNumber.length === 13) {
+						const birthYear = rolePlayer.idNumber.substring(0, 2);
+						const fullCurrentYear = new Date().getFullYear();
+						const currentYear = fullCurrentYear.toString().substring(2);
+
+						if (parseInt(birthYear, 10) >= 0 && parseInt(birthYear, 10) <= parseInt(currentYear, 10)) {
+							rolePlayer.coverDetails.disableDoB = false;
+						} else {
+							rolePlayer.coverDetails.disableDoB = true;
+						}
+
+						// validations
+						if (rolePlayer.beneficiary === true) {
+							if (!isNullorEmpty(rolePlayer.idNumber)) {
+								rolePlayer.coverDetails.idNumberErrorMessage = ``;
+							}
+						} else if (rolePlayer.lifeAssured === true) {
+							if (!isNullorEmpty(rolePlayer.idNumber)) {
+								rolePlayer.coverDetails.idErrorMessageLA = ``;
+							}
+						}
+
+
 						const dateOfBirth = this._setDOB(this.policyDetails.roleplayers[index].idNumber);
 						if (!isNullorEmpty(dateOfBirth)) {
 							this.policyDetails.roleplayers[index].dateOfBirth = dateOfBirth;
@@ -542,6 +597,10 @@ class UpdatePlan extends Component {
 
 					this.policyDetails.roleplayers[index].benefitPayout = event.detail.new;
 
+					if (!isNullorEmpty(rolePlayer.benefitPayout)) {
+						rolePlayer.coverDetails.benefitPayoutErrorMessage = ``;
+					}
+
 					const payoutAmountsMatch = this._isPayoutAmountValid();
 					if (payoutAmountsMatch === false) {
 						this.policyDetails.roleplayers[index].benefitPayoutErrorMessage = `Beneficiary payout amount(s) does not match total`;
@@ -549,7 +608,7 @@ class UpdatePlan extends Component {
 
 						for (let indx = 0; indx < this.policyDetails.roleplayers.length; indx++) {
 							if (this.policyDetails.roleplayers[indx].beneficiary === true) {
-								this.policyDetails.roleplayers[indx].benefitPayoutErrorMessage = ``;
+								this.policyDetails.roleplayers[indx].coverDetails.benefitPayoutErrorMessage = ``;
 							}
 						}
 					}
@@ -682,11 +741,10 @@ class UpdatePlan extends Component {
 
 			this.newTotalPremium = ``;
 		} else {
-			// Tell user about issues
-			alert(`Shit broken Yo`);
+			this.showUpdateValidationDialog = true;
 		}
 
-		console.log(`DONE WITH CALC - FFS: `, JSON.stringify(this.policyDetails));
+		// console.log(`DONE WITH CALC `, JSON.stringify(this.policyDetails));
 		this.requestUpdate();
 	}
 
@@ -702,6 +760,14 @@ class UpdatePlan extends Component {
 			if (ele.firstName === `` || ele.surname === ``) {
 				canSubmit = false;
 			}
+			 
+			// title check
+			if (ele.lifeAssured === true) {
+				if (isNullorEmpty(ele.title)) {
+					canUpdate = false;
+					ele.coverDetails.titleErrorMessageLA = `Title is a required field`;
+				}
+			}
 
 			// LA Checks
 			if (ele.lifeAssured === true) {
@@ -710,17 +776,28 @@ class UpdatePlan extends Component {
 				}
 			}
 
-			// BE Checks
-			if (ele.beneficiary === true) {
-				if (ele.benefitPayout === ``) {
-					canSubmit = false;
-				}
-			}
-
 			// Banking Details
 			if (isNullorEmpty(this.policyDetails.deductionDetails?.bankDetails?.accountNumber)) {
 				canSubmit = false;
+				
 			}
+
+			// ID Check
+			if (ele.lifeAssured === true) {
+				if (isNullorEmpty(ele.dateOfBirth)) {
+					canSubmit = false;
+					ele.coverDetails.idErrorMessageLA = `ID number is a required field`;
+				}
+			}
+
+			// Gender check
+			if (ele.lifeAssured === true) {
+				if (isNullorEmpty(ele.gender)) {
+					canSubmit = false;
+					ele.coverDetails.genderErrorMessageLA = `Gender is a required field`;
+				}
+			}
+
 		});
 		return canSubmit;
 	}
@@ -860,6 +937,22 @@ class UpdatePlan extends Component {
 		}
 		this.collectionDay = this.policyDetails.deductionDetails.collectionDay;
 		this.canReinstate = this.policyDetails.canReinstate;
+
+		console.log(this.policyDetails);
+
+		this.policyDetails.roleplayers.forEach((rolePlayer) => {
+
+			const birthYear = rolePlayer.idNumber.substring(0, 2);
+			const fullCurrentYear = new Date().getFullYear();
+			const currentYear = fullCurrentYear.toString().substring(2);
+
+			if (parseInt(birthYear, 10) >= 0 && parseInt(birthYear, 10) <= parseInt(currentYear, 10)) {
+				rolePlayer.coverDetails.disableDoB = false;
+			} else {
+				rolePlayer.coverDetails.disableDoB = true;
+			}
+		});
+
 	}
 
 	/**
@@ -959,6 +1052,18 @@ class UpdatePlan extends Component {
 			return;
 		}
 
+		const canUpdate = this._validateOnUpdate();
+
+		if (canUpdate === false) { 
+
+			this.showUpdateValidationDialog = true;
+
+			return;
+		}
+
+		this._calculatePremium();
+
+
 		this.prepareUpdateResponse = await this.updatePlanPrepare(this.policyDetails);
 
 		// This needs to move
@@ -967,6 +1072,68 @@ class UpdatePlan extends Component {
 		// policyScheduleDocContent
 		this.planAgreementContent = this.prepareUpdateResponse.planAgreement.documentContent;
 		this.paymentAgreementContent = this.prepareUpdateResponse.paymentAgreement.documentContent;
+	}
+
+	_validateOnUpdate() {
+		let canUpdate = true;
+		this.policyDetails.roleplayers.forEach(ele => {
+
+			// Benefit payout Check
+			if (ele.beneficiary === true) {
+				if (ele.benefitPayout === ``) {
+					canUpdate = false;
+					ele.coverDetails.benefitPayoutErrorMessage = `Benefit payout is a required field`;
+				}
+			}
+
+			// Contact details check
+			if (ele.beneficiary === true) {
+				if (isNullorEmpty(ele.contactDetails?.cellphone) && isNullorEmpty(ele.contactDetails?.email)) {
+					canUpdate = false;
+					ele.coverDetails.cellphoneNumberErrorMessage = `Please enter a cellphone number`;
+				}
+			}
+
+			// Banking Details
+			if (isNullorEmpty(this.policyDetails.deductionDetails?.bankDetails?.accountNumber)) {
+				canUpdate = false;
+				this.accountNumErrorMsg = `Account number is a required field`;
+			}
+			
+			// First name check
+			if (ele.beneficiary === true) {
+				if (isNullorEmpty(ele.firstName)) {
+					canUpdate = false;
+				}
+			}
+			
+			// Surname check
+			if (ele.beneficiary === true) {
+				if (isNullorEmpty(ele.surname)) {
+					canUpdate = false;
+				}
+			}
+
+			// id check
+			if (ele.beneficiary === true) {
+				if (isNullorEmpty(ele?.idNumber)) {
+					canUpdate = false;
+					ele.coverDetails.idNumberErrorMessage = `ID number is a required field`;
+				}
+			}
+			
+
+			// title check
+			if (ele.beneficiary === true) {
+				if (isNullorEmpty(ele.title)) {
+					canUpdate = false;
+					ele.coverDetails.titleErrorMessage = `Title is a required field`;
+				}
+			}
+
+		});
+
+		return canUpdate;
 	}
 
 	_acceptUpdatedPlan() {
@@ -1388,7 +1555,8 @@ class UpdatePlan extends Component {
 		${this._renderRemoveBeneficiaryDialog()}
 		${this._renderUpdatePlanAgreementDialog()}
 		${this._renderReinstatePolicyAgreementDialog()}
-		${this._renderValidationConfirmDialog()}`;
+		${this._renderValidationConfirmDialog()}
+		${this._renderUpdateValidationDialog()}`;
 	}
 
 	/**
@@ -1874,12 +2042,14 @@ class UpdatePlan extends Component {
 			<div class="expander-options">
 				<capitec-select label="Title" .items="${this.titleOptions}" display-field="text" id-field="code" style="width: 50%"
 					value="${roleplayer?.title}" ?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editTitle`, roleplayer.relationship)}"
-					@value-changed="${(e) => this._lifeTitleValueChanged(e, roleplayer.recordID)}">
+					@value-changed="${(e) => this._lifeTitleValueChanged(e, roleplayer.recordID)}"
+					error="${roleplayer?.coverDetails?.titleErrorMessageLA === undefined ? `` : roleplayer?.coverDetails.titleErrorMessageLA}">
 				</capitec-select>
 			
 				<capitec-select label="Gender" .items="${this.genderOptions}" display-field="text" id-field="code"
 					style="width: 50%" @value-changed="${(e) => this._lifeGenderValueChanged(e, roleplayer.recordID)}"
-					value="${roleplayer?.gender}" ?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editGender`, roleplayer.relationship)}">
+					value="${roleplayer?.gender}" ?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editGender`, roleplayer.relationship)}"
+					error="${roleplayer?.coverDetails?.genderErrorMessageLA === undefined ? `` : roleplayer?.coverDetails.genderErrorMessageLA}">
 				</capitec-select>
 			</div>
 			</div>
@@ -1887,13 +2057,13 @@ class UpdatePlan extends Component {
 				<capitec-text-field type="text" label="Name" style="width: 50%" value="${roleplayer?.firstName}"
 					?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editFirstName`, roleplayer.relationship)}"
 					@value-changed="${(e) => this._lifeNameValueChanged(e, roleplayer.recordID)}"
-					error="${roleplayer?.firstName === `` ? `First name is a required field` : ``}">
+					error="${roleplayer?.coverDetails?.firstNameErrorMessage === undefined ? `` : roleplayer?.coverDetails.firstNameErrorMessage}">
 				</capitec-text-field>
 			
 				<capitec-text-field label="Surname" style="width: 50%" value="${roleplayer?.surname}"
 					?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editSurname`, roleplayer.relationship)}"
 					@value-changed="${(e) => this._lifeSurnameValueChanged(e, roleplayer.recordID)}"
-					error="${roleplayer?.surname === `` ? `Surname is a required field` : ``}">
+					error="${roleplayer?.coverDetails?.surnameErrorMessage === undefined ? `` : roleplayer?.coverDetails.surnameErrorMessage}">
 				</capitec-text-field>
 			</div>
 			<div class="expander-options">
@@ -1919,7 +2089,7 @@ class UpdatePlan extends Component {
 					</capitec-text-field>`
 				: html``}
 
-				${isNullorEmpty(roleplayer?.idNumber) || roleplayer?.idNumber.length !== 13
+				${isNullorEmpty(roleplayer?.idNumber) || roleplayer?.idNumber.length !== 13 || roleplayer?.coverDetails.disableDoB === false
 				? html`
 					<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="input"
 						date="${roleplayer?.dateOfBirth}" outputType="string" maxdate="${this.today}">
@@ -1934,7 +2104,8 @@ class UpdatePlan extends Component {
 			
 				<capitec-text-field label="ID" style="width: 50%" value="${isNullorEmpty(roleplayer?.idNumber) ? `` : roleplayer?.idNumber}" 
 					?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editIDNumber`, roleplayer.relationship) || this.policyDetails.policyRule !== `Standard`}"
-					@value-changed="${(e) => this._lifeIDValueChanged(e, roleplayer.recordID)}">
+					@value-changed="${(e) => this._lifeIDValueChanged(e, roleplayer.recordID)}"
+					error="${roleplayer?.coverDetails.idErrorMessageLA === undefined ? `` : roleplayer?.coverDetails.idErrorMessageLA}">
 				</capitec-text-field>
 			</div>
 			<div class="expander-options">
@@ -1942,8 +2113,7 @@ class UpdatePlan extends Component {
 					value="${isNullorEmpty(roleplayer?.contactDetails?.cellphone) ? `` : roleplayer?.contactDetails?.cellphone}" 
 					?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editContactDetails`, roleplayer.relationship)}"
 					@value-changed="${(e) => this._lifeCellphoneValueChanged(e, roleplayer.recordID)}"
-					@key-input="${(e) => this._onlyNumberKey(e)}" 
-					error="${roleplayer?.cellphoneNumberErrorMessage === undefined ? `` : roleplayer?.cellphoneNumberErrorMessage}">
+					@key-input="${(e) => this._onlyNumberKey(e)}">
 				</capitec-text-field>
 			
 				<capitec-text-field label="Email Address" style="width: 50%" 
@@ -1966,9 +2136,10 @@ class UpdatePlan extends Component {
 		<div class="expander-options">
 			<capitec-select label="Title" .items="${this.titleOptions}" display-field="text" id-field="code" style="width: 50%"
 				value=${roleplayer.title} ?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editTitle`, roleplayer.relationship)}"
-				@value-changed= "${(e) => this._lifeTitleValueChanged(e, roleplayer.recordID)}">
+				@value-changed= "${(e) => this._lifeTitleValueChanged(e, roleplayer.recordID)}"
+				error="${roleplayer?.coverDetails?.titleErrorMessage === undefined ? `` : roleplayer?.coverDetails.titleErrorMessage}">
 			</capitec-select>
-
+			
 			<capitec-select label="Gender" .items="${this.genderOptions}" display-field="text" id-field="code"
 				style="width: 50%" value=${roleplayer.gender}
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editGender`, roleplayer.relationship)}"
@@ -1979,12 +2150,12 @@ class UpdatePlan extends Component {
 			<capitec-text-field label="Name" style="width: 50%" value=${roleplayer.firstName}
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editFirstName`, roleplayer.relationship)}"
 				@value-changed= "${(e) => this._lifeNameValueChanged(e, roleplayer.recordID)}"
-				error="${roleplayer?.firstName === `` ? `First name is a required field` : ``}">
+				error="${roleplayer?.coverDetails?.firstNameErrorMessage === undefined ? `` : roleplayer?.coverDetails.firstNameErrorMessage}">
 			</capitec-text-field>
 			<capitec-text-field label="Surname" style="width: 50%" value=${roleplayer.surname}
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editSurname`, roleplayer.relationship)}"
 				@value-changed= "${(e) => this._lifeSurnameValueChanged(e, roleplayer.recordID)}"
-				error="${roleplayer?.surname === `` ? `Surname is a required field` : ``}">
+				error="${roleplayer?.coverDetails?.surnameErrorMessage === undefined ? `` : roleplayer?.coverDetails.surnameErrorMessage}">
 			</capitec-text-field>
 	
 		</div>
@@ -2005,7 +2176,7 @@ class UpdatePlan extends Component {
 			<capitec-text-field type="currency" label="Payout amount" style="width: 50%" 
 				value=${roleplayer?.benefitPayout <= 0 ? `` : roleplayer?.benefitPayout} ?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editBeneficiaryValues`, roleplayer.relationship)}"
 				@value-changed="${(e) => this._beneficiaryPayoutValueChanged(e, roleplayer.recordID)}"
-				error="${roleplayer?.benefitPayoutErrorMessage === undefined ? `` : roleplayer?.benefitPayoutErrorMessage}">
+				error="${roleplayer?.coverDetails.benefitPayoutErrorMessage === undefined ? `` : roleplayer?.coverDetails.benefitPayoutErrorMessage}">
 			</capitec-text-field>
 		</div>
 
@@ -2021,14 +2192,16 @@ class UpdatePlan extends Component {
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editContactDetails`, roleplayer.relationship)}"
 				@value-changed= "${(e) => this._lifeCellphoneValueChanged(e, roleplayer.recordID)}"
 				@key-input="${(e) => this._onlyNumberKey(e)}" 
-				error="${roleplayer?.cellphoneNumberErrorMessage === undefined ? `` : roleplayer?.cellphoneNumberErrorMessage}">
+				error="${roleplayer?.coverDetails.cellphoneNumberErrorMessage === undefined ? `` : roleplayer?.coverDetails.cellphoneNumberErrorMessage}">
 			</capitec-text-field>
 		</div>
 		<div class="expander-options">
 			<capitec-text-field label="ID" style="width: 50%" value="${isNullorEmpty(roleplayer?.idNumber) ? `` : roleplayer?.idNumber}" 
-				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editIDNumber`, roleplayer.relationship) || this.policyDetails.policyRule !== `Standard`}">
+				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editIDNumber`, roleplayer.relationship) || this.policyDetails.policyRule !== `Standard`}"
+				@value-changed = "${(e) => this._lifeIDValueChanged(e, roleplayer.recordID)}"
+				error="${roleplayer?.coverDetails.idNumberErrorMessage === undefined ? `` : roleplayer?.coverDetails.idNumberErrorMessage}">
 			</capitec-text-field>
-		
+			
 		</div>`;
 	}
 
@@ -2179,6 +2352,18 @@ class UpdatePlan extends Component {
 		<insure-confirmation-dialog @confirmation-click="${(e) => this.showValidationConfirmDialog = false}"
 			.confirmationMessage = "${this.disclosureValidationMessage}">
 		</insure-confirmation-dialog>`;
+	}
+
+	/**
+	* Render Dialog for Validation confirmation
+	* @returns {html} html content
+	*/
+	_renderUpdateValidationDialog() {
+		return this.showUpdateValidationDialog === false ? `` : html`
+			<insure-update-validation-dialog @confirmation-click="${(e) => this.showUpdateValidationDialog = false}">
+			</insure-update-validation-dialog>
+		
+		`;
 	}
 
 	// #endregion

@@ -74,7 +74,7 @@ class UpdateValidationDialog extends Component {
 	 */
 	 _webTemplate() {
 		return html`
-			<capitec-modal type="free">
+			<capitec-modal type="free" header = "Unable to Calculate"> 
 				<div slot="body" data-automation-id="insure-update-validation-dialog-body">
 					${this._renderDialogBody()}
 				</div>
@@ -93,7 +93,7 @@ class UpdateValidationDialog extends Component {
 	 _renderDialogBody() {
 		return html` 
 		<capitec-content-box>
-			<capitec-label label = "One or more required fields are missing"></capitec-label>
+			<capitec-label label = "One or more required fields are missing" type = "strong"></capitec-label>
 		</capitec-content-box>
 		`;
 	}
@@ -105,7 +105,7 @@ class UpdateValidationDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-			<capitec-button slot="footer" type="primary" label="Ok" class="capitec-button-medium"
+			<capitec-button slot="footer" type="primary" label="Ok" class="capitec-button-small"
 				@click="${() => this._onConfirmationClick()}"
 				data-automation-id="insure-confirmation-dialog-confirm">
 			</capitec-button>
