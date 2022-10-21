@@ -229,6 +229,7 @@ export class SearchOtherNeed extends Component {
 					--theme-label-subtitle-font-color: #3E4547;
 					--theme-label-subtitle-font-size: 16px;
 					--theme-label-subtitle-font-weight: 600;
+					--theme-text-select: text;
  					letter-spacing: 0;
  					line-height: 20px;
 				}
