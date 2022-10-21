@@ -101,6 +101,10 @@
 	SAVINGS_PLAN_PRODUCT_ENQUIRY: `Savings Plan Product Enquiry`,
 	SAVINGS_PLAN_SAVINGS_CALCULATOR: `Savings Plan Savings Calculator`,
 	SAVINGS_PLAN_INTEREST_RATES: `Savings Plan Interest Rates`,
+	SAVINGS_PLAN_UNLOCK_FTSP: `Savings Plan Unlock FTSP`,
+	SAVINGS_PLAN_CONFIRM_UNLOCK: `Savings plan confirm Unlock modal`,
+	UNLOCK_FTSP_SUCCESS: `Unlock Fixed term savings plan success`,
+	UNLOCK_FTSP_FAILURE: `Unlock Fixed term savings plan failure`,
 
 	CREDIT_LANDING: `Credit Landing`,
 	CREDIT_ACCOUNT_DETAILS: `Credit Account details`,
@@ -133,8 +137,8 @@
 	SETTLEMENT_QUOTE_PARTIAL_SUCCESS: `Settlement Quote Partial Success screen`,
 
 	KBA: `KBA Dialog`,
-  
-  PAID_UP_LETTER_ACCOUNTS: `Paid Up Letter Account Selection`,
+
+	PAID_UP_LETTER_ACCOUNTS: `Paid Up Letter Account Selection`,
 	CREDIT_PAID_UP_LETTER: `Credit Paid Up Letter Screen`,
 	CREDIT_PAID_UP_LETTER_SUCCESS: `Credit Paid Up Letter Success`,
 	CREDIT_PAID_UP_LETTER_FAILURE: `Credit Paid Up Letter Failure`

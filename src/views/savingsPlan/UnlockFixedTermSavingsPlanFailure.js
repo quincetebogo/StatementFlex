@@ -1,4 +1,6 @@
 import { css, html } from 'platform/elements';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { UNLOCK_FTSP_EVENTS } from 'app/constants/telemetry/events/SavingsPlan';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
@@ -35,6 +37,8 @@ export class FixedTermSavingsPlanFailure extends ViewBase {
 
 		this.screenDetails = this.horizonStore.getScreenDetails();
 
+		this._telemetry.startSpan(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_TRANSFER_FAILURE);
+
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
@@ -47,14 +51,28 @@ export class FixedTermSavingsPlanFailure extends ViewBase {
 	// EVENT HANDLERS
 	// --------------
 
-	_doneClick() {
+	async _doneClick() {
+		await this._telemetry.logEvent(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_TRANSFER_FAILURE_DONE, {
+			"screen": TelemetryScreen.UNLOCK_FTSP_FAILURE,
+			"next-screen": TelemetryScreen.SAVINGS_PLAN_LANDING
+		});
+
+		this._telemetry.endSpan(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP, {}, true, false, true);
+
 		this.horizonStore.clearScreenDetails();
 		this.horizonStore.clearReturnScreen();
 		
 		this.horizonRouter.navigateToSavingsPlan();
 	}
 
-	_tryAgain() {
+	async _tryAgain() {
+		await this._telemetry.logEvent(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_TRANSFER_FAILURE_TRY_AGAIN, {
+			"screen": TelemetryScreen.UNLOCK_FTSP_FAILURE,
+			"next-screen": TelemetryScreen.SAVINGS_PLAN_UNLOCK_FTSP
+		});
+
+		this._telemetry.endSpan(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_TRANSFER_FAILURE, {}, true, true);
+
 		this.horizonRouter.navigateToReturnPage();
 	}
 
