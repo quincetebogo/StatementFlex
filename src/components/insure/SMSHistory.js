@@ -71,7 +71,6 @@ constructor() {
 
 		RENDER_CHIPS[FILTER_BY.DATE] = ``;
 		this.filteredData = this.commsHistory?.communications;
-		console.log(this.filteredData);
 	}
 
 	// #endregion

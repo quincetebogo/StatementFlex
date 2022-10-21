@@ -804,8 +804,6 @@ export class ExistingClient extends InsureViewBase {
 
 	_goToSMSHistory(e) {
 
-		console.log(e);
-
 		this.policyNumber = e.detail.policyItem.contractReference;
 
 
