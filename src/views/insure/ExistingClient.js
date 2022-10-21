@@ -695,6 +695,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const resp = await this.insureService.commsHistory(commsHistoryDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
+			
 			return resp.result;
 		}
 		// Do error message
@@ -812,7 +813,7 @@ export class ExistingClient extends InsureViewBase {
 
 	_goToSMSHistory(e) {
 
-		this.policyNumber = e.detail.policyNumber;
+		this.policyNumber = e.detail.policyItem.contractReference;
 
 
 		// call fips here
