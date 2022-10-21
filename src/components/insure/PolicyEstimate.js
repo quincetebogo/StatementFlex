@@ -661,9 +661,9 @@ class PolicyEstimate extends Component {
 	}
 
 	/**
- * Render Dialog to add Life assured to Estimate
- * @return {html} Html for the dialog
- */
+	 * Render Dialog to add Life assured to Estimate
+	 * @return {html} Html for the dialog
+	 */
 	_renderPrintEstimateDialog() {
 		return this.showPrintEstimateDialog === false ? ``
 			: html`
