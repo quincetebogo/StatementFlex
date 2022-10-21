@@ -320,6 +320,7 @@ class PolicyEstimate extends Component {
 	 * @returns {void}
 	 */
 	_sendEmail(emailAddress) {
+		console.log(`Sending Email - 1`);
 		this.showEmailPlanDialog = false;
 		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.ESTIMATE } }));
 	}
@@ -660,9 +661,9 @@ class PolicyEstimate extends Component {
 	}
 
 	/**
- * Render Dialog to add Life assured to Estimate
- * @return {html} Html for the dialog
- */
+	 * Render Dialog to add Life assured to Estimate
+	 * @return {html} Html for the dialog
+	 */
 	_renderPrintEstimateDialog() {
 		return this.showPrintEstimateDialog === false ? ``
 			: html`

@@ -226,7 +226,8 @@ export const INSURE_CALLER_PAGE = Object.freeze({
 	UPDATE_POLICY_AGREEMENT: `UpdatePolicyAgreement`,
 	CANCEL_POLICY_AGREEMENT: `CancelPolicyAgreement`,
 	PAYMENT_MANDATE_AGREEMENT: `PaymentMandateAgreement`,
-	PAY_ARREARS_AGREEMENT: `PayArrearsAgreement`
+	PAY_ARREARS_AGREEMENT: `PayArrearsAgreement`,
+	ESTIMATE_AGREEMENT: `EstimatePrintout`
 });
 
 /**

@@ -324,6 +324,15 @@ export class ExistingClient extends InsureViewBase {
 					"content": ``
 				}
 			];
+		} else if (sourePage === INSURE_CALLER_PAGE.ESTIMATE) {
+			emailDocumentRequestPayload.documentInfo = [
+				{
+					"documentId": `123`,
+					"documentType": DOCUMENT_TYPE.ESTIMATE_AGREEMENT,
+					"documentGuid": ``,
+					"content": ``
+				}
+			];
 		}
 	}
 
@@ -1165,13 +1174,14 @@ export class ExistingClient extends InsureViewBase {
 		}
 
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.email = e.detail.emailId.detail.emailAddress;
-		EMAIL_DOCUMENT_REQUEST_PAYLOAD.cIFNumber = this.callerInformation.cifNumber;
+		EMAIL_DOCUMENT_REQUEST_PAYLOAD.cifNumber = this.callerInformation.cifNumber;
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.contractReference;
 
 		this._getAgreementAttachments(this.callerPage, EMAIL_DOCUMENT_REQUEST_PAYLOAD);
 
+		console.log(`Email Request ------------------- `, JSON.stringify(EMAIL_DOCUMENT_REQUEST_PAYLOAD));
 		const emailResponse = await this.insureService.emailFuneralDocuments(EMAIL_DOCUMENT_REQUEST_PAYLOAD);
-
+		console.log(`Email Response ------------------- `, JSON.stringify(emailResponse));
 		if (!emailResponse.succeeded) {
 			return;
 		}
