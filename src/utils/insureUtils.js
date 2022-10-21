@@ -196,11 +196,6 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 				coverDetails.ageMessage = ageMessage;
 			}
 
-			console.log(`age < coverDetails.minAge: `, age < coverDetails.minAge);
-			console.log(`age > coverDetails.maxAge: `, age > coverDetails.maxAge);
-			console.log(`age % 1 !== 0: `, age % 1 !== 0);
-			console.log(`Number.isNaN(age): `, Number.isNaN(age));
-
 			// Over max cover
 			if (coverAmount && parseInt(coverAmount, 10) > coverDetails.maxCoverAmount) {
 				coverDetails.coverMessage = coverDetails.maxCoverMessage.replace(`{0:#,##0}`, coverDetails.maxCoverAmount);
@@ -208,15 +203,10 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 
 			// Under min cover
 			if (coverAmount && parseInt(coverAmount, 10) < parseInt(coverDetails.minCoverAmount, 10)) {
-				console.log(`coverDetails.minCoverMessage: `, coverDetails.minCoverMessage);
 				coverDetails.coverMessage = coverDetails.minCoverMessage.replace(`{0:#,##0}`, coverDetails.minCoverAmount);
 			}
 		}
 	}
-
-	console.log(`Cover Details ------------------------------------------------- `);
-	console.log(JSON.stringify(coverDetails));
-
 	return coverDetails;
 }
 
