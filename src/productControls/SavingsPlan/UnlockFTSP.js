@@ -450,7 +450,7 @@ const UNLOCK_OPTIONS = {
 				}
 				capitec-expander {
 					--theme-expander-width: 1025px;
-					--theme-expander-height: 256px;
+					--theme-expander-height: 300px;
 					--theme-expander-border: 0px;
 					--theme-expander-header-font-size: 16px;
 					--theme-expander-header-font-weight: 600;
@@ -898,6 +898,8 @@ const UNLOCK_OPTIONS = {
 						<li><capitec-label type="default" label="The penalty fee does not reduce the interest you've earned"></capitec-label></li>
 						<li><capitec-label type="default" label="You may still be liable to pay income tax to SARS on the interest you've earned"></capitec-label></li>
 						<li><capitec-label type="default" label="The unlock criteria may change at any time and will be determined at our sole discretion"></capitec-label></li>
+						<li><capitec-label type="default" label="Your interest rate may change after an unlock and withdrawal of money"></capitec-label></li>
+						<li><capitec-label type="default" label="The penalty fee will be deducted from your Capitec Fixed-term Savings Account"></capitec-label></li>
 					</ul>
 
 					<capitec-check
