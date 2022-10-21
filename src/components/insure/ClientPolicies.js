@@ -248,9 +248,9 @@ class ClientPolicies extends Component {
 	/*
 	 * Fire navigate to SMS History
 	 */
-	_goToSMSHistory(policyNumber) {
+	_goToSMSHistory(policyItem) {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_SMS_HISTORY, {});
-		this.dispatchEvent(new CustomEvent(`navigate-to-sms-history`, { detail: { policyNumber: policyNumber } }));
+		this.dispatchEvent(new CustomEvent(`navigate-to-sms-history`, { detail: { policyItem: policyItem } }));
 	}
 
 	/**
