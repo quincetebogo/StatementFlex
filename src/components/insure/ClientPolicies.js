@@ -408,7 +408,7 @@ class ClientPolicies extends Component {
 			if (policyItem.status === `Active` || policyItem.status === `PendingInForce`) {
 				count += 1;
 			}
-			count += 1;
+			count += 2;
 		}
 
 		if (policyItem.status !== `Cancelled` && policyItem.status !== `Lapsed` && policyItem.status !== `NotTakenUp`) {
