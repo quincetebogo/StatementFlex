@@ -112,7 +112,7 @@
 			"positiveCase": true
 		},
 		"itaVerification": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"verifyKBA": {
@@ -244,7 +244,7 @@
 			"postiveCase": false
 		},
 		"loadKBA": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"settleAndCloseQuote": {
@@ -258,7 +258,24 @@
 		"emailPaidUpLetter": {
 			"enabled": false,
 			"positiveCase": false
+		},
+		"ftspUnlockOptions": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"ftspUnlockQuote": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"ftspUnlockAgreement": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"ftspUnlock": {
+			"enabled": true,
+			"positiveCase": true
 		}
+
 	},
 	"searchClientOptionEnabled": true
 }
