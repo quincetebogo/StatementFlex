@@ -68,7 +68,6 @@ class CancelPolicyDialog extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
-
 	}
 
 	//  #endregion
@@ -249,21 +248,17 @@ class CancelPolicyDialog extends Component {
 			</capitec-content-box>
 
 			<capitec-content-box class="no-padding">
-				<capitec-expander expandbuttonalignment="left" label="View Cancellation Agreement" class="pdf-viewer"
-					data-automation-id="insure-cancel-policy-dialog-view-cancellation-agreement">
-					${this.cancelPolicyDocumentDetails === undefined ? html`
-						<div style="width: 100%; text-align: center; padding-top: 100px; font-weight: bold;">
-							<capitec-label type="subtitle" label="Select a cancellation reason to generate agreement document"></capitec-label>
-						</div>
-					` : html`
+
+				${this.cancelPolicyDocumentDetails === undefined ? html`
+				` : html`
+					<capitec-expander expandbuttonalignment="left" label="View Cancellation Agreement" class="pdf-viewer"
+						data-automation-id="insure-cancel-policy-dialog-view-cancellation-agreement">
 						<iframe title="CancelPolicyAgreement" height = "100%" frameborder = "0"
 							src="data:application/pdf;base64,${this.cancelPolicyDocumentDetails?.documentContent}#view=fitH">
 						</iframe>
-					`}
-				</capitec-expander>
+					</capitec-expander>
+				`}
 			</capitec-content-box>
-
-
 		`;
 	}
 

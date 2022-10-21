@@ -256,7 +256,7 @@ class UpdatePlan extends Component {
 		for (let index = 0; index < this.policyDetails.roleplayers.length; index++) {
 			if (this.policyDetails.roleplayers[index].rowID === this.beneficiaryToRemoveRowID) {
 				this.policyDetails.roleplayers[index].beneficiary = false;
-
+				this.policyDetails.roleplayers[index].benefitPayout = 0;
 				// remove roleplayer from roleplayers if not a life assured
 				if (this.policyDetails.roleplayers[index].lifeAssured === false) {
 					this.policyDetails.roleplayers.splice(index, 1);
@@ -2091,8 +2091,8 @@ class UpdatePlan extends Component {
 
 				${isNullorEmpty(roleplayer?.idNumber) || roleplayer?.idNumber.length !== 13 || roleplayer?.coverDetails.disableDoB === false
 				? html`
-					<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="input"
-						date="${roleplayer?.dateOfBirth}" outputType="string" maxdate="${this.today}">
+					<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="calendar"
+						date="${roleplayer?.dateOfBirth}" outputType="string" maxdate="${this.today}" minDate="1901-01-01">
 					</capitec-date-time-picker>`
 				: html`
 					<capitec-text-field label="Date of birth" style="width: 50%" disabled
@@ -2166,11 +2166,11 @@ class UpdatePlan extends Component {
 						value="${formatDate(roleplayer?.dateOfBirth)}">
 					</capitec-text-field>`
 				: html`
-					<capitec-date-time-picker label="Date of Birth" type="single" mode="date" inputType="input"
-						date="${roleplayer.dateOfBirth}" outputType="string" maxdate="${this.today}"
+					<capitec-date-time-picker label="Date of Birth" type="single" mode="date" inputType="calendar"
+						date="${roleplayer.dateOfBirth}" outputType="string" maxdate="${this.today}"  minDate="1901-01-01"
 						value=${formatDate(roleplayer.dateOfBirth)} style="width: 50%"
 						@value-changed="${(e) => this._lifeDobValueChange(e, roleplayer.recordID)}"
-						?disabled="${this.canReinstate}">
+						?disabled="${this.canReinstate}" >
 					</capitec-date-time-picker>`
 			}
 			<capitec-text-field type="currency" label="Payout amount" style="width: 50%" 

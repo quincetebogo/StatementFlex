@@ -96,9 +96,6 @@ class PayPremiumDialog extends Component {
 		this.payArrears = {};
 		this.payArrears.arrears = [];
 		this.payArrears.contractReference = this.clientArrears.contractReference;
-		this.payArrears.fromAccount = ``;
-		this.payArrears.cifNumber = ``;
-		
 		this._sortArrears();
 
 	}

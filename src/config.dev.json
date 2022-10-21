@@ -78,6 +78,10 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"searchCaller": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"favouritesLanding": {
 			"enabled": false,
 			"positiveCase": true
@@ -100,6 +104,10 @@
 			"positiveCase": true
 		},
 		"verifyKBA": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"loadKBA": {
 			"enabled": true,
 			"positiveCase": true
 		},
@@ -145,15 +153,15 @@
 			"positiveCase": true
 		},
 		"insureAuditTransactionHistory": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"savingsAccountLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"savingsPlanLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"tapToPayLanding": {
@@ -185,19 +193,19 @@
 			"positiveCase": true
 		},
 		"insurePolicyTransactionHistory": {
-			"enabled": true,
-			"positiveCase": true
-		},	
-		"insurePolicySummary": {
-			"enabled":false,
+			"enabled": false,
 			"positiveCase": true
 		},
-		"insureCommsHistory":{
-			"enabled": true,
+		"insurePolicySummary": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureCommsHistory": {
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insurePrepareUpdate": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insurePolicyAccept": {
@@ -221,7 +229,7 @@
 			"positiveCase": true
 		},
 		"insureSendEmail": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureCancelPolicy": {
@@ -233,6 +241,22 @@
 			"positiveCase": true
 		},
 		"insureUpdatePolicyAccept": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureEstimatePrintout": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureClaims": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureClaimSummary": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"searchCallerAdvanced": {
 			"enabled": true,
 			"positiveCase": true
 		}

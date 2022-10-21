@@ -30,7 +30,7 @@ class PayPremiumAgreementDialog extends Component {
 	// #region PROPERTIES
 
 	/**
-	 * @property {Object} contractReference contains the contract refrence
+	 * @property {Object} contractReference contains the contract reference
 	 * @property {Number} payAmount total amount that will be paid
 	 * @property {Function} getArrearsPaymentDocument Callback function to fetch arrears payment document
 	 * @property {Object} arrearsPaymentDocumentDetails contains arrears payment document details

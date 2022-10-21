@@ -100,14 +100,6 @@ class AuditTransactionHistory extends Component {
 			css`
 				${INSURE_TRANSACTIONS_CSS}
 
-				.transact {
-					background: var(--theme-type-insure-background);
-					--theme-label-font-color: #FFFFFF;
-				}
-
-				.no-border-bottom {
-					border-bottom: 0px;
-				}
 				.margin-right-20{
 					margin-right: 20px;
 				}
