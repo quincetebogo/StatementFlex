@@ -368,7 +368,9 @@ export class ConfirmCallerDetails extends Component {
 			this.confirmedCaller.identifiedBy,
 			``, // client's registered email ID
 			this.confirmedCaller.profilePhoto,
-			this.confirmedCaller.gender      
+			this.confirmedCaller.gender,
+			this.confirmedCaller.branchCallerID,
+			this.confirmedCaller.branchCode
 		);
 	}
 
