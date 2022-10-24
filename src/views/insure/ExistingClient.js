@@ -64,11 +64,10 @@ export class ExistingClient extends InsureViewBase {
 
 		this.productParams = {};
 		this.policyTransactionHistory = {};
-		this.auditTransactionHistory = {};
 		this.policyDetails = {};
 		this.estimate = {};
 		this.claims = [];
-		
+
 		this.contractReference = ``;
 		this.successMessage = ``;
 		this.callerPage = ``;
@@ -78,6 +77,7 @@ export class ExistingClient extends InsureViewBase {
 		this.updatePaymentAgreementDocument = {};
 
 		this.readOnly = false;
+		// this.auditTransactionHistory = {};
 	}
 
 	/**
@@ -604,13 +604,13 @@ export class ExistingClient extends InsureViewBase {
 			"wetsignBarcode": false,
 
 			"clientDetails": {
-				"cifNumber": this.callerInformation.cifNumber, 
+				"cifNumber": this.callerInformation.cifNumber,
 				"primarySavingsAccountNumber": this.accountDetails.savingsAccountData.accountNumber,
-				"policyContractReference": contractReference, 
+				"policyContractReference": contractReference,
 				"firstName": this.callerInformation.firstName,
 				"surname": this.callerInformation.lastName,
-				"idNumber": this.callerInformation.southAfricanIDNumber, 
-				"dateOfBirth": dob.toISOString() 
+				"idNumber": this.callerInformation.southAfricanIDNumber,
+				"dateOfBirth": dob.toISOString()
 			},
 			"emailDetails": {
 				"email": `test@test.com`
@@ -691,7 +691,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const resp = await this.insureService.commsHistory(commsHistoryDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
-			
+
 			return resp.result;
 		}
 		// Do error message
@@ -738,17 +738,6 @@ export class ExistingClient extends InsureViewBase {
 
 		await this._getPolicyTransactionHistory();
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY);
-	}
-
-	/**
-	 * Prepare and navigate to Audit Transaction history
-	 * @param {*} e e
-	 * @returns {null} null
-	 */
-	async _goToAuditTransactionHistory(e) {
-		this.contractReference = e.detail.policyNumber;
-		await this._getAuditTransactionHistory();
-		this._navigateToSubView(INSURE_RENDER_MODE.AUDIT_TRANSACTION_HISTORY);
 	}
 
 	/**
@@ -875,57 +864,68 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
-	 * Fetch Audit Transaction History
+	 * Fetch Audit Transaction History - RELEASE DELAYED
 	 * @param {*} startDate startDate
 	 * @param {*} endDate endDate
 	 * @param {*} pageIndex pageIndex
 	 * @returns {null} null
 	*/
-	async _getAuditTransactionHistory(startDate, endDate, pageIndex) {
-		const transactionHistoryRequest = {
-			contractReference: this.contractReference,
-			transactionDateType: AUDIT_DATE_TYPE_LIST[0].code,
-			fromDate: startDate || POLICY_TRANSACTION_HISTORY.START_DATE,
-			toDate: endDate || POLICY_TRANSACTION_HISTORY.END_DATE,
-			transactionStatus: TRANSACTION_STATUS.NONFINANCIAL,
-			pagniation: {
-				pageIndex: pageIndex || POLICY_TRANSACTION_HISTORY.PAGE_INDEX,
-				totalPerPage: POLICY_TRANSACTION_HISTORY.MAX_RESULTS
-			}
-		};
+	// async _getAuditTransactionHistory(startDate, endDate, pageIndex) {
+	// const transactionHistoryRequest = {
+	// contractReference: this.contractReference,
+	// transactionDateType: AUDIT_DATE_TYPE_LIST[0].code,
+	// fromDate: startDate || POLICY_TRANSACTION_HISTORY.START_DATE,
+	// toDate: endDate || POLICY_TRANSACTION_HISTORY.END_DATE,
+	// transactionStatus: TRANSACTION_STATUS.NONFINANCIAL,
+	// pagniation: {
+	// pageIndex: pageIndex || POLICY_TRANSACTION_HISTORY.PAGE_INDEX,
+	// totalPerPage: POLICY_TRANSACTION_HISTORY.MAX_RESULTS
+	// }
+	// };
 
-		this.transactions = [];
+	// this.transactions = [];
 
-		this.auditTransactionHistory = {
-			contractReference: this.contractReference
-		};
+	// this.auditTransactionHistory = {
+	// contractReference: this.contractReference
+	// };
 
-		const returnValue = await this.insureService.getAuditTransactions(transactionHistoryRequest);
+	// const returnValue = await this.insureService.getAuditTransactions(transactionHistoryRequest);
 
-		if (returnValue.succeeded && returnValue.result) {
-			const formattedTrans = returnValue.result.transactions
-				.map((item) => {
-					// TODO: Need to update below code once service includes in the response payload.
-					// const formatedChangeActionedDate = new Date(Date.parse(item.changeActionedDate));
-					// const formatedEffectiveDate = new Date(Date.parse(item.effectiveDate));
-					// item.formatedChangeActionedDate = formatedChangeActionedDate;
-					// item.formatedEffectiveDate = formatedEffectiveDate;
-					// item.groupBychangeActionedDate = `${getMonthName(formatedChangeActionedDate.getMonth())} ${formatedChangeActionedDate.getFullYear()}`;
+	// if (returnValue.succeeded && returnValue.result) {
+	// const formattedTrans = returnValue.result.transactions
+	// .map((item) => {
+	// // TODO: Need to update below code once service includes in the response payload.
+	// // const formatedChangeActionedDate = new Date(Date.parse(item.changeActionedDate));
+	// // const formatedEffectiveDate = new Date(Date.parse(item.effectiveDate));
+	// // item.formatedChangeActionedDate = formatedChangeActionedDate;
+	// // item.formatedEffectiveDate = formatedEffectiveDate;
+	// // item.groupBychangeActionedDate = `${getMonthName(formatedChangeActionedDate.getMonth())} ${formatedChangeActionedDate.getFullYear()}`;
 
-					const formatedDate = new Date(Date.parse(item.date));
-					item.formatedDate = formatedDate;
-					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
-					item.transactionTypeDesc = isNullorEmpty(ACTIVITY_TYPE_DESCRIPTION[item.transactionType]) ? item.transactionType : ACTIVITY_TYPE_DESCRIPTION[item.transactionType];
-					return item;
-				});
-			this.transactions.push(...formattedTrans);
+	// const formatedDate = new Date(Date.parse(item.date));
+	// item.formatedDate = formatedDate;
+	// item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
+	// item.transactionTypeDesc = isNullorEmpty(ACTIVITY_TYPE_DESCRIPTION[item.transactionType]) ? item.transactionType : ACTIVITY_TYPE_DESCRIPTION[item.transactionType];
+	// return item;
+	// });
+	// this.transactions.push(...formattedTrans);
 
-			this.auditTransactionHistory.transactions = this.transactions;
+	// this.auditTransactionHistory.transactions = this.transactions;
 
-			this.endCallContext = `AuditTransactionHistory`;
-			this.renderMode = INSURE_RENDER_MODE.AUDIT_TRANSACTION_HISTORY;
-		}
-	}
+	// this.endCallContext = `AuditTransactionHistory`;
+	// this.renderMode = INSURE_RENDER_MODE.AUDIT_TRANSACTION_HISTORY;
+	// }
+	// }
+
+	/**
+	 * Prepare and navigate to Audit Transaction history - RELEASE DELAYED
+	 * @param {*} e e
+	 * @returns {null} null
+	 */
+	// async _goToAuditTransactionHistory(e) {
+	// this.contractReference = e.detail.policyNumber;
+	// await this._getAuditTransactionHistory();
+	// this._navigateToSubView(INSURE_RENDER_MODE.AUDIT_TRANSACTION_HISTORY);
+	// }
 
 	/**
 	 * Calculate quote callback from Update plan, supply 
@@ -1203,10 +1203,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {null} null
 	 */
 	async _getArrearsPaymentDocument(contractReference, payArrears, fromAccount, saveToDocumentum) {
-
-
 		const dob = new Date(this.callerInformation.birthdate);
-
 		const arrearsPaymentInstructionDetails = {
 
 			"documentFormat": `PDF`,
@@ -1236,19 +1233,16 @@ export class ExistingClient extends InsureViewBase {
 					"cifNumber": this.callerInformation.cifNumber // 363291555
 				}
 			}
-
 		};
 
 		const resp = await this.insureService.arrearsPaymentInstruction(arrearsPaymentInstructionDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			this.arrearsPaymentDocumentDetails = resp.result;
 		} else {
-			// Do error message
 			return null;
 		}
 
 		this.requestUpdate();
-
 	}
 
 	/**
@@ -1348,8 +1342,6 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderFuneralPlanDetailsPage()}`;
 			case INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY:
 				return html`${this._renderPolicyTransactionHistoryPage()}`;
-			case INSURE_RENDER_MODE.AUDIT_TRANSACTION_HISTORY:
-				return html`${this._renderAuditTransactionHistoryPage()}`;
 			case INSURE_RENDER_MODE.POLICY_SUMMARY:
 				return html`${this._renderPolicySummaryPage()}`;
 			case INSURE_RENDER_MODE.CANCEL_POLICY_SUCCESS:
@@ -1400,8 +1392,7 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
-				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}"
-				@navigate-to-audit-transaction-history="${(e) => this._goToAuditTransactionHistory(e)}">
+				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}">
 			</horizon-insure-client-policies>`;
 	}
 
@@ -1430,14 +1421,15 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderUpdatePlanPage() {
 		return html`
-			<horizon-insure-update-plan @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-				@updatePlanAccept="${(e) => this._updatePlanAccept(e)}"
+			<horizon-insure-update-plan 
+				.maxAllowedCover="${this.clientPolicies.checkInsuranceDetails[0].maxAllowedCover}"
 				.updatePlanQuote="${(policyToCalc) => this._updatePlanQuote(policyToCalc)}"
 				.updatePlanPrepare="${(policyToUpdate) => this._updatePlanPrepare(policyToUpdate)}"
 				.policyDetails="${this.policyDetails}" .productParams="${this.productParams}"
 				.initiateReinstatePolicy="${(policyToReinstate) => this._initiateReinstatePolicy(policyToReinstate)}"
 				@accept-policy="${(policyToAccept) => this._acceptPolicy(policyToAccept)}"
-				.maxAllowedCover="${this.clientPolicies.checkInsuranceDetails[0].maxAllowedCover}">
+				@updatePlanAccept="${(e) => this._updatePlanAccept(e)}"
+				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-update-plan>`;
 	}
 
@@ -1447,9 +1439,11 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderPolicySummaryPage() {
 		return html`
-			<horizon-insure-policy-summary .policyDetails="${this.policyDetails}"
+			<horizon-insure-policy-summary 
+				.policyDetails="${this.policyDetails}"
 				@navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-				@navigate-to-update-plan="${(e) => this._goToUpdatePlan(e)}" @unloading="${() => this._unloadClientPolicies()}">
+				@navigate-to-update-plan="${(e) => this._goToUpdatePlan(e)}" 
+				@unloading="${() => this._unloadClientPolicies()}">
 			</horizon-insure-policy-summary>`;
 	}
 
@@ -1459,10 +1453,11 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderCancelPolicySuccessPage() {
 		return html`
-			<insure-cancel-policy-success @navigate-to-summary="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-				@send-email = "${(e) => this._sendEmail(e)}" .contractReference = ${this.contractReference}>
-			</insure-cancel-policy-success>
-		`;
+			<insure-cancel-policy-success
+				.contractReference = ${this.contractReference}
+				@send-email = "${(e) => this._sendEmail(e)}" 
+				@navigate-to-summary="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+			</insure-cancel-policy-success>`;
 	}
 
 	/**
@@ -1471,11 +1466,12 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderEmailSuccessPage() {
 		return html`
-			<insure-email-plan-success @navigate-back="${(e) => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+			<insure-email-plan-success 
+				.contractReference = ${this.contractReference}
+				.confirmedEmail="${this.confirmedEmail}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
-				.contractReference = ${this.contractReference} .confirmedEmail="${this.confirmedEmail}">
+				@navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</insure-email-plan-success>
-
 		`;
 	}
 
@@ -1485,10 +1481,12 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderPayPremiumSuccessPage() {
 		return html`
-			<horizon-pay-premium-success-page @navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-				.amountToPay = "${this.amountToPay}" .contractReference = "${this.contractReference}"
+			<horizon-pay-premium-success-page 
+				.amountToPay = "${this.amountToPay}" 
+				.contractReference = "${this.contractReference}"
+				@send-email= "${(e) => this._sendEmail(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
-				@send-email= "${(e) => this._sendEmail(e)}">
+				@navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-pay-premium-success-page>
 		`;
 	}
@@ -1498,31 +1496,43 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {html} Html of the sub view 
 	 */
 	_renderPolicyTransactionHistoryPage() {
-		return this.renderMode === INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY
-			? html`<horizon-insure-policy-transaction-history 
-				@navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+		return html`
+			<horizon-insure-policy-transaction-history
 				.policyTransactionHistory="${this.policyTransactionHistory}"
 				.getPolicyTransactionHistory="${(startDate, endDate, pageIndex) => this._getPolicyTransactionHistory(startDate, endDate, pageIndex)}"
 				.disposeData="${() => this.policyTransactionHistory = []}"
+				@navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@unloading="${() => this._unloadPolicyTransactionHistory()}">
-			</horizon-insure-policy-transaction-history>`
-			: html``;
+			</horizon-insure-policy-transaction-history>`;
 	}
 
 	/**
-	 * Render Audit Transaction History Page
-	 * @returns {html} Html of the sub view 
+	 * Renders the Communication/SMS history page
+	 * 
+	 * @returns {html} html
 	 */
-	_renderAuditTransactionHistoryPage() {
-		return this.renderMode === INSURE_RENDER_MODE.AUDIT_TRANSACTION_HISTORY
-			? html`<horizon-insure-audit-transaction-history 
-				@navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-				.auditTransactionHistory="${this.auditTransactionHistory}"
-				.getAuditTransactionHistory="${(startDate, endDate, pageIndex) => this._getAuditTransactionHistory(startDate, endDate, pageIndex)}"
-				.disposeData="${() => this.auditTransactionHistory = []}"
-				@unloading="${() => this._unloadAuditTransactionHistory()}">
-			</horizon-insure-audit-transaction-history>`
-			: html``;
+	_renderSMSHistory() {
+		return html`
+			<horizon-insure-sms-history-page
+				.contractReference=${this.policyNumber} 
+				.contactNumber=${this.callerInformation.verifiedTelephoneNumber}
+				.commsHistory="${this.commsHistory}"
+				.getCommsHistory="${(startDate, endDate) => this._retrieveCommsHistory(startDate, endDate)}"
+				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+			</horizon-insure-sms-history-page>`;
+	}
+
+	/**
+	 * Renders the Claim Summary page
+	 * 
+	 * @returns {html} html
+	 */
+	_renderClaimSummaryPage() {
+		return html`
+			<horizon-insure-claim-summary
+				.claimSummary="${this.claimSummary}"
+				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+			</horizon-insure-claim-summary>`;
 	}
 
 	/**
@@ -1537,68 +1547,39 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
-	 * Render Success Page
+	 * Render Success page for Update Plan / ReIssue
 	 * @returns {html} Html of the sub view 
 	 */
 	_renderSuccessPage() {
 		return html`
-			<horizon-insure-success-page .successMessage="${this.successMessage}" 
+			<horizon-insure-success-page 
+				.successMessage="${this.successMessage}" 
+				.callerPage = "${this.callerPage}" 
+				.contractReference = "${this.contractReference}"
 				@send-email = "${(e) => this._sendEmail(e)}"
-				.callerPage = "${this.callerPage}" .contractReference = "${this.contractReference}"
 				@navigate-back="${(e) => this._rerenderPolicies(e.detail.navigateBackTo)}">
 			</horizon-insure-success-page>`;
 	}
 
-	/**
-	  * Renders the Email Sent alert
-	  * @returns {html} html
-	  */
-	_renderAlert() {
-		return this.showSuccessAlert === false ? html``
-			: html`
-				<capitec-toast class="toast" type="success" Header="Successful" layout="vertical" detail="Email document was sent"
-					@click="${() => this.showSuccessAlert = false}" closable>
-				</capitec-toast>
-			`;
-	}
-
-	_renderEmailPlanSuccessPage() {
-		return html`
-			<insure-email-plan-success
-				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-				.confirmedEmail="${this.confirmedEmail}">
-			</insure-email-plan-success>
-		`;
-	}
-
-	/**
-	 * Renders the Communication/SMS history page
-	 * 
-	 * @returns {html} html
-	 */
-	_renderSMSHistory() {
-		return html`
-			<horizon-insure-sms-history-page @navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-				.contractReference=${this.policyNumber} .contactNumber=${this.callerInformation.verifiedTelephoneNumber}
-				.commsHistory="${this.commsHistory}"
-				.getCommsHistory="${(startDate, endDate) => this._retrieveCommsHistory(startDate, endDate)}">
-			</horizon-insure-sms-history-page>`;
-	}
-
-	/**
-	 * Renders the Claim Summary
-	 * 
-	 * @returns {html} html
-	 */
-	_renderClaimSummaryPage() {
-		return html`
-			<horizon-insure-claim-summary
-			@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-			.claimSummary="${this.claimSummary}">
-			</horizon-insure-claim-summary>`;
-	}
-
 	// #endregion RENDERING
 
+	// #region RELEASE DELAYED
+
+	/**
+	 * Render Audit Transaction History Page
+	 * @returns {html} Html of the sub view 
+	 */
+	// _renderAuditTransactionHistoryPage() {
+	// return html`
+	// <horizon-insure-audit-transaction-history 
+	// @navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+	// .auditTransactionHistory="${this.auditTransactionHistory}"
+	// .getAuditTransactionHistory="${(startDate, endDate, pageIndex) => this._getAuditTransactionHistory(startDate, endDate, pageIndex)}"
+	// .disposeData="${() => this.auditTransactionHistory = []}"
+	// @unloading="${() => this._unloadAuditTransactionHistory()}">
+	// </horizon-insure-audit-transaction-history>`;
+	// }
+
+	// #endregion RELEASE DELAYED
 }
 customElements.define(`horizon-existing-client`, ExistingClient);
