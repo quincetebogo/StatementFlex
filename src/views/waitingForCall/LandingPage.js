@@ -310,9 +310,11 @@ export class LandingPage extends ViewBase {
 			``, // client's surname/last name
 			``, // client's initials
 			``, // Identification method used to confirm client
-			``, //registered email id
+			``, // registered email id
 			``, // profile photo
-			`` // gender
+			``, // gender
+			``, // branch caller id
+			`` // branch code
 		);
 		
 		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);
