@@ -75,7 +75,7 @@
 			"positiveCase": true
 		},
 		"searchCaller": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"identifyCaller": {
