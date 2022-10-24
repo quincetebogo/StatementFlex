@@ -40,7 +40,7 @@ class PayPremiumConfirmationDialog extends Component {
 		return {
 
 			amountToPay: { type: Number, state: true },
-			contractReference: { type: Object, state: true },
+			contractReference: { type: String, state: true },
 			fromAccount: { type: String, state: true }
 		};
 	}

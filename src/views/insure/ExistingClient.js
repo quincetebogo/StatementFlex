@@ -158,8 +158,6 @@ export class ExistingClient extends InsureViewBase {
 		this.accountDetails = await this._retrieveAccountDetails();
 		this.commsHistory = await this._retrieveCommsHistory();
 		this.claims = await this._retrieveClaims();
-
-		console.log(this.callerInformation);
 	}
 
 	/**
@@ -480,11 +478,6 @@ export class ExistingClient extends InsureViewBase {
 		const savingsAccountData = await this.savingsAccountService.savingsAccountLanding(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, true);
 		const savingsPlanData = await this.savingsAccountService.savingsPlanLanding(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, true);
 
-		console.log(`savings account:`);
-		console.log(savingsAccountData);
-		console.log(`saving plan:`);
-		console.log(savingsPlanData);
-
 		const resp = {
 			savingsAccountData: savingsAccountData?.result,
 			savingsPlanData: savingsPlanData?.result
@@ -614,13 +607,13 @@ export class ExistingClient extends InsureViewBase {
 			"wetsignBarcode": false,
 
 			"clientDetails": {
-				"cifNumber": this.callerInformation.cifNumber, // 363291555
+				"cifNumber": this.callerInformation.cifNumber, 
 				"primarySavingsAccountNumber": this.accountDetails.savingsAccountData.accountNumber,
-				"policyContractReference": contractReference, // "FP00001590"
+				"policyContractReference": contractReference, 
 				"firstName": this.callerInformation.firstName,
 				"surname": this.callerInformation.lastName,
-				"idNumber": this.callerInformation.southAfricanIDNumber, // "0011262112193"
-				"dateOfBirth": dob.toISOString() // "2000-11-25T22:00:00.000Z"
+				"idNumber": this.callerInformation.southAfricanIDNumber, 
+				"dateOfBirth": dob.toISOString() 
 			},
 			"emailDetails": {
 				"email": `test@test.com`

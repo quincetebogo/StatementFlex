@@ -160,10 +160,8 @@ class PayPremiumDialog extends Component {
 					this.displayInsufficientFunds = true;
 					this.insufficient = true;
 				} else if (this.optionSelected === false) {
-					console.log(`not selected`);
 					this.displayAccountNotSelected = true;
 				} else {
-					console.log(`in savings account`);
 					this._PayArrears();
 				}
 			} else {
@@ -174,10 +172,8 @@ class PayPremiumDialog extends Component {
 					this.displayInsufficientFunds = true;
 					this.insufficient = true;
 				} else if (this.optionSelected === false) {
-					console.log(`not selected`);
 					this.displayAccountNotSelected = true;
 				} else {
-					console.log(`in savings savings plan`);
 					this._PayArrears();
 				}
 

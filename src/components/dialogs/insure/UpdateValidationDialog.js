@@ -124,6 +124,6 @@ window.customElements.define(`insure-update-validation-dialog`, UpdateValidation
  * @example
  * <insure-update-validation-dialog ... @confirmation-click="${this._onConfirmationClick}"></insure-update-validation-dialog>
  *
- * @event InsureConfirmationDialog#confirm
+ * @event InsureUpdateValidationDialog#confirm
  * @type {Object} - N/A
  */
