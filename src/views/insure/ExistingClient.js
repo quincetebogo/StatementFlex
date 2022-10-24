@@ -141,7 +141,6 @@ export class ExistingClient extends InsureViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 		this._initialise();
-
 	}
 
 	// #endregion LIFECYCLE OVERRIDES
@@ -608,13 +607,13 @@ export class ExistingClient extends InsureViewBase {
 			"wetsignBarcode": false,
 
 			"clientDetails": {
-				"cifNumber": this.callerInformation.cifNumber, // 363291555
-				"primarySavingsAccountNumber": parseInt(this.accountDetails.savingsAccountData.accountNumber, 16), // 1952898232
-				"policyContractReference": contractReference, // "FP00001590"
+				"cifNumber": this.callerInformation.cifNumber, 
+				"primarySavingsAccountNumber": this.accountDetails.savingsAccountData.accountNumber,
+				"policyContractReference": contractReference, 
 				"firstName": this.callerInformation.firstName,
 				"surname": this.callerInformation.lastName,
-				"idNumber": this.callerInformation.southAfricanIDNumber, // "0011262112193"
-				"dateOfBirth": dob.toISOString() // "2000-11-25T22:00:00.000Z"
+				"idNumber": this.callerInformation.southAfricanIDNumber, 
+				"dateOfBirth": dob.toISOString() 
 			},
 			"emailDetails": {
 				"email": `test@test.com`
