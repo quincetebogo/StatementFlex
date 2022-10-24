@@ -248,9 +248,9 @@ class ClientPolicies extends Component {
 	/*
 	 * Fire navigate to SMS History
 	 */
-	_goToSMSHistory(policyNumber) {
+	_goToSMSHistory(policyItem) {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_SMS_HISTORY, {});
-		this.dispatchEvent(new CustomEvent(`navigate-to-sms-history`, { detail: { policyNumber: policyNumber } }));
+		this.dispatchEvent(new CustomEvent(`navigate-to-sms-history`, { detail: { policyItem: policyItem } }));
 	}
 
 	/**
@@ -408,7 +408,7 @@ class ClientPolicies extends Component {
 			if (policyItem.status === `Active` || policyItem.status === `PendingInForce`) {
 				count += 1;
 			}
-			count += 1;
+			count += 2;
 		}
 
 		if (policyItem.status !== `Cancelled` && policyItem.status !== `Lapsed` && policyItem.status !== `NotTakenUp`) {
@@ -819,6 +819,7 @@ class ClientPolicies extends Component {
 						.disabled="${this.readOnlyMode}">
 					</horizon-option-button>
 					` : ``}
+					
 					<horizon-option-button 
 						data-automation-id="insure-policy-options-email-plan"
 						class="button-margin" 
@@ -826,6 +827,7 @@ class ClientPolicies extends Component {
 						icon="system/profile-action"
 						.disabled="${this.readOnlyMode}">
 					</horizon-option-button>
+					
 					${policyItem.showSubMenu ? `` : html`
 						<horizon-option-button 
 							data-automation-id="insure-policy-options-transaction-history"
@@ -833,6 +835,14 @@ class ClientPolicies extends Component {
 							@click="${() => this._goToPolicyTransactionHistory(policyItem)}"
 							label="Transaction History" 
 							icon="system/transfer-action"
+							.disabled="${this.readOnlyMode}">
+						</horizon-option-button>
+						<horizon-option-button 
+							data-automation-id="insure-policy-options-sms-history"
+							class="button-margin" 
+							@click="${() => this._goToSMSHistory(policyItem)}"
+							label="SMS History" 
+							icon="system/send-action"
 							.disabled="${this.readOnlyMode}">
 						</horizon-option-button>
 						${policyItem.status !== `Cancelled` && policyItem.status !== `Lapsed` && policyItem.status !== `NotTakenUp`
@@ -872,6 +882,7 @@ class ClientPolicies extends Component {
 		<capitec-card class="action-card">
 			<capitec-overflow-menu label="More" data-automation-id = "insure-policy-more-sub-menu">
 				<capitec-overflow-menu-item icon="system/transfer-action" label="Transaction History" @click="${() => this._goToPolicyTransactionHistory(policyItem)}"></capitec-overflow-menu-item>
+				<capitec-overflow-menu-item icon="system/send-action" label="SMS History" @click="${() => this._goToSMSHistory(policyItem)}"></capitec-overflow-menu-item>
 				${policyItem.status !== `Cancelled` && policyItem.status !== `Lapsed` && policyItem.status !== `NotTakenUp` ? html`
 				<capitec-overflow-menu-item icon="system/transfer-action" label="Audit Transaction History" @click="${() => this._goToAuditTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
 				<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan" @click="${() => this._openCancelPolicyDialog(policyItem.contractReference)}"></capitec-overflow-menu-item>` : html``}
@@ -966,6 +977,7 @@ class ClientPolicies extends Component {
 			: html`
 			<insure-pay-premium-confirmation-dialog 
 				.amountToPay = "${this.amountToPay}" 
+				.fromAccount = "${this.fromAccount}"
 				.contractReference = ${this.clientArrears.contractReference}
 				@close-modal="${(e) => this.showPayPremiumConfirmationDialog = false}" 
 				@confirm-payment="${() => this._openPayPremiumAgreementDialog()}">

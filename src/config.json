@@ -75,7 +75,7 @@
 			"positiveCase": true
 		},
 		"searchCaller": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"identifyCaller": {
@@ -164,11 +164,11 @@
 			"positiveCase": true
 		},
 		"savingsAccountLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"savingsPlanLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"tapToPayLanding": {
@@ -220,11 +220,11 @@
 			"positiveCase": true
 		},
 		"insureClientPolicies": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureProductParams": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureCalculateQuote": {
@@ -324,7 +324,7 @@
 			"positiveCase": true
 		},
 		"insureCancelPolicy": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insurePolicyPay": {

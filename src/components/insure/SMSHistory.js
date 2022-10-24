@@ -71,7 +71,6 @@ constructor() {
 
 		RENDER_CHIPS[FILTER_BY.DATE] = ``;
 		this.filteredData = this.commsHistory?.communications;
-
 	}
 
 	// #endregion
@@ -182,7 +181,7 @@ _backToSummaryPage() {
 	if (RENDER_CHIPS[FILTER_BY.DATE]) {
 		const startDate = new Date(Date.parse(this.startDate));
 		const endDate = new Date(Date.parse(this.endDate));
-		this.filteredData = this.filteredData.filter(item => new Date(item.sentAt) >= startDate && new Date(item.sentAt) <= endDate); 
+		this.filteredData = this.filteredData?.filter(item => new Date(item.sentAt) >= startDate && new Date(item.sentAt) <= endDate); 
 	}
 
 	this.requestUpdate();
@@ -387,7 +386,7 @@ _backToSummaryPage() {
 		}
 		.filter-bar > capitec-label {
 			height: 20px;
-			width: 87px;
+			width: auto;
 			color: #3A3A3A;
 			font-family: "Hind Vadodara";
 			font-size: 15px;
@@ -436,7 +435,7 @@ _backToSummaryPage() {
 
 			<capitec-label class="label" type="subtitle" label="SMS History"></capitec-label>
 
-			${this.filteredData.map((comms) => this._renderExpander(comms))}
+			${this.filteredData?.map((comms) => this._renderExpander(comms))}
 
 	
 		</capitec-card>

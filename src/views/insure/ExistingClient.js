@@ -138,7 +138,6 @@ export class ExistingClient extends InsureViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 		this._initialise();
-
 	}
 
 	// #endregion LIFECYCLE OVERRIDES
@@ -317,6 +316,15 @@ export class ExistingClient extends InsureViewBase {
 				{
 					"documentId": `123`,
 					"documentType": DOCUMENT_TYPE.PAY_ARREARS_AGREEMENT,
+					"documentGuid": ``,
+					"content": ``
+				}
+			];
+		} else if (sourePage === INSURE_CALLER_PAGE.ESTIMATE) {
+			emailDocumentRequestPayload.documentInfo = [
+				{
+					"documentId": `123`,
+					"documentType": DOCUMENT_TYPE.ESTIMATE_AGREEMENT,
 					"documentGuid": ``,
 					"content": ``
 				}
@@ -596,13 +604,13 @@ export class ExistingClient extends InsureViewBase {
 			"wetsignBarcode": false,
 
 			"clientDetails": {
-				"cifNumber": this.callerInformation.cifNumber, // 363291555
-				"primarySavingsAccountNumber": parseInt(this.accountDetails.savingsAccountData.accountNumber, 16), // 1952898232
-				"policyContractReference": contractReference, // "FP00001590"
+				"cifNumber": this.callerInformation.cifNumber, 
+				"primarySavingsAccountNumber": this.accountDetails.savingsAccountData.accountNumber,
+				"policyContractReference": contractReference, 
 				"firstName": this.callerInformation.firstName,
 				"surname": this.callerInformation.lastName,
-				"idNumber": this.callerInformation.southAfricanIDNumber, // "0011262112193"
-				"dateOfBirth": dob.toISOString() // "2000-11-25T22:00:00.000Z"
+				"idNumber": this.callerInformation.southAfricanIDNumber, 
+				"dateOfBirth": dob.toISOString() 
 			},
 			"emailDetails": {
 				"email": `test@test.com`
@@ -683,6 +691,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const resp = await this.insureService.commsHistory(commsHistoryDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
+			
 			return resp.result;
 		}
 		// Do error message
@@ -800,7 +809,7 @@ export class ExistingClient extends InsureViewBase {
 
 	_goToSMSHistory(e) {
 
-		this.policyNumber = e.detail.policyNumber;
+		this.policyNumber = e.detail.policyItem.contractReference;
 
 
 		// call fips here
@@ -1161,13 +1170,14 @@ export class ExistingClient extends InsureViewBase {
 		}
 
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.email = e.detail.emailId.detail.emailAddress;
-		EMAIL_DOCUMENT_REQUEST_PAYLOAD.cIFNumber = this.callerInformation.cifNumber;
+		EMAIL_DOCUMENT_REQUEST_PAYLOAD.cifNumber = this.callerInformation.cifNumber;
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.contractReference;
 
 		this._getAgreementAttachments(this.callerPage, EMAIL_DOCUMENT_REQUEST_PAYLOAD);
 
+		console.log(`Email Request ------------------- `, JSON.stringify(EMAIL_DOCUMENT_REQUEST_PAYLOAD));
 		const emailResponse = await this.insureService.emailFuneralDocuments(EMAIL_DOCUMENT_REQUEST_PAYLOAD);
-
+		console.log(`Email Response ------------------- `, JSON.stringify(emailResponse));
 		if (!emailResponse.succeeded) {
 			return;
 		}

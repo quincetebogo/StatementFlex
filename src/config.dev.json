@@ -157,11 +157,11 @@
 			"positiveCase": true
 		},
 		"savingsAccountLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"savingsPlanLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"tapToPayLanding": {
@@ -201,7 +201,7 @@
 			"positiveCase": true
 		},
 		"insureCommsHistory": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insurePrepareUpdate": {
@@ -229,7 +229,7 @@
 			"positiveCase": true
 		},
 		"insureSendEmail": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureCancelPolicy": {
@@ -241,11 +241,11 @@
 			"positiveCase": true
 		},
 		"insureUpdatePolicyAccept": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureEstimatePrintout": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureClaims": {

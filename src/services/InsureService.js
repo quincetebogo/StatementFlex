@@ -596,7 +596,7 @@ export class InsureService extends ChannelServiceBase {
 		}
 
 		return this.post(
-			`/horizon-insurance/client/communicationhistory`,
+			`/FuneralInsuranceProductService/client/communicationhistory`,
 			commsHistoryRequest,
 			this.setInsureTokens(),
 			`commsHistory`,

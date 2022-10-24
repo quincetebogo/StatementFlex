@@ -185,7 +185,7 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 				coverDetails.minCoverAmount = currentRole.ageRange[1].minCoverAmount;
 				coverDetails.maxCoverMessage = currentRole.ageRange[1].coverAmountMessage;
 				coverDetails.minCoverMessage = currentRole.ageRange[1].coverAmountMinMessage;
-			} else if (age >= 14 && age <= 25) {
+			} else if (age >= 14 && age <= 85) {
 				coverDetails.maxCoverAmount = currentRole.ageRange[2].maxCoverAmount;
 				coverDetails.minCoverAmount = currentRole.ageRange[2].minCoverAmount;
 				coverDetails.maxCoverMessage = currentRole.ageRange[2].coverAmountMessage;
@@ -207,7 +207,6 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 			}
 		}
 	}
-
 	return coverDetails;
 }
 
