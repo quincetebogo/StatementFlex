@@ -77,6 +77,7 @@ class UpdatePlan extends Component {
 		this.showUpdatePlanAgreementDialog = false;
 		this.showReinstatePolicyAgreementDialog = false;
 		this.showValidationConfirmDialog = false;
+		this.disableBranchCode = true;
 
 		this.agreementCFPAccepted = ``;
 		this.agreementFCPAccepted = ``;
@@ -174,7 +175,8 @@ class UpdatePlan extends Component {
 			accountNumErrorMsg: { type: String, state: true },
 			branchCodeErrorMsg: { type: String, state: true },
 			disclosureValidationMessage: { type: Object, state: true },
-			showUpdateValidationDialog: { type: Boolean, state: true }
+			showUpdateValidationDialog: { type: Boolean, state: true },
+			disableBranchCode: { type: Boolean, state: true }
 		};
 	}
 
@@ -592,29 +594,36 @@ class UpdatePlan extends Component {
 	 */
 	_beneficiaryPayoutValueChanged(event, recordId) {
 		if (event.detail.old !== event.detail.new) {
-			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
-				if (rolePlayer.recordID === recordId) {
-
-					this.policyDetails.roleplayers[index].benefitPayout = event.detail.new;
-
-					if (!isNullorEmpty(rolePlayer.benefitPayout)) {
-						rolePlayer.coverDetails.benefitPayoutErrorMessage = ``;
-					}
-
-					const payoutAmountsMatch = this._isPayoutAmountValid();
-					if (payoutAmountsMatch === false) {
-						this.policyDetails.roleplayers[index].benefitPayoutErrorMessage = `Beneficiary payout amount(s) does not match total`;
-					} else {
-
-						for (let indx = 0; indx < this.policyDetails.roleplayers.length; indx++) {
-							if (this.policyDetails.roleplayers[indx].beneficiary === true) {
-								this.policyDetails.roleplayers[indx].coverDetails.benefitPayoutErrorMessage = ``;
-							}
-						}
-					}
-					this.requestUpdate();
+			let totalPayout = 0;
+			
+			this.policyDetails.roleplayers.forEach(ele => {
+				if (ele.recordID === recordId) {
+					ele.benefitPayout = event.detail.new;
+				}
+				if (ele.beneficiary === true) {
+					totalPayout += parseFloat(ele.benefitPayout);
 				}
 			});
+			
+			if (this.policyDetails.roleplayers[0].coverAmount !== totalPayout) {
+				this.policyDetails.roleplayers.forEach(ele => {
+					if (ele.beneficiary === true) {
+						ele.coverDetails.benefitPayoutErrorMessage = `Beneficiary payout amount(s) does not match total`;
+					}
+					if (isNullorEmpty(ele.benefitPayout)) {
+							ele.coverDetails.benefitPayoutErrorMessage = `Payout amount is a required field`;
+					}
+				});
+	
+			} else {
+				this.policyDetails.roleplayers.forEach(ele => {
+					if (ele.beneficiary === true) {
+						ele.coverDetails.benefitPayoutErrorMessage = ``;
+					}
+				});
+			}
+	
+			this.requestUpdate();
 		}
 
 
@@ -640,6 +649,12 @@ class UpdatePlan extends Component {
 		if (e.detail.old !== e.detail.new) {
 			this.policyDetails.deductionDetails.bankDetails.bank = e.detail.new.code;
 			this.policyDetails.deductionDetails.bankDetails.branchCode = e.detail.new.branchCode;
+
+			if (this.policyDetails.deductionDetails.bankDetails.branchCode === `0`) {
+				this.disableBranchCode = false;
+			} else {
+				this.disableBranchCode = true;
+			}
 
 			this.policyDetails.deductionDetails.bankDetails.accountNumber = ``;
 			this.accountNumErrorMsg = `Account number is a required field`;
@@ -1082,7 +1097,7 @@ class UpdatePlan extends Component {
 			if (ele.beneficiary === true) {
 				if (ele.benefitPayout === ``) {
 					canUpdate = false;
-					ele.coverDetails.benefitPayoutErrorMessage = `Benefit payout is a required field`;
+					ele.coverDetails.benefitPayoutErrorMessage = `Payout amount is a required field`;
 				}
 			}
 
@@ -1785,7 +1800,7 @@ class UpdatePlan extends Component {
 											</horizon-label>
 											<div class="vertical-line"></div>
 											<horizon-label label="Payout Amount (Max ${this.policyDetails.roleplayers[0].coverAmount !== `` ? formatCurrency(this.policyDetails.roleplayers[0].coverAmount, 2) : formatCurrency(0)})"
-												value="${beneficiary?.benefitPayout !== `` ? formatCurrency(beneficiary?.benefitPayout) : formatCurrency(0)}">
+												value="${beneficiary?.benefitPayout === undefined ? `R0.00` : formatCurrency(beneficiary?.benefitPayout)}">
 											</horizon-label>
 										</capitec-group>
 										<div slot="content">
@@ -1865,7 +1880,7 @@ class UpdatePlan extends Component {
 								</capitec-select>
 								<capitec-text-field label="Branch Code" type="numeric" style="width: 50%"
 									value="${this.policyDetails.deductionDetails?.bankDetails?.branchCode}"
-									?disabled = "${true}"
+									?disabled = "${this.disableBranchCode}"
 									@value-changed = "${(e) => this._branchCodeChange(e)}"
 									error = "${this.branchCodeErrorMsg}">
 								</capitec-text-field>
