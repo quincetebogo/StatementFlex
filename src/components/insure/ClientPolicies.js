@@ -16,8 +16,8 @@ import 'app/components/dialogs/insure/PayPremiumAgreementDialog';
 import 'app/components/dialogs/insure/LodgeClaimInfoDialog';
 import 'app/components/dialogs/insure/CancelPolicyDialog';
 import 'app/components/dialogs/insure/EmailPlanDialog';
-
 import 'app/components/insure/ClaimsList';
+
 
 /**
  * Client policies component showing all the policies a client currently has on their account
@@ -35,7 +35,6 @@ import 'app/components/insure/ClaimsList';
  * navigate-to-claim-summary
  * navigate-to-policy-transaction-history
  * navigate-to-sms-history
- * navigate-to-audit-transaction-history
   
  * _expanded
  * _collapsed
@@ -209,18 +208,6 @@ class ClientPolicies extends Component {
 				accountNumber: policyItem.deductionDetails?.bankDetails?.accountNumber,
 				arrearsAmount: policyItem.arrearDetails?.outstandingAmount
 			}
-		}));
-	}
-
-	/**
-	 * Fire navigate event to Audit Transaction History
-	 * @param {String} contractReference contract reference
-	 * @returns {void}
-	 */
-	_goToAuditTransactionHistory(contractReference) {
-		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_AUDIT_TRANSACTION_HISTORY, {});
-		this.dispatchEvent(new CustomEvent(`navigate-to-audit-transaction-history`, {
-			detail: { policyNumber: contractReference }
 		}));
 	}
 
@@ -421,6 +408,18 @@ class ClientPolicies extends Component {
 			policyItem.showSubMenu = true;
 		}
 	}
+
+	/**
+	 * Fire navigate event to Audit Transaction History - RELEASE DELAYED
+	 * @param {String} contractReference contract reference
+	 * @returns {void}
+	 */
+	// _goToAuditTransactionHistory(contractReference) {
+	// this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_AUDIT_TRANSACTION_HISTORY, {});
+	// this.dispatchEvent(new CustomEvent(`navigate-to-audit-transaction-history`, {
+	// detail: { policyNumber: contractReference }
+	// }));
+	// }
 
 
 	// #endregion PRIVATE FUNCTIONS
@@ -634,7 +633,6 @@ class ClientPolicies extends Component {
 			${this._renderPayPremiumConfirmationDialog()}
 			${this._renderPayPremiumAgreementDialog()}
 			${this._renderLodgeClaimInfoDialog()}
-			${this._renderError()}
 			${this._renderCancelPolicyDialog()}
 		`;
 	}
@@ -662,8 +660,7 @@ class ClientPolicies extends Component {
 					</capitec-button>
 				</capitec-title-bar>
 				${this._renderPoliciesLandingContent()}
-		</capitec-card>
-		`;
+		</capitec-card>`;
 	}
 
 	/**
@@ -786,7 +783,7 @@ class ClientPolicies extends Component {
 					<horizon-option-button 
 						data-automation-id="insure-policy-options-reinstate"
 						class="button-margin" 
-						label="Reinstate" 
+						label="Re-Issue" 
 						icon="system/history-action"
 						@click="${() => this._goToUpdatePlan(policyItem.contractReference, policyItem.canReinstate)}"
 						.disabled="${this.readOnlyMode}">
@@ -798,7 +795,7 @@ class ClientPolicies extends Component {
 						icon="system/profile-action"
 						.disabled="${this.readOnlyMode}">
 					</horizon-option-button>`
-				: html`${policyItem.arrearDetails?.outstandingAmount > 0
+				: html`${policyItem.arrearDetails?.outstandingAmount > 0 && (policyItem.status === `Active` || policyItem.status === `PendingInForce`)
 					? html`
 						<horizon-option-button 
 							data-automation-id="insure-policy-options-pay-arrears"
@@ -848,14 +845,6 @@ class ClientPolicies extends Component {
 						${policyItem.status !== `Cancelled` && policyItem.status !== `Lapsed` && policyItem.status !== `NotTakenUp`
 							? html`
 							<horizon-option-button 
-								data-automation-id="insure-policy-options-audit-transaction-history"
-								class="button-margin" 
-								@click="${() => this._goToAuditTransactionHistory(policyItem.contractReference)}"
-								label="Audit Transaction History" 
-								icon="system/transfer-action"
-								.disabled="${this.readOnlyMode}">
-							</horizon-option-button>
-							<horizon-option-button 
 								data-automation-id="insure-policy-options-cancel-plan"
 								class="button-margin" 
 								@click="${() => this._openCancelPolicyDialog(policyItem.contractReference)}"
@@ -884,7 +873,6 @@ class ClientPolicies extends Component {
 				<capitec-overflow-menu-item icon="system/transfer-action" label="Transaction History" @click="${() => this._goToPolicyTransactionHistory(policyItem)}"></capitec-overflow-menu-item>
 				<capitec-overflow-menu-item icon="system/send-action" label="SMS History" @click="${() => this._goToSMSHistory(policyItem)}"></capitec-overflow-menu-item>
 				${policyItem.status !== `Cancelled` && policyItem.status !== `Lapsed` && policyItem.status !== `NotTakenUp` ? html`
-				<capitec-overflow-menu-item icon="system/transfer-action" label="Audit Transaction History" @click="${() => this._goToAuditTransactionHistory(policyItem.contractReference)}"></capitec-overflow-menu-item>
 				<capitec-overflow-menu-item icon="system/delete-action" label="Cancel Plan" @click="${() => this._openCancelPolicyDialog(policyItem.contractReference)}"></capitec-overflow-menu-item>` : html``}
 			</capitec-overflow-menu>
 			<capitec-label label="More" class="label-text">
@@ -948,7 +936,7 @@ class ClientPolicies extends Component {
 			.contractReference = ${this.contractReferenceToCancel}
 			.cancelPolicyDocumentDetails = "${this.cancelPolicyDocumentDetails}"
 			.getCancelPolicyDocument="${(contractReference, cancelReason) => this._getCancelPolicyDocument(contractReference, cancelReason)}"
-			@close-modal="${(e) => this._closeCancelPolicyDialog()}"
+			@close-modal="${() => this._closeCancelPolicyDialog()}"
 			@agree="${(e) => this._cancelPolicyAgree(e)}" >
 		</insure-cancel-policy-dialog>`;
 	}
@@ -979,7 +967,7 @@ class ClientPolicies extends Component {
 				.amountToPay = "${this.amountToPay}" 
 				.fromAccount = "${this.fromAccount}"
 				.contractReference = ${this.clientArrears.contractReference}
-				@close-modal="${(e) => this.showPayPremiumConfirmationDialog = false}" 
+				@close-modal="${() => this.showPayPremiumConfirmationDialog = false}" 
 				@confirm-payment="${() => this._openPayPremiumAgreementDialog()}">
 			</insure-pay-premium-confirmation-dialog>`;
 	}
@@ -996,18 +984,9 @@ class ClientPolicies extends Component {
 				.contractReference= ${this.clientArrears.contractReference}
 				.getArrearsPaymentDocument="${(contractReference) => this._getArrearsPaymentDocument(contractReference)}"
 				.arrearsPaymentDocumentDetails="${this.arrearsPaymentDocumentDetails}"
-				@close-modal="${(e) => this.showPayPremiumAgreementDialog = false}"
+				@close-modal="${() => this.showPayPremiumAgreementDialog = false}"
 				@pay-premium-agree = "${() => this._payPremiumAgree()}">
 			</insure-pay-premium-agreement-dialog>`;
-
-	}
-
-	/**
-	 * Render the unknown error dialog
-	 * @returns {html} html
-	 */
-	_renderError() {
-		return html`<insure-unknown-error-dialog></insure-unknown-error-dialog>`;
 	}
 
 	/**
@@ -1111,15 +1090,6 @@ window.customElements.define(`horizon-insure-client-policies`, ClientPolicies);
  * <horizon-insure-client-policies ... @navigate-to-sms-history="${this._handler}"></horizon-insure-client-policies>
  *
  * @event ClientPolicies#navigate-to-sms-history
- */
-
-/**
- * Navigate to Audit Transaction history
- *
- * @example
- * <horizon-insure-client-policies ... @navigate-to-audit-transaction-history="${this._handler}"></horizon-insure-client-policies>
- *
- * @event ClientPolicies#navigate-to-audit-transaction-history
  */
 
 /**

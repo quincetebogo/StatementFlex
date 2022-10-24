@@ -12,9 +12,11 @@ import 'app/components/dialogs/insure/AddLifeDialog';
 import 'app/components/common/HorizonLabel';
 import 'app/components/dialogs/insure/PrintEstimateAgreementDialog';
 import 'app/components/dialogs/insure/InsureEmailDialog';
+import 'app/components/dialogs/insure/MaxAllowedCoverDialog';
 
 const AGE_ERROR_MESSAGE = `Age is not valid`;
 const AGE_REQUIRED_MESSAGE = `Age is required`;
+const MAIN_LIFE_MINIMUM_COVER = 5000;
 
 /**
  * Insure Policy Estimate component that allows cover and premium estimations be made on the fly.
@@ -43,6 +45,7 @@ class PolicyEstimate extends Component {
 		this.showAddLifeDialog = false;
 		this.showPrintEstimateDialog = false;
 		this.showEmailPlanDialog = false;
+		this.showMaxAllowedCoverDialog = false;
 
 		this._telemetry = HorizonTelemetry.getInstance();
 		this.telemetryEvents = {};
@@ -63,6 +66,7 @@ class PolicyEstimate extends Component {
 	 * @property {boolean} showAddLifeDialog Controls when to show the AddLife dialog
 	 * @property {boolean} showPrintEstimateDialog Controls when to show the Email Estimate dialog
 	 * @property {boolean} showEmailPlanDialog - Show flag for email address & send dialog
+	 * @property {boolean} showMaxAllowedCoverDialog - Show flag for max allowed cover dialog
 	 * 
 	 * @readonly
 	 * @static
@@ -78,7 +82,8 @@ class PolicyEstimate extends Component {
 			maxAllowedCover: { type: Number, state: true },
 			showAddLifeDialog: { type: Boolean, state: true },
 			showPrintEstimateDialog: { type: Boolean, state: true },
-			showEmailPlanDialog: { type: Boolean, state: true }
+			showEmailPlanDialog: { type: Boolean, state: true },
+			showMaxAllowedCoverDialog: { type: Boolean, state: true }
 		};
 	}
 
@@ -116,6 +121,19 @@ class PolicyEstimate extends Component {
 	}
 
 	/**
+	 * Open Add Life Assured Dialog
+	 * @returns {void} 
+	 */
+	_openAddLifeDialog() {
+		if (this.maxAllowedCover < MAIN_LIFE_MINIMUM_COVER) {
+			this.showMaxAllowedCoverDialog = true;
+			return;
+		}
+
+		this.showAddLifeDialog = true;
+	}
+
+	/**
 	 * Calculate Button event
 	 * 1. Determine if should calculate by premium or not
 	 * 2. Dispatch event to invoke service
@@ -129,6 +147,11 @@ class PolicyEstimate extends Component {
 			"screen": TelemetryScreen.INSURE_ESTIMATE,
 			"next-screen": null
 		});
+
+		if (this.maxAllowedCover < MAIN_LIFE_MINIMUM_COVER) {
+			this.showMaxAllowedCoverDialog = true;
+			return;
+		}
 
 		let isValid = true;
 
@@ -320,7 +343,6 @@ class PolicyEstimate extends Component {
 	 * @returns {void}
 	 */
 	_sendEmail(emailAddress) {
-		console.log(`Sending Email - 1`);
 		this.showEmailPlanDialog = false;
 		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.ESTIMATE } }));
 	}
@@ -337,15 +359,15 @@ class PolicyEstimate extends Component {
 		this.estimate.lifesAssured = [];
 		this.estimate.lifesAssured.push({
 			relationship: `MainLife`,
-			coverAmount: this.maxAllowedCover < 5000 ? this.maxAllowedCover : 5000,
+			coverAmount: this.maxAllowedCover < MAIN_LIFE_MINIMUM_COVER ? this.maxAllowedCover : MAIN_LIFE_MINIMUM_COVER,
 			premium: 0,
 			genderType: this.mainLifeDefaultGender,
 			age: this.mainLifeDefaultAge,
 			rowID: 0,
 			coverDetails: {
-				defaultCover: 5000,
+				defaultCover: MAIN_LIFE_MINIMUM_COVER,
 				maxCoverAmount: 100000,
-				minCoverAmount: 5000,
+				minCoverAmount: MAIN_LIFE_MINIMUM_COVER,
 				maxAge: 64,
 				minAge: 18,
 				ageMessage: ``,
@@ -358,6 +380,23 @@ class PolicyEstimate extends Component {
 		});
 		this.estimate.totalPremium = 0;
 		this.requestUpdate();
+	}
+
+	/**
+	 * Build formatted hint message for Cover Amount inputs
+	 * @param {string} lifeAssured current life assured
+	 * @param {number} index life index
+	 * @return {string} formatted message
+	 */
+	_getCoverAmountHintMessage(lifeAssured, index) {
+		let hintMessage;
+		if (index === 0 && this.maxAllowedCover === 0) {
+			hintMessage = `You have reached your maximum allowed funeral cover.`;
+		} else {
+			hintMessage = `R${index === 0 && this.maxAllowedCover < MAIN_LIFE_MINIMUM_COVER ? this.maxAllowedCover : lifeAssured?.coverDetails?.minCoverAmount} - R${index === 0 ? this.maxAllowedCover : lifeAssured?.coverDetails?.maxCoverAmount}`;
+		}
+		return hintMessage;
+
 	}
 
 	//  #endregion
@@ -506,7 +545,8 @@ class PolicyEstimate extends Component {
 		return html`
 			${this._renderAddLifeDialog()}
 			${this._renderPrintEstimateDialog()}
-			${this._renderInsureEmailDialog()}`;
+			${this._renderInsureEmailDialog()}
+			${this._renderMaxAllowedCoverDialog()}`;
 	}
 
 	/**
@@ -565,8 +605,9 @@ class PolicyEstimate extends Component {
 					<capitec-text-field label="Cover Amount" type="currency" class="calc-card-row-input"
 						data-automation-id="insure-estimate-card-cover"
 						@value-changed="${(e) => this._coverAmountChanged(e, index)}" value="${lifeAssured.coverAmount}"
-						hint="R${index === 0 && this.maxAllowedCover < 5000 ? this.maxAllowedCover : lifeAssured?.coverDetails?.minCoverAmount} - R${index === 0 ? this.maxAllowedCover : lifeAssured?.coverDetails?.maxCoverAmount}"
-						error="${lifeAssured.coverDetails.coverMessage}">
+						hint="${this._getCoverAmountHintMessage(lifeAssured, index)}"
+						error="${lifeAssured.coverDetails.coverMessage}"
+						.disabled="${this.maxAllowedCover < MAIN_LIFE_MINIMUM_COVER}">
 					</capitec-text-field>
 					<capitec-text-field label="Premium" type="currency" disabled hint="Estimate" class="calc-card-row-input"
 						data-automation-id="insure-estimate-card-premium" value="${formatCurrency(lifeAssured.premium).replace(`R`, ``)}">
@@ -590,7 +631,7 @@ class PolicyEstimate extends Component {
 			${index !== 0 ? html`` : html`<div class="calc-card-row calc-card-row-actions">
 				<capitec-label label="Lives Assured" type="subtitle" class="stronger"></capitec-label>
 				<capitec-label label="Add Life Assured" type="subtitle" class="stronger link"
-					data-automation-id="insure-estimate-add-life" @click="${() => this.showAddLifeDialog = true}">
+					data-automation-id="insure-estimate-add-life" @click="${() => this._openAddLifeDialog()}">
 				</capitec-label>
 			</div>`}
 			`)}
@@ -686,6 +727,18 @@ class PolicyEstimate extends Component {
 				@close-modal="${() => this.showEmailPlanDialog = false}"
 				@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}">
 			</insure-email-dialog>`;
+	}
+
+	/** 
+	 * Render dialog for max allowed cover
+	 * @returns {void}
+	 */
+	_renderMaxAllowedCoverDialog() {
+		return this.showMaxAllowedCoverDialog === true ? html`
+			<insure-max-allowed-cover-dialog
+				@confirm="${() => this.showMaxAllowedCoverDialog = false}">
+			</insure-max-allowed-cover-dialog>`
+			: html``;
 	}
 
 	//  #endregion

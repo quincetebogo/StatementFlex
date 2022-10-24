@@ -1,13 +1,8 @@
 import { InsureService } from 'app/services/InsureService';
 import { ViewBase } from 'app/views/common/ViewBase';
 
-
 /**
  * A Base class for view components to collect common functionality used within Insure product
- * 
- * This base class will contain the following common code
- * 
- *    - getting insure product parameters
  *
  * @export
  * @class InsureViewBase
@@ -65,16 +60,14 @@ export class InsureViewBase extends ViewBase {
 	// #region PRIVATE METHODS
 
 	/**
-	 * API: Retrieve Insure Product Params from Channel Service
+	 * Retrieve Insure Product Params from Channel Service
 	 * @returns {Object} Product Params Array
 	 */
 	async _retrieveInsureProductParams() {
 		const resp = await this.insureService.productParams();
-
 		if (!resp.succeeded) {
 			return;
 		}
-			
 		return resp.result;
 	}
 
@@ -85,12 +78,7 @@ export class InsureViewBase extends ViewBase {
 	 */
 	_handleChannelServiceError(ex) {
 		this.errorMessage = `System error. Please try again.`;
-		this.errorCount++;
-
-		// if (this.errorCount > 2) {
-			// Generic error
-			this.horizonRouter.navigateToSystemError();
-		// }
+		this.horizonRouter.navigateToSystemError();
 		return true;
 	}
 
