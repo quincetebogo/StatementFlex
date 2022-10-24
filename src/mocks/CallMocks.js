@@ -759,5 +759,39 @@ export const searchCallerList =
 			"middleName3": ``,
 			"initials": `D`,
 			"profilePhoto": ``
-		}
+		},
+		{
+			"name": `Mr Sam John`,
+			"southAfricanIDNumber": `5709016743669`,
+			"verifiedTelephoneNumber": `0078888888`,
+			"livesIn": `MOKOPANE`,
+			"languagePreference": `ENGLISH`, 
+			"birthdate": `Monday, 01 Sept 1957`,
+			"cifNumber": `371080088`,
+			"title": `Mr`,
+			"firstName": `VINODS`,
+			"lastName": `Client`,
+			"middleName1": ``,
+			"middleName2": ``,
+			"middleName3": ``,
+			"initials": `D`,
+			"profilePhoto": ``
+		},
+		{
+			"name": `Mr Sam John`,
+			"southAfricanIDNumber": `9208250515665`,
+			"verifiedTelephoneNumber": `0078888888`,
+			"livesIn": `MOKOPANE`,
+			"languagePreference": `ENGLISH`,
+			"birthdate": `Monday, 25 Aug 1992`,
+			"cifNumber": `370903390`,
+			"title": `Mr`,
+			"firstName": `VINODS`,
+			"lastName": `Client`,
+			"middleName1": ``,
+			"middleName2": ``,
+			"middleName3": ``,
+			"initials": `D`,
+			"profilePhoto": `` 
+		},
 	];
