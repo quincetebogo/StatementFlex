@@ -798,7 +798,7 @@ class ClientPolicies extends Component {
 						icon="system/profile-action"
 						.disabled="${this.readOnlyMode}">
 					</horizon-option-button>`
-				: html`${policyItem.arrearDetails?.outstandingAmount > 0
+				: html`${policyItem.arrearDetails?.outstandingAmount > 0 && (policyItem.status === `Active` || policyItem.status === `PendingInForce`)
 					? html`
 						<horizon-option-button 
 							data-automation-id="insure-policy-options-pay-arrears"
