@@ -124,7 +124,7 @@ class PolicyEstimate extends Component {
 	 * @param {number} printOrCalculate print or calculate
 	 * @returns {void}
 	 */
-	async _calculateEstimate(printOrCalculate) {
+	async _calculateOrPrintEstimate(printOrCalculate) {
 		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_REMOVE_LIVE, {
 			"screen": TelemetryScreen.INSURE_ESTIMATE,
 			"next-screen": null
@@ -522,9 +522,9 @@ class PolicyEstimate extends Component {
 			<capitec-spacer></capitec-spacer>
 			</capitec-button>
 			<capitec-button label="Email Estimate" class="capitec-button-large" type="white" data-automation-id="insure-estimate-calculate"
-				@click="${() => this._calculateEstimate(0)}"></capitec-button>
+				@click="${() => this._calculateOrPrintEstimate(0)}"></capitec-button>
 			<capitec-button label="Calculate" class="capitec-button-large" type="white" data-automation-id="insure-estimate-calculate"
-				@click="${() => this._calculateEstimate(1)}"></capitec-button>
+				@click="${() => this._calculateOrPrintEstimate(1)}"></capitec-button>
 		</capitec-title-bar>
 		<capitec-card id="insure-calc-card">
 			<div class="insure-calc-columns">

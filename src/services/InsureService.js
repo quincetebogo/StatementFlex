@@ -56,7 +56,7 @@ export class InsureService extends ChannelServiceBase {
 		}
 		this.employeeId = id;
 	}
-	
+
 	/**
 	 * Generate x-requester-uid for FIPS
 	 * @returns {string} requesterID 
@@ -250,10 +250,10 @@ export class InsureService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	generateEstimatePrintout(generateEstimateDocRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		// if (await this.isMockEnabled(`insureEstimatePrintout`)) {
-		// return this.mock(`generateIssueAgreement`);
-		// }
+	async generateEstimatePrintout(generateEstimateDocRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureEstimatePrintout`)) {
+			return this.mock(`generateIssueAgreement`);
+		}
 		return this.post(
 			`/FuneralInsuranceProductService/document/generate/Estimateprintout`,
 			generateEstimateDocRequest,
@@ -267,7 +267,6 @@ export class InsureService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
-
 
 	/**
 	 * Get Policy Transaction History
@@ -650,16 +649,16 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insurePolicyPay`);
 		}
 		return this.post(
-		`/FuneralInsuranceProductService/policy/pay`,
-		payArrearsRequest,
-		this.setInsureTokens(),
-		`payPolicy`,
-		null,
-		null,
-		900,
-		null,
-		errorHandler,
-		autoRetries
+			`/FuneralInsuranceProductService/policy/pay`,
+			payArrearsRequest,
+			this.setInsureTokens(),
+			`payPolicy`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
 		);
 	}
 

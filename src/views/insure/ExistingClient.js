@@ -536,11 +536,15 @@ export class ExistingClient extends InsureViewBase {
 			"dateOfBirth": this.callerInformation.birthdate
 		};
 
-		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
+		console.log(`_printEstimate | clientDetails: `, JSON.stringify(clientDetails));
 
+		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.input = this.estimate;
 
+		console.log(`_printEstimate | GENERATE_DOCUMENT_REQUEST_PAYLOAD: `, JSON.stringify(GENERATE_DOCUMENT_REQUEST_PAYLOAD));
 		const result = await this.insureService.generateEstimatePrintout(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
+
+		console.log(`_printEstimate | generateEstimatePrintout RESULT: `, JSON.stringify(result));
 
 		if (!result.succeeded) {
 			return;
