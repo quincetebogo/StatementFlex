@@ -587,7 +587,7 @@ class PolicyEstimate extends Component {
 				<div class="calc-card-header">
 					
 					<capitec-label data-automation-id="insure-estimate-card-relationship"
-						label="Relationship: ${formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[lifeAssured.relationship?.toUpperCase()])}" type="small" class="stronger">
+						label="Relationship: ${lifeAssured.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[lifeAssured.relationship?.toUpperCase()])}" type="small" class="stronger">
 					</capitec-label>
 		
 					<capitec-label data-automation-id="insure-estimate-card-remove"
@@ -660,7 +660,7 @@ class PolicyEstimate extends Component {
 			
 						${this.estimate.lifesAssured?.map(life => html`
 						<div class="calc-life-list">
-							<capitec-label label="${formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[life.relationship?.toUpperCase()])}" data-automation-id="insure-estimate-list-relationship">
+							<capitec-label label="${life.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[life.relationship?.toUpperCase()])}">
 							</capitec-label>
 							<capitec-label label="${formatCurrency(life.premium)}"
 								data-automation-id="insure-estimate-list-premium"></capitec-label>
