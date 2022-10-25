@@ -18,6 +18,8 @@ import 'app/components/dialogs/insure/CancelPolicyDialog';
 import 'app/components/dialogs/insure/EmailPlanDialog';
 import 'app/components/insure/ClaimsList';
 
+const MAIN_LIFE_MINIMUM_COVER = 5000;
+
 
 /**
  * Client policies component showing all the policies a client currently has on their account
@@ -71,6 +73,7 @@ class ClientPolicies extends Component {
 	// #region PROPERTIES
 
 	/**
+	 * @property {Number} maxAllowedCover  CheckInsurance limit for remaining cover limit
 	 * @property {Object} clientClaims Client Claims
 	 * @property {Object} clientPolicies All policies for client
 	 * @property {Object} clientArrears Data & flags from Arrears Service
@@ -98,6 +101,7 @@ class ClientPolicies extends Component {
 	 */
 	static get properties() {
 		return {
+			maxAllowedCover: { type: Number, state: true },
 			clientClaims: { type: Object, state: true },
 			clientPolicies: { type: Object, state: true },
 			clientArrears: { type: Object, state: true },
@@ -653,14 +657,41 @@ class ClientPolicies extends Component {
 					<capitec-button type="white" class="capitec-button-medium"  label="Lodge Claim" data-automation-id="insure-landing-lodge-claim"
 						@click="${() => this.showLodgeClaimInfoDialog = true}">
 					</capitec-button>
-					${this.readOnlyMode === true ? html`` : html`
-					<capitec-button type="white" class="capitec-button-medium" label="Get Estimate" data-automation-id="insure-landing-get-estimate"
-						@click="${() => this._goToEstimate()}"></capitec-button>
-					`}
-					</capitec-button>
+					${this._renderGetEstimateButton()}
 				</capitec-title-bar>
 				${this._renderPoliciesLandingContent()}
 		</capitec-card>`;
+	}
+
+	/**
+	 * Render correct HTML for Estimate Button
+	 * @returns {html} html
+	 */
+	_renderGetEstimateButton() {
+		if (this.maxAllowedCover < MAIN_LIFE_MINIMUM_COVER) {
+			return html`
+			<capitec-popover
+				heading="You have reached your maximum allowed funeral cover">
+				<capitec-button 
+					disabled
+					type="white" 
+					class="capitec-button-medium" 
+					label="Get Estimate" 
+					data-automation-id="insure-landing-get-estimate">
+				</capitec-button>
+			</capitec-popover>`;
+		}
+		if (this.readOnlyMode === false) {
+			return html`
+				<capitec-button 
+					type="white" 
+					class="capitec-button-medium" 
+					label="Get Estimate" 
+					data-automation-id="insure-landing-get-estimate"
+					@click="${() => this._goToEstimate()}">
+				</capitec-button>`;
+		}
+		return html``;
 	}
 
 	/**
