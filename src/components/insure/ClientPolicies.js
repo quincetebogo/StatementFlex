@@ -611,6 +611,10 @@ class ClientPolicies extends Component {
 				font-size: 16px;
 				font-weight: bold;
 			}
+
+			.header-popover{
+				z-index: 1;
+			}
 			`
 		];
 	}
@@ -671,6 +675,7 @@ class ClientPolicies extends Component {
 		if (this.maxAllowedCover < MAIN_LIFE_MINIMUM_COVER) {
 			return html`
 			<capitec-popover
+				class="header-popover"
 				heading="You have reached your maximum allowed funeral cover">
 				<capitec-button 
 					disabled
