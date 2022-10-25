@@ -189,7 +189,7 @@ class PolicyEstimate extends Component {
 				this.newTotalPremium = ``;
 			} else {
 				const printEstimateResponse = await this.printEstimate({ detail: request });
-				this.printEstimateDocumentContent = printEstimateResponse?.result?.documentContent;
+				this.printEstimateDocumentContent = printEstimateResponse?.result?.documentContent.value;
 				this.showPrintEstimateDialog = true;
 			}
 			this.requestUpdate();
