@@ -1388,6 +1388,7 @@ export class ExistingClient extends InsureViewBase {
 				.arrearsPaymentDocumentDetails="${this.arrearsPaymentDocumentDetails}"
 				.getCancelPolicyDocument="${(contractReference, cancelReason, saveToDocumentum) => this._getCancelPolicyDocument(contractReference, cancelReason, saveToDocumentum)}"
 				.getArrearsPaymentDocument="${(contractReference, payArrears, fromAccount, saveToDocumentum) => this._getArrearsPaymentDocument(contractReference, payArrears, fromAccount, saveToDocumentum)}"
+				.maxAllowedCover="${this.clientPolicies?.checkInsuranceDetails[0].maxAllowedCover}"
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payPolicy(e)}"
 				@cancel-policy="${(e) => this._cancelPolicy(e)}"
