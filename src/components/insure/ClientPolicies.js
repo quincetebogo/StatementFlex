@@ -681,7 +681,7 @@ class ClientPolicies extends Component {
 				</capitec-button>
 			</capitec-popover>`;
 		}
-		if (this.readOnlyMode === false) {
+		else if (this.readOnlyMode === false || this.readOnlyMode === undefined) {
 			return html`
 				<capitec-button 
 					type="white" 
