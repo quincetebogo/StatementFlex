@@ -417,7 +417,7 @@ class PolicySummary extends Component {
 						<horizon-label
 							data-automation-id="insure-beneficiaries-relationship"
 							label="Relationship"
-							value="${formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[item.relationship?.toUpperCase()])}">
+							value="${item.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[item.relationship?.toUpperCase()])}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-beneficiaries-dateofbirth"
@@ -481,7 +481,7 @@ class PolicySummary extends Component {
 						<horizon-label
 							data-automation-id="insure-lives-assured-relationship"
 							label="Relationship"
-							value="${formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[item.relationship?.toUpperCase()])}">
+							value="${item.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[item.relationship?.toUpperCase()])}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-lives-assured-dateofbirth"

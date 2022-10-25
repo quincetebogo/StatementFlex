@@ -216,7 +216,7 @@ class PayPremiumAgreementDialog extends Component {
 
 			<capitec-content-box class="no-padding">
 				<capitec-expander expandbuttonalignment="left" label="View Arrears Payment Instruction" data-automation-id="insure-cancel-policy-dialog-view-cancellation-agreement">
-					<iframe class="iframe-content" src="data:application/pdf;base64,${this.arrearsPaymentDocumentDetails?.documentContent}#view=fitH" alt="agreement"></iframe>
+					<iframe class="iframe-content" src="data:application/pdf;base64,${this.arrearsPaymentDocumentDetails?.documentContent.value}#view=fitH" alt="agreement"></iframe>
 				</capitec-expander>
 			</capitec-content-box>
 

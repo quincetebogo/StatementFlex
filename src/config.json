@@ -336,7 +336,7 @@
 			"positiveCase": true
 		},
 		"insureEstimatePrintout": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureClaims": {

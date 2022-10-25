@@ -254,7 +254,7 @@ class CancelPolicyDialog extends Component {
 					<capitec-expander expandbuttonalignment="left" label="View Cancellation Agreement" class="pdf-viewer"
 						data-automation-id="insure-cancel-policy-dialog-view-cancellation-agreement">
 						<iframe title="CancelPolicyAgreement" height = "100%" frameborder = "0"
-							src="data:application/pdf;base64,${this.cancelPolicyDocumentDetails?.documentContent}#view=fitH">
+							src="data:application/pdf;base64,${this.cancelPolicyDocumentDetails?.documentContent.value}#view=fitH">
 						</iframe>
 					</capitec-expander>
 				`}

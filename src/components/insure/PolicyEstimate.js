@@ -142,7 +142,7 @@ class PolicyEstimate extends Component {
 	 * @param {number} printOrCalculate print or calculate
 	 * @returns {void}
 	 */
-	async _calculateEstimate(printOrCalculate) {
+	async _calculateOrPrintEstimate(printOrCalculate) {
 		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_REMOVE_LIVE, {
 			"screen": TelemetryScreen.INSURE_ESTIMATE,
 			"next-screen": null
@@ -189,7 +189,7 @@ class PolicyEstimate extends Component {
 				this.newTotalPremium = ``;
 			} else {
 				const printEstimateResponse = await this.printEstimate({ detail: request });
-				this.printEstimateDocumentContent = printEstimateResponse?.result?.documentContent;
+				this.printEstimateDocumentContent = printEstimateResponse?.result?.documentContent.value;
 				this.showPrintEstimateDialog = true;
 			}
 			this.requestUpdate();
@@ -562,9 +562,9 @@ class PolicyEstimate extends Component {
 			<capitec-spacer></capitec-spacer>
 			</capitec-button>
 			<capitec-button label="Email Estimate" class="capitec-button-large" type="white" data-automation-id="insure-estimate-calculate"
-				@click="${() => this._calculateEstimate(0)}"></capitec-button>
+				@click="${() => this._calculateOrPrintEstimate(0)}"></capitec-button>
 			<capitec-button label="Calculate" class="capitec-button-large" type="white" data-automation-id="insure-estimate-calculate"
-				@click="${() => this._calculateEstimate(1)}"></capitec-button>
+				@click="${() => this._calculateOrPrintEstimate(1)}"></capitec-button>
 		</capitec-title-bar>
 		<capitec-card id="insure-calc-card">
 			<div class="insure-calc-columns">
@@ -587,7 +587,7 @@ class PolicyEstimate extends Component {
 				<div class="calc-card-header">
 					
 					<capitec-label data-automation-id="insure-estimate-card-relationship"
-						label="Relationship: ${formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[lifeAssured.relationship?.toUpperCase()])}" type="small" class="stronger">
+						label="Relationship: ${lifeAssured.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[lifeAssured.relationship?.toUpperCase()])}" type="small" class="stronger">
 					</capitec-label>
 		
 					<capitec-label data-automation-id="insure-estimate-card-remove"
@@ -660,7 +660,7 @@ class PolicyEstimate extends Component {
 			
 						${this.estimate.lifesAssured?.map(life => html`
 						<div class="calc-life-list">
-							<capitec-label label="${formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[life.relationship?.toUpperCase()])}" data-automation-id="insure-estimate-list-relationship">
+							<capitec-label label="${life.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[life.relationship?.toUpperCase()])}">
 							</capitec-label>
 							<capitec-label label="${formatCurrency(life.premium)}"
 								data-automation-id="insure-estimate-list-premium"></capitec-label>

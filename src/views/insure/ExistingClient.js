@@ -278,13 +278,13 @@ export class ExistingClient extends InsureViewBase {
 					"documentId": `123`,
 					"documentType": DOCUMENT_TYPE.ISSUE_POLICY_AGREEMENT,
 					"documentGuid": this.issuePlanAgreementDocument?.documentDetails?.guid,
-					"content": this.issuePlanAgreementDocument?.documentContent
+					"content": this.issuePlanAgreementDocument?.documentContent.value
 				},
 				{
 					"documentId": `456`,
 					"documentType": DOCUMENT_TYPE.PAYMENT_MANDATE_AGREEMENT,
 					"documentGuid": this.reinstatePaymentAgreementDocument?.documentDetails?.guid,
-					"content": this.reinstatePaymentAgreementDocument?.documentContent
+					"content": this.reinstatePaymentAgreementDocument?.documentContent.value
 				}
 			];
 		} else if (sourePage === INSURE_CALLER_PAGE.UPDATE_PLAN) {
@@ -293,13 +293,13 @@ export class ExistingClient extends InsureViewBase {
 					"documentId": `123`,
 					"documentType": DOCUMENT_TYPE.UPDATE_POLICY_AGREEMENT,
 					"documentGuid": this.updatePlanAgreementDocument?.documentDetails?.guid,
-					"content": this.updatePlanAgreementDocument?.documentContent
+					"content": this.updatePlanAgreementDocument?.documentContent.value
 				},
 				{
 					"documentId": `456`,
 					"documentType": DOCUMENT_TYPE.PAYMENT_MANDATE_AGREEMENT,
 					"documentGuid": this.updatePaymentAgreementDocument?.documentDetails?.guid,
-					"content": this.updatePaymentAgreementDocument?.documentContent
+					"content": this.updatePaymentAgreementDocument?.documentContent.value
 				}
 			];
 		} else if (sourePage === INSURE_CALLER_PAGE.CANCEL_POLICY) {
@@ -308,7 +308,7 @@ export class ExistingClient extends InsureViewBase {
 					"documentId": `123`,
 					"documentType": DOCUMENT_TYPE.CANCEL_POLICY_AGREEMENT,
 					"documentGuid": this.cancelPolicyDocumentDetails?.documentDetails?.guid,
-					"content": this.cancelPolicyDocumentDetails?.documentContent
+					"content": this.cancelPolicyDocumentDetails?.documentContent.value
 				}
 			];
 		} else if (sourePage === INSURE_CALLER_PAGE.PAY_PREMIUM) {
@@ -534,11 +534,9 @@ export class ExistingClient extends InsureViewBase {
 		};
 
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
-
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.input = this.estimate;
 
 		const result = await this.insureService.generateEstimatePrintout(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
-
 		if (!result.succeeded) {
 			return;
 		}
@@ -1047,8 +1045,6 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*}*
 	 */
 	async _updatePlanAccept(event) {
-		console.log(event);
-
 		const documents = [
 			event.detail.prepareUpdate.paymentAgreement.documentDetails,
 			event.detail.prepareUpdate.planAgreement.documentDetails
@@ -1063,12 +1059,11 @@ export class ExistingClient extends InsureViewBase {
 				"contractReference": event.detail.prepareUpdate.prepareUpdateResponse.contractReference,
 				"insurersInformation": [
 					{
-						"insurer": `Capitec`, // TODO: confirm value
+						"insurer": `Capitec`,
 						"policyNumber": event.detail.prepareUpdate.prepareUpdateResponse.contractReference
 					}
 				]
 			}
-			// TODO: Need to pass the values for mandates when service integration works.
 		};
 
 		const acceptPlanResp = await this.insureService.updatePolicyAccept(acceptPlanRequest);
@@ -1076,7 +1071,6 @@ export class ExistingClient extends InsureViewBase {
 			return;
 		}
 
-		// this.successMessage = `The policy ${event.detail.prepareUpdate.prepareUpdateResponse.contractReference} has been successfully updated`;
 		this.successMessage = `The policy has been successfully updated`;
 		this.callerPage = INSURE_CALLER_PAGE.UPDATE_PLAN;
 		this.contractReference = event.detail.prepareUpdate.prepareUpdateResponse.contractReference;
@@ -1174,10 +1168,8 @@ export class ExistingClient extends InsureViewBase {
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.contractReference;
 
 		this._getAgreementAttachments(this.callerPage, EMAIL_DOCUMENT_REQUEST_PAYLOAD);
-
-		console.log(`Email Request ------------------- `, JSON.stringify(EMAIL_DOCUMENT_REQUEST_PAYLOAD));
 		const emailResponse = await this.insureService.emailFuneralDocuments(EMAIL_DOCUMENT_REQUEST_PAYLOAD);
-		console.log(`Email Response ------------------- `, JSON.stringify(emailResponse));
+		
 		if (!emailResponse.succeeded) {
 			return;
 		}
