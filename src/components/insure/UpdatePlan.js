@@ -363,8 +363,6 @@ class UpdatePlan extends Component {
 					this.policyDetails.roleplayers[index].coverDetails?.isExtendedFamily,
 					false
 				);
-
-				console.log(this.policyDetails.roleplayers[index]);
 			});
 		}
 		this.requestUpdate();
@@ -721,9 +719,6 @@ class UpdatePlan extends Component {
 		if (e.detail.old !== e.detail.new) {
 			this.policyDetails.deductionDetails.bankDetails.accountNumber = e.detail.new;
 		}
-
-		// console.log(e.detail.new)
-
 		if (isNullorEmpty(e.detail.new)) {
 			this.accountNumErrorMsg = `Account number is a required field`;
 		} else {
@@ -764,8 +759,6 @@ class UpdatePlan extends Component {
 
 			this.showUpdateValidationDialog = true;
 		}
-
-		// console.log(`DONE WITH CALC `, JSON.stringify(this.policyDetails));
 		this.requestUpdate();
 	}
 
@@ -977,9 +970,6 @@ class UpdatePlan extends Component {
 		}
 		this.collectionDay = this.policyDetails.deductionDetails.collectionDay;
 		this.canReinstate = this.policyDetails.canReinstate;
-
-		console.log(this.policyDetails);
-
 		this.policyDetails.roleplayers.forEach((rolePlayer) => {
 
 			const birthYear = rolePlayer.idNumber.substring(0, 2);
@@ -1114,8 +1104,8 @@ class UpdatePlan extends Component {
 		this.showUpdatePlanAgreementDialog = true;
 
 		// policyScheduleDocContent
-		this.planAgreementContent = this.prepareUpdateResponse.planAgreement.documentContent;
-		this.paymentAgreementContent = this.prepareUpdateResponse.paymentAgreement.documentContent;
+		this.planAgreementContent = this.prepareUpdateResponse.planAgreement.documentContent.value;
+		this.paymentAgreementContent = this.prepareUpdateResponse.paymentAgreement.documentContent.value;
 	}
 
 	_validateOnUpdate() {
@@ -1257,8 +1247,8 @@ class UpdatePlan extends Component {
 	async _onReinstatePolicyPopup() {
 		this.createPolicyResponse = await this.initiateReinstatePolicy(this.policyDetails);
 
-		this.issuePlanAgreementContent = this.createPolicyResponse.issuePlanAgreement.documentContent;
-		this.reinstatePaymentAgreementContent = this.createPolicyResponse.paymentAgreement.documentContent;
+		this.issuePlanAgreementContent = this.createPolicyResponse.issuePlanAgreement.documentContent.value;
+		this.reinstatePaymentAgreementContent = this.createPolicyResponse.paymentAgreement.documentContent.value;
 		this.newContractReference = this.createPolicyResponse.policyResponse.contractReference;
 
 		this.showReinstatePolicyAgreementDialog = true;

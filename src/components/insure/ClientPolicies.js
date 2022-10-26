@@ -18,6 +18,8 @@ import 'app/components/dialogs/insure/CancelPolicyDialog';
 import 'app/components/dialogs/insure/EmailPlanDialog';
 import 'app/components/insure/ClaimsList';
 
+const MAIN_LIFE_MINIMUM_COVER = 5000;
+
 
 /**
  * Client policies component showing all the policies a client currently has on their account
@@ -71,6 +73,7 @@ class ClientPolicies extends Component {
 	// #region PROPERTIES
 
 	/**
+	 * @property {Number} maxAllowedCover  CheckInsurance limit for remaining cover limit
 	 * @property {Object} clientClaims Client Claims
 	 * @property {Object} clientPolicies All policies for client
 	 * @property {Object} clientArrears Data & flags from Arrears Service
@@ -98,6 +101,7 @@ class ClientPolicies extends Component {
 	 */
 	static get properties() {
 		return {
+			maxAllowedCover: { type: Number, state: true },
 			clientClaims: { type: Object, state: true },
 			clientPolicies: { type: Object, state: true },
 			clientArrears: { type: Object, state: true },
@@ -607,6 +611,21 @@ class ClientPolicies extends Component {
 				font-size: 16px;
 				font-weight: bold;
 			}
+
+			.header-popover{
+				z-index: 1;
+			}
+
+			#benefits-table{
+				width: 100%;
+				font-family: var(--theme-font-family, Arial, Helvetica, sans-serif);
+    			font-weight: var(--theme-font-weight, 300);
+			}
+
+			.benefits-table-cell{
+				background-color: #f3f3f3;
+				padding: 2px;
+			}
 			`
 		];
 	}
@@ -653,14 +672,42 @@ class ClientPolicies extends Component {
 					<capitec-button type="white" class="capitec-button-medium"  label="Lodge Claim" data-automation-id="insure-landing-lodge-claim"
 						@click="${() => this.showLodgeClaimInfoDialog = true}">
 					</capitec-button>
-					${this.readOnlyMode === true ? html`` : html`
-					<capitec-button type="white" class="capitec-button-medium" label="Get Estimate" data-automation-id="insure-landing-get-estimate"
-						@click="${() => this._goToEstimate()}"></capitec-button>
-					`}
-					</capitec-button>
+					${this._renderGetEstimateButton()}
 				</capitec-title-bar>
 				${this._renderPoliciesLandingContent()}
 		</capitec-card>`;
+	}
+
+	/**
+	 * Render correct HTML for Estimate Button
+	 * @returns {html} html
+	 */
+	_renderGetEstimateButton() {
+		if (this.maxAllowedCover < MAIN_LIFE_MINIMUM_COVER) {
+			return html`
+			<capitec-popover
+				class="header-popover"
+				heading="You have reached your maximum allowed funeral cover">
+				<capitec-button 
+					disabled
+					type="white" 
+					class="capitec-button-medium" 
+					label="Get Estimate" 
+					data-automation-id="insure-landing-get-estimate">
+				</capitec-button>
+			</capitec-popover>`;
+		}
+		else if (this.readOnlyMode === false || this.readOnlyMode === undefined) {
+			return html`
+				<capitec-button 
+					type="white" 
+					class="capitec-button-medium" 
+					label="Get Estimate" 
+					data-automation-id="insure-landing-get-estimate"
+					@click="${() => this._goToEstimate()}">
+				</capitec-button>`;
+		}
+		return html``;
 	}
 
 	/**
@@ -674,7 +721,7 @@ class ClientPolicies extends Component {
 					data-automation-id="insure-landing-policies-tab"
 					label="Policies">
 					<capitec-content-box class="header-label">
-						<capitec-label label="Funeral Plan" class="strong-label"></capitec-label>
+						${isNullorEmpty(this.clientPolicies) ? html`<capitec-label label="Funeral Plan" class="strong-label"></capitec-label>` : html``}
 					</capitec-content-box>
 					<capitec-content-box  id="client-policies-box" class="accounts-box">
 							${this._renderPoliciesDetailsBar()}
@@ -886,20 +933,67 @@ class ClientPolicies extends Component {
 	 */
 	_renderNoResults() {
 		return html`${isNullorEmpty(this.clientPolicies) ? ``
-			: html`<capitec-group
-				class="no-result-group"
-				layout="vertical"
-				halign="center"
-				valign="center"
-				gap="none">
-					<capitec-label
-						data-automation-id = "insure-policy-no-results"
-						class="no-results"
-						label="No results found"
-						type="strong">
-					</capitec-label>
-			</capitec-group>`
-			}`;
+			: html`
+					<capitec-label label="Features of a Funeral Plan" class="strong-label"></capitec-label>
+					<table id='benefits-table'>
+						<tr>
+							<td class="benefits-table-cell">Origin</td>
+							<td class="benefits-table-cell">Leaflet</td>
+						</tr>
+						<tr>
+							<td class="benefits-table-cell">Date of service update</td>
+							<td class="benefits-table-cell">00/00/0000</td>
+						</tr>
+						<tr>
+							<td class="benefits-table-cell">Maximum cover</td>
+							<td class="benefits-table-cell">
+								<div>R100 000 - Main Life"</div>
+								<div>R100 000 - Spouse</div>
+								<div>R20 000 - Children (0 - 5 years) </div>
+								<div>R50 000 - Children (6 - 13 years) </div>
+								<div>R60 000 - Children (14 - 25 years) </div>
+								<div>R50 000 - Parents </div>
+								<div>R50 000 - Extended Family</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="benefits-table-cell">Waiting period</td>
+							<td class="benefits-table-cell">6 month waiting period. However, if you have cover with an existing insurer, we will waive your waiting period u to your current cover amount</td>
+						</tr>
+						<tr>
+							<td class="benefits-table-cell">Maximum entry age</td>
+							<td class="benefits-table-cell">
+								<div>64 - Main Life and Spouse</div>
+								<div>25 - Children</div>
+								<div>85 - Parents and Extended Family</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="benefits-table-cell">Number of lives assured</td>
+							<td class="benefits-table-cell">22</td>
+						</tr>
+						<tr>
+							<td class="benefits-table-cell">Funeral support (incl. transportation of the deceased)</td>
+							<td class="benefits-table-cell">Request funeral support, for transportation of the deceased, by calling 0860 777 554 or log a request via our remote banking app or WhatsApp for the service provider to contact you. The place of death must be at least 50 kilometres from the place of burial</td>
+						</tr>
+						<tr>
+							<td class="benefits-table-cell">Death Premium Waiver</td>
+							<td class="benefits-table-cell">Premiums paid by insurer on death of policyholder – 6 months, allowing your family time to re-organize their financial lives</td>
+						</tr>
+						<tr>
+							<td class="benefits-table-cell">Voluntary Policy Pause benefit</td>
+							<td class="benefits-table-cell">Pause premiums and benefits – 6 months. Allows you to retain your product pricing based on entry age</td>
+						</tr>
+						<tr>
+							<td class="benefits-table-cell">Double Accident benefit</td>
+							<td class="benefits-table-cell">Payment of an additional benefit amount equal to your cover amount if lives assured die in an accident</td>
+						</tr>
+						<tr>
+							<td class="benefits-table-cell">Newborn premium waiver</td>
+							<td class="benefits-table-cell">Premiums paid by insurer on your behalf – 6 months (natural birth or adoption)</td>
+						</tr>
+					</table>
+			`}`;
 	}
 
 	/**
