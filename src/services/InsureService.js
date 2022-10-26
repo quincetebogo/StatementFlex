@@ -179,7 +179,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`reinstateQuoteCalc`);
 		}
 		return this.post(
-			`/FuneralInsuranceProductService/policy/reinstate`,
+			`/FuneralInsuranceProductService/policy/reissue`,
 			reinstateQuoteRequest,
 			this.setInsureTokens(),
 			`reinstateQuoteCalc`,
