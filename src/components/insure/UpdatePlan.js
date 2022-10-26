@@ -88,6 +88,7 @@ class UpdatePlan extends Component {
 		this.policyDetails = {};
 		this.prepareUpdateResponse = {};
 		this.createPolicyResponse = {};
+		this.onUpdateValidationMessage = {};
 
 		// Lookups
 		this.accountTypeOptions = ACCOUNT_TYPES;
@@ -95,6 +96,7 @@ class UpdatePlan extends Component {
 		this.debitOrderDayOptions = DEBIT_ORDER_DAY_OPTIONS;
 		this.genderOptions = GENDER_OPTIONS;
 		this.titleOptions = TITLE_OPTIONS;
+
 		this.accountNumErrorMsg = ``;
 		this.branchCodeErrorMsg = ``;
 		this.disclosureValidationMessage = {};
@@ -176,7 +178,8 @@ class UpdatePlan extends Component {
 			branchCodeErrorMsg: { type: String, state: true },
 			disclosureValidationMessage: { type: Object, state: true },
 			showUpdateValidationDialog: { type: Boolean, state: true },
-			disableBranchCode: { type: Boolean, state: true }
+			disableBranchCode: { type: Boolean, state: true },
+			onUpdateValidationMessage: { type: Object, state: true }
 		};
 	}
 
@@ -742,9 +745,9 @@ class UpdatePlan extends Component {
 	* @returns {object} Estimate Response
 	*/
 	async _calculatePremium() {
-		const canSubmit = this.validateUpdatePlanCalculate();
+		const onUpdateValidations = this.validateUpdatePlanCalculate();
 
-		if (canSubmit === true) {
+		if (onUpdateValidations.validated === true) {
 			if (this.newTotalPremium !== ``) {
 				this.policyDetails.totalPremium = this.newTotalPremium;
 			}
@@ -756,6 +759,9 @@ class UpdatePlan extends Component {
 
 			this.newTotalPremium = ``;
 		} else {
+
+			this.onUpdateValidationMessage = this._generateOnUpdateValidationMessage(onUpdateValidations);
+
 			this.showUpdateValidationDialog = true;
 		}
 
@@ -768,18 +774,28 @@ class UpdatePlan extends Component {
 	 * @returns {Boolean} canSubmit
 	 */
 	validateUpdatePlanCalculate() {
-		let canSubmit = true;
+
+		const onUpdateValidations = {};
+		onUpdateValidations.lives = [];
+		onUpdateValidations.validated = true;
+		onUpdateValidations.bankingDetailsValid = true;
+		onUpdateValidations.lifeAssured = true;
+
 		this.policyDetails.roleplayers.forEach(ele => {
 
+			ele.coverDetails.canSubmit = true;
+
 			// General Checks
-			if (ele.firstName === `` || ele.surname === ``) {
-				canSubmit = false;
+			if (ele.lifeAssured === true) {
+				if (ele.firstName === `` || ele.surname === ``) {
+					ele.coverDetails.canSubmit = false;
+				}
 			}
 			 
 			// title check
 			if (ele.lifeAssured === true) {
 				if (isNullorEmpty(ele.title)) {
-					canUpdate = false;
+					ele.coverDetails.canSubmit = false;
 					ele.coverDetails.titleErrorMessageLA = `Title is a required field`;
 				}
 			}
@@ -787,20 +803,20 @@ class UpdatePlan extends Component {
 			// LA Checks
 			if (ele.lifeAssured === true) {
 				if (ele.coverAmount === `` || ele.coverAmount === `0`) {
-					canSubmit = false;
+					ele.coverDetails.canSubmit = false;
 				}
 			}
 
 			// Banking Details
-			if (isNullorEmpty(this.policyDetails.deductionDetails?.bankDetails?.accountNumber)) {
-				canSubmit = false;
+			// if (isNullorEmpty(this.policyDetails.deductionDetails?.bankDetails?.accountNumber)) {
+			// 	canSubmit = false;
 				
-			}
+			// }
 
 			// ID Check
 			if (ele.lifeAssured === true) {
-				if (isNullorEmpty(ele.dateOfBirth)) {
-					canSubmit = false;
+				if (isNullorEmpty(ele.idNumber)) {
+					ele.coverDetails.canSubmit = false;
 					ele.coverDetails.idErrorMessageLA = `ID number is a required field`;
 				}
 			}
@@ -808,13 +824,22 @@ class UpdatePlan extends Component {
 			// Gender check
 			if (ele.lifeAssured === true) {
 				if (isNullorEmpty(ele.gender)) {
-					canSubmit = false;
+					ele.coverDetails.canSubmit = false;
 					ele.coverDetails.genderErrorMessageLA = `Gender is a required field`;
 				}
 			}
 
+			// build list for validation dialog
+			if (ele.coverDetails.canSubmit === false) {
+				onUpdateValidations.lives.push({
+					name: ele.firstName,
+					surname: ele.surname
+				});
+				onUpdateValidations.validated = false;
+			}
+
 		});
-		return canSubmit;
+		return onUpdateValidations;
 	}
 
 	/**
@@ -1067,9 +1092,13 @@ class UpdatePlan extends Component {
 			return;
 		}
 
-		const canUpdate = this._validateOnUpdate();
+		const onUpdateValidations = this._validateOnUpdate();
+		console.log(`validations:`);
+		console.log(onUpdateValidations);
 
-		if (canUpdate === false) { 
+		if (onUpdateValidations.validated === false || onUpdateValidations.bankingDetailsValid === false) { 
+
+			this.onUpdateValidationMessage = this._generateOnUpdateValidationMessage(onUpdateValidations);
 
 			this.showUpdateValidationDialog = true;
 
@@ -1090,13 +1119,20 @@ class UpdatePlan extends Component {
 	}
 
 	_validateOnUpdate() {
-		let canUpdate = true;
+		const onUpdateValidations = {};
+		onUpdateValidations.lives = [];
+		onUpdateValidations.validated = true;
+		onUpdateValidations.bankingDetailsValid = true;
+		onUpdateValidations.lifeAssured = false;
+		
 		this.policyDetails.roleplayers.forEach(ele => {
+
+			ele.coverDetails.canUpdate = true;
 
 			// Benefit payout Check
 			if (ele.beneficiary === true) {
 				if (ele.benefitPayout === ``) {
-					canUpdate = false;
+					ele.coverDetails.canUpdate = false;
 					ele.coverDetails.benefitPayoutErrorMessage = `Payout amount is a required field`;
 				}
 			}
@@ -1104,35 +1140,28 @@ class UpdatePlan extends Component {
 			// Contact details check
 			if (ele.beneficiary === true) {
 				if (isNullorEmpty(ele.contactDetails?.cellphone) && isNullorEmpty(ele.contactDetails?.email)) {
-					canUpdate = false;
+					ele.coverDetails.canUpdate = false;
 					ele.coverDetails.cellphoneNumberErrorMessage = `Please enter a cellphone number`;
 				}
 			}
 
 			// Banking Details
 			if (isNullorEmpty(this.policyDetails.deductionDetails?.bankDetails?.accountNumber)) {
-				canUpdate = false;
+				onUpdateValidations.bankingDetailsValid = false;
 				this.accountNumErrorMsg = `Account number is a required field`;
 			}
 			
-			// First name check
+			// Name check
 			if (ele.beneficiary === true) {
-				if (isNullorEmpty(ele.firstName)) {
-					canUpdate = false;
-				}
-			}
-			
-			// Surname check
-			if (ele.beneficiary === true) {
-				if (isNullorEmpty(ele.surname)) {
-					canUpdate = false;
+				if (isNullorEmpty(ele.firstName) || isNullorEmpty(ele.surname)) {
+					ele.coverDetails.canUpdate = false;
 				}
 			}
 
 			// id check
 			if (ele.beneficiary === true) {
 				if (isNullorEmpty(ele?.idNumber)) {
-					canUpdate = false;
+					ele.coverDetails.canUpdate = false;
 					ele.coverDetails.idNumberErrorMessage = `ID number is a required field`;
 				}
 			}
@@ -1141,14 +1170,80 @@ class UpdatePlan extends Component {
 			// title check
 			if (ele.beneficiary === true) {
 				if (isNullorEmpty(ele.title)) {
-					canUpdate = false;
+					ele.coverDetails.canUpdate = false;
 					ele.coverDetails.titleErrorMessage = `Title is a required field`;
 				}
 			}
 
+			// build list for validation dialog
+			if (ele.coverDetails.canUpdate === false) {
+				onUpdateValidations.lives.push({
+					name: ele.firstName,
+					surname: ele.surname
+				});
+				onUpdateValidations.validated = false;
+			}
+
+		});
+		return onUpdateValidations;
+	}
+
+	_generateOnUpdateValidationMessage(onUpdateValidations) {
+		
+		let allNamesPresent = true;
+		let selectedTab = ``;
+
+		onUpdateValidations.lives.forEach(lives => {
+			if (lives.name === `` || lives.surname === ``) {
+				allNamesPresent = false;
+			}
 		});
 
-		return canUpdate;
+		// validations from which tab
+		if (onUpdateValidations.lifeAssured === true) {
+			 selectedTab = `Premium & Cover Amount`;
+		} else {
+			 selectedTab = `Beneficiaries`;
+		}
+		
+		// First and last names for lives are available to use
+		if (allNamesPresent === true && onUpdateValidations.lives.length > 0) {
+			return html`
+				<p>One or more required fields are missing on the <b>${selectedTab} tab</b> from:</p> 
+
+				<ul>
+					${onUpdateValidations.lives.map(lives => html`
+					<li>${lives.name} ${lives.surname}</li>
+					`)}
+				</ul>
+
+				${onUpdateValidations.bankingDetailsValid === false 
+				? html`
+				<p>One or more required fields are missing from the <b>Debit Order Details tab</b></p>
+				`
+				: html``}
+			`;
+		} 
+
+		// first and/or last names missing and banking details not valid
+		if (onUpdateValidations.lives.length > 0) {
+		return html`
+			${onUpdateValidations.bankingDetailsValid === false 
+			? html`
+			<p>One or more required fields are missing from the <b>${selectedTab} tab</b> and <b>Debit Order Details tab</b></p>
+			`
+			: html`
+			<p>One or more required fields are missing from the <b>${selectedTab} tab</b></p>
+			`}
+		`;
+		}
+
+		// Only banking details invalid
+		return html`
+		<p>One or more required fields are missing from the <b>Debit Order Details tab</b></p>
+		`;
+		
+
 	}
 
 	_acceptUpdatedPlan() {
@@ -2375,7 +2470,8 @@ class UpdatePlan extends Component {
 	*/
 	_renderUpdateValidationDialog() {
 		return this.showUpdateValidationDialog === false ? `` : html`
-			<insure-update-validation-dialog @confirmation-click="${(e) => this.showUpdateValidationDialog = false}">
+			<insure-update-validation-dialog @confirmation-click="${(e) => this.showUpdateValidationDialog = false}"
+			.validationMessage = "${this.onUpdateValidationMessage}">
 			</insure-update-validation-dialog>
 		
 		`;
