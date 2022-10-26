@@ -1,7 +1,7 @@
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/common';
 import { Configuration, NavigationContext } from 'platform/core';
 import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
-import { SavingsPlanEvents, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/SavingsPlan';
+import { SavingsPlanEvents, TRANSACTION_ENQUIRY_EVENTS, UNLOCK_FTSP_EVENTS } from 'app/constants/telemetry/events/SavingsPlan';
 import { css, html, unsafeCSS } from 'platform/elements';
 import { formatDate, formatDateTime, formatStringAsPascalCase, getMonthName } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
@@ -496,6 +496,11 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	async _unlockFtsp(accountNumber) {
+		await this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_FTSP_UNLOCK, {
+			"screen": TelemetryScreen.SAVINGS_PLAN_LANDING,
+			"next-screen": TelemetryScreen.SAVINGS_PLAN_UNLOCK_FTSP
+		});
+
 		// Try again functionality from failure screen to open unlock FTSP screen with previous account selection.
 		const screenDetails = this.horizonStore.getScreenDetails();
 		if (screenDetails?.unlockAccountNumber) {
@@ -550,6 +555,10 @@ export class SavingsPlan extends ViewBase {
 		const returnValue = await this.savingsService.ftspUnlockOptions(request);
 
 		if (returnValue.succeeded) {
+			this._telemetry.startSpan(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP, {
+				"screen": TelemetryScreen.SAVINGS_PLAN_UNLOCK_FTSP
+			});
+
 			const unlockOptionsInCents = returnValue.result.unlockOptions;
 			
 			const unlockOptionsInRands = unlockOptionsInCents.map(item => {
@@ -614,6 +623,8 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	async _getUnlockAgreement(event) {
+		this._telemetry.logEvent(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_ACCEPT_QUOTE);
+
 		const request = {
 			accountNumber: event.detail.selectedAccount.accountNumber,
 			quoteReferenceNumber: event.detail.quoteRefNumber
@@ -624,7 +635,6 @@ export class SavingsPlan extends ViewBase {
 		if (returnValue.succeeded && returnValue.result) {
 			this.encodedUnlockDocument = returnValue.result.agreementContent.data;
 			this.unlockFromAccountName = event.detail.selectedAccount.accountName;
-			this.renderMode = RENDER_MODE.PDF;
 			return;
 		} 
 		
@@ -632,7 +642,18 @@ export class SavingsPlan extends ViewBase {
 
 	}
 
+	_viewUnlockAgreement() {
+		if (this.encodedUnlockDocument && this.unlockFromAccountName) {
+			this._telemetry.logEvent(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_VIEW_AGREEMENT);
+			this.renderMode = RENDER_MODE.PDF;
+		}
+	}
+
 	async _confirmUnlockFtsp(event) {
+		this._telemetry.logEvent(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_TRANSFER_CONFIRM, {
+			"screen": TelemetryScreen.SAVINGS_PLAN_CONFIRM_UNLOCK
+		});
+
 		const request = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"accountNumber": event.detail.selectedFromAccount.accountNumber,
@@ -667,6 +688,50 @@ export class SavingsPlan extends ViewBase {
 
 		this.logger.log(`error`, `Failed to unlock the selected FTSP from service.`, `_confirmUnlockFtsp`, returnValue.correlationId);
 		this.horizonRouter.navigateToUnlockFTSPFailure();
+	}
+
+	_chooseAccountTelemetry(event) {
+		this._telemetry.logEvent(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_CHOOSE_ACCOUNT, {
+			"account-number": event.detail.accountNumber
+		});
+	}
+
+	_chooseOptionsTelemetry(event) {
+		this._telemetry.logEvent(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_CHOOSE_OPTION, {
+			"unlock-type": event.detail.unlockType
+		});
+	}
+
+	_unlockAmountTelemetry(event) {
+		this._telemetry.logEvent(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_UNLOCK_AMOUNT, {
+			"unlock-amount": event.detail.unlockAmount
+		});
+	}
+
+	async _backFromUnlockFTSP() {
+		await this._telemetry.logEvent(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_CANCEL, {
+			"screen": TelemetryScreen.SAVINGS_PLAN_UNLOCK_FTSP,
+			"next-screen": TelemetryScreen.SAVINGS_PLAN_LANDING
+		});
+
+		this._telemetry.endSpan(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP);
+		this.horizonStore.clearScreenDetails();
+		this._backToLandingPage();
+	}
+
+	async _selectTransferTelemetry() {
+		await this._telemetry.logEvent(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_SELECT_TRANSFER, {
+			"screen": TelemetryScreen.SAVINGS_PLAN_UNLOCK_FTSP,
+			"next-screen": TelemetryScreen.SAVINGS_PLAN_CONFIRM_UNLOCK
+		});
+
+		this._telemetry.startSpan(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_TRANSFER, {
+			"screen": TelemetryScreen.SAVINGS_PLAN_CONFIRM_UNLOCK
+		});
+	}
+
+	_cancelTransferTelemetry() {
+		this._telemetry.endSpan(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_TRANSFER);
 	}
 
 	// ---------
@@ -984,12 +1049,18 @@ export class SavingsPlan extends ViewBase {
 				.shouldDisable="${need => this._shouldDisable(need)}"
 				.renderAlertBanner="${() => this.renderAlertBanner()}"
 
-				@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
-				@view-agreement="${(event) => this._getUnlockAgreement(event)}"
+				@back="${() => this._backFromUnlockFTSP()}"
+				@get-agreement="${(event) => this._getUnlockAgreement(event)}"
+				@view-agreement="${(event) => this._viewUnlockAgreement(event)}"
 				@unlock="${(event) => this._confirmUnlockFtsp(event)}"
-				@verify-now="${() => this._verifyClick()}">
-			</capitec-pc-unlock-ftsp>
-		`
+				@verify-now="${() => this._verifyClick()}"
+				
+				@choose-account-telemetry="${(event) => this._chooseAccountTelemetry(event)}"
+				@choose-options-telemetry="${(event) => this._chooseOptionsTelemetry(event)}"
+				@unlock-amount-telemetry="${(event) => this._unlockAmountTelemetry(event)}"
+				@select-transfer-telemetry="${() => this._selectTransferTelemetry()}"
+				@cancel-transfer-telemetry="${() => this._cancelTransferTelemetry()}">
+			</capitec-pc-unlock-ftsp>`
 		: html``;
 	}
 
@@ -997,7 +1068,7 @@ export class SavingsPlan extends ViewBase {
 		return this.renderMode === RENDER_MODE.PDF
 		? html`
 			<horizon-pdf-viewer
-				header="Agreement: ${this.unlockFromAccountName}"
+				header="Agreement"
 				encodedPDF="${this.encodedUnlockDocument}"
 				@cancel="${() => this.renderMode = RENDER_MODE.UNLOCK_FTSP}">
 			</horizon-pdf-viewer>`
