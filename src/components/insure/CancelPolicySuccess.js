@@ -18,7 +18,7 @@ import 'app/components/dialogs/insure/InsureEmailDialog';
  */
 class CancelPolicySuccess extends Component {
 
-// #region INITIALIZE
+	// #region INITIALIZE
 
 	constructor() {
 		super();
@@ -28,9 +28,9 @@ class CancelPolicySuccess extends Component {
 		this.titleMessage = ``;
 	}
 
-// #endregion
+	// #endregion
 
-// #region PROPERTIES
+	// #region PROPERTIES
 
 	/**
 	 * @property {String} showEmailPlanDialog - Show flag for email address & send dialog
@@ -41,74 +41,74 @@ class CancelPolicySuccess extends Component {
 	 */
 	static get properties() {
 		return {
-			
+
 			showEmailPlanDialog: { type: Boolean, state: true },
 			contractReference: { type: String, state: true },
 			titleMessage: { type: String }
 		};
 	}
 
-// #endregion
+	// #endregion
 
-// #region LIFECYCLE OVERRIDES
+	// #region LIFECYCLE OVERRIDES
 
 	/**
 	 * Setup the component once added to the DOM.
 	 * @returns {void}
 	 */
-	 connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
 	}
 
 	// #endregion
 
-// #region PRIVATE METHODS
+	// #region PRIVATE METHODS
 
-// #endregion
+	// #endregion
 
-// #region EVENT HANDLERS
+	// #region EVENT HANDLERS
 
 
-/**
- * Event to open the email plan dialog
- * @returns {null} null
- */
-_openEmailPlanDialog() {
-	this.titleMessage = `Email Funeral Plan (${this.contractReference})`;
+	/**
+	 * Event to open the email plan dialog
+	 * @returns {null} null
+	 */
+	_openEmailPlanDialog() {
+		this.titleMessage = `Email Funeral Plan (${this.contractReference})`;
 
-	this.showEmailPlanDialog = true;
-}
+		this.showEmailPlanDialog = true;
+	}
 
-/**
- * Event to close the email plan dialog
- * @returns {null} null
- */
-_closeEmailPlanDialog() {
-	this.showEmailPlanDialog = false;
-}
+	/**
+	 * Event to close the email plan dialog
+	 * @returns {null} null
+	 */
+	_closeEmailPlanDialog() {
+		this.showEmailPlanDialog = false;
+	}
 
-/**
- * Invoke this function when Send button is clicked on Email Popup
- * 
- * @param {*} emailAddress email address
- * @returns {null} null
- */
-_sendEmail(emailAddress) {
-	this.callerPage = INSURE_CALLER_PAGE.CANCEL_POLICY;
+	/**
+	 * Invoke this function when Send button is clicked on Email Popup
+	 * 
+	 * @param {*} emailAddress email address
+	 * @returns {null} null
+	 */
+	_sendEmail(emailAddress) {
+		this.callerPage = INSURE_CALLER_PAGE.CANCEL_POLICY;
 
-	this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: this.callerPage } }));
-}
+		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: this.callerPage } }));
+	}
 
-_navigateToSummary() { 
-	this.dispatchEvent(new CustomEvent(`navigate-to-summary`, {
-		detail: {
-		}
-	}));
-}
+	_navigateToSummary() {
+		this.dispatchEvent(new CustomEvent(`navigate-to-summary`, {
+			detail: {
+			}
+		}));
+	}
 
-// #endregion
+	// #endregion
 
-// #region RENDERING
+	// #region RENDERING
 
 	/**
 	 * Generates the component stylesheet.
@@ -117,7 +117,7 @@ _navigateToSummary() {
 	 * @static
 	 * @returns {css} CSS for the component.
 	 */
-	 static get styles() {
+	static get styles() {
 		return [
 			super.styles,
 			css`
@@ -168,18 +168,18 @@ _navigateToSummary() {
 	 * Main render point for component
 	 * @returns {html} The html content of the component.
 	 */
-	 _webTemplate() {
+	_webTemplate() {
 		return html`
 			${this._renderContent()}
 			${this._renderDialogs()}
 		`;
 	}
 
-/**
- * Render Dialogs
- * 
- * @returns {null} null
- */
+	/**
+	 * Render Dialogs
+	 * 
+	 * @returns {null} null
+	 */
 	_renderDialogs() {
 		return html`
 		${this._renderEmailPlanDialog()}
@@ -190,7 +190,7 @@ _navigateToSummary() {
 	 * Render the content HTML for the component
 	 * @returns {html} html content
 	 */
-	 _renderContent() {
+	_renderContent() {
 		return html`
 			<capitec-card class="container">
 				<div>
@@ -198,10 +198,10 @@ _navigateToSummary() {
 						style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
 					<capitec-label class="label" type="title" label="The policy has been cancelled"></capitec-label>
 					<div class="button-row">
-						<capitec-button label="Done" class = "capitec-button-medium" type="primary" @click="${() => this._goToSummary()}"
+						<capitec-button label="Done" class="capitec-button-medium" type="primary" @click="${() => this._navigateToSummary()}"
 							data-automation-id="">
 						</capitec-button>
-						<capitec-button label="Email" class = "capitec-button-medium" type="primary" @click="${() => this._openEmailPlanDialog()}"
+						<capitec-button label="Email" class="capitec-button-medium" type="primary" @click="${() => this._openEmailPlanDialog()}"
 							data-automation-id="">
 						</capitec-button>
 					</div>
@@ -215,8 +215,8 @@ _navigateToSummary() {
 	 * @returns {null} null 
 	 */
 	_renderEmailPlanDialog() {
-		return this.showEmailPlanDialog === false ? `` 
-		: html`
+		return this.showEmailPlanDialog === false ? ``
+			: html`
 			<insure-email-dialog @close-modal="${(e) => this.showEmailPlanDialog = false}"
 				@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}"
 				.contractReference = "${this.contractReference}" .titleMessage = "${this.titleMessage}">
