@@ -4,7 +4,7 @@
  * @readonly
  * @enum {Object} EMAIL_DOCUMENT_REQUEST_PAYLOAD
  */
- export const EMAIL_DOCUMENT_REQUEST_PAYLOAD = {
+export const EMAIL_DOCUMENT_REQUEST_PAYLOAD = {
 	"email": ``,
 	"cifNumber": ``,
 	"contractReference": ``,
@@ -13,7 +13,10 @@
 			"documentId": ``,
 			"documentType": ``,
 			"documentGuid": ``,
-			"content": ``
+			"content": {
+				"value": ``,
+				"type": ``
+			}
 		}
 	]
 };
@@ -24,7 +27,7 @@
  * @readonly
  * @enum {Object} GENERATE_DOCUMENT_REQUEST_PAYLOAD
  */
- export const GENERATE_DOCUMENT_REQUEST_PAYLOAD = {
+export const GENERATE_DOCUMENT_REQUEST_PAYLOAD = {
 	"documentFormat": `PDF`,
 	"saveDocumentToDocumentum": false,
 	"returnDocumentContent": true,

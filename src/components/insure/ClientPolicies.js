@@ -3,7 +3,7 @@ import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ClientPoliciesEvents } from 'app/constants/telemetry/events/Insure';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
-import { Status } from 'app/constants/InsureCommon';
+import { Status, INSURE_CALLER_PAGE } from 'app/constants/InsureCommon';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/OptionButton';
@@ -253,6 +253,15 @@ class ClientPolicies extends Component {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_CANCEL_POLICY, {});
 		this.contractReferenceToCancel = contractReference;
 		this.showCancelPolicyDialog = true;
+	}
+
+	/**
+	 * Invoke this function when Send button is clicked on Email Popup
+	 * @param {string} emailAddress email address
+	 * @returns {void}
+	 */
+	_sendEmail(emailAddress) {
+		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.CLIENT_POLICIES } }));
 	}
 
 	/**
@@ -653,6 +662,7 @@ class ClientPolicies extends Component {
 			${this._renderPayPremiumAgreementDialog()}
 			${this._renderLodgeClaimInfoDialog()}
 			${this._renderCancelPolicyDialog()}
+			${this._renderInsureEmailDialog()}
 		`;
 	}
 
@@ -840,6 +850,7 @@ class ClientPolicies extends Component {
 						class="button-margin" 
 						label="Email Plan" 
 						icon="system/profile-action"
+						@click="${() => this.showEmailPlanDialog = true}"
 						.disabled="${this.readOnlyMode}">
 					</horizon-option-button>`
 				: html`${policyItem.arrearDetails?.outstandingAmount > 0 && (policyItem.status === `Active` || policyItem.status === `PendingInForce`)
@@ -868,6 +879,7 @@ class ClientPolicies extends Component {
 						data-automation-id="insure-policy-options-email-plan"
 						class="button-margin" 
 						label="Email Plan" 
+						@click="${() => this.showEmailPlanDialog = true}"
 						icon="system/profile-action"
 						.disabled="${this.readOnlyMode}">
 					</horizon-option-button>
@@ -1094,6 +1106,20 @@ class ClientPolicies extends Component {
 			</insure-lodge-claim-info-dialog>`;
 	}
 
+	/** 
+	 * Render dialog for confirming email address then sending
+	 * @returns {void}
+	 */
+	_renderInsureEmailDialog() {
+		return this.showEmailPlanDialog === false ? ``
+			: html`
+				<insure-email-dialog 
+					.titleMessage = "${`Email Funeral Plan Estimate`}"
+					@close-modal="${() => this.showEmailPlanDialog = false}"
+					@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}">
+				</insure-email-dialog>`;
+	}
+
 	// #endregion RENDERING
 }
 
@@ -1184,6 +1210,15 @@ window.customElements.define(`horizon-insure-client-policies`, ClientPolicies);
  * <horizon-insure-client-policies ... @navigate-to-sms-history="${this._handler}"></horizon-insure-client-policies>
  *
  * @event ClientPolicies#navigate-to-sms-history
+ */
+
+/**
+ * Send email event containing confirmed address 
+ *
+ * @example
+ * <horizon-insure-client-policies ... @send-email="${this._handler}"></horizon-insure-client-policies>
+ *
+ * @event ClientPolicies#send-email
  */
 
 /**
