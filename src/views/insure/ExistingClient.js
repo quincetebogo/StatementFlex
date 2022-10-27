@@ -459,12 +459,16 @@ export class ExistingClient extends InsureViewBase {
 			contractReference: contractReference,
 			cifNumber: cifNumber
 		};
-		const resp = await this.insureService.insureReinstateQuoteCalc(request);
+		const resp = await this.insureService.insureReinstateQuoteCalc(request, this.toastErrorHandler(), 1);
 		if (!resp.succeeded) {
 			return;
 		}
 
 		return resp.result;
+	}
+
+	toastErrorHandler(error) {
+		console.log(`error`);
 	}
 
 	/**
@@ -1169,7 +1173,7 @@ export class ExistingClient extends InsureViewBase {
 
 		this._getAgreementAttachments(this.callerPage, EMAIL_DOCUMENT_REQUEST_PAYLOAD);
 		const emailResponse = await this.insureService.emailFuneralDocuments(EMAIL_DOCUMENT_REQUEST_PAYLOAD);
-		
+
 		if (!emailResponse.succeeded) {
 			return;
 		}
