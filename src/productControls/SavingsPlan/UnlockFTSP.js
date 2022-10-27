@@ -185,7 +185,7 @@ const UNLOCK_OPTIONS = {
 	}
 
 	_focusInUnlockAmount(e) {
-		console.log(e.detail);
+		
 		this.displayUnlockAmount = this.partialUnlockAmount;
 	}
 
