@@ -267,68 +267,84 @@ export class ExistingClient extends InsureViewBase {
 
 	/**
 	 * Get attachments for different document types
-	 * @param {*} sourePage from which send email method is invoked
+	 * @param {*} sourcePage from which send email method is invoked
 	 * @param {*} emailDocumentRequestPayload - email request payload
 	 * @returns {*} *
 	 */
-	_getAgreementAttachments(sourePage, emailDocumentRequestPayload) {
-		if (sourePage === INSURE_CALLER_PAGE.REINSTATE_POLICY) {
+	_getAgreementAttachments(sourcePage, emailDocumentRequestPayload) {
+		if (sourcePage === INSURE_CALLER_PAGE.REINSTATE_POLICY) {
 			emailDocumentRequestPayload.documentInfo = [
 				{
-					"documentId": `123`,
 					"documentType": DOCUMENT_TYPE.ISSUE_POLICY_AGREEMENT,
 					"documentGuid": this.issuePlanAgreementDocument?.documentDetails?.guid,
-					"content": this.issuePlanAgreementDocument?.documentContent.value
+					"content": {
+						"type": `PDF`,
+						"value": this.issuePlanAgreementDocument?.documentContent.value
+					}
 				},
 				{
-					"documentId": `456`,
 					"documentType": DOCUMENT_TYPE.PAYMENT_MANDATE_AGREEMENT,
 					"documentGuid": this.reinstatePaymentAgreementDocument?.documentDetails?.guid,
-					"content": this.reinstatePaymentAgreementDocument?.documentContent.value
+					"content": {
+						"type": `PDF`,
+						"value": this.reinstatePaymentAgreementDocument?.documentContent.value,
+					}
 				}
 			];
-		} else if (sourePage === INSURE_CALLER_PAGE.UPDATE_PLAN) {
+		} else if (sourcePage === INSURE_CALLER_PAGE.UPDATE_PLAN) {
 			emailDocumentRequestPayload.documentInfo = [
 				{
-					"documentId": `123`,
 					"documentType": DOCUMENT_TYPE.UPDATE_POLICY_AGREEMENT,
 					"documentGuid": this.updatePlanAgreementDocument?.documentDetails?.guid,
-					"content": this.updatePlanAgreementDocument?.documentContent.value
+					"content": {
+						"type": `PDF`,
+						"value": this.updatePlanAgreementDocument?.documentContent.value,
+					}
 				},
 				{
-					"documentId": `456`,
 					"documentType": DOCUMENT_TYPE.PAYMENT_MANDATE_AGREEMENT,
 					"documentGuid": this.updatePaymentAgreementDocument?.documentDetails?.guid,
-					"content": this.updatePaymentAgreementDocument?.documentContent.value
+					"content": {
+						"type": `PDF`,
+						"value": this.updatePaymentAgreementDocument?.documentContent.value
+					}
 				}
 			];
-		} else if (sourePage === INSURE_CALLER_PAGE.CANCEL_POLICY) {
+		} else if (sourcePage === INSURE_CALLER_PAGE.CANCEL_POLICY) {
 			emailDocumentRequestPayload.documentInfo = [
 				{
-					"documentId": `123`,
 					"documentType": DOCUMENT_TYPE.CANCEL_POLICY_AGREEMENT,
 					"documentGuid": this.cancelPolicyDocumentDetails?.documentDetails?.guid,
-					"content": this.cancelPolicyDocumentDetails?.documentContent.value
+					"content": {
+						"value": this.cancelPolicyDocumentDetails?.documentContent.value,
+						"type": `PDF`
+					}
 				}
 			];
-		} else if (sourePage === INSURE_CALLER_PAGE.PAY_PREMIUM) {
+		} else if (sourcePage === INSURE_CALLER_PAGE.PAY_PREMIUM) {
 			emailDocumentRequestPayload.documentInfo = [
 				{
-					"documentId": `123`,
 					"documentType": DOCUMENT_TYPE.PAY_ARREARS_AGREEMENT,
 					"documentGuid": ``,
-					"content": ``
+					"content": {
+						"type": `PDF`,
+						"value": ``
+					}
 				}
 			];
-		} else if (sourePage === INSURE_CALLER_PAGE.ESTIMATE) {
+		} else if (sourcePage === INSURE_CALLER_PAGE.ESTIMATE) {
 			emailDocumentRequestPayload.documentInfo = [
 				{
-					"documentId": `123`,
 					"documentType": DOCUMENT_TYPE.ESTIMATE_AGREEMENT,
 					"documentGuid": ``,
-					"content": ``
+					"content": {
+						"type": `PDF`,
+						"value": ``
+					}
 				}
 			];
+		} else if (sourcePage === INSURE_CALLER_PAGE.CLIENT_POLICIES) {
+			emailDocumentRequestPayload.documentInfo = [];
 		}
 	}
 
@@ -1161,6 +1177,8 @@ export class ExistingClient extends InsureViewBase {
 			this.callerPage = INSURE_CALLER_PAGE.PAY_PREMIUM;
 		} else if (e.detail.callerPage === INSURE_CALLER_PAGE.ESTIMATE) {
 			this.callerPage = INSURE_CALLER_PAGE.ESTIMATE;
+		} else if (e.detail.callerPage === INSURE_CALLER_PAGE.CLIENT_POLICIES) {
+			this.callerPage = INSURE_CALLER_PAGE.CLIENT_POLICIES;
 		}
 
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.email = e.detail.emailId.detail.emailAddress;
@@ -1169,7 +1187,7 @@ export class ExistingClient extends InsureViewBase {
 
 		this._getAgreementAttachments(this.callerPage, EMAIL_DOCUMENT_REQUEST_PAYLOAD);
 		const emailResponse = await this.insureService.emailFuneralDocuments(EMAIL_DOCUMENT_REQUEST_PAYLOAD);
-		
+
 		if (!emailResponse.succeeded) {
 			return;
 		}
@@ -1182,7 +1200,6 @@ export class ExistingClient extends InsureViewBase {
 		} else {
 			this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES);
 		}
-
 	}
 
 	/**
@@ -1385,7 +1402,8 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
-				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}">
+				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}"
+				@send-email = "${(e) => this._sendEmail(e)}">
 			</horizon-insure-client-policies>`;
 	}
 
