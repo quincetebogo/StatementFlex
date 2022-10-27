@@ -185,6 +185,7 @@ const UNLOCK_OPTIONS = {
 	}
 
 	_focusInUnlockAmount(e) {
+		console.log(e.detail);
 		this.displayUnlockAmount = this.partialUnlockAmount;
 	}
 
@@ -863,7 +864,7 @@ const UNLOCK_OPTIONS = {
 						type="${this.partialUnlockAmount ? `currency` : ``}"
 						error="${this.errMessage}"
 						value="${this.displayUnlockAmount}"
-						@value-changed="${(e) => this._unlockAmountChange(e)}"
+						@key-input="${(e) => this._unlockAmountChange(e)}"
 						@keyboard-input-focus="${(e) => this._focusInUnlockAmount(e)}"
 						@blur="${(e) => this._focusOutUnlockAmount(e)}"
 						?disabled=${!this.unlockType || this.unlockType === `Full unlock`}>
