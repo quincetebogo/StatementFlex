@@ -298,7 +298,7 @@ export class InsureService extends ChannelServiceBase {
 	/**
 	 * Get Audit Transaction History
 	 *
-	 * @param {transactionsRequest} [errorHandler=null]  Request data for policy transactions 
+	 * @param {transactionsRequest} [transactionsRequest]  Request data for policy transactions 
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
