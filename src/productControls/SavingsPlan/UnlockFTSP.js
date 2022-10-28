@@ -905,7 +905,7 @@ const UNLOCK_OPTIONS = {
 
 					<capitec-check
 						data-automation-id="unlock-ftsp-accept-quote"
-						label="I accept the unlock penalty fee"
+						label="I agree to the penalty fee and above terms and conditions"
 						?checked=${this.agreementAccepted}
 						?disabled="${!this.unlockAllowed}"
 						@value-change="${(e) => this._acceptAgreement(e)}">
