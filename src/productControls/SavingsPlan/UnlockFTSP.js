@@ -559,7 +559,7 @@ const UNLOCK_OPTIONS = {
 
 				capitec-modal {
 					--theme-modal-free-max-width: 341px;
-					--theme-modal-header-background-color: #f5f5f5;
+					--theme-modal-header-background-color: #F9EBDD;
 					--theme-modal-body-padding: 16px;
 					--theme-modal-header-height: 64px;
 					--theme-modal-header-padding-top: 32px;
@@ -905,7 +905,7 @@ const UNLOCK_OPTIONS = {
 
 					<capitec-check
 						data-automation-id="unlock-ftsp-accept-quote"
-						label="I accept the unlock penalty fee"
+						label="I agree to the penalty fee and above terms and conditions"
 						?checked=${this.agreementAccepted}
 						?disabled="${!this.unlockAllowed}"
 						@value-change="${(e) => this._acceptAgreement(e)}">
