@@ -273,3 +273,19 @@ export const INSURE_CALLER_PAGE = Object.freeze({
 	YBP_NOTIFICATION: 4,
 	YROA_NOTIFICATION: 5
 });
+
+/**
+ * List of Policy Options
+ * 
+ * @readonly
+ * @enum {Object} POLICY_OPTIONS
+ */
+ export const POLICY_OPTIONS = Object.freeze({
+	EMAIL_PLAN: `EmailPlan`,
+	REINSTATE: `Reinstate`,
+	PAY_ARREARS: `PayArrears`,
+	UPDATE_PLAN: `UpdatePlan`,
+	CANCEL_PLAN: `CancelPlan`,
+	TRANSACTION_HISTORY: `TransactionHistory`,
+	SMS_HISTORY: `SMSHistory`
+});
