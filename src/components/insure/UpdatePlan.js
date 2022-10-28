@@ -1083,8 +1083,6 @@ class UpdatePlan extends Component {
 		}
 
 		const onUpdateValidations = this._validateOnUpdate();
-		console.log(`validations:`);
-		console.log(onUpdateValidations);
 
 		if (onUpdateValidations.validated === false || onUpdateValidations.bankingDetailsValid === false) { 
 
@@ -1885,7 +1883,7 @@ class UpdatePlan extends Component {
 											</horizon-label>
 											<div class="vertical-line"></div>
 											<horizon-label label="Payout Amount (Max ${this.policyDetails.roleplayers[0].coverAmount !== `` ? formatCurrency(this.policyDetails.roleplayers[0].coverAmount, 2) : formatCurrency(0)})"
-												value="${beneficiary?.benefitPayout === undefined ? `R0.00` : formatCurrency(beneficiary?.benefitPayout)}">
+												value="${beneficiary?.benefitPayout === `` ? `R0.00` : formatCurrency(beneficiary?.benefitPayout)}">
 											</horizon-label>
 										</capitec-group>
 										<div slot="content">
@@ -2276,7 +2274,7 @@ class UpdatePlan extends Component {
 			<capitec-text-field type="currency" label="Payout amount" style="width: 50%" 
 				value=${roleplayer?.benefitPayout <= 0 ? `` : roleplayer?.benefitPayout} ?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editBeneficiaryValues`, roleplayer.relationship)}"
 				@value-changed="${(e) => this._beneficiaryPayoutValueChanged(e, roleplayer.recordID)}"
-				error="${roleplayer?.coverDetails.benefitPayoutErrorMessage === undefined ? `` : roleplayer?.coverDetails.benefitPayoutErrorMessage}">
+				error="${roleplayer?.coverDetails?.benefitPayoutErrorMessage === `` ? `` : roleplayer?.coverDetails?.benefitPayoutErrorMessage}">
 			</capitec-text-field>
 		</div>
 
@@ -2292,14 +2290,14 @@ class UpdatePlan extends Component {
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editContactDetails`, roleplayer.relationship)}"
 				@value-changed= "${(e) => this._lifeCellphoneValueChanged(e, roleplayer.recordID)}"
 				@key-input="${(e) => this._onlyNumberKey(e)}" 
-				error="${roleplayer?.coverDetails.cellphoneNumberErrorMessage === undefined ? `` : roleplayer?.coverDetails.cellphoneNumberErrorMessage}">
+				error="${roleplayer?.coverDetails?.cellphoneNumberErrorMessage === undefined ? `` : roleplayer?.coverDetails?.cellphoneNumberErrorMessage}">
 			</capitec-text-field>
 		</div>
 		<div class="expander-options">
 			<capitec-text-field label="ID" style="width: 50%" value="${isNullorEmpty(roleplayer?.idNumber) ? `` : roleplayer?.idNumber}" 
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editIDNumber`, roleplayer.relationship) || this.policyDetails.policyRule !== `Standard`}"
 				@value-changed = "${(e) => this._lifeIDValueChanged(e, roleplayer.recordID)}"
-				error="${roleplayer?.coverDetails.idNumberErrorMessage === undefined ? `` : roleplayer?.coverDetails.idNumberErrorMessage}">
+				error="${roleplayer?.coverDetails?.idNumberErrorMessage === undefined ? `` : roleplayer?.coverDetails?.idNumberErrorMessage}">
 			</capitec-text-field>
 			
 		</div>`;
