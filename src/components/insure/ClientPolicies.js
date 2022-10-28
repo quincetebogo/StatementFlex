@@ -1,11 +1,10 @@
 import { Component, css, html } from 'platform/elements';
-import { POLICY_OPTIONS, Status } from 'app/constants/InsureCommon';
+import { INSURE_CALLER_PAGE, POLICY_OPTIONS, Status } from 'app/constants/InsureCommon';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ClientPoliciesEvents } from 'app/constants/telemetry/events/Insure';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
@@ -256,6 +255,15 @@ class ClientPolicies extends Component {
 	}
 
 	/**
+	 * Invoke this function when Send button is clicked on Email Popup
+	 * @param {string} emailAddress email address
+	 * @returns {void}
+	 */
+	_sendEmail(emailAddress) {
+		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.CLIENT_POLICIES } }));
+	}
+
+	/**
 	 * Close Pay Premium Dialog and Open the Pay Premium Confirmation Dialog.
 	 *
 	 * @param {*} e contains the values pay arrears and amount to be paid
@@ -433,6 +441,7 @@ class ClientPolicies extends Component {
 				class="button-margin" 
 				label="Email Plan" 
 				icon="system/profile-action"
+				@click="${() => this.showEmailPlanDialog = true}"
 				.disabled="${this.readOnlyMode}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.PAY_ARREARS:
@@ -766,6 +775,7 @@ class ClientPolicies extends Component {
 			${this._renderPayPremiumAgreementDialog()}
 			${this._renderLodgeClaimInfoDialog()}
 			${this._renderCancelPolicyDialog()}
+			${this._renderInsureEmailDialog()}
 		`;
 	}
 
@@ -1120,6 +1130,20 @@ class ClientPolicies extends Component {
 			</insure-lodge-claim-info-dialog>`;
 	}
 
+	/** 
+	 * Render dialog for confirming email address then sending
+	 * @returns {void}
+	 */
+	_renderInsureEmailDialog() {
+		return this.showEmailPlanDialog === false ? ``
+			: html`
+				<insure-email-dialog 
+					.titleMessage = "${`Email Funeral Plan Estimate`}"
+					@close-modal="${() => this.showEmailPlanDialog = false}"
+					@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}">
+				</insure-email-dialog>`;
+	}
+
 	// #endregion RENDERING
 }
 
@@ -1210,6 +1234,15 @@ window.customElements.define(`horizon-insure-client-policies`, ClientPolicies);
  * <horizon-insure-client-policies ... @navigate-to-sms-history="${this._handler}"></horizon-insure-client-policies>
  *
  * @event ClientPolicies#navigate-to-sms-history
+ */
+
+/**
+ * Send email event containing confirmed address 
+ *
+ * @example
+ * <horizon-insure-client-policies ... @send-email="${this._handler}"></horizon-insure-client-policies>
+ *
+ * @event ClientPolicies#send-email
  */
 
 /**

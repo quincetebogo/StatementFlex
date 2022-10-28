@@ -32,7 +32,7 @@ class UpdateValidationDialog extends Component {
 	 */
 	static get properties() {
 		return {
-			confirmationMessage: { type: Object, state: true }
+			validationMessage: { type: Object, state: true }
 		};
 	}
 
@@ -93,7 +93,7 @@ class UpdateValidationDialog extends Component {
 	 _renderDialogBody() {
 		return html` 
 		<capitec-content-box>
-			<capitec-label label = "One or more required fields are missing" type = "strong"></capitec-label>
+			${this.validationMessage}
 		</capitec-content-box>
 		`;
 	}
@@ -105,7 +105,7 @@ class UpdateValidationDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-			<capitec-button slot="footer" type="primary" label="Ok" class="capitec-button-small"
+			<capitec-button slot="footer" type="primary" label="Ok" class="capitec-button-medium"
 				@click="${() => this._onConfirmationClick()}"
 				data-automation-id="insure-confirmation-dialog-confirm">
 			</capitec-button>
