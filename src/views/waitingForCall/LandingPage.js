@@ -153,7 +153,7 @@ export class LandingPage extends ViewBase {
 
 	async _createIncident(newCallInfo) {
 		 const returnValue = await this.incidentManagementService.createIncident(newCallInfo, (ex) => this._landingPageErrorHandler(ex));
-		 const incident = returnValue.result;
+		 const incident = returnValue.result.incident;
 
 		 if (!returnValue.succeeded || !incident) {
 		 	this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `_createIncident`, returnValue.correlationId);
@@ -161,8 +161,8 @@ export class LandingPage extends ViewBase {
 
 		if (incident) {
 			await this.telemetry.logEvent(AcceptCallEvents.INCIDENT_CREATED, {
-				"incident-reference": incident.incidentNumber,
-				"incident-rec-id": incident.incidentRecId
+				"incident-reference": incident.incidentReference,
+				"incident-rec-id": incident.incidentId
 			}, true);
 		}
 	

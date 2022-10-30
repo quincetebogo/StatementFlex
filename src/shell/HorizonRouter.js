@@ -65,7 +65,9 @@ const HORIZON_ROUTES = Object.freeze({
 	UNLOCK_FTSP_FAILURE: `/error/unlock-fixed-term-savings-plan`,
 	SEND_CASH_SUCCESS: `/success/send-cash`,
 	SEND_CASH_FAILURE: `/error/send-cash`,
-	WIDGET_HOST: `/widget`  
+	WIDGET_HOST: `/widget`,
+	WIDGET_HOST_UNAVAILABLE: `/widget/unavailable`,
+	WIDGET_HOST_NOTFOUND: `/widget/notfound`
 });
 
 
@@ -422,6 +424,13 @@ export class HorizonRouter {
   
 	navigateToWidget(widgetName) {
 		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST}/${widgetName}`);
+	}
+	navigateToWidgetUnavailable() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST_UNAVAILABLE}`);
+	}
+
+	navigateToWidgetNotFound() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST_NOTFOUND}`);
 	}
 
 	/**
@@ -1018,6 +1027,22 @@ export default horizonRoutes = [
 		icon: null,
 		path: `${HORIZON_ROUTES.WIDGET_HOST}/:name`,
 		load: () => import(`../views/common/HorizonWidgetHost`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-widget-service-unavailable`,
+		title: `WidgetServiceUnavailable`,
+		icon: null,
+		path: `${HORIZON_ROUTES.WIDGET_HOST_UNAVAILABLE}`,
+		load: () => import(`../views/common/WidgetServiceUnavailable`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-widget-not-found`,
+		title: `WidgetNotFoundPage`,
+		icon: null,
+		path: HORIZON_ROUTES.WIDGET_HOST_NOTFOUND,
+		load: () => import(`../views/common/WidgetNotFound`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}  
 ];

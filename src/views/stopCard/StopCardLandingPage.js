@@ -24,13 +24,11 @@ export class StopCardLandingPage extends ViewBase {
 
 	constructor() {
 		super();
-
-		this.isBusy = false;
 		
 		this.screenDetails = this.horizonStore.getScreenDetails();
 		this.cards = this.screenDetails && this.screenDetails.cards;
 		
-		this._telemetry = HorizonTelemetry.instance;
+		this._telemetry = HorizonTelemetry.getInstance();
 		this.displayToast = false;
 	}
 

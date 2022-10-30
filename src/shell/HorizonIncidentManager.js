@@ -94,7 +94,7 @@ export class HorizonIncidentManager {
 		return { 
 			...this.incidentDetails.primaryIncident,
 			toString: function toString () { 
-				return this.incidentNumber;
+				return this.incidentReference;
 			}
 		};
 	}
@@ -112,7 +112,7 @@ export class HorizonIncidentManager {
 			return {
 				...this.incidentDetails.currentIncident,
 				toString: function toString () { 
-					return this.incidentNumber;
+					return this.incidentReference;
 			}
 		};
 	};
@@ -197,13 +197,13 @@ export class HorizonIncidentManager {
 			primaryIncident: {
 				...this.incidentDetails.primaryIncident,
 				toString: function toString () { 
-					return this.incidentNumber;
+					return this.incidentReference;
 				}
 			},
 			currentIncident: {
 				...this.incidentDetails.currentIncident,
 				toString: function toString () { 
-					return this.incidentNumber;
+					return this.incidentReference;
 				}
 			}
 		};
@@ -341,7 +341,7 @@ export class HorizonIncidentManager {
 
 
 	_validIncident (incident) {
-		return !incident && Object.keys(incident).length !== 0;
+		return !incident || Object.keys(incident).length !== 0;
 	}
 
 	/**
@@ -379,8 +379,8 @@ export class HorizonIncidentManager {
 			await this.classifyIncident(toggleBusyFlag);
 		}
 
-		 const reason = isNullorEmpty(endCallReason.key) ? CLOSE_REASONS[incidentDetails.incidentState] : endCallReason.key;
-		 const resolution = this._getResolution(incidentInfo.resolution, incidentDetails, endCallReason, manualClassification);
+		 const reason = isNullorEmpty(endCallReason.key) ? CLOSE_REASONS[this.incidentDetails.incidentState] : endCallReason.key;
+		 const resolution = this._getResolution(incidentInfo.resolution, this.incidentDetails, endCallReason, manualClassification);
 		 const causeCode = this._getCauseCode(incidentInfo.causeCode, endCallReason.value || REASON_RESOLUTIONS[reason], manualClassification);
 
 		const returnValue = await this.incidentService.closeIncident(this.currentIncident, reason, this._formatLineBreaks(resolution), causeCode);
