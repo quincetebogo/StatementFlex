@@ -73,7 +73,10 @@ export default class HorizonChannelServiceMocks {
 		this.budgetFacility = await this._loadMockModule(this.budgetFacility, `budgetTransferFromAccounts`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
 		this.budgetFacility = await this._loadMockModule(this.budgetFacility, `confirmBudgetTransfer`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
 		this.kbaMocks = await this._loadMockModule(this.kbaMocks, `loadKBA`, () => import(`../mocks/KBAMocks`).catch(err => logError(err)));
-		this.sendCashMocks = await this._loadMockModule(this.sendCashMocks, `sendCashVouchers`, () => import(`../mocks/SendCashMocks`).catch(err => logError(err)));
+		this.unlockFTSPMocks = await this._loadMockModule(this.unlockFTSPMocks, `ftspUnlockOptions`, () => import(`../mocks/FtspMocks`).catch(err => logError(err)));
+		this.unlockFTSPMocks = await this._loadMockModule(this.unlockFTSPMocks, `ftspUnlockQuote`, () => import(`../mocks/FtspMocks`).catch(err => logError(err)));
+		this.unlockFTSPMocks = await this._loadMockModule(this.unlockFTSPMocks, `ftspUnlockAgreement`, () => import(`../mocks/FtspMocks`).catch(err => logError(err)));
+		this.sendCashMocks = await this._loadMockModule(this.sendCashMocks, `sendCashVouchers`, () => import(`../mocks/SendCashMocks`).catch(err => logError(err)));    
 		this.widgetRegistryMocks = await this._loadMockModule(this.widgetRegistryMocks, `getWidgetById`, () => import(`../mocks/WidgetRegistryMocks`).catch(err => logError(err)));    
 	}
 
@@ -580,6 +583,32 @@ export default class HorizonChannelServiceMocks {
 		return null;
 	}
 
+	ftspUnlockOptions() {
+		if (this._mockSettings.ftspUnlockOptions.positiveCase) {
+			return this.unlockFTSPMocks.unlockOptions;
+		}
+		return null;
+	}
+
+	ftspUnlockQuote() {
+			return this.unlockFTSPMocks.unlockQuote;
+		}
+		return null;
+	}
+	
+	ftspUnlockAgreement() {
+		if (this._mockSettings.ftspUnlockAgreement.positiveCase) {
+			return this.unlockFTSPMocks.unlockAgreement;
+		}
+		return null;
+	}
+
+	ftspUnlock() {
+		if (this._mockSettings.ftspUnlock.positiveCase) {
+		}
+		return null;
+	}
+  
 	getWidgetById() {
 		if (this._mockSettings.getWidgetById.positiveCase) {
 			return this.widgetRegistryMocks.widgetDetails;
@@ -594,5 +623,5 @@ export default class HorizonChannelServiceMocks {
 		});
 
 		return errPromise;
-	}
+	}  
 }

@@ -340,7 +340,7 @@ export class SavingsAccount extends Component {
 					    badgeText="${pendingMandates}"
 						class="button-margin" 
 						label="DebiCheck" 
-						icon="system/debit-order-action"
+						icon="system/debi-check-action"
 						@click="${() => this._optionSelectedClick(`debi-check-viewInfo`)}"
 						?disabled="${this.shouldDisable(`debi-check`)}">
 					</horizon-option-button>

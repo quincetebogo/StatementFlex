@@ -209,7 +209,7 @@ export class HorizonProductTile extends Component {
 					box-shadow: var(--theme-product-tile-hover-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
 				}
 				.tile.transact:focus, .tile.transact.selected {
-					border: var(--theme-product-tile-focus-transact-border, 1.5px solid #009DE0);
+					border: var(--theme-product-tile-focus-transact-border, 2px solid #009DE0);
 					box-shadow: var(--theme-product-tile-focus-shadow, 0 3px 6px 0 rgba(0,0,0,0.15));
 				}
 
