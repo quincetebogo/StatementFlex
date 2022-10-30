@@ -32,10 +32,12 @@
 		"node.cmd": true,
 		"npm": true,
 		"node": true,
-		".npmrc": true
+		".npmrc": true,
+		"npx.cmd": true,
+		"npx": true
 	},
-	"eslint.nodePath": "./ocwp/1.14.1/node_modules",
-	"eslint.runtime": "./ocwp/1.14.1/node_bin/node.exe",
+	"eslint.nodePath": "./ocwp/1.16.0/node_modules",
+	"eslint.runtime": "./ocwp/1.16.0/node_bin/node",
 	"eslint.options": {
 		"configFile": "./.eslintrc.json"
 	},

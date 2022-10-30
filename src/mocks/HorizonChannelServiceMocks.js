@@ -591,8 +591,6 @@ export default class HorizonChannelServiceMocks {
 	}
 
 	ftspUnlockQuote() {
-			return this.unlockFTSPMocks.unlockQuote;
-		}
 		return null;
 	}
 	
