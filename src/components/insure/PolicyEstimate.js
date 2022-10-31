@@ -344,7 +344,7 @@ class PolicyEstimate extends Component {
 	 */
 	_sendEmail(emailAddress) {
 		this.showEmailPlanDialog = false;
-		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.ESTIMATE } }));
+		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.ESTIMATE, docContent: this.printEstimateDocumentContent } }));
 	}
 
 	//  #endregion
