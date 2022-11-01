@@ -409,7 +409,7 @@ export class HorizonWidgetHost extends ViewBase {
 					@createAndClassifySubIncident="${this._createAndClassifySubIncident}"
 					@classifyIncident="${this._classifyIncident}"
 					@getIncidentDetails="${this._getIncidentDetails}">
-			</capitec-widget>
+			</capitec-widget>`
 	}
 
 	_renderWidgetNotFound() {
