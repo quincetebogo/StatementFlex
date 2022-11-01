@@ -19,7 +19,6 @@ export class CallerInfoBar extends Component {
 		super();
 
 		this.incomingCallDetails = null;
-		this.incidentDetails = null;
 		this.need = null;
 		this.isNeedSelectable = false;
 	}
@@ -32,16 +31,21 @@ export class CallerInfoBar extends Component {
 	 * Registry of all properties defined by the component.
 	 *
 	 * @property {Object} incomingCallDetails - Incoming Caller Information (see models/IncomingCallDetails for layout)
-	 * @property {object} incidentDetails - Incident details
+	 * @property {string} incidentRefNumber - Current incident reference number
 	 * @property {Boolean} [isNeedSelectable=false] Determines if the need can be switched via the Caller Info Bar on the dialog
 	*/
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
-			incidentDetails: { type: Object },
+			incidentRefNumber: { type: String },
 			isNeedSelectable: { type: Boolean }
 		};
 	}
+
+	get _incidentRefNumber() {
+		return this.incidentRefNumber && this.incidentRefNumber > 0 ? this.incidentRefNumber : ``;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -84,7 +88,6 @@ export class CallerInfoBar extends Component {
 		this.possibleNeedValues = this.incomingCallDetails.ivrOption.possibleValues;
 
 		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
-		this.incidentReferenceNumber = this.incidentDetails.currentIncident.toString();
 	}
 
 
@@ -114,7 +117,7 @@ export class CallerInfoBar extends Component {
 				<horizon-label
 					data-automation-id="caller-info-bar-incident-reference"
 					label="Reference Number"
-					value = "${this.incidentReferenceNumber && this.incidentReferenceNumber > 0 ? this.incidentReferenceNumber : ``}">
+					value = "${this._incidentRefNumber}">
 				</horizon-label>
 				<horizon-select
 					data-automation-id="caller-info-bar-need"

@@ -78,7 +78,7 @@
 			"positiveCase": true
 		},
 		"searchCaller": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"identifyCaller": {
@@ -86,7 +86,7 @@
 			"positiveCase": true
 		},
 		"favouritesLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
@@ -281,7 +281,6 @@
 		"sendCashVouchers": {
 			"enabled": false,
 			"positiveCase" : true
-		}
-	},
+		},
 	"searchClientOptionEnabled": true
 }

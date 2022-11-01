@@ -94,7 +94,7 @@ export class ConfirmCallerDetails extends Component {
 	/**
 	 * @property {Object} confirmedCaller Information on confirmed client.
 	 * @property {Object} incomingCallDetails Incoming call information
-	 * @property {Object} incidentDetails Incident details
+	 * @property {Object} currentIncident Current incident details
 	 *
 	 * @readonly
 	 * @static
@@ -104,7 +104,7 @@ export class ConfirmCallerDetails extends Component {
 		return {
 			confirmedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
-			incidentDetails: { type: Object },
+			currentIncident: { type: Object },
 
 			cpNumber: { attribute: false },
 			clientType: { attribute: false },
@@ -380,7 +380,7 @@ export class ConfirmCallerDetails extends Component {
 
 		if (this.incomingCallDetails.ivrOption.value === `StopCard`) {
 			
-			const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.horizonIncidentManager.getIncidentDetails());
+			const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.currentIncident);
 
 			if (!returnValue.succeeded) {
 				// The error handler will take over. We don't need to do anything more in this routine
@@ -612,7 +612,7 @@ export class ConfirmCallerDetails extends Component {
 					<horizon-caller-dialog
 						data-automation-id="confirm-caller-details-dialog"
 						.incomingCallDetails="${this.incomingCallDetails}"
-						.incidentDetails="${this.incidentDetails}"
+						incidentRefNumber="${this.currentIncident.toString()}"
 						.isNeedSelectable=${true}
 						headerLabel="${this.callerInformation.isBranchConsultant ? `Confirm Client` : `Confirm Caller`}"
 						@on-end-call="${() => this._onEndCall()}"
@@ -801,7 +801,7 @@ export class ConfirmCallerDetails extends Component {
 				data-automation-id="add-caller-details-modal"
 				.callerInformation="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.incidentDetails}"
+				incidentRefNumber="${this.currentIncident.toString()}"
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
 				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
 			</horizon-add-caller-details>`;
@@ -812,7 +812,6 @@ export class ConfirmCallerDetails extends Component {
 			<horizon-end-call-session 
 				data-automation-id="confirm-caller-details-end-call-modal"
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.incidentDetails}"
 				.callerInformation="${this.callerInformation}"
 				endCallContext="ConfirmClient"
 				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
@@ -824,7 +823,7 @@ export class ConfirmCallerDetails extends Component {
 			<horizon-stop-card-search-caller
 				data-automation-id="confirm-caller-details-stop-card-search-modal"
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.incidentDetails}"
+				.currentIncident="${this.currentIncident}"
 				@client-identified="${(event) => this._identifiedClient(event)}"
 				@other-need-selected="${(event) => this._otherNeedSelected(event)}">
 			</horizon-stop-card-search-caller>`;
@@ -835,7 +834,7 @@ export class ConfirmCallerDetails extends Component {
 			<horizon-search-caller
 				data-automation-id="confirm-caller-details-search-caller-modal"
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.incidentDetails}"
+				.currentIncident="${this.currentIncident}"
 				.cpNumber="${this.callerInformation.isBranchConsultant ? this.cpNumber : ``}"
 				.clientType="${this.callerInformation.isBranchConsultant ? this.clientType : ``}"
 				@client-identified="${(data) => this._identifiedClient(data)}"
@@ -850,7 +849,7 @@ export class ConfirmCallerDetails extends Component {
 			<horizon-verify-caller
 				data-automation-id="confirm-caller-details-veirfy-caller-modal"
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.incidentDetails}"
+				incidentRefNumber="${this.currentIncident.toString()}"
 				.callerInformation="${this.callerInformation}"
 				@cancel="${(event) => this._verificationCancelled(event)}" 
 				@skip="${(event) => this._verificationSkipped(event)}"
