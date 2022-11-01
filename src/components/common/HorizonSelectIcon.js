@@ -108,7 +108,10 @@ export class HorizonSelect extends Select {
 					margin-top: var(--theme-input-padding-top, 10px);
 					position: absolute;
 				}
-				
+				.disabled-select {
+					--horizon-label-text-color: var(--horizon-disabled-label-text-color, #7C7C7C);
+					--horizon-label-value-color: var(--horizon-disabled-label-value-color, #7C7C7C);
+				}
 				.pull-right {
 					text-align: end;
 					--theme-input-font-weight: 600;
@@ -136,7 +139,7 @@ export class HorizonSelect extends Select {
 				${this.detailsLabel
 					? html`
 						<horizon-label
-							class="details"
+							class="details ${this.disabled ? `disabled-select` : ``}"
 							for="inputField"
 							label="${selectedObj.accountName}"
 							value="${this.detailsLabel}">

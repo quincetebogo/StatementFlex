@@ -67,6 +67,7 @@ export class StopCardFailure extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 		this.renderMode = RENDER_MODE.CARD_STOP_FAILURE;
+		this.isReassigned = this.horizonStore.getIsIncidentReassigned();
 		this.callerInformation = this.horizonStore.getCallerInformation();
 
 		const screenDetails = this.horizonStore.getScreenDetails();

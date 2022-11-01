@@ -411,7 +411,15 @@ export class EndCallSession extends Component {
 			}
 		}
 
-
+		if (this.callerInformation.isBranchConsultant &&
+			Boolean(this.callerInformation.branchCallerID) &&
+			isNullorEmpty(strackIncidentInfo.branchID)) {
+				const returnValue = await this.incidentManagementService.UpdateIncidentBranchDetailsRequest(incidentDetails.incidentRecId, this.callerInformation.branchCode, this.callerInformation.branchCallerID);
+	
+				if (!returnValue.succeeded) {
+					this.logger.log(`error`, `Unable to update branch caller details on incident due to a system error`, `_updateSubsequentNeedNonClientDetails`, returnValue.correlationId);
+				}
+			}
 	}
 
 	async _classifyAndClose() {
