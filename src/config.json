@@ -281,7 +281,6 @@
 		"sendCashVouchers": {
 			"enabled": false,
 			"positiveCase" : true
-		}
-	},
+		},
 	"searchClientOptionEnabled": true
 }
