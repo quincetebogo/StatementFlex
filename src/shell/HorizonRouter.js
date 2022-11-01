@@ -432,7 +432,11 @@ export class HorizonRouter {
 	navigateToWidgetNotFound() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST_NOTFOUND}`);
 	}
-
+  
+	navigateToWidget(widgetId) {
+		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST}/${widgetId}`);
+	}
+  
 	/**
 	 * Navigates to the indicated Product Info Page
 	 *
@@ -1025,7 +1029,7 @@ export default horizonRoutes = [
 		name: `horizon-widget-host`,
 		title: `HorizonWidgetHost`,
 		icon: null,
-		path: `${HORIZON_ROUTES.WIDGET_HOST}/:name`,
+		path: `${HORIZON_ROUTES.WIDGET_HOST}/:widgetId`,
 		load: () => import(`../views/common/HorizonWidgetHost`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},

@@ -75,7 +75,6 @@ export class HorizonWidgetHost extends ViewBase {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-
 	
 	_handleInitializeMessage(e) {
 		clearInterval(this.timerInterval);
@@ -119,7 +118,9 @@ export class HorizonWidgetHost extends ViewBase {
 			middleName2: this.callerInformation.middleName2,
 			middleName3: this.callerInformation.middleName3,
 			initials: this.callerInformation.initials,
-			photo: `-`
+			photo: `-`,
+			emailId: this.callerInformation.emailId,
+			verificationStatus: this.callerInformation.verificationStatus
 		});
 	}
 
@@ -366,7 +367,8 @@ export class HorizonWidgetHost extends ViewBase {
 
 	_webTemplate() {
 		return html`
-			${super._webTemplate()}
+		${super._webTemplate()}
+
 			<!-- Display the widget at location "./widget.html". This will typically be a link to the widget, e.g. "https://my-widget.platform-dev.int.capinet/widget.html" -->
 			<capitec-card class="card" halign="center" valign="center" gap="none">
 				${this._renderWidget()}
@@ -407,7 +409,7 @@ export class HorizonWidgetHost extends ViewBase {
 					@createAndClassifySubIncident="${this._createAndClassifySubIncident}"
 					@classifyIncident="${this._classifyIncident}"
 					@getIncidentDetails="${this._getIncidentDetails}">
-				</capitec-widget>`;
+			</capitec-widget>`
 	}
 
 	_renderWidgetNotFound() {
