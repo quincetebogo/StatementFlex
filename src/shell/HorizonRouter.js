@@ -20,8 +20,6 @@ const HORIZON_ROUTES = Object.freeze({
 	CARD_STOP_PAGE: `/card-stop`,
 	CARD_STOP_SUCCESS_PAGE: `/card-stop/success`,
 	CARD_STOP_FAILURE_PAGE: `/card-stop/failed`,
-	INSURE_PROSPECTIVE_CLIENT: `/insure/prospective`,
-	INSURE_EXISTING_CLIENT: `/insure/existing-client`,
 	TRANSACT_FAVOURITES: `/transact/favourites`,
 	SAVINGS_ACCOUNT: `/transact/savings-account`,
 	KBA_VERIFICATION_FAILED: `/error/kba-verification`,
@@ -63,7 +61,13 @@ const HORIZON_ROUTES = Object.freeze({
 	PROOF_OF_PAYMENT_FAILURE: `/error/proof-of-payment`,
 	PAID_UP_LETTER_SUCCESS: `/success/paid-up-letter`,
 	PAID_UP_LETTER_FAILURE: `/error/paid-up-letter`,
-	WIDGET_HOST: `/widget`
+	UNLOCK_FTSP_SUCCESS: `/success/unlock-fixed-term-savings-plan`,
+	UNLOCK_FTSP_FAILURE: `/error/unlock-fixed-term-savings-plan`,
+	SEND_CASH_SUCCESS: `/success/send-cash`,
+	SEND_CASH_FAILURE: `/error/send-cash`,
+	WIDGET_HOST: `/widget`,
+	WIDGET_HOST_UNAVAILABLE: `/widget/unavailable`,
+	WIDGET_HOST_NOTFOUND: `/widget/notfound`
 });
 
 
@@ -191,14 +195,6 @@ export class HorizonRouter {
 		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_FAILURE_PAGE);
 	}
 
-	navigateToInsureProspectiveClient() {
-		this.router.navigateByPath(HORIZON_ROUTES.INSURE_PROSPECTIVE_CLIENT);
-	}
-
-	navigateToInsureExistingClient() {
-		this.router.navigateByPath(HORIZON_ROUTES.INSURE_EXISTING_CLIENT);
-	}
-
 	navigateToQuickTransactionFavourites() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.TRANSACT_FAVOURITES}`);
 	}
@@ -305,12 +301,12 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_ACCOUNT}`);
 	}
 
-	navigateToStrack(incidentRecId) {
+	navigateToStrack(incident) {
 		// Clone the strackURL and update that. Don't modify the original this.strackURL as 
 		// this will break the incidentRecId replacement logic and cause the same incident
 		// to be opened every time.
 		let newUrl = this.strackURL.slice();
-		newUrl = newUrl.replace(`$incidentRecId`, incidentRecId);
+		newUrl = newUrl.replace(`$incidentRecId`, incident.incidentId);
 		window.open(newUrl);
 	}
 
@@ -410,11 +406,37 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.PAID_UP_LETTER_FAILURE}`);
 	}
 
+	navigateToUnlockFTSPSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.UNLOCK_FTSP_SUCCESS}`);
+	}
+
+	navigateToUnlockFTSPFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.UNLOCK_FTSP_FAILURE}`);
+	}
+  
+	navigateToSendCashSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SEND_CASH_SUCCESS}`);
+	}
+
+	navigateToSendCashFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SEND_CASH_FAILURE}`);
+	}
+  
+	navigateToWidget(widgetName) {
+		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST}/${widgetName}`);
+	}
+	navigateToWidgetUnavailable() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST_UNAVAILABLE}`);
+	}
+
+	navigateToWidgetNotFound() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST_NOTFOUND}`);
+	}
+  
 	navigateToWidget(widgetId) {
 		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST}/${widgetId}`);
 	}
-
-
+  
 	/**
 	 * Navigates to the indicated Product Info Page
 	 *
@@ -634,34 +656,6 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.CARD_STOP_FAILURE_PAGE,
 		load: () => import(`../views/stopCard/StopCardFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
-	},
-	{
-		name: `horizon-existing-client`,
-		title: `Insure`,
-		icon: null,
-		path: HORIZON_ROUTES.INSURE_EXISTING_CLIENT,
-		load: () => import(`../views/insure/ExistingClient`),
-		guard: () => true,
-		
-		/*
-		const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
-		switch (routingInfo.verificationStatus) {
-			case `verified`:
-			case `unverified`:
-			case `3rdparty`:
-					return true;
-			default:
-				return false;
-		*/
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-	},
-	{
-		name: `horizon-prospective-client`,
-		title: `Insure`,
-		icon: null,
-		path: HORIZON_ROUTES.INSURE_PROSPECTIVE_CLIENT,
-		load: () => import(`../views/insure/ProspectiveClient`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
 		name: `horizon-favourites`,
@@ -1000,11 +994,59 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
+		name: `horizon-unlock-fixed-term-savings-plan-success`,
+		title: `FixedTermSavingsPlanSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.UNLOCK_FTSP_SUCCESS,
+		load: () => import(`../views/savingsPlan/UnlockFixedTermSavingsPlanSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-unlock-fixed-term-savings-plan-failure`,
+		title: `FixedTermSavingsPlanFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.UNLOCK_FTSP_FAILURE,
+		load: () => import(`../views/savingsPlan/UnlockFixedTermSavingsPlanFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-send-cash-success`,
+		title: `SendCashSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.SEND_CASH_SUCCESS,
+		load: () => import(`../views/sendCash/SendCashSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-send-cash-failure`,
+		title: `SendCashFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.SEND_CASH_FAILURE,
+		load: () => import(`../views/sendCash/SendCashFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
 		name: `horizon-widget-host`,
 		title: `HorizonWidgetHost`,
 		icon: null,
 		path: `${HORIZON_ROUTES.WIDGET_HOST}/:widgetId`,
 		load: () => import(`../views/common/HorizonWidgetHost`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-	}
+	},
+	{
+		name: `horizon-widget-service-unavailable`,
+		title: `WidgetServiceUnavailable`,
+		icon: null,
+		path: `${HORIZON_ROUTES.WIDGET_HOST_UNAVAILABLE}`,
+		load: () => import(`../views/common/WidgetServiceUnavailable`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-widget-not-found`,
+		title: `WidgetNotFoundPage`,
+		icon: null,
+		path: HORIZON_ROUTES.WIDGET_HOST_NOTFOUND,
+		load: () => import(`../views/common/WidgetNotFound`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	}  
 ];

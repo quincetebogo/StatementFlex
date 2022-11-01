@@ -1,5 +1,5 @@
 import { ACCOUNT_STATUS, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
-import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/common';
+import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { CreditEvents, SETTLEMENT_QUOTE_EVENTS, SETTLE_AND_CLOSE, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/Credit';
 import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
@@ -99,6 +99,7 @@ export class CreditAccount extends ViewBase {
 		this.showPayBudgetWarning = false;
 		this.transactionHistory = [];
 		this.accountDetails = {};
+		this.showTooltip = false;
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
@@ -145,7 +146,6 @@ export class CreditAccount extends ViewBase {
 				const clientNeed = `${option}-${accConfig.subCategory}`;
 				
 				await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
-				this._refreshIncidentDetails();
 	
 				const { permissionResult, declineReasons } = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber || selectedAccountDetails.budgetAccountNumber, productType);
 				this.ccsStatus = permissionResult === PERMISSION_STATUS.DENIED &&
@@ -182,7 +182,8 @@ export class CreditAccount extends ViewBase {
 			showSettleCloseModal: { type: Boolean },
 			showPayBudgetDialog: { state: false },
 			declineReason: { state: false },
-			showPayBudgetWarning: { state: false }
+			showPayBudgetWarning: { state: false },
+			showTooltip: { state: false }
 		};
 	}
 
@@ -240,7 +241,7 @@ export class CreditAccount extends ViewBase {
 		};
 
 		await super._inicidentManager_(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
-		await super.createAndClassifySubsIncident(null, false);
+		await super.createAndClassifySubIncident(null, false);
 
 		await creditProducts[this.accountViewType]();
 	}
@@ -343,6 +344,7 @@ export class CreditAccount extends ViewBase {
 
 		this._formatFromAccounts(returnValue.result.fromAccounts);
 		this.payBudgetAccountDetails = selectedAccountDetails;
+		this.payBudgetAccountDetails.settlementAmount = parseFloat(this.payBudgetAccountDetails.settlementAmount).toFixed(2);
 		this.payBudgetfromAccounts = returnValue.result.fromAccounts;
 
 		this.showPayBudgetDialog = !this.showPayBudgetDialog;
@@ -432,7 +434,7 @@ export class CreditAccount extends ViewBase {
 
 			screenDetails.settleAndCloseDocumentData = this.settleAndCloseDocument;
 
-			this.horizonStore.setReturnScreen(this.navigationContext.current.route, this.incidentDetails.currentNeed);
+			this.horizonStore.setReturnScreen(this.navigationContext.current.route, this.horizonIncidentManager.getCurrentNeed());
 			this.horizonStore.setScreenDetails(screenDetails);
 
 			this.horizonRouter.navigateToSettleAndCloseSuccess();
@@ -472,10 +474,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_setIncidentDone() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
-
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -539,7 +538,7 @@ export class CreditAccount extends ViewBase {
 			this.creditBalance = returnValue.result;
 
 			await super._inicidentManager_(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
-			await super.createAndClassifySubsIncident(null, false);
+			await super.createAndClassifySubIncident(null, false);
 
 			this._telemetry.startSpan(CreditEvents.CREDIT, {
 				"screen": TelemetryScreen.CREDIT_LANDING,
@@ -609,7 +608,7 @@ export class CreditAccount extends ViewBase {
 		});
 
 		this.productType = productType;
-	    await super.createAndClassifySubsIncident(null, false);
+	    await super.createAndClassifySubIncident(null, false);
 
 		this._setAccountHeaderDetails(accountDetails);
 		this._getTransactionHistory();
@@ -635,7 +634,7 @@ export class CreditAccount extends ViewBase {
 			this.logger.log(`error`, `Failed to retrieve credit transaction history from credit service.`, `_getTransactionHistory`, returnValue.correlationId);
 			return;
 		}
-		const formattedResponse = this._getFormattedResponse(returnValue.result.transactions);
+		const formattedResponse = this._getFormattedResponse(returnValue.result.transaction);
 		this.transactionHistory.push(...formattedResponse);
 		this.endCallContext = `TransactionHistory`;
 		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
@@ -792,7 +791,7 @@ export class CreditAccount extends ViewBase {
 			"next-screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT
 		});
 
-		await super.createAndClassifySubsIncident(null, false);
+		await super.createAndClassifySubIncident(null, false);
 
 		const returnValue = await this.creditService.budgetFacility(selectedAccountDetails.accountNumber);
 		const successfullServiceResponse = returnValue.succeeded;
@@ -828,9 +827,9 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_backToLandingPage() {
-		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
-			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		const incidentState = this.horizonIncidentManager.incidentState;
+		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
 		}
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
@@ -889,9 +888,9 @@ export class CreditAccount extends ViewBase {
 
 		this._telemetry.endSpan(CreditEvents.CREDIT_BUDGET_TRANSFER, {});
 
-		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.incidentDetails.currentNeed = `view-budgets-credit-card`;
-			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		const incidentState = this.horizonIncidentManager.incidentState;
+		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.horizonIncidentManager.setCurrentNeed(`view-budgets-credit-card`);
 		}
 
 		this.showPayBudgetDialog = !this.showPayBudgetDialog;
@@ -1038,6 +1037,14 @@ export class CreditAccount extends ViewBase {
 		});
 
 		this._telemetry.endSpan(SETTLE_AND_CLOSE[this.creditType].POP_UP, {});
+	}
+
+	// Tooltip is displayed by hovering on description only when description field is too long and is partially hidden
+	_displayTooltip(e) {
+
+		if (e.target.scrollWidth > e.target.offsetWidth) {
+			this.showTooltip = true;
+		}
 	}
 
 	// ---------
@@ -1371,7 +1378,7 @@ export class CreditAccount extends ViewBase {
 		return html`
 			<capitec-table-column
 				label="Transaction Date"
-				field="processDate"
+				field="transactionDate"
 				.renderer="${(item, fieldName, value) => this._renderTransactionDateTime(value)}"
 				type="date"
 				size="156px;">
@@ -1419,7 +1426,7 @@ export class CreditAccount extends ViewBase {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Transaction type"
-					value = "${item.transactionType || `-`}"
+					value = "${item.spendGroup || `-`}"
 					data-automation-id="credit-transaction-history-item-type">
 				</horizon-label>
 				<horizon-label
@@ -1431,13 +1438,13 @@ export class CreditAccount extends ViewBase {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Posting date" 
-					value = "${formatDate(item.postingDate, DATE_TIME_FORMAT)}"
+					value = "${formatDate(item.postingDate, `dd mmm yyyy`)}"
 					data-automation-id="credit-transaction-history-item-posting-date">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Processed date"
-					value = "${formatDate(item.processDate, DATE_TIME_FORMAT)}"
+					value = "${formatDate(item.processDate, `dd mmm yyyy`)}"
 					data-automation-id="credit-transaction-history-item-processed-date">
 				</horizon-label>
 			</capitec-group>
@@ -1485,23 +1492,48 @@ export class CreditAccount extends ViewBase {
 			</capitec-group>
 
 			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Description"
-					value = "${item.statementDescription || `-`}"
-					data-automation-id="credit-transaction-history-description">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Long Description"
-					value = "${item.statementDescription || `-`}"
-					data-automation-id="credit-transaction-history-description">
-				</horizon-label>
+				${this._renderTooltipLabel(`Description`, item.statementDescription)}
+
+				${this._renderTooltipLabel(`Long Description`, item.statementDescription)}
 			</capitec-group>
 		`;
 	}
 
-
+	_renderTooltipLabel(name, value) {
+		let stylings = TABLE_EXPANDER_CELL.firstcolumn;
+		if (name === `Long Description`) {
+			stylings = TABLE_EXPANDER_CELL.expanderColumns;
+		}
+		return html`
+			<capitec-group 
+				data-automation-id="transaction-history-item-description"
+				style="${unsafeCSS(stylings).toString()}"
+				layout="vertical" 
+				gap="none" 
+				halign="left" 
+				valign="center">
+					<capitec-label 
+						style="${unsafeCSS(TABLE_EXPANDER_CELL.labelText).toString()}" 
+						label="${name}">
+					</capitec-label>
+					<capitec-label 
+						style="display: ${this.showTooltip ? `none` : `block`}; ${unsafeCSS(TABLE_EXPANDER_CELL.labelValue).toString()}"
+						label="${value || `-`}"
+						@mouseover="${(e) => this._displayTooltip(e)}">
+					</capitec-label>
+					<capitec-tooltip 
+						data-automation-id="transaction-history-item-description-tooltip"
+						style="display: ${this.showTooltip ? `block` : `none`}; ${unsafeCSS(TABLE_EXPANDER_CELL.toolTip).toString()}"
+						message="${value}" 
+						@mouseout = "${() => this.showTooltip = false}"
+						position="bottom">
+						<capitec-label 
+							style="${unsafeCSS(TABLE_EXPANDER_CELL.labelValue)} display: block;" 
+							label="${value}">
+						</capitec-label>
+				</capitec-tooltip>
+			</capitec-group>`;
+	}
 }
 
 customElements.define(`horizon-credit-account`, CreditAccount);

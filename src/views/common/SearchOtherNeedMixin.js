@@ -1,4 +1,5 @@
-const orgUnit = `Client Care`;
+import { RoleManager } from 'app/shell/RoleManager';
+const orgUnit = RoleManager.getInstance().isHelpDeskAgent ? `Helpdesk` : `Client Care`;
 
 /**
  * This mixin allows common search other need code to be mixed into different views. 
@@ -43,8 +44,8 @@ export const searchOtherNeedMixin = {
 		this.requestUpdate();
 	},
 
-	async incidentStatus(incidentRecId) {
-		const returnValue = await this.incidentManagementService.incidentStatus(incidentRecId);
+	async incidentStatus(incident) {
+		const returnValue = await this.incidentManagementService.incidentStatus(incident);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to get incident status.`, `_incidentStatus`, returnValue.correlationId);

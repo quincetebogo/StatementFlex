@@ -1,4 +1,4 @@
-import { ACCOUNT_TYPES, LANDING_PAGE_NEEDS } from 'app/constants/common';
+import { ACCOUNT_TYPES, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { EXPANDER_LABEL, LINKED_TRANSACTION, TABLE_EXPANDER_CELL } from 'app/css/Lbb-TransactionHistory';
 import { LiveBetterEvents, STATEMENT_EVENTS, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/LiveBetter';
 import { css, html, unsafeCSS } from 'platform/elements';
@@ -62,7 +62,6 @@ export class LiveBetter extends SavingsAccountBase {
 		this.configuration = Configuration.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.updateAutomaticSavings = false;
 	
 		// private properites
@@ -84,6 +83,9 @@ export class LiveBetter extends SavingsAccountBase {
 	
 	connectedCallback() {
 		super.connectedCallback();
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+
 		this._initialise();
 		
 		this._optionClick = async (option) => {
@@ -106,7 +108,6 @@ export class LiveBetter extends SavingsAccountBase {
 	
 			if (actions[option]) {
 				await super._inicidentManager_(option, () => this._toggleBusyFlag());
-				this._refreshIncidentDetails();
 				return actions[option]();
 			}
 		};
@@ -152,7 +153,7 @@ export class LiveBetter extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.LIVE_BETTER_ACCOUNT_DETAILS
 		});
 
-		await super.createAndClassifySubsIncident();
+		await super.createAndClassifySubIncident();
 		this.renderMode = RENDER_MODE.LIVE_BETTER_ACCOUNT_DETAILS;
 	}
 
@@ -208,9 +209,7 @@ export class LiveBetter extends SavingsAccountBase {
 	}
 
 	_setIncidentDone() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
@@ -371,7 +370,7 @@ export class LiveBetter extends SavingsAccountBase {
 				this._updateLeftBar();
 
 				await super._inicidentManager_(LANDING_PAGE_NEEDS.LBB, () => this._toggleBusyFlag());
-				await super.createAndClassifySubsIncident(null, false);
+				await super.createAndClassifySubIncident(null, false);
 
 			} else if (returnValue.succeeded) {
 
@@ -401,7 +400,7 @@ export class LiveBetter extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.LIVE_BETTER_TRANSACTION_HISTORY
 		});
 
-		await super.createAndClassifySubsIncident(null, false);
+		await super.createAndClassifySubIncident(null, false);
 		await this._getTransactionHistory();
 	}
 

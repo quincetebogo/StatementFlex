@@ -201,7 +201,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 			return this.mock(`viewStatements`);
 		}
 
-		const url = `/cec-save-${this._version}/documents/view-statements`;
+		const url = `/cec-save-${this._version}/documents/view-statement`;
 
 		return this.post(
 			url, 
@@ -218,7 +218,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 	}
 
 	async sendStatement(statement, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
 		const url = `/cec-save-${this._version}/documents/send-statement`;
 		
@@ -256,7 +256,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 	}
 
 	async sendProofOfAccount(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
 		const url = `/cec-save-${this._version}/documents/send-proof-of-account`;
 
@@ -297,7 +297,98 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 			autoRetries
 		);
 	}
+ 
+     // Fixed Term Savings Plan Unlock
 
+	async ftspUnlockOptions(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+	    if (await this.isMockEnabled(`ftspUnlockOptions`)) {
+	        return this.mock(`ftspUnlockOptions`);
+	    }
+
+	    const url = `/cec-save-${this._version}/savings-plan/unlock-options`;
+
+	    return this.post(
+			url, 
+			request, 
+			this.setToken(), 
+			`ftspUnlockOptions`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async ftspUnlockQuote(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		
+	    if (await this.isMockEnabled(`ftspUnlockQuote`)) {
+	        return this.mock(`ftspUnlockQuote`);
+	    }
+
+	    const url = `/cec-save-${this._version}/savings-plan/generate/quote`;
+
+	    return this.post(
+			url, 
+			request, 
+			this.setToken(), 
+			`ftspUnlockQuote`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async ftspUnlockAgreement(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		
+	    if (await this.isMockEnabled(`ftspUnlockAgreement`)) {
+	        return this.mock(`ftspUnlockAgreement`);
+	    }
+			
+	    const url = `/cec-save-${this._version}/savings-plan/unlock/generate/agreement`;
+
+	    return this.post(
+			url, 
+			request, 
+			this.setToken(), 
+			`ftspUnlockAgreement`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async ftspUnlock(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
+		if (await this.isMockEnabled(`ftspUnlock`)) {
+			return this.mock(`ftspUnlock`);
+		}
+
+		const url = `/cec-save-${this._version}/savings-plan/unlock`;
+
+		return this.post(
+			url, 
+			request, 
+			this.setToken(), 
+			`ftspUnlock`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 
 	// ---------------
 	// PRIVATE METHODS

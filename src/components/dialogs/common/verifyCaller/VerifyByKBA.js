@@ -75,14 +75,14 @@ export class VerifyByKBA extends Component {
 
 	/**
 	 * @property {Object} incomingCallDetails Information on the incoming call
-	 * @property {object} incidentDetails Incident details
+	 * @property {String} incidentRefNumber Current incident reference number
 	 * @property {object} questions KBA questions
 	 * 
 	 */
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
-			incidentDetails: { type: Object },
+			incidentRefNumber: { type: String },
 			questions: { type: Object },
 			cifNumber: { type: String },
 			lastName: { type: String },
@@ -411,7 +411,7 @@ export class VerifyByKBA extends Component {
 		return html`
 			<horizon-caller-dialog
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.incidentDetails}"
+				incidentRefNumber="${this.incidentRefNumber}"
 				.isNeedSelectable=${false}
 				headerLabel="Security Questions"
 				@on-end-call="${() => this._endCall()}">
@@ -603,7 +603,6 @@ export class VerifyByKBA extends Component {
 		return html`
 			<horizon-end-call-session
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.incidentDetails}"
 				.callerInformation="${this.callerInformation}"
 				endCallContext='VerifyClient${status}'
 				@cancel="${() => this.renderMode = RENDER_MODE.SECURITY_QUESTIONS}">

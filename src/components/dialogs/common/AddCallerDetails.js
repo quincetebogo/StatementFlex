@@ -105,7 +105,7 @@ export class AddCallerDetails extends Component {
 
 	/**
 	 * @property {Object} incomingCallDetails - Incoming call information
-	 * @property {Object} incidentDetails Incident details
+	 * @property {String} incidentRefNumber - Current incident reference number
 	 * @property {Object} callerInformation - information on incoming caller
 	 *
 	 * @readonly
@@ -115,7 +115,7 @@ export class AddCallerDetails extends Component {
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
-			incidentDetails: { type: Object },
+			incidentRefNumber: { type: String },
 			callerInformation: { type: Object },
 			renderMode: { attribute: false },
 			validationFailed: { attribute: false },
@@ -214,7 +214,9 @@ export class AddCallerDetails extends Component {
 						this.callerInformation.identifiedBy, // Identification method used to confirm client
 						this.callerInformation.emailId, // client's registered email ID
 						this.callerInformation.profilePhoto,
-						this.callerInformation.gender            
+						this.callerInformation.gender,
+						this.callerInformation.branchCallerID,
+						this.callerInformation.branchCode
 					)
 				}
 			}));
@@ -357,7 +359,7 @@ export class AddCallerDetails extends Component {
 				return html`
 					<horizon-caller-dialog
 						.incomingCallDetails="${this.incomingCallDetails}"
-						.incidentDetails="${this.incidentDetails}"
+						incidentRefNumber="${this.incidentRefNumber}"
 						.isNeedSelectable=${false}
 						headerLabel="${HEADER_LABEL}" 
 						@on-end-call="${() => this._endCall()}">
@@ -477,10 +479,9 @@ export class AddCallerDetails extends Component {
 
 	_renderEndCallModal() {
 		return html`
-			<horizon-end-call-session 
+			<horizon-end-call-session
 				.incomingCallDetails = "${this.incomingCallDetails}"
-				.incidentDetails="${this.incidentDetails}"
-                .callerInformation="${this.callerInformation}"
+				.callerInformation="${this.callerInformation}"
 				endCallContext="ConfirmClient"
 				@cancel="${() => this.renderMode = RENDER_MODE.ADD_CALLER}">
 			</horizon-end-call-session>`;

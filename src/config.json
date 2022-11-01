@@ -2,13 +2,15 @@
 	"serviceURIs": {
 		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet",
 		"clientInsightsUrl": "https://cec-insights.platform-dev.int.capinet",
-		"accessChannelServiceUrl": "https://cec-ac.platform-dev.int.capinet",
+		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-dev.int.capinet",
 		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-dev.int.capinet",
 		"clientProfileServiceUrl": "https://csc-clientprofile.platform-dev.int.capinet",
 		"debiCheckServiceUrl": "https://csc-debicheck.platform-dev.int.capinet",
 		"cardServiceUrl": "https://horizon-cs-card-v1.platform-dev.int.capinet",
 		"savingsPlanChannelServiceUrl": "https://csc-cs-save.platform-dev.int.capinet",
-		"widgetRegistryService": "https://cec-cs-widgetregistry.platform-dev.int.capinet"
+		"sendCashServiceUrl": "https://cec-cs-sendcash.platform-dev.int.capinet",
+		"widgetRegistryService": "http://localhost:6001",
+		"incidentManagementService": "https://csc-incident.platform-dev.int.capinet"	
 	},
 	"signalRUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
 	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
@@ -33,7 +35,8 @@
 		"KBA": 1
 	},
 	"LogRequestResponseModels": false,
-	"VDN": "7250",
+	"ClientCareVDN": "7250",
+	"HelpDeskVDN": "7287",
 	"ivrMapping": [
 		{
 			"option": "7251",
@@ -112,7 +115,7 @@
 			"positiveCase": true
 		},
 		"itaVerification": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"verifyKBA": {
@@ -176,7 +179,7 @@
 			"positiveCase": true
 		},
 		"viewStatements": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"liveBetterLanding": {
@@ -259,10 +262,25 @@
 			"enabled": false,
 			"positiveCase": false
 		},
-		"getWidgetById": {
+		"ftspUnlockOptions": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"ftspUnlockQuote": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"ftspUnlockAgreement": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"ftspUnlock": {
 			"enabled": true,
 			"positiveCase": true
-		}
-	},
+		},
+		"sendCashVouchers": {
+			"enabled": false,
+			"positiveCase" : true
+		},
 	"searchClientOptionEnabled": true
 }

@@ -1,7 +1,7 @@
 import { Component, html } from 'platform/elements';
 import { Configuration, Logger, NavigationContext } from 'platform/core';
 import { RENDER_MODE, TIME_PERIOD } from 'app/constants/Statements';
-import { ACCOUNT_TYPES } from 'app/constants/common';
+import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { CreditService } from 'app/services/CreditService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -430,7 +430,7 @@ export class Statements extends Component {
 	}
 
 	async _createIncidentOnError() {
-		await super.createAndClassifySubsIncident(() => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident(() => this._toggleBusyFlag());
 		return true;
 	}
 

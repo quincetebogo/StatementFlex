@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { Configuration, EventAggregator, Logger } from 'platform/core';
-import { AUTH_METHODS } from 'app/constants/common';
+import { AUTH_METHODS } from 'app/constants/Common';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -110,7 +110,7 @@ export class VerifyCaller extends Component {
 	/**
 	 * @property {Object} incomingCallDetails Information on the incoming call
 	 * @property {Object} callerInformation Information (mini-profile) on the incoming caller
-	 * @property {object} incidentDetails Incident details
+	 * @property {object} incidentRefNumber Current incident reference number
 	 
 	 * 
 	 */
@@ -118,7 +118,7 @@ export class VerifyCaller extends Component {
 		return {
 			incomingCallDetails: { type: Object },
 			callerInformation: { type: Object },
-			incidentDetails: { type: Object },
+			incidentRefNumber: { type: String },
 
 			renderMode: { state: true },
 			hasSouthAfricanID: { state: true },
@@ -886,7 +886,7 @@ export class VerifyCaller extends Component {
 				<horizon-caller-dialog
 					data-automation-id="verify-caller-dialog"
 					.incomingCallDetails="${this.incomingCallDetails}"
-					.incidentDetails="${this.incidentDetails}"
+					incidentRefNumber="${this.incidentRefNumber}"
 					.isNeedSelectable=${false}
 					headerLabel="${HEADER_LABEL}"
 					@on-end-call="${() => this._endCall()}">
@@ -1059,7 +1059,7 @@ export class VerifyCaller extends Component {
 			? html`
 				<horizon-security-question 
 					data-automation-id="verify-caller-sq-dialog"
-					.incidentDetails="${this.incidentDetails}"
+					incidentRefNumber="${this.incidentRefNumber}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.securityQuestions="${this.securityQuestions}"
 					.callerInformation="${this.callerInformation}"
@@ -1088,7 +1088,6 @@ export class VerifyCaller extends Component {
 				<horizon-end-call-session 
 					data-automation-id="verify-caller-end-call-session"
 					.incomingCallDetails="${this.incomingCallDetails}"
-					.incidentDetails="${this.incidentDetails}"
 					.callerInformation="${this.callerInformation}"
 					endCallContext='VerifyClient${status}'
 					@cancel="${() => this._cancelEndCall()}"
@@ -1109,7 +1108,7 @@ export class VerifyCaller extends Component {
 		? html`
 			<horizon-verify-kba
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.incidentDetails}"
+				incidentRefNumber="${this.incidentRefNumber}"
 				.questions="${this.kbaQuestions}"
 				.cifNumber="${this.callerInformation.cifNumber}"
 				client-title="${this.callerInformation.title}"

@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { ACCOUNT_TYPE_CODE } from 'app/constants/common';
+import { ACCOUNT_TYPE_CODE } from 'app/constants/Common';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
@@ -72,8 +72,8 @@ export class SavingsPlanLanding extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_click(selection, savePlanDetails, type) {
-		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection, planDetails: savePlanDetails, saveType: type } }));
+	_click(selection, savePlanDetails) {
+		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection, planDetails: savePlanDetails } }));
 	}
 
 	_viewInfo() {
@@ -175,6 +175,10 @@ export class SavingsPlanLanding extends Component {
 					--horizon-option-btn-text-margin-top: 3px;
 					--horizon-option-btn-icon-height: 26px;
 					--horizon-option-btn-icon-width: 26px;
+				}
+				horizon-option-button[label="Unlock Savings Plans"] {
+					--theme-button-padding-left: 8px;
+					--theme-button-padding-right: 8px;
 				}
 
 				/* Expander header and content styles */
@@ -445,7 +449,7 @@ export class SavingsPlanLanding extends Component {
 								gap="none"
 								halign="left"
 								valign="center">
-									${this._renderOptionsGroup(item, SAVE_PLAN_TYPE.FLEXIBLE)}
+									${this._renderOptionsGroup(item)}
 							</capitec-group>
 						</div>
 				</horizon-expander>`);
@@ -518,13 +522,13 @@ export class SavingsPlanLanding extends Component {
 									type="default"
 									label="${item.depositeType}">
 								</capitec-title-bar>
-									${this._renderOptionsGroup(item, SAVE_PLAN_TYPE.FIXED_TERM)}
+									${this._renderOptionsGroup(item)}
 							</capitec-group>
 						</div>
 				</horizon-expander>`);
 	}
 
-	_renderOptionsGroup(item, saveType) {
+	_renderOptionsGroup(item) {
 		return html`
 			<capitec-title-bar
 				type="default"
@@ -535,19 +539,26 @@ export class SavingsPlanLanding extends Component {
 						data-automation-id="savings-plan-transaction-history"
 						label="Transaction History"
 						icon="system/time-action"
-						@click="${() => this._click(`transaction-history`, item, saveType)}">
+						@click="${() => this._click(`transaction-history`, item)}">
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="savings-plan-statements"
 						label="Statements"
 						icon="system/documents-action"
-						@click="${() => this._click(`statements`, item, saveType)}">
+						@click="${() => this._click(`statements`, item)}">
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="savings-plan-tax-certificate"
 						label="Tax Certificate"
 						icon="system/sars-action" 
-						@click="${() => this._click(`tax-certificate`, item, saveType)}">
+						@click="${() => this._click(`tax-certificate`, item)}">
+				</horizon-option-button>
+				<horizon-option-button 
+						data-automation-id="savings-plan-unlock-ftsp"
+						label="Unlock Savings Plans"
+						icon="system/unlocked-action"
+						?hidden=${item.accountType !== ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN}
+						@click="${() => this._click(`unlock-ftsp`, item)}">
 				</horizon-option-button>
 			</capitec-group>
 		`;

@@ -80,9 +80,7 @@ export class TapToPaySuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
 
 	// ---------
@@ -123,7 +121,7 @@ export class TapToPaySuccess extends ViewBase {
 			<horizon-success-screen 
 				data-automation-id="tap-to-pay-success"
 				header="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}"
-				image="/images/cards-successful-tap-to-pay.svg"
+				image="/images/tapToPay/cards-successful-tap-to-pay.svg"
 				left="Tap to Pay"
 				right="Done"
 				toast="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}"

@@ -3,16 +3,20 @@ import { EventAggregator, Logger, NavigationContext } from 'platform/core';
 import { optionsConfig, relatedOptions } from 'app/utils/relatedOptions';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { CardService } from 'app/services/CardService';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { SavingsService } from 'app/services/SavingsService';
 import { capitalizeString } from 'app/utils/channelServiceUtilities';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/CardLimitsLanding';
+import 'app/components/quickTransactions/TaxCertificateLanding';
 import 'app/dialogs/statements/Statements';
+import 'app/dialogs/taxCertificates/TaxCertificates';
 
 const RENDER_MODE = Object.freeze({
 	MAIN_PAGE: 0,
@@ -60,6 +64,7 @@ export class RelatedOptions extends Component {
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-navigate-related-option`, (e) => this._navigateToOption(e.option));
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), () => true);
 		this.savingsService = new SavingsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
 		Object.assign(RelatedOptions.prototype, tapToPayMixin);
@@ -92,11 +97,10 @@ export class RelatedOptions extends Component {
 
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 		this.landingPageInfo = state.landingPageInfo;
 
-		const currNeed = this.incidentDetails.currentNeed;
-		this.options = relatedOptions[currNeed][this.context];
+		this.options = relatedOptions[this.horizonIncidentManager.getCurrentNeed()][this.context];
 	}
 
 	disconnectedCallback() {
@@ -149,7 +153,6 @@ export class RelatedOptions extends Component {
 
 			if (actions[item]) {
 				await super._inicidentManager_(item, () => this._toggleBusyFlag());
-				this._refreshIncidentDetails();
 				return actions[item](item);
 			}
 
@@ -161,12 +164,26 @@ export class RelatedOptions extends Component {
 	}
 
 	_backToLandingPage() {
+		const incidentState = this.horizonIncidentManager.incidentState;
 		
-		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
-			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
 		}
+
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	/**
+	 * Function updates the need based on account selected in statements
+	 * so as to classify incident accordingly
+	 * 
+	 * @param {object} event - event raised by statements dialog
+	 * @returns {void}
+	 */
+	async _statementsAccConfirmed(event) {
+		const need = `statements-${event.detail.subCategory || event.detail.account}`;
+
+		await super._inicidentManager_(need, () => this._toggleBusyFlag());
 	}
 
 	// ---------------
@@ -175,10 +192,6 @@ export class RelatedOptions extends Component {
 
 	_isVerifiedClient() {
 		return this.callerInformation && this.callerInformation.verificationStatus === `verified`;
-	}
-
-	_refreshIncidentDetails() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
 	}
 
 	_toggleBusyFlag() {
@@ -200,7 +213,7 @@ export class RelatedOptions extends Component {
 
 	async _stopCard() {
 
-		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.incidentDetails);
+		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.horizonIncidentManager.currentIncident);
 
 		if (returnValue.succeeded) {
 
@@ -234,27 +247,46 @@ export class RelatedOptions extends Component {
 										'category': productInfo.category,
 										'icon': productInfo.icon,
 										'customIcon': productInfo.customIcon,
-										'order': productInfo.order
+										'order': productInfo.order,
+										'choosePeriod': productInfo.choosePeriod
 									};
 								}).sort((x, y) => x.order - y.order);
 			this.renderMode = RENDER_MODE.STATEMENTS;
 		}
 	}
 
-	_taxCertificate() {
-		// TODO: Functionality to generate tax certificate comes here
+	async _taxCertificate() {
+
+		/**
+		 * Similar to POA, Tax certificate is also a related option for few of the credit options
+		 * We need savings account number, opened date which will not be available under credit flow.
+		 * So we make a explicit call to get client products and filter out savings account product
+		 */
+		await this._getSavingsAccountDetails();
+
+		const returnValue = await this.quickTransactionService.getTaxCertificate(this.callerInformation.cifNumber, () => true);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unable to get load tax certificates information`, `_taxCertificates`, returnValue.correlationId);
+			this.horizonRouter.navigateToTaxCertificateServiceError();
+			return;
+		}
+
+		this.taxCertificateDetails = returnValue.result;
+		this.hasTaxCertificate = this.taxCertificateDetails.iT3BTaxCertificates.length + this.taxCertificateDetails.iT3STaxCertificates.length > 0;
+
+		this.renderMode = this.hasTaxCertificate ? RENDER_MODE.TAX_CERTIFICATE : RENDER_MODE.TAX_CERTIFICATE_NOT_AVAILABLE;
 	}
 
 	async _proofOfAccount() {
-		const clientProductDetails = await this._getClientProducts();
-		
-		if (clientProductDetails) {
-			const primarySavingsProduct = clientProductDetails.find(item => item.accountType === SAVINGS_ACCOUNT_TYPE);
 
-			this.landingPageInfo.accountNumber = primarySavingsProduct.accountNumber;
-			this.landingPageInfo.accountOpenedDate = primarySavingsProduct.accountOpenDate;
-			this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
-		}
+		/**
+		 * POA is a related option for few of the credit options
+		 * We need savings account number, opened date which will not be available under credit flow.
+		 * So we make a explicit call to get client products and filter out savings account product
+		 */
+		await this._getSavingsAccountDetails();
+		this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
 	}
 
 	_transactionHistory(option) {
@@ -272,6 +304,21 @@ export class RelatedOptions extends Component {
 	_paidUpAccounts(option) {
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, option);
 		this.horizonRouter.navigateToQuickTransactionFavourites();
+	}
+
+	_back() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	async _getSavingsAccountDetails() {
+		const clientProductDetails = await this._getClientProducts();
+		
+		if (clientProductDetails) {
+			const primarySavingsProduct = clientProductDetails.find(item => item.accountType === SAVINGS_ACCOUNT_TYPE);
+
+			this.landingPageInfo.accountNumber = primarySavingsProduct.accountNumber;
+			this.landingPageInfo.accountOpenedDate = primarySavingsProduct.accountOpenDate;
+		}
 	}
 
 	// ---------
@@ -356,6 +403,7 @@ export class RelatedOptions extends Component {
 			${this._renderStatements()}
 			${this._renderProofOfAccount()}
 			${this._renderTaxCertificate()}
+			${this._renderTaxCertificateNotAvailable()}
 		`;
 	}
 
@@ -376,10 +424,13 @@ export class RelatedOptions extends Component {
 			? html`
 				<horizon-statements
 					.cifNumber="${this.callerInformation.cifNumber}"
+					client-title="${this.callerInformation.title}"
+					.lastName="${this.callerInformation.lastName}"
 					.clientProducts="${this.clientProducts}"
 					registeredEmailId="${this.callerInformation.emailId}"
 					type=""
-					@cancel="${() => this._backToLandingPage()}">
+					@cancel="${() => this._backToLandingPage()}"
+					@account-selected="${(event) => this._statementsAccConfirmed(event)}">
 				</horizon-statements>`
 			: html``;
 	}
@@ -401,8 +452,24 @@ export class RelatedOptions extends Component {
 
 	_renderTaxCertificate() {
 		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE
-			? html``
+			? html`
+				<horizon-tax-certificate
+					.taxCertificateDetails="${this.taxCertificateDetails}"
+					.cifNumber="${this.callerInformation.cifNumber}"
+					accountNumber="${this.landingPageInfo.accountNumber}"
+					@cancel="${() => this._backToLandingPage()}">
+				</horizon-tax-certificate>`
 			: html``;
+	}
+
+	_renderTaxCertificateNotAvailable() {
+		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE_NOT_AVAILABLE
+		? html`
+			<horizon-tax-certificate-landing
+				@back="${() => this._back()}">
+			</horizon-tax-certificate-landing>
+			`
+		: html``;
 	}
 }
 
