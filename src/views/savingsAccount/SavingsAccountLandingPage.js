@@ -209,6 +209,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
                 .map((item) => {
                     const date = new Date(Date.parse(item.transactionDate));
 
+					item.description = item.statementDescription;
                     item.tranDate = date;
                     item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
                     item.formatedAmount = formatCurrency(item.amount);
@@ -403,7 +404,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			</capitec-table-column>
 			<capitec-table-column
 				label="Description"
-				field="transTypeDesc"
+				field="description"
 				size="410px;">
 			</capitec-table-column>
 			<capitec-table-column
