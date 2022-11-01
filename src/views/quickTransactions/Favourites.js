@@ -662,19 +662,24 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _sendCash() {
+		this.sendCashVouchers = await this._getSendCashVouchers();
+		
+		this.renderMode = RENDER_MODE.SEND_CASH;
+	}
+
+	async _getSendCashVouchers(startDate, endDate) {
+
 		const sendCashVouchersRequest = {
 			cifNumber: this.callerInformation.cifNumber,
-			fromDateTime: this.get30DaysBefore(today),
-			toDateTime: today.toISOString(),
+			fromDateTime: startDate || this.get30DaysBefore(today),
+			toDateTime: endDate || today.toISOString(),
 			offset: 0
 		};
 
 		const returnValue = await this.sendCashService.getVouchers(sendCashVouchersRequest);
 
 		if (returnValue.succeeded) {
-			this.sendCashVouchers = returnValue.result;
-
-			this.renderMode = RENDER_MODE.SEND_CASH;
+			return returnValue.result;
 		}
 	}
 
@@ -1121,6 +1126,9 @@ export class Favourites extends SavingsAccountBase {
 			? html`
 				<horizon-send-cash-landing
 					.sendCashVouchers="${this.sendCashVouchers}"
+					.getSendCashVouchers="${(startDate, endDate) => this._getSendCashVouchers(startDate, endDate)}"
+					.disposeData="${() => this.sendCashVouchers = []}"
+
 					@on-place-hold="${(item) => this._showConfirmPlaceHoldModal(item)}"
 					@back="${() => this._backToLandingPage()}">
 				</horizon-send-cash-landing>`
