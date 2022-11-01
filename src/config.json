@@ -308,7 +308,7 @@
 			"positiveCase": true
 		},
 		"insureGenerateAgreement": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureReinstateQuoteCalc": {
