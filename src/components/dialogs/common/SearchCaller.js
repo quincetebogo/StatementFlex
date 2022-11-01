@@ -649,7 +649,9 @@ export class SearchCaller extends Component {
 			identifiedBy: this.searchType.identificationType,
 			isClientVerifiedInBranch: this.isClientVerifiedInBranch,
 	  		profilePhoto: identifiedClient.callerInformation.profilePhoto,   
-			gender: identifiedClient.callerInformation.gender        
+			gender: identifiedClient.callerInformation.gender,
+			branchCallerID: ``,
+			branchCode: ``
 		};
 
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
@@ -682,7 +684,9 @@ export class SearchCaller extends Component {
 			isClientPresent: this.clientInBranch,
 			isClientVerifiedInBranch: this.isClientVerifiedInBranch,
 			profilePhoto: identifiedClient.callerInformation.profilePhoto,
-			gender: identifiedClient.callerInformation.gender      
+			gender: identifiedClient.callerInformation.gender,
+			branchCallerID: `cp${this.cpNumber}`,
+			branchCode: this.branchCode
 		};
 
 		await this._updateIncidentBranchDetails(this.branchCode, `cp${this.cpNumber}`);
@@ -757,7 +761,9 @@ export class SearchCaller extends Component {
 			``, // identifiedBy
 			``, // validated email address
 			``, // profilePhoto
-			`` // gender
+			``, // gender
+			`cp${this.cpNumber}`, // branch caller id,
+			this.branchCode
 		);
 	}
 	// ---------

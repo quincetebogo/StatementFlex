@@ -21,8 +21,8 @@ export class IncidentManagementService extends ChannelServiceBase {
 		super(
 			toggleBusyFunc, 
 			defaultErrorHandlerFunc, 
-			`serviceURIs.channelServiceUrl`, 
-			`HorizonChannelService`, 
+			`serviceURIs.incidentManagementService`, 
+			`incidentManagementService`, 
 			`v1`,
 			null
 		);
@@ -253,10 +253,10 @@ export class IncidentManagementService extends ChannelServiceBase {
 	 * @memberof IncidentManagementService
 	 */
 	 closeIncident(incident, reason, resolution, causeCode, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const request = _formatCloseIncidentRequest(incident, reason, resolution, causeCode);
+		const request = this._formatCloseIncidentRequest(incident, reason, resolution, causeCode);
 
 		return this.put(
-			url, 
+			`/clientcare-incident-${this._version}/close-incident`,
 			request, 
 			this.setToken(), 
 			`closeIncident`, 
@@ -271,10 +271,10 @@ export class IncidentManagementService extends ChannelServiceBase {
 
 	_formatCloseIncidentRequest(incident, reason, resolution, causeCode) {
 		return {
-			incident: closeIncidentRequest.incident,
-			reason: closeIncidentRequest.reason,
-			resolution: closeIncidentRequest.resolution,
-			causeCode: closeIncidentRequest.causeCode
+			incident: incident,
+			reason: reason,
+			resolution: resolution,
+			causeCode: causeCode
 		};
 	}
 
@@ -322,7 +322,9 @@ export class IncidentManagementService extends ChannelServiceBase {
 		
 		return this.post(
 			url,
-			incident,
+			{
+				incident: incident
+			},
 			this.setToken(), 
 			`incidentStatus`,
 			null,
