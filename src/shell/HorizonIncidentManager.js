@@ -69,7 +69,7 @@ export class HorizonIncidentManager {
 	 * 
 	 * @returns {object} The primary incident object
 	 */
-		setNewPrimaryIncident(incident, initialNeed) {
+	setNewPrimaryIncident(incident, initialNeed) {
 		this.incidentDetails = new IncidentDetails(
 			incident, // current Incident
 			incident, // primary incident
@@ -341,7 +341,7 @@ export class HorizonIncidentManager {
 
 
 	_validIncident (incident) {
-		return !incident || Object.keys(incident).length !== 0;
+		return Boolean(incident) && Object.keys(incident).length !== 0;
 	}
 
 	/**

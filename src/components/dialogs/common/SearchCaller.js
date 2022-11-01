@@ -206,7 +206,7 @@ export class SearchCaller extends Component {
 
 	/**
 	 * @property {Object} incomingCallDetails Incoming Caller Information (see models/IncomingCallDetails)
-	 * @property {object} incidentDetails Incident details
+	 * @property {object} currentIncident Current incident details
 	 *
 	 * @readonly
 	 * @static
@@ -215,7 +215,7 @@ export class SearchCaller extends Component {
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
-			incidentDetails: { type: Object },
+			currentIncident: { type: Object },
 
 			cpNumber: { attribute: false },
 			clientType: { attribute: false },
@@ -340,7 +340,7 @@ export class SearchCaller extends Component {
 				const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
 				this.alertBannerMessage = errMessages.ALERT_BANNER;
 				this.errMessage.searchValue = errMessages.FIELD_ERROR;
-			} else if (this.incidentDetails.currentIncident === null) {
+			} else if (this.currentIncident === null) {
 				this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
 			} else {
 				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
@@ -380,7 +380,7 @@ export class SearchCaller extends Component {
 					const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
 					this.alertBannerMessage = errMessages.ALERT_BANNER;
 					this.errMessage.searchValue = errMessages.FIELD_ERROR;
-				} else if (this.incidentDetails.currentIncident === null) {
+				} else if (this.currentIncident === null) {
 					this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
 				} else {
 					this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
@@ -395,7 +395,7 @@ export class SearchCaller extends Component {
 		this.incomingCallDetails.ivrOptionCode = ivrOptionCode;
 		this.incomingCallDetails.ivrOption.value = ivrOptionCode;
 
-		this.incidentDetails.currentNeed = this.horizonIncidentManager.setCurrentNeed(ivrOptionCode);
+		this.horizonIncidentManager.setCurrentNeed(ivrOptionCode);
 
 		// Stop Card has it's own specialized search dialog. We raise this 
 		// event to give the caller the change to switch to that dialog.
@@ -403,8 +403,7 @@ export class SearchCaller extends Component {
 		if (this.incomingCallDetails.ivrOption.value === `StopCard`) {
 			this.dispatchEvent(new CustomEvent(`stop-card-need-selected`, {
 				detail: {
-					incomingCallDetails: this.incomingCallDetails,
-					incidentDetails: this.incidentDetails
+					incomingCallDetails: this.incomingCallDetails
 				}
 			}));
 		}
@@ -438,9 +437,7 @@ export class SearchCaller extends Component {
 			cellPhone: this.cellPhoneNumberValue
 		};
 
-		const currentIncident = this.horizonIncidentManager.currentIncident;
-
-		const returnValue = await this.incidentService.updateIncidentNonClientDetails(currentIncident, nonClientDetails);
+		const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.currentIncident, nonClientDetails);
 
 		if (!returnValue.succeeded) {
 			this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
@@ -448,7 +445,7 @@ export class SearchCaller extends Component {
 			return;
 		}
 
-		if (!currentIncident) {
+		if (!this.currentIncident) {
 			this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
 			return;
 		}
@@ -456,7 +453,6 @@ export class SearchCaller extends Component {
 		this.dispatchEvent(new CustomEvent(`non-client-captured`, {
 			detail: {
 				incomingCallDetails: this.incomingCallDetails,
-				incidentDetails: this.incidentDetails,
 				nonClient: {
 					firstName: this.nameValue,
 					surname: this.surNameValue,
@@ -658,7 +654,6 @@ export class SearchCaller extends Component {
 			detail: {
 				incomingCallDetails: this.incomingCallDetails,
 				confirmedCaller: confirmedCaller,
-				incidentDetails: this.incidentDetails,
 				isBranchConsultant: false
 			}
 		}));
@@ -695,7 +690,6 @@ export class SearchCaller extends Component {
 			detail: {
 				incomingCallDetails: this.incomingCallDetails,
 				confirmedCaller: confirmedCaller,
-				incidentDetails: this.incidentDetails,
 				isBranchConsultant: true,
 				isClientPresent: this.clientInBranch,
 				cpNumber: this.cpNumber,
@@ -706,8 +700,7 @@ export class SearchCaller extends Component {
 
 	async _updateIncidentBranchDetails(branchCode, branchCallerID) {
 		// on confirm click, update incident details to be branch incident and not client incident
-		const incident = this.horizonIncidentManager.currentIncident;
-		const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(incident, branchCode, branchCallerId);
+		const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(this.currentIncident, branchCode, branchCallerId);
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, ``, `_updateIncidentBranchDetails`);
 			return false;
@@ -866,7 +859,7 @@ export class SearchCaller extends Component {
 					<horizon-caller-dialog
 						data-automation-id="search-caller-dialog"
 						.incomingCallDetails="${this.incomingCallDetails}"
-						.incidentDetails="${this.incidentDetails}"
+						incidentRefNumber="${this.currentIncident.toString()}"
 						.isNeedSelectable=${true}
 						headerLabel="${this.headerLabel}"
 						@on-end-call="${() => this._onEndCall()}"
@@ -1183,7 +1176,6 @@ export class SearchCaller extends Component {
 		return html`
 			<horizon-end-call-session 
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.incidentDetails}"
 				.callerInformation="${this.callerInformation}"
 				endCallContext="ConfirmClient"
 				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}">

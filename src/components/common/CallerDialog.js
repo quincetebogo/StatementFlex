@@ -22,7 +22,7 @@ export class CallerDialog extends Component {
 		this.displayButton = true;
 		this.headerLabel = ``;
 		this.incomingCallDetails = null;
-		this.incidentDetails = null;
+		this.incidentRefNumber = ``;
 		this.isNeedSelectable = false;
 	}
 
@@ -35,7 +35,7 @@ export class CallerDialog extends Component {
 	 * 
 	 * @property {String} headerLabel - The label string for the dialog heading
 	 * @property {Boolean} [displayButton=true] - Whether to display the End Call button or not 
-	 * @property {object} incidentDetails - Incident details
+	 * @property {string} incidentRefNumber - Current incident reference number
 	 * @property {Object} incomingCallDetails - Incoming Caller Information (see models/IncomingCallDetails)
 	 * @property {Boolean} [isNeedSelectable=false] Determines if the need can be switched via the Caller Info Bar on the dialog
 	 * 
@@ -47,7 +47,7 @@ export class CallerDialog extends Component {
 		return {
 			headerLabel: { type: String },
 			displayButton: { type: Boolean },
-			incidentDetails: { type: Object },
+			incidentRefNumber: { type: String },
 			incomingCallDetails: { type: Object },
 			isNeedSelectable: { type: Boolean }
 		};
@@ -184,7 +184,7 @@ export class CallerDialog extends Component {
 		return html`
 			<horizon-caller-info-bar
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.incidentDetails}"
+				incidentRefNumber="${this.incidentRefNumber}"
 				.isNeedSelectable="${this.isNeedSelectable}"
 				@on-need-changed=${(event) => this._onNeedChanged(event)}>
 			</horizon-caller-info-bar>

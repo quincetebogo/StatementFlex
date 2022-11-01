@@ -153,7 +153,7 @@ export class LandingPage extends ViewBase {
 
 	async _createIncident(newCallInfo) {
 		 const returnValue = await this.incidentManagementService.createIncident(newCallInfo, (ex) => this._landingPageErrorHandler(ex));
-		 const incident = returnValue.result.incident;
+		 const incident = returnValue.result?.incident;
 
 		 if (!returnValue.succeeded || !incident) {
 		 	this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `_createIncident`, returnValue.correlationId);
@@ -321,10 +321,6 @@ export class LandingPage extends ViewBase {
 		this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
 	}
 
-	_getIncidentDetails() {
-		return this.horizonIncidentManager.getIncidentDetails();
-	}
-
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -396,7 +392,7 @@ export class LandingPage extends ViewBase {
 				<horizon-confirm-caller-details 
 					.confirmedCaller="${this.confirmedCaller}"
 					.incomingCallDetails="${this.incomingCallDetails}"
-					.incidentDetails="${this._getIncidentDetails()}"
+					.currentIncident="${this.currentIncident}"
 					.cpNumber="${this.cpNumber}"
 					.clientType="${this.clientType}"
 					@client-identified="${(data) => this._clientIdentified(data)}"
@@ -411,7 +407,7 @@ export class LandingPage extends ViewBase {
 			return html`
 				<horizon-stop-card-search-caller 
 					.incomingCallDetails="${this.incomingCallDetails}"
-					.incidentDetails="${this._getIncidentDetails()}"
+					.currentIncident="${this.currentIncident}"
 					@client-identified="${(data) => this._clientIdentified(data)}"
 					@other-need-selected="${(event) => this._otherNeedSelected(event)}">
 				</horizon-stop-card-search-caller>`;
@@ -419,7 +415,7 @@ export class LandingPage extends ViewBase {
 			return html`
 				<horizon-search-caller
 					.incomingCallDetails="${this.incomingCallDetails}"
-					.incidentDetails="${this._getIncidentDetails()}"
+					.currentIncident="${this.currentIncident}"
 					@client-identified="${(event) => this._clientIdentified(event)}"
 					@non-client-captured="${event => this._nonClientCaptured(event)}"
 					@branch-captured="${(event) => this._branchCaptured(event)}"
