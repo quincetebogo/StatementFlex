@@ -133,19 +133,19 @@ export class HorizonWidgetHost extends ViewBase {
 	}
 
 	_handleTelemetryStartSpanMessage(e) {
-		this._telemetry.startSpan(e.detail.content.eventName, e.detail.content.baggage, e.detail.content.systemTriggered, e.detail.content.originatingSystem);
+		this._telemetry.startSpan(e.detail.content.eventName, this._addOriginatingSystemToBaggage(e.detail.content.baggage, e.detail.content.originatingSystem), e.detail.content.systemTriggered);
 	}
 
 	_handleTelemetryEndSpanMessage(e) {
-		this._telemetry.endSpan(e.detail.content.eventName, e.detail.content.baggage, e.detail.content.systemTriggered, e.detail.content.closeParentSpan, e.detail.content.closeChildSpans, e.detail.content.originatingSystem);
+		this._telemetry.endSpan(e.detail.content.eventName, this._addOriginatingSystemToBaggage(e.detail.content.baggage, e.detail.content.originatingSystem), e.detail.content.systemTriggered, e.detail.content.closeParentSpan, e.detail.content.closeChildSpans);
 	}
 
 	_handleTelemetryLogEventMessage(e) {
-		this._telemetry.logEvent(e.detail.content.eventName, e.detail.content.baggage, e.detail.content.systemTriggered, e.detail.content.originatingSystem);
+		this._telemetry.logEvent(e.detail.content.eventName, this._addOriginatingSystemToBaggage(e.detail.content.baggage, e.detail.content.originatingSystem), e.detail.content.systemTriggered);
 	}
 
 	_handleTelemetryCloseChildSpansMessage(e) {
-		this._telemetry.closeChildSpans(e.detail.content.parentEvent, e.detail.content.originatingSystem);
+		this._telemetry.closeChildSpans(e.detail.content.parentEvent);
 	}
 
 	_handleDialogLoad(e) {
@@ -260,6 +260,13 @@ export class HorizonWidgetHost extends ViewBase {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	__addOriginatingSystemToBaggage(baggage, originatingSystem) {
+		return {
+			...baggage,
+			...{ widget: originatingSystem }
+		};
+	}
 
 	async _initHost() {
 		// const widgetName = this.navigationContext.current.pathParams.name;
