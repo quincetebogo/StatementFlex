@@ -223,7 +223,7 @@ class UpdatePlan extends Component {
 			lifeAssured: true,
 			beneficiary: false,
 			premium: 0,
-			genderType: `Male`,
+			gender: `Male`,
 			age: 0,
 			rowID: this.policyDetails.roleplayers.length,
 			coverDetails: e.detail.coverDetails
@@ -405,7 +405,7 @@ class UpdatePlan extends Component {
 		if (event.detail.old !== event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.recordID === recordId) {
-					this.policyDetails.roleplayers[index].genderType = event.detail.new.code;
+					this.policyDetails.roleplayers[index].gender = event.detail.new.code;
 
 					if (rolePlayer.lifeAssured === true) {
 						if (!isNullorEmpty(rolePlayer.gender)) {
@@ -415,6 +415,7 @@ class UpdatePlan extends Component {
 				}
 			});
 		}
+		this.requestUpdate();
 	}
 
 	/**
@@ -2143,7 +2144,7 @@ class UpdatePlan extends Component {
 					@value-changed="${(e) => this._lifeTitleValueChanged(e, roleplayer.recordID)}"
 					error="${roleplayer?.coverDetails?.titleErrorMessageLA === undefined ? `` : roleplayer?.coverDetails.titleErrorMessageLA}">
 				</capitec-select>
-			
+
 				<capitec-select label="Gender" .items="${this.genderOptions}" display-field="text" id-field="code"
 					style="width: 50%" @value-changed="${(e) => this._lifeGenderValueChanged(e, roleplayer.recordID)}"
 					value="${roleplayer?.gender}" ?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editGender`, roleplayer.relationship)}"
@@ -2190,7 +2191,7 @@ class UpdatePlan extends Component {
 				${isNullorEmpty(roleplayer?.idNumber) || roleplayer?.idNumber.length !== 13 || roleplayer?.coverDetails.disableDoB === false
 				? html`
 					<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="calendar"
-						date="${roleplayer?.dateOfBirth}" outputType="string" maxdate="${this.today}" minDate="1901-01-01">
+						date="${roleplayer?.dateOfBirth}" outputType="string" maxdate="${this.today}" minDate="1901-01-01" @value-change="${(e) => this._lifeDobValueChange(e, roleplayer.recordID)}">
 					</capitec-date-time-picker>`
 				: html`
 					<capitec-text-field label="Date of birth" style="width: 50%" disabled
