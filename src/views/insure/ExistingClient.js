@@ -198,10 +198,14 @@ export class ExistingClient extends InsureViewBase {
 		const issuePlanAgreementResponse = await this.insureService.generateIssueFuneralCoverPlanAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 		const paymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 
-		if (!issuePlanAgreementResponse.succeeded || !paymentAgreementResponse.succeeded) {
+		if (!issuePlanAgreementResponse.succeeded) {
 			this.handleToastError(issuePlanAgreementResponse.exception.output.Errors);
 			return;
 		}
+		if (!paymentAgreementResponse.succeeded) {
+			this.handleToastError(paymentAgreementResponse.exception.output.Errors);
+		}
+
 		this.issuePlanAgreementDocument = issuePlanAgreementResponse.result;
 		this.reinstatePaymentAgreementDocument = paymentAgreementResponse.result;
 	}
@@ -246,8 +250,13 @@ export class ExistingClient extends InsureViewBase {
 		const updatePlanAgreementResponse = await this.insureService.generateUpdateFuneralCoverPlanAgreement(docGenerateRequestPayload);
 		const updatePaymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(docGenerateRequestPayload);
 
-		if (!updatePlanAgreementResponse.succeeded || !updatePaymentAgreementResponse.succeeded) {
+		if (!updatePlanAgreementResponse.succeeded) {
 			this.handleToastError(updatePlanAgreementResponse.exception.output.Errors);
+			return;
+		}
+
+		if (!updatePaymentAgreementResponse.succeeded) {
+			this.handleToastError(updatePaymentAgreementResponse.exception.output.Errors);
 			return;
 		}
 
