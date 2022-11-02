@@ -181,13 +181,14 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*} *
 	 */
 	async _generateDocumentsForReinstate(saveDocumentToDocumentum) {
+		const dob = new Date(this.callerInformation.birthdate);
 		const clientDetails = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"policyContractReference": this.contractReference,
 			"firstName": this.callerInformation.firstName,
 			"surname": this.callerInformation.surname,
 			"idNumber": this.callerInformation.southAfricanIDNumber,
-			"dateOfBirth": this.callerInformation.birthdate
+			"dateOfBirth": dob.toISOString()
 		};
 
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.saveDocumentToDocumentum = saveDocumentToDocumentum;
@@ -200,8 +201,6 @@ export class ExistingClient extends InsureViewBase {
 		if (!issuePlanAgreementResponse.succeeded || !paymentAgreementResponse.succeeded) {
 			return;
 		}
-
-
 		this.issuePlanAgreementDocument = issuePlanAgreementResponse.result;
 		this.reinstatePaymentAgreementDocument = paymentAgreementResponse.result;
 	}
@@ -212,20 +211,20 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*} *
 	 */
 	async _generateDocumentsForUpdatePlan(saveDocumentToDocumentum) {
+		const dob = new Date(this.callerInformation.birthdate);
 		const clientDetails = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"policyContractReference": this.contractReference,
 			"firstName": this.callerInformation.firstName,
 			"surname": this.callerInformation.surname,
 			"idNumber": this.callerInformation.southAfricanIDNumber,
-			"dateOfBirth": this.callerInformation.birthdate
+			"dateOfBirth": dob.toISOString()
 		};
 
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.saveDocumentToDocumentum = saveDocumentToDocumentum;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.contractReference;
 
-		// TODO: Need to remove below hard code values.
 		const docGenerateRequestPayload = {
 			"documentFormat": `PDF`,
 			"saveDocumentToDocumentum": false,
@@ -236,8 +235,9 @@ export class ExistingClient extends InsureViewBase {
 				"cifNumber": this.callerInformation.cifNumber,
 				"policyContractReference": this.contractReference,
 				"firstName": this.callerInformation.firstName,
+				"surname": this.callerInformation.surname,
 				"idNumber": this.callerInformation.southAfricanIDNumber,
-				"dateOfBirth": this.callerInformation.birthdate
+				"dateOfBirth": dob.toISOString()
 			},
 			"contractReference": this.contractReference
 		};
@@ -249,18 +249,6 @@ export class ExistingClient extends InsureViewBase {
 			return;
 		}
 
-		// TMP ===== REMOVE WHEN SERVICE READY
-		// let agreementResp = {
-		// "documentDetails": {
-		// "documentCode": "ABC01",
-		// "documentName": "Test Doc",
-		// "guid": "91ba047a4bd44cf3abb7ccae7a95149a"
-		// },
-		// }
-		// updatePlanAgreementResponse.result = agreementResp;
-		// updatePaymentAgreementResponse.result = agreementResp;
-		// =========
-
 		this.updatePlanAgreementDocument = updatePlanAgreementResponse.result;
 		this.updatePaymentAgreementDocument = updatePaymentAgreementResponse.result;
 	}
@@ -269,9 +257,10 @@ export class ExistingClient extends InsureViewBase {
 	 * Get attachments for different document types
 	 * @param {*} sourcePage from which send email method is invoked
 	 * @param {*} emailDocumentRequestPayload - email request payload
+	 * @param {*} docContent - Document content
 	 * @returns {*} *
 	 */
-	_getAgreementAttachments(sourcePage, emailDocumentRequestPayload) {
+	_getAgreementAttachments(sourcePage, emailDocumentRequestPayload, docContent) {
 		if (sourcePage === INSURE_CALLER_PAGE.REINSTATE_POLICY) {
 			emailDocumentRequestPayload.documentInfo = [
 				{
@@ -287,7 +276,7 @@ export class ExistingClient extends InsureViewBase {
 					"documentGuid": this.reinstatePaymentAgreementDocument?.documentDetails?.guid,
 					"content": {
 						"type": `PDF`,
-						"value": this.reinstatePaymentAgreementDocument?.documentContent.value,
+						"value": this.reinstatePaymentAgreementDocument?.documentContent.value
 					}
 				}
 			];
@@ -298,7 +287,7 @@ export class ExistingClient extends InsureViewBase {
 					"documentGuid": this.updatePlanAgreementDocument?.documentDetails?.guid,
 					"content": {
 						"type": `PDF`,
-						"value": this.updatePlanAgreementDocument?.documentContent.value,
+						"value": this.updatePlanAgreementDocument?.documentContent.value
 					}
 				},
 				{
@@ -339,7 +328,7 @@ export class ExistingClient extends InsureViewBase {
 					"documentGuid": ``,
 					"content": {
 						"type": `PDF`,
-						"value": ``
+						"value": docContent
 					}
 				}
 			];
@@ -399,8 +388,12 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _goToUpdatePlan(e) {
 		if (e.detail.canReinstate) {
-			this.policyDetails = await this._reinstateQuoteCalc(e.detail.policyContractReference, this.callerInformation.cifNumber);
-			if (this.policyDetails !== null) {
+			const calcResponse = await this._reinstateQuoteCalc(e.detail.policyContractReference, this.callerInformation.cifNumber);
+			if (calcResponse !== null) {
+				this.policyDetails = calcResponse;
+				this.policyDetails.roleplayers = calcResponse.eligibleRoleplayers;
+				delete this.policyDetails.eligibleRoleplayers;
+				delete this.policyDetails.ineligibleRoleplayers;
 				this.policyDetails.canReinstate = true;
 			}
 		} else {
@@ -543,14 +536,14 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _printEstimate(e) {
 		await this._calculateClientEstimate(e);
-
+		const dob = new Date(this.callerInformation.birthdate);
 		const clientDetails = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"policyContractReference": this.contractReference,
 			"firstName": this.callerInformation.firstName,
 			"surname": this.callerInformation.surname,
 			"idNumber": this.callerInformation.southAfricanIDNumber,
-			"dateOfBirth": this.callerInformation.birthdate
+			"dateOfBirth": dob.toISOString()
 		};
 
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
@@ -560,7 +553,6 @@ export class ExistingClient extends InsureViewBase {
 		if (!result.succeeded) {
 			return;
 		}
-
 		return result;
 	}
 
@@ -608,19 +600,14 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*} * 
 	 */
 	async _getCancelPolicyDocument(contractReference, cancelReason, saveToDocumentum) {
-
 		this.policyNumber = contractReference;
-
 		const dob = new Date(this.callerInformation.birthdate);
-
 		const cancelPolicyAgreementDetails = {
-
 			"documentFormat": `PDF`,
 			"saveDocumentToDocumentum": saveToDocumentum,
 			"returnDocumentContent": true,
 			"emailDocumentToClient": false,
 			"wetsignBarcode": false,
-
 			"clientDetails": {
 				"cifNumber": this.callerInformation.cifNumber,
 				"primarySavingsAccountNumber": this.accountDetails.savingsAccountData.accountNumber,
@@ -630,15 +617,10 @@ export class ExistingClient extends InsureViewBase {
 				"idNumber": this.callerInformation.southAfricanIDNumber,
 				"dateOfBirth": dob.toISOString()
 			},
-			"emailDetails": {
-				"email": `test@test.com`
-			},
 			"input": {
 				"cancellationReason": cancelReason
 			}
-
 		};
-
 
 		const resp = await this.insureService.cancelPolicyAgreement(cancelPolicyAgreementDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
@@ -951,7 +933,6 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*} result
 	 */
 	async _updatePlanQuote(policyToCalc) {
-
 		const quoteCalcRequest = {
 			"saveQuote": true,
 			"contractReference": policyToCalc.contractReference,
@@ -972,7 +953,6 @@ export class ExistingClient extends InsureViewBase {
 			life.coverDetails = foundPlayer.coverDetails;
 			return life;
 		});
-
 		calculatedQuote.lifesAssured = adjustedRoleplayers;
 		return calculatedQuote;
 	}
@@ -1121,10 +1101,9 @@ export class ExistingClient extends InsureViewBase {
 		if (!createPolicyResponse.succeeded) {
 			return;
 		}
-
 		this.contractReference = createPolicyResponse.result.contractReference;
-		await this._generateDocumentsForReinstate(false);
 
+		await this._generateDocumentsForReinstate(false);
 		const resinstatePolicyResponse = {
 			issuePlanAgreement: this.issuePlanAgreementDocument,
 			paymentAgreement: this.reinstatePaymentAgreementDocument,
@@ -1157,7 +1136,6 @@ export class ExistingClient extends InsureViewBase {
 		}
 
 		this.contractReference = event.detail.policyResponse.policyResponse.contractReference;
-
 		await this._generateDocumentsForReinstate(true);
 
 		this.successMessage = `The policy ${event.detail.policyResponse.policyResponse.contractReference} has been successfully reinstated`;
@@ -1189,7 +1167,7 @@ export class ExistingClient extends InsureViewBase {
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.cifNumber = this.callerInformation.cifNumber;
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.contractReference;
 
-		this._getAgreementAttachments(this.callerPage, EMAIL_DOCUMENT_REQUEST_PAYLOAD);
+		this._getAgreementAttachments(this.callerPage, EMAIL_DOCUMENT_REQUEST_PAYLOAD, e.detail.docContent);
 		const emailResponse = await this.insureService.emailFuneralDocuments(EMAIL_DOCUMENT_REQUEST_PAYLOAD);
 
 		if (!emailResponse.succeeded) {
@@ -1218,13 +1196,11 @@ export class ExistingClient extends InsureViewBase {
 	async _getArrearsPaymentDocument(contractReference, payArrears, fromAccount, saveToDocumentum) {
 		const dob = new Date(this.callerInformation.birthdate);
 		const arrearsPaymentInstructionDetails = {
-
 			"documentFormat": `PDF`,
 			"saveDocumentToDocumentum": saveToDocumentum,
 			"returnDocumentContent": true,
 			"emailDocumentToClient": false,
 			"wetsignBarcode": false,
-
 			"clientDetails": {
 				"cifNumber": this.callerInformation.cifNumber, // 363291555
 				"primarySavingsAccountNumber": this.accountDetails.savingsAccountData.accountNumber, // 1952898232
@@ -1233,9 +1209,6 @@ export class ExistingClient extends InsureViewBase {
 				"surname": this.callerInformation.lastName, // `TDIL`
 				"idNumber": this.callerInformation.southAfricanIDNumber, // "0011262112193"
 				"dateOfBirth": dob.toISOString() // "2000-11-25T22:00:00.000Z"
-			},
-			"emailDetails": {
-				"email": `test@test.com`
 			},
 			"input": {
 				"policyContractReference": contractReference,
@@ -1440,7 +1413,8 @@ export class ExistingClient extends InsureViewBase {
 				.maxAllowedCover="${this.clientPolicies.checkInsuranceDetails[0].maxAllowedCover}"
 				.updatePlanQuote="${(policyToCalc) => this._updatePlanQuote(policyToCalc)}"
 				.updatePlanPrepare="${(policyToUpdate) => this._updatePlanPrepare(policyToUpdate)}"
-				.policyDetails="${this.policyDetails}" .productParams="${this.productParams}"
+				.policyDetails="${this.policyDetails}" 
+				.productParams="${this.productParams}"
 				.initiateReinstatePolicy="${(policyToReinstate) => this._initiateReinstatePolicy(policyToReinstate)}"
 				@accept-policy="${(policyToAccept) => this._acceptPolicy(policyToAccept)}"
 				@updatePlanAccept="${(e) => this._updatePlanAccept(e)}"

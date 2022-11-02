@@ -171,7 +171,7 @@ static get properties() {
 			const resp = await this.insureService.commsHistory({}, () => true);
 			if (resp.succeeded === true && resp.result !== null) {
 				
-				console.log(resp);
+				
 				return resp.result;
 				
 			} 
