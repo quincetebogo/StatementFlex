@@ -1,6 +1,8 @@
 import { InsureService } from 'app/services/InsureService';
 import { ViewBase } from 'app/views/common/ViewBase';
 
+const ERROR_TOAST_DELAY = 10000;
+
 /**
  * A Base class for view components to collect common functionality used within Insure product
  *
@@ -23,14 +25,15 @@ export class InsureViewBase extends ViewBase {
 
 	/**
 	 * @property {Object} productParams Data & flags for insure product parameters
-	 * @property {boolean} isBusy Toggle for busy indicator
+	 * @property {boolean} showInsureErrorToast Toggle for error toast
 	 * 
 	 * @readonly
 	 * @static
 	 */
 	static get properties() {
 		return {
-			productParams: { type: Object, state: true }
+			productParams: { type: Object, state: true },
+			showInsureErrorToast: { type: Boolean, state: true }
 		};
 	}
 
@@ -77,9 +80,27 @@ export class InsureViewBase extends ViewBase {
 	 * @returns {Boolean} boolean
 	 */
 	_handleChannelServiceError(ex) {
-		this.errorMessage = `System error. Please try again.`;
-		this.horizonRouter.navigateToSystemError();
 		return true;
+	}
+
+	/**
+	 * Pop toast with channel services error
+	 * @param {object} errors Error array
+	 * @returns {void}
+	 */
+	handleToastError(errors) {
+		this.insureErrorToastMessage = errors[0].ErrorMessage;
+		this.showInsureErrorToast = true;
+		window.setTimeout(() => this._toggleToastDisplay(), ERROR_TOAST_DELAY);
+	}
+
+	/**
+	 * Reset error toast after delay
+	 * @returns {void}
+	 */
+	_toggleToastDisplay() {
+		this.showInsureErrorToast = false;
+		this.insureErrorToastMessage = ``;
 	}
 
 	// #endregion
