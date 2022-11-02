@@ -195,15 +195,22 @@ export class ExistingClient extends InsureViewBase {
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.contractReference;
 
 		const issuePlanAgreementResponse = await this.insureService.generateIssueFuneralCoverPlanAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
-		const paymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
-
-		if (!issuePlanAgreementResponse.succeeded || !paymentAgreementResponse.succeeded) {
+		
+		if (!issuePlanAgreementResponse.succeeded) {
 			return;
 		}
 
-
 		this.issuePlanAgreementDocument = issuePlanAgreementResponse.result;
-		this.reinstatePaymentAgreementDocument = paymentAgreementResponse.result;
+
+		if (this.contractReference.toLowerCase().startsWith(`cf`)) {
+			const paymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
+
+			if (!paymentAgreementResponse.succeeded) {
+				return;
+			}
+
+			this.reinstatePaymentAgreementDocument = paymentAgreementResponse.result;
+		}
 	}
 
 	/**
@@ -243,10 +250,21 @@ export class ExistingClient extends InsureViewBase {
 		};
 
 		const updatePlanAgreementResponse = await this.insureService.generateUpdateFuneralCoverPlanAgreement(docGenerateRequestPayload);
-		const updatePaymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(docGenerateRequestPayload);
-
-		if (!updatePlanAgreementResponse.succeeded || !updatePaymentAgreementResponse.succeeded) {
+		
+		if (!updatePlanAgreementResponse.succeeded) {
 			return;
+		}
+
+		this.updatePlanAgreementDocument = updatePlanAgreementResponse.result;
+
+		if (docGenerateRequestPayload.contractReference.toLowerCase().startsWith(`cf`)) {
+			const updatePaymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(docGenerateRequestPayload);
+
+			if (!updatePaymentAgreementResponse.succeeded) {
+				return;
+			}
+
+			this.updatePaymentAgreementDocument = updatePaymentAgreementResponse.result;
 		}
 
 		// TMP ===== REMOVE WHEN SERVICE READY
@@ -260,9 +278,6 @@ export class ExistingClient extends InsureViewBase {
 		// updatePlanAgreementResponse.result = agreementResp;
 		// updatePaymentAgreementResponse.result = agreementResp;
 		// =========
-
-		this.updatePlanAgreementDocument = updatePlanAgreementResponse.result;
-		this.updatePaymentAgreementDocument = updatePaymentAgreementResponse.result;
 	}
 
 	/**
@@ -287,7 +302,7 @@ export class ExistingClient extends InsureViewBase {
 					"documentGuid": this.reinstatePaymentAgreementDocument?.documentDetails?.guid,
 					"content": {
 						"type": `PDF`,
-						"value": this.reinstatePaymentAgreementDocument?.documentContent.value,
+						"value": this.reinstatePaymentAgreementDocument?.documentContent.value
 					}
 				}
 			];
@@ -298,7 +313,7 @@ export class ExistingClient extends InsureViewBase {
 					"documentGuid": this.updatePlanAgreementDocument?.documentDetails?.guid,
 					"content": {
 						"type": `PDF`,
-						"value": this.updatePlanAgreementDocument?.documentContent.value,
+						"value": this.updatePlanAgreementDocument?.documentContent.value
 					}
 				},
 				{
@@ -306,7 +321,7 @@ export class ExistingClient extends InsureViewBase {
 					"documentGuid": this.updatePaymentAgreementDocument?.documentDetails?.guid,
 					"content": {
 						"type": `PDF`,
-						"value": this.updatePaymentAgreementDocument?.documentContent.value
+						"value": this.updatePaymentAgreementDocument?.documentContent?.value
 					}
 				}
 			];
