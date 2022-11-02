@@ -75,7 +75,7 @@ export class ExistingClient extends InsureViewBase {
 		this.reinstatePaymentAgreementDocument = {};
 		this.updatePlanAgreementDocument = {};
 		this.updatePaymentAgreementDocument = {};
-		
+
 		this.readOnly = false;
 		// this.auditTransactionHistory = {};
 	}
@@ -929,7 +929,6 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*} result
 	 */
 	async _updatePlanQuote(policyToCalc) {
-
 		const quoteCalcRequest = {
 			"saveQuote": true,
 			"contractReference": policyToCalc.contractReference,
@@ -950,7 +949,6 @@ export class ExistingClient extends InsureViewBase {
 			life.coverDetails = foundPlayer.coverDetails;
 			return life;
 		});
-
 		calculatedQuote.lifesAssured = adjustedRoleplayers;
 		return calculatedQuote;
 	}
