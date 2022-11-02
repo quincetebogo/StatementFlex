@@ -912,22 +912,54 @@ class ClientPolicies extends Component {
 							label="Start Date"
 							value="${formatDate(policyItem.commencementDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.commencementDate, `dd mmm yyyy`)}">
 						</horizon-label>
+						${policyItem.status === `Cancelled` 
+						? html`
+						<horizon-label
+							data-automation-id="insure-policy-cancellation-date"
+							label="Cancellation Date"
+							value="${formatDate(policyItem.cancellationDetails?.effectiveCancellationDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.cancellationDetails?.effectiveCancellationDate, `dd mmm yyyy`)}">
+						</horizon-label>
+						` 
+						: html`
 						<horizon-label
 							data-automation-id="insure-policy-next-debit-order"
 							label="Next Debit Order"
 							value="${formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`)}">
 						</horizon-label>
+						`
+						}
+						
+						${policyItem.status === `Cancelled` 
+						? html`
+						<horizon-label
+							label=""
+							value="">
+						</horizon-label>` 
+						: html`
 						<horizon-label
 							data-automation-id="insure-policy-total-premium"
 							label="Total Premium"
 							value="${isNullorEmpty(policyItem.totalPremium) ? formatCurrency(0) : formatCurrency(policyItem.totalPremium)}">
+						</horizon-label>`
+						}
+						${policyItem.status === `Cancelled` 
+						? html`
+						<horizon-label
+							data-automation-id="insure-policy-cancellation-reason"
+							label="Reason"
+							value="${policyItem.cancellationDetails.displayReason}">
 						</horizon-label>
+						` 
+						: html`
 						<horizon-label
 							data-automation-id="insure-policy-arrears"
 							label="Arrears"
 							class="${sumArrears > 0 ? `arrears` : ``}"
 							value="${isNullorEmpty(sumArrears) ? formatCurrency(0) : formatCurrency(sumArrears)}">
 						</horizon-label>
+						`
+						}
+						
 						<horizon-label
 							data-automation-id="insure-policy-display-status"
 							label="Status"
