@@ -257,6 +257,7 @@ export class ExistingClient extends InsureViewBase {
 	 * Get attachments for different document types
 	 * @param {*} sourcePage from which send email method is invoked
 	 * @param {*} emailDocumentRequestPayload - email request payload
+	 * @param {*} docContent - Document content
 	 * @returns {*} *
 	 */
 	_getAgreementAttachments(sourcePage, emailDocumentRequestPayload, docContent) {
@@ -275,7 +276,7 @@ export class ExistingClient extends InsureViewBase {
 					"documentGuid": this.reinstatePaymentAgreementDocument?.documentDetails?.guid,
 					"content": {
 						"type": `PDF`,
-						"value": this.reinstatePaymentAgreementDocument?.documentContent.value,
+						"value": this.reinstatePaymentAgreementDocument?.documentContent.value
 					}
 				}
 			];
@@ -286,7 +287,7 @@ export class ExistingClient extends InsureViewBase {
 					"documentGuid": this.updatePlanAgreementDocument?.documentDetails?.guid,
 					"content": {
 						"type": `PDF`,
-						"value": this.updatePlanAgreementDocument?.documentContent.value,
+						"value": this.updatePlanAgreementDocument?.documentContent.value
 					}
 				},
 				{
