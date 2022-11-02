@@ -62,7 +62,7 @@ export class InsureService extends ChannelServiceBase {
 	 * @returns {string} requesterID 
 	 */
 	generateFIPSRequesterUID() {
-		return `${this.employeeId}_XXXXX_02_XXXX_XX`;
+		return `${this.employeeId}_XXXXX_02_3997_XX`;
 	}
 
 	// #endregion

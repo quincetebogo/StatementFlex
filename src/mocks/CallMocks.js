@@ -765,7 +765,7 @@ export const searchCallerList =
 			"southAfricanIDNumber": `5709016743669`,
 			"verifiedTelephoneNumber": `0078888888`,
 			"livesIn": `MOKOPANE`,
-			"languagePreference": `ENGLISH`, 
+			"languagePreference": `ENGLISH`,
 			"birthdate": `Monday, 01 Sept 1957`,
 			"cifNumber": `371080088`,
 			"title": `Mr`,
@@ -792,6 +792,40 @@ export const searchCallerList =
 			"middleName2": ``,
 			"middleName3": ``,
 			"initials": `D`,
-			"profilePhoto": `` 
+			"profilePhoto": ``
 		},
+		{
+			"name": `Mr Minor Client`,
+			"southAfricanIDNumber": `0510306524669`,
+			"verifiedTelephoneNumber": `0078888888`,
+			"livesIn": `MOKOPANE`,
+			"languagePreference": `ENGLISH`,
+			"birthdate": `Monday, 25 Aug 1992`,
+			"cifNumber": `371087449`,
+			"title": `Mr`,
+			"firstName": `Minor`,
+			"lastName": `Client`,
+			"middleName1": ``,
+			"middleName2": ``,
+			"middleName3": ``,
+			"initials": `D`,
+			"profilePhoto": ``
+		},
+		{
+			"name": `Mr Old Client`,
+			"southAfricanIDNumber": `5707066523668`,
+			"verifiedTelephoneNumber": `0078888888`,
+			"livesIn": `MOKOPANE`,
+			"languagePreference": `ENGLISH`,
+			"birthdate": `Monday, 25 Aug 1992`,
+			"cifNumber": `371087430`,
+			"title": `Mr`,
+			"firstName": `Old`,
+			"lastName": `Client`,
+			"middleName1": ``,
+			"middleName2": ``,
+			"middleName3": ``,
+			"initials": `D`,
+			"profilePhoto": ``
+		}
 	];

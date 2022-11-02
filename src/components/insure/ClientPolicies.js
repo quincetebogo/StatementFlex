@@ -742,11 +742,20 @@ class ClientPolicies extends Component {
 				width: 100%;
 				font-family: var(--theme-font-family, Arial, Helvetica, sans-serif);
     			font-weight: var(--theme-font-weight, 300);
+				margin-top: 20px;
 			}
 
-			.benefits-table-cell{
+			#benefits-table td {
 				background-color: #f3f3f3;
-				padding: 2px;
+				padding: 5px 10px;
+			}
+
+			#no-results-box{
+				margin-bottom: 20px;
+			}
+
+			#no-results-box-inner{
+				padding: 20px; margin-top: 10px;
 			}
 			`
 		];
@@ -792,12 +801,16 @@ class ClientPolicies extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-button type="white" class="capitec-button-medium"  label="Lodge Claim" data-automation-id="insure-landing-lodge-claim"
-						@click="${() => this.showLodgeClaimInfoDialog = true}">
-					</capitec-button>
+					${this.clientPolicies?.summaryDetails?.policies.length === 0 ? `` : html`
+						<capitec-button type="white" class="capitec-button-medium"  label="Lodge Claim" data-automation-id="insure-landing-lodge-claim"
+							@click="${() => this.showLodgeClaimInfoDialog = true}">
+						</capitec-button>
+					`}
+					
 					${this._renderGetEstimateButton()}
 				</capitec-title-bar>
-				${this._renderPoliciesLandingContent()}
+
+				${this.clientPolicies?.summaryDetails?.policies.length === 0 ? html`${this._renderNoResults()}` : html`${this._renderPoliciesLandingContent()}`}
 		</capitec-card>`;
 	}
 
@@ -899,22 +912,54 @@ class ClientPolicies extends Component {
 							label="Start Date"
 							value="${formatDate(policyItem.commencementDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.commencementDate, `dd mmm yyyy`)}">
 						</horizon-label>
+						${policyItem.status === `Cancelled` 
+						? html`
+						<horizon-label
+							data-automation-id="insure-policy-cancellation-date"
+							label="Cancellation Date"
+							value="${formatDate(policyItem.cancellationDetails?.effectiveCancellationDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.cancellationDetails?.effectiveCancellationDate, `dd mmm yyyy`)}">
+						</horizon-label>
+						` 
+						: html`
 						<horizon-label
 							data-automation-id="insure-policy-next-debit-order"
 							label="Next Debit Order"
 							value="${formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`)}">
 						</horizon-label>
+						`
+						}
+						
+						${policyItem.status === `Cancelled` 
+						? html`
+						<horizon-label
+							label=""
+							value="">
+						</horizon-label>` 
+						: html`
 						<horizon-label
 							data-automation-id="insure-policy-total-premium"
 							label="Total Premium"
 							value="${isNullorEmpty(policyItem.totalPremium) ? formatCurrency(0) : formatCurrency(policyItem.totalPremium)}">
+						</horizon-label>`
+						}
+						${policyItem.status === `Cancelled` 
+						? html`
+						<horizon-label
+							data-automation-id="insure-policy-cancellation-reason"
+							label="Reason"
+							value="${policyItem.cancellationDetails.displayReason}">
 						</horizon-label>
+						` 
+						: html`
 						<horizon-label
 							data-automation-id="insure-policy-arrears"
 							label="Arrears"
 							class="${sumArrears > 0 ? `arrears` : ``}"
 							value="${isNullorEmpty(sumArrears) ? formatCurrency(0) : formatCurrency(sumArrears)}">
 						</horizon-label>
+						`
+						}
+						
 						<horizon-label
 							data-automation-id="insure-policy-display-status"
 							label="Status"
@@ -933,7 +978,7 @@ class ClientPolicies extends Component {
 					</capitec-group>
 				</div>
 		</horizon-expander>`;
-		}) : this._renderNoResults()}`;
+		}) : html``}`;
 	}
 
 	/**
@@ -970,20 +1015,22 @@ class ClientPolicies extends Component {
 	_renderNoResults() {
 		return html`${isNullorEmpty(this.clientPolicies) ? ``
 			: html`
+			<capitec-content-box id="no-results-box">
+				<div id="no-results-box-inner">
 					<capitec-label label="Features of a Funeral Plan" class="strong-label"></capitec-label>
 					<table id='benefits-table'>
 						<tr>
-							<td class="benefits-table-cell">Origin</td>
-							<td class="benefits-table-cell">Leaflet</td>
+							<td>Origin</td>
+							<td>Leaflet</td>
 						</tr>
 						<tr>
-							<td class="benefits-table-cell">Date of service update</td>
-							<td class="benefits-table-cell">00/00/0000</td>
+							<td>Date of service update</td>
+							<td>12/03/2023</td>
 						</tr>
 						<tr>
-							<td class="benefits-table-cell">Maximum cover</td>
-							<td class="benefits-table-cell">
-								<div>R100 000 - Main Life"</div>
+							<td>Maximum cover</td>
+							<td>
+								<div>R100 000 - Main Life</div>
 								<div>R100 000 - Spouse</div>
 								<div>R20 000 - Children (0 - 5 years) </div>
 								<div>R50 000 - Children (6 - 13 years) </div>
@@ -993,43 +1040,45 @@ class ClientPolicies extends Component {
 							</td>
 						</tr>
 						<tr>
-							<td class="benefits-table-cell">Waiting period</td>
-							<td class="benefits-table-cell">6 month waiting period. However, if you have cover with an existing insurer, we will waive your waiting period u to your current cover amount</td>
+							<td>Waiting period</td>
+							<td>6 month waiting period. However, if you have cover with an existing insurer, we will waive your waiting period up to your current cover amount</td>
 						</tr>
 						<tr>
-							<td class="benefits-table-cell">Maximum entry age</td>
-							<td class="benefits-table-cell">
+							<td>Maximum entry age</td>
+							<td>
 								<div>64 - Main Life and Spouse</div>
 								<div>25 - Children</div>
 								<div>85 - Parents and Extended Family</div>
 							</td>
 						</tr>
 						<tr>
-							<td class="benefits-table-cell">Number of lives assured</td>
-							<td class="benefits-table-cell">22</td>
+							<td>Number of lives assured</td>
+							<td>22</td>
 						</tr>
 						<tr>
-							<td class="benefits-table-cell">Funeral support (incl. transportation of the deceased)</td>
-							<td class="benefits-table-cell">Request funeral support, for transportation of the deceased, by calling 0860 777 554 or log a request via our remote banking app or WhatsApp for the service provider to contact you. The place of death must be at least 50 kilometres from the place of burial</td>
+							<td>Funeral support (incl. transportation of the deceased)</td>
+							<td>Request funeral support, for transportation of the deceased, by calling 0860 777 554 or log a request via our remote banking app or WhatsApp for the service provider to contact you. The place of death must be at least 50 kilometres from the place of burial</td>
 						</tr>
 						<tr>
-							<td class="benefits-table-cell">Death Premium Waiver</td>
-							<td class="benefits-table-cell">Premiums paid by insurer on death of policyholder – 6 months, allowing your family time to re-organize their financial lives</td>
+							<td>Death Premium Waiver</td>
+							<td>Premiums paid by insurer on death of policyholder – 6 months, allowing your family time to re-organize their financial lives</td>
 						</tr>
 						<tr>
-							<td class="benefits-table-cell">Voluntary Policy Pause benefit</td>
-							<td class="benefits-table-cell">Pause premiums and benefits – 6 months. Allows you to retain your product pricing based on entry age</td>
+							<td>Voluntary Policy Pause benefit</td>
+							<td>Pause premiums and benefits – 6 months. Allows you to retain your product pricing based on entry age</td>
 						</tr>
 						<tr>
-							<td class="benefits-table-cell">Double Accident benefit</td>
-							<td class="benefits-table-cell">Payment of an additional benefit amount equal to your cover amount if lives assured die in an accident</td>
+							<td>Double Accident benefit</td>
+							<td>Payment of an additional benefit amount equal to your cover amount if lives assured die in an accident</td>
 						</tr>
 						<tr>
-							<td class="benefits-table-cell">Newborn premium waiver</td>
-							<td class="benefits-table-cell">Premiums paid by insurer on your behalf – 6 months (natural birth or adoption)</td>
+							<td>Newborn premium waiver</td>
+							<td>Premiums paid by insurer on your behalf – 6 months (natural birth or adoption)</td>
 						</tr>
 					</table>
-			`}`;
+				</div>
+			</capitec-content-box>
+		`}`;
 	}
 
 	/**

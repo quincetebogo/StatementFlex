@@ -344,7 +344,7 @@ class PolicyEstimate extends Component {
 	 */
 	_sendEmail(emailAddress) {
 		this.showEmailPlanDialog = false;
-		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.ESTIMATE } }));
+		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.ESTIMATE, docContent: this.printEstimateDocumentContent } }));
 	}
 
 	//  #endregion
@@ -652,7 +652,7 @@ class PolicyEstimate extends Component {
 						<capitec-label label="Funeral Plan" type="Strong"></capitec-label>
 						<capitec-spacer></capitec-spacer>
 						<capitec-label label="Total estimated monthly premium"></capitec-label>
-						<capitec-label label="${formatCurrency(this.estimate.totalPremium)}" class="calc-premium-total"
+						<capitec-label label="${!this.estimate.totalPremium ? `R0.00` : formatCurrency(this.estimate.totalPremium)}" class="calc-premium-total"
 							data-automation-id="insure-estimate-heading-total-premium">
 						</capitec-label>
 						<capitec-label label="Summary of estimated monthly premium:" class="stronger"></capitec-label>
