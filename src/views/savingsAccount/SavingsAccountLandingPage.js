@@ -302,15 +302,15 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
             "Current balance": savingsLandingDetails.accountBalance === 0 ? `-` : formatCurrency(savingsLandingDetails.accountBalance),
             "Available balance": savingsLandingDetails.accountAvailableBalance === 0 ? `-` : formatCurrency(savingsLandingDetails.accountAvailableBalance),
             "Interest rate": `${savingsLandingDetails.interestRatePercentage}%`,
-            [`Accured interest ${this._getCurrentMonth()}`]: savingsLandingDetails.accruedInterestCurrentMonth,
-            [`Accured interest ${this._getPreviousMonth()}`]: savingsLandingDetails.accruedInterestLastMonth,
+            [`Accrued interest ${this._getCurrentMonth()}`]: savingsLandingDetails.accruedInterestCurrentMonth,
+            [`Accrued interest ${this._getPreviousMonth()}`]: savingsLandingDetails.accruedInterestLastMonth,
             "Interest earned tax year": savingsLandingDetails.interestEarned,
             "Posting restrictions": savingsLandingDetails.postingRestrictions === `N` ? `No` : `Yes`,
             "Pending amount": savingsLandingDetails.accountPendingAmount === 0 ? `-` : formatCurrency(savingsLandingDetails.accountPendingAmount),
             "Amount on hold": savingsLandingDetails.holds === 0 ? `-` : formatCurrency(savingsLandingDetails.holds),
             "Date opened": savingsLandingDetails.accountOpenDate ? this._formatDate(savingsLandingDetails.accountOpenDate) : `-`,
             "Last updated": savingsLandingDetails.lastUpdate ? this._formatDate(savingsLandingDetails.lastUpdate) : `-`,
-            "Account status": savingsLandingDetails.accountStatus === `Open` ? `Active` : `Closed`
+            "Account status": savingsLandingDetails.accountStatus
         };
 
         this.renderMode = RENDER_MODE.SAVINGS_ACCOUNT_DETAILS;
