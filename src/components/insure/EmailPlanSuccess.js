@@ -193,7 +193,7 @@ _renderAlert() {
 			type="success"
 			Header="Successful"
 			layout = "vertical"
-			detail = "Document sent successful"
+			detail = "Document sent successfully"
 			@click = "${() => this.showSuccessAlert = false}">
 		</capitec-toast>
 
