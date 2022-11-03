@@ -191,9 +191,9 @@ _renderAlert() {
 		<capitec-toast
 			class="toast"
 			type="success"
-			Header="Funeral Plan Sent"
+			Header="Successful"
 			layout = "vertical"
-			detail = "Funeral plan was sent"
+			detail = "Document sent successful"
 			@click = "${() => this.showSuccessAlert = false}">
 		</capitec-toast>
 
