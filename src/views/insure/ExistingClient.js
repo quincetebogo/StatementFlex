@@ -6,6 +6,7 @@ import { css, html } from 'platform/elements';
 import { getAgeFromIDNumber, getGenderFromIDNumber } from 'app/utils/insureUtils';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { Configuration } from 'platform/core';
+import { HorizonInsureStore } from 'app/store/HorizonInsureStore';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 import { InsureService } from 'app/services/InsureService';
@@ -61,6 +62,7 @@ export class ExistingClient extends InsureViewBase {
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.savingsAccountService = new SavingsService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.configuration = Configuration.getInstance();
+		this.horizonInsureStore = HorizonInsureStore.getInstance();
 
 		this.productParams = {};
 		this.policyTransactionHistory = {};
@@ -155,6 +157,7 @@ export class ExistingClient extends InsureViewBase {
 		this.accountDetails = await this._retrieveAccountDetails();
 		this.commsHistory = await this._retrieveCommsHistory();
 		this.claims = await this._retrieveClaims();
+		
 	}
 
 	/**

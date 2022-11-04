@@ -1,3 +1,4 @@
+import { HorizonInsureStore } from 'app/store/HorizonInsureStore';
 import { InsureService } from 'app/services/InsureService';
 import { ViewBase } from 'app/views/common/ViewBase';
 
@@ -15,6 +16,7 @@ export class InsureViewBase extends ViewBase {
 	constructor() {
 		super();
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+		this.horizonInsureStore = HorizonInsureStore.getInstance();
 	}
 
 	// #endregions
@@ -55,6 +57,9 @@ export class InsureViewBase extends ViewBase {
 	 */
 	disconnectedCallback() {
 		super.disconnectedCallback();
+
+		this.horizonInsureStore.setCFPStatus(false);
+
 	}
 
 	// #region PRIVATE METHODS
