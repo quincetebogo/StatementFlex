@@ -184,13 +184,14 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*} *
 	 */
 	async _generateDocumentsForReinstate(saveDocumentToDocumentum) {
+		const dob = new Date(this.callerInformation.birthdate);
 		const clientDetails = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"policyContractReference": this.contractReference,
 			"firstName": this.callerInformation.firstName,
 			"surname": this.callerInformation.surname,
 			"idNumber": this.callerInformation.southAfricanIDNumber,
-			"dateOfBirth": this.callerInformation.birthdate
+			"dateOfBirth": dob.toISOString()
 		};
 
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.saveDocumentToDocumentum = saveDocumentToDocumentum;
@@ -198,15 +199,24 @@ export class ExistingClient extends InsureViewBase {
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.contractReference;
 
 		const issuePlanAgreementResponse = await this.insureService.generateIssueFuneralCoverPlanAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
-		const paymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
-
-		if (!issuePlanAgreementResponse.succeeded || !paymentAgreementResponse.succeeded) {
+		
+		if (!issuePlanAgreementResponse.succeeded) {
+			this.handleToastError(issuePlanAgreementResponse.exception.output.Errors);
 			return;
 		}
 
-
 		this.issuePlanAgreementDocument = issuePlanAgreementResponse.result;
-		this.reinstatePaymentAgreementDocument = paymentAgreementResponse.result;
+
+		if (this.contractReference.toLowerCase().startsWith(`cf`)) {
+			const paymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
+
+			if (!paymentAgreementResponse.succeeded) {
+				this.handleToastError(paymentAgreementResponse.exception.output.Errors);
+				return;
+			}
+
+			this.reinstatePaymentAgreementDocument = paymentAgreementResponse.result;
+		}
 	}
 
 	/**
@@ -215,20 +225,20 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*} *
 	 */
 	async _generateDocumentsForUpdatePlan(saveDocumentToDocumentum) {
+		const dob = new Date(this.callerInformation.birthdate);
 		const clientDetails = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"policyContractReference": this.contractReference,
 			"firstName": this.callerInformation.firstName,
 			"surname": this.callerInformation.surname,
 			"idNumber": this.callerInformation.southAfricanIDNumber,
-			"dateOfBirth": this.callerInformation.birthdate
+			"dateOfBirth": dob.toISOString()
 		};
 
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.saveDocumentToDocumentum = saveDocumentToDocumentum;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.contractReference;
 
-		// TODO: Need to remove below hard code values.
 		const docGenerateRequestPayload = {
 			"documentFormat": `PDF`,
 			"saveDocumentToDocumentum": false,
@@ -239,99 +249,115 @@ export class ExistingClient extends InsureViewBase {
 				"cifNumber": this.callerInformation.cifNumber,
 				"policyContractReference": this.contractReference,
 				"firstName": this.callerInformation.firstName,
+				"surname": this.callerInformation.surname,
 				"idNumber": this.callerInformation.southAfricanIDNumber,
-				"dateOfBirth": this.callerInformation.birthdate
+				"dateOfBirth": dob.toISOString()
 			},
 			"contractReference": this.contractReference
 		};
 
 		const updatePlanAgreementResponse = await this.insureService.generateUpdateFuneralCoverPlanAgreement(docGenerateRequestPayload);
-		const updatePaymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(docGenerateRequestPayload);
-
-		if (!updatePlanAgreementResponse.succeeded || !updatePaymentAgreementResponse.succeeded) {
+		
+		if (!updatePlanAgreementResponse.succeeded) {
+			this.handleToastError(updatePlanAgreementResponse.exception.output.Errors);
 			return;
 		}
 
-		// TMP ===== REMOVE WHEN SERVICE READY
-		// let agreementResp = {
-		// "documentDetails": {
-		// "documentCode": "ABC01",
-		// "documentName": "Test Doc",
-		// "guid": "91ba047a4bd44cf3abb7ccae7a95149a"
-		// },
-		// }
-		// updatePlanAgreementResponse.result = agreementResp;
-		// updatePaymentAgreementResponse.result = agreementResp;
-		// =========
-
 		this.updatePlanAgreementDocument = updatePlanAgreementResponse.result;
-		this.updatePaymentAgreementDocument = updatePaymentAgreementResponse.result;
+
+		if (docGenerateRequestPayload.contractReference.toLowerCase().startsWith(`cf`)) {
+			const updatePaymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(docGenerateRequestPayload);
+
+			if (!updatePaymentAgreementResponse.succeeded) {
+				this.handleToastError(updatePaymentAgreementResponse.exception.output.Errors);
+				return;
+			}
+
+			this.updatePaymentAgreementDocument = updatePaymentAgreementResponse.result;
+		}
 	}
 
 	/**
 	 * Get attachments for different document types
-	 * @param {*} sourePage from which send email method is invoked
+	 * @param {*} sourcePage from which send email method is invoked
 	 * @param {*} emailDocumentRequestPayload - email request payload
+	 * @param {*} docContent - Document content
 	 * @returns {*} *
 	 */
-	_getAgreementAttachments(sourePage, emailDocumentRequestPayload) {
-		if (sourePage === INSURE_CALLER_PAGE.REINSTATE_POLICY) {
+	_getAgreementAttachments(sourcePage, emailDocumentRequestPayload, docContent) {
+		if (sourcePage === INSURE_CALLER_PAGE.REINSTATE_POLICY) {
 			emailDocumentRequestPayload.documentInfo = [
 				{
-					"documentId": `123`,
 					"documentType": DOCUMENT_TYPE.ISSUE_POLICY_AGREEMENT,
 					"documentGuid": this.issuePlanAgreementDocument?.documentDetails?.guid,
-					"content": this.issuePlanAgreementDocument?.documentContent.value
+					"content": {
+						"type": `PDF`,
+						"value": this.issuePlanAgreementDocument?.documentContent.value
+					}
 				},
 				{
-					"documentId": `456`,
 					"documentType": DOCUMENT_TYPE.PAYMENT_MANDATE_AGREEMENT,
 					"documentGuid": this.reinstatePaymentAgreementDocument?.documentDetails?.guid,
-					"content": this.reinstatePaymentAgreementDocument?.documentContent.value
+					"content": {
+						"type": `PDF`,
+						"value": this.reinstatePaymentAgreementDocument?.documentContent.value
+					}
 				}
 			];
-		} else if (sourePage === INSURE_CALLER_PAGE.UPDATE_PLAN) {
+		} else if (sourcePage === INSURE_CALLER_PAGE.UPDATE_PLAN) {
 			emailDocumentRequestPayload.documentInfo = [
 				{
-					"documentId": `123`,
 					"documentType": DOCUMENT_TYPE.UPDATE_POLICY_AGREEMENT,
 					"documentGuid": this.updatePlanAgreementDocument?.documentDetails?.guid,
-					"content": this.updatePlanAgreementDocument?.documentContent.value
+					"content": {
+						"type": `PDF`,
+						"value": this.updatePlanAgreementDocument?.documentContent.value
+					}
 				},
 				{
-					"documentId": `456`,
 					"documentType": DOCUMENT_TYPE.PAYMENT_MANDATE_AGREEMENT,
 					"documentGuid": this.updatePaymentAgreementDocument?.documentDetails?.guid,
-					"content": this.updatePaymentAgreementDocument?.documentContent.value
+					"content": {
+						"type": `PDF`,
+						"value": this.updatePaymentAgreementDocument?.documentContent?.value
+					}
 				}
 			];
-		} else if (sourePage === INSURE_CALLER_PAGE.CANCEL_POLICY) {
+		} else if (sourcePage === INSURE_CALLER_PAGE.CANCEL_POLICY) {
 			emailDocumentRequestPayload.documentInfo = [
 				{
-					"documentId": `123`,
 					"documentType": DOCUMENT_TYPE.CANCEL_POLICY_AGREEMENT,
 					"documentGuid": this.cancelPolicyDocumentDetails?.documentDetails?.guid,
-					"content": this.cancelPolicyDocumentDetails?.documentContent.value
+					"content": {
+						"value": this.cancelPolicyDocumentDetails?.documentContent.value,
+						"type": `PDF`
+					}
 				}
 			];
-		} else if (sourePage === INSURE_CALLER_PAGE.PAY_PREMIUM) {
+		} else if (sourcePage === INSURE_CALLER_PAGE.PAY_PREMIUM) {
 			emailDocumentRequestPayload.documentInfo = [
 				{
-					"documentId": `123`,
 					"documentType": DOCUMENT_TYPE.PAY_ARREARS_AGREEMENT,
 					"documentGuid": ``,
-					"content": ``
+					"content": {
+						"type": `PDF`,
+						"value": ``
+					}
 				}
 			];
-		} else if (sourePage === INSURE_CALLER_PAGE.ESTIMATE) {
+		} else if (sourcePage === INSURE_CALLER_PAGE.ESTIMATE) {
 			emailDocumentRequestPayload.documentInfo = [
 				{
-					"documentId": `123`,
 					"documentType": DOCUMENT_TYPE.ESTIMATE_AGREEMENT,
 					"documentGuid": ``,
-					"content": ``
+					"content": {
+						"type": `PDF`,
+						"value": docContent
+					}
 				}
 			];
+		} else if (sourcePage === INSURE_CALLER_PAGE.CLIENT_POLICIES) {
+			emailDocumentRequestPayload.documentInfo = [];
 		}
 	}
 
@@ -386,9 +412,16 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _goToUpdatePlan(e) {
 		if (e.detail.canReinstate) {
-			this.policyDetails = await this._reinstateQuoteCalc(e.detail.policyContractReference, this.callerInformation.cifNumber);
-			if (this.policyDetails !== null) {
+			const calcResponse = await this._reinstateQuoteCalc(e.detail.policyContractReference, this.callerInformation.cifNumber);
+			if (calcResponse !== null) {
+				this.policyDetails = calcResponse;
+				this.policyDetails.roleplayers = calcResponse.eligibleRoleplayers;
+				delete this.policyDetails.eligibleRoleplayers;
+				delete this.policyDetails.ineligibleRoleplayers;
 				this.policyDetails.canReinstate = true;
+			} else {
+				this.handleToastError(calcResponse.exception.output.Errors);
+				return;
 			}
 		} else {
 			this.policyDetails = await this._retrievePolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
@@ -408,6 +441,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const resp = await this.insureService.clientPolicies(request);
 		if (!resp.succeeded) {
+			this.handleToastError(resp.exception.output.Errors);
 			return;
 		}
 
@@ -429,6 +463,7 @@ export class ExistingClient extends InsureViewBase {
 		};
 		const resp = await this.insureService.insurePolicySummary(request);
 		if (!resp.succeeded) {
+			this.handleToastError(resp.exception.output.Errors);
 			return;
 		}
 
@@ -444,6 +479,7 @@ export class ExistingClient extends InsureViewBase {
 		};
 		const resp = await this.insureService.claimSummary(request);
 		if (!resp.succeeded) {
+			this.handleToastError(resp.exception.output.Errors);
 			return;
 		}
 		return resp.result;
@@ -464,6 +500,7 @@ export class ExistingClient extends InsureViewBase {
 		};
 		const resp = await this.insureService.insureReinstateQuoteCalc(request);
 		if (!resp.succeeded) {
+			this.handleToastError(resp.exception.output.Errors);
 			return;
 		}
 
@@ -514,6 +551,7 @@ export class ExistingClient extends InsureViewBase {
 			estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map(lifeWithDetails => Object.assign(lifeWithDetails, resp.result.lifesAssured.find(respLife => lifeWithDetails.rowID === respLife.rowID)));
 			this.estimate = estimateWithCoverDetails;
 		} else {
+			this.handleToastError(resp.exception.output.Errors);
 			return null;
 		}
 	}
@@ -526,14 +564,14 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _printEstimate(e) {
 		await this._calculateClientEstimate(e);
-
+		const dob = new Date(this.callerInformation.birthdate);
 		const clientDetails = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"policyContractReference": this.contractReference,
 			"firstName": this.callerInformation.firstName,
 			"surname": this.callerInformation.surname,
 			"idNumber": this.callerInformation.southAfricanIDNumber,
-			"dateOfBirth": this.callerInformation.birthdate
+			"dateOfBirth": dob.toISOString()
 		};
 
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
@@ -541,9 +579,9 @@ export class ExistingClient extends InsureViewBase {
 
 		const result = await this.insureService.generateEstimatePrintout(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 		if (!result.succeeded) {
+			this.handleToastError(result.exception.output.Errors);
 			return;
 		}
-
 		return result;
 	}
 
@@ -578,7 +616,7 @@ export class ExistingClient extends InsureViewBase {
 			this._goToCancelPolicySuccess(e);
 
 		} else {
-			// Do error message
+			this.handleToastError(resp.exception.output.Errors);
 			return null;
 		}
 	}
@@ -591,19 +629,14 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*} * 
 	 */
 	async _getCancelPolicyDocument(contractReference, cancelReason, saveToDocumentum) {
-
 		this.policyNumber = contractReference;
-
 		const dob = new Date(this.callerInformation.birthdate);
-
 		const cancelPolicyAgreementDetails = {
-
 			"documentFormat": `PDF`,
 			"saveDocumentToDocumentum": saveToDocumentum,
 			"returnDocumentContent": true,
 			"emailDocumentToClient": false,
 			"wetsignBarcode": false,
-
 			"clientDetails": {
 				"cifNumber": this.callerInformation.cifNumber,
 				"primarySavingsAccountNumber": this.accountDetails.savingsAccountData.accountNumber,
@@ -613,22 +646,17 @@ export class ExistingClient extends InsureViewBase {
 				"idNumber": this.callerInformation.southAfricanIDNumber,
 				"dateOfBirth": dob.toISOString()
 			},
-			"emailDetails": {
-				"email": `test@test.com`
-			},
 			"input": {
 				"cancellationReason": cancelReason
 			}
-
 		};
-
 
 		const resp = await this.insureService.cancelPolicyAgreement(cancelPolicyAgreementDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			this.cancelPolicyDocumentDetails = resp.result;
 		} else {
-			// Do error message
-			return null;
+			this.handleToastError(resp.exception.output.Errors);
+			return;
 		}
 
 		this.requestUpdate();
@@ -661,7 +689,7 @@ export class ExistingClient extends InsureViewBase {
 			this._getArrearsPaymentDocument(this.contractReference, e.detail.payArrears.arrears, e.detail.fromAccount, true);
 			this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
 		} else {
-			// Do error message
+			this.handleToastError(resp.exception.output.Errors);
 			return null;
 		}
 	}
@@ -692,10 +720,9 @@ export class ExistingClient extends InsureViewBase {
 
 		const resp = await this.insureService.commsHistory(commsHistoryDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
-
 			return resp.result;
 		}
-		// Do error message
+		this.handleToastError(resp.exception.output.Errors);
 		return null;
 
 	}
@@ -861,6 +888,8 @@ export class ExistingClient extends InsureViewBase {
 
 			this.endCallContext = `PolicyTransactionHistory`;
 			this.renderMode = INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY;
+		} else {
+			this.handleToastError(returnValue.exception.output.Errors);
 		}
 	}
 
@@ -934,7 +963,6 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*} result
 	 */
 	async _updatePlanQuote(policyToCalc) {
-
 		const quoteCalcRequest = {
 			"saveQuote": true,
 			"contractReference": policyToCalc.contractReference,
@@ -945,6 +973,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
 		if (!calculateQuoteResp.succeeded) {
+			this.handleToastError(calculateQuoteResp.exception.output.Errors);
 			return;
 		}
 
@@ -955,7 +984,6 @@ export class ExistingClient extends InsureViewBase {
 			life.coverDetails = foundPlayer.coverDetails;
 			return life;
 		});
-
 		calculatedQuote.lifesAssured = adjustedRoleplayers;
 		return calculatedQuote;
 	}
@@ -975,6 +1003,7 @@ export class ExistingClient extends InsureViewBase {
 		};
 		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
 		if (!calculateQuoteResp.succeeded) {
+			this.handleToastError(calculateQuoteResp.exception.output.Errors);
 			return;
 		}
 
@@ -987,6 +1016,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const prepareUpdateResp = await this.insureService.prepareUpdate(prepareUpdateRequest);
 		if (!prepareUpdateResp.succeeded) {
+			this.handleToastError(prepareUpdateResp.exception.output.Errors);
 			return;
 		}
 
@@ -1071,6 +1101,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const acceptPlanResp = await this.insureService.updatePolicyAccept(acceptPlanRequest);
 		if (!acceptPlanResp.succeeded) {
+			this.handleToastError(acceptPlanResp.exception.output.Errors);
 			return;
 		}
 
@@ -1102,12 +1133,12 @@ export class ExistingClient extends InsureViewBase {
 
 		const createPolicyResponse = await this.insureService.createPolicy(createPolicyRequest);
 		if (!createPolicyResponse.succeeded) {
+			this.handleToastError(createPolicyResponse.exception.output.Errors);
 			return;
 		}
-
 		this.contractReference = createPolicyResponse.result.contractReference;
-		await this._generateDocumentsForReinstate(false);
 
+		await this._generateDocumentsForReinstate(false);
 		const resinstatePolicyResponse = {
 			issuePlanAgreement: this.issuePlanAgreementDocument,
 			paymentAgreement: this.reinstatePaymentAgreementDocument,
@@ -1136,11 +1167,11 @@ export class ExistingClient extends InsureViewBase {
 
 		const acceptPlanResp = await this.insureService.policyAccept(acceptPlanRequest);
 		if (!acceptPlanResp.succeeded) {
+			this.handleToastError(acceptPlanResp.exception.output.Errors);
 			return;
 		}
 
 		this.contractReference = event.detail.policyResponse.policyResponse.contractReference;
-
 		await this._generateDocumentsForReinstate(true);
 
 		this.successMessage = `The policy ${event.detail.policyResponse.policyResponse.contractReference} has been successfully reinstated`;
@@ -1164,16 +1195,19 @@ export class ExistingClient extends InsureViewBase {
 			this.callerPage = INSURE_CALLER_PAGE.PAY_PREMIUM;
 		} else if (e.detail.callerPage === INSURE_CALLER_PAGE.ESTIMATE) {
 			this.callerPage = INSURE_CALLER_PAGE.ESTIMATE;
+		} else if (e.detail.callerPage === INSURE_CALLER_PAGE.CLIENT_POLICIES) {
+			this.callerPage = INSURE_CALLER_PAGE.CLIENT_POLICIES;
 		}
 
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.email = e.detail.emailId.detail.emailAddress;
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.cifNumber = this.callerInformation.cifNumber;
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.contractReference;
 
-		this._getAgreementAttachments(this.callerPage, EMAIL_DOCUMENT_REQUEST_PAYLOAD);
+		this._getAgreementAttachments(this.callerPage, EMAIL_DOCUMENT_REQUEST_PAYLOAD, e.detail.docContent);
 		const emailResponse = await this.insureService.emailFuneralDocuments(EMAIL_DOCUMENT_REQUEST_PAYLOAD);
-		
+
 		if (!emailResponse.succeeded) {
+			this.handleToastError(emailResponse.exception.output.Errors);
 			return;
 		}
 		window.showToastTimed(`success`, `top`, `Success`, `Email document was sent`, 3000, true);
@@ -1185,7 +1219,6 @@ export class ExistingClient extends InsureViewBase {
 		} else {
 			this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES);
 		}
-
 	}
 
 	/**
@@ -1200,13 +1233,11 @@ export class ExistingClient extends InsureViewBase {
 	async _getArrearsPaymentDocument(contractReference, payArrears, fromAccount, saveToDocumentum) {
 		const dob = new Date(this.callerInformation.birthdate);
 		const arrearsPaymentInstructionDetails = {
-
 			"documentFormat": `PDF`,
 			"saveDocumentToDocumentum": saveToDocumentum,
 			"returnDocumentContent": true,
 			"emailDocumentToClient": false,
 			"wetsignBarcode": false,
-
 			"clientDetails": {
 				"cifNumber": this.callerInformation.cifNumber, // 363291555
 				"primarySavingsAccountNumber": this.accountDetails.savingsAccountData.accountNumber, // 1952898232
@@ -1215,9 +1246,6 @@ export class ExistingClient extends InsureViewBase {
 				"surname": this.callerInformation.lastName, // `TDIL`
 				"idNumber": this.callerInformation.southAfricanIDNumber, // "0011262112193"
 				"dateOfBirth": dob.toISOString() // "2000-11-25T22:00:00.000Z"
-			},
-			"emailDetails": {
-				"email": `test@test.com`
 			},
 			"input": {
 				"policyContractReference": contractReference,
@@ -1234,6 +1262,7 @@ export class ExistingClient extends InsureViewBase {
 		if (resp.succeeded === true && resp.result !== null) {
 			this.arrearsPaymentDocumentDetails = resp.result;
 		} else {
+			this.handleToastError(resp.exception.output.Errors);
 			return null;
 		}
 
@@ -1318,6 +1347,7 @@ export class ExistingClient extends InsureViewBase {
 	_webTemplate() {
 		return html`
 		${super._webTemplate()}
+		${this._renderErrorToast()}
 		${this._renderLandingPage()}`;
 	}
 
@@ -1379,7 +1409,7 @@ export class ExistingClient extends InsureViewBase {
 				.arrearsPaymentDocumentDetails="${this.arrearsPaymentDocumentDetails}"
 				.getCancelPolicyDocument="${(contractReference, cancelReason, saveToDocumentum) => this._getCancelPolicyDocument(contractReference, cancelReason, saveToDocumentum)}"
 				.getArrearsPaymentDocument="${(contractReference, payArrears, fromAccount, saveToDocumentum) => this._getArrearsPaymentDocument(contractReference, payArrears, fromAccount, saveToDocumentum)}"
-				.maxAllowedCover="${this.clientPolicies?.checkInsuranceDetails[0].maxAllowedCover}"
+				.maxAllowedCover="${isNullorEmpty(this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover) ? 100000 : this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover}"
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payPolicy(e)}"
 				@cancel-policy="${(e) => this._cancelPolicy(e)}"
@@ -1388,7 +1418,8 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
-				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}">
+				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}"
+				@send-email = "${(e) => this._sendEmail(e)}">
 			</horizon-insure-client-policies>`;
 	}
 
@@ -1404,7 +1435,7 @@ export class ExistingClient extends InsureViewBase {
 				.productParams="${this.productParams}" 
 				.mainLifeDefaultAge="${this._getMainLifeAge()}"
 				.mainLifeDefaultGender="${this._getMainLifeGender()}"
-				.maxAllowedCover="${this.clientPolicies.checkInsuranceDetails[0].maxAllowedCover}"
+				.maxAllowedCover="${isNullorEmpty(this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover) ? 100000 : this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover}"
 				@calculate="${(e) => this._calculateClientEstimate(e)}"
 				@send-email = "${(e) => this._sendEmail(e)}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
@@ -1421,7 +1452,8 @@ export class ExistingClient extends InsureViewBase {
 				.maxAllowedCover="${this.clientPolicies.checkInsuranceDetails[0].maxAllowedCover}"
 				.updatePlanQuote="${(policyToCalc) => this._updatePlanQuote(policyToCalc)}"
 				.updatePlanPrepare="${(policyToUpdate) => this._updatePlanPrepare(policyToUpdate)}"
-				.policyDetails="${this.policyDetails}" .productParams="${this.productParams}"
+				.policyDetails="${this.policyDetails}" 
+				.productParams="${this.productParams}"
 				.initiateReinstatePolicy="${(policyToReinstate) => this._initiateReinstatePolicy(policyToReinstate)}"
 				@accept-policy="${(policyToAccept) => this._acceptPolicy(policyToAccept)}"
 				@updatePlanAccept="${(e) => this._updatePlanAccept(e)}"
@@ -1555,6 +1587,23 @@ export class ExistingClient extends InsureViewBase {
 				@send-email = "${(e) => this._sendEmail(e)}"
 				@navigate-back="${(e) => this._rerenderPolicies(e.detail.navigateBackTo)}">
 			</horizon-insure-success-page>`;
+	}
+
+	/**
+	 * Render Error toast 
+	 * @returns {html} Html of the toast
+	 */
+	_renderErrorToast() {
+		return html`
+			<capitec-toast 
+				?hidden="${!this.showInsureErrorToast}" 
+				class="error-toast"
+				id="id-insure-error-toast"
+				type="error"
+				header="Unsuccessful"
+				detail="${this.insureErrorToastMessage}" 
+				@click="${() => this.showInsureErrorToast = false}">
+			</capitec-toast>`;
 	}
 
 	// #endregion RENDERING

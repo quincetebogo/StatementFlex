@@ -212,7 +212,8 @@ export const INSURE_CALLER_PAGE = Object.freeze({
 	UPDATE_PLAN: 2,
 	REINSTATE_POLICY: 3,
 	PAY_PREMIUM: 4,
-	ESTIMATE: 5
+	ESTIMATE: 5,
+	CLIENT_POLICIES: 6
 });
 
 /**
@@ -272,4 +273,20 @@ export const INSURE_CALLER_PAGE = Object.freeze({
 	EACL_NOTIFICATION: 3,
 	YBP_NOTIFICATION: 4,
 	YROA_NOTIFICATION: 5
+});
+
+/**
+ * List of Policy Options
+ * 
+ * @readonly
+ * @enum {Object} POLICY_OPTIONS
+ */
+ export const POLICY_OPTIONS = Object.freeze({
+	EMAIL_PLAN: `EmailPlan`,
+	REINSTATE: `Reinstate`,
+	PAY_ARREARS: `PayArrears`,
+	UPDATE_PLAN: `UpdatePlan`,
+	CANCEL_PLAN: `CancelPlan`,
+	TRANSACTION_HISTORY: `TransactionHistory`,
+	SMS_HISTORY: `SMSHistory`
 });

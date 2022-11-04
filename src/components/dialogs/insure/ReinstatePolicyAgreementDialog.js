@@ -35,7 +35,8 @@ class ReinstatePolicyAgreementDialog extends Component {
 			issuePlanAgreementContent: { type: String },
 			paymentAgreementContent: { type: String },
 			contractReference: { type: String },
-			alertBannerMessage: { attribute: false }
+			alertBannerMessage: { attribute: false },
+			showReinstatePaymentAgreementDocument: { type: Boolean, state: true }
 		};
 	}
 
@@ -155,12 +156,14 @@ class ReinstatePolicyAgreementDialog extends Component {
 					</iframe>
 				</capitec-expander>
 		
-				<capitec-expander expandbuttonalignment="left" label="View Mandate" class="pdf-viewer"
-					data-automation-id="insure-reinstate-policy-agreement-dialog-view-mandate">
-					<iframe title="ReinstatePaymentAgreemnt" height = "100%" frameborder = "0"
-						src="data:application/pdf;base64, ${this.paymentAgreementContent}#view=fitH">
-					</iframe>
-				</capitec-expander>
+				${this.showReinstatePaymentAgreementDocument === true ? html`
+					<capitec-expander expandbuttonalignment="left" label="View Mandate" class="pdf-viewer"
+						data-automation-id="insure-reinstate-policy-agreement-dialog-view-mandate">
+						<iframe title="ReinstatePaymentAgreemnt" height = "100%" frameborder = "0"
+							src="data:application/pdf;base64, ${this.paymentAgreementContent}#view=fitH">
+						</iframe>
+					</capitec-expander>
+				</div>` : html``}
 			</capitec-expander-group>
 
 			<capitec-content-box class="left-padding-0">
