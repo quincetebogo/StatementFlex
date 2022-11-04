@@ -7,8 +7,7 @@
  import { Store } from 'platform/core';
 
  /**
-  * HorizonStore customizes the plateform state storage capability for the Horizon applicaton.
-  * The Horizon State Store is configured to use session storage.
+  * The Horizon Insure State Store is configured to use session storage.
   *
   * @extends {Store}
   */
@@ -43,8 +42,8 @@
 	 // --------------
  
 	 /**
-	  * Retrieve information about the incoming/present call from state
-	  * @returns {Object} An object containing information abut the incoming call
+	  * Retrieve information CFP Disclosure from state
+	  * @returns {Object} An object containing information abut the CFP Disclosure
 	  */
 	 getCFPStatus() {
 		 if (this.state && this.state.cfpPopped) {
@@ -55,9 +54,9 @@
 	 }
  
 	 /**
-	  * Persist informatino about the incoming/present call to state
+	  * set information about the CFPDisclosure to state
 	  * 
-	  * @param {Object}  cfpPopped Information on the incoming/present call
+	  * @param {Object}  cfpPopped Information on the CFP Disclosure
 	  * @returns {undefined} 
 	  */
 	 setCFPStatus(cfpPopped) {
