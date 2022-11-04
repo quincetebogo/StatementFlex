@@ -49,4 +49,13 @@ export const INSURE_CSS = css`
 	.inactive-status{
 		--horizon-label-value-color: #FFA500 !important;
 	}
+
+	.toast {
+		--theme-toast-error-color: #3A3A3A;
+		width: 432px;
+		position: absolute;
+		top : var(--toast-top, 56px);
+		margin-left: var(--toast-margin-left, 282px);
+		width : var(--toast-width, 365px)
+	}
 `;

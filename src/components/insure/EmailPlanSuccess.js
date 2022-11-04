@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
 /**
  * Email Plan success page confirms that the funeral plan document has been emailed to the specified email address
@@ -95,6 +96,8 @@ class EmailPlanSuccess extends Component {
 			super.styles,
 			css`
 			
+			${INSURE_CSS}
+
 			.insure-title-bar{
 				margin-bottom: 0px; 
 				border-top-left-radius: 5px; 
@@ -127,7 +130,7 @@ class EmailPlanSuccess extends Component {
 			.icon{
 				display: inline-block;
 				position: relative;
-				/*left: 135px;*/
+				left: 60px;
 				top: 9px;
 			}
 			.buttons {
@@ -188,9 +191,9 @@ _renderAlert() {
 		<capitec-toast
 			class="toast"
 			type="success"
-			Header="Funeral Plan Sent"
+			Header="Successful"
 			layout = "vertical"
-			detail = "Funeral plan was sent"
+			detail = "Document sent successfully"
 			@click = "${() => this.showSuccessAlert = false}">
 		</capitec-toast>
 

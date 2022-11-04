@@ -110,6 +110,11 @@ class InsureEmailDialog extends Component {
 					padding: 10px 10px 10px 10px;
 				}
 
+				.alert{
+					--theme-toast-width: 100%;
+					margin-bottom: 20px;
+				}
+
 			`
 		];
 	}
@@ -147,7 +152,7 @@ class InsureEmailDialog extends Component {
 	_renderAlertBanner() {
 		return this.alertBannerMessage 
 		? html`
-			<capitec-alert-banner type="unsuccessful-red">
+			<capitec-alert-banner type="unsuccessful-red" class= "alert">
 				<capitec-group layout="horizontal">
 					<capitec-label
 						type="subtitle"

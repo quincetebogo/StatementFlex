@@ -198,14 +198,17 @@ export class ExistingClient extends InsureViewBase {
 		const issuePlanAgreementResponse = await this.insureService.generateIssueFuneralCoverPlanAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 		
 		if (!issuePlanAgreementResponse.succeeded) {
+			this.handleToastError(issuePlanAgreementResponse.exception.output.Errors);
 			return;
 		}
+
 		this.issuePlanAgreementDocument = issuePlanAgreementResponse.result;
 
 		if (this.contractReference.toLowerCase().startsWith(`cf`)) {
 			const paymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 
 			if (!paymentAgreementResponse.succeeded) {
+				this.handleToastError(paymentAgreementResponse.exception.output.Errors);
 				return;
 			}
 
@@ -253,6 +256,7 @@ export class ExistingClient extends InsureViewBase {
 		const updatePlanAgreementResponse = await this.insureService.generateUpdateFuneralCoverPlanAgreement(docGenerateRequestPayload);
 		
 		if (!updatePlanAgreementResponse.succeeded) {
+			this.handleToastError(updatePlanAgreementResponse.exception.output.Errors);
 			return;
 		}
 
@@ -262,6 +266,7 @@ export class ExistingClient extends InsureViewBase {
 			const updatePaymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(docGenerateRequestPayload);
 
 			if (!updatePaymentAgreementResponse.succeeded) {
+				this.handleToastError(updatePaymentAgreementResponse.exception.output.Errors);
 				return;
 			}
 
@@ -423,6 +428,9 @@ export class ExistingClient extends InsureViewBase {
 				delete this.policyDetails.eligibleRoleplayers;
 				delete this.policyDetails.ineligibleRoleplayers;
 				this.policyDetails.canReinstate = true;
+			} else {
+				this.handleToastError(calcResponse.exception.output.Errors);
+				return;
 			}
 		} else {
 			this.policyDetails = await this._retrievePolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
@@ -442,6 +450,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const resp = await this.insureService.clientPolicies(request);
 		if (!resp.succeeded) {
+			this.handleToastError(resp.exception.output.Errors);
 			return;
 		}
 
@@ -463,6 +472,7 @@ export class ExistingClient extends InsureViewBase {
 		};
 		const resp = await this.insureService.insurePolicySummary(request);
 		if (!resp.succeeded) {
+			this.handleToastError(resp.exception.output.Errors);
 			return;
 		}
 
@@ -478,6 +488,7 @@ export class ExistingClient extends InsureViewBase {
 		};
 		const resp = await this.insureService.claimSummary(request);
 		if (!resp.succeeded) {
+			this.handleToastError(resp.exception.output.Errors);
 			return;
 		}
 		return resp.result;
@@ -498,6 +509,7 @@ export class ExistingClient extends InsureViewBase {
 		};
 		const resp = await this.insureService.insureReinstateQuoteCalc(request);
 		if (!resp.succeeded) {
+			this.handleToastError(resp.exception.output.Errors);
 			return;
 		}
 
@@ -548,6 +560,7 @@ export class ExistingClient extends InsureViewBase {
 			estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map(lifeWithDetails => Object.assign(lifeWithDetails, resp.result.lifesAssured.find(respLife => lifeWithDetails.rowID === respLife.rowID)));
 			this.estimate = estimateWithCoverDetails;
 		} else {
+			this.handleToastError(resp.exception.output.Errors);
 			return null;
 		}
 	}
@@ -575,6 +588,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const result = await this.insureService.generateEstimatePrintout(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 		if (!result.succeeded) {
+			this.handleToastError(result.exception.output.Errors);
 			return;
 		}
 		return result;
@@ -611,7 +625,7 @@ export class ExistingClient extends InsureViewBase {
 			this._goToCancelPolicySuccess(e);
 
 		} else {
-			// Do error message
+			this.handleToastError(resp.exception.output.Errors);
 			return null;
 		}
 	}
@@ -650,8 +664,8 @@ export class ExistingClient extends InsureViewBase {
 		if (resp.succeeded === true && resp.result !== null) {
 			this.cancelPolicyDocumentDetails = resp.result;
 		} else {
-			// Do error message
-			return null;
+			this.handleToastError(resp.exception.output.Errors);
+			return;
 		}
 
 		this.requestUpdate();
@@ -684,7 +698,7 @@ export class ExistingClient extends InsureViewBase {
 			this._getArrearsPaymentDocument(this.contractReference, e.detail.payArrears.arrears, e.detail.fromAccount, true);
 			this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
 		} else {
-			// Do error message
+			this.handleToastError(resp.exception.output.Errors);
 			return null;
 		}
 	}
@@ -715,10 +729,9 @@ export class ExistingClient extends InsureViewBase {
 
 		const resp = await this.insureService.commsHistory(commsHistoryDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
-
 			return resp.result;
 		}
-		// Do error message
+		this.handleToastError(resp.exception.output.Errors);
 		return null;
 
 	}
@@ -884,6 +897,8 @@ export class ExistingClient extends InsureViewBase {
 
 			this.endCallContext = `PolicyTransactionHistory`;
 			this.renderMode = INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY;
+		} else {
+			this.handleToastError(returnValue.exception.output.Errors);
 		}
 	}
 
@@ -967,6 +982,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
 		if (!calculateQuoteResp.succeeded) {
+			this.handleToastError(calculateQuoteResp.exception.output.Errors);
 			return;
 		}
 
@@ -996,6 +1012,7 @@ export class ExistingClient extends InsureViewBase {
 		};
 		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
 		if (!calculateQuoteResp.succeeded) {
+			this.handleToastError(calculateQuoteResp.exception.output.Errors);
 			return;
 		}
 
@@ -1008,6 +1025,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const prepareUpdateResp = await this.insureService.prepareUpdate(prepareUpdateRequest);
 		if (!prepareUpdateResp.succeeded) {
+			this.handleToastError(prepareUpdateResp.exception.output.Errors);
 			return;
 		}
 
@@ -1092,6 +1110,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const acceptPlanResp = await this.insureService.updatePolicyAccept(acceptPlanRequest);
 		if (!acceptPlanResp.succeeded) {
+			this.handleToastError(acceptPlanResp.exception.output.Errors);
 			return;
 		}
 
@@ -1123,6 +1142,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const createPolicyResponse = await this.insureService.createPolicy(createPolicyRequest);
 		if (!createPolicyResponse.succeeded) {
+			this.handleToastError(createPolicyResponse.exception.output.Errors);
 			return;
 		}
 		this.contractReference = createPolicyResponse.result.contractReference;
@@ -1156,6 +1176,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const acceptPlanResp = await this.insureService.policyAccept(acceptPlanRequest);
 		if (!acceptPlanResp.succeeded) {
+			this.handleToastError(acceptPlanResp.exception.output.Errors);
 			return;
 		}
 
@@ -1195,6 +1216,7 @@ export class ExistingClient extends InsureViewBase {
 		const emailResponse = await this.insureService.emailFuneralDocuments(EMAIL_DOCUMENT_REQUEST_PAYLOAD);
 
 		if (!emailResponse.succeeded) {
+			this.handleToastError(emailResponse.exception.output.Errors);
 			return;
 		}
 		window.showToastTimed(`success`, `top`, `Success`, `Email document was sent`, 3000, true);
@@ -1249,6 +1271,7 @@ export class ExistingClient extends InsureViewBase {
 		if (resp.succeeded === true && resp.result !== null) {
 			this.arrearsPaymentDocumentDetails = resp.result;
 		} else {
+			this.handleToastError(resp.exception.output.Errors);
 			return null;
 		}
 
@@ -1333,6 +1356,7 @@ export class ExistingClient extends InsureViewBase {
 	_webTemplate() {
 		return html`
 		${super._webTemplate()}
+		${this._renderErrorToast()}
 		${this._renderLandingPage()}`;
 	}
 
@@ -1572,6 +1596,23 @@ export class ExistingClient extends InsureViewBase {
 				@send-email = "${(e) => this._sendEmail(e)}"
 				@navigate-back="${(e) => this._rerenderPolicies(e.detail.navigateBackTo)}">
 			</horizon-insure-success-page>`;
+	}
+
+	/**
+	 * Render Error toast 
+	 * @returns {html} Html of the toast
+	 */
+	_renderErrorToast() {
+		return html`
+			<capitec-toast 
+				?hidden="${!this.showInsureErrorToast}" 
+				class="toast"
+				id="id-insure-error-toast"
+				type="error"
+				header="Unsuccessful"
+				detail="${this.insureErrorToastMessage}" 
+				@click="${() => this.showInsureErrorToast = false}">
+			</capitec-toast>`;
 	}
 
 	// #endregion RENDERING
