@@ -33,7 +33,7 @@ export const INSURE_CSS = css`
 		border-radius: 4px;
 		color: #70AF00;
 		z-index: 201;
-		left: calc(50.8% - 200px);
+		left: calc(50.8% - 100px);
 		justify-content: center;
 		align-items: center;
 	}
@@ -50,12 +50,11 @@ export const INSURE_CSS = css`
 		--horizon-label-value-color: #FFA500 !important;
 	}
 
-	.toast {
+	.error-toast {
 		--theme-toast-error-color: #3A3A3A;
-		width: 432px;
 		position: absolute;
 		top : var(--toast-top, 56px);
-		margin-left: var(--toast-margin-left, 282px);
-		width : var(--toast-width, 365px)
+		margin-left: var(--toast-margin-left, 300px);
+		width : var(--toast-width, 465px)
 	}
 `;
