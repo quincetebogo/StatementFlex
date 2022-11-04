@@ -36,7 +36,8 @@ class UpdatePlanAgreementDialog extends Component {
 			planAgreementContent: { type: String, state: true },
 			paymentAgreementContent: { type: String, state: true },
 			contractReference: { type: String },
-			alertBannerMessage: { attribute: false }
+			alertBannerMessage: { attribute: false },
+			showUpdatePlanPaymentAgreementDocument: { type: Boolean, state: true }
 		};
 	}
 
@@ -163,14 +164,16 @@ class UpdatePlanAgreementDialog extends Component {
 					</capitec-expander>
 				</div>
 			
-				<div>
-					<capitec-expander expandbuttonalignment="left" label="View Mandate" class="pdf-viewer"
-						data-automation-id="insure-pay-premium-agreement-dialog-view-mandate">
-							<iframe title="UpdatePaymentAgreement" height = "100%" frameborder = "0"
-								src="data:application/pdf;base64,${this.paymentAgreementContent}#view=fitH">
-							</iframe>
-					</capitec-expander>
-				</div>
+				${this.showUpdatePlanPaymentAgreementDocument === true ? html`
+					<div>
+						<capitec-expander expandbuttonalignment="left" label="View Mandate" class="pdf-viewer"
+							data-automation-id="insure-pay-premium-agreement-dialog-view-mandate">
+								<iframe title="UpdatePaymentAgreement" height = "100%" frameborder = "0"
+									src="data:application/pdf;base64,${this.paymentAgreementContent}#view=fitH">
+								</iframe>
+						</capitec-expander>
+					</div>` : html``}
+				 
 			</capitec-expander-group>
 
 			<capitec-content-box class="left-padding-0">

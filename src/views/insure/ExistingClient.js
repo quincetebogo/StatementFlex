@@ -196,18 +196,24 @@ export class ExistingClient extends InsureViewBase {
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.contractReference;
 
 		const issuePlanAgreementResponse = await this.insureService.generateIssueFuneralCoverPlanAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
-		const paymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
-
+		
 		if (!issuePlanAgreementResponse.succeeded) {
 			this.handleToastError(issuePlanAgreementResponse.exception.output.Errors);
 			return;
 		}
-		if (!paymentAgreementResponse.succeeded) {
-			this.handleToastError(paymentAgreementResponse.exception.output.Errors);
-		}
 
 		this.issuePlanAgreementDocument = issuePlanAgreementResponse.result;
-		this.reinstatePaymentAgreementDocument = paymentAgreementResponse.result;
+
+		if (this.contractReference.toLowerCase().startsWith(`cf`)) {
+			const paymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
+
+			if (!paymentAgreementResponse.succeeded) {
+				this.handleToastError(paymentAgreementResponse.exception.output.Errors);
+				return;
+			}
+
+			this.reinstatePaymentAgreementDocument = paymentAgreementResponse.result;
+		}
 	}
 
 	/**
@@ -248,20 +254,24 @@ export class ExistingClient extends InsureViewBase {
 		};
 
 		const updatePlanAgreementResponse = await this.insureService.generateUpdateFuneralCoverPlanAgreement(docGenerateRequestPayload);
-		const updatePaymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(docGenerateRequestPayload);
-
+		
 		if (!updatePlanAgreementResponse.succeeded) {
 			this.handleToastError(updatePlanAgreementResponse.exception.output.Errors);
 			return;
 		}
 
-		if (!updatePaymentAgreementResponse.succeeded) {
-			this.handleToastError(updatePaymentAgreementResponse.exception.output.Errors);
-			return;
-		}
-
 		this.updatePlanAgreementDocument = updatePlanAgreementResponse.result;
-		this.updatePaymentAgreementDocument = updatePaymentAgreementResponse.result;
+
+		if (docGenerateRequestPayload.contractReference.toLowerCase().startsWith(`cf`)) {
+			const updatePaymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(docGenerateRequestPayload);
+
+			if (!updatePaymentAgreementResponse.succeeded) {
+				this.handleToastError(updatePaymentAgreementResponse.exception.output.Errors);
+				return;
+			}
+
+			this.updatePaymentAgreementDocument = updatePaymentAgreementResponse.result;
+		}
 	}
 
 	/**
@@ -306,7 +316,7 @@ export class ExistingClient extends InsureViewBase {
 					"documentGuid": this.updatePaymentAgreementDocument?.documentDetails?.guid,
 					"content": {
 						"type": `PDF`,
-						"value": this.updatePaymentAgreementDocument?.documentContent.value
+						"value": this.updatePaymentAgreementDocument?.documentContent?.value
 					}
 				}
 			];

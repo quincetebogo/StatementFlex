@@ -75,7 +75,9 @@ class UpdatePlan extends Component {
 		this.showRemoveLifeAssuredDialog = false;
 		this.showRemoveBeneficiaryDialog = false;
 		this.showUpdatePlanAgreementDialog = false;
+		this.showUpdatePlanPaymentAgreementDocument = false;
 		this.showReinstatePolicyAgreementDialog = false;
+		this.showReinstatePaymentAgreementDocument = false;
 		this.showValidationConfirmDialog = false;
 		this.disableBranchCode = true;
 
@@ -125,12 +127,14 @@ class UpdatePlan extends Component {
 	 * @property {Boolean} showRemoveLifeAssuredDialog determines whether to show the EACL agreement dialog
 	 * @property {Boolean} showRemoveBeneficiaryDialog determines whether to show the EACL agreement dialog
 	 * @property {Boolean} showUpdatePlanAgreementDialog determines whether to show the Update Plan agreement dialog
+	 * @property {Boolean} showUpdatePlanPaymentAgreementDocument determines whether to show the Update Plan Payment agreement document
 	 * @property {Boolean} showConfirmPlanUpdateDialog Show flag for Conformation dialog, to confirm Update Plan agreement
 	 * @property {Object} policyDetails Current Policy Summary Object
 	 * @property {Object} updatePlanPrepare Callback function to Prepare Update *
 	 * @property {Object} updatePlanQuote Callback function to Quote Calc *
 	 * @property {Boolean} canReinstate determines whether to show the Reinstate button on the title bar
 	 * @property {Boolean} showReinstatePolicyAgreementDialog determines whether to show the Reinstate Policy agreement dialog
+	 * @property {Boolean} showReinstatePaymentAgreementDocument determines whether to show the Reinstate Payment agreement document
 	 * @property {Object} createPolicyResponse - response Payload of Create Policy
 	 * @readonly
 	 * @static
@@ -155,6 +159,7 @@ class UpdatePlan extends Component {
 			showRemoveLifeAssuredDialog: { type: Boolean, state: true },
 			showRemoveBeneficiaryDialog: { type: Boolean, state: true },
 			showUpdatePlanAgreementDialog: { type: Boolean, state: true },
+			showUpdatePlanPaymentAgreementDocument: { type: Boolean, state: true },
 			showConfirmPlanUpdateDialog: { type: Boolean, state: true },
 			policyDetails: { type: Object, state: true },
 			collectionDay: { type: Number, state: true },
@@ -167,6 +172,7 @@ class UpdatePlan extends Component {
 
 			canReinstate: { type: Boolean },
 			showReinstatePolicyAgreementDialog: { type: Boolean, state: true },
+			showReinstatePaymentAgreementDocument: { type: Boolean, state: true },
 			createPolicyResponse: { type: Boolean, state: true },
 
 			issuePlanAgreementDocument: { type: Object, state: true },
@@ -1035,6 +1041,7 @@ class UpdatePlan extends Component {
 	 */
 	_closeUpdatePlanAgreementDialog() {
 		this.showUpdatePlanAgreementDialog = false;
+		this.showUpdatePlanPaymentAgreementDocument = false;
 	}
 
 	/**
@@ -1104,7 +1111,11 @@ class UpdatePlan extends Component {
 
 		// policyScheduleDocContent
 		this.planAgreementContent = this.prepareUpdateResponse.planAgreement.documentContent.value;
-		this.paymentAgreementContent = this.prepareUpdateResponse.paymentAgreement.documentContent.value;
+
+		if (this.policyDetails.contractReference.toLowerCase().startsWith(`cf`)) {
+			this.showUpdatePlanPaymentAgreementDocument = true;
+			this.paymentAgreementContent = this.prepareUpdateResponse.paymentAgreement?.documentContent?.value;
+		}
 	}
 
 	_validateOnUpdate() {
@@ -1247,10 +1258,14 @@ class UpdatePlan extends Component {
 		this.createPolicyResponse = await this.initiateReinstatePolicy(this.policyDetails);
 
 		this.issuePlanAgreementContent = this.createPolicyResponse.issuePlanAgreement.documentContent.value;
-		this.reinstatePaymentAgreementContent = this.createPolicyResponse.paymentAgreement.documentContent.value;
 		this.newContractReference = this.createPolicyResponse.policyResponse.contractReference;
 
 		this.showReinstatePolicyAgreementDialog = true;
+
+		if (this.policyDetails.contractReference.toLowerCase().startsWith(`cf`)) {
+			this.showReinstatePaymentAgreementDocument = true;
+			this.reinstatePaymentAgreementContent = this.createPolicyResponse.paymentAgreement?.documentContent?.value;
+		}
 	}
 
 	/**
@@ -2423,7 +2438,8 @@ class UpdatePlan extends Component {
 		return this.showUpdatePlanAgreementDialog === false ? `` : html`
 		<insure-update-plan-agreement-dialog @close-modal="${() => this._closeUpdatePlanAgreementDialog()}"
 			.planAgreementContent="${this.planAgreementContent}" .paymentAgreementContent="${this.paymentAgreementContent}"
-			@update-plan-agree-click="${() => this._acceptUpdatedPlan()}" .contractReference="${this.policyDetails.contractReference}">
+			@update-plan-agree-click="${() => this._acceptUpdatedPlan()}" .contractReference="${this.policyDetails.contractReference}"
+			.showUpdatePlanPaymentAgreementDocument = "${this.showUpdatePlanPaymentAgreementDocument}">
 		</insure-update-plan-agreement-dialog>`;
 	}
 
@@ -2435,7 +2451,8 @@ class UpdatePlan extends Component {
 		return this.showReinstatePolicyAgreementDialog === false ? `` : html`
 		<insure-reinstate-policy-agreement-dialog @reinstate-close-modal = "${() => this.showReinstatePolicyAgreementDialog = false}"
 			.issuePlanAgreementContent="${this.issuePlanAgreementContent}" .paymentAgreementContent="${this.reinstatePaymentAgreementContent}"
-			@reinstate-agree-click = "${() => this._acceptReinstatePolicy()}" .contractReference = "${this.newContractReference}">
+			@reinstate-agree-click = "${() => this._acceptReinstatePolicy()}" .contractReference = "${this.newContractReference}"
+			.showReinstatePaymentAgreementDocument = "${this.showReinstatePaymentAgreementDocument}">
 		</insure-reinstate-policy-agreement-dialog>`;
 	}
 

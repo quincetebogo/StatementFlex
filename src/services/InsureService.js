@@ -101,7 +101,7 @@ export class InsureService extends ChannelServiceBase {
 		if (await this.isMockEnabled(`insureProductParams`)) {
 			return this.mock(`insureProductParams`);
 		}
-		const url = `/FuneralInsuranceProductService/product/params`;
+		const url = `/horizon-insurance/product/params`;
 		return this.get(
 			url,
 			this.setInsureTokens(),
@@ -127,7 +127,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insureClientPolicies`);
 		}
 		return this.post(
-			`/FuneralInsuranceProductService/client/summary?WithClaims=true`,
+			`/horizon-insurance/client/summary?WithClaims=true`,
 			clientPoliciesRequest,
 			this.setInsureTokens(),
 			`summary`,
@@ -153,7 +153,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insurePolicySummary`);
 		}
 		return this.post(
-			`/FuneralInsuranceProductService/policy/summary?WithClaims=true`,
+			`/horizon-insurance/policy/summary?WithClaims=true`,
 			policyRequest,
 			this.setInsureTokens(),
 			`policysummary`,
@@ -179,7 +179,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`reinstateQuoteCalc`);
 		}
 		return this.post(
-			`/FuneralInsuranceProductService/policy/reissue`,
+			`/horizon-insurance/policy/reissue`,
 			reinstateQuoteRequest,
 			this.setInsureTokens(),
 			`reinstateQuoteCalc`,
@@ -205,7 +205,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`createPolicy`);
 		}
 		return this.post(
-			`/FuneralInsuranceProductService/policy/create`,
+			`/horizon-insurance/policy/create`,
 			createPolicyRequest,
 			this.setInsureTokens(),
 			`createPolicy`,
@@ -229,7 +229,7 @@ export class InsureService extends ChannelServiceBase {
 	calculateEstimate(estimateRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
 		return this.post(
-			`/FuneralInsuranceProductService/quote/estimate`,
+			`/horizon-insurance/estimate`,
 			estimateRequest,
 			this.setInsureTokens(),
 			`calculateEstimate`,
@@ -255,7 +255,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`generateIssueAgreement`);
 		}
 		return this.post(
-			`/FuneralInsuranceProductService/document/generate/Estimateprintout`,
+			`/horizon-insurance/document/generate/Estimateprintout`,
 			generateEstimateDocRequest,
 			this.setInsureTokens(),
 			`insureEstimatePrintout`,
@@ -282,7 +282,7 @@ export class InsureService extends ChannelServiceBase {
 		}
 
 		return this.post(
-			`/FuneralInsuranceProductService/policy/transactions`,
+			`/horizon-insurance/policy/transactions`,
 			transactionsRequest,
 			this.setInsureTokens(),
 			`getPolicyTransactions`,
@@ -298,7 +298,7 @@ export class InsureService extends ChannelServiceBase {
 	/**
 	 * Get Audit Transaction History
 	 *
-	 * @param {transactionsRequest} [transactionsRequest]  Request data for policy transactions 
+	 * @param {transactionsRequest} [transactionsRequest=null]  Request data for policy transactions 
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
@@ -308,7 +308,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`auditTransactionHistory`, transactionsRequest);
 		}
 		return this.post(
-			`/FuneralInsuranceProductService/policy/transactions`,
+			`/horizon-insurance/policy/transactions`,
 			transactionsRequest,
 			this.setInsureTokens(),
 			`getAuditTransactions`,
@@ -334,7 +334,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`calculateQuote`, quoteRequest);
 		}
 		return this.post(
-			`/FuneralInsuranceProductService/quote/calc`,
+			`/horizon-insurance/quote/calc`,
 			quoteRequest,
 			this.setInsureTokens(),
 			`calculateQuote`,
@@ -360,7 +360,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`prepareUpdate`, prepareUpdateRequest);
 		}
 		return this.post(
-			`/FuneralInsuranceProductService/policy/prepareupdate`,
+			`/horizon-insurance/policy/prepareupdate`,
 			prepareUpdateRequest,
 			this.setInsureTokens(),
 			`prepareUpdate`,
@@ -386,7 +386,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`updatePolicyAccept`, policyAcceptRequest);
 		}
 		return this.post(
-			`/FuneralInsuranceProductService/policy/accept`,
+			`/horizon-insurance/policy/accept`,
 			policyAcceptRequest,
 			this.setInsureTokens(),
 			`updatePolicyAccept`,
@@ -412,7 +412,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`policyAccept`, policyAcceptRequest);
 		}
 		return this.post(
-			`/FuneralInsuranceProductService/policy/accept`,
+			`/horizon-insurance/policy/accept`,
 			policyAcceptRequest,
 			this.setInsureTokens(),
 			`policyAccept`,
@@ -438,7 +438,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`generateIssueAgreement`);
 		}
 		return this.post(
-			`/FuneralInsuranceProductService/document/generate/IssueFuneralCoverPlanAgreement`,
+			`/horizon-insurance/document/generate/IssueFuneralCoverPlanAgreement`,
 			generateIssueAgreementRequest,
 			this.setInsureTokens(),
 			`issueFuneralCoverPlanAgreement`,
@@ -464,7 +464,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`generateAgreement`, generateAgreementRequest);
 		}
 		return this.post(
-			`/FuneralInsuranceProductService/document/generate/UpdateFuneralCoverPlanAgreement`,
+			`/horizon-insurance/document/generate/UpdateFuneralCoverPlanAgreement`,
 			generateAgreementRequest,
 			this.setInsureTokens(),
 			`updateFuneralCoverPlanAgreement`,
@@ -490,7 +490,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`generateAgreement`, generateAgreementRequest);
 		}
 		return this.post(
-			`/FuneralInsuranceProductService/document/generate/FuneralPolicyPaymentAgreement`,
+			`/horizon-insurance/document/generate/FuneralPolicyPaymentAgreement`,
 			generateAgreementRequest,
 			this.setInsureTokens(),
 			`funeralPolicyPaymentAgreement`,
@@ -516,7 +516,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`emailFuneralDocuments`, emailDocumentRequest);
 		}
 		return this.post(
-			`/FuneralInsuranceProductService/client/documents/email`,
+			`/horizon-insurance/client/documents/email`,
 			emailDocumentRequest,
 			this.setInsureTokens(),
 			`emailDocumentRequest`,
@@ -595,7 +595,7 @@ export class InsureService extends ChannelServiceBase {
 		}
 
 		return this.post(
-			`/FuneralInsuranceProductService/client/communicationhistory`,
+			`/horizon-insurance/policy/CommunicationHistory`,
 			commsHistoryRequest,
 			this.setInsureTokens(),
 			`commsHistory`,
@@ -621,7 +621,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insureCancelPolicy`);
 		}
 		return this.post(
-			`/FuneralInsuranceProductService/policy/cancel`,
+			`/horizon-insurance/policy/cancel`,
 			cancelPolicyRequest,
 			this.setInsureTokens(),
 			`cancelPolicy`,
@@ -649,7 +649,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insurePolicyPay`);
 		}
 		return this.post(
-			`/FuneralInsuranceProductService/policy/pay`,
+			`/horizon-insurance/policy/pay`,
 			payArrearsRequest,
 			this.setInsureTokens(),
 			`payPolicy`,
@@ -672,7 +672,7 @@ export class InsureService extends ChannelServiceBase {
 	*/
 	cancelPolicyAgreement(GenerateCancelAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
-			`/FuneralInsuranceProductService/document/generate/CancelPolicyAgreement`,
+			`/horizon-insurance/document/generate/CancelPolicyAgreement`,
 			GenerateCancelAgreementRequest,
 			this.setInsureTokens(),
 			`cancelPolicyAgreement`,
