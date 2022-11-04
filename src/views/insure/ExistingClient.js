@@ -272,18 +272,6 @@ export class ExistingClient extends InsureViewBase {
 
 			this.updatePaymentAgreementDocument = updatePaymentAgreementResponse.result;
 		}
-
-		// TMP ===== REMOVE WHEN SERVICE READY
-		// let agreementResp = {
-		// "documentDetails": {
-		// "documentCode": "ABC01",
-		// "documentName": "Test Doc",
-		// "guid": "91ba047a4bd44cf3abb7ccae7a95149a"
-		// },
-		// }
-		// updatePlanAgreementResponse.result = agreementResp;
-		// updatePaymentAgreementResponse.result = agreementResp;
-		// =========
 	}
 
 	/**
