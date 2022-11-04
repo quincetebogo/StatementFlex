@@ -7,7 +7,6 @@ import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 // Dialogs
 import 'app/components/dialogs/insure/AddLifeDialog';
-import 'app/components/dialogs/insure/CFPAgreementDialog';
 import 'app/components/dialogs/insure/FCPAgreementDialog';
 import 'app/components/dialogs/insure/YROAAgreementDialog';
 import 'app/components/dialogs/insure/YBPAgreementDialog';
@@ -69,7 +68,6 @@ class UpdatePlan extends Component {
 
 		this.showEACLAgreementDialog = false;
 		this.showYBPAgreementDialog = false;
-		this.showCFPAgreementDialog = false;
 		this.showFCPAgreementDialog = false;
 		this.showYROAAgreementDialog = false;
 		this.showRemoveLifeAssuredDialog = false;
@@ -81,7 +79,6 @@ class UpdatePlan extends Component {
 		this.showValidationConfirmDialog = false;
 		this.disableBranchCode = true;
 
-		this.agreementCFPAccepted = ``;
 		this.agreementFCPAccepted = ``;
 		this.agreementEACLAccepted = ``;
 		this.agreementYBPAccepted = ``;
@@ -144,12 +141,10 @@ class UpdatePlan extends Component {
 			selectedTabIndex: { type: Number, state: true },
 			showEACLAgreementDialog: { type: Boolean, state: true },
 			showYBPAgreementDialog: { type: Boolean, state: true },
-			showCFPAgreementDialog: { type: Boolean, state: true },
 			showFCPAgreementDialog: { type: Boolean, state: true },
 			showYROAAgreementDialog: { type: Boolean, state: true },
 			showValidationConfirmDialog: { type: Boolean, state: true },
 
-			agreementCFPAccepted: { type: String, state: true },
 			agreementFCPAccepted: { type: String, state: true },
 			agreementEACLAccepted: { type: String, state: true },
 			agreementYBPAccepted: { type: String, state: true },
@@ -852,39 +847,12 @@ class UpdatePlan extends Component {
 	}
 
 	/**
-	 * Accept the Capitec Funeral Plan Agreement
-	 * 
-	 *  @returns {null} null
-	 */
-	_acceptCapitecFuneralPlanAgreement() {
-		this.agreementCFPAccepted = `yes`;
-		this.showCFPAgreementDialog = false;
-	}
-
-	/**
-	 * Cancel the Capitec Funeral Plan Agreement
-	 * 
-	 *  @returns {null} null
-	*/
-	_cancelCapitecFuneralPlanAgreement() {
-		this.agreementCFPAccepted = `no`;
-		this.showCFPAgreementDialog = false;
-
-		this.requestUpdate();
-	}
-
-	/**
 	 * Cancel the disclosure pop ups
 	 * @param {int} disclosureType - type of disclosure 
 	 *  @returns {null} null
 	*/
 	_cancelDisclosureDialog(disclosureType) {
 		switch (disclosureType) {
-			case INSURE_DISCLOSURE_TYPE.CFP_NOTIFICATION: {
-				this.agreementCFPAccepted = `no`;
-				this.showCFPAgreementDialog = false;
-				break;
-			}
 			case INSURE_DISCLOSURE_TYPE.FCP_NOTIFICATION: {
 				this.agreementFCPAccepted = `no`;
 				this.showFCPAgreementDialog = false;
@@ -1079,9 +1047,8 @@ class UpdatePlan extends Component {
 	 * @return {null} null
 	 */
 	async _onUpdatePlan() {
-		if (!(this.agreementFCPAccepted === `yes` && this.agreementCFPAccepted === `yes` &&
-			this.agreementEACLAccepted === `yes` && this.agreementYBPAccepted === `yes` &&
-			this.agreementYROAAccepted === `yes`)) {
+		if (!(this.agreementFCPAccepted === `yes` && this.agreementEACLAccepted === `yes` && 
+			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes`)) {
 
 			this.showValidationConfirmDialog = true;
 
@@ -1381,7 +1348,6 @@ class UpdatePlan extends Component {
 		return html`<strong>Please accept the following disclosure (s):</strong>
 		<ul>
 			${this.agreementFCPAccepted !== `yes` ? html`<li>Funeral Cover Plan agreement</li>` : ``}
-			${this.agreementCFPAccepted !== `yes` ? html`<li>Capitec Funeral Plan agreement</li>` : ``}
 			${this.agreementEACLAccepted !== `yes` ? html`<li>Entry Ages and Child Limits agreement</li>` : ``}
 			${this.agreementYBPAccepted !== `yes` ? html`<li>Beneficiary Paid agreement</li>` : ``}
 			${this.agreementYROAAccepted !== `yes` ? html`<li>Responsibility & Accountability agreement</li>` : ``}
@@ -1662,7 +1628,6 @@ class UpdatePlan extends Component {
 		${this._renderAddBeneficiariesDialog()}
 		${this._renderEACLAgreementDialog()}
 		${this._renderYBPAgreementDialog()}
-		${this._renderCFPAgreementDialog()}
 		${this._renderFCPAgreementDialog()}
 		${this._renderYROAAgreementDialog()}
 		${this._renderRemoveLifeAssuredDialog()}
@@ -1734,9 +1699,6 @@ class UpdatePlan extends Component {
 		return html`
 			<div class="insure-calc-column-left">
 				<div class="left-card">
-					<!-- Notifications -->
-					${this.renderCapitecFuneralPlanNotification()}
-					<capitec-spacer></capitec-spacer>
 					${this._renderFCPNotification()}
 					<capitec-spacer></capitec-spacer>
 			
@@ -2063,17 +2025,6 @@ class UpdatePlan extends Component {
 		</capitec-alert-banner>`;
 	}
 
-	/**
-	 * Render notification component for 'Capitec Funeral Plan'
-	 * @returns {html} html content
-	 */
-	renderCapitecFuneralPlanNotification() {
-		return html`
-		<capitec-alert-banner class="clickable" @click="${() => this.showCFPAgreementDialog = true}"
-			type="${this._getAlertBannerType(this.agreementCFPAccepted)}" header="Disclosure:"
-			label="I agree to Capitec Funeral Plan agreement disclosure">
-		</capitec-alert-banner>`;
-	}
 
 	/**
 	 * Render notification component for 'Entry Ages and Child Limits'
@@ -2396,17 +2347,6 @@ class UpdatePlan extends Component {
 		</horizon-insure-ybp-agreement-dialog>`;
 	}
 
-	/**
-	 * render Dialog for CFP Agreement
-	 * @returns {html} html content
-	 */
-	_renderCFPAgreementDialog() {
-		return this.showCFPAgreementDialog === false ? `` : html`
-		<horizon-insure-cfp-agreement-dialog @agreementAccepted="${(e) => this._acceptCapitecFuneralPlanAgreement()}"
-			@close-modal="${() => this._cancelDisclosureDialog(INSURE_DISCLOSURE_TYPE.CFP_NOTIFICATION)}" 
-			.productCode = "${this.policyDetails?.productCode}">
-		</horizon-insure-cfp-agreement-dialog>`;
-	}
 
 	/**
 	 * render Dialog for FCP Agreement

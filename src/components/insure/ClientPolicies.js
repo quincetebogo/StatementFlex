@@ -2,6 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import { INSURE_CALLER_PAGE, POLICY_OPTIONS, Status } from 'app/constants/InsureCommon';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ClientPoliciesEvents } from 'app/constants/telemetry/events/Insure';
+import { HorizonInsureStore } from 'app/store/HorizonInsureStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -16,6 +17,7 @@ import 'app/components/dialogs/insure/LodgeClaimInfoDialog';
 import 'app/components/dialogs/insure/CancelPolicyDialog';
 import 'app/components/dialogs/insure/EmailPlanDialog';
 import 'app/components/insure/ClaimsList';
+import 'app/components/dialogs/insure/CFPAgreementDialog';
 
 const MAIN_LIFE_MINIMUM_COVER = 5000;
 
@@ -50,6 +52,9 @@ class ClientPolicies extends Component {
 
 	constructor() {
 		super();
+
+		this.horizonInsureStore = HorizonInsureStore.getInstance();
+
 		this.clientPolicies = null;
 		this.clientClaims = null;
 		this.amountToPay = 0;
@@ -62,6 +67,7 @@ class ClientPolicies extends Component {
 		this.showPayPremiumConfirmationDialog = false;
 		this.showPayPremiumAgreementDialog = false;
 		this.showLodgeClaimInfoDialog = false;
+		this.showCFPAgreementDialog = false;
 
 		this._telemetry = HorizonTelemetry.getInstance();
 		this.telemetryEvents = {};
@@ -124,7 +130,15 @@ class ClientPolicies extends Component {
 			showPayPremiumDialog: { type: Boolean, state: true },
 			showPayPremiumConfirmationDialog: { type: Boolean, state: true },
 			showPayPremiumAgreementDialog: { type: Boolean, state: true },
-			showLodgeClaimInfoDialog: { type: Boolean, state: true }
+			showLodgeClaimInfoDialog: { type: Boolean, state: true },
+			showCFPAgreementDialog: { type: Boolean, state: true },
+
+			selectedFlow: { type: String, state: true },
+			selectedContractRef: { type: String, state: true },
+			canReinstate: { type: Boolean, state: true },
+			selectedPolicyItem: { type: Object, state: true },
+			productCode: { type: String, state: true }
+
 		};
 	}
 
@@ -432,7 +446,7 @@ class ClientPolicies extends Component {
 				class="button-margin" 
 				label="Re-Issue" 
 				icon="system/history-action"
-				@click="${() => this._goToUpdatePlan(policyItem.contractReference, policyItem.canReinstate)}"
+				@click="${() => this._displayCFPDisclosure(`update`, policyItem)}"
 				.disabled="${this.readOnlyMode}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.EMAIL_PLAN:
@@ -450,7 +464,7 @@ class ClientPolicies extends Component {
 				class="button-margin" 
 				label="Pay Arrears" 
 				icon="status/error"
-				@click="${() => this._openPayPremiumDialog(policyItem)}"
+				@click="${() => this._displayCFPDisclosure(`adhoc`, policyItem)}"
 				.disabled="${this.readOnlyMode}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.UPDATE_PLAN:
@@ -459,14 +473,14 @@ class ClientPolicies extends Component {
 				class="button-margin" 
 				label="Update Plan" 
 				icon="system/profile-action"
-				@click="${() => this._goToUpdatePlan(policyItem.contractReference)}"
+				@click="${() => this._displayCFPDisclosure(`update`, policyItem)}"
 				.disabled="${this.readOnlyMode}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.CANCEL_PLAN:
 				return html`<horizon-option-button 
 				data-automation-id="insure-policy-options-cancel-plan"
 				class="button-margin" 
-				@click="${() => this._openCancelPolicyDialog(policyItem.contractReference)}"
+				@click="${() => this._displayCFPDisclosure(`cancel`, policyItem)}"
 				label="Cancel Plan" 
 				icon="system/delete-action"
 				.disabled="${this.readOnlyMode}">
@@ -504,7 +518,7 @@ class ClientPolicies extends Component {
 		switch (showOption) {
 			case POLICY_OPTIONS.REINSTATE:
 				return html`<capitec-overflow-menu-item icon="system/history-action" 
-					label="Re-Issue" @click="${() => this._goToUpdatePlan(policyItem.contractReference, policyItem.canReinstate)}">
+					label="Re-Issue" @click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.EMAIL_PLAN:
 				return html`<capitec-overflow-menu-item icon="system/profile-action" 
@@ -512,15 +526,15 @@ class ClientPolicies extends Component {
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.PAY_ARREARS:
 				return html`<capitec-overflow-menu-item icon="status/error" 
-					label="Pay Arrears" @click="${() => this._openPayPremiumDialog(policyItem)}">
+					label="Pay Arrears" @click="${() => this._displayCFPDisclosure(`adhoc`, policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.UPDATE_PLAN:
 				return html`<capitec-overflow-menu-item icon="system/profile-action" 
-					label="Update Plan" @click="${() => this._goToUpdatePlan(policyItem.contractReference)}">
+					label="Update Plan" @click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.CANCEL_PLAN:
 				return html`<capitec-overflow-menu-item icon="system/delete-action" 
-					label="Cancel Plan" @click="${() => this._openCancelPolicyDialog(policyItem.contractReference)}">
+					label="Cancel Plan" @click="${() => this._displayCFPDisclosure(`cancel`, policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.TRANSACTION_HISTORY:
 				return html`<capitec-overflow-menu-item icon="system/transfer-action" 
@@ -533,6 +547,56 @@ class ClientPolicies extends Component {
 			default:
 				return html``;
 		}
+	}
+
+	_displayCFPDisclosure(flow, policyItem = null) {
+
+		this.selectedFlow = flow;
+		this.selectedContractRef = policyItem?.contractReference;
+		this.canReinstate = policyItem?.canReinstate;
+		this.selectedPolicyItem = policyItem;
+
+		if (policyItem === null) {
+			this.productCode = `Capitec`;
+		} else {
+			this.productCode = policyItem.productCode;
+		}
+
+
+		if (this.horizonInsureStore.getCFPStatus() === false || this.horizonInsureStore.getCFPStatus() === null) {
+			this.showCFPAgreementDialog = true;
+		} else {
+			this._navigateAfterCFP();
+		}
+	}
+
+	_navigateAfterCFP() {
+
+		this.horizonInsureStore.setCFPStatus(true);
+
+		switch (this.selectedFlow) {
+			case `update`:
+				this.showCFPAgreementDialog = false;
+				this._goToUpdatePlan(this.selectedContractRef, this.canReinstate);
+				break;
+			case `cancel`:
+				this.showCFPAgreementDialog = false;
+				this._openCancelPolicyDialog(this.selectedContractRef);
+				break;
+			case `adhoc`:
+				this.showCFPAgreementDialog = false;
+				this._openPayPremiumDialog(this.selectedPolicyItem);
+				break;
+			case `estimate`:
+				this.showCFPAgreementDialog = false;
+				this._goToEstimate();
+				break;
+			default:
+				this.showCFPAgreementDialog = false;
+				break;
+		}
+
+
 	}
 
 	/**
@@ -784,6 +848,7 @@ class ClientPolicies extends Component {
 			${this._renderPayPremiumAgreementDialog()}
 			${this._renderLodgeClaimInfoDialog()}
 			${this._renderCancelPolicyDialog()}
+			${this._renderCFPAgreementDialog()}
 			${this._renderInsureEmailDialog()}
 		`;
 	}
@@ -839,7 +904,7 @@ class ClientPolicies extends Component {
 					class="capitec-button-medium" 
 					label="Get Estimate" 
 					data-automation-id="insure-landing-get-estimate"
-					@click="${() => this._goToEstimate()}">
+					@click="${() => this._displayCFPDisclosure(`estimate`)}">
 				</capitec-button>`;
 		}
 		return html``;
@@ -1178,6 +1243,18 @@ class ClientPolicies extends Component {
 			<insure-lodge-claim-info-dialog @confirm="${() => this.showLodgeClaimInfoDialog = false}">
 			</insure-lodge-claim-info-dialog>`;
 	}
+
+	/**
+	 * render Dialog for CFP Agreement
+	 * @returns {html} html content
+	 */
+	 _renderCFPAgreementDialog() {
+		return this.showCFPAgreementDialog === false ? `` : html`
+		<horizon-insure-cfp-agreement-dialog @agreementAccepted="${(e) => this._navigateAfterCFP()}"
+			@close-modal="${() => this.showCFPAgreementDialog = false}" 
+			.productCode = "${this.productCode}">
+		</horizon-insure-cfp-agreement-dialog>`
+	 }
 
 	/** 
 	 * Render dialog for confirming email address then sending
