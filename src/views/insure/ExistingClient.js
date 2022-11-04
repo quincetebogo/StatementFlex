@@ -1418,7 +1418,7 @@ export class ExistingClient extends InsureViewBase {
 				.arrearsPaymentDocumentDetails="${this.arrearsPaymentDocumentDetails}"
 				.getCancelPolicyDocument="${(contractReference, cancelReason, saveToDocumentum) => this._getCancelPolicyDocument(contractReference, cancelReason, saveToDocumentum)}"
 				.getArrearsPaymentDocument="${(contractReference, payArrears, fromAccount, saveToDocumentum) => this._getArrearsPaymentDocument(contractReference, payArrears, fromAccount, saveToDocumentum)}"
-				.maxAllowedCover="${this.clientPolicies?.checkInsuranceDetails[0].maxAllowedCover}"
+				.maxAllowedCover="${isNullorEmpty(this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover) ? 100000 : this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover}"
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payPolicy(e)}"
 				@cancel-policy="${(e) => this._cancelPolicy(e)}"
@@ -1444,7 +1444,7 @@ export class ExistingClient extends InsureViewBase {
 				.productParams="${this.productParams}" 
 				.mainLifeDefaultAge="${this._getMainLifeAge()}"
 				.mainLifeDefaultGender="${this._getMainLifeGender()}"
-				.maxAllowedCover="${this.clientPolicies.checkInsuranceDetails[0].maxAllowedCover}"
+				.maxAllowedCover="${isNullorEmpty(this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover) ? 100000 : this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover}"
 				@calculate="${(e) => this._calculateClientEstimate(e)}"
 				@send-email = "${(e) => this._sendEmail(e)}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
@@ -1606,7 +1606,7 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<capitec-toast 
 				?hidden="${!this.showInsureErrorToast}" 
-				class="toast"
+				class="error-toast"
 				id="id-insure-error-toast"
 				type="error"
 				header="Unsuccessful"

@@ -947,7 +947,7 @@ class ClientPolicies extends Component {
 						<horizon-label
 							data-automation-id="insure-policy-cancellation-reason"
 							label="Reason"
-							value="${policyItem.cancellationDetails.displayReason}">
+							value="${policyItem?.cancellationDetails?.displayReason}">
 						</horizon-label>
 						` 
 						: html`
