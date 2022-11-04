@@ -1,5 +1,5 @@
 /**
- * The primary application state store
+ * The primary Insure state store
  * 
  * @module store/HorizonInsureStore
  */
@@ -54,7 +54,7 @@
 	 }
  
 	 /**
-	  * set information about the CFPDisclosure to state
+	  * set information about the CFP Disclosure to state
 	  * 
 	  * @param {Object}  cfpPopped Information on the CFP Disclosure
 	  * @returns {undefined} 
