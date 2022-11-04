@@ -33,6 +33,8 @@ const cellColorGreen = `color: #70AF00;`;
 
 const cellColorRed = `color: #C83B37;`;
 
+const cellColorBlack = `color: #3A3A3A;`;
+
 const cellButton = `width: 83px;
 					 text-align: center;
 					 cursor: pointer;
@@ -86,9 +88,8 @@ export function getFontColor(key, value) {
 
 	if (value === `Pending`) {
 		return cellColorOrange;
-	} else if (value === `Accepted`) {
-		return cellColorGreen;
+	} else if (value === `Expired`) {
+		return cellColorRed;
 	}
-
-	return cellColorRed;
+		return cellColorBlack;
 }
