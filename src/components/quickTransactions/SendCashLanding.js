@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { formatDate, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { convertCentsToRand, formatDate, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { DateTime } from 'luxon';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
@@ -72,6 +72,9 @@ export class SendCashLanding extends Component {
 			searchTextLabel: { state: true },
 			showConfirmPlaceHoldModal: { state: true },
 
+			getSendCashVouchers: { type: Object },
+			disposeData: { type: Object },
+
 			startDate: { type: String, state: true },
 			endDate: { type: String, state: true }
 		};
@@ -136,7 +139,7 @@ export class SendCashLanding extends Component {
 		];
 	}
 
-	_dateChanged(e) {
+	async _dateChanged(e) {
 		let fromDate = DateTime.fromISO(e.detail.new.startDate);
 		let toDate = DateTime.fromISO(e.detail.new.endDate);
 		const currentDateTime = DateTime.local();
@@ -172,6 +175,17 @@ export class SendCashLanding extends Component {
 		}
 
 		RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
+
+		await this._loadFilteredVouchers();
+
+	}
+
+	async _loadFilteredVouchers() {
+		const startDate = DateTime.fromISO(this.startDate);
+		const endDate = DateTime.fromISO(this.endDate);
+
+		this.disposeData();
+		this.sendCashVouchers = await this.getSendCashVouchers(startDate, endDate);
 
 		this._refineSearch();
 	}
@@ -414,14 +428,17 @@ export class SendCashLanding extends Component {
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-line-height: 20px;
 				}
-				horizon-label[value="REDEEMABLE"] {
+				horizon-label[value="Redeemable"] {
 					--horizon-label-value-color: #70AF00;
 				}
-				horizon-label[value="ON HOLD"] {
+				horizon-label[value="On Hold"] {
 					--horizon-label-value-color: #C83B37;
 				}
-				horizon-label[value="REDEMPTION AUTHORISED"] {
+				horizon-label[value="Redemption Authorised"] {
 					--horizon-label-value-color: #D4781C;
+				}
+				horizon-label[value="Partial Redeemed"] {
+					--horizon-label-value-color: #909090;
 				}
 				.sent-from-label {
 					width: 170px;
@@ -658,7 +675,7 @@ export class SendCashLanding extends Component {
 							<horizon-label
 								class="amount-sent-label"
 								label="Amount Sent"
-								value="${formatCurrency(item.amount)}">
+								value="${formatCurrency(convertCentsToRand(item.amount))}">
 							</horizon-label>
 							<horizon-label
 								class="from-account-label"
@@ -673,7 +690,7 @@ export class SendCashLanding extends Component {
 							<horizon-label
 								class="status-label"
 								label="Status"
-								value="${item.voucherStatus.replace(`_`, ` `)}">
+								value="${formatStringAsPascalCase(item.voucherStatus.replace(`_`, ` `))}">
 							</horizon-label>
 					</capitec-group>
 					<div slot="content">
@@ -732,8 +749,8 @@ export class SendCashLanding extends Component {
 	_renderVoucherInfo(element, index) {
 		return html`
 			<capitec-label class="detailsRow" label="${formatDate(element.changeDateTime, DATE_TIME_FORMAT)}" row="${index}" column="1"></capitec-label>
-			<capitec-label class="detailsRow" label="${formatCurrency(element.eventAmount)}" row="${index}" column="2"></capitec-label>
-			<capitec-label class="detailsRow" label="${formatCurrency(element.remainingOrderAmount)}" row="${index}" column="3"></capitec-label>
+			<capitec-label class="detailsRow" label="${formatCurrency(convertCentsToRand(element.eventAmount))}" row="${index}" column="2"></capitec-label>
+			<capitec-label class="detailsRow" label="${formatCurrency(convertCentsToRand(element.remainingOrderAmount))}" row="${index}" column="3"></capitec-label>
 
 			<capitec-label 
 				id="action-label"
@@ -788,7 +805,7 @@ export class SendCashLanding extends Component {
 			<capitec-label label="${element.city}" row="${index}" column="3"></capitec-label>
 			<capitec-label label="${element.merchantName}" row="${index}" column="4"></capitec-label>
 			<capitec-label label="${element.merchantId}" row="${index}" column="5"></capitec-label>
-			<capitec-label label="${formatCurrency(element.merchantAmount)}" row="${index}" column="6"></capitec-label>
+			<capitec-label label="${formatCurrency(convertCentsToRand(element.merchantAmount))}" row="${index}" column="6"></capitec-label>
 			<capitec-label label="${element.country}" row="${index}" column="7"></capitec-label>
 		`;
 	}

@@ -414,6 +414,10 @@ export class HorizonIncidentManager {
 		if (callerInfo.is3rdParty) {
 			this._updateSubsequentNeedNonClientDetails(callDetails, callerInfo);
 		}
+
+		if (callerInfo.isBranchConsultant) {
+			await this._updateIncidentBranchDetails(incidentDetails.incidentRecId, callerInfo.branchCode, callerInfo.branchCallerID);
+		}
 	}
 
 	/**
@@ -443,5 +447,16 @@ export class HorizonIncidentManager {
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateSubsequentNeedNonClientDetails`, returnValue.correlationId);
 		}
+	}
+
+	async _updateIncidentBranchDetails(incidentRecID, branchCode, branchCallerID) {
+		
+		const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(incidentRecID, branchCode, branchCallerID);
+		
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unable to update branch caller details on incident due to a system error`, `_updateIncidentBranchDetails`, returnValue.correlationId);
+			return false;
+		}
+		return true;
 	}
 }
