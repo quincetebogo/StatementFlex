@@ -1,4 +1,6 @@
 import { Component, css, html } from 'platform/elements';
+import { ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
+import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 import { v4 } from 'uuid';
 
 /**
@@ -173,7 +175,7 @@ class AddBeneficiaryDialog extends Component {
 				<capitec-content-box style="max-height:200px; padding-left: 0px;">
 					${this.lifesAssured.map((lifeAssured, index) => html`
 					<div class="add-life-assured">
-						<capitec-radio label="${lifeAssured.relationship}: ${lifeAssured.firstName} ${lifeAssured.surname}"
+						<capitec-radio label="${lifeAssured.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[lifeAssured.relationship?.toUpperCase()])}: ${lifeAssured.firstName} ${lifeAssured.surname}"
 							@value-changed="${() => this._addExistingBeneficiaryChange(lifeAssured)}">
 						</capitec-radio>
 					</div>

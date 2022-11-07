@@ -1,7 +1,7 @@
-import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, GENDER_OPTIONS, INSURE_DISCLOSURE_TYPE, TITLE_OPTIONS } from 'app/constants/InsureCommon';
+import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, GENDER_OPTIONS, INSURE_DISCLOSURE_TYPE, ROLE_PLAYER_RELATIONSHIP, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
-import { checkPolicyRules, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
-import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { checkPolicyRules, dateFormat, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
+import { formatDate, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
@@ -1755,7 +1755,9 @@ class UpdatePlan extends Component {
 					<horizon-expander expandButtonAlignment="right">
 						<capitec-group class="expander-header" slot="custom-header" layout="horizontal" gap="clear" halign="left"
 							valign="center">
-							<horizon-label class="fixed-label-secondary" label="${roleplayer.relationship}" textOverflow="ellipsis"
+							<horizon-label class="fixed-label-secondary" 
+								label="${roleplayer.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[roleplayer.relationship?.toUpperCase()])}" 
+								textOverflow="ellipsis" 
 								value="${roleplayer.firstName} ${roleplayer.surname}">
 							</horizon-label>
 							<div class="vertical-line"></div>
@@ -1796,7 +1798,8 @@ class UpdatePlan extends Component {
 					<!-- life list -->
 					${this.policyDetails.roleplayers.filter(ele => ele.lifeAssured === true).map(lifeAssured => html`
 						<div class="calc-life-list">
-							<capitec-label label="${lifeAssured.relationship}"></capitec-label>
+							<capitec-label label="${lifeAssured.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[lifeAssured.relationship?.toUpperCase()])}">
+							</capitec-label>
 							<capitec-label label="${isNullorEmpty(lifeAssured.premium) ? formatCurrency(0) : formatCurrency(lifeAssured.premium)}"></capitec-label>
 						</div>
 					<hr>`)}
@@ -1856,7 +1859,8 @@ class UpdatePlan extends Component {
 									<horizon-expander expandButtonAlignment="right">
 										<capitec-group class="expander-header" slot="custom-header" layout="horizontal" gap="clear"
 											halign="left" valign="center">
-											<horizon-label class="fixed-label-secondary" label="${beneficiary.relationship}"
+											<horizon-label class="fixed-label-secondary" 
+												label="${beneficiary.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[beneficiary.relationship?.toUpperCase()])}"
 												textOverflow="ellipsis" value="${beneficiary.firstName} ${beneficiary.surname}">
 											</horizon-label>
 											<div class="vertical-line"></div>
@@ -1988,7 +1992,7 @@ class UpdatePlan extends Component {
 						<!-- Beneficiaries list -->
 						${this.policyDetails.roleplayers.filter(ele => ele.beneficiary === true).map(beneficiary => html`
 						<div class="calc-life-list">
-							<capitec-label label="${beneficiary.relationship}"></capitec-label>
+							<capitec-label label="${beneficiary.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[beneficiary.relationship?.toUpperCase()])}"></capitec-label>
 							<capitec-label label="${beneficiary.benefitPayout === `` ? `R0.00` : formatCurrency(beneficiary.benefitPayout)}"></capitec-label>
 						</div>
 						<hr>`)}
@@ -2161,7 +2165,7 @@ class UpdatePlan extends Component {
 					</capitec-date-time-picker>`
 				: html`
 					<capitec-text-field label="Date of birth" style="width: 50%" disabled
-						value="${formatDate(roleplayer?.dateOfBirth)}">
+						value="${dateFormat(roleplayer?.dateOfBirth)}">
 					</capitec-text-field>`
 			}
 				<capitec-text-field label="ID" style="width: 50%" value="${isNullorEmpty(roleplayer?.idNumber) ? `` : roleplayer?.idNumber}" 
