@@ -1,6 +1,6 @@
 import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, GENDER_OPTIONS, INSURE_DISCLOSURE_TYPE, ROLE_PLAYER_RELATIONSHIP, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
-import { checkPolicyRules, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
+import { checkPolicyRules, dateFormat, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 import { formatDate, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -2165,7 +2165,7 @@ class UpdatePlan extends Component {
 					</capitec-date-time-picker>`
 				: html`
 					<capitec-text-field label="Date of birth" style="width: 50%" disabled
-						value="${formatDate(roleplayer?.dateOfBirth)}">
+						value="${dateFormat(roleplayer?.dateOfBirth)}">
 					</capitec-text-field>`
 			}
 				<capitec-text-field label="ID" style="width: 50%" value="${isNullorEmpty(roleplayer?.idNumber) ? `` : roleplayer?.idNumber}" 
