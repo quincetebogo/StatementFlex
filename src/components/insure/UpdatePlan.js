@@ -1992,7 +1992,7 @@ class UpdatePlan extends Component {
 						<!-- Beneficiaries list -->
 						${this.policyDetails.roleplayers.filter(ele => ele.beneficiary === true).map(beneficiary => html`
 						<div class="calc-life-list">
-							<capitec-label label="${beneficiary.relationship}"></capitec-label>
+							<capitec-label label="${beneficiary.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[beneficiary.relationship?.toUpperCase()])}"></capitec-label>
 							<capitec-label label="${beneficiary.benefitPayout === `` ? `R0.00` : formatCurrency(beneficiary.benefitPayout)}"></capitec-label>
 						</div>
 						<hr>`)}
