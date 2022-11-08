@@ -1,4 +1,4 @@
-import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/common';
+import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { Configuration, NavigationContext } from 'platform/core';
 import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { SavingsPlanEvents, TRANSACTION_ENQUIRY_EVENTS, UNLOCK_FTSP_EVENTS } from 'app/constants/telemetry/events/SavingsPlan';
