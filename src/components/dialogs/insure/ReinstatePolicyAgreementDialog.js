@@ -121,7 +121,7 @@ class ReinstatePolicyAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-			<capitec-modal type="form" header="Reinstate Policy Agreement (${this.contractReference})">
+			<capitec-modal type="form" header="Re-Issue Policy Agreement (${this.contractReference})">
 				<div slot="body" data-automation-id="insure-reinstate-policy-agreement-dialog-body">
 					${this._renderDialogBody()}
 				</div>
