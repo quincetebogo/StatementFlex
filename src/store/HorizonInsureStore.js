@@ -25,7 +25,7 @@
 		 super({
 			 name: `horizon-insure-store`,
 			 persistence: `sessionStorage`,
-			 logStateChanges: true
+			 logStateChanges: false
 		 });
  
 		 // Internal subsciption ensures that this class always has the latest state

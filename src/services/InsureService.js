@@ -529,57 +529,6 @@ export class InsureService extends ChannelServiceBase {
 		);
 	}
 
-	// #endregion
-
-	// #region DEPRECATED
-
-	/**
-	 * Retrieve quote details
-	 * @deprecated No Quote for MPV - Confirm if can be removed entirely
-	 * @param {quoteRequest} [quoteRequest=null]  Request data for retrieve quote 
-	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 */
-	retrieveQuoteDetails(quoteRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.post(
-			`/FuneralInsuranceProductService/quote/retrieve`,
-			quoteRequest,
-			this.setInsureTokens(),
-			`retrieveQuote`,
-			null,
-			null,
-			900,
-			null,
-			errorHandler,
-			autoRetries
-		);
-	}
-
-	/**
-	 * Retrieve list of quotes
-	 * @deprecated No Quote for MPV - Confirm if can be removed entirely
-	 * @param {quoteRequest} [quoteRequest=null]  Request data for retrieve quotes list 
-	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 */
-	retrieveQuotes(quoteRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.post(
-			`/FuneralInsuranceProductService/client/quotes/retrieve`,
-			quoteRequest,
-			this.setInsureTokens(),
-			`retrieveQuotes`,
-			null,
-			null,
-			900,
-			null,
-			errorHandler,
-			autoRetries
-		);
-	}
-
-
 	/**
 	 * Communication History
 	 *
@@ -695,7 +644,7 @@ export class InsureService extends ChannelServiceBase {
 	 */
 	arrearsPaymentInstruction(GenerateArrearsPaymentInstructionRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
-			`/FuneralInsuranceProductService/document/generate/CapitecBankFuneralArrearsPaymentInstruction`,
+			`/horizon-insurance/document/generate/CapitecBankFuneralArrearsPaymentInstruction`,
 			GenerateArrearsPaymentInstructionRequest,
 			this.setInsureTokens(),
 			`arrearsPaymentInstruction`,

@@ -743,22 +743,17 @@ class UpdatePlan extends Component {
 	*/
 	async _calculatePremium() {
 		const onUpdateValidations = this.validateUpdatePlanCalculate();
-
 		if (onUpdateValidations.validated === true) {
 			if (this.newTotalPremium !== ``) {
 				this.policyDetails.totalPremium = this.newTotalPremium;
 			}
-
 			const calcQuoteResponse = await this.updatePlanQuote(this.policyDetails);
 			this.policyDetails.totalPremium = calcQuoteResponse.totalPremium;
 			this.policyDetails.roleplayers = calcQuoteResponse.lifesAssured;
 			this.policyDetails.quoteNumber = calcQuoteResponse.quoteNumber;
-
 			this.newTotalPremium = ``;
 		} else {
-
 			this.onUpdateValidationMessage = this._generateOnUpdateValidationMessage(onUpdateValidations);
-
 			this.showUpdateValidationDialog = true;
 		}
 		this.requestUpdate();
@@ -777,9 +772,7 @@ class UpdatePlan extends Component {
 		onUpdateValidations.lifeAssured = true;
 
 		this.policyDetails.roleplayers.forEach(ele => {
-
 			ele.coverDetails.canSubmit = true;
-
 			// General Checks
 			if (ele.lifeAssured === true) {
 				if (ele.firstName === `` || ele.surname === ``) {
@@ -1646,10 +1639,10 @@ class UpdatePlan extends Component {
 		return html`
 		<capitec-title-bar type="insure" class="insure-title-bar">
 			<img class="action-image" src="/images/insure/left-arrow.svg" @click="${() => this._backToSummaryPage()}" />
-			<capitec-label label="${this.canReinstate ? `Reinstate` : `Update Plan #${this.policyDetails.contractReference}`}" type="title"></capitec-label>
+			<capitec-label label="${this.canReinstate ? `Re-Issue` : `Update Plan #${this.policyDetails.contractReference}`}" type="title"></capitec-label>
 			<capitec-spacer></capitec-spacer>
 			${this.canReinstate
-				? html`<capitec-button label="Reinstate" type="white" class="capitec-button-medium"
+				? html`<capitec-button label="Re-Issue" type="white" class="capitec-button-medium"
 					@click="${() => this._onReinstatePolicyPopup()}"></capitec-button>`
 				: html`
 					${this.selectedTabIndex === 0 ? html`
