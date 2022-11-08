@@ -176,6 +176,10 @@ export class SavingsPlanLanding extends Component {
 					--horizon-option-btn-icon-height: 26px;
 					--horizon-option-btn-icon-width: 26px;
 				}
+				horizon-option-button[label="Unlock Savings Plans"] {
+					--theme-button-padding-left: 8px;
+					--theme-button-padding-right: 8px;
+				}
 
 				/* Expander header and content styles */
 				horizon-expander {
@@ -548,6 +552,13 @@ export class SavingsPlanLanding extends Component {
 						label="Tax Certificate"
 						icon="system/sars-action" 
 						@click="${() => this._click(`tax-certificate`, item)}">
+				</horizon-option-button>
+				<horizon-option-button 
+						data-automation-id="savings-plan-unlock-ftsp"
+						label="Unlock Savings Plans"
+						icon="system/unlocked-action"
+						?hidden=${item.accountType !== ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN}
+						@click="${() => this._click(`unlock-ftsp`, item)}">
 				</horizon-option-button>
 			</capitec-group>
 		`;
