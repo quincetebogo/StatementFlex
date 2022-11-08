@@ -119,7 +119,7 @@ export class StopCardFailure extends ViewBase {
 		// Toggling to InProgress
 		this.renderMode = RENDER_MODE.IN_PROGRESS;
 
-te		const returnValue = await this.cardService.stopCards(this.failedCards, this.incomingCallDetails, this.incidentDetails, this.callerInformation.cifNumber, this.callerInformation.title, this.callerInformation.lastName);
+		const returnValue = await this.cardService.stopCards(this.failedCards, this.incomingCallDetails, this.incidentDetails, this.callerInformation.cifNumber, this.callerInformation.title, this.callerInformation.lastName);
 		
 		if (returnValue.succeeded) {
 			const cardStopResults = returnValue.result;
