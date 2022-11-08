@@ -359,3 +359,17 @@ export function _getDateRange(startDate, endDate) {
 
 	return `${fromDate} - ${toDate}`;
 }
+
+/**
+ * Get selected date range
+ * @param {date} dob date of birth
+ * @returns {number} - 
+ */
+export function getAgeFromDob(dob) {
+	
+	const birthdate = new Date(dob);
+	
+	const ageDifMs = Date.now() - birthdate.getTime();
+	const ageDate = new Date(ageDifMs);
+	return Math.abs(ageDate.getUTCFullYear() - 1970).toString();
+}

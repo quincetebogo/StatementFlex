@@ -1,6 +1,6 @@
 import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, GENDER_OPTIONS, INSURE_DISCLOSURE_TYPE, ROLE_PLAYER_RELATIONSHIP, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
-import { checkPolicyRules, dateFormat, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
+import { checkPolicyRules, dateFormat, getAgeFromDob, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 import { formatDate, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -347,11 +347,16 @@ class UpdatePlan extends Component {
 	 * @return {null} null
 	 */
 	_lifeCoverAmountValueChanged(event, recordId) {
+		let age = ``;
 		if (event.detail.old !== event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.recordID === recordId) {
 					this.policyDetails.roleplayers[index].coverAmount = event.detail.new;
 					this.newTotalPremium = ``;
+				
+					if (rolePlayer.dateOfBirth !== undefined) {
+						age = getAgeFromDob(rolePlayer.dateOfBirth);
+					}
 				}
 
 				// Cover Details
@@ -360,7 +365,7 @@ class UpdatePlan extends Component {
 					this.productParams,
 					this.policyDetails.roleplayers[index].coverAmount,
 					index === 0 ? this.maxAllowedCover : 0,
-					this.policyDetails.roleplayers[index].age,
+					age,
 					this.policyDetails.roleplayers[index].coverDetails?.isExtendedFamily,
 					false
 				);
