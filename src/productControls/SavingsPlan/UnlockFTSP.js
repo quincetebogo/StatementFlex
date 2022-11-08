@@ -892,7 +892,8 @@ const UNLOCK_OPTIONS = {
 				?expanded=${this.declarationExpanded}
 				@expand="${() => this.declarationExpanded = true}"
 				@collapse="${() => this.declarationExpanded = false}"
-				label="Declaration">
+				label="Declaration"
+				icon="/attorneys_declaration">
 				<capitec-content-box class="expander-cb" noPadding>
 					<ul class="list-items">
 						<li><capitec-label type="default" label="We will charge you a penalty fee for unlocking before the agreed maturity date"></capitec-label></li>
