@@ -217,13 +217,16 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	async flexibleStatementEmail(creditType, accountNumber, emailAddress, statementDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async flexibleStatementEmail(creditType, accountNumber, emailAddress, cif, title, lastName, statementDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		const flexibleStatementEmailRequest = {
 			"creditType": creditType,
 			"accountNumber": accountNumber,
 			"emailAddress": emailAddress,
+			"cifNumber": cif,
+			"title": title,
+			"surname": lastName,
 			"statementDetails": statementDetails
 		};
 		const url = `/clientcare-credit-${this._version}/credit/flexible/statement/email`;
@@ -268,7 +271,7 @@ export class CreditService extends ChannelServiceBase {
 
 	}
 
-	async fixedStatementEmail(accountNumber, emailAddress, fromDate, toDate, setdate, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async fixedStatementEmail(accountNumber, emailAddress, fromDate, toDate, setdate, cif, title, lastName, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		const fixedStatementEmailRequest = {
@@ -276,7 +279,10 @@ export class CreditService extends ChannelServiceBase {
 			"emailAddress": emailAddress,
 			"fromDate": fromDate,
 			"toDate": toDate,
-			"setDates": setdate
+			"setDates": setdate,
+			"cifNumber": cif,
+			"title": title,
+			"surname": lastName
 		};
 
 		const url = `/clientcare-credit-${this._version}/credit/fixed/statement/email`;
