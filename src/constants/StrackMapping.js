@@ -31,6 +31,8 @@
 	"tax-certificate-save": `SAVINGS_PLAN_TAX_CERTIFICATE`,
 	"flexible-save-transaction-history": `FLEXIBLE_SAVE_TRANSACTION_HISTORY`,
 	"fixed-save-transaction-history": `FIXED_SAVE_TRANSACTION_HISTORY`,
+	"full-ftsp-unlock": `FIXED_SAVE_FULL_UNLOCK`,
+	"partial-ftsp-unlock": `FIXED_SAVE_PARTIAL_UNLOCK`,
 
 	// LBB
 	"transaction-history-lbb": `TRANSACTION_HISTORY_LBB`,

@@ -14,6 +14,7 @@ SAVINGS_PLAN_VIEW_BENEFITS: `call.fulfill-need.savings-plan.view-benefits`,
 SAVINGS_PLAN_FIND_A_BRANCH: `call.fulfill-need.savings-plan.find-a-branch`,
 SAVINGS_PLAN_ACCOUNT_DETAILS_CLOSE: `call.fulfill-need.savings-plan.close.account-details`,
 SAVINGS_PLAN_TRANSACTION_HISTORY: `call.fulfill-need.savings-plan.select.transaction-history`,
+SAVINGS_PLAN_FTSP_UNLOCK: `call.fulfill-need.savings-plan.select.ftsp-unlock`,
 
 SAVINGS_PLAN_ACCOUNT_NUMBER_SELECT: `call.fulfill-need.savings-plan.select.account-number`, 
 SAVINGS_PLAN_STATEMENTS_SELECT: `call.fulfill-need.savings-plan.select.statements`, 
@@ -79,4 +80,30 @@ export const TRANSACTION_ENQUIRY_EVENTS = Object.freeze({
 	TRANSACTION_HISTORY_BACK: `call.fulfill-need.savings-plan.transaction-history.back`,
 	TRANSACTION_HISTORY_LOAD_MORE: `call.fulfill-need.savings-plan.transaction-history.load-more`,
 	TRANSACTION_HISTORY_SCROLL_TOP: `call.fulfill-need.savings-plan.transaction-history.scroll-to-top`
+ });
+
+ 
+/**
+ * The event names to use when logging telemetry events for unlock FTSP flow.
+ * This correspond to the `Action` and `eventName` columns in the Data Spec.
+ * 
+ * @readonly
+ * @enum {Object} UNLOCK_FTSP_EVENTS
+ */
+ export const UNLOCK_FTSP_EVENTS = Object.freeze({
+	UNLOCK_FTSP: `call.fulfill-need.savings-plan.ftsp-unlock`,
+	UNLOCK_FTSP_CHOOSE_ACCOUNT: `call.fulfill-need.savings-plan.ftsp-unlock.choose-account`,
+	UNLOCK_FTSP_CHOOSE_OPTION: `call.fulfill-need.savings-plan.ftsp-unlock.unlock-options`,
+	UNLOCK_FTSP_UNLOCK_AMOUNT: `call.fulfill-need.savings-plan.ftsp-unlock.enter-unlock-amount`,
+	UNLOCK_FTSP_ACCEPT_QUOTE: `call.fulfill-need.savings-plan.ftsp-unlock.accept-quote`,
+	UNLOCK_FTSP_VIEW_AGREEMENT: `call.fulfill-need.savings-plan.ftsp-unlock.view-agreement`,
+	UNLOCK_FTSP_CANCEL: `call.fulfill-need.savings-plan.ftsp-unlock.cancel`,
+	UNLOCK_FTSP_SELECT_TRANSFER: `call.fulfill-need.savings-plan.ftsp-unlock.select-transfer`,
+	UNLOCK_FTSP_TRANSFER: `call.fulfill-need.savings-plan.ftsp-unlock.transfer`,
+	UNLOCK_FTSP_TRANSFER_CONFIRM: `call.fulfill-need.savings-plan.ftsp-unlock.transfer.confirm`,
+	UNLOCK_FTSP_TRANSFER_SUCCESS: `call.fulfill-need.savings-plan.ftsp-unlock.transfer.success`,
+	UNLOCK_FTSP_TRANSFER_SUCCESS_DONE: `call.fulfill-need.savings-plan.ftsp-unlock.transfer.success.done`,
+	UNLOCK_FTSP_TRANSFER_FAILURE: `call.fulfill-need.savings-plan.ftsp-unlock.transfer.failure`,
+	UNLOCK_FTSP_TRANSFER_FAILURE_TRY_AGAIN: `call.fulfill-need.savings-plan.ftsp-unlock.transfer.failure.try-again`,
+	UNLOCK_FTSP_TRANSFER_FAILURE_DONE: `call.fulfill-need.savings-plan.ftsp-unlock.transfer.failure.done`
  });

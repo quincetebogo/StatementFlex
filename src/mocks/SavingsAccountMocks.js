@@ -117,6 +117,115 @@ export const savingsPlanDetails = {
 			"postingRestrictions": "N",
 			"term": 48,
 			"totalContributions": 20030
+		},
+		{
+			"dateFixed": "2022-01-31T00:00:00+00:00",
+			"term": 9,
+			"interestOption": "R",
+			"totalContributions": 100000.0,
+			"availableContributions": 19900000.0,
+			"contributionLimit": 20000000.0,
+			"nominalInterestRate": 4.65,
+			"effectiveInterestRate": 4.75,
+			"maturityDate": "2022-10-31T00:00:00+00:00",
+			"interestTiers": [
+				{
+					"term": "9",
+					"range": "R0 - R9 999",
+					"nominal": "3.85",
+					"effective": "3.92"
+				},
+				{
+					"term": "9",
+					"range": "R10 000 - R24 999",
+					"nominal": "3.9",
+					"effective": "3.97"
+				},
+				{
+					"term": "9",
+					"range": "R25 000 - R99 999",
+					"nominal": "4.45",
+					"effective": "4.54"
+				},
+				{
+					"term": "9",
+					"range": "R100 000+",
+					"nominal": "4.65",
+					"effective": "4.75"
+				}
+			],
+			"planType": "FIXED TERM SAVINGS PLAN",
+			"planName": "BELEGGING",
+			"accountType": 201,
+			"accountNumber": 1630196159,
+			"currentBalance": 103138.0,
+			"availableBalance": 0.0,
+			"accruedInterestLastMonth": 405.72,
+			"accruedInterestCurrentMonth": 131.395,
+			"interestEarned": 2768.55,
+			"interestCategory": 2,
+			"feesLastMonth": "",
+			"postingRestrictions": "N",
+			"outstandingAuthorizations": 0.0,
+			"holds": 0.0,
+			"dateOpened": "2019-03-07T00:00:00+00:00",
+			"lastUpdate": "2022-09-30T00:00:00+00:00",
+			"accountStatus": "OPEN"
+		},
+		{
+			"dateFixed": "2021-04-06T00:00:00+00:00",
+			"term": 9,
+			"interestOption": "R",
+			"totalContributions": 100000.0,
+			"availableContributions": 19900000.0,
+			"contributionLimit": 20000000.0,
+			"nominalInterestRate": 4.65,
+			"effectiveInterestRate": 4.75,
+			"maturityDate": "2022-10-31T00:00:00+00:00",
+			"interestTiers": [
+				{
+					"term": "9",
+					"range": "R0 - R9 999",
+					"nominal": "3.85",
+					"effective": "3.92"
+				},
+				{
+					"term": "9",
+					"range": "R10 000 - R24 999",
+					"nominal": "3.9",
+					"effective": "3.97"
+				},
+				{
+					"term": "9",
+					"range": "R25 000 - R99 999",
+					"nominal": "4.45",
+					"effective": "4.54"
+				},
+				{
+					"term": "9",
+					"range": "R100 000+",
+					"nominal": "4.65",
+					"effective": "4.75"
+				}
+			],
+			"planType": "FIXED TERM SAVINGS PLAN",
+			"planName": "BELEGGING First",
+			"accountType": 201,
+			"accountNumber": 1630196158,
+			"currentBalance": 103138.0,
+			"availableBalance": 10634.0,
+			"accruedInterestLastMonth": 405.72,
+			"accruedInterestCurrentMonth": 131.395,
+			"interestEarned": 2768.55,
+			"interestCategory": 2,
+			"feesLastMonth": "",
+			"postingRestrictions": "N",
+			"outstandingAuthorizations": 0.0,
+			"holds": 0.0,
+			"dateOpened": "2019-03-07T00:00:00+00:00",
+			"lastUpdate": "2022-09-30T00:00:00+00:00",
+			"accountStatus": "OPEN"
 		}
+		
 	]
 };

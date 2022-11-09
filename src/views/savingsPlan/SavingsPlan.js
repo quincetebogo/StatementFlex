@@ -1,16 +1,18 @@
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
+import { Configuration, NavigationContext } from 'platform/core';
 import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
-import { SavingsPlanEvents, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/SavingsPlan';
+import { SavingsPlanEvents, TRANSACTION_ENQUIRY_EVENTS, UNLOCK_FTSP_EVENTS } from 'app/constants/telemetry/events/SavingsPlan';
 import { css, html, unsafeCSS } from 'platform/elements';
 import { formatDate, formatDateTime, formatStringAsPascalCase, getMonthName } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
-import { Configuration } from 'platform/core';
 import { EventAggregator } from 'platform/EventAggregator';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { RoleManager } from 'app/shell/RoleManager';
 import { SavingsService } from 'app/services/SavingsService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { alertBannerMixin } from 'app/views/common/AlertBannerMixin';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/productControls/SavingsPlan/SavingsPlanLanding';
@@ -19,6 +21,8 @@ import 'app/dialogs/statements/Statements';
 import 'app/components/common/TransactionHistory';
 import 'app/components/dialogs/common/StatementsDialog';
 import 'app/components/quickTransactions/TaxCertificateLanding';
+import 'app/productControls/SavingsPlan/UnlockFTSP';
+import 'app/components/common/HorizonPDFViewer';
 
 import 'app/views/savingsPlan/FlexibleSavingsPlan';
 import 'app/views/savingsPlan/FixedTermSavingsPlan';
@@ -48,6 +52,12 @@ const TRANSACTION_HISTORY = {
 	MONEY_TYPE: `BOTH`
 };
 
+const UNLOCK_TYPE = {
+	'Full unlock': `Full`,
+	'Partial unlock': `Partial`
+};
+
+
 /**
  * Savings Plan View
  *
@@ -71,6 +81,9 @@ export class SavingsPlan extends ViewBase {
 
 		this.savingsPlanDetails = [];
 		this.configuration = Configuration.getInstance();
+		this.roleManager = RoleManager.getInstance();
+		this.navigationContext = NavigationContext.getInstance();
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	
 		// private properites
 		this.selectedAccountNumber = ``;
@@ -85,6 +98,8 @@ export class SavingsPlan extends ViewBase {
 		this.eventAggregator = EventAggregator.getInstance();
 		
 		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option, null, null, null, true));
+	
+		Object.assign(SavingsPlan.prototype, alertBannerMixin);
 	}
 
 	// -------------------
@@ -105,13 +120,15 @@ export class SavingsPlan extends ViewBase {
 			const productEnquiry = () => this._productEnquiry();
 			const interestRates = () => this._interestRates();
 			const transactionHistory = () => this._transactionHistory(savePlanDetails);
+			const unlockFtsp = () => this._unlockFtsp(savePlanDetails?.accountNumber || null);
 
 			const actions = {
 				'statements': statements,
 				'tax-certificate': taxCertificates,
 				'product-enquiry': productEnquiry,
 				'interest-rates': interestRates,
-				'transaction-history': transactionHistory
+				'transaction-history': transactionHistory,
+				'unlock-ftsp': unlockFtsp
 			};
 
 			if (actions[option]) {
@@ -479,6 +496,245 @@ export class SavingsPlan extends ViewBase {
 		this._setIncidentDone();
 	}
 
+	async _unlockFtsp(accountNumber) {
+		await this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_FTSP_UNLOCK, {
+			"screen": TelemetryScreen.SAVINGS_PLAN_LANDING,
+			"next-screen": TelemetryScreen.SAVINGS_PLAN_UNLOCK_FTSP
+		});
+
+		// Try again functionality from failure screen to open unlock FTSP screen with previous account selection.
+		const screenDetails = this.horizonStore.getScreenDetails();
+		if (screenDetails?.unlockAccountNumber) {
+			this.selectedUnlockAccNumber = screenDetails.unlockAccountNumber;
+		} else {
+			this.selectedUnlockAccNumber = accountNumber;
+		}
+		this.horizonStore.setScreenDetails({ unlockAccountNumber: this.selectedUnlockAccNumber });
+
+		// Get list of fixed term savings plan accounts as "from accounts" for unlocking or transfering funds.
+		this.unlockFromAccountsList = this._getUnlockFromAccounts();
+		
+		// Get primary savings account as "to account" for unclocking or transfering FTSP funds.
+		this.unlockToAccountsList = await this._getUnlockToAccount();
+		
+		this.unlockOptions = await this._getUnlockOptions(this.unlockFromAccountsList);
+
+		this.renderMode = RENDER_MODE.UNLOCK_FTSP;
+	}
+
+	_getUnlockFromAccounts() {
+		const fromAccounts = this.savingsPlanDetails
+								.filter(item => item.accountType === ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN)
+								.map(item => {
+										const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType][item.interestCategory] || 
+															ACCOUNT_INTCAT_ENUM[item.accountType];
+										
+										return {
+											'accountNumber': item.accountNumber,
+											'accountName': formatStringAsPascalCase(item.planName),
+											'availableBalance': formatCurrency(item.currentBalance),
+											'accountType': item.accountType,
+											'icon': productInfo.icon,
+											'order': productInfo.order
+										};
+									})
+								.sort((x, y) => x.order - y.order);
+		return fromAccounts;
+	}
+
+	async _getUnlockOptions() {
+	
+		const unlockOptionsAccountList = this.unlockFromAccountsList.map(account => ({
+											'accountNumber': account.accountNumber 
+											}));
+
+		const request = {
+			cifNumber: this.callerInformation.cifNumber,
+			unlockOptionsAccountListModel: unlockOptionsAccountList
+		};
+
+		const returnValue = await this.savingsService.ftspUnlockOptions(request);
+
+		if (returnValue.succeeded) {
+			this._telemetry.startSpan(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP, {
+				"screen": TelemetryScreen.SAVINGS_PLAN_UNLOCK_FTSP
+			});
+
+			const unlockOptionsInCents = returnValue.result.unlockOptions;
+			
+			const unlockOptionsInRands = unlockOptionsInCents.map(item => {
+				item.partialUnlockAmount /= 100; // Convert cents to rands
+				return item;
+			});
+
+			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `unlock-ftsp`);
+
+			return unlockOptionsInRands;
+		}
+		this.logger.log(`error`, `Failed to retrieve unlock options for FTSP from service.`, `_unlockFtsp`, returnValue.correlationId);
+
+	}
+
+    async _getUnlockToAccount() {
+        const request = {
+            cifNumber: this.callerInformation.cifNumber,
+            status: `OPEN`
+        };
+        const returnValue = await this.savingsService.getClientProducts(request);
+
+        if (returnValue.succeeded) {
+
+            const [primarySavings] = returnValue.result.savingsProducts.filter(item => item.accountType === 300);
+            const productInfo = ACCOUNT_INTCAT_ENUM[primarySavings.accountType];
+            return [
+                {
+                    'accountNumber': primarySavings.accountNumber,
+                    'accountName': formatStringAsPascalCase(primarySavings.accountName),
+                    'accountType': primarySavings.accountType,
+                    'availableBalance': formatCurrency(primarySavings.availableBalance),
+                    'icon': productInfo.icon
+                }
+            ];
+        }
+        return [];
+	}
+
+	async _getUnlockQuote(unlockType, accNumber, partialUnlockAmount) {
+
+		const request = {
+				cifNumber: this.callerInformation.cifNumber,
+				accountNumber: accNumber,
+				partialUnlockAmount: Number(partialUnlockAmount * 100), // Convert rands to cents
+				unlockType: UNLOCK_TYPE[unlockType],
+				channel: `HORIZON`
+			};
+
+		const returnValue = await this.savingsService.ftspUnlockQuote(request);
+
+		if (returnValue.succeeded && returnValue.result) {
+			const quoteDetails = returnValue.result;
+
+			// Convert cents to rands
+			quoteDetails.unlockFee = Number(quoteDetails.unlockFee) / 100;
+			return quoteDetails;
+		} 
+
+		this.logger.log(`error`, `Failed to retrieve unlock options quote for the selected FTSP from service.`, `_getUnlockQuote`, returnValue.correlationId);
+
+	}
+
+	async _getUnlockAgreement(event) {
+		this._telemetry.logEvent(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_ACCEPT_QUOTE);
+
+		const request = {
+			accountNumber: event.detail.selectedAccount.accountNumber,
+			quoteReferenceNumber: event.detail.quoteRefNumber
+		};
+
+		const returnValue = await this.savingsService.ftspUnlockAgreement(request);
+		
+		if (returnValue.succeeded && returnValue.result) {
+			this.encodedUnlockDocument = returnValue.result.agreementContent.data;
+			this.unlockFromAccountName = event.detail.selectedAccount.accountName;
+			return;
+		} 
+		
+		this.logger.log(`error`, `Failed to view unlock quote agreement for the selected FTSP from service.`, `_getUnlockAgreement`, returnValue.correlationId);
+
+	}
+
+	_viewUnlockAgreement() {
+		if (this.encodedUnlockDocument && this.unlockFromAccountName) {
+			this._telemetry.logEvent(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_VIEW_AGREEMENT);
+			this.renderMode = RENDER_MODE.PDF;
+		}
+	}
+
+	async _confirmUnlockFtsp(event) {
+		this._telemetry.logEvent(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_TRANSFER_CONFIRM, {
+			"screen": TelemetryScreen.SAVINGS_PLAN_CONFIRM_UNLOCK
+		});
+
+		const request = {
+			"cifNumber": this.callerInformation.cifNumber,
+			"accountNumber": event.detail.selectedFromAccount.accountNumber,
+			"quoteReferenceNumber": event.detail.quoteRefNumber,
+			"content":
+			{
+				"data": this.encodedUnlockDocument,
+				"documentId": event.detail.quoteRefNumber,
+				"contentType": `PDF`
+			}
+		};
+
+		// Updating current need to be specific to unlock Type ie; Full or Partial unlock to classify an incident based on type.
+		const need = UNLOCK_TYPE[event.detail.unlockType] === `Full` ? `full-ftsp-unlock` : `partial-ftsp-unlock`;
+		await super._inicidentManager_(need, () => this._toggleBusyFlag());
+			
+		const screenDetails = this.horizonStore.getScreenDetails();
+
+		screenDetails.unlockAccountName = event.detail.selectedFromAccount.accountName;
+		screenDetails.unlockAccountNumber = event.detail.selectedFromAccount.accountNumber;
+		screenDetails.unlockType = UNLOCK_TYPE[event.detail.unlockType];
+		screenDetails.unlockAmount = event.detail.unlockAmount;
+
+		this.horizonStore.setScreenDetails(screenDetails);
+
+		const returnValue = await this.savingsService.ftspUnlock(request);
+
+		if (returnValue.succeeded) {
+			this.horizonRouter.navigateToUnlockFTSPSuccess();
+			return;
+		}
+
+		this.logger.log(`error`, `Failed to unlock the selected FTSP from service.`, `_confirmUnlockFtsp`, returnValue.correlationId);
+		this.horizonRouter.navigateToUnlockFTSPFailure();
+	}
+
+	_chooseAccountTelemetry(event) {
+		this._telemetry.logEvent(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_CHOOSE_ACCOUNT, {
+			"account-number": event.detail.accountNumber
+		});
+	}
+
+	_chooseOptionsTelemetry(event) {
+		this._telemetry.logEvent(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_CHOOSE_OPTION, {
+			"unlock-type": event.detail.unlockType
+		});
+	}
+
+	_unlockAmountTelemetry(event) {
+		this._telemetry.logEvent(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_UNLOCK_AMOUNT, {
+			"unlock-amount": event.detail.unlockAmount
+		});
+	}
+
+	async _backFromUnlockFTSP() {
+		await this._telemetry.logEvent(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_CANCEL, {
+			"screen": TelemetryScreen.SAVINGS_PLAN_UNLOCK_FTSP,
+			"next-screen": TelemetryScreen.SAVINGS_PLAN_LANDING
+		});
+
+		this._telemetry.endSpan(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP);
+		this.horizonStore.clearScreenDetails();
+		this._backToLandingPage();
+	}
+
+	async _selectTransferTelemetry() {
+		await this._telemetry.logEvent(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_SELECT_TRANSFER, {
+			"screen": TelemetryScreen.SAVINGS_PLAN_UNLOCK_FTSP,
+			"next-screen": TelemetryScreen.SAVINGS_PLAN_CONFIRM_UNLOCK
+		});
+
+		this._telemetry.startSpan(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_TRANSFER, {
+			"screen": TelemetryScreen.SAVINGS_PLAN_CONFIRM_UNLOCK
+		});
+	}
+
+	_cancelTransferTelemetry() {
+		this._telemetry.endSpan(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_TRANSFER);
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -497,6 +753,9 @@ export class SavingsPlan extends ViewBase {
 			.save-plan{
 				width: 100%;
 				height: var(--horizon-panel-height, 888px);
+			}
+			horizon-pdf-viewer {
+				--theme-horizon-pdf-modal-header-width: auto;
 			}
 			`
 		];
@@ -517,6 +776,8 @@ export class SavingsPlan extends ViewBase {
 			${this._renderTaxCertificate()}
 			${this._renderTaxCertificateNotAvailable()}
 			${this._renderTransactionHistory()}
+			${this._renderUnlockFTSP()}
+			${this._renderViewUnlockDocument()}
 		`;
 	}
 
@@ -769,6 +1030,50 @@ export class SavingsPlan extends ViewBase {
 				</horizon-label>
 			</capitec-group>
 		`;
+	}
+
+	_renderUnlockFTSP() {
+		return this.renderMode === RENDER_MODE.UNLOCK_FTSP || this.renderMode === RENDER_MODE.PDF
+		? html`
+			<capitec-pc-unlock-ftsp
+				selectedUnlockAccNumber="${this.selectedUnlockAccNumber}"
+				.unlockOptions="${this.unlockOptions}"
+				.unlockFromAccountsList="${this.unlockFromAccountsList}"
+				.unlockToAccountsList="${this.unlockToAccountsList}"
+				.savingsPlanDetails="${this.savingsPlanDetails}"
+
+				verificationMethod="${this.callerInformation.verificationMethod}"
+				?hasDigitalChannels="${this.callerInformation.hasDigitalChannels}"
+				?isHelpDeskAgent="${this.roleManager.isHelpDeskAgent}"
+				
+				.getUnlockQuote="${(unlockType, accNumber, partialUnlockAmount) => this._getUnlockQuote(unlockType, accNumber, partialUnlockAmount)}"
+				.shouldDisable="${need => this._shouldDisable(need)}"
+				.renderAlertBanner="${() => this.renderAlertBanner()}"
+
+				@back="${() => this._backFromUnlockFTSP()}"
+				@get-agreement="${(event) => this._getUnlockAgreement(event)}"
+				@view-agreement="${(event) => this._viewUnlockAgreement(event)}"
+				@unlock="${(event) => this._confirmUnlockFtsp(event)}"
+				@verify-now="${() => this._verifyClick()}"
+				
+				@choose-account-telemetry="${(event) => this._chooseAccountTelemetry(event)}"
+				@choose-options-telemetry="${(event) => this._chooseOptionsTelemetry(event)}"
+				@unlock-amount-telemetry="${(event) => this._unlockAmountTelemetry(event)}"
+				@select-transfer-telemetry="${() => this._selectTransferTelemetry()}"
+				@cancel-transfer-telemetry="${() => this._cancelTransferTelemetry()}">
+			</capitec-pc-unlock-ftsp>`
+		: html``;
+	}
+
+	_renderViewUnlockDocument() {
+		return this.renderMode === RENDER_MODE.PDF
+		? html`
+			<horizon-pdf-viewer
+				header="Agreement"
+				encodedPDF="${this.encodedUnlockDocument}"
+				@cancel="${() => this.renderMode = RENDER_MODE.UNLOCK_FTSP}">
+			</horizon-pdf-viewer>`
+		: html``;
 	}
 }
 
