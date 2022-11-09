@@ -535,18 +535,6 @@ class UpdatePlan extends Component {
 
 	}
 
-	/**
-	 * Event fired when value is entered 
-	 * @param {*} event keyinput event
-	 * @returns {boolean} true or false
-	 */
-	_onlyNumberKey(event) {
-		const ASCIICode = event.which ? event.which : event.keyCode;
-		if (ASCIICode > 31 && (ASCIICode < 48 || ASCIICode > 57)) {
-			return false;
-		}
-		return true;
-	}
 
 	/**
 	 * Event fired when a life assured CELLPHONE NUMBER value changes
@@ -2166,18 +2154,17 @@ class UpdatePlan extends Component {
 						value="${dateFormat(roleplayer?.dateOfBirth)}">
 					</capitec-text-field>`
 			}
-				<capitec-text-field label="ID" style="width: 50%" value="${isNullorEmpty(roleplayer?.idNumber) ? `` : roleplayer?.idNumber}" 
+				<capitec-text-field label="ID" type="numeric" maxlength="13" style="width: 50%" value="${isNullorEmpty(roleplayer?.idNumber) ? `` : roleplayer?.idNumber}" 
 					?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editIDNumber`, roleplayer.relationship) || this.policyDetails.policyRule !== `Standard`}"
 					@value-changed="${(e) => this._lifeIDValueChanged(e, roleplayer.recordID)}"
 					error="${roleplayer?.coverDetails.idErrorMessageLA === undefined ? `` : roleplayer?.coverDetails.idErrorMessageLA}">
 				</capitec-text-field>
 			</div>
 			<div class="expander-options">
-				<capitec-text-field label="Cellphone number" style="width: 50%" maxlength = 10
+				<capitec-text-field label="Cellphone number" style="width: 50%" maxlength = "10" type="numeric"
 					value="${isNullorEmpty(roleplayer?.contactDetails?.cellphone) ? `` : roleplayer?.contactDetails?.cellphone}" 
 					?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editContactDetails`, roleplayer.relationship)}"
-					@value-changed="${(e) => this._lifeCellphoneValueChanged(e, roleplayer.recordID)}"
-					@key-input="${(e) => this._onlyNumberKey(e)}">
+					@value-changed="${(e) => this._lifeCellphoneValueChanged(e, roleplayer.recordID)}">
 				</capitec-text-field>
 			
 				<capitec-text-field label="Email Address" style="width: 50%" 
@@ -2251,18 +2238,17 @@ class UpdatePlan extends Component {
 				@value-changed= "${(e) => this._lifeEmailValueChanged(e, roleplayer.recordID)}"
 				error="${roleplayer?.emailAddressErrorMessage === undefined ? `` : roleplayer?.emailAddressErrorMessage}">
 			</capitec-text-field>
-			<capitec-text-field label="Cellphone number" style="width: 50%" maxlength=10 
+			<capitec-text-field label="Cellphone number" style="width: 50%" type="numeric" maxlength="10"
 				value=${isNullorEmpty(roleplayer.contactDetails?.cellphone) ? `` : roleplayer.contactDetails?.cellphone} 
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editContactDetails`, roleplayer.relationship)}"
 				@value-changed= "${(e) => this._lifeCellphoneValueChanged(e, roleplayer.recordID)}"
-				@key-input="${(e) => this._onlyNumberKey(e)}" 
 				error="${roleplayer?.coverDetails?.cellphoneNumberErrorMessage === undefined ? `` : roleplayer?.coverDetails?.cellphoneNumberErrorMessage}">
 			</capitec-text-field>
 		</div>
 		<div class="expander-options">
 			<capitec-text-field label="ID" style="width: 50%" value="${isNullorEmpty(roleplayer?.idNumber) ? `` : roleplayer?.idNumber}" 
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editIDNumber`, roleplayer.relationship) || this.policyDetails.policyRule !== `Standard`}"
-				@value-changed = "${(e) => this._lifeIDValueChanged(e, roleplayer.recordID)}"
+				@value-changed = "${(e) => this._lifeIDValueChanged(e, roleplayer.recordID)}" type="numeric" maxlength="13"
 				error="${roleplayer?.coverDetails?.idNumberErrorMessage === undefined ? `` : roleplayer?.coverDetails?.idNumberErrorMessage}">
 			</capitec-text-field>
 			
