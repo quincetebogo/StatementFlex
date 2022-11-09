@@ -537,6 +537,11 @@ export class DebiCheckMandates extends Component {
 						   gap="none"
 						   halign="left"
 						   valign="center">
+
+				<capitec-group layout="horizontal" gap="clear" halign="right" valign="center" style="width: 30px;">
+					${this._renderInfoButton(rowData)}
+				</capitec-group>
+
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width223)} ${unsafeCSS(TABLE_ROW_CSS.borderRight).toString()}">
 					${this._renderCell(rowData.mandateName, formatCurrency(convertCentsToRand(rowData.amount)))}
 				</div>
@@ -549,7 +554,7 @@ export class DebiCheckMandates extends Component {
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width128).toString()}">
 					${this._renderCell(`Status`, MANDATE_STATUS[rowData.mandateStatus])}
 				</div>
-				<capitec-group layout="horizontal" gap="clear" halign="right" valign="center" style="width: 250px;">
+				<capitec-group layout="horizontal" gap="clear" halign="left" valign="center" style="width: 190px;">
 					${this._renderButtons(rowData.mandateStatus, rowData)}
 				</capitec-group>
 				<div></div>
@@ -589,23 +594,19 @@ export class DebiCheckMandates extends Component {
 					 				label="Approve"
 									style="${TABLE_ROW_CELL_CSS.cellButton}"
 									@click="${() => this._approve(rowData)}">
-					 </capitec-label>
-					 <capitec-label type="subtitle"
-						label="View"
-						style="${TABLE_ROW_CELL_CSS.cellButton}"
-						@click="${() => this._viewInfo(rowData, false)}">
 					 </capitec-label>`
-				: html`<capitec-label type="subtitle"
-						label="View"
-						style="${TABLE_ROW_CELL_CSS.cellButton}"
-						@click="${() => this._viewInfo(rowData, true)}">
-					 </capitec-label>`;
+					 : html``;
 		}
-		return html`<capitec-label type="subtitle"
-						label="View"
-						style="${TABLE_ROW_CELL_CSS.cellButton}"
+	}
+	
+	_renderInfoButton(rowData) {
+
+		return html`<capitec-icon  
+						icon="system/info-action"
+						style="${unsafeCSS(TABLE_ROW_CELL_CSS.cellInfoIcon).toString()}"
 						@click="${() => this._viewInfo(rowData, false)}">
-					 </capitec-label>`;
+					</capitec-icon>`;
+
 	}
 
 	_renderNoResults() {

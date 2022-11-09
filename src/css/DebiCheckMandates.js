@@ -40,6 +40,10 @@ const cellButton = `width: 83px;
 					 cursor: pointer;
 					 --theme-label-font-color: #009DE0;`;
 
+const cellInfoIcon = `width: 24px;
+					 text-align: center;
+					 cursor: pointer;`;
+
 /**
  * DebiCheck mandates table component row styles
  *
@@ -69,7 +73,8 @@ export const TABLE_ROW_CELL_CSS = {
 	cellColorOrange: cellColorOrange,
 	cellColorGreen: cellColorGreen,
 	cellColorRed: cellColorRed,
-	cellButton: cellButton
+	cellButton: cellButton,
+	cellInfoIcon: cellInfoIcon
 };
 
 /**
