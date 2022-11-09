@@ -4,6 +4,7 @@ import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { NewCallEvent } from 'app/models//NewCallEvent';
+import { RoleManager } from 'app/shell/RoleManager';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { validate } from 'app/utils/channelServiceUtilities';
 
@@ -292,7 +293,11 @@ export class DesktopAgentService {
 			const d = new Date();
 			const currentdate = d.toISOString();
 			const newCallEvent = new NewCallEvent();
-			const vdn = await this._configuration.getSetting(`VDN`);
+
+			const isHelpDeskAgent = RoleManager.getInstance().isHelpDeskAgent;
+			const vdn = isHelpDeskAgent 
+				? await this._configuration.getSetting(`HelpDeskVDN`)
+				: await this._configuration.getSetting(`ClientCareVDN`);
 
 			newCallEvent.incomingTelephoneNumber = `0000000000`; // incoming telephone number
 			newCallEvent.voiceReferenceNumber = this._generateVoiceReference();

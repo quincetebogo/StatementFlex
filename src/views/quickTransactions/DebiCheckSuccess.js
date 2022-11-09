@@ -1,4 +1,6 @@
 import { css, html } from 'platform/elements';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/OptionButton';
@@ -33,11 +35,13 @@ export class DebiCheckSuccess extends ViewBase {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.isApproved = screenDetails.isApproved;
 		this.mandateId = screenDetails.mandateId;
+
+		await this._telemetry.startSpan(QuickTransactionEvents.DEBICHECK_SUCCESS);
 	}
 
 	disconnectedCallback() {
@@ -48,12 +52,28 @@ export class DebiCheckSuccess extends ViewBase {
 	// EVENT HANDLERS
 	// --------------
 
-	_doneClick() {
+	async _doneClick() {
+
+		await this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_SUCCESS_DONE, {
+			"screen": TelemetryScreen.DEBICHECK_OUTCOME,
+			"next-screen": TelemetryScreen.FAVOURITES
+		});
+
+		await this._telemetry.endSpan(QuickTransactionEvents.DEBICHECK_SUCCESS, {}, true, true);
+
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
-	_debiCheckMandatesClick() {
+	async _debiCheckMandatesClick() {
+
+		await this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_SEND_ANOTHER, {
+			"screen": TelemetryScreen.DEBICHECK_OUTCOME,
+			"next-screen": TelemetryScreen.DEBICHECK
+		});
+
+		await this._telemetry.endSpan(QuickTransactionEvents.DEBICHECK_SUCCESS, {}, true, false);
+
 		this.horizonRouter.navigateToReturnPage();
 	}
 
