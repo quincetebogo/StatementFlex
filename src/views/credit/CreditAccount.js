@@ -1253,6 +1253,8 @@ export class CreditAccount extends ViewBase {
 			? html`
 			<horizon-statements
 				.cifNumber="${this.callerInformation.cifNumber}"
+				.title="${this.callerInformation.title}"
+				.lastName="${this.callerInformation.lastName}"
 				.clientProducts="${this.clientProducts}"
 				type="${ACCOUNT_TYPES.CREDIT}"
 				registeredEmailId="${this.callerInformation.emailId}"
