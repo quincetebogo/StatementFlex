@@ -997,8 +997,10 @@ class ClientPolicies extends Component {
 						${policyItem.status === `Cancelled` 
 						? html`
 						<horizon-label
-							label=""
-							value="">
+							style="    width: 270px;"
+							data-automation-id="insure-policy-cancellation-reason"
+							label="Reason"
+							value="${policyItem?.cancellationDetails?.displayReason}">
 						</horizon-label>` 
 						: html`
 						<horizon-label
@@ -1007,14 +1009,8 @@ class ClientPolicies extends Component {
 							value="${isNullorEmpty(policyItem.totalPremium) ? formatCurrency(0) : formatCurrency(policyItem.totalPremium)}">
 						</horizon-label>`
 						}
-						${policyItem.status === `Cancelled` 
-						? html`
-						<horizon-label
-							data-automation-id="insure-policy-cancellation-reason"
-							label="Reason"
-							value="${policyItem?.cancellationDetails?.displayReason}">
-						</horizon-label>
-						` 
+						${policyItem.status !== `Cancelled` 
+						? html`` 
 						: html`
 						<horizon-label
 							data-automation-id="insure-policy-arrears"
@@ -1022,8 +1018,7 @@ class ClientPolicies extends Component {
 							class="${sumArrears > 0 ? `arrears` : ``}"
 							value="${isNullorEmpty(sumArrears) ? formatCurrency(0) : formatCurrency(sumArrears)}">
 						</horizon-label>
-						`
-						}
+						`}
 						
 						<horizon-label
 							data-automation-id="insure-policy-display-status"

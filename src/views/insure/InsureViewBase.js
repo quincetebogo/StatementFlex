@@ -56,13 +56,12 @@ export class InsureViewBase extends ViewBase {
 
 	/**
 	 * Unload the component once removed from the DOM.
+	 * Clears CFP value from state
 	 * @returns {void}
 	 */
 	disconnectedCallback() {
 		super.disconnectedCallback();
-
 		this.horizonInsureStore.setCFPStatus(false);
-
 	}
 
 	// #region PRIVATE METHODS
@@ -90,6 +89,7 @@ export class InsureViewBase extends ViewBase {
 
 	/**
 	 * Pop toast with channel services error
+	 * Clear toast after delay has passed
 	 * @param {object} errors Error array
 	 * @returns {void}
 	 */
