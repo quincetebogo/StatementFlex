@@ -157,7 +157,7 @@ export class ExistingClient extends InsureViewBase {
 		this.accountDetails = await this._retrieveAccountDetails();
 		this.commsHistory = await this._retrieveCommsHistory();
 		this.claims = await this._retrieveClaims();
-		
+
 	}
 
 	/**
@@ -199,7 +199,7 @@ export class ExistingClient extends InsureViewBase {
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.contractReference;
 
 		const issuePlanAgreementResponse = await this.insureService.generateIssueFuneralCoverPlanAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
-		
+
 		if (!issuePlanAgreementResponse.succeeded) {
 			this.handleToastError(issuePlanAgreementResponse.exception.output.Errors);
 			return;
@@ -257,7 +257,7 @@ export class ExistingClient extends InsureViewBase {
 		};
 
 		const updatePlanAgreementResponse = await this.insureService.generateUpdateFuneralCoverPlanAgreement(docGenerateRequestPayload);
-		
+
 		if (!updatePlanAgreementResponse.succeeded) {
 			this.handleToastError(updatePlanAgreementResponse.exception.output.Errors);
 			return;
@@ -1363,8 +1363,6 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderCalculateEstimatePage()}`;
 			case INSURE_RENDER_MODE.UPDATE_PLAN:
 				return html`${this._renderUpdatePlanPage()}`;
-			case INSURE_RENDER_MODE.FUNERAL_PLAN_DETAILS:
-				return html`${this._renderFuneralPlanDetailsPage()}`;
 			case INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY:
 				return html`${this._renderPolicyTransactionHistoryPage()}`;
 			case INSURE_RENDER_MODE.POLICY_SUMMARY:
@@ -1569,7 +1567,8 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderUpdatePlanSuccessPage() {
 		return html`
-			<horizon-insure-update-plan-success .policyDetails="${this.policyDetails}"
+			<horizon-insure-update-plan-success 
+				.policyDetails="${this.policyDetails}"
 				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-update-plan-success>`;
 	}
