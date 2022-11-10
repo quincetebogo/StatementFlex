@@ -97,7 +97,7 @@ class PolicyTransactionHistory extends Component {
 
 				/* Header Details Bar styles */
 				.actionbar-header > horizon-label {
-					width: 156px;
+					width: 256px;
 					height: 100%;
 					padding: 0px 0px 0px 16px;
 				
@@ -116,6 +116,10 @@ class PolicyTransactionHistory extends Component {
 
 				capitec-table > capitec-icon {
 					--theme-icon-size-medium: 24px;
+				}
+
+				.transaction-status-select{
+					margin-right: 10px;
 				}
 			`
 		];

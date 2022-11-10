@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { formatDate, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { DateTime } from 'luxon';
-import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { INSURE_TRANSACTIONS_CSS } from 'app/css/PolicyTransactionHistory';
 
 // #region  CONSTANTS
 
@@ -28,14 +28,14 @@ class SMSHistory extends Component {
 
 	// #region INITIALIZE
 
-constructor() {
-	super();
+	constructor() {
+		super();
 
-}
+	}
 
-// #endregion
+	// #endregion
 
-// #region PROPERTIES
+	// #region PROPERTIES
 
 	/**
 	 * @property {String} contractReference contains the policy number
@@ -47,7 +47,7 @@ constructor() {
 	 * @readonly
 	 * @static
 	 */
-	 static get properties() {
+	static get properties() {
 		return {
 			contractReference: { type: String, state: true },
 			contactNumber: { type: String, state: true },
@@ -57,15 +57,15 @@ constructor() {
 		};
 	}
 
-// #endregion
+	// #endregion
 
-// #region LIFECYCLE OVERRIDES
+	// #region LIFECYCLE OVERRIDES
 
 	/**
 	 * Setup the component once added to the DOM.
 	 * @returns {void}
 	 */
-	 connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
 		this._initialise();
 
@@ -75,145 +75,145 @@ constructor() {
 
 	// #endregion
 
-// #region PRIVATE FUNCTIONS
+	// #region PRIVATE FUNCTIONS
 
-/**
-	 * Initialize component
-	 * @return {null} null
-	 */
- async _initialise() {
-	
- }
+	/**
+		 * Initialize component
+		 * @return {null} null
+		 */
+	async _initialise() {
 
-// #endregion
-
-// #region EVENT HANDLERS
-
-/**
- * Navigate to Landing
- * @return {null} null
- */
-_backToSummaryPage() {
-	this.dispatchEvent(new CustomEvent(`navigate-back`, { detail: {} }));
-}
-
-/**
- * Get Predefined date ranges
- * @return {null} null
- */
- getPredefinedDateRanges() {
-	const last7day = new Date(today);
-	const last30day = new Date(today);
-	const last60day = new Date(today);
-	const last90day = new Date(today);
-
-	last7day.setDate(today.getDate() - 7);
-	last30day.setDate(today.getDate() - 30);
-	last60day.setDate(today.getDate() - 60);
-	last90day.setDate(today.getDate() - 90);
-
-	return [
-		{ text: `Last 7 days`, value: { startDate: last7day.toISOString(), endDate: today.toISOString() } },
-		{ text: `Last 30 days`, value: { startDate: last30day.toISOString(), endDate: today.toISOString() } },
-		{ text: `Last 60 days`, value: { startDate: last60day.toISOString(), endDate: today.toISOString() } },
-		{ text: `Last 90 days`, value: { startDate: last90day.toISOString(), endDate: today.toISOString() } }
-	];
-}
-
-/**
-	 * filter sms history when date is changed
-	 * @param {*} e e
-	 * @return {null} null
-	 */
- async _dateChanged(e) {
-	let fromDate = DateTime.fromISO(e.detail.new.startDate === null ? e.detail.old.startDate : e.detail.new.startDate);
-	let toDate = DateTime.fromISO(e.detail.new.endDate === null ? e.detail.old.endDate : e.detail.new.endDate);
-	const currentDateTime = DateTime.local();
-
-	if (toDate.diff(fromDate, [`days`]).days > 90) {
-		
-		toDate = fromDate.plus({ days: 90 });
-		if (toDate > currentDateTime) {
-			this.startDate = fromDate;
-			this.endDate = currentDateTime;
-		} else {
-			this.startDate = fromDate;
-			this.endDate = toDate;
-			const calendar = this.shadowRoot.querySelector(`#calendarRange`);
-			if (calendar) {
-				calendar._placeholderEndDate = toDate;
-			}
-		}
-	} else if (e.detail.new.endDate === null && this.endDate === ``) {
-		this.startDate = fromDate;
-		toDate = fromDate.plus({ days: 90 });
-		if (toDate.diff(currentDateTime, [`days`]).days > 0) {
-			this.endDate = currentDateTime;
-		} else {
-			this.endDate = toDate;
-		}
-	} else if (e.detail.new.startDate === null && this.startDate === ``) {
-		this.endDate = toDate;
-		fromDate = toDate.minus({ days: 90 });
-		this.startDate = fromDate;
-	} else {
-		
-		this.startDate = fromDate;
-		this.endDate = toDate;
 	}
 
-	RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
-	
-	await this._refineSearch();
+	// #endregion
 
-	await this.getCommsHistory(this.startDate, this.endDate);
-}
+	// #region EVENT HANDLERS
+
+	/**
+	 * Navigate to Landing
+	 * @return {null} null
+	 */
+	_backToSummaryPage() {
+		this.dispatchEvent(new CustomEvent(`navigate-back`, { detail: {} }));
+	}
+
+	/**
+	 * Get Predefined date ranges
+	 * @return {null} null
+	 */
+	getPredefinedDateRanges() {
+		const last7day = new Date(today);
+		const last30day = new Date(today);
+		const last60day = new Date(today);
+		const last90day = new Date(today);
+
+		last7day.setDate(today.getDate() - 7);
+		last30day.setDate(today.getDate() - 30);
+		last60day.setDate(today.getDate() - 60);
+		last90day.setDate(today.getDate() - 90);
+
+		return [
+			{ text: `Last 7 days`, value: { startDate: last7day.toISOString(), endDate: today.toISOString() } },
+			{ text: `Last 30 days`, value: { startDate: last30day.toISOString(), endDate: today.toISOString() } },
+			{ text: `Last 60 days`, value: { startDate: last60day.toISOString(), endDate: today.toISOString() } },
+			{ text: `Last 90 days`, value: { startDate: last90day.toISOString(), endDate: today.toISOString() } }
+		];
+	}
+
+	/**
+		 * filter sms history when date is changed
+		 * @param {*} e e
+		 * @return {null} null
+		 */
+	async _dateChanged(e) {
+		let fromDate = DateTime.fromISO(e.detail.new.startDate === null ? e.detail.old.startDate : e.detail.new.startDate);
+		let toDate = DateTime.fromISO(e.detail.new.endDate === null ? e.detail.old.endDate : e.detail.new.endDate);
+		const currentDateTime = DateTime.local();
+
+		if (toDate.diff(fromDate, [`days`]).days > 90) {
+
+			toDate = fromDate.plus({ days: 90 });
+			if (toDate > currentDateTime) {
+				this.startDate = fromDate;
+				this.endDate = currentDateTime;
+			} else {
+				this.startDate = fromDate;
+				this.endDate = toDate;
+				const calendar = this.shadowRoot.querySelector(`#calendarRange`);
+				if (calendar) {
+					calendar._placeholderEndDate = toDate;
+				}
+			}
+		} else if (e.detail.new.endDate === null && this.endDate === ``) {
+			this.startDate = fromDate;
+			toDate = fromDate.plus({ days: 90 });
+			if (toDate.diff(currentDateTime, [`days`]).days > 0) {
+				this.endDate = currentDateTime;
+			} else {
+				this.endDate = toDate;
+			}
+		} else if (e.detail.new.startDate === null && this.startDate === ``) {
+			this.endDate = toDate;
+			fromDate = toDate.minus({ days: 90 });
+			this.startDate = fromDate;
+		} else {
+
+			this.startDate = fromDate;
+			this.endDate = toDate;
+		}
+
+		RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
+
+		await this._refineSearch();
+
+		await this.getCommsHistory(this.startDate, this.endDate);
+	}
 
 	/**
 	 * filter the sms history
 	 * @return {null} null
 	 */
- _refineSearch() {
+	_refineSearch() {
 
-	this.filteredData = this.commsHistory?.communications;
+		this.filteredData = this.commsHistory?.communications;
 
 
-	if (RENDER_CHIPS[FILTER_BY.DATE]) {
-		const startDate = new Date(Date.parse(this.startDate));
-		const endDate = new Date(Date.parse(this.endDate));
-		this.filteredData = this.filteredData?.filter(item => new Date(item.sentAt) >= startDate && new Date(item.sentAt) <= endDate); 
+		if (RENDER_CHIPS[FILTER_BY.DATE]) {
+			const startDate = new Date(Date.parse(this.startDate));
+			const endDate = new Date(Date.parse(this.endDate));
+			this.filteredData = this.filteredData?.filter(item => new Date(item.sentAt) >= startDate && new Date(item.sentAt) <= endDate);
+		}
+
+		this.requestUpdate();
 	}
 
-	this.requestUpdate();
-}
-
-/**
- * Get selected date range
- * @returns {string} - fromdate to todate
- */
- _getDateRange() {
-	const fromDate = !this.startDate ? `dd mm yyyy` : this._formatDate(this.startDate);
-	const toDate = !this.endDate ? `dd mm yyyy` : this._formatDate(this.endDate);
-
-	const preDefinedRanges = this.getPredefinedDateRanges();
-	const selectedValue = preDefinedRanges.filter(item => this._formatDate(item.value.startDate) === fromDate && this._formatDate(item.value.endDate) === toDate);
-
-	if (selectedValue.length > 0) {
-		return selectedValue[0].text;
-	}
-
-	return `${fromDate} - ${toDate}`;
-}
-
-/**
-	 * format the give date
-	 * @param {*} date - date to be formatted 
-	 * @return {null} null
+	/**
+	 * Get selected date range
+	 * @returns {string} - fromdate to todate
 	 */
- _formatDate(date) {
-	const newdate = new Date(Date.parse(date));
-	return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
-}
+	_getDateRange() {
+		const fromDate = !this.startDate ? `dd mm yyyy` : this._formatDate(this.startDate);
+		const toDate = !this.endDate ? `dd mm yyyy` : this._formatDate(this.endDate);
+
+		const preDefinedRanges = this.getPredefinedDateRanges();
+		const selectedValue = preDefinedRanges.filter(item => this._formatDate(item.value.startDate) === fromDate && this._formatDate(item.value.endDate) === toDate);
+
+		if (selectedValue.length > 0) {
+			return selectedValue[0].text;
+		}
+
+		return `${fromDate} - ${toDate}`;
+	}
+
+	/**
+		 * format the give date
+		 * @param {*} date - date to be formatted 
+		 * @return {null} null
+		 */
+	_formatDate(date) {
+		const newdate = new Date(Date.parse(date));
+		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+	}
 
 	/**
 	 * close specified chip
@@ -231,55 +231,56 @@ _backToSummaryPage() {
 	 * @param {*} type - filter type
 	 * @return {null} null
 	 */
- _clearFilter(type) {
-	const date = () => this._reset();
-	
-	const resetForfilters = {
-		'DATE': date
-	};
+	_clearFilter(type) {
+		const date = () => this._reset();
 
-	RENDER_CHIPS[type] = ``;
-	if (resetForfilters[type]) {
-		resetForfilters[type]();
+		const resetForfilters = {
+			'DATE': date
+		};
+
+		RENDER_CHIPS[type] = ``;
+		if (resetForfilters[type]) {
+			resetForfilters[type]();
+		}
 	}
-}
 
 
 	/**
 	 * reset all filters and load transactions
 	 * @return {null} null
 	 */
- async _reset() {
-	if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
-		this.startDate = ``;
-		this.endDate = ``;
+	async _reset() {
+		if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
+			this.startDate = ``;
+			this.endDate = ``;
 
-		const calendar = this.shadowRoot.querySelector(`#calendarRange`);
-		if (calendar) {
-			calendar._placeholderEndDate = null;
-			calendar._placeholderStartDate = null;
+			const calendar = this.shadowRoot.querySelector(`#calendarRange`);
+			if (calendar) {
+				calendar._placeholderEndDate = null;
+				calendar._placeholderStartDate = null;
+			}
+			await this._refineSearch();
 		}
-		await this._refineSearch();
 	}
-}
 
-// #endregion
+	// #endregion
 
 
-// #region RENDERING
+	// #region RENDERING
 
-/**
-	 * Generates the component stylesheet.
-	 *
-	 * @readonly
-	 * @static
-	 * @returns {css} CSS for the component.
-	 */
- static get styles() {
-	return [
-		super.styles,
-		css`
-
+	/**
+		 * Generates the component stylesheet.
+		 *
+		 * @readonly
+		 * @static
+		 * @returns {css} CSS for the component.
+		 */
+	static get styles() {
+		return [
+			super.styles,
+			css`
+			${INSURE_TRANSACTIONS_CSS}
+			
 		.insure-title-bar{
 			margin-bottom: 0px; 
 			border-top-left-radius: 5px; 
@@ -288,6 +289,7 @@ _backToSummaryPage() {
 
 		.card{
 			height: fit-content;
+			min-height: 662px;
 			padding: 20px;
 		}
 
@@ -402,7 +404,7 @@ _backToSummaryPage() {
 	 * Main render point for component
 	 * @returns {html} The html content of the component.
 	 */
-	 _webTemplate() {
+	_webTemplate() {
 		return html`
 			${this._renderContent()}
 			
@@ -414,6 +416,9 @@ _backToSummaryPage() {
 	 * @return {null} null
 	 */
 	_renderContent() {
+
+		console.log(this.filteredData);
+
 		return html`
 		<capitec-title-bar type="insure" class="insure-title-bar">
 			<img class="action-image" src="/images/insure/left-arrow.svg" @click="${() => this._backToSummaryPage()}" />
@@ -423,35 +428,29 @@ _backToSummaryPage() {
 		</capitec-title-bar>
 		
 		<capitec-card class="card" >
-
-		
 			<div class="datePicker">
-			${this._renderDatePicker()}
+				${this._renderDatePicker()}
 			</div>
-
 			<div>
-			${this._renderActiveFilters()}
+				${this._renderActiveFilters()}
 			</div>
 
-			<capitec-label class="label" type="subtitle" label="SMS History"></capitec-label>
-
-			${this.filteredData?.map((comms) => this._renderExpander(comms))}
-
-	
-		</capitec-card>
-		
-		`;
+			${this.filteredData.length !== 0 ? html`
+				${this.filteredData?.map((comms) => this._renderExpander(comms))}
+			` : html`
+				${this._renderNoResults()}
+			`}
+		</capitec-card>`;
 	}
 
-/**
- * renders each expander
- * 
- * @param {Object} comms comms
- * @returns {html} the html content for the expanders
- */
+	/**
+	 * renders each expander
+	 * 
+	 * @param {Object} comms comms
+	 * @returns {html} the html content for the expanders
+	 */
 	_renderExpander(comms) {
 		return html`
-
 			<horizon-expander data-automation-id="insure-sms-history-expander">
 				<capitec-group 
 					class="expander-header"
@@ -495,8 +494,6 @@ _backToSummaryPage() {
 					</capitec-group>
 				</div>
 			</horizon-expander>
-
-			
 		`;
 	}
 
@@ -505,7 +502,7 @@ _backToSummaryPage() {
 	 * @param {Object} comms - each Communication history item
 	 * @returns {html} The html content of each of the messages
 	 */
-	 _renderMessages(comms) {
+	_renderMessages(comms) {
 		return html`
 			<capitec-title-bar type="default" label="Message"></capitec-title-bar>
 			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
@@ -551,20 +548,20 @@ _backToSummaryPage() {
 		if (RENDER_CHIPS[FILTER_BY.DATE] !== ``) {
 			return html`
 				<capitec-content-box id="active-filters" class="filter-bar">
-					<capitec-label label = "Active filters:"></capitec-label>
+					<capitec-label label = "Active filters: "></capitec-label>
 						${this._renderDateChip()}
 				</capitec-content-box>
 			`;
 		}
 	}
 
-/**
-	 * Clear Date filter
-	 * @returns {html} Render Date chip 
-	 */
- _renderDateChip() {
-	return !isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])
-		? html`
+	/**
+		 * Clear Date filter
+		 * @returns {html} Render Date chip 
+		 */
+	_renderDateChip() {
+		return !isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])
+			? html`
 		<capitec-chip
 			id="${FILTER_BY.DATE}"
 			label="${RENDER_CHIPS[FILTER_BY.DATE]}"
@@ -572,8 +569,36 @@ _backToSummaryPage() {
 			closable
 			data-automation-id="insure-sms-history-active-filter">
 		</capitec-chip>`
-		: html``;
-}
+			: html``;
+	}
+
+	/**
+	 * Show message when there are no records
+	 * @returns {html} - message for no results
+	 */
+	_renderNoResults() {
+		return html`
+			<capitec-group
+				class="no-result-group"
+				layout="vertical"
+				halign="center"
+				valign="center"
+				gap="none">
+					<img
+						src="platform/illustrations/history.svg"
+						class="document-icon"/>
+					<capitec-label
+						class="no-results"
+						label="No results found"
+						type="strong">
+					</capitec-label>
+					<capitec-label
+						label="No SMS History found for ${isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE]) ? `Last 90 days` : RENDER_CHIPS[FILTER_BY.DATE]} "
+						type="strong">
+					</capitec-label>
+			</capitec-group>
+		`;
+	}
 
 	// #endregion
 
