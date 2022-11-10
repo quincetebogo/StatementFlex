@@ -646,7 +646,7 @@ class ClientPolicies extends Component {
 			}
 			.card {
 				width: 100%;
-				height: 850px;
+				
 			}
 			capitec-title-bar {
 				--theme-titlebar-padding: 12px 16px;
@@ -821,6 +821,10 @@ class ClientPolicies extends Component {
 			#no-results-box-inner{
 				padding: 20px; margin-top: 10px;
 			}
+
+			#policies-container{
+				margin-bottom:20px;
+			}
 			`
 		];
 	}
@@ -861,7 +865,7 @@ class ClientPolicies extends Component {
 		return html`
 			<capitec-card 
 				data-automation-id="insure-landing-screen"
-				class="card">
+				class="card" id="policies-container">
 				<capitec-title-bar type="insure" class="insure-title-bar">
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
@@ -934,6 +938,7 @@ class ClientPolicies extends Component {
 					<capitec-content-box  id="client-policies-box" class="accounts-box">
 						<horizon-insure-claims-list @navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}" .clientClaims="${this.clientClaims}"></horizon-insure-claims-list>
 					</capitec-content-box>
+					${this._renderFooter()}
 				</capitec-tab>
 			</capitec-tab-group>`;
 	}
@@ -977,41 +982,41 @@ class ClientPolicies extends Component {
 							label="Start Date"
 							value="${formatDate(policyItem.commencementDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.commencementDate, `dd mmm yyyy`)}">
 						</horizon-label>
-						${policyItem.status === `Cancelled` 
-						? html`
+						${policyItem.status === `Cancelled`
+					? html`
 						<horizon-label
 							data-automation-id="insure-policy-cancellation-date"
 							label="Cancellation Date"
 							value="${formatDate(policyItem.cancellationDetails?.effectiveCancellationDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.cancellationDetails?.effectiveCancellationDate, `dd mmm yyyy`)}">
 						</horizon-label>
-						` 
-						: html`
+						`
+					: html`
 						<horizon-label
 							data-automation-id="insure-policy-next-debit-order"
 							label="Next Debit Order"
 							value="${formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`)}">
 						</horizon-label>
 						`
-						}
+				}
 						
-						${policyItem.status === `Cancelled` 
-						? html`
+						${policyItem.status === `Cancelled`
+					? html`
 						<horizon-label
 							style="    width: 270px;"
 							data-automation-id="insure-policy-cancellation-reason"
 							label="Reason"
 							value="${policyItem?.cancellationDetails?.displayReason}">
-						</horizon-label>` 
-						: html`
+						</horizon-label>`
+					: html`
 						<horizon-label
 							data-automation-id="insure-policy-total-premium"
 							label="Total Premium"
 							value="${isNullorEmpty(policyItem.totalPremium) ? formatCurrency(0) : formatCurrency(policyItem.totalPremium)}">
 						</horizon-label>`
-						}
-						${policyItem.status !== `Cancelled` 
-						? html`` 
-						: html`
+				}
+						${policyItem.status === `Cancelled`
+					? html``
+					: html`
 						<horizon-label
 							data-automation-id="insure-policy-arrears"
 							label="Arrears"
@@ -1147,7 +1152,7 @@ class ClientPolicies extends Component {
 	 */
 	_renderFooter() {
 		return html`
-			<capitec-group class="" layout="vertical" gap="none" halign="left" valign="center">
+			<capitec-group layout="vertical" gap="none" halign="left" valign="center">
 				<capitec-title-bar
 					type="default"
 					label="Explore">
@@ -1243,13 +1248,13 @@ class ClientPolicies extends Component {
 	 * render Dialog for CFP Agreement
 	 * @returns {html} html content
 	 */
-	 _renderCFPAgreementDialog() {
+	_renderCFPAgreementDialog() {
 		return this.showCFPAgreementDialog === false ? `` : html`
 		<horizon-insure-cfp-agreement-dialog @agreementAccepted="${(e) => this._navigateAfterCFP()}"
 			@close-modal="${() => this.showCFPAgreementDialog = false}" 
 			.productCode = "${this.productCode}">
 		</horizon-insure-cfp-agreement-dialog>`
-	 }
+	}
 
 	/** 
 	 * Render dialog for confirming email address then sending
