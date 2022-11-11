@@ -7,19 +7,7 @@
 
 export const mockMandates = {
     "mandateSummaryList": [
-        {
-            "mandateId": 8,
-            "registerId": 2,
-            "amount": 65600,
-            "collectionDate": {
-                "day": "1",
-                "frequency": "Month"
-            },
-            "maxCollectionAmount": 65600,
-            "mandateName": "DISCLIFE 5130111776-21",
-            "mandateStatus": "PENDING",
-            "collectionDayFrequency": "1st of Month"
-        },
+
         {
             "mandateId": 1,
             "registerId": 1,
@@ -105,53 +93,34 @@ export const mockMandates = {
     ]
 };
 
-export const mandateInfo = [
-    {
-        mandateId: 8,
-        registerId: 2,
-        mandateInfo: {
-            "firstCollectionDate": "2021-02-09T17:05:32.909Z",
-            "tracking": "Yes",
-            "contractReference": "12345678010",
-            "collectorContact": "021 101 0810",
-            "mandateReference": "2201709170000000000",
-            "collectorEmail": "mandate1@collector.bank",
-            "mrti": "4573",
-            "debtorAccountNumber": "123456789",
-            "canBeAuthenticated": true
-        }
-    },
-    {
-        mandateId: 1,
-        registerId: 1,
-        mandateInfo: {
-            "firstCollectionDate": "2021-02-10T17:05:32.909Z",
-            "tracking": "No",
-            "contractReference": "6586854658",
-            "collectorContact": "021 101 0810",
-            "mandateReference": "JFGJ457487",
-            "collectorEmail": "mandate2@collector.bank",
-            "mrti": "547452",
-            "debtorAccountNumber": "123456798",
-            "canBeAuthenticated": true
-        }
-    },
-    {
-        mandateId: 5,
-        registerId: 5,
-        mandateInfo: {
-            "firstCollectionDate": "2021-02-08T17:05:32.909Z",
-            "tracking": "Yes",
-            "contractReference": "65498569",
-            "collectorContact": "021 101 1111",
-            "mandateReference": "kgyh85698",
-            "collectorEmail": "mandate3@collector.bank",
-            "mrti": "780780",
-            "debtorAccountNumber": "132456789",
-            "canBeAuthenticated": true
-        }
-    }
-];
+export const mandateInfo = {
+		"adjustmentAmount": 500,
+		"secondaryStatus": `DECLINED`,
+		"mandateName": "DISCLIFE 5130111776-21",
+		"mandateStatus": "DECLINED",
+		"adjustmentRate": 6,
+		"frequency": "Monthly",
+		"firstCollectionDate": "2022-07-28T00:00:00+00:00",
+		"tracking": true,
+		"contractReference": "HorizonT120",
+		"collectorContact": "+27-116171700",
+		"mandateReference": "001020220728DAF85BBF64",
+		"collectorEmail": "creditor@nupay.co.za",
+		"mrti": "001020220728DAF85BBF64",
+		"debtorAccountNumber": "1648842540",
+		"canBeAuthenticated": true,
+		"dateAmended": "2022-07-28T11:16:18.937+00:00",
+		"ultimateCreditorName": "NUPAY",
+		"mandateRequestTransactionIdentifier": null,
+		"payerAccount": 1324124,
+		"cifNumber": 289739225,
+		"entryClass": `-`,
+		"payerID": "T02898475357773659",
+		"ultimateDebtorName": "Capitec Bank LTD",
+		"creditorContactNumber": "0112322455",
+		"creditorTelephoneNo": "021034440344",
+		"creditorUltimateName": "Vodacom" 
+	};
 
 export const agreement = [
     {

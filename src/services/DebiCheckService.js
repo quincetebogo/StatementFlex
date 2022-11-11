@@ -118,7 +118,7 @@ export class DebiCheckService extends ChannelServiceBase {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`debiCheckDecline`)) {
-			return this.mock(`debiCheckDecline`, cifNumber, title, lastName, debiCheckDetails, mandateInfo, accepted);
+			return this.mock(`debiCheckDecline`, cifNumber, title, lastName, debiCheckDetails, mandateInfo);
 		}
 
 		const request = {

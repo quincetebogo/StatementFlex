@@ -1,7 +1,10 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { TABLE_ROW_CELL_CSS, TABLE_ROW_CSS, getFontColor } from 'app/css/DebiCheckMandates';
 import { convertCentsToRand, getDateOrdinal } from 'app/utils/channelServiceUtilities';
+import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+
+import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
 
 const FILTER_BY = {
 	ALL: 0,
@@ -46,6 +49,9 @@ export class DebiCheckMandates extends Component {
 		this.declinedMandates = [];
 		this.filterBy = 0;
 		this.noMandatesError = `No DebiCheck mandates on the account`;
+
+		this.mandateDetails = {};
+		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
 
 	// --------------
@@ -63,7 +69,10 @@ export class DebiCheckMandates extends Component {
 	static get properties() {
 		return {
 			debiCheckMandates: { type: Array },
-			filterBy: { attribute: false }
+			filterBy: { attribute: false },
+			renderMode: { attribute: false },
+
+			debicheckAction: { type: Object }
 		};
 	}
 
@@ -151,18 +160,20 @@ export class DebiCheckMandates extends Component {
 											   parseFloat(item.maxCollectionAmount).toFixed(2).startsWith(searchText)));
 	}
 
-	_viewInfo(mandateInfo, isPending) {
-		this.dispatchEvent(new CustomEvent(`action`, { detail: { "action": `viewInfo`, mandateInfo: mandateInfo, isPending: isPending } }));
+	async _viewInfo(mandateInfo, isPending) {
+		const mandateDetails = await this._mandateActionClick(`viewInfo`, mandateInfo, isPending);
+		if (mandateDetails) {
+			this.mandateDetails = { ...mandateDetails, ...mandateInfo };
+			this.renderMode = RENDER_MODE.DEBI_CHECK_VIEW_INFO;
+		}
 	}
 
-	_decline(mandateInfo) {
-		// TODO: Add mandate data to the event
-		this.dispatchEvent(new CustomEvent(`action`, { detail: { action: `decline`, mandateInfo: mandateInfo } }));
+	async _decline(mandateInfo) {
+		await this._mandateActionClick(`decline`, mandateInfo);
 	}
 
-	_approve(mandateInfo) {
-		// TODO: Add mandate data to the event
-		this.dispatchEvent(new CustomEvent(`action`, { detail: { action: `approve`, mandateInfo: mandateInfo } }));
+	async _approve(mandateInfo) {
+		await this._mandateActionClick(`approve`, mandateInfo);
 	}
 
 	_hasMandatesToDisplay() {
@@ -183,6 +194,15 @@ export class DebiCheckMandates extends Component {
 		}
 
 		return flag;
+	}
+
+	_backFromMandateDetails() {
+		this.dispatchEvent(new CustomEvent(`back-from-details`, {}));
+		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
+	}
+
+	_mandateActionClick(action, mandateInfo, isPending) {
+		return this.debicheckAction(action, mandateInfo, isPending);
 	}
 
 	// ---------
@@ -225,7 +245,7 @@ export class DebiCheckMandates extends Component {
 					height: 64px;
 					--theme-actionbar-padding-bottom: 8px;
 					--theme-actionbar-padding-top: 4px;
-					--theme-actionbar-padding-left: 32px;
+					--theme-actionbar-padding-left: 21px;
 					--theme-actionbar-min-height: 56px;
 					box-shadow: none!important;
 					margin: 0px;
@@ -280,11 +300,11 @@ export class DebiCheckMandates extends Component {
 				}
 				capitec-content-box {
 					--theme-container-padding-left: 16px;
-					--theme-container-padding-right: 9px;
+					--theme-container-padding-right: 16px;
 					--theme-container-padding-top: 16px;
 					--theme-container-padding-bottom: 0px;
 					height: 759px;
-					width: auto;
+					width: 1064px;
 				}
 				capitec-content-box > .section-header {
 					height: 44px;
@@ -362,8 +382,17 @@ export class DebiCheckMandates extends Component {
 		return this._webTemplate();
 	}
 
+
 	_webTemplate() {
 		return html`
+			${this._renderMandates()}
+			${this._renderDebiCheckViewMandateInfo()}
+		`;
+	}
+
+	_renderMandates() {
+		return this.renderMode === RENDER_MODE.DEBI_CHECK_PAGE
+		? html`
 			<capitec-card class="debi-check">
 				<capitec-group layout="vertical" gap="line" halign="left" valign="top">
 					${this._renderTitleBar()}
@@ -373,8 +402,8 @@ export class DebiCheckMandates extends Component {
 						${this._renderNoResults()}
 					</capitec-content-box>
 				</capitec-group>
-			</capitec-card>
-		`;
+			</capitec-card>`
+		: html``;
 	}
 
 	_renderTitleBar() {
@@ -538,11 +567,9 @@ export class DebiCheckMandates extends Component {
 						   halign="left"
 						   valign="center">
 
-				<capitec-group layout="horizontal" gap="clear" halign="right" valign="center" style="width: 30px;">
-					${this._renderInfoButton(rowData)}
-				</capitec-group>
+				${this._renderInfoButton(rowData.mandateStatus, rowData)}
 
-				<div style="${unsafeCSS(TABLE_ROW_CSS.width223)} ${unsafeCSS(TABLE_ROW_CSS.borderRight).toString()}">
+				<div style="${unsafeCSS(TABLE_ROW_CSS.width273)} ${unsafeCSS(TABLE_ROW_CSS.borderRight).toString()}">
 					${this._renderCell(rowData.mandateName, formatCurrency(convertCentsToRand(rowData.amount)))}
 				</div>
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width185).toString()}">
@@ -595,17 +622,17 @@ export class DebiCheckMandates extends Component {
 									style="${TABLE_ROW_CELL_CSS.cellButton}"
 									@click="${() => this._approve(rowData)}">
 					 </capitec-label>`
-					 : html``;
+				: html``;
 		}
 	}
 	
-	_renderInfoButton(rowData) {
-
-		return html`<capitec-icon  
-						icon="system/info-action"
-						style="${unsafeCSS(TABLE_ROW_CELL_CSS.cellInfoIcon).toString()}"
-						@click="${() => this._viewInfo(rowData, false)}">
-					</capitec-icon>`;
+	_renderInfoButton(status, rowData) {
+		return html`
+		<capitec-icon
+			icon="system/info-action"
+			style="${unsafeCSS(TABLE_ROW_CELL_CSS.cellInfoIcon).toString()}"
+			@click="${() => this._viewInfo(rowData, status === `PENDING`)}">
+		</capitec-icon>`;
 
 	}
 
@@ -635,6 +662,18 @@ export class DebiCheckMandates extends Component {
 					</capitec-label>
 			</capitec-group>
 		`;
+	}
+
+	_renderDebiCheckViewMandateInfo() {
+		return this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
+			? html`
+				<horizon-viewinfo-debicheck
+					.debiCheckDetails=${this.mandateDetails}
+					@back="${() => this._backFromMandateDetails()}"
+					@approve="${(event) => this._approve(event.detail.mandateInfo)}"
+					@decline="${(event) => this._decline(event.detail.mandateInfo)}"
+				></horizon-viewinfo-debicheck>`
+			: html``;
 	}
 }
 
