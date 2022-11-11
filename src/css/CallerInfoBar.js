@@ -56,4 +56,16 @@ export const CALLERINFOBAR_CSS = css`
 		--horizon-select-label-value-font-size: 16px;
 		--horizon-select-label-value-line-height: 20px;
 	}
+	.noIncRef {
+		width: 230px;
+		--theme-container-padding-left: 16px;
+	}
+	.noIncRef > capitec-icon {
+		--theme-icon-size-medium: 20px;
+	}
+	.noIncRef > capitec-label {
+		--theme-label-default-font-size: 16px;
+		--theme-label-font-color: #545D60;
+		--theme-label-default-font-weight: 600;
+	}
 `;

@@ -331,7 +331,8 @@ export class HorizonIncidentManager {
 			primaryIncidentRecID: incidentDetails.primaryIncidentRecID || incidentDetails.incidentRecId,
 			previousNeed: incidentDetails.currentNeed,
 			currentNeed: clientNeed,
-			needStatus: `InProgress`
+			needStatus: `InProgress`,
+			incCreated: incidentDetails.incCreated
 		};
 
 		this.horizonStore.setIncidentDetails(curIncidentDetails);
@@ -364,6 +365,11 @@ export class HorizonIncidentManager {
 		
 		if (!returnValue.succeeded || !returnValue.result) {
 			this.logger.log(`warning`, `Failed to create incident. The call will be handled without incident data being tracked.`, `HorizonIncidentManager._createSubsIncident`, returnValue.correlationId);
+
+			// updating inc creation status to state
+			incidentDetails.incCreated = returnValue.succeeded;
+			this.horizonStore.setIncidentDetails(incidentDetails);
+			
 			return null;
 		}
 		

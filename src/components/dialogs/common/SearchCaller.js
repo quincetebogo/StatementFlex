@@ -432,6 +432,12 @@ export class SearchCaller extends Component {
 			callerDetails.nonClientIDNumber = ``;
 			callerDetails.nonClientRelationship = ``;
 
+			if (!this.incidentDetails.incidentRecId || this.incidentDetails.incidentRecId === `0`) {
+				this.logger.log(`error`, `There is no incident available against which to record the non-client details`, `_onContinue`);
+				this._raiseNonClientCaptured();
+				return;
+			}
+
 			const nonClientDetails = {
 				firstName: this.nameValue,
 				surname: this.surNameValue,
@@ -441,18 +447,7 @@ export class SearchCaller extends Component {
 			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
 
 			if (returnValue.succeeded) {
-				this.dispatchEvent(new CustomEvent(`non-client-captured`, {
-					detail: {
-						incomingCallDetails: this.incomingCallDetails,
-						incidentDetails: this.incidentDetails,
-						nonClient: {
-							firstName: this.nameValue,
-							surname: this.surNameValue,
-							cellphone: this.cellPhoneNumberValue
-						},
-						isBranchConsultant: false
-					}
-				}));
+				this._raiseNonClientCaptured();
 			} else if (this.incomingCallDetails.incidentRecId === null) {
 				this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
 			} else {
@@ -700,6 +695,12 @@ export class SearchCaller extends Component {
 	}
 
 	async _updateIncidentBranchDetails(branchCode, branchCallerID) {
+		
+		if (!this.incidentDetails.incidentRecId || this.incidentDetails.incidentRecId === `0`) {
+			this.logger.log(`error`, `There is no incident available to update branch details`, `_updateIncidentBranchDetails`);
+			return;
+		}
+
 		// on confirm click, update incident details to be branch incident and not client incident
 		const incidentRecID = this.incidentDetails.incidentRecId;
 		const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(incidentRecID, branchCode, branchCallerID);
@@ -760,6 +761,21 @@ export class SearchCaller extends Component {
 			`cp${this.cpNumber}`, // branch caller id,
 			this.branchCode
 		);
+	}
+
+	_raiseNonClientCaptured() {
+		this.dispatchEvent(new CustomEvent(`non-client-captured`, {
+			detail: {
+				incomingCallDetails: this.incomingCallDetails,
+				incidentDetails: this.incidentDetails,
+				nonClient: {
+					firstName: this.nameValue,
+					surname: this.surNameValue,
+					cellphone: this.cellPhoneNumberValue
+				},
+				isBranchConsultant: false
+			}
+		}));
 	}
 	// ---------
 	// RENDERING
