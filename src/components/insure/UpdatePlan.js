@@ -369,6 +369,17 @@ class UpdatePlan extends Component {
 					this.policyDetails.roleplayers[index].coverDetails?.isExtendedFamily,
 					false
 				);
+
+					const birthYear = rolePlayer.idNumber.substring(0, 2);
+					const fullCurrentYear = new Date().getFullYear();
+					const currentYear = fullCurrentYear.toString().substring(2);
+		
+					if (parseInt(birthYear, 10) >= 0 && parseInt(birthYear, 10) <= parseInt(currentYear, 10)) {
+						rolePlayer.coverDetails.disableDoB = false;
+					} else {
+						rolePlayer.coverDetails.disableDoB = true;
+					}
+
 			});
 		}
 		this.requestUpdate();
