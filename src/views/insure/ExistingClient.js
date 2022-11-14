@@ -1214,8 +1214,6 @@ export class ExistingClient extends InsureViewBase {
 
 		if (this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY || this.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM) {
 			this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
-		} else if (this.callerPage === INSURE_CALLER_PAGE.ESTIMATE) {
-			this._navigateToSubView(INSURE_RENDER_MODE.ESTIMATE);
 		} else {
 			this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES);
 		}

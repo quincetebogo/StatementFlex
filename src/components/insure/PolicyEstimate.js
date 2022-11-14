@@ -393,7 +393,10 @@ class PolicyEstimate extends Component {
 		if (index === 0 && this.maxAllowedCover === 0) {
 			hintMessage = `You have reached your maximum allowed funeral cover.`;
 		} else {
-			hintMessage = `R${index === 0 && this.maxAllowedCover < MAIN_LIFE_MINIMUM_COVER ? this.maxAllowedCover : lifeAssured?.coverDetails?.minCoverAmount} - R${index === 0 ? this.maxAllowedCover : lifeAssured?.coverDetails?.maxCoverAmount}`;
+			const minAmountMessage = formatCurrency(lifeAssured?.coverDetails?.minCoverAmount).split(`.`)[0];
+			const maxAmountMessage = formatCurrency(lifeAssured?.coverDetails?.maxCoverAmount).split(`.`)[0];
+			const maxAllowedCoverMessage = formatCurrency(this.maxAllowedCover).split(`.`)[0];
+			hintMessage = `${index === 0 && this.maxAllowedCover < MAIN_LIFE_MINIMUM_COVER ? maxAllowedCoverMessage : minAmountMessage} - ${index === 0 ? maxAllowedCoverMessage : maxAmountMessage}`;
 		}
 		return hintMessage;
 
@@ -596,13 +599,13 @@ class PolicyEstimate extends Component {
 				</div>
 				` : html`
 				<div class="calc-card-header">
-					<capitec-label data-automation-id="insure-estimate-card-relationship" label="Main Life: You" type="small"
+					<capitec-label data-automation-id="insure-estimate-card-relationship" label="Main Life" type="small"
 						class="stronger"></capitec-label>
 				</div>
 				`}
 		
 				<div class="calc-card-row">
-					<capitec-text-field label="Cover Amount" type="currency" class="calc-card-row-input"
+					<capitec-text-field label="Cover amount" type="currency" class="calc-card-row-input"
 						data-automation-id="insure-estimate-card-cover"
 						@value-changed="${(e) => this._coverAmountChanged(e, index)}" value="${lifeAssured.coverAmount}"
 						hint="${this._getCoverAmountHintMessage(lifeAssured, index)}"
@@ -668,7 +671,7 @@ class PolicyEstimate extends Component {
 						<hr>`)}
 			
 						<div class="calc-life-list">
-							<capitec-label label="Total Premium Amount" class="stronger"></capitec-label>
+							<capitec-label label="Total premium amount" class="stronger"></capitec-label>
 							<capitec-label label="${formatCurrency(this.estimate.totalPremium)}" class="stronger"
 								data-automation-id="insure-estimate-list-total-premium"></capitec-label>
 						</div>
@@ -677,7 +680,7 @@ class PolicyEstimate extends Component {
 					<div>
 						<capitec-label label="Specify a premium you are willing to pay" class="stronger"></capitec-label>
 						<br>
-						<capitec-text-field label="Premium Amount" type="currency"
+						<capitec-text-field label="Premium amount" type="currency"
 							data-automation-id="insure-estimate-total-premium-override"
 							@value-change="${(e) => this._totalPremiumChanged(e)}" .value="${this.newTotalPremium}">
 						</capitec-text-field>

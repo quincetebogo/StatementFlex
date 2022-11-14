@@ -7,7 +7,7 @@ import 'app/components/common/HorizonEmailInput';
 const ERROR_MESSAGE = {
 	EMAIL_REQUIRED: `Complete all fields to continue`,
 	INVALID_EMAIL: `Enter a valid email address`,
-	EMAIL_MISMATCH: `Email address does not match. Enter the correct email address`
+	EMAIL_MISMATCH: `Email address does not match. Please confirm email`
 };
 
 /**
@@ -125,8 +125,8 @@ class InsureEmailDialog extends Component {
 			${this._renderAlertBanner()}
 
 			<horizon-email-input
-				labelOne="Enter Email Address"
-				labelTwo="Confirm Email"
+				labelOne="Enter email address"
+				labelTwo="Confirm email"
 				email="${this.email}"
 				confirmEmail="${this.confirmEmail}"
 				?showRequiredError="${this.alertBannerMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
