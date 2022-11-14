@@ -223,13 +223,10 @@ export class HorizonIncidentManager {
 			causeCode: causeCode
 		};
 
-		const returnValue = await this.incidentService.closeIncident(closeIncidentRequest);
+		const returnValue = await this.incidentService.closeIncident(closeIncidentRequest, errorHandler);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`warning`, `Failed to close incident. Agent may have to manually close incident.`, `_closePrimaryIncident`, returnValue.correlationId);
-			if (errorHandler && typeof errorHandler === `function`) {
-				errorHandler();
-			}
 			return false;
 		}
 		
@@ -271,13 +268,10 @@ export class HorizonIncidentManager {
 				needAction: needAction,
 				incidentCategorization: incidentCategorization
 			};
-			const returnValue = await this.incidentService.classifyIncident(request);
+			const returnValue = await this.incidentService.classifyIncident(request, errorHandler);
 	
 			if (!returnValue.succeeded) {
 				this.logger.log(`warning`, `Failed to classify incident. Agent may have to manually categorize at STrack.`, `classifyIncident`, returnValue.correlationId);
-				if (errorHandler && typeof errorHandler === `function`) {
-					errorHandler();
-				}
 				return;
 			}
 		}
@@ -348,13 +342,10 @@ export class HorizonIncidentManager {
 	}
 
 	async _incidentStatus(incidentRecId, errorHandler) {
-		const returnValue = await this.incidentService.incidentStatus(incidentRecId);
+		const returnValue = await this.incidentService.incidentStatus(incidentRecId, errorHandler);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to get incident status.`, `_incidentStatus`, returnValue.correlationId);
-			if (errorHandler && typeof errorHandler === `function`) {
-				errorHandler();
-			}
 			return {};
 		}
 		return returnValue.result;
