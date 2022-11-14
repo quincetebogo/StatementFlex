@@ -26,6 +26,7 @@ class PayPremiumDialog extends Component {
 		super();
 
 		this.amount = 0;
+		this.totalAmount = 0;
 		this.optionSelected = false;
 		this.displayInsufficientFunds = false;
 		this.insufficient = false;
@@ -58,6 +59,7 @@ class PayPremiumDialog extends Component {
 			clientArrears: { type: Object, state: true },
 			payArrears: { type: Object, state: true },
 			amount: { type: Number, state: true },
+			totalAmount: { type: Number, state: true },
 			optionSelected: { type: Boolean, state: true },
 			accountDetails: { type: Object, state: true },
 			accountNumber: { type: String, state: true },
@@ -81,7 +83,7 @@ class PayPremiumDialog extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		this._initialise();
-		this._totalAmount();
+		this._totalAmountSelected();
 	}
 
 	// #endregion
@@ -97,6 +99,12 @@ class PayPremiumDialog extends Component {
 		this.payArrears.arrears = [];
 		this.payArrears.contractReference = this.clientArrears.contractReference;
 		this._sortArrears();
+
+
+		for (let i = 0; i < this.clientArrears.arrears.length; i++) {
+			this.totalAmount += this.clientArrears.arrears[i].amount;
+		}
+		
 
 	}
 
@@ -120,7 +128,7 @@ class PayPremiumDialog extends Component {
 	 * Calculates the total amount of the arrears selected
 	 * @returns {null} null
 	*/
-	_totalAmount() {
+	_totalAmountSelected() {
 
 		for (let i = 0; i < this.payArrears.arrears; i++) {
 			this.amount += this.payArrears.arrears[i].amount;
@@ -338,18 +346,18 @@ class PayPremiumDialog extends Component {
 			${this._renderArrearNotSelected()}
 			${this._renderAccountNotSelected()}
 
-			<capitec-label type="subtitle" label="Choose payment method">
+			<capitec-label type="subtitle" label="Choose an account">
 			</capitec-label>
 			
 			<insure-account-select 
 				@option-selected="${(e) => this._optionSelected(e)}" data-automation-id="insure-pay-premium-dialog-accounts"
-				.accountDetails = "${this.accountDetails}" .insufficient = "${this.insufficient}" .label= "${`Select an Account`}">
+				.accountDetails = "${this.accountDetails}" .insufficient = "${this.insufficient}" .label= "${`Please select`}">
 			</insure-account-select>
 
 			
 			<div style="display: flex; justify-content: space-between;">
-				<capitec-label type="subtitle" label="Arrear amount"></capitec-label>
-				<capitec-label type="subtitle" label="Amount to Pay: ${formatCurrency(this.amount)}"></capitec-label>
+				<capitec-label type="subtitle" label="Arrears amount payable"></capitec-label>
+				<capitec-label type="subtitle" label="Total arrears amount: ${formatCurrency(this.totalAmount)}"></capitec-label>
 			</div>
 			
 			<capitec-check-group>
@@ -391,21 +399,21 @@ class PayPremiumDialog extends Component {
 	_renderInsufficientFunds() {
 		return this.displayInsufficientFunds === false ? html`` 
 		: html`
-			<capitec-toast class="error" type="error" header="Insufficient Funds: Payment cannot exceed available balance" layout="horizontal" data-automation-id="insure-pay-premium-dialog-insufficient-funds"></capitec-toast>
+			<capitec-toast class="error" type="error" header="Insufficient funds: Payment cannot exceed available balance" layout="horizontal" data-automation-id="insure-pay-premium-dialog-insufficient-funds"></capitec-toast>
 		`;
 	}
 
 	_renderArrearNotSelected() {
 		return this.displayArrearNotSelected === false ? html`` 
 		: html`
-			<capitec-toast class="error" type="error" header="Arrears not selected: Please select an arrear to pay" layout="horizontal" data-automation-id="insure-pay-premium-dialog-insufficient-funds"></capitec-toast>
+			<capitec-toast class="error" type="error" header="Select arrears amount to pay" layout="horizontal" data-automation-id="insure-pay-premium-dialog-insufficient-funds"></capitec-toast>
 		`;
 	}
 
 	_renderAccountNotSelected() {
 		return this.displayAccountNotSelected === false ? html`` 
 		: html`
-			<capitec-toast class="error" type="error" header="Account not selected: Please select an account to pay from" layout="horizontal" data-automation-id="insure-pay-premium-dialog-insufficient-funds"></capitec-toast>
+			<capitec-toast class="error" type="error" header="Select an account to pay from" layout="horizontal" data-automation-id="insure-pay-premium-dialog-insufficient-funds"></capitec-toast>
 		`;
 	}
 
