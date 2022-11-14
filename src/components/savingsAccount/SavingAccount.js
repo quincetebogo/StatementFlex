@@ -3,6 +3,7 @@ import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
+import 'app/components/common/HorizonExpander';
 
 /**
  * Savings Account View
@@ -68,6 +69,10 @@ export class SavingsAccount extends Component {
 		this.dispatchEvent(new CustomEvent(`savings-enquiry`, { detail: { enquiry: productEnquiry } }));
 	}
 
+	_accountDetails(){
+		this.dispatchEvent(new CustomEvent(`account-details`,{})); 
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -75,7 +80,14 @@ export class SavingsAccount extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-	
+	_validateAmount(amount){
+		if(amount === 0){
+			return '-';
+		}
+		else{
+			return formatCurrency(amount);
+		}
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -90,11 +102,15 @@ export class SavingsAccount extends Component {
 				}
 				/* Title Bar styles */
 				capitec-title-bar {
-					--theme-type-primary-background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
+					--theme-titlebar-padding: 12px 16px;
+					margin-bottom: 0px;
 				}
 				capitec-title-bar > capitec-label {
-					--theme-label-title-font-size: 24px;
-					--theme-label-title-font-weight: 600;
+					--theme-label-title-font-size: 22px;
+					--theme-label-title-font-weight: 500;
+				}
+				capitec-title-bar > capitec-icon {
+					--theme-icon-size-medium: 24px;
 				}
 				/* Main view styles */
 				capitec-content-box {
@@ -119,19 +135,7 @@ export class SavingsAccount extends Component {
 					display: flex;
 					position: relative;
 				}
-				.account-details-bar > capitec-expander {
-					position: absolute;
-					border-bottom: 1px solid #E1E1E1;
-					border-radius:4px;
-					--theme-container-padding-right: 0px;
-					--theme-container-padding-left: 0px;
-					--theme-container-padding-top: 0px;
-					--theme-container-padding-bottom: 0px;
-					--theme-expander-header-height: 64px;
-					--theme-expander-header-padding: 10px 13px;
-					--theme-expander-height: 211px;
-					box-shadow:0 3px 6px 0.25px rgba(0,0,0,0.08);
-				}
+				
 				.account-details-bar > capitec-group {
 					width: 984px;
 					z-index: 10;
@@ -142,6 +146,7 @@ export class SavingsAccount extends Component {
 				.actionbar-header > horizon-label[label="Account Number"] {
 					width: 174px;
 					border-right: 1px solid #dfdfdf;
+					cursor:pointer;
 				}
 				.actionbar-header > horizon-label[label="Interest"] {
 					width: 120px;
@@ -149,12 +154,12 @@ export class SavingsAccount extends Component {
 				.actionbar-header > horizon-label[label="Status"] {
 					--horizon-label-value-color: #70AF00;
 				}
-				.actionbar-header > horizon-label {
-					width: 156px;
+				horizon-label {
+					width: 136px;
 					height: 100%;
 					font-weight: 300;
 					justify-content: left;
-					padding: 0px 0px 0px 16px;
+					padding: 0px 0px 0px 14px;
 					--horizon-label-text-height: 20px;
 					--horizon-label-text-font-size: 14px;
 					--horizon-label-text-line-height: 20px;
@@ -165,14 +170,17 @@ export class SavingsAccount extends Component {
 				}
 				capitec-group > capitec-title-bar {
 					--theme-titlebar-min-height: 32px;
-					--theme-titlebar-padding: 0px 0px 0px 16px;
+					--theme-titlebar-padding: 0px 16px 0px 16px;
 					--theme-type-default-background: rgb(244, 244, 244);
 					--theme-label-title-font-size: 15px;
 					--theme-label-title-font-weight: 600;
 					--theme-type-default-font-color: #545D60;
 					--theme-label-title-font-size: 14px;
+					--theme-titlebar-shadow: 0px;
+					--theme-titlebar-item-gap: 0px;
 
 					border-top: 1px solid #E1E1E1;
+					border-bottom: 1px solid #E1E1E1;
 				}
 				.other-options {
 					--theme-type-default-font-color: #3A3A3A
@@ -202,6 +210,31 @@ export class SavingsAccount extends Component {
 				.label-text {
 					--horizon-option-btn-text-margin-top: 10px;
 				}
+				.vertical-line{
+					height: 48px;
+					width: 1px;
+					background-color: #E1E1E1;
+				}
+				.actionbar-header > capitec-icon {
+					--theme-icon-size-default: 20px;
+					--theme-layout-gap-spacing: 0px;
+					margin-left: 16px;
+					cursor:pointer;
+				}
+				horizon-expander{
+					margin-bottom: 0px;
+					--theme-expander-height: auto;
+					--theme-layout-gap-spacing: 0px;
+					--theme-expander-header-height: 64px;
+					--theme-expander-header-padding: 0 0px 0 0;
+					--theme-expander-indicator-width: 16px;
+				}
+				horizon-expander[expanded] {
+					box-shadow: 0 6px 10px 0.25px rgb(0 0 0 / 7%);
+				}
+				.expander-content > capitec-title-bar {
+					border-top: 0px;
+				}
 				
 			`
 		];
@@ -226,54 +259,74 @@ export class SavingsAccount extends Component {
 						${this._renderAccountDetailsBar()}
 					</capitec-card>
 				</capitec-content-box>
-
 				${this._renderFooter()}
-
 			</capitec-card>
 		`;
 	}
 	
 	_renderAccountDetailsBar() {
 		return html`
-			<div class="account-details-bar">
-				<capitec-expander label="" ?expanded="${true}">
-					${this._renderOptions()}
-				</capitec-expander>
-				<capitec-group class= "actionbar-header" layout="horizontal" gap="none" halign="left" valign="center">
-					<horizon-label
-						label="Account number"
-						value="${this.landingPageInfo.accountNumber}">
-					</horizon-label>
-					<horizon-label
-						label="Balance"
-						value="${formatCurrency(this.landingPageInfo.accountBalance)}">
-					</horizon-label>
-					<horizon-label
-						label="Available balance"
-						value="${formatCurrency(this.landingPageInfo.accountAvailableBalance)}">
-					</horizon-label>
-					<horizon-label
-						label="Pending amount"
-						value="${formatCurrency(this.landingPageInfo.accountPendingAmount)}">
-					</horizon-label>
-					<horizon-label
-						label="Interest"
-						value="${this.landingPageInfo.interestRatePercentage}%">
-					</horizon-label>
-					<horizon-label
-						label="Status"
-						value="${this.landingPageInfo.accountStatus}">
-					</horizon-label>
-				</capitec-group>
-			</div>
+			<horizon-expander
+				expandButtonAlignment="right"
+				.expanded="${true}">
+					
+					<capitec-group class= "actionbar-header" slot="custom-header" layout="horizontal" gap="clear" halign="left" valign="center">
+						<capitec-icon
+							data-automation-id="savings-Account-info"
+							icon="system/info-action"
+							@click="${() => this._accountDetails()}">
+						</capitec-icon>	
+						<horizon-label
+							label="Account number"
+							textOverflow="ellipsis"
+							value="${this.landingPageInfo.accountNumber}"
+							@click="${() => this._accountDetails()}">
+						</horizon-label>
+
+						<div class="vertical-line"></div>
+
+						<horizon-label
+							label="Balance"
+							value="${formatCurrency(this.landingPageInfo.accountBalance)}">
+						</horizon-label>
+						<horizon-label
+							label="Available balance"
+							value="${formatCurrency(this.landingPageInfo.accountAvailableBalance)}">
+						</horizon-label>
+						<horizon-label
+							label="Amount on Hold"
+							value="${this._validateAmount(this.landingPageInfo.holds)}">
+						</horizon-label>
+						<horizon-label
+							label="Pending amount"
+							value="${this._validateAmount(this.landingPageInfo.accountPendingAmount)}">
+						</horizon-label>
+						<horizon-label
+							label="Interest"
+							value="${this.landingPageInfo.interestRatePercentage}%">
+						</horizon-label>
+						<horizon-label
+							label="Status"
+							value="${this.landingPageInfo.accountStatus}">
+						</horizon-label>
+					</capitec-group>
+					<div slot="content">
+						<capitec-group 
+							class="expander-content" 
+							layout="vertical"
+							gap="none"
+							halign="left"
+							valign="center">
+								${this._renderOptions()}
+						</capitec-group>
+					</div>
+			</horizon-expander>	
 		`;
 	}
 
 	_renderOptions() {
 		const pendingMandates = this.landingPageInfo?.pendingMandateCount ?? ``;
 		return html`
-			<capitec-group class= "" layout="vertical" gap="none" halign="left" valign="center">
-
 				<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
 				<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
 					<horizon-option-button 
@@ -306,7 +359,6 @@ export class SavingsAccount extends Component {
 						@click="${() => this._optionSelectedClick(`more`)}">
 					</horizon-option-button>
 				</capitec-group>
-			</capitec-group>
 		`;
 	}
 

@@ -13,6 +13,7 @@ import { formatCurrency } from 'app/productControls/utilities/Currency';
 import 'app/components/common/TransactionHistory';
 import 'app/components/savingsAccount/SavingAccount';
 import 'app/components/dialogs/common/StatementsDialog';
+import 'app/components/savingsAccount/MainSavingsAccountDetails';
 
 const DATE_TIME_FORMAT = `dd mmm yyy hh:mm:ss`;
 const DATE_ONLY = `dd mmm yyyy`;
@@ -21,12 +22,12 @@ const NINETY_DAYS = 7777000000;
 const SAVINGS_ACCOUNT = 300;
 
 const TRANSACTION_HISTORY = {
-	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
-	END_DATE: new Date().toISOString().substr(0, 10),
-	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
-	START_AT_INDEX: 0,
-	MAX_RESULTS: 50,
-	MONEY_TYPE: `BOTH`
+    ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
+    END_DATE: new Date().toISOString().substr(0, 10),
+    START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
+    START_AT_INDEX: 0,
+    MAX_RESULTS: 50,
+    MONEY_TYPE: `BOTH`
 };
 
 /**
@@ -41,297 +42,342 @@ const TRANSACTION_HISTORY = {
  * @extends {SavingsAccountBase}
  */
 export class SavingsAccountLandingPage extends SavingsAccountBase {
-	
-	// --------------
-	// INITIALISATION
-	// --------------
 
-	constructor() {
-		super();
+    // --------------
+    // INITIALISATION
+    // --------------
 
-		this.configuration = Configuration.getInstance();
+    constructor() {
+        super();
 
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-		this.transactionHistory = [];
-		this.accountDetails = null;
-		this.clientProducts = null;
-	
-		// private properites
-		this._loading = true;
-		
-		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option));
-	}
+        this.configuration = Configuration.getInstance();
 
-	// -------------------
-	// LIFECYCLE OVERRIDES
-	// -------------------
-	
-	connectedCallback() {
-		super.connectedCallback();
+        this.renderMode = RENDER_MODE.MAIN_PAGE;
+        this.transactionHistory = [];
+        this.accountDetails = null;
+        this.clientProducts = null;
+        // this.savingsAccountDetails = [];
+        this.savingsDetails = {};
+        // private properites
+        this._loading = true;
 
-		this._telemetryStartSpan(SavingsAccLandingPage.SAVINGS_ACCOUNT, TelemetryScreen.SAVINGS_ACCOUNT);
-		this._initialise();
+        this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option));
+    }
 
-		this._optionClick = async (option) => {
+    // -------------------
+    // LIFECYCLE OVERRIDES
+    // -------------------
 
-			const transactionHistory = () => this._transactionHistory();
-			const debiCheck = () => this._debiCheck();
-			const statements = () => this._getStatements();
-			const more = () => this._more();
+    connectedCallback() {
+        super.connectedCallback();
 
-			const actions = {
-				'transaction-history': transactionHistory,
-				'debi-check-viewInfo': debiCheck,
-				'statements-transact': statements,
-				'more': more
-			};
+        this._telemetryStartSpan(SavingsAccLandingPage.SAVINGS_ACCOUNT, TelemetryScreen.SAVINGS_ACCOUNT);
+        this._initialise();
 
-			if (actions[option]) {
-				await super._inicidentManager_(option, () => this._toggleBusyFlag());
-				this._refreshIncidentDetails();
-				return actions[option]();
-			}
-		};
-	}
+        this._optionClick = async (option) => {
 
-	disconnectedCallback() {
+            const transactionHistory = () => this._transactionHistory();
+            const debiCheck = () => this._debiCheck();
+            const statements = () => this._getStatements();
+            const more = () => this._more();
+
+            const actions = {
+                'transaction-history': transactionHistory,
+                'debi-check-viewInfo': debiCheck,
+                'statements-transact': statements,
+                'more': more
+            };
+
+            if (actions[option]) {
+                await super._inicidentManager_(option, () => this._toggleBusyFlag());
+                this._refreshIncidentDetails();
+                return actions[option]();
+            }
+        };
+    }
+
+    disconnectedCallback() {
         this.returnToScreen.dispose();
-		super.disconnectedCallback();
-	}
+        super.disconnectedCallback();
+    }
 
-	// --------------
-	// PROPERTIES
-	// --------------
+    // --------------
+    // PROPERTIES
+    // --------------
 
-	static get properties() {
-		return {
-			_loading: { state: true }
-		};
-	}
-	
-	// --------------
-	// EVENT HANDLERS
-	// --------------
+    static get properties() {
+        return {
+            _loading: { state: true }
+        };
+    }
 
-	// N/A
+    // --------------
+    // EVENT HANDLERS
+    // --------------
 
-	// --------------
-	// PUBLIC METHODS
-	// --------------
+    // N/A
 
-	async _exitTransactionHistory() {
-		await super.classifyIncident(() => this._toggleBusyFlag());
+    // --------------
+    // PUBLIC METHODS
+    // --------------
 
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
+    async _exitTransactionHistory() {
+        await super.classifyIncident(() => this._toggleBusyFlag());
 
-	async _unloadTransactionHistory() {
-		this.endCallContext = `LandingPage`;
-		this.transactionHistory = [];
+        this.renderMode = RENDER_MODE.MAIN_PAGE;
+    }
 
-		await super.classifyIncident(() => this._toggleBusyFlag());
-		
+    async _unloadTransactionHistory() {
+        this.endCallContext = `LandingPage`;
+        this.transactionHistory = [];
+
+        await super.classifyIncident(() => this._toggleBusyFlag());
+
+        this._setIncidentDone();
+    }
+
+    // ---------------
+    // PRIVATE METHODS
+    // ---------------
+
+    async _initialise() {
+
+        this.verificationStatus = this.callerInformation.verificationStatus;
+
+        if (this.callerInformation.verificationStatus === `unverified`) {
+            this.horizonRouter.navigateToProductInfo(`SavingsAccount`);
+        } else {
+            const landingRequest = {
+                cifNumber: this.callerInformation.cifNumber,
+                nationalIDNumber: this.callerInformation.southAfricanIDNumber,
+                getGenericData: true
+            };
+
+            const returnValue = await this.savingsService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
+
+            if (returnValue.succeeded) {
+                this.landingPageInfo = returnValue.result;
+
+                await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
+                await super.createAndClassifySubsIncident(null, false);
+
+                // Now we can update the information on the product buttons
+                this._updateLeftBar();
+                this.endCallContext = `LandingPage`;
+                this.renderMode = RENDER_MODE.MAIN_PAGE;
+            }
+        }
+
+        this._loading = false;
+        this._performReturnToScreen();
+    }
+
+    _updateLeftBar() {
+        this.horizonStore.setProductButtonState(this.landingPageInfo);
+    }
+
+    _errorHandler(exception) {
+        this.horizonRouter.navigateToSystemError();
+    }
+
+    async _transactionHistory() {
+        await this._telemetry.logEvent(SavingsAccLandingPage.SAVINGS_ACC_TRANSACTION_HISTORY, {
+            "screen": TelemetryScreen.SAVINGS_ACCOUNT,
+            "next-screen": TelemetryScreen.TRANSACTION_HISTORY
+        });
+
+        await super.createAndClassifySubsIncident(null, false);
+        await this._getTransactionHistory();
+    }
+
+    async _getTransactionHistory(startDate, endDate, startAtIndex) {
+        const transactionHistoryRequest = {
+            cifNumber: this.callerInformation.cifNumber,
+            accountNumber: this.landingPageInfo.accountNumber,
+            accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
+            startDate: startDate || TRANSACTION_HISTORY.START_DATE,
+            endDate: endDate || TRANSACTION_HISTORY.END_DATE,
+            startAtIndex: startAtIndex || TRANSACTION_HISTORY.START_AT_INDEX,
+            maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
+            moneyType: TRANSACTION_HISTORY.MONEY_TYPE
+        };
+
+        const returnValue = await this.savingsService.savingsAccountTransactionHistory(transactionHistoryRequest);
+
+        if (returnValue.succeeded && returnValue.result) {
+            const formattedTrans = returnValue.result.transactions
+                .map((item) => {
+                    const date = new Date(Date.parse(item.transactionDate));
+
+					item.description = item.statementDescription;
+                    item.tranDate = date;
+                    item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
+                    item.formatedAmount = formatCurrency(item.amount);
+                    item.formatedBalance = formatCurrency(item.balance);
+
+                    return item;
+                });
+            this.transactionHistory.push(...formattedTrans);
+            this.accountDetails = {
+                "Account number": this.landingPageInfo.accountNumber,
+                "Balance": formatCurrency(this.landingPageInfo.accountBalance),
+                "Available balance": formatCurrency(this.landingPageInfo.accountAvailableBalance),
+                "Pending amount": formatCurrency(this.landingPageInfo.accountPendingAmount),
+                "Interest": `${this.landingPageInfo.interestRatePercentage}%`,
+                "Status": this.landingPageInfo.accountStatus
+            };
+            this.endCallContext = `TransactionHistory`;
+            this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
+        }
+    }
+
+    _more() {
+        // TODO: Functionality to option 'more' comes here
+    }
+
+    async _productEnquiry(event, type) {
+        if (event.detail.enquiry === `product-enquiry`) {
+            const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
+            window.open(`${globalOneUrl}${type}`);
+        }
+    }
+
+    _exitTransactionHistory() {
+        this._setIncidentDone();
+        this.renderMode = RENDER_MODE.MAIN_PAGE;
+    }
+
+    _getStatements() {
+        this._telemetry.logEvent(SavingsAccLandingPage.SAVINGS_ACC_STATEMENTS, {
+            screen: TelemetryScreen.SAVINGS_ACCOUNT,
+            nextScreen: TelemetryScreen.STATEMENTS
+        });
+
+        const productInfo = ACCOUNT_INTCAT_ENUM[SAVINGS_ACCOUNT];
+        this.clientProducts = [
+            {
+                'accountNumber': this.landingPageInfo.accountNumber,
+                'accountName': productInfo.name,
+                'accountType': SAVINGS_ACCOUNT,
+                'accountOpenDate': this.landingPageInfo.accountOpenDate,
+                'name': productInfo.name,
+                'type': productInfo.type,
+                'category': productInfo.category,
+                'subCategory': productInfo.subCategory,
+                'icon': productInfo.icon,
+                'customIcon': productInfo.customIcon,
+                'order': productInfo.order,
+                'choosePeriod': productInfo.choosePeriod
+            }
+        ];
+        this.renderMode = RENDER_MODE.STATEMENTS;
+    }
+
+    _cancelStatements() {
+        this._telemetry.endSpan(STATEMENT_EVENTS.STATEMENTS);
+        super._backToLandingPage();
+    }
+
+    _getCurrentMonth() {
+        const newdate = new Date();
+        return `${getMonthName(newdate.getMonth())}`;
+    }
+
+    _getPreviousMonth() {
+        const newdate = new Date();
+        return `${getMonthName(newdate.getMonth() - 1)}`;
+    }
+
+    async _accountDetails(savingsLandingDetails) {
+        this._telemetry.logEvent(SavingsAccLandingPage.SAVINGS_ACC_INFO, {
+            screen: TelemetryScreen.SAVINGS_ACCOUNT,
+            nextScreen: TelemetryScreen.SAVINGS_ACCOUNT_INFO
+        });
+
+		await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
+		await super.createAndClassifySubsIncident();
+
+        this.savingsDetails = {
+            "accountNumber": savingsLandingDetails.accountNumber,
+            "Current balance": savingsLandingDetails.accountBalance === 0 ? `-` : formatCurrency(savingsLandingDetails.accountBalance),
+            "Available balance": savingsLandingDetails.accountAvailableBalance === 0 ? `-` : formatCurrency(savingsLandingDetails.accountAvailableBalance),
+            "Interest rate": `${savingsLandingDetails.interestRatePercentage}%`,
+            [`Accrued interest ${this._getCurrentMonth()}`]: savingsLandingDetails.accruedInterestCurrentMonth,
+            [`Accrued interest ${this._getPreviousMonth()}`]: savingsLandingDetails.accruedInterestLastMonth,
+            "Interest earned tax year": savingsLandingDetails.interestEarned,
+            "Posting restrictions": savingsLandingDetails.postingRestrictions === `N` ? `No` : `Yes`,
+            "Pending amount": savingsLandingDetails.accountPendingAmount === 0 ? `-` : formatCurrency(savingsLandingDetails.accountPendingAmount),
+            "Amount on hold": savingsLandingDetails.holds === 0 ? `-` : formatCurrency(savingsLandingDetails.holds),
+            "Date opened": savingsLandingDetails.accountOpenDate ? this._formatDate(savingsLandingDetails.accountOpenDate) : `-`,
+            "Last updated": savingsLandingDetails.lastUpdate ? this._formatDate(savingsLandingDetails.lastUpdate) : `-`,
+            "Account status": savingsLandingDetails.accountStatus
+        };
+
+        this.renderMode = RENDER_MODE.SAVINGS_ACCOUNT_DETAILS;
+    }
+
+    _cancelAccountView() {
+        this._telemetry.logEvent(SavingsAccLandingPage.SAVINGS_ACC_DETAILS_VIEW_CLOSE, {
+            screen: TelemetryScreen.SAVINGS_ACCOUNT_INFO,
+            nextScreen: TelemetryScreen.SAVINGS_ACCOUNT
+        });
 		this._setIncidentDone();
-	}
-	
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
+    }
 
-	async _initialise() {
+    // ---------
+    // RENDERING
+    // ---------
 
-		this.verificationStatus = this.callerInformation.verificationStatus;
-		
-		if (this.callerInformation.verificationStatus === `unverified`) {
-			this.horizonRouter.navigateToProductInfo(`SavingsAccount`);
-		} else {
-			const landingRequest = {
-				cifNumber: this.callerInformation.cifNumber,
-				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
-				getGenericData: true
-			};
-
-			const returnValue = await this.savingsService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
-			 
-			if (returnValue.succeeded) {
-				this.landingPageInfo = returnValue.result;
-		
-				await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
-				await super.createAndClassifySubsIncident(null, false);
-
-				// Now we can update the information on the product buttons
-				this._updateLeftBar();
-				this.endCallContext = `LandingPage`;
-				this.renderMode = RENDER_MODE.MAIN_PAGE;
-			}
-		}
-		
-		this._loading = false;
-		this._performReturnToScreen();
-	}
-
-	_updateLeftBar() {
-		this.horizonStore.setProductButtonState(this.landingPageInfo);
-	}
-
-	_errorHandler(exception) {
-		this.horizonRouter.navigateToSystemError();
-	}
-
-	async _transactionHistory() {
-		await this._telemetry.logEvent(SavingsAccLandingPage.SAVINGS_ACC_TRANSACTION_HISTORY, {
-			"screen": TelemetryScreen.SAVINGS_ACCOUNT,
-			"next-screen": TelemetryScreen.TRANSACTION_HISTORY
-		});
-
-		await super.createAndClassifySubsIncident(null, false);
-		await this._getTransactionHistory();
-	}
-
-	async _getTransactionHistory(startDate, endDate, startAtIndex) {
-		const transactionHistoryRequest = {
-			cifNumber: this.callerInformation.cifNumber,
-			accountNumber: this.landingPageInfo.accountNumber,
-			accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
-			startDate: startDate || TRANSACTION_HISTORY.START_DATE,
-			endDate: endDate || TRANSACTION_HISTORY.END_DATE,
-			startAtIndex: startAtIndex || TRANSACTION_HISTORY.START_AT_INDEX,
-			maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
-			moneyType: TRANSACTION_HISTORY.MONEY_TYPE
-		};
-
-		const returnValue = await this.savingsService.savingsAccountTransactionHistory(transactionHistoryRequest);
-
-		if (returnValue.succeeded && returnValue.result) {
-			const formattedTrans = returnValue.result.transactions
-									.map((item) => {
-										const date = new Date(Date.parse(item.transactionDate));
-							
-										item.tranDate = date;
-										item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
-										item.formatedAmount = formatCurrency(item.amount);
-										item.formatedBalance = formatCurrency(item.balance);
-							
-										return item;
-									});
-			this.transactionHistory.push(...formattedTrans);
-			this.accountDetails = {
-				"Account number": this.landingPageInfo.accountNumber,
-				"Balance": formatCurrency(this.landingPageInfo.accountBalance),
-				"Available balance": formatCurrency(this.landingPageInfo.accountAvailableBalance),
-				"Pending amount": formatCurrency(this.landingPageInfo.accountPendingAmount),
-				"Interest": `${this.landingPageInfo.interestRatePercentage}%`,
-				"Status": this.landingPageInfo.accountStatus
-			};
-			this.endCallContext = `TransactionHistory`;
-			this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
-		}
-	}
-
-	_more() {
-		// TODO: Functionality to option 'more' comes here
-	}
-
-	async _productEnquiry(event, type) {
-		if (event.detail.enquiry === `product-enquiry`) {
-			const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
-			window.open(`${globalOneUrl}${type}`);
-		}
-	}
-
-	_exitTransactionHistory() {
-		this._setIncidentDone();
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
-
-	_getStatements() {
-		this._telemetry.logEvent(SavingsAccLandingPage.SAVINGS_ACC_STATEMENTS, {
-			screen: TelemetryScreen.SAVINGS_ACCOUNT,
-			nextScreen: TelemetryScreen.STATEMENTS
-		});
-
-		const productInfo = ACCOUNT_INTCAT_ENUM[SAVINGS_ACCOUNT];
-		this.clientProducts = [
-			{
-				'accountNumber': this.landingPageInfo.accountNumber,
-				'accountName': productInfo.name,
-				'accountType': SAVINGS_ACCOUNT,
-				'accountOpenDate': this.landingPageInfo.accountOpenDate,
-				'name': productInfo.name,
-				'type': productInfo.type,
-				'category': productInfo.category,
-				'subCategory': productInfo.subCategory,
-				'icon': productInfo.icon,
-				'customIcon': productInfo.customIcon,
-				'order': productInfo.order,
-				'choosePeriod': productInfo.choosePeriod
-			}
-		];
-		this.renderMode = RENDER_MODE.STATEMENTS;
-	}
-
-	_cancelStatements() {
-		this._telemetry.endSpan(STATEMENT_EVENTS.STATEMENTS);
-		super._backToLandingPage();
-	}
-
-	_formatDate(date) {
-		const newdate = new Date(Date.parse(date));
-		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
-	}
-
-	// ---------
-	// RENDERING
-	// ---------
-
-	/**
-	 * Generates the view stylesheet.
-	 *
-	 * @readonly
-	 * @static
-	 * @returns {css} CSS for the view.
-	 */
-	static get styles() {
-		return [
-			super.styles,
-			css`
+    /**
+     * Generates the view stylesheet.
+     *
+     * @readonly
+     * @static
+     * @returns {css} CSS for the view.
+     */
+    static get styles() {
+        return [
+            super.styles,
+            css`
 			.savingsaccount{
 				width: 100%;
 				height: var(--horizon-panel-height, 888px);
 			}
 			`
-		];
-	}
+        ];
+    }
 
-	_mobileTemplate() {
-		return this._webTemplate();
-	}
+    _mobileTemplate() {
+        return this._webTemplate();
+    }
 
-	_webTemplate() {
-		return html`
+    _webTemplate() {
+        return html`
 			${this._renderSavingsLandingPage()}
 			${this._renderTransactionHistory()}
+			${this._renderSavingsAccountDetails()}
 			${super._webTemplate(ACCOUNT_TYPES.SAVINGS_ACCOUNT)}
 		`;
-	}
+    }
 
-	_renderSavingsLandingPage() {
-		return this.renderMode === RENDER_MODE.MAIN_PAGE ||
-				this.renderMode === RENDER_MODE.STATEMENTS
-			? html`
+    _renderSavingsLandingPage() {
+        return this.renderMode === RENDER_MODE.MAIN_PAGE ||
+            this.renderMode === RENDER_MODE.STATEMENTS
+            ? html`
 				<horizon-savings-account
 					class="savingsaccount"
 					.landingPageInfo = "${this.landingPageInfo}"
 					.shouldDisable="${need => this._shouldDisable(need)}"
 					@option-click="${(event) => this._optionClick(event.detail.option)}"
-					@savings-enquiry="${(event) => this._productEnquiry(event, `transact`)}">
+					@savings-enquiry="${(event) => this._productEnquiry(event, `transact`)}"
+					@account-details="${() => this._accountDetails(this.landingPageInfo)}">
 				</horizon-savings-account>`
-			: html``;
-	}
+            : html``;
+    }
 
-	_renderTransactionHistory() {
-		return this.renderMode === RENDER_MODE.TRANSACTION_HISTORY
-			? html`
+    _renderTransactionHistory() {
+        return this.renderMode === RENDER_MODE.TRANSACTION_HISTORY
+            ? html`
 				<horizon-transaction-history
 					.transactionHistory="${this.transactionHistory}"
 					.accountDetails="${this.accountDetails}"
@@ -345,11 +391,11 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 					@back="${() => this._exitTransactionHistory()}"
 					@unloading="${() => this._unloadTransactionHistory()}">
 				</horizon-transaction-history>`
-			: html``;
-	}
+            : html``;
+    }
 
-	_renderTransHistoryColumns() {
-		return html`
+    _renderTransHistoryColumns() {
+        return html`
 			<capitec-table-column
 				label="Transaction Date"
 				field="transactionDate"
@@ -358,7 +404,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			</capitec-table-column>
 			<capitec-table-column
 				label="Description"
-				field="transTypeDesc"
+				field="description"
 				size="410px;">
 			</capitec-table-column>
 			<capitec-table-column
@@ -381,30 +427,30 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				align ="right">
 			</capitec-table-column>
 		`;
-	}
+    }
 
-	_renderTransactionStatus(value) {
-		return value === `Processed`
-			? html``
-			: html`
+    _renderTransactionStatus(value) {
+        return value === `Processed`
+            ? html``
+            : html`
 				<div style="${unsafeCSS(STATUS_TAG.tagContainer)} ${unsafeCSS(STATUS_TAG.tagType)}">
 					<div style="${unsafeCSS(STATUS_TAG.tagLabel).toString()}">${value}</div>
 				</div>`;
-	}
+    }
 
-	_renderTransactionDateTime(value) {
-		return html`
+    _renderTransactionDateTime(value) {
+        return html`
 			<capitec-label
 				label="${formatDate(value, DATE_TIME_FORMAT)}">
 			</capitec-label>`;
-	}
+    }
 
-	_renderTransactionDetails(item) {
-		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_INFO, {
-			'journal-no': item.journalNumber
-		});
+    _renderTransactionDetails(item) {
+        this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_INFO, {
+            'journal-no': item.journalNumber
+        });
 
-		return html`
+        return html`
 			<capitec-label
 				style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
 				label="Statement description: ${item.statementDescription}"
@@ -501,7 +547,22 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				</horizon-label>
 			</capitec-group>
 		`;
-	}
+    }
+
+    _formatDate(date) {
+        const newdate = new Date(Date.parse(date));
+        return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+    }
+
+    _renderSavingsAccountDetails() {
+        return this.renderMode === RENDER_MODE.SAVINGS_ACCOUNT_DETAILS
+            ? html`
+			<horizon-savings-account-details
+				.savingsAccountDetails = "${this.savingsDetails}"
+				@back="${() => this._cancelAccountView()}">
+			</horizon-savings-account-details>`
+            : html``;
+    }
 
 }
 
