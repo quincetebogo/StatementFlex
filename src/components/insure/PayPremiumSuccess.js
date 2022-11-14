@@ -208,10 +208,10 @@ _viewPlan() {
 				<capitec-image src="platform/illustrations/transfer.svg"
 					style="width: 300px; margin-left: auto; margin-right: auto;">
 				</capitec-image>
-				<label class="label">Arrears was paid</label>
+				<label class="label">Arrears paid</label>
 				<div style= "justify-content: center;">
 					<capitec-icon size="medium" icon="status/success-trans" style="position: relative; left: 214px; top: 45px;"></capitec-icon>
-					<p>You've paid the outstanding amount of <b>${formatCurrency(this.amountToPay)}</b> towards your plan <b>${this.contractReference}</b></p>
+					<p>You've paid <b>${formatCurrency(this.amountToPay)}</b> towards Funeral Plan (<b>${this.contractReference}</b>)</p>
 				</div>
 				 
 				<div class="button-row">
