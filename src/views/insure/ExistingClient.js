@@ -471,27 +471,12 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
-	 * Retrieve Claim Summary via insure channel service
-	 * @returns {Object} Claim Summary Details 
-	 */
-	async _retrieveClaimSummary() {
-		const request = {
-		};
-		const resp = await this.insureService.claimSummary(request);
-		if (!resp.succeeded) {
-			this.handleToastError(resp.exception.output.Errors);
-			return;
-		}
-		return resp.result;
-	}
-
-	/**
-	 * Retrieve Quote number and Policy details
-	 * @returns {Object} Quote number and Policy details 
- * @returns {Object} Quote number and Policy details 
-	 * @returns {Object} Quote number and Policy details 
-	 * @param {*} contractReference contractReference
-	 * @param {*} cifNumber cifNumber
+	* Retrieve Quote number and Policy details
+	* @returns {Object} Quote number and Policy details 
+	* @returns {Object} Quote number and Policy details 
+	* @returns {Object} Quote number and Policy details 
+	* @param {*} contractReference contractReference
+	* @param {*} cifNumber cifNumber
 	 */
 	async _reinstateQuoteCalc(contractReference, cifNumber) {
 		const request = {
@@ -524,11 +509,15 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
-	 * Retrieve Claims
+	 * Retrieve Claims list for Client
 	 * @returns {Object} Claims list
 	 */
 	async _retrieveClaims() {
-		const claimsList = await this.insureService.claimsList({});
+		const request = {
+			cifNumber: this.callerInformation.cifNumber,
+			idNumber: this.callerInformation.southAfricanIDNumber
+		};
+		const claimsList = await this.insureService.claimsList(request);
 		return claimsList.result;
 	}
 
@@ -783,8 +772,9 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {*} e e
 	 * @returns {null} null
 	 */
-	async _goToClaimSummary(e) {
-		this.claimSummary = await this._retrieveClaimSummary();
+	_goToClaimSummary(e) {
+		console.log(`Going to Claim Summary`);
+		console.log(JSON.stringify(e));
 		this._navigateToSubView(INSURE_RENDER_MODE.CLAIM_SUMMARY);
 	}
 

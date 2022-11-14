@@ -38,8 +38,9 @@ class InsureClaimsList extends Component {
 	// #region EVENT HANDLERS
 
 	navigateToClaimSummary(claim) {
+		console.log(`claim: `, JSON.stringify(claim));
 		this.dispatchEvent(new CustomEvent(`navigate-to-claim-summary`, {
-			detail: { claimReference: claim.claimReference }
+			detail: { claim: claim }
 		}));
 	}
 
@@ -154,118 +155,65 @@ class InsureClaimsList extends Component {
 	 */
 	_webTemplate() {
 		return html`
-			<capitec-content-box class="header-label">
-				<capitec-label label="Open"></capitec-label>
-			</capitec-content-box>
-
-			${this._renderOpenClaims()}
-			
-
-			<capitec-content-box class="header-label">
-				<capitec-label label="Closed"></capitec-label>
-			</capitec-content-box>
-			${this._renderClosedClaims()}
+			${this._renderClaimList()}
 		`;
 	}
 
-	_renderOpenClaims() {
+	_renderClaimList() {
 		return html`
-		${this.clientClaims.filter((claim) => claim.open === true).map(claim => html`
-				<horizon-expander
-					expandButtonAlignment="none"
-					id="horizon-expander-${claim.claimReference}"
-					disabled>
+		${this.clientClaims?.claimSummaries?.map(claim => html`
+			<horizon-expander
+				expandButtonAlignment="none"
+				id="horizon-expander-${claim.claimsReference}"
+				disabled>
+				<capitec-group 
+					class="expander-header"
+					slot="custom-header"
+					layout="horizontal"
+					gap="clear"
+					halign="left"
+					valign="center">
+						<horizon-label
+							class="label-claim-number fixed-label"
+							label="Reference"
+							textOverflow="ellipsis"
+							value="${claim?.claimsReference}"
+							@click="${() => this.navigateToClaimSummary(claim)}">
+						</horizon-label>
+						<div class="vertical-line"></div>
+						<horizon-label
+							label="Claim type"
+							value="${claim?.claimType}">
+						</horizon-label>
+						<horizon-label
+							label="Date of event"
+							value="${formatDate(claim?.dateOfEvent, `dd mmm yyyy`)}">
+						</horizon-label>
+						<horizon-label
+							label="Policy number"
+							value="${claim?.policyNumber}">
+						</horizon-label>
+						<horizon-label
+							label="Outstanding Docs"
+							value="${claim?.outstandingDocs?.length}">
+						</horizon-label>
+						<horizon-label
+							label="Status"
+							value="${claim?.claimStatus}">
+						</horizon-label>
+				</capitec-group>
+				<div slot="content">
 					<capitec-group 
-						class="expander-header"
-						slot="custom-header"
-						layout="horizontal"
-						gap="clear"
+						class="expander-content" 
+						layout="vertical"
+						gap="none"
 						halign="left"
 						valign="center">
-							<horizon-label
-								class="label-claim-number fixed-label"
-								label="${claim.claimType}"
-								textOverflow="ellipsis"
-								value="${claim.claimReference}"
-								@click="${() => this.navigateToClaimSummary(claim)}">
-							</horizon-label>
-							<div class="vertical-line"></div>
-							<horizon-label
-								label="Date of Death"
-								value="${formatDate(claim.dateOfDeath, `dd mmm yyyy`)}">
-							</horizon-label>
-							<horizon-label
-								label="Claim Type"
-								value="${claim.claimType}">
-							</horizon-label>
-							<horizon-label
-								label="Status"
-								value="${claim.claimStatus}">
-							</horizon-label>
+							
 					</capitec-group>
-					<div slot="content">
-						<capitec-group 
-							class="expander-content" 
-							layout="vertical"
-							gap="none"
-							halign="left"
-							valign="center">
-								
-						</capitec-group>
-					</div>
-				</horizon-expander>
-			`)}
-		`;
-	}
-
-	_renderClosedClaims() {
-		return html`
-		${this.clientClaims.filter((claim) => claim.open === false).map(claim => html`
-				<horizon-expander
-					expandButtonAlignment="none"
-					id="horizon-expander-${claim.claimReference}"
-					disabled>
-					<capitec-group 
-						class="expander-header"
-						slot="custom-header"
-						layout="horizontal"
-						gap="clear"
-						halign="left"
-						valign="center">
-							<horizon-label
-								class="label-claim-number fixed-label"
-								label="${claim.claimType}"
-								textOverflow="ellipsis"
-								value="${claim.claimReference}"
-								@click="${() => this.navigateToClaimSummary(claim)}">
-							</horizon-label>
-							<div class="vertical-line"></div>
-							<horizon-label
-								label="Date of Death"
-								value="${formatDate(claim.dateOfDeath, `dd mmm yyyy`)}">
-							</horizon-label>
-							<horizon-label
-								label="Claim Type"
-								value="${claim.claimType}">
-							</horizon-label>
-							<horizon-label
-								label="Status"
-								value="${claim.claimStatus}">
-							</horizon-label>
-					</capitec-group>
-					<div slot="content">
-						<capitec-group 
-							class="expander-content" 
-							layout="vertical"
-							gap="none"
-							halign="left"
-							valign="center">
-								
-						</capitec-group>
-					</div>
-				</horizon-expander>
-			`)}
-		`
+				</div>
+			</horizon-expander>
+		`)}`;
 	}
 
 	// #endregion

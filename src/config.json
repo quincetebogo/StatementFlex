@@ -336,10 +336,6 @@
 			"enabled": true,
 			"positiveCase": true
 		},
-		"insureClaimSummary": {
-			"enabled": true,
-			"positiveCase": true
-		},
 		"searchCallerAdvanced": {
 			"enabled": true,
 			"positiveCase": true
