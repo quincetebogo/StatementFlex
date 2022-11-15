@@ -471,11 +471,11 @@ class SMSHistory extends Component {
 							value="${comms.contactNumber}">
 						</horizon-label>
 						<horizon-label
-							label="Sent at"
+							label="Sent"
 							value="${formatDate(comms.sentAt, `dd mmm yyyy`)}, ${new Date(comms.sentAt).toLocaleTimeString(`en`, { timeStyle: `short`, hour12: true, timeZone: `UTC` })}">
 						</horizon-label>
 						<horizon-label
-							label="Received at"
+							label="Received"
 							value="${formatDate(comms.sentAt, `dd mmm yyyy`)}, ${new Date(comms.sentAt).toLocaleTimeString(`en`, { timeStyle: `short`, hour12: true, timeZone: `UTC` })}">
 						</horizon-label>
 						<horizon-label
