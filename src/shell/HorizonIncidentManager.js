@@ -209,7 +209,7 @@ export class HorizonIncidentManager {
 		if (isNullorEmpty(incidentInfo.category) && isNullorEmpty(incidentInfo.subCategory) && isNullorEmpty(incidentInfo.issue)) {
 			this.checkIncidentStatus = false;
 			// Incident is not classified. Trying to classify before closing
-			await this.classifyIncident(toggleBusyFlag, undefined, errorHandler);
+			await this.classifyIncident(toggleBusyFlag, manualClassification, errorHandler);
 		}
 
 		 const reason = isNullorEmpty(endCallReason.key) ? CLOSE_REASONS[incidentDetails.needStatus] : endCallReason.key;
