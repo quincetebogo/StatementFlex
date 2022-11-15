@@ -240,7 +240,7 @@ class CancelPolicyDialog extends Component {
 			<capitec-content-box class="no-padding">
 				<capitec-label type="subtitle" label=" By requesting the cancellation of the policy, you acknowledge and confirm that:"></capitec-label>
 				<ul>
-				<li>You will no longer have any benefits under this policy, effective ${dateFormat(this._getDate())}.</li>
+				<li>You will no longer have any benefits under this policy, effective ${dateFormat(this._getDate())}</li>
 				<li>You will be entitled to a refund of all premiums paid if you cancel this policy within 31 (thirty-one) days from the signature provided that no benefit has been paid or claimed</li>
 				<li>You will not be entitled to a refund of premiums, if you cancel this policy at anytime after the 31 (thirty-one) day period referred to above</li>
 				<li>A Waiting Period will not be applicable on the Funeral Benefit, should you take up a new Funeral Cover Plan within 2 (two) months of cancelling this policy</li>
