@@ -125,7 +125,9 @@ export const relatedOptions = {
 			`tax-certificate`,
 			`proof-of-account`
 		]
-	}
+	},
+	'full-ftsp-unlock': CREDIT_RO,
+	'partial-ftsp-unlock': CREDIT_RO
 };
 
 /**
