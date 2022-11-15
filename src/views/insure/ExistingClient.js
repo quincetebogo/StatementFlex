@@ -773,8 +773,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {null} null
 	 */
 	_goToClaimSummary(e) {
-		console.log(`Going to Claim Summary`);
-		console.log(JSON.stringify(e));
+		this.claimSummary = e.detail;
 		this._navigateToSubView(INSURE_RENDER_MODE.CLAIM_SUMMARY);
 	}
 

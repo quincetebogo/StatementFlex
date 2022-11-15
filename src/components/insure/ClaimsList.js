@@ -38,9 +38,8 @@ class InsureClaimsList extends Component {
 	// #region EVENT HANDLERS
 
 	navigateToClaimSummary(claim) {
-		console.log(`claim: `, JSON.stringify(claim));
-		this.dispatchEvent(new CustomEvent(`navigate-to-claim-summary`, {
-			detail: { claim: claim }
+		this.dispatchEvent(new CustomEvent(`claim-selected`, {
+			detail: { claim }
 		}));
 	}
 
@@ -145,6 +144,15 @@ class InsureClaimsList extends Component {
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-line-height: 20px;
 				}
+
+				.outstanding-docs{
+					--horizon-label-value-color: #C83C37 !important;
+				}
+
+				
+				.no-outstanding-docs{
+					--horizon-label-value-color: #70af00!important;
+				}
 			`
 		];
 	}
@@ -194,8 +202,9 @@ class InsureClaimsList extends Component {
 							value="${claim?.policyNumber}">
 						</horizon-label>
 						<horizon-label
+							class="${claim?.outstandingDocs?.length > 0 ? `outstanding-docs` : `no-outstanding-docs`}"
 							label="Outstanding Docs"
-							value="${claim?.outstandingDocs?.length}">
+							value="${claim?.outstandingDocs?.length > 0 ? claim?.outstandingDocs?.length : `None`}">
 						</horizon-label>
 						<horizon-label
 							label="Status"

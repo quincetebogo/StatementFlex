@@ -180,9 +180,8 @@ class ClientPolicies extends Component {
 	 * @returns {void}
 	 */
 	_goToClaimSummary(e) {
-		console.log(`e: `, JSON.stringify(e));
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_CLAIM_DETAILS, {});
-		this.dispatchEvent(new CustomEvent(`navigate-to-claim-summary`, { detail: e.detail }));
+		this.dispatchEvent(new CustomEvent(`navigate-to-claim-summary`, { detail: e.detail.claim }));
 	}
 
 	/**
@@ -936,7 +935,7 @@ class ClientPolicies extends Component {
 					<capitec-content-box  id="client-policies-box" class="accounts-box">
 						<horizon-insure-claims-list 
 							.clientClaims="${this.clientClaims}"
-							@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}" >
+							@claim-selected="${(e) => this._goToClaimSummary(e)}" >
 						</horizon-insure-claims-list>
 					</capitec-content-box>
 					${this._renderFooter()}
