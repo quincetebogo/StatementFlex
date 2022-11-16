@@ -319,7 +319,7 @@ class PolicyTransactionHistory extends Component {
 				gap="none"
 				halign="left"
 				valign="center">
-					<horizon-label label = "Policy Number" 
+					<horizon-label label = "Policy number" 
 						value = "${this.policyTransactionHistory?.contractReference}" 
 						data-automation-id="transaction-header-contract-reference">
 					</horizon-label>
@@ -331,7 +331,7 @@ class PolicyTransactionHistory extends Component {
 						value = "${isNullorEmpty(this.policyTransactionHistory?.accountNumber) ? `-` : this.policyTransactionHistory?.accountNumber}" 
 						data-automation-id="transaction-header-account-number">
 					</horizon-label>
-					<horizon-label label = "Arrears Amount" 
+					<horizon-label label = "Arrears amount" 
 						value = "${isNullorEmpty(this.policyTransactionHistory?.arrearsAmount) ? formatCurrency(0) : formatCurrency(this.policyTransactionHistory?.arrearsAmount)}" 
 						data-automation-id="transaction-header-arrears-amount">
 					</horizon-label>
@@ -529,20 +529,20 @@ class PolicyTransactionHistory extends Component {
 		return html`
 			<capitec-label
 				style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
-				label="Bank Details"
+				label="Bank details"
 				data-automation-id="policy-transaction-history-bank-details">
 			</capitec-label>
 	
 			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Account Name"
+					label="Account name"
 					value = "${item.bankDetails.accountName ? item.bankDetails.accountName : `-`}"
 					data-automation-id="policy-transaction-history-account-name">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Account Number"
+					label="Account number"
 					value = "${item.bankDetails.accountNumber ? item.bankDetails.accountNumber : `-`}"
 					data-automation-id="policy-transaction-history-account-number">
 				</horizon-label>
@@ -554,19 +554,19 @@ class PolicyTransactionHistory extends Component {
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Branch Code"
+					label="Branch code"
 					value = "${item.bankDetails.branchCode}"
 					data-automation-id="policy-transaction-history-branch-code">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Account Type"
+					label="Account type"
 					value = "${item.bankDetails.accountType}"
 					data-automation-id="policy-transaction-history-account-type">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Collection Day"
+					label="Collection day"
 					value = "${item.bankDetails.collectionDay}"
 					data-automation-id="policy-transaction-history-collection-day">
 				</horizon-label>
@@ -581,7 +581,7 @@ class PolicyTransactionHistory extends Component {
 	_renderPolicyTransHistoryColumns() {
 		return html`
 			<capitec-table-column
-				label="Premium Due Date"
+				label="Premium due date"
 				field="premiumDueDate"
 				type="date"
 				size="160px">
