@@ -595,8 +595,44 @@ class ClientPolicies extends Component {
 				this.showCFPAgreementDialog = false;
 				break;
 		}
+	}
 
+/**
+ * determines the value to display for Total Premium
+ * @param {Object} policyItem Policy Item
+ * @returns {String} string
+ */
+	_totalPremiumDisplay(policyItem) {
+		if (policyItem.status === `NotTakenUp` || policyItem.status === `Lapsed`) {
+			return `-`;
+		}
+		return isNullorEmpty(policyItem.totalPremium) ? formatCurrency(0) : formatCurrency(policyItem.totalPremium);
+		
+	}
 
+	/**
+	 * determines the value to display for Next Debit Order
+	 * @param {Object} policyItem policyItem
+	 * @returns {String} string
+	 */
+	_nextDebitOrderDisplay(policyItem) {
+		if (policyItem.status === `NotTakenUp` || policyItem.status === `Lapsed`) {
+			return `-`;
+		}
+		return formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`);
+	}
+
+	/**
+	 * determines the value to display for Arrears
+	 * @param {Object} policyItem policy item
+	 * @param {number} sumArrears policy Item
+	 * @returns {string} string
+	 */
+	_arrearsDisplay(policyItem, sumArrears) {
+		if (policyItem.status === `NotTakenUp` || policyItem.status === `Lapsed`) {
+			return `-`;
+		}
+		return isNullorEmpty(sumArrears) ? formatCurrency(0) : formatCurrency(sumArrears);
 	}
 
 	/**
@@ -892,7 +928,7 @@ class ClientPolicies extends Component {
 			return html`
 			<capitec-popover
 				class="header-popover"
-				heading="You have reached your maximum allowed funeral cover">
+				heading="Maximum cover reached. Maximum cover for main life is R100 000">
 				<capitec-button 
 					disabled
 					type="white" 
@@ -971,7 +1007,7 @@ class ClientPolicies extends Component {
 						<horizon-label
 							class="label-policy-number fixed-label"
 							data-automation-id="insure-policy-contract-reference"
-							label="Policy Number"
+							label="Policy number"
 							textOverflow="ellipsis"
 							value="${policyItem.contractReference}"
 							@click="${() => this._goToPolicySummary(policyItem.contractReference)}">
@@ -979,22 +1015,22 @@ class ClientPolicies extends Component {
 						<div class="vertical-line"></div>
 						<horizon-label
 							data-automation-id="insure-policy-start-date"
-							label="Start Date"
+							label="Start date"
 							value="${formatDate(policyItem.commencementDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.commencementDate, `dd mmm yyyy`)}">
 						</horizon-label>
 						${policyItem.status === `Cancelled`
 					? html`
 						<horizon-label
 							data-automation-id="insure-policy-cancellation-date"
-							label="Cancellation Date"
+							label="Cancellation date"
 							value="${formatDate(policyItem.cancellationDetails?.effectiveCancellationDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.cancellationDetails?.effectiveCancellationDate, `dd mmm yyyy`)}">
 						</horizon-label>
 						`
 					: html`
 						<horizon-label
 							data-automation-id="insure-policy-next-debit-order"
-							label="Next Debit Order"
-							value="${formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`)}">
+							label="Next debit order"
+							value="${this._nextDebitOrderDisplay(policyItem)}">
 						</horizon-label>
 						`
 				}
@@ -1010,8 +1046,8 @@ class ClientPolicies extends Component {
 					: html`
 						<horizon-label
 							data-automation-id="insure-policy-total-premium"
-							label="Total Premium"
-							value="${isNullorEmpty(policyItem.totalPremium) ? formatCurrency(0) : formatCurrency(policyItem.totalPremium)}">
+							label="Total premium"
+							value="${this._totalPremiumDisplay(policyItem)}">
 						</horizon-label>`
 				}
 						${policyItem.status === `Cancelled`
@@ -1021,7 +1057,7 @@ class ClientPolicies extends Component {
 							data-automation-id="insure-policy-arrears"
 							label="Arrears"
 							class="${sumArrears > 0 ? `arrears` : ``}"
-							value="${isNullorEmpty(sumArrears) ? formatCurrency(0) : formatCurrency(sumArrears)}">
+							value="${this._arrearsDisplay(policyItem, sumArrears)}">
 						</horizon-label>
 						`}
 						
