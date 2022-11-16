@@ -206,7 +206,7 @@ class AddLifeDialog extends Component {
 			<capitec-card class="relationship-card">
 				<capitec-radio label="Spouse" id="Spouse" data-automation-id="insure-add-life-dialog-relationship" 
 					.disabled="${this.currentTotalSpouse >= livesPerPolicy(`Spouse`, this.productParams)}" 
-					hint="Only ${livesPerPolicy(`Spouse`, this.productParams)} allowed between the ages of 18 - 64 years."
+					hint="Only one allowed between the ages of 18 - 64 years."
 					@value-changed="${(e) => this._relationshipSelect(e)}"></capitec-radio>
 			</capitec-card>
 			<capitec-card class="relationship-card">

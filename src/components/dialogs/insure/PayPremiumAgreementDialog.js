@@ -199,18 +199,11 @@ class PayPremiumAgreementDialog extends Component {
 	 */
 	 _renderDialogBody() {
 		return html`
-			<div class="notification">
-				<capitec-toast type="info" header="Notify Client" 
-					detail="The full agreement, inclusive of the Policy Schedule, Section 484 summary. Disclosure, terms and conditions,
-					will be emailed to you and available in branch." data-automation-id="insure-pay-premium-agreement-dialog-notification">
-				</capitec-toast>
-			</div>
-
 			<div>
 				<capitec-label class="font" type="subtitle" label="Declaration">
 				</capitec-label>
 				<capitec-label class="spacing" type="strong" label="By agreeing to pay your arrear premiums, you acknowledge and confirm that:
-• Your Savings/ Flexible Account can be debited with the amount of ${formatCurrency(this.payAmount)} on ${dateFormat(Date())} ">
+• ${formatCurrency(this.payAmount)} can be debited from your account on ${dateFormat(Date())} ">
 				</capitec-label>
 			</div>
 
