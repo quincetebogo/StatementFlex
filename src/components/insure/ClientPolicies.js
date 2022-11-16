@@ -595,8 +595,44 @@ class ClientPolicies extends Component {
 				this.showCFPAgreementDialog = false;
 				break;
 		}
+	}
 
+/**
+ * determines the value to display for Total Premium
+ * @param {Object} policyItem Policy Item
+ * @returns {String} string
+ */
+	_totalPremiumDisplay(policyItem) {
+		if (policyItem.status === `NotTakenUp` || policyItem.status === `Lapsed`) {
+			return `-`;
+		}
+		return isNullorEmpty(policyItem.totalPremium) ? formatCurrency(0) : formatCurrency(policyItem.totalPremium);
+		
+	}
 
+	/**
+	 * determines the value to display for Next Debit Order
+	 * @param {Object} policyItem policyItem
+	 * @returns {String} string
+	 */
+	_nextDebitOrderDisplay(policyItem) {
+		if (policyItem.status === `NotTakenUp` || policyItem.status === `Lapsed`) {
+			return `-`;
+		}
+		return formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`);
+	}
+
+	/**
+	 * determines the value to display for Arrears
+	 * @param {Object} policyItem policy item
+	 * @param {number} sumArrears policy Item
+	 * @returns {string} string
+	 */
+	_arrearsDisplay(policyItem, sumArrears) {
+		if (policyItem.status === `NotTakenUp` || policyItem.status === `Lapsed`) {
+			return `-`;
+		}
+		return isNullorEmpty(sumArrears) ? formatCurrency(0) : formatCurrency(sumArrears);
 	}
 
 	/**
@@ -994,7 +1030,7 @@ class ClientPolicies extends Component {
 						<horizon-label
 							data-automation-id="insure-policy-next-debit-order"
 							label="Next debit order"
-							value="${formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`)}">
+							value="${this._nextDebitOrderDisplay(policyItem)}">
 						</horizon-label>
 						`
 				}
@@ -1011,7 +1047,7 @@ class ClientPolicies extends Component {
 						<horizon-label
 							data-automation-id="insure-policy-total-premium"
 							label="Total premium"
-							value="${isNullorEmpty(policyItem.totalPremium) ? formatCurrency(0) : formatCurrency(policyItem.totalPremium)}">
+							value="${this._totalPremiumDisplay(policyItem)}">
 						</horizon-label>`
 				}
 						${policyItem.status === `Cancelled`
@@ -1021,7 +1057,7 @@ class ClientPolicies extends Component {
 							data-automation-id="insure-policy-arrears"
 							label="Arrears"
 							class="${sumArrears > 0 ? `arrears` : ``}"
-							value="${isNullorEmpty(sumArrears) ? formatCurrency(0) : formatCurrency(sumArrears)}">
+							value="${this._arrearsDisplay(policyItem, sumArrears)}">
 						</horizon-label>
 						`}
 						
