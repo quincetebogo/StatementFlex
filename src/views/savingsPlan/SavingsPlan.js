@@ -603,7 +603,7 @@ export class SavingsPlan extends ViewBase {
 		const request = {
 				cifNumber: this.callerInformation.cifNumber,
 				accountNumber: accNumber,
-				partialUnlockAmount: Number(partialUnlockAmount * 100), // Convert rands to cents
+				partialUnlockAmount: parseInt(partialUnlockAmount * 100, 10), // Convert rands to cents
 				unlockType: UNLOCK_TYPE[unlockType],
 				channel: `HORIZON`
 			};
@@ -614,7 +614,7 @@ export class SavingsPlan extends ViewBase {
 			const quoteDetails = returnValue.result;
 
 			// Convert cents to rands
-			quoteDetails.unlockFee = Number(quoteDetails.unlockFee) / 100;
+			quoteDetails.unlockFee = parseInt(quoteDetails.unlockFee, 10) / 100;
 			return quoteDetails;
 		} 
 
