@@ -892,7 +892,7 @@ class ClientPolicies extends Component {
 			return html`
 			<capitec-popover
 				class="header-popover"
-				heading="You have reached your maximum allowed funeral cover">
+				heading="Maximum cover reached. Maximum cover for main life is R100 000">
 				<capitec-button 
 					disabled
 					type="white" 
@@ -971,7 +971,7 @@ class ClientPolicies extends Component {
 						<horizon-label
 							class="label-policy-number fixed-label"
 							data-automation-id="insure-policy-contract-reference"
-							label="Policy Number"
+							label="Policy number"
 							textOverflow="ellipsis"
 							value="${policyItem.contractReference}"
 							@click="${() => this._goToPolicySummary(policyItem.contractReference)}">
@@ -979,21 +979,21 @@ class ClientPolicies extends Component {
 						<div class="vertical-line"></div>
 						<horizon-label
 							data-automation-id="insure-policy-start-date"
-							label="Start Date"
+							label="Start date"
 							value="${formatDate(policyItem.commencementDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.commencementDate, `dd mmm yyyy`)}">
 						</horizon-label>
 						${policyItem.status === `Cancelled`
 					? html`
 						<horizon-label
 							data-automation-id="insure-policy-cancellation-date"
-							label="Cancellation Date"
+							label="Cancellation date"
 							value="${formatDate(policyItem.cancellationDetails?.effectiveCancellationDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.cancellationDetails?.effectiveCancellationDate, `dd mmm yyyy`)}">
 						</horizon-label>
 						`
 					: html`
 						<horizon-label
 							data-automation-id="insure-policy-next-debit-order"
-							label="Next Debit Order"
+							label="Next debit order"
 							value="${formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`)}">
 						</horizon-label>
 						`
@@ -1010,7 +1010,7 @@ class ClientPolicies extends Component {
 					: html`
 						<horizon-label
 							data-automation-id="insure-policy-total-premium"
-							label="Total Premium"
+							label="Total premium"
 							value="${isNullorEmpty(policyItem.totalPremium) ? formatCurrency(0) : formatCurrency(policyItem.totalPremium)}">
 						</horizon-label>`
 				}

@@ -92,6 +92,7 @@ class LodgeClaimInfoDialog extends Component {
 				}
 
 				.bullet-heading-large{
+					padding-top: 10px;
 					font-weight: bold;
 					font-size: 18px;
 					margin-bottom: 10px;
@@ -139,6 +140,7 @@ class LodgeClaimInfoDialog extends Component {
 			<capitec-group layout="vertical" gap="none" halign="left" valign="center">
 				<li class="bullet-label">Email FuneralClaims@capitecbank.co.za</li>
 				<li class="bullet-label">Visit a branch</li>
+				<li class="bullet-label">Call our 24hr client care centre on 0860 10 20 43</li>
 			</capitec-group>
 		
 			<capitec-label id="label" label="Documents needed" type="subtitle" class="bullet-heading-large"></capitec-label>
@@ -154,7 +156,7 @@ class LodgeClaimInfoDialog extends Component {
 			<ul>
 				<li class="bullet-label">The valid identity document of the person logging the claim (the claimant)</li>
 				<li class="bullet-label">The valid identity document of the beneficiary, as well as their banking details (e.
-					bank name, bank account number and branch code if the beneficiary is not a Capitec Bank accountholder)</li>
+					bank name, bank account number and branch code if the beneficiary is not a Capitec Bank account holder)</li>
 				<li class="bullet-label">The death certificate</li>
 				<li class="bullet-label">Either of the following forms, fully completed:</li>
 		
@@ -175,7 +177,7 @@ class LodgeClaimInfoDialog extends Component {
 				<li class="bullet-label">A police report with the details of the cause of death</li>
 			</ul>
 		
-			<capitec-label class="bullet-heading" id="label" label="Benefit claims" type="subtitle"></capitec-label>
+			<capitec-label class="bullet-heading-large" id="label" label="Benefit activations" type="subtitle"></capitec-label>
 			<p class="subtext-paragraph">The following documents are required to activate the below benefits on your Funeral
 				Plan.</p>
 		
