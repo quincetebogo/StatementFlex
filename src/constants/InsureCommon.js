@@ -145,15 +145,15 @@ export const DEBIT_ORDER_DAY_OPTIONS = Object.freeze([
  * @enum {Object} CANCELATION_REASONS
  */
  export const CANCELATION_REASONS = Object.freeze([
-	{ code: `Family`, text: `Family circumstances` },
-	{ code: `Confidential`, text: `Confidential` },
+	
 	{ code: `Affordability`, text: `Affordability` },
-	{ code: `Other_Provider`, text: `Better off at another provider` },
-	{ code: `Already_Covered`, text: `Covered by another family member` },
+	{ code: `Other_Provider`, text: `Policy with other service provider` },
+	{ code: `Already_Covered`, text: `Already covered` },
+	{ code: `Confidential`, text: `Confidential` },
 	{ code: `Insurer_Cancelled`, text: `Insurer cancelled policy` },
 	{ code: `Audit`, text: `Internal Audit Compliance` },
 	{ code: `Invalid`, text: `Invalid Policy` },
-	{ code: `9`, text: `Global One Savings Account is Closed` }
+	{ code: ``, text: `Global One Savings Account is Closed` }
 ]);
 
 

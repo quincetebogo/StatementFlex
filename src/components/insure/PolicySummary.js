@@ -346,29 +346,29 @@ class PolicySummary extends Component {
 		return html`
 			<capitec-title-bar type="default" label="Additional Information" class="inner-details-title"></capitec-title-bar>
 			<capitec-group class="options-group first-row" layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label label="Amount of last premium payment"
+				<horizon-label label="Last payment received"
 					value="${isNullorEmpty(paymentSchedule?.previousPaymentAmount) ? formatCurrency(0) : formatCurrency(paymentSchedule?.previousPaymentAmount)}"
 					data-automation-id="policy-summary-last-premium-payment">
 				</horizon-label>
-				<horizon-label label="Date of last premium payment"
+				<horizon-label label="Last payment date"
 					value="${formatDate(paymentSchedule?.previousPaymentDate, `dd mmm yyyy`) === `` ? `-` : formatDate(paymentSchedule?.previousPaymentDate, `dd mmm yyyy`)}"
 					data-automation-id="policy-summary-last-premium-date">
 				</horizon-label>
-				<horizon-label label="Next debit order amount"
+				<horizon-label label="Next payment due"
 					value="${isNullorEmpty(paymentSchedule?.nextPaymentAmount) ? formatCurrency(0) : formatCurrency(paymentSchedule?.nextPaymentAmount)}"
 					data-automation-id="policy-summary-next-debit-amount">
 				</horizon-label>
-				<horizon-label label="Date of next premium"
+				<horizon-label label="Next payment date"
 					value="${formatDate(paymentSchedule?.nextPaymentDate, `dd mmm yyyy`) === `` ? `-` : formatDate(paymentSchedule?.nextPaymentDate, `dd mmm yyyy`)}"
 					data-automation-id="policy-summary-next-premium">
 				</horizon-label>
 			</capitec-group>
 			<capitec-group class="options-group" layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label label="Amount of last arrears payment"
+				<horizon-label label="Last arrears payment"
 					value="${isNullorEmpty(paymentSchedule?.previousArrearsPaymentAmount) ? formatCurrency(0) : formatCurrency(paymentSchedule?.previousArrearsPaymentAmount)}"
 					data-automation-id="policy-summary-last-arrears-payment-amount">
 				</horizon-label>
-				<horizon-label label="Date of last arrears payment"
+				<horizon-label label="Last arrears payment date"
 					value="${formatDate(paymentSchedule?.previousArrearsPaymentDate, `dd mmm yyyy`) === `` ? `-` : formatDate(paymentSchedule?.previousArrearsPaymentDate, `dd mmm yyyy`)}"
 					data-automation-id="policy-summary-last-arrears-payment-date">
 				</horizon-label>
