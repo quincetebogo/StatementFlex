@@ -30,7 +30,7 @@ const RENDER_CHIPS = {
 	STATUS: ``
 };
 
-const HOLD_RESTRICTION_SET = new Set([`REDEEMABLE`, `PARTIAL REDEEMED`]);
+const HOLD_RESTRICTION_SET = new Set([`Redeemable`, `Partial Redeemed`]);
 
 /**
  * This component shows the send cash landing page.
@@ -247,7 +247,7 @@ export class SendCashLanding extends Component {
 			if (status === `ALL`) {
 				return this.filteredSendCashVouchers;
 			}
-			this.filteredSendCashVouchers = this.filteredSendCashVouchers.filter(item => item.voucherStatus === status);
+			this.filteredSendCashVouchers = this.filteredSendCashVouchers.filter(item => item.voucherStatus.replace(`_`, ` `) === status);
 		}
 
 		this.requestUpdate();
@@ -690,7 +690,7 @@ export class SendCashLanding extends Component {
 							<horizon-label
 								class="status-label"
 								label="Status"
-								value="${formatStringAsPascalCase(item.voucherStatus)}">
+								value="${formatStringAsPascalCase(item.voucherStatus.replace(`_`, ` `))}">
 							</horizon-label>
 					</capitec-group>
 					<div slot="content">
@@ -811,13 +811,13 @@ export class SendCashLanding extends Component {
 	}
 
 	_renderFooter(item) {
-		if (HOLD_RESTRICTION_SET.has(item.voucherStatus)) {
+		if (HOLD_RESTRICTION_SET.has(formatStringAsPascalCase(item.voucherStatus.replace(`_`, ` `)))) {
 			return html`
 				<capitec-content-box layout="horizontal" halign="right" valign="center" gap="clear" class="footer">
 					<capitec-button
 							type="primary" 
 							label="Place hold"
-							?hidden="${!HOLD_RESTRICTION_SET.has(item.voucherStatus)}"
+							?hidden="${!HOLD_RESTRICTION_SET.has(formatStringAsPascalCase(item.voucherStatus.replace(`_`, ` `)))}"
 							@click="${() => this._onPlaceHoldClick(item)}">
 					</capitec-button>
 				</capitec-content-box>
