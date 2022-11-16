@@ -127,7 +127,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insureClientPolicies`);
 		}
 		return this.post(
-			`/horizon-insurance/client/summary?WithClaims=true`,
+			`/horizon-insurance/client/summary?WithClaims=false`,
 			clientPoliciesRequest,
 			this.setInsureTokens(),
 			`summary`,
@@ -153,7 +153,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insurePolicySummary`);
 		}
 		return this.post(
-			`/horizon-insurance/policy/summary?WithClaims=true`,
+			`/horizon-insurance/policy/summary?WithClaims=false`,
 			policyRequest,
 			this.setInsureTokens(),
 			`policysummary`,
@@ -659,7 +659,7 @@ export class InsureService extends ChannelServiceBase {
 	}
 
 	/**
-	 * ClientClaims List
+	 * Client Claims List
 	 *
 	 * @param {clientClaimsRequest} [clientClaimsRequest=null]  Request data
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 

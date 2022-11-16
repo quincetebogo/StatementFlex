@@ -1,16 +1,18 @@
 import { Component, css, html } from 'platform/elements';
-import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { formatCurrency } from 'app/productControls/utilities/Currency';
-
-// #endregion CONSTANTS
+import { formatDate } from 'app/utils/channelServiceUtilities';
 
 /**
- * Claims list component
+ * Display a list of all client claims, in progress and completed.
+ * 
+ * Events Raised 
+ * -------------
+ * claim-selected
  *  
  * @export
  * @class InsureClaimsList
  * @extends {Component}
  */
+
 class InsureClaimsList extends Component {
 
 	// #region INITIALIZE
@@ -37,10 +39,13 @@ class InsureClaimsList extends Component {
 
 	// #region EVENT HANDLERS
 
+	/**
+	* Claim selected, navigate to claim details
+	* @param {object} claim Selected claim object
+	* @returns {void} 
+	*/
 	navigateToClaimSummary(claim) {
-		this.dispatchEvent(new CustomEvent(`claim-selected`, {
-			detail: { claim }
-		}));
+		this.dispatchEvent(new CustomEvent(`claim-selected`, { detail: { claim } }));
 	}
 
 	// #endregion EVENT HANDLERS
@@ -65,7 +70,6 @@ class InsureClaimsList extends Component {
 					font-size: 16px;
 					font-weight: bold;
 				}
-
 				.label-claim-number {
 					--theme-label-cursor: pointer;
 					--horizon-label-value-color: #009DE0;
@@ -79,7 +83,6 @@ class InsureClaimsList extends Component {
 					width: 1px;
 					background-color: #E1E1E1;
 				}
-
 				.options-group {
 					height: 80px; 
 					margin: 17px 0px 15px 0px;
@@ -90,13 +93,11 @@ class InsureClaimsList extends Component {
 					height: 80px;
 					margin-left: 16px;
 					padding: 0px;
-	
 					--horizon-option-btn-text-margin-top: 3px;
 					--horizon-option-btn-icon-height: 26px;
 					--horizon-option-btn-icon-width: 26px;
 				}
 	
-				/* Expander header and content styles */
 				horizon-expander {
 					margin-bottom: 16px;
 					--theme-expander-height: auto;
@@ -149,7 +150,6 @@ class InsureClaimsList extends Component {
 					--horizon-label-value-color: #C83C37 !important;
 				}
 
-				
 				.no-outstanding-docs{
 					--horizon-label-value-color: #70af00!important;
 				}
@@ -167,6 +167,10 @@ class InsureClaimsList extends Component {
 		`;
 	}
 
+	/**
+	 * List of expanders for each claim item
+	 * @returns {html} The html content of the component.
+	 */
 	_renderClaimList() {
 		return html`
 		${this.clientClaims?.claimSummaries?.map(claim => html`
@@ -218,7 +222,6 @@ class InsureClaimsList extends Component {
 						gap="none"
 						halign="left"
 						valign="center">
-							
 					</capitec-group>
 				</div>
 			</horizon-expander>
@@ -229,3 +232,13 @@ class InsureClaimsList extends Component {
 }
 
 window.customElements.define(`horizon-insure-claims-list`, InsureClaimsList);
+
+/**
+ * Triggered when a claim is selected, contains the selected claim object
+ *
+ * @example
+ * <horizon-insure-client-policies ... @claim-selected = "${() => this._handler}"></horizon-insure-client-policies>
+ *
+ * @event InsureClaimsList#claim-selected
+ * @type {Object} - N/A
+ */

@@ -2,8 +2,12 @@ import { Component, css, html } from 'platform/elements';
 import { formatDate } from 'app/utils/channelServiceUtilities';
 
 /**
- * Claim Summary component
- *  
+ * Claim Summary component shows details of a selected claim, including any outstanding documents
+ * 
+ * Events Raised 
+ * -------------
+ * navigate-back
+ * 
  * @export
  * @class ClaimSummary
  * @extends {Component}
@@ -38,7 +42,6 @@ class ClaimSummary extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
-
 	}
 
 	// #region EVENT HANDLERS 
@@ -47,7 +50,7 @@ class ClaimSummary extends Component {
 	 * Navigate to Insure Landing page
 	 * @returns {null} null
 	 */
-	_backToClientPoliciesPage() {
+	backToClientPoliciesPage() {
 		this.dispatchEvent(new CustomEvent(`navigate-back`, {}));
 	}
 
@@ -101,8 +104,8 @@ class ClaimSummary extends Component {
 				}
 
 				.doc-item{
-					color: #003652;
-					font-weight: bold;
+					--horizon-label-text-height: 20px;
+					--horizon-label-text-color: #3A3A3A;
 				}
 
 				capitec-group > capitec-title-bar {
@@ -114,13 +117,26 @@ class ClaimSummary extends Component {
 					box-shadow: none!important;
 				}
 
+				horizon-label {
+					--theme-layout-gap-spacing: 0px;
+					--horizon-label-text-height: 20px;
+					--horizon-label-text-color: #3A3A3A;
+					--horizon-label-text-line-height: 20px;
+					
+					--horizon-label-value-height: auto;
+					--horizon-label-value-color: #3A3A3A;
+					--horizon-label-value-font-size: 16px;
+					--horizon-label-value-line-height: 15px;
+					word-break: break-word;
+				}
+
 				.lives-container {
 					--theme-container-padding-left: 16px;
 					--theme-container-padding-right: 16px;
 					--theme-container-padding-bottom: 16px;
 					--theme-container-padding-top: 0px;
 					--theme-layout-gap-spacing: 0px;
-					margin-bottom: 25px;
+					margin-bottom: 15px;
 				}
 
 				.fixed-label {
@@ -136,12 +152,11 @@ class ClaimSummary extends Component {
 	 * @returns {html} The html content of the component.
 	 */
 	_webTemplate() {
-
 		return html`
 			<capitec-card>
 				<capitec-title-bar type="insure" class="insure-title-bar">
 					<img class="action-image" src="/images/insure/left-arrow.svg"
-						 @click="${() => this._backToClientPoliciesPage()}" />
+						 @click="${() => this.backToClientPoliciesPage()}" />
 					<capitec-label label="Claim Summary" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
 				</capitec-title-bar>
@@ -163,7 +178,6 @@ class ClaimSummary extends Component {
 				</div>
 
 				<div class="summary-row">
-
 					<horizon-label label="Cause of incident" class="row-item"
 						value="${this.claimSummary?.causeOfIncident}">
 					</horizon-label>
@@ -179,7 +193,6 @@ class ClaimSummary extends Component {
 				</div>
 
 				<div class="summary-row">
-
 					<horizon-label label="Date of event" class="row-item"
 						value="${formatDate(this.claimSummary?.dateOfEvent, `dd mmm yyyy`)}">
 					</horizon-label>
@@ -198,7 +211,6 @@ class ClaimSummary extends Component {
 				<capitec-group layout="vertical" halign="left" valign="top" gap="none">
 					<capitec-title-bar type="default" label="Life assured">
 					</capitec-title-bar>
-
 					<capitec-content-box class="lives-container">
 						<horizon-expander
 							expandButtonAlignment="none"
@@ -216,28 +228,24 @@ class ClaimSummary extends Component {
 									textOverflow="ellipsis"
 									value="${this.claimSummary?.lifeAssured?.relationship}">
 								</horizon-label>
-
 								<horizon-label
 									class="fixed-label"
 									label="First name"
 									textOverflow="ellipsis"
 									value="${this.claimSummary?.lifeAssured?.firstName}">
 								</horizon-label>
-
 								<horizon-label
 									class="fixed-label"
 									label="Surname"
 									textOverflow="ellipsis"
 									value="${this.claimSummary?.lifeAssured?.surname}">
 								</horizon-label>
-
 								<horizon-label
 									class="fixed-label"
 									label="Date of birth"
 									textOverflow="ellipsis"
 									value="${formatDate(this.claimSummary?.lifeAssured?.dateOfBirth, `dd mmm yyyy`)}">
 								</horizon-label>
-
 								<horizon-label
 									class="fixed-label"
 									label="ID Number"
@@ -245,15 +253,24 @@ class ClaimSummary extends Component {
 									value="${this.claimSummary?.lifeAssured?.idNumber}">
 								</horizon-label>
 							</capitec-group>
-							
 						</horizon-expander>
 					</capitec-content-box>
-
 				</capitec-group>
-			</capitec-card>`;
+			</capitec-card>
+		`;
 	}
 
 	// #endregion
 }
 
 window.customElements.define(`horizon-insure-claim-summary`, ClaimSummary);
+
+/**
+ * When back arrow button is clicked, navigate
+ *
+ * @example
+ * <horizon-insure-policy-summary ... @navigate-back="${this._handler}"></horizon-insure-policy-summary>
+ *
+ * @event PolicySummary#navigate-back
+ * @type {Object} - N/A
+ */
