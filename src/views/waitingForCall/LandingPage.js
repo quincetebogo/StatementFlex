@@ -59,6 +59,9 @@ export class LandingPage extends ViewBase {
 		this.searchCallSub = this.eventAggregator.subscribe(`search-caller`, (newCallInfo) => this._onSearchCaller(newCallInfo));
 		this.agentUpSub = this.eventAggregator.subscribe(`desktop-agent-up`, () => this._desktopAgentup());
 		this.eventSub = this.eventAggregator.subscribe(`prompt-start-desktopagent`, () => this._promptStartDesktopAgent());
+		this.incCreatedOnRetry = this.eventAggregator.subscribe(`accept-call`, () => this._initiateAcceptCall());
+		this.continueWithoutInc = this.eventAggregator.subscribe(`continue-without-incident`, () => this._initiateAcceptCall());
+
 		this.desktopAgentDown = false;
 		this.isAuthorised = false;
 
@@ -122,6 +125,8 @@ export class LandingPage extends ViewBase {
 		this.agentUpSub.dispose(); 
 		this.eventSub.dispose();
 		this.callStatusSubscription.unsubscribe();
+		this.incCreatedOnRetry.dispose();
+		this.continueWithoutInc.dispose();
 
 		super.disconnectedCallback();
 	}
@@ -145,9 +150,18 @@ export class LandingPage extends ViewBase {
 	}
 
 	async _onNewCall(newCallInfo) {
-		// Create an incident in STrack for the new incoming call. This was initially planned to happen
+		
+		// 1. Saving incoming call details into state
+		this._saveIncomingCallDetails(newCallInfo);
+
+		// 2. Create an incident in STrack for the new incoming call. This was initially planned to happen
 		// in the desktop agent but has moved here. 
 		const incident = await this._createIncident(newCallInfo);
+
+		if (!incident) {
+			this.horizonRouter.navigateToCreateIncidentError();
+			return false;
+		}
 
 		this.incidentDetails = new IncidentDetails(
 			incident ? incident.incidentNumber : `0`,
@@ -160,12 +174,19 @@ export class LandingPage extends ViewBase {
 		this._acceptCall(newCallInfo);
 	}
 
+	_initiateAcceptCall() {
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		
+		this._acceptCall(this.incomingCallDetails);
+	}
+
 	async _createIncident(newCallInfo) {
-		 const returnValue = await this.incidentManagementService.createIncident(newCallInfo, (ex) => this._landingPageErrorHandler(ex));
+		 const returnValue = await this.incidentManagementService.createIncident(newCallInfo, (ex) => this._landingPageErrorHandler(ex), 1);
 		 const incident = returnValue.result;
 
 		 if (!returnValue.succeeded || !incident) {
-		 	this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `_createIncident`, returnValue.correlationId);
+		 	this.logger.log(`error`, `Failed to create incident on new call`, `_createIncident`, returnValue.correlationId);
 		 }
 
 		if (incident) {
@@ -218,18 +239,6 @@ export class LandingPage extends ViewBase {
 	 * @memberof LandingPage
 	 */
 	_dispatchCall(acceptedCall, newCallInfo, forceSearchDialog) {
-		// Set up state for the incoming call
-		this.incomingCallDetails = new IncomingCallDetails(
-			newCallInfo.VDN,
-			newCallInfo.incomingTelephoneNumber,
-			false, 
-			false,
-			newCallInfo.voiceReferenceNumber,
-			newCallInfo.agentTelephoneNumber,
-			newCallInfo.ivrOptionCode
-		);
-
-		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 		
 		const state = {
@@ -369,6 +378,21 @@ export class LandingPage extends ViewBase {
 		// Since we can proceed whatever the channel service error on this page, return true to indicate that the error was handled.
 		// The Channel Service call wrappers will log the failed calls.
 		return true;
+	}
+
+	_saveIncomingCallDetails(newCallInfo) {
+
+		// Set up state for the incoming call
+		this.incomingCallDetails = new IncomingCallDetails(
+			newCallInfo.VDN,
+			newCallInfo.incomingTelephoneNumber,
+			false, 
+			false,
+			newCallInfo.voiceReferenceNumber,
+			newCallInfo.agentTelephoneNumber,
+			newCallInfo.ivrOptionCode
+		);
+		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 	}
 
 	// ---------
