@@ -181,7 +181,7 @@ class ClientPolicies extends Component {
 	 */
 	_goToClaimSummary(e) {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_CLAIM_DETAILS, {});
-		this.dispatchEvent(new CustomEvent(`navigate-to-claim-summary`, { detail: e.detail }));
+		this.dispatchEvent(new CustomEvent(`navigate-to-claim-summary`, { detail: e.detail.claim }));
 	}
 
 	/**
@@ -924,9 +924,6 @@ class ClientPolicies extends Component {
 				<capitec-tab
 					data-automation-id="insure-landing-policies-tab"
 					label="Policies">
-					<capitec-content-box class="header-label">
-						${isNullorEmpty(this.clientPolicies) ? html`<capitec-label label="Funeral Plan" class="strong-label"></capitec-label>` : html``}
-					</capitec-content-box>
 					<capitec-content-box  id="client-policies-box" class="accounts-box">
 							${this._renderPoliciesDetailsBar()}
 					</capitec-content-box>
@@ -936,7 +933,10 @@ class ClientPolicies extends Component {
 					data-automation-id="insure-landing-claims-tab"
 					label="Claims">
 					<capitec-content-box  id="client-policies-box" class="accounts-box">
-						<horizon-insure-claims-list @navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}" .clientClaims="${this.clientClaims}"></horizon-insure-claims-list>
+						<horizon-insure-claims-list 
+							.clientClaims="${this.clientClaims}"
+							@claim-selected="${(e) => this._goToClaimSummary(e)}" >
+						</horizon-insure-claims-list>
 					</capitec-content-box>
 					${this._renderFooter()}
 				</capitec-tab>

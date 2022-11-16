@@ -127,7 +127,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insureClientPolicies`);
 		}
 		return this.post(
-			`/horizon-insurance/client/summary?WithClaims=true`,
+			`/horizon-insurance/client/summary?WithClaims=false`,
 			clientPoliciesRequest,
 			this.setInsureTokens(),
 			`summary`,
@@ -153,7 +153,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insurePolicySummary`);
 		}
 		return this.post(
-			`/horizon-insurance/policy/summary?WithClaims=true`,
+			`/horizon-insurance/policy/summary?WithClaims=false`,
 			policyRequest,
 			this.setInsureTokens(),
 			`policysummary`,
@@ -659,36 +659,33 @@ export class InsureService extends ChannelServiceBase {
 	}
 
 	/**
-	 * Claims List
+	 * Client Claims List
 	 *
-	 * @param {claimsRequest} [claimsRequest=null]  Request data
+	 * @param {clientClaimsRequest} [clientClaimsRequest=null]  Request data
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	async claimsList(claimsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async claimsList(clientClaimsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`insureClaims`)) {
 			return this.mock(`insureClaims`);
 		}
-	}
 
-	/**
-	 * Claims Summary
-	 *
-	 * @param {claimsRequest} [claimsRequest=null]  Request data
-	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 */
-	async claimSummary(claimsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		if (await this.isMockEnabled(`insureClaimSummary`)) {
-			return this.mock(`insureClaimSummary`);
-		}
+		return this.post(
+			`/horizon-insurance/ViewExistingClaims`,
+			clientClaimsRequest,
+			this.setInsureTokens(),
+			`ViewExistingClaims`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
-
 
 	// #endregion
-
 
 	// #region OLD // Check if can / should still use these
 

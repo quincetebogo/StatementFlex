@@ -1,16 +1,18 @@
 import { Component, css, html } from 'platform/elements';
-import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { formatCurrency } from 'app/productControls/utilities/Currency';
-
-// #endregion CONSTANTS
+import { formatDate } from 'app/utils/channelServiceUtilities';
 
 /**
- * Claims list component
+ * Display a list of all client claims, in progress and completed.
+ * 
+ * Events Raised 
+ * -------------
+ * claim-selected
  *  
  * @export
  * @class InsureClaimsList
  * @extends {Component}
  */
+
 class InsureClaimsList extends Component {
 
 	// #region INITIALIZE
@@ -37,10 +39,13 @@ class InsureClaimsList extends Component {
 
 	// #region EVENT HANDLERS
 
+	/**
+	* Claim selected, navigate to claim details
+	* @param {object} claim Selected claim object
+	* @returns {void} 
+	*/
 	navigateToClaimSummary(claim) {
-		this.dispatchEvent(new CustomEvent(`navigate-to-claim-summary`, {
-			detail: { claimReference: claim.claimReference }
-		}));
+		this.dispatchEvent(new CustomEvent(`claim-selected`, { detail: { claim } }));
 	}
 
 	// #endregion EVENT HANDLERS
@@ -65,7 +70,6 @@ class InsureClaimsList extends Component {
 					font-size: 16px;
 					font-weight: bold;
 				}
-
 				.label-claim-number {
 					--theme-label-cursor: pointer;
 					--horizon-label-value-color: #009DE0;
@@ -79,7 +83,6 @@ class InsureClaimsList extends Component {
 					width: 1px;
 					background-color: #E1E1E1;
 				}
-
 				.options-group {
 					height: 80px; 
 					margin: 17px 0px 15px 0px;
@@ -90,13 +93,11 @@ class InsureClaimsList extends Component {
 					height: 80px;
 					margin-left: 16px;
 					padding: 0px;
-	
 					--horizon-option-btn-text-margin-top: 3px;
 					--horizon-option-btn-icon-height: 26px;
 					--horizon-option-btn-icon-width: 26px;
 				}
 	
-				/* Expander header and content styles */
 				horizon-expander {
 					margin-bottom: 16px;
 					--theme-expander-height: auto;
@@ -144,6 +145,14 @@ class InsureClaimsList extends Component {
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-line-height: 20px;
 				}
+
+				.outstanding-docs{
+					--horizon-label-value-color: #C83C37 !important;
+				}
+
+				.no-outstanding-docs{
+					--horizon-label-value-color: #70af00!important;
+				}
 			`
 		];
 	}
@@ -154,121 +163,82 @@ class InsureClaimsList extends Component {
 	 */
 	_webTemplate() {
 		return html`
-			<capitec-content-box class="header-label">
-				<capitec-label label="Open"></capitec-label>
-			</capitec-content-box>
-
-			${this._renderOpenClaims()}
-			
-
-			<capitec-content-box class="header-label">
-				<capitec-label label="Closed"></capitec-label>
-			</capitec-content-box>
-			${this._renderClosedClaims()}
+			${this._renderClaimList()}
 		`;
 	}
 
-	_renderOpenClaims() {
+	/**
+	 * List of expanders for each claim item
+	 * @returns {html} The html content of the component.
+	 */
+	_renderClaimList() {
 		return html`
-		${this.clientClaims.filter((claim) => claim.open === true).map(claim => html`
-				<horizon-expander
-					expandButtonAlignment="none"
-					id="horizon-expander-${claim.claimReference}"
-					disabled>
+		${this.clientClaims?.claimSummaries?.map(claim => html`
+			<horizon-expander
+				expandButtonAlignment="none"
+				id="horizon-expander-${claim.claimsReference}"
+				disabled>
+				<capitec-group 
+					class="expander-header"
+					slot="custom-header"
+					layout="horizontal"
+					gap="clear"
+					halign="left"
+					valign="center">
+						<horizon-label
+							class="label-claim-number fixed-label"
+							label="Reference"
+							textOverflow="ellipsis"
+							value="${claim?.claimsReference}"
+							@click="${() => this.navigateToClaimSummary(claim)}">
+						</horizon-label>
+						<div class="vertical-line"></div>
+						<horizon-label
+							label="Claim type"
+							value="${claim?.claimType}">
+						</horizon-label>
+						<horizon-label
+							label="Date of event"
+							value="${formatDate(claim?.dateOfEvent, `dd mmm yyyy`)}">
+						</horizon-label>
+						<horizon-label
+							label="Policy number"
+							value="${claim?.policyNumber}">
+						</horizon-label>
+						<horizon-label
+							class="${claim?.outstandingDocs?.length > 0 ? `outstanding-docs` : `no-outstanding-docs`}"
+							label="Outstanding Docs"
+							value="${claim?.outstandingDocs?.length > 0 ? claim?.outstandingDocs?.length : `None`}">
+						</horizon-label>
+						<horizon-label
+							label="Status"
+							value="${claim?.claimStatus}">
+						</horizon-label>
+				</capitec-group>
+				<div slot="content">
 					<capitec-group 
-						class="expander-header"
-						slot="custom-header"
-						layout="horizontal"
-						gap="clear"
+						class="expander-content" 
+						layout="vertical"
+						gap="none"
 						halign="left"
 						valign="center">
-							<horizon-label
-								class="label-claim-number fixed-label"
-								label="${claim.claimType}"
-								textOverflow="ellipsis"
-								value="${claim.claimReference}"
-								@click="${() => this.navigateToClaimSummary(claim)}">
-							</horizon-label>
-							<div class="vertical-line"></div>
-							<horizon-label
-								label="Date of Death"
-								value="${formatDate(claim.dateOfDeath, `dd mmm yyyy`)}">
-							</horizon-label>
-							<horizon-label
-								label="Claim Type"
-								value="${claim.claimType}">
-							</horizon-label>
-							<horizon-label
-								label="Status"
-								value="${claim.claimStatus}">
-							</horizon-label>
 					</capitec-group>
-					<div slot="content">
-						<capitec-group 
-							class="expander-content" 
-							layout="vertical"
-							gap="none"
-							halign="left"
-							valign="center">
-								
-						</capitec-group>
-					</div>
-				</horizon-expander>
-			`)}
-		`;
-	}
-
-	_renderClosedClaims() {
-		return html`
-		${this.clientClaims.filter((claim) => claim.open === false).map(claim => html`
-				<horizon-expander
-					expandButtonAlignment="none"
-					id="horizon-expander-${claim.claimReference}"
-					disabled>
-					<capitec-group 
-						class="expander-header"
-						slot="custom-header"
-						layout="horizontal"
-						gap="clear"
-						halign="left"
-						valign="center">
-							<horizon-label
-								class="label-claim-number fixed-label"
-								label="${claim.claimType}"
-								textOverflow="ellipsis"
-								value="${claim.claimReference}"
-								@click="${() => this.navigateToClaimSummary(claim)}">
-							</horizon-label>
-							<div class="vertical-line"></div>
-							<horizon-label
-								label="Date of Death"
-								value="${formatDate(claim.dateOfDeath, `dd mmm yyyy`)}">
-							</horizon-label>
-							<horizon-label
-								label="Claim Type"
-								value="${claim.claimType}">
-							</horizon-label>
-							<horizon-label
-								label="Status"
-								value="${claim.claimStatus}">
-							</horizon-label>
-					</capitec-group>
-					<div slot="content">
-						<capitec-group 
-							class="expander-content" 
-							layout="vertical"
-							gap="none"
-							halign="left"
-							valign="center">
-								
-						</capitec-group>
-					</div>
-				</horizon-expander>
-			`)}
-		`
+				</div>
+			</horizon-expander>
+		`)}`;
 	}
 
 	// #endregion
 }
 
 window.customElements.define(`horizon-insure-claims-list`, InsureClaimsList);
+
+/**
+ * Triggered when a claim is selected, contains the selected claim object
+ *
+ * @example
+ * <horizon-insure-client-policies ... @claim-selected = "${() => this._handler}"></horizon-insure-client-policies>
+ *
+ * @event InsureClaimsList#claim-selected
+ * @type {Object} - N/A
+ */
