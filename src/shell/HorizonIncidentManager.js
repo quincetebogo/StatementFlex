@@ -53,13 +53,13 @@ export class HorizonIncidentManager {
 		
 		Component.prototype._inicidentManager_ = (clientNeed, toggleBusyFlag) => this._handleMultipleNeed(clientNeed, toggleBusyFlag);
 		Component.prototype.createAndClassifySubsIncident = (toggleBusyFlag, incidentCategorization = null, classify = true) => this.createAndClassifySubsIncident(toggleBusyFlag, incidentCategorization, classify);
-		Component.prototype.closeIncident = (options, toggleBusyFlag) => this.closeIncident(options, toggleBusyFlag);
-		Component.prototype.classifyIncident = (toggleBusyFlag, incidentCategorization) => this.classifyIncident(toggleBusyFlag, incidentCategorization);
+		Component.prototype.closeIncident = (options, toggleBusyFlag, errorHandler) => this.closeIncident(options, toggleBusyFlag, errorHandler);
+		Component.prototype.classifyIncident = (toggleBusyFlag, incidentCategorization, errorHandler) => this.classifyIncident(toggleBusyFlag, incidentCategorization, errorHandler);
 
 		View.prototype._inicidentManager_ = (clientNeed, toggleBusyFlag) => this._handleMultipleNeed(clientNeed, toggleBusyFlag);
 		View.prototype.createAndClassifySubsIncident = (toggleBusyFlag, incidentCategorization = null, classify = true) => this.createAndClassifySubsIncident(toggleBusyFlag, incidentCategorization, classify);
-		View.prototype.closeIncident = (options, toggleBusyFlag) => this.closeIncident(options, toggleBusyFlag);
-		View.prototype.classifyIncident = (toggleBusyFlag, incidentCategorization) => this.classifyIncident(toggleBusyFlag, incidentCategorization);
+		View.prototype.closeIncident = (options, toggleBusyFlag, errorHandler) => this.closeIncident(options, toggleBusyFlag, errorHandler);
+		View.prototype.classifyIncident = (toggleBusyFlag, incidentCategorization, errorHandler) => this.classifyIncident(toggleBusyFlag, incidentCategorization, errorHandler);
 	}
 
 	async _handleMultipleNeed (clientNeed, toggleBusyFlag) {
@@ -184,9 +184,10 @@ export class HorizonIncidentManager {
 	 *          - endCallReason - End call reason selected/ default to `Normal Enquiry'
 	 *          - causeCodeByContext - Cause code to end call session
 	 * @param {Function} toggleBusyFlag - Toggle busy flag function
+	 * @param {Function} errorHandler - Custom error handling function
 	 * @returns {boolean} - true/ false, indicating close incident status
 	 */
-	 async closeIncident({ clientNeed, endCallReason = {}, manualClassification = {} }, toggleBusyFlag) {
+	 async closeIncident({ clientNeed, endCallReason = {}, manualClassification = {} }, toggleBusyFlag, errorHandler = null) {
 
 		this.incidentService._toggleBusyFlag = toggleBusyFlag;
 		manualClassification = manualClassification || {};
@@ -198,7 +199,7 @@ export class HorizonIncidentManager {
 			return false;
 		}
 
-		const incidentInfo = await this._incidentStatus(incidentDetails.incidentRecId);
+		const incidentInfo = await this._incidentStatus(incidentDetails.incidentRecId, errorHandler);
 
 		if (this._isReassigned(incidentInfo)) {
 			this.logger.log(`warning`, `Incident manager: ${incidentDetails.incidentRecId} is reassigned, skipping close incident`, `closeIncident`, null);
@@ -208,7 +209,7 @@ export class HorizonIncidentManager {
 		if (isNullorEmpty(incidentInfo.category) && isNullorEmpty(incidentInfo.subCategory) && isNullorEmpty(incidentInfo.issue)) {
 			this.checkIncidentStatus = false;
 			// Incident is not classified. Trying to classify before closing
-			await this.classifyIncident(toggleBusyFlag);
+			await this.classifyIncident(toggleBusyFlag, manualClassification, errorHandler);
 		}
 
 		 const reason = isNullorEmpty(endCallReason.key) ? CLOSE_REASONS[incidentDetails.needStatus] : endCallReason.key;
@@ -222,7 +223,7 @@ export class HorizonIncidentManager {
 			causeCode: causeCode
 		};
 
-		const returnValue = await this.incidentService.closeIncident(closeIncidentRequest);
+		const returnValue = await this.incidentService.closeIncident(closeIncidentRequest, errorHandler);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`warning`, `Failed to close incident. Agent may have to manually close incident.`, `_closePrimaryIncident`, returnValue.correlationId);
@@ -238,9 +239,10 @@ export class HorizonIncidentManager {
 	 * 
 	 * @param {Function} toggleBusyFlag - Toggle busy flag function
 	 * @param {Object} incidentCategorization - Object holds category, subcategory & issue that needs to be updated for an incident
+	 * @param {Function} errorHandler - Custom error handling function
 	 * @returns {void}
 	 */
-	 async classifyIncident(toggleBusyFlag, incidentCategorization) {
+	 async classifyIncident(toggleBusyFlag, incidentCategorization, errorHandler = null) {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		let canClassify = !this.checkIncidentStatus;
@@ -253,7 +255,7 @@ export class HorizonIncidentManager {
 		}
 
 		if (this.checkIncidentStatus) {
-			const incidentInfo = await this._incidentStatus(incidentDetails.incidentRecId);
+			const incidentInfo = await this._incidentStatus(incidentDetails.incidentRecId, errorHandler);
 			canClassify = isNullorEmpty(incidentInfo.category) && isNullorEmpty(incidentInfo.subCategory) && isNullorEmpty(incidentInfo.issue);
 		}
 
@@ -266,7 +268,7 @@ export class HorizonIncidentManager {
 				needAction: needAction,
 				incidentCategorization: incidentCategorization
 			};
-			const returnValue = await this.incidentService.classifyIncident(request);
+			const returnValue = await this.incidentService.classifyIncident(request, errorHandler);
 	
 			if (!returnValue.succeeded) {
 				this.logger.log(`warning`, `Failed to classify incident. Agent may have to manually categorize at STrack.`, `classifyIncident`, returnValue.correlationId);
@@ -281,7 +283,9 @@ export class HorizonIncidentManager {
 	// ---------------
 
 	_isReassigned(incidentInfo) {
-		return incidentInfo.owner.toLocaleLowerCase() !== this.securityContext.username;
+		if (!isNullorEmpty(incidentInfo?.owner)) {
+			return incidentInfo.owner.toLocaleLowerCase() !== this.securityContext.username;
+		}
 	}
 
 	_getResolution(incResolution, incidentDetails, endCallReason, manualClassification) {
@@ -337,12 +341,12 @@ export class HorizonIncidentManager {
 		this.horizonStore.setIncidentDetails(curIncidentDetails);
 	}
 
-	async _incidentStatus(incidentRecId) {
-		const returnValue = await this.incidentService.incidentStatus(incidentRecId);
+	async _incidentStatus(incidentRecId, errorHandler) {
+		const returnValue = await this.incidentService.incidentStatus(incidentRecId, errorHandler);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to get incident status.`, `_incidentStatus`, returnValue.correlationId);
-			return null;
+			return {};
 		}
 		return returnValue.result;
 	}
