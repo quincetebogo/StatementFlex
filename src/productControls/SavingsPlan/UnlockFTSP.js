@@ -499,9 +499,11 @@ const UNLOCK_OPTIONS = {
 					margin: 0px 0px 16px 16px;
 					border: 1px solid #e1e1e1;
 					border-radius: 4px;
+					cursor: pointer;
 				}
 				.group-disabled {
 					background-color: #F5F5F5;
+					cursor: default;
 				}
 				.agreement-group > capitec-icon {
 					margin: 0px 16px;

@@ -332,7 +332,7 @@ export class SearchCaller extends Component {
 				searchValue: this.searchValue
 			};
 
-			const returnValue = await this.clientProfileService.searchCaller(searchClient);
+			const returnValue = await this.clientProfileService.searchCaller(searchClient, null, 1);
 			const identifiedClient = returnValue.result;
 
 			if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
@@ -372,7 +372,7 @@ export class SearchCaller extends Component {
 					"client-verified": this.isClientVerifiedInBranch
 				});
 
-				const returnValue = await this.clientProfileService.searchCaller(searchClient);
+				const returnValue = await this.clientProfileService.searchCaller(searchClient, null, 1);
 				const identifiedClient = returnValue.result;
 
 				if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {

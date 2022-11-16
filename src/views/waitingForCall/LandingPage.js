@@ -215,7 +215,7 @@ export class LandingPage extends ViewBase {
 		// telephone number. For a manually created call, we don't know the incoming telephone number.
 		if (incomingNumber !== `0` && incomingNumber !== `0000000000` && incomingNumber !== ``) {
 			// Check the incoming call to see if it is a verified or unverified number
-			const returnValue = await this.clientProfileService.acceptCall(newCallInfo);
+			const returnValue = await this.clientProfileService.acceptCall(newCallInfo, null, 1);
 			callerDetails = returnValue.result;
 			forceSearchDialog = !returnValue.succeeded;
 
