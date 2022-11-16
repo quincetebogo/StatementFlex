@@ -10,10 +10,10 @@ const rowItem = `height: 64px;
 				 margin-bottom: 8px;
 				 cursor: default`;
 
-const width223 = `width: 223px;`;
+const width273 = `width: 273px;`;
 const width240 = `width: 240px;`;
 const width185 = `width: 185px`;
-const width128 = `width: 128px; margin-right: 50px;`;
+const width128 = `width: 128px;`;
 const width200 = `width: 200px`;
 
 const borderRight = `border-right: 1px solid #E1E1E1;`;
@@ -41,6 +41,7 @@ const cellButton = `width: 83px;
 					 --theme-label-font-color: #009DE0;`;
 
 const cellInfoIcon = `width: 24px;
+					 margin-left: 16px;
 					 text-align: center;
 					 cursor: pointer;`;
 
@@ -52,7 +53,7 @@ const cellInfoIcon = `width: 24px;
  */
 export const TABLE_ROW_CSS = {
 	rowItem: rowItem,
-	width223: width223,
+	width273: width273,
 	width240: width240,
 	width185: width185,
     width128: width128,
@@ -93,6 +94,8 @@ export function getFontColor(key, value) {
 
 	if (value === `Pending`) {
 		return cellColorOrange;
+	} else if (value === `Accepted`) {
+		return cellColorGreen;
 	} else if (value === `Expired`) {
 		return cellColorRed;
 	}
