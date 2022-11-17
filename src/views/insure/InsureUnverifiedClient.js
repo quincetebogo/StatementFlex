@@ -6,7 +6,7 @@ import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 import { MAX_RESULTS } from 'app/constants/InsureTransactionHistory';
 
-import 'app/components/insure/ClientPolicies';
+import 'app/components/insure/ClientSummary';
 import 'app/components/insure/PolicySummary';
 import 'app/components/insure/PolicyTransactionHistory';
 // import 'app/components/insure/SMSHistory';
@@ -116,7 +116,7 @@ static get properties() {
 			idNumber: idNumber
 		};
 
-		const resp = await this.insureService.clientPolicies(request);
+		const resp = await this.insureService.clientSummary(request);
 
 		if (!resp.succeeded) {
 			return;
@@ -138,7 +138,7 @@ static get properties() {
 				cifNumber: cifNumber,
 				idNumber: idNumber
 			};
-			const resp = await this.insureService.insurePolicySummary(request);
+			const resp = await this.insureService.policySummary(request);
 			
 			if (!resp.succeeded) {
 				return;
@@ -168,7 +168,7 @@ static get properties() {
 			// commsHistoryDetails.pagniation.pageIndex = this.COMMUNICATION_HISTORY.PAGE_INDEX;
 			// commsHistoryDetails.pagniation.totalPerPage = this.COMMUNICATION_HISTORY.MAX_RESULTS;
 	
-			const resp = await this.insureService.commsHistory({}, () => true);
+			const resp = await this.insureService.communicationHistory({}, () => true);
 			if (resp.succeeded === true && resp.result !== null) {
 				
 				
@@ -256,7 +256,7 @@ static get properties() {
 			contractReference: this.contractReference
 		};
 
-		const returnValue = await this.insureService.getPolicyTransactions(transactionHistoryRequest);
+		const returnValue = await this.insureService.policyTransactions(transactionHistoryRequest);
 
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions
@@ -368,11 +368,11 @@ static get properties() {
 	 */
 	 _renderClientPoliciesPage() {
 		return html`
-			<horizon-insure-client-policies .clientPolicies = "${this.clientPolicies}" .readOnlyMode="${this.readOnlyMode}"
+			<horizon-insure-client-summary .clientPolicies = "${this.clientPolicies}" .readOnlyMode="${this.readOnlyMode}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
 				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}">
-			</horizon-insure-client-policies>`;
+			</horizon-insure-client-summary>`;
 	}
 
 	/**

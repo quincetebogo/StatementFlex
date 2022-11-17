@@ -1,10 +1,8 @@
-import { Component, css, html, unsafeCSS } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 import { formatDate, formatPhoneNumber, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
-import { TABLE_EXPANDER_CELL } from 'app/css/PolicySummary';
-import { formatCurrency } from 'app/productControls/utilities/Currency';
-// eslint-disable-next-line sort-imports
 import { ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 
 /**
@@ -63,7 +61,7 @@ class PolicySummary extends Component {
 
 	/**
 	 * unload the policy transactions
-	 * @returns {null} null
+	 * @returns {void} 
 	 */
 	_unloading() {
 		this.dispatchEvent(new CustomEvent(`unloading`));
@@ -71,7 +69,7 @@ class PolicySummary extends Component {
 
 	/**
 	 * Navigate to Insure Landing page
-	 * @returns {null} null
+	 * @returns {void} 
 	 */
 	_backToClientPoliciesPage() {
 		this.dispatchEvent(new CustomEvent(`navigate-back`, {
@@ -83,7 +81,7 @@ class PolicySummary extends Component {
 	/**
 	 * Fire navigate event to Update Plan
 	 * @param {*} contractReference contract reference
-	 * @returns {null} null
+	 * @returns {void}
 	 */
 	_goToUpdatePlan(contractReference) {
 		this.dispatchEvent(new CustomEvent(`navigate-to-update-plan`, {

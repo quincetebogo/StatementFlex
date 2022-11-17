@@ -80,7 +80,7 @@ class PayPremiumSuccess extends Component {
 
 /**
  * Navigate to Landing
- * @returns {null} null
+ * @returns {void} null
  */
 _backToSummaryPage() {
 	this.dispatchEvent(new CustomEvent(`navigate-back`, { detail: {} }));
@@ -89,7 +89,7 @@ _backToSummaryPage() {
 /**
  * Invoke this function when Send button is clicked on Email Popup
  * @param {*} emailAddress email address
- * @returns {null} null
+ * @returns {void} null
  */
  _sendEmail(emailAddress) {
 	this.callerPage = INSURE_CALLER_PAGE.PAY_PREMIUM;
@@ -99,7 +99,7 @@ _backToSummaryPage() {
 
 /**
  * open email plan dialog event
- * @returns {null} null
+ * @returns {void} null
  */
 _openEmailPlanDialog() {
 	this.titleMessage = `Email Funeral Plan (${this.contractReference})`;
@@ -109,7 +109,7 @@ _openEmailPlanDialog() {
 
 /**
  * close email dialog event
- * @returns {null} null
+ * @returns {void} null
  */
 _closeEmailPlanDialog() {
 
@@ -117,6 +117,10 @@ _closeEmailPlanDialog() {
 
 }
 
+/**
+ * navigate to policy summary
+ * @return {void}
+ */
 _viewPlan() {
 	this.dispatchEvent(new CustomEvent(`navigate-to-policy-summary`, { detail: { policyContractReference: this.contractReference } }));
 }
@@ -210,7 +214,7 @@ _viewPlan() {
 				</capitec-image>
 				<label class="label">Arrears paid</label>
 				<div style= "justify-content: center;">
-					<capitec-icon size="medium" icon="status/success-trans" style="position: relative; left: 214px; top: 45px;"></capitec-icon>
+					<capitec-icon size="medium" icon="status/success-trans" style="position: relative; left: 304px; top: 42px;"></capitec-icon>
 					<p>You've paid <b>${formatCurrency(this.amountToPay)}</b> towards Funeral Plan (<b>${this.contractReference}</b>)</p>
 				</div>
 				 
@@ -256,9 +260,11 @@ _renderAlert() {
 _renderEmailPlanDialog() {
 	return this.showEmailPlanDialog === false ? html`` 
 	: html`
-		<insure-email-dialog @close-modal="${(e) => this.showEmailPlanDialog = false}"
-			@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}"
-			.contractReference = "${this.contractReference}" .titleMessage = "${this.titleMessage}">
+		<insure-email-dialog
+			.contractReference = "${this.contractReference}" 
+			.titleMessage = "${this.titleMessage}"
+			@close-modal="${(e) => this.showEmailPlanDialog = false}"
+			@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}">
 		</insure-email-dialog>
 	`;
 }
@@ -267,13 +273,13 @@ _renderEmailPlanDialog() {
 
 }
 
-window.customElements.define(`horizon-pay-premium-success-page`, PayPremiumSuccess);
+window.customElements.define(`horizon-insure-pay-premium-success-page`, PayPremiumSuccess);
 
 /**
  * When back arrow button is clicked
  *
  * @example
- * <horizon-pay-premium-success-page ... @navigate-back="${this._handler}"></horizon-pay-premium-success-page>
+ * <horizon-insure-pay-premium-success-page ... @navigate-back="${this._handler}"></horizon-insure-pay-premium-success-page>
  *
  * @event PayPremiumSuccess#navigate-back
  * @type {Object} - N/A

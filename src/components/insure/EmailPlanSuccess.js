@@ -61,7 +61,7 @@ class EmailPlanSuccess extends Component {
 
 /**
  * Navigate to Landing
- * @returns {null} null
+ * @return {void} 
  */
  _onDoneClick() {
 	this.dispatchEvent(new CustomEvent(`navigate-back`, {
@@ -72,7 +72,7 @@ class EmailPlanSuccess extends Component {
 
 /**
  * Navigate to policy summary
- * @returns {null} null
+ * @return {void} 
  */
  _onViewPlanClick() {
 	this.dispatchEvent(new CustomEvent(`navigate-to-policy-summary`, {
@@ -203,13 +203,13 @@ _renderAlert() {
 	// #endregion
 
 }
-window.customElements.define(`insure-email-plan-success`, EmailPlanSuccess);
+window.customElements.define(`horizon-insure-email-plan-success`, EmailPlanSuccess);
 
 /**
  * Navigate back to client policies when 'Done' is clicked
  *
  * @example
- * <insure-email-plan-success ... @navigate-back="${this._handler}"></insure-email-plan-success>
+ * <horizon-insure-email-plan-success ... @navigate-back="${this._handler}"></horizon-insure-email-plan-success>
  *
  * @event EmailPlanSuccess#navigate-back
  * @type {Object} - N/A

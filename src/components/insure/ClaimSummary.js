@@ -48,7 +48,7 @@ class ClaimSummary extends Component {
 
 	/**
 	 * Navigate to Insure Landing page
-	 * @returns {null} null
+	 * @return {void} 
 	 */
 	backToClientPoliciesPage() {
 		this.dispatchEvent(new CustomEvent(`navigate-back`, {}));

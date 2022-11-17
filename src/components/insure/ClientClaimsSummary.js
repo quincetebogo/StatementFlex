@@ -2,18 +2,18 @@ import { Component, css, html } from 'platform/elements';
 import { formatDate } from 'app/utils/channelServiceUtilities';
 
 /**
- * Display a list of all client claims, in progress and completed.
+ * Display a summary of all client claims, in progress and completed.
  * 
  * Events Raised 
  * -------------
  * claim-selected
  *  
  * @export
- * @class InsureClaimsList
+ * @class InsureClientClaimsSummary
  * @extends {Component}
  */
 
-class InsureClaimsList extends Component {
+class ClientClaimsSummary extends Component {
 
 	// #region INITIALIZE
 
@@ -231,13 +231,13 @@ class InsureClaimsList extends Component {
 	// #endregion
 }
 
-window.customElements.define(`horizon-insure-claims-list`, InsureClaimsList);
+window.customElements.define(`horizon-insure-client-claims-summary`, ClientClaimsSummary);
 
 /**
  * Triggered when a claim is selected, contains the selected claim object
  *
  * @example
- * <horizon-insure-client-policies ... @claim-selected = "${() => this._handler}"></horizon-insure-client-policies>
+ * <horizon-insure-client-claims-summary ... @claim-selected = "${() => this._handler}"></horizon-insure-client-claims-summary>
  *
  * @event InsureClaimsList#claim-selected
  * @type {Object} - N/A

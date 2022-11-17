@@ -1,10 +1,10 @@
 /**
- * Reinstate Policy quote calc mock response
+ * Policy Reissue quote calc mock response
  *
  * @export
- * @constant ReinstatePolicyQuoteCalcMockData
+ * @constant PolicyReissue
  */
- export const ReinstatePolicyQuoteCalcMockData = {
+ export const PolicyReissue = {
 	"cifNumber": 264705092,
 	"quoteNumber": `QFP0000001597`,
 	"deductionDetails": {

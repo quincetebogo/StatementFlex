@@ -52,6 +52,10 @@ class SuccessPage extends Component {
 
 	// #region EVENTS
 
+	/**
+	 * Display email dialog
+	 * @returns {void}
+	 */
 	_onEmailClick() {
 		this.showEmailPlanDialog = true;
 
@@ -64,7 +68,7 @@ class SuccessPage extends Component {
 	
 	/**
 	 * Navigate back to Landing Page
-	 * @return {null} null
+	 * @return {void} 
 	 */
 	_onDoneClick() {
 		if (this.callerPage === INSURE_CALLER_PAGE.REINSTATE_POLICY) {
@@ -77,7 +81,7 @@ class SuccessPage extends Component {
 	/**
 	 * Invoke this function when Send button is clicked on Email Popup
 	 * @param {*} emailAddress email address
-	 * @return {null} null
+	 * @return {void} 
 	 */
 	 _sendEmail(emailAddress) {
 		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress } }));
@@ -169,7 +173,7 @@ class SuccessPage extends Component {
 
 	/**
 	 * Render the content HTML for the component
-	 * @return {null} null
+	 * @return {html} html
 	 */
 	_renderContent() {
 		return html`
@@ -203,14 +207,16 @@ class SuccessPage extends Component {
 
 	/** 
 	 * Render dialog for confirming email address then sending
-	 * @return {null} null
+	 * @return {html} html
 	 */
 	_renderInsureEmailDialog() {
 		return this.showEmailPlanDialog === false ? `` 
 		: html`
-				<insure-email-dialog @close-modal="${(e) => this.showEmailPlanDialog = false}"
-					@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}"
-					.contractReference = "${this.contractReference}" .titleMessage = "${this.titleMessage}">
+				<insure-email-dialog
+					.contractReference = "${this.contractReference}" 
+					.titleMessage = "${this.titleMessage}"
+					@close-modal="${() => this.showEmailPlanDialog = false}"
+					@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}">
 				</insure-email-dialog>`;
 	}
 

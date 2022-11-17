@@ -109,7 +109,7 @@ class InsureAccountSelect extends Component {
 	/**
 	 * event that sets the value of optionSelected and sends it to pay premium dialog
 	 * @param {*} account acount
-	 * @returns {null} null
+	 * @return {void} 
 	 */
 	_optionSelected(account) {
 		this.optionSelected = true;
@@ -119,7 +119,7 @@ class InsureAccountSelect extends Component {
 
 	/**
 	 * Event that determins whether to display or hide the select options
-	 * @returns {null} null
+	 * @return {void} 
 	 */
 	_showAccountOptions() {
 		if (this.displayOptions === false) {
@@ -136,7 +136,7 @@ class InsureAccountSelect extends Component {
 	 * 
 	 * @param {*} selected selected
 	 * @param {*} account account
-	 * @returns {null} null
+	 * @return {void} 
 	 */
 	_indexChange(selected, account) {
 		
@@ -160,7 +160,7 @@ class InsureAccountSelect extends Component {
 	/**
 	 * Event that flips the chevron depending on whether the select box is open or closed
 	 * 
-	 * @returns {null} null
+	 * @returns {string} string
 	 */
 	_chevronChange() {
 
@@ -175,9 +175,9 @@ class InsureAccountSelect extends Component {
 	/**
 	 * event that changes the style of the select box depending on if the selected account has sufficient funds
 	 * 
-	 * @returns {string} null
+	 * @returns {string} string
 	 */
-	_setstyle() {
+	_setStyle() {
 		return this.insufficient ? `select-header-insufficient` : `select-header`;
 	}
 
@@ -320,7 +320,7 @@ _renderHeader() {
 
 		${this.accountType === `Savings Plan` 
 			? html`
-				<div class="${this._setstyle()}">
+				<div class="${this._setStyle()}">
 					<capitec-content-box @click="${this._showAccountOptions}" layout="horizontal" valign="center" noScroll>
 						<div> 
 							<capitec-icon size="default" icon="product/save"></capitec-icon>
@@ -345,7 +345,7 @@ _renderHeader() {
 
 		${this.accountType !== `Savings Plan` && this.selectedIndex !== null 
 			? html`
-				<div class="${this._setstyle()}">
+				<div class="${this._setStyle()}">
 					<capitec-content-box @click="${this._showAccountOptions}" layout="horizontal" valign="center" noScroll>
 						<div> 
 							<capitec-icon size="default" icon="product/transact"></capitec-icon>
