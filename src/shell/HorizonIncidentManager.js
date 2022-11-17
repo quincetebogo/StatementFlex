@@ -157,9 +157,9 @@ export class HorizonIncidentManager {
 		 * 1. This is being trigerred for primary incident
 		 * 2. State has an unclosed incident i.e., incident ref number not equals null
 		 */
-		if (!incidentDetails.primaryIncidentRecID && incidentDetails.incidentReferenceNumber === `0`) {
+		if (!this._isValidPrimaryIncRecID(incidentDetails.primaryIncidentRecID) && incidentDetails.incidentReferenceNumber === `0`) {
 			return;
-		} else if (!incidentDetails.primaryIncidentRecID || incidentDetails.incidentReferenceNumber !== `0`) {
+		} else if (!this._isValidPrimaryIncRecID(incidentDetails.primaryIncidentRecID) || incidentDetails.incidentReferenceNumber !== `0`) {
 			this.checkIncidentStatus = true;
 		} else {
 			const subsequentIncident = await this._createSubsIncident();
@@ -196,7 +196,7 @@ export class HorizonIncidentManager {
 
 		if (!incidentDetails.incidentReferenceNumber || incidentDetails.incidentReferenceNumber === `0`) {
 			this.logger.log(`warning`, `Incident manager: Trying to close incident when ref no is 0 or empty. Current need: ${incidentDetails.currentNeed} previous need: ${incidentDetails.previousNeed}`, `closeIncident`, null);
-			return false;
+			return true;
 		}
 
 		const incidentInfo = await this._incidentStatus(incidentDetails.incidentRecId, errorHandler);
@@ -243,7 +243,14 @@ export class HorizonIncidentManager {
 	 * @returns {void}
 	 */
 	 async classifyIncident(toggleBusyFlag, incidentCategorization, errorHandler = null) {
+		
 		const incidentDetails = this.horizonStore.getIncidentDetails();
+
+		if (!incidentDetails.incidentReferenceNumber || incidentDetails.incidentReferenceNumber === `0`) {
+			this.logger.log(`warning`, `Incident manager: No active incident to classify. Current need: ${incidentDetails.currentNeed} previous need: ${incidentDetails.previousNeed}`, `classifyIncident`, null);
+			return true;
+		}
+
 		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		let canClassify = !this.checkIncidentStatus;
 
@@ -468,5 +475,9 @@ export class HorizonIncidentManager {
 			return false;
 		}
 		return true;
+	}
+
+	_isValidPrimaryIncRecID(recID) {
+		return Boolean(recID) && recID !== `0`;
 	}
 }
