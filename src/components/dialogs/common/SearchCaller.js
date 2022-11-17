@@ -12,6 +12,7 @@ import { IncidentManagementService } from 'app/services/IncidentManagementServic
 import { RoleManager } from 'app/shell/RoleManager';
 import { SEARCH_OPTIONS } from 'app/constants/SearchOptions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { Utilities } from 'platform/Utilities';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelect';
@@ -38,6 +39,8 @@ const ERROR_MESSAGES = {
 	NONCLIENT_REQUIRED_FIELDS_EMPTY: `Name and surname must be completed`,
 	REQUIRED_FIELDS_EMPTY: `All fields are required`,
 	INVALID_BRANCH: `Invalid branch code`,
+	CP_NUMBER_NOT_FOUND: `CP Number not found`,
+	CONSULTANT_INACTIVE: `Service Consultant is inactive`,
 	NOT_FOUND: {
 		0: {
 			ALERT_BANNER: `ID/Passport number not found. This is not a valid ID/Passport number`,
@@ -217,6 +220,7 @@ export class SearchCaller extends Component {
 		return {
 			incomingCallDetails: { type: Object },
 			incidentDetails: { type: Object },
+			errMessage: { type: Object },
 
 			cpNumber: { attribute: false },
 			clientType: { attribute: false },
@@ -303,17 +307,35 @@ export class SearchCaller extends Component {
 	}
 
 	async _getBranchConsultantDetails(cpNumber) {
-		if (cpNumber.length === 6) {
-			const consultantInfo = await this._getConsultantDetails(`cp${cpNumber}`);
-			if (consultantInfo.status === `Active`) {
-				this.consultantName = `${consultantInfo.firstName} ${consultantInfo.lastName}`;
-				this.branchCode = consultantInfo.branchId;
-				this.branchName = `${consultantInfo.branchId} - ${consultantInfo.branchName}`;
-			}
-		} else {
-			this.consultantName = ``;
-			this.branchName = ``;
+		if (cpNumber.length !== 6) {
+			return;
 		}
+
+		const consultantInfo = await this._getConsultantDetails(`cp${cpNumber}`);
+
+		if (!consultantInfo) {
+			// Service Consultant information not found in database.
+			this.errMessage.cpNumber = ERROR_MESSAGES.CP_NUMBER_NOT_FOUND;
+			this._deepCopyErrMessage();
+			return;
+		}
+
+		if (consultantInfo.status !== `Active`) {
+			// Service Consultant not active
+			this.errMessage.cpNumber = ERROR_MESSAGES.CONSULTANT_INACTIVE;
+			this._deepCopyErrMessage();
+			return;
+		}
+
+		if (consultantInfo.status === `Active`) {
+			this.consultantName = `${consultantInfo.firstName} ${consultantInfo.lastName}`;
+			this.branchCode = consultantInfo.branchId;
+			this.branchName = `${consultantInfo.branchId} - ${consultantInfo.branchName}`;
+			return;
+		}
+
+		this.consultantName = ``;
+		this.branchName = ``;
 	}
 
 	async _onSearchClient() {
@@ -761,6 +783,12 @@ export class SearchCaller extends Component {
 			this.branchCode
 		);
 	}
+
+	_deepCopyErrMessage() {
+		// Creates and returns a deep copy of an Object this.errMessage
+		this.errMessage = Utilities.deepCopy(this.errMessage);
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
