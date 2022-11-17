@@ -72,5 +72,5 @@
 	"mock": {
 		"enabled": false
 	},
-	"searchClientOptionEnabled": true
+	"searchClientOptionEnabled": false
 }
