@@ -1,10 +1,10 @@
 /**
- * ClientPolicies mock response
+ * ClientSummary mock response
  *
  * @export
- * @constant ClientPolicies
+ * @constant ClientSummary
  */
-export const ClientPolicies = {
+export const ClientSummary = {
 	"checkInsuranceDetails": [
 		{
 			"insured": true,

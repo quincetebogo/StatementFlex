@@ -153,7 +153,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {null} null
 	 */
 	async _initialise() {
-		await this._retrieveClientPolicies();
+		await this._retrieveClientSummary();
 		this.accountDetails = await this._retrieveAccountDetails();
 		this.commsHistory = await this._retrieveCommsHistory();
 		this.claims = await this._retrieveClaims();
@@ -201,7 +201,7 @@ export class ExistingClient extends InsureViewBase {
 		const issuePlanAgreementResponse = await this.insureService.generateIssueFuneralCoverPlanAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 
 		if (!issuePlanAgreementResponse.succeeded) {
-			this.handleToastError(issuePlanAgreementResponse.exception.output.Errors);
+			this.handleToastError(issuePlanAgreementResponse.exception);
 			return;
 		}
 
@@ -211,7 +211,7 @@ export class ExistingClient extends InsureViewBase {
 			const paymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 
 			if (!paymentAgreementResponse.succeeded) {
-				this.handleToastError(paymentAgreementResponse.exception.output.Errors);
+				this.handleToastError(paymentAgreementResponse.exception);
 				return;
 			}
 
@@ -259,7 +259,7 @@ export class ExistingClient extends InsureViewBase {
 		const updatePlanAgreementResponse = await this.insureService.generateUpdateFuneralCoverPlanAgreement(docGenerateRequestPayload);
 
 		if (!updatePlanAgreementResponse.succeeded) {
-			this.handleToastError(updatePlanAgreementResponse.exception.output.Errors);
+			this.handleToastError(updatePlanAgreementResponse.exception);
 			return;
 		}
 
@@ -269,7 +269,7 @@ export class ExistingClient extends InsureViewBase {
 			const updatePaymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(docGenerateRequestPayload);
 
 			if (!updatePaymentAgreementResponse.succeeded) {
-				this.handleToastError(updatePaymentAgreementResponse.exception.output.Errors);
+				this.handleToastError(updatePaymentAgreementResponse.exception);
 				return;
 			}
 
@@ -361,8 +361,13 @@ export class ExistingClient extends InsureViewBase {
 		}
 	}
 
-	async _rerenderPolicies(navigateBackTo) {
-		await this._retrieveClientPolicies();
+	/**
+	 * Refresh client summary after navigating back
+	 * @param {string} navigateBackTo component to navigate too
+	 * @returns {void}
+	 */
+	async _rerenderClientSummary(navigateBackTo) {
+		await this._retrieveClientSummary();
 		this._navigateToSubView(navigateBackTo);
 	}
 
@@ -420,7 +425,7 @@ export class ExistingClient extends InsureViewBase {
 				delete this.policyDetails.ineligibleRoleplayers;
 				this.policyDetails.canReinstate = true;
 			} else {
-				this.handleToastError(calcResponse.exception.output.Errors);
+				this.handleToastError(calcResponse.exception);
 				return;
 			}
 		} else {
@@ -430,21 +435,20 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
-	 * Retrieve client policies via insure channel service
+	 * Retrieve client summary containing all policies
 	 * @returns {Object} Client policies 
 	 */
-	async _retrieveClientPolicies() {
+	async _retrieveClientSummary() {
 		const request = {
 			cifNumber: this.callerInformation.cifNumber,
 			idNumber: this.callerInformation.southAfricanIDNumber
 		};
 
-		const resp = await this.insureService.clientPolicies(request);
+		const resp = await this.insureService.clientSummary(request);
 		if (!resp.succeeded) {
-			this.handleToastError(resp.exception.output.Errors);
+			this.handleToastError(resp.exception);
 			return;
 		}
-
 		this.clientPolicies = resp.result;
 	}
 
@@ -461,9 +465,9 @@ export class ExistingClient extends InsureViewBase {
 			cifNumber: cifNumber,
 			idNumber: idNumber
 		};
-		const resp = await this.insureService.insurePolicySummary(request);
+		const resp = await this.insureService.policySummary(request);
 		if (!resp.succeeded) {
-			this.handleToastError(resp.exception.output.Errors);
+			this.handleToastError(resp.exception);
 			return;
 		}
 
@@ -483,9 +487,9 @@ export class ExistingClient extends InsureViewBase {
 			contractReference: contractReference,
 			cifNumber: cifNumber
 		};
-		const resp = await this.insureService.insureReinstateQuoteCalc(request);
+		const resp = await this.insureService.policyReissue(request);
 		if (!resp.succeeded) {
-			this.handleToastError(resp.exception.output.Errors);
+			this.handleToastError(resp.exception);
 			return;
 		}
 
@@ -517,7 +521,7 @@ export class ExistingClient extends InsureViewBase {
 			cifNumber: this.callerInformation.cifNumber,
 			idNumber: this.callerInformation.southAfricanIDNumber
 		};
-		const claimsList = await this.insureService.claimsList(request);
+		const claimsList = await this.insureService.viewExistingClaims(request);
 		return claimsList.result;
 	}
 
@@ -540,7 +544,7 @@ export class ExistingClient extends InsureViewBase {
 			estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map(lifeWithDetails => Object.assign(lifeWithDetails, resp.result.lifesAssured.find(respLife => lifeWithDetails.rowID === respLife.rowID)));
 			this.estimate = estimateWithCoverDetails;
 		} else {
-			this.handleToastError(resp.exception.output.Errors);
+			this.handleToastError(resp.exception);
 			return null;
 		}
 	}
@@ -566,9 +570,9 @@ export class ExistingClient extends InsureViewBase {
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.input = this.estimate;
 
-		const result = await this.insureService.generateEstimatePrintout(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
+		const result = await this.insureService.generateEstimatePrintoutDocument(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 		if (!result.succeeded) {
-			this.handleToastError(result.exception.output.Errors);
+			this.handleToastError(result.exception);
 			return;
 		}
 		return result;
@@ -605,7 +609,7 @@ export class ExistingClient extends InsureViewBase {
 			this._goToCancelPolicySuccess(e);
 
 		} else {
-			this.handleToastError(resp.exception.output.Errors);
+			this.handleToastError(resp.exception);
 			return null;
 		}
 	}
@@ -644,7 +648,7 @@ export class ExistingClient extends InsureViewBase {
 		if (resp.succeeded === true && resp.result !== null) {
 			this.cancelPolicyDocumentDetails = resp.result;
 		} else {
-			this.handleToastError(resp.exception.output.Errors);
+			this.handleToastError(resp.exception);
 			return;
 		}
 
@@ -678,7 +682,7 @@ export class ExistingClient extends InsureViewBase {
 			this._getArrearsPaymentDocument(this.contractReference, e.detail.payArrears.arrears, e.detail.fromAccount, true);
 			this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
 		} else {
-			this.handleToastError(resp.exception.output.Errors);
+			this.handleToastError(resp.exception);
 			return null;
 		}
 	}
@@ -707,11 +711,11 @@ export class ExistingClient extends InsureViewBase {
 			}
 		};
 
-		const resp = await this.insureService.commsHistory(commsHistoryDetails, () => true);
+		const resp = await this.insureService.communicationHistory(commsHistoryDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			return resp.result;
 		}
-		this.handleToastError(resp.exception.output.Errors);
+		this.handleToastError(resp.exception);
 		return null;
 
 	}
@@ -856,7 +860,7 @@ export class ExistingClient extends InsureViewBase {
 			arrearsAmount: this.arrearsAmount
 		};
 
-		const returnValue = await this.insureService.getPolicyTransactions(transactionHistoryRequest);
+		const returnValue = await this.insureService.policyTransactions(transactionHistoryRequest);
 
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions
@@ -878,7 +882,7 @@ export class ExistingClient extends InsureViewBase {
 			this.endCallContext = `PolicyTransactionHistory`;
 			this.renderMode = INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY;
 		} else {
-			this.handleToastError(returnValue.exception.output.Errors);
+			this.handleToastError(returnValue.exception);
 		}
 	}
 
@@ -962,7 +966,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
 		if (!calculateQuoteResp.succeeded) {
-			this.handleToastError(calculateQuoteResp.exception.output.Errors);
+			this.handleToastError(calculateQuoteResp.exception);
 			return;
 		}
 
@@ -992,7 +996,7 @@ export class ExistingClient extends InsureViewBase {
 		};
 		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
 		if (!calculateQuoteResp.succeeded) {
-			this.handleToastError(calculateQuoteResp.exception.output.Errors);
+			this.handleToastError(calculateQuoteResp.exception);
 			return;
 		}
 
@@ -1005,7 +1009,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const prepareUpdateResp = await this.insureService.prepareUpdate(prepareUpdateRequest);
 		if (!prepareUpdateResp.succeeded) {
-			this.handleToastError(prepareUpdateResp.exception.output.Errors);
+			this.handleToastError(prepareUpdateResp.exception);
 			return;
 		}
 
@@ -1088,9 +1092,9 @@ export class ExistingClient extends InsureViewBase {
 			}
 		};
 
-		const acceptPlanResp = await this.insureService.updatePolicyAccept(acceptPlanRequest);
+		const acceptPlanResp = await this.insureService.policyAccept(acceptPlanRequest);
 		if (!acceptPlanResp.succeeded) {
-			this.handleToastError(acceptPlanResp.exception.output.Errors);
+			this.handleToastError(acceptPlanResp.exception);
 			return;
 		}
 
@@ -1122,7 +1126,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const createPolicyResponse = await this.insureService.createPolicy(createPolicyRequest);
 		if (!createPolicyResponse.succeeded) {
-			this.handleToastError(createPolicyResponse.exception.output.Errors);
+			this.handleToastError(createPolicyResponse.exception);
 			return;
 		}
 		this.contractReference = createPolicyResponse.result.contractReference;
@@ -1156,7 +1160,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const acceptPlanResp = await this.insureService.policyAccept(acceptPlanRequest);
 		if (!acceptPlanResp.succeeded) {
-			this.handleToastError(acceptPlanResp.exception.output.Errors);
+			this.handleToastError(acceptPlanResp.exception);
 			return;
 		}
 
@@ -1196,7 +1200,7 @@ export class ExistingClient extends InsureViewBase {
 		const emailResponse = await this.insureService.emailFuneralDocuments(EMAIL_DOCUMENT_REQUEST_PAYLOAD);
 
 		if (!emailResponse.succeeded) {
-			this.handleToastError(emailResponse.exception.output.Errors);
+			this.handleToastError(emailResponse.exception);
 			return;
 		}
 		window.showToastTimed(`success`, `top`, `Success`, `Email document was sent`, 3000, true);
@@ -1249,7 +1253,7 @@ export class ExistingClient extends InsureViewBase {
 		if (resp.succeeded === true && resp.result !== null) {
 			this.arrearsPaymentDocumentDetails = resp.result;
 		} else {
-			this.handleToastError(resp.exception.output.Errors);
+			this.handleToastError(resp.exception);
 			return null;
 		}
 
@@ -1454,7 +1458,7 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-policy-summary 
 				.policyDetails="${this.policyDetails}"
-				@navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+				@navigate-back="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan(e)}" 
 				@unloading="${() => this._unloadClientPolicies()}">
 			</horizon-insure-policy-summary>`;
@@ -1469,7 +1473,7 @@ export class ExistingClient extends InsureViewBase {
 			<insure-cancel-policy-success
 				.contractReference = ${this.contractReference}
 				@send-email = "${(e) => this._sendEmail(e)}" 
-				@navigate-to-summary="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+				@navigate-to-summary="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</insure-cancel-policy-success>`;
 	}
 
@@ -1483,7 +1487,7 @@ export class ExistingClient extends InsureViewBase {
 				.contractReference = ${this.contractReference}
 				.confirmedEmail="${this.confirmedEmail}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
-				@navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+				@navigate-back="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</insure-email-plan-success>
 		`;
 	}
@@ -1499,7 +1503,7 @@ export class ExistingClient extends InsureViewBase {
 				.contractReference = "${this.contractReference}"
 				@send-email= "${(e) => this._sendEmail(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
-				@navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+				@navigate-back="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-pay-premium-success-page>
 		`;
 	}
@@ -1514,7 +1518,7 @@ export class ExistingClient extends InsureViewBase {
 				.policyTransactionHistory="${this.policyTransactionHistory}"
 				.getPolicyTransactionHistory="${(startDate, endDate, pageIndex) => this._getPolicyTransactionHistory(startDate, endDate, pageIndex)}"
 				.disposeData="${() => this.policyTransactionHistory = []}"
-				@navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+				@navigate-back="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@unloading="${() => this._unloadPolicyTransactionHistory()}">
 			</horizon-insure-policy-transaction-history>`;
 	}
@@ -1571,7 +1575,7 @@ export class ExistingClient extends InsureViewBase {
 				.callerPage = "${this.callerPage}" 
 				.contractReference = "${this.contractReference}"
 				@send-email = "${(e) => this._sendEmail(e)}"
-				@navigate-back="${(e) => this._rerenderPolicies(e.detail.navigateBackTo)}">
+				@navigate-back="${(e) => this._rerenderClientSummary(e.detail.navigateBackTo)}">
 			</horizon-insure-success-page>`;
 	}
 
@@ -1603,7 +1607,7 @@ export class ExistingClient extends InsureViewBase {
 	// _renderAuditTransactionHistoryPage() {
 	// return html`
 	// <horizon-insure-audit-transaction-history 
-	// @navigate-back="${() => this._rerenderPolicies(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+	// @navigate-back="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 	// .auditTransactionHistory="${this.auditTransactionHistory}"
 	// .getAuditTransactionHistory="${(startDate, endDate, pageIndex) => this._getAuditTransactionHistory(startDate, endDate, pageIndex)}"
 	// .disposeData="${() => this.auditTransactionHistory = []}"

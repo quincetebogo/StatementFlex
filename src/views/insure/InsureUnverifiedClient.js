@@ -116,7 +116,7 @@ static get properties() {
 			idNumber: idNumber
 		};
 
-		const resp = await this.insureService.clientPolicies(request);
+		const resp = await this.insureService.clientSummary(request);
 
 		if (!resp.succeeded) {
 			return;
@@ -138,7 +138,7 @@ static get properties() {
 				cifNumber: cifNumber,
 				idNumber: idNumber
 			};
-			const resp = await this.insureService.insurePolicySummary(request);
+			const resp = await this.insureService.policySummary(request);
 			
 			if (!resp.succeeded) {
 				return;
@@ -168,7 +168,7 @@ static get properties() {
 			// commsHistoryDetails.pagniation.pageIndex = this.COMMUNICATION_HISTORY.PAGE_INDEX;
 			// commsHistoryDetails.pagniation.totalPerPage = this.COMMUNICATION_HISTORY.MAX_RESULTS;
 	
-			const resp = await this.insureService.commsHistory({}, () => true);
+			const resp = await this.insureService.communicationHistory({}, () => true);
 			if (resp.succeeded === true && resp.result !== null) {
 				
 				
@@ -256,7 +256,7 @@ static get properties() {
 			contractReference: this.contractReference
 		};
 
-		const returnValue = await this.insureService.getPolicyTransactions(transactionHistoryRequest);
+		const returnValue = await this.insureService.policyTransactions(transactionHistoryRequest);
 
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions

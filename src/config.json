@@ -220,7 +220,7 @@
 			"enabled": false,
 			"positiveCase": true
 		},
-		"insureClientPolicies": {
+		"insureClientSummary": {
 			"enabled": false,
 			"positiveCase": true
 		},
@@ -304,7 +304,7 @@
 			"enabled": false,
 			"positiveCase": true
 		},
-		"insureReinstateQuoteCalc": {
+		"insurePolicyReissue": {
 			"enabled": false,
 			"positiveCase": true
 		},

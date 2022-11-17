@@ -90,11 +90,11 @@ export class InsureViewBase extends ViewBase {
 	/**
 	 * Pop toast with channel services error
 	 * Clear toast after delay has passed
-	 * @param {object} errors Error array
+	 * @param {object} exception Exception thrown by channel service
 	 * @returns {void}
 	 */
-	handleToastError(errors) {
-		this.insureErrorToastMessage = errors[0].ErrorMessage;
+	handleToastError(exception) {
+		this.insureErrorToastMessage = exception.output.ErrorMessage;
 		this.showInsureErrorToast = true;
 		window.setTimeout(() => this._toggleToastDisplay(), ERROR_TOAST_DELAY);
 	}

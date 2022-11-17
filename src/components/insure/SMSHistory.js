@@ -416,9 +416,6 @@ class SMSHistory extends Component {
 	 * @return {null} null
 	 */
 	_renderContent() {
-
-		console.log(this.filteredData);
-
 		return html`
 		<capitec-title-bar type="insure" class="insure-title-bar">
 			<img class="action-image" src="/images/insure/left-arrow.svg" @click="${() => this._backToSummaryPage()}" />
