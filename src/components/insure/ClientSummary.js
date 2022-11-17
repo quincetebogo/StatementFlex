@@ -16,14 +16,14 @@ import 'app/components/dialogs/insure/PayPremiumAgreementDialog';
 import 'app/components/dialogs/insure/LodgeClaimInfoDialog';
 import 'app/components/dialogs/insure/CancelPolicyDialog';
 import 'app/components/dialogs/insure/EmailPlanDialog';
-import 'app/components/insure/ClaimsList';
+import 'app/components/insure/ClientClaimsSummary';
 import 'app/components/dialogs/insure/CFPAgreementDialog';
 
 const MAIN_LIFE_MINIMUM_COVER = 5000;
 
 
 /**
- * Client policies component showing all the policies a client currently has on their account
+ * Client Summary component showing all the policies a client currently has on their account
  * This is the primary landing screen for client that has insurance product
  * 
  * Events Raised 
@@ -46,7 +46,7 @@ const MAIN_LIFE_MINIMUM_COVER = 5000;
  * @class ClientPolicies
  * @extends {Component}
  */
-class ClientPolicies extends Component {
+class ClientSummary extends Component {
 
 	// #region INITIALISATION
 
@@ -329,7 +329,7 @@ class ClientPolicies extends Component {
 	/**
 	 * Get the Arrears Payment Document
 	 * @param {string} contractReference contractReference
-	 * @returns {null} null
+	 * @return {void} 
 	 */
 	async _getArrearsPaymentDocument(contractReference) {
 		await this.getArrearsPaymentDocument(contractReference, this.payArrears, this.fromAccount, false);
@@ -446,8 +446,8 @@ class ClientPolicies extends Component {
 				class="button-margin" 
 				label="Re-Issue" 
 				icon="system/history-action"
-				@click="${() => this._displayCFPDisclosure(`update`, policyItem)}"
-				.disabled="${this.readOnlyMode}">
+				.disabled="${this.readOnlyMode}"
+				@click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.EMAIL_PLAN:
 				return html`<horizon-option-button 
@@ -455,8 +455,8 @@ class ClientPolicies extends Component {
 				class="button-margin" 
 				label="Email Plan" 
 				icon="system/profile-action"
-				@click="${() => this.showEmailPlanDialog = true}"
-				.disabled="${this.readOnlyMode}">
+				.disabled="${this.readOnlyMode}"
+				@click="${() => this.showEmailPlanDialog = true}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.PAY_ARREARS:
 				return html`<horizon-option-button 
@@ -464,8 +464,8 @@ class ClientPolicies extends Component {
 				class="button-margin" 
 				label="Pay Arrears" 
 				icon="status/error"
-				@click="${() => this._displayCFPDisclosure(`adhoc`, policyItem)}"
-				.disabled="${this.readOnlyMode}">
+				.disabled="${this.readOnlyMode}"
+				@click="${() => this._displayCFPDisclosure(`adhoc`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.UPDATE_PLAN:
 				return html`<horizon-option-button 
@@ -473,35 +473,35 @@ class ClientPolicies extends Component {
 				class="button-margin" 
 				label="Update Plan" 
 				icon="system/profile-action"
-				@click="${() => this._displayCFPDisclosure(`update`, policyItem)}"
-				.disabled="${this.readOnlyMode}">
+				.disabled="${this.readOnlyMode}"
+				@click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.CANCEL_PLAN:
 				return html`<horizon-option-button 
 				data-automation-id="insure-policy-options-cancel-plan"
 				class="button-margin" 
-				@click="${() => this._displayCFPDisclosure(`cancel`, policyItem)}"
 				label="Cancel Plan" 
 				icon="system/delete-action"
-				.disabled="${this.readOnlyMode}">
+				.disabled="${this.readOnlyMode}"
+				@click="${() => this._displayCFPDisclosure(`cancel`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.TRANSACTION_HISTORY:
 				return html`<horizon-option-button 
 				data-automation-id="insure-policy-options-transaction-history"
 				class="button-margin" 
-				@click="${() => this._goToPolicyTransactionHistory(policyItem)}"
 				label="Transaction History" 
 				icon="system/transfer-action"
-				.disabled="${this.readOnlyMode}">
+				.disabled="${this.readOnlyMode}"
+				@click="${() => this._goToPolicyTransactionHistory(policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.SMS_HISTORY:
 				return html`<horizon-option-button 
 				data-automation-id="insure-policy-options-sms-history"
 				class="button-margin" 
-				@click="${() => this._goToSMSHistory(policyItem)}"
 				label="SMS History" 
 				icon="system/send-action"
-				.disabled="${this.readOnlyMode}">
+				.disabled="${this.readOnlyMode}"
+				@click="${() => this._goToSMSHistory(policyItem)}">
 			</horizon-option-button>`;
 			default:
 				return html``;
@@ -549,6 +549,12 @@ class ClientPolicies extends Component {
 		}
 	}
 
+	/**
+	 * displays the CFP disclosure
+	 * @param {String} flow flow
+	 * @param {Object} policyItem policy item
+	 * @returns {void}
+	 */
 	_displayCFPDisclosure(flow, policyItem = null) {
 
 		this.selectedFlow = flow;
@@ -570,6 +576,10 @@ class ClientPolicies extends Component {
 		}
 	}
 
+	/**
+	 * determines where to navigate after accepting the cfp disclosure
+	 * @returns {void}
+	 */
 	_navigateAfterCFP() {
 
 		this.horizonInsureStore.setCFPStatus(true);
@@ -969,10 +979,10 @@ class ClientPolicies extends Component {
 					data-automation-id="insure-landing-claims-tab"
 					label="Claims">
 					<capitec-content-box  id="client-policies-box" class="accounts-box">
-						<horizon-insure-claims-list 
+						<horizon-insure-client-claims-summary 
 							.clientClaims="${this.clientClaims}"
 							@claim-selected="${(e) => this._goToClaimSummary(e)}" >
-						</horizon-insure-claims-list>
+						</horizon-insure-client-claims-summary>
 					</capitec-content-box>
 					${this._renderFooter()}
 				</capitec-tab>
@@ -1286,10 +1296,11 @@ class ClientPolicies extends Component {
 	 */
 	_renderCFPAgreementDialog() {
 		return this.showCFPAgreementDialog === false ? `` : html`
-		<horizon-insure-cfp-agreement-dialog @agreementAccepted="${(e) => this._navigateAfterCFP()}"
-			@close-modal="${() => this.showCFPAgreementDialog = false}" 
-			.productCode = "${this.productCode}">
-		</horizon-insure-cfp-agreement-dialog>`
+		<horizon-insure-cfp-agreement-dialog 
+			.productCode = "${this.productCode}"
+			@agreementAccepted="${() => this._navigateAfterCFP()}"
+			@close-modal="${() => this.showCFPAgreementDialog = false}">
+		</horizon-insure-cfp-agreement-dialog>`;
 	}
 
 	/** 
@@ -1309,13 +1320,13 @@ class ClientPolicies extends Component {
 	// #endregion RENDERING
 }
 
-window.customElements.define(`horizon-insure-client-policies`, ClientPolicies);
+window.customElements.define(`horizon-insure-client-summary`, ClientSummary);
 
 /**
  * Product enquiry event, navigate to corporate website, Insure page
  *
  * @example
- * <horizon-insure-client-policies ... @product-enquiry="${this._handler}"></horizon-insure-client-policies>
+ * <horizon-insure-client-summary ... @product-enquiry="${this._handler}"></horizon-insure-client-summary>
  *
  * @event ClientPolicies#product-enquiry
  * @type {Object} - N/A
@@ -1325,7 +1336,7 @@ window.customElements.define(`horizon-insure-client-policies`, ClientPolicies);
  * Attempt to pay policy arrears
  *
  * @example
- * <horizon-insure-client-policies ... @pay-policy="${this._handler}"></horizon-insure-client-policies>
+ * <horizon-insure-client-summary ... @pay-policy="${this._handler}"></horizon-insure-client-summary>
  *
  * @event ClientPolicies#pay-policy
  * @type {Object} - N/A
@@ -1335,7 +1346,7 @@ window.customElements.define(`horizon-insure-client-policies`, ClientPolicies);
  * Attempt to cancel policy with reason
  *
  * @example
- * <horizon-insure-client-policies ... @cancel-policy="${this._handler}"></horizon-insure-client-policies>
+ * <horizon-insure-client-summary ... @cancel-policy="${this._handler}"></horizon-insure-client-summary>
  *
  * @event ClientPolicies#cancel-policy
  * @type {Object} - N/A
@@ -1345,7 +1356,7 @@ window.customElements.define(`horizon-insure-client-policies`, ClientPolicies);
  * When Get Estimate button is clicked, navigate
  *
  * @example
- * <horizon-insure-client-policies ... @navigate-to-estimate="${this._handler}"></horizon-insure-client-policies>
+ * <horizon-insure-client-summary ... @navigate-to-estimate="${this._handler}"></horizon-insure-client-summary>
  *
  * @event ClientPolicies#navigate-to-estimate
  * @type {Object} - N/A
@@ -1355,7 +1366,7 @@ window.customElements.define(`horizon-insure-client-policies`, ClientPolicies);
  * When Update Plan tile is clicked, navigate
  *
  * @example
- * <horizon-insure-client-policies ... @navigate-to-update-plan="${this._handler}"></horizon-insure-client-policies>
+ * <horizon-insure-client-summary ... @navigate-to-update-plan="${this._handler}"></horizon-insure-client-summary>
  *
  * @event ClientPolicies#navigate-to-update-plan
  * @type {Object} - N/A
@@ -1365,7 +1376,7 @@ window.customElements.define(`horizon-insure-client-policies`, ClientPolicies);
  * When policy contract reference link is clicked, navigate
  *
  * @example
- * <horizon-insure-client-policies ... @navigate-to-policy-summary="${this._handler}"></horizon-insure-client-policies>
+ * <horizon-insure-client-summary ... @navigate-to-policy-summary="${this._handler}"></horizon-insure-client-summary>
  *
  * @event ClientPolicies#navigate-to-policy-summary
  * @type {Object} - N/A
@@ -1375,7 +1386,7 @@ window.customElements.define(`horizon-insure-client-policies`, ClientPolicies);
  * Navigate to claim summary from claim number
  *
  * @example
- * <horizon-insure-client-policies ... @navigate-to-claim-summary="${this._handler}"></horizon-insure-client-policies>
+ * <horizon-insure-client-summary ... @navigate-to-claim-summary="${this._handler}"></horizon-insure-client-summary>
  *
  * @event ClientPolicies#navigate-to-claim-summary
  */
@@ -1384,7 +1395,7 @@ window.customElements.define(`horizon-insure-client-policies`, ClientPolicies);
  * Navigate to transaction history
  *
  * @example
- * <horizon-insure-client-policies ... @navigate-to-policy-transaction-history="${this._handler}"></horizon-insure-client-policies>
+ * <horizon-insure-client-summary ... @navigate-to-policy-transaction-history="${this._handler}"></horizon-insure-client-summary>
  *
  * @event ClientPolicies#navigate-to-policy-transaction-history
  */
@@ -1393,7 +1404,7 @@ window.customElements.define(`horizon-insure-client-policies`, ClientPolicies);
  * Navigate to SMS History history
  *
  * @example
- * <horizon-insure-client-policies ... @navigate-to-sms-history="${this._handler}"></horizon-insure-client-policies>
+ * <horizon-insure-client-summary ... @navigate-to-sms-history="${this._handler}"></horizon-insure-client-summary>
  *
  * @event ClientPolicies#navigate-to-sms-history
  */
@@ -1402,7 +1413,7 @@ window.customElements.define(`horizon-insure-client-policies`, ClientPolicies);
  * Send email event containing confirmed address 
  *
  * @example
- * <horizon-insure-client-policies ... @send-email="${this._handler}"></horizon-insure-client-policies>
+ * <horizon-insure-client-summary ... @send-email="${this._handler}"></horizon-insure-client-summary>
  *
  * @event ClientPolicies#send-email
  */

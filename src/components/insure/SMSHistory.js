@@ -67,7 +67,6 @@ class SMSHistory extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
-		this._initialise();
 
 		RENDER_CHIPS[FILTER_BY.DATE] = ``;
 		this.filteredData = this.commsHistory?.communications;
@@ -77,21 +76,13 @@ class SMSHistory extends Component {
 
 	// #region PRIVATE FUNCTIONS
 
-	/**
-		 * Initialize component
-		 * @return {null} null
-		 */
-	async _initialise() {
-
-	}
-
 	// #endregion
 
 	// #region EVENT HANDLERS
 
 	/**
 	 * Navigate to Landing
-	 * @return {null} null
+	 * @return {void} 
 	 */
 	_backToSummaryPage() {
 		this.dispatchEvent(new CustomEvent(`navigate-back`, { detail: {} }));
@@ -123,7 +114,7 @@ class SMSHistory extends Component {
 	/**
 		 * filter sms history when date is changed
 		 * @param {*} e e
-		 * @return {null} null
+		 * @return {void}
 		 */
 	async _dateChanged(e) {
 		let fromDate = DateTime.fromISO(e.detail.new.startDate === null ? e.detail.old.startDate : e.detail.new.startDate);
@@ -171,7 +162,7 @@ class SMSHistory extends Component {
 
 	/**
 	 * filter the sms history
-	 * @return {null} null
+	 * @return {void}
 	 */
 	_refineSearch() {
 
@@ -208,7 +199,7 @@ class SMSHistory extends Component {
 	/**
 		 * format the give date
 		 * @param {*} date - date to be formatted 
-		 * @return {null} null
+		 * @return {void}
 		 */
 	_formatDate(date) {
 		const newdate = new Date(Date.parse(date));
@@ -218,7 +209,7 @@ class SMSHistory extends Component {
 	/**
 	 * close specified chip
 	 * @param {*} type - filter type 
-	 * @return {null} null
+	 * @return {void}
 	 */
 	_closeChip(type) {
 
@@ -229,7 +220,7 @@ class SMSHistory extends Component {
 	/**
 	 * Clear filter by criteria type
 	 * @param {*} type - filter type
-	 * @return {null} null
+	 * @return {void}
 	 */
 	_clearFilter(type) {
 		const date = () => this._reset();
@@ -247,7 +238,7 @@ class SMSHistory extends Component {
 
 	/**
 	 * reset all filters and load transactions
-	 * @return {null} null
+	 * @return {void}
 	 */
 	async _reset() {
 		if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
@@ -413,7 +404,7 @@ class SMSHistory extends Component {
 
 	/**
 	 * Render the content HTML for the component
-	 * @return {null} null
+	 * @return {html} html
 	 */
 	_renderContent() {
 		return html`
@@ -515,7 +506,7 @@ class SMSHistory extends Component {
 	/**
 	 * renders the date picker to select a date to filter with
 	 * 
-	 * @return {null} null
+	 * @return {html} html
 	 */
 	_renderDatePicker() {
 		return html`
@@ -539,7 +530,7 @@ class SMSHistory extends Component {
 	/**
 	 * render the active filters bar 
 	 * 
-	 * @return {null} null
+	 * @return {html} render active filters 
 	 */
 	_renderActiveFilters() {
 		if (RENDER_CHIPS[FILTER_BY.DATE] !== ``) {
@@ -607,7 +598,7 @@ window.customElements.define(`horizon-insure-sms-history-page`, SMSHistory);
  * When back arrow button is clicked
  *
  * @example
- * <horizon-pay-premium-success-page ... @navigate-back="${this._handler}"></horizon-pay-premium-success-page>
+ * <horizon-insure-sms-history-page ... @navigate-back="${this._handler}"></horizon-insure-sms-history-page>
  *
  * @event PayPremiumSuccess#navigate-back
  * @type {Object} - N/A

@@ -150,7 +150,7 @@ class AuditTransactionHistory extends Component {
 
 	/**
 	 * unload the audit transactions
-	 * @return {null} null
+	 * @return {void} 
 	 */
 	 _unloading() {
 		this.dispatchEvent(new CustomEvent(`unloading`));
@@ -158,7 +158,7 @@ class AuditTransactionHistory extends Component {
 
 	/**
 	 * Navigate back to Policy summary page
-	 * @return {null} null
+	 * @return {void} 
 	 */
 	_backToSummaryPage() {
 		this.dispatchEvent(new CustomEvent(`navigate-back`, {
@@ -170,7 +170,7 @@ class AuditTransactionHistory extends Component {
 	/**
 	 * scroll to top of transactions table
 	 * @param {*} e e
-	 * @return {null} null
+	 * @return {void} 
 	 */
 	_scrollToTop(e) {
 		const element = this.shadowRoot.getElementById(`audit-transactions-table`);
@@ -180,7 +180,7 @@ class AuditTransactionHistory extends Component {
 	/**
 	 * filter transactions when date type is changed
 	 * @param {*} event event
-	 * @return {null} null
+	 * @return {void} 
 	 */
 	_filterByDateType(event) {
 		RENDER_CHIPS[FILTER_BY.DATE_TYPE] = event.detail.new.text;
@@ -190,7 +190,7 @@ class AuditTransactionHistory extends Component {
 	/**
 	 * filter transactions when activity type is changed
 	 * @param {*} event event
-	 * @return {null} null
+	 * @return {void} 
 	*/
 	_filterByActivityType(event) {
 		RENDER_CHIPS[FILTER_BY.ACTIVITY_TYPE] = event.detail.new.text;
@@ -201,7 +201,7 @@ class AuditTransactionHistory extends Component {
 	/**
 	 * filter transactions when date is changed
 	 * @param {object} e event
-	 * @return {null} null
+	 * @return {void} 
 	*/
 	async _dateChanged(e) {
 		let fromDate = DateTime.fromISO(e.detail.new.startDate === null ? e.detail.old.startDate : e.detail.new.startDate);
@@ -322,13 +322,13 @@ class AuditTransactionHistory extends Component {
 				<capitec-select
 					label="${RENDER_CHIPS[FILTER_BY.DATE_TYPE] !== `` ? `` : this.dateLabel}" 
 					class="transaction-status-select margin-right-20"
-					.items="${this.dateTypeOptions}"
-					@focus="${(e) => this.datelabel = ``}"
 					display-field="text"
 					id-field="code"
-					@value-change = "${(e) => this._filterByDateType(e)}"
 					value = "${RENDER_CHIPS[FILTER_BY.DATE_TYPE]}"
 					hint=""
+					.items="${this.dateTypeOptions}"
+					@value-change = "${(e) => this._filterByDateType(e)}"
+					@focus="${(e) => this.datelabel = ``}"
 					data-automation-id="audit-transactions-date-type-filter">
 				</capitec-select>
 
@@ -350,13 +350,13 @@ class AuditTransactionHistory extends Component {
 				<capitec-select
 					label="${RENDER_CHIPS[FILTER_BY.ACTIVITY_TYPE] !== `` ? `` : this.activityTypeLabel}" 
 					class="transaction-status-select margin-right-20"
-					.items="${this.activityTypeOptions}"
-					@focus="${(e) => this.activityTypeLabel = ``}"
 					display-field="text"
 					id-field="code"
-					@value-change = "${(e) => this._filterByActivityType(e)}"
 					value = "${RENDER_CHIPS[FILTER_BY.ACTIVITY_TYPE]}"
 					hint=""
+					.items="${this.activityTypeOptions}"
+					@focus="${(e) => this.activityTypeLabel = ``}"
+					@value-change = "${(e) => this._filterByActivityType(e)}"
 					data-automation-id="audit-transactions-activity-type-filter">
 				</capitec-select>
 			</capitec-group>
@@ -371,11 +371,11 @@ class AuditTransactionHistory extends Component {
 		// TODO: Need to change below code groupBychangeActionedDate once service includes change action date
 		return this.filteredData?.length > 0 
 		? html`
-			<capitec-table
-				.items = "${this.filteredData}"
+				<capitec-table
 				groupField="groupByDate"
 				displayMode="Full"
 				?fixed = "${true}"
+				.items = "${this.filteredData}"
 				.expandRenderer="${(item) => this._renderTransactionDetails(item)}"
 				data-automation-id="audit-transaction-history-table">
 					${this._renderAuditTransHistoryColumns()}
@@ -423,7 +423,7 @@ class AuditTransactionHistory extends Component {
 		/**
 	 * render transaction details of each transaction
 	 * @param {*} item - transaction item
-	 * @return {null} null
+	 * @return {html} html
 	 */
 	_renderTransactionDetails(item) {
 		switch (item.transactionType) {
@@ -1118,7 +1118,7 @@ class AuditTransactionHistory extends Component {
 
 	/**
 	 * Clear all filters
-	 * @return {null} null
+	 * @return {void} 
 	 */
 	_clearFilters() {
 		const activeFilters = this.shadowRoot.getElementById(`active-filters`);
@@ -1135,7 +1135,7 @@ class AuditTransactionHistory extends Component {
 	/**
 	 * Clear filter by criteria type
 	 * @param {*} type - filter type
-	 * @return {null} null
+	 * @return {void} 
 	 */
 	_clearFilter(type) {
 		const date = () => this._reset();
@@ -1161,7 +1161,7 @@ class AuditTransactionHistory extends Component {
 	/**
 	 * close specified chip
 	 * @param {*} type - filter type 
-	 * @return {null} null
+	 * @return {void} 
 	 */
 	_closeChip(type) {
 		this._clearFilter(type);
@@ -1170,7 +1170,7 @@ class AuditTransactionHistory extends Component {
 
 	/**
 	 * reset all filters and load transactions
-	 * @return {null} null
+	 * @return {void} 
 	 */
 	async _reset() {
 		if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
@@ -1188,7 +1188,7 @@ class AuditTransactionHistory extends Component {
 
 	/**
 	 * filter the transactions
-	 * @return {null} null
+	 * @return {void} 
 	*/
 	_refineSearch() {
 

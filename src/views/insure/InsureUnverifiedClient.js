@@ -6,7 +6,7 @@ import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 import { MAX_RESULTS } from 'app/constants/InsureTransactionHistory';
 
-import 'app/components/insure/ClientPolicies';
+import 'app/components/insure/ClientSummary';
 import 'app/components/insure/PolicySummary';
 import 'app/components/insure/PolicyTransactionHistory';
 // import 'app/components/insure/SMSHistory';
@@ -368,11 +368,11 @@ static get properties() {
 	 */
 	 _renderClientPoliciesPage() {
 		return html`
-			<horizon-insure-client-policies .clientPolicies = "${this.clientPolicies}" .readOnlyMode="${this.readOnlyMode}"
+			<horizon-insure-client-summary .clientPolicies = "${this.clientPolicies}" .readOnlyMode="${this.readOnlyMode}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
 				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}">
-			</horizon-insure-client-policies>`;
+			</horizon-insure-client-summary>`;
 	}
 
 	/**

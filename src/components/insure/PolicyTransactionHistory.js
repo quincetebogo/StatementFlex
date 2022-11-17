@@ -162,7 +162,7 @@ class PolicyTransactionHistory extends Component {
 
 	/**
 	 * unload the policy transactions
-	 * @return {null} null
+	 * @return {void}
 	 */
 	_unloading() {
 		this.dispatchEvent(new CustomEvent(`unloading`));
@@ -170,7 +170,7 @@ class PolicyTransactionHistory extends Component {
 
 	/**
 	 * Navigate back to Policy summary page
-	 * @return {null} null
+	 * @return {void}
 	 */
 	_backToSummaryPage() {
 		this.dispatchEvent(new CustomEvent(`navigate-back`, {
@@ -182,7 +182,7 @@ class PolicyTransactionHistory extends Component {
 	/**
 	 * filter transactions when date is changed
 	 * @param {*} e e
-	 * @return {null} null
+	 * @return {void} 
 	 */
 	async _dateChanged(e) {
 		let fromDate = DateTime.fromISO(e.detail.new.startDate === null ? e.detail.old.startDate : e.detail.new.startDate);
@@ -229,7 +229,7 @@ class PolicyTransactionHistory extends Component {
 	/**
 	 * scroll to top of transactions table
 	 * @param {*} e e
-	 * @return {null} null
+	 * @return {void} 
 	 */
 	_scrollToTop(e) {
 		const element = this.shadowRoot.getElementById(`policy-transactions-table`);
@@ -239,7 +239,7 @@ class PolicyTransactionHistory extends Component {
 	/**
 	 * filter transactions when date type is changed
 	 * @param {*} event event
-	 * @return {null} null
+	 * @return {void} 
 	 */
 	_filterByDateType(event) {
 
@@ -349,13 +349,13 @@ class PolicyTransactionHistory extends Component {
 				<capitec-select
 					label="${RENDER_CHIPS[FILTER_BY.DATE_TYPE] !== `` ? `` : this.dateLabel}" 
 					class="transaction-status-select"
-					.items="${this.dateTypeOptions}"
-					@focus="${(e) => this.datelabel = ``}"
 					display-field="text"
 					id-field="code"
-					@value-change = "${(e) => this._filterByDateType(e)}"
 					value = "${RENDER_CHIPS[FILTER_BY.DATE_TYPE]}"
 					hint=""
+					.items="${this.dateTypeOptions}"
+					@focus="${(e) => this.datelabel = ``}"
+					@value-change = "${(e) => this._filterByDateType(e)}"
 					data-automation-id="transaction-status-filter">
 				</capitec-select>
 
@@ -435,7 +435,7 @@ class PolicyTransactionHistory extends Component {
 
 	/**
 	 * Clear all filters
-	 * @return {null} null
+	 * @return {void} 
 	 */
 	_clearFilters() {
 		const activeFilters = this.shadowRoot.getElementById(`active-filters`);
@@ -452,7 +452,7 @@ class PolicyTransactionHistory extends Component {
 	/**
 	 * Clear filter by criteria type
 	 * @param {*} type - filter type
-	 * @return {null} null
+	 * @return {void} 
 	 */
 	_clearFilter(type) {
 		const date = () => this._reset();
@@ -474,7 +474,7 @@ class PolicyTransactionHistory extends Component {
 	/**
 	 * close specified chip
 	 * @param {*} type - filter type 
-	 * @return {null} null
+	 * @return {void} 
 	 */
 	_closeChip(type) {
 		this._clearFilter(type);
@@ -483,7 +483,7 @@ class PolicyTransactionHistory extends Component {
 
 	/**
 	 * reset all filters and load transactions
-	 * @return {null} null
+	 * @return {void} 
 	 */
 	async _reset() {
 		if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
@@ -507,10 +507,10 @@ class PolicyTransactionHistory extends Component {
 		return this.filteredData?.length > 0
 			? html`
 			<capitec-table
-				.items = "${this.filteredData}"
 				groupField="groupByPremiumDate"
 				displayMode="Full"
 				?fixed = "${true}"
+				.items = "${this.filteredData}"
 				.expandRenderer="${(item) => this._renderTransactionDetails(item)}"
 				data-automation-id="transaction-history-table">
 					${this._renderPolicyTransHistoryColumns()}
@@ -523,7 +523,7 @@ class PolicyTransactionHistory extends Component {
 	/**
 	 * render transaction details of each transaction
 	 * @param {*} item - transaction item
-	 * @return {null} null
+	 * @return {void} 
 	 */
 	_renderTransactionDetails(item) {
 		return html`
@@ -684,7 +684,7 @@ class PolicyTransactionHistory extends Component {
 
 	/**
 	 * load more transaction when clicked on load more button
-	 * @return {null} null
+	 * @return {void} 
 	 */
 	async _loadMoreTransactions() {
 		const oldCount = this.policyTransactionHistory?.transactions?.length;
@@ -705,7 +705,7 @@ class PolicyTransactionHistory extends Component {
 
 	/**
 	 * filter the transactions
-	 * @return {null} null
+	 * @return {void} 
 	 */
 	_refineSearch() {
 

@@ -39,7 +39,7 @@ class UpdatePlanSuccess extends Component {
 
 	/**
 	 * Navigate to Client Landing
-	 * @return {null} null
+	 * @return {void} 
 	 */
 	_backToSummaryPage() {
 		this.dispatchEvent(new CustomEvent(`navigate-back`, { detail: {} }));
@@ -124,7 +124,7 @@ class UpdatePlanSuccess extends Component {
 
 	/**
 	 * Render the content HTML for the component
-	 * @return {null} null
+	 * @return {html} html
 	 */
 	_renderContent() {
 		return html`
@@ -162,7 +162,7 @@ class UpdatePlanSuccess extends Component {
 
 	/** 
 	 * Render dialog for confirming email address then sending
-	 * @return {null} null
+	 * @return {html} html
 	 */
 	_renderInsureEmailDialog() {
 		return this.showEmailPlanDialog === false ? `` 

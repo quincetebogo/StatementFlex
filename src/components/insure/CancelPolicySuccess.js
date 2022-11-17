@@ -71,7 +71,7 @@ class CancelPolicySuccess extends Component {
 
 	/**
 	 * Event to open the email plan dialog
-	 * @returns {null} null
+	 * @return {void} 
 	 */
 	_openEmailPlanDialog() {
 		this.titleMessage = `Email Funeral Plan (${this.contractReference})`;
@@ -81,7 +81,7 @@ class CancelPolicySuccess extends Component {
 
 	/**
 	 * Event to close the email plan dialog
-	 * @returns {null} null
+	 * @return {void} 
 	 */
 	_closeEmailPlanDialog() {
 		this.showEmailPlanDialog = false;
@@ -91,7 +91,7 @@ class CancelPolicySuccess extends Component {
 	 * Invoke this function when Send button is clicked on Email Popup
 	 * 
 	 * @param {*} emailAddress email address
-	 * @returns {null} null
+	 * @return {void} 
 	 */
 	_sendEmail(emailAddress) {
 		this.callerPage = INSURE_CALLER_PAGE.CANCEL_POLICY;
@@ -178,7 +178,7 @@ class CancelPolicySuccess extends Component {
 	/**
 	 * Render Dialogs
 	 * 
-	 * @returns {null} null
+	 * @return {html} html
 	 */
 	_renderDialogs() {
 		return html`
@@ -212,14 +212,16 @@ class CancelPolicySuccess extends Component {
 
 	/**
 	 * Render the email plan dialog
-	 * @returns {null} null 
+	 * @return {html} html
 	 */
 	_renderEmailPlanDialog() {
 		return this.showEmailPlanDialog === false ? ``
 			: html`
-			<insure-email-dialog @close-modal="${(e) => this.showEmailPlanDialog = false}"
-				@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}"
-				.contractReference = "${this.contractReference}" .titleMessage = "${this.titleMessage}">
+			<insure-email-dialog 
+				.contractReference = "${this.contractReference}" 
+				.titleMessage = "${this.titleMessage}"
+				@close-modal="${(e) => this.showEmailPlanDialog = false}"
+				@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}">
 			</insure-email-dialog>
 		`;
 	}
@@ -227,13 +229,13 @@ class CancelPolicySuccess extends Component {
 	// #endregion
 
 }
-window.customElements.define(`insure-cancel-policy-success`, CancelPolicySuccess);
+window.customElements.define(`horizon-insure-cancel-policy-success`, CancelPolicySuccess);
 
 /**
  * Navigate back to client policies when 'Issue Policy' is clicked
  *
  * @example
- * <insure-cancel-policy-success ... @navigate-back="${this._handler}"></insure-cancel-policy-success>
+ * <horizon-insure-cancel-policy-success ... @navigate-back="${this._handler}"></horizon-insure-cancel-policy-success>
  *
  * @event CancelPolicySuccess#navigate-back
  * @type {Object} - N/A

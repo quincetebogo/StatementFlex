@@ -14,7 +14,7 @@ import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { SavingsService } from 'app/services/SavingsService';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
-import 'app/components/insure/ClientPolicies';
+import 'app/components/insure/ClientSummary';
 import 'app/components/insure/PolicyEstimate';
 import 'app/components/insure/UpdatePlan';
 import 'app/components/insure/PolicySummary';
@@ -1390,7 +1390,7 @@ export class ExistingClient extends InsureViewBase {
 		}
 
 		return html`
-			<horizon-insure-client-policies 
+			<horizon-insure-client-summary 
 				.clientClaims="${this.claims}"
 				.clientPolicies="${this.clientPolicies}"
 				.cancelPolicyDocumentDetails="${this.cancelPolicyDocumentDetails}" 
@@ -1409,7 +1409,7 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
 				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}"
 				@send-email = "${(e) => this._sendEmail(e)}">
-			</horizon-insure-client-policies>`;
+			</horizon-insure-client-summary>`;
 	}
 
 	/**
@@ -1470,11 +1470,11 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderCancelPolicySuccessPage() {
 		return html`
-			<insure-cancel-policy-success
+			<horizon-insure-cancel-policy-success
 				.contractReference = ${this.contractReference}
 				@send-email = "${(e) => this._sendEmail(e)}" 
 				@navigate-to-summary="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
-			</insure-cancel-policy-success>`;
+			</horizon-insure-cancel-policy-success>`;
 	}
 
 	/**
@@ -1483,12 +1483,12 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderEmailSuccessPage() {
 		return html`
-			<insure-email-plan-success 
+			<horizon-insure-email-plan-success 
 				.contractReference = ${this.contractReference}
 				.confirmedEmail="${this.confirmedEmail}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-back="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
-			</insure-email-plan-success>
+			</horizon-insure-email-plan-success>
 		`;
 	}
 
@@ -1498,13 +1498,13 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_renderPayPremiumSuccessPage() {
 		return html`
-			<horizon-pay-premium-success-page 
+			<horizon-insure-pay-premium-success-page 
 				.amountToPay = "${this.amountToPay}" 
 				.contractReference = "${this.contractReference}"
 				@send-email= "${(e) => this._sendEmail(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-back="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
-			</horizon-pay-premium-success-page>
+			</horizon-insure-pay-premium-success-page>
 		`;
 	}
 
@@ -1552,6 +1552,7 @@ export class ExistingClient extends InsureViewBase {
 			</horizon-insure-claim-summary>`;
 	}
 
+	// TODO check if this is needed
 	/**
 	 * Render Update Plan Success page
 	 * @return {html} Html of the sub view
