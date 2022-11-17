@@ -288,7 +288,7 @@ const UNLOCK_OPTIONS = {
 	}
 
 	_formatAmount(amount) {
-		if (amount) {
+		if (!isNaN(amount) && amount !== null) {
 			return `${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
 		}
 	}
@@ -873,7 +873,7 @@ const UNLOCK_OPTIONS = {
 					<capitec-text-field
 						data-automation-id="unlock-ftsp-unlock-fee"
 						label="Penalty fee"
-						type="${this.unlockFee ? `currency` : ``}"
+						type="currency"
 						value="${this._formatAmount(this.unlockFee)}"
 						?disabled=${true}>
 					</capitec-text-field>

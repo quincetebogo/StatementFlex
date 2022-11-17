@@ -75,7 +75,7 @@
 			"positiveCase": true
 		},
 		"searchCaller": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"identifyCaller": {
@@ -168,7 +168,7 @@
 			"positiveCase": true
 		},
 		"savingsPlanLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"tapToPayLanding": {
@@ -260,15 +260,15 @@
 			"positiveCase": false
 		},
 		"ftspUnlockOptions": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"ftspUnlockQuote": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"ftspUnlockAgreement": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"ftspUnlock": {
