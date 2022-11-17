@@ -5,6 +5,7 @@ import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/SuccessScreen';
+import 'app/components/common/RelatedOptions';
 
 /**
  * Display an confirmation/success screen indicating the selected debicheck mandate have been successfully declined/approved.

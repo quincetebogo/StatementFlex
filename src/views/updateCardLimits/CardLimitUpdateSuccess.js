@@ -2,6 +2,7 @@ import { css, html } from 'platform/elements';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
+import 'app/components/common/RelatedOptions';
 
 export class SuccessfulCardLimitUpdate extends ViewBase {
 

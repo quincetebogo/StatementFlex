@@ -5,6 +5,7 @@ import { OutcomeBase } from 'app/views/common/OutcomeBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 import 'app/components/common/SuccessScreen';
+import 'app/components/common/RelatedOptions';
 
 
 /**
