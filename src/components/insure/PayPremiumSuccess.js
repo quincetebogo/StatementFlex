@@ -80,7 +80,7 @@ class PayPremiumSuccess extends Component {
 
 /**
  * Navigate to Landing
- * @returns {void} null
+ * @returns {void} 
  */
 _backToSummaryPage() {
 	this.dispatchEvent(new CustomEvent(`navigate-back`, { detail: {} }));
@@ -89,7 +89,7 @@ _backToSummaryPage() {
 /**
  * Invoke this function when Send button is clicked on Email Popup
  * @param {*} emailAddress email address
- * @returns {void} null
+ * @returns {void} 
  */
  _sendEmail(emailAddress) {
 	this.callerPage = INSURE_CALLER_PAGE.PAY_PREMIUM;
@@ -99,7 +99,7 @@ _backToSummaryPage() {
 
 /**
  * open email plan dialog event
- * @returns {void} null
+ * @returns {void} 
  */
 _openEmailPlanDialog() {
 	this.titleMessage = `Email Funeral Plan (${this.contractReference})`;
@@ -109,7 +109,7 @@ _openEmailPlanDialog() {
 
 /**
  * close email dialog event
- * @returns {void} null
+ * @returns {void} 
  */
 _closeEmailPlanDialog() {
 
@@ -198,6 +198,7 @@ _viewPlan() {
 		`;
 	}
 
+	// TODO: fix inline styling for icon
 	/**
 	 * Render the content HTML for the component
 	 * @returns {html} html content
