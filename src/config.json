@@ -221,7 +221,7 @@
 			"positiveCase": true
 		},
 		"insureClientSummary": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureProductParams": {

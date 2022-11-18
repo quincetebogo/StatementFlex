@@ -871,6 +871,11 @@ class ClientSummary extends Component {
 			#policies-container{
 				margin-bottom:20px;
 			}
+
+			capitec-icon.default {
+				width: 44px;
+				height: 38px;
+			}
 			`
 		];
 	}
@@ -1109,11 +1114,12 @@ class ClientSummary extends Component {
 			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
 				${policyItem.showOptions?.map((option) => html`${this._getOptions(option, policyItem)}`)}
 				${moreOptions?.length > 0 ? html`
-					<capitec-card class="action-card">
+					<capitec-card class="action-card" style="gap: 0px;">
 						<capitec-overflow-menu label="More" data-automation-id = "insure-policy-more-sub-menu">
 							${moreOptions?.map((option) => html`${this._getMoreOptions(option, policyItem)}`)}
 						</capitec-overflow-menu>
-						<capitec-label label="More" class="label-text">
+						<capitec-label label="More" class="label-text" style="font-size: 16px;
+    font-weight: 500; margin-bottom: 9px;">
 						</capitec-label>
 					</capitec-card>` : ``}
 			</capitec-group>`;
