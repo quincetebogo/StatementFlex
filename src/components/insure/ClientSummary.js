@@ -552,7 +552,7 @@ class ClientSummary extends Component {
 	/**
 	 * displays the CFP disclosure
 	 * @param {String} flow flow
-	 * @param {Object} policyItem policy item
+	 * @param {Object} [policyItem = null] policy item
 	 * @returns {void}
 	 */
 	_displayCFPDisclosure(flow, policyItem = null) {

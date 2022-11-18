@@ -523,7 +523,7 @@ class PolicyTransactionHistory extends Component {
 	/**
 	 * render transaction details of each transaction
 	 * @param {*} item - transaction item
-	 * @return {void} 
+	 * @return {html} html
 	 */
 	_renderTransactionDetails(item) {
 		return html`

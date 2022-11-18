@@ -160,22 +160,16 @@ class InsureAccountSelect extends Component {
 	/**
 	 * Event that flips the chevron depending on whether the select box is open or closed
 	 * 
-	 * @returns {string} string
+	 * @returns {string} selected system icon
 	 */
 	_chevronChange() {
-
-		// if (this.displayOptions == false) {
-		// return "system/chevron-down-action";
-		// } else if(this.displayOptions == true){
-			
-		// }
 		return this.displayOptions ? `system/chevron-up-action` : `system/chevron-down-action`;
 	}
 
 	/**
 	 * event that changes the style of the select box depending on if the selected account has sufficient funds
 	 * 
-	 * @returns {string} string
+	 * @returns {string} css class
 	 */
 	_setStyle() {
 		return this.insufficient ? `select-header-insufficient` : `select-header`;

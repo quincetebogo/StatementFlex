@@ -9,7 +9,7 @@ import { formatDate } from 'app/utils/channelServiceUtilities';
  * claim-selected
  *  
  * @export
- * @class InsureClientClaimsSummary
+ * @class ClientClaimsSummary
  * @extends {Component}
  */
 

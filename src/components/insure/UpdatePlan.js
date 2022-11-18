@@ -1868,7 +1868,7 @@ class UpdatePlan extends Component {
 							</div>
 
 							<!-- Beneficiaries -->
-							${this.policyDetails.roleplayers.map((beneficiary, index) => html` ${beneficiary.beneficiary === true
+							${this.policyDetails.roleplayers.map((beneficiary) => html` ${beneficiary.beneficiary === true
 				? html`
 									${this.canReinstate ? ``
 						: html`<capitec-label label="Remove" @click="${() => this._openRemoveBeneficiaryDialog(beneficiary)}"
