@@ -239,8 +239,11 @@ import 'app/components/common/HorizonLabel';
 					--horizon-label-value-line-height: 20px;
 					--horizon-label-value-color:#3A3A3A;
 				}
+				horizon-label[label="Status"] {
+					width: 116px;
+				}
 				#budget-name-label {
-					width: 284px;
+					width: 253px;
 					--theme-label-cursor: pointer;
 					--theme-label-font-color: #3A3A3A;
 					padding: 12px 0px 12px 16px;
@@ -248,7 +251,7 @@ import 'app/components/common/HorizonLabel';
 					height: 100%;
 				}
 				.budget-name-label-value {
-					width: 284px;
+					width: 236px;
 					display: inline-block;
 					white-space: nowrap;
 					overflow: hidden;
@@ -279,7 +282,7 @@ import 'app/components/common/HorizonLabel';
 				.account-details-tile {
 					margin: 16px 16px 0px 16px;
 					width: 1032px;
-					height: fit-content;
+					height: 64px;
 					border: 1px solid #e1e1e1;
 					border-radius: 4px;
 					padding: 0px 16px;
@@ -289,6 +292,7 @@ import 'app/components/common/HorizonLabel';
 					cursor: pointer;
 				}
 				.account-details-tile > capitec-button {
+					width: 90px;
 					--theme-button-font-weight: 600;
 				}
 				.account-details-tile > capitec-button[disabled] {
@@ -464,6 +468,12 @@ import 'app/components/common/HorizonLabel';
 					value="${formatCurrency(budgetAccount.budgetBalance)}">
 				</horizon-label>
 
+				<horizon-label
+					data-automation-id="budget-facility-status"
+					label="Status"
+					value="${formatStringAsPascalCase(budgetAccount.status)}">
+				</horizon-label>
+
 				<capitec-spacer></capitec-spacer> 
 				
 				<capitec-button
@@ -471,7 +481,7 @@ import 'app/components/common/HorizonLabel';
 					type="clear"
 					label="Transfer"
 					@click="${() => this._transferClick(budgetAccount)}"
-					?disabled="${this.shouldDisable(`pay-budget`)}"
+					?disabled="${this.shouldDisable(`pay-budget`)}">
 				</capitec-button>
 			</capitec-group>`;
 	}
