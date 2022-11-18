@@ -1,8 +1,8 @@
 import { ACTIVITY_TYPE, ACTIVITY_TYPE_LIST, AUDIT_DATE_TYPE_LIST, DEFAULTS, FILTER_BY, MAX_RESULTS, NINETY_DAYS, RENDER_CHIPS } from 'app/constants/InsureTransactionHistory';
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, INSURE_TRANSACTIONS_CSS, TABLE_EXPANDER_CELL } from 'app/css/PolicyTransactionHistory';
-import { _getDateRange, getPredefinedDateRanges } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { getDateRangeDisplayValue, getPredefinedDateRanges } from 'app/utils/insureUtils';
 import { DateTime } from 'luxon';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
@@ -124,7 +124,7 @@ class AuditTransactionHistory extends Component {
 		this.startDate = new Date(Date.now() - NINETY_DAYS).toISOString();
 		this.endDate = new Date().toISOString();
 
-		RENDER_CHIPS[FILTER_BY.DATE] = _getDateRange(this.startDate, this.endDate);
+		RENDER_CHIPS[FILTER_BY.DATE] = getDateRangeDisplayValue(this.startDate, this.endDate);
 
 		// Making sure no baggage is carried from the previous instance.
 		RENDER_CHIPS[FILTER_BY.DATE_TYPE] = this.dateTypeOptions[0].text;
@@ -240,7 +240,7 @@ class AuditTransactionHistory extends Component {
 			this.endDate = toDate;
 		}
 
-		RENDER_CHIPS[FILTER_BY.DATE] = _getDateRange(this.startDate, this.endDate);
+		RENDER_CHIPS[FILTER_BY.DATE] = getDateRangeDisplayValue(this.startDate, this.endDate);
 		
 		await this._refineSearch();
 	}

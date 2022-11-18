@@ -59,11 +59,6 @@ export const RENDER_CHIPS = {
 };
 
 /**
- * Current date
- */
-export const TODAY_DATE = new Date();
-
-/**
  * Available activity types code and text {@link InsureTransactionHistory}
  * 
  * @readonly
