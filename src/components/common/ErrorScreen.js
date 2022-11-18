@@ -24,6 +24,7 @@ export class ErrorScreen extends Component {
 		this.image = null;
 		this.hasSubDetails = ``;
 		this.secondaryToast = ``;
+		this.disableLeftAction = false;
 	}
 
 	// -------------------
@@ -60,7 +61,8 @@ export class ErrorScreen extends Component {
 			displayToast: { type: Boolean },
 			image: { type: String },
 			hasSubDetails: { type: Boolean },
-			secondaryToast: { type: String }
+			secondaryToast: { type: String },
+			disableLeftAction: { type: Boolean, attribute: `disable-left-action` }
 		};
 	}
 
@@ -81,23 +83,16 @@ export class ErrorScreen extends Component {
 					height: var(--horizon-error-screen-height, 744px);
 					width: var(--horizon-center-panel-width, 1064px);
 				}
-				#id-verify-unsuccessful {
-					height: 32px;
-					width: 312px;
-					margin: 0px auto 0px auto;
-					margin-top:51px;
-					width: 100%;
-				}
 				.card > capitec-group[layout="vertical"] {
 					height: var(--horizon-error-screen-size, 768px);
 				}
 				#id-unsuccessful-img {
-					width: auto;
+					width: var(--horizon-error-screen-img-width, auto);
 				}
 				#id-verify-unsuccessful {
+					width: 100%;
 					height: 32px;
-					margin: 0px auto 0px auto;
-					margin-top: 51px;
+					margin-top: var(--horizon-error-screen-label-margin-top, 51px);
 					color: #3E4547;
 					font-family: "Hind Vadodara";
 					font-size: 24px;
@@ -116,7 +111,7 @@ export class ErrorScreen extends Component {
 				}
 				#id-button-group {
 					justify-content: center;
-					margin-top: 35px;
+					margin-top: var(--horizon-error-screen-action-margin-top, 35px);
 				}
 				.button{
 					height: 48px;
@@ -210,7 +205,9 @@ export class ErrorScreen extends Component {
 
 					<capitec-group id="id-button-group" layout="horizontal">
 						${this.left
-							? html`<capitec-button class="button" label="${this.left}" @click="${() => this._leftClick()}"></capitec-button>`
+							? html`<capitec-button class="button" label="${this.left}" @click="${() => this._leftClick()}"
+										?disabled="${this.disableLeftAction}">
+									</capitec-button>`
 							: html``
 						}
 						${this.right
