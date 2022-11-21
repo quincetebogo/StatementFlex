@@ -158,6 +158,7 @@ export class ExistingClient extends InsureViewBase {
 		this.commsHistory = await this._retrieveCommsHistory();
 		this.claims = await this._retrieveClaims();
 
+		console.log(this.callerInformation);
 	}
 
 	/**
@@ -1195,6 +1196,11 @@ export class ExistingClient extends InsureViewBase {
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.email = e.detail.emailId.detail.emailAddress;
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.cifNumber = this.callerInformation.cifNumber;
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.contractReference;
+		EMAIL_DOCUMENT_REQUEST_PAYLOAD.title = this.callerInformation.title;
+		EMAIL_DOCUMENT_REQUEST_PAYLOAD.firstName = this.callerInformation.firstName;
+		EMAIL_DOCUMENT_REQUEST_PAYLOAD.surname = this.callerInformation.lastName;
+		EMAIL_DOCUMENT_REQUEST_PAYLOAD.gender = this.callerInformation.gender;
+
 
 		this._getAgreementAttachments(this.callerPage, EMAIL_DOCUMENT_REQUEST_PAYLOAD, e.detail.docContent);
 		const emailResponse = await this.insureService.emailFuneralDocuments(EMAIL_DOCUMENT_REQUEST_PAYLOAD);
