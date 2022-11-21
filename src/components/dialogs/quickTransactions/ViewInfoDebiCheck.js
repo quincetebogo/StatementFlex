@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
-import { convertCentsToRand, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { convertCentsToRand, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+
 
 import 'platform/components/popups/Modal';
 
@@ -99,7 +100,7 @@ export class ViewInfoDebiCheck extends Component {
 			"Collector contact number": this.debiCheckDetails.collectorContact,
 			"Collector email address": this.debiCheckDetails.collectorEmail,
 			"Collector account number": this.debiCheckDetails.debtorAccountNumber,
-			"Secondary status": this.debiCheckDetails.secondaryStatus,
+			"Secondary status": formatStringAsPascalCase(this.debiCheckDetails.secondaryStatus),
 			"Adjustment amount": formatCurrency(convertCentsToRand(this.debiCheckDetails.adjustmentAmount)),
 			"Mandate request transaction identifier": this.debiCheckDetails.mandateRequestTransactionIdentifier
 		};
@@ -122,14 +123,14 @@ export class ViewInfoDebiCheck extends Component {
 
 		this.creditorDetails = {
 			"Creditor name": this.debiCheckDetails.creditorUltimateName,
-			"Mandate status": this.debiCheckDetails.mandateStatus,
+			"Mandate status": formatStringAsPascalCase(this.debiCheckDetails.mandateStatus),
 			"Contract reference": this.debiCheckDetails.contractReference,
 			"Creditor telephone number": this.debiCheckDetails.creditorTelephoneNo,
 			"Creditor short name": this.debiCheckDetails.creditorUltimateName,
 			"Mandate reference": this.debiCheckDetails.mandateReference,
 			"Ultimate creditor name": this.debiCheckDetails.ultimateCreditorName,
 			"Creditor email": this.debiCheckDetails.collectorEmail,
-			"Secondary status": this.debiCheckDetails.secondaryStatus,
+			"Secondary status": formatStringAsPascalCase(this.debiCheckDetails.secondaryStatus),
 			"MRTI": this.debiCheckDetails.mrti
 		};
 
@@ -176,6 +177,63 @@ export class ViewInfoDebiCheck extends Component {
 				--theme-container-padding-top: 4px;
 				--theme-tab-border-bottom: 1px solid #E1E1E1;
 			}
+			horizon-label[value ="Pending"] {
+				--horizon-label-value-color: #D4781C;
+			}
+			horizon-label[value ="Active"]{
+				--horizon-label-value-color: #70AF00;
+			}
+			horizon-label[value ="Inactive"] {
+				--horizon-label-value-color: #A5132A;
+			}
+			horizon-label[value="Notapplicable"] {
+
+				--horizon-label-value-color: #D4781C;
+
+			}
+
+			horizon-label[value="Updated"] {
+
+				--horizon-label-value-color: #D4781C;
+
+			}
+
+			horizon-label[value="Cancelled"] {
+
+				--horizon-label-value-color:#C83B37;
+
+			}
+
+			horizon-label[value="Rejected"] {
+
+				--horizon-label-value-color:#C83B37;
+
+			}
+
+			horizon-label[value="Declined"] {
+
+				--horizon-label-value-color: #C83B37;
+
+			}
+
+			horizon-label[value="Expired"] {
+
+				--horizon-label-value-color:#C83B37;
+
+			}
+
+			horizon-label[value="Duplicate"] {
+
+				--horizon-label-value-color: #D4781C;
+
+			}
+
+			horizon-label[value="Accepted"] {
+
+				--horizon-label-value-color: #70AF00;
+
+			}
+			
 			horizon-label {
 				height: 64px;
 				width: 341px;

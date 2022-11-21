@@ -19,7 +19,11 @@ const MANDATE_STATUS = {
 	ACTIVE: `Accepted`,
 	INACTIVE: `Expired`,
 	PENDING: `Pending`,
-	SUSPENDED: `Declined`
+	SUSPENDED: `Expired`
+};
+
+const SECONDARY_STATUS = {
+	DECLINED: `Declined`
 };
 
 /**
@@ -124,7 +128,7 @@ export class DebiCheckMandates extends Component {
 			this.pendingMandates = this._lookForSearchText(MANDATE_STATUS.PENDING, searchText);
 			this.activeMandates = this._lookForSearchText(MANDATE_STATUS.ACTIVE, searchText);
 			this.inActiveMandates = this._lookForSearchText(MANDATE_STATUS.INACTIVE, searchText);
-			this.declinedMandates = this._lookForSearchText(MANDATE_STATUS.SUSPENDED, searchText);
+			this.declinedMandates = this._lookForSearchText(MANDATE_STATUS.INACTIVE, searchText, SECONDARY_STATUS.DECLINED);
 		}
 		this.requestUpdate();
 	}
@@ -145,16 +149,16 @@ export class DebiCheckMandates extends Component {
 		this.pendingMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.PENDING);
 		this.pendingMandates.sort((a, b) => b.canBeAuthenticated - a.canBeAuthenticated);
 		this.activeMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.ACTIVE);
-		this.inActiveMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.INACTIVE);
-		this.declinedMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.SUSPENDED);
+		this.inActiveMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.INACTIVE && SECONDARY_STATUS[item.secondaryStatus] !== SECONDARY_STATUS.DECLINED);
+		this.declinedMandates = this.debiCheckMandates.filter(item => SECONDARY_STATUS[item.secondaryStatus] === SECONDARY_STATUS.DECLINED);
 	}
 	
 	_formatCollectionDate(collectionDate) {
 		return `${collectionDate.day}${getDateOrdinal(collectionDate.day)} of each ${collectionDate.frequency}`;
 	}
 
-	_lookForSearchText(status, searchText) {
-		return this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === status &&
+	_lookForSearchText(status, searchText, secondaryStatus) {
+		return this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === status && SECONDARY_STATUS[item.secondaryStatus] === secondaryStatus &&
 											  (item.mandateName.toLowerCase().indexOf(searchText) !== -1 ||
 											   parseFloat(item.amount).toFixed(2).startsWith(searchText) ||
 											   parseFloat(item.maxCollectionAmount).toFixed(2).startsWith(searchText)));
